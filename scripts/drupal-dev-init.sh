@@ -55,6 +55,14 @@ shorten () {
 questions() {
   CURDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+ if [ "$1" != "" ] ; then
+  local site_name=$1
+  local site_short=$(shorten "$site_name")
+  local site_theme=$site_short
+  local site_url=${site_short//_/-}
+  local org=$site_short
+  local org_short=$(shorten "$org")
+ else
   local site_name=$(ask "What is your site name?")
   [ "$site_name" == "" ] && echo "Site name is required" && exit 1
   local site_short=$(shorten "$site_name")
@@ -64,6 +72,7 @@ questions() {
   site_url=$(ask "What is your site URL? [$site_url]" $site_url)
   local org=$(ask "What is your organization name? [$site_short] " $site_short)
   local org_short=$(shorten "$org")
+ fi
 
   echo
   echo -n "Replacing placeholders in files"
@@ -79,4 +88,4 @@ questions() {
   echo "complete"
 }
 
-questions
+questions "$1"
