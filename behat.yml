@@ -1,0 +1,47 @@
+default:
+  autoload: [ %paths.base%/tests/behat/bootstrap ]
+  gherkin:
+    filters:
+      # Allow skipping tests by tagging them with "@skipped"
+      tags: "~@skipped"
+  suites:
+    default:
+      paths: [ %paths.base%/tests/behat/features ]
+      contexts:
+        - FeatureContext
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MarkupContext
+        - Drupal\DrupalExtension\Context\MessageContext
+        - IntegratedExperts\BehatScreenshotExtension\Context\ScreenshotContext
+
+  extensions:
+    Behat\MinkExtension:
+      goutte: ~
+        files_path: docroot
+      base_url: http://local.MYSITEURL
+      browser_name: chrome
+      selenium2:
+        wd_host: "http://localhost:4444/wd/hub"
+        capabilities: { "browser": "chrome", "version": "*" }
+      javascript_session: selenium2
+    # Provides integration with Drupal APIs.
+    Drupal\DrupalExtension:
+      blackbox: ~
+      api_driver: drupal
+      drush_driver: drush
+      drupal:
+        drupal_root: docroot
+      drush:
+        root: docroot
+      selectors:
+        message_selector: '.messages'
+        error_message_selector: '.messages.error'
+        success_message_selector: '.messages.status'
+        warning_message_selector: '.messages.warning'
+    # Allows to capture HTML and JPG screenshots (based on the driver used).
+    IntegratedExperts\BehatScreenshotExtension:
+      dir: %paths.base%/screenshots
+      fail: true
+      purge: false
+    # Show explicit fail information and continue the test run.
+    IntegratedExperts\BehatFormatProgressFail\FormatExtension: ~
