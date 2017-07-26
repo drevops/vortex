@@ -26,3 +26,9 @@ Vagrantfile
 # Ignore dependencies cache files
 vendor
 node_modules
+
+# Ignore dependencies locking.
+# Remove these lines if exact dependencies are required (usually after setting
+# up the baseline of the project).
+composer.lock
+package-lock.json
