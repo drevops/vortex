@@ -1,0 +1,17 @@
+{
+  "name": "MYSITE",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NPM dependencies for MYSITE project",
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "sass-lint": "^1.10.2",
+    "grunt": "^1.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-exec": "^1.0.1",
+    "grunt-sass": "^1.2.1",
+    "grunt-sass-globbing": "^1.5.1"
+  }
+}
