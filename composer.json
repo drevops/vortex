@@ -1,5 +1,5 @@
 {
-  "name": "MYORGANIZATION/MYSITE",
+  "name": "myorg/mysite",
   "description": "Drupal 7 site for MYSITE",
   "repositories": [
     {
@@ -21,7 +21,7 @@
     {
       "type": "package",
       "package": {
-        "name": "MYORGANIZATION/patches",
+        "name": "myorg/patches",
         "version": "1.0.0",
         "type": "metapackage",
         "extra": {
@@ -57,7 +57,7 @@
     "drupal/wysiwyg": "^2.4",
     "library/ckeditor": "^4.6.2",
     "netresearch/composer-patches-plugin": "1.2.1",
-    "MYORGANIZATION/patches": "*"
+    "myorg/patches": "*"
   },
   "require-dev": {
     "beet/box": ">=0.6.0",
