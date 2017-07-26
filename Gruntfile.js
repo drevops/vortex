@@ -8,7 +8,7 @@
  */
 
 /* global module */
-var themePath = 'docroot/sites/all/themes/custom/MYSITETHEME/';
+var themePath = 'docroot/sites/all/themes/custom/mysitetheme/';
 var libraryPath = 'docroot/sites/all/libraries/';
 module.exports = function (grunt) {
   'use strict';
@@ -34,9 +34,9 @@ module.exports = function (grunt) {
           // Uncomment below to include libraries.
           // libraryPath + 'bootstrap/assets/javascripts/bootstrap.js',
           themePath + 'js/**/*.js',
-          '!' + themePath + 'js/MYSITETHEME.min.js'
+          '!' + themePath + 'js/mysitetheme.min.js'
         ],
-        dest: themePath + 'js/MYSITETHEME.min.js'
+        dest: themePath + 'js/mysitetheme.min.js'
       }
     },
     uglify: {
@@ -50,14 +50,14 @@ module.exports = function (grunt) {
           }
         },
         files: {
-          [themePath + 'js/MYSITETHEME.min.js']: [themePath + 'js/MYSITETHEME.min.js']
+          [themePath + 'js/mysitetheme.min.js']: [themePath + 'js/mysitetheme.min.js']
         }
       }
     },
     sass: {
       dev: {
         files: {
-          [themePath + 'css/MYSITETHEME.min.css']: themePath + 'scss/style.scss'
+          [themePath + 'css/mysitetheme.min.css']: themePath + 'scss/style.scss'
         },
         options: {
           sourceMap: true,
@@ -66,7 +66,7 @@ module.exports = function (grunt) {
       },
       prod: {
         files: {
-          [themePath + 'css/MYSITETHEME.min.css']: themePath + 'scss/style.scss'
+          [themePath + 'css/mysitetheme.min.css']: themePath + 'scss/style.scss'
         },
         options: {
           sourceMap: false,

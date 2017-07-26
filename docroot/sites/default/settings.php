@@ -40,7 +40,7 @@ if (file_exists('/var/www/site-php')) {
   // Delay the initial database connection.
   $conf['acquia_hosting_settings_autoconnect'] = FALSE;
   // The standard require line goes here.
-  require '/var/www/site-php/MYSITE/MYSITE-settings.inc';
+  require '/var/www/site-php/mysite/mysite-settings.inc';
   switch ($_ENV['AH_SITE_ENVIRONMENT']) {
     case 'dev':
       $conf['environment'] = ENVIRONMENT_DEV;

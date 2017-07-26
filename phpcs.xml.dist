@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="MYSITE">
+<ruleset name="mysite">
   <description>PHPCS Standard for MYSITE website, based on Drupal standards.
   </description>
 
@@ -56,6 +56,9 @@
     <exclude-pattern>settings\.php</exclude-pattern>
   </rule>
   <rule ref="Drupal.Commenting.InlineComment.InvalidEndChar">
+    <exclude-pattern>settings\.php</exclude-pattern>
+  </rule>
+  <rule ref="Drupal.Commenting.InlineComment.NoSpaceBefore">
     <exclude-pattern>settings\.php</exclude-pattern>
   </rule>
   <rule ref="Drupal.Commenting.InlineComment.SpacingAfter">
