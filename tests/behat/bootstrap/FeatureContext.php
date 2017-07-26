@@ -5,7 +5,6 @@
  * MYSITE Drupal context for Behat testing.
  */
 
-use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Drupal\DrupalExtension\Context\DrupalContext;
@@ -13,7 +12,7 @@ use Drupal\DrupalExtension\Context\DrupalContext;
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends DrupalContext implements SnippetAcceptingContext {
+class FeatureContext extends DrupalContext {
 
   /**
    * @Then I am in the :path path
