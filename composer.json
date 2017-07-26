@@ -93,6 +93,7 @@
     "cbf": "vendor/bin/phpcbf --runtime-set installed_paths $(pwd)/vendor/drupal/coder/coder_sniffer --runtime-set eslint_path $(pwd)/node_modules/.bin/eslint --colors",
     "test": "vendor/bin/behat --format=progress_fail --colors",
     "post-install-cmd": [
+      "@composer rm -f docroot/.gitignore",
       "Utilities\\composer\\DrupalSettings::create",
       "vendor/bin/npm install"
     ]
