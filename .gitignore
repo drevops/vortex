@@ -1,0 +1,28 @@
+# To ignore OS temporary files use global .gitignore
+# https://help.github.com/articles/ignoring-files/#create-a-global-gitignore
+
+# Ignore Drupal docroot, but preserve custom modules, themes and settings.
+docroot/*
+!docroot/sites/
+docroot/sites/*
+!docroot/sites/all/
+!docroot/sites/default/
+docroot/sites/all/*
+!docroot/sites/all/modules/
+docroot/sites/all/modules/*
+!docroot/sites/all/modules/custom/
+!docroot/sites/all/themes/
+docroot/sites/all/themes/*
+!docroot/sites/all/themes/custom/
+docroot/sites/default/*
+!docroot/sites/default/settings.php
+!docroot/sites/default/default.settings.local.php
+
+# Ignore local VM files.
+.vagrant
+Vagrantfile
+.beetbox
+
+# Ignore dependencies cache files
+vendor
+node_modules
