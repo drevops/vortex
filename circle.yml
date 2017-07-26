@@ -31,9 +31,6 @@ dependencies:
     # Download DB dump from FTP.
     # This uses variables set in Circle CI UI.
     - if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $BUILD_DIR/.data/db.dist.sql; fi
-    # Initiate the project. Remove this line when using in real project as
-    # project init is triggered manually during the very first project setup.
-    - $HOME/$CIRCLE_PROJECT_REPONAME/scripts/drupal-dev-init.sh "Drupal Test Site"
     - rm /opt/circleci/php/$(phpenv global)/etc/conf.d/xdebug.ini
     - echo "date.timezone = Australia/Sydney" >> /opt/circleci/php/$(phpenv global)/etc/php.ini
     # Increase PHP memory size for running tests.
