@@ -91,17 +91,56 @@
     "test": "vendor/bin/behat --format=progress_fail --colors",
     "build": [
       "@composer install --no-progress --no-interaction",
+      "@_start-vm",
       "@build-db"
+    ],
+    "rebuild": [
+      "@cleanup",
+      "@build"
+    ],
+    "rebuild-full": [
+      "@cleanup-full",
+      "@build"
     ],
     "build-db": [
       "drush @local.MYSITEURL sql-drop -y",
       "drush @local.MYSITEURL sql-cli < .data/db.dist.sql",
       "drush @local.MYSITEURL updb -y"
     ],
+    "build-theme": "node_modules/.bin/grunt",
+    "cleanup": [
+      "@_remove-docroot",
+      "@_remove-dependencies"
+    ],
+    "cleanup-full": [
+      "@cleanup",
+      "@_remove-vm"
+    ],
+    "_start-vm": "if [ $(command -v vagrant) ] ; then vagrant up; fi",
+    "_remove-vm": [
+      "vagrant destroy -f || true",
+      "rm -Rf .vagrant",
+      "rm -Rf .beetbox",
+      "rm -Rf Vagrantfile"
+    ],
+    "_remove-dependencies": [
+      "rm -Rf node_modules",
+      "rm -Rf vendor"
+    ],
+    "_remove-docroot": [
+      "chmod -Rf 777 docroot/sites/default",
+      "git ls-files --directory --other -i --exclude-from=.gitignore docroot|xargs rm -Rf"
+    ],
+    "_build-theme-prod": "@composer build-theme -- prod",
     "post-install-cmd": [
-      "@composer rm -f docroot/.gitignore",
       "Utilities\\composer\\DrupalSettings::create",
-      "vendor/bin/npm install"
+      "vendor/bin/npm install",
+      "@_build-theme-prod"
+    ],
+    "post-update-cmd": [
+      "Utilities\\composer\\DrupalSettings::create",
+      "vendor/bin/npm install",
+      "@_build-theme-prod"
     ]
   },
   "extra": {

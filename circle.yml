@@ -25,7 +25,12 @@ machine:
 dependencies:
   cache_directories:
     - ~/.composer/cache
+    # Cache DB dumps directory.
+    - .data
   pre:
+    # Download DB dump from FTP.
+    # This uses variables set in Circle CI UI.
+    - if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $BUILD_DIR/.data/db.dist.sql; fi
     - rm /opt/circleci/php/$(phpenv global)/etc/conf.d/xdebug.ini
     - echo "date.timezone = Australia/Sydney" >> /opt/circleci/php/$(phpenv global)/etc/php.ini
     # Increase PHP memory size for running tests.
@@ -78,9 +83,6 @@ dependencies:
     - composer global require --no-interaction drush/drush
     - mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa
     - cd $HOME/$CIRCLE_PROJECT_REPONAME && composer build
-    # Install site. Remove this line in favour of sourcing a dump of real DB
-    # from another place (FTP, Acquia backup etc).
-    - drush site-install --root=$DOCROOT_DIR --db-url=mysql://$DB_NAME:$DB_PASS@$DB_HOST/$DB_NAME --yes
     # Check that Drupal can be bootstrapped after updates.
     - drush status --root=$DOCROOT_DIR | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
