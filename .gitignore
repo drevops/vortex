@@ -22,6 +22,7 @@ docroot/sites/default/*
 .vagrant
 Vagrantfile
 .beetbox
+.data
 
 # Ignore dependencies cache files
 vendor
