@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# Enable PHP CLI XDebug debugging inside of the vagrant box.
+# Enable PHP CLI XDebug debugging inside of the VM.
 #
 # CLI debugging will stay enabled during current ssh session. This allows
-# disabling it by simply re-ssh'ing into the vagrant box.
+# disabling it by simply re-ssh'ing into the VM.
 #
-# Usage (from within the vagrant box):
-# . /home/vagrant/scripts/xdebug-cli.sh myapp.local
-# where myapp.local is a server name and URL mapping in PHPStorm.
+# Usage (from within the VM):
+# . scripts/xdebug-cli.sh local.mysiteurl
+# where local.mysiteurl is a server name and URL mapping in PHPStorm.
 
 # IDE key as set in PHPStorm's server configuration.
 IDEKEY=PHPSTORM
