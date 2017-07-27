@@ -19,7 +19,8 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
   - contrib modules management
   - libraries management
   - support for patches
-- Custom core module and Theme scaffolding   
+- Custom core module scaffolding
+- Custom theme scaffolding: Gruntfile, SASS/SCSS, globbing and Livereload.    
 - Composer scripts to build and rebuild the project (one command used in all environments)
 - PHP, JS and SASS code linting with pre-configured Drupal standards
 - Behat testing configuration + usage examples 

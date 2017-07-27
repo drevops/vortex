@@ -35,3 +35,6 @@ $conf['views_ui_show_sql_query'] = 1;
 
 // Enable context debugging.
 // $conf['context_reaction_debug_enable_global'] = TRUE;
+
+// Enable Livereload support.
+// $conf['livereload'] = TRUE;

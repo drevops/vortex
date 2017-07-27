@@ -86,7 +86,10 @@
     "sort-packages": true
   },
   "scripts": {
-    "cs": "vendor/bin/phpcs --runtime-set installed_paths $(pwd)/vendor/drupal/coder/coder_sniffer --runtime-set eslint_path $(pwd)/node_modules/.bin/eslint --colors -s -p",
+    "cs":[
+      "vendor/bin/phpcs --runtime-set installed_paths $(pwd)/vendor/drupal/coder/coder_sniffer --runtime-set eslint_path $(pwd)/node_modules/.bin/eslint --colors -s -p",
+      "node_modules/.bin/sass-lint -qv --max-warnings 0"
+    ],
     "cbf": "vendor/bin/phpcbf --runtime-set installed_paths $(pwd)/vendor/drupal/coder/coder_sniffer --runtime-set eslint_path $(pwd)/node_modules/.bin/eslint --colors",
     "test": "vendor/bin/behat --format=progress_fail --colors",
     "build": [
