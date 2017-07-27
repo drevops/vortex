@@ -121,5 +121,8 @@ Circle CI supports caching between builds. The cache takes care of saving the st
 Each branch of your project will have a separate cache. If it is the very first build for a branch, the cache from the default branch on GitHub (normally `master`) will be used. If there is no cache for master, the cache from other branches will be used.
 If the build has inconsistent results (build fails in CI but passes locally), try to re-running the build without cache by clicking 'Rebuild without cache' button.
 
+### Test artifacts
+Test artifacts (screenshots etc.) are available under 'Artifacts' tab in Circle CI UI.
+
 ### All Selenium tests are suddenly broken
 Chromedriver (a binary used by Selenium to control Chrome browser) version must follow Chrome version. Currently, Chrome version is set to stable, so when there is an update of the major Chrome version, Chromedriver version needs to be updated as well. The following link contains information about currently available Chromedriver versions: http://chromedriver.storage.googleapis.com
