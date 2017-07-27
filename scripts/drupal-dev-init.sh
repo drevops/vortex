@@ -86,8 +86,8 @@ questions() {
   echo -n "Replacing placeholders in files"
   replace_string_content "mysitetheme" "$site_theme" "$CURDIR" && echo -n "."
   replace_string_content "myorg" "$org_short" "$CURDIR" && echo -n "."
-  replace_string_content "mysite" "$site_short" "$CURDIR" && echo -n "."
   replace_string_content "mysiteurl" "$site_url" "$CURDIR" && echo -n "."
+  replace_string_content "mysite" "$site_short" "$CURDIR" && echo -n "."
   replace_string_content "MYSITE" "$site_name" "$CURDIR" && echo -n "."
 
   replace_string_filename "mysitetheme" "$site_theme" "$CURDIR" && echo -n "."
