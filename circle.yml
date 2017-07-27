@@ -28,8 +28,12 @@ dependencies:
     # Cache DB dumps directory.
     - .data
   pre:
-    # Download DB dump from FTP, using variables set in Circle CI UI.
-    - if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $BUILD_DIR/.data/db.dist.sql; fi
+    # Download DB dump from public URL to test Drupal-dev project.
+    # Remove the line below in your project.
+    - if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -L https://goo.gl/WFtJbT -o $BUILD_DIR/.data/db.dist.sql; fi
+    # [META] Uncomment the line below to download DB dump from FTP, using
+    # variables set in Circle CI UI.
+    # - if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $BUILD_DIR/.data/db.dist.sql; fi
     # Set a time zone to make sure that PHP's time functions work correctly.
     - echo "date.timezone = Australia/Sydney" >> /opt/circleci/php/$(phpenv global)/etc/php.ini
     # Disable xdebug to speed-up composer.
