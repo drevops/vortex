@@ -92,8 +92,13 @@ test:
     - composer test
 
 deployment:
-  # Deploy master, develop, ci, release and feature branches.
-  remote:
-    branch: /master|develop|ci|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-]+/
+  # Deploy 'primary' branches: master, develop, ci, release and hotfix.
+  primary:
+    branch: /master|develop|ci|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?/
     commands:
-      - echo "Running deployment command"
+      - echo "Running deployment command for 'primary' branches"
+  # Deploy feature branches.
+  feature:
+    branch: /feature\/[a-zA-z0-9\-]+/
+    commands:
+      - echo "Running deployment command for 'feature' branches"
