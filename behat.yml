@@ -17,7 +17,6 @@ default:
   extensions:
     Behat\MinkExtension:
       goutte: ~
-        files_path: docroot
       base_url: http://local.MYSITEURL
       browser_name: chrome
       selenium2:
