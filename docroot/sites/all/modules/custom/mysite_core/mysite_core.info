@@ -1,0 +1,7 @@
+name = MYSITE Core
+description = Core feature for site settings.
+core = 7.x
+package = mysite
+version = 7.x-1.0
+project path = sites/all/modules/custom
+dependencies[] = drupal_helpers
