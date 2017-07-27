@@ -1,0 +1,9 @@
+name = 'mysitetheme'
+description = MYSITE theme.
+core = 7.x
+base theme = stark
+
+regions[content] = 'Content'
+
+stylesheets[all][] = css/mysitetheme.min.css
+scripts[] = 'js/mysitetheme.min.js'

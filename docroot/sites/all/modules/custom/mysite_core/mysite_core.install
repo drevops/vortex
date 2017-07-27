@@ -1,0 +1,114 @@
+<?php
+
+/**
+ * @file
+ * Install file for core.
+ */
+
+use Drupal\drupal_helpers\Feature;
+use Drupal\drupal_helpers\General;
+use Drupal\drupal_helpers\Module;
+use Drupal\drupal_helpers\Theme;
+
+/**
+ * Implements hook_install().
+ */
+function mysite_core_install() {
+  $functions = get_defined_functions();
+  foreach ($functions['user'] as $function) {
+    if (strpos($function, 'mysite_core_update_') === 0) {
+      call_user_func($function);
+    }
+  }
+}
+
+/**
+ * Implements hook_persistent_update().
+ */
+function mysite_core_persistent_update() {
+  // Revert features and flush caches.
+  // Uncomment the code below to use with your features.
+  // @code
+  // _orbit_core_feature_revert_flush([
+  //   'orbit_core',
+  // ]);
+  // @endcode
+}
+
+/**
+ * Helper to flush caches and revert features.
+ *
+ * Runs as a part of hook_persistent_update().
+ *
+ * @param array|null $modules
+ *   An array of modules to perform a hard refresh on or no modules to
+ *   use current module.
+ * @param bool $flush_caches
+ *   Flag to flush caches before and after features revert. Defaults to TRUE.
+ */
+function _mysite_core_feature_revert_flush($modules = NULL, $flush_caches = TRUE) {
+  if (empty($modules)) {
+    $modules = basename(__FILE__, '.install');
+  }
+
+  $modules = is_array($modules) ? $modules : [$modules];
+
+  $revert = [];
+  foreach ($modules as $module) {
+    $info = system_get_info('module', $module);
+
+    // Specified module may not be a feature.
+    if (!isset($info['features'])) {
+      continue;
+    }
+
+    // Enable all module dependencies.
+    if (!empty($info['dependencies']) && is_array($info['dependencies'])) {
+      foreach ($info['dependencies'] as $dependency) {
+        Module::enable($dependency);
+      }
+    }
+
+    // Forcefully clear internal Features caches to discover changes in files.
+    module_load_include('inc', 'features', 'features.export');
+    foreach (array_keys($info['features']) as $component) {
+      if ($component == 'features_api') {
+        continue;
+      }
+
+      features_get_components($component, NULL, TRUE);
+      features_include_defaults($component, TRUE);
+      features_get_default($component, $module, TRUE, TRUE);
+    }
+
+    // Build components list for feature revert.
+    $revert[$module] = array_keys($info['features']);
+  }
+
+  if ($flush_caches) {
+    General::messageSet('Flushing all standard Drupal caches before reverting features');
+    drupal_flush_all_caches();
+  }
+
+  foreach ($revert as $module => $components) {
+    foreach ($components as $component) {
+      Feature::revert($module, $component);
+    }
+  }
+
+  if ($flush_caches) {
+    General::messageSet('Flushing all standard Drupal caches after reverting features');
+    drupal_flush_all_caches();
+    // Make sure all stream wrappers are registered.
+    drupal_static_reset();
+    file_get_stream_wrappers();
+  }
+}
+
+/**
+ * Enables 'mysitetheme' theme.
+ */
+function mysite_core_update_7000() {
+  Theme::enable('mysitetheme');
+  Theme::setDefault('mysitetheme');
+}

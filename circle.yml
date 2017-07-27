@@ -1,0 +1,116 @@
+machine:
+  timezone:
+    Australia/Sydney
+  environment:
+    BUILD_DIR: $HOME/$CIRCLE_PROJECT_REPONAME
+    DB_NAME: "circle_test"
+    DB_USER: "ubuntu"
+    DB_PASS: ""
+    DB_HOST: "127.0.0.1"
+    # Server configuration.
+    SERVER: local.mysiteurl
+    WEB_URL: http://local.mysiteurl
+    WEB_USER: $(whoami)
+    WEB_GROUP: www-data
+    PHP_EXECUTABLE: $(which php)
+    # Custom configuration.
+    DOCROOT_DIR: $BUILD_DIR/docroot
+    PUBLIC_FILES_DIR: $DOCROOT_DIR/sites/default/files
+    BEHAT_SCREENSHOT_DIR: $CIRCLE_ARTIFACTS/behat
+    # Add composer bin to path.
+    PATH: "$HOME/.config/composer/vendor/bin:$PATH"
+  hosts:
+    local.mysiteurl: 127.0.0.1
+
+dependencies:
+  cache_directories:
+    - ~/.composer/cache
+    # Cache DB dumps directory.
+    - .data
+  pre:
+    # Download DB dump from public URL to test Drupal-dev project.
+    # Remove the line below in your project.
+    - if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -L https://goo.gl/WFtJbT -o $BUILD_DIR/.data/db.dist.sql; fi
+    # [META] Uncomment the line below to download DB dump from FTP, using
+    # variables set in Circle CI UI.
+    # - if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $BUILD_DIR/.data/db.dist.sql; fi
+    # Set a time zone to make sure that PHP's time functions work correctly.
+    - echo "date.timezone = Australia/Sydney" >> /opt/circleci/php/$(phpenv global)/etc/php.ini
+    # Disable xdebug to speed-up composer.
+    - rm /opt/circleci/php/$(phpenv global)/etc/conf.d/xdebug.ini
+    # Increase PHP memory size for running tests.
+    - echo "memory_limit = -1" > /opt/circleci/php/$(phpenv global)/etc/conf.d/memory.ini
+    # Disable sendmail binary to suppress any mailouts.
+    - echo 'sendmail_path = /bin/true' >> /opt/circleci/php/$(phpenv version-name)/etc/conf.d/circle.ini
+    # Show PHP information for easy debugging.
+    - php -i
+    # Add Apache config.
+    - |
+      echo "
+      <VirtualHost *:80>
+        UseCanonicalName Off
+        DocumentRoot %DOCROOT_DIR%
+        ServerName %SERVER%
+        <Directory %DOCROOT_DIR%>
+          Options FollowSymLinks
+          AllowOverride All
+          RewriteEngine On
+          RewriteBase /
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule %DOCROOT_DIR%/(.*)$ index.php/?q=$1 [L,QSA]
+          Require all granted
+        </Directory>
+      </VirtualHost>" > apache-vhost.conf
+    - sudo cp apache-vhost.conf /etc/apache2/sites-available/000-default.conf
+    - sudo sed -e "s?%DOCROOT_DIR%?$DOCROOT_DIR?g" --in-place /etc/apache2/sites-available/000-default.conf
+    - sudo sed -e "s?%SERVER%?$SERVER?g" --in-place /etc/apache2/sites-available/000-default.conf
+    - sudo a2enmod rewrite && sudo a2enmod proxy && sudo a2enmod proxy_http
+    - sudo unlink /usr/lib/apache2/modules/libphp5.so
+    - sudo ln -s /opt/circleci/php/$(phpenv global)/usr/lib/apache2/modules/libphp5.so /usr/lib/apache2/modules/libphp5.so
+    - sudo service apache2 stop && sudo service apache2 start
+    # Validate that Apache can serve PHP pages.
+    - echo "<?php phpinfo();" > $DOCROOT_DIR/info.php && curl -k $WEB_URL/info.php && rm $DOCROOT_DIR/info.php;
+    # Ensure Drupal/Apache can write to public dir.
+    - sudo mkdir -p $PUBLIC_FILES_DIR && sudo chmod -R 777 $PUBLIC_FILES_DIR && sudo chown -R $WEB_USER:$WEB_GROUP $PUBLIC_FILES_DIR
+    # For Behat tests, make Chrome run with additional flags to resolve content
+    # scaling issues.
+    - "echo '#! /bin/bash' | sudo tee /opt/google/chrome/google-chrome-hack"
+    - "echo '/opt/google/chrome/google-chrome --high-dpi-support=1 --force-device-scale-factor=1' | sudo tee --append /opt/google/chrome/google-chrome-hack"
+    - "sudo chmod 755 /opt/google/chrome/google-chrome-hack"
+    - "sudo mv /usr/bin/google-chrome-stable /usr/bin/google-chrome-stable.backup"
+    - "cd /usr/bin && sudo ln -s /opt/google/chrome/google-chrome-hack google-chrome-stable"
+    # Install Selenium and run it in the background.
+    - curl http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.1.jar > selenium-server-standalone.jar
+    - curl http://chromedriver.storage.googleapis.com/2.25/chromedriver_linux64.zip | gzip -dc > chromedriver
+    - chmod +x chromedriver
+    - 'java -jar selenium-server-standalone.jar > /dev/null -Dwebdriver.chrome.driver=chromedriver 2>&1':
+          background: true
+
+  override:
+    # Install drush.
+    - composer global require --no-interaction drush/drush
+    # Create local drush alias to make sure that composer build, which relies
+    # on aliases when importing DB, work correctly.
+    - mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa
+    # Run actual project build.
+    - cd $BUILD_DIR && composer build
+    # Check that Drupal can be bootstrapped after updates.
+    - drush status --root=$DOCROOT_DIR | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
+
+test:
+  override:
+    - composer cs
+    - composer test
+
+deployment:
+  # Deploy 'primary' branches: master, develop, ci, release and hotfix.
+  primary:
+    branch: /master|develop|ci|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?/
+    commands:
+      - echo "Running deployment command for 'primary' branches"
+  # Deploy feature branches.
+  feature:
+    branch: /feature\/[a-zA-z0-9\-]+/
+    commands:
+      - echo "Running deployment command for 'feature' branches"
