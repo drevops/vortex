@@ -2,7 +2,15 @@
 #
 # Initialise drupal-dev project.
 #
-# Replaces placeholders with actual content.
+# Replaces the following placeholders with provided values:
+# MYSITE:       Site name
+# mysite:       Abbreviated version of `MYSITE`. Spaces replaced with
+#               underscores and lowercased.
+# myorg:        Organisation name. Spaces replaced with underscores and
+#               lowercased. Defaults to `mysite`.
+# mysiteurl:    Desired site URL. `local.` prefix is added to the provided
+#               value. Defaults to `mysite`.
+# mysitetheme:  Theme name. Defaults to `mysite`.
 #
 
 ask() {
@@ -79,7 +87,7 @@ questions() {
   replace_string_content "mysitetheme" "$site_theme" "$CURDIR" && echo -n "."
   replace_string_content "myorg" "$org_short" "$CURDIR" && echo -n "."
   replace_string_content "mysite" "$site_short" "$CURDIR" && echo -n "."
-  replace_string_content "MYSITEURL" "$site_url" "$CURDIR" && echo -n "."
+  replace_string_content "mysiteurl" "$site_url" "$CURDIR" && echo -n "."
   replace_string_content "MYSITE" "$site_name" "$CURDIR" && echo -n "."
 
   replace_string_filename "mysitetheme" "$site_theme" "$CURDIR" && echo -n "."

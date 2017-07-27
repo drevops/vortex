@@ -103,9 +103,9 @@
       "@build"
     ],
     "build-db": [
-      "drush @local.MYSITEURL sql-drop -y",
-      "drush @local.MYSITEURL sql-cli < .data/db.dist.sql",
-      "drush @local.MYSITEURL updb -y"
+      "drush @local.mysiteurl sql-drop -y",
+      "drush @local.mysiteurl sql-cli < .data/db.dist.sql",
+      "drush @local.mysiteurl updb -y"
     ],
     "build-theme": "node_modules/.bin/grunt",
     "cleanup": [
@@ -160,7 +160,7 @@
       "docroot/sites/default/files"
     ],
     "beetbox": {
-      "beet_domain": "local.MYSITEURL",
+      "beet_domain": "local.mysiteurl",
       "beet_root": "{{ beet_base }}/docroot"
     },
     "mouf": {

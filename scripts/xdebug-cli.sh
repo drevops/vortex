@@ -14,7 +14,7 @@ IDEKEY=PHPSTORM
 # Host OS' IP address.
 REMOTE_HOST=$(netstat -rn | grep "^0.0.0.0 " | cut -d " " -f10)
 # Default server name.
-SERVER_NAME="local.MYSITEURL"
+SERVER_NAME="local.mysiteurl"
 
 # Pass server name as a first parameter as set in PHPStorm's server
 # configuration.

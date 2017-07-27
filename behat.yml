@@ -17,7 +17,7 @@ default:
   extensions:
     Behat\MinkExtension:
       goutte: ~
-      base_url: http://local.MYSITEURL
+      base_url: http://local.mysiteurl
       browser_name: chrome
       selenium2:
         wd_host: "http://localhost:4444/wd/hub"

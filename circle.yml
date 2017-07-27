@@ -10,8 +10,8 @@ machine:
     # Server configuration.
     DOCROOT_DIR: $BUILD_DIR/docroot
     PUBLIC_FILES_DIR: $DOCROOT_DIR/sites/default/files
-    SERVER: local.MYSITEURL
-    WEB_URL: http://local.MYSITEURL
+    SERVER: local.mysiteurl
+    WEB_URL: http://local.mysiteurl
     WEB_USER: $(whoami)
     WEB_GROUP: www-data
     PHP_EXECUTABLE: $(which php)
@@ -20,7 +20,7 @@ machine:
     # Add composer bin to path.
     PATH: "$HOME/.config/composer/vendor/bin:$PATH"
   hosts:
-    local.MYSITEURL: 127.0.0.1
+    local.mysiteurl: 127.0.0.1
 
 dependencies:
   cache_directories:
