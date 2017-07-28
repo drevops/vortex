@@ -29,6 +29,8 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
   - code linting
   - testing (including Selenium-based Behat tests)
 
+## Presentation
+https://goo.gl/CRBFw2
 -------------------------------------------------------------------------------
 Remove this line and everything above it in your project.
 
