@@ -32,6 +32,8 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
   - code linting
   - testing (including Selenium-based Behat tests)
 
+![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
+
 ## Presentation
 https://goo.gl/CRBFw2
 -------------------------------------------------------------------------------
