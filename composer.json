@@ -55,9 +55,10 @@
     "drupal/redirect": "1.0-rc3",
     "drupal/strongarm": "^2.0",
     "drupal/wysiwyg": "^2.4",
+    "drupal/xautoload": "4.5.0",
     "library/ckeditor": "^4.6.2",
-    "netresearch/composer-patches-plugin": "1.2.1",
-    "myorg/patches": "*"
+    "myorg/patches": "*",
+    "netresearch/composer-patches-plugin": "1.2.1"
   },
   "require-dev": {
     "beet/box": ">=0.7.0",
