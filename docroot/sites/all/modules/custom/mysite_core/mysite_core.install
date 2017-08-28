@@ -14,6 +14,10 @@ use Drupal\drupal_helpers\Theme;
  * Implements hook_install().
  */
 function mysite_core_install() {
+  if (!module_exists('drupal_helpers')) {
+    module_enable(['drupal_helpers']);
+  }
+
   $functions = get_defined_functions();
   foreach ($functions['user'] as $function) {
     if (strpos($function, 'mysite_core_update_') === 0) {
@@ -29,8 +33,8 @@ function mysite_core_persistent_update() {
   // Revert features and flush caches.
   // Uncomment the code below to use with your features.
   // @code
-  // _orbit_core_feature_revert_flush([
-  //   'orbit_core',
+  // _mysite_core_feature_revert_flush([
+  //   'mysite_core',
   // ]);
   // @endcode
 }
