@@ -60,7 +60,7 @@
     "myorg/patches": "*"
   },
   "require-dev": {
-    "beet/box": ">=0.6.0",
+    "beet/box": ">=0.7.0",
     "behat/behat": ">=3.3.1",
     "drupal/coder": "^8.2",
     "drupal/drupal-extension": "^v3.3.0",
@@ -165,7 +165,12 @@
     ],
     "beetbox": {
       "beet_domain": "local.mysiteurl",
-      "beet_root": "{{ beet_base }}/docroot"
+      "beet_root": "{{ beet_base }}/docroot",
+      "php_version": "7.1",
+      "php_mysql_package": "php7.1-mysql",
+      "php_packages_state": "latest",
+      "php_install_recommends": "yes",
+      "php_date_timezone": "Australia/Melbourne"
     },
     "mouf": {
       "nodejs": {
