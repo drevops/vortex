@@ -40,6 +40,9 @@ dependencies:
     # [META] Uncomment the line below to download DB dump from FTP, using
     # variables set in Circle CI UI.
     # - if [ ! -f "${DB_CONTAINER_TAR}" ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $DB_SOURCE_DUMP; bash <(curl -s https://gist.github.com/nicksantamaria/43f44c45ac2cb31298cacd5c546902ff); fi
+    # Load db container image from cache directory.
+    - docker load --input "${DB_CONTAINER_TAR}"
+    - docker run -d -p 3306:3306 "mysql/${DB_NAME}:latest"
     # Set a time zone to make sure that PHP's time functions work correctly.
     - echo "date.timezone = Australia/Sydney" >> /opt/circleci/php/$(phpenv global)/etc/php.ini
     # Disable xdebug to speed-up composer.
