@@ -9,6 +9,7 @@ machine:
     DB_HOST: "127.0.0.1"
     DB_SOURCE_DUMP: "$BUILD_DIR/.data/db.dist.sql"
     DB_CONTAINER_TAR: "$BUILD_DIR/.data/db-container.tar"
+    DB_CONTAINER_SCRIPT: "https://gist.githubusercontent.com/nicksantamaria/43f44c45ac2cb31298cacd5c546902ff/raw/a1092fe8602546944aca961e83b303f95c44a9e6/db-container-build.sh"
     # Server configuration.
     SERVER: local.mysiteurl
     WEB_URL: http://local.mysiteurl
@@ -36,10 +37,10 @@ dependencies:
     - sudo service mysql stop
     # Download DB dump from public URL to test Drupal-dev project.
     # Remove the line below in your project.
-    - if [ ! -f "${DB_CONTAINER_TAR}" ] ; then mkdir $BUILD_DIR/.data && curl -L https://goo.gl/WFtJbT -o $DB_SOURCE_DUMP; bash <(curl -s https://gist.github.com/nicksantamaria/43f44c45ac2cb31298cacd5c546902ff); fi
+    - if [ ! -f "${DB_CONTAINER_TAR}" ] ; then mkdir $BUILD_DIR/.data && curl -L https://goo.gl/WFtJbT -o $DB_SOURCE_DUMP; bash <(curl -s "${DB_CONTAINER_SCRIPT}"); fi
     # [META] Uncomment the line below to download DB dump from FTP, using
     # variables set in Circle CI UI.
-    # - if [ ! -f "${DB_CONTAINER_TAR}" ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $DB_SOURCE_DUMP; bash <(curl -s https://gist.github.com/nicksantamaria/43f44c45ac2cb31298cacd5c546902ff); fi
+    # - if [ ! -f "${DB_CONTAINER_TAR}" ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $DB_SOURCE_DUMP; bash <(curl -s "${DB_CONTAINER_SCRIPT}"); fi
     # Load db container image from cache directory.
     - docker load --input "${DB_CONTAINER_TAR}"
     - docker run -d -p 3306:3306 "mysql/${DB_NAME}:latest"
