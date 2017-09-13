@@ -7,6 +7,8 @@ machine:
     DB_USER: "root"
     DB_PASS: ""
     DB_HOST: "127.0.0.1"
+    DB_SOURCE_DUMP: "$BUILD_DIR/.data/db.dist.sql"
+    DB_CONTAINER_TAR: "$BUILD_DIR/.data/db-container.tar"
     # Server configuration.
     SERVER: local.mysiteurl
     WEB_URL: http://local.mysiteurl
