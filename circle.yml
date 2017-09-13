@@ -21,6 +21,8 @@ machine:
     PATH: "$HOME/.config/composer/vendor/bin:$PATH"
   hosts:
     local.mysiteurl: 127.0.0.1
+  services:
+    - docker
 
 dependencies:
   cache_directories:
