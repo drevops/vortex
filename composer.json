@@ -107,8 +107,8 @@
       "@build"
     ],
     "build-db": [
-      "drush @local.mysiteurl sql-drop -y",
-      "drush @local.mysiteurl sql-cli < .data/db.dist.sql",
+      "if [ \"$DB_CONTAINER_ENABLE\" != \"true\" ]; then drush @local.mysiteurl sql-drop -y; fi",
+      "if [ \"$DB_CONTAINER_ENABLE\" != \"true\" ]; then drush @local.mysiteurl sql-cli < .data/db.dist.sql; fi",
       "drush @local.mysiteurl en mysite_core -y",
       "drush @local.mysiteurl updb -y"
     ],
