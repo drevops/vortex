@@ -107,6 +107,8 @@
       "@build"
     ],
     "build-db": [
+      "drush @local.mysiteurl sql-drop -y",
+      "drush @local.mysiteurl sql-cli < .data/db.dist.sql",
       "drush @local.mysiteurl en mysite_core -y",
       "drush @local.mysiteurl updb -y"
     ],
