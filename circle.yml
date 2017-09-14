@@ -8,6 +8,8 @@ machine:
     DB_PASS: ""
     DB_HOST: "127.0.0.1"
     DB_SOURCE_DUMP: "$BUILD_DIR/.data/db.dist.sql"
+    # Set to "false" to disable container-based database caching.
+    DB_CONTAINER_ENABLE: "true"
     DB_CONTAINER_TAR: "$BUILD_DIR/.data/db-container.tar"
     DB_CONTAINER_SCRIPT: "https://goo.gl/eoeTMb"
     # Server configuration.
@@ -35,14 +37,22 @@ dependencies:
   pre:
     # Download DB dump from public URL to test Drupal-dev project.
     # Remove the line below in your project.
-    - if [ ! -f "${DB_CONTAINER_TAR}" ] ; then mkdir $BUILD_DIR/.data && curl -L https://goo.gl/WFtJbT -o $DB_SOURCE_DUMP; bash <(curl -s "${DB_CONTAINER_SCRIPT}"); fi
+     - if [ ! -f $DB_SOURCE_DUMP ] ; then mkdir $BUILD_DIR/.data && curl -L https://goo.gl/WFtJbT -o $DB_SOURCE_DUMP; fi
     # [META] Uncomment the line below to download DB dump from FTP, using
     # variables set in Circle CI UI.
-    # - if [ ! -f "${DB_CONTAINER_TAR}" ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $DB_SOURCE_DUMP; bash <(curl -s "${DB_CONTAINER_SCRIPT}"); fi
-    - echo "Load db container image from cache directory"
-    - docker load --input "${DB_CONTAINER_TAR}"
-    - echo "replacing default mysql service with db container"
-    - sudo service mysql stop && docker run -d -p 3306:3306 "mysql/${DB_NAME}:latest"
+    # - if [ ! -f $DB_SOURCE_DUMP ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $DB_SOURCE_DUMP; fi
+    - |
+      if [ "${DB_CONTAINER_ENABLE}" == "true" ]; then
+        if [ -f "${DB_CONTAINER_TAR}" ]; then
+          echo "Load db container image from cache directory"
+          docker load --input "${DB_CONTAINER_TAR}"
+        else
+          echo "Building database container"
+          bash <(curl -s "${DB_CONTAINER_SCRIPT}")
+        fi
+        echo "replacing default mysql service with db container"
+        sudo service mysql stop && docker run -d -p 3306:3306 "mysql/${DB_NAME}:latest"
+      fi
     # Set a time zone to make sure that PHP's time functions work correctly.
     - echo "date.timezone = Australia/Sydney" >> /opt/circleci/php/$(phpenv global)/etc/php.ini
     # Disable xdebug to speed-up composer.
