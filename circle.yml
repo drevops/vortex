@@ -9,7 +9,7 @@ machine:
     DB_HOST: "127.0.0.1"
     DB_SOURCE_DUMP: "$BUILD_DIR/.data/db.dist.sql"
     DB_CONTAINER_TAR: "$BUILD_DIR/.data/db-container.tar"
-    DB_CONTAINER_SCRIPT: "https://gist.githubusercontent.com/nicksantamaria/43f44c45ac2cb31298cacd5c546902ff/raw/a1092fe8602546944aca961e83b303f95c44a9e6/db-container-build.sh"
+    DB_CONTAINER_SCRIPT: "https://goo.gl/eoeTMb"
     # Server configuration.
     SERVER: local.mysiteurl
     WEB_URL: http://local.mysiteurl
