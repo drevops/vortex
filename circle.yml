@@ -33,17 +33,16 @@ dependencies:
     # Cache DB dumps directory.
     - .data
   pre:
-    # Stopping default mysql service so the db container can expose itself on port 3306.
-    - sudo service mysql stop
     # Download DB dump from public URL to test Drupal-dev project.
     # Remove the line below in your project.
     - if [ ! -f "${DB_CONTAINER_TAR}" ] ; then mkdir $BUILD_DIR/.data && curl -L https://goo.gl/WFtJbT -o $DB_SOURCE_DUMP; bash <(curl -s "${DB_CONTAINER_SCRIPT}"); fi
     # [META] Uncomment the line below to download DB dump from FTP, using
     # variables set in Circle CI UI.
     # - if [ ! -f "${DB_CONTAINER_TAR}" ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $DB_SOURCE_DUMP; bash <(curl -s "${DB_CONTAINER_SCRIPT}"); fi
-    # Load db container image from cache directory.
+    - echo "Load db container image from cache directory"
     - docker load --input "${DB_CONTAINER_TAR}"
-    - docker run -d -p 3306:3306 "mysql/${DB_NAME}:latest"
+    - echo "replacing default mysql service with db container"
+    - sudo service mysql stop && docker run -d -p 3306:3306 "mysql/${DB_NAME}:latest"
     # Set a time zone to make sure that PHP's time functions work correctly.
     - echo "date.timezone = Australia/Sydney" >> /opt/circleci/php/$(phpenv global)/etc/php.ini
     # Disable xdebug to speed-up composer.
