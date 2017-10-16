@@ -1,8 +1,22 @@
 version: 2
 jobs:
-   build:
-     docker:
-       - image: beet/box:0.8.0
-     steps:
-       - checkout
-       - run: composer install
+  build:
+    docker:
+      - image: beet/box:0.8.0
+    steps:
+      - checkout
+      - run: composer install
+  test:
+    docker:
+      - image: beet/box:0.8.0
+    steps:
+      - run: composer cs
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
