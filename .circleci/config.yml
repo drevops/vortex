@@ -1,0 +1,8 @@
+version: 2
+jobs:
+   build:
+     docker:
+       - image: beet/box:0.8.0
+     steps:
+       - checkout
+       - run: echo "hello world"
