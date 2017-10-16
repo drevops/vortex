@@ -1,5 +1,6 @@
 version: 2
 jobs:
+  # Code style checking.
   # Fail fast if code style is incorrect.
   cs:
     docker:
@@ -9,11 +10,9 @@ jobs:
       - checkout
 
       - restore_cache:
-          paths:
-            - ~/project/vendor
-          key: composer-dependencies-{{ checksum "composer.json" }}
+          keys:
+            - composer-dependencies-{{ checksum "composer.json" }}
 
-      - run: pwd
       - run: composer install
 
       - save_cache:
@@ -23,14 +22,14 @@ jobs:
 
       - run: composer cs
 
+  # Download DB.
   download_db:
     machine: true
 
     steps:
       - restore_cache:
-          paths:
-            - ~/project/.data
-          key: data-{{ .Branch }}
+          keys:
+           - data-{{ .Branch }}
 
       # Download DB dump from public URL to test Drupal-dev project.
       # Remove the line below in your project.
@@ -53,16 +52,9 @@ jobs:
       - checkout
 
       - restore_cache:
-          paths:
-            - ~/project/vendor
-          key: composer-dependencies-{{ checksum "composer.json" }}
-
-      - run: composer install
-
-      - save_cache:
-          paths:
-            - ~/project/vendor
-          key: composer-dependencies-{{ checksum "composer.json" }}
+          keys:
+           - composer-dependencies-{{ checksum "composer.json" }}
+           - data-{{ .Branch }}
 
       - run: composer cs
 
