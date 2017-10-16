@@ -5,6 +5,23 @@ jobs:
   code_style:
     docker:
       - image: circleci/php:7.0-cli
+        environment:
+          BUILD_DIR: project
+          DB_NAME: circle_test
+          DB_USER: ubuntu
+          DB_PASS: ""
+          DB_HOST: 127.0.0.1
+          # Server configuration.
+          SERVER: local.mysiteurl
+          WEB_URL: http://local.mysiteurl
+          WEB_USER: $(whoami)
+          WEB_GROUP: www-data
+          PHP_EXECUTABLE: $(which php)
+          # Custom configuration.
+          DOCROOT_DIR: /home/circleci/project/docroot
+          PUBLIC_FILES_DIR: $DOCROOT_DIR/sites/default/files
+          BEHAT_SCREENSHOT_DIR: $CIRCLE_ARTIFACTS/behat
+
 
     steps:
       - checkout
@@ -59,33 +76,68 @@ jobs:
   # Build.
   build:
       docker:
-        - image: circleci/php:7.0-fpm-browsers
-          environment:
-            BUILD_DIR: project
-            DB_NAME: beetbox
-            DB_USER: beetbox
-            DB_PASS: beetbox
-            DB_HOST: 127.0.0.1
-            # Server configuration.
-            SERVER: local.mysiteurl
-            WEB_URL: http://local.mysiteurl
-            WEB_USER: $(whoami)
-            WEB_GROUP: www-data
-            PHP_EXECUTABLE: $(which php)
-            # Custom configuration.
-            DOCROOT_DIR: /home/circleci/project/docroot
-            PUBLIC_FILES_DIR: $DOCROOT_DIR/sites/default/files
-            BEHAT_SCREENSHOT_DIR: $CIRCLE_ARTIFACTS/behat
+#        - image: circleci/php:7.0-fpm-browsers
+#          environment:
+#            BUILD_DIR: project
+#            DB_NAME: beetbox
+#            DB_USER: beetbox
+#            DB_PASS: beetbox
+#            DB_HOST: 127.0.0.1
+#            # Server configuration.
+#            SERVER: local.mysiteurl
+#            WEB_URL: http://local.mysiteurl
+#            WEB_USER: $(whoami)
+#            WEB_GROUP: www-data
+#            PHP_EXECUTABLE: $(which php)
+#            # Custom configuration.
+#            DOCROOT_DIR: /home/circleci/project/docroot
+#            PUBLIC_FILES_DIR: $DOCROOT_DIR/sites/default/files
+#            BEHAT_SCREENSHOT_DIR: $CIRCLE_ARTIFACTS/behat
+#
+#        - image: circleci/mysql:8
+#          environment:
+#            - MYSQL_ROOT_HOST=%
+#            - MYSQL_ROOT_PASSWORD=ubuntu
+#            - MYSQL_DATABASE=beetbox
+#            - MYSQL_USER=beetbox
+#            - MYSQL_PASSWORD=beetbox
 
-        - image: circleci/mysql:8
+        - image: circleci/php:7.1-apache
           environment:
-            - MYSQL_ROOT_HOST=%
+            - MYSQL_HOST=127.0.0.1
+
+        - image: mysql:5.7
+          environment:
+            - MYSQL_USER=root
             - MYSQL_ROOT_PASSWORD=ubuntu
-            - MYSQL_DATABASE=beetbox
-            - MYSQL_USER=beetbox
-            - MYSQL_PASSWORD=beetbox
+            - MYSQL_PASSWORD=
+            - MYSQL_ALLOW_EMPTY_PASSWORD=true
+            - MYSQL_DATABASE=circle_test
+            - MYSQL_ROOT_HOST=%
 
       steps:
+        - run:
+            name: Install PHP extensions
+            command: sudo docker-php-ext-install pdo_mysql
+        - run:
+            name: Install extension
+            command: sudo apt-get install -y libpng-dev
+#        - run:
+#            name: Install PHP Extensions
+#            command: sudo docker-php-ext-install gd
+#        - run:
+#            name: Install Composer
+#            command: 'curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer'
+        - run:
+            name: Display versions
+            command: |
+              php -v
+              composer --version
+        - run:
+            name: Install mysql-client
+            command: |
+              sudo apt-get install mysql-client
+                    
         - run: sudo apt-get install vim mysql-client
 
         - run: composer config --global --list
@@ -93,7 +145,6 @@ jobs:
         - checkout
         - attach_workspace:
             at: ~/project
-
 
         - run: ls -al docroot
         - run: cat docroot/sites/default/settings.beetbox.php
@@ -103,8 +154,29 @@ jobs:
 
         # Create local drush alias to make sure that composer build, which relies
         # on aliases when importing DB, work correctly.
-        - run: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa
-        - run: cat $HOME/.drush/$SERVER.aliases.drushrc.php
+        - run:
+            name: Blah 1
+            command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa
+            environment:
+              BUILD_DIR: project
+              DB_NAME: circle_test
+              DB_USER: ubuntu
+              DB_PASS: ""
+              DB_HOST: 127.0.0.1
+              # Server configuration.
+              SERVER: local.mysiteurl
+              DOCROOT_DIR: /home/circleci/project/docroot
+        - run:
+            name: blah 2
+            command: cat $HOME/.drush/$SERVER.aliases.drushrc.php
+            environment:
+              BUILD_DIR: project
+              DB_NAME: circle_test
+              DB_USER: ubuntu
+              DB_PASS: ""
+              DB_HOST: 127.0.0.1
+              # Server configuration.
+              SERVER: local.mysiteurl
 
         # Run actual project build.
         - run: composer build
