@@ -3,20 +3,45 @@ jobs:
   build:
     docker:
       - image: beet/box:0.8.0
+    working_directory: ~/drupal-dev
+    environment:
+      - BUILD_DIR: $HOME/$CIRCLE_PROJECT_REPONAME
+      - DB_NAME: "circle_test"
+      - DB_USER: "ubuntu"
+      - DB_PASS: ""
+      - DB_HOST: "127.0.0.1"
+      # Server configuration.
+      - SERVER: local.mysiteurl
+      - WEB_URL: http://local.mysiteurl
+      - WEB_USER: $(whoami)
+      - WEB_GROUP: www-data
+      - PHP_EXECUTABLE: $(which php)
+      # Custom configuration.
+      - DOCROOT_DIR: $BUILD_DIR/docroot
+      - PUBLIC_FILES_DIR: $DOCROOT_DIR/sites/default/files
+      - BEHAT_SCREENSHOT_DIR: $CIRCLE_ARTIFACTS/behat
+      # Add composer bin to path.
+      - PATH: "$HOME/.config/composer/vendor/bin:$PATH"
+
     steps:
       - checkout
+
+      - run: echo 127.0.0.1 local.mysiteurl | sudo tee -a /etc/hosts
+
+      # Download and cache dependencies.
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "composer.json" }}
+          # Fallback to the latest cache if no exact match is found.
+          - v1-dependencies-
+
       - run: composer install
-  test:
-    docker:
-      - image: beet/box:0.8.0
-    steps:
+
+      - save_cache:
+          paths:
+            - ./vendor
+          key: v1-dependencies-{{ checksum "composer.json" }}
+
       - run: composer cs
 
-workflows:
-  version: 2
-  build_and_test:
-    jobs:
-      - build
-      - test:
-          requires:
-            - build
+      - run: echo "<?php phpinfo();" > $DOCROOT_DIR/info.php && curl -k $WEB_URL/info.php && rm $DOCROOT_DIR/info.php;
