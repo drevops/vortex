@@ -11,7 +11,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - composer-dependencies1-{{ checksum "composer.json" }}-
+            - composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-
 
       - run: composer install --no-interaction
 
@@ -19,8 +19,7 @@ jobs:
           paths:
             - ~/project/vendor
             - ~/project/node_modules
-            - ~/project/docroot
-          key: composer-dependencies1-{{ checksum "composer.json" }}-{{ epoch }}
+          key: composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-{{ epoch }}
 
       - run: composer cs
 
@@ -61,16 +60,57 @@ jobs:
   build:
       docker:
         - image: circleci/php:7.0-fpm-browsers
+          environment:
+            BUILD_DIR: project
+            DB_NAME: beetbox
+            DB_USER: beetbox
+            DB_PASS: beetbox
+            DB_HOST: 127.0.0.1
+            # Server configuration.
+            SERVER: local.mysiteurl
+            WEB_URL: http://local.mysiteurl
+            WEB_USER: $(whoami)
+            WEB_GROUP: www-data
+            PHP_EXECUTABLE: $(which php)
+            # Custom configuration.
+            DOCROOT_DIR: /home/circleci/project/docroot
+            PUBLIC_FILES_DIR: $DOCROOT_DIR/sites/default/files
+            BEHAT_SCREENSHOT_DIR: $CIRCLE_ARTIFACTS/behat
+
+        - image: circleci/mysql:8
+          environment:
+            - MYSQL_ROOT_HOST=%
+            - MYSQL_ROOT_PASSWORD=ubuntu
+            - MYSQL_DATABASE=beetbox
+            - MYSQL_USER=beetbox
+            - MYSQL_PASSWORD=beetbox
 
       steps:
+        - run: sudo apt-get install vim mysql-client
+
+        - run: composer config --global --list
+        - run: echo 'export PATH=~/.composer/vendor/bin:$PATH' >> $BASH_ENV
         - checkout
-
-        - run: ls -al docroot
-
         - attach_workspace:
             at: ~/project
 
+
         - run: ls -al docroot
+        - run: cat docroot/sites/default/settings.beetbox.php
+
+        # Install drush.
+        - run: composer global require --no-interaction drush/drush
+
+        # Create local drush alias to make sure that composer build, which relies
+        # on aliases when importing DB, work correctly.
+        - run: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa
+        - run: cat $HOME/.drush/$SERVER.aliases.drushrc.php
+
+        # Run actual project build.
+        - run: composer build
+
+        # Check that Drupal can be bootstrapped after updates.
+        - run: drush status --root=$DOCROOT_DIR | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
 workflows:
   version: 2
