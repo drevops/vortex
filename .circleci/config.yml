@@ -19,7 +19,9 @@ jobs:
           paths:
             - ~/project/vendor
             - ~/project/node_modules
-          key: composer-dependencies1-{{ checksum "composer.json" }}
+            - ~/project/docroot
+          keys:
+            - composer-dependencies1-{{ checksum "composer.json" }}-{{ epoch }}
 
       - run: composer cs
 
@@ -54,7 +56,7 @@ jobs:
 
       - restore_cache:
           keys:
-           - composer-dependencies1-{{ checksum "composer.json" }}
+           - composer-dependencies1-{{ checksum "composer.json" }}-
            - data-{{ .Branch }}
 
       - run: pwd
