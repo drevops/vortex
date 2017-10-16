@@ -2,7 +2,7 @@ version: 2
 jobs:
   # Code style checking.
   # Fail fast if code style is incorrect.
-  cs:
+  code_style:
     docker:
       - image: circleci/php:7.0-cli
 
@@ -11,14 +11,15 @@ jobs:
 
       - restore_cache:
           keys:
-            - composer-dependencies-{{ checksum "composer.json" }}
+            - composer-dependencies1-{{ checksum "composer.json" }}
 
       - run: composer install
 
       - save_cache:
           paths:
             - ~/project/vendor
-          key: composer-dependencies-{{ checksum "composer.json" }}
+            - ~/project/node_modules
+          key: composer-dependencies1-{{ checksum "composer.json" }}
 
       - run: composer cs
 
@@ -53,9 +54,11 @@ jobs:
 
       - restore_cache:
           keys:
-           - composer-dependencies-{{ checksum "composer.json" }}
+           - composer-dependencies1-{{ checksum "composer.json" }}
            - data-{{ .Branch }}
 
+      - run: pwd
+      - run: ls -al
       - run: composer cs
 
 workflows:
@@ -63,9 +66,9 @@ workflows:
 
   cs_and_build_and_test:
     jobs:
-      - cs
+      - code_style
       - download_db
       - build_and_test:
           requires:
-            - cs
+            - code_style
             - download_db
