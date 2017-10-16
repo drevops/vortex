@@ -13,7 +13,7 @@ jobs:
           keys:
             - composer-dependencies1-{{ checksum "composer.json" }}-
 
-      - run: composer install
+      - run: composer install --no-interaction
 
       - save_cache:
           paths:
@@ -24,6 +24,13 @@ jobs:
 
       - run: composer cs
 
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - vendor
+            - node_modules
+            - docroot
+
   # Download DB.
   download_db:
     machine: true
@@ -31,7 +38,7 @@ jobs:
     steps:
       - restore_cache:
           keys:
-           - data-{{ .Branch }}
+            - data-{{ .Branch }}
 
       # Download DB dump from public URL to test Drupal-dev project.
       # Remove the line below in your project.
@@ -45,22 +52,25 @@ jobs:
             - ~/project/.data
           key: data-{{ .Branch }}
 
-  # Build and test the whole project.
-  build_and_test:
-    docker:
-      - image: circleci/php:7.0-cli
+      - persist_to_workspace:
+          root: .data
+          paths:
+            - db.dist.sql
 
-    steps:
-      - checkout
+  # Build.
+  build:
+      docker:
+        - image: circleci/php:7.0-fpm-browsers
 
-      - restore_cache:
-          keys:
-           - composer-dependencies1-{{ checksum "composer.json" }}-
-           - data-{{ .Branch }}
+      steps:
+        - checkout
 
-      - run: pwd
-      - run: ls -al
-      - run: composer cs
+        - run: ls -al docroot
+
+        - attach_workspace:
+            at: ~/project
+
+        - run: ls -al docroot
 
 workflows:
   version: 2
@@ -69,7 +79,7 @@ workflows:
     jobs:
       - code_style
       - download_db
-      - build_and_test:
+      - build:
           requires:
             - code_style
             - download_db
