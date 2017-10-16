@@ -5,4 +5,4 @@ jobs:
        - image: beet/box:0.8.0
      steps:
        - checkout
-       - run: echo "hello world2"
+       - run: composer install
