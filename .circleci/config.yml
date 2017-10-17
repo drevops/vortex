@@ -5,6 +5,7 @@ jobs:
       - image: circleci/php:7.0-cli
         environment:
           BUILD_DIR: project
+          DOCROOT_DIR: /home/circleci/project/docroot
           DB_NAME: circle_test
           DB_USER: ubuntu
           DB_PASS: ""
@@ -15,8 +16,7 @@ jobs:
           WEB_USER: $(whoami)
           WEB_GROUP: www-data
           PHP_EXECUTABLE: $(which php)
-          # Custom configuration.
-          DOCROOT_DIR: /home/circleci/project/docroot
+
     steps:
       - checkout
       - restore_cache:
