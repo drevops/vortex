@@ -5,9 +5,7 @@ jobs:
       - image: circleci/php:7.0-cli
 
     steps:
-      - checkout:
-          path: /home/circleci/project/build
-
+      - run: mkdir -p /home/circleci/project/build
       - run: touch /home/circleci/project/build/build.txt
 
       - persist_to_workspace:
@@ -22,6 +20,7 @@ jobs:
     machine: true
 
     steps:
+      - run: mkdir -p /home/circleci/project/.data
       - run: touch /home/circleci/project/.data/.data.txt
       - persist_to_workspace:
           root: /home/circleci/project
