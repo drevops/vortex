@@ -28,6 +28,7 @@ jobs:
       - run: composer install -n --prefer-dist
       - save_cache:
           paths:
+            - ~/.composer/cache
             - ~/project/vendor
             - ~/project/node_modules
           key: composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-{{ epoch }}
