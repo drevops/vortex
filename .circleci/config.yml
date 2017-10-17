@@ -12,9 +12,6 @@ references:
   data_root: &data_root
     data
 
-  docroot: &docroot
-    code/docroot
-
   # Configuration shared between all containers.
   container_config: &container_config
     docker:
@@ -26,7 +23,6 @@ references:
       WORKSPACE_ROOT: *workspace_root
       CODE_ROOT: *code_root
       DATA_ROOT: *data_root
-      DOCROOT: *docroot
 
   attach_workspace: &attach_workspace
     attach_workspace:
@@ -36,30 +32,32 @@ jobs:
   code_dependencies:
     <<: *container_config
 
-#    working_directory: *code_root
+    working_directory: /home/circleci/project/code
+
+    environment:
+      DOCROOT: docroot
 
     steps:
       - run: printenv
 
-      - checkout:
-          path: *code_root
+      - checkout
       # @debug
       - run: test -d $DOCROOT/sites
 
-      - restore_cache:
-          keys:
-            - composer-dependencies-{{ checksum "*code_root/composer.json" }}-{{ checksum "*code_root/package.json" }}-
+#      - restore_cache:
+#          keys:
+#            - composer-dependencies-{{ checksum composer.json }}-{{ checksum package.json }}-
 
       - run:
           name: Install dependencies
-          command: cd $CODE_ROOT && composer install -n --prefer-dist
+          command: composer install -n --prefer-dist
 
-      - save_cache:
-          paths:
-            - ~/.composer/cache
-            - "*code_root/vendor"
-            - "*code_root/node_modules"
-          key: composer-dependencies-{{ checksum "*code_root/composer.json" }}-{{ checksum "*code_root/package.json" }}-{{ epoch }}
+#      - save_cache:
+#          paths:
+#            - ~/.composer/cache
+#            - "*code_root/vendor"
+#            - "*code_root/node_modules"
+#          key: composer-dependencies-{{ checksum "*code_root/composer.json" }}-{{ checksum "*code_root/package.json" }}-{{ epoch }}
 
       - persist_to_workspace:
           root: *workspace_root
@@ -110,6 +108,16 @@ jobs:
 
     steps:
       - *attach_workspace
+
+
+      # Validate step pre-requisites.
+      # @debug
+      - run: test -d /home/circleci/project/code/vendor
+      - run: test -d /home/circleci/project/code/node_modules
+      - run: test -f /home/circleci/project/code/docroot/index.php
+      - run: test -f /home/circleci/project/data/db.dist.sql
+
+      - run: echo "LINT"
 
       - run: test -d /home/circleci/project/code
       - run: test -d /home/circleci/project/data
