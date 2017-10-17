@@ -214,7 +214,7 @@ jobs:
 workflows:
   version: 2
 
-  cs_and_code_and_test:
+  main:
     jobs:
       - code_dependencies
       - download_db
