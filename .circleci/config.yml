@@ -16,21 +16,20 @@ jobs:
           WEB_GROUP: www-data
           PHP_EXECUTABLE: $(which php)
 
-    working_directory: project/build
     steps:
-      - run: sudo mkdir -p /home/circleci/project/build
-      - checkout
+      - checkout:
+          path: project/build
 
       - restore_cache:
           keys:
-            - composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-
+            - composer-dependencies1-{{ checksum "build/composer.json" }}-{{ checksum "build/package.json" }}-
       - run: composer install -n --prefer-dist
       - save_cache:
           paths:
             - ~/.composer/cache
             - ~/project/build/vendor
             - ~/project/build/node_modules
-          key: composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-{{ epoch }}
+          key: composer-dependencies1-{{ checksum "build/composer.json" }}-{{ checksum "build/package.json" }}-{{ epoch }}
 
       - persist_to_workspace:
           root: /home/circleci/project
