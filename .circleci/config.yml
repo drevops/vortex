@@ -10,7 +10,6 @@ jobs:
           DB_USER: ubuntu
           DB_PASS: ubuntu
           DB_HOST: 127.0.0.1
-          # Server configuration.
           SERVER: local.mysiteurl
           WEB_URL: http://local.mysiteurl
           WEB_USER: $(whoami)
