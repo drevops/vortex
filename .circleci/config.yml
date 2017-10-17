@@ -16,9 +16,9 @@ jobs:
           WEB_GROUP: www-data
           PHP_EXECUTABLE: $(which php)
 
+    working_directory: project/build
     steps:
-      - checkout:
-          path: project/build
+      - checkout
       - restore_cache:
           keys:
             - composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-
@@ -31,7 +31,7 @@ jobs:
           key: composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-{{ epoch }}
 
       - persist_to_workspace:
-          root: .
+          root: /home/circleci/project
           paths:
             - build
 
@@ -59,23 +59,26 @@ jobs:
           key: data-{{ .Branch }}
 
       - persist_to_workspace:
-          root: .
+          root: /home/circleci/project
           paths:
             - .data
 
-      - run: ls -al
+      - run: ls -al /home/circleci/project
 
   # Code style checking.
   # Fail fast if code style is incorrect.
   code_style:
+
     docker:
       - image: circleci/php:7.0-cli
 
+    working_directory: project/build
     steps:
       - run: ls -al /home/circleci
 
       - attach_workspace:
-          at: .
+          at: /home/circleci/project
+
       - run: composer cs
 
       - run: ls -al /home/circleci
