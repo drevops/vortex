@@ -1,8 +1,6 @@
 version: 2
 jobs:
-  # Code style checking.
-  # Fail fast if code style is incorrect.
-  code_style:
+  build_dependencies:
     docker:
       - image: circleci/php:7.0-cli
         environment:
@@ -19,26 +17,17 @@ jobs:
           PHP_EXECUTABLE: $(which php)
           # Custom configuration.
           DOCROOT_DIR: /home/circleci/project/docroot
-          PUBLIC_FILES_DIR: $DOCROOT_DIR/sites/default/files
-          BEHAT_SCREENSHOT_DIR: $CIRCLE_ARTIFACTS/behat
-
-
     steps:
       - checkout
-
       - restore_cache:
           keys:
             - composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-
-
       - run: composer install --no-interaction
-
       - save_cache:
           paths:
             - ~/project/vendor
             - ~/project/node_modules
           key: composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-{{ epoch }}
-
-      - run: composer cs
 
       - persist_to_workspace:
           root: ~/project
@@ -46,6 +35,15 @@ jobs:
             - vendor
             - node_modules
             - docroot
+
+  # Code style checking.
+  # Fail fast if code style is incorrect.
+  code_style:
+    docker:
+      - image: circleci/php:7.0-cli
+
+    steps:
+      - run: composer cs
 
   # Download DB.
   download_db:
@@ -75,123 +73,89 @@ jobs:
 
   # Build.
   build:
-      docker:
-#        - image: circleci/php:7.0-fpm-browsers
-#          environment:
-#            BUILD_DIR: project
-#            DB_NAME: beetbox
-#            DB_USER: beetbox
-#            DB_PASS: beetbox
-#            DB_HOST: 127.0.0.1
-#            # Server configuration.
-#            SERVER: local.mysiteurl
-#            WEB_URL: http://local.mysiteurl
-#            WEB_USER: $(whoami)
-#            WEB_GROUP: www-data
-#            PHP_EXECUTABLE: $(which php)
-#            # Custom configuration.
-#            DOCROOT_DIR: /home/circleci/project/docroot
-#            PUBLIC_FILES_DIR: $DOCROOT_DIR/sites/default/files
-#            BEHAT_SCREENSHOT_DIR: $CIRCLE_ARTIFACTS/behat
-#
-#        - image: circleci/mysql:8
-#          environment:
-#            - MYSQL_ROOT_HOST=%
-#            - MYSQL_ROOT_PASSWORD=ubuntu
-#            - MYSQL_DATABASE=beetbox
-#            - MYSQL_USER=beetbox
-#            - MYSQL_PASSWORD=beetbox
+    docker:
+      - image: circleci/php:7.1-apache
+        environment:
+          - MYSQL_HOST=127.0.0.1
 
-        - image: circleci/php:7.1-apache
+      - image: mysql:5.7
+        environment:
+          - MYSQL_USER=root
+          - MYSQL_ROOT_PASSWORD=ubuntu
+          - MYSQL_PASSWORD=
+          - MYSQL_ALLOW_EMPTY_PASSWORD=true
+          - MYSQL_DATABASE=circle_test
+          - MYSQL_ROOT_HOST=%
+
+    steps:
+      - run:
+          name: Install additional binaries
+          command: |
+            sudo apt-get -y libpng-dev install vim mysql-client
+      - run:
+          name: Install PHP extensions
+          command: |
+            sudo docker-php-ext-install pdo_mysql
+            sudo docker-php-ext-install gd
+
+      - run:
+          name: Display versions
+          command: |
+            php -v
+            composer -v
+            composer config --global --list
+
+
+      - run: echo 'export PATH=~/.composer/vendor/bin:$PATH' >> $BASH_ENV
+
+      - checkout
+      - attach_workspace:
+          at: ~/project
+
+      # Install drush.
+      - run: composer global require --no-interaction drush/drush
+
+      # Create local drush alias to make sure that composer build, which relies
+      # on aliases when importing DB, work correctly.
+      - run:
+          name: Create local drush alias
+          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
           environment:
-            - MYSQL_HOST=127.0.0.1
+            SERVER: local.mysiteurl
+            DOCROOT_DIR: /home/circleci/project/docroot
 
-        - image: mysql:5.7
-          environment:
-            - MYSQL_USER=root
-            - MYSQL_ROOT_PASSWORD=ubuntu
-            - MYSQL_PASSWORD=
-            - MYSQL_ALLOW_EMPTY_PASSWORD=true
-            - MYSQL_DATABASE=circle_test
-            - MYSQL_ROOT_HOST=%
+      # @debug
+      - run: cat docroot/sites/default/settings.beetbox.php
 
-      steps:
-        - run:
-            name: Install PHP extensions
-            command: sudo docker-php-ext-install pdo_mysql
-        - run:
-            name: Install extension
-            command: sudo apt-get install -y libpng-dev
-#        - run:
-#            name: Install PHP Extensions
-#            command: sudo docker-php-ext-install gd
-#        - run:
-#            name: Install Composer
-#            command: 'curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer'
-        - run:
-            name: Display versions
-            command: |
-              php -v
-              composer --version
-        - run:
-            name: Install mysql-client
-            command: |
-              sudo apt-get install mysql-client
-                    
-        - run: sudo apt-get install vim mysql-client
+      # Run actual project build.
+      - run: composer build
 
-        - run: composer config --global --list
-        - run: echo 'export PATH=~/.composer/vendor/bin:$PATH' >> $BASH_ENV
-        - checkout
-        - attach_workspace:
-            at: ~/project
+      # Check that Drupal can be bootstrapped after updates.
+      - run: drush status --root=$DOCROOT_DIR | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
-        - run: ls -al docroot
-        - run: cat docroot/sites/default/settings.beetbox.php
+  # Run tests.
+  test_behat:
+    docker:
+      - image: circleci/php:7.0-cli
 
-        # Install drush.
-        - run: composer global require --no-interaction drush/drush
-
-        # Create local drush alias to make sure that composer build, which relies
-        # on aliases when importing DB, work correctly.
-        - run:
-            name: Blah 1
-            command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa
-            environment:
-              BUILD_DIR: project
-              DB_NAME: circle_test
-              DB_USER: ubuntu
-              DB_PASS: ""
-              DB_HOST: 127.0.0.1
-              # Server configuration.
-              SERVER: local.mysiteurl
-              DOCROOT_DIR: /home/circleci/project/docroot
-        - run:
-            name: blah 2
-            command: cat $HOME/.drush/$SERVER.aliases.drushrc.php
-            environment:
-              BUILD_DIR: project
-              DB_NAME: circle_test
-              DB_USER: ubuntu
-              DB_PASS: ""
-              DB_HOST: 127.0.0.1
-              # Server configuration.
-              SERVER: local.mysiteurl
-
-        # Run actual project build.
-        - run: composer build
-
-        # Check that Drupal can be bootstrapped after updates.
-        - run: drush status --root=$DOCROOT_DIR | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
+    steps:
+      - run: echo "Placeholder for Behat test runner"
 
 workflows:
   version: 2
 
   cs_and_build_and_test:
     jobs:
-      - code_style
+      - build_dependencies
       - download_db
+      - code_style:
+          requires:
+            - build_dependencies
       - build:
           requires:
-            - code_style
+            - build_dependencies
             - download_db
+            - code_style
+      - test_behat:
+          requires:
+            - build
