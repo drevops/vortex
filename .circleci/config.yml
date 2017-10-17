@@ -56,9 +56,9 @@ jobs:
           key: data-{{ .Branch }}
 
       - persist_to_workspace:
-          root: .data
+          root: /home/circleci
           paths:
-            - db.dist.sql
+            - project/.data/db.dist.sql
 
   # Code style checking.
   # Fail fast if code style is incorrect.
@@ -85,7 +85,7 @@ jobs:
           MYSQL_DATABASE: circle_test
           MYSQL_ROOT_PASSWORD: ubuntu
           MYSQL_ALLOW_EMPTY_PASSWORD: true
-          MYSQL_ROOT_HOST: "%"
+          MYSQL_ROOT_HOST: "127.0.0.1"
 
     steps:
       - run:
