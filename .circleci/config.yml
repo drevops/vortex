@@ -18,12 +18,12 @@ jobs:
 
     steps:
       - checkout:
-          path: project/build
+          path: /home/circleci/project/build
 
       - restore_cache:
           keys:
             - composer-dependencies1-{{ checksum "build/composer.json" }}-{{ checksum "build/package.json" }}-
-      - run: composer install -n --prefer-dist
+      - run: cd build && composer install -n --prefer-dist
       - save_cache:
           paths:
             - ~/.composer/cache
