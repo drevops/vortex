@@ -7,14 +7,18 @@ references:
     /home/circleci/project
 
   code_root: &code_root
-    code
+    "*workspace_root/code"
 
   data_root: &data_root
-    data
+    "*workspace_root/data"
 
   # Configuration shared between all containers.
   container_config: &container_config
+    docker:
+      - image: circleci/php:7.0-cli
+
     working_directory: *workspace_root
+
     environment:
       WORKSPACE_ROOT: *workspace_root
       CODE_ROOT: *code_root
@@ -27,8 +31,6 @@ references:
 jobs:
   code_dependencies:
     <<: *container_config
-    docker:
-      - image: circleci/php:7.0-cli
 
     steps:
       - checkout:
@@ -44,7 +46,6 @@ jobs:
   # Download DB.
   download_db:
     <<: *container_config
-    machine: true
 
     steps:
       - run: mkdir -p $DATA_ROOT
@@ -61,8 +62,6 @@ jobs:
   # Fail fast if code style is incorrect.
   code_style:
     <<: *container_config
-    docker:
-      - image: circleci/php:7.0-cli
 
     steps:
       - *attach_workspace
