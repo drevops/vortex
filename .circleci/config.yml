@@ -1,54 +1,77 @@
+# YAML supports anchors and references.
+# @see http://blog.daemonl.com/2016/02/yaml.html
 version: 2
+
+references:
+  workspace_root: &workspace_root
+    /home/circleci/project
+
+  code_root: &code_root
+    code
+
+  data_root: &data_root
+    data
+
+  # Configuration shared between all containers.
+  container_config: &container_config
+    working_directory: *workspace_root
+    environment:
+      WORKSPACE_ROOT: *workspace_root
+      CODE_ROOT: *code_root
+      DATA_ROOT: *data_root
+
+  attach_workspace: &attach_workspace
+    attach_workspace:
+      at: *workspace_root
+
 jobs:
-  workspace_dependencies:
+  code_dependencies:
+    <<: *container_config
     docker:
       - image: circleci/php:7.0-cli
 
     steps:
-      - run: mkdir -p /home/circleci/project/workspace
-      - run: touch /home/circleci/project/workspace/workspace.txt
+      - checkout:
+          path: *code_root
 
       - persist_to_workspace:
-          root: /home/circleci/project
+          root: *workspace_root
           paths:
-            - workspace
+            - *code_root
 
-      - run: ls -al /home/circleci/project
+      - run: ls -al $WORKSPACE_ROOT
 
   # Download DB.
   download_db:
+    <<: *container_config
     machine: true
 
     steps:
-      - run: mkdir -p /home/circleci/project/.data
-      - run: touch /home/circleci/project/.data/.data.txt
-      - persist_to_workspace:
-          root: /home/circleci/project
-          paths:
-            - .data
+      - run: mkdir -p $DATA_ROOT
+      - run: touch $DATA_ROOT/database.txt
 
-      - run: ls -al /home/circleci/project
+      - persist_to_workspace:
+          root: *workspace_root
+          paths:
+            - *data_root
+
+      - run: ls -al $WORKSPACE_ROOT
 
   # Code style checking.
   # Fail fast if code style is incorrect.
   code_style:
-
+    <<: *container_config
     docker:
       - image: circleci/php:7.0-cli
 
     steps:
-      - run: ls -al /home/circleci
-      - run: ls -al /home/circleci/project
+      - *attach_workspace
 
-      - attach_workspace:
-          at: /home/circleci/project
-
-      - run: ls -al /home/circleci/project
-      - run: ls -al /home/circleci/project/workspace
-      - run: ls -al /home/circleci/project/.data
+      - run: test -d $CODE_ROOT
+      - run: test -d $DATA_ROOT
 #
-#  # workspace.
-#  workspace:
+#  # code.
+#  code:
 #    docker:
 #      - image: circleci/php:7.1-apache
 #        environment:
@@ -84,26 +107,26 @@ jobs:
 #
 #      - run: echo 'export PATH=~/.composer/vendor/bin:$PATH' >> $BASH_ENV
 #
-#      - attach_workspace:
+#      - attach_code:
 #          at: /home/circleci
 #
 #      # Install drush.
 #      - run: composer global require --no-interaction drush/drush
 #
-#      # Create local drush alias to make sure that composer workspace, which relies
+#      # Create local drush alias to make sure that composer code, which relies
 #      # on aliases when importing DB, work correctly.
 #      - run:
 #          name: Create local drush alias
 #          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 #          environment:
 #            SERVER: local.mysiteurl
-#            DOCROOT_DIR: /home/circleci/project/workspace/docroot
+#            DOCROOT_DIR: code/docroot
 #
 #      # @debug
 #      - run: cat docroot/sites/default/settings.beetbox.php
 #
-#      # Run actual project/workspace workspace.
-#      - run: composer workspace
+#      # Run actual project/code code.
+#      - run: composer code
 #
 #      # Check that Drupal can be bootstrapped after updates.
 #      - run: drush status --root=$DOCROOT_DIR | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
@@ -131,22 +154,22 @@ jobs:
 workflows:
   version: 2
 
-  cs_and_workspace_and_test:
+  cs_and_code_and_test:
     jobs:
-      - workspace_dependencies
+      - code_dependencies
       - download_db
       - code_style:
           requires:
-            - workspace_dependencies
+            - code_dependencies
             - download_db
-#      - workspace:
+#      - code:
 #          requires:
-#            - workspace_dependencies
+#            - code_dependencies
 #            - download_db
 #            - code_style
 #      - test_behat:
 #          requires:
-#            - workspace
+#            - code
 #      - deploy_primary:
 #          requires:
 #            - test_behat
