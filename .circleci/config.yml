@@ -3,62 +3,26 @@ jobs:
   build_dependencies:
     docker:
       - image: circleci/php:7.0-cli
-        environment:
-          BUILD_DIR: project/build
-          DOCROOT_DIR: /home/circleci/project/build/docroot
-          DB_NAME: circle_test
-          DB_USER: ubuntu
-          DB_PASS: ubuntu
-          DB_HOST: 127.0.0.1
-          SERVER: local.mysiteurl
-          WEB_URL: http://local.mysiteurl
-          WEB_USER: $(whoami)
-          WEB_GROUP: www-data
-          PHP_EXECUTABLE: $(which php)
 
     steps:
       - checkout:
           path: /home/circleci/project/build
 
-      - restore_cache:
-          keys:
-            - composer-dependencies1-{{ checksum "build/composer.json" }}-{{ checksum "build/package.json" }}-
-      - run: cd build && composer install -n --prefer-dist
-      - save_cache:
-          paths:
-            - ~/.composer/cache
-            - ~/project/build/vendor
-            - ~/project/build/node_modules
-          key: composer-dependencies1-{{ checksum "build/composer.json" }}-{{ checksum "build/package.json" }}-{{ epoch }}
+      - run: touch /home/circleci/project/build/build.txt
 
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
             - build
 
-      - run: ls -al
+      - run: ls -al /home/circleci/project
 
   # Download DB.
   download_db:
     machine: true
 
     steps:
-      - restore_cache:
-          keys:
-            - data-{{ .Branch }}
-
-      # Download DB dump from public URL to test Drupal-dev project/build.
-      # Remove the line below in your project/build.
-      - run: if [ ! -f ~/project/.data/db.dist.sql ] ; then mkdir -p ~/project/.data && curl -L https://goo.gl/WFtJbT -o ~/project/.data/db.dist.sql; fi
-      # [META] Uncomment the line below to download DB dump from FTP, using
-      # variables set in Circle CI UI.
-      # - run: if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $BUILD_DIR/.data/db.dist.sql; fi
-
-      - save_cache:
-          paths:
-            - ~/project/.data
-          key: data-{{ .Branch }}
-
+      - run: touch /home/circleci/project/.data/.data.txt
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
@@ -74,14 +38,15 @@ jobs:
       - image: circleci/php:7.0-cli
 
     steps:
+      - run: ls -al /home/circleci
+      - run: ls -al /home/circleci/project
+
       - attach_workspace:
           at: /home/circleci/project
 
-      - run: cd build && composer cs
-
-      - run: ls -al /home/circleci
       - run: ls -al /home/circleci/project
-      - run: ls -al /home/circleci/project/build/docroot
+      - run: ls -al /home/circleci/project/build
+      - run: ls -al /home/circleci/project/.data
 #
 #  # Build.
 #  build:
