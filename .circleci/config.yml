@@ -4,8 +4,8 @@ jobs:
     docker:
       - image: circleci/php:7.0-cli
         environment:
-          BUILD_DIR: project
-          DOCROOT_DIR: /home/circleci/project/docroot
+          BUILD_DIR: project/build
+          DOCROOT_DIR: /home/circleci/project/build/docroot
           DB_NAME: circle_test
           DB_USER: ubuntu
           DB_PASS: ubuntu
@@ -25,14 +25,14 @@ jobs:
       - save_cache:
           paths:
             - ~/.composer/cache
-            - ~/project/vendor
-            - ~/project/node_modules
+            - ~/project/build/vendor
+            - ~/project/build/node_modules
           key: composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-{{ epoch }}
 
       - persist_to_workspace:
-          root: /home/circleci
+          root: .
           paths:
-            - project
+            - build
 
       - run: ls -al
 
@@ -45,9 +45,9 @@ jobs:
           keys:
             - data-{{ .Branch }}
 
-      # Download DB dump from public URL to test Drupal-dev project.
-      # Remove the line below in your project.
-      - run: if [ ! -f ~/.data/db.dist.sql ] ; then mkdir -p ~/.data && curl -L https://goo.gl/WFtJbT -o ~/.data/db.dist.sql; fi
+      # Download DB dump from public URL to test Drupal-dev project/build.
+      # Remove the line below in your project/build.
+      - run: if [ ! -f ~/project/.data/db.dist.sql ] ; then mkdir -p ~/project/.data && curl -L https://goo.gl/WFtJbT -o ~/project/.data/db.dist.sql; fi
       # [META] Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
       # - run: if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $BUILD_DIR/.data/db.dist.sql; fi
@@ -58,9 +58,9 @@ jobs:
           key: data-{{ .Branch }}
 
       - persist_to_workspace:
-          root: /home/circleci
+          root: .
           paths:
-            - .data/db.dist.sql
+            - .data
 
       - run: ls -al
 
@@ -74,11 +74,12 @@ jobs:
       - run: ls -al /home/circleci
 
       - attach_workspace:
-          at: /home/circleci
+          at: .
       - run: composer cs
 
       - run: ls -al /home/circleci
-      - run: ls -al /home/circleci/project/docroot
+      - run: ls -al /home/circleci/project
+      - run: ls -al /home/circleci/project/build/docroot
 #
 #  # Build.
 #  build:
@@ -130,12 +131,12 @@ jobs:
 #          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 #          environment:
 #            SERVER: local.mysiteurl
-#            DOCROOT_DIR: /home/circleci/project/docroot
+#            DOCROOT_DIR: /home/circleci/project/build/docroot
 #
 #      # @debug
 #      - run: cat docroot/sites/default/settings.beetbox.php
 #
-#      # Run actual project build.
+#      # Run actual project/build build.
 #      - run: composer build
 #
 #      # Check that Drupal can be bootstrapped after updates.
