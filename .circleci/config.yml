@@ -18,7 +18,10 @@ jobs:
 
     working_directory: project/build
     steps:
+      - attach_workspace:
+          at: /home/circleci/project
       - checkout
+
       - restore_cache:
           keys:
             - composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-
