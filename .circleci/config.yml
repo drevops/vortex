@@ -18,9 +18,7 @@ jobs:
 
     working_directory: project/build
     steps:
-      - attach_workspace:
-          at: /home/circleci/project
-      - run: mkdir -p project/build
+      - run: mkdir -p /home/circleci/project/build
       - checkout
 
       - restore_cache:
