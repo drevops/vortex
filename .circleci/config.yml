@@ -20,6 +20,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /home/circleci/project
+      - run: mkdir -p project/build
       - checkout
 
       - restore_cache:
