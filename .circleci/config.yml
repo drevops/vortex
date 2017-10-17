@@ -22,7 +22,7 @@ jobs:
       - restore_cache:
           keys:
             - composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-
-      - run: composer install --no-interaction
+      - run: composer install -n --prefer-dist
       - save_cache:
           paths:
             - ~/project/vendor
@@ -30,11 +30,9 @@ jobs:
           key: composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-{{ epoch }}
 
       - persist_to_workspace:
-          root: ~/project
+          root: /home/circleci
           paths:
-            - vendor
-            - node_modules
-            - docroot
+            - project
 
   # Download DB.
   download_db:
@@ -70,7 +68,7 @@ jobs:
 
     steps:
       - attach_workspace:
-          at: ~/project
+          at: /home/circleci
       - run: composer cs
 
   # Build.
@@ -93,7 +91,7 @@ jobs:
       - run:
           name: Install additional binaries
           command: |
-            sudo apt-get -y libpng-dev install vim mysql-client
+            sudo apt-get -y install vim mysql-client libpng-dev
       - run:
           name: Install PHP extensions
           command: |
@@ -112,7 +110,7 @@ jobs:
 
       - checkout
       - attach_workspace:
-          at: ~/project
+          at: /home/circleci
 
       # Install drush.
       - run: composer global require --no-interaction drush/drush
