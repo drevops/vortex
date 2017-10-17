@@ -25,7 +25,7 @@ references:
 
     working_directory: *workspace_root
 
-    environment:
+    environment: &container_config_environment
       WORKSPACE_ROOT: *workspace_root
       CODE_ROOT: *code_root
       DATA_ROOT: *data_root
@@ -47,6 +47,7 @@ jobs:
     working_directory: /home/circleci/project/code
 
     environment:
+      <<: *container_config_environment
       DOCROOT: docroot
 
     steps:
@@ -158,6 +159,10 @@ jobs:
 
     working_directory: /home/circleci/project/code
 
+    environment:
+      <<: *container_config_environment
+      DOCROOT: docroot
+
     steps:
       - *attach_workspace
 
@@ -206,7 +211,7 @@ jobs:
       # on aliases when importing DB, works correctly.
       - run:
           name: Create local drush alias
-          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
+          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 
       # Run actual project build code.
       - run: composer build
