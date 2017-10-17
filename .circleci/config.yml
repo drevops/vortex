@@ -17,9 +17,6 @@ jobs:
           PHP_EXECUTABLE: $(which php)
 
     steps:
-      - attach_workspace:
-          at: /home/circleci
-
       - checkout
       - restore_cache:
           keys:
@@ -44,17 +41,13 @@ jobs:
     machine: true
 
     steps:
-      - attach_workspace:
-          at: /home/circleci
-
-
       - restore_cache:
           keys:
             - data-{{ .Branch }}
 
       # Download DB dump from public URL to test Drupal-dev project.
       # Remove the line below in your project.
-      - run: if [ ! -f .data/db.dist.sql ] ; then mkdir .data && curl -L https://goo.gl/WFtJbT -o .data/db.dist.sql; fi
+      - run: if [ ! -f ~/.data/db.dist.sql ] ; then mkdir .data && curl -L https://goo.gl/WFtJbT -o ~/.data/db.dist.sql; fi
       # [META] Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
       # - run: if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $BUILD_DIR/.data/db.dist.sql; fi
@@ -67,7 +60,7 @@ jobs:
       - persist_to_workspace:
           root: /home/circleci
           paths:
-            - project/.data/db.dist.sql
+            - .data/db.dist.sql
 
       - run: ls -al
 
@@ -78,13 +71,14 @@ jobs:
       - image: circleci/php:7.0-cli
 
     steps:
-      - run: ls -al
+      - run: ls -al /home/circleci
 
       - attach_workspace:
           at: /home/circleci
       - run: composer cs
 
-      - run: ls -al
+      - run: ls -al /home/circleci
+      - run: ls -al /home/circleci/project/docroot
 #
 #  # Build.
 #  build:
