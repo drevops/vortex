@@ -73,14 +73,11 @@ jobs:
     docker:
       - image: circleci/php:7.0-cli
 
-    working_directory: project/build
     steps:
-      - run: ls -al /home/circleci
-
       - attach_workspace:
           at: /home/circleci/project
 
-      - run: composer cs
+      - run: cd build && composer cs
 
       - run: ls -al /home/circleci
       - run: ls -al /home/circleci/project
