@@ -47,7 +47,7 @@ jobs:
 
       # Download DB dump from public URL to test Drupal-dev project.
       # Remove the line below in your project.
-      - run: if [ ! -f ~/.data/db.dist.sql ] ; then mkdir .data && curl -L https://goo.gl/WFtJbT -o ~/.data/db.dist.sql; fi
+      - run: if [ ! -f ~/.data/db.dist.sql ] ; then mkdir -p ~/.data && curl -L https://goo.gl/WFtJbT -o ~/.data/db.dist.sql; fi
       # [META] Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
       # - run: if [ ! -f $BUILD_DIR/.data/db.dist.sql ] ; then mkdir $BUILD_DIR/.data && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db_d7.dist.sql" -o $BUILD_DIR/.data/db.dist.sql; fi
