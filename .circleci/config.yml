@@ -29,6 +29,12 @@ references:
       WORKSPACE_ROOT: *workspace_root
       CODE_ROOT: *code_root
       DATA_ROOT: *data_root
+      DB_NAME: circle_test
+      DB_USER: ubuntu
+      DB_PASS: ubuntu
+      DB_HOST: 127.0.0.1
+      SERVER: local.mysiteurl
+      WEB_URL: http://local.mysiteurl
 
   attach_workspace: &attach_workspace
     attach_workspace:
@@ -78,6 +84,7 @@ jobs:
       - run: test -d /home/circleci/project/code/vendor
       - run: test -d /home/circleci/project/code/node_modules
       - run: test -f /home/circleci/project/code/docroot/index.php
+      - run: cat /home/circleci/project/code/docroot/sites/default/settings.beetbox.php
 
   # Download DB.
   download_db:
@@ -114,9 +121,45 @@ jobs:
   code_style:
     <<: *container_config
 
+    working_directory: /home/circleci/project/code
     steps:
       - *attach_workspace
 
+      # Validate step pre-requisites.
+      # @debug
+      - run: test -d /home/circleci/project/code/vendor
+      - run: test -d /home/circleci/project/code/node_modules
+      - run: test -f /home/circleci/project/code/docroot/index.php
+      - run: test -d /home/circleci/project/code/docroot/sites/all/modules/custom
+
+      - run:
+          name: Lint code
+          command: composer cs
+
+      - run: test -d /home/circleci/project/code
+
+  # Build.
+  build:
+    <<: *container_config
+
+    docker:
+      - image: circleci/php:7.1-apache
+        environment:
+          MYSQL_HOST: 127.0.0.1
+
+      - image: mysql:5.7
+        environment:
+          MYSQL_USER: ubuntu
+          MYSQL_PASSWORD: ubuntu
+          MYSQL_DATABASE: circle_test
+          MYSQL_ROOT_PASSWORD: ubuntu
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_ROOT_HOST: 127.0.0.1
+
+    working_directory: /home/circleci/project/code
+
+    steps:
+      - *attach_workspace
 
       # Validate step pre-requisites.
       # @debug
@@ -124,92 +167,70 @@ jobs:
       - run: test -d /home/circleci/project/code/node_modules
       - run: test -f /home/circleci/project/code/docroot/index.php
       - run: test -f /home/circleci/project/data/db.dist.sql
+      - run: test -f /home/circleci/project/code/docroot/sites/default/settings.beetbox.php
+      - run: cat /home/circleci/project/code/docroot/sites/default/settings.beetbox.php
+      - run: printenv
 
-      - run: echo "LINT12"
+      - run:
+          name: Install additional binaries
+          command: |
+            sudo apt-get -y install vim mysql-client libpng-dev
 
-      - run: test -d /home/circleci/project/code
-      - run: test -d /home/circleci/project/data
-#
-#  # code.
-#  code:
-#    docker:
-#      - image: circleci/php:7.1-apache
-#        environment:
-#          MYSQL_HOST: 127.0.0.1
-#
-#      - image: mysql:5.7
-#        environment:
-#          MYSQL_USER: ubuntu
-#          MYSQL_PASSWORD: ubuntu
-#          MYSQL_DATABASE: circle_test
-#          MYSQL_ROOT_PASSWORD: ubuntu
-#          MYSQL_ALLOW_EMPTY_PASSWORD: true
-#          MYSQL_ROOT_HOST: "127.0.0.1"
-#
-#    steps:
-#      - run:
-#          name: Install additional binaries
-#          command: |
-#            sudo apt-get -y install vim mysql-client libpng-dev
-#      - run:
-#          name: Install PHP extensions
-#          command: |
-#            sudo docker-php-ext-install pdo_mysql
+      # @debug
+      - run: mysql -h 127.0.0.1 -u ubuntu -pubuntu --database=circle_test -e"quit"
+
+      - run:
+          name: Install PHP extensions
+          command: |
+            sudo docker-php-ext-install pdo_mysql
 #            sudo docker-php-ext-install gd
-#
-#      - run:
-#          name: Display versions
-#          command: |
-#            php -v
-#            composer -v
-#            composer config --global --list
-#
-#
-#      - run: echo 'export PATH=~/.composer/vendor/bin:$PATH' >> $BASH_ENV
-#
-#      - attach_code:
-#          at: /home/circleci
-#
-#      # Install drush.
-#      - run: composer global require --no-interaction drush/drush
-#
-#      # Create local drush alias to make sure that composer code, which relies
-#      # on aliases when importing DB, work correctly.
-#      - run:
-#          name: Create local drush alias
-#          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
-#          environment:
-#            SERVER: local.mysiteurl
-#            DOCROOT_DIR: code/docroot
-#
-#      # @debug
-#      - run: cat docroot/sites/default/settings.beetbox.php
-#
-#      # Run actual project/code code.
-#      - run: composer code
-#
-#      # Check that Drupal can be bootstrapped after updates.
-#      - run: drush status --root=$DOCROOT_DIR | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
-#
-#  # Run tests.
-#  test_behat:
-#    docker:
-#      - image: circleci/php:7.0-cli
-#
-#    steps:
-#      - run: echo "Placeholder for Behat test runner"
-#
-#  # Deploy primary branches.
-#  deploy_primary:
-#    machine: true
-#    steps:
-#      - run: echo "Running deployment command for 'primary' branches"
-#
-#  # Deploy feature branches.
-#  deploy_features:
-#    machine: true
-#    steps:
-#      - run: echo "Running deployment command for 'feature' branches"
+
+      - run:
+          name: Display versions
+          command: |
+            php -v
+            composer -v
+            composer config --global --list
+
+      # @todo: Move this to the config section section.
+      - run: echo 'export PATH=~/.composer/vendor/bin:$PATH' >> $BASH_ENV
+
+      # Install drush.
+      - run: composer global require --no-interaction drush/drush
+
+      # @debug
+      - run: command -v drush
+      - run: drush --version
+
+      # Create local drush alias to make sure that composer code, which relies
+      # on aliases when importing DB, works correctly.
+      - run:
+          name: Create local drush alias
+          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
+
+      # Run actual project build code.
+      - run: composer build
+
+      # Check that Drupal can be bootstrapped after updates.
+      - run: drush status --root=$DOCROOT_DIR | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
+
+  # Run tests.
+  test_behat:
+    <<: *container_config
+    steps:
+      - run: echo "Placeholder for Behat test runner"
+
+  # Deploy primary branches.
+  deploy_primary:
+    <<: *container_config
+    steps:
+      - run: echo "Running deployment command for 'primary' branches"
+
+  # Deploy feature branches.
+  deploy_features:
+    <<: *container_config
+    steps:
+      - run: echo "Running deployment command for 'feature' branches"
 
 workflows:
   version: 2
@@ -221,24 +242,23 @@ workflows:
       - code_style:
           requires:
             - code_dependencies
+      - build:
+          requires:
+            - code_dependencies
             - download_db
-#      - code:
-#          requires:
-#            - code_dependencies
-#            - download_db
-#            - code_style
-#      - test_behat:
-#          requires:
-#            - code
-#      - deploy_primary:
-#          requires:
-#            - test_behat
-#          filters:
-#            branches:
-#              only: /master|develop|ci|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?/
-#      - deploy_features:
-#          requires:
-#            - test_behat
-#          filters:
-#            branches:
-#              only: /feature\/[a-zA-z0-9\-]+/
+            - code_style
+      - test_behat:
+          requires:
+            - build
+      - deploy_primary:
+          requires:
+            - test_behat
+          filters:
+            branches:
+              only: /master|develop|ci|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?/
+      - deploy_features:
+          requires:
+            - test_behat
+          filters:
+            branches:
+              only: /feature\/[a-zA-z0-9\-]+/
