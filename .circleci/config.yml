@@ -36,15 +36,6 @@ jobs:
             - node_modules
             - docroot
 
-  # Code style checking.
-  # Fail fast if code style is incorrect.
-  code_style:
-    docker:
-      - image: circleci/php:7.0-cli
-
-    steps:
-      - run: composer cs
-
   # Download DB.
   download_db:
     machine: true
@@ -70,6 +61,17 @@ jobs:
           root: .data
           paths:
             - db.dist.sql
+
+  # Code style checking.
+  # Fail fast if code style is incorrect.
+  code_style:
+    docker:
+      - image: circleci/php:7.0-cli
+
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run: composer cs
 
   # Build.
   build:
