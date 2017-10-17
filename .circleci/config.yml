@@ -61,6 +61,9 @@ jobs:
 
       - save_cache:
           paths:
+          # @note: We do not cache vendor dir as this prevent Drupal core files
+          # from being built on the next run and we cannot cache the whole
+          # docroot as it contains excluded files.
             - ~/.composer/cache
           key: *dependencies_cache_key
 
@@ -122,7 +125,7 @@ jobs:
       - run: test -f /home/circleci/project/code/docroot/index.php
       - run: test -f /home/circleci/project/data/db.dist.sql
 
-      - run: echo "LINT1"
+      - run: echo "LINT12"
 
       - run: test -d /home/circleci/project/code
       - run: test -d /home/circleci/project/data
