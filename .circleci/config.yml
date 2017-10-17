@@ -12,17 +12,11 @@ references:
   data_root: &data_root
     data
 
-  composer_vendor: &composer_vendor
-    /home/circleci/project/code/vendor
-    
-  node_modules: &node_modules
-    /home/circleci/project/code/node_modules
-
   dependencies_cache_key: &dependencies_cache_key
-    v1-dependencies-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-{{ epoch }}
+    v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
 
   dependencies_cache_key_any: &dependencies_cache_key_any
-    v1-dependencies-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-
+    v2-dependencies-{{ checksum "composer.json" }}
 
   # Configuration shared between all containers.
   container_config: &container_config
@@ -68,8 +62,6 @@ jobs:
       - save_cache:
           paths:
             - ~/.composer/cache
-            - *composer_vendor
-            - *node_modules
           key: *dependencies_cache_key
 
       - persist_to_workspace:
@@ -130,7 +122,7 @@ jobs:
       - run: test -f /home/circleci/project/code/docroot/index.php
       - run: test -f /home/circleci/project/data/db.dist.sql
 
-      - run: echo "LINT"
+      - run: echo "LINT1"
 
       - run: test -d /home/circleci/project/code
       - run: test -d /home/circleci/project/data
