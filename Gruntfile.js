@@ -43,7 +43,7 @@ module.exports = function (grunt) {
       prod: {
         options: {
           mangle: {
-            except: ['jQuery', 'Drupal']
+            reserved: ['jQuery', 'Drupal']
           },
           compress: {
             drop_console: true
