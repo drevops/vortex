@@ -38,26 +38,25 @@ jobs:
       DOCROOT: docroot
 
     steps:
+      # @debug
       - run: printenv
 
       - checkout
       # @debug
       - run: test -d $DOCROOT/sites
 
-#      - restore_cache:
-#          keys:
-#            - composer-dependencies-{{ checksum composer.json }}-{{ checksum package.json }}-
+      - restore_cache:
+          keys:
+            - v1-composer-dependencies-{{ checksum "composer.json" }}-
 
       - run:
           name: Install dependencies
           command: composer install -n --prefer-dist
 
-#      - save_cache:
-#          paths:
-#            - ~/.composer/cache
-#            - "*code_root/vendor"
-#            - "*code_root/node_modules"
-#          key: composer-dependencies-{{ checksum "*code_root/composer.json" }}-{{ checksum "*code_root/package.json" }}-{{ epoch }}
+      - save_cache:
+          paths:
+            - ~/.composer/cache
+          key: v1-composer-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
 
       - persist_to_workspace:
           root: *workspace_root
@@ -78,7 +77,7 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - data-{{ .Branch }}
+            - v1-data-{{ .Branch }}
 
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Remove the line below in your project/build.
@@ -90,7 +89,7 @@ jobs:
       - save_cache:
           paths:
             - *data_root
-          key: data-{{ .Branch }}
+          key: v1-data-{{ .Branch }}
 
       - persist_to_workspace:
           root: *workspace_root
