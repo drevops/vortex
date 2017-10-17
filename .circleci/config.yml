@@ -1,17 +1,17 @@
 version: 2
 jobs:
-  build_dependencies:
+  workspace_dependencies:
     docker:
       - image: circleci/php:7.0-cli
 
     steps:
-      - run: mkdir -p /home/circleci/project/build
-      - run: touch /home/circleci/project/build/build.txt
+      - run: mkdir -p /home/circleci/project/workspace
+      - run: touch /home/circleci/project/workspace/workspace.txt
 
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
-            - build
+            - workspace
 
       - run: ls -al /home/circleci/project
 
@@ -44,11 +44,11 @@ jobs:
           at: /home/circleci/project
 
       - run: ls -al /home/circleci/project
-      - run: ls -al /home/circleci/project/build
+      - run: ls -al /home/circleci/project/workspace
       - run: ls -al /home/circleci/project/.data
 #
-#  # Build.
-#  build:
+#  # workspace.
+#  workspace:
 #    docker:
 #      - image: circleci/php:7.1-apache
 #        environment:
@@ -90,20 +90,20 @@ jobs:
 #      # Install drush.
 #      - run: composer global require --no-interaction drush/drush
 #
-#      # Create local drush alias to make sure that composer build, which relies
+#      # Create local drush alias to make sure that composer workspace, which relies
 #      # on aliases when importing DB, work correctly.
 #      - run:
 #          name: Create local drush alias
 #          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT_DIR'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 #          environment:
 #            SERVER: local.mysiteurl
-#            DOCROOT_DIR: /home/circleci/project/build/docroot
+#            DOCROOT_DIR: /home/circleci/project/workspace/docroot
 #
 #      # @debug
 #      - run: cat docroot/sites/default/settings.beetbox.php
 #
-#      # Run actual project/build build.
-#      - run: composer build
+#      # Run actual project/workspace workspace.
+#      - run: composer workspace
 #
 #      # Check that Drupal can be bootstrapped after updates.
 #      - run: drush status --root=$DOCROOT_DIR | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
@@ -131,22 +131,22 @@ jobs:
 workflows:
   version: 2
 
-  cs_and_build_and_test:
+  cs_and_workspace_and_test:
     jobs:
-      - build_dependencies
+      - workspace_dependencies
       - download_db
       - code_style:
           requires:
-            - build_dependencies
+            - workspace_dependencies
             - download_db
-#      - build:
+#      - workspace:
 #          requires:
-#            - build_dependencies
+#            - workspace_dependencies
 #            - download_db
 #            - code_style
 #      - test_behat:
 #          requires:
-#            - build
+#            - workspace
 #      - deploy_primary:
 #          requires:
 #            - test_behat
