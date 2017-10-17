@@ -7,10 +7,13 @@ references:
     /home/circleci/project
 
   code_root: &code_root
-    "*workspace_root/code"
+    code
 
   data_root: &data_root
-    "*workspace_root/data"
+    data
+
+  docroot: &docroot
+    code/docroot
 
   # Configuration shared between all containers.
   container_config: &container_config
@@ -23,6 +26,7 @@ references:
       WORKSPACE_ROOT: *workspace_root
       CODE_ROOT: *code_root
       DATA_ROOT: *data_root
+      DOCROOT: *docroot
 
   attach_workspace: &attach_workspace
     attach_workspace:
@@ -32,16 +36,42 @@ jobs:
   code_dependencies:
     <<: *container_config
 
+#    working_directory: *code_root
+
     steps:
+      - run: printenv
+
       - checkout:
           path: *code_root
+      # @debug
+      - run: test -d $DOCROOT/sites
+
+      - restore_cache:
+          keys:
+            - composer-dependencies-{{ checksum "*code_root/composer.json" }}-{{ checksum "*code_root/package.json" }}-
+
+      - run:
+          name: Install dependencies
+          command: cd $CODE_ROOT && composer install -n --prefer-dist
+
+      - save_cache:
+          paths:
+            - ~/.composer/cache
+            - "*code_root/vendor"
+            - "*code_root/node_modules"
+          key: composer-dependencies-{{ checksum "*code_root/composer.json" }}-{{ checksum "*code_root/package.json" }}-{{ epoch }}
 
       - persist_to_workspace:
           root: *workspace_root
           paths:
             - *code_root
 
-      - run: ls -al $WORKSPACE_ROOT
+      # Validate step results.
+      # @debug
+      - run: test -d ~/.composer/cache
+      - run: test -d /home/circleci/project/code/vendor
+      - run: test -d /home/circleci/project/code/node_modules
+      - run: test -f /home/circleci/project/code/docroot/index.php
 
   # Download DB.
   download_db:
@@ -69,8 +99,9 @@ jobs:
           paths:
             - *data_root
 
-      # Validate step result.
-      - run: test -f $DATA_ROOT/db.dist.sql
+      # Validate step results.
+      # @debug
+      - run: test -f /home/circleci/project/data/db.dist.sql
 
   # Code style checking.
   # Fail fast if code style is incorrect.
@@ -80,8 +111,8 @@ jobs:
     steps:
       - *attach_workspace
 
-      - run: test -d $CODE_ROOT
-      - run: test -d $DATA_ROOT
+      - run: test -d /home/circleci/project/code
+      - run: test -d /home/circleci/project/data
 #
 #  # code.
 #  code:
