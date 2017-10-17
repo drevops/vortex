@@ -18,7 +18,7 @@ jobs:
 
     working_directory: project/build
     steps:
-      - run: mkdir -p /home/circleci/project/build
+      - run: sudo mkdir -p /home/circleci/project/build
       - checkout
 
       - restore_cache:
