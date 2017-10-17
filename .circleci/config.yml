@@ -18,6 +18,9 @@ jobs:
           PHP_EXECUTABLE: $(which php)
 
     steps:
+      - attach_workspace:
+          at: /home/circleci
+
       - checkout
       - restore_cache:
           keys:
@@ -39,6 +42,10 @@ jobs:
     machine: true
 
     steps:
+      - attach_workspace:
+          at: /home/circleci
+
+
       - restore_cache:
           keys:
             - data-{{ .Branch }}
