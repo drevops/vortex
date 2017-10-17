@@ -213,11 +213,22 @@ jobs:
           name: Create local drush alias
           command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 
-      # Run actual project build code.
+      - run:
+          name: Symlink data into local data directory.
+          command: ln -s $WORKSPACE_ROOT/$DATA_ROOT $WORKSPACE_ROOT/$CODE_ROOT/.data
+
+      # @debug
+      - run: test -L $WORKSPACE_ROOT/$CODE_ROOT/.data
+      - run: test -f $WORKSPACE_ROOT/$CODE_ROOT/.data/db.dist.sql
+
+      # Run actual project build.
       - run: composer build
 
-      # Check that Drupal can be bootstrapped after updates.
-      - run: drush status --root=$DOCROOT_DIR | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
+      # @debug
+      - run: drush status --root=$DOCROOT
+
+      # Check that Drupal can be bootstrapped.
+      - run: drush status --root=$DOCROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
   # Run tests.
   test_behat:
