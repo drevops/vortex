@@ -17,7 +17,8 @@ jobs:
           PHP_EXECUTABLE: $(which php)
 
     steps:
-      - checkout
+      - checkout:
+          path: project/build
       - restore_cache:
           keys:
             - composer-dependencies1-{{ checksum "composer.json" }}-{{ checksum "package.json" }}-
