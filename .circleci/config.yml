@@ -37,6 +37,8 @@ jobs:
           paths:
             - project
 
+      - run: ls -al
+
   # Download DB.
   download_db:
     machine: true
@@ -67,6 +69,8 @@ jobs:
           paths:
             - project/.data/db.dist.sql
 
+      - run: ls -al
+
   # Code style checking.
   # Fail fast if code style is incorrect.
   code_style:
@@ -74,9 +78,13 @@ jobs:
       - image: circleci/php:7.0-cli
 
     steps:
+      - run: ls -al
+
       - attach_workspace:
           at: /home/circleci
       - run: composer cs
+
+      - run: ls -al
 #
 #  # Build.
 #  build:
