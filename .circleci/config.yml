@@ -138,6 +138,7 @@ workflows:
       - code_style:
           requires:
             - build_dependencies
+            - download_db
 #      - build:
 #          requires:
 #            - build_dependencies
