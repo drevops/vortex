@@ -230,9 +230,17 @@ jobs:
       # Check that Drupal can be bootstrapped.
       - run: drush status --root=$DOCROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
+      - run:
+          name: Store built DB as an artefact.
+          command: drush --root=$DOCROOT sql-dump > .data/db.sql
+
+      # @debug
+      - run: test -f $WORKSPACE_ROOT/$CODE_ROOT/.data/db.sql
+
   # Run tests.
   test_behat:
     <<: *container_config
+
     steps:
       - run: echo "Placeholder for Behat test runner"
 
