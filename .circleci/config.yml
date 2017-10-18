@@ -20,7 +20,7 @@ references:
     docker:
       - image: circleci/php:7.0-cli
 
-    working_directory: *code_root
+    working_directory: /home/circleci/project/code
 
     environment: &container_config_environment
       WORKSPACE_ROOT: *workspace_root
@@ -83,7 +83,7 @@ jobs:
   # Download DB.
   download_db:
     <<: *container_config
-    working_directory: *workspace_root
+    working_directory: /home/circleci/project
     steps:
       - restore_cache:
           keys:
