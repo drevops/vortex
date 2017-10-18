@@ -9,6 +9,9 @@ references:
   code_root:          &code_root          /home/circleci/project/code
   data_dir:           &data_dir           data
   data_root:          &data_root          /home/circleci/project/data
+  docroot_dir:        &docroot_dir        docroot
+  server:             &server             local.mysiteurl
+  web_url:            &web_url            https://local.mysiteurl
   deps_cache_key:     &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
   deps_cache_key_any: &deps_cache_key_any v2-dependencies-{{ checksum "composer.json" }}
 
@@ -17,14 +20,15 @@ references:
     docker:
       - image: circleci/php:7.0-cli
 
-    working_directory: *workspace_root
+    working_directory: *code_root
 
     environment: &container_config_environment
       WORKSPACE_ROOT: *workspace_root
       CODE_ROOT: *code_root
       DATA_ROOT: *data_root
-      SERVER: local.mysiteurl
-      WEB_URL: http://local.mysiteurl
+      DOCROOT: *docroot_dir
+      SERVER: *server
+      WEB_URL: *web_url
       MYSQL_USER: ubuntu
       MYSQL_PASSWORD: ubuntu
       MYSQL_DATABASE: circle_test
@@ -39,13 +43,6 @@ references:
 jobs:
   code_dependencies:
     <<: *container_config
-
-    working_directory: /home/circleci/project/code
-
-    environment:
-      <<: *container_config_environment
-      DOCROOT: docroot
-
     steps:
       # @debug
       - run: printenv
@@ -86,7 +83,7 @@ jobs:
   # Download DB.
   download_db:
     <<: *container_config
-
+    working_directory: *workspace_root
     steps:
       - restore_cache:
           keys:
@@ -117,8 +114,6 @@ jobs:
   # Fail fast if code style is incorrect.
   code_style:
     <<: *container_config
-
-    working_directory: /home/circleci/project/code
     steps:
       - *attach_workspace
 
@@ -138,7 +133,6 @@ jobs:
   # Build.
   build:
     <<: *container_config
-
     docker:
       - image: circleci/php:7.1-apache
         environment:
@@ -146,13 +140,6 @@ jobs:
       - image: mysql:5.7
         environment:
           <<: *container_config_environment
-
-    working_directory: /home/circleci/project/code
-
-    environment:
-      <<: *container_config_environment
-      DOCROOT: docroot
-
     steps:
       - *attach_workspace
 
