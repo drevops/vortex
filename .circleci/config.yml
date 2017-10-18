@@ -3,20 +3,14 @@
 version: 2
 
 references:
-  workspace_root: &workspace_root
-    /home/circleci/project
-
-  code_root: &code_root
-    code
-
-  data_root: &data_root
-    data
-
-  dependencies_cache_key: &dependencies_cache_key
-    v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
-
-  dependencies_cache_key_any: &dependencies_cache_key_any
-    v2-dependencies-{{ checksum "composer.json" }}
+  # Variables.
+  workspace_root:     &workspace_root     /home/circleci/project
+  code_dir:           &code_dir           code
+  code_root:          &code_root          /home/circleci/project/code
+  data_dir:           &data_dir           data
+  data_root:          &data_root          /home/circleci/project/data
+  deps_cache_key:     &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
+  deps_cache_key_any: &deps_cache_key_any v2-dependencies-{{ checksum "composer.json" }}
 
   # Configuration shared between all containers.
   container_config: &container_config
@@ -62,7 +56,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - *dependencies_cache_key_any
+            - *deps_cache_key_any
 
       - run:
           name: Install dependencies
@@ -74,12 +68,12 @@ jobs:
           # from being built on the next run and we cannot cache the whole
           # docroot as it contains excluded files.
             - ~/.composer/cache
-          key: *dependencies_cache_key
+          key: *deps_cache_key
 
       - persist_to_workspace:
           root: *workspace_root
           paths:
-            - *code_root
+            - *code_dir
 
       # Validate step results.
       # @debug
@@ -107,13 +101,13 @@ jobs:
 
       - save_cache:
           paths:
-            - *data_root
+            - *data_dir
           key: v1-data-{{ .Branch }}
 
       - persist_to_workspace:
           root: *workspace_root
           paths:
-            - *data_root
+            - *data_dir
 
       # Validate step results.
       # @debug
@@ -211,11 +205,11 @@ jobs:
 
       - run:
           name: Symlink data into local data directory.
-          command: ln -s $WORKSPACE_ROOT/$DATA_ROOT $WORKSPACE_ROOT/$CODE_ROOT/.data
+          command: ln -s $DATA_ROOT $CODE_ROOT/.data
 
       # @debug
-      - run: test -L $WORKSPACE_ROOT/$CODE_ROOT/.data
-      - run: test -f $WORKSPACE_ROOT/$CODE_ROOT/.data/db.dist.sql
+      - run: test -L $CODE_ROOT/.data
+      - run: test -f $CODE_ROOT/.data/db.dist.sql
 
       # Run actual project build.
       - run: composer build
@@ -231,7 +225,7 @@ jobs:
           command: drush --root=$DOCROOT sql-dump > .data/db.sql
 
       # @debug
-      - run: test -f $WORKSPACE_ROOT/$CODE_ROOT/.data/db.sql
+      - run: test -f $CODE_ROOT/.data/db.sql
 
   # Run tests.
   test_behat:
