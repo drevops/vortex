@@ -31,7 +31,7 @@ references:
       DATA_ROOT: *data_root
       DB_NAME: circle_test
       DB_USER: ubuntu
-      DB_PASS: ubuntu
+      DB_PASS: $DB_USER
       DB_HOST: 127.0.0.1
       SERVER: local.mysiteurl
       WEB_URL: http://local.mysiteurl
