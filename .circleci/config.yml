@@ -17,6 +17,9 @@ references:
 
   # Configuration shared between all containers.
   container_config: &container_config
+    docker:
+      - image: circleci/php:7.0-cli
+
     working_directory: *code_root
 
     environment: &container_config_environment
@@ -32,11 +35,6 @@ references:
       MYSQL_HOST: 127.0.0.1
       MYSQL_ROOT_PASSWORD: ubuntu
       MYSQL_ROOT_HOST: 127.0.0.1
-
-    docker: &container_config_docker
-      - image: circleci/php:7.1-cli
-        environment:
-          <<: *container_config_environment
 
   attach_workspace: &attach_workspace
     attach_workspace:
@@ -136,6 +134,9 @@ jobs:
   build:
     <<: *container_config
     docker:
+      - image: circleci/php:7.1-apache
+        environment:
+          <<: *container_config_environment
       - image: mysql:5.7
         environment:
           <<: *container_config_environment
