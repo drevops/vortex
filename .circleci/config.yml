@@ -29,12 +29,14 @@ references:
       WORKSPACE_ROOT: *workspace_root
       CODE_ROOT: *code_root
       DATA_ROOT: *data_root
-      DB_NAME: circle_test
-      DB_USER: ubuntu
-      DB_PASS: $DB_USER
-      DB_HOST: 127.0.0.1
       SERVER: local.mysiteurl
       WEB_URL: http://local.mysiteurl
+      MYSQL_USER: ubuntu
+      MYSQL_PASSWORD: ubuntu
+      MYSQL_DATABASE: circle_test
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_ROOT_PASSWORD: ubuntu
+      MYSQL_ROOT_HOST: 127.0.0.1
 
   attach_workspace: &attach_workspace
     attach_workspace:
@@ -146,16 +148,10 @@ jobs:
     docker:
       - image: circleci/php:7.1-apache
         environment:
-          MYSQL_HOST: 127.0.0.1
-
+          <<: *container_config_environment
       - image: mysql:5.7
         environment:
-          MYSQL_USER: ubuntu
-          MYSQL_PASSWORD: ubuntu
-          MYSQL_DATABASE: circle_test
-          MYSQL_ROOT_PASSWORD: ubuntu
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
-          MYSQL_ROOT_HOST: 127.0.0.1
+          <<: *container_config_environment
 
     working_directory: /home/circleci/project/code
 
