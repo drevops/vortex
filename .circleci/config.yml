@@ -11,7 +11,7 @@ references:
   data_root:          &data_root          /home/circleci/project/data
   docroot_dir:        &docroot_dir        docroot
   server:             &server             local.mysiteurl
-  web_url:            &web_url            https://local.mysiteurl
+  web_url:            &web_url            http://local.mysiteurl
   deps_cache_key:     &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
   deps_cache_key_any: &deps_cache_key_any v2-dependencies-{{ checksum "composer.json" }}
 
@@ -216,8 +216,72 @@ jobs:
   test_behat:
     <<: *container_config
 
+    # Increase this value to run tests in parallel.
+    parallelism: 1
+
     steps:
-      - run: echo "Placeholder for Behat test runner"
+      - *attach_workspace
+
+      # Validate step pre-requisites.
+      # @debug
+      - run: test -d /home/circleci/project/code/vendor
+      - run: test -d /home/circleci/project/code/node_modules
+      - run: test -f /home/circleci/project/code/docroot/index.php
+      - run: test -f /home/circleci/project/data/db.dist.sql
+      - run: test -f /home/circleci/project/code/docroot/sites/default/settings.beetbox.php
+      - run: cat /home/circleci/project/code/docroot/sites/default/settings.beetbox.php
+      - run: printenv
+
+      - run:
+          name: Install additional binaries
+          command: |
+            sudo apt-get -y install vim mysql-client libpng-dev
+
+      # @debug
+      - run: mysql -h 127.0.0.1 -u ubuntu -pubuntu --database=circle_test -e"quit"
+
+      - run:
+          name: Install PHP extensions
+          command: |
+            sudo docker-php-ext-install pdo_mysql
+#            sudo docker-php-ext-install gd
+
+      - run:
+          name: Display versions
+          command: |
+            php -v
+            composer -v
+            composer config --global --list
+      
+      
+      - run: echo 127.0.0.1 $SERVER | sudo tee -a /etc/hosts
+      
+      - run: |
+            echo "
+            <VirtualHost *:80>
+              UseCanonicalName Off
+              DocumentRoot %DOCROOT%
+              ServerName %SERVER%
+              <Directory %DOCROOT%>
+                Options FollowSymLinks
+                AllowOverride All
+                RewriteEngine On
+                RewriteBase /
+                RewriteCond %{REQUEST_FILENAME} !-f
+                RewriteCond %{REQUEST_FILENAME} !-d
+                RewriteRule %DOCROOT%/(.*)$ index.php/?q=$1 [L,QSA]
+                Require all granted
+              </Directory>
+            </VirtualHost>" > apache-vhost.conf
+      - run: sudo cp apache-vhost.conf /etc/apache2/sites-available/000-default.conf
+      - run: sudo sed -e "s?%DOCROOT%?$DOCROOT?g" --in-place /etc/apache2/sites-available/000-default.conf
+      - run: sudo sed -e "s?%SERVER%?$SERVER?g" --in-place /etc/apache2/sites-available/000-default.conf
+      - run: sudo a2enmod rewrite && sudo a2enmod proxy && sudo a2enmod proxy_http
+#      - run: sudo unlink /usr/lib/apache2/modules/libphp5.so
+#      - run: sudo ln -s /opt/circleci/php/$(phpenv global)/usr/lib/apache2/modules/libphp5.so /usr/lib/apache2/modules/libphp5.so
+      - run: sudo service apache2 stop && sudo service apache2 start
+      # Validate that Apache can serve PHP pages.
+      - run: echo "<?php phpinfo();" > $DOCROOT/info.php && curl -k $WEB_URL/info.php && rm $DOCROOT/info.php;
 
   # Deploy primary branches.
   deploy_primary:
@@ -238,14 +302,14 @@ workflows:
     jobs:
       - code_dependencies
       - download_db
-      - code_style:
-          requires:
-            - code_dependencies
+#      - code_style:
+#          requires:
+#            - code_dependencies
       - build:
           requires:
             - code_dependencies
             - download_db
-            - code_style
+#            - code_style
       - test_behat:
           requires:
             - build
