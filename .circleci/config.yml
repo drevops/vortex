@@ -134,7 +134,7 @@ jobs:
   build:
     <<: *container_config
     docker:
-      - image: circleci/php:7.1-apache
+      - image: circleci/php:7.1-apache-browsers
         environment:
           <<: *container_config_environment
       - image: mysql:5.7
