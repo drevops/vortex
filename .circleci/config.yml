@@ -37,6 +37,9 @@ references:
       - image: circleci/php:7.1-apache-browsers
         environment:
           <<: *container_config_environment
+      - image: mysql:5.7
+        environment:
+          <<: *container_config_environment
 
   attach_workspace: &attach_workspace
     attach_workspace:
@@ -135,13 +138,6 @@ jobs:
   # Build.
   build:
     <<: *container_config
-    docker:
-      - image: circleci/php:7.1-apache-browsers
-        environment:
-          <<: *container_config_environment
-      - image: mysql:5.7
-        environment:
-          <<: *container_config_environment
     steps:
       - *attach_workspace
 
