@@ -52,6 +52,12 @@ references:
         environment:
           <<: *container_config_environment
 
+  # Re-usable steps.
+  steps: &update_hosts
+    run:
+      name: Add server hostname to hosts file
+      command: echo 127.0.0.1 $SERVER | sudo tee -a /etc/hosts
+
   attach_workspace: &attach_workspace
     attach_workspace:
       at: *workspace_root
@@ -60,6 +66,8 @@ jobs:
   code_dependencies:
     <<: *container_config
     steps:
+      - *update_hosts
+
       # @debug
       - run: printenv
 
@@ -101,6 +109,7 @@ jobs:
     <<: *container_config
     working_directory: /home/circleci/project
     steps:
+      - *update_hosts
       - restore_cache:
           keys:
             - v1-data-{{ .Branch }}
@@ -131,6 +140,7 @@ jobs:
   code_style:
     <<: *container_config
     steps:
+      - *update_hosts
       - *attach_workspace
 
       # Validate step pre-requisites.
@@ -150,6 +160,7 @@ jobs:
   build:
     <<: *container_config
     steps:
+      - *update_hosts
       - *attach_workspace
 
       # Validate step pre-requisites.
@@ -174,7 +185,7 @@ jobs:
           name: Install PHP extensions
           command: |
             sudo docker-php-ext-install pdo_mysql
-#            sudo docker-php-ext-install gd
+            sudo docker-php-ext-install gd
 
       - run:
           name: Display versions
@@ -231,6 +242,7 @@ jobs:
     parallelism: 1
 
     steps:
+      - *update_hosts
       - *attach_workspace
 
       - run: sudo usermod -a -G circleci www-data
@@ -266,9 +278,6 @@ jobs:
             php -v
             composer -v
             composer config --global --list
-      
-      
-      - run: echo 127.0.0.1 $SERVER | sudo tee -a /etc/hosts
       
       - run: |
             echo "
