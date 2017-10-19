@@ -1,5 +1,15 @@
 # YAML supports anchors and references.
 # @see http://blog.daemonl.com/2016/02/yaml.html
+#
+# @todo:
+# - add drush to dependency container
+# - make DB import work for tests
+# - run drupal tests
+# - optimize apache config
+# - remove php7.so inclusion - it should be in container
+# - add public dir preparation to build step
+# - add selenium tests
+# - add generic steps
 version: 2
 
 references:
@@ -284,13 +294,11 @@ jobs:
 
       # @debug
       - run: cat /etc/apache2/sites-available/000-default.conf
-      - run: test -f /usr/lib/apache2/modules/libphp7.so
 
-      - run: echo "LoadModule php7_module /usr/lib/apache2/modules/libphp7.so" | sudo tee /etc/apache2/mods-available/php7.load
-      - run: sudo a2enmod php7 && sudo a2enmod rewrite && sudo a2enmod proxy && sudo a2enmod proxy_http
+      - run: sudo a2enmod rewrite && sudo a2enmod proxy_http
       - run: sudo service apache2 stop && sudo service apache2 start
       # Validate that Apache can serve PHP pages.
-      - run: echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && rm $WEB_ROOT/info.php && rm info.html;
+      - run: echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
 
   # Deploy primary branches.
   deploy_primary:
