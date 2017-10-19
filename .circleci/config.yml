@@ -7,9 +7,10 @@ references:
   workspace_root:     &workspace_root     /home/circleci/project
   code_dir:           &code_dir           code
   code_root:          &code_root          /home/circleci/project/code
+  web_dir:            &web_dir            docroot
+  web_root:           &web_root           /home/circleci/project/code/docroot
   data_dir:           &data_dir           data
   data_root:          &data_root          /home/circleci/project/data
-  docroot_dir:        &docroot_dir        docroot
   server:             &server             local.mysiteurl
   web_url:            &web_url            http://local.mysiteurl
   deps_cache_key:     &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
@@ -23,7 +24,7 @@ references:
       WORKSPACE_ROOT: *workspace_root
       CODE_ROOT: *code_root
       DATA_ROOT: *data_root
-      DOCROOT: *docroot_dir
+      WEB_ROOT: *web_root
       SERVER: *server
       WEB_URL: *web_url
       MYSQL_USER: ubuntu
@@ -54,7 +55,7 @@ jobs:
 
       - checkout
       # @debug
-      - run: test -d $DOCROOT/sites
+      - run: test -d $WEB_ROOT/sites
 
       - restore_cache:
           keys:
@@ -186,7 +187,7 @@ jobs:
       # on aliases when importing DB, works correctly.
       - run:
           name: Create local drush alias
-          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$DOCROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
+          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 
       - run:
           name: Symlink data into local data directory.
@@ -200,14 +201,14 @@ jobs:
       - run: composer build
 
       # @debug
-      - run: drush status --root=$DOCROOT
+      - run: drush status --root=$WEB_ROOT
 
       # Check that Drupal can be bootstrapped.
-      - run: drush status --root=$DOCROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
+      - run: drush status --root=$WEB_ROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
       - run:
           name: Store built DB as an artefact.
-          command: drush --root=$DOCROOT sql-dump > .data/db.sql
+          command: drush --root=$WEB_ROOT sql-dump > .data/db.sql
 
       # @debug
       - run: test -f $CODE_ROOT/.data/db.sql
@@ -221,6 +222,9 @@ jobs:
 
     steps:
       - *attach_workspace
+
+      - run: sudo usermod -a -G circleci www-data
+      - run: sudo chmod -Rf 755 $WORKSPACE_ROOT
 
       # Validate step pre-requisites.
       # @debug
@@ -273,15 +277,20 @@ jobs:
                 Require all granted
               </Directory>
             </VirtualHost>" > apache-vhost.conf
-      - run: sudo cp apache-vhost.conf /etc/apache2/sites-available/000-default.conf
-      - run: sudo sed -e "s?%DOCROOT%?$DOCROOT?g" --in-place /etc/apache2/sites-available/000-default.conf
-      - run: sudo sed -e "s?%SERVER%?$SERVER?g" --in-place /etc/apache2/sites-available/000-default.conf
-      - run: sudo a2enmod rewrite && sudo a2enmod proxy && sudo a2enmod proxy_http
-#      - run: sudo unlink /usr/lib/apache2/modules/libphp5.so
-#      - run: sudo ln -s /opt/circleci/php/$(phpenv global)/usr/lib/apache2/modules/libphp5.so /usr/lib/apache2/modules/libphp5.so
+      - run: |
+          sudo sed -e "s?%DOCROOT%?$WEB_ROOT?g" --in-place apache-vhost.conf
+          sudo sed -e "s?%SERVER%?$SERVER?g" --in-place apache-vhost.conf
+          sudo cp apache-vhost.conf /etc/apache2/sites-available/000-default.conf
+
+      # @debug
+      - run: cat /etc/apache2/sites-available/000-default.conf
+      - run: test -f /usr/lib/apache2/modules/libphp7.so
+
+      - run: echo "LoadModule php7_module /usr/lib/apache2/modules/libphp7.so" | sudo tee /etc/apache2/mods-available/php7.load
+      - run: sudo a2enmod php7 && sudo a2enmod rewrite && sudo a2enmod proxy && sudo a2enmod proxy_http
       - run: sudo service apache2 stop && sudo service apache2 start
       # Validate that Apache can serve PHP pages.
-      - run: echo "<?php phpinfo();" > $DOCROOT/info.php && curl -k $WEB_URL/info.php | grep -aqoi "Build Date" && rm $DOCROOT/info.php;
+      - run: echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && rm $WEB_ROOT/info.php && rm info.html;
 
   # Deploy primary branches.
   deploy_primary:
