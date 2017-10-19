@@ -53,10 +53,13 @@ references:
           <<: *container_config_environment
 
   # Re-usable steps.
-  steps: &update_hosts
+  steps: &common_config
     run:
-      name: Add server hostname to hosts file
-      command: echo 127.0.0.1 $SERVER | sudo tee -a /etc/hosts
+      name: Apply common configuration
+      command: |
+        echo 127.0.0.1 $SERVER | sudo tee -a /etc/hosts
+        echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> ~/.bashrc
+        echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> $BASH_ENV
 
   attach_workspace: &attach_workspace
     attach_workspace:
@@ -66,7 +69,7 @@ jobs:
   code_dependencies:
     <<: *container_config
     steps:
-      - *update_hosts
+      - *common_config
 
       # @debug
       - run: printenv
@@ -109,7 +112,7 @@ jobs:
     <<: *container_config
     working_directory: /home/circleci/project
     steps:
-      - *update_hosts
+      - *common_config
       - restore_cache:
           keys:
             - v1-data-{{ .Branch }}
@@ -140,7 +143,7 @@ jobs:
   code_style:
     <<: *container_config
     steps:
-      - *update_hosts
+      - *common_config
       - *attach_workspace
 
       # Validate step pre-requisites.
@@ -160,7 +163,7 @@ jobs:
   build:
     <<: *container_config
     steps:
-      - *update_hosts
+      - *common_config
       - *attach_workspace
 
       # Validate step pre-requisites.
@@ -194,9 +197,7 @@ jobs:
             composer -v
             drush -v
             composer config --global --list
-
-      # @todo: Move this to the config section section.
-      - run: echo 'export PATH=~/.composer/vendor/bin:$PATH' >> $BASH_ENV
+      
 
       # @debug
       - run: command -v drush
@@ -240,7 +241,7 @@ jobs:
     parallelism: 1
 
     steps:
-      - *update_hosts
+      - *common_config
       - *attach_workspace
 
       - run: sudo usermod -a -G circleci www-data
