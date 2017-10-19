@@ -281,7 +281,7 @@ jobs:
 #      - run: sudo ln -s /opt/circleci/php/$(phpenv global)/usr/lib/apache2/modules/libphp5.so /usr/lib/apache2/modules/libphp5.so
       - run: sudo service apache2 stop && sudo service apache2 start
       # Validate that Apache can serve PHP pages.
-      - run: echo "<?php phpinfo();" > $DOCROOT/info.php && curl -k $WEB_URL/info.php && rm $DOCROOT/info.php;
+      - run: echo "<?php phpinfo();" > $DOCROOT/info.php && curl -k $WEB_URL/info.php | grep -aqoi "Build Date" && rm $DOCROOT/info.php;
 
   # Deploy primary branches.
   deploy_primary:
