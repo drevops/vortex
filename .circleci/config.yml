@@ -192,13 +192,11 @@ jobs:
           command: |
             php -v
             composer -v
+            drush -v
             composer config --global --list
 
       # @todo: Move this to the config section section.
       - run: echo 'export PATH=~/.composer/vendor/bin:$PATH' >> $BASH_ENV
-
-      # Install drush.
-      - run: composer global require --no-interaction drush/drush
 
       # @debug
       - run: command -v drush
