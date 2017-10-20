@@ -195,19 +195,15 @@ jobs:
           command: |
             php -v
             composer -v
-            drush -v
+            composer drush -- -v
             composer config --global --list
       
-
-      # @debug
-      - run: command -v drush
-      - run: drush --version
 
       # Create local drush alias to make sure that composer code, which relies
       # on aliases when importing DB, works correctly.
       - run:
           name: Create local drush alias
-          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && drush sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
+          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 
       - run:
           name: Symlink data into local data directory.
@@ -221,14 +217,14 @@ jobs:
       - run: composer build
 
       # @debug
-      - run: drush status --root=$WEB_ROOT
+      - run: composer drush status -- --root=$WEB_ROOT
 
       # Check that Drupal can be bootstrapped.
-      - run: drush status --root=$WEB_ROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
+      - run: composer drush status -- --root=$WEB_ROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
       - run:
           name: Store built DB as an artefact.
-          command: drush --root=$WEB_ROOT sql-dump > .data/db.sql
+          command: composer drush -- --root=$WEB_ROOT sql-dump > .data/db.sql
 
       # @debug
       - run: test -f $CODE_ROOT/.data/db.sql
