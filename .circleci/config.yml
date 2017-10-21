@@ -18,7 +18,7 @@ references:
   web_root:           &web_root           /home/circleci/project/code/docroot
   data_dir:           &data_dir           data
   data_root:          &data_root          /home/circleci/project/data
-  artefacts_dir:      &artefacts_dir      /home/circleci/project/artefacts
+  artifacts_root:     &artifacts_root     /tmp/artifacts
   server:             &server             local.mysiteurl
   web_url:            &web_url            http://local.mysiteurl
   deps_cache_key:     &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
@@ -41,7 +41,7 @@ references:
       MYSQL_HOST: 127.0.0.1
       MYSQL_ROOT_PASSWORD: ubuntu
       MYSQL_ROOT_HOST: 127.0.0.1
-      BEHAT_SCREENSHOT_DIR: *artefacts_dir
+      ARTIFACTS_ROOT: *artifacts_root
 
     docker:
       - image: circleci/php:7.1-apache-browsers
@@ -59,6 +59,9 @@ references:
         echo 127.0.0.1 $SERVER | sudo tee -a /etc/hosts
         echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> ~/.bashrc
         echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> $BASH_ENV
+        mkdir $ARTIFACTS_ROOT
+        echo 'export BEHAT_SCREENSHOT_DIR=$ARTIFACTS_ROOT/behat' >> $BASH_ENV
+        printenv
 
   attach_workspace: &attach_workspace
     attach_workspace:
@@ -224,7 +227,7 @@ jobs:
           command: composer drush status -- --root=$WEB_ROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
       - run:
-          name: Store built DB as an artefact.
+          name: Store built DB as an artifact.
           command: composer drush -- --root=$WEB_ROOT sql-dump > .data/db.sql
 
       # @debug
@@ -294,7 +297,7 @@ jobs:
       - run: test -f $CODE_ROOT/.data/db.sql
 
       - run:
-          name: Import artefact DB
+          name: Import previously built DB
 #          command: composer drush -- @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
           command: vendor/bin/drush @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
 
@@ -334,22 +337,24 @@ jobs:
 
       - run:
           name: Download Selenium
-          command: |
-            curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
-      - run: mkdir test-reports
+          command: curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
+
       - run:
           name: Start Selenium
-          command: |
-            java -jar selenium-server-standalone-3.5.3.jar
+          command: java -jar selenium-server-standalone-3.5.3.jar -log $ARTIFACTS_ROOT/selenium.log
           background: true
+
+
+
+      - run: echo $BEHAT_SCREENSHOT_DIR
 
       - run:
           name: Run Behat tests
-          command: composer test
+          command: |
+            composer test
 
       - store_artifacts:
-          path: /home/circleci/project/artefacts
-          destination: behat_screenshots
+          path: *artifacts_root
 
   # Deploy primary branches.
   deploy_primary:
