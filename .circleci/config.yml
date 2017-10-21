@@ -3,25 +3,25 @@
 # - move selenium download to dependencies and cache it
 
 version: 2
-references:
+aliases:
   # Variables.
   # For YAML support of anchors and references, @see http://blog.daemonl.com/2016/02/yaml.html
-  workspace_root:     &workspace_root     /home/circleci/project
-  code_dir:           &code_dir           code
-  code_root:          &code_root          /home/circleci/project/code
-  web_dir:            &web_dir            docroot
-  web_root:           &web_root           /home/circleci/project/code/docroot
-  data_dir:           &data_dir           data
-  data_root:          &data_root          /home/circleci/project/data
-  artifacts_root:     &artifacts_root     /tmp/artifacts
-  server:             &server             local.mysiteurl
-  web_url:            &web_url            http://local.mysiteurl
-  deps_cache_key:     &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
-  deps_cache_key_any: &deps_cache_key_any v2-dependencies-{{ checksum "composer.json" }}
-  data_cache_key:     &data_cache_key     v2-data-{{ .Branch }}
+  - &workspace_root     /home/circleci/project
+  - &code_dir           code
+  - &code_root          /home/circleci/project/code
+  - &web_dir            docroot
+  - &web_root           /home/circleci/project/code/docroot
+  - &data_dir           data
+  - &data_root          /home/circleci/project/data
+  - &artifacts_root     /tmp/artifacts
+  - &server             local.mysiteurl
+  - &web_url            http://local.mysiteurl
+  - &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
+  - &deps_cache_key_any v2-dependencies-{{ checksum "composer.json" }}
+  - &data_cache_key     v2-data-{{ .Branch }}
 
   # Configuration shared between all containers.
-  container_config: &container_config
+  - &container_config
     working_directory: /home/circleci/project/code
     environment: &container_config_environment
       WORKSPACE_ROOT: *workspace_root
@@ -46,11 +46,11 @@ references:
           <<: *container_config_environment
 
   # Re-usable steps.
-  step_attach_workspace: &step_attach_workspace
+  - &step_attach_workspace
     attach_workspace:
       at: /home/circleci/project
 
-  step_common: &step_common
+  - &step_common
     run:
       name: Apply common configuration
       command: |
@@ -61,29 +61,29 @@ references:
         echo 'export BEHAT_SCREENSHOT_DIR=$ARTIFACTS_ROOT/behat' >> $BASH_ENV
         printenv
 
-  step_symlink_data: &step_symlink_data
+  - &step_symlink_data
     run:
       name: Symlink data into local data directory.
       command: ln -s $DATA_ROOT $CODE_ROOT/.data
 
-  step_drush_alias: &step_drush_alias
+  - &step_drush_alias
     run:
       name: Create local drush alias
       command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 
-  step_php_extensions: &step_php_extensions
+  - &step_php_extensions
     run:
       name: Install PHP extensions
       command: |
         sudo docker-php-ext-install pdo_mysql
         sudo docker-php-ext-install gd
 
-  step_drush_alias: &step_debug_binaries
+  - &step_debug_binaries
     run:
       name: Install additional debug binaries
       command: sudo apt-get -y install vim mysql-client libpng-dev
 
-  step_bootstrap_drupal: &step_bootstrap_drupal
+  - &step_bootstrap_drupal
     run:
       name: Check that Drupal can be bootstrapped.
       command: composer drush status -- --root=$WEB_ROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
