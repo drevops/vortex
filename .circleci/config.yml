@@ -332,9 +332,6 @@ jobs:
       # Validate that Apache can serve PHP pages.
       - run: echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
 
-
-
-
       - run:
           name: Download Selenium
           command: |
@@ -343,39 +340,8 @@ jobs:
       - run:
           name: Start Selenium
           command: |
-            java -jar selenium-server-standalone-3.5.3.jar -log test-reports/selenium.log
+            java -jar selenium-server-standalone-3.5.3.jar
           background: true
-
-
-
-
-    # For Behat tests, make Chrome run with additional flags to resolve content
-    # scaling issues.
-#    - run: echo '#! /bin/bash' | sudo tee /opt/google/chrome/google-chrome-hack
-#    - "echo '/opt/google/chrome/google-chrome --high-dpi-support=1 --force-device-scale-factor=1' | sudo tee --append /opt/google/chrome/google-chrome-hack"
-#    - "sudo chmod 755 /opt/google/chrome/google-chrome-hack"
-#    - "sudo mv /usr/bin/google-chrome-stable /usr/bin/google-chrome-stable.backup"
-#    - "cd /usr/bin && sudo ln -s /opt/google/chrome/google-chrome-hack google-chrome-stable"
-    # Install Selenium and run it in the background.
-#      - run:
-#          name: Install selenium
-#          command: |
-#            curl http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.1.jar > ~/selenium-server-standalone.jar
-#            curl http://chromedriver.storage.googleapis.com/2.25/chromedriver_linux64.zip | gzip -dc > ~/chromedriver
-#            chmod +x ~/chromedriver
-#
-#
-#      # @debug
-#      - run: test -f ~/selenium-server-standalone.jar
-#      - run: test -f ~/chromedriver
-#
-#      - run:
-#          name: Run Selenium server in the background
-#          command: java -jar ~/selenium-server-standalone.jar > /dev/null -Dwebdriver.chrome.driver=~/chromedriver 2>&1
-#          background: true
-
-      # @debug
-      - run: echo "TODO Check that the server is running"
 
       - run:
           name: Run Behat tests
