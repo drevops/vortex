@@ -1,5 +1,4 @@
 # @todo
-# - simplify drush
 # - move selenium download to dependencies and cache it
 
 version: 2
@@ -31,6 +30,7 @@ aliases:
       SERVER: *server
       WEB_URL: *web_url
       ARTIFACTS_ROOT: *artifacts_root
+      DRUSH: vendor/bin/drush
       MYSQL_USER: ubuntu
       MYSQL_PASSWORD: ubuntu
       MYSQL_DATABASE: circle_test
@@ -59,7 +59,7 @@ aliases:
         echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> $BASH_ENV
         mkdir $ARTIFACTS_ROOT
         echo 'export BEHAT_SCREENSHOT_DIR=$ARTIFACTS_ROOT/behat' >> $BASH_ENV
-        mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
+        mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && $DRUSH sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
         printenv
 
   - &step_symlink_data
@@ -82,7 +82,7 @@ aliases:
   - &step_bootstrap_drupal
     run:
       name: Check that Drupal can be bootstrapped.
-      command: composer drush status -- --root=$WEB_ROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
+      command: $DRUSH --root=$WEB_ROOT status | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
 jobs:
   # Install and cache code dependencies.
@@ -154,7 +154,7 @@ jobs:
       - *step_bootstrap_drupal
       - run:
           name: Store built DB as an artifact.
-          command: composer drush -- --root=$WEB_ROOT sql-dump > .data/db.sql
+          command: $DRUSH --root=$WEB_ROOT sql-dump > .data/db.sql
       - persist_to_workspace:
           root: *workspace_root
           paths:
@@ -173,8 +173,7 @@ jobs:
       - *step_symlink_data
       - run:
           name: Import previously built DB
-#          command: composer drush -- @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
-          command: vendor/bin/drush @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
+          command: $DRUSH @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
       - *step_bootstrap_drupal
       - run:
           name: Configure Apache
