@@ -20,6 +20,7 @@ references:
   web_url:            &web_url            http://local.mysiteurl
   deps_cache_key:     &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
   deps_cache_key_any: &deps_cache_key_any v2-dependencies-{{ checksum "composer.json" }}
+  data_cache_key:     &data_cache_key     v2-data-{{ .Branch }}
 
   # Configuration shared between all containers.
   container_config: &container_config
@@ -32,13 +33,13 @@ references:
       WEB_ROOT: *web_root
       SERVER: *server
       WEB_URL: *web_url
+      ARTIFACTS_ROOT: *artifacts_root
       MYSQL_USER: ubuntu
       MYSQL_PASSWORD: ubuntu
       MYSQL_DATABASE: circle_test
       MYSQL_HOST: 127.0.0.1
       MYSQL_ROOT_PASSWORD: ubuntu
       MYSQL_ROOT_HOST: 127.0.0.1
-      ARTIFACTS_ROOT: *artifacts_root
 
     docker:
       - image: circleci/php:7.1-apache-browsers
@@ -75,49 +76,29 @@ references:
       command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 
 jobs:
+  # Install and cache code dependencies.
   code_dependencies:
     <<: *container_config
     steps:
       - *step_common
       - *step_attach_workspace
-
-      # @debug
-      - run: printenv
-
       - checkout
-      # @debug
-      - run: test -d $WEB_ROOT/sites
-
       - restore_cache:
           keys:
             - *deps_cache_key_any
-
       - run:
           name: Install dependencies
           command: composer install -n --prefer-dist
-
       - save_cache:
           paths:
-          # @note: We do not cache vendor dir as this prevent Drupal core files
-          # from being built on the next run and we cannot cache the whole
-          # docroot as it contains excluded files.
             - $HOME/.composer/cache
           key: *deps_cache_key
-
       - persist_to_workspace:
           root: *workspace_root
           paths:
             - *code_dir
 
-      # Validate step results.
-      # @debug
-      - run: test -d $HOME/.composer/cache
-      - run: test -d /home/circleci/project/code/vendor
-      - run: test -d /home/circleci/project/code/node_modules
-      - run: test -f /home/circleci/project/code/docroot/index.php
-      - run: cat /home/circleci/project/code/docroot/sites/default/settings.beetbox.php
-
-  # Download DB.
+  # Download and cache DB.
   download_db:
     <<: *container_config
     working_directory: /home/circleci/project
@@ -125,28 +106,21 @@ jobs:
       - *step_common
       - restore_cache:
           keys:
-            - v1-data-{{ .Branch }}
-
+            - *data_cache_key
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Remove the line below in your project/build.
       - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -L https://goo.gl/WFtJbT -o $DATA_ROOT/db.dist.sql; fi
       # [META] Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
       # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
-
       - save_cache:
           paths:
-            - *data_dir
-          key: v1-data-{{ .Branch }}
-
+            - $DATA_ROOT
+          key: *data_cache_key
       - persist_to_workspace:
           root: *workspace_root
           paths:
             - *data_dir
-
-      # Validate step results.
-      # @debug
-      - run: test -f /home/circleci/project/data/db.dist.sql
 
   # Code style checking.
   # Fail fast if code style is incorrect.
