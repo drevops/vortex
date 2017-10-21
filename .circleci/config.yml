@@ -13,9 +13,9 @@ aliases:
   - &selenium_bin       /home/circleci/project/code/selenium-server.jar
   - &server             local.mysiteurl
   - &web_url            http://local.mysiteurl
-  - &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
-  - &deps_cache_key_any v2-dependencies-{{ checksum "composer.json" }}
-  - &data_cache_key     v2-data-{{ .Branch }}
+  - &deps_cache_key     v1-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
+  - &deps_cache_key_any v1-dependencies-{{ checksum "composer.json" }}
+  - &data_cache_key     v1-data-{{ .Branch }}
 
   # Configuration shared between all containers.
   - &container_config
