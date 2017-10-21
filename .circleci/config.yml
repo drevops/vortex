@@ -1,6 +1,3 @@
-# @todo
-# - move selenium download to dependencies and cache it
-
 version: 2
 aliases:
   # Variables.
@@ -31,6 +28,7 @@ aliases:
       WEB_URL: *web_url
       ARTIFACTS_ROOT: *artifacts_root
       DRUSH: vendor/bin/drush
+      SELENIUM_BIN: $CODE_ROOT/selenium-server.jar
       MYSQL_USER: ubuntu
       MYSQL_PASSWORD: ubuntu
       MYSQL_DATABASE: circle_test
@@ -98,6 +96,9 @@ jobs:
       - run:
           name: Install dependencies
           command: composer install -n --prefer-dist
+      - run:
+          name: Download Selenium
+          command: curl -s -k -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar -o $SELENIUM_BIN
       - save_cache:
           paths:
             - $HOME/.composer/cache
@@ -198,11 +199,8 @@ jobs:
             sudo a2enmod rewrite && sudo a2enmod proxy_http && sudo service apache2 restart
             echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
       - run:
-          name: Download Selenium
-          command: curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
-      - run:
           name: Start Selenium
-          command: java -jar selenium-server-standalone-3.5.3.jar -log $ARTIFACTS_ROOT/selenium.log
+          command: java -jar $SELENIUM_BIN -log $ARTIFACTS_ROOT/selenium.log
           background: true
       - run:
           name: Run Behat tests
