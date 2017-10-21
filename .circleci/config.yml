@@ -52,7 +52,11 @@ references:
           <<: *container_config_environment
 
   # Re-usable steps.
-  steps: &common_config
+  step_attach_workspace: &step_attach_workspace
+    attach_workspace:
+      at: /home/circleci/project
+
+  step_common: &step_common
     run:
       name: Apply common configuration
       command: |
@@ -63,16 +67,22 @@ references:
         echo 'export BEHAT_SCREENSHOT_DIR=$ARTIFACTS_ROOT/behat' >> $BASH_ENV
         printenv
 
-  attach_workspace: &attach_workspace
-    attach_workspace:
-      at: /home/circleci/project
+  step_symlink_data: &step_symlink_data
+    run:
+      name: Symlink data into local data directory.
+      command: ln -s $DATA_ROOT $CODE_ROOT/.data
+
+  step_drush_alias: &step_drush_alias
+    run:
+      name: Create local drush alias
+      command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 
 jobs:
   code_dependencies:
     <<: *container_config
     steps:
-      - *common_config
-      - *attach_workspace
+      - *step_common
+      - *step_attach_workspace
 
       # @debug
       - run: printenv
@@ -115,7 +125,7 @@ jobs:
     <<: *container_config
     working_directory: /home/circleci/project
     steps:
-      - *common_config
+      - *step_common
       - restore_cache:
           keys:
             - v1-data-{{ .Branch }}
@@ -146,8 +156,8 @@ jobs:
   code_style:
     <<: *container_config
     steps:
-      - *common_config
-      - *attach_workspace
+      - *step_common
+      - *step_attach_workspace
 
       # Validate step pre-requisites.
       # @debug
@@ -166,8 +176,8 @@ jobs:
   build:
     <<: *container_config
     steps:
-      - *common_config
-      - *attach_workspace
+      - *step_common
+      - *step_attach_workspace
 
       # Validate step pre-requisites.
       # @debug
@@ -200,17 +210,9 @@ jobs:
             composer -v
             composer drush -- -v
             composer config --global --list
-      
 
-      # Create local drush alias to make sure that composer code, which relies
-      # on aliases when importing DB, works correctly.
-      - run:
-          name: Create local drush alias
-          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
-
-      - run:
-          name: Symlink data into local data directory.
-          command: ln -s $DATA_ROOT $CODE_ROOT/.data
+      - *step_drush_alias
+      - *step_symlink_data
 
       # @debug
       - run: test -L $CODE_ROOT/.data
@@ -246,8 +248,8 @@ jobs:
     parallelism: 1
 
     steps:
-      - *common_config
-      - *attach_workspace
+      - *step_common
+      - *step_attach_workspace
 
 #      - run: sudo usermod -a -G circleci www-data
 #      - run: sudo chmod -Rf 755 $WORKSPACE_ROOT
@@ -283,15 +285,8 @@ jobs:
             composer -v
             composer config --global --list
 
-      # Create local drush alias to make sure that composer code, which relies
-      # on aliases when importing DB, works correctly.
-      - run:
-          name: Create local drush alias
-          command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
-
-      - run:
-          name: Symlink data into local data directory.
-          command: ln -s $DATA_ROOT $CODE_ROOT/.data
+      - *step_drush_alias
+      - *step_symlink_data
 
       # @debug
       - run: test -f $CODE_ROOT/.data/db.sql
@@ -343,8 +338,6 @@ jobs:
           name: Start Selenium
           command: java -jar selenium-server-standalone-3.5.3.jar -log $ARTIFACTS_ROOT/selenium.log
           background: true
-
-
 
       - run: echo $BEHAT_SCREENSHOT_DIR
 
