@@ -349,9 +349,8 @@ jobs:
 
       - store_artifacts:
           path: /home/circleci/project/artefacts
-          destination: tr1
-      - store_test_results:
-          path: /home/circleci/project/artefacts
+          destination: behat_screenshots
+
   # Deploy primary branches.
   deploy_primary:
     <<: *container_config
