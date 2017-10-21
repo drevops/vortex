@@ -67,6 +67,7 @@ jobs:
     <<: *container_config
     steps:
       - *common_config
+      - *attach_workspace
 
       # @debug
       - run: printenv
@@ -282,10 +283,6 @@ jobs:
       - run:
           name: Create local drush alias
           command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
-
-      - run:
-          name: Symlink data into local data directory.
-          command: ln -s $DATA_ROOT $CODE_ROOT/.data
 
       - run:
           name: Symlink data into local data directory.
