@@ -60,7 +60,7 @@ references:
 
   attach_workspace: &attach_workspace
     attach_workspace:
-      at: *workspace_root
+      at: /home/circleci/project
 
 jobs:
   code_dependencies:
