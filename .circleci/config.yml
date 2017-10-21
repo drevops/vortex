@@ -18,6 +18,7 @@ references:
   web_root:           &web_root           /home/circleci/project/code/docroot
   data_dir:           &data_dir           data
   data_root:          &data_root          /home/circleci/project/data
+  artefacts_dir:      &artefacts_dir      /home/circleci/project/artefacts
   server:             &server             local.mysiteurl
   web_url:            &web_url            http://local.mysiteurl
   deps_cache_key:     &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
@@ -40,6 +41,7 @@ references:
       MYSQL_HOST: 127.0.0.1
       MYSQL_ROOT_PASSWORD: ubuntu
       MYSQL_ROOT_HOST: 127.0.0.1
+      BEHAT_SCREENSHOT_DIR: *artefacts_dir
 
     docker:
       - image: circleci/php:7.1-apache-browsers
@@ -337,11 +339,14 @@ jobs:
           name: Download Selenium
           command: |
             curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
+      - run: mkdir test-reports
       - run:
           name: Start Selenium
           command: |
             java -jar selenium-server-standalone-3.5.3.jar -log test-reports/selenium.log
           background: true
+
+
 
 
     # For Behat tests, make Chrome run with additional flags to resolve content
@@ -376,6 +381,11 @@ jobs:
           name: Run Behat tests
           command: composer test
 
+      - store_artifacts:
+          path: /home/circleci/project/artefacts
+          destination: tr1
+      - store_test_results:
+          path: /home/circleci/project/artefacts
   # Deploy primary branches.
   deploy_primary:
     <<: *container_config
