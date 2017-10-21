@@ -293,7 +293,8 @@ jobs:
 
       - run:
           name: Import artefact DB
-          command: composer drush -- @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
+#          command: composer drush -- @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
+          command: vendor/bin/drush @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
 
       - run:
           name: Check that Drupal can be bootstrapped.
