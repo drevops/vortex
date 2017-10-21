@@ -226,14 +226,14 @@ workflows:
     jobs:
       - code_dependencies
       - download_db
-#      - code_style:
-#          requires:
-#            - code_dependencies
+      - code_style:
+          requires:
+            - code_dependencies
       - build:
           requires:
             - code_dependencies
             - download_db
-#            - code_style
+            - code_style
       - test_behat:
           requires:
             - build
