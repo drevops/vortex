@@ -4,9 +4,6 @@
 # @todo:
 # - optimize apache config
 # - add public dir preparation to build step
-# - add selenium tests
-# - add generic steps
-# - replace all tildas with $HOME
 version: 2
 
 references:
@@ -61,7 +58,7 @@ references:
       name: Apply common configuration
       command: |
         echo 127.0.0.1 $SERVER | sudo tee -a /etc/hosts
-        echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> ~/.bashrc
+        echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> $HOME/.bashrc
         echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> $BASH_ENV
         mkdir $ARTIFACTS_ROOT
         echo 'export BEHAT_SCREENSHOT_DIR=$ARTIFACTS_ROOT/behat' >> $BASH_ENV
@@ -104,7 +101,7 @@ jobs:
           # @note: We do not cache vendor dir as this prevent Drupal core files
           # from being built on the next run and we cannot cache the whole
           # docroot as it contains excluded files.
-            - ~/.composer/cache
+            - $HOME/.composer/cache
           key: *deps_cache_key
 
       - persist_to_workspace:
@@ -114,7 +111,7 @@ jobs:
 
       # Validate step results.
       # @debug
-      - run: test -d ~/.composer/cache
+      - run: test -d $HOME/.composer/cache
       - run: test -d /home/circleci/project/code/vendor
       - run: test -d /home/circleci/project/code/node_modules
       - run: test -f /home/circleci/project/code/docroot/index.php
