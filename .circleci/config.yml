@@ -10,6 +10,7 @@ aliases:
   - &data_dir           data
   - &data_root          /home/circleci/project/data
   - &artifacts_root     /tmp/artifacts
+  - &selenium_bin       /home/circleci/project/code/selenium-server.jar
   - &server             local.mysiteurl
   - &web_url            http://local.mysiteurl
   - &deps_cache_key     v2-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
@@ -28,7 +29,7 @@ aliases:
       WEB_URL: *web_url
       ARTIFACTS_ROOT: *artifacts_root
       DRUSH: vendor/bin/drush
-      SELENIUM_BIN: $CODE_ROOT/selenium-server.jar
+      SELENIUM_BIN: *selenium_bin
       MYSQL_USER: ubuntu
       MYSQL_PASSWORD: ubuntu
       MYSQL_DATABASE: circle_test
@@ -98,7 +99,7 @@ jobs:
           command: composer install -n --prefer-dist
       - run:
           name: Download Selenium
-          command: curl -s -k -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar -o $SELENIUM_BIN
+          command: curl -s -k -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar > $SELENIUM_BIN
       - save_cache:
           paths:
             - $HOME/.composer/cache
