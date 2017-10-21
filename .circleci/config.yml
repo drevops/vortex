@@ -75,6 +75,23 @@ references:
       name: Create local drush alias
       command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 
+  step_php_extensions: &step_php_extensions
+    run:
+      name: Install PHP extensions
+      command: |
+        sudo docker-php-ext-install pdo_mysql
+        sudo docker-php-ext-install gd
+
+  step_drush_alias: &step_debug_binaries
+    run:
+      name: Install additional debug binaries
+      command: sudo apt-get -y install vim mysql-client libpng-dev
+
+  step_bootstrap_drupal: &step_bootstrap_drupal
+    run:
+      name: Check that Drupal can be bootstrapped.
+      command: composer drush status -- --root=$WEB_ROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
+
 jobs:
   # Install and cache code dependencies.
   code_dependencies:
@@ -122,26 +139,15 @@ jobs:
           paths:
             - *data_dir
 
-  # Code style checking.
-  # Fail fast if code style is incorrect.
+  # Check code style.
   code_style:
     <<: *container_config
     steps:
       - *step_common
       - *step_attach_workspace
-
-      # Validate step pre-requisites.
-      # @debug
-      - run: test -d /home/circleci/project/code/vendor
-      - run: test -d /home/circleci/project/code/node_modules
-      - run: test -f /home/circleci/project/code/docroot/index.php
-      - run: test -d /home/circleci/project/code/docroot/sites/all/modules/custom
-
       - run:
           name: Lint code
           command: composer cs
-
-      - run: test -d /home/circleci/project/code
 
   # Build.
   build:
@@ -149,129 +155,40 @@ jobs:
     steps:
       - *step_common
       - *step_attach_workspace
-
-      # Validate step pre-requisites.
-      # @debug
-      - run: test -d /home/circleci/project/code/vendor
-      - run: test -d /home/circleci/project/code/node_modules
-      - run: test -f /home/circleci/project/code/docroot/index.php
-      - run: test -f /home/circleci/project/data/db.dist.sql
-      - run: test -f /home/circleci/project/code/docroot/sites/default/settings.beetbox.php
-      - run: cat /home/circleci/project/code/docroot/sites/default/settings.beetbox.php
-      - run: printenv
-
-      - run:
-          name: Install additional binaries
-          command: |
-            sudo apt-get -y install vim mysql-client libpng-dev
-
-      # @debug
-      - run: mysql -h 127.0.0.1 -u ubuntu -pubuntu --database=circle_test -e"quit"
-
-      - run:
-          name: Install PHP extensions
-          command: |
-            sudo docker-php-ext-install pdo_mysql
-            sudo docker-php-ext-install gd
-
-      - run:
-          name: Display versions
-          command: |
-            php -v
-            composer -v
-            composer drush -- -v
-            composer config --global --list
-
+      - *step_debug_binaries
+      - *step_php_extensions
       - *step_drush_alias
       - *step_symlink_data
-
-      # @debug
-      - run: test -L $CODE_ROOT/.data
-      - run: test -f $CODE_ROOT/.data/db.dist.sql
-
-      # Run actual project build.
       - run: composer build
-
-      # @debug
-      - run: composer drush status -- --root=$WEB_ROOT
-
-      - run:
-          name: Check that Drupal can be bootstrapped.
-          command: composer drush status -- --root=$WEB_ROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
-
+      - *step_bootstrap_drupal
       - run:
           name: Store built DB as an artifact.
           command: composer drush -- --root=$WEB_ROOT sql-dump > .data/db.sql
-
-      # @debug
-      - run: test -f $CODE_ROOT/.data/db.sql
-
       - persist_to_workspace:
           root: *workspace_root
           paths:
             - *data_dir
 
-  # Run tests.
+  # Run tests in parallel.
   test_behat:
     <<: *container_config
-
     # Increase this value to run tests in parallel.
     parallelism: 1
-
     steps:
       - *step_common
       - *step_attach_workspace
-
-#      - run: sudo usermod -a -G circleci www-data
-#      - run: sudo chmod -Rf 755 $WORKSPACE_ROOT
-
-      # Validate step pre-requisites.
-      # @debug
-      - run: test -d /home/circleci/project/code/vendor
-      - run: test -d /home/circleci/project/code/node_modules
-      - run: test -f /home/circleci/project/code/docroot/index.php
-      - run: test -f /home/circleci/project/data/db.dist.sql
-      - run: test -f /home/circleci/project/code/docroot/sites/default/settings.beetbox.php
-      - run: cat /home/circleci/project/code/docroot/sites/default/settings.beetbox.php
-      - run: printenv
-
-      - run:
-          name: Install additional binaries
-          command: |
-            sudo apt-get -y install vim mysql-client libpng-dev
-
-      # @debug
-      - run: mysql -h 127.0.0.1 -u ubuntu -pubuntu --database=circle_test -e"quit"
-
-      - run:
-          name: Install PHP extensions
-          command: |
-            sudo docker-php-ext-install pdo_mysql
-#            sudo docker-php-ext-install gd
-
-      - run:
-          name: Display versions
-          command: |
-            php -v
-            composer -v
-            composer config --global --list
-
+      - *step_debug_binaries
+      - *step_php_extensions
       - *step_drush_alias
       - *step_symlink_data
-
-      # @debug
-      - run: test -f $CODE_ROOT/.data/db.sql
-
       - run:
           name: Import previously built DB
 #          command: composer drush -- @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
           command: vendor/bin/drush @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
-
+      - *step_bootstrap_drupal
       - run:
-          name: Check that Drupal can be bootstrapped.
-          command: composer drush status -- --root=$WEB_ROOT | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
-
-      - run: |
+          name: Configure Apache
+          command: |
             echo "
             <VirtualHost *:80>
               UseCanonicalName Off
@@ -288,46 +205,36 @@ jobs:
                 Require all granted
               </Directory>
             </VirtualHost>" > apache-vhost.conf
-      - run: |
-          sudo sed -e "s?%DOCROOT%?$WEB_ROOT?g" --in-place apache-vhost.conf
-          sudo sed -e "s?%SERVER%?$SERVER?g" --in-place apache-vhost.conf
-          sudo cp apache-vhost.conf /etc/apache2/sites-available/000-default.conf
-
-      # @debug
-      - run: cat /etc/apache2/sites-available/000-default.conf
-
-      - run: sudo a2enmod rewrite && sudo a2enmod proxy_http
-      - run: sudo service apache2 stop && sudo service apache2 start
-      # Validate that Apache can serve PHP pages.
-      - run: echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
-
+            sudo sed -e "s?%DOCROOT%?$WEB_ROOT?g" --in-place apache-vhost.conf
+            sudo sed -e "s?%SERVER%?$SERVER?g" --in-place apache-vhost.conf
+            sudo cp apache-vhost.conf /etc/apache2/sites-available/000-default.conf
+            sudo a2enmod rewrite && sudo a2enmod proxy_http
+            sudo service apache2 stop && sudo service apache2 start
+      - run:
+          name: Validate that Apache can serve PHP pages.
+          command: echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
       - run:
           name: Download Selenium
           command: curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
-
       - run:
           name: Start Selenium
           command: java -jar selenium-server-standalone-3.5.3.jar -log $ARTIFACTS_ROOT/selenium.log
           background: true
-
-      - run: echo $BEHAT_SCREENSHOT_DIR
-
       - run:
           name: Run Behat tests
           command: |
             composer test
-
       - store_artifacts:
           path: *artifacts_root
 
   # Deploy primary branches.
-  deploy_primary:
+  deploy_primary_branch:
     <<: *container_config
     steps:
       - run: echo "Running deployment command for 'primary' branches"
 
   # Deploy feature branches.
-  deploy_features:
+  deploy_feature_branch:
     <<: *container_config
     steps:
       - run: echo "Running deployment command for 'feature' branches"
@@ -350,13 +257,13 @@ workflows:
       - test_behat:
           requires:
             - build
-      - deploy_primary:
+      - deploy_primary_branch:
           requires:
             - test_behat
           filters:
             branches:
               only: /master|develop|ci|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?/
-      - deploy_features:
+      - deploy_feature_branch:
           requires:
             - test_behat
           filters:
