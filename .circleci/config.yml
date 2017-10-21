@@ -83,6 +83,13 @@ aliases:
       name: Check that Drupal can be bootstrapped.
       command: $DRUSH --root=$WEB_ROOT status | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
+  - &step_configure_git
+    run:
+      name: Configure git
+      command: |
+        git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
+        mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+
 jobs:
   # Install and cache code dependencies.
   code_dependencies:
@@ -210,16 +217,26 @@ jobs:
           path: *artifacts_root
 
   # Deploy primary branches.
-  deploy_primary_branch:
-    <<: *container_config
-    steps:
-      - run: echo "Running deployment command for 'primary' branches"
-
+  # [META] Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
+  # $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
+  # Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
+  # under "SSH Permissions" in CircleCI UI.
   # Deploy feature branches.
   deploy_feature_branch:
     <<: *container_config
     steps:
-      - run: echo "Running deployment command for 'feature' branches"
+      - *step_common
+      - *step_attach_workspace
+      - *step_configure_git
+      - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push; else echo "Skipping deployment"; fi
+
+  deploy_primary_branch:
+    <<: *container_config
+    steps:
+      - *step_common
+      - *step_attach_workspace
+      - *step_configure_git
+      - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-]; else echo "Skipping deployment"; fi
 
 workflows:
   version: 2
@@ -238,15 +255,15 @@ workflows:
       - test_behat:
           requires:
             - build
-      - deploy_primary_branch:
-          requires:
-            - test_behat
-          filters:
-            branches:
-              only: /master|develop|ci|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?/
       - deploy_feature_branch:
           requires:
             - test_behat
           filters:
             branches:
               only: /feature\/[a-zA-z0-9\-]+/
+      - deploy_primary_branch:
+          requires:
+            - test_behat
+          filters:
+            branches:
+              only: /master|develop|ci|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?/
