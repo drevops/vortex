@@ -1,13 +1,11 @@
-# YAML supports anchors and references.
-# @see http://blog.daemonl.com/2016/02/yaml.html
-#
-# @todo:
-# - optimize apache config
-# - add public dir preparation to build step
-version: 2
+# @todo
+# - simplify drush
+# - move selenium download to dependencies and cache it
 
+version: 2
 references:
   # Variables.
+  # For YAML support of anchors and references, @see http://blog.daemonl.com/2016/02/yaml.html
   workspace_root:     &workspace_root     /home/circleci/project
   code_dir:           &code_dir           code
   code_root:          &code_root          /home/circleci/project/code
@@ -25,7 +23,6 @@ references:
   # Configuration shared between all containers.
   container_config: &container_config
     working_directory: /home/circleci/project/code
-
     environment: &container_config_environment
       WORKSPACE_ROOT: *workspace_root
       CODE_ROOT: *code_root
@@ -40,7 +37,6 @@ references:
       MYSQL_HOST: 127.0.0.1
       MYSQL_ROOT_PASSWORD: ubuntu
       MYSQL_ROOT_HOST: 127.0.0.1
-
     docker:
       - image: circleci/php:7.1-apache-browsers
         environment:
@@ -192,27 +188,22 @@ jobs:
             echo "
             <VirtualHost *:80>
               UseCanonicalName Off
-              DocumentRoot %DOCROOT%
-              ServerName %SERVER%
-              <Directory %DOCROOT%>
+              DocumentRoot $WEB_ROOT
+              ServerName $SERVER
+              <Directory $WEB_ROOT>
                 Options FollowSymLinks
                 AllowOverride All
                 RewriteEngine On
                 RewriteBase /
                 RewriteCond %{REQUEST_FILENAME} !-f
                 RewriteCond %{REQUEST_FILENAME} !-d
-                RewriteRule %DOCROOT%/(.*)$ index.php/?q=$1 [L,QSA]
+                RewriteRule $WEB_ROOT/(.*)$ index.php/?q=$1 [L,QSA]
                 Require all granted
               </Directory>
-            </VirtualHost>" > apache-vhost.conf
-            sudo sed -e "s?%DOCROOT%?$WEB_ROOT?g" --in-place apache-vhost.conf
-            sudo sed -e "s?%SERVER%?$SERVER?g" --in-place apache-vhost.conf
-            sudo cp apache-vhost.conf /etc/apache2/sites-available/000-default.conf
-            sudo a2enmod rewrite && sudo a2enmod proxy_http
-            sudo service apache2 stop && sudo service apache2 start
-      - run:
-          name: Validate that Apache can serve PHP pages.
-          command: echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
+            </VirtualHost>" > 000-default.conf
+            sudo mv -f 000-default.conf /etc/apache2/sites-available/000-default.conf
+            sudo a2enmod rewrite && sudo a2enmod proxy_http && sudo service apache2 restart
+            echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
       - run:
           name: Download Selenium
           command: curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
@@ -222,8 +213,7 @@ jobs:
           background: true
       - run:
           name: Run Behat tests
-          command: |
-            composer test
+          command: composer test
       - store_artifacts:
           path: *artifacts_root
 
@@ -241,7 +231,6 @@ jobs:
 
 workflows:
   version: 2
-
   main:
     jobs:
       - code_dependencies
