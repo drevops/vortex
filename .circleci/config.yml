@@ -59,17 +59,13 @@ aliases:
         echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> $BASH_ENV
         mkdir $ARTIFACTS_ROOT
         echo 'export BEHAT_SCREENSHOT_DIR=$ARTIFACTS_ROOT/behat' >> $BASH_ENV
+        mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
         printenv
 
   - &step_symlink_data
     run:
       name: Symlink data into local data directory.
       command: ln -s $DATA_ROOT $CODE_ROOT/.data
-
-  - &step_drush_alias
-    run:
-      name: Create local drush alias
-      command: mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && composer drush -- sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
 
   - &step_php_extensions
     run:
@@ -78,7 +74,7 @@ aliases:
         sudo docker-php-ext-install pdo_mysql
         sudo docker-php-ext-install gd
 
-  - &step_debug_binaries
+  - &step_system_binaries
     run:
       name: Install additional debug binaries
       command: sudo apt-get -y install vim mysql-client libpng-dev
@@ -151,9 +147,8 @@ jobs:
     steps:
       - *step_common
       - *step_attach_workspace
-      - *step_debug_binaries
+      - *step_system_binaries
       - *step_php_extensions
-      - *step_drush_alias
       - *step_symlink_data
       - run: composer build
       - *step_bootstrap_drupal
@@ -173,9 +168,8 @@ jobs:
     steps:
       - *step_common
       - *step_attach_workspace
-      - *step_debug_binaries
+      - *step_system_binaries
       - *step_php_extensions
-      - *step_drush_alias
       - *step_symlink_data
       - run:
           name: Import previously built DB
