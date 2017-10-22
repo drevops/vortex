@@ -281,3 +281,13 @@ workflows:
               only: /^[0-9]+\.[0-9]+\.[0-9]+$/
             branches:
               only: /master/
+      # [META] Tag deployment for drupal-dev itself. Remove the code below in
+      # your project.
+      - deploy_drupal_dev_tag:
+          requires:
+            - test_behat
+          filters:
+            tags:
+              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
+            branches:
+              only: /^(?:7|8)\.x$/
