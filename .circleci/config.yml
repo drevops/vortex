@@ -90,6 +90,11 @@ aliases:
         git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
         mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
+  - &add_ssh_keys
+    add_ssh_keys:
+      fingerprints:
+        - "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+
 jobs:
   # Install and cache code dependencies.
   code_dependencies:
@@ -228,6 +233,7 @@ jobs:
       - *step_common
       - *step_attach_workspace
       - *step_configure_git
+      - *add_ssh_keys
       - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push; else echo "Skipping deployment"; fi
 
   deploy_primary_branch:
@@ -236,6 +242,7 @@ jobs:
       - *step_common
       - *step_attach_workspace
       - *step_configure_git
+      - *add_ssh_keys
       - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-]; else echo "Skipping deployment"; fi
 
 workflows:
