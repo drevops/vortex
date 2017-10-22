@@ -1,9 +1,7 @@
 # Replaces standard gitignore when artefact is built.
-.jar
-chromedriver
+*.jar
 *.out
-.log
-apache-vhost.conf
+*.log
 node_modules
 vendor
 screenshots
@@ -13,3 +11,4 @@ Vagrantfile
 .beetbox
 composer.lock
 package-lock.json
+.circleci

@@ -27,10 +27,11 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
 - Composer scripts to build and rebuild the project (one command used in all environments)
 - PHP, JS and SASS code linting with pre-configured Drupal standards
 - Behat testing configuration + usage examples 
-- Integration with [Circle CI](https://circleci.com/) (1.0):
+- Integration with [Circle CI](https://circleci.com/) (2.0):
   - project full build (fully built Drupal site with production DB)
   - code linting
   - testing (including Selenium-based Behat tests)
+  - artefact deployment to destination repository (https://github.com/integratedexperts/drupal-dev-destination) 
 
 ![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
 
