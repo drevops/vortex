@@ -15,12 +15,12 @@ class DrupalSettings {
    */
   public static function create(Event $event) {
     $defaults = [
-      'db_name' => 'beetbox',
-      'db_user' => 'beetbox',
-      'db_pass' => 'beetbox',
-      'db_host' => 'localhost',
-      'db_port' => '',
-      'db_prefix' => '',
+      'mysql_database' => 'beetbox',
+      'mysql_user' => 'beetbox',
+      'mysql_password' => 'beetbox',
+      'mysql_host' => 'localhost',
+      'mysql_port' => '',
+      'mysql_prefix' => '',
       'settings_path' => 'docroot/sites/default/settings.beetbox.php',
     ];
 
@@ -80,13 +80,13 @@ class DrupalSettings {
     [
       'default' =>
         [
-          'database' => '${options['db_name']}',
-          'username' => '${options['db_user']}',
-          'password' => '${options['db_pass']}',
-          'host' => '${options['db_host']}',
-          'port' => '${options['db_port']}',
+          'database' => '${options['mysql_database']}',
+          'username' => '${options['mysql_user']}',
+          'password' => '${options['mysql_password']}',
+          'host' => '${options['mysql_host']}',
+          'port' => '${options['mysql_port']}',
           'driver' => 'mysql',
-          'prefix' => '${options['db_prefix']}',
+          'prefix' => '${options['mysql_prefix']}',
         ],
     ],
 ];

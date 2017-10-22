@@ -11,8 +11,9 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
 1. Create a blank project repository.
 2. Download an archive of this project and extract into repository.
 3. Run `./scripts/drupal-dev-init.sh` and follow the prompts.
+![Project Init](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/project-init.png)
 4. Commit all files to your repository and push.
-5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project", select "1.0" box and click "Start building" button.
+5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project", select "2.0" box and click "Start building" button.
 6. To start developing locally:
    - Copy your existing DB dump into `.data/db.dist.sql` OR run `mkdir .data && curl -L https://goo.gl/WFtJbT -o .data/db.dist.sql` to download minimal install Drupal 7 DB dump.
    - Run `composer build`.
@@ -27,15 +28,23 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
 - Composer scripts to build and rebuild the project (one command used in all environments)
 - PHP, JS and SASS code linting with pre-configured Drupal standards
 - Behat testing configuration + usage examples 
-- Integration with [Circle CI](https://circleci.com/) (1.0):
+- Integration with [Circle CI](https://circleci.com/) (2.0):
   - project full build (fully built Drupal site with production DB)
   - code linting
   - testing (including Selenium-based Behat tests)
+  - **artefact deployment to [destination repository](https://github.com/integratedexperts/drupal-dev-destination)**
 
 ![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
 
 ## Presentation
 https://goo.gl/CRBFw2
+
+## Useful projects
+
+- [Behat Screenshot](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
+- [Behat Progress Fail](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fails inline.
+- [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing
+- [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artefact to remote repository
 -------------------------------------------------------------------------------
 Remove this line and everything above it in your project.
 

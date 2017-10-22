@@ -77,8 +77,8 @@ questions() {
   site_short=$(ask "What is your site machine name? [$site_short]" $site_short)
   local site_theme=$(ask "What is your theme machine name? [$site_short]" $site_short)
   local site_url=${site_short//_/-}
-  site_url=$(ask "What is your site URL? [$site_url]" $site_url)
-  local org=$(ask "What is your organization name? [$site_short] " $site_short)
+  site_url=$(ask "What is your site URL? [${site_url}.com]" $site_url)
+  local org=$(ask "What is your organization name? [${site_short}_org] " $site_short)
   local org_short=$(shorten "$org")
  fi
 
@@ -91,7 +91,8 @@ questions() {
   replace_string_content "MYSITE" "$site_name" "$CURDIR" && echo -n "."
 
   replace_string_filename "mysitetheme" "$site_theme" "$CURDIR" && echo -n "."
-  replace_string_filename "mysite" "$org_short" "$CURDIR" && echo -n "."
+  replace_string_filename "myorg" "$org_short" "$CURDIR" && echo -n "."
+  replace_string_filename "mysite" "$site_short" "$CURDIR" && echo -n "."
 
   echo "complete"
 }

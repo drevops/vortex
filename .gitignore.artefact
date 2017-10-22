@@ -1,0 +1,14 @@
+# Replaces standard gitignore when artefact is built.
+*.jar
+*.out
+*.log
+node_modules
+vendor
+screenshots
+.data
+.vagrant
+Vagrantfile
+.beetbox
+composer.lock
+package-lock.json
+.circleci
