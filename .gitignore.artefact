@@ -11,4 +11,4 @@ Vagrantfile
 .beetbox
 composer.lock
 package-lock.json
-.circleci
+.circleci/config.yml
