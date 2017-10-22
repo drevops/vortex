@@ -93,7 +93,6 @@
       "phpcs --runtime-set installed_paths $(pwd)/vendor/drupal/coder/coder_sniffer --runtime-set eslint_path $(pwd)/node_modules/.bin/eslint --colors -s -p",
       "node_modules/.bin/sass-lint -qv --max-warnings 0"
     ],
-    "cbf": "phpcbf --runtime-set installed_paths $(pwd)/vendor/drupal/coder/coder_sniffer --runtime-set eslint_path $(pwd)/node_modules/.bin/eslint --colors",
     "test": "behat --format=progress_fail --colors",
     "build": [
       "@composer install --no-progress --no-interaction",
@@ -115,6 +114,7 @@
       "drush @local.mysiteurl updb -y"
     ],
     "build-theme": "node_modules/.bin/grunt",
+    "build-theme-prod": "@composer build-theme -- prod",
     "cleanup": [
       "@_remove-docroot",
       "@_remove-dependencies"
@@ -123,6 +123,7 @@
       "@cleanup",
       "@_remove-vm"
     ],
+    "deploy": "robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact",
     "_start-vm": "if [ $(command -v vagrant) ] ; then vagrant up; fi",
     "_remove-vm": [
       "vagrant destroy -f || true",
@@ -131,25 +132,23 @@
       "rm -Rf Vagrantfile"
     ],
     "_remove-dependencies": [
-      "rm -Rf node_modules",
-      "rm -Rf vendor"
+      "rm -Rf vendor",
+      "rm -Rf node_modules"
     ],
     "_remove-docroot": [
       "chmod -Rf 777 docroot/sites/default",
       "git ls-files --directory --other -i --exclude-from=.gitignore docroot|xargs rm -Rf"
     ],
-    "_build-theme-prod": "@composer build-theme -- prod",
     "post-install-cmd": [
       "Utilities\\composer\\DrupalSettings::create",
       "npm install",
-      "@_build-theme-prod"
+      "@build-theme-prod"
     ],
     "post-update-cmd": [
       "Utilities\\composer\\DrupalSettings::create",
       "npm install",
-      "@_build-theme-prod"
-    ],
-    "deploy": "robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact"
+      "@build-theme-prod"
+    ]
   },
   "extra": {
     "installer-paths": {
