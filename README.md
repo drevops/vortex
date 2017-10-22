@@ -42,6 +42,7 @@ Automated build is orchestrated to run stages in separate containers, allowing t
 ![CircleCI build workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/circleci_build.png)
 
 ## Presentation
+
 https://goo.gl/CRBFw2
 
 ## Useful projects
