@@ -250,6 +250,17 @@ jobs:
       - *step_configure_git
       - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-]; else echo "Skipping deployment"; fi
 
+  # [META] Tag deployment for drupal-dev itself. Remove the code below in
+  # your project.
+  deploy_drupal_dev_tag:
+    <<: *container_config
+    steps:
+      - *step_common
+      - *step_attach_workspace
+      - *add_ssh_keys
+      - *step_configure_git
+      - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-]; else echo "Skipping deployment"; fi
+
 workflows:
   version: 2
   main:
