@@ -3,6 +3,8 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev)
 
+[Drupal 7 version](https://github.com/integratedexperts/drupal-dev/tree/7.x)
+
 ## Requirements
 - `php` and [Composer](https://getcomposer.org/) installed on your host machine
 - [VirtualBox](https://www.virtualbox.org/) and [Vagrant](https://www.vagrantup.com/) installed on your host machine
