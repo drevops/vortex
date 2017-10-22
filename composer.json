@@ -1,71 +1,21 @@
 {
   "name": "myorg/mysite",
-  "description": "Drupal 7 site for MYSITE",
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://packages.drupal.org/7"
-    },
-    {
-      "type": "package",
-      "package": {
-        "name": "library/ckeditor",
-        "version": "4.6.2",
-        "type": "drupal-library",
-        "dist": {
-          "url": "https://download.cksource.com/CKEditor/CKEditor/CKEditor%204.6.2/ckeditor_4.6.2_standard.zip",
-          "type": "zip"
-        }
-      }
-    },
-    {
-      "type": "package",
-      "package": {
-        "name": "myorg/patches",
-        "version": "1.0.0",
-        "type": "metapackage",
-        "extra": {
-          "patches": {
-            "drupal/persistent_update": [
-              {
-                "title": "Add an ability to bypass all persistent updates",
-                "url": "https://www.drupal.org/files/issues/bypass-all-persistent-updates-2824493-3.patch"
-              }
-            ]
-          }
-        }
-      }
-    }
-  ],
+  "description": "Drupal 8 site for MYSITE",
   "require": {
-    "composer/installers": "^1.0.2.4",
-    "davidbarratt/custom-installer": "dev-master",
-    "drupal-composer/preserve-paths": "0.1.*",
-    "drupal/admin_menu": "3.0-rc5",
-    "drupal/adminrole": "^1.1",
-    "drupal/coffee": "^2.3",
-    "drupal/drupal": "7.56",
-    "drupal/drupal_helpers": "^1.1",
-    "drupal/features": "^2.10",
-    "drupal/features_banish": "^1.1",
-    "drupal/jquery_update": "^2.7",
-    "drupal/libraries": "^2.3",
-    "drupal/pathauto": "^1.3",
-    "drupal/persistent_update": "^1.0",
-    "drupal/redirect": "1.0-rc3",
-    "drupal/strongarm": "^2.0",
-    "drupal/wysiwyg": "^2.4",
-    "drupal/xautoload": "4.5.0",
-    "library/ckeditor": "^4.6.2",
-    "myorg/patches": "*",
-    "netresearch/composer-patches-plugin": "1.2.1"
+    "composer/installers": "^1.2.0",
+    "cweagans/composer-patches": "^1.6.0",
+    "drupal-composer/drupal-scaffold": "^2.3",
+    "drupal/admin_toolbar": "^1.19",
+    "drupal/better_exposed_filters": "^3.0@alpha",
+    "drupal/core": "^8.4"
   },
   "require-dev": {
-    "beet/box": ">=0.7.0",
+    "beet/box": "0.7.4",
     "behat/behat": ">=3.3.1",
     "drupal/coder": "^8.2",
+    "drupal/console": "^1.0",
     "drupal/drupal-extension": "^v3.3.0",
-    "drush/drush": "8.1",
+    "drush/drush": "^8.1",
     "integratedexperts/behat-format-progress-fail": ">=0.2.1",
     "integratedexperts/behat-screenshot": ">=0.6.1",
     "integratedexperts/robo-git-artefact": "^0.1.3",
@@ -87,6 +37,15 @@
   "config": {
     "process-timeout": 0,
     "sort-packages": true
+  },
+  "conflict": {
+    "drupal/core": "7.*"
+  },
+  "repositories": {
+    "drupal": {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    }
   },
   "scripts": {
     "cs":[
@@ -148,24 +107,10 @@
       "Utilities\\composer\\DrupalSettings::create",
       "npm install",
       "@build-theme-prod"
-    ]
+    ],
+    "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold"
   },
   "extra": {
-    "installer-paths": {
-      "docroot": ["type:drupal-core"],
-      "docroot/sites/all/modules/contrib/{$name}": ["type:drupal-module"],
-      "docroot/sites/all/themes/contrib/{$name}": ["type:drupal-theme"],
-      "docroot/sites/all/libraries/{$name}": ["type:drupal-library"],
-      "docroot/sites/all/drush/{$name}": ["type:drupal-drush"]
-    },
-    "preserve-paths": [
-      "docroot/sites/all/modules/custom",
-      "docroot/sites/all/themes/custom",
-      "docroot/sites/all/drush",
-      "docroot/sites/default/settings.php",
-      "docroot/sites/default/default.settings.local.php",
-      "docroot/sites/default/files"
-    ],
     "beetbox": {
       "beet_domain": "local.mysiteurl",
       "beet_root": "{{ beet_base }}/docroot",
@@ -175,9 +120,57 @@
       "php_install_recommends": "yes",
       "php_date_timezone": "Australia/Melbourne"
     },
+    "drupal-scaffold": {
+      "source": "http://cgit.drupalcode.org/drupal/plain/{path}?h={version}",
+      "excludes": [
+        ".eslintrc.json",
+        "google123.html",
+        "robots.txt"
+      ],
+      "initial": {
+        "sites/default/default.services.yml": "sites/default/services.yml",
+        "sites/default/default.settings.php": "sites/default/settings.php"
+      },
+      "omit-defaults": false
+    },
+    "enable-patching": true,
+    "installer-paths": {
+      "docroot/core": ["type:drupal-core"],
+      "docroot/modules/contrib/{$name}": ["type:drupal-module"],
+      "docroot/themes/contrib/{$name}": ["type:drupal-theme"],
+      "docroot/libraries/{$name}": ["type:drupal-library"],
+      "drush/contrib/{$name}": ["type:drupal-drush"]
+    },
+    "preserve-paths": [
+      "docroot/modules/custom",
+      "docroot/themes/custom",
+      "docroot/drush",
+      "docroot/sites/default/settings.php",
+      "docroot/sites/default/default.settings.local.php",
+      "docroot/sites/default/files"
+    ],
     "mouf": {
       "nodejs": {
         "forceLocal": true
+      }
+    },
+    "patches": {
+      "drupal/core": {
+        "Contextual links should not be added inside another link - https://www.drupal.org/node/2898875": "https://www.drupal.org/files/issues/contextual_links_should-2898875-3.patch",
+        "No validation on text length for menu description when editing node - https://www.drupal.org/node/2852665#comment-12157856": "https://www.drupal.org/files/issues/fatal_error_remove_menu_add_with_tests-2852665-12.patch",
+        "active-link.js throws JS error if query string parameter contains a single quote - https://www.drupal.org/node/2902769": "https://www.drupal.org/files/issues/active_link_js_throws-2902769-5_0.patch",
+        "Duplicate AJAX wrapper around a file field - https://www.drupal.org/node/2346893": "https://www.drupal.org/files/issues/duplicate_ajax_wrapper-2346893-205.patch",
+        "getUuid() in class MenuLinkContent not returning any value - https://www.drupal.org/node/2737741": "https://www.drupal.org/files/issues/drupal-menulinkcontent-getuuid-return-missing-2737741-2.patch",
+        "RSS view with fields give wrong URL from path field - https://www.drupal.org/node/2673980#comment-12180229": "https://www.drupal.org/files/issues/rss_view_with_fields-2673980-20.patch",
+        "Close button in tour module lacks descriptive text - https://www.drupal.org/node/2885583#comment-12125485": "https://www.drupal.org/files/issues/close_button_in_tour-2885583-2.patch",
+        "Fatal error: Call to a member function getTimestamp() - https://www.drupal.org/node/2573807#comment-12225765": "https://www.drupal.org/files/issues/2573807-40-8.3.x.patch",
+        "Object styles for some elements (a-tags, lists, ...) not showing - https://www.drupal.org/node/2911749": "https://www.drupal.org/files/issues/fix_ckeditor_styles_dropdown-2911749-17.patch"
+      },
+      "drupal/token": {
+        "Node preview button generates useless menu link - https://www.drupal.org/node/2823731#comment-11905884": "https://www.drupal.org/files/issues/token_node_preview_menu_link-2823731-4.patch"
+      },
+      "drupal/better_exposed_filters": {
+        "Add core/drupal as dependency to better_exposed_filters asset libraries - https://www.drupal.org/node/2902742": "https://www.drupal.org/files/issues/add_core_drupal_as-2902742-2.patch"
       }
     }
   }

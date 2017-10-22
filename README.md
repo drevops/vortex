@@ -1,5 +1,5 @@
 # drupal-dev
-Composer-based Drupal 7 project scaffolding with code linting, tests and automated builds (CI) integration.
+Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev)
 

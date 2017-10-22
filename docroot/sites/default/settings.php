@@ -10,25 +10,57 @@
 // Environment constants.
 // Use these constants anywhere in code to alter behaviour for specific
 // environment.
-define('ENVIRONMENT_LOCAL', 'local');
-define('ENVIRONMENT_CI', 'ci');
-define('ENVIRONMENT_PROD', 'prod');
-define('ENVIRONMENT_TEST', 'test');
-define('ENVIRONMENT_DEV', 'dev');
+if (!defined('ENVIRONMENT_LOCAL')) {
+  define('ENVIRONMENT_LOCAL', 'local');
+}
+if (!defined('ENVIRONMENT_CI')) {
+  define('ENVIRONMENT_CI', 'ci');
+}
+if (!defined('ENVIRONMENT_PROD')) {
+  define('ENVIRONMENT_PROD', 'prod');
+}
+if (!defined('ENVIRONMENT_TEST')) {
+  define('ENVIRONMENT_TEST', 'test');
+}
+if (!defined('ENVIRONMENT_DEV')) {
+  define('ENVIRONMENT_DEV', 'dev');
+}
 $conf['environment'] = ENVIRONMENT_LOCAL;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       SITE-SPECIFIC SETTINGS                             ///
 ////////////////////////////////////////////////////////////////////////////////
 
-// Example of site-specific settings that should be placed into this section.
-// Set the default timezone globally.
-ini_set('date.timezone', 'Australia/Melbourne');
-date_default_timezone_set('Australia/Melbourne');
-$update_free_access = FALSE;
-$conf['404_fast_paths_exclude'] = '/\/(?:styles)|(?:system\/files)\//';
-$conf['404_fast_paths'] = '/\.(?:txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
-$conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+/**
+ * Location of the site configuration files.
+ */
+$config_directories = [
+  CONFIG_SYNC_DIRECTORY => '../sync',
+];
+
+/**
+ * Salt for one-time login links, cancel links, form tokens, etc.
+ */
+$settings['hash_salt'] = 'CHANGE_ME';
+
+$settings['update_free_access'] = FALSE;
+
+/**
+ * Load services definition file.
+ */
+$settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
+
+/**
+ * The default list of directories that will be ignored by Drupal's file API.
+ */
+$settings['file_scan_ignore_directories'] = [
+  'node_modules',
+];
+
+/**
+ * The default number of entities to update in a batch process.
+ */
+$settings['entity_update_batch_size'] = 50;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
@@ -57,18 +89,20 @@ if (file_exists('/var/www/site-php')) {
 }
 
 // Include generated beetbox settings file, if available.
-if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.beetbox.php')) {
-  include DRUPAL_ROOT . '/' . conf_path() . '/settings.beetbox.php';
+if (file_exists($app_root . '/' . $site_path . '/settings.beetbox.php')) {
+  include $app_root . '/' . $site_path . '/settings.beetbox.php';
 }
 
-// Load local development override configuration, if available.
-//
-// Use settings.local.php to override variables on secondary (staging,
-// development, etc) installations of this site. Typically used to disable
-// caching, JavaScript/CSS compression, re-routing of outgoing emails, and
-// other things that should not happen on development and testing sites.
-//
-// Keep this code block at the end of this file to take full effect.
-if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.local.php')) {
-  include DRUPAL_ROOT . '/' . conf_path() . '/settings.local.php';
+/**
+ * Load local development override configuration, if available.
+ *
+ * Use settings.local.php to override variables on secondary (staging,
+ * development, etc) installations of this site. Typically used to disable
+ * caching, JavaScript/CSS compression, re-routing of outgoing emails, and
+ * other things that should not happen on development and testing sites.
+ *
+ * Keep this code block at the end of this file to take full effect.
+ */
+if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+  include $app_root . '/' . $site_path . '/settings.local.php';
 }

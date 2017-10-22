@@ -5,18 +5,16 @@
 docroot/*
 !docroot/sites/
 docroot/sites/*
-!docroot/sites/all/
+!docroot/modules/
+docroot/modules/*
+!docroot/modules/custom/
+!docroot/themes/
+docroot/themes/*
+!docroot/themes/custom/
 !docroot/sites/default/
-docroot/sites/all/*
-!docroot/sites/all/modules/
-docroot/sites/all/modules/*
-!docroot/sites/all/modules/custom/
-!docroot/sites/all/themes/
-docroot/sites/all/themes/*
-!docroot/sites/all/themes/custom/
 docroot/sites/default/*
 !docroot/sites/default/settings.php
-!docroot/sites/default/default.settings.local.php
+!docroot/sites/default/services.yml
 
 # Ignore local VM files.
 .vagrant

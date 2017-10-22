@@ -2,7 +2,7 @@
 <phpunit colors="true" bootstrap="./vendor/autoload.php">
     <testsuites>
         <testsuite name="VicUni">
-            <directory>./sites/all/modules/custom/</directory>
+            <directory>./modules/custom/</directory>
             <directory>./tests/unit/</directory>
         </testsuite>
     </testsuites>

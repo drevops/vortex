@@ -11,8 +11,8 @@
 
   <file>scripts/composer</file>
   <file>tests</file>
-  <file>docroot/sites/all/modules/custom</file>
-  <file>docroot/sites/all/themes/custom</file>
+  <file>docroot/modules/custom</file>
+  <file>docroot/themes/custom</file>
   <file>docroot/sites/default/settings.php</file>
 
   <!-- Exclude all minified files. -->

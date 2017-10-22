@@ -1,0 +1,8 @@
+name: mysitetheme
+type: theme
+description: 'MYSITE theme.'
+version: 8.x-1.0
+core: 8.x
+base theme: stark
+libraries:
+- mysitetheme/global-styling

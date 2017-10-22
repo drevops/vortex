@@ -1,0 +1,9 @@
+global-styling:
+  version: 1.x
+  css:
+    theme:
+      css/mysitetheme.min.css: {}
+  js:
+    mysitetheme.min.js: {}
+  dependencies:
+      - core/jquery

@@ -8,8 +8,8 @@
  */
 
 /* global module */
-var themePath = 'docroot/sites/all/themes/custom/mysitetheme/';
-var libraryPath = 'docroot/sites/all/libraries/';
+var themePath = 'docroot/themes/custom/mysitetheme/';
+var libraryPath = 'docroot/libraries/';
 module.exports = function (grunt) {
   'use strict';
   grunt.initConfig({
