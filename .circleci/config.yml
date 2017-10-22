@@ -78,7 +78,9 @@ aliases:
   - &step_system_binaries
     run:
       name: Install additional debug binaries
-      command: sudo apt-get -y install vim mysql-client libpng-dev
+      command: |
+        sudo apt-get update
+        sudo apt-get -y install vim mysql-client libpng-dev
 
   - &step_bootstrap_drupal
     run:
@@ -114,7 +116,7 @@ jobs:
           command: composer install -n --prefer-dist
       - run:
           name: Download Selenium
-          command: curl -s -k -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar > $SELENIUM_BIN
+          command: curl -s -k -L http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar -o $SELENIUM_BIN
       - save_cache:
           paths:
             - $HOME/.composer/cache
