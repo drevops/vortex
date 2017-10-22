@@ -36,6 +36,11 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
 
 ![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
 
+## Build workflow
+Automated build is orchestrated to run stages in separate containers, allowing to run tests in parallel and fail fast.
+
+![CircleCI build workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/circleci_build.png)
+
 ## Presentation
 https://goo.gl/CRBFw2
 
