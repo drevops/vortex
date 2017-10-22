@@ -12,7 +12,7 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
 2. Download an archive of this project and extract into repository.
 3. Run `./scripts/drupal-dev-init.sh` and follow the prompts.
 4. Commit all files to your repository and push.
-5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project", select "1.0" box and click "Start building" button.
+5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project", select "2.0" box and click "Start building" button.
 6. To start developing locally:
    - Copy your existing DB dump into `.data/db.dist.sql` OR run `mkdir .data && curl -L https://goo.gl/WFtJbT -o .data/db.dist.sql` to download minimal install Drupal 7 DB dump.
    - Run `composer build`.
