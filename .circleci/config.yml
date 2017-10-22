@@ -2,20 +2,21 @@ version: 2
 aliases:
   # Variables.
   # For YAML support of anchors and references, @see http://blog.daemonl.com/2016/02/yaml.html
-  - &workspace_root     /home/circleci/project
-  - &code_dir           code
-  - &code_root          /home/circleci/project/code
-  - &web_dir            docroot
-  - &web_root           /home/circleci/project/code/docroot
-  - &data_dir           data
-  - &data_root          /home/circleci/project/data
-  - &artifacts_root     /tmp/artifacts
-  - &selenium_bin       /home/circleci/project/code/selenium-server.jar
-  - &server             local.mysiteurl
-  - &web_url            http://local.mysiteurl
-  - &deps_cache_key     v1-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
-  - &deps_cache_key_any v1-dependencies-{{ checksum "composer.json" }}
-  - &data_cache_key     v1-data-{{ .Branch }}
+  - &workspace_root         /home/circleci/project
+  - &code_dir               code
+  - &code_root              /home/circleci/project/code
+  - &web_dir                docroot
+  - &web_root               /home/circleci/project/code/docroot
+  - &data_dir               data
+  - &data_root              /home/circleci/project/data
+  - &artifacts_root         /tmp/artifacts
+  - &selenium_bin           /home/circleci/project/code/selenium-server.jar
+  - &server                 local.mysiteurl
+  - &web_url                http://local.mysiteurl
+  - &deps_cache_key         v1-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
+  - &deps_cache_key_any     v1-dependencies-{{ checksum "composer.json" }}
+  - &data_cache_key         v1-data-{{ .Branch }}
+  - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
 
   # Configuration shared between all containers.
   - &container_config
@@ -36,6 +37,7 @@ aliases:
       MYSQL_HOST: 127.0.0.1
       MYSQL_ROOT_PASSWORD: ubuntu
       MYSQL_ROOT_HOST: 127.0.0.1
+      DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       - image: circleci/php:7.1-apache-browsers
         environment:
@@ -83,17 +85,18 @@ aliases:
       name: Check that Drupal can be bootstrapped.
       command: $DRUSH --root=$WEB_ROOT status | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
 
+  - &add_ssh_keys
+    add_ssh_keys:
+      fingerprints:
+        - *deploy_ssh_fingerprint
+
   - &step_configure_git
     run:
       name: Configure git
       command: |
         git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
         mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-
-  - &add_ssh_keys
-    add_ssh_keys:
-      fingerprints:
-        - "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+        DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
 
 jobs:
   # Install and cache code dependencies.
@@ -232,8 +235,8 @@ jobs:
     steps:
       - *step_common
       - *step_attach_workspace
-      - *step_configure_git
       - *add_ssh_keys
+      - *step_configure_git
       - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push; else echo "Skipping deployment"; fi
 
   deploy_primary_branch:
@@ -241,8 +244,8 @@ jobs:
     steps:
       - *step_common
       - *step_attach_workspace
-      - *step_configure_git
       - *add_ssh_keys
+      - *step_configure_git
       - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-]; else echo "Skipping deployment"; fi
 
 workflows:
