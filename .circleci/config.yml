@@ -183,7 +183,7 @@ jobs:
   test_behat:
     <<: *container_config
     # Increase this value to run tests in parallel.
-    parallelism: 1
+    parallelism: 2
     steps:
       - *step_common
       - *step_attach_workspace
@@ -222,7 +222,14 @@ jobs:
           background: true
       - run:
           name: Run Behat tests
-          command: composer test
+          # Runs tests in parallel if there are more than 1 parallel node
+          # running (set in 'parallelism' property above).
+          command: |
+            if [ "$CIRCLE_NODE_TOTAL" -gt "1" ] ; then
+              composer test -- --tags=p$CIRCLE_NODE_INDEX
+            else
+              composer test
+            fi
       - store_artifacts:
           path: *artifacts_root
 
