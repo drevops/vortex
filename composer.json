@@ -99,16 +99,17 @@
       "git ls-files --directory --other -i --exclude-from=.gitignore docroot|xargs rm -Rf"
     ],
     "post-install-cmd": [
+      "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
       "Utilities\\composer\\DrupalSettings::create",
       "npm install",
       "@build-theme-prod"
     ],
     "post-update-cmd": [
+      "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
       "Utilities\\composer\\DrupalSettings::create",
       "npm install",
       "@build-theme-prod"
-    ],
-    "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold"
+    ]
   },
   "extra": {
     "beetbox": {
