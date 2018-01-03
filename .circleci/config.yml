@@ -112,6 +112,12 @@ jobs:
           keys:
             - *deps_cache_key_any
       - run:
+          name: Validate composer configuration
+          command: composer validate --strict
+      - run:
+          name: Install global dependencies
+          command: composer global require hirak/prestissimo
+      - run:
           name: Install dependencies
           command: composer install -n --prefer-dist
       - run:
@@ -179,6 +185,19 @@ jobs:
           paths:
             - *data_dir
 
+  # Install site from configuration.
+  # [META] Test that the website can be installed from the configuration.
+  test_site_install:
+    <<: *container_config
+    steps:
+      - *step_attach_workspace
+      - *step_common
+      - *step_system_binaries
+      - *step_php_extensions
+      - *step_symlink_data
+      - run: composer site-install
+      - *step_bootstrap_drupal
+
   # Run tests in parallel.
   test_behat:
     <<: *container_config
@@ -226,9 +245,9 @@ jobs:
           # running (set in 'parallelism' property above).
           command: |
             if [ "$CIRCLE_NODE_TOTAL" -gt "1" ] ; then
-              composer test -- --tags=p$CIRCLE_NODE_INDEX
+              composer test -- --tags=p$CIRCLE_NODE_INDEX ||  composer test -- --tags=p$CIRCLE_NODE_INDEX --rerun
             else
-              composer test
+              composer test || composer test -- --rerun
             fi
       - store_artifacts:
           path: *artifacts_root
@@ -281,7 +300,9 @@ workflows:
           requires:
             - code_dependencies
             - download_db
-            - code_style
+      - test_site_install:
+          requires:
+            - code_dependencies
       - test_behat:
           requires:
             - build

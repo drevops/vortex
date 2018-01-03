@@ -11,6 +11,9 @@ docroot/modules/*
 !docroot/themes/
 docroot/themes/*
 !docroot/themes/custom/
+!docroot/profiles/
+docroot/profiles/*
+!docroot/profiles/custom/
 !docroot/sites/default/
 docroot/sites/default/*
 !docroot/sites/default/settings.php
