@@ -13,6 +13,7 @@
   "require-dev": {
     "beet/box": "^0.8",
     "behat/behat": "^3.3.1",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
     "drupal/coder": "^8.2",
     "drupal/console": "^1.0",
     "drupal/drupal-extension": "^v3.3.0",
@@ -36,6 +37,9 @@
     ]
   },
   "config": {
+    "platform": {
+      "php": "7.1"
+    },
     "process-timeout": 0,
     "sort-packages": true
   },
@@ -50,7 +54,7 @@
   },
   "scripts": {
     "cs":[
-      "phpcs --runtime-set installed_paths $(pwd)/vendor/drupal/coder/coder_sniffer --runtime-set eslint_path $(pwd)/node_modules/.bin/eslint --colors -s -p",
+      "phpcs --colors",
       "node_modules/.bin/sass-lint -qv --max-warnings 0"
     ],
     "test": "behat --format=progress_fail --colors",
@@ -73,8 +77,8 @@
       "drush @local.mysiteurl en mysite_core -y",
       "drush @local.mysiteurl updb -y"
     ],
-    "build-theme": "node_modules/.bin/grunt",
-    "build-theme-prod": "@composer build-theme -- prod",
+    "build-theme": "npm run build",
+    "build-theme-prod": "npm run build-prod",
     "cleanup": [
       "@_remove-docroot",
       "@_remove-dependencies"

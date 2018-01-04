@@ -12,3 +12,5 @@ Vagrantfile
 composer.lock
 package-lock.json
 .circleci/config.yml
+.sass-cache
+*.css.map

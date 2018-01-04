@@ -9,11 +9,34 @@
 
 /* global module */
 var themePath = 'docroot/themes/custom/mysitetheme/';
-var libraryPath = 'docroot/libraries/';
 module.exports = function (grunt) {
   'use strict';
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    eslint: {
+      src: [
+        'docroot/profiles/custom/**/*.js',
+        '!docroot/profiles/custom/**/*.min.js',
+        'docroot/modules/custom/**/*.js',
+        '!docroot/modules/custom/**/*.min.js',
+        'docroot/themes/custom/**/*.js',
+        '!docroot/themes/custom/**/*.min.js'
+      ],
+      options: {
+        config: '.eslintrc.json',
+        format: 'codeframe'
+      }
+    },
+    sasslint: {
+      options: {
+        configFile: '.sass-lint.yml',
+        formatter: 'codeframe'
+      },
+      target: [
+        'docroot/themes/custom/**/*.scss',
+        'docroot/modules/custom/**/*.scss'
+      ]
+    },
     sass_globbing: {
       dev: {
         files: {
@@ -31,12 +54,10 @@ module.exports = function (grunt) {
       },
       dist: {
         src: [
-          // Uncomment below to include libraries.
-          // libraryPath + 'bootstrap/assets/javascripts/bootstrap.js',
           themePath + 'js/**/*.js',
           '!' + themePath + 'js/mysitetheme.min.js'
         ],
-        dest: themePath + 'js/mysitetheme.min.js'
+        dest: themePath + 'build/js/mysitetheme.min.js'
       }
     },
     uglify: {
@@ -50,14 +71,14 @@ module.exports = function (grunt) {
           }
         },
         files: {
-          [themePath + 'js/mysitetheme.min.js']: [themePath + 'js/mysitetheme.min.js']
+          [themePath + 'build/js/mysitetheme.min.js']: [themePath + 'build/js/mysitetheme.min.js']
         }
       }
     },
     sass: {
       dev: {
         files: {
-          [themePath + 'css/mysitetheme.min.css']: themePath + 'scss/style.scss'
+          [themePath + 'build/css/mysitetheme.min.css']: themePath + 'scss/style.scss'
         },
         options: {
           sourceMap: true,
@@ -66,12 +87,41 @@ module.exports = function (grunt) {
       },
       prod: {
         files: {
-          [themePath + 'css/mysitetheme.min.css']: themePath + 'scss/style.scss'
+          [themePath + 'build/css/mysitetheme.min.css']: themePath + 'scss/style.scss'
         },
         options: {
           sourceMap: false,
           outputStyle: 'compressed'
         }
+      }
+    },
+    postcss: {
+      options: {
+        processors: [
+          require('autoprefixer')({browsers: ['last 2 versions', 'not ie <= 8', 'iOS >= 7']})
+        ]
+      },
+      dev: {
+        map: true,
+        src: themePath + 'build/css/mysitetheme.min.css'
+      },
+      prod: {
+        map: false,
+        src: themePath + 'build/css/mysitetheme.min.css'
+      }
+    },
+    copy: {
+      images: {
+        expand: true,
+        cwd: themePath + 'images/',
+        src: '**',
+        dest: themePath + 'build/images'
+      },
+      fonts: {
+        expand: true,
+        cwd: themePath + 'fonts/',
+        src: '**',
+        dest: themePath + 'build/fonts'
       }
     },
     watch: {
@@ -83,8 +133,10 @@ module.exports = function (grunt) {
         }
       },
       styles: {
-        files: [themePath + 'scss/**/*.scss'],
-        tasks: ['sass_globbing', 'sass:dev'],
+        files: [
+          themePath + 'scss/**/*.scss'
+        ],
+        tasks: ['sass_globbing', 'sass:dev', 'postcss:dev'],
         options: {
           livereload: true,
           spawn: false
@@ -93,14 +145,19 @@ module.exports = function (grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-postcss');
   grunt.loadNpmTasks('grunt-sass-globbing');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('gruntify-eslint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-sass');
+  grunt.loadNpmTasks('grunt-sass-lint');
   grunt.loadNpmTasks('grunt-exec');
 
-  grunt.registerTask('prod', ['sass_globbing', 'concat', 'uglify:prod', 'sass:prod']);
+  grunt.registerTask('lint', ['eslint', 'sasslint']);
+  grunt.registerTask('prod', ['lint', 'sass_globbing', 'concat', 'uglify:prod', 'sass:prod', 'postcss:prod', 'copy']);
   // By default, run grunt with dev settings.
-  grunt.registerTask('default', ['sass_globbing', 'concat', 'sass:dev']);
+  grunt.registerTask('default', ['lint', 'sass_globbing', 'concat', 'sass:dev', 'postcss:dev', 'copy']);
 };
