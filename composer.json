@@ -27,8 +27,7 @@
   },
   "autoload": {
     "classmap": [
-      "scripts/composer/",
-      "tests/unit/"
+      "scripts/composer/"
     ]
   },
   "autoload-dev": {
@@ -55,11 +54,11 @@
   "scripts": {
     "cs":[
       "phpcs --colors",
-      "node_modules/.bin/sass-lint -qv --max-warnings 0"
+      "npm run lint"
     ],
     "test": "behat --format=progress_fail --colors",
     "build": [
-      "@composer install --no-progress --no-interaction",
+      "@composer install -n --ansi --prefer-dist",
       "@_start-vm",
       "@build-db"
     ],
@@ -77,8 +76,8 @@
       "drush @local.mysiteurl en mysite_core -y",
       "drush @local.mysiteurl updb -y"
     ],
-    "build-theme": "npm run build",
-    "build-theme-prod": "npm run build-prod",
+    "build-fed": "npm run build",
+    "build-fed-prod": "npm run build-prod",
     "cleanup": [
       "@_remove-docroot",
       "@_remove-dependencies"
@@ -107,17 +106,22 @@
       "drush @local.mysiteurl si mysite_profile -y install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL",
       "drush @local.mysiteurl cr -y"
     ],
+    "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+    "pre-install-cmd": [
+      "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+    ],
+    "pre-update-cmd": [
+      "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+    ],
     "post-install-cmd": [
-      "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+      "@drupal-scaffold",
+      "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
       "Utilities\\composer\\DrupalSettings::create",
       "npm install",
-      "@build-theme-prod"
+      "@build-fed"
     ],
     "post-update-cmd": [
-      "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
-      "Utilities\\composer\\DrupalSettings::create",
-      "npm install",
-      "@build-theme-prod"
+      "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
     ]
   },
   "extra": {
@@ -132,18 +136,23 @@
     },
     "drupal-scaffold": {
       "source": "http://cgit.drupalcode.org/drupal/plain/{path}?h={version}",
-      "excludes": [
-        ".eslintrc.json",
-        "google123.html",
-        "robots.txt"
+      "includes": [
+        ".editorconfig",
+        ".eslintignore",
+        ".gitattributes",
+        ".htaccess",
+        "index.php",
+        "robots.txt",
+        "update.php"
       ],
       "initial": {
         "sites/default/default.services.yml": "sites/default/services.yml",
         "sites/default/default.settings.php": "sites/default/settings.php"
       },
-      "omit-defaults": false
+      "omit-defaults": true
     },
     "enable-patching": true,
+    "composer-exit-on-patch-failure": true,
     "installer-paths": {
       "docroot/core": ["type:drupal-core"],
       "docroot/modules/contrib/{$name}": ["type:drupal-module"],
@@ -170,7 +179,6 @@
         "Contextual links should not be added inside another link - https://www.drupal.org/node/2898875": "https://www.drupal.org/files/issues/contextual_links_should-2898875-3.patch",
         "No validation on text length for menu description when editing node - https://www.drupal.org/node/2852665#comment-12157856": "https://www.drupal.org/files/issues/fatal_error_remove_menu_add_with_tests-2852665-12.patch",
         "active-link.js throws JS error if query string parameter contains a single quote - https://www.drupal.org/node/2902769": "https://www.drupal.org/files/issues/active_link_js_throws-2902769-5_0.patch",
-        "Duplicate AJAX wrapper around a file field - https://www.drupal.org/node/2346893": "https://www.drupal.org/files/issues/duplicate_ajax_wrapper-2346893-205.patch",
         "getUuid() in class MenuLinkContent not returning any value - https://www.drupal.org/node/2737741": "https://www.drupal.org/files/issues/drupal-menulinkcontent-getuuid-return-missing-2737741-2.patch",
         "RSS view with fields give wrong URL from path field - https://www.drupal.org/node/2673980#comment-12180229": "https://www.drupal.org/files/issues/rss_view_with_fields-2673980-20.patch",
         "Close button in tour module lacks descriptive text - https://www.drupal.org/node/2885583#comment-12125485": "https://www.drupal.org/files/issues/close_button_in_tour-2885583-2.patch",
