@@ -1,7 +1,2 @@
-# Compiled assets.
-css/*.css
-css/*.css.map
-js/*.min.js
-
 # Assets cache.
 .sass-cache

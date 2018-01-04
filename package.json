@@ -4,14 +4,26 @@
   "private": true,
   "description": "NPM dependencies for MYSITE project",
   "devDependencies": {
+    "autoprefixer": "^7.1.6",
     "eslint": "^4.9.0",
     "grunt": "^1.0.1",
     "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-uglify": "^3.1.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-exec": "^3.0.0",
+    "grunt-postcss": "^0.9.0",
     "grunt-sass": "^2.0.0",
     "grunt-sass-globbing": "^1.5.1",
+    "grunt-sass-lint": "^0.2.4",
+    "gruntify-eslint": "^4.0.0",
+    "node-sass": "^4.6.0",
     "sass-lint": "^1.12.0"
+  },
+  "scripts": {
+    "build": "grunt",
+    "build-prod": "grunt prod",
+    "lint": "grunt lint",
+    "watch": "grunt watch"
   }
 }

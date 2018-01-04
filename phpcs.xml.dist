@@ -7,39 +7,25 @@
   <rule ref="DrupalPractice"/>
   <rule ref="Generic.Debug.ESLint"/>
 
-  <arg name="extensions" value="css,inc,info,install,js,module,php,profile,test,theme"/>
+  <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
+  <arg name="colors"/>
+  <arg value="sp"/>
 
   <file>scripts/composer</file>
   <file>tests</file>
+  <file>docroot/profiles/custom</file>
   <file>docroot/modules/custom</file>
   <file>docroot/themes/custom</file>
   <file>docroot/sites/default/settings.php</file>
 
-  <!-- Exclude all minified files. -->
-  <exclude-pattern>*\.min\.js</exclude-pattern>
-  <exclude-pattern>*\.min\.css</exclude-pattern>
+  <!-- Exclude circleci config files. -->
+  <exclude-pattern>circle\.yml</exclude-pattern>
+  <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
 
-  <!-- Exclude all features-generated files. -->
-  <exclude-pattern>*\.bean\.*</exclude-pattern>
-  <exclude-pattern>*\.context\.*</exclude-pattern>
-  <exclude-pattern>*\.current_search\.*</exclude-pattern>
-  <exclude-pattern>*\.custom_formatters\.*</exclude-pattern>
-  <exclude-pattern>*\.ds\.*</exclude-pattern>
-  <exclude-pattern>*\.facetapi_defaults\.*</exclude-pattern>
-  <exclude-pattern>*\.feeds_*\.*</exclude-pattern>
-  <exclude-pattern>*\.features\.*</exclude-pattern>
-  <exclude-pattern>*\.field_group\.*</exclude-pattern>
-  <exclude-pattern>*\.file_default_displays\.*</exclude-pattern>
-  <exclude-pattern>*\.file_type\.*</exclude-pattern>
-  <exclude-pattern>*\.heartbeat\.*</exclude-pattern>
-  <exclude-pattern>*\.layouts\.*</exclude-pattern>
-  <exclude-pattern>*\.linkit_profiles\.*</exclude-pattern>
-  <exclude-pattern>*\.pages_default\.*</exclude-pattern>
-  <exclude-pattern>*\.panels_default\.*</exclude-pattern>
-  <exclude-pattern>*\.rules_defaults\.*</exclude-pattern>
-  <exclude-pattern>*\.strongarm\.*</exclude-pattern>
-  <exclude-pattern>*\.views_default\.*</exclude-pattern>
-  <exclude-pattern>*\.quicktabs\.*</exclude-pattern>
+  <!-- Exclude theme assets. -->
+  <exclude-pattern>docroot\/themes\/custom\/.*\/build\/.*</exclude-pattern>
+  <exclude-pattern>docroot\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
+  <exclude-pattern>docroot\/themes\/custom\/.*\/images\/.*</exclude-pattern>
 
   <!--Force short array syntax.-->
   <rule ref="Generic.Arrays.DisallowLongArraySyntax.Found">
@@ -75,7 +61,7 @@
 
   <!--Allow version in custom modules.-->
   <rule ref="Drupal.InfoFiles.AutoAddedKeys.Version">
-    <exclude-pattern>custom/*.info</exclude-pattern>
+    <exclude-pattern>custom/*\.info\.yml</exclude-pattern>
   </rule>
 
   <!--Allow uncommented functions in tests as they usually provide enough
