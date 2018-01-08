@@ -228,6 +228,8 @@ jobs:
               </Directory>
             </VirtualHost>" > 000-default.conf
             sudo mv -f 000-default.conf /etc/apache2/sites-available/000-default.conf
+            echo "ServerName $SERVER" | sudo tee /etc/apache2/conf-available/servername.conf
+            sudo a2enconf servername
             sudo a2enmod rewrite && sudo a2enmod proxy_http && sudo service apache2 restart
             echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
       - run:
