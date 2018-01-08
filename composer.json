@@ -1,7 +1,7 @@
 {
   "name": "myorg/mysite",
   "description": "Drupal 8 site for MYSITE",
-  "license": "GPL-2.0+",
+  "license": "GPL-2.0-or-later",
   "require": {
     "composer/installers": "^1.2.0",
     "cweagans/composer-patches": "^1.6.0",
