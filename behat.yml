@@ -20,17 +20,6 @@ default:
       goutte: ~
       base_url: http://local.mysiteurl
       browser_name: chrome
-#      selenium2:
-#        wd_host: "http://localhost:4444/wd/hub"
-#        capabilities: { "browser": "chrome", "version": "*", "marionette": true }
-#      selenium2:
-#        browser: chrome
-#        wd_host: http://127.0.0.1:4444/wd/hub
-#        capabilities:
-#          chrome:
-#            switches:
-#              - "--headless"
-#              - "--disable-gpu"
       sessions:
         default:
           chrome:
