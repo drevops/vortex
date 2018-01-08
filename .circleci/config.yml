@@ -233,9 +233,9 @@ jobs:
             sudo a2enmod rewrite && sudo a2enmod proxy_http && sudo service apache2 restart
             echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
       - run:
-           name: Start Chrome in the background
-           command: google-chrome-stable --disable-gpu --headless --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
-           background: true
+          name: Start Chrome in the background
+          command: google-chrome-stable --disable-gpu --headless --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
+          background: true
       - run:
           name: Run Behat tests
           # Runs tests in parallel if there are more than 1 parallel node
