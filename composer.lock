@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "cb06a6e1f96344270423f0c80d6e7a88",
+    "content-hash": "db1e14074c415d89ae6139c832ac805f",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5104,16 +5104,16 @@
         },
         {
             "name": "integratedexperts/behat-screenshot",
-            "version": "dev-feature/driver-support",
+            "version": "0.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/behat-screenshot.git",
-                "reference": "74afcf7039ae57adb86afeda7b15cf86f43440bc"
+                "reference": "55a1497784346b2a68131956fd7a0bd364275e55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/behat-screenshot/zipball/74afcf7039ae57adb86afeda7b15cf86f43440bc",
-                "reference": "74afcf7039ae57adb86afeda7b15cf86f43440bc",
+                "url": "https://api.github.com/repos/integratedexperts/behat-screenshot/zipball/55a1497784346b2a68131956fd7a0bd364275e55",
+                "reference": "55a1497784346b2a68131956fd7a0bd364275e55",
                 "shasum": ""
             },
             "require": {
@@ -5151,7 +5151,7 @@
                 }
             ],
             "description": "Behat Context to capture screenshots from failed tests",
-            "time": "2018-01-08T10:10:02+00:00"
+            "time": "2017-08-07T07:14:56+00:00"
         },
         {
             "name": "integratedexperts/robo-git-artefact",
@@ -7697,10 +7697,9 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": {
-        "drupal/better_exposed_filters": 15,
-        "integratedexperts/behat-screenshot": 20
+        "drupal/better_exposed_filters": 15
     },
     "prefer-stable": false,
     "prefer-lowest": false,
