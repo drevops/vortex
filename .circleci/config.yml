@@ -77,7 +77,6 @@ aliases:
     run:
       name: Install additional debug binaries
       command: |
-        sudo apt-get update
         sudo apt-get -y install vim mysql-client libpng-dev
 
   - &step_bootstrap_drupal
