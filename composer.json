@@ -20,7 +20,7 @@
     "drupal/drupal-extension": "^v3.3.0",
     "drush/drush": "^8.1",
     "integratedexperts/behat-format-progress-fail": "^0.2",
-    "integratedexperts/behat-screenshot": "^0.6",
+    "integratedexperts/behat-screenshot": "0.7.0",
     "integratedexperts/robo-git-artefact": "^0.1",
     "mouf/nodejs-installer": "^1.0",
     "phpunit/phpunit": "^5.7.19",

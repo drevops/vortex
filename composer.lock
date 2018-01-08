@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "db1e14074c415d89ae6139c832ac805f",
+    "content-hash": "c77013a2d0c32fcd1562cd966fba2da7",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5104,16 +5104,16 @@
         },
         {
             "name": "integratedexperts/behat-screenshot",
-            "version": "0.6.2",
+            "version": "0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/behat-screenshot.git",
-                "reference": "55a1497784346b2a68131956fd7a0bd364275e55"
+                "reference": "2a71b4c04889258e09f2786627a1f13c31bc3a3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/behat-screenshot/zipball/55a1497784346b2a68131956fd7a0bd364275e55",
-                "reference": "55a1497784346b2a68131956fd7a0bd364275e55",
+                "url": "https://api.github.com/repos/integratedexperts/behat-screenshot/zipball/2a71b4c04889258e09f2786627a1f13c31bc3a3b",
+                "reference": "2a71b4c04889258e09f2786627a1f13c31bc3a3b",
                 "shasum": ""
             },
             "require": {
@@ -5151,7 +5151,7 @@
                 }
             ],
             "description": "Behat Context to capture screenshots from failed tests",
-            "time": "2017-08-07T07:14:56+00:00"
+            "time": "2018-01-08T10:34:05+00:00"
         },
         {
             "name": "integratedexperts/robo-git-artefact",
