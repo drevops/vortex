@@ -10,7 +10,6 @@ aliases:
   - &data_dir               data
   - &data_root              /home/circleci/project/data
   - &artifacts_root         /tmp/artifacts
-  - &selenium_bin           /home/circleci/project/code/selenium-server.jar
   - &server                 local.mysiteurl
   - &web_url                http://local.mysiteurl
   - &deps_cache_key         v1-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
@@ -30,7 +29,6 @@ aliases:
       WEB_URL: *web_url
       ARTIFACTS_ROOT: *artifacts_root
       DRUSH: vendor/bin/drush
-      SELENIUM_BIN: *selenium_bin
       MYSQL_USER: ubuntu
       MYSQL_PASSWORD: ubuntu
       MYSQL_DATABASE: circle_test
@@ -120,9 +118,6 @@ jobs:
       - run:
           name: Install dependencies
           command: composer install -n --prefer-dist
-      - run:
-          name: Download Selenium
-          command: curl -s -k -L http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar -o $SELENIUM_BIN
       - save_cache:
           paths:
             - $HOME/.composer/cache
@@ -235,10 +230,6 @@ jobs:
             sudo mv -f 000-default.conf /etc/apache2/sites-available/000-default.conf
             sudo a2enmod rewrite && sudo a2enmod proxy_http && sudo service apache2 restart
             echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
-      - run:
-          name: Start Selenium
-          command: java -jar $SELENIUM_BIN -log $ARTIFACTS_ROOT/selenium.log
-          background: true
       - run:
           name: Run Behat tests
           # Runs tests in parallel if there are more than 1 parallel node
