@@ -7,7 +7,8 @@ files:
     - 'docroot/sites/all/themes/custom/**/*.scss'
     - 'docroot/sites/all/modules/custom/**/*.scss'
   ignore:
-    - 'docroot/sites/all/themes/custom/**/_overrides.scss'
+    - 'docroot/sites/all/themes/custom/**/fonts/**/*.scss'
+    - 'docroot/sites/all/themes/custom/**/build/.*'
 # Rule Configuration
 rules:
   indentation:

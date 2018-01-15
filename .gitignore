@@ -14,6 +14,9 @@ docroot/sites/all/modules/*
 !docroot/sites/all/themes/
 docroot/sites/all/themes/*
 !docroot/sites/all/themes/custom/
+!docroot/profiles/
+docroot/profiles/*
+!docroot/profiles/mysite_profile/
 docroot/sites/default/*
 !docroot/sites/default/settings.php
 !docroot/sites/default/default.settings.local.php
@@ -28,8 +31,6 @@ Vagrantfile
 vendor
 node_modules
 
-# Ignore dependencies locking.
-# Remove these lines if exact dependencies are required (usually after setting
-# up the baseline of the project).
-composer.lock
-package-lock.json
+# Compiled assets.
+docroot/sites/all/themes/**/build
+screenshots

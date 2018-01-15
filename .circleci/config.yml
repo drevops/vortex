@@ -10,7 +10,6 @@ aliases:
   - &data_dir               data
   - &data_root              /home/circleci/project/data
   - &artifacts_root         /tmp/artifacts
-  - &selenium_bin           /home/circleci/project/code/selenium-server.jar
   - &server                 local.mysiteurl
   - &web_url                http://local.mysiteurl
   - &deps_cache_key         v1-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
@@ -30,7 +29,6 @@ aliases:
       WEB_URL: *web_url
       ARTIFACTS_ROOT: *artifacts_root
       DRUSH: vendor/bin/drush
-      SELENIUM_BIN: *selenium_bin
       MYSQL_USER: ubuntu
       MYSQL_PASSWORD: ubuntu
       MYSQL_DATABASE: circle_test
@@ -79,7 +77,6 @@ aliases:
     run:
       name: Install additional debug binaries
       command: |
-        sudo apt-get update
         sudo apt-get -y install vim mysql-client libpng-dev
 
   - &step_bootstrap_drupal
@@ -112,11 +109,14 @@ jobs:
           keys:
             - *deps_cache_key_any
       - run:
+          name: Validate composer configuration
+          command: composer validate --strict
+      - run:
+          name: Install global dependencies
+          command: composer global require hirak/prestissimo
+      - run:
           name: Install dependencies
           command: composer install -n --prefer-dist
-      - run:
-          name: Download Selenium
-          command: curl -s -k -L http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar -o $SELENIUM_BIN
       - save_cache:
           paths:
             - $HOME/.composer/cache
@@ -179,6 +179,19 @@ jobs:
           paths:
             - *data_dir
 
+  # Install site from configuration.
+  # [META] Test that the website can be installed from the configuration.
+  test_site_install:
+    <<: *container_config
+    steps:
+      - *step_attach_workspace
+      - *step_common
+      - *step_system_binaries
+      - *step_php_extensions
+      - *step_symlink_data
+      - run: composer site-install
+      - *step_bootstrap_drupal
+
   # Run tests in parallel.
   test_behat:
     <<: *container_config
@@ -214,11 +227,13 @@ jobs:
               </Directory>
             </VirtualHost>" > 000-default.conf
             sudo mv -f 000-default.conf /etc/apache2/sites-available/000-default.conf
+            echo "ServerName $SERVER" | sudo tee /etc/apache2/conf-available/servername.conf
+            sudo a2enconf servername
             sudo a2enmod rewrite && sudo a2enmod proxy_http && sudo service apache2 restart
             echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
       - run:
-          name: Start Selenium
-          command: java -jar $SELENIUM_BIN -log $ARTIFACTS_ROOT/selenium.log
+          name: Start Chrome in the background
+          command: google-chrome-stable --disable-gpu --headless --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
           background: true
       - run:
           name: Run Behat tests
@@ -226,9 +241,9 @@ jobs:
           # running (set in 'parallelism' property above).
           command: |
             if [ "$CIRCLE_NODE_TOTAL" -gt "1" ] ; then
-              composer test -- --tags=p$CIRCLE_NODE_INDEX
+              composer test -- --tags=p$CIRCLE_NODE_INDEX ||  composer test -- --tags=p$CIRCLE_NODE_INDEX --rerun
             else
-              composer test
+              composer test || composer test -- --rerun
             fi
       - store_artifacts:
           path: *artifacts_root
@@ -281,7 +296,9 @@ workflows:
           requires:
             - code_dependencies
             - download_db
-            - code_style
+      - test_site_install:
+          requires:
+            - code_dependencies
       - test_behat:
           requires:
             - build

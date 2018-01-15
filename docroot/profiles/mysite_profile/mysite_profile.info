@@ -1,0 +1,5 @@
+name = 'MYSITE Profile'
+description = 'MYSITE Profile'
+package = mysite
+core = 7.x
+dependencies[] = mysite_core
