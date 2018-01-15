@@ -15,14 +15,16 @@ default:
         - IntegratedExperts\BehatScreenshotExtension\Context\ScreenshotContext
 
   extensions:
+    DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
     Behat\MinkExtension:
       goutte: ~
       base_url: http://local.mysiteurl
       browser_name: chrome
-      selenium2:
-        wd_host: "http://localhost:4444/wd/hub"
-        capabilities: { "browser": "chrome", "version": "*" }
-      javascript_session: selenium2
+      sessions:
+        default:
+          chrome:
+            api_url: "http://local.mysiteurl:9222"
+      javascript_session: default
     # Provides integration with Drupal APIs.
     Drupal\DrupalExtension:
       blackbox: ~

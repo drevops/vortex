@@ -7,17 +7,24 @@
   <rule ref="DrupalPractice"/>
   <rule ref="Generic.Debug.ESLint"/>
 
-  <arg name="extensions" value="css,inc,info,install,js,module,php,profile,test,theme"/>
+  <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
+  <arg name="colors"/>
+  <arg value="sp"/>
 
-  <file>scripts/composer</file>
   <file>tests</file>
   <file>docroot/sites/all/modules/custom</file>
   <file>docroot/sites/all/themes/custom</file>
+  <file>docroot/profiles/mysite_profile</file>
   <file>docroot/sites/default/settings.php</file>
 
-  <!-- Exclude all minified files. -->
-  <exclude-pattern>*\.min\.js</exclude-pattern>
-  <exclude-pattern>*\.min\.css</exclude-pattern>
+  <!-- Exclude circleci config files. -->
+  <exclude-pattern>circle\.yml</exclude-pattern>
+  <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
+
+  <!-- Exclude theme assets. -->
+  <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/build\/.*</exclude-pattern>
+  <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
+  <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/images\/.*</exclude-pattern>
 
   <!-- Exclude all features-generated files. -->
   <exclude-pattern>*\.bean\.*</exclude-pattern>

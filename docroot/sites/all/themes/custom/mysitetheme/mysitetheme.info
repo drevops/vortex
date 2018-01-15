@@ -5,5 +5,5 @@ base theme = stark
 
 regions[content] = 'Content'
 
-stylesheets[all][] = css/mysitetheme.min.css
-scripts[] = 'js/mysitetheme.min.js'
+stylesheets[all][] = build/css/mysitetheme.min.css
+scripts[] = build/js/mysitetheme.min.js
