@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "939ee5d5c1f781e97d0ddf2393d79c4d",
+    "content-hash": "0549850f7e2ed6f0bcf5fb4caa62c396",
     "packages": [
         {
             "name": "composer/installers",
@@ -125,6 +125,50 @@
                 "zikula"
             ],
             "time": "2017-12-29T09:13:20+00:00"
+        },
+        {
+            "name": "cweagans/composer-patches",
+            "version": "1.6.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cweagans/composer-patches.git",
+                "reference": "462e65061606dc6149349535d4322241515d1b16"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/462e65061606dc6149349535d4322241515d1b16",
+                "reference": "462e65061606dc6149349535d4322241515d1b16",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "composer/composer": "~1.0",
+                "phpunit/phpunit": "~4.6"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "cweagans\\Composer\\Patches"
+            },
+            "autoload": {
+                "psr-4": {
+                    "cweagans\\Composer\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Cameron Eagans",
+                    "email": "me@cweagans.net"
+                }
+            ],
+            "description": "Provides a way to patch Composer packages.",
+            "time": "2017-12-07T16:16:31+00:00"
         },
         {
             "name": "drupal-composer/preserve-paths",
@@ -476,6 +520,11 @@
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
                     }
+                },
+                "patches_applied": {
+                    "User picture is deleted after calls to user_save() - https://www.drupal.org/node/935592": "https://www.drupal.org/files/issues/935592-150.patch",
+                    "Administer Users permission should be separate from Administer Account Settings - https://www.drupal.org/node/366950": "https://www.drupal.org/files/issues/administer_users_-366950-196.patch",
+                    "No navigation links on 404 pages - https://www.drupal.org/node/233807": "https://www.drupal.org/files/issues/drupal-navigation_on_403_404-233807-92.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/7/downloads",
@@ -992,6 +1041,9 @@
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
                     }
+                },
+                "patches_applied": {
+                    "Add an ability to bypass all persistent updates - https://www.drupal.org/node/2824493": "https://www.drupal.org/files/issues/bypass-all-persistent-updates-2824493-3.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/7/downloads",
@@ -1308,86 +1360,21 @@
                 "shasum": null
             },
             "type": "drupal-library"
-        },
-        {
-            "name": "myorg/patches",
-            "version": "1.0.0",
-            "type": "metapackage",
-            "extra": {
-                "patches": {
-                    "drupal/persistent_update": [
-                        {
-                            "title": "Add an ability to bypass all persistent updates",
-                            "url": "https://www.drupal.org/files/issues/bypass-all-persistent-updates-2824493-3.patch"
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "name": "netresearch/composer-patches-plugin",
-            "version": "1.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/netresearch/composer-patches-plugin.git",
-                "reference": "3a3de792955eb7e6bad2b5e892b63a1f6d9be000"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/netresearch/composer-patches-plugin/zipball/3a3de792955eb7e6bad2b5e892b63a1f6d9be000",
-                "reference": "3a3de792955eb7e6bad2b5e892b63a1f6d9be000",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0"
-            },
-            "require-dev": {
-                "composer/composer": "1.*"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "Netresearch\\Composer\\Patches\\Plugin",
-                "branch-alias": {
-                    "dev-master": "1.2.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Christian Opitz",
-                    "email": "christian.opitz@netresearch.de"
-                }
-            ],
-            "description": "Composer patches plugin",
-            "keywords": [
-                "composer",
-                "patches",
-                "plugin"
-            ],
-            "time": "2016-01-06T11:59:02+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "beet/box",
-            "version": "0.8.7",
+            "version": "0.8.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beetboxvm/beetbox.git",
-                "reference": "75f8685dba067e22fa85b3d6f6735d6ca7ca26fc"
+                "reference": "4c241a27f0368188dfeab4f3148922799f8bdc5f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beetboxvm/beetbox/zipball/75f8685dba067e22fa85b3d6f6735d6ca7ca26fc",
-                "reference": "75f8685dba067e22fa85b3d6f6735d6ca7ca26fc",
+                "url": "https://api.github.com/repos/beetboxvm/beetbox/zipball/4c241a27f0368188dfeab4f3148922799f8bdc5f",
+                "reference": "4c241a27f0368188dfeab4f3148922799f8bdc5f",
                 "shasum": ""
             },
             "require": {
@@ -1417,7 +1404,7 @@
             ],
             "description": "A pre-provisioned L*MP stack VM",
             "homepage": "https://github.com/beetboxvm/beetbox",
-            "time": "2017-12-22T05:07:01+00:00"
+            "time": "2018-01-18T10:53:06+00:00"
         },
         {
             "name": "behat/behat",
@@ -3260,16 +3247,16 @@
         },
         {
             "name": "integratedexperts/robo-git-artefact",
-            "version": "0.1.4",
+            "version": "0.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/robo-git-artefact.git",
-                "reference": "4c92ac0a6351108f1ada78d07fc959c042b0cfa6"
+                "reference": "e1ce035839a01967d7fe12da85263aa928810ff5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/4c92ac0a6351108f1ada78d07fc959c042b0cfa6",
-                "reference": "4c92ac0a6351108f1ada78d07fc959c042b0cfa6",
+                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/e1ce035839a01967d7fe12da85263aa928810ff5",
+                "reference": "e1ce035839a01967d7fe12da85263aa928810ff5",
                 "shasum": ""
             },
             "require": {
@@ -3299,7 +3286,7 @@
                 }
             ],
             "description": "Robo task to push git artefact to remote repository",
-            "time": "2017-10-28T02:22:59+00:00"
+            "time": "2017-11-10T04:35:27+00:00"
         },
         {
             "name": "jakub-onderka/php-console-color",

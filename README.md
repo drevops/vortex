@@ -87,29 +87,16 @@ Drupal 7 implementation of MYSITE
 `composer require drupal/module_name`
 
 ## Adding patches for drupal modules
-1. Add `title` and `url` to patch on drupal.org to the `patches` array in `composer.json`.
+1. Add `title` and `url` to patch on drupal.org to the `patches` array in `extra` section in `composer.json`.
 
 ```
-"repositories": [
-  {
-    "type": "package",
-    "package": {
-      "name": "myorg/patches",
-      "version": "1.0.0",
-      "type": "metapackage",
-      "extra": {
+    "extra": {
         "patches": {
-          "drupal/persistent_update": [
-            {
-              "title": "Add an ability to bypass all persistent updates",
-              "url": "https://www.drupal.org/files/issues/bypass-all-persistent-updates-2824493-3.patch"
+            "drupal/core": {
+                "Contextual links should not be added inside another link - https://www.drupal.org/node/2898875": "https://www.drupal.org/files/issues/contextual_links_should-2898875-3.patch"
             }
-          ]
-        }
-      }
+        }    
     }
-  }
-]
 ```
 
 2. `composer rebuild`
