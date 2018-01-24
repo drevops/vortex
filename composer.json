@@ -18,28 +18,11 @@
           "type": "zip"
         }
       }
-    },
-    {
-      "type": "package",
-      "package": {
-        "name": "myorg/patches",
-        "version": "1.0.0",
-        "type": "metapackage",
-        "extra": {
-          "patches": {
-            "drupal/persistent_update": [
-              {
-                "title": "Add an ability to bypass all persistent updates",
-                "url": "https://www.drupal.org/files/issues/bypass-all-persistent-updates-2824493-3.patch"
-              }
-            ]
-          }
-        }
-      }
     }
   ],
   "require": {
     "composer/installers": "^1.0.2.4",
+    "cweagans/composer-patches": "^1.6",
     "drupal-composer/preserve-paths": "^0.1",
     "drupal/admin_menu": "^3.0-rc5",
     "drupal/adminrole": "^1.1",
@@ -56,9 +39,7 @@
     "drupal/strongarm": "^2.0",
     "drupal/wysiwyg": "^2.4",
     "drupal/xautoload": "^4.5",
-    "library/ckeditor": "^4.6.2",
-    "myorg/patches": "^1.0",
-    "netresearch/composer-patches-plugin": "^1.2"
+    "library/ckeditor": "^4.6.2"
   },
   "require-dev": {
     "beet/box": "^0.8",
@@ -70,7 +51,7 @@
     "drush/drush": "8.1",
     "integratedexperts/behat-format-progress-fail": "^0.2",
     "integratedexperts/behat-screenshot": "0.7.0",
-    "integratedexperts/robo-git-artefact": "^0.1",
+    "integratedexperts/robo-git-artefact": "^0.2",
     "mouf/nodejs-installer": "^1.0",
     "phpunit/phpunit": "^5.7.19",
     "symfony/filesystem": "^3.2.8",
@@ -196,6 +177,16 @@
     "mouf": {
       "nodejs": {
         "forceLocal": true
+      }
+    },
+    "patches": {
+      "drupal/drupal": {
+        "User picture is deleted after calls to user_save() - https://www.drupal.org/node/935592": "https://www.drupal.org/files/issues/935592-150.patch",
+        "Administer Users permission should be separate from Administer Account Settings - https://www.drupal.org/node/366950": "https://www.drupal.org/files/issues/administer_users_-366950-196.patch",
+        "No navigation links on 404 pages - https://www.drupal.org/node/233807": "https://www.drupal.org/files/issues/drupal-navigation_on_403_404-233807-92.patch"
+      },
+      "drupal/persistent_update": {
+        "Add an ability to bypass all persistent updates - https://www.drupal.org/node/2824493": "https://www.drupal.org/files/issues/bypass-all-persistent-updates-2824493-3.patch"
       }
     }
   }

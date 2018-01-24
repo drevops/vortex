@@ -15,7 +15,9 @@ aliases:
   - &deps_cache_key         v1-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
   - &deps_cache_key_any     v1-dependencies-{{ checksum "composer.json" }}
   - &data_cache_key         v1-data-{{ .Branch }}
+  # [META] Replace key fingerprint with the one uploaded to CircleCI.
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+  # [/META]
 
   # Configuration shared between all containers.
   - &container_config
@@ -93,9 +95,13 @@ aliases:
     run:
       name: Configure git
       command: |
-        git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
-        mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-        DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
+        if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
+          git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
+          mkdir -p $HOME/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > $HOME/.ssh/config
+          DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
+        else
+          echo "Skipping deployment"
+        fi
 
 jobs:
   # Install and cache code dependencies.
@@ -136,11 +142,13 @@ jobs:
           keys:
             - *data_cache_key
       # Download DB dump from public URL to test Drupal-dev project/build.
-      # Remove the line below in your project/build.
+      # [META] Remove the line below in your project/build.
       - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -L https://goo.gl/WFtJbT -o $DATA_ROOT/db.dist.sql; fi
+      # [/META]
       # [META] Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
       # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
+      # [/META]
       - save_cache:
           paths:
             - $DATA_ROOT
@@ -191,6 +199,7 @@ jobs:
       - *step_symlink_data
       - run: composer site-install
       - *step_bootstrap_drupal
+  # [/META]
 
   # Run tests in parallel.
   test_behat:
@@ -248,29 +257,26 @@ jobs:
       - store_artifacts:
           path: *artifacts_root
 
-  # Deploy primary branches.
-  # [META] Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
+  # Deploy code.
+  # Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
   # $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
   # Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
   # under "SSH Permissions" in CircleCI UI.
-  # Deploy feature branches.
-  deploy_feature_branch:
+  deploy_code:
     <<: *container_config
     steps:
       - *step_common
       - *step_attach_workspace
       - *add_ssh_keys
       - *step_configure_git
-      - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push; else echo "Skipping deployment"; fi
-
-  deploy_tag:
-    <<: *container_config
-    steps:
-      - *step_common
-      - *step_attach_workspace
-      - *add_ssh_keys
-      - *step_configure_git
-      - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-]; else echo "Skipping deployment"; fi
+      - run:
+          name: Push artefact to remote repository
+          command: |
+            if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
+              composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --report=$ARTIFACTS_ROOT/deployment_report.txt --no-cleanup
+            else
+              echo "Skipping deployment"
+            fi
 
   # [META] Tag deployment for drupal-dev itself. Remove the code below in
   # your project.
@@ -280,8 +286,16 @@ jobs:
       - *step_common
       - *step_attach_workspace
       - *add_ssh_keys
-      - *step_configure_git
-      - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-]; else echo "Skipping deployment"; fi
+      - run: |
+          if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
+            git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
+            mkdir -p $HOME/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > $HOME/.ssh/config
+            DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
+            composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-];
+          else
+            echo "Skipping drupal-dev deployment";
+          fi
+  # [/META]
 
 workflows:
   version: 2
@@ -302,20 +316,13 @@ workflows:
       - test_behat:
           requires:
             - build
-      - deploy_feature_branch:
+      - deploy_code:
           requires:
             - test_behat
           filters:
             branches:
-              only: /feature\/[a-zA-z0-9\-]+/
-      - deploy_tag:
-          requires:
-            - test_behat
-          filters:
-            tags:
-              only: /^[0-9]+\.[0-9]+\.[0-9]+$/
-            branches:
-              only: /master/
+              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+/
+
       # [META] Tag deployment for drupal-dev itself. Remove the code below in
       # your project.
       - deploy_drupal_dev_tag:
@@ -326,3 +333,4 @@ workflows:
               only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
             branches:
               only: /^(?:7|8)\.x$/
+      # [/META]
