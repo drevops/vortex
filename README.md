@@ -77,13 +77,22 @@ Drupal 7 implementation of MYSITE
 4. `composer build`
 
 ## Available commands
-- `build` - build project.
-- `rebuild` - cleanup code dependencies and rebuild site, skipping VM management.
-- `rebuild-full` - cleanup code dependencies, remove VM and rebuild the site.
-- `build-db` - re-import DB and run updates.
-- `build-theme` - build theme assets. Supports watching: `composer build-theme -- watch`.
-- `cleanup` - remove code dependencies, skipping VM management.
-- `cleanup-full` - remove code dependencies and remove VM.
+- `drupal:build` - build project.
+- `drupal:rebuild` - cleanup code dependencies and rebuild site, skipping VM management.
+- `drupal:rebuild-full` - cleanup code dependencies, remove VM and rebuild the site.
+- `drupal:build-db` - re-import DB and run updates.
+- `drupal:build-fed` - build theme assets. Supports watching: `composer build-theme -- watch`.
+- `drupal:cleanup` - remove code dependencies, skipping VM management.
+- `drupal:cleanup-full` - remove code dependencies and remove VM.
+
+- `docker:up` - start environment.
+- `docker:restart` - restart environment.
+- `docker:down` - stop environment preserving data.
+- `docker:destroy` - destroy environment.
+- `docker:pull` - pull latest images.
+- `docker:cli` - run command in CLI container.
+- `docker:logs` - show logs from docker compose run.
+- `docker:prune` - remove all unused containers and images.
 
 ## Adding Drupal modules
 `composer require drupal/module_name`

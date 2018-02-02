@@ -91,7 +91,7 @@
       "@composer docker:cli -- bash -c \"if [ -e /app/config/sync/*.yml ] ; then drush cim -r /app/docroot -n 2>&1 | grep -q 'There are no changes to import.'; fi\""
     ],
     "drupal:site-install": [
-      "@composer docker:cli -- drush -r /app/docroot si mysite_profile -y install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL",
+      "@composer docker:cli -- drush -r /app/docroot si mysite_profile -y --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL",
       "@composer docker:cli -- drush cr -r /app/docroot -y"
     ],
     "drupal:build-fed": [
