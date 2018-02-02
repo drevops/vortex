@@ -8,10 +8,10 @@
     "drupal-composer/drupal-scaffold": "^2.3",
     "drupal/admin_toolbar": "^1.19",
     "drupal/better_exposed_filters": "^3.0@alpha",
-    "drupal/core": "^8.4"
+    "drupal/core": "^8.4",
+    "webflo/drupal-finder": "^1.0"
   },
   "require-dev": {
-    "beet/box": "^0.8",
     "behat/behat": "^3.3.1",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
     "dmore/behat-chrome-extension": "^1.1",
@@ -53,61 +53,65 @@
     }
   },
   "scripts": {
-    "cs":[
+    "docker:up": "docker-compose up -d --build",
+    "docker:restart": "docker-compose restart",
+    "docker:down": "docker-compose stop",
+    "docker:destroy": "docker-compose down",
+    "docker:prune": "docker system prune -af",
+    "docker:cli": "docker exec -i $(docker-compose ps -q cli)",
+    "docker:pull": "docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio | grep -v none | xargs -n1 docker pull | cat",
+    "docker:logs": "docker-compose logs",
+    "drupal:login": "@composer docker:cli -- drush uli -r /app/docroot -l http://mysite.docker.amazee.io/ | xargs open",
+    "drupal:cs":[
       "phpcs --colors",
       "npm run lint"
     ],
-    "test": "behat --format=progress_fail --colors",
-    "build": [
+    "drupal:test": "behat --format=progress_fail --colors",
+    "drupal:build": [
+      "@docker:up",
       "@composer install -n --ansi --prefer-dist",
-      "@_start-vm",
-      "@build-db"
+      "@drupal:build-fed",
+      "@drupal:import-db"
     ],
-    "rebuild": [
-      "@cleanup",
-      "@build"
+    "drupal:rebuild": [
+      "@drupal:cleanup",
+      "@drupal:build"
     ],
-    "rebuild-full": [
-      "@cleanup-full",
-      "@build"
+    "drupal:rebuild-full": [
+      "@drupal:cleanup-full",
+      "@drupal:build"
     ],
-    "build-db": [
-      "drush @local.mysiteurl sql-drop -y",
-      "drush @local.mysiteurl sql-cli < .data/db.dist.sql",
-      "drush @local.mysiteurl en mysite_core -y",
-      "drush @local.mysiteurl updb -y"
+    "drupal:import-db": [
+      "@composer docker:cli -- drush -r /app/docroot sql-drop -y",
+      "@composer docker:cli -- bash -c \"drush sqlc -r /app/docroot < /tmp/.data/db.sql\"",
+      "@composer docker:cli -- drush -r /app/docroot en mysite_core -y",
+      "@composer docker:cli -- bash -c \"if [ -e /app/config/sync/*.yml ] ; then drush cim -r /app/docroot -y; fi\"",
+      "@composer docker:cli -- bash -c \"if [ -e /app/config/sync/*.yml ] ; then drush cim -r /app/docroot -y; fi\"",
+      "@composer docker:cli -- drush cr -r /app/docroot -y",
+      "@composer docker:cli -- bash -c \"if [ -e /app/config/sync/*.yml ] ; then drush cim -r /app/docroot -n 2>&1 | grep -q 'There are no changes to import.'; fi\""
     ],
-    "build-fed": "npm run build",
-    "build-fed-prod": "npm run build-prod",
-    "cleanup": [
-      "@_remove-docroot",
-      "@_remove-dependencies"
+    "drupal:site-install": [
+      "@composer docker:cli -- drush -r /app/docroot si mysite_profile -y install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL",
+      "@composer docker:cli -- drush cr -r /app/docroot -y"
     ],
-    "cleanup-full": [
-      "@cleanup",
-      "@_remove-vm"
+    "drupal:build-fed": [
+      "npm install",
+      "npm run build"
     ],
-    "deploy": "robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact",
-    "_start-vm": "if [ $(command -v vagrant) ] ; then vagrant up; fi",
-    "_remove-vm": [
-      "vagrant destroy -f || true",
-      "rm -Rf .vagrant",
-      "rm -Rf .beetbox",
-      "rm -Rf Vagrantfile"
-    ],
-    "_remove-dependencies": [
+    "drupal:build-fed-prod": "npm run build-prod",
+    "drupal:cleanup": [
+      "chmod -Rf 777 docroot/sites/default",
+      "git ls-files --directory --other -i --exclude-from=.gitignore docroot|xargs rm -Rf",
       "rm -Rf vendor",
       "rm -Rf node_modules"
     ],
-    "_remove-docroot": [
-      "chmod -Rf 777 docroot/sites/default",
-      "git ls-files --directory --other -i --exclude-from=.gitignore docroot|xargs rm -Rf"
+    "drupal:cleanup-full": [
+      "@drupal:cleanup",
+      "@docker:stop",
+      "@docker:destroy"
     ],
-    "site-install": [
-      "drush @local.mysiteurl si mysite_profile -y install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL",
-      "drush @local.mysiteurl cr -y"
-    ],
-    "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+    "drupal:deploy": "robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact",
+    "drupal:scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
     "pre-install-cmd": [
       "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
     ],
@@ -115,26 +119,16 @@
       "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
     ],
     "post-install-cmd": [
-      "@drupal-scaffold",
+      "@drupal:scaffold",
       "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
       "Utilities\\composer\\DrupalSettings::create",
-      "npm install",
-      "@build-fed"
+      "@drupal:build-fed"
     ],
     "post-update-cmd": [
       "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
     ]
   },
   "extra": {
-    "beetbox": {
-      "beet_domain": "local.mysiteurl",
-      "beet_root": "{{ beet_base }}/docroot",
-      "php_version": "7.1",
-      "php_mysql_package": "php7.1-mysql",
-      "php_packages_state": "latest",
-      "php_install_recommends": "yes",
-      "php_date_timezone": "Australia/Melbourne"
-    },
     "drupal-scaffold": {
       "source": "http://cgit.drupalcode.org/drupal/plain/{path}?h={version}",
       "includes": [

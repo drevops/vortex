@@ -88,9 +88,9 @@ if (file_exists('/var/www/site-php')) {
   }
 }
 
-// Include generated beetbox settings file, if available.
-if (file_exists($app_root . '/' . $site_path . '/settings.beetbox.php')) {
-  include $app_root . '/' . $site_path . '/settings.beetbox.php';
+// Include generated settings file, if available.
+if (file_exists($app_root . '/' . $site_path . '/settings.generated.php')) {
+  include $app_root . '/' . $site_path . '/settings.generated.php';
 }
 
 /**

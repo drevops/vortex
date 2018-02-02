@@ -15,13 +15,13 @@ class DrupalSettings {
    */
   public static function create(Event $event) {
     $defaults = [
-      'mysql_database' => 'beetbox',
-      'mysql_user' => 'beetbox',
-      'mysql_password' => 'beetbox',
+      'mysql_database' => 'drupal',
+      'mysql_user' => 'drupal',
+      'mysql_password' => 'drupal',
       'mysql_host' => 'localhost',
       'mysql_port' => '',
       'mysql_prefix' => '',
-      'settings_path' => 'docroot/sites/default/settings.beetbox.php',
+      'settings_path' => 'docroot/sites/default/settings.generated.php',
     ];
 
     $options = self::extractEnvironmentVariables(array_keys($defaults))
@@ -31,6 +31,7 @@ class DrupalSettings {
     $fs = new Filesystem();
     if (!$fs->exists($options['settings_path'])) {
       $fs->dumpFile($options['settings_path'], self::getDefaultDrupalSettingsContent($options));
+      $fs->chmod($options['settings_path'], 0666);
       $event->getIO()->write(sprintf('Created file %s', $options['settings_path']));
     }
     else {
@@ -43,7 +44,7 @@ class DrupalSettings {
    */
   public static function delete(Event $event) {
     $defaults = [
-      'settings_path' => 'docroot/sites/default/settings.beetbox.php',
+      'settings_path' => 'docroot/sites/default/settings.generated.php',
     ];
 
     $options = self::extractEnvironmentVariables(array_keys($defaults))
@@ -69,7 +70,7 @@ class DrupalSettings {
 
 /**
  * @file
- * Beetbox settings.
+ * Generated settings.
  *
  * Do not modify this file if you need to override default settings.
  */
