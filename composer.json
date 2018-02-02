@@ -22,7 +22,6 @@
     "integratedexperts/behat-format-progress-fail": "^0.2",
     "integratedexperts/behat-screenshot": "0.7.0",
     "integratedexperts/robo-git-artefact": "^0.1",
-    "mouf/nodejs-installer": "^1.0",
     "phpunit/phpunit": "^5.7.19",
     "symfony/filesystem": "^3.2.8"
   },
@@ -118,6 +117,7 @@
     "pre-update-cmd": [
       "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
     ],
+    "test": "Utilities\\composer\\DrupalSettings::create",
     "post-install-cmd": [
       "@drupal:scaffold",
       "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
@@ -164,11 +164,6 @@
       "docroot/sites/default/default.settings.local.php",
       "docroot/sites/default/files"
     ],
-    "mouf": {
-      "nodejs": {
-        "forceLocal": true
-      }
-    },
     "patches": {
       "drupal/core": {
         "Contextual links should not be added inside another link - https://www.drupal.org/node/2898875": "https://www.drupal.org/files/issues/contextual_links_should-2898875-3.patch",
