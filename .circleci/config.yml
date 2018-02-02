@@ -22,23 +22,23 @@ jobs:
       # variables set in Circle CI UI.
       # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
 
-      - run:
-          name: Docker pull newest images.
-          command: composer docker:pull
+#      - run:
+#          name: Docker pull newest images.
+#          command: composer docker:pull
       - run:
           name: Docker compose up.
           command: |
-            composer docker:up
-            sleep 10 # wait for mariadb to startup
-      - run:
-          name: Site setup.
-          command: |
-            composer drupal:site-install
-            composer docker:cli -- mkdir -p /app/screenshots
-      - run:
-          name: Install dev dependencies.
-          command: |
-            composer docker:cli -- composer install --ansi
+            composer drupal:build
+#            sleep 10 # wait for mariadb to startup
+#      - run:
+#          name: Site setup.
+#          command: |
+#            composer drupal:site-install
+#            composer docker:cli -- mkdir -p /app/screenshots
+#      - run:
+#          name: Install dev dependencies.
+#          command: |
+#            composer docker:cli -- composer install --ansi
       - run:
           name: Lint code.
           command: composer docker:cli -- composer cs

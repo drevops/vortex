@@ -30,9 +30,10 @@ class DrupalSettings {
 
     $fs = new Filesystem();
     if (!$fs->exists($options['settings_path'])) {
-      $fs->dumpFile($options['settings_path'], self::getDefaultDrupalSettingsContent($options));
+      $content = self::getDefaultDrupalSettingsContent($options);
+      $fs->dumpFile($options['settings_path'], $content);
       $fs->chmod($options['settings_path'], 0666);
-      $event->getIO()->write(sprintf('Created file %s', $options['settings_path']));
+      $event->getIO()->write(sprintf('Created file %s', $options['settings_path'] . PHP_EOL . $content));
     }
     else {
       $event->getIO()->write('Skipping creation of Drupal settings file - file already exists');

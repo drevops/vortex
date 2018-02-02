@@ -81,7 +81,7 @@
       "@drupal:build"
     ],
     "drupal:import-db": [
-      "@composer docker:cli -- drush -r /app/docroot sql-drop -y",
+      "@composer docker:cli -- drush -r /app/docroot --debug sql-drop -y",
       "@composer docker:cli -- bash -c \"drush sqlc -r /app/docroot < /tmp/.data/db.sql\"",
       "@composer docker:cli -- drush -r /app/docroot en mysite_core -y",
       "@composer docker:cli -- bash -c \"if [ -e /app/config/sync/*.yml ] ; then drush cim -r /app/docroot -y; fi\"",
@@ -117,12 +117,10 @@
     "pre-update-cmd": [
       "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
     ],
-    "test": "Utilities\\composer\\DrupalSettings::create",
     "post-install-cmd": [
       "@drupal:scaffold",
       "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-      "Utilities\\composer\\DrupalSettings::create",
-      "@drupal:build-fed"
+      "Utilities\\composer\\DrupalSettings::create"
     ],
     "post-update-cmd": [
       "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
