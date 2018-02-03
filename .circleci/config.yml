@@ -123,6 +123,7 @@ jobs:
       - *step_attach_workspace
       - *add_ssh_keys
       - *step_configure_git
+      - run: ls -al $WORKSPACE_DIR/$CODE_DIR
       - run:
           name: Push artefact to remote repository
           command: |
