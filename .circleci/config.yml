@@ -1,19 +1,46 @@
 version: 2
-
 aliases:
+  # Variables.
+  # For YAML support of anchors and references, @see http://blog.daemonl.com/2016/02/yaml.html
+  - &workspace_dir    /workspace
+  - &code_dir         code
+  - &artifacts_dir    /tmp/artifacts
+  # SSH key fingerprint to deploy code. Add private key of the user who is
+  # allowed to push to $DEPLOY_REMOTE repo under "SSH Permissions" in
+  # CircleCI UI.
+  # [META] This is a fingerprint of the key to push drupal-dev project itself.
+  # Replace this key with your own. [/META]
+  - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
 
   - &container_config
     working_directory: /app
+    environment: &container_config_environment
+      WORKSPACE_DIR: *workspace_dir
+      ARTIFACTS_DIR: *artifacts_dir
+      CODE_DIR: *code_dir
+      DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       - image: integratedexperts/circleci2-builder:feature_composer-update
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
 
-  # Re-usable steps.
   - &step_attach_workspace
     attach_workspace:
-      at: /workspace
+      at: *workspace_dir
+
+  - &add_ssh_keys
+    add_ssh_keys:
+      fingerprints:
+        - *deploy_ssh_fingerprint
+
+  - &step_configure_git
+    run:
+      name: Configure git
+      command: |
+        git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
+        mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+        DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
 
 jobs:
   build:
@@ -34,25 +61,28 @@ jobs:
       # variables set in Circle CI UI.
       # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
       - run:
-          name: Docker pull newest images.
+          name: Pull newest Docker images.
           command: composer docker:pull
       - run:
-          name: Docker compose up.
+          name: Start scontainers.
           command: |
             composer docker:up
-            sleep 10 # wait for mariadb to startup
-
+            sleep 10 # Wait for mariadb to startup.
       - run:
-          name: Copy built code into workspace.
+          # Since app is being built inside of the containers without dev
+          # dependencies, but they will be installed later to run tests, and
+          # deployment code should not contain any dev dependencies, we have
+          # to store built codebase into workspace to later use it in 'deploy'
+          # job.
+          name: Copy built codebase into workspace for future deployment.
           command: |
-            mkdir -p /workspace/code
-            docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
-
+            mkdir -p $WORKSPACE_DIR/$CODE_DIR
+            docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/$CODE_DIR
+            ls -al $WORKSPACE_DIR/$CODE_DIR
       - persist_to_workspace:
-          root: /workspace
+          root: *workspace_dir
           paths:
             - code
-
       - run:
           name: Site setup.
           command: |
@@ -77,37 +107,30 @@ jobs:
       - run:
           name: Copy artifacts.
           command: |
-            mkdir -p /tmp/artifacts/behat
-            docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
+            mkdir -p $ARTIFACTS_DIR/behat
+            docker cp $(docker-compose ps -q cli):/app/screenshots $ARTIFACTS_DIR/behat
       - store_artifacts:
-          path: /tmp/artifacts
+          path: *artifacts_dir
 
   # Deploy primary branches.
   # [META] Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
   # $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
   # Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
   # under "SSH Permissions" in CircleCI UI.
-  # Deploy feature branches.
-
-
-  # Deploy master branch.
   deploy:
     <<: *container_config
     steps:
-#      - *step_common
       - *step_attach_workspace
-      - run: ls -al /workspace/code
-#      - *step_configure_drush
-#      - *add_ssh_keys
-#      - *step_configure_git
-#      - run:
-#          name: Push artefact to remote repository
-#          command: |
-#            if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-#              composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --report=$ARTIFACTS_ROOT/deployment_report.txt --no-cleanup
-#            else
-#              echo "Skipping deployment"
-#            fi
+      - *add_ssh_keys
+      - *step_configure_git
+      - run:
+          name: Push artefact to remote repository
+          command: |
+            if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
+              composer app:deploy -- $DEPLOY_REMOTE --root=$WORKSPACE_DIR/$CODE_DIR --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
+            else
+              echo "Skipping deployment"
+            fi
 
 #  # [META] Tag deployment for drupal-dev itself. Remove the code below in
 #  # your project.
