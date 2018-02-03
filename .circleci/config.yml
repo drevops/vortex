@@ -136,12 +136,13 @@ jobs:
             composer install -n --ansi --prefer-dist
       - run: |
           cp -a .git /workspace/code-dev
+          ls -al /workspace/code-dev
       - run: ls -al /app
       - run:
           name: Push artefact to remote repository
           command: |
             if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              composer app:deploy -- $DEPLOY_REMOTE --src=$WORKSPACE_DIR/code-dev --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
+              composer app:deploy -- $DEPLOY_REMOTE --root=$WORKSPACE_DIR/code-dev --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
             else
               echo "Skipping deployment"
             fi
