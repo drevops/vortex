@@ -126,10 +126,12 @@ jobs:
   deploy:
     <<: *container_config
     steps:
+      - checkout
       - *add_ssh_keys
       - *step_configure_git
       - *step_attach_workspace
-      - run: cp -a /workspace/code-dev/. /app/
+      - run: |
+          cp -a .git /workspace/code-dev
       - run: ls -al /app
       - run:
           name: Push artefact to remote repository
