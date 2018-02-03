@@ -148,7 +148,8 @@ jobs:
             else
               echo "Skipping deployment"
             fi
-
+      - store_artifacts:
+          path: *artifacts_dir
 #  # [META] Tag deployment for drupal-dev itself. Remove the code below in
 #  # your project.
 #  deploy_drupal_dev_tag:

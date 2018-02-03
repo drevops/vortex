@@ -22,3 +22,4 @@ Gruntfile.js
 .sass-lint.yml
 .dockerignore
 .eslintrc.json
+behat.yml
