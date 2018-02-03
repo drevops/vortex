@@ -7,7 +7,7 @@ jobs:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
     working_directory: /app
-    #parallelism: 2
+    parallelism: 2
     steps:
       - checkout
       - setup_remote_docker:

@@ -46,3 +46,12 @@ default:
       purge: false
     # Show explicit fail information and continue the test run.
     IntegratedExperts\BehatFormatProgressFail\FormatExtension: ~
+
+p0:
+  gherkin:
+    filters:
+      tags: "@p0&&~@skipped"
+p1:
+  gherkin:
+    filters:
+      tags: "@p1&&~@skipped"
