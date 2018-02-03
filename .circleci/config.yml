@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Site setup.
           command: |
-            composer drupal:import-db
+            composer app:import-db
             composer docker:cli -- mkdir -p /app/screenshots
       - run:
           name: Install dev dependencies.
@@ -41,7 +41,7 @@ jobs:
             composer docker:cli -- npm install
       - run:
           name: Lint code.
-          command: composer docker:cli -- composer drupal:cs
+          command: composer docker:cli -- composer app:cs
       - run:
           name: Run tests.
           command: |
