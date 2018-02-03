@@ -67,22 +67,17 @@ jobs:
           name: Start scontainers.
           command: |
             composer docker:up
-            sleep 10 # Wait for mariadb to startup.
+            sleep 10 # Wait for DB container to startup.
+      # Since app is being built inside of the containers without dev
+      # dependencies, but they will be installed later to run tests, and
+      # deployment code should not contain any dev dependencies, we have
+      # to store built codebase into workspace to later use it in 'deploy'
+      # job.
       - run:
-          # Since app is being built inside of the containers without dev
-          # dependencies, but they will be installed later to run tests, and
-          # deployment code should not contain any dev dependencies, we have
-          # to store built codebase into workspace to later use it in 'deploy'
-          # job.
           name: Copy built codebase into workspace for future deployment.
           command: |
             mkdir -p $WORKSPACE_DIR/$CODE_DIR
-            docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/$CODE_DIR
-            ls -al $WORKSPACE_DIR/$CODE_DIR
-      - persist_to_workspace:
-          root: *workspace_dir
-          paths:
-            - code
+            docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code
       - run:
           name: Site setup.
           command: |
@@ -112,6 +107,17 @@ jobs:
       - store_artifacts:
           path: *artifacts_dir
 
+      - run:
+          name: Copy built dev codebase into workspace.
+          command: |
+            mkdir -p $WORKSPACE_DIR/code-dev
+            docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code-dev
+      - persist_to_workspace:
+          root: *workspace_dir
+          paths:
+            - code
+            - code-dev
+
   # Deploy primary branches.
   # [META] Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
   # $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
@@ -120,15 +126,16 @@ jobs:
   deploy:
     <<: *container_config
     steps:
-      - *step_attach_workspace
       - *add_ssh_keys
       - *step_configure_git
-      - run: ls -al $WORKSPACE_DIR/$CODE_DIR
+      - *step_attach_workspace
+      - run: cp -a /workspace/code-dev/. /app/
+      - run: ls -al /app
       - run:
           name: Push artefact to remote repository
           command: |
             if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              composer app:deploy -- $DEPLOY_REMOTE --root=$WORKSPACE_DIR/$CODE_DIR --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
+              composer app:deploy -- $DEPLOY_REMOTE --root=$WORKSPACE_DIR/code-dev --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
             else
               echo "Skipping deployment"
             fi
