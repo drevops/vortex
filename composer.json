@@ -53,7 +53,7 @@
   },
   "scripts": {
     "app:login": "@composer docker:cli -- drush uli -r /app/docroot -l http://mysite.docker.amazee.io/ | xargs open",
-    "app:cs":[
+    "app:cs": [
       "phpcs --colors",
       "npm run lint"
     ],
@@ -102,8 +102,7 @@
       "@docker:destroy"
     ],
     "app:deploy": "robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact",
-    "app:scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
-    "app:create-settings":"Utilities\\composer\\DrupalSettings::create",
+    "app:create-settings": "Utilities\\composer\\DrupalSettings::create",
     "docker:up": "docker-compose up -d --build",
     "docker:restart": "docker-compose restart",
     "docker:down": "docker-compose stop",
@@ -119,9 +118,9 @@
       "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
     ],
     "post-install-cmd": [
-      "@drupal:scaffold",
+      "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
       "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-      "export $(cat .env | xargs) && composer drupal:create-settings"
+      "export $(cat .env | xargs) && composer app:create-settings"
     ],
     "post-update-cmd": [
       "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
