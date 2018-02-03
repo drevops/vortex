@@ -68,6 +68,7 @@
     "drupal:test": "behat --format=progress_fail --colors",
     "drupal:build": [
       "@docker:up",
+      "sleep 10",
       "@composer install -n --ansi --prefer-dist",
       "@drupal:build-fed",
       "@drupal:import-db"
