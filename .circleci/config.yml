@@ -28,6 +28,12 @@ jobs:
           name: Docker compose up.
           command: |
             composer drupal:build
+            composer docker:cli -- mkdir -p /app/screenshots
+      - run:
+          name: Install dev dependencies.
+          command: |
+            composer docker:cli -- composer install --ansi
+            composer docker:cli -- npm install
 #            sleep 10 # wait for mariadb to startup
 #      - run:
 #          name: Site setup.
@@ -40,7 +46,7 @@ jobs:
 #            composer docker:cli -- composer install --ansi
       - run:
           name: Lint code.
-          command: composer docker:cli -- composer cs
+          command: composer docker:cli -- composer drupal:cs
       - run:
           name: Run tests.
           command: |
