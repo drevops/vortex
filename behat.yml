@@ -18,12 +18,12 @@ default:
     DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
     Behat\MinkExtension:
       goutte: ~
-      base_url: http://local.mysiteurl
+      base_url: http://mysite.docker.amazee.io
       browser_name: chrome
       sessions:
         default:
           chrome:
-            api_url: "http://local.mysiteurl:9222"
+            api_url: "http://mysite.docker.amazee.io:9222"
       javascript_session: default
     # Provides integration with Drupal APIs.
     Drupal\DrupalExtension:
