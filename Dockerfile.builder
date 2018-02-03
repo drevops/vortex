@@ -2,7 +2,8 @@ FROM amazeeio/php:7.1-cli-drupal
 
 ENV WEBROOT=docroot \
     COMPOSER_ALLOW_SUPERUSER=1 \
-    COMPOSER_CACHE_DIR=/tmp/.composer/cache
+    COMPOSER_CACHE_DIR=/tmp/.composer/cache \
+    MYSQL_HOST=mariadb
 
 RUN apk update \
     && apk del nodejs nodejs-current yarn \

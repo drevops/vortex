@@ -68,7 +68,6 @@
     "drupal:test": "behat --format=progress_fail --colors",
     "drupal:build": [
       "@docker:up",
-      "sleep 10",
       "@composer install -n --ansi --prefer-dist",
       "@drupal:build-fed",
       "@drupal:import-db"
@@ -112,6 +111,7 @@
     ],
     "drupal:deploy": "robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact",
     "drupal:scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+    "drupal:create-settings":"Utilities\\composer\\DrupalSettings::create",
     "pre-install-cmd": [
       "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
     ],
@@ -121,7 +121,7 @@
     "post-install-cmd": [
       "@drupal:scaffold",
       "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-      "Utilities\\composer\\DrupalSettings::create"
+      "export $(cat .env | xargs) && composer drupal:create-settings"
     ],
     "post-update-cmd": [
       "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"

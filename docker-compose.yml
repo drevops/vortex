@@ -5,8 +5,6 @@ services:
       context: .
       dockerfile: Dockerfile.builder
     image: builder
-    environment:
-      MYSQL_HOST: mariadb
     labels:
       lagoon.type: cli-persistent
       lagoon.persistent: /app/docroot/sites/default/files/
