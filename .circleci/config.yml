@@ -130,6 +130,10 @@ jobs:
       - *add_ssh_keys
       - *step_configure_git
       - *step_attach_workspace
+      - run:
+          name: Install dev dependencies.
+          command: |
+            composer install -n --ansi --prefer-dist
       - run: |
           cp -a .git /workspace/code-dev
       - run: ls -al /app
