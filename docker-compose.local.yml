@@ -24,13 +24,13 @@ services:
       - XDEBUG_ENABLE=true
     volumes:
       - .:/app:delegated
+  mariadb:
+    ports:
+      - 13306:3306
   selenium:
     image: selenium/standalone-chrome
     depends_on:
       - cli
-  mariadb:
-    ports:
-      - 13306:3306
 networks:
   amazeeio-network:
     external: true

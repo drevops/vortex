@@ -6,7 +6,6 @@ jobs:
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
-          MYSQL_HOST: mariadb
     working_directory: /app
     steps:
       - checkout
