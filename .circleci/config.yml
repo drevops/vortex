@@ -7,6 +7,7 @@ jobs:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
     working_directory: /app
+    #parallelism: 2
     steps:
       - checkout
       - setup_remote_docker:
@@ -14,39 +15,30 @@ jobs:
       - run:
           name: Composer validate.
           command: composer validate --ansi --strict
-      # Download DB dump from public URL to test Drupal-dev project/build.
-      # Remove the line below in your project/build.
-      - run: if [ ! -f .data/db.sql ] ; then mkdir -p .data && curl -L https://goo.gl/kcC2sE -o .data/db.sql; fi
-      # [META] Uncomment the line below to download DB dump from FTP, using
-      # variables set in Circle CI UI.
-      # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
-
-#      - run:
-#          name: Docker pull newest images.
-#          command: composer docker:pull
+      - run:
+          name: Docker pull newest images.
+          command: composer docker:pull
       - run:
           name: Docker compose up.
           command: |
-            composer drupal:build
-            composer docker:cli -- mkdir -p /app/screenshots
+            composer docker:up
+            sleep 10 # wait for mariadb to startup
+      - run:
+          name: Site setup.
+          command: |
+            composer drupal:db-import
+            composer cli -- mkdir -p /app/screenshots
       - run:
           name: Install dev dependencies.
           command: |
             composer docker:cli -- composer install --ansi
             composer docker:cli -- npm install
-#            sleep 10 # wait for mariadb to startup
-#      - run:
-#          name: Site setup.
-#          command: |
-#            composer drupal:site-install
-#            composer docker:cli -- mkdir -p /app/screenshots
-#      - run:
-#          name: Install dev dependencies.
-#          command: |
-#            composer docker:cli -- composer install --ansi
       - run:
           name: Lint code.
           command: composer docker:cli -- composer drupal:cs
+      - run:
+          name: Run tests.
+          command: composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
       - run:
           name: Run tests.
           command: |
@@ -55,14 +47,76 @@ jobs:
             else
               composer docker:cli -- vendor/bin/behat --format=progress_fail --colors || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --rerun
             fi
-      - run:
-          name: Copy artifacts.
-          command: |
-            mkdir -p /tmp/artifacts/behat
-            docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
       - store_artifacts:
           path: /tmp/artifacts
 
+#
+#
+#version: 2
+#jobs:
+#  build:
+#    docker:
+#      - image: integratedexperts/circleci2-builder:feature_composer-update
+#        environment:
+#          COMPOSER_ALLOW_SUPERUSER: 1
+#          COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
+#    working_directory: /app
+#    steps:
+#      - checkout
+#      - setup_remote_docker:
+#          docker_layer_caching: true
+#      - run:
+#          name: Composer validate.
+#          command: composer validate --ansi --strict
+#      # Download DB dump from public URL to test Drupal-dev project/build.
+#      # Remove the line below in your project/build.
+#      - run: if [ ! -f .data/db.sql ] ; then mkdir -p .data && curl -L https://goo.gl/kcC2sE -o .data/db.sql; fi
+#      # [META] Uncomment the line below to download DB dump from FTP, using
+#      # variables set in Circle CI UI.
+#      # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
+#
+##      - run:
+##          name: Docker pull newest images.
+##          command: composer docker:pull
+#      - run:
+#          name: Docker compose up.
+#          command: |
+#            composer drupal:build
+#            composer docker:cli -- mkdir -p /app/screenshots
+#      - run:
+#          name: Install dev dependencies.
+#          command: |
+#            composer docker:cli -- composer install --ansi
+#            composer docker:cli -- npm install
+##            sleep 10 # wait for mariadb to startup
+##      - run:
+##          name: Site setup.
+##          command: |
+##            composer drupal:site-install
+##            composer docker:cli -- mkdir -p /app/screenshots
+##      - run:
+##          name: Install dev dependencies.
+##          command: |
+##            composer docker:cli -- composer install --ansi
+#      - run:
+#          name: Lint code.
+#          command: composer docker:cli -- composer drupal:cs
+#      - run:
+#          name: Run tests.
+#          command: |
+#            if [ "$CIRCLE_NODE_TOTAL" -gt "1" ] ; then
+#              composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
+#            else
+#              composer docker:cli -- vendor/bin/behat --format=progress_fail --colors || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --rerun
+#            fi
+#      - run:
+#          name: Copy artifacts.
+#          command: |
+#            mkdir -p /tmp/artifacts/behat
+#            docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
+#      - store_artifacts:
+#          path: /tmp/artifacts
+#
 
 #
 #
