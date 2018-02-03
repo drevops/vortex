@@ -15,6 +15,12 @@ jobs:
       - run:
           name: Composer validate.
           command: composer validate --ansi --strict
+      # Download DB dump from public URL to test Drupal-dev project/build.
+      # Remove the line below in your project/build.
+      - run: if [ ! -f .data/db.sql ] ; then mkdir -p .data && curl -L https://goo.gl/kcC2sE -o .data/db.sql; fi
+      # [META] Uncomment the line below to download DB dump from FTP, using
+      # variables set in Circle CI UI.
+      # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
       - run:
           name: Docker pull newest images.
           command: composer docker:pull
@@ -26,8 +32,8 @@ jobs:
       - run:
           name: Site setup.
           command: |
-            composer drupal:db-import
-            composer cli -- mkdir -p /app/screenshots
+            composer drupal:import-db
+            composer docker:cli -- mkdir -p /app/screenshots
       - run:
           name: Install dev dependencies.
           command: |
@@ -36,9 +42,6 @@ jobs:
       - run:
           name: Lint code.
           command: composer docker:cli -- composer drupal:cs
-      - run:
-          name: Run tests.
-          command: composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
       - run:
           name: Run tests.
           command: |
