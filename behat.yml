@@ -20,11 +20,11 @@ default:
       goutte: ~
       base_url: http://nginx:8080
       browser_name: chrome
-      sessions:
-        default:
-          chrome:
-            api_url: "http://nginx:9222"
-      javascript_session: default
+      selenium2:
+        wd_host: "http://selenium:4444/wd/hub"
+        capabilities: { "browser": "chrome", "version": "*", "marionette": true }
+      javascript_session: selenium2
+      files_path: %paths.base%/tests/test_data
     # Provides integration with Drupal APIs.
     Drupal\DrupalExtension:
       blackbox: ~
