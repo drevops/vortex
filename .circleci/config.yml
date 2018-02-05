@@ -149,12 +149,12 @@ jobs:
           name: Install dev dependencies.
           command: |
             composer install -n --ansi --prefer-dist
-      - run: cp -a .git /workspace/code
+      - run: cp -a .git $WORKSPACE_DIR/$CODE_DIR
       - run:
           name: Push artefact to remote repository
           command: |
             if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/code --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
+              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/$CODE_DIR --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
             else
               echo "Skipping deployment"
             fi
@@ -171,7 +171,20 @@ jobs:
       - *add_ssh_keys
       - *step_configure_git
       - *step_attach_workspace
-      - run: if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then composer app:build-artefact -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-]; else echo "Skipping deployment"; fi
+      - run:
+          name: Install dev dependencies.
+          command: |
+            composer install -n --ansi --prefer-dist
+      - run: cp -a .git $WORKSPACE_DIR/$CODE_DIR
+      - run:
+          # @see https://github.com/integratedexperts/drupal-dev-destination
+          name: Push artefact to remote repository for drupal-dev.
+          command: |
+            if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
+              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/$CODE_DIR --push --branch=release/[tags:-];
+            else
+              echo "Skipping deployment";
+            fi
   # [/META]
 
 workflows:
@@ -196,5 +209,5 @@ workflows:
             tags:
               only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
             branches:
-              only: /^(?:7|8)\.x|ci$/
+              only: /^(?:7|8)\.x$/
       # [/META]
