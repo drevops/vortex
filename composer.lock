@@ -5157,16 +5157,16 @@
         },
         {
             "name": "integratedexperts/robo-git-artefact",
-            "version": "0.2.2",
+            "version": "0.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/robo-git-artefact.git",
-                "reference": "e1ce035839a01967d7fe12da85263aa928810ff5"
+                "reference": "d473c22a8fab5e5a30261e3310da526c22a3c782"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/e1ce035839a01967d7fe12da85263aa928810ff5",
-                "reference": "e1ce035839a01967d7fe12da85263aa928810ff5",
+                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/d473c22a8fab5e5a30261e3310da526c22a3c782",
+                "reference": "d473c22a8fab5e5a30261e3310da526c22a3c782",
                 "shasum": ""
             },
             "require": {
@@ -5196,7 +5196,7 @@
                 }
             ],
             "description": "Robo task to push git artefact to remote repository",
-            "time": "2017-11-10T04:35:27+00:00"
+            "time": "2018-02-05T22:15:27+00:00"
         },
         {
             "name": "jakub-onderka/php-console-color",

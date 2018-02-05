@@ -23,3 +23,6 @@ Gruntfile.js
 .dockerignore
 .eslintrc.json
 behat.yml
+.gitignore.artefact
+/tests
+/TODO.txt
