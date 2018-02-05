@@ -91,7 +91,6 @@ jobs:
           command: |
             mkdir -p $WORKSPACE_DIR/$CODE_DIR
             docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code
-            ls -al $WORKSPACE_DIR/code
       - run:
           name: Site setup.
           command: |
@@ -126,7 +125,6 @@ jobs:
           command: |
             mkdir -p $WORKSPACE_DIR/code-dev
             docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code-dev
-            ls -al $WORKSPACE_DIR/code-dev
       - persist_to_workspace:
           root: *workspace_dir
           paths:
@@ -151,10 +149,7 @@ jobs:
           name: Install dev dependencies.
           command: |
             composer install -n --ansi --prefer-dist
-      - run: |
-          cp -a .git /workspace/code
-          ls -al /workspace/code
-      - run: ls -al /app
+      - run: cp -a .git /workspace/code
       - run:
           name: Push artefact to remote repository
           command: |
