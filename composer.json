@@ -21,7 +21,7 @@
     "drush/drush": "^8.1",
     "integratedexperts/behat-format-progress-fail": "^0.2",
     "integratedexperts/behat-screenshot": "0.7.0",
-    "integratedexperts/robo-git-artefact": "^0.2",
+    "integratedexperts/robo-git-artefact": "dev-feature/18-remove-excluded-committed-files",
     "phpunit/phpunit": "^5.7.19",
     "symfony/filesystem": "^3.2.8"
   },

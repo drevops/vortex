@@ -181,7 +181,7 @@ jobs:
           name: Push artefact to remote repository for drupal-dev.
           command: |
             if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
-              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/$CODE_DIR --push --branch=release/[tags:-];
+              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/$CODE_DIR --push;
             else
               echo "Skipping deployment";
             fi
@@ -205,9 +205,4 @@ workflows:
       - deploy_drupal_dev:
           requires:
             - build
-          filters:
-            tags:
-              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
-            branches:
-              only: /^(?:7|8)\.x$/
       # [/META]

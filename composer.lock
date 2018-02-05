@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "a722a7536854d3c1dc83b37e8fd42f18",
+    "content-hash": "04558ceb17abd03504716b36779b9a39",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5157,16 +5157,16 @@
         },
         {
             "name": "integratedexperts/robo-git-artefact",
-            "version": "0.2.2",
+            "version": "dev-feature/18-remove-excluded-committed-files",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/robo-git-artefact.git",
-                "reference": "e1ce035839a01967d7fe12da85263aa928810ff5"
+                "reference": "958303dc1eb0a528c2c2186a4d3201e71141140f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/e1ce035839a01967d7fe12da85263aa928810ff5",
-                "reference": "e1ce035839a01967d7fe12da85263aa928810ff5",
+                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/958303dc1eb0a528c2c2186a4d3201e71141140f",
+                "reference": "958303dc1eb0a528c2c2186a4d3201e71141140f",
                 "shasum": ""
             },
             "require": {
@@ -5196,7 +5196,7 @@
                 }
             ],
             "description": "Robo task to push git artefact to remote repository",
-            "time": "2017-11-10T04:35:27+00:00"
+            "time": "2018-02-05T11:44:47+00:00"
         },
         {
             "name": "jakub-onderka/php-console-color",
@@ -7608,7 +7608,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "drupal/better_exposed_filters": 15
+        "drupal/better_exposed_filters": 15,
+        "integratedexperts/robo-git-artefact": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
