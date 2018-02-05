@@ -61,16 +61,16 @@
     "app:build": [
       "@docker:start",
       "@composer install -n --ansi --prefer-dist",
-      "@drupal:build-fed",
-      "@drupal:import-db"
+      "@app:build-fed",
+      "@app:import-db"
     ],
     "app:rebuild": [
-      "@drupal:cleanup",
-      "@drupal:build"
+      "@app:cleanup",
+      "@app:build"
     ],
     "app:rebuild-full": [
-      "@drupal:cleanup-full",
-      "@drupal:build"
+      "@app:cleanup-full",
+      "@app:build"
     ],
     "app:import-db": [
       "@composer docker:cli -- drush -r /app/docroot --debug sql-drop -y",
@@ -97,17 +97,16 @@
       "rm -Rf node_modules"
     ],
     "app:cleanup-full": [
-      "@drupal:cleanup",
+      "@app:cleanup",
       "@docker:stop",
       "@docker:destroy"
     ],
-    "app:deploy": "robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact",
+    "app:build-artefact": "robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact",
     "app:create-settings": "Utilities\\composer\\DrupalSettings::create",
     "docker:start": "docker-compose up -d --build",
     "docker:restart": "docker-compose restart",
     "docker:stop": "docker-compose stop",
     "docker:destroy": "docker-compose down",
-    "docker:prune": "docker system prune -af",
     "docker:cli": "docker exec -i $(docker-compose ps -q cli)",
     "docker:pull": "docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio | grep -v none | xargs -n1 docker pull | cat",
     "docker:logs": "docker-compose logs",
