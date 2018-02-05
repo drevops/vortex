@@ -85,9 +85,9 @@ Drupal 7 implementation of MYSITE
 - `drupal:cleanup` - remove code dependencies, skipping VM management.
 - `drupal:cleanup-full` - remove code dependencies and remove VM.
 
-- `docker:up` - start environment.
+- `docker:start` - start environment.
 - `docker:restart` - restart environment.
-- `docker:down` - stop environment preserving data.
+- `docker:stop` - stop environment preserving data.
 - `docker:destroy` - destroy environment.
 - `docker:pull` - pull latest images.
 - `docker:cli` - run command in CLI container.

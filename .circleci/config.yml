@@ -20,7 +20,7 @@ aliases:
       CODE_DIR: *code_dir
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
-      - image: integratedexperts/circleci2-builder:feature_composer-update
+      - image: integratedexperts/circleci2-builder
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
@@ -66,7 +66,7 @@ jobs:
       - run:
           name: Start scontainers.
           command: |
-            composer docker:up
+            composer docker:start
             sleep 10 # Wait for DB container to startup.
       # Since app is being built inside of the containers without dev
       # dependencies, but they will be installed later to run tests, and
@@ -150,16 +150,17 @@ jobs:
             fi
       - store_artifacts:
           path: *artifacts_dir
-#  # [META] Tag deployment for drupal-dev itself. Remove the code below in
-#  # your project.
-#  deploy_drupal_dev_tag:
-#    <<: *container_config
-#    steps:
-#      - *step_common
-#      - *step_attach_workspace
-#      - *add_ssh_keys
-#      - *step_configure_git
-#      - run: if [ \"$SHOULD_DEPLOY\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-]; else echo "Skipping deployment"; fi
+  # [META] Tag deployment for drupal-dev itself. Remove the code below in
+  # your project.
+  deploy_drupal_dev_tag:
+    <<: *container_config
+    steps:
+      - *step_common
+      - *step_attach_workspace
+      - *add_ssh_keys
+      - *step_configure_git
+      - run: if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-]; else echo "Skipping deployment"; fi
+  # [/META]
 
 workflows:
   version: 2
@@ -172,14 +173,15 @@ workflows:
           filters:
             branches:
               only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+/
-#
-#      # [META] Tag deployment for drupal-dev itself. Remove the code below in
-#      # your project.
-#      - deploy_drupal_dev_tag:
-#          requires:
-#            - build
-#          filters:
-#            tags:
-#              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
-#            branches:
-#              only: /^(?:7|8)\.x$/
+
+      # [META] Tag deployment for drupal-dev itself. Remove the code below in
+      # your project.
+      - deploy_drupal_dev_tag:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
+            branches:
+              only: /^(?:7|8)\.x|ci$/
+      # [/META]

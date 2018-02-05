@@ -59,7 +59,7 @@
     ],
     "app:test": "behat --format=progress_fail --colors",
     "app:build": [
-      "@docker:up",
+      "@docker:start",
       "@composer install -n --ansi --prefer-dist",
       "@drupal:build-fed",
       "@drupal:import-db"
@@ -103,9 +103,9 @@
     ],
     "app:deploy": "robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact",
     "app:create-settings": "Utilities\\composer\\DrupalSettings::create",
-    "docker:up": "docker-compose up -d --build",
+    "docker:start": "docker-compose up -d --build",
     "docker:restart": "docker-compose restart",
-    "docker:down": "docker-compose stop",
+    "docker:stop": "docker-compose stop",
     "docker:destroy": "docker-compose down",
     "docker:prune": "docker system prune -af",
     "docker:cli": "docker exec -i $(docker-compose ps -q cli)",
