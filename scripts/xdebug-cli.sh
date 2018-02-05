@@ -6,15 +6,15 @@
 # disabling it by simply re-ssh'ing into the VM.
 #
 # Usage (from within the VM):
-# . scripts/xdebug-cli.sh local.mysiteurl
-# where local.mysiteurl is a server name and URL mapping in PHPStorm.
+# . scripts/xdebug-cli.sh mysite.docker.amazee.io
+# where mysite.docker.amazee.io is a server name and URL mapping in PHPStorm.
 
 # IDE key as set in PHPStorm's server configuration.
 IDEKEY=PHPSTORM
 # Host OS' IP address.
 REMOTE_HOST=$(netstat -rn | grep "^0.0.0.0 " | cut -d " " -f10)
 # Default server name.
-SERVER_NAME="local.mysiteurl"
+SERVER_NAME="mysite.docker.amazee.io"
 
 # Pass server name as a first parameter as set in PHPStorm's server
 # configuration.

@@ -76,47 +76,48 @@ Drupal 7 implementation of MYSITE
 3. Copy `db.sql` to `.data/db.sql`
 4. `composer build`
 
-## Available commands
-- `build` - build project.
-- `rebuild` - cleanup code dependencies and rebuild site, skipping VM management.
-- `rebuild-full` - cleanup code dependencies, remove VM and rebuild the site.
-- `build-db` - re-import DB and run updates.
-- `build-theme` - build theme assets. Supports watching: `composer build-theme -- watch`.
-- `cleanup` - remove code dependencies, skipping VM management.
-- `cleanup-full` - remove code dependencies and remove VM.
+## Available composer commands
+Run each command as `composer <command>`.
+
+### Application
+- `app:build` - start local development environment and build project.
+- `app:rebuild` - re-build project, removing and re-installing dependencies.
+- `app:rebuild-full` - cleanup code dependencies, remove VM and rebuild the site.
+- `app:import-db` - re-import DB and run updates.
+- `app:build-fed` - build theme assets. Supports watching: `composer build-theme -- watch`.
+- `app:cleanup` - remove and re-install dependencies.
+- `app:cleanup-full` - remove dependencies and docker images.
+- `app:login` - open a web browser login into build application.
+- `app:build-artefact` - build application artefact suitable for deployment in production environment.
+
+### Docker
+- `docker:start` - start environment.
+- `docker:stop` - stop environment preserving data.
+- `docker:restart` - restart environment.
+- `docker:destroy` - destroy environment.
+- `docker:pull` - pull latest images.
+- `docker:cli` - run command in CLI container.
+- `docker:logs` - show logs from docker compose run.
 
 ## Adding Drupal modules
+
 `composer require drupal/module_name`
 
 ## Adding patches for drupal modules
-1. Add `title` and `url` to patch on drupal.org to the `patches` array in `composer.json`.
+
+1. Add `title` and `url` to patch on drupal.org to the `patches` array in `extra` section in `composer.json`.
 
 ```
-"repositories": [
-  {
-    "type": "package",
-    "package": {
-      "name": "myorg/patches",
-      "version": "1.0.0",
-      "type": "metapackage",
-      "extra": {
+    "extra": {
         "patches": {
-          "drupal/persistent_update": [
-            {
-              "title": "Add an ability to bypass all persistent updates",
-              "url": "https://www.drupal.org/files/issues/bypass-all-persistent-updates-2824493-3.patch"
+            "drupal/core": {
+                "Contextual links should not be added inside another link - https://www.drupal.org/node/2898875": "https://www.drupal.org/files/issues/contextual_links_should-2898875-3.patch"
             }
-          ]
-        }
-      }
+        }    
     }
-  }
-]
 ```
 
-2. `composer rebuild`
-
-One caveat is that a removal of composer.lock may be required before step #2 as composer caches dependencies and patches may not be applied.
+2. `composer update --lock`
 
 ## Coding standards
 PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with Drupal rules from [Coder](https://www.drupal.org/project/coder) module and additional local overrides in `phpcs.xml.dist` and `.eslintrc`.   
@@ -130,7 +131,7 @@ Behat configuration uses multiple extensions:
 - [Behat Progress Fail Output Extension](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fail messages inline. Useful to get feedback about failed tests while continuing test run.
 - `FeatureContext` - Site-specific context with custom step definitions.  
 
-## Automated builds (Continuous Integration)
+## Automated builds (Cont inuous Integration)
 In software engineering, continuous integration (CI) is the practice of merging all developer working copies to a shared mainline several times a day. 
 Before feature changes can be merged into a shared mainline, a complete build must run and pass all tests on CI server.
 
@@ -148,6 +149,3 @@ If the build has inconsistent results (build fails in CI but passes locally), tr
 
 ### Test artifacts
 Test artifacts (screenshots etc.) are available under 'Artifacts' tab in Circle CI UI.
-
-### All Selenium tests are suddenly broken
-Chromedriver (a binary used by Selenium to control Chrome browser) version must follow Chrome version. Currently, Chrome version is set to stable, so when there is an update of the major Chrome version, Chromedriver version needs to be updated as well. The following link contains information about currently available Chromedriver versions: http://chromedriver.storage.googleapis.com
