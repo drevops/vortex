@@ -24,14 +24,14 @@ aliases:
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
 
   - &container_config
-    working_directory: /app
+    working_directory: ~/app
     environment: &container_config_environment
       WORKSPACE_DIR: *workspace_dir
       ARTIFACTS_DIR: *artifacts_dir
       CODE_DIR: *code_dir
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
-      - image: integratedexperts/circleci2-builder
+      - image: circleci/node:stretch
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
@@ -56,158 +56,211 @@ aliases:
 jobs:
   build:
     <<: *container_config
-    parallelism: 2
+#    parallelism: 2
     steps:
-      - *step_attach_workspace
+#      - *step_attach_workspace
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run:
-          name: Composer validate.
-          command: composer validate --ansi --strict
-      # Download DB dump from public URL to test Drupal-dev project/build.
-      # Remove the line below in your project/build.
-      - run: if [ ! -f .data/db.sql ] ; then mkdir -p .data && curl -L https://goo.gl/kcC2sE -o .data/db.sql; fi
+#      - run:
+#          name: Composer validate.
+#          command: composer validate --ansi --strict
+#      # Download DB dump from public URL to test Drupal-dev project/build.
+#      # Remove the line below in your project/build.
+#      - run: if [ ! -f .data/db.sql ] ; then mkdir -p .data && curl -L https://goo.gl/kcC2sE -o .data/db.sql; fi
       # [META]
       # Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
       # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
       # [/META]
       - run:
-          name: Pull newest Docker images.
-          command: composer docker:pull
-      - run:
-          name: Start scontainers.
+          name: Install Lando deps
           command: |
-            composer docker:start
-            sleep 10 # Wait for DB container to startup.
-      # Since app is being built inside of the containers without dev
-      # dependencies, but they will be installed later to run tests, and
-      # deployment code should not contain any dev dependencies, we have
-      # to store built codebase into workspace to later use it in 'deploy'
-      # job.
-      - run:
-          name: Copy built codebase into workspace for future deployment.
-          command: |
-            mkdir -p $WORKSPACE_DIR/$CODE_DIR
-            docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code
-      - run:
-          name: Site setup.
-          command: |
-            composer app:import-db
-            composer docker:cli -- mkdir -p /app/screenshots
-      - run:
-          name: Install dev dependencies.
-          command: |
-            composer docker:cli -- composer install --ansi
-            composer docker:cli -- npm install
-      - run:
-          name: Lint code.
-          command: composer docker:cli -- composer app:cs
-      - run:
-          name: Run tests.
-          command: |
-            if [ "$CIRCLE_NODE_TOTAL" -gt "1" ] ; then
-              composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
-            else
-              composer docker:cli -- vendor/bin/behat --format=progress_fail --colors || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --rerun
-            fi
-      - run:
-          name: Copy artifacts.
-          command: |
-            mkdir -p $ARTIFACTS_DIR/behat
-            docker cp $(docker-compose ps -q cli):/app/screenshots $ARTIFACTS_DIR/behat
-      - store_artifacts:
-          path: *artifacts_dir
+            sudo apt-get install vim -y
+            sudo apt-get update
+            sudo apt-get install \
+                apt-transport-https \
+                ca-certificates \
+                curl \
+                software-properties-common -y
+
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+            sudo apt-get -y install cgroup-bin iptables -y
+
+            sudo add-apt-repository \
+               "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+               artful \
+               stable"
+            sudo apt-get update
+
+            sudo apt-get install docker-ce -y
+
+            which docker
+
+            url -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` >dc && sudo mv dc /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
+
+
+            sudo mkdir -p /usr/share/lando/bin/ && sudo ln -s /usr/local/bin/docker-compose /usr/share/lando/bin/docker-compose
+
 
       - run:
-          name: Copy built dev codebase into workspace.
+          name: Install Lando deps
           command: |
-            mkdir -p $WORKSPACE_DIR/code-dev
-            docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code-dev
-      - persist_to_workspace:
-          root: *workspace_dir
-          paths:
-            - code
-            - code-dev
+            git clone https://github.com/lando/lando.git
 
-  # Deploy primary branches.
-  # [META]
-  # Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
-  # $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
-  # Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
-  # under "SSH Permissions" in CircleCI UI.
-  # [/META]
-  deploy:
-    <<: *container_config
-    steps:
-      - checkout
-      - *add_ssh_keys
-      - *step_configure_git
-      - *step_attach_workspace
-      - run:
-          name: Install dev dependencies.
-          command: |
-            composer install -n --ansi --prefer-dist
-      - run: cp -a .git $WORKSPACE_DIR/$CODE_DIR
-      - run:
-          name: Push artefact to remote repository
-          command: |
-            if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/$CODE_DIR --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
-            else
-              echo "Skipping deployment"
-            fi
-      - store_artifacts:
-          path: *artifacts_dir
+            # Install its dependencies
+            cd lando && yarn
 
-  # [META]
-  # Deployment for drupal-dev itself. Remove the code below in
-  # your project.
-  deploy_drupal_dev:
-    <<: *container_config
-    steps:
-      - checkout
-      - *add_ssh_keys
-      - *step_configure_git
-      - *step_attach_workspace
+            # Optionally set up a symlink
+            sudo mkdir -p /usr/local/bin
+            sudo ln -s /home/circleci/app/lando/bin/lando.js /usr/local/bin/lando
+
+            # Run lando
+            lando version
+
       - run:
-          name: Install dev dependencies.
+          name: Start Lando
           command: |
-            composer install -n --ansi --prefer-dist
-      - run: cp -a .git $WORKSPACE_DIR/$CODE_DIR
-      - run:
-          # @see https://github.com/integratedexperts/drupal-dev-destination
-          name: Push artefact to remote repository for drupal-dev.
-          command: |
-            if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
-              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/$CODE_DIR --push --branch=release/[tags:-];
-            else
-              echo "Skipping deployment";
-            fi
-  # [/META]
+            lando start
+      - run: curl http://mysite.lndo.site
+#
+#
+#      - run:
+#          name: Pull newest Docker images.
+#          command: composer docker:pull
+#      - run:
+#          name: Start scontainers.
+#          command: |
+#            composer docker:start
+#            sleep 10 # Wait for DB container to startup.
+#      # Since app is being built inside of the containers without dev
+#      # dependencies, but they will be installed later to run tests, and
+#      # deployment code should not contain any dev dependencies, we have
+#      # to store built codebase into workspace to later use it in 'deploy'
+#      # job.
+#      - run:
+#          name: Copy built codebase into workspace for future deployment.
+#          command: |
+#            mkdir -p $WORKSPACE_DIR/$CODE_DIR
+#            docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code
+#      - run:
+#          name: Site setup.
+#          command: |
+#            composer app:import-db
+#            composer docker:cli -- mkdir -p /app/screenshots
+#      - run:
+#          name: Install dev dependencies.
+#          command: |
+#            composer docker:cli -- composer install --ansi
+#            composer docker:cli -- npm install
+#      - run:
+#          name: Lint code.
+#          command: composer docker:cli -- composer app:cs
+#      - run:
+#          name: Run tests.
+#          command: |
+#            if [ "$CIRCLE_NODE_TOTAL" -gt "1" ] ; then
+#              composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
+#            else
+#              composer docker:cli -- vendor/bin/behat --format=progress_fail --colors || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --rerun
+#            fi
+#      - run:
+#          name: Copy artifacts.
+#          command: |
+#            mkdir -p $ARTIFACTS_DIR/behat
+#            docker cp $(docker-compose ps -q cli):/app/screenshots $ARTIFACTS_DIR/behat
+#      - store_artifacts:
+#          path: *artifacts_dir
+#
+#      - run:
+#          name: Copy built dev codebase into workspace.
+#          command: |
+#            mkdir -p $WORKSPACE_DIR/code-dev
+#            docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code-dev
+#      - persist_to_workspace:
+#          root: *workspace_dir
+#          paths:
+#            - code
+#            - code-dev
+#
+#  # Deploy primary branches.
+#  # [META]
+#  # Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
+#  # $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
+#  # Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
+#  # under "SSH Permissions" in CircleCI UI.
+#  # [/META]
+#  deploy:
+#    <<: *container_config
+#    steps:
+#      - checkout
+#      - *add_ssh_keys
+#      - *step_configure_git
+#      - *step_attach_workspace
+#      - run:
+#          name: Install dev dependencies.
+#          command: |
+#            composer install -n --ansi --prefer-dist
+#      - run: cp -a .git $WORKSPACE_DIR/$CODE_DIR
+#      - run:
+#          name: Push artefact to remote repository
+#          command: |
+#            if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
+#              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/$CODE_DIR --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
+#            else
+#              echo "Skipping deployment"
+#            fi
+#      - store_artifacts:
+#          path: *artifacts_dir
+#
+#  # [META]
+#  # Deployment for drupal-dev itself. Remove the code below in
+#  # your project.
+#  deploy_drupal_dev:
+#    <<: *container_config
+#    steps:
+#      - checkout
+#      - *add_ssh_keys
+#      - *step_configure_git
+#      - *step_attach_workspace
+#      - run:
+#          name: Install dev dependencies.
+#          command: |
+#            composer install -n --ansi --prefer-dist
+#      - run: cp -a .git $WORKSPACE_DIR/$CODE_DIR
+#      - run:
+#          # @see https://github.com/integratedexperts/drupal-dev-destination
+#          name: Push artefact to remote repository for drupal-dev.
+#          command: |
+#            if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
+#              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/$CODE_DIR --push --branch=release/[tags:-];
+#            else
+#              echo "Skipping deployment";
+#            fi
+#  # [/META]
 
 workflows:
   version: 2
   main:
     jobs:
       - build
-      - deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+/
-
-      # [META]
-      # Tag deployment for drupal-dev itself. Remove the code below in
-      # your project.
-      - deploy_drupal_dev:
-          requires:
-            - build
-          filters:
-            tags:
-              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
-            branches:
-              only: /^(?:7|8)\.x$/
-      # [/META]
+#      - deploy:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+/
+#
+#      # [META]
+#      # Tag deployment for drupal-dev itself. Remove the code below in
+#      # your project.
+#      - deploy_drupal_dev:
+#          requires:
+#            - build
+#          filters:
+#            tags:
+#              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
+#            branches:
+#              only: /^(?:7|8)\.x$/
+#      # [/META]

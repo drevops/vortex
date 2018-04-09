@@ -18,10 +18,10 @@ default:
     DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
     Behat\MinkExtension:
       goutte: ~
-      base_url: http://nginx:8080
+      base_url: http://mysite.lndo.site/
       browser_name: chrome
       selenium2:
-        wd_host: "http://selenium:4444/wd/hub"
+        wd_host: "http://mysite.lndo.site:9222/wd/hub"
         capabilities: { "browser": "chrome", "version": "*", "marionette": true }
       javascript_session: selenium2
       files_path: %paths.base%/tests/test_data

@@ -3,6 +3,7 @@
 
 # Ignore Drupal docroot, but preserve custom modules, themes and settings.
 docroot/*
+!docroot/index.php
 !docroot/sites/
 docroot/sites/*
 !docroot/modules/

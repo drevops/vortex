@@ -1,0 +1,38 @@
+name: mysite
+recipe: lamp
+config:
+  webroot: docroot
+  xdebug: true
+#services:
+#  appserver:
+#    overrides:
+#      services:
+#        environment:
+#          DB_HOST: database
+#          DB_USER: drupal
+#          DB_PASSWORD: drupal
+#          DB_NAME: drupal
+#          DB_PORT: 3306
+#  database:
+#    creds:
+#      user: drupal
+#      password: drupal
+#      database: drupal
+#  mailhog:
+#    type: mailhog
+#    hogfrom:
+#      - appserver
+#    portforward: 1026
+#  browser:
+#    type: apache:custom
+#    overrides:
+#      services:
+#        image: justinribeiro/chrome-headless
+#        cap_add:
+#          - SYS_ADMIN
+##        ports:
+##          - 9222:9222
+#    portforward: 9222
+#proxy:
+#  mailhog:
+#    - mailhog.mysite.lndo.site
