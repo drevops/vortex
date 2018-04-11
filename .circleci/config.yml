@@ -35,6 +35,7 @@ aliases:
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
+          LANDO_ENGINE_CONFIG: '{"host": "${DOCKER_HOST}", "port":"${DOCKER_PORT}", "socket": "null"}'
 
   - &step_attach_workspace
     attach_workspace:
