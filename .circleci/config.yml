@@ -120,6 +120,8 @@ jobs:
             # Run lando
             lando version
 
+            printenv
+
       - run:
           name: Start Lando
           command: |
