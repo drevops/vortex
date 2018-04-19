@@ -35,7 +35,6 @@ aliases:
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
-          LANDO_ENGINE_CONFIG: '{"host": "${DOCKER_HOST}", "socket": "null"}'
 
   - &step_attach_workspace
     attach_workspace:
@@ -123,8 +122,7 @@ jobs:
       - run:
           name: Start Lando
           command: |
-            echo $LANDO_ENGINE_CONFIG
-            lando start
+            LANDO_ENGINE_CONFIG='{"host": "${DOCKER_HOST}", "socket": "null"}' lando start
       - run: curl http://mysite.lndo.site
 #
 #
