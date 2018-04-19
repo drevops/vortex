@@ -35,7 +35,7 @@ aliases:
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
-          LANDO_ENGINE_CONFIG: '{"host": "${DOCKER_HOST}", "port":"${DOCKER_PORT}", "socket": "null"}'
+          LANDO_ENGINE_CONFIG: '{"host": "${DOCKER_HOST}", "socket": "null"}'
 
   - &step_attach_workspace
     attach_workspace:
@@ -100,8 +100,6 @@ jobs:
             which docker
 
             url -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` >dc && sudo mv dc /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
-
-
             sudo mkdir -p /usr/share/lando/bin/ && sudo ln -s /usr/local/bin/docker-compose /usr/share/lando/bin/docker-compose
 
 
@@ -125,6 +123,7 @@ jobs:
       - run:
           name: Start Lando
           command: |
+            echo $LANDO_ENGINE_CONFIG
             lando start
       - run: curl http://mysite.lndo.site
 #
