@@ -122,7 +122,10 @@ jobs:
       - run:
           name: Start Lando
           command: |
-            LANDO_ENGINE_CONFIG='{"host": "${DOCKER_HOST}", "socket": "null"}' lando start
+            echo $LANDO_ENGINE_CONFIG
+            export LANDO_ENGINE_CONFIG='{"host": "${DOCKER_HOST}", "socket": "null"}'
+            echo $LANDO_ENGINE_CONFIG
+            lando start
       - run: curl http://mysite.lndo.site
 #
 #
