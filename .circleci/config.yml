@@ -81,6 +81,7 @@ jobs:
           command: |
             composer docker:start
             sleep 10 # Wait for DB container to startup.
+            docker ps -a
       # Since app is being built inside of the containers without dev
       # dependencies, but they will be installed later to run tests, and
       # deployment code should not contain any dev dependencies, we have
