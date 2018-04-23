@@ -117,6 +117,7 @@ jobs:
           command: |
             mkdir -p $ARTIFACTS_DIR/behat
             docker cp $(docker-compose ps -q cli):/app/screenshots $ARTIFACTS_DIR/behat
+          when: always
       - store_artifacts:
           path: *artifacts_dir
 
