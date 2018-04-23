@@ -67,7 +67,7 @@ jobs:
           command: composer validate --ansi --strict
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Remove the line below in your project/build.
-      - run: if [ ! -f .data/db.sql ] ; then mkdir -p .data && curl -L https://goo.gl/kcC2sE -o .data/db.sql; fi
+      - run: if [ ! -f .data/db.sql ] ; then mkdir -p .data && curl -L https://goo.gl/bdZ2Zj -o .data/db.sql; fi
       # [META]
       # Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
@@ -150,7 +150,7 @@ jobs:
       - run:
           name: Install dev dependencies.
           command: |
-            composer install -n --ansi --prefer-dist
+            composer install -n --ansi --prefer-dist --ignore-platform-reqs
       - run: cp -a .git $WORKSPACE_DIR/$CODE_DIR
       - run:
           name: Push artefact to remote repository
@@ -176,7 +176,7 @@ jobs:
       - run:
           name: Install dev dependencies.
           command: |
-            composer install -n --ansi --prefer-dist
+            composer install -n --ansi --prefer-dist --ignore-platform-reqs
       - run: cp -a .git $WORKSPACE_DIR/$CODE_DIR
       - run:
           # @see https://github.com/integratedexperts/drupal-dev-destination
