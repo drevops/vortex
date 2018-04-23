@@ -1,18 +1,12 @@
 version: '2'
 services:
   cli:
-    environment:
-      LAGOON_ENVIRONMENT_TYPE: 'ci'
     volumes:
       - .:/app/docroot/sites/default/files
   php:
-    environment:
-      LAGOON_ENVIRONMENT_TYPE: 'ci'
     volumes:
       - .:/app/docroot/sites/default/files
   nginx:
-    environment:
-      LAGOON_ENVIRONMENT_TYPE: 'ci'
     volumes:
       - .:/app/docroot/sites/default/files
   selenium:

@@ -5,7 +5,6 @@ services:
       - container:amazeeio-ssh-agent
     environment:
       - SSH_AUTH_SOCK=/tmp/amazeeio_ssh-agent/socket
-      - LAGOON_ENVIRONMENT_TYPE=local
       - XDEBUG_ENABLE=true
     volumes:
       - .:/app:delegated
@@ -20,7 +19,6 @@ services:
       - .:/app:delegated
   php:
     environment:
-      - LAGOON_ENVIRONMENT_TYPE=local
       - XDEBUG_ENABLE=true
     volumes:
       - .:/app:delegated

@@ -3,23 +3,14 @@ services:
   cli:
     build:
       context: .
-      dockerfile: Dockerfile.builder
-    image: builder
-    labels:
-      lagoon.type: cli-persistent
-      lagoon.persistent: /app/docroot/sites/default/files/
-      lagoon.persistent.name: nginx-php
+      dockerfile: Dockerfile.cli
+    image: cli
   nginx:
     build:
       context: .
       dockerfile: Dockerfile.nginx
     networks:
       - default
-    labels:
-      lagoon.type: nginx-php-persistent
-      lagoon.persistent: /app/docroot/sites/default/files/
-      lagoon.persistent.class: slow
-      lagoon.name: nginx-php
     depends_on:
       - cli
     expose:
@@ -28,19 +19,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.php
-    labels:
-      lagoon.type: nginx-php-persistent
-      lagoon.persistent: /app/docroot/sites/default/files/
-      lagoon.persistent.class: slow
-      lagoon.name: nginx-php
     depends_on:
       - cli
   mariadb:
-    build:
-      context: .
-      dockerfile: Dockerfile.mariadb
-    labels:
-      lagoon.type: mariadb
+    image: amazeeio/centos7-mariadb10-drupal
   redis:
     image: amazeeio/redis
     labels:
