@@ -15,7 +15,7 @@
     "behat/behat": "^3.3.1",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
     "dmore/behat-chrome-extension": "^1.1",
-    "drupal/coder": "^8.2",
+    "drupal/coder": "^8.2.12",
     "drupal/console": "^1.0",
     "drupal/drupal-extension": "^v3.3.0",
     "drush/drush": "^8.1",
