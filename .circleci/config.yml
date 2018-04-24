@@ -32,7 +32,7 @@ aliases:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
           # How often to cache DB dump for.
-          DB_TIMESTAMP: +%Y_%m_%d_%H
+          DB_TIMESTAMP: +%Y_%m_%d
   # Step to configure git to connect to remote servers for deployment.
   # [META]
   # It is advised to create separate 'deployer' user with own SSH key for each
@@ -68,7 +68,7 @@ jobs:
           command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v2-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
       # [META]
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Replace the line below with your custom database retrieval script in your project.
@@ -77,7 +77,7 @@ jobs:
           name: Downloading database
           command: if [ ! -f .data/db.sql ] ; then mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql; else echo "Using cahed DB";fi
       - save_cache:
-          key: v2-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
       # [META]
