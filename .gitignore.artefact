@@ -26,3 +26,4 @@ behat.yml
 .gitignore.artefact
 /tests
 /TODO.txt
+settings.generated.php
