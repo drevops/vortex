@@ -54,6 +54,8 @@ https://goo.gl/CRBFw2
 - [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing
 - [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artefact to remote repository
 -------------------------------------------------------------------------------
+
+# PROJECT README SCAFFOLDING
 Remove this line and everything above it in your project.
 
 # MYSITE
