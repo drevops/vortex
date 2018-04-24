@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1b0af1272f3ec8444ef48b24a5c68e6e",
+    "content-hash": "d7bf3d2c7b558d0a652eef54a07faa78",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5159,16 +5159,16 @@
         },
         {
             "name": "integratedexperts/robo-git-artefact",
-            "version": "dev-fix-no-cleanup",
+            "version": "0.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/robo-git-artefact.git",
-                "reference": "3830a71e131bbd4e20dae4604e8e444bd4011438"
+                "reference": "b89900ac595a55b16db3de75454064fb18b01ca9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/3830a71e131bbd4e20dae4604e8e444bd4011438",
-                "reference": "3830a71e131bbd4e20dae4604e8e444bd4011438",
+                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/b89900ac595a55b16db3de75454064fb18b01ca9",
+                "reference": "b89900ac595a55b16db3de75454064fb18b01ca9",
                 "shasum": ""
             },
             "require": {
@@ -5198,7 +5198,7 @@
                 }
             ],
             "description": "Robo task to push git artefact to remote repository",
-            "time": "2018-04-24T10:10:14+00:00"
+            "time": "2018-04-24T10:35:11+00:00"
         },
         {
             "name": "jakub-onderka/php-console-color",
@@ -7450,9 +7450,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "integratedexperts/robo-git-artefact": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
