@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "cc7a0449cc844088fc5ba236ca3cf063",
+    "content-hash": "1b0af1272f3ec8444ef48b24a5c68e6e",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5159,16 +5159,16 @@
         },
         {
             "name": "integratedexperts/robo-git-artefact",
-            "version": "0.2.3",
+            "version": "dev-fix-no-cleanup",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/robo-git-artefact.git",
-                "reference": "d473c22a8fab5e5a30261e3310da526c22a3c782"
+                "reference": "5ef96ddd7e29b2cab25ea5611b3523f2d164e1ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/d473c22a8fab5e5a30261e3310da526c22a3c782",
-                "reference": "d473c22a8fab5e5a30261e3310da526c22a3c782",
+                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/5ef96ddd7e29b2cab25ea5611b3523f2d164e1ae",
+                "reference": "5ef96ddd7e29b2cab25ea5611b3523f2d164e1ae",
                 "shasum": ""
             },
             "require": {
@@ -5198,7 +5198,7 @@
                 }
             ],
             "description": "Robo task to push git artefact to remote repository",
-            "time": "2018-02-05T22:15:27+00:00"
+            "time": "2018-04-24T08:11:46+00:00"
         },
         {
             "name": "jakub-onderka/php-console-color",
@@ -7449,9 +7449,11 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
-    "stability-flags": [],
-    "prefer-stable": false,
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "integratedexperts/robo-git-artefact": 20
+    },
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
