@@ -232,6 +232,5 @@ workflows:
             tags:
               only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
             branches:
-#              ignore: /.*/
-              only: feature/39-deployment-script-fails
+              ignore: /.*/
       # [/META]
