@@ -1,7 +1,6 @@
-##
+## [META]
 # CircleCI 2.0 configuration file.
 #
-# [META]
 # Content between "META" and "/META" (like the ones above and below this
 # paragraph) is explaining drupal-dev inner works and can be safely removed for
 # specific project.
@@ -10,42 +9,38 @@ version: 2
 aliases:
   # Variables.
   # For YAML support of anchors and references, @see http://blog.daemonl.com/2016/02/yaml.html
-  - &workspace_dir    /workspace
-  - &artifacts_dir    /tmp/artifacts
+
   # SSH key fingerprint to deploy code. Add private key of the user who is
   # allowed to push to $DEPLOY_REMOTE repo under "SSH Permissions" in
   # CircleCI UI.
-
   # [META]
   # This is a fingerprint of the key to push drupal-dev project itself.
-  # Replace this key with your own.
+  # Replace this key fingerprint with your own.
   # [/META]
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
 
   - &container_config
     working_directory: /app
     environment: &container_config_environment
-      WORKSPACE_DIR: *workspace_dir
-      ARTIFACTS_DIR: *artifacts_dir
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       # [META]
-      # Using "runner" container where all jobs will be executed.
+      # Using "runner" container where each job will be executed.
       # [/META]
       - image: integratedexperts/circleci2-builder
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
 
-  - &step_attach_workspace
-    attach_workspace:
-      at: *workspace_dir
-
-  - &add_ssh_keys
-    add_ssh_keys:
-      fingerprints:
-        - *deploy_ssh_fingerprint
-
+  # Step to configure git to connect to remote servers for deployment.
+  # [META]
+  # It is advised to create separate 'deployer' user with own SSH key for each
+  # project.
+  # Add the following variables through CircleCI UI.
+  # $DEPLOY_USER_NAME - name of the user who will be committing to a remote repository.
+  # $DEPLOY_USER_EMAIL - email address of the user who will be committing to a remote repository.
+  # $DEPLOY_REMOTE - remote repository to push artefact to.
+  # [/META]
   - &step_configure_git
     run:
       name: Configure git
@@ -59,7 +54,8 @@ jobs:
     <<: *container_config
     parallelism: 2
     steps:
-      - *step_attach_workspace
+      - attach_workspace:
+          at: /workspace
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
@@ -93,8 +89,8 @@ jobs:
       - run:
           name: Copy built codebase into workspace for future deployment.
           command: |
-            mkdir -p $WORKSPACE_DIR/code
-            docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code
+            mkdir -p /workspace/code
+            docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
       - run:
           name: Site setup.
           command: |
@@ -119,18 +115,18 @@ jobs:
       - run:
           name: Copy artifacts.
           command: |
-            mkdir -p $ARTIFACTS_DIR/behat
-            docker cp $(docker-compose ps -q cli):/app/screenshots $ARTIFACTS_DIR/behat
+            mkdir -p /tmp/artifacts/behat
+            docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
           when: always
       - store_artifacts:
-          path: *artifacts_dir
+          path: /tmp/artifacts
       - run:
           name: Copy built dev codebase into workspace.
           command: |
-            mkdir -p $WORKSPACE_DIR/code-dev
-            docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code-dev
+            mkdir -p /workspace/code-dev
+            docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code-dev
       - persist_to_workspace:
-          root: *workspace_dir
+          root: /workspace
           paths:
             - code
             - code-dev
@@ -146,24 +142,27 @@ jobs:
     <<: *container_config
     steps:
       - checkout
-      - *add_ssh_keys
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_fingerprint
       - *step_configure_git
-      - *step_attach_workspace
+      - attach_workspace:
+          at: /workspace
       - run:
           name: Install dev dependencies.
           command: |
             composer install -n --ansi --prefer-dist --ignore-platform-reqs
-      - run: cp -a .git $WORKSPACE_DIR/code
+      - run: cp -a .git /workspace/code
       - run:
           name: Push artefact to remote repository
           command: |
             if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/code --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
+              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=/workspace/code --push --report=/tmp/artifacts/deployment_report.txt --no-cleanup
             else
               echo "Skipping deployment"
             fi
       - store_artifacts:
-          path: *artifacts_dir
+          path: /tmp/artifacts
 
   # [META]
   # Deployment for drupal-dev itself. Remove the code below in
@@ -172,20 +171,23 @@ jobs:
     <<: *container_config
     steps:
       - checkout
-      - *add_ssh_keys
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_fingerprint
       - *step_configure_git
-      - *step_attach_workspace
+      - attach_workspace:
+          at: /workspace
       - run:
           name: Install dev dependencies.
           command: |
             composer install -n --ansi --prefer-dist --ignore-platform-reqs
-      - run: cp -a .git $WORKSPACE_DIR/code
+      - run: cp -a .git /workspace/code
       - run:
           # @see https://github.com/integratedexperts/drupal-dev-destination
           name: Push artefact to remote repository for drupal-dev.
           command: |
             if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
-              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/code --push --branch=release/[tags:-];
+              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=/workspace/code --push --branch=release/[tags:-];
             else
               echo "Skipping deployment";
             fi
