@@ -11,7 +11,6 @@ aliases:
   # Variables.
   # For YAML support of anchors and references, @see http://blog.daemonl.com/2016/02/yaml.html
   - &workspace_dir    /workspace
-  - &code_dir         code
   - &artifacts_dir    /tmp/artifacts
   # SSH key fingerprint to deploy code. Add private key of the user who is
   # allowed to push to $DEPLOY_REMOTE repo under "SSH Permissions" in
@@ -28,7 +27,6 @@ aliases:
     environment: &container_config_environment
       WORKSPACE_DIR: *workspace_dir
       ARTIFACTS_DIR: *artifacts_dir
-      CODE_DIR: *code_dir
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       # [META]
@@ -95,7 +93,7 @@ jobs:
       - run:
           name: Copy built codebase into workspace for future deployment.
           command: |
-            mkdir -p $WORKSPACE_DIR/$CODE_DIR
+            mkdir -p $WORKSPACE_DIR/code
             docker cp -L $(docker-compose ps -q cli):/app/. $WORKSPACE_DIR/code
       - run:
           name: Site setup.
@@ -126,7 +124,6 @@ jobs:
           when: always
       - store_artifacts:
           path: *artifacts_dir
-
       - run:
           name: Copy built dev codebase into workspace.
           command: |
@@ -156,12 +153,12 @@ jobs:
           name: Install dev dependencies.
           command: |
             composer install -n --ansi --prefer-dist --ignore-platform-reqs
-      - run: cp -a .git $WORKSPACE_DIR/$CODE_DIR
+      - run: cp -a .git $WORKSPACE_DIR/code
       - run:
           name: Push artefact to remote repository
           command: |
             if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/$CODE_DIR --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
+              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/code --push --report=$ARTIFACTS_DIR/deployment_report.txt --no-cleanup
             else
               echo "Skipping deployment"
             fi
@@ -182,18 +179,17 @@ jobs:
           name: Install dev dependencies.
           command: |
             composer install -n --ansi --prefer-dist --ignore-platform-reqs
-      - run: cp -a .git $WORKSPACE_DIR/$CODE_DIR
+      - run: cp -a .git $WORKSPACE_DIR/code
       - run:
           # @see https://github.com/integratedexperts/drupal-dev-destination
           name: Push artefact to remote repository for drupal-dev.
           command: |
             if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
-              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/$CODE_DIR --push --branch=release/[tags:-];
+              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=$WORKSPACE_DIR/code --push --branch=release/[tags:-];
             else
               echo "Skipping deployment";
             fi
   # [/META]
-
 workflows:
   version: 2
   main:
