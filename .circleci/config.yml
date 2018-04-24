@@ -31,6 +31,9 @@ aliases:
       CODE_DIR: *code_dir
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
+      # [META]
+      # Using "runner" container where all jobs will be executed.
+      # [/META]
       - image: integratedexperts/circleci2-builder
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
@@ -65,9 +68,11 @@ jobs:
       - run:
           name: Composer validate.
           command: composer validate --ansi --strict
+      # [META]
       # Download DB dump from public URL to test Drupal-dev project/build.
-      # Remove the line below in your project/build.
-      - run: if [ ! -f .data/db.sql ] ; then mkdir -p .data && curl -L https://goo.gl/bdZ2Zj -o .data/db.sql; fi
+      # Replace the line below with your custom database retrieval script in your project.
+      # [/META]
+      - run: if [ ! -f .data/db.sql ] ; then mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.dist.sql; fi
       # [META]
       # Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
@@ -83,7 +88,7 @@ jobs:
             sleep 10 # Wait for DB container to startup.
             docker ps -a
       # Since app is being built inside of the containers without dev
-      # dependencies, but they will be installed later to run tests, and
+      # dependencies and they will be installed later to run tests, but
       # deployment code should not contain any dev dependencies, we have
       # to store built codebase into workspace to later use it in 'deploy'
       # job.
