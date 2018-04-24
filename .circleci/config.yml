@@ -31,7 +31,6 @@ aliases:
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
-
   # Step to configure git to connect to remote servers for deployment.
   # [META]
   # It is advised to create separate 'deployer' user with own SSH key for each
@@ -62,11 +61,24 @@ jobs:
       - run:
           name: Composer validate.
           command: composer validate --ansi --strict
+      - run:
+          name: Set database timestamp for caching.
+          command: echo "export DB_TIMESTAMP=$(date +%Y_%m_%d_%H)" >> $BASH_ENV
+      - restore_cache:
+          keys:
+            - v1-db-{{ .Environment.DB_TIMESTAMP }}
+      - run: echo $DB_TIMESTAMP
       # [META]
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Replace the line below with your custom database retrieval script in your project.
       # [/META]
-      - run: if [ ! -f .data/db.sql ] ; then mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql; fi
+      - run:
+          name: Downloading database
+          command: if [ ! -f .data/db.sql ] ; then mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql; else echo "Using cahed DB";fi
+      - save_cache:
+          key: v1-db-{{ .Environment.DB_TIMESTAMP }}
+          paths:
+            - .data
       # [META]
       # Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
