@@ -1,3 +1,4 @@
+[]([META])
 # drupal-dev
 Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
@@ -57,6 +58,7 @@ https://goo.gl/CRBFw2
 
 # PROJECT README SCAFFOLDING
 Remove this line and everything above it in your project.
+[]([/META])
 
 # MYSITE
 Drupal 7 implementation of MYSITE
