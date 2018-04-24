@@ -51,8 +51,6 @@
             "url": "https://packages.drupal.org/8"
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "scripts": {
         "app:login": "@composer docker:cli -- drush uli -r /app/docroot -l http://mysite.docker.amazee.io/ | xargs open",
         "app:cs": [
