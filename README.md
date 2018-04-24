@@ -18,7 +18,7 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 4. Commit all files to your repository and push.
 5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project" and click "Start building" button.
 6. To start developing locally:
-   - Copy your existing DB dump into `.data/db.dist.sql` OR run `mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.dist.sql` to download minimal install Drupal 8 DB dump.
+   - Copy your existing DB dump into `.data/db.dist.sql` OR run `mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql` to download minimal install Drupal 8 DB dump.
    - Run `composer build`.
 
 ## What is included

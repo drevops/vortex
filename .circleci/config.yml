@@ -70,7 +70,7 @@ jobs:
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Replace the line below with your custom database retrieval script in your project.
       # [/META]
-      - run: if [ ! -f .data/db.sql ] ; then mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.dist.sql; fi
+      - run: if [ ! -f .data/db.sql ] ; then mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql; fi
       # [META]
       # Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
