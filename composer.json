@@ -20,6 +20,7 @@
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
         "integratedexperts/robo-git-artefact": "^0.2",
+        "jakub-onderka/php-parallel-lint": "^1.0",
         "phpunit/phpunit": "^5.7.19",
         "symfony/filesystem": "^3.2.8",
         "wimg/php-compatibility": "^8.1"
@@ -53,6 +54,7 @@
     "scripts": {
         "app:login": "@composer docker:cli -- drush uli -r /app/docroot -l http://mysite.docker.amazee.io/ | xargs open",
         "app:cs": [
+            "parallel-lint --exclude vendor --exclude node_modules -e php,module,theme,install tests docroot/profiles/custom docroot/modules/custom docroot/themes/custom docroot/sites/default/settings.php",
             "phpcs",
             "npm run lint"
         ],
