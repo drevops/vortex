@@ -92,6 +92,7 @@ Run each command as `composer <command>`.
 - `app:cleanup` - remove and re-install dependencies.
 - `app:cleanup-full` - remove dependencies and docker images.
 - `app:login` - open a web browser login into build application.
+- `app:drush` - execute drush commad: `composer app:drush -- status`.
 - `app:build-artefact` - build application artefact suitable for deployment in production environment.
 
 ### Docker
