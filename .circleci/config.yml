@@ -31,6 +31,7 @@ aliases:
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
+          # How often to cache DB dump for.
           DB_TIMESTAMP: +%Y_%m_%d_%H
   # Step to configure git to connect to remote servers for deployment.
   # [META]
