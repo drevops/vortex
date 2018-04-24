@@ -21,7 +21,8 @@
         "integratedexperts/behat-screenshot": "^0.7",
         "integratedexperts/robo-git-artefact": "^0.2",
         "phpunit/phpunit": "^5.7.19",
-        "symfony/filesystem": "^3.2.8"
+        "symfony/filesystem": "^3.2.8",
+        "wimg/php-compatibility": "^8.1"
     },
     "autoload": {
         "classmap": [
@@ -52,7 +53,7 @@
     "scripts": {
         "app:login": "@composer docker:cli -- drush uli -r /app/docroot -l http://mysite.docker.amazee.io/ | xargs open",
         "app:cs": [
-            "phpcs --colors",
+            "phpcs",
             "npm run lint"
         ],
         "app:test": "behat --format=progress_fail --colors",
