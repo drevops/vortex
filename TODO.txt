@@ -4,5 +4,3 @@ this project.
 - .eslintrc.json is copied from core 8.4 .eslintrc.legacy.json because phpcs
   does not support passing of ESLint config file location through options.
 - livereload was removed until hooks refactored into libraries
-- persistent_update was removed
-- drupal_helpers was removed

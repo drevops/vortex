@@ -15,6 +15,7 @@ ADD scripts /app/scripts
 
 COPY composer.json composer.lock /app/
 COPY package.json package-lock.json Gruntfile.js /app/
+COPY .env /app/
 
 RUN composer install --no-dev --optimize-autoloader --prefer-dist --ansi
 

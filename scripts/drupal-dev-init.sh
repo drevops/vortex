@@ -44,6 +44,17 @@ replace_string_filename() {
   find $dir -depth -name "*$needle*" -execdir bash -c 'mv -i "$1" "${1//'$needle'/'$replacement'}"' bash {} \;
 }
 
+remove_tags() {
+  local tag=$1
+  local dir=$2
+
+  if [ "$(uname)" == "Darwin" ]; then
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$tag\]" $dir | xargs sed -i '' -e "/\[$tag\]/,/\[\/$tag\]/d"
+  else
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$tag\]" $dir | xargs sed -i -e "/\[$tag\]/,/\[\/$tag\]/d"
+  fi
+}
+
 to_lower() {
   echo $(echo "$1" | tr '[:upper:]' '[:lower:]')
 }
@@ -70,6 +81,7 @@ questions() {
   local site_url=${site_short//_/-}
   local org=$site_short
   local org_short=$(shorten "$org")
+  local remove_meta=Y
  else
   local site_name=$(ask "What is your site name?")
   [ "$site_name" == "" ] && echo "Site name is required" && exit 1
@@ -80,6 +92,8 @@ questions() {
   site_url=$(ask "What is your site URL? [${site_url}.com]" $site_url)
   local org=$(ask "What is your organization name? [${site_short}_org] " $site_short)
   local org_short=$(shorten "$org")
+  local remove_meta=Y
+  local remove_meta=$(ask "Do you want to remove all drupal-dev META information? (Y,n) [$remove_meta] " $remove_meta)
  fi
 
   echo
@@ -93,6 +107,10 @@ questions() {
   replace_string_filename "mysitetheme" "$site_theme" "$CURDIR" && echo -n "."
   replace_string_filename "myorg" "$org_short" "$CURDIR" && echo -n "."
   replace_string_filename "mysite" "$site_short" "$CURDIR" && echo -n "."
+
+  if [ "$remove_meta" == "Y" ] ; then
+    remove_tags "META" "$CURDIR" && echo -n "."
+  fi
 
   echo "complete"
 }
