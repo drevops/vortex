@@ -4,3 +4,26 @@
  * @file
  * Template for MYSITE theme.
  */
+
+use Drupal\Core\Site\Settings;
+
+/**
+ * Implements hook_css_alter().
+ */
+function mysitetheme_css_alter(&$css) {
+  if (Settings::get('livereload', FALSE)) {
+    // Alter css to display as link tags.
+    foreach ($css as $key => $value) {
+      $css[$key]['preprocess'] = FALSE;
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function mysitetheme_page_attachments_alter(array &$page) {
+  if (Settings::get('livereload', FALSE)) {
+    $page['#attached']['library'][] = 'mysitetheme/livereload';
+  }
+}

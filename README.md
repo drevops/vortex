@@ -124,6 +124,13 @@ Run each command as `composer <command>`.
 
 2. `composer update --lock`
 
+## Front-end and Livereload
+- `npm run build` - build SCSS and JS assets.
+- `npm run watch` - watch asset changes and reload the browser (using Livereload). To enable Livereload integration with Drupal, add to `settings.php` file (already added to `settings.local.php`): 
+  ```
+  $settings['livereload'] = TRUE;
+  ```
+
 ## Coding standards
 PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with Drupal rules from [Coder](https://www.drupal.org/project/coder) module and additional local overrides in `phpcs.xml.dist` and `.eslintrc`.   
 
