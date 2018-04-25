@@ -17,7 +17,9 @@ docroot/profiles/*
 !docroot/sites/default/
 docroot/sites/default/*
 !docroot/sites/default/settings.php
+!docroot/sites/default/default.settings.local.php
 !docroot/sites/default/services.yml
+!docroot/sites/default/default.services.local.yml
 
 # Ignore dependencies cache files
 vendor

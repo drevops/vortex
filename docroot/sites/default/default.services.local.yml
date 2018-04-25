@@ -1,0 +1,9 @@
+parameters:
+  http.response.debug_cacheability_headers: true
+  twig.config: # disabling twig debugging and auto reload, plus enabling twig caching
+      debug: true
+      auto_reload: null
+      cache: false
+services:
+  cache.backend.null:
+    class: Drupal\Core\Cache\NullBackendFactory

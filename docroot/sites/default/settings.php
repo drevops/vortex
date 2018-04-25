@@ -25,7 +25,7 @@ if (!defined('ENVIRONMENT_TEST')) {
 if (!defined('ENVIRONMENT_DEV')) {
   define('ENVIRONMENT_DEV', 'dev');
 }
-$conf['environment'] = ENVIRONMENT_LOCAL;
+$config['environment'] = ENVIRONMENT_LOCAL;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       SITE-SPECIFIC SETTINGS                             ///
@@ -70,20 +70,20 @@ $settings['entity_update_batch_size'] = 50;
 // @see https://docs.acquia.com/acquia-cloud/develop/env-variable
 if (file_exists('/var/www/site-php')) {
   // Delay the initial database connection.
-  $conf['acquia_hosting_settings_autoconnect'] = FALSE;
+  $config['acquia_hosting_settings_autoconnect'] = FALSE;
   // The standard require line goes here.
   require '/var/www/site-php/mysite/mysite-settings.inc';
   switch ($_ENV['AH_SITE_ENVIRONMENT']) {
     case 'dev':
-      $conf['environment'] = ENVIRONMENT_DEV;
+      $config['environment'] = ENVIRONMENT_DEV;
       break;
 
     case 'test':
-      $conf['environment'] = ENVIRONMENT_TEST;
+      $config['environment'] = ENVIRONMENT_TEST;
       break;
 
     case 'prod':
-      $conf['environment'] = ENVIRONMENT_PROD;
+      $config['environment'] = ENVIRONMENT_PROD;
       break;
   }
 }
@@ -105,4 +105,7 @@ if (file_exists($app_root . '/' . $site_path . '/settings.generated.php')) {
  */
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
+}
+if (file_exists($app_root . '/' . $site_path . '/services.local.yml')) {
+  $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.local.yml';
 }

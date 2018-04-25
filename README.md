@@ -6,10 +6,6 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 
 [Click here to switch to Drupal 7 version](https://github.com/integratedexperts/drupal-dev/tree/7.x)
 
-## Requirements
-- `php` and [Composer](https://getcomposer.org/) installed on your host machine
-- [VirtualBox](https://www.virtualbox.org/) and [Vagrant](https://www.vagrantup.com/) installed on your host machine
-
 ## Usage
 1. Create a blank project repository.
 2. Download an archive of this project and extract into repository directory.
@@ -18,7 +14,11 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 4. Commit all files to your repository and push.
 5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project" and click "Start building" button.
 6. To start developing locally:
-   - Copy your existing DB dump into `.data/db.dist.sql` OR run `mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql` to download minimal install Drupal 8 DB dump.
+   - Make sure that you have [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
+   - Copy your existing DB dump into `.data/db.dist.sql` OR download minimal install Drupal 8 DB dump:    
+     ```
+     mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql` 
+     ```
    - Run `composer build`.
 
 ## What is included
@@ -66,18 +66,14 @@ Drupal 7 implementation of MYSITE
 [![CircleCI](https://circleci.com/gh/myorg/mysite.svg?style=shield)](https://circleci.com/gh/myorg/mysite)
 
 ## Local environment setup
-1. Make sure that `composer`, `VirtualBox`, `Vagrant` and plugins are installed.
-   - Install [Vagrant](https://www.vagrantup.com/downloads.html), [VirtualBox](https://www.virtualbox.org/wiki/Downloads) and [Composer](https://getcomposer.org/).
-   - Install `vagrant-hostupdater` plugin:
-     ```
-     vagrant plugin install vagrant-hostsupdater
-     ```
-   - Install `vagrant-auto_network` plugin:
-     ```
-     vagrant plugin install vagrant-auto_network
-     ```
+1. Make sure that you have [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
 2. Checkout project repo
-3. Copy `db.sql` to `.data/db.sql`
+3. Copy local settings and services files from defaults:
+    ```
+    cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
+    cp docroot/sites/default/default.services.local.yml docroot/sites/default/services.local.yml
+    ```
+3. Download DB dump and copy to `.data/db.sql`
 4. `composer build`
 
 ## Available composer commands
@@ -92,7 +88,7 @@ Run each command as `composer <command>`.
 - `app:cleanup` - remove and re-install dependencies.
 - `app:cleanup-full` - remove dependencies and docker images.
 - `app:login` - open a web browser login into build application.
-- `app:drush` - execute drush commad: `composer app:drush -- status`.
+- `app:drush` - execute drush command: `composer app:drush -- status`.
 - `app:build-artefact` - build application artefact suitable for deployment in production environment.
 
 ### Docker
@@ -124,6 +120,13 @@ Run each command as `composer <command>`.
 
 2. `composer update --lock`
 
+## Front-end and Livereload
+- `npm run build` - build SCSS and JS assets.
+- `npm run watch` - watch asset changes and reload the browser (using Livereload). To enable Livereload integration with Drupal, add to `settings.php` file (already added to `settings.local.php`): 
+  ```
+  $settings['livereload'] = TRUE;
+  ```
+
 ## Coding standards
 PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with Drupal rules from [Coder](https://www.drupal.org/project/coder) module and additional local overrides in `phpcs.xml.dist` and `.eslintrc`.   
 
@@ -136,7 +139,7 @@ Behat configuration uses multiple extensions:
 - [Behat Progress Fail Output Extension](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fail messages inline. Useful to get feedback about failed tests while continuing test run.
 - `FeatureContext` - Site-specific context with custom step definitions.  
 
-## Automated builds (Cont inuous Integration)
+## Automated builds (Continuous Integration)
 In software engineering, continuous integration (CI) is the practice of merging all developer working copies to a shared mainline several times a day. 
 Before feature changes can be merged into a shared mainline, a complete build must run and pass all tests on CI server.
 
