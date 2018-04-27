@@ -11,3 +11,14 @@ dependencies:
     filters:
     - name: ".*"
       versions: "L.Y.Y"
+
+- type: js
+  path: /
+  settings:
+    github_base_branch: 8.x
+    github_labels:
+    - dependencies
+  manifest_updates:
+    filters:
+    - name: ".*"
+      versions: "Y.Y.Y"
