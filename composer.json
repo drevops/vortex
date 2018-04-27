@@ -176,13 +176,6 @@
             "docroot/sites/default/files"
         ],
         "patches": {
-            "drupal/core": {
-                "Contextual links should not be added inside another link - https://www.drupal.org/node/2898875": "https://www.drupal.org/files/issues/2018-03-16/contextual_links_should-2898875-6.patch",
-                "No validation on text length for menu description when editing node - https://www.drupal.org/node/2852665": "https://www.drupal.org/files/issues/fatal_error_remove_menu_add_with_tests-2852665-12.patch",
-                "active-link.js throws JS error if query string parameter contains a single quote - https://www.drupal.org/node/2902769": "https://www.drupal.org/files/issues/active_link_js_throws-2902769-5_0.patch",
-                "getUuid() in class MenuLinkContent not returning any value - https://www.drupal.org/node/2737741": "https://www.drupal.org/files/issues/drupal-menulinkcontent-getuuid-return-missing-2737741-2.patch",
-                "RSS view with fields give wrong URL from path field - https://www.drupal.org/node/2673980": "https://www.drupal.org/files/issues/rss_view_with_fields-2673980-28.patch"
-            },
             "drupal/token": {
                 "Node preview button generates useless menu link - https://www.drupal.org/node/2823731#comment-11905884": "https://www.drupal.org/files/issues/token_node_preview_menu_link-2823731-4.patch"
             },
