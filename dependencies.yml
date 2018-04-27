@@ -1,0 +1,13 @@
+version: 2
+dependencies:
+- type: php
+  path: /
+  settings:
+    github_labels:
+    - dependencies
+  lockfile_updates:
+    enabled: true
+  manifest_updates:
+    filters:
+    - name: ".*"
+      versions: "L.Y.Y"
