@@ -5,6 +5,7 @@
  * MYSITE Drupal context for Behat testing.
  */
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Drupal\DrupalExtension\Context\DrupalContext;
@@ -13,6 +14,53 @@ use Drupal\DrupalExtension\Context\DrupalContext;
  * Defines application features from the specific context.
  */
 class FeatureContext extends DrupalContext {
+
+  /**
+   * Start time for each scenario.
+   *
+   * @var int
+   */
+  protected $scenarioStartTime;
+
+  /**
+   * Store current time.
+   *
+   * @BeforeScenario
+   */
+  public function setScenarioStartTime() {
+    $this->scenarioStartTime = time();
+  }
+
+  /**
+   * Check for errors since the scenario started.
+   *
+   * @AfterScenario ~@error
+   */
+  public function checkWatchdog(AfterScenarioScope $scope) {
+    // Bypass the error checking if the scenario is expected to trigger an
+    // error. Such scenarios should be tagged with "@error".
+    if (in_array('error', $scope->getScenario()->getTags())) {
+      return;
+    }
+
+    if (db_table_exists('watchdog')) {
+      // Select all logged entries for PHP channel that appeared from the start
+      // of the scenario.
+      $entries = db_select('watchdog', 'w')
+        ->fields('w')
+        ->condition('w.type', 'php', '=')
+        ->condition('w.timestamp', $this->scenarioStartTime, '>=')
+        ->execute()
+        ->fetchAll();
+      if (!empty($entries)) {
+        foreach ($entries as $error) {
+          $error->variables = unserialize($error->variables);
+          print_r($error);
+        }
+        throw new \Exception('PHP errors were logged to watchdog during this scenario.');
+      }
+    }
+  }
 
   /**
    * @Then I am in the :path path
