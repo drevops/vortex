@@ -71,7 +71,7 @@ module.exports = function (grunt) {
           }
         },
         files: {
-          [themePath + 'build/js/mysitetheme.min.js']: [themePath + 'js/mysitetheme.min.js']
+          [themePath + 'build/js/mysitetheme.min.js']: [themePath + 'build/js/mysitetheme.min.js']
         }
       }
     },
@@ -87,7 +87,7 @@ module.exports = function (grunt) {
       },
       prod: {
         files: {
-          [themePath + 'css/mysitetheme.min.css']: themePath + 'scss/style.scss'
+          [themePath + 'build/css/mysitetheme.min.css']: themePath + 'scss/style.scss'
         },
         options: {
           sourceMap: false,
@@ -133,7 +133,9 @@ module.exports = function (grunt) {
         }
       },
       styles: {
-        files: [themePath + 'scss/**/*.scss'],
+        files: [
+          themePath + 'scss/**/*.scss'
+        ],
         tasks: ['sass_globbing', 'sass:dev', 'postcss:dev'],
         options: {
           livereload: true,
