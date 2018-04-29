@@ -39,7 +39,7 @@ class FeatureContext extends DrupalContext {
   public function checkWatchdog(AfterScenarioScope $scope) {
     // Bypass the error checking if the scenario is expected to trigger an
     // error. Such scenarios should be tagged with "@error".
-    if (in_array('skipped', $scope->getScenario()->getTags())) {
+    if (in_array('error', $scope->getScenario()->getTags())) {
       return;
     }
 
