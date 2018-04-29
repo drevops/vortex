@@ -17,20 +17,16 @@ docroot/sites/all/themes/*
 !docroot/profiles/
 docroot/profiles/*
 !docroot/profiles/mysite_profile/
+!docroot/sites/default/
 docroot/sites/default/*
 !docroot/sites/default/settings.php
 !docroot/sites/default/default.settings.local.php
-
-# Ignore local VM files.
-.vagrant
-Vagrantfile
-.beetbox
-.data
 
 # Ignore dependencies cache files
 vendor
 node_modules
 
-# Compiled assets.
+# Assets.
 docroot/sites/all/themes/**/build
 screenshots
+.data

@@ -1,0 +1,8 @@
+ARG CLI_IMAGE
+FROM ${CLI_IMAGE:-cli} as cli
+
+FROM amazeeio/nginx-drupal
+
+ENV WEBROOT=docroot
+
+COPY --from=cli /app /app

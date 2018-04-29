@@ -1,336 +1,235 @@
+## [META]
+# CircleCI 2.0 configuration file.
+#
+# Content between "META" and "/META" (like the ones above and below this
+# paragraph) is explaining drupal-dev inner works and can be safely removed for
+# specific project.
+# [/META]
 version: 2
 aliases:
   # Variables.
   # For YAML support of anchors and references, @see http://blog.daemonl.com/2016/02/yaml.html
-  - &workspace_root         /home/circleci/project
-  - &code_dir               code
-  - &code_root              /home/circleci/project/code
-  - &web_dir                docroot
-  - &web_root               /home/circleci/project/code/docroot
-  - &data_dir               data
-  - &data_root              /home/circleci/project/data
-  - &artifacts_root         /tmp/artifacts
-  - &server                 local.mysiteurl
-  - &web_url                http://local.mysiteurl
-  - &deps_cache_key         v1-dependencies-{{ checksum "composer.json" }}-{{ epoch }}
-  - &deps_cache_key_any     v1-dependencies-{{ checksum "composer.json" }}
-  - &data_cache_key         v1-data-{{ .Branch }}
-  # [META] Replace key fingerprint with the one uploaded to CircleCI.
-  - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
-  # [/META]
 
-  # Configuration shared between all containers.
+  # SSH key fingerprint to deploy code. Add private key of the user who is
+  # allowed to push to $DEPLOY_REMOTE repo under "SSH Permissions" in
+  # CircleCI UI.
+  # [META]
+  # This is a fingerprint of the key to push drupal-dev project itself.
+  # Replace this key fingerprint with your own.
+  # [/META]
+  - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+
   - &container_config
-    working_directory: /home/circleci/project/code
+    working_directory: /app
     environment: &container_config_environment
-      WORKSPACE_ROOT: *workspace_root
-      CODE_ROOT: *code_root
-      DATA_ROOT: *data_root
-      WEB_ROOT: *web_root
-      SERVER: *server
-      WEB_URL: *web_url
-      ARTIFACTS_ROOT: *artifacts_root
-      DRUSH: vendor/bin/drush
-      MYSQL_USER: ubuntu
-      MYSQL_PASSWORD: ubuntu
-      MYSQL_DATABASE: circle_test
-      MYSQL_HOST: 127.0.0.1
-      MYSQL_ROOT_PASSWORD: ubuntu
-      MYSQL_ROOT_HOST: 127.0.0.1
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
-      - image: circleci/php:7.1-apache-browsers
+      # [META]
+      # Using "runner" container where each job will be executed.
+      # [/META]
+      - image: integratedexperts/circleci2-builder
         environment:
-          <<: *container_config_environment
-      - image: mysql:5.7
-        environment:
-          <<: *container_config_environment
-
-  # Re-usable steps.
-  - &step_attach_workspace
-    attach_workspace:
-      at: /home/circleci/project
-
-  - &step_common
-    run:
-      name: Apply common configuration
-      command: |
-        echo 127.0.0.1 $SERVER | sudo tee -a /etc/hosts
-        echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> $HOME/.bashrc
-        echo 'export PATH=$HOME/.composer/vendor/bin:$PATH' >> $BASH_ENV
-        mkdir $ARTIFACTS_ROOT
-        echo 'export BEHAT_SCREENSHOT_DIR=$ARTIFACTS_ROOT/behat' >> $BASH_ENV
-        mkdir -p $HOME/.drush && echo "<?php \$aliases['$SERVER'] = ['uri' => '$SERVER', 'root' => '$WEB_ROOT'];" > $HOME/.drush/$SERVER.aliases.drushrc.php && $DRUSH sa && cat $HOME/.drush/$SERVER.aliases.drushrc.php
-        printenv
-
-  - &step_symlink_data
-    run:
-      name: Symlink data into local data directory.
-      command: ln -s $DATA_ROOT $CODE_ROOT/.data
-
-  - &step_php_extensions
-    run:
-      name: Install PHP extensions
-      command: |
-        sudo docker-php-ext-install pdo_mysql
-        sudo docker-php-ext-install gd
-
-  - &step_system_binaries
-    run:
-      name: Install additional debug binaries
-      command: |
-        sudo apt-get -y install vim mysql-client libpng-dev
-
-  - &step_bootstrap_drupal
-    run:
-      name: Check that Drupal can be bootstrapped.
-      command: $DRUSH --root=$WEB_ROOT status | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
-
-  - &add_ssh_keys
-    add_ssh_keys:
-      fingerprints:
-        - *deploy_ssh_fingerprint
-
+          COMPOSER_ALLOW_SUPERUSER: 1
+          COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
+          # How often to cache DB dump for.
+          DB_TIMESTAMP: +%Y_%m_%d
+  # Step to configure git to connect to remote servers for deployment.
+  # [META]
+  # It is advised to create separate 'deployer' user with own SSH key for each
+  # project.
+  # Add the following variables through CircleCI UI.
+  # $DEPLOY_USER_NAME - name of the user who will be committing to a remote repository.
+  # $DEPLOY_USER_EMAIL - email address of the user who will be committing to a remote repository.
+  # $DEPLOY_REMOTE - remote repository to push artefact to.
+  # [/META]
   - &step_configure_git
     run:
       name: Configure git
       command: |
-        if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-          git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
-          mkdir -p $HOME/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > $HOME/.ssh/config
-          DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
-        else
-          echo "Skipping deployment"
-        fi
+        git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
+        mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+        DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
 
 jobs:
-  # Install and cache code dependencies.
-  code_dependencies:
+  build:
     <<: *container_config
+    parallelism: 2
     steps:
-      - *step_common
-      - *step_attach_workspace
+      - attach_workspace:
+          at: /workspace
       - checkout
+      - setup_remote_docker
+      - run:
+          name: Composer validate.
+          command: composer validate --ansi --strict
+      - run:
+          name: Set timestamp for database caching.
+          command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - *deps_cache_key_any
-      - run:
-          name: Validate composer configuration
-          command: composer validate --strict
-      - run:
-          name: Install global dependencies
-          command: composer global require hirak/prestissimo
-      - run:
-          name: Install dependencies
-          command: composer install -n --prefer-dist
-      - save_cache:
-          paths:
-            - $HOME/.composer/cache
-          key: *deps_cache_key
-      - persist_to_workspace:
-          root: *workspace_root
-          paths:
-            - *code_dir
-
-  # Download and cache DB.
-  download_db:
-    <<: *container_config
-    working_directory: /home/circleci/project
-    steps:
-      - *step_common
-      - restore_cache:
-          keys:
-            - *data_cache_key
+            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+      # [META]
       # Download DB dump from public URL to test Drupal-dev project/build.
-      # [META] Remove the line below in your project/build.
-      - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -L https://goo.gl/WFtJbT -o $DATA_ROOT/db.dist.sql; fi
+      # Replace the line below with your custom database retrieval script in your project.
       # [/META]
-      # [META] Uncomment the line below to download DB dump from FTP, using
+      - run:
+          name: Downloading database
+          command: if [ ! -f .data/db.sql ] ; then mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql; else echo "Using cahed DB";fi
+      - save_cache:
+          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          paths:
+            - .data
+      # [META]
+      # Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
       # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
       # [/META]
-      - save_cache:
-          paths:
-            - $DATA_ROOT
-          key: *data_cache_key
-      - persist_to_workspace:
-          root: *workspace_root
-          paths:
-            - *data_dir
-
-  # Check code style.
-  code_style:
-    <<: *container_config
-    steps:
-      - *step_common
-      - *step_attach_workspace
       - run:
-          name: Lint code
-          command: composer cs
-
-  # Build.
-  build:
-    <<: *container_config
-    steps:
-      - *step_common
-      - *step_attach_workspace
-      - *step_system_binaries
-      - *step_php_extensions
-      - *step_symlink_data
-      - run: composer build
-      - *step_bootstrap_drupal
+          name: Pull newest Docker images.
+          command: composer docker:pull
       - run:
-          name: Store built DB as an artifact.
-          command: $DRUSH --root=$WEB_ROOT sql-dump > .data/db.sql
-      - persist_to_workspace:
-          root: *workspace_root
-          paths:
-            - *data_dir
-
-  # Install site from configuration.
-  # [META] Test that the website can be installed from the configuration.
-  test_site_install:
-    <<: *container_config
-    steps:
-      - *step_attach_workspace
-      - *step_common
-      - *step_system_binaries
-      - *step_php_extensions
-      - *step_symlink_data
-      - run: composer site-install
-      - *step_bootstrap_drupal
-  # [/META]
-
-  # Run tests in parallel.
-  test_behat:
-    <<: *container_config
-    # Increase this value to run tests in parallel.
-    parallelism: 2
-    steps:
-      - *step_common
-      - *step_attach_workspace
-      - *step_system_binaries
-      - *step_php_extensions
-      - *step_symlink_data
-      - run:
-          name: Import previously built DB
-          command: $DRUSH @local.mysiteurl sql-cli < $CODE_ROOT/.data/db.sql
-      - *step_bootstrap_drupal
-      - run:
-          name: Configure Apache
+          name: Start scontainers.
           command: |
-            echo "
-            <VirtualHost *:80>
-              UseCanonicalName Off
-              DocumentRoot $WEB_ROOT
-              ServerName $SERVER
-              <Directory $WEB_ROOT>
-                Options FollowSymLinks
-                AllowOverride All
-                RewriteEngine On
-                RewriteBase /
-                RewriteCond %{REQUEST_FILENAME} !-f
-                RewriteCond %{REQUEST_FILENAME} !-d
-                RewriteRule $WEB_ROOT/(.*)$ index.php/?q=$1 [L,QSA]
-                Require all granted
-              </Directory>
-            </VirtualHost>" > 000-default.conf
-            sudo mv -f 000-default.conf /etc/apache2/sites-available/000-default.conf
-            echo "ServerName $SERVER" | sudo tee /etc/apache2/conf-available/servername.conf
-            sudo a2enconf servername
-            sudo a2enmod rewrite && sudo a2enmod proxy_http && sudo service apache2 restart
-            echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html;
+            composer docker:start
+            sleep 10 # Wait for DB container to startup.
+            docker ps -a
+      # Since app is being built inside of the containers without dev
+      # dependencies and they will be installed later to run tests, but
+      # deployment code should not contain any dev dependencies, we have
+      # to store built codebase into workspace to later use it in 'deploy'
+      # job.
       - run:
-          name: Start Chrome in the background
-          command: google-chrome-stable --disable-gpu --headless --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
-          background: true
+          name: Copy built codebase into workspace for future deployment.
+          command: |
+            mkdir -p /workspace/code
+            docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
       - run:
-          name: Run Behat tests
-          # Runs tests in parallel if there are more than 1 parallel node
-          # running (set in 'parallelism' property above).
+          name: Site setup.
+          command: |
+            composer app:import-db
+            composer docker:cli -- mkdir -p /app/screenshots
+      - run:
+          name: Install dev dependencies.
+          command: |
+            composer docker:cli -- composer install --ansi
+            composer docker:cli -- npm install
+      - run:
+          name: Lint code.
+          command: composer docker:cli -- composer app:cs
+      - run:
+          name: Run tests.
           command: |
             if [ "$CIRCLE_NODE_TOTAL" -gt "1" ] ; then
-              composer test -- --tags=p$CIRCLE_NODE_INDEX ||  composer test -- --tags=p$CIRCLE_NODE_INDEX --rerun
+              composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
             else
-              composer test || composer test -- --rerun
+              composer docker:cli -- vendor/bin/behat --format=progress_fail --colors || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --rerun
             fi
+      - run:
+          name: Copy artifacts.
+          command: |
+            mkdir -p /tmp/artifacts/behat
+            docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
+          when: always
       - store_artifacts:
-          path: *artifacts_root
+          path: /tmp/artifacts
+      - run:
+          name: Copy built dev codebase into workspace.
+          command: |
+            mkdir -p /workspace/code-dev
+            docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code-dev
+      - persist_to_workspace:
+          root: /workspace
+          paths:
+            - code
+            - code-dev
 
-  # Deploy code.
+  # Deploy primary branches.
+  # [META]
   # Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
   # $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
   # Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
   # under "SSH Permissions" in CircleCI UI.
-  deploy_code:
+  # [/META]
+  deploy:
     <<: *container_config
     steps:
-      - *step_common
-      - *step_attach_workspace
-      - *add_ssh_keys
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_fingerprint
       - *step_configure_git
+      - attach_workspace:
+          at: /workspace
+      - run:
+          name: Install dev dependencies.
+          command: |
+            composer install -n --ansi --prefer-dist --ignore-platform-reqs
+      - run: cp -a .git /workspace/code
       - run:
           name: Push artefact to remote repository
           command: |
             if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --report=$ARTIFACTS_ROOT/deployment_report.txt --no-cleanup
+              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt
             else
               echo "Skipping deployment"
             fi
+      - store_artifacts:
+          path: /tmp/artifacts
 
-  # [META] Tag deployment for drupal-dev itself. Remove the code below in
+  # [META]
+  # Deployment for drupal-dev itself. Remove the code below in
   # your project.
-  deploy_drupal_dev_tag:
+  deploy_drupal_dev:
     <<: *container_config
     steps:
-      - *step_common
-      - *step_attach_workspace
-      - *add_ssh_keys
-      - run: |
-          if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
-            git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
-            mkdir -p $HOME/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > $HOME/.ssh/config
-            DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
-            composer deploy -- $DEPLOY_REMOTE --root=$CODE_ROOT --push --branch=release/[tags:-];
-          else
-            echo "Skipping drupal-dev deployment";
-          fi
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_fingerprint
+      - *step_configure_git
+      - attach_workspace:
+          at: /workspace
+      - run:
+          name: Install dev dependencies.
+          command: |
+            composer install -n --ansi --prefer-dist --ignore-platform-reqs
+      - run: cp -a .git /workspace/code
+      - run:
+          # @see https://github.com/integratedexperts/drupal-dev-destination
+          name: Push artefact to remote repository for drupal-dev.
+          command: |
+            if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
+              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_drupal_dev_report.txt --branch=release/[tags:-];
+            else
+              echo "Skipping deployment";
+            fi
+      - store_artifacts:
+          path: /tmp/artifacts
   # [/META]
-
 workflows:
   version: 2
   main:
     jobs:
-      - code_dependencies
-      - download_db
-      - code_style:
-          requires:
-            - code_dependencies
       - build:
-          requires:
-            - code_dependencies
-            - download_db
-      - test_site_install:
-          requires:
-            - code_dependencies
-      - test_behat:
+          filters:
+            tags:
+              only: /.*/
+      - deploy:
           requires:
             - build
-      - deploy_code:
-          requires:
-            - test_behat
           filters:
             branches:
               only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+/
 
-      # [META] Tag deployment for drupal-dev itself. Remove the code below in
+      # [META]
+      # Tag deployment for drupal-dev itself. Remove the code below in
       # your project.
-      - deploy_drupal_dev_tag:
+      - deploy_drupal_dev:
           requires:
-            - test_behat
+            - build
           filters:
             tags:
               only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
             branches:
-              only: /^(?:7|8)\.x$/
+              ignore: /.*/
       # [/META]

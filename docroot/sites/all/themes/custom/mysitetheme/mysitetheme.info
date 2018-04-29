@@ -3,7 +3,10 @@ description = MYSITE theme.
 core = 7.x
 base theme = stark
 
+regions[highlighted] = Highlighted
 regions[content] = 'Content'
+regions[sidebar_first] = Sidebar first
+regions[sidebar_second] = Sidebar second
 
 stylesheets[all][] = build/css/mysitetheme.min.css
 scripts[] = build/js/mysitetheme.min.js
