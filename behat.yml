@@ -18,13 +18,13 @@ default:
     DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
     Behat\MinkExtension:
       goutte: ~
-      base_url: http://local.mysiteurl
+      base_url: http://nginx:8080
       browser_name: chrome
-      sessions:
-        default:
-          chrome:
-            api_url: "http://local.mysiteurl:9222"
-      javascript_session: default
+      selenium2:
+        wd_host: "http://selenium:4444/wd/hub"
+        capabilities: { "browser": "chrome", "version": "*", "marionette": true }
+      javascript_session: selenium2
+      files_path: %paths.base%/tests/test_data
     # Provides integration with Drupal APIs.
     Drupal\DrupalExtension:
       blackbox: ~
@@ -46,3 +46,12 @@ default:
       purge: false
     # Show explicit fail information and continue the test run.
     IntegratedExperts\BehatFormatProgressFail\FormatExtension: ~
+
+p0:
+  gherkin:
+    filters:
+      tags: "@p0&&~@skipped"
+p1:
+  gherkin:
+    filters:
+      tags: "@p1&&~@skipped"
