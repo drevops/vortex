@@ -5,7 +5,7 @@
     "require": {
         "composer/installers": "^1.2.0",
         "cweagans/composer-patches": "^1.6.0",
-        "drupal-composer/drupal-scaffold": "^2.3",
+        "drupal-composer/preserve-paths": "^0.1.4",
         "drupal/drupal": "^7.58",
         "drupal/drupal_helpers": "^1.2",
         "drupal/wysiwyg": "^2.5",
@@ -47,7 +47,7 @@
         "sort-packages": true
     },
     "conflict": {
-        "drupal/core": "7.*"
+        "drupal/core": "8.*"
     },
     "repositories": {
         "drupal": {
@@ -135,7 +135,6 @@
             "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
         ],
         "post-install-cmd": [
-            "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
             "export $(cat .env | xargs) && composer app:create-settings"
         ],
@@ -144,23 +143,6 @@
         ]
     },
     "extra": {
-        "drupal-scaffold": {
-            "source": "http://cgit.drupalcode.org/drupal/plain/{path}?h={version}",
-            "includes": [
-                ".editorconfig",
-                ".eslintignore",
-                ".gitattributes",
-                ".htaccess",
-                "index.php",
-                "robots.txt",
-                "update.php"
-            ],
-            "initial": {
-                "sites/default/default.services.yml": "sites/default/services.yml",
-                "sites/default/default.settings.php": "sites/default/settings.php"
-            },
-            "omit-defaults": true
-        },
         "enable-patching": true,
         "composer-exit-on-patch-failure": true,
         "installer-paths": {
