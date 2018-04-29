@@ -16,7 +16,7 @@ docroot/sites/all/themes/*
 !docroot/sites/all/themes/custom/
 !docroot/profiles/
 docroot/profiles/*
-!docroot/profiles/custom/
+!docroot/profiles/mysite_profile/
 !docroot/sites/default/
 docroot/sites/default/*
 !docroot/sites/default/settings.php

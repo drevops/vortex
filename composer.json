@@ -70,7 +70,7 @@
     "scripts": {
         "app:login": "@composer docker:cli -- drush uli -r /app/docroot -l http://mysite.docker.amazee.io/ | xargs open",
         "app:cs": [
-            "parallel-lint --exclude vendor --exclude node_modules -e php,module,theme,install tests docroot/profiles/custom docroot/modules/custom docroot/themes/custom docroot/sites/default/settings.php",
+            "parallel-lint --exclude vendor --exclude node_modules -e php,module,theme,install tests docroot/profiles/mysite_profile docroot/modules/custom docroot/themes/custom docroot/sites/default/settings.php",
             "phpcs",
             "npm run lint"
         ],
@@ -186,7 +186,7 @@
         "preserve-paths": [
             "docroot/sites/all/modules/custom",
             "docroot/sites/all/themes/custom",
-            "docroot/profiles/custom",
+            "docroot/profiles/mysite_profile",
             "docroot/sites/all/drush",
             "docroot/sites/default/settings.php",
             "docroot/sites/default/default.settings.local.php",

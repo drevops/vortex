@@ -18,7 +18,7 @@
   <file>tests</file>
   <file>docroot/sites/all/modules/custom</file>
   <file>docroot/sites/all/themes/custom</file>
-  <file>docroot/profiles/custom</file>
+  <file>docroot/profiles/mysite_profile</file>
   <file>docroot/sites/default/settings.php</file>
 
   <!-- Exclude circleci config files. -->
