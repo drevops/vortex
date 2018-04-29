@@ -1,21 +1,24 @@
+[]([META])
 # drupal-dev
 Composer-based Drupal 7 project scaffolding with code linting, tests and automated builds (CI) integration.
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/7.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/7.x)
 
-## Requirements
-- `php` and [Composer](https://getcomposer.org/) installed on your host machine
-- [VirtualBox](https://www.virtualbox.org/) and [Vagrant](https://www.vagrantup.com/) installed on your host machine
+[Click here to switch to Drupal 8 version](https://github.com/integratedexperts/drupal-dev/tree/8.x)
 
 ## Usage
 1. Create a blank project repository.
-2. Download an archive of this project and extract into repository.
-3. Run `./scripts/drupal-dev-init.sh` and follow the prompts.
+2. Download an archive of this project and extract into repository directory.
+3. **Run `./scripts/drupal-dev-init.sh` and follow the prompts.** DO NOT SKIP THIS STEP!
 ![Project Init](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/project-init.png)
 4. Commit all files to your repository and push.
-5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project", select "2.0" box and click "Start building" button.
+5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project" and click "Start building" button.
 6. To start developing locally:
-   - Copy your existing DB dump into `.data/db.dist.sql` OR run `mkdir .data && curl -L https://goo.gl/WFtJbT -o .data/db.dist.sql` to download minimal install Drupal 7 DB dump.
+   - Make sure that you have [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
+   - Copy your existing DB dump into `.data/db.dist.sql` OR download minimal install Drupal 8 DB dump:    
+     ```
+     mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql` 
+     ```
    - Run `composer build`.
 
 ## What is included
@@ -33,6 +36,7 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
   - code linting
   - testing (including Selenium-based Behat tests)
   - **artefact deployment to [destination repository](https://github.com/integratedexperts/drupal-dev-destination)**
+- Integration with [dependencies.io](dependencies.io) to keep the project up-to-date.
 
 ![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
 
@@ -52,7 +56,10 @@ https://goo.gl/CRBFw2
 - [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing
 - [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artefact to remote repository
 -------------------------------------------------------------------------------
+
+# PROJECT README SCAFFOLDING
 Remove this line and everything above it in your project.
+[]([/META])
 
 # MYSITE
 Drupal 7 implementation of MYSITE
@@ -60,33 +67,46 @@ Drupal 7 implementation of MYSITE
 [![CircleCI](https://circleci.com/gh/myorg/mysite.svg?style=shield)](https://circleci.com/gh/myorg/mysite)
 
 ## Local environment setup
-1. Make sure that `composer`, `VirtualBox`, `Vagrant` and plugins are installed.
-   - Install [Vagrant](https://www.vagrantup.com/downloads.html), [VirtualBox](https://www.virtualbox.org/wiki/Downloads) and [Composer](https://getcomposer.org/).
-   - Install `vagrant-hostupdater` plugin:
-     ```
-     vagrant plugin install vagrant-hostsupdater
-     ```
-   - Install `vagrant-auto_network` plugin:
-     ```
-     vagrant plugin install vagrant-auto_network
-     ```
+1. Make sure that you have [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
 2. Checkout project repo
-3. Copy `db.sql` to `.data/db.sql`
+3. Copy local settings and services files from defaults:
+    ```
+    cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
+    cp docroot/sites/default/default.services.local.yml docroot/sites/default/services.local.yml
+    ```
+3. Download DB dump and copy to `.data/db.sql`
 4. `composer build`
 
-## Available commands
-- `build` - build project.
-- `rebuild` - cleanup code dependencies and rebuild site, skipping VM management.
-- `rebuild-full` - cleanup code dependencies, remove VM and rebuild the site.
-- `build-db` - re-import DB and run updates.
-- `build-theme` - build theme assets. Supports watching: `composer build-theme -- watch`.
-- `cleanup` - remove code dependencies, skipping VM management.
-- `cleanup-full` - remove code dependencies and remove VM.
+## Available composer commands
+Run each command as `composer <command>`.
+
+### Application
+- `app:build` - start local development environment and build project.
+- `app:rebuild` - re-build project, removing and re-installing dependencies.
+- `app:rebuild-full` - cleanup code dependencies, remove VM and rebuild the site.
+- `app:import-db` - re-import DB and run updates.
+- `app:build-fed` - build theme assets. Supports watching: `composer build-theme -- watch`.
+- `app:cleanup` - remove and re-install dependencies.
+- `app:cleanup-full` - remove dependencies and docker images.
+- `app:login` - open a web browser login into build application.
+- `app:drush` - execute drush command: `composer app:drush -- status`.
+- `app:build-artefact` - build application artefact suitable for deployment in production environment.
+
+### Docker
+- `docker:start` - start environment.
+- `docker:stop` - stop environment preserving data.
+- `docker:restart` - restart environment.
+- `docker:destroy` - destroy environment.
+- `docker:pull` - pull latest images.
+- `docker:cli` - run command in CLI container.
+- `docker:logs` - show logs from docker compose run.
 
 ## Adding Drupal modules
+
 `composer require drupal/module_name`
 
 ## Adding patches for drupal modules
+
 1. Add `title` and `url` to patch on drupal.org to the `patches` array in `extra` section in `composer.json`.
 
 ```
@@ -99,9 +119,14 @@ Drupal 7 implementation of MYSITE
     }
 ```
 
-2. `composer rebuild`
+2. `composer update --lock`
 
-One caveat is that a removal of composer.lock may be required before step #2 as composer caches dependencies and patches may not be applied.
+## Front-end and Livereload
+- `npm run build` - build SCSS and JS assets.
+- `npm run watch` - watch asset changes and reload the browser (using Livereload). To enable Livereload integration with Drupal, add to `settings.php` file (already added to `settings.local.php`): 
+  ```
+  $config['livereload'] = TRUE;
+  ```
 
 ## Coding standards
 PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with Drupal rules from [Coder](https://www.drupal.org/project/coder) module and additional local overrides in `phpcs.xml.dist` and `.eslintrc`.   
@@ -133,6 +158,3 @@ If the build has inconsistent results (build fails in CI but passes locally), tr
 
 ### Test artifacts
 Test artifacts (screenshots etc.) are available under 'Artifacts' tab in Circle CI UI.
-
-### All Selenium tests are suddenly broken
-Chromedriver (a binary used by Selenium to control Chrome browser) version must follow Chrome version. Currently, Chrome version is set to stable, so when there is an update of the major Chrome version, Chromedriver version needs to be updated as well. The following link contains information about currently available Chromedriver versions: http://chromedriver.storage.googleapis.com
