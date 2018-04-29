@@ -10,11 +10,21 @@
 // Environment constants.
 // Use these constants anywhere in code to alter behaviour for specific
 // environment.
-define('ENVIRONMENT_LOCAL', 'local');
-define('ENVIRONMENT_CI', 'ci');
-define('ENVIRONMENT_PROD', 'prod');
-define('ENVIRONMENT_TEST', 'test');
-define('ENVIRONMENT_DEV', 'dev');
+if (!defined('ENVIRONMENT_LOCAL')) {
+  define('ENVIRONMENT_LOCAL', 'local');
+}
+if (!defined('ENVIRONMENT_CI')) {
+  define('ENVIRONMENT_CI', 'ci');
+}
+if (!defined('ENVIRONMENT_PROD')) {
+  define('ENVIRONMENT_PROD', 'prod');
+}
+if (!defined('ENVIRONMENT_TEST')) {
+  define('ENVIRONMENT_TEST', 'test');
+}
+if (!defined('ENVIRONMENT_DEV')) {
+  define('ENVIRONMENT_DEV', 'dev');
+}
 $conf['environment'] = ENVIRONMENT_LOCAL;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,19 +66,21 @@ if (file_exists('/var/www/site-php')) {
   }
 }
 
-// Include generated beetbox settings file, if available.
-if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.beetbox.php')) {
-  include DRUPAL_ROOT . '/' . conf_path() . '/settings.beetbox.php';
+// Include generated settings file, if available.
+if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.generated.php')) {
+  include DRUPAL_ROOT . '/' . conf_path() . '/settings.generated.php';
 }
 
-// Load local development override configuration, if available.
-//
-// Use settings.local.php to override variables on secondary (staging,
-// development, etc) installations of this site. Typically used to disable
-// caching, JavaScript/CSS compression, re-routing of outgoing emails, and
-// other things that should not happen on development and testing sites.
-//
-// Keep this code block at the end of this file to take full effect.
+/**
+ * Load local development override configuration, if available.
+ *
+ * Use settings.local.php to override variables on secondary (staging,
+ * development, etc) installations of this site. Typically used to disable
+ * caching, JavaScript/CSS compression, re-routing of outgoing emails, and
+ * other things that should not happen on development and testing sites.
+ *
+ * Keep this code block at the end of this file to take full effect.
+ */
 if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.local.php')) {
   include DRUPAL_ROOT . '/' . conf_path() . '/settings.local.php';
 }

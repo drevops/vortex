@@ -125,7 +125,7 @@ Run each command as `composer <command>`.
 - `npm run build` - build SCSS and JS assets.
 - `npm run watch` - watch asset changes and reload the browser (using Livereload). To enable Livereload integration with Drupal, add to `settings.php` file (already added to `settings.local.php`): 
   ```
-  $config['livereload'] = TRUE;
+  $conf['livereload'] = TRUE;
   ```
 
 ## Coding standards

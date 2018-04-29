@@ -4,8 +4,8 @@
  * @file
  * Local settings file.
  *
- * Copy this file to settings.local.php, which is excluded from the repo and
- * will not be committed.
+ * Copy this file to settings.local.php.
+ * This file is excluded from the repo and will not be committed.
  */
 
 // Enable error reporting.
@@ -17,15 +17,14 @@ $conf['preprocess_css'] = FALSE;
 $conf['preprocess_js'] = FALSE;
 
 // Enable rebuild of theme registry on each page load.
-$conf['devel_rebuild_theme_registry'] = TRUE;
+// $conf['devel_rebuild_theme_registry'] = TRUE;
 
 // Enable theme debugging.
 // This will print theme suggestions as HTML comments on the page.
-$conf['theme_debug'] = TRUE;
+// $conf['theme_debug'] = TRUE;
 
-// Enable Views debugging.
-$conf['views_ui_show_advanced_column'] = 1;
-$conf['views_ui_show_sql_query'] = 1;
+// Enable Livereload.
+// $conf['livereload'] = TRUE;
 
 // Bypass reverting features on local when DB updates are ran.
 // This is usually helpful when developing updates locally.
@@ -36,5 +35,6 @@ $conf['views_ui_show_sql_query'] = 1;
 // Enable context debugging.
 // $conf['context_reaction_debug_enable_global'] = TRUE;
 
-// Enable Livereload support.
-// $conf['livereload'] = TRUE;
+// Enable Views debugging.
+// $conf['views_ui_show_advanced_column'] = 1;
+// $conf['views_ui_show_sql_query'] = 1;
