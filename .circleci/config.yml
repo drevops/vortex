@@ -67,7 +67,7 @@ jobs:
           command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
       # [META]
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Replace the line below with your custom database retrieval script in your project.
@@ -76,7 +76,7 @@ jobs:
           name: Downloading database
           command: if [ ! -f .data/db.sql ] ; then mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql; else echo "Using cahed DB";fi
       - save_cache:
-          key: v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
       # [META]
