@@ -26,4 +26,6 @@ Gruntfile.js
 behat.yml
 .gitignore.artefact
 /tests
+/scripts
 settings.generated.php
+dependencies.yml
