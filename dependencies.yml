@@ -3,7 +3,6 @@ dependencies:
 - type: php
   path: /
   settings:
-    github_base_branch: 7.x
     composer_options: "--ignore-platform-reqs --no-progress --no-suggest"
     github_labels:
     - dependencies
@@ -15,7 +14,6 @@ dependencies:
 - type: js
   path: /
   settings:
-    github_base_branch: 7.x
     github_labels:
     - dependencies
   manifest_updates:
