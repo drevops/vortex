@@ -9,7 +9,7 @@
         "drupal/drupal": "^7.58",
         "drupal/drupal_helpers": "^1.2",
         "drupal/wysiwyg": "^2.5",
-        "drupal/xautoload": "^5.7",
+        "drupal/xautoload": "^4.5",
         "library/ckeditor": "^4.9.2",
         "webflo/drupal-finder": "^1.0"
     },
