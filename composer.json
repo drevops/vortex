@@ -41,7 +41,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.1"
+            "php": "7.1.16"
         },
         "process-timeout": 0,
         "sort-packages": true
