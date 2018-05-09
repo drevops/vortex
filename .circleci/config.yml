@@ -120,7 +120,7 @@ jobs:
           name: Start Lando
           command: |
             echo $LANDO_ENGINE_CONFIG
-            export LANDO_ENGINE_CONFIG='{"host": "${DOCKER_HOST}", "socket": "null"}'
+            export LANDO_ENGINE_CONFIG="{\"host\": \"${DOCKER_HOST\}\", \"socket\": \"null\", \"certPath\": \"${DOCKER_CERT_PATH}\", \"tlsVerify\":\"${DOCKER_TLS_VERIFY}\"}"
             echo $LANDO_ENGINE_CONFIG
             lando start
       - run: curl http://mysite.lndo.site
