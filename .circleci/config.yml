@@ -31,7 +31,7 @@ aliases:
       CODE_DIR: *code_dir
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
-      - image: circleci/node:stretch
+      - image: circleci/node:8-stretch-browsers
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
