@@ -105,7 +105,7 @@ jobs:
       - run:
           name: Install Lando deps
           command: |
-            git clone -b 647/remote-docker-for-real -- single-branch --shallow https://github.com/lando/lando.git
+            git clone -b 647/remote-docker-for-real --single-branch https://github.com/lando/lando.git
 
             # Install its dependencies
             cd lando && yarn
@@ -113,9 +113,6 @@ jobs:
             # Optionally set up a symlink
             sudo mkdir -p /usr/local/bin
             sudo ln -s /home/circleci/app/lando/bin/lando.js /usr/local/bin/lando
-
-            # Run lando
-            lando version
 
             printenv
 
