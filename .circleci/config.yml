@@ -105,7 +105,7 @@ jobs:
       - run:
           name: Install Lando deps
           command: |
-            git clone https://github.com/lando/lando.git
+            git clone -b 647/remote-docker-for-real -- single-branch --shallow https://github.com/lando/lando.git
 
             # Install its dependencies
             cd lando && yarn
