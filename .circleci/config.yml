@@ -120,12 +120,8 @@ jobs:
           name: Start Lando
           command: |
             echo $LANDO_ENGINE_CONFIG
-            export DOCKER_PROTO="$(echo $DOCKER_HOST | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-            export DOCKER_URL="$(echo ${DOCKER_HOST/$DOCKER_PROTO/})"
-            export DOCKER_USER="$(echo $DOCKER_URL | grep @ | cut -d@ -f1)"
-            export DOCKER_IP="$(echo ${DOCKER_URL/$DOCKER_USER@/} | cut -d/ -f1)"
-            export DOCKER_PORT="$(echo $DOCKER_IP | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
-
+            export DOCKER_IP="$(echo ${DOCKER_HOST} | cut -d/ -f3 | cut -d: -f1)"
+            export DOCKER_PORT="$(echo ${DOCKER_HOST} | cut -d/ -f3 | cut -d: -f2)"
             export LANDO_ENGINE_CONFIG="{\"host\": \"${DOCKER_IP}\", \"port\": \"${DOCKER_PORT}\", \"socketPath\": \"null\", \"certPath\": \"${DOCKER_CERT_PATH}\", \"tlsVerify\": \"${DOCKER_TLS_VERIFY}\"}"
             echo $LANDO_ENGINE_CONFIG
             lando start
