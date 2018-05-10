@@ -122,7 +122,7 @@ jobs:
             echo $LANDO_ENGINE_CONFIG
             export DOCKER_IP="$(echo ${DOCKER_HOST} | cut -d/ -f3 | cut -d: -f1)"
             export DOCKER_PORT="$(echo ${DOCKER_HOST} | cut -d/ -f3 | cut -d: -f2)"
-            export LANDO_ENGINE_CONFIG="{\"host\": \"${DOCKER_IP}\", \"port\": \"${DOCKER_PORT}\", \"socketPath\": \"null\", \"certPath\": \"${DOCKER_CERT_PATH}\", \"tlsVerify\": \"${DOCKER_TLS_VERIFY}\"}"
+            export LANDO_ENGINE_CONFIG="{\"host\": \"${DOCKER_IP}\", \"port\": \"${DOCKER_PORT}\", \"certPath\": \"${DOCKER_CERT_PATH}\", \"tlsVerify\": \"${DOCKER_TLS_VERIFY}\"}"
             echo $LANDO_ENGINE_CONFIG
             lando start
       - run: curl http://mysite.lndo.site
