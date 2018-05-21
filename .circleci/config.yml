@@ -108,22 +108,22 @@ jobs:
           name: Site setup.
           command: |
             make import-db
-            make docker-cli mkdir -p /app/screenshots
+            make docker-cli -- mkdir -p /app/screenshots
       - run:
           name: Install dev dependencies.
           command: |
-            make docker-cli composer install --ansi
-            make docker-cli npm install
+            make docker-cli -- composer install --ansi
+            make docker-cli -- npm install
       - run:
           name: Lint code.
-          command: make lint
+          command: make docker-cli -- make lint
       - run:
           name: Run tests.
           command: |
             if [ "$CIRCLE_NODE_TOTAL" -gt "1" ] ; then
-              make docker-cli vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || make docker-cli vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
+              make docker-cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || make docker-cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
             else
-              make docker-cli vendor/bin/behat --format=progress_fail --colors || make docker-cli vendor/bin/behat --format=progress_fail --colors --rerun
+              make docker-cli -- vendor/bin/behat --format=progress_fail --colors || make docker-cli -- vendor/bin/behat --format=progress_fail --colors --rerun
             fi
       - run:
           name: Copy artifacts.
