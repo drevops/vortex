@@ -116,7 +116,7 @@ jobs:
             make docker-cli -- npm install
       - run:
           name: Lint code.
-          command: make docker-cli -- make lint
+          command: docker exec $(docker-compose ps -q cli) make lint
       - run:
           name: Run tests.
           command: |
