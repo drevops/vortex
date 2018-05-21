@@ -1,3 +1,12 @@
+##
+# Build project dependncies.
+#
+# Usage:
+# make <target>
+#
+# make help - show a list of available targets.
+# make build - build project
+#
 include .env
 
 .DEFAULT_GOAL := help
@@ -7,11 +16,16 @@ include .env
 build:
 	$(call title,Building project dependencies)
 	$(call exec,$(MAKE) docker-start)
-	$(call exec,composer install -n --ansi --prefer-dist)
+	$(call exec,composer install -n --ansi --prefer-dist --no-suggest)
 	$(call exec,$(MAKE) build-fed)
 	$(call exec,$(MAKE) import-db)
+	@echo ''
 	$(call title,Build complete)
-	@printf "${GREEN}Site URL      :${RESET} http://$(URL)\n"
+	@echo ''
+	@printf "${GREEN}Site URL              :${RESET} $(URL)\n"
+	@printf "${GREEN}Path inside container :${RESET} $(APP)\n"
+	@printf "${GREEN}Path to docroot       :${RESET} $(DOCROOT)\n"
+	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
 
 ## Build deployment artefact.
 build-artefact:
@@ -47,6 +61,9 @@ cs: lint
 ## Import database. Alias for 'import-db'.
 db-import: import-db
 
+## Download database. Alias for 'download-db'.
+db-download: download-db
+
 ## Execute command inside of CLI container.
 docker-cli:
 	$(call title,Executing command inside of CLI container)
@@ -75,12 +92,17 @@ docker-restart:
 ## Start Docker containers.
 docker-start:
 	$(call title,Starting Docker containers)
-	$(call exec,COMPOSE_CONVERT_WINDOWS_PATHS=1 docker-compose up -d --build --remove-orphans)
+	$(call exec,COMPOSE_CONVERT_WINDOWS_PATHS=1 docker-compose up -d --build)
 
 ## Stop Docker containers.
 docker-stop:
 	$(call title,Stopping Docker containers)
 	$(call exec,docker-compose stop)
+
+## Download database.
+download-db:
+	$(call title,Downloading database)
+	$(call exec,mkdir -p .data && curl -L $(DUMMY_DB) -o .data/db.sql)
 
 ## Run Drush command.
 drush:
@@ -107,13 +129,13 @@ help:
 ## Import database.
 import-db:
 	$(call title,Importing database from the dump)
-	$(call exec,docker-compose exec cli drush uli -r $(DOCROOT) sql-drop -y)
-	$(call exec,docker-compose exec cli bash -c "drush sqlc -r $(DOCROOT) < /tmp/.data/db.sql")
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
+	$(call exec,docker-compose exec cli bash -c "drush -r $(DOCROOT) sqlc < /tmp/.data/db.sql")
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) en mysite_core -y)
-	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush cim -r $(DOCROOT) -y; fi")
-	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush cim -r $(DOCROOT) -y; fi")
+	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
+	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) cr -y)
-	$(call exec,docker-compose exec cli bash -c "if [ -e /app/config/sync/*.yml ] ; then drush cim -r $(DOCROOT) -n 2>&1 | grep -q 'There are no changes to import.'; fi")
+	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -n cim 2>&1 | grep -q 'There are no changes to import.'; fi")
 
 ## Install site. Alias for 'site-install'.
 install-site: site-install
@@ -121,8 +143,8 @@ install-site: site-install
 ## Lint code.
 lint:
 	$(call title,Linting code)
-	$(call exec,$(VENDOR_BIN)/parallel-lint --exclude vendor --exclude node_modules -e $(PHP_LINT_EXTENSIONS) $(PHP_LINT_TARGETS))
-	$(call exec,$(VENDOR_BIN)/phpcs)
+	$(call exec,vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e $(PHP_LINT_EXTENSIONS) $(PHP_LINT_TARGETS))
+	$(call exec,vendor/bin/phpcs)
 	$(call exec,npm run lint)
 
 ## Login to the website.
@@ -149,7 +171,7 @@ test: test-behat
 ## Run Behat tests.
 test-behat:
 	$(call title,Running behat tests)
-	$(call exec,docker-compose exec cli $(VENDOR_BIN)/behat --format=progress_fail --colors $(filter-out $@,$(MAKECMDGOALS)))
+	$(call exec,docker-compose exec cli vendor/bin/behat --format=progress_fail --colors $(filter-out $@,$(MAKECMDGOALS)))
 
 #-------------------------------------------------------------------------------
 # VARIABLES.
@@ -159,7 +181,6 @@ APP ?= /app
 WEBROOT ?= docroot
 DOCROOT ?= $(APP)/$(WEBROOT)
 URL ?= http://mysite.docker.amazee.io/
-VENDOR_BIN ?= vendor/bin
 
 PHP_LINT_EXTENSIONS ?= php,module,theme,install
 PHP_LINT_TARGETS ?= tests \

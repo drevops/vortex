@@ -74,7 +74,7 @@ jobs:
       # [/META]
       - run:
           name: Downloading database
-          command: if [ ! -f .data/db.sql ] ; then mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql; else echo "Using cahed DB";fi
+          command: if [ ! -f .data/db.sql ] ; then make download-db; else echo "Using cached DB dump";fi
       - save_cache:
           key: v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
@@ -86,11 +86,12 @@ jobs:
       # [/META]
       - run:
           name: Pull newest Docker images.
-          command: composer docker:pull
+          command: make docker-pull
       - run:
           name: Start scontainers.
           command: |
-            composer docker:start
+            echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
+            make docker-start
             sleep 10 # Wait for DB container to startup.
             docker ps -a
       # Since app is being built inside of the containers without dev
@@ -106,23 +107,23 @@ jobs:
       - run:
           name: Site setup.
           command: |
-            composer app:import-db
-            composer docker:cli -- mkdir -p /app/screenshots
+            make import-db
+            make docker-cli mkdir -p /app/screenshots
       - run:
           name: Install dev dependencies.
           command: |
-            composer docker:cli -- composer install --ansi
-            composer docker:cli -- npm install
+            make docker-cli composer install --ansi
+            make docker-cli npm install
       - run:
           name: Lint code.
-          command: composer docker:cli -- composer app:cs
+          command: make lint
       - run:
           name: Run tests.
           command: |
             if [ "$CIRCLE_NODE_TOTAL" -gt "1" ] ; then
-              composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
+              make docker-cli vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || make docker-cli vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
             else
-              composer docker:cli -- vendor/bin/behat --format=progress_fail --colors || composer docker:cli -- vendor/bin/behat --format=progress_fail --colors --rerun
+              make docker-cli vendor/bin/behat --format=progress_fail --colors || make docker-cli vendor/bin/behat --format=progress_fail --colors --rerun
             fi
       - run:
           name: Copy artifacts.
@@ -169,7 +170,7 @@ jobs:
           name: Push artefact to remote repository
           command: |
             if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt
+              make build-artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt
             else
               echo "Skipping deployment"
             fi
@@ -199,7 +200,7 @@ jobs:
           name: Push artefact to remote repository for drupal-dev.
           command: |
             if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
-              composer app:build-artefact -- $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_drupal_dev_report.txt --branch=release/[tags:-];
+              make build-artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_drupal_dev_report.txt --branch=release/[tags:-];
             else
               echo "Skipping deployment";
             fi

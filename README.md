@@ -14,12 +14,12 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 4. Commit all files to your repository and push.
 5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project" and click "Start building" button.
 6. To start developing locally:
-   - Make sure that you have [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
-   - Copy your existing DB dump into `.data/db.dist.sql` OR download minimal install Drupal 8 DB dump:    
+   - Make sure that you have `make`, [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
+   - Copy your existing DB dump into `.data/db.sql` OR download minimal install Drupal 8 DB dump:    
      ```
-     mkdir .data && source .env && curl -L $DUMMY_DB -o .data/db.sql` 
+     make download-db 
      ```
-   - Run `composer build`.
+   - Run `make build`.
 
 ## What is included
 - Drupal 8 composer-based configuration
@@ -28,7 +28,7 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
   - support for patches
 - Custom core module scaffolding
 - Custom theme scaffolding: Gruntfile, SASS/SCSS, globbing and Livereload.    
-- Composer scripts to build and rebuild the project (one command used in all environments)
+- `make` scripts to build and rebuild the project (one command used in all environments)
 - PHP, JS and SASS code linting with pre-configured Drupal standards
 - Behat testing configuration + usage examples 
 - Integration with [Circle CI](https://circleci.com/) (2.0):
@@ -67,39 +67,47 @@ Drupal 7 implementation of MYSITE
 [![CircleCI](https://circleci.com/gh/myorg/mysite.svg?style=shield)](https://circleci.com/gh/myorg/mysite)
 
 ## Local environment setup
-1. Make sure that you have [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
+1. Make sure that you have `make`, [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
 2. Checkout project repo
-3. Copy local settings and services files from defaults:
+3. (optional) Copy local settings and services files from defaults:
     ```
     cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
     cp docroot/sites/default/default.services.local.yml docroot/sites/default/services.local.yml
     ```
 3. Download DB dump and copy to `.data/db.sql`
-4. `composer build`
+4. `make build`
 
-## Available composer commands
-Run each command as `composer <command>`.
-
-### Application
-- `app:build` - start local development environment and build project.
-- `app:rebuild` - re-build project, removing and re-installing dependencies.
-- `app:rebuild-full` - cleanup code dependencies, remove VM and rebuild the site.
-- `app:import-db` - re-import DB and run updates.
-- `app:build-fed` - build theme assets. Supports watching: `composer build-theme -- watch`.
-- `app:cleanup` - remove dependencies.
-- `app:cleanup-full` - remove dependencies and docker images.
-- `app:login` - open a web browser login into build application.
-- `app:drush` - execute drush command: `composer app:drush -- status`.
-- `app:build-artefact` - build application artefact suitable for deployment in production environment.
-
-### Docker
-- `docker:start` - start environment.
-- `docker:stop` - stop environment preserving data.
-- `docker:restart` - restart environment.
-- `docker:destroy` - destroy environment.
-- `docker:pull` - pull latest images.
-- `docker:cli` - run command in CLI container.
-- `docker:logs` - show logs from docker compose run.
+## Available make commands
+Run each command as `make <command>`.
+  ```
+  build                Build project dependencies.
+  build-artefact       Build deployment artefact.
+  build-fed            Build front-end assets.
+  build-fed-prod       Build front-end assets for production.
+  cleanup              Remove dependencies.
+  cleanup-full         Remove dependencies and Docker images.
+  cs                   Lint code. Alias for 'lint'.
+  db-import            Import database. Alias for 'import-db'.
+  db-download          Download database. Alias for 'download-db'.
+  docker-cli           Execute command inside of CLI container.
+  docker-destroy       Destroy Docker containers.
+  docker-logs          Show logs.
+  docker-pull          Pull newest base images.
+  docker-restart       Re-start Docker containers.
+  docker-start         Start Docker containers.
+  docker-stop          Stop Docker containers.
+  download-db          Download database.
+  drush                Run Drush command.
+  help                 Display this help message.
+  import-db            Import database.
+  install-site         Install site. Alias for 'site-install'.
+  lint                 Lint code.
+  login                Login to the website.
+  rebuild              Re-build project dependencies.
+  rebuild-full         Cleanup and fully re-build project dependencies.
+  test                 Run all tests.
+  test-behat           Run Behat tests.
+  ```
 
 ## Adding Drupal modules
 
