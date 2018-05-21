@@ -171,7 +171,7 @@ test: test-behat
 ## Run Behat tests.
 test-behat:
 	$(call title,Running behat tests)
-	$(call exec,docker-compose exec cli vendor/bin/behat --format=progress_fail --colors $(filter-out $@,$(MAKECMDGOALS)))
+	$(call exec,docker-compose exec cli vendor/bin/behat --format=progress_fail --colors $(BEHAT_PROFILE) $(filter-out $@,$(MAKECMDGOALS)))
 
 #-------------------------------------------------------------------------------
 # VARIABLES.
