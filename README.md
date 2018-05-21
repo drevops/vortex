@@ -84,8 +84,8 @@ Run each command as `make <command>`.
   build-artefact       Build deployment artefact.
   build-fed            Build front-end assets.
   build-fed-prod       Build front-end assets for production.
-  cleanup              Remove dependencies.
-  cleanup-full         Remove dependencies and Docker images.
+  clean                Remove dependencies.
+  clean-full           Remove dependencies and Docker images.
   cs                   Lint code. Alias for 'lint'.
   db-import            Import database. Alias for 'import-db'.
   db-download          Download database. Alias for 'download-db'.

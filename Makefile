@@ -10,7 +10,7 @@
 include .env
 
 .DEFAULT_GOAL := help
-.PHONY: build build-artefact build-fed build-fed-prod cleanup cleanup-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush help import-db install-site lint login rebuild rebuild-full site-install test test-behat
+.PHONY: build build-artefact build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush help import-db install-site lint login rebuild rebuild-full site-install test test-behat
 
 ## Build project dependencies.
 build:
@@ -45,7 +45,7 @@ build-fed-prod:
 	$(call exec,npm run build-prod)
 
 ## Remove dependencies.
-cleanup:
+clean:
 	$(call title,Removing dependencies)
 	$(call exec,chmod -Rf 777 docroot/sites/default)
 	$(call exec,git ls-files --directory --other -i --exclude-from=.gitignore $(WEBROOT)|xargs rm -Rf)
@@ -53,7 +53,7 @@ cleanup:
 	$(call exec,rm -Rf node_modules)
 
 ## Remove dependencies and Docker images.
-cleanup-full: cleanup docker-stop docker-destroy
+clean-full: clean docker-stop docker-destroy
 
 ## Lint code. Alias for 'lint'.
 cs: lint
@@ -154,10 +154,10 @@ login:
 	$(call exec,docker-compose exec cli drush uli -r $(DOCROOT) -l $(URL) | xargs open)
 
 ## Re-build project dependencies.
-rebuild: cleanup build
+rebuild: clean build
 
-## Cleanup and fully re-build project dependencies.
-rebuild-full: cleanup-full build
+## clean and fully re-build project dependencies.
+rebuild-full: clean-full build
 
 # Install site.
 site-install:
