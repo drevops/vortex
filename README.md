@@ -86,7 +86,7 @@ Run each command as `composer <command>`.
 - `app:rebuild-full` - cleanup code dependencies, remove VM and rebuild the site.
 - `app:import-db` - re-import DB and run updates.
 - `app:build-fed` - build theme assets. Supports watching: `composer build-theme -- watch`.
-- `app:cleanup` - remove and re-install dependencies.
+- `app:cleanup` - remove dependencies.
 - `app:cleanup-full` - remove dependencies and docker images.
 - `app:login` - open a web browser login into build application.
 - `app:drush` - execute drush command: `composer app:drush -- status`.

@@ -52,66 +52,6 @@
         }
     },
     "scripts": {
-        "app:login": "@composer docker:cli -- drush uli -r /app/docroot -l http://mysite.docker.amazee.io/ | xargs open",
-        "app:cs": [
-            "parallel-lint --exclude vendor --exclude node_modules -e php,module,theme,install tests docroot/profiles/custom docroot/modules/custom docroot/themes/custom docroot/sites/default/settings.php",
-            "phpcs",
-            "npm run lint"
-        ],
-        "app:test": "behat --format=progress_fail --colors",
-        "app:build": [
-            "@docker:start",
-            "@composer install -n --ansi --prefer-dist",
-            "@app:build-fed",
-            "@app:import-db"
-        ],
-        "app:rebuild": [
-            "@app:cleanup",
-            "@app:build"
-        ],
-        "app:rebuild-full": [
-            "@app:cleanup-full",
-            "@app:build"
-        ],
-        "app:import-db": [
-            "@composer docker:cli -- drush -r /app/docroot sql-drop -y",
-            "@composer docker:cli -- bash -c \"drush sqlc -r /app/docroot < /tmp/.data/db.sql\"",
-            "@composer docker:cli -- drush -r /app/docroot en mysite_core -y",
-            "@composer docker:cli -- bash -c \"if [ -e /app/config/sync/*.yml ] ; then drush cim -r /app/docroot -y; fi\"",
-            "@composer docker:cli -- bash -c \"if [ -e /app/config/sync/*.yml ] ; then drush cim -r /app/docroot -y; fi\"",
-            "@composer docker:cli -- drush cr -r /app/docroot -y",
-            "@composer docker:cli -- bash -c \"if [ -e /app/config/sync/*.yml ] ; then drush cim -r /app/docroot -n 2>&1 | grep -q 'There are no changes to import.'; fi\""
-        ],
-        "app:site-install": [
-            "@composer docker:cli -- drush -r /app/docroot si mysite_profile -y --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL",
-            "@composer docker:cli -- drush cr -r /app/docroot -y"
-        ],
-        "app:build-fed": [
-            "npm install",
-            "npm run build"
-        ],
-        "app:build-fed-prod": "npm run build-prod",
-        "app:cleanup": [
-            "chmod -Rf 777 docroot/sites/default",
-            "git ls-files --directory --other -i --exclude-from=.gitignore docroot|xargs rm -Rf",
-            "rm -Rf vendor",
-            "rm -Rf node_modules"
-        ],
-        "app:cleanup-full": [
-            "@app:cleanup",
-            "@docker:stop",
-            "@docker:destroy"
-        ],
-        "app:build-artefact": "robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact",
-        "app:create-settings": "Utilities\\composer\\DrupalSettings::create",
-        "app:drush": "docker exec -i $(docker-compose ps -q cli) drush -r /app/docroot",
-        "docker:start": "docker-compose up -d --build",
-        "docker:restart": "docker-compose restart",
-        "docker:stop": "docker-compose stop",
-        "docker:destroy": "docker-compose down",
-        "docker:cli": "docker exec -i $(docker-compose ps -q cli)",
-        "docker:pull": "docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio | grep -v none | xargs -n1 docker pull | cat",
-        "docker:logs": "docker-compose logs",
         "pre-install-cmd": [
             "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
         ],
@@ -121,10 +61,13 @@
         "post-install-cmd": [
             "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-            "export $(cat .env | xargs) && composer app:create-settings"
+            "export $(cat .env | xargs) && composer create-settings"
         ],
         "post-update-cmd": [
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "create-settings": [
+            "Utilities\\composer\\DrupalSettings::create"
         ]
     },
     "extra": {
