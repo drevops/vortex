@@ -8,6 +8,7 @@ ENV WEBROOT=docroot \
 RUN apk update \
     && apk del nodejs nodejs-current yarn \
     && apk add nodejs-npm patch rsync --update-cache --repository http://dl-3.alpinelinux.org/alpine/v3.7/main/ \
+    && apk add make \
     && rm -rf /var/cache/apk/*
 
 ADD patches /app/patches
