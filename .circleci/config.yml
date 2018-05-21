@@ -120,11 +120,8 @@ jobs:
       - run:
           name: Run tests.
           command: |
-            if [ "$CIRCLE_NODE_TOTAL" -gt "1" ] ; then
-              make docker-cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX || make docker-cli -- vendor/bin/behat --format=progress_fail --colors --profile=p$CIRCLE_NODE_INDEX --rerun
-            else
-              make docker-cli -- vendor/bin/behat --format=progress_fail --colors || make docker-cli -- vendor/bin/behat --format=progress_fail --colors --rerun
-            fi
+            [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=-- --profile=p$CIRCLE_NODE_INDEX
+            make test-behat $BEHAT_PROFILE || make test-behat $BEHAT_PROFILE --rerun
       - run:
           name: Copy artifacts.
           command: |
