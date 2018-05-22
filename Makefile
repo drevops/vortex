@@ -44,6 +44,9 @@ build-fed-prod:
 	$(call exec,npm install)
 	$(call exec,npm run build-prod)
 
+## Clear Drupal cache. Alias for 'clear-cache'.
+cc: clear-cache
+
 ## Remove dependencies.
 clean:
 	$(call title,Removing dependencies)
@@ -54,6 +57,11 @@ clean:
 
 ## Remove dependencies and Docker images.
 clean-full: clean docker-stop docker-destroy
+
+## Clear Drupal cache.
+clear-cache:
+	$(call title,Clearing Drupal cache)
+	$(call exec,docker-compose exec cli bash -c "if [ -e ./$(WEBROOT)/sites/default/services.yml ] ; then drush -r $(DOCROOT) cr -y; else drush -r $(DOCROOT) cc all; fi")
 
 ## Lint code. Alias for 'lint'.
 cs: lint
@@ -134,8 +142,9 @@ import-db:
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) en mysite_core -y)
 	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
 	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
-	$(call exec,docker-compose exec cli drush -r $(DOCROOT) cr -y)
-	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -n cim 2>&1 | grep -q 'There are no changes to import.'; fi")
+	$(call exec,$(MAKE) clear-cache)
+	$(call exec,docker-compose exec cli bash -c "if [ -e ./config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
+	$(call exec,docker-compose exec cli bash -c "if [ -e ./config/sync/*.yml ] ; then drush -r $(DOCROOT) -n cim 2>&1 | grep -q 'There are no changes to import.'; fi")
 
 ## Install site. Alias for 'site-install'.
 install-site: site-install
@@ -163,7 +172,7 @@ rebuild-full: clean-full build
 site-install:
 	$(call title,Installing a site from profile)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) si mysite_profile -y --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL)
-	$(call exec,docker-compose exec cli drush -r $(DOCROOT) cr -y)
+	$(call exec,$(MAKE) clear-cache)
 
 ## Run all tests.
 test: test-behat
