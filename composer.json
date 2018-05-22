@@ -11,6 +11,7 @@
         "drupal/wysiwyg": "^2.5",
         "drupal/xautoload": "^4.5",
         "library/ckeditor": "^4.9.2",
+        "vlucas/phpdotenv": "^2.4",
         "webflo/drupal-finder": "^1.0"
     },
     "require-dev": {
@@ -64,13 +65,10 @@
         ],
         "post-install-cmd": [
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-            "export $(cat .env | xargs) && composer create-settings"
+            "Utilities\\composer\\DrupalSettings::create"
         ],
         "post-update-cmd": [
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
-        ],
-        "create-settings": [
-            "Utilities\\composer\\DrupalSettings::create"
         ]
     },
     "extra": {
