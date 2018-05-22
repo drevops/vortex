@@ -7,6 +7,7 @@
         "cweagans/composer-patches": "^1.6.0",
         "drupal-composer/drupal-scaffold": "^2.3",
         "drupal/core": "^8.5.2",
+        "vlucas/phpdotenv": "^2.4",
         "webflo/drupal-finder": "^1.0"
     },
     "require-dev": {
@@ -61,13 +62,10 @@
         "post-install-cmd": [
             "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-            "export $(cat .env | xargs) && composer create-settings"
+            "Utilities\\composer\\DrupalSettings::create"
         ],
         "post-update-cmd": [
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
-        ],
-        "create-settings": [
-            "Utilities\\composer\\DrupalSettings::create"
         ]
     },
     "extra": {

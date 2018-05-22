@@ -187,16 +187,12 @@ test-behat:
 #-------------------------------------------------------------------------------
 
 APP ?= /app
-WEBROOT ?= docroot
+WEBROOT ?= web
 DOCROOT ?= $(APP)/$(WEBROOT)
 URL ?= http://mysite.docker.amazee.io/
 
-PHP_LINT_EXTENSIONS ?= php,module,theme,install
-PHP_LINT_TARGETS ?= tests \
-	docroot/profiles/custom \
-	docroot/modules/custom \
-	docroot/themes/custom \
-	docroot/sites/default/settings.php
+PHP_LINT_EXTENSIONS ?= php,inc
+PHP_LINT_TARGETS ?= ./
 
 # Prefix of the Docker images.
 DOCKER_IMAGE_PREFIX ?= amazeeio
