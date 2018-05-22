@@ -3,6 +3,7 @@
 namespace Utilities\composer;
 
 use Composer\Script\Event;
+use Dotenv\Dotenv;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -106,6 +107,9 @@ FILE;
    */
   protected static function extractEnvironmentVariables(array $allowed) {
     $options = [];
+
+    $dotenv = new Dotenv(__DIR__ . '/../..');
+    $dotenv->load();
 
     foreach ($allowed as $name) {
       $value = getenv(strtoupper($name));
