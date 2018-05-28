@@ -30,7 +30,7 @@ build:
 ## Build deployment artefact.
 build-artefact:
 	$(call title,Building deployment artefact)
-	$(call exec,robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact)
+	$(call exec,vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact $(filter-out $@,$(MAKECMDGOALS)))
 
 ## Build front-end assets.
 build-fed:

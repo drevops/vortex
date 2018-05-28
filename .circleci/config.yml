@@ -167,7 +167,7 @@ jobs:
           name: Push artefact to remote repository
           command: |
             if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              make build-artefact "$DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt"
+              make build-artefact -- $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt
             else
               echo "Skipping deployment"
             fi
@@ -197,7 +197,7 @@ jobs:
           name: Push artefact to remote repository for drupal-dev.
           command: |
             if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
-              make build-artefact "$DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_drupal_dev_report.txt --branch=release/[tags:-]";
+              make build-artefact -- $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_drupal_dev_report.txt --branch=release/[tags:-];
             else
               echo "Skipping deployment";
             fi
