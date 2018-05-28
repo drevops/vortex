@@ -67,7 +67,7 @@ jobs:
           command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
       # [META]
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Replace the line below with your custom database retrieval script in your project.
@@ -76,7 +76,7 @@ jobs:
           name: Downloading database
           command: if [ ! -f .data/db.sql ] ; then make download-db; else echo "Using cached DB dump";fi
       - save_cache:
-          key: v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
       # [META]
@@ -140,6 +140,36 @@ jobs:
           paths:
             - code
             - code-dev
+
+  deps:
+    <<: *container_config
+    parallelism: 1
+    steps:
+      - attach_workspace:
+          at: /workspace
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Composer validate.
+          command: composer validate --ansi --strict
+      - run:
+          name: Pull newest Docker images.
+          command: make docker-pull
+      - run:
+          name: Start containers.
+          command: |
+            echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
+            mkdir -p .data && touch .data/db.sql
+            make docker-start
+            sleep 10 # Wait for DB container to startup.
+            docker ps -a
+      - run:
+          name: Update composer.lock.
+          command: |
+            make docker-cli -- cp /app/composer.lock /app/composer.lock.orig
+            make docker-cli -- "composer -d /app update --no-plugins --ignore-platform-reqs --no-progress --no-suggest > /app/update.log 2>&1"
+            make docker-cli -- cat /app/update.log
+            make docker-cli -- diff /tmp/composer.lock.orig /app/composer.lock || true
 
   # Deploy primary branches.
   # [META]
@@ -208,26 +238,30 @@ workflows:
   version: 2
   main:
     jobs:
-      - build:
+      - deps:
           filters:
             tags:
               only: /.*/
-      - deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+/
-
-      # [META]
-      # Tag deployment for drupal-dev itself. Remove the code below in
-      # your project.
-      - deploy_drupal_dev:
-          requires:
-            - build
-          filters:
-            tags:
-              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
-            branches:
-              ignore: /.*/
-      # [/META]
+#      - build:
+#          filters:
+#            tags:
+#              only: /.*/
+#      - deploy:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+/
+#
+#      # [META]
+#      # Tag deployment for drupal-dev itself. Remove the code below in
+#      # your project.
+#      - deploy_drupal_dev:
+#          requires:
+#            - build
+#          filters:
+#            tags:
+#              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
+#            branches:
+#              ignore: /.*/
+#      # [/META]
