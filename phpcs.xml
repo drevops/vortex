@@ -13,7 +13,7 @@
   <arg value="sp"/>
   <!--Lint code against platform version specified in composer.json
   key "config.platform.php".-->
-  <config name="testVersion" value="7.1.16"/>
+  <config name="testVersion" value="7.1"/>
 
   <file>tests</file>
   <file>docroot/sites/all/modules/custom</file>
