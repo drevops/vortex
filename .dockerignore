@@ -19,4 +19,5 @@ docroot/libraries
 !package.json
 !package-lock.json
 !Gruntfile.js
+!Makefile
 !.data
