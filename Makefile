@@ -193,6 +193,7 @@ URL ?= http://mysite.docker.amazee.io/
 
 PHP_LINT_EXTENSIONS ?= php,inc
 PHP_LINT_TARGETS ?= ./
+PHP_LINT_TARGETS := $(subst $\",,$(PHP_LINT_TARGETS))
 
 # Prefix of the Docker images.
 DOCKER_IMAGE_PREFIX ?= amazeeio
