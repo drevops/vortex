@@ -4,7 +4,6 @@ services:
     volumes_from:
       - container:amazeeio-ssh-agent
     environment:
-      - SSH_AUTH_SOCK=/tmp/amazeeio_ssh-agent/socket
       - XDEBUG_ENABLE=true
     volumes:
       - .:/app:delegated
