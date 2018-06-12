@@ -88,7 +88,7 @@ jobs:
           name: Pull newest Docker images.
           command: make docker-pull
       - run:
-          name: Start scontainers.
+          name: Start containers.
           command: |
             echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
             make docker-start
