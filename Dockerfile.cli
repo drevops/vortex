@@ -1,3 +1,8 @@
+FROM amazeeio/node:9
+COPY package.json package-lock.json Gruntfile.js /app/
+RUN npm install
+RUN npm run build
+
 FROM amazeeio/php:7.1-cli-drupal
 
 ENV WEBROOT=docroot \
@@ -17,11 +22,7 @@ ADD scripts /app/scripts
 COPY composer.json composer.lock .env /app/
 RUN composer install --no-dev --optimize-autoloader --prefer-dist --ansi --no-suggest
 
-FROM amazeeio/node:9
-COPY package.json package-lock.json Gruntfile.js /app/
-RUN npm install
-RUN npm run build
-
 COPY . /app
+COPY .data/db.sql /tmp/.data/db.sql
 
 CMD ["/bin/docker-sleep"]
