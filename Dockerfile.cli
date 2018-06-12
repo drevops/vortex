@@ -24,4 +24,4 @@ RUN npm run build
 
 COPY . /app
 
-ENTRYPOINT /bin/sh
+CMD ["/bin/docker-sleep"]
