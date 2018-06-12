@@ -10,14 +10,13 @@ docroot/themes/contrib
 docroot/profiles/contrib
 docroot/libraries
 # Do not ignore other required files.
+!config
 !patches
 !scripts
-!tests
 !composer.json
 !composer.lock
 !.env
 !package.json
 !package-lock.json
 !Gruntfile.js
-!Makefile
 !.data
