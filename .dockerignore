@@ -12,6 +12,7 @@ docroot/libraries
 # Do not ignore other required files.
 !patches
 !scripts
+!tests
 !composer.json
 !composer.lock
 !.env
