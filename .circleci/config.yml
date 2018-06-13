@@ -63,7 +63,7 @@ jobs:
           command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v3-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
       # [META]
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Replace the line below with your custom database retrieval script in your project.
@@ -94,11 +94,11 @@ jobs:
       - run:
           name: Dump DB.
           command: |
-            docker exec $(docker-compose ps -q cli) drush sql-dump --skip-tables-key=common --gzip --result-file=/tmp/.data/db.sql
+            docker exec $(docker-compose ps -q cli) drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql
             mkdir -p .data
             docker cp -L $(docker-compose ps -q cli):/tmp/.data/db.sql .data/db.sql
       - save_cache:
-          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v3-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
 
@@ -118,7 +118,7 @@ jobs:
           command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v3-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
       - run:
           name: Pull newest Docker images.
           command: make docker-pull
