@@ -88,7 +88,7 @@ jobs:
           name: Pull newest Docker images.
           command: make docker-pull
       - run:
-          name: Start scontainers.
+          name: Start containers.
           command: |
             echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
             make docker-start
@@ -109,6 +109,14 @@ jobs:
           command: |
             make import-db
             make docker-cli -- mkdir -p /app/screenshots
+      - run:
+          name: Copy development files and configurations into container.
+          command: |
+            docker cp -L behat.yml $(docker-compose ps -q cli):/app/
+            docker cp -L Makefile $(docker-compose ps -q cli):/app/
+            docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
+            docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
+            docker cp -L tests $(docker-compose ps -q cli):/app/
       - run:
           name: Install dev dependencies.
           command: |
@@ -147,6 +155,8 @@ jobs:
   # $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
   # Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
   # under "SSH Permissions" in CircleCI UI.
+  #
+  # Note that we do not run container stack for deployment.
   # [/META]
   deploy:
     <<: *container_config
