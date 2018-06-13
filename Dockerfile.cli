@@ -22,5 +22,3 @@ RUN npm install
 COPY . /app
 
 RUN npm run build
-
-COPY .data/db.sql /tmp/.data/db.sql

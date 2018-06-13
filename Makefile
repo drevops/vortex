@@ -106,7 +106,7 @@ docker-stop:
 ## Download database.
 download-db:
 	$(call title,Downloading database)
-	$(call exec,mkdir -p .data && curl -L $(DUMMY_DB) -o .data/db.sql)
+	$(call exec,mkdir -p $(DATA_ROOT) && curl -L $(DUMMY_DB) -o $(DATA_ROOT)/db.sql)
 
 ## Run Drush command.
 drush:
@@ -134,7 +134,10 @@ help:
 import-db:
 	$(call title,Importing database from the dump)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
+	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
+	$(call exec,docker cp -L $(DATA_ROOT)/db.sql $$(docker-compose ps -q cli):/tmp/.data/db.sql)
 	$(call exec,docker-compose exec cli bash -c "drush -r $(DOCROOT) sqlc < /tmp/.data/db.sql")
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) updb -y)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) en mysite_core -y)
 	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
 	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
@@ -148,7 +151,7 @@ install-site: site-install
 ## Lint code.
 lint:
 	$(call title,Linting code)
-	$(call exec,vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e $(PHP_LINT_EXTENSIONS) $(PHP_LINT_TARGETS))
+	$(call exec,vendor/bin/parallel-lint --exclude vendor $(PHP_LINT_EXCLUDES) -e $(PHP_LINT_EXTENSIONS) $(PHP_LINT_TARGETS))
 	$(call exec,vendor/bin/phpcs)
 	$(call exec,npm run lint)
 
@@ -186,10 +189,13 @@ APP ?= /app
 WEBROOT ?= web
 DOCROOT ?= $(APP)/$(WEBROOT)
 URL ?= http://mysite.docker.amazee.io/
+DATA_ROOT ?= .data
 
 PHP_LINT_EXTENSIONS ?= php,inc
 PHP_LINT_TARGETS ?= ./
 PHP_LINT_TARGETS := $(subst $\",,$(PHP_LINT_TARGETS))
+PHP_LINT_EXCLUDES ?= --exclude vendor --exclude node_modules
+PHP_LINT_EXCLUDES := $(subst $\",,$(PHP_LINT_EXCLUDES))
 
 # Prefix of the Docker images.
 DOCKER_IMAGE_PREFIX ?= amazeeio
