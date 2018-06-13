@@ -32,7 +32,7 @@ aliases:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
           # How often to cache DB dump for.
-          DB_TIMESTAMP: +%Y_%m_%d
+          DB_TIMESTAMP: +%Y_%m_%d_%H
   # Step to configure git to connect to remote servers for deployment.
   # [META]
   # It is advised to create separate 'deployer' user with own SSH key for each
@@ -60,10 +60,10 @@ jobs:
       - setup_remote_docker
       - run:
           name: Set timestamp for database caching.
-          command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP
+          command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v3-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v4-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
       # [META]
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Replace the line below with your custom database retrieval script in your project.
@@ -123,10 +123,10 @@ jobs:
           command: composer validate --ansi --strict
       - run:
           name: Set timestamp for database caching.
-          command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP
+          command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v3-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v4-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
       - run:
           name: Pull newest Docker images.
           command: make docker-pull
