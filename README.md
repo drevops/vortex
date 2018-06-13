@@ -137,16 +137,18 @@ Run each command as `make <command>`.
   ```
 
 ## Coding standards
-PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with Drupal rules from [Coder](https://www.drupal.org/project/coder) module and additional local overrides in `phpcs.xml.dist` and `.eslintrc`.   
+PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with Drupal rules from [Coder](https://www.drupal.org/project/coder) module and additional local overrides in `phpcs.xml` and `.eslintrc.json`.   
 
-SASS and SCSS code linting uses [Sass Lint](https://github.com/sasstools/sass-lint) with additional local overrides in `.sass-lint.yml`.
+SASS and SCSS code linting use [Sass Lint](https://github.com/sasstools/sass-lint) with additional local overrides in `.sass-lint.yml`.
 
 ## Behat tests
 Behat configuration uses multiple extensions: 
 - [Drupal Behat Extension](https://github.com/jhedstrom/drupalextension) - Drupal integration layer. Allows to work with Drupal API from within step definitions.
 - [Behat Screenshot Extension](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
 - [Behat Progress Fail Output Extension](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fail messages inline. Useful to get feedback about failed tests while continuing test run.
-- `FeatureContext` - Site-specific context with custom step definitions.  
+- `FeatureContext` - Site-specific context with custom step definitions.
+
+Add `@skipped` tag to failing tests if you would like to skop them.  
 
 ## Automated builds (Continuous Integration)
 In software engineering, continuous integration (CI) is the practice of merging all developer working copies to a shared mainline several times a day. 
@@ -154,10 +156,10 @@ Before feature changes can be merged into a shared mainline, a complete build mu
 
 This project uses [Circle CI](https://circleci.com/) as CI server: it imports production backups into fully built codebase and runs code linting and tests. When tests pass, a deployment process is triggered for nominated branches (usually, `master` and `develop`).
 
-Add [skip ci] to the commit subject to skip CI build. Useful for documentation changes.
+Add `[skip ci]` to the commit subject to skip CI build. Useful for documentation changes.
 
 ### SSH
-Circle CI supports SSHing into the build for 30 minutes after the build is finished. SSH can be enabled either during the build run or when the build is started with SSH support.
+Circle CI supports SSHing into the build for 120 minutes after the build is finished when the build is started with SSH support. Use "Rerun job with SSH" button in Circle CI UI to start build with SSH support.
 
 ### Cache
 Circle CI supports caching between builds. The cache takes care of saving the state of your dependencies between builds, therefore making the builds run faster.
@@ -165,4 +167,4 @@ Each branch of your project will have a separate cache. If it is the very first 
 If the build has inconsistent results (build fails in CI but passes locally), try to re-running the build without cache by clicking 'Rebuild without cache' button.
 
 ### Test artifacts
-Test artifacts (screenshots etc.) are available under 'Artifacts' tab in Circle CI UI.
+Test artifacts (screenshots etc.) are available under "Artifacts" tab in Circle CI UI.
