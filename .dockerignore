@@ -18,4 +18,6 @@ docroot/profiles/contrib
 !package.json
 !package-lock.json
 !Gruntfile.js
+!.eslintrc.json
+!.sass-lint.yml
 !.data

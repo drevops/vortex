@@ -112,8 +112,6 @@ jobs:
       - run:
           name: Copy development files and configurations into container.
           command: |
-            docker cp -L .eslintrc.json $(docker-compose ps -q cli):/app/
-            docker cp -L .sass-lint.yml $(docker-compose ps -q cli):/app/
             docker cp -L behat.yml $(docker-compose ps -q cli):/app/
             docker cp -L Makefile $(docker-compose ps -q cli):/app/
             docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
