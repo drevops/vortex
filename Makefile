@@ -8,6 +8,7 @@
 # make build - build project
 #
 include .env
+-include .env.local
 
 .DEFAULT_GOAL := help
 .PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush help import-db install-site lint login rebuild rebuild-full site-install test test-behat
