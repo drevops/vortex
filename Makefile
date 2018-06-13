@@ -10,7 +10,7 @@
 include .env
 
 .DEFAULT_GOAL := help
-.PHONY: build build-artefact build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush help import-db install-site lint login rebuild rebuild-full site-install test test-behat
+.PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush help import-db install-site lint login rebuild rebuild-full site-install test test-behat
 
 ## Build project dependencies.
 build:
@@ -26,11 +26,6 @@ build:
 	@printf "${GREEN}Path inside container :${RESET} $(APP)\n"
 	@printf "${GREEN}Path to docroot       :${RESET} $(DOCROOT)\n"
 	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
-
-## Build deployment artefact.
-build-artefact:
-	$(call title,Building deployment artefact)
-	$(call exec,vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact $(filter-out $@,$(MAKECMDGOALS)))
 
 ## Build front-end assets.
 build-fed:

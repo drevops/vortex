@@ -81,7 +81,6 @@ Drupal 7 implementation of MYSITE
 Run each command as `make <command>`.
   ```
   build                Build project dependencies.
-  build-artefact       Build deployment artefact.
   build-fed            Build front-end assets.
   build-fed-prod       Build front-end assets for production.
   clean                Remove dependencies.
