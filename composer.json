@@ -7,6 +7,7 @@
         "cweagans/composer-patches": "^1.6.0",
         "drupal-composer/drupal-scaffold": "^2.3",
         "drupal/core": "^8.5.2",
+        "drush/drush": "^8.1",
         "vlucas/phpdotenv": "^2.4",
         "webflo/drupal-finder": "^1.0"
     },
@@ -17,7 +18,6 @@
         "drupal/coder": "^8.2.12",
         "drupal/console": "^1.0",
         "drupal/drupal-extension": "^v3.4",
-        "drush/drush": "^8.1",
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
         "integratedexperts/robo-git-artefact": "^0.2.4",
