@@ -70,7 +70,7 @@ jobs:
       # [/META]
       - run:
           name: Downloading database
-          command: if [ ! -f .data/db.sql ] ; then make download-db; else echo "Using cached DB dump";fi
+          command: if [ ! -f .data/db.sql ] ; then touch /tmp/db-new; make download-db; else echo "Using cached DB dump";fi
       # [META]
       # Uncomment the line below to download DB dump from FTP, using
       # variables set in Circle CI UI.
@@ -79,24 +79,32 @@ jobs:
       - run:
           name: Start containers.
           command: |
-            echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
-            make docker-start
-            sleep 10 # Wait for DB container to startup.
-            docker ps -a
+            if [ -f /tmp/db-new ]; then
+              echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
+              make docker-start
+              sleep 10 # Wait for DB container to startup.
+              docker ps -a
+            fi
       - run:
           name: Import DB.
           command: |
-            make import-db-dump
+            if [ -f /tmp/db-new ]; then
+              make import-db-dump
+            fi
       - run:
           name: Sanitise DB.
           command: |
-            docker exec $(docker-compose ps -q cli) drush sql-sanitize --sanitize-password --sanitize-email -y
+            if [ -f /tmp/db-new ]; then
+              docker exec $(docker-compose ps -q cli) drush sql-sanitize --sanitize-password --sanitize-email -y
+            fi
       - run:
           name: Dump DB.
           command: |
-            docker exec $(docker-compose ps -q cli) drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql
-            mkdir -p .data
-            docker cp -L $(docker-compose ps -q cli):/tmp/.data/db.sql .data/db.sql
+            if [ -f /tmp/db-new ]; then
+              docker exec $(docker-compose ps -q cli) drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql
+              mkdir -p .data
+              docker cp -L $(docker-compose ps -q cli):/tmp/.data/db.sql .data/db.sql
+            fi
       - save_cache:
           key: v3-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
