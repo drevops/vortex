@@ -51,6 +51,57 @@ aliases:
         DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
 
 jobs:
+  sanitisedb:
+    <<: *container_config
+    steps:
+      - attach_workspace:
+          at: /workspace
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Set timestamp for database caching.
+          command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP
+      - restore_cache:
+          keys:
+            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+      # [META]
+      # Download DB dump from public URL to test Drupal-dev project/build.
+      # Replace the line below with your custom database retrieval script in your project.
+      # [/META]
+      - run:
+          name: Downloading database
+          command: if [ ! -f .data/db.sql ] ; then make download-db; else echo "Using cached DB dump";fi
+      # [META]
+      # Uncomment the line below to download DB dump from FTP, using
+      # variables set in Circle CI UI.
+      # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
+      # [/META]
+      - run:
+          name: Start containers.
+          command: |
+            echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
+            make docker-start
+            sleep 10 # Wait for DB container to startup.
+            docker ps -a
+      - run:
+          name: Import DB.
+          command: |
+            make import-db-dump
+      - run:
+          name: Sanitise DB.
+          command: |
+            docker exec $(docker-compose ps -q cli) drush sql-sanitize --sanitize-password --sanitize-email -y
+      - run:
+          name: Dump DB.
+          command: |
+            docker exec $(docker-compose ps -q cli) drush sql-dump --skip-tables-key=common --gzip --result-file=/tmp/.data/db.sql
+            mkdir -p .data
+            docker cp -L $(docker-compose ps -q cli):/tmp/.data/db.sql .data/db.sql
+      - save_cache:
+          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          paths:
+            - .data
+
   build:
     <<: *container_config
     parallelism: 2
@@ -68,22 +119,6 @@ jobs:
       - restore_cache:
           keys:
             - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
-      # [META]
-      # Download DB dump from public URL to test Drupal-dev project/build.
-      # Replace the line below with your custom database retrieval script in your project.
-      # [/META]
-      - run:
-          name: Downloading database
-          command: if [ ! -f .data/db.sql ] ; then make download-db; else echo "Using cached DB dump";fi
-      - save_cache:
-          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
-          paths:
-            - .data
-      # [META]
-      # Uncomment the line below to download DB dump from FTP, using
-      # variables set in Circle CI UI.
-      # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
-      # [/META]
       - run:
           name: Pull newest Docker images.
           command: make docker-pull
@@ -222,7 +257,13 @@ workflows:
   version: 2
   main:
     jobs:
+      - sanitisedb:
+          filters:
+            tags:
+              only: /.*/
       - build:
+          requires:
+            - sanitisedb
           filters:
             tags:
               only: /.*/
