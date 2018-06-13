@@ -106,7 +106,7 @@ docker-stop:
 ## Download database.
 download-db:
 	$(call title,Downloading database)
-	$(call exec,mkdir -p .data && curl -L $(DUMMY_DB) -o .data/db.sql)
+	$(call exec,mkdir -p $(DATA_ROOT) && curl -L $(DUMMY_DB) -o $(DATA_ROOT)/db.sql)
 
 ## Run Drush command.
 drush:
@@ -134,7 +134,10 @@ help:
 import-db:
 	$(call title,Importing database from the dump)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
+	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
+	$(call exec,docker cp -L $(DATA_ROOT)/db.sql $$(docker-compose ps -q cli):/tmp/.data/db.sql)
 	$(call exec,docker-compose exec cli bash -c "drush -r $(DOCROOT) sqlc < /tmp/.data/db.sql")
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) updb -y)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) en mysite_core -y)
 	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
 	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
@@ -186,6 +189,7 @@ APP ?= /app
 WEBROOT ?= web
 DOCROOT ?= $(APP)/$(WEBROOT)
 URL ?= http://mysite.docker.amazee.io/
+DATA_ROOT ?= .data
 
 PHP_LINT_EXTENSIONS ?= php,inc
 PHP_LINT_TARGETS ?= ./
