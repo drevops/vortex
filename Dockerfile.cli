@@ -6,24 +6,19 @@ ENV WEBROOT=docroot \
     MYSQL_HOST=mariadb
 
 RUN apk update \
-    && apk del nodejs nodejs-current yarn \
-    && apk add nodejs-npm patch rsync --update-cache --repository http://dl-3.alpinelinux.org/alpine/v3.7/main/ \
+    && apk add nodejs-npm patch rsync --update-cache --repository http://dl-3.alpinelinux.org/alpine/v3.8/main/ \
     && apk add make \
     && rm -rf /var/cache/apk/*
 
 ADD patches /app/patches
 ADD scripts /app/scripts
 
-COPY composer.json composer.lock /app/
-COPY package.json package-lock.json Gruntfile.js /app/
-COPY .env /app/
-
+COPY composer.json composer.lock .env /app/
 RUN composer install --no-dev --optimize-autoloader --prefer-dist --ansi --no-suggest
 
+COPY package.json package-lock.json Gruntfile.js /app/
 RUN npm install
+RUN npm run build
 
 COPY . /app
 COPY .data/db.sql /tmp/.data/db.sql
-
-RUN npm run build
-RUN rm -rf /app/node_modules

@@ -158,6 +158,6 @@ module.exports = function (grunt) {
 
   grunt.registerTask('lint', ['eslint', 'sasslint']);
   grunt.registerTask('prod', ['lint', 'sass_globbing', 'concat', 'uglify:prod', 'sass:prod', 'postcss:prod', 'copy']);
-  // By default, run grunt with dev settings.
-  grunt.registerTask('default', ['lint', 'sass_globbing', 'concat', 'sass:dev', 'postcss:dev', 'copy']);
+  // By default, run grunt with prod settings.
+  grunt.registerTask('default', ['prod']);
 };
