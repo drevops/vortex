@@ -172,12 +172,14 @@ jobs:
           name: Install dev dependencies.
           command: |
             composer install -n --ansi --prefer-dist --ignore-platform-reqs
-      - run: cp -a .git /workspace/code
+      - run: |
+          cp -a .git /workspace/code
+          cp -a .gitignore.artefact /workspace/code
       - run:
           name: Push artefact to remote repository
           command: |
             if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              make build-artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt
+              vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt
             else
               echo "Skipping deployment"
             fi
@@ -201,13 +203,15 @@ jobs:
           name: Install dev dependencies.
           command: |
             composer install -n --ansi --prefer-dist --ignore-platform-reqs
-      - run: cp -a .git /workspace/code
+      - run: |
+          cp -a .git /workspace/code
+          cp -a .gitignore.artefact /workspace/code
       - run:
           # @see https://github.com/integratedexperts/drupal-dev-destination
           name: Push artefact to remote repository for drupal-dev.
           command: |
             if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
-              make build-artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_drupal_dev_report.txt --branch=release/[tags:-];
+              vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_drupal_dev_report.txt --branch=release/[tags:-];
             else
               echo "Skipping deployment";
             fi
@@ -237,7 +241,7 @@ workflows:
             - build
           filters:
             tags:
-              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z\-])*$/
+              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
             branches:
               ignore: /.*/
       # [/META]

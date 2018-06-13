@@ -10,7 +10,7 @@
 include .env
 
 .DEFAULT_GOAL := help
-.PHONY: build build-artefact build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush help import-db install-site lint login rebuild rebuild-full site-install test test-behat
+.PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush help import-db install-site lint login rebuild rebuild-full site-install test test-behat
 
 ## Build project dependencies.
 build:
@@ -26,11 +26,6 @@ build:
 	@printf "${GREEN}Path inside container :${RESET} $(APP)\n"
 	@printf "${GREEN}Path to docroot       :${RESET} $(DOCROOT)\n"
 	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
-
-## Build deployment artefact.
-build-artefact:
-	$(call title,Building deployment artefact)
-	$(call exec,robo --ansi --load-from $(pwd)/vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact --gitignore=.gitignore.artefact)
 
 ## Build front-end assets.
 build-fed:
@@ -141,9 +136,10 @@ import-db:
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
 	$(call exec,docker-compose exec cli bash -c "drush -r $(DOCROOT) sqlc < /tmp/.data/db.sql")
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) en mysite_core -y)
-	$(call exec,docker-compose exec cli bash -c "if [ -e ./config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
-	$(call exec,docker-compose exec cli bash -c "if [ -e ./config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
+	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
+	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
 	$(call exec,$(MAKE) clear-cache)
+	$(call exec,docker-compose exec cli bash -c "if [ -e ./config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
 	$(call exec,docker-compose exec cli bash -c "if [ -e ./config/sync/*.yml ] ; then drush -r $(DOCROOT) -n cim 2>&1 | grep -q 'There are no changes to import.'; fi")
 
 ## Install site. Alias for 'site-install'.
@@ -191,8 +187,8 @@ WEBROOT ?= web
 DOCROOT ?= $(APP)/$(WEBROOT)
 URL ?= http://mysite.docker.amazee.io/
 
-PHP_LINT_EXTENSIONS ?= php
-PHP_LINT_TARGETS ?= .
+PHP_LINT_EXTENSIONS ?= php,inc
+PHP_LINT_TARGETS ?= ./
 PHP_LINT_TARGETS := $(subst $\",,$(PHP_LINT_TARGETS))
 
 # Prefix of the Docker images.
