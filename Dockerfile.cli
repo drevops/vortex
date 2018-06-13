@@ -18,7 +18,9 @@ RUN composer install --no-dev --optimize-autoloader --prefer-dist --ansi --no-su
 
 COPY package.json package-lock.json Gruntfile.js /app/
 RUN npm install
-RUN npm run build
 
 COPY . /app
+
+RUN npm run build
+
 COPY .data/db.sql /tmp/.data/db.sql

@@ -19,4 +19,6 @@ docroot/libraries
 !package.json
 !package-lock.json
 !Gruntfile.js
+!.eslintrc.json
+!.sass-lint.yml
 !.data
