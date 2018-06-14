@@ -51,7 +51,7 @@ aliases:
         DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
 
 jobs:
-  db:
+  database:
     <<: *container_config
     steps:
       - attach_workspace:
@@ -59,7 +59,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Set timestamp for database caching.
+          name: Set timestamp for database caching
           command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
@@ -77,7 +77,7 @@ jobs:
       # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
       # [/META]
       - run:
-          name: Start containers.
+          name: Start containers
           command: |
             if [ -f /tmp/db-new ]; then
               echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
@@ -86,7 +86,7 @@ jobs:
               docker ps -a
             fi
       - run:
-          name: Import DB.
+          name: Import DB
           command: |
             if [ -f /tmp/db-new ]; then
               make import-db-dump
@@ -97,7 +97,7 @@ jobs:
       # specified in DB_SANITIZE_SQL variable.
       # [/META]
       - run:
-          name: Sanitise DB.
+          name: Sanitise DB
           command: |
             if [ "DB_SANITIZE" != "" ] && [ -f /tmp/db-new ]; then
               docker exec $(docker-compose ps -q cli) drush sql-sanitize --sanitize-password --sanitize-email -y
@@ -111,7 +111,7 @@ jobs:
               fi
             fi
       - run:
-          name: Dump DB.
+          name: Dump DB
           command: |
             if [ -f /tmp/db-new ]; then
               docker exec $(docker-compose ps -q cli) drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql
@@ -132,7 +132,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Composer validate.
+          name: Composer validate
           command: composer validate --ansi --strict
       - run:
           name: Set timestamp for database caching.
@@ -145,10 +145,10 @@ jobs:
           command: |
             if [ ! -f .data/db.sql ] ; then echo "Unable to find DB"; exit 1; fi
       - run:
-          name: Pull newest Docker images.
+          name: Pull newest Docker images
           command: make docker-pull
       - run:
-          name: Start containers.
+          name: Start containers
           command: |
             echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
             make docker-start
@@ -160,17 +160,17 @@ jobs:
       # to store built codebase into workspace to later use it in 'deploy'
       # job.
       - run:
-          name: Copy built codebase into workspace for future deployment.
+          name: Copy built codebase into workspace for future deployment
           command: |
             mkdir -p /workspace/code
             docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
       - run:
-          name: Site setup.
+          name: Site setup
           command: |
             make import-db
             make docker-cli -- mkdir -p /app/screenshots
       - run:
-          name: Copy development files and configurations into container.
+          name: Copy development files and configurations into container
           command: |
             docker cp -L behat.yml $(docker-compose ps -q cli):/app/
             docker cp -L Makefile $(docker-compose ps -q cli):/app/
@@ -178,20 +178,20 @@ jobs:
             docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
             docker cp -L tests $(docker-compose ps -q cli):/app/
       - run:
-          name: Install dev dependencies.
+          name: Install dev dependencies
           command: |
             make docker-cli -- composer install --ansi
             make docker-cli -- npm install
       - run:
-          name: Lint code.
+          name: Lint code
           command: docker exec $(docker-compose ps -q cli) make lint
       - run:
-          name: Run tests.
+          name: Run tests
           command: |
             [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX
             make test-behat || make test-behat --rerun
       - run:
-          name: Copy artifacts.
+          name: Copy artifacts
           command: |
             mkdir -p /tmp/artifacts/behat
             docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
@@ -199,7 +199,7 @@ jobs:
       - store_artifacts:
           path: /tmp/artifacts
       - run:
-          name: Copy built dev codebase into workspace.
+          name: Copy built dev codebase into workspace
           command: |
             mkdir -p /workspace/code-dev
             docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code-dev
@@ -229,7 +229,7 @@ jobs:
       - attach_workspace:
           at: /workspace
       - run:
-          name: Install dev dependencies.
+          name: Install dev dependencies
           command: |
             composer install -n --ansi --prefer-dist --ignore-platform-reqs
       - run: |
@@ -260,7 +260,7 @@ jobs:
       - attach_workspace:
           at: /workspace
       - run:
-          name: Install dev dependencies.
+          name: Install dev dependencies
           command: |
             composer install -n --ansi --prefer-dist --ignore-platform-reqs
       - run: |
@@ -268,7 +268,7 @@ jobs:
           cp -a .gitignore.artefact /workspace/code
       - run:
           # @see https://github.com/integratedexperts/drupal-dev-destination
-          name: Push artefact to remote repository for drupal-dev.
+          name: Push artefact to remote repository for drupal-dev
           command: |
             if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
               vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_drupal_dev_report.txt --branch=release/[tags:-];
@@ -282,13 +282,13 @@ workflows:
   version: 2
   main:
     jobs:
-      - db:
+      - database:
           filters:
             tags:
               only: /.*/
       - build:
           requires:
-            - db
+            - database
           filters:
             tags:
               only: /.*/
