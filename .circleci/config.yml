@@ -297,6 +297,8 @@ workflows:
           filters:
             branches:
               only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+/
+            tags:
+              ignore: /.*/
 
       # [META]
       # Tag deployment for drupal-dev itself. Remove the code below in
