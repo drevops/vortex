@@ -73,7 +73,7 @@ jobs:
           command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v7-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
       # [META]
       # Download DB dump from public URL to test Drupal-dev project/build.
       # Replace the line below with your custom database retrieval script in your project.
@@ -123,7 +123,7 @@ jobs:
               make export-db-dump
             fi
       - save_cache:
-          key: v7-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
 
@@ -143,7 +143,7 @@ jobs:
           command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v7-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
       - run:
           name: Check DB availability
           command: |
