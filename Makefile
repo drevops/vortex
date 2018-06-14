@@ -11,7 +11,7 @@ include .env
 -include .env.local
 
 .DEFAULT_GOAL := help
-.PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush help import-db import-db-dump install-site lint login rebuild rebuild-full site-install test test-behat
+.PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush export-db-dump help import-db import-db-dump install-site lint login rebuild rebuild-full site-install test test-behat
 
 ## Build project dependencies.
 build:
@@ -116,6 +116,14 @@ drush:
 	$(call title,Executing Drush command inside CLI container)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) $(filter-out $@,$(MAKECMDGOALS)))
 
+## Export database dump.
+export-db-dump:
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
+	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
+	$(call exec,docker exec $$(docker-compose ps -q cli) drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql)
+	$(call exec,mkdir -p $(DOCROOT))
+	$(call exec,docker cp -L $$(docker-compose ps -q cli):/tmp/.data/db.sql $(DOCROOT)/db.sql)
+
 ## Display this help message.
 help:
 	@echo ''
@@ -173,6 +181,11 @@ rebuild: clean build
 
 ## clean and fully re-build project dependencies.
 rebuild-full: clean-full build
+
+## Sanitize database.
+sanitize-db:
+	$(call exec,docker exec $$(docker-compose ps -q cli) drush sql-sanitize --sanitize-password --sanitize-email -y)
+	$(call exec,if [ -f $(DB_SANITIZE_SQL) ]; then docker cp -L $(DB_SANITIZE_SQL) $$(docker-compose ps -q cli):/tmp/$(DB_SANITIZE_SQL); docker exec $$(docker-compose ps -q cli) drush sql-query --file=/tmp/$(DB_SANITIZE_SQL); fi)
 
 # Install site.
 site-install:

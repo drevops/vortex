@@ -34,13 +34,17 @@ Run each command as `make <command>`.
   docker-stop          Stop Docker containers.
   download-db          Download database.
   drush                Run Drush command.
+  export-db-dump       Export database dump.
   help                 Display this help message.
-  import-db            Import database.
+  import-db            Import database dump and run post import commands.
+  import-db-dump       Import database dump.
   install-site         Install site. Alias for 'site-install'.
   lint                 Lint code.
   login                Login to the website.
   rebuild              Re-build project dependencies.
   rebuild-full         Cleanup and fully re-build project dependencies.
+  sanitize-db          Sanitize database.
+  site-install         Install a site.
   test                 Run all tests.
   test-behat           Run Behat tests.
   ```
