@@ -1,0 +1,374 @@
+<?php
+
+/**
+ * @file
+ * Editor integration functions for YUI editor.
+ */
+
+/**
+ * Plugin implementation of hook_editor().
+ */
+function wysiwyg_yui_editor() {
+  $editor['yui'] = array(
+    'title' => 'YUI editor',
+    'vendor url' => 'http://developer.yahoo.com/yui/editor/',
+    'download url' => 'http://developer.yahoo.com/yui/download/',
+    'library path' => wysiwyg_get_path('yui') . '/build',
+    'libraries' => array(
+      'min' => array(
+        'title' => 'Minified',
+        'files' => array(
+          'yahoo-dom-event/yahoo-dom-event.js',
+          'animation/animation-min.js',
+          'element/element-min.js',
+          'container/container-min.js',
+          'menu/menu-min.js',
+          'button/button-min.js',
+          'editor/editor-min.js',
+        ),
+      ),
+      'src' => array(
+        'title' => 'Source',
+        'files' => array(
+          'yahoo-dom-event/yahoo-dom-event.js',
+          'animation/animation.js',
+          'element/element.js',
+          'container/container.js',
+          'menu/menu.js',
+          'button/button.js',
+          'editor/editor.js',
+        ),
+      ),
+    ),
+    'install note callback' => 'wysiwyg_yui_install_note',
+    'verified version range' => array('2.7.0', '2.9.0'),
+    'version callback' => 'wysiwyg_yui_version',
+    'themes callback' => 'wysiwyg_yui_themes',
+    'settings form callback' => 'wysiwyg_yui_settings_form',
+    'load callback' => 'wysiwyg_yui_load',
+    'settings callback' => 'wysiwyg_yui_settings',
+    'plugin callback' => '_wysiwyg_yui_plugins',
+    'plugin meta callback' => '_wysiwyg_yui_plugin_meta',
+    'proxy plugin' => array(
+      'drupal' => array(
+        'load' => TRUE,
+        'proxy' => TRUE,
+      ),
+    ),
+    'proxy plugin settings callback' => '_wysiwyg_yui_proxy_plugin_settings',
+    'versions' => array(
+      '2.7.0' => array(
+        'js files' => array('yui.js'),
+      ),
+    ),
+  );
+  return $editor;
+}
+
+/**
+ * Return an install note.
+ */
+function wysiwyg_yui_install_note() {
+  $output = '<p class="warning">' . t('YUI 3 is not supported because it does not contain a complete editor.') . '</p>';
+  return $output;
+}
+
+/**
+ * Detect editor version.
+ *
+ * @param $editor
+ *   An array containing editor properties as returned from hook_editor().
+ *
+ * @return
+ *   The installed editor version.
+ */
+function wysiwyg_yui_version($editor) {
+  $library = $editor['library path'] . '/editor/editor.js';
+  if (!file_exists($library)) {
+    return;
+  }
+  $library = fopen($library, 'r');
+  $max_lines = 10;
+  while ($max_lines && $line = fgets($library, 60)) {
+    if (preg_match('@version:\s([0-9\.]+)@', $line, $version)) {
+      fclose($library);
+      return $version[1];
+    }
+    $max_lines--;
+  }
+  fclose($library);
+}
+
+/**
+ * Determine available editor themes or check/reset a given one.
+ *
+ * @param $editor
+ *   A processed hook_editor() array of editor properties.
+ * @param $profile
+ *   A wysiwyg editor profile.
+ *
+ * @return
+ *   An array of theme names. The first returned name should be the default
+ *   theme name.
+ */
+function wysiwyg_yui_themes($editor, $profile) {
+  return array('sam');
+}
+
+/**
+ * Enhances the editor profile settings form for YUI.
+ *
+ * @see http://developer.yahoo.com/yui/docs/YAHOO.widget.Editor.html
+ */
+function wysiwyg_yui_settings_form(&$form, &$form_state) {
+  $profile = $form_state['wysiwyg_profile'];
+  $settings = $profile->settings;
+  $settings += array(
+    'autoHeight' => FALSE,
+    'block_formats' => 'p,h1,h2,h3,h4,h5,h6',
+  );
+
+  $form['basic']['language']['#access'] = FALSE;
+
+  $form['appearance']['autoHeight'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable automatic height'),
+    '#default_value' => $settings['autoHeight'],
+    '#return_value' => 1,
+    '#description' => t('When enabled, removes the scrollbars from the edit area and resizes it to fit the content.') . ' ' . t('Uses the <a href="@url">@setting</a> setting internally.', array('@setting' => 'autoHeight', '@url' => url('http://developer.yahoo.com/yui/docs/YAHOO.widget.SimpleEditor.html#config_autoHeight'))),
+  );
+
+  $form['css']['block_formats'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Block formats'),
+    '#default_value' => $settings['block_formats'],
+    '#size' => 40,
+    '#maxlength' => 250,
+    '#description' => t('Comma separated list of HTML block formats. Possible values: <code>@format-list</code>.', array('@format-list' => 'p,h1,h2,h3,h4,h5,h6,')),
+  );
+}
+
+/**
+ * Perform additional actions upon loading this editor.
+ *
+ * @param $editor
+ *   A processed hook_editor() array of editor properties.
+ * @param $library
+ *   The internal library name (array key) to use.
+ */
+function wysiwyg_yui_load($editor, $library) {
+  drupal_add_css($editor['library path'] . '/menu/assets/skins/sam/menu.css');
+  drupal_add_css($editor['library path'] . '/button/assets/skins/sam/button.css');
+  drupal_add_css($editor['library path'] . '/fonts/fonts-min.css');
+  drupal_add_css($editor['library path'] . '/container/assets/skins/sam/container.css');
+  drupal_add_css($editor['library path'] . '/editor/assets/skins/sam/editor.css');
+}
+
+/**
+ * Return runtime editor settings for a given wysiwyg profile.
+ *
+ * @param $editor
+ *   A processed hook_editor() array of editor properties.
+ * @param $config
+ *   An array containing wysiwyg editor profile settings.
+ * @param $theme
+ *   The name of a theme/GUI/skin to use.
+ *
+ * @return
+ *   A settings array to be populated in
+ *   Drupal.settings.wysiwyg.configs.{editor}
+ */
+function wysiwyg_yui_settings($editor, $config, $theme) {
+  $settings = array(
+    'theme' => $theme,
+    'animate' => TRUE,
+    'handleSubmit' => TRUE,
+    'markup' => 'xhtml',
+    'ptags' => TRUE,
+  );
+
+  if (!empty($config['autoHeight'])) {
+    $settings['autoHeight'] = TRUE;
+  }
+
+  $settings += array(
+    'toolbar' => array(
+      'collapse' => FALSE,
+      'draggable' => TRUE,
+      'buttonType' => 'advanced',
+      'buttons' => array(),
+    ),
+  );
+  if (!empty($config['buttons'])) {
+    $buttons = array();
+    foreach ($config['buttons'] as $plugin => $enabled_buttons) {
+      foreach ($enabled_buttons as $button => $enabled) {
+        $extra = array();
+        if ($button == 'heading') {
+          $extra = array('menu' => array(
+            array('text' => 'Normal', 'value' => 'none', 'checked' => TRUE),
+          ));
+          if (!empty($config['block_formats'])) {
+            $headings = array(
+              'p' => array('text' => 'Paragraph', 'value' => 'p'),
+              'h1' => array('text' => 'Heading 1', 'value' => 'h1'),
+              'h2' => array('text' => 'Heading 2', 'value' => 'h2'),
+              'h3' => array('text' => 'Heading 3', 'value' => 'h3'),
+              'h4' => array('text' => 'Heading 4', 'value' => 'h4'),
+              'h5' => array('text' => 'Heading 5', 'value' => 'h5'),
+              'h6' => array('text' => 'Heading 6', 'value' => 'h6'),
+            );
+            foreach (explode(',', preg_replace('@\s+@', '', $config['block_formats'])) as $tag) {
+              if (isset($headings[$tag])) {
+                $extra['menu'][] = $headings[$tag];
+              }
+            }
+          }
+        }
+        elseif ($button == 'fontname') {
+          $extra = array('menu' => array(
+            array('text' => 'Arial', 'checked' => TRUE),
+            array('text' => 'Arial Black'),
+            array('text' => 'Comic Sans MS'),
+            array('text' => 'Courier New'),
+            array('text' => 'Lucida Console'),
+            array('text' => 'Tahoma'),
+            array('text' => 'Times New Roman'),
+            array('text' => 'Trebuchet MS'),
+            array('text' => 'Verdana'),
+          ));
+        }
+        $buttons[] = wysiwyg_yui_button_setting($editor, $plugin, $button, $extra);
+      }
+    }
+    // Group buttons in a dummy group.
+    $buttons = array('group' => 'default', 'label' => '', 'buttons' => $buttons);
+    $settings['toolbar']['buttons'] = array($buttons);
+  }
+
+  if (isset($config['css_setting'])) {
+    if ($config['css_setting'] == 'theme') {
+      $settings['extracss'] = wysiwyg_get_css(isset($config['css_theme']) ? $config['css_theme'] : '');
+    }
+    elseif ($config['css_setting'] == 'self' && isset($config['css_path'])) {
+      $settings['extracss'] = strtr($config['css_path'], array(
+        '%b' => base_path(),
+        '%t' => drupal_get_path('theme', variable_get('theme_default', NULL)),
+        '%q' => variable_get('css_js_query_string', ''),
+      ));
+      $settings['extracss'] = explode(',', $settings['extracss']);
+    }
+    // YUI only supports inline CSS, so we need to use @import directives.
+    // Syntax: '@import "/base/path/to/theme/style.css"; '
+    if (!empty($settings['extracss'])) {
+      $settings['extracss'] = '@import "' . implode('"; @import "', $settings['extracss']) . '";';
+    }
+  }
+
+  return $settings;
+}
+
+/**
+ * Create the JavaScript structure for a YUI button.
+ *
+ * @param $editor
+ *   A processed hook_editor() array of editor properties.
+ * @param $plugin
+ *   The internal name of a plugin.
+ * @param $button
+ *   The internal name of a button, defined by $plugin.
+ * @param $extra
+ *   (optional) An array containing arbitrary other elements to add to the
+ *   resulting button.
+ */
+function wysiwyg_yui_button_setting($editor, $plugin, $button, $extra = array()) {
+  static $plugins;
+
+  if (!isset($plugins)) {
+    $plugins = wysiwyg_get_plugins($editor['name']);
+  }
+
+  // Return a simple separator.
+  if ($button === 'separator') {
+    return array('type' => 'separator');
+  }
+  // Setup defaults.
+  $type = 'push';
+  $label = $plugins[$plugin]['buttons'][$button];
+
+  // Special handling for certain buttons.
+  if (in_array($button, array('heading', 'fontname'))) {
+    $type = 'select';
+    $label = $extra['menu'][0]['text'];
+  }
+  elseif (in_array($button, array('fontsize'))) {
+    $type = 'spin';
+  }
+  elseif (in_array($button, array('forecolor', 'backcolor'))) {
+    $type = 'color';
+  }
+
+  $button = array(
+    'type' => $type,
+    'label' => $label,
+    'value' => $button,
+  );
+  // Add arbitrary other elements, if defined.
+  if (!empty($extra)) {
+    $button = array_merge($button, $extra);
+  }
+  return $button;
+}
+
+/**
+ * Build a JS settings array with global metadata for native external plugins.
+ */
+function _wysiwyg_yui_plugin_meta($editor, $plugin) {
+  $meta = NULL;
+  if (!empty($plugin['load'])) {
+    // Add path for native external plugins; internal ones are loaded
+    // automatically.
+    if (empty($plugin['internal']) && isset($plugin['path'])) {
+      $meta = base_path() . $plugin['path'];
+    }
+  }
+  return $meta;
+}
+
+/**
+ * Build a JS settings array for Drupal plugins loaded via the proxy plugin.
+ */
+function _wysiwyg_yui_proxy_plugin_settings($editor, $profile, $plugins) {
+  $settings = array();
+  foreach ($plugins as $name => $plugin) {
+    $settings[$name] = array();
+  }
+  return $settings;
+}
+
+/**
+ * Return internal plugins for this editor; semi-implementation of hook_wysiwyg_plugin().
+ */
+function _wysiwyg_yui_plugins($editor) {
+  return array(
+    'default' => array(
+      'buttons' => array(
+        'bold' => t('Bold'), 'italic' => t('Italic'), 'underline' => t('Underline'),
+        'strikethrough' => t('Strike-through'),
+        'justifyleft' => t('Align left'), 'justifycenter' => t('Align center'), 'justifyright' => t('Align right'), 'justifyfull' => t('Justify'),
+        'insertunorderedlist' => t('Bullet list'), 'insertorderedlist' => t('Numbered list'),
+        'outdent' => t('Outdent'), 'indent' => t('Indent'),
+        'undo' => t('Undo'), 'redo' => t('Redo'),
+        'createlink' => t('Link'),
+        'insertimage' => t('Image'),
+        'forecolor' => t('Font Color'), 'backcolor' => t('Background Color'),
+        'superscript' => t('Sup'), 'subscript' => t('Sub'),
+        'hiddenelements' => t('Show/hide hidden elements'),
+        'removeformat' => t('Remove format'),
+        'heading' => t('HTML block format'), 'fontname' => t('Font'), 'fontsize' => t('Font size'),
+      ),
+      'internal' => TRUE,
+    ),
+  );
+}
+

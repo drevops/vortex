@@ -1,0 +1,193 @@
+<?php
+
+use Drupal\xautoload\ClassLoader\ApcClassLoader;
+use Drupal\xautoload\ClassLoader\WinCacheClassLoader;
+use Drupal\xautoload\ClassLoader\XCacheClassLoader;
+use Drupal\xautoload\FinderOperation\RegisterActiveExtensionsOperation;
+use Drupal\xautoload\FinderOperation\LoaderSetFinderOperation;
+use Drupal\xautoload\FinderOperation\HookXautoloadOperation;
+
+/*
+ * When the module has just been installed,
+ * Drupal does not know yet this is a boot-level module.
+ *
+ * We can not rely on hook_boot() to fire, and instead register the autoloader
+ * on inclusion of this *.module file.
+ */
+_xautoload_register_drupal();
+
+
+// Hook implementations
+// -----------------------------------------------------------------------------
+
+/**
+ * Implements hook_boot()
+ *
+ * This is only to let Drupal know we want this module to load in bootstrap.
+ */
+function xautoload_boot() {}
+
+/**
+ * Implements hook_custom_theme()
+ * We only do this because that's the first hook to fire after bootstrap.
+ */
+function xautoload_custom_theme() {
+
+  // Make sure this only runs once.
+  // (we run this from hook_init also, to avoid upgrade issues)
+  static $first_run = TRUE;
+  if (!$first_run) {
+    return;
+  }
+  $first_run = FALSE;
+
+  // Trigger invocation of hook_xautoload().
+  $operation = new HookXautoloadOperation();
+  xautoload()->proxyFinder->onFinderInit($operation);
+}
+
+/**
+ * Implements hook_init()
+ *
+ * Note:
+ *   This is a first step to allow modules to register foreign namespaces.
+ *   We will probably change this, to allow bootstrap modules to register their
+ *   namespaces earlier in the request.
+ *   We might also find a solution to cache the result of this hook between
+ *   requests. This would require a different implementation of the InjectedAPI,
+ *   which would no longer have a direct reference to the finder object.
+ */
+function xautoload_init() {
+
+  // If hook_custom_theme() hasn't been triggered, we call it now.
+  xautoload_custom_theme();
+}
+
+/**
+ * Implements hook_module_implements_alter()
+ *
+ * @param array &$implementations
+ * @param string $hook
+ */
+function xautoload_module_implements_alter(&$implementations, $hook) {
+
+  static $modules;
+  if (!isset($modules)) {
+    $modules = module_list();
+  }
+
+  // Some crazy stuff (like using l() in hook_enable()) can trigger hook
+  // invocation on just-enabled modules, before xautoload has a chance to
+  // register their namespaces. The only place to register these modules is
+  // here.
+  foreach ($implementations as $module => $group) {
+    if (empty($modules[$module])) {
+      // This module needs to be registered, to avoid a missing class error.
+      xautoload()->extensionRegistrationService->registerExtensionsByName(array($module));
+      xautoload()->cacheManager->renewCachePrefix();
+      $modules[$module] = $module;
+    }
+  }
+
+  // Most hook implementations are in dedicated files.
+  switch ($hook) {
+    case 'init':
+    case 'custom_theme':
+      // Move xautoload_$hook() to the start.
+      $implementations = array('xautoload' => FALSE) + $implementations;
+      break;
+    case 'form_system_performance_settings_alter':
+      $implementations['xautoload'] = 'ui';
+      module_load_include('ui.inc', 'xautoload');
+      break;
+    case 'modules_installed':
+    case 'modules_enabled':
+    case 'registry_files_alter':
+      $implementations['xautoload'] = 'system';
+      module_load_include('system.inc', 'xautoload');
+      break;
+    default:
+      return;
+  }
+}
+
+// Hooks on behalf of other modules
+// -----------------------------------------------------------------------------
+
+/**
+ * Implements hook_xautoload on behalf of libraries module
+ *
+ * @param \xautoload_InjectedAPI_hookXautoload $api
+ *   An adapter object that can register stuff into the class loader.
+ */
+function libraries_xautoload($api) {
+  if (!function_exists('libraries_info')) {
+    // Libraries is at a lower version, which does not have this function.
+    return;
+  }
+  foreach (libraries_info() as $name => $info) {
+    if (isset($info['xautoload']) && is_callable($f = $info['xautoload'])) {
+      $api->setExtensionDir($dir = libraries_get_path($name));
+      call_user_func($f, $api, $dir);
+    }
+  }
+}
+
+
+// "Private" functions.
+// -----------------------------------------------------------------------------
+
+/**
+ * Register Drupal-related namespaces and prefixes in the xautoload loader.
+ */
+function _xautoload_register_drupal() {
+
+  // Check that this runs only once.
+  static $_first_run = TRUE;
+  if (!$_first_run) {
+    return;
+  }
+  $_first_run = FALSE;
+
+  // Register the class loader itself.
+  require_once dirname(__FILE__) . '/xautoload.early.lib.inc';
+  _xautoload_register();
+
+  $services = xautoload()->getServiceContainer();
+
+  $lazy = variable_get('xautoload_cache_lazy', FALSE);
+
+  $cache_types = variable_get('xautoload_cache_types', array());
+
+  $decorated = $lazy
+    ? $services->proxyFinder
+    : $services->proxyFinder->getFinder()
+  ;
+
+  if (!empty($cache_types['apc']) && extension_loaded('apc') && function_exists('apc_store')) {
+    $cached_loader = ApcClassLoader::create($decorated, $services->cacheManager);
+  }
+  elseif (!empty($cache_types['wincache']) && extension_loaded('wincache') && function_exists('wincache_ucache_get')) {
+    $cached_loader = WinCacheClassLoader::create($decorated, $services->cacheManager);
+  }
+  elseif (!empty($cache_types['xcache']) && extension_loaded('Xcache') && function_exists('xcache_get')) {
+    $cached_loader = XCacheClassLoader::create($decorated, $services->cacheManager);
+  }
+
+  if (isset($cached_loader)) {
+    if ($lazy) {
+      $decorated->onFinderInit(new LoaderSetFinderOperation($cached_loader));
+    }
+    $cached_loader->register();
+    $services->finder->unregister();
+  }
+  else {
+    // No cache is active.
+    // Initialize the finder, to fire scheduled operations.
+    $services->proxyFinder->getFinder();
+  }
+
+  // Register prefixes and namespaces for enabled extensions.
+  $operation = new RegisterActiveExtensionsOperation();
+  xautoload()->proxyFinder->onFinderInit($operation);
+}

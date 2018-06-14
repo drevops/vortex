@@ -1,0 +1,12 @@
+name = Syslog
+description = Logs and records system events to syslog.
+package = Core
+version = VERSION
+core = 7.x
+files[] = syslog.test
+configure = admin/config/development/logging
+
+; Information added by Drupal.org packaging script on 2018-04-25
+version = "7.59"
+project = "drupal"
+datestamp = "1524673284"

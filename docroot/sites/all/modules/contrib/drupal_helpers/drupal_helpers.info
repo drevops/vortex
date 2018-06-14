@@ -1,0 +1,12 @@
+name = Drupal Helpers
+description = Collection of Drupal helper functions and classes.
+php = 5.4
+core = 7.x
+
+dependencies[] = xautoload (>= 7.x-4.0)
+
+; Information added by Drupal.org packaging script on 2018-05-12
+version = "7.x-1.3"
+core = "7.x"
+project = "drupal_helpers"
+datestamp = "1526134387"

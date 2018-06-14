@@ -1,0 +1,27 @@
+{
+    "name": "webflo/drupal-finder",
+    "description": "Helper class to locate a Drupal installation from a given path.",
+    "license": "GPL-2.0+",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Florian Weber",
+            "email": "florian@webflo.org"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "classmap": [
+            "src/DrupalFinder.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DrupalFinder\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8",
+        "mikey179/vfsStream": "^1.6"
+    }
+}
