@@ -29,5 +29,5 @@ behat.yml
 /scripts
 settings.generated.php
 dependencies.yml
-sanitize.sql
+/.dev
 Makefile
