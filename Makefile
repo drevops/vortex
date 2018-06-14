@@ -40,9 +40,6 @@ build-fed-prod:
 	$(call exec,npm install)
 	$(call exec,npm run build-prod)
 
-## Clear Drupal cache. Alias for 'clear-cache'.
-cc: clear-cache
-
 ## Remove dependencies.
 clean:
 	$(call title,Removing dependencies)
@@ -52,21 +49,12 @@ clean:
 	$(call exec,rm -Rf node_modules)
 
 ## Remove dependencies and Docker images.
-clean-full: clean docker-stop docker-destroy
+clean-full: docker-stop docker-destroy clean
 
 ## Clear Drupal cache.
 clear-cache:
 	$(call title,Clearing Drupal cache)
 	$(call exec,docker-compose exec cli bash -c "if [ -e ./$(WEBROOT)/sites/default/services.yml ] ; then drush -r $(DOCROOT) cr -y; else drush -r $(DOCROOT) cc all; fi")
-
-## Lint code. Alias for 'lint'.
-cs: lint
-
-## Import database. Alias for 'import-db'.
-db-import: import-db
-
-## Download database. Alias for 'download-db'.
-db-download: download-db
 
 ## Execute command inside of CLI container.
 docker-cli:
@@ -118,11 +106,10 @@ drush:
 
 ## Export database dump.
 export-db-dump:
-	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
 	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
 	$(call exec,docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql)
-	$(call exec,mkdir -p $(DOCROOT))
-	$(call exec,docker cp -L $$(docker-compose ps -q cli):/tmp/.data/db.sql $(DOCROOT)/db.sql)
+	$(call exec,mkdir -p $(DATA_ROOT))
+	$(call exec,docker cp -L $$(docker-compose ps -q cli):/tmp/.data/db.sql $(DATA_ROOT)/db.sql)
 
 ## Display this help message.
 help:
@@ -145,6 +132,7 @@ help:
 import-db:
 	$(call title,Importing database from the dump)
 	$(call exec,$(MAKE) import-db-dump)
+	$(call exec,$(MAKE) sanitize-db)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) updb -y)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) en mysite_core -y)
 	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
@@ -159,9 +147,6 @@ import-db-dump:
 	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
 	$(call exec,docker cp -L $(DATA_ROOT)/db.sql $$(docker-compose ps -q cli):/tmp/.data/db.sql)
 	$(call exec,docker-compose exec cli bash -c "drush -r $(DOCROOT) sqlc < /tmp/.data/db.sql")
-
-## Install site. Alias for 'site-install'.
-install-site: site-install
 
 ## Lint code.
 lint:

@@ -22,9 +22,6 @@ Run each command as `make <command>`.
   build-fed-prod       Build front-end assets for production.
   clean                Remove dependencies.
   clean-full           Remove dependencies and Docker images.
-  cs                   Lint code. Alias for 'lint'.
-  db-import            Import database. Alias for 'import-db'.
-  db-download          Download database. Alias for 'download-db'.
   docker-cli           Execute command inside of CLI container.
   docker-destroy       Destroy Docker containers.
   docker-logs          Show logs.
@@ -38,7 +35,6 @@ Run each command as `make <command>`.
   help                 Display this help message.
   import-db            Import database dump and run post import commands.
   import-db-dump       Import database dump.
-  install-site         Install site. Alias for 'site-install'.
   lint                 Lint code.
   login                Login to the website.
   rebuild              Re-build project dependencies.
