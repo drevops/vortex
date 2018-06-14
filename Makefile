@@ -26,7 +26,7 @@ build:
 	@printf "${GREEN}Site URL              :${RESET} $(URL)\n"
 	@printf "${GREEN}Path inside container :${RESET} $(APP)\n"
 	@printf "${GREEN}Path to docroot       :${RESET} $(DOCROOT)\n"
-	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush -r $(DOCROOT) uublk 1 && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
+	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush -r $(DOCROOT) uublk 1 > /dev/null && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
 
 ## Build front-end assets.
 build-fed:
@@ -184,8 +184,8 @@ rebuild-full: clean-full build
 
 ## Sanitize database.
 sanitize-db:
-	$(call exec,docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-sanitize --sanitize-password --sanitize-email -y)
-	$(call exec,if [ -f $(DB_SANITIZE_SQL) ]; then docker cp -L $(DB_SANITIZE_SQL) $$(docker-compose ps -q cli):/tmp/$(DB_SANITIZE_SQL); docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-query --file=/tmp/$(DB_SANITIZE_SQL); fi)
+	$(call exec,docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y)
+	@if [ -f $(DB_SANITIZE_SQL) ]; then echo "Applying custom sanitization commands"; docker exec $$(docker-compose ps -q cli) mkdir -p $$(dirname /tmp/$(DB_SANITIZE_SQL)); docker cp -L $(DB_SANITIZE_SQL) $$(docker-compose ps -q cli):/tmp/$(DB_SANITIZE_SQL); docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-query --file=/tmp/$(DB_SANITIZE_SQL); fi
 
 # Install site.
 site-install:
@@ -216,6 +216,9 @@ PHP_LINT_TARGETS ?= ./
 PHP_LINT_TARGETS := $(subst $\",,$(PHP_LINT_TARGETS))
 PHP_LINT_EXCLUDES ?= --exclude vendor --exclude node_modules
 PHP_LINT_EXCLUDES := $(subst $\",,$(PHP_LINT_EXCLUDES))
+
+# Path to a file with additional sanitization commands.
+DB_SANITIZE_SQL ?= .dev/sanitize.sql
 
 # Prefix of the Docker images.
 DOCKER_IMAGE_PREFIX ?= amazeeio
