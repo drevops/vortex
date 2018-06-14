@@ -98,6 +98,8 @@ docker-start:
 	$(call title,Starting Docker containers)
 	$(call exec,COMPOSE_CONVERT_WINDOWS_PATHS=1 docker-compose up -d --build)
 	$(call exec,if docker-compose logs | grep error; then exit 1; fi)
+	sleep 10
+	docker ps -a
 
 ## Stop Docker containers.
 docker-stop:

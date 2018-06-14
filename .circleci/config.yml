@@ -92,8 +92,6 @@ jobs:
             if [ -f /tmp/db-new ]; then
               echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
               make docker-start
-              sleep 10 # Wait for DB container to startup.
-              docker ps -a
             fi
       - run:
           name: Import DB
@@ -162,8 +160,6 @@ jobs:
           command: |
             echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
             make docker-start
-            sleep 10 # Wait for DB container to startup.
-            docker ps -a
       # Since app is being built inside of the containers without dev
       # dependencies and they will be installed later to run tests, but
       # deployment code should not contain any dev dependencies, we have
