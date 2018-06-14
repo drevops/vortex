@@ -103,7 +103,7 @@ jobs:
               docker exec $(docker-compose ps -q cli) drush sql-sanitize --sanitize-password --sanitize-email -y
               if [ -f $DB_SANITIZE_SQL ]; then
                 docker cp -L $DB_SANITIZE_SQL $(docker-compose ps -q cli):/tmp/$DB_SANITIZE_SQL
-                docker exec $(docker-compose ps -q cli) drush sql-connect < /tmp/$DB_SANITIZE_SQL
+                docker exec $(docker-compose ps -q cli) drush sql-query --file=/tmp/$DB_SANITIZE_SQL
               fi
             fi
       - run:
