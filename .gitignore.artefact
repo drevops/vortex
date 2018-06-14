@@ -1,4 +1,4 @@
 # Replaces standard gitignore when artefact is built.
 *
-*/
-!/docroot
+!*/
+!/docroot/*
