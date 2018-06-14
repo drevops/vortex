@@ -51,7 +51,7 @@ aliases:
         DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
 
 jobs:
-  sanitisedb:
+  db:
     <<: *container_config
     steps:
       - attach_workspace:
@@ -91,11 +91,20 @@ jobs:
             if [ -f /tmp/db-new ]; then
               make import-db-dump
             fi
+      # [META]
+      # Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB.
+      # Sanitizing also supports running custom SQL commands set in file
+      # specified in DB_SANITIZE_SQL variable.
+      # [/META]
       - run:
           name: Sanitise DB.
           command: |
-            if [ -f /tmp/db-new ]; then
+            if [ "DB_SANITIZE" != "" ] && [ -f /tmp/db-new ]; then
               docker exec $(docker-compose ps -q cli) drush sql-sanitize --sanitize-password --sanitize-email -y
+              if [ -f $DB_SANITIZE_SQL ]; then
+                docker cp -L $DB_SANITIZE_SQL $(docker-compose ps -q cli):/tmp/$DB_SANITIZE_SQL
+                docker exec $(docker-compose ps -q cli) drush sql-connect < /tmp/$DB_SANITIZE_SQL
+              fi
             fi
       - run:
           name: Dump DB.
@@ -269,13 +278,13 @@ workflows:
   version: 2
   main:
     jobs:
-      - sanitisedb:
+      - db:
           filters:
             tags:
               only: /.*/
       - build:
           requires:
-            - sanitisedb
+            - db
           filters:
             tags:
               only: /.*/
