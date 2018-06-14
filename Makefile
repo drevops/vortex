@@ -26,7 +26,7 @@ build:
 	@printf "${GREEN}Site URL              :${RESET} $(URL)\n"
 	@printf "${GREEN}Path inside container :${RESET} $(APP)\n"
 	@printf "${GREEN}Path to docroot       :${RESET} $(DOCROOT)\n"
-	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush uublk 1 && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
+	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush -r $(DOCROOT) uublk 1 && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
 
 ## Build front-end assets.
 build-fed:
@@ -120,7 +120,7 @@ drush:
 export-db-dump:
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
 	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
-	$(call exec,docker exec $$(docker-compose ps -q cli) drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql)
+	$(call exec,docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql)
 	$(call exec,mkdir -p $(DOCROOT))
 	$(call exec,docker cp -L $$(docker-compose ps -q cli):/tmp/.data/db.sql $(DOCROOT)/db.sql)
 
@@ -173,8 +173,8 @@ lint:
 ## Login to the website.
 login:
 	$(call title,Generating login link for user 1)
-	$(call exec,docker-compose exec cli drush uublk 1)
-	$(call exec,docker-compose exec cli drush uli -r $(DOCROOT) -l $(URL) | xargs open)
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) uublk 1)
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) uli -l $(URL) | xargs open)
 
 ## Re-build project dependencies.
 rebuild: clean build
@@ -184,8 +184,8 @@ rebuild-full: clean-full build
 
 ## Sanitize database.
 sanitize-db:
-	$(call exec,docker exec $$(docker-compose ps -q cli) drush sql-sanitize --sanitize-password --sanitize-email -y)
-	$(call exec,if [ -f $(DB_SANITIZE_SQL) ]; then docker cp -L $(DB_SANITIZE_SQL) $$(docker-compose ps -q cli):/tmp/$(DB_SANITIZE_SQL); docker exec $$(docker-compose ps -q cli) drush sql-query --file=/tmp/$(DB_SANITIZE_SQL); fi)
+	$(call exec,docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-sanitize --sanitize-password --sanitize-email -y)
+	$(call exec,if [ -f $(DB_SANITIZE_SQL) ]; then docker cp -L $(DB_SANITIZE_SQL) $$(docker-compose ps -q cli):/tmp/$(DB_SANITIZE_SQL); docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-query --file=/tmp/$(DB_SANITIZE_SQL); fi)
 
 # Install site.
 site-install:
