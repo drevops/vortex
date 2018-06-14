@@ -32,7 +32,7 @@ aliases:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
           # How often to cache DB dump for.
-          DB_TIMESTAMP: +%Y_%m_%d
+          DB_TIMESTAMP: +%Y_%m_%d_%H
   # Step to configure git to connect to remote servers for deployment.
   # [META]
   # It is advised to create separate 'deployer' user with own SSH key for each
@@ -51,6 +51,82 @@ aliases:
         DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
 
 jobs:
+  # [META]
+  # Database handling is a first step of the build. It contains:
+  # - database download
+  # - database sanitization
+  # - database caching
+  #
+  # Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB.
+  # Sanitizing also supports running custom SQL commands set in file
+  # specified in DB_SANITIZE_SQL variable.
+  # [/META]
+  database:
+    <<: *container_config
+    steps:
+      - attach_workspace:
+          at: /workspace
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Set timestamp for database caching
+          command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
+      - restore_cache:
+          keys:
+            - v11-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+      # [META]
+      # Download DB dump from public URL to test Drupal-dev project/build.
+      # Replace the line below with your custom database retrieval script in your project.
+      # [/META]
+      - run:
+          name: Downloading database
+          command: if [ ! -f .data/db.sql ] ; then touch /tmp/db-new; make download-db; else echo "Using cached DB dump";fi
+      # [META]
+      # Uncomment the line below to download DB dump from FTP, using
+      # variables set in Circle CI UI.
+      # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
+      # [/META]
+      - run:
+          name: Start containers
+          command: |
+            if [ -f /tmp/db-new ]; then
+              echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
+              make docker-start
+            fi
+      - run:
+          name: Import DB
+          command: |
+            if [ -f /tmp/db-new ]; then
+              make import-db-dump
+            fi
+      # [META]
+      # Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB.
+      # Sanitizing also supports running custom SQL commands set in file
+      # specified in DB_SANITIZE_SQL variable.
+      # [/META]
+      - run:
+          name: Sanitize DB
+          command: |
+            if [ "DB_SANITIZE" != "" ] && [ -f /tmp/db-new ]; then
+              make sanitize-db
+              # [META]
+              # Assering that sanitisation ideed worked. This is a part of drupal-dev build. Remove the lines below.
+              if [ -f $DB_SANITIZE_SQL ]; then
+                docker exec $(docker-compose ps -q cli) drush sql-query "SELECT status FROM users WHERE uid=1" | grep -q "0"
+              fi
+              # [/META]
+            fi
+      - run:
+          name: Dump DB
+          command: |
+            if [ -f /tmp/db-new ]; then
+              make export-db-dump
+            fi
+      - save_cache:
+          key: v11-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          paths:
+            - .data
+
   build:
     <<: *container_config
     parallelism: 2
@@ -60,57 +136,40 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Composer validate.
+          name: Composer validate
           command: composer validate --ansi --strict
-      - run:
-          name: Set timestamp for database caching.
-          command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
-      # [META]
-      # Download DB dump from public URL to test Drupal-dev project/build.
-      # Replace the line below with your custom database retrieval script in your project.
-      # [/META]
+            - v11-db7-
       - run:
-          name: Downloading database
-          command: if [ ! -f .data/db.sql ] ; then make download-db; else echo "Using cached DB dump";fi
-      - save_cache:
-          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
-          paths:
-            - .data
-      # [META]
-      # Uncomment the line below to download DB dump from FTP, using
-      # variables set in Circle CI UI.
-      # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
-      # [/META]
+          name: Check DB availability
+          command: |
+            if [ ! -f .data/db.sql ] ; then echo "Unable to find DB"; exit 1; fi
       - run:
-          name: Pull newest Docker images.
+          name: Pull newest Docker images
           command: make docker-pull
       - run:
-          name: Start containers.
+          name: Start containers
           command: |
             echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
             make docker-start
-            sleep 10 # Wait for DB container to startup.
-            docker ps -a
       # Since app is being built inside of the containers without dev
       # dependencies and they will be installed later to run tests, but
       # deployment code should not contain any dev dependencies, we have
       # to store built codebase into workspace to later use it in 'deploy'
       # job.
       - run:
-          name: Copy built codebase into workspace for future deployment.
+          name: Copy built codebase into workspace for future deployment
           command: |
             mkdir -p /workspace/code
             docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
       - run:
-          name: Site setup.
+          name: Site setup
           command: |
             make import-db
             make docker-cli -- mkdir -p /app/screenshots
       - run:
-          name: Copy development files and configurations into container.
+          name: Copy development files and configurations into container
           command: |
             docker cp -L behat.yml $(docker-compose ps -q cli):/app/
             docker cp -L Makefile $(docker-compose ps -q cli):/app/
@@ -118,20 +177,20 @@ jobs:
             docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
             docker cp -L tests $(docker-compose ps -q cli):/app/
       - run:
-          name: Install dev dependencies.
+          name: Install dev dependencies
           command: |
             make docker-cli -- composer install --ansi
             make docker-cli -- npm install
       - run:
-          name: Lint code.
+          name: Lint code
           command: docker exec $(docker-compose ps -q cli) make lint
       - run:
-          name: Run tests.
+          name: Run tests
           command: |
             [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX
             make test-behat || make test-behat --rerun
       - run:
-          name: Copy artifacts.
+          name: Copy artifacts
           command: |
             mkdir -p /tmp/artifacts/behat
             docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
@@ -139,7 +198,7 @@ jobs:
       - store_artifacts:
           path: /tmp/artifacts
       - run:
-          name: Copy built dev codebase into workspace.
+          name: Copy built dev codebase into workspace
           command: |
             mkdir -p /workspace/code-dev
             docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code-dev
@@ -169,7 +228,7 @@ jobs:
       - attach_workspace:
           at: /workspace
       - run:
-          name: Install dev dependencies.
+          name: Install dev dependencies
           command: |
             composer install -n --ansi --prefer-dist --ignore-platform-reqs
       - run: |
@@ -200,7 +259,7 @@ jobs:
       - attach_workspace:
           at: /workspace
       - run:
-          name: Install dev dependencies.
+          name: Install dev dependencies
           command: |
             composer install -n --ansi --prefer-dist --ignore-platform-reqs
       - run: |
@@ -208,7 +267,7 @@ jobs:
           cp -a .gitignore.artefact /workspace/code
       - run:
           # @see https://github.com/integratedexperts/drupal-dev-destination
-          name: Push artefact to remote repository for drupal-dev.
+          name: Push artefact to remote repository for drupal-dev
           command: |
             if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
               vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_drupal_dev_report.txt --branch=release/[tags:-];
@@ -222,7 +281,13 @@ workflows:
   version: 2
   main:
     jobs:
+      - database:
+          filters:
+            tags:
+              only: /.*/
       - build:
+          requires:
+            - database
           filters:
             tags:
               only: /.*/
