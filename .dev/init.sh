@@ -43,6 +43,9 @@ main() {
     local remove_meta=$(ask "Do you want to remove all drupal-dev META information? (Y,n) [$remove_meta] " $remove_meta)
   fi
 
+  rm README.md > /dev/null
+  cp .dev/README.template.md README.md
+
   echo
   echo -n "Replacing placeholders in files"
   replace_string_content "mysitetheme" "$site_theme" "$CURDIR" && echo -n "."
