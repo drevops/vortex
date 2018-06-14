@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.cli
+    environment:
+      - PHP_MAX_INPUT_VARS=1000
     image: cli
   nginx:
     build:
