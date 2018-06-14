@@ -11,7 +11,7 @@ include .env
 -include .env.local
 
 .DEFAULT_GOAL := help
-.PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush help import-db install-site lint login rebuild rebuild-full site-install test test-behat
+.PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush export-db-dump help import-db import-db-dump install-site lint login rebuild rebuild-full site-install test test-behat
 
 ## Build project dependencies.
 build:
@@ -26,7 +26,7 @@ build:
 	@printf "${GREEN}Site URL              :${RESET} $(URL)\n"
 	@printf "${GREEN}Path inside container :${RESET} $(APP)\n"
 	@printf "${GREEN}Path to docroot       :${RESET} $(DOCROOT)\n"
-	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
+	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush -r $(DOCROOT) uublk 1 > /dev/null && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
 
 ## Build front-end assets.
 build-fed:
@@ -40,9 +40,6 @@ build-fed-prod:
 	$(call exec,npm install)
 	$(call exec,npm run build-prod)
 
-## Clear Drupal cache. Alias for 'clear-cache'.
-cc: clear-cache
-
 ## Remove dependencies.
 clean:
 	$(call title,Removing dependencies)
@@ -52,21 +49,12 @@ clean:
 	$(call exec,rm -Rf node_modules)
 
 ## Remove dependencies and Docker images.
-clean-full: clean docker-stop docker-destroy
+clean-full: docker-stop docker-destroy clean
 
 ## Clear Drupal cache.
 clear-cache:
 	$(call title,Clearing Drupal cache)
 	$(call exec,docker-compose exec cli bash -c "if [ -e ./$(WEBROOT)/sites/default/services.yml ] ; then drush -r $(DOCROOT) cr -y; else drush -r $(DOCROOT) cc all; fi")
-
-## Lint code. Alias for 'lint'.
-cs: lint
-
-## Import database. Alias for 'import-db'.
-db-import: import-db
-
-## Download database. Alias for 'download-db'.
-db-download: download-db
 
 ## Execute command inside of CLI container.
 docker-cli:
@@ -97,7 +85,9 @@ docker-restart:
 docker-start:
 	$(call title,Starting Docker containers)
 	$(call exec,COMPOSE_CONVERT_WINDOWS_PATHS=1 docker-compose up -d --build)
-	$(call exec,if docker-compose logs | grep error; then exit 1; fi)
+	$(call exec,if docker-compose logs |grep "\[Error\]"; then exit 1; fi)
+	sleep 10
+	docker ps -a
 
 ## Stop Docker containers.
 docker-stop:
@@ -113,6 +103,13 @@ download-db:
 drush:
 	$(call title,Executing Drush command inside CLI container)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) $(filter-out $@,$(MAKECMDGOALS)))
+
+## Export database dump.
+export-db-dump:
+	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
+	$(call exec,docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql)
+	$(call exec,mkdir -p $(DATA_ROOT))
+	$(call exec,docker cp -L $$(docker-compose ps -q cli):/tmp/.data/db.sql $(DATA_ROOT)/db.sql)
 
 ## Display this help message.
 help:
@@ -131,13 +128,11 @@ help:
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
-## Import database.
+## Import database dump and run post import commands.
 import-db:
 	$(call title,Importing database from the dump)
-	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
-	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
-	$(call exec,docker cp -L $(DATA_ROOT)/db.sql $$(docker-compose ps -q cli):/tmp/.data/db.sql)
-	$(call exec,docker-compose exec cli bash -c "drush -r $(DOCROOT) sqlc < /tmp/.data/db.sql")
+	$(call exec,$(MAKE) import-db-dump)
+	$(call exec,$(MAKE) sanitize-db)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) updb -y)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) en mysite_core -y)
 	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
@@ -146,8 +141,12 @@ import-db:
 	$(call exec,docker-compose exec cli bash -c "if [ -e ./config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
 	$(call exec,docker-compose exec cli bash -c "if [ -e ./config/sync/*.yml ] ; then drush -r $(DOCROOT) -n cim 2>&1 | grep -q 'There are no changes to import.'; fi")
 
-## Install site. Alias for 'site-install'.
-install-site: site-install
+## Import database dump.
+import-db-dump:
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
+	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
+	$(call exec,docker cp -L $(DATA_ROOT)/db.sql $$(docker-compose ps -q cli):/tmp/.data/db.sql)
+	$(call exec,docker-compose exec cli bash -c "drush -r $(DOCROOT) sqlc < /tmp/.data/db.sql")
 
 ## Lint code.
 lint:
@@ -159,14 +158,19 @@ lint:
 ## Login to the website.
 login:
 	$(call title,Generating login link for user 1)
-	$(call exec,docker-compose exec cli drush uublk 1)
-	$(call exec,docker-compose exec cli drush uli -r $(DOCROOT) -l $(URL) | xargs open)
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) uublk 1)
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) uli -l $(URL) | xargs open)
 
 ## Re-build project dependencies.
 rebuild: clean build
 
 ## clean and fully re-build project dependencies.
 rebuild-full: clean-full build
+
+## Sanitize database.
+sanitize-db:
+	$(call exec,docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y)
+	@if [ -f $(DB_SANITIZE_SQL) ]; then echo "Applying custom sanitization commands"; docker exec $$(docker-compose ps -q cli) mkdir -p $$(dirname /tmp/$(DB_SANITIZE_SQL)); docker cp -L $(DB_SANITIZE_SQL) $$(docker-compose ps -q cli):/tmp/$(DB_SANITIZE_SQL); docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-query --file=/tmp/$(DB_SANITIZE_SQL); fi
 
 # Install site.
 site-install:
@@ -197,6 +201,9 @@ PHP_LINT_TARGETS ?= ./
 PHP_LINT_TARGETS := $(subst $\",,$(PHP_LINT_TARGETS))
 PHP_LINT_EXCLUDES ?= --exclude vendor --exclude node_modules
 PHP_LINT_EXCLUDES := $(subst $\",,$(PHP_LINT_EXCLUDES))
+
+# Path to a file with additional sanitization commands.
+DB_SANITIZE_SQL ?= .dev/sanitize.sql
 
 # Prefix of the Docker images.
 DOCKER_IMAGE_PREFIX ?= amazeeio
