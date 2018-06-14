@@ -3,7 +3,6 @@ FROM amazeeio/php:7.1-cli-drupal
 ENV WEBROOT=docroot \
     COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
-    PHP_MAX_INPUT_VARS=1000 \
     MYSQL_HOST=mariadb
 
 RUN apk update \
@@ -13,7 +12,8 @@ RUN apk update \
 
 ADD patches /app/patches
 ADD scripts /app/scripts
-
+# Temporary fix for max_input_vars being empty.
+RUN echo "max_input_vars=1000" > /usr/local/etc/php/php.ini
 COPY composer.json composer.lock .env /app/
 RUN composer install --no-dev --optimize-autoloader --prefer-dist --ansi --no-suggest
 
