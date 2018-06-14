@@ -106,7 +106,7 @@ jobs:
               docker cp -L $(docker-compose ps -q cli):/tmp/.data/db.sql .data/db.sql
             fi
       - save_cache:
-          key: v3-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v4-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
 
@@ -127,6 +127,10 @@ jobs:
       - restore_cache:
           keys:
             - v4-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+      - run:
+          name: Check DB availability
+          command: |
+            if [ ! -f .data/db.sql ] ; then echo "Unable to find DB"; exit 1; fi
       - run:
           name: Pull newest Docker images.
           command: make docker-pull
