@@ -104,6 +104,10 @@ jobs:
               if [ -f $DB_SANITIZE_SQL ]; then
                 docker cp -L $DB_SANITIZE_SQL $(docker-compose ps -q cli):/tmp/$DB_SANITIZE_SQL
                 docker exec $(docker-compose ps -q cli) drush sql-query --file=/tmp/$DB_SANITIZE_SQL
+                # [META]
+                # Assering that sanitisation ideed worked. This is a part of drupal-dev build.
+                docker exec $(docker-compose ps -q cli) drush sql-query "SELECT * FROM {users} WHERE uid=1"
+                # [/META]
               fi
             fi
       - run:
