@@ -51,6 +51,16 @@ aliases:
         DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
 
 jobs:
+  # [META]
+  # Database handling is a first step of the build. It contains:
+  # - database download
+  # - database sanitization
+  # - database caching
+  #
+  # Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB.
+  # Sanitizing also supports running custom SQL commands set in file
+  # specified in DB_SANITIZE_SQL variable.
+  # [/META]
   database:
     <<: *container_config
     steps:
@@ -97,7 +107,7 @@ jobs:
       # specified in DB_SANITIZE_SQL variable.
       # [/META]
       - run:
-          name: Sanitise DB
+          name: Sanitize DB
           command: |
             if [ "DB_SANITIZE" != "" ] && [ -f /tmp/db-new ]; then
               docker exec $(docker-compose ps -q cli) drush sql-sanitize --sanitize-password --sanitize-email -y
@@ -105,7 +115,7 @@ jobs:
                 docker cp -L $DB_SANITIZE_SQL $(docker-compose ps -q cli):/tmp/$DB_SANITIZE_SQL
                 docker exec $(docker-compose ps -q cli) drush sql-query --file=/tmp/$DB_SANITIZE_SQL
                 # [META]
-                # Assering that sanitisation ideed worked. This is a part of drupal-dev build.
+                # Assering that sanitisation ideed worked. This is a part of drupal-dev build. Remove the lines below.
                 docker exec $(docker-compose ps -q cli) drush sql-query "SELECT status FROM users WHERE uid=1" | grep -q "0"
                 # [/META]
               fi

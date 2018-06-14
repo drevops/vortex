@@ -112,6 +112,8 @@ questions() {
     remove_tags "META" "$CURDIR" && echo -n "."
   fi
 
+  rm -R .drupal-dev
+
   echo "complete"
 }
 
