@@ -12,7 +12,8 @@ RUN apk update \
 
 ADD patches /app/patches
 ADD scripts /app/scripts
-
+# Temporary fix for max_input_vars being empty.
+RUN echo "max_input_vars=1000" > /usr/local/etc/php/php.ini
 COPY composer.json composer.lock .env /app/
 RUN composer install --no-dev --optimize-autoloader --prefer-dist --ansi --no-suggest
 

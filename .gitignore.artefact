@@ -29,3 +29,5 @@ behat.yml
 /TODO.txt
 settings.generated.php
 dependencies.yml
+/.dev
+Makefile
