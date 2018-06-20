@@ -189,7 +189,7 @@ jobs:
           name: Run tests
           command: |
             [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX
-            make test-behat || make test-behat --rerun
+            make test-behat || make test-behat -- --rerun
       - run:
           name: Copy artifacts
           command: |
