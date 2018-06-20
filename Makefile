@@ -146,7 +146,7 @@ import-db-dump:
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
 	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
 	$(call exec,docker cp -L $(DATA_ROOT)/db.sql $$(docker-compose ps -q cli):/tmp/.data/db.sql)
-	$(call exec,docker-compose exec cli bash -c "drush -r $(DOCROOT) sqlc < /tmp/.data/db.sql")
+	$(call exec,docker-compose exec cli bash -c "drush -r $(DOCROOT) sql-cli < /tmp/.data/db.sql")
 
 ## Lint code.
 lint:

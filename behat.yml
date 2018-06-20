@@ -19,6 +19,7 @@ default:
     Behat\MinkExtension:
       goutte: ~
       base_url: http://nginx:8080
+      files_path: %paths.base%/tests/behat/fixtures
       browser_name: chrome
       selenium2:
         wd_host: "http://selenium:4444/wd/hub"
