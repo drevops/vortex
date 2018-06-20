@@ -27,39 +27,65 @@ if (!defined('ENVIRONMENT_DEV')) {
 }
 $config['environment'] = ENVIRONMENT_LOCAL;
 
+$contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir('modules/contrib') ? 'modules/contrib' : 'modules');
+
 ////////////////////////////////////////////////////////////////////////////////
 ///                       SITE-SPECIFIC SETTINGS                             ///
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- * Location of the site configuration files.
- */
+ini_set('date.timezone', 'Australia/Melbourne');
+date_default_timezone_set('Australia/Melbourne');
+
+$settings['entity_update_batch_size'] = 50;
+
+// Location of the site configuration files.
 $config_directories = [
   CONFIG_SYNC_DIRECTORY => '../sync',
 ];
 
-/**
- * Salt for one-time login links, cancel links, form tokens, etc.
- */
-$settings['hash_salt'] = 'CHANGE_ME';
+// Salt for one-time login links, cancel links, form tokens, etc.
+$settings['hash_salt'] = hash('sha256', 'CHANGE_ME');
 
-$settings['update_free_access'] = FALSE;
+// Expiration of cached pages on Varnish to 15 min.
+$config['system.performance']['cache']['page']['max_age'] = 900;
 
-/**
- * Load services definition file.
- */
+// Aggregate CSS and JS files.
+$config['system.performance']['css']['preprocess'] = 1;
+$config['system.performance']['js']['preprocess'] = 1;
+
+// Fast404.
+$settings['fast404_exts'] = '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+$settings['fast404_allow_anon_imagecache'] = TRUE;
+$settings['fast404_whitelist'] = [
+  'index.php',
+  'rss.xml',
+  'install.php',
+  'cron.php',
+  'update.php',
+  'xmlrpc.php',
+];
+$settings['fast404_string_whitelisting'] = ['/advagg_'];
+$settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+if (file_exists($contrib_path . '/fast404/fast404.inc')) {
+  include_once $contrib_path . '/fast404/fast404.inc';
+  fast404_preboot($settings);
+}
+
+// Temp directory.
+if (getenv('TMP')) {
+  $config['system.file']['path']['temporary'] = getenv('TMP');
+}
+
+// Load services definition file.
 $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 
-/**
- * The default list of directories that will be ignored by Drupal's file API.
- */
+// The default list of directories that will be ignored by Drupal's file API.
 $settings['file_scan_ignore_directories'] = [
   'node_modules',
 ];
 
-/**
- * The default number of entities to update in a batch process.
- */
+
+// The default number of entities to update in a batch process.
 $settings['entity_update_batch_size'] = 50;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,8 +97,10 @@ $settings['entity_update_batch_size'] = 50;
 if (file_exists('/var/www/site-php')) {
   // Delay the initial database connection.
   $config['acquia_hosting_settings_autoconnect'] = FALSE;
-  // The standard require line goes here.
   require '/var/www/site-php/mysite/mysite-settings.inc';
+  // Do not put any Acquia-specific settings in this code block. It is used
+  // for explicit mapping of Acquia environments to $conf['environment']
+  // variable only. Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
   switch ($_ENV['AH_SITE_ENVIRONMENT']) {
     case 'dev':
       $config['environment'] = ENVIRONMENT_DEV;
@@ -88,21 +116,27 @@ if (file_exists('/var/www/site-php')) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+///                       PER-ENVIRONMENT SETTINGS                           ///
+////////////////////////////////////////////////////////////////////////////////
+
+// Environment indicator settings.
+$config['environment_indicator.indicator']['bg_color'] = 'red';
+$config['environment_indicator.indicator']['name'] = $config['environment'] == ENVIRONMENT_PROD ? '#ff0000' : '#006600';
+
 // Include generated settings file, if available.
 if (file_exists($app_root . '/' . $site_path . '/settings.generated.php')) {
   include $app_root . '/' . $site_path . '/settings.generated.php';
 }
 
-/**
- * Load local development override configuration, if available.
- *
- * Use settings.local.php to override variables on secondary (staging,
- * development, etc) installations of this site. Typically used to disable
- * caching, JavaScript/CSS compression, re-routing of outgoing emails, and
- * other things that should not happen on development and testing sites.
- *
- * Keep this code block at the end of this file to take full effect.
- */
+// Load local development override configuration, if available.
+//
+// Use settings.local.php to override variables on secondary (staging,
+// development, etc) installations of this site. Typically used to disable
+// caching, JavaScript/CSS compression, re-routing of outgoing emails, and
+// other things that should not happen on development and testing sites.
+//
+// Keep this code block at the end of this file to take full effect.
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
 }

@@ -15,6 +15,8 @@ use Drupal\DrupalExtension\Context\DrupalContext;
  */
 class FeatureContext extends DrupalContext {
 
+  use WatchdogTrait;
+
   /**
    * Start time for each scenario.
    *
