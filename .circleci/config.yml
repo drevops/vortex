@@ -47,7 +47,7 @@ aliases:
       name: Configure git
       command: |
         git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
-        mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+        mkdir -p ~/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
         DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
 
 jobs:
