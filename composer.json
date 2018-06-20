@@ -118,6 +118,9 @@
             "docroot/.htaccess"
         ],
         "patches": {
+            "behat/gherkin": {
+                "Correctly filter features, now that the base path is correctly set - https://github.com/Behat/Gherkin/pull/129": "https://patch-diff.githubusercontent.com/raw/Behat/Gherkin/pull/129.patch"
+            },
             "drupal/drupal": {
                 "User picture is deleted after calls to user_save() - https://www.drupal.org/node/935592": "https://www.drupal.org/files/issues/935592-150.patch",
                 "Administer Users permission should be separate from Administer Account Settings - https://www.drupal.org/node/366950": "https://www.drupal.org/files/issues/administer_users_-366950-196.patch",
