@@ -31,3 +31,4 @@ settings.generated.php
 dependencies.yml
 /.dev
 Makefile
+patches
