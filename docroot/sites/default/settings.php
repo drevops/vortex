@@ -39,6 +39,11 @@ $update_free_access = FALSE;
 $conf['404_fast_paths_exclude'] = '/\/(?:styles)|(?:system\/files)\//';
 $conf['404_fast_paths'] = '/\.(?:txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
 $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+$drupal_hash_salt = '';
+ini_set('session.gc_probability', 1);
+ini_set('session.gc_divisor', 100);
+ini_set('session.gc_maxlifetime', 200000);
+ini_set('session.cookie_lifetime', 2000000);
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
@@ -49,8 +54,10 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
 if (file_exists('/var/www/site-php')) {
   // Delay the initial database connection.
   $conf['acquia_hosting_settings_autoconnect'] = FALSE;
-  // The standard require line goes here.
   require '/var/www/site-php/mysite/mysite-settings.inc';
+  // Do not put any Acquia-specific settings in this code block. It is used
+  // for explicit mapping of Acquia environments to $conf['environment']
+  // variable only. Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
   switch ($_ENV['AH_SITE_ENVIRONMENT']) {
     case 'dev':
       $conf['environment'] = ENVIRONMENT_DEV;
@@ -65,6 +72,19 @@ if (file_exists('/var/www/site-php')) {
       break;
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+///                       PER-ENVIRONMENT SETTINGS                           ///
+////////////////////////////////////////////////////////////////////////////////
+
+// Environment indicator settings.
+$conf['environment_indicator_overwrite'] = TRUE;
+$conf['environment_indicator_overwritten_name'] = $conf['environment'];
+$conf['environment_indicator_overwritten_color'] = $conf['environment'] == ENVIRONMENT_PROD ? '#ff0000' : '#006600';
+$conf['environment_indicator_overwritten_text_color'] = '#ffffff';
+$conf['environment_indicator_overwritten_position'] = 'top';
+$conf['environment_indicator_overwritten_fixed'] = FALSE;
+$conf['environment_indicator_git_support'] = FALSE;
 
 // Include generated settings file, if available.
 if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.generated.php')) {
