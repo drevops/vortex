@@ -163,7 +163,7 @@ jobs:
           command: |
             mkdir -p /workspace/code
             docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
-            docker exec $(docker-compose ps -q cli) rm -Rf /app/.data
+            docker exec $(docker-compose ps -q cli) rm -Rf /workspace/code
       - run:
           name: Site setup
           command: |
