@@ -163,6 +163,7 @@ jobs:
           command: |
             mkdir -p /workspace/code
             docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
+            docker exec $(docker-compose ps -q cli) rm -Rf /app/.data
       - run:
           name: Site setup
           command: |
@@ -197,16 +198,10 @@ jobs:
           when: always
       - store_artifacts:
           path: /tmp/artifacts
-      - run:
-          name: Copy built dev codebase into workspace
-          command: |
-            mkdir -p /workspace/code-dev
-            docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code-dev
       - persist_to_workspace:
           root: /workspace
           paths:
             - code
-            - code-dev
 
   # Deploy primary branches.
   # [META]
