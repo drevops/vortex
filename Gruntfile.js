@@ -48,6 +48,7 @@ module.exports = function (grunt) {
         }
       }
     },
+    clean: [themePath + 'build'],
     concat: {
       options: {
         separator: '\n\n'
@@ -149,6 +150,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-sass-globbing');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('gruntify-eslint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
@@ -157,7 +159,8 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-exec');
 
   grunt.registerTask('lint', ['eslint', 'sasslint']);
-  grunt.registerTask('prod', ['lint', 'sass_globbing', 'concat', 'uglify:prod', 'sass:prod', 'postcss:prod', 'copy']);
+  grunt.registerTask('prod', ['lint', 'sass_globbing', 'clean', 'concat', 'uglify:prod', 'sass:prod', 'pixrem', 'postcss:prod', 'copy']);
+  grunt.registerTask('dev', ['lint', 'sass_globbing', 'clean', 'concat', 'sass:dev', 'pixrem', 'postcss:dev', 'copy']);
   // By default, run grunt with prod settings.
   grunt.registerTask('default', ['prod']);
 };
