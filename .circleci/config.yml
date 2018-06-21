@@ -188,7 +188,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX
+            [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX && echo "BEHAT_PROFILE=$BEHAT_PROFILE">>.env.local
             make test-behat || make test-behat -- --rerun
       - run:
           name: Copy artifacts
