@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Cloud Hook: drush-cache-clear
+# Cloud Hook: cache-clear
 #
 # Run drush cache-clear all in the target environment. This script works as
 # any Cloud hook.
