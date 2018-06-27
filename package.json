@@ -17,7 +17,7 @@
     "grunt-sass": "3.0.0",
     "grunt-sass-globbing": "^1.5.1",
     "grunt-sass-lint": "^0.2.4",
-    "gruntify-eslint": "^4.0.0",
+    "gruntify-eslint": "5.0.0",
     "node-sass": "^4.9.0",
     "sass-lint": "^1.12.1"
   },
