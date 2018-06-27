@@ -1,6 +1,6 @@
 Feature: Homepage
 
-  Ensure that homepage is displayed as expected
+  Ensure that homepage is displayed as expected.
 
   @api @p0
   Scenario: Anonymous user visits homepage
