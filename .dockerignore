@@ -21,3 +21,4 @@ docroot/profiles/contrib
 !.eslintrc.json
 !.sass-lint.yml
 !.data
+!hooks
