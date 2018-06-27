@@ -30,9 +30,10 @@ aliases:
       - image: integratedexperts/circleci2-builder
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
+          COMPOSE_PROJECT_NAME: mysite
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
           # How often to cache DB dump for.
-          DB_TIMESTAMP: +%Y_%m_%d_%H
+          DB_TIMESTAMP: +%Y_%m_%d
   # Step to configure git to connect to remote servers for deployment.
   # [META]
   # It is advised to create separate 'deployer' user with own SSH key for each
@@ -188,7 +189,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX
+            [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX && echo "BEHAT_PROFILE=$BEHAT_PROFILE">>.env.local
             make test-behat || make test-behat -- --rerun
       - run:
           name: Copy artifacts
