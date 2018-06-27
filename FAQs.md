@@ -28,7 +28,7 @@ make login
 ```
 
 ## How to run Livereload?
-1. Set `$conf['livereload'] = TRUE;` in `settings.local.php` file
+1. Set `$settings['livereload'] = TRUE;` in `settings.local.php` file
 2. Clear drupal cache `make drush cc all`
 3. Run: `npm run watch`
 
