@@ -27,6 +27,7 @@ build:
 	@printf "${GREEN}Site URL              :${RESET} $(URL)\n"
 	@printf "${GREEN}Path inside container :${RESET} $(APP)\n"
 	@printf "${GREEN}Path to docroot       :${RESET} $(DOCROOT)\n"
+	@printf "${GREEN}Mailhog URL           :${RESET} http://mailhog.docker.amazee.io/\n"
 	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush -r $(DOCROOT) uublk 1 > /dev/null && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
 
 ## Build front-end assets.
