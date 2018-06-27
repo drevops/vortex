@@ -12,6 +12,7 @@ include .env
 
 .DEFAULT_GOAL := help
 .PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush export-db-dump help import-db import-db-dump install-site lint login rebuild rebuild-full site-install test test-behat
+.EXPORT_ALL_VARIABLES: ;
 
 ## Build project dependencies.
 build:
@@ -26,6 +27,7 @@ build:
 	@printf "${GREEN}Site URL              :${RESET} $(URL)\n"
 	@printf "${GREEN}Path inside container :${RESET} $(APP)\n"
 	@printf "${GREEN}Path to docroot       :${RESET} $(DOCROOT)\n"
+	@printf "${GREEN}Mailhog URL           :${RESET} http://mailhog.docker.amazee.io/\n"
 	@printf "${GREEN}One-time login        :${RESET} " && docker-compose exec cli drush -r $(DOCROOT) uublk 1 > /dev/null && docker-compose exec cli drush -r $(DOCROOT) -l $(URL) uli
 
 ## Build front-end assets.
@@ -84,15 +86,14 @@ docker-restart:
 ## Start Docker containers.
 docker-start:
 	$(call title,Starting Docker containers)
-	$(call exec,COMPOSE_CONVERT_WINDOWS_PATHS=1 docker-compose up -d --build)
+	$(call exec,COMPOSE_CONVERT_WINDOWS_PATHS=1 docker-compose up -d $(filter-out $@,$(MAKECMDGOALS)))
 	$(call exec,if docker-compose logs |grep "\[Error\]"; then exit 1; fi)
-	sleep 10
-	docker ps -a
+	docker ps -a --filter name=^/$(COMPOSE_PROJECT_NAME)_
 
 ## Stop Docker containers.
 docker-stop:
 	$(call title,Stopping Docker containers)
-	$(call exec,docker-compose stop)
+	$(call exec,docker-compose stop $(filter-out $@,$(MAKECMDGOALS)))
 
 ## Download database.
 download-db:
@@ -189,6 +190,7 @@ test-behat:
 #-------------------------------------------------------------------------------
 # VARIABLES.
 #-------------------------------------------------------------------------------
+COMPOSE_PROJECT_NAME ?= app
 
 APP ?= /app
 WEBROOT ?= web

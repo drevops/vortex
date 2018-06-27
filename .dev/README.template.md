@@ -11,8 +11,9 @@ Drupal 7 implementation of MYSITE
     cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
     cp docroot/sites/default/default.services.local.yml docroot/sites/default/services.local.yml
     ```
-3. Download DB dump and copy to `.data/db.sql`
-4. `make build`
+3. `make download-db`
+4. `pygmy up`
+5. `make build`
 
 ## Available make commands
 Run each command as `make <command>`.
