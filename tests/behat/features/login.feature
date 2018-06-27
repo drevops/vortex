@@ -4,12 +4,12 @@ Feature: Login
 
   @api @p0
   Scenario: Administrator user logs in
-    Given I am logged in as a user with the "Administrator" role
+    Given I am logged in as a user with the "administer site configuration" permission
     When I go to "admin"
     Then I save screenshot
 
   @api @javascript @p1
   Scenario: Administrator user logs in
-    Given I am logged in as a user with the "Administrator" role
+    Given I am logged in as a user with the "administer site configuration" permission
     When I go to "admin"
     Then I save screenshot
