@@ -37,6 +37,7 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
   - testing (including Selenium-based Behat tests)
   - **artefact deployment to [destination repository](https://github.com/integratedexperts/drupal-dev-destination)**
 - Integration with [dependencies.io](https://dependencies.io) to keep the project up-to-date.
+- Acquia Cloud hooks
 - Project documentation [template](.dev/README.template.md) 
 
 ![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
