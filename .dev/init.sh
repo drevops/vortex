@@ -40,8 +40,8 @@ main() {
     site_url=$(ask "What is your site URL? [${site_url}.com]" $site_url)
     local org=$(ask "What is your organization name? [${site_short}_org] " $site_short)
     local org_short=$(shorten "$org")
-    local preserve_acquia_hooks=Y
-    local preserve_acquia_hooks=$(ask "Do you want to leave Acquia Cloud hooks? [${preserve_acquia_hooks}] " $preserve_acquia_hooks)
+    local preserve_acquia_integration=Y
+    local preserve_acquia_integration=$(ask "Do you want to leave Acquia Cloud integration? [${preserve_acquia_integration}] " $preserve_acquia_integration)
     local remove_meta=Y
     local remove_meta=$(ask "Do you want to remove all drupal-dev META information? (Y,n) [$remove_meta] " $remove_meta)
   fi
@@ -62,7 +62,7 @@ main() {
   replace_string_filename "myorg" "$org_short" "$CURDIR" && echo -n "."
   replace_string_filename "mysite" "$site_short" "$CURDIR" && echo -n "."
 
-  if [ "$preserve_acquia_hooks" != "Y" ] ; then
+  if [ "$preserve_acquia_integration" != "Y" ] ; then
     rm -Rf hooks > /dev/null
     rm scripts/acquia-download-backup.sh > /dev/null
     rm DEPLOYMENT.md > /dev/null
