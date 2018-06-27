@@ -98,7 +98,16 @@ docker-stop:
 ## Download database.
 download-db:
 	$(call title,Downloading database)
+	# [META]
+	# Download dummy DB.
+	# Used for demonstration purposes. This line is removed during project init.
 	$(call exec,mkdir -p $(DATA_ROOT) && curl -L $(DUMMY_DB) -o $(DATA_ROOT)/db.sql)
+	# [/META]
+	# [META:ACQUIA]
+	# Download DB from Acquia Cloud backup.
+	# Remove this line if not using Acquia.
+	@AC_API_USER_NAME=$(AC_API_USER_NAME) AC_API_USER_PASS=$(AC_API_USER_PASS) AC_API_DB_SITE=$(AC_API_DB_SITE) AC_API_DB_ENV=$(AC_API_DB_ENV) AC_API_DB_NAME=$(AC_API_DB_NAME) REMOVE_CACHED_DUMPS=$(REMOVE_CACHED_DUMPS) ./scripts/acquia-download-backup.sh
+	# [/META:ACQUIA]
 
 ## Run Drush command.
 drush:

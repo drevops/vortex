@@ -48,6 +48,7 @@ main() {
 
   rm README.md > /dev/null
   cp .dev/README.template.md README.md
+  cp .dev/DEPLOYMENT.template.md DEPLOYMENT.md
 
   echo
   echo -n "Replacing placeholders in files"
@@ -63,6 +64,10 @@ main() {
 
   if [ "$preserve_acquia_hooks" != "Y" ] ; then
     rm -Rf hooks > /dev/null
+    rm scripts/acquia-download-backup.sh > /dev/null
+    rm DEPLOYMENT.md > /dev/null
+    remove_tags "META:ACQUIA" "$CURDIR" && echo -n "."
+    remove_tags "META:DEPLOYMENT" "$CURDIR" && echo -n "."
   fi
 
   if [ "$remove_meta" == "Y" ] ; then

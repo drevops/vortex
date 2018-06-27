@@ -105,3 +105,11 @@ If the build has inconsistent results (build fails in CI but passes locally), tr
 
 ### Test artifacts
 Test artifacts (screenshots etc.) are available under "Artifacts" tab in Circle CI UI.
+
+[]([META:DEPLOYMENT])
+## Deployment
+Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
+[]([/META:DEPLOYMENT]) 
+
+## FAQs
+Please see [FAQs file](FAQs.md)
