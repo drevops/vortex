@@ -33,7 +33,7 @@ aliases:
           COMPOSE_PROJECT_NAME: mysite
           COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
           # How often to cache DB dump for.
-          DB_TIMESTAMP: +%Y_%m_%d_%H
+          DB_TIMESTAMP: +%Y_%m_%d
   # Step to configure git to connect to remote servers for deployment.
   # [META]
   # It is advised to create separate 'deployer' user with own SSH key for each
