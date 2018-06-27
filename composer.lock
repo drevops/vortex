@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "e098483f0fe93e96dad8b7371659b634",
+    "content-hash": "ce8da4762d715828cb4d0c10dd83ad98",
     "packages": [
         {
             "name": "composer/installers",
@@ -245,7 +245,7 @@
                 },
                 "drupal": {
                     "version": "7.59",
-                    "datestamp": "1524674011",
+                    "datestamp": "1524805044",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -262,10 +262,6 @@
                 "GPL-2.0-or-later"
             ],
             "authors": [
-                {
-                    "name": "Cottser",
-                    "homepage": "https://www.drupal.org/user/1167326"
-                },
                 {
                     "name": "David_Rothstein",
                     "homepage": "https://www.drupal.org/user/124982"
@@ -799,9 +795,6 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "4.4-dev"
-                },
-                "patches_applied": {
-                    "Correctly filter features, now that the base path is correctly set - https://github.com/Behat/Gherkin/pull/129": "https://patch-diff.githubusercontent.com/raw/Behat/Gherkin/pull/129.patch"
                 }
             },
             "autoload": {
