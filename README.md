@@ -18,6 +18,7 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
      ```
      make download-db
      ```
+   - Run `pygmy up`.
    - Run `make build`.
 
 ## What is included
