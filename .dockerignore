@@ -22,3 +22,4 @@ docroot/libraries
 !.eslintrc.json
 !.sass-lint.yml
 !.data
+!hooks
