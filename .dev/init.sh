@@ -49,6 +49,7 @@ main() {
   rm README.md > /dev/null
   cp .dev/README.template.md README.md
   cp .dev/DEPLOYMENT.template.md DEPLOYMENT.md
+  cp .dev/FAQs.template.md FAQs.md
 
   echo
   echo -n "Replacing placeholders in files"
