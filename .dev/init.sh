@@ -22,32 +22,49 @@ main() {
   CURDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
   if [ "$1" != "" ] ; then
-    local site_name=$1
-    local site_short=$(shorten "$site_name")
+    local site_name=$(to_human_name $1)
+    local site_short=$(to_machine_name "$1")
     local site_theme=$site_short
     local site_url=${site_short//_/-}
     local org=$site_short
-    local org_short=$(shorten "$org")
+    local org_short=$(to_machine_name "$org")
+    local acquia_hook_short=Y
     local remove_meta=Y
   else
-    local site_name=$(ask "What is your site name?")
-    [ "$site_name" == "" ] && echo "Site name is required" && exit 1
-    local site_short=$(shorten "$site_name")
+    local site_name=$(to_human_name "$(basename $CURDIR)")
+    site_name=$(ask "What is your site name? [$site_name]" "$site_name")
+    local site_short=$(to_machine_name "$site_name")
     site_short=$(ask "What is your site machine name? [$site_short]" $site_short)
+    site_short=$(to_machine_name "$site_short")
     local site_theme=$(ask "What is your theme machine name? [$site_short]" $site_short)
+    site_theme=$(to_machine_name "$site_theme")
     local site_url=${site_short//_/-}
     site_url=$(ask "What is your site URL? [${site_url}.com]" $site_url)
     local org=$(ask "What is your organization name? [${site_short}_org] " $site_short)
-    local org_short=$(shorten "$org")
+    local org_short=$(to_machine_name "$org")
+    local preserve_acquia_integration=Y
+    preserve_acquia_integration=$(ask "Do you want to leave Acquia Cloud integration? [${preserve_acquia_integration}] " $preserve_acquia_integration)
     local remove_meta=Y
-    local remove_meta=$(ask "Do you want to remove all drupal-dev META information? (Y,n) [$remove_meta] " $remove_meta)
+    remove_meta=$(ask "Do you want to remove all drupal-dev META information? (Y,n) [$remove_meta] " $remove_meta)
   fi
+
+  echo
+  local proceed=Y
+  local proceed=$(ask "Proceed with initialising your project $site_name? (Y,n) [$proceed] " $proceed)
+
+  if [ "$proceed" != "Y" ] ; then
+    echo
+    echo "Aborting project initialisation. No files were changed." && return;
+  fi
+
+  echo
+  echo -n "Initialising project "
 
   rm README.md > /dev/null
   cp .dev/README.template.md README.md
+  cp .dev/DEPLOYMENT.template.md DEPLOYMENT.md
+  cp .dev/FAQs.template.md FAQs.md
 
-  echo
-  echo -n "Replacing placeholders in files"
   replace_string_content "mysitetheme" "$site_theme" "$CURDIR" && echo -n "."
   replace_string_content "myorg" "$org_short" "$CURDIR" && echo -n "."
   replace_string_content "mysiteurl" "$site_url" "$CURDIR" && echo -n "."
@@ -58,13 +75,21 @@ main() {
   replace_string_filename "myorg" "$org_short" "$CURDIR" && echo -n "."
   replace_string_filename "mysite" "$site_short" "$CURDIR" && echo -n "."
 
+  if [ "$preserve_acquia_integration" != "Y" ] ; then
+    rm -Rf hooks > /dev/null
+    rm scripts/acquia-download-backup.sh > /dev/null
+    rm DEPLOYMENT.md > /dev/null
+    remove_tags "META:ACQUIA" "$CURDIR" && echo -n "."
+    remove_tags "META:DEPLOYMENT" "$CURDIR" && echo -n "."
+  fi
+
   if [ "$remove_meta" == "Y" ] ; then
     remove_tags "META" "$CURDIR" && echo -n "."
   fi
 
   rm -Rf $CURDIR/.dev > /dev/null
 
-  echo "complete"
+  echo " complete"
 }
 
 ask() {
@@ -117,11 +142,20 @@ to_upper() {
   echo $(echo "$1" | tr '[:lower:]' '[:upper:]')
 }
 
-shorten () {
+to_machine_name () {
   local text=$1
   text=${text//  / }
   text=${text// /_}
+  text=${text//-/_}
   text=$(to_lower $text)
+  echo $text
+}
+
+to_human_name () {
+  local text=$1
+  text=${text//  / }
+  text=${text//_/ }
+  text=${text//-/ }
   echo $text
 }
 
