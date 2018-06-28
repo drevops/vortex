@@ -80,10 +80,6 @@ Automated build is orchestrated to run stages in separate containers, allowing t
 - Supports pre- and post-update hooks. 
 - Flexible [pricing model](https://www.dependencies.io/pricing/) for proprietary projects.
 
-## Presentation
-
-https://goo.gl/CRBFw2
-
 ## Useful projects
 
 - [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artefact to remote repository
