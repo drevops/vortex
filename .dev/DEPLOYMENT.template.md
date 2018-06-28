@@ -7,6 +7,16 @@ The website gets deployed using artefact built on CI and pushed to Acquia Cloud.
 
 There are 2 types of deployments: feature branches and release tags. They are exactly the same except for the resulting branch name on Acquia Cloud (see below).
 
+## Set up
+1. Create Deployer user (deployer@yourcompany.com) account on Acquia.
+2. Add this user to Acquia Cloud application with a role that allows to push
+   code and use Cloud API.   
+3. Login with Deployer user and go to Acquia Cloud UI->Account->Credentials->Copy email and key from section "Cloud API".
+4. SSH into non-production server and run `drush ac-api-login`. Enter copied email and key when prompted. This will store credentials to `~/.acquia/cloudapi.conf`and they will not need to be entered again. This allows to use Cloud API drush commands within hooks. 
+5. Create SSH key (use `deployer+yourproject@yourcompany.com` as an email to distinguish SSH keys) and add it to this user. This key cannot be re-used between projects!
+6. Login to CircleCI, go to Settings->SSH Permissions->Add SSH Key and paste *private* key. This allows to push the code from CI to Acquia git repository.
+7. Copy SHH key fingerprint (looks like `16:02:e3:ca:33:04:82:58:e8:e9:3e:5d:82:17:86:b1`) and replace it inside `.circleci/config.yml`. 
+
 ## Deployment workflow
 1. Developer updates DB in the Acquia Cloud environment by copying PROD database to required environment.
 2. Developer pushes code update to the GitHub branch.
