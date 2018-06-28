@@ -21,10 +21,11 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
    - `make build`
 
 ## What is included
-- Drupal 8 composer-based configuration
+- Drupal 8 Composer-based configuration:
   - contrib modules management
   - libraries management
   - support for patches
+  - development and testing tools
 - Custom core module scaffolding
 - Custom theme scaffolding: Gruntfile, SASS/SCSS, globbing and Livereload.    
 - `make` scripts to build and rebuild the project (consistent commands used in all environments).
