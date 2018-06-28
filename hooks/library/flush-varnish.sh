@@ -5,11 +5,17 @@
 # Support sub-domains and custom domains.
 # Place your domains into domains.txt file.
 #
+# IMPORTANT! This script uses drush ac-* commands and requires credentials
+# for Acquia Cloud. Make sure that file "$HOME/.acquia/cloudapi.conf" exists and
+# follow deployment instructions if it does not.
 
 site="$1"
 target_env="$2"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DOMAINS_FILE=$DIR/../../library/domains.txt
+
+[ ! -f "$DOMAINS_FILE" ] && echo "ERROR: File with domains does not exist." && exit 1
+[ ! -f "$HOME/.acquia/cloudapi.conf" ] && echo "ERROR: Acquia Cloud API credentials file $HOME/.acquia/cloudapi.conf does not exist." && exit 1
 
 while read domain; do
   TARGET_ENV=$target_env
