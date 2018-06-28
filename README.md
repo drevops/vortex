@@ -81,6 +81,11 @@ Automated build is orchestrated to run stages in separate containers, allowing t
 - Supports pre- and post-update hooks. 
 - Flexible [pricing model](https://www.dependencies.io/pricing/) for proprietary projects.
 
+# Contributing
+- Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
+- Create issue and prefix title with Drupal core version: `[7.x] Updated readme file.`. 
+- Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/7.x-updated-readme`.
+
 ## Useful projects
 
 - [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artefact to remote repository
