@@ -1,12 +1,5 @@
 #FAQs
 
-## Why `Makefile`?
-- Consistent commands across projects.  
-- Standalone file that can be easily copied across projects.
-- Works on all *nix systems.
-- Does not require additional language or package installation.
-- Workflow is no longer captured in places that were not designed for it: Composer scripts, NPM scripts etc. 
-
 ## How to know which commands are available?
 ```
 make help
@@ -38,7 +31,3 @@ Note: Watching works only from docker host.
 ```
 ./scripts/xdebug.sh vendor/bin/behat path/to/file
 ```
-
-# Why are `amazeeio` containers used?
-- Amazee.io maintain their containers as they are powering their open-source hosting platform Lagoon.
-- Changes to containers are fully tested with every change using CI systems (part of Lagoon). 
