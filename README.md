@@ -1,5 +1,5 @@
 # drupal-dev
-Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
+Composer-based Drupal 7 and Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
 # WAIT! DO NOT GO! This is NOT the code branch! Use one of the branches below.
 
