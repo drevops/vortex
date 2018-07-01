@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "71259f2ee64586d4869ebf47de84ce33",
+    "content-hash": "9e56c37a2467c1a9e4cdebb61f4952d7",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -4069,6 +4069,9 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "4.4-dev"
+                },
+                "patches_applied": {
+                    "Correctly filter features, now that the base path is correctly set - https://github.com/Behat/Gherkin/pull/129": "https://patch-diff.githubusercontent.com/raw/Behat/Gherkin/pull/129.patch"
                 }
             },
             "autoload": {
@@ -5658,6 +5661,50 @@
             ],
             "description": "Behat Context to capture screenshots from failed tests",
             "time": "2018-05-30T06:56:55+00:00"
+        },
+        {
+            "name": "integratedexperts/behat-steps",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/integratedexperts/behat-steps.git",
+                "reference": "85129345094efb87cf9014adde8533ffe62c63a9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/integratedexperts/behat-steps/zipball/85129345094efb87cf9014adde8533ffe62c63a9",
+                "reference": "85129345094efb87cf9014adde8533ffe62c63a9",
+                "shasum": ""
+            },
+            "require-dev": {
+                "behat/behat": "^3.4",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+                "drupal/coder": "^8.2.12",
+                "drupal/drupal-extension": "^v3.4",
+                "integratedexperts/behat-format-progress-fail": "^0.2",
+                "integratedexperts/behat-screenshot": "^0.7",
+                "jakub-onderka/php-parallel-lint": "^1.0",
+                "wimg/php-compatibility": "^8.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "IntegratedExperts\\BehatSteps\\": "src/",
+                    "IntegratedExperts\\BehatSteps\\D7\\": "src/D7/",
+                    "IntegratedExperts\\BehatSteps\\D8\\": "src/D8/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Collection of Behat traits",
+            "time": "2018-07-01T13:58:47+00:00"
         },
         {
             "name": "integratedexperts/robo-git-artefact",
