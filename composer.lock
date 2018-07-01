@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "831f4d539178a87917f0a228693fbb6b",
+    "content-hash": "f895294986c6aad346d8ac767fa2371c",
     "packages": [
         {
             "name": "composer/installers",
@@ -3077,6 +3077,50 @@
             ],
             "description": "Behat Context to capture screenshots from failed tests",
             "time": "2018-05-30T06:56:55+00:00"
+        },
+        {
+            "name": "integratedexperts/behat-steps",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/integratedexperts/behat-steps.git",
+                "reference": "9e61f42272c869d6bfb9b66e63dc7309d182d1c0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/integratedexperts/behat-steps/zipball/9e61f42272c869d6bfb9b66e63dc7309d182d1c0",
+                "reference": "9e61f42272c869d6bfb9b66e63dc7309d182d1c0",
+                "shasum": ""
+            },
+            "require-dev": {
+                "behat/behat": "^3.4",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+                "drupal/coder": "^8.2.12",
+                "drupal/drupal-extension": "^v3.4",
+                "integratedexperts/behat-format-progress-fail": "^0.2",
+                "integratedexperts/behat-screenshot": "^0.7",
+                "jakub-onderka/php-parallel-lint": "^1.0",
+                "wimg/php-compatibility": "^8.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "IntegratedExperts\\BehatSteps\\": "src/",
+                    "IntegratedExperts\\BehatSteps\\D7\\": "src/D7/",
+                    "IntegratedExperts\\BehatSteps\\D8\\": "src/D8/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Collection of Behat traits",
+            "time": "2018-07-01T13:48:48+00:00"
         },
         {
             "name": "integratedexperts/robo-git-artefact",
