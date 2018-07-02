@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "grunt",
-    "build-prod": "grunt prod",
+    "build-dev": "grunt dev",
     "lint": "grunt lint",
     "watch": "grunt watch"
   }
