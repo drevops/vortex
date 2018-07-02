@@ -49,7 +49,10 @@ clean:
 	$(call exec,rm -Rf node_modules)
 
 ## Remove dependencies and Docker images.
-clean-full: docker-stop docker-destroy clean
+clean-full:
+	$(call exec,$(MAKE) docker-stop)
+	$(call exec,$(MAKE) docker-destroy)
+	$(call exec,$(MAKE) clean)
 
 ## Clear Drupal cache.
 clear-cache:
@@ -176,10 +179,14 @@ login:
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) uli -l $(URL) | xargs open)
 
 ## Re-build project dependencies.
-rebuild: clean build
+rebuild:
+	$(call exec,$(MAKE) clean)
+	$(call exec,$(MAKE) build)
 
 ## clean and fully re-build project dependencies.
-rebuild-full: clean-full build
+rebuild-full:
+	$(call exec,$(MAKE) clean-full)
+	$(call exec,$(MAKE) build)
 
 ## Sanitize database.
 sanitize-db:
@@ -193,7 +200,8 @@ site-install:
 	$(call exec,$(MAKE) clear-cache)
 
 ## Run all tests.
-test: test-behat
+test:
+	$(call exec,$(MAKE) test-behat)
 
 ## Run Behat tests.
 test-behat:
