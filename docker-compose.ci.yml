@@ -9,7 +9,8 @@ services:
   nginx:
     volumes:
       - .:/app/docroot/sites/default/files
-  selenium:
+  chrome:
     image: selenium/standalone-chrome
+    shm_size: '1gb'
     depends_on:
       - cli

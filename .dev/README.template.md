@@ -4,7 +4,7 @@ Drupal 7 implementation of MYSITE
 [![CircleCI](https://circleci.com/gh/myorg/mysite.svg?style=shield)](https://circleci.com/gh/myorg/mysite)
 
 ## Local environment setup
-1. Make sure that you have `make`, [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
+1. Make sure that you have `make`, [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
 2. Checkout project repo
 3. (optional) Copy local settings and services files from defaults:
     ```
