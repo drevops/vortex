@@ -112,4 +112,4 @@ Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
 []([/META:DEPLOYMENT]) 
 
 ## FAQs
-Please see [FAQs file](FAQs.md)
+Please see [FAQs] (FAQs.md)

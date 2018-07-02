@@ -1,4 +1,4 @@
-#FAQs
+# FAQs
 
 ## How to know which commands are available?
 ```
