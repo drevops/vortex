@@ -21,7 +21,7 @@ default:
       files_path: %paths.base%/tests/behat/fixtures
       browser_name: chrome
       selenium2:
-        wd_host: "http://selenium:4444/wd/hub"
+        wd_host: "http://chrome:4444/wd/hub"
         capabilities: { "browser": "chrome", "version": "*", "marionette": true }
       javascript_session: selenium2
     # Provides integration with Drupal APIs.

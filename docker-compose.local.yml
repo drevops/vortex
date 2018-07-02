@@ -24,8 +24,9 @@ services:
   mariadb:
     ports:
       - 13306:3306
-  selenium:
+  chrome:
     image: selenium/standalone-chrome
+    shm_size: '1gb'
     depends_on:
       - cli
 networks:
