@@ -180,12 +180,10 @@ jobs:
             docker cp -L tests $(docker-compose ps -q cli):/app/
       - run:
           name: Install dev dependencies
-          command: |
-            make docker-cli -- composer install --ansi
-            make docker-cli -- npm install
+          command: make install
       - run:
           name: Lint code
-          command: docker exec $(docker-compose ps -q cli) make lint
+          command: make lint
       - run:
           name: Run tests
           command: |
