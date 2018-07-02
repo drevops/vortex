@@ -30,7 +30,7 @@ while read domain; do
   fi
 
   # Disable replacement for unknown environments.
-  if [ "$TARGET_ENV" != "dev" ] && [ "$TARGET_ENV" == "stg" ] ; then
+  if [ "$TARGET_ENV" != "dev" ] && [ "$TARGET_ENV" != "stg" ] ; then
     TARGET_ENV=""
   fi
 
