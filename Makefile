@@ -11,14 +11,14 @@ include .env
 -include .env.local
 
 .DEFAULT_GOAL := help
-.PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush export-db-dump help import-db import-db-dump install-site lint login rebuild rebuild-full site-install test test-behat
+.PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush export-db-dump help install import-db import-db-dump install-site lint login rebuild rebuild-full site-install test test-behat
 .EXPORT_ALL_VARIABLES: ;
 
 ## Build project dependencies.
 build:
 	$(call title,Building project dependencies)
 	$(call exec,$(MAKE) docker-start)
-	$(call exec,composer install -n --ansi --prefer-dist --no-suggest)
+	$(call exec,$(MAKE) install)
 	$(call exec,$(MAKE) build-fed)
 	$(call exec,$(MAKE) import-db)
 	@echo ''
@@ -33,14 +33,12 @@ build:
 ## Build front-end assets.
 build-fed:
 	$(call title,Building front-end assets)
-	$(call exec,npm install)
-	$(call exec,npm run build)
+	$(call exec,docker-compose exec cli npm run build)
 
 ## Build front-end assets for production.
 build-fed-prod:
 	$(call title,Building front-end assets (production))
-	$(call exec,npm install)
-	$(call exec,npm run build-prod)
+	$(call exec,docker-compose exec cli npm run build-prod)
 
 ## Remove dependencies.
 clean:
@@ -51,7 +49,10 @@ clean:
 	$(call exec,rm -Rf node_modules)
 
 ## Remove dependencies and Docker images.
-clean-full: docker-stop docker-destroy clean
+clean-full:
+	$(call exec,$(MAKE) docker-stop)
+	$(call exec,$(MAKE) docker-destroy)
+	$(call exec,$(MAKE) clean)
 
 ## Clear Drupal cache.
 clear-cache:
@@ -116,8 +117,8 @@ drush:
 
 ## Export database dump.
 export-db-dump:
-	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
-	$(call exec,docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql)
+	$(call exec,docker-compose exec cli mkdir -p /tmp/.data)
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql)
 	$(call exec,mkdir -p $(DATA_ROOT))
 	$(call exec,docker cp -L $$(docker-compose ps -q cli):/tmp/.data/db.sql $(DATA_ROOT)/db.sql)
 
@@ -138,6 +139,12 @@ help:
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
+## Install dependencies.
+install:
+	$(call title,Install dependencies)
+	$(call exec,docker-compose exec cli composer install -n --ansi --prefer-dist --no-suggest)
+	$(call exec,docker-compose exec cli npm install)
+
 ## Import database dump and run post import commands.
 import-db:
 	$(call title,Importing database from the dump)
@@ -154,16 +161,16 @@ import-db:
 ## Import database dump.
 import-db-dump:
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-drop -y)
-	$(call exec,docker exec $$(docker-compose ps -q cli) mkdir -p /tmp/.data)
+	$(call exec,docker-compose exec cli mkdir -p /tmp/.data)
 	$(call exec,docker cp -L $(DATA_ROOT)/db.sql $$(docker-compose ps -q cli):/tmp/.data/db.sql)
 	$(call exec,docker-compose exec cli bash -c "drush -r $(DOCROOT) sql-cli < /tmp/.data/db.sql")
 
 ## Lint code.
 lint:
 	$(call title,Linting code)
-	$(call exec,vendor/bin/parallel-lint --exclude vendor $(PHP_LINT_EXCLUDES) -e $(PHP_LINT_EXTENSIONS) $(PHP_LINT_TARGETS))
-	$(call exec,vendor/bin/phpcs)
-	$(call exec,npm run lint)
+	$(call exec,docker-compose exec cli vendor/bin/parallel-lint --exclude vendor $(PHP_LINT_EXCLUDES) -e $(PHP_LINT_EXTENSIONS) $(PHP_LINT_TARGETS))
+	$(call exec,docker-compose exec cli vendor/bin/phpcs)
+	$(call exec,docker-compose exec cli npm run lint)
 
 ## Login to the website.
 login:
@@ -172,15 +179,19 @@ login:
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) uli -l $(URL) | xargs open)
 
 ## Re-build project dependencies.
-rebuild: clean build
+rebuild:
+	$(call exec,$(MAKE) clean)
+	$(call exec,$(MAKE) build)
 
 ## clean and fully re-build project dependencies.
-rebuild-full: clean-full build
+rebuild-full:
+	$(call exec,$(MAKE) clean-full)
+	$(call exec,$(MAKE) build)
 
 ## Sanitize database.
 sanitize-db:
-	$(call exec,docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y)
-	@if [ -f $(DB_SANITIZE_SQL) ]; then echo "Applying custom sanitization commands"; docker exec $$(docker-compose ps -q cli) mkdir -p $$(dirname /tmp/$(DB_SANITIZE_SQL)); docker cp -L $(DB_SANITIZE_SQL) $$(docker-compose ps -q cli):/tmp/$(DB_SANITIZE_SQL); docker exec $$(docker-compose ps -q cli) drush -r $(DOCROOT) sql-query --file=/tmp/$(DB_SANITIZE_SQL); fi
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y)
+	@if [ -f $(DB_SANITIZE_SQL) ]; then echo "Applying custom sanitization commands"; docker-compose exec cli mkdir -p $$(dirname /tmp/$(DB_SANITIZE_SQL)); docker cp -L $(DB_SANITIZE_SQL) $$(docker-compose ps -q cli):/tmp/$(DB_SANITIZE_SQL); docker-compose exec cli drush -r $(DOCROOT) sql-query --file=/tmp/$(DB_SANITIZE_SQL); fi
 
 # Install site.
 site-install:
@@ -189,7 +200,8 @@ site-install:
 	$(call exec,$(MAKE) clear-cache)
 
 ## Run all tests.
-test: test-behat
+test:
+	$(call exec,$(MAKE) test-behat)
 
 ## Run Behat tests.
 test-behat:
