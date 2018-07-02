@@ -89,6 +89,7 @@ Automated build is orchestrated to run stages in separate containers, allowing t
 ## Useful projects
 
 - [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artefact to remote repository
+- [Behat Steps](https://github.com/integratedexperts/behat-steps) - Collection of Behat step definitions.
 - [Behat Screenshot](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
 - [Behat Progress Fail](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fails inline.
 - [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing
