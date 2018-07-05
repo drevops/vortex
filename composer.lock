@@ -873,16 +873,16 @@
         },
         {
             "name": "drupal/core",
-            "version": "8.5.4",
+            "version": "8.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core.git",
-                "reference": "6b4dc1cf3347761f63152a31786b4680b8ac7781"
+                "reference": "900c28f19d4b5643f43c1cf046684046402eaac4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupal/core/zipball/6b4dc1cf3347761f63152a31786b4680b8ac7781",
-                "reference": "6b4dc1cf3347761f63152a31786b4680b8ac7781",
+                "url": "https://api.github.com/repos/drupal/core/zipball/900c28f19d4b5643f43c1cf046684046402eaac4",
+                "reference": "900c28f19d4b5643f43c1cf046684046402eaac4",
                 "shasum": ""
             },
             "require": {
@@ -1104,7 +1104,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Drupal is an open source content management platform powering millions of websites and applications.",
-            "time": "2018-06-06T21:02:51+00:00"
+            "time": "2018-07-04T21:08:11+00:00"
         },
         {
             "name": "drush/drush",
@@ -1715,16 +1715,16 @@
         },
         {
             "name": "paragonie/random_compat",
-            "version": "v2.0.15",
+            "version": "v2.0.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/random_compat.git",
-                "reference": "10bcb46e8f3d365170f6de9d05245aa066b81f09"
+                "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/10bcb46e8f3d365170f6de9d05245aa066b81f09",
-                "reference": "10bcb46e8f3d365170f6de9d05245aa066b81f09",
+                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/29af24f25bab834fcbb38ad2a69fa93b867e070d",
+                "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d",
                 "shasum": ""
             },
             "require": {
@@ -1760,7 +1760,7 @@
                 "pseudorandom",
                 "random"
             ],
-            "time": "2018-06-08T15:26:40+00:00"
+            "time": "2018-07-04T16:31:37+00:00"
         },
         {
             "name": "pear/console_table",
@@ -5661,16 +5661,16 @@
         },
         {
             "name": "integratedexperts/behat-steps",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/behat-steps.git",
-                "reference": "85129345094efb87cf9014adde8533ffe62c63a9"
+                "reference": "4d69eed2d5d85f829fb3b1aa81f60043286316cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/behat-steps/zipball/85129345094efb87cf9014adde8533ffe62c63a9",
-                "reference": "85129345094efb87cf9014adde8533ffe62c63a9",
+                "url": "https://api.github.com/repos/integratedexperts/behat-steps/zipball/4d69eed2d5d85f829fb3b1aa81f60043286316cf",
+                "reference": "4d69eed2d5d85f829fb3b1aa81f60043286316cf",
                 "shasum": ""
             },
             "require-dev": {
@@ -5701,7 +5701,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Collection of Behat traits",
-            "time": "2018-07-01T13:58:47+00:00"
+            "time": "2018-07-05T12:02:46+00:00"
         },
         {
             "name": "integratedexperts/robo-git-artefact",
