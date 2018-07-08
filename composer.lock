@@ -5661,16 +5661,16 @@
         },
         {
             "name": "integratedexperts/behat-steps",
-            "version": "0.1.2",
+            "version": "0.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/behat-steps.git",
-                "reference": "4d69eed2d5d85f829fb3b1aa81f60043286316cf"
+                "reference": "9a10caeac2ae69540184373b66ca312c16de328b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/behat-steps/zipball/4d69eed2d5d85f829fb3b1aa81f60043286316cf",
-                "reference": "4d69eed2d5d85f829fb3b1aa81f60043286316cf",
+                "url": "https://api.github.com/repos/integratedexperts/behat-steps/zipball/9a10caeac2ae69540184373b66ca312c16de328b",
+                "reference": "9a10caeac2ae69540184373b66ca312c16de328b",
                 "shasum": ""
             },
             "require-dev": {
@@ -5701,7 +5701,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Collection of Behat traits",
-            "time": "2018-07-05T12:02:46+00:00"
+            "time": "2018-07-08T13:13:38+00:00"
         },
         {
             "name": "integratedexperts/robo-git-artefact",
