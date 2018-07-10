@@ -3678,16 +3678,16 @@
         },
         {
             "name": "zendframework/zend-diactoros",
-            "version": "1.8.0",
+            "version": "1.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-diactoros.git",
-                "reference": "11c9c1835e60eef6f9234377a480fcec096ebd9e"
+                "reference": "63d920d1c9ebc009d860c3666593a66298727dd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/11c9c1835e60eef6f9234377a480fcec096ebd9e",
-                "reference": "11c9c1835e60eef6f9234377a480fcec096ebd9e",
+                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/63d920d1c9ebc009d860c3666593a66298727dd6",
+                "reference": "63d920d1c9ebc009d860c3666593a66298727dd6",
                 "shasum": ""
             },
             "require": {
@@ -3737,7 +3737,7 @@
                 "psr",
                 "psr-7"
             ],
-            "time": "2018-06-27T18:52:43+00:00"
+            "time": "2018-07-09T21:17:27+00:00"
         },
         {
             "name": "zendframework/zend-escaper",
@@ -5661,16 +5661,16 @@
         },
         {
             "name": "integratedexperts/behat-steps",
-            "version": "0.1.2",
+            "version": "0.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/behat-steps.git",
-                "reference": "4d69eed2d5d85f829fb3b1aa81f60043286316cf"
+                "reference": "4b68b4f4bf8202d78dd37f75244f6094a8da1690"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/behat-steps/zipball/4d69eed2d5d85f829fb3b1aa81f60043286316cf",
-                "reference": "4d69eed2d5d85f829fb3b1aa81f60043286316cf",
+                "url": "https://api.github.com/repos/integratedexperts/behat-steps/zipball/4b68b4f4bf8202d78dd37f75244f6094a8da1690",
+                "reference": "4b68b4f4bf8202d78dd37f75244f6094a8da1690",
                 "shasum": ""
             },
             "require-dev": {
@@ -5701,7 +5701,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Collection of Behat traits",
-            "time": "2018-07-05T12:02:46+00:00"
+            "time": "2018-07-09T17:26:10+00:00"
         },
         {
             "name": "integratedexperts/robo-git-artefact",
