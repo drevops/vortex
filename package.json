@@ -4,8 +4,8 @@
   "private": true,
   "description": "NPM dependencies for MYSITE project",
   "devDependencies": {
-    "autoprefixer": "^8.6.2",
-    "eslint": "5.0.1",
+    "autoprefixer": "9.0.1",
+    "eslint": "5.2.0",
     "grunt": "^1.0.3",
     "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-concat": "^1.0.1",
