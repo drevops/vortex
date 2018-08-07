@@ -27,6 +27,7 @@ Run each command as `make <command>`.
   build-fed-prod       Build front-end assets for production.
   clean                Remove dependencies.
   clean-full           Remove dependencies and Docker images.
+  clear-cache          Clear Drupal cache.
   docker-cli           Execute command inside of CLI container.
   docker-destroy       Destroy Docker containers.
   docker-logs          Show logs.
@@ -38,14 +39,14 @@ Run each command as `make <command>`.
   drush                Run Drush command.
   export-db-dump       Export database dump.
   help                 Display this help message.
+  install              Install dependencies.
   import-db            Import database dump and run post import commands.
   import-db-dump       Import database dump.
   lint                 Lint code.
   login                Login to the website.
   rebuild              Re-build project dependencies.
-  rebuild-full         Cleanup and fully re-build project dependencies.
+  rebuild-full         clean and fully re-build project dependencies.
   sanitize-db          Sanitize database.
-  site-install         Install a site.
   test                 Run all tests.
   test-behat           Run Behat tests.
   ```
