@@ -29,6 +29,7 @@ main() {
     local org=$site_short
     local org_short=$(to_machine_name "$org")
     local preserve_acquia_integration=Y
+    local preserve_lagoon_integration=Y
     local remove_meta=Y
   else
     local site_name=$(to_human_name "$(basename $CURDIR)")
@@ -44,6 +45,8 @@ main() {
     local org_short=$(to_machine_name "$org")
     local preserve_acquia_integration=Y
     preserve_acquia_integration=$(ask "Do you want to keep Acquia Cloud integration? [${preserve_acquia_integration}] " $preserve_acquia_integration)
+    local preserve_lagoon_integration=Y
+    preserve_lagoon_integration=$(ask "Do you want to keep Lagoon integration? [${preserve_lagoon_integration}] " $preserve_lagoon_integration)
     local remove_meta=Y
     remove_meta=$(ask "Do you want to remove all drupal-dev META information? (Y,n) [$remove_meta] " $remove_meta)
   fi
@@ -81,6 +84,12 @@ main() {
     rm DEPLOYMENT.md > /dev/null
     remove_tags_with_content "META:ACQUIA" "$CURDIR" && bash -c "echo -n ."
     remove_tags_with_content "META:DEPLOYMENT" "$CURDIR" && bash -c "echo -n ."
+  fi
+
+  if [ "$preserve_lagoon_integration" != "Y" ] ; then
+    rm drush/aliases.drushrc.php
+    rm .lagoon.yml
+    remove_tags_with_content "META:LAGOON" "$CURDIR" && bash -c "echo -n ."
   fi
 
   if [ "$remove_meta" == "Y" ] ; then
