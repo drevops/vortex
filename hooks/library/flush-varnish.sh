@@ -26,11 +26,11 @@ while read domain; do
 
   # Re-map 'test' to 'stg'.
   if [ "$TARGET_ENV" == "test" ] ; then
-    TARGET_ENV=stg
+    TARGET_ENV=stage
   fi
 
   # Disable replacement for unknown environments.
-  if [ "$TARGET_ENV" != "dev" ] && [ "$TARGET_ENV" != "stg" ] ; then
+  if [ "$TARGET_ENV" != "dev" ] && [ "$TARGET_ENV" != "stage" ] ; then
     TARGET_ENV=""
   fi
 
@@ -40,6 +40,7 @@ while read domain; do
     domain=$(eval echo $domain)
 
     # Clear varnish cache.
-    drush @$site.$target_env ac-domain-purge $domain
+    echo drush @$site.$target_env ac-domain-purge $domain
+    drush @$site.$target_env ac-domain-purge $domain || true
   fi
 done <$DOMAINS_FILE
