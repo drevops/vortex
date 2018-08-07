@@ -25,7 +25,7 @@ if (!defined('ENVIRONMENT_TEST')) {
 if (!defined('ENVIRONMENT_DEV')) {
   define('ENVIRONMENT_DEV', 'dev');
 }
-$config['environment'] = ENVIRONMENT_LOCAL;
+$settings['environment'] = ENVIRONMENT_LOCAL;
 
 $contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir('modules/contrib') ? 'modules/contrib' : 'modules');
 
@@ -103,15 +103,15 @@ if (file_exists('/var/www/site-php')) {
   // variable only. Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
   switch ($_ENV['AH_SITE_ENVIRONMENT']) {
     case 'dev':
-      $config['environment'] = ENVIRONMENT_DEV;
+      $settings['environment'] = ENVIRONMENT_DEV;
       break;
 
     case 'test':
-      $config['environment'] = ENVIRONMENT_TEST;
+      $settings['environment'] = ENVIRONMENT_TEST;
       break;
 
     case 'prod':
-      $config['environment'] = ENVIRONMENT_PROD;
+      $settings['environment'] = ENVIRONMENT_PROD;
       break;
   }
 }
@@ -122,7 +122,7 @@ if (file_exists('/var/www/site-php')) {
 
 // Environment indicator settings.
 $config['environment_indicator.indicator']['bg_color'] = 'red';
-$config['environment_indicator.indicator']['name'] = $config['environment'] == ENVIRONMENT_PROD ? '#ff0000' : '#006600';
+$config['environment_indicator.indicator']['name'] = $settings['environment'] == ENVIRONMENT_PROD ? '#ff0000' : '#006600';
 
 // Include generated settings file, if available.
 if (file_exists($app_root . '/' . $site_path . '/settings.generated.php')) {
