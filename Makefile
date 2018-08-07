@@ -14,13 +14,15 @@ include .env
 .PHONY: build build-fed build-fed-prod clean clean-full cs db-import docker-cli docker-destroy docker-logs docker-pull docker-restart docker-start docker-stop drush export-db-dump help install import-db import-db-dump install-site lint login rebuild rebuild-full site-install test test-behat
 .EXPORT_ALL_VARIABLES: ;
 
-## Build project dependencies.
+## Build project.
 build:
 	$(call title,Building project dependencies)
-	$(call exec,$(MAKE) docker-start)
+	$(call exec,$(MAKE) docker-start -- --build)
 	$(call exec,$(MAKE) install)
 	$(call exec,$(MAKE) build-fed)
 	$(call exec,$(MAKE) import-db)
+	# Replace a line above with a line below to enable site install.
+	# $(call exec,$(MAKE) site-install)
 	@echo ''
 	$(call title,Build complete)
 	@echo ''
@@ -105,9 +107,8 @@ download-db:
 	$(call exec,mkdir -p $(DATA_ROOT) && curl -L $(DUMMY_DB) -o $(DATA_ROOT)/db.sql)
 	# [/META]
 	# [META:ACQUIA]
-	# Download DB from Acquia Cloud backup.
-	# Uncomment this line line using Acquia or remove it otherwise.
-	# @AC_API_USER_NAME=$(AC_API_USER_NAME) AC_API_USER_PASS=$(AC_API_USER_PASS) AC_API_DB_SITE=$(AC_API_DB_SITE) AC_API_DB_ENV=$(AC_API_DB_ENV) AC_API_DB_NAME=$(AC_API_DB_NAME) REMOVE_CACHED_DUMPS=$(REMOVE_CACHED_DUMPS) ./scripts/acquia-download-backup.sh
+	# Download DB from Acquia Cloud backup. Remove if site install is used.
+	#### @AC_API_USER_NAME=$(AC_API_USER_NAME) AC_API_USER_PASS=$(AC_API_USER_PASS) AC_API_DB_SITE=$(AC_API_DB_SITE) AC_API_DB_ENV=$(AC_API_DB_ENV) AC_API_DB_NAME=$(AC_API_DB_NAME) REMOVE_CACHED_DUMPS=$(REMOVE_CACHED_DUMPS) ./scripts/acquia-download-backup.sh
 	# [/META:ACQUIA]
 
 ## Run Drush command.
@@ -139,6 +140,11 @@ help:
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
+# [META]
+init:
+	@. .dev/init.sh $(filter-out $@,$(MAKECMDGOALS))
+# [/META]
+
 ## Install dependencies.
 install:
 	$(call title,Install dependencies)
@@ -150,8 +156,8 @@ import-db:
 	$(call title,Importing database from the dump)
 	$(call exec,$(MAKE) import-db-dump)
 	$(call exec,$(MAKE) sanitize-db)
-	$(call exec,docker-compose exec cli drush -r $(DOCROOT) updb -y)
 	$(call exec,docker-compose exec cli drush -r $(DOCROOT) en mysite_core -y)
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) updb -y)
 	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
 	$(call exec,docker-compose exec cli bash -c "if [ -e $(APP)/config/sync/*.yml ] ; then drush -r $(DOCROOT) -y cim; fi")
 	$(call exec,$(MAKE) clear-cache)
@@ -196,7 +202,8 @@ sanitize-db:
 # Install site.
 site-install:
 	$(call title,Installing a site from profile)
-	$(call exec,docker-compose exec cli drush -r $(DOCROOT) si mysite_profile -y --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL)
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) si $(INSTALL_PROFILE) -y --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL)
+	$(call exec,docker-compose exec cli drush -r $(DOCROOT) en -y mysite_core)
 	$(call exec,$(MAKE) clear-cache)
 
 ## Run all tests.
@@ -218,6 +225,7 @@ WEBROOT ?= web
 DOCROOT ?= $(APP)/$(WEBROOT)
 URL ?= http://mysite.docker.amazee.io/
 DATA_ROOT ?= .data
+INSTALL_PROFILE ?= mysite_profile
 
 PHP_LINT_EXTENSIONS ?= php,inc
 PHP_LINT_TARGETS ?= ./

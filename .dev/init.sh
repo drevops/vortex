@@ -28,7 +28,7 @@ main() {
     local site_url=${site_short//_/-}
     local org=$site_short
     local org_short=$(to_machine_name "$org")
-    local acquia_hook_short=Y
+    local preserve_acquia_integration=Y
     local remove_meta=Y
   else
     local site_name=$(to_human_name "$(basename $CURDIR)")
@@ -43,7 +43,7 @@ main() {
     local org=$(ask "What is your organization name? [${site_short}_org] " $site_short)
     local org_short=$(to_machine_name "$org")
     local preserve_acquia_integration=Y
-    preserve_acquia_integration=$(ask "Do you want to leave Acquia Cloud integration? [${preserve_acquia_integration}] " $preserve_acquia_integration)
+    preserve_acquia_integration=$(ask "Do you want to keep Acquia Cloud integration? [${preserve_acquia_integration}] " $preserve_acquia_integration)
     local remove_meta=Y
     remove_meta=$(ask "Do you want to remove all drupal-dev META information? (Y,n) [$remove_meta] " $remove_meta)
   fi
@@ -58,38 +58,41 @@ main() {
   fi
 
   echo
-  echo -n "Initialising project "
+  bash -c "echo -n Initialising project "
 
   rm README.md > /dev/null
   cp .dev/README.template.md README.md
   cp .dev/DEPLOYMENT.template.md DEPLOYMENT.md
   cp .dev/FAQs.template.md FAQs.md
 
-  replace_string_content "mysitetheme" "$site_theme" "$CURDIR" && echo -n "."
-  replace_string_content "myorg" "$org_short" "$CURDIR" && echo -n "."
-  replace_string_content "mysiteurl" "$site_url" "$CURDIR" && echo -n "."
-  replace_string_content "mysite" "$site_short" "$CURDIR" && echo -n "."
-  replace_string_content "MYSITE" "$site_name" "$CURDIR" && echo -n "."
+  replace_string_content "mysitetheme" "$site_theme" "$CURDIR" && bash -c "echo -n ."
+  replace_string_content "myorg" "$org_short" "$CURDIR" && bash -c "echo -n ."
+  replace_string_content "mysiteurl" "$site_url" "$CURDIR" && bash -c "echo -n ."
+  replace_string_content "mysite" "$site_short" "$CURDIR" && bash -c "echo -n ."
+  replace_string_content "MYSITE" "$site_name" "$CURDIR" && bash -c "echo -n ."
 
-  replace_string_filename "mysitetheme" "$site_theme" "$CURDIR" && echo -n "."
-  replace_string_filename "myorg" "$org_short" "$CURDIR" && echo -n "."
-  replace_string_filename "mysite" "$site_short" "$CURDIR" && echo -n "."
+  replace_string_filename "mysitetheme" "$site_theme" "$CURDIR" && bash -c "echo -n ."
+  replace_string_filename "myorg" "$org_short" "$CURDIR" && bash -c "echo -n ."
+  replace_string_filename "mysite" "$site_short" "$CURDIR" && bash -c "echo -n ."
 
   if [ "$preserve_acquia_integration" != "Y" ] ; then
     rm -Rf hooks > /dev/null
     rm scripts/acquia-download-backup.sh > /dev/null
     rm DEPLOYMENT.md > /dev/null
-    remove_tags "META:ACQUIA" "$CURDIR" && echo -n "."
-    remove_tags "META:DEPLOYMENT" "$CURDIR" && echo -n "."
+    remove_tags_with_content "META:ACQUIA" "$CURDIR" && bash -c "echo -n ."
+    remove_tags_with_content "META:DEPLOYMENT" "$CURDIR" && bash -c "echo -n ."
   fi
 
   if [ "$remove_meta" == "Y" ] ; then
-    remove_tags "META" "$CURDIR" && echo -n "."
+    remove_tags_with_content "META" "$CURDIR" && bash -c "echo -n ."
+    remove_tags "META" "$CURDIR"
   fi
+
+  enable_commented_code "$CURDIR"
 
   rm -Rf $CURDIR/.dev > /dev/null
 
-  echo " complete"
+  bash -c "echo -n complete"
 }
 
 ask() {
@@ -123,7 +126,7 @@ replace_string_filename() {
   find $dir -depth -name "*$needle*" -execdir bash -c 'mv -i "$1" "${1//'$needle'/'$replacement'}"' bash {} \;
 }
 
-remove_tags() {
+remove_tags_with_content() {
   local tag=$1
   local dir=$2
 
@@ -131,6 +134,29 @@ remove_tags() {
     grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$tag\]" $dir | xargs sed -i '' -e "/\[$tag\]/,/\[\/$tag\]/d"
   else
     grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$tag\]" $dir | xargs sed -i -e "/\[$tag\]/,/\[\/$tag\]/d"
+  fi
+}
+
+remove_tags() {
+  local tag=$1
+  local dir=$2
+
+  if [ "$(uname)" == "Darwin" ]; then
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "\[$tag" $dir | xargs sed -i '' -e "/\[$tag/d"
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "\[\/$tag" $dir | xargs sed -i '' -e "/\[\/$tag/d"
+  else
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "\[$tag" $dir | xargs sed -i -e "/\[$tag/d"
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "\[\/$tag" $dir | xargs sed -i -e "/\[\/$tag/d"
+  fi
+}
+
+enable_commented_code() {
+  local dir=$1
+
+  if [ "$(uname)" == "Darwin" ]; then
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "#### " $dir | xargs sed -i '' -e "s/#### //g"
+  else
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "#### " $dir | xargs sed -i -e "s/#### //g"
   fi
 }
 
