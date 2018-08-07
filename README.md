@@ -11,7 +11,7 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 ## Usage
 1. Create a blank project repository.
 2. Download an archive of this project and extract into repository directory.
-3. **Run `. .dev/init.sh` and follow the prompts.** DO NOT SKIP THIS STEP!
+3. **Run `make init` and follow the prompts.** DO NOT SKIP THIS STEP!
 4. Commit all files to your repository and push.
 5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project" and click "Start building" button.
 6. To start developing locally:
