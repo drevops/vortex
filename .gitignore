@@ -30,3 +30,5 @@ node_modules
 docroot/sites/all/themes/**/build
 screenshots
 .data
+
+.env.local
