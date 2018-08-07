@@ -5,10 +5,25 @@ services:
       context: .
       dockerfile: Dockerfile.cli
     image: cli
+    # [META:LAGOON]
+    labels:
+      lagoon.type: cli-persistent
+      lagoon.persistent.name: nginx
+      lagoon.persistent: /app/docroot/sites/default/files/
+    # [/META:LAGOON]
   nginx:
     build:
       context: .
       dockerfile: Dockerfile.nginx
+      args:
+        CLI_IMAGE: cli
+    # [META:LAGOON]
+    labels:
+      lagoon.type: nginx-php-persistent
+      lagoon.persistent: /app/docroot/sites/default/files/
+    environment:
+      LAGOON_ROUTE: http://mysiteurl
+    # [/META:LAGOON]
     networks:
       - default
     depends_on:
@@ -19,11 +34,25 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.php
+      args:
+        CLI_IMAGE: cli
+    # [META:LAGOON]
+    labels:
+      lagoon.type: nginx-php-persistent
+      lagoon.name: nginx
+      lagoon.persistent: /app/docroot/sites/default/files/
+    # [/META:LAGOON]
     depends_on:
       - cli
   mariadb:
     image: amazeeio/centos7-mariadb10-drupal
+    # [META:LAGOON]
+    labels:
+      lagoon.type: mariadb
+    # [/META:LAGOON]
   redis:
     image: amazeeio/redis
+    # [META:LAGOON]
     labels:
       lagoon.type: redis
+    # [/META:LAGOON]
