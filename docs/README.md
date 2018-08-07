@@ -17,7 +17,7 @@ Composer-based Drupal 7 and Drupal 8 project scaffolding with code linting, test
   - development and testing tools
 - Custom core module scaffolding
 - Custom theme scaffolding: Gruntfile, SASS/SCSS, globbing and Livereload.    
-- `Makefile` scripts to build and rebuild the project (consistent commands used in all environments).
+- `make` scripts to build and rebuild the project (consistent commands used in all environments).
 - PHP, JS and SASS code linting with pre-configured Drupal standards
 - Behat testing configuration + usage examples 
 - Integration with [Circle CI](https://circleci.com/) (2.0):
@@ -27,6 +27,7 @@ Composer-based Drupal 7 and Drupal 8 project scaffolding with code linting, test
   - **artefact deployment to [destination repository](https://github.com/integratedexperts/drupal-dev-destination)**
 - Integration with [dependencies.io](https://dependencies.io) to keep the project up-to-date.
 - Integration with Acquia Cloud.
+- Integration with [Lagoon](https://github.com/amazeeio/lagoon).
 - Project documentation templates:
   - [Readme](https://github.com/integratedexperts/drupal-dev/blob/8.x/.dev/README.template.md)
   - [Deployment](https://github.com/integratedexperts/drupal-dev/blob/8.x/.dev/DEPLOYMENT.template.md)
