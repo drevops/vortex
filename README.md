@@ -38,6 +38,7 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
   - **artefact deployment to [destination repository](https://github.com/integratedexperts/drupal-dev-destination)**
 - Integration with [dependencies.io](https://dependencies.io) to keep the project up-to-date.
 - Integration with Acquia Cloud.
+- Integration with [Lagoon](https://github.com/amazeeio/lagoon).
 - Project documentation [template](.dev/README.template.md)
 - Project initialisation script
 
