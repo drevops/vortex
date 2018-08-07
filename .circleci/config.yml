@@ -239,6 +239,35 @@ jobs:
       - store_artifacts:
           path: /tmp/artifacts
 
+  # Deploy release branches.
+  deploy_release:
+    <<: *container_config
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_fingerprint
+      - *step_configure_git
+      - attach_workspace:
+          at: /workspace
+      - run:
+          name: Install dev dependencies
+          command: |
+            composer install -n --ansi --prefer-dist --ignore-platform-reqs
+      - run: |
+          cp -a .git /workspace/code
+          cp -a .gitignore.artefact /workspace/code
+      - run:
+          name: Push artefact to remote repository
+          command: |
+            if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
+              vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt --branch=deployment/[tags:-];
+            else
+              echo "Skipping deployment"
+            fi
+      - store_artifacts:
+          path: /tmp/artifacts
+
   # [META]
   # Deployment for drupal-dev itself. Remove the code below in
   # your project.
@@ -293,6 +322,14 @@ workflows:
               only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+|(?:7|8)\.x/
             tags:
               ignore: /.*/
+      - deploy_release:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)$/
+            branches:
+              only: /master/
 
       # [META]
       # Tag deployment for drupal-dev itself. Remove the code below in
