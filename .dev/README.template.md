@@ -6,19 +6,23 @@ Drupal 8 implementation of MYSITE
 ## Local environment setup
 1. Make sure that you have `make`, [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
 2. Checkout project repo
-3. (optional) Copy local settings and services files from defaults:
-    ```
-    cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
-    cp docroot/sites/default/default.services.local.yml docroot/sites/default/services.local.yml
-    ```
-3. `make download-db`
-4. `pygmy up`
-5. `make build`
+[]([META:ACQUIA])
+3. Add Acquia Cloud credentials to ".env.local" file:
+```
+  # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
+  AC_API_USER_NAME=<YOUR_USERNAME>
+  # Acquia Cloud UI->Account->Credentials->Cloud API->Private key
+  AC_API_USER_PASS=<YOUR_TOKEN>
+```
+[]([/META:ACQUIA])
+4. `make download-db`
+5. `pygmy up`
+6. `make build`
 
 ## Available make commands
 Run each command as `make <command>`.
   ```
-  build                Build project dependencies.
+  build                Build project.
   build-fed            Build front-end assets.
   build-fed-prod       Build front-end assets for production.
   clean                Remove dependencies.
@@ -112,4 +116,4 @@ Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
 []([/META:DEPLOYMENT]) 
 
 ## FAQs
-Please see [FAQs] (FAQs.md)
+Please see [FAQs](FAQs.md)

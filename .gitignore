@@ -29,3 +29,5 @@ node_modules
 docroot/themes/**/build
 screenshots
 .data
+
+.env.local

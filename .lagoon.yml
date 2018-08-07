@@ -1,0 +1,41 @@
+docker-compose-yaml: docker-compose.yml
+
+project: mysite
+
+tasks:
+  post-rollout:
+    - run:
+        name: env variables
+        command: env
+        service: cli
+    - run:
+        name: Setup site
+        command: |
+          mkdir -p /tmp/.data
+          source .env && curl -L $DUMMY_DB -o /tmp/.data/db.sql
+          drush sql-drop -y
+          drush sql-cli < /tmp/.data/db.sql
+          drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
+          # Replace lines above with a line below to enable site install.
+          # drush si -y standard --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+          drush en -y mysite_core
+        service: cli
+    - run:
+        name: Run database updates
+        command: drush updb -y
+        service: cli
+    - run:
+        name: Clear caches
+        command: drush cc all
+        service: cli
+
+environments:
+  master:
+    cronjobs:
+      - name: drush cron
+        schedule: "*/15 * * * *"
+        command: drush cron
+        service: cli
+    routes:
+        - varnish:
+            - "mysiteurl"
