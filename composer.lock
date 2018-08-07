@@ -1066,16 +1066,16 @@
         },
         {
             "name": "drupal-composer/drupal-scaffold",
-            "version": "2.5.3",
+            "version": "2.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal-composer/drupal-scaffold.git",
-                "reference": "90f42025acddba70e7f045e069b301013d3d8bbc"
+                "reference": "fc6bf4ceecb5d47327f54d48d4d4f67b17da956d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupal-composer/drupal-scaffold/zipball/90f42025acddba70e7f045e069b301013d3d8bbc",
-                "reference": "90f42025acddba70e7f045e069b301013d3d8bbc",
+                "url": "https://api.github.com/repos/drupal-composer/drupal-scaffold/zipball/fc6bf4ceecb5d47327f54d48d4d4f67b17da956d",
+                "reference": "fc6bf4ceecb5d47327f54d48d4d4f67b17da956d",
                 "shasum": ""
             },
             "require": {
@@ -1106,7 +1106,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Composer Plugin for updating the Drupal scaffold files when using drupal/core",
-            "time": "2018-07-21T08:19:20+00:00"
+            "time": "2018-07-27T10:07:07+00:00"
         },
         {
             "name": "drupal/core",
@@ -5902,20 +5902,23 @@
         },
         {
             "name": "integratedexperts/behat-steps",
-            "version": "0.1.4",
+            "version": "0.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/behat-steps.git",
-                "reference": "4b68b4f4bf8202d78dd37f75244f6094a8da1690"
+                "reference": "6ea5a01c6c3b47afdd3bfae3fd99c8ebe09499eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/behat-steps/zipball/4b68b4f4bf8202d78dd37f75244f6094a8da1690",
-                "reference": "4b68b4f4bf8202d78dd37f75244f6094a8da1690",
+                "url": "https://api.github.com/repos/integratedexperts/behat-steps/zipball/6ea5a01c6c3b47afdd3bfae3fd99c8ebe09499eb",
+                "reference": "6ea5a01c6c3b47afdd3bfae3fd99c8ebe09499eb",
                 "shasum": ""
             },
+            "require": {
+                "behat/behat": "^3"
+            },
             "require-dev": {
-                "behat/behat": "^3.4",
+                "cweagans/composer-patches": "^1.6.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
                 "drupal/coder": "^8.2.12",
                 "drupal/drupal-extension": "^v3.4",
@@ -5928,6 +5931,11 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "1.x-dev"
+                },
+                "patches": {
+                    "behat/gherkin": {
+                        "Correctly filter features, now that the base path is correctly set - https://github.com/Behat/Gherkin/pull/129": "https://patch-diff.githubusercontent.com/raw/Behat/Gherkin/pull/129.patch"
+                    }
                 }
             },
             "autoload": {
@@ -5942,7 +5950,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Collection of Behat traits",
-            "time": "2018-07-09T17:26:10+00:00"
+            "time": "2018-08-06T16:48:59+00:00"
         },
         {
             "name": "integratedexperts/robo-git-artefact",
