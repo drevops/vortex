@@ -52,13 +52,14 @@ Automated build is orchestrated to run stages in separate containers, allowing t
 
 ## Why not Lando, DDEV, Docksal?
 - Running the same workflow commands in Local and CI is a paramount.
-- Current solution is pure Docker/Docker Compose and does not require and additional configuration generators.
+- Current solution is pure Docker/Docker Compose and does not require any additional configuration generators.
 - No dependency on additional tool.
 
 ## Why use `amazeeio` containers?
 - [Amazee.io](https://www.amazee.io/) maintain their containers as they are powering their open-source hosting platform [Lagoon](https://github.com/amazeeio/lagoon).
 - Changes to containers are fully tested with every change using CI systems (part of Lagoon).
 - Containers are production-ready.
+- If project uses `amazeeio` containers, it is guaranteed to run in Lagoon cluster.
 
 ## Why CircleCI?
 - Very fast.
