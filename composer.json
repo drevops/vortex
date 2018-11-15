@@ -6,7 +6,7 @@
         "composer/installers": "^1.2.0",
         "cweagans/composer-patches": "^1.6.0",
         "drupal-composer/preserve-paths": "^0.1.4",
-        "drupal/drupal": "^7.58",
+        "drupal/drupal": "^7.61",
         "drupal/drupal_helpers": "^1.2",
         "drupal/wysiwyg": "^2.5",
         "drupal/xautoload": "^4.5",
