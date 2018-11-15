@@ -51,11 +51,10 @@ Automated build is orchestrated to run stages in separate containers, allowing t
 
 ## FAQs
 
-## Why `Makefile`?
+## Why `Ahoy`?
 - Consistent commands across projects - unified Developer Experience (DX).
 - Standalone file that can be easily copied across projects.
-- Works on all *nix systems.
-- Does not require additional language or package installation.
+- Works on all OSes.
 - Workflow is no longer captured in places that were not designed for it: Composer scripts, NPM scripts etc.
 
 ## Why not Lando, DDEV, Docksal?

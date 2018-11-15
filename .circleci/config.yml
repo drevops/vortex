@@ -2,8 +2,11 @@
 # CircleCI 2.0 configuration file.
 #
 # Content between "META" and "/META" (like the ones above and below this
-# paragraph) is explaining drupal-dev inner works and can be safely removed for
-# specific project.
+# paragraph) is explaining drupal-dev inner working and can be safely removed
+# for specific project.
+#
+# Do not manually remove these tags. Instead, run `ahoy init` to initialise
+# this project.
 # [/META]
 version: 2
 aliases:
@@ -19,25 +22,49 @@ aliases:
   # [/META]
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
 
+  # Shared configuration applied to each job.
   - &container_config
     working_directory: /app
-    environment: &container_config_environment
+    environment:
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       # [META]
-      # Using "runner" container where each job will be executed.
+      # Using "runner" container where each job will be executed. This container
+      # has all necessary tools to run dockerized environment.
+      # @see https://github.com/integratedexperts/ci-builder
       # [/META]
-      - image: integratedexperts/circleci2-builder
+      - image: integratedexperts/ci-builder
         environment:
           COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_PROJECT_NAME: mysite
-          COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
-          # How often to cache DB dump for.
+          # How often to cache DB dump for. See 'database' job below for more information.
           DB_TIMESTAMP: +%Y_%m_%d
+    resource_class: xlarge
+
+  # Step to setup remote docker.
+  - &step_setup_remote_docker
+    # [META:CI_NO_DLC]
+    setup_remote_docker
+    # [/META:CI_NO_DLC]
+    # [META:CI_DLC]
+    # Uncomment lines below if your CircleCI plan supports docker layer caching.
+    # Docker Layer Caching allows to significantly speed up builds by caching
+    # images built during previous runs.
+    # @see https://circleci.com/docs/2.0/docker-layer-caching/
+    # setup_remote_docker:
+    #   docker_layer_caching: true
+    # [/META:CI_DLC]
+
   # Step to configure git to connect to remote servers for deployment.
   # [META]
-  # It is advised to create separate 'deployer' user with own SSH key for each
-  # project.
+  # Deployment to remote git repositories allows to build the project and all
+  # required artifacts in CI and then commit only required files to
+  # the destination repository. This makes applications fast and secure,
+  # because none of unnecessary code (such as development tools) are  exposed
+  # to production environment.
+  #
+  # It is advised to create a separate Deployer user with own SSH key for each project.
+  #
   # Add the following variables through CircleCI UI.
   # $DEPLOY_USER_NAME - name of the user who will be committing to a remote repository.
   # $DEPLOY_USER_EMAIL - email address of the user who will be committing to a remote repository.
@@ -57,10 +84,16 @@ jobs:
   # - database download
   # - database sanitization
   # - database caching
+  # - conditions to bypass previous steps in concurrent builds (to speed them up).
   #
-  # Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB.
-  # Sanitizing also supports running custom SQL commands set in file
-  # specified in DB_SANITIZE_SQL variable.
+  # $DB_TIMESTAMP is used to determine if a fresh DB dump should be downloaded
+  # for the current build. Usually, a daily database dump is sufficient for
+  # development activities.
+  #
+  # Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB using
+  # standard drush sanitization. You may also use custom SQL script to add more
+  # sanitization steps by setting $DB_SANITIZE_SQL variable to the path of this
+  # script.
   # [/META]
   database:
     <<: *container_config
@@ -68,66 +101,58 @@ jobs:
       - attach_workspace:
           at: /workspace
       - checkout
-      - setup_remote_docker
+      - *step_setup_remote_docker
       - run:
           name: Set timestamp for database caching
           command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
-      # [META]
-      # Download DB dump from public URL to test Drupal-dev project/build.
-      # Replace the line below with your custom database retrieval script in your project.
-      # [/META]
+            - v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
       - run:
-          name: Downloading database
-          command: if [ ! -f .data/db.sql ] ; then touch /tmp/db-new; make download-db; else echo "Using cached DB dump";fi
-      # [META]
-      # Uncomment the line below to download DB dump from FTP, using
-      # variables set in Circle CI UI.
-      # - run: if [ ! -f $DATA_ROOT/db.dist.sql ] ; then mkdir -p $DATA_ROOT && curl -u $FTP_USER:$FTP_PASS "ftp://$FTP_HOST/db.dist.sql" -o $DATA_ROOT/db.dist.sql; fi
-      # [/META]
+          name: Download database
+          command: if [ ! -f .data/db.sql ]; then touch /tmp/db-new; ahoy download-db; else echo "Using cached DB dump"; fi
       - run:
           name: Start containers
           command: |
             if [ -f /tmp/db-new ]; then
-              echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
-              make docker-start
+              sed -i -e "/###/d" docker-compose.yml
+              docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
+              ahoy up
             fi
       - run:
           name: Import DB
-          command: |
-            if [ -f /tmp/db-new ]; then
-              make import-db-dump
-            fi
-      # [META]
-      # Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB.
-      # Sanitizing also supports running custom SQL commands set in file
-      # specified in DB_SANITIZE_SQL variable.
-      # [/META]
+          command: if [ -f /tmp/db-new ]; then ahoy import-db-dump; fi
       - run:
           name: Sanitize DB
           command: |
-            if [ "DB_SANITIZE" != "" ] && [ -f /tmp/db-new ]; then
-              make sanitize-db
+            if [ "$DB_SANITIZE" ] && [ -f /tmp/db-new ]; then
+              ahoy sanitize-db
               # [META]
-              # Assering that sanitisation ideed worked. This is a part of drupal-dev build. Remove the lines below.
+              # Assering that sanitisation indeed worked. This is a part of drupal-dev build. Remove the lines below in your project.
               if [ -f $DB_SANITIZE_SQL ]; then
-                docker exec $(docker-compose ps -q cli) drush sql-query "SELECT status FROM users WHERE uid=1" | grep -q "0"
+                ahoy drush sql-query "SELECT status FROM users WHERE uid=1" | grep -q "0"
               fi
               # [/META]
             fi
       - run:
-          name: Dump DB
-          command: |
-            if [ -f /tmp/db-new ]; then
-              make export-db-dump
-            fi
+          name: Export DB dump
+          command: if [ -f /tmp/db-new ]; then ahoy export-db db.sql; fi
       - save_cache:
-          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
 
+  # [META]
+  # Build and test is a second step of the build. The testing is performed
+  # within the same job to save time on provisioning during the job.
+  #
+  # In this job:
+  # - validate composer.json and composer.lock files
+  # - build project and store built code for further use in deployment job
+  # - lint code
+  # - run PHPUnit tests
+  # - run Behat test
+  # [/META]
   build:
     <<: *container_config
     parallelism: 2
@@ -135,68 +160,84 @@ jobs:
       - attach_workspace:
           at: /workspace
       - checkout
-      - setup_remote_docker
+      - *step_setup_remote_docker
       - run:
-          name: Composer validate
+          name: Validate Composer configuration
           command: composer validate --ansi --strict
       - restore_cache:
           keys:
-            - v1-db7-
+            - v1-db-
       - run:
           name: Check DB availability
-          command: |
-            if [ ! -f .data/db.sql ] ; then echo "Unable to find DB"; exit 1; fi
+          command: if [ ! -f .data/db.sql ] ; then echo "Unable to find DB"; exit 1; fi
       - run:
           name: Pull newest Docker images
-          command: make docker-pull
+          command: ahoy pull
+      # [META]
+      # Due to the fact that we want to capture the codebase without dev
+      # dependencies for future deployment, we cannot use `ahoy build` directly.
+      # Instead, we are using each of it's steps separately and capturing
+      # the codebase in the middle.
+      # [/META]
       - run:
           name: Start containers
           command: |
-            echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
-            make docker-start
-      # Since app is being built inside of the containers without dev
-      # dependencies and they will be installed later to run tests, but
-      # deployment code should not contain any dev dependencies, we have
-      # to store built codebase into workspace to later use it in 'deploy'
-      # job.
+            sed -i -e "/###/d" docker-compose.yml
+            docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
+            ahoy up
       - run:
           name: Copy built codebase into workspace for future deployment
-          command: |
-            mkdir -p /workspace/code
-            docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
-            docker exec $(docker-compose ps -q cli) rm -Rf /workspace/code
+          command: mkdir -p /workspace/code && docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
       - run:
-          name: Site setup
+          name: Setup site
           command: |
-            make import-db
-            make docker-cli -- mkdir -p /app/screenshots
+            ahoy import-db
+            ahoy run "mkdir -p /app/screenshots"
       - run:
           name: Copy development files and configurations into container
           command: |
             docker cp -L behat.yml $(docker-compose ps -q cli):/app/
-            docker cp -L Makefile $(docker-compose ps -q cli):/app/
             docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
             docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
             docker cp -L tests $(docker-compose ps -q cli):/app/
       - run:
           name: Install dev dependencies
-          command: make install
+          command: ahoy install
       - run:
           name: Lint code
-          command: make lint
+          command: ahoy lint
       - run:
-          name: Run tests
+          name: Run PHPUnit tests
+          command: ahoy test-phpunit
+      # [META]
+      # Running Behat tests can be done in parallel, provided that your build
+      # concurrency is selected in CircleCI UI and your tests are tagged with
+      # `p0`, `p1` etc. to define which test is executed on which node.
+      #
+      # Using `progress_fail` format allow to get an instant feedback about
+      # broken tests without stopping all other tests or waiting for the build
+      # to finish. This is particularly useful for projects with large number
+      # of tests.
+      # [/META]
+      - run:
+          name: Run Behat tests
           command: |
             [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX && echo "BEHAT_PROFILE=$BEHAT_PROFILE">>.env.local
-            make test-behat || make test-behat -- --rerun
+            ahoy test-behat -- --format=progress_fail || ahoy test-behat -- --rerun --format=progress_fail
       - run:
           name: Copy artifacts
-          command: |
-            mkdir -p /tmp/artifacts/behat
-            docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
+          command: mkdir -p /tmp/artifacts/behat && docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
           when: always
       - store_artifacts:
           path: /tmp/artifacts
+      # [META]
+      # Dependencies are not required for the next jobs, so there is no point
+      # to wait for all of them to persist to the workspace (it is faster to
+      # remove files then archive and save them).
+      # [/META]
+      - run:
+          name: Remove dependencies before persisting
+          command: rm -Rf node_modules && rm -Rf vendor
       - persist_to_workspace:
           root: /workspace
           paths:
@@ -209,9 +250,9 @@ jobs:
   # Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
   # under "SSH Permissions" in CircleCI UI.
   #
-  # Note that we do not run container stack for deployment.
+  # Note that we do not start container stack for deployment.
   # [/META]
-  deploy:
+  deploy: &job_deploy
     <<: *container_config
     steps:
       - checkout
@@ -223,24 +264,23 @@ jobs:
           at: /workspace
       - run:
           name: Install dev dependencies
-          command: |
-            composer install -n --ansi --prefer-dist --ignore-platform-reqs
+          command: composer install -n --ansi --prefer-dist --ignore-platform-reqs
       - run: |
           cp -a .git /workspace/code
           cp -a .gitignore.artefact /workspace/code
       - run:
           name: Push artefact to remote repository
           command: |
-            if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
-              vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt
+            if [ "$SHOULD_DEPLOY" ]; then
+              vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt --no-cleanup
             else
               echo "Skipping deployment"
             fi
       - store_artifacts:
           path: /tmp/artifacts
 
-  # Deploy release branches.
-  deploy_release:
+  # Deploy tags.
+  deploy_tags: &job_deploy_tags
     <<: *container_config
     steps:
       - checkout
@@ -252,15 +292,14 @@ jobs:
           at: /workspace
       - run:
           name: Install dev dependencies
-          command: |
-            composer install -n --ansi --prefer-dist --ignore-platform-reqs
+          command: composer install -n --ansi --prefer-dist --ignore-platform-reqs
       - run: |
           cp -a .git /workspace/code
           cp -a .gitignore.artefact /workspace/code
       - run:
           name: Push artefact to remote repository
           command: |
-            if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
+            if [ "$SHOULD_DEPLOY" ]; then
               vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt --branch=deployment/[tags:-];
             else
               echo "Skipping deployment"
@@ -269,36 +308,34 @@ jobs:
           path: /tmp/artifacts
 
   # [META]
-  # Deployment for drupal-dev itself. Remove the code below in
-  # your project.
-  deploy_drupal_dev:
+  # Test suite for Drupal-Dev. Remove the lines below in your project.
+  test_drupal_dev:
     <<: *container_config
     steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints:
-            - *deploy_ssh_fingerprint
-      - *step_configure_git
-      - attach_workspace:
-          at: /workspace
-      - run:
-          name: Install dev dependencies
-          command: |
-            composer install -n --ansi --prefer-dist --ignore-platform-reqs
-      - run: |
-          cp -a .git /workspace/code
-          cp -a .gitignore.artefact /workspace/code
-      - run:
-          # @see https://github.com/integratedexperts/drupal-dev-destination
-          name: Push artefact to remote repository for drupal-dev
-          command: |
-            if [ \"$SHOULD_DEPLOY_DRUPAL_DEV\" != \"\" ]; then
-              vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_drupal_dev_report.txt --branch=deployment/[tags:-];
-            else
-              echo "Skipping deployment";
-            fi
-      - store_artifacts:
-          path: /tmp/artifacts
+    - checkout
+    - run: export DRUPAL_VERSION=7 && .dev/tests/test-init.sh
+    - *step_setup_remote_docker
+    - run: docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
+    - run: export VOLUMES_MOUNTED=false && export DRUPAL_VERSION=7 && .dev/tests/test-workflow.sh
+
+  test_drupal_dev_artefact:
+    <<: *container_config
+    steps:
+    - checkout
+    - add_ssh_keys:
+        fingerprints:
+          - *deploy_ssh_fingerprint
+    - *step_configure_git
+    - attach_workspace:
+        at: /workspace
+    - run: export DRUPAL_VERSION=7 && .dev/tests/test-artefact.sh /workspace/code
+
+  # Deployment of feature branches and tags for drupal-dev itself.
+  deploy_drupal_dev:
+    <<: *job_deploy
+
+  deploy_drupal_dev_tags:
+    <<: *job_deploy_tags
   # [/META]
 workflows:
   version: 2
@@ -319,27 +356,52 @@ workflows:
             - build
           filters:
             branches:
-              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+|(?:7|8)\.x/
+              # Allowed branches:
+              # - master, develop, ci, cisomething
+              # - release/123, release/123.456, release/123.456.789, release/123.456.789-rc123
+              # - hotfix/123, hotfix/123.456, hotfix/123.456.789
+              # - feature/description, feature/123-description, but not feature/8.x-description or feature/7.x-description
+              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-)[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
-      - deploy_release:
+      - deploy_tags:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
+              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)$/
+      # [META]
+      # Feature and tag deployment for drupal-dev itself. Remove the code below in your project.
+      - test_drupal_dev:
+          filters:
+            tags:
+              only: /.*/
+      - test_drupal_dev_artefact:
           requires:
             - build
           filters:
             tags:
-              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)$/
-            branches:
-              only: /master/
-
-      # [META]
-      # Tag deployment for drupal-dev itself. Remove the code below in
-      # your project.
+              only: /.*/
       - deploy_drupal_dev:
           requires:
             - build
+            - test_drupal_dev
           filters:
+            branches:
+              # Allowed branches: 7.x, 8.x, feature/7.x-description, feature/8.x-description
+              only: /(?:7|8)\.x|feature\/(?:7|8)\.x[a-zA-z0-9\-\.\,]+/
             tags:
-              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
+              ignore: /.*/
+      - deploy_drupal_dev_tags:
+          requires:
+            - build
+            - test_drupal_dev
+          filters:
             branches:
               ignore: /.*/
+            tags:
+              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
       # [/META]

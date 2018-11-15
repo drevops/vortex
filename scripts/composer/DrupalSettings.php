@@ -37,7 +37,7 @@ class DrupalSettings {
       $event->getIO()->write(sprintf('Created file %s', $options['settings_path'] . PHP_EOL . $content));
     }
     else {
-      $event->getIO()->write('Skipping creation of Drupal settings file - file already exists');
+      $event->getIO()->write(sprintf('Skipping creation of Drupal settings file "%s" - file already exists', $options['settings_path']));
     }
   }
 

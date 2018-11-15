@@ -61,7 +61,7 @@ main() {
   fi
 
   echo
-  bash -c "echo -n Initialising project "
+  bash -c "echo -n Initialising project $site_name"
 
   rm README.md > /dev/null
   cp .dev/README.template.md README.md
@@ -87,8 +87,8 @@ main() {
   fi
 
   if [ "$preserve_lagoon_integration" != "Y" ] ; then
-    rm drush/aliases.drushrc.php
-    rm .lagoon.yml
+    rm drush/aliases.drushrc.php > /dev/null
+    rm .lagoon.yml > /dev/null
     remove_tags_with_content "META:LAGOON" "$CURDIR" && bash -c "echo -n ."
   fi
 
@@ -101,7 +101,7 @@ main() {
 
   rm -Rf $CURDIR/.dev > /dev/null
 
-  bash -c "echo -n complete"
+  bash -c "echo complete"
 }
 
 ask() {

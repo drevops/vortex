@@ -1,0 +1,220 @@
+---
+ahoyapi: v2
+
+commands:
+  # Docker commands.
+  info:
+    usage: Print information about this project.
+    cmd: |
+      ahoy line "Site URL              : " ${LOCALDEV_URL}
+      ahoy line "Path inside container : " ${APP}
+      ahoy line "Path to docroot       : " ${DOCROOT}
+      ahoy line "DB exposed port       : " $(docker-compose port mariadb 3306)
+      # [META:SOLR]
+      ahoy line "Solr exposed port     : " $(docker-compose port solr 8983)
+      # [/META:SOLR]
+      ahoy line "Mailhog URL           : " http://mailhog.docker.amazee.io/
+      if [ "$1" ]; then
+        ahoy line "One-time login        : " $(ahoy login -- --no-browser)
+      fi
+
+  up:
+    usage: Build and start Docker containers
+    cmd: |
+      docker-compose up -d "$@"
+      ahoy run "dockerize -wait tcp://mariadb:3306 -timeout 1m"
+
+  down:
+    usage: Stop Docker containers and remove container, images, volumes and networks.
+    cmd: docker-compose down
+
+  start:
+    usage: Start existing Docker containers.
+    cmd: docker-compose start "$@"
+
+  stop:
+    usage: Stop running Docker containers.
+    cmd: docker-compose stop "$@"
+
+  restart:
+    usage: Restart all stopped and running Docker containers.
+    cmd: docker-compose restart
+
+  logs:
+    usage: Show Docker logs.
+    cmd: docker-compose logs "$@"
+
+  pull:
+    usage: Pull latest docker images.
+    cmd: docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep ${DOCKER_IMAGE_PREFIX}/ | grep -v none | xargs -n1 docker pull | cat
+
+  cli:
+    usage: Start a shell inside CLI container.
+    cmd: docker-compose exec cli bash
+
+  run:
+    usage: Run a command inside CLI container.
+    cmd: docker-compose exec cli bash -c "$@"
+
+  drush:
+    usage: Run drush commands in the CLI service container.
+    cmd: docker-compose exec -T cli drush -r ${DOCROOT} -l ${LOCALDEV_URL} "$@"
+
+  # Application commands.
+  login:
+    usage: Login to a website.
+    cmd: |
+      ahoy drush uublk 1 -q
+      ahoy drush uli "$@"
+
+  download-db:
+    usage: Download database.
+    cmd: |
+      ahoy title "Downloading database"
+      # [META]
+      # Download dummy DB.
+      # Used for demonstration purposes. This line is removed during project init.
+      mkdir -p ${DATAROOT} && curl -L ${DUMMY_DB} -o ${DATAROOT}/db.sql
+      # [/META]
+      # [META:ACQUIA]
+      # Download DB from Acquia Cloud backup. Remove if site install is used.
+      #### AC_API_USER_NAME=${AC_API_USER_NAME} AC_API_USER_PASS=${AC_API_USER_PASS} AC_API_DB_SITE=${AC_API_DB_SITE} AC_API_DB_ENV=${AC_API_DB_ENV} AC_API_DB_NAME=${AC_API_DB_NAME} REMOVE_CACHED_DUMPS=${REMOVE_CACHED_DUMPS} ./scripts/acquia-download-backup.sh
+      # [/META:ACQUIA]
+      # [META:FTP]
+      # Download DB dump from FTP. Remove if site install is used.
+      #### mkdir -p ${DATAROOT} && curl -u ${FTP_USER}:${FTP_PASS} "ftp://${FTP_HOST}/${FTP_FILE}" -o ${DATAROOT}/db.sql
+      # [/META:FTP]
+
+  import-db:
+    usage: Import database dump and run post import commands.
+    cmd: |
+      ahoy title "Importing database from the dump"
+      ahoy import-db-dump
+      ahoy sanitize-db
+      ahoy drush en mysite_core -y
+      ahoy drush updb -y
+      ahoy drush cc all
+
+  import-db-dump:
+    usage: Import database dump.
+    cmd: |
+      ahoy drush sql-drop -y
+      ahoy run "mkdir -p /tmp/.data"
+      docker cp -L ${DATAROOT}/db.sql $(docker-compose ps -q cli):/tmp/.data/db.sql
+      ahoy run "bash -c \"drush -r ${DOCROOT} sql-cli < /tmp/.data/db.sql\""
+
+  export-db:
+    usage: Export database dump.
+    cmd: |
+      ahoy run "mkdir -p /tmp/.data"
+      ahoy drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql -q
+      mkdir -p ${DATAROOT}
+      DUMP_FILE=$([ "${1}" ] && echo ${DATAROOT}/${1} || echo ${DATAROOT}/db_export_$(date +%Y_%m_%d_%H_%M_%S).sql)
+      docker cp -L $(docker-compose ps -q cli):/tmp/.data/db.sql ${DUMP_FILE}
+      [ -f "${DUMP_FILE}" ] && ahoy title "Dump saved to file ${DUMP_FILE}"
+
+  sanitize-db:
+    usage: Sanitize database.
+    cmd: |
+      ahoy drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
+      if [ -f ${DB_SANITIZE_SQL} ]; then
+        ahoy title "Applying custom sanitization commands"
+        ahoy run "mkdir -p $(dirname /tmp/${DB_SANITIZE_SQL})"
+        docker cp -L ${DB_SANITIZE_SQL} $(docker-compose ps -q cli):/tmp/${DB_SANITIZE_SQL}
+        ahoy drush sql-query --file=/tmp/${DB_SANITIZE_SQL}
+      fi
+
+  clean:
+    usage: Clean project
+    cmd: |
+      ahoy down
+      chmod -Rf 777 docroot/sites/default
+      [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | xargs rm -Rf
+      rm -Rf vendor
+      rm -Rf node_modules
+      rm -Rf screenshots
+
+  build:
+    usage: Build or rebuild project.
+    cmd: |
+      ahoy title "Building project"
+      ahoy clean
+      ahoy up -- --build --force-recreate
+      ahoy install
+      ahoy import-db
+      ahoy fe
+      # Replace the line above with a line below to enable site install.
+      # ahoy site-install
+      ahoy title "Build complete"
+      ahoy info 1
+
+  fe:
+    usage: Build front-end assets.
+    cmd: ahoy run "npm run build"
+
+  fe-dev:
+    usage: Build front-end assets for development.
+    cmd: ahoy run "npm run build-dev"
+
+  install:
+    usage: Install dependencies.
+    cmd: |
+      ahoy run "composer install -n --ansi --prefer-dist --no-suggest"
+      ahoy run "npm install"
+
+  site-install:
+    usage: Install site from profile.
+    cmd: |
+      ahoy title "Installing a site from profile"
+      ahoy drush si ${INSTALL_PROFILE} -y --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+      ahoy drush en -y mysite_core
+      ahoy drush cc all
+
+  lint:
+    usage: Lint code.
+    cmd: |
+      ahoy run "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ./"
+      ahoy run "vendor/bin/phpcs"
+      ahoy run "npm run lint"
+
+  test:
+    usage: Run all tests.
+    cmd: |
+      ahoy test-phpunit
+      ahoy test-behat
+
+  test-behat:
+    usage: Run Behat tests.
+    cmd: ahoy run "./vendor/bin/behat --strict --colors ${BEHAT_PROFILE} $@"
+
+  test-phpunit:
+    usage: Run PHPUnit tests.
+    cmd: ahoy run "./vendor/bin/phpunit $@"
+
+  # [META]
+  init:
+    usage: Initialise project.
+    cmd: . .dev/init.sh "$@"
+  # [/META]
+
+  # Utilities.
+  confirm:
+    cmd: read -r -p "{{args}} [y/N] " response; if [ $response = y ]; then true; else false; fi
+    hide: true
+
+  title:
+    cmd: printf "$(tput -Txterm setaf 2)==> ${1}$(tput -Txterm sgr0)\n"
+    hide: true
+
+  line:
+    cmd: printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"
+    hide: true
+
+entrypoint:
+- bash
+- "-c"
+- |
+  [ -f .env ] && export $(grep -v '^#' .env | xargs) && [ -f .env.local ] && export $(grep -v '^#' .env.local | xargs)
+  bash -c "$0" "$@"
+- '{{cmd}}'
+- '{{name}}'

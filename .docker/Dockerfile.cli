@@ -1,0 +1,32 @@
+FROM amazeeio/php:7.1-cli-drupal
+
+ENV WEBROOT=docroot \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_CACHE_DIR=/tmp/.composer/cache \
+    MYSQL_HOST=mariadb
+
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+RUN apk update \
+    && apk add nodejs-npm patch rsync --update-cache --repository http://dl-3.alpinelinux.org/alpine/v3.8/main/ \
+    && rm -rf /var/cache/apk/*
+
+ADD patches /app/patches
+ADD scripts /app/scripts
+
+COPY composer.json composer.lock .env /app/
+#RUN composer install --no-dev --optimize-autoloader --prefer-dist --ansi --no-suggest
+
+RUN echo "memory_limit=-1" >> /usr/local/etc/php/conf.d/memory.ini \
+    && composer install -n --no-dev --ansi --prefer-dist --no-suggest \
+    && rm -rf /usr/local/etc/php/conf.d/memory.ini
+
+COPY package.json package-lock.json Gruntfile.js /app/
+RUN npm install
+
+COPY . /app
+
+RUN npm run build

@@ -1,0 +1,24 @@
+---
+# Test that 'ahoy clean' works.
+
+gossfile:
+    goss.init.yml: {}
+
+file:
+  {{ .Env.BUILD_DIR }}/docroot/index.php:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/contrib:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/contrib:
+    exists: false
+  {{ .Env.BUILD_DIR }}/vendor:
+    exists: false
+  {{ .Env.BUILD_DIR }}/node_modules:
+    exists: false
+  {{ .Env.BUILD_DIR }}/screenshots:
+    exists: false
+
+commands:
+    # Assert that services are not running.
+    docker ps -q --no-trunc | grep $(docker-compose ps -q nginx):
+        exit-status: 1

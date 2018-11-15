@@ -15,11 +15,10 @@
         "webflo/drupal-finder": "^1.0"
     },
     "require-dev": {
-        "behat/behat": "^3.4",
+        "behat/behat": "^3.5",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
         "drupal/coder": "^8.2.12",
-        "drupal/console": "^1.0",
-        "drupal/drupal-extension": "^v3.4",
+        "drupal/drupal-extension": "^3.4",
         "drush/drush": "^8.1",
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
@@ -123,7 +122,7 @@
                 "Correctly filter features, now that the base path is correctly set - https://github.com/Behat/Gherkin/pull/129": "https://patch-diff.githubusercontent.com/raw/Behat/Gherkin/pull/129.patch"
             },
             "drupal/drupal": {
-                "User picture is deleted after calls to user_save() - https://www.drupal.org/node/935592": "https://www.drupal.org/files/issues/935592-150.patch",
+                "User picture is deleted after calls to user_save() - https://www.drupal.org/node/935592": "https://www.drupal.org/files/issues/935592-151.patch",
                 "Administer Users permission should be separate from Administer Account Settings - https://www.drupal.org/node/366950": "https://www.drupal.org/files/issues/administer_users_-366950-196.patch",
                 "No navigation links on 404 pages - https://www.drupal.org/node/233807": "https://www.drupal.org/files/issues/drupal-navigation_on_403_404-233807-92.patch"
             },
