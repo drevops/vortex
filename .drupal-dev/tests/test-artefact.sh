@@ -43,7 +43,7 @@ vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/Ro
 git --git-dir=$DEPLOY_REMOTE --work-tree=$REMOTE_DIR branch|xargs git --git-dir=$DEPLOY_REMOTE --work-tree=$REMOTE_DIR checkout
 
 # Run tests.
-BUILD_DIR=$REMOTE_DIR goss --gossfile $CURDIR/.dev/tests/goss/goss.artefact.yml validate
+BUILD_DIR=$REMOTE_DIR goss --gossfile $CURDIR/.drupal-dev/tests/goss/goss.artefact.yml validate
 RESULT=$?
 
 popd > /dev/null

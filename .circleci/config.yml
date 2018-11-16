@@ -2,7 +2,7 @@
 # CircleCI 2.0 configuration file.
 #
 # Content between "META" and "/META" (like the ones above and below this
-# paragraph) is explaining drupal-dev inner working and can be safely removed
+# paragraph) is explaining Drupal-Dev inner working and can be safely removed
 # for specific project.
 #
 # Do not manually remove these tags. Instead, run `ahoy init` to initialise
@@ -17,7 +17,7 @@ aliases:
   # allowed to push to $DEPLOY_REMOTE repo under "SSH Permissions" in
   # CircleCI UI.
   # [META]
-  # This is a fingerprint of the key to push drupal-dev project itself.
+  # This is a fingerprint of the key to push Drupal-Dev project itself.
   # Replace this key fingerprint with your own.
   # [/META]
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
@@ -107,7 +107,7 @@ jobs:
           command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
       - run:
           name: Download database
           command: if [ ! -f .data/db.sql ]; then touch /tmp/db-new; ahoy download-db; else echo "Using cached DB dump"; fi
@@ -128,7 +128,7 @@ jobs:
             if [ "$DB_SANITIZE" ] && [ -f /tmp/db-new ]; then
               ahoy sanitize-db
               # [META]
-              # Assering that sanitisation indeed worked. This is a part of drupal-dev build. Remove the lines below in your project.
+              # Assering that sanitisation indeed worked. This is a part of Drupal-Dev build. Remove the lines below in your project.
               if [ -f $DB_SANITIZE_SQL ]; then
                 ahoy drush sql-query "SELECT status FROM users WHERE uid=1" | grep -q "0"
               fi
@@ -138,7 +138,7 @@ jobs:
           name: Export DB dump
           command: if [ -f /tmp/db-new ]; then ahoy export-db db.sql; fi
       - save_cache:
-          key: v1-db-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
 
@@ -166,7 +166,7 @@ jobs:
           command: composer validate --ansi --strict
       - restore_cache:
           keys:
-            - v1-db-
+            - v1-db7-
       - run:
           name: Check DB availability
           command: if [ ! -f .data/db.sql ] ; then echo "Unable to find DB"; exit 1; fi
@@ -177,7 +177,11 @@ jobs:
       # Due to the fact that we want to capture the codebase without dev
       # dependencies for future deployment, we cannot use `ahoy build` directly.
       # Instead, we are using each of it's steps separately and capturing
-      # the codebase in the middle.
+      # the codebase before installation of development tools.
+      #
+      # `amazeeio-network` is required (it is specified in `docker-compose.yml`
+      # for local development), but is not used by CircleCI (it uses `default`
+      # network).
       # [/META]
       - run:
           name: Start containers
@@ -190,19 +194,20 @@ jobs:
           command: mkdir -p /workspace/code && docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
       - run:
           name: Setup site
-          command: |
-            ahoy import-db
-            ahoy run "mkdir -p /app/screenshots"
+          command: ahoy import-db
+      # [META]
+      # Before installing dev dependencies, we need to copy development files
+      # into containers, because these files were not included in the initial
+      # build as we do not want them to end up in production build artefact.
+      # [/META]
       - run:
-          name: Copy development files and configurations into container
+          name: Install dev dependencies
           command: |
             docker cp -L behat.yml $(docker-compose ps -q cli):/app/
             docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
             docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
             docker cp -L tests $(docker-compose ps -q cli):/app/
-      - run:
-          name: Install dev dependencies
-          command: ahoy install
+            ahoy install
       - run:
           name: Lint code
           command: ahoy lint
@@ -210,18 +215,27 @@ jobs:
           name: Run PHPUnit tests
           command: ahoy test-phpunit
       # [META]
-      # Running Behat tests can be done in parallel, provided that your build
-      # concurrency is selected in CircleCI UI and your tests are tagged with
-      # `p0`, `p1` etc. to define which test is executed on which node.
+      # Running Behat tests can be done in parallel, provided that you set
+      # build concurrency CircleCI UI to a number larger then 1 container and
+      # your tests are tagged with `p0`, `p1` etc. to assign tests to a specific
+      # build node.
       #
-      # Using `progress_fail` format allow to get an instant feedback about
+      # Using `progress_fail` format allows to get an instant feedback about
       # broken tests without stopping all other tests or waiting for the build
       # to finish. This is particularly useful for projects with large number
       # of tests.
+      #
+      # We are also using --rerun option to overcome some false positives that
+      # could appear in browser-based tests. With this option, Behat remembers
+      # which tests failed during previous run and re-runs only them.
+      #
+      # Lastly, we copy test results (artifacts) out of containers and store
+      # store them so that CircleCI could show them in 'Artifacts' tab.
       # [/META]
       - run:
           name: Run Behat tests
           command: |
+            ahoy run "mkdir -p /app/screenshots"
             [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX && echo "BEHAT_PROFILE=$BEHAT_PROFILE">>.env.local
             ahoy test-behat -- --format=progress_fail || ahoy test-behat -- --rerun --format=progress_fail
       - run:
@@ -313,10 +327,10 @@ jobs:
     <<: *container_config
     steps:
     - checkout
-    - run: export DRUPAL_VERSION=7 && .dev/tests/test-init.sh
+    - run: export DRUPAL_VERSION=7 && .drupal-dev/tests/test-init.sh
     - *step_setup_remote_docker
     - run: docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
-    - run: export VOLUMES_MOUNTED=false && export DRUPAL_VERSION=7 && .dev/tests/test-workflow.sh
+    - run: export VOLUMES_MOUNTED=false && export DRUPAL_VERSION=7 && .drupal-dev/tests/test-workflow.sh
 
   test_drupal_dev_artefact:
     <<: *container_config
@@ -328,9 +342,9 @@ jobs:
     - *step_configure_git
     - attach_workspace:
         at: /workspace
-    - run: export DRUPAL_VERSION=7 && .dev/tests/test-artefact.sh /workspace/code
+    - run: export DRUPAL_VERSION=7 && .drupal-dev/tests/test-artefact.sh /workspace/code
 
-  # Deployment of feature branches and tags for drupal-dev itself.
+  # Deployment of feature branches and tags for Drupal-Dev itself.
   deploy_drupal_dev:
     <<: *job_deploy
 
@@ -374,7 +388,7 @@ workflows:
               # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)$/
       # [META]
-      # Feature and tag deployment for drupal-dev itself. Remove the code below in your project.
+      # Feature and tag deployment for Drupal-Dev itself. Remove the code below in your project.
       - test_drupal_dev:
           filters:
             tags:

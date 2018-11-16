@@ -7,11 +7,11 @@ commands:
     usage: Print information about this project.
     cmd: |
       ahoy line "Site URL              : " ${LOCALDEV_URL}
-      ahoy line "Path inside container : " ${APP}
+      ahoy line "Path to project       : " ${APP}
       ahoy line "Path to docroot       : " ${DOCROOT}
-      ahoy line "DB exposed port       : " $(docker-compose port mariadb 3306)
+      ahoy line "DB port on host       : " $(docker-compose port mariadb 3306 | cut -d : -f 2)
       # [META:SOLR]
-      ahoy line "Solr exposed port     : " $(docker-compose port solr 8983)
+      ahoy line "Solr port on host     : " $(docker-compose port solr 8983 | cut -d : -f 2)
       # [/META:SOLR]
       ahoy line "Mailhog URL           : " http://mailhog.docker.amazee.io/
       if [ "$1" ]; then
@@ -46,7 +46,7 @@ commands:
 
   pull:
     usage: Pull latest docker images.
-    cmd: docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep ${DOCKER_IMAGE_PREFIX}/ | grep -v none | xargs -n1 docker pull | cat
+    cmd: docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio/ | grep -v none | xargs -n1 docker pull | cat
 
   cli:
     usage: Start a shell inside CLI container.
@@ -128,7 +128,8 @@ commands:
     usage: Clean project
     cmd: |
       ahoy down
-      chmod -Rf 777 docroot/sites/default
+      # chmod -Rf 777 docroot/sites/default
+      [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | xargs chmod -Rf 777
       [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | xargs rm -Rf
       rm -Rf vendor
       rm -Rf node_modules
@@ -173,7 +174,7 @@ commands:
   lint:
     usage: Lint code.
     cmd: |
-      ahoy run "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ./"
+      ahoy run "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }"
       ahoy run "vendor/bin/phpcs"
       ahoy run "npm run lint"
 
@@ -194,7 +195,7 @@ commands:
   # [META]
   init:
     usage: Initialise project.
-    cmd: . .dev/init.sh "$@"
+    cmd: . .drupal-dev/init.sh "$@"
   # [/META]
 
   # Utilities.

@@ -2,8 +2,8 @@
 # Test build state right after project init.
 
 file:
-  # All drupal-dev own files removed.
-  {{ .Env.BUILD_DIR }}/.dev:
+  # All Drupal-Dev own files removed.
+  {{ .Env.BUILD_DIR }}/.drupal-dev:
     exists: false
   # Stub profile removed.
   {{ .Env.BUILD_DIR }}/docroot/profiles/mysite_profile:
@@ -64,12 +64,16 @@ file:
     filetype: file
 
   # Settings files exist.
+  # @note: The permissions can be 644 or 664 depending on the umask of OS. Also,
+  # git only track 644 or 755.
   {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.php:
     exists: true
     filetype: file
+    mode: "0664"
   {{ .Env.BUILD_DIR }}/docroot/sites/default/default.settings.local.php:
     exists: true
     filetype: file
+    mode: "0664"
 
   # Documentation information added.
   {{ .Env.BUILD_DIR }}/FAQs.md:
@@ -81,7 +85,7 @@ file:
     exists: true
     filetype: file
     contains:
-      - "!cmd: . .dev/init.sh"
+      - "!cmd: . .drupal-dev/init.sh"
 
 commands:
   # Assert all stub strings were replaced.

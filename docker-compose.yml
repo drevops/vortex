@@ -1,16 +1,14 @@
 # [META]
 # Docker Compose configuration file.
 #
-# Using a single file to serve local, CI and production.
-# Local overrides are possible using docker-composer.override.yml file.
+# - Using a single file to work in local, CI and production environments.
+# - Local overrides are possible using docker-composer.override.yml file.
+# - Use inline comments starting with ### to have the line removed in CI.
+# - Content between "META" and "/META" (like the ones above and below this
+#   paragraph) is explaining Drupal-Dev inner working and can be safely removed
+#   for specific project.
 #
-# Use inline comments starting with ### to have the line removed in CI.
-#
-# Content between "META" and "/META" (like the ones above and below this
-# paragraph) is explaining drupal-dev inner working and can be safely removed
-# for specific project.
-#
-# Do not manually remove these tags. Instead, run `ahoy init` to initialise
+# NOTE: Do not manually remove these tags. Instead, run `ahoy init` to initialise
 # this project.
 # [/META]
 version: '2.3'
@@ -23,12 +21,14 @@ x-volumes:
   # [META]
   # Understanding host mounting in Docker-based projects.
   #
-  # Services (containers) use volumes to share data. We need to tell containers
-  # which directories to have access to in order to work with the same codebase.
-  # When used in non-development environments, there is no need to mount the
-  # volume from host. But for development environment, when code changes on
-  # the host, we need to have these changes synchronized into all containers,
-  # so we're specifying an override for the same directory, but as a mounted volume.
+  # To share application code between services (containers), Docker uses volumes.
+  # When used in non-development environments, containers have access to
+  # the same shared files using volumes and these volumes do not need to be
+  # mounted from the host. But for development environment, when the code
+  # constantly changes on the host, we need to have these changes synchronized
+  # into all containers. Since we are using single `docker-compose.yml` file for
+  # all environments, we have to accommodate both cases, so we are specifying an
+  # override for the same directory as a mounted volume.
   #
   # See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/#short-syntax-3
   # [/META]

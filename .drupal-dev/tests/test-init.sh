@@ -25,7 +25,7 @@ do
   else
     suffix="${tests[count]}"
 
-    file=$CURDIR/.dev/tests/goss/goss.${suffix}.yml
+    file=$CURDIR/.drupal-dev/tests/goss/goss.${suffix}.yml
     if [ ! -f $file ]; then
       continue
     fi

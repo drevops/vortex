@@ -72,7 +72,7 @@ ahoy download-db
 step "Build project"
 ahoy build
 sync_to_host
-BUILD_DIR=$BUILD_DIR goss --gossfile $CURDIR/.dev/tests/goss/goss.build.yml validate
+BUILD_DIR=$BUILD_DIR goss --gossfile $CURDIR/.drupal-dev/tests/goss/goss.build.yml validate
 # @todo: Try moving this before test.
 sync_to_container behat.yml
 sync_to_container phpcs.xml
@@ -107,6 +107,6 @@ sync_to_host
 
 step "Clean"
 ahoy clean
-BUILD_DIR=$BUILD_DIR goss --gossfile $CURDIR/.dev/tests/goss/goss.clean.yml validate
+BUILD_DIR=$BUILD_DIR goss --gossfile $CURDIR/.drupal-dev/tests/goss/goss.clean.yml validate
 
 popd > /dev/null

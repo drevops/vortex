@@ -9,14 +9,13 @@
 .github
 .gitignore.artefact
 .lagoon.yml
-.nvmrc
 .sass-cache
 .sass-lint.yml
 *.css.map
 *.jar
 *.log
 *.out
-/.dev
+/.drupal-dev
 /scripts
 /tests
 behat.yml

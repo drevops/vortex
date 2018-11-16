@@ -9,7 +9,7 @@ file:
     exists: false
   {{ .Env.BUILD_DIR }}/.data:
     exists: false
-  {{ .Env.BUILD_DIR }}/.dev:
+  {{ .Env.BUILD_DIR }}/.drupal-dev:
     exists: false
   {{ .Env.BUILD_DIR }}/.docker:
     exists: false
@@ -40,8 +40,6 @@ file:
   {{ .Env.BUILD_DIR }}/.eslintrc.json:
     exists: false
   {{ .Env.BUILD_DIR }}/.lagoon.yml:
-    exists: false
-  {{ .Env.BUILD_DIR }}/.nvmrc:
     exists: false
   {{ .Env.BUILD_DIR }}/.sass-lint.yml:
     exists: false
