@@ -105,6 +105,13 @@ echo "\$color-silver-chalice: #ff0000;" >> docroot/sites/all/themes/custom/star_
 ahoy fe-dev
 sync_to_host
 
+step "Re-import DB"
+rm -Rf .data/*
+echo "DB_EXPORT_BEFORE_IMPORT=1" >> .env.local
+ahoy download-db
+ahoy import-db
+ls .data/db_export_* > /dev/null
+
 step "Clean"
 ahoy clean
 BUILD_DIR=$BUILD_DIR goss --gossfile $CURDIR/.drupal-dev/tests/goss/goss.clean.yml validate
