@@ -89,6 +89,7 @@ commands:
     usage: Import database dump and run post import commands.
     cmd: |
       ahoy title "Importing database from the dump"
+      [ "$DB_EXPORT_BEFORE_IMPORT" ] && ahoy export-db
       ahoy import-db-dump
       ahoy sanitize-db
       ahoy drush en mysite_core -y
