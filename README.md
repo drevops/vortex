@@ -1,4 +1,4 @@
-# drupal-dev
+# Drupal-Dev
 Composer-based Drupal 7 project scaffolding with code linting, tests and automated builds (CI) integration.
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/7.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/7.x)
@@ -6,7 +6,7 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
 **Looking for Drupal 8 version?**
 [Click here to switch to Drupal 8 version](https://github.com/integratedexperts/drupal-dev/tree/8.x)
 
-![Workflow](.dev/images/workflow.png)
+![Workflow](.drupal-dev/images/workflow.png)
 
 ## Usage
 1. Create a blank project repository.
@@ -39,23 +39,22 @@ Composer-based Drupal 7 project scaffolding with code linting, tests and automat
 - Integration with [dependencies.io](https://dependencies.io) to keep the project up-to-date.
 - Integration with Acquia Cloud.
 - Integration with [Lagoon](https://github.com/amazeeio/lagoon).
-- Project documentation [template](.dev/README.template.md)
+- Project documentation [template](.drupal-dev/README.template.md)
 - Project initialisation script
 
-![Project Init](.dev/images/project-init.png)
+![Project Init](.drupal-dev/images/project-init.png)
 
 ## Build workflow
 Automated build is orchestrated to run stages in separate containers, allowing to run tests in parallel and fail fast.
 
-![CircleCI build workflow](.dev/images/circleci_build.png)
+![CircleCI build workflow](.drupal-dev/images/circleci_build.png)
 
 ## FAQs
 
-## Why `Makefile`?
+## Why [`Ahoy`](https://github.com/ahoy-cli/ahoy)?
 - Consistent commands across projects - unified Developer Experience (DX).
 - Standalone file that can be easily copied across projects.
-- Works on all *nix systems.
-- Does not require additional language or package installation.
+- Simple YAML syntax. 
 - Workflow is no longer captured in places that were not designed for it: Composer scripts, NPM scripts etc.
 
 ## Why not Lando, DDEV, Docksal?
@@ -83,6 +82,7 @@ Automated build is orchestrated to run stages in separate containers, allowing t
 - Flexible [pricing model](https://www.dependencies.io/pricing/) for proprietary projects.
 
 # Contributing
+- Progress is tracked as [GitHub project](https://github.com/integratedexperts/drupal-dev/projects/1). 
 - Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
 - Create issue and prefix title with Drupal core version: `[7.x] Updated readme file.`. 
 - Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/7.x-updated-readme`.

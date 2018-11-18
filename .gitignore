@@ -32,3 +32,4 @@ screenshots
 .data
 
 .env.local
+docker-compose.override.yml

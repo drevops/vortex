@@ -1,4 +1,9 @@
 <?php
+// Only enable aliases if Lagoon integration was fully setup.
+if (!getenv('LAGOON_INTEGRATION_ENABLED')) {
+  return;
+}
+
 // Don't change anything here, it's magic!
 global $aliases_stub;
 if (empty($aliases_stub)) {

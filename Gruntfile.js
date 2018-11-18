@@ -82,7 +82,7 @@ module.exports = function (grunt) {
           [themePath + 'build/css/mysitetheme.min.css']: themePath + 'scss/style.scss'
         },
         options: {
-          implementation: 'sass',
+          implementation: require('node-sass'),
           sourceMap: true,
           outputStyle: 'expanded'
         }
@@ -92,7 +92,7 @@ module.exports = function (grunt) {
           [themePath + 'build/css/mysitetheme.min.css']: themePath + 'scss/style.scss'
         },
         options: {
-          implementation: 'sass',
+          implementation: require('node-sass'),
           sourceMap: false,
           outputStyle: 'compressed'
         }

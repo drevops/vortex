@@ -4,7 +4,7 @@ Drupal 7 implementation of MYSITE
 [![CircleCI](https://circleci.com/gh/myorg/mysite.svg?style=shield)](https://circleci.com/gh/myorg/mysite)
 
 ## Local environment setup
-1. Make sure that you have `make`, [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
+1. Make sure that you have [Ahoy](https://github.com/ahoy-cli/ahoy), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
 2. Checkout project repo
 []([META:ACQUIA])
 3. Add Acquia Cloud credentials to ".env.local" file:
@@ -15,40 +15,41 @@ Drupal 7 implementation of MYSITE
   AC_API_USER_PASS=<YOUR_TOKEN>
 ```
 []([/META:ACQUIA])
-4. `make download-db`
+4. `ahoy download-db`
 5. `pygmy up`
-6. `make build`
+6. `ahoy build`
 
-## Available make commands
-Run each command as `make <command>`.
-  ```
-  build                Build project.
-  build-fed            Build front-end assets.
-  build-fed-prod       Build front-end assets for production.
-  clean                Remove dependencies.
-  clean-full           Remove dependencies and Docker images.
-  clear-cache          Clear Drupal cache.
-  docker-cli           Execute command inside of CLI container.
-  docker-destroy       Destroy Docker containers.
-  docker-logs          Show logs.
-  docker-pull          Pull newest base images.
-  docker-restart       Re-start Docker containers.
-  docker-start         Start Docker containers.
-  docker-stop          Stop Docker containers.
+## Available `ahoy` commands
+Run each command as `ahoy <command>`.
+  ```  
+  build                Build or rebuild project.
+  clean                Clean project.
+  cli                  Start a shell inside CLI container.
+  down                 Stop Docker containers and remove container, images, volumes and networks.
   download-db          Download database.
-  drush                Run Drush command.
-  export-db-dump       Export database dump.
-  help                 Display this help message.
-  install              Install dependencies.
+  drush                Run drush commands in the CLI service container.
+  export-db            Export database dump.
+  fe                   Build front-end assets.
+  fe-dev               Build front-end assets for development.
   import-db            Import database dump and run post import commands.
   import-db-dump       Import database dump.
+  info                 Print information about this project.
+  init                 Initialise project.
+  install              Install dependencies.
   lint                 Lint code.
-  login                Login to the website.
-  rebuild              Re-build project dependencies.
-  rebuild-full         clean and fully re-build project dependencies.
+  login                Login to a website.
+  logs                 Show Docker logs.
+  pull                 Pull latest docker images.
+  restart              Restart all stopped and running Docker containers.
+  run                  Run a command inside CLI container.
   sanitize-db          Sanitize database.
+  site-install         Install site from profile.
+  start                Start existing Docker containers.
+  stop                 Stop running Docker containers.
   test                 Run all tests.
   test-behat           Run Behat tests.
+  test-phpunit         Run PHPUnit tests.
+  up                   Build and start Docker containers
   ```
 
 ## Adding Drupal modules

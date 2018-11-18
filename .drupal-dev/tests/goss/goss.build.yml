@@ -1,0 +1,27 @@
+---
+# Test that 'ahoy build' works.
+
+gossfile:
+    goss.init.yml: {}
+
+file:
+  # Assert generated settings file exists.
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.generated.php:
+    exists: true
+    filetype: file
+
+  # Assert only minified compiled CSS exists.
+  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/star_wars/build/css/star_wars.min.css:
+    exists: true
+    contains:
+      - "background:#9f9f9f"
+  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/star_wars/build/css/star_wars.css:
+    exists: false
+
+  # Assert only minified compiled JS exists.
+  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/star_wars/build/js/star_wars.min.js:
+    exists: true
+    contains:
+      - "function(t,Drupal){\"use strict\";Drupal.behaviors.star_wars"
+  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/star_wars/build/js/star_wars.js:
+    exists: false

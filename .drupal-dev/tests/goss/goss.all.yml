@@ -1,0 +1,62 @@
+---
+# Test project initialisation with all integrations preserved.
+
+gossfile:
+    goss.init.yml: {}
+
+file:
+  # Acquia integration preserved.
+  {{ .Env.BUILD_DIR }}/hooks:
+    exists: true
+    filetype: directory
+  {{ .Env.BUILD_DIR }}/scripts/acquia-download-backup.sh:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/DEPLOYMENT.md:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/README.md:
+    exists: true
+    filetype: file
+    contains:
+      - "Please refer to [DEPLOYMENT.md]"
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.php:
+    exists: true
+    filetype: file
+    contains:
+      - "if (file_exists('/var/www/site-php')) {"
+  {{ .Env.BUILD_DIR }}/.env:
+    exists: true
+    filetype: file
+    contains:
+      - "AC_API_DB_SITE="
+      - "AC_API_DB_ENV="
+      - "AC_API_DB_NAME="
+  {{ .Env.BUILD_DIR }}/.ahoy.yml:
+    exists: true
+    filetype: file
+    contains:
+      - "AC_API_DB_SITE="
+      - "AC_API_DB_ENV="
+      - "AC_API_DB_NAME="
+
+  # Lagoon integration preserved.
+  {{ .Env.BUILD_DIR }}/.lagoon.yml:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/drush/aliases.drushrc.php:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docker-compose.yml:
+    exists: true
+    filetype: file
+    contains:
+      - "labels:"
+      - "lagoon.type: cli-persistent"
+      - "lagoon.persistent.name: nginx"
+      - "lagoon.persistent: /app/docroot/sites/default/files/"
+      - "lagoon.type: nginx-php-persistent"
+      - "lagoon.name: nginx"
+      - "lagoon.type: mariadb"
+      - "lagoon.type: solr"
+      - "lagoon.type: none"

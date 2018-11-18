@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Initialise drupal-dev project.
+# Initialise Drupal-Dev project.
 #
 # Usage:
 # init.sh           Interactively initialise project asking questions.
@@ -48,7 +48,7 @@ main() {
     local preserve_lagoon_integration=Y
     preserve_lagoon_integration=$(ask "Do you want to keep Lagoon integration? [${preserve_lagoon_integration}] " $preserve_lagoon_integration)
     local remove_meta=Y
-    remove_meta=$(ask "Do you want to remove all drupal-dev META information? (Y,n) [$remove_meta] " $remove_meta)
+    remove_meta=$(ask "Do you want to remove all Drupal-Dev META information? (Y,n) [$remove_meta] " $remove_meta)
   fi
 
   echo
@@ -61,12 +61,12 @@ main() {
   fi
 
   echo
-  bash -c "echo -n Initialising project "
+  bash -c "echo -n Initialising project $site_name"
 
   rm README.md > /dev/null
-  cp .dev/README.template.md README.md
-  cp .dev/DEPLOYMENT.template.md DEPLOYMENT.md
-  cp .dev/FAQs.template.md FAQs.md
+  cp .drupal-dev/README.template.md README.md
+  cp .drupal-dev/DEPLOYMENT.template.md DEPLOYMENT.md
+  cp .drupal-dev/FAQs.template.md FAQs.md
 
   replace_string_content "mysitetheme" "$site_theme" "$CURDIR" && bash -c "echo -n ."
   replace_string_content "myorg" "$org_short" "$CURDIR" && bash -c "echo -n ."
@@ -87,8 +87,8 @@ main() {
   fi
 
   if [ "$preserve_lagoon_integration" != "Y" ] ; then
-    rm drush/aliases.drushrc.php
-    rm .lagoon.yml
+    rm drush/aliases.drushrc.php > /dev/null
+    rm .lagoon.yml > /dev/null
     remove_tags_with_content "META:LAGOON" "$CURDIR" && bash -c "echo -n ."
   fi
 
@@ -99,9 +99,9 @@ main() {
 
   enable_commented_code "$CURDIR"
 
-  rm -Rf $CURDIR/.dev > /dev/null
+  rm -Rf $CURDIR/.drupal-dev > /dev/null
 
-  bash -c "echo -n complete"
+  bash -c "echo complete"
 }
 
 ask() {

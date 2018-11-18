@@ -49,6 +49,7 @@ ini_set('session.cookie_lifetime', 2000000);
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
 ////////////////////////////////////////////////////////////////////////////////
 
+// [META:ACQUIA]
 // Include Acquia settings.
 // @see https://docs.acquia.com/acquia-cloud/develop/env-variable
 if (file_exists('/var/www/site-php')) {
@@ -72,7 +73,7 @@ if (file_exists('/var/www/site-php')) {
       break;
   }
 }
-
+// [/META:ACQUIA]
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-ENVIRONMENT SETTINGS                           ///
 ////////////////////////////////////////////////////////////////////////////////

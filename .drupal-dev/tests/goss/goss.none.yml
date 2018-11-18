@@ -1,0 +1,50 @@
+---
+# Test project initialisation with none of integrations preserved.
+
+gossfile:
+    goss.init.yml: {}
+
+file:
+  # Acquia integration removed.
+  {{ .Env.BUILD_DIR }}/hooks:
+    exists: false
+  {{ .Env.BUILD_DIR }}/scripts/acquia-download-backup.sh:
+    exists: false
+  {{ .Env.BUILD_DIR }}/DEPLOYMENT.md:
+    exists: false
+  {{ .Env.BUILD_DIR }}/README.md:
+    exists: true
+    filetype: file
+    contains:
+      - "!Please refer to [DEPLOYMENT.md]"
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.php:
+    exists: true
+    filetype: file
+    contains:
+      - "!if (file_exists('/var/www/site-php')) {"
+  {{ .Env.BUILD_DIR }}/.env:
+    exists: true
+    filetype: file
+    contains:
+      - "!AC_API_DB_SITE="
+      - "!AC_API_DB_ENV="
+      - "!AC_API_DB_NAME="
+  {{ .Env.BUILD_DIR }}/.ahoy.yml:
+    exists: true
+    filetype: file
+    contains:
+      - "!AC_API_DB_SITE="
+      - "!AC_API_DB_ENV="
+      - "!AC_API_DB_NAME="
+
+  # Lagoon integration removed.
+  {{ .Env.BUILD_DIR }}/.lagoon.yml:
+    exists: false
+  {{ .Env.BUILD_DIR }}/drush/aliases.drushrc.php:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docker-compose.yml:
+    exists: true
+    filetype: file
+    contains:
+      - "!labels:"
+      - "!lagoon."
