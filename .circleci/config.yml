@@ -35,7 +35,6 @@ aliases:
       # [/META]
       - image: integratedexperts/ci-builder
         environment:
-          COMPOSER_ALLOW_SUPERUSER: 1
           COMPOSE_PROJECT_NAME: mysite
           # How often to cache DB dump for. See 'database' job below for more information.
           DB_TIMESTAMP: +%Y_%m_%d
