@@ -38,7 +38,11 @@ aliases:
           COMPOSE_PROJECT_NAME: mysite
           # How often to cache DB dump for. See 'database' job below for more information.
           DB_TIMESTAMP: +%Y_%m_%d
-    resource_class: xlarge
+    # [META]
+    # Use large resource class for faster builds.
+    # Uncomment the line below if your account has this setup.
+    # resource_class: xlarge
+    # [/META]
 
   # Step to setup remote docker.
   - &step_setup_remote_docker
