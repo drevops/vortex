@@ -58,7 +58,7 @@ aliases:
     #   docker_layer_caching: true
     # [/META:CI_DLC]
 
-  # Step to configure git to connect to remote servers for deployment.
+  # Step to configure git and SSH to connect to remote servers for deployment.
   # [META]
   # Deployment to remote git repositories allows to build the project and all
   # required artifacts in CI and then commit only required files to
@@ -76,10 +76,18 @@ aliases:
   - &step_configure_git
     run:
       name: Configure git
+      command: git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
+
+  - &step_configure_ssh
+    run:
+      name: Configure SSH
       command: |
-        git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
-        mkdir -p ~/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-        DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
+        mkdir -p ${HOME}/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+        DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_SSH_FILE//\"}"
+        if [ -f "${DEPLOY_SSH_FILE}" ]; then
+          ssh-add -D
+          ssh-add ${DEPLOY_SSH_FILE}
+        fi
 
 jobs:
   # [META]
@@ -277,6 +285,7 @@ jobs:
           fingerprints:
             - *deploy_ssh_fingerprint
       - *step_configure_git
+      - *step_configure_ssh
       - attach_workspace:
           at: /workspace
       - run:
@@ -305,6 +314,7 @@ jobs:
           fingerprints:
             - *deploy_ssh_fingerprint
       - *step_configure_git
+      - *step_configure_ssh
       - attach_workspace:
           at: /workspace
       - run:
@@ -343,6 +353,7 @@ jobs:
         fingerprints:
           - *deploy_ssh_fingerprint
     - *step_configure_git
+    - *step_configure_ssh
     - attach_workspace:
         at: /workspace
     - run: export DRUPAL_VERSION=7 && .drupal-dev/tests/test-artefact.sh /workspace/code
