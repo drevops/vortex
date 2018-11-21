@@ -22,7 +22,7 @@ commands:
     usage: Build and start Docker containers
     cmd: |
       docker-compose up -d "$@"
-      ahoy run "dockerize -wait tcp://mariadb:3306 -timeout 1m"
+      ahoy cli "dockerize -wait tcp://mariadb:3306 -timeout 1m"
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
@@ -49,12 +49,8 @@ commands:
     cmd: docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio/ | grep -v none | xargs -n1 docker pull | cat
 
   cli:
-    usage: Start a shell inside CLI container.
-    cmd: docker-compose exec cli bash
-
-  run:
-    usage: Run a command inside CLI container.
-    cmd: docker-compose exec cli bash -c "$@"
+    usage: Start a shell inside CLI container or run a command.
+    cmd: \[ "$@" \] && docker-compose exec cli bash -c "$@" || docker-compose exec cli bash
 
   drush:
     usage: Run drush commands in the CLI service container.
@@ -100,14 +96,14 @@ commands:
     usage: Import database dump.
     cmd: |
       ahoy drush sql-drop -y
-      ahoy run "mkdir -p /tmp/.data"
+      ahoy cli "mkdir -p /tmp/.data"
       docker cp -L ${DATAROOT}/db.sql $(docker-compose ps -q cli):/tmp/.data/db.sql
-      ahoy run "bash -c \"drush -r ${DOCROOT} sql-cli < /tmp/.data/db.sql\""
+      ahoy cli "bash -c \"drush -r ${DOCROOT} sql-cli < /tmp/.data/db.sql\""
 
   export-db:
     usage: Export database dump.
     cmd: |
-      ahoy run "mkdir -p /tmp/.data"
+      ahoy cli "mkdir -p /tmp/.data"
       ahoy drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql -q
       mkdir -p ${DATAROOT}
       DUMP_FILE=$([ "${1}" ] && echo ${DATAROOT}/${1} || echo ${DATAROOT}/db_export_$(date +%Y_%m_%d_%H_%M_%S).sql)
@@ -120,7 +116,7 @@ commands:
       ahoy drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
       if [ -f ${DB_SANITIZE_SQL} ]; then
         ahoy title "Applying custom sanitization commands"
-        ahoy run "mkdir -p $(dirname /tmp/${DB_SANITIZE_SQL})"
+        ahoy cli "mkdir -p $(dirname /tmp/${DB_SANITIZE_SQL})"
         docker cp -L ${DB_SANITIZE_SQL} $(docker-compose ps -q cli):/tmp/${DB_SANITIZE_SQL}
         ahoy drush sql-query --file=/tmp/${DB_SANITIZE_SQL}
       fi
@@ -152,17 +148,17 @@ commands:
 
   fe:
     usage: Build front-end assets.
-    cmd: ahoy run "npm run build"
+    cmd: ahoy cli "npm run build"
 
   fe-dev:
     usage: Build front-end assets for development.
-    cmd: ahoy run "npm run build-dev"
+    cmd: ahoy cli "npm run build-dev"
 
   install:
     usage: Install dependencies.
     cmd: |
-      ahoy run "composer install -n --ansi --prefer-dist --no-suggest"
-      ahoy run "npm install"
+      ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
+      ahoy cli "npm install"
 
   site-install:
     usage: Install site from profile.
@@ -175,9 +171,9 @@ commands:
   lint:
     usage: Lint code.
     cmd: |
-      ahoy run "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }"
-      ahoy run "vendor/bin/phpcs"
-      ahoy run "npm run lint"
+      ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }"
+      ahoy cli "vendor/bin/phpcs"
+      ahoy cli "npm run lint"
 
   test:
     usage: Run all tests.
@@ -187,12 +183,11 @@ commands:
 
   test-behat:
     usage: Run Behat tests.
-    cmd: ahoy run "./vendor/bin/behat --strict --colors ${BEHAT_PROFILE} $@"
+    cmd: ahoy cli "./vendor/bin/behat --strict --colors ${BEHAT_PROFILE} $@"
 
   test-phpunit:
     usage: Run PHPUnit tests.
-    cmd: ahoy run "./vendor/bin/phpunit $@"
-
+    cmd: ahoy cli "./vendor/bin/phpunit $@"
   # [META]
   init:
     usage: Initialise project.

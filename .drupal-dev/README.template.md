@@ -24,7 +24,7 @@ Run each command as `ahoy <command>`.
   ```  
   build                Build or rebuild project.
   clean                Clean project.
-  cli                  Start a shell inside CLI container.
+  cli                  Start a shell inside CLI container or run a command.
   down                 Stop Docker containers and remove container, images, volumes and networks.
   download-db          Download database.
   drush                Run drush commands in the CLI service container.
@@ -41,7 +41,6 @@ Run each command as `ahoy <command>`.
   logs                 Show Docker logs.
   pull                 Pull latest docker images.
   restart              Restart all stopped and running Docker containers.
-  run                  Run a command inside CLI container.
   sanitize-db          Sanitize database.
   site-install         Install site from profile.
   start                Start existing Docker containers.
