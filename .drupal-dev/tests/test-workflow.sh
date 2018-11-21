@@ -83,7 +83,7 @@ step "Enable development settings"
 cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
 
 step "Run generic command"
-ahoy run "echo Test"
+ahoy cli "echo Test"
 
 step "Run drush command"
 ahoy drush st
