@@ -353,7 +353,6 @@ jobs:
         fingerprints:
           - *deploy_ssh_fingerprint
     - *step_configure_git
-    - *step_configure_ssh
     - attach_workspace:
         at: /workspace
     - run: export DRUPAL_VERSION=7 && .drupal-dev/tests/test-artefact.sh /workspace/code
