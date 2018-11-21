@@ -1,3 +1,4 @@
+@smoke
 Feature: Login
 
   Ensure that user can login.

@@ -1,3 +1,4 @@
+@smoke
 Feature: Homepage
 
   Ensure that homepage is displayed as expected.
