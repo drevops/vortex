@@ -93,11 +93,12 @@ aliases:
     run:
       name: Create local settings
       command: |
-        echo "<?php" >> /app/docroot/sites/default/settings.local.php
+        echo "<?php" >> docroot/sites/default/settings.local.php
         # [META]
         # Add local settings overrides here.
-        # echo "\$conf['somevariable'] = '$SOME_VALUE_FROM_ENV';" >> /app/docroot/sites/default/settings.local.php
+        # echo "\$conf['somevariable'] = '$SOME_VALUE_FROM_ENV';" >> docroot/sites/default/settings.local.php
         # [/META]
+        docker cp -L docroot/sites/default/settings.local.php $(docker-compose ps -q cli):/app/docroot/sites/default/settings.local.php
 
 jobs:
   # [META]
@@ -132,7 +133,6 @@ jobs:
       - run:
           name: Download database
           command: if [ ! -f .data/db.sql ]; then touch /tmp/db-new; ahoy download-db; else echo "Using cached DB dump"; fi
-      - *step_local_settings
       - run:
           name: Start containers
           command: |
@@ -141,6 +141,7 @@ jobs:
               docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
               ahoy up
             fi
+      - *step_local_settings
       - run:
           name: Import DB
           command: if [ -f /tmp/db-new ]; then ahoy import-db-dump; fi
@@ -192,7 +193,6 @@ jobs:
       - run:
           name: Check DB availability
           command: if [ ! -f .data/db.sql ] ; then echo "Unable to find DB"; exit 1; fi
-      - *step_local_settings
       - run:
           name: Pull newest Docker images
           command: ahoy pull
@@ -215,6 +215,7 @@ jobs:
       - run:
           name: Copy built codebase into workspace for future deployment
           command: mkdir -p /workspace/code && docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
+      - *step_local_settings
       - run:
           name: Setup site
           command: ahoy import-db
