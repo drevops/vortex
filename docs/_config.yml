@@ -1,1 +1,4 @@
-theme: jekyll-theme-tactile
+theme: jekyll-theme-cayman
+plugins:
+- jekyll-seo-tag
+google_analytics: UA-99053663-2
