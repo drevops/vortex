@@ -92,6 +92,12 @@ commands:
       ahoy sanitize-db
       ahoy drush en mysite_core -y
       ahoy drush updb -y
+      # [META:PROFILE]
+      # Replace lines above with lines below if you want to install site from profile.
+      # ahoy title "Installing a site from profile"
+      # ahoy drush si ${INSTALL_PROFILE} -y --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+      # ahoy drush en -y mysite_core
+      # [/META:PROFILE]
       ahoy drush cc all
 
   import-db-dump:
@@ -159,14 +165,6 @@ commands:
     cmd: |
       ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
       ahoy cli "npm install"
-
-  site-install:
-    usage: Install site from profile.
-    cmd: |
-      ahoy title "Installing a site from profile"
-      ahoy drush si ${INSTALL_PROFILE} -y --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
-      ahoy drush en -y mysite_core
-      ahoy drush cc all
 
   lint:
     usage: Lint code.
