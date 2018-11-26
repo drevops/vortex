@@ -109,7 +109,7 @@ step "Re-import DB"
 rm -Rf .data/*
 echo "DB_EXPORT_BEFORE_IMPORT=1" >> .env.local
 ahoy download-db
-ahoy import-db
+ahoy install
 ls .data/db_export_* > /dev/null
 
 step "Clean"

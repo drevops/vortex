@@ -23,6 +23,8 @@ commands:
     cmd: |
       docker-compose up -d "$@"
       ahoy cli "dockerize -wait tcp://mariadb:3306 -timeout 1m"
+      if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi
+      docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME}_
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
@@ -50,7 +52,7 @@ commands:
 
   cli:
     usage: Start a shell inside CLI container or run a command.
-    cmd: \[ "$@" \] && docker-compose exec cli bash -c "$@" || docker-compose exec cli bash
+    cmd: if \[ "$@" \]; then docker-compose exec cli bash -c "$@"; else docker-compose exec cli bash; fi
 
   drush:
     usage: Run drush commands in the CLI service container.
@@ -81,11 +83,11 @@ commands:
       #### mkdir -p ${DATAROOT} && curl -u ${FTP_USER}:${FTP_PASS} "ftp://${FTP_HOST}/${FTP_FILE}" -o ${DATAROOT}/db.sql
       # [/META:FTP]
 
-  import-db:
-    usage: Import database dump and run post import commands.
+  install:
+    usage: Install a site.
     cmd: |
       ahoy title "Importing database from the dump"
-      [ "$DB_EXPORT_BEFORE_IMPORT" ] && ahoy export-db
+      [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ] && ahoy export-db
       ahoy import-db-dump
       ahoy sanitize-db
       ahoy drush en mysite_core -y
@@ -114,7 +116,7 @@ commands:
     usage: Sanitize database.
     cmd: |
       ahoy drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
-      if [ -f ${DB_SANITIZE_SQL} ]; then
+      if [ "${DB_SANITIZE_SQL}" ] && [ -f "${DB_SANITIZE_SQL}" ]; then
         ahoy title "Applying custom sanitization commands"
         ahoy cli "mkdir -p $(dirname /tmp/${DB_SANITIZE_SQL})"
         docker cp -L ${DB_SANITIZE_SQL} $(docker-compose ps -q cli):/tmp/${DB_SANITIZE_SQL}
@@ -138,11 +140,9 @@ commands:
       ahoy title "Building project"
       ahoy clean
       ahoy up -- --build --force-recreate
+      ahoy install-dev
       ahoy install
-      ahoy import-db
       ahoy fe
-      # Replace the line above with a line below to enable site install.
-      # ahoy site-install
       ahoy title "Build complete"
       ahoy info 1
 
@@ -154,7 +154,7 @@ commands:
     usage: Build front-end assets for development.
     cmd: ahoy cli "npm run build-dev"
 
-  install:
+  install-dev:
     usage: Install dependencies.
     cmd: |
       ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
@@ -171,9 +171,9 @@ commands:
   lint:
     usage: Lint code.
     cmd: |
-      ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }"
-      ahoy cli "vendor/bin/phpcs"
-      ahoy cli "npm run lint"
+      ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }" \
+      && ahoy cli "vendor/bin/phpcs" \
+      && ahoy cli "npm run lint"
 
   test:
     usage: Run all tests.

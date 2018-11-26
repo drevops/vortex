@@ -82,9 +82,10 @@ aliases:
     run:
       name: Configure SSH
       command: |
-        mkdir -p ${HOME}/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+        mkdir -p ${HOME}/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > ${HOME}/.ssh/config
         DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_SSH_FILE//\"}"
         if [ -f "${DEPLOY_SSH_FILE}" ]; then
+          echo "Found Deploy SSH key file ${DEPLOY_SSH_FILE}"
           ssh-add -D
           ssh-add ${DEPLOY_SSH_FILE}
         fi
@@ -98,7 +99,10 @@ aliases:
         # Add local settings overrides here.
         # echo "\$conf['somevariable'] = '$SOME_VALUE_FROM_ENV';" >> docroot/sites/default/settings.local.php
         # [/META]
-        docker cp -L docroot/sites/default/settings.local.php $(docker-compose ps -q cli):/app/docroot/sites/default/settings.local.php
+        if [ "$(docker-compose ps -q cli)" != "" ]; then
+          docker cp -L docroot/sites/default/settings.local.php $(docker-compose ps -q cli):/app/docroot/sites/default/settings.local.php
+          docker cp -L docroot/sites/default/settings.local.php $(docker-compose ps -q php):/app/docroot/sites/default/settings.local.php
+        fi
 
 jobs:
   # [META]
@@ -211,14 +215,14 @@ jobs:
           command: |
             sed -i -e "/###/d" docker-compose.yml
             docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
-            ahoy up
+            ahoy up -- --build
       - run:
           name: Copy built codebase into workspace for future deployment
           command: mkdir -p /workspace/code && docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
       - *step_local_settings
       - run:
-          name: Setup site
-          command: ahoy import-db
+          name: Install site
+          command: ahoy install
       # [META]
       # Before installing dev dependencies, we need to copy development files
       # into containers, because these files were not included in the initial
@@ -231,7 +235,7 @@ jobs:
             docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
             docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
             docker cp -L tests $(docker-compose ps -q cli):/app/
-            ahoy install
+            ahoy install-dev
       - run:
           name: Lint code
           command: ahoy lint

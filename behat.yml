@@ -1,5 +1,5 @@
 default:
-  autoload: [ %paths.base%/tests/behat/bootstrap ]
+  autoload: [ '%paths.base%/tests/behat/bootstrap' ]
   gherkin:
     # Disable caching during development. It is enabled for profiles below.
     cache: ~
@@ -8,7 +8,7 @@ default:
       tags: "~@skipped"
   suites:
     default:
-      paths: [ %paths.base%/tests/behat/features ]
+      paths: [ '%paths.base%/tests/behat/features' ]
       contexts:
         - FeatureContext
         - Drupal\DrupalExtension\Context\MinkContext
@@ -20,7 +20,7 @@ default:
     Behat\MinkExtension:
       goutte: ~
       base_url: http://nginx:8080
-      files_path: %paths.base%/tests/behat/fixtures
+      files_path: '%paths.base%/tests/behat/fixtures'
       browser_name: chrome
       selenium2:
         wd_host: "http://chrome:4444/wd/hub"
@@ -42,7 +42,7 @@ default:
         warning_message_selector: '.messages.warning'
     # Allows to capture HTML and JPG screenshots (based on the driver used).
     IntegratedExperts\BehatScreenshotExtension:
-      dir: %paths.base%/screenshots
+      dir: '%paths.base%/screenshots'
       fail: true
       purge: false
     # Show explicit fail information and continue the test run.
@@ -50,11 +50,11 @@ default:
 
 p0:
   gherkin:
-    cache: /tmp/behat_gherkin_cache
+    cache: '/tmp/behat_gherkin_cache'
     filters:
       tags: "@p0&&~@skipped"
 p1:
   gherkin:
-    cache: /tmp/behat_gherkin_cache
+    cache: '/tmp/behat_gherkin_cache'
     filters:
       tags: "@p1&&~@skipped"

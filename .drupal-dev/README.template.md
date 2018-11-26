@@ -31,18 +31,17 @@ Run each command as `ahoy <command>`.
   export-db            Export database dump.
   fe                   Build front-end assets.
   fe-dev               Build front-end assets for development.
-  import-db            Import database dump and run post import commands.
   import-db-dump       Import database dump.
   info                 Print information about this project.
   init                 Initialise project.
-  install              Install dependencies.
+  install              Install a site.
+  install-dev          Install dev dependencies.
   lint                 Lint code.
   login                Login to a website.
   logs                 Show Docker logs.
   pull                 Pull latest docker images.
   restart              Restart all stopped and running Docker containers.
   sanitize-db          Sanitize database.
-  site-install         Install site from profile.
   start                Start existing Docker containers.
   stop                 Stop running Docker containers.
   test                 Run all tests.
