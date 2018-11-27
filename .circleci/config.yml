@@ -3,8 +3,9 @@ jobs:
   build:
     docker:
     - image: integratedexperts/ci-builder
-    working_directory: ~/repo
+    working_directory: /app
     steps:
+    - checkout
     - run:
         name: Check spelling
         command: |
