@@ -1,0 +1,33 @@
+---
+# Test that 'ahoy clean' works.
+
+gossfile:
+    goss.init.yml: {}
+
+file:
+  {{ .Env.BUILD_DIR }}/docroot/index.php:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/contrib:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/contrib:
+    exists: false
+  {{ .Env.BUILD_DIR }}/vendor:
+    exists: false
+  {{ .Env.BUILD_DIR }}/node_modules:
+    exists: false
+  {{ .Env.BUILD_DIR }}/screenshots:
+    exists: false
+
+  # Assert manually created local settings file exists.
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.local.php:
+    exists: true
+    filetype: file
+
+  # Assert generated settings file does not exist.
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.generated.php:
+    exists: false
+
+commands:
+    # Assert that services are not running.
+    docker ps -q --no-trunc | grep $(docker-compose ps -q nginx):
+        exit-status: 1
