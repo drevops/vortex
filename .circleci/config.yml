@@ -134,9 +134,19 @@ jobs:
       - restore_cache:
           keys:
             - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+      # [META]
+      # Download database only if it has not been restored from the cache OR
+      # if the $FORCE_DB_DOWNLOAD flag is set (usually in CircleCI UI).
+      # [/META]
       - run:
           name: Download database
-          command: if [ ! -f .data/db.sql ]; then touch /tmp/db-new; ahoy download-db; else echo "Using cached DB dump"; fi
+          command: |
+            if [ ! -f .data/db.sql ] || [ "$FORCE_DB_DOWNLOAD" != "" ]; then
+              touch /tmp/db-new;
+              ahoy download-db;
+            else
+              echo "Using cached DB dump";
+            fi
       - run:
           name: Start containers
           command: |
