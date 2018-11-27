@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-    - image: integratedexperts/ci-build
+    - image: integratedexperts/ci-builder
     working_directory: ~/repo
     steps:
     - run: /usr/bin/true
