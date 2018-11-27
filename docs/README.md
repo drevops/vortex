@@ -1,4 +1,4 @@
-# drupal-dev
+# Drupal-Dev
 Composer-based Drupal 7 and Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x)
@@ -11,7 +11,7 @@ Composer-based Drupal 7 and Drupal 8 project scaffolding with code linting, test
 
 ## What is included
 - Drupal 8 Composer-based configuration:
-  - contrib modules management
+  - contributed modules management
   - libraries management
   - support for patches
   - development and testing tools
@@ -34,7 +34,7 @@ Composer-based Drupal 7 and Drupal 8 project scaffolding with code linting, test
   - [FAQs](https://github.com/integratedexperts/drupal-dev/blob/8.x/.dev/FAQs.template.md)
 - Project initialisation script
 
-![Project Init](https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/.dev/images/project-init.png)
+![Project Initialisation](https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/.dev/images/project-init.png)
 
 ## Build workflow
 Automated build is orchestrated to run stages in separate containers, allowing to run tests in parallel and fail fast.
@@ -72,7 +72,7 @@ Automated build is orchestrated to run stages in separate containers, allowing t
 ## Why dependencies.io?
 - Configurable runners for different types of dependencies (PHP, JS, Ruby etc).
 - Configurable base branch, new branch prefixes and assigned labels.
-- Supports pre- and post-update hooks. 
+- Supports pre-update and post-update hooks. 
 - Flexible [pricing model](https://www.dependencies.io/pricing/) for proprietary projects.
 
 # Contributing

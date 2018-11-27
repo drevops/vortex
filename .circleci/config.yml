@@ -5,4 +5,16 @@ jobs:
     - image: integratedexperts/ci-builder
     working_directory: ~/repo
     steps:
-    - run: /bin/true
+    - run:
+        name: Check spelling
+        command: |
+          cat docs/README.md | \
+          # Remove { } attributes.
+          sed -E 's/\{:([^\}]+)\}//g' | \
+          # Remove HTML.
+          sed -E 's/<([^<]+)>//g' | \
+          # Remove code blocks.
+          sed  -n '/^\`\`\`/,/^\`\`\`/ !p' | \
+          # Remove links.
+          sed -E 's/http(s)?:\/\/([^ ]+)//g' | \
+          aspell --lang=en --encoding=utf-8 --personal=./docs/.aspell.en.pws list | sort -u
