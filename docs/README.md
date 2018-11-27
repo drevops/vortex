@@ -1,16 +1,16 @@
 # Drupal-Dev
 Composer-based Drupal 7 and Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
-[![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x)
+Drupal project template with code linting, tests, CI and deployments.
 
-[Click here to see code for Drupal 8 version](https://github.com/integratedexperts/drupal-dev/tree/8.x)
+[Click here to see template for Drupal 8 project](https://github.com/integratedexperts/drupal-dev/tree/8.x) [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x)
 
-[Click here to see code for Drupal 7 version](https://github.com/integratedexperts/drupal-dev/tree/7.x)
+[Click here to see template for Drupal 7 project](https://github.com/integratedexperts/drupal-dev/tree/7.x) [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/7.x)
 
 ![Project workflow](https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/.dev/images/workflow.png)
 
 ## What is included
-- Drupal 8 Composer-based configuration:
+- Drupal 7 and Drupal 8 composer-based configuration:
   - contributed modules management
   - libraries management
   - support for patches
@@ -33,6 +33,7 @@ Composer-based Drupal 7 and Drupal 8 project scaffolding with code linting, test
   - [Deployment](https://github.com/integratedexperts/drupal-dev/blob/8.x/.dev/DEPLOYMENT.template.md)
   - [FAQs](https://github.com/integratedexperts/drupal-dev/blob/8.x/.dev/FAQs.template.md)
 - Project initialisation script
+- Tests for Drupal-Dev to ensure that end-to-end workflow works as expected.
 
 ![Project Initialisation](https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/.dev/images/project-init.png)
 
@@ -79,6 +80,15 @@ Automated build is orchestrated to run stages in separate containers, allowing t
 - Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
 - Create issue and prefix title with Drupal core version: `[7.x] Updated readme file.`. 
 - Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/7.x-updated-readme`.
+
+# Paid support
+[Integrated Experts](https://github.com/integratedexperts) can provide support for Drupal-Dev in your organisation: 
+- New and existing project onboarding.
+- Support plans with SLAs.
+- Priority feature implementation.
+- Updates to the latest version of the platform.
+
+Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.com)
 
 ## Useful projects
 
