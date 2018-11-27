@@ -99,6 +99,11 @@ aliases:
         # Add local settings overrides here.
         # echo "\$conf['somevariable'] = '$SOME_VALUE_FROM_ENV';" >> docroot/sites/default/settings.local.php
         # [/META]
+        echo "--- >> docroot/sites/default/settings.local.yml
+        # [META]
+        # Add local services overrides here.
+        # echo "parameter: value" >> docroot/sites/default/services.local.yml
+        # [/META]
         if [ "$(docker-compose ps -q cli)" != "" ]; then
           docker cp -L docroot/sites/default/settings.local.php $(docker-compose ps -q cli):/app/docroot/sites/default/settings.local.php
           docker cp -L docroot/sites/default/settings.local.php $(docker-compose ps -q php):/app/docroot/sites/default/settings.local.php
