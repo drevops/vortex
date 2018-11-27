@@ -99,7 +99,7 @@ aliases:
         # Add local settings overrides here.
         # echo "\$conf['somevariable'] = '$SOME_VALUE_FROM_ENV';" >> docroot/sites/default/settings.local.php
         # [/META]
-        echo "--- >> docroot/sites/default/settings.local.yml
+        echo "---" >> docroot/sites/default/services.local.yml
         # [META]
         # Add local services overrides here.
         # echo "parameter: value" >> docroot/sites/default/services.local.yml
