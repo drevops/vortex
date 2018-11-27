@@ -1,1 +1,0 @@
-../../library/update-db.sh

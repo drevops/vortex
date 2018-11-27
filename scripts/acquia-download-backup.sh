@@ -30,6 +30,9 @@ AC_API_DB_NAME=${AC_API_DB_NAME:-}
 # Backup id. If not specified - latest backup id will be discovered and used.
 AC_API_DB_BACKUP_ID=${AC_API_DB_BACKUP_ID:-}
 
+# Location of the Clouds API credentials file after running 'drush ac-api-login'.
+AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-~/.acquia/cloudapi.conf}
+
 # DB dump directory.
 DB_DUMP_DIR=${DB_DUMP_DIR:-.data}
 
@@ -50,6 +53,19 @@ REMOVE_CACHED_DUMPS=${REMOVE_CACHED_DUMPS:-0}
 ################################################################################
 #################### DO NOT CHANGE ANYTHING BELOW THIS LINE ####################
 ################################################################################
+
+# Function to extract last value from JSON object passed via STDIN.
+extract_json_last_value() {
+  local key=$1
+  php -r '$data=json_decode(file_get_contents("php://stdin"), TRUE); $last=array_pop($data); isset($last["'$key'"]) ? print $last["'$key'"] : exit(1);'
+}
+
+# Function to extract keyed value from JSON object passed via STDIN.
+extract_json_value() {
+  local key=$1
+  php -r '$data=json_decode(file_get_contents("php://stdin"), TRUE); isset($data["'$key'"]) ? print $data["'$key'"] : exit(1);'
+}
+
 SELF_START_TIME=$(date +%s)
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
@@ -70,19 +86,17 @@ which curl > /dev/null ||  {
   echo "==> ERROR: curl is not available in this session" && exit 1
 }
 
+# Try to read credentials from the stored config file after `drush ac-api-login`.
+if [ "$AC_API_USER_NAME" == "" ] && [ -f "$AC_CREDENTIALS_FILE" ]; then
+  AC_API_USER_NAME=$(cat $AC_CREDENTIALS_FILE | extract_json_value "mail")
+  AC_API_USER_PASS=$(cat $AC_CREDENTIALS_FILE | extract_json_value "key")
+fi
+
 [ "$AC_API_USER_NAME" == "" ] && echo "==> ERROR: Missing value for \$AC_API_USER_NAME" && exit 1
 [ "$AC_API_USER_PASS" == "" ] && echo "==> ERROR: Missing value for \$AC_API_USER_PASS" && exit 1
 [ "$AC_API_DB_SITE" == "" ] && echo "==> ERROR: Missing value for \$AC_API_DB_SITE" && exit 1
 [ "$AC_API_DB_ENV" == "" ] && echo "==> ERROR: Missing value for \$AC_API_DB_ENV" && exit 1
 [ "$AC_API_DB_NAME" == "" ] && echo "==> ERROR: Missing value for \$AC_API_DB_NAME" && exit 1
-
-# @todo: add pre-flight checks for variable formats.
-
-# Function to extract last value from JSON object passed via STDIN.
-extract_json_last_value() {
-  local key=$1
-  php -r '$data=json_decode(file_get_contents("php://stdin"), TRUE); $last=array_pop($data); isset($last["'$key'"]) ? print $last["'$key'"] : exit(1);'
-}
 
 LATEST_BACKUP=0
 if [ "$AC_API_DB_BACKUP_ID" == "" ] ; then
