@@ -4,10 +4,14 @@ Drupal 7 implementation of MYSITE
 [![CircleCI](https://circleci.com/gh/myorg/mysite.svg?style=shield)](https://circleci.com/gh/myorg/mysite)
 
 ## Local environment setup
-1. Make sure that you have [Ahoy](https://github.com/ahoy-cli/ahoy), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
-2. Checkout project repo
+1. Make sure that you have latest versions of all required software installed:   
+  - [Docker](https://www.docker.com/) 
+  - [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html)
+  - [Ahoy](https://github.com/ahoy-cli/ahoy)
+2. Make sure that all local web development services are shut down (apache/nginx, mysql, MAMP etc).
+3. Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
 []([META:ACQUIA])
-3. Add Acquia Cloud credentials to ".env.local" file:
+4. Add Acquia Cloud credentials to ".env.local" file:
 ```
   # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
   AC_API_USER_NAME=<YOUR_USERNAME>
@@ -15,9 +19,9 @@ Drupal 7 implementation of MYSITE
   AC_API_USER_PASS=<YOUR_TOKEN>
 ```
 []([/META:ACQUIA])
-4. `ahoy download-db`
-5. `pygmy up`
-6. `ahoy build`
+5. `ahoy download-db`
+6. `pygmy up`
+7. `ahoy build`
 
 ## Available `ahoy` commands
 Run each command as `ahoy <command>`.
@@ -31,18 +35,17 @@ Run each command as `ahoy <command>`.
   export-db            Export database dump.
   fe                   Build front-end assets.
   fe-dev               Build front-end assets for development.
-  import-db            Import database dump and run post import commands.
   import-db-dump       Import database dump.
   info                 Print information about this project.
   init                 Initialise project.
-  install              Install dependencies.
+  install              Install a site.
+  install-dev          Install dev dependencies.
   lint                 Lint code.
   login                Login to a website.
   logs                 Show Docker logs.
   pull                 Pull latest docker images.
   restart              Restart all stopped and running Docker containers.
   sanitize-db          Sanitize database.
-  site-install         Install site from profile.
   start                Start existing Docker containers.
   stop                 Stop running Docker containers.
   test                 Run all tests.

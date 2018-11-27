@@ -18,6 +18,15 @@ file:
   {{ .Env.BUILD_DIR }}/screenshots:
     exists: false
 
+  # Assert manually created local settings file exists.
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.local.php:
+    exists: true
+    filetype: file
+
+  # Assert generated settings file does not exist.
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.generated.php:
+    exists: false
+
 commands:
     # Assert that services are not running.
     docker ps -q --no-trunc | grep $(docker-compose ps -q nginx):
