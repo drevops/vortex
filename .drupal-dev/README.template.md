@@ -4,10 +4,14 @@ Drupal 8 implementation of MYSITE
 [![CircleCI](https://circleci.com/gh/myorg/mysite.svg?style=shield)](https://circleci.com/gh/myorg/mysite)
 
 ## Local environment setup
-1. Make sure that you have `make`, [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
-2. Checkout project repo
+1. Make sure that you have latest versions of all required software installed:   
+  - [Docker](https://www.docker.com/) 
+  - [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html)
+  - [Ahoy](https://github.com/ahoy-cli/ahoy)
+2. Make sure that all local web development services are shut down (apache/nginx, mysql, MAMP etc).
+3. Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
 []([META:ACQUIA])
-3. Add Acquia Cloud credentials to ".env.local" file:
+4. Add Acquia Cloud credentials to ".env.local" file:
 ```
   # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
   AC_API_USER_NAME=<YOUR_USERNAME>
@@ -15,40 +19,39 @@ Drupal 8 implementation of MYSITE
   AC_API_USER_PASS=<YOUR_TOKEN>
 ```
 []([/META:ACQUIA])
-4. `make download-db`
-5. `pygmy up`
-6. `make build`
+5. `ahoy download-db`
+6. `pygmy up`
+7. `ahoy build`
 
-## Available make commands
-Run each command as `make <command>`.
-  ```
-  build                Build project.
-  build-fed            Build front-end assets.
-  build-fed-prod       Build front-end assets for production.
-  clean                Remove dependencies.
-  clean-full           Remove dependencies and Docker images.
-  clear-cache          Clear Drupal cache.
-  docker-cli           Execute command inside of CLI container.
-  docker-destroy       Destroy Docker containers.
-  docker-logs          Show logs.
-  docker-pull          Pull newest base images.
-  docker-restart       Re-start Docker containers.
-  docker-start         Start Docker containers.
-  docker-stop          Stop Docker containers.
+## Available `ahoy` commands
+Run each command as `ahoy <command>`.
+  ```  
+  build                Build or rebuild project.
+  clean                Clean project.
+  cli                  Start a shell inside CLI container or run a command.
+  down                 Stop Docker containers and remove container, images, volumes and networks.
   download-db          Download database.
-  drush                Run Drush command.
-  export-db-dump       Export database dump.
-  help                 Display this help message.
-  install              Install dependencies.
-  import-db            Import database dump and run post import commands.
+  drush                Run drush commands in the CLI service container.
+  export-db            Export database dump.
+  fe                   Build front-end assets.
+  fe-dev               Build front-end assets for development.
   import-db-dump       Import database dump.
+  info                 Print information about this project.
+  init                 Initialise project.
+  install              Install a site.
+  install-dev          Install dev dependencies.
   lint                 Lint code.
-  login                Login to the website.
-  rebuild              Re-build project dependencies.
-  rebuild-full         clean and fully re-build project dependencies.
+  login                Login to a website.
+  logs                 Show Docker logs.
+  pull                 Pull latest docker images.
+  restart              Restart all stopped and running Docker containers.
   sanitize-db          Sanitize database.
+  start                Start existing Docker containers.
+  stop                 Stop running Docker containers.
   test                 Run all tests.
   test-behat           Run Behat tests.
+  test-phpunit         Run PHPUnit tests.
+  up                   Build and start Docker containers
   ```
 
 ## Adding Drupal modules
