@@ -5,4 +5,4 @@ jobs:
     - image: integratedexperts/ci-builder
     working_directory: ~/repo
     steps:
-    - run: /usr/bin/true
+    - run: /bin/true
