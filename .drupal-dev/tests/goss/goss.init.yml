@@ -19,10 +19,7 @@ file:
   {{ .Env.BUILD_DIR }}/docroot/profiles/star_wars_profile:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/docroot/profiles/star_wars_profile/star_wars_profile.info:
-    exists: true
-    filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/profiles/star_wars_profile/star_wars_profile.profile:
+  {{ .Env.BUILD_DIR }}/docroot/profiles/star_wars_profile/star_wars_profile.info.yml:
     exists: true
     filetype: file
 
@@ -30,7 +27,7 @@ file:
   {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.info:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.info.yml:
     exists: true
     filetype: file
   {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.install:
