@@ -100,10 +100,13 @@ file:
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/.gitignore:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/mysitetheme.info:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/mysitetheme.info.yml:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/template.php:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/libraries.info.yml:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/mysitetheme.theme:
     exists: true
     filetype: file
 

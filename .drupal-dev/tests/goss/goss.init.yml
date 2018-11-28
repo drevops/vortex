@@ -56,10 +56,13 @@ file:
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/.gitignore:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/star_wars.info:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/star_wars.info.yml:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/template.php:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/star_wars.libraries.yml:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/star_wars.theme:
     exists: true
     filetype: file
 
