@@ -101,7 +101,7 @@ ahoy test-behat tests/behat/features/homepage.feature
 sync_to_host
 
 step "Build FE assets"
-echo "\$color-silver-chalice: #ff0000;" >> docroot/sites/all/themes/custom/star_wars/scss/_variables.scss
+echo "\$color-silver-chalice: #ff0000;" >> docroot/themes/custom/star_wars/scss/_variables.scss
 ahoy fe-dev
 sync_to_host
 

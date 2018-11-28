@@ -77,33 +77,33 @@ file:
     filetype: file
 
   # Site core module present.
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/mysite_core:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/mysite_core/mysite_core.info:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.info:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/mysite_core/mysite_core.install:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.install:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/mysite_core/mysite_core.module:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.module:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/mysite_core/mysite_core.constants.php:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.constants.php:
     exists: true
     filetype: file
 
   # Site theme present.
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme/.gitignore:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/.gitignore:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme/mysitetheme.info:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/mysitetheme.info:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme/template.php:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/template.php:
     exists: true
     filetype: file
 
@@ -121,25 +121,25 @@ file:
     exists: false
 
   # Only minified compiled CSS present.
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme/build/css/mysitetheme.min.css:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/css/mysitetheme.min.css:
     exists: true
     contains:
       - "background:#9f9f9f"
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme/build/css/mysitetheme.css:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/css/mysitetheme.css:
     exists: false
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme/scss:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/scss:
     exists: false
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme/css:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/css:
     exists: false
 
   # Only minified compiled JS exists.
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme/build/js/mysitetheme.min.js:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/js/mysitetheme.min.js:
     exists: true
     contains:
       - "function(t,Drupal){\"use strict\";Drupal.behaviors.mysite"
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme/build/js/mysitetheme.js:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/js/mysitetheme.js:
     exists: false
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme/js:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/js:
     exists: false
 
   # Acquia hooks are present.

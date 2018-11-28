@@ -9,10 +9,10 @@ file:
   {{ .Env.BUILD_DIR }}/docroot/profiles/custom/mysite_profile:
     exists: false
   # Stub code module removed.
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/mysite_core:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core:
     exists: false
   # Stub theme removed.
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/mysitetheme:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme:
     exists: false
 
   # Site profile created.
@@ -27,39 +27,39 @@ file:
     filetype: file
 
   # Site core module created.
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/star_wars_core:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/star_wars_core/star_wars_core.info:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.info:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/star_wars_core/star_wars_core.install:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.install:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/star_wars_core/star_wars_core.module:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.module:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/custom/star_wars_core/star_wars_core.constants.php:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.constants.php:
     exists: true
     filetype: file
 
   # Site theme created.
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/star_wars:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/star_wars/js/star_wars.js:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/js/star_wars.js:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/star_wars/scss:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/scss:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/star_wars/.gitignore:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/.gitignore:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/star_wars/star_wars.info:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/star_wars.info:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/custom/star_wars/template.php:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/template.php:
     exists: true
     filetype: file
 

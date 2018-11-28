@@ -7,9 +7,9 @@ gossfile:
 file:
   {{ .Env.BUILD_DIR }}/docroot/index.php:
     exists: false
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/modules/contrib:
+  {{ .Env.BUILD_DIR }}/docroot/modules/contrib:
     exists: false
-  {{ .Env.BUILD_DIR }}/docroot/sites/all/themes/contrib:
+  {{ .Env.BUILD_DIR }}/docroot/themes/contrib:
     exists: false
   {{ .Env.BUILD_DIR }}/vendor:
     exists: false
