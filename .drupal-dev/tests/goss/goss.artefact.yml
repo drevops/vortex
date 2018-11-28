@@ -80,7 +80,7 @@ file:
   {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.info:
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.info.yml:
     exists: true
     filetype: file
   {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.install:
@@ -103,7 +103,7 @@ file:
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/mysitetheme.info.yml:
     exists: true
     filetype: file
-  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/libraries.info.yml:
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/mysitetheme.libraries.yml:
     exists: true
     filetype: file
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/mysitetheme.theme:
