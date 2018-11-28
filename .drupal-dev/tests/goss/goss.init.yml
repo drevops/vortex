@@ -6,7 +6,7 @@ file:
   {{ .Env.BUILD_DIR }}/.drupal-dev:
     exists: false
   # Stub profile removed.
-  {{ .Env.BUILD_DIR }}/docroot/profiles/mysite_profile:
+  {{ .Env.BUILD_DIR }}/docroot/profiles/custom/mysite_profile:
     exists: false
   # Stub code module removed.
   {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core:
