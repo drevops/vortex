@@ -375,10 +375,10 @@ jobs:
     <<: *container_config
     steps:
     - checkout
-    - run: export DRUPAL_VERSION=7 && .drupal-dev/tests/test-init.sh
+    - run: export DRUPAL_VERSION=8 && .drupal-dev/tests/test-init.sh
     - *step_setup_remote_docker
     - run: docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
-    - run: export VOLUMES_MOUNTED=false && export DRUPAL_VERSION=7 && .drupal-dev/tests/test-workflow.sh
+    - run: export VOLUMES_MOUNTED=false && export DRUPAL_VERSION=8 && .drupal-dev/tests/test-workflow.sh
 
   test_drupal_dev_artefact:
     <<: *container_config
@@ -390,7 +390,7 @@ jobs:
     - *step_configure_git
     - attach_workspace:
         at: /workspace
-    - run: export DRUPAL_VERSION=7 && .drupal-dev/tests/test-artefact.sh /workspace/code
+    - run: export DRUPAL_VERSION=8 && .drupal-dev/tests/test-artefact.sh /workspace/code
 
   # Deployment of feature branches and tags for Drupal-Dev itself.
   deploy_drupal_dev:
