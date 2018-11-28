@@ -40,7 +40,7 @@ x-environment:
   &default-environment
   LAGOON_PROJECT: *project
   LAGOON_LOCALDEV_URL: http://mysite.docker.amazee.io
-  # Uncomment to enable xdebug and then restart via `ahoy start`
+  # Uncomment to enable xdebug and then restart via `ahoy up`
   #XDEBUG_ENABLE: "true"
 
 services:
