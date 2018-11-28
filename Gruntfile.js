@@ -15,8 +15,8 @@ module.exports = function (grunt) {
     pkg: grunt.file.readJSON('package.json'),
     eslint: {
       src: [
-        'docroot/profiles/custom/**/*.js',
-        '!docroot/profiles/custom/**/*.min.js',
+        'docroot/profiles/**/*.js',
+        '!docroot/profiles/**/*.min.js',
         'docroot/modules/custom/**/*.js',
         '!docroot/modules/custom/**/*.min.js',
         'docroot/themes/custom/**/*.js',

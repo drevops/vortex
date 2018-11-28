@@ -16,7 +16,7 @@
   <config name="testVersion" value="7.1"/>
 
   <file>tests</file>
-  <file>docroot/profiles/custom</file>
+  <file>docroot/profiles/</file>
   <file>docroot/modules/custom</file>
   <file>docroot/themes/custom</file>
   <file>docroot/sites/default/settings.php</file>

@@ -69,10 +69,10 @@ file:
     exists: false
 
   # Site profile present.
-  {{ .Env.BUILD_DIR }}/docroot/profiles/custom/mysite_profile:
+  {{ .Env.BUILD_DIR }}/docroot/profiles/mysite_profile:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/docroot/profiles/custom/mysite_profile/mysite_profile.info.yml:
+  {{ .Env.BUILD_DIR }}/docroot/profiles/mysite_profile/mysite_profile.info.yml:
     exists: true
     filetype: file
 
