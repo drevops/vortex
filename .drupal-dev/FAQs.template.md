@@ -12,7 +12,7 @@ ahoy mycommand -- myarg1 myarg2 --myoption1 --myoption2=myvalue
 
 ## How to clear Drupal cache?
 ```
-ahoy drush -- cc all
+ahoy drush -- cr
 ```
 
 ## How to login to Drupal site?
