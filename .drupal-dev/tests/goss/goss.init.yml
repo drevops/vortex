@@ -16,10 +16,10 @@ file:
     exists: false
 
   # Site profile created.
-  {{ .Env.BUILD_DIR }}/docroot/profiles/star_wars_profile:
+  {{ .Env.BUILD_DIR }}/docroot/profiles/custom/star_wars_profile:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/docroot/profiles/star_wars_profile/star_wars_profile.info.yml:
+  {{ .Env.BUILD_DIR }}/docroot/profiles/custom/star_wars_profile/star_wars_profile.info.yml:
     exists: true
     filetype: file
 
