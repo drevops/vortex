@@ -63,8 +63,6 @@ file:
     exists: false
   {{ .Env.BUILD_DIR }}/phpcs.xml:
     exists: false
-  {{ .Env.BUILD_DIR }}/phpunit.xml:
-    exists: false
   {{ .Env.BUILD_DIR }}/README.md:
     exists: false
 

@@ -76,8 +76,6 @@
   information from their names.-->
   <rule ref="Drupal.Commenting.DocComment.MissingShort">
     <exclude-pattern>tests/behat/bootstrap/*\.php</exclude-pattern>
-    <exclude-pattern>tests/unit/*.Test\.php</exclude-pattern>
-    <exclude-pattern>tests/unit/*.TestCase\.php</exclude-pattern>
   </rule>
   <rule ref="Drupal.Commenting.FunctionComment.Missing">
     <exclude-pattern>tests/unit/*.Test\.php</exclude-pattern>

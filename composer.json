@@ -31,11 +31,6 @@
             "scripts/composer/"
         ]
     },
-    "autoload-dev": {
-        "classmap": [
-            "tests/unit/"
-        ]
-    },
     "config": {
         "platform": {
             "php": "7.1.16"

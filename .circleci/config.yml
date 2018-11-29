@@ -250,7 +250,6 @@ jobs:
           command: |
             docker cp -L behat.yml $(docker-compose ps -q cli):/app/
             docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
-            docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
             docker cp -L tests $(docker-compose ps -q cli):/app/
             ahoy install-dev
       - run:
@@ -258,8 +257,7 @@ jobs:
           command: ahoy lint
       - run:
           name: Run PHPUnit tests
-          # @todo: Fix this.
-          command: ahoy test-phpunit || true
+          command: ahoy test-phpunit
       # [META]
       # Running Behat tests can be done in parallel, provided that you set
       # build concurrency CircleCI UI to a number larger then 1 container and

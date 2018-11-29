@@ -76,7 +76,6 @@ BUILD_DIR=$BUILD_DIR goss --gossfile $CURDIR/.drupal-dev/tests/goss/goss.build.y
 # @todo: Try moving this before test.
 sync_to_container behat.yml
 sync_to_container phpcs.xml
-sync_to_container phpunit.xml
 sync_to_container tests
 
 step "Enable development settings"

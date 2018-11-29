@@ -185,7 +185,8 @@ commands:
 
   test-phpunit:
     usage: Run PHPUnit tests.
-    cmd: ahoy cli "./vendor/bin/phpunit $@"
+    # @todo: Implement this.
+    cmd: ahoy cli "echo Not implemented"
   # [META]
   init:
     usage: Initialise project.
