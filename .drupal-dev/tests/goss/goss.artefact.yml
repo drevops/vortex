@@ -1,0 +1,170 @@
+---
+# Test that artefact build works.
+#
+# It assumes that all integrations are in place, but no project init was done.
+
+file:
+  # Other files and directories are not present.
+  {{ .Env.BUILD_DIR }}/.circleci:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.data:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.drupal-dev:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.docker:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.github:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.gitignore.artefact:
+    exists: false
+  {{ .Env.BUILD_DIR }}/node_modules:
+    exists: false
+  {{ .Env.BUILD_DIR }}/patches:
+    exists: false
+  {{ .Env.BUILD_DIR }}/screenshots:
+    exists: false
+  {{ .Env.BUILD_DIR }}/scripts:
+    exists: false
+  {{ .Env.BUILD_DIR }}/tests:
+    exists: false
+  {{ .Env.BUILD_DIR }}/vendor:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.ahoy.yml:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.dockerignore:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.editorconfig:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.env:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.eslintrc.json:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.lagoon.yml:
+    exists: false
+  {{ .Env.BUILD_DIR }}/.sass-lint.yml:
+    exists: false
+  {{ .Env.BUILD_DIR }}/behat.yml:
+    exists: false
+  {{ .Env.BUILD_DIR }}/composer.json:
+    exists: false
+  {{ .Env.BUILD_DIR }}/composer.lock:
+    exists: false
+  {{ .Env.BUILD_DIR }}/dependencies.yml:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docker-compose.yml:
+    exists: false
+  {{ .Env.BUILD_DIR }}/Gruntfile.js:
+    exists: false
+  {{ .Env.BUILD_DIR }}/LICENSE:
+    exists: false
+  {{ .Env.BUILD_DIR }}/package.json:
+    exists: false
+  {{ .Env.BUILD_DIR }}/package-lock.json:
+    exists: false
+  {{ .Env.BUILD_DIR }}/phpcs.xml:
+    exists: false
+  {{ .Env.BUILD_DIR }}/README.md:
+    exists: false
+
+  # Site profile present.
+  {{ .Env.BUILD_DIR }}/docroot/profiles/custom/mysite_profile:
+    exists: true
+    filetype: directory
+  {{ .Env.BUILD_DIR }}/docroot/profiles/custom/mysite_profile/mysite_profile.info.yml:
+    exists: true
+    filetype: file
+
+  # Site core module present.
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core:
+    exists: true
+    filetype: directory
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.info.yml:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.install:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.module:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core/mysite_core.constants.php:
+    exists: true
+    filetype: file
+
+  # Site theme present.
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme:
+    exists: true
+    filetype: directory
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/.gitignore:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/mysitetheme.info.yml:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/mysitetheme.libraries.yml:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/mysitetheme.theme:
+    exists: true
+    filetype: file
+
+  # Settings files present.
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.php:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.generated.php:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/default.local.settings.php:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/local.settings.php:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/default.settings.php:
+    exists: false
+
+  # Only minified compiled CSS present.
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/css/mysitetheme.min.css:
+    exists: true
+    contains:
+      - "background:#9f9f9f"
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/css/mysitetheme.css:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/scss:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/css:
+    exists: false
+
+  # Only minified compiled JS exists.
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/js/mysitetheme.min.js:
+    exists: true
+    contains:
+      - "function(t,Drupal){\"use strict\";Drupal.behaviors.mysite"
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/js/mysitetheme.js:
+    exists: false
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/js:
+    exists: false
+
+  # Acquia hooks are present.
+  {{ .Env.BUILD_DIR }}/hooks/library:
+    exists: true
+    filetype: directory
+
+  {{ .Env.BUILD_DIR }}/hooks/prod:
+    exists: true
+    filetype: directory
+
+  {{ .Env.BUILD_DIR }}/hooks/dev:
+    exists: true
+    filetype: directory
+  {{ .Env.BUILD_DIR }}/hooks/dev/post-code-update:
+    exists: true
+    filetype: directory
+  {{ .Env.BUILD_DIR }}/hooks/dev/post-code-deploy:
+    exists: true
+    filetype: symlink
+  {{ .Env.BUILD_DIR }}/hooks/dev/post-db-copy:
+    exists: true
+    filetype: symlink
+
+  {{ .Env.BUILD_DIR }}/hooks/test:
+    exists: true
+    filetype: symlink

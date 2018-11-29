@@ -47,8 +47,8 @@ class ScriptHandler {
         ],
       ];
       drupal_rewrite_settings($settings, $drupalRoot . '/sites/default/settings.php');
-      $fs->chmod($drupalRoot . '/sites/default/settings.php', 0666);
-      $event->getIO()->write("Create a sites/default/settings.php file with chmod 0666");
+      $fs->chmod($drupalRoot . '/sites/default/settings.php', 0644);
+      $event->getIO()->write("Create a sites/default/settings.php file with chmod 0644");
     }
 
     // Create the files directory with chmod 0777

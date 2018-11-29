@@ -41,6 +41,6 @@ while read domain; do
 
     # Clear varnish cache.
     echo drush @$site.$target_env ac-domain-purge $domain
-    drush @$site.$target_env ac-domain-purge $domain || true    
+    drush @$site.$target_env ac-domain-purge $domain || true
   fi
 done <$DOMAINS_FILE

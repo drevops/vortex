@@ -1,58 +1,144 @@
-version: '2'
+# [META]
+# Docker Compose configuration file.
+#
+# - Using a single file to work in local, CI and production environments.
+# - Local overrides are possible using docker-composer.override.yml file.
+# - Use inline comments starting with ### to have the line removed in CI.
+# - Content between "META" and "/META" (like the ones above and below this
+#   paragraph) is explaining Drupal-Dev inner working and can be safely removed
+#   for specific project.
+#
+# NOTE: Do not manually remove these tags. Instead, run `ahoy init` to initialise
+# this project.
+# [/META]
+version: '2.3'
+
+x-project:
+  &project mysite
+
+x-volumes:
+  &default-volumes
+  # [META]
+  # Understanding host mounting in Docker-based projects.
+  #
+  # To share application code between services (containers), Docker uses volumes.
+  # When used in non-development environments, containers have access to
+  # the same shared files using volumes and these volumes do not need to be
+  # mounted from the host. But for development environment, when the code
+  # constantly changes on the host, we need to have these changes synchronized
+  # into all containers. Since we are using single `docker-compose.yml` file for
+  # all environments, we have to accommodate both cases, so we are specifying an
+  # override for the same directory as a mounted volume.
+  #
+  # See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/#short-syntax-3
+  # [/META]
+  volumes:
+    - /app
+    - .:/app:${VOLUME_FLAGS:-delegated} ### Removed automatically in CI.
+
+x-environment:
+  &default-environment
+  LAGOON_PROJECT: *project
+  LAGOON_LOCALDEV_URL: http://mysite.docker.amazee.io
+  # Uncomment to enable xdebug and then restart via `ahoy up`
+  #XDEBUG_ENABLE: "true"
+
 services:
+
   cli:
     build:
       context: .
-      dockerfile: Dockerfile.cli
-    image: cli
+      dockerfile: .docker/Dockerfile.cli
+    image: *project
+    environment:
+      << : *default-environment
+    << : *default-volumes
     # [META:LAGOON]
     labels:
       lagoon.type: cli-persistent
       lagoon.persistent.name: nginx
       lagoon.persistent: /app/docroot/sites/default/files/
     # [/META:LAGOON]
+
   nginx:
     build:
       context: .
-      dockerfile: Dockerfile.nginx
+      dockerfile: .docker/Dockerfile.nginx-drupal
       args:
-        CLI_IMAGE: cli
+        CLI_IMAGE: *project
+    << : *default-volumes
+    environment:
+      << : *default-environment
+    depends_on:
+      - cli
+    networks:
+      - amazeeio-network
+      - default
     # [META:LAGOON]
     labels:
       lagoon.type: nginx-php-persistent
       lagoon.persistent: /app/docroot/sites/default/files/
-    environment:
-      LAGOON_ROUTE: http://mysiteurl
     # [/META:LAGOON]
-    networks:
-      - default
-    depends_on:
-      - cli
-    expose:
-      - "8080"
+
   php:
     build:
       context: .
-      dockerfile: Dockerfile.php
+      dockerfile: .docker/Dockerfile.php
       args:
-        CLI_IMAGE: cli
+        CLI_IMAGE: *project
+    environment:
+      << : *default-environment
+    << : *default-volumes
+    depends_on:
+      - cli
     # [META:LAGOON]
     labels:
       lagoon.type: nginx-php-persistent
       lagoon.name: nginx
       lagoon.persistent: /app/docroot/sites/default/files/
     # [/META:LAGOON]
-    depends_on:
-      - cli
+
   mariadb:
-    image: amazeeio/centos7-mariadb10-drupal
+    image: amazeeio/mariadb-drupal
+    environment:
+      << : *default-environment
+    ports:
+      - "3306" # Find port on host with `ahoy info` or `docker-compose port mariadb 3306`
     # [META:LAGOON]
     labels:
       lagoon.type: mariadb
     # [/META:LAGOON]
-  redis:
-    image: amazeeio/redis
+
+  # [META:SOLR]
+  solr:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.solr
+      args:
+        CLI_IMAGE: *project
+    environment:
+      << : *default-environment
+    ports:
+      - "8983" # Find port on host with `ahoy info` or `docker-compose port solr 8983`
     # [META:LAGOON]
     labels:
-      lagoon.type: redis
+      lagoon.type: solr
     # [/META:LAGOON]
+  # [/META:SOLR]
+
+  chrome:
+    image: selenium/standalone-chrome
+    shm_size: '1gb'
+    environment:
+      << : *default-environment
+    << : *default-volumes
+    depends_on:
+      - cli
+    # [META:LAGOON]
+    labels:
+      lagoon.type: none
+    # [/META:LAGOON]
+
+networks:
+  amazeeio-network:
+    external: true

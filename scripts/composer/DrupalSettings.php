@@ -33,11 +33,11 @@ class DrupalSettings {
     if (!$fs->exists($options['settings_path'])) {
       $content = self::getDefaultDrupalSettingsContent($options);
       $fs->dumpFile($options['settings_path'], $content);
-      $fs->chmod($options['settings_path'], 0666);
-      $event->getIO()->write(sprintf('Created file %s', $options['settings_path'] . PHP_EOL . $content));
+      $fs->chmod($options['settings_path'], 0644);
+      $event->getIO()->write(sprintf('Created file %s with chmod 0644', $options['settings_path'] . PHP_EOL . $content));
     }
     else {
-      $event->getIO()->write('Skipping creation of Drupal settings file - file already exists');
+      $event->getIO()->write(sprintf('Skipping creation of Drupal settings file "%s" - file already exists', $options['settings_path']));
     }
   }
 

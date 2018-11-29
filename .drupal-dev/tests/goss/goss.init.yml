@@ -1,0 +1,105 @@
+---
+# Test build state right after project init.
+
+file:
+  # All Drupal-Dev own files removed.
+  {{ .Env.BUILD_DIR }}/.drupal-dev:
+    exists: false
+  # Stub profile removed.
+  {{ .Env.BUILD_DIR }}/docroot/profiles/custom/mysite_profile:
+    exists: false
+  # Stub code module removed.
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/mysite_core:
+    exists: false
+  # Stub theme removed.
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme:
+    exists: false
+
+  # Site profile created.
+  {{ .Env.BUILD_DIR }}/docroot/profiles/custom/star_wars_profile:
+    exists: true
+    filetype: directory
+  {{ .Env.BUILD_DIR }}/docroot/profiles/custom/star_wars_profile/star_wars_profile.info.yml:
+    exists: true
+    filetype: file
+
+  # Site core module created.
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core:
+    exists: true
+    filetype: directory
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.info.yml:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.install:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.module:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/modules/custom/star_wars_core/star_wars_core.constants.php:
+    exists: true
+    filetype: file
+
+  # Site theme created.
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars:
+    exists: true
+    filetype: directory
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/js/star_wars.js:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/scss:
+    exists: true
+    filetype: directory
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/.gitignore:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/star_wars.info.yml:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/star_wars.libraries.yml:
+    exists: true
+    filetype: file
+  {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/star_wars.theme:
+    exists: true
+    filetype: file
+
+  # Settings files exist.
+  # @note: The permissions can be 644 or 664 depending on the umask of OS. Also,
+  # git only track 644 or 755.
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.php:
+    exists: true
+    filetype: file
+    mode: "0664"
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/default.settings.local.php:
+    exists: true
+    filetype: file
+    mode: "0664"
+
+  # Documentation information added.
+  {{ .Env.BUILD_DIR }}/FAQs.md:
+    exists: true
+    filetype: file
+
+  # Init command removed from Ahoy config.
+  {{ .Env.BUILD_DIR }}/.ahoy.yml:
+    exists: true
+    filetype: file
+    contains:
+      - "!cmd: . .drupal-dev/init.sh"
+
+commands:
+  # Assert all stub strings were replaced.
+  grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "mysite" .:
+    exit-status: 1
+  grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "MYSITE" .:
+    exit-status: 1
+  grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "mysitetheme" .:
+    exit-status: 1
+  grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "myorg" .:
+    exit-status: 1
+  grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "mysiteurl" .:
+    exit-status: 1
+
+  # Assert all META tags were removed.
+  grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "META\]" .:
+    exit-status: 1

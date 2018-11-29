@@ -1,24 +1,24 @@
-# drupal-dev
+# Drupal-Dev
 Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x)
 
-**Looking for Drupal 7 version?**
-[Click here to switch to Drupal 7 version](https://github.com/integratedexperts/drupal-dev/tree/7.x)
+**Looking for Drupal 8 version?**
+[Click here to switch to Drupal 8 version](https://github.com/integratedexperts/drupal-dev/tree/8.x)
 
-![Workflow](.dev/images/workflow.png)
+![Workflow](.drupal-dev/images/workflow.png)
 
-## Usage
+## Getting started
 1. Create a blank project repository.
-2. Download an archive of this project and extract into repository directory.
-3. **Run `make init` and follow the prompts.** DO NOT SKIP THIS STEP!
+2. Download an archive of this project and extract into the repository directory.
+3. Run `ahoy init` and follow the prompts. **DO NOT SKIP THIS STEP!**
 4. Commit all files to your repository and push.
-5. To enable CI integration, login to [Circle CI](https://circleci.com/) with your GitHub account, go to "Projects" -> "Add project", select your new project from the list and click on "Setup project" and click "Start building" button.
-6. To start developing locally:
-   - Make sure that you have `make`, [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
-   - `make download-db`    
-   - `pygmy up`
-   - `make build`
+5. Refer to created README.md file in your project.
+
+## Typical development workflow
+1. Download fresh copy of the DB: `ahoy download-db`
+2. Start `pygmy`: `pygmy up`
+3. Build project: `ahoy build` 
 
 ## What is included
 - Drupal 8 Composer-based configuration:
@@ -28,7 +28,7 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
   - development and testing tools
 - Custom core module scaffolding
 - Custom theme scaffolding: Gruntfile, SASS/SCSS, globbing and Livereload.    
-- `make` scripts to build and rebuild the project (consistent commands used in all environments).
+- `ahoy` commands to build and rebuild the project (consistent commands used in all environments).
 - PHP, JS and SASS code linting with pre-configured Drupal standards
 - Behat testing configuration + usage examples 
 - Integration with [Circle CI](https://circleci.com/) (2.0):
@@ -39,28 +39,29 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 - Integration with [dependencies.io](https://dependencies.io) to keep the project up-to-date.
 - Integration with Acquia Cloud.
 - Integration with [Lagoon](https://github.com/amazeeio/lagoon).
-- Project documentation [template](.dev/README.template.md)
+- Project documentation [template](.drupal-dev/README.template.md)
+- GitHub templates.
 - Project initialisation script
+- Drupal-dev has own suit of automated tests.
 
-![Project Init](.dev/images/project-init.png)
+![Project Initialisation](.drupal-dev/images/project-init.png)
 
 ## Build workflow
 Automated build is orchestrated to run stages in separate containers, allowing to run tests in parallel and fail fast.
 
-![CircleCI build workflow](.dev/images/circleci_build.png)
+![CircleCI build workflow](.drupal-dev/images/circleci_build.png)
 
 ## FAQs
 
-## Why `Makefile`?
+## Why [`Ahoy`](https://github.com/ahoy-cli/ahoy)?
 - Consistent commands across projects - unified Developer Experience (DX).
 - Standalone file that can be easily copied across projects.
-- Works on all *nix systems.
-- Does not require additional language or package installation.
+- Simple YAML syntax. 
 - Workflow is no longer captured in places that were not designed for it: Composer scripts, NPM scripts etc.
 
 ## Why not Lando, DDEV, Docksal?
 - Running the same workflow commands in Local and CI is a paramount.
-- Current solution is pure Docker/Docker Compose and does not require and additional configuration generators.
+- Current solution is pure Docker/Docker Compose and does not require any additional configuration generators.
 - No dependency on additional tool.
 
 ## Why use `amazeeio` containers?
@@ -83,9 +84,19 @@ Automated build is orchestrated to run stages in separate containers, allowing t
 - Flexible [pricing model](https://www.dependencies.io/pricing/) for proprietary projects.
 
 # Contributing
+- Progress is tracked as [GitHub project](https://github.com/integratedexperts/drupal-dev/projects/1). 
 - Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
 - Create issue and prefix title with Drupal core version: `[7.x] Updated readme file.`. 
 - Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/7.x-updated-readme`.
+
+# Paid support
+[Integrated Experts](https://github.com/integratedexperts) can provide support for Drupal-Dev in your organisation: 
+- New and existing project onboarding.
+- Support plans with SLAs.
+- Priority feature implementation.
+- Updates to the latest version of the platform.
+
+Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.com)
 
 ## Useful projects
 

@@ -12,7 +12,19 @@ tasks:
         name: Setup site
         command: |
           mkdir -p /tmp/.data
+          # [META]
+          # Using dummy DB for Drupal-Dev project testing.
           source .env && curl -L $DUMMY_DB -o /tmp/.data/db.sql
+          # [/META]
+          # [META:ACQUIA]
+          # Copy credentials from one of the Acquia environmets. We are using
+          # Acquia environments as a storage in this case. These credentials
+          # need to be created beforehand by SSHing into an environment and
+          # running `drush ac-api-login` with credentials of the Deployer user.
+          drush -y rsync @mysite.dev:/home/mysite/.acquia/ ~/.acquia/
+          export $(grep -v '^#' .env | xargs)
+          DB_DUMP_FILE=/tmp/.data/db.sql scripts/acquia-download-backup.sh
+          # [/META:ACQUIA]
           drush sql-drop -y
           drush sql-cli < /tmp/.data/db.sql
           drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
@@ -26,7 +38,7 @@ tasks:
         service: cli
     - run:
         name: Clear caches
-        command: drush cc all
+        command: drush cr
         service: cli
 
 environments:

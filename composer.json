@@ -12,14 +12,14 @@
         "webflo/drupal-finder": "^1.0"
     },
     "require-dev": {
-        "behat/behat": "^3.4",
+        "behat/behat": "^3.5",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
         "drupal/coder": "^8.2.12",
-        "drupal/console": "^1.0",
-        "drupal/drupal-extension": "^v3.4",
+        "drupal/drupal-extension": "^3.4",
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
-        "integratedexperts/behat-steps": "^0.1.1",
+        "drupal/console": "^1.0",
+        "integratedexperts/behat-steps": "^0.1.0",
         "integratedexperts/robo-git-artefact": "^0.2.4",
         "jakub-onderka/php-parallel-lint": "^1.0",
         "phpunit/phpunit": "^5.7.19",
@@ -29,11 +29,6 @@
     "autoload": {
         "classmap": [
             "scripts/composer/"
-        ]
-    },
-    "autoload-dev": {
-        "classmap": [
-            "tests/unit/"
         ]
     },
     "config": {
@@ -115,7 +110,9 @@
             "docroot/sites/default/settings.php",
             "docroot/sites/default/default.settings.local.php",
             "docroot/sites/default/settings.local.php",
-            "docroot/sites/default/files"
+            "docroot/sites/default/files",
+            "docroot/robots.txt",
+            "docroot/.htaccess"
         ],
         "patches": {
             "behat/gherkin": {
