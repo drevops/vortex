@@ -122,6 +122,7 @@
             "docroot/drush",
             "docroot/sites/default/settings.php",
             "docroot/sites/default/default.settings.local.php",
+            "docroot/sites/default/default.services.local.yml",
             "docroot/sites/default/settings.local.php",
             "docroot/sites/default/services.local.yml",
             "docroot/sites/default/files",

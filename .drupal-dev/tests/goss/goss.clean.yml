@@ -23,6 +23,11 @@ file:
     exists: true
     filetype: file
 
+  # Assert manually created local services file exists.
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/services.local.yml:
+    exists: true
+    filetype: file
+
   # Assert generated settings file does not exist.
   {{ .Env.BUILD_DIR }}/docroot/sites/default/settings.generated.php:
     exists: false

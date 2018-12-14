@@ -135,8 +135,8 @@ commands:
     cmd: |
       ahoy down
       # chmod -Rf 777 docroot/sites/default
-      [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | xargs chmod -Rf 777
-      [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | xargs rm -Rf
+      [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | grep -v "services.local.yml" | xargs chmod -Rf 777
+      [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | grep -v "services.local.yml" | xargs rm -Rf
       rm -Rf vendor
       rm -Rf node_modules
       rm -Rf screenshots

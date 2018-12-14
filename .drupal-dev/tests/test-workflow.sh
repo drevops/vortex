@@ -80,6 +80,7 @@ sync_to_container tests
 
 step "Enable development settings"
 cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
+cp docroot/sites/default/default.services.local.yml docroot/sites/default/services.local.yml
 
 step "Run generic command"
 ahoy cli "echo Test"
