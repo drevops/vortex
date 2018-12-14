@@ -156,7 +156,7 @@ commands:
     usage: Build front-end assets.
     cmd: ahoy cli "npm run build"
 
-  fe-dev:
+  fed:
     usage: Build front-end assets for development.
     cmd: ahoy cli "npm run build-dev"
 

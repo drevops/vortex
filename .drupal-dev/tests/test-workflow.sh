@@ -101,7 +101,7 @@ sync_to_host
 
 step "Build FE assets"
 echo "\$color-silver-chalice: #ff0000;" >> docroot/themes/custom/star_wars/scss/_variables.scss
-ahoy fe-dev
+ahoy fed
 sync_to_host
 
 step "Re-import DB"
