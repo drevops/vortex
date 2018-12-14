@@ -4,5 +4,15 @@
 
 // Color definitions.
 // http://chir.ag/projects/name-that-color
-// e.g., $color-green-key_lime_pie: #ABC123;
+// e.g., $color-green-key_lime_pie: #abc123;
 $color-silver-chalice: #9f9f9f;
+$color-green-key-lime-pie: #abc123;
+$color-zircon: #f5f9ff;
+$color-white: #fff;
+
+// Bootstrap variables overrides.
+// See vendor/twbs/bootstrap/scss/_variables.scss
+
+$primary: $color-green-key-lime-pie;
+
+$body-bg: $color-zircon;

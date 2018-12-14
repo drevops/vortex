@@ -8,6 +8,7 @@
         "drupal-composer/drupal-scaffold": "^2.3",
         "drupal/admin_toolbar": "^1.24",
         "drupal/auto_entitylabel": "^2.1@beta",
+        "drupal/bootstrap_barrio": "^4.17",
         "drupal/coffee": "^1.0-beta2",
         "drupal/config_ignore": "^2.1",
         "drupal/config_split": "^1.4",
@@ -20,6 +21,7 @@
         "drupal/stage_file_proxy": "^1.0-alpha3",
         "drupal/token": "^1.5",
         "drush/drush": "^8.1",
+        "twbs/bootstrap": "^4.1",
         "vlucas/phpdotenv": "^2.4",
         "webflo/drupal-finder": "^1.0"
     },

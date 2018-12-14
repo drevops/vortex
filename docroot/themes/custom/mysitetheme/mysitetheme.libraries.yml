@@ -11,11 +11,11 @@ global-styling:
     - core/drupalSettings
 
 livereload:
-  remote: http://localhost:35729/livereload.js?snipver=1
+  remote: http://mysite.docker.amazee.io:35729/livereload.js?snipver=1
   version: 1.0
   license:
     name: MIT
     url: https://github.com/livereload/livereload-js/blob/master/LICENSE
     gpl-compatible: true
   js:
-    http://localhost:35729/livereload.js?snipver=1: { type: external, minified: true }
+    http://mysite.docker.amazee.io:35729/livereload.js?snipver=1: { type: external, minified: true }

@@ -8,6 +8,7 @@
  */
 
 /* global module */
+var bootstrapPath = 'vendor/twbs/bootstrap/dist/js/bootstrap.js';
 var themePath = 'docroot/themes/custom/mysitetheme/';
 module.exports = function (grunt) {
   'use strict';
@@ -55,6 +56,7 @@ module.exports = function (grunt) {
       },
       dist: {
         src: [
+          bootstrapPath,
           themePath + 'js/**/*.js',
           '!' + themePath + 'js/mysitetheme.min.js'
         ],
