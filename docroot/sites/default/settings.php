@@ -40,7 +40,7 @@ $settings['entity_update_batch_size'] = 50;
 
 // Location of the site configuration files.
 $config_directories = [
-  CONFIG_SYNC_DIRECTORY => '../config/sync',
+  CONFIG_SYNC_DIRECTORY => '../config/default',
 ];
 
 // Salt for one-time login links, cancel links, form tokens, etc.
