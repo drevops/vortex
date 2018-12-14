@@ -35,6 +35,7 @@ Run each command as `ahoy <command>`.
   export-db            Export database dump.
   fe                   Build front-end assets.
   fed                  Build front-end assets for development.
+  few                  Watch front-end assets during development.
   import-db-dump       Import database dump.
   info                 Print information about this project.
   init                 Initialise project.

@@ -23,7 +23,7 @@ ahoy login
 ## How to run Livereload?
 1. Set `$settings['livereload'] = TRUE;` in `settings.local.php` file
 2. Clear drupal cache `ahoy drush cr`
-3. Run: `npm run watch`
+3. Run: `ahoy few`
 
 Note: Watching works only from docker host.
 
