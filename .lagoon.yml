@@ -23,7 +23,7 @@ tasks:
           # running `drush ac-api-login` with credentials of the Deployer user.
           drush -y rsync @mysite.dev:/home/mysite/.acquia/ ~/.acquia/
           export $(grep -v '^#' .env | xargs)
-          DB_DUMP_FILE=/tmp/.data/db.sql scripts/acquia-download-backup.sh
+          DB_DUMP_FILE=/tmp/.data/db.sql scripts/download-backup-acquia.sh
           # [/META:ACQUIA]
           drush sql-drop -y
           drush sql-cli < /tmp/.data/db.sql

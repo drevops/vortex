@@ -80,7 +80,7 @@ main() {
 
   if [ "$preserve_acquia_integration" != "Y" ] ; then
     rm -Rf hooks > /dev/null
-    rm scripts/acquia-download-backup.sh > /dev/null
+    rm scripts/download-backup-acquia.sh > /dev/null
     rm DEPLOYMENT.md > /dev/null
     remove_tags_with_content "META:ACQUIA" "$CURDIR" && bash -c "echo -n ."
     remove_tags_with_content "META:DEPLOYMENT" "$CURDIR" && bash -c "echo -n ."

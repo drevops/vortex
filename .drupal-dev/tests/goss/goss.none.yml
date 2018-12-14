@@ -8,7 +8,7 @@ file:
   # Acquia integration removed.
   {{ .Env.BUILD_DIR }}/hooks:
     exists: false
-  {{ .Env.BUILD_DIR }}/scripts/acquia-download-backup.sh:
+  {{ .Env.BUILD_DIR }}/scripts/download-backup-acquia.sh:
     exists: false
   {{ .Env.BUILD_DIR }}/DEPLOYMENT.md:
     exists: false

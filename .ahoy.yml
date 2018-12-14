@@ -76,7 +76,7 @@ commands:
       # [/META]
       # [META:ACQUIA]
       # Download DB from Acquia Cloud backup. Remove if site install is used.
-      #### AC_API_USER_NAME=${AC_API_USER_NAME} AC_API_USER_PASS=${AC_API_USER_PASS} AC_API_DB_SITE=${AC_API_DB_SITE} AC_API_DB_ENV=${AC_API_DB_ENV} AC_API_DB_NAME=${AC_API_DB_NAME} REMOVE_CACHED_DUMPS=${REMOVE_CACHED_DUMPS} ./scripts/acquia-download-backup.sh
+      #### AC_API_USER_NAME=${AC_API_USER_NAME} AC_API_USER_PASS=${AC_API_USER_PASS} AC_API_DB_SITE=${AC_API_DB_SITE} AC_API_DB_ENV=${AC_API_DB_ENV} AC_API_DB_NAME=${AC_API_DB_NAME} DB_REMOVE_CACHED_DUMPS=${DB_REMOVE_CACHED_DUMPS} ./scripts/download-backup-acquia.sh
       # [/META:ACQUIA]
       # [META:FTP]
       # Download DB dump from FTP. Remove if site install is used.

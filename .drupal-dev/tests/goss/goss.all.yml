@@ -9,7 +9,7 @@ file:
   {{ .Env.BUILD_DIR }}/hooks:
     exists: true
     filetype: directory
-  {{ .Env.BUILD_DIR }}/scripts/acquia-download-backup.sh:
+  {{ .Env.BUILD_DIR }}/scripts/download-backup-acquia.sh:
     exists: true
     filetype: file
   {{ .Env.BUILD_DIR }}/DEPLOYMENT.md:
