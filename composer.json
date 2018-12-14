@@ -82,7 +82,6 @@
                 ".editorconfig",
                 ".eslintignore",
                 ".gitattributes",
-                ".htaccess",
                 "index.php",
                 "robots.txt",
                 "update.php"
