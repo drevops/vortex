@@ -160,6 +160,10 @@ commands:
     usage: Build front-end assets for development.
     cmd: ahoy cli "npm run build-dev"
 
+  few:
+    usage: Watch front-end assets during development.
+    cmd: ahoy cli "npm run watch"
+
   install-dev:
     usage: Install dependencies.
     cmd: |
