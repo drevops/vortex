@@ -98,7 +98,10 @@ commands:
       # ahoy drush si ${INSTALL_PROFILE} -y --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
       # ahoy drush en -y mysite_core
       # [/META:PROFILE]
-      ahoy drush cim -y
+      # [META]
+      # Only import configuration if at least one config file exists.
+      # [/META]
+      [ -f config/default/*.yml ] && ahoy drush cim -y || true
       ahoy drush cr
 
   import-db-dump:
