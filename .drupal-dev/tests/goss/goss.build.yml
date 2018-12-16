@@ -14,7 +14,7 @@ file:
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/build/css/star_wars.min.css:
     exists: true
     contains:
-      - "background:#9f9f9f"
+      - "background:#fff"
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/star_wars/build/css/star_wars.css:
     exists: false
 
