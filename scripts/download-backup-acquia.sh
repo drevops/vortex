@@ -37,7 +37,7 @@ AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-~/.acquia/cloudapi.conf}
 DB_DIR=${DB_DIR:-.data}
 
 # Resulting DB dump file name. Used by external scripts to import DB.
-# Note that absolute path will be $PROJECT_PATH/$DB_DUMP_DIR/$DB_DUMP_FILE_NAME
+# Note that absolute path will be $PROJECT_PATH/$DB_DIR/$DB_FILE_NAME
 DB_FILE_NAME=${DB_FILE_NAME:-db.sql}
 
 # Absolute path to resulting file, including name. May be used to override
@@ -77,7 +77,7 @@ SELF_PATH=$(cd -P -- "$SELF_DIR" && pwd -P)/$(basename -- ${BASH_SOURCE[0]})
 PROJECT_PATH=$(dirname $(dirname $SELF_PATH))
 
 # Expand DB dump file name to absolute path.
-DB_FILE=${DB_FILE:-$PROJECT_PATH/${DB_DUMP_DIR}/$DB_FILE_NAME}
+DB_FILE=${DB_FILE:-$PROJECT_PATH/${DB_DIR}/$DB_FILE_NAME}
 # Set DB dump dir to absolute path.
 DB_DIR=$(dirname $DB_FILE)
 
