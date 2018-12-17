@@ -55,6 +55,8 @@ services:
     environment:
       << : *default-environment
     << : *default-volumes
+    ports:
+    - "35729:35729" # Livereload port mapping.
     # [META:LAGOON]
     labels:
       lagoon.type: cli-persistent
