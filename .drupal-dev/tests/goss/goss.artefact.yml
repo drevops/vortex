@@ -126,7 +126,7 @@ file:
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/css/mysitetheme.min.css:
     exists: true
     contains:
-      - "background:#9f9f9f"
+      - "background:#fff"
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/css/mysitetheme.css:
     exists: false
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/scss:
