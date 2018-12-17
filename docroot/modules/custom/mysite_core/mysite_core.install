@@ -20,7 +20,8 @@ function mysite_core_install() {
 /**
  * Enables 'mysitetheme' theme.
  */
-function mysite_core_update_7000() {
+function mysite_core_update_8000() {
+  \Drupal::service('theme_installer')->install(['bootstrap_barrio']);
   \Drupal::service('theme_installer')->install(['mysitetheme']);
   \Drupal::service('theme_handler')->setDefault('mysitetheme');
 }

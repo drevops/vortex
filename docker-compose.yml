@@ -34,7 +34,9 @@ x-volumes:
   # [/META]
   volumes:
     - /app
-    - .:/app:${VOLUME_FLAGS:-delegated} ### Removed automatically in CI.
+    - files:/app/docroot/sites/default/files
+    - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    - ./docroot/sites/default/files:/app/docroot/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
 
 x-environment:
   &default-environment
@@ -142,3 +144,6 @@ services:
 networks:
   amazeeio-network:
     external: true
+
+volumes:
+  files: {}

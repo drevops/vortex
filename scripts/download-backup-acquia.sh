@@ -33,22 +33,22 @@ AC_API_DB_BACKUP_ID=${AC_API_DB_BACKUP_ID:-}
 # Location of the Clouds API credentials file after running 'drush ac-api-login'.
 AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-~/.acquia/cloudapi.conf}
 
-# DB dump directory.
-DB_DUMP_DIR=${DB_DUMP_DIR:-.data}
+# Directory where DB dumps stored.
+DB_DIR=${DB_DIR:-.data}
 
 # Resulting DB dump file name. Used by external scripts to import DB.
 # Note that absolute path will be $PROJECT_PATH/$DB_DUMP_DIR/$DB_DUMP_FILE_NAME
-DB_DUMP_FILE_NAME=${DB_DUMP_FILE_NAME:-db.sql}
+DB_FILE_NAME=${DB_FILE_NAME:-db.sql}
 
 # Absolute path to resulting file, including name. May be used to override
 # resulting dump path if it is located outside of current project.
-DB_DUMP_FILE=${DB_DUMP_FILE:-}
+DB_FILE=${DB_FILE:-}
 
 # Flag to decompress backup.
-DECOMPRESS_BACKUP=${DECOMPRESS_BACKUP:-1}
+DB_DECOMPRESS_BACKUP=${DB_DECOMPRESS_BACKUP:-1}
 
 # Flag to remove old cached dumps.
-REMOVE_CACHED_DUMPS=${REMOVE_CACHED_DUMPS:-0}
+DB_REMOVE_CACHED_DUMPS=${DB_REMOVE_CACHED_DUMPS:-0}
 
 ################################################################################
 #################### DO NOT CHANGE ANYTHING BELOW THIS LINE ####################
@@ -77,9 +77,9 @@ SELF_PATH=$(cd -P -- "$SELF_DIR" && pwd -P)/$(basename -- ${BASH_SOURCE[0]})
 PROJECT_PATH=$(dirname $(dirname $SELF_PATH))
 
 # Expand DB dump file name to absolute path.
-DB_DUMP_FILE=${DB_DUMP_FILE:-$PROJECT_PATH/${DB_DUMP_DIR}/$DB_DUMP_FILE_NAME}
+DB_FILE=${DB_FILE:-$PROJECT_PATH/${DB_DUMP_DIR}/$DB_FILE_NAME}
 # Set DB dump dir to absolute path.
-DB_DUMP_DIR=$(dirname $DB_DUMP_FILE)
+DB_DIR=$(dirname $DB_FILE)
 
 # Pre-flight checks.
 which curl > /dev/null ||  {
@@ -110,9 +110,9 @@ if [ "$AC_API_DB_BACKUP_ID" == "" ] ; then
 fi
 
 # Insert backup id as a suffix.
-DB_DUMP_EXT="${DB_DUMP_FILE##*.}"
+DB_DUMP_EXT="${DB_FILE##*.}"
 DB_DUMP_FILE_ACTUAL_PREFIX="${AC_API_DB_NAME}_backup_"
-DB_DUMP_FILE_ACTUAL=${DB_DUMP_DIR}/${DB_DUMP_FILE_ACTUAL_PREFIX}${AC_API_DB_BACKUP_ID}.${DB_DUMP_EXT}
+DB_DUMP_FILE_ACTUAL=${DB_DIR}/${DB_DUMP_FILE_ACTUAL_PREFIX}${AC_API_DB_BACKUP_ID}.${DB_DUMP_EXT}
 DB_DUMP_DISCOVERED=$DB_DUMP_FILE_ACTUAL
 DB_DUMP_COMPRESSED=$DB_DUMP_FILE_ACTUAL.gz
 
@@ -121,8 +121,8 @@ if [ -f $DB_DUMP_DISCOVERED ] ; then
 else
   # If the gzip version exists, then we don't need to re-download it.
   if [ ! -f $DB_DUMP_COMPRESSED ] ; then
-    [ ! -d $DB_DUMP_DIR ] && echo "==> Creating dump directory $DB_DUMP_DIR" && mkdir -p $DB_DUMP_DIR
-    [ "$REMOVE_CACHED_DUMPS" == "1" ] && echo "==> Removing all previously cached DB dumps" && rm -Rf $DB_DUMP_DIR/${DB_DUMP_FILE_ACTUAL_PREFIX}*
+    [ ! -d $DB_DIR ] && echo "==> Creating dump directory $DB_DIR" && mkdir -p $DB_DIR
+    [ "$DB_REMOVE_CACHED_DUMPS" == "1" ] && echo "==> Removing all previously cached DB dumps" && rm -Rf $DB_DIR/${DB_DUMP_FILE_ACTUAL_PREFIX}*
     echo "==> Using latest backup id $AC_API_DB_BACKUP_ID for DB $AC_API_DB_NAME"
     echo "==> Downloading DB dump into file $DB_DUMP_COMPRESSED"
     curl --progress-bar -L -u $AC_API_USER_NAME:$AC_API_USER_PASS https://cloudapi.acquia.com/v1/sites/$AC_API_DB_SITE/envs/$AC_API_DB_ENV/dbs/$AC_API_DB_NAME/backups/$AC_API_DB_BACKUP_ID/download.json -o $DB_DUMP_COMPRESSED
@@ -130,7 +130,7 @@ else
     echo "==> Found existing cached gzipped DB file $DB_DUMP_COMPRESSED for DB $AC_API_DB_NAME"
   fi
   # Expanding file, if required.
-  if [ $DECOMPRESS_BACKUP != 0 ] ; then
+  if [ $DB_DECOMPRESS_BACKUP != 0 ] ; then
     echo "==> Expanding DB file $DB_DUMP_COMPRESSED into $DB_DUMP_FILE_ACTUAL"
     gunzip -c $DB_DUMP_COMPRESSED > $DB_DUMP_FILE_ACTUAL
     DECOMPRESS_RESULT=$?
@@ -141,15 +141,15 @@ fi
 
 # Create a symlink to the latest backup.
 if [ "$LATEST_BACKUP" != "0" ] ; then
-  LATEST_SYMLINK=$DB_DUMP_FILE
+  LATEST_SYMLINK=$DB_FILE
   if [ -f $DB_DUMP_FILE_ACTUAL ] ; then
     echo "==> Creating symlink $(basename $DB_DUMP_FILE_ACTUAL) => $LATEST_SYMLINK"
-    (cd $DB_DUMP_DIR && rm -f $LATEST_SYMLINK && ln -s $(basename $DB_DUMP_FILE_ACTUAL) $LATEST_SYMLINK)
+    (cd $DB_DIR && rm -f $LATEST_SYMLINK && ln -s $(basename $DB_DUMP_FILE_ACTUAL) $LATEST_SYMLINK)
   fi
   LATEST_SYMLINK=$LATEST_SYMLINK.gz
   if [ -f $DB_DUMP_COMPRESSED ] ; then
     echo "==> Creating symlink $(basename $DB_DUMP_COMPRESSED) => $LATEST_SYMLINK"
-    (cd $DB_DUMP_DIR && rm -f $LATEST_SYMLINK && ln -s $(basename $DB_DUMP_COMPRESSED) $LATEST_SYMLINK)
+    (cd $DB_DIR && rm -f $LATEST_SYMLINK && ln -s $(basename $DB_DUMP_COMPRESSED) $LATEST_SYMLINK)
   fi
 fi
 

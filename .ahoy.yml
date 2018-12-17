@@ -76,7 +76,7 @@ commands:
       # [/META]
       # [META:ACQUIA]
       # Download DB from Acquia Cloud backup. Remove if site install is used.
-      #### AC_API_USER_NAME=${AC_API_USER_NAME} AC_API_USER_PASS=${AC_API_USER_PASS} AC_API_DB_SITE=${AC_API_DB_SITE} AC_API_DB_ENV=${AC_API_DB_ENV} AC_API_DB_NAME=${AC_API_DB_NAME} REMOVE_CACHED_DUMPS=${REMOVE_CACHED_DUMPS} ./scripts/acquia-download-backup.sh
+      #### AC_API_USER_NAME=${AC_API_USER_NAME} AC_API_USER_PASS=${AC_API_USER_PASS} AC_API_DB_SITE=${AC_API_DB_SITE} AC_API_DB_ENV=${AC_API_DB_ENV} AC_API_DB_NAME=${AC_API_DB_NAME} DB_REMOVE_CACHED_DUMPS=${DB_REMOVE_CACHED_DUMPS} ./scripts/download-backup-acquia.sh
       # [/META:ACQUIA]
       # [META:FTP]
       # Download DB dump from FTP. Remove if site install is used.
@@ -98,6 +98,10 @@ commands:
       # ahoy drush si ${INSTALL_PROFILE} -y --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
       # ahoy drush en -y mysite_core
       # [/META:PROFILE]
+      # [META]
+      # Only import configuration if at least one config file exists.
+      # [/META]
+      [ -f config/default/*.yml ] && ahoy drush cim -y || true
       ahoy drush cr
 
   import-db-dump:
@@ -134,8 +138,8 @@ commands:
     cmd: |
       ahoy down
       # chmod -Rf 777 docroot/sites/default
-      [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | xargs chmod -Rf 777
-      [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | xargs rm -Rf
+      [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | grep -v "services.local.yml" | xargs chmod -Rf 777
+      [ -d .git ] && git ls-files --directory --other -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | grep -v "services.local.yml" | xargs rm -Rf
       rm -Rf vendor
       rm -Rf node_modules
       rm -Rf screenshots
@@ -156,9 +160,13 @@ commands:
     usage: Build front-end assets.
     cmd: ahoy cli "npm run build"
 
-  fe-dev:
+  fed:
     usage: Build front-end assets for development.
     cmd: ahoy cli "npm run build-dev"
+
+  few:
+    usage: Watch front-end assets during development.
+    cmd: ahoy cli "npm run watch"
 
   install-dev:
     usage: Install dependencies.

@@ -74,6 +74,10 @@ file:
     exists: true
     filetype: file
     mode: "0664"
+  {{ .Env.BUILD_DIR }}/docroot/sites/default/default.services.local.yml:
+    exists: true
+    filetype: file
+    mode: "0664"
 
   # Documentation information added.
   {{ .Env.BUILD_DIR }}/FAQs.md:

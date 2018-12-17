@@ -20,6 +20,7 @@ docroot/sites/default/*
 !docroot/sites/default/default.settings.local.php
 !docroot/sites/default/services.yml
 !docroot/sites/default/default.services.local.yml
+!docroot/.htaccess
 
 # Ignore dependencies cache files
 vendor

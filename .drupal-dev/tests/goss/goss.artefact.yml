@@ -27,8 +27,6 @@ file:
     exists: false
   {{ .Env.BUILD_DIR }}/tests:
     exists: false
-  {{ .Env.BUILD_DIR }}/vendor:
-    exists: false
   {{ .Env.BUILD_DIR }}/.ahoy.yml:
     exists: false
   {{ .Env.BUILD_DIR }}/.dockerignore:
@@ -65,6 +63,9 @@ file:
     exists: false
   {{ .Env.BUILD_DIR }}/README.md:
     exists: false
+
+  {{ .Env.BUILD_DIR }}/vendor:
+    exists: true
 
   # Site profile present.
   {{ .Env.BUILD_DIR }}/docroot/profiles/custom/mysite_profile:
@@ -125,7 +126,7 @@ file:
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/css/mysitetheme.min.css:
     exists: true
     contains:
-      - "background:#9f9f9f"
+      - "background:#fff"
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/build/css/mysitetheme.css:
     exists: false
   {{ .Env.BUILD_DIR }}/docroot/themes/custom/mysitetheme/scss:

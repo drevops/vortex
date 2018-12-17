@@ -40,7 +40,7 @@ $settings['entity_update_batch_size'] = 50;
 
 // Location of the site configuration files.
 $config_directories = [
-  CONFIG_SYNC_DIRECTORY => '../config/sync',
+  CONFIG_SYNC_DIRECTORY => '../config/default',
 ];
 
 // Salt for one-time login links, cancel links, form tokens, etc.
@@ -84,7 +84,6 @@ $settings['file_scan_ignore_directories'] = [
   'node_modules',
 ];
 
-
 // The default number of entities to update in a batch process.
 $settings['entity_update_batch_size'] = 50;
 
@@ -120,9 +119,32 @@ if (file_exists('/var/www/site-php')) {
 ///                       PER-ENVIRONMENT SETTINGS                           ///
 ////////////////////////////////////////////////////////////////////////////////
 
-// Environment indicator settings.
-$config['environment_indicator.indicator']['bg_color'] = 'red';
-$config['environment_indicator.indicator']['name'] = $settings['environment'] == ENVIRONMENT_PROD ? '#ff0000' : '#006600';
+$config['environment_indicator.indicator']['bg_color'] = $settings['environment'] == ENVIRONMENT_PROD ? '#ff0000' : '#006600';
+$config['environment_indicator.indicator']['name'] = $settings['environment'];
+
+if ($settings['environment'] !== ENVIRONMENT_PROD) {
+  $config['stage_file_proxy.settings']['origin'] = 'http://mysiteurl/';
+  $config['stage_file_proxy.settings']['hotlink'] = FALSE;
+}
+
+if ($settings['environment'] == ENVIRONMENT_LOCAL || $settings['environment'] == ENVIRONMENT_CI) {
+  // Show all error messages on the site.
+  $config['system.logging']['error_level'] = 'all';
+
+  // Enable local split.
+  $config['config_split.config_split.local']['status'] = TRUE;
+
+  // Skip permissions hardening.
+  $settings['skip_permissions_hardening'] = TRUE;
+
+  // Allow to bypass Shield.
+  $config['shield.settings']['credentials']['shield']['user'] = '';
+  $config['shield.settings']['credentials']['shield']['pass'] = '';
+}
+
+////////////////////////////////////////////////////////////////////////////////
+///                    END OF PER-ENVIRONMENT SETTINGS                       ///
+////////////////////////////////////////////////////////////////////////////////
 
 // Include generated settings file, if available.
 if (file_exists($app_root . '/' . $site_path . '/settings.generated.php')) {
