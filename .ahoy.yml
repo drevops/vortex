@@ -218,8 +218,7 @@ entrypoint:
 - bash
 - "-c"
 - |
-  [ -f .env ] && export $(grep -v '^#' .env | xargs)
-  [ -f .env.local ] && echo $(grep -v -e '^[[:space:]]' -e '^#' .env.local | xargs)
+  [ -f .env ] && export $(grep -v '^#' .env | xargs) && [ -f .env.local ] && export $(grep -v '^#' .env.local | xargs)
   bash -c "$0" "$@"
 - '{{cmd}}'
 - '{{name}}'
