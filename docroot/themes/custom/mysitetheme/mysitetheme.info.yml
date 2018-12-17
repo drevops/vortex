@@ -5,8 +5,11 @@ version: 8.x-1.0
 core: 8.x
 base theme: bootstrap_barrio
 
+dependencies:
+  - bootstrap_barrio
+
 libraries:
-  - mytheme/global-styling
+  - mysitetheme/global-styling
 
 regions:
   top_header: 'Top Header'
