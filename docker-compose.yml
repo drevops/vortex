@@ -113,6 +113,15 @@ services:
       lagoon.type: mariadb
     # [/META:LAGOON]
 
+  # [META:REDIS]
+  redis:
+    image: amazeeio/redis
+    # [META:LAGOON]
+    labels:
+      lagoon.type: redis
+    # [/META:LAGOON]
+  # [/META:REDIS]
+
   # [META:SOLR]
   solr:
     build:
