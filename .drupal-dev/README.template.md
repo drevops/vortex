@@ -40,7 +40,6 @@ Run each command as `ahoy <command>`.
    few          Watch front-end assets during development.
    flush-redis  Flush Redis cache.
    info         Print information about this project.
-   install-dev  Install dependencies.
    install-site Install a site.
    lint         Lint code.
    login        Login to a website.

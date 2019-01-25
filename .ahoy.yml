@@ -284,6 +284,7 @@ commands:
     cmd: |
       ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
       ahoy cli "npm install"
+    hide: true
 
   flush-redis:
     usage: Flush Redis cache.
