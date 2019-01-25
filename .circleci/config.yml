@@ -158,7 +158,7 @@ jobs:
           name: Start containers
           command: |
             if [ -f /tmp/db-new ]; then
-              sed -i -e "/###/d" docker-compose.yml
+              sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
               docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
               ahoy up
             fi
@@ -230,7 +230,7 @@ jobs:
       - run:
           name: Start containers
           command: |
-            sed -i -e "/###/d" docker-compose.yml
+            sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
             docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
             ahoy up -- --build
       - run:

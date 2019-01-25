@@ -28,15 +28,16 @@ x-volumes:
   # constantly changes on the host, we need to have these changes synchronized
   # into all containers. Since we are using single `docker-compose.yml` file for
   # all environments, we have to accommodate both cases, so we are specifying an
-  # override for the same directory as a mounted volume.
+  # override for the same directory as a mounted volume as a commented-out lines,
+  # which will be automatically uncommented in CI.
   #
-  # See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/#short-syntax-3
+  # See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/compose-file-v2/#volume-configuration-reference
   # [/META]
   volumes:
-    - /app
-    - files:/app/docroot/sites/default/files
     - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
     - ./docroot/sites/default/files:/app/docroot/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    ##- app:/app
+    ##- files:/app/docroot/sites/default/files
 
 x-environment:
   &default-environment
@@ -157,4 +158,5 @@ networks:
     external: true
 
 volumes:
+  app: {}
   files: {}
