@@ -40,7 +40,7 @@ aliases:
           DB_TIMESTAMP: +%Y_%m_%d
     # [META]
     # Use large resource class for faster builds.
-    # Uncomment the line below if your account has this setup.
+    # Uncomment the line below if your account has this option configured.
     # resource_class: xlarge
     # [/META]
 
@@ -281,7 +281,7 @@ jobs:
           command: |
             ahoy cli "mkdir -p /app/screenshots"
             [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX && echo "BEHAT_PROFILE=$BEHAT_PROFILE">>.env.local
-            ahoy test-behat -- --format=progress_fail || ahoy test-behat -- --rerun --format=progress_fail
+            ahoy test-behat -- "--format=progress_fail" || ahoy test-behat -- "--rerun --format=progress_fail"
       - run:
           name: Copy artifacts
           command: mkdir -p /tmp/artifacts/behat && docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
