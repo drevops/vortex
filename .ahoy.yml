@@ -137,7 +137,7 @@ commands:
       docker-compose up -d "$@" \
       && ahoy cli "dockerize -wait tcp://mariadb:3306 -timeout 1m" \
       && if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi \
-      && docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME}_ &&
+      && docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME}_
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
