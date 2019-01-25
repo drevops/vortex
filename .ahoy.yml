@@ -132,7 +132,7 @@ commands:
       fi
 
   up:
-    usage: Build and start Docker containers
+    usage: Build and start Docker containers.
     cmd: |
       docker-compose up -d "$@" \
       && ahoy cli "dockerize -wait tcp://mariadb:3306 -timeout 1m" \
@@ -175,6 +175,10 @@ commands:
   login:
     usage: Login to a website.
     cmd: ahoy drush uublk 1 -q && ahoy drush uli "$@"
+
+  doctor:
+    usage: Find problems with current project setup.
+    cmd: scripts/doctor.sh
 
   download-db:
     usage: Download database.

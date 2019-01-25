@@ -32,6 +32,7 @@ Run each command as `ahoy <command>`.
    cli          Start a shell inside CLI container or run a command.
    down         Stop Docker containers and remove container, images, volumes and networks.
    download-db  Download database.
+   doctor       Find problems with current project setup.
    drush        Run drush commands in the CLI service container.
    export-db    Export database dump.
    fe           Build front-end assets.
@@ -51,7 +52,7 @@ Run each command as `ahoy <command>`.
    test         Run all tests.
    test-behat   Run Behat tests.
    test-phpunit Run PHPUnit tests.
-   up           Build and start Docker containers
+   up           Build and start Docker containers.
   ```
 
 ## Adding Drupal modules
