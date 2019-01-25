@@ -1,0 +1,8 @@
+tap "caskroom/cask"
+tap "homebrew/bundle"
+tap "homebrew/core"
+tap "homebrew/php"
+brew "docker"
+brew "gpatch"
+brew "nvm"
+cask "docker"
