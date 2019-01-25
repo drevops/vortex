@@ -14,7 +14,7 @@
 version: '2.3'
 
 x-project:
-  &project mysite
+  &project ${PROJECT_NAME:-mysite}
 
 x-volumes:
   &default-volumes
@@ -42,8 +42,14 @@ x-volumes:
 x-environment:
   &default-environment
   LAGOON_PROJECT: *project
-  LAGOON_LOCALDEV_URL: http://mysite.docker.amazee.io
-  # Uncomment to enable xdebug and then restart via `ahoy up`
+  # Local dev URL populated from the environment. Do not override here. Instead,
+  # specify the value in .env file.
+  LAGOON_LOCALDEV_URL: ${LOCALDEV_URL}
+  GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+  # [META:LAGOON]
+  LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
+  # [/META:LAGOON]
+  # Uncomment to enable Xdebug and then restart via `ahoy up`.
   #XDEBUG_ENABLE: "true"
 
 services:
@@ -61,7 +67,7 @@ services:
     # [META:LAGOON]
     labels:
       lagoon.type: cli-persistent
-      lagoon.persistent.name: nginx
+      lagoon.persistent.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
     # [/META:LAGOON]
 
@@ -82,7 +88,9 @@ services:
     # [META:LAGOON]
     labels:
       lagoon.type: nginx-php-persistent
+      lagoon.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
+      lagoon.persistent.class: slow
     # [/META:LAGOON]
 
   php:
@@ -99,8 +107,9 @@ services:
     # [META:LAGOON]
     labels:
       lagoon.type: nginx-php-persistent
-      lagoon.name: nginx
+      lagoon.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
+      lagoon.persistent.class: slow
     # [/META:LAGOON]
 
   mariadb:

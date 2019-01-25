@@ -1,6 +1,7 @@
 # @see https://github.com/amazeeio/lagoon/tree/master/images/php/cli-drupal
 FROM amazeeio/php:7.2-cli-drupal
 
+# @todo: Review ENV variables and remove obsolete ones.
 ENV WEBROOT=docroot \
     COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
@@ -14,7 +15,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 ADD patches /app/patches
 ADD scripts /app/scripts
 
-COPY composer.json composer.lock .env /app/
+COPY .env composer.json composer.* /app/
 
 RUN echo "memory_limit=-1" >> /usr/local/etc/php/conf.d/memory.ini \
     && composer install -n --no-dev --ansi --prefer-dist --no-suggest --optimize-autoloader \
