@@ -8,21 +8,22 @@
   <rule ref="Generic.Debug.ESLint"/>
   <rule ref="PHPCompatibility"/>
 
-  <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
+  <arg name="extensions" value="inc,info.yml,install,module,php,profile,test,theme"/>
   <arg name="colors"/>
   <arg value="sp"/>
+  <arg name="parallel" value="75"/>
   <!--Lint code against platform version specified in composer.json
   key "config.platform.php".-->
   <config name="testVersion" value="7.2"/>
-
-  <!-- Exclude circleci config files. -->
-  <exclude-pattern>circle\.yml</exclude-pattern>
-  <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
 
   <!-- Exclude theme assets. -->
   <exclude-pattern>docroot\/themes\/custom\/.*\/build\/.*</exclude-pattern>
   <exclude-pattern>docroot\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
   <exclude-pattern>docroot\/themes\/custom\/.*\/images\/.*</exclude-pattern>
+
+  <!-- Exclude CircleCI config files. -->
+  <exclude-pattern>circle\.yml</exclude-pattern>
+  <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
 
   <!--Force short array syntax.-->
   <rule ref="Generic.Arrays.DisallowLongArraySyntax.Found">
@@ -70,9 +71,28 @@
   information from their names.-->
   <rule ref="Drupal.Commenting.DocComment.MissingShort">
     <exclude-pattern>tests/behat/bootstrap/*\.php</exclude-pattern>
+    <exclude-pattern>tests/unit/*.Test\.php</exclude-pattern>
+    <exclude-pattern>tests/unit/*.TestCase\.php</exclude-pattern>
+    <exclude-pattern>tests/src/Unit/*.Test\.php</exclude-pattern>
+    <exclude-pattern>tests/src/Unit/*.TestCase\.php</exclude-pattern>
   </rule>
   <rule ref="Drupal.Commenting.FunctionComment.Missing">
     <exclude-pattern>tests/unit/*.Test\.php</exclude-pattern>
     <exclude-pattern>tests/unit/*.TestCase\.php</exclude-pattern>
+    <exclude-pattern>tests/src/Unit/*.Test\.php</exclude-pattern>
+    <exclude-pattern>tests/src/Unit/*.TestCase\.php</exclude-pattern>
+  </rule>
+
+  <!--Allow long array lines in tests.-->
+  <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
+    <exclude-pattern>tests/unit/*.Test\.php</exclude-pattern>
+    <exclude-pattern>tests/unit/*.TestCase\.php</exclude-pattern>
+    <exclude-pattern>tests/src/Unit/*.Test\.php</exclude-pattern>
+    <exclude-pattern>tests/src/Unit/*.TestCase\.php</exclude-pattern>
+  </rule>
+
+  <!-- Ignore  Prefixing class names with project name in module behat tests.-->
+  <rule ref="DrupalPractice.General.ClassName.ClassPrefix">
+    <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
   </rule>
 </ruleset>
