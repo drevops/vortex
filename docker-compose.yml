@@ -14,7 +14,7 @@
 version: '2.3'
 
 x-project:
-  &project mysite
+  &project ${PROJECT_NAME:-mysite}
 
 x-volumes:
   &default-volumes
@@ -28,21 +28,28 @@ x-volumes:
   # constantly changes on the host, we need to have these changes synchronized
   # into all containers. Since we are using single `docker-compose.yml` file for
   # all environments, we have to accommodate both cases, so we are specifying an
-  # override for the same directory as a mounted volume.
+  # override for the same directory as a mounted volume as a commented-out lines,
+  # which will be automatically uncommented in CI.
   #
-  # See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/#short-syntax-3
+  # See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/compose-file-v2/#volume-configuration-reference
   # [/META]
   volumes:
-    - /app
-    - files:/app/docroot/sites/default/files
     - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
     - ./docroot/sites/default/files:/app/docroot/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    ##- app:/app
+    ##- files:/app/docroot/sites/default/files
 
 x-environment:
   &default-environment
   LAGOON_PROJECT: *project
-  LAGOON_LOCALDEV_URL: http://mysite.docker.amazee.io
-  # Uncomment to enable xdebug and then restart via `ahoy up`
+  # Local dev URL populated from the environment. Do not override here. Instead,
+  # specify the value in .env file.
+  LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-http://mysite.docker.amazee.io}
+  GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+  # [META:LAGOON]
+  LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
+  # [/META:LAGOON]
+  # Uncomment to enable Xdebug and then restart via `ahoy up`.
   #XDEBUG_ENABLE: "true"
 
 services:
@@ -53,14 +60,14 @@ services:
       dockerfile: .docker/Dockerfile.cli
     image: *project
     environment:
-      << : *default-environment
-    << : *default-volumes
+      <<: *default-environment
+    <<: *default-volumes
     ports:
-    - "35729:35729" # Livereload port mapping.
+      - "35729:35729" # Livereload port mapping.
     # [META:LAGOON]
     labels:
       lagoon.type: cli-persistent
-      lagoon.persistent.name: nginx
+      lagoon.persistent.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
     # [/META:LAGOON]
 
@@ -70,9 +77,9 @@ services:
       dockerfile: .docker/Dockerfile.nginx-drupal
       args:
         CLI_IMAGE: *project
-    << : *default-volumes
+    <<: *default-volumes
     environment:
-      << : *default-environment
+      <<: *default-environment
     depends_on:
       - cli
     networks:
@@ -81,7 +88,9 @@ services:
     # [META:LAGOON]
     labels:
       lagoon.type: nginx-php-persistent
+      lagoon.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
+      lagoon.persistent.class: slow
     # [/META:LAGOON]
 
   php:
@@ -91,27 +100,37 @@ services:
       args:
         CLI_IMAGE: *project
     environment:
-      << : *default-environment
-    << : *default-volumes
+      <<: *default-environment
+    <<: *default-volumes
     depends_on:
       - cli
     # [META:LAGOON]
     labels:
       lagoon.type: nginx-php-persistent
-      lagoon.name: nginx
+      lagoon.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
+      lagoon.persistent.class: slow
     # [/META:LAGOON]
 
   mariadb:
     image: amazeeio/mariadb-drupal
     environment:
-      << : *default-environment
+      <<: *default-environment
     ports:
       - "3306" # Find port on host with `ahoy info` or `docker-compose port mariadb 3306`
     # [META:LAGOON]
     labels:
       lagoon.type: mariadb
     # [/META:LAGOON]
+
+  # [META:REDIS]
+  redis:
+    image: amazeeio/redis
+    # [META:LAGOON]
+    labels:
+      lagoon.type: redis
+    # [/META:LAGOON]
+  # [/META:REDIS]
 
   # [META:SOLR]
   solr:
@@ -121,7 +140,7 @@ services:
       args:
         CLI_IMAGE: *project
     environment:
-      << : *default-environment
+      <<: *default-environment
     ports:
       - "8983" # Find port on host with `ahoy info` or `docker-compose port solr 8983`
     # [META:LAGOON]
@@ -134,8 +153,8 @@ services:
     image: selenium/standalone-chrome
     shm_size: '1gb'
     environment:
-      << : *default-environment
-    << : *default-volumes
+      <<: *default-environment
+    <<: *default-volumes
     depends_on:
       - cli
     # [META:LAGOON]
@@ -148,4 +167,5 @@ networks:
     external: true
 
 volumes:
+  app: {}
   files: {}

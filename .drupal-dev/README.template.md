@@ -26,33 +26,32 @@ Drupal 8 implementation of MYSITE
 ## Available `ahoy` commands
 Run each command as `ahoy <command>`.
   ```  
-  build                Build or rebuild project.
-  clean                Clean project.
-  cli                  Start a shell inside CLI container or run a command.
-  down                 Stop Docker containers and remove container, images, volumes and networks.
-  download-db          Download database.
-  drush                Run drush commands in the CLI service container.
-  export-db            Export database dump.
-  fe                   Build front-end assets.
-  fed                  Build front-end assets for development.
-  few                  Watch front-end assets during development.
-  import-db-dump       Import database dump.
-  info                 Print information about this project.
-  init                 Initialise project.
-  install              Install a site.
-  install-dev          Install dev dependencies.
-  lint                 Lint code.
-  login                Login to a website.
-  logs                 Show Docker logs.
-  pull                 Pull latest docker images.
-  restart              Restart all stopped and running Docker containers.
-  sanitize-db          Sanitize database.
-  start                Start existing Docker containers.
-  stop                 Stop running Docker containers.
-  test                 Run all tests.
-  test-behat           Run Behat tests.
-  test-phpunit         Run PHPUnit tests.
-  up                   Build and start Docker containers
+   build        Build or rebuild project.
+   clean        Remove all build files.
+   clean-full   Remove all development files.
+   cli          Start a shell inside CLI container or run a command.
+   down         Stop Docker containers and remove container, images, volumes and networks.
+   download-db  Download database.
+   doctor       Find problems with current project setup.
+   drush        Run drush commands in the CLI service container.
+   export-db    Export database dump.
+   fe           Build front-end assets.
+   fed          Build front-end assets for development.
+   few          Watch front-end assets during development.
+   flush-redis  Flush Redis cache.
+   info         Print information about this project.
+   install-site Install a site.
+   lint         Lint code.
+   login        Login to a website.
+   logs         Show Docker logs.
+   pull         Pull latest docker images.
+   restart      Restart all stopped and running Docker containers.
+   start        Start existing Docker containers.
+   stop         Stop running Docker containers.
+   test         Run all tests.
+   test-behat   Run Behat tests.
+   test-phpunit Run PHPUnit tests.
+   up           Build and start Docker containers.
   ```
 
 ## Adding Drupal modules

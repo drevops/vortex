@@ -40,7 +40,7 @@ aliases:
           DB_TIMESTAMP: +%Y_%m_%d
     # [META]
     # Use large resource class for faster builds.
-    # Uncomment the line below if your account has this setup.
+    # Uncomment the line below if your account has this option configured.
     # resource_class: xlarge
     # [/META]
 
@@ -158,7 +158,7 @@ jobs:
           name: Start containers
           command: |
             if [ -f /tmp/db-new ]; then
-              sed -i -e "/###/d" docker-compose.yml
+              sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
               docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
               ahoy up
             fi
@@ -230,7 +230,7 @@ jobs:
       - run:
           name: Start containers
           command: |
-            sed -i -e "/###/d" docker-compose.yml
+            sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
             docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
             ahoy up -- --build
       - run:
@@ -239,7 +239,7 @@ jobs:
       - *step_local_settings
       - run:
           name: Install site
-          command: ahoy install
+          command: ahoy install-site
       # [META]
       # Before installing dev dependencies, we need to copy development files
       # into containers, because these files were not included in the initial
@@ -281,7 +281,7 @@ jobs:
           command: |
             ahoy cli "mkdir -p /app/screenshots"
             [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX && echo "BEHAT_PROFILE=$BEHAT_PROFILE">>.env.local
-            ahoy test-behat -- --format=progress_fail || ahoy test-behat -- --rerun --format=progress_fail
+            ahoy test-behat -- "--format=progress_fail" || ahoy test-behat -- "--rerun --format=progress_fail"
       - run:
           name: Copy artifacts
           command: mkdir -p /tmp/artifacts/behat && docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
@@ -376,7 +376,7 @@ jobs:
     - run: export DRUPAL_VERSION=8 && .drupal-dev/tests/test-init.sh
     - *step_setup_remote_docker
     - run: docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
-    - run: export VOLUMES_MOUNTED=false && export DRUPAL_VERSION=8 && .drupal-dev/tests/test-workflow.sh
+    - run: export VOLUMES_MOUNTED=0 && export DRUPAL_VERSION=8 && .drupal-dev/tests/test-workflow.sh
 
   test_drupal_dev_artefact:
     <<: *container_config

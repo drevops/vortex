@@ -15,12 +15,6 @@
   key "config.platform.php".-->
   <config name="testVersion" value="7.2"/>
 
-  <file>tests</file>
-  <file>docroot/profiles/custom</file>
-  <file>docroot/modules/custom</file>
-  <file>docroot/themes/custom</file>
-  <file>docroot/sites/default/settings.php</file>
-
   <!-- Exclude circleci config files. -->
   <exclude-pattern>circle\.yml</exclude-pattern>
   <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
