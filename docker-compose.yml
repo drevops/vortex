@@ -60,10 +60,10 @@ services:
       dockerfile: .docker/Dockerfile.cli
     image: *project
     environment:
-      << : *default-environment
-    << : *default-volumes
+      <<: *default-environment
+    <<: *default-volumes
     ports:
-    - "35729:35729" # Livereload port mapping.
+      - "35729:35729" # Livereload port mapping.
     # [META:LAGOON]
     labels:
       lagoon.type: cli-persistent
@@ -77,9 +77,9 @@ services:
       dockerfile: .docker/Dockerfile.nginx-drupal
       args:
         CLI_IMAGE: *project
-    << : *default-volumes
+    <<: *default-volumes
     environment:
-      << : *default-environment
+      <<: *default-environment
     depends_on:
       - cli
     networks:
@@ -100,8 +100,8 @@ services:
       args:
         CLI_IMAGE: *project
     environment:
-      << : *default-environment
-    << : *default-volumes
+      <<: *default-environment
+    <<: *default-volumes
     depends_on:
       - cli
     # [META:LAGOON]
@@ -115,7 +115,7 @@ services:
   mariadb:
     image: amazeeio/mariadb-drupal
     environment:
-      << : *default-environment
+      <<: *default-environment
     ports:
       - "3306" # Find port on host with `ahoy info` or `docker-compose port mariadb 3306`
     # [META:LAGOON]
@@ -140,7 +140,7 @@ services:
       args:
         CLI_IMAGE: *project
     environment:
-      << : *default-environment
+      <<: *default-environment
     ports:
       - "8983" # Find port on host with `ahoy info` or `docker-compose port solr 8983`
     # [META:LAGOON]
@@ -153,8 +153,8 @@ services:
     image: selenium/standalone-chrome
     shm_size: '1gb'
     environment:
-      << : *default-environment
-    << : *default-volumes
+      <<: *default-environment
+    <<: *default-volumes
     depends_on:
       - cli
     # [META:LAGOON]
