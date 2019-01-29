@@ -5,7 +5,7 @@ default:
     cache: ~
     filters:
       # Allow skipping tests by tagging them with "@skipped"
-      tags: "~@skipped"
+      tags: '~@skipped'
   suites:
     default:
       paths: [ '%paths.base%/tests/behat/features' ]
