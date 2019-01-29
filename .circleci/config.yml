@@ -376,7 +376,7 @@ jobs:
     - run: export DRUPAL_VERSION=8 && .drupal-dev/tests/test-init.sh
     - *step_setup_remote_docker
     - run: docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
-    - run: export VOLUMES_MOUNTED=false && export DRUPAL_VERSION=8 && .drupal-dev/tests/test-workflow.sh
+    - run: export VOLUMES_MOUNTED=0 && export DRUPAL_VERSION=8 && .drupal-dev/tests/test-workflow.sh
 
   test_drupal_dev_artefact:
     <<: *container_config

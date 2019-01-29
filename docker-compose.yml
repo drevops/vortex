@@ -44,7 +44,7 @@ x-environment:
   LAGOON_PROJECT: *project
   # Local dev URL populated from the environment. Do not override here. Instead,
   # specify the value in .env file.
-  LAGOON_LOCALDEV_URL: ${LOCALDEV_URL}
+  LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-http://mysite.docker.amazee.io}
   GITHUB_TOKEN: ${GITHUB_TOKEN:-}
   # [META:LAGOON]
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
