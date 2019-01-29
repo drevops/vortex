@@ -239,7 +239,7 @@ jobs:
       - *step_local_settings
       - run:
           name: Install site
-          command: ahoy install
+          command: ahoy install-site
       # [META]
       # Before installing dev dependencies, we need to copy development files
       # into containers, because these files were not included in the initial
