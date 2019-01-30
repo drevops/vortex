@@ -14,14 +14,8 @@ fi
 
 # Process Docker Compose configuration. This is used to avoid multiple
 # docker-compose.yml files.
-sed -i -e "/###/d" docker-compose.yml
-sed -i -e "s/##//" docker-compose.yml
-
-
-#      - run:
-#          name: Check DB availability
-#          command: if [ ! -f .data/db.sql ] ; then echo "Unable to find DB"; exit 1; fi
-#
+sed -i -e "/####/d" docker-compose.yml
+sed -i -e "s/###//" docker-compose.yml
 
 # Pull the latest images.
 ahoy pull

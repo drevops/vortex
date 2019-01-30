@@ -16,13 +16,11 @@ main() {
   # Check project requirements.
   status "Checking project requirements"
 
-  [ $(command_exists docker) == "1" ] && error "Please install Docker." && exit 1
-  [ $(command_exists docker-compose) == "1" ] && error "Please install docker-compose." && exit 1
-  [ $(command_exists composer) == "1" ] && error "Please install composer: visit https://getcomposer.org/" && exit 1
-  [ $(command_exists nvm) == "1" ] && error "Please install nvm" && exit 1
-  [ $(command_exists pygmy) == "1" ] && error "Please install pygmy" && exit 1
-
-  [ ! ~/.bash_profile ] && error " ~/.bash_profile does not exist. Run 'touch  ~/.bash_profile && source ~/.bashrc'" && exit 1
+  [ "$(command_exists docker)" == "1" ] && error "Please install Docker." && exit 1
+  [ "$(command_exists docker-compose)" == "1" ] && error "Please install docker-compose." && exit 1
+  [ "$(command_exists composer)" == "1" ] && error "Please install composer: visit https://getcomposer.org/" && exit 1
+  [ "$(command_exists nvm)" == "1" ] && error "Please install nvm" && exit 1
+  [ "$(command_exists pygmy)" == "1" ] && error "Please install pygmy" && exit 1
 
   # Check what is listening on port 80.
   if ! lsof -i :80 | grep -q LISTEN; then
@@ -31,15 +29,15 @@ main() {
     error "Port 80 is occupied by other service. Stop this service and run 'pygmy up'"
   else
     pygmy_status=$(pygmy status)
-    [ "$?" == "1" ] && error "pygmy is not running. Run 'pygmy up' to start pygmy." && exit 1
+    [ "${pygmy_status}" == "1" ] && error "pygmy is not running. Run 'pygmy up' to start pygmy." && exit 1
     # @todo: Add more checks for pygmy's services.
   fi
 
-  docker exec -i $(docker-compose ps -q cli) bash -c "ssh-add -L|grep -vq 'ssh-rsa'" && error "SSH key was not added into container. Run 'pygmy restart'."
+  docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L|grep -vq 'ssh-rsa'" && error "SSH key was not added into container. Run 'pygmy restart'."
 
-  curl -L -s -o /dev/null -w "%{http_code}" ${LOCALDEV_URL} | grep -q -v 200 && error "Unable to access ${LOCALDEV_URL}" && exit 1
+  curl -L -s -o /dev/null -w "%{http_code}" "${LOCALDEV_URL}" | grep -q -v 200 && error "Unable to access ${LOCALDEV_URL}" && exit 1
 
-  if curl -L -s -N ${LOCALDEV_URL} | grep -q "name=\"Generator\" content=\"Drupal 8"; then
+  if curl -L -s -N "${LOCALDEV_URL}" | grep -q "name=\"Generator\" content=\"Drupal 8"; then
     success "Successfully bootstrapped ${LOCALDEV_URL}"
   else
     error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'composer bay:pull'" && exit 1
@@ -51,16 +49,16 @@ main() {
 #
 command_exists() {
   local cmd=$1
-  command -v $cmd | grep -ohq $cmd
+  command -v "${cmd}" | grep -ohq "${cmd}"
   local res=$?
 
   # Try homebrew lookup.
   if [ "$res" == "1" ] ; then
-    brew --prefix $cmd > /dev/null
+    brew --prefix "${cmd}" > /dev/null
     res=$?
   fi
 
-  echo $res
+  echo ${res}
 }
 
 #
