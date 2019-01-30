@@ -90,27 +90,6 @@ aliases:
           ssh-add ${DEPLOY_SSH_FILE}
         fi
 
-  - &step_local_settings
-    run:
-      name: Create local settings
-      command: |
-        echo "<?php" >> docroot/sites/default/settings.local.php
-        # [META]
-        # Add local settings overrides here.
-        # echo "\$conf['somevariable'] = '$SOME_VALUE_FROM_ENV';" >> docroot/sites/default/settings.local.php
-        # [/META]
-        echo "---" >> docroot/sites/default/services.local.yml
-        # [META]
-        # Add local services overrides here.
-        # echo "parameter: value" >> docroot/sites/default/services.local.yml
-        # [/META]
-        if [ "$(docker-compose ps -q cli)" != "" ]; then
-          docker cp -L docroot/sites/default/settings.local.php $(docker-compose ps -q cli):/app/docroot/sites/default/settings.local.php
-          docker cp -L docroot/sites/default/settings.local.php $(docker-compose ps -q php):/app/docroot/sites/default/settings.local.php
-          docker cp -L docroot/sites/default/services.local.yml $(docker-compose ps -q cli):/app/docroot/sites/default/services.local.yml
-          docker cp -L docroot/sites/default/services.local.yml $(docker-compose ps -q php):/app/docroot/sites/default/services.local.yml
-        fi
-
 jobs:
   # [META]
   # Database handling is a first step of the build. It contains:
@@ -147,40 +126,9 @@ jobs:
       # [/META]
       - run:
           name: Download database
-          command: |
-            if [ ! -f .data/db.sql ] || [ "$FORCE_DB_DOWNLOAD" != "" ]; then
-              touch /tmp/db-new;
-              ahoy download-db;
-            else
-              echo "Using cached DB dump";
-            fi
-      - run:
-          name: Start containers
-          command: |
-            if [ -f /tmp/db-new ]; then
-              sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
-              docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
-              ahoy up
-            fi
-      - *step_local_settings
-      - run:
-          name: Import DB
-          command: if [ -f /tmp/db-new ]; then ahoy import-db-dump; fi
-      - run:
-          name: Sanitize DB
-          command: |
-            if [ "$DB_SANITIZE" ] && [ -f /tmp/db-new ]; then
-              ahoy sanitize-db
-              # [META]
-              # Assering that sanitisation indeed worked. This is a part of Drupal-Dev build. Remove the lines below in your project.
-              if [ -f $DB_SANITIZE_SQL ]; then
-                ahoy drush sql-query "SELECT status FROM users WHERE uid=1" | grep -q "0"
-              fi
-              # [/META]
-            fi
-      - run:
-          name: Export DB dump
-          command: if [ -f /tmp/db-new ]; then ahoy export-db db.sql; fi
+          command: if [ ! -f .data/db.sql ] || [ "$FORCE_DB_DOWNLOAD" != "" ]; then touch /tmp/db-new && ahoy download-db; fi
+      - run: if [ -f /tmp/db-new ]; then .circleci/build.sh; fi
+      - run: if [ -f /tmp/db-new ]; then ahoy export-db db.sql; fi
       - save_cache:
           key: v1-db8-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
@@ -205,86 +153,14 @@ jobs:
           at: /workspace
       - checkout
       - *step_setup_remote_docker
-      - run:
-          name: Validate Composer configuration
-          command: composer validate --ansi --strict
       - restore_cache:
           keys:
             - v1-db8-
-      - run:
-          name: Check DB availability
-          command: if [ ! -f .data/db.sql ] ; then echo "Unable to find DB"; exit 1; fi
-      - run:
-          name: Pull newest Docker images
-          command: ahoy pull
-      # [META]
-      # Due to the fact that we want to capture the codebase without dev
-      # dependencies for future deployment, we cannot use `ahoy build` directly.
-      # Instead, we are using each of it's steps separately and capturing
-      # the codebase before installation of development tools.
-      #
-      # `amazeeio-network` is required (it is specified in `docker-compose.yml`
-      # for local development), but is not used by CircleCI (it uses `default`
-      # network).
-      # [/META]
-      - run:
-          name: Start containers
-          command: |
-            sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
-            docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
-            ahoy up -- --build
-      - run:
-          name: Copy built codebase into workspace for future deployment
-          command: mkdir -p /workspace/code && docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
-      - *step_local_settings
-      - run:
-          name: Install site
-          command: ahoy install-site
-      # [META]
-      # Before installing dev dependencies, we need to copy development files
-      # into containers, because these files were not included in the initial
-      # build as we do not want them to end up in production build artefact.
-      # [/META]
-      - run:
-          name: Install dev dependencies
-          command: |
-            docker cp -L behat.yml $(docker-compose ps -q cli):/app/
-            docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
-            docker cp -L tests $(docker-compose ps -q cli):/app/
-            ahoy install-dev
-      - run:
-          name: Lint code
-          command: ahoy lint
-      - run:
-          name: Run PHPUnit tests
-          command: ahoy test-phpunit
-      # [META]
-      # Running Behat tests can be done in parallel, provided that you set
-      # build concurrency CircleCI UI to a number larger then 1 container and
-      # your tests are tagged with `p0`, `p1` etc. to assign tests to a specific
-      # build node.
-      #
-      # Using `progress_fail` format allows to get an instant feedback about
-      # broken tests without stopping all other tests or waiting for the build
-      # to finish. This is particularly useful for projects with large number
-      # of tests.
-      #
-      # We are also using --rerun option to overcome some false positives that
-      # could appear in browser-based tests. With this option, Behat remembers
-      # which tests failed during previous run and re-runs only them.
-      #
-      # Lastly, we copy test results (artifacts) out of containers and store
-      # store them so that CircleCI could show them in 'Artifacts' tab.
-      # [/META]
-      - run:
-          name: Run Behat tests
-          command: |
-            ahoy cli "mkdir -p /app/screenshots"
-            [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX && echo "BEHAT_PROFILE=$BEHAT_PROFILE">>.env.local
-            ahoy test-behat -- "--format=progress_fail" || ahoy test-behat -- "--rerun --format=progress_fail"
+      - run: .cirlceci/build.sh
+      - run: .cirlceci/test.sh
       - run:
           name: Copy artifacts
-          command: mkdir -p /tmp/artifacts/behat && docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
+          command: .circleci/test-artifacts.sh
           when: always
       - store_artifacts:
           path: /tmp/artifacts

@@ -11,6 +11,7 @@ commands:
       && ahoy clean \
       && (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network) \
       && ahoy up -- --build --force-recreate \
+      && if [ "${BUILD_EXPORT_DIR}" != "" ]; then mkdir -p ${BUILD_EXPORT_DIR} && docker cp -L $(docker-compose ps -q cli):/app/. ${BUILD_EXPORT_DIR}; fi \
       && ahoy install-dev \
       && ahoy install-site \
       && ahoy title "Build complete" \
@@ -142,7 +143,7 @@ commands:
     usage: Sanitize database.
     cmd: |
       ahoy drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
-      if [ "${DB_SANITIZE_SQL}" ] && [ -f "${DB_SANITIZE_SQL}" ]; then
+      if [ "${DB_SANITIZE_SQL}" != "" ] && [ -f "${DB_SANITIZE_SQL}" ]; then
         ahoy title "Applying custom sanitization commands"
         ahoy cli "mkdir -p $(dirname /tmp/${DB_SANITIZE_SQL})"
         docker cp -L ${DB_SANITIZE_SQL} $(docker-compose ps -q cli):/tmp/${DB_SANITIZE_SQL}
