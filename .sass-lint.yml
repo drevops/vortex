@@ -13,11 +13,9 @@ files:
 rules:
   indentation:
     - 1
-    -
-      size: 2
+    - size: 2
   variable-name-format:
     - 1
-    -
-      allow-leading-underscore: true
+    - allow-leading-underscore: true
   nesting-depth: 0
   placeholder-in-extend: 0
