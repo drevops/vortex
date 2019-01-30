@@ -37,7 +37,7 @@ AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-~/.acquia/cloudapi.conf}
 DB_DIR=${DB_DIR:-.data}
 
 # Resulting DB dump file name. Used by external scripts to import DB.
-# Note that absolute path will be $PROJECT_PATH/$DB_DIR/$DB_FILE_NAME
+# Note that absolute path will be ${project_path}/${DB_DIR}/${${DB_FILE_NAME}}
 DB_FILE_NAME=${DB_FILE_NAME:-db.sql}
 
 # Absolute path to resulting file, including name. May be used to override
@@ -57,102 +57,101 @@ DB_REMOVE_CACHED_DUMPS=${DB_REMOVE_CACHED_DUMPS:-0}
 # Function to extract last value from JSON object passed via STDIN.
 extract_json_last_value() {
   local key=$1
-  php -r '$data=json_decode(file_get_contents("php://stdin"), TRUE); $last=array_pop($data); isset($last["'$key'"]) ? print $last["'$key'"] : exit(1);'
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print \$last[\"${key}\"] : exit(1);"
 }
 
 # Function to extract keyed value from JSON object passed via STDIN.
 extract_json_value() {
   local key=$1
-  php -r '$data=json_decode(file_get_contents("php://stdin"), TRUE); isset($data["'$key'"]) ? print $data["'$key'"] : exit(1);'
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print \$data[\"${key}\"] : exit(1);"
 }
 
-SELF_START_TIME=$(date +%s)
-TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+self_start_time=$(date +%s)
 
 # Find absolute script path.
-SELF_DIR=$(dirname -- ${BASH_SOURCE[0]})
-SELF_PATH=$(cd -P -- "$SELF_DIR" && pwd -P)/$(basename -- ${BASH_SOURCE[0]})
+self_dir=$(dirname -- "${BASH_SOURCE[0]}")
+self_path=$(cd -P -- "${self_dir}" && pwd -P)/$(basename -- "${BASH_SOURCE[0]}")
 
 # Find absolute project root.
-PROJECT_PATH=$(dirname $(dirname $SELF_PATH))
+project_path=$(dirname "$(dirname "${self_path}")")
 
 # Expand DB dump file name to absolute path.
-DB_FILE=${DB_FILE:-$PROJECT_PATH/${DB_DIR}/$DB_FILE_NAME}
-# Set DB dump dir to absolute path.
-DB_DIR=$(dirname $DB_FILE)
+DB_FILE=${DB_FILE:-${project_path}/${DB_DIR}/${DB_FILE_NAME}}
+# Set DB dump dir to an absolute path.
+DB_DIR=$(dirname "${DB_FILE}")
 
 # Pre-flight checks.
-which curl > /dev/null ||  {
+command -v curl > /dev/null ||  {
   echo "==> ERROR: curl is not available in this session" && exit 1
 }
 
 # Try to read credentials from the stored config file after `drush ac-api-login`.
-if [ "$AC_API_USER_NAME" == "" ] && [ -f "$AC_CREDENTIALS_FILE" ]; then
-  AC_API_USER_NAME=$(cat $AC_CREDENTIALS_FILE | extract_json_value "mail")
-  AC_API_USER_PASS=$(cat $AC_CREDENTIALS_FILE | extract_json_value "key")
+if [ "${AC_API_USER_NAME}" == "" ] && [ -f "${AC_CREDENTIALS_FILE}" ]; then
+  AC_API_USER_NAME=$(extract_json_value "mail" < "${AC_CREDENTIALS_FILE}")
+  AC_API_USER_PASS=$(extract_json_value "key" < "${AC_CREDENTIALS_FILE}")
 fi
 
-[ "$AC_API_USER_NAME" == "" ] && echo "==> ERROR: Missing value for \$AC_API_USER_NAME" && exit 1
-[ "$AC_API_USER_PASS" == "" ] && echo "==> ERROR: Missing value for \$AC_API_USER_PASS" && exit 1
-[ "$AC_API_DB_SITE" == "" ] && echo "==> ERROR: Missing value for \$AC_API_DB_SITE" && exit 1
-[ "$AC_API_DB_ENV" == "" ] && echo "==> ERROR: Missing value for \$AC_API_DB_ENV" && exit 1
-[ "$AC_API_DB_NAME" == "" ] && echo "==> ERROR: Missing value for \$AC_API_DB_NAME" && exit 1
+[ "${AC_API_USER_NAME}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_USER_NAME}" && exit 1
+[ "${AC_API_USER_PASS}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_USER_PASS}" && exit 1
+[ "${AC_API_DB_SITE}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_DB_SITE}" && exit 1
+[ "${AC_API_DB_ENV}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_DB_ENV}" && exit 1
+[ "${AC_API_DB_NAME}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_DB_NAME}" && exit 1
 
-LATEST_BACKUP=0
-if [ "$AC_API_DB_BACKUP_ID" == "" ] ; then
-  echo "==> Discovering latest backup id for DB $AC_API_DB_NAME"
-  echo curl --progress-bar -L -u $AC_API_USER_NAME:$AC_API_USER_PASS https://cloudapi.acquia.com/v1/sites/$AC_API_DB_SITE/envs/$AC_API_DB_ENV/dbs/$AC_API_DB_NAME/backups.json
-  BACKUPS_JSON=$(curl --progress-bar -L -u $AC_API_USER_NAME:$AC_API_USER_PASS https://cloudapi.acquia.com/v1/sites/$AC_API_DB_SITE/envs/$AC_API_DB_ENV/dbs/$AC_API_DB_NAME/backups.json)
+latest_backup=0
+if [ "${AC_API_DB_BACKUP_ID}" == "" ] ; then
+  echo "==> Discovering latest backup id for DB ${AC_API_DB_NAME}"
+  echo curl --progress-bar -L -u "${AC_API_USER_NAME}":"${AC_API_USER_PASS}" "https://cloudapi.acquia.com/v1/sites/${AC_API_DB_SITE}/envs/${AC_API_DB_ENV}/dbs/${AC_API_DB_NAME}/backups.json"
+  BACKUPS_JSON=$(curl --progress-bar -L -u "${AC_API_USER_NAME}":"${AC_API_USER_PASS}" "https://cloudapi.acquia.com/v1/sites/${AC_API_DB_SITE}/envs/${AC_API_DB_ENV}/dbs/${AC_API_DB_NAME}/backups.json")
   # Acquia response has all backups sorted chronologically by created date.
-  AC_API_DB_BACKUP_ID=$(echo $BACKUPS_JSON | extract_json_last_value "id")
-  [ "$AC_API_DB_BACKUP_ID" == "" ] && echo "==> ERROR: Unable to discover backup id" && exit 1
-  LATEST_BACKUP=1
+  AC_API_DB_BACKUP_ID=$(echo "${BACKUPS_JSON}" | extract_json_last_value "id")
+  [ "${AC_API_DB_BACKUP_ID}" == "" ] && echo "==> ERROR: Unable to discover backup id" && exit 1
+  latest_backup=1
 fi
 
 # Insert backup id as a suffix.
-DB_DUMP_EXT="${DB_FILE##*.}"
-DB_DUMP_FILE_ACTUAL_PREFIX="${AC_API_DB_NAME}_backup_"
-DB_DUMP_FILE_ACTUAL=${DB_DIR}/${DB_DUMP_FILE_ACTUAL_PREFIX}${AC_API_DB_BACKUP_ID}.${DB_DUMP_EXT}
-DB_DUMP_DISCOVERED=$DB_DUMP_FILE_ACTUAL
-DB_DUMP_COMPRESSED=$DB_DUMP_FILE_ACTUAL.gz
+db_dump_ext="${DB_FILE##*.}"
+db_dump_file_actual_prefix="${AC_API_DB_NAME}_backup_"
+db_dump_file_actual=${DB_DIR}/${db_dump_file_actual_prefix}${AC_API_DB_BACKUP_ID}.${db_dump_ext}
+db_dump_discovered=${db_dump_file_actual}
+db_dump_compressed=${db_dump_file_actual}.gz
 
-if [ -f $DB_DUMP_DISCOVERED ] ; then
-  echo "==> Found existing cached DB file $DB_DUMP_DISCOVERED for DB $AC_API_DB_NAME"
+if [ -f "${db_dump_discovered}" ] ; then
+  echo "==> Found existing cached DB file \"${db_dump_discovered}\" for DB \"${AC_API_DB_NAME}\""
 else
   # If the gzip version exists, then we don't need to re-download it.
-  if [ ! -f $DB_DUMP_COMPRESSED ] ; then
-    [ ! -d $DB_DIR ] && echo "==> Creating dump directory $DB_DIR" && mkdir -p $DB_DIR
-    [ "$DB_REMOVE_CACHED_DUMPS" == "1" ] && echo "==> Removing all previously cached DB dumps" && rm -Rf $DB_DIR/${DB_DUMP_FILE_ACTUAL_PREFIX}*
-    echo "==> Using latest backup id $AC_API_DB_BACKUP_ID for DB $AC_API_DB_NAME"
-    echo "==> Downloading DB dump into file $DB_DUMP_COMPRESSED"
-    curl --progress-bar -L -u $AC_API_USER_NAME:$AC_API_USER_PASS https://cloudapi.acquia.com/v1/sites/$AC_API_DB_SITE/envs/$AC_API_DB_ENV/dbs/$AC_API_DB_NAME/backups/$AC_API_DB_BACKUP_ID/download.json -o $DB_DUMP_COMPRESSED
+  if [ ! -f "${db_dump_compressed}" ] ; then
+    [ ! -d "${DB_DIR}" ] && echo "==> Creating dump directory ${DB_DIR}" && mkdir -p "${DB_DIR}"
+    [ "${DB_REMOVE_CACHED_DUMPS}" == "1" ] && echo "==> Removing all previously cached DB dumps" && rm -Rf "${DB_DIR}/${db_dump_file_actual_prefix:?}*"
+    echo "==> Using latest backup id ${AC_API_DB_BACKUP_ID} for DB ${AC_API_DB_NAME}"
+    echo "==> Downloading DB dump into file ${db_dump_compressed}"
+    curl --progress-bar -L -u "${AC_API_USER_NAME}":"${AC_API_USER_PASS}" "https://cloudapi.acquia.com/v1/sites/${AC_API_DB_SITE}/envs/${AC_API_DB_ENV}/dbs/${AC_API_DB_NAME}/backups/${AC_API_DB_BACKUP_ID}/download.json" -o "${db_dump_compressed}"
   else
-    echo "==> Found existing cached gzipped DB file $DB_DUMP_COMPRESSED for DB $AC_API_DB_NAME"
+    echo "==> Found existing cached gzipped DB file ${db_dump_compressed} for DB ${AC_API_DB_NAME}"
   fi
   # Expanding file, if required.
-  if [ $DB_DECOMPRESS_BACKUP != 0 ] ; then
-    echo "==> Expanding DB file $DB_DUMP_COMPRESSED into $DB_DUMP_FILE_ACTUAL"
-    gunzip -c $DB_DUMP_COMPRESSED > $DB_DUMP_FILE_ACTUAL
-    DECOMPRESS_RESULT=$?
-    rm $DB_DUMP_COMPRESSED
-    [ ! -f $DB_DUMP_FILE_ACTUAL ] || [ $DECOMPRESS_RESULT != 0 ] && echo "==> ERROR: Unable to process DB dump file $DB_DUMP_FILE_ACTUAL" && rm -f $DB_DUMP_COMPRESSED && rm -f $DB_DUMP_FILE_ACTUAL && exit 1
+  if [ "${DB_DECOMPRESS_BACKUP}" != "0" ] ; then
+    echo "==> Expanding DB file ${db_dump_compressed} into ${db_dump_file_actual}"
+    gunzip -c "${db_dump_compressed}" > "${db_dump_file_actual}"
+    decompress_result=$?
+    rm "${db_dump_compressed}"
+    [ ! -f "${db_dump_file_actual}" ] || [ "${decompress_result}" != 0 ] && echo "==> ERROR: Unable to process DB dump file \"${db_dump_file_actual}\"" && rm -f "${db_dump_compressed}" && rm -f "${db_dump_file_actual}" && exit 1
   fi
 fi
 
 # Create a symlink to the latest backup.
-if [ "$LATEST_BACKUP" != "0" ] ; then
-  LATEST_SYMLINK=$DB_FILE
-  if [ -f $DB_DUMP_FILE_ACTUAL ] ; then
-    echo "==> Creating symlink $(basename $DB_DUMP_FILE_ACTUAL) => $LATEST_SYMLINK"
-    (cd $DB_DIR && rm -f $LATEST_SYMLINK && ln -s $(basename $DB_DUMP_FILE_ACTUAL) $LATEST_SYMLINK)
+if [ "${latest_backup}" != "0" ] ; then
+  latest_symlink=${DB_FILE}
+  if [ -f "${db_dump_file_actual}" ] ; then
+    echo "==> Creating symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}"
+    (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
   fi
-  LATEST_SYMLINK=$LATEST_SYMLINK.gz
-  if [ -f $DB_DUMP_COMPRESSED ] ; then
-    echo "==> Creating symlink $(basename $DB_DUMP_COMPRESSED) => $LATEST_SYMLINK"
-    (cd $DB_DIR && rm -f $LATEST_SYMLINK && ln -s $(basename $DB_DUMP_COMPRESSED) $LATEST_SYMLINK)
+  latest_symlink=${latest_symlink}.gz
+  if [ -f "${db_dump_compressed}" ] ; then
+    echo "==> Creating symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\""
+    (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
   fi
 fi
 
 SECONDS=$(date +%s)
-SELF_ELAPSED_TIME=$(($SECONDS - $SELF_START_TIME))
-echo "==> Build duration: $(($SELF_ELAPSED_TIME/60)) min $(($SELF_ELAPSED_TIME%60)) sec"
+SELF_ELAPSED_TIME=$((SECONDS - self_start_time))
+echo "==> Build duration: $((SELF_ELAPSED_TIME/60)) min $((SELF_ELAPSED_TIME%60)) sec"

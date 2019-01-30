@@ -7,12 +7,15 @@
 # workflow.
 set -e
 
+current_command=""
+last_command=""
+
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 # echo an error message before exiting
 trap '[ "$?" != "0" ] && echo "\"${last_command}\" command failed with exit code $?."' EXIT
 
-CURDIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")/.." && pwd)"
+CUR_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")/.." && pwd)"
 BUILD_DIR=${BUILD_DIR:-/tmp/star_wars}
 DRUPAL_VERSION=${DRUPAL_VERSION:-7}
 VOLUMES_MOUNTED=${VOLUMES_MOUNTED:-1}
@@ -25,42 +28,44 @@ step(){
 
 # Sync files to host in case if volumes are not mounted from host.
 sync_to_host(){
-  export $(grep -v '^#' .env | xargs)
+  export "$(grep -v '^#' .env | xargs)"
   [ "$VOLUMES_MOUNTED" == "1" ] && return
   echo "Syncing from $(docker-compose ps -q cli) to ${BUILD_DIR}"
-  docker cp -L $(docker-compose ps -q cli):/app/. ${BUILD_DIR}
+  docker cp -L "$(docker-compose ps -q cli)":/app/. "${BUILD_DIR}"
 }
 
 # Sync files to container in case if volumes are not mounted from host.
 sync_to_container(){
-  export $(grep -v '^#' .env | xargs)
+  export "$(grep -v '^#' .env | xargs)"
   [ "$VOLUMES_MOUNTED" == "1" ] && return
-  echo "Syncing from $1 to $(docker-compose ps -q cli)"
-  docker cp -L $1 $(docker-compose ps -q cli):/app/
+  echo "Syncing from ${1} to $(docker-compose ps -q cli)"
+  docker cp -L "${1}" "$(docker-compose ps -q cli)":/app/
 }
 
 echo "==> Starting WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
 # Prepare build directory.
-rm -Rf ${BUILD_DIR} > /dev/null
-mkdir -p ${BUILD_DIR}
-git archive --format=tar HEAD | (cd ${BUILD_DIR} && tar -xf -)
+rm -Rf "${BUILD_DIR}" > /dev/null
+mkdir -p "${BUILD_DIR}"
+git archive --format=tar HEAD | (cd "${BUILD_DIR}" && tar -xf -)
 # Special treatment for cases where volumes are not mounted from the host.
 if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
-  sed -i -e "/###/d" ${BUILD_DIR}/docker-compose.yml
-  sed -i -e "s/##//" ${BUILD_DIR}/docker-compose.yml
+  sed -i -e "/####/d" "${BUILD_DIR}"/docker-compose.yml
+  sed -i -e "s/###//" "${BUILD_DIR}"/docker-compose.yml
 fi
 
-pushd ${BUILD_DIR} > /dev/null
+pushd "${BUILD_DIR}" > /dev/null
 
 step "Initialise the project"
 printf 'Star Wars\n\n\n\n\nno\n\n\n' | ahoy init
 
 step "Create .env.local file"
-echo FTP_HOST=${DB_FTP_HOST} >> .env.local
-echo FTP_USER=${DB_FTP_USER} >> .env.local
-echo FTP_PASS=${DB_FTP_PASS} >> .env.local
-echo FTP_FILE=db_d${DRUPAL_VERSION}.star_wars.sql >> .env.local
+{
+  echo FTP_HOST="${DB_FTP_HOST}";
+  echo FTP_USER="${DB_FTP_USER}";
+  echo FTP_PASS="${DB_FTP_PASS}";
+  echo FTP_FILE="db_d${DRUPAL_VERSION}.star_wars.sql";
+} >> .env.local
 
 step "Add all files to new git repo"
 git init
@@ -75,7 +80,7 @@ ahoy download-db
 step "Build project"
 ahoy build
 sync_to_host
-BUILD_DIR=${BUILD_DIR} goss --gossfile ${CURDIR}/.drupal-dev/tests/goss/goss.build.yml validate
+BUILD_DIR="${BUILD_DIR}" goss --gossfile "${CUR_DIR}"/.drupal-dev/tests/goss/goss.build.yml validate
 # @todo: Try moving this before test.
 sync_to_container behat.yml
 sync_to_container phpcs.xml
@@ -97,18 +102,21 @@ ahoy login
 
 step "Export DB"
 ahoy export-db mydb.sql
-[ ! -f .data/mydb.sql ] && echo "Exported file does not exist" && exit 1
+[ ! -f .data/mydb.sql ] && echo "ERROR: Exported file does not exist" && exit 1
 
 step "Run single Behat test"
 ahoy test-behat tests/behat/features/homepage.feature
 sync_to_host
-[ -z "$(ls -A screenshots)" ] && "Behat screenshots were not created" && exit 1
+[ -z "$(ls -A screenshots)" ] && echo "ERROR: Behat screenshots were not created" && exit 1
 
 step "Build FE assets"
-echo "\$color-silver-chalice: #ff0000;" >> docroot/themes/custom/star_wars/scss/_variables.scss
+echo "\$body-bg: \$color-white;" >> docroot/themes/custom/star_wars/scss/_variables.scss
 ahoy fed
 sync_to_host
-grep -qv '#ff0000' docroot/themes/custom/star_wars/build/css/star_wars.min.css && "FE assets were not created" && exit 1
+if ! grep -q '#fff' docroot/themes/custom/star_wars/build/css/star_wars.min.css; then
+  cat docroot/themes/custom/star_wars/build/css/star_wars.min.css
+  echo "ERROR: FE assets were not created" && exit 1
+fi
 
 step "Re-import DB"
 rm -Rf .data/*
@@ -119,6 +127,6 @@ ls .data/db_export_* > /dev/null
 
 step "Clean"
 ahoy clean
-BUILD_DIR=${BUILD_DIR} goss --gossfile ${CURDIR}/.drupal-dev/tests/goss/goss.clean.yml validate
+BUILD_DIR="${BUILD_DIR}" goss --gossfile "${CUR_DIR}"/.drupal-dev/tests/goss/goss.clean.yml validate
 
 popd > /dev/null
