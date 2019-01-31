@@ -59,7 +59,7 @@ main() {
     preserve_lagoon_integration=Y
     preserve_lagoon_integration=$(ask "Do you want to keep Lagoon integration? [${preserve_lagoon_integration}] " $preserve_lagoon_integration)
     remove_meta=Y
-    remove_meta=$(ask "Do you want to remove all Drupal-Dev META information? (Y,n) [$remove_meta] " $remove_meta)
+    remove_meta=$(ask "Do you want to remove all Drupal-Dev information? (Y,n) [$remove_meta] " $remove_meta)
   fi
 
   echo
@@ -93,19 +93,19 @@ main() {
     rm -Rf hooks > /dev/null
     rm scripts/download-backup-acquia.sh > /dev/null
     rm DEPLOYMENT.md > /dev/null
-    remove_tags_with_content "META:ACQUIA" "${CUR_DIR}" && bash -c "echo -n ."
-    remove_tags_with_content "META:DEPLOYMENT" "${CUR_DIR}" && bash -c "echo -n ."
+    remove_tags_with_content "ACQUIA" "${CUR_DIR}" && bash -c "echo -n ."
+    remove_tags_with_content "DEPLOYMENT" "${CUR_DIR}" && bash -c "echo -n ."
   fi
 
   if [ "$preserve_lagoon_integration" != "Y" ] ; then
     rm drush/aliases.drushrc.php > /dev/null
     rm .lagoon.yml > /dev/null
-    remove_tags_with_content "META:LAGOON" "${CUR_DIR}" && bash -c "echo -n ."
+    remove_tags_with_content "LAGOON" "${CUR_DIR}" && bash -c "echo -n ."
   fi
 
   if [ "$remove_meta" == "Y" ] ; then
-    remove_tags_with_content "META" "${CUR_DIR}" && bash -c "echo -n ."
-    remove_tags "META" "${CUR_DIR}"
+    remove_strings_with_content "## [" "## [/" "${CUR_DIR}" && bash -c "echo -n ."
+    remove_strings "##" "${CUR_DIR}"
   fi
 
   enable_commented_code "${CUR_DIR}"
@@ -167,6 +167,29 @@ remove_tags() {
   else
     grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "\[$tag" "${dir}" | xargs sed -i -e "/\[$tag/d"
     grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "\[\/$tag" "${dir}" | xargs sed -i -e "/\[\/$tag/d"
+  fi
+}
+
+remove_strings() {
+  local string="${1}"
+  local dir="${2}"
+
+  if [ "$(uname)" == "Darwin" ]; then
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$string" "${dir}" | xargs sed -i '' -e "/$string/d"
+  else
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$string" "${dir}" | xargs sed -i -e "/$string/d"
+  fi
+}
+
+remove_strings_with_content() {
+  local start="${1}"
+  local finish="${2}"
+  local dir="${3}"
+
+  if [ "$(uname)" == "Darwin" ]; then
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$start" "${dir}" | xargs sed -i '' -e "/$start/,/$finish/d"
+  else
+    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$start" "${dir}" | xargs sed -i -e "/$start/,/$finish/d"
   fi
 }
 
