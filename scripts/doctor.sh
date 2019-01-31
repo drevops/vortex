@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Check Drupal Dev project requirements.
+# Check Drupal-Dev project requirements.
 #
 
 LOCALDEV_URL=${LOCALDEV_URL:-http://mysite.docker.amazee.io/}
