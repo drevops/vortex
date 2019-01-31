@@ -237,8 +237,9 @@ entrypoint:
   - "-c"
   - |
     [ -f .env ] && export $(grep -v '^#' .env | xargs) && [ -f .env.local ] && export $(grep -v '^#' .env.local | xargs)
-    export PROJECT_NAME=${PROJECT_NAME:-$(basename $(pwd))}
-    export LOCALDEV_URL=${LOCALDEV_URL:-http://${PROJECT_NAME/[_ ]/-}.docker.amazee.io}
+    export PROJECT=${PROJECT:-$(basename $(pwd))}
+    export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PROJECT/[ ]/_}}
+    export LOCALDEV_URL=${LOCALDEV_URL:-http://${PROJECT/[_ ]/-}.docker.amazee.io}
     #< DEMO
     #| Location of the dummy database used for demonstration only.
     #| This will be removed during project init.

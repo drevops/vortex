@@ -14,7 +14,7 @@
 version: '2.3'
 
 x-project:
-  &project ${PROJECT_NAME:-mysite}
+  &project ${PROJECT:-mysite}
 
 x-volumes:
   &default-volumes
