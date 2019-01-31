@@ -1,12 +1,12 @@
-##
-## CircleCI 2.0 configuration file.
-##
-## Comments starting with 2 hash symbols (like the ones used for the current
-## paragraph) are explaining Drupal-Dev inner working and can be safely removed
-## for specific project.
-##
-## Do not manually remove these comments. Instead, run `ahoy init` to initialise
-## this project.
+#|
+#| CircleCI 2.0 configuration file.
+#|
+#| Comments starting with '#|', '#<' or '#>' (like the ones used for the
+#| current paragraph) are explaining Drupal-Dev inner working and can be safely
+#| removed for specific project.
+#|
+#| Do not manually remove these comments. Instead, run `ahoy init` to initialise
+#| this project.
 version: 2
 aliases:
   # Variables.
@@ -15,9 +15,9 @@ aliases:
   # SSH key fingerprint to deploy code. Add private key of the user who is
   # allowed to push to $DEPLOY_REMOTE repo under "SSH Permissions" in
   # CircleCI UI.
-  ##
-  ## This is a fingerprint of the key to push Drupal-Dev project itself.
-  ## Replace this key fingerprint with your own.
+  #|
+  #| This is a fingerprint of the key to push Drupal-Dev project itself.
+  #| Replace this key fingerprint with your own.
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
 
   # Shared configuration applied to each job.
@@ -26,9 +26,9 @@ aliases:
     environment:
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
-      ## Using "runner" container where each job will be executed. This container
-      ## has all necessary tools to run dockerized environment.
-      ## @see https://github.com/integratedexperts/ci-builder
+      #| Using "runner" container where each job will be executed. This container
+      #| has all necessary tools to run dockerized environment.
+      #| @see https://github.com/integratedexperts/ci-builder
       - image: integratedexperts/ci-builder
         environment:
           COMPOSE_PROJECT_NAME: mysite
@@ -36,38 +36,38 @@ aliases:
           # @todo:dev Revert below.
           DB_TIMESTAMP: +%Y_%m_%d_%H_%M
           DB_SEMAPHORE_FILE: /tmp/db-new
-    ## Use large resource class for faster builds.
-    ## Uncomment the line below if your account has this option configured.
-    ## resource_class: xlarge
+    #| Use large resource class for faster builds.
+    #| Uncomment the line below if your account has this option configured.
+    #| resource_class: xlarge
 
   # Step to setup remote docker.
   - &step_setup_remote_docker
-    ## [META:CI_NO_DLC]
+    #< CI_NO_DLC
       setup_remote_docker
-    ## [/META:CI_NO_DLC]
-    ## [META:CI_DLC]
-    ## Uncomment lines below if your CircleCI plan supports docker layer caching.
-    ## Docker Layer Caching allows to significantly speed up builds by caching
-    ## images built during previous runs.
-    ## @see https://circleci.com/docs/2.0/docker-layer-caching/
+    #> CI_NO_DLC
+    #< CI_DLC
+    #| Uncomment lines below if your CircleCI plan supports docker layer caching.
+    #| Docker Layer Caching allows to significantly speed up builds by caching
+    #| images built during previous runs.
+    #| @see https://circleci.com/docs/2.0/docker-layer-caching/
     # setup_remote_docker:
     #   docker_layer_caching: true
-    ## [/META:CI_DLC]
+    #> CI_DLC
 
   # Step to configure git and SSH to connect to remote servers for deployment.
-  ##
-  ## Deployment to remote git repositories allows to build the project and all
-  ## required artifacts in CI and then commit only required files to
-  ## the destination repository. This makes applications fast and secure,
-  ## because none of unnecessary code (such as development tools) are  exposed
-  ## to production environment.
-  ##
-  ## It is advised to create a separate Deployer user with own SSH key for each project.
-  ##
-  ## Add the following variables through CircleCI UI.
-  ## $DEPLOY_USER_NAME - name of the user who will be committing to a remote repository.
-  ## $DEPLOY_USER_EMAIL - email address of the user who will be committing to a remote repository.
-  ## $DEPLOY_REMOTE - remote repository to push artefact to.
+  #|
+  #| Deployment to remote git repositories allows to build the project and all
+  #| required artifacts in CI and then commit only required files to
+  #| the destination repository. This makes applications fast and secure,
+  #| because none of unnecessary code (such as development tools) are  exposed
+  #| to production environment.
+  #|
+  #| It is advised to create a separate Deployer user with own SSH key for each project.
+  #|
+  #| Add the following variables through CircleCI UI.
+  #| $DEPLOY_USER_NAME - name of the user who will be committing to a remote repository.
+  #| $DEPLOY_USER_EMAIL - email address of the user who will be committing to a remote repository.
+  #| $DEPLOY_REMOTE - remote repository to push artefact to.
   - &step_configure_git
     run:
       name: Configure git
@@ -86,20 +86,20 @@ aliases:
         fi
 
 jobs:
-  ## Database handling is a first step of the build. It contains:
-  ## - database download
-  ## - database sanitization
-  ## - database caching
-  ## - conditions to bypass previous steps in concurrent builds (to speed them up).
-  ##
-  ## $DB_TIMESTAMP is used to determine if a fresh DB dump should be downloaded
-  ## for the current build. Usually, a daily database dump is sufficient for
-  ## development activities.
-  ##
-  ## Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB using
-  ## standard drush sanitization. You may also use custom SQL script to add more
-  ## sanitization steps by setting $DB_SANITIZE_SQL variable to the path of this
-  ## script.
+  #| Database handling is a first step of the build. It contains:
+  #| - database download
+  #| - database sanitization
+  #| - database caching
+  #| - conditions to bypass previous steps in concurrent builds (to speed them up).
+  #|
+  #| $DB_TIMESTAMP is used to determine if a fresh DB dump should be downloaded
+  #| for the current build. Usually, a daily database dump is sufficient for
+  #| development activities.
+  #|
+  #| Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB using
+  #| standard drush sanitization. You may also use custom SQL script to add more
+  #| sanitization steps by setting $DB_SANITIZE_SQL variable to the path of this
+  #| script.
   database:
     <<: *container_config
     steps:
@@ -121,15 +121,14 @@ jobs:
           paths:
             - .data
 
-  ## Build and test is a second step of the build. The testing is performed
-  ## within the same job to save time on provisioning during the job.
-  ##
-  ## In this job:
-  ## - validate composer.json and composer.lock files
-  ## - build project and store built code for further use in deployment job
-  ## - run tests
-  ## - store test artifacts
-  # [/META]
+  #| Build and test is a second step of the build. The testing is performed
+  #| within the same job to save time on provisioning during the job.
+  #|
+  #| In this job:
+  #| - validate composer.json and composer.lock files
+  #| - build project and store built code for further use in deployment job
+  #| - run tests
+  #| - store test artifacts
   build:
     <<: *container_config
     parallelism: 2
@@ -149,9 +148,9 @@ jobs:
           when: always
       - store_artifacts:
           path: /tmp/artifacts
-      ## Dependencies are not required for the next jobs, so there is no point
-      ## to wait for all of them to persist to the workspace (it is faster to
-      ## remove files then archive and save them).
+      #| Dependencies are not required for the next jobs, so there is no point
+      #| to wait for all of them to persist to the workspace (it is faster to
+      #| remove files then archive and save them).
       - run:
           name: Remove dependencies before persisting
           command: rm -Rf node_modules && rm -Rf vendor
@@ -161,13 +160,13 @@ jobs:
             - code
 
   # Deploy primary branches.
-  ##
-  ## Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
-  ## $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
-  ## Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
-  ## under "SSH Permissions" in CircleCI UI.
-  ##
-  ## Note that we do not start container stack for deployment.
+  #|
+  #| Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
+  #| $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
+  #| Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
+  #| under "SSH Permissions" in CircleCI UI.
+  #|
+  #| Note that we do not start container stack for deployment.
   deploy: &job_deploy
     <<: *container_config
     steps:
@@ -225,10 +224,10 @@ jobs:
       - store_artifacts:
           path: /tmp/artifacts
 
-  ## [META]
-  ##############################################################################
-  ## Test suite for Drupal-Dev. Remove the lines below in your project.       ##
-  ##############################################################################
+  #<
+  #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+  #| Test suite for Drupal-Dev. Remove the lines below in your project.        |
+  #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
   test_drupal_dev:
     <<: *container_config
     steps:
@@ -256,7 +255,7 @@ jobs:
 
   deploy_drupal_dev_tags:
     <<: *job_deploy_tags
-  ## [/META]
+  #>
 workflows:
   version: 2
   main:
@@ -293,8 +292,8 @@ workflows:
             tags:
               # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)$/
-      ## [META]
-      ## Feature and tag deployment for Drupal-Dev itself. Remove the code below in your project.
+
+      #< Feature and tag deployment for Drupal-Dev itself. Remove the code below in your project.
       - test_drupal_dev:
           filters:
             tags:
@@ -324,4 +323,4 @@ workflows:
               ignore: /.*/
             tags:
               only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
-      ## [/META]
+      #>

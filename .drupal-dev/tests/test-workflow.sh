@@ -50,8 +50,8 @@ mkdir -p "${BUILD_DIR}"
 git archive --format=tar HEAD | (cd "${BUILD_DIR}" && tar -xf -)
 # Special treatment for cases where volumes are not mounted from the host.
 if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
-  sed -i -e "/####/d" "${BUILD_DIR}"/docker-compose.yml
-  sed -i -e "s/###//" "${BUILD_DIR}"/docker-compose.yml
+  sed -i -e "/###/d" "${BUILD_DIR}"/docker-compose.yml
+  sed -i -e "s/##//" "${BUILD_DIR}"/docker-compose.yml
 fi
 
 pushd "${BUILD_DIR}" > /dev/null

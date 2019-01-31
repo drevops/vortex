@@ -26,9 +26,9 @@ docroot/libraries
 !Gruntfile.js
 !.eslintrc.json
 !.sass-lint.yml
-## [META:ACQUIA]
+#< ACQUIA
 !hooks
-## [/META:ACQUIA]
+#> ACQUIA
 # @todo:dev Review and remove below.
 # !.data
 # !tests

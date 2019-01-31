@@ -14,8 +14,10 @@ fi
 
 # Process Docker Compose configuration. This is used to avoid multiple
 # docker-compose.yml files.
-sed -i -e "/####/d" docker-compose.yml
-sed -i -e "s/###//" docker-compose.yml
+# Remove lines containing '###'.
+sed -i -e "/###/d" docker-compose.yml
+# Uncomment lines containing '##'.
+sed -i -e "s/##//" docker-compose.yml
 
 # Pull the latest images.
 ahoy pull
