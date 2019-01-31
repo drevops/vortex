@@ -2,6 +2,7 @@
 #
 # Check Drupal-Dev project requirements.
 #
+set -e
 
 LOCALDEV_URL=${LOCALDEV_URL:-http://mysite.docker.amazee.io/}
 
@@ -33,7 +34,7 @@ main() {
     # @todo: Add more checks for pygmy's services.
   fi
 
-  docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L|grep -vq 'ssh-rsa'" && error "SSH key was not added into container. Run 'pygmy restart'."
+  docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L | grep -vq 'ssh-rsa'" && error "SSH key was not added into container. Run 'pygmy restart'." && exit 1
 
   curl -L -s -o /dev/null -w "%{http_code}" "${LOCALDEV_URL}" | grep -q -v 200 && error "Unable to access ${LOCALDEV_URL}" && exit 1
 
@@ -80,6 +81,7 @@ success() {
 #
 error() {
   cecho red "✘ $1";
+  exit 1
 }
 
 #
