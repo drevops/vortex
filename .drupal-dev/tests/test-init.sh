@@ -2,10 +2,19 @@
 #
 # Test runner for project initialisation tests.
 #
+set -e
 
 CUR_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")/.." && pwd)"
 BUILD_DIR=${BUILD_DIR:-/tmp/drupal-dev-init}
 DRUPAL_VERSION=${DRUPAL_VERSION:-7}
+
+current_command=""
+last_command=""
+
+# keep track of the last executed command
+trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
+# echo an error message before exiting
+trap '[ "$?" != "0" ] && echo "\"${last_command}\" command failed with exit code $?."' EXIT
 
 echo "==> Starting INIT tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
@@ -42,7 +51,8 @@ do
     pushd "${BUILD_DIR}" > /dev/null || exit 1
 
     # Initialise the project.
-    printf "%s" "$input" | ahoy init
+    # shellcheck disable=SC2059
+    printf "$input" | ahoy init
 
     # Run assertions.
     BUILD_DIR=${BUILD_DIR} goss --gossfile "${file}" validate

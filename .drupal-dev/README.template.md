@@ -10,7 +10,7 @@ Drupal 8 implementation of MYSITE
   - [Ahoy](https://github.com/ahoy-cli/ahoy)
 2. Make sure that all local web development services are shut down (apache/nginx, mysql, MAMP etc).
 3. Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
-[]([META:ACQUIA])
+[//]: # (#< ACQUIA)
 4. Add Acquia Cloud credentials to ".env.local" file:
 ```
   # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
@@ -18,7 +18,7 @@ Drupal 8 implementation of MYSITE
   # Acquia Cloud UI->Account->Credentials->Cloud API->Private key
   AC_API_USER_PASS=<YOUR_TOKEN>
 ```
-[]([/META:ACQUIA])
+[//]: # (#> ACQUIA)
 5. `ahoy download-db`
 6. `pygmy up`
 7. `ahoy build`
@@ -114,10 +114,10 @@ If the build has inconsistent results (build fails in CI but passes locally), tr
 ### Test artifacts
 Test artifacts (screenshots etc.) are available under "Artifacts" tab in Circle CI UI.
 
-[]([META:DEPLOYMENT])
+[//]: # (#< DEPLOYMENT)
 ## Deployment
 Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
-[]([/META:DEPLOYMENT]) 
+[//]: # (#> DEPLOYMENT) 
 
 ## FAQs
 Please see [FAQs](FAQs.md)

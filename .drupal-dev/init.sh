@@ -93,19 +93,21 @@ main() {
     rm -Rf hooks > /dev/null
     rm scripts/download-backup-acquia.sh > /dev/null
     rm DEPLOYMENT.md > /dev/null
-    remove_tags_with_content "ACQUIA" "${CUR_DIR}" && bash -c "echo -n ."
-    remove_tags_with_content "DEPLOYMENT" "${CUR_DIR}" && bash -c "echo -n ."
+    remove_special_comments_with_content "ACQUIA" "${CUR_DIR}" && bash -c "echo -n ."
+    remove_special_comments_with_content "DEPLOYMENT" "${CUR_DIR}" && bash -c "echo -n ."
   fi
 
   if [ "$preserve_lagoon_integration" != "Y" ] ; then
     rm drush/aliases.drushrc.php > /dev/null
     rm .lagoon.yml > /dev/null
-    remove_tags_with_content "LAGOON" "${CUR_DIR}" && bash -c "echo -n ."
+    remove_special_comments_with_content "LAGOON" "${CUR_DIR}" && bash -c "echo -n ."
   fi
 
   if [ "$remove_meta" == "Y" ] ; then
-    remove_strings_with_content "## [" "## [/" "${CUR_DIR}" && bash -c "echo -n ."
-    remove_strings "##" "${CUR_DIR}"
+    remove_special_comments_with_content "DEMO" "${CUR_DIR}" && bash -c "echo -n ."
+    remove_special_comments "${CUR_DIR}" "#<"
+    remove_special_comments "${CUR_DIR}" "#>"
+    remove_special_comments "${CUR_DIR}"
   fi
 
   enable_commented_code "${CUR_DIR}"
@@ -131,11 +133,17 @@ replace_string_content() {
   local needle="${1}"
   local replacement="${2}"
   local dir="${3}"
-  if [ "$(uname)" == "Darwin" ]; then
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${needle}" "${dir}" | xargs sed -i '' "s@$needle@$replacement@g"
-  else
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${needle}" "${dir}" | xargs sed -i "s@$needle@$replacement@g"
-  fi
+  local sed_opts
+
+  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  grep -r \
+    --exclude "*.{sh,png,jpg,jpeg}" \
+    --exclude-dir=".git" \
+    --exclude-dir=".idea" \
+    --exclude-dir="vendor" \
+    --exclude-dir="node_modules" \
+    -l "${needle}" "${dir}" \
+    | xargs sed "${sed_opts[@]}" "s@$needle@$replacement@g"
 }
 
 replace_string_filename() {
@@ -146,61 +154,51 @@ replace_string_filename() {
   find "${dir}" -depth -name "*${needle}*" -execdir bash -c 'mv -i "${1}" "${1//'"$needle"'/'"$replacement"'}"' bash {} \;
 }
 
-remove_tags_with_content() {
-  local tag="${1}"
-  local dir="${2}"
+remove_special_comments() {
+  local dir="${1}"
+  local token="${2:-#|}"
+  local sed_opts
 
-  if [ "$(uname)" == "Darwin" ]; then
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$tag\]" "${dir}" | xargs sed -i '' -e "/\[$tag\]/,/\[\/$tag\]/d"
-  else
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$tag\]" "${dir}" | xargs sed -i -e "/\[$tag\]/,/\[\/$tag\]/d"
-  fi
+  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  grep -r \
+    --exclude "*.{sh,png,jpg,jpeg}" \
+    --exclude-dir=".git" \
+    --exclude-dir=".idea" \
+    --exclude-dir="vendor" \
+    --exclude-dir="node_modules" \
+    -l "${token}" "${dir}" \
+    | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/d"
 }
 
-remove_tags() {
-  local tag="${1}"
+remove_special_comments_with_content() {
+  local token="${1}"
   local dir="${2}"
+  local sed_opts
 
-  if [ "$(uname)" == "Darwin" ]; then
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "\[$tag" "${dir}" | xargs sed -i '' -e "/\[$tag/d"
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "\[\/$tag" "${dir}" | xargs sed -i '' -e "/\[\/$tag/d"
-  else
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "\[$tag" "${dir}" | xargs sed -i -e "/\[$tag/d"
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "\[\/$tag" "${dir}" | xargs sed -i -e "/\[\/$tag/d"
-  fi
-}
-
-remove_strings() {
-  local string="${1}"
-  local dir="${2}"
-
-  if [ "$(uname)" == "Darwin" ]; then
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$string" "${dir}" | xargs sed -i '' -e "/$string/d"
-  else
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$string" "${dir}" | xargs sed -i -e "/$string/d"
-  fi
-}
-
-remove_strings_with_content() {
-  local start="${1}"
-  local finish="${2}"
-  local dir="${3}"
-
-  if [ "$(uname)" == "Darwin" ]; then
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$start" "${dir}" | xargs sed -i '' -e "/$start/,/$finish/d"
-  else
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "$start" "${dir}" | xargs sed -i -e "/$start/,/$finish/d"
-  fi
+  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  grep -r \
+    --exclude "*.{sh,png,jpg,jpeg}" \
+    --exclude-dir=".git" \
+    --exclude-dir=".idea" \
+    --exclude-dir="vendor" \
+    --exclude-dir="node_modules" \
+    -l "#> $token" "${dir}" \
+    | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/#< $token/,/#> $token/d"
 }
 
 enable_commented_code() {
   local dir="${1}"
+  local sed_opts
 
-  if [ "$(uname)" == "Darwin" ]; then
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "##### " "${dir}" | xargs sed -i '' -e "s/##### //g"
-  else
-    grep -r --exclude '*.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "##### " "${dir}" | xargs sed -i -e "s/##### //g"
-  fi
+  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  grep -r \
+    --exclude "*.{sh,png,jpg,jpeg}" \
+    --exclude-dir=".git" \
+    --exclude-dir=".idea" \
+    --exclude-dir="vendor" \
+    --exclude-dir="node_modules" \
+    -l "##### " "${dir}" \
+    | xargs sed "${sed_opts[@]}" -e "s/##### //g"
 }
 
 to_lower() {
