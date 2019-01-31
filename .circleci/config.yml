@@ -234,7 +234,7 @@ jobs:
       - checkout
       - run: export DRUPAL_VERSION=8 && .drupal-dev/tests/test-init.sh
       - *step_setup_remote_docker
-      - run: for file in $(find scripts .circleci .drupal-dev -type f -name "*.sh"); do LC_ALL=C.UTF-8 shellcheck $file; done;
+      - run: .drupal-dev/tests/test-scripts.sh
       - run: export VOLUMES_MOUNTED=0 && export DRUPAL_VERSION=8 && .drupal-dev/tests/test-workflow.sh
 
   test_drupal_dev_artefact:
