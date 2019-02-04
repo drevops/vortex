@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+##
+# Drupal-Dev installer.
+#
+# Usage:
+# curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install | bash
+# or
+# curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install | bash -s -- /path/to/destination/directory
+
+
+CUR_DIR=$(pwd)
+# Destination directory, that can be overridden with the first argument to this script.
+DST_DIR="${DST_DIR:-${CUR_DIR}}"
+DST_DIR=${1:-${DST_DIR}}
+
+# Load variables from .env and .env.local files, if they exist.
+[ -f "${DST_DIR}/.env" ] && export "$(grep -v '^#' "${DST_DIR}/.env" | xargs)" && [ -f "${DST_DIR}/.env.local" ] && export "$(grep -v '^#' "${DST_DIR}/.env.local" | xargs)"
+
+# Project name.
+PROJECT=${PROJECT:-}
+# Drupal version to download files for.
+DRUPAL_VERSION=${DRUPAL_VERSION:-8}
+# Flag to allow override existing committed files.
+DRUPALDEV_ALLOW_OVERRIDE=${DRUPALDEV_ALLOW_OVERRIDE:-0}
+# Flag to allow writing downloaded files into local ignore for current repository.
+DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE:-1}
+# Organisation name to download the files from.
+DRUPALDEV_GH_ORG=${DRUPALDEV_GH_ORG:-integratedexperts}
+# Project name to download the files from.
+DRUPALDEV_GH_PROJECT=${DRUPALDEV_GH_PROJECT:-drupal-dev}
+# Optional commit to download. If not provided, latest release will be downloaded.
+DRUPALDEV_GH_COMMIT=${DRUPALDEV_GH_COMMIT:-}
+# Temporary directory to download and expand files to.
+TMP_DIR=$(mktemp -d)
+
+install(){
+  gh_release_prefix="${DRUPAL_VERSION}.x"
+
+  if [ "${PROJECT}" == "" ]; then
+    echo "=> Installing Drupal-Dev (Drupal ${DRUPAL_VERSION}) into ${DST_DIR} directory"
+  else
+    echo "=> Updating Drupal-Dev (Drupal ${DRUPAL_VERSION}) into ${DST_DIR} directory for project ${PROJECT}"
+  fi
+
+  if [ "${DRUPALDEV_GH_COMMIT}" != "" ]; then
+    echo "==> Downloading Drupal-Dev at commit ${DRUPALDEV_GH_COMMIT}"
+    curl -# -L "https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}/archive/${DRUPALDEV_GH_COMMIT}.tar.gz" \
+      | tar xzf - -C "${TMP_DIR}" --strip 1
+    curl_result=$?
+  else
+    # Find the latest version for specified drupal version.
+    # Print found version.
+    # Download archive of this version.
+    release=$(
+      curl -s -L "https://api.github.com/repos/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}/releases" \
+        | grep "\"tag_name\": \"${gh_release_prefix}" \
+        | head -n1 \
+        | sed -E 's/.*"([^"]+)".*/\1/'
+      )
+    [ "$release" == "" ] && error "Unable to find the latest release of Drupal-Dev for Drupal ${DRUPAL_VERSION}"
+
+    echo "==> Downloading the latest version ${release} of Drupal-Dev"
+    curl -# -L "https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}/archive/${release}.tar.gz" \
+      | tar xzf - -C "${TMP_DIR}" --strip 1
+    curl_result=$?
+  fi
+
+  # shellcheck disable=SC2235
+  ([ ${curl_result} -ne 0 ] || [ -z "$(ls -A "${TMP_DIR}")" ] ) && echo "ERROR: Unable to download the project" && exit 1
+
+  [ ! -d "${DST_DIR}" ] && echo "==> Creating destination directory ${DST_DIR}" && mkdir -p "${DST_DIR}"
+
+  # Init project.
+  pushd "${TMP_DIR}" > /dev/null || exit 1
+  .drupal-dev/init.sh "${PROJECT}"
+  popd > /dev/null || cd "${CUR_DIR}" || exit 1
+
+  pushd "${DST_DIR}" > /dev/null || exit 1
+
+  # Traverse through all downloaded files.
+  while IFS= read -r -d '' file
+  do
+    relative_file=${file#"${TMP_DIR}/"}
+    # Only process untracked files - allows to have project-specific overrides
+    # being committed and not overridden OR tracked files are allowed to
+    # be overridden.
+    file_is_tracked="$(git_file_is_tracked "${relative_file}")"
+    if [ "${file_is_tracked}" != "0" ] || [ "${DRUPALDEV_ALLOW_OVERRIDE}" != "0" ]; then
+      mkdir -p "$(dirname "${relative_file}")"
+      cp -f "${file}" "${relative_file}"
+      echo "      Copied file ${relative_file}"
+      # Add files to local ignore (not .gitignore), if all conditions pass:
+      #  - allowed to add to local ignore
+      #  - not already ignored
+      #  - not currently tracked
+      if [ "${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE}" ] && [ -d ./.git/ ] && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] && [ "${file_is_tracked}" != "0" ]; then
+        git_add_to_local_ignore "${relative_file}"
+      fi
+    else
+      echo "      Skipped file ${relative_file}"
+    fi
+  done <   <(find "${TMP_DIR}" -type f -print0)
+
+  popd > /dev/null || cd "${CUR_DIR}" || exit 1
+
+  echo "=> Finished installing Drupal-Dev (Drupal ${DRUPAL_VERSION}) into ${DST_DIR} directory"
+}
+
+# Check if specified file is tracked by git.
+git_file_is_tracked(){
+  if [ -d ./.git/ ]; then
+    git ls-files --error-unmatch "${1}" &>/dev/null
+    echo $?
+  else
+    echo 1
+  fi
+}
+
+# Check if specified file is ignored by git.
+git_file_is_ignored(){
+  if [ -d ./.git/ ]; then
+    git check-ignore "${1}"
+    echo $?
+  else
+    echo 1
+  fi
+}
+
+# Add specified file to local git ignore (not .gitgnore).
+git_add_to_local_ignore(){
+  if [ -d ./.git/ ]; then
+    if ! grep -Fxq "${1}" ./.git/info/exclude; then
+      echo "${1}" >> ./.git/info/exclude
+      echo "==>   Added file $1 to local git ignore"
+    fi
+  fi
+}
+
+install "$@"
