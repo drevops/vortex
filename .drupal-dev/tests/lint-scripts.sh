@@ -14,7 +14,10 @@ done < <(
     "${CUR_DIR}"/scripts \
     "${CUR_DIR}"/.circleci \
     "${CUR_DIR}"/.drupal-dev \
-    -type f -name "*.sh" -print0
+    "${CUR_DIR}"/.drupal-dev/tests/bats \
+    -type f \
+    \( -name "*.sh" -or -name "*.bash" \) \
+    -print0
   )
 
 echo "==> Start linting scripts in ${CUR_DIR}"

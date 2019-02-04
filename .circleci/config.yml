@@ -31,11 +31,12 @@ aliases:
       #| @see https://github.com/integratedexperts/ci-builder
       - image: integratedexperts/ci-builder
         environment:
-          COMPOSE_PROJECT_NAME: mysite
           # How often to cache DB dump for. See 'database' job below for more information.
           # @todo:dev Revert below.
           DB_TIMESTAMP: +%Y_%m_%d_%H_%M
           DB_SEMAPHORE_FILE: /tmp/db-new
+          #| Volumes mounting to host is not supported in CircleCI.
+          VOLUMES_MOUNTED: 0
     #| Use large resource class for faster builds.
     #| Uncomment the line below if your account has this option configured.
     #| resource_class: xlarge
@@ -232,10 +233,11 @@ jobs:
     <<: *container_config
     steps:
       - checkout
-      - run: export DRUPAL_VERSION=8 && .drupal-dev/tests/test-init.sh
       - *step_setup_remote_docker
-      - run: .drupal-dev/tests/test-scripts.sh
-      - run: export VOLUMES_MOUNTED=0 && export DRUPAL_VERSION=8 && .drupal-dev/tests/test-workflow.sh
+      - run: .drupal-dev/tests/lint-scripts.sh
+      - run: bats .drupal-dev/tests/bats/helpers.bats --tap
+      - run: bats .drupal-dev/tests/bats/init.bats --tap
+      - run: bats .drupal-dev/tests/bats/workflow.bats --tap
 
   test_drupal_dev_artefact:
     <<: *container_config
@@ -247,7 +249,7 @@ jobs:
       - *step_configure_git
       - attach_workspace:
           at: /workspace
-      - run: export DRUPAL_VERSION=8 && .drupal-dev/tests/test-artefact.sh /workspace/code
+      - run: SRC_DIR=/workspace/code bats .drupal-dev/tests/bats/artefact.bats --tap
 
   # Deployment of feature branches and tags for Drupal-Dev itself.
   deploy_drupal_dev:

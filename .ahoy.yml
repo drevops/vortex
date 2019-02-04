@@ -20,6 +20,7 @@ commands:
   info:
     usage: Print information about this project.
     cmd: |
+      ahoy line "Project               : " ${PROJECT}
       ahoy line "Site URL              : " ${LOCALDEV_URL}
       ahoy line "Path to project       : " ${APP}
       ahoy line "Path to docroot       : " ${APP}/${WEBROOT}
@@ -238,7 +239,6 @@ entrypoint:
   - |
     [ -f .env ] && export $(grep -v '^#' .env | xargs) && [ -f .env.local ] && export $(grep -v '^#' .env.local | xargs)
     export PROJECT=${PROJECT:-$(basename $(pwd))}
-    export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PROJECT/[ ]/_}}
     export LOCALDEV_URL=${LOCALDEV_URL:-http://${PROJECT/[_ ]/-}.docker.amazee.io}
     #< DEMO
     #| Location of the dummy database used for demonstration only.
