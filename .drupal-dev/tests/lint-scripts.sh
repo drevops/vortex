@@ -19,6 +19,7 @@ done < <(
     \( -name "*.sh" -or -name "*.bash" \) \
     -print0
   )
+targets+=("${CUR_DIR}/install")
 
 echo "==> Start linting scripts in ${CUR_DIR}"
 for file in "${targets[@]}"; do

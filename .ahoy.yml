@@ -214,6 +214,13 @@ commands:
     usage: Run PHPUnit tests.
     # @todo: Implement this.
     cmd: ahoy cli "echo Not implemented"
+
+  update:
+    usage: Update development stack
+    cmd: |
+      cat install | bash -s -- ~/t/t2
+#      curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/feature/8.x-fixes3/install | bash -s -- ~/t/t1
+
   #< DEMO
   init:
     usage: Initialise project.
