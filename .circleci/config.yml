@@ -234,10 +234,8 @@ jobs:
     steps:
       - checkout
       - *step_setup_remote_docker
-      - run: .drupal-dev/tests/lint-scripts.sh
       - run: bats .drupal-dev/tests/bats/helpers.bats --tap
-      - run: bats .drupal-dev/tests/bats/init.bats --tap
-      - run: bats .drupal-dev/tests/bats/workflow.bats --tap
+      - run: bats .drupal-dev/tests/bats/install.bats --tap
 
   test_drupal_dev_artefact:
     <<: *container_config
@@ -262,67 +260,67 @@ workflows:
   version: 2
   main:
     jobs:
-      - database:
-          filters:
-            tags:
-              only: /.*/
-      - build:
-          requires:
-            - database
-          filters:
-            tags:
-              only: /.*/
-      - deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              # Allowed branches:
-              # - master, develop, ci, cisomething
-              # - release/123, release/123.456, release/123.456.789, release/123.456.789-rc123
-              # - hotfix/123, hotfix/123.456, hotfix/123.456.789
-              # - feature/description, feature/123-description, but not feature/8.x-description or feature/7.x-description
-              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-)[a-zA-z0-9\-\.\,]+/
-            tags:
-              ignore: /.*/
-      - deploy_tags:
-          requires:
-            - build
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
-              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)$/
+#      - database:
+#          filters:
+#            tags:
+#              only: /.*/
+#      - build:
+#          requires:
+#            - database
+#          filters:
+#            tags:
+#              only: /.*/
+#      - deploy:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              # Allowed branches:
+#              # - master, develop, ci, cisomething
+#              # - release/123, release/123.456, release/123.456.789, release/123.456.789-rc123
+#              # - hotfix/123, hotfix/123.456, hotfix/123.456.789
+#              # - feature/description, feature/123-description, but not feature/8.x-description or feature/7.x-description
+#              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-)[a-zA-z0-9\-\.\,]+/
+#            tags:
+#              ignore: /.*/
+#      - deploy_tags:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              ignore: /.*/
+#            tags:
+#              # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
+#              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)$/
 
       #< Feature and tag deployment for Drupal-Dev itself. Remove the code below in your project.
       - test_drupal_dev:
           filters:
             tags:
               only: /.*/
-      - test_drupal_dev_artefact:
-          requires:
-            - build
-          filters:
-            tags:
-              only: /.*/
-      - deploy_drupal_dev:
-          requires:
-            - build
-            - test_drupal_dev
-          filters:
-            branches:
-              # Allowed branches: 7.x, 8.x, feature/7.x-description, feature/8.x-description
-              only: /(?:7|8)\.x|feature\/(?:7|8)\.x[a-zA-z0-9\-\.\,]+/
-            tags:
-              ignore: /.*/
-      - deploy_drupal_dev_tags:
-          requires:
-            - build
-            - test_drupal_dev
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
-      #>
+#      - test_drupal_dev_artefact:
+#          requires:
+#            - build
+#          filters:
+#            tags:
+#              only: /.*/
+#      - deploy_drupal_dev:
+#          requires:
+#            - build
+#            - test_drupal_dev
+#          filters:
+#            branches:
+#              # Allowed branches: 7.x, 8.x, feature/7.x-description, feature/8.x-description
+#              only: /(?:7|8)\.x|feature\/(?:7|8)\.x[a-zA-z0-9\-\.\,]+/
+#            tags:
+#              ignore: /.*/
+#      - deploy_drupal_dev_tags:
+#          requires:
+#            - build
+#            - test_drupal_dev
+#          filters:
+#            branches:
+#              ignore: /.*/
+#            tags:
+#              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
+#      #>
