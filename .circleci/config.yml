@@ -234,8 +234,10 @@ jobs:
     steps:
       - checkout
       - *step_setup_remote_docker
+      - run: .drupal-dev/tests/lint-scripts.sh || true
       - run: bats .drupal-dev/tests/bats/helpers.bats --tap
       - run: bats .drupal-dev/tests/bats/install.bats --tap
+      - run: bats .drupal-dev/tests/bats/workflow.bats --tap
 
   test_drupal_dev_artefact:
     <<: *container_config

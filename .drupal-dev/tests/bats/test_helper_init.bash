@@ -4,10 +4,9 @@
 #
 
 setup(){
-  CUR_DIR="$(pwd)"
-  BUILD_DIR=${BUILD_DIR:-/tmp/drupal-dev-bats}
   DRUPAL_VERSION=${DRUPAL_VERSION:-8}
-
+  CUR_DIR="$(pwd)"
+  BUILD_DIR="${BUILD_DIR:-"${BATS_TMPDIR}/drupal-dev-bats"}"
   prepare_fixture_dir "${BUILD_DIR}"
   pushd "${BUILD_DIR}" > /dev/null || exit 1
 }
@@ -24,13 +23,16 @@ init_project(){
 }
 
 copy_code(){
+  local dst="${1:-${BUILD_DIR}}"
   pushd "${CUR_DIR}" > /dev/null || exit 1
   # Copy latest commit to the build directory.
-  git archive --format=tar HEAD | (cd "${BUILD_DIR}" && tar -xf -)
-  popd > /dev/null || cd "${CUR_DIR}" || exit 1
+  git archive --format=tar HEAD | (cd "${dst}" && tar -xf -)
+  popd > /dev/null || exit 1
 }
 
 assert_files_init_common(){
+  local suffix=${1:-star_wars}
+
   # All Drupal-Dev own files removed.
   assert_dir_not_exists .drupal-dev
   # Stub profile removed.
@@ -41,23 +43,23 @@ assert_files_init_common(){
   assert_dir_not_exists docroot/themes/custom/mysitetheme
 
   # Site profile created.
-  assert_dir_exists docroot/profiles/custom/star_wars_profile
-  assert_file_exists docroot/profiles/custom/star_wars_profile/star_wars_profile.info.yml
+  assert_dir_exists docroot/profiles/custom/${suffix}_profile
+  assert_file_exists docroot/profiles/custom/${suffix}_profile/${suffix}_profile.info.yml
   # Site core module created.
-  assert_dir_exists docroot/modules/custom/star_wars_core
-  assert_file_exists docroot/modules/custom/star_wars_core/star_wars_core.info.yml
-  assert_file_exists docroot/modules/custom/star_wars_core/star_wars_core.install
-  assert_file_exists docroot/modules/custom/star_wars_core/star_wars_core.module
-  assert_file_exists docroot/modules/custom/star_wars_core/star_wars_core.constants.php
+  assert_dir_exists docroot/modules/custom/${suffix}_core
+  assert_file_exists docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml
+  assert_file_exists docroot/modules/custom/${suffix}_core/${suffix}_core.install
+  assert_file_exists docroot/modules/custom/${suffix}_core/${suffix}_core.module
+  assert_file_exists docroot/modules/custom/${suffix}_core/${suffix}_core.constants.php
 
   # Site theme created.
-  assert_dir_exists docroot/themes/custom/star_wars
-  assert_file_exists docroot/themes/custom/star_wars/js/star_wars.js
-  assert_dir_exists docroot/themes/custom/star_wars/scss
-  assert_file_exists docroot/themes/custom/star_wars/.gitignore
-  assert_file_exists docroot/themes/custom/star_wars/star_wars.info.yml
-  assert_file_exists docroot/themes/custom/star_wars/star_wars.libraries.yml
-  assert_file_exists docroot/themes/custom/star_wars/star_wars.theme
+  assert_dir_exists docroot/themes/custom/${suffix}
+  assert_file_exists docroot/themes/custom/${suffix}/js/${suffix}.js
+  assert_dir_exists docroot/themes/custom/${suffix}/scss
+  assert_file_exists docroot/themes/custom/${suffix}/.gitignore
+  assert_file_exists docroot/themes/custom/${suffix}/${suffix}.info.yml
+  assert_file_exists docroot/themes/custom/${suffix}/${suffix}.libraries.yml
+  assert_file_exists docroot/themes/custom/${suffix}/${suffix}.theme
 
   # Settings files exist.
   # @note The permissions can be 644 or 664 depending on the umask of OS. Also,

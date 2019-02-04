@@ -86,7 +86,8 @@
                 ".gitattributes",
                 "index.php",
                 "robots.txt",
-                "update.php"
+                "update.php",
+                ".htaccess"
             ],
             "initial": {
                 "sites/default/default.services.yml": "sites/default/services.yml",

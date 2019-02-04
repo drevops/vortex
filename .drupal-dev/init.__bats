@@ -7,6 +7,7 @@ load test_helper
 load test_helper_init
 
 @test "Init all" {
+  skip
   copy_code
 
   init_project 'Star Wars\n\n\n\n\n\n\n\n'
@@ -50,6 +51,7 @@ load test_helper_init
 }
 
 @test "Init none" {
+  skip
   copy_code
 
   init_project 'Star Wars\n\n\n\n\nno\nno\n\n'

@@ -17,12 +17,14 @@ docroot/profiles/*
 !docroot/sites/default/
 docroot/sites/default/*
 !docroot/sites/default/settings.php
-!docroot/sites/default/default.settings.local.php
 !docroot/sites/default/services.yml
+#< DEMO
+#| Default settings and services files not ignored in Drupal-Dev itself.
+!docroot/sites/default/default.settings.local.php
 !docroot/sites/default/default.services.local.yml
-!docroot/.htaccess
+#> DEMO
 
-# Ignore dependencies cache files
+# Ignore dependencies cache files.
 vendor
 node_modules
 

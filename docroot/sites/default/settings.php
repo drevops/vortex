@@ -91,6 +91,7 @@ $settings['entity_update_batch_size'] = 50;
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
 ////////////////////////////////////////////////////////////////////////////////
 
+#< ACQUIA
 // Include Acquia settings.
 // @see https://docs.acquia.com/acquia-cloud/develop/env-variable
 if (file_exists('/var/www/site-php')) {
@@ -114,6 +115,7 @@ if (file_exists('/var/www/site-php')) {
       break;
   }
 }
+#> ACQUIA
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-ENVIRONMENT SETTINGS                           ///

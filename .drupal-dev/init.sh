@@ -46,12 +46,16 @@ main() {
     site_name=$(to_human_name "$(basename "${CUR_DIR}")")
     site_name=$(ask "What is your site name? [${site_name}]" "${site_name}")
     site_short=$(to_machine_name "${site_name}")
+
     site_short=$(ask "What is your site machine name? [${site_short}]" "${site_short}")
+
     site_short=$(to_machine_name "${site_short}")
     site_theme=$(ask "What is your theme machine name? [${site_short}]" "${site_short}")
+
     site_theme=$(to_machine_name "${site_theme}")
     site_url=${site_short//_/-}
     site_url=$(ask "What is your site URL? [${site_url}.com]" "${site_url}")
+
     org=$(ask "What is your organization name? [${site_short}_org] " "${site_short}")
     org_short=$(to_machine_name "$org")
     preserve_acquia_integration=Y
