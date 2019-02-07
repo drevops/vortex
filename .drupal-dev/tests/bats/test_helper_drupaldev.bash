@@ -232,6 +232,14 @@ assert_added_files_no_integration_lagoon(){
   popd > /dev/null
 }
 
+assert_git_repo(){
+ [ -d "${1}/.git" ]
+}
+
+assert_not_git_repo(){
+ [ ! -d "${1}/.git" ]
+}
+
 ################################################################################
 #                               UTILITIES                                      #
 ################################################################################
@@ -270,11 +278,8 @@ prepare_local_repo(){
     copy_code "${dir}"
   fi
 
-  pushd "${dir}" > /dev/null || exit 1
-
-  commit=$(git_add_all_files)
-
-  popd > /dev/null || cd "${CUR_DIR}" || exit 1
+  git_init "${dir}"
+  commit=$(git_add_all "${dir}" "Initial commit")
 
   echo ${commit}
 }
@@ -285,9 +290,18 @@ git_add(){
   git --work-tree="${dir}" --git-dir="${dir}/.git" add "${dir}/${file}" > /dev/null
 }
 
+git_add_force(){
+  local dir="${1}"
+  local file="${2}"
+  git --work-tree="${dir}" --git-dir="${dir}/.git" add -f "${dir}/${file}" > /dev/null
+}
+
 git_commit(){
   local dir="${1}"
   local message="${2}"
+
+  assert_git_repo "${1}"
+
   git --work-tree="${dir}" --git-dir="${dir}/.git" commit -m "${message}" > /dev/null
   commit=$(git --work-tree="${dir}" --git-dir="${dir}/.git" rev-parse HEAD)
   echo "${commit}"
@@ -296,15 +310,18 @@ git_commit(){
 git_add_all(){
   local dir="${1}"
   local message="${2}"
-  git add -A
+
+  assert_git_repo "${1}"
+
+  git --work-tree="${dir}" --git-dir="${dir}/.git" add -A
   git --work-tree="${dir}" --git-dir="${dir}/.git" commit -m "${message}" > /dev/null
-  commit=$(git rev-parse HEAD)
+  commit=$(git --work-tree="${dir}" --git-dir="${dir}/.git" rev-parse HEAD)
   echo "${commit}"
 }
 
 git_init(){
   local dir="${1}"
-  git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
-  git config user.name "someone"
-  git config user.email "someone@someplace.com"
+  assert_not_git_repo "${1}" && git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
+  git --work-tree="${dir}" --git-dir="${dir}/.git" config user.name "someone"
+  git --work-tree="${dir}" --git-dir="${dir}/.git" config user.email "someone@someplace.com"
 }

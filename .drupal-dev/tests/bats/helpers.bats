@@ -65,6 +65,11 @@ load test_helper_drupaldev
   echo "some existing text" > "${BATS_TMPDIR}/fixture/1.txt"
   assert_dir_contains_string "${BATS_TMPDIR}/fixture" "existing"
   assert_dir_not_contains_string "${BATS_TMPDIR}/fixture" "non-existing"
+
+  prepare_fixture_dir "${BATS_TMPDIR}/fixture/git_repo"
+  assert_not_git_repo "${BATS_TMPDIR}/fixture/git_repo"
+  git --work-tree="${BATS_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TMPDIR}/fixture/git_repo/.git" init > /dev/null
+  assert_git_repo "${BATS_TMPDIR}/fixture/git_repo"
 }
 
 @test "Variables" {

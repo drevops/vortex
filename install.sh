@@ -24,6 +24,8 @@ PROJECT="${PROJECT:-}"
 DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
 # Flag to run this install in interactive mode with user input.
 DRUPALDEV_IS_INTERACTIVE="${DRUPALDEV_IS_INTERACTIVE:-0}"
+# Flag to init git repository.
+DRUPALDEV_INIT_REPO="${DRUPALDEV_INIT_REPO:-1}"
 # Flag to allow override existing committed files.
 DRUPALDEV_ALLOW_OVERRIDE="${DRUPALDEV_ALLOW_OVERRIDE:-0}"
 # Flag to allow writing downloaded files into local ignore for current repository.
@@ -58,6 +60,10 @@ install(){
   if [ "${proceed}" != "Y" ] ; then
     echo
     echo "Aborting project initialisation. No files were changed." && cleanup && return;
+  fi
+
+  if [ ${DRUPALDEV_INIT_REPO} -eq 1 ]; then
+    git_init "${DST_DIR}"
   fi
 
   process_stub "${DRUPALDEV_TMP_DIR}"
@@ -108,7 +114,7 @@ download_local(){
   local src="${1}"
   local dst="${2}"
   local commit="${3:-HEAD}"
-  echo "DEBUG: Downloading from the local repo"
+  [ ${DRUPALDEV_DEBUG} -ne 0 ] && echo "DEBUG: Downloading from the local repo"
 
   echo "==> Downloading Drupal-Dev at ref ${commit} from local repo ${src}"
   git --git-dir="${src}/.git" --work-tree="${src}" archive --format=tar "${commit}" \
@@ -121,6 +127,7 @@ download_remote(){
   local project="${3}"
   local release_prefix="${4}"
   local commit="${5:-}"
+  [ ${DRUPALDEV_DEBUG} -ne 0 ] && echo "DEBUG: Downloading from the remote repo"
 
   if [ "${commit}" != "" ]; then
     echo "==> Downloading Drupal-Dev at commit ${commit}"
@@ -398,6 +405,13 @@ get_value(){
   fi
 
   echo "${default}"
+}
+
+git_init(){
+  local dir="${1}"
+  [ -d "${dir}/.git" ] && return
+  [ ${DRUPALDEV_DEBUG} -ne 0 ] && echo "DEBUG: Initialising new git repository"
+  git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
 }
 
 # Helper to print all resolved variables.

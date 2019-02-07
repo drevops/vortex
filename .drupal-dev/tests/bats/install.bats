@@ -10,12 +10,14 @@ load test_helper_drupaldev
   run_install
 
   assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
 
 @test "Install: empty directory; DST_DIR as argument" {
   run_install "${DST_PROJECT_DIR}"
 
   assert_added_files "${DST_PROJECT_DIR}"
+  assert_git_repo "${DST_PROJECT_DIR}"
 }
 
 @test "Install: empty directory; DST_DIR from env variable" {
@@ -23,6 +25,7 @@ load test_helper_drupaldev
   run_install
 
   assert_added_files "${DST_PROJECT_DIR}"
+  assert_git_repo "${DST_PROJECT_DIR}"
 }
 
 @test "Install: empty directory; PROJECT from env variable" {
@@ -30,6 +33,7 @@ load test_helper_drupaldev
   run_install
 
   assert_added_files "${CURRENT_PROJECT_DIR}" "the_matrix"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
 
 @test "Install: empty directory; PROJECT from .env file" {
@@ -38,6 +42,7 @@ load test_helper_drupaldev
   run_install
 
   assert_added_files "${CURRENT_PROJECT_DIR}" "the_matrix"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
 
 @test "Install: empty directory; PROJECT from .env.local file" {
@@ -48,6 +53,7 @@ load test_helper_drupaldev
   run_install
 
   assert_added_files "${CURRENT_PROJECT_DIR}" "the_matrix"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
 
 @test "Install: directory with custom files" {
@@ -68,7 +74,9 @@ load test_helper_drupaldev
 
 @test "Install: existing non-git project; current version" {
   # Populate current dir with a project at current version.
+  export DRUPALDEV_INIT_REPO=0
   run_install
+  assert_not_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Assert files at current version.
   assert_added_files "${CURRENT_PROJECT_DIR}"
@@ -79,7 +87,11 @@ load test_helper_drupaldev
   mkdir -p "${CURRENT_PROJECT_DIR}/.docker"
   touch "${CURRENT_PROJECT_DIR}/.docker/test2.txt"
 
+  unset DRUPALDEV_INIT_REPO
   run_install
+
+  # Assert that a directory became a git repository.
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Assert no changes were made.
   assert_added_files "${CURRENT_PROJECT_DIR}"
@@ -96,6 +108,7 @@ load test_helper_drupaldev
 
   # Assert files at current version.
   assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Add custom files
   touch "${CURRENT_PROJECT_DIR}/test1.txt"
@@ -104,12 +117,13 @@ load test_helper_drupaldev
   touch "${CURRENT_PROJECT_DIR}/.docker/test2.txt"
 
   # Add all files to git repo.
-  prepare_local_repo "${CURRENT_PROJECT_DIR}" 0
+  git_add_all "${CURRENT_PROJECT_DIR}" "Second commit"
 
   run_install
 
   # Assert no changes were made.
   assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Assert that custom file preserved.
   assert_file_exists "${CURRENT_PROJECT_DIR}/test1.txt"
@@ -126,6 +140,7 @@ load test_helper_drupaldev
 
   # Assert files at current version.
   assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Add custom files
   touch "${CURRENT_PROJECT_DIR}/test1.txt"
@@ -136,8 +151,10 @@ load test_helper_drupaldev
   # Modify Drupal-Dev files.
   echo "SOMEVAR=\"someval\"" >> "${CURRENT_PROJECT_DIR}/.env"
 
+  # .env would be excluded locally - so force-add it.
+  git_add_force "${CURRENT_PROJECT_DIR}" ".env"
   # Add all files to git repo.
-  prepare_local_repo "${CURRENT_PROJECT_DIR}" 0
+  git_add_all "${CURRENT_PROJECT_DIR}" "Second commit"
 
   run_install
 
@@ -161,6 +178,7 @@ load test_helper_drupaldev
 
   # Assert files at current version.
   assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Add custom files
   touch "${CURRENT_PROJECT_DIR}/test1.txt"
@@ -171,8 +189,10 @@ load test_helper_drupaldev
   # Modify Drupal-Dev files.
   echo "SOMEVAR=\"someval\"" >> "${CURRENT_PROJECT_DIR}/.env"
 
+  # .env would be excluded locally - so force-add it.
+  git_add_force "${CURRENT_PROJECT_DIR}" ".env"
   # Add all files to git repo.
-  prepare_local_repo "${CURRENT_PROJECT_DIR}" 0
+  git_add_all "${CURRENT_PROJECT_DIR}" "Second commit"
 
   echo "DRUPALDEV_ALLOW_OVERRIDE=1" >> "${CURRENT_PROJECT_DIR}/.env.local"
 
@@ -180,6 +200,7 @@ load test_helper_drupaldev
 
   # Assert no changes were made.
   assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Assert that custom file preserved.
   assert_file_exists "${CURRENT_PROJECT_DIR}/test1.txt"
@@ -200,11 +221,15 @@ load test_helper_drupaldev
   mkdir -p "${CURRENT_PROJECT_DIR}/.docker"
   touch "${CURRENT_PROJECT_DIR}/.docker/test2.txt"
 
+  git_init "${CURRENT_PROJECT_DIR}"
+
   # Add all files to git repo.
-  prepare_local_repo "${CURRENT_PROJECT_DIR}" 0
+  git_add_all "${CURRENT_PROJECT_DIR}" "First commit"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   run_install
   assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Commit files required to run the project.
   git_add "${CURRENT_PROJECT_DIR}" .circleci/config.yml
@@ -230,6 +255,7 @@ load test_helper_drupaldev
   # Run install to update to the latest Drupal-Dev version.
   run_install
   assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Assert that non-committed file was updated.
   assert_file_contains "${CURRENT_PROJECT_DIR}/docker-compose.yml" "# Some change to docker-compose"
@@ -244,6 +270,7 @@ load test_helper_drupaldev
   export DRUPALDEV_OPT_PRESERVE_LAGOON=1
 
   run_install
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   assert_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
   assert_added_files_no_integration_acquia "${CURRENT_PROJECT_DIR}"
@@ -254,6 +281,7 @@ load test_helper_drupaldev
   export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
 
   run_install
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   assert_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
   assert_added_files_no_integration_acquia "${CURRENT_PROJECT_DIR}"
@@ -264,15 +292,17 @@ load test_helper_drupaldev
   export DRUPALDEV_OPT_PRESERVE_LAGOON=0
 
   run_install
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   assert_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
   assert_added_files_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_added_files_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
 }
 
-@test "Install: empty directory; from specific commit" {
+@test "Install: empty directory; install Drupal-Dev from specific commit" {
   run_install
   assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Releasing 2 new versions of Drupal-Dev.
   echo "# Some change to docker-compose at commit 1" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
@@ -286,6 +316,7 @@ load test_helper_drupaldev
   # Requiring bespoke version by commit.
   echo "DRUPALDEV_COMMIT=${commit1}" >> "${CURRENT_PROJECT_DIR}/.env.local"
   run_install
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   assert_added_files "${CURRENT_PROJECT_DIR}"
   assert_file_contains "${CURRENT_PROJECT_DIR}/docker-compose.yml" "# Some change to docker-compose at commit 1"
