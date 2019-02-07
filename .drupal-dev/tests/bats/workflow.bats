@@ -4,7 +4,7 @@
 #
 
 load test_helper
-load test_helper_init
+load test_helper_drupaldev
 
 @test "Workflow" {
   DRUPAL_VERSION=${DRUPAL_VERSION:-8}

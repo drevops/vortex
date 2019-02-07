@@ -4,7 +4,7 @@
 #
 
 load test_helper
-load test_helper_init
+load test_helper_drupaldev
 
 # Testing test system itself.
 @test "Assertions" {

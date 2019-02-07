@@ -221,12 +221,6 @@ commands:
       cat install | bash -s -- ~/t/t2
 #      curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/feature/8.x-fixes3/install | bash -s -- ~/t/t1
 
-  #< DEMO
-  init:
-    usage: Initialise project.
-    cmd: . .drupal-dev/init.sh "$@"
-  #> DEMO
-
   # Utilities.
   confirm:
     cmd: read -r -p "{{args}} [y/N] " response; if [ $response = y ]; then true; else false; fi

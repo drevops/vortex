@@ -35,7 +35,7 @@ DRUPALDEV_GH_ORG="${DRUPALDEV_GH_ORG:-integratedexperts}"
 # Project name to download the files from.
 DRUPALDEV_GH_PROJECT="${DRUPALDEV_GH_PROJECT:-drupal-dev}"
 # Optional commit to download. If not provided, latest release will be downloaded.
-DRUPALDEV_GH_COMMIT="${DRUPALDEV_GH_COMMIT:-}"
+DRUPALDEV_COMMIT="${DRUPALDEV_COMMIT:-}"
 # Flag to display debug information.
 DRUPALDEV_DEBUG="${DRUPALDEV_DEBUG:-}"
 # Temporary directory to download and expand files to.
@@ -44,10 +44,10 @@ DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
 install(){
   if [ "${DRUPALDEV_LOCAL_REPO}" != "" ]; then
     echo "==> Downloading Drupal-Dev from local repository ${DRUPALDEV_LOCAL_REPO}"
-    download_local "${DRUPALDEV_LOCAL_REPO}" "${DRUPALDEV_TMP_DIR}"
+    download_local "${DRUPALDEV_LOCAL_REPO}" "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_COMMIT}"
   else
     echo "==> Downloading Drupal-Dev from remote repository https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}"
-    download_remote "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_GH_ORG}" "${DRUPALDEV_GH_PROJECT}" "${DRUPAL_VERSION}.x" "${DRUPALDEV_GH_COMMIT}"
+    download_remote "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_GH_ORG}" "${DRUPALDEV_GH_PROJECT}" "${DRUPAL_VERSION}.x" "${DRUPALDEV_COMMIT}"
   fi
 
   gather_answers "${DRUPALDEV_IS_INTERACTIVE}"
@@ -107,10 +107,11 @@ gather_project_name(){
 download_local(){
   local src="${1}"
   local dst="${2}"
+  local commit="${3:-HEAD}"
   echo "DEBUG: Downloading from the local repo"
 
-  echo "==> Downloading Drupal-Dev at latest commit from local repo ${src}"
-  git --git-dir="${src}/.git" --work-tree="${src}" archive --format=tar HEAD \
+  echo "==> Downloading Drupal-Dev at ref ${commit} from local repo ${src}"
+  git --git-dir="${src}/.git" --work-tree="${src}" archive --format=tar "${commit}" \
     | tar xf - -C "${dst}"
 }
 
