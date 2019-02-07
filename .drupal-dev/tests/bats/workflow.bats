@@ -20,8 +20,6 @@ load test_helper_drupaldev
 
   debug "==> Starting WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
-  copy_code
-
   # Special treatment for cases where volumes are not mounted from the host.
   if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
     sed -i -e "/###/d" docker-compose.yml
@@ -30,9 +28,9 @@ load test_helper_drupaldev
     assert_file_not_contains docker-compose.yml "##"
   fi
 
-  step "Initialise the project"
-  init_project 'Star Wars\n\n\n\n\nno\n\n\n'
-  assert_files_init_common
+  step "Initialise the project with default settings"
+  run_install
+  assert_added_files "${CURRENT_PROJECT_DIR}"
 
   step "Create .env.local file"
   {
@@ -43,11 +41,8 @@ load test_helper_drupaldev
   } >> .env.local
 
   step "Add all files to new git repo"
-  git init
-  git config user.name "someone"
-  git config user.email "someone@someplace.com"
-  git add -A
-  git commit -m "First commit" > /dev/null
+  git_init
+  git_add_all
 
   step "Download the database"
   assert_file_not_exists .data/db.sql

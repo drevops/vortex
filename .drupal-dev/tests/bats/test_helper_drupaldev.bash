@@ -52,8 +52,24 @@ teardown(){
 #                               ASSERTIONS                                     #
 ################################################################################
 
-assert_files_init_common(){
-  local suffix=${1:-star_wars}
+assert_added_files(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  assert_added_files_no_integrations "${dir}" "${suffix}"
+
+  # Assert Acquia integration preserved.
+  assert_added_files_integration_acquia "${dir}" "${suffix}"
+
+  # Assert Lagoon integration preserved.
+  assert_added_files_integration_lagoon "${dir}" "${suffix}"
+}
+
+assert_added_files_no_integrations(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null
 
   # All Drupal-Dev own files removed.
   assert_dir_not_exists .drupal-dev
@@ -111,29 +127,6 @@ assert_files_init_common(){
   assert_dir_not_contains_string "#|"
   assert_dir_not_contains_string "#<"
   assert_dir_not_contains_string "#>"
-}
-
-
-assert_added_files(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-
-  assert_added_files_no_integrations "${dir}" "${suffix}"
-
-  # Assert Acquia integration preserved.
-  assert_added_files_integration_acquia "${dir}" "${suffix}"
-
-  # Assert Lagoon integration preserved.
-  assert_added_files_integration_lagoon "${dir}" "${suffix}"
-}
-
-assert_added_files_no_integrations(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-
-  pushd "${dir}" > /dev/null
-
-  assert_files_init_common "${suffix}"
 
   # Assert that project name is correct.
   assert_file_contains .env "PROJECT=\"${suffix}\""
@@ -279,12 +272,7 @@ prepare_local_repo(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  git init > /dev/null
-  git config user.name "someone"
-  git config user.email "someone@someplace.com"
-  git add -A
-  git commit -m "First commit" > /dev/null
-  commit=$(git rev-parse HEAD)
+  commit=$(git_add_all_files)
 
   popd > /dev/null || cd "${CUR_DIR}" || exit 1
 
@@ -303,4 +291,20 @@ git_commit(){
   git --work-tree="${dir}" --git-dir="${dir}/.git" commit -m "${message}" > /dev/null
   commit=$(git --work-tree="${dir}" --git-dir="${dir}/.git" rev-parse HEAD)
   echo "${commit}"
+}
+
+git_add_all(){
+  local dir="${1}"
+  local message="${2}"
+  git add -A
+  git --work-tree="${dir}" --git-dir="${dir}/.git" commit -m "${message}" > /dev/null
+  commit=$(git rev-parse HEAD)
+  echo "${commit}"
+}
+
+git_init(){
+  local dir="${1}"
+  git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
+  git config user.name "someone"
+  git config user.email "someone@someplace.com"
 }
