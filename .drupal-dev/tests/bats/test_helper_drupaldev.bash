@@ -322,6 +322,4 @@ git_add_all(){
 git_init(){
   local dir="${1}"
   assert_not_git_repo "${1}" && git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
-  git --work-tree="${dir}" --git-dir="${dir}/.git" config user.name "someone"
-  git --work-tree="${dir}" --git-dir="${dir}/.git" config user.email "someone@someplace.com"
 }

@@ -61,6 +61,11 @@ load test_helper_drupaldev
   assert_file_contains "${BATS_TMPDIR}/fixture_file_assert/1.txt" "some existing text"
   assert_file_not_contains "${BATS_TMPDIR}/fixture_file_assert/1.txt" "other non-existing text"
 
+  prepare_fixture_dir "${BATS_TMPDIR}/fixture/dir"
+  assert_dir_empty "${BATS_TMPDIR}/fixture/dir"
+  echo "some existing text" > "${BATS_TMPDIR}/fixture/dir/1.txt"
+  assert_dir_not_empty "${BATS_TMPDIR}/fixture/dir"
+
   prepare_fixture_dir "${BATS_TMPDIR}/fixture"
   echo "some existing text" > "${BATS_TMPDIR}/fixture/1.txt"
   assert_dir_contains_string "${BATS_TMPDIR}/fixture" "existing"

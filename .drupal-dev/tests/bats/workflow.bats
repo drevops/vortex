@@ -31,6 +31,7 @@ load test_helper_drupaldev
   step "Initialise the project with default settings"
   run_install
   assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   step "Create .env.local file"
   {
@@ -41,8 +42,7 @@ load test_helper_drupaldev
   } >> .env.local
 
   step "Add all files to new git repo"
-  git_init
-  git_add_all
+  git_add_all "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
 
   step "Download the database"
   assert_file_not_exists .data/db.sql
@@ -51,14 +51,9 @@ load test_helper_drupaldev
 
   step "Build project"
   ahoy build >&3
-
-  debug "------------------------"
-  debug "$(docker-compose -p star_wars ps -q cli)"
-  debug "------------------------"
-
   sync_to_host
 
-  assert_files_init_common
+  assert_added_files "${CURRENT_PROJECT_DIR}"
 
   # Assert generated settings file exists.
   assert_file_exists docroot/sites/default/settings.generated.php
@@ -78,8 +73,14 @@ load test_helper_drupaldev
   # @todo: Add test that the correct DB was loaded (e.g. CURL and grep for page title).
 
   step "Enable development settings"
+  assert_file_not_exists docroot/sites/default/settings.local.php
+  assert_file_not_exists docroot/sites/default/services.local.yml
+  assert_file_exists docroot/sites/default/default.settings.local.php
+  assert_file_exists docroot/sites/default/default.services.local.yml
   cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
   cp docroot/sites/default/default.services.local.yml docroot/sites/default/services.local.yml
+  assert_file_exists docroot/sites/default/settings.local.php
+  assert_file_exists docroot/sites/default/services.local.yml
 
   step "Run generic command"
   ahoy cli "echo Test"
@@ -97,7 +98,7 @@ load test_helper_drupaldev
   step "Run single Behat test"
   ahoy test-behat tests/behat/features/homepage.feature
   sync_to_host
-  [ -z "$(ls -A screenshots)" ] && flunk "Behat screenshots were not created"
+  assert_dir_not_empty screenshots
 
   step "Build FE assets"
   echo "\$body-bg: \$color-white;" >> docroot/themes/custom/star_wars/scss/_variables.scss
@@ -114,7 +115,7 @@ load test_helper_drupaldev
 
   step "Clean"
   ahoy clean
-  assert_files_init_common
+  assert_added_files "${CURRENT_PROJECT_DIR}"
   assert_file_not_exists docroot/index.php
   assert_dir_not_exists docroot/modules/contrib
   assert_dir_not_exists docroot/themes/contrib

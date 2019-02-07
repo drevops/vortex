@@ -98,6 +98,18 @@ assert_dir_not_exists(){
   return 0
 }
 
+assert_dir_empty(){
+  local dir="${1}"
+  [ "$(ls -A "${dir}")" ] && flunk "Directory ${dir} exists, but should not"
+  return 0
+}
+
+assert_dir_not_empty(){
+  local dir="${1}"
+  [ -z "$(ls -A "${dir}")" ] && flunk "Directory ${dir} exists, but should not"
+  return 0
+}
+
 assert_symlink_exists(){
   local file="${1}"
   [ ! -h "${file}" ] && flunk "Symlink ${file} does not exist"
