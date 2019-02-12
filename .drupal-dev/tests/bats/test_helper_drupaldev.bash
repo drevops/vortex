@@ -41,7 +41,7 @@ setup(){
   prepare_fixture_dir "${APP_TMP_DIR}"
   pushd "${BUILD_DIR}" > /dev/null || exit 1
 
-  LOCAL_REPO_COMMIT="$(prepare_local_repo "${LOCAL_REPO_DIR}")"
+  prepare_local_repo "${LOCAL_REPO_DIR}"
 }
 
 teardown(){
@@ -69,53 +69,53 @@ assert_added_files_no_integrations(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
-  pushd "${dir}" > /dev/null
+  pushd "${dir}" > /dev/null || exit 1
 
   # All Drupal-Dev own files removed.
-  assert_dir_not_exists .drupal-dev
+  assert_dir_not_exists ".drupal-dev"
   # Stub profile removed.
-  assert_dir_not_exists docroot/profiles/custom/mysite_profile
+  assert_dir_not_exists "docroot/profiles/custom/mysite_profile"
   # Stub code module removed.
-  assert_dir_not_exists docroot/modules/custom/mysite_core
+  assert_dir_not_exists "docroot/modules/custom/mysite_core"
   # Stub theme removed.
-  assert_dir_not_exists docroot/themes/custom/mysitetheme
+  assert_dir_not_exists "docroot/themes/custom/mysitetheme"
 
   # Site profile created.
-  assert_dir_exists docroot/profiles/custom/${suffix}_profile
-  assert_file_exists docroot/profiles/custom/${suffix}_profile/${suffix}_profile.info.yml
+  assert_dir_exists "docroot/profiles/custom/${suffix}_profile"
+  assert_file_exists "docroot/profiles/custom/${suffix}_profile/${suffix}_profile.info.yml"
   # Site core module created.
-  assert_dir_exists docroot/modules/custom/${suffix}_core
-  assert_file_exists docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml
-  assert_file_exists docroot/modules/custom/${suffix}_core/${suffix}_core.install
-  assert_file_exists docroot/modules/custom/${suffix}_core/${suffix}_core.module
-  assert_file_exists docroot/modules/custom/${suffix}_core/${suffix}_core.constants.php
+  assert_dir_exists "docroot/modules/custom/${suffix}_core"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.install"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.module"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.constants.php"
 
   # Site theme created.
-  assert_dir_exists docroot/themes/custom/${suffix}
-  assert_file_exists docroot/themes/custom/${suffix}/js/${suffix}.js
-  assert_dir_exists docroot/themes/custom/${suffix}/scss
-  assert_file_exists docroot/themes/custom/${suffix}/.gitignore
-  assert_file_exists docroot/themes/custom/${suffix}/${suffix}.info.yml
-  assert_file_exists docroot/themes/custom/${suffix}/${suffix}.libraries.yml
-  assert_file_exists docroot/themes/custom/${suffix}/${suffix}.theme
+  assert_dir_exists "docroot/themes/custom/${suffix}"
+  assert_file_exists "docroot/themes/custom/${suffix}/js/${suffix}.js"
+  assert_dir_exists "docroot/themes/custom/${suffix}/scss"
+  assert_file_exists "docroot/themes/custom/${suffix}/.gitignore"
+  assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.info.yml"
+  assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.libraries.yml"
+  assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.theme"
 
   # Settings files exist.
   # @note The permissions can be 644 or 664 depending on the umask of OS. Also,
   # git only track 644 or 755.
-  assert_file_exists docroot/sites/default/settings.php
-  assert_file_mode docroot/sites/default/settings.php "644"
+  assert_file_exists "docroot/sites/default/settings.php"
+  assert_file_mode "docroot/sites/default/settings.php" "644"
 
-  assert_file_exists docroot/sites/default/default.settings.local.php
-  assert_file_mode docroot/sites/default/default.settings.local.php "644"
+  assert_file_exists "docroot/sites/default/default.settings.local.php"
+  assert_file_mode "docroot/sites/default/default.settings.local.php" "644"
 
-  assert_file_exists docroot/sites/default/default.services.local.yml
-  assert_file_mode docroot/sites/default/default.services.local.yml "644"
+  assert_file_exists "docroot/sites/default/default.services.local.yml"
+  assert_file_mode "docroot/sites/default/default.services.local.yml" "644"
 
   # Documentation information added.
-  assert_file_exists FAQs.md
+  assert_file_exists "FAQs.md"
 
   # Init command removed from Ahoy config.
-  assert_file_exists .ahoy.yml
+  assert_file_exists ".ahoy.yml"
 
   # Assert all stub strings were replaced.
   assert_dir_not_contains_string "mysite"
@@ -138,7 +138,7 @@ assert_added_files_no_integrations(){
     assert_file_not_contains .git/info/exclude "docroot/sites/default/services.yml"
   fi
 
-  popd > /dev/null
+  popd > /dev/null || exit 1
 }
 
 assert_no_added_files_no_integrations(){
@@ -146,22 +146,21 @@ assert_no_added_files_no_integrations(){
   local suffix="${2:-star_wars}"
   local has_committed_files="${3:-0}"
 
-  pushd "${dir}" > /dev/null
+  pushd "${dir}" > /dev/null || exit 1
 
-  assert_dir_not_exists .drupal-dev
-  assert_dir_not_exists docroot/profiles/custom/mysite_profile
-  assert_dir_not_exists docroot/modules/custom/mysite_core
-  assert_dir_not_exists docroot/themes/custom/mysitetheme
-  assert_dir_not_exists docroot/profiles/custom/${suffix}_profile
-  assert_dir_not_exists docroot/modules/custom/${suffix}_core
-  assert_dir_not_exists docroot/themes/custom/${suffix}
-  assert_file_not_exists docroot/sites/default/default.settings.local.php
-  assert_file_not_exists docroot/sites/default/default.services.local.yml
-  assert_file_not_exists FAQs.md
-  assert_file_not_exists .ahoy.yml
+  assert_dir_not_exists ".drupal-dev"
+  assert_dir_not_exists "docroot/profiles/custom/mysite_profile"
+  assert_dir_not_exists "docroot/modules/custom/mysite_core"
+  assert_dir_not_exists "docroot/themes/custom/mysitetheme"
+  assert_dir_not_exists "docroot/profiles/custom/${suffix}_profile"
+  assert_dir_not_exists "docroot/modules/custom/${suffix}_core"
+  assert_dir_not_exists "docroot/themes/custom/${suffix}"
+  assert_file_not_exists "docroot/sites/default/default.settings.local.php"
+  assert_file_not_exists "docroot/sites/default/default.services.local.yml"
+  assert_file_not_exists "FAQs.md"
+  assert_file_not_exists ".ahoy.yml"
 
-
-  if [ ${has_committed_files} -eq 1 ] ; then
+  if [ "${has_committed_files}" -eq 1 ] ; then
     assert_file_exists ".circleci/config.yml"
     assert_file_exists "docroot/sites/default/settings.php"
     assert_file_exists "docroot/sites/default/services.yml"
@@ -171,98 +170,98 @@ assert_no_added_files_no_integrations(){
     assert_file_not_exists "docroot/sites/default/services.yml"
   fi
 
-  popd > /dev/null
+  popd > /dev/null || exit 1
 }
 
 assert_added_files_integration_acquia(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
-  pushd "${dir}" > /dev/null
+  pushd "${dir}" > /dev/null || exit 1
 
   # Acquia integration preserved.
-  assert_dir_exists hooks
-  assert_dir_exists hooks/library
-  assert_file_mode hooks/library/clear-cache.sh "755"
-  assert_file_mode hooks/library/enable-shield.sh "755"
-  assert_file_mode hooks/library/flush-varnish.sh "755"
-  assert_file_mode hooks/library/import-config.sh "755"
-  assert_file_mode hooks/library/update-db.sh "755"
-  assert_file_exists scripts/download-backup-acquia.sh
-  assert_file_exists DEPLOYMENT.md
-  assert_file_contains README.md "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
-  assert_file_contains docroot/sites/default/settings.php "if (file_exists('/var/www/site-php')) {"
-  assert_file_contains .env "AC_API_DB_SITE="
-  assert_file_contains .env "AC_API_DB_ENV="
-  assert_file_contains .env "AC_API_DB_NAME="
-  assert_file_contains .ahoy.yml "AC_API_DB_SITE="
-  assert_file_contains .ahoy.yml "AC_API_DB_ENV="
-  assert_file_contains .ahoy.yml "AC_API_DB_NAME="
+  assert_dir_exists "hooks"
+  assert_dir_exists "hooks/library"
+  assert_file_mode "hooks/library/clear-cache.sh" "755"
+  assert_file_mode "hooks/library/enable-shield.sh" "755"
+  assert_file_mode "hooks/library/flush-varnish.sh" "755"
+  assert_file_mode "hooks/library/import-config.sh" "755"
+  assert_file_mode "hooks/library/update-db.sh" "755"
+  assert_file_exists "scripts/download-backup-acquia.sh"
+  assert_file_exists "DEPLOYMENT.md"
+  assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+  assert_file_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
+  assert_file_contains ".env" "AC_API_DB_SITE="
+  assert_file_contains ".env" "AC_API_DB_ENV="
+  assert_file_contains ".env" "AC_API_DB_NAME="
+  assert_file_contains ".ahoy.yml" "AC_API_DB_SITE="
+  assert_file_contains ".ahoy.yml" "AC_API_DB_ENV="
+  assert_file_contains ".ahoy.yml" "AC_API_DB_NAME="
 
-  popd > /dev/null
+  popd > /dev/null || exit 1
 }
 
 assert_added_files_no_integration_acquia(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
-  pushd "${dir}" > /dev/null
+  pushd "${dir}" > /dev/null || exit 1
 
   # Acquia integration preserved.
-  assert_dir_not_exists hooks
-  assert_dir_not_exists hooks/library
-  assert_file_not_exists scripts/download-backup-acquia.sh
-  assert_file_not_contains docroot/sites/default/settings.php "if (file_exists('/var/www/site-php')) {"
-  assert_file_not_contains .env "AC_API_DB_SITE="
-  assert_file_not_contains .env "AC_API_DB_ENV="
-  assert_file_not_contains .env "AC_API_DB_NAME="
-  assert_file_not_contains .ahoy.yml "AC_API_DB_SITE="
-  assert_file_not_contains .ahoy.yml "AC_API_DB_ENV="
-  assert_file_not_contains .ahoy.yml "AC_API_DB_NAME="
+  assert_dir_not_exists "hooks"
+  assert_dir_not_exists "hooks/library"
+  assert_file_not_exists "scripts/download-backup-acquia.sh"
+  assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
+  assert_file_not_contains ".env" "AC_API_DB_SITE="
+  assert_file_not_contains ".env" "AC_API_DB_ENV="
+  assert_file_not_contains ".env" "AC_API_DB_NAME="
+  assert_file_not_contains ".ahoy.yml" "AC_API_DB_SITE="
+  assert_file_not_contains ".ahoy.yml" "AC_API_DB_ENV="
+  assert_file_not_contains ".ahoy.yml" "AC_API_DB_NAME="
 
-  popd > /dev/null
+  popd > /dev/null || exit 1
 }
 
 assert_added_files_integration_lagoon(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
-  pushd "${dir}" > /dev/null
+  pushd "${dir}" > /dev/null || exit 1
 
-  assert_file_exists .lagoon.yml
-  assert_file_exists drush/aliases.drushrc.php
-  assert_file_contains docker-compose.yml "labels"
-  assert_file_contains docker-compose.yml "lagoon.type: cli-persistent"
-  assert_file_contains docker-compose.yml "lagoon.persistent.name: nginx"
-  assert_file_contains docker-compose.yml "lagoon.persistent: /app/docroot/sites/default/files/"
-  assert_file_contains docker-compose.yml "lagoon.type: nginx-php-persistent"
-  assert_file_contains docker-compose.yml "lagoon.name: nginx"
-  assert_file_contains docker-compose.yml "lagoon.type: mariadb"
-  assert_file_contains docker-compose.yml "lagoon.type: solr"
-  assert_file_contains docker-compose.yml "lagoon.type: none"
+  assert_file_exists ".lagoon.yml"
+  assert_file_exists "drush/aliases.drushrc.php"
+  assert_file_contains "docker-compose.yml" "labels"
+  assert_file_contains "docker-compose.yml" "lagoon.type: cli-persistent"
+  assert_file_contains "docker-compose.yml" "lagoon.persistent.name: nginx"
+  assert_file_contains "docker-compose.yml" "lagoon.persistent: /app/docroot/sites/default/files/"
+  assert_file_contains "docker-compose.yml" "lagoon.type: nginx-php-persistent"
+  assert_file_contains "docker-compose.yml" "lagoon.name: nginx"
+  assert_file_contains "docker-compose.yml" "lagoon.type: mariadb"
+  assert_file_contains "docker-compose.yml" "lagoon.type: solr"
+  assert_file_contains "docker-compose.yml" "lagoon.type: none"
 
-  popd > /dev/null
+  popd > /dev/null || exit 1
 }
 
 assert_added_files_no_integration_lagoon(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
-  pushd "${dir}" > /dev/null
+  pushd "${dir}" > /dev/null || exit 1
 
-  assert_file_not_exists .lagoon.yml
-  assert_file_not_exists drush/aliases.drushrc.php
-  assert_file_not_contains docker-compose.yml "labels"
-  assert_file_not_contains docker-compose.yml "lagoon.type: cli-persistent"
-  assert_file_not_contains docker-compose.yml "lagoon.persistent.name: nginx"
-  assert_file_not_contains docker-compose.yml "lagoon.persistent: /app/docroot/sites/default/files/"
-  assert_file_not_contains docker-compose.yml "lagoon.type: nginx-php-persistent"
-  assert_file_not_contains docker-compose.yml "lagoon.name: nginx"
-  assert_file_not_contains docker-compose.yml "lagoon.type: mariadb"
-  assert_file_not_contains docker-compose.yml "lagoon.type: solr"
-  assert_file_not_contains docker-compose.yml "lagoon.type: none"
+  assert_file_not_exists ".lagoon.yml"
+  assert_file_not_exists "drush/aliases.drushrc.php"
+  assert_file_not_contains "docker-compose.yml" "labels"
+  assert_file_not_contains "docker-compose.yml" "lagoon.type: cli-persistent"
+  assert_file_not_contains "docker-compose.yml" "lagoon.persistent.name: nginx"
+  assert_file_not_contains "docker-compose.yml" "lagoon.persistent: /app/docroot/sites/default/files/"
+  assert_file_not_contains "docker-compose.yml" "lagoon.type: nginx-php-persistent"
+  assert_file_not_contains "docker-compose.yml" "lagoon.name: nginx"
+  assert_file_not_contains "docker-compose.yml" "lagoon.type: mariadb"
+  assert_file_not_contains "docker-compose.yml" "lagoon.type: solr"
+  assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
 
-  popd > /dev/null
+  popd > /dev/null || exit 1
 }
 
 assert_git_repo(){
@@ -279,7 +278,7 @@ assert_not_git_repo(){
 
 # Run install script.
 run_install(){
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
+  pushd "${CURRENT_PROJECT_DIR}" > /dev/null || exit 1
 
   # Force install script to be downloaded from the local repo for testing.
   export DRUPALDEV_LOCAL_REPO="${LOCAL_REPO_DIR}"
@@ -288,7 +287,7 @@ run_install(){
   export DRUPALDEV_TMP_DIR="${APP_TMP_DIR}"
   "${CUR_DIR}"/install.sh "$@" >&3
 
-  popd > /dev/null
+  popd > /dev/null || exit 1
 }
 
 # Copy source code at the latest commit to the destination directory.
@@ -306,7 +305,7 @@ prepare_local_repo(){
   local do_copy_code="${2:-1}"
   local commit
 
-  if [ ${do_copy_code} -eq 1 ]; then
+  if [ "${do_copy_code}" -eq 1 ]; then
     prepare_fixture_dir "${dir}"
     copy_code "${dir}"
   fi
@@ -314,7 +313,7 @@ prepare_local_repo(){
   git_init "${dir}"
   commit=$(git_add_all "${dir}" "Initial commit")
 
-  echo ${commit}
+  echo "${commit}"
 }
 
 git_add(){
