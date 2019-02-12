@@ -42,6 +42,8 @@ DRUPALDEV_COMMIT="${DRUPALDEV_COMMIT:-}"
 DRUPALDEV_DEBUG="${DRUPALDEV_DEBUG:-}"
 # Temporary directory to download and expand files to.
 DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
+# Internal flag to remove demo configuration.
+DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
 
 install(){
   if [ "${DRUPALDEV_LOCAL_REPO}" != "" ]; then
@@ -186,9 +188,14 @@ process_stub(){
   fi
 
   if [ "$(get_value "remove_drupaldev_info")" == "Y" ] ; then
-    remove_special_comments_with_content "DEMO" "${dir}" && bash -c "echo -n ."
+    # Handle code required for Drupal-Dev maintenance.
+    remove_special_comments_with_content "DRUPAL-DEV" "${dir}" && bash -c "echo -n ."
+    # Handle code required for the demo of Drupal-Dev.
+    [ ${DRUPALDEV_REMOVE_DEMO} -eq 1 ] && remove_special_comments_with_content "DEMO" "${dir}" && bash -c "echo -n ."
+    # Remove other unhandled comments.
     remove_special_comments "${dir}" "#<"
     remove_special_comments "${dir}" "#>"
+    # Remove all other comments.
     remove_special_comments "${dir}"
   fi
 
@@ -209,6 +216,7 @@ copy_files(){
   while IFS= read -r -d '' file
   do
     relative_file=${file#"${src}/"}
+    echo "==> Processing file ${relative_file}"
     # Only process untracked files - allows to have project-specific overrides
     # being committed and not overridden OR tracked files are allowed to
     # be overridden.
@@ -216,7 +224,7 @@ copy_files(){
     if [ ${file_is_tracked} -ne 0 ] || [ ${allow_override} -ne 0 ]; then
       mkdir -p "$(dirname "${relative_file}")"
       cp -f "${file}" "${relative_file}"
-      echo "      Copied file ${relative_file}"
+      echo "    Copied file ${relative_file}"
       # Add files to local ignore (not .gitignore), if all conditions pass:
       #  - flag is set to allow to add to local ignore
       #  - not already ignored
@@ -228,7 +236,7 @@ copy_files(){
         git_add_to_local_ignore "${relative_file}"
       fi
     else
-      echo "      Skipped file ${relative_file}"
+      echo "    Skipped file ${relative_file}"
     fi
   done <   <(find "${src}" -type f -print0)
 
@@ -279,7 +287,7 @@ git_add_to_local_ignore(){
   if [ -d ./.git/ ]; then
     if ! grep -Fxq "${1}" ./.git/info/exclude; then
       echo "${1}" >> ./.git/info/exclude
-      echo "==>   Added file $1 to local git ignore"
+      echo "    Added file ${1} to local git ignore"
     fi
   fi
 }

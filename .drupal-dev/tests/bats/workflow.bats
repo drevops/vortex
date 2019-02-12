@@ -20,6 +20,17 @@ load test_helper_drupaldev
 
   debug "==> Starting WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
+  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
+
+  assert_no_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
+
+  step "Initialise the project with default settings"
+  # Preserve demo configuration used for this test.
+  export DRUPALDEV_REMOVE_DEMO=0
+  run_install
+  assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+
   # Special treatment for cases where volumes are not mounted from the host.
   if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
     sed -i -e "/###/d" docker-compose.yml
@@ -27,11 +38,6 @@ load test_helper_drupaldev
     sed -i -e "s/##//" docker-compose.yml
     assert_file_not_contains docker-compose.yml "##"
   fi
-
-  step "Initialise the project with default settings"
-  run_install
-  assert_added_files "${CURRENT_PROJECT_DIR}"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   step "Create .env.local file"
   {
@@ -44,6 +50,15 @@ load test_helper_drupaldev
   step "Add all files to new git repo"
   git_add_all "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
 
+  step "Create untracked file manually"
+  touch untracked_file.txt
+  assert_file_exists untracked_file.txt
+
+  step "Create IDE config file"
+  mkdir -p .idea
+  touch .idea/idea_file.txt
+  assert_file_exists .idea/idea_file.txt
+
   step "Download the database"
   assert_file_not_exists .data/db.sql
   ahoy download-db
@@ -51,7 +66,7 @@ load test_helper_drupaldev
 
   step "Build project"
   ahoy build >&3
-  sync_to_host
+  sync_to_host "${CURRENT_PROJECT_DIR}"
 
   assert_added_files "${CURRENT_PROJECT_DIR}"
 
@@ -97,13 +112,13 @@ load test_helper_drupaldev
 
   step "Run single Behat test"
   ahoy test-behat tests/behat/features/homepage.feature
-  sync_to_host
+  sync_to_host "${CURRENT_PROJECT_DIR}"
   assert_dir_not_empty screenshots
 
   step "Build FE assets"
   echo "\$body-bg: \$color-white;" >> docroot/themes/custom/star_wars/scss/_variables.scss
   ahoy fed
-  sync_to_host
+  sync_to_host "${CURRENT_PROJECT_DIR}"
   assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#fff"
 
   step "Re-import DB"
@@ -115,6 +130,7 @@ load test_helper_drupaldev
 
   step "Clean"
   ahoy clean
+  # Assert that initial Drupal-Dev files have not been removed.
   assert_added_files "${CURRENT_PROJECT_DIR}"
   assert_file_not_exists docroot/index.php
   assert_dir_not_exists docroot/modules/contrib
@@ -128,8 +144,26 @@ load test_helper_drupaldev
   assert_file_exists docroot/sites/default/services.local.yml
   # Assert generated settings file does not exist.
   assert_file_not_exists docroot/sites/default/settings.generated.php
+  # Assert manually created file still exists.
+  assert_file_exists untracked_file.txt
+  # Assert IDE config file still exists.
+  assert_file_exists .idea/idea_file.txt
   # Assert containers are not running.
   assert_containers_not_running
+
+  step "Clean Full"
+  ahoy clean-full
+  assert_no_added_files_no_integrations "${CURRENT_PROJECT_DIR}" "star_wars" 1
+  # Assert manually created local settings file was removed.
+  assert_file_not_exists docroot/sites/default/settings.local.php
+  # Assert manually created local services file was removed.
+  assert_file_not_exists docroot/sites/default/services.local.yml
+  # Assert manually created file still exists.
+  assert_file_exists untracked_file.txt
+  # Assert IDE config file still exists.
+  assert_file_exists .idea/idea_file.txt
+
+  popd > /dev/null
 }
 
 # Print step.
@@ -140,10 +174,11 @@ step(){
 
 # Sync files to host in case if volumes are not mounted from host.
 sync_to_host(){
+  local dst="${1}"
   export "$(grep -v '^#' .env | xargs)"
   [ "$VOLUMES_MOUNTED" == "1" ] && return
-  echo "Syncing from $(docker-compose ps -q cli) to ${BUILD_DIR}"
-  docker cp -L "$(docker-compose ps -q cli)":/app/. "${BUILD_DIR}"
+  echo "Syncing from $(docker-compose ps -q cli) to ${dst}"
+  docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
 }
 
 # Sync files to container in case if volumes are not mounted from host.

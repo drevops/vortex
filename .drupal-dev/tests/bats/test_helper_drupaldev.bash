@@ -141,6 +141,39 @@ assert_added_files_no_integrations(){
   popd > /dev/null
 }
 
+assert_no_added_files_no_integrations(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+  local has_committed_files="${3:-0}"
+
+  pushd "${dir}" > /dev/null
+
+  assert_dir_not_exists .drupal-dev
+  assert_dir_not_exists docroot/profiles/custom/mysite_profile
+  assert_dir_not_exists docroot/modules/custom/mysite_core
+  assert_dir_not_exists docroot/themes/custom/mysitetheme
+  assert_dir_not_exists docroot/profiles/custom/${suffix}_profile
+  assert_dir_not_exists docroot/modules/custom/${suffix}_core
+  assert_dir_not_exists docroot/themes/custom/${suffix}
+  assert_file_not_exists docroot/sites/default/default.settings.local.php
+  assert_file_not_exists docroot/sites/default/default.services.local.yml
+  assert_file_not_exists FAQs.md
+  assert_file_not_exists .ahoy.yml
+
+
+  if [ ${has_committed_files} -eq 1 ] ; then
+    assert_file_exists ".circleci/config.yml"
+    assert_file_exists "docroot/sites/default/settings.php"
+    assert_file_exists "docroot/sites/default/services.yml"
+  else
+    assert_file_not_exists ".circleci/config.yml"
+    assert_file_not_exists "docroot/sites/default/settings.php"
+    assert_file_not_exists "docroot/sites/default/services.yml"
+  fi
+
+  popd > /dev/null
+}
+
 assert_added_files_integration_acquia(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
