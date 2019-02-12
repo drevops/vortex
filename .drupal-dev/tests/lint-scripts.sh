@@ -2,7 +2,6 @@
 ##
 # Test Drupal-Dev scripts.
 #
-set -e
 
 CUR_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")/.." && pwd)"
 
@@ -23,5 +22,10 @@ targets+=("${CUR_DIR}/install")
 
 echo "==> Start linting scripts in ${CUR_DIR}"
 for file in "${targets[@]}"; do
-  [ -f "${file}" ] && LC_ALL=C.UTF-8 shellcheck "${file}";
+  if [ -f "${file}" ]; then
+    echo "Checking file ${file}"
+    if ! LC_ALL=C.UTF-8 shellcheck "${file}"; then
+      exit 1
+    fi
+  fi
 done;
