@@ -74,7 +74,9 @@
             "Utilities\\composer\\DrupalSettings::create"
         ],
         "post-update-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+            "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
+            "Utilities\\composer\\DrupalSettings::create"
         ]
     },
     "extra": {

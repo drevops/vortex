@@ -4,6 +4,8 @@ namespace Utilities\composer;
 
 use Composer\Script\Event;
 use Dotenv\Dotenv;
+use DrupalFinder\DrupalFinder;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -15,6 +17,14 @@ class DrupalSettings {
    * Create Drupal settings file.
    */
   public static function create(Event $event) {
+    $fs = new Filesystem();
+    $drupalFinder = new DrupalFinder();
+    $drupalFinder->locateRoot(getcwd());
+    $drupalRoot = $drupalFinder->getDrupalRoot();
+
+    $standard_settings_file = $drupalRoot . '/sites/default/settings.php';
+    $generated_settings_file_name = 'settings.generated.php';
+
     $defaults = [
       'mysql_database' => 'drupal',
       'mysql_user' => 'drupal',
@@ -22,14 +32,13 @@ class DrupalSettings {
       'mysql_host' => 'localhost',
       'mysql_port' => '',
       'mysql_prefix' => '',
-      'settings_path' => 'docroot/sites/default/settings.generated.php',
+      'settings_path' => $drupalRoot . '/sites/default/' . $generated_settings_file_name,
     ];
 
     $options = self::extractEnvironmentVariables(array_keys($defaults))
       + self::extractCliOptions($event->getArguments(), array_keys($defaults))
       + $defaults;
 
-    $fs = new Filesystem();
     if (!$fs->exists($options['settings_path'])) {
       $content = self::getDefaultDrupalSettingsContent($options);
       $fs->dumpFile($options['settings_path'], $content);
@@ -38,6 +47,24 @@ class DrupalSettings {
     }
     else {
       $event->getIO()->write(sprintf('Skipping creation of Drupal settings file "%s" - file already exists', $options['settings_path']));
+    }
+
+    // Add inclusion of this file to standard settings file if it exists and
+    // such inclusion has not been added previously.
+    if ($fs->exists($options['settings_path']) && $fs->exists($standard_settings_file)) {
+      if (strpos(file_get_contents($standard_settings_file), $generated_settings_file_name) === FALSE) {
+        $string = <<<GENERATEDSETTINGS
+// Include generated settings file.
+if (file_exists(\$app_root . '/' . \$site_path . '/$generated_settings_file_name')) {
+  include \$app_root . '/' . \$site_path . '/$generated_settings_file_name';
+}
+GENERATEDSETTINGS;
+        self::appendToFile($standard_settings_file, $string);
+        $event->getIO()->write(sprintf('Added inclusion of generated settings file %s to %s', $generated_settings_file_name, $standard_settings_file));
+      }
+      else {
+        $event->getIO()->write(sprintf('Skipped inclusion of generated settings file %s to %s - inclusion already present', $generated_settings_file_name, $standard_settings_file));
+      }
     }
   }
 
@@ -147,6 +174,37 @@ FILE;
     }
 
     return $options;
+  }
+
+  /**
+   * Appends content to an existing file.
+   *
+   * Polyfill for older versions of Filesystem shipped with Composer phar.
+   *
+   * @param string $filename
+   *   The file to which to append content.
+   * @param string $content
+   *   The content to append.
+   *
+   * @throws \Symfony\Component\Filesystem\Exception\IOException
+   *   If the file is not writable.
+   */
+  protected static function appendToFile($filename, $content) {
+    $fs = new Filesystem();
+
+    $dir = \dirname($filename);
+
+    if (!is_dir($dir)) {
+      $fs->mkdir($dir);
+    }
+
+    if (!is_writable($dir)) {
+      throw new IOException(sprintf('Unable to write to the "%s" directory.', $dir), 0, NULL, $dir);
+    }
+
+    if (FALSE === @file_put_contents($filename, $content, FILE_APPEND)) {
+      throw new IOException(sprintf('Failed to write file "%s".', $filename), 0, NULL, $filename);
+    }
   }
 
 }
