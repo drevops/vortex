@@ -119,7 +119,6 @@ gather_answers(){
   machine_name=$(get_value "machine_name")
   expand_answer "org"                     "$(ask "What is your organization name?"                    "$(get_value "org"                    "${machine_name}_org"       )"  "${is_interactive}" )"
   expand_answer "org_machine_name"        "$(ask "What is your organization machine name?"            "$(to_machine_name "$(get_value       "org")"                     )"  "${is_interactive}" )"
-  # @todo:dev fix module_prefix as .env has it named 'DRUPAL_MODULE_PREFIX'
   expand_answer "module_prefix"           "$(ask "What is your project-specific module prefix?"       "$(get_value "module_prefix"          "${machine_name}"           )"  "${is_interactive}" )"
   expand_answer "theme"                   "$(ask "What is your theme machine name?"                   "$(get_value "theme"                  "${machine_name}"           )"  "${is_interactive}" )"
   expand_answer "url"                     "$(ask "What is your site public URL?"                             "$(get_value "url"                    "${machine_name//_ /-}.com" )"  "${is_interactive}" )"
