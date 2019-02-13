@@ -48,14 +48,22 @@ DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
 DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
 
 install(){
-  [ ! -d "${DST_DIR}" ] && echo "==> Creating ${DST_DIR} directory" && mkdir -p "${DST_DIR}"
-
-  if [ "${DRUPALDEV_LOCAL_REPO}" != "" ]; then
-    echo "==> Downloading Drupal-Dev from local repository ${DRUPALDEV_LOCAL_REPO}"
-    download_local "${DRUPALDEV_LOCAL_REPO}" "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_COMMIT}"
-  else
-    echo "==> Downloading Drupal-Dev from remote repository https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}"
-    download_remote "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_GH_ORG}" "${DRUPALDEV_GH_PROJECT}" "${DRUPAL_VERSION}.x" "${DRUPALDEV_COMMIT}"
+  if [ "${DRUPALDEV_IS_INTERACTIVE}" -eq 1 ]; then
+   echo
+   echo "**********************************************************************"
+   echo "*                 WELCOME TO DRUPAL-DEV INSTALLER                    *"
+   echo "**********************************************************************"
+   echo "*                                                                    *"
+   echo "* Please answer the questions below to install configuration         *"
+   echo "* relevant to your site.                                             *"
+   echo "*                                                                    *"
+   echo "* Existing files are not modified until confirmed at the last        *"
+   echo "* question.                                                          *"
+   echo "*                                                                    *"
+   echo "* Press Ctrl+C at any time to exit this installer.                   *"
+   echo "*                                                                    *"
+   echo "**********************************************************************"
+   echo
   fi
 
   gather_answers "${DRUPALDEV_IS_INTERACTIVE}"
@@ -67,13 +75,21 @@ install(){
     echo
     echo "**********************************************************************"
     echo "*                                                                    *"
-    echo "* Aborting project installation.                                     *"
-    echo "*                                                                    *"
-    echo "* No files were changed.                                             *"
+    echo "* Aborting project installation. No files were changed               *"
     echo "*                                                                    *"
     echo "**********************************************************************"
     return;
   fi
+
+  if [ "${DRUPALDEV_LOCAL_REPO}" != "" ]; then
+    echo "==> Downloading Drupal-Dev from local repository ${DRUPALDEV_LOCAL_REPO}"
+    download_local "${DRUPALDEV_LOCAL_REPO}" "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_COMMIT}"
+  else
+    echo "==> Downloading Drupal-Dev from remote repository https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}"
+    download_remote "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_GH_ORG}" "${DRUPALDEV_GH_PROJECT}" "${DRUPAL_VERSION}.x" "${DRUPALDEV_COMMIT}"
+  fi
+
+  [ ! -d "${DST_DIR}" ] && echo "==> Creating ${DST_DIR} directory" && mkdir -p "${DST_DIR}"
 
   if [ "${DRUPALDEV_INIT_REPO}" -eq 1 ]; then
     git_init "${DST_DIR}"
@@ -95,24 +111,6 @@ install(){
 
 gather_answers(){
   local is_interactive=${1}
-
-  if [ "${is_interactive}" -eq 1 ]; then
-   echo
-   echo "**********************************************************************"
-   echo "*                 WELCOME TO DRUPAL-DEV INSTALLER                    *"
-   echo "**********************************************************************"
-   echo "*                                                                    *"
-   echo "* Please answer the questions below to install configuration         *"
-   echo "* relevant to your site.                                             *"
-   echo "*                                                                    *"
-   echo "* Existing files are not modified until confirmed at the last        *"
-   echo "* question.                                                          *"
-   echo "*                                                                    *"
-   echo "* Press Ctrl+C at any time to exit this installer.                   *"
-   echo "*                                                                    *"
-   echo "**********************************************************************"
-   echo
-  fi
 
   gather_project_name
 
