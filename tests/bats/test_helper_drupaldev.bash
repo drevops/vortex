@@ -132,6 +132,9 @@ assert_added_files_no_integrations(){
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# Drupal-Dev"
 
+  # Assert that Drupal-Dev files removed.
+  assert_dir_not_exists "tests/bats"
+
   # Assert that required files were not locally excluded.
   if [ -d ".git" ] ; then
     assert_file_not_contains .git/info/exclude ".circleci/config.yml"

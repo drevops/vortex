@@ -155,6 +155,8 @@ download_remote(){
 process_stub(){
   local dir="${1}"
 
+  rm -Rf "${dir}"/tests/bats > /dev/null
+
   replace_string_content  "mysitetheme"  "$(get_value "theme")"             "${dir}" && bash -c "echo -n ."
   replace_string_content  "myorg"        "$(get_value "org_machine_name")"  "${dir}" && bash -c "echo -n ."
   replace_string_content  "mysiteurl"    "$(get_value "url")"               "${dir}" && bash -c "echo -n ."
