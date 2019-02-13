@@ -447,7 +447,8 @@ print_resolved_variables(){
   echo "==================== RESOLVED VARIABLES ===================="
   vars=$(compgen -A variable | grep DRUPALDEV_)
   vars=("CUR_DIR" "DST_DIR" "PROJECT" "DRUPAL_VERSION" "${vars[@]}")
-  for var in "${vars[@]}";
+  # shellcheck disable=SC2068
+  for var in ${vars[@]};
   do
     echo "${var}"="$(eval "echo \$$var")"
   done
