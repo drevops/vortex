@@ -66,9 +66,11 @@ install(){
   if [ "${proceed}" != "Y" ] ; then
     echo
     echo "**********************************************************************"
+    echo "*                                                                    *"
     echo "* Aborting project installation.                                     *"
     echo "*                                                                    *"
     echo "* No files were changed.                                             *"
+    echo "*                                                                    *"
     echo "**********************************************************************"
     return;
   fi
@@ -81,7 +83,14 @@ install(){
 
   copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE}"
 
-  echo "==> Finished installing Drupal-Dev (Drupal ${DRUPAL_VERSION}) into ${DST_DIR} directory"
+  echo
+  echo "**********************************************************************"
+  echo "*                                                                    *"
+  echo "* Finished installing Drupal-Dev.                                    *"
+  echo "*                                                                    *"
+  echo "* Please review changes and commit required files.                   *"
+  echo "*                                                                    *"
+  echo "**********************************************************************"
 }
 
 gather_answers(){
