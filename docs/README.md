@@ -7,7 +7,7 @@ Drupal project template with code linting, tests, CI and deployments.
 
 [Click here to see template for Drupal 7 project](https://github.com/integratedexperts/drupal-dev/tree/7.x) [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/7.x)
 
-![Project workflow](https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/.drupal-dev/images/workflow.png)
+![Project workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
 
 ## What is included
 - Drupal 7 and Drupal 8 composer-based configuration:
@@ -35,12 +35,12 @@ Drupal project template with code linting, tests, CI and deployments.
 - Project initialisation script
 - Tests for Drupal-Dev to ensure that end-to-end workflow works as expected.
 
-![Project Initialisation](https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/.drupal-dev/images/project-init.png)
+![Project Initialisation](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/project-init.png)
 
 ## Build workflow
 Automated build is orchestrated to run stages in separate containers, allowing to run tests in parallel and fail fast.
 
-![CircleCI build workflow](https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/.drupal-dev/images/circleci_build.png)
+![CircleCI build workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/circleci_build.png)
 
 ## FAQs
 
