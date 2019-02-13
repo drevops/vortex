@@ -14,6 +14,7 @@ DST_DIR=${1:-${DST_DIR}}
 
 # Load variables from .env and .env.local files, if they exist.
 # Note that .env.local is read only if .env exists.
+# shellcheck disable=SC2046
 [ -f "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs) && [ -f "${DST_DIR}/.env.local" ] && export $(grep -v '^#' "${DST_DIR}/.env.local" | xargs)
 
 # Project name.
