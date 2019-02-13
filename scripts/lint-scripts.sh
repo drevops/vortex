@@ -10,6 +10,7 @@ while IFS=  read -r -d $'\0'; do
     targets+=("$REPLY")
 done < <(
   find \
+    "${CUR_DIR}"/install.sh \
     "${CUR_DIR}"/scripts \
     "${CUR_DIR}"/.circleci \
     "${CUR_DIR}"/tests/bats \

@@ -12,8 +12,6 @@ CUR_DIR=$(pwd)
 DST_DIR="${DST_DIR:-${CUR_DIR}}"
 DST_DIR=${1:-${DST_DIR}}
 
-[ ! -d "${DST_DIR}" ] && echo "==> Creating ${DST_DIR} directory" && mkdir -p "${DST_DIR}"
-
 # Load variables from .env and .env.local files, if they exist.
 # Note that .env.local is read only if .env exists.
 [ -f "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs) && [ -f "${DST_DIR}/.env.local" ] && export $(grep -v '^#' "${DST_DIR}/.env.local" | xargs)
@@ -46,6 +44,8 @@ DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
 DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
 
 install(){
+  [ ! -d "${DST_DIR}" ] && echo "==> Creating ${DST_DIR} directory" && mkdir -p "${DST_DIR}"
+
   if [ "${DRUPALDEV_LOCAL_REPO}" != "" ]; then
     echo "==> Downloading Drupal-Dev from local repository ${DRUPALDEV_LOCAL_REPO}"
     download_local "${DRUPALDEV_LOCAL_REPO}" "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_COMMIT}"
@@ -64,7 +64,7 @@ install(){
     echo "Aborting project initialisation. No files were changed." && cleanup && return;
   fi
 
-  if [ ${DRUPALDEV_INIT_REPO} -eq 1 ]; then
+  if [ "${DRUPALDEV_INIT_REPO}" -eq 1 ]; then
     git_init "${DST_DIR}"
   fi
 
@@ -81,7 +81,6 @@ cleanup(){
 
 gather_answers(){
   local is_interactive=${1}
-  local questions
 
   gather_project_name
 
@@ -98,9 +97,9 @@ gather_answers(){
   expand_answer "preserve_lagoon"         "$(ask "Do you want to keep Lagoon integration?"            "$(get_value "preserve_lagoon"        "Y"                         )"  "${is_interactive}" )"
   expand_answer "remove_drupaldev_info"   "$(ask "Do you want to remove all Drupal-Dev information?"  "$(get_value "remove_drupaldev_info"  "Y"                         )"  "${is_interactive}" )"
 
-# @todo:dev remove after everything is workning. Used for debug.
+  # @todo:dev remove after everything is workning. Used for debug.
 
-  [ ${DRUPALDEV_DEBUG} -ne 0 ] && print_resolved_variables
+  [ "${DRUPALDEV_DEBUG}" -ne 0 ] && print_resolved_variables
 }
 
 # Special case to gather project name from different sources.
@@ -116,7 +115,7 @@ download_local(){
   local src="${1}"
   local dst="${2}"
   local commit="${3:-HEAD}"
-  [ ${DRUPALDEV_DEBUG} -ne 0 ] && echo "DEBUG: Downloading from the local repo"
+  [ "${DRUPALDEV_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the local repo"
 
   echo "==> Downloading Drupal-Dev at ref ${commit} from local repo ${src}"
   git --git-dir="${src}/.git" --work-tree="${src}" archive --format=tar "${commit}" \
@@ -129,13 +128,12 @@ download_remote(){
   local project="${3}"
   local release_prefix="${4}"
   local commit="${5:-}"
-  [ ${DRUPALDEV_DEBUG} -ne 0 ] && echo "DEBUG: Downloading from the remote repo"
+  [ "${DRUPALDEV_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the remote repo"
 
   if [ "${commit}" != "" ]; then
     echo "==> Downloading Drupal-Dev at commit ${commit}"
     curl -# -L "https://github.com/${org}/${project}/archive/${commit}.tar.gz" \
       | tar xzf - -C "${dst}" --strip 1
-    curl_result=$?
   else
     # Find the latest version for specified drupal version.
     # Print found version.
@@ -151,7 +149,6 @@ download_remote(){
     echo "==> Downloading the latest version ${release} of Drupal-Dev"
     curl -# -L "https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}/archive/${release}.tar.gz" \
       | tar xzf - -C "${DRUPALDEV_TMP_DIR}" --strip 1
-    curl_result=$?
   fi
 }
 
@@ -186,7 +183,7 @@ process_stub(){
     # Handle code required for Drupal-Dev maintenance.
     remove_special_comments_with_content "DRUPAL-DEV" "${dir}" && bash -c "echo -n ."
     # Handle code required for the demo of Drupal-Dev.
-    [ ${DRUPALDEV_REMOVE_DEMO} -eq 1 ] && remove_special_comments_with_content "DEMO" "${dir}" && bash -c "echo -n ."
+    [ "${DRUPALDEV_REMOVE_DEMO}" -eq 1 ] && remove_special_comments_with_content "DEMO" "${dir}" && bash -c "echo -n ."
     # Remove other unhandled comments.
     remove_special_comments "${dir}" "#<"
     remove_special_comments "${dir}" "#>"
@@ -214,7 +211,7 @@ copy_files(){
     # being committed and not overridden OR tracked files are allowed to
     # be overridden.
     file_is_tracked="$(git_file_is_tracked "${relative_file}")"
-    if [ ${file_is_tracked} -ne 0 ] || [ ${allow_override} -ne 0 ]; then
+    if [ "${file_is_tracked}" -ne 0 ] || [ "${allow_override}" -ne 0 ]; then
       mkdir -p "$(dirname "${relative_file}")"
       cp -f "${file}" "${relative_file}"
       echo "    Copied file ${relative_file}"
@@ -225,7 +222,7 @@ copy_files(){
       #  - not in a list of required files
       file_is_required="$(file_is_required "${relative_file}")"
       # @todo; Refactor return values.
-      if [ ${allow_use_local_gitignore} -eq 1 ] && [ -d ./.git/ ] && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] && [ "${file_is_tracked}" != "0" ] && [ "${file_is_required}" != "0" ]; then
+      if [ "${allow_use_local_gitignore}" -eq 1 ] && [ -d ./.git/ ] && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] && [ "${file_is_tracked}" != "0" ] && [ "${file_is_required}" != "0" ]; then
         git_add_to_local_ignore "${relative_file}"
       fi
     else
@@ -296,7 +293,7 @@ ask() {
   local default="${2}"
   local is_interactive="${3:-1}"
 
-  [ ${is_interactive} -ne 1 ] && echo "${default}" && return
+  [ "${is_interactive}" -ne 1 ] && echo "${default}" && return
 
   text="${text} [${default}]"
   read -r -p "${text} " response
@@ -313,7 +310,7 @@ expand_answer(){
   local name="${1}"
   local value="${2}"
   name="$(to_upper "${name}")"
-  export DRUPALDEV_OPT_${name}="${value}"
+  export DRUPALDEV_OPT_"${name}"="${value}"
 }
 
 replace_string_content() {
@@ -323,6 +320,7 @@ replace_string_content() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  # shellcheck disable=SC2063
   grep -r \
     --exclude "*.{sh,png,jpg,jpeg}" \
     --exclude-dir=".git" \
@@ -348,6 +346,7 @@ remove_special_comments() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  # shellcheck disable=SC2063
   grep -r \
     --exclude "*.{sh,png,jpg,jpeg}" \
     --exclude-dir=".git" \
@@ -364,6 +363,7 @@ remove_special_comments_with_content() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  # shellcheck disable=SC2063
   grep -r \
     --exclude "*.{sh,png,jpg,jpeg}" \
     --exclude-dir=".git" \
@@ -379,6 +379,7 @@ enable_commented_code() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  # shellcheck disable=SC2063
   grep -r \
     --exclude "*.{sh,png,jpg,jpeg}" \
     --exclude-dir=".git" \
@@ -411,7 +412,7 @@ get_value(){
 git_init(){
   local dir="${1}"
   [ -d "${dir}/.git" ] && return
-  [ ${DRUPALDEV_DEBUG} -ne 0 ] && echo "DEBUG: Initialising new git repository"
+  [ "${DRUPALDEV_DEBUG}" -ne 0 ] && echo "DEBUG: Initialising new git repository"
   git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
 }
 
@@ -421,7 +422,7 @@ print_resolved_variables(){
   echo "==================== RESOLVED VARIABLES ===================="
   vars=$(compgen -A variable | grep DRUPALDEV_)
   vars=("CUR_DIR" "DST_DIR" "PROJECT" "DRUPAL_VERSION" "${vars[@]}")
-  for var in ${vars[@]};
+  for var in "${vars[@]}";
   do
     echo "${var}"="$(eval "echo \$$var")"
   done
