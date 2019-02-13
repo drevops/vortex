@@ -38,7 +38,7 @@ DRUPALDEV_GH_PROJECT="${DRUPALDEV_GH_PROJECT:-drupal-dev}"
 # Optional commit to download. If not provided, latest release will be downloaded.
 DRUPALDEV_COMMIT="${DRUPALDEV_COMMIT:-}"
 # Flag to display debug information.
-DRUPALDEV_DEBUG="${DRUPALDEV_DEBUG:-}"
+DRUPALDEV_DEBUG="${DRUPALDEV_DEBUG:-0}"
 # Temporary directory to download and expand files to.
 DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
 # Internal flag to remove demo configuration.
