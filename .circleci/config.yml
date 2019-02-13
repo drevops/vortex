@@ -32,8 +32,7 @@ aliases:
       - image: integratedexperts/ci-builder
         environment:
           # How often to cache DB dump for. See 'database' job below for more information.
-          # @todo:dev Revert below.
-          DB_TIMESTAMP: +%Y_%m_%d_%H_%M
+          DB_TIMESTAMP: +%Y_%m_%d
           DB_SEMAPHORE_FILE: /tmp/db-new
           #| Volumes mounting to host is not supported in CircleCI.
           VOLUMES_MOUNTED: 0
