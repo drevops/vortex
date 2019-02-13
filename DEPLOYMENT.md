@@ -7,7 +7,7 @@ The website gets deployed using artefact built on CI and pushed to Acquia Cloud.
 
 There are 2 types of deployments: feature branches and release tags. They are exactly the same except for the resulting branch name on Acquia Cloud (see below).
 
-## Set up
+## Setup
 1. Create Deployer user (deployer@yourcompany.com) account on Acquia.
 2. Add this user to Acquia Cloud application with a role that allows to push
    code and use Cloud API.   

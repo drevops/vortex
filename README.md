@@ -7,110 +7,191 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 [![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/integratedexperts/drupal-dev/blob/8.x/LICENSE)
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x)
 
-**Looking for Drupal 8 version?**
-[Click here to switch to Drupal 8 version](https://github.com/integratedexperts/drupal-dev/tree/8.x)
+**Looking for Drupal 7 version?**
+[Click here to switch to Drupal 7 version](https://github.com/integratedexperts/drupal-dev/tree/7.x)
 
 ![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
 
 ## Getting started
-1. Create a blank project repository.
-2. Download an archive of this project and extract into the repository directory.
-3. Run `ahoy init` and follow the prompts. **DO NOT SKIP THIS STEP!**
-4. Commit all files to your repository and push.
-5. Refer to created README.md file in your project.
+For quiet installation with default settings into current directory:
+```
+curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/feature/8.x/install.sh | bash
+```
 
-## Typical development workflow
-1. Download fresh copy of the DB: `ahoy download-db`
-2. Start `pygmy`: `pygmy up`
-3. Build project: `ahoy build` 
+Or for interactive installation into current directory:
+```
+curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/feature/8.x/install.sh | bash -s -- --interactive
+```
 
-## What is included
-- Drupal 8 Composer-based configuration:
-  - contrib modules management
-  - libraries management
-  - support for patches
-  - development and testing tools
-- Custom core module scaffolding
-- Custom theme scaffolding: Gruntfile, SASS/SCSS, globbing and Livereload.    
-- `ahoy` commands to build and rebuild the project (consistent commands used in all environments).
-- PHP, JS and SASS code linting with pre-configured Drupal standards
-- Behat testing configuration + usage examples 
-- Integration with [Circle CI](https://circleci.com/) (2.0):
-  - project full build (fully built Drupal site with production DB)
-  - code linting
-  - testing (including Selenium-based Behat tests)
-  - **artefact deployment to [destination repository](https://github.com/integratedexperts/drupal-dev-destination)**
-- Integration with [dependencies.io](https://dependencies.io) to keep the project up-to-date.
-- Integration with Acquia Cloud.
-- Integration with [Lagoon](https://github.com/amazeeio/lagoon).
-- Project documentation [template](README.md)
-- GitHub templates.
-- Project initialisation script
-- Drupal-dev has own suit of automated tests.
+Or for interactive installation into specified directory:
+```
+curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/feature/8.x/install.sh | bash -s -- --interactive path/to/directory
+```
 
-![Project Initialisation](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/project-init.png)
+![Installer](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/installer.png)
 
-## Build workflow
-Automated build is orchestrated to run stages in separate containers, allowing to run tests in parallel and fail fast.
+## What is the problem that Drupal-Dev is trying to solve?
+Increase the quality of the produced Drupal websites with minimum setup effort and knowledge.
 
-![CircleCI build workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/circleci_build.png)
+## Why is this problem important?
+High quality Drupal websites are stable, secure, faster and safer to change.
 
-## FAQs
+But developers do not always have the time or skills to setup the tools required to produce and maintain high-quality Drupal websites.
 
-## Why [`Ahoy`](https://github.com/ahoy-cli/ahoy)?
-- Consistent commands across projects - unified Developer Experience (DX).
-- Standalone file that can be easily copied across projects.
-- Simple YAML syntax. 
-- Workflow is no longer captured in places that were not designed for it: Composer scripts, NPM scripts etc.
+## How does Drupal-Dev solve it?
+Quick install of best practices Drupal configuration on Docker stack using a single command lowers entry barrier, while unification of the developer's experience improves development speed across projects.
 
-## Why not Lando, DDEV, Docksal?
-- Running the same workflow commands in Local and CI is a paramount.
-- Current solution is pure Docker/Docker Compose and does not require any additional configuration generators.
-- No dependency on additional tool.
+## Who is it for?
+- Digital agencies that want to standardise their development stack (standard operating environment) across projects
+- Developers that are looking for best practices
+- Developers that do not possess required time or knowledge to setup these tools themselves 
 
-## Why use `amazeeio` containers?
-- [Amazee.io](https://www.amazee.io/) maintain their containers as they are powering their open-source hosting platform [Lagoon](https://github.com/amazeeio/lagoon).
-- Changes to containers are fully tested with every change using CI systems (part of Lagoon).
-- Containers are production-ready.
+## Why is Drupal-Dev awesome?
+- **Attachable to existing projects.**<br/>  
+  The toolset can be used with minimal efforts. Interactive wizard helps to select required features during installation.  
+- **Highly configurable**<br/>
+  All configuration is made through environment variables without the need to change any of the scripts.
+- **Flexible**<br/>
+  Anything can be overridden for your specific project and will not be lost during the next update.
+- **Pure Docker stack**<br/>
+  No special binaries to work with Docker. No generated Docker Compose configurations from custom configurations. Modify configuration to fit your project needs.
+- **Tested**<br/>
+  There are tests for workflows, configuration, deployments, CI. Everything. And they run automatically on every commit.
+- **Versioned**<br/>
+  It is always clear which version of the stack your site uses.
+- **Upgradable**<br/>
+  Your website can be updated to a newer version of Drupal-Dev with minimal effort. Your project customisations are easily preserved.
+- **Documented**<br/>
+  The major areas of Drupal-Dev are explicitly documented, while most of the code is self-documented.
 
-## Why CircleCI?
-- Very fast.
-- Supports workflow.
-- Supports parallelism.
-- Provides remote Docker engine to run and build containers with layer caching.
-- Allows customising build runner container.
-- Flexible [pricing model](https://circleci.com/pricing/) (for proprietary projects). Free for open-source.
+## What areas does Drupal-Dev cover?
+- Drupal
+- Local development environment
+- Code linting
+- Testing
+- Automated builds
+- Documentation
+- Integrations
+- Maintenance
 
-## Why dependencies.io?
-- Configurable runners for different types of dependencies (PHP, JS, Ruby etc).
-- Configurable base branch, new branch prefixes and assigned labels.
-- Supports pre- and post-update hooks. 
-- Flexible [pricing model](https://www.dependencies.io/pricing/) for proprietary projects.
+<details>
 
-# Contributing
+**<summary>More details</summary>**
+
+| **Area**                                      | **Feature**                         | **Why it is important** |
+| --- | --- | --- |
+| **Drupal**                                    |
+| Versions                                      | Drupal 7 support                    | Drupal 7 is still widely used |
+|                                               | Drupal 8 support                    | Drupal 8 is current version   |
+|                                               | Separate branches for each Drupal version     | Handling both Drupal versions in the same repository allows to easily re-use some commits across branches. |
+| Composer-based configuration                  | Pure composer configuration         | Website is assembled using industry-standard tools such as Composer |
+|                                               | Uses drupal-scaffold                | Industry-standard composer package to scaffold some of Drupal files |
+|                                               | Scripts to create required settings and files with environment variables support    | Required files and directories created automatically.Environment variables override support allows to provide override values without the need to change scripts. Useful for per-environment overrides. |
+|                                               | Settings file with multi-environment support  | Per-environment variables allow to easily target specific settings to specific environments without too much mess |
+|                                               | Best-practices development modules            | Having the same development modules on each website helps to reduce development time. |
+| Custom module scaffolding                     | Mechanism to organise contrib module-related hook implementations into standalone files | Helps avoid large files with all hook implementation, which leads to a simple maintenance. |
+| Custom theme scaffolding                      | Based on Bario (Bootstrap 4)        | Bootstrap 4 is the latest version of the most popular frontend framework and Bario is a Drupal theme that supports Bootstrap 4. |
+|                                               | Grunt + SASS/SCSS + globbing + Livereload     | Grunt configuration defines multiple build steps to work with frontend in Drupal.<br/>Livereload allows to automatically refresh the page once there are changes to styles or scripts. |
+| Patches management                            | Based on composer-patches           | Support for custom (per-project) and contributed patches is simply essential for any project. |
+| **Local development environment**             |
+| Docker                                        | Using stable Amazee images          | Amazee images are stable - they are covered by tests and are used in many production environments. |
+|                                               | Pure Docker configuration           | Pure docker configuration allows anyone with Docker knowledge to alter configuration as required. |
+|                                               | Custom application support          | As a result of using Docker, it is possible to install any application, provided that it can be ran in container |
+|                                               | Multi-application support           | As a result of using Docker, it is possible to have multiple applications (not only Drupal) in one stack. For example, decoupled Drupal and Frontend Vuejs application. |
+|                                               | Using [Pygmy](https://github.com/amazeeio/pygmy) | Adds support for additional Docker tools as well as Mailhog (to test emails) |
+| Unified Development Experience (DX)           | Ahoy commands to abstract complex tasks into set of workflow commands | To improve development speed and unify development tasks across projects |
+|                                               | Single command project build        | Project must be built in the same way on any environment and a single command always guarantees that it will be done in the same predictable way.Improve development speed and easy maintenance. |
+|                                               | Database sanitisation support       | Remove all personal data from the database before working on it. |
+| Configuration                                 | Configuration provided through a file with reasonable defaults | To cover majority of the project without the need to change any scripts |
+| **Code linting**                              |
+| PHP                                           | Drupal standards                    | To increase code quality and lower technical debt |
+|                                               | PHP Version compatibility           | To avoid language constructs that may not be supported by a certain version of the language |
+| JavaScript                                    | Drupal standards                    | To increase code quality and lower technical debt |
+| SASS/SCSS                                     |                                     | To increase code quality and lower technical debt |
+| **Testing**                                   |
+| PHPUnit\*                                     | Configuration + examples            | Enables unit-testing capability to improve code quality and stability |
+| Behat                                         | Configuration + examples            | Enables integration-testing capability using fast tests to improve code quality and stability |
+|                                               | Browser testing                     | Enables integration-testing capability with JavaScript support to improve code quality and stability |
+| **Automated builds**                          |
+| CI template                                   | Build + Test + Deploy               | Standard workflow for automated builds |
+|                                               | Conditional Deploy                  | Supports conditional deployments based on tags and branches to allow selective deployments |
+|                                               | Parallel builds to speedup pipeline | Running jobs in parallel may significantly lower the build time for large projects |
+|                                               | Cached database support             | Reduce build times by using daily cached database |
+|                                               | Identical environment as local and production | While running on a 3rd party provider, CI uses hosting stack identical to the local and production in order to identify any problems at early stages.CI also acts as a &#39;shadow&#39; developer by running exactly the same commands as what a developer would run locally. |
+| **Documentation**                             |
+| Readme files                                  | Generic project information         | Helps to find relevant project information in one place |
+|                                               | Local environment setup             | Helps to lower project onboarding time |
+|                                               | List of available commands          | Helps to lower project onboarding time |
+|                                               | Build badges                        | Shows current build status          |
+|                                               | FAQs                                | Helps to lower project onboarding time |
+|                                               | Deployment information              | Helps to find relevant deployment information in one place |
+| GitHub management                             | Pull request template               | Helps to improve team collaboration and reduce the time for pull request management |
+|                                               | Pre-defined issue and pull request labels\*   | Helps to improve team collaboration and reduce the time for pull request management |
+| **Integrations** |
+| Acquia                                        | Production database from Acquia     | Using production database for development and automated builds (CI) requires database dump from Acquia |
+|                                               | Deploy code to Acquia               | Deploying to Acquia requires packaging Composer-based project into artefact before pushing |
+|                                               | Deployment hooks                    | Standardised deployment hooks guarantee that every deployment is reproducible |
+| Lagoon                                        | Deployment configuration            | Lagoon configuration is required to perform deployments |
+|                                               | Production database from Lagoon     | Using production database for development and automated builds (CI) requires database dump from Lagoon |
+| Dependencies.io                               | Automated pull request submissions for automated updates. | Automated dependencies updates allow to keep the project up to date by automatically creating pull requests with updated dependencies on a daily basis |
+| Diffy (Visual Regression)\*                   | Automated visual regression comparison for each deployment | Visual regression for each deployment is useful to make sure that only required changes were applied with specific code change and that the rest of the site has not changed |
+| **Maintenance (of Drupal-Dev)**               |
+| Install and upgrade                           | Follows SemVer model for releases   | Projects may refer to a specific version of Drupal-Dev, which sets expectations about what tools and configuration is available |
+|                                               | Managed as agile project            | New features and defects can be addressed in a shorter development cycle.GitHub issues organised on the Kanban board provide clear visibility for future releases |
+|                                               | One-liner install script with optional wizard | Minimises the time to try Drupal-Dev.Provides centralised point for installation into new and existing projects, as well as updates. |
+| Stability                                     | Test suite for all provided commands | Guarantees that commands will work |
+|                                               | Own CI to run test suite            | Pull requests and releases are stable |
+|                                               | Daily Drupal and NPM updates        | Composer (including Drupal) and NPM packages are alway using the latest versions. |
+| Documentation                                 | Contribution guide\*                | Engages community to contribute back |
+|                                               | Pull request template               | Helps to improve community collaboration and reduce the time for pull request management. |
+
+\* Denotes features planned for 1.5 release
+
+</details>
+
+## Contributing
 - Progress is tracked as [GitHub project](https://github.com/integratedexperts/drupal-dev/projects/1). 
 - Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
-- Create issue and prefix title with Drupal core version: `[7.x] Updated readme file.`. 
-- Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/7.x-updated-readme`.
+- Create issue and prefix title with Drupal core version: `[8.x] Updated readme file.`. 
+- Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/8.x-updated-readme`.
 
-# Paid support
-[Integrated Experts](https://github.com/integratedexperts) can provide support for Drupal-Dev in your organisation: 
+### Main concepts behind Drupal-Dev
+- **Fetch as much of development configuration as possible from Drupal-Dev repository**<br/>
+  Allows to keep your project up-to-date with Drupal-Dev  
+- **Avoid adding things to the wrong places**<br/> 
+  Example: Using Composer scripts for workflow commands. Instead, use tools specifically designed for this, like Ahoy
+- **Abstract similar functionality into steps**<br/> 
+  Allows to apply changes at the larger scale without the need to modify each project
+- **Run the most of the code in the containers**<br/> 
+  Reduces the number of required tools on the host machine
+
+--------------------------------------------------------------------------------
+
+## Paid support
+[Integrated Experts](https://github.com/integratedexperts) provides paid support for Drupal-Dev: 
 - New and existing project onboarding.
 - Support plans with SLAs.
 - Priority feature implementation.
 - Updates to the latest version of the platform.
+- DevOps consulting and custom implementations.
 
 Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.com)
 
 ## Useful projects
 
-- [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artefact to remote repository
+- [CI Builder Docker image](https://github.com/integratedexperts/ci-builder) - Docker image for CI builder container with many pre-installed tools.
 - [Behat Steps](https://github.com/integratedexperts/behat-steps) - Collection of Behat step definitions.
 - [Behat Screenshot](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
 - [Behat Progress Fail](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fails inline.
-- [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing
+- [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing.
+- [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artefact to remote repository.
+- [GitHub Labels](https://github.com/integratedexperts/github-labels) - Shell script to create labels on GitHub.
+- [Formatted git messages](https://github.com/alexdesignworks/git-hooks) - pre-commit git hook to check that commit messages formatted correctly. 
 
-**Below is a contents of the `README.md` file that will be added to your project.**
+--------------------------------------------------------------------------------
+**Below is a content of the `README.md` file that will be added to your project.**
+
+**All content above this line will be automatically removed during installation.**
 
 [//]: # (#> DRUPAL-DEV)
 # MYSITE
@@ -126,6 +207,7 @@ Drupal 8 implementation of MYSITE
 2. Make sure that all local web development services are shut down (apache/nginx, mysql, MAMP etc).
 3. Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
 [//]: # (#< ACQUIA)
+
 4. Add Acquia Cloud credentials to ".env.local" file:
 ```
   # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
@@ -191,10 +273,11 @@ Run each command as `ahoy <command>`.
 2. `composer update --lock`
 
 ## Front-end and Livereload
-- `npm run build` - build SCSS and JS assets.
-- `npm run watch` - watch asset changes and reload the browser (using Livereload). To enable Livereload integration with Drupal, add to `settings.php` file (already added to `settings.local.php`): 
+- `ahoy fe` - build SCSS and JS assets.
+- `ahoy fed` - build SCSS and JS assets for development.
+- `ahoy few` - watch asset changes and reload the browser (using Livereload). To enable Livereload integration with Drupal, add to `settings.php` file (already added to `settings.local.php`): 
   ```
-  $conf['livereload'] = TRUE;
+  $settings['livereload'] = TRUE;
   ```
 
 ## Coding standards
@@ -233,7 +316,8 @@ Test artifacts (screenshots etc.) are available under "Artifacts" tab in Circle 
 [//]: # (#< DEPLOYMENT)
 ## Deployment
 Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
+
 [//]: # (#> DEPLOYMENT) 
 
 ## FAQs
-Please see [FAQs](FAQs.md)
+Please refer to [FAQs](FAQs.md)

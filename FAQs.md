@@ -25,9 +25,27 @@ ahoy login
 2. Clear drupal cache `ahoy drush cr`
 3. Run: `ahoy few`
 
-Note: Watching works only from docker host.
+## How to use Xdebug?
+1. Uncomment this line in `docker-compose.yml`:
+  ```
+  #XDEBUG_ENABLE: "true"
+  ```
+2. Restart the stack: `ahoy up`.
+3. Enable listening for incoming debug connections in your IDE.
+4. If required, provide server URL to your IDE as it appears in the browser: `http://<mysite>.docker.amazee.io`
+5. Enable Xdebug flag in the request coming from your web browser.
+6. Set a breakpoint in your IDE and perform a request in the web browser. 
 
 ## How to debug Behat tests?
-```
-./scripts/xdebug.sh vendor/bin/behat path/to/file
-```
+1. Uncomment this line in `docker-compose.yml`:
+  ```
+  #XDEBUG_ENABLE: "true"
+  ```
+2. Restart the stack: `ahoy up`.
+3. Enable listening for incoming debug connections in your IDE.
+4. Set a breakpoint in your IDE and perform a request in the web browser.
+5. SSH into CLI container: `ahoy cli`
+6. Run test: 
+  ```
+  ./scripts/xdebug.sh vendor/bin/behat path/to/file
+  ```
