@@ -322,3 +322,10 @@ load test_helper_drupaldev
   assert_file_contains "${CURRENT_PROJECT_DIR}/docker-compose.yml" "# Some change to docker-compose at commit 1"
   assert_file_not_contains "${CURRENT_PROJECT_DIR}/docker-compose.yml" "# Some change to docker-compose at commit 2"
 }
+
+@test "Install: empty directory; interactive mode" {
+  printf 'Star Wars\n\n\n\n\n\n\n\n' | run_install "--interactive"
+
+  assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+}
