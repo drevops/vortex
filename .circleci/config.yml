@@ -235,10 +235,10 @@ jobs:
       - checkout
       - *step_setup_remote_docker
       - *step_configure_git
-      - run: .drupal-dev/tests/lint-scripts.sh || true
-      - run: bats .drupal-dev/tests/bats/helpers.bats --tap
-      - run: bats .drupal-dev/tests/bats/install.bats --tap
-      - run: bats .drupal-dev/tests/bats/workflow.bats --tap
+      - run: scripts/lint-scripts.sh
+      - run: bats tests/bats/helpers.bats --tap
+      - run: bats tests/bats/install.bats --tap
+      - run: bats tests/bats/workflow.bats --tap
 
   test_drupal_dev_artefact:
     <<: *container_config
@@ -250,7 +250,7 @@ jobs:
       - *step_configure_git
       - attach_workspace:
           at: /workspace
-      - run: SRC_DIR=/workspace/code bats .drupal-dev/tests/bats/artefact.bats --tap
+      - run: SRC_DIR=/workspace/code bats tests/bats/artefact.bats --tap
 
   # Deployment of feature branches and tags for Drupal-Dev itself.
   deploy_drupal_dev:

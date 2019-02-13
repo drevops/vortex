@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 ##
-# Test Drupal-Dev scripts.
+# Lint Drupal-Dev scripts.
 #
 
-CUR_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")/.." && pwd)"
+CUR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 targets=()
 while IFS=  read -r -d $'\0'; do
@@ -12,8 +12,7 @@ done < <(
   find \
     "${CUR_DIR}"/scripts \
     "${CUR_DIR}"/.circleci \
-    "${CUR_DIR}"/.drupal-dev \
-    "${CUR_DIR}"/.drupal-dev/tests/bats \
+    "${CUR_DIR}"/tests/bats \
     -type f \
     \( -name "*.sh" -or -name "*.bash" \) \
     -print0

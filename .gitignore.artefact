@@ -15,7 +15,6 @@
 *.jar
 *.log
 *.out
-/.drupal-dev
 /scripts
 /tests
 behat.yml

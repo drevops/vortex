@@ -158,11 +158,6 @@ download_remote(){
 process_stub(){
   local dir="${1}"
 
-  rm "${dir}"/README.md > /dev/null
-  cp "${dir}"/.drupal-dev/README.template.md "${dir}"/README.md
-  cp "${dir}"/.drupal-dev/DEPLOYMENT.template.md "${dir}"/DEPLOYMENT.md
-  cp "${dir}"/.drupal-dev/FAQs.template.md "${dir}"/FAQs.md
-
   replace_string_content  "mysitetheme"  "$(get_value "theme")"             "${dir}" && bash -c "echo -n ."
   replace_string_content  "myorg"        "$(get_value "org_machine_name")"  "${dir}" && bash -c "echo -n ."
   replace_string_content  "mysiteurl"    "$(get_value "url")"               "${dir}" && bash -c "echo -n ."
@@ -200,8 +195,6 @@ process_stub(){
   fi
 
   enable_commented_code "${dir}"
-
-  rm -Rf "${dir}"/.drupal-dev > /dev/null
 }
 
 copy_files(){

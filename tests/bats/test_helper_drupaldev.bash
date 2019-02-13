@@ -71,8 +71,6 @@ assert_added_files_no_integrations(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  # All Drupal-Dev own files removed.
-  assert_dir_not_exists ".drupal-dev"
   # Stub profile removed.
   assert_dir_not_exists "docroot/profiles/custom/mysite_profile"
   # Stub code module removed.
@@ -131,6 +129,9 @@ assert_added_files_no_integrations(){
   # Assert that project name is correct.
   assert_file_contains .env "PROJECT=\"${suffix}\""
 
+  # Assert that documentation was processed correctly.
+  assert_file_not_contains README.md "# Drupal-Dev"
+
   # Assert that required files were not locally excluded.
   if [ -d ".git" ] ; then
     assert_file_not_contains .git/info/exclude ".circleci/config.yml"
@@ -148,7 +149,6 @@ assert_no_added_files_no_integrations(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  assert_dir_not_exists ".drupal-dev"
   assert_dir_not_exists "docroot/profiles/custom/mysite_profile"
   assert_dir_not_exists "docroot/modules/custom/mysite_core"
   assert_dir_not_exists "docroot/themes/custom/mysitetheme"

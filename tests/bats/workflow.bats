@@ -11,7 +11,7 @@ load test_helper_drupaldev
   VOLUMES_MOUNTED=${VOLUMES_MOUNTED:-1}
 
   # Safeguard for test itself. It should be ran with FTP credentials provided.
-  # DB_FTP_USER="..." DB_FTP_PASS="..." DB_FTP_HOST="..." bats .drupal-dev/tests/bats/workflow.bats --tap
+  # DB_FTP_USER="..." DB_FTP_PASS="..." DB_FTP_HOST="..." bats tests/bats/workflow.bats --tap
   assert_not_empty "${DB_FTP_HOST}"
   assert_not_empty "${DB_FTP_USER}"
   assert_not_empty "${DB_FTP_PASS}"
