@@ -285,9 +285,10 @@ run_install(){
 
   # Force install script to be downloaded from the local repo for testing.
   export DRUPALDEV_LOCAL_REPO="${LOCAL_REPO_DIR}"
-  export DRUPALDEV_DEBUG=1
-  # @todo:dev Remove below once tests are passing.
+  # Use fixture temporary directory.
   export DRUPALDEV_TMP_DIR="${APP_TMP_DIR}"
+  # Show debug information (for easy debug of tests).
+  export DRUPALDEV_DEBUG=1
   "${CUR_DIR}"/install.sh "$@"
 
   popd > /dev/null || exit 1
