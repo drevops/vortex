@@ -58,6 +58,7 @@ class DrupalSettings {
 if (file_exists(\$app_root . '/' . \$site_path . '/$generated_settings_file_name')) {
   include \$app_root . '/' . \$site_path . '/$generated_settings_file_name';
 }
+
 GENERATEDSETTINGS;
         self::appendToFile($standard_settings_file, $string);
         $event->getIO()->write(sprintf('Added inclusion of generated settings file %s to %s', $generated_settings_file_name, $standard_settings_file));

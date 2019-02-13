@@ -38,32 +38,36 @@ class ScriptHandler {
       }
     }
 
-    // Prepare the settings file for installation.
+    // Create settings file from default settings, if does not already exist.
     if ($fs->exists($drupalRoot . '/sites/default/default.settings.php') && !$fs->exists($drupalRoot . '/sites/default/settings.php')) {
       $fs->copy($drupalRoot . '/sites/default/default.settings.php', $drupalRoot . '/sites/default/settings.php');
       $event->getIO()->write('Created a sites/default/settings.php file');
     }
 
+    // Check that the settings file was created correctly.
     if (!$fs->exists($drupalRoot . '/sites/default/settings.php')) {
       $event->getIO()->writeError('<error>Settings file not found</error>');
       exit(1);
     }
 
+    // Update permissions.
     $fs->chmod($drupalRoot . '/sites/default', 0777);
     $fs->chmod($drupalRoot . '/sites/default/settings.php', 0666);
 
+    // Add CONFIG_SYNC_DIRECTORY settings to the settings file.
     $configPath = Path::makeRelative($drupalFinder->getComposerRoot() . '/config/default', $drupalRoot);
-    $settings_string = <<<SETTINGS
+    if (strpos(file_get_contents($drupalRoot . '/sites/default/settings.php'), 'CONFIG_SYNC_DIRECTORY') === FALSE) {
+      $settings_string = <<<SETTINGS
 \$settings['config_directories'] = [
-  CONFIG_SYNC_DIRECTORY => (object) [
-    'value' => '$configPath',
-    'required' => TRUE,
-  ],
+  CONFIG_SYNC_DIRECTORY => '$configPath',  
 ];
-SETTINGS;
-    self::appendToFile($drupalRoot . '/sites/default/settings.php', $settings_string);
 
-    // Create the files directory with chmod 0777.
+SETTINGS;
+      self::appendToFile($drupalRoot . '/sites/default/settings.php', $settings_string);
+      $event->getIO()->write('Added CONFIG_SYNC_DIRECTORY settings');
+    }
+
+    // Create the files directory and set permissions.
     if (!$fs->exists($drupalRoot . '/sites/default/files')) {
       $oldmask = umask(0);
       $fs->mkdir($drupalRoot . '/sites/default/files', 0777);
