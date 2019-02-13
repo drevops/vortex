@@ -7,6 +7,9 @@
 # or
 # curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install | bash -s -- /path/to/destination/directory
 
+# shellcheck disable=SC2235
+([ "${1}" == "--interactive" ] || [ "${1}" == "-i" ]) && DRUPALDEV_IS_INTERACTIVE=1 && shift
+
 CUR_DIR=$(pwd)
 # Destination directory, that can be overridden with the first argument to this script.
 DST_DIR="${DST_DIR:-${CUR_DIR}}"
@@ -58,11 +61,16 @@ install(){
   gather_answers "${DRUPALDEV_IS_INTERACTIVE}"
 
   local proceed=Y
-  proceed=$(ask "Proceed with initialising your project $(get_value "name")? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
+  proceed=$(ask "> Proceed with initialising your project '$(get_value "name")'? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
 
   if [ "${proceed}" != "Y" ] ; then
     echo
-    echo "Aborting project initialisation. No files were changed." && cleanup && return;
+    echo "**********************************************************************"
+    echo "* Aborting project installation.                                     *"
+    echo "*                                                                    *"
+    echo "* No files were changed.                                             *"
+    echo "**********************************************************************"
+    return;
   fi
 
   if [ "${DRUPALDEV_INIT_REPO}" -eq 1 ]; then
@@ -76,12 +84,26 @@ install(){
   echo "==> Finished installing Drupal-Dev (Drupal ${DRUPAL_VERSION}) into ${DST_DIR} directory"
 }
 
-cleanup(){
-  echo "implement cleanup"
-}
-
 gather_answers(){
   local is_interactive=${1}
+
+  if [ "${is_interactive}" -eq 1 ]; then
+   echo
+   echo "**********************************************************************"
+   echo "*                 WELCOME TO DRUPAL-DEV INSTALLER                    *"
+   echo "**********************************************************************"
+   echo "*                                                                    *"
+   echo "* Please answer the questions below to install configuration         *"
+   echo "* relevant to your site.                                             *"
+   echo "*                                                                    *"
+   echo "* Existing files are not modified until confirmed at the last        *"
+   echo "* question.                                                          *"
+   echo "*                                                                    *"
+   echo "* Press Ctrl+C at any time to exit this installer.                   *"
+   echo "*                                                                    *"
+   echo "**********************************************************************"
+   echo
+  fi
 
   gather_project_name
 
@@ -98,7 +120,7 @@ gather_answers(){
   expand_answer "preserve_lagoon"         "$(ask "Do you want to keep Lagoon integration?"            "$(get_value "preserve_lagoon"        "Y"                         )"  "${is_interactive}" )"
   expand_answer "remove_drupaldev_info"   "$(ask "Do you want to remove all Drupal-Dev information?"  "$(get_value "remove_drupaldev_info"  "Y"                         )"  "${is_interactive}" )"
 
-  # @todo:dev remove after everything is workning. Used for debug.
+  [ "${is_interactive}" -eq 1 ] && echo
 
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && print_resolved_variables
 }
@@ -298,7 +320,7 @@ ask() {
 
   [ "${is_interactive}" -ne 1 ] && echo "${default}" && return
 
-  text="${text} [${default}]"
+  text="> ${text} [${default}]"
   read -r -p "${text} " response
 
   if [ "${response}" != "" ] ; then
