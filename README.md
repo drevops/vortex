@@ -83,25 +83,25 @@ Quick install of best practices Drupal configuration on Docker stack using a sin
 | **Drupal**                                    |
 | Versions                                      | Drupal 7 support                    | Drupal 7 is still widely used |
 |                                               | Drupal 8 support                    | Drupal 8 is current version   |
-|                                               | Separate branches for each Drupal version     | Handling both Drupal versions in the same repository allows to easily re-use some commits across branches. |
+|                                               | Separate branches for each Drupal version | Handling both Drupal versions in the same repository allows to easily re-use some commits across branches. |
 | Composer-based configuration                  | Pure composer configuration         | Website is assembled using industry-standard tools such as Composer |
-|                                               | Uses drupal-scaffold                | Industry-standard composer package to scaffold some of Drupal files |
+|                                               | Uses [drupal-scaffold](https://github.com/drupal-composer/drupal-scaffold) | Industry-standard composer package to scaffold some of Drupal files |
 |                                               | Scripts to create required settings and files with environment variables support    | Required files and directories created automatically.Environment variables override support allows to provide override values without the need to change scripts. Useful for per-environment overrides. |
-|                                               | Settings file with multi-environment support  | Per-environment variables allow to easily target specific settings to specific environments without too much mess |
-|                                               | Best-practices development modules            | Having the same development modules on each website helps to reduce development time. |
-| Custom module scaffolding                     | Mechanism to organise contrib module-related hook implementations into standalone files | Helps avoid large files with all hook implementation, which leads to a simple maintenance. |
-| Custom theme scaffolding                      | Based on Bario (Bootstrap 4)        | Bootstrap 4 is the latest version of the most popular frontend framework and Bario is a Drupal theme that supports Bootstrap 4. |
+|                                               | Settings file with multi-environment support | Per-environment variables allow to easily target specific settings to specific environments without too much mess |
+|                                               | Best-practices development modules  | Having the same development modules on each website helps to reduce development time. |
+| Custom module scaffolding                     | Mechanism to organise contributed module-related hook implementations into standalone files | Helps avoid large files with all hook implementation, which leads to a simple maintenance. |
+| Custom theme scaffolding                      | Based on [Bario (Bootstrap 4)](https://www.drupal.org/project/bootstrap_barrio) | Bootstrap 4 is the latest version of the most popular frontend framework and Bario is a Drupal theme that supports Bootstrap 4. |
 |                                               | Grunt + SASS/SCSS + globbing + Livereload     | Grunt configuration defines multiple build steps to work with frontend in Drupal.<br/>Livereload allows to automatically refresh the page once there are changes to styles or scripts. |
-| Patches management                            | Based on composer-patches           | Support for custom (per-project) and contributed patches is simply essential for any project. |
+| Patches management                            | Based on [composer-patches](https://github.com/cweagans/composer-patches) | Support for custom (per-project) and contributed patches is simply essential for any project. |
 | **Local development environment**             |
-| Docker                                        | Using stable Amazee images          | Amazee images are stable - they are covered by tests and are used in many production environments. |
-|                                               | Pure Docker configuration           | Pure docker configuration allows anyone with Docker knowledge to alter configuration as required. |
+| Docker                                        | Using stable [Amazee images](https://hub.docker.com/r/amazeeio) | Amazee images are stable - they are covered by tests and are used in many production environments. |
+|                                               | Pure Docker configuration           | Pure Docker configuration allows anyone with Docker knowledge to alter configuration as required. |
 |                                               | Custom application support          | As a result of using Docker, it is possible to install any application, provided that it can be ran in container |
-|                                               | Multi-application support           | As a result of using Docker, it is possible to have multiple applications (not only Drupal) in one stack. For example, decoupled Drupal and Frontend Vuejs application. |
+|                                               | Multi-application support           | As a result of using Docker, it is possible to have multiple applications (not only Drupal) in one stack. For example, decoupled Drupal and Frontend VueJS application. |
 |                                               | Using [Pygmy](https://github.com/amazeeio/pygmy) | Adds support for additional Docker tools as well as Mailhog (to test emails) |
 | Unified Development Experience (DX)           | Ahoy commands to abstract complex tasks into set of workflow commands | To improve development speed and unify development tasks across projects |
 |                                               | Single command project build        | Project must be built in the same way on any environment and a single command always guarantees that it will be done in the same predictable way.Improve development speed and easy maintenance. |
-|                                               | Database sanitisation support       | Remove all personal data from the database before working on it. |
+|                                               | Database sanitization support       | Remove all personal data from the database before working on it. |
 | Configuration                                 | Configuration provided through a file with reasonable defaults | To cover majority of the project without the need to change any scripts |
 | **Code linting**                              |
 | PHP                                           | Drupal standards                    | To increase code quality and lower technical debt |
@@ -141,7 +141,7 @@ Quick install of best practices Drupal configuration on Docker stack using a sin
 |                                               | One-liner install script with optional wizard | Minimises the time to try Drupal-Dev.Provides centralised point for installation into new and existing projects, as well as updates. |
 | Stability                                     | Test suite for all provided commands | Guarantees that commands will work |
 |                                               | Own CI to run test suite            | Pull requests and releases are stable |
-|                                               | Daily Drupal and NPM updates        | Composer (including Drupal) and NPM packages are alway using the latest versions. |
+|                                               | Daily Drupal and NPM updates        | Composer (including Drupal) and NPM packages are always using the latest versions. |
 | Documentation                                 | Contribution guide\*                | Engages community to contribute back |
 |                                               | Pull request template               | Helps to improve community collaboration and reduce the time for pull request management. |
 
@@ -204,11 +204,11 @@ Drupal 8 implementation of MYSITE
   - [Docker](https://www.docker.com/) 
   - [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html)
   - [Ahoy](https://github.com/ahoy-cli/ahoy)
-2. Make sure that all local web development services are shut down (apache/nginx, mysql, MAMP etc).
+2. Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 3. Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
 [//]: # (#< ACQUIA)
 
-4. Add Acquia Cloud credentials to ".env.local" file:
+4. Add Acquia Cloud credentials to `.env.local` file:
 ```
   # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
   AC_API_USER_NAME=<YOUR_USERNAME>
@@ -256,9 +256,9 @@ Run each command as `ahoy <command>`.
 
 `composer require drupal/module_name`
 
-## Adding patches for drupal modules
+## Adding patches for Drupal modules
 
-1. Add `title` and `url` to patch on drupal.org to the `patches` array in `extra` section in `composer.json`.
+1. Add `title` and `url` to patch on https://drupal.org to the `patches` array in `extra` section in `composer.json`.
 
 ```
     "extra": {
@@ -303,7 +303,7 @@ This project uses [Circle CI](https://circleci.com/) as CI server: it imports pr
 Add `[skip ci]` to the commit subject to skip CI build. Useful for documentation changes.
 
 ### SSH
-Circle CI supports SSHing into the build for 120 minutes after the build is finished when the build is started with SSH support. Use "Rerun job with SSH" button in Circle CI UI to start build with SSH support.
+Circle CI supports shell access to the build for 120 minutes after the build is finished when the build is started with SSH support. Use "Rerun job with SSH" button in Circle CI UI to start build with SSH support.
 
 ### Cache
 Circle CI supports caching between builds. The cache takes care of saving the state of your dependencies between builds, therefore making the builds run faster.
