@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2181,SC2016,SC2002
 ##
 # Check spelling.
 #
@@ -29,7 +30,7 @@ for file in "${targets[@]}"; do
     sed -E 's/\[.+\]\([^\)]+\)//g' | \
     # Remove links.
     sed -E 's/http(s)?:\/\/([^ ]+)//g' | \
-    aspell --lang=en --encoding=utf-8 --personal="${CUR_DIR}/.aspell.en.pws" list | tee /dev/stderr | [ $(wc -l) -eq 0 ]
+    aspell --lang=en --encoding=utf-8 --personal="${CUR_DIR}/.aspell.en.pws" list | tee /dev/stderr | [ "$(wc -l)" -eq 0 ]
 
     if  [ "$?" -ne 0 ]; then
       exit 1
