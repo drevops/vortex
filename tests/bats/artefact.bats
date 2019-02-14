@@ -4,7 +4,7 @@
 #
 
 load test_helper
-load test_helper_init
+load test_helper_drupaldev
 
 @test "Artefact" {
   SRC_DIR=${SRC_DIR:-}
@@ -34,7 +34,6 @@ load test_helper_init
   # Other files and directories are not present.
   assert_dir_not_exists "${REMOTE_DIR}"/.circleci
   assert_dir_not_exists "${REMOTE_DIR}"/.data
-  assert_dir_not_exists "${REMOTE_DIR}"/.drupal-dev
   assert_dir_not_exists "${REMOTE_DIR}"/.docker
   assert_dir_not_exists "${REMOTE_DIR}"/.github
   assert_dir_not_exists "${REMOTE_DIR}"/.gitignore.artefact

@@ -52,7 +52,7 @@ assert_contains(){
   local needle="${1}"
   local haystack="${2}"
 
-  if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" >/dev/null; then
+  if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" > /dev/null; then
     return 0
   else
     { echo "string:   ${haystack}"
@@ -65,12 +65,12 @@ assert_not_contains(){
   local needle="${1}"
   local haystack="${2}"
 
-  if echo "$haystack" | $(type -p ggrep grep | head -1) -v -F -- "$needle" >/dev/null; then
-    return 0
-  else
+  if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" > /dev/null; then
     { echo "string:   ${haystack}"
       echo "contains: ${needle}"
     } | flunk
+  else
+    return 0
   fi
 }
 
@@ -95,6 +95,18 @@ assert_dir_exists(){
 assert_dir_not_exists(){
   local dir="${1}"
   [ -d "${dir}" ] && flunk "Directory ${dir} exists, but should not"
+  return 0
+}
+
+assert_dir_empty(){
+  local dir="${1}"
+  [ "$(ls -A "${dir}")" ] && flunk "Directory ${dir} exists, but should not"
+  return 0
+}
+
+assert_dir_not_empty(){
+  local dir="${1}"
+  [ -z "$(ls -A "${dir}")" ] && flunk "Directory ${dir} exists, but should not"
   return 0
 }
 

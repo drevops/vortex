@@ -17,12 +17,13 @@ docroot/profiles/*
 !docroot/sites/default/
 docroot/sites/default/*
 !docroot/sites/default/settings.php
-!docroot/sites/default/default.settings.local.php
 !docroot/sites/default/services.yml
+#< DRUPAL-DEV
+!docroot/sites/default/default.settings.local.php
 !docroot/sites/default/default.services.local.yml
-!docroot/.htaccess
+#> DRUPAL-DEV
 
-# Ignore dependencies cache files
+# Ignore dependencies cache files.
 vendor
 node_modules
 

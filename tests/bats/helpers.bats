@@ -4,7 +4,7 @@
 #
 
 load test_helper
-load test_helper_init
+load test_helper_drupaldev
 
 # Testing test system itself.
 @test "Assertions" {
@@ -53,15 +53,30 @@ load test_helper_init
   chmod 777 "${BATS_TMPDIR}/fixture_mode/1.txt"
   assert_file_mode "${BATS_TMPDIR}/fixture_mode/1.txt" "755"
 
-  assert_file_contains "${BATS_TEST_DIRNAME}/test_helper.bash" "Bats test helpers"
-  assert_file_not_contains "${BATS_TEST_DIRNAME}/test_helper.bash" "non-existing string"
+  prepare_fixture_dir "${BATS_TMPDIR}/fixture_file_assert"
+  echo "some existing text" >> "${BATS_TMPDIR}/fixture_file_assert/1.txt"
+  echo "other existing text" >> "${BATS_TMPDIR}/fixture_file_assert/1.txt"
+  echo "one more line of existing text" >> "${BATS_TMPDIR}/fixture_file_assert/1.txt"
+
+  assert_file_contains "${BATS_TMPDIR}/fixture_file_assert/1.txt" "some existing text"
+  assert_file_not_contains "${BATS_TMPDIR}/fixture_file_assert/1.txt" "other non-existing text"
+
+  prepare_fixture_dir "${BATS_TMPDIR}/fixture/dir"
+  assert_dir_empty "${BATS_TMPDIR}/fixture/dir"
+  echo "some existing text" > "${BATS_TMPDIR}/fixture/dir/1.txt"
+  assert_dir_not_empty "${BATS_TMPDIR}/fixture/dir"
 
   prepare_fixture_dir "${BATS_TMPDIR}/fixture"
   echo "some existing text" > "${BATS_TMPDIR}/fixture/1.txt"
   assert_dir_contains_string "${BATS_TMPDIR}/fixture" "existing"
   assert_dir_not_contains_string "${BATS_TMPDIR}/fixture" "non-existing"
+
+  prepare_fixture_dir "${BATS_TMPDIR}/fixture/git_repo"
+  assert_not_git_repo "${BATS_TMPDIR}/fixture/git_repo"
+  git --work-tree="${BATS_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TMPDIR}/fixture/git_repo/.git" init > /dev/null
+  assert_git_repo "${BATS_TMPDIR}/fixture/git_repo"
 }
 
 @test "Variables" {
-  assert_equal "${BUILD_DIR}" "/tmp/drupal-dev-bats"
+  assert_contains "drupal-dev-bats" "${BUILD_DIR}"
 }

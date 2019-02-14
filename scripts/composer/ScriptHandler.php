@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \DrupalProject\composer\ScriptHandler.
- */
-
 namespace DrupalProject\composer;
 
 use Composer\Script\Event;
@@ -13,8 +8,16 @@ use DrupalFinder\DrupalFinder;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\PathUtil\Path;
 
+/**
+ * Class ScriptHandler.
+ *
+ * @package DrupalProject\composer
+ */
 class ScriptHandler {
 
+  /**
+   * Create files and directories required for Drupal.
+   */
   public static function createRequiredFiles(Event $event) {
     $fs = new Filesystem();
     $drupalFinder = new DrupalFinder();
@@ -27,36 +30,49 @@ class ScriptHandler {
       'themes',
     ];
 
-    // Required for unit testing
+    // Required for unit testing.
     foreach ($dirs as $dir) {
-      if (!$fs->exists($drupalRoot . '/'. $dir)) {
-        $fs->mkdir($drupalRoot . '/'. $dir);
-        $fs->touch($drupalRoot . '/'. $dir . '/.gitkeep');
+      if (!$fs->exists($drupalRoot . '/' . $dir)) {
+        $fs->mkdir($drupalRoot . '/' . $dir);
+        $fs->touch($drupalRoot . '/' . $dir . '/.gitkeep');
       }
     }
 
-    // Prepare the settings file for installation
-    if (!$fs->exists($drupalRoot . '/sites/default/settings.php') and $fs->exists($drupalRoot . '/sites/default/default.settings.php')) {
+    // Create settings file from default settings, if does not already exist.
+    if ($fs->exists($drupalRoot . '/sites/default/default.settings.php') && !$fs->exists($drupalRoot . '/sites/default/settings.php')) {
       $fs->copy($drupalRoot . '/sites/default/default.settings.php', $drupalRoot . '/sites/default/settings.php');
-      require_once $drupalRoot . '/core/includes/bootstrap.inc';
-      require_once $drupalRoot . '/core/includes/install.inc';
-      $settings['config_directories'] = [
-        CONFIG_SYNC_DIRECTORY => (object) [
-          'value' => Path::makeRelative($drupalFinder->getComposerRoot() . '/config/default', $drupalRoot),
-          'required' => TRUE,
-        ],
-      ];
-      drupal_rewrite_settings($settings, $drupalRoot . '/sites/default/settings.php');
-      $fs->chmod($drupalRoot . '/sites/default/settings.php', 0644);
-      $event->getIO()->write("Create a sites/default/settings.php file with chmod 0644");
+      $event->getIO()->write('Created a sites/default/settings.php file');
     }
 
-    // Create the files directory with chmod 0777
+    // Check that the settings file was created correctly.
+    if (!$fs->exists($drupalRoot . '/sites/default/settings.php')) {
+      $event->getIO()->writeError('<error>Settings file not found</error>');
+      exit(1);
+    }
+
+    // Update permissions.
+    $fs->chmod($drupalRoot . '/sites/default', 0777);
+    $fs->chmod($drupalRoot . '/sites/default/settings.php', 0666);
+
+    // Add CONFIG_SYNC_DIRECTORY settings to the settings file.
+    $configPath = Path::makeRelative($drupalFinder->getComposerRoot() . '/config/default', $drupalRoot);
+    if (strpos(file_get_contents($drupalRoot . '/sites/default/settings.php'), 'CONFIG_SYNC_DIRECTORY') === FALSE) {
+      $settings_string = <<<SETTINGS
+\$settings['config_directories'] = [
+  CONFIG_SYNC_DIRECTORY => '$configPath',  
+];
+
+SETTINGS;
+      self::appendToFile($drupalRoot . '/sites/default/settings.php', $settings_string);
+      $event->getIO()->write('Added CONFIG_SYNC_DIRECTORY settings');
+    }
+
+    // Create the files directory and set permissions.
     if (!$fs->exists($drupalRoot . '/sites/default/files')) {
       $oldmask = umask(0);
       $fs->mkdir($drupalRoot . '/sites/default/files', 0777);
       umask($oldmask);
-      $event->getIO()->write("Create a sites/default/files directory with chmod 0777");
+      $event->getIO()->write('Created a sites/default/files directory with chmod 0777');
     }
   }
 
@@ -94,6 +110,37 @@ class ScriptHandler {
     elseif (Comparator::lessThan($version, '1.0.0')) {
       $io->writeError('<error>Drupal-project requires Composer version 1.0.0 or higher. Please update your Composer before continuing</error>.');
       exit(1);
+    }
+  }
+
+  /**
+   * Appends content to an existing file.
+   *
+   * Polyfill for older versions of Filesystem shipped with Composer phar.
+   *
+   * @param string $filename
+   *   The file to which to append content.
+   * @param string $content
+   *   The content to append.
+   *
+   * @throws \Symfony\Component\Filesystem\Exception\IOException
+   *   If the file is not writable.
+   */
+  protected static function appendToFile($filename, $content) {
+    $fs = new Filesystem();
+
+    $dir = \dirname($filename);
+
+    if (!is_dir($dir)) {
+      $fs->mkdir($dir);
+    }
+
+    if (!is_writable($dir)) {
+      throw new \Exception(sprintf('Unable to write to the "%s" directory.', $dir), 0, NULL, $dir);
+    }
+
+    if (FALSE === @file_put_contents($filename, $content, FILE_APPEND)) {
+      throw new \Exception(sprintf('Failed to write file "%s".', $filename), 0, NULL, $filename);
     }
   }
 

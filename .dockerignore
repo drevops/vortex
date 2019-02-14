@@ -29,6 +29,3 @@ docroot/libraries
 #< ACQUIA
 !hooks
 #> ACQUIA
-# @todo:dev Review and remove below.
-# !.data
-# !tests
