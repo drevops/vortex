@@ -15,17 +15,17 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 ## Getting started
 For quiet installation with default settings into current directory:
 ```
-curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/feature/8.x/install.sh | bash
+curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash
 ```
 
 Or for interactive installation into current directory:
 ```
-curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/feature/8.x/install.sh | bash -s -- --interactive
+curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash -s -- --interactive
 ```
 
 Or for interactive installation into specified directory:
 ```
-curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/feature/8.x/install.sh | bash -s -- --interactive path/to/directory
+curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash -s -- --interactive path/to/directory
 ```
 
 ![Installer](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/installer.png)

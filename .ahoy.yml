@@ -219,7 +219,7 @@ commands:
 
   update:
     usage: Update development stack.
-    cmd: curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/feature/8.x/install.sh | bash
+    cmd: curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash
 
   # Utilities.
   confirm:
