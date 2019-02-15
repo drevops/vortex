@@ -110,10 +110,42 @@ load test_helper_drupaldev
   ahoy export-db "mydb.sql"
   assert_file_exists ".data/mydb.sql"
 
+  step "Lint code"
+  ahoy lint
+
+  step "PHPUnit tests"
+  ahoy test-phpunit
+
   step "Run single Behat test"
   ahoy test-behat tests/behat/features/homepage.feature
   sync_to_host
   assert_dir_not_empty screenshots
+
+  step "Assert that lint failure bypassing works"
+  echo "\$a=1;" >> docroot/modules/custom/star_wars_core/star_wars_core.module
+  sync_to_container
+  # Assert failure.
+  run ahoy lint
+  [ "${status}" -eq 1 ]
+  # Assert failure bypass.
+  echo "ALLOW_LINT_FAIL=1" >> .env.local
+  sync_to_container
+  run ahoy lint
+  [ "${status}" -eq 0 ]
+
+  # @todo: Add assertions for PHPunit bypass flag here.
+
+  step "Assert that Behat test failure bypassing works"
+  echo "And I should be in the \"some-non-existing-page\" path" >> tests/behat/features/homepage.feature
+  sync_to_container
+  # Assert failure.
+  run ahoy test-behat tests/behat/features/homepage.feature
+  [ "${status}" -eq 1 ]
+  echo "ALLOW_BEHAT_FAIL=1" >> .env.local
+  sync_to_container
+  # Assert failure bypass.
+  run ahoy test-behat tests/behat/features/homepage.feature
+  [ "${status}" -eq 0 ]
 
   step "Build FE assets for production"
   assert_file_not_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#7e57e2"

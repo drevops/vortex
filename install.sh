@@ -114,14 +114,16 @@ gather_answers(){
 
   gather_project_name
 
-  expand_answer "name"                    "$(ask "What is your site name?"                            "$(to_human_name "$(get_value         "name")"                    )"  "${is_interactive}" )"
+  expand_answer "name"                    "$(ask "What is your site name?"                            "$(capitalize "$(to_human_name "$(get_value "name")" )"           )"  "${is_interactive}" )"
+  expand_answer "name" "$(capitalize "$(to_human_name "$(get_value "name")" )" )"
+  name=$(get_value "name")
   expand_answer "machine_name"            "$(ask "What is your site machine name?"                    "$(to_machine_name "$(get_value       "machine_name")"            )"  "${is_interactive}" )"
   machine_name=$(get_value "machine_name")
-  expand_answer "org"                     "$(ask "What is your organization name?"                    "$(get_value "org"                    "${machine_name}_org"       )"  "${is_interactive}" )"
+  expand_answer "org"                     "$(ask "What is your organization name?"                    "$(get_value "org"                    "${name} Org"               )"  "${is_interactive}" )"
   expand_answer "org_machine_name"        "$(ask "What is your organization machine name?"            "$(to_machine_name "$(get_value       "org")"                     )"  "${is_interactive}" )"
   expand_answer "module_prefix"           "$(ask "What is your project-specific module prefix?"       "$(get_value "module_prefix"          "${machine_name}"           )"  "${is_interactive}" )"
   expand_answer "theme"                   "$(ask "What is your theme machine name?"                   "$(get_value "theme"                  "${machine_name}"           )"  "${is_interactive}" )"
-  expand_answer "url"                     "$(ask "What is your site public URL?"                             "$(get_value "url"                    "${machine_name//_ /-}.com" )"  "${is_interactive}" )"
+  expand_answer "url"                     "$(ask "What is your site public URL?"                      "$(get_value "url"                    "${machine_name//_ /-}.com" )"  "${is_interactive}" )"
   expand_answer "preserve_acquia"         "$(ask "Do you want to keep Acquia Cloud integration?"      "$(get_value "preserve_acquia"        "Y"                         )"  "${is_interactive}" )"
   expand_answer "preserve_lagoon"         "$(ask "Do you want to keep Lagoon integration?"            "$(get_value "preserve_lagoon"        "Y"                         )"  "${is_interactive}" )"
   expand_answer "remove_drupaldev_info"   "$(ask "Do you want to remove all Drupal-Dev information?"  "$(get_value "remove_drupaldev_info"  "Y"                         )"  "${is_interactive}" )"
@@ -467,6 +469,10 @@ to_lower() {
 
 to_upper() {
   echo "${1}" | tr '[:lower:]' '[:upper:]'
+}
+
+capitalize() {
+  echo "$(tr '[:lower:]' '[:upper:]' <<< "${1:0:1}")${1:1}"
 }
 
 to_machine_name () {

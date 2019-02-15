@@ -200,22 +200,25 @@ commands:
     cmd: |
       ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }" \
       && ahoy cli "vendor/bin/phpcs -v ${PHPCS_TARGETS//,/ }" \
-      && ahoy cli "npm run lint"
+      && ahoy cli "npm run lint" \
+      || [ "${ALLOW_LINT_FAIL:-0}" -eq 1 ]
 
   test:
     usage: Run all tests.
     cmd: |
-      ahoy test-phpunit
-      ahoy test-behat
+      ahoy test-phpunit \
+      && ahoy test-behat
 
   test-behat:
     usage: Run Behat tests.
-    cmd: ahoy cli "./vendor/bin/behat --strict --colors ${BEHAT_PROFILE} $@"
+    cmd: ahoy cli "./vendor/bin/behat --strict --colors ${BEHAT_PROFILE} $@" || [ "${ALLOW_BEHAT_FAIL:-0}" -eq 1 ]
 
   test-phpunit:
     usage: Run PHPUnit tests.
     # @todo: Implement this.
-    cmd: ahoy cli "echo Not implemented"
+    cmd: |
+      ahoy cli "echo Not implemented" \
+      || [ "${ALLOW_PHPUNIT_FAIL:-0}" -eq 1 ]
 
   update:
     usage: Update development stack.
