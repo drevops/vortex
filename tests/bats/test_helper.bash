@@ -100,24 +100,27 @@ assert_dir_not_exists(){
 
 assert_dir_empty(){
   local dir="${1}"
-  [ "$(ls -A "${dir}")" ] && flunk "Directory ${dir} exists, but should not"
+  assert_dir_exists "${dir}"
+  [ "$(ls -A "${dir}")" ] && flunk "Directory ${dir} is not empty, but should be"
   return 0
 }
 
 assert_dir_not_empty(){
   local dir="${1}"
-  [ -z "$(ls -A "${dir}")" ] && flunk "Directory ${dir} exists, but should not"
+  assert_dir_exists "${dir}"
+  [ -z "$(ls -A "${dir}")" ] && flunk "Directory ${dir} is empty, but should not be"
   return 0
 }
-
 assert_symlink_exists(){
   local file="${1}"
+  [ ! -h "${file}" ] && [ -f "${file}" ] && flunk "Regular file ${file} exists, but symlink is expected"
   [ ! -h "${file}" ] && flunk "Symlink ${file} does not exist"
   return 0
 }
 
 assert_symlink_not_exists(){
   local file="${1}"
+  [ -h "${file}" ] && [ -f "${file}" ] && flunk "Regular file ${file} exists, but symlink is expected"
   [ -h "${file}" ] && flunk "Symlink ${file} exists, but should not"
   return 0
 }

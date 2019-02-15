@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7e373d4544ea357dda408e927d6a3b3a",
+    "content-hash": "70c8aaae536338bd9006b993759c339f",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5598,6 +5598,9 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "4.4-dev"
+                },
+                "patches_applied": {
+                    "Correctly filter features, now that the base path is correctly set - https://github.com/Behat/Gherkin/pull/129": "https://patch-diff.githubusercontent.com/raw/Behat/Gherkin/pull/129.patch"
                 }
             },
             "autoload": {
@@ -7326,6 +7329,11 @@
                 "squizlabs/php_codesniffer": "2.*"
             },
             "type": "robo-tasks",
+            "extra": {
+                "patches_applied": {
+                    "Added disabling of local exclude file": "https://patch-diff.githubusercontent.com/raw/integratedexperts/robo-git-artefact/pull/25.patch"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "IntegratedExperts\\Robo\\": "src"
@@ -8166,6 +8174,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2017-06-30T09:13:00+00:00"
         },
         {
