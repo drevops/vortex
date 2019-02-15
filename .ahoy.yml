@@ -7,15 +7,15 @@ commands:
   build:
     usage: Build or rebuild project.
     cmd: |
-      ahoy title "Building project" \
-      && ahoy clean \
-      && (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network) \
-      && ahoy up -- --build --force-recreate \
-      && if [ "${BUILD_EXPORT_DIR}" != "" ]; then mkdir -p ${BUILD_EXPORT_DIR} && docker cp -L $(docker-compose ps -q cli):/app/. ${BUILD_EXPORT_DIR}; fi \
-      && ahoy install-dev \
-      && ahoy install-site \
-      && ahoy title "Build complete" \
-      && ahoy info 1
+      ahoy title "Building project" && \
+      ahoy clean && \
+      (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network) && \
+      ahoy up -- --build --force-recreate && \
+      (if [ "${BUILD_EXPORT_DIR}" != "" ]; then mkdir -p ${BUILD_EXPORT_DIR} && docker cp -L $(docker-compose ps -q cli):/app/. ${BUILD_EXPORT_DIR}; fi) && \
+      ahoy install-dev && \
+      ahoy install-site && \
+      ahoy title "Build complete"
+      ahoy info 1
 
   info:
     usage: Print information about this project.
@@ -36,10 +36,10 @@ commands:
   up:
     usage: Build and start Docker containers.
     cmd: |
-      docker-compose up -d "$@" \
-      && ahoy cli "dockerize -wait tcp://mariadb:3306 -timeout 1m" \
-      && if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi \
-      && docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME}_
+      docker-compose up -d "$@" && \
+      ahoy cli "dockerize -wait tcp://mariadb:3306 -timeout 1m" && \
+      if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi && \
+      docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME}_
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
@@ -102,39 +102,38 @@ commands:
   install-site:
     usage: Install a site.
     cmd: |
-      ahoy title "Importing database from the dump"
-      [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ] && ahoy export-db
-      ahoy import-db-dump
-      ahoy sanitize-db
-      ahoy drush en mysite_core -y
-      ahoy drush updb -y
-      #< PROFILE
-      #| Replace lines above with lines below if you want to install site from profile.
-      #| ahoy title "Installing a site from profile"
-      #| ahoy drush si ${DRUPAL_PROFILE} -y --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
-      #| ahoy drush en -y mysite_core
-      #> PROFILE
-      #| Only import configuration if at least one config file exists.
-      [ -f config/default/*.yml ] && ahoy drush cim -y || true
+      ahoy title "Importing database from the dump" && \
+      (if [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ]; then ahoy export-db; fi) && \
+      ahoy import-db-dump && \
+      ahoy sanitize-db && \
+      ahoy drush en mysite_core -y && \
+      ahoy drush updb -y && \
+      #< PROFILE \
+      #| Replace lines above with lines below if you want to install site from profile. \
+      #| ahoy title "Installing a site from profile" && \
+      #| ahoy drush si ${DRUPAL_PROFILE} -y --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
+      #| ahoy drush en -y mysite_core && \
+      #> PROFILE \
+      (if [ -f config/default/*.yml ]; then ahoy drush cim -y || true; fi) && \
       ahoy drush cr
 
   import-db-dump:
     usage: Import database dump.
     cmd: |
-      ahoy drush sql-drop -y
-      ahoy cli "mkdir -p /tmp/.data"
-      docker cp -L ${DATAROOT}/db.sql $(docker-compose ps -q cli):/tmp/.data/db.sql
+      ahoy drush sql-drop -y && \
+      ahoy cli "mkdir -p /tmp/.data" && \
+      docker cp -L ${DATAROOT}/db.sql $(docker-compose ps -q cli):/tmp/.data/db.sql && \
       ahoy cli "bash -c \"drush -r ${APP}/${WEBROOT} sql-cli < /tmp/.data/db.sql\""
     hide: true
 
   export-db:
     usage: Export database dump.
     cmd: |
-      ahoy cli "mkdir -p /tmp/.data"
-      ahoy drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql -q
-      mkdir -p ${DATAROOT}
-      DUMP_FILE=$([ "${1}" ] && echo ${DATAROOT}/${1} || echo ${DATAROOT}/db_export_$(date +%Y_%m_%d_%H_%M_%S).sql)
-      docker cp -L $(docker-compose ps -q cli):/tmp/.data/db.sql ${DUMP_FILE}
+      ahoy cli "mkdir -p /tmp/.data" && \
+      ahoy drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql -q && \
+      mkdir -p ${DATAROOT} && \
+      DUMP_FILE=$([ "${1}" ] && echo ${DATAROOT}/${1} || echo ${DATAROOT}/db_export_$(date +%Y_%m_%d_%H_%M_%S).sql) && \
+      docker cp -L $(docker-compose ps -q cli):/tmp/.data/db.sql ${DUMP_FILE} && \
       [ -f "${DUMP_FILE}" ] && ahoy title "Dump saved to file ${DUMP_FILE}"
 
   sanitize-db:
@@ -142,9 +141,9 @@ commands:
     cmd: |
       ahoy drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
       if [ "${DB_SANITIZE_SQL}" != "" ] && [ -f "${DB_SANITIZE_SQL}" ]; then
-        ahoy title "Applying custom sanitization commands"
-        ahoy cli "mkdir -p $(dirname /tmp/${DB_SANITIZE_SQL})"
-        docker cp -L ${DB_SANITIZE_SQL} $(docker-compose ps -q cli):/tmp/${DB_SANITIZE_SQL}
+        ahoy title "Applying custom sanitization commands" && \
+        ahoy cli "mkdir -p $(dirname /tmp/${DB_SANITIZE_SQL})" && \
+        docker cp -L ${DB_SANITIZE_SQL} $(docker-compose ps -q cli):/tmp/${DB_SANITIZE_SQL} && \
         ahoy drush sql-query --file=/tmp/${DB_SANITIZE_SQL}
       fi
     hide: true
@@ -183,11 +182,11 @@ commands:
   install-dev:
     usage: Install dependencies.
     cmd: |
-      docker cp -L .data $(docker-compose ps -q cli):/app/
-      docker cp -L behat.yml $(docker-compose ps -q cli):/app/
-      docker cp -L tests $(docker-compose ps -q cli):/app/
-      docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
-      ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
+      docker cp -L .data $(docker-compose ps -q cli):/app/ && \
+      docker cp -L behat.yml $(docker-compose ps -q cli):/app/ && \
+      docker cp -L tests $(docker-compose ps -q cli):/app/ && \
+      docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/ && \
+      ahoy cli "composer install -n --ansi --prefer-dist --no-suggest" && \
       ahoy cli "npm install"
     hide: true
 
@@ -198,16 +197,16 @@ commands:
   lint:
     usage: Lint code.
     cmd: |
-      ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }" \
-      && ahoy cli "vendor/bin/phpcs -v ${PHPCS_TARGETS//,/ }" \
-      && ahoy cli "npm run lint" \
-      || [ "${ALLOW_LINT_FAIL:-0}" -eq 1 ]
+      ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }" && \
+      ahoy cli "vendor/bin/phpcs -v ${PHPCS_TARGETS//,/ }" && \
+      ahoy cli "npm run lint" || \
+      [ "${ALLOW_LINT_FAIL:-0}" -eq 1 ]
 
   test:
     usage: Run all tests.
     cmd: |
-      ahoy test-phpunit \
-      && ahoy test-behat
+      ahoy test-phpunit && \
+      ahoy test-behat
 
   test-behat:
     usage: Run Behat tests.
@@ -217,8 +216,8 @@ commands:
     usage: Run PHPUnit tests.
     # @todo: Implement this.
     cmd: |
-      ahoy cli "echo Not implemented" \
-      || [ "${ALLOW_PHPUNIT_FAIL:-0}" -eq 1 ]
+      ahoy cli "echo Not implemented" || \
+      [ "${ALLOW_PHPUNIT_FAIL:-0}" -eq 1 ]
 
   update:
     usage: Update development stack.
