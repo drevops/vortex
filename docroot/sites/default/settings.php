@@ -87,6 +87,14 @@ $settings['file_scan_ignore_directories'] = [
 // The default number of entities to update in a batch process.
 $settings['entity_update_batch_size'] = 50;
 
+// Settings for other environments are included below.
+$settings['trusted_host_patterns'] = [
+  // Local URL.
+  '^.+\.docker\.amazee\.io$',
+  // URL when accessed from Behat tests.
+  '^nginx$',
+];
+
 ////////////////////////////////////////////////////////////////////////////////
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
 ////////////////////////////////////////////////////////////////////////////////
