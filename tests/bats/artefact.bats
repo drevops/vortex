@@ -86,7 +86,6 @@ load test_helper_drupaldev
 
   # Only minified compiled CSS present.
   assert_file_exists "${REMOTE_DIR}"/docroot/themes/custom/mysitetheme/build/css/mysitetheme.min.css
-  assert_file_contains "${REMOTE_DIR}"/docroot/themes/custom/mysitetheme/build/css/mysitetheme.min.css "background:#fff"
   assert_file_not_exists "${REMOTE_DIR}"/docroot/themes/custom/mysitetheme/build/css/mysitetheme.css
   assert_dir_not_exists "${REMOTE_DIR}"/docroot/themes/custom/mysitetheme/scss
   assert_dir_not_exists "${REMOTE_DIR}"/docroot/themes/custom/mysitetheme/css

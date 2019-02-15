@@ -66,7 +66,7 @@ load test_helper_drupaldev
 
   step "Build project"
   ahoy build >&3
-  sync_to_host "${CURRENT_PROJECT_DIR}"
+  sync_to_host
 
   assert_added_files "${CURRENT_PROJECT_DIR}"
 
@@ -74,7 +74,7 @@ load test_helper_drupaldev
   assert_file_exists docroot/sites/default/settings.generated.php
   # Assert only minified compiled CSS exists.
   assert_file_exists docroot/themes/custom/star_wars/build/css/star_wars.min.css
-  assert_file_contains docroot/themes/custom/star_wars/build/css/star_wars.min.css "background:#fff"
+  assert_file_not_contains docroot/themes/custom/star_wars/build/css/star_wars.min.css "background: #7e57e2"
   assert_file_not_exists docroot/themes/custom/star_wars/build/css/star_wars.css
   # Assert only minified compiled JS exists.
   assert_file_exists docroot/themes/custom/star_wars/build/js/star_wars.min.js
@@ -112,14 +112,30 @@ load test_helper_drupaldev
 
   step "Run single Behat test"
   ahoy test-behat tests/behat/features/homepage.feature
-  sync_to_host "${CURRENT_PROJECT_DIR}"
+  sync_to_host
   assert_dir_not_empty screenshots
 
-  step "Build FE assets"
-  echo "\$body-bg: \$color-white;" >> docroot/themes/custom/star_wars/scss/_variables.scss
+  step "Build FE assets for production"
+  assert_file_not_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#7e57e2"
+  echo "\$color-tester: #7e57e2;" >> docroot/themes/custom/star_wars/scss/_variables.scss
+  echo "\$body-bg: \$color-tester;" >> docroot/themes/custom/star_wars/scss/_variables.scss
+  sync_to_container
+  ahoy fe
+  sync_to_host
+  debug "docroot/themes/custom/star_wars/build/css/star_wars.min.css"
+  assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background:#7e57e2"
+
+  step "Build FE assets for development"
+  assert_file_not_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#91ea5e"
+  echo "\$color-please: #91ea5e;" >> docroot/themes/custom/star_wars/scss/_variables.scss
+  echo "\$body-bg: \$color-please;" >> docroot/themes/custom/star_wars/scss/_variables.scss
+  sync_to_container
   ahoy fed
-  sync_to_host "${CURRENT_PROJECT_DIR}"
-  assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#fff"
+  sync_to_host
+  debug "docroot/themes/custom/star_wars/build/css/star_wars.min.css"
+  # Note that assets compiled for development are not minified (contains spaces
+  # between properties and their values).
+  assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background: #91ea5e"
 
   step "Re-import DB"
   rm -Rf .data/*
@@ -174,19 +190,20 @@ step(){
 
 # Sync files to host in case if volumes are not mounted from host.
 sync_to_host(){
-  local dst="${1}"
-  export "$(grep -v '^#' .env | xargs)"
-  [ "$VOLUMES_MOUNTED" == "1" ] && return
-  echo "Syncing from $(docker-compose ps -q cli) to ${dst}"
+  local dst="${1:-.}"
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
+  [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${dst} to host" && return
+  debug "Syncing from $(docker-compose ps -q cli) to ${dst}"
   docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
 }
 
 # Sync files to container in case if volumes are not mounted from host.
 sync_to_container(){
-  export "$(grep -v '^#' .env | xargs)"
-  [ "$VOLUMES_MOUNTED" == "1" ] && return
-  echo "Syncing from ${1} to $(docker-compose ps -q cli)"
-  docker cp -L "${1}" "$(docker-compose ps -q cli)":/app/
+  local src="${1:-.}"
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
+  [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
+  debug "Syncing from ${src} to $(docker-compose ps -q cli)"
+  docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
 }
 
 # Assert that containers are not running.
