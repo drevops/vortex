@@ -133,7 +133,13 @@ assert_added_files_no_integrations(){
   assert_file_not_contains README.md "# Drupal-Dev"
 
   # Assert that Drupal-Dev files removed.
+  assert_file_not_exists "install.sh"
+  assert_file_not_exists "LICENSE"
   assert_dir_not_exists "tests/bats"
+  assert_file_not_contains ".circleci/config.yml" "drupal_dev_test"
+  assert_file_not_contains ".circleci/config.yml" "drupal_dev_test_artefact"
+  assert_file_not_contains ".circleci/config.yml" "drupal_dev_deploy"
+  assert_file_not_contains ".circleci/config.yml" "drupal_dev_deploy_tags"
 
   # Assert that required files were not locally excluded.
   if [ -d ".git" ] ; then
@@ -340,6 +346,8 @@ prepare_local_repo(){
   fi
 
   git_init "${dir}"
+  [ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name" && git config --global user.name "Some User"
+  [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email" && git config --global user.email "some.user@example.com"
   commit=$(git_add_all "${dir}" "Initial commit")
 
   echo "${commit}"

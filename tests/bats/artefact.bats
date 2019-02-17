@@ -78,20 +78,20 @@ load test_helper_drupaldev
   fi
 
   assert_added_files "${SRC_DIR}"
+  mkdir -p "${SRC_DIR}"/node_modules
+  touch "${SRC_DIR}"/node_modules/test.txt
 
   step "Preparing remote repo directory ${REMOTE_REPO_DIR}"
   prepare_fixture_dir "${REMOTE_REPO_DIR}"
   git_init "${REMOTE_REPO_DIR}" 1
-  DEPLOY_REMOTE="${REMOTE_REPO_DIR}"/.git
 
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
-  step "Installing dependencies, including artefact builder"
-  ahoy install-dev
-  sync_to_host
-
-  step "Push artefact to remote repository"
-  vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact "${DEPLOY_REMOTE}" --root="${CURRENT_PROJECT_DIR}" --src="${SRC_DIR}" --gitignore="${SRC_DIR}"/.gitignore.artefact --push --no-cleanup -vvvv >&3
+  step "Running deployment"
+  export DEPLOY_REMOTE="${REMOTE_REPO_DIR}"/.git
+  export DEPLOY_ROOT="${CURRENT_PROJECT_DIR}"
+  export DEPLOY_SRC="${SRC_DIR}"
+  source scripts/deploy.sh >&3
 
   step "Checkout currently pushed branch on remote"
   git --git-dir="${DEPLOY_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch | sed 's/\*\s//g' | xargs git --git-dir="${DEPLOY_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" checkout
@@ -163,6 +163,9 @@ load test_helper_drupaldev
   assert_file_contains "${REMOTE_REPO_DIR}"/docroot/themes/custom/star_wars/build/js/star_wars.min.js "function(t,Drupal){\"use strict\";Drupal.behaviors.star_wars"
   assert_file_not_exists "${REMOTE_REPO_DIR}"/docroot/themes/custom/star_wars/build/js/star_wars.js
   assert_dir_not_exists "${REMOTE_REPO_DIR}"/docroot/themes/custom/star_wars/js
+
+  # Assert configuration dir exists.
+  assert_dir_exists "${REMOTE_REPO_DIR}"/config/default
 
   # Acquia hooks are present.
   assert_dir_exists "${REMOTE_REPO_DIR}"/hooks/library

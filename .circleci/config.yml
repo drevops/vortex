@@ -3,10 +3,8 @@
 #|
 #| Comments starting with '#|', '#<' or '#>' (like the ones used for the
 #| current paragraph) are explaining Drupal-Dev inner working and can be safely
-#| removed for specific project.
-#|
-#| Do not manually remove these comments. Instead, run `ahoy init` to initialise
-#| this project.
+#| removed for your project. They are automatically removed when installing
+#| Drupal-Dev.
 version: 2
 aliases:
   # Variables.
@@ -36,9 +34,9 @@ aliases:
           DB_SEMAPHORE_FILE: /tmp/db-new
           #| Volumes mounting to host is not supported in CircleCI.
           VOLUMES_MOUNTED: 0
-    #| Use large resource class for faster builds.
-    #| Uncomment the line below if your account has this option configured.
-    #| resource_class: xlarge
+    # Use large resource class for faster builds.
+    # Uncomment the line below if your account has this option configured.
+    # resource_class: xlarge
 
   # Step to setup remote docker.
   - &step_setup_remote_docker
@@ -46,44 +44,13 @@ aliases:
       setup_remote_docker
     #> CI_NO_DLC
     #< CI_DLC
-    #| Uncomment lines below if your CircleCI plan supports docker layer caching.
-    #| Docker Layer Caching allows to significantly speed up builds by caching
-    #| images built during previous runs.
-    #| @see https://circleci.com/docs/2.0/docker-layer-caching/
+    # Uncomment lines below if your CircleCI plan supports docker layer caching.
+    # Docker Layer Caching allows to significantly speed up builds by caching
+    # images built during previous runs.
+    # @see https://circleci.com/docs/2.0/docker-layer-caching/
     # setup_remote_docker:
     #   docker_layer_caching: true
     #> CI_DLC
-
-  # Step to configure git and SSH to connect to remote servers for deployment.
-  #|
-  #| Deployment to remote git repositories allows to build the project and all
-  #| required artifacts in CI and then commit only required files to
-  #| the destination repository. This makes applications fast and secure,
-  #| because none of unnecessary code (such as development tools) are  exposed
-  #| to production environment.
-  #|
-  #| It is advised to create a separate Deployer user with own SSH key for each project.
-  #|
-  #| Add the following variables through CircleCI UI.
-  #| $DEPLOY_USER_NAME - name of the user who will be committing to a remote repository.
-  #| $DEPLOY_USER_EMAIL - email address of the user who will be committing to a remote repository.
-  #| $DEPLOY_REMOTE - remote repository to push artefact to.
-  - &step_configure_git
-    run:
-      name: Configure git
-      command: git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
-
-  - &step_configure_ssh
-    run:
-      name: Configure SSH
-      command: |
-        mkdir -p ${HOME}/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > ${HOME}/.ssh/config
-        DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_SSH_FILE//\"}"
-        if [ -f "${DEPLOY_SSH_FILE}" ]; then
-          echo "Found Deploy SSH key file ${DEPLOY_SSH_FILE}"
-          ssh-add -D
-          ssh-add ${DEPLOY_SSH_FILE}
-        fi
 
 jobs:
   #| Database handling is a first step of the build. It contains:
@@ -153,45 +120,23 @@ jobs:
       #| remove files then archive and save them).
       - run:
           name: Remove dependencies before persisting
-          command: rm -Rf node_modules && rm -Rf vendor
+          command: rm -Rf /workspace/code/node_modules
       - persist_to_workspace:
           root: /workspace
           paths:
             - code
 
   # Deploy primary branches.
-  #|
-  #| Specify, $SHOULD_DEPLOY, $DEPLOY_REMOTE, $DEPLOY_USER_EMAIL, and
-  #| $DEPLOY_USER_NAME in "Environment Variables" section in CircleCI UI.
-  #| Also, add private key of the user who is allowed to push to $DEPLOY_REMOTE
-  #| under "SSH Permissions" in CircleCI UI.
-  #|
-  #| Note that we do not start container stack for deployment.
   deploy: &job_deploy
     <<: *container_config
     steps:
-      - checkout
+      - attach_workspace:
+          at: /workspace
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
-      - *step_configure_git
-      - *step_configure_ssh
-      - attach_workspace:
-          at: /workspace
-      - run:
-          name: Install dev dependencies
-          command: composer install -n --ansi --prefer-dist --ignore-platform-reqs
-      - run: |
-          cp -a .git /workspace/code
-          cp -a .gitignore.artefact /workspace/code
-      - run:
-          name: Push artefact to remote repository
-          command: |
-            if [ "$SHOULD_DEPLOY" ]; then
-              vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt --no-cleanup
-            else
-              echo "Skipping deployment"
-            fi
+      - checkout
+      - run: .circleci/deploy.sh
       - store_artifacts:
           path: /tmp/artifacts
 
@@ -199,48 +144,33 @@ jobs:
   deploy_tags: &job_deploy_tags
     <<: *container_config
     steps:
-      - checkout
+      - attach_workspace:
+          at: /workspace
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
-      - *step_configure_git
-      - *step_configure_ssh
-      - attach_workspace:
-          at: /workspace
-      - run:
-          name: Install dev dependencies
-          command: composer install -n --ansi --prefer-dist --ignore-platform-reqs
-      - run: |
-          cp -a .git /workspace/code
-          cp -a .gitignore.artefact /workspace/code
-      - run:
-          name: Push artefact to remote repository
-          command: |
-            if [ "$SHOULD_DEPLOY" ]; then
-              vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt --branch=deployment/[tags:-];
-            else
-              echo "Skipping deployment"
-            fi
+      - checkout
+      - run: DEPLOY_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
       - store_artifacts:
           path: /tmp/artifacts
 
-  #<
+  #< DRUPAL-DEV
   #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-  #| Test suite for Drupal-Dev. Remove the lines below in your project.        |
+  #| Test suite for Drupal-Dev.                                                |
   #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-  test_drupal_dev:
+  drupal_dev_test:
     <<: *container_config
     steps:
       - checkout
       - *step_setup_remote_docker
-      - *step_configure_git
+      - run: git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
       - run: scripts/lint-scripts.sh
       - run: scripts/check-spell.sh
       - run: bats tests/bats/helpers.bats --tap
       - run: bats tests/bats/install.bats --tap
       - run: bats tests/bats/workflow.bats --tap
 
-  test_drupal_dev_artefact:
+  drupal_dev_test_artefact:
     <<: *container_config
     steps:
       - checkout
@@ -248,18 +178,17 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
-      - *step_configure_git
       - attach_workspace:
           at: /workspace
       - run: bats tests/bats/artefact.bats --tap
 
   # Deployment of feature branches and tags for Drupal-Dev itself.
-  deploy_drupal_dev:
+  drupal_dev_deploy:
     <<: *job_deploy
 
-  deploy_drupal_dev_tags:
+  drupal_dev_deploy_tags:
     <<: *job_deploy_tags
-  #>
+  #> DRUPAL-DEV
 workflows:
   version: 2
   main:
@@ -297,34 +226,35 @@ workflows:
               # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)$/
 
-      #< Feature and tag deployment for Drupal-Dev itself. Remove the code below in your project.
-      - test_drupal_dev:
+      #< DRUPAL-DEV
+      #| Feature and tag deployment for Drupal-Dev itself. Remove the code below in your project.
+      - drupal_dev_test:
           filters:
             tags:
               only: /.*/
-      - test_drupal_dev_artefact:
+      - drupal_dev_test_artefact:
           requires:
             - build
           filters:
             tags:
               only: /.*/
-      - deploy_drupal_dev:
+      - drupal_dev_deploy:
           requires:
             - build
-            - test_drupal_dev
+            - drupal_dev_test
           filters:
             branches:
               # Allowed branches: 7.x, 8.x, feature/7.x-description, feature/8.x-description
               only: /(?:7|8)\.x|feature\/(?:7|8)\.x[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
-      - deploy_drupal_dev_tags:
+      - drupal_dev_deploy_tags:
           requires:
             - build
-            - test_drupal_dev
+            - drupal_dev_test
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
-      #>
+      #> DRUPAL-DEV
