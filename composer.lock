@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "70c8aaae536338bd9006b993759c339f",
+    "content-hash": "93ebf93bf996650dbd212900ad57be5b",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -7306,16 +7306,16 @@
         },
         {
             "name": "integratedexperts/robo-git-artefact",
-            "version": "0.2.4",
+            "version": "0.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/robo-git-artefact.git",
-                "reference": "b89900ac595a55b16db3de75454064fb18b01ca9"
+                "reference": "4ecce56f6c07c59241c6b9e763afd67978db1a78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/b89900ac595a55b16db3de75454064fb18b01ca9",
-                "reference": "b89900ac595a55b16db3de75454064fb18b01ca9",
+                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/4ecce56f6c07c59241c6b9e763afd67978db1a78",
+                "reference": "4ecce56f6c07c59241c6b9e763afd67978db1a78",
                 "shasum": ""
             },
             "require": {
@@ -7329,11 +7329,6 @@
                 "squizlabs/php_codesniffer": "2.*"
             },
             "type": "robo-tasks",
-            "extra": {
-                "patches_applied": {
-                    "Added disabling of local exclude file": "https://patch-diff.githubusercontent.com/raw/integratedexperts/robo-git-artefact/pull/25.patch"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "IntegratedExperts\\Robo\\": "src"
@@ -7350,7 +7345,7 @@
                 }
             ],
             "description": "Robo task to push git artefact to remote repository",
-            "time": "2018-04-24T10:35:11+00:00"
+            "time": "2019-02-17T14:24:23+00:00"
         },
         {
             "name": "jakub-onderka/php-parallel-lint",
