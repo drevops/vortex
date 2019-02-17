@@ -145,6 +145,9 @@
             },
             "drupal/token": {
                 "Node preview button generates useless menu link - https://www.drupal.org/node/2823731#comment-11905884": "https://www.drupal.org/files/issues/token_node_preview_menu_link-2823731-4.patch"
+            },
+            "integratedexperts/robo-git-artefact": {
+                "Added disabling of local exclude file": "https://patch-diff.githubusercontent.com/raw/integratedexperts/robo-git-artefact/pull/25.patch"
             }
         }
     }

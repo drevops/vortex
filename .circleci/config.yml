@@ -244,13 +244,14 @@ jobs:
     <<: *container_config
     steps:
       - checkout
+      - *step_setup_remote_docker
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
       - *step_configure_git
       - attach_workspace:
           at: /workspace
-      - run: SRC_DIR=/workspace/code bats tests/bats/artefact.bats --tap
+      - run: bats tests/bats/artefact.bats --tap
 
   # Deployment of feature branches and tags for Drupal-Dev itself.
   deploy_drupal_dev:

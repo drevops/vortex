@@ -188,6 +188,8 @@ process_stub(){
 
   rm -Rf "${dir}"/tests/bats > /dev/null
 
+  # @note: String replacement may break symlinks to the file where replacement
+  # occurs.
   replace_string_content  "mysitetheme"  "$(get_value "theme")"             "${dir}" && bash -c "echo -n ."
   replace_string_content  "myorg"        "$(get_value "org_machine_name")"  "${dir}" && bash -c "echo -n ."
   replace_string_content  "mysiteurl"    "$(get_value "url")"               "${dir}" && bash -c "echo -n ."
@@ -201,6 +203,7 @@ process_stub(){
   if [ "$(get_value "preserve_acquia")" != "Y" ] ; then
     rm -Rf "${dir}"/hooks > /dev/null
     rm "${dir}"/scripts/download-backup-acquia.sh > /dev/null
+    rm "${dir}"/.gitignore.artefact > /dev/null
     rm "${dir}"/DEPLOYMENT.md > /dev/null
     remove_special_comments_with_content "ACQUIA"       "${dir}" && bash -c "echo -n ."
     remove_special_comments_with_content "DEPLOYMENT"   "${dir}" && bash -c "echo -n ."
@@ -235,19 +238,45 @@ copy_files(){
 
   pushd "${dst}" > /dev/null || exit 1
 
-  # Traverse through all downloaded files.
-  while IFS= read -r -d '' file
-  do
+  targets=()
+  # Collect files.
+  while IFS=  read -r -d $'\0'; do
+      targets+=("$REPLY")
+  done < <(find "${src}" -type f -print0)
+  # Collect symlinks separately, to later ensure that they point to existing
+  # files.
+  while IFS=  read -r -d $'\0'; do
+      targets+=("$REPLY")
+  done < <(find "${src}" -type l -print0)
+
+  for file in "${targets[@]}"; do
+    parent="$(dirname "${file}")"
     relative_file=${file#"${src}/"}
+    relative_parent="$(dirname "${relative_file}")"
+
+    # Parent DIR for file ${relative_file} is a symlink - skipping.
+    if [ -L "${parent}" ]; then
+      continue
+    fi
+
     echo "==> Processing file ${relative_file}"
     # Only process untracked files - allows to have project-specific overrides
     # being committed and not overridden OR tracked files are allowed to
     # be overridden.
     file_is_tracked="$(git_file_is_tracked "${relative_file}")"
     if [ "${file_is_tracked}" -ne 0 ] || [ "${allow_override}" -ne 0 ]; then
-      mkdir -p "$(dirname "${relative_file}")"
-      cp -f "${file}" "${relative_file}"
-      echo "    Copied file ${relative_file}"
+      mkdir -p "${relative_parent}"
+      if [ -d "${file}" ]; then
+        # Symlink files can be directories, so handle them differently.
+        cp -fR "${file}" "${relative_parent}/"
+        echo "    Copied dir ${relative_file}"
+      elif [ -L "${file}" ]; then
+        cp -a "${file}" "${relative_parent}/"
+        echo "    Copied symlink ${file} to ${relative_file}"
+      else
+        cp -f "${file}" "${relative_file}"
+        echo "    Copied file ${relative_file}"
+      fi
       # Add files to local ignore (not .gitignore), if all conditions pass:
       #  - flag is set to allow to add to local ignore
       #  - not already ignored
@@ -261,7 +290,7 @@ copy_files(){
     else
       echo "    Skipped file ${relative_file}"
     fi
-  done <   <(find "${src}" -type f -print0)
+  done
 
   popd > /dev/null || exit 1
 }

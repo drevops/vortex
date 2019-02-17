@@ -329,3 +329,13 @@ load test_helper_drupaldev
   assert_added_files "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
+
+@test "Install: empty directory; no local ignore" {
+  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=0
+
+  run_install
+  assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  assert_file_not_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml"
+}

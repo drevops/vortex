@@ -25,7 +25,7 @@
 #
 # $APP_TMP_DIR - directory where the application may store it's temporary files.
 setup(){
-  DRUPAL_VERSION=${DRUPAL_VERSION:-8}
+  DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
   CUR_DIR="$(pwd)"
   BUILD_DIR="${BUILD_DIR:-"${BATS_TMPDIR}/drupal-dev-bats"}"
 
@@ -182,7 +182,8 @@ assert_added_files_integration_acquia(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  # Acquia integration preserved.
+  assert_file_exists ".gitignore.artefact"
+
   assert_dir_exists "hooks"
   assert_dir_exists "hooks/library"
   assert_file_mode "hooks/library/clear-cache.sh" "755"
@@ -190,6 +191,28 @@ assert_added_files_integration_acquia(){
   assert_file_mode "hooks/library/flush-varnish.sh" "755"
   assert_file_mode "hooks/library/import-config.sh" "755"
   assert_file_mode "hooks/library/update-db.sh" "755"
+
+  assert_dir_exists "hooks/dev"
+  assert_dir_exists "hooks/dev/post-code-update"
+  assert_symlink_exists "hooks/dev/post-code-update/1.clear-cache.sh"
+  assert_symlink_exists "hooks/dev/post-code-update/2.update-db.sh"
+  assert_symlink_exists "hooks/dev/post-code-update/3.import-config.sh"
+  assert_symlink_exists "hooks/dev/post-code-update/4.enable-shield.sh"
+  assert_symlink_exists "hooks/dev/post-code-update/5.flush-varnish.sh"
+  assert_symlink_exists "hooks/dev/post-code-deploy"
+  assert_symlink_exists "hooks/dev/post-db-copy"
+
+  assert_symlink_exists "hooks/test"
+
+  assert_dir_exists "hooks/prod"
+  assert_dir_exists "hooks/prod/post-code-deploy"
+  assert_symlink_exists "hooks/prod/post-code-update"
+  assert_symlink_not_exists "hooks/prod/post-db-copy"
+  assert_symlink_exists "hooks/prod/post-code-deploy/1.clear-cache.sh"
+  assert_symlink_exists "hooks/prod/post-code-deploy/2.update-db.sh"
+  assert_symlink_exists "hooks/prod/post-code-deploy/3.import-config.sh"
+  assert_symlink_exists "hooks/prod/post-code-deploy/4.enable-shield.sh"
+
   assert_file_exists "scripts/download-backup-acquia.sh"
   assert_file_exists "DEPLOYMENT.md"
   assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
@@ -210,10 +233,10 @@ assert_added_files_no_integration_acquia(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  # Acquia integration preserved.
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
   assert_file_not_exists "scripts/download-backup-acquia.sh"
+  assert_file_not_exists ".gitignore.artefact"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_not_contains ".env" "AC_API_DB_SITE="
   assert_file_not_contains ".env" "AC_API_DB_ENV="
@@ -297,6 +320,8 @@ run_install(){
 # Copy source code at the latest commit to the destination directory.
 copy_code(){
   local dst="${1:-${BUILD_DIR}}"
+  assert_dir_exists "${dst}"
+  assert_git_repo "${CUR_DIR}"
   pushd "${CUR_DIR}" > /dev/null || exit 1
   # Copy latest commit to the build directory.
   git archive --format=tar HEAD | (cd "${dst}" && tar -xf -)
@@ -357,5 +382,50 @@ git_add_all(){
 
 git_init(){
   local dir="${1}"
-  assert_not_git_repo "${1}" && git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
+  local allow_receive_update="${2:-0}"
+
+  assert_not_git_repo "${1}"
+  git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
+
+  if [ "${allow_receive_update}" -eq 1 ]; then
+    git --work-tree="${dir}" --git-dir="${dir}/.git"  config receive.denyCurrentBranch updateInstead > /dev/null
+  fi
+}
+
+# Print step.
+step(){
+  debug ""
+  debug "==> STEP: $1"
+}
+
+# Sync files to host in case if volumes are not mounted from host.
+sync_to_host(){
+  local dst="${1:-.}"
+  # shellcheck disable=SC2046
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
+  [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${dst} to host" && return
+  debug "Syncing from $(docker-compose ps -q cli) to ${dst}"
+  docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
+}
+
+# Sync files to container in case if volumes are not mounted from host.
+sync_to_container(){
+  local src="${1:-.}"
+  # shellcheck disable=SC2046
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
+  [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
+  debug "Syncing from ${src} to $(docker-compose ps -q cli)"
+  docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
+}
+
+# Assert that containers are not running.
+assert_containers_not_running(){
+  # shellcheck disable=SC2046
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
+  # shellcheck disable=SC2143
+  if [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q cli)")" ]; then
+    return 0
+  else
+    return 1
+  fi
 }
