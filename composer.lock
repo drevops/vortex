@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7e373d4544ea357dda408e927d6a3b3a",
+    "content-hash": "93ebf93bf996650dbd212900ad57be5b",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5598,6 +5598,9 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "4.4-dev"
+                },
+                "patches_applied": {
+                    "Correctly filter features, now that the base path is correctly set - https://github.com/Behat/Gherkin/pull/129": "https://patch-diff.githubusercontent.com/raw/Behat/Gherkin/pull/129.patch"
                 }
             },
             "autoload": {
@@ -7330,16 +7333,16 @@
         },
         {
             "name": "integratedexperts/robo-git-artefact",
-            "version": "0.2.4",
+            "version": "0.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/robo-git-artefact.git",
-                "reference": "b89900ac595a55b16db3de75454064fb18b01ca9"
+                "reference": "4ecce56f6c07c59241c6b9e763afd67978db1a78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/b89900ac595a55b16db3de75454064fb18b01ca9",
-                "reference": "b89900ac595a55b16db3de75454064fb18b01ca9",
+                "url": "https://api.github.com/repos/integratedexperts/robo-git-artefact/zipball/4ecce56f6c07c59241c6b9e763afd67978db1a78",
+                "reference": "4ecce56f6c07c59241c6b9e763afd67978db1a78",
                 "shasum": ""
             },
             "require": {
@@ -7369,7 +7372,7 @@
                 }
             ],
             "description": "Robo task to push git artefact to remote repository",
-            "time": "2018-04-24T10:35:11+00:00"
+            "time": "2019-02-17T14:24:23+00:00"
         },
         {
             "name": "jakub-onderka/php-parallel-lint",
@@ -8193,6 +8196,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2017-06-30T09:13:00+00:00"
         },
         {

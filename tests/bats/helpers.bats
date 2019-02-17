@@ -34,11 +34,18 @@ load test_helper_drupaldev
   assert_dir_not_exists "some dir"
 
   prepare_fixture_dir "${BATS_TMPDIR}/fixture_symlink"
+  # Assert file.
   echo "some existing text" > "${BATS_TMPDIR}/fixture_symlink/1.txt"
   ln -s "${BATS_TMPDIR}/fixture_symlink/1.txt" "${BATS_TMPDIR}/fixture_symlink/2.txt"
   assert_symlink_exists "${BATS_TMPDIR}/fixture_symlink/2.txt"
+  # Assert dir.
+  mkdir "${BATS_TMPDIR}/fixture_symlink/symlink_src"
+  ln -s "${BATS_TMPDIR}/fixture_symlink/symlink_src" "${BATS_TMPDIR}/fixture_symlink/symlink_dst"
+  assert_symlink_exists "${BATS_TMPDIR}/fixture_symlink/symlink_dst"
+  # Assert others.
   assert_symlink_not_exists "${BATS_TMPDIR}/fixture_symlink/1.txt"
   assert_symlink_not_exists "${BATS_TMPDIR}/fixture_symlink/3.txt"
+  assert_symlink_not_exists "${BATS_TMPDIR}/fixture_symlink/some_dir"
 
   prepare_fixture_dir "${BATS_TMPDIR}/fixture_mode"
   echo "some existing text" > "${BATS_TMPDIR}/fixture_mode/1.txt"

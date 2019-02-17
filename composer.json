@@ -35,7 +35,7 @@
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
         "integratedexperts/behat-steps": "^0.1.0",
-        "integratedexperts/robo-git-artefact": "^0.2.4",
+        "integratedexperts/robo-git-artefact": "^0.2.5",
         "jakub-onderka/php-parallel-lint": "^1.0",
         "phpcompatibility/php-compatibility": "^9.0",
         "phpunit/phpunit": "^5.7.19",

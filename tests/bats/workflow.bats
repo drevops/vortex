@@ -213,37 +213,3 @@ load test_helper_drupaldev
 
   popd > /dev/null
 }
-
-# Print step.
-step(){
-  debug ""
-  debug "==> STEP: $1"
-}
-
-# Sync files to host in case if volumes are not mounted from host.
-sync_to_host(){
-  local dst="${1:-.}"
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
-  [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${dst} to host" && return
-  debug "Syncing from $(docker-compose ps -q cli) to ${dst}"
-  docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
-}
-
-# Sync files to container in case if volumes are not mounted from host.
-sync_to_container(){
-  local src="${1:-.}"
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
-  [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
-  debug "Syncing from ${src} to $(docker-compose ps -q cli)"
-  docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
-}
-
-# Assert that containers are not running.
-assert_containers_not_running(){
-  export "$(grep -v '^#' .env | xargs)"
-  if [ -z `docker ps -q --no-trunc | grep $(docker-compose ps -q cli)` ]; then
-    return 0
-  else
-    return 1
-  fi
-}
