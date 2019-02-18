@@ -165,7 +165,7 @@ commands:
       ahoy clean
       ([ -d .git ] && git ls-files --others -i --exclude-standard . | xargs rm -Rf || true)
       ([ -d .git ] && git clean -dXn . | cut -b 14- | grep -v ".idea/" | xargs rm -Rf || true)
-      find . -type d -empty -delete
+      find . -type d -not -path "./.git/*" -empty -delete
 
   fe:
     usage: Build front-end assets.
