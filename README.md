@@ -216,7 +216,7 @@ Drupal 8 implementation of MYSITE
   AC_API_USER_PASS=<YOUR_TOKEN>
 ```
 [//]: # (#> ACQUIA)
-5. `source drupal-dev.sh`
+5. `./drupal-dev.sh`
 6. `ahoy download-db`
 7. `pygmy up`
 8. `ahoy build`
