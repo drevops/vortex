@@ -268,6 +268,18 @@ Run each command as `ahoy <command>`.
   update       Update development stack.
   ```
 
+### Updating development stack
+
+Development stack needs to be downloaded for each environment, but some files may be committed to the project repository.
+Update process brings new versions of development stack files and may overwrite some of them. The changes in these files 
+need to be reviewed and selectively committed. 
+
+1. Start a new branch to make sure that your changes do not affect the main branch   
+2. Run `ahoy update` to download the latest version of the development stack 
+3. Review and commit changes 
+4. Make sure that your CI build passes with updated development stack configuration
+5. Merge your changes to the main branch    
+
 ## Adding Drupal modules
 
 `composer require drupal/module_name`

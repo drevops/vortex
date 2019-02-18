@@ -221,11 +221,11 @@ commands:
 
   update:
     usage: Update development stack.
-    cmd: curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash
+    cmd: ahoy confirm "Some committed files may become overwritten. Proceed?" && DRUPALDEV_ALLOW_OVERRIDE=1 source drupal-dev.sh || true
 
   # Utilities.
   confirm:
-    cmd: read -r -p "{{args}} [y/N] " response; if [ $response = y ]; then true; else false; fi
+    cmd: read -r -p "${@} [y/N] " response; [ ${response} = "y" ]
     hide: true
 
   title:
