@@ -18,3 +18,12 @@ if [ ! -f "${DATADIR}"/"${DB_FILE}" ] || [ "${FORCE_DB_DOWNLOAD}" != "" ]; then
 
   ahoy download-db;
 fi
+
+if [ -f "${DB_SEMAPHORE_FILE}" ]; then
+  .circleci/build.sh;
+fi
+
+if [ -f "${DB_SEMAPHORE_FILE}" ]; then
+  echo "==> Exporting built DB for caching"
+  ahoy export-db db.sql;
+fi

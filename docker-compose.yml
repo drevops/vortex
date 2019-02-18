@@ -7,10 +7,8 @@
 #|   uncommented in CI.
 #| - Comments starting with '#|', '#<' or '#>' (like the ones used for the
 #|   current paragraph) are explaining Drupal-Dev inner working and can be
-#|   safely removed for specific project.
-#|
-#| NOTE: Do not manually remove these tags. Instead, run `ahoy init` to
-#| initialise this project.
+#|   safely removed for your project. They are automatically removed when
+#|   installing Drupal-Dev.
 version: '2.3'
 
 x-project:
@@ -43,7 +41,6 @@ x-environment:
   # Local dev URL populated from the environment. Do not override here. Instead,
   # specify the value in .env file.
   LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-http://mysite.docker.amazee.io}
-  GITHUB_TOKEN: ${GITHUB_TOKEN:-}
   #< LAGOON
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
   #> LAGOON

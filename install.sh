@@ -69,7 +69,7 @@ install(){
   gather_answers "${DRUPALDEV_IS_INTERACTIVE}"
 
   local proceed=Y
-  proceed=$(ask "> Proceed with initialising your project '$(get_value "name")'? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
+  proceed=$(ask "> Proceed with installing Drupal-Dev into your project '$(get_value "name")'? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
 
   if [ "${proceed}" != "Y" ] ; then
     echo
@@ -186,8 +186,6 @@ download_remote(){
 process_stub(){
   local dir="${1}"
 
-  rm -Rf "${dir}"/tests/bats > /dev/null
-
   # @note: String replacement may break symlinks to the file where replacement
   # occurs.
   replace_string_content  "mysitetheme"  "$(get_value "theme")"             "${dir}" && bash -c "echo -n ."
@@ -260,6 +258,12 @@ copy_files(){
     fi
 
     echo "==> Processing file ${relative_file}"
+
+    if [ "$(file_is_internal "${relative_file}")" -eq 1 ]; then
+      echo "    Skipping internal Drupal-Dev file ${relative_file}"
+      continue
+    fi
+
     # Only process untracked files - allows to have project-specific overrides
     # being committed and not overridden OR tracked files are allowed to
     # be overridden.
@@ -284,7 +288,11 @@ copy_files(){
       #  - not in a list of required files
       file_is_required="$(file_is_required "${relative_file}")"
       # @todo; Refactor return values.
-      if [ "${allow_use_local_gitignore}" -eq 1 ] && [ -d ./.git/ ] && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] && [ "${file_is_tracked}" != "0" ] && [ "${file_is_required}" != "0" ]; then
+      if [ "${allow_use_local_gitignore}" -eq 1 ] \
+        && [ -d ./.git/ ] \
+        && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] \
+        && [ "${file_is_tracked}" != "0" ] \
+        && [ "${file_is_required}" != "0" ]; then
         git_add_to_local_ignore "${relative_file}"
       fi
     else
@@ -315,16 +323,35 @@ git_file_is_ignored(){
   fi
 }
 
+# Check if specified file is internal Drupal-Dev file.
+file_is_internal(){
+  local file="${1}"
+  local files=(
+    install.sh
+    LICENSE
+    tests/bats
+  )
+
+  for i in "${files[@]}"; do
+    if [ "${file#${i}}" != "${file}" ]; then
+      echo 1
+      return
+    fi
+  done
+
+  echo 0
+}
+
 # Check if specified file is in the list of required files.
 file_is_required(){
   local file="${1}"
-  local required_files=(
+  local files=(
     .circleci/config.yml
     docroot/sites/default/settings.php
     docroot/sites/default/services.yml
   )
 
-  for i in "${required_files[@]}"; do
+  for i in "${files[@]}"; do
     if [ "${i}" == "${file}" ]; then
       echo 0
       return
