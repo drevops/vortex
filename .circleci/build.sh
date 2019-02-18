@@ -4,6 +4,9 @@
 #
 set -e
 
+# Flag to validate composer lock.
+COMPOSER_VALIDATE_LOCK=${COMPOSER_VALIDATE_LOCK:-1}
+
 if [ "$COMPOSER_VALIDATE_LOCK" = "1" ]; then
   echo "==> Validate composer configuration, including lock file"
   composer validate --ansi --strict --no-check-all --no-check-lock
