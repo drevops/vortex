@@ -7,6 +7,8 @@
 # or
 # curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install | bash -s -- /path/to/destination/directory
 
+{ # Ensures the entire script is downloaded.
+
 # shellcheck disable=SC2235
 ([ "${1}" == "--interactive" ] || [ "${1}" == "-i" ]) && DRUPALDEV_IS_INTERACTIVE=1 && shift
 
@@ -550,3 +552,5 @@ to_human_name () {
 }
 
 install "$@"
+
+} # Ensures the entire script is downloaded.
