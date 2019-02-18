@@ -1,6 +1,10 @@
 #|
 #| CircleCI 2.0 configuration file.
 #|
+#| All tasks are extracted into scripts located in `.circleci` directory.
+#| This is to allow per-project override for a particular job without
+#| the need to modify this configuration file.
+#|
 #| Comments starting with '#|', '#<' or '#>' (like the ones used for the
 #| current paragraph) are explaining Drupal-Dev inner working and can be safely
 #| removed for your project. They are automatically removed when installing
@@ -81,8 +85,6 @@ jobs:
           keys:
             - v1-db8-{{ checksum "/tmp/DB_TIMESTAMP" }}
       - run: .circleci/download-db.sh
-      - run: if [ -f ${DB_SEMAPHORE_FILE} ]; then .circleci/build.sh; fi
-      - run: if [ -f ${DB_SEMAPHORE_FILE} ]; then ahoy export-db db.sql; fi
       - save_cache:
           key: v1-db8-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
@@ -115,12 +117,6 @@ jobs:
           when: always
       - store_artifacts:
           path: /tmp/artifacts
-      #| Dependencies are not required for the next jobs, so there is no point
-      #| to wait for all of them to persist to the workspace (it is faster to
-      #| remove files then archive and save them).
-      - run:
-          name: Remove dependencies before persisting
-          command: rm -Rf /workspace/code/node_modules
       - persist_to_workspace:
           root: /workspace
           paths:
