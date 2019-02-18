@@ -33,9 +33,8 @@ aliases:
       #| @see https://github.com/integratedexperts/ci-builder
       - image: integratedexperts/ci-builder
         environment:
-          # How often to cache DB dump for. See 'database' job below for more information.
+          # How often to refresh the cache of DB dump. Refer to `date` command.
           DB_TIMESTAMP: +%Y_%m_%d
-          DB_SEMAPHORE_FILE: /tmp/db-new
           #| Volumes mounting to host is not supported in CircleCI.
           VOLUMES_MOUNTED: 0
     # Use large resource class for faster builds.
@@ -57,11 +56,7 @@ aliases:
     #> CI_DLC
 
 jobs:
-  #| Database handling is a first step of the build. It contains:
-  #| - database download
-  #| - database sanitization
-  #| - database caching
-  #| - conditions to bypass previous steps in concurrent builds (to speed them up).
+  #| Database handling is a first step of the build.
   #|
   #| $DB_TIMESTAMP is used to determine if a fresh DB dump should be downloaded
   #| for the current build. Usually, a daily database dump is sufficient for
@@ -92,12 +87,6 @@ jobs:
 
   #| Build and test is a second step of the build. The testing is performed
   #| within the same job to save time on provisioning during the job.
-  #|
-  #| In this job:
-  #| - validate composer.json and composer.lock files
-  #| - build project and store built code for further use in deployment job
-  #| - run tests
-  #| - store test artifacts
   build:
     <<: *container_config
     parallelism: 2
@@ -152,9 +141,7 @@ jobs:
           path: /tmp/artifacts
 
   #< DRUPAL-DEV
-  #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-  #| Test suite for Drupal-Dev.                                                |
-  #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+  #| Test suite for Drupal-Dev.
   drupal_dev_test:
     <<: *container_config
     steps:
