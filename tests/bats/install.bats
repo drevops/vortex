@@ -232,6 +232,7 @@ load test_helper_drupaldev
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Commit files required to run the project.
+  git_add "${CURRENT_PROJECT_DIR}" drupal-dev.sh
   git_add "${CURRENT_PROJECT_DIR}" .circleci/config.yml
   git_add "${CURRENT_PROJECT_DIR}" docroot/sites/default/settings.php
   git_add "${CURRENT_PROJECT_DIR}" docroot/sites/default/services.yml

@@ -346,6 +346,7 @@ file_is_internal(){
 file_is_required(){
   local file="${1}"
   local files=(
+    drupal-dev.sh
     .circleci/config.yml
     docroot/sites/default/settings.php
     docroot/sites/default/services.yml
