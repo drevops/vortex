@@ -1,21 +1,45 @@
 #!/usr/bin/env bash
 ##
-# Install Drupal-Dev files from the centralised location.
+# Download Drupal-Dev files from the centralised location.
 #
+# If you see this file it means that someone has already
+# installed Drupal-Dev into this project.
+#
+# Run this file to download the latest version of Drupal-Dev.
+#
+# === WHAT IS DRUPAL-DEV ===
+# Drupal-Dev is a development environment for Drupal sites with tools included.
+# https://drupal-dev.io
+# https://github.com/integratedexperts/drupal-dev
+#
+# === WHAT IS THIS FILE AND WHY DO I NEED IT ===
+# Using Drupal-Dev requires initial installation into your project. Once
+# installed, it the can be "attached" in every environment were development
+# stack is required. This means that your project will have only small number
+# of Drupal-Dev files committed - the rest of the files will be downloaded each
+# time Drupal-Dev needs to be "attached".
+#
+# This file is a script to download Drupal-Dev at the latest stable version and
+# "attach" it to the current environment.
 # Files already committed within current repository will not be overridden.
 #
+# Usage:
+# ./drupal-dev.sh
+#
+# === HOW TO OVERRIDE LOCALLY EXCLUDED FILES ===
 # To override any files coming from Drupal-Dev to persist in the current
 # repository, modify `.git/info/exclude` file and commit them.
 #
-# Usage:
-# source drupal-dev.sh
+# === HOW TO UPDATE DRUPAL-DEV ===
+# ahoy update
 #
-# To update all files, including committed:
-# DRUPALDEV_ALLOW_OVERRIDE=1 source drupal-dev.sh
+# === HOW TO PIN TO SPECIFIC DRUPAL-DEV COMMIT ===
+# For development of Drupal-Dev or debugging of the development stack, it may be
+# required to point to the specific Drupal-Dev's commit rather then use the latest
+# stable version.
 #
-
-# Development only: uncomment and set the commit value to fetch Drupal-Dev at
-# specific commit.
-#export DRUPALDEV_COMMIT=COMMIT_SHA
+# Uncomment and set the Drupal-Dev's commit value. Commit this change to apply
+# this to all environments.
+# export DRUPALDEV_COMMIT=COMMIT_SHA
 
 curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash
