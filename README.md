@@ -13,22 +13,35 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 ![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
 
 ## Getting started
+Despite being a template, Drupal-Dev is "attachable" to new and existing projects: most of templates do not need to 
+be changed and only a handful of files required by Drupal-Dev to exist in your project.
+
+Using Drupal-Dev requires initial installation into your project. Once installed, it the can be "attached" in every 
+environment were development stack is required. This means that your project will have only small number of Drupal-Dev 
+files committed - the rest of the files will be downloaded each time Drupal-Dev needs to be "attached".  
+
+### Initial installation
+
 For quiet installation with default settings into current directory:
 ```
 curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash
 ```
 
-Or for interactive installation into current directory:
+For interactive installation (questions and answers) into current directory:
 ```
 curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash -s -- --interactive
 ```
 
-Or for interactive installation into specified directory:
-```
-curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash -s -- --interactive path/to/directory
-```
+<details>
+<summary>Show Installer screenshot</summary>
 
 ![Installer](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/installer.png)
+</details>
+
+Once installed, commit added files and use `drupal-dev.sh` to install all required dependencies next time.
+
+### Attaching Drupal-Dev
+Run `drupal-dev.sh` to download the latest version of Drupal-Dev for your project.  
 
 ## What is the problem that Drupal-Dev is trying to solve?
 Increase the quality of the produced Drupal websites with minimum setup effort and knowledge.
@@ -47,21 +60,21 @@ Quick install of best practices Drupal configuration on Docker stack using a sin
 - Developers that do not possess required time or knowledge to setup these tools themselves 
 
 ## Why is Drupal-Dev awesome?
-- **Attachable to existing projects.**<br/>  
+- **Attachable to existing projects.**  <br/>
   The toolset can be used with minimal efforts. Interactive wizard helps to select required features during installation.  
-- **Highly configurable**<br/>
+- **Highly configurable**  <br/>
   All configuration is made through environment variables without the need to change any of the scripts.
 - **Flexible**<br/>
   Anything can be overridden for your specific project and will not be lost during the next update.
-- **Pure Docker stack**<br/>
+- **Pure Docker stack**  <br/>
   No special binaries to work with Docker. No generated Docker Compose configurations from custom configurations. Modify configuration to fit your project needs.
-- **Tested**<br/>
+- **Tested**  <br/>
   There are tests for workflows, configuration, deployments, CI. Everything. And they run automatically on every commit.
-- **Versioned**<br/>
+- **Versioned**  <br/>
   It is always clear which version of the stack your site uses.
-- **Upgradable**<br/>
+- **Upgradable**  <br/>
   Your website can be updated to a newer version of Drupal-Dev with minimal effort. Your project customisations are easily preserved.
-- **Documented**<br/>
+- **Documented**  <br/>
   The major areas of Drupal-Dev are explicitly documented, while most of the code is self-documented.
 
 ## What areas does Drupal-Dev cover?
@@ -145,7 +158,7 @@ Quick install of best practices Drupal configuration on Docker stack using a sin
 | Documentation                                 | Contribution guide\*                                                                                                | Engages community to contribute back |
 |                                               | [Pull request template](.github/PULL_REQUEST_TEMPLATE.md)                                                           | Helps to improve community collaboration and reduce the time for pull request management. |
 
-\* Denotes features planned for 1.5 release
+\* Denotes features planned for 1.4 release
 
 </details>
 
@@ -206,6 +219,7 @@ Drupal 8 implementation of MYSITE
   - [Ahoy](https://github.com/ahoy-cli/ahoy)
 2. Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 3. Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
+
 [//]: # (#< ACQUIA)
 
 4. Add Acquia Cloud credentials to `.env.local` file:
@@ -216,6 +230,7 @@ Drupal 8 implementation of MYSITE
   AC_API_USER_PASS=<YOUR_TOKEN>
 ```
 [//]: # (#> ACQUIA)
+
 5. `./drupal-dev.sh`
 6. `ahoy download-db`
 7. `pygmy up`
@@ -315,6 +330,7 @@ If the build has inconsistent results (build fails in CI but passes locally), tr
 Test artifacts (screenshots etc.) are available under "Artifacts" tab in Circle CI UI.
 
 [//]: # (#< DEPLOYMENT)
+
 ## Deployment
 Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
 
