@@ -117,6 +117,7 @@ jobs:
           when: always
       - store_artifacts:
           path: /tmp/artifacts
+          when: always
       - persist_to_workspace:
           root: /workspace
           paths:
