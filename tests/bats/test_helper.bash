@@ -76,53 +76,104 @@ assert_not_contains(){
 
 assert_file_exists(){
   local file="${1}"
-  [ ! -f "${file}" ] && flunk "File ${file} does not exist"
-  return 0
+  if [ -f "${file}" ]; then
+    return 0
+  else
+    {
+      "File ${file} does not exist"
+    } | flunk
+  fi
 }
 
 assert_file_not_exists(){
   local file="${1}"
-  [ -f "${file}" ] && flunk "File ${file} exists, but should not"
-  return 0
+  if [ -f "${file}" ]; then
+    {
+      "File ${file} exists, but should not"
+    } | flunk
+  else
+    return 0
+  fi
 }
 
 assert_dir_exists(){
   local dir="${1}"
-  [ ! -d "${dir}" ] && flunk "Directory ${dir} does not exist"
-  return 0
+
+  if [ -d "${dir}" ] ; then
+    return 0
+  else
+    {
+      echo "Directory ${dir} does not exist"
+    } | flunk
+  fi
 }
 
 assert_dir_not_exists(){
   local dir="${1}"
-  [ -d "${dir}" ] && flunk "Directory ${dir} exists, but should not"
-  return 0
+
+  if [ -d "${dir}" ] ; then
+    {
+      echo "Directory ${dir} exists, but should not"
+    } | flunk
+  else
+    return 0
+  fi
 }
 
 assert_dir_empty(){
   local dir="${1}"
-  assert_dir_exists "${dir}"
-  [ "$(ls -A "${dir}")" ] && flunk "Directory ${dir} is not empty, but should be"
-  return 0
+  assert_dir_exists "${dir}" || return 1
+
+  if [ "$(ls -A "${dir}")" ]; then
+    {
+      "Directory ${dir} is not empty, but should be"
+    } | flunk
+  else
+    return 0
+  fi
 }
 
 assert_dir_not_empty(){
   local dir="${1}"
   assert_dir_exists "${dir}"
-  [ -z "$(ls -A "${dir}")" ] && flunk "Directory ${dir} is empty, but should not be"
-  return 0
+
+  if [ "$(ls -A "${dir}")" ]; then
+    return 0
+  else
+    {
+      "Directory ${dir} is not empty, but should be"
+    } | flunk
+  fi
 }
+
 assert_symlink_exists(){
   local file="${1}"
-  [ ! -h "${file}" ] && [ -f "${file}" ] && flunk "Regular file ${file} exists, but symlink is expected"
-  [ ! -h "${file}" ] && flunk "Symlink ${file} does not exist"
-  return 0
+
+  if [ ! -h "${file}" ] && [ -f "${file}" ]; then
+    {
+      "Regular file ${file} exists, but symlink is expected"
+    } | flunk
+  elif [ ! -h "${file}" ]; then
+    {
+      echo "Symlink ${file} does not exist"
+    } | flunk
+  else
+    return 0
+  fi
 }
 
 assert_symlink_not_exists(){
   local file="${1}"
-  [ -h "${file}" ] && [ -f "${file}" ] && flunk "Regular file ${file} exists, but symlink is expected"
-  [ -h "${file}" ] && flunk "Symlink ${file} exists, but should not"
-  return 0
+
+  if [ ! -h "${file}" ] && [ -f "${file}" ]; then
+    return 0
+  elif [ ! -h "${file}" ]; then
+    return 0
+  else
+    {
+      echo "Symlink ${file} exists, but should not"
+    } | flunk
+  fi
 }
 
 assert_file_mode(){
@@ -136,8 +187,13 @@ assert_file_mode(){
     parsed=$(printf "%.3o\n" $(( $(stat --printf '0%a' "$file") & ~0022 )))
   fi
 
-  [ "${parsed}" != "${perm}" ] && flunk "File permissions for file ${file} is '${parsed}', but expected '${perm}'"
-  return 0
+  if [ "${parsed}" != "${perm}" ]; then
+    {
+      "File permissions for file ${file} is '${parsed}', but expected '${perm}'"
+    } | flunk
+  else
+    return 0
+  fi
 }
 
 assert_file_contains(){
@@ -161,15 +217,91 @@ assert_file_not_contains(){
 assert_dir_contains_string(){
   local dir="${1}"
   local string="${2}"
-  grep -r --exclude '.*\.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" || flunk "Directory ${dir} does not contain a string ${string}"
-  return 0
+
+  assert_dir_exists "${dir}" || return 1
+
+  if grep -rI --exclude '.*\.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" > /dev/null; then
+    return 0
+  else
+    {
+      "Directory ${dir} does not contain a string ${string}"
+    } | flunk
+  fi
 }
 
 assert_dir_not_contains_string(){
   local dir="${1}"
   local string="${2}"
-  grep -r --exclude '.*\.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" > /dev/null && flunk "Directory ${dir} contains string ${string}, but should not"
-  return 0
+
+  assert_dir_exists "${dir}" || return 1
+
+  if grep -rI --exclude '.*\.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" > /dev/null; then
+    {
+      "Directory ${dir} contains string ${string}, but should not"
+    } | flunk
+  else
+    return 0
+  fi
+}
+
+assert_git_repo(){
+  local dir="${1}"
+
+  assert_dir_exists "${dir}" || return 1
+
+  if [ -d "${dir}/.git" ]; then
+    return 0
+  else
+    {
+      "Directory ${dir} exists, but it is not a git repository"
+    } | flunk
+  fi
+}
+
+assert_not_git_repo(){
+  local dir="${1}"
+
+  assert_dir_exists "${dir}" || return 1
+
+  if [ -d "${dir}/.git" ]; then
+    {
+      "Directory ${dir} exists and it is a git repository, but should not be"
+    } | flunk
+  else
+    return 0
+  fi
+}
+
+assert_files_equal(){
+  local file1="${1}"
+  local file2="${2}"
+
+  assert_file_exists "${file1}" || return 1
+  assert_file_exists "${file2}" || return 1
+
+  if cmp "${file1}" "${file2}"; then
+    return 0
+  else
+    {
+      "File ${file1} is not equal to file ${file2}"
+    } | flunk
+  fi
+}
+
+assert_files_not_equal(){
+  local file1="${1}"
+  local file2="${2}"
+
+  assert_file_exists "${file1}" || return 1
+  assert_file_exists "${file2}" || return 1
+
+  if cmp "${file1}" "${file2}"; then
+    {
+      "File ${file1} is equal to file ${file2}, but it should not be"
+    } | flunk
+  else
+    return 0
+  fi
 }
 
 assert_empty(){
