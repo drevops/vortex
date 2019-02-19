@@ -55,9 +55,7 @@ assert_contains(){
   if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" > /dev/null; then
     return 0
   else
-    { echo "string:   ${haystack}"
-      echo "contains: ${needle}"
-    } | flunk
+    format_error "String '${haystack}' does not contain '${needle}'" | flunk
   fi
 }
 
@@ -66,9 +64,7 @@ assert_not_contains(){
   local haystack="${2}"
 
   if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" > /dev/null; then
-    { echo "string:   ${haystack}"
-      echo "contains: ${needle}"
-    } | flunk
+    format_error "String '${haystack}' contains '${needle}', but should not" | flunk
   else
     return 0
   fi
@@ -220,11 +216,13 @@ assert_dir_contains_string(){
 
   assert_dir_exists "${dir}" || return 1
 
-  if grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" > /dev/null; then
+  run grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
+
+  if [ "${status}" -eq 0 ]; then
     return 0
   else
     {
-      "Directory ${dir} does not contain a string ${string}"
+      format_error "Directory ${dir} does not contain a string '${string}'"
     } | flunk
   fi
 }
@@ -235,9 +233,11 @@ assert_dir_not_contains_string(){
 
   assert_dir_exists "${dir}" || return 1
 
-  if grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" > /dev/null; then
+  run grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
+
+  if [ "${status}" -eq 0 ]; then
     {
-      "Directory ${dir} contains string ${string}, but should not"
+      format_error "Directory ${dir} contains string '${string}', but should not"
     } | flunk
   else
     return 0
@@ -324,11 +324,35 @@ assert_not_empty(){
 
 assert_output(){
   local expected
-  if [ $# -eq 0 ]; then expected="$(cat -)"
-    else expected="${1}"
+  if [ $# -eq 0 ]; then
+    expected="$(cat -)"
+  else
+    expected="${1}"
   fi
   # shellcheck disable=SC2154
   assert_equal "${expected}" "${output}"
+}
+
+assert_output_contains(){
+  local expected
+  if [ $# -eq 0 ]; then
+    expected="$(cat -)"
+  else
+    expected="${1}"
+  fi
+  # shellcheck disable=SC2154
+  assert_contains "${expected}" "${output}"
+}
+
+assert_output_not_contains(){
+  local expected
+  if [ $# -eq 0 ]; then
+    expected="$(cat -)"
+  else
+    expected="${1}"
+  fi
+  # shellcheck disable=SC2154
+  assert_not_contains "${expected}" "${output}"
 }
 
 random_string(){
@@ -342,6 +366,21 @@ prepare_fixture_dir(){
   rm -Rf "${dir}" > /dev/null
   mkdir -p "${dir}"
   assert_dir_exists "${dir}"
+}
+
+# Format error message with optional output, if present.
+format_error(){
+  local message="${1}"
+  echo
+  echo "ERROR: ${message}"
+  echo
+
+  if [ "${output}" != "" ]; then
+    echo "----------------------------------------"
+    echo "$BATS_TMPDIR"
+    echo "${output}"
+    echo "----------------------------------------"
+  fi
 }
 
 # Run bats with `--tap` option to debug the output.

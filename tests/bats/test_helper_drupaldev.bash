@@ -119,15 +119,15 @@ assert_added_files_no_integrations(){
   assert_file_exists ".ahoy.yml"
 
   # Assert all stub strings were replaced.
-  assert_dir_not_contains_string . "mysite"
-  assert_dir_not_contains_string . "MYSITE"
-  assert_dir_not_contains_string . "mysitetheme"
-  assert_dir_not_contains_string . "myorg"
-  assert_dir_not_contains_string . "mysiteurl"
+  assert_dir_not_contains_string "${dir}" "mysite"
+  assert_dir_not_contains_string "${dir}" "MYSITE"
+  assert_dir_not_contains_string "${dir}" "mysitetheme"
+  assert_dir_not_contains_string "${dir}" "myorg"
+  assert_dir_not_contains_string "${dir}" "mysiteurl"
   # Assert all special comments were removed.
-  assert_dir_not_contains_string . "#|"
-  assert_dir_not_contains_string . "#<"
-  assert_dir_not_contains_string . "#>"
+  assert_dir_not_contains_string "${dir}" "#|"
+  assert_dir_not_contains_string "${dir}" "#<"
+  assert_dir_not_contains_string "${dir}" "#>"
 
   # Assert that project name is correct.
   assert_file_contains .env "PROJECT=\"${suffix}\""

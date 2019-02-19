@@ -35,6 +35,28 @@ load test_helper_drupaldev
   assert_failure
 }
 
+@test "assert_output_contains" {
+  run echo "some existing text"
+  assert_output_contains "some existing text"
+
+  run echo "some existing text"
+  assert_output_contains "existing"
+
+  run assert_output_contains "non-existing"
+  assert_failure
+}
+
+@test "assert_output_not_contains" {
+  run echo "some existing text"
+  assert_output_not_contains "non-existing"
+
+  run assert_output_not_contains "some existing text"
+  assert_failure
+
+  run assert_output_not_contains "existing"
+  assert_failure
+}
+
 @test "assert_equal" {
   assert_equal 1 1
 
@@ -222,11 +244,16 @@ load test_helper_drupaldev
 @test "assert_dir_not_contains_string" {
   prepare_fixture_dir "${BATS_TMPDIR}/fixture"
   echo "some existing text" > "${BATS_TMPDIR}/fixture/1.txt"
+  echo "some other text" > "${BATS_TMPDIR}/fixture/2.txt"
+  echo "some existing text" > "${BATS_TMPDIR}/fixture/3.txt"
 
   assert_dir_not_contains_string "${BATS_TMPDIR}/fixture" "non-existing"
 
   run assert_dir_not_contains_string "${BATS_TMPDIR}/fixture" "existing"
   assert_failure
+  assert_output_contains "fixture/1.txt"
+  assert_output_contains "fixture/3.txt"
+  assert_output_not_contains "fixture/2.txt"
 
   run assert_dir_not_contains_string "${BATS_TMPDIR}/non_existing"
   assert_failure
