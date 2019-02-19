@@ -3,6 +3,7 @@
 # @file
 # Bats test helpers.
 #
+# shellcheck disable=SC2119,SC2120
 
 # Guard against bats executing this twice
 if [ -z "$TEST_PATH_INITIALIZED" ]; then
@@ -25,7 +26,7 @@ flunk(){
 assert_success(){
   # shellcheck disable=SC2154
   if [ "${status}" -ne 0 ]; then
-    flunk "command failed with exit status ${status}"
+    format_error "command failed with exit status ${status}" | flunk
   elif [ "$#" -gt 0 ]; then
     assert_output "${1}"
   fi
@@ -34,7 +35,7 @@ assert_success(){
 assert_failure(){
   # shellcheck disable=SC2154
   if [ "${status}" -eq 0 ]; then
-    flunk "expected failed exit status"
+    format_error "expected failed exit status" | flunk
   elif [ "$#" -gt 0 ]; then
     assert_output "${1}"
   fi
@@ -75,18 +76,14 @@ assert_file_exists(){
   if [ -f "${file}" ]; then
     return 0
   else
-    {
-      "File ${file} does not exist"
-    } | flunk
+    format_error "File ${file} does not exist" | flunk
   fi
 }
 
 assert_file_not_exists(){
   local file="${1}"
   if [ -f "${file}" ]; then
-    {
-      "File ${file} exists, but should not"
-    } | flunk
+    format_error "File ${file} exists, but should not" | flunk
   else
     return 0
   fi
@@ -98,9 +95,7 @@ assert_dir_exists(){
   if [ -d "${dir}" ] ; then
     return 0
   else
-    {
-      echo "Directory ${dir} does not exist"
-    } | flunk
+    format_error "Directory ${dir} does not exist" | flunk
   fi
 }
 
@@ -108,9 +103,7 @@ assert_dir_not_exists(){
   local dir="${1}"
 
   if [ -d "${dir}" ] ; then
-    {
-      echo "Directory ${dir} exists, but should not"
-    } | flunk
+    format_error "Directory ${dir} exists, but should not" | flunk
   else
     return 0
   fi
@@ -121,9 +114,7 @@ assert_dir_empty(){
   assert_dir_exists "${dir}" || return 1
 
   if [ "$(ls -A "${dir}")" ]; then
-    {
-      "Directory ${dir} is not empty, but should be"
-    } | flunk
+    format_error "Directory ${dir} is not empty, but should be" | flunk
   else
     return 0
   fi
@@ -136,9 +127,7 @@ assert_dir_not_empty(){
   if [ "$(ls -A "${dir}")" ]; then
     return 0
   else
-    {
-      "Directory ${dir} is not empty, but should be"
-    } | flunk
+    format_error "Directory ${dir} is not empty, but should be" | flunk
   fi
 }
 
@@ -146,13 +135,9 @@ assert_symlink_exists(){
   local file="${1}"
 
   if [ ! -h "${file}" ] && [ -f "${file}" ]; then
-    {
-      "Regular file ${file} exists, but symlink is expected"
-    } | flunk
+    format_error "Regular file ${file} exists, but symlink is expected" | flunk
   elif [ ! -h "${file}" ]; then
-    {
-      echo "Symlink ${file} does not exist"
-    } | flunk
+    format_error "Symlink ${file} does not exist" | flunk
   else
     return 0
   fi
@@ -166,9 +151,7 @@ assert_symlink_not_exists(){
   elif [ ! -h "${file}" ]; then
     return 0
   else
-    {
-      echo "Symlink ${file} exists, but should not"
-    } | flunk
+    format_error "Symlink ${file} exists, but should not" | flunk
   fi
 }
 
@@ -184,9 +167,7 @@ assert_file_mode(){
   fi
 
   if [ "${parsed}" != "${perm}" ]; then
-    {
-      "File permissions for file ${file} is '${parsed}', but expected '${perm}'"
-    } | flunk
+    format_error "File permissions for file ${file} is '${parsed}', but expected '${perm}'" | flunk
   else
     return 0
   fi
@@ -221,9 +202,7 @@ assert_dir_contains_string(){
   if [ "${status}" -eq 0 ]; then
     return 0
   else
-    {
-      format_error "Directory ${dir} does not contain a string '${string}'"
-    } | flunk
+    format_error "Directory ${dir} does not contain a string '${string}'" | flunk
   fi
 }
 
@@ -236,9 +215,7 @@ assert_dir_not_contains_string(){
   run grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
 
   if [ "${status}" -eq 0 ]; then
-    {
-      format_error "Directory ${dir} contains string '${string}', but should not"
-    } | flunk
+    format_error "Directory ${dir} contains string '${string}', but should not" | flunk
   else
     return 0
   fi
@@ -252,9 +229,7 @@ assert_git_repo(){
   if [ -d "${dir}/.git" ]; then
     return 0
   else
-    {
-      "Directory ${dir} exists, but it is not a git repository"
-    } | flunk
+    format_error "Directory ${dir} exists, but it is not a git repository" | flunk
   fi
 }
 
@@ -264,9 +239,7 @@ assert_not_git_repo(){
   assert_dir_exists "${dir}" || return 1
 
   if [ -d "${dir}/.git" ]; then
-    {
-      "Directory ${dir} exists and it is a git repository, but should not be"
-    } | flunk
+    format_error "Directory ${dir} exists and it is a git repository, but should not be" | flunk
   else
     return 0
   fi
@@ -282,9 +255,7 @@ assert_files_equal(){
   if cmp "${file1}" "${file2}"; then
     return 0
   else
-    {
-      "File ${file1} is not equal to file ${file2}"
-    } | flunk
+    format_error "File ${file1} is not equal to file ${file2}" | flunk
   fi
 }
 
@@ -296,29 +267,25 @@ assert_files_not_equal(){
   assert_file_exists "${file2}" || return 1
 
   if cmp "${file1}" "${file2}"; then
-    {
-      "File ${file1} is equal to file ${file2}, but it should not be"
-    } | flunk
+    format_error "File ${file1} is equal to file ${file2}, but it should not be" | flunk
   else
     return 0
   fi
 }
 
 assert_empty(){
-  if [[ "${1}" == "" ]] ; then
+  if [ "${1}" == "" ] ; then
     return 0
   else
-    { echo "string:   ${1}"
-    } | flunk
+    format_error "String ${1} is not empty, but should be" | flunk
   fi
 }
 
 assert_not_empty(){
-  if [[ "${1}" != "" ]] ; then
-    return 0
+  if [ "${1}" == "" ] ; then
+    format_error "String ${1} is empty, but should not be" | flunk
   else
-    { echo "string:   ${1}"
-    } | flunk
+    return 0
   fi
 }
 
