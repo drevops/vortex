@@ -246,7 +246,7 @@ entrypoint:
     #;< DEMO
     #; Location of the dummy database used for demonstration only.
     #; This will be removed during project init.
-    export DUMMY_DB=https://goo.gl/bdZ2Zj
+    export DUMMY_DB=https://goo.gl/dwfkGQ
     #;> DEMO
     bash -c "$0" "$@"
   - '{{cmd}}'
