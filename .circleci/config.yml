@@ -106,7 +106,7 @@ jobs:
       - run: .circleci/test.sh
       - run:
           name: Copy artifacts
-          command: .circleci/test-artifacts.sh
+          command: .circleci/process-artifacts.sh
           when: always
       - store_artifacts:
           path: /tmp/artifacts
