@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Template for MYSITE theme.
+ * Template for YOURSITE theme.
  */
 
 use Drupal\Core\Site\Settings;
@@ -10,7 +10,7 @@ use Drupal\Core\Site\Settings;
 /**
  * Implements hook_css_alter().
  */
-function mysitetheme_css_alter(&$css) {
+function yoursitetheme_css_alter(&$css) {
   if (Settings::get('livereload', FALSE)) {
     // Alter css to display as link tags.
     foreach ($css as $key => $value) {
@@ -22,8 +22,8 @@ function mysitetheme_css_alter(&$css) {
 /**
  * Implements hook_page_attachments_alter().
  */
-function mysitetheme_page_attachments_alter(array &$page) {
+function yoursitetheme_page_attachments_alter(array &$page) {
   if (Settings::get('livereload', FALSE)) {
-    $page['#attached']['library'][] = 'mysitetheme/livereload';
+    $page['#attached']['library'][] = 'yoursitetheme/livereload';
   }
 }

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * MYSITE Drupal context for Behat testing.
+ * YOURSITE Drupal context for Behat testing.
  */
 
 use Drupal\DrupalExtension\Context\DrupalContext;

@@ -32,7 +32,7 @@ ahoy login
   ```
 2. Restart the stack: `ahoy up`.
 3. Enable listening for incoming debug connections in your IDE.
-4. If required, provide server URL to your IDE as it appears in the browser: `http://<mysite>.docker.amazee.io`
+4. If required, provide server URL to your IDE as it appears in the browser: `http://<yoursite>.docker.amazee.io`
 5. Enable Xdebug flag in the request coming from your web browser.
 6. Set a breakpoint in your IDE and perform a request in the web browser. 
 

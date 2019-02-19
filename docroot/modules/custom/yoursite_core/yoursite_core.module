@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Core module for MYSITE.
+ * Core module for YOURSITE.
  */
 
-include_once 'mysite_core.constants.php';
+include_once 'yoursite_core.constants.php';
 
 /**
  * Include additional early bootstrap files.

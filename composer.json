@@ -1,6 +1,6 @@
 {
-    "name": "myorg/mysite",
-    "description": "Drupal 8 site for MYSITE",
+    "name": "yourorg/yoursite",
+    "description": "Drupal 8 site for YOURSITE",
     "license": "proprietary",
     "require": {
         "composer/installers": "^1.2.0",

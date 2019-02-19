@@ -190,15 +190,15 @@ process_stub(){
 
   # @note: String replacement may break symlinks to the file where replacement
   # occurs.
-  replace_string_content  "mysitetheme"  "$(get_value "theme")"             "${dir}" && bash -c "echo -n ."
-  replace_string_content  "myorg"        "$(get_value "org_machine_name")"  "${dir}" && bash -c "echo -n ."
-  replace_string_content  "mysiteurl"    "$(get_value "url")"               "${dir}" && bash -c "echo -n ."
-  replace_string_content  "mysite"       "$(get_value "machine_name")"      "${dir}" && bash -c "echo -n ."
-  replace_string_content  "MYSITE"       "$(get_value "name")"              "${dir}" && bash -c "echo -n ."
+  replace_string_content  "yoursitetheme"  "$(get_value "theme")"             "${dir}" && bash -c "echo -n ."
+  replace_string_content  "yourorg"        "$(get_value "org_machine_name")"  "${dir}" && bash -c "echo -n ."
+  replace_string_content  "yoursiteurl"    "$(get_value "url")"               "${dir}" && bash -c "echo -n ."
+  replace_string_content  "yoursite"       "$(get_value "machine_name")"      "${dir}" && bash -c "echo -n ."
+  replace_string_content  "YOURSITE"       "$(get_value "name")"              "${dir}" && bash -c "echo -n ."
 
-  replace_string_filename "mysitetheme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
-  replace_string_filename "myorg"         "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
-  replace_string_filename "mysite"        "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
+  replace_string_filename "yoursitetheme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
+  replace_string_filename "yourorg"         "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
+  replace_string_filename "yoursite"        "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
 
   if [ "$(get_value "preserve_acquia")" != "Y" ] ; then
     rm -Rf "${dir}"/hooks > /dev/null

@@ -5,7 +5,7 @@
 
 (function ($, Drupal) {
   'use strict';
-  Drupal.behaviors.mysitetheme = {
+  Drupal.behaviors.yoursitetheme = {
     attach: function (context) {
     }
   };

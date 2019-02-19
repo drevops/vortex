@@ -106,13 +106,13 @@ commands:
       (if [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ]; then ahoy export-db; fi) && \
       ahoy import-db-dump && \
       ahoy sanitize-db && \
-      ahoy drush en mysite_core -y && \
+      ahoy drush en yoursite_core -y && \
       ahoy drush updb -y && \
       #< PROFILE \
       #| Replace lines above with lines below if you want to install site from profile. \
       #| ahoy title "Installing a site from profile" && \
-      #| ahoy drush si ${DRUPAL_PROFILE} -y --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
-      #| ahoy drush en -y mysite_core && \
+      #| ahoy drush si ${DRUPAL_PROFILE} -y --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
+      #| ahoy drush en -y yoursite_core && \
       #> PROFILE \
       (if [ -f config/default/*.yml ]; then ahoy drush cim -y || true; fi) && \
       ahoy drush cr
