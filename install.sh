@@ -412,9 +412,8 @@ replace_string_content() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-  # shellcheck disable=SC2063
-  grep -r \
-    --exclude "*.{sh,png,jpg,jpeg}" \
+  grep -rI \
+    --exclude="*.sh" \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
@@ -438,9 +437,8 @@ remove_special_comments() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-  # shellcheck disable=SC2063
-  grep -r \
-    --exclude "*.{sh,png,jpg,jpeg}" \
+  grep -rI \
+    --exclude="*.sh" \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
@@ -455,9 +453,8 @@ remove_special_comments_with_content() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-  # shellcheck disable=SC2063
-  grep -r \
-    --exclude "*.{sh,png,jpg,jpeg}" \
+  grep -rI \
+    --exclude="*.sh" \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
@@ -471,9 +468,8 @@ enable_commented_code() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-  # shellcheck disable=SC2063
-  grep -r \
-    --exclude "*.{sh,png,jpg,jpeg}" \
+  grep -rI \
+    --exclude="*.sh" \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
