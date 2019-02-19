@@ -432,7 +432,7 @@ replace_string_filename() {
 
 remove_special_comments() {
   local dir="${1}"
-  local token="${2:-#|}"
+  local token="${2:-#;}"
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')

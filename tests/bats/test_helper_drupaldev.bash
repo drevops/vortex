@@ -125,7 +125,7 @@ assert_added_files_no_integrations(){
   assert_dir_not_contains_string "${dir}" "yourorg"
   assert_dir_not_contains_string "${dir}" "yoursiteurl"
   # Assert all special comments were removed.
-  assert_dir_not_contains_string "${dir}" "#|"
+  assert_dir_not_contains_string "${dir}" "#;"
   assert_dir_not_contains_string "${dir}" "#<"
   assert_dir_not_contains_string "${dir}" "#>"
 

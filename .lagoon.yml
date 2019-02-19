@@ -13,14 +13,14 @@ tasks:
         command: |
           mkdir -p /tmp/.data
           #< DEMO
-          #| Using dummy DB for Drupal-Dev project testing.
+          #; Using dummy DB for Drupal-Dev project testing.
           source .env && curl -L $DUMMY_DB -o /tmp/.data/db.sql
           #> DEMO
           #< ACQUIA
-          #| Copy credentials from one of the Acquia environmets. We are using
-          #| Acquia environments as a storage in this case. These credentials
-          #| need to be created beforehand by SSHing into an environment and
-          #| running `drush ac-api-login` with credentials of the Deployer user.
+          #; Copy credentials from one of the Acquia environmets. We are using
+          #; Acquia environments as a storage in this case. These credentials
+          #; need to be created beforehand by SSHing into an environment and
+          #; running `drush ac-api-login` with credentials of the Deployer user.
           drush -y rsync @yoursite.dev:/home/yoursite/.acquia/ ~/.acquia/
           export $(grep -v '^#' .env | xargs)
           DB_DUMP_FILE=/tmp/.data/db.sql scripts/download-backup-acquia.sh

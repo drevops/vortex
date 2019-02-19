@@ -87,7 +87,7 @@ commands:
     cmd: |
       ahoy title "Downloading database"
       #< DEMO: Download dummy DB.
-      #| Used for demonstration purposes. This line is removed during project init.
+      #; Used for demonstration purposes. This line is removed during project init.
       mkdir -p ${DATAROOT} && curl -L ${DUMMY_DB} -o ${DATAROOT}/db.sql
       #> DEMO
       #< ACQUIA
@@ -109,10 +109,10 @@ commands:
       ahoy drush en yoursite_core -y && \
       ahoy drush updb -y && \
       #< PROFILE \
-      #| Replace lines above with lines below if you want to install site from profile. \
-      #| ahoy title "Installing a site from profile" && \
-      #| ahoy drush si ${DRUPAL_PROFILE} -y --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
-      #| ahoy drush en -y yoursite_core && \
+      #; Replace lines above with lines below if you want to install site from profile. \
+      #; ahoy title "Installing a site from profile" && \
+      #; ahoy drush si ${DRUPAL_PROFILE} -y --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
+      #; ahoy drush en -y yoursite_core && \
       #> PROFILE \
       (if [ -f config/default/*.yml ]; then ahoy drush cim -y || true; fi) && \
       ahoy drush cr
@@ -244,8 +244,8 @@ entrypoint:
     export PROJECT=${PROJECT:-$(basename $(pwd))}
     export LOCALDEV_URL=${LOCALDEV_URL:-http://${PROJECT/[_ ]/-}.docker.amazee.io}
     #< DEMO
-    #| Location of the dummy database used for demonstration only.
-    #| This will be removed during project init.
+    #; Location of the dummy database used for demonstration only.
+    #; This will be removed during project init.
     export DUMMY_DB=https://goo.gl/bdZ2Zj
     #> DEMO
     bash -c "$0" "$@"

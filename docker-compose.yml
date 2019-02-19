@@ -1,14 +1,14 @@
-#| Docker Compose configuration file.
-#|
-#| - Using a single file to work in local, CI and production environments.
-#| - Local overrides are possible using docker-composer.override.yml file.
-#| - Use inline comments containing '###' to have the line removed in CI.
-#| - Use inline comments starting with '##' to have the line being automatically
-#|   uncommented in CI.
-#| - Comments starting with '#|', '#<' or '#>' (like the ones used for the
-#|   current paragraph) are explaining Drupal-Dev inner working and can be
-#|   safely removed for your project. They are automatically removed when
-#|   installing Drupal-Dev.
+#; Docker Compose configuration file.
+#;
+#; - Using a single file to work in local, CI and production environments.
+#; - Local overrides are possible using docker-composer.override.yml file.
+#; - Use inline comments containing '###' to have the line removed in CI.
+#; - Use inline comments starting with '##' to have the line being automatically
+#;   uncommented in CI.
+#; - Comments starting with '#;', '#<' or '#>' (like the ones used for the
+#;   current paragraph) are explaining Drupal-Dev inner working and can be
+#;   safely removed for your project. They are automatically removed when
+#;   installing Drupal-Dev.
 version: '2.3'
 
 x-project:
@@ -16,19 +16,19 @@ x-project:
 
 x-volumes:
   &default-volumes
-  #| Understanding host mounting in Docker-based projects.
-  #|
-  #| To share application code between services (containers), Docker uses volumes.
-  #| When used in non-development environments, containers have access to
-  #| the same shared files using volumes and these volumes do not need to be
-  #| mounted from the host. But for development environment, when the code
-  #| constantly changes on the host, we need to have these changes synchronized
-  #| into all containers. Since we are using single `docker-compose.yml` file for
-  #| all environments, we have to accommodate both cases, so we are specifying an
-  #| override for the same directory as a mounted volume as a commented-out lines,
-  #| which will be automatically uncommented in CI.
-  #|
-  #| See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/compose-file-v2/#volume-configuration-reference
+  #; Understanding host mounting in Docker-based projects.
+  #;
+  #; To share application code between services (containers), Docker uses volumes.
+  #; When used in non-development environments, containers have access to
+  #; the same shared files using volumes and these volumes do not need to be
+  #; mounted from the host. But for development environment, when the code
+  #; constantly changes on the host, we need to have these changes synchronized
+  #; into all containers. Since we are using single `docker-compose.yml` file for
+  #; all environments, we have to accommodate both cases, so we are specifying an
+  #; override for the same directory as a mounted volume as a commented-out lines,
+  #; which will be automatically uncommented in CI.
+  #;
+  #; See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/compose-file-v2/#volume-configuration-reference
   volumes:
     - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
     - ./docroot/sites/default/files:/app/docroot/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
