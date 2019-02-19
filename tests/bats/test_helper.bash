@@ -220,7 +220,7 @@ assert_dir_contains_string(){
 
   assert_dir_exists "${dir}" || return 1
 
-  if grep -rI --exclude '.*\.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" > /dev/null; then
+  if grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" > /dev/null; then
     return 0
   else
     {
@@ -235,7 +235,7 @@ assert_dir_not_contains_string(){
 
   assert_dir_exists "${dir}" || return 1
 
-  if grep -rI --exclude '.*\.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" > /dev/null; then
+  if grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" > /dev/null; then
     {
       "Directory ${dir} contains string ${string}, but should not"
     } | flunk

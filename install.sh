@@ -413,7 +413,6 @@ replace_string_content() {
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
   grep -rI \
-    --exclude="*.sh" \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
@@ -438,7 +437,6 @@ remove_special_comments() {
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
   grep -rI \
-    --exclude="*.sh" \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
@@ -454,7 +452,6 @@ remove_special_comments_with_content() {
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
   grep -rI \
-    --exclude="*.sh" \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
@@ -469,7 +466,6 @@ enable_commented_code() {
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
   grep -rI \
-    --exclude="*.sh" \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \

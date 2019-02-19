@@ -97,6 +97,9 @@ assert_added_files_no_integrations(){
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.libraries.yml"
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.theme"
 
+  # Comparing binary files.
+  assert_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/mysitetheme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
+
   # Settings files exist.
   # @note The permissions can be 644 or 664 depending on the umask of OS. Also,
   # git only track 644 or 755.
@@ -116,15 +119,15 @@ assert_added_files_no_integrations(){
   assert_file_exists ".ahoy.yml"
 
   # Assert all stub strings were replaced.
-  assert_dir_not_contains_string "mysite"
-  assert_dir_not_contains_string "MYSITE"
-  assert_dir_not_contains_string "mysitetheme"
-  assert_dir_not_contains_string "myorg"
-  assert_dir_not_contains_string "mysiteurl"
+  assert_dir_not_contains_string . "mysite"
+  assert_dir_not_contains_string . "MYSITE"
+  assert_dir_not_contains_string . "mysitetheme"
+  assert_dir_not_contains_string . "myorg"
+  assert_dir_not_contains_string . "mysiteurl"
   # Assert all special comments were removed.
-  assert_dir_not_contains_string "#|"
-  assert_dir_not_contains_string "#<"
-  assert_dir_not_contains_string "#>"
+  assert_dir_not_contains_string . "#|"
+  assert_dir_not_contains_string . "#<"
+  assert_dir_not_contains_string . "#>"
 
   # Assert that project name is correct.
   assert_file_contains .env "PROJECT=\"${suffix}\""
