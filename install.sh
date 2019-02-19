@@ -190,15 +190,15 @@ process_stub(){
 
   # @note: String replacement may break symlinks to the file where replacement
   # occurs.
-  replace_string_content  "mysitetheme"  "$(get_value "theme")"             "${dir}" && bash -c "echo -n ."
-  replace_string_content  "myorg"        "$(get_value "org_machine_name")"  "${dir}" && bash -c "echo -n ."
-  replace_string_content  "mysiteurl"    "$(get_value "url")"               "${dir}" && bash -c "echo -n ."
-  replace_string_content  "mysite"       "$(get_value "machine_name")"      "${dir}" && bash -c "echo -n ."
-  replace_string_content  "MYSITE"       "$(get_value "name")"              "${dir}" && bash -c "echo -n ."
+  replace_string_content  "yoursitetheme"  "$(get_value "theme")"             "${dir}" && bash -c "echo -n ."
+  replace_string_content  "yourorg"        "$(get_value "org_machine_name")"  "${dir}" && bash -c "echo -n ."
+  replace_string_content  "yoursiteurl"    "$(get_value "url")"               "${dir}" && bash -c "echo -n ."
+  replace_string_content  "yoursite"       "$(get_value "machine_name")"      "${dir}" && bash -c "echo -n ."
+  replace_string_content  "YOURSITE"       "$(get_value "name")"              "${dir}" && bash -c "echo -n ."
 
-  replace_string_filename "mysitetheme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
-  replace_string_filename "myorg"         "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
-  replace_string_filename "mysite"        "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
+  replace_string_filename "yoursitetheme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
+  replace_string_filename "yourorg"         "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
+  replace_string_filename "yoursite"        "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
 
   if [ "$(get_value "preserve_acquia")" != "Y" ] ; then
     rm -Rf "${dir}"/hooks > /dev/null
@@ -221,8 +221,8 @@ process_stub(){
     # Handle code required for the demo of Drupal-Dev.
     [ "${DRUPALDEV_REMOVE_DEMO}" -eq 1 ] && remove_special_comments_with_content "DEMO" "${dir}" && bash -c "echo -n ."
     # Remove other unhandled comments.
-    remove_special_comments "${dir}" "#<"
-    remove_special_comments "${dir}" "#>"
+    remove_special_comments "${dir}" "#;<"
+    remove_special_comments "${dir}" "#;>"
     # Remove all other comments.
     remove_special_comments "${dir}"
   fi
@@ -412,9 +412,7 @@ replace_string_content() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-  # shellcheck disable=SC2063
-  grep -r \
-    --exclude "*.{sh,png,jpg,jpeg}" \
+  grep -rI \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
@@ -434,13 +432,11 @@ replace_string_filename() {
 
 remove_special_comments() {
   local dir="${1}"
-  local token="${2:-#|}"
+  local token="${2:-#;}"
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-  # shellcheck disable=SC2063
-  grep -r \
-    --exclude "*.{sh,png,jpg,jpeg}" \
+  grep -rI \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
@@ -455,15 +451,13 @@ remove_special_comments_with_content() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-  # shellcheck disable=SC2063
-  grep -r \
-    --exclude "*.{sh,png,jpg,jpeg}" \
+  grep -rI \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
-    -l "#> $token" "${dir}" \
-    | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/#< $token/,/#> $token/d"
+    -l "#;> $token" "${dir}" \
+    | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/#;< $token/,/#;> $token/d"
 }
 
 enable_commented_code() {
@@ -471,9 +465,7 @@ enable_commented_code() {
   local sed_opts
 
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-  # shellcheck disable=SC2063
-  grep -r \
-    --exclude "*.{sh,png,jpg,jpeg}" \
+  grep -rI \
     --exclude-dir=".git" \
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \

@@ -1,4 +1,4 @@
-[//]: # (#< DRUPAL-DEV)
+[//]: # (#;< DRUPAL-DEV)
 # Drupal-Dev [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+Drupal-Dev+-+open-source+development+practice+for+Drupal+projects&url=https://www.drupal-dev.io&via=integratedexperts&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
 Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
@@ -102,8 +102,8 @@ Quick install of best practices Drupal configuration on Docker stack using a sin
 |                                               | [Scripts](scripts/composer) to create required settings and files with environment variables support                | Required files and directories created automatically.Environment variables override support allows to provide override values without the need to change scripts. Useful for per-environment overrides. |
 |                                               | [Settings file](/Users/o_o/www/drupal-dev/docroot/sites/default/settings.php) with multi-environment support        | Per-environment variables allow to easily target specific settings to specific environments without too much mess |
 |                                               | [Best-practices development modules](composer.json)                                                                 | Having the same development modules on each website helps to reduce development time. |
-| Custom [module scaffolding](docroot/modules/custom/mysite_core/mysite_core.module) | Mechanism to organise contributed module-related hook implementations into standalone files | Helps avoid large files with all hook implementation, which leads to a simple maintenance. |
-| Custom [theme scaffolding](docroot/themes/custom/mysitetheme)                      | Based on [Bario (Bootstrap 4)](https://www.drupal.org/project/bootstrap_barrio)                                     | Bootstrap 4 is the latest version of the most popular frontend framework and Bario is a Drupal theme that supports Bootstrap 4. |
+| Custom [module scaffolding](docroot/modules/custom/yoursite_core/yoursite_core.module) | Mechanism to organise contributed module-related hook implementations into standalone files | Helps avoid large files with all hook implementation, which leads to a simple maintenance. |
+| Custom [theme scaffolding](docroot/themes/custom/yoursitetheme)                      | Based on [Bario (Bootstrap 4)](https://www.drupal.org/project/bootstrap_barrio)                                     | Bootstrap 4 is the latest version of the most popular frontend framework and Bario is a Drupal theme that supports Bootstrap 4. |
 |                                               | Grunt + SASS/SCSS + globbing + Livereload                                                                           | Grunt configuration defines multiple build steps to work with frontend in Drupal.<br/>Livereload allows to automatically refresh the page once there are changes to styles or scripts. |
 | Patches management                            | Based on [composer-patches](https://github.com/cweagans/composer-patches)                                           | Support for custom (per-project) and contributed patches is simply essential for any project. |
 | **Local development environment**             |
@@ -206,11 +206,11 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 
 **All content above this line will be automatically removed during installation.**
 
-[//]: # (#> DRUPAL-DEV)
-# MYSITE
-Drupal 8 implementation of MYSITE
+[//]: # (#;> DRUPAL-DEV)
+# YOURSITE
+Drupal 8 implementation of YOURSITE
 
-[![CircleCI](https://circleci.com/gh/myorg/mysite.svg?style=shield)](https://circleci.com/gh/myorg/mysite)
+[![CircleCI](https://circleci.com/gh/yourorg/yoursite.svg?style=shield)](https://circleci.com/gh/yourorg/yoursite)
 
 ## Local environment setup
 1. Make sure that you have latest versions of all required software installed:   
@@ -220,7 +220,7 @@ Drupal 8 implementation of MYSITE
 2. Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 3. Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
 
-[//]: # (#< ACQUIA)
+[//]: # (#;< ACQUIA)
 
 4. Add Acquia Cloud credentials to `.env.local` file:
 ```
@@ -229,7 +229,7 @@ Drupal 8 implementation of MYSITE
   # Acquia Cloud UI->Account->Credentials->Cloud API->Private key
   AC_API_USER_PASS=<YOUR_TOKEN>
 ```
-[//]: # (#> ACQUIA)
+[//]: # (#;> ACQUIA)
 
 5. `./drupal-dev.sh`
 6. `ahoy download-db`
@@ -341,12 +341,12 @@ If the build has inconsistent results (build fails in CI but passes locally), tr
 ### Test artifacts
 Test artifacts (screenshots etc.) are available under "Artifacts" tab in Circle CI UI.
 
-[//]: # (#< DEPLOYMENT)
+[//]: # (#;< DEPLOYMENT)
 
 ## Deployment
 Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
 
-[//]: # (#> DEPLOYMENT) 
+[//]: # (#;> DEPLOYMENT) 
 
 ## FAQs
 Please refer to [FAQs](FAQs.md)

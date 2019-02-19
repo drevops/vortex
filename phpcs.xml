@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="mysite">
-  <description>PHPCS Standard for MYSITE website, based on Drupal standards.
+<ruleset name="yoursite">
+  <description>PHPCS Standard for YOURSITE website, based on Drupal standards.
   </description>
 
   <rule ref="Drupal"/>

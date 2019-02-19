@@ -1,4 +1,4 @@
-# Deployment procedures for MYSITE
+# Deployment procedures for YOURSITE
 
 GitHub is a primary code repository for this project (aka "source repository").
 Acquia Cloud is a hosting provider for this project and it also has a git repository (aka "destination repository"). 

@@ -25,9 +25,9 @@ commands:
       ahoy line "Path to project       : " ${APP}
       ahoy line "Path to docroot       : " ${APP}/${WEBROOT}
       ahoy line "DB port on host       : " $(docker port $(docker-compose ps -q mariadb) 3306 | cut -d : -f 2)
-      #< SOLR
+      #;< SOLR
       ahoy line "Solr port on host     : " $(docker port $(docker-compose ps -q solr) 8983 | cut -d : -f 2)
-      #> SOLR
+      #;> SOLR
       ahoy line "Mailhog URL           : " http://mailhog.docker.amazee.io/
       if [ "$1" ]; then
         ahoy line "One-time login        : " $(ahoy login -- --no-browser)
@@ -86,18 +86,18 @@ commands:
     usage: Download database.
     cmd: |
       ahoy title "Downloading database"
-      #< DEMO: Download dummy DB.
-      #| Used for demonstration purposes. This line is removed during project init.
+      #;< DEMO: Download dummy DB.
+      #; Used for demonstration purposes. This line is removed during project init.
       mkdir -p ${DATAROOT} && curl -L ${DUMMY_DB} -o ${DATAROOT}/db.sql
-      #> DEMO
-      #< ACQUIA
+      #;> DEMO
+      #;< ACQUIA
       # Download DB from Acquia Cloud backup. Remove if site install is used.
       ##### AC_API_USER_NAME=${AC_API_USER_NAME} AC_API_USER_PASS=${AC_API_USER_PASS} AC_API_DB_SITE=${AC_API_DB_SITE} AC_API_DB_ENV=${AC_API_DB_ENV} AC_API_DB_NAME=${AC_API_DB_NAME} DB_REMOVE_CACHED_DUMPS=${DB_REMOVE_CACHED_DUMPS} ./scripts/download-backup-acquia.sh
-      #> ACQUIA
-      #< FTP
+      #;> ACQUIA
+      #;< FTP
       # Download DB dump from FTP. Remove if site install is used.
       ##### mkdir -p ${DATAROOT} && curl -u ${FTP_USER}:${FTP_PASS} "ftp://${FTP_HOST}:${FTP_PORT}/${FTP_FILE}" -o ${DATAROOT}/db.sql
-      #> FTP
+      #;> FTP
 
   install-site:
     usage: Install a site.
@@ -106,14 +106,14 @@ commands:
       (if [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ]; then ahoy export-db; fi) && \
       ahoy import-db-dump && \
       ahoy sanitize-db && \
-      ahoy drush en mysite_core -y && \
+      ahoy drush en yoursite_core -y && \
       ahoy drush updb -y && \
-      #< PROFILE \
-      #| Replace lines above with lines below if you want to install site from profile. \
-      #| ahoy title "Installing a site from profile" && \
-      #| ahoy drush si ${DRUPAL_PROFILE} -y --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
-      #| ahoy drush en -y mysite_core && \
-      #> PROFILE \
+      #;< PROFILE \
+      #; Replace lines above with lines below if you want to install site from profile. \
+      #; ahoy title "Installing a site from profile" && \
+      #; ahoy drush si ${DRUPAL_PROFILE} -y --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
+      #; ahoy drush en -y yoursite_core && \
+      #;> PROFILE \
       (if [ -f config/default/*.yml ]; then ahoy drush cim -y || true; fi) && \
       ahoy drush cr
 
@@ -243,11 +243,11 @@ entrypoint:
     [ -f .env ] && export $(grep -v '^#' .env | xargs) && [ -f .env.local ] && export $(grep -v '^#' .env.local | xargs)
     export PROJECT=${PROJECT:-$(basename $(pwd))}
     export LOCALDEV_URL=${LOCALDEV_URL:-http://${PROJECT/[_ ]/-}.docker.amazee.io}
-    #< DEMO
-    #| Location of the dummy database used for demonstration only.
-    #| This will be removed during project init.
-    export DUMMY_DB=https://goo.gl/bdZ2Zj
-    #> DEMO
+    #;< DEMO
+    #; Location of the dummy database used for demonstration only.
+    #; This will be removed during project init.
+    export DUMMY_DB=https://goo.gl/dwfkGQ
+    #;> DEMO
     bash -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'

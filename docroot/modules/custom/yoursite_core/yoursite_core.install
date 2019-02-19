@@ -8,20 +8,20 @@
 /**
  * Implements hook_install().
  */
-function mysite_core_install() {
+function yoursite_core_install() {
   $functions = get_defined_functions();
   foreach ($functions['user'] as $function) {
-    if (strpos($function, 'mysite_core_update_') === 0) {
+    if (strpos($function, 'yoursite_core_update_') === 0) {
       call_user_func($function);
     }
   }
 }
 
 /**
- * Enables 'mysitetheme' theme.
+ * Enables 'yoursitetheme' theme.
  */
-function mysite_core_update_8000() {
+function yoursite_core_update_8000() {
   \Drupal::service('theme_installer')->install(['bootstrap_barrio']);
-  \Drupal::service('theme_installer')->install(['mysitetheme']);
-  \Drupal::service('theme_handler')->setDefault('mysitetheme');
+  \Drupal::service('theme_installer')->install(['yoursitetheme']);
+  \Drupal::service('theme_handler')->setDefault('yoursitetheme');
 }

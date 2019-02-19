@@ -1,8 +1,8 @@
 {
-  "name": "mysite",
+  "name": "yoursite",
   "version": "1.0.0",
   "private": true,
-  "description": "NPM dependencies for MYSITE project",
+  "description": "NPM dependencies for YOURSITE project",
   "devDependencies": {
     "autoprefixer": "^9.4.7",
     "eslint": "^5.13.0",

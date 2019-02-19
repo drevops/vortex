@@ -4,8 +4,8 @@
 /*
 
 !docroot
-docroot/themes/custom/mysitetheme/js
-docroot/themes/custom/mysitetheme/scss
+docroot/themes/custom/yoursitetheme/js
+docroot/themes/custom/yoursitetheme/scss
 docroot/sites/default/settings.generated.php
 docroot/sites/default/default.settings.local.php
 docroot/sites/default/default.services.local.yml

@@ -3,6 +3,7 @@
 # @file
 # Bats test helpers.
 #
+# shellcheck disable=SC2119,SC2120
 
 # Guard against bats executing this twice
 if [ -z "$TEST_PATH_INITIALIZED" ]; then
@@ -25,7 +26,7 @@ flunk(){
 assert_success(){
   # shellcheck disable=SC2154
   if [ "${status}" -ne 0 ]; then
-    flunk "command failed with exit status ${status}"
+    format_error "command failed with exit status ${status}" | flunk
   elif [ "$#" -gt 0 ]; then
     assert_output "${1}"
   fi
@@ -34,7 +35,7 @@ assert_success(){
 assert_failure(){
   # shellcheck disable=SC2154
   if [ "${status}" -eq 0 ]; then
-    flunk "expected failed exit status"
+    format_error "expected failed exit status" | flunk
   elif [ "$#" -gt 0 ]; then
     assert_output "${1}"
   fi
@@ -55,9 +56,7 @@ assert_contains(){
   if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" > /dev/null; then
     return 0
   else
-    { echo "string:   ${haystack}"
-      echo "contains: ${needle}"
-    } | flunk
+    format_error "String '${haystack}' does not contain '${needle}'" | flunk
   fi
 }
 
@@ -66,9 +65,7 @@ assert_not_contains(){
   local haystack="${2}"
 
   if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" > /dev/null; then
-    { echo "string:   ${haystack}"
-      echo "contains: ${needle}"
-    } | flunk
+    format_error "String '${haystack}' contains '${needle}', but should not" | flunk
   else
     return 0
   fi
@@ -76,53 +73,86 @@ assert_not_contains(){
 
 assert_file_exists(){
   local file="${1}"
-  [ ! -f "${file}" ] && flunk "File ${file} does not exist"
-  return 0
+  if [ -f "${file}" ]; then
+    return 0
+  else
+    format_error "File ${file} does not exist" | flunk
+  fi
 }
 
 assert_file_not_exists(){
   local file="${1}"
-  [ -f "${file}" ] && flunk "File ${file} exists, but should not"
-  return 0
+  if [ -f "${file}" ]; then
+    format_error "File ${file} exists, but should not" | flunk
+  else
+    return 0
+  fi
 }
 
 assert_dir_exists(){
   local dir="${1}"
-  [ ! -d "${dir}" ] && flunk "Directory ${dir} does not exist"
-  return 0
+
+  if [ -d "${dir}" ] ; then
+    return 0
+  else
+    format_error "Directory ${dir} does not exist" | flunk
+  fi
 }
 
 assert_dir_not_exists(){
   local dir="${1}"
-  [ -d "${dir}" ] && flunk "Directory ${dir} exists, but should not"
-  return 0
+
+  if [ -d "${dir}" ] ; then
+    format_error "Directory ${dir} exists, but should not" | flunk
+  else
+    return 0
+  fi
 }
 
 assert_dir_empty(){
   local dir="${1}"
-  assert_dir_exists "${dir}"
-  [ "$(ls -A "${dir}")" ] && flunk "Directory ${dir} is not empty, but should be"
-  return 0
+  assert_dir_exists "${dir}" || return 1
+
+  if [ "$(ls -A "${dir}")" ]; then
+    format_error "Directory ${dir} is not empty, but should be" | flunk
+  else
+    return 0
+  fi
 }
 
 assert_dir_not_empty(){
   local dir="${1}"
   assert_dir_exists "${dir}"
-  [ -z "$(ls -A "${dir}")" ] && flunk "Directory ${dir} is empty, but should not be"
-  return 0
+
+  if [ "$(ls -A "${dir}")" ]; then
+    return 0
+  else
+    format_error "Directory ${dir} is not empty, but should be" | flunk
+  fi
 }
+
 assert_symlink_exists(){
   local file="${1}"
-  [ ! -h "${file}" ] && [ -f "${file}" ] && flunk "Regular file ${file} exists, but symlink is expected"
-  [ ! -h "${file}" ] && flunk "Symlink ${file} does not exist"
-  return 0
+
+  if [ ! -h "${file}" ] && [ -f "${file}" ]; then
+    format_error "Regular file ${file} exists, but symlink is expected" | flunk
+  elif [ ! -h "${file}" ]; then
+    format_error "Symlink ${file} does not exist" | flunk
+  else
+    return 0
+  fi
 }
 
 assert_symlink_not_exists(){
   local file="${1}"
-  [ -h "${file}" ] && [ -f "${file}" ] && flunk "Regular file ${file} exists, but symlink is expected"
-  [ -h "${file}" ] && flunk "Symlink ${file} exists, but should not"
-  return 0
+
+  if [ ! -h "${file}" ] && [ -f "${file}" ]; then
+    return 0
+  elif [ ! -h "${file}" ]; then
+    return 0
+  else
+    format_error "Symlink ${file} exists, but should not" | flunk
+  fi
 }
 
 assert_file_mode(){
@@ -136,8 +166,11 @@ assert_file_mode(){
     parsed=$(printf "%.3o\n" $(( $(stat --printf '0%a' "$file") & ~0022 )))
   fi
 
-  [ "${parsed}" != "${perm}" ] && flunk "File permissions for file ${file} is '${parsed}', but expected '${perm}'"
-  return 0
+  if [ "${parsed}" != "${perm}" ]; then
+    format_error "File permissions for file ${file} is '${parsed}', but expected '${perm}'" | flunk
+  else
+    return 0
+  fi
 }
 
 assert_file_contains(){
@@ -161,42 +194,132 @@ assert_file_not_contains(){
 assert_dir_contains_string(){
   local dir="${1}"
   local string="${2}"
-  grep -r --exclude '.*\.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" || flunk "Directory ${dir} does not contain a string ${string}"
-  return 0
+
+  assert_dir_exists "${dir}" || return 1
+
+  run grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
+
+  if [ "${status}" -eq 0 ]; then
+    return 0
+  else
+    format_error "Directory ${dir} does not contain a string '${string}'" | flunk
+  fi
 }
 
 assert_dir_not_contains_string(){
   local dir="${1}"
   local string="${2}"
-  grep -r --exclude '.*\.sh' --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}" > /dev/null && flunk "Directory ${dir} contains string ${string}, but should not"
-  return 0
+
+  assert_dir_exists "${dir}" || return 1
+
+  run grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
+
+  if [ "${status}" -eq 0 ]; then
+    format_error "Directory ${dir} contains string '${string}', but should not" | flunk
+  else
+    return 0
+  fi
+}
+
+assert_git_repo(){
+  local dir="${1}"
+
+  assert_dir_exists "${dir}" || return 1
+
+  if [ -d "${dir}/.git" ]; then
+    return 0
+  else
+    format_error "Directory ${dir} exists, but it is not a git repository" | flunk
+  fi
+}
+
+assert_not_git_repo(){
+  local dir="${1}"
+
+  assert_dir_exists "${dir}" || return 1
+
+  if [ -d "${dir}/.git" ]; then
+    format_error "Directory ${dir} exists and it is a git repository, but should not be" | flunk
+  else
+    return 0
+  fi
+}
+
+assert_files_equal(){
+  local file1="${1}"
+  local file2="${2}"
+
+  assert_file_exists "${file1}" || return 1
+  assert_file_exists "${file2}" || return 1
+
+  if cmp "${file1}" "${file2}"; then
+    return 0
+  else
+    format_error "File ${file1} is not equal to file ${file2}" | flunk
+  fi
+}
+
+assert_files_not_equal(){
+  local file1="${1}"
+  local file2="${2}"
+
+  assert_file_exists "${file1}" || return 1
+  assert_file_exists "${file2}" || return 1
+
+  if cmp "${file1}" "${file2}"; then
+    format_error "File ${file1} is equal to file ${file2}, but it should not be" | flunk
+  else
+    return 0
+  fi
 }
 
 assert_empty(){
-  if [[ "${1}" == "" ]] ; then
+  if [ "${1}" == "" ] ; then
     return 0
   else
-    { echo "string:   ${1}"
-    } | flunk
+    format_error "String ${1} is not empty, but should be" | flunk
   fi
 }
 
 assert_not_empty(){
-  if [[ "${1}" != "" ]] ; then
-    return 0
+  if [ "${1}" == "" ] ; then
+    format_error "String ${1} is empty, but should not be" | flunk
   else
-    { echo "string:   ${1}"
-    } | flunk
+    return 0
   fi
 }
 
 assert_output(){
   local expected
-  if [ $# -eq 0 ]; then expected="$(cat -)"
-    else expected="${1}"
+  if [ $# -eq 0 ]; then
+    expected="$(cat -)"
+  else
+    expected="${1}"
   fi
   # shellcheck disable=SC2154
   assert_equal "${expected}" "${output}"
+}
+
+assert_output_contains(){
+  local expected
+  if [ $# -eq 0 ]; then
+    expected="$(cat -)"
+  else
+    expected="${1}"
+  fi
+  # shellcheck disable=SC2154
+  assert_contains "${expected}" "${output}"
+}
+
+assert_output_not_contains(){
+  local expected
+  if [ $# -eq 0 ]; then
+    expected="$(cat -)"
+  else
+    expected="${1}"
+  fi
+  # shellcheck disable=SC2154
+  assert_not_contains "${expected}" "${output}"
 }
 
 random_string(){
@@ -210,6 +333,21 @@ prepare_fixture_dir(){
   rm -Rf "${dir}" > /dev/null
   mkdir -p "${dir}"
   assert_dir_exists "${dir}"
+}
+
+# Format error message with optional output, if present.
+format_error(){
+  local message="${1}"
+  echo
+  echo "ERROR: ${message}"
+  echo
+
+  if [ "${output}" != "" ]; then
+    echo "----------------------------------------"
+    echo "$BATS_TMPDIR"
+    echo "${output}"
+    echo "----------------------------------------"
+  fi
 }
 
 # Run bats with `--tap` option to debug the output.

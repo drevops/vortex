@@ -99,13 +99,13 @@ $settings['trusted_host_patterns'] = [
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
 ////////////////////////////////////////////////////////////////////////////////
 
-// #< ACQUIA
+// #;< ACQUIA
 // Include Acquia settings.
 // @see https://docs.acquia.com/acquia-cloud/develop/env-variable
 if (file_exists('/var/www/site-php')) {
   // Delay the initial database connection.
   $config['acquia_hosting_settings_autoconnect'] = FALSE;
-  require '/var/www/site-php/mysite/mysite-settings.inc';
+  require '/var/www/site-php/yoursite/yoursite-settings.inc';
   // Do not put any Acquia-specific settings in this code block. It is used
   // for explicit mapping of Acquia environments to $conf['environment']
   // variable only. Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
@@ -123,7 +123,7 @@ if (file_exists('/var/www/site-php')) {
       break;
   }
 }
-// #> ACQUIA
+// #;> ACQUIA
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-ENVIRONMENT SETTINGS                           ///
@@ -133,7 +133,7 @@ $config['environment_indicator.indicator']['bg_color'] = $settings['environment'
 $config['environment_indicator.indicator']['name'] = $settings['environment'];
 
 if ($settings['environment'] !== ENVIRONMENT_PROD) {
-  $config['stage_file_proxy.settings']['origin'] = 'http://mysiteurl/';
+  $config['stage_file_proxy.settings']['origin'] = 'http://yoursiteurl/';
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
 }
 

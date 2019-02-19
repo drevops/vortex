@@ -72,11 +72,11 @@ assert_added_files_no_integrations(){
   pushd "${dir}" > /dev/null || exit 1
 
   # Stub profile removed.
-  assert_dir_not_exists "docroot/profiles/custom/mysite_profile"
+  assert_dir_not_exists "docroot/profiles/custom/yoursite_profile"
   # Stub code module removed.
-  assert_dir_not_exists "docroot/modules/custom/mysite_core"
+  assert_dir_not_exists "docroot/modules/custom/yoursite_core"
   # Stub theme removed.
-  assert_dir_not_exists "docroot/themes/custom/mysitetheme"
+  assert_dir_not_exists "docroot/themes/custom/yoursitetheme"
 
   # Site profile created.
   assert_dir_exists "docroot/profiles/custom/${suffix}_profile"
@@ -97,6 +97,9 @@ assert_added_files_no_integrations(){
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.libraries.yml"
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.theme"
 
+  # Comparing binary files.
+  assert_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/yoursitetheme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
+
   # Settings files exist.
   # @note The permissions can be 644 or 664 depending on the umask of OS. Also,
   # git only track 644 or 755.
@@ -116,15 +119,15 @@ assert_added_files_no_integrations(){
   assert_file_exists ".ahoy.yml"
 
   # Assert all stub strings were replaced.
-  assert_dir_not_contains_string "mysite"
-  assert_dir_not_contains_string "MYSITE"
-  assert_dir_not_contains_string "mysitetheme"
-  assert_dir_not_contains_string "myorg"
-  assert_dir_not_contains_string "mysiteurl"
+  assert_dir_not_contains_string "${dir}" "yoursite"
+  assert_dir_not_contains_string "${dir}" "YOURSITE"
+  assert_dir_not_contains_string "${dir}" "yoursitetheme"
+  assert_dir_not_contains_string "${dir}" "yourorg"
+  assert_dir_not_contains_string "${dir}" "yoursiteurl"
   # Assert all special comments were removed.
-  assert_dir_not_contains_string "#|"
-  assert_dir_not_contains_string "#<"
-  assert_dir_not_contains_string "#>"
+  assert_dir_not_contains_string "${dir}" "#;"
+  assert_dir_not_contains_string "${dir}" "#;<"
+  assert_dir_not_contains_string "${dir}" "#;>"
 
   # Assert that project name is correct.
   assert_file_contains .env "PROJECT=\"${suffix}\""
@@ -159,9 +162,9 @@ assert_no_added_files_no_integrations(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  assert_dir_not_exists "docroot/profiles/custom/mysite_profile"
-  assert_dir_not_exists "docroot/modules/custom/mysite_core"
-  assert_dir_not_exists "docroot/themes/custom/mysitetheme"
+  assert_dir_not_exists "docroot/profiles/custom/yoursite_profile"
+  assert_dir_not_exists "docroot/modules/custom/yoursite_core"
+  assert_dir_not_exists "docroot/themes/custom/yoursitetheme"
   assert_dir_not_exists "docroot/profiles/custom/${suffix}_profile"
   assert_dir_not_exists "docroot/modules/custom/${suffix}_core"
   assert_dir_not_exists "docroot/themes/custom/${suffix}"
@@ -297,14 +300,6 @@ assert_added_files_no_integration_lagoon(){
   assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
 
   popd > /dev/null || exit 1
-}
-
-assert_git_repo(){
- [ -d "${1}/.git" ]
-}
-
-assert_not_git_repo(){
- [ ! -d "${1}/.git" ]
 }
 
 ################################################################################
