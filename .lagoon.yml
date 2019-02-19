@@ -12,11 +12,11 @@ tasks:
         name: Setup site
         command: |
           mkdir -p /tmp/.data
-          #< DEMO
+          #;< DEMO
           #; Using dummy DB for Drupal-Dev project testing.
           source .env && curl -L $DUMMY_DB -o /tmp/.data/db.sql
-          #> DEMO
-          #< ACQUIA
+          #;> DEMO
+          #;< ACQUIA
           #; Copy credentials from one of the Acquia environmets. We are using
           #; Acquia environments as a storage in this case. These credentials
           #; need to be created beforehand by SSHing into an environment and
@@ -24,7 +24,7 @@ tasks:
           drush -y rsync @yoursite.dev:/home/yoursite/.acquia/ ~/.acquia/
           export $(grep -v '^#' .env | xargs)
           DB_DUMP_FILE=/tmp/.data/db.sql scripts/download-backup-acquia.sh
-          #> ACQUIA
+          #;> ACQUIA
           drush sql-drop -y
           drush sql-cli < /tmp/.data/db.sql
           drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y

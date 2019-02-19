@@ -5,7 +5,7 @@
 #; - Use inline comments containing '###' to have the line removed in CI.
 #; - Use inline comments starting with '##' to have the line being automatically
 #;   uncommented in CI.
-#; - Comments starting with '#;', '#<' or '#>' (like the ones used for the
+#; - Comments starting with '#;', '#;<' or '#;>' (like the ones used for the
 #;   current paragraph) are explaining Drupal-Dev inner working and can be
 #;   safely removed for your project. They are automatically removed when
 #;   installing Drupal-Dev.
@@ -41,9 +41,9 @@ x-environment:
   # Local dev URL populated from the environment. Do not override here. Instead,
   # specify the value in .env file.
   LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-http://yoursite.docker.amazee.io}
-  #< LAGOON
+  #;< LAGOON
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
-  #> LAGOON
+  #;> LAGOON
   # Uncomment to enable Xdebug and then restart via `ahoy up`.
   #XDEBUG_ENABLE: "true"
 
@@ -59,12 +59,12 @@ services:
     <<: *default-volumes
     ports:
       - "35729:35729" # Livereload port mapping.
-    #< LAGOON
+    #;< LAGOON
     labels:
       lagoon.type: cli-persistent
       lagoon.persistent.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
-    #> LAGOON
+    #;> LAGOON
 
   nginx:
     build:
@@ -80,13 +80,13 @@ services:
     networks:
       - amazeeio-network
       - default
-    #< LAGOON
+    #;< LAGOON
     labels:
       lagoon.type: nginx-php-persistent
       lagoon.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
       lagoon.persistent.class: slow
-    #> LAGOON
+    #;> LAGOON
 
   php:
     build:
@@ -99,13 +99,13 @@ services:
     <<: *default-volumes
     depends_on:
       - cli
-    #< LAGOON
+    #;< LAGOON
     labels:
       lagoon.type: nginx-php-persistent
       lagoon.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
       lagoon.persistent.class: slow
-    #> LAGOON
+    #;> LAGOON
 
   mariadb:
     image: amazeeio/mariadb-drupal
@@ -113,21 +113,21 @@ services:
       <<: *default-environment
     ports:
       - "3306" # Find port on host with `ahoy info` or `docker-compose port mariadb 3306`
-    #< LAGOON
+    #;< LAGOON
     labels:
       lagoon.type: mariadb
-    #> LAGOON
+    #;> LAGOON
 
-  #< REDIS
+  #;< REDIS
   redis:
     image: amazeeio/redis
-    #< LAGOON
+    #;< LAGOON
     labels:
       lagoon.type: redis
-    #> LAGOON
-  #> REDIS
+    #;> LAGOON
+  #;> REDIS
 
-  #< SOLR
+  #;< SOLR
   solr:
     build:
       context: .
@@ -138,11 +138,11 @@ services:
       <<: *default-environment
     ports:
       - "8983" # Find port on host with `ahoy info` or `docker-compose port solr 8983`
-    #< LAGOON
+    #;< LAGOON
     labels:
       lagoon.type: solr
-    #> LAGOON
-  #> SOLR
+    #;> LAGOON
+  #;> SOLR
 
   chrome:
     image: selenium/standalone-chrome
@@ -152,10 +152,10 @@ services:
     <<: *default-volumes
     depends_on:
       - cli
-    #< LAGOON
+    #;< LAGOON
     labels:
       lagoon.type: none
-    #> LAGOON
+    #;> LAGOON
 
 networks:
   amazeeio-network:

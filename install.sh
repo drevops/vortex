@@ -221,8 +221,8 @@ process_stub(){
     # Handle code required for the demo of Drupal-Dev.
     [ "${DRUPALDEV_REMOVE_DEMO}" -eq 1 ] && remove_special_comments_with_content "DEMO" "${dir}" && bash -c "echo -n ."
     # Remove other unhandled comments.
-    remove_special_comments "${dir}" "#<"
-    remove_special_comments "${dir}" "#>"
+    remove_special_comments "${dir}" "#;<"
+    remove_special_comments "${dir}" "#;>"
     # Remove all other comments.
     remove_special_comments "${dir}"
   fi
@@ -456,8 +456,8 @@ remove_special_comments_with_content() {
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
-    -l "#> $token" "${dir}" \
-    | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/#< $token/,/#> $token/d"
+    -l "#;> $token" "${dir}" \
+    | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/#;< $token/,/#;> $token/d"
 }
 
 enable_commented_code() {

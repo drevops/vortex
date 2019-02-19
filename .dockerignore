@@ -26,6 +26,6 @@ docroot/libraries
 !Gruntfile.js
 !.eslintrc.json
 !.sass-lint.yml
-#< ACQUIA
+#;< ACQUIA
 !hooks
-#> ACQUIA
+#;> ACQUIA

@@ -99,7 +99,7 @@ $settings['trusted_host_patterns'] = [
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
 ////////////////////////////////////////////////////////////////////////////////
 
-// #< ACQUIA
+// #;< ACQUIA
 // Include Acquia settings.
 // @see https://docs.acquia.com/acquia-cloud/develop/env-variable
 if (file_exists('/var/www/site-php')) {
@@ -123,7 +123,7 @@ if (file_exists('/var/www/site-php')) {
       break;
   }
 }
-// #> ACQUIA
+// #;> ACQUIA
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-ENVIRONMENT SETTINGS                           ///

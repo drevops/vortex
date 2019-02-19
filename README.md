@@ -1,4 +1,4 @@
-[//]: # (#< DRUPAL-DEV)
+[//]: # (#;< DRUPAL-DEV)
 # Drupal-Dev [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+Drupal-Dev+-+open-source+development+practice+for+Drupal+projects&url=https://www.drupal-dev.io&via=integratedexperts&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
 Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
@@ -206,7 +206,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 
 **All content above this line will be automatically removed during installation.**
 
-[//]: # (#> DRUPAL-DEV)
+[//]: # (#;> DRUPAL-DEV)
 # YOURSITE
 Drupal 8 implementation of YOURSITE
 
@@ -220,7 +220,7 @@ Drupal 8 implementation of YOURSITE
 2. Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 3. Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
 
-[//]: # (#< ACQUIA)
+[//]: # (#;< ACQUIA)
 
 4. Add Acquia Cloud credentials to `.env.local` file:
 ```
@@ -229,7 +229,7 @@ Drupal 8 implementation of YOURSITE
   # Acquia Cloud UI->Account->Credentials->Cloud API->Private key
   AC_API_USER_PASS=<YOUR_TOKEN>
 ```
-[//]: # (#> ACQUIA)
+[//]: # (#;> ACQUIA)
 
 5. `./drupal-dev.sh`
 6. `ahoy download-db`
@@ -341,12 +341,12 @@ If the build has inconsistent results (build fails in CI but passes locally), tr
 ### Test artifacts
 Test artifacts (screenshots etc.) are available under "Artifacts" tab in Circle CI UI.
 
-[//]: # (#< DEPLOYMENT)
+[//]: # (#;< DEPLOYMENT)
 
 ## Deployment
 Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
 
-[//]: # (#> DEPLOYMENT) 
+[//]: # (#;> DEPLOYMENT) 
 
 ## FAQs
 Please refer to [FAQs](FAQs.md)
