@@ -132,6 +132,7 @@ assert_files_present_common(){
   assert_dir_not_contains_string "${dir}" "YOURSITE"
   assert_dir_not_contains_string "${dir}" "yoursitetheme"
   assert_dir_not_contains_string "${dir}" "yourorg"
+  assert_dir_not_contains_string "${dir}" "YOURORG"
   assert_dir_not_contains_string "${dir}" "yoursiteurl"
   # Assert all special comments were removed.
   assert_dir_not_contains_string "${dir}" "#;"
