@@ -10,11 +10,6 @@ load test_helper_drupaldev
   DRUPAL_VERSION=${DRUPAL_VERSION:-8}
   VOLUMES_MOUNTED=${VOLUMES_MOUNTED:-1}
 
-  # Safeguard for test itself. It should be ran with FTP credentials provided.
-  # DB_FTP_USER="..." DB_FTP_PASS="..." DB_FTP_HOST="..." bats tests/bats/workflow.bats --tap
-  assert_not_empty "${DB_FTP_HOST}"
-  assert_not_empty "${DB_FTP_USER}"
-  assert_not_empty "${DB_FTP_PASS}"
   assert_not_empty "${DRUPAL_VERSION}"
   assert_not_empty "${VOLUMES_MOUNTED}"
 
@@ -25,10 +20,19 @@ load test_helper_drupaldev
   assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
 
   step "Initialise the project with default settings"
-  # Preserve demo configuration used for this test.
+  # Preserve demo configuration used for this test. This is to make sure that
+  # the test does not rely on external private assets (demo is still using
+  # public dummy DB specified in DUMMY_DB variable).
   export DRUPALDEV_REMOVE_DEMO=0
+  # Remove Acquia integration as we are using DEMO configuration.
+  export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
+  # Run default install
   run_install
-  assert_files_present "${CURRENT_PROJECT_DIR}"
+
+  assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Special treatment for cases where volumes are not mounted from the host.
@@ -38,14 +42,6 @@ load test_helper_drupaldev
     sed -i -e "s/##//" docker-compose.yml
     assert_file_not_contains docker-compose.yml "##"
   fi
-
-  step "Create .env.local file"
-  {
-    echo FTP_HOST="${DB_FTP_HOST}";
-    echo FTP_USER="${DB_FTP_USER}";
-    echo FTP_PASS="${DB_FTP_PASS}";
-    echo FTP_FILE="db_d${DRUPAL_VERSION}.star_wars.sql";
-  } >> .env.local
 
   step "Add all files to new git repo"
   git_add_all "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
@@ -60,6 +56,8 @@ load test_helper_drupaldev
   assert_file_exists .idea/idea_file.txt
 
   step "Download the database"
+  # In this test, the database is downloaded from public gist specified in
+  # DUMMY_DB variable.
   assert_file_not_exists .data/db.sql
   ahoy download-db
   assert_file_exists .data/db.sql
