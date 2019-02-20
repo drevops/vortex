@@ -52,20 +52,29 @@ teardown(){
 #                               ASSERTIONS                                     #
 ################################################################################
 
-assert_added_files(){
+assert_files_present(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
-  assert_added_files_no_integrations "${dir}" "${suffix}"
+  assert_files_present_common "${dir}" "${suffix}"
+
+  # Assert deployments preserved.
+  assert_files_present_deployment "${dir}" "${suffix}"
 
   # Assert Acquia integration preserved.
-  assert_added_files_integration_acquia "${dir}" "${suffix}"
+  assert_files_present_integration_acquia "${dir}" "${suffix}"
 
   # Assert Lagoon integration preserved.
-  assert_added_files_integration_lagoon "${dir}" "${suffix}"
+  assert_files_present_integration_lagoon "${dir}" "${suffix}"
+
+  # Assert FTP integration removed by default.
+  assert_files_present_no_integration_ftp "${dir}" "${suffix}"
+
+  # Assert dependencies.io integration preserved.
+  assert_files_present_integration_dependenciesio "${dir}" "${suffix}"
 }
 
-assert_added_files_no_integrations(){
+assert_files_present_common(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -155,7 +164,7 @@ assert_added_files_no_integrations(){
   popd > /dev/null || exit 1
 }
 
-assert_no_added_files_no_integrations(){
+assert_files_not_present_common(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
   local has_committed_files="${3:-0}"
@@ -188,13 +197,37 @@ assert_no_added_files_no_integrations(){
   popd > /dev/null || exit 1
 }
 
-assert_added_files_integration_acquia(){
+assert_files_present_deployment(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
   pushd "${dir}" > /dev/null || exit 1
 
   assert_file_exists ".gitignore.artefact"
+  assert_file_exists "DEPLOYMENT.md"
+  assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_no_deployment(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_not_exists ".gitignore.artefact"
+  assert_file_not_exists "DEPLOYMENT.md"
+  assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_integration_acquia(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
 
   assert_dir_exists "hooks"
   assert_dir_exists "hooks/library"
@@ -226,8 +259,6 @@ assert_added_files_integration_acquia(){
   assert_symlink_exists "hooks/prod/post-code-deploy/4.enable-shield.sh"
 
   assert_file_exists "scripts/download-backup-acquia.sh"
-  assert_file_exists "DEPLOYMENT.md"
-  assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
   assert_file_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_contains ".env" "AC_API_DB_SITE="
   assert_file_contains ".env" "AC_API_DB_ENV="
@@ -239,7 +270,7 @@ assert_added_files_integration_acquia(){
   popd > /dev/null || exit 1
 }
 
-assert_added_files_no_integration_acquia(){
+assert_files_present_no_integration_acquia(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -248,7 +279,6 @@ assert_added_files_no_integration_acquia(){
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
   assert_file_not_exists "scripts/download-backup-acquia.sh"
-  assert_file_not_exists ".gitignore.artefact"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_not_contains ".env" "AC_API_DB_SITE="
   assert_file_not_contains ".env" "AC_API_DB_ENV="
@@ -256,11 +286,13 @@ assert_added_files_no_integration_acquia(){
   assert_file_not_contains ".ahoy.yml" "AC_API_DB_SITE="
   assert_file_not_contains ".ahoy.yml" "AC_API_DB_ENV="
   assert_file_not_contains ".ahoy.yml" "AC_API_DB_NAME="
+  assert_dir_not_contains_string "${dir}" "AC_API_USER_NAME"
+  assert_dir_not_contains_string "${dir}" "AC_API_USER_PASS"
 
   popd > /dev/null || exit 1
 }
 
-assert_added_files_integration_lagoon(){
+assert_files_present_integration_lagoon(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -281,7 +313,7 @@ assert_added_files_integration_lagoon(){
   popd > /dev/null || exit 1
 }
 
-assert_added_files_no_integration_lagoon(){
+assert_files_present_no_integration_lagoon(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -300,6 +332,84 @@ assert_added_files_no_integration_lagoon(){
   assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
 
   popd > /dev/null || exit 1
+}
+
+assert_files_present_integration_ftp(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_contains ".env" "FTP_HOST="
+  assert_file_contains ".env" "FTP_PORT="
+  assert_file_contains ".env" "FTP_USER="
+  assert_file_contains ".env" "FTP_PASS="
+  assert_file_contains ".env" "FTP_FILE="
+
+  assert_file_contains ".ahoy.yml" "FTP_HOST"
+  assert_file_contains ".ahoy.yml" "FTP_PORT"
+  assert_file_contains ".ahoy.yml" "FTP_USER"
+  assert_file_contains ".ahoy.yml" "FTP_PASS"
+  assert_file_contains ".ahoy.yml" "FTP_FILE"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_no_integration_ftp(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_not_contains ".env" "FTP_HOST="
+  assert_file_not_contains ".env" "FTP_PORT="
+  assert_file_not_contains ".env" "FTP_USER="
+  assert_file_not_contains ".env" "FTP_PASS="
+  assert_file_not_contains ".env" "FTP_FILE="
+
+  assert_file_not_contains ".ahoy.yml" "FTP_HOST"
+  assert_file_not_contains ".ahoy.yml" "FTP_PORT"
+  assert_file_not_contains ".ahoy.yml" "FTP_USER"
+  assert_file_not_contains ".ahoy.yml" "FTP_PASS"
+  assert_file_not_contains ".ahoy.yml" "FTP_FILE"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_integration_dependenciesio(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_exists "dependencies.yml"
+  assert_file_contains README.md "Automated patching"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_no_integration_dependenciesio(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_not_exists "dependencies.yml"
+  assert_dir_not_contains_string "${dir}" "dependencies.io"
+
+  popd > /dev/null || exit 1
+}
+
+# Assert that containers are not running.
+assert_containers_not_running(){
+  # shellcheck disable=SC2046
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
+  # shellcheck disable=SC2143
+  if [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q cli)")" ]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 ################################################################################
@@ -422,16 +532,4 @@ sync_to_container(){
   [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
   debug "Syncing from ${src} to $(docker-compose ps -q cli)"
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
-}
-
-# Assert that containers are not running.
-assert_containers_not_running(){
-  # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
-  # shellcheck disable=SC2143
-  if [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q cli)")" ]; then
-    return 0
-  else
-    return 1
-  fi
 }

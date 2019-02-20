@@ -10,11 +10,6 @@ load test_helper_drupaldev
   DRUPAL_VERSION=${DRUPAL_VERSION:-8}
   VOLUMES_MOUNTED=${VOLUMES_MOUNTED:-1}
 
-  # Safeguard for test itself. It should be ran with FTP credentials provided.
-  # DB_FTP_USER="..." DB_FTP_PASS="..." DB_FTP_HOST="..." bats tests/bats/workflow.bats --tap
-  assert_not_empty "${DB_FTP_HOST}"
-  assert_not_empty "${DB_FTP_USER}"
-  assert_not_empty "${DB_FTP_PASS}"
   assert_not_empty "${DRUPAL_VERSION}"
   assert_not_empty "${VOLUMES_MOUNTED}"
 
@@ -22,14 +17,27 @@ load test_helper_drupaldev
 
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
-  assert_no_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
+  assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
 
   step "Initialise the project with default settings"
-  # Preserve demo configuration used for this test.
+  # Preserve demo configuration used for this test. This is to make sure that
+  # the test does not rely on external private assets (demo is still using
+  # public database specified in DEMO_DB_TEST variable).
   export DRUPALDEV_REMOVE_DEMO=0
+  # Remove Acquia integration as we are using DEMO configuration.
+  export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
+  # Run default install
   run_install
-  assert_added_files "${CURRENT_PROJECT_DIR}"
+
+  assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  # Point demo database to the test database.
+  echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
 
   # Special treatment for cases where volumes are not mounted from the host.
   if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
@@ -38,14 +46,6 @@ load test_helper_drupaldev
     sed -i -e "s/##//" docker-compose.yml
     assert_file_not_contains docker-compose.yml "##"
   fi
-
-  step "Create .env.local file"
-  {
-    echo FTP_HOST="${DB_FTP_HOST}";
-    echo FTP_USER="${DB_FTP_USER}";
-    echo FTP_PASS="${DB_FTP_PASS}";
-    echo FTP_FILE="db_d${DRUPAL_VERSION}.star_wars.sql";
-  } >> .env.local
 
   step "Add all files to new git repo"
   git_add_all "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
@@ -60,6 +60,8 @@ load test_helper_drupaldev
   assert_file_exists .idea/idea_file.txt
 
   step "Download the database"
+  # In this test, the database is downloaded from public gist specified in
+  # DEMO_DB_TEST variable.
   assert_file_not_exists .data/db.sql
   ahoy download-db
   assert_file_exists .data/db.sql
@@ -68,7 +70,11 @@ load test_helper_drupaldev
   ahoy build >&3
   sync_to_host
 
-  assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 
   # Assert generated settings file exists.
   assert_file_exists docroot/sites/default/settings.generated.php
@@ -179,7 +185,12 @@ load test_helper_drupaldev
   step "Clean"
   ahoy clean
   # Assert that initial Drupal-Dev files have not been removed.
-  assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
+
   assert_file_not_exists docroot/index.php
   assert_dir_not_exists docroot/modules/contrib
   assert_dir_not_exists docroot/themes/contrib
@@ -201,7 +212,11 @@ load test_helper_drupaldev
 
   step "Clean Full"
   ahoy clean-full
-  assert_no_added_files_no_integrations "${CURRENT_PROJECT_DIR}" "star_wars" 1
+  assert_files_not_present_common "${CURRENT_PROJECT_DIR}" "star_wars" 1
+  assert_files_present_no_deployment "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
   # Assert manually created local settings file was removed.
   assert_file_not_exists docroot/sites/default/settings.local.php
   # Assert manually created local services file was removed.

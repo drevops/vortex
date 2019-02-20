@@ -87,8 +87,8 @@ commands:
     cmd: |
       ahoy title "Downloading database"
       #;< DEMO: Download dummy DB.
-      #; Used for demonstration purposes. This line is removed during project init.
-      mkdir -p ${DATAROOT} && curl -L ${DUMMY_DB} -o ${DATAROOT}/db.sql
+      #; Used for demonstration purposes. This line is removed during project installation.
+      mkdir -p ${DATAROOT} && curl -L ${DEMO_DB} -o ${DATAROOT}/db.sql
       #;> DEMO
       #;< ACQUIA
       # Download DB from Acquia Cloud backup. Remove if site install is used.
@@ -236,6 +236,10 @@ commands:
     cmd: printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"
     hide: true
 
+  getvar:
+    cmd: eval echo "${@}"
+    hide: true
+
 entrypoint:
   - bash
   - "-c"
@@ -244,9 +248,11 @@ entrypoint:
     export PROJECT=${PROJECT:-$(basename $(pwd))}
     export LOCALDEV_URL=${LOCALDEV_URL:-http://${PROJECT/[_ ]/-}.docker.amazee.io}
     #;< DEMO
-    #; Location of the dummy database used for demonstration only.
-    #; This will be removed during project init.
-    export DUMMY_DB=https://goo.gl/dwfkGQ
+    #; Location of the demo database used for demonstration only.
+    #; This will be removed during project install.
+    export DEMO_DB="${DEMO_DB:-https://goo.gl/dwfkGQ}"
+    #; Location of the demo database used for tests only.
+    export DEMO_DB_TEST="${DEMO_DB_TEST:-https://goo.gl/6pZKHa}"
     #;> DEMO
     bash -c "$0" "$@"
   - '{{cmd}}'

@@ -30,13 +30,25 @@ load test_helper_drupaldev
     # built on previous build stages.
     pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
-    assert_no_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
+    assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
+
+    step "Initialise the project with the default settings"
+    # Preserve demo configuration used for this test. This is to make sure that
+    # the test does not rely on external private assets (demo is still using
+    # public database specified in DEMO_DB_TEST variable).
     export DRUPALDEV_REMOVE_DEMO=0
+    export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
     run_install
-    assert_added_files "${CURRENT_PROJECT_DIR}"
+
+    assert_files_present_common "${CURRENT_PROJECT_DIR}"
+    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
     assert_git_repo "${CURRENT_PROJECT_DIR}"
 
-    step "Building site"
+    # Point demo database to the test database.
+    echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
 
     # Special treatment for cases where volumes are not mounted from the host.
     if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
@@ -46,17 +58,11 @@ load test_helper_drupaldev
       assert_file_not_contains docker-compose.yml "##"
     fi
 
-    step "Create .env.local file"
-    {
-      echo FTP_HOST="${DB_FTP_HOST}";
-      echo FTP_USER="${DB_FTP_USER}";
-      echo FTP_PASS="${DB_FTP_PASS}";
-      echo FTP_FILE="db_d${DRUPAL_VERSION}.star_wars.sql";
-    } >> .env.local
-
     step "Add all files to new git repo"
     git_add_all "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
 
+    # In this test, the database is downloaded from public gist specified in
+    # DEMO_DB_TEST variable.
     step "Download the database"
     assert_file_not_exists .data/db.sql
     ahoy download-db
@@ -66,7 +72,11 @@ load test_helper_drupaldev
     docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network
     ahoy up -- --build --force-recreate >&3
     sync_to_host
-    assert_added_files "${CURRENT_PROJECT_DIR}"
+    assert_files_present_common "${CURRENT_PROJECT_DIR}"
+    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 
     popd > /dev/null
 
@@ -77,7 +87,17 @@ load test_helper_drupaldev
     assert_dir_not_empty "${SRC_DIR}"
   fi
 
-  assert_added_files "${SRC_DIR}"
+  # Make sure that all files were copied out from the container or passed from
+  # the previous stage of the build.
+  assert_files_present_common "${SRC_DIR}"
+  assert_files_present_deployment "${SRC_DIR}"
+  assert_files_present_no_integration_acquia "${SRC_DIR}"
+  assert_files_present_integration_lagoon "${SRC_DIR}"
+  assert_files_present_no_integration_ftp "${SRC_DIR}"
+  assert_git_repo "${SRC_DIR}"
+
+  # Make sure that one of the excluded directories will be ignored in the
+  # deployment artifact.
   mkdir -p "${SRC_DIR}"/node_modules
   touch "${SRC_DIR}"/node_modules/test.txt
 
@@ -167,14 +187,11 @@ load test_helper_drupaldev
   # Assert configuration dir exists.
   assert_dir_exists "${REMOTE_REPO_DIR}"/config/default
 
-  # Acquia hooks are present.
-  assert_dir_exists "${REMOTE_REPO_DIR}"/hooks/library
-  assert_dir_exists "${REMOTE_REPO_DIR}"/hooks/prod
-  assert_dir_exists "${REMOTE_REPO_DIR}"/hooks/dev
-  assert_dir_exists "${REMOTE_REPO_DIR}"/hooks/dev/post-code-update
-  assert_symlink_exists "${REMOTE_REPO_DIR}"/hooks/dev/post-code-deploy
-  assert_symlink_exists "${REMOTE_REPO_DIR}"/hooks/dev/post-db-copy
-  assert_symlink_exists "${REMOTE_REPO_DIR}"/hooks/test
+  # Acquia hooks are absent.
+  assert_dir_not_exists "${REMOTE_REPO_DIR}"/hooks/library
+  assert_dir_not_exists "${REMOTE_REPO_DIR}"/hooks/prod
+  assert_dir_not_exists "${REMOTE_REPO_DIR}"/hooks/dev
+  assert_symlink_not_exists "${REMOTE_REPO_DIR}"/hooks/test
 
   popd > /dev/null
 }
