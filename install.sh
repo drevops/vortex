@@ -102,13 +102,13 @@ gather_answers(){
 
   gather_project_name
 
-  expand_answer "name"                    "$(ask "What is your site name?"                            "$(capitalize "$(to_human_name "$(guess_value "name" "$(get_value "name")" )" )"           )"  "${is_interactive}" )"
+  expand_answer "name"                    "$(ask "What is your site name?"                            "$(capitalize "$(to_human_name "$(guess_value "name"  "$(get_value "name" )" )" )"          )"  "${is_interactive}" )"
   expand_answer "name" "$(capitalize "$(to_human_name "$(get_value "name")" )" )"
   name=$(get_value "name")
-  expand_answer "machine_name"            "$(ask "What is your site machine name?"                    "$(to_machine_name "$(get_value         "machine_name")"            )"  "${is_interactive}" )"
+  expand_answer "machine_name"            "$(ask "What is your site machine name?"                    "$(to_machine_name "$(guess_value "machine_name"      "$(get_value "name" )" )"             )"  "${is_interactive}" )"
   machine_name=$(get_value "machine_name")
   expand_answer "org"                     "$(ask "What is your organization name?"                    "$(get_value "org"                      "${name} Org"               )"  "${is_interactive}" )"
-  expand_answer "org_machine_name"        "$(ask "What is your organization machine name?"            "$(to_machine_name "$(get_value         "org")"                     )"  "${is_interactive}" )"
+  expand_answer "org_machine_name"        "$(ask "What is your organization machine name?"            "$(to_machine_name "$(guess_value "org_machine_name"  "$(get_value "org"  )" )"             )"  "${is_interactive}" )"
   expand_answer "module_prefix"           "$(ask "What is your project-specific module prefix?"       "$(get_value "module_prefix"            "${machine_name}"           )"  "${is_interactive}" )"
   expand_answer "theme"                   "$(ask "What is your theme machine name?"                   "$(get_value "theme"                    "${machine_name}"           )"  "${is_interactive}" )"
   expand_answer "url"                     "$(ask "What is your site public URL?"                      "$(get_value "url"                      "${machine_name//_ /-}.com" )"  "${is_interactive}" )"
@@ -638,18 +638,20 @@ guess_value(){
   echo "${default}"
 }
 
-guess_value__name(){
-  local file="README.md"
-  [ ! -f "${file}" ] && return
+#guess_value__name(){
+#  local file="README.md"
+#  [ ! -f "${file}" ] && return
+#
+##  Readme.md. extract from "Drupal 8 implementation of YOURSITE"
+##  sed -n 's/Drupal\s\(7|8\)\simplementation\sof\s\((?!for).+\)\sfor\s\(.+\)/\1/p'
+#}
 
-  Readme.md. extract from "Drupal 8 implementation of YOURSITE"
+guess_value__machine_name(){
+  [ -f composer.json ] && composer config name | sed 's/.*\///'
+}
 
-
-
-
-
-  sed -n 's/Drupal\s\(7|8\)\simplementation\sof\s\((?!for).+\)\sfor\s\(.+\)/\1/p'
-
+guess_value__org_machine_name(){
+  [ -f composer.json ] && composer config name | sed 's/\/.*//'
 }
 
 is_function(){
