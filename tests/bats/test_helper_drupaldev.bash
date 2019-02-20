@@ -444,6 +444,7 @@ run_install(){
 
   popd > /dev/null || exit 1
 
+  # shellcheck disable=SC2154
   echo "${output}"
 }
 
