@@ -204,6 +204,7 @@ process_stub(){
   if [ "$(get_value "preserve_deployment")" != "Y" ] ; then
     rm "${dir}"/.gitignore.deployment > /dev/null
     rm "${dir}"/DEPLOYMENT.md > /dev/null
+    rm "${dir}"/.circleci/deploy.sh > /dev/null
     remove_special_comments_with_content "DEPLOYMENT"   "${dir}" && bash -c "echo -n ."
   fi
 

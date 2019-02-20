@@ -117,6 +117,7 @@ jobs:
             - code
 
   # Deploy primary branches.
+  #;< DEPLOYMENT
   deploy: &job_deploy
     <<: *container_config
     steps:
@@ -147,7 +148,7 @@ jobs:
       - run: DEPLOY_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
       - store_artifacts:
           path: /tmp/artifacts
-
+  #;> DEPLOYMENT
   #;< DRUPAL-DEV
   #; Test suite for Drupal-Dev.
   drupal_dev_test:
