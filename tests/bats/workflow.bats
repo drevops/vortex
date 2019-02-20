@@ -30,6 +30,7 @@ load test_helper_drupaldev
   run_install
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
@@ -70,6 +71,7 @@ load test_helper_drupaldev
   sync_to_host
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
@@ -184,6 +186,7 @@ load test_helper_drupaldev
   ahoy clean
   # Assert that initial Drupal-Dev files have not been removed.
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
@@ -210,6 +213,10 @@ load test_helper_drupaldev
   step "Clean Full"
   ahoy clean-full
   assert_files_not_present_common "${CURRENT_PROJECT_DIR}" "star_wars" 1
+  assert_files_present_no_deployment "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
   # Assert manually created local settings file was removed.
   assert_file_not_exists docroot/sites/default/settings.local.php
   # Assert manually created local services file was removed.

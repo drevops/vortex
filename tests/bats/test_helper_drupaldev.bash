@@ -58,6 +58,9 @@ assert_files_present(){
 
   assert_files_present_common "${dir}" "${suffix}"
 
+  # Assert deployments preserved.
+  assert_files_present_deployment "${dir}" "${suffix}"
+
   # Assert Acquia integration preserved.
   assert_files_present_integration_acquia "${dir}" "${suffix}"
 
@@ -191,13 +194,37 @@ assert_files_not_present_common(){
   popd > /dev/null || exit 1
 }
 
-assert_files_present_integration_acquia(){
+assert_files_present_deployment(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
   pushd "${dir}" > /dev/null || exit 1
 
   assert_file_exists ".gitignore.artefact"
+  assert_file_exists "DEPLOYMENT.md"
+  assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_no_deployment(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_not_exists ".gitignore.artefact"
+  assert_file_not_exists "DEPLOYMENT.md"
+  assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_integration_acquia(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
 
   assert_dir_exists "hooks"
   assert_dir_exists "hooks/library"
@@ -229,8 +256,6 @@ assert_files_present_integration_acquia(){
   assert_symlink_exists "hooks/prod/post-code-deploy/4.enable-shield.sh"
 
   assert_file_exists "scripts/download-backup-acquia.sh"
-  assert_file_exists "DEPLOYMENT.md"
-  assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
   assert_file_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_contains ".env" "AC_API_DB_SITE="
   assert_file_contains ".env" "AC_API_DB_ENV="
@@ -251,7 +276,6 @@ assert_files_present_no_integration_acquia(){
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
   assert_file_not_exists "scripts/download-backup-acquia.sh"
-  assert_file_not_exists ".gitignore.artefact"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_not_contains ".env" "AC_API_DB_SITE="
   assert_file_not_contains ".env" "AC_API_DB_ENV="
