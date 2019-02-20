@@ -51,6 +51,8 @@ DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
 
 install(){
   if [ "${DRUPALDEV_IS_INTERACTIVE}" -eq 1 ]; then
+    print_header_interactive
+  else
     print_header
   fi
 
@@ -58,25 +60,11 @@ install(){
 
   local proceed=Y
   proceed=$(ask "> Proceed with installing Drupal-Dev into your project '$(get_value "name")'? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
+  [ "${proceed}" != "Y" ] && print_abort && return;
 
-  if [ "${proceed}" != "Y" ] ; then
-    print_abort
-    return;
-  fi
+  download
 
-  if [ "${DRUPALDEV_LOCAL_REPO}" != "" ]; then
-    echo "==> Downloading Drupal-Dev from local repository ${DRUPALDEV_LOCAL_REPO}"
-    download_local "${DRUPALDEV_LOCAL_REPO}" "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_COMMIT}"
-  else
-    echo "==> Downloading Drupal-Dev from remote repository https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}"
-    download_remote "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_GH_ORG}" "${DRUPALDEV_GH_PROJECT}" "${DRUPAL_VERSION}.x" "${DRUPALDEV_COMMIT}"
-  fi
-
-  [ ! -d "${DST_DIR}" ] && echo "==> Creating ${DST_DIR} directory" && mkdir -p "${DST_DIR}"
-
-  if [ "${DRUPALDEV_INIT_REPO}" -eq 1 ]; then
-    git_init "${DST_DIR}"
-  fi
+  prepare_destination "${DST_DIR}" "${DRUPALDEV_INIT_REPO}"
 
   process_stub "${DRUPALDEV_TMP_DIR}"
 
@@ -85,6 +73,30 @@ install(){
   print_footer
 }
 
+download(){
+  if [ "${DRUPALDEV_LOCAL_REPO}" != "" ]; then
+    echo "==> Downloading Drupal-Dev from local repository ${DRUPALDEV_LOCAL_REPO}"
+    download_local "${DRUPALDEV_LOCAL_REPO}" "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_COMMIT}"
+  else
+    echo "==> Downloading Drupal-Dev from remote repository https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}"
+    download_remote "${DRUPALDEV_TMP_DIR}" "${DRUPALDEV_GH_ORG}" "${DRUPALDEV_GH_PROJECT}" "${DRUPAL_VERSION}.x" "${DRUPALDEV_COMMIT}"
+  fi
+}
+
+prepare_destination(){
+  local dir="${1}"
+  local init_git_repo="${2}"
+
+  [ ! -d "${dir}" ] && echo "==> Creating ${dir} directory" && mkdir -p "${dir}"
+
+  if [ "${init_git_repo}" -eq 1 ]; then
+    git_init "${dir}"
+  fi
+}
+
+#
+# Gather answers from the user input or from the environment.
+#
 gather_answers(){
   local is_interactive=${1}
 
@@ -109,28 +121,9 @@ gather_answers(){
 
   [ "${is_interactive}" -eq 1 ] && echo
 
-  print_answers
+  print_summary
 
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && print_resolved_variables
-}
-
-print_answers(){
-  echo "**********************************************************************"
-  echo "*                       INSTALLATION SUMMARY                         *"
-  echo "**********************************************************************"
-  echo "Name:                         $(get_value "name")"
-  echo "Machine name:                 $(get_value "machine_name")"
-  echo "Organisation:                 $(get_value "org")"
-  echo "Organisation machine name:    $(get_value "org_machine_name")"
-  echo "Module prefix:                $(get_value "module_prefix")"
-  echo "Theme name:                   $(get_value "theme")"
-  echo "URL:                          $(get_value "url")"
-  echo "Deployment:                   $(get_value "preserve_deployment")"
-  echo "Acquia integration:           $(format_enabled $(get_value "preserve_acquia"))"
-  echo "Lagoon integration:           $(format_enabled $(get_value "preserve_lagoon"))"
-  echo "dependencies.io integration:  $(format_enabled $(get_value "preserve_dependenciesio"))"
-  echo "Remove Drupal-Dev comments:   $(get_value "remove_drupaldev_info")"
-  echo "**********************************************************************"
 }
 
 # Special case to gather project name from different sources.
@@ -142,6 +135,9 @@ gather_project_name(){
   export DRUPALDEV_OPT_NAME
 }
 
+#
+# Download from local.
+#
 download_local(){
   local src="${1}"
   local dst="${2}"
@@ -153,6 +149,9 @@ download_local(){
     | tar xf - -C "${dst}"
 }
 
+#
+# Download from remote.
+#
 download_remote(){
   local dst="${1}"
   local org="${2}"
@@ -183,6 +182,9 @@ download_remote(){
   fi
 }
 
+#
+# Replace all tokens and show summary.
+#
 process_stub(){
   local dir="${1}"
 
@@ -316,6 +318,103 @@ copy_files(){
   popd > /dev/null || exit 1
 }
 
+################################################################################
+#                              DISPLAYS                                        #
+################################################################################
+
+print_header_interactive(){
+  echo
+  echo "**********************************************************************"
+  echo "          WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER                *"
+  echo "**********************************************************************"
+  echo "*                                                                    *"
+  echo "* Please answer the questions below to install configuration         *"
+  echo "* relevant to your site.                                             *"
+  echo "*                                                                    *"
+  echo "* Existing files will not be modified until confirmed at the last    *"
+  echo "* question.                                                          *"
+  echo "*                                                                    *"
+  echo "* Press Ctrl+C at any time to exit this installer.                   *"
+  echo "*                                                                    *"
+  echo "**********************************************************************"
+  echo
+}
+
+print_header(){
+  echo
+  echo "**********************************************************************"
+  echo "*            WELCOME TO DRUPAL-DEV SILENT INSTALLER                  *"
+  echo "**********************************************************************"
+  echo "*                                                                    *"
+  echo "* Drupal-Dev installer will try to guess the settings from the       *"
+  echo "* environment and will install configuration relevant to your site.  *"
+  echo "*                                                                    *"
+  echo "* Existing committed files will not be modified.                     *"
+  echo "*                                                                    *"
+  echo "**********************************************************************"
+  echo
+}
+
+print_summary(){
+  echo "**********************************************************************"
+  echo "*                       INSTALLATION SUMMARY                         *"
+  echo "**********************************************************************"
+  echo "  Name:                          $(get_value "name")"
+  echo "  Machine name:                  $(get_value "machine_name")"
+  echo "  Organisation:                  $(get_value "org")"
+  echo "  Organisation machine name:     $(get_value "org_machine_name")"
+  echo "  Module prefix:                 $(get_value "module_prefix")"
+  echo "  Theme name:                    $(get_value "theme")"
+  echo "  URL:                           $(get_value "url")"
+  echo "  Deployment:                    $(format_enabled "$(get_value "preserve_deployment")")"
+  echo "  Acquia integration:            $(format_enabled "$(get_value "preserve_acquia")")"
+  echo "  Lagoon integration:            $(format_enabled "$(get_value "preserve_lagoon")")"
+  echo "  dependencies.io integration:   $(format_enabled "$(get_value "preserve_dependenciesio")")"
+  echo "  Remove Drupal-Dev comments:    $(format_yes_no "$(get_value "remove_drupaldev_info")")"
+  echo "**********************************************************************"
+  echo
+}
+
+print_footer(){
+  echo
+  echo "**********************************************************************"
+  echo "*                                                                    *"
+  echo "* Finished installing Drupal-Dev.                                    *"
+  echo "*                                                                    *"
+  echo "* Please review changes and commit required files.                   *"
+  echo "*                                                                    *"
+  echo "* Do not forget to run 'composer update --lock' before committing    *"
+  echo "* changes.                                                           *"
+  echo "*                                                                    *"
+  echo "**********************************************************************"
+}
+
+print_abort(){
+  echo
+  echo "**********************************************************************"
+  echo "*                                                                    *"
+  echo "* Aborting project installation. No files were changed               *"
+  echo "*                                                                    *"
+  echo "**********************************************************************"
+}
+
+# Helper to print all resolved variables.
+print_resolved_variables(){
+  echo
+  echo "==================== RESOLVED VARIABLES ===================="
+  vars=$(compgen -A variable | grep DRUPALDEV_)
+  vars=("CUR_DIR" "DST_DIR" "PROJECT" "DRUPAL_VERSION" "${vars[@]}")
+  # shellcheck disable=SC2068
+  for var in ${vars[@]};
+  do
+    echo "${var}"="$(eval "echo \$$var")"
+  done
+  echo "============================================================"
+}
+
+################################################################################
+#                              UTILITIES                                       #
+################################################################################
 # Check if specified file is tracked by git.
 git_file_is_tracked(){
   if [ -d ./.git/ ]; then
@@ -511,61 +610,6 @@ git_init(){
   git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
 }
 
-print_header(){
-  echo
-  echo "**********************************************************************"
-  echo "*                 WELCOME TO DRUPAL-DEV INSTALLER                    *"
-  echo "**********************************************************************"
-  echo "*                                                                    *"
-  echo "* Please answer the questions below to install configuration         *"
-  echo "* relevant to your site.                                             *"
-  echo "*                                                                    *"
-  echo "* Existing files are not modified until confirmed at the last        *"
-  echo "* question.                                                          *"
-  echo "*                                                                    *"
-  echo "* Press Ctrl+C at any time to exit this installer.                   *"
-  echo "*                                                                    *"
-  echo "**********************************************************************"
-  echo
-}
-
-print_footer(){
-  echo
-  echo "**********************************************************************"
-  echo "*                                                                    *"
-  echo "* Finished installing Drupal-Dev.                                    *"
-  echo "*                                                                    *"
-  echo "* Please review changes and commit required files.                   *"
-  echo "*                                                                    *"
-  echo "* Do not forget to run 'composer update --lock' before committing    *"
-  echo "* changes.                                                           *"
-  echo "*                                                                    *"
-  echo "**********************************************************************"
-}
-
-print_abort(){
-  echo
-  echo "**********************************************************************"
-  echo "*                                                                    *"
-  echo "* Aborting project installation. No files were changed               *"
-  echo "*                                                                    *"
-  echo "**********************************************************************"
-}
-
-# Helper to print all resolved variables.
-print_resolved_variables(){
-  echo
-  echo "==================== RESOLVED VARIABLES ===================="
-  vars=$(compgen -A variable | grep DRUPALDEV_)
-  vars=("CUR_DIR" "DST_DIR" "PROJECT" "DRUPAL_VERSION" "${vars[@]}")
-  # shellcheck disable=SC2068
-  for var in ${vars[@]};
-  do
-    echo "${var}"="$(eval "echo \$$var")"
-  done
-  echo "============================================================"
-}
-
 to_lower() {
   echo "${1}" | tr '[:upper:]' '[:lower:]'
 }
@@ -579,7 +623,11 @@ capitalize() {
 }
 
 format_enabled(){
-  [ "{1}" == "Y" ] && echo "Enabled" || echo "Disabled"
+  [ "${1}" == "Y" ] && echo "Enabled" || echo "Disabled"
+}
+
+format_yes_no(){
+  [ "${1}" == "Y" ] && echo "Yes" || echo "No"
 }
 
 to_machine_name () {
