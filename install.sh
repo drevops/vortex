@@ -654,8 +654,69 @@ guess_value__org_machine_name(){
   [ -f composer.json ] && composer config name | sed 's/\/.*//'
 }
 
+guess_value__module_prefix(){
+  # Find a file in modules/custom/*_core OR sites/all/modules/custom/*_core
+  # get the first line
+  # extract the prefix
+}
+
+guess_value__theme(){
+  # Find a file in themes/custom/* OR sites/all/themes/custom/*
+  # get the first line
+  # extract the name
+}
+
+guess_value__url(){
+  # extract from settings file
+  # $config['stage_file_proxy.settings']['origin'] = 'http://yoursiteurl/';
+}
+
+guess_value__preserve_deployment(){
+  [ -f ".gitignore.deployment" ]
+}
+
+guess_value__preserve_acquia(){
+  [ -d "hooks" ] || [ -f "scripts/download-backup-acquia.sh" ]
+}
+
+guess_value__preserve_lagoon(){
+  [ -f ".lagoon.yml" ]
+}
+
+guess_value__preserve_ftp(){
+  [ -f ".ahoy.yml" ] && assert_file_contains ".ahoy.yml" "FTP_HOST"
+}
+
+guess_value__preserve_dependenciesio(){
+  [ -f "dependencies.yml" ]
+}
+
+guess_value__remove_drupaldev_info(){
+  # '#;<DRUPAL-DEV' exists in the project
+}
+
 is_function(){
   type -t "${1}" >/dev/null
+}
+
+assert_file_contains(){
+  local file="${1}"
+  local string="${2}"
+  assert_file_exists "${file}"
+
+  contents="$(cat "${file}")"
+  assert_contains "${string}" "${contents}"
+}
+
+assert_contains(){
+  local needle="${1}"
+  local haystack="${2}"
+
+  if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" > /dev/null; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 git_init(){
