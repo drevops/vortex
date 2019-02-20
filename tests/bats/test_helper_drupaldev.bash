@@ -226,6 +226,7 @@ assert_files_present_no_deployment(){
 assert_files_present_integration_acquia(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
+  local include_scripts="${3:-1}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -258,14 +259,17 @@ assert_files_present_integration_acquia(){
   assert_symlink_exists "hooks/prod/post-code-deploy/3.import-config.sh"
   assert_symlink_exists "hooks/prod/post-code-deploy/4.enable-shield.sh"
 
-  assert_file_exists "scripts/download-backup-acquia.sh"
   assert_file_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
-  assert_file_contains ".env" "AC_API_DB_SITE="
-  assert_file_contains ".env" "AC_API_DB_ENV="
-  assert_file_contains ".env" "AC_API_DB_NAME="
-  assert_file_contains ".ahoy.yml" "AC_API_DB_SITE="
-  assert_file_contains ".ahoy.yml" "AC_API_DB_ENV="
-  assert_file_contains ".ahoy.yml" "AC_API_DB_NAME="
+
+  if [ "${include_scripts}" -eq 1 ]; then
+    assert_file_exists "scripts/download-backup-acquia.sh"
+    assert_file_contains ".env" "AC_API_DB_SITE="
+    assert_file_contains ".env" "AC_API_DB_ENV="
+    assert_file_contains ".env" "AC_API_DB_NAME="
+    assert_file_contains ".ahoy.yml" "AC_API_DB_SITE="
+    assert_file_contains ".ahoy.yml" "AC_API_DB_ENV="
+    assert_file_contains ".ahoy.yml" "AC_API_DB_NAME="
+  fi
 
   popd > /dev/null || exit 1
 }

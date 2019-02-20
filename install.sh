@@ -108,6 +108,9 @@ install(){
   echo "*                                                                    *"
   echo "* Please review changes and commit required files.                   *"
   echo "*                                                                    *"
+  echo "* Do not forget to run 'composer update --lock' before committing    *"
+  echo "* changes.                                                           *"
+  echo "*                                                                    *"
   echo "**********************************************************************"
 }
 

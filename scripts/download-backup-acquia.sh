@@ -50,6 +50,9 @@ DB_DECOMPRESS_BACKUP=${DB_DECOMPRESS_BACKUP:-1}
 # Flag to remove old cached dumps.
 DB_REMOVE_CACHED_DUMPS=${DB_REMOVE_CACHED_DUMPS:-0}
 
+# Internal flag to proceed with the download.
+DB_DOWNLOAD_PROCEED=${DB_DOWNLOAD_PROCEED:-1}
+
 ################################################################################
 #################### DO NOT CHANGE ANYTHING BELOW THIS LINE ####################
 ################################################################################
@@ -96,6 +99,8 @@ fi
 [ "${AC_API_DB_SITE}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_DB_SITE}" && exit 1
 [ "${AC_API_DB_ENV}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_DB_ENV}" && exit 1
 [ "${AC_API_DB_NAME}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_DB_NAME}" && exit 1
+
+[ "${DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "Skipping Acquia database download" && exit 0
 
 latest_backup=0
 if [ "${AC_API_DB_BACKUP_ID}" == "" ] ; then
