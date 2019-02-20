@@ -217,7 +217,7 @@ assert_files_present_deployment(){
 assert_files_present_no_deployment(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
-  local has_committed_files=${3:-0}
+  local has_committed_files="${3:-0}"
 
   pushd "${dir}" > /dev/null || exit 1
 
