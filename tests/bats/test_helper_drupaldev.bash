@@ -149,7 +149,7 @@ assert_files_present_common(){
   assert_file_not_exists "LICENSE"
   assert_dir_not_exists "tests/bats"
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_test"
-  assert_file_not_contains ".circleci/config.yml" "drupal_dev_test_artefact"
+  assert_file_not_contains ".circleci/config.yml" "drupal_dev_test_deployment"
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_deploy"
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_deploy_tags"
 
@@ -203,7 +203,7 @@ assert_files_present_deployment(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  assert_file_exists ".gitignore.artefact"
+  assert_file_exists ".gitignore.deployment"
   assert_file_exists "DEPLOYMENT.md"
   assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
 
@@ -216,7 +216,7 @@ assert_files_present_no_deployment(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  assert_file_not_exists ".gitignore.artefact"
+  assert_file_not_exists ".gitignore.deployment"
   assert_file_not_exists "DEPLOYMENT.md"
   assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
 

@@ -105,7 +105,7 @@ jobs:
       - run: .circleci/build.sh
       - run: .circleci/test.sh
       - run:
-          name: Copy artifacts
+          name: Process artifacts
           command: .circleci/process-artifacts.sh
           when: always
       - store_artifacts:
@@ -162,7 +162,7 @@ jobs:
       - run: bats tests/bats/install.bats --tap
       - run: bats tests/bats/workflow.bats --tap
 
-  drupal_dev_test_artefact:
+  drupal_dev_test_deployment:
     <<: *container_config
     steps:
       - checkout
@@ -172,7 +172,7 @@ jobs:
             - *deploy_ssh_fingerprint
       - attach_workspace:
           at: /workspace
-      - run: bats tests/bats/artefact.bats --tap
+      - run: bats tests/bats/deployment.bats --tap
 
   # Deployment of feature branches and tags for Drupal-Dev itself.
   drupal_dev_deploy:
@@ -224,7 +224,7 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - drupal_dev_test_artefact:
+      - drupal_dev_test_deployment:
           requires:
             - build
           filters:

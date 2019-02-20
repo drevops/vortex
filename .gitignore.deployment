@@ -1,4 +1,4 @@
-# Replaces standard .gitignore when building an artefact.
+# Replaces standard .gitignore when building a deployment artefact.
 
 # Ignore everything, but some whitelisted files.
 /*

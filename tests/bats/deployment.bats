@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 #
-# Test runner for artefact tests.
+# Test runner for deployment tests.
 #
 
 load test_helper
 load test_helper_drupaldev
 
-@test "Artefact" {
+@test "Deployment; no integration" {
   # Source directory for initialised codebase.
   # If not provided - directory will be created and a site will be initialised.
   # This is to facilitate local testing.
@@ -14,71 +14,24 @@ load test_helper_drupaldev
 
   # "Remote" repository to deploy the artefact to. It is located in the host
   # filesystem and just treated as a remote for currently installed codebase.
-  REMOTE_REPO_DIR=${REMOTE_REPO_DIR:-${BUILD_DIR}/artefact_remote}
+  REMOTE_REPO_DIR=${REMOTE_REPO_DIR:-${BUILD_DIR}/deployment_remote}
 
-  step "Starting ARTEFACT tests"
+  step "Starting DEPLOYMENT tests"
 
   if [ ! "${SRC_DIR}" ]; then
-    SRC_DIR="${BUILD_DIR}/artefact_src"
-    step "Artefact source directory is not provided - using directory ${SRC_DIR}"
+    SRC_DIR="${BUILD_DIR}/deployment_src"
+    step "Deployment source directory is not provided - using directory ${SRC_DIR}"
     prepare_fixture_dir "${SRC_DIR}"
+
+    # Disable Acquia integration for this test to run independent deployment.
+    export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
 
     # We need to use "current" directory as a place where the deployment script
     # is going to run from, while "SRC_DIR" is a place where files are taken
     # from for deployment. They may be the same place, but we are testing them
     # if they are separate, because most likely SRC_DIR will contain code
     # built on previous build stages.
-    pushd "${CURRENT_PROJECT_DIR}" > /dev/null
-
-    assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
-
-    step "Initialise the project with the default settings"
-    # Preserve demo configuration used for this test. This is to make sure that
-    # the test does not rely on external private assets (demo is still using
-    # public database specified in DEMO_DB_TEST variable).
-    export DRUPALDEV_REMOVE_DEMO=0
-    export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
-    run_install
-
-    assert_files_present_common "${CURRENT_PROJECT_DIR}"
-    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-    assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
-    assert_git_repo "${CURRENT_PROJECT_DIR}"
-
-    # Point demo database to the test database.
-    echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
-
-    # Special treatment for cases where volumes are not mounted from the host.
-    if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
-      sed -i -e "/###/d" docker-compose.yml
-      assert_file_not_contains docker-compose.yml "###"
-      sed -i -e "s/##//" docker-compose.yml
-      assert_file_not_contains docker-compose.yml "##"
-    fi
-
-    step "Add all files to new git repo"
-    git_add_all "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
-
-    # In this test, the database is downloaded from public gist specified in
-    # DEMO_DB_TEST variable.
-    step "Download the database"
-    assert_file_not_exists .data/db.sql
-    ahoy download-db
-    assert_file_exists .data/db.sql
-
-    step "Build project"
-    docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network
-    ahoy up -- --build --force-recreate >&3
-    sync_to_host
-    assert_files_present_common "${CURRENT_PROJECT_DIR}"
-    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-    assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
-
-    popd > /dev/null
+    provision_site "${CURRENT_PROJECT_DIR}"
 
     step "Copying built codebase into code source directory ${SRC_DIR}"
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -118,12 +71,12 @@ load test_helper_drupaldev
 
   git --git-dir="${DEPLOY_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch >&3
 
-  step "Assert remote artefact files"
+  step "Assert remote deployment files"
   assert_dir_not_exists "${REMOTE_REPO_DIR}"/.circleci
   assert_dir_not_exists "${REMOTE_REPO_DIR}"/.data
   assert_dir_not_exists "${REMOTE_REPO_DIR}"/.docker
   assert_dir_not_exists "${REMOTE_REPO_DIR}"/.github
-  assert_dir_not_exists "${REMOTE_REPO_DIR}"/.gitignore.artefact
+  assert_dir_not_exists "${REMOTE_REPO_DIR}"/.gitignore.deployment
   assert_dir_not_exists "${REMOTE_REPO_DIR}"/node_modules
   assert_dir_not_exists "${REMOTE_REPO_DIR}"/patches
   assert_dir_not_exists "${REMOTE_REPO_DIR}"/screenshots
@@ -192,6 +145,62 @@ load test_helper_drupaldev
   assert_dir_not_exists "${REMOTE_REPO_DIR}"/hooks/prod
   assert_dir_not_exists "${REMOTE_REPO_DIR}"/hooks/dev
   assert_symlink_not_exists "${REMOTE_REPO_DIR}"/hooks/test
+
+  popd > /dev/null
+}
+
+provision_site(){
+  local dir="${1}"
+
+  pushd "${dir}" > /dev/null
+
+  assert_files_not_present_common "${dir}"
+
+  step "Initialise the project with the default settings"
+  # Preserve demo configuration used for this test. This is to make sure that
+  # the test does not rely on external private assets (demo is still using
+  # public database specified in DEMO_DB_TEST variable).
+  export DRUPALDEV_REMOVE_DEMO=0
+
+  run_install
+
+  assert_files_present_common "${dir}"
+  assert_files_present_deployment "${dir}"
+  assert_files_present_no_integration_acquia "${dir}"
+  assert_files_present_integration_lagoon "${dir}"
+  assert_files_present_no_integration_ftp "${dir}"
+  assert_git_repo "${dir}"
+
+  # Point demo database to the test database.
+  echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
+
+  # Special treatment for cases where volumes are not mounted from the host.
+  if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
+  sed -i -e "/###/d" docker-compose.yml
+  assert_file_not_contains docker-compose.yml "###"
+  sed -i -e "s/##//" docker-compose.yml
+  assert_file_not_contains docker-compose.yml "##"
+  fi
+
+  step "Add all files to new git repo"
+  git_add_all "${dir}" "Init Drupal-Dev config"
+
+  # In this test, the database is downloaded from public gist specified in
+  # DEMO_DB_TEST variable.
+  step "Download the database"
+  assert_file_not_exists .data/db.sql
+  ahoy download-db
+  assert_file_exists .data/db.sql
+
+  step "Build project"
+  docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network
+  ahoy up -- --build --force-recreate >&3
+  sync_to_host
+  assert_files_present_common "${dir}"
+  assert_files_present_deployment "${dir}"
+  assert_files_present_no_integration_acquia "${dir}"
+  assert_files_present_integration_lagoon "${dir}"
+  assert_files_present_no_integration_ftp "${dir}"
 
   popd > /dev/null
 }

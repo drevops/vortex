@@ -41,14 +41,14 @@ echo "==> Installing a package for deployment."
 composer require --dev -n --ansi --prefer-source --ignore-platform-reqs integratedexperts/robo-git-artefact
 
 cp -a "${DEPLOY_ROOT}"/.git "${DEPLOY_SRC}"
-cp -a "${DEPLOY_ROOT}"/.gitignore.artefact "${DEPLOY_SRC}"
+cp -a "${DEPLOY_ROOT}"/.gitignore.deployment "${DEPLOY_SRC}"
 
 vendor/bin/robo --ansi \
   --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact "${DEPLOY_REMOTE}" \
   --root="${DEPLOY_ROOT}" \
   --src="${DEPLOY_SRC}" \
   --branch="${DEPLOY_BRANCH}" \
-  --gitignore="${DEPLOY_SRC}"/.gitignore.artefact \
+  --gitignore="${DEPLOY_SRC}"/.gitignore.deployment \
   --report="${DEPLOY_REPORT}" \
   --debug \
   -vvvv \

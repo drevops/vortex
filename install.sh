@@ -204,7 +204,7 @@ process_stub(){
   replace_string_filename "yoursite"        "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
 
   if [ "$(get_value "preserve_deployment")" != "Y" ] ; then
-    rm "${dir}"/.gitignore.artefact > /dev/null
+    rm "${dir}"/.gitignore.deployment > /dev/null
     rm "${dir}"/DEPLOYMENT.md > /dev/null
     remove_special_comments_with_content "DEPLOYMENT"   "${dir}" && bash -c "echo -n ."
   fi
