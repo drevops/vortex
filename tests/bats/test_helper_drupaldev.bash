@@ -259,6 +259,8 @@ assert_files_present_no_integration_acquia(){
   assert_file_not_contains ".ahoy.yml" "AC_API_DB_SITE="
   assert_file_not_contains ".ahoy.yml" "AC_API_DB_ENV="
   assert_file_not_contains ".ahoy.yml" "AC_API_DB_NAME="
+  assert_dir_not_contains_string "${dir}" "AC_API_USER_NAME"
+  assert_dir_not_contains_string "${dir}" "AC_API_USER_PASS"
 
   popd > /dev/null || exit 1
 }
