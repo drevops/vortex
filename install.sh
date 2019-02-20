@@ -51,9 +51,9 @@ DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
 
 install(){
   if [ "${DRUPALDEV_IS_INTERACTIVE}" -eq 1 ]; then
-    print_header_interactive
+    print_header_interactive "${DRUPALDEV_ALLOW_OVERRIDE}"
   else
-    print_header
+    print_header_silent "${DRUPALDEV_ALLOW_OVERRIDE}"
   fi
 
   gather_answers "${DRUPALDEV_IS_INTERACTIVE}"
@@ -324,6 +324,8 @@ copy_files(){
 ################################################################################
 
 print_header_interactive(){
+  local is_override="${1:-0}"
+
   echo
   echo "**********************************************************************"
   echo "          WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER                *"
@@ -332,8 +334,14 @@ print_header_interactive(){
   echo "* Please answer the questions below to install configuration         *"
   echo "* relevant to your site.                                             *"
   echo "*                                                                    *"
-  echo "* Existing files will not be modified until confirmed at the last    *"
-  echo "* question.                                                          *"
+  if [ "${is_override}" -eq 1 ]; then
+    echo "* ATTENTION! RUNNING IN UPDATE MODE                                  *"
+    echo "* Existing committed files will be modified. You will need to        *"
+    echo "* resolve changes manually.                                          *"
+  else
+    echo "* Existing files will not be modified until confirmed at the last    *"
+    echo "* question.                                                          *"
+  fi
   echo "*                                                                    *"
   echo "* Press Ctrl+C at any time to exit this installer.                   *"
   echo "*                                                                    *"
@@ -341,7 +349,9 @@ print_header_interactive(){
   echo
 }
 
-print_header(){
+print_header_silent(){
+  local is_override="${1:-0}"
+
   echo
   echo "**********************************************************************"
   echo "*            WELCOME TO DRUPAL-DEV SILENT INSTALLER                  *"
@@ -350,7 +360,13 @@ print_header(){
   echo "* Drupal-Dev installer will try to guess the settings from the       *"
   echo "* environment and will install configuration relevant to your site.  *"
   echo "*                                                                    *"
-  echo "* Existing committed files will not be modified.                     *"
+  if [ "${is_override}" -eq 1 ]; then
+    echo "* ATTENTION! RUNNING IN UPDATE MODE                                  *"
+    echo "* Existing committed files will be modified. You will need to        *"
+    echo "* resolve changes manually.                                          *"
+  else
+    echo "* Existing committed files will not be modified.                     *"
+  fi
   echo "*                                                                    *"
   echo "**********************************************************************"
   echo

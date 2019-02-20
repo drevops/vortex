@@ -440,9 +440,11 @@ run_install(){
   export DRUPALDEV_TMP_DIR="${APP_TMP_DIR}"
   # Show debug information (for easy debug of tests).
   export DRUPALDEV_DEBUG=1
-  "${CUR_DIR}"/install.sh "$@"
+  run "${CUR_DIR}"/install.sh "$@"
 
   popd > /dev/null || exit 1
+
+  echo "${output}"
 }
 
 # Copy source code at the latest commit to the destination directory.
