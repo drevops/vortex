@@ -183,7 +183,11 @@ load test_helper_drupaldev
   step "Clean"
   ahoy clean
   # Assert that initial Drupal-Dev files have not been removed.
-  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
+
   assert_file_not_exists docroot/index.php
   assert_dir_not_exists docroot/modules/contrib
   assert_dir_not_exists docroot/themes/contrib
