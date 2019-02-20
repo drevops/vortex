@@ -14,7 +14,7 @@ tasks:
           mkdir -p /tmp/.data
           #;< DEMO
           #; Using dummy DB for Drupal-Dev project testing.
-          source .env && curl -L $DUMMY_DB -o /tmp/.data/db.sql
+          source .env && curl -L $DEMO_DB -o /tmp/.data/db.sql
           #;> DEMO
           #;< ACQUIA
           #; Copy credentials from one of the Acquia environmets. We are using

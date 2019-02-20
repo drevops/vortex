@@ -35,7 +35,7 @@ load test_helper_drupaldev
     step "Initialise the project with the default settings"
     # Preserve demo configuration used for this test. This is to make sure that
     # the test does not rely on external private assets (demo is still using
-    # public dummy DB specified in DUMMY_DB variable).
+    # public database specified in DEMO_DB_TEST variable).
     export DRUPALDEV_REMOVE_DEMO=0
     # @todo: Refactor Acquia integration to separate deployment. For now, we
     # have to use default Acquia integration option to preserve deployment
@@ -45,6 +45,9 @@ load test_helper_drupaldev
 
     assert_files_present "${CURRENT_PROJECT_DIR}"
     assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+    # Point demo database to the test database.
+    echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
 
     # Special treatment for cases where volumes are not mounted from the host.
     if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
@@ -57,6 +60,8 @@ load test_helper_drupaldev
     step "Add all files to new git repo"
     git_add_all "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
 
+    # In this test, the database is downloaded from public gist specified in
+    # DEMO_DB_TEST variable.
     step "Download the database"
     assert_file_not_exists .data/db.sql
     ahoy download-db
