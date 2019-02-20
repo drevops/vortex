@@ -52,24 +52,23 @@ teardown(){
 #                               ASSERTIONS                                     #
 ################################################################################
 
-assert_added_files(){
+assert_files_present(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
-  assert_added_files_no_integrations "${dir}" "${suffix}"
+  assert_files_present_common "${dir}" "${suffix}"
 
   # Assert Acquia integration preserved.
-  assert_added_files_integration_acquia "${dir}" "${suffix}"
+  assert_files_present_integration_acquia "${dir}" "${suffix}"
 
   # Assert Lagoon integration preserved.
-  assert_added_files_integration_lagoon "${dir}" "${suffix}"
+  assert_files_present_integration_lagoon "${dir}" "${suffix}"
 
-  # Assert FTP integration removed.
-  assert_added_files_no_integration_ftp "${dir}" "${suffix}"
-
+  # Assert FTP integration removed by default.
+  assert_files_present_no_integration_ftp "${dir}" "${suffix}"
 }
 
-assert_added_files_no_integrations(){
+assert_files_present_common(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -192,7 +191,7 @@ assert_no_added_files_no_integrations(){
   popd > /dev/null || exit 1
 }
 
-assert_added_files_integration_acquia(){
+assert_files_present_integration_acquia(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -243,7 +242,7 @@ assert_added_files_integration_acquia(){
   popd > /dev/null || exit 1
 }
 
-assert_added_files_no_integration_acquia(){
+assert_files_present_no_integration_acquia(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -264,7 +263,7 @@ assert_added_files_no_integration_acquia(){
   popd > /dev/null || exit 1
 }
 
-assert_added_files_integration_lagoon(){
+assert_files_present_integration_lagoon(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -285,7 +284,7 @@ assert_added_files_integration_lagoon(){
   popd > /dev/null || exit 1
 }
 
-assert_added_files_no_integration_lagoon(){
+assert_files_present_no_integration_lagoon(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -306,7 +305,7 @@ assert_added_files_no_integration_lagoon(){
   popd > /dev/null || exit 1
 }
 
-assert_added_files_integration_ftp(){
+assert_files_present_integration_ftp(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -327,7 +326,7 @@ assert_added_files_integration_ftp(){
   popd > /dev/null || exit 1
 }
 
-assert_added_files_no_integration_ftp(){
+assert_files_present_no_integration_ftp(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
@@ -346,6 +345,18 @@ assert_added_files_no_integration_ftp(){
   assert_file_not_contains ".ahoy.yml" "FTP_FILE"
 
   popd > /dev/null || exit 1
+}
+
+# Assert that containers are not running.
+assert_containers_not_running(){
+  # shellcheck disable=SC2046
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
+  # shellcheck disable=SC2143
+  if [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q cli)")" ]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 ################################################################################
@@ -468,16 +479,4 @@ sync_to_container(){
   [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
   debug "Syncing from ${src} to $(docker-compose ps -q cli)"
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
-}
-
-# Assert that containers are not running.
-assert_containers_not_running(){
-  # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
-  # shellcheck disable=SC2143
-  if [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q cli)")" ]; then
-    return 0
-  else
-    return 1
-  fi
 }

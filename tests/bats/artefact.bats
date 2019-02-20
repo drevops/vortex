@@ -33,7 +33,7 @@ load test_helper_drupaldev
     assert_no_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
     export DRUPALDEV_REMOVE_DEMO=0
     run_install
-    assert_added_files "${CURRENT_PROJECT_DIR}"
+    assert_files_present "${CURRENT_PROJECT_DIR}"
     assert_git_repo "${CURRENT_PROJECT_DIR}"
 
     step "Building site"
@@ -66,7 +66,7 @@ load test_helper_drupaldev
     docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network
     ahoy up -- --build --force-recreate >&3
     sync_to_host
-    assert_added_files "${CURRENT_PROJECT_DIR}"
+    assert_files_present "${CURRENT_PROJECT_DIR}"
 
     popd > /dev/null
 
@@ -77,7 +77,7 @@ load test_helper_drupaldev
     assert_dir_not_empty "${SRC_DIR}"
   fi
 
-  assert_added_files "${SRC_DIR}"
+  assert_files_present "${SRC_DIR}"
   mkdir -p "${SRC_DIR}"/node_modules
   touch "${SRC_DIR}"/node_modules/test.txt
 

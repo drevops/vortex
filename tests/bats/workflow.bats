@@ -28,7 +28,7 @@ load test_helper_drupaldev
   # Preserve demo configuration used for this test.
   export DRUPALDEV_REMOVE_DEMO=0
   run_install
-  assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Special treatment for cases where volumes are not mounted from the host.
@@ -68,7 +68,7 @@ load test_helper_drupaldev
   ahoy build >&3
   sync_to_host
 
-  assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_files_present "${CURRENT_PROJECT_DIR}"
 
   # Assert generated settings file exists.
   assert_file_exists docroot/sites/default/settings.generated.php
@@ -179,7 +179,7 @@ load test_helper_drupaldev
   step "Clean"
   ahoy clean
   # Assert that initial Drupal-Dev files have not been removed.
-  assert_added_files "${CURRENT_PROJECT_DIR}"
+  assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_file_not_exists docroot/index.php
   assert_dir_not_exists docroot/modules/contrib
   assert_dir_not_exists docroot/themes/contrib
