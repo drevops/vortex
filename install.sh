@@ -102,7 +102,7 @@ gather_answers(){
 
   gather_project_name
 
-  expand_answer "name"                    "$(ask "What is your site name?"                            "$(capitalize "$(to_human_name "$(get_value "name")" )"           )"  "${is_interactive}" )"
+  expand_answer "name"                    "$(ask "What is your site name?"                            "$(capitalize "$(to_human_name "$(guess_value "name" "$(get_value "name")" )" )"           )"  "${is_interactive}" )"
   expand_answer "name" "$(capitalize "$(to_human_name "$(get_value "name")" )" )"
   name=$(get_value "name")
   expand_answer "machine_name"            "$(ask "What is your site machine name?"                    "$(to_machine_name "$(get_value         "machine_name")"            )"  "${is_interactive}" )"
@@ -618,6 +618,42 @@ get_value(){
   fi
 
   echo "${default}"
+}
+
+# Guess value from the environment.
+guess_value(){
+  local name="${1}"
+  local default="${2}"
+  local callback=guess_value__"${1}"
+  local value
+
+  if is_function "${callback}"; then
+    value=$("${callback}")
+    if [ "{value}" != "" ]; then
+      echo "${value}"
+      return
+    fi
+  fi
+
+  echo "${default}"
+}
+
+guess_value__name(){
+  local file="README.md"
+  [ ! -f "${file}" ] && return
+
+  Readme.md. extract from "Drupal 8 implementation of YOURSITE"
+
+
+
+
+
+  sed -n 's/Drupal\s\(7|8\)\simplementation\sof\s\((?!for).+\)\sfor\s\(.+\)/\1/p'
+
+}
+
+is_function(){
+  type -t "${1}" >/dev/null
 }
 
 git_init(){
