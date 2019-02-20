@@ -51,21 +51,7 @@ DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
 
 install(){
   if [ "${DRUPALDEV_IS_INTERACTIVE}" -eq 1 ]; then
-   echo
-   echo "**********************************************************************"
-   echo "*                 WELCOME TO DRUPAL-DEV INSTALLER                    *"
-   echo "**********************************************************************"
-   echo "*                                                                    *"
-   echo "* Please answer the questions below to install configuration         *"
-   echo "* relevant to your site.                                             *"
-   echo "*                                                                    *"
-   echo "* Existing files are not modified until confirmed at the last        *"
-   echo "* question.                                                          *"
-   echo "*                                                                    *"
-   echo "* Press Ctrl+C at any time to exit this installer.                   *"
-   echo "*                                                                    *"
-   echo "**********************************************************************"
-   echo
+    print_header
   fi
 
   gather_answers "${DRUPALDEV_IS_INTERACTIVE}"
@@ -74,12 +60,7 @@ install(){
   proceed=$(ask "> Proceed with installing Drupal-Dev into your project '$(get_value "name")'? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
 
   if [ "${proceed}" != "Y" ] ; then
-    echo
-    echo "**********************************************************************"
-    echo "*                                                                    *"
-    echo "* Aborting project installation. No files were changed               *"
-    echo "*                                                                    *"
-    echo "**********************************************************************"
+    print_abort
     return;
   fi
 
@@ -101,17 +82,7 @@ install(){
 
   copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE}"
 
-  echo
-  echo "**********************************************************************"
-  echo "*                                                                    *"
-  echo "* Finished installing Drupal-Dev.                                    *"
-  echo "*                                                                    *"
-  echo "* Please review changes and commit required files.                   *"
-  echo "*                                                                    *"
-  echo "* Do not forget to run 'composer update --lock' before committing    *"
-  echo "* changes.                                                           *"
-  echo "*                                                                    *"
-  echo "**********************************************************************"
+  print_footer
 }
 
 gather_answers(){
@@ -138,7 +109,28 @@ gather_answers(){
 
   [ "${is_interactive}" -eq 1 ] && echo
 
+  print_answers
+
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && print_resolved_variables
+}
+
+print_answers(){
+  echo "**********************************************************************"
+  echo "*                       INSTALLATION SUMMARY                         *"
+  echo "**********************************************************************"
+  echo "Name:                         $(get_value "name")"
+  echo "Machine name:                 $(get_value "machine_name")"
+  echo "Organisation:                 $(get_value "org")"
+  echo "Organisation machine name:    $(get_value "org_machine_name")"
+  echo "Module prefix:                $(get_value "module_prefix")"
+  echo "Theme name:                   $(get_value "theme")"
+  echo "URL:                          $(get_value "url")"
+  echo "Deployment:                   $(get_value "preserve_deployment")"
+  echo "Acquia integration:           $(format_enabled $(get_value "preserve_acquia"))"
+  echo "Lagoon integration:           $(format_enabled $(get_value "preserve_lagoon"))"
+  echo "dependencies.io integration:  $(format_enabled $(get_value "preserve_dependenciesio"))"
+  echo "Remove Drupal-Dev comments:   $(get_value "remove_drupaldev_info")"
+  echo "**********************************************************************"
 }
 
 # Special case to gather project name from different sources.
@@ -519,6 +511,47 @@ git_init(){
   git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
 }
 
+print_header(){
+  echo
+  echo "**********************************************************************"
+  echo "*                 WELCOME TO DRUPAL-DEV INSTALLER                    *"
+  echo "**********************************************************************"
+  echo "*                                                                    *"
+  echo "* Please answer the questions below to install configuration         *"
+  echo "* relevant to your site.                                             *"
+  echo "*                                                                    *"
+  echo "* Existing files are not modified until confirmed at the last        *"
+  echo "* question.                                                          *"
+  echo "*                                                                    *"
+  echo "* Press Ctrl+C at any time to exit this installer.                   *"
+  echo "*                                                                    *"
+  echo "**********************************************************************"
+  echo
+}
+
+print_footer(){
+  echo
+  echo "**********************************************************************"
+  echo "*                                                                    *"
+  echo "* Finished installing Drupal-Dev.                                    *"
+  echo "*                                                                    *"
+  echo "* Please review changes and commit required files.                   *"
+  echo "*                                                                    *"
+  echo "* Do not forget to run 'composer update --lock' before committing    *"
+  echo "* changes.                                                           *"
+  echo "*                                                                    *"
+  echo "**********************************************************************"
+}
+
+print_abort(){
+  echo
+  echo "**********************************************************************"
+  echo "*                                                                    *"
+  echo "* Aborting project installation. No files were changed               *"
+  echo "*                                                                    *"
+  echo "**********************************************************************"
+}
+
 # Helper to print all resolved variables.
 print_resolved_variables(){
   echo
@@ -543,6 +576,10 @@ to_upper() {
 
 capitalize() {
   echo "$(tr '[:lower:]' '[:upper:]' <<< "${1:0:1}")${1:1}"
+}
+
+format_enabled(){
+  [ "{1}" == "Y" ] && echo "Enabled" || echo "Disabled"
 }
 
 to_machine_name () {
