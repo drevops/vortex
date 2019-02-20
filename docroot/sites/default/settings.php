@@ -95,6 +95,11 @@ $settings['trusted_host_patterns'] = [
   '^nginx$',
 ];
 
+// Default Shield credentials.
+// Note that they are overridden for local and CI environments below.
+$config['shield.settings']['credentials']['shield']['user'] = 'CHANGEME';
+$config['shield.settings']['credentials']['shield']['pass'] = 'CHANGEME';
+
 ////////////////////////////////////////////////////////////////////////////////
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,6 +136,12 @@ if (file_exists('/var/www/site-php')) {
 
 $config['environment_indicator.indicator']['bg_color'] = $settings['environment'] == ENVIRONMENT_PROD ? '#ff0000' : '#006600';
 $config['environment_indicator.indicator']['name'] = $settings['environment'];
+
+if ($settings['environment'] == ENVIRONMENT_PROD) {
+  // Allow to bypass Shield.
+  $config['shield.settings']['credentials']['shield']['user'] = '';
+  $config['shield.settings']['credentials']['shield']['pass'] = '';
+}
 
 if ($settings['environment'] !== ENVIRONMENT_PROD) {
   $config['stage_file_proxy.settings']['origin'] = 'http://yoursiteurl/';
