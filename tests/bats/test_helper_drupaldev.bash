@@ -69,6 +69,9 @@ assert_files_present(){
 
   # Assert FTP integration removed by default.
   assert_files_present_no_integration_ftp "${dir}" "${suffix}"
+
+  # Assert dependencies.io integration preserved.
+  assert_files_present_integration_dependenciesio "${dir}" "${suffix}"
 }
 
 assert_files_present_common(){
@@ -369,6 +372,30 @@ assert_files_present_no_integration_ftp(){
   assert_file_not_contains ".ahoy.yml" "FTP_USER"
   assert_file_not_contains ".ahoy.yml" "FTP_PASS"
   assert_file_not_contains ".ahoy.yml" "FTP_FILE"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_integration_dependenciesio(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_exists "dependencies.yml"
+  assert_file_contains README.md "Automated patching"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_no_integration_dependenciesio(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_not_exists "dependencies.yml"
+  assert_dir_not_contains_string "${dir}" "dependencies.io"
 
   popd > /dev/null || exit 1
 }
