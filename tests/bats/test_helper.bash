@@ -185,11 +185,8 @@ assert_file_contains(){
 assert_file_not_contains(){
   local file="${1}"
   local string="${2}"
-  local file_should_exist="${3:-1}"
 
-  if [ "${file_should_exist}" -eq 1 ]; then
-    assert_file_exists "${file}" || return 1
-  fi
+  [ ! -f "${file}" ] && return 0
 
   contents="$(cat "${file}")"
   assert_not_contains "${string}" "${contents}"
@@ -213,14 +210,8 @@ assert_dir_contains_string(){
 assert_dir_not_contains_string(){
   local dir="${1}"
   local string="${2}"
-  local dir_should_exist="${3:-1}"
 
-  # Return passing if the dir does not exist.
-  if [ "${dir_should_exist}" -eq 1 ]; then
-    assert_dir_exists "${dir}" || return 1
-  else
-    assert_dir_not_exists || return 1
-  fi
+  [ ! -d "${dir}" ] && return 0
 
   run grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
 
