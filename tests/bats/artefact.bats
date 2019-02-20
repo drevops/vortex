@@ -30,23 +30,21 @@ load test_helper_drupaldev
     # built on previous build stages.
     pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
-    step "Running install"
-
     assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
+
+    step "Initialise the project with the default settings"
+    # Preserve demo configuration used for this test. This is to make sure that
+    # the test does not rely on external private assets (demo is still using
+    # public dummy DB specified in DUMMY_DB variable).
     export DRUPALDEV_REMOVE_DEMO=0
-    export DRUPALDEV_OPT_PRESERVE_FTP=Y
-    export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
-    # Run default install, but with FTP integration preserved and Acquia
-    # integration removed.
+    # @todo: Refactor Acquia integration to separate deployment. For now, we
+    # have to use default Acquia integration option to preserve deployment
+    # scripts.
+    # Run default install
     run_install
 
-    assert_files_present_common "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-    assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-    assert_files_present_integration_ftp "${CURRENT_PROJECT_DIR}"
+    assert_files_present "${CURRENT_PROJECT_DIR}"
     assert_git_repo "${CURRENT_PROJECT_DIR}"
-
-    step "Building site"
 
     # Special treatment for cases where volumes are not mounted from the host.
     if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
@@ -55,15 +53,6 @@ load test_helper_drupaldev
       sed -i -e "s/##//" docker-compose.yml
       assert_file_not_contains docker-compose.yml "##"
     fi
-
-    # Assert that FTP integration works.
-    step "Create .env.local file"
-    {
-      echo FTP_HOST="${DB_FTP_HOST}";
-      echo FTP_USER="${DB_FTP_USER}";
-      echo FTP_PASS="${DB_FTP_PASS}";
-      echo FTP_FILE="db_d${DRUPAL_VERSION}.star_wars.sql";
-    } >> .env.local
 
     step "Add all files to new git repo"
     git_add_all "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
@@ -88,7 +77,11 @@ load test_helper_drupaldev
     assert_dir_not_empty "${SRC_DIR}"
   fi
 
+  # Make sure that all files were copied out from the container.
   assert_files_present "${SRC_DIR}"
+
+  # Make sure that one of the excluded directories will be ignored in the
+  # deployment artifact.
   mkdir -p "${SRC_DIR}"/node_modules
   touch "${SRC_DIR}"/node_modules/test.txt
 
