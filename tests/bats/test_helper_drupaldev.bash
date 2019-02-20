@@ -206,6 +206,9 @@ assert_files_present_deployment(){
 
   assert_file_exists ".gitignore.deployment"
   assert_file_exists "DEPLOYMENT.md"
+  assert_file_exists ".circleci/deploy.sh"
+  assert_file_contains ".circleci/config.yml" "deploy: &job_deploy"
+  assert_file_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
   assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
 
   popd > /dev/null || exit 1
@@ -214,12 +217,18 @@ assert_files_present_deployment(){
 assert_files_present_no_deployment(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
+  local has_committed_files=${3:-0}
 
   pushd "${dir}" > /dev/null || exit 1
 
   assert_file_not_exists ".gitignore.deployment"
   assert_file_not_exists "DEPLOYMENT.md"
+  assert_file_not_exists ".circleci/deploy.sh"
   assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+  if [ "${has_committed_files}" -eq 0 ]; then
+    assert_file_not_contains ".circleci/config.yml" "deploy: &job_deploy"
+    assert_file_not_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
+  fi
 
   popd > /dev/null || exit 1
 }
