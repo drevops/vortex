@@ -37,13 +37,14 @@ load test_helper_drupaldev
     # the test does not rely on external private assets (demo is still using
     # public database specified in DEMO_DB_TEST variable).
     export DRUPALDEV_REMOVE_DEMO=0
-    # @todo: Refactor Acquia integration to separate deployment. For now, we
-    # have to use default Acquia integration option to preserve deployment
-    # scripts.
-    # Run default install
+    export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
     run_install
 
-    assert_files_present "${CURRENT_PROJECT_DIR}"
+    assert_files_present_common "${CURRENT_PROJECT_DIR}"
+    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
     assert_git_repo "${CURRENT_PROJECT_DIR}"
 
     # Point demo database to the test database.
@@ -71,7 +72,11 @@ load test_helper_drupaldev
     docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network
     ahoy up -- --build --force-recreate >&3
     sync_to_host
-    assert_files_present "${CURRENT_PROJECT_DIR}"
+    assert_files_present_common "${CURRENT_PROJECT_DIR}"
+    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 
     popd > /dev/null
 
@@ -82,8 +87,14 @@ load test_helper_drupaldev
     assert_dir_not_empty "${SRC_DIR}"
   fi
 
-  # Make sure that all files were copied out from the container.
-  assert_files_present "${SRC_DIR}"
+  # Make sure that all files were copied out from the container or passed from
+  # the previous stage of the build.
+  assert_files_present_common "${SRC_DIR}"
+  assert_files_present_deployment "${SRC_DIR}"
+  assert_files_present_no_integration_acquia "${SRC_DIR}"
+  assert_files_present_integration_lagoon "${SRC_DIR}"
+  assert_files_present_no_integration_ftp "${SRC_DIR}"
+  assert_git_repo "${SRC_DIR}"
 
   # Make sure that one of the excluded directories will be ignored in the
   # deployment artifact.

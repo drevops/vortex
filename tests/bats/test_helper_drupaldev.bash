@@ -215,7 +215,10 @@ assert_files_present_no_deployment(){
 
   assert_file_not_exists ".gitignore.artefact"
   assert_file_not_exists "DEPLOYMENT.md"
-  assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+  # Special case where we assert only of the file is present.
+  if [ -f "README.md" ]; then
+    assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+  fi
 
   popd > /dev/null || exit 1
 }
