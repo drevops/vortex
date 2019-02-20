@@ -215,10 +215,7 @@ assert_files_present_no_deployment(){
 
   assert_file_not_exists ".gitignore.artefact"
   assert_file_not_exists "DEPLOYMENT.md"
-  # Special case where we assert only of the file is present.
-  if [ -f "README.md" ]; then
-    assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
-  fi
+  assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)" 0
 
   popd > /dev/null || exit 1
 }
@@ -280,12 +277,12 @@ assert_files_present_no_integration_acquia(){
   assert_dir_not_exists "hooks/library"
   assert_file_not_exists "scripts/download-backup-acquia.sh"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
-  assert_file_not_contains ".env" "AC_API_DB_SITE="
-  assert_file_not_contains ".env" "AC_API_DB_ENV="
-  assert_file_not_contains ".env" "AC_API_DB_NAME="
-  assert_file_not_contains ".ahoy.yml" "AC_API_DB_SITE="
-  assert_file_not_contains ".ahoy.yml" "AC_API_DB_ENV="
-  assert_file_not_contains ".ahoy.yml" "AC_API_DB_NAME="
+  assert_file_not_contains ".env" "AC_API_DB_SITE=" 0
+  assert_file_not_contains ".env" "AC_API_DB_ENV=" 0
+  assert_file_not_contains ".env" "AC_API_DB_NAME=" 0
+  assert_file_not_contains ".ahoy.yml" "AC_API_DB_SITE=" 0
+  assert_file_not_contains ".ahoy.yml" "AC_API_DB_ENV=" 0
+  assert_file_not_contains ".ahoy.yml" "AC_API_DB_NAME=" 0
   assert_dir_not_contains_string "${dir}" "AC_API_USER_NAME"
   assert_dir_not_contains_string "${dir}" "AC_API_USER_PASS"
 
@@ -321,15 +318,15 @@ assert_files_present_no_integration_lagoon(){
 
   assert_file_not_exists ".lagoon.yml"
   assert_file_not_exists "drush/aliases.drushrc.php"
-  assert_file_not_contains "docker-compose.yml" "labels"
-  assert_file_not_contains "docker-compose.yml" "lagoon.type: cli-persistent"
-  assert_file_not_contains "docker-compose.yml" "lagoon.persistent.name: nginx"
-  assert_file_not_contains "docker-compose.yml" "lagoon.persistent: /app/docroot/sites/default/files/"
-  assert_file_not_contains "docker-compose.yml" "lagoon.type: nginx-php-persistent"
-  assert_file_not_contains "docker-compose.yml" "lagoon.name: nginx"
-  assert_file_not_contains "docker-compose.yml" "lagoon.type: mariadb"
-  assert_file_not_contains "docker-compose.yml" "lagoon.type: solr"
-  assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
+  assert_file_not_contains "docker-compose.yml" "labels" 0
+  assert_file_not_contains "docker-compose.yml" "lagoon.type: cli-persistent" 0
+  assert_file_not_contains "docker-compose.yml" "lagoon.persistent.name: nginx" 0
+  assert_file_not_contains "docker-compose.yml" "lagoon.persistent: /app/docroot/sites/default/files/" 0
+  assert_file_not_contains "docker-compose.yml" "lagoon.type: nginx-php-persistent" 0
+  assert_file_not_contains "docker-compose.yml" "lagoon.name: nginx" 0
+  assert_file_not_contains "docker-compose.yml" "lagoon.type: mariadb" 0
+  assert_file_not_contains "docker-compose.yml" "lagoon.type: solr" 0
+  assert_file_not_contains "docker-compose.yml" "lagoon.type: none" 0
 
   popd > /dev/null || exit 1
 }
@@ -361,17 +358,17 @@ assert_files_present_no_integration_ftp(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  assert_file_not_contains ".env" "FTP_HOST="
-  assert_file_not_contains ".env" "FTP_PORT="
-  assert_file_not_contains ".env" "FTP_USER="
-  assert_file_not_contains ".env" "FTP_PASS="
-  assert_file_not_contains ".env" "FTP_FILE="
+  assert_file_not_contains ".env" "FTP_HOST=" 0
+  assert_file_not_contains ".env" "FTP_PORT=" 0
+  assert_file_not_contains ".env" "FTP_USER=" 0
+  assert_file_not_contains ".env" "FTP_PASS=" 0
+  assert_file_not_contains ".env" "FTP_FILE=" 0
 
-  assert_file_not_contains ".ahoy.yml" "FTP_HOST"
-  assert_file_not_contains ".ahoy.yml" "FTP_PORT"
-  assert_file_not_contains ".ahoy.yml" "FTP_USER"
-  assert_file_not_contains ".ahoy.yml" "FTP_PASS"
-  assert_file_not_contains ".ahoy.yml" "FTP_FILE"
+  assert_file_not_contains ".ahoy.yml" "FTP_HOST" 0
+  assert_file_not_contains ".ahoy.yml" "FTP_PORT" 0
+  assert_file_not_contains ".ahoy.yml" "FTP_USER" 0
+  assert_file_not_contains ".ahoy.yml" "FTP_PASS" 0
+  assert_file_not_contains ".ahoy.yml" "FTP_FILE" 0
 
   popd > /dev/null || exit 1
 }
