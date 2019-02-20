@@ -187,14 +187,11 @@ load test_helper_drupaldev
   # Assert configuration dir exists.
   assert_dir_exists "${REMOTE_REPO_DIR}"/config/default
 
-  # Acquia hooks are present.
-  assert_dir_exists "${REMOTE_REPO_DIR}"/hooks/library
-  assert_dir_exists "${REMOTE_REPO_DIR}"/hooks/prod
-  assert_dir_exists "${REMOTE_REPO_DIR}"/hooks/dev
-  assert_dir_exists "${REMOTE_REPO_DIR}"/hooks/dev/post-code-update
-  assert_symlink_exists "${REMOTE_REPO_DIR}"/hooks/dev/post-code-deploy
-  assert_symlink_exists "${REMOTE_REPO_DIR}"/hooks/dev/post-db-copy
-  assert_symlink_exists "${REMOTE_REPO_DIR}"/hooks/test
+  # Acquia hooks are absent.
+  assert_dir_not_exists "${REMOTE_REPO_DIR}"/hooks/library
+  assert_dir_not_exists "${REMOTE_REPO_DIR}"/hooks/prod
+  assert_dir_not_exists "${REMOTE_REPO_DIR}"/hooks/dev
+  assert_symlink_not_exists "${REMOTE_REPO_DIR}"/hooks/test
 
   popd > /dev/null
 }
