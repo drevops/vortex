@@ -196,7 +196,9 @@ load test_helper_drupaldev
 
   echo "DRUPALDEV_ALLOW_OVERRIDE=1" >> "${CURRENT_PROJECT_DIR}/.env.local"
 
-  run_install
+  output=$(run_install)
+  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "ATTENTION! RUNNING IN UPDATE MODE"
 
   # Assert no changes were made.
   assert_files_present "${CURRENT_PROJECT_DIR}"
@@ -417,7 +419,20 @@ load test_helper_drupaldev
 }
 
 @test "Install: empty directory; interactive mode" {
-  printf 'Star Wars\n\n\n\n\n\n\n\n\n\n\n' | run_install "--interactive"
+  output=$(printf 'Star Wars\n\n\n\n\n\n\n\n\n\n\n' | run_install "--interactive")
+  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+
+  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: empty directory; interactive mode; override" {
+  echo "SOMEVAR=\"someval\"" >> "${CURRENT_PROJECT_DIR}/.env"
+  echo "DRUPALDEV_ALLOW_OVERRIDE=1" >> "${CURRENT_PROJECT_DIR}/.env.local"
+
+  output=$(printf 'Star Wars\n\n\n\n\n\n\n\n\n\n\n' | run_install "--interactive")
+  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_contains "ATTENTION! RUNNING IN UPDATE MODE"
 
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
