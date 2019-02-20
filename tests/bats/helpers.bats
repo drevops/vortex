@@ -198,6 +198,14 @@ load test_helper_drupaldev
 
   run assert_file_not_contains "${BATS_TMPDIR}/fixture_file_assert/1.txt" "some existing text"
   assert_failure
+
+  # Non-existing file.
+  run assert_file_not_contains "${BATS_TMPDIR}/fixture_file_assert/somefile.txt" "some existing text"
+  assert_failure
+
+  # Non-existing file, but allow bypass.
+  run assert_file_not_contains "${BATS_TMPDIR}/fixture_file_assert/somefile.txt" "some existing text" 0
+  assert_failure
 }
 
 @test "assert_dir_empty" {
@@ -255,7 +263,12 @@ load test_helper_drupaldev
   assert_output_contains "fixture/3.txt"
   assert_output_not_contains "fixture/2.txt"
 
-  run assert_dir_not_contains_string "${BATS_TMPDIR}/non_existing"
+  # Non-existing dir.
+  run assert_dir_not_contains_string "${BATS_TMPDIR}/non_existing" "existing"
+  assert_failure
+
+  # Non-existing dir, but allow bypass.
+  run assert_dir_not_contains_string "${BATS_TMPDIR}/non_existing" "existing" 0
   assert_failure
 }
 
