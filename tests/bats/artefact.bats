@@ -30,7 +30,7 @@ load test_helper_drupaldev
     # built on previous build stages.
     pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
-    assert_no_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
+    assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
     export DRUPALDEV_REMOVE_DEMO=0
     run_install
     assert_files_present "${CURRENT_PROJECT_DIR}"
@@ -46,6 +46,7 @@ load test_helper_drupaldev
       assert_file_not_contains docker-compose.yml "##"
     fi
 
+    # Assert that FTP integration works.
     step "Create .env.local file"
     {
       echo FTP_HOST="${DB_FTP_HOST}";

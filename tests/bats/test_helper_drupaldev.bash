@@ -158,7 +158,7 @@ assert_files_present_common(){
   popd > /dev/null || exit 1
 }
 
-assert_no_added_files_no_integrations(){
+assert_files_not_present_common(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
   local has_committed_files="${3:-0}"

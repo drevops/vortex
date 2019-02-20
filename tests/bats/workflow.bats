@@ -22,7 +22,7 @@ load test_helper_drupaldev
 
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
-  assert_no_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
+  assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
 
   step "Initialise the project with default settings"
   # Preserve demo configuration used for this test.
@@ -201,7 +201,7 @@ load test_helper_drupaldev
 
   step "Clean Full"
   ahoy clean-full
-  assert_no_added_files_no_integrations "${CURRENT_PROJECT_DIR}" "star_wars" 1
+  assert_files_not_present_common "${CURRENT_PROJECT_DIR}" "star_wars" 1
   # Assert manually created local settings file was removed.
   assert_file_not_exists docroot/sites/default/settings.local.php
   # Assert manually created local services file was removed.
