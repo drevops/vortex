@@ -30,10 +30,20 @@ load test_helper_drupaldev
     # built on previous build stages.
     pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
+    step "Running install"
+
     assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
     export DRUPALDEV_REMOVE_DEMO=0
+    export DRUPALDEV_OPT_PRESERVE_FTP=Y
+    export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
+    # Run default install, but with FTP integration preserved and Acquia
+    # integration removed.
     run_install
-    assert_files_present "${CURRENT_PROJECT_DIR}"
+
+    assert_files_present_common "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_ftp "${CURRENT_PROJECT_DIR}"
     assert_git_repo "${CURRENT_PROJECT_DIR}"
 
     step "Building site"
