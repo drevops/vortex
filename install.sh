@@ -128,6 +128,7 @@ gather_answers(){
   expand_answer "url"                     "$(ask "What is your site public URL?"                      "$(get_value "url"                    "${machine_name//_ /-}.com" )"  "${is_interactive}" )"
   expand_answer "preserve_acquia"         "$(ask "Do you want to keep Acquia Cloud integration?"      "$(get_value "preserve_acquia"        "Y"                         )"  "${is_interactive}" )"
   expand_answer "preserve_lagoon"         "$(ask "Do you want to keep Lagoon integration?"            "$(get_value "preserve_lagoon"        "Y"                         )"  "${is_interactive}" )"
+  expand_answer "preserve_ftp"            "$(ask "Do you want to keep FTP integration?"               "$(get_value "preserve_ftp"           "n"                         )"  "${is_interactive}" )"
   expand_answer "remove_drupaldev_info"   "$(ask "Do you want to remove all Drupal-Dev information?"  "$(get_value "remove_drupaldev_info"  "Y"                         )"  "${is_interactive}" )"
 
   [ "${is_interactive}" -eq 1 ] && echo
@@ -213,6 +214,10 @@ process_stub(){
     rm "${dir}"/drush/aliases.drushrc.php > /dev/null
     rm "${dir}"/.lagoon.yml > /dev/null
     remove_special_comments_with_content "LAGOON"       "${dir}" && bash -c "echo -n ."
+  fi
+
+  if [ "$(get_value "preserve_ftp")" != "Y" ] ; then
+    remove_special_comments_with_content "FTP"         "${dir}" && bash -c "echo -n ."
   fi
 
   if [ "$(get_value "remove_drupaldev_info")" == "Y" ] ; then

@@ -63,6 +63,10 @@ assert_added_files(){
 
   # Assert Lagoon integration preserved.
   assert_added_files_integration_lagoon "${dir}" "${suffix}"
+
+  # Assert FTP integration removed.
+  assert_added_files_no_integration_ftp "${dir}" "${suffix}"
+
 }
 
 assert_added_files_no_integrations(){
@@ -298,6 +302,48 @@ assert_added_files_no_integration_lagoon(){
   assert_file_not_contains "docker-compose.yml" "lagoon.type: mariadb"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: solr"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
+
+  popd > /dev/null || exit 1
+}
+
+assert_added_files_integration_ftp(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_contains ".env" "FTP_HOST="
+  assert_file_contains ".env" "FTP_PORT="
+  assert_file_contains ".env" "FTP_USER="
+  assert_file_contains ".env" "FTP_PASS="
+  assert_file_contains ".env" "FTP_FILE="
+
+  assert_file_contains ".ahoy.yml" "FTP_HOST"
+  assert_file_contains ".ahoy.yml" "FTP_PORT"
+  assert_file_contains ".ahoy.yml" "FTP_USER"
+  assert_file_contains ".ahoy.yml" "FTP_PASS"
+  assert_file_contains ".ahoy.yml" "FTP_FILE"
+
+  popd > /dev/null || exit 1
+}
+
+assert_added_files_no_integration_ftp(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_not_contains ".env" "FTP_HOST="
+  assert_file_not_contains ".env" "FTP_PORT="
+  assert_file_not_contains ".env" "FTP_USER="
+  assert_file_not_contains ".env" "FTP_PASS="
+  assert_file_not_contains ".env" "FTP_FILE="
+
+  assert_file_not_contains ".ahoy.yml" "FTP_HOST"
+  assert_file_not_contains ".ahoy.yml" "FTP_PORT"
+  assert_file_not_contains ".ahoy.yml" "FTP_USER"
+  assert_file_not_contains ".ahoy.yml" "FTP_PASS"
+  assert_file_not_contains ".ahoy.yml" "FTP_FILE"
 
   popd > /dev/null || exit 1
 }

@@ -266,9 +266,10 @@ load test_helper_drupaldev
   assert_contains "nothing to commit, working tree clean" "$(git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git status)"
 }
 
-@test "Install: empty directory; no Acquia and Lagoon integrations" {
+@test "Install: empty directory; no Acquia, Lagoon and FTP integrations" {
   export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
-  export DRUPALDEV_OPT_PRESERVE_LAGOON=1
+  export DRUPALDEV_OPT_PRESERVE_LAGOON=0
+  export DRUPALDEV_OPT_PRESERVE_FTP=0
 
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
@@ -276,10 +277,27 @@ load test_helper_drupaldev
   assert_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
   assert_added_files_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_added_files_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_added_files_no_integration_ftp "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: empty directory; all integrations" {
+  export DRUPALDEV_OPT_PRESERVE_ACQUIA=Y
+  export DRUPALDEV_OPT_PRESERVE_LAGOON=Y
+  export DRUPALDEV_OPT_PRESERVE_FTP=Y
+
+  run_install
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  assert_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
+  assert_added_files_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_added_files_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_added_files_integration_ftp "${CURRENT_PROJECT_DIR}"
 }
 
 @test "Install: empty directory; no Acquia integration" {
   export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
+  export DRUPALDEV_OPT_PRESERVE_LAGOON=Y
+  export DRUPALDEV_OPT_PRESERVE_FTP=Y
 
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
@@ -287,10 +305,13 @@ load test_helper_drupaldev
   assert_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
   assert_added_files_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_added_files_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_added_files_integration_ftp "${CURRENT_PROJECT_DIR}"
 }
 
 @test "Install: empty directory; no Lagoon integration" {
+  export DRUPALDEV_OPT_PRESERVE_ACQUIA=Y
   export DRUPALDEV_OPT_PRESERVE_LAGOON=0
+  export DRUPALDEV_OPT_PRESERVE_FTP=Y
 
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
@@ -298,6 +319,21 @@ load test_helper_drupaldev
   assert_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
   assert_added_files_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_added_files_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_added_files_integration_ftp "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: empty directory; no FTP integration" {
+  export DRUPALDEV_OPT_PRESERVE_ACQUIA=Y
+  export DRUPALDEV_OPT_PRESERVE_LAGOON=Y
+  export DRUPALDEV_OPT_PRESERVE_FTP=0
+
+  run_install
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  assert_added_files_no_integrations "${CURRENT_PROJECT_DIR}"
+  assert_added_files_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_added_files_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_added_files_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 }
 
 @test "Install: empty directory; install Drupal-Dev from specific commit" {
@@ -325,7 +361,7 @@ load test_helper_drupaldev
 }
 
 @test "Install: empty directory; interactive mode" {
-  printf 'Star Wars\n\n\n\n\n\n\n\n' | run_install "--interactive"
+  printf 'Star Wars\n\n\n\n\n\n\n\n\n' | run_install "--interactive"
 
   assert_added_files "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
