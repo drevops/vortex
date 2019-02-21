@@ -331,6 +331,10 @@ print_header_interactive(){
   echo "          WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER                *"
   echo "**********************************************************************"
   echo "*                                                                    *"
+  if is_installed; then
+    echo "* It looks like Drupal-Dev is already installed for this project.    *"
+    echo "*                                                                    *"
+  fi
   echo "* Please answer the questions below to install configuration         *"
   echo "* relevant to your site.                                             *"
   echo "*                                                                    *"
@@ -357,8 +361,13 @@ print_header_silent(){
   echo "*            WELCOME TO DRUPAL-DEV SILENT INSTALLER                  *"
   echo "**********************************************************************"
   echo "*                                                                    *"
+  if is_installed; then
+    echo "* It looks like Drupal-Dev is already installed for this project.    *"
+    echo "*                                                                    *"
+  fi
   echo "* Drupal-Dev installer will try to guess the settings from the       *"
   echo "* environment and will install configuration relevant to your site.  *"
+
   echo "*                                                                    *"
   if [ "${is_override}" -eq 1 ]; then
     echo "* ATTENTION! RUNNING IN UPDATE MODE                                  *"
@@ -621,12 +630,24 @@ get_value(){
   echo "${default}"
 }
 
+#
+# Check that Drupal-Dev is installed for this project.
+#
+is_installed(){
+  grep -q badge/Powered_by-Drupal--Dev README.md
+}
+
 # Guess value from the environment.
 guess_value(){
   local name="${1}"
   local default="${2}"
   local callback=guess_value__"${1}"
   local value
+
+  if is_installed; then
+    echo "${default}"
+    return
+  fi
 
   if is_function "${callback}"; then
     value=$("${callback}")
@@ -639,13 +660,14 @@ guess_value(){
   echo "${default}"
 }
 
-#guess_value__name(){
+guess_value__name(){
 #  local file="README.md"
 #  [ ! -f "${file}" ] && return
-#
-##  Readme.md. extract from "Drupal 8 implementation of YOURSITE"
-##  sed -n 's/Drupal\s\(7|8\)\simplementation\sof\s\((?!for).+\)\sfor\s\(.+\)/\1/p'
-#}
+
+#  Readme.md. extract from "Drupal 8 implementation of YOURSITE"
+#  sed -n 's/Drupal\s\(7|8\)\simplementation\sof\s\((?!for).+\)\sfor\s\(.+\)/\1/p'
+  echo "somename"
+}
 
 guess_value__machine_name(){
   [ -f composer.json ] && composer config name | sed 's/.*\///'
@@ -659,17 +681,20 @@ guess_value__module_prefix(){
   # Find a file in modules/custom/*_core OR sites/all/modules/custom/*_core
   # get the first line
   # extract the prefix
+  echo 'some_module_prefix'
 }
 
 guess_value__theme(){
   # Find a file in themes/custom/* OR sites/all/themes/custom/*
   # get the first line
   # extract the name
+  echo 'sometheme'
 }
 
 guess_value__url(){
   # extract from settings file
   # $config['stage_file_proxy.settings']['origin'] = 'http://yoursiteurl/';
+  echo "someurl"
 }
 
 guess_value__preserve_deployment(){
@@ -694,6 +719,7 @@ guess_value__preserve_dependenciesio(){
 
 guess_value__remove_drupaldev_info(){
   # '#;<DRUPAL-DEV' exists in the project
+  return 1
 }
 
 is_function(){
