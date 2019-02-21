@@ -508,7 +508,9 @@ load test_helper_drupaldev
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
   assert_output_contains "It looks like Drupal-Dev is already installed for this project"
 
-  assert_files_present "${CURRENT_PROJECT_DIR}"
+  # Only common files will be present since we faked the readme file. The
+  # guessing mechanism will remove integrations etc.
+  assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
 
@@ -537,9 +539,85 @@ load test_helper_drupaldev
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
   assert_output_contains "It looks like Drupal-Dev is already installed for this project"
 
-  assert_files_present "${CURRENT_PROJECT_DIR}"
+    # Only common files will be present since we faked the readme file. The
+  # guessing mechanism will remove integrations etc.
+  assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Assert no changes were introduced.
   assert_git_clean "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: empty dir; proceed switch; silent" {
+  export DRUPALDEV_PROCEED=0
+  output=$(run_install)
+  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "Aborting project installation. No files were changed"
+  assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: empty dir; proceed switch; interactive" {
+  export DRUPALDEV_PROCEED=0
+  output=$(printf 'Star Wars\n\n\n\n\n\n\n\n\n\n\n' | run_install "--interactive")
+  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_contains "Aborting project installation. No files were changed"
+  assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: empty dir; guessing; silent; defaults" {
+  export DRUPALDEV_PROCEED=0
+  output=$(run_install)
+  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "Aborting project installation. No files were changed"
+
+  assert_output_contains "Name:                          Star wars"
+  assert_output_contains "Machine name:                  star_wars"
+  assert_output_contains "Organisation:                  Star wars Org"
+  assert_output_contains "Organisation machine name:     star_wars_org"
+  assert_output_contains "Module prefix:                 star_wars"
+  assert_output_contains "Theme name:                    star_wars"
+  assert_output_contains "URL:                           star_wars.com"
+
+  assert_output_contains "Deployment:                    Enabled"
+  assert_output_contains "Acquia integration:            Enabled"
+  assert_output_contains "Lagoon integration:            Enabled"
+  assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Remove Drupal-Dev comments:    Yes"
+}
+
+@test "Install: empty dir; guessing; silent; overrides" {
+  # Create readme file to pretend that Drupal-ev was installed.
+  fixture_readme "${CURRENT_PROJECT_DIR}"
+
+  fixture_composerjson "${CURRENT_PROJECT_DIR}" "My awesome site" "my_a_site" "Best org" "the_best_org"
+  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/modules/custom/some_custom_module
+  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/modules/custom/another_custom_core
+  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/modules/custom/yetanother_custom_core
+
+  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/themes/custom/anothertheme
+  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/themes/custom/yetanothertheme
+
+  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/sites/default
+  echo "  \$config['stage_file_proxy.settings']['origin'] = 'http://www.example.com/';" > "${CURRENT_PROJECT_DIR}"/docroot/sites/default/settings.php
+
+  echo "#;<DRUPAL-DEV" > "${CURRENT_PROJECT_DIR}"/1.txt
+
+  export DRUPALDEV_PROCEED=0
+  output=$(run_install)
+  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "Aborting project installation. No files were changed"
+
+  assert_output_contains "Name:                          My awesome site"
+  assert_output_contains "Machine name:                  my_a_site"
+  assert_output_contains "Organisation:                  Best org"
+  assert_output_contains "Organisation machine name:     the_best_org"
+  assert_output_contains "Module prefix:                 another_custom"
+  assert_output_contains "Theme name:                    anothertheme"
+  assert_output_contains "URL:                           www.example.com"
+
+  assert_output_contains "Deployment:                    Disabled"
+  assert_output_contains "Acquia integration:            Disabled"
+  assert_output_contains "Lagoon integration:            Disabled"
+  assert_output_contains "dependencies.io integration:   Disabled"
+  assert_output_contains "Remove Drupal-Dev comments:    No"
 }

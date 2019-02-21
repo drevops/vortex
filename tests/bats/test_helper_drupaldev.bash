@@ -448,6 +448,20 @@ some other text
 EOT
 }
 
+fixture_composerjson(){
+  local dir="${1:-.}"
+  local name="${2}"
+  local machine_name="${3}"
+  local org="${4}"
+  local org_machine_name="${5}"
+
+  cat <<EOT >> "${dir}"/composer.json
+{
+    "name": "${org_machine_name}/${machine_name}",
+    "description": "Drupal 8 implementation of ${name} for ${org}"
+}
+EOT
+}
 ################################################################################
 #                               UTILITIES                                      #
 ################################################################################

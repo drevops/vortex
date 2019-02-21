@@ -44,6 +44,8 @@ DRUPALDEV_GH_PROJECT="${DRUPALDEV_GH_PROJECT:-drupal-dev}"
 DRUPALDEV_COMMIT="${DRUPALDEV_COMMIT:-}"
 # Flag to display debug information.
 DRUPALDEV_DEBUG="${DRUPALDEV_DEBUG:-0}"
+# Flag to proceed.
+DRUPALDEV_PROCEED="${DRUPALDEV_PROCEED:-1}"
 # Temporary directory to download and expand files to.
 DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
 # Internal flag to remove demo configuration.
@@ -60,7 +62,7 @@ install(){
 
   local proceed=Y
   proceed=$(ask "> Proceed with installing Drupal-Dev into your project '$(get_value "name")'? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
-  [ "${proceed}" != "Y" ] && print_abort && return;
+  { [ "${proceed}" != "Y" ] || [ "${DRUPALDEV_PROCEED}" -ne 1 ]; } && print_abort && return;
 
   download
 
@@ -663,25 +665,19 @@ guess_value(){
 }
 
 guess_value__name(){
-  local file="README.md"
-  [ ! -f "${file}" ] && return
-
-  grep "Drupal [78] implementation" "${file}" | cut -c 28- | sed -n 's/\(.*\) for .*/\1/p'
+  [ -f "composer.json" ] && composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/\(.*\) for .*/\1/p'
 }
 
 guess_value__org(){
-  local file="README.md"
-  [ ! -f "${file}" ] && return
-
-  grep "Drupal [78] implementation" "${file}" | cut -c 28- | sed -n 's/.* for \(.*\)/\1/p'
+  [ -f "composer.json" ] && composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/.* for \(.*\)/\1/p'
 }
 
 guess_value__machine_name(){
-  [ -f composer.json ] && composer config name | sed 's/.*\///'
+  [ -f "composer.json" ] && composer config name | sed 's/.*\///'
 }
 
 guess_value__org_machine_name(){
-  [ -f composer.json ] && composer config name | sed 's/\/.*//'
+  [ -f "composer.json" ] && composer config name | sed 's/\/.*//'
 }
 
 guess_value__module_prefix(){
@@ -713,7 +709,7 @@ guess_value__url(){
     # Extract from string $config['stage_file_proxy.settings']['origin'] = 'http://yoursiteurl/';
     # shellcheck disable=SC2002
     cat docroot/sites/default/settings.php \
-      | grep "config\[\'stage_file_proxy.settings\'\]\[\'origin\'\]" \
+      | grep "config\['stage_file_proxy.settings'\]\['origin'\]" \
       | sed 's/ //g' \
       | cut -c 48- \
       | sed "s/'//g" \
@@ -724,43 +720,43 @@ guess_value__url(){
 }
 
 guess_value__preserve_deployment(){
-  [ -f ".gitignore.deployment" ]
+  [ -f ".gitignore.deployment" ] && echo "Y" || echo "N"
 }
 
 guess_value__preserve_acquia(){
-  [ -d "hooks" ] || [ -f "scripts/download-backup-acquia.sh" ]
+  { [ -d "hooks" ] || [ -f "scripts/download-backup-acquia.sh" ]; } && echo "Y" || echo "N"
 }
 
 guess_value__preserve_lagoon(){
-  [ -f ".lagoon.yml" ]
+  [ -f ".lagoon.yml" ] && echo "Y" || echo "N"
 }
 
 guess_value__preserve_ftp(){
-  [ -f ".ahoy.yml" ] && assert_file_contains ".ahoy.yml" "FTP_HOST"
+  { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "FTP_HOST"; } && echo "Y" || echo "N"
 }
 
 guess_value__preserve_dependenciesio(){
-  [ -f "dependencies.yml" ]
+  [ -f "dependencies.yml" ] && echo "Y" || echo "N"
 }
 
 guess_value__remove_drupaldev_info(){
-  assert_dir_contains_string "#;<DRUPAL-DEV"
+  dir_contains_string "$(pwd)" "#;<DRUPAL-DEV" && echo "N" || echo "Y"
 }
 
 is_function(){
   type -t "${1}" >/dev/null
 }
 
-assert_file_contains(){
+file_contains(){
   local file="${1}"
   local string="${2}"
   assert_file_exists "${file}"
 
   contents="$(cat "${file}")"
-  assert_contains "${string}" "${contents}"
+  string_contains "${string}" "${contents}"
 }
 
-assert_contains(){
+string_contains(){
   local needle="${1}"
   local haystack="${2}"
 
@@ -771,13 +767,13 @@ assert_contains(){
   fi
 }
 
-assert_dir_contains_string(){
+dir_contains_string(){
   local dir="${1}"
   local string="${2}"
 
   [ -d "${dir}" ] || return 1
 
-  run grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
+  grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
 }
 
 git_init(){
