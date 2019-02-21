@@ -121,9 +121,7 @@ gather_answers(){
   expand_answer "preserve_dependenciesio" "$(ask "Do you want to keep dependencies.io integration?"   "$(guess_value "preserve_dependenciesio" "$(get_value "preserve_dependenciesio" "Y" )"      )"  "${is_interactive}" )"
   expand_answer "remove_drupaldev_info"   "$(ask "Do you want to remove all Drupal-Dev information?"  "$(guess_value "remove_drupaldev_info" "$(get_value "remove_drupaldev_info" "Y" )"          )"  "${is_interactive}" )"
 
-  [ "${is_interactive}" -eq 1 ] && echo
-
-  print_summary
+  print_summary "${is_interactive}"
 
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && print_resolved_variables
 }
@@ -380,13 +378,17 @@ print_header_silent(){
   fi
   echo "*                                                                    *"
   echo "**********************************************************************"
-  echo
 }
 
 print_summary(){
-  echo "**********************************************************************"
-  echo "*                       INSTALLATION SUMMARY                         *"
-  echo "**********************************************************************"
+  local is_interactive="${1:-0}"
+
+  if [ "${is_interactive}" -eq 1 ]; then
+    echo
+    echo "**********************************************************************"
+    echo "*                       INSTALLATION SUMMARY                         *"
+    echo "**********************************************************************"
+  fi
   echo "  Name:                          $(get_value "name")"
   echo "  Machine name:                  $(get_value "machine_name")"
   echo "  Organisation:                  $(get_value "org")"
@@ -750,7 +752,7 @@ is_function(){
 file_contains(){
   local file="${1}"
   local string="${2}"
-  assert_file_exists "${file}"
+  [ ! -f "${file}" ] && return 1
 
   contents="$(cat "${file}")"
   string_contains "${string}" "${contents}"
@@ -773,7 +775,7 @@ dir_contains_string(){
 
   [ -d "${dir}" ] || return 1
 
-  grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
+  grep -qrI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
 }
 
 git_init(){
