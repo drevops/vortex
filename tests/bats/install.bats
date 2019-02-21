@@ -541,6 +541,5 @@ load test_helper_drupaldev
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Assert no changes were introduced.
-  assert_git_clean
   assert_git_clean "${CURRENT_PROJECT_DIR}"
 }
