@@ -131,7 +131,7 @@ load test_helper_drupaldev
   assert_file_exists "${CURRENT_PROJECT_DIR}/.docker/test2.txt"
 
   # Assert no changes were introduced.
-  assert_contains "nothing to commit, working tree clean" "$(git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git status)"
+  assert_git_clean "${CURRENT_PROJECT_DIR}"
 }
 
 @test "Install: existing git project; modified Drupal-Dev version" {
@@ -168,7 +168,7 @@ load test_helper_drupaldev
 
   # Assert no changes were introduced, since Drupal-Dev files do not override
   # existing files by default.
-  assert_contains "nothing to commit, working tree clean" "$(git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git status)"
+  assert_git_clean "${CURRENT_PROJECT_DIR}"
   assert_file_contains "${CURRENT_PROJECT_DIR}/.env" "SOMEVAR=\"someval\""
 }
 
@@ -234,6 +234,7 @@ load test_helper_drupaldev
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   # Commit files required to run the project.
+  git_add "${CURRENT_PROJECT_DIR}" README.md
   git_add "${CURRENT_PROJECT_DIR}" drupal-dev.sh
   git_add "${CURRENT_PROJECT_DIR}" .circleci/config.yml
   git_add "${CURRENT_PROJECT_DIR}" docroot/sites/default/settings.php
@@ -246,7 +247,7 @@ load test_helper_drupaldev
   assert_file_exists "${CURRENT_PROJECT_DIR}/.docker/test2.txt"
 
   # Assert no changes were introduced.
-  assert_contains "nothing to commit, working tree clean" "$(git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git status)"
+  assert_git_clean "${CURRENT_PROJECT_DIR}"
 
   # Releasing new version of Drupal-Dev.
   echo "# Some change to docker-compose" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
@@ -265,7 +266,7 @@ load test_helper_drupaldev
   # Assert that committed file was not updated.
   assert_file_not_contains "${CURRENT_PROJECT_DIR}/.circleci/config.yml" "# Some change to ci config"
   # Assert no changes to the repo.
-  assert_contains "nothing to commit, working tree clean" "$(git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git status)"
+  assert_git_clean "${CURRENT_PROJECT_DIR}"
 }
 
 @test "Install: empty directory; no Deployment, Acquia, Lagoon, FTP and dependencies.io integrations" {
@@ -446,4 +447,100 @@ load test_helper_drupaldev
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   assert_file_not_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml"
+}
+
+@test "Install: empty directory; discovery; silent" {
+  output=$(run_install)
+  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_not_contains "It looks like Drupal-Dev is already installed for this project"
+
+  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: empty directory; discovery; interactive" {
+  output=$(printf 'Star Wars\n\n\n\n\n\n\n\n\n\n\n' | run_install "--interactive")
+  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_not_contains "It looks like Drupal-Dev is already installed for this project"
+
+  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: existing custom files, not including readme; discovery; silent" {
+  touch "${CURRENT_PROJECT_DIR}/test1.txt"
+  # File resides in directory that is included in Drupal-Dev when initialised.
+  mkdir -p "${CURRENT_PROJECT_DIR}/.docker"
+  touch "${CURRENT_PROJECT_DIR}/.docker/test2.txt"
+
+  output=$(run_install)
+  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_not_contains "It looks like Drupal-Dev is already installed for this project"
+
+  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: existing custom files, including custom readme; discovery; silent" {
+  echo "some random content" >> "${CURRENT_PROJECT_DIR}/README.md"
+  touch "${CURRENT_PROJECT_DIR}/test1.txt"
+  # File resides in directory that is included in Drupal-Dev when initialised.
+  mkdir -p "${CURRENT_PROJECT_DIR}/.docker"
+  touch "${CURRENT_PROJECT_DIR}/.docker/test2.txt"
+
+  output=$(run_install)
+  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_not_contains "It looks like Drupal-Dev is already installed for this project"
+
+  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: existing custom files, including Drupal-Dev's readme; discovery; silent" {
+  fixture_readme "${CURRENT_PROJECT_DIR}"
+
+  touch "${CURRENT_PROJECT_DIR}/test1.txt"
+  # File resides in directory that is included in Drupal-Dev when initialised.
+  mkdir -p "${CURRENT_PROJECT_DIR}/.docker"
+  touch "${CURRENT_PROJECT_DIR}/.docker/test2.txt"
+
+  output=$(run_install)
+  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "It looks like Drupal-Dev is already installed for this project"
+
+  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install: previously installed project, including correct readme; discovery; silent" {
+  # Populate current dir with a project at current version.
+  output=$(run_install)
+  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_not_contains "It looks like Drupal-Dev is already installed for this project"
+
+  # Assert files at current version.
+  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  # Add all files to git repo.
+  git_add_all "${CURRENT_PROJECT_DIR}" "Second commit"
+  # Remove all non-committed files.
+  rm "${CURRENT_PROJECT_DIR}"/.git/info/exclude
+  git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git reset --hard
+  git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git clean -f -d
+  git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git clean -f -d
+  assert_git_clean "${CURRENT_PROJECT_DIR}"
+  assert_files_not_present_common "${CURRENT_PROJECT_DIR}" "star_wars" 1
+
+  # Run the install again.
+  output=$(run_install)
+  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "It looks like Drupal-Dev is already installed for this project"
+
+  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  # Assert no changes were introduced.
+  assert_git_clean
+  assert_git_clean "${CURRENT_PROJECT_DIR}"
 }

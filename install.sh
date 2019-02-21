@@ -634,7 +634,8 @@ get_value(){
 # Check that Drupal-Dev is installed for this project.
 #
 is_installed(){
-  grep -q badge/Powered_by-Drupal--Dev README.md
+  [ ! -f "README.md" ] && return 1
+  grep -q "badge/Powered_by-Drupal--Dev" "README.md"
 }
 
 # Guess value from the environment.
@@ -644,14 +645,15 @@ guess_value(){
   local callback=guess_value__"${1}"
   local value
 
-  if is_installed; then
+  if ! is_installed; then
     echo "${default}"
     return
   fi
 
   if is_function "${callback}"; then
     value=$("${callback}")
-    if [ "{value}" != "" ]; then
+
+    if [ "${value}" != "" ]; then
       echo "${value}"
       return
     fi
@@ -666,7 +668,8 @@ guess_value__name(){
 
 #  Readme.md. extract from "Drupal 8 implementation of YOURSITE"
 #  sed -n 's/Drupal\s\(7|8\)\simplementation\sof\s\((?!for).+\)\sfor\s\(.+\)/\1/p'
-  echo "somename"
+#  echo "somename"
+  return
 }
 
 guess_value__machine_name(){

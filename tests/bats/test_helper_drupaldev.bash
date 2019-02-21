@@ -429,6 +429,25 @@ assert_containers_not_running(){
   fi
 }
 
+fixture_readme(){
+  local dir="${1:-.}"
+  local name="${2:-Star Wars}"
+  local org="${3:-Star Wars Org}"
+
+  cat <<EOT >> "${dir}"/README.md
+# ${name}
+Drupal 8 implementation of ${name} for ${org}
+
+[![CircleCI](https://circleci.com/gh/yourorg/yoursite.svg?style=shield)](https://circleci.com/gh/yourorg/yoursite)
+
+[//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
+
+![drupal-dev.io](https://img.shields.io/badge/Powered_by-Drupal--Dev-blue.svg)
+
+some other text
+EOT
+}
+
 ################################################################################
 #                               UTILITIES                                      #
 ################################################################################
