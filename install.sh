@@ -52,6 +52,8 @@ DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
 DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
 
 install(){
+  check_requirements
+
   if [ "${DRUPALDEV_IS_INTERACTIVE}" -eq 1 ]; then
     print_header_interactive "${DRUPALDEV_ALLOW_OVERRIDE}"
   else
@@ -73,6 +75,19 @@ install(){
   copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE}"
 
   print_footer
+}
+
+check_requirements(){
+  command_exists "grep"
+  command_exists "sed"
+  command_exists "head"
+  command_exists "curl"
+  command_exists "basename"
+  command_exists "dirname"
+  command_exists "git"
+  command_exists "tar"
+  command_exists "cut"
+  command_exists "cat"
 }
 
 download(){
@@ -783,6 +798,10 @@ git_init(){
   [ -d "${dir}/.git" ] && return
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && echo "DEBUG: Initialising new git repository"
   git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
+}
+
+command_exists(){
+  command -v "${1}" > /dev/null || { echo "Command ${1} does not exist in current environment" && exit 1; }
 }
 
 to_lower() {
