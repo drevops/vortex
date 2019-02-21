@@ -157,6 +157,7 @@ assert_files_present_common(){
   # Assert that required files were not locally excluded.
   if [ -d ".git" ] ; then
     assert_file_not_contains .git/info/exclude "drupal-dev.sh"
+    assert_file_not_contains .git/info/exclude "README.md"
     assert_file_not_contains .git/info/exclude ".circleci/config.yml"
     assert_file_not_contains .git/info/exclude "docroot/sites/default/settings.php"
     assert_file_not_contains .git/info/exclude "docroot/sites/default/services.yml"
@@ -184,11 +185,13 @@ assert_files_not_present_common(){
   assert_file_not_exists ".ahoy.yml"
 
   if [ "${has_committed_files}" -eq 1 ] ; then
+    assert_file_exists "README.md"
     assert_file_exists "drupal-dev.sh"
     assert_file_exists ".circleci/config.yml"
     assert_file_exists "docroot/sites/default/settings.php"
     assert_file_exists "docroot/sites/default/services.yml"
   else
+    assert_file_not_exists "README.md"
     assert_file_not_exists "drupal-dev.sh"
     assert_file_not_exists ".circleci/config.yml"
     assert_file_not_exists "docroot/sites/default/settings.php"

@@ -303,7 +303,7 @@ copy_files(){
       #  - not currently tracked
       #  - not in a list of required files
       file_is_required="$(file_is_required "${relative_file}")"
-      # @todo; Refactor return values.
+      # @todo: Refactor return values.
       if [ "${allow_use_local_gitignore}" -eq 1 ] \
         && [ -d ./.git/ ] \
         && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] \
@@ -475,6 +475,7 @@ file_is_internal(){
 file_is_required(){
   local file="${1}"
   local files=(
+    README.md
     drupal-dev.sh
     .circleci/config.yml
     docroot/sites/default/settings.php
