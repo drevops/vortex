@@ -61,7 +61,7 @@ install(){
   gather_answers "${DRUPALDEV_IS_INTERACTIVE}"
 
   local proceed=Y
-  proceed=$(ask "> Proceed with installing Drupal-Dev into your project '$(get_value "name")'? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
+  proceed=$(ask "Proceed with installing Drupal-Dev into your project '$(get_value "name")'? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
   { [ "${proceed}" != "Y" ] || [ "${DRUPALDEV_PROCEED}" -ne 1 ]; } && print_abort && return;
 
   download
