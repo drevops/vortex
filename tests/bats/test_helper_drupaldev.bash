@@ -227,8 +227,11 @@ assert_files_present_no_deployment(){
   assert_file_not_exists ".gitignore.deployment"
   assert_file_not_exists "DEPLOYMENT.md"
   assert_file_not_exists ".circleci/deploy.sh"
-  assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+
+  # 'Required' files can be asserted for modifications only if they were not
+  # committed.
   if [ "${has_committed_files}" -eq 0 ]; then
+    assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
     assert_file_not_contains ".circleci/config.yml" "deploy: &job_deploy"
     assert_file_not_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
   fi
