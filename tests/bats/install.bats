@@ -509,7 +509,7 @@ load test_helper_drupaldev
   assert_output_contains "It looks like Drupal-Dev is already installed for this project"
 
   # Only common files will be present since we faked the readme file. The
-  # guessing mechanism will remove integrations etc.
+  # discovering mechanism will remove integrations etc.
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
@@ -540,7 +540,7 @@ load test_helper_drupaldev
   assert_output_contains "It looks like Drupal-Dev is already installed for this project"
 
     # Only common files will be present since we faked the readme file. The
-  # guessing mechanism will remove integrations etc.
+  # discovering mechanism will remove integrations etc.
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
@@ -564,7 +564,7 @@ load test_helper_drupaldev
   assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
 }
 
-@test "Install: empty dir; guessing; silent; defaults" {
+@test "Install: empty dir; discovering; silent; defaults" {
   export DRUPALDEV_PROCEED=0
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
@@ -585,7 +585,7 @@ load test_helper_drupaldev
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
-@test "Install: empty dir; guessing; silent; overrides" {
+@test "Install: empty dir; discovering; silent; overrides" {
   # Create readme file to pretend that Drupal-ev was installed.
   fixture_readme "${CURRENT_PROJECT_DIR}"
 

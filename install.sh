@@ -119,22 +119,22 @@ gather_answers(){
 
   gather_project_name
 
-  expand_answer "name"                    "$(ask "What is your site name?"                            "$(capitalize "$(to_human_name "$(guess_value "name"  "$(get_value "name" )" )" )"          )"  "${is_interactive}" )"
+  expand_answer "name"                    "$(ask "What is your site name?"                            "$(capitalize "$(to_human_name "$(discover_value "name"  "$(get_value "name" )" )" )"          )"  "${is_interactive}" )"
   expand_answer "name" "$(capitalize "$(to_human_name "$(get_value "name")" )" )"
   name=$(get_value "name")
-  expand_answer "machine_name"            "$(ask "What is your site machine name?"                    "$(to_machine_name "$(guess_value "machine_name"      "$(get_value "name" )" )"             )"  "${is_interactive}" )"
+  expand_answer "machine_name"            "$(ask "What is your site machine name?"                    "$(to_machine_name "$(discover_value "machine_name"      "$(get_value "name" )" )"             )"  "${is_interactive}" )"
   machine_name=$(get_value "machine_name")
-  expand_answer "org"                     "$(ask "What is your organization name?"                    "$(guess_value "org"                                  "$(get_value "org"  "${name} Org")"   )"  "${is_interactive}" )"
-  expand_answer "org_machine_name"        "$(ask "What is your organization machine name?"            "$(to_machine_name "$(guess_value "org_machine_name"  "$(get_value "org"  )" )"             )"  "${is_interactive}" )"
-  expand_answer "module_prefix"           "$(ask "What is your project-specific module prefix?"       "$(guess_value "module_prefix" "$(get_value "module_prefix" "${machine_name}" )"            )"  "${is_interactive}" )"
-  expand_answer "theme"                   "$(ask "What is your theme machine name?"                   "$(guess_value "theme" "$(get_value "theme" "${machine_name}" )"                            )"  "${is_interactive}" )"
-  expand_answer "url"                     "$(ask "What is your site public URL?"                      "$(guess_value "url" "$(get_value "url" "${machine_name//_ /-}.com" )"                      )"  "${is_interactive}" )"
-  expand_answer "preserve_deployment"     "$(ask "Do you want to keep deployment configuration?"      "$(guess_value "preserve_deployment" "$(get_value "preserve_deployment" "Y" )"              )"  "${is_interactive}" )"
-  expand_answer "preserve_acquia"         "$(ask "Do you want to keep Acquia Cloud integration?"      "$(guess_value "preserve_acquia" "$(get_value "preserve_acquia" "Y" )"                      )"  "${is_interactive}" )"
-  expand_answer "preserve_lagoon"         "$(ask "Do you want to keep Lagoon integration?"            "$(guess_value "preserve_lagoon" "$(get_value "preserve_lagoon" "Y" )"                      )"  "${is_interactive}" )"
-  expand_answer "preserve_ftp"            "$(ask "Do you want to keep FTP integration?"               "$(guess_value "preserve_ftp" "$(get_value "preserve_ftp" "n" )"                            )"  "${is_interactive}" )"
-  expand_answer "preserve_dependenciesio" "$(ask "Do you want to keep dependencies.io integration?"   "$(guess_value "preserve_dependenciesio" "$(get_value "preserve_dependenciesio" "Y" )"      )"  "${is_interactive}" )"
-  expand_answer "remove_drupaldev_info"   "$(ask "Do you want to remove all Drupal-Dev information?"  "$(guess_value "remove_drupaldev_info" "$(get_value "remove_drupaldev_info" "Y" )"          )"  "${is_interactive}" )"
+  expand_answer "org"                     "$(ask "What is your organization name?"                    "$(discover_value "org"                                  "$(get_value "org"  "${name} Org")"   )"  "${is_interactive}" )"
+  expand_answer "org_machine_name"        "$(ask "What is your organization machine name?"            "$(to_machine_name "$(discover_value "org_machine_name"  "$(get_value "org"  )" )"             )"  "${is_interactive}" )"
+  expand_answer "module_prefix"           "$(ask "What is your project-specific module prefix?"       "$(discover_value "module_prefix" "$(get_value "module_prefix" "${machine_name}" )"            )"  "${is_interactive}" )"
+  expand_answer "theme"                   "$(ask "What is your theme machine name?"                   "$(discover_value "theme" "$(get_value "theme" "${machine_name}" )"                            )"  "${is_interactive}" )"
+  expand_answer "url"                     "$(ask "What is your site public URL?"                      "$(discover_value "url" "$(get_value "url" "${machine_name//_ /-}.com" )"                      )"  "${is_interactive}" )"
+  expand_answer "preserve_deployment"     "$(ask "Do you want to keep deployment configuration?"      "$(discover_value "preserve_deployment" "$(get_value "preserve_deployment" "Y" )"              )"  "${is_interactive}" )"
+  expand_answer "preserve_acquia"         "$(ask "Do you want to keep Acquia Cloud integration?"      "$(discover_value "preserve_acquia" "$(get_value "preserve_acquia" "Y" )"                      )"  "${is_interactive}" )"
+  expand_answer "preserve_lagoon"         "$(ask "Do you want to keep Lagoon integration?"            "$(discover_value "preserve_lagoon" "$(get_value "preserve_lagoon" "Y" )"                      )"  "${is_interactive}" )"
+  expand_answer "preserve_ftp"            "$(ask "Do you want to keep FTP integration?"               "$(discover_value "preserve_ftp" "$(get_value "preserve_ftp" "n" )"                            )"  "${is_interactive}" )"
+  expand_answer "preserve_dependenciesio" "$(ask "Do you want to keep dependencies.io integration?"   "$(discover_value "preserve_dependenciesio" "$(get_value "preserve_dependenciesio" "Y" )"      )"  "${is_interactive}" )"
+  expand_answer "remove_drupaldev_info"   "$(ask "Do you want to remove all Drupal-Dev information?"  "$(discover_value "remove_drupaldev_info" "$(get_value "remove_drupaldev_info" "Y" )"          )"  "${is_interactive}" )"
 
   print_summary "${is_interactive}"
 
@@ -380,7 +380,7 @@ print_header_silent(){
     echo "* It looks like Drupal-Dev is already installed for this project.    *"
     echo "*                                                                    *"
   fi
-  echo "* Drupal-Dev installer will try to guess the settings from the       *"
+  echo "* Drupal-Dev installer will try to discover the settings from the      *"
   echo "* environment and will install configuration relevant to your site.  *"
 
   echo "*                                                                    *"
@@ -657,11 +657,11 @@ is_installed(){
   grep -q "badge/Powered_by-Drupal--Dev" "README.md"
 }
 
-# Guess value from the environment.
-guess_value(){
+# Discover value from the environment.
+discover_value(){
   local name="${1}"
   local default="${2}"
-  local callback=guess_value__"${1}"
+  local callback=discover_value__"${1}"
   local value
 
   if ! is_installed; then
@@ -681,23 +681,23 @@ guess_value(){
   echo "${default}"
 }
 
-guess_value__name(){
+discover_value__name(){
   [ -f "composer.json" ] && composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/\(.*\) for .*/\1/p'
 }
 
-guess_value__org(){
+discover_value__org(){
   [ -f "composer.json" ] && composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/.* for \(.*\)/\1/p'
 }
 
-guess_value__machine_name(){
+discover_value__machine_name(){
   [ -f "composer.json" ] && composer config name | sed 's/.*\///'
 }
 
-guess_value__org_machine_name(){
+discover_value__org_machine_name(){
   [ -f "composer.json" ] && composer config name | sed 's/\/.*//'
 }
 
-guess_value__module_prefix(){
+discover_value__module_prefix(){
   if ls -d docroot/modules/custom/*_core > /dev/null; then
     # shellcheck disable=SC2012
     ls -d docroot/modules/custom/*_core | head -n 1 | cut -c 24- | sed -n 's/_core//p'
@@ -709,7 +709,7 @@ guess_value__module_prefix(){
   fi
 }
 
-guess_value__theme(){
+discover_value__theme(){
   if ls -d docroot/themes/custom/* > /dev/null; then
     # shellcheck disable=SC2012
     ls -d docroot/themes/custom/* | head -n 1 | cut -c 23-
@@ -721,7 +721,7 @@ guess_value__theme(){
   fi
 }
 
-guess_value__url(){
+discover_value__url(){
   if [ -f "docroot/sites/default/settings.php" ]; then
     # Extract from string $config['stage_file_proxy.settings']['origin'] = 'http://yoursiteurl/';
     # shellcheck disable=SC2002
@@ -736,27 +736,27 @@ guess_value__url(){
   fi
 }
 
-guess_value__preserve_deployment(){
+discover_value__preserve_deployment(){
   [ -f ".gitignore.deployment" ] && echo "Y" || echo "N"
 }
 
-guess_value__preserve_acquia(){
+discover_value__preserve_acquia(){
   { [ -d "hooks" ] || [ -f "scripts/download-backup-acquia.sh" ]; } && echo "Y" || echo "N"
 }
 
-guess_value__preserve_lagoon(){
+discover_value__preserve_lagoon(){
   [ -f ".lagoon.yml" ] && echo "Y" || echo "N"
 }
 
-guess_value__preserve_ftp(){
+discover_value__preserve_ftp(){
   { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "FTP_HOST"; } && echo "Y" || echo "N"
 }
 
-guess_value__preserve_dependenciesio(){
+discover_value__preserve_dependenciesio(){
   [ -f "dependencies.yml" ] && echo "Y" || echo "N"
 }
 
-guess_value__remove_drupaldev_info(){
+discover_value__remove_drupaldev_info(){
   dir_contains_string "$(pwd)" "#;<DRUPAL-DEV" && echo "N" || echo "Y"
 }
 
