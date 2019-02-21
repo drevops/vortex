@@ -212,6 +212,11 @@ Drupal 8 implementation of YOURSITE for YOURORG
 
 [![CircleCI](https://circleci.com/gh/yourorg/yoursite.svg?style=shield)](https://circleci.com/gh/yourorg/yoursite)
 
+[//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
+
+![drupal-dev.io](https://img.shields.io/badge/Powered_by-Drupal--Dev-blue.svg) 
+
+
 ## Local environment setup
 1. Make sure that you have latest versions of all required software installed:   
   - [Docker](https://www.docker.com/) 

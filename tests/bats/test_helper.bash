@@ -246,6 +246,15 @@ assert_not_git_repo(){
   fi
 }
 
+assert_git_clean(){
+  local dir="${1}"
+  local message
+
+  message="$(git --work-tree="${dir}" --git-dir="${dir}/.git" status)"
+  assert_contains "nothing to commit, working tree clean" "${message}"
+}
+
+
 assert_files_equal(){
   local file1="${1}"
   local file2="${2}"

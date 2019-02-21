@@ -44,12 +44,16 @@ DRUPALDEV_GH_PROJECT="${DRUPALDEV_GH_PROJECT:-drupal-dev}"
 DRUPALDEV_COMMIT="${DRUPALDEV_COMMIT:-}"
 # Flag to display debug information.
 DRUPALDEV_DEBUG="${DRUPALDEV_DEBUG:-0}"
+# Flag to proceed.
+DRUPALDEV_PROCEED="${DRUPALDEV_PROCEED:-1}"
 # Temporary directory to download and expand files to.
 DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
 # Internal flag to remove demo configuration.
 DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
 
 install(){
+  check_requirements
+
   if [ "${DRUPALDEV_IS_INTERACTIVE}" -eq 1 ]; then
     print_header_interactive "${DRUPALDEV_ALLOW_OVERRIDE}"
   else
@@ -59,8 +63,8 @@ install(){
   gather_answers "${DRUPALDEV_IS_INTERACTIVE}"
 
   local proceed=Y
-  proceed=$(ask "> Proceed with installing Drupal-Dev into your project '$(get_value "name")'? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
-  [ "${proceed}" != "Y" ] && print_abort && return;
+  proceed=$(ask "Proceed with installing Drupal-Dev into your project '$(get_value "name")'? (Y,n)" "${proceed}" "${DRUPALDEV_IS_INTERACTIVE}")
+  { [ "${proceed}" != "Y" ] || [ "${DRUPALDEV_PROCEED}" -ne 1 ]; } && print_abort && return;
 
   download
 
@@ -71,6 +75,19 @@ install(){
   copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE}"
 
   print_footer
+}
+
+check_requirements(){
+  command_exists "grep"
+  command_exists "sed"
+  command_exists "head"
+  command_exists "curl"
+  command_exists "basename"
+  command_exists "dirname"
+  command_exists "git"
+  command_exists "tar"
+  command_exists "cut"
+  command_exists "cat"
 }
 
 download(){
@@ -102,26 +119,24 @@ gather_answers(){
 
   gather_project_name
 
-  expand_answer "name"                    "$(ask "What is your site name?"                            "$(capitalize "$(to_human_name "$(get_value "name")" )"           )"  "${is_interactive}" )"
+  expand_answer "name"                    "$(ask "What is your site name?"                            "$(capitalize "$(to_human_name "$(discover_value "name"  "$(get_value "name" )" )" )"          )"  "${is_interactive}" )"
   expand_answer "name" "$(capitalize "$(to_human_name "$(get_value "name")" )" )"
   name=$(get_value "name")
-  expand_answer "machine_name"            "$(ask "What is your site machine name?"                    "$(to_machine_name "$(get_value         "machine_name")"            )"  "${is_interactive}" )"
+  expand_answer "machine_name"            "$(ask "What is your site machine name?"                    "$(to_machine_name "$(discover_value "machine_name"      "$(get_value "name" )" )"             )"  "${is_interactive}" )"
   machine_name=$(get_value "machine_name")
-  expand_answer "org"                     "$(ask "What is your organization name?"                    "$(get_value "org"                      "${name} Org"               )"  "${is_interactive}" )"
-  expand_answer "org_machine_name"        "$(ask "What is your organization machine name?"            "$(to_machine_name "$(get_value         "org")"                     )"  "${is_interactive}" )"
-  expand_answer "module_prefix"           "$(ask "What is your project-specific module prefix?"       "$(get_value "module_prefix"            "${machine_name}"           )"  "${is_interactive}" )"
-  expand_answer "theme"                   "$(ask "What is your theme machine name?"                   "$(get_value "theme"                    "${machine_name}"           )"  "${is_interactive}" )"
-  expand_answer "url"                     "$(ask "What is your site public URL?"                      "$(get_value "url"                      "${machine_name//_ /-}.com" )"  "${is_interactive}" )"
-  expand_answer "preserve_deployment"     "$(ask "Do you want to keep deployment configuration?"      "$(get_value "preserve_deployment"      "Y"                         )"  "${is_interactive}" )"
-  expand_answer "preserve_acquia"         "$(ask "Do you want to keep Acquia Cloud integration?"      "$(get_value "preserve_acquia"          "Y"                         )"  "${is_interactive}" )"
-  expand_answer "preserve_lagoon"         "$(ask "Do you want to keep Lagoon integration?"            "$(get_value "preserve_lagoon"          "Y"                         )"  "${is_interactive}" )"
-  expand_answer "preserve_ftp"            "$(ask "Do you want to keep FTP integration?"               "$(get_value "preserve_ftp"             "n"                         )"  "${is_interactive}" )"
-  expand_answer "preserve_dependenciesio" "$(ask "Do you want to keep dependencies.io integration?"   "$(get_value "preserve_dependenciesio"  "Y"                         )"  "${is_interactive}" )"
-  expand_answer "remove_drupaldev_info"   "$(ask "Do you want to remove all Drupal-Dev information?"  "$(get_value "remove_drupaldev_info"    "Y"                         )"  "${is_interactive}" )"
+  expand_answer "org"                     "$(ask "What is your organization name?"                    "$(discover_value "org"                                  "$(get_value "org"  "${name} Org")"   )"  "${is_interactive}" )"
+  expand_answer "org_machine_name"        "$(ask "What is your organization machine name?"            "$(to_machine_name "$(discover_value "org_machine_name"  "$(get_value "org"  )" )"             )"  "${is_interactive}" )"
+  expand_answer "module_prefix"           "$(ask "What is your project-specific module prefix?"       "$(discover_value "module_prefix" "$(get_value "module_prefix" "${machine_name}" )"            )"  "${is_interactive}" )"
+  expand_answer "theme"                   "$(ask "What is your theme machine name?"                   "$(discover_value "theme" "$(get_value "theme" "${machine_name}" )"                            )"  "${is_interactive}" )"
+  expand_answer "url"                     "$(ask "What is your site public URL?"                      "$(discover_value "url" "$(get_value "url" "${machine_name//_ /-}.com" )"                      )"  "${is_interactive}" )"
+  expand_answer "preserve_deployment"     "$(ask "Do you want to keep deployment configuration?"      "$(discover_value "preserve_deployment" "$(get_value "preserve_deployment" "Y" )"              )"  "${is_interactive}" )"
+  expand_answer "preserve_acquia"         "$(ask "Do you want to keep Acquia Cloud integration?"      "$(discover_value "preserve_acquia" "$(get_value "preserve_acquia" "Y" )"                      )"  "${is_interactive}" )"
+  expand_answer "preserve_lagoon"         "$(ask "Do you want to keep Lagoon integration?"            "$(discover_value "preserve_lagoon" "$(get_value "preserve_lagoon" "Y" )"                      )"  "${is_interactive}" )"
+  expand_answer "preserve_ftp"            "$(ask "Do you want to keep FTP integration?"               "$(discover_value "preserve_ftp" "$(get_value "preserve_ftp" "n" )"                            )"  "${is_interactive}" )"
+  expand_answer "preserve_dependenciesio" "$(ask "Do you want to keep dependencies.io integration?"   "$(discover_value "preserve_dependenciesio" "$(get_value "preserve_dependenciesio" "Y" )"      )"  "${is_interactive}" )"
+  expand_answer "remove_drupaldev_info"   "$(ask "Do you want to remove all Drupal-Dev information?"  "$(discover_value "remove_drupaldev_info" "$(get_value "remove_drupaldev_info" "Y" )"          )"  "${is_interactive}" )"
 
-  [ "${is_interactive}" -eq 1 ] && echo
-
-  print_summary
+  print_summary "${is_interactive}"
 
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && print_resolved_variables
 }
@@ -303,7 +318,7 @@ copy_files(){
       #  - not currently tracked
       #  - not in a list of required files
       file_is_required="$(file_is_required "${relative_file}")"
-      # @todo; Refactor return values.
+      # @todo: Refactor return values.
       if [ "${allow_use_local_gitignore}" -eq 1 ] \
         && [ -d ./.git/ ] \
         && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] \
@@ -331,6 +346,10 @@ print_header_interactive(){
   echo "          WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER                *"
   echo "**********************************************************************"
   echo "*                                                                    *"
+  if is_installed; then
+    echo "* It looks like Drupal-Dev is already installed for this project.    *"
+    echo "*                                                                    *"
+  fi
   echo "* Please answer the questions below to install configuration         *"
   echo "* relevant to your site.                                             *"
   echo "*                                                                    *"
@@ -357,8 +376,13 @@ print_header_silent(){
   echo "*            WELCOME TO DRUPAL-DEV SILENT INSTALLER                  *"
   echo "**********************************************************************"
   echo "*                                                                    *"
-  echo "* Drupal-Dev installer will try to guess the settings from the       *"
+  if is_installed; then
+    echo "* It looks like Drupal-Dev is already installed for this project.    *"
+    echo "*                                                                    *"
+  fi
+  echo "* Drupal-Dev installer will try to discover the settings from the      *"
   echo "* environment and will install configuration relevant to your site.  *"
+
   echo "*                                                                    *"
   if [ "${is_override}" -eq 1 ]; then
     echo "* ATTENTION! RUNNING IN UPDATE MODE                                  *"
@@ -369,13 +393,17 @@ print_header_silent(){
   fi
   echo "*                                                                    *"
   echo "**********************************************************************"
-  echo
 }
 
 print_summary(){
-  echo "**********************************************************************"
-  echo "*                       INSTALLATION SUMMARY                         *"
-  echo "**********************************************************************"
+  local is_interactive="${1:-0}"
+
+  if [ "${is_interactive}" -eq 1 ]; then
+    echo
+    echo "**********************************************************************"
+    echo "*                       INSTALLATION SUMMARY                         *"
+    echo "**********************************************************************"
+  fi
   echo "  Name:                          $(get_value "name")"
   echo "  Machine name:                  $(get_value "machine_name")"
   echo "  Organisation:                  $(get_value "org")"
@@ -475,6 +503,7 @@ file_is_internal(){
 file_is_required(){
   local file="${1}"
   local files=(
+    README.md
     drupal-dev.sh
     .circleci/config.yml
     docroot/sites/default/settings.php
@@ -620,11 +649,159 @@ get_value(){
   echo "${default}"
 }
 
+#
+# Check that Drupal-Dev is installed for this project.
+#
+is_installed(){
+  [ ! -f "README.md" ] && return 1
+  grep -q "badge/Powered_by-Drupal--Dev" "README.md"
+}
+
+# Discover value from the environment.
+discover_value(){
+  local name="${1}"
+  local default="${2}"
+  local callback=discover_value__"${1}"
+  local value
+
+  if ! is_installed; then
+    echo "${default}"
+    return
+  fi
+
+  if is_function "${callback}"; then
+    value=$("${callback}")
+
+    if [ "${value}" != "" ]; then
+      echo "${value}"
+      return
+    fi
+  fi
+
+  echo "${default}"
+}
+
+discover_value__name(){
+  [ -f "composer.json" ] && composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/\(.*\) for .*/\1/p'
+}
+
+discover_value__org(){
+  [ -f "composer.json" ] && composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/.* for \(.*\)/\1/p'
+}
+
+discover_value__machine_name(){
+  [ -f "composer.json" ] && composer config name | sed 's/.*\///'
+}
+
+discover_value__org_machine_name(){
+  [ -f "composer.json" ] && composer config name | sed 's/\/.*//'
+}
+
+discover_value__module_prefix(){
+  if ls -d docroot/modules/custom/*_core > /dev/null; then
+    # shellcheck disable=SC2012
+    ls -d docroot/modules/custom/*_core | head -n 1 | cut -c 24- | sed -n 's/_core//p'
+    return
+  elif ls -d docroot/sites/all/modules/custom/*_core > /dev/null; then
+    # shellcheck disable=SC2012
+    ls -d docroot/sites/all/modules/custom/*_core | head -n 1 | cut -c 34- | sed -n 's/_core//p'
+    return
+  fi
+}
+
+discover_value__theme(){
+  if ls -d docroot/themes/custom/* > /dev/null; then
+    # shellcheck disable=SC2012
+    ls -d docroot/themes/custom/* | head -n 1 | cut -c 23-
+    return
+  elif ls -d docroot/sites/all/themes/custom/* > /dev/null; then
+    # shellcheck disable=SC2012
+    ls -d docroot/sites/all/themes/custom/* | head -n 1 | cut -c 33-
+    return
+  fi
+}
+
+discover_value__url(){
+  if [ -f "docroot/sites/default/settings.php" ]; then
+    # Extract from string $config['stage_file_proxy.settings']['origin'] = 'http://yoursiteurl/';
+    # shellcheck disable=SC2002
+    cat docroot/sites/default/settings.php \
+      | grep "config\['stage_file_proxy.settings'\]\['origin'\]" \
+      | sed 's/ //g' \
+      | cut -c 48- \
+      | sed "s/'//g" \
+      | sed 's/http\://g' \
+      | sed "s/\///g" \
+      | sed 's/;//g'
+  fi
+}
+
+discover_value__preserve_deployment(){
+  [ -f ".gitignore.deployment" ] && echo "Y" || echo "N"
+}
+
+discover_value__preserve_acquia(){
+  { [ -d "hooks" ] || [ -f "scripts/download-backup-acquia.sh" ]; } && echo "Y" || echo "N"
+}
+
+discover_value__preserve_lagoon(){
+  [ -f ".lagoon.yml" ] && echo "Y" || echo "N"
+}
+
+discover_value__preserve_ftp(){
+  { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "FTP_HOST"; } && echo "Y" || echo "N"
+}
+
+discover_value__preserve_dependenciesio(){
+  [ -f "dependencies.yml" ] && echo "Y" || echo "N"
+}
+
+discover_value__remove_drupaldev_info(){
+  dir_contains_string "$(pwd)" "#;<DRUPAL-DEV" && echo "N" || echo "Y"
+}
+
+is_function(){
+  type -t "${1}" >/dev/null
+}
+
+file_contains(){
+  local file="${1}"
+  local string="${2}"
+  [ ! -f "${file}" ] && return 1
+
+  contents="$(cat "${file}")"
+  string_contains "${string}" "${contents}"
+}
+
+string_contains(){
+  local needle="${1}"
+  local haystack="${2}"
+
+  if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" > /dev/null; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+dir_contains_string(){
+  local dir="${1}"
+  local string="${2}"
+
+  [ -d "${dir}" ] || return 1
+
+  grep -qrI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
+}
+
 git_init(){
   local dir="${1}"
   [ -d "${dir}/.git" ] && return
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && echo "DEBUG: Initialising new git repository"
   git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
+}
+
+command_exists(){
+  command -v "${1}" > /dev/null || { echo "Command ${1} does not exist in current environment" && exit 1; }
 }
 
 to_lower() {

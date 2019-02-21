@@ -157,6 +157,7 @@ assert_files_present_common(){
   # Assert that required files were not locally excluded.
   if [ -d ".git" ] ; then
     assert_file_not_contains .git/info/exclude "drupal-dev.sh"
+    assert_file_not_contains .git/info/exclude "README.md"
     assert_file_not_contains .git/info/exclude ".circleci/config.yml"
     assert_file_not_contains .git/info/exclude "docroot/sites/default/settings.php"
     assert_file_not_contains .git/info/exclude "docroot/sites/default/services.yml"
@@ -184,11 +185,13 @@ assert_files_not_present_common(){
   assert_file_not_exists ".ahoy.yml"
 
   if [ "${has_committed_files}" -eq 1 ] ; then
+    assert_file_exists "README.md"
     assert_file_exists "drupal-dev.sh"
     assert_file_exists ".circleci/config.yml"
     assert_file_exists "docroot/sites/default/settings.php"
     assert_file_exists "docroot/sites/default/services.yml"
   else
+    assert_file_not_exists "README.md"
     assert_file_not_exists "drupal-dev.sh"
     assert_file_not_exists ".circleci/config.yml"
     assert_file_not_exists "docroot/sites/default/settings.php"
@@ -224,8 +227,11 @@ assert_files_present_no_deployment(){
   assert_file_not_exists ".gitignore.deployment"
   assert_file_not_exists "DEPLOYMENT.md"
   assert_file_not_exists ".circleci/deploy.sh"
-  assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+
+  # 'Required' files can be asserted for modifications only if they were not
+  # committed.
   if [ "${has_committed_files}" -eq 0 ]; then
+    assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
     assert_file_not_contains ".circleci/config.yml" "deploy: &job_deploy"
     assert_file_not_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
   fi
@@ -426,6 +432,39 @@ assert_containers_not_running(){
   fi
 }
 
+fixture_readme(){
+  local dir="${1:-.}"
+  local name="${2:-Star Wars}"
+  local org="${3:-Star Wars Org}"
+
+  cat <<EOT >> "${dir}"/README.md
+# ${name}
+Drupal 8 implementation of ${name} for ${org}
+
+[![CircleCI](https://circleci.com/gh/yourorg/yoursite.svg?style=shield)](https://circleci.com/gh/yourorg/yoursite)
+
+[//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
+
+![drupal-dev.io](https://img.shields.io/badge/Powered_by-Drupal--Dev-blue.svg)
+
+some other text
+EOT
+}
+
+fixture_composerjson(){
+  local dir="${1:-.}"
+  local name="${2}"
+  local machine_name="${3}"
+  local org="${4}"
+  local org_machine_name="${5}"
+
+  cat <<EOT >> "${dir}"/composer.json
+{
+    "name": "${org_machine_name}/${machine_name}",
+    "description": "Drupal 8 implementation of ${name} for ${org}"
+}
+EOT
+}
 ################################################################################
 #                               UTILITIES                                      #
 ################################################################################
