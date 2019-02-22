@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 #
-# Init tests.
+# DB-driven workflow.
 #
 
 load test_helper
 load test_helper_drupaldev
 
-@test "Workflow" {
+@test "Workflow: DB-driven" {
   DRUPAL_VERSION=${DRUPAL_VERSION:-8}
   VOLUMES_MOUNTED=${VOLUMES_MOUNTED:-1}
 

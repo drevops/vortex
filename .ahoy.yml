@@ -82,6 +82,7 @@ commands:
     usage: Find problems with current project setup.
     cmd: scripts/doctor.sh
 
+  #;< !FRESH_INSTALL
   download-db:
     usage: Download database.
     cmd: |
@@ -98,22 +99,24 @@ commands:
       # Download DB dump from FTP. Remove if site install is used.
       ##### mkdir -p ${DATAROOT} && curl -u ${FTP_USER}:${FTP_PASS} "ftp://${FTP_HOST}:${FTP_PORT}/${FTP_FILE}" -o ${DATAROOT}/db.sql
       #;> FTP
+  #;> !FRESH_INSTALL
 
   install-site:
     usage: Install a site.
     cmd: |
-      ahoy title "Importing database from the dump" && \
+      #;< !FRESH_INSTALL \
+      ahoy title "Installing site from existing database dump" && \
       (if [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ]; then ahoy export-db; fi) && \
       ahoy import-db-dump && \
       ahoy sanitize-db && \
       ahoy drush en yoursite_core -y && \
       ahoy drush updb -y && \
-      #;< PROFILE \
-      #; Replace lines above with lines below if you want to install site from profile. \
-      #; ahoy title "Installing a site from profile" && \
-      #; ahoy drush si ${DRUPAL_PROFILE} -y --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
-      #; ahoy drush en -y yoursite_core && \
-      #;> PROFILE \
+      #;> !FRESH_INSTALL \
+      #;< FRESH_INSTALL \
+      ahoy title "Installing a fresh site from ${DRUPAL_PROFILE} profile" && \
+      ahoy drush si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
+      ahoy drush en -y yoursite_core && \
+      #;> FRESH_INSTALL \
       (if [ -f config/default/*.yml ]; then ahoy drush cim -y || true; fi) && \
       ahoy drush cr
 

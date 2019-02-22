@@ -218,16 +218,16 @@ Drupal 8 implementation of YOURSITE for YOURORG
 
 
 ## Local environment setup
-1. Make sure that you have latest versions of all required software installed:   
+- Make sure that you have latest versions of all required software installed:   
   - [Docker](https://www.docker.com/) 
   - [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html)
   - [Ahoy](https://github.com/ahoy-cli/ahoy)
-2. Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
-3. Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
+- Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
+- Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
 
 [//]: # (#;< ACQUIA)
 
-4. Add Acquia Cloud credentials to `.env.local` file:
+- Add Acquia Cloud credentials to `.env.local` file:
 ```
   # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
   AC_API_USER_NAME=<YOUR_USERNAME>
@@ -236,10 +236,15 @@ Drupal 8 implementation of YOURSITE for YOURORG
 ```
 [//]: # (#;> ACQUIA)
 
-5. `./drupal-dev.sh`
-6. `ahoy download-db`
-7. `pygmy up`
-8. `ahoy build`
+- `./drupal-dev.sh`
+
+[//]: # (#;< !FRESH_INSTALL)
+
+- `ahoy download-db`
+  
+[//]: # (#;> !FRESH_INSTALL)
+- `pygmy up`
+- `ahoy build`
 
 ## Available `ahoy` commands
 Run each command as `ahoy <command>`.
