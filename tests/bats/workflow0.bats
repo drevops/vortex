@@ -13,7 +13,7 @@ load test_helper_drupaldev
   assert_not_empty "${DRUPAL_VERSION}"
   assert_not_empty "${VOLUMES_MOUNTED}"
 
-  debug "==> Starting WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  debug "==> Starting DB-driven WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
@@ -30,6 +30,7 @@ load test_helper_drupaldev
   run_install
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_fresh_install "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
