@@ -87,11 +87,11 @@ assert_files_present_common(){
   pushd "${dir}" > /dev/null || exit 1
 
   # Stub profile removed.
-  assert_dir_not_exists "docroot/profiles/custom/yoursiteprofile"
+  assert_dir_not_exists "docroot/profiles/custom/your_site_profile"
   # Stub code module removed.
-  assert_dir_not_exists "docroot/modules/custom/yoursite_core"
+  assert_dir_not_exists "docroot/modules/custom/your_site_core"
   # Stub theme removed.
-  assert_dir_not_exists "docroot/themes/custom/yoursitetheme"
+  assert_dir_not_exists "docroot/themes/custom/your_site_theme"
 
   # Site core module created.
   assert_dir_exists "docroot/modules/custom/${suffix}_core"
@@ -110,7 +110,7 @@ assert_files_present_common(){
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.theme"
 
   # Comparing binary files.
-  assert_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/yoursitetheme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
+  assert_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
 
   # Settings files exist.
   # @note The permissions can be 644 or 664 depending on the umask of OS. Also,
@@ -131,12 +131,12 @@ assert_files_present_common(){
   assert_file_exists ".ahoy.yml"
 
   # Assert all stub strings were replaced.
-  assert_dir_not_contains_string "${dir}" "yoursite"
+  assert_dir_not_contains_string "${dir}" "your_site"
   assert_dir_not_contains_string "${dir}" "YOURSITE"
-  assert_dir_not_contains_string "${dir}" "yoursitetheme"
-  assert_dir_not_contains_string "${dir}" "yourorg"
+  assert_dir_not_contains_string "${dir}" "your_site_theme"
+  assert_dir_not_contains_string "${dir}" "your_org"
   assert_dir_not_contains_string "${dir}" "YOURORG"
-  assert_dir_not_contains_string "${dir}" "yoursiteurl"
+  assert_dir_not_contains_string "${dir}" "your-site-url"
   # Assert all special comments were removed.
   assert_dir_not_contains_string "${dir}" "#;"
   assert_dir_not_contains_string "${dir}" "#;<"
@@ -144,6 +144,7 @@ assert_files_present_common(){
 
   # Assert that project name is correct.
   assert_file_contains .env "PROJECT=\"${suffix}\""
+  assert_file_contains .env "LOCALDEV_URL=\"${suffix/_/-}.docker.amazee.io\""
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# Drupal-Dev"
@@ -176,8 +177,8 @@ assert_files_not_present_common(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  assert_dir_not_exists "docroot/modules/custom/yoursite_core"
-  assert_dir_not_exists "docroot/themes/custom/yoursitetheme"
+  assert_dir_not_exists "docroot/modules/custom/your_site_core"
+  assert_dir_not_exists "docroot/themes/custom/your_site_theme"
   assert_dir_not_exists "docroot/profiles/custom/${suffix}_profile"
   assert_dir_not_exists "docroot/modules/custom/${suffix}_core"
   assert_dir_not_exists "docroot/themes/custom/${suffix}"
@@ -501,7 +502,7 @@ fixture_readme(){
 # ${name}
 Drupal 8 implementation of ${name} for ${org}
 
-[![CircleCI](https://circleci.com/gh/yourorg/yoursite.svg?style=shield)](https://circleci.com/gh/yourorg/yoursite)
+[![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
 

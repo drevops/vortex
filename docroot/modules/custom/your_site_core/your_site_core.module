@@ -5,7 +5,7 @@
  * Core module for YOURSITE.
  */
 
-include_once 'yoursite_core.constants.php';
+include_once 'your_site_core.constants.php';
 
 /**
  * Include additional early bootstrap files.

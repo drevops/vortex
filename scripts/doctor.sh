@@ -4,7 +4,7 @@
 #
 set -e
 
-LOCALDEV_URL=${LOCALDEV_URL:-http://yoursite.docker.amazee.io/}
+LOCALDEV_URL=${LOCALDEV_URL:-http://your-site.docker.amazee.io/}
 
 ################################################################################
 #################### DO NOT CHANGE ANYTHING BELOW THIS LINE ####################

@@ -21,7 +21,7 @@ commands:
     usage: Print information about this project.
     cmd: |
       ahoy line "Project               : " ${PROJECT}
-      ahoy line "Site URL              : " ${LOCALDEV_URL}
+      ahoy line "Site local URL        : " ${LOCALDEV_URL}
       ahoy line "Path to project       : " ${APP}
       ahoy line "Path to docroot       : " ${APP}/${WEBROOT}
       ahoy line "DB port on host       : " $(docker port $(docker-compose ps -q mariadb) 3306 | cut -d : -f 2)
@@ -109,13 +109,13 @@ commands:
       (if [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ]; then ahoy export-db; fi) && \
       ahoy import-db-dump && \
       ahoy sanitize-db && \
-      ahoy drush en yoursite_core -y && \
+      ahoy drush en your_site_core -y && \
       ahoy drush updb -y && \
       #;> !FRESH_INSTALL \
       #;< FRESH_INSTALL \
       ahoy title "Installing a fresh site from ${DRUPAL_PROFILE} profile" && \
       ahoy drush si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
-      ahoy drush en -y yoursite_core && \
+      ahoy drush en -y your_site_core && \
       #;> FRESH_INSTALL \
       (if [ -f config/default/*.yml ]; then ahoy drush cim -y || true; fi) && \
       ahoy drush cr
@@ -185,7 +185,7 @@ commands:
   install-dev:
     usage: Install dependencies.
     cmd: |
-      docker cp -L .data $(docker-compose ps -q cli):/app/ && \
+      if [ -d .data ]; then docker cp -L .data $(docker-compose ps -q cli):/app/; fi && \
       docker cp -L behat.yml $(docker-compose ps -q cli):/app/ && \
       docker cp -L tests $(docker-compose ps -q cli):/app/ && \
       docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/ && \
@@ -248,12 +248,10 @@ entrypoint:
   - "-c"
   - |
     [ -f .env ] && export $(grep -v '^#' .env | xargs) && [ -f .env.local ] && export $(grep -v '^#' .env.local | xargs)
-    export PROJECT=${PROJECT:-$(basename $(pwd))}
-    export LOCALDEV_URL=${LOCALDEV_URL:-http://${PROJECT/[_ ]/-}.docker.amazee.io}
     #;< DEMO
     #; Location of the demo database used for demonstration only.
     #; This will be removed during project install.
-    export DEMO_DB="${DEMO_DB:-https://goo.gl/dwfkGQ}"
+    export DEMO_DB="${DEMO_DB:-https://goo.gl/Qy7YMv}"
     #; Location of the demo database used for tests only.
     export DEMO_DB_TEST="${DEMO_DB_TEST:-https://goo.gl/6pZKHa}"
     #;> DEMO

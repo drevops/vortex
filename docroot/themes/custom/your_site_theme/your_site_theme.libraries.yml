@@ -2,20 +2,20 @@ global-styling:
   version: 1.x
   css:
     theme:
-      build/css/yoursitetheme.min.css: {}
+      build/css/your_site_theme.min.css: {}
   js:
-    build/js/yoursitetheme.min.js: {}
+    build/js/your_site_theme.min.js: {}
   dependencies:
     - core/jquery
     - core/drupal
     - core/drupalSettings
 
 livereload:
-  remote: http://yoursite.docker.amazee.io:35729/livereload.js?snipver=1
+  remote: http://your-site.docker.amazee.io:35729/livereload.js?snipver=1
   version: 1.0
   license:
     name: MIT
     url: https://github.com/livereload/livereload-js/blob/master/LICENSE
     gpl-compatible: true
   js:
-    http://yoursite.docker.amazee.io:35729/livereload.js?snipver=1: { type: external, minified: true }
+    http://your-site.docker.amazee.io:35729/livereload.js?snipver=1: { type: external, minified: true }

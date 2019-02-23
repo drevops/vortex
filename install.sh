@@ -211,17 +211,17 @@ process_stub(){
   local dir="${1}"
 
   if [ "$(get_value "profile")" == "" ] || [ "$(get_value "profile")" == "n" ]; then
-    rm -Rf "${dir}"/docroot/profiles/custom/yoursiteprofile > /dev/null
-    replace_string_content "docroot/profiles/custom/yoursiteprofile," "" "${dir}"
+    rm -Rf "${dir}"/docroot/profiles/custom/your_site_profile > /dev/null
+    replace_string_content "docroot/profiles/custom/your_site_profile," "" "${dir}"
     remove_special_comments_with_content "PROFILE" "${dir}" && bash -c "echo -n ."
   elif is_core_profile "$(get_value "profile")"; then
     # For core profiles - remove custom profile, but preserve the information
     # about used core profile.
-    rm -Rf "${dir}"/docroot/profiles/custom/yoursiteprofile > /dev/null
-    replace_string_content "docroot/profiles/custom/yoursiteprofile," "" "${dir}"
-    replace_string_content  "yoursiteprofile"  "$(get_value "profile")" "${dir}" && bash -c "echo -n ."
+    rm -Rf "${dir}"/docroot/profiles/custom/your_site_profile > /dev/null
+    replace_string_content "docroot/profiles/custom/your_site_profile," "" "${dir}"
+    replace_string_content  "your_site_profile"  "$(get_value "profile")" "${dir}" && bash -c "echo -n ."
   else
-    replace_string_content  "yoursiteprofile"  "$(get_value "profile")" "${dir}" && bash -c "echo -n ."
+    replace_string_content  "your_site_profile"  "$(get_value "profile")" "${dir}" && bash -c "echo -n ."
   fi
 
   if [ "$(get_value "fresh_install")" != "Y" ] ; then
@@ -260,16 +260,19 @@ process_stub(){
 
   # @note: String replacement may break symlinks to the file where replacement
   # occurs.
-  replace_string_content  "yoursitetheme"  "$(get_value "theme")"             "${dir}" && bash -c "echo -n ."
-  replace_string_content  "yourorg"        "$(get_value "org_machine_name")"  "${dir}" && bash -c "echo -n ."
-  replace_string_content  "YOURORG"        "$(get_value "org")"               "${dir}" && bash -c "echo -n ."
-  replace_string_content  "yoursiteurl"    "$(get_value "url")"               "${dir}" && bash -c "echo -n ."
-  replace_string_content  "yoursite"       "$(get_value "machine_name")"      "${dir}" && bash -c "echo -n ."
-  replace_string_content  "YOURSITE"       "$(get_value "name")"              "${dir}" && bash -c "echo -n ."
+  replace_string_content  "your_site_theme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
+  replace_string_content  "your_org"          "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
+  replace_string_content  "YOURORG"           "$(get_value "org")"              "${dir}" && bash -c "echo -n ."
+  replace_string_content  "your-site-url"     "$(get_value "url")"              "${dir}" && bash -c "echo -n ."
+  replace_string_content  "your_site"         "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
+  machine_name="$(get_value "machine_name")"
+  machine_name_hyphenated="${machine_name/_/-}"
+  replace_string_content  "your-site"         "${machine_name_hyphenated}"      "${dir}" && bash -c "echo -n ."
+  replace_string_content  "YOURSITE"          "$(get_value "name")"             "${dir}" && bash -c "echo -n ."
 
-  replace_string_filename "yoursitetheme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
-  replace_string_filename "yourorg"         "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
-  replace_string_filename "yoursite"        "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
+  replace_string_filename "your_site_theme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
+  replace_string_filename "your_org"          "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
+  replace_string_filename "your_site"         "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
 
   if [ "$(get_value "remove_drupaldev_info")" == "Y" ] ; then
     # Handle code required for Drupal-Dev maintenance.
@@ -600,7 +603,7 @@ discover_value__theme(){
 
 discover_value__url(){
   if [ -f "docroot/sites/default/settings.php" ]; then
-    # Extract from string $config['stage_file_proxy.settings']['origin'] = 'http://yoursiteurl/';
+    # Extract from string $config['stage_file_proxy.settings']['origin'] = 'http://your-site-url/';
     # shellcheck disable=SC2002
     cat docroot/sites/default/settings.php \
       | grep "config\['stage_file_proxy.settings'\]\['origin'\]" \

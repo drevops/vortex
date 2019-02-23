@@ -3,4 +3,4 @@ type: module
 description: Core feature for site settings.
 core: 8.x
 version: 8.x-1.0
-package: yoursite
+package: your_site

@@ -110,7 +110,7 @@ $config['shield.settings']['credentials']['shield']['pass'] = 'CHANGEME';
 if (file_exists('/var/www/site-php')) {
   // Delay the initial database connection.
   $config['acquia_hosting_settings_autoconnect'] = FALSE;
-  require '/var/www/site-php/yoursite/yoursite-settings.inc';
+  require '/var/www/site-php/your_site/your_site-settings.inc';
   // Do not put any Acquia-specific settings in this code block. It is used
   // for explicit mapping of Acquia environments to $conf['environment']
   // variable only. Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
@@ -144,7 +144,7 @@ if ($settings['environment'] == ENVIRONMENT_PROD) {
 }
 
 if ($settings['environment'] !== ENVIRONMENT_PROD) {
-  $config['stage_file_proxy.settings']['origin'] = 'http://yoursiteurl/';
+  $config['stage_file_proxy.settings']['origin'] = 'http://your-site-url/';
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
 }
 

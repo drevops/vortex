@@ -1,5 +1,5 @@
 {
-    "name": "yourorg/yoursite",
+    "name": "your_org/your_site",
     "description": "Drupal 8 implementation of YOURSITE for YOURORG",
     "license": "proprietary",
     "require": {

@@ -12,7 +12,7 @@
 version: '2.3'
 
 x-project:
-  &project ${PROJECT:-yoursite}
+  &project ${PROJECT:-your_site}
 
 x-volumes:
   &default-volumes
@@ -40,7 +40,7 @@ x-environment:
   LAGOON_PROJECT: *project
   # Local dev URL populated from the environment. Do not override here. Instead,
   # specify the value in .env file.
-  LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-http://yoursite.docker.amazee.io}
+  LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-http://your-site.docker.amazee.io}
   #;< LAGOON
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
   #;> LAGOON

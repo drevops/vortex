@@ -1,4 +1,4 @@
-name: yoursitetheme
+name: your_site_theme
 type: theme
 description: 'YOURSITE theme.'
 version: 8.x-1.0
@@ -6,7 +6,7 @@ core: 8.x
 base theme: bootstrap_barrio
 
 libraries:
-  - yoursitetheme/global-styling
+  - your_site_theme/global-styling
 
 regions:
   top_header: 'Top Header'
