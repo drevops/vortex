@@ -26,7 +26,7 @@ load test_helper_drupaldev
   # public database specified in DEMO_DB_TEST variable).
   export DRUPALDEV_REMOVE_DEMO=0
   # Use fresh install.
-  export DRUPALDEV_OPT_FRESH_INSTALL=1
+  export DRUPALDEV_OPT_FRESH_INSTALL=Y
   # Remove Acquia integration as we are using DEMO configuration.
   export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
   # Run default install
