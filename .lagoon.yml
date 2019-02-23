@@ -1,6 +1,6 @@
 docker-compose-yaml: docker-compose.yml
 
-project: yoursite
+project: your_site
 
 tasks:
   post-rollout:
@@ -21,7 +21,7 @@ tasks:
           #; Acquia environments as a storage in this case. These credentials
           #; need to be created beforehand by SSHing into an environment and
           #; running `drush ac-api-login` with credentials of the Deployer user.
-          drush -y rsync @yoursite.dev:/home/yoursite/.acquia/ ~/.acquia/
+          drush -y rsync @your_site.dev:/home/your_site/.acquia/ ~/.acquia/
           export $(grep -v '^#' .env | xargs)
           DB_DUMP_FILE=/tmp/.data/db.sql scripts/download-backup-acquia.sh
           #;> ACQUIA
@@ -30,7 +30,7 @@ tasks:
           drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
           # Replace lines above with a line below to enable site install.
           # drush si -y standard --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
-          drush en -y yoursite_core
+          drush en -y your_site_core
         service: cli
     - run:
         name: Run database updates
@@ -50,4 +50,4 @@ environments:
         service: cli
     routes:
       - varnish:
-          - "yoursiteurl"
+          - "your-site-url"

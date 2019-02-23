@@ -24,7 +24,7 @@ DEPLOY_REPORT="${DEPLOY_REPORT:-${DEPLOY_ROOT}/deployment_report.txt}"
 # Email address of the user who will be committing to a remote repository.
 DEPLOY_USER_NAME="${DEPLOY_USER_NAME:-"Deployer Robot"}"
 # Name of the user who will be committing to a remote repository.
-DEPLOY_USER_EMAIL="${DEPLOY_USER_EMAIL:-deployer@yoursiteurl}"
+DEPLOY_USER_EMAIL="${DEPLOY_USER_EMAIL:-deployer@your-site-url}"
 
 [ -z "${DEPLOY_REMOTE}" ] && echo "Missing required value for DEPLOY_REMOTE" && exit 1
 [ -z "${DEPLOY_BRANCH}" ] && echo "Missing required value for DEPLOY_BRANCH" && exit 1

@@ -7,7 +7,7 @@
 
 // Only enable aliases if Bay integration was fully setup or this is running
 // in Bay.
-if (!getenv('LAGOON_INTEGRATION_ENABLED') && !getenv('LAGOON_GIT_BRANCH')) {
+if (!getenv('LAGOON_INTEGRATION_COMPLETE') && !getenv('LAGOON_GIT_BRANCH')) {
   return;
 }
 

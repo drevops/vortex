@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * @file
+ * Install file for core.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function your_site_core_install() {
+  $functions = get_defined_functions();
+  foreach ($functions['user'] as $function) {
+    if (strpos($function, 'your_site_core_update_') === 0) {
+      call_user_func($function);
+    }
+  }
+}
+
+/**
+ * Enables 'your_site_theme' theme.
+ */
+function your_site_core_update_8000() {
+  \Drupal::service('theme_installer')->install(['bootstrap_barrio']);
+  \Drupal::service('theme_installer')->install(['your_site_theme']);
+  \Drupal::service('theme_handler')->setDefault('your_site_theme');
+}

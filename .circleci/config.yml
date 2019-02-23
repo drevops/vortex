@@ -66,6 +66,7 @@ jobs:
   #; standard drush sanitization. You may also use custom SQL script to add more
   #; sanitization steps by setting $DB_SANITIZE_SQL variable to the path of this
   #; script.
+  #;< !FRESH_INSTALL
   database:
     <<: *container_config
     steps:
@@ -86,6 +87,7 @@ jobs:
           key: v1-db8-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
+  #;> !FRESH_INSTALL
 
   #; Build and test is a second step of the build. The testing is performed
   #; within the same job to save time on provisioning during the job.
@@ -153,15 +155,11 @@ jobs:
   #; Test suite for Drupal-Dev.
   drupal_dev_test:
     <<: *container_config
+    parallelism: 2
     steps:
       - checkout
       - *step_setup_remote_docker
-      - run: git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
-      - run: scripts/lint-scripts.sh
-      - run: scripts/check-spell.sh
-      - run: bats tests/bats/helpers.bats --tap
-      - run: bats tests/bats/install.bats --tap
-      - run: bats tests/bats/workflow.bats --tap
+      - run: .circleci/drupal_dev-test.sh
 
   drupal_dev_test_deployment:
     <<: *container_config
@@ -173,7 +171,7 @@ jobs:
             - *deploy_ssh_fingerprint
       - attach_workspace:
           at: /workspace
-      - run: bats tests/bats/deployment.bats --tap
+      - run: .circleci/drupal_dev-test-deployment.sh
 
   # Deployment of feature branches and tags for Drupal-Dev itself.
   drupal_dev_deploy:
@@ -191,8 +189,10 @@ workflows:
             tags:
               only: /.*/
       - build:
+          #;< !FRESH_INSTALL
           requires:
             - database
+          #;> !FRESH_INSTALL
           filters:
             tags:
               only: /.*/

@@ -88,6 +88,7 @@ check_requirements(){
   command_exists "tar"
   command_exists "cut"
   command_exists "cat"
+  command_exists "composer"
 }
 
 download(){
@@ -117,37 +118,43 @@ prepare_destination(){
 gather_answers(){
   local is_interactive=${1}
 
-  gather_project_name
-
-  expand_answer "name"                    "$(ask "What is your site name?"                            "$(capitalize "$(to_human_name "$(discover_value "name"  "$(get_value "name" )" )" )"          )"  "${is_interactive}" )"
-  expand_answer "name" "$(capitalize "$(to_human_name "$(get_value "name")" )" )"
-  name=$(get_value "name")
-  expand_answer "machine_name"            "$(ask "What is your site machine name?"                    "$(to_machine_name "$(discover_value "machine_name"      "$(get_value "name" )" )"             )"  "${is_interactive}" )"
-  machine_name=$(get_value "machine_name")
-  expand_answer "org"                     "$(ask "What is your organization name?"                    "$(discover_value "org"                                  "$(get_value "org"  "${name} Org")"   )"  "${is_interactive}" )"
-  expand_answer "org_machine_name"        "$(ask "What is your organization machine name?"            "$(to_machine_name "$(discover_value "org_machine_name"  "$(get_value "org"  )" )"             )"  "${is_interactive}" )"
-  expand_answer "module_prefix"           "$(ask "What is your project-specific module prefix?"       "$(discover_value "module_prefix" "$(get_value "module_prefix" "${machine_name}" )"            )"  "${is_interactive}" )"
-  expand_answer "theme"                   "$(ask "What is your theme machine name?"                   "$(discover_value "theme" "$(get_value "theme" "${machine_name}" )"                            )"  "${is_interactive}" )"
-  expand_answer "url"                     "$(ask "What is your site public URL?"                      "$(discover_value "url" "$(get_value "url" "${machine_name//_ /-}.com" )"                      )"  "${is_interactive}" )"
-  expand_answer "preserve_deployment"     "$(ask "Do you want to keep deployment configuration?"      "$(discover_value "preserve_deployment" "$(get_value "preserve_deployment" "Y" )"              )"  "${is_interactive}" )"
-  expand_answer "preserve_acquia"         "$(ask "Do you want to keep Acquia Cloud integration?"      "$(discover_value "preserve_acquia" "$(get_value "preserve_acquia" "Y" )"                      )"  "${is_interactive}" )"
-  expand_answer "preserve_lagoon"         "$(ask "Do you want to keep Lagoon integration?"            "$(discover_value "preserve_lagoon" "$(get_value "preserve_lagoon" "Y" )"                      )"  "${is_interactive}" )"
-  expand_answer "preserve_ftp"            "$(ask "Do you want to keep FTP integration?"               "$(discover_value "preserve_ftp" "$(get_value "preserve_ftp" "n" )"                            )"  "${is_interactive}" )"
-  expand_answer "preserve_dependenciesio" "$(ask "Do you want to keep dependencies.io integration?"   "$(discover_value "preserve_dependenciesio" "$(get_value "preserve_dependenciesio" "Y" )"      )"  "${is_interactive}" )"
-  expand_answer "remove_drupaldev_info"   "$(ask "Do you want to remove all Drupal-Dev information?"  "$(discover_value "remove_drupaldev_info" "$(get_value "remove_drupaldev_info" "Y" )"          )"  "${is_interactive}" )"
+  set_answer "name"                     "What is your site name?"                                                     "${is_interactive}"
+  set_answer "machine_name"             "What is your site machine name?"                                             "${is_interactive}"
+  set_answer "org"                      "What is your organization name"                                              "${is_interactive}"
+  set_answer "org_machine_name"         "What is your organization machine name?"                                     "${is_interactive}"
+  set_answer "module_prefix"            "What is your project-specific module prefix?"                                "${is_interactive}"
+  set_answer "profile"                  "What is your custom profile machine name (leave empty to not use profile)?"  "${is_interactive}"
+  set_answer "theme"                    "What is your theme machine name?"                                            "${is_interactive}"
+  set_answer "url"                      "What is your site public URL?"                                               "${is_interactive}"
+  set_answer "fresh_install"            "Do you want to use fresh Drupal installation for every build?"               "${is_interactive}"
+  set_answer "preserve_deployment"      "Do you want to keep deployment configuration?"                               "${is_interactive}"
+  set_answer "preserve_acquia"          "Do you want to keep Acquia Cloud integration?"                               "${is_interactive}"
+  set_answer "preserve_lagoon"          "Do you want to keep Lagoon integration?"                                     "${is_interactive}"
+  set_answer "preserve_ftp"             "Do you want to keep FTP integration?"                                        "${is_interactive}"
+  set_answer "preserve_dependenciesio"  "Do you want to keep dependencies.io integration?"                            "${is_interactive}"
+  set_answer "remove_drupaldev_info"    "Do you want to remove all Drupal-Dev information?"                           "${is_interactive}"
 
   print_summary "${is_interactive}"
 
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && print_resolved_variables
 }
 
-# Special case to gather project name from different sources.
-gather_project_name(){
-  dir_name=$(basename "${CUR_DIR}")
-  default=${PROJECT:-${dir_name}}
-  DRUPALDEV_OPT_NAME=${DRUPALDEV_OPT_NAME:-${default}}
+set_answer(){
+  local name="${1}"
+  local question="${2}"
+  local is_interactive=${3}
+  local default
 
-  export DRUPALDEV_OPT_NAME
+  # Explicitly set options always take precedence.
+  option_exists "${name}" && return
+
+  default="$(get_default_value "${name}")"
+  default="$(discover_value "${name}" "${default}")"
+
+  answer=$(ask "${question}" "${default}" "${is_interactive}")
+  answer=$(normalise_answer "${name}" "${answer}")
+
+  set_option "${name}" "${answer}"
 }
 
 #
@@ -203,46 +210,69 @@ download_remote(){
 process_stub(){
   local dir="${1}"
 
-  # @note: String replacement may break symlinks to the file where replacement
-  # occurs.
-  replace_string_content  "yoursitetheme"  "$(get_value "theme")"             "${dir}" && bash -c "echo -n ."
-  replace_string_content  "yourorg"        "$(get_value "org_machine_name")"  "${dir}" && bash -c "echo -n ."
-  replace_string_content  "YOURORG"        "$(get_value "org")"               "${dir}" && bash -c "echo -n ."
-  replace_string_content  "yoursiteurl"    "$(get_value "url")"               "${dir}" && bash -c "echo -n ."
-  replace_string_content  "yoursite"       "$(get_value "machine_name")"      "${dir}" && bash -c "echo -n ."
-  replace_string_content  "YOURSITE"       "$(get_value "name")"              "${dir}" && bash -c "echo -n ."
+  if [ "$(get_value "profile")" == "" ] || [ "$(get_value "profile")" == "n" ]; then
+    rm -Rf "${dir}"/docroot/profiles/custom/your_site_profile > /dev/null
+    replace_string_content "docroot/profiles/custom/your_site_profile," "" "${dir}"
+    remove_special_comments_with_content "PROFILE" "${dir}" && bash -c "echo -n ."
+  elif is_core_profile "$(get_value "profile")"; then
+    # For core profiles - remove custom profile, but preserve the information
+    # about used core profile.
+    rm -Rf "${dir}"/docroot/profiles/custom/your_site_profile > /dev/null
+    replace_string_content "docroot/profiles/custom/your_site_profile," "" "${dir}"
+    replace_string_content  "your_site_profile"  "$(get_value "profile")" "${dir}" && bash -c "echo -n ."
+  else
+    replace_string_content  "your_site_profile"  "$(get_value "profile")" "${dir}" && bash -c "echo -n ."
+  fi
 
-  replace_string_filename "yoursitetheme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
-  replace_string_filename "yourorg"         "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
-  replace_string_filename "yoursite"        "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
+  if [ "$(get_value "fresh_install")" != "Y" ] ; then
+    remove_special_comments_with_content "FRESH_INSTALL" "${dir}" && bash -c "echo -n ."
+  else
+    remove_special_comments_with_content "!FRESH_INSTALL" "${dir}" && bash -c "echo -n ."
+  fi
 
   if [ "$(get_value "preserve_deployment")" != "Y" ] ; then
     rm "${dir}"/.gitignore.deployment > /dev/null
     rm "${dir}"/DEPLOYMENT.md > /dev/null
     rm "${dir}"/.circleci/deploy.sh > /dev/null
-    remove_special_comments_with_content "DEPLOYMENT"   "${dir}" && bash -c "echo -n ."
+    remove_special_comments_with_content "DEPLOYMENT" "${dir}" && bash -c "echo -n ."
   fi
 
   if [ "$(get_value "preserve_acquia")" != "Y" ] ; then
     rm -Rf "${dir}"/hooks > /dev/null
     rm "${dir}"/scripts/download-backup-acquia.sh > /dev/null
-    remove_special_comments_with_content "ACQUIA"       "${dir}" && bash -c "echo -n ."
+    remove_special_comments_with_content "ACQUIA" "${dir}" && bash -c "echo -n ."
   fi
 
   if [ "$(get_value "preserve_lagoon")" != "Y" ] ; then
     rm "${dir}"/drush/aliases.drushrc.php > /dev/null
     rm "${dir}"/.lagoon.yml > /dev/null
-    remove_special_comments_with_content "LAGOON"       "${dir}" && bash -c "echo -n ."
+    remove_special_comments_with_content "LAGOON" "${dir}" && bash -c "echo -n ."
   fi
 
   if [ "$(get_value "preserve_ftp")" != "Y" ] ; then
-    remove_special_comments_with_content "FTP"         "${dir}" && bash -c "echo -n ."
+    remove_special_comments_with_content "FTP" "${dir}" && bash -c "echo -n ."
   fi
 
   if [ "$(get_value "preserve_dependenciesio")" != "Y" ] ; then
     rm "${dir}"/dependencies.yml > /dev/null
     remove_special_comments_with_content "DEPENDENCIESIO" "${dir}" && bash -c "echo -n ."
   fi
+
+  # @note: String replacement may break symlinks to the file where replacement
+  # occurs.
+  replace_string_content  "your_site_theme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
+  replace_string_content  "your_org"          "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
+  replace_string_content  "YOURORG"           "$(get_value "org")"              "${dir}" && bash -c "echo -n ."
+  replace_string_content  "your-site-url"     "$(get_value "url")"              "${dir}" && bash -c "echo -n ."
+  replace_string_content  "your_site"         "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
+  machine_name="$(get_value "machine_name")"
+  machine_name_hyphenated="${machine_name/_/-}"
+  replace_string_content  "your-site"         "${machine_name_hyphenated}"      "${dir}" && bash -c "echo -n ."
+  replace_string_content  "YOURSITE"          "$(get_value "name")"             "${dir}" && bash -c "echo -n ."
+
+  replace_string_filename "your_site_theme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
+  replace_string_filename "your_org"          "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
+  replace_string_filename "your_site"         "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
 
   if [ "$(get_value "remove_drupaldev_info")" == "Y" ] ; then
     # Handle code required for Drupal-Dev maintenance.
@@ -334,6 +364,286 @@ copy_files(){
   popd > /dev/null || exit 1
 }
 
+is_core_profile(){
+  local profile="${1}"
+
+  local core_profiles=(
+    "standard"
+    "minimal"
+    "testing"
+    "demo_umami"
+  )
+
+  in_array "${profile}" "${core_profiles[@]}"
+}
+
+#
+# Check that Drupal-Dev is installed for this project.
+#
+is_installed(){
+  [ ! -f "README.md" ] && return 1
+  grep -q "badge/Powered_by-Drupal--Dev" "README.md"
+}
+
+################################################################################
+#                                DEFAULTS                                      #
+################################################################################
+
+# Get default value
+get_default_value(){
+  local name="${1}"
+  local default="${2}"
+
+  get_value_from_callback "get_default_value" "${name}" "${default}"
+}
+
+get_default_value__name(){
+  echo "${PROJECT:-$(basename "${DST_DIR}")}"
+}
+
+get_default_value__machine_name(){
+  to_machine_name "$(get_value "name")"
+}
+
+get_default_value__org(){
+  echo "$(get_value "name") Org"
+}
+
+get_default_value__org_machine_name(){
+  to_machine_name "$(get_value "org")"
+}
+
+get_default_value__module_prefix(){
+  get_value "machine_name"
+}
+
+get_default_value__profile(){
+  echo "n"
+}
+
+get_default_value__theme(){
+  to_lower "$(get_value "name")"
+}
+
+get_default_value__url(){
+  local machine_name
+  machine_name="$(get_value "machine_name")"
+  machine_name="${machine_name/_/-}"
+  machine_name="${machine_name/ /-}"
+  echo "${machine_name}.com"
+}
+
+get_default_value__fresh_install(){
+  echo "n"
+}
+
+get_default_value__preserve_deployment(){
+  echo "Y"
+}
+
+get_default_value__preserve_acquia(){
+  echo "Y"
+}
+
+get_default_value__preserve_lagoon(){
+  echo "Y"
+}
+
+get_default_value__preserve_ftp(){
+  echo "n"
+}
+
+get_default_value__preserve_dependenciesio(){
+  echo "Y"
+}
+
+get_default_value__remove_drupaldev_info(){
+  echo "Y"
+}
+
+################################################################################
+#                                NORMALISERS                                   #
+################################################################################
+
+normalise_answer(){
+  local name="${1}"
+  local default="${2}"
+
+  get_value_from_callback "normalise_answer" "${name}" "${default}" "${default}"
+}
+
+normalise_answer__name(){
+  capitalize "$(to_human_name "${1}")"
+}
+
+normalise_answer__machine_name(){
+  to_machine_name "${1}"
+}
+
+normalise_answer__org_machine_name(){
+  to_machine_name "${1}"
+}
+
+normalise_answer__module_prefix(){
+  to_machine_name "${1}"
+}
+
+normalise_answer__profile(){
+  local profile
+  profile=$(to_machine_name "${1}")
+  { [ "${profile}" == "" ] || [ "${profile}" == "n" ]; } && profile="standard"
+  echo "${profile}"
+}
+
+normalise_answer__theme(){
+  to_machine_name "${1}"
+}
+
+normalise_answer__url(){
+  local url="${1}"
+  url="${url/_/-}"
+  url="${url/ /-}"
+  echo "${url}"
+}
+
+normalise_answer__fresh_install(){
+  [ "${1}" != "Y" ] && echo "n" || echo "Y"
+}
+
+normalise_answer__preserve_deployment(){
+  [ "${1}" != "Y" ] && echo "n" || echo "Y"
+}
+
+normalise_answer__preserve_acquia(){
+  [ "${1}" != "Y" ] && echo "n" || echo "Y"
+}
+
+normalise_answer__preserve_lagoon(){
+  [ "${1}" != "Y" ] && echo "n" || echo "Y"
+}
+
+normalise_answer__preserve_ftp(){
+  [ "${1}" != "Y" ] && echo "n" || echo "Y"
+}
+
+normalise_answer__preserve_dependenciesio(){
+  [ "${1}" != "Y" ] && echo "n" || echo "Y"
+}
+
+normalise_answer__remove_drupaldev_info(){
+  [ "${1}" != "Y" ] && echo "n" || echo "Y"
+}
+
+################################################################################
+#                              DISCOVERIES                                     #
+################################################################################
+
+# Discover value from the environment.
+discover_value(){
+  local name="${1}"
+  local default="${2}"
+
+  if ! is_installed; then
+    echo "${default}"
+    return
+  fi
+
+  get_value_from_callback "discover_value" "${name}" "${default}"
+}
+
+discover_value__name(){
+  if  [ -f "composer.json" ]; then
+    composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/\(.*\) for .*/\1/p'
+  fi
+}
+
+discover_value__org(){
+  [ -f "composer.json" ] && composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/.* for \(.*\)/\1/p'
+}
+
+discover_value__machine_name(){
+  [ -f "composer.json" ] && composer config name | sed 's/.*\///'
+}
+
+discover_value__org_machine_name(){
+  [ -f "composer.json" ] && composer config name | sed 's/\/.*//'
+}
+
+discover_value__module_prefix(){
+  if ls -d docroot/modules/custom/*_core > /dev/null; then
+    # shellcheck disable=SC2012
+    ls -d docroot/modules/custom/*_core | head -n 1 | cut -c 24- | sed -n 's/_core//p'
+    return
+  elif ls -d docroot/sites/all/modules/custom/*_core > /dev/null; then
+    # shellcheck disable=SC2012
+    ls -d docroot/sites/all/modules/custom/*_core | head -n 1 | cut -c 34- | sed -n 's/_core//p'
+    return
+  fi
+}
+
+discover_value__profile(){
+  if [ -d "docroot/profiles/custom" ] && ls -d docroot/profiles/custom/* > /dev/null; then
+    # shellcheck disable=SC2012
+    ls -d docroot/profiles/custom/* | head -n 1 | cut -c 25-
+    return
+  fi
+}
+
+discover_value__theme(){
+  if ls -d docroot/themes/custom/* > /dev/null; then
+    # shellcheck disable=SC2012
+    ls -d docroot/themes/custom/* | head -n 1 | cut -c 23-
+    return
+  elif ls -d docroot/sites/all/themes/custom/* > /dev/null; then
+    # shellcheck disable=SC2012
+    ls -d docroot/sites/all/themes/custom/* | head -n 1 | cut -c 33-
+    return
+  fi
+}
+
+discover_value__url(){
+  if [ -f "docroot/sites/default/settings.php" ]; then
+    # Extract from string $config['stage_file_proxy.settings']['origin'] = 'http://your-site-url/';
+    # shellcheck disable=SC2002
+    cat docroot/sites/default/settings.php \
+      | grep "config\['stage_file_proxy.settings'\]\['origin'\]" \
+      | sed 's/ //g' \
+      | cut -c 48- \
+      | sed "s/'//g" \
+      | sed 's/http\://g' \
+      | sed "s/\///g" \
+      | sed 's/;//g'
+  fi
+}
+
+discover_value__fresh_install(){
+  { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "download-db:"; } && echo "N" || echo "Y"
+}
+
+discover_value__preserve_deployment(){
+  [ -f ".gitignore.deployment" ] && echo "Y" || echo "N"
+}
+
+discover_value__preserve_acquia(){
+  { [ -d "hooks" ] || [ -f "scripts/download-backup-acquia.sh" ]; } && echo "Y" || echo "N"
+}
+
+discover_value__preserve_lagoon(){
+  [ -f ".lagoon.yml" ] && echo "Y" || echo "N"
+}
+
+discover_value__preserve_ftp(){
+  { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "FTP_HOST"; } && echo "Y" || echo "N"
+}
+
+discover_value__preserve_dependenciesio(){
+  [ -f "dependencies.yml" ] && echo "Y" || echo "N"
+}
+
+discover_value__remove_drupaldev_info(){
+  dir_contains_string "${DST_DIR}" "#;< DRUPAL-DEV" && echo "N" || echo "Y"
+}
+
 ################################################################################
 #                              DISPLAYS                                        #
 ################################################################################
@@ -380,7 +690,7 @@ print_header_silent(){
     echo "* It looks like Drupal-Dev is already installed for this project.    *"
     echo "*                                                                    *"
   fi
-  echo "* Drupal-Dev installer will try to discover the settings from the      *"
+  echo "* Drupal-Dev installer will try to discover the settings from the    *"
   echo "* environment and will install configuration relevant to your site.  *"
 
   echo "*                                                                    *"
@@ -409,11 +719,14 @@ print_summary(){
   echo "  Organisation:                  $(get_value "org")"
   echo "  Organisation machine name:     $(get_value "org_machine_name")"
   echo "  Module prefix:                 $(get_value "module_prefix")"
+  echo "  Profile:                       $(get_value "profile")"
   echo "  Theme name:                    $(get_value "theme")"
   echo "  URL:                           $(get_value "url")"
+  echo "  Fresh install for every build: $(format_yes_no "$(get_value "fresh_install")")"
   echo "  Deployment:                    $(format_enabled "$(get_value "preserve_deployment")")"
   echo "  Acquia integration:            $(format_enabled "$(get_value "preserve_acquia")")"
   echo "  Lagoon integration:            $(format_enabled "$(get_value "preserve_lagoon")")"
+  echo "  FTP integration:               $(format_enabled "$(get_value "preserve_ftp")")"
   echo "  dependencies.io integration:   $(format_enabled "$(get_value "preserve_dependenciesio")")"
   echo "  Remove Drupal-Dev comments:    $(format_yes_no "$(get_value "remove_drupaldev_info")")"
   echo "**********************************************************************"
@@ -460,6 +773,45 @@ print_resolved_variables(){
 ################################################################################
 #                              UTILITIES                                       #
 ################################################################################
+
+#
+# Helper to get the value from callback.
+#
+get_value_from_callback(){
+  local callback_prefix="${1}"
+  shift
+  local name="${1}"
+  shift
+  local default="${1}"
+  shift
+  local callback_args=("$@")
+  local callback="${callback_prefix}"__"${name}"
+  local value
+
+  if is_function "${callback}"; then
+    value=$("${callback}" "${callback_args[@]}")
+
+    if [ "${value}" != "" ]; then
+      echo "${value}"
+      return
+    fi
+  fi
+
+  echo "${default}"
+}
+
+#
+# in_array "needle" "${haystack[@]}"
+#
+in_array(){
+  local needle="${1}"
+  shift
+  for item in "${@}"; do
+    [ "${item}" == "${needle}" ] && return 0
+  done
+  return 1
+}
+
 # Check if specified file is tracked by git.
 git_file_is_tracked(){
   if [ -d ./.git/ ]; then
@@ -553,12 +905,27 @@ ask() {
   fi
 }
 
-# Expand answer into DRUPALDEV_OPT_ env variable.
-expand_answer(){
+set_option(){
   local name="${1}"
   local value="${2}"
   name="$(to_upper "${name}")"
+
   export DRUPALDEV_OPT_"${name}"="${value}"
+}
+
+get_option(){
+  local name="${1}"
+  name="$(to_upper "${name}")"
+  eval "var=\$DRUPALDEV_OPT_${name}"
+  echo "${var}"
+}
+
+option_exists(){
+  local name="${1}"
+  name="$(to_upper "${name}")"
+  eval "var=\$DRUPALDEV_OPT_${name}"
+
+  [ -n "${var}" ]
 }
 
 replace_string_content() {
@@ -576,7 +943,6 @@ replace_string_content() {
     -l "${needle}" "${dir}" \
     | xargs sed "${sed_opts[@]}" "s@$needle@$replacement@g"
 }
-
 
 replace_string_filename() {
   local needle="${1}"
@@ -630,7 +996,7 @@ enable_commented_code() {
     | xargs sed "${sed_opts[@]}" -e "s/##### //g"
 }
 
-# Get default value for a variable by name.
+# Get value for a variable by name.
 # - name: Name of the environment variable (uppercase suffix for DRUPALDEV_OPT_).
 # - default: Default value to return. If not set, defaults to calculated project
 #   name $DRUPALDEV_OPT_NAME.
@@ -647,117 +1013,6 @@ get_value(){
   fi
 
   echo "${default}"
-}
-
-#
-# Check that Drupal-Dev is installed for this project.
-#
-is_installed(){
-  [ ! -f "README.md" ] && return 1
-  grep -q "badge/Powered_by-Drupal--Dev" "README.md"
-}
-
-# Discover value from the environment.
-discover_value(){
-  local name="${1}"
-  local default="${2}"
-  local callback=discover_value__"${1}"
-  local value
-
-  if ! is_installed; then
-    echo "${default}"
-    return
-  fi
-
-  if is_function "${callback}"; then
-    value=$("${callback}")
-
-    if [ "${value}" != "" ]; then
-      echo "${value}"
-      return
-    fi
-  fi
-
-  echo "${default}"
-}
-
-discover_value__name(){
-  [ -f "composer.json" ] && composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/\(.*\) for .*/\1/p'
-}
-
-discover_value__org(){
-  [ -f "composer.json" ] && composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/.* for \(.*\)/\1/p'
-}
-
-discover_value__machine_name(){
-  [ -f "composer.json" ] && composer config name | sed 's/.*\///'
-}
-
-discover_value__org_machine_name(){
-  [ -f "composer.json" ] && composer config name | sed 's/\/.*//'
-}
-
-discover_value__module_prefix(){
-  if ls -d docroot/modules/custom/*_core > /dev/null; then
-    # shellcheck disable=SC2012
-    ls -d docroot/modules/custom/*_core | head -n 1 | cut -c 24- | sed -n 's/_core//p'
-    return
-  elif ls -d docroot/sites/all/modules/custom/*_core > /dev/null; then
-    # shellcheck disable=SC2012
-    ls -d docroot/sites/all/modules/custom/*_core | head -n 1 | cut -c 34- | sed -n 's/_core//p'
-    return
-  fi
-}
-
-discover_value__theme(){
-  if ls -d docroot/themes/custom/* > /dev/null; then
-    # shellcheck disable=SC2012
-    ls -d docroot/themes/custom/* | head -n 1 | cut -c 23-
-    return
-  elif ls -d docroot/sites/all/themes/custom/* > /dev/null; then
-    # shellcheck disable=SC2012
-    ls -d docroot/sites/all/themes/custom/* | head -n 1 | cut -c 33-
-    return
-  fi
-}
-
-discover_value__url(){
-  if [ -f "docroot/sites/default/settings.php" ]; then
-    # Extract from string $config['stage_file_proxy.settings']['origin'] = 'http://yoursiteurl/';
-    # shellcheck disable=SC2002
-    cat docroot/sites/default/settings.php \
-      | grep "config\['stage_file_proxy.settings'\]\['origin'\]" \
-      | sed 's/ //g' \
-      | cut -c 48- \
-      | sed "s/'//g" \
-      | sed 's/http\://g' \
-      | sed "s/\///g" \
-      | sed 's/;//g'
-  fi
-}
-
-discover_value__preserve_deployment(){
-  [ -f ".gitignore.deployment" ] && echo "Y" || echo "N"
-}
-
-discover_value__preserve_acquia(){
-  { [ -d "hooks" ] || [ -f "scripts/download-backup-acquia.sh" ]; } && echo "Y" || echo "N"
-}
-
-discover_value__preserve_lagoon(){
-  [ -f ".lagoon.yml" ] && echo "Y" || echo "N"
-}
-
-discover_value__preserve_ftp(){
-  { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "FTP_HOST"; } && echo "Y" || echo "N"
-}
-
-discover_value__preserve_dependenciesio(){
-  [ -f "dependencies.yml" ] && echo "Y" || echo "N"
-}
-
-discover_value__remove_drupaldev_info(){
-  dir_contains_string "$(pwd)" "#;<DRUPAL-DEV" && echo "N" || echo "Y"
 }
 
 is_function(){

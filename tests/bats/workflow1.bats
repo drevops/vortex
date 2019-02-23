@@ -1,19 +1,20 @@
 #!/usr/bin/env bats
 #
-# Init tests.
+# Fresh install workflow.
 #
 
 load test_helper
 load test_helper_drupaldev
 
-@test "Workflow" {
+@test "Workflow: fresh install" {
+  # @todo: Implement this.
   DRUPAL_VERSION=${DRUPAL_VERSION:-8}
   VOLUMES_MOUNTED=${VOLUMES_MOUNTED:-1}
 
   assert_not_empty "${DRUPAL_VERSION}"
   assert_not_empty "${VOLUMES_MOUNTED}"
 
-  debug "==> Starting WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  debug "==> Starting fresh install WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
@@ -24,12 +25,15 @@ load test_helper_drupaldev
   # the test does not rely on external private assets (demo is still using
   # public database specified in DEMO_DB_TEST variable).
   export DRUPALDEV_REMOVE_DEMO=0
+  # Use fresh install.
+  export DRUPALDEV_OPT_FRESH_INSTALL=Y
   # Remove Acquia integration as we are using DEMO configuration.
   export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
   # Run default install
   run_install
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_fresh_install "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
@@ -58,13 +62,6 @@ load test_helper_drupaldev
   mkdir -p .idea
   touch .idea/idea_file.txt
   assert_file_exists .idea/idea_file.txt
-
-  step "Download the database"
-  # In this test, the database is downloaded from public gist specified in
-  # DEMO_DB_TEST variable.
-  assert_file_not_exists .data/db.sql
-  ahoy download-db
-  assert_file_exists .data/db.sql
 
   step "Build project"
   ahoy build >&3
@@ -178,9 +175,9 @@ load test_helper_drupaldev
   step "Re-import DB"
   rm -Rf .data/*
   echo "DB_EXPORT_BEFORE_IMPORT=1" >> .env.local
-  ahoy download-db
-  ahoy install-site
+  ahoy export-db
   assert_file_exists .data/db_export_*
+  ahoy install-site
 
   step "Clean"
   ahoy clean

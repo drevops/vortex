@@ -58,6 +58,12 @@ assert_files_present(){
 
   assert_files_present_common "${dir}" "${suffix}"
 
+  # Assert Drupal profile not present by default.
+  assert_files_present_no_profile "${dir}" "${suffix}"
+
+  # Assert Drupal is not freshly installed by default.
+  assert_files_present_no_fresh_install "${dir}" "${suffix}"
+
   # Assert deployments preserved.
   assert_files_present_deployment "${dir}" "${suffix}"
 
@@ -81,15 +87,12 @@ assert_files_present_common(){
   pushd "${dir}" > /dev/null || exit 1
 
   # Stub profile removed.
-  assert_dir_not_exists "docroot/profiles/custom/yoursite_profile"
+  assert_dir_not_exists "docroot/profiles/custom/your_site_profile"
   # Stub code module removed.
-  assert_dir_not_exists "docroot/modules/custom/yoursite_core"
+  assert_dir_not_exists "docroot/modules/custom/your_site_core"
   # Stub theme removed.
-  assert_dir_not_exists "docroot/themes/custom/yoursitetheme"
+  assert_dir_not_exists "docroot/themes/custom/your_site_theme"
 
-  # Site profile created.
-  assert_dir_exists "docroot/profiles/custom/${suffix}_profile"
-  assert_file_exists "docroot/profiles/custom/${suffix}_profile/${suffix}_profile.info.yml"
   # Site core module created.
   assert_dir_exists "docroot/modules/custom/${suffix}_core"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml"
@@ -107,7 +110,7 @@ assert_files_present_common(){
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.theme"
 
   # Comparing binary files.
-  assert_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/yoursitetheme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
+  assert_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
 
   # Settings files exist.
   # @note The permissions can be 644 or 664 depending on the umask of OS. Also,
@@ -128,12 +131,12 @@ assert_files_present_common(){
   assert_file_exists ".ahoy.yml"
 
   # Assert all stub strings were replaced.
-  assert_dir_not_contains_string "${dir}" "yoursite"
+  assert_dir_not_contains_string "${dir}" "your_site"
   assert_dir_not_contains_string "${dir}" "YOURSITE"
-  assert_dir_not_contains_string "${dir}" "yoursitetheme"
-  assert_dir_not_contains_string "${dir}" "yourorg"
+  assert_dir_not_contains_string "${dir}" "your_site_theme"
+  assert_dir_not_contains_string "${dir}" "your_org"
   assert_dir_not_contains_string "${dir}" "YOURORG"
-  assert_dir_not_contains_string "${dir}" "yoursiteurl"
+  assert_dir_not_contains_string "${dir}" "your-site-url"
   # Assert all special comments were removed.
   assert_dir_not_contains_string "${dir}" "#;"
   assert_dir_not_contains_string "${dir}" "#;<"
@@ -141,6 +144,7 @@ assert_files_present_common(){
 
   # Assert that project name is correct.
   assert_file_contains .env "PROJECT=\"${suffix}\""
+  assert_file_contains .env "LOCALDEV_URL=\"${suffix/_/-}.docker.amazee.io\""
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# Drupal-Dev"
@@ -173,9 +177,8 @@ assert_files_not_present_common(){
 
   pushd "${dir}" > /dev/null || exit 1
 
-  assert_dir_not_exists "docroot/profiles/custom/yoursite_profile"
-  assert_dir_not_exists "docroot/modules/custom/yoursite_core"
-  assert_dir_not_exists "docroot/themes/custom/yoursitetheme"
+  assert_dir_not_exists "docroot/modules/custom/your_site_core"
+  assert_dir_not_exists "docroot/themes/custom/your_site_theme"
   assert_dir_not_exists "docroot/profiles/custom/${suffix}_profile"
   assert_dir_not_exists "docroot/modules/custom/${suffix}_core"
   assert_dir_not_exists "docroot/themes/custom/${suffix}"
@@ -197,6 +200,64 @@ assert_files_not_present_common(){
     assert_file_not_exists "docroot/sites/default/settings.php"
     assert_file_not_exists "docroot/sites/default/services.yml"
   fi
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_profile(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  # Site profile created.
+  assert_dir_exists "docroot/profiles/custom/${suffix}profile"
+  assert_file_exists "docroot/profiles/custom/${suffix}profile/${suffix}profile.info.yml"
+  assert_file_contains ".env" "DRUPAL_PROFILE="
+  assert_file_contains ".env" "docroot/profiles/custom/${suffix}profile,"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_no_profile(){
+  local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  # Site profile created.
+  assert_dir_not_exists "docroot/profiles/custom/${suffix}profile"
+  assert_file_contains ".env" "DRUPAL_PROFILE=standard"
+  assert_file_not_contains ".env" "docroot/profiles/custom/${suffix}profile,"
+  # Assert that there is no renaming of the custom profile with core profile name.
+  assert_dir_not_exists "docroot/profiles/custom/standard"
+  assert_file_not_contains ".env" "docroot/profiles/custom/standard,"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_fresh_install(){
+ local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_not_contains ".ahoy.yml" "ahoy title \"Installing site from existing database dump\""
+  assert_file_contains ".ahoy.yml" "ahoy title \"Installing a fresh site from \${DRUPAL_PROFILE} profile\""
+  assert_file_not_contains ".ahoy.yml" "download-db:"
+
+  popd > /dev/null || exit 1
+}
+
+assert_files_present_no_fresh_install(){
+ local dir="${1}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" > /dev/null || exit 1
+
+  assert_file_contains ".ahoy.yml" "ahoy title \"Installing site from existing database dump\""
+  assert_file_not_contains ".ahoy.yml" "ahoy title \"Installing a fresh site from \${DRUPAL_PROFILE} profile\""
+  assert_file_contains ".ahoy.yml" "download-db:"
 
   popd > /dev/null || exit 1
 }
@@ -441,7 +502,7 @@ fixture_readme(){
 # ${name}
 Drupal 8 implementation of ${name} for ${org}
 
-[![CircleCI](https://circleci.com/gh/yourorg/yoursite.svg?style=shield)](https://circleci.com/gh/yourorg/yoursite)
+[![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
 
@@ -485,6 +546,46 @@ run_install(){
 
   # shellcheck disable=SC2154
   echo "${output}"
+}
+
+# Run install in interactive mode.
+#
+# 'nothing' stands for user not providing an input and accepting suggested
+# default values.
+#
+# @code
+# answers=(
+#   "Star wars" # name
+#   "nothing" # machine_name
+#   "nothing" # org
+#   "nothing" # morh_machine_name
+#   "nothing" # module_prefix
+#   "nothing" # profile
+#   "nothing" # theme
+#   "nothing" # URL
+#   "nothing" # fresh_install
+#   "nothing" # preserve_deployment
+#   "nothing" # preserve_acquia
+#   "nothing" # preserve_lagoon
+#   "nothing" # preserve_ftp
+#   "nothing" # preserve_dependenciesio
+#   "nothing" # remove_drupaldev_info
+# )
+# output=$(run_install_interactive "${answers[@]}")
+# @endcode
+run_install_interactive(){
+  local answers=("${@}")
+  local input
+
+  for i in "${answers[@]}";
+  do
+    val="${i}"
+    [ "${i}" == "nothing" ] && val='\n' || val="${val}"'\n'
+    input="${input}""${val}"
+  done
+
+  # shellcheck disable=SC2059
+  printf "$input" | run_install "--interactive"
 }
 
 # Copy source code at the latest commit to the destination directory.

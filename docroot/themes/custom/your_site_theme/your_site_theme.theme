@@ -10,7 +10,7 @@ use Drupal\Core\Site\Settings;
 /**
  * Implements hook_css_alter().
  */
-function yoursitetheme_css_alter(&$css) {
+function your_site_theme_css_alter(&$css) {
   if (Settings::get('livereload', FALSE)) {
     // Alter css to display as link tags.
     foreach ($css as $key => $value) {
@@ -22,8 +22,8 @@ function yoursitetheme_css_alter(&$css) {
 /**
  * Implements hook_page_attachments_alter().
  */
-function yoursitetheme_page_attachments_alter(array &$page) {
+function your_site_theme_page_attachments_alter(array &$page) {
   if (Settings::get('livereload', FALSE)) {
-    $page['#attached']['library'][] = 'yoursitetheme/livereload';
+    $page['#attached']['library'][] = 'your_site_theme/livereload';
   }
 }
