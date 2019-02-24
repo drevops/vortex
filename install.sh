@@ -705,7 +705,7 @@ print_header_silent(){
   fi
   echo "*                                                                    *"
   if is_installed; then
-    echo "* It looks like Drupal-Dev is already installed for this project.    *"
+    echo "* It looks like Drupal-Dev is already installed into this project.   *"
     echo "*                                                                    *"
   fi
   echo "* Drupal-Dev installer will try to discover the settings from the    *"
