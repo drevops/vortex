@@ -617,6 +617,7 @@ discover_value__url(){
 }
 
 discover_value__fresh_install(){
+  [ ! -f ".ahoy.yml" ] && echo "N" && return
   { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "download-db:"; } && echo "N" || echo "Y"
 }
 
