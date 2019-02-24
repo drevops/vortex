@@ -24,7 +24,13 @@
 # Files already committed within current repository will not be overridden.
 #
 # Usage:
+#
+# For silent installation (configuration discovered from the environment):
 # ./drupal-dev.sh
+#
+# For interactive installation (wizard suggests defaults from configuration
+# discovered from the environment):
+# ./drupal-dev.sh --interactive
 #
 # === HOW TO OVERRIDE LOCALLY EXCLUDED FILES ===
 # To override any files coming from Drupal-Dev to persist in the current
@@ -42,4 +48,4 @@
 # this to all environments.
 # export DRUPALDEV_COMMIT=COMMIT_SHA
 
-curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash
+bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh?"$(date +%s)") "$@"
