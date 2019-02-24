@@ -896,7 +896,7 @@ ask() {
   [ "${is_interactive}" -ne 1 ] && echo "${default}" && return
 
   text="> ${text} [${default}]"
-  read -r -p "${text} " response
+  read -r -p "${text} " response < /dev/tty
 
   if [ "${response}" != "" ] ; then
     echo "${response}"
