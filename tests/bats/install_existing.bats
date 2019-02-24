@@ -227,7 +227,7 @@ load test_helper_drupaldev
 
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
-  assert_output_not_contains "It looks like Drupal-Dev is already installed for this project"
+  assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
 
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
@@ -242,7 +242,7 @@ load test_helper_drupaldev
 
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
-  assert_output_not_contains "It looks like Drupal-Dev is already installed for this project"
+  assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
 
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
@@ -258,7 +258,7 @@ load test_helper_drupaldev
 
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
-  assert_output_contains "It looks like Drupal-Dev is already installed for this project"
+  assert_output_contains "It looks like Drupal-Dev is already installed into this project"
 
   # Only common files will be present since we faked the readme file. The
   # discovering mechanism will remove integrations etc.
@@ -270,7 +270,7 @@ load test_helper_drupaldev
   # Populate current dir with a project at current version.
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
-  assert_output_not_contains "It looks like Drupal-Dev is already installed for this project"
+  assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
 
   # Assert files at current version.
   assert_files_present "${CURRENT_PROJECT_DIR}"
@@ -289,7 +289,7 @@ load test_helper_drupaldev
   # Run the install again.
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
-  assert_output_contains "It looks like Drupal-Dev is already installed for this project"
+  assert_output_contains "It looks like Drupal-Dev is already installed into this project"
 
     # Only common files will be present since we faked the readme file. The
   # discovering mechanism will remove integrations etc.
