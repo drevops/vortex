@@ -71,9 +71,11 @@ load test_helper_drupaldev
   commit2=$(git_commit "${LOCAL_REPO_DIR}" "New version 2 of Drupal-Dev")
 
   # Requiring bespoke version by commit.
-  echo "DRUPALDEV_COMMIT=${commit1}" >> "${CURRENT_PROJECT_DIR}/.env.local"
-  run_install
+  export DRUPALDEV_COMMIT="${commit1}"
+  output=$(run_install)
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_output_contains "This will install Drupal-Dev into your project at commit"
+  assert_output_contains "Downloading Drupal-Dev at ref ${commit1}"
 
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_file_contains "${CURRENT_PROJECT_DIR}/docker-compose.yml" "# Some change to docker-compose at commit 1"
@@ -148,7 +150,7 @@ load test_helper_drupaldev
 @test "Install into empty directory: silent; should show that Drupal-Dev was previously installed" {
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
-  assert_output_not_contains "It looks like Drupal-Dev is already installed for this project"
+  assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
 
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
@@ -174,7 +176,7 @@ load test_helper_drupaldev
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
-  assert_output_not_contains "It looks like Drupal-Dev is already installed for this project"
+  assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
 
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"

@@ -55,9 +55,9 @@ install(){
   check_requirements
 
   if [ "${DRUPALDEV_IS_INTERACTIVE}" -eq 1 ]; then
-    print_header_interactive "${DRUPALDEV_ALLOW_OVERRIDE}"
+    print_header_interactive "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_COMMIT}"
   else
-    print_header_silent "${DRUPALDEV_ALLOW_OVERRIDE}"
+    print_header_silent "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_COMMIT}"
   fi
 
   gather_answers "${DRUPALDEV_IS_INTERACTIVE}"
@@ -650,14 +650,23 @@ discover_value__remove_drupaldev_info(){
 
 print_header_interactive(){
   local is_override="${1:-0}"
+  local commit="${2:-}"
 
   echo
   echo "**********************************************************************"
   echo "          WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER                *"
   echo "**********************************************************************"
   echo "*                                                                    *"
+  if [ "${commit}" == "" ]; then
+    echo "* This will install the latest version of Drupal-Dev into your       *"
+    echo "* project.                                                           *"
+  else
+    echo "* This will install Drupal-Dev into your project at commit           *"
+    echo "* ${commit}                           *"
+  fi
+  echo "*                                                                    *"
   if is_installed; then
-    echo "* It looks like Drupal-Dev is already installed for this project.    *"
+    echo "* It looks like Drupal-Dev is already installed into this project.   *"
     echo "*                                                                    *"
   fi
   echo "* Please answer the questions below to install configuration         *"
@@ -680,19 +689,27 @@ print_header_interactive(){
 
 print_header_silent(){
   local is_override="${1:-0}"
+  local commit="${2:-}"
 
   echo
   echo "**********************************************************************"
   echo "*            WELCOME TO DRUPAL-DEV SILENT INSTALLER                  *"
   echo "**********************************************************************"
   echo "*                                                                    *"
+  if [ "${commit}" == "" ]; then
+    echo "* This will install the latest version of Drupal-Dev into your       *"
+    echo "* project.                                                           *"
+  else
+    echo "* This will install Drupal-Dev into your project at commit           *"
+    echo "* ${commit}                           *"
+  fi
+  echo "*                                                                    *"
   if is_installed; then
-    echo "* It looks like Drupal-Dev is already installed for this project.    *"
+    echo "* It looks like Drupal-Dev is already installed into this project.   *"
     echo "*                                                                    *"
   fi
   echo "* Drupal-Dev installer will try to discover the settings from the    *"
   echo "* environment and will install configuration relevant to your site.  *"
-
   echo "*                                                                    *"
   if [ "${is_override}" -eq 1 ]; then
     echo "* ATTENTION! RUNNING IN UPDATE MODE                                  *"
@@ -896,6 +913,7 @@ ask() {
   [ "${is_interactive}" -ne 1 ] && echo "${default}" && return
 
   text="> ${text} [${default}]"
+
   read -r -p "${text} " response
 
   if [ "${response}" != "" ] ; then
