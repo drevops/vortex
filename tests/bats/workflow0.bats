@@ -60,23 +60,6 @@ load test_helper_drupaldev
   touch .idea/idea_file.txt
   assert_file_exists .idea/idea_file.txt
 
-  step "Add configuration to import"
-  mkdir -p .config/default
-  cat <<EOT >> .config/default/system.site.yml
-name: 'Test Drupal-Dev site'
-mail: user@example.com
-slogan: ''
-page:
-  403: ''
-  404: ''
-  front: /node
-admin_compact_mode: false
-weight_select_max: 100
-langcode: en
-default_langcode: en
-EOT
-  cat .config/default/system.site.yml >&3
-
   step "Download the database"
   # In this test, the database is downloaded from public gist specified in
   # DEMO_DB_TEST variable.
@@ -104,9 +87,6 @@ EOT
   assert_file_exists docroot/themes/custom/star_wars/build/js/star_wars.min.js
   assert_file_contains docroot/themes/custom/star_wars/build/js/star_wars.min.js "function(t,Drupal){\"use strict\";Drupal.behaviors.star_wars"
   assert_file_not_exists docroot/themes/custom/star_wars/build/js/star_wars.js
-
-  step "Assert correct configuration imported"
-  ahoy drush cim -y | grep "There are no changes to import."
 
   # @todo: Try moving this before test.
   sync_to_container behat.yml
