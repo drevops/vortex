@@ -49,7 +49,7 @@ assert_deployment_files_present(){
   assert_file_exists "${dir}"/docroot/modules/custom/star_wars_core/star_wars_core.info.yml
   assert_file_exists "${dir}"/docroot/modules/custom/star_wars_core/star_wars_core.install
   assert_file_exists "${dir}"/docroot/modules/custom/star_wars_core/star_wars_core.module
-  assert_file_exists "${dir}"/docroot/modules/custom/star_wars_core/star_wars_core.constants.php
+
   # Site theme present.
   assert_dir_exists "${dir}"/docroot/themes/custom/star_wars
   assert_file_exists "${dir}"/docroot/themes/custom/star_wars/.gitignore
