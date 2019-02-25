@@ -67,7 +67,7 @@ commands:
 
   cli:
     usage: Start a shell inside CLI container or run a command.
-    cmd: if \[ "$@" \]; then docker exec -i $(docker-compose ps -q cli) bash -c "$@"; else docker exec -it $(docker-compose ps -q cli) bash; fi
+    cmd: if \[ "${#}" -ne 0 \]; then docker exec -i $(docker-compose ps -q cli) bash -c "$@"; else docker exec -it $(docker-compose ps -q cli) bash; fi
 
   drush:
     usage: Run drush commands in the CLI service container.
