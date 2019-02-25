@@ -60,6 +60,23 @@ load test_helper_drupaldev
   touch .idea/idea_file.txt
   assert_file_exists .idea/idea_file.txt
 
+  step "Add configuration to import"
+  mkdir -p .config/default
+  cat <<EOT >> .config/default/system.site.yml
+name: 'Test Drupal-Dev site'
+mail: user@example.com
+slogan: ''
+page:
+  403: ''
+  404: ''
+  front: /node
+admin_compact_mode: false
+weight_select_max: 100
+langcode: en
+default_langcode: en
+EOT
+  cat .config/default/system.site.yml >&3
+
   step "Download the database"
   # In this test, the database is downloaded from public gist specified in
   # DEMO_DB_TEST variable.
@@ -92,7 +109,9 @@ load test_helper_drupaldev
   sync_to_container behat.yml
   sync_to_container phpcs.xml
   sync_to_container tests
-  # @todo: Add test that the correct DB was loaded (e.g. CURL and grep for page title).
+
+  step "Assert correct configuration imported"
+  ahoy cli "curl http://nginx:8080/ | grep -q \"Test Drupal-Dev site\""
 
   step "Enable development settings"
   assert_file_not_exists docroot/sites/default/settings.local.php
