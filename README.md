@@ -250,8 +250,8 @@ Drupal 8 implementation of YOURSITE for YOURORG
 Run each command as `ahoy <command>`.
   ```  
   build        Build or rebuild project.
-  clean        Remove all containers and build files.
-  clean-full   Remove all containers, build and development files.
+  clean        Remove all build files.
+  clean-full   Remove all development files.
   cli          Start a shell inside CLI container or run a command.
   doctor       Find problems with current project setup.
   down         Stop Docker containers and remove container, images, volumes and networks.

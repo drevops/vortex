@@ -55,12 +55,6 @@ load test_helper_drupaldev
   touch untracked_file.txt
   assert_file_exists untracked_file.txt
 
-  step "Create ignored local overrides"
-  touch .env.local
-  assert_file_exists .env.local
-  echo "version: '2.3'" > docker-compose.override.yml
-  assert_file_exists docker-compose.override.yml
-
   step "Create IDE config file"
   mkdir -p .idea
   touch .idea/idea_file.txt
@@ -212,7 +206,7 @@ load test_helper_drupaldev
   assert_containers_not_running
 
   step "Clean Full"
-  printf "Y" | ahoy clean-full
+  ahoy clean-full
   assert_files_not_present_common "${CURRENT_PROJECT_DIR}" "star_wars" 1
   assert_files_present_no_deployment "${CURRENT_PROJECT_DIR}" "star_wars" 1
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
@@ -222,9 +216,6 @@ load test_helper_drupaldev
   assert_file_not_exists docroot/sites/default/settings.local.php
   # Assert manually created local services file was removed.
   assert_file_not_exists docroot/sites/default/services.local.yml
-  # Assert local override files were preserved.
-  assert_file_exists .env.local
-  assert_file_exists docker-compose.override.yml
   # Assert manually created file still exists.
   assert_file_exists untracked_file.txt
   # Assert IDE config file still exists.

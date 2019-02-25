@@ -152,7 +152,7 @@ commands:
     hide: true
 
   clean:
-    usage: Remove all containers and build files.
+    usage: Remove all build files.
     cmd: |
       ahoy down
       ([ -d .git ] && git ls-files --others -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | grep -v "services.local.yml" | xargs chmod -Rf 777 || true)
@@ -163,13 +163,12 @@ commands:
       rm -Rf screenshots
 
   clean-full:
-    usage: Remove all containers, build and development files.
+    usage: Remove all development files.
     cmd: |
-      ahoy confirm "All generated and uncommitted files will be removed. Proceed?" && \
-      { ahoy clean;
-      ([ -d .git ] && git ls-files --others -i --exclude-standard . | grep -v ".env.local" | grep -v "docker-compose.override.yml" | xargs rm -Rf || true);
-      ([ -d .git ] && git clean -dXn . | cut -b 14- | grep -v ".idea/" | grep -v ".env.local" | grep -v "docker-compose.override.yml" | xargs rm -Rf || true);
-      find . -type d -not -path "./.git/*" -empty -delete;} || true
+      ahoy clean
+      ([ -d .git ] && git ls-files --others -i --exclude-standard . | xargs rm -Rf || true)
+      ([ -d .git ] && git clean -dXn . | cut -b 14- | grep -v ".idea/" | xargs rm -Rf || true)
+      find . -type d -not -path "./.git/*" -empty -delete
 
   fe:
     usage: Build front-end assets.
