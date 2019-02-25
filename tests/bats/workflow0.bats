@@ -105,13 +105,13 @@ EOT
   assert_file_contains docroot/themes/custom/star_wars/build/js/star_wars.min.js "function(t,Drupal){\"use strict\";Drupal.behaviors.star_wars"
   assert_file_not_exists docroot/themes/custom/star_wars/build/js/star_wars.js
 
+  step "Assert correct configuration imported"
+  ahoy drush cim -y | grep "There are no changes to import."
+
   # @todo: Try moving this before test.
   sync_to_container behat.yml
   sync_to_container phpcs.xml
   sync_to_container tests
-
-  step "Assert correct configuration imported"
-  ahoy cli "curl http://nginx:8080/ | grep -q \"Test Drupal-Dev site\""
 
   step "Enable development settings"
   assert_file_not_exists docroot/sites/default/settings.local.php

@@ -117,7 +117,7 @@ commands:
       ahoy drush si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL && \
       ahoy drush en -y your_site_core && \
       #;> FRESH_INSTALL \
-      (if ls config/default/*.yml > /dev/null 2>&1; then ahoy drush cim -y; fi) && \
+      (if ls config/default/*.yml > /dev/null 2>&1; then ahoy title "Importing configuration" && ahoy drush cim -y; fi) && \
       ahoy drush cr
 
   import-db-dump:
