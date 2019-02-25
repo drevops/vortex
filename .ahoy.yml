@@ -43,7 +43,7 @@ commands:
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
-    cmd: docker-compose down --volumes
+    cmd: "[ -f \"docker-compose.yml\" ] && docker-compose down --volumes"
 
   start:
     usage: Start existing Docker containers.
