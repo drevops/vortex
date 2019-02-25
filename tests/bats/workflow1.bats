@@ -90,12 +90,6 @@ load test_helper_drupaldev
   assert_file_contains docroot/themes/custom/star_wars/build/js/star_wars.min.js "function(t,Drupal){\"use strict\";Drupal.behaviors.star_wars"
   assert_file_not_exists docroot/themes/custom/star_wars/build/js/star_wars.js
 
-  # @todo: Try moving this before test.
-  sync_to_container behat.yml
-  sync_to_container phpcs.xml
-  sync_to_container tests
-  # @todo: Add test that the correct DB was loaded (e.g. CURL and grep for page title).
-
   step "Enable development settings"
   assert_file_not_exists docroot/sites/default/settings.local.php
   assert_file_not_exists docroot/sites/default/services.local.yml
