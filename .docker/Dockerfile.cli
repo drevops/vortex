@@ -1,7 +1,6 @@
 # @see https://github.com/amazeeio/lagoon/tree/master/images/php/cli-drupal
 FROM amazeeio/php:7.2-cli-drupal
 
-# @todo: Review ENV variables and remove obsolete ones.
 ENV WEBROOT=docroot \
     COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
