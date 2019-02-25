@@ -98,7 +98,6 @@ assert_files_present_common(){
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.install"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.module"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.constants.php"
 
   # Site theme created.
   assert_dir_exists "docroot/themes/custom/${suffix}"
