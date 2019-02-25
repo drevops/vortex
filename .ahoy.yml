@@ -14,7 +14,7 @@ commands:
       (if [ "${BUILD_EXPORT_DIR}" != "" ]; then mkdir -p ${BUILD_EXPORT_DIR} && docker cp -L $(docker-compose ps -q cli):/app/. ${BUILD_EXPORT_DIR}; rm -Rf ${BUILD_EXPORT_DIR}/node_modules >/dev/null; fi) && \
       ahoy install-dev && \
       ahoy install-site && \
-      ahoy title "Build complete"
+      ahoy title "Build complete" && \
       ahoy info 1
 
   info:
@@ -246,6 +246,7 @@ commands:
 entrypoint:
   - bash
   - "-c"
+  - "-e"
   - |
     [ -f .env ] && export $(grep -v '^#' .env | xargs) && [ -f .env.local ] && export $(grep -v '^#' .env.local | xargs)
     #;< DEMO
