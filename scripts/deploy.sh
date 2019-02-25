@@ -38,13 +38,13 @@ DEPLOY_USER_EMAIL="${DEPLOY_USER_EMAIL:-deployer@your-site-url}"
 [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email" && git config --global user.email "${DEPLOY_USER_EMAIL}"
 
 echo "==> Installing a package for deployment."
-composer require --dev -n --ansi --prefer-source --ignore-platform-reqs integratedexperts/robo-git-artefact
+composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs integratedexperts/robo-git-artefact
 
 cp -a "${DEPLOY_ROOT}"/.git "${DEPLOY_SRC}"
 cp -a "${DEPLOY_ROOT}"/.gitignore.deployment "${DEPLOY_SRC}"
 
-vendor/bin/robo --ansi \
-  --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact "${DEPLOY_REMOTE}" \
+"${HOME}/.composer/vendor/bin/robo" --ansi \
+  --load-from "${HOME}/.composer/vendor/integratedexperts/robo-git-artefact/RoboFile.php" artefact "${DEPLOY_REMOTE}" \
   --root="${DEPLOY_ROOT}" \
   --src="${DEPLOY_SRC}" \
   --branch="${DEPLOY_BRANCH}" \
