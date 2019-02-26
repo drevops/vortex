@@ -2,10 +2,11 @@
 # Drupal-Dev [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+Drupal-Dev+-+open-source+development+practice+for+Drupal+projects&url=https://www.drupal-dev.io&via=integratedexperts&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
 Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
+[![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x)
 ![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
 [![Release](https://img.shields.io/github/release/integratedexperts/drupal-dev.svg)](https://github.com/integratedexperts/drupal-dev/releases/latest)
 [![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/integratedexperts/drupal-dev/blob/8.x/LICENSE)
-[![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x)
+[![Pull Requests](https://img.shields.io/github/issues-pr/integratedexperts/drupal-dev.svg)](https://github.com/integratedexperts/drupal-dev/pulls)
 
 **Looking for Drupal 7 version?**
 [Click here to switch to Drupal 7 version](https://github.com/integratedexperts/drupal-dev/tree/7.x)
