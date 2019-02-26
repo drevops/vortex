@@ -25,12 +25,12 @@ files committed - the rest of the files will be downloaded each time Drupal-Dev 
 
 For quiet installation with default settings into current directory:
 ```
-curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash
+bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh)
 ```
 
 For interactive installation (questions and answers) into current directory:
 ```
-curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh | bash -s -- --interactive
+bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh) --interactive
 ```
 
 <details>
