@@ -172,7 +172,10 @@ jobs:
             - *deploy_ssh_fingerprint
       - attach_workspace:
           at: /workspace
-      - run: .circleci/drupal_dev-test-deployment.sh
+      - run:
+          name: Run deployment tests (long)
+          command: .circleci/drupal_dev-test-deployment.sh
+          no_output_timeout: 20m
 
   # Deployment of feature branches and tags for Drupal-Dev itself.
   drupal_dev_deploy:
