@@ -9,6 +9,6 @@ docroot/themes/custom/your_site_theme/scss
 docroot/sites/default/settings.generated.php
 docroot/sites/default/default.settings.local.php
 docroot/sites/default/default.services.local.yml
-!config
-!hooks
-!vendor
+!/config/
+!/hooks/
+!/vendor/

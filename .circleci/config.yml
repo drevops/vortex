@@ -163,6 +163,7 @@ jobs:
 
   drupal_dev_test_deployment:
     <<: *container_config
+    parallelism: 2
     steps:
       - checkout
       - *step_setup_remote_docker
