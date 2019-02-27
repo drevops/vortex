@@ -34,12 +34,13 @@ when the site is installed from the scratch during every build (useful for
 module or profile development).  
 
 <details> 
-### <summary>**Expand for more non-technical information**</summary>
+
+**<summary>Expand for more non-technical information</summary>**
 
 ### What is the problem that Drupal-Dev is trying to solve?
 Increase the quality of the produced Drupal websites with minimum setup effort and knowledge.
 
-#### Why is this problem important?
+### Why is this problem important?
 High quality Drupal websites are stable, secure, faster and safer to change.
 
 But developers do not always have the time or skills to setup the tools required 
@@ -72,20 +73,21 @@ several environment variables.
 
 In other words - you will have your own development templates for your projects 
 the way you want it!  
-<details>
+
+</details>
 
 ### Initial installation
 
 1. Install Drupal-Dev<br/>
    For quiet installation with default settings into current directory:
     
-```
-bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh)
-```
+   ```
+   bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh)
+   ```
    For interactive installation (questions and answers) into current directory:
-```
-bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh) --interactive
-```
+   ```
+   bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh) --interactive
+   ```
 <details>
 <summary>Show Installer screenshot</summary>
 
@@ -129,7 +131,7 @@ Run `drupal-dev.sh` to download the latest version of Drupal-Dev for your projec
 
 <details>
 
-### **<summary>More details</summary>**
+**<summary>More details</summary>**
 
 | **Area**                                      | **Feature**                                                                                                         | **Why it is important** |
 | --- | --- | --- |                                                                                                                                                   
@@ -205,7 +207,7 @@ Run `drupal-dev.sh` to download the latest version of Drupal-Dev for your projec
 ## Contributing
 - Progress is tracked as [GitHub project](https://github.com/integratedexperts/drupal-dev/projects/1). 
 - Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
-- Create issue and prefix title with Drupal core version: `[8.x] Updated readme file.`. 
+- Create an issue and prefix title with Drupal core version: `[8.x] Updated readme file.`. 
 - Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/8.x-updated-readme`.
 
 ### Main concepts behind Drupal-Dev
@@ -370,13 +372,13 @@ Behat configuration uses multiple extensions:
 - [Behat Progress Fail Output Extension](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fail messages inline. Useful to get feedback about failed tests while continuing test run.
 - `FeatureContext` - Site-specific context with custom step definitions.
 
-Add `@skipped` tag to failing tests if you would like to skop them.  
+Add `@skipped` tag to failing tests if you would like to skip them.  
 
 ## Automated builds (Continuous Integration)
 In software engineering, continuous integration (CI) is the practice of merging all developer working copies to a shared mainline several times a day. 
 Before feature changes can be merged into a shared mainline, a complete build must run and pass all tests on CI server.
 
-This project uses [Circle CI](https://circleci.com/) as CI server: it imports production backups into fully built codebase and runs code linting and tests. When tests pass, a deployment process is triggered for nominated branches (usually, `master` and `develop`).
+This project uses [Circle CI](https://circleci.com/) as a CI server: it imports production backups into fully built codebase and runs code linting and tests. When tests pass, a deployment process is triggered for nominated branches (usually, `master` and `develop`).
 
 Add `[skip ci]` to the commit subject to skip CI build. Useful for documentation changes.
 
