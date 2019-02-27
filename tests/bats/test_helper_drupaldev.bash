@@ -34,6 +34,9 @@ setup(){
   LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   APP_TMP_DIR="${BUILD_DIR}/tmp"
 
+  # Disable tool checking during all test builds - CI container has all required tools.
+  export DOCTOR_CHECK_TOOLS=0
+
   prepare_fixture_dir "${BUILD_DIR}"
   prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
   prepare_fixture_dir "${DST_PROJECT_DIR}"
