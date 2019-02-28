@@ -22,6 +22,7 @@ main() {
   [ "$(command_exists composer)" == "1" ] && error "Please install composer: visit https://getcomposer.org/" && exit 1
   [ "$(command_exists nvm)" == "1" ] && error "Please install nvm" && exit 1
   [ "$(command_exists pygmy)" == "1" ] && error "Please install pygmy" && exit 1
+  [ "$(command_exists ahoy)" == "1" ] && error "Please install Ahoy." && exit 1
 
   # Check what is listening on port 80.
   if ! lsof -i :80 | grep -q LISTEN; then

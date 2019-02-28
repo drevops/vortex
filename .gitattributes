@@ -1,3 +1,3 @@
 # Ignore files for distribution archives.
-.gitattributes            export-ignore
-install.sh                export-ignore
+/.gitattributes            export-ignore
+/install.sh                export-ignore

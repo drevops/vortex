@@ -4,7 +4,7 @@
 #
 
 assert_deployment_files_present(){
-  local dir="${1}"
+  local dir="${1:-.}"
   local has_custom_profile="${2:-0}"
 
   assert_dir_not_exists "${dir}"/.circleci
@@ -57,6 +57,16 @@ assert_deployment_files_present(){
   assert_file_exists "${dir}"/docroot/themes/custom/star_wars/star_wars.libraries.yml
   assert_file_exists "${dir}"/docroot/themes/custom/star_wars/star_wars.theme
 
+  # Scaffolding files present.
+  assert_file_exists "${dir}/docroot/.editorconfig"
+  assert_file_exists "${dir}/docroot/.eslintignore"
+  assert_file_exists "${dir}/docroot/.gitattributes"
+  assert_file_exists "${dir}/docroot/.htaccess"
+  assert_file_exists "${dir}/docroot/autoload.php"
+  assert_file_exists "${dir}/docroot/index.php"
+  assert_file_exists "${dir}/docroot/robots.txt"
+  assert_file_exists "${dir}/docroot/update.php"
+
   # Settings files present.
   assert_file_exists "${dir}"/docroot/sites/default/settings.php
   assert_file_not_exists "${dir}"/docroot/sites/default/settings.generated.php:
@@ -81,7 +91,7 @@ assert_deployment_files_present(){
 }
 
 provision_site(){
-  local dir="${1}"
+  local dir="${1:-.}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -110,7 +120,7 @@ provision_site(){
   fi
 
   step "Add all files to new git repo"
-  git_add_all "${dir}" "Init Drupal-Dev config"
+  git_add_all_commit "${dir}" "Init Drupal-Dev config"
 
   # In this test, the database is downloaded from public gist specified in
   # DEMO_DB_TEST variable.

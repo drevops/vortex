@@ -24,6 +24,11 @@ class ScriptHandler {
     $drupalFinder->locateRoot(getcwd());
     $drupalRoot = $drupalFinder->getDrupalRoot();
 
+    if (!$drupalRoot) {
+      $event->getIO()->writeError(sprintf('Unable to find Drupal root at "%s"', $drupalRoot));
+      exit(1);
+    }
+
     $dirs = [
       'modules',
       'profiles',
@@ -32,47 +37,55 @@ class ScriptHandler {
 
     // Required for unit testing.
     foreach ($dirs as $dir) {
-      if (!$fs->exists($drupalRoot . '/' . $dir)) {
-        $fs->mkdir($drupalRoot . '/' . $dir);
-        $fs->touch($drupalRoot . '/' . $dir . '/.gitkeep');
+      if (!$fs->exists($drupalRoot . DIRECTORY_SEPARATOR . $dir)) {
+        $fs->mkdir($drupalRoot . DIRECTORY_SEPARATOR . $dir);
+        $fs->touch($drupalRoot . DIRECTORY_SEPARATOR . $dir . DIRECTORY_SEPARATOR . '.gitkeep');
       }
     }
 
-    // Create settings file from default settings, if does not already exist.
-    if ($fs->exists($drupalRoot . '/sites/default/default.settings.php') && !$fs->exists($drupalRoot . '/sites/default/settings.php')) {
-      $fs->copy($drupalRoot . '/sites/default/default.settings.php', $drupalRoot . '/sites/default/settings.php');
-      $event->getIO()->write('Created a sites/default/settings.php file');
+    $sitesDefault = $drupalRoot . DIRECTORY_SEPARATOR . 'sites' . DIRECTORY_SEPARATOR . 'default';
+    if ($fs->exists($sitesDefault)) {
+      $fs->chmod($sitesDefault, 0777);
     }
 
-    // Check that the settings file was created correctly.
-    if (!$fs->exists($drupalRoot . '/sites/default/settings.php')) {
-      $event->getIO()->writeError('<error>Settings file not found</error>');
-      exit(1);
+    // Create settings and services files from default settings, if they do not
+    // already exist.
+    $defaultSettingsFile = $sitesDefault . DIRECTORY_SEPARATOR . 'default.settings.php';
+    $settingsFile = $sitesDefault . DIRECTORY_SEPARATOR . 'settings.php';
+    if (!$fs->exists($settingsFile) && $fs->exists($defaultSettingsFile)) {
+      $fs->copy($defaultSettingsFile, $settingsFile);
+      $fs->chmod($settingsFile, 0666);
+      $event->getIO()->write(sprintf('Created a "%s" file from default settings', $settingsFile));
     }
-
-    // Update permissions.
-    $fs->chmod($drupalRoot . '/sites/default', 0777);
-    $fs->chmod($drupalRoot . '/sites/default/settings.php', 0666);
+    $defaultServicesFile = $sitesDefault . DIRECTORY_SEPARATOR . 'default.services.yml';
+    $servicesFile = $sitesDefault . DIRECTORY_SEPARATOR . 'services.yml';
+    if (!$fs->exists($servicesFile) && $fs->exists($defaultServicesFile)) {
+      $fs->copy($defaultServicesFile, $servicesFile);
+      $event->getIO()->write(sprintf('Created a "%s" file from default settings', $servicesFile));
+    }
 
     // Add CONFIG_SYNC_DIRECTORY settings to the settings file.
-    $configPath = Path::makeRelative($drupalFinder->getComposerRoot() . '/config/default', $drupalRoot);
-    if (strpos(file_get_contents($drupalRoot . '/sites/default/settings.php'), 'CONFIG_SYNC_DIRECTORY') === FALSE) {
-      $settings_string = <<<SETTINGS
+    if ($fs->exists($settingsFile)) {
+      $configPath = Path::makeRelative($drupalFinder->getComposerRoot() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'default', $drupalRoot);
+      if (strpos(file_get_contents($settingsFile), 'CONFIG_SYNC_DIRECTORY') === FALSE) {
+        $settings_string = <<<SETTINGS
 \$settings['config_directories'] = [
   CONFIG_SYNC_DIRECTORY => '$configPath',  
 ];
 
 SETTINGS;
-      self::appendToFile($drupalRoot . '/sites/default/settings.php', $settings_string);
-      $event->getIO()->write('Added CONFIG_SYNC_DIRECTORY settings');
+        self::appendToFile($settingsFile, $settings_string);
+        $event->getIO()->write('Added CONFIG_SYNC_DIRECTORY to settings file');
+      }
     }
 
     // Create the files directory and set permissions.
-    if (!$fs->exists($drupalRoot . '/sites/default/files')) {
+    $filesDirectory = $sitesDefault . DIRECTORY_SEPARATOR . 'files';
+    if (!$fs->exists($filesDirectory)) {
       $oldmask = umask(0);
-      $fs->mkdir($drupalRoot . '/sites/default/files', 0777);
+      $fs->mkdir($filesDirectory, 0777);
       umask($oldmask);
-      $event->getIO()->write('Created a sites/default/files directory with chmod 0777');
+      $event->getIO()->write(sprintf('Created a "%s" directory with chmod 0777', $filesDirectory));
     }
   }
 

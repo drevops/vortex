@@ -251,8 +251,8 @@ Drupal 8 implementation of YOURSITE for YOURORG
 Run each command as `ahoy <command>`.
   ```  
   build        Build or rebuild project.
-  clean        Remove all build files.
-  clean-full   Remove all development files.
+  clean        Remove containers and all build files.
+  reset        Reset environment: remove containers, all build, manually created and Drupal-Dev files.
   cli          Start a shell inside CLI container or run a command.
   doctor       Find problems with current project setup.
   down         Stop Docker containers and remove container, images, volumes and networks.

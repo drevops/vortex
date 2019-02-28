@@ -34,6 +34,14 @@ setup(){
   LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   APP_TMP_DIR="${BUILD_DIR}/tmp"
 
+  export DRUPAL_VERSION
+  export CUR_DIR
+  export BUILD_DIR
+  export CURRENT_PROJECT_DIR
+  export DST_PROJECT_DIR
+  export LOCAL_REPO_DIR
+  export APP_TMP_DIR
+
   prepare_fixture_dir "${BUILD_DIR}"
   prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
   prepare_fixture_dir "${DST_PROJECT_DIR}"
@@ -41,7 +49,7 @@ setup(){
   prepare_fixture_dir "${APP_TMP_DIR}"
   pushd "${BUILD_DIR}" > /dev/null || exit 1
 
-  prepare_local_repo "${LOCAL_REPO_DIR}"
+  prepare_local_repo "${LOCAL_REPO_DIR}" >/dev/null
 }
 
 teardown(){
@@ -111,6 +119,16 @@ assert_files_present_common(){
   # Comparing binary files.
   assert_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
 
+  # Scaffolding files exist.
+  assert_file_exists "docroot/.editorconfig"
+  assert_file_exists "docroot/.eslintignore"
+  assert_file_exists "docroot/.gitattributes"
+  assert_file_exists "docroot/.htaccess"
+  assert_file_exists "docroot/autoload.php"
+  assert_file_exists "docroot/index.php"
+  assert_file_exists "docroot/robots.txt"
+  assert_file_exists "docroot/update.php"
+
   # Settings files exist.
   # @note The permissions can be 644 or 664 depending on the umask of OS. Also,
   # git only track 644 or 755.
@@ -172,7 +190,7 @@ assert_files_present_common(){
 assert_files_not_present_common(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
-  local has_committed_files="${3:-0}"
+  local has_required_files="${3:-0}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -183,10 +201,21 @@ assert_files_not_present_common(){
   assert_dir_not_exists "docroot/themes/custom/${suffix}"
   assert_file_not_exists "docroot/sites/default/default.settings.local.php"
   assert_file_not_exists "docroot/sites/default/default.services.local.yml"
+
+  # Scaffolding files exist.
+  assert_file_not_exists "docroot/.editorconfig"
+  assert_file_not_exists "docroot/.eslintignore"
+  assert_file_not_exists "docroot/.gitattributes"
+  assert_file_not_exists "docroot/.htaccess"
+  assert_file_not_exists "docroot/autoload.php"
+  assert_file_not_exists "docroot/index.php"
+  assert_file_not_exists "docroot/robots.txt"
+  assert_file_not_exists "docroot/update.php"
+
   assert_file_not_exists "FAQs.md"
   assert_file_not_exists ".ahoy.yml"
 
-  if [ "${has_committed_files}" -eq 1 ] ; then
+  if [ "${has_required_files}" -eq 1 ] ; then
     assert_file_exists "README.md"
     assert_file_exists "drupal-dev.sh"
     assert_file_exists ".circleci/config.yml"
@@ -482,18 +511,6 @@ assert_files_present_no_integration_dependenciesio(){
   popd > /dev/null || exit 1
 }
 
-# Assert that containers are not running.
-assert_containers_not_running(){
-  # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
-  # shellcheck disable=SC2143
-  if [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q cli)")" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 fixture_readme(){
   local dir="${1:-.}"
   local name="${2:-Star Wars}"
@@ -589,6 +606,35 @@ run_install_interactive(){
   printf "$input" | run_install "--interactive"
 }
 
+#
+# Create a stub of installed dependencies.
+#
+# Used for fast unit testing of install functionality.
+#
+install_dependencies_stub(){
+  local dir="${1:-.}"
+
+  mktouch "${dir}/docroot/core/install.php"
+  mktouch "${dir}/docroot/modules/contrib/somemodule/somemodule.info.yml"
+  mktouch "${dir}/docroot/themes/contrib/sometheme/sometheme.info.yml"
+  mktouch "${dir}/docroot/profiles/contrib/someprofile/someprofile.info.yml"
+  mktouch "${dir}/docroot/sites/default/somesettingsfile.php"
+  mktouch "${dir}/docroot/sites/default/files/somepublicfile.php"
+  mktouch "${dir}/vendor/somevendor/somepackage/somepackage.php"
+  mktouch "${dir}/vendor/somevendor/somepackage/somepackage with spaces.php"
+  mktouch "${dir}/vendor/somevendor/somepackage/composer.json"
+  mktouch "${dir}/node_modules/somevendor/somepackage/somepackage.js"
+
+  mktouch "${dir}/docroot/modules/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
+  mktouch "${dir}/screenshots/s1.jpg"
+  mktouch "${dir}/.data/db.sql"
+
+  mktouch "${dir}/docroot/sites/default/settings.local.php"
+  mktouch "${dir}/docroot/sites/default/services.local.yml"
+  mktouch "${dir}/.env.local"
+  echo "version: \"2.3\"" > "${dir}/docker-compose.override.yml"
+}
+
 # Copy source code at the latest commit to the destination directory.
 copy_code(){
   local dst="${1:-${BUILD_DIR}}"
@@ -614,7 +660,7 @@ prepare_local_repo(){
   git_init "${dir}"
   [ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name" && git config --global user.name "Some User"
   [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email" && git config --global user.email "some.user@example.com"
-  commit=$(git_add_all "${dir}" "Initial commit")
+  commit=$(git_add_all_commit "${dir}" "Initial commit")
 
   echo "${commit}"
 }
@@ -642,7 +688,7 @@ git_commit(){
   echo "${commit}"
 }
 
-git_add_all(){
+git_add_all_commit(){
   local dir="${1}"
   local message="${2}"
 
@@ -662,7 +708,7 @@ git_init(){
   git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
 
   if [ "${allow_receive_update}" -eq 1 ]; then
-    git --work-tree="${dir}" --git-dir="${dir}/.git"  config receive.denyCurrentBranch updateInstead > /dev/null
+    git --work-tree="${dir}" --git-dir="${dir}/.git" config receive.denyCurrentBranch updateInstead > /dev/null
   fi
 }
 

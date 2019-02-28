@@ -31,6 +31,8 @@ load test_helper_drupaldev
   # Assert files at current version.
   assert_files_present "${CURRENT_PROJECT_DIR}"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   # Add custom files
   touch "${CURRENT_PROJECT_DIR}/test1.txt"
   # File resides in directory that is included in Drupal-Dev when initialised.
@@ -60,6 +62,8 @@ load test_helper_drupaldev
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   # Add custom files
   touch "${CURRENT_PROJECT_DIR}/test1.txt"
   # File resides in directory that is included in Drupal-Dev when initialised.
@@ -67,7 +71,7 @@ load test_helper_drupaldev
   touch "${CURRENT_PROJECT_DIR}/.docker/test2.txt"
 
   # Add all files to git repo.
-  git_add_all "${CURRENT_PROJECT_DIR}" "Second commit"
+  git_add_all_commit "${CURRENT_PROJECT_DIR}" "Second commit"
 
   run_install
 
@@ -92,6 +96,8 @@ load test_helper_drupaldev
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   # Add custom files
   touch "${CURRENT_PROJECT_DIR}/test1.txt"
   # File resides in directory that is included in Drupal-Dev when initialised.
@@ -104,7 +110,7 @@ load test_helper_drupaldev
   # .env would be excluded locally - so force-add it.
   git_add_force "${CURRENT_PROJECT_DIR}" ".env"
   # Add all files to git repo.
-  git_add_all "${CURRENT_PROJECT_DIR}" "Second commit"
+  git_add_all_commit "${CURRENT_PROJECT_DIR}" "Second commit"
 
   run_install
 
@@ -130,6 +136,8 @@ load test_helper_drupaldev
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   # Add custom files
   touch "${CURRENT_PROJECT_DIR}/test1.txt"
   # File resides in directory that is included in Drupal-Dev when initialised.
@@ -142,7 +150,7 @@ load test_helper_drupaldev
   # .env would be excluded locally - so force-add it.
   git_add_force "${CURRENT_PROJECT_DIR}" ".env"
   # Add all files to git repo.
-  git_add_all "${CURRENT_PROJECT_DIR}" "Second commit"
+  git_add_all_commit "${CURRENT_PROJECT_DIR}" "Second commit"
 
   echo "DRUPALDEV_ALLOW_OVERRIDE=1" >> "${CURRENT_PROJECT_DIR}/.env.local"
 
@@ -153,6 +161,8 @@ load test_helper_drupaldev
   # Assert no changes were made.
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
 
   # Assert that custom file preserved.
   assert_file_exists "${CURRENT_PROJECT_DIR}/test1.txt"
@@ -176,12 +186,14 @@ load test_helper_drupaldev
   git_init "${CURRENT_PROJECT_DIR}"
 
   # Add all files to git repo.
-  git_add_all "${CURRENT_PROJECT_DIR}" "First commit"
+  git_add_all_commit "${CURRENT_PROJECT_DIR}" "First commit"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   run_install
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
 
   # Commit files required to run the project.
   git_add "${CURRENT_PROJECT_DIR}" README.md
@@ -211,6 +223,8 @@ load test_helper_drupaldev
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   # Assert that non-committed file was updated.
   assert_file_contains "${CURRENT_PROJECT_DIR}/docker-compose.yml" "# Some change to docker-compose"
   # Assert that committed file was not updated.
@@ -229,6 +243,8 @@ load test_helper_drupaldev
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
   assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
@@ -243,6 +259,8 @@ load test_helper_drupaldev
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
   assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
+
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
 
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
@@ -260,6 +278,8 @@ load test_helper_drupaldev
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
   assert_output_contains "It looks like Drupal-Dev is already installed into this project"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   # Only common files will be present since we faked the readme file. The
   # discovering mechanism will remove integrations etc.
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
@@ -276,9 +296,12 @@ load test_helper_drupaldev
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   # Add all files to git repo.
-  git_add_all "${CURRENT_PROJECT_DIR}" "Second commit"
+  git_add_all_commit "${CURRENT_PROJECT_DIR}" "Second commit"
   # Remove all non-committed files.
+  cat "${CURRENT_PROJECT_DIR}"/.git/info/exclude
   rm "${CURRENT_PROJECT_DIR}"/.git/info/exclude
   git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git reset --hard
   git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git clean -f -d
@@ -291,7 +314,7 @@ load test_helper_drupaldev
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
   assert_output_contains "It looks like Drupal-Dev is already installed into this project"
 
-    # Only common files will be present since we faked the readme file. The
+  # Only common files will be present since we faked the readme file. The
   # discovering mechanism will remove integrations etc.
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"

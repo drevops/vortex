@@ -73,6 +73,7 @@
             "Utilities\\composer\\DrupalSettings::create"
         ],
         "post-update-cmd": [
+            "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
             "Utilities\\composer\\DrupalSettings::create"
         ]
@@ -122,6 +123,7 @@
             "docroot/themes/custom",
             "docroot/drush",
             "docroot/sites/default/settings.php",
+            "docroot/sites/default/services.yml",
             "docroot/sites/default/default.settings.local.php",
             "docroot/sites/default/default.services.local.yml",
             "docroot/sites/default/settings.local.php",
