@@ -18,6 +18,16 @@ docroot/profiles/*
 docroot/sites/default/*
 !docroot/sites/default/settings.php
 !docroot/sites/default/services.yml
+
+# Whitelist scaffold files. @see https://github.com/drupal-composer/drupal-scaffold#limitation
+!docroot/.editorconfig
+!docroot/.eslintignore
+!docroot/.gitattributes
+!docroot/.htaccess
+!docroot/index.php
+!docroot/robots.txt
+!docroot/update.php
+
 #;< DRUPAL-DEV
 !docroot/sites/default/default.settings.local.php
 !docroot/sites/default/default.services.local.yml
