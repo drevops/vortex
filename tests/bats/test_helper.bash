@@ -13,13 +13,21 @@ if [ -z "$TEST_PATH_INITIALIZED" ]; then
   PATH=/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin
   # Add BATS test directory to the PATH.
   PATH="$(dirname "${BATS_TEST_DIRNAME}"):$PATH"
+
+  export BATS_TEST_TMPDIR="${BATS_TMPDIR}/bats-test-tmp"
+  [ -d "${BATS_TEST_TMPDIR}" ] && rm -Rf "${BATS_TEST_TMPDIR}" > /dev/null
+  mkdir -p "${BATS_TEST_TMPDIR}"
+
+  export BATS_TEST_TMPDIR
+
+  echo "BATS_TEST_TMPDIR dir: ${BATS_TEST_TMPDIR}" >&3
 fi
 
 flunk(){
   { if [ "$#" -eq 0 ]; then cat -
     else echo "$@"
     fi
-  } | sed "s:${BATS_TMPDIR}:\${BATS_TMPDIR}:g" >&2
+  } | sed "s:${BATS_TEST_TMPDIR}:\${BATS_TEST_TMPDIR}:g" >&2
   return 1
 }
 
@@ -53,7 +61,7 @@ assert_contains(){
   local needle="${1}"
   local haystack="${2}"
 
-  if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" > /dev/null; then
+  if echo "$haystack" | $(type -p ggrep grep | head -1) -i -F -- "$needle" > /dev/null; then
     return 0
   else
     format_error "String '${haystack}' does not contain '${needle}'" | flunk
@@ -64,7 +72,7 @@ assert_not_contains(){
   local needle="${1}"
   local haystack="${2}"
 
-  if echo "$haystack" | $(type -p ggrep grep | head -1) -F -- "$needle" > /dev/null; then
+  if echo "$haystack" | $(type -p ggrep grep | head -1) -i -F -- "$needle" > /dev/null; then
     format_error "String '${haystack}' contains '${needle}', but should not" | flunk
   else
     return 0
@@ -198,9 +206,7 @@ assert_dir_contains_string(){
 
   assert_dir_exists "${dir}" || return 1
 
-  run grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
-
-  if [ "${status}" -eq 0 ]; then
+  if grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"; then
     return 0
   else
     format_error "Directory ${dir} does not contain a string '${string}'" | flunk
@@ -213,9 +219,7 @@ assert_dir_not_contains_string(){
 
   [ ! -d "${dir}" ] && return 0
 
-  run grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
-
-  if [ "${status}" -eq 0 ]; then
+  if grep -rI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"; then
     format_error "Directory ${dir} contains string '${string}', but should not" | flunk
   else
     return 0
@@ -228,6 +232,13 @@ assert_git_repo(){
   assert_dir_exists "${dir}" || return 1
 
   if [ -d "${dir}/.git" ]; then
+    log=$(git --work-tree="${dir}" --git-dir="${dir}/.git" status 2>&1)
+
+    if echo "${log}" | $(type -p ggrep grep | head -1) -i -F -- "not a git repository" > /dev/null; then
+      format_error "Directory ${dir} exists, but it is not a git repository"
+      return 1
+    fi
+
     return 0
   else
     format_error "Directory ${dir} exists, but it is not a git repository" | flunk
@@ -250,10 +261,11 @@ assert_git_clean(){
   local dir="${1}"
   local message
 
-  message="$(git --work-tree="${dir}" --git-dir="${dir}/.git" status)"
-  assert_contains "nothing to commit, working tree clean" "${message}"
-}
+  assert_git_repo "${dir}"
 
+  message="$(git --work-tree="${dir}" --git-dir="${dir}/.git" status)"
+  assert_contains "nothing to commit" "${message}"
+}
 
 assert_files_equal(){
   local file1="${1}"
@@ -345,6 +357,11 @@ prepare_fixture_dir(){
   assert_dir_exists "${dir}"
 }
 
+mktouch(){
+  local file="${1}"
+  mkdir -p "$(dirname "${file}")" && touch "${file}"
+}
+
 # Format error message with optional output, if present.
 format_error(){
   local message="${1}"
@@ -354,7 +371,7 @@ format_error(){
 
   if [ "${output}" != "" ]; then
     echo "----------------------------------------"
-    echo "$BATS_TMPDIR"
+    echo "${BATS_TEST_TMPDIR}"
     echo "${output}"
     echo "----------------------------------------"
   fi

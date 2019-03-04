@@ -6,6 +6,10 @@
 load test_helper
 load test_helper_drupaldev
 
+@test "Variables" {
+  assert_contains "drupal-dev-bats" "${BUILD_DIR}"
+}
+
 @test "Install into empty directory" {
   run_install
 
@@ -72,7 +76,7 @@ load test_helper_drupaldev
 
   # Requiring bespoke version by commit.
   export DRUPALDEV_COMMIT="${commit1}"
-  output=$(run_install)
+  run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
   assert_output_contains "This will install Drupal-Dev into your project at commit"
   assert_output_contains "Downloading Drupal-Dev at ref ${commit1}"
@@ -143,6 +147,7 @@ load test_helper_drupaldev
 
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+
   assert_file_not_contains "${CURRENT_PROJECT_DIR}/.env" "SOMEVAR="
   assert_file_contains "${CURRENT_PROJECT_DIR}/.env.local" "DRUPALDEV_ALLOW_OVERRIDE=1"
 }

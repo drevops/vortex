@@ -48,8 +48,8 @@ load test_helper_drupaldev
     assert_file_not_contains docker-compose.yml "##"
   fi
 
-  step "Add all files to new git repo"
-  git_add_all "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
+  step "Add all Drupal-Dev files to new git repo"
+  git_add_all_commit "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
 
   step "Create untracked file manually"
   touch untracked_file.txt
@@ -59,6 +59,12 @@ load test_helper_drupaldev
   mkdir -p .idea
   touch .idea/idea_file.txt
   assert_file_exists .idea/idea_file.txt
+
+  docker-compose down --volumes
+
+  #
+  # Preparation complete - start actual user actions testing.
+  #
 
   step "Download the database"
   # In this test, the database is downloaded from public gist specified in
@@ -71,6 +77,9 @@ load test_helper_drupaldev
   ahoy build >&3
   sync_to_host
 
+  assert_file_exists .data/db.sql
+
+  # Assert the presence of files from the default configuration.
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
@@ -98,23 +107,39 @@ load test_helper_drupaldev
   assert_file_exists docroot/sites/default/settings.local.php
   assert_file_exists docroot/sites/default/services.local.yml
 
-  step "Run generic command"
-  ahoy cli "echo Test"
+  step "Run ClI command"
+  run ahoy cli "echo Test from inside of the container"
+  assert_success
+  assert_output_not_contains "Containers are not running."
+  assert_output_contains "Test from inside of the container"
 
-  step "Run drush command"
-  ahoy drush st
+  step "Run Drush command"
+  run ahoy drush st
+  assert_success
+  assert_output_not_contains "Containers are not running."
+
+  step "Show Docker logs"
+  run ahoy logs
+  assert_success
+  assert_output_not_contains "Containers are not running."
 
   step "Generate one-time login link"
-  ahoy login
+  run ahoy login
+  assert_success
+  assert_output_not_contains "Containers are not running."
 
   step "Export DB"
-  ahoy export-db "mydb.sql"
+  run ahoy export-db "mydb.sql"
+  assert_success
+  assert_output_not_contains "Containers are not running."
   assert_file_exists ".data/mydb.sql"
 
   step "Lint code"
-  ahoy lint
+  run ahoy lint
+  assert_success
+  assert_output_not_contains "Containers are not running."
 
-  step "PHPUnit tests"
+  step "Run PHPUnit tests"
   ahoy test-phpunit
 
   step "Run single Behat test"
@@ -186,12 +211,12 @@ load test_helper_drupaldev
   assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 
-  assert_file_not_exists docroot/index.php
   assert_dir_not_exists docroot/modules/contrib
   assert_dir_not_exists docroot/themes/contrib
   assert_dir_not_exists vendor
   assert_dir_not_exists node_modules
-  assert_dir_not_exists screenshots
+  assert_dir_exists screenshots
+
   # Assert manually created local settings file exists.
   assert_file_exists docroot/sites/default/settings.local.php
   # Assert manually created local services file exists.
@@ -202,24 +227,29 @@ load test_helper_drupaldev
   assert_file_exists untracked_file.txt
   # Assert IDE config file still exists.
   assert_file_exists .idea/idea_file.txt
-  # Assert containers are not running.
-  assert_containers_not_running
 
-  step "Clean Full"
-  ahoy clean-full
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  step "Reset"
+  ahoy reset
+
   assert_files_not_present_common "${CURRENT_PROJECT_DIR}" "star_wars" 1
   assert_files_present_no_deployment "${CURRENT_PROJECT_DIR}" "star_wars" 1
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
-  # Assert manually created local settings file was removed.
-  assert_file_not_exists docroot/sites/default/settings.local.php
-  # Assert manually created local services file was removed.
-  assert_file_not_exists docroot/sites/default/services.local.yml
+
+  assert_file_exists "docroot/sites/default/settings.local.php"
+  assert_file_exists "docroot/sites/default/services.local.yml"
+
   # Assert manually created file still exists.
   assert_file_exists untracked_file.txt
   # Assert IDE config file still exists.
   assert_file_exists .idea/idea_file.txt
+
+  assert_dir_not_exists screenshots
+
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   popd > /dev/null
 }

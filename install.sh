@@ -330,18 +330,23 @@ copy_files(){
     # be overridden.
     file_is_tracked="$(git_file_is_tracked "${relative_file}")"
     if [ "${file_is_tracked}" -ne 0 ] || [ "${allow_override}" -ne 0 ]; then
-      mkdir -p "${relative_parent}"
-      if [ -d "${file}" ]; then
-        # Symlink files can be directories, so handle them differently.
-        cp -fR "${file}" "${relative_parent}/"
-        echo "    Copied dir ${relative_file}"
-      elif [ -L "${file}" ]; then
-        cp -a "${file}" "${relative_parent}/"
-        echo "    Copied symlink ${file} to ${relative_file}"
-      else
-        cp -f "${file}" "${relative_file}"
-        echo "    Copied file ${relative_file}"
+      # Copy file if it exists in Drupal-Dev (some files may not exist as they
+      # are only local exclude records).
+      if [ -e "${file}" ]; then
+        mkdir -p "${relative_parent}"
+        if [ -d "${file}" ]; then
+          # Symlink files can be directories, so handle them differently.
+          cp -fR "${file}" "${relative_parent}/"
+          echo "    Copied dir ${relative_file}"
+        elif [ -L "${file}" ]; then
+          cp -a "${file}" "${relative_parent}/"
+          echo "    Copied symlink ${file} to ${relative_file}"
+        else
+          cp -f "${file}" "${relative_file}"
+          echo "    Copied file ${relative_file}"
+        fi
       fi
+
       # Add files to local ignore (not .gitignore), if all conditions pass:
       #  - flag is set to allow to add to local ignore
       #  - not already ignored
@@ -894,7 +899,7 @@ file_is_required(){
 git_add_to_local_ignore(){
   if [ -d ./.git/ ]; then
     if ! grep -Fxq "${1}" ./.git/info/exclude; then
-      echo "${1}" >> ./.git/info/exclude
+      echo "/${1}" >> ./.git/info/exclude
       echo "    Added file ${1} to local git ignore"
     fi
   fi

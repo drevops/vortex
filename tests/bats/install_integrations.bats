@@ -16,6 +16,8 @@ load test_helper_drupaldev
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
@@ -33,6 +35,8 @@ load test_helper_drupaldev
 
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
@@ -52,6 +56,8 @@ load test_helper_drupaldev
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}"
@@ -69,6 +75,8 @@ load test_helper_drupaldev
 
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
@@ -88,6 +96,8 @@ load test_helper_drupaldev
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}"
@@ -106,6 +116,8 @@ load test_helper_drupaldev
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}"
@@ -123,6 +135,8 @@ load test_helper_drupaldev
 
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+
+  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"

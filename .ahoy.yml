@@ -43,7 +43,7 @@ commands:
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
-    cmd: "[ -f \"docker-compose.yml\" ] && docker-compose down --volumes"
+    cmd: "if [ -f \"docker-compose.yml\" ]; then docker-compose down --volumes; fi"
 
   start:
     usage: Start existing Docker containers.
@@ -152,22 +152,27 @@ commands:
     hide: true
 
   clean:
-    usage: Remove all build files.
+    usage: Remove containers and all build files.
     cmd: |
       ahoy down
-      ([ -d .git ] && git ls-files --others -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | grep -v "services.local.yml" | xargs chmod -Rf 777 || true)
-      ([ -d .git ] && git ls-files --others -i --exclude-from=.gitignore ${WEBROOT} | grep -v "settings.local.php" | grep -v "services.local.yml" | xargs rm -Rf || true)
-      find ${WEBROOT} -type d -empty -delete
-      rm -Rf vendor
-      rm -Rf node_modules
-      rm -Rf screenshots
+      rm -rf \
+        ./vendor \
+        ./node_modules \
+        ./docroot/core \
+        ./docroot/profiles/contrib \
+        ./docroot/modules/contrib \
+        ./docroot/themes/contrib \
+        ./docroot/themes/custom/*/build \
+        ./docroot/themes/custom/*/scss/_components.scss \
+        ./docroot/sites/default/settings.generated.php
 
-  clean-full:
-    usage: Remove all development files.
+  reset:
+    usage: "Reset environment: remove containers, all build, manually created and Drupal-Dev files."
     cmd: |
       ahoy clean
-      ([ -d .git ] && git ls-files --others -i --exclude-standard . | xargs rm -Rf || true)
-      ([ -d .git ] && git clean -dXn . | cut -b 14- | grep -v ".idea/" | xargs rm -Rf || true)
+      rm -rf ./screenshots;
+      git ls-files --others -i --exclude-from=.git/info/exclude | xargs chmod 777
+      git ls-files --others -i --exclude-from=.git/info/exclude | xargs rm -Rf
       find . -type d -not -path "./.git/*" -empty -delete
 
   fe:
@@ -248,7 +253,7 @@ entrypoint:
   - "-c"
   - "-e"
   - |
-    [ -f .env ] && export $(grep -v '^#' .env | xargs) && [ -f .env.local ] && export $(grep -v '^#' .env.local | xargs)
+    [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs) && if [ -f .env.local ] && [ -s .env.local ]; then export $(grep -v '^#' .env.local | xargs); fi
     #;< DEMO
     #; Location of the demo database used for demonstration only.
     #; This will be removed during project install.
