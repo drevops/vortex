@@ -34,6 +34,9 @@ setup(){
   LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   APP_TMP_DIR="${BUILD_DIR}/tmp"
 
+  # Disable tool checking during all test builds - CI container has all required tools.
+  export DOCTOR_CHECK_TOOLS=0
+
   export DRUPAL_VERSION
   export CUR_DIR
   export BUILD_DIR

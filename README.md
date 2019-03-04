@@ -1,6 +1,5 @@
 [//]: # (#;< DRUPAL-DEV)
-# Drupal-Dev [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+Drupal-Dev+-+open-source+development+practice+for+Drupal+projects&url=https://www.drupal-dev.io&via=integratedexperts&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
-Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
+# Drupal-Dev [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+Drupal-Dev+-+attachable+development+environment+for+Drupal+sites+with+tools+included&url=https://www.drupal-dev.io&via=integratedexperts&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x)
 ![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
@@ -8,57 +7,99 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 [![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/integratedexperts/drupal-dev/blob/8.x/LICENSE)
 [![Pull Requests](https://img.shields.io/github/issues-pr/integratedexperts/drupal-dev.svg)](https://github.com/integratedexperts/drupal-dev/pulls)
 
+#### Attachable development environment for Drupal sites with tools included
+
+Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
+
 **Looking for Drupal 7 version?**
 [Click here to switch to Drupal 7 version](https://github.com/integratedexperts/drupal-dev/tree/7.x)
 
 ![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
 
-## Getting started
-Despite being a template, Drupal-Dev is "attachable" to new and existing projects: most of templates do not need to 
-be changed and only a handful of files required by Drupal-Dev to exist in your project.
+## Understanding Drupal-Dev
+Drupal-Dev is a set of templates as well as an "attachable" development environment. 
+It can be used as a scaffolding for Drupal projects or as a reference for custom
+configurations. Drupal-Dev has own automated tests that guarantees stability
+and easy maintenance.  
 
-Using Drupal-Dev requires initial installation into your project. Once installed, it the can be "attached" in every 
-environment were development stack is required. This means that your project will have only small number of Drupal-Dev 
-files committed - the rest of the files will be downloaded each time Drupal-Dev needs to be "attached".  
+Despite being a template, Drupal-Dev is "attachable" to new and existing projects: 
+most of templates do not need to be changed and only a handful of files required 
+by Drupal-Dev to exist in your project - the rest of the files will be downloaded 
+each time Drupal-Dev needs to be "attached" to an environment.
+
+Drupal-Dev supports both database-driven development and fresh install for every 
+build. Database-driven development is when the existing production database is 
+used for every build (useful for product development), while fresh install is 
+when the site is installed from the scratch during every build (useful for 
+module or profile development).  
+
+<details> 
+
+**<summary>Expand for more non-technical information</summary>**
+
+### What is the problem that Drupal-Dev is trying to solve?
+Increase the quality of the produced Drupal websites with minimum setup effort and knowledge.
+
+### Why is this problem important?
+High quality Drupal websites are stable, secure, faster and safer to change.
+
+But developers do not always have the time or skills to setup the tools required 
+to produce and maintain high-quality Drupal websites.
+
+### How does Drupal-Dev solve it?
+Quick install of best practices Drupal configuration on Docker stack using a 
+single command lowers entry barrier, while unification of the developer's 
+experience improves development speed across projects.
+
+### Who is it for?
+- Digital agencies that want to standardise their development stack (standard 
+  operating environment) across projects
+- Developers that are looking for best practices
+- Developers that do not possess required time or knowledge to setup these tools 
+  themselves 
+
+### How does it work?
+- You run installer script once
+- You commit only several required files
+- On every environment, including CI, Drupal-Dev files are automatically downloaded from the latest stable version. 
+  This allows to have **unified templates to manage multiple projects in the same way**.
+- If required, you may commit overridden files with changes relevant only to a specific project. 
+  These files will not be overridden next time Drupal-Dev is "attached".
+
+### What if I don't like the defaults this project provides?
+Since Drupal-Dev is a template, it can be forked and adjusted to your needs. The 
+installer script will continue to work with your fork, provided that you adjust
+several environment variables. 
+
+In other words - you will have your own development templates for your projects 
+the way you want it!  
+
+</details>
 
 ### Initial installation
 
-For quiet installation with default settings into current directory:
-```
-bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh)
-```
-
-For interactive installation (questions and answers) into current directory:
-```
-bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh) --interactive
-```
-
+1. Install Drupal-Dev<br/>
+   For quiet installation with default settings into current directory:
+    
+   ```
+   bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh)
+   ```
+   For interactive installation (questions and answers) into current directory:
+   ```
+   bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh) --interactive
+   ```
 <details>
 <summary>Show Installer screenshot</summary>
 
 ![Installer](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/installer.png)
 </details>
 
-Once installed, commit added files and use `drupal-dev.sh` to install all required dependencies next time.
+2. Follow instructions in the generated `README.md` files of your project. 
 
-### Attaching Drupal-Dev
+3. Commit added files
+
+### Using Drupal-Dev
 Run `drupal-dev.sh` to download the latest version of Drupal-Dev for your project.  
-
-## What is the problem that Drupal-Dev is trying to solve?
-Increase the quality of the produced Drupal websites with minimum setup effort and knowledge.
-
-## Why is this problem important?
-High quality Drupal websites are stable, secure, faster and safer to change.
-
-But developers do not always have the time or skills to setup the tools required to produce and maintain high-quality Drupal websites.
-
-## How does Drupal-Dev solve it?
-Quick install of best practices Drupal configuration on Docker stack using a single command lowers entry barrier, while unification of the developer's experience improves development speed across projects.
-
-## Who is it for?
-- Digital agencies that want to standardise their development stack (standard operating environment) across projects
-- Developers that are looking for best practices
-- Developers that do not possess required time or knowledge to setup these tools themselves 
 
 ## Why is Drupal-Dev awesome?
 - **Attachable to existing projects.**  <br/>
@@ -166,7 +207,7 @@ Quick install of best practices Drupal configuration on Docker stack using a sin
 ## Contributing
 - Progress is tracked as [GitHub project](https://github.com/integratedexperts/drupal-dev/projects/1). 
 - Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
-- Create issue and prefix title with Drupal core version: `[8.x] Updated readme file.`. 
+- Create an issue and prefix title with Drupal core version: `[8.x] Updated readme file.`. 
 - Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/8.x-updated-readme`.
 
 ### Main concepts behind Drupal-Dev
@@ -331,13 +372,13 @@ Behat configuration uses multiple extensions:
 - [Behat Progress Fail Output Extension](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fail messages inline. Useful to get feedback about failed tests while continuing test run.
 - `FeatureContext` - Site-specific context with custom step definitions.
 
-Add `@skipped` tag to failing tests if you would like to skop them.  
+Add `@skipped` tag to failing tests if you would like to skip them.  
 
 ## Automated builds (Continuous Integration)
 In software engineering, continuous integration (CI) is the practice of merging all developer working copies to a shared mainline several times a day. 
 Before feature changes can be merged into a shared mainline, a complete build must run and pass all tests on CI server.
 
-This project uses [Circle CI](https://circleci.com/) as CI server: it imports production backups into fully built codebase and runs code linting and tests. When tests pass, a deployment process is triggered for nominated branches (usually, `master` and `develop`).
+This project uses [Circle CI](https://circleci.com/) as a CI server: it imports production backups into fully built codebase and runs code linting and tests. When tests pass, a deployment process is triggered for nominated branches (usually, `master` and `develop`).
 
 Add `[skip ci]` to the commit subject to skip CI build. Useful for documentation changes.
 
