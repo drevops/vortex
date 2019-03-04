@@ -66,6 +66,11 @@ load test_helper_drupaldev
   # Preparation complete - start actual user actions testing.
   #
 
+  step "Build without downloaded DB"
+  run ahoy build
+  assert_failure
+  assert_output_contains "Unable to find database dump file"
+
   step "Download the database"
   # In this test, the database is downloaded from public gist specified in
   # DEMO_DB_TEST variable.
