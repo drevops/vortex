@@ -1,5 +1,5 @@
 # @see https://github.com/amazeeio/lagoon/tree/master/images/php/cli-drupal
-FROM amazeeio/php:7.2-cli-drupal-v0.21.2
+FROM amazeeio/php:7.2-cli-drupal-v0.21.4
 
 ENV WEBROOT=docroot \
     COMPOSER_ALLOW_SUPERUSER=1 \
