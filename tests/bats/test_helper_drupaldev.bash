@@ -114,6 +114,8 @@ assert_files_present_common(){
   assert_dir_exists "docroot/themes/custom/${suffix}"
   assert_file_exists "docroot/themes/custom/${suffix}/js/${suffix}.js"
   assert_dir_exists "docroot/themes/custom/${suffix}/scss"
+  assert_dir_exists "docroot/themes/custom/${suffix}/images"
+  assert_dir_exists "docroot/themes/custom/${suffix}/fonts"
   assert_file_exists "docroot/themes/custom/${suffix}/.gitignore"
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.info.yml"
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.libraries.yml"

@@ -44,6 +44,8 @@ x-environment:
   #;< LAGOON
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
   #;> LAGOON
+  # Pass-through $CI variable.
+  CI: ${CI:-}
   # Uncomment to enable Xdebug and then restart via `ahoy up`.
   #XDEBUG_ENABLE: "true"
 

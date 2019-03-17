@@ -131,7 +131,9 @@ jobs:
       - checkout
       # Init environment for development.
       - run: if [ -f "./drupal-dev.sh" ] && [ ! "${DRUPAL_DEV}" ]; then ./drupal-dev.sh; fi
-      - run: .circleci/deploy.sh
+      - run:
+          command: .circleci/deploy.sh
+          no_output_timeout: 30m
       - store_artifacts:
           path: /tmp/artifacts
 

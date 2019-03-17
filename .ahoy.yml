@@ -22,7 +22,7 @@ commands:
     usage: Print information about this project.
     cmd: |
       ahoy line "Project               : " ${PROJECT}
-      ahoy line "Site local URL        : " ${LOCALDEV_URL}
+      ahoy line "Site local URL        : " http://${LOCALDEV_URL}
       ahoy line "Path to project       : " ${APP}
       ahoy line "Path to docroot       : " ${APP}/${WEBROOT}
       ahoy line "DB port on host       : " $(docker port $(docker-compose ps -q mariadb) 3306 | cut -d : -f 2)
@@ -72,7 +72,7 @@ commands:
 
   drush:
     usage: Run drush commands in the CLI service container.
-    cmd: docker exec -i $(docker-compose ps -q cli) drush -r ${APP}/${WEBROOT} -l ${LOCALDEV_URL} "$@"
+    cmd: docker exec -i $(docker-compose ps -q cli) drush -r ${APP}/${WEBROOT} "$@"
 
   # Application commands.
   login:
@@ -109,9 +109,13 @@ commands:
       ahoy title "Installing site from existing database dump" && \
       (if [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ]; then ahoy export-db; fi) && \
       ahoy import-db-dump && \
-      ahoy sanitize-db && \
-      ahoy drush en your_site_core -y && \
-      ahoy drush updb -y && \
+      (if [ "${SKIP_SANITIZE_DB}" != "1" ]; then ahoy sanitize-db "${site}"; fi) && \
+      {
+        if [ "${SKIP_POST_IMPORT}" != "1" ]; then
+          ahoy drush en your_site_core -y && \
+          ahoy drush updb -y
+        fi
+      }
       #;> !FRESH_INSTALL \
       #;< FRESH_INSTALL \
       ahoy title "Installing a fresh site from ${DRUPAL_PROFILE} profile" && \
@@ -127,7 +131,7 @@ commands:
       ahoy drush sql-drop -y && \
       ahoy cli "mkdir -p /tmp/.data" && \
       docker cp -L ${DATAROOT}/db.sql $(docker-compose ps -q cli):/tmp/.data/db.sql && \
-      ahoy cli "bash -c \"drush -r ${APP}/${WEBROOT} sql-cli < /tmp/.data/db.sql\""
+      docker-compose exec cli bash -c "pv /tmp/.data/${filename} | drush -r ${APP}/${WEBROOT} sql-cli"
     hide: true
 
   export-db:
@@ -242,7 +246,7 @@ commands:
     hide: true
 
   line:
-    cmd: printf "$(tput -Txterm setaf 1)${1}$(tput -Txterm sgr0)${2}\n"
+    cmd: printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"
     hide: true
 
   getvar:

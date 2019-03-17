@@ -256,7 +256,7 @@ Drupal 8 implementation of YOURSITE for YOURORG
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
 
-![drupal-dev.io](https://img.shields.io/badge/Powered_by-Drupal--Dev-blue.svg) 
+[![drupal-dev.io](https://img.shields.io/badge/Powered_by-Drupal--Dev-blue.svg)](https://drupal-dev.io/) 
 
 
 ## Local environment setup
@@ -364,6 +364,8 @@ need to be reviewed and selectively committed.
 PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with Drupal rules from [Coder](https://www.drupal.org/project/coder) module and additional local overrides in `phpcs.xml` and `.eslintrc.json`.   
 
 SASS and SCSS code linting use [Sass Lint](https://github.com/sasstools/sass-lint) with additional local overrides in `.sass-lint.yml`.
+
+Set `ALLOW_LINT_FAIL=1` in `.env` to allow lint failures.
 
 ## Behat tests
 Behat configuration uses multiple extensions: 
