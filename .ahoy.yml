@@ -131,7 +131,7 @@ commands:
       ahoy drush sql-drop -y && \
       ahoy cli "mkdir -p /tmp/.data" && \
       docker cp -L ${DATAROOT}/db.sql $(docker-compose ps -q cli):/tmp/.data/db.sql && \
-      docker-compose exec cli bash -c "pv /tmp/.data/${filename} | drush -r ${APP}/${WEBROOT} sql-cli"
+      docker-compose exec cli bash -c "pv /tmp/.data/db.sql | drush -r ${APP}/${WEBROOT} sql-cli"
     hide: true
 
   export-db:
