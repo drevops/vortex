@@ -964,6 +964,7 @@ replace_string_content() {
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
+    --exclude-dir=".data" \
     -l "${needle}" "${dir}" \
     | xargs sed "${sed_opts[@]}" "s@$needle@$replacement@g"
 }
@@ -987,6 +988,7 @@ remove_special_comments() {
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
+    --exclude-dir=".data" \
     -l "${token}" "${dir}" \
     | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/d"
 }
@@ -1002,6 +1004,7 @@ remove_special_comments_with_content() {
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
+    --exclude-dir=".data" \
     -l "#;> $token" "${dir}" \
     | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/#;< $token/,/#;> $token/d"
 }
@@ -1016,6 +1019,7 @@ enable_commented_code() {
     --exclude-dir=".idea" \
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
+    --exclude-dir=".data" \
     -l "##### " "${dir}" \
     | xargs sed "${sed_opts[@]}" -e "s/##### //g"
 }
@@ -1069,7 +1073,13 @@ dir_contains_string(){
 
   [ -d "${dir}" ] || return 1
 
-  grep -qrI --exclude-dir='.git' --exclude-dir='.idea' --exclude-dir='vendor' --exclude-dir='node_modules' -l "${string}" "${dir}"
+  grep -qrI \
+    --exclude-dir='.git' \
+    --exclude-dir='.idea' \
+    --exclude-dir='vendor' \
+    --exclude-dir='node_modules' \
+    --exclude-dir=".data" \
+    -l "${string}" "${dir}"
 }
 
 git_init(){

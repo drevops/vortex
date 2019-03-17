@@ -86,6 +86,10 @@ assert_deployment_files_present(){
   assert_file_not_exists "${dir}"/docroot/themes/custom/star_wars/build/js/star_wars.js
   assert_dir_not_exists "${dir}"/docroot/themes/custom/star_wars/js
 
+  # Other source asset files do not exist.
+  assert_dir_not_exists "${dir}"/docroot/themes/custom/star_wars/fonts
+  assert_dir_not_exists "${dir}"/docroot/themes/custom/star_wars/images
+
   # Assert configuration dir exists.
   assert_dir_exists "${dir}"/config/default
 }

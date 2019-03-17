@@ -44,6 +44,8 @@ x-environment:
   #;< LAGOON
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
   #;> LAGOON
+  # Pass-through $CI variable.
+  CI: ${CI:-}
   # Uncomment to enable Xdebug and then restart via `ahoy up`.
   #XDEBUG_ENABLE: "true"
 
@@ -108,7 +110,7 @@ services:
     #;> LAGOON
 
   mariadb:
-    image: amazeeio/mariadb-drupal
+    image: amazeeio/mariadb-drupal:v0.21.4
     environment:
       <<: *default-environment
     ports:
@@ -120,7 +122,7 @@ services:
 
   #;< REDIS
   redis:
-    image: amazeeio/redis
+    image: amazeeio/redis:v0.21.4
     #;< LAGOON
     labels:
       lagoon.type: redis
