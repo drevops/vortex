@@ -27,6 +27,10 @@ ahoy pull
 
 # Build application.
 export BUILD_EXPORT_DIR="/workspace/code"
+
+# Skip sanitization during the build, but allow to override, if required.
+export SKIP_SANITIZE_DB="${SKIP_SANITIZE_DB:-1}"
+
 ahoy build
 
 # Create local settings.

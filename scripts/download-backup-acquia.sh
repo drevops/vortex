@@ -10,9 +10,9 @@
 #
 # @see https://cloudapi.acquia.com/#GET__sites__site_envs__env_dbs__db_backups__backup_download-instance_route
 
-################################################################################
-########################### REQUIRED VARIABLES #################################
-################################################################################
+#-------------------------------------------------------------------------------
+#                             REQUIRED VARIABLES
+#-------------------------------------------------------------------------------
 
 # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
 AC_API_USER_NAME=${AC_API_USER_NAME:-}
@@ -23,9 +23,9 @@ AC_API_DB_SITE=${AC_API_DB_SITE:-}
 AC_API_DB_ENV=${AC_API_DB_ENV:-}
 AC_API_DB_NAME=${AC_API_DB_NAME:-}
 
-################################################################################
-########################### OPTIONAL VARIABLES #################################
-################################################################################
+#-------------------------------------------------------------------------------
+#                              OPTIONAL VARIABLES
+#-------------------------------------------------------------------------------
 
 # Backup id. If not specified - latest backup id will be discovered and used.
 AC_API_DB_BACKUP_ID=${AC_API_DB_BACKUP_ID:-}
@@ -53,9 +53,9 @@ DB_REMOVE_CACHED_DUMPS=${DB_REMOVE_CACHED_DUMPS:-0}
 # Internal flag to proceed with the download.
 DB_DOWNLOAD_PROCEED=${DB_DOWNLOAD_PROCEED:-1}
 
-################################################################################
-#################### DO NOT CHANGE ANYTHING BELOW THIS LINE ####################
-################################################################################
+#-------------------------------------------------------------------------------
+#                       DO NOT CHANGE ANYTHING BELOW THIS LINE
+#-------------------------------------------------------------------------------
 
 # Function to extract last value from JSON object passed via STDIN.
 extract_json_last_value() {
@@ -129,7 +129,10 @@ else
     [ "${DB_REMOVE_CACHED_DUMPS}" == "1" ] && echo "==> Removing all previously cached DB dumps" && rm -Rf "${DB_DIR}/${db_dump_file_actual_prefix:?}*"
     echo "==> Using latest backup id ${AC_API_DB_BACKUP_ID} for DB ${AC_API_DB_NAME}"
     echo "==> Downloading DB dump into file ${db_dump_compressed}"
+    echo curl --progress-bar -L -u "${AC_API_USER_NAME}":"${AC_API_USER_PASS}" "https://cloudapi.acquia.com/v1/sites/${AC_API_DB_SITE}/envs/${AC_API_DB_ENV}/dbs/${AC_API_DB_NAME}/backups/${AC_API_DB_BACKUP_ID}/download.json" -o "${db_dump_compressed}"
     curl --progress-bar -L -u "${AC_API_USER_NAME}":"${AC_API_USER_PASS}" "https://cloudapi.acquia.com/v1/sites/${AC_API_DB_SITE}/envs/${AC_API_DB_ENV}/dbs/${AC_API_DB_NAME}/backups/${AC_API_DB_BACKUP_ID}/download.json" -o "${db_dump_compressed}"
+    # shellcheck disable=SC2181
+    [ $? -ne 0 ] && echo "==> ERROR: Unable to download database ${AC_API_DB_NAME}" && exit
   else
     echo "==> Found existing cached gzipped DB file ${db_dump_compressed} for DB ${AC_API_DB_NAME}"
   fi

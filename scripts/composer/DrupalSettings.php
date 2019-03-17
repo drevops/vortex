@@ -16,13 +16,13 @@ class DrupalSettings {
   /**
    * Create Drupal settings file.
    */
-  public static function create(Event $event) {
+  public static function create(Event $event, $site = 'default', $defaultsArg = []) {
     $fs = new Filesystem();
     $drupalFinder = new DrupalFinder();
     $drupalFinder->locateRoot(getcwd());
     $drupalRoot = $drupalFinder->getDrupalRoot();
 
-    $standard_settings_file = $drupalRoot . '/sites/default/settings.php';
+    $standard_settings_file = $drupalRoot . '/sites/' . $site . '/settings.php';
     $generated_settings_file_name = 'settings.generated.php';
 
     $defaults = [
@@ -32,10 +32,11 @@ class DrupalSettings {
       'mysql_host' => 'localhost',
       'mysql_port' => '',
       'mysql_prefix' => '',
-      'settings_path' => $drupalRoot . '/sites/default/' . $generated_settings_file_name,
+      'settings_path' => $drupalRoot . '/sites/' . $site . '/' . $generated_settings_file_name,
     ];
 
-    $options = self::extractEnvironmentVariables(array_keys($defaults))
+    $options = $defaultsArg
+      + self::extractEnvironmentVariables(array_keys($defaults))
       + self::extractCliOptions($event->getArguments(), array_keys($defaults))
       + $defaults;
 
@@ -72,9 +73,9 @@ GENERATEDSETTINGS;
   /**
    * Delete Drupal settings file.
    */
-  public static function delete(Event $event) {
+  public static function delete(Event $event, $site = 'default') {
     $defaults = [
-      'settings_path' => 'docroot/sites/default/settings.generated.php',
+      'settings_path' => 'docroot/sites/' . $site . '/settings.generated.php',
     ];
 
     $options = self::extractEnvironmentVariables(array_keys($defaults))
@@ -88,6 +89,43 @@ GENERATEDSETTINGS;
     else {
       $fs->remove($options['settings_path']);
       $event->getIO()->write(sprintf('Deleted file %s', $options['settings_path']));
+    }
+  }
+
+  /**
+   * Create multiple settings files for multi-site installation.
+   */
+  public static function createMultiple(Event $event) {
+    $fs = new Filesystem();
+    $drupalFinder = new DrupalFinder();
+    $drupalFinder->locateRoot(getcwd());
+    $drupalRoot = $drupalFinder->getDrupalRoot();
+
+    $sitesFile = $drupalRoot . '/sites/sites.php';
+    if (!$fs->exists($sitesFile)) {
+      $event->getIO()->writeError('<error>' . $sitesFile . ' file does not exist, but required for multi-site installations</error>');
+    }
+
+    require_once $sitesFile;
+    if (!isset($sites)) {
+      $event->getIO()->writeError('<error>' . $sitesFile . ' file does not contain any records about sites</error>');
+      exit(1);
+    }
+
+    $sites = array_unique(array_values($sites));
+    $host = self::extractEnvironmentVariables(['mysql_host'])
+      + self::extractCliOptions($event->getArguments(), ['mysql_host']);
+    $host = reset($host);
+
+    if (empty($host)) {
+      $event->getIO()->writeError('<error>MYSQL_HOST is not set</error>');
+      exit(1);
+    }
+
+    foreach ($sites as $k => $site) {
+      self::create($event, $site, [
+        'mysql_host' => $host . ($k + 1),
+      ]);
     }
   }
 

@@ -25,7 +25,11 @@ if (!defined('ENVIRONMENT_TEST')) {
 if (!defined('ENVIRONMENT_DEV')) {
   define('ENVIRONMENT_DEV', 'dev');
 }
+
 $settings['environment'] = ENVIRONMENT_LOCAL;
+if (getenv('CI')) {
+  $settings['environment'] = ENVIRONMENT_CI;
+}
 
 $contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir('modules/contrib') ? 'modules/contrib' : 'modules');
 

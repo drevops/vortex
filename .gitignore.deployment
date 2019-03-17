@@ -4,6 +4,8 @@
 /*
 
 !docroot
+docroot/themes/custom/your_site_theme/fonts
+docroot/themes/custom/your_site_theme/images
 docroot/themes/custom/your_site_theme/js
 docroot/themes/custom/your_site_theme/scss
 docroot/sites/default/settings.generated.php
