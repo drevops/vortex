@@ -898,6 +898,8 @@ file_is_required(){
 # Add specified file to local git ignore (not .gitgnore).
 git_add_to_local_ignore(){
   if [ -d ./.git/ ]; then
+    mkdir -p ./.git/info >/dev/null
+    [ ! -f "./.git/info/exclude" ] && touch ./.git/info/exclude >/dev/null
     if ! grep -Fxq "${1}" ./.git/info/exclude; then
       echo "/${1}" >> ./.git/info/exclude
       echo "    Added file ${1} to local git ignore"
