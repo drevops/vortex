@@ -72,7 +72,7 @@ commands:
 
   drush:
     usage: Run drush commands in the CLI service container.
-    cmd: docker exec -i $(docker-compose ps -q cli) drush -r ${APP}/${WEBROOT} "$@"
+    cmd: docker exec -i $(docker-compose ps -q cli) drush -r ${APP}/${WEBROOT} -l ${LOCALDEV_URL} "$@"
 
   # Application commands.
   login:
