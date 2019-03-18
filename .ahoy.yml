@@ -72,7 +72,7 @@ commands:
 
   drush:
     usage: Run drush commands in the CLI service container.
-    cmd: docker exec -i $(docker-compose ps -q cli) drush -r ${APP}/${WEBROOT} "$@"
+    cmd: docker exec -i $(docker-compose ps -q cli) drush -r ${APP}/${WEBROOT} -l ${LOCALDEV_URL} "$@"
 
   # Application commands.
   login:
@@ -258,7 +258,7 @@ commands:
         #;< FRESH_INSTALL
         export DOCTOR_CHECK_DB=0
         #;> FRESH_INSTALL
-        DOCTOR_CHECK_TOOLS=1 DOCTOR_CHECK_SSH=0 DOCTOR_CHECK_PORT=0 DOCTOR_CHECK_BOOTSTRAP=0 ahoy doctor
+        DOCTOR_CHECK_DB=${DOCTOR_CHECK_DB:-1} DOCTOR_CHECK_TOOLS=${DOCTOR_CHECK_TOOLS:-1} DOCTOR_CHECK_SSH=${DOCTOR_CHECK_SSH:-0} DOCTOR_CHECK_PORT=${DOCTOR_CHECK_PORT-:0} DOCTOR_CHECK_BOOTSTRAP=${DOCTOR_CHECK_BOOTSTRAP-:0} ahoy doctor
       hide: true
 
 entrypoint:

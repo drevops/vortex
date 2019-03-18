@@ -19,8 +19,10 @@ rm -f "${DB_SEMAPHORE_FILE}" >/dev/null
 if [ "${found_db}" == ""  ] || [ "${FORCE_DB_DOWNLOAD}" != "" ]; then
   echo "==> Created DB semaphore file ${DB_SEMAPHORE_FILE}"
   touch "${DB_SEMAPHORE_FILE}"
-
+  # Do not check that db exists.
+  export DOCTOR_CHECK_DB=0
   ahoy download-db || exit 1
+  export DOCTOR_CHECK_DB=1
 fi
 
 if [ -f "${DB_SEMAPHORE_FILE}" ]; then
