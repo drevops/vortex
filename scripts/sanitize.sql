@@ -6,26 +6,26 @@ UPDATE `users_field_data` SET `status` = '0' WHERE `uid` = '1' AND `langcode` = 
 
 -- Below are the largest tables in the database that can be truncated.
 
-CREATE TABLE if NOT EXISTS `watchdog`;
-TRUNCATE TABLE `watchdog`;
-
-CREATE TABLE if NOT EXISTS `cache_entity`;
-TRUNCATE TABLE `cache_entity`;
-
-CREATE TABLE if NOT EXISTS `cache_discovery`;
-TRUNCATE TABLE `cache_discovery`;
-
-CREATE TABLE if NOT EXISTS `cache_default`;
-TRUNCATE TABLE `cache_default`;
-
-CREATE TABLE if NOT EXISTS `cache_data`;
-TRUNCATE TABLE `cache_data`;
-
-CREATE TABLE if NOT EXISTS `cache_menu`;
-TRUNCATE TABLE `cache_menu`;
-
-CREATE TABLE if NOT EXISTS `cache_config`;
-TRUNCATE TABLE `cache_config`;
+-- CREATE TABLE if NOT EXISTS `watchdog`;
+-- TRUNCATE TABLE `watchdog`;
+--
+-- CREATE TABLE if NOT EXISTS `cache_entity`;
+-- TRUNCATE TABLE `cache_entity`;
+--
+-- CREATE TABLE if NOT EXISTS `cache_discovery`;
+-- TRUNCATE TABLE `cache_discovery`;
+--
+-- CREATE TABLE if NOT EXISTS `cache_default`;
+-- TRUNCATE TABLE `cache_default`;
+--
+-- CREATE TABLE if NOT EXISTS `cache_data`;
+-- TRUNCATE TABLE `cache_data`;
+--
+-- CREATE TABLE if NOT EXISTS `cache_menu`;
+-- TRUNCATE TABLE `cache_menu`;
+--
+-- CREATE TABLE if NOT EXISTS `cache_config`;
+-- TRUNCATE TABLE `cache_config`;
 
 -- CREATE TABLE if NOT EXISTS `webform_submission_data`;
 -- TRUNCATE TABLE `webform_submission_data`;
