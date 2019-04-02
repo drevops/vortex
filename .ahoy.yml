@@ -210,8 +210,8 @@ commands:
   lint:
     usage: Lint code.
     cmd: |
-      ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }"
-      ahoy cli "vendor/bin/phpcs -v ${PHPCS_TARGETS//,/ }"
+      ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }" && \
+      ahoy cli "vendor/bin/phpcs -v ${PHPCS_TARGETS//,/ }" && \
       ahoy cli "npm run lint" || \
       [ "${ALLOW_LINT_FAIL:-0}" -eq 1 ]
 
