@@ -50,9 +50,9 @@ indicate that it was addressed.
 - [ ] Copy values from existing `settings.php` to provided `settings.php` file. 
       Do not simply copy this file over! Transfer values one-by-one instead.
 - [ ] Update values in `settings.php`:
-      - [ ] Site salt.
-      - [ ] Origin URL for `stage_file_prooxy` module.
-      - [ ] Username and password for `shield` module.                      
+    - [ ] Site salt.
+    - [ ] Origin URL for `stage_file_prooxy` module.
+    - [ ] Username and password for `shield` module.                      
 - [ ] Copy values from existing `services.yml` to provided `services.yml` file.
       Do not simply copy this file over! Transfer values one-by-one instead.
 - [ ] Assess existing `robots.txt` file and compare it with provided one. If 
@@ -81,15 +81,56 @@ indicate that it was addressed.
 
 
 4. Setting up integrations
----------------------------     
+---------------------------
+[//]: # (#;< ACQUIA)
 
+- [ ] Configure Acquia integration:
+    - [ ] Create a `deployer` user in Acquia. 
+    - [ ] Add this user to the Acquia project. Normally, this user would be 
+          added to your project in GitHub as well.
+    - [ ] Login as this user to Acquia, go to 
+          Acquia Cloud UI->Account->Credentials->Cloud API->Private key and 
+          copy the token.
+    - [ ] Add token key to every non-developer's environment that must have 
+          read access (only read access!). For example, add it to CI if
+          it has to get database dump.            
+    - [ ] Create an SSH key pair with email `deployer+your_site@yourcompany.com`.
+          and add to this user in Acquia.
+    - [ ] Add private key to every non-developer's environment that must have 
+          write access (only write access!). For example, add it to CI if
+          it has to push code to Acquia.          
+
+[//]: # (#;> ACQUIA)
+
+[//]: # (#;< LAGOON)
+
+- [ ] Configure Lagoon integration:          
+    - [ ] Submit a request to AmazeeIO to create a project. 
+    - [ ] Add your public key to the project.
+    - [ ] Set `LAGOON_INTEGRATION_COMPLETE=1` in `.env` file.
+    - [ ] Ensure that you have access to Lagoon: run `ahoy cli` and `drush sa` -
+          a list of available environments should be shown (at least one 
+          environment).
+    - [ ] Ensure that you have access to Lagoon UI. 
+    - [ ] Setup [Slack notifications](https://lagoon.readthedocs.io/en/latest/administering_lagoon/graphql_api/#adding-notifications-to-the-project)   
+    - [ ] Push to remote and ensure that Lagoon was successfully deployed.
+    
+[//]: # (#;> LAGOON)
+
+[//]: # (#;< DEPENDENCIESIO)  
+                           
+- [ ] Configure dependencies.io by logging in with your GitHub account and 
+      adding a project through UI. 
+      
+[//]: # (#;> DEPENDENCIESIO)
+     
 
 5. Cleanup
 --------------------     
 - [ ] Cleanup code or set `ALLOW_LINT_FAIL=1` in `.env` file:
-      - [ ] Cleanup PHP code
-      - [ ] Cleanup JS code
-      - [ ] Cleanup SCSS code
+    - [ ] Cleanup PHP code
+    - [ ] Cleanup JS code
+    - [ ] Cleanup SCSS code
 - [ ] Move modules functionality into `your_module_core` module's relevant 
       inclusion files.
 - [ ] Refactor modules functions to follow [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself),
@@ -109,15 +150,13 @@ indicate that it was addressed.
       fix discrepancies.
 - [ ] Check that deployment documentation has correct information.
 - [ ] Perform visual regression testing: 
-      - [ ] Deploy a copy of the existing project database and code to a UAT 
-            environment.
-      - [ ] Deploy a copy of the new project codebase along with the existing
-            database to another available environment.
-      - [ ] Add project to visual regression tool and configure exclusions for 
-            animated parts of the website.                       
-      - [ ] Run visual regression and fix discrepancies.                       
-- [ ] Configure dependencies.io by logging in with your GitHub account and 
-      adding a project through UI. 
+    - [ ] Deploy a copy of the existing project database and code to a UAT 
+          environment.
+    - [ ] Deploy a copy of the new project codebase along with the existing
+          database to another available environment.
+    - [ ] Add project to visual regression tool and configure exclusions for 
+          animated parts of the website.                       
+    - [ ] Run visual regression and fix discrepancies.
 
 7. Deployment
 -------------
