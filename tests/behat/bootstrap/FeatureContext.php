@@ -6,7 +6,10 @@
  */
 
 use Drupal\DrupalExtension\Context\DrupalContext;
+use IntegratedExperts\BehatSteps\D8\ContentTrait;
+use IntegratedExperts\BehatSteps\D8\TaxonomyTrait;
 use IntegratedExperts\BehatSteps\D8\WatchdogTrait;
+use IntegratedExperts\BehatSteps\FieldTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
 
 /**
