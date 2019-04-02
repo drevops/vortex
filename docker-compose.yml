@@ -60,7 +60,7 @@ services:
       <<: *default-environment
     <<: *default-volumes
     ports:
-      - "35729:35729" # Livereload port mapping.
+      - "35729" # Find port on host with `ahoy info` or `docker-compose port cli 35729`
     #;< LAGOON
     labels:
       lagoon.type: cli-persistent

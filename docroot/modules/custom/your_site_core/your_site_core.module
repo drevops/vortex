@@ -38,3 +38,54 @@ function your_site_core_mail_alter(&$message) {
     $message['send'] = FALSE;
   }
 }
+
+/**
+ * Implements hook_css_alter().
+ */
+function your_site_core_css_alter(&$css) {
+  if (Settings::get('livereload', FALSE)) {
+    // Alter css to display as link tags.
+    foreach ($css as $key => $value) {
+      $css[$key]['preprocess'] = FALSE;
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function your_site_core_page_attachments_alter(array &$page) {
+  if (Settings::get('livereload', FALSE)) {
+    _your_site_core_attach_livereload($page);
+  }
+}
+
+/**
+ * Helper to attach Livereload to the head of the page.
+ */
+function _your_site_core_attach_livereload(&$page) {
+  $livereload_url = &drupal_static(__FUNCTION__);
+  if (!$livereload_url) {
+    $socket_file = \Drupal::service('file_system')->realpath('public://livereload.sock');
+    if (file_exists($socket_file)) {
+      $url = getenv('LOCALDEV_URL');
+      $port = trim(file_get_contents($socket_file));
+      if (!empty($url) && is_numeric($port)) {
+        $livereload_url = "$url:$port";
+      }
+    }
+  }
+
+  if ($livereload_url) {
+    $page['#attached']['html_head'][] = [
+      [
+        '#type' => 'html_tag',
+        '#tag' => 'script',
+        '#attributes' => [
+          'src' => "http://$livereload_url/livereload.js?snipver=1",
+        ],
+      ],
+      'livereload',
+    ];
+  }
+}
