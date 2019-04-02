@@ -9,6 +9,7 @@ CircleCI
 CLI
 customisations
 DDEV
+DEPENDENCIESIO
 Deployer
 DevOps
 dev
@@ -24,6 +25,7 @@ GPL
 Gruntfile
 Hotfix
 Integrations
+integrations
 io
 JS
 Kanban

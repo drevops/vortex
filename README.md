@@ -98,6 +98,8 @@ the way you want it!
 
 3. Commit added files
 
+4. Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progress. 
+
 ### Using Drupal-Dev
 Run `drupal-dev.sh` to download the latest version of Drupal-Dev for your project.  
 
@@ -258,6 +260,9 @@ Drupal 8 implementation of YOURSITE for YOURORG
 
 [![drupal-dev.io](https://img.shields.io/badge/Powered_by-Drupal--Dev-blue.svg)](https://drupal-dev.io/) 
 
+[//]: # (Remove the section below once onboarding is finished)
+## Onboarding
+Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progress. 
 
 ## Local environment setup
 - Make sure that you have latest versions of all required software installed:   
