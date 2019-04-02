@@ -5,6 +5,8 @@
  * Core module for YOURSITE.
  */
 
+use Drupal\Core\Site\Settings;
+
 /**
  * Include additional early bootstrap files.
  *
@@ -23,5 +25,16 @@ foreach ($early_bootstrap_modules as $module_name) {
   $module_include_file = dirname(__FILE__) . '/includes/' . $module_name . '.inc';
   if (file_exists($module_include_file)) {
     require_once $module_include_file;
+  }
+}
+
+/**
+ * Implements hook_mail_alter().
+ */
+function your_site_core_mail_alter(&$message) {
+  // Stop any mail send out in CI. Note if email functionality needs to be
+  // tested, this code should be removed and replaced with a dev mail system.
+  if (Settings::get('environment') == ENVIRONMENT_CI) {
+    $message['send'] = FALSE;
   }
 }
