@@ -33,7 +33,7 @@ commands:
       #;> SOLR
       ahoy line "Mailhog URL              : " http://mailhog.docker.amazee.io/
       if [ "$1" ]; then
-        ahoy line "One-time login         : " $(ahoy login -- --no-browser)
+        ahoy line "One-time login           : " $(ahoy login -- --no-browser)
       fi
 
   up:
