@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -x
 #
 # Flush varnish cache for specified domains.
 #

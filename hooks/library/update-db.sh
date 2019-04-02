@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -e
+set -x
 #
 # Cloud Hook: update-db
 #
@@ -8,4 +10,4 @@
 site="$1"
 target_env="$2"
 
-drush @$site.$target_env updatedb --yes
+drush @$site.$target_env updatedb --yes --strict=0

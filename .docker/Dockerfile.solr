@@ -2,6 +2,6 @@
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE} as cli
 
-FROM amazeeio/solr:6.6-drupal
+FROM amazeeio/solr:6.6-drupal-v0.21.4
 # Uncomment below after installing search_api_solr module (it must exist in the codebase).
 # COPY --from=cli /app/docroot/sites/all/modules/contrib/search_api_solr/solr-conf/6.x/ /solr-conf/conf/

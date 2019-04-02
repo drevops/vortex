@@ -1,6 +1,6 @@
 docker-compose-yaml: docker-compose.yml
 
-project: mysite
+project: your_site
 
 tasks:
   post-rollout:
@@ -12,25 +12,25 @@ tasks:
         name: Setup site
         command: |
           mkdir -p /tmp/.data
-          # [META]
-          # Using dummy DB for Drupal-Dev project testing.
-          source .env && curl -L $DUMMY_DB -o /tmp/.data/db.sql
-          # [/META]
-          # [META:ACQUIA]
-          # Copy credentials from one of the Acquia environmets. We are using
-          # Acquia environments as a storage in this case. These credentials
-          # need to be created beforehand by SSHing into an environment and
-          # running `drush ac-api-login` with credentials of the Deployer user.
-          drush -y rsync @mysite.dev:/home/mysite/.acquia/ ~/.acquia/
+          #;< DEMO
+          #; Using dummy DB for Drupal-Dev project testing.
+          source .env && curl -L $DEMO_DB -o /tmp/.data/db.sql
+          #;> DEMO
+          #;< ACQUIA
+          #; Copy credentials from one of the Acquia environmets. We are using
+          #; Acquia environments as a storage in this case. These credentials
+          #; need to be created beforehand by SSHing into an environment and
+          #; running `drush ac-api-login` with credentials of the Deployer user.
+          drush -y rsync @your_site.dev:/home/your_site/.acquia/ ~/.acquia/
           export $(grep -v '^#' .env | xargs)
-          DB_DUMP_FILE=/tmp/.data/db.sql scripts/acquia-download-backup.sh
-          # [/META:ACQUIA]
+          DB_DUMP_FILE=/tmp/.data/db.sql scripts/download-backup-acquia.sh
+          #;> ACQUIA
           drush sql-drop -y
           drush sql-cli < /tmp/.data/db.sql
           drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
           # Replace lines above with a line below to enable site install.
-          # drush si -y standard --account-name=admin --site-name="MYSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
-          drush en -y mysite_core
+          # drush si -y standard --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+          drush en -y your_site_core
         service: cli
     - run:
         name: Run database updates
@@ -49,5 +49,5 @@ environments:
         command: drush cron
         service: cli
     routes:
-        - varnish:
-            - "mysiteurl"
+      - varnish:
+          - "your-site-url"

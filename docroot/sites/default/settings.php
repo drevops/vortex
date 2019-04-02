@@ -25,37 +25,49 @@ if (!defined('ENVIRONMENT_TEST')) {
 if (!defined('ENVIRONMENT_DEV')) {
   define('ENVIRONMENT_DEV', 'dev');
 }
+
 $conf['environment'] = ENVIRONMENT_LOCAL;
+if (getenv('CI')) {
+  $conf['environment'] = ENVIRONMENT_CI;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       SITE-SPECIFIC SETTINGS                             ///
 ////////////////////////////////////////////////////////////////////////////////
 
-// Example of site-specific settings that should be placed into this section.
-// Set the default timezone globally.
 ini_set('date.timezone', 'Australia/Melbourne');
 date_default_timezone_set('Australia/Melbourne');
+
+// Salt for one-time login links, cancel links, form tokens, etc.
+$drupal_hash_salt = 'CHANGE_ME';
+
 $update_free_access = FALSE;
-$conf['404_fast_paths_exclude'] = '/\/(?:styles)|(?:system\/files)\//';
-$conf['404_fast_paths'] = '/\.(?:txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
-$conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
-$drupal_hash_salt = '';
+
 ini_set('session.gc_probability', 1);
 ini_set('session.gc_divisor', 100);
 ini_set('session.gc_maxlifetime', 200000);
 ini_set('session.cookie_lifetime', 2000000);
 
+$conf['404_fast_paths_exclude'] = '/\/(?:styles)|(?:system\/files)\//';
+$conf['404_fast_paths'] = '/\.(?:txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+$conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+
+// Default Shield credentials.
+// Note that they are overridden for local and CI environments below.
+$conf['shield_user'] = 'CHANGEME';
+$conf['shield_pass'] = 'CHANGEME';
+
 ////////////////////////////////////////////////////////////////////////////////
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
 ////////////////////////////////////////////////////////////////////////////////
 
-// [META:ACQUIA]
+// #;< ACQUIA
 // Include Acquia settings.
 // @see https://docs.acquia.com/acquia-cloud/develop/env-variable
 if (file_exists('/var/www/site-php')) {
   // Delay the initial database connection.
   $conf['acquia_hosting_settings_autoconnect'] = FALSE;
-  require '/var/www/site-php/mysite/mysite-settings.inc';
+  require '/var/www/site-php/your_site/your_site-settings.inc';
   // Do not put any Acquia-specific settings in this code block. It is used
   // for explicit mapping of Acquia environments to $conf['environment']
   // variable only. Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
@@ -73,7 +85,8 @@ if (file_exists('/var/www/site-php')) {
       break;
   }
 }
-// [/META:ACQUIA]
+// #;> ACQUIA
+
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-ENVIRONMENT SETTINGS                           ///
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,21 +100,40 @@ $conf['environment_indicator_overwritten_position'] = 'top';
 $conf['environment_indicator_overwritten_fixed'] = FALSE;
 $conf['environment_indicator_git_support'] = FALSE;
 
+if ($conf['environment'] == ENVIRONMENT_PROD) {
+  // Allow to bypass Shield.
+  $config['shield_user'] = '';
+  $config['shield_pass'] = '';
+}
+
+if ($conf['environment'] !== ENVIRONMENT_PROD) {
+  $conf['stage_file_proxy_origin'] = 'http://your-site-url/';
+  $conf['stage_file_proxy_hotlink'] = FALSE;
+}
+
+if ($conf['environment'] == ENVIRONMENT_LOCAL || $conf['environment'] == ENVIRONMENT_CI) {
+  // Allow to bypass Shield.
+  $conf['shield_user'] = '';
+  $conf['shield_pass'] = '';
+}
+
+////////////////////////////////////////////////////////////////////////////////
+///                    END OF PER-ENVIRONMENT SETTINGS                       ///
+////////////////////////////////////////////////////////////////////////////////
+
 // Include generated settings file, if available.
 if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.generated.php')) {
   include DRUPAL_ROOT . '/' . conf_path() . '/settings.generated.php';
 }
 
-/**
- * Load local development override configuration, if available.
- *
- * Use settings.local.php to override variables on secondary (staging,
- * development, etc) installations of this site. Typically used to disable
- * caching, JavaScript/CSS compression, re-routing of outgoing emails, and
- * other things that should not happen on development and testing sites.
- *
- * Keep this code block at the end of this file to take full effect.
- */
+// Load local development override configuration, if available.
+//
+// Use settings.local.php to override variables on secondary (staging,
+// development, etc) installations of this site. Typically used to disable
+// caching, JavaScript/CSS compression, re-routing of outgoing emails, and
+// other things that should not happen on development and testing sites.
+//
+// Keep this code block at the end of this file to take full effect.
 if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.local.php')) {
   include DRUPAL_ROOT . '/' . conf_path() . '/settings.local.php';
 }

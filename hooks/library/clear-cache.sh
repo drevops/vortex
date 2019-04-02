@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -e
+set -x
 #
 # Cloud Hook: cache-clear
 #

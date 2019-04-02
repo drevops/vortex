@@ -1,46 +1,57 @@
-# [META]
-# Docker Compose configuration file.
-#
-# - Using a single file to work in local, CI and production environments.
-# - Local overrides are possible using docker-composer.override.yml file.
-# - Use inline comments starting with ### to have the line removed in CI.
-# - Content between "META" and "/META" (like the ones above and below this
-#   paragraph) is explaining Drupal-Dev inner working and can be safely removed
-#   for specific project.
-#
-# NOTE: Do not manually remove these tags. Instead, run `ahoy init` to initialise
-# this project.
-# [/META]
+#; Docker Compose configuration file.
+#;
+#; - Using a single file to work in local, CI and production environments.
+#; - Local overrides are possible using docker-composer.override.yml file.
+#; - Use inline comments containing '###' to have the line removed in CI.
+#; - Use inline comments starting with '##' to have the line being automatically
+#;   uncommented in CI.
+#; - Comments starting with '#;', '#;<' or '#;>' (like the ones used for the
+#;   current paragraph) are explaining Drupal-Dev inner working and can be
+#;   safely removed for your project. They are automatically removed when
+#;   installing Drupal-Dev.
 version: '2.3'
 
 x-project:
-  &project mysite
+  &project ${PROJECT:-your_site}
 
 x-volumes:
   &default-volumes
-  # [META]
-  # Understanding host mounting in Docker-based projects.
-  #
-  # To share application code between services (containers), Docker uses volumes.
-  # When used in non-development environments, containers have access to
-  # the same shared files using volumes and these volumes do not need to be
-  # mounted from the host. But for development environment, when the code
-  # constantly changes on the host, we need to have these changes synchronized
-  # into all containers. Since we are using single `docker-compose.yml` file for
-  # all environments, we have to accommodate both cases, so we are specifying an
-  # override for the same directory as a mounted volume.
-  #
-  # See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/#short-syntax-3
-  # [/META]
+  #; Understanding host mounting in Docker-based projects.
+  #;
+  #; To share application code between services (containers), Docker uses volumes.
+  #; When used in non-development environments, containers have access to
+  #; the same shared files using volumes and these volumes do not need to be
+  #; mounted from the host. But for development environment, when the code
+  #; constantly changes on the host, we need to have these changes synchronized
+  #; into all containers. Since we are using single `docker-compose.yml` file for
+  #; all environments, we have to accommodate both cases, so we are specifying an
+  #; override for the same directory as a mounted volume as a commented-out lines,
+  #; which will be automatically uncommented in CI.
+  #;
+  #; See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/compose-file-v2/#volume-configuration-reference
+  #;
+  #; Important note: unlike Drupal-Dev 8.x, do not map 'docroot/sites/default/files'
+  #; as a separate volume. The path preserver Composer plugin will try to backup
+  #; and delete this directory when patching Drupal 7 core, and will not have
+  #; permissions to do so, which will result in build fail.
   volumes:
-    - /app
-    - .:/app:${VOLUME_FLAGS:-delegated} ### Removed automatically in CI.
+    - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    ##- app:/app # Override for environment without host mounts. Automatically uncommented in CI.
+    ##- files:/app/docroot/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
 
 x-environment:
   &default-environment
   LAGOON_PROJECT: *project
-  LAGOON_LOCALDEV_URL: http://mysite.docker.amazee.io
-  # Uncomment to enable xdebug and then restart via `ahoy up`
+  # Local dev URL populated from the environment. Do not override here. Instead,
+  # specify the value in .env file.
+  LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-http://your-site.docker.amazee.io}
+  #;< LAGOON
+  LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
+  #;> LAGOON
+  # Pass-through $CI variable.
+  CI: ${CI:-}
+  DRUPAL_MODULE_PREFIX: "${DRUPAL_MODULE_PREFIX:-mho}"
+  # Uncomment to enable Xdebug and then restart via `ahoy up`.
   #XDEBUG_ENABLE: "true"
 
 services:
@@ -51,14 +62,16 @@ services:
       dockerfile: .docker/Dockerfile.cli
     image: *project
     environment:
-      << : *default-environment
-    << : *default-volumes
-    # [META:LAGOON]
+      <<: *default-environment
+    <<: *default-volumes
+    ports:
+      - "35729" # Find port on host with `ahoy info` or `docker-compose port cli 35729`
+    #;< LAGOON
     labels:
       lagoon.type: cli-persistent
-      lagoon.persistent.name: nginx
+      lagoon.persistent.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
-    # [/META:LAGOON]
+    #;> LAGOON
 
   nginx:
     build:
@@ -66,19 +79,21 @@ services:
       dockerfile: .docker/Dockerfile.nginx-drupal
       args:
         CLI_IMAGE: *project
-    << : *default-volumes
+    <<: *default-volumes
     environment:
-      << : *default-environment
+      <<: *default-environment
     depends_on:
       - cli
     networks:
       - amazeeio-network
       - default
-    # [META:LAGOON]
+    #;< LAGOON
     labels:
       lagoon.type: nginx-php-persistent
+      lagoon.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
-    # [/META:LAGOON]
+      lagoon.persistent.class: slow
+    #;> LAGOON
 
   php:
     build:
@@ -87,29 +102,39 @@ services:
       args:
         CLI_IMAGE: *project
     environment:
-      << : *default-environment
-    << : *default-volumes
+      <<: *default-environment
+    <<: *default-volumes
     depends_on:
       - cli
-    # [META:LAGOON]
+    #;< LAGOON
     labels:
       lagoon.type: nginx-php-persistent
-      lagoon.name: nginx
+      lagoon.name: nginx-php
       lagoon.persistent: /app/docroot/sites/default/files/
-    # [/META:LAGOON]
+      lagoon.persistent.class: slow
+    #;> LAGOON
 
   mariadb:
-    image: amazeeio/mariadb-drupal
+    image: amazeeio/mariadb-drupal:v0.21.4
     environment:
-      << : *default-environment
+      <<: *default-environment
     ports:
       - "3306" # Find port on host with `ahoy info` or `docker-compose port mariadb 3306`
-    # [META:LAGOON]
+    #;< LAGOON
     labels:
       lagoon.type: mariadb
-    # [/META:LAGOON]
+    #;> LAGOON
 
-  # [META:SOLR]
+  #;< REDIS
+  redis:
+    image: amazeeio/redis:v0.21.4
+    #;< LAGOON
+    labels:
+      lagoon.type: redis
+    #;> LAGOON
+  #;> REDIS
+
+  #;< SOLR
   solr:
     build:
       context: .
@@ -117,28 +142,32 @@ services:
       args:
         CLI_IMAGE: *project
     environment:
-      << : *default-environment
+      <<: *default-environment
     ports:
       - "8983" # Find port on host with `ahoy info` or `docker-compose port solr 8983`
-    # [META:LAGOON]
+    #;< LAGOON
     labels:
       lagoon.type: solr
-    # [/META:LAGOON]
-  # [/META:SOLR]
+    #;> LAGOON
+  #;> SOLR
 
   chrome:
     image: selenium/standalone-chrome
     shm_size: '1gb'
     environment:
-      << : *default-environment
-    << : *default-volumes
+      <<: *default-environment
+    <<: *default-volumes
     depends_on:
       - cli
-    # [META:LAGOON]
+    #;< LAGOON
     labels:
       lagoon.type: none
-    # [/META:LAGOON]
+    #;> LAGOON
 
 networks:
   amazeeio-network:
     external: true
+
+volumes:
+  app: {}
+  files: {}
