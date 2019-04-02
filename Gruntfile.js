@@ -10,6 +10,7 @@
 /* global module */
 var bootstrapPath = 'vendor/twbs/bootstrap/dist/js/bootstrap.js';
 var themePath = 'docroot/themes/custom/your_site_theme/';
+var themeName = 'your_site_theme';
 module.exports = function (grunt) {
   'use strict';
   grunt.initConfig({
@@ -58,9 +59,9 @@ module.exports = function (grunt) {
         src: [
           bootstrapPath,
           themePath + 'js/**/*.js',
-          '!' + themePath + 'js/your_site_theme.min.js'
+          '!' + themePath + 'js/' + themeName + '.min.js'
         ],
-        dest: themePath + 'build/js/your_site_theme.min.js'
+        dest: themePath + 'build/js/' + themeName + '.min.js'
       }
     },
     uglify: {
@@ -74,14 +75,14 @@ module.exports = function (grunt) {
           }
         },
         files: {
-          [themePath + 'build/js/your_site_theme.min.js']: [themePath + 'build/js/your_site_theme.min.js']
+          [themePath + 'build/js/' + themeName + '.min.js']: [themePath + 'build/js/' + themeName + '.min.js']
         }
       }
     },
     sass: {
       dev: {
         files: {
-          [themePath + 'build/css/your_site_theme.min.css']: themePath + 'scss/style.scss'
+          [themePath + 'build/css/' + themeName + '.min.css']: themePath + 'scss/style.scss'
         },
         options: {
           implementation: require('node-sass'),
@@ -91,7 +92,7 @@ module.exports = function (grunt) {
       },
       prod: {
         files: {
-          [themePath + 'build/css/your_site_theme.min.css']: themePath + 'scss/style.scss'
+          [themePath + 'build/css/' + themeName + '.min.css']: themePath + 'scss/style.scss'
         },
         options: {
           implementation: require('node-sass'),
@@ -108,11 +109,11 @@ module.exports = function (grunt) {
       },
       dev: {
         map: true,
-        src: themePath + 'build/css/your_site_theme.min.css'
+        src: themePath + 'build/css/' + themeName + '.min.css'
       },
       prod: {
         map: false,
-        src: themePath + 'build/css/your_site_theme.min.css'
+        src: themePath + 'build/css/' + themeName + '.min.css'
       }
     },
     copy: {
