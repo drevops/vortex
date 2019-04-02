@@ -233,6 +233,7 @@ workflows:
               only: /.*/
       - drupal_dev_test_deployment:
           requires:
+            - drupal_dev_test
             - build
           filters:
             tags:
