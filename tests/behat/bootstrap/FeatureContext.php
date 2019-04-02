@@ -17,7 +17,10 @@ use IntegratedExperts\BehatSteps\PathTrait;
  */
 class FeatureContext extends DrupalContext {
 
+  use ContentTrait;
+  use FieldTrait;
   use PathTrait;
+  use TaxonomyTrait;
   use WatchdogTrait;
 
 }
