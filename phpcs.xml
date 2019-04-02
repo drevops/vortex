@@ -96,4 +96,10 @@
   <rule ref="DrupalPractice.General.ClassName.ClassPrefix">
     <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
   </rule>
+
+  <!-- Allow inline block comments until https://www.drupal.org/project/drupal/issues/2305593 is resolved. -->
+  <rule ref="Drupal.Commenting.InlineComment.DocBlock">
+    <exclude-pattern>.*</exclude-pattern>
+  </rule>
+
 </ruleset>
