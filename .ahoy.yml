@@ -67,7 +67,7 @@ commands:
 
   pull:
     usage: Pull latest docker images.
-    cmd: docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio/ | grep -v none | xargs -n1 docker pull | cat
+    cmd: if [ ! -z "$(docker image ls -q)" ]; then docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio/ | grep -v none | xargs -n1 docker pull | cat; fi
 
   cli:
     usage: Start a shell inside CLI container or run a command.
