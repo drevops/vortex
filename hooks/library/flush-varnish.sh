@@ -8,6 +8,7 @@
 # IMPORTANT! This script uses drush ac-* commands and requires credentials
 # for Acquia Cloud. Make sure that file "$HOME/.acquia/cloudapi.conf" exists and
 # follow deployment instructions if it does not.
+set -e
 
 site="$1"
 target_env="$2"
