@@ -1,1 +1,1 @@
-$TARGET_ENV.mysiteurl
+$TARGET_ENV.your-site-url

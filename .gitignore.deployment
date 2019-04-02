@@ -1,0 +1,15 @@
+# Replaces standard .gitignore when building a deployment artefact.
+
+# Ignore everything, but some whitelisted files.
+/*
+
+!docroot
+docroot/sites/all/themes/custom/your_site_theme/fonts
+docroot/sites/all/themes/custom/your_site_theme/images
+docroot/sites/all/themes/custom/your_site_theme/js
+docroot/sites/all/themes/custom/your_site_theme/scss
+docroot/sites/default/default.settings.php
+docroot/sites/default/settings.generated.php
+docroot/sites/default/default.settings.local.php
+!/hooks/
+!/vendor/

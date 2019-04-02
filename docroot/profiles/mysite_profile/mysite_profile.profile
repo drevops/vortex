@@ -1,6 +1,0 @@
-<?php
-
-/**
- * @file
- * Mysite profile.
- */

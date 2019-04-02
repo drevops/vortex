@@ -8,22 +8,23 @@
  */
 
 /* global module */
-var themePath = 'docroot/sites/all/themes/custom/mysitetheme/';
+var themeName = 'your_site_theme';
+var themePath = 'docroot/sites/all/themes/custom/' + themeName + '/';
 module.exports = function (grunt) {
   'use strict';
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     eslint: {
       src: [
-        'docroot/profiles/mysite_profile/**/*.js',
-        '!docroot/profiles/mysite_profile/**/*.min.js',
+        'docroot/profiles/your_site_profile/**/*.js',
+        '!docroot/profiles/your_site_profile/**/*.min.js',
         'docroot/sites/all/modules/custom/**/*.js',
         '!docroot/sites/all/modules/custom/**/*.min.js',
         'docroot/sites/all/themes/custom/**/*.js',
         '!docroot/sites/all/themes/custom/**/*.min.js'
       ],
       options: {
-        config: '.eslintrc.json',
+        configFile: '.eslintrc.json',
         format: 'codeframe'
       }
     },
@@ -56,9 +57,9 @@ module.exports = function (grunt) {
       dist: {
         src: [
           themePath + 'js/**/*.js',
-          '!' + themePath + 'js/mysitetheme.min.js'
+          '!' + themePath + 'js/' + themeName + '.min.js'
         ],
-        dest: themePath + 'build/js/mysitetheme.min.js'
+        dest: themePath + 'build/js/' + themeName + '.min.js'
       }
     },
     uglify: {
@@ -72,14 +73,14 @@ module.exports = function (grunt) {
           }
         },
         files: {
-          [themePath + 'build/js/mysitetheme.min.js']: [themePath + 'build/js/mysitetheme.min.js']
+          [themePath + 'build/js/' + themeName + '.min.js']: [themePath + 'build/js/' + themeName + '.min.js']
         }
       }
     },
     sass: {
       dev: {
         files: {
-          [themePath + 'build/css/mysitetheme.min.css']: themePath + 'scss/style.scss'
+          [themePath + 'build/css/' + themeName + '.min.css']: themePath + 'scss/style.scss'
         },
         options: {
           implementation: require('node-sass'),
@@ -89,7 +90,7 @@ module.exports = function (grunt) {
       },
       prod: {
         files: {
-          [themePath + 'build/css/mysitetheme.min.css']: themePath + 'scss/style.scss'
+          [themePath + 'build/css/' + themeName + '.min.css']: themePath + 'scss/style.scss'
         },
         options: {
           implementation: require('node-sass'),
@@ -106,11 +107,11 @@ module.exports = function (grunt) {
       },
       dev: {
         map: true,
-        src: themePath + 'build/css/mysitetheme.min.css'
+        src: themePath + 'build/css/' + themeName + '.min.css'
       },
       prod: {
         map: false,
-        src: themePath + 'build/css/mysitetheme.min.css'
+        src: themePath + 'build/css/' + themeName + '.min.css'
       }
     },
     copy: {

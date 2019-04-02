@@ -1,0 +1,12 @@
+name = 'your_site_theme'
+description = YOURSITE theme.
+core = 7.x
+base theme = stark
+
+regions[highlighted] = Highlighted
+regions[content] = 'Content'
+regions[sidebar_first] = Sidebar first
+regions[sidebar_second] = Sidebar second
+
+stylesheets[all][] = build/css/your_site_theme.min.css
+scripts[] = build/js/your_site_theme.min.js

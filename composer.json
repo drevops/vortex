@@ -1,15 +1,16 @@
 {
-    "name": "myorg/mysite",
-    "description": "Drupal 7 site for MYSITE",
+    "name": "your_org/your_site",
+    "description": "Drupal 7 implementation of YOURSITE for YOURORG",
     "license": "proprietary",
     "require": {
         "composer/installers": "^1.2.0",
         "cweagans/composer-patches": "^1.6.0",
         "drupal-composer/preserve-paths": "^0.1.4",
-        "drupal/drupal": "^7.61",
+        "drupal/drupal": "^7.65",
         "drupal/drupal_helpers": "^1.2",
         "drupal/wysiwyg": "^2.5",
         "drupal/xautoload": "^4.5",
+        "library/bootstrap": "^3.3",
         "library/ckeditor": "^4.9.2",
         "vlucas/phpdotenv": "^2.4",
         "webflo/drupal-finder": "^1.0"
@@ -23,11 +24,10 @@
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
         "integratedexperts/behat-steps": "^0.1.0",
-        "integratedexperts/robo-git-artefact": "^0.2.4",
         "jakub-onderka/php-parallel-lint": "^1.0",
+        "phpcompatibility/php-compatibility": "^9.0",
         "phpunit/phpunit": "^5.7.19",
-        "symfony/filesystem": "^3.2.8",
-        "wimg/php-compatibility": "^8.1"
+        "symfony/filesystem": "^3.2.8"
     },
     "autoload": {
         "classmap": [
@@ -41,7 +41,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.1.16"
+            "php": "7.2"
         },
         "process-timeout": 0,
         "sort-packages": true
@@ -53,6 +53,18 @@
         "drupal": {
             "type": "composer",
             "url": "https://packages.drupal.org/7"
+        },
+        "library/bootstrap": {
+            "type": "package",
+            "package": {
+                "name": "library/bootstrap",
+                "version": "3.3.7",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/twbs/bootstrap-sass/archive/v3.3.7.zip",
+                    "type": "zip"
+                }
+            }
         },
         "library/ckeditor": {
             "type": "package",
@@ -79,7 +91,8 @@
             "Utilities\\composer\\DrupalSettings::create"
         ],
         "post-update-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
+            "Utilities\\composer\\DrupalSettings::create"
         ]
     },
     "extra": {
@@ -95,7 +108,7 @@
             "docroot/sites/all/themes/contrib/{$name}": [
                 "type:drupal-theme"
             ],
-            "docroot/profiles/contrib/{$name}": [
+            "docroot/profiles/{$name}": [
                 "type:drupal-profile"
             ],
             "docroot/sites/all/libraries/{$name}": [
@@ -108,7 +121,7 @@
         "preserve-paths": [
             "docroot/sites/all/modules/custom",
             "docroot/sites/all/themes/custom",
-            "docroot/profiles/mysite_profile",
+            "docroot/profiles/your_site_profile",
             "docroot/sites/all/drush",
             "docroot/sites/default/settings.php",
             "docroot/sites/default/default.settings.local.php",

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="mysite">
-  <description>PHPCS Standard for MYSITE website, based on Drupal standards.
+<ruleset name="your_site">
+  <description>PHPCS Standard for YOURSITE website, based on Drupal standards.
   </description>
 
   <rule ref="Drupal"/>
@@ -11,24 +11,20 @@
   <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
   <arg name="colors"/>
   <arg value="sp"/>
+  <arg name="parallel" value="75"/>
   <!--Lint code against platform version specified in composer.json
   key "config.platform.php".-->
-  <config name="testVersion" value="7.1"/>
-
-  <file>tests</file>
-  <file>docroot/sites/all/modules/custom</file>
-  <file>docroot/sites/all/themes/custom</file>
-  <file>docroot/profiles/mysite_profile</file>
-  <file>docroot/sites/default/settings.php</file>
-
-  <!-- Exclude circleci config files. -->
-  <exclude-pattern>circle\.yml</exclude-pattern>
-  <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
+  <config name="testVersion" value="7.2"/>
 
   <!-- Exclude theme assets. -->
   <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/build\/.*</exclude-pattern>
   <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
   <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/images\/.*</exclude-pattern>
+  <exclude-pattern>*\.min\.*</exclude-pattern>
+
+  <!-- Exclude CircleCI config files. -->
+  <exclude-pattern>circle\.yml</exclude-pattern>
+  <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
 
   <!-- Exclude all features-generated files. -->
   <exclude-pattern>*\.bean\.*</exclude-pattern>
@@ -51,7 +47,6 @@
   <exclude-pattern>*\.strongarm\.*</exclude-pattern>
   <exclude-pattern>*\.views_default\.*</exclude-pattern>
   <exclude-pattern>*\.quicktabs\.*</exclude-pattern>
-  <exclude-pattern>docroot\/themes\/custom\/.*\/images\/.*</exclude-pattern>
 
   <!--Force short array syntax.-->
   <rule ref="Generic.Arrays.DisallowLongArraySyntax.Found">
@@ -87,7 +82,12 @@
 
   <!--Allow version in custom modules.-->
   <rule ref="Drupal.InfoFiles.AutoAddedKeys.Version">
-    <exclude-pattern>custom/*.info</exclude-pattern>
+    <exclude-pattern>custom/*\.info</exclude-pattern>
+  </rule>
+
+  <!--Do not re quire dependencies namespace in profiles.-->
+  <rule ref="DrupalPractice.InfoFiles.NamespacedDependency.NonNamespaced">
+    <exclude-pattern>profiles\/*/*\.info</exclude-pattern>
   </rule>
 
   <!--Allow uncommented functions in tests as they usually provide enough
@@ -101,4 +101,21 @@
     <exclude-pattern>tests/unit/*.Test\.php</exclude-pattern>
     <exclude-pattern>tests/unit/*.TestCase\.php</exclude-pattern>
   </rule>
+
+  <!--Allow long array lines in tests.-->
+  <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
+    <exclude-pattern>tests/unit/*.Test\.php</exclude-pattern>
+    <exclude-pattern>tests/unit/*.TestCase\.php</exclude-pattern>
+  </rule>
+
+  <!-- Ignore  Prefixing class names with project name in module behat tests.-->
+  <rule ref="DrupalPractice.General.ClassName.ClassPrefix">
+    <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
+  </rule>
+
+  <!-- Allow inline block comments until https://www.drupal.org/project/drupal/issues/2305593 is resolved. -->
+  <rule ref="Drupal.Commenting.InlineComment.DocBlock">
+    <exclude-pattern>.*</exclude-pattern>
+  </rule>
+
 </ruleset>

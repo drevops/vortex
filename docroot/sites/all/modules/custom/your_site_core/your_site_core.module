@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @file
+ * Core module for YOURSITE.
+ */
+
+/**
+ * Include additional early bootstrap files.
+ *
+ * This allows to organise contrib module-related hook implementations into
+ * standalone files.
+ *
+ * Note that most of the modules are not available at this stage and
+ * another inclusion is required in hook_init() for performance reasons.
+ */
+$early_bootstrap_modules = module_list();
+// Add more modules, inclusions for which are absolutely required at early
+// stage.
+$early_bootstrap_modules[] = 'system';
+foreach ($early_bootstrap_modules as $module_name) {
+  $module_include_file = dirname(__FILE__) . '/includes/' . $module_name . '.inc';
+  if (file_exists($module_include_file)) {
+    require_once $module_include_file;
+  }
+}
+
+/**
+ * Implements hook_mail_alter().
+ */
+function your_site_core_mail_alter(&$message) {
+  // Stop any mail send out in CI. Note if email functionality needs to be
+  // tested, this code should be removed and replaced with a dev mail system.
+  if (variable_get('environment') == ENVIRONMENT_CI) {
+    $message['send'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function your_site_core_css_alter(&$css) {
+  if (variable_get('livereload')) {
+    // Alter css to display as link tags.
+    foreach ($css as $key => $value) {
+      $css[$key]['preprocess'] = FALSE;
+    }
+  }
+}
+
+/**
+ * Implements hook_js_alter().
+ */
+function your_site_core_js_alter(&$javascript) {
+  // Add Livereload support.
+  if (variable_get('livereload', FALSE)) {
+    $path = _your_site_core_get_livereload_url();
+    drupal_add_js($path, 'external');
+  }
+}
+
+/**
+ * Helper to get Livereload URL.
+ */
+function _your_site_core_get_livereload_url() {
+  $livereload_url = &drupal_static(__FUNCTION__);
+  if (!$livereload_url) {
+    $socket_file = drupal_realpath('public://livereload.sock');
+    if (file_exists($socket_file)) {
+      $url = getenv('LOCALDEV_URL');
+      $port = trim(file_get_contents($socket_file));
+      if (!empty($url) && is_numeric($port)) {
+        $livereload_url = "http://$url:$port/livereload.js?snipver=1";
+      }
+    }
+  }
+
+  return $livereload_url;
+}

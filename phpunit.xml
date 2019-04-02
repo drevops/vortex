@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit colors="true" bootstrap="./vendor/autoload.php">
     <testsuites>
-        <testsuite name="mysite">
-            <directory>./sites/all/modules/custom/</directory>
+        <testsuite name="your_site">
+            <directory>./docroot/sites/all/modules/custom/</directory>
             <directory>./tests/unit/</directory>
         </testsuite>
     </testsuites>

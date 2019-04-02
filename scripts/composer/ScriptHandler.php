@@ -1,24 +1,33 @@
 <?php
 
-/**
- * @file
- * Contains \DrupalProject\composer\ScriptHandler.
- */
-
 namespace DrupalProject\composer;
 
 use Composer\Script\Event;
 use Composer\Semver\Comparator;
 use DrupalFinder\DrupalFinder;
 use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\PathUtil\Path;
 
+/**
+ * Class ScriptHandler.
+ *
+ * @package DrupalProject\composer
+ */
 class ScriptHandler {
 
+  /**
+   * Create files and directories required for Drupal.
+   */
   public static function createRequiredFiles(Event $event) {
     $fs = new Filesystem();
     $drupalFinder = new DrupalFinder();
     $drupalFinder->locateRoot(getcwd());
     $drupalRoot = $drupalFinder->getDrupalRoot();
+
+    if (!$drupalRoot) {
+      $event->getIO()->writeError(sprintf('Unable to find Drupal root at "%s"', $drupalRoot));
+      exit(1);
+    }
 
     $dirs = [
       'sites/all/modules',
@@ -26,27 +35,36 @@ class ScriptHandler {
       'sites/all/themes',
     ];
 
-    // Required for unit testing
+    // Required for unit testing.
     foreach ($dirs as $dir) {
-      if (!$fs->exists($drupalRoot . '/'. $dir)) {
-        $fs->mkdir($drupalRoot . '/'. $dir);
-        $fs->touch($drupalRoot . '/'. $dir . '/.gitkeep');
+      if (!$fs->exists($drupalRoot . DIRECTORY_SEPARATOR . $dir)) {
+        $fs->mkdir($drupalRoot . DIRECTORY_SEPARATOR . $dir);
+        $fs->touch($drupalRoot . DIRECTORY_SEPARATOR . $dir . DIRECTORY_SEPARATOR . '.gitkeep');
       }
     }
 
-    // Prepare the settings file for installation
-    if (!$fs->exists($drupalRoot . '/sites/default/settings.php') and $fs->exists($drupalRoot . '/sites/default/default.settings.php')) {
-      $fs->copy($drupalRoot . '/sites/default/default.settings.php', $drupalRoot . '/sites/default/settings.php');
-      $fs->chmod($drupalRoot . '/sites/default/settings.php', 0644);
-      $event->getIO()->write("Create a sites/default/settings.php file with chmod 0644");
+    $sitesDefault = $drupalRoot . DIRECTORY_SEPARATOR . 'sites' . DIRECTORY_SEPARATOR . 'default';
+    if ($fs->exists($sitesDefault)) {
+      $fs->chmod($sitesDefault, 0777);
     }
 
-    // Create the files directory with chmod 0777
-    if (!$fs->exists($drupalRoot . '/sites/default/files')) {
+    // Create settings file from default settings, if they do not
+    // already exist.
+    $defaultSettingsFile = $sitesDefault . DIRECTORY_SEPARATOR . 'default.settings.php';
+    $settingsFile = $sitesDefault . DIRECTORY_SEPARATOR . 'settings.php';
+    if (!$fs->exists($settingsFile) && $fs->exists($defaultSettingsFile)) {
+      $fs->copy($defaultSettingsFile, $settingsFile);
+      $fs->chmod($settingsFile, 0666);
+      $event->getIO()->write(sprintf('Created a "%s" file from default settings', $settingsFile));
+    }
+
+    // Create the files directory and set permissions.
+    $filesDirectory = $sitesDefault . DIRECTORY_SEPARATOR . 'files';
+    if (!$fs->exists($filesDirectory)) {
       $oldmask = umask(0);
-      $fs->mkdir($drupalRoot . '/sites/default/files', 0777);
+      $fs->mkdir($filesDirectory, 0777);
       umask($oldmask);
-      $event->getIO()->write("Create a sites/default/files directory with chmod 0777");
+      $event->getIO()->write(sprintf('Created a "%s" directory with chmod 0777', $filesDirectory));
     }
   }
 
@@ -84,6 +102,37 @@ class ScriptHandler {
     elseif (Comparator::lessThan($version, '1.0.0')) {
       $io->writeError('<error>Drupal-project requires Composer version 1.0.0 or higher. Please update your Composer before continuing</error>.');
       exit(1);
+    }
+  }
+
+  /**
+   * Appends content to an existing file.
+   *
+   * Polyfill for older versions of Filesystem shipped with Composer phar.
+   *
+   * @param string $filename
+   *   The file to which to append content.
+   * @param string $content
+   *   The content to append.
+   *
+   * @throws \Symfony\Component\Filesystem\Exception\IOException
+   *   If the file is not writable.
+   */
+  protected static function appendToFile($filename, $content) {
+    $fs = new Filesystem();
+
+    $dir = \dirname($filename);
+
+    if (!is_dir($dir)) {
+      $fs->mkdir($dir);
+    }
+
+    if (!is_writable($dir)) {
+      throw new \Exception(sprintf('Unable to write to the "%s" directory.', $dir), 0, NULL, $dir);
+    }
+
+    if (FALSE === @file_put_contents($filename, $content, FILE_APPEND)) {
+      throw new \Exception(sprintf('Failed to write file "%s".', $filename), 0, NULL, $filename);
     }
   }
 

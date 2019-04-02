@@ -5,7 +5,7 @@ default:
     cache: ~
     filters:
       # Allow skipping tests by tagging them with "@skipped"
-      tags: "~@skipped"
+      tags: '~@skipped'
   suites:
     default:
       paths: [ '%paths.base%/tests/behat/features' ]
@@ -52,7 +52,7 @@ p0:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
-      tags: "@p0&&~@skipped"
+      tags: "~@p1&&~@skipped"
 p1:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'

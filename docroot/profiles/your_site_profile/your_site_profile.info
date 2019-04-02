@@ -1,0 +1,5 @@
+name = 'Drupal 7 profile implementation of YOURSITE for YOURORG'
+description = 'YOURSITE Profile'
+package = your_site
+core = 7.x
+dependencies[] = your_site_core
