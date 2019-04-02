@@ -11,6 +11,7 @@ targets=()
 targets+=(README.md)
 targets+=(DEPLOYMENT.md)
 targets+=(FAQs.md)
+targets+=(ONBOARDING.md)
 
 echo "==> Start checking spelling"
 for file in "${targets[@]}"; do
