@@ -25,7 +25,7 @@ DST_DIR=${1:-${DST_DIR}}
 # Project name.
 PROJECT="${PROJECT:-}"
 # Drupal version to download files for.
-DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
+DRUPAL_VERSION="${DRUPAL_VERSION:-7}"
 # Flag to run this install in interactive mode with user input.
 DRUPALDEV_IS_INTERACTIVE="${DRUPALDEV_IS_INTERACTIVE:-0}"
 # Flag to init git repository.
