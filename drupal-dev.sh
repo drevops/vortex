@@ -48,4 +48,4 @@
 # this to all environments.
 # export DRUPALDEV_COMMIT=COMMIT_SHA
 
-bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh?"$(date +%s)") "$@"
+bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/7.x/install.sh?"$(date +%s)") "$@"
