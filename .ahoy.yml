@@ -124,7 +124,7 @@ commands:
       #;> !FRESH_INSTALL \
       #;< FRESH_INSTALL \
       ahoy title "Installing a fresh site from ${DRUPAL_PROFILE} profile"
-      ahoy drush si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+      ahoy drush si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="YOURSITE" install_configure_form.update_status_module='array(FALSE,FALSE)' install_configure_form.enable_update_status_emails=NULL
       ahoy cli chmod 755 docroot/sites/default && ahoy cli chmod 644 docroot/sites/default/settings.php
       ahoy drush en -y your_site_core
       #;> FRESH_INSTALL \
@@ -265,17 +265,14 @@ commands:
 
   pre-flight:
     cmd: |
-      #;< FRESH_INSTALL
-      export DOCTOR_CHECK_DB=0
-      #;> FRESH_INSTALL
-      DOCTOR_CHECK_DB=${DOCTOR_CHECK_DB:-1} \
-      DOCTOR_CHECK_TOOLS=${DOCTOR_CHECK_TOOLS:-1} \
-      DOCTOR_CHECK_PORT=${DOCTOR_CHECK_PORT:-1} \
-      DOCTOR_CHECK_PYGMY=${DOCTOR_CHECK_PYGMY:-1} \
-      DOCTOR_CHECK_CLI=${DOCTOR_CHECK_CLI:-0} \
-      DOCTOR_CHECK_SSH=${DOCTOR_CHECK_SSH:-0} \
-      DOCTOR_CHECK_WEBSERVER=${DOCTOR_CHECK_WEBSERVER:-0} \
-      DOCTOR_CHECK_BOOTSTRAP=${DOCTOR_CHECK_BOOTSTRAP:-0} \
+      export DOCTOR_CHECK_DB=${DOCTOR_CHECK_DB:-1}
+      export DOCTOR_CHECK_TOOLS=${DOCTOR_CHECK_TOOLS:-1}
+      export DOCTOR_CHECK_PORT=${DOCTOR_CHECK_PORT:-1}
+      export DOCTOR_CHECK_PYGMY=${DOCTOR_CHECK_PYGMY:-1}
+      export DOCTOR_CHECK_CLI=${DOCTOR_CHECK_CLI:-0}
+      export DOCTOR_CHECK_SSH=${DOCTOR_CHECK_SSH:-0}
+      export DOCTOR_CHECK_WEBSERVER=${DOCTOR_CHECK_WEBSERVER:-0}
+      export DOCTOR_CHECK_BOOTSTRAP=${DOCTOR_CHECK_BOOTSTRAP:-0}
       ahoy doctor
     hide: true
 
@@ -292,6 +289,9 @@ entrypoint:
     #; Location of the demo database used for tests only.
     export DEMO_DB_TEST="${DEMO_DB_TEST:-https://gist.githubusercontent.com/alexdesignworks/89ea8df8d49240d130c5949ce4b4f344/raw/144e8e493710868943f0a4441c9c7e03746b91e7/db_d7.star_wars.sql}"
     #;> DEMO
+    #;< FRESH_INSTALL
+    export DOCTOR_CHECK_DB=0
+    #;> FRESH_INSTALL
     bash -e -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'
