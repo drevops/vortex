@@ -54,7 +54,7 @@ main() {
   fi
 
   if [ "${DOCTOR_CHECK_PYGMY}" == "1" ]; then
-    if ! pygmy status > /dev/null; then
+    if ! pygmy status > /dev/null 2>&1; then
       error "pygmy is not running. Run 'pygmy up' to start pygmy."
       exit 1
     fi
@@ -63,7 +63,7 @@ main() {
 
   # Check that the stack is running.
   if [ "${DOCTOR_CHECK_CLI}" == "1" ]; then
-    if ! docker ps -q --no-trunc | grep -q "$(docker-compose ps -q cli)" 2>/dev/null; then
+    if [ -z "$(docker ps -q --no-trunc | grep $(docker-compose ps -q cli))" ]; then
       error "CLI container is not running. Run 'ahoy up'."
       exit 1
     fi
