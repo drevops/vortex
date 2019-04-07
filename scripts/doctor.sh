@@ -96,7 +96,7 @@ main() {
     # available in CLI container.
 
     # Check that the key is injected into pygmy ssh-agent container.
-    if ! pygmy status|grep -q "${SSH_KEY_FILE}"; then
+    if ! pygmy status 2>&1 | grep -q "${SSH_KEY_FILE}"; then
       error "SSH key is not added to pygmy. Run 'pygmy stop && pygmy start' and then 'ahoy up -- --build'."
       exit 1
     fi
