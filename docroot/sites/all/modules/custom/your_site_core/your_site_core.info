@@ -1,6 +1,6 @@
 name = YOURSITE Core
 description = Core feature for site settings.
 core = 7.x
-package = yoursite
+package = your_site
 version = 7.x-1.0
 project path = sites/all/modules/custom
