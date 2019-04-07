@@ -63,7 +63,7 @@ main() {
 
   # Check that the stack is running.
   if [ "${DOCTOR_CHECK_CLI}" == "1" ]; then
-    if [ -z "$(docker ps -q --no-trunc | grep $(docker-compose ps -q cli))" ]; then
+    if [ -z "$(docker ps -q --no-trunc | grep $(docker-compose ps -q cli) 2>/dev/null)" ]; then
       error "CLI container is not running. Run 'ahoy up'."
       exit 1
     fi
