@@ -110,9 +110,10 @@ services:
       dockerfile: .docker/Dockerfile.php
       args:
         CLI_IMAGE: *project
+    <<: *default-volumes
+    << : *default-user
     environment:
       <<: *default-environment
-    <<: *default-volumes
     depends_on:
       - cli
     #;< LAGOON
@@ -150,6 +151,7 @@ services:
       dockerfile: .docker/Dockerfile.solr
       args:
         CLI_IMAGE: *project
+    << : *default-user
     environment:
       <<: *default-environment
     ports:
@@ -163,9 +165,9 @@ services:
   chrome:
     image: selenium/standalone-chrome
     shm_size: '1gb'
+    <<: *default-volumes
     environment:
       <<: *default-environment
-    <<: *default-volumes
     depends_on:
       - cli
     #;< LAGOON
