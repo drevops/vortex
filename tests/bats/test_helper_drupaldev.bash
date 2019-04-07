@@ -537,7 +537,8 @@ run_install(){
   # Show debug information (for easy debug of tests).
   export DRUPALDEV_DEBUG=1
   run "${CUR_DIR}"/install.sh "$@"
-
+  # Special treatment for cases where volumes are not mounted from the host.
+  fix_host_dependencies
   popd > /dev/null || exit 1
 
   # shellcheck disable=SC2154
@@ -743,4 +744,14 @@ sync_to_container(){
   [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
   debug "Syncing from ${src} to $(docker-compose ps -q cli)"
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
+}
+
+# Special treatment for cases where volumes are not mounted from the host.
+fix_host_dependencies(){
+  if [ "${VOLUMES_MOUNTED:-1}" != "1" ] ; then
+    sed -i -e "/###/d" docker-compose.yml
+    assert_file_not_contains docker-compose.yml "###"
+    sed -i -e "s/##//" docker-compose.yml
+    assert_file_not_contains docker-compose.yml "##"
+  fi
 }

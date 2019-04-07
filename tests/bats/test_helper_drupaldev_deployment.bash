@@ -108,14 +108,6 @@ provision_site(){
   # Point demo database to the test database.
   echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
 
-  # Special treatment for cases where volumes are not mounted from the host.
-  if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
-  sed -i -e "/###/d" docker-compose.yml
-  assert_file_not_contains docker-compose.yml "###"
-  sed -i -e "s/##//" docker-compose.yml
-  assert_file_not_contains docker-compose.yml "##"
-  fi
-
   step "Add all files to new git repo"
   git_add_all_commit "${dir}" "Init Drupal-Dev config"
 
