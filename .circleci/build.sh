@@ -31,6 +31,8 @@ export BUILD_EXPORT_DIR="/workspace/code"
 # Skip sanitization during the build, but allow to override, if required.
 export SKIP_SANITIZE_DB="${SKIP_SANITIZE_DB:-1}"
 
+# Disable checks used on host machines.
+export DOCTOR_CHECK_PYGMY=0
 ahoy build
 
 # Create local settings.

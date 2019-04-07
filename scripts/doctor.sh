@@ -47,9 +47,7 @@ main() {
 
   if [ "${DOCTOR_CHECK_PORT}" == "1" ]; then
     # Check what is listening on port 80.
-    if ! lsof -i :80 | grep -q LISTEN; then
-      error "Nothing is listening on port 80. Run 'pygmy up' to start pygmy." && exit 1
-    elif ! lsof -i :80 | grep LISTEN | grep -q om.docke; then
+    if ! lsof -i :80 | grep LISTEN | grep -q om.docke; then
       error "Port 80 is occupied by other service. Stop this service and run 'pygmy up'"
     fi
     success "Port 80 is available"
