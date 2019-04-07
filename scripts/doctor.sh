@@ -159,21 +159,21 @@ command_exists() {
 # Status echo.
 #
 status() {
-  cecho blue "==> $1";
+  cecho blue "✚ $1";
 }
 
 #
 # Success echo.
 #
 success() {
-  cecho green "✓ $1";
+  cecho green "  ✓ $1";
 }
 
 #
 # Error echo.
 #
 error() {
-  cecho red "✘ $1";
+  cecho red "  ✘ $1";
   exit 1
 }
 
