@@ -17,6 +17,7 @@ commands:
       ahoy fe
       ahoy install-site
       ahoy title "Build complete"
+      ahoy doctor
       ahoy info 1
 
   info:
@@ -44,6 +45,7 @@ commands:
       if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi
       mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 > docroot/sites/default/files/livereload.sock
       docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME}_
+      export DOCTOR_CHECK_CLI=0
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
@@ -266,7 +268,15 @@ commands:
       #;< FRESH_INSTALL
       export DOCTOR_CHECK_DB=0
       #;> FRESH_INSTALL
-      DOCTOR_CHECK_DB=${DOCTOR_CHECK_DB:-1} DOCTOR_CHECK_TOOLS=${DOCTOR_CHECK_TOOLS:-1} DOCTOR_CHECK_SSH=${DOCTOR_CHECK_SSH:-0} DOCTOR_CHECK_PORT=${DOCTOR_CHECK_PORT-:0} DOCTOR_CHECK_BOOTSTRAP=${DOCTOR_CHECK_BOOTSTRAP-:0} ahoy doctor
+      DOCTOR_CHECK_DB=${DOCTOR_CHECK_DB:-1} \
+      DOCTOR_CHECK_TOOLS=${DOCTOR_CHECK_TOOLS:-1} \
+      DOCTOR_CHECK_PORT=${DOCTOR_CHECK_PORT:-1} \
+      DOCTOR_CHECK_PYGMY=${DOCTOR_CHECK_PYGMY:-1} \
+      DOCTOR_CHECK_CLI=${DOCTOR_CHECK_CLI:-0} \
+      DOCTOR_CHECK_SSH=${DOCTOR_CHECK_SSH:-0} \
+      DOCTOR_CHECK_WEBSERVER=${DOCTOR_CHECK_WEBSERVER:-0} \
+      DOCTOR_CHECK_BOOTSTRAP=${DOCTOR_CHECK_BOOTSTRAP:-0} \
+      ahoy doctor
     hide: true
 
 entrypoint:
