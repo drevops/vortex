@@ -34,8 +34,13 @@ setup(){
   LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   APP_TMP_DIR="${BUILD_DIR}/tmp"
 
-  # Disable tool checking during all test builds - CI container has all required tools.
+  # Disable checks used on host machine.
   export DOCTOR_CHECK_TOOLS=0
+  export DOCTOR_CHECK_PYGMY=0
+  export DOCTOR_CHECK_PORT=0
+  export DOCTOR_CHECK_SSH=0
+  export DOCTOR_CHECK_WEBSERVER=0
+  export DOCTOR_CHECK_BOOTSTRAP=0
 
   export DRUPAL_VERSION
   export CUR_DIR
@@ -537,7 +542,8 @@ run_install(){
   # Show debug information (for easy debug of tests).
   export DRUPALDEV_DEBUG=1
   run "${CUR_DIR}"/install.sh "$@"
-
+  # Special treatment for cases where volumes are not mounted from the host.
+  fix_host_dependencies "$@"
   popd > /dev/null || exit 1
 
   # shellcheck disable=SC2154
@@ -743,4 +749,26 @@ sync_to_container(){
   [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
   debug "Syncing from ${src} to $(docker-compose ps -q cli)"
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
+}
+
+# Special treatment for cases where volumes are not mounted from the host.
+fix_host_dependencies(){
+  # Replicate behaviour of install.sh script to extract destination directory
+  # passed as an argument.
+  # shellcheck disable=SC2235
+  ([ "${1}" == "--interactive" ] || [ "${1}" == "-i" ]) && shift
+  # Destination directory, that can be overridden with the first argument to this script.
+  DST_DIR="${DST_DIR:-$(pwd)}"
+  DST_DIR=${1:-${DST_DIR}}
+
+  pushd "${DST_DIR}" > /dev/null || exit 1
+
+  if [ "${VOLUMES_MOUNTED:-1}" != "1" ] ; then
+    sed -i -e "/###/d" docker-compose.yml
+    assert_file_not_contains docker-compose.yml "###"
+    sed -i -e "s/##//" docker-compose.yml
+    assert_file_not_contains docker-compose.yml "##"
+  fi
+
+  popd > /dev/null || exit 1
 }

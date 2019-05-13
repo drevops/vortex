@@ -19,7 +19,7 @@ if (empty($aliases_stub)) {
   curl_setopt($ch, CURLOPT_AUTOREFERER, TRUE);
   curl_setopt($ch, CURLOPT_HEADER, 0);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_URL, 'http://drush-alias-lagoon-master.lagoon.vicsdp.amazee.io/aliases.drushrc.php.stub');
+  curl_setopt($ch, CURLOPT_URL, 'https://drush-alias.lagoon.amazeeio.cloud/aliases.drushrc.php.stub');
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
   $aliases_stub = curl_exec($ch);
   curl_close($ch);
