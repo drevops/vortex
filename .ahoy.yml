@@ -17,6 +17,7 @@ commands:
       ahoy fe
       ahoy install-site
       ahoy title "Build complete"
+      ahoy doctor
       ahoy info 1
 
   info:
@@ -44,6 +45,7 @@ commands:
       if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi
       mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 > docroot/sites/default/files/livereload.sock
       docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME}_
+      export DOCTOR_CHECK_CLI=0
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
@@ -202,6 +204,7 @@ commands:
       docker cp -L behat.yml $(docker-compose ps -q cli):/app/
       docker cp -L tests $(docker-compose ps -q cli):/app/
       docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
+      docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
       ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
       ahoy cli "npm install"
     hide: true
@@ -230,9 +233,8 @@ commands:
 
   test-phpunit:
     usage: Run PHPUnit tests.
-    # @todo: Implement this.
     cmd: |
-      ahoy cli "echo Not implemented" || \
+      ahoy cli "./vendor/bin/phpunit $@" || \
       [ "${ALLOW_PHPUNIT_FAIL:-0}" -eq 1 ]
 
   update:
@@ -258,10 +260,15 @@ commands:
 
   pre-flight:
     cmd: |
-      #;< FRESH_INSTALL
-      export DOCTOR_CHECK_DB=0
-      #;> FRESH_INSTALL
-      DOCTOR_CHECK_DB=${DOCTOR_CHECK_DB:-1} DOCTOR_CHECK_TOOLS=${DOCTOR_CHECK_TOOLS:-1} DOCTOR_CHECK_SSH=${DOCTOR_CHECK_SSH:-0} DOCTOR_CHECK_PORT=${DOCTOR_CHECK_PORT-:0} DOCTOR_CHECK_BOOTSTRAP=${DOCTOR_CHECK_BOOTSTRAP-:0} ahoy doctor
+      export DOCTOR_CHECK_DB=${DOCTOR_CHECK_DB:-1}
+      export DOCTOR_CHECK_TOOLS=${DOCTOR_CHECK_TOOLS:-1}
+      export DOCTOR_CHECK_PORT=${DOCTOR_CHECK_PORT:-1}
+      export DOCTOR_CHECK_PYGMY=${DOCTOR_CHECK_PYGMY:-1}
+      export DOCTOR_CHECK_CLI=${DOCTOR_CHECK_CLI:-0}
+      export DOCTOR_CHECK_SSH=${DOCTOR_CHECK_SSH:-0}
+      export DOCTOR_CHECK_WEBSERVER=${DOCTOR_CHECK_WEBSERVER:-0}
+      export DOCTOR_CHECK_BOOTSTRAP=${DOCTOR_CHECK_BOOTSTRAP:-0}
+      ahoy doctor
     hide: true
 
 entrypoint:
@@ -273,10 +280,13 @@ entrypoint:
     #;< DEMO
     #; Location of the demo database used for demonstration only.
     #; This will be removed during project install.
-    export DEMO_DB="${DEMO_DB:-https://goo.gl/Qy7YMv}"
+    export DEMO_DB="${DEMO_DB:-https://gist.githubusercontent.com/alexdesignworks/838bea313c1d5f2c7c912693954f0619/raw/7aa622c72d91554d056ee56933b9cb570c765e8f/db_d8.dist.sql}"
     #; Location of the demo database used for tests only.
-    export DEMO_DB_TEST="${DEMO_DB_TEST:-https://goo.gl/6pZKHa}"
+    export DEMO_DB_TEST="${DEMO_DB_TEST:-https://gist.githubusercontent.com/alexdesignworks/4387f56278be8597b5f27868d15e798f/raw/2bdfc4cfb28678caf5e9a73c44fe28b3eddc6316/db_d8.star_wars.sql}"
     #;> DEMO
+    #;< FRESH_INSTALL
+    export DOCTOR_CHECK_DB=0
+    #;> FRESH_INSTALL
     bash -e -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'
