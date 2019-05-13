@@ -51,7 +51,7 @@ x-environment:
   #;> LAGOON
   # Pass-through $CI variable.
   CI: ${CI:-}
-  DRUPAL_MODULE_PREFIX: "${DRUPAL_MODULE_PREFIX:-mho}"
+  DRUPAL_MODULE_PREFIX: "${DRUPAL_MODULE_PREFIX:-your_site}"
   # Uncomment to enable Xdebug and then restart via `ahoy up`.
   #XDEBUG_ENABLE: "true"
 
