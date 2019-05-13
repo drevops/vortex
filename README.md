@@ -265,9 +265,9 @@ Drupal 7 implementation of YOURSITE for YOURORG
 Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progress. 
 
 ## Local environment setup
-- Make sure that you have latest versions of all required software installed:   
-  - [Docker](https://www.docker.com/) 
-  - [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html)
+- Make sure that you have latest versions of all required software installed:
+  - [Docker](https://www.docker.com/)
+  - [Pygmy](https://pygmy.readthedocs.io/)
   - [Ahoy](https://github.com/ahoy-cli/ahoy)
 - Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 - Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
