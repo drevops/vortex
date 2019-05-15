@@ -265,7 +265,7 @@ assert_files_present_no_profile(){
 
   # Site profile created.
   assert_dir_not_exists "docroot/profiles/custom/${suffix}profile"
-  assert_file_contains ".env" "DRUPAL_PROFILE=standard"
+  assert_file_contains ".env" 'DRUPAL_PROFILE="standard"'
   assert_file_not_contains ".env" "docroot/profiles/custom/${suffix}profile,"
   # Assert that there is no renaming of the custom profile with core profile name.
   assert_dir_not_exists "docroot/profiles/custom/standard"
