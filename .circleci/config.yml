@@ -79,12 +79,12 @@ jobs:
           command: echo "$(date ${DB_TIMESTAMP})" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v1-db8-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
       # Init environment for development.
       - run: if [ -f "./drupal-dev.sh" ] && [ ! "${DRUPAL_DEV}" ]; then ./drupal-dev.sh; fi
       - run: .circleci/download-db.sh
       - save_cache:
-          key: v1-db8-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
   #;> !FRESH_INSTALL
@@ -101,7 +101,7 @@ jobs:
       - *step_setup_remote_docker
       - restore_cache:
           keys:
-            - v1-db8-
+            - v1-db7-
       # Init environment for development.
       - run: if [ -f "./drupal-dev.sh" ] && [ ! "${DRUPAL_DEV}" ]; then ./drupal-dev.sh; fi
       - run: .circleci/build.sh
