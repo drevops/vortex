@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit colors="true" bootstrap="./docroot/core/tests/bootstrap.php">
+    <testsuites>
+        <testsuite name="mysite">
+            <directory>./docroot/modules/custom/</directory>
+            <directory>./tests/unit/</directory>
+        </testsuite>
+    </testsuites>
+    <!-- Filter for coverage reports. -->
+    <filter>
+        <blacklist>
+            <directory>./vendor</directory>
+        </blacklist>
+    </filter>
+</phpunit>

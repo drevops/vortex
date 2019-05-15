@@ -5,13 +5,17 @@
 set -e
 
 DOCTOR_CHECK_TOOLS="${DOCTOR_CHECK_TOOLS:-1}"
-DOCTOR_CHECK_PORT="${DOCTOR_CHECK_PORT:-1}"
-DOCTOR_CHECK_SSH="${DOCTOR_CHECK_SSH:-1}"
 DOCTOR_CHECK_DB="${DOCTOR_CHECK_DB:-1}"
+DOCTOR_CHECK_PORT="${DOCTOR_CHECK_PORT:-1}"
+DOCTOR_CHECK_PYGMY="${DOCTOR_CHECK_PYGMY:-1}"
+DOCTOR_CHECK_CLI="${DOCTOR_CHECK_CLI:-1}"
+DOCTOR_CHECK_SSH="${DOCTOR_CHECK_SSH:-1}"
+DOCTOR_CHECK_WEBSERVER="${DOCTOR_CHECK_WEBSERVER:-1}"
 DOCTOR_CHECK_BOOTSTRAP="${DOCTOR_CHECK_BOOTSTRAP:-1}"
 
-LOCALDEV_URL=${LOCALDEV_URL:-http://your-site.docker.amazee.io/}
-
+LOCALDEV_URL="${LOCALDEV_URL:-http://salsa.docker.amazee.io/}"
+SSH_KEY_FILE="${SSH_KEY_FILE:-$HOME/.ssh/id_rsa}"
+DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
 DATAROOT="${DATAROOT:-.data}"
 
 #-------------------------------------------------------------------------------
@@ -23,49 +27,114 @@ DATAROOT="${DATAROOT:-.data}"
 # Main entry point.
 #
 main() {
-  # Check project requirements.
   status "Checking project requirements"
 
   if [ "${DOCTOR_CHECK_TOOLS}" == "1" ]; then
-    [ "$(command_exists docker)" == "1" ] && error "Please install Docker." && exit 1
-    [ "$(command_exists docker-compose)" == "1" ] && error "Please install docker-compose." && exit 1
-    [ "$(command_exists composer)" == "1" ] && error "Please install composer: visit https://getcomposer.org/" && exit 1
-    [ "$(command_exists pygmy)" == "1" ] && error "Please install pygmy" && exit 1
-    [ "$(command_exists ahoy)" == "1" ] && error "Please install Ahoy." && exit 1
+    [ "$(command_exists docker)" == "1" ] && error "Please install Docker (https://www.docker.com/get-started)" && exit 1
+    [ "$(command_exists docker-compose)" == "1" ] && error "Please install docker-compose (https://docs.docker.com/compose/install/)" && exit 1
+    [ "$(command_exists composer)" == "1" ] && error "Please install Composer (https://getcomposer.org/)" && exit 1
+    [ "$(command_exists pygmy)" == "1" ] && error "Please install Pygmy (https://pygmy.readthedocs.io/)" && exit 1
+    [ "$(command_exists ahoy)" == "1" ] && error "Please install Ahoy (https://ahoy-cli.readthedocs.io/)" && exit 1
+    success "All required tools are present"
   fi
 
   if [ "${DOCTOR_CHECK_DB}" == "1" ]; then
       if [ ! -e "${DATAROOT}/db.sql" ]; then
         error "Unable to find database dump file \"${DATAROOT}/db.sql\". Please place db.sql file into \"${DATAROOT}\" or configure one of the integrations and use \"ahoy download-db\".";
       fi
+      success "Database dump exists ${DATAROOT}/db.sql"
   fi
 
   if [ "${DOCTOR_CHECK_PORT}" == "1" ]; then
-    # Check what is listening on port 80.
-    if ! lsof -i :80 | grep -q LISTEN; then
-      error "Nothing is listening on port 80. Run 'pygmy up' to start pygmy." && exit 1
-    elif ! lsof -i :80 | grep LISTEN | grep -q om.docke; then
-      error "Port 80 is occupied by other service. Stop this service and run 'pygmy up'"
-    else
-      pygmy_status=$(pygmy status)
-      [ "${pygmy_status}" == "1" ] && error "pygmy is not running. Run 'pygmy up' to start pygmy." && exit 1
-      # @todo: Add more checks for pygmy's services.
+    if ! lsof -i :80 | grep LISTEN | grep -q om.docke; then
+      error "Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'"
     fi
+    success "Port 80 is available"
+  fi
+
+  if [ "${DOCTOR_CHECK_PYGMY}" == "1" ]; then
+    if ! pygmy status > /dev/null 2>&1; then
+      error "pygmy is not running. Run 'pygmy up' to start pygmy."
+      exit 1
+    fi
+    success "Pygmy is running"
+  fi
+
+  # Check that the stack is running.
+  if [ "${DOCTOR_CHECK_CLI}" == "1" ]; then
+    if ! docker ps -q --no-trunc | grep "$(docker-compose ps -q cli)" > /dev/null 2>&1; then
+      error "CLI container is not running. Run 'ahoy up'."
+      exit 1
+    fi
+    success "CLI container is running"
   fi
 
   if [ "${DOCTOR_CHECK_SSH}" == "1" ]; then
-    docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L | grep -vq 'ssh-rsa'" && error "SSH key was not added into container. Run 'pygmy restart'." && exit 1
+    # SSH key injection is required to access Lagoon services from within
+    # containers. For example, to connect to production environment to run
+    # drush script.
+    # Pygmy makes this possible in the following way:
+    # 1. Pygmy starts `amazeeio/ssh-agent` container with a volume `/tmp/amazeeio_ssh-agent`
+    # 2. Pygmy adds a default SSH key from the host into this volume.
+    # 3. `docker-compose.yml` should have volume inclusion specified for CLI container:
+    #    ```
+    #    volumes_from:
+    #      - container:amazeeio-ssh-agent
+    #    ```
+    # 4. When CLI container starts, the volume is mounted and an entrypoint script
+    #    adds SHH key into agent.
+    #    @see https://github.com/amazeeio/lagoon/blob/master/images/php/cli/10-ssh-agent.sh
+    #
+    #  Running `ssh-add -L` within CLI container should show that the SSH key
+    #  is correctly loaded.
+    #
+    # As rule of a thumb, one must restart the CLI container after restarting
+    # Pygmy ONLY if SSH key was not loaded in pygmy before the stack starts.
+    # No need to restart CLI container if key was added, but pygmy was
+    # restarted - the volume mount will retain and the key will still be
+    # available in CLI container.
+
+    # Check that the key is injected into pygmy ssh-agent container.
+    if ! pygmy status 2>&1 | grep -q "${SSH_KEY_FILE}"; then
+      error "SSH key is not added to pygmy. Run 'pygmy stop && pygmy start' and then 'ahoy up -- --build'."
+      exit 1
+    fi
+
+    # Check that the volume is mounted into CLI container.
+    if ! docker exec -i "$(docker-compose ps -q cli)" bash -c "grep \"^/dev\" /etc/mtab|grep -q /tmp/amazeeio_ssh-agent"; then
+      error "SSH key is added to Pygmy, but the volume is not mounted into container. Make sure that your your \"docker-compose.yml\" has the following lines:"
+      error "volumes_from:"
+      error "  - container:amazeeio-ssh-agent"
+      error "After adding these lines, run 'ahoy up -- --build'"
+      exit 1
+    fi
+
+    # Check that ssh key is available in the container.
+    if ! docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L | grep -q 'ssh-rsa'" ; then
+      error "SSH key was not added into container. Run 'ahoy up -- --build'."
+      exit 1
+    fi
+
+    success "SSH key is available within CLI container"
+  fi
+
+  if [ "${DOCTOR_CHECK_WEBSERVER}" == "1" ]; then
+    if ! curl -L -s -o /dev/null -w "%{http_code}" "${LOCALDEV_URL}" | grep -q 200; then
+      error "Web server is not accessible at http://${LOCALDEV_URL}"
+      exit 1
+    fi
+    success "Web server is running and accessible at http://${LOCALDEV_URL}"
   fi
 
   if [ "${DOCTOR_CHECK_BOOTSTRAP}" == "1" ]; then
-    curl -L -s -o /dev/null -w "%{http_code}" "${LOCALDEV_URL}" | grep -q -v 200 && error "Unable to access ${LOCALDEV_URL}" && exit 1
-
-    if curl -L -s -N "${LOCALDEV_URL}" | grep -q "name=\"Generator\" content=\"Drupal 8"; then
-      success "Successfully bootstrapped ${LOCALDEV_URL}"
-    else
-      error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'composer bay:pull'" && exit 1
+    if ! curl -L -s -N "${LOCALDEV_URL}" | grep -q -i "name=\"Generator\" content=\"Drupal ${DRUPAL_VERSION}"; then
+      error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'"
+      exit 1
     fi
+    success "Successfully bootstrapped website at http://${LOCALDEV_URL}"
   fi
+
+  status "All required checks have passed"
 }
 
 #
@@ -89,21 +158,21 @@ command_exists() {
 # Status echo.
 #
 status() {
-  cecho blue "==> $1";
+  cecho blue "✚ $1";
 }
 
 #
 # Success echo.
 #
 success() {
-  cecho green "✓ $1";
+  cecho green "  ✓ $1";
 }
 
 #
 # Error echo.
 #
 error() {
-  cecho red "✘ $1";
+  cecho red "  ✘ $1";
   exit 1
 }
 

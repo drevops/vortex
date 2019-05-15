@@ -35,18 +35,23 @@ x-volumes:
     ##- app:/app # Override for environment without host mounts. Automatically uncommented in CI.
     ##- files:/app/docroot/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
 
+x-user:
+  &default-user
+  # The default user under which the containers should run. Change this if you are on linux and run with another user than id `1000`
+  user: '1000'
+
 x-environment:
   &default-environment
-  LAGOON_PROJECT: *project
   # Local dev URL populated from the environment. Do not override here. Instead,
   # specify the value in .env file.
   LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-http://your-site.docker.amazee.io}
   #;< LAGOON
+  LAGOON_PROJECT: *project
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
   #;> LAGOON
   # Pass-through $CI variable.
   CI: ${CI:-}
-  DRUPAL_MODULE_PREFIX: "${DRUPAL_MODULE_PREFIX:-mho}"
+  DRUPAL_MODULE_PREFIX: "${DRUPAL_MODULE_PREFIX:-your_site}"
   # Uncomment to enable Xdebug and then restart via `ahoy up`.
   #XDEBUG_ENABLE: "true"
 
@@ -57,9 +62,12 @@ services:
       context: .
       dockerfile: .docker/Dockerfile.cli
     image: *project
+    <<: *default-volumes
+    user: root
     environment:
       <<: *default-environment
-    <<: *default-volumes
+    volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
+      - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
     ports:
       - "35729" # Find port on host with `ahoy info` or `docker-compose port cli 35729`
     #;< LAGOON
@@ -76,6 +84,7 @@ services:
       args:
         CLI_IMAGE: *project
     <<: *default-volumes
+    <<: *default-user
     environment:
       <<: *default-environment
     depends_on:
@@ -97,9 +106,10 @@ services:
       dockerfile: .docker/Dockerfile.php
       args:
         CLI_IMAGE: *project
+    <<: *default-volumes
+    <<: *default-user
     environment:
       <<: *default-environment
-    <<: *default-volumes
     depends_on:
       - cli
     #;< LAGOON
@@ -137,6 +147,7 @@ services:
       dockerfile: .docker/Dockerfile.solr
       args:
         CLI_IMAGE: *project
+    <<: *default-user
     environment:
       <<: *default-environment
     ports:
@@ -150,9 +161,9 @@ services:
   chrome:
     image: selenium/standalone-chrome
     shm_size: '1gb'
+    <<: *default-volumes
     environment:
       <<: *default-environment
-    <<: *default-volumes
     depends_on:
       - cli
     #;< LAGOON
