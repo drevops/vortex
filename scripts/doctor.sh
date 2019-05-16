@@ -13,9 +13,9 @@ DOCTOR_CHECK_SSH="${DOCTOR_CHECK_SSH:-1}"
 DOCTOR_CHECK_WEBSERVER="${DOCTOR_CHECK_WEBSERVER:-1}"
 DOCTOR_CHECK_BOOTSTRAP="${DOCTOR_CHECK_BOOTSTRAP:-1}"
 
-LOCALDEV_URL="${LOCALDEV_URL:-http://salsa.docker.amazee.io/}"
+LOCALDEV_URL="${LOCALDEV_URL:-http://your-site.docker.amazee.io/}"
 SSH_KEY_FILE="${SSH_KEY_FILE:-$HOME/.ssh/id_rsa}"
-DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
+DRUPAL_VERSION="${DRUPAL_VERSION:-7}"
 DATAROOT="${DATAROOT:-.data}"
 
 #-------------------------------------------------------------------------------
