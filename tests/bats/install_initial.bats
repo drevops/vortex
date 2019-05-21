@@ -111,7 +111,7 @@ load test_helper_drupaldev
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_dependabot
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -139,7 +139,7 @@ load test_helper_drupaldev
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_dependabot
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -176,7 +176,7 @@ load test_helper_drupaldev
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_dependabot
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")

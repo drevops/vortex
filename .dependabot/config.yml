@@ -1,0 +1,26 @@
+version: 1
+
+update_configs:
+  - package_manager: "php:composer"
+    directory: "/"
+    update_schedule: "weekly"
+    version_requirement_updates: "off"
+
+  - package_manager: "javascript"
+    directory: "/"
+    update_schedule: "weekly"
+    version_requirement_updates: "off"
+  #;< DRUPAL-DEV
+  #; Special configuration for Drupal-Dev itself.
+  - package_manager: "php:composer"
+    directory: "/"
+    target_branch: "7.x"
+    update_schedule: "weekly"
+    version_requirement_updates: "off"
+
+  - package_manager: "javascript"
+    directory: "/"
+    target_branch: "7.x"
+    update_schedule: "weekly"
+    version_requirement_updates: "off"
+  #;> DRUPAL-DEV

@@ -92,8 +92,8 @@ assert_files_present(){
   # Assert FTP integration removed by default.
   assert_files_present_no_integration_ftp "${dir}" "${suffix}"
 
-  # Assert dependencies.io integration preserved.
-  assert_files_present_integration_dependenciesio "${dir}" "${suffix}"
+  # Assert Dependabot integration preserved.
+  assert_files_present_integration_dependabot "${dir}" "${suffix}"
 }
 
 assert_files_present_common(){
@@ -497,26 +497,27 @@ assert_files_present_no_integration_ftp(){
   popd > /dev/null || exit 1
 }
 
-assert_files_present_integration_dependenciesio(){
+assert_files_present_integration_dependabot(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
   pushd "${dir}" > /dev/null || exit 1
 
-  assert_file_exists "dependencies.yml"
+  assert_file_exists ".dependabot/config.yml"
+  assert_file_not_contains ".dependabot/config.yml" "target_branch"
   assert_file_contains README.md "Automated patching"
 
   popd > /dev/null || exit 1
 }
 
-assert_files_present_no_integration_dependenciesio(){
+assert_files_present_no_integration_dependabot(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
 
   pushd "${dir}" > /dev/null || exit 1
 
-  assert_file_not_exists "dependencies.yml"
-  assert_dir_not_contains_string "${dir}" "dependencies.io"
+  assert_file_not_exists ".dependabot/config.yml"
+  assert_dir_not_contains_string "${dir}" "Dependabot"
 
   popd > /dev/null || exit 1
 }
@@ -597,7 +598,7 @@ run_install(){
 #   "nothing" # preserve_acquia
 #   "nothing" # preserve_lagoon
 #   "nothing" # preserve_ftp
-#   "nothing" # preserve_dependenciesio
+#   "nothing" # preserve_dependabot
 #   "nothing" # remove_drupaldev_info
 # )
 # output=$(run_install_interactive "${answers[@]}")
