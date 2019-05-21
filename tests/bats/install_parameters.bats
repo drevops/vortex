@@ -66,7 +66,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Enabled"
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
-  assert_output_contains "Dependabot integration:   Enabled"
+  assert_output_contains "Dependabot integration:        Enabled"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -108,7 +108,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Enabled"
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
-  assert_output_contains "Dependabot integration:   Enabled"
+  assert_output_contains "Dependabot integration:        Enabled"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -150,7 +150,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Disabled"
   assert_output_contains "Lagoon integration:            Disabled"
   assert_output_contains "FTP integration:               Enabled"
-  assert_output_contains "Dependabot integration:   Disabled"
+  assert_output_contains "Dependabot integration:        Disabled"
   assert_output_contains "Remove Drupal-Dev comments:    No"
 }
 
@@ -179,7 +179,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Enabled"
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
-  assert_output_contains "Dependabot integration:   Enabled"
+  assert_output_contains "Dependabot integration:        Enabled"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -226,7 +226,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Enabled"
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
-  assert_output_contains "Dependabot integration:   Enabled"
+  assert_output_contains "Dependabot integration:        Enabled"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -271,7 +271,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Enabled"
   assert_output_contains "Lagoon integration:            Disabled"
   assert_output_contains "FTP integration:               Enabled"
-  assert_output_contains "Dependabot integration:   Enabled"
+  assert_output_contains "Dependabot integration:        Enabled"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
