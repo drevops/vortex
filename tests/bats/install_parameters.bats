@@ -308,7 +308,7 @@ fixture_preinstalled(){
   # Sets 'preserve_lagoon' to 'Yes'.
   touch "${CURRENT_PROJECT_DIR}"/.lagoon.yml
   # Sets 'preserve_dependencies' to 'Yes'.
-  touch "${CURRENT_PROJECT_DIR}"/.dependabot/config.yml
+  mktouch "${CURRENT_PROJECT_DIR}"/.dependabot/config.yml
 
   # Sets 'fresh_install' to 'No'.
   echo "download-db:" > "${CURRENT_PROJECT_DIR}"/.ahoy.yml
