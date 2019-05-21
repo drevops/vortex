@@ -36,7 +36,7 @@ load test_helper_drupaldev
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_dependabot
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -66,7 +66,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Enabled"
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
-  assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Dependabot integration:   Enabled"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -87,7 +87,7 @@ load test_helper_drupaldev
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_dependabot
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -108,7 +108,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Enabled"
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
-  assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Dependabot integration:   Enabled"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -130,7 +130,7 @@ load test_helper_drupaldev
     "dunno" # preserve_acquia
     "nah" # preserve_lagoon
     "Y" # preserve_ftp
-    "never" # preserve_dependenciesio
+    "never" # preserve_dependabot
     "nooo" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -150,7 +150,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Disabled"
   assert_output_contains "Lagoon integration:            Disabled"
   assert_output_contains "FTP integration:               Enabled"
-  assert_output_contains "dependencies.io integration:   Disabled"
+  assert_output_contains "Dependabot integration:   Disabled"
   assert_output_contains "Remove Drupal-Dev comments:    No"
 }
 
@@ -179,7 +179,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Enabled"
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
-  assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Dependabot integration:   Enabled"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -205,7 +205,7 @@ load test_helper_drupaldev
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_dependabot
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -226,7 +226,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Enabled"
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
-  assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Dependabot integration:   Enabled"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -249,7 +249,7 @@ load test_helper_drupaldev
     "nothing" # preserve_acquia - testing NOTHING value - should be 'Enabled'
     "nah" # preserve_lagoon
     "Y" # preserve_ftp
-    "nothing" # preserve_dependenciesio - testing NOTHING value
+    "nothing" # preserve_dependabot - testing NOTHING value
     "Y" # remove_drupaldev_info
   )
 
@@ -271,7 +271,7 @@ load test_helper_drupaldev
   assert_output_contains "Acquia integration:            Enabled"
   assert_output_contains "Lagoon integration:            Disabled"
   assert_output_contains "FTP integration:               Enabled"
-  assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Dependabot integration:   Enabled"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -308,7 +308,7 @@ fixture_preinstalled(){
   # Sets 'preserve_lagoon' to 'Yes'.
   touch "${CURRENT_PROJECT_DIR}"/.lagoon.yml
   # Sets 'preserve_dependencies' to 'Yes'.
-  touch "${CURRENT_PROJECT_DIR}"/dependencies.yml
+  touch "${CURRENT_PROJECT_DIR}"/.dependabot/config.yml
 
   # Sets 'fresh_install' to 'No'.
   echo "download-db:" > "${CURRENT_PROJECT_DIR}"/.ahoy.yml
