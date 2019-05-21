@@ -131,7 +131,7 @@ gather_answers(){
   set_answer "preserve_acquia"          "Do you want to keep Acquia Cloud integration?"                               "${is_interactive}"
   set_answer "preserve_lagoon"          "Do you want to keep Lagoon integration?"                                     "${is_interactive}"
   set_answer "preserve_ftp"             "Do you want to keep FTP integration?"                                        "${is_interactive}"
-  set_answer "preserve_dependenciesio"  "Do you want to keep dependencies.io integration?"                            "${is_interactive}"
+  set_answer "preserve_dependabot"      "Do you want to keep Dependabot integration?"                                 "${is_interactive}"
   set_answer "remove_drupaldev_info"    "Do you want to remove all Drupal-Dev information?"                           "${is_interactive}"
 
   print_summary "${is_interactive}"
@@ -253,9 +253,9 @@ process_stub(){
     remove_special_comments_with_content "FTP" "${dir}" && bash -c "echo -n ."
   fi
 
-  if [ "$(get_value "preserve_dependenciesio")" != "Y" ] ; then
-    rm "${dir}"/dependencies.yml > /dev/null
-    remove_special_comments_with_content "DEPENDENCIESIO" "${dir}" && bash -c "echo -n ."
+  if [ "$(get_value "preserve_dependabot")" != "Y" ] ; then
+    rm "${dir}"/.dependabot/config.yml > /dev/null
+    remove_special_comments_with_content "DEPENDABOT" "${dir}" && bash -c "echo -n ."
   fi
 
   # @note: String replacement may break symlinks to the file where replacement
@@ -458,7 +458,7 @@ get_default_value__preserve_ftp(){
   echo "n"
 }
 
-get_default_value__preserve_dependenciesio(){
+get_default_value__preserve_dependabot(){
   echo "Y"
 }
 
@@ -531,7 +531,7 @@ normalise_answer__preserve_ftp(){
   [ "${1}" != "Y" ] && echo "n" || echo "Y"
 }
 
-normalise_answer__preserve_dependenciesio(){
+normalise_answer__preserve_dependabot(){
   [ "${1}" != "Y" ] && echo "n" || echo "Y"
 }
 
@@ -642,8 +642,8 @@ discover_value__preserve_ftp(){
   { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "FTP_HOST"; } && echo "Y" || echo "N"
 }
 
-discover_value__preserve_dependenciesio(){
-  [ -f "dependencies.yml" ] && echo "Y" || echo "N"
+discover_value__preserve_dependabot(){
+  [ -f ".dependabot/config.yml" ] && echo "Y" || echo "N"
 }
 
 discover_value__remove_drupaldev_info(){
@@ -750,7 +750,7 @@ print_summary(){
   echo "  Acquia integration:            $(format_enabled "$(get_value "preserve_acquia")")"
   echo "  Lagoon integration:            $(format_enabled "$(get_value "preserve_lagoon")")"
   echo "  FTP integration:               $(format_enabled "$(get_value "preserve_ftp")")"
-  echo "  dependencies.io integration:   $(format_enabled "$(get_value "preserve_dependenciesio")")"
+  echo "  Dependabot integration:        $(format_enabled "$(get_value "preserve_dependabot")")"
   echo "  Remove Drupal-Dev comments:    $(format_yes_no "$(get_value "remove_drupaldev_info")")"
   echo "**********************************************************************"
   echo
