@@ -20,7 +20,7 @@
         "drupal/xautoload": "^4.5",
         "library/bootstrap": "^3.3",
         "library/ckeditor": "^4.9.2",
-        "vlucas/phpdotenv": "^2.4",
+        "vlucas/phpdotenv": "^3.3",
         "webflo/drupal-finder": "^1.0"
     },
     "require-dev": {
