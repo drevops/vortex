@@ -25,7 +25,7 @@
     },
     "require-dev": {
         "behat/behat": "^3.5",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
         "drupal/coder": "^8.2.12",
         "drupal/drupal-extension": "^3.4",
         "drush/drush": "^8.1",
