@@ -19,7 +19,7 @@
     "grunt-sass-lint": "^0.2.4",
     "gruntify-eslint": "5.0.0",
     "node-sass": "^4.11.0",
-    "sass-lint": "^1.12.1"
+    "sass-lint": "^1.13.1"
   },
   "scripts": {
     "build": "grunt",
