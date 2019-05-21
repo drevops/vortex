@@ -28,7 +28,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
         "drupal/coder": "^8.2.12",
         "drupal/drupal-extension": "^3.4",
-        "drush/drush": "^8.1",
+        "drush/drush": "^9.6",
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
         "integratedexperts/behat-steps": "^0.1.0",
