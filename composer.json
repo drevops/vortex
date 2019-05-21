@@ -21,7 +21,7 @@
         "drupal/shield": "^1.2",
         "drupal/stage_file_proxy": "^1.0-alpha3",
         "drupal/token": "^1.5",
-        "drush/drush": "^8.1",
+        "drush/drush": "^9.6",
         "twbs/bootstrap": "^4.1",
         "vlucas/phpdotenv": "^2.4",
         "webflo/drupal-finder": "^1.0"
