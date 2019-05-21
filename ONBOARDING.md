@@ -115,15 +115,11 @@ indicate that it was addressed.
     - [ ] Setup [Slack notifications](https://lagoon.readthedocs.io/en/latest/administering_lagoon/graphql_api/#adding-notifications-to-the-project)   
     - [ ] Push to remote and ensure that Lagoon was successfully deployed.
     
-[//]: # (#;> LAGOON)
-
-[//]: # (#;< DEPENDENCIESIO)  
+[//]: # (#;> LAGOON)  
                            
-- [ ] Configure dependencies.io by logging in with your GitHub account and 
-      adding a project through UI. 
+- [ ] Configure [dependabot](dependabot.com) by logging in with your GitHub account and 
+      adding a project through UI. Note that you will have to add 2 jobs: PHP and JavaScript. 
       
-[//]: # (#;> DEPENDENCIESIO)
-     
 ## 5. Cleanup
 
 - [ ] Cleanup code or set `ALLOW_LINT_FAIL=1` in `.env` file to bypass code 

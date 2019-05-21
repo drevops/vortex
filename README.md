@@ -6,6 +6,7 @@
 [![Release](https://img.shields.io/github/release/integratedexperts/drupal-dev.svg)](https://github.com/integratedexperts/drupal-dev/releases/latest)
 [![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/integratedexperts/drupal-dev/blob/8.x/LICENSE)
 [![Pull Requests](https://img.shields.io/github/issues-pr/integratedexperts/drupal-dev.svg)](https://github.com/integratedexperts/drupal-dev/pulls)
+[![dependabot](https://img.shields.io/badge/dependabot-enabled-green.svg)](https://dependabot.com)
 
 #### Attachable development environment for Drupal sites with tools included
 
@@ -190,7 +191,7 @@ Run `drupal-dev.sh` to download the latest version of Drupal-Dev for your projec
 |                                               | [Deployment hooks](hooks)                                                                                           | Standardised deployment hooks guarantee that every deployment is reproducible |
 | Lagoon                                        | Deployment configuration                                                                                            | Lagoon configuration is required to perform deployments |
 |                                               | Production database from Lagoon                                                                                     | Using production database for development and automated builds (CI) requires database dump from Lagoon |
-| [dependencies.io](https://www.dependencies.io/) | Automated pull request submissions for automated updates.                                                         | Automated dependencies updates allow to keep the project up to date by automatically creating pull requests with updated dependencies on a daily basis |
+| [dependabot](dependabot.com)                  | Automated pull request submissions for automated updates.                                                         | Automated dependencies updates allow to keep the project up to date by automatically creating pull requests with updated dependencies on a daily basis |
 | [Diffy](https://diffy.website/) (Visual Regression)\* | Automated visual regression comparison for each deployment                                                  | Visual regression for each deployment is useful to make sure that only required changes were applied with specific code change and that the rest of the site has not changed |
 | **Maintenance (of Drupal-Dev)**               |                                                                                                                     
 | Install and upgrade                           | Follows [SemVer](https://semver.org/) model for releases                                                            | Projects may refer to a specific version of Drupal-Dev, which sets expectations about what tools and configuration is available |
@@ -255,6 +256,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 Drupal 7 implementation of YOURSITE for YOURORG
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
+[![dependabot](https://img.shields.io/badge/dependabot-enabled-green.svg)](https://dependabot.com)
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
 
@@ -407,14 +409,10 @@ Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
 
 [//]: # (#;> DEPLOYMENT)        
 
-[//]: # (#;< DEPENDENCIESIO)
-
 ## Automated patching
-[dependencies.io](https://dependencies.io) integration allows to keep the 
+[dependabot](dependabot.com) integration allows to keep the 
 project up to date by automatically creating pull requests with updated 
 dependencies on a daily basis. 
-
-[//]: # (#;> DEPENDENCIESIO)                                                    
 
 ## FAQs
 Please refer to [FAQs](FAQs.md)
