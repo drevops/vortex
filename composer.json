@@ -23,7 +23,7 @@
         "drupal/token": "^1.5",
         "drush/drush": "^8.1",
         "twbs/bootstrap": "^4.1",
-        "vlucas/phpdotenv": "^2.4",
+        "vlucas/phpdotenv": "^3.3",
         "webflo/drupal-finder": "^1.0"
     },
     "require-dev": {
