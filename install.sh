@@ -33,7 +33,7 @@ DRUPALDEV_INIT_REPO="${DRUPALDEV_INIT_REPO:-1}"
 # Flag to allow override existing committed files.
 DRUPALDEV_ALLOW_OVERRIDE="${DRUPALDEV_ALLOW_OVERRIDE:-0}"
 # Flag to allow writing downloaded files into local ignore for current repository.
-DRUPALDEV_ALLOW_USE_LOCAL_IGNORE="${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE:-1}"
+DRUPALDEV_ALLOW_USE_LOCAL_IGNORE="${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE:-0}"
 # Path to local Drupal-Dev repository. If not provided - remote will be used.
 DRUPALDEV_LOCAL_REPO="${DRUPALDEV_LOCAL_REPO:-}"
 # Organisation name to download the files from.
@@ -360,6 +360,8 @@ copy_files(){
         && [ "${file_is_tracked}" != "0" ] \
         && [ "${file_is_required}" != "0" ]; then
         git_add_to_local_ignore "${relative_file}"
+      elif [ "${allow_use_local_gitignore}" -ne 1 ]; then
+        git_remove_from_local_ignore "${relative_file}"
       fi
     else
       echo "    Skipped file ${relative_file}"
@@ -890,8 +892,21 @@ git_add_to_local_ignore(){
     mkdir -p ./.git/info >/dev/null
     [ ! -f "./.git/info/exclude" ] && touch ./.git/info/exclude >/dev/null
     if ! grep -Fxq "${1}" ./.git/info/exclude; then
-      echo "/${1}" >> ./.git/info/exclude
+      echo "/${1} ### Excluded by Drupal-Dev" >> ./.git/info/exclude
       echo "    Added file ${1} to local git ignore"
+    fi
+  fi
+}
+
+# Remove specified file from local git ignore (not .gitgnore).
+git_remove_from_local_ignore(){
+  local path="${1}"
+  path="/${path}"
+  if [ -f "./.git/info/exclude" ]; then
+    if grep -Fq "${path}" "./.git/info/exclude"; then
+      path="${path//\//\\/}"
+      remove_special_comments "./.git/info" "${path} ### Excluded by Drupal-Dev"
+      echo "    Removed file ${1} from local git ignore"
     fi
   fi
 }
