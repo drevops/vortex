@@ -11,6 +11,8 @@
 # defined and created in setup() test method.
 #
 # $BUILD_DIR - root build directory where the rest of fixture directories located.
+# The "build" in this context is a place to store assets produce by the install
+# script during the test.
 #
 # $CURRENT_PROJECT_DIR - directory where install script is executed. May have
 # existing project files (e.g. from previous installations) or be empty (to
@@ -27,7 +29,7 @@
 setup(){
   DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
   CUR_DIR="$(pwd)"
-  BUILD_DIR="${BUILD_DIR:-"${BATS_TMPDIR}/drupal-dev-bats"}"
+  BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR}/drupal-dev-$(random_string)"}"
 
   CURRENT_PROJECT_DIR="${BUILD_DIR}/star_wars"
   DST_PROJECT_DIR="${BUILD_DIR}/dst"
@@ -565,8 +567,10 @@ run_install(){
 
   # Force install script to be downloaded from the local repo for testing.
   export DRUPALDEV_LOCAL_REPO="${LOCAL_REPO_DIR}"
-  # Use fixture temporary directory.
-  export DRUPALDEV_TMP_DIR="${APP_TMP_DIR}"
+  # Use unique temporary directory for each run.
+  DRUPALDEV_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
+  prepare_fixture_dir "${DRUPALDEV_TMP_DIR}"
+  export export DRUPALDEV_TMP_DIR
   # Show debug information (for easy debug of tests).
   export DRUPALDEV_DEBUG=1
   run "${CUR_DIR}"/install.sh "$@"

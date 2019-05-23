@@ -14,7 +14,15 @@ if [ -z "$TEST_PATH_INITIALIZED" ]; then
   # Add BATS test directory to the PATH.
   PATH="$(dirname "${BATS_TEST_DIRNAME}"):$PATH"
 
-  export BATS_TEST_TMPDIR="${BATS_TMPDIR}/bats-test-tmp"
+  # BATS_TMPDIR - the location to a directory that may be used to store
+  # temporary files. Provided by bats. Created once for the duration of whole
+  # suite run.
+  # Do not use BATS_TMPDIR, instead use BATS_TEST_TMPDIR.
+  #
+  # BATS_TEST_TMPDIR - unique location for temp files per test.
+  # shellcheck disable=SC2002
+  random_suffix=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 4 | head -n 1)
+  export BATS_TEST_TMPDIR="${BATS_TMPDIR}/bats-test-tmp-${random_suffix}"
   [ -d "${BATS_TEST_TMPDIR}" ] && rm -Rf "${BATS_TEST_TMPDIR}" > /dev/null
   mkdir -p "${BATS_TEST_TMPDIR}"
 
@@ -267,6 +275,16 @@ assert_git_clean(){
   assert_contains "nothing to commit" "${message}"
 }
 
+assert_git_not_clean(){
+  local dir="${1}"
+  local message
+
+  assert_git_repo "${dir}"
+
+  message="$(git --work-tree="${dir}" --git-dir="${dir}/.git" status)"
+  assert_not_contains "nothing to commit" "${message}"
+}
+
 assert_files_equal(){
   local file1="${1}"
   local file2="${2}"
@@ -345,8 +363,10 @@ assert_output_not_contains(){
 }
 
 random_string(){
+  local len="${1:-8}"
   local ret
-  ret=$(hexdump -n 16 -v -e '/1 "%02X"' /dev/urandom)
+  # shellcheck disable=SC2002
+  ret=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w "${len}" | head -n 1)
   echo "${ret}"
 }
 

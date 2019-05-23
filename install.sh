@@ -903,7 +903,8 @@ git_add_to_local_ignore(){
     mkdir -p ./.git/info >/dev/null
     [ ! -f "./.git/info/exclude" ] && touch ./.git/info/exclude >/dev/null
     if ! grep -Fxq "${1}" ./.git/info/exclude; then
-      echo "/${1} ### Excluded by Drupal-Dev" >> ./.git/info/exclude
+      echo "# /${1} file below is excluded by Drupal-Dev" >> ./.git/info/exclude
+      echo "/${1}" >> ./.git/info/exclude
       echo "    Added file ${1} to local git ignore"
     fi
   fi
@@ -916,7 +917,7 @@ git_remove_from_local_ignore(){
   if [ -f "./.git/info/exclude" ]; then
     if grep -Fq "${path}" "./.git/info/exclude"; then
       path="${path//\//\\/}"
-      remove_special_comments "./.git/info" "${path} ### Excluded by Drupal-Dev"
+      remove_ignore_comments "./.git/info" "# ${path} file below is excluded by Drupal-Dev"
       echo "    Removed file ${1} from local git ignore"
     fi
   fi
@@ -1008,6 +1009,22 @@ remove_special_comments() {
     --exclude-dir=".data" \
     -l "${token}" "${dir}" \
     | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/d"
+}
+
+remove_ignore_comments() {
+  local dir="${1}"
+  local token="${2:-#;}"
+  local sed_opts
+
+  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  grep -rI \
+    --exclude-dir=".git" \
+    --exclude-dir=".idea" \
+    --exclude-dir="vendor" \
+    --exclude-dir="node_modules" \
+    --exclude-dir=".data" \
+    -l "${token}" "${dir}" \
+    | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/{N;d;}"
 }
 
 remove_special_comments_with_content() {

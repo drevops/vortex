@@ -7,7 +7,7 @@ load test_helper
 load test_helper_drupaldev
 
 @test "Variables" {
-  assert_contains "drupal-dev-bats" "${BUILD_DIR}"
+  assert_contains "drupal-dev" "${BUILD_DIR}"
 }
 
 @test "Install into empty directory" {
@@ -96,14 +96,14 @@ load test_helper_drupaldev
   assert_file_not_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml"
 }
 
-@test "Install into empty directory: empty directory; no local ignore after existing gitignore" {
+@test "Install into empty directory: empty directory; no exclude after existing exclude" {
   # Run installation with exclusion.
   export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=1
   run_install
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_file_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml file below is excluded by Drupal-Dev"
   assert_file_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml"
-  assert_file_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" "### Excluded by Drupal-Dev"
 
   # Add non-Drupal-Dev file exclusion.
   echo "somefile" >> "${CURRENT_PROJECT_DIR}/.git/info/exclude"
@@ -115,8 +115,8 @@ load test_helper_drupaldev
   run_install
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_file_not_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml file below is excluded by Drupal-Dev"
   assert_file_not_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml"
-  assert_file_not_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" "### Excluded by Drupal-Dev"
   assert_file_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" "somefile"
 }
 
