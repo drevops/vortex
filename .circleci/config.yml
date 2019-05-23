@@ -80,8 +80,6 @@ jobs:
       - restore_cache:
           keys:
             - v1-db8-{{ checksum "/tmp/DB_TIMESTAMP" }}
-      # Init environment for development.
-      - run: if [ -f "./drupal-dev.sh" ] && [ ! "${DRUPAL_DEV}" ]; then ./drupal-dev.sh; fi
       - run: .circleci/download-db.sh
       - save_cache:
           key: v1-db8-{{ checksum "/tmp/DB_TIMESTAMP" }}
@@ -102,8 +100,6 @@ jobs:
       - restore_cache:
           keys:
             - v1-db8-
-      # Init environment for development.
-      - run: if [ -f "./drupal-dev.sh" ] && [ ! "${DRUPAL_DEV}" ]; then ./drupal-dev.sh; fi
       - run: .circleci/build.sh
       - run: .circleci/test.sh
       - run:
@@ -129,8 +125,6 @@ jobs:
           fingerprints:
             - *deploy_ssh_fingerprint
       - checkout
-      # Init environment for development.
-      - run: if [ -f "./drupal-dev.sh" ] && [ ! "${DRUPAL_DEV}" ]; then ./drupal-dev.sh; fi
       - run:
           command: .circleci/deploy.sh
           no_output_timeout: 30m
@@ -147,8 +141,6 @@ jobs:
           fingerprints:
             - *deploy_ssh_fingerprint
       - checkout
-      # Init environment for development.
-      - run: if [ -f "./drupal-dev.sh" ] && [ ! "${DRUPAL_DEV}" ]; then ./drupal-dev.sh; fi
       - run: DEPLOY_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
       - store_artifacts:
           path: /tmp/artifacts
