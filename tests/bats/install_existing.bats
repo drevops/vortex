@@ -230,7 +230,7 @@ load test_helper_drupaldev
 }
 
 @test "Install into existing: git project; no Drupal-Dev; exclude; adding Drupal-Dev and updating Drupal-Dev" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=1
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
 
   # Add custom files
   touch "${CURRENT_PROJECT_DIR}/test1.txt"
@@ -304,7 +304,7 @@ load test_helper_drupaldev
 }
 
 @test "Install into existing: custom files, not including readme; exclude; discovery; silent" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=1
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
 
   touch "${CURRENT_PROJECT_DIR}/test1.txt"
   # File resides in directory that is included in Drupal-Dev when initialised.
@@ -394,7 +394,7 @@ load test_helper_drupaldev
 }
 
 @test "Install into existing: previously installed project, including correct readme; exclude; discovery; silent" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=1
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
 
   # Populate current dir with a project at current version.
   output=$(run_install)

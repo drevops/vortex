@@ -87,7 +87,7 @@ load test_helper_drupaldev
 }
 
 @test "Install into empty directory: empty directory; no local ignore" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=0
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=0
 
   run_install
   assert_files_present "${CURRENT_PROJECT_DIR}"
@@ -98,7 +98,7 @@ load test_helper_drupaldev
 
 @test "Install into empty directory: empty directory; no exclude after existing exclude" {
   # Run installation with exclusion.
-  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=1
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
   run_install
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
@@ -111,7 +111,7 @@ load test_helper_drupaldev
 
   # Run installation without exclusion and assert that manually added exclusion
   # was preserved.
-  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=0
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=0
   run_install
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"

@@ -93,7 +93,7 @@ load test_helper_drupaldev
 }
 
 @test "Clean; exclude" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=1
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
   run_install
@@ -269,7 +269,7 @@ load test_helper_drupaldev
 }
 
 @test "Reset; exclude" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=1
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
 
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
@@ -453,7 +453,7 @@ load test_helper_drupaldev
 }
 
 @test "Reset; committed files; exclude" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=1
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
 
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 

@@ -32,8 +32,8 @@ DRUPALDEV_IS_INTERACTIVE="${DRUPALDEV_IS_INTERACTIVE:-0}"
 DRUPALDEV_INIT_REPO="${DRUPALDEV_INIT_REPO:-1}"
 # Flag to allow override existing committed files.
 DRUPALDEV_ALLOW_OVERRIDE="${DRUPALDEV_ALLOW_OVERRIDE:-0}"
-# Flag to allow writing downloaded files into local ignore for current repository.
-DRUPALDEV_ALLOW_USE_LOCAL_IGNORE="${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE:-0}"
+# Flag to allow writing downloaded files into local exclude for current repository.
+DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE="${DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE:-0}"
 # Path to local Drupal-Dev repository. If not provided - remote will be used.
 DRUPALDEV_LOCAL_REPO="${DRUPALDEV_LOCAL_REPO:-}"
 # Organisation name to download the files from.
@@ -72,7 +72,7 @@ install(){
 
   process_stub "${DRUPALDEV_TMP_DIR}"
 
-  copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE}"
+  copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE}"
 
   print_footer
 }
@@ -293,7 +293,7 @@ copy_files(){
   local src="${1}"
   local dst="${2}"
   local allow_override="${3:-}"
-  local allow_use_local_gitignore="${4:-}"
+  local allow_use_local_exclude="${4:-}"
 
   pushd "${dst}" > /dev/null || exit 1
 
@@ -354,14 +354,14 @@ copy_files(){
       #  - not in a list of required files
       file_is_required="$(file_is_required "${relative_file}")"
       # @todo: Refactor return values.
-      if [ "${allow_use_local_gitignore}" -eq 1 ] \
+      if [ "${allow_use_local_exclude}" -eq 1 ] \
         && [ -d ./.git/ ] \
         && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] \
         && [ "${file_is_tracked}" != "0" ] \
         && [ "${file_is_required}" != "0" ]; then
-        git_add_to_local_ignore "${relative_file}"
-      elif [ "${allow_use_local_gitignore}" -ne 1 ]; then
-        git_remove_from_local_ignore "${relative_file}"
+        git_add_to_local_exclude "${relative_file}"
+      elif [ "${allow_use_local_exclude}" -ne 1 ]; then
+        git_remove_from_local_exclude "${relative_file}"
       fi
     else
       echo "    Skipped file ${relative_file}"
@@ -886,28 +886,28 @@ file_is_required(){
   echo 1
 }
 
-# Add specified file to local git ignore (not .gitgnore).
-git_add_to_local_ignore(){
+# Add specified file to local git exclude (not .gitgnore).
+git_add_to_local_exclude(){
   if [ -d ./.git/ ]; then
     mkdir -p ./.git/info >/dev/null
     [ ! -f "./.git/info/exclude" ] && touch ./.git/info/exclude >/dev/null
     if ! grep -Fxq "${1}" ./.git/info/exclude; then
       echo "# /${1} file below is excluded by Drupal-Dev" >> ./.git/info/exclude
       echo "/${1}" >> ./.git/info/exclude
-      echo "    Added file ${1} to local git ignore"
+      echo "    Added file ${1} to local git exclude"
     fi
   fi
 }
 
-# Remove specified file from local git ignore (not .gitgnore).
-git_remove_from_local_ignore(){
+# Remove specified file from local git exclude (not .gitgnore).
+git_remove_from_local_exclude(){
   local path="${1}"
   path="/${path}"
   if [ -f "./.git/info/exclude" ]; then
     if grep -Fq "${path}" "./.git/info/exclude"; then
       path="${path//\//\\/}"
       remove_ignore_comments "./.git/info" "# ${path} file below is excluded by Drupal-Dev"
-      echo "    Removed file ${1} from local git ignore"
+      echo "    Removed file ${1} from local git exclude"
     fi
   fi
 }
@@ -1000,6 +1000,9 @@ remove_special_comments() {
     | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/d"
 }
 
+# Remove ignore comments.
+# The difference with remove_special_comments() is that this function removes
+# $token line and one more line that follows it.
 remove_ignore_comments() {
   local dir="${1}"
   local token="${2:-#;}"
