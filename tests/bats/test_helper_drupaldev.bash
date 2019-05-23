@@ -177,6 +177,10 @@ assert_files_present_common(){
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_deploy"
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_deploy_tags"
 
+  # Assert that Drupal-Dev version was replaced.
+  assert_file_contains "README.md" "badge/Drupal--Dev-${DRUPAL_VERSION}.x-blue.svg"
+  assert_file_contains "README.md" "https://github.com/integratedexperts/drupal-dev/tree/${DRUPAL_VERSION}.x"
+
   # Assert that required files were not locally excluded.
   if [ -d ".git" ] ; then
     assert_file_not_contains .git/info/exclude "README.md"
@@ -507,7 +511,7 @@ Drupal 8 implementation of ${name} for ${org}
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
 
-![drupal-dev.io](https://img.shields.io/badge/Powered_by-Drupal--Dev-blue.svg)
+[![drupal-dev.io](https://img.shields.io/badge/Drupal--Dev-DRUPALDEV_VERSION_URLENCODED-blue.svg)](https://github.com/integratedexperts/drupal-dev/tree/DRUPALDEV_VERSION)
 
 some other text
 EOT

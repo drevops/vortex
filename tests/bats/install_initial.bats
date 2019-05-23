@@ -210,3 +210,13 @@ load test_helper_drupaldev
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
+
+@test "Install into empty directory; Drupal-Dev badge version set" {
+  export DRUPALDEV_VERSION="8.x-1.2.3"
+
+  run_install
+
+  # Assert that Drupal-Dev version was replaced.
+  assert_file_contains "${CURRENT_PROJECT_DIR}/README.md" "https://github.com/integratedexperts/drupal-dev/tree/8.x-1.2.3"
+  assert_file_contains "${CURRENT_PROJECT_DIR}/README.md" "badge/Drupal--Dev-8.x--1.2.3-blue.svg"
+}
