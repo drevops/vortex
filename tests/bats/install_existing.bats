@@ -252,7 +252,6 @@ load test_helper_drupaldev
 
   # Commit files required to run the project.
   git_add "${CURRENT_PROJECT_DIR}" README.md
-  git_add "${CURRENT_PROJECT_DIR}" drupal-dev.sh
   git_add "${CURRENT_PROJECT_DIR}" .circleci/config.yml
   git_add "${CURRENT_PROJECT_DIR}" docroot/sites/default/settings.php
   git_commit "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev"

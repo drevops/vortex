@@ -22,7 +22,7 @@ if [ -z "$TEST_PATH_INITIALIZED" ]; then
   # BATS_TEST_TMPDIR - unique location for temp files per test.
   # shellcheck disable=SC2002
   random_suffix=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 4 | head -n 1)
-  export BATS_TEST_TMPDIR="${BATS_TMPDIR}/bats-test-tmp-${random_suffix}"
+  BATS_TEST_TMPDIR="${BATS_TMPDIR}/bats-test-tmp-${random_suffix}"
   [ -d "${BATS_TEST_TMPDIR}" ] && rm -Rf "${BATS_TEST_TMPDIR}" > /dev/null
   mkdir -p "${BATS_TEST_TMPDIR}"
 

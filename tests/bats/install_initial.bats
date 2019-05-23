@@ -75,7 +75,7 @@ load test_helper_drupaldev
   commit2=$(git_commit "${LOCAL_REPO_DIR}" "New version 2 of Drupal-Dev")
 
   # Requiring bespoke version by commit.
-  export DRUPALDEV_COMMIT="${commit1}"
+  echo DRUPALDEV_COMMIT="${commit1}">>"${CURRENT_PROJECT_DIR}/.env.local"
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
   assert_output_contains "This will install Drupal-Dev into your project at commit"
