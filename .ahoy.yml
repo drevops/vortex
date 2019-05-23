@@ -186,8 +186,8 @@ commands:
     cmd: |
       ahoy clean
       rm -rf ./screenshots;
-      git ls-files --others -i --exclude-from=.git/info/exclude | xargs chmod 777
-      git ls-files --others -i --exclude-from=.git/info/exclude | xargs rm -Rf
+      git ls-files --others -i --exclude-from=.git/info/exclude | xargs chmod 777 || true
+      git ls-files --others -i --exclude-from=.git/info/exclude | xargs rm -Rf || true
       find . -type d -not -path "./.git/*" -empty -delete
 
   fe:
