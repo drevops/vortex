@@ -265,7 +265,7 @@ Drupal 8 implementation of YOURSITE for YOURORG
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
 
-[![drupal-dev.io](https://img.shields.io/badge/Powered_by-Drupal--Dev-blue.svg)](https://drupal-dev.io/) 
+[![drupal-dev.io](https://img.shields.io/badge/Drupal--Dev-DRUPALDEV_VERSION_URLENCODED-blue.svg)](https://github.com/integratedexperts/drupal-dev/tree/DRUPALDEV_VERSION) 
 
 [//]: # (Remove the section below once onboarding is finished)
 ## Onboarding

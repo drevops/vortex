@@ -50,6 +50,8 @@ DRUPALDEV_PROCEED="${DRUPALDEV_PROCEED:-1}"
 DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
 # Internal flag to remove demo configuration.
 DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
+# Internal version of Drupal-Dev. Discovered during installation.
+DRUPALDEV_VERSION="${DRUPALDEV_VERSION:-${DRUPAL_VERSION}.x}"
 
 install(){
   check_requirements
@@ -201,6 +203,7 @@ download_remote(){
     echo "==> Downloading the latest version ${release} of Drupal-Dev"
     curl -# -L "https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}/archive/${release}.tar.gz" \
       | tar xzf - -C "${DRUPALDEV_TMP_DIR}" --strip 1
+    DRUPALDEV_VERSION="${release}"
   fi
 }
 
@@ -270,9 +273,13 @@ process_stub(){
   replace_string_content  "your-site"         "${machine_name_hyphenated}"      "${dir}" && bash -c "echo -n ."
   replace_string_content  "YOURSITE"          "$(get_value "name")"             "${dir}" && bash -c "echo -n ."
 
+  replace_string_content "DRUPALDEV_VERSION_URLENCODED"  "${DRUPALDEV_VERSION/-/--}" "${dir}" && bash -c "echo -n ."
+  replace_string_content "DRUPALDEV_VERSION"  "${DRUPALDEV_VERSION}"            "${dir}" && bash -c "echo -n ."
+
   replace_string_filename "your_site_theme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
   replace_string_filename "your_org"          "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
   replace_string_filename "your_site"         "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
+
 
   if [ "$(get_value "remove_drupaldev_info")" == "Y" ] ; then
     # Handle code required for Drupal-Dev maintenance.
@@ -389,7 +396,7 @@ is_core_profile(){
 #
 is_installed(){
   [ ! -f "README.md" ] && return 1
-  grep -q "badge/Powered_by-Drupal--Dev" "README.md"
+  grep -q "badge/Drupal--Dev-" "README.md"
 }
 
 ################################################################################
