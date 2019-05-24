@@ -104,6 +104,12 @@ projects  the way you want it!**
 ### Updating Drupal-Dev
 Run `ahoy update` to download the latest version of Drupal-Dev for your project.  
 
+<details>
+<summary>Show update process screenshot</summary>
+
+![Installer](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/project-update.png)
+</details>
+
 ## Why is Drupal-Dev awesome?
 - **Highly configurable**  <br/>
   All configuration is made through environment variables without the need to change any of the scripts.
