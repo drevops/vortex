@@ -181,6 +181,8 @@ assert_files_present_common(){
   # Assert that Drupal-Dev files removed.
   assert_file_not_exists "install.sh"
   assert_file_not_exists "LICENSE"
+  assert_file_not_exists ".circleci/drupal_dev-test.sh"
+  assert_file_not_exists ".circleci/drupal_dev-test-deployment.sh"
   assert_dir_not_exists "tests/bats"
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_test"
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_test_deployment"
