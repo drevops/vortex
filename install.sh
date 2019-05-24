@@ -273,8 +273,12 @@ process_stub(){
   replace_string_content  "your-site"         "${machine_name_hyphenated}"      "${dir}" && bash -c "echo -n ."
   replace_string_content  "YOURSITE"          "$(get_value "name")"             "${dir}" && bash -c "echo -n ."
 
-  replace_string_content "DRUPALDEV_VERSION_URLENCODED"  "${DRUPALDEV_VERSION/-/--}" "${dir}" && bash -c "echo -n ."
-  replace_string_content "DRUPALDEV_VERSION"  "${DRUPALDEV_VERSION}"            "${dir}" && bash -c "echo -n ."
+  machine_name_camel_cased="$(to_camelcase "${machine_name}")"
+  replace_string_content  "YourSite"          "${machine_name_camel_cased}"     "${dir}" && bash -c "echo -n ."
+  replace_string_filename "YourSite"          "${machine_name_camel_cased}"     "${dir}" && bash -c "echo -n ."
+
+  replace_string_content  "DRUPALDEV_VERSION_URLENCODED"  "${DRUPALDEV_VERSION/-/--}" "${dir}" && bash -c "echo -n ."
+  replace_string_content  "DRUPALDEV_VERSION" "${DRUPALDEV_VERSION}"            "${dir}" && bash -c "echo -n ."
 
   replace_string_filename "your_site_theme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
   replace_string_filename "your_org"          "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
@@ -1137,6 +1141,18 @@ to_upper() {
 
 capitalize() {
   echo "$(tr '[:lower:]' '[:upper:]' <<< "${1:0:1}")${1:1}"
+}
+
+to_camelcase(){
+  local string="${1}"
+
+  IFS=" " read -r -a chunks <<< "${string//_/ }"
+
+  for ((i=0; i<${#chunks[@]}; i++)); do
+    chunks[$i]=$(capitalize "${chunks[$i]}")
+  done
+
+  echo "${chunks[@]}" | tr -d ' '
 }
 
 format_enabled(){
