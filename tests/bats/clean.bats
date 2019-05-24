@@ -31,9 +31,9 @@ load test_helper_drupaldev
   mktouch "node_modules/somevendor/somepackage/somepackage.js"
   mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
 
-  mktouch "docroot/sites/all/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
-  mktouch "docroot/sites/all/themes/custom/somecustomtheme/build/css/somecustomtheme.min.css"
-  mktouch "docroot/sites/all/themes/custom/somecustomtheme/scss/_components.scss"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch "screenshots/s1.jpg"
   mktouch "screenshots/s2.jpg"
@@ -69,8 +69,8 @@ load test_helper_drupaldev
   assert_dir_not_exists "vendor"
   assert_dir_not_exists "node_modules"
 
-  assert_dir_not_exists "docroot/sites/all/themes/custom/somecustomtheme/build"
-  assert_file_not_exists "docroot/sites/all/themes/custom/somecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/build"
+  assert_file_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_file_exists "screenshots/s1.jpg"
   assert_file_exists "screenshots/s2.jpg"
@@ -101,10 +101,10 @@ load test_helper_drupaldev
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
-  mktouch "docroot/core/install.php"
-  mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
-  mktouch "docroot/themes/contrib/sometheme/sometheme.info.yml"
-  mktouch "docroot/profiles/contrib/someprofile/someprofile.info.yml"
+  mktouch "docroot/index.php"
+  mktouch "docroot/sites/all/modules/contrib/somemodule/somemodule.info"
+  mktouch "docroot/sites/all/themes/contrib/sometheme/sometheme.info"
+  mktouch "docroot/profiles/zzzsomeprofile/zzzsomeprofile.info"
   mktouch "docroot/sites/default/somesettingsfile.php"
   mktouch "docroot/sites/default/settings.generated.php"
   mktouch "docroot/sites/default/files/somepublicfile.php"
@@ -118,9 +118,9 @@ load test_helper_drupaldev
   mktouch "node_modules/somevendor/somepackage/somepackage.js"
   mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
 
-  mktouch "docroot/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
-  mktouch "docroot/themes/custom/somecustomtheme/build/css/somecustomtheme.min.css"
-  mktouch "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch "screenshots/s1.jpg"
   mktouch "screenshots/s2.jpg"
@@ -129,7 +129,6 @@ load test_helper_drupaldev
   mktouch ".data/db_2.sql"
 
   mktouch "docroot/sites/default/settings.local.php"
-  mktouch "docroot/sites/default/services.local.yml"
 
   mktouch ".env.local"
   echo "version: \"2.3\"" > "docker-compose.override.yml"
@@ -145,9 +144,9 @@ load test_helper_drupaldev
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
-  assert_dir_not_exists "docroot/core"
-  assert_dir_not_exists "docroot/modules/contrib"
-  assert_dir_not_exists "docroot/themes/contrib"
+  assert_dir_not_exists "docroot/includes"
+  assert_dir_not_exists "docroot/sites/all/modules/contrib"
+  assert_dir_not_exists "docroot/sites/all/themes/contrib"
   assert_dir_not_exists "docroot/profiles/contrib"
 
   assert_file_exists "docroot/sites/default/somesettingsfile.php"
@@ -157,8 +156,8 @@ load test_helper_drupaldev
   assert_dir_not_exists "vendor"
   assert_dir_not_exists "node_modules"
 
-  assert_dir_not_exists "docroot/themes/custom/somecustomtheme/build"
-  assert_file_not_exists "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/build"
+  assert_file_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_file_exists "screenshots/s1.jpg"
   assert_file_exists "screenshots/s2.jpg"
@@ -167,7 +166,6 @@ load test_helper_drupaldev
   assert_file_exists ".data/db_2.sql"
 
   assert_file_exists "docroot/sites/default/settings.local.php"
-  assert_file_exists "docroot/sites/default/services.local.yml"
 
   assert_file_exists ".env.local"
   assert_file_exists "docker-compose.override.yml"
@@ -182,17 +180,17 @@ load test_helper_drupaldev
 }
 
 @test "Reset; non-exclude" {
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
+    pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
   run_install
 
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
-  mktouch "docroot/core/install.php"
-  mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
-  mktouch "docroot/themes/contrib/sometheme/sometheme.info.yml"
-  mktouch "docroot/profiles/contrib/someprofile/someprofile.info.yml"
+  mktouch "docroot/index.php"
+  mktouch "docroot/sites/all/modules/contrib/somemodule/somemodule.info"
+  mktouch "docroot/sites/all/themes/contrib/sometheme/sometheme.info"
+  mktouch "docroot/profiles/zzzsomeprofile/zzzsomeprofile.info"
   mktouch "docroot/sites/default/somesettingsfile.php"
   mktouch "docroot/sites/default/settings.generated.php"
   mktouch "docroot/sites/default/files/somepublicfile.php"
@@ -205,10 +203,10 @@ load test_helper_drupaldev
 
   mktouch "node_modules/somevendor/somepackage/somepackage.js"
   mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
-  mktouch "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
-  mktouch "docroot/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
-  mktouch "docroot/themes/custom/somecustomtheme/build/css/somecustomtheme.min.css"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
 
   mktouch "screenshots/s1.jpg"
   mktouch "screenshots/s2.jpg"
@@ -217,7 +215,6 @@ load test_helper_drupaldev
   mktouch ".data/db_2.sql"
 
   mktouch "docroot/sites/default/settings.local.php"
-  mktouch "docroot/sites/default/services.local.yml"
 
   mktouch ".env.local"
   echo "version: \"2.3\"" > "docker-compose.override.yml"
@@ -233,9 +230,9 @@ load test_helper_drupaldev
   assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
-  assert_dir_not_exists "docroot/core"
-  assert_dir_not_exists "docroot/modules/contrib"
-  assert_dir_not_exists "docroot/themes/contrib"
+  assert_dir_not_exists "docroot/includes"
+  assert_dir_not_exists "docroot/sites/all/modules/contrib"
+  assert_dir_not_exists "docroot/sites/all/themes/contrib"
   assert_dir_not_exists "docroot/profiles/contrib"
 
   assert_file_exists "docroot/sites/default/somesettingsfile.php"
@@ -245,8 +242,8 @@ load test_helper_drupaldev
   assert_dir_not_exists "vendor"
   assert_dir_not_exists "node_modules"
 
-  assert_dir_not_exists "docroot/themes/custom/somecustomtheme/build"
-  assert_file_not_exists "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/build"
+  assert_file_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_dir_not_exists "screenshots"
 
@@ -254,7 +251,6 @@ load test_helper_drupaldev
   assert_file_exists ".data/db_2.sql"
 
   assert_file_exists "docroot/sites/default/settings.local.php"
-  assert_file_exists "docroot/sites/default/services.local.yml"
 
   assert_file_exists ".env.local"
   assert_file_exists "docker-compose.override.yml"
@@ -294,10 +290,10 @@ load test_helper_drupaldev
 
   mktouch "node_modules/somevendor/somepackage/somepackage.js"
   mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
-  mktouch "docroot/sites/all/themes/custom/somecustomtheme/scss/_components.scss"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
-  mktouch "docroot/sites/all/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
-  mktouch "docroot/sites/all/themes/custom/somecustomtheme/build/css/somecustomtheme.min.css"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
 
   mktouch "screenshots/s1.jpg"
   mktouch "screenshots/s2.jpg"
@@ -333,8 +329,8 @@ load test_helper_drupaldev
   assert_dir_not_exists "vendor"
   assert_dir_not_exists "node_modules"
 
-  assert_dir_not_exists "docroot/sites/all/themes/custom/somecustomtheme/build"
-  assert_file_not_exists "docroot/sites/all/themes/custom/somecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/build"
+  assert_file_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_dir_not_exists "screenshots"
 
@@ -363,10 +359,10 @@ load test_helper_drupaldev
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
-  mktouch "docroot/core/install.php"
-  mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
-  mktouch "docroot/themes/contrib/sometheme/sometheme.info.yml"
-  mktouch "docroot/profiles/contrib/someprofile/someprofile.info.yml"
+  mktouch "docroot/index.php"
+  mktouch "docroot/sites/all/modules/contrib/somemodule/somemodule.info"
+  mktouch "docroot/sites/all/themes/contrib/sometheme/sometheme.info"
+  mktouch "docroot/profiles/zzzsomeprofile/zzzsomeprofile.info"
   mktouch "docroot/sites/default/somesettingsfile.php"
   mktouch "docroot/sites/default/settings.generated.php"
   mktouch "docroot/sites/default/files/somepublicfile.php"
@@ -380,9 +376,9 @@ load test_helper_drupaldev
   mktouch "node_modules/somevendor/somepackage/somepackage.js"
   mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
 
-  mktouch "docroot/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
-  mktouch "docroot/themes/custom/somecustomtheme/build/css/somecustomtheme.min.css"
-  mktouch "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch "screenshots/s1.jpg"
   mktouch "screenshots/s2.jpg"
@@ -391,7 +387,6 @@ load test_helper_drupaldev
   mktouch ".data/db_2.sql"
 
   mktouch "docroot/sites/default/settings.local.php"
-  mktouch "docroot/sites/default/services.local.yml"
 
   mktouch ".env.local"
   echo "version: \"2.3\"" > "docker-compose.override.yml"
@@ -414,9 +409,9 @@ load test_helper_drupaldev
   assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
-  assert_dir_not_exists "docroot/core"
-  assert_dir_not_exists "docroot/modules/contrib"
-  assert_dir_not_exists "docroot/themes/contrib"
+  assert_dir_not_exists "docroot/includes"
+  assert_dir_not_exists "docroot/sites/all/modules/contrib"
+  assert_dir_not_exists "docroot/sites/all/themes/contrib"
   assert_dir_not_exists "docroot/profiles/contrib"
 
   assert_file_exists "docroot/sites/default/somesettingsfile.php"
@@ -426,8 +421,8 @@ load test_helper_drupaldev
   assert_dir_not_exists "vendor"
   assert_dir_not_exists "node_modules"
 
-  assert_dir_not_exists "docroot/themes/custom/somecustomtheme/build"
-  assert_file_not_exists "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/build"
+  assert_file_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_dir_not_exists "screenshots"
 
@@ -435,7 +430,6 @@ load test_helper_drupaldev
   assert_file_exists ".data/db_2.sql"
 
   assert_file_exists "docroot/sites/default/settings.local.php"
-  assert_file_exists "docroot/sites/default/services.local.yml"
 
   assert_file_exists ".env.local"
   assert_file_exists "docker-compose.override.yml"
@@ -479,9 +473,9 @@ load test_helper_drupaldev
   mktouch "node_modules/somevendor/somepackage/somepackage.js"
   mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
 
-  mktouch "docroot/sites/all/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
-  mktouch "docroot/sites/all/themes/custom/somecustomtheme/build/css/somecustomtheme.min.css"
-  mktouch "docroot/sites/all/themes/custom/somecustomtheme/scss/_components.scss"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch "screenshots/s1.jpg"
   mktouch "screenshots/s2.jpg"
@@ -526,8 +520,8 @@ load test_helper_drupaldev
   assert_dir_not_exists "vendor"
   assert_dir_not_exists "node_modules"
 
-  assert_dir_not_exists "docroot/sites/all/themes/custom/somecustomtheme/build"
-  assert_file_not_exists "docroot/sites/all/themes/custom/somecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/build"
+  assert_file_not_exists "docroot/sites/all/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_dir_not_exists "screenshots"
 

@@ -619,7 +619,7 @@ install_dependencies_stub(){
   mktouch "${dir}/vendor/somevendor/somepackage/composer.json"
   mktouch "${dir}/node_modules/somevendor/somepackage/somepackage.js"
 
-  mktouch "${dir}/docroot/sites/all/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
+  mktouch "${dir}/docroot/sites/all/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "${dir}/screenshots/s1.jpg"
   mktouch "${dir}/.data/db.sql"
 
