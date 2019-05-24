@@ -20,7 +20,7 @@ load test_helper_drupaldev
 @test "Install into empty directory: DST_DIR as argument" {
   run_install "${DST_PROJECT_DIR}"
 
-  assert_files_present "${DST_PROJECT_DIR}" "dst"
+  assert_files_present "${DST_PROJECT_DIR}" "dst" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
 }
 
@@ -28,7 +28,7 @@ load test_helper_drupaldev
   export DST_DIR="${DST_PROJECT_DIR}"
   run_install
 
-  assert_files_present "${DST_PROJECT_DIR}" "dst"
+  assert_files_present "${DST_PROJECT_DIR}" "dst" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
 }
 
