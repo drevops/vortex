@@ -859,6 +859,8 @@ file_is_internal(){
   local files=(
     install.sh
     LICENSE
+    .circleci/drupal_dev-test.sh
+    .circleci/drupal_dev-test-deployment.sh
     tests/bats
   )
 
