@@ -11,6 +11,8 @@
 # defined and created in setup() test method.
 #
 # $BUILD_DIR - root build directory where the rest of fixture directories located.
+# The "build" in this context is a place to store assets produce by the install
+# script during the test.
 #
 # $CURRENT_PROJECT_DIR - directory where install script is executed. May have
 # existing project files (e.g. from previous installations) or be empty (to
@@ -27,7 +29,7 @@
 setup(){
   DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
   CUR_DIR="$(pwd)"
-  BUILD_DIR="${BUILD_DIR:-"${BATS_TMPDIR}/drupal-dev-bats"}"
+  BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR}/drupal-dev-$(random_string)"}"
 
   CURRENT_PROJECT_DIR="${BUILD_DIR}/star_wars"
   DST_PROJECT_DIR="${BUILD_DIR}/dst"
@@ -179,15 +181,20 @@ assert_files_present_common(){
   # Assert that Drupal-Dev files removed.
   assert_file_not_exists "install.sh"
   assert_file_not_exists "LICENSE"
+  assert_file_not_exists ".circleci/drupal_dev-test.sh"
+  assert_file_not_exists ".circleci/drupal_dev-test-deployment.sh"
   assert_dir_not_exists "tests/bats"
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_test"
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_test_deployment"
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_deploy"
   assert_file_not_contains ".circleci/config.yml" "drupal_dev_deploy_tags"
 
+  # Assert that Drupal-Dev version was replaced.
+  assert_file_contains "README.md" "badge/Drupal--Dev-${DRUPAL_VERSION}.x-blue.svg"
+  assert_file_contains "README.md" "https://github.com/integratedexperts/drupal-dev/tree/${DRUPAL_VERSION}.x"
+
   # Assert that required files were not locally excluded.
   if [ -d ".git" ] ; then
-    assert_file_not_contains .git/info/exclude "drupal-dev.sh"
     assert_file_not_contains .git/info/exclude "README.md"
     assert_file_not_contains .git/info/exclude ".circleci/config.yml"
     assert_file_not_contains .git/info/exclude "docroot/sites/default/settings.php"
@@ -227,13 +234,11 @@ assert_files_not_present_common(){
 
   if [ "${has_required_files}" -eq 1 ] ; then
     assert_file_exists "README.md"
-    assert_file_exists "drupal-dev.sh"
     assert_file_exists ".circleci/config.yml"
     assert_file_exists "docroot/sites/default/settings.php"
     assert_file_exists "docroot/sites/default/services.yml"
   else
     assert_file_not_exists "README.md"
-    assert_file_not_exists "drupal-dev.sh"
     assert_file_not_exists ".circleci/config.yml"
     assert_file_not_exists "docroot/sites/default/settings.php"
     assert_file_not_exists "docroot/sites/default/services.yml"
@@ -535,7 +540,7 @@ Drupal 8 implementation of ${name} for ${org}
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
 
-![drupal-dev.io](https://img.shields.io/badge/Powered_by-Drupal--Dev-blue.svg)
+[![drupal-dev.io](https://img.shields.io/badge/Drupal--Dev-DRUPALDEV_VERSION_URLENCODED-blue.svg)](https://github.com/integratedexperts/drupal-dev/tree/DRUPALDEV_VERSION)
 
 some other text
 EOT
@@ -565,8 +570,10 @@ run_install(){
 
   # Force install script to be downloaded from the local repo for testing.
   export DRUPALDEV_LOCAL_REPO="${LOCAL_REPO_DIR}"
-  # Use fixture temporary directory.
-  export DRUPALDEV_TMP_DIR="${APP_TMP_DIR}"
+  # Use unique temporary directory for each run.
+  DRUPALDEV_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
+  prepare_fixture_dir "${DRUPALDEV_TMP_DIR}"
+  export DRUPALDEV_TMP_DIR
   # Show debug information (for easy debug of tests).
   export DRUPALDEV_DEBUG=1
   run "${CUR_DIR}"/install.sh "$@"

@@ -1,13 +1,14 @@
 [//]: # (#;< DRUPAL-DEV)
-# Drupal-Dev [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+Drupal-Dev+-+attachable+development+environment+for+Drupal+sites+with+tools+included&url=https://www.drupal-dev.io&via=integratedexperts&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
+# Drupal-Dev [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+Drupal-Dev+-+development+environment+for+Drupal+sites+with+tools+included&url=https://www.drupal-dev.io&via=integratedexperts&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x)
 ![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
 [![Release](https://img.shields.io/github/release/integratedexperts/drupal-dev.svg)](https://github.com/integratedexperts/drupal-dev/releases/latest)
 [![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/integratedexperts/drupal-dev/blob/8.x/LICENSE)
 [![Pull Requests](https://img.shields.io/github/issues-pr/integratedexperts/drupal-dev.svg)](https://github.com/integratedexperts/drupal-dev/pulls)
+[![Dependabot.com](https://img.shields.io/badge/dependabot-enabled-green.svg)](https://dependabot.com)
 
-#### Attachable development environment for Drupal sites with tools included
+#### Development environment for Drupal sites with tools included
 
 Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
@@ -17,21 +18,22 @@ Composer-based Drupal 8 project scaffolding with code linting, tests and automat
 ![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
 
 ## Understanding Drupal-Dev
-Drupal-Dev is a set of templates as well as an "attachable" development environment. 
-It can be used as a scaffolding for Drupal projects or as a reference for custom
-configurations. Drupal-Dev has own automated tests that guarantees stability
-and easy maintenance.  
+Drupal-Dev is a Drupal project scaffolding template with included development 
+environment, CI configuration and tools. It can be used on new or existing 
+projects as is or can be customized as required. It may also be used as a 
+reference for custom configurations. 
 
-Despite being a template, Drupal-Dev is "attachable" to new and existing projects: 
-most of templates do not need to be changed and only a handful of files required 
-by Drupal-Dev to exist in your project - the rest of the files will be downloaded 
-each time Drupal-Dev needs to be "attached" to an environment.
+Drupal-Dev is designed to support updating of the code templates it provides. 
+This makes it easy to keep projects using Drupal-Dev up-to-date with the latest
+scaffolding code.  
 
 Drupal-Dev supports both database-driven development and fresh install for every 
 build. Database-driven development is when the existing production database is 
 used for every build (useful for product development), while fresh install is 
 when the site is installed from the scratch during every build (useful for 
 module or profile development).  
+
+Drupal-Dev has own automated tests that guarantees stability and ease of maintenance.
 
 <details> 
 
@@ -60,23 +62,22 @@ experience improves development speed across projects.
 
 ### How does it work?
 - You run installer script once
-- You commit only several required files
-- On every environment, including CI, Drupal-Dev files are automatically downloaded from the latest stable version. 
-  This allows to have **unified templates to manage multiple projects in the same way**.
-- If required, you may commit overridden files with changes relevant only to a specific project. 
-  These files will not be overridden next time Drupal-Dev is "attached".
+- Drupal-Dev brings the latest release into your codebase
+- You commit all new files
+- If required, you may override files with changes relevant only to a specific 
+  project.  
 
 ### What if I don't like the defaults this project provides?
 Since Drupal-Dev is a template, it can be forked and adjusted to your needs. The 
 installer script will continue to work with your fork, provided that you adjust
 several environment variables. 
 
-In other words - you will have your own development templates for your projects 
-the way you want it!  
+**In other words - you will have your own development templates for your own 
+projects  the way you want it!**  
 
 </details>
 
-### Initial installation
+### Installation
 
 1. Install Drupal-Dev<br/>
    For quiet installation with default settings into current directory:
@@ -100,12 +101,10 @@ the way you want it!
 
 4. Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progress. 
 
-### Using Drupal-Dev
-Run `drupal-dev.sh` to download the latest version of Drupal-Dev for your project.  
+### Updating Drupal-Dev
+Run `ahoy update` to download the latest version of Drupal-Dev for your project.  
 
 ## Why is Drupal-Dev awesome?
-- **Attachable to existing projects.**  <br/>
-  The toolset can be used with minimal efforts. Interactive wizard helps to select required features during installation.  
 - **Highly configurable**  <br/>
   All configuration is made through environment variables without the need to change any of the scripts.
 - **Flexible**<br/>
@@ -126,7 +125,8 @@ Run `drupal-dev.sh` to download the latest version of Drupal-Dev for your projec
 - Local development environment
 - Code linting
 - Testing
-- Automated builds
+- Automated builds (CI)
+- Deployment
 - Documentation
 - Integrations
 - Maintenance
@@ -182,15 +182,16 @@ Run `drupal-dev.sh` to download the latest version of Drupal-Dev for your projec
 |                                               | Build badges                                                                                                        | Shows current build status          |
 |                                               | [FAQs](FAQs.md)                                                                                                     | Helps to lower project onboarding time |
 |                                               | [Deployment information](DEPLOYMENT.md)                                                                             | Helps to find relevant deployment information in one place |
+| Onboarding checklist                          | [Onboarding checklist](.github/ONBOARDING.md)                                                                       | Helps to track the progress of onboarding to Drupal-Dev |
 | GitHub management                             | [Pull request template](.github/PULL_REQUEST_TEMPLATE.md)                                                           | Helps to improve team collaboration and reduce the time for pull request management |
 |                                               | Pre-defined issue and pull request labels\*                                                                         | Helps to improve team collaboration and reduce the time for pull request management |
-| **Integrations** |                                                                                                                                                  
+| **Integrations and deployments** |                                                                                                                                                  
 | Acquia                                        | Production database from Acquia                                                                                     | Using production database for development and automated builds (CI) requires database dump from Acquia |
 |                                               | Deploy code to Acquia                                                                                               | Deploying to Acquia requires packaging Composer-based project into artefact before pushing |
 |                                               | [Deployment hooks](hooks)                                                                                           | Standardised deployment hooks guarantee that every deployment is reproducible |
 | Lagoon                                        | Deployment configuration                                                                                            | Lagoon configuration is required to perform deployments |
 |                                               | Production database from Lagoon                                                                                     | Using production database for development and automated builds (CI) requires database dump from Lagoon |
-| [Dependabot](https://dependabot.com)          | Automated pull request submissions for automated updates.                                                         | Automated dependencies updates allow to keep the project up to date by automatically creating pull requests with updated dependencies on a daily basis |
+| [Dependabot](https://dependabot.com)          | Automated pull request submissions for automated updates.                                                           | Automated dependencies updates allow to keep the project up to date by automatically creating pull requests with updated dependencies on a daily basis |
 | [Diffy](https://diffy.website/) (Visual Regression)\* | Automated visual regression comparison for each deployment                                                  | Visual regression for each deployment is useful to make sure that only required changes were applied with specific code change and that the rest of the site has not changed |
 | **Maintenance (of Drupal-Dev)**               |                                                                                                                     
 | Install and upgrade                           | Follows [SemVer](https://semver.org/) model for releases                                                            | Projects may refer to a specific version of Drupal-Dev, which sets expectations about what tools and configuration is available |
@@ -202,7 +203,7 @@ Run `drupal-dev.sh` to download the latest version of Drupal-Dev for your projec
 | Documentation                                 | Contribution guide\*                                                                                                | Engages community to contribute back |
 |                                               | [Pull request template](.github/PULL_REQUEST_TEMPLATE.md)                                                           | Helps to improve community collaboration and reduce the time for pull request management. |
 
-\* Denotes features planned for 1.4 release
+\* Denotes features planned for 1.7 release
 
 </details>
 
@@ -256,9 +257,15 @@ Drupal 8 implementation of YOURSITE for YOURORG
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 
+[//]: # (#;< DEPENDABOT)
+
+[![Dependabot.com](https://img.shields.io/badge/dependabot-enabled-green.svg)](https://dependabot.com)
+
+[//]: # (#;> DEPENDABOT)
+
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
 
-[![drupal-dev.io](https://img.shields.io/badge/Powered_by-Drupal--Dev-blue.svg)](https://drupal-dev.io/) 
+[![drupal-dev.io](https://img.shields.io/badge/Drupal--Dev-DRUPALDEV_VERSION_URLENCODED-blue.svg)](https://github.com/integratedexperts/drupal-dev/tree/DRUPALDEV_VERSION) 
 
 [//]: # (Remove the section below once onboarding is finished)
 ## Onboarding
@@ -282,8 +289,6 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
   AC_API_USER_PASS=<YOUR_TOKEN>
 ```
 [//]: # (#;> ACQUIA)
-
-- `./drupal-dev.sh`
 
 [//]: # (#;< !FRESH_INSTALL)
 

@@ -32,8 +32,8 @@ DRUPALDEV_IS_INTERACTIVE="${DRUPALDEV_IS_INTERACTIVE:-0}"
 DRUPALDEV_INIT_REPO="${DRUPALDEV_INIT_REPO:-1}"
 # Flag to allow override existing committed files.
 DRUPALDEV_ALLOW_OVERRIDE="${DRUPALDEV_ALLOW_OVERRIDE:-0}"
-# Flag to allow writing downloaded files into local ignore for current repository.
-DRUPALDEV_ALLOW_USE_LOCAL_IGNORE="${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE:-1}"
+# Flag to allow writing downloaded files into local exclude for current repository.
+DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE="${DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE:-0}"
 # Path to local Drupal-Dev repository. If not provided - remote will be used.
 DRUPALDEV_LOCAL_REPO="${DRUPALDEV_LOCAL_REPO:-}"
 # Organisation name to download the files from.
@@ -50,6 +50,8 @@ DRUPALDEV_PROCEED="${DRUPALDEV_PROCEED:-1}"
 DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
 # Internal flag to remove demo configuration.
 DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
+# Internal version of Drupal-Dev. Discovered during installation.
+DRUPALDEV_VERSION="${DRUPALDEV_VERSION:-${DRUPAL_VERSION}.x}"
 
 install(){
   check_requirements
@@ -72,7 +74,7 @@ install(){
 
   process_stub "${DRUPALDEV_TMP_DIR}"
 
-  copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_ALLOW_USE_LOCAL_IGNORE}"
+  copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE}"
 
   print_footer
 }
@@ -201,6 +203,7 @@ download_remote(){
     echo "==> Downloading the latest version ${release} of Drupal-Dev"
     curl -# -L "https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}/archive/${release}.tar.gz" \
       | tar xzf - -C "${DRUPALDEV_TMP_DIR}" --strip 1
+    DRUPALDEV_VERSION="${release}"
   fi
 }
 
@@ -270,9 +273,13 @@ process_stub(){
   replace_string_content  "your-site"         "${machine_name_hyphenated}"      "${dir}" && bash -c "echo -n ."
   replace_string_content  "YOURSITE"          "$(get_value "name")"             "${dir}" && bash -c "echo -n ."
 
+  replace_string_content "DRUPALDEV_VERSION_URLENCODED"  "${DRUPALDEV_VERSION/-/--}" "${dir}" && bash -c "echo -n ."
+  replace_string_content "DRUPALDEV_VERSION"  "${DRUPALDEV_VERSION}"            "${dir}" && bash -c "echo -n ."
+
   replace_string_filename "your_site_theme"   "$(get_value "theme")"            "${dir}" && bash -c "echo -n ."
   replace_string_filename "your_org"          "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
   replace_string_filename "your_site"         "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
+
 
   if [ "$(get_value "remove_drupaldev_info")" == "Y" ] ; then
     # Handle code required for Drupal-Dev maintenance.
@@ -293,7 +300,7 @@ copy_files(){
   local src="${1}"
   local dst="${2}"
   local allow_override="${3:-}"
-  local allow_use_local_gitignore="${4:-}"
+  local allow_use_local_exclude="${4:-}"
 
   pushd "${dst}" > /dev/null || exit 1
 
@@ -354,12 +361,14 @@ copy_files(){
       #  - not in a list of required files
       file_is_required="$(file_is_required "${relative_file}")"
       # @todo: Refactor return values.
-      if [ "${allow_use_local_gitignore}" -eq 1 ] \
+      if [ "${allow_use_local_exclude}" -eq 1 ] \
         && [ -d ./.git/ ] \
         && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] \
         && [ "${file_is_tracked}" != "0" ] \
         && [ "${file_is_required}" != "0" ]; then
-        git_add_to_local_ignore "${relative_file}"
+        git_add_to_local_exclude "${relative_file}"
+      elif [ "${allow_use_local_exclude}" -ne 1 ]; then
+        git_remove_from_local_exclude "${relative_file}"
       fi
     else
       echo "    Skipped file ${relative_file}"
@@ -387,7 +396,7 @@ is_core_profile(){
 #
 is_installed(){
   [ ! -f "README.md" ] && return 1
-  grep -q "badge/Powered_by-Drupal--Dev" "README.md"
+  grep -q "badge/Drupal--Dev-" "README.md"
 }
 
 ################################################################################
@@ -861,6 +870,8 @@ file_is_internal(){
   local files=(
     install.sh
     LICENSE
+    .circleci/drupal_dev-test.sh
+    .circleci/drupal_dev-test-deployment.sh
     tests/bats
   )
 
@@ -879,7 +890,6 @@ file_is_required(){
   local file="${1}"
   local files=(
     README.md
-    drupal-dev.sh
     .circleci/config.yml
     docroot/sites/default/settings.php
     docroot/sites/default/services.yml
@@ -895,14 +905,28 @@ file_is_required(){
   echo 1
 }
 
-# Add specified file to local git ignore (not .gitgnore).
-git_add_to_local_ignore(){
+# Add specified file to local git exclude (not .gitgnore).
+git_add_to_local_exclude(){
   if [ -d ./.git/ ]; then
     mkdir -p ./.git/info >/dev/null
     [ ! -f "./.git/info/exclude" ] && touch ./.git/info/exclude >/dev/null
     if ! grep -Fxq "${1}" ./.git/info/exclude; then
+      echo "# /${1} file below is excluded by Drupal-Dev" >> ./.git/info/exclude
       echo "/${1}" >> ./.git/info/exclude
-      echo "    Added file ${1} to local git ignore"
+      echo "    Added file ${1} to local git exclude"
+    fi
+  fi
+}
+
+# Remove specified file from local git exclude (not .gitgnore).
+git_remove_from_local_exclude(){
+  local path="${1}"
+  path="/${path}"
+  if [ -f "./.git/info/exclude" ]; then
+    if grep -Fq "${path}" "./.git/info/exclude"; then
+      path="${path//\//\\/}"
+      remove_ignore_comments "./.git/info" "# ${path} file below is excluded by Drupal-Dev"
+      echo "    Removed file ${1} from local git exclude"
     fi
   fi
 }
@@ -993,6 +1017,25 @@ remove_special_comments() {
     --exclude-dir=".data" \
     -l "${token}" "${dir}" \
     | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/d"
+}
+
+# Remove ignore comments.
+# The difference with remove_special_comments() is that this function removes
+# $token line and one more line that follows it.
+remove_ignore_comments() {
+  local dir="${1}"
+  local token="${2:-#;}"
+  local sed_opts
+
+  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  grep -rI \
+    --exclude-dir=".git" \
+    --exclude-dir=".idea" \
+    --exclude-dir="vendor" \
+    --exclude-dir="node_modules" \
+    --exclude-dir=".data" \
+    -l "${token}" "${dir}" \
+    | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/{N;d;}"
 }
 
 remove_special_comments_with_content() {

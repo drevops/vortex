@@ -181,8 +181,8 @@ commands:
     cmd: |
       ahoy clean
       rm -rf ./screenshots;
-      git ls-files --others -i --exclude-from=.git/info/exclude | xargs chmod 777
-      git ls-files --others -i --exclude-from=.git/info/exclude | xargs rm -Rf
+      git ls-files --others -i --exclude-from=.git/info/exclude | xargs chmod 777 || true
+      git ls-files --others -i --exclude-from=.git/info/exclude | xargs rm -Rf || true
       find . -type d -not -path "./.git/*" -empty -delete
 
   fe:
@@ -239,7 +239,12 @@ commands:
 
   update:
     usage: Update development stack.
-    cmd: ahoy confirm "Some committed files may become overwritten. Proceed?" && DRUPALDEV_ALLOW_OVERRIDE=1 source drupal-dev.sh || true
+    cmd: |
+      ahoy confirm "Some committed files may become overwritten. Proceed?" \
+        && export DRUPALDEV_ALLOW_OVERRIDE=1 \
+        && export DRUPALDEV_COMMIT=${DRUPALDEV_COMMIT:-} \
+        && if [ ! -z "${DRUPALDEV_INSTALL_SCRIPT+x}" ] && [ -f "${DRUPALDEV_INSTALL_SCRIPT}" ]; then bash ${DRUPALDEV_INSTALL_SCRIPT} "$@"; else bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/${DRUPAL_VERSION}.x/install.sh?"$(date +%s)") "$@"; fi \
+        || true
 
   # Utilities.
   confirm:
