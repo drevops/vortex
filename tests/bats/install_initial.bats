@@ -7,7 +7,7 @@ load test_helper
 load test_helper_drupaldev
 
 @test "Variables" {
-  assert_contains "drupal-dev-bats" "${BUILD_DIR}"
+  assert_contains "drupal-dev" "${BUILD_DIR}"
 }
 
 @test "Install into empty directory" {
@@ -75,7 +75,7 @@ load test_helper_drupaldev
   commit2=$(git_commit "${LOCAL_REPO_DIR}" "New version 2 of Drupal-Dev")
 
   # Requiring bespoke version by commit.
-  export DRUPALDEV_COMMIT="${commit1}"
+  echo DRUPALDEV_COMMIT="${commit1}">>"${CURRENT_PROJECT_DIR}/.env.local"
   run_install
   assert_git_repo "${CURRENT_PROJECT_DIR}"
   assert_output_contains "This will install Drupal-Dev into your project at commit"
@@ -87,13 +87,37 @@ load test_helper_drupaldev
 }
 
 @test "Install into empty directory: empty directory; no local ignore" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_IGNORE=0
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=0
 
   run_install
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   assert_file_not_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml"
+}
+
+@test "Install into empty directory: empty directory; no exclude after existing exclude" {
+  # Run installation with exclusion.
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
+  run_install
+  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_file_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml file below is excluded by Drupal-Dev"
+  assert_file_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml"
+
+  # Add non-Drupal-Dev file exclusion.
+  echo "somefile" >> "${CURRENT_PROJECT_DIR}/.git/info/exclude"
+  assert_file_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" "somefile"
+
+  # Run installation without exclusion and assert that manually added exclusion
+  # was preserved.
+  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=0
+  run_install
+  assert_files_present "${CURRENT_PROJECT_DIR}"
+  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_file_not_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml file below is excluded by Drupal-Dev"
+  assert_file_not_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" ".ahoy.yml"
+  assert_file_contains "${CURRENT_PROJECT_DIR}/.git/info/exclude" "somefile"
 }
 
 @test "Install into empty directory: interactive" {
@@ -185,4 +209,14 @@ load test_helper_drupaldev
 
   assert_files_present "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
+}
+
+@test "Install into empty directory; Drupal-Dev badge version set" {
+  export DRUPALDEV_VERSION="8.x-1.2.3"
+
+  run_install
+
+  # Assert that Drupal-Dev version was replaced.
+  assert_file_contains "${CURRENT_PROJECT_DIR}/README.md" "https://github.com/integratedexperts/drupal-dev/tree/8.x-1.2.3"
+  assert_file_contains "${CURRENT_PROJECT_DIR}/README.md" "badge/Drupal--Dev-8.x--1.2.3-blue.svg"
 }

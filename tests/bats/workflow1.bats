@@ -8,7 +8,7 @@ load test_helper_drupaldev
 
 @test "Workflow: fresh install" {
   # @todo: Implement this.
-  DRUPAL_VERSION=${DRUPAL_VERSION:-8}
+  DRUPAL_VERSION=${DRUPAL_VERSION:-7}
   VOLUMES_MOUNTED=${VOLUMES_MOUNTED:-1}
 
   assert_not_empty "${DRUPAL_VERSION}"
@@ -211,10 +211,10 @@ load test_helper_drupaldev
 
   step "Reset"
   ahoy reset
-  assert_files_not_present_common "${CURRENT_PROJECT_DIR}" "star_wars" 1
-  assert_files_present_no_deployment "${CURRENT_PROJECT_DIR}" "star_wars" 1
+  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars"
+  assert_files_present_deployment "${CURRENT_PROJECT_DIR}" "star_wars"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 
   assert_file_exists "docroot/sites/default/settings.local.php"

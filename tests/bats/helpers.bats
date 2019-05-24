@@ -322,6 +322,27 @@ load test_helper
   assert_failure
 }
 
+@test "assert_git_not_clean" {
+  prepare_fixture_dir "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" init > /dev/null
+  assert_git_repo "${BATS_TEST_TMPDIR}/fixture/git_repo"
+
+  run assert_git_not_clean "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  assert_failure
+
+  mktouch "${BATS_TEST_TMPDIR}/fixture/git_repo/uncommitted_file"
+  assert_git_not_clean "${BATS_TEST_TMPDIR}/fixture/git_repo"
+
+
+  # Now, commit first file and create another, but do not add.
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" add -A > /dev/null
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" commit -m "First commit" > /dev/null
+  run assert_git_not_clean "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  assert_failure
+  mktouch "${BATS_TEST_TMPDIR}/fixture/git_repo/other_uncommitted_file"
+  assert_git_not_clean "${BATS_TEST_TMPDIR}/fixture/git_repo"
+}
+
 @test "assert_files_equal" {
   cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/fixture1.png"
   echo "some other file" > "${BATS_TEST_TMPDIR}/fixture2.png"
