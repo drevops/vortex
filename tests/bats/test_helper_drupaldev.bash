@@ -27,7 +27,7 @@
 #
 # $APP_TMP_DIR - directory where the application may store it's temporary files.
 setup(){
-  DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
+  DRUPAL_VERSION="${DRUPAL_VERSION:-7}"
   CUR_DIR="$(pwd)"
   BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR}/drupal-dev-$(random_string)"}"
 
