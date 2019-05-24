@@ -73,8 +73,9 @@ teardown(){
 assert_files_present(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
+  local suffix_camel_cased="${3:-StarWars}"
 
-  assert_files_present_common "${dir}" "${suffix}"
+  assert_files_present_common "${dir}" "${suffix}" "${suffix_camel_cased}"
 
   # Assert Drupal profile not present by default.
   assert_files_present_no_profile "${dir}" "${suffix}"

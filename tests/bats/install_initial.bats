@@ -36,7 +36,7 @@ load test_helper_drupaldev
   export PROJECT="the_matrix"
   run_install
 
-  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix"
+  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "TheMatrix"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
 
@@ -45,7 +45,7 @@ load test_helper_drupaldev
 
   run_install
 
-  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix"
+  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "TheMatrix"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
 
@@ -56,7 +56,7 @@ load test_helper_drupaldev
 
   run_install
 
-  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix"
+  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "TheMatrix"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 }
 

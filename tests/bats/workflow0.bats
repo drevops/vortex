@@ -230,7 +230,7 @@ load test_helper_drupaldev
   step "Reset"
   ahoy reset
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars"
+  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars" "StarWars"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}" "star_wars"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
