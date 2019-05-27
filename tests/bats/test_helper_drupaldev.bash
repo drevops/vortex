@@ -73,8 +73,9 @@ teardown(){
 assert_files_present(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
+  local suffix_camel_cased="${3:-StarWars}"
 
-  assert_files_present_common "${dir}" "${suffix}"
+  assert_files_present_common "${dir}" "${suffix}" "${suffix_camel_cased}"
 
   # Assert Drupal profile not present by default.
   assert_files_present_no_profile "${dir}" "${suffix}"
@@ -101,6 +102,7 @@ assert_files_present(){
 assert_files_present_common(){
   local dir="${1}"
   local suffix="${2:-star_wars}"
+  local suffix_camel_cased="${3:-StarWars}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -116,6 +118,8 @@ assert_files_present_common(){
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.install"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.module"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreHelperUnitTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreUnitTestCase.php"
 
   # Site theme created.
   assert_dir_exists "docroot/themes/custom/${suffix}"
@@ -162,6 +166,7 @@ assert_files_present_common(){
   # Assert all stub strings were replaced.
   assert_dir_not_contains_string "${dir}" "your_site"
   assert_dir_not_contains_string "${dir}" "YOURSITE"
+  assert_dir_not_contains_string "${dir}" "YourSite"
   assert_dir_not_contains_string "${dir}" "your_site_theme"
   assert_dir_not_contains_string "${dir}" "your_org"
   assert_dir_not_contains_string "${dir}" "YOURORG"
@@ -218,6 +223,8 @@ assert_files_not_present_common(){
   assert_dir_not_exists "docroot/themes/custom/${suffix}"
   assert_file_not_exists "docroot/sites/default/default.settings.local.php"
   assert_file_not_exists "docroot/sites/default/default.services.local.yml"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreHelperUnitTest.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreUnitTestCase.php"
 
   # Scaffolding files exist.
   assert_file_not_exists "docroot/.editorconfig"

@@ -232,7 +232,7 @@ load test_helper_drupaldev
 
   ahoy reset
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars"
+  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars" "StarWars"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   assert_dir_not_exists "docroot/core"
@@ -415,7 +415,7 @@ load test_helper_drupaldev
 
   ahoy reset
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars"
+  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars" "StarWars"
   assert_git_repo "${CURRENT_PROJECT_DIR}"
 
   assert_dir_not_exists "docroot/core"

@@ -379,7 +379,7 @@ load test_helper_drupaldev
   git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git clean -f -d
   git --work-tree=${CURRENT_PROJECT_DIR} --git-dir=${CURRENT_PROJECT_DIR}/.git clean -f -d
   assert_git_clean "${CURRENT_PROJECT_DIR}"
-  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars"
+  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars" "StarWars"
 
   # Run the install again.
   output=$(run_install)
