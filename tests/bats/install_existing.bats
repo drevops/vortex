@@ -195,7 +195,6 @@ load test_helper_drupaldev
 
   install_dependencies_stub "${CURRENT_PROJECT_DIR}"
 
-  # Commit files required to run the project.
   git_add_all_commit "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev"
 
   # Assert that custom file preserved.
@@ -250,12 +249,7 @@ load test_helper_drupaldev
 
   install_dependencies_stub "${CURRENT_PROJECT_DIR}"
 
-  # Commit files required to run the project.
-  git_add "${CURRENT_PROJECT_DIR}" README.md
-  git_add "${CURRENT_PROJECT_DIR}" .circleci/config.yml
-  git_add "${CURRENT_PROJECT_DIR}" docroot/sites/default/settings.php
-  git_add "${CURRENT_PROJECT_DIR}" docroot/sites/default/services.yml
-  git_commit "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev"
+  git_add_all_commit "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev"
 
   # Assert that custom file preserved.
   assert_file_exists "${CURRENT_PROJECT_DIR}/test1.txt"
