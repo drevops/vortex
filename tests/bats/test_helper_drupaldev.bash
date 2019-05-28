@@ -226,16 +226,6 @@ assert_files_not_present_common(){
   assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreHelperUnitTest.php"
   assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreUnitTestCase.php"
 
-  # Scaffolding files exist.
-  assert_file_not_exists "docroot/.editorconfig"
-  assert_file_not_exists "docroot/.eslintignore"
-  assert_file_not_exists "docroot/.gitattributes"
-  assert_file_not_exists "docroot/.htaccess"
-  assert_file_not_exists "docroot/autoload.php"
-  assert_file_not_exists "docroot/index.php"
-  assert_file_not_exists "docroot/robots.txt"
-  assert_file_not_exists "docroot/update.php"
-
   assert_file_not_exists "FAQs.md"
   assert_file_not_exists ".ahoy.yml"
 
@@ -244,11 +234,29 @@ assert_files_not_present_common(){
     assert_file_exists ".circleci/config.yml"
     assert_file_exists "docroot/sites/default/settings.php"
     assert_file_exists "docroot/sites/default/services.yml"
+    # Scaffolding files exist.
+    assert_file_exists "docroot/.editorconfig"
+    assert_file_exists "docroot/.eslintignore"
+    assert_file_exists "docroot/.gitattributes"
+    assert_file_exists "docroot/.htaccess"
+    assert_file_exists "docroot/autoload.php"
+    assert_file_exists "docroot/index.php"
+    assert_file_exists "docroot/robots.txt"
+    assert_file_exists "docroot/update.php"
   else
     assert_file_not_exists "README.md"
     assert_file_not_exists ".circleci/config.yml"
     assert_file_not_exists "docroot/sites/default/settings.php"
     assert_file_not_exists "docroot/sites/default/services.yml"
+    # Scaffolding files not exist.
+    assert_file_not_exists "docroot/.editorconfig"
+    assert_file_not_exists "docroot/.eslintignore"
+    assert_file_not_exists "docroot/.gitattributes"
+    assert_file_not_exists "docroot/.htaccess"
+    assert_file_not_exists "docroot/autoload.php"
+    assert_file_not_exists "docroot/index.php"
+    assert_file_not_exists "docroot/robots.txt"
+    assert_file_not_exists "docroot/update.php"
   fi
 
   popd > /dev/null || exit 1
