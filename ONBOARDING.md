@@ -117,12 +117,12 @@ indicate that it was addressed.
     
 [//]: # (#;> LAGOON)
 
-[//]: # (#;< DEPENDABOT)  
+[//]: # (#;< DEPENDENCIESIO)  
                            
-- [ ] Configure [Dependabot](https://dependabot.com) by logging in with your GitHub account and 
+- [ ] Configure dependencies.io by logging in with your GitHub account and 
       adding a project through UI. 
       
-[//]: # (#;> DEPENDABOT)
+[//]: # (#;> DEPENDENCIESIO)
      
 ## 5. Cleanup
 

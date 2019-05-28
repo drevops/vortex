@@ -27,7 +27,7 @@ assert_deployment_files_present(){
   assert_file_not_exists "${dir}"/behat.yml
   assert_file_not_exists "${dir}"/composer.json
   assert_file_not_exists "${dir}"/composer.lock
-  assert_file_not_exists "${dir}"/.dependabot/config.yml
+  assert_file_not_exists "${dir}"/dependencies.yml
   assert_file_not_exists "${dir}"/docker-compose.yml
   assert_file_not_exists "${dir}"/Gruntfile.js
   assert_file_not_exists "${dir}"/LICENSE
