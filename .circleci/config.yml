@@ -141,7 +141,9 @@ jobs:
           fingerprints:
             - *deploy_ssh_fingerprint
       - checkout
-      - run: DEPLOY_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
+      - run:
+          command: DEPLOY_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
+          no_output_timeout: 30m
       - store_artifacts:
           path: /tmp/artifacts
   #;> DEPLOYMENT
@@ -169,7 +171,7 @@ jobs:
       - run:
           name: Run deployment tests (long)
           command: .circleci/drupal_dev-test-deployment.sh
-          no_output_timeout: 20m
+          no_output_timeout: 30m
 
   # Deployment of feature branches and tags for Drupal-Dev itself.
   drupal_dev_deploy:
