@@ -118,7 +118,7 @@ assert_files_present_common(){
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.install"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.module"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreHelperUnitTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreExampleUnitTest.php"
   assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreUnitTestCase.php"
 
   # Site theme created.
@@ -223,7 +223,7 @@ assert_files_not_present_common(){
   assert_dir_not_exists "docroot/themes/custom/${suffix}"
   assert_file_not_exists "docroot/sites/default/default.settings.local.php"
   assert_file_not_exists "docroot/sites/default/default.services.local.yml"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreHelperUnitTest.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreExampleUnitTest.php"
   assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreUnitTestCase.php"
 
   assert_file_not_exists "FAQs.md"
