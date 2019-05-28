@@ -20,12 +20,7 @@ docroot/profiles/*
 docroot/sites/default/*
 !docroot/sites/default/settings.php
 !docroot/sites/default/services.yml
-
-#; Whitelist scaffold files. @see https://github.com/drupal-composer/drupal-scaffold#limitation
-#; Note that consumer sites will only need to whitelist and commit these files
-#; in case if they need to change them. For example, robots.txt must be whitelisted
-#; and committed if it has custom entries.
-#;< DRUPAL-DEV
+# Whitelist scaffold files. @see https://github.com/drupal-composer/drupal-scaffold#limitation
 !docroot/.editorconfig
 !docroot/.eslintignore
 !docroot/.gitattributes
@@ -34,7 +29,8 @@ docroot/sites/default/*
 !docroot/index.php
 !docroot/robots.txt
 !docroot/update.php
-# Do not ignore this file in Drupal-Dev itself, but keep ignoring in consumer site.
+#;< DRUPAL-DEV
+#; Do not ignore these files in Drupal-Dev itself, but keep ignoring in consumer site.
 !docroot/sites/default/default.settings.local.php
 !docroot/sites/default/default.services.local.yml
 #;> DRUPAL-DEV
