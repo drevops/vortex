@@ -28,7 +28,6 @@ ahoy test-phpunit
 # store them so that CircleCI could show them in 'Artifacts' tab.
 
 echo "==> Run Behat tests"
-#ahoy cli "mkdir -p /app/screenshots"
 [ "${CIRCLE_NODE_TOTAL}" -gt "1" ] && BEHAT_PROFILE=--profile=p${CIRCLE_NODE_INDEX} && echo "BEHAT_PROFILE=${BEHAT_PROFILE}">>.env.local
 ahoy test-behat -- "--format=progress_fail" || ahoy test-behat -- "--rerun --format=progress_fail"
 
