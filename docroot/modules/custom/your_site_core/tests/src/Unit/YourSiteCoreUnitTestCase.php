@@ -5,7 +5,7 @@ namespace Drupal\Tests\your_site_core\Unit;
 use Drupal\Tests\UnitTestCase;
 
 /**
- * Class YourSiteUnitTestCase.
+ * Class YourSiteCoreUnitTestCase.
  *
  * Base class for all Core test cases.
  */
