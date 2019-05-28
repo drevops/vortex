@@ -34,6 +34,7 @@ assert_deployment_files_present(){
   assert_file_not_exists "${dir}"/package.json
   assert_file_not_exists "${dir}"/package-lock.json
   assert_file_not_exists "${dir}"/phpcs.xml
+  assert_file_not_exists "${dir}"/phpunit.xml
   assert_file_not_exists "${dir}"/README.md
 
   assert_dir_exists "${dir}"/vendor
