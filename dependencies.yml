@@ -3,9 +3,23 @@ dependencies:
   - type: php
     path: /
     settings:
-      composer_options: "--ignore-platform-reqs --no-progress --no-suggest"
+      composer_options: "--no-progress --no-suggest"
+      commit_message_prefix: "(bot) "
+      related_pr_behavior: close
       github_labels:
         - dependencies
+      # github_assignees:
+      #  - GITHUBUSERNAME
+      before_update:
+        # Install platform requirements required for Drupal. Some of them are
+        # already installed into base image.
+        - "apk add --no-cache libpng-dev libjpeg-turbo-dev gettext-dev"
+        # Required by Drupal 8 core.
+        - "docker-php-ext-install -j4 gd"
+        - "docker-php-ext-install -j4 pdo_mysql"
+        # Required by some modules and distributions.
+        - "docker-php-ext-install -j4 bcmath"
+        - "docker-php-ext-install -j4 gettext"
     manifest_updates:
       filters:
         - name: ".*"
@@ -14,8 +28,12 @@ dependencies:
   - type: js
     path: /
     settings:
+      commit_message_prefix: "(bot) "
+      related_pr_behavior: close
       github_labels:
         - dependencies
+      # github_assignees:
+      #  - GITHUBUSERNAME
     manifest_updates:
       filters:
         - name: ".*"
