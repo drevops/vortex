@@ -43,7 +43,7 @@ commands:
       docker-compose up -d "$@"
       ahoy cli "dockerize -wait tcp://mariadb:3306 -timeout 1m"
       if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi
-      mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 > docroot/sites/default/files/livereload.sock
+      mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
       docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME}_
       export DOCTOR_CHECK_CLI=0
 
@@ -53,7 +53,9 @@ commands:
 
   start:
     usage: Start existing Docker containers.
-    cmd: docker-compose start "$@"
+    cmd: |
+      docker-compose start "$@"
+      mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
 
   stop:
     usage: Stop running Docker containers.
