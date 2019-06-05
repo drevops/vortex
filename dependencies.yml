@@ -20,6 +20,13 @@ dependencies:
         # Required by some modules and distributions.
         - "docker-php-ext-install -j4 bcmath"
         - "docker-php-ext-install -j4 gettext"
+
+        # Override COMPOSER_MEMORY_LIMIT to allow builds to pass.
+        - mv /usr/bin/composer /usr/bin/composer-original
+        - echo "#!/usr/bin/env bash" >> /usr/bin/composer
+        - echo "export COMPOSER_MEMORY_LIMIT=2G; /usr/bin/composer-original" >> /usr/bin/composer
+        - chmod +x /usr/bin/composer
+
     manifest_updates:
       filters:
         - name: ".*"
