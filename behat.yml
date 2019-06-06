@@ -24,7 +24,7 @@ default:
       browser_name: chrome
       selenium2:
         wd_host: "http://chrome:4444/wd/hub"
-        capabilities: { "browser": "chrome", "version": "*", "marionette": true }
+        capabilities: { "browser": "chrome", "version": "*", "marionette": true, "extra_capabilities": { "chromeOptions": { "w3c": false } } }
       javascript_session: selenium2
     # Provides integration with Drupal APIs.
     Drupal\DrupalExtension:
