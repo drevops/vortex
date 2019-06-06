@@ -161,7 +161,7 @@ services:
   #;> SOLR
 
   chrome:
-    image: selenium/standalone-chrome
+    image: selenium/standalone-chrome:3.141.59-oxygen
     shm_size: '1gb'
     <<: *default-volumes
     environment:
