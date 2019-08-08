@@ -31,17 +31,3 @@ dependencies:
       filters:
         - name: ".*"
           versions: "L.Y.Y"
-
-  - type: js
-    path: /
-    settings:
-      commit_message_prefix: "(bot) "
-      related_pr_behavior: close
-      github_labels:
-        - dependencies
-      # github_assignees:
-      #  - GITHUBUSERNAME
-    manifest_updates:
-      filters:
-        - name: ".*"
-          versions: "Y.Y.Y"
