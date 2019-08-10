@@ -195,6 +195,52 @@ load test_helper_drupaldev
   ahoy install-site
   assert_file_exists .data/db_export_*
 
+  step "Enable Xdebug"
+  # Assert that Xdebug is disabled by default from the inside of the container.
+  run ahoy cli "php -v|grep Xdebug"
+  assert_failure
+  # Assert info correctly shown from the outside of container.
+  run ahoy info
+  assert_success
+  assert_output_contains "Xdebug"
+  assert_output_contains "Disabled"
+  assert_output_not_contains "Enabled"
+  # Enable debugging.
+  run ahoy debug
+  assert_success
+  # Assert that the stack has restarted.
+  assert_output_contains "CONTAINER ID"
+  assert_output_contains "Enabled debug"
+  assert_output_not_contains "Debug is already enabled"
+  # Assert that Xdebug is enabled from the inside of the container.
+  run ahoy cli "php -v|grep Xdebug"
+  assert_success
+  # Assert info correctly shown from the outside of container.
+  run ahoy info
+  assert_success
+  assert_output_not_contains "Disabled"
+  assert_output_contains "Enabled"
+  # Assert that command when debugging is enabled does not restart the stack.
+  run ahoy debug
+  assert_success
+  assert_output_not_contains "CONTAINER ID"
+  assert_output_not_contains "Enabled debug"
+  assert_output_contains "Debug is already enabled"
+  # Assert that restarting the stack does not have Xdebug enabled.
+  run ahoy up
+  assert_success
+  # Assert that the stack has restarted.
+  assert_output_contains "CONTAINER ID"
+  # Assert that Xdebug is disabled from the inside of the container.
+  run ahoy cli "php -v|grep Xdebug"
+  assert_failure
+  # Assert info correctly shown from the outside of container.
+  run ahoy info
+  assert_success
+  assert_output_contains "Xdebug"
+  assert_output_contains "Disabled"
+  assert_output_not_contains "Enabled"
+
   step "Clean"
   ahoy clean
   # Assert that initial Drupal-Dev files have not been removed.

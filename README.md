@@ -310,8 +310,8 @@ Run each command as `ahoy <command>`.
   ```  
   build        Build or rebuild project.
   clean        Remove containers and all build files.
-  reset        Reset environment: remove containers, all build, manually created and Drupal-Dev files.
   cli          Start a shell inside CLI container or run a command.
+  debug        Enable debug configuration.
   doctor       Find problems with current project setup.
   down         Stop Docker containers and remove container, images, volumes and networks.
   download-db  Download database.
@@ -320,13 +320,14 @@ Run each command as `ahoy <command>`.
   fe           Build front-end assets.
   fed          Build front-end assets for development.
   few          Watch front-end assets during development.
-  flush-redis  Flush Redis cache.  
+  flush-redis  Flush Redis cache.
   info         Print information about this project.
   install-site Install a site.
   lint         Lint code.
   login        Login to a website.
   logs         Show Docker logs.
   pull         Pull latest docker images.
+  reset        Reset environment: remove containers, all build, manually created and Drupal-Dev files.
   restart      Restart all stopped and running Docker containers.
   start        Start existing Docker containers.
   stop         Stop running Docker containers.
