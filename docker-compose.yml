@@ -54,8 +54,7 @@ x-environment:
   DRUPAL_MODULE_PREFIX: "${DRUPAL_MODULE_PREFIX:-your_site}"
   # Allow to override docker host used from the inside of the containers.
   DOCKERHOST: ${DOCKERHOST:-}
-  # Uncomment to enable Xdebug and then restart via `ahoy up`.
-  #XDEBUG_ENABLE: "true"
+  XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
 
 services:
 

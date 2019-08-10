@@ -27,6 +27,7 @@ drush/contrib/
 !Gruntfile.js
 !.eslintrc.json
 !.sass-lint.yml
+!.docker/scripts
 #;< ACQUIA
 !hooks
 #;> ACQUIA
