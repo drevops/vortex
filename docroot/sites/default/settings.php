@@ -142,7 +142,7 @@ $config['environment_indicator.indicator']['bg_color'] = $settings['environment'
 $config['environment_indicator.indicator']['name'] = $settings['environment'];
 
 if ($settings['environment'] == ENVIRONMENT_PROD) {
-  // Allow to bypass Shield.
+  // Bypass Shield.
   $config['shield.settings']['credentials']['shield']['user'] = '';
   $config['shield.settings']['credentials']['shield']['pass'] = '';
 }
@@ -152,7 +152,23 @@ if ($settings['environment'] !== ENVIRONMENT_PROD) {
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
 }
 
-if ($settings['environment'] == ENVIRONMENT_LOCAL || $settings['environment'] == ENVIRONMENT_CI) {
+if ($settings['environment'] !== ENVIRONMENT_TEST) {
+  $config['config_split.config_split.test']['status'] = TRUE;
+}
+
+if ($settings['environment'] !== ENVIRONMENT_DEV) {
+  $config['config_split.config_split.dev']['status'] = TRUE;
+}
+
+if ($settings['environment'] == ENVIRONMENT_CI) {
+  $config['config_split.config_split.ci']['status'] = TRUE;
+
+  // Allow to bypass Shield.
+  $config['shield.settings']['credentials']['shield']['user'] = '';
+  $config['shield.settings']['credentials']['shield']['pass'] = '';
+}
+
+if ($settings['environment'] == ENVIRONMENT_LOCAL) {
   // Show all error messages on the site.
   $config['system.logging']['error_level'] = 'all';
 
@@ -162,7 +178,7 @@ if ($settings['environment'] == ENVIRONMENT_LOCAL || $settings['environment'] ==
   // Skip permissions hardening.
   $settings['skip_permissions_hardening'] = TRUE;
 
-  // Allow to bypass Shield.
+  // Bypass Shield.
   $config['shield.settings']['credentials']['shield']['user'] = '';
   $config['shield.settings']['credentials']['shield']['pass'] = '';
 }
