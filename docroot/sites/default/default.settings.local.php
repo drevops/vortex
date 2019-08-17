@@ -26,3 +26,6 @@ $settings['skip_permissions_hardening'] = TRUE;
 
 // Enable Livereload.
 $settings['livereload'] = TRUE;
+
+// Hide admin toolbar. Useful for themeing while logged in as admin.
+$settings['hide_admin_toolbar'] = TRUE;
