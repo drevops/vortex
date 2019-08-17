@@ -135,6 +135,7 @@ module.exports = function (grunt) {
         files: [themePath + 'js/**/*.js'],
         tasks: ['concat'],
         options: {
+          livereload: true,
           spawn: false
         }
       },
