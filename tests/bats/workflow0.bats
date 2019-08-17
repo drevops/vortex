@@ -167,7 +167,18 @@ load test_helper_drupaldev
   run ahoy lint-fe
   [ "${status}" -eq 0 ]
 
-  # @todo: Add assertions for PHPunit bypass flag here.
+  step "Assert that PHPUnit test failure bypassing works"
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreExampleUnitTest.php
+  sync_to_container
+  # Assert failure.
+  run ahoy test-phpunit
+  [ "${status}" -eq 1 ]
+
+  # Assert failure bypass.
+  echo "ALLOW_PHPUNIT_FAIL=1" >> .env.local
+  sync_to_container
+  run ahoy test-phpunit
+  [ "${status}" -eq 0 ]
 
   step "Assert that Behat test failure bypassing works"
   echo "And I should be in the \"some-non-existing-page\" path" >> tests/behat/features/homepage.feature
