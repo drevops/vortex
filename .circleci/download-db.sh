@@ -5,12 +5,13 @@
 set -e
 
 DATADIR=${DATADIR:-.data}
-DB_FILE=${DB_FILE:-db_*.sql}
+DB_FILE=${DB_FILE:-db*.sql}
 DB_SEMAPHORE_FILE=${DB_SEMAPHORE_FILE:-/tmp/db-new}
 
 # Download database only if it has not been restored from the cache OR
 # if the $FORCE_DB_DOWNLOAD flag is set (usually in CircleCI UI).
 FORCE_DB_DOWNLOAD=${FORCE_DB_DOWNLOAD:-}
+[ "${FORCE_DB_DOWNLOAD}" != "" ] && echo "==> Forced DB download flag FORCE_DB_DOWNLOAD is set"
 
 # Remove any previously set semaphore files.
 rm -f "${DB_SEMAPHORE_FILE}" >/dev/null
