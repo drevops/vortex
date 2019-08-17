@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b26fab11eb7c4483efa69e14a4a9b1bb",
+    "content-hash": "b492b6012c49bf33f6965797ce744c26",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1473,6 +1473,9 @@
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
                     }
+                },
+                "patches_applied": {
+                    "Inconsistent handling of submit button attributes - https://www.drupal.org/node/3054256": "https://www.drupal.org/files/issues/2019-05-13/barrio-inconsistent-submit-handling-3054256-2.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
