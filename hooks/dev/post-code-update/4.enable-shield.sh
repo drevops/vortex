@@ -1,1 +1,0 @@
-../../library/enable-shield.sh
