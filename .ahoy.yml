@@ -114,14 +114,15 @@ commands:
     usage: Install a site.
     cmd: |
       #;< !FRESH_INSTALL \
-      ahoy title "Installing site from existing database dump"
-      (if [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ]; then ahoy export-db; fi)
+      ahoy title "Installing site from the existing database dump"
+      if [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ]; then ahoy export-db; fi
       ahoy import-db-dump
-      (if [ "${SKIP_SANITIZE_DB}" != "1" ]; then ahoy sanitize-db "${site}"; fi)
+      if [ "${SKIP_SANITIZE_DB}" != "1" ]; then ahoy sanitize-db "${site}"; fi
       {
         if [ "${SKIP_POST_IMPORT}" != "1" ]; then
           ahoy drush en your_site_core -y
           ahoy drush updb -y
+          if ls config/default/*.yml > /dev/null 2>&1; then ahoy title "Importing configuration" && ahoy drush cim -y; fi
         fi
       }
       #;> !FRESH_INSTALL \
@@ -129,8 +130,8 @@ commands:
       ahoy title "Installing a fresh site from ${DRUPAL_PROFILE} profile"
       ahoy drush si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
       ahoy drush en -y your_site_core
+      if ls config/default/*.yml > /dev/null 2>&1; then ahoy title "Importing configuration" && ahoy drush cim -y; fi
       #;> FRESH_INSTALL \
-      (if ls config/default/*.yml > /dev/null 2>&1; then ahoy title "Importing configuration" && ahoy drush cim -y; fi)
       ahoy drush cr
 
   import-db-dump:
