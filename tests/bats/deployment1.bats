@@ -48,10 +48,10 @@ load test_helper_drupaldev_deployment
     provision_site "${CURRENT_PROJECT_DIR}"
 
     assert_files_present_common "${CURRENT_PROJECT_DIR}"
-    assert_files_present_deployment  "${CURRENT_PROJECT_DIR}"
-    assert_files_present_integration_acquia  "${CURRENT_PROJECT_DIR}"
-    assert_files_present_integration_lagoon  "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_ftp  "${CURRENT_PROJECT_DIR}"
+    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 
     step "Copying built codebase into code source directory ${SRC_DIR}"
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"

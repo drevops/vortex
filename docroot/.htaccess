@@ -102,15 +102,20 @@ AddEncoding gzip svgz
   # To redirect all users to access the site WITH the 'www.' prefix,
   # (http://example.com/foo will be redirected to http://www.example.com/foo)
   # uncomment the following:
-  # RewriteCond %{HTTP_HOST} .
-  # RewriteCond %{HTTP_HOST} !^www\. [NC]
-  # RewriteRule ^ http%{ENV:protossl}://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-  #
-  # To redirect all users to access the site WITHOUT the 'www.' prefix,
-  # (http://www.example.com/foo will be redirected to http://example.com/foo)
-  # uncomment the following:
-  # RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-  # RewriteRule ^ http%{ENV:protossl}://%1%{REQUEST_URI} [L,R=301]
+
+  # Redirect all non-ww requests to www.
+  RewriteCond %{HTTP_HOST} .
+  #;< ACQUIA
+  RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC] # only Production environment.
+  #;> ACQUIA
+  RewriteCond %{HTTP_HOST} !^www\. [NC]
+  RewriteRule ^ http%{ENV:protossl}://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Redirect to HTTPS.
+  # @todo: Uncomment below once the certificate is available.
+  # RewriteCond %{HTTPS} off
+  # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
   # Modify the RewriteBase if you are using Drupal in a subdirectory or in a
   # VirtualDocumentRoot and the rewrite rules are not working properly.
