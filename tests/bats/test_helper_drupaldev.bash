@@ -292,7 +292,7 @@ assert_files_present_fresh_install(){
   pushd "${dir}" > /dev/null || exit 1
 
   assert_file_exists ".ahoy.yml"
-  assert_file_not_contains ".ahoy.yml" "ahoy title \"Installing site from existing database dump\""
+  assert_file_not_contains ".ahoy.yml" "ahoy title \"Installing site from the existing database dump\""
   assert_file_contains ".ahoy.yml" "ahoy title \"Installing a fresh site from \${DRUPAL_PROFILE} profile\""
   assert_file_not_contains ".ahoy.yml" "download-db:"
 
@@ -306,7 +306,7 @@ assert_files_present_no_fresh_install(){
   pushd "${dir}" > /dev/null || exit 1
 
   assert_file_exists ".ahoy.yml"
-  assert_file_contains ".ahoy.yml" "ahoy title \"Installing site from existing database dump\""
+  assert_file_contains ".ahoy.yml" "ahoy title \"Installing site from the existing database dump\""
   assert_file_not_contains ".ahoy.yml" "ahoy title \"Installing a fresh site from \${DRUPAL_PROFILE} profile\""
   assert_file_contains ".ahoy.yml" "download-db:"
 
