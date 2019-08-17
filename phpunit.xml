@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit colors="true" bootstrap="./docroot/core/tests/bootstrap.php">
     <testsuites>
-        <testsuite name="mysite">
+        <testsuite name="your_site">
             <directory>./docroot/modules/custom/</directory>
             <directory>./tests/unit/</directory>
         </testsuite>
