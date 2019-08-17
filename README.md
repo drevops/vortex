@@ -321,7 +321,9 @@ Run each command as `ahoy <command>`.
   flush-redis  Flush Redis cache.
   info         Print information about this project.
   install-site Install a site.
-  lint         Lint code.
+  lint         Lint all code.
+  lint-be      Lint back-end code.
+  lint-fe      Lint front-end code.
   login        Login to a website.
   logs         Show Docker logs.
   pull         Pull latest docker images.
