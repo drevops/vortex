@@ -218,10 +218,19 @@ commands:
     cmd: docker exec -i $(docker-compose ps -q redis) redis-cli flushall > /dev/null
 
   lint:
-    usage: Lint code.
+    usage: Lint all code.
+    cmd: ahoy lint-be && ahoy lint-fe
+
+  lint-be:
+    usage: Lint BE code.
     cmd: |
       ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }" && \
-      ahoy cli "vendor/bin/phpcs -v ${PHPCS_TARGETS//,/ }" && \
+      ahoy cli "vendor/bin/phpcs -v ${PHPCS_TARGETS//,/ }" || \
+      [ "${ALLOW_LINT_FAIL:-0}" -eq 1 ]
+
+  lint-fe:
+    usage: Lint FE code.
+    cmd: |
       ahoy cli "npm run lint" || \
       [ "${ALLOW_LINT_FAIL:-0}" -eq 1 ]
 

@@ -146,14 +146,25 @@ load test_helper_drupaldev
 
   step "Assert that lint failure bypassing works"
   echo "\$a=1;" >> docroot/modules/custom/star_wars_core/star_wars_core.module
+  echo ".abc{margin: 0px;}" >> docroot/themes/custom/your_site_theme/scss/components/_layout.scss
   sync_to_container
   # Assert failure.
   run ahoy lint
   [ "${status}" -eq 1 ]
+  run ahoy lint-be
+  [ "${status}" -eq 1 ]
+  run ahoy lint-fe
+  # @todo: Fix sass-lint not returning correct exist code on warnings.
+  [ "${status}" -eq 0 ]
+
   # Assert failure bypass.
   echo "ALLOW_LINT_FAIL=1" >> .env.local
   sync_to_container
   run ahoy lint
+  [ "${status}" -eq 0 ]
+  run ahoy lint-be
+  [ "${status}" -eq 0 ]
+  run ahoy lint-fe
   [ "${status}" -eq 0 ]
 
   # @todo: Add assertions for PHPunit bypass flag here.
