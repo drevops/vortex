@@ -163,6 +163,8 @@ if ($settings['environment'] !== ENVIRONMENT_DEV) {
 if ($settings['environment'] == ENVIRONMENT_CI) {
   $config['config_split.config_split.ci']['status'] = TRUE;
 
+  $settings['skip_permissions_hardening'] = TRUE;
+
   // Allow to bypass Shield.
   $config['shield.settings']['credentials']['shield']['user'] = '';
   $config['shield.settings']['credentials']['shield']['pass'] = '';
@@ -175,7 +177,6 @@ if ($settings['environment'] == ENVIRONMENT_LOCAL) {
   // Enable local split.
   $config['config_split.config_split.local']['status'] = TRUE;
 
-  // Skip permissions hardening.
   $settings['skip_permissions_hardening'] = TRUE;
 
   // Bypass Shield.
