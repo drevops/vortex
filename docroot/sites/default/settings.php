@@ -168,6 +168,9 @@ if ($settings['environment'] == ENVIRONMENT_CI) {
   // Allow to bypass Shield.
   $config['shield.settings']['credentials']['shield']['user'] = '';
   $config['shield.settings']['credentials']['shield']['pass'] = '';
+
+  // Disable mail send out.
+  $settings['suspend_mail_send'] = TRUE;
 }
 
 if ($settings['environment'] == ENVIRONMENT_LOCAL) {

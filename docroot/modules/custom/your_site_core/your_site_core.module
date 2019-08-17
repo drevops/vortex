@@ -32,9 +32,10 @@ foreach ($early_bootstrap_modules as $module_name) {
  * Implements hook_mail_alter().
  */
 function your_site_core_mail_alter(&$message) {
-  // Stop any mail send out in CI. Note if email functionality needs to be
-  // tested, this code should be removed and replaced with a dev mail system.
-  if (Settings::get('environment') == ENVIRONMENT_CI) {
+  // Allow to stop any mail send out through settings. Note if email
+  // functionality needs to be tested, this code should be removed and
+  // replaced with a dev mail system.
+  if (Settings::get('suspend_mail_send')) {
     $message['send'] = FALSE;
   }
 }
