@@ -146,7 +146,7 @@ load test_helper_drupaldev
 
   step "Assert that lint failure bypassing works"
   echo "\$a=1;" >> docroot/modules/custom/star_wars_core/star_wars_core.module
-  echo ".abc{margin: 0px;}" >> docroot/themes/custom/your_site_theme/scss/components/_layout.scss
+  echo ".abc{margin: 0px;}" >> docroot/themes/custom/star_wars/scss/components/_layout.scss
   sync_to_container
   # Assert failure.
   run ahoy lint
@@ -168,7 +168,7 @@ load test_helper_drupaldev
   [ "${status}" -eq 0 ]
 
   step "Assert that PHPUnit test failure bypassing works"
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreExampleUnitTest.php
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Unit/StarWarsCoreExampleUnitTest.php
   sync_to_container
   # Assert failure.
   run ahoy test-phpunit
