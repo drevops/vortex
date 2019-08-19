@@ -332,8 +332,8 @@ Run each command as `ahoy <command>`.
   start        Start existing Docker containers.
   stop         Stop running Docker containers.
   test         Run all tests.
-  test-behat   Run Behat tests.
-  test-phpunit Run PHPUnit tests.
+  test-bdd     Run BDD tests.
+  test-unit    Run unit tests.
   up           Build and start Docker containers.
   update       Update development stack.
   ```

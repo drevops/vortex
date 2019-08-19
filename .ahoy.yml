@@ -237,15 +237,15 @@ commands:
   test:
     usage: Run all tests.
     cmd: |
-      ahoy test-phpunit
-      ahoy test-behat
+      ahoy test-unit
+      ahoy test-bdd
 
-  test-behat:
-    usage: Run Behat tests.
+  test-bdd:
+    usage: Run BDD tests.
     cmd: ahoy cli "./vendor/bin/behat --strict --colors ${BEHAT_PROFILE} $@" || [ "${ALLOW_BEHAT_FAIL:-0}" -eq 1 ]
 
-  test-phpunit:
-    usage: Run PHPUnit tests.
+  test-unit:
+    usage: Run unit tests.
     cmd: |
       ahoy cli "./vendor/bin/phpunit $@" || \
       [ "${ALLOW_PHPUNIT_FAIL:-0}" -eq 1 ]

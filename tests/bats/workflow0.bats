@@ -136,11 +136,11 @@ load test_helper_drupaldev
   assert_success
   assert_output_not_contains "Containers are not running."
 
-  step "Run PHPUnit tests"
-  ahoy test-phpunit
+  step "Run unit tests"
+  ahoy test-unit
 
   step "Run single Behat test"
-  ahoy test-behat tests/behat/features/homepage.feature
+  ahoy test-bdd tests/behat/features/homepage.feature
   sync_to_host
   assert_dir_not_empty screenshots
 
@@ -171,25 +171,25 @@ load test_helper_drupaldev
   sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Unit/StarWarsCoreExampleUnitTest.php
   sync_to_container
   # Assert failure.
-  run ahoy test-phpunit
+  run ahoy test-unit
   [ "${status}" -eq 1 ]
 
   # Assert failure bypass.
   echo "ALLOW_PHPUNIT_FAIL=1" >> .env.local
   sync_to_container
-  run ahoy test-phpunit
+  run ahoy test-unit
   [ "${status}" -eq 0 ]
 
   step "Assert that Behat test failure bypassing works"
   echo "And I should be in the \"some-non-existing-page\" path" >> tests/behat/features/homepage.feature
   sync_to_container
   # Assert failure.
-  run ahoy test-behat tests/behat/features/homepage.feature
+  run ahoy test-bdd tests/behat/features/homepage.feature
   [ "${status}" -eq 1 ]
   echo "ALLOW_BEHAT_FAIL=1" >> .env.local
   sync_to_container
   # Assert failure bypass.
-  run ahoy test-behat tests/behat/features/homepage.feature
+  run ahoy test-bdd tests/behat/features/homepage.feature
   [ "${status}" -eq 0 ]
 
   step "Build FE assets for production"
