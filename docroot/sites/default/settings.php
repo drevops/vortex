@@ -152,11 +152,11 @@ if ($settings['environment'] !== ENVIRONMENT_PROD) {
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
 }
 
-if ($settings['environment'] !== ENVIRONMENT_TEST) {
+if ($settings['environment'] == ENVIRONMENT_TEST) {
   $config['config_split.config_split.test']['status'] = TRUE;
 }
 
-if ($settings['environment'] !== ENVIRONMENT_DEV) {
+if ($settings['environment'] == ENVIRONMENT_DEV) {
   $config['config_split.config_split.dev']['status'] = TRUE;
 }
 
