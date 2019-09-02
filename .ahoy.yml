@@ -304,9 +304,9 @@ entrypoint:
     #;< DEMO
     #; Location of the demo database used for demonstration only.
     #; This will be removed during project install.
-    export DEMO_DB="${DEMO_DB:-https://gist.githubusercontent.com/alexdesignworks/838bea313c1d5f2c7c912693954f0619/raw/7aa622c72d91554d056ee56933b9cb570c765e8f/db_d8.dist.sql}"
+    export DEMO_DB="${DEMO_DB:-https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/db_d8.dist.sql.md}"
     #; Location of the demo database used for tests only.
-    export DEMO_DB_TEST="${DEMO_DB_TEST:-https://gist.githubusercontent.com/alexdesignworks/4387f56278be8597b5f27868d15e798f/raw/2bdfc4cfb28678caf5e9a73c44fe28b3eddc6316/db_d8.star_wars.sql}"
+    export DEMO_DB_TEST="${DEMO_DB_TEST:-https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/db_d8.star_wars.sql.md}"
     #;> DEMO
     #;< FRESH_INSTALL
     export DOCTOR_CHECK_DB=0
