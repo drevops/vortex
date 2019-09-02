@@ -122,7 +122,7 @@ services:
     #;> LAGOON
 
   mariadb:
-    image: amazeeio/mariadb-drupal:v0.22.1
+    image: amazeeio/mariadb-drupal:v1.0.1
     environment:
       <<: *default-environment
     ports:
@@ -134,7 +134,7 @@ services:
 
   #;< REDIS
   redis:
-    image: amazeeio/redis:v0.22.1
+    image: amazeeio/redis:v1.0.1
     #;< LAGOON
     labels:
       lagoon.type: redis

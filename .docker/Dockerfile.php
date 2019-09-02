@@ -2,7 +2,7 @@
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE:-cli} as cli
 
-FROM amazeeio/php:7.2-fpm-v0.22.1
+FROM amazeeio/php:7.2-fpm-v1.0.1
 
 # Enable Xdebug only if XDEBUG_ENABLE has a value.
 # @see https://github.com/amazeeio/lagoon/issues/1170

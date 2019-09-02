@@ -2,7 +2,7 @@
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE:-cli} as cli
 
-FROM amazeeio/nginx-drupal:v0.22.1
+FROM amazeeio/nginx-drupal:v1.0.1
 
 ENV WEBROOT=docroot
 
