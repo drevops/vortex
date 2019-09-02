@@ -11,7 +11,7 @@ RUN apk update \
     && rm -rf /var/cache/apk/*
 
 # @todo: Remove once https://github.com/amazeeio/lagoon/issues/1212 is fixed.
-RUN apk upgrade
+RUN apk upgrade nghttp2-libs
 
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
