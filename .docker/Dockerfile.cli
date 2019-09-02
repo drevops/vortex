@@ -6,11 +6,6 @@ ENV WEBROOT=docroot \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
     MYSQL_HOST=mariadb
 
-# Enable Xdebug only if XDEBUG_ENABLE has a value.
-# @see https://github.com/amazeeio/lagoon/issues/1170
-COPY .docker/scripts/60-php-xdebug.sh /lagoon/entrypoints/60-php-xdebug.sh
-COPY .docker/scripts/61-php-xdebug-cli-env.sh /lagoon/entrypoints/61-php-xdebug-cli-env.sh
-
 RUN apk update \
     && apk add pv \
     && rm -rf /var/cache/apk/*
