@@ -1,19 +1,17 @@
 # @see https://github.com/amazeeio/lagoon/tree/master/images/php/cli-drupal
-FROM amazeeio/php:7.2-cli-drupal-v0.22.1
+FROM amazeeio/php:7.2-cli-drupal-v1.0.1
 
 ENV WEBROOT=docroot \
     COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
     MYSQL_HOST=mariadb
 
-# Enable Xdebug only if XDEBUG_ENABLE has a value.
-# @see https://github.com/amazeeio/lagoon/issues/1170
-COPY .docker/scripts/60-php-xdebug.sh /lagoon/entrypoints/60-php-xdebug.sh
-COPY .docker/scripts/61-php-xdebug-cli-env.sh /lagoon/entrypoints/61-php-xdebug-cli-env.sh
-
 RUN apk update \
     && apk add pv \
     && rm -rf /var/cache/apk/*
+
+# @todo: Remove once https://github.com/amazeeio/lagoon/issues/1212 is fixed.
+RUN apk upgrade nghttp2-libs
 
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
