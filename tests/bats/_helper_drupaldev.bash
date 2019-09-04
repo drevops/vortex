@@ -57,9 +57,12 @@ setup(){
   prepare_fixture_dir "${DST_PROJECT_DIR}"
   prepare_fixture_dir "${LOCAL_REPO_DIR}"
   prepare_fixture_dir "${APP_TMP_DIR}"
-  pushd "${BUILD_DIR}" > /dev/null || exit 1
-
   prepare_local_repo "${LOCAL_REPO_DIR}" >/dev/null
+
+  # Change directory to the current project directory for each test. Tests
+  # requiring to operate outside of CURRENT_PROJECT_DIR (like deployment tests)
+  # should change directory explicitly within their tests.
+  pushd "${CURRENT_PROJECT_DIR}" > /dev/null || exit 1
 }
 
 teardown(){
@@ -71,38 +74,38 @@ teardown(){
 ################################################################################
 
 assert_files_present(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-  local suffix_camel_cased="${3:-StarWars}"
+  local suffix="${1:-star_wars}"
+  local suffix_camel_cased="${2:-StarWars}"
+  local dir="${3:-$(pwd)}"
 
-  assert_files_present_common "${dir}" "${suffix}" "${suffix_camel_cased}"
+  assert_files_present_common "${suffix}" "${suffix_camel_cased}" "${dir}"
 
   # Assert Drupal profile not present by default.
-  assert_files_present_no_profile "${dir}" "${suffix}"
+  assert_files_present_no_profile "${suffix}" "${dir}"
 
   # Assert Drupal is not freshly installed by default.
-  assert_files_present_no_fresh_install "${dir}" "${suffix}"
+  assert_files_present_no_fresh_install "${suffix}" "${dir}"
 
   # Assert deployments preserved.
-  assert_files_present_deployment "${dir}" "${suffix}"
+  assert_files_present_deployment "${suffix}" "${dir}"
 
   # Assert Acquia integration preserved.
-  assert_files_present_integration_acquia "${dir}" "${suffix}"
+  assert_files_present_integration_acquia "${suffix}" 1 "${dir}"
 
   # Assert Lagoon integration preserved.
-  assert_files_present_integration_lagoon "${dir}" "${suffix}"
+  assert_files_present_integration_lagoon "${suffix}" "${dir}"
 
   # Assert FTP integration removed by default.
-  assert_files_present_no_integration_ftp "${dir}" "${suffix}"
+  assert_files_present_no_integration_ftp "${suffix}" "${dir}"
 
   # Assert dependencies.io integration preserved.
-  assert_files_present_integration_dependenciesio "${dir}" "${suffix}"
+  assert_files_present_integration_dependenciesio "${suffix}" "${dir}"
 }
 
 assert_files_present_common(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-  local suffix_camel_cased="${3:-StarWars}"
+  local suffix="${1:-star_wars}"
+  local suffix_camel_cased="${2:-StarWars}"
+  local dir="${3:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -210,9 +213,9 @@ assert_files_present_common(){
 }
 
 assert_files_not_present_common(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-  local has_required_files="${3:-0}"
+  local suffix="${1:-star_wars}"
+  local has_required_files="${2:-0}"
+  local dir="${3:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -254,8 +257,8 @@ assert_files_not_present_common(){
 }
 
 assert_files_present_profile(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -269,8 +272,8 @@ assert_files_present_profile(){
 }
 
 assert_files_present_no_profile(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -286,8 +289,8 @@ assert_files_present_no_profile(){
 }
 
 assert_files_present_fresh_install(){
- local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -300,8 +303,8 @@ assert_files_present_fresh_install(){
 }
 
 assert_files_present_no_fresh_install(){
- local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -314,8 +317,8 @@ assert_files_present_no_fresh_install(){
 }
 
 assert_files_present_deployment(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -330,9 +333,9 @@ assert_files_present_deployment(){
 }
 
 assert_files_present_no_deployment(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-  local has_committed_files="${3:-0}"
+  local suffix="${1:-star_wars}"
+  local has_committed_files="${2:-0}"
+  local dir="${3:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -352,9 +355,9 @@ assert_files_present_no_deployment(){
 }
 
 assert_files_present_integration_acquia(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-  local include_scripts="${3:-1}"
+  local suffix="${1:-star_wars}"
+  local include_scripts="${2:-1}"
+  local dir="${3:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -405,8 +408,8 @@ assert_files_present_integration_acquia(){
 }
 
 assert_files_present_no_integration_acquia(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -428,8 +431,8 @@ assert_files_present_no_integration_acquia(){
 }
 
 assert_files_present_integration_lagoon(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -449,8 +452,8 @@ assert_files_present_integration_lagoon(){
 }
 
 assert_files_present_no_integration_lagoon(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -470,8 +473,8 @@ assert_files_present_no_integration_lagoon(){
 }
 
 assert_files_present_integration_ftp(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -491,8 +494,8 @@ assert_files_present_integration_ftp(){
 }
 
 assert_files_present_no_integration_ftp(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -512,8 +515,8 @@ assert_files_present_no_integration_ftp(){
 }
 
 assert_files_present_integration_dependenciesio(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -524,8 +527,8 @@ assert_files_present_integration_dependenciesio(){
 }
 
 assert_files_present_no_integration_dependenciesio(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -536,9 +539,9 @@ assert_files_present_no_integration_dependenciesio(){
 }
 
 fixture_readme(){
-  local dir="${1:-.}"
-  local name="${2:-Star Wars}"
-  local org="${3:-Star Wars Org}"
+  local name="${1:-Star Wars}"
+  local org="${2:-Star Wars Org}"
+  local dir="${3:-$(pwd)}"
 
   cat <<EOT >> "${dir}"/README.md
 # ${name}
@@ -555,11 +558,11 @@ EOT
 }
 
 fixture_composerjson(){
-  local dir="${1:-.}"
-  local name="${2}"
-  local machine_name="${3}"
-  local org="${4}"
-  local org_machine_name="${5}"
+  local name="${1}"
+  local machine_name="${2}"
+  local org="${3}"
+  local org_machine_name="${4}"
+  local dir="${5:-$(pwd)}"
 
   cat <<EOT >> "${dir}"/composer.json
 {
@@ -578,13 +581,16 @@ run_install(){
 
   # Force install script to be downloaded from the local repo for testing.
   export DRUPALDEV_LOCAL_REPO="${LOCAL_REPO_DIR}"
+
   # Use unique temporary directory for each run.
   DRUPALDEV_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
   prepare_fixture_dir "${DRUPALDEV_TMP_DIR}"
   export DRUPALDEV_TMP_DIR
+
   # Show debug information (for easy debug of tests).
   export DRUPALDEV_DEBUG=1
   run "${CUR_DIR}"/install.sh "$@"
+
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
   popd > /dev/null || exit 1
@@ -639,27 +645,31 @@ run_install_interactive(){
 # Used for fast unit testing of install functionality.
 #
 install_dependencies_stub(){
-  local dir="${1:-.}"
+  local dir="${1:-$(pwd)}"
 
-  mktouch "${dir}/docroot/core/install.php"
-  mktouch "${dir}/docroot/modules/contrib/somemodule/somemodule.info.yml"
-  mktouch "${dir}/docroot/themes/contrib/sometheme/sometheme.info.yml"
-  mktouch "${dir}/docroot/profiles/contrib/someprofile/someprofile.info.yml"
-  mktouch "${dir}/docroot/sites/default/somesettingsfile.php"
-  mktouch "${dir}/docroot/sites/default/files/somepublicfile.php"
-  mktouch "${dir}/vendor/somevendor/somepackage/somepackage.php"
-  mktouch "${dir}/vendor/somevendor/somepackage/somepackage with spaces.php"
-  mktouch "${dir}/vendor/somevendor/somepackage/composer.json"
-  mktouch "${dir}/node_modules/somevendor/somepackage/somepackage.js"
+  pushd "${dir}" > /dev/null || exit 1
 
-  mktouch "${dir}/docroot/modules/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
-  mktouch "${dir}/screenshots/s1.jpg"
-  mktouch "${dir}/.data/db.sql"
+  mktouch "docroot/core/install.php"
+  mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
+  mktouch "docroot/themes/contrib/sometheme/sometheme.info.yml"
+  mktouch "docroot/profiles/contrib/someprofile/someprofile.info.yml"
+  mktouch "docroot/sites/default/somesettingsfile.php"
+  mktouch "docroot/sites/default/files/somepublicfile.php"
+  mktouch "vendor/somevendor/somepackage/somepackage.php"
+  mktouch "vendor/somevendor/somepackage/somepackage with spaces.php"
+  mktouch "vendor/somevendor/somepackage/composer.json"
+  mktouch "node_modules/somevendor/somepackage/somepackage.js"
 
-  mktouch "${dir}/docroot/sites/default/settings.local.php"
-  mktouch "${dir}/docroot/sites/default/services.local.yml"
-  mktouch "${dir}/.env.local"
-  echo "version: \"2.3\"" > "${dir}/docker-compose.override.yml"
+  mktouch "docroot/modules/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
+  mktouch "screenshots/s1.jpg"
+  mktouch ".data/db.sql"
+
+  mktouch "docroot/sites/default/settings.local.php"
+  mktouch "docroot/sites/default/services.local.yml"
+  mktouch ".env.local"
+  echo "version: \"2.3\"" > "docker-compose.override.yml"
+
+  popd > /dev/null || exit 1
 }
 
 # Copy source code at the latest commit to the destination directory.
@@ -675,7 +685,7 @@ copy_code(){
 
 # Prepare local repository from the current codebase.
 prepare_local_repo(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
   local do_copy_code="${2:-1}"
   local commit
 
@@ -684,31 +694,31 @@ prepare_local_repo(){
     copy_code "${dir}"
   fi
 
-  git_init "${dir}"
+  git_init 0 "${dir}"
   [ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name" && git config --global user.name "Some User"
   [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email" && git config --global user.email "some.user@example.com"
-  commit=$(git_add_all_commit "${dir}" "Initial commit")
+  commit=$(git_add_all_commit "Initial commit" "${dir}")
 
   echo "${commit}"
 }
 
 git_add(){
-  local dir="${1}"
-  local file="${2}"
+  local file="${1}"
+  local dir="${2:-$(pwd)}"
   git --work-tree="${dir}" --git-dir="${dir}/.git" add "${dir}/${file}" > /dev/null
 }
 
 git_add_force(){
-  local dir="${1}"
-  local file="${2}"
+  local file="${1}"
+  local dir="${2:-$(pwd)}"
   git --work-tree="${dir}" --git-dir="${dir}/.git" add -f "${dir}/${file}" > /dev/null
 }
 
 git_commit(){
-  local dir="${1}"
-  local message="${2}"
+  local message="${1}"
+  local dir="${2:-$(pwd)}"
 
-  assert_git_repo "${1}"
+  assert_git_repo "${dir}"
 
   git --work-tree="${dir}" --git-dir="${dir}/.git" commit -m "${message}" > /dev/null
   commit=$(git --work-tree="${dir}" --git-dir="${dir}/.git" rev-parse HEAD)
@@ -716,10 +726,10 @@ git_commit(){
 }
 
 git_add_all_commit(){
-  local dir="${1}"
-  local message="${2}"
+  local message="${1}"
+  local dir="${2:-$(pwd)}"
 
-  assert_git_repo "${1}"
+  assert_git_repo "${dir}"
 
   git --work-tree="${dir}" --git-dir="${dir}/.git" add -A
   git --work-tree="${dir}" --git-dir="${dir}/.git" commit -m "${message}" > /dev/null
@@ -728,10 +738,10 @@ git_add_all_commit(){
 }
 
 git_init(){
-  local dir="${1}"
-  local allow_receive_update="${2:-0}"
+  local allow_receive_update="${1:-0}"
+  local dir="${2:-$(pwd)}"
 
-  assert_not_git_repo "${1}"
+  assert_not_git_repo "${dir}"
   git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
 
   if [ "${allow_receive_update}" -eq 1 ]; then

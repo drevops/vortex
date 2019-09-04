@@ -3,11 +3,13 @@
 # Test runner for deployment tests.
 #
 
-load test_helper
-load test_helper_drupaldev
-load test_helper_drupaldev_deployment
+load _helper
+load _helper_drupaldev
+load _helper_drupaldev_deployment
 
 @test "Deployment; no integration" {
+  pushd "${BUILD_DIR}" > /dev/null || exit 1
+
   # Source directory for initialised codebase.
   # If not provided - directory will be created and a site will be initialised.
   # This is to facilitate local testing.
@@ -34,11 +36,11 @@ load test_helper_drupaldev_deployment
     # built on previous build stages.
     provision_site "${CURRENT_PROJECT_DIR}"
 
-    assert_files_present_common "${CURRENT_PROJECT_DIR}"
-    assert_files_present_deployment  "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_acquia  "${CURRENT_PROJECT_DIR}"
-    assert_files_present_integration_lagoon  "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_ftp  "${CURRENT_PROJECT_DIR}"
+    assert_files_present_common "star_wars" "StarWars" "${CURRENT_PROJECT_DIR}"
+    assert_files_present_deployment "star_wars" "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_acquia "star_wars" "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_lagoon "star_wars" "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_ftp "star_wars" "${CURRENT_PROJECT_DIR}"
 
     step "Copying built codebase into code source directory ${SRC_DIR}"
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -49,11 +51,12 @@ load test_helper_drupaldev_deployment
 
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
-  assert_files_present_common "${SRC_DIR}"
-  assert_files_present_deployment "${SRC_DIR}"
-  assert_files_present_no_integration_acquia "${SRC_DIR}"
-  assert_files_present_integration_lagoon "${SRC_DIR}"
-  assert_files_present_no_integration_ftp "${SRC_DIR}"
+
+  assert_files_present_common "star_wars" "StarWars" "${CURRENT_PROJECT_DIR}"
+  assert_files_present_deployment "star_wars" "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "star_wars" "${CURRENT_PROJECT_DIR}"
+  assert_files_present_integration_lagoon "star_wars" "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "star_wars" "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${SRC_DIR}"
 
   # Make sure that one of the excluded directories will be ignored in the
@@ -63,7 +66,7 @@ load test_helper_drupaldev_deployment
 
   step "Preparing remote repo directory ${REMOTE_REPO_DIR}"
   prepare_fixture_dir "${REMOTE_REPO_DIR}"
-  git_init "${REMOTE_REPO_DIR}" 1
+  git_init 1 "${REMOTE_REPO_DIR}"
 
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
@@ -82,6 +85,8 @@ load test_helper_drupaldev_deployment
 
   # Assert Acquia hooks are absent.
   assert_files_present_no_integration_acquia "${REMOTE_REPO_DIR}"
+
+  popd > /dev/null
 
   popd > /dev/null
 }

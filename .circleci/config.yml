@@ -221,11 +221,13 @@ workflows:
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
 
       #;< DRUPAL-DEV
-      #; Feature and tag deployment for Drupal-Dev itself. Remove the code below in your project.
+      #; Remove the code below in your project.
+      #; Run unit and functional tests for Drupal-Dev.
       - drupal_dev_test:
           filters:
             tags:
               only: /.*/
+      #; Run deployment tests for Drupal-Dev.
       - drupal_dev_test_deployment:
           requires:
             - drupal_dev_test
@@ -233,6 +235,7 @@ workflows:
           filters:
             tags:
               only: /.*/
+      #; Run actual deployment of Drupal-Dev code to destination codebase (integration test).
       - drupal_dev_deploy:
           requires:
             - build
@@ -243,6 +246,7 @@ workflows:
               only: /(?:7|8)\.x|feature\/(?:7|8)\.x[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
+      #; Run actual deployment of Drupal-Dev code to destination codebase (integration test).
       - drupal_dev_deploy_tags:
           requires:
             - build

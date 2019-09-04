@@ -8,15 +8,15 @@
 # - discovery
 #
 
-load test_helper
-load test_helper_drupaldev
+load _helper
+load _helper_drupaldev
 
 @test "Install parameters: empty dir; proceed switch; silent" {
   export DRUPALDEV_PROCEED=0
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
-  assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_not_present_common
 }
 
 @test "Install parameters: empty dir; proceed switch; interactive" {
@@ -42,7 +42,7 @@ load test_helper_drupaldev
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
-  assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_not_present_common
 }
 
 @test "Install parameters: empty dir; defaults; silent" {
@@ -160,7 +160,7 @@ load test_helper_drupaldev
   fixture_preinstalled
 
   # Remove existing fixture to force override from discovery.
-  rm "${CURRENT_PROJECT_DIR}"/1.txt
+  rm 1.txt
 
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
@@ -189,7 +189,7 @@ load test_helper_drupaldev
   fixture_preinstalled
 
   # Remove existing fixture to force override from discovery.
-  rm "${CURRENT_PROJECT_DIR}"/1.txt
+  rm 1.txt
 
   answers=(
     "nothing" # name
@@ -282,36 +282,36 @@ load test_helper_drupaldev
 #
 fixture_preinstalled(){
   # Create readme file to pretend that Drupal-Dev was installed.
-  fixture_readme "${CURRENT_PROJECT_DIR}"
+  fixture_readme
 
   # Sets 'name' to 'Resistance new site'.
   # Sets 'machine_name' to 'resistance_site'.
   # Sets 'org' to 'The Resistance'.
   # Sets 'org_machine_name' to 'the_next_resistance'.
-  fixture_composerjson "${CURRENT_PROJECT_DIR}" "Resistance new site" "resistance_site" "The Resistance" "the_next_resistance"
+  fixture_composerjson "Resistance new site" "resistance_site" "The Resistance" "the_next_resistance"
 
   # Sets 'module_prefix' to 'another_resist'.
-  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/modules/custom/another_resist_core
-  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/modules/custom/some_resist_notcore
-  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/modules/custom/yetanother_resist
+  mkdir -p docroot/modules/custom/another_resist_core
+  mkdir -p docroot/modules/custom/some_resist_notcore
+  mkdir -p docroot/modules/custom/yetanother_resist
 
   # Sets 'theme' to 'resisting'.
-  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/themes/custom/resisting
-  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/themes/custom/yetanothertheme
+  mkdir -p docroot/themes/custom/resisting
+  mkdir -p docroot/themes/custom/yetanothertheme
 
   # Sets 'url' to 'www.resistance-star-wars.com'.
-  mkdir -p "${CURRENT_PROJECT_DIR}"/docroot/sites/default
-  echo "  \$config['stage_file_proxy.settings']['origin'] = 'http://www.resistance-star-wars.com/';" > "${CURRENT_PROJECT_DIR}"/docroot/sites/default/settings.php
+  mkdir -p docroot/sites/default
+  echo "  \$config['stage_file_proxy.settings']['origin'] = 'http://www.resistance-star-wars.com/';" > docroot/sites/default/settings.php
 
   # Sets 'preserve_acquia' to 'Yes'.
-  mkdir -p "${CURRENT_PROJECT_DIR}"/hooks
+  mkdir -p hooks
   # Sets 'preserve_lagoon' to 'Yes'.
-  touch "${CURRENT_PROJECT_DIR}"/.lagoon.yml
+  touch .lagoon.yml
   # Sets 'preserve_dependencies' to 'Yes'.
-  touch "${CURRENT_PROJECT_DIR}"/dependencies.yml
+  touch dependencies.yml
 
   # Sets 'fresh_install' to 'No'.
-  echo "download-db:" > "${CURRENT_PROJECT_DIR}"/.ahoy.yml
+  echo "download-db:" > .ahoy.yml
   # Sets 'remove_drupaldev_info' to 'Yes'.
-  echo "#;< DRUPAL-DEV" > "${CURRENT_PROJECT_DIR}"/1.txt
+  echo "#;< DRUPAL-DEV" > 1.txt
 }
