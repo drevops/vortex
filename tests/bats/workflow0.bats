@@ -3,8 +3,8 @@
 # DB-driven workflow.
 #
 
-load test_helper
-load test_helper_drupaldev
+load _helper
+load _helper_drupaldev
 
 @test "Workflow: DB-driven" {
   DRUPAL_VERSION=${DRUPAL_VERSION:-8}
@@ -15,9 +15,7 @@ load test_helper_drupaldev
 
   debug "==> Starting DB-driven WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
-
-  assert_files_not_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_not_present_common
 
   step "Initialise the project with default settings"
   # Preserve demo configuration used for this test. This is to make sure that
@@ -29,19 +27,19 @@ load test_helper_drupaldev
   # Run default install
   run_install
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_fresh_install "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_no_fresh_install
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_git_repo
 
   # Point demo database to the test database.
   echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
 
   step "Add all Drupal-Dev files to new git repo"
-  git_add_all_commit "${CURRENT_PROJECT_DIR}" "Init Drupal-Dev config"
+  git_add_all_commit "Init Drupal-Dev config"
 
   step "Create untracked file manually"
   touch untracked_file.txt
@@ -77,11 +75,11 @@ load test_helper_drupaldev
   assert_file_exists .data/db.sql
 
   # Assert the presence of files from the default configuration.
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_no_integration_ftp
 
   # Assert generated settings file exists.
   assert_file_exists docroot/sites/default/settings.generated.php
@@ -270,11 +268,11 @@ load test_helper_drupaldev
   step "Clean"
   ahoy clean
   # Assert that initial Drupal-Dev files have not been removed.
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_no_integration_ftp
 
   assert_dir_not_exists docroot/modules/contrib
   assert_dir_not_exists docroot/themes/contrib
@@ -293,16 +291,16 @@ load test_helper_drupaldev
   # Assert IDE config file still exists.
   assert_file_exists .idea/idea_file.txt
 
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_git_repo
 
   step "Reset"
   ahoy reset
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars" "StarWars"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}" "star_wars"
-  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_no_integration_ftp
 
   assert_file_exists "docroot/sites/default/settings.local.php"
   assert_file_exists "docroot/sites/default/services.local.yml"
@@ -314,7 +312,5 @@ load test_helper_drupaldev
 
   assert_dir_not_exists screenshots
 
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
-
-  popd > /dev/null
+  assert_git_repo
 }

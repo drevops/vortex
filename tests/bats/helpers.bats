@@ -5,7 +5,7 @@
 # Each assertion tests positive and negative behaviour.
 #
 
-load test_helper
+load _helper
 
 @test "assert_success" {
   status=0

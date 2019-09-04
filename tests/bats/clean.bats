@@ -3,16 +3,14 @@
 # Test for clean functionality.
 #
 
-load test_helper
-load test_helper_drupaldev
+load _helper
+load _helper_drupaldev
 
 @test "Clean; non-exclude" {
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
-
   run_install
 
-  assert_files_present "${CURRENT_PROJECT_DIR}"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present
+  assert_git_repo
 
   mktouch "docroot/core/install.php"
   mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
@@ -55,8 +53,8 @@ load test_helper_drupaldev
 
   ahoy clean
 
-  assert_files_present "${CURRENT_PROJECT_DIR}"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present
+  assert_git_repo
 
   assert_dir_not_exists "docroot/core"
   assert_dir_not_exists "docroot/modules/contrib"
@@ -90,18 +88,14 @@ load test_helper_drupaldev
   assert_file_exists "nbproject/some_ide_file"
 
   assert_file_exists "uncommitted_file.txt"
-
-  popd > /dev/null
 }
 
 @test "Clean; exclude" {
   export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
-
   run_install
 
-  assert_files_present "${CURRENT_PROJECT_DIR}"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present
+  assert_git_repo
 
   mktouch "docroot/core/install.php"
   mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
@@ -144,8 +138,8 @@ load test_helper_drupaldev
 
   ahoy clean
 
-  assert_files_present "${CURRENT_PROJECT_DIR}"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present
+  assert_git_repo
 
   assert_dir_not_exists "docroot/core"
   assert_dir_not_exists "docroot/modules/contrib"
@@ -179,17 +173,13 @@ load test_helper_drupaldev
   assert_file_exists "nbproject/some_ide_file"
 
   assert_file_exists "uncommitted_file.txt"
-
-  popd > /dev/null
 }
 
 @test "Reset; non-exclude" {
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
-
   run_install
 
-  assert_files_present "${CURRENT_PROJECT_DIR}"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present
+  assert_git_repo
 
   mktouch "docroot/core/install.php"
   mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
@@ -232,8 +222,8 @@ load test_helper_drupaldev
 
   ahoy reset
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars" "StarWars"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common "star_wars" "StarWars"
+  assert_git_repo
 
   assert_dir_not_exists "docroot/core"
   assert_dir_not_exists "docroot/modules/contrib"
@@ -266,19 +256,15 @@ load test_helper_drupaldev
   assert_file_exists "nbproject/some_ide_file"
 
   assert_file_exists "uncommitted_file.txt"
-
-  popd > /dev/null
 }
 
 @test "Reset; exclude" {
   export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
 
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
-
   run_install
 
-  assert_files_present "${CURRENT_PROJECT_DIR}"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present
+  assert_git_repo
 
   mktouch "docroot/core/install.php"
   mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
@@ -321,8 +307,8 @@ load test_helper_drupaldev
 
   ahoy reset
 
-  assert_files_not_present_common "${CURRENT_PROJECT_DIR}" "star_wars" 1
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_not_present_common "star_wars" 1
+  assert_git_repo
 
   assert_dir_not_exists "docroot/core"
   assert_dir_not_exists "docroot/modules/contrib"
@@ -355,17 +341,13 @@ load test_helper_drupaldev
   assert_file_exists "nbproject/some_ide_file"
 
   assert_file_exists "uncommitted_file.txt"
-
-  popd > /dev/null
 }
 
 @test "Reset; committed files; non-exclude" {
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
-
   run_install
 
-  assert_files_present "${CURRENT_PROJECT_DIR}"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present
+  assert_git_repo
 
   mktouch "docroot/core/install.php"
   mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
@@ -406,7 +388,7 @@ load test_helper_drupaldev
 
   mktouch "uncommitted_file.txt"
 
-  git_add_all_commit "${CURRENT_PROJECT_DIR}" "Added Drupal-Dev files"
+  git_add_all_commit "Added Drupal-Dev files"
 
   # Commit other file file.
   mktouch "committed_file.txt"
@@ -415,8 +397,8 @@ load test_helper_drupaldev
 
   ahoy reset
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}" "star_wars" "StarWars"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common "star_wars" "StarWars"
+  assert_git_repo
 
   assert_dir_not_exists "docroot/core"
   assert_dir_not_exists "docroot/modules/contrib"
@@ -452,19 +434,15 @@ load test_helper_drupaldev
 
   assert_file_exists "scripts/download-backup-acquia.sh"
   assert_file_exists "committed_file.txt"
-
-  popd > /dev/null
 }
 
 @test "Reset; committed files; exclude" {
   export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
 
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
-
   run_install
 
-  assert_files_present "${CURRENT_PROJECT_DIR}"
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_present
+  assert_git_repo
 
   mktouch "docroot/core/install.php"
   mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
@@ -516,8 +494,8 @@ load test_helper_drupaldev
 
   ahoy reset
 
-  assert_files_not_present_common "${CURRENT_PROJECT_DIR}" "star_wars" 1
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_files_not_present_common "star_wars" 1
+  assert_git_repo
 
   assert_dir_not_exists "docroot/core"
   assert_dir_not_exists "docroot/modules/contrib"
@@ -553,6 +531,4 @@ load test_helper_drupaldev
 
   assert_file_exists "scripts/download-backup-acquia.sh"
   assert_file_exists "committed_file.txt"
-
-  popd > /dev/null
 }

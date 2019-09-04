@@ -116,7 +116,7 @@ assert_dir_exists(){
 }
 
 assert_dir_not_exists(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
 
   if [ -d "${dir}" ] ; then
     format_error "Directory ${dir} exists, but should not" | flunk
@@ -126,7 +126,7 @@ assert_dir_not_exists(){
 }
 
 assert_dir_empty(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
   assert_dir_exists "${dir}" || return 1
 
   if [ "$(ls -A "${dir}")" ]; then
@@ -137,7 +137,7 @@ assert_dir_empty(){
 }
 
 assert_dir_not_empty(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
   assert_dir_exists "${dir}"
 
   if [ "$(ls -A "${dir}")" ]; then
@@ -209,7 +209,7 @@ assert_file_not_contains(){
 }
 
 assert_dir_contains_string(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
   local string="${2}"
 
   assert_dir_exists "${dir}" || return 1
@@ -222,7 +222,7 @@ assert_dir_contains_string(){
 }
 
 assert_dir_not_contains_string(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
   local string="${2}"
 
   [ ! -d "${dir}" ] && return 0
@@ -235,7 +235,7 @@ assert_dir_not_contains_string(){
 }
 
 assert_git_repo(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
 
   assert_dir_exists "${dir}" || return 1
 
@@ -254,7 +254,7 @@ assert_git_repo(){
 }
 
 assert_not_git_repo(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
 
   assert_dir_exists "${dir}" || return 1
 
@@ -266,7 +266,7 @@ assert_not_git_repo(){
 }
 
 assert_git_clean(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
   local message
 
   assert_git_repo "${dir}"
@@ -276,7 +276,7 @@ assert_git_clean(){
 }
 
 assert_git_not_clean(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
   local message
 
   assert_git_repo "${dir}"
@@ -371,7 +371,7 @@ random_string(){
 }
 
 prepare_fixture_dir(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
   rm -Rf "${dir}" > /dev/null
   mkdir -p "${dir}"
   assert_dir_exists "${dir}"
