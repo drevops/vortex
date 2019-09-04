@@ -1,5 +1,5 @@
 # @see https://github.com/amazeeio/lagoon/tree/master/images/php/cli-drupal
-FROM amazeeio/php:7.2-cli-drupal-v1.0.1
+FROM amazeeio/php:7.2-cli-drupal-v1.0.2
 
 ENV WEBROOT=docroot \
     COMPOSER_ALLOW_SUPERUSER=1 \
@@ -9,9 +9,6 @@ ENV WEBROOT=docroot \
 RUN apk update \
     && apk add pv \
     && rm -rf /var/cache/apk/*
-
-# @todo: Remove once https://github.com/amazeeio/lagoon/issues/1212 is fixed.
-RUN apk upgrade nghttp2-libs
 
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
