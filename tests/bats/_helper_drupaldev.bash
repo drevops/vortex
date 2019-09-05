@@ -761,7 +761,6 @@ sync_to_host(){
   # shellcheck disable=SC2046
   [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
   [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${dst} to host" && return
-  debug "Syncing from $(docker-compose ps -q cli) to ${dst}"
   docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
 }
 
@@ -771,7 +770,6 @@ sync_to_container(){
   # shellcheck disable=SC2046
   [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
   [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
-  debug "Syncing from ${src} to $(docker-compose ps -q cli)"
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
 }
 
