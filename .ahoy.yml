@@ -208,7 +208,6 @@ commands:
       docker cp -L behat.yml $(docker-compose ps -q cli):/app/
       docker cp -L tests $(docker-compose ps -q cli):/app/
       docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
-      docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
       ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
       ahoy cli "npm install"
     hide: true
@@ -238,17 +237,25 @@ commands:
     usage: Run all tests.
     cmd: |
       ahoy test-unit
+      ahoy test-kernel
+      ahoy test-functional
       ahoy test-bdd
+
+  test-unit:
+    usage: Run Simpletest unit tests.
+    cmd: ahoy cli "vendor/bin/phpunit -c /app/docroot/core/phpunit.xml.dist docroot/modules/custom/ --filter '/.*Unit.*/' $@" || [ "${ALLOW_SIMPLETEST_TESTS_FAIL:-0}" -eq 1 ]
+
+  test-kernel:
+    usage: Run Simpletest kernel tests.
+    cmd: ahoy cli "vendor/bin/phpunit -c /app/docroot/core/phpunit.xml.dist docroot/modules/custom/ --filter '/.*Kernel.*/' $@" || [ "${ALLOW_SIMPLETEST_TESTS_FAIL:-0}" -eq 1 ]
+
+  test-functional:
+    usage: Run Simpletest functional tests.
+    cmd: ahoy cli "vendor/bin/phpunit -c /app/docroot/core/phpunit.xml.dist docroot/modules/custom/ --filter '/.*Functional.*/' $@" || [ "${ALLOW_SIMPLETEST_TESTS_FAIL:-0}" -eq 1 ]
 
   test-bdd:
     usage: Run BDD tests.
     cmd: ahoy cli "./vendor/bin/behat --strict --colors ${BEHAT_PROFILE} $@" || [ "${ALLOW_BEHAT_FAIL:-0}" -eq 1 ]
-
-  test-unit:
-    usage: Run unit tests.
-    cmd: |
-      ahoy cli "./vendor/bin/phpunit $@" || \
-      [ "${ALLOW_PHPUNIT_FAIL:-0}" -eq 1 ]
 
   debug:
     usage: Enable debug configuration.

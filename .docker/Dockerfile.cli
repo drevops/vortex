@@ -4,7 +4,10 @@ FROM amazeeio/php:7.2-cli-drupal-v1.0.2
 ENV WEBROOT=docroot \
     COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
-    MYSQL_HOST=mariadb
+    MYSQL_HOST=mariadb \
+    SIMPLETEST_DB=mysql://drupal:drupal@mariadb/drupal \
+    SIMPLETEST_BASE_URL=http://nginx:8080 \
+    SYMFONY_DEPRECATIONS_HELPER=disabled
 
 RUN apk update \
     && apk add pv \

@@ -1,13 +1,13 @@
 <?php
 
-namespace Drupal\Tests\your_site_core\Unit;
+namespace Drupal\Tests\your_site_core\Functional;
 
 /**
- * Class YourSiteCoreExampleUnitTest.
+ * Class ExampleFunctionalTest.
  *
  * @group YourSiteCore
  */
-class YourSiteCoreExampleUnitTest extends YourSiteCoreUnitTestCase {
+class ExampleFunctionalTest extends YourSiteCoreFunctionalTestBase {
 
   /**
    * @dataProvider dataProviderAdd
@@ -20,9 +20,7 @@ class YourSiteCoreExampleUnitTest extends YourSiteCoreUnitTestCase {
     // Replace below with a call to your class method.
     $actual = $a + $b;
 
-    if (!$excpectExceptionMessage) {
-      $this->assertEquals($expected, $actual);
-    }
+    $this->assertEquals($expected, $actual);
   }
 
   public function dataProviderAdd() {
