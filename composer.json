@@ -36,18 +36,15 @@
         "integratedexperts/behat-screenshot": "^0.7",
         "integratedexperts/behat-steps": "^0.1.0",
         "jakub-onderka/php-parallel-lint": "^1.0",
+        "mikey179/vfsstream": "^1.6",
         "phpcompatibility/php-compatibility": "^9.0",
         "phpunit/phpunit": "^6.5",
-        "symfony/filesystem": "^3.2.8"
+        "symfony/filesystem": "^3.2.8",
+        "symfony/phpunit-bridge": "^3.4.3"
     },
     "autoload": {
         "classmap": [
             "scripts/composer/"
-        ]
-    },
-    "autoload-dev": {
-        "classmap": [
-            "tests/unit/"
         ]
     },
     "config": {
@@ -94,7 +91,8 @@
                 "index.php",
                 "robots.txt",
                 "update.php",
-                ".htaccess"
+                "sites/default/default.settings.php",
+                "sites/default/default.services.yml"
             ],
             "initial": {
                 "sites/default/default.services.yml": "sites/default/services.yml",
@@ -147,6 +145,9 @@
             },
             "drupal/bootstrap_barrio": {
                 "Inconsistent handling of submit button attributes - https://www.drupal.org/node/3054256": "https://www.drupal.org/files/issues/2019-05-13/barrio-inconsistent-submit-handling-3054256-2.patch"
+            },
+            "drupal/core": {
+                "User context missing when using toUrl in some circumstances - https://www.drupal.org/project/drupal/issues/3056234": "https://www.drupal.org/files/issues/2019-05-22/3056234-test-fix-4.patch"
             },
             "drupal/config_ignore": {
                 "Offset error within IgnoreFilter::activeReadMultiple() - https://www.drupal.org/project/config_ignore/issues/2972302": "https://www.drupal.org/files/issues/2018-07-31/offset-error-within-2972302-13.patch"

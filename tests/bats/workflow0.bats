@@ -129,18 +129,14 @@ load _helper_drupaldev
   assert_output_not_contains "Containers are not running."
   assert_file_exists ".data/mydb.sql"
 
+  #
+  # Lint code.
+  #
+
   step "Lint code"
   run ahoy lint
   assert_success
   assert_output_not_contains "Containers are not running."
-
-  step "Run unit tests"
-  ahoy test-unit
-
-  step "Run single Behat test"
-  ahoy test-bdd tests/behat/features/homepage.feature
-  sync_to_host
-  assert_dir_not_empty screenshots
 
   step "Assert that lint failure bypassing works"
   echo "\$a=1;" >> docroot/modules/custom/star_wars_core/star_wars_core.module
@@ -164,19 +160,71 @@ load _helper_drupaldev
   [ "${status}" -eq 0 ]
   run ahoy lint-fe
   [ "${status}" -eq 0 ]
+  rm .env.local
 
-  step "Assert that PHPUnit test failure bypassing works"
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Unit/StarWarsCoreExampleUnitTest.php
+  #
+  # Unit, Kernel and Functional tests.
+  #
+
+  step "Run unit tests"
+  ahoy test-unit
+
+  step "Assert that Drupal Unit test failure bypassing works"
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Unit/ExampleUnitTest.php
   sync_to_container
   # Assert failure.
   run ahoy test-unit
   [ "${status}" -eq 1 ]
 
   # Assert failure bypass.
-  echo "ALLOW_PHPUNIT_FAIL=1" >> .env.local
+  echo "ALLOW_SIMPLETEST_TESTS_FAIL=1" >> .env.local
   sync_to_container
   run ahoy test-unit
   [ "${status}" -eq 0 ]
+  rm .env.local
+
+  step "Run Kernel tests"
+  ahoy test-kernel
+
+  step "Assert that Kernel test failure bypassing works"
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Kernel/ExampleKernelTest.php
+  sync_to_container
+  # Assert failure.
+  run ahoy test-kernel
+  [ "${status}" -eq 1 ]
+
+  # Assert failure bypass.
+  echo "ALLOW_SIMPLETEST_TESTS_FAIL=1" >> .env.local
+  sync_to_container
+  run ahoy test-kernel
+  [ "${status}" -eq 0 ]
+  rm .env.local
+
+  step "Run Functional tests"
+  ahoy test-functional
+
+  step "Assert that Functional test failure bypassing works"
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Functional/ExampleFunctionalTest.php
+  sync_to_container
+  # Assert failure.
+  run ahoy test-functional
+  [ "${status}" -eq 1 ]
+
+  # Assert failure bypass.
+  echo "ALLOW_SIMPLETEST_TESTS_FAIL=1" >> .env.local
+  sync_to_container
+  run ahoy test-functional
+  [ "${status}" -eq 0 ]
+  rm .env.local
+
+  #
+  # BDD tests.
+  #
+
+  step "Run single Behat test"
+  ahoy test-bdd tests/behat/features/homepage.feature
+  sync_to_host
+  assert_dir_not_empty screenshots
 
   step "Assert that Behat test failure bypassing works"
   echo "And I should be in the \"some-non-existing-page\" path" >> tests/behat/features/homepage.feature
@@ -189,7 +237,11 @@ load _helper_drupaldev
   # Assert failure bypass.
   run ahoy test-bdd tests/behat/features/homepage.feature
   [ "${status}" -eq 0 ]
+  rm .env.local
 
+  #
+  # FE assets.
+  #
   step "Build FE assets for production"
   assert_file_not_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#7e57e2"
   echo "\$color-tester: #7e57e2;" >> docroot/themes/custom/star_wars/scss/_variables.scss
@@ -212,13 +264,21 @@ load _helper_drupaldev
   # between properties and their values).
   assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background: #91ea5e"
 
+  #
+  # DB re-import.
+  #
   step "Re-import DB"
   rm -Rf .data/*
+  # Point demo database to the test database.
+  echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
   echo "DB_EXPORT_BEFORE_IMPORT=1" >> .env.local
   ahoy download-db
   ahoy install-site
   assert_file_exists .data/db_export_*
 
+  #
+  # Xdebug.
+  #
   step "Enable Xdebug"
   # Assert that Xdebug is disabled by default from the inside of the container.
   run ahoy cli "php -v|grep Xdebug"
@@ -265,6 +325,9 @@ load _helper_drupaldev
   assert_output_contains "Disabled"
   assert_output_not_contains "Enabled"
 
+  #
+  # Clean.
+  #
   step "Clean"
   ahoy clean
   # Assert that initial Drupal-Dev files have not been removed.
@@ -293,6 +356,9 @@ load _helper_drupaldev
 
   assert_git_repo
 
+  #
+  # Reset.
+  #
   step "Reset"
   ahoy reset
 

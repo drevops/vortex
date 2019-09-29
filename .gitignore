@@ -20,6 +20,9 @@ docroot/profiles/*
 docroot/sites/default/*
 !docroot/sites/default/settings.php
 !docroot/sites/default/services.yml
+# Preserve default settings files to use them in Functional test.
+!docroot/sites/default/default.settings.php
+!docroot/sites/default/default.services.yml
 # Whitelist scaffold files. @see https://github.com/drupal-composer/drupal-scaffold#limitation
 !docroot/.editorconfig
 !docroot/.eslintignore
