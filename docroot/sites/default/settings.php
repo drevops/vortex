@@ -138,8 +138,9 @@ if (file_exists('/var/www/site-php')) {
 ///                       PER-ENVIRONMENT SETTINGS                           ///
 ////////////////////////////////////////////////////////////////////////////////
 
-$config['environment_indicator.indicator']['bg_color'] = $settings['environment'] == ENVIRONMENT_PROD ? '#ff0000' : '#006600';
 $config['environment_indicator.indicator']['name'] = $settings['environment'];
+$config['environment_indicator.indicator']['bg_color'] = $settings['environment'] == ENVIRONMENT_PROD ? '#ef5350' : '#006600';
+$config['environment_indicator.indicator']['fg_color'] = $settings['environment'] == ENVIRONMENT_PROD ? '#000000' : '#ffffff';
 
 if ($settings['environment'] == ENVIRONMENT_PROD) {
   // Bypass Shield.
@@ -154,10 +155,14 @@ if ($settings['environment'] !== ENVIRONMENT_PROD) {
 
 if ($settings['environment'] == ENVIRONMENT_TEST) {
   $config['config_split.config_split.test']['status'] = TRUE;
+  $config['environment_indicator.indicator']['bg_color'] = '#fff176';
+  $config['environment_indicator.indicator']['fg_color'] = '#000000';
 }
 
 if ($settings['environment'] == ENVIRONMENT_DEV) {
   $config['config_split.config_split.dev']['status'] = TRUE;
+  $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
+  $config['environment_indicator.indicator']['fg_color'] = '#000000';
 }
 
 if ($settings['environment'] == ENVIRONMENT_CI) {
