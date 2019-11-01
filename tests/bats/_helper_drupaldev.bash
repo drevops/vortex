@@ -604,6 +604,7 @@ run_install(){
 
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
+
   popd > /dev/null || exit 1
 
   # shellcheck disable=SC2154
@@ -763,7 +764,8 @@ git_init(){
 # Print step.
 step(){
   debug ""
-  debug "==> STEP: $1"
+  # Using prefix different from command prefix in SUT for easy debug.
+  debug "--> STEP: $1"
 }
 
 # Sync files to host in case if volumes are not mounted from host.

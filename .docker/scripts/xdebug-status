@@ -3,15 +3,12 @@
 # Get the status of XDebug in PHP CLI as a string and return a code.
 #
 
-quiet=${2:-}
+verbose="${1:-}"
 
-# Using match instead of exist code to overcome unprinted and new line characters.
-match=$(php -v | grep Xdebug | tr '\n' '\0')
-
-if [ "$match" != "" ]; then
-  [ -z "${quiet}" ] && echo "Enabled";
+if php -v | grep -q Xdebug; then
+  [ -n "${verbose}" ] && echo "Enabled";
   exit 0
 fi
 
-[ -z "${quiet}" ] && echo "Disabled";
+[ -n "${verbose}" ] && echo "Disabled";
 exit 1
