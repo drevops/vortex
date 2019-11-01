@@ -2,6 +2,6 @@
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE:-cli} as cli
 
-FROM amazeeio/php:7.2-fpm-v1.0.2
+FROM amazeeio/php:7.2-fpm-v1.1.2
 
 COPY --from=cli /app /app
