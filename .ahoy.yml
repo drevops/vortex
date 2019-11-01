@@ -33,7 +33,7 @@ commands:
       ahoy line "Solr port on host        : " $(docker port $(docker-compose ps -q solr) 8983 | cut -d : -f 2)
       #;> SOLR
       ahoy line "Mailhog URL              : " http://mailhog.docker.amazee.io/
-      ahoy line "Xdebug                   : " $(docker-compose exec cli xdebug-status -- 1)
+      ahoy line "Xdebug                   : " $(docker-compose exec cli php -v|grep -q Xdebug && echo "Enabled" || echo "Disabled")
       if [ "$1" ]; then
         ahoy line "One-time login           : " $(ahoy login -- --no-browser)
       fi
@@ -259,7 +259,7 @@ commands:
 
   debug:
     usage: Enable debug configuration.
-    cmd: ahoy cli xdebug-status || XDEBUG_ENABLE=1 ahoy up cli php && ahoy cli xdebug-status && ahoy title "Enabled debug confguration. Use 'ahoy up' to disable."
+    cmd: ahoy cli php -v|grep -q Xdebug || XDEBUG_ENABLE=1 ahoy up cli php && ahoy cli php -v|grep -q Xdebug && ahoy title "Enabled debug confguration. Use 'ahoy up' to disable."
 
   update:
     usage: Update development stack.
