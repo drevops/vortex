@@ -33,9 +33,12 @@ docroot/sites/default/*
 !docroot/robots.txt
 !docroot/update.php
 #;< DRUPAL-DEV
-#; Do not ignore these files in Drupal-Dev itself, but keep ignoring in consumer site.
+#; Do not ignore these files in Drupal-Dev itself, but ignore in consumer site.
 !docroot/sites/default/default.settings.local.php
 !docroot/sites/default/default.services.local.yml
+#; Ignore these files in Drupal-Dev itself, but do not ignore in consumer site.
+composer.lock
+package-lock.json
 #;> DRUPAL-DEV
 
 # Ignore dependencies cache files.
