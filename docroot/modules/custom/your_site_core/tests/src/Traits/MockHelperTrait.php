@@ -1,15 +1,15 @@
 <?php
 
-namespace Drupal\Tests\your_site_core\Unit;
-
-use Drupal\Tests\UnitTestCase;
+namespace Drupal\Tests\your_site_core\Traits;
 
 /**
- * Class YourSiteCoreUnitTestCase.
+ * Trait MockHelperTrait.
  *
- * Base class for all Core test cases.
+ * Helper trait to work with mocks.
+ *
+ * @package Drupal\Tests\your_site_core
  */
-abstract class YourSiteCoreUnitTestCase extends UnitTestCase {
+trait MockHelperTrait {
 
   /**
    * Call protected methods on the class.
@@ -68,7 +68,7 @@ abstract class YourSiteCoreUnitTestCase extends UnitTestCase {
     $property = $class->getProperty($property);
     $property->setAccessible(TRUE);
 
-    return $property->getValue($class);
+    return $property->getValue($object);
   }
 
   /**

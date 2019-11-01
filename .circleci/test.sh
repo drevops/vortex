@@ -7,8 +7,14 @@ set -e
 echo "==> Lint code"
 ahoy lint
 
-echo "==> Run unit tests"
+echo "==> Run Drupal unit tests"
 ahoy test-unit
+
+echo "==> Run Drupal kernel tests"
+ahoy test-kernel
+
+echo "==> Run Drupal functional tests"
+ahoy test-functional
 
 # Running Behat tests can be done in parallel, provided that you set
 # build concurrency CircleCI UI to a number larger then 1 container and

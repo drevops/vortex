@@ -306,36 +306,38 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 ## Available `ahoy` commands
 Run each command as `ahoy <command>`.
   ```  
-  build        Build or rebuild project.
-  clean        Remove containers and all build files.
-  cli          Start a shell inside CLI container or run a command.
-  debug        Enable debug configuration.
-  doctor       Find problems with current project setup.
-  down         Stop Docker containers and remove container, images, volumes and networks.
-  download-db  Download database.
-  drush        Run drush commands in the CLI service container.
-  export-db    Export database dump.
-  fe           Build front-end assets.
-  fed          Build front-end assets for development.
-  few          Watch front-end assets during development.
-  flush-redis  Flush Redis cache.
-  info         Print information about this project.
-  install-site Install a site.
-  lint         Lint all code.
-  lint-be      Lint back-end code.
-  lint-fe      Lint front-end code.
-  login        Login to a website.
-  logs         Show Docker logs.
-  pull         Pull latest docker images.
-  reset        Reset environment: remove containers, all build, manually created and Drupal-Dev files.
-  restart      Restart all stopped and running Docker containers.
-  start        Start existing Docker containers.
-  stop         Stop running Docker containers.
-  test         Run all tests.
-  test-bdd     Run BDD tests.
-  test-unit    Run unit tests.
-  up           Build and start Docker containers.
-  update       Update development stack.
+  build                Build or rebuild project.
+  clean                Remove containers and all build files.
+  cli                  Start a shell inside CLI container or run a command.
+  debug                Enable debug configuration.
+  doctor               Find problems with current project setup.
+  down                 Stop Docker containers and remove container, images, volumes and networks.
+  download-db          Download database.
+  drush                Run drush commands in the CLI service container.
+  export-db            Export database dump.
+  fe                   Build front-end assets.
+  fed                  Build front-end assets for development.
+  few                  Watch front-end assets during development.
+  flush-redis          Flush Redis cache.
+  info                 Print information about this project.
+  install-site         Install a site.
+  lint                 Lint all code.
+  lint-be              Lint back-end code.
+  lint-fe              Lint front-end code.
+  login                Login to a website.
+  logs                 Show Docker logs.
+  pull                 Pull latest docker images.
+  reset                Reset environment: remove containers, all build, manually created and Drupal-Dev files.
+  restart              Restart all stopped and running Docker containers.
+  start                Start existing Docker containers.
+  stop                 Stop running Docker containers.
+  test                 Run all tests.
+  test-bdd             Run BDD tests.
+  test-functional      Run Simpletest functional tests.
+  test-kernel          Run Simpletest kernel tests.
+  test-unit            Run Simpletest unit tests.
+  up                   Build and start Docker containers.
+  update               Update development stack.
   ```
 
 ### Updating development stack

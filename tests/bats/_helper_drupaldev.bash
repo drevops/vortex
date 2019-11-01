@@ -121,8 +121,12 @@ assert_files_present_common(){
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.install"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.module"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreExampleUnitTest.php"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreUnitTestCase.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/ExampleUnitTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreUnitTestBase.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Kernel/ExampleKernelTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Kernel/${suffix_camel_cased}CoreKernelTestBase.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Functional/ExampleFunctionalTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Functional/${suffix_camel_cased}CoreFunctionalTestBase.php"
 
   # Site theme created.
   assert_dir_exists "docroot/themes/custom/${suffix}"
@@ -153,6 +157,9 @@ assert_files_present_common(){
   # git only track 644 or 755.
   assert_file_exists "docroot/sites/default/settings.php"
   assert_file_mode "docroot/sites/default/settings.php" "644"
+
+  assert_file_exists "docroot/sites/default/default.settings.php"
+  assert_file_exists "docroot/sites/default/default.services.yml"
 
   assert_file_exists "docroot/sites/default/default.settings.local.php"
   assert_file_mode "docroot/sites/default/default.settings.local.php" "644"
@@ -226,8 +233,12 @@ assert_files_not_present_common(){
   assert_dir_not_exists "docroot/themes/custom/${suffix}"
   assert_file_not_exists "docroot/sites/default/default.settings.local.php"
   assert_file_not_exists "docroot/sites/default/default.services.local.yml"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreExampleUnitTest.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreUnitTestCase.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/ExampleUnitTest.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Kernel/ExampleKernelTest.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Functional/ExampleFunctionalTest.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
 
   assert_file_not_exists "FAQs.md"
   assert_file_not_exists ".ahoy.yml"
