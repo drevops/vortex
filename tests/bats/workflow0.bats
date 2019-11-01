@@ -249,7 +249,6 @@ load _helper_drupaldev
   sync_to_container
   ahoy fe
   sync_to_host
-  debug "docroot/themes/custom/star_wars/build/css/star_wars.min.css"
   assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background:#7e57e2"
 
   step "Build FE assets for development"
@@ -259,7 +258,6 @@ load _helper_drupaldev
   sync_to_container
   ahoy fed
   sync_to_host
-  debug "docroot/themes/custom/star_wars/build/css/star_wars.min.css"
   # Note that assets compiled for development are not minified (contains spaces
   # between properties and their values).
   assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background: #91ea5e"
@@ -281,9 +279,9 @@ load _helper_drupaldev
   #
   step "Enable Xdebug"
   # Assert that Xdebug is disabled by default from the inside of the container.
-  run ahoy cli "php -v|grep Xdebug"
+  run ahoy cli "php -v | grep Xdebug"
   assert_failure
-  # Assert info correctly shown from the outside of container.
+  # Assert info correctly shown from the outside of the container.
   run ahoy info
   assert_success
   assert_output_contains "Xdebug"
@@ -295,11 +293,10 @@ load _helper_drupaldev
   # Assert that the stack has restarted.
   assert_output_contains "CONTAINER ID"
   assert_output_contains "Enabled debug"
-  assert_output_not_contains "Debug is already enabled"
   # Assert that Xdebug is enabled from the inside of the container.
   run ahoy cli "php -v|grep Xdebug"
   assert_success
-  # Assert info correctly shown from the outside of container.
+  # Assert info correctly shown from the outside of the container.
   run ahoy info
   assert_success
   assert_output_not_contains "Disabled"
@@ -308,8 +305,7 @@ load _helper_drupaldev
   run ahoy debug
   assert_success
   assert_output_not_contains "CONTAINER ID"
-  assert_output_not_contains "Enabled debug"
-  assert_output_contains "Debug is already enabled"
+  assert_output_contains "Enabled debug"
   # Assert that restarting the stack does not have Xdebug enabled.
   run ahoy up
   assert_success
@@ -318,7 +314,7 @@ load _helper_drupaldev
   # Assert that Xdebug is disabled from the inside of the container.
   run ahoy cli "php -v|grep Xdebug"
   assert_failure
-  # Assert info correctly shown from the outside of container.
+  # Assert info correctly shown from the outside of the container.
   run ahoy info
   assert_success
   assert_output_contains "Xdebug"

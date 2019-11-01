@@ -164,7 +164,6 @@ load _helper_drupaldev
   sync_to_container
   ahoy fe
   sync_to_host
-  debug "docroot/themes/custom/star_wars/build/css/star_wars.min.css"
   assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background:#7e57e2"
 
   step "Build FE assets for development"
@@ -174,7 +173,6 @@ load _helper_drupaldev
   sync_to_container
   ahoy fed
   sync_to_host
-  debug "docroot/themes/custom/star_wars/build/css/star_wars.min.css"
   # Note that assets compiled for development are not minified (contains spaces
   # between properties and their values).
   assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background: #91ea5e"

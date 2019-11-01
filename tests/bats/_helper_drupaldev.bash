@@ -604,6 +604,7 @@ run_install(){
 
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
+
   popd > /dev/null || exit 1
 
   # shellcheck disable=SC2154
@@ -763,7 +764,8 @@ git_init(){
 # Print step.
 step(){
   debug ""
-  debug "==> STEP: $1"
+  # Using prefix different from command prefix in SUT for easy debug.
+  debug "--> STEP: $1"
 }
 
 # Sync files to host in case if volumes are not mounted from host.
@@ -772,7 +774,6 @@ sync_to_host(){
   # shellcheck disable=SC2046
   [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
   [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${dst} to host" && return
-  debug "Syncing from $(docker-compose ps -q cli) to ${dst}"
   docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
 }
 
@@ -782,7 +783,6 @@ sync_to_container(){
   # shellcheck disable=SC2046
   [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
   [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
-  debug "Syncing from ${src} to $(docker-compose ps -q cli)"
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
 }
 
