@@ -2,6 +2,7 @@
 #
 # Fresh install workflow.
 #
+# Due to test speed efficiency, all assertions ran withing a single test.
 
 load _helper
 load _helper_drupaldev
