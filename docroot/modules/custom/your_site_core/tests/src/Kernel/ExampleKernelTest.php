@@ -3,11 +3,11 @@
 namespace Drupal\Tests\your_site_core\Kernel;
 
 /**
- * Class ExampleFunctionalTest.
+ * Class ExampleKernelTest.
  *
  * @group YourSiteCore
  */
-class ExampleUnitTest extends YourSiteCoreKernelTestBase {
+class ExampleKernelTest extends YourSiteCoreKernelTestBase {
 
   /**
    * @dataProvider dataProviderAdd
