@@ -285,6 +285,33 @@ assert_git_not_clean(){
   assert_not_contains "nothing to commit" "${message}"
 }
 
+assert_git_file_is_tracked(){
+  local file="${1:-}"
+  local dir="${2:-$(pwd)}"
+
+  if [ ! -d "${dir}/.git" ]; then
+    return 1
+  fi
+
+  git --work-tree="${dir}" --git-dir="${dir}/.git" ls-files --error-unmatch "${1}" &>/dev/null
+  return $?
+}
+
+assert_git_file_is_not_tracked(){
+  local file="${1:-}"
+  local dir="${2:-$(pwd)}"
+
+  if [ ! -d "${dir}/.git" ]; then
+    return 1
+  fi
+
+  if git --work-tree="${dir}" --git-dir="${dir}/.git" ls-files --error-unmatch "${1}" &>/dev/null; then
+    return 1
+   else
+    return 0
+  fi
+}
+
 assert_files_equal(){
   local file1="${1}"
   local file2="${2}"
