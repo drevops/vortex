@@ -85,7 +85,7 @@ load _helper_drupaldev
 
   # Assert that lock files were created.
   assert_file_exists "composer.lock"
-  assert_file_exists "package.lock"
+  assert_file_exists "package-lock.json"
 
   # Assert generated settings file exists.
   assert_file_exists docroot/sites/default/settings.generated.php
