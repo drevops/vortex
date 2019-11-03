@@ -120,8 +120,8 @@ load _helper_drupaldev
   assert_git_file_is_tracked "composer.lock"
   assert_git_file_is_tracked "package-lock.json"
   # Assert that generated files were not added to the git repository.
-  assert_git_file_is_tracked "docroot/sites/default/settings.generated.php"
-  assert_git_file_is_tracked ".data/db.sql"
+  assert_git_file_is_not_tracked "docroot/sites/default/settings.generated.php"
+  assert_git_file_is_not_tracked ".data/db.sql"
   # Assert that local settings were not added to the git repository.
   assert_git_file_is_not_tracked "docroot/sites/default/settings.local.php"
   assert_git_file_is_not_tracked "docroot/sites/default/services.local.yml"
