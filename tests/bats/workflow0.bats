@@ -142,6 +142,11 @@ load _helper_drupaldev
   assert_success
   assert_output_not_contains "Containers are not running."
 
+  step "Run site info"
+  run ahoy info
+  assert_success
+  assert_output_not_contains "Containers are not running."
+
   step "Show Docker logs"
   run ahoy logs
   assert_success
