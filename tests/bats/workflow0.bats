@@ -109,7 +109,7 @@ load _helper_drupaldev
   assert_file_exists docroot/sites/default/services.local.yml
 
   step "Commit fully configured project"
-  git_add_all_commit
+  git_add_all_commit "Commit fully built project"
   # Assert that scaffold files were added to the git repository.
   assert_git_file_is_tracked docroot/.editorconfig
   assert_git_file_is_tracked docroot/.eslintignore
