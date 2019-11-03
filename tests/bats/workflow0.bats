@@ -39,9 +39,6 @@ load _helper_drupaldev
   # Point demo database to the test database.
   echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
 
-  # Create dummy docker compose override file.
-  echo "version: '2.3'" >> docker-compose.override.yml
-
   step "Add all Drupal-Dev files to new git repo"
   git_add_all_commit "Init Drupal-Dev config"
 
