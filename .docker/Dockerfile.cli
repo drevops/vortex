@@ -27,7 +27,7 @@ RUN echo "memory_limit=-1" >> /usr/local/etc/php/conf.d/memory.ini \
     && composer install -n --no-dev --ansi --prefer-dist --no-suggest --optimize-autoloader \
     && rm -rf /usr/local/etc/php/conf.d/memory.ini
 
-COPY package.json package-lock.json Gruntfile.js /app/
+COPY Gruntfile.js package.json package* /app/
 RUN npm install
 
 COPY . /app

@@ -765,7 +765,7 @@ git_init(){
 step(){
   debug ""
   # Using prefix different from command prefix in SUT for easy debug.
-  debug "--> STEP: $1"
+  debug "**> STEP: $1"
 }
 
 # Sync files to host in case if volumes are not mounted from host.

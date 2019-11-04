@@ -2,6 +2,7 @@
 #
 # DB-driven workflow.
 #
+# Due to test speed efficiency, all assertions ran withing a single test.
 
 load _helper
 load _helper_drupaldev
@@ -50,8 +51,6 @@ load _helper_drupaldev
   touch .idea/idea_file.txt
   assert_file_exists .idea/idea_file.txt
 
-  docker-compose down --volumes
-
   #
   # Preparation complete - start actual user actions testing.
   #
@@ -81,6 +80,10 @@ load _helper_drupaldev
   assert_files_present_integration_lagoon
   assert_files_present_no_integration_ftp
 
+  # Assert that lock files were created.
+  assert_file_exists "composer.lock"
+  assert_file_exists "package-lock.json"
+
   # Assert generated settings file exists.
   assert_file_exists docroot/sites/default/settings.generated.php
   # Assert only minified compiled CSS exists.
@@ -102,6 +105,32 @@ load _helper_drupaldev
   assert_file_exists docroot/sites/default/settings.local.php
   assert_file_exists docroot/sites/default/services.local.yml
 
+  step "Commit fully configured project"
+  git_add_all_commit "Commit fully built project"
+  # Assert that scaffold files were added to the git repository.
+  assert_git_file_is_tracked docroot/.editorconfig
+  assert_git_file_is_tracked docroot/.eslintignore
+  assert_git_file_is_tracked docroot/.gitattributes
+  assert_git_file_is_tracked docroot/.htaccess
+  assert_git_file_is_tracked docroot/autoload.php
+  assert_git_file_is_tracked docroot/index.php
+  assert_git_file_is_tracked docroot/robots.txt
+  assert_git_file_is_tracked docroot/update.php
+  # Assert that lock files were added to the git repository.
+  assert_git_file_is_tracked "composer.lock"
+  assert_git_file_is_tracked "package-lock.json"
+  # Assert that generated files were not added to the git repository.
+  assert_git_file_is_not_tracked "docroot/sites/default/settings.generated.php"
+  assert_git_file_is_not_tracked ".data/db.sql"
+  # Assert that local settings were not added to the git repository.
+  assert_git_file_is_not_tracked "docroot/sites/default/settings.local.php"
+  assert_git_file_is_not_tracked "docroot/sites/default/services.local.yml"
+  assert_git_file_is_not_tracked ".env.local"
+  assert_git_file_is_not_tracked "docker-compose.override.yml"
+  # Assert that built assets were not added to the git repository.
+  assert_git_file_is_not_tracked "docroot/themes/custom/star_wars/build/css/star_wars.min.css"
+  assert_git_file_is_not_tracked "ocroot/themes/custom/star_wars/build/js/star_wars.js"
+
   step "Run ClI command"
   run ahoy cli "echo Test from inside of the container"
   assert_success
@@ -110,6 +139,11 @@ load _helper_drupaldev
 
   step "Run Drush command"
   run ahoy drush st
+  assert_success
+  assert_output_not_contains "Containers are not running."
+
+  step "Run site info"
+  run ahoy info
   assert_success
   assert_output_not_contains "Containers are not running."
 

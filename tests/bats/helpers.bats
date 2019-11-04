@@ -343,6 +343,45 @@ load _helper
   assert_git_not_clean "${BATS_TEST_TMPDIR}/fixture/git_repo"
 }
 
+@test "assert_git_file_is_tracked" {
+  prepare_fixture_dir "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  prepare_fixture_dir "${BATS_TEST_TMPDIR}/fixture/not_git_repo"
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" init > /dev/null
+  assert_git_repo "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  touch "${BATS_TEST_TMPDIR}/fixture/git_repo/1.txt"
+  touch "${BATS_TEST_TMPDIR}/fixture/git_repo/2.txt"
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" add 1.txt > /dev/null
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" commit -m "some message" > /dev/null
+
+  assert_git_file_is_tracked "1.txt" "${BATS_TEST_TMPDIR}/fixture/git_repo"
+
+  run assert_git_file_is_tracked "2.txt" "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  assert_failure
+
+  run assert_git_file_is_tracked "1.txt" "${BATS_TEST_TMPDIR}/fixture/not_git_repo"
+  assert_failure
+}
+
+@test "assert_git_file_is_not_tracked" {
+  prepare_fixture_dir "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  prepare_fixture_dir "${BATS_TEST_TMPDIR}/fixture/not_git_repo"
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" init > /dev/null
+  assert_git_repo "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  touch "${BATS_TEST_TMPDIR}/fixture/git_repo/1.txt"
+  touch "${BATS_TEST_TMPDIR}/fixture/git_repo/2.txt"
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" add 1.txt > /dev/null
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" commit -m "some message" > /dev/null
+
+  assert_git_file_is_not_tracked "2.txt" "${BATS_TEST_TMPDIR}/fixture/git_repo"
+
+  run assert_git_file_is_not_tracked "1.txt" "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  assert_failure
+
+  run assert_git_file_is_not_tracked "2.txt" "${BATS_TEST_TMPDIR}/fixture/not_git_repo"
+  assert_failure
+}
+
+
 @test "assert_files_equal" {
   cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/fixture1.png"
   echo "some other file" > "${BATS_TEST_TMPDIR}/fixture2.png"

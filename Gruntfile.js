@@ -25,14 +25,12 @@ module.exports = function (grunt) {
         '!docroot/themes/custom/**/*.min.js'
       ],
       options: {
-        config: '.eslintrc.json',
-        format: 'codeframe'
+        config: '.eslintrc.json'
       }
     },
     sasslint: {
       options: {
-        configFile: '.sass-lint.yml',
-        formatter: 'codeframe'
+        configFile: '.sass-lint.yml'
       },
       target: [
         'docroot/themes/custom/**/*.scss',
