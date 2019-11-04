@@ -424,6 +424,16 @@ format_error(){
   fi
 }
 
+read_env(){
+  [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs)
+
+  if [ -f .env.local ] && [ -s .env.local ]; then
+    export $(grep -v '^#' .env.local | xargs);
+  fi
+
+  eval echo "${@}"
+}
+
 # Run bats with `--tap` option to debug the output.
 debug(){
   echo "${1}" >&3

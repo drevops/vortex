@@ -287,10 +287,6 @@ commands:
     cmd: if [ -t 1 ]; then printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"; else echo "${1}"; fi
     hide: true
 
-  getvar:
-    cmd: eval echo "${@}"
-    hide: true
-
   pre-flight:
     cmd: |
       export DOCTOR_CHECK_DB=${DOCTOR_CHECK_DB:-1}
@@ -306,13 +302,10 @@ commands:
 
 entrypoint:
   - bash
-  - "-c"
-  - "-e"
+  - -c
+  - -e
   - |
     [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs) && if [ -f .env.local ] && [ -s .env.local ]; then export $(grep -v '^#' .env.local | xargs); fi
-    #;< FRESH_INSTALL
-    export DOCTOR_CHECK_DB=0
-    #;> FRESH_INSTALL
     bash -e -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'
