@@ -191,7 +191,7 @@ Run `ahoy update` to download the latest version of Drupal-Dev for your project.
 |                                               | Pre-defined issue and pull request labels\*                                                                         | Helps to improve team collaboration and reduce the time for pull request management |
 | **Integrations and deployments** |                                                                                                                                                  
 | Acquia                                        | Production database from Acquia                                                                                     | Using production database for development and automated builds (CI) requires database dump from Acquia |
-|                                               | Deploy code to Acquia                                                                                               | Deploying to Acquia requires packaging Composer-based project into artefact before pushing |
+|                                               | Deploy code to Acquia                                                                                               | Deploying to Acquia requires packaging Composer-based project into artifact before pushing |
 |                                               | [Deployment hooks](hooks)                                                                                           | Standardised deployment hooks guarantee that every deployment is reproducible |
 | Lagoon                                        | Deployment configuration                                                                                            | Lagoon configuration is required to perform deployments |
 |                                               | Production database from Lagoon                                                                                     | Using production database for development and automated builds (CI) requires database dump from Lagoon |
@@ -246,7 +246,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 - [Behat Screenshot](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
 - [Behat Progress Fail](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fails inline.
 - [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing.
-- [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artefact to remote repository.
+- [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artifact to remote repository.
 - [GitHub Labels](https://github.com/integratedexperts/github-labels) - Shell script to create labels on GitHub.
 - [Formatted git messages](https://github.com/alexdesignworks/git-hooks) - pre-commit git hook to check that commit messages formatted correctly. 
 
