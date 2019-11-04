@@ -136,6 +136,7 @@ load _helper_drupaldev
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
+    "nothing" # preserve_doc_comments
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -164,6 +165,7 @@ load _helper_drupaldev
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
+    "nothing" # preserve_doc_comments
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -201,6 +203,7 @@ load _helper_drupaldev
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
+    "nothing" # preserve_doc_comments
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")

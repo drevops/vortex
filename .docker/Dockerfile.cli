@@ -21,7 +21,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 ADD patches /app/patches
 ADD scripts /app/scripts
 
-COPY .env composer.json composer.* /app/
+COPY composer.json composer.* .env* /app/
 
 RUN echo "memory_limit=-1" >> /usr/local/etc/php/conf.d/memory.ini \
     && composer install -n --no-dev --ansi --prefer-dist --no-suggest --optimize-autoloader \

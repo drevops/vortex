@@ -7,6 +7,10 @@
 # the destination repository. This makes applications fast and secure,
 # because none of unnecessary code (such as development tools) are  exposed
 # to production environment.
+#
+# The deployment functionality resides in a separate script to allow (emergency)
+# deployment from local machine in case if CI is not working.
+
 set -e
 
 # Remote repository to push artifact to.

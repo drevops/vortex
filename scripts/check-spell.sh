@@ -38,6 +38,3 @@ for file in "${targets[@]}"; do
     fi
   fi
 done;
-
-
-

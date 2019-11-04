@@ -187,8 +187,8 @@ assert_files_present_common(){
   assert_dir_not_contains_string "${dir}" "#;>"
 
   # Assert that project name is correct.
-  assert_file_contains .env "PROJECT=\"${suffix}\""
-  assert_file_contains .env "LOCALDEV_URL=\"${suffix/_/-}.docker.amazee.io\""
+  assert_file_contains .env "PROJECT=${suffix}"
+  assert_file_contains .env "LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# Drupal-Dev"
@@ -290,7 +290,7 @@ assert_files_present_no_profile(){
 
   # Site profile created.
   assert_dir_not_exists "docroot/profiles/custom/${suffix}profile"
-  assert_file_contains ".env" 'DRUPAL_PROFILE="standard"'
+  assert_file_contains ".env" "DRUPAL_PROFILE=standard"
   assert_file_not_contains ".env" "docroot/profiles/custom/${suffix}profile,"
   # Assert that there is no renaming of the custom profile with core profile name.
   assert_dir_not_exists "docroot/profiles/custom/standard"
@@ -632,6 +632,7 @@ run_install(){
 #   "nothing" # preserve_lagoon
 #   "nothing" # preserve_ftp
 #   "nothing" # preserve_dependenciesio
+#   "nothing" # preserve_doc_comments
 #   "nothing" # remove_drupaldev_info
 # )
 # output=$(run_install_interactive "${answers[@]}")
