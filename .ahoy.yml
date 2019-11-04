@@ -284,11 +284,11 @@ commands:
     hide: true
 
   title:
-    cmd: printf "$(tput -Txterm setaf 4)==> ${1}$(tput -Txterm sgr0)\n"
+    cmd: if [ -t 1 ]; then printf "$(tput -Txterm setaf 4)==> ${1}$(tput -Txterm sgr0)\n"; else printf "==> ${1}\n"; fi
     hide: true
 
   line:
-    cmd: printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"
+    cmd: if [ -t 1 ]; then printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"; else printf "${1}${2}"; fi
     hide: true
 
 entrypoint:
