@@ -8,11 +8,11 @@ commands:
     usage: Build or rebuild project.
     cmd: |
       ahoy title "Building project"
-      ahoy pre-flight
+      DOCTOR_CHECK_PREFLIGHT=1 ahoy doctor
       ahoy clean
       (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network)
       ahoy up -- --build --force-recreate
-      (if [ "${BUILD_EXPORT_DIR}" != "" ]; then mkdir -p ${BUILD_EXPORT_DIR} && docker cp -L $(docker-compose ps -q cli):/app/. ${BUILD_EXPORT_DIR}; rm -Rf ${BUILD_EXPORT_DIR}/node_modules >/dev/null; fi)
+      ahoy export-artifact
       ahoy install-dev
       ahoy fe
       ahoy install-site
@@ -79,12 +79,16 @@ commands:
     cmd: if [ ! -z "$(docker image ls -q)" ]; then docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio/ | grep -v none | xargs -n1 docker pull | cat; fi
 
   cli:
-    usage: Start a shell inside CLI container or run a command.
+    usage: Start a shell or run a command inside the CLI service container.
     cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec -T cli bash -c "$*"; else docker-compose exec cli bash; fi
 
   drush:
     usage: Run drush commands in the CLI service container.
     cmd: docker exec -i $(docker-compose ps -q cli) drush -r ${APP}/${WEBROOT} -l ${LOCALDEV_URL} "$@"
+
+  export-artifact:
+    usage: Export built code artifact.
+    cmd: if [ "${BUILD_EXPORT_DIR}" != "" ]; then mkdir -p ${BUILD_EXPORT_DIR} && docker cp -L $(docker-compose ps -q cli):/app/. ${BUILD_EXPORT_DIR}; rm -Rf ${BUILD_EXPORT_DIR}/node_modules >/dev/null; fi
 
   # Application commands.
   login:
@@ -285,19 +289,6 @@ commands:
 
   line:
     cmd: if [ -t 1 ]; then printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"; else echo "${1}"; fi
-    hide: true
-
-  pre-flight:
-    cmd: |
-      export DOCTOR_CHECK_DB=${DOCTOR_CHECK_DB:-1}
-      export DOCTOR_CHECK_TOOLS=${DOCTOR_CHECK_TOOLS:-1}
-      export DOCTOR_CHECK_PORT=${DOCTOR_CHECK_PORT:-1}
-      export DOCTOR_CHECK_PYGMY=${DOCTOR_CHECK_PYGMY:-1}
-      export DOCTOR_CHECK_CLI=${DOCTOR_CHECK_CLI:-0}
-      export DOCTOR_CHECK_SSH=${DOCTOR_CHECK_SSH:-0}
-      export DOCTOR_CHECK_WEBSERVER=${DOCTOR_CHECK_WEBSERVER:-0}
-      export DOCTOR_CHECK_BOOTSTRAP=${DOCTOR_CHECK_BOOTSTRAP:-0}
-      ahoy doctor
     hide: true
 
 entrypoint:
