@@ -23,15 +23,19 @@ commands:
   info:
     usage: Print information about this project.
     cmd: |
-      ahoy line "Project                  : " ${PROJECT}
-      ahoy line "Site local URL           : " http://${LOCALDEV_URL}
-      ahoy line "Path to project          : " ${APP}
-      ahoy line "Path to docroot          : " ${APP}/${WEBROOT}
+      ahoy line "Project                  : " $(ahoy cli "echo \$PROJECT")
+      ahoy line "Site local URL           : " http://$(ahoy cli "echo \$LOCALDEV_URL")
+      ahoy line "Path to project          : " $(ahoy cli "echo \$APP")
+      ahoy line "Path to docroot          : " $(ahoy cli "echo \$APP/\$WEBROOT")
+      ahoy line "DB host                  : " $(ahoy cli "echo \$AMAZEEIO_DB_HOST")
+      ahoy line "DB username              : " $(ahoy cli "echo \$AMAZEEIO_DB_USERNAME")
+      ahoy line "DB password              : " $(ahoy cli "echo \$AMAZEEIO_DB_PASSWORD")
+      ahoy line "DB port                  : " $(ahoy cli "echo \$AMAZEEIO_DB_PORT")
       ahoy line "DB port on host          : " $(docker port $(docker-compose ps -q mariadb) 3306 | cut -d : -f 2)
-      ahoy line "Livereload port on host  : " $(docker port $(docker-compose ps -q cli) 35729 | cut -d : -f 2)
       #;< SOLR
       ahoy line "Solr port on host        : " $(docker port $(docker-compose ps -q solr) 8983 | cut -d : -f 2)
       #;> SOLR
+      ahoy line "Livereload port on host  : " $(docker port $(docker-compose ps -q cli) 35729 | cut -d : -f 2)
       ahoy line "Mailhog URL              : " http://mailhog.docker.amazee.io/
       ahoy line "Xdebug                   : " $(docker-compose exec cli php -v|grep -q Xdebug && echo "Enabled" || echo "Disabled")
       if [ "$1" ]; then
