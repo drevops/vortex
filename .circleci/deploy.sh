@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Deploy artefact.
+# Deploy artifact.
 #
 # It is a good practice to create a separate Deployer user with own SSH key for
 # every project.
@@ -8,7 +8,7 @@
 # Add the following variables through CircleCI UI.
 # DEPLOY_USER_NAME - name of the user who will be committing to a remote repository.
 # DEPLOY_USER_EMAIL - email address of the user who will be committing to a remote repository.
-# DEPLOY_REMOTE - remote repository to push artefact to.
+# DEPLOY_REMOTE - remote repository to push artifact to.
 # DEPLOY_PROCEED - if the deployment should proceed. Useful for testing of the CI config.
 set -e
 

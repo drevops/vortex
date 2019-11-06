@@ -117,7 +117,7 @@ provision_site(){
   assert_git_repo
 
   # Point demo database to the test database.
-  echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
+  echo "DEMO_DB=$(read_env \$DEMO_DB_TEST)" >> .env.local
 
   # Special treatment for cases where volumes are not mounted from the host.
   if [ "${VOLUMES_MOUNTED}" != "1" ] ; then

@@ -37,6 +37,7 @@ load _helper_drupaldev
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
+    "nothing" # preserve_doc_comments
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -67,6 +68,7 @@ load _helper_drupaldev
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
   assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Preserve docs in comments:     Yes"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -88,6 +90,7 @@ load _helper_drupaldev
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
+    "nothing" # preserve_doc_comments
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -109,6 +112,7 @@ load _helper_drupaldev
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
   assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Preserve docs in comments:     Yes"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -131,6 +135,7 @@ load _helper_drupaldev
     "nah" # preserve_lagoon
     "Y" # preserve_ftp
     "never" # preserve_dependenciesio
+    "nnnooo" # preserve_doc_comments
     "nooo" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -151,6 +156,7 @@ load _helper_drupaldev
   assert_output_contains "Lagoon integration:            Disabled"
   assert_output_contains "FTP integration:               Enabled"
   assert_output_contains "dependencies.io integration:   Disabled"
+  assert_output_contains "Preserve docs in comments:     No"
   assert_output_contains "Remove Drupal-Dev comments:    No"
 }
 
@@ -180,6 +186,7 @@ load _helper_drupaldev
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
   assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Preserve docs in comments:     Yes"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -206,6 +213,7 @@ load _helper_drupaldev
     "nothing" # preserve_lagoon
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
+    "nothing" # preserve_doc_comments
     "nothing" # remove_drupaldev_info
   )
   output=$(run_install_interactive "${answers[@]}")
@@ -227,6 +235,7 @@ load _helper_drupaldev
   assert_output_contains "Lagoon integration:            Enabled"
   assert_output_contains "FTP integration:               Disabled"
   assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Preserve docs in comments:     Yes"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -250,6 +259,7 @@ load _helper_drupaldev
     "nah" # preserve_lagoon
     "Y" # preserve_ftp
     "nothing" # preserve_dependenciesio - testing NOTHING value
+    "Y" # preserve_doc_comments
     "Y" # remove_drupaldev_info
   )
 
@@ -272,6 +282,7 @@ load _helper_drupaldev
   assert_output_contains "Lagoon integration:            Disabled"
   assert_output_contains "FTP integration:               Enabled"
   assert_output_contains "dependencies.io integration:   Enabled"
+  assert_output_contains "Preserve docs in comments:     Yes"
   assert_output_contains "Remove Drupal-Dev comments:    Yes"
 }
 
@@ -311,7 +322,11 @@ fixture_preinstalled(){
   touch dependencies.yml
 
   # Sets 'fresh_install' to 'No'.
-  echo "download-db:" > .ahoy.yml
+  echo "download-db:" >> .ahoy.yml
+
+  # Sets 'preserve_doc_comments' to 'Yes'.
+  echo "# Ahoy configuration file." >> .ahoy.yml
+
   # Sets 'remove_drupaldev_info' to 'Yes'.
   echo "#;< DRUPAL-DEV" > 1.txt
 }

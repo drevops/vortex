@@ -3,7 +3,7 @@
 GitHub is a primary code repository for this project (aka "source repository").
 Acquia Cloud is a hosting provider for this project and it also has a git repository (aka "destination repository"). 
 
-The website gets deployed using artefact built on CI and pushed to Acquia Cloud. 
+The website gets deployed using artifact built on CI and pushed to Acquia Cloud. 
 
 There are 2 types of deployments: feature branches and release tags. They are exactly the same except for the resulting branch name on Acquia Cloud (see below).
 
@@ -23,8 +23,8 @@ There are 2 types of deployments: feature branches and release tags. They are ex
 3. CI system picks-up the update and does the following:
     1. Builds a website using production DB.
     2. Runs code standard checks and Behat tests on the built website.
-    3. Creates a deployment artefact (project files to be pushed to Acquia Cloud repository).
-    4. Pushes created artefact to the Acquia Cloud repository:
+    3. Creates a deployment artifact (project files to be pushed to Acquia Cloud repository).
+    4. Pushes created artifact to the Acquia Cloud repository:
         - for feature-based branches (i.e. `feature/ABC-123`) the code is pushed to the branch with exactly the same name.
         - for release deployments, which are tag-based (i.e. `0.1.4`), the code is pushed to the branch `deployment/[tag]` (i.e. `deployment/0.1.4`).
 4. Acquia Cloud picks up recent push to the repository and runs [post code update hooks](hooks/dev/post-code-update) on the environments where code is already deployed.

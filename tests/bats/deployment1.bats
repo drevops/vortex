@@ -15,7 +15,7 @@ load _helper_drupaldev_deployment
   # This is to facilitate local testing.
   SRC_DIR="${SRC_DIR:-}"
 
-  # "Remote" repository to deploy the artefact to. It is located in the host
+  # "Remote" repository to deploy the artifact to. It is located in the host
   # filesystem and just treated as a remote for currently installed codebase.
   REMOTE_REPO_DIR=${REMOTE_REPO_DIR:-${BUILD_DIR}/deployment_remote}
 

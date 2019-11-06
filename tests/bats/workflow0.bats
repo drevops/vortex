@@ -37,7 +37,7 @@ load _helper_drupaldev
   assert_git_repo
 
   # Point demo database to the test database.
-  echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
+  echo "DEMO_DB=$(read_env \$DEMO_DB_TEST)" >> .env.local
 
   step "Add all Drupal-Dev files to new git repo"
   git_add_all_commit "Init Drupal-Dev config"
@@ -145,6 +145,19 @@ load _helper_drupaldev
   step "Run site info"
   run ahoy info
   assert_success
+  assert_output_contains "Project                  : star_wars"
+  assert_output_contains "Site local URL           : http://star-wars.docker.amazee.io"
+  assert_output_contains "Path to project          : /app"
+  assert_output_contains "Path to docroot          : /app/docroot"
+  assert_output_contains "DB host                  : mariadb"
+  assert_output_contains "DB username              : drupal"
+  assert_output_contains "DB password              : drupal"
+  assert_output_contains "DB port                  : 3306"
+  assert_output_contains "DB port on host          :"
+  assert_output_contains "Solr port on host        :"
+  assert_output_contains "Livereload port on host  :"
+  assert_output_contains "Mailhog URL              : http://mailhog.docker.amazee.io/"
+  assert_output_contains "Xdebug                   : Disabled"
   assert_output_not_contains "Containers are not running."
 
   step "Show Docker logs"
@@ -302,7 +315,7 @@ load _helper_drupaldev
   step "Re-import DB"
   rm -Rf .data/*
   # Point demo database to the test database.
-  echo "DEMO_DB=$(ahoy getvar \$DEMO_DB_TEST)" >> .env.local
+  echo "DEMO_DB=$(read_env \$DEMO_DB_TEST)" >> .env.local
   echo "DB_EXPORT_BEFORE_IMPORT=1" >> .env.local
   ahoy download-db
   ahoy install-site

@@ -28,18 +28,12 @@ ahoy login
 ## How to use Xdebug?
 1. Run `ahoy debug`
 2. Enable listening for incoming debug connections in your IDE.
-3. If required, provide server URL to your IDE as it appears in the browser: `http://your-site.docker.amazee.io`
-4. Enable Xdebug flag in the request coming from your web browser.
-5. Set a breakpoint in your IDE and perform a request in the web browser. 
+3. If required, provide server URL to your IDE as it appears in the browser: 
+   `http://your-site.docker.amazee.io`
+4. Enable Xdebug flag in the request coming from your web browser (use one of 
+   the extensions or add `?XDEBUG_SESSION_START=1` to your URL).
+5. Set a breakpoint in your IDE and perform a request in the web browser.
+
+Use the same commands to debug CLI scripts.  
 
 Use `ahoy up` to restart the stack without Xdebug enabled.
-
-## How to debug Behat tests?
-1. Run `ahoy debug`
-2. Enable listening for incoming debug connections in your IDE.
-3. Set a breakpoint in your IDE and perform a request in the web browser.
-4. SSH into CLI container: `ahoy cli`
-5. Run test: 
-  ```
-  ./scripts/xdebug.sh vendor/bin/behat path/to/file
-  ```

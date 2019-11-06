@@ -424,6 +424,18 @@ format_error(){
   fi
 }
 
+read_env(){
+  # shellcheck disable=SC2046
+  [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs)
+
+  if [ -f .env.local ] && [ -s .env.local ]; then
+    # shellcheck disable=SC2046
+    export $(grep -v '^#' .env.local | xargs);
+  fi
+
+  eval echo "${@}"
+}
+
 # Run bats with `--tap` option to debug the output.
 debug(){
   echo "${1}" >&3

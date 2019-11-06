@@ -131,9 +131,10 @@ gather_answers(){
   set_answer "fresh_install"            "Do you want to use fresh Drupal installation for every build?"               "${is_interactive}"
   set_answer "preserve_deployment"      "Do you want to keep deployment configuration?"                               "${is_interactive}"
   set_answer "preserve_acquia"          "Do you want to keep Acquia Cloud integration?"                               "${is_interactive}"
-  set_answer "preserve_lagoon"          "Do you want to keep Lagoon integration?"                                     "${is_interactive}"
+  set_answer "preserve_lagoon"          "Do you want to keep Amazee.io Lagoon integration?"                           "${is_interactive}"
   set_answer "preserve_ftp"             "Do you want to keep FTP integration?"                                        "${is_interactive}"
   set_answer "preserve_dependenciesio"  "Do you want to keep dependencies.io integration?"                            "${is_interactive}"
+  set_answer "preserve_doc_comments"    "Do you want to keep detailed documentation in comments?"                     "${is_interactive}"
   set_answer "remove_drupaldev_info"    "Do you want to remove all Drupal-Dev information?"                           "${is_interactive}"
 
   print_summary "${is_interactive}"
@@ -284,6 +285,12 @@ process_stub(){
   replace_string_filename "your_org"          "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
   replace_string_filename "your_site"         "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
 
+  if [ "$(get_value "preserve_doc_comments")" == "Y" ] ; then
+    # Replace special "#:" comments with normal "#" comments.
+    replace_string_content "#:" "#" "${dir}"
+  else
+    remove_special_comments "${dir}" "#:"
+  fi
 
   if [ "$(get_value "remove_drupaldev_info")" == "Y" ] ; then
     # Handle code required for Drupal-Dev maintenance.
@@ -475,6 +482,10 @@ get_default_value__preserve_dependenciesio(){
   echo "Y"
 }
 
+get_default_value__preserve_doc_comments(){
+  echo "Y"
+}
+
 get_default_value__remove_drupaldev_info(){
   echo "Y"
 }
@@ -545,6 +556,10 @@ normalise_answer__preserve_ftp(){
 }
 
 normalise_answer__preserve_dependenciesio(){
+  [ "${1}" != "Y" ] && echo "n" || echo "Y"
+}
+
+normalise_answer__preserve_doc_comments(){
   [ "${1}" != "Y" ] && echo "n" || echo "Y"
 }
 
@@ -659,6 +674,10 @@ discover_value__preserve_dependenciesio(){
   [ -f "dependencies.yml" ] && echo "Y" || echo "N"
 }
 
+discover_value__preserve_doc_comments(){
+  { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "Ahoy configuration file."; } && echo "Y" || echo "N"
+}
+
 discover_value__remove_drupaldev_info(){
   dir_contains_string "${DST_DIR}" "#;< DRUPAL-DEV" && echo "N" || echo "Y"
 }
@@ -764,6 +783,7 @@ print_summary(){
   echo "  Lagoon integration:            $(format_enabled "$(get_value "preserve_lagoon")")"
   echo "  FTP integration:               $(format_enabled "$(get_value "preserve_ftp")")"
   echo "  dependencies.io integration:   $(format_enabled "$(get_value "preserve_dependenciesio")")"
+  echo "  Preserve docs in comments:     $(format_yes_no "$(get_value "preserve_doc_comments")")"
   echo "  Remove Drupal-Dev comments:    $(format_yes_no "$(get_value "remove_drupaldev_info")")"
   echo "**********************************************************************"
   echo

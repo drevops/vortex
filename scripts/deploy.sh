@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
 ##
-# Deploy artefact.
+# Deploy artifact.
 #
 # Deployment to remote git repositories allows to build the project and all
 # required artifacts in CI and then commit only required files to
 # the destination repository. This makes applications fast and secure,
 # because none of unnecessary code (such as development tools) are  exposed
 # to production environment.
+#
+# The deployment functionality resides in a separate script to allow (emergency)
+# deployment from local machine in case if CI is not working.
+
 set -e
 
-# Remote repository to push artefact to.
+# Remote repository to push artifact to.
 DEPLOY_REMOTE="${DEPLOY_REMOTE:-}"
 # Remote repository branch. Can be a specific branch or a token.
 # @see https://github.com/integratedexperts/robo-git-artefact#token-support
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-[branch]}"
-# Source of the code to be used for artefact building.
+# Source of the code to be used for artifact building.
 DEPLOY_SRC="${DEPLOY_SRC:-}"
 # The root directory where the deployment script should run from. Defaults to
 # the current directory.
