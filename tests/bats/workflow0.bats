@@ -42,10 +42,6 @@ load _helper_drupaldev
   step "Add all Drupal-Dev files to new git repo"
   git_add_all_commit "Init Drupal-Dev config"
 
-  step "Create untracked file manually"
-  touch untracked_file.txt
-  assert_file_exists untracked_file.txt
-
   step "Create IDE config file"
   mkdir -p .idea
   touch .idea/idea_file.txt
@@ -387,6 +383,9 @@ load _helper_drupaldev
   assert_output_contains "Disabled"
   assert_output_not_contains "Enabled"
 
+  # Assert manually created file is removed.
+  touch untracked_file.txt
+
   #
   # Clean.
   #
@@ -422,7 +421,7 @@ load _helper_drupaldev
   # Reset.
   #
   step "Reset"
-  ahoy reset
+  yes | ahoy reset
 
   assert_files_present_common
   assert_files_present_deployment
@@ -430,11 +429,11 @@ load _helper_drupaldev
   assert_files_present_integration_lagoon
   assert_files_present_no_integration_ftp
 
-  assert_file_exists "docroot/sites/default/settings.local.php"
-  assert_file_exists "docroot/sites/default/services.local.yml"
+  assert_file_not_exists "docroot/sites/default/settings.local.php"
+  assert_file_not_exists "docroot/sites/default/services.local.yml"
 
   # Assert manually created file still exists.
-  assert_file_exists untracked_file.txt
+  assert_file_not_exists untracked_file.txt
   # Assert IDE config file still exists.
   assert_file_exists .idea/idea_file.txt
 

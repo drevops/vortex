@@ -144,8 +144,7 @@ load _helper_drupaldev
   # Modify Drupal-Dev files.
   echo "SOMEVAR=\"someval\"" >> ".env"
 
-  # .env would be excluded locally - so force-add it.
-  git_add_force ".env"
+  git_add ".env"
   # Add all files to git repo.
   git_add_all_commit "Second commit"
 
@@ -173,7 +172,7 @@ load _helper_drupaldev
   assert_file_not_contains ".env" "SOMEVAR=\"someval\""
 }
 
-@test "Install into existing: git project; no Drupal-Dev; no-exclude; adding Drupal-Dev and updating Drupal-Dev" {
+@test "Install into existing: git project; no Drupal-Dev; adding Drupal-Dev and updating Drupal-Dev" {
   # Add custom files
   touch "test1.txt"
   # File resides in directory that is included in Drupal-Dev when initialised.
@@ -228,78 +227,7 @@ load _helper_drupaldev
   assert_git_clean
 }
 
-@test "Install into existing: git project; no Drupal-Dev; exclude; adding Drupal-Dev and updating Drupal-Dev" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
-
-  # Add custom files
-  touch "test1.txt"
-  # File resides in directory that is included in Drupal-Dev when initialised.
-  mkdir -p ".docker"
-  touch ".docker/test2.txt"
-
-  git_init
-
-  # Add all files to git repo.
-  git_add_all_commit "First commit"
-  assert_git_repo
-
-  run_install
-  assert_files_present
-  assert_git_repo
-
-  install_dependencies_stub
-
-  git_add_all_commit "Init Drupal-Dev"
-
-  # Assert that custom file preserved.
-  assert_file_exists "test1.txt"
-  # Assert that custom file in a directory used by Drupal-Dev is preserved.
-  assert_file_exists ".docker/test2.txt"
-
-  # Assert no changes were introduced.
-  assert_git_clean
-
-  # Releasing new version of Drupal-Dev.
-  echo "# Some change to docker-compose" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
-  git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
-  echo "# Some change to ci config" >> "${LOCAL_REPO_DIR}/.circleci/config.yml"
-  git_add ".circleci/config.yml" "${LOCAL_REPO_DIR}"
-  git_commit "New version of Drupal-Dev" "${LOCAL_REPO_DIR}"
-
-  # Run install to update to the latest Drupal-Dev version.
-  run_install
-  assert_files_present
-  assert_git_repo
-
-  install_dependencies_stub
-
-  # Assert that non-committed file was updated.
-  assert_file_contains "docker-compose.yml" "# Some change to docker-compose"
-  # Assert that committed file was not updated.
-  assert_file_not_contains ".circleci/config.yml" "# Some change to ci config"
-  # Assert no changes to the repo.
-  assert_git_clean
-}
-
-@test "Install into existing: custom files, not including readme; no-exclude; discovery; silent" {
-  touch "test1.txt"
-  # File resides in directory that is included in Drupal-Dev when initialised.
-  mkdir -p ".docker"
-  touch ".docker/test2.txt"
-
-  output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
-  assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
-
-  install_dependencies_stub
-
-  assert_files_present
-  assert_git_repo
-}
-
-@test "Install into existing: custom files, not including readme; exclude; discovery; silent" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
-
+@test "Install into existing: custom files, not including readme; discovery; silent" {
   touch "test1.txt"
   # File resides in directory that is included in Drupal-Dev when initialised.
   mkdir -p ".docker"
@@ -352,7 +280,7 @@ load _helper_drupaldev
   assert_git_repo
 }
 
-@test "Install into existing: previously installed project, including correct readme; non-exclude; discovery; silent" {
+@test "Install into existing: previously installed project, including correct readme; discovery; silent" {
   # Populate current dir with a project at current version.
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
@@ -367,50 +295,11 @@ load _helper_drupaldev
   # Add all files to git repo.
   git_add_all_commit "Second commit"
   # Remove all non-committed files.
-  cat .git/info/exclude
-  rm .git/info/exclude
   git reset --hard
   git clean -f -d
   git clean -f -d
   assert_git_clean
   assert_files_present_common "star_wars" "StarWars"
-
-  # Run the install again.
-  output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
-  assert_output_contains "It looks like Drupal-Dev is already installed into this project"
-
-  assert_files_present_common
-  assert_git_repo
-
-  # Assert no changes were introduced.
-  assert_git_clean
-}
-
-@test "Install into existing: previously installed project, including correct readme; exclude; discovery; silent" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
-
-  # Populate current dir with a project at current version.
-  output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
-  assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
-
-  # Assert files at current version.
-  assert_files_present
-  assert_git_repo
-
-  install_dependencies_stub
-
-  # Add all files to git repo.
-  git_add_all_commit "Second commit"
-  # Remove all non-committed files.
-  cat .git/info/exclude
-  rm .git/info/exclude
-  git reset --hard
-  git clean -f -d
-  git clean -f -d
-  assert_git_clean
-  assert_files_not_present_common "star_wars" 1
 
   # Run the install again.
   output=$(run_install)

@@ -32,8 +32,6 @@ DRUPALDEV_IS_INTERACTIVE="${DRUPALDEV_IS_INTERACTIVE:-0}"
 DRUPALDEV_INIT_REPO="${DRUPALDEV_INIT_REPO:-1}"
 # Flag to allow override existing committed files.
 DRUPALDEV_ALLOW_OVERRIDE="${DRUPALDEV_ALLOW_OVERRIDE:-0}"
-# Flag to allow writing downloaded files into local exclude for current repository.
-DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE="${DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE:-0}"
 # Path to local Drupal-Dev repository. If not provided - remote will be used.
 DRUPALDEV_LOCAL_REPO="${DRUPALDEV_LOCAL_REPO:-}"
 # Organisation name to download the files from.
@@ -74,7 +72,7 @@ install(){
 
   process_stub "${DRUPALDEV_TMP_DIR}"
 
-  copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE}"
+  copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}"
 
   print_footer
 }
@@ -311,7 +309,6 @@ copy_files(){
   local src="${1}"
   local dst="${2}"
   local allow_override="${3:-}"
-  local allow_use_local_exclude="${4:-}"
 
   pushd "${dst}" > /dev/null || exit 1
 
@@ -363,23 +360,6 @@ copy_files(){
           cp -f "${file}" "${relative_file}"
           echo "    Copied file ${relative_file}"
         fi
-      fi
-
-      # Add files to local ignore (not .gitignore), if all conditions pass:
-      #  - flag is set to allow to add to local ignore
-      #  - not already ignored
-      #  - not currently tracked
-      #  - not in a list of required files
-      file_is_required="$(file_is_required "${relative_file}")"
-      # @todo: Refactor return values.
-      if [ "${allow_use_local_exclude}" -eq 1 ] \
-        && [ -d ./.git/ ] \
-        && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] \
-        && [ "${file_is_tracked}" != "0" ] \
-        && [ "${file_is_required}" != "0" ]; then
-        git_add_to_local_exclude "${relative_file}"
-      elif [ "${allow_use_local_exclude}" -ne 1 ]; then
-        git_remove_from_local_exclude "${relative_file}"
       fi
     else
       echo "    Skipped file ${relative_file}"

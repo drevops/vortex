@@ -87,37 +87,11 @@ load _helper_drupaldev
 }
 
 @test "Install into empty directory: empty directory; no local ignore" {
-  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=0
-
-  run_install
+   run_install
   assert_files_present
   assert_git_repo
 
   assert_file_not_contains ".git/info/exclude" ".ahoy.yml"
-}
-
-@test "Install into empty directory: empty directory; no exclude after existing exclude" {
-  # Run installation with exclusion.
-  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=1
-  run_install
-  assert_files_present
-  assert_git_repo
-  assert_file_contains ".git/info/exclude" ".ahoy.yml file below is excluded by Drupal-Dev"
-  assert_file_contains ".git/info/exclude" ".ahoy.yml"
-
-  # Add non-Drupal-Dev file exclusion.
-  echo "somefile" >> ".git/info/exclude"
-  assert_file_contains ".git/info/exclude" "somefile"
-
-  # Run installation without exclusion and assert that manually added exclusion
-  # was preserved.
-  export DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE=0
-  run_install
-  assert_files_present
-  assert_git_repo
-  assert_file_not_contains ".git/info/exclude" ".ahoy.yml file below is excluded by Drupal-Dev"
-  assert_file_not_contains ".git/info/exclude" ".ahoy.yml"
-  assert_file_contains ".git/info/exclude" "somefile"
 }
 
 @test "Install into empty directory: interactive" {
