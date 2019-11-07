@@ -288,18 +288,21 @@ commands:
         ./docroot/sites/default/settings.generated.php
 
   reset:
-    usage: "Reset environment: remove containers, all build, manually created and Drupal-Dev files."
+    usage: "Reset environment: remove containers, all build, uncommitted files."
     cmd: |
+      ahoy confirm "All containers, build and uncomitted files will be removed, repository will be reset to the last commit. Proceed?" \
+      #:
+      #: Remove containers and build files.
       ahoy clean
       #:
-      #: Remove screenshots produced by tests.
-      rm -rf ./screenshots;
+      #: Change permissions and remove all other untracked files.
+      git ls-files --others -i --exclude-from=.gitignore | xargs -I {} -- bash -c "chmod 777 {} || true && rm -rf {} || true"
       #:
-      #: Change permissions on all untracked files.
-      git ls-files --others -i --exclude-from=.git/info/exclude | xargs chmod 777 || true
-      #
-      #: Remove all untracked files.
-      git ls-files --others -i --exclude-from=.git/info/exclude | xargs rm -Rf || true
+      #: Reset repository files.
+      git reset --hard
+      #:
+      #: Remove all untracked, files.
+      git clean -f -d
       #:
       #: Remove empty directories.
       find . -type d -not -path "./.git/*" -empty -delete
