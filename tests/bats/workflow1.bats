@@ -242,23 +242,42 @@ load _helper_drupaldev
   # BDD tests.
   #
 
-  step "Run single Behat test"
-  ahoy test-bdd tests/behat/features/homepage.feature
+  step "Run all Behat tests"
+  ahoy test-bdd
   sync_to_host
   assert_dir_not_empty screenshots
 
-  step "Assert that Behat test failure bypassing works"
+  step "Assert that Behat tests failure bypassing works"
   echo "And I should be in the \"some-non-existing-page\" path" >> tests/behat/features/homepage.feature
   sync_to_container
   # Assert failure.
-  run ahoy test-bdd tests/behat/features/homepage.feature
+  run ahoy test-bdd
   [ "${status}" -eq 1 ]
   echo "ALLOW_BEHAT_FAIL=1" >> .env.local
   sync_to_container
   # Assert failure bypass.
-  run ahoy test-bdd tests/behat/features/homepage.feature
+  run ahoy test-bdd
   [ "${status}" -eq 0 ]
   rm .env.local
+
+  # Disabled until https://github.com/Behat/Gherkin/pull/129 is fixed.
+  # step "Run single Behat test"
+  # ahoy test-bdd tests/behat/features/homepage.feature
+  # sync_to_host
+  # assert_dir_not_empty screenshots
+  #
+  # step "Assert that single Behat test failure bypassing works"
+  # echo "And I should be in the \"some-non-existing-page\" path" >> tests/behat/features/homepage.feature
+  # sync_to_container
+  # # Assert failure.
+  # run ahoy test-bdd tests/behat/features/homepage.feature
+  # [ "${status}" -eq 1 ]
+  # echo "ALLOW_BEHAT_FAIL=1" >> .env.local
+  # sync_to_container
+  # # Assert failure bypass.
+  # run ahoy test-bdd tests/behat/features/homepage.feature
+  # [ "${status}" -eq 0 ]
+  # rm .env.local
 
   #
   # FE assets.

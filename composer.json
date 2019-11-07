@@ -138,9 +138,6 @@
             "docroot/.htaccess"
         ],
         "patches": {
-            "behat/gherkin": {
-                "Correctly filter features, now that the base path is correctly set - https://github.com/Behat/Gherkin/pull/129": "https://patch-diff.githubusercontent.com/raw/Behat/Gherkin/pull/129.patch"
-            },
             "drupal/better_exposed_filters": {
                 "Add core/drupal as dependency to better_exposed_filters asset libraries - https://www.drupal.org/node/2902742": "https://www.drupal.org/files/issues/add_core_drupal_as-2902742-2.patch"
             },
