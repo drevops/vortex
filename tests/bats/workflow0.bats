@@ -23,6 +23,8 @@ load _helper_drupaldev
   # the test does not rely on external private assets (demo is still using
   # public database specified in DEMO_DB_TEST variable).
   export DRUPALDEV_REMOVE_DEMO=0
+  # But skip demo processing to test failures without DB.
+  export DRUPALDEV_SKIP_DEMO=1
   # Remove Acquia integration as we are using DEMO configuration.
   export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
   # Run default install

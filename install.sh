@@ -401,6 +401,8 @@ is_installed(){
 # Process demo configuration.
 #
 process_demo(){
+  [ "${DRUPALDEV_SKIP_DEMO+x}" ] && return 0
+
   # Download demo database if the variable exists.
   if [ "${DEMO_DB+x}" ] && [ ! -f .data/db.sql ] ; then
     echo "==> No database file found in .data/db.sql. Downloading DEMO database from ${DEMO_DB}"
