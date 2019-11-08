@@ -19,8 +19,9 @@ DST_DIR=${1:-${DST_DIR}}
 
 # Load variables from .env and .env.local files, if they exist.
 # Note that .env.local is read only if .env exists.
+# This would be the case for an 'update' operation.
 # shellcheck disable=SC2046
-[ -f "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs) && [ -f "${DST_DIR}/.env.local" ] && export $(grep -v '^#' "${DST_DIR}/.env.local" | xargs)
+[ -f "${DST_DIR}/.env" ] && [ -s "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs) && if [ -f "${DST_DIR}/.env.local" ] && [ -s "${DST_DIR}/.env.local" ]; then export $(grep -v '^#' "${DST_DIR}/.env.local" | xargs); fi
 
 # Project name.
 PROJECT="${PROJECT:-}"
@@ -73,6 +74,10 @@ install(){
   process_stub "${DRUPALDEV_TMP_DIR}"
 
   copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}"
+
+  # Reload variables from .env and .env.local files.
+  # shellcheck disable=SC2046
+  [ -f "${DST_DIR}/.env" ] && [ -s "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs) && if [ -f "${DST_DIR}/.env.local" ] && [ -s "${DST_DIR}/.env.local" ]; then export $(grep -v '^#' "${DST_DIR}/.env.local" | xargs); fi
 
   process_demo
 
