@@ -130,7 +130,7 @@ provision_site(){
   step "Add all files to new git repo"
   git_add_all_commit "Init Drupal-Dev config" "${dir}"
 
-  # In this test, the database is downloaded from public gist specified in
+  # In this test, the database is downloaded from the public URL specified in
   # DEMO_DB_TEST variable.
   step "Download the database"
   assert_file_not_exists .data/db.sql

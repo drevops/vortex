@@ -74,6 +74,8 @@ install(){
 
   copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}"
 
+  process_demo
+
   print_footer
 }
 
@@ -388,6 +390,17 @@ is_core_profile(){
 is_installed(){
   [ ! -f "README.md" ] && return 1
   grep -q "badge/Drupal--Dev-" "README.md"
+}
+
+#
+# Process demo configuration.
+#
+process_demo(){
+  # Download demo database if the variable exists.
+  if [ "${DEMO_DB+x}" ] && [ ! -f .data/db.sql ] ; then
+    echo "==> No database file found in .data/db.sql. Downloading DEMO database from ${DEMO_DB}"
+    mkdir -p .data && curl -L "${DEMO_DB}" -o .data/db.sql
+  fi
 }
 
 ################################################################################
