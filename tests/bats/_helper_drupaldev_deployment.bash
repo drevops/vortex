@@ -106,18 +106,15 @@ provision_site(){
   assert_files_not_present_common
 
   step "Initialise the project with the default settings"
-  # Preserve demo configuration used for this test. This is to make sure that
-  # the test does not rely on external private assets (demo is still using
-  # public database specified in DEMO_DB_TEST variable).
+  # Preserve demo configuration used for this test.
   export DRUPALDEV_REMOVE_DEMO=0
+  # Point demo database to the test database.
+  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
 
   run_install
 
   assert_files_present_common
   assert_git_repo
-
-  # Point demo database to the test database.
-  echo "DEMO_DB=$(read_env \$DEMO_DB_TEST)" >> .env.local
 
   # Special treatment for cases where volumes are not mounted from the host.
   if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
@@ -129,13 +126,6 @@ provision_site(){
 
   step "Add all files to new git repo"
   git_add_all_commit "Init Drupal-Dev config" "${dir}"
-
-  # In this test, the database is downloaded from public gist specified in
-  # DEMO_DB_TEST variable.
-  step "Download the database"
-  assert_file_not_exists .data/db.sql
-  ahoy download-db
-  assert_file_exists .data/db.sql
 
   step "Build project"
   # shellcheck disable=SC2015

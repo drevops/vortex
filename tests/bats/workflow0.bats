@@ -19,10 +19,10 @@ load _helper_drupaldev
   assert_files_not_present_common
 
   step "Initialise the project with default settings"
-  # Preserve demo configuration used for this test. This is to make sure that
-  # the test does not rely on external private assets (demo is still using
-  # public database specified in DEMO_DB_TEST variable).
+  # Preserve demo configuration used for this test.
   export DRUPALDEV_REMOVE_DEMO=0
+  # But skip demo processing to test failures without DB.
+  export DRUPALDEV_SKIP_DEMO=1
   # Remove Acquia integration as we are using DEMO configuration.
   export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
   # Run default install
@@ -35,9 +35,6 @@ load _helper_drupaldev
   assert_files_present_integration_lagoon
   assert_files_present_no_integration_ftp
   assert_git_repo
-
-  # Point demo database to the test database.
-  echo "DEMO_DB=$(read_env \$DEMO_DB_TEST)" >> .env.local
 
   step "Add all Drupal-Dev files to new git repo"
   git_add_all_commit "Init Drupal-Dev config"
@@ -57,8 +54,10 @@ load _helper_drupaldev
   assert_output_contains "Unable to find database dump file"
 
   step "Download the database"
-  # In this test, the database is downloaded from public gist specified in
-  # DEMO_DB_TEST variable.
+  # Point demo database to the test database.
+  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
+  # In this test, the database is downloaded from the public URL specified in
+  # DEMO_DB variable.
   assert_file_not_exists .data/db.sql
   ahoy download-db
   assert_file_exists .data/db.sql
@@ -67,6 +66,7 @@ load _helper_drupaldev
   ahoy build >&3
   sync_to_host
 
+  # Assert that database file preserved after build.
   assert_file_exists .data/db.sql
 
   # Assert the presence of files from the default configuration.
@@ -327,11 +327,13 @@ load _helper_drupaldev
   #
   # DB re-import.
   #
+
   step "Re-import DB"
   rm -Rf .data/*
   # Point demo database to the test database.
-  echo "DEMO_DB=$(read_env \$DEMO_DB_TEST)" >> .env.local
+  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
   echo "DB_EXPORT_BEFORE_IMPORT=1" >> .env.local
+
   ahoy download-db
   ahoy install-site
   assert_file_exists .data/db_export_*
@@ -439,5 +441,127 @@ load _helper_drupaldev
 
   assert_dir_not_exists screenshots
 
+  assert_git_repo
+}
+
+@test "Workflow: DB-driven; demo" {
+  DRUPAL_VERSION=${DRUPAL_VERSION:-8}
+  VOLUMES_MOUNTED=${VOLUMES_MOUNTED:-1}
+
+  assert_not_empty "${DRUPAL_VERSION}"
+  assert_not_empty "${VOLUMES_MOUNTED}"
+
+  debug "==> Starting DB-driven WORKFLOW Demo tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+
+  assert_files_not_present_common
+
+  step "Initialise the project with default settings"
+  # Preserve demo configuration used for this test. This is to make sure that
+  # the test does not rely on external private assets (demo is still using
+  # public database specified in DEMO_DB variable).
+  export DRUPALDEV_REMOVE_DEMO=0
+  # Remove Acquia integration as we are using DEMO configuration.
+  export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
+  # Point demo database to the test database before installation.
+  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
+  # Run default install
+  run_install
+
+  assert_files_present_common
+  assert_files_present_no_fresh_install
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_git_repo
+
+  step "Add all Drupal-Dev files to new git repo"
+  git_add_all_commit "Init Drupal-Dev config"
+
+  #
+  # Preparation complete - start actual user actions testing.
+  #
+
+  # In this test, the database is downloaded as a part of installation from
+  # the public URL specified in DEMO_DB variable.
+  assert_file_exists .data/db.sql
+
+  step "Build with downloaded DEMO DB"
+  ahoy build >&3
+  sync_to_host
+
+  # Assert the presence of files from the default configuration.
+  assert_files_present_common
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_no_integration_ftp
+
+  # Assert that lock files were created.
+  assert_file_exists "composer.lock"
+  assert_file_exists "package-lock.json"
+
+  # Assert generated settings file exists.
+  assert_file_exists docroot/sites/default/settings.generated.php
+  # Assert only minified compiled CSS exists.
+  assert_file_exists docroot/themes/custom/star_wars/build/css/star_wars.min.css
+  assert_file_not_contains docroot/themes/custom/star_wars/build/css/star_wars.min.css "background: #7e57e2"
+  assert_file_not_exists docroot/themes/custom/star_wars/build/css/star_wars.css
+  # Assert only minified compiled JS exists.
+  assert_file_exists docroot/themes/custom/star_wars/build/js/star_wars.min.js
+  assert_file_contains docroot/themes/custom/star_wars/build/js/star_wars.min.js "function(t,Drupal){\"use strict\";Drupal.behaviors.star_wars"
+  assert_file_not_exists docroot/themes/custom/star_wars/build/js/star_wars.js
+
+  #
+  # Run a shortened list of commands to assert that the stack is working as expected.
+  #
+
+  step "Run ClI command"
+  run ahoy cli "echo Test from inside of the container"
+  assert_success
+  assert_output_not_contains "Containers are not running."
+  assert_output_contains "Test from inside of the container"
+
+  step "Run site info"
+  run ahoy info
+  assert_success
+  assert_output_contains "Project                  : star_wars"
+  assert_output_contains "Site local URL           : http://star-wars.docker.amazee.io"
+  assert_output_contains "Path to project          : /app"
+  assert_output_contains "Path to docroot          : /app/docroot"
+  assert_output_contains "DB host                  : mariadb"
+  assert_output_contains "DB username              : drupal"
+  assert_output_contains "DB password              : drupal"
+  assert_output_contains "DB port                  : 3306"
+  assert_output_contains "DB port on host          :"
+  assert_output_contains "Solr port on host        :"
+  assert_output_contains "Livereload port on host  :"
+  assert_output_contains "Mailhog URL              : http://mailhog.docker.amazee.io/"
+  assert_output_contains "Xdebug                   : Disabled"
+  assert_output_not_contains "Containers are not running."
+
+  #
+  # BDD tests.
+  #
+
+  # This is the most important assertion here - it checks that the imported
+  # demo database allows to bootstrap the site.
+  step "Run all Behat tests"
+  ahoy test-bdd
+  sync_to_host
+  assert_dir_not_empty screenshots
+
+  #
+  # Clean.
+  #
+  step "Clean"
+  ahoy clean
+  assert_git_repo
+
+  #
+  # Reset.
+  #
+  step "Reset"
+  yes | ahoy reset
   assert_git_repo
 }
