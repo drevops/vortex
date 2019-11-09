@@ -40,6 +40,9 @@ setup(){
   DEMO_DB=https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/db_d8.star_wars.sql.md
   export DEMO_DB
 
+  DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/db_d8.star_wars.sql.md
+  export DEMO_DB_TEST
+
   # Disable checks used on host machine.
   export DOCTOR_CHECK_TOOLS=0
   export DOCTOR_CHECK_PYGMY=0

@@ -37,7 +37,7 @@ load _helper_drupaldev
   assert_git_repo
 
   # Point demo database to the test database.
-  echo "DEMO_DB=$DEMO_DB" >> .env.local
+  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
 
   step "Add all Drupal-Dev files to new git repo"
   git_add_all_commit "Init Drupal-Dev config"

@@ -36,9 +36,6 @@ load _helper_drupaldev
   assert_files_present_no_integration_ftp
   assert_git_repo
 
-  # Point demo database to the test database.
-  echo "DEMO_DB=$DEMO_DB" >> .env.local
-
   step "Add all Drupal-Dev files to new git repo"
   git_add_all_commit "Init Drupal-Dev config"
 
@@ -57,6 +54,8 @@ load _helper_drupaldev
   assert_output_contains "Unable to find database dump file"
 
   step "Download the database"
+  # Point demo database to the test database.
+  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
   # In this test, the database is downloaded from the public URL specified in
   # DEMO_DB variable.
   assert_file_not_exists .data/db.sql
@@ -67,6 +66,7 @@ load _helper_drupaldev
   ahoy build >&3
   sync_to_host
 
+  # Assert that database file preserved after build.
   assert_file_exists .data/db.sql
 
   # Assert the presence of files from the default configuration.
@@ -327,11 +327,13 @@ load _helper_drupaldev
   #
   # DB re-import.
   #
+
   step "Re-import DB"
   rm -Rf .data/*
   # Point demo database to the test database.
-  echo "DEMO_DB=$DEMO_DB" >> .env.local
+  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
   echo "DB_EXPORT_BEFORE_IMPORT=1" >> .env.local
+
   ahoy download-db
   ahoy install-site
   assert_file_exists .data/db_export_*
@@ -460,6 +462,8 @@ load _helper_drupaldev
   export DRUPALDEV_REMOVE_DEMO=0
   # Remove Acquia integration as we are using DEMO configuration.
   export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
+  # Point demo database to the test database before installation.
+  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
   # Run default install
   run_install
 
