@@ -37,8 +37,8 @@ setup(){
   APP_TMP_DIR="${BUILD_DIR}/tmp"
 
   # Location of the demo database used for tests only.
-  DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/db_d8.star_wars.sql.md
-  export DEMO_DB_TEST
+  DEMO_DB=https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/db_d8.star_wars.sql.md
+  export DEMO_DB
 
   # Disable checks used on host machine.
   export DOCTOR_CHECK_TOOLS=0

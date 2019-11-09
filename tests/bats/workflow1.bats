@@ -19,9 +19,7 @@ load _helper_drupaldev
   assert_files_not_present_common
 
   step "Initialise the project with default settings"
-  # Preserve demo configuration used for this test. This is to make sure that
-  # the test does not rely on external private assets (demo is still using
-  # public database specified in DEMO_DB_TEST variable).
+  # Preserve demo configuration used for this test.
   export DRUPALDEV_REMOVE_DEMO=0
   # Use fresh install.
   export DRUPALDEV_OPT_FRESH_INSTALL=Y
@@ -39,7 +37,7 @@ load _helper_drupaldev
   assert_git_repo
 
   # Point demo database to the test database.
-  echo "DEMO_DB=$(read_env \$DEMO_DB_TEST)" >> .env.local
+  echo "DEMO_DB=$DEMO_DB" >> .env.local
 
   step "Add all Drupal-Dev files to new git repo"
   git_add_all_commit "Init Drupal-Dev config"
