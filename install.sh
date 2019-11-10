@@ -174,9 +174,11 @@ download_local(){
   local commit="${3:-HEAD}"
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the local repo"
 
-  echo "==> Downloading Drupal-Dev at ref ${commit} from local repo ${src}"
+  echo -n "==> Downloading Drupal-Dev at ref ${commit} from local repo ${src}"
   git --git-dir="${src}/.git" --work-tree="${src}" archive --format=tar "${commit}" \
     | tar xf - -C "${dst}"
+  echo -n " ."
+  echo " done"
 }
 
 #
@@ -191,9 +193,10 @@ download_remote(){
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the remote repo"
 
   if [ "${commit}" != "" ]; then
-    echo "==> Downloading Drupal-Dev at commit ${commit}"
-    curl -# -L "https://github.com/${org}/${project}/archive/${commit}.tar.gz" \
+    echo -n "==> Downloading Drupal-Dev at commit ${commit}"
+    curl -sS -L "https://github.com/${org}/${project}/archive/${commit}.tar.gz" \
       | tar xzf - -C "${dst}" --strip 1
+    echo -n " ."
   else
     # Find the latest version for specified drupal version.
     # Print found version.
@@ -206,11 +209,14 @@ download_remote(){
       )
     [ "${release}" == "" ] && error "Unable to find the latest release of Drupal-Dev"
 
-    echo "==> Downloading the latest version ${release} of Drupal-Dev"
-    curl -# -L "https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}/archive/${release}.tar.gz" \
+    echo -n "==> Downloading the latest version ${release} of Drupal-Dev"
+    curl -sS -L "https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}/archive/${release}.tar.gz" \
       | tar xzf - -C "${DRUPALDEV_TMP_DIR}" --strip 1
+    echo -n " ."
     DRUPALDEV_VERSION="${release}"
   fi
+
+  echo " done"
 }
 
 #
@@ -218,6 +224,8 @@ download_remote(){
 #
 process_stub(){
   local dir="${1}"
+
+  echo -n "==> Replacing tokens "
 
   if [ "$(get_value "profile")" == "" ] || [ "$(get_value "profile")" == "n" ]; then
     rm -Rf "${dir}"/docroot/profiles/custom/your_site_profile > /dev/null
@@ -323,6 +331,8 @@ process_stub(){
   fi
 
   enable_commented_code "${dir}"
+
+  echo " done"
 }
 
 is_demo(){
@@ -357,6 +367,7 @@ copy_files(){
       targets+=("$REPLY")
   done < <(find "${src}" -type l -print0)
 
+  echo -n "==> Copying files "
   for file in "${targets[@]}"; do
     parent="$(dirname "${file}")"
     relative_file=${file#"${src}/"}
@@ -367,10 +378,10 @@ copy_files(){
       continue
     fi
 
-    echo "==> Processing file ${relative_file}"
+    [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "==> Processing file ${relative_file}" || echo -n "."
 
     if [ "$(file_is_internal "${relative_file}")" -eq 1 ]; then
-      echo "    Skipping internal Drupal-Dev file ${relative_file}"
+      [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "    Skipping internal Drupal-Dev file ${relative_file}" || echo -n "."
       continue
     fi
 
@@ -385,20 +396,22 @@ copy_files(){
         mkdir -p "${relative_parent}"
         if [ -d "${file}" ]; then
           # Symlink files can be directories, so handle them differently.
-          cp -fR "${file}" "${relative_parent}/"
-          echo "    Copied dir ${relative_file}"
+          cp -fR "${file}" "${relative_parent}/" 2>/dev/null
+          [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "    Copied dir ${relative_file}" || echo -n "."
         elif [ -L "${file}" ]; then
-          cp -a "${file}" "${relative_parent}/"
-          echo "    Copied symlink ${file} to ${relative_file}"
+          cp -a "${file}" "${relative_parent}/" 2>/dev/null
+          [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "    Copied symlink ${file} to ${relative_file}" || echo -n "."
         else
-          cp -f "${file}" "${relative_file}"
-          echo "    Copied file ${relative_file}"
+          cp -f "${file}" "${relative_file}" 2>/dev/null
+          [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "    Copied file ${relative_file}" || echo -n "."
         fi
       fi
     else
-      echo "    Skipped file ${relative_file}"
+      [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "    Skipped file ${relative_file}" || echo -n "."
     fi
   done
+
+  echo " done"
 
   popd > /dev/null || exit 1
 }
@@ -821,10 +834,7 @@ print_footer(){
   echo "*                                                                    *"
   echo "* Finished installing Drupal-Dev.                                    *"
   echo "*                                                                    *"
-  echo "* Please review changes and commit required files.                   *"
-  echo "*                                                                    *"
-  echo "* Do not forget to run 'composer update --lock' before committing    *"
-  echo "* changes.                                                           *"
+  echo "* Review changes and commit required files.                          *"
   echo "*                                                                    *"
   echo "**********************************************************************"
 }
