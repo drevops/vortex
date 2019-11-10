@@ -106,8 +106,6 @@ provision_site(){
   assert_files_not_present_common
 
   step "Initialise the project with the default settings"
-  # Preserve demo configuration used for this test.
-  export DRUPALDEV_REMOVE_DEMO=0
   # Point demo database to the test database.
   echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
 

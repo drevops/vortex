@@ -47,10 +47,10 @@ DRUPALDEV_DEBUG="${DRUPALDEV_DEBUG:-0}"
 DRUPALDEV_PROCEED="${DRUPALDEV_PROCEED:-1}"
 # Temporary directory to download and expand files to.
 DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
-# Internal flag to remove demo configuration.
-DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
 # Internal version of Drupal-Dev. Discovered during installation.
 DRUPALDEV_VERSION="${DRUPALDEV_VERSION:-${DRUPAL_VERSION}.x}"
+# Internal flag to enforce DEMO mode. If not set, the demo mode will be discovered automatically.
+DRUPALDEV_DEMO=${DRUPALDEV_DEMO:-}
 
 install(){
   check_requirements
@@ -297,19 +297,46 @@ process_stub(){
     remove_special_comments "${dir}" "#:"
   fi
 
+  # Reload variables.
+  # shellcheck disable=SC2046
+  [ -f "${dir}/.env" ] && [ -s "${dir}/.env" ] && export $(grep -v '^#' "${dir}/.env" | xargs) && if [ -f "${dir}/.env.local" ] && [ -s "${dir}/.env.local" ]; then export $(grep -v '^#' "${dir}/.env.local" | xargs); fi
+
+  # Discover demo mode. Has to happen after all other tokens replaced.
+  DRUPALDEV_DEMO=$(is_demo)
+
+  # Remove code required for the demo of Drupal-Dev.
+  if [ "${DRUPALDEV_DEMO}" != "1" ]; then
+    remove_special_comments_with_content "DEMO" "${dir}"
+    bash -c "echo -n ."
+  fi
+
   if [ "$(get_value "remove_drupaldev_info")" == "Y" ] ; then
-    # Handle code required for Drupal-Dev maintenance.
+    # Remove code required for Drupal-Dev maintenance.
     remove_special_comments_with_content "DRUPAL-DEV" "${dir}" && bash -c "echo -n ."
-    # Handle code required for the demo of Drupal-Dev.
-    [ "${DRUPALDEV_REMOVE_DEMO}" -eq 1 ] && remove_special_comments_with_content "DEMO" "${dir}" && bash -c "echo -n ."
+
     # Remove other unhandled comments.
     remove_special_comments "${dir}" "#;<"
     remove_special_comments "${dir}" "#;>"
+
     # Remove all other comments.
     remove_special_comments "${dir}"
   fi
 
   enable_commented_code "${dir}"
+}
+
+is_demo(){
+  # Perform auto-discovery only if the mode was not explicitly defined.
+  if [ "$DRUPALDEV_DEMO" == "" ]; then
+    # Only if using canonical-db workflow.
+    if [ "$(get_value "fresh_install")" == "n" ] && [ "${DEMO_DB+x}" ] && [ ! -f .data/db.sql ] ; then
+      DRUPALDEV_DEMO=1
+    else
+      DRUPALDEV_DEMO=0
+    fi
+  fi
+
+  echo $DRUPALDEV_DEMO
 }
 
 copy_files(){
@@ -401,13 +428,12 @@ is_installed(){
 # Process demo configuration.
 #
 process_demo(){
-  [ "${DRUPALDEV_SKIP_DEMO+x}" ] && return 0
+  { [ "${DRUPALDEV_SKIP_DEMO+x}" ] || [ "${DRUPALDEV_DEMO}" == "0" ]; } && return 0
 
-  # Download demo database if the variable exists.
-  if [ "${DEMO_DB+x}" ] && [ ! -f .data/db.sql ] ; then
-    echo "==> No database file found in .data/db.sql. Downloading DEMO database from ${DEMO_DB}"
-    mkdir -p .data && curl -L "${DEMO_DB}" -o .data/db.sql
-  fi
+  # Download demo database if this is not a fresh install, the DB file does
+  # not exist and the demo DB variable exists.
+  echo "==> No database dump file found in .data directory. Downloading DEMO database from ${DEMO_DB}"
+  mkdir -p .data && curl -L "${DEMO_DB}" -o .data/db.sql
 }
 
 ################################################################################

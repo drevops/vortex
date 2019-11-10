@@ -152,7 +152,7 @@ load _helper_drupaldev
   assert_file_contains ".env.local" "DRUPALDEV_ALLOW_OVERRIDE=1"
 }
 
-@test "Install into empty directory: silent; should show that Drupal-Dev was previously installed" {
+@test "Install into empty directory: silent; should NOT show that Drupal-Dev was previously installed" {
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
   assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"

@@ -19,8 +19,6 @@ load _helper_drupaldev
   assert_files_not_present_common
 
   step "Initialise the project with default settings"
-  # Preserve demo configuration used for this test.
-  export DRUPALDEV_REMOVE_DEMO=0
   # Use fresh install.
   export DRUPALDEV_OPT_FRESH_INSTALL=Y
   # Remove Acquia integration as we are using DEMO configuration.
