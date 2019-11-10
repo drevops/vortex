@@ -36,10 +36,6 @@ setup(){
   LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   APP_TMP_DIR="${BUILD_DIR}/tmp"
 
-  # Location of the demo database used for tests only.
-  DEMO_DB=https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/db_d8.star_wars.sql.md
-  export DEMO_DB
-
   DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/db_d8.star_wars.sql.md
   export DEMO_DB_TEST
 

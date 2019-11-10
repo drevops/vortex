@@ -19,9 +19,8 @@ load _helper_drupaldev
   assert_files_not_present_common
 
   step "Initialise the project with default settings"
-  # Preserve demo configuration used for this test.
-  export DRUPALDEV_REMOVE_DEMO=0
-  # But skip demo processing to test failures without DB.
+  # Skip demo processing to test failures without DB (demo DB would be
+  # downloaded otherwise on install).
   export DRUPALDEV_SKIP_DEMO=1
   # Remove Acquia integration as we are using DEMO configuration.
   export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
@@ -456,10 +455,6 @@ load _helper_drupaldev
   assert_files_not_present_common
 
   step "Initialise the project with default settings"
-  # Preserve demo configuration used for this test. This is to make sure that
-  # the test does not rely on external private assets (demo is still using
-  # public database specified in DEMO_DB variable).
-  export DRUPALDEV_REMOVE_DEMO=0
   # Remove Acquia integration as we are using DEMO configuration.
   export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
   # Point demo database to the test database before installation.
