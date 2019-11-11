@@ -4,14 +4,29 @@
 # Check spelling.
 #
 
+set -e
+
 CUR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 targets=()
+while IFS=  read -r -d $'\0'; do
+    targets+=("$REPLY")
+done < <(
+  find \
+    "${CUR_DIR}"/.circleci \
+    "${CUR_DIR}"/.docker \
+    "${CUR_DIR}"/scripts \
+    "${CUR_DIR}"/patches \
+    -type f \
+    \( -name "*.md" \) \
+    -print0
+  )
 
 targets+=(README.md)
 targets+=(DEPLOYMENT.md)
 targets+=(FAQs.md)
 targets+=(ONBOARDING.md)
+targets+=(README.md)
 
 echo "==> Start checking spelling"
 for file in "${targets[@]}"; do

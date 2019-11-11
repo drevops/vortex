@@ -42,7 +42,6 @@ load _helper_drupaldev
   mktouch "docroot/sites/default/settings.local.php"
   mktouch "docroot/sites/default/services.local.yml"
 
-  mktouch ".env.local"
   echo "version: \"2.3\"" > "docker-compose.override.yml"
 
   mktouch ".idea/some_ide_file"
@@ -80,7 +79,6 @@ load _helper_drupaldev
   assert_file_exists "docroot/sites/default/settings.local.php"
   assert_file_exists "docroot/sites/default/services.local.yml"
 
-  assert_file_exists ".env.local"
   assert_file_exists "docker-compose.override.yml"
 
   assert_file_exists ".idea/some_ide_file"
@@ -130,7 +128,6 @@ load _helper_drupaldev
   mktouch "docroot/sites/default/settings.local.php"
   mktouch "docroot/sites/default/services.local.yml"
 
-  mktouch ".env.local"
   echo "version: \"2.3\"" > "docker-compose.override.yml"
 
   mktouch ".idea/some_ide_file"
@@ -170,7 +167,6 @@ load _helper_drupaldev
   assert_file_not_exists "docroot/sites/default/settings.local.php"
   assert_file_not_exists "docroot/sites/default/services.local.yml"
 
-  assert_file_not_exists ".env.local"
   assert_file_not_exists "docker-compose.override.yml"
 
   assert_file_exists ".idea/some_ide_file"
@@ -219,7 +215,6 @@ load _helper_drupaldev
   mktouch "docroot/sites/default/settings.local.php"
   mktouch "docroot/sites/default/services.local.yml"
 
-  mktouch ".env.local"
   echo "version: \"2.3\"" > "docker-compose.override.yml"
 
   mktouch ".idea/some_ide_file"
@@ -266,7 +261,6 @@ load _helper_drupaldev
   assert_file_not_exists "docroot/sites/default/settings.local.php"
   assert_file_not_exists "docroot/sites/default/services.local.yml"
 
-  assert_file_not_exists ".env.local"
   assert_file_not_exists "docker-compose.override.yml"
 
   assert_file_exists ".idea/some_ide_file"
@@ -275,7 +269,7 @@ load _helper_drupaldev
 
   assert_file_not_exists "uncommitted_file.txt"
 
-  assert_file_exists "scripts/download-backup-acquia.sh"
+  assert_file_exists "scripts/download-db-acquia.sh"
   assert_file_exists "committed_file.txt"
 
   # The files would be committed to the consumer repo.

@@ -317,8 +317,6 @@ assert_files_present_no_fresh_install(){
   pushd "${dir}" > /dev/null || exit 1
 
   assert_file_exists ".ahoy.yml"
-  assert_file_contains ".ahoy.yml" "ahoy title \"Installing site from the existing database dump\""
-  assert_file_not_contains ".ahoy.yml" "ahoy title \"Installing a fresh site from \${DRUPAL_PROFILE} profile\""
   assert_file_contains ".ahoy.yml" "download-db:"
 
   popd > /dev/null || exit 1
@@ -371,23 +369,16 @@ assert_files_present_integration_acquia(){
 
   assert_dir_exists "hooks"
   assert_dir_exists "hooks/library"
-  assert_file_mode "hooks/library/clear-cache.sh" "755"
   assert_file_mode "hooks/library/flush-varnish.sh" "755"
-  assert_file_mode "hooks/library/import-config.sh" "755"
-  assert_file_mode "hooks/library/update-db.sh" "755"
+  assert_file_mode "hooks/library/install-site.sh" "755"
 
   assert_dir_exists "hooks/dev"
   assert_dir_exists "hooks/dev/post-code-update"
-  assert_symlink_exists "hooks/dev/post-code-update/1.update-db.sh"
-  assert_symlink_exists "hooks/dev/post-code-update/2.import-config.sh"
-  assert_symlink_exists "hooks/dev/post-code-update/3.clear-cache.sh"
-  assert_symlink_exists "hooks/dev/post-code-update/4.flush-varnish.sh"
+  assert_symlink_exists "hooks/dev/post-code-update/1.install-site.sh"
+  assert_symlink_exists "hooks/dev/post-code-update/2.flush-varnish.sh"
   assert_symlink_exists "hooks/dev/post-code-deploy"
-  # 'post-db-copy' hook may require different operations then other hooks.
-  assert_symlink_exists "hooks/dev/post-db-copy/1.update-db.sh"
-  assert_symlink_exists "hooks/dev/post-db-copy/2.import-config.sh"
-  assert_symlink_exists "hooks/dev/post-db-copy/3.clear-cache.sh"
-  assert_symlink_exists "hooks/dev/post-db-copy/4.flush-varnish.sh"
+  assert_symlink_exists "hooks/dev/post-db-copy/1.install-site.sh"
+  assert_symlink_exists "hooks/dev/post-db-copy/2.flush-varnish.sh"
 
   assert_symlink_exists "hooks/test"
 
@@ -395,21 +386,16 @@ assert_files_present_integration_acquia(){
   assert_dir_exists "hooks/prod/post-code-deploy"
   assert_symlink_exists "hooks/prod/post-code-update"
   assert_symlink_not_exists "hooks/prod/post-db-copy"
-  assert_symlink_exists "hooks/prod/post-code-update/1.update-db.sh"
-  assert_symlink_exists "hooks/prod/post-code-update/2.import-config.sh"
-  assert_symlink_exists "hooks/prod/post-code-update/3.clear-cache.sh"
+  assert_symlink_exists "hooks/prod/post-code-update/1.install-site.sh"
 
   assert_file_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
 
   if [ "${include_scripts}" -eq 1 ]; then
-    assert_file_exists "scripts/download-backup-acquia.sh"
+    assert_dir_exists "scripts"
     assert_file_contains ".env" "AC_API_DB_SITE="
     assert_file_contains ".env" "AC_API_DB_ENV="
     assert_file_contains ".env" "AC_API_DB_NAME="
-    assert_file_contains ".ahoy.yml" "AC_API_DB_SITE="
-    assert_file_contains ".ahoy.yml" "AC_API_DB_ENV="
-    assert_file_contains ".ahoy.yml" "AC_API_DB_NAME="
   fi
 
   popd > /dev/null || exit 1
@@ -423,7 +409,7 @@ assert_files_present_no_integration_acquia(){
 
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
-  assert_file_not_exists "scripts/download-backup-acquia.sh"
+  assert_file_not_exists "scripts/download-db-acquia.sh"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_not_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
   assert_file_not_contains ".env" "AC_API_DB_SITE="
@@ -595,8 +581,8 @@ run_install(){
   prepare_fixture_dir "${DRUPALDEV_TMP_DIR}"
   export DRUPALDEV_TMP_DIR
 
-  # Show debug information (for easy debug of tests).
-  export DRUPALDEV_DEBUG=1
+  # Enable the line below to show debug information (for easy debug of tests).
+  # export DRUPALDEV_DEBUG=1
   run "${CUR_DIR}"/install.sh "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
@@ -676,10 +662,31 @@ install_dependencies_stub(){
 
   mktouch "docroot/sites/default/settings.local.php"
   mktouch "docroot/sites/default/services.local.yml"
-  mktouch ".env.local"
   echo "version: \"2.3\"" > "docker-compose.override.yml"
 
   popd > /dev/null || exit 1
+}
+
+create_development_settings(){
+  substep "Create development settings"
+  assert_file_not_exists docroot/sites/default/settings.local.php
+  assert_file_not_exists docroot/sites/default/services.local.yml
+  assert_file_exists docroot/sites/default/default.settings.local.php
+  assert_file_exists docroot/sites/default/default.services.local.yml
+  cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
+  cp docroot/sites/default/default.services.local.yml docroot/sites/default/services.local.yml
+  assert_file_exists docroot/sites/default/settings.local.php
+  assert_file_exists docroot/sites/default/services.local.yml
+}
+
+remove_development_settings(){
+  substep "Remove development settings"
+  rm -f docroot/sites/default/settings.local.php || true
+  rm -f docroot/sites/default/services.local.yml || true
+}
+
+enable_demo_db(){
+  echo "DEMO_DB=$DEMO_DB_TEST" >> .env
 }
 
 # Copy source code at the latest commit to the destination directory.
@@ -734,7 +741,6 @@ Thumbs.db
 *.sublime*
 .project
 .netbeans
-.env.local
 .vscode
 .vscode/*
 nbproject
@@ -805,12 +811,18 @@ step(){
   debug "**> STEP: $1"
 }
 
+# Print sub-step.
+substep(){
+  debug ""
+  debug "  > $1"
+}
+
 # Sync files to host in case if volumes are not mounted from host.
 sync_to_host(){
   local dst="${1:-.}"
   # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
-  [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${dst} to host" && return
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs)
+  [ "${VOLUMES_MOUNTED}" == "1" ] && return
   docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
 }
 
@@ -818,8 +830,8 @@ sync_to_host(){
 sync_to_container(){
   local src="${1:-.}"
   # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
-  [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs)
+  [ "${VOLUMES_MOUNTED}" == "1" ] && return
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
 }
 

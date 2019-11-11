@@ -1,4 +1,4 @@
-# Deployment procedures for YOURSITE
+# Code deployment procedures for YOURSITE
 
 GitHub is a primary code repository for this project (aka "source repository").
 Acquia Cloud is a hosting provider for this project and it also has a git repository (aka "destination repository"). 
@@ -12,7 +12,7 @@ There are 2 types of deployments: feature branches and release tags. They are ex
 2. Add this user to Acquia Cloud application with a role that allows to push
    code and use Cloud API.   
 3. Login with Deployer user and go to Acquia Cloud UI->Account->Credentials->Copy email and key from section "Cloud API".
-4. SSH into non-production server and run `drush ac-api-login`. Enter copied email and key when prompted. This will store credentials to `~/.acquia/cloudapi.conf`and they will not need to be entered again. This allows to use Cloud API drush commands within hooks. 
+4. SSH into non-production server and run `drush ac-api-login`. Enter copied email and key when prompted. This will store credentials to `$HOME/.acquia/cloudapi.conf`and they will not need to be entered again. This allows to use Cloud API drush commands within hooks. 
 5. Create SSH key (use `deployer+yourproject@yourcompany.com` as an email to distinguish SSH keys) and add it to this user. This key cannot be re-used between projects!
 6. Login to CircleCI, go to Settings->SSH Permissions->Add SSH Key and paste *private* key. This allows to push the code from CI to Acquia git repository.
 7. Copy SHH key fingerprint (looks like `16:02:e3:ca:33:04:82:58:e8:e9:3e:5d:82:17:86:b1`) and replace it inside `.circleci/config.yml`. 

@@ -286,13 +286,17 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 
 [//]: # (#;< ACQUIA)
 
-- Add Acquia Cloud credentials to `.env.local` file:
-```
-  # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
-  AC_API_USER_NAME=<YOUR_USERNAME>
-  # Acquia Cloud UI->Account->Credentials->Cloud API->Private key
-  AC_API_USER_PASS=<YOUR_TOKEN>
-```
+- Authenticate with Acquia Cloud API using:
+  - Run `drush ac-login`<br/> 
+  or 
+  - Add Acquia Cloud credentials to `.env` file:
+
+  ```
+    # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
+    AC_API_USER_NAME=<YOUR_USERNAME>
+    # Acquia Cloud UI->Account->Credentials->Cloud API->Private key
+    AC_API_USER_PASS=<YOUR_TOKEN>
+  ```
 [//]: # (#;> ACQUIA)
 
 [//]: # (#;< !FRESH_INSTALL)

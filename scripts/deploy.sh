@@ -1,58 +1,43 @@
 #!/usr/bin/env bash
 ##
-# Deploy artifact.
+# Deploy code to a remote location.
 #
-# Deployment to remote git repositories allows to build the project and all
-# required artifacts in CI and then commit only required files to
-# the destination repository. This makes applications fast and secure,
-# because none of unnecessary code (such as development tools) are  exposed
-# to production environment.
+# Deployment may include pushing code, pushing created docker image, notifying
+# remote hosting service via webhook call etc.
 #
-# The deployment functionality resides in a separate script to allow (emergency)
-# deployment from local machine in case if CI is not working.
+# This is a router script to call relevant deployment scripts based on type.
+#
+# For required variables based on the deployment type,
+# see ./scripts/deployment-[type].sh file.
 
 set -e
 
-# Remote repository to push artifact to.
-DEPLOY_REMOTE="${DEPLOY_REMOTE:-}"
-# Remote repository branch. Can be a specific branch or a token.
-# @see https://github.com/integratedexperts/robo-git-artefact#token-support
-DEPLOY_BRANCH="${DEPLOY_BRANCH:-[branch]}"
-# Source of the code to be used for artifact building.
-DEPLOY_SRC="${DEPLOY_SRC:-}"
-# The root directory where the deployment script should run from. Defaults to
-# the current directory.
-DEPLOY_ROOT="${DEPLOY_ROOT:-$(pwd)}"
-# Deployment report file name.
-DEPLOY_REPORT="${DEPLOY_REPORT:-${DEPLOY_ROOT}/deployment_report.txt}"
-# Email address of the user who will be committing to a remote repository.
-DEPLOY_USER_NAME="${DEPLOY_USER_NAME:-"Deployer Robot"}"
-# Name of the user who will be committing to a remote repository.
-DEPLOY_USER_EMAIL="${DEPLOY_USER_EMAIL:-deployer@your-site-url}"
+# The type of deployment. Can be a combination of comma-separated values (to
+# support multiple deployments): code, docker, webhook.
+DEPLOY_TYPE="${DEPLOY_TYPE:-${1}}"
 
-[ -z "${DEPLOY_REMOTE}" ] && echo "Missing required value for DEPLOY_REMOTE" && exit 1
-[ -z "${DEPLOY_BRANCH}" ] && echo "Missing required value for DEPLOY_BRANCH" && exit 1
-[ -z "${DEPLOY_SRC}" ] && echo "Missing required value for DEPLOY_SRC" && exit 1
-[ -z "${DEPLOY_ROOT}" ] && echo "Missing required value for DEPLOY_ROOT" && exit 1
-[ -z "${DEPLOY_REPORT}" ] && echo "Missing required value for DEPLOY_REPORT" && exit 1
-[ -z "${DEPLOY_USER_NAME}" ] && echo "Missing required value for DEPLOY_USER_NAME" && exit 1
-[ -z "${DEPLOY_USER_EMAIL}" ] && echo "Missing required value for DEPLOY_USER_EMAIL" && exit 1
+# Flag to proceed with deployment.
+DEPLOY_PROCEED="${DEPLOY_PROCEED:-}"
 
-[ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name" && git config --global user.name "${DEPLOY_USER_NAME}"
-[ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email" && git config --global user.email "${DEPLOY_USER_EMAIL}"
+# ------------------------------------------------------------------------------
 
-echo "==> Installing a package for deployment."
-composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs integratedexperts/robo-git-artefact:^0.4
+[ -z "${DEPLOY_TYPE}" ] && echo "Missing required value for DEPLOY_TYPE. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook." && exit 1
 
-cp -a "${DEPLOY_ROOT}"/.git "${DEPLOY_SRC}"
-cp -a "${DEPLOY_ROOT}"/.gitignore.deployment "${DEPLOY_SRC}"
+if [ -z "${DEPLOY_PROCEED}" ]; then
+  echo "Skipping deployment ${DEPLOY_TYPE}" && exit 0
+fi
 
-"${HOME}/.composer/vendor/bin/robo" --ansi \
-  --load-from "${HOME}/.composer/vendor/integratedexperts/robo-git-artefact/RoboFile.php" artefact "${DEPLOY_REMOTE}" \
-  --root="${DEPLOY_ROOT}" \
-  --src="${DEPLOY_SRC}" \
-  --branch="${DEPLOY_BRANCH}" \
-  --gitignore="${DEPLOY_SRC}"/.gitignore.deployment \
-  --report="${DEPLOY_REPORT}" \
-  --debug \
-  --push
+if [ -z "${DEPLOY_TYPE##*code*}" ]; then
+  echo "==> Starting 'code' deployment"
+  ./scripts/deploy-code.sh
+fi
+
+if [ -z "${DEPLOY_TYPE##*webhook*}" ]; then
+  echo "==> Starting deployment ${DEPLOY_TYPE}"
+  ./scripts/deploy-webhook.sh
+fi
+
+if [ -z "${DEPLOY_TYPE##*docker*}" ]; then
+  echo "==> Starting 'docker' deployment"
+  ./scripts/deploy-docker.sh
+fi

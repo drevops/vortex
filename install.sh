@@ -17,11 +17,10 @@ CUR_DIR=$(pwd)
 DST_DIR="${DST_DIR:-${CUR_DIR}}"
 DST_DIR=${1:-${DST_DIR}}
 
-# Load variables from .env and .env.local files, if they exist.
-# Note that .env.local is read only if .env exists.
-# This would be the case for an 'update' operation.
+# Load variables from .env file.
+# This reload is required to get latest variable values during 'update' operation.
 # shellcheck disable=SC2046
-[ -f "${DST_DIR}/.env" ] && [ -s "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs) && if [ -f "${DST_DIR}/.env.local" ] && [ -s "${DST_DIR}/.env.local" ]; then export $(grep -v '^#' "${DST_DIR}/.env.local" | xargs); fi
+[ -f "${DST_DIR}/.env" ] && [ -s "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs)
 
 # Project name.
 PROJECT="${PROJECT:-}"
@@ -75,9 +74,9 @@ install(){
 
   copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}"
 
-  # Reload variables from .env and .env.local files.
+  # Reload variables from .env file.
   # shellcheck disable=SC2046
-  [ -f "${DST_DIR}/.env" ] && [ -s "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs) && if [ -f "${DST_DIR}/.env.local" ] && [ -s "${DST_DIR}/.env.local" ]; then export $(grep -v '^#' "${DST_DIR}/.env.local" | xargs); fi
+  [ -f "${DST_DIR}/.env" ] && [ -s "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs)
 
   process_demo
 
@@ -256,7 +255,7 @@ process_stub(){
 
   if [ "$(get_value "preserve_acquia")" != "Y" ] ; then
     rm -Rf "${dir}"/hooks > /dev/null
-    rm "${dir}"/scripts/download-backup-acquia.sh > /dev/null
+    rm "${dir}"/scripts/download-db-acquia.sh > /dev/null
     remove_special_comments_with_content "ACQUIA" "${dir}" && bash -c "echo -n ."
   fi
 
@@ -299,7 +298,7 @@ process_stub(){
   replace_string_filename "your_site"         "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
 
   if [ "$(get_value "preserve_doc_comments")" == "Y" ] ; then
-    # Replace special "#:" comments with normal "#" comments.
+    # Replace special "#: " comments with normal "#" comments.
     replace_string_content "#:" "#" "${dir}"
   else
     remove_special_comments "${dir}" "#:"
@@ -307,7 +306,7 @@ process_stub(){
 
   # Reload variables.
   # shellcheck disable=SC2046
-  [ -f "${dir}/.env" ] && [ -s "${dir}/.env" ] && export $(grep -v '^#' "${dir}/.env" | xargs) && if [ -f "${dir}/.env.local" ] && [ -s "${dir}/.env.local" ]; then export $(grep -v '^#' "${dir}/.env.local" | xargs); fi
+  [ -f "${dir}/.env" ] && [ -s "${dir}/.env" ] && export $(grep -v '^#' "${dir}/.env" | xargs)
 
   # Discover demo mode. Has to happen after all other tokens replaced.
   DRUPALDEV_DEMO=$(is_demo)
@@ -698,7 +697,7 @@ discover_value__preserve_deployment(){
 }
 
 discover_value__preserve_acquia(){
-  { [ -d "hooks" ] || [ -f "scripts/download-backup-acquia.sh" ]; } && echo "Y" || echo "N"
+  { [ -d "hooks" ] || [ -f "scripts/download-db-acquia.sh" ]; } && echo "Y" || echo "N"
 }
 
 discover_value__preserve_lagoon(){

@@ -2,12 +2,13 @@
 #
 # Check Drupal-Dev project requirements.
 #
+
 set -e
 
 # Shortcut to set variables, but still allow to override.
 DOCTOR_CHECK_PREFLIGHT="${DOCTOR_CHECK_PREFLIGHT:-0}"
 if [ "${DOCTOR_CHECK_PREFLIGHT}" == "1" ]; then
-  DOCTOR_CHECK_DB="${DOCTOR_CHECK_DB:-1}"
+  DOCTOR_CHECK_DB="${DOCTOR_CHECK_DB:-0}"
   DOCTOR_CHECK_TOOLS="${DOCTOR_CHECK_TOOLS:-1}"
   DOCTOR_CHECK_PORT="${DOCTOR_CHECK_PORT:-1}"
   DOCTOR_CHECK_PYGMY="${DOCTOR_CHECK_PYGMY:-1}"
@@ -18,7 +19,7 @@ if [ "${DOCTOR_CHECK_PREFLIGHT}" == "1" ]; then
 fi
 
 DOCTOR_CHECK_TOOLS="${DOCTOR_CHECK_TOOLS:-1}"
-DOCTOR_CHECK_DB="${DOCTOR_CHECK_DB:-1}"
+DOCTOR_CHECK_DB="${DOCTOR_CHECK_DB:-0}"
 DOCTOR_CHECK_PORT="${DOCTOR_CHECK_PORT:-1}"
 DOCTOR_CHECK_PYGMY="${DOCTOR_CHECK_PYGMY:-1}"
 DOCTOR_CHECK_CLI="${DOCTOR_CHECK_CLI:-1}"
@@ -113,7 +114,7 @@ main() {
     fi
 
     # Check that the volume is mounted into CLI container.
-    if ! docker exec -i "$(docker-compose ps -q cli)" bash -c "grep \"^/dev\" /etc/mtab|grep -q /tmp/amazeeio_ssh-agent"; then
+    if ! docker exec -i "$(docker-compose ps -q cli)" bash -c "grep \"^/dev\" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent"; then
       error "SSH key is added to Pygmy, but the volume is not mounted into container. Make sure that your your \"docker-compose.yml\" has the following lines:"
       error "volumes_from:"
       error "  - container:amazeeio-ssh-agent"

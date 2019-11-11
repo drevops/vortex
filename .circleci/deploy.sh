@@ -1,42 +1,48 @@
 #!/usr/bin/env bash
 ##
-# Deploy artifact.
+# Deploy code to a remote location.
 #
-# It is a good practice to create a separate Deployer user with own SSH key for
-# every project.
+# Deployment may include pushing code, pushing created docker image, notifying
+# remote hosting service via webhook call etc.
 #
-# Add the following variables through CircleCI UI.
-# DEPLOY_USER_NAME - name of the user who will be committing to a remote repository.
-# DEPLOY_USER_EMAIL - email address of the user who will be committing to a remote repository.
-# DEPLOY_REMOTE - remote repository to push artifact to.
-# DEPLOY_PROCEED - if the deployment should proceed. Useful for testing of the CI config.
+# For deployment that require authentication, it is a good practice to create a
+# separate Deployer user with own SSH key for every project. This allows to
+# have independent non-personal account that will continue to work even if
+# the developer who setup integrations leaves the project. It is also easier to
+# restrict access or update SSH key of such account without affecting other
+# projects.
+#
+# Add the following variables through CircleCI UI based on the type of deployment:
+# - DEPLOY_TYPE - The type of deployment. Can be a combination of comma-separated
+#   values (to support multiple deployments): code, docker, webhook.
+# - DEPLOY_PROCEED - if the deployment should proceed. Useful for testing of the
+#   CI config.
+#
+# For code deployment:
+# - DEPLOY_GIT_USER_NAME - name of the user who will be committing to a remote
+#   repository.
+# - DEPLOY_GIT_USER_EMAIL - email address of the user who will be committing to
+#   a remote repository.
+# - DEPLOY_GIT_REMOTE - remote repository to push artifact to.
+#
+# For docker deployment:
+# - DEPLOY_DOCKER_REGISTRY_URL - the URL of the docker registry.
+# - DEPLOY_DOCKER_REGISTRY_USERNAME - the username to login to the docker registry.
+# - DEPLOY_DOCKER_REGISTRY_PASSWORD - the password to login to the docker registry.
+# - DEPLOY_DOCKER_REGISTRY_TOKEN - (optional) the authentication token to login
+#   to the docker registry if tokens are used.
+#
+# For webhook deployment:
+# - DEPLOY_WEBHOOK_URL - the URL of the webhook to call.
+# - DEPLOY_WEBHOOK_RESPONSE_STATUS - the status code of the expected response.
+#
+# @see ./scripts/deploy.sh
+
 set -e
 
-# Flag to actually proceed with deployment.
-DEPLOY_PROCEED="${DEPLOY_PROCEED:-0}"
-
-DEPLOY_SSH_FINGERPRINT="${DEPLOY_SSH_FINGERPRINT:-}"
-
-[ -z "${DEPLOY_SSH_FINGERPRINT}" ] && echo "Missing required value for DEPLOY_SSH_FINGERPRINT" && exit 1
-
-if [ "${DEPLOY_PROCEED}" == "0" ]; then
-  echo "Skipping deployment" && exit 0
-fi
-
-# Configure SSH to configure git and SSH to connect to remote servers for deployment.
-mkdir -p "${HOME}/.ssh/"
-echo -e "Host *\n\tStrictHostKeyChecking no\n" > "${HOME}/.ssh/config"
-DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}"
-DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_SSH_FILE//\"}"
-if [ -f "${DEPLOY_SSH_FILE}" ]; then
-  echo "Found Deploy SSH key file ${DEPLOY_SSH_FILE}"
-  ssh-add -D > /dev/null
-  ssh-add "${DEPLOY_SSH_FILE}"
-fi
-
-export DEPLOY_SRC="/workspace/code"
-export DEPLOY_ROOT="/app"
+#: Assigning values specific to CircleCI environment.
+export DEPLOY_CODE_SRC="/workspace/code"
+export DEPLOY_CODE_ROOT="/app"
 export DEPLOY_REPORT="/tmp/artifacts/deployment_report.txt"
 
-# shellcheck disable=SC1091
-source scripts/deploy.sh
+./scripts/deploy.sh

@@ -17,7 +17,6 @@ assert_deployment_files_present(){
   assert_dir_not_exists node_modules
   assert_dir_not_exists patches
   assert_dir_not_exists screenshots
-  assert_dir_not_exists scripts
   assert_dir_not_exists tests
   assert_file_not_exists .ahoy.yml
   assert_file_not_exists .dockerignore
@@ -38,6 +37,7 @@ assert_deployment_files_present(){
   assert_file_not_exists phpcs.xml
   assert_file_not_exists README.md
 
+  assert_dir_exists scripts
   assert_dir_exists vendor
 
   if [ "${has_custom_profile}" -eq 1 ]; then
@@ -106,8 +106,8 @@ provision_site(){
   assert_files_not_present_common
 
   step "Initialise the project with the default settings"
-  # Point demo database to the test database.
-  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
+
+  enable_demo_db
 
   run_install
 
@@ -126,8 +126,6 @@ provision_site(){
   git_add_all_commit "Init Drupal-Dev config" "${dir}"
 
   step "Build project"
-  # shellcheck disable=SC2015
-  docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network
   ahoy down
   ahoy up -- --build --force-recreate >&3
   sync_to_host

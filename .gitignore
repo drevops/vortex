@@ -4,6 +4,12 @@
 # Ignore Drupal docroot, but preserve custom modules, themes and settings.
 # To add an override file, explicitly un-ignore it below and add to the
 # repository (useful for robots.txt and .htaccess file overrides).
+
+#; To simplify maintenance of Drupal-Dev, we support only 'docroot' $DOCROOT
+#; defined explicitly here.
+#; @todo: Add support for renamed $DOCROOT.
+#;
+#; $DOCROOT is 'docroot'.
 docroot/*
 !docroot/sites/
 docroot/sites/*
@@ -34,6 +40,7 @@ docroot/sites/default/*
 !docroot/index.php
 !docroot/robots.txt
 !docroot/update.php
+
 #;< DRUPAL-DEV
 #; Ignore these files in Drupal-Dev itself, but do not ignore in consumer site.
 composer.lock
@@ -49,5 +56,5 @@ docroot/themes/**/build
 screenshots
 .data
 
-.env.local
+# Ignore local override files.
 docker-compose.override.yml

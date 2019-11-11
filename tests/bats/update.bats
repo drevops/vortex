@@ -43,8 +43,8 @@ load _helper_drupaldev
   git_add "${LOCAL_REPO_DIR}" ".eslintrc.json"
   latest_commit=$(git_commit "New version of Drupal-Dev" "${LOCAL_REPO_DIR}")
 
-  # Override Drupal-Dev release commit in local env file.
-  echo DRUPALDEV_COMMIT="${latest_commit}">>.env.local
+  # Override Drupal-Dev release commit in .env file.
+  echo DRUPALDEV_COMMIT="${latest_commit}">>.env
   # Override install script with currently tested one.
   export DRUPALDEV_INSTALL_SCRIPT="${CUR_DIR}/install.sh"
   # shellcheck disable=SC2059
@@ -58,9 +58,6 @@ load _helper_drupaldev
   # Assert that committed files were updated.
   assert_file_contains "docker-compose.yml" "# Some change to docker-compose"
   assert_file_contains ".eslintrc.json" "# Some change to non-required file"
-
-  # Assert that local commit override was preserved.
-  assert_file_contains ".env.local" "${latest_commit}"
 
   # Assert that new changes need to be manually resolved.
   assert_git_not_clean

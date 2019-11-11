@@ -7,7 +7,7 @@ load _helper
 load _helper_drupaldev
 
 @test "Demo auto discovery - enabled" {
-  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
+  enable_demo_db
 
   assert_file_not_exists .data/db.sql
 
@@ -21,7 +21,7 @@ load _helper_drupaldev
 }
 
 @test "Demo auto discovery - disabled" {
-  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
+  enable_demo_db
 
   mktouch .data/db.sql
   assert_file_exists .data/db.sql
@@ -39,7 +39,7 @@ load _helper_drupaldev
 }
 
 @test "Demo force disabled" {
-  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
+  enable_demo_db
   export DRUPALDEV_DEMO=0
 
   assert_file_not_exists .data/db.sql
@@ -54,7 +54,7 @@ load _helper_drupaldev
 }
 
 @test "Demo force enabled" {
-  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
+  enable_demo_db
   export DRUPALDEV_DEMO=1
 
   mktouch .data/db.sql
@@ -73,8 +73,8 @@ load _helper_drupaldev
 }
 
 @test "Demo auto discovery - enabled; skip demo processing" {
-  echo "DEMO_DB=$DEMO_DB_TEST" >> .env.local
-  echo "DRUPALDEV_SKIP_DEMO=1" >> .env.local
+  enable_demo_db
+  echo "DRUPALDEV_SKIP_DEMO=1">> .env
 
   assert_file_not_exists .data/db.sql
 

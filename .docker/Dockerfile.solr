@@ -1,7 +1,11 @@
-# @see https://github.com/amazeeio/lagoon/tree/master/images/solr-drupal
+#: Solr container.
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE} as cli
 
+# @see https://hub.docker.com/r/amazeeio/solr/tags?page=1&name=drupal
+# @see https://github.com/amazeeio/lagoon/tree/master/images/solr-drupal
 FROM amazeeio/solr:6.6-drupal-v1.1.2
-# Uncomment below after installing search_api_solr module (it must exist in the codebase).
+
+# Uncomment below after installing search_api_solr Drupal module (it must exist
+# in the codebase).
 # COPY --from=cli /app/docroot/modules/contrib/search_api_solr/solr-conf/6.x/ /solr-conf/conf/
