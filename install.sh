@@ -17,10 +17,10 @@ CUR_DIR=$(pwd)
 DST_DIR="${DST_DIR:-${CUR_DIR}}"
 DST_DIR=${1:-${DST_DIR}}
 
-# Load variables from .env and .env.local files, if they exist.
-# Note that .env.local is read only if .env exists.
+# Load variables from .env file.
+# This reload is required to get latest variable values during 'update' operation.
 # shellcheck disable=SC2046
-[ -f "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs) && [ -f "${DST_DIR}/.env.local" ] && export $(grep -v '^#' "${DST_DIR}/.env.local" | xargs)
+[ -f "${DST_DIR}/.env" ] && [ -s "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs)
 
 # Project name.
 PROJECT="${PROJECT:-}"
@@ -32,8 +32,6 @@ DRUPALDEV_IS_INTERACTIVE="${DRUPALDEV_IS_INTERACTIVE:-0}"
 DRUPALDEV_INIT_REPO="${DRUPALDEV_INIT_REPO:-1}"
 # Flag to allow override existing committed files.
 DRUPALDEV_ALLOW_OVERRIDE="${DRUPALDEV_ALLOW_OVERRIDE:-0}"
-# Flag to allow writing downloaded files into local exclude for current repository.
-DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE="${DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE:-0}"
 # Path to local Drupal-Dev repository. If not provided - remote will be used.
 DRUPALDEV_LOCAL_REPO="${DRUPALDEV_LOCAL_REPO:-}"
 # Organisation name to download the files from.
@@ -48,10 +46,10 @@ DRUPALDEV_DEBUG="${DRUPALDEV_DEBUG:-0}"
 DRUPALDEV_PROCEED="${DRUPALDEV_PROCEED:-1}"
 # Temporary directory to download and expand files to.
 DRUPALDEV_TMP_DIR="${DRUPALDEV_TMP_DIR:-$(mktemp -d)}"
-# Internal flag to remove demo configuration.
-DRUPALDEV_REMOVE_DEMO=${DRUPALDEV_REMOVE_DEMO:-1}
 # Internal version of Drupal-Dev. Discovered during installation.
 DRUPALDEV_VERSION="${DRUPALDEV_VERSION:-${DRUPAL_VERSION}.x}"
+# Internal flag to enforce DEMO mode. If not set, the demo mode will be discovered automatically.
+DRUPALDEV_DEMO=${DRUPALDEV_DEMO:-}
 
 install(){
   check_requirements
@@ -74,7 +72,13 @@ install(){
 
   process_stub "${DRUPALDEV_TMP_DIR}"
 
-  copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}" "${DRUPALDEV_ALLOW_USE_LOCAL_EXCLUDE}"
+  copy_files "${DRUPALDEV_TMP_DIR}" "${DST_DIR}" "${DRUPALDEV_ALLOW_OVERRIDE}"
+
+  # Reload variables from .env file.
+  # shellcheck disable=SC2046
+  [ -f "${DST_DIR}/.env" ] && [ -s "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs)
+
+  process_demo
 
   print_footer
 }
@@ -131,9 +135,10 @@ gather_answers(){
   set_answer "fresh_install"            "Do you want to use fresh Drupal installation for every build?"               "${is_interactive}"
   set_answer "preserve_deployment"      "Do you want to keep deployment configuration?"                               "${is_interactive}"
   set_answer "preserve_acquia"          "Do you want to keep Acquia Cloud integration?"                               "${is_interactive}"
-  set_answer "preserve_lagoon"          "Do you want to keep Lagoon integration?"                                     "${is_interactive}"
+  set_answer "preserve_lagoon"          "Do you want to keep Amazee.io Lagoon integration?"                           "${is_interactive}"
   set_answer "preserve_ftp"             "Do you want to keep FTP integration?"                                        "${is_interactive}"
   set_answer "preserve_dependenciesio"  "Do you want to keep dependencies.io integration?"                            "${is_interactive}"
+  set_answer "preserve_doc_comments"    "Do you want to keep detailed documentation in comments?"                     "${is_interactive}"
   set_answer "remove_drupaldev_info"    "Do you want to remove all Drupal-Dev information?"                           "${is_interactive}"
 
   print_summary "${is_interactive}"
@@ -168,9 +173,11 @@ download_local(){
   local commit="${3:-HEAD}"
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the local repo"
 
-  echo "==> Downloading Drupal-Dev at ref ${commit} from local repo ${src}"
+  echo -n "==> Downloading Drupal-Dev at ref ${commit} from local repo ${src}"
   git --git-dir="${src}/.git" --work-tree="${src}" archive --format=tar "${commit}" \
     | tar xf - -C "${dst}"
+  echo -n " ."
+  echo " done"
 }
 
 #
@@ -185,9 +192,10 @@ download_remote(){
   [ "${DRUPALDEV_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the remote repo"
 
   if [ "${commit}" != "" ]; then
-    echo "==> Downloading Drupal-Dev at commit ${commit}"
-    curl -# -L "https://github.com/${org}/${project}/archive/${commit}.tar.gz" \
+    echo -n "==> Downloading Drupal-Dev at commit ${commit}"
+    curl -sS -L "https://github.com/${org}/${project}/archive/${commit}.tar.gz" \
       | tar xzf - -C "${dst}" --strip 1
+    echo -n " ."
   else
     # Find the latest version for specified drupal version.
     # Print found version.
@@ -200,11 +208,14 @@ download_remote(){
       )
     [ "${release}" == "" ] && error "Unable to find the latest release of Drupal-Dev"
 
-    echo "==> Downloading the latest version ${release} of Drupal-Dev"
-    curl -# -L "https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}/archive/${release}.tar.gz" \
+    echo -n "==> Downloading the latest version ${release} of Drupal-Dev"
+    curl -sS -L "https://github.com/${DRUPALDEV_GH_ORG}/${DRUPALDEV_GH_PROJECT}/archive/${release}.tar.gz" \
       | tar xzf - -C "${DRUPALDEV_TMP_DIR}" --strip 1
+    echo -n " ."
     DRUPALDEV_VERSION="${release}"
   fi
+
+  echo " done"
 }
 
 #
@@ -212,6 +223,8 @@ download_remote(){
 #
 process_stub(){
   local dir="${1}"
+
+  echo -n "==> Replacing tokens "
 
   if [ "$(get_value "profile")" == "" ] || [ "$(get_value "profile")" == "n" ]; then
     rm -Rf "${dir}"/docroot/profiles/your_site_profile > /dev/null
@@ -242,7 +255,7 @@ process_stub(){
 
   if [ "$(get_value "preserve_acquia")" != "Y" ] ; then
     rm -Rf "${dir}"/hooks > /dev/null
-    rm "${dir}"/scripts/download-backup-acquia.sh > /dev/null
+    rm "${dir}"/scripts/download-db-acquia.sh > /dev/null
     remove_special_comments_with_content "ACQUIA" "${dir}" && bash -c "echo -n ."
   fi
 
@@ -284,27 +297,61 @@ process_stub(){
   replace_string_filename "your_org"          "$(get_value "org_machine_name")" "${dir}" && bash -c "echo -n ."
   replace_string_filename "your_site"         "$(get_value "machine_name")"     "${dir}" && bash -c "echo -n ."
 
+  if [ "$(get_value "preserve_doc_comments")" == "Y" ] ; then
+    # Replace special "#: " comments with normal "#" comments.
+    replace_string_content "#:" "#" "${dir}"
+  else
+    remove_special_comments "${dir}" "#:"
+  fi
+
+  # Reload variables.
+  # shellcheck disable=SC2046
+  [ -f "${dir}/.env" ] && [ -s "${dir}/.env" ] && export $(grep -v '^#' "${dir}/.env" | xargs)
+
+  # Discover demo mode. Has to happen after all other tokens replaced.
+  DRUPALDEV_DEMO=$(is_demo)
+
+  # Remove code required for the demo of Drupal-Dev.
+  if [ "${DRUPALDEV_DEMO}" != "1" ]; then
+    remove_special_comments_with_content "DEMO" "${dir}"
+    bash -c "echo -n ."
+  fi
 
   if [ "$(get_value "remove_drupaldev_info")" == "Y" ] ; then
-    # Handle code required for Drupal-Dev maintenance.
+    # Remove code required for Drupal-Dev maintenance.
     remove_special_comments_with_content "DRUPAL-DEV" "${dir}" && bash -c "echo -n ."
-    # Handle code required for the demo of Drupal-Dev.
-    [ "${DRUPALDEV_REMOVE_DEMO}" -eq 1 ] && remove_special_comments_with_content "DEMO" "${dir}" && bash -c "echo -n ."
+
     # Remove other unhandled comments.
     remove_special_comments "${dir}" "#;<"
     remove_special_comments "${dir}" "#;>"
+
     # Remove all other comments.
     remove_special_comments "${dir}"
   fi
 
   enable_commented_code "${dir}"
+
+  echo " done"
+}
+
+is_demo(){
+  # Perform auto-discovery only if the mode was not explicitly defined.
+  if [ "$DRUPALDEV_DEMO" == "" ]; then
+    # Only if using canonical-db workflow.
+    if [ "$(get_value "fresh_install")" == "n" ] && [ "${DEMO_DB+x}" ] && [ ! -f .data/db.sql ] ; then
+      DRUPALDEV_DEMO=1
+    else
+      DRUPALDEV_DEMO=0
+    fi
+  fi
+
+  echo $DRUPALDEV_DEMO
 }
 
 copy_files(){
   local src="${1}"
   local dst="${2}"
   local allow_override="${3:-}"
-  local allow_use_local_exclude="${4:-}"
 
   pushd "${dst}" > /dev/null || exit 1
 
@@ -319,6 +366,7 @@ copy_files(){
       targets+=("$REPLY")
   done < <(find "${src}" -type l -print0)
 
+  echo -n "==> Copying files "
   for file in "${targets[@]}"; do
     parent="$(dirname "${file}")"
     relative_file=${file#"${src}/"}
@@ -329,10 +377,10 @@ copy_files(){
       continue
     fi
 
-    echo "==> Processing file ${relative_file}"
+    [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "==> Processing file ${relative_file}" || echo -n "."
 
     if [ "$(file_is_internal "${relative_file}")" -eq 1 ]; then
-      echo "    Skipping internal Drupal-Dev file ${relative_file}"
+      [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "    Skipping internal Drupal-Dev file ${relative_file}" || echo -n "."
       continue
     fi
 
@@ -347,37 +395,22 @@ copy_files(){
         mkdir -p "${relative_parent}"
         if [ -d "${file}" ]; then
           # Symlink files can be directories, so handle them differently.
-          cp -fR "${file}" "${relative_parent}/"
-          echo "    Copied dir ${relative_file}"
+          cp -fR "${file}" "${relative_parent}/" 2>/dev/null
+          [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "    Copied dir ${relative_file}" || echo -n "."
         elif [ -L "${file}" ]; then
-          cp -a "${file}" "${relative_parent}/"
-          echo "    Copied symlink ${file} to ${relative_file}"
+          cp -a "${file}" "${relative_parent}/" 2>/dev/null
+          [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "    Copied symlink ${file} to ${relative_file}" || echo -n "."
         else
-          cp -f "${file}" "${relative_file}"
-          echo "    Copied file ${relative_file}"
+          cp -f "${file}" "${relative_file}" 2>/dev/null
+          [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "    Copied file ${relative_file}" || echo -n "."
         fi
       fi
-
-      # Add files to local ignore (not .gitignore), if all conditions pass:
-      #  - flag is set to allow to add to local ignore
-      #  - not already ignored
-      #  - not currently tracked
-      #  - not in a list of required files
-      file_is_required="$(file_is_required "${relative_file}")"
-      # @todo: Refactor return values.
-      if [ "${allow_use_local_exclude}" -eq 1 ] \
-        && [ -d ./.git/ ] \
-        && [ "$(git_file_is_ignored "${relative_file}")" != "0" ] \
-        && [ "${file_is_tracked}" != "0" ] \
-        && [ "${file_is_required}" != "0" ]; then
-        git_add_to_local_exclude "${relative_file}"
-      elif [ "${allow_use_local_exclude}" -ne 1 ]; then
-        git_remove_from_local_exclude "${relative_file}"
-      fi
     else
-      echo "    Skipped file ${relative_file}"
+      [ "${DRUPALDEV_DEBUG}" -eq 1 ] && echo "    Skipped file ${relative_file}" || echo -n "."
     fi
   done
+
+  echo " done"
 
   popd > /dev/null || exit 1
 }
@@ -401,6 +434,18 @@ is_core_profile(){
 is_installed(){
   [ ! -f "README.md" ] && return 1
   grep -q "badge/Drupal--Dev-" "README.md"
+}
+
+#
+# Process demo configuration.
+#
+process_demo(){
+  { [ "${DRUPALDEV_SKIP_DEMO+x}" ] || [ "${DRUPALDEV_DEMO}" == "0" ]; } && return 0
+
+  # Download demo database if this is not a fresh install, the DB file does
+  # not exist and the demo DB variable exists.
+  echo "==> No database dump file found in .data directory. Downloading DEMO database from ${DEMO_DB}"
+  mkdir -p .data && curl -L "${DEMO_DB}" -o .data/db.sql
 }
 
 ################################################################################
@@ -472,6 +517,10 @@ get_default_value__preserve_ftp(){
 }
 
 get_default_value__preserve_dependenciesio(){
+  echo "Y"
+}
+
+get_default_value__preserve_doc_comments(){
   echo "Y"
 }
 
@@ -548,6 +597,10 @@ normalise_answer__preserve_dependenciesio(){
   [ "${1}" != "Y" ] && echo "n" || echo "Y"
 }
 
+normalise_answer__preserve_doc_comments(){
+  [ "${1}" != "Y" ] && echo "n" || echo "Y"
+}
+
 normalise_answer__remove_drupaldev_info(){
   [ "${1}" != "Y" ] && echo "n" || echo "Y"
 }
@@ -591,6 +644,7 @@ discover_value__module_prefix(){
   if ls -d docroot/sites/all/modules/custom/*_core > /dev/null; then
     # shellcheck disable=SC2012
     ls -d docroot/sites/all/modules/custom/*_core | head -n 1 | cut -c 34- | sed -n 's/_core//p'
+    return
   fi
 }
 
@@ -605,6 +659,7 @@ discover_value__theme(){
   if ls -d docroot/sites/all/themes/custom/* > /dev/null; then
     # shellcheck disable=SC2012
     ls -d docroot/sites/all/themes/custom/* | head -n 1 | cut -c 33-
+    return
   fi
 }
 
@@ -633,7 +688,7 @@ discover_value__preserve_deployment(){
 }
 
 discover_value__preserve_acquia(){
-  { [ -d "hooks" ] || [ -f "scripts/download-backup-acquia.sh" ]; } && echo "Y" || echo "N"
+  { [ -d "hooks" ] || [ -f "scripts/download-db-acquia.sh" ]; } && echo "Y" || echo "N"
 }
 
 discover_value__preserve_lagoon(){
@@ -646,6 +701,10 @@ discover_value__preserve_ftp(){
 
 discover_value__preserve_dependenciesio(){
   [ -f "dependencies.yml" ] && echo "Y" || echo "N"
+}
+
+discover_value__preserve_doc_comments(){
+  { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "Ahoy configuration file."; } && echo "Y" || echo "N"
 }
 
 discover_value__remove_drupaldev_info(){
@@ -666,7 +725,7 @@ print_header_interactive(){
   echo "**********************************************************************"
   echo "*                                                                    *"
   if [ "${commit}" == "" ]; then
-    echo "* This will install the latest version of Drupal-Dev 7.x into your   *"
+    echo "* This will install the latest version of Drupal-Dev into your       *"
     echo "* project.                                                           *"
   else
     echo "* This will install Drupal-Dev into your project at commit           *"
@@ -753,6 +812,7 @@ print_summary(){
   echo "  Lagoon integration:            $(format_enabled "$(get_value "preserve_lagoon")")"
   echo "  FTP integration:               $(format_enabled "$(get_value "preserve_ftp")")"
   echo "  dependencies.io integration:   $(format_enabled "$(get_value "preserve_dependenciesio")")"
+  echo "  Preserve docs in comments:     $(format_yes_no "$(get_value "preserve_doc_comments")")"
   echo "  Remove Drupal-Dev comments:    $(format_yes_no "$(get_value "remove_drupaldev_info")")"
   echo "**********************************************************************"
   echo
@@ -764,10 +824,7 @@ print_footer(){
   echo "*                                                                    *"
   echo "* Finished installing Drupal-Dev.                                    *"
   echo "*                                                                    *"
-  echo "* Please review changes and commit required files.                   *"
-  echo "*                                                                    *"
-  echo "* Do not forget to run 'composer update --lock' before committing    *"
-  echo "* changes.                                                           *"
+  echo "* Review changes and commit required files.                          *"
   echo "*                                                                    *"
   echo "**********************************************************************"
 }
@@ -885,7 +942,6 @@ file_is_required(){
     README.md
     .circleci/config.yml
     docroot/sites/default/settings.php
-    docroot/sites/default/services.yml
   )
 
   for i in "${files[@]}"; do

@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 ##
-# Download DB dump from latest Acquia Cloud backup.
+# Download DB dump from the latest Acquia Cloud backup.
 #
 # This script will discover latest available backup in the specified
-# Acquia Cloud environment, download and decompress it into specified directory.
+# Acquia Cloud environment using Acquia Cloud API 1.0, download and decompress
+# it into specified directory.
 #
 # It does not rely on 'drush ac-*' command, which makes it capable of running
 # on hosts without configured drush and drush aliases.
@@ -14,9 +15,9 @@
 #                             REQUIRED VARIABLES
 #-------------------------------------------------------------------------------
 
-# Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
+# Acquia Cloud UI -> Account -> Credentials -> Cloud API -> E-mail
 AC_API_USER_NAME=${AC_API_USER_NAME:-}
-# Acquia Cloud UI->Account->Credentials->Cloud API->Private key
+# Acquia Cloud UI -> Account -> Credentials -> Cloud API -> Private key
 AC_API_USER_PASS=${AC_API_USER_PASS:-}
 # 'prod:<git_repo_name>'
 AC_API_DB_SITE=${AC_API_DB_SITE:-}
@@ -27,21 +28,21 @@ AC_API_DB_NAME=${AC_API_DB_NAME:-}
 #                              OPTIONAL VARIABLES
 #-------------------------------------------------------------------------------
 
-# Backup id. If not specified - latest backup id will be discovered and used.
+# Backup id. If not specified - the latest backup id will be discovered and used.
 AC_API_DB_BACKUP_ID=${AC_API_DB_BACKUP_ID:-}
 
-# Location of the Clouds API credentials file after running 'drush ac-api-login'.
-AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-~/.acquia/cloudapi.conf}
+# Location of the Acquia Cloud API credentials file after running 'drush ac-api-login'.
+AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-$HOME/.acquia/cloudapi.conf}
 
-# Directory where DB dumps stored.
+# Directory where DB dumps are stored.
 DB_DIR=${DB_DIR:-.data}
 
 # Resulting DB dump file name. Used by external scripts to import DB.
-# Note that absolute path will be ${project_path}/${DB_DIR}/${${DB_FILE_NAME}}
+# Note that absolute path will be ${project_path}/${DB_DIR}/${DB_FILE_NAME}
 DB_FILE_NAME=${DB_FILE_NAME:-db.sql}
 
 # Absolute path to resulting file, including name. May be used to override
-# resulting dump path if it is located outside of current project.
+# resulting dump path if it is located outside of the current project.
 DB_FILE=${DB_FILE:-}
 
 # Flag to decompress backup.
@@ -57,13 +58,17 @@ DB_DOWNLOAD_PROCEED=${DB_DOWNLOAD_PROCEED:-1}
 #                       DO NOT CHANGE ANYTHING BELOW THIS LINE
 #-------------------------------------------------------------------------------
 
+#
 # Function to extract last value from JSON object passed via STDIN.
+#
 extract_json_last_value() {
   local key=$1
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print \$last[\"${key}\"] : exit(1);"
 }
 
+#
 # Function to extract keyed value from JSON object passed via STDIN.
+#
 extract_json_value() {
   local key=$1
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print \$data[\"${key}\"] : exit(1);"
@@ -78,7 +83,7 @@ self_path=$(cd -P -- "${self_dir}" && pwd -P)/$(basename -- "${BASH_SOURCE[0]}")
 # Find absolute project root.
 project_path=$(dirname "$(dirname "${self_path}")")
 
-# Expand DB dump file name to absolute path.
+# Expand DB dump file name into absolute path.
 DB_FILE=${DB_FILE:-${project_path}/${DB_DIR}/${DB_FILE_NAME}}
 # Set DB dump dir to an absolute path.
 DB_DIR=$(dirname "${DB_FILE}")
@@ -94,12 +99,14 @@ if [ "${AC_API_USER_NAME}" == "" ] && [ -f "${AC_CREDENTIALS_FILE}" ]; then
   AC_API_USER_PASS=$(extract_json_value "key" < "${AC_CREDENTIALS_FILE}")
 fi
 
+# Check that all required variables are present.
 [ "${AC_API_USER_NAME}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_USER_NAME}" && exit 1
 [ "${AC_API_USER_PASS}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_USER_PASS}" && exit 1
 [ "${AC_API_DB_SITE}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_DB_SITE}" && exit 1
 [ "${AC_API_DB_ENV}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_DB_ENV}" && exit 1
 [ "${AC_API_DB_NAME}" == "" ] && echo "==> ERROR: Missing value for \${AC_API_DB_NAME}" && exit 1
 
+# Kill-switch to proceed with download.
 [ "${DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "Skipping Acquia database download" && exit 0
 
 latest_backup=0
@@ -123,7 +130,7 @@ db_dump_compressed=${db_dump_file_actual}.gz
 if [ -f "${db_dump_discovered}" ] ; then
   echo "==> Found existing cached DB file \"${db_dump_discovered}\" for DB \"${AC_API_DB_NAME}\""
 else
-  # If the gzip version exists, then we don't need to re-download it.
+  # If the gzipped version exists, then we don't need to re-download it.
   if [ ! -f "${db_dump_compressed}" ] ; then
     [ ! -d "${DB_DIR}" ] && echo "==> Creating dump directory ${DB_DIR}" && mkdir -p "${DB_DIR}"
     [ "${DB_REMOVE_CACHED_DUMPS}" == "1" ] && echo "==> Removing all previously cached DB dumps" && rm -Rf "${DB_DIR}/${db_dump_file_actual_prefix:?}*"
@@ -136,6 +143,7 @@ else
   else
     echo "==> Found existing cached gzipped DB file ${db_dump_compressed} for DB ${AC_API_DB_NAME}"
   fi
+
   # Expanding file, if required.
   if [ "${DB_DECOMPRESS_BACKUP}" != "0" ] ; then
     echo "==> Expanding DB file ${db_dump_compressed} into ${db_dump_file_actual}"
@@ -150,12 +158,13 @@ fi
 if [ "${latest_backup}" != "0" ] ; then
   latest_symlink=${DB_FILE}
   if [ -f "${db_dump_file_actual}" ] ; then
-    echo "==> Creating symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}"
+    echo "==> Creating a symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}"
     (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
   fi
+
   latest_symlink=${latest_symlink}.gz
   if [ -f "${db_dump_compressed}" ] ; then
-    echo "==> Creating symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\""
+    echo "==> Creating a symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\""
     (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
   fi
 fi

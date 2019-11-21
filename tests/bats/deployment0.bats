@@ -3,17 +3,19 @@
 # Test runner for deployment tests.
 #
 
-load test_helper
-load test_helper_drupaldev
-load test_helper_drupaldev_deployment
+load _helper
+load _helper_drupaldev
+load _helper_drupaldev_deployment
 
 @test "Deployment; no integration" {
+  pushd "${BUILD_DIR}" > /dev/null || exit 1
+
   # Source directory for initialised codebase.
   # If not provided - directory will be created and a site will be initialised.
   # This is to facilitate local testing.
   SRC_DIR="${SRC_DIR:-}"
 
-  # "Remote" repository to deploy the artefact to. It is located in the host
+  # "Remote" repository to deploy the artifact to. It is located in the host
   # filesystem and just treated as a remote for currently installed codebase.
   REMOTE_REPO_DIR=${REMOTE_REPO_DIR:-${BUILD_DIR}/deployment_remote}
 
@@ -21,7 +23,7 @@ load test_helper_drupaldev_deployment
 
   if [ ! "${SRC_DIR}" ]; then
     SRC_DIR="${BUILD_DIR}/deployment_src"
-    step "Deployment source directory is not provided - using directory ${SRC_DIR}"
+    substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
     prepare_fixture_dir "${SRC_DIR}"
 
     # Disable Acquia integration for this test to run independent deployment.
@@ -31,29 +33,30 @@ load test_helper_drupaldev_deployment
     # is going to run from, while "SRC_DIR" is a place where files are taken
     # from for deployment. They may be the same place, but we are testing them
     # if they are separate, because most likely SRC_DIR will contain code
-    # built on previous build stages.
+    # built on previous build stages of the CI process.
     provision_site "${CURRENT_PROJECT_DIR}"
 
-    assert_files_present_common "${CURRENT_PROJECT_DIR}"
-    assert_files_present_deployment  "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_acquia  "${CURRENT_PROJECT_DIR}"
-    assert_files_present_integration_lagoon  "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_ftp  "${CURRENT_PROJECT_DIR}"
+    assert_files_present_common "star_wars" "StarWars" "${CURRENT_PROJECT_DIR}"
+    assert_files_present_deployment "star_wars" "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_acquia "star_wars" "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_lagoon "star_wars" "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_ftp "star_wars" "${CURRENT_PROJECT_DIR}"
 
-    step "Copying built codebase into code source directory ${SRC_DIR}"
+    substep "Copying built codebase into code source directory ${SRC_DIR}"
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
   else
-    step "Using provided SRC_DIR ${SRC_DIR}"
+    substep "Using provided SRC_DIR ${SRC_DIR}"
     assert_dir_not_empty "${SRC_DIR}"
   fi
 
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
-  assert_files_present_common "${SRC_DIR}"
-  assert_files_present_deployment "${SRC_DIR}"
-  assert_files_present_no_integration_acquia "${SRC_DIR}"
-  assert_files_present_integration_lagoon "${SRC_DIR}"
-  assert_files_present_no_integration_ftp "${SRC_DIR}"
+
+  assert_files_present_common "star_wars" "StarWars" "${CURRENT_PROJECT_DIR}"
+  assert_files_present_deployment "star_wars" "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "star_wars" "${CURRENT_PROJECT_DIR}"
+  assert_files_present_integration_lagoon "star_wars" "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "star_wars" "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${SRC_DIR}"
 
   # Make sure that one of the excluded directories will be ignored in the
@@ -61,27 +64,66 @@ load test_helper_drupaldev_deployment
   mkdir -p "${SRC_DIR}"/node_modules
   touch "${SRC_DIR}"/node_modules/test.txt
 
-  step "Preparing remote repo directory ${REMOTE_REPO_DIR}"
+  substep "Preparing remote repo directory ${REMOTE_REPO_DIR}"
   prepare_fixture_dir "${REMOTE_REPO_DIR}"
-  git_init "${REMOTE_REPO_DIR}" 1
+  git_init 1 "${REMOTE_REPO_DIR}"
 
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
-  step "Running deployment"
-  export DEPLOY_REMOTE="${REMOTE_REPO_DIR}"/.git
-  export DEPLOY_ROOT="${CURRENT_PROJECT_DIR}"
-  export DEPLOY_SRC="${SRC_DIR}"
-  source scripts/deploy.sh >&3
+  substep "Running deployment"
+  # This deployment uses all 3 types.
+  export DEPLOY_TYPE="code,webhook,docker"
 
-  step "Checkout currently pushed branch on remote"
-  git --git-dir="${DEPLOY_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch | sed 's/\*\s//g' | xargs git --git-dir="${DEPLOY_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" checkout
-  git --git-dir="${DEPLOY_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch >&3
+  # Variables for CODE deployment.
+  export DEPLOY_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
+  export DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
+  export DEPLOY_CODE_SRC="${SRC_DIR}"
 
-  step "Assert remote deployment files"
+  # Variables for WEBHOOK deployment.
+  export DEPLOY_WEBHOOK_URL=http://example.com
+  export DEPLOY_WEBHOOK_RESPONSE_STATUS=200
+
+  # Variables for DOCKER deployment.
+  # @todo: Not implemented. Add here when implemented.
+
+  # Run deployment.
+  run source scripts/deploy.sh
+  assert_success
+
+  #
+  # Code deployment assertions.
+  #
+  assert_output_contains "==> Started CODE deployment"
+
+  substep "CODE: Checkout currently pushed branch on remote"
+  git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch | sed 's/\*\s//g' | xargs git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" checkout
+  git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch >&3
+
+  substep "CODE: Assert remote deployment files"
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
 
   # Assert Acquia hooks are absent.
   assert_files_present_no_integration_acquia "${REMOTE_REPO_DIR}"
+
+  assert_output_contains "==> Finished CODE deployment"
+
+  #
+  # Webhook deployment assertions.
+  #
+  assert_output_contains "==> Started WEBHOOK deployment"
+  assert_output_contains "==> Successfully called webhook"
+  assert_output_not_contains "ERROR: Webhook deployment failed"
+  assert_output_contains "==> Finished WEBHOOK deployment"
+
+  #
+  # Docker deployment assertions.
+  #
+  assert_output_contains "==> Started DOCKER deployment"
+  # @todo: Update once Docker deployment is implemented.
+  assert_output_contains "Docker deployment is not yet implemented"
+  assert_output_contains "==> Finished DOCKER deployment"
+
+  popd > /dev/null
 
   popd > /dev/null
 }

@@ -150,8 +150,8 @@ Run `ahoy update` to download the latest version of Drupal-Dev for your project.
 |                                               | [Scripts](scripts/composer) to create required settings and files with environment variables support                | Required files and directories created automatically.Environment variables override support allows to provide override values without the need to change scripts. Useful for per-environment overrides. |
 |                                               | [Settings file](/Users/o_o/www/drupal-dev/docroot/sites/default/settings.php) with multi-environment support        | Per-environment variables allow to easily target specific settings to specific environments without too much mess |
 |                                               | [Best-practices development modules](composer.json)                                                                 | Having the same development modules on each website helps to reduce development time. |
-| Custom [module scaffolding](docroot/modules/custom/your_site_core/your_site_core.module) | Mechanism to organise contributed module-related hook implementations into standalone files | Helps avoid large files with all hook implementation, which leads to a simple maintenance. |
-| Custom [theme scaffolding](docroot/themes/custom/your_site_theme)                      | Based on [Bario (Bootstrap 4)](https://www.drupal.org/project/bootstrap_barrio)                                     | Bootstrap 4 is the latest version of the most popular frontend framework and Bario is a Drupal theme that supports Bootstrap 4. |
+| Custom [module scaffolding](docroot/sites/all/modules/custom/your_site_core/your_site_core.module) | Mechanism to organise contributed module-related hook implementations into standalone files | Helps avoid large files with all hook implementation, which leads to a simple maintenance. |
+| Custom [theme scaffolding](docroot/sites/all/themes/custom/your_site_theme)                      | Based on [Bario (Bootstrap 4)](https://www.drupal.org/project/bootstrap_barrio)                                     | Bootstrap 4 is the latest version of the most popular frontend framework and Bario is a Drupal theme that supports Bootstrap 4. |
 |                                               | Grunt + SASS/SCSS + globbing + Livereload                                                                           | Grunt configuration defines multiple build steps to work with frontend in Drupal.<br/>Livereload allows to automatically refresh the page once there are changes to styles or scripts. |
 | Patches management                            | Based on [composer-patches](https://github.com/cweagans/composer-patches)                                           | Support for custom (per-project) and contributed patches is simply essential for any project. |
 | **Local development environment**             |
@@ -196,7 +196,6 @@ Run `ahoy update` to download the latest version of Drupal-Dev for your project.
 | Lagoon                                        | Deployment configuration                                                                                            | Lagoon configuration is required to perform deployments |
 |                                               | Production database from Lagoon                                                                                     | Using production database for development and automated builds (CI) requires database dump from Lagoon |
 | [dependencies.io](https://www.dependencies.io/) | Automated pull request submissions for automated updates.                                                         | Automated dependencies updates allow to keep the project up to date by automatically creating pull requests with updated dependencies on a daily basis |
-| [Diffy](https://diffy.website/) (Visual Regression)\* | Automated visual regression comparison for each deployment                                                  | Visual regression for each deployment is useful to make sure that only required changes were applied with specific code change and that the rest of the site has not changed |
 | **Maintenance (of Drupal-Dev)**               |                                                                                                                     
 | Install and upgrade                           | Follows [SemVer](https://semver.org/) model for releases                                                            | Projects may refer to a specific version of Drupal-Dev, which sets expectations about what tools and configuration is available |
 |                                               | Managed as an agile project                                                                                         | New features and defects can be addressed in a shorter development cycle.GitHub issues organised on the Kanban board provide clear visibility for future releases |
@@ -286,13 +285,17 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 
 [//]: # (#;< ACQUIA)
 
-- Add Acquia Cloud credentials to `.env.local` file:
-```
-  # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
-  AC_API_USER_NAME=<YOUR_USERNAME>
-  # Acquia Cloud UI->Account->Credentials->Cloud API->Private key
-  AC_API_USER_PASS=<YOUR_TOKEN>
-```
+- Authenticate with Acquia Cloud API using:
+  - Run `drush ac-login`<br/> 
+  or 
+  - Add Acquia Cloud credentials to `.env` file:
+
+  ```
+    # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
+    AC_API_USER_NAME=<YOUR_USERNAME>
+    # Acquia Cloud UI->Account->Credentials->Cloud API->Private key
+    AC_API_USER_PASS=<YOUR_TOKEN>
+  ```
 [//]: # (#;> ACQUIA)
 
 [//]: # (#;< !FRESH_INSTALL)
@@ -308,31 +311,35 @@ Run each command as `ahoy <command>`.
   ```  
   build        Build or rebuild project.
   clean        Remove containers and all build files.
-  cli          Start a shell inside CLI container or run a command.
+  cli          Start a shell or run a command inside the CLI service container.
   debug        Enable debug configuration.
+  deploy       Run remote deployment procedures
   doctor       Find problems with current project setup.
   down         Stop Docker containers and remove container, images, volumes and networks.
   download-db  Download database.
   drush        Run drush commands in the CLI service container.
+  export-code  Export built code.
   export-db    Export database dump.
   fe           Build front-end assets.
   fed          Build front-end assets for development.
   few          Watch front-end assets during development.
   flush-redis  Flush Redis cache.
-  info         Print information about this project.
+  info         Show information about this project.
   install-site Install a site.
-  lint         Lint code.
+  lint         Lint back-end and front-end code.
+  lint-be      Lint back-end code.
+  lint-fe      Lint front-end code.
   login        Login to a website.
-  logs         Show Docker logs.
+  logs         Show Docker logs for all or specified services.
   pull         Pull latest docker images.
-  reset        Reset environment: remove containers, all build, manually created and Drupal-Dev files.
-  restart      Restart all stopped and running Docker containers.
-  start        Start existing Docker containers.
-  stop         Stop running Docker containers.
+  reset        Reset environment: remove containers, all build, uncommitted files.
+  restart      Restart all or specified stopped and running Docker containers.
+  start        Start all or specified existing Docker containers.
+  stop         Stop all or specified running Docker containers.
   test         Run all tests.
-  test-behat   Run Behat tests.
-  test-phpunit Run PHPUnit tests.
-  up           Build and start Docker containers.
+  test-bdd     Run BDD tests.
+  test-unit    Run Simpletest unit tests.
+  up           Build and start all or specified Docker containers.
   update       Update development stack.
   ```
 

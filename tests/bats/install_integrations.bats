@@ -3,8 +3,8 @@
 # Init tests.
 #
 
-load test_helper
-load test_helper_drupaldev
+load _helper
+load _helper_drupaldev
 
 @test "Install: empty directory; no Deployment, Acquia, Lagoon, FTP and dependencies.io integrations" {
   export DRUPALDEV_OPT_PRESERVE_DEPLOYMENT=0
@@ -14,16 +14,16 @@ load test_helper_drupaldev
   export DRUPALDEV_OPT_PRESERVE_DEPENDENCIESIO=0
 
   run_install
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_git_repo
 
-  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+  install_dependencies_stub
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_dependenciesio "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_no_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_no_integration_dependenciesio
 }
 
 @test "Install: empty directory; all integrations" {
@@ -34,16 +34,16 @@ load test_helper_drupaldev
   export DRUPALDEV_OPT_PRESERVE_DEPENDENCIESIO=Y
 
   run_install
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_git_repo
 
-  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+  install_dependencies_stub
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_ftp "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_dependenciesio "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_deployment
+  assert_files_present_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_integration_ftp
+  assert_files_present_integration_dependenciesio
 }
 
 @test "Install: empty directory; no deployment" {
@@ -54,16 +54,16 @@ load test_helper_drupaldev
   export DRUPALDEV_OPT_PRESERVE_DEPENDENCIESIO=Y
 
   run_install
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_git_repo
 
-  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+  install_dependencies_stub
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_ftp "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_dependenciesio "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_no_deployment
+  assert_files_present_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_integration_ftp
+  assert_files_present_integration_dependenciesio
 }
 
 @test "Install: empty directory; no Acquia integration" {
@@ -74,16 +74,16 @@ load test_helper_drupaldev
   export DRUPALDEV_OPT_PRESERVE_DEPENDENCIESIO=Y
 
   run_install
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_git_repo
 
-  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+  install_dependencies_stub
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_ftp "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_dependenciesio "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_integration_ftp
+  assert_files_present_integration_dependenciesio
 }
 
 @test "Install: empty directory; no Lagoon integration" {
@@ -94,16 +94,16 @@ load test_helper_drupaldev
   export DRUPALDEV_OPT_PRESERVE_DEPENDENCIESIO=Y
 
   run_install
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_git_repo
 
-  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+  install_dependencies_stub
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_ftp "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_dependenciesio "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_deployment
+  assert_files_present_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_integration_ftp
+  assert_files_present_integration_dependenciesio
 }
 
 @test "Install: empty directory; no FTP integration" {
@@ -114,16 +114,16 @@ load test_helper_drupaldev
   export DRUPALDEV_OPT_PRESERVE_DEPENDENCIESIO=Y
 
   run_install
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_git_repo
 
-  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+  install_dependencies_stub
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_dependenciesio "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_deployment
+  assert_files_present_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_integration_dependenciesio
 }
 
 @test "Install: empty directory; no dependencies.io integration" {
@@ -134,14 +134,14 @@ load test_helper_drupaldev
   export DRUPALDEV_OPT_PRESERVE_DEPENDENCIESIO=0
 
   run_install
-  assert_git_repo "${CURRENT_PROJECT_DIR}"
+  assert_git_repo
 
-  install_dependencies_stub "${CURRENT_PROJECT_DIR}"
+  install_dependencies_stub
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_ftp "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_dependenciesio "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common
+  assert_files_present_deployment
+  assert_files_present_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_integration_ftp
+  assert_files_present_no_integration_dependenciesio
 }

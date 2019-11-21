@@ -8,6 +8,7 @@
  */
 
 /* global module */
+var bootstrapPath = 'vendor/twbs/bootstrap/dist/js/bootstrap.js';
 var themeName = 'your_site_theme';
 var themePath = 'docroot/sites/all/themes/custom/' + themeName + '/';
 module.exports = function (grunt) {
@@ -24,18 +25,16 @@ module.exports = function (grunt) {
         '!docroot/sites/all/themes/custom/**/*.min.js'
       ],
       options: {
-        configFile: '.eslintrc.json',
-        format: 'codeframe'
+        config: '.eslintrc.json'
       }
     },
     sasslint: {
       options: {
-        configFile: '.sass-lint.yml',
-        formatter: 'codeframe'
+        configFile: '.sass-lint.yml'
       },
       target: [
-        'docroot/themes/custom/**/*.scss',
-        'docroot/modules/custom/**/*.scss'
+        'docroot/sites/all/themes/custom/**/*.scss',
+        'docroot/sites/all/modules/custom/**/*.scss'
       ]
     },
     sass_globbing: {
@@ -56,6 +55,7 @@ module.exports = function (grunt) {
       },
       dist: {
         src: [
+          bootstrapPath,
           themePath + 'js/**/*.js',
           '!' + themePath + 'js/' + themeName + '.min.js'
         ],
@@ -133,6 +133,7 @@ module.exports = function (grunt) {
         files: [themePath + 'js/**/*.js'],
         tasks: ['concat'],
         options: {
+          livereload: true,
           spawn: false
         }
       },

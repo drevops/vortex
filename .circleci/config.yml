@@ -1,9 +1,26 @@
-#;
-#; CircleCI 2.0 configuration file.
-#;
-#; All tasks are extracted into scripts located in `.circleci` directory.
-#; This is to allow per-project override for a particular job without
-#; the need to modify this configuration file.
+#:
+#: CircleCI 2.0 configuration file.
+#:
+#: All tasks are located in scripts in `.circleci` directory.
+#: This is to allow per-project override for a particular job without
+#: the need to modify this configuration file.
+#:
+#: Understanding CircleCI 'docker' executor.
+#:
+#: CircleCI uses "runner" container (created from specified Docker image)
+#: to checkout source code and run commands defined in this file.
+#: Application Docker containers (the ones defined in docker-compose.yml)
+#: run on *remote* docker server, started by CircleCI as a part of their stack.
+#: The "runner" container uses Docker client to control remote Docker server
+#: (when used locally, Docker bundles both client and server into a single
+#: "Docker" application, so you may not even know that these are two different
+#: services).
+#:
+#: Because Docker images use layers, it is possible to cache Docker images
+#: between builds to significantly speedup application provisioning for each
+#: job (it requires enabling of Docker Layer Caching feature in CircleCI by
+#: lodging a support request).
+#: https://circleci.com/docs/2.0/docker-layer-caching/
 #;
 #; Comments starting with '#;', '#;<' or '#;>' (like the ones used for the
 #; current paragraph) are explaining Drupal-Dev inner working and can be safely
@@ -11,19 +28,24 @@
 #; Drupal-Dev.
 version: 2
 aliases:
+  #-----------------------------------------------------------------------------
   # Variables.
-  # For YAML support of anchors and references, @see http://blog.daemonl.com/2016/02/yaml.html
+  #-----------------------------------------------------------------------------
+  #: For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
 
   # SSH key fingerprint to deploy code. Add private key of the user who is
-  # allowed to push to $DEPLOY_REMOTE repo under "SSH Permissions" in
+  # allowed to push to $DEPLOY_GIT_REMOTE repo under "SSH Permissions" in
   # CircleCI UI.
   #;
-  #; This is a fingerprint of the key to push Drupal-Dev project itself.
+  #; This is a fingerprint of the key to push Drupal-Dev project itself as an example.
   #; Replace this key fingerprint with your own.
+  #; This is the only part in this file that needs to be changed for your project.
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
 
-  # Shared configuration applied to each job.
+  #: Shared configuration applied to each job.
   - &container_config
+    #:
+    #: Location of checked-out files within "runner" container.
     working_directory: /app
     environment:
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
@@ -56,16 +78,16 @@ aliases:
     #;> CI_DLC
 
 jobs:
-  #; Database handling is a first step of the build.
-  #;
-  #; $DB_TIMESTAMP is used to determine if a fresh DB dump should be downloaded
-  #; for the current build. Usually, a daily database dump is sufficient for
-  #; development activities.
-  #;
-  #; Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB using
-  #; standard drush sanitization. You may also use custom SQL script to add more
-  #; sanitization steps by setting $DB_SANITIZE_SQL variable to the path of this
-  #; script.
+  #: Database handling is a first step of the build.
+  #:
+  #: $DB_TIMESTAMP is used to determine if a fresh DB dump should be downloaded
+  #: for the current build. Usually, a daily database dump is sufficient for
+  #: development activities.
+  #:
+  #: Database will be sanitized using standard drush sanitization. You may also
+  #: use custom SQL script to add more sanitization steps by putting SQL
+  #: statements into scripts/sanitize.sql file.
+  #: Set SKIP_SANITIZE_DB variable to '1' to skip sanitization altogether.
   #;< !FRESH_INSTALL
   database:
     <<: *container_config
@@ -79,10 +101,23 @@ jobs:
           command: echo "$(date ${DB_TIMESTAMP})" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
       - restore_cache:
           keys:
-            - v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            #:
+            #: https://circleci.com/docs/2.0/caching/#restoring-cache
+            #:
+            #: Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
+            #:
+            #: Cache based on the branch and timestamp. This will lookup cache
+            #: Lookup cache based on the current branch and a timestamp. Allows
+            #: to cache results of the very first build on the day (sanitized
+            #: database dump, for example) and re-use it in all subsequent builds.
+            - v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            #:
+            #: Fallback to caching by branch name. Allows to use cache from the
+            #: branch build on the previous day.
+            - v1-db7-{{ .Branch }}-
       - run: .circleci/download-db.sh
       - save_cache:
-          key: v1-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
             - .data
   #;> !FRESH_INSTALL
@@ -99,7 +134,11 @@ jobs:
       - *step_setup_remote_docker
       - restore_cache:
           keys:
-            - v1-db7-
+            #:
+            #: Use cached artifacts from previous builds of this branch ran at
+            #: any time.
+            #: https://circleci.com/docs/2.0/caching/#restoring-cache
+            - v1-db7-{{ .Branch }}-
       - run: .circleci/build.sh
       - run: .circleci/test.sh
       - run:
@@ -109,23 +148,33 @@ jobs:
       - store_artifacts:
           path: /tmp/artifacts
           when: always
+      #:
+      #: Persisting previously built application code artifact (without
+      #: development dependencies) to use it in deployment job.
       - persist_to_workspace:
           root: /workspace
           paths:
             - code
 
-  # Deploy primary branches.
   #;< DEPLOYMENT
+  # Deploy primary branches.
   deploy: &job_deploy
     <<: *container_config
     steps:
+      #:
+      #: Workspace now contains previously built application code artifact.
       - attach_workspace:
           at: /workspace
+      #:
+      #: Add SSH key into "runner" container to have "push" access to remote
+      #: repository.
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
       - checkout
       - run:
+          #:
+          #: https://github.com/integratedexperts/robo-git-artefact
           command: .circleci/deploy.sh
           no_output_timeout: 30m
       - store_artifacts:
@@ -135,18 +184,34 @@ jobs:
   deploy_tags: &job_deploy_tags
     <<: *container_config
     steps:
+      #:
+      #: Workspace now contains previously built application code artifact.
       - attach_workspace:
           at: /workspace
+      #:
+      #: Add SSH key into "runner" container to have "push" access to remote
+      #: repository.
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
       - checkout
       - run:
-          command: DEPLOY_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
+          #:
+          #: Override deployment branch to contain tags in the branch name.
+          #: https://github.com/integratedexperts/robo-git-artefact
+          command: DEPLOY_GIT_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
           no_output_timeout: 30m
       - store_artifacts:
           path: /tmp/artifacts
   #;> DEPLOYMENT
+  #;----------------------------------------------------------------------------
+  #; DRUPAL-DEV development section. Will be removed during installation/update.
+  #;----------------------------------------------------------------------------
+  #;
+  #; We are using CircleCI config file to both run the application tests (what
+  #; a consumer site would use) and Drupal-Dev's own tests (to make sure that
+  #; this project is "buildable" at any time).
+  #;
   #;< DRUPAL-DEV
   #; Test suite for Drupal-Dev.
   drupal_dev_test:
@@ -180,6 +245,7 @@ jobs:
   drupal_dev_deploy_tags:
     <<: *job_deploy_tags
   #;> DRUPAL-DEV
+
 workflows:
   version: 2
   main:
@@ -218,13 +284,18 @@ workflows:
             tags:
               # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
-
+      #;----------------------------------------------------------------------------
+      #; DRUPAL-DEV development section. Will be removed during installation/update.
+      #;----------------------------------------------------------------------------
+      #;
       #;< DRUPAL-DEV
-      #; Feature and tag deployment for Drupal-Dev itself. Remove the code below in your project.
+      #; Remove the code below in your project.
+      #; Run unit and functional tests for Drupal-Dev.
       - drupal_dev_test:
           filters:
             tags:
               only: /.*/
+      #; Run deployment tests for Drupal-Dev.
       - drupal_dev_test_deployment:
           requires:
             - drupal_dev_test
@@ -232,6 +303,7 @@ workflows:
           filters:
             tags:
               only: /.*/
+      #; Run actual deployment of Drupal-Dev code to destination codebase (integration test).
       - drupal_dev_deploy:
           requires:
             - build
@@ -242,6 +314,7 @@ workflows:
               only: /(?:7|8)\.x|feature\/(?:7|8)\.x[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
+      #; Run actual deployment of Drupal-Dev code to destination codebase (integration test).
       - drupal_dev_deploy_tags:
           requires:
             - build

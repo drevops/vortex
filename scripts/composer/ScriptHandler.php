@@ -48,7 +48,7 @@ class ScriptHandler {
       $fs->chmod($sitesDefault, 0777);
     }
 
-    // Create settings file from default settings, if they do not
+    // Create settings and services files from default settings, if they do not
     // already exist.
     $defaultSettingsFile = $sitesDefault . DIRECTORY_SEPARATOR . 'default.settings.php';
     $settingsFile = $sitesDefault . DIRECTORY_SEPARATOR . 'settings.php';

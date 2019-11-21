@@ -2,6 +2,7 @@
 ##
 # Create local settings files.
 #
+# Allows to customise CI build settings.
 set -e
 
 echo "<?php" >> docroot/sites/default/settings.local.php

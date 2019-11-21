@@ -36,6 +36,9 @@ setup(){
   LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   APP_TMP_DIR="${BUILD_DIR}/tmp"
 
+  DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/db_d7.star_wars.sql.md
+  export DEMO_DB_TEST
+
   # Disable checks used on host machine.
   export DOCTOR_CHECK_TOOLS=0
   export DOCTOR_CHECK_PYGMY=0
@@ -57,12 +60,17 @@ setup(){
   prepare_fixture_dir "${DST_PROJECT_DIR}"
   prepare_fixture_dir "${LOCAL_REPO_DIR}"
   prepare_fixture_dir "${APP_TMP_DIR}"
-  pushd "${BUILD_DIR}" > /dev/null || exit 1
-
   prepare_local_repo "${LOCAL_REPO_DIR}" >/dev/null
+  prepare_global_gitignore
+
+  # Change directory to the current project directory for each test. Tests
+  # requiring to operate outside of CURRENT_PROJECT_DIR (like deployment tests)
+  # should change directory explicitly within their tests.
+  pushd "${CURRENT_PROJECT_DIR}" > /dev/null || exit 1
 }
 
 teardown(){
+  restore_global_gitignore
   popd > /dev/null || cd "${CUR_DIR}" || exit 1
 }
 
@@ -71,38 +79,38 @@ teardown(){
 ################################################################################
 
 assert_files_present(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-  local suffix_camel_cased="${3:-StarWars}"
+  local suffix="${1:-star_wars}"
+  local suffix_camel_cased="${2:-StarWars}"
+  local dir="${3:-$(pwd)}"
 
-  assert_files_present_common "${dir}" "${suffix}" "${suffix_camel_cased}"
+  assert_files_present_common "${suffix}" "${suffix_camel_cased}" "${dir}"
 
   # Assert Drupal profile not present by default.
-  assert_files_present_no_profile "${dir}" "${suffix}"
+  assert_files_present_no_profile "${suffix}" "${dir}"
 
   # Assert Drupal is not freshly installed by default.
-  assert_files_present_no_fresh_install "${dir}" "${suffix}"
+  assert_files_present_no_fresh_install "${suffix}" "${dir}"
 
   # Assert deployments preserved.
-  assert_files_present_deployment "${dir}" "${suffix}"
+  assert_files_present_deployment "${suffix}" "${dir}"
 
   # Assert Acquia integration preserved.
-  assert_files_present_integration_acquia "${dir}" "${suffix}"
+  assert_files_present_integration_acquia "${suffix}" 1 "${dir}"
 
   # Assert Lagoon integration preserved.
-  assert_files_present_integration_lagoon "${dir}" "${suffix}"
+  assert_files_present_integration_lagoon "${suffix}" "${dir}"
 
   # Assert FTP integration removed by default.
-  assert_files_present_no_integration_ftp "${dir}" "${suffix}"
+  assert_files_present_no_integration_ftp "${suffix}" "${dir}"
 
   # Assert dependencies.io integration preserved.
-  assert_files_present_integration_dependenciesio "${dir}" "${suffix}"
+  assert_files_present_integration_dependenciesio "${suffix}" "${dir}"
 }
 
 assert_files_present_common(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-  local suffix_camel_cased="${3:-StarWars}"
+  local suffix="${1:-star_wars}"
+  local suffix_camel_cased="${2:-StarWars}"
+  local dir="${3:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -141,6 +149,8 @@ assert_files_present_common(){
   assert_file_exists "docroot/sites/default/settings.php"
   assert_file_mode "docroot/sites/default/settings.php" "644"
 
+  assert_file_exists "docroot/sites/default/default.settings.php"
+
   assert_file_exists "docroot/sites/default/default.settings.local.php"
   assert_file_mode "docroot/sites/default/default.settings.local.php" "644"
 
@@ -168,8 +178,8 @@ assert_files_present_common(){
   assert_dir_not_contains_string "${dir}" "#;>"
 
   # Assert that project name is correct.
-  assert_file_contains .env "PROJECT=\"${suffix}\""
-  assert_file_contains .env "LOCALDEV_URL=\"${suffix/_/-}.docker.amazee.io\""
+  assert_file_contains .env "PROJECT=${suffix}"
+  assert_file_contains .env "LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# Drupal-Dev"
@@ -189,21 +199,13 @@ assert_files_present_common(){
   assert_file_contains "README.md" "badge/Drupal--Dev-${DRUPAL_VERSION}.x-blue.svg"
   assert_file_contains "README.md" "https://github.com/integratedexperts/drupal-dev/tree/${DRUPAL_VERSION}.x"
 
-  # Assert that required files were not locally excluded.
-  if [ -d ".git" ] ; then
-    assert_file_not_contains .git/info/exclude "README.md"
-    assert_file_not_contains .git/info/exclude ".circleci/config.yml"
-    assert_file_not_contains .git/info/exclude "docroot/sites/default/settings.php"
-  fi
-
   popd > /dev/null || exit 1
 }
 
 assert_files_not_present_common(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-  local has_required_files="${3:-0}"
-  local suffix_camel_cased="${4:-StarWars}"
+  local suffix="${1:-star_wars}"
+  local has_required_files="${2:-0}"
+  local dir="${3:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -212,10 +214,10 @@ assert_files_not_present_common(){
   assert_dir_not_exists "docroot/profiles/${suffix}_profile"
   assert_dir_not_exists "docroot/sites/all/modules/custom/${suffix}_core"
   assert_dir_not_exists "docroot/sites/all/themes/custom/${suffix}"
+  assert_file_not_exists "docroot/sites/default/default.settings.local.php"
   assert_file_not_exists "tests/unit/${suffix_camel_cased}DrupalExampleTest.php"
   assert_file_not_exists "tests/unit/${suffix_camel_cased}DrupalTestCase.php"
   assert_file_not_exists "tests/unit/${suffix_camel_cased}TestCase.php"
-
 
   assert_file_not_exists "FAQs.md"
   assert_file_not_exists ".ahoy.yml"
@@ -234,8 +236,8 @@ assert_files_not_present_common(){
 }
 
 assert_files_present_profile(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -249,14 +251,14 @@ assert_files_present_profile(){
 }
 
 assert_files_present_no_profile(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
   # Site profile created.
   assert_dir_not_exists "docroot/profiles/${suffix}profile"
-  assert_file_contains ".env" "DRUPAL_PROFILE=\"standard\""
+  assert_file_contains ".env" "DRUPAL_PROFILE=standard"
   assert_file_not_contains ".env" "docroot/profiles/${suffix}profile,"
   # Assert that there is no renaming of the custom profile with core profile name.
   assert_dir_not_exists "docroot/profiles/standard"
@@ -266,13 +268,13 @@ assert_files_present_no_profile(){
 }
 
 assert_files_present_fresh_install(){
- local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
   assert_file_exists ".ahoy.yml"
-  assert_file_not_contains ".ahoy.yml" "ahoy title \"Installing site from existing database dump\""
+  assert_file_not_contains ".ahoy.yml" "ahoy title \"Installing site from the existing database dump\""
   assert_file_contains ".ahoy.yml" "ahoy title \"Installing a fresh site from \${DRUPAL_PROFILE} profile\""
   assert_file_not_contains ".ahoy.yml" "download-db:"
 
@@ -280,22 +282,20 @@ assert_files_present_fresh_install(){
 }
 
 assert_files_present_no_fresh_install(){
- local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
   assert_file_exists ".ahoy.yml"
-  assert_file_contains ".ahoy.yml" "ahoy title \"Installing site from existing database dump\""
-  assert_file_not_contains ".ahoy.yml" "ahoy title \"Installing a fresh site from \${DRUPAL_PROFILE} profile\""
   assert_file_contains ".ahoy.yml" "download-db:"
 
   popd > /dev/null || exit 1
 }
 
 assert_files_present_deployment(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -310,9 +310,9 @@ assert_files_present_deployment(){
 }
 
 assert_files_present_no_deployment(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-  local has_committed_files="${3:-0}"
+  local suffix="${1:-star_wars}"
+  local has_committed_files="${2:-0}"
+  local dir="${3:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -332,27 +332,24 @@ assert_files_present_no_deployment(){
 }
 
 assert_files_present_integration_acquia(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
-  local include_scripts="${3:-1}"
+  local suffix="${1:-star_wars}"
+  local include_scripts="${2:-1}"
+  local dir="${3:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
   assert_dir_exists "hooks"
   assert_dir_exists "hooks/library"
-  assert_file_mode "hooks/library/clear-cache.sh" "755"
-  assert_file_mode "hooks/library/enable-shield.sh" "755"
   assert_file_mode "hooks/library/flush-varnish.sh" "755"
-  assert_file_mode "hooks/library/update-db.sh" "755"
+  assert_file_mode "hooks/library/install-site.sh" "755"
 
   assert_dir_exists "hooks/dev"
   assert_dir_exists "hooks/dev/post-code-update"
-  assert_symlink_exists "hooks/dev/post-code-update/1.clear-cache.sh"
-  assert_symlink_exists "hooks/dev/post-code-update/2.update-db.sh"
-  assert_symlink_exists "hooks/dev/post-code-update/3.enable-shield.sh"
-  assert_symlink_exists "hooks/dev/post-code-update/4.flush-varnish.sh"
+  assert_symlink_exists "hooks/dev/post-code-update/1.install-site.sh"
+  assert_symlink_exists "hooks/dev/post-code-update/2.flush-varnish.sh"
   assert_symlink_exists "hooks/dev/post-code-deploy"
-  assert_symlink_exists "hooks/dev/post-db-copy"
+  assert_symlink_exists "hooks/dev/post-db-copy/1.install-site.sh"
+  assert_symlink_exists "hooks/dev/post-db-copy/2.flush-varnish.sh"
 
   assert_symlink_exists "hooks/test"
 
@@ -360,35 +357,32 @@ assert_files_present_integration_acquia(){
   assert_dir_exists "hooks/prod/post-code-deploy"
   assert_symlink_exists "hooks/prod/post-code-update"
   assert_symlink_not_exists "hooks/prod/post-db-copy"
-  assert_symlink_exists "hooks/prod/post-code-deploy/1.clear-cache.sh"
-  assert_symlink_exists "hooks/prod/post-code-deploy/2.update-db.sh"
-  assert_symlink_exists "hooks/prod/post-code-deploy/3.enable-shield.sh"
+  assert_symlink_exists "hooks/prod/post-code-update/1.install-site.sh"
 
   assert_file_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
+  assert_file_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
 
   if [ "${include_scripts}" -eq 1 ]; then
-    assert_file_exists "scripts/download-backup-acquia.sh"
+    assert_dir_exists "scripts"
     assert_file_contains ".env" "AC_API_DB_SITE="
     assert_file_contains ".env" "AC_API_DB_ENV="
     assert_file_contains ".env" "AC_API_DB_NAME="
-    assert_file_contains ".ahoy.yml" "AC_API_DB_SITE="
-    assert_file_contains ".ahoy.yml" "AC_API_DB_ENV="
-    assert_file_contains ".ahoy.yml" "AC_API_DB_NAME="
   fi
 
   popd > /dev/null || exit 1
 }
 
 assert_files_present_no_integration_acquia(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
-  assert_file_not_exists "scripts/download-backup-acquia.sh"
+  assert_file_not_exists "scripts/download-db-acquia.sh"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
+  assert_file_not_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
   assert_file_not_contains ".env" "AC_API_DB_SITE="
   assert_file_not_contains ".env" "AC_API_DB_ENV="
   assert_file_not_contains ".env" "AC_API_DB_NAME="
@@ -402,8 +396,8 @@ assert_files_present_no_integration_acquia(){
 }
 
 assert_files_present_integration_lagoon(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -423,8 +417,8 @@ assert_files_present_integration_lagoon(){
 }
 
 assert_files_present_no_integration_lagoon(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -444,8 +438,8 @@ assert_files_present_no_integration_lagoon(){
 }
 
 assert_files_present_integration_ftp(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -465,8 +459,8 @@ assert_files_present_integration_ftp(){
 }
 
 assert_files_present_no_integration_ftp(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -486,8 +480,8 @@ assert_files_present_no_integration_ftp(){
 }
 
 assert_files_present_integration_dependenciesio(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -498,8 +492,8 @@ assert_files_present_integration_dependenciesio(){
 }
 
 assert_files_present_no_integration_dependenciesio(){
-  local dir="${1}"
-  local suffix="${2:-star_wars}"
+  local suffix="${1:-star_wars}"
+  local dir="${2:-$(pwd)}"
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -510,13 +504,13 @@ assert_files_present_no_integration_dependenciesio(){
 }
 
 fixture_readme(){
-  local dir="${1:-.}"
-  local name="${2:-Star Wars}"
-  local org="${3:-Star Wars Org}"
+  local name="${1:-Star Wars}"
+  local org="${2:-Star Wars Org}"
+  local dir="${3:-$(pwd)}"
 
   cat <<EOT >> "${dir}"/README.md
 # ${name}
-Drupal 8 implementation of ${name} for ${org}
+Drupal 7 implementation of ${name} for ${org}
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 
@@ -529,16 +523,16 @@ EOT
 }
 
 fixture_composerjson(){
-  local dir="${1:-.}"
-  local name="${2}"
-  local machine_name="${3}"
-  local org="${4}"
-  local org_machine_name="${5}"
+  local name="${1}"
+  local machine_name="${2}"
+  local org="${3}"
+  local org_machine_name="${4}"
+  local dir="${5:-$(pwd)}"
 
   cat <<EOT >> "${dir}"/composer.json
 {
     "name": "${org_machine_name}/${machine_name}",
-    "description": "Drupal 8 implementation of ${name} for ${org}"
+    "description": "Drupal 7 implementation of ${name} for ${org}"
 }
 EOT
 }
@@ -552,15 +546,19 @@ run_install(){
 
   # Force install script to be downloaded from the local repo for testing.
   export DRUPALDEV_LOCAL_REPO="${LOCAL_REPO_DIR}"
+
   # Use unique temporary directory for each run.
   DRUPALDEV_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
   prepare_fixture_dir "${DRUPALDEV_TMP_DIR}"
   export DRUPALDEV_TMP_DIR
-  # Show debug information (for easy debug of tests).
-  export DRUPALDEV_DEBUG=1
+
+  # Enable the line below to show debug information (for easy debug of tests).
+  # export DRUPALDEV_DEBUG=1
   run "${CUR_DIR}"/install.sh "$@"
+
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
+
   popd > /dev/null || exit 1
 
   # shellcheck disable=SC2154
@@ -588,6 +586,7 @@ run_install(){
 #   "nothing" # preserve_lagoon
 #   "nothing" # preserve_ftp
 #   "nothing" # preserve_dependenciesio
+#   "nothing" # preserve_doc_comments
 #   "nothing" # remove_drupaldev_info
 # )
 # output=$(run_install_interactive "${answers[@]}")
@@ -613,28 +612,29 @@ run_install_interactive(){
 # Used for fast unit testing of install functionality.
 #
 install_dependencies_stub(){
-  local dir="${1:-.}"
+  local dir="${1:-$(pwd)}"
 
-  mktouch "${dir}/docroot/index.php"
-  mktouch "${dir}/docroot/README.txt"
-  echo "example of your_site added to core file" > "${dir}/docroot/README.txt"
-  mktouch "${dir}/docroot/sites/all/modules/contrib/somemodule/somemodule.info"
-  mktouch "${dir}/docroot/sites/all/themes/contrib/sometheme/sometheme.info"
-  mktouch "${dir}/docroot/profiles/zzzsomeprofile/zzzsomeprofile.info"
-  mktouch "${dir}/docroot/sites/default/somesettingsfile.php"
-  mktouch "${dir}/docroot/sites/default/files/somepublicfile.php"
-  mktouch "${dir}/vendor/somevendor/somepackage/somepackage.php"
-  mktouch "${dir}/vendor/somevendor/somepackage/somepackage with spaces.php"
-  mktouch "${dir}/vendor/somevendor/somepackage/composer.json"
-  mktouch "${dir}/node_modules/somevendor/somepackage/somepackage.js"
+  pushd "${dir}" > /dev/null || exit 1
 
-  mktouch "${dir}/docroot/sites/all/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
-  mktouch "${dir}/screenshots/s1.jpg"
-  mktouch "${dir}/.data/db.sql"
+  mktouch "docroot/core/install.php"
+  mktouch "docroot/sites/all/modules/contrib/somemodule/somemodule.info"
+  mktouch "docroot/sites/all/themes/contrib/sometheme/sometheme.info"
+  mktouch "docroot/profiles/someprofile/someprofile.info"
+  mktouch "docroot/sites/default/somesettingsfile.php"
+  mktouch "docroot/sites/default/files/somepublicfile.php"
+  mktouch "vendor/somevendor/somepackage/somepackage.php"
+  mktouch "vendor/somevendor/somepackage/somepackage with spaces.php"
+  mktouch "vendor/somevendor/somepackage/composer.json"
+  mktouch "node_modules/somevendor/somepackage/somepackage.js"
 
-  mktouch "${dir}/docroot/sites/default/settings.local.php"
-  mktouch "${dir}/.env.local"
-  echo "version: \"2.3\"" > "${dir}/docker-compose.override.yml"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "screenshots/s1.jpg"
+  mktouch ".data/db.sql"
+
+  mktouch "docroot/sites/default/settings.local.php"
+  echo "version: \"2.3\"" > "docker-compose.override.yml"
+
+  popd > /dev/null || exit 1
 }
 
 replace_core_stubs(){
@@ -642,6 +642,23 @@ replace_core_stubs(){
   local token="${2}"
 
   replace_string_content  "${token}" "some_other_site" "${dir}/docroot"
+}
+
+create_development_settings(){
+  substep "Create development settings"
+  assert_file_not_exists docroot/sites/default/settings.local.php
+  assert_file_exists docroot/sites/default/default.settings.local.php
+  cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
+  assert_file_exists docroot/sites/default/settings.local.php
+}
+
+remove_development_settings(){
+  substep "Remove development settings"
+  rm -f docroot/sites/default/settings.local.php || true
+}
+
+enable_demo_db(){
+  echo "DEMO_DB=$DEMO_DB_TEST" >> .env
 }
 
 # Copy source code at the latest commit to the destination directory.
@@ -657,7 +674,7 @@ copy_code(){
 
 # Prepare local repository from the current codebase.
 prepare_local_repo(){
-  local dir="${1}"
+  local dir="${1:-$(pwd)}"
   local do_copy_code="${2:-1}"
   local commit
 
@@ -666,31 +683,69 @@ prepare_local_repo(){
     copy_code "${dir}"
   fi
 
-  git_init "${dir}"
+  git_init 0 "${dir}"
   [ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name" && git config --global user.name "Some User"
   [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email" && git config --global user.email "some.user@example.com"
-  commit=$(git_add_all_commit "${dir}" "Initial commit")
+  commit=$(git_add_all_commit "Initial commit" "${dir}")
 
   echo "${commit}"
 }
 
+prepare_global_gitignore(){
+  filename="$HOME/.gitignore"
+  filename_backup="${filename}".bak
+
+  if git config --global --list | grep -q core.excludesfile; then
+    git config --global core.excludesfile > /tmp/git_config_global_exclude
+  fi
+
+  [ -f "${filename}" ] && cp "${filename}" "${filename_backup}"
+
+  cat <<EOT > "${filename}"
+##
+## Temporary files generated by various OSs and IDEs
+##
+Thumbs.db
+._*
+.DS_Store
+.idea
+.idea/*
+*.sublime*
+.project
+.netbeans
+.vscode
+.vscode/*
+nbproject
+nbproject/*
+EOT
+
+  git config --global core.excludesfile "${filename}"
+}
+
+restore_global_gitignore(){
+  filename=$HOME/.gitignore
+  filename_backup="${filename}".bak
+  [ -f "${filename_backup}" ] && cp "${filename_backup}" "${filename}"
+  [ -f "/tmp/git_config_global_exclude" ] && git config --global core.excludesfile "$(cat /tmp/git_config_global_exclude)"
+}
+
 git_add(){
-  local dir="${1}"
-  local file="${2}"
+  local file="${1}"
+  local dir="${2:-$(pwd)}"
   git --work-tree="${dir}" --git-dir="${dir}/.git" add "${dir}/${file}" > /dev/null
 }
 
 git_add_force(){
-  local dir="${1}"
-  local file="${2}"
+  local file="${1}"
+  local dir="${2:-$(pwd)}"
   git --work-tree="${dir}" --git-dir="${dir}/.git" add -f "${dir}/${file}" > /dev/null
 }
 
 git_commit(){
-  local dir="${1}"
-  local message="${2}"
+  local message="${1}"
+  local dir="${2:-$(pwd)}"
 
-  assert_git_repo "${1}"
+  assert_git_repo "${dir}"
 
   git --work-tree="${dir}" --git-dir="${dir}/.git" commit -m "${message}" > /dev/null
   commit=$(git --work-tree="${dir}" --git-dir="${dir}/.git" rev-parse HEAD)
@@ -698,10 +753,10 @@ git_commit(){
 }
 
 git_add_all_commit(){
-  local dir="${1}"
-  local message="${2}"
+  local message="${1}"
+  local dir="${2:-$(pwd)}"
 
-  assert_git_repo "${1}"
+  assert_git_repo "${dir}"
 
   git --work-tree="${dir}" --git-dir="${dir}/.git" add -A
   git --work-tree="${dir}" --git-dir="${dir}/.git" commit -m "${message}" > /dev/null
@@ -710,10 +765,10 @@ git_add_all_commit(){
 }
 
 git_init(){
-  local dir="${1}"
-  local allow_receive_update="${2:-0}"
+  local allow_receive_update="${1:-0}"
+  local dir="${2:-$(pwd)}"
 
-  assert_not_git_repo "${1}"
+  assert_not_git_repo "${dir}"
   git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
 
   if [ "${allow_receive_update}" -eq 1 ]; then
@@ -745,16 +800,22 @@ replace_string_content() {
 # Print step.
 step(){
   debug ""
-  debug "==> STEP: $1"
+  # Using prefix different from command prefix in SUT for easy debug.
+  debug "**> STEP: $1"
+}
+
+# Print sub-step.
+substep(){
+  debug ""
+  debug "  > $1"
 }
 
 # Sync files to host in case if volumes are not mounted from host.
 sync_to_host(){
   local dst="${1:-.}"
   # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
-  [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${dst} to host" && return
-  debug "Syncing from $(docker-compose ps -q cli) to ${dst}"
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs)
+  [ "${VOLUMES_MOUNTED}" == "1" ] && return
   docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
 }
 
@@ -762,9 +823,8 @@ sync_to_host(){
 sync_to_container(){
   local src="${1:-.}"
   # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs) && [ -f ".env.local" ] && export $(grep -v '^#' ".env.local" | xargs)
-  [ "${VOLUMES_MOUNTED}" == "1" ] && debug "Skipping copying of ${src} to container" && return
-  debug "Syncing from ${src} to $(docker-compose ps -q cli)"
+  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs)
+  [ "${VOLUMES_MOUNTED}" == "1" ] && return
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
 }
 

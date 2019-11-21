@@ -1,73 +1,88 @@
+#:
+#: Ahoy configuration file.
+#: http://www.ahoycli.com/
+#:
+#: Provides development experience shortcuts to work with the stack.
+#: Any command can be copy-pasted directly into terminal and ran without using
+#: Ahoy.
+#:
+#: Do not add values directly into this file. Use .env file instead.
+#: Run `ahoy up cli` to apply environment variables changes to containers.
+#;
+#; Comments starting with '#:' provide explicit documentation and will be
+#; automatically removed during installation or update if an option is selected.
+#;
+#; Comments starting with '#;<', '#;>' and '#;' are internal Drupal-Dev comments
+#; and will be removed during installation or update.
+#;
+#; Comments starting with '#' are normal comments and will stay in the code
+#; after installation or update.
 ---
 ahoyapi: v2
 
 commands:
 
-  # Docker commands.
   build:
     usage: Build or rebuild project.
     cmd: |
-      ahoy title "Building project"
-      ahoy pre-flight
+      #:  Check all pre-requisites before starting the stack.
+      ahoy title "Building project" && DOCTOR_CHECK_PREFLIGHT=1 ahoy doctor
+      #:  Always "clean" project files since the previous run.
       ahoy clean
-      (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network)
+      #:  Build images, recreate and start containers.
       ahoy up -- --build --force-recreate
-      (if [ "${BUILD_EXPORT_DIR}" != "" ]; then mkdir -p ${BUILD_EXPORT_DIR} && docker cp -L $(docker-compose ps -q cli):/app/. ${BUILD_EXPORT_DIR}; rm -Rf ${BUILD_EXPORT_DIR}/node_modules >/dev/null; fi)
+      #: Export code built within containers before adding development dependencies.
+      ahoy export-code
+      #:  Install development dependencies.
       ahoy install-dev
-      ahoy fe
+      #:  Install site (from exisitng DB or fresh install).
       ahoy install-site
-      ahoy title "Build complete"
-      ahoy doctor
-      ahoy info 1
+      #:  Show project information and a one-time login link.
+      ahoy doctor && ahoy title "Build complete" && LOGIN_LINK=1 ahoy info
+
+  # ----------------------------------------------------------------------------
+  # Docker commands.
+  # ----------------------------------------------------------------------------
 
   info:
-    usage: Print information about this project.
+    usage: Show information about this project.
     cmd: |
-      ahoy line "Project                  : " ${PROJECT}
-      ahoy line "Site local URL           : " http://${LOCALDEV_URL}
-      ahoy line "Path to project          : " ${APP}
-      ahoy line "Path to docroot          : " ${APP}/${WEBROOT}
-      ahoy line "DB port on host          : " $(docker port $(docker-compose ps -q mariadb) 3306 | cut -d : -f 2)
-      ahoy line "Livereload port on host  : " $(docker port $(docker-compose ps -q cli) 35729 | cut -d : -f 2)
-      #;< SOLR
-      ahoy line "Solr port on host        : " $(docker port $(docker-compose ps -q solr) 8983 | cut -d : -f 2)
-      #;> SOLR
-      ahoy line "Mailhog URL              : " http://mailhog.docker.amazee.io/
-      ahoy line "Xdebug                   : " $(ahoy cli php -v|grep -q Xdebug && echo "Enabled" || echo "Disabled")
-      if [ "$1" ]; then
-        ahoy line "One-time login           : " $(ahoy login -- --no-browser)
-      fi
+      #:  Discover DB port on host and pass into the script.
+      HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)
+      #:  Discover SOLR port on host and pass into the script.
+      HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2)
+      docker-compose exec -e LOGIN_LINK=${LOGIN_LINK} -e HOST_DB_PORT=${HOST_DB_PORT} -e HOST_SOLR_PORT=${HOST_SOLR_PORT} cli ./scripts/info.sh "$@"
 
   up:
-    usage: Build and start Docker containers.
+    usage: Build and start all or specified Docker containers.
     cmd: |
-      docker-compose up -d "$@"
-      ahoy cli "dockerize -wait tcp://mariadb:3306 -timeout 1m"
-      if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi
+      docker-compose up -d "$@" && if docker-compose logs | grep -q "\[Error\]"; then exit 1; fi
+      #:  Write Livereload host port information into a socket file.
       mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
-      docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME}_
-      export DOCTOR_CHECK_CLI=0
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
+    #:  Always remove dangling volumes after removing containers to prevent
+    #:  data data leaking between builds (resulting in inconsistent builds).
     cmd: "if [ -f \"docker-compose.yml\" ]; then docker-compose down --volumes; fi"
 
   start:
-    usage: Start existing Docker containers.
+    usage: Start all or specified existing Docker containers.
     cmd: |
       docker-compose start "$@"
+      #:  Write Livereload host port information into a socket file.
       mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
 
   stop:
-    usage: Stop running Docker containers.
+    usage: Stop all or specified running Docker containers.
     cmd: docker-compose stop "$@"
 
   restart:
-    usage: Restart all stopped and running Docker containers.
-    cmd: docker-compose restart
+    usage: Restart all or specified stopped and running Docker containers.
+    cmd: docker-compose restart "$@"
 
   logs:
-    usage: Show Docker logs.
+    usage: Show Docker logs for all or specified services.
     cmd: docker-compose logs "$@"
 
   pull:
@@ -75,123 +90,68 @@ commands:
     cmd: if [ ! -z "$(docker image ls -q)" ]; then docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio/ | grep -v none | xargs -n1 docker pull | cat; fi
 
   cli:
-    usage: Start a shell inside CLI container or run a command.
-    cmd: if \[ "${#}" -ne 0 \]; then docker exec -i $(docker-compose ps -q cli) bash -c "$*"; else docker exec -it $(docker-compose ps -q cli) bash; fi
+    usage: Start a shell or run a command inside the CLI service container.
+    #: The shell is started if no arguments were provided to this command.
+    cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec -T cli bash -c "$*"; else docker-compose exec cli bash; fi
 
   drush:
     usage: Run drush commands in the CLI service container.
-    cmd: docker exec -i $(docker-compose ps -q cli) drush -r ${APP}/${WEBROOT} -l ${LOCALDEV_URL} "$@"
+    cmd: docker-compose exec -T cli drush -l ${LOCALDEV_URL} "$@"
 
+  #;< REDIS
+  flush-redis:
+    usage: Flush Redis cache.
+    cmd: docker-compose exec redis redis-cli flushall
+  #;> REDIS
+
+  # ----------------------------------------------------------------------------
   # Application commands.
+  # ----------------------------------------------------------------------------
+
   login:
     usage: Login to a website.
+    #: Unblock user 1 and generate a one time login link.
     cmd: ahoy drush uublk 1 -q && ahoy drush uli "$@"
-
-  doctor:
-    usage: Find problems with current project setup.
-    cmd: scripts/doctor.sh "$@"
 
   #;< !FRESH_INSTALL
   download-db:
     usage: Download database.
     cmd: |
       ahoy title "Downloading database"
+      #;
       #;< DEMO: Download dummy DB.
       #; Used for demonstration purposes. This line is removed during project installation.
-      mkdir -p ${DATAROOT} && curl -L ${DEMO_DB} -o ${DATAROOT}/db.sql
+      mkdir -p .data && curl -L ${DEMO_DB} -o .data/db.sql
       #;> DEMO
+      #;
       #;< ACQUIA
-      # Download DB from Acquia Cloud backup. Remove if site install is used.
-      ##### AC_API_USER_NAME=${AC_API_USER_NAME} AC_API_USER_PASS=${AC_API_USER_PASS} AC_API_DB_SITE=${AC_API_DB_SITE} AC_API_DB_ENV=${AC_API_DB_ENV} AC_API_DB_NAME=${AC_API_DB_NAME} DB_REMOVE_CACHED_DUMPS=${DB_REMOVE_CACHED_DUMPS} ./scripts/download-backup-acquia.sh
+      # Download DB from Acquia Cloud backup.
+      ##### ./scripts/download-db-acquia.sh
       #;> ACQUIA
+      #;
       #;< FTP
-      # Download DB dump from FTP. Remove if site install is used.
-      ##### mkdir -p ${DATAROOT} && curl -u ${FTP_USER}:${FTP_PASS} "ftp://${FTP_HOST}:${FTP_PORT}/${FTP_FILE}" -o ${DATAROOT}/db.sql
+      # Download DB dump from FTP.
+      ##### mkdir -p .data && curl -u ${FTP_USER}:${FTP_PASS} "ftp://${FTP_HOST}:${FTP_PORT}/${FTP_FILE}" -o .data/db.sql
       #;> FTP
   #;> !FRESH_INSTALL
 
   install-site:
     usage: Install a site.
-    cmd: |
-      #;< !FRESH_INSTALL \
-      ahoy title "Installing site from existing database dump"
-      (if [ "$DB_EXPORT_BEFORE_IMPORT" != "0" ]; then ahoy export-db; fi)
-      ahoy import-db-dump
-      (if [ "${SKIP_SANITIZE_DB}" != "1" ]; then ahoy sanitize-db "${site}"; fi)
-      {
-        if [ "${SKIP_POST_IMPORT}" != "1" ]; then
-          ahoy drush en your_site_core -y
-          ahoy drush updb -y
-        fi
-      }
-      #;> !FRESH_INSTALL \
-      #;< FRESH_INSTALL \
-      ahoy title "Installing a fresh site from ${DRUPAL_PROFILE} profile"
-      ahoy drush si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="YOURSITE" install_configure_form.update_status_module='array(FALSE,FALSE)' install_configure_form.enable_update_status_emails=NULL
-      ahoy cli chmod 755 docroot/sites/default && ahoy cli chmod 644 docroot/sites/default/settings.php
-      ahoy drush en -y your_site_core
-      #;> FRESH_INSTALL \
-      ahoy drush cc all
-
-  import-db-dump:
-    usage: Import database dump.
-    cmd: |
-      ahoy drush sql-drop -y
-      ahoy cli "mkdir -p /tmp/.data"
-      docker cp -L ${DATAROOT}/db.sql $(docker-compose ps -q cli):/tmp/.data/db.sql
-      docker-compose exec cli bash -c "pv /tmp/.data/db.sql | drush -r ${APP}/${WEBROOT} sql-cli"
-    hide: true
+    cmd: docker-compose exec -T cli ./scripts/drupal-install-site.sh
 
   export-db:
     usage: Export database dump.
-    cmd: |
-      ahoy cli "mkdir -p /tmp/.data"
-      ahoy drush sql-dump --skip-tables-key=common --result-file=/tmp/.data/db.sql -q
-      mkdir -p ${DATAROOT}
-      DUMP_FILE=$([ "${1}" ] && echo ${DATAROOT}/${1} || echo ${DATAROOT}/db_export_$(date +%Y_%m_%d_%H_%M_%S).sql)
-      docker cp -L $(docker-compose ps -q cli):/tmp/.data/db.sql ${DUMP_FILE}
-      [ -f "${DUMP_FILE}" ] && ahoy title "Dump saved to file ${DUMP_FILE}"
-
-  sanitize-db:
-    usage: Sanitize database.
-    cmd: |
-      ahoy drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
-      if [ "${DB_SANITIZE_SQL}" != "" ] && [ -f "${DB_SANITIZE_SQL}" ]; then
-        ahoy title "Applying custom sanitization commands"
-        ahoy cli "mkdir -p $(dirname /tmp/${DB_SANITIZE_SQL})"
-        docker cp -L ${DB_SANITIZE_SQL} $(docker-compose ps -q cli):/tmp/${DB_SANITIZE_SQL}
-        ahoy drush sql-query --file=/tmp/${DB_SANITIZE_SQL}
-      fi
-    hide: true
+    cmd: docker-compose exec -T cli ./scripts/drupal-export-db.sh "$@"
 
   clean:
     usage: Remove containers and all build files.
-    cmd: |
-      ahoy down
-      # Remove Drupal files, but preserve explicitly committed files.
-      targets=(includes misc modules profiles scripts sites/all/modules/contrib sites/all/themes/contrib sites/default/settings.generated.php themes)
-      targets+=($(ls -p | grep -v /))
-      for target in "${targets[@]}"; do
-        if [ "$(git ls-files "${WEBROOT}/${target}")" == "" ]; then
-          rm -Rf "${WEBROOT}/${target}"
-        fi
-      done
-      # Remove other directories.
-      rm -rf \
-        ./vendor \
-        ./node_modules \
-        ./docroot/sites/all/themes/custom/*/build \
-        ./docroot/sites/all/themes/custom/*/scss/_components.scss \
-        ./docroot/sites/default/settings.generated.php
+    cmd: ahoy down && ./scripts/clean.sh
 
   reset:
-    usage: "Reset environment: remove containers, all build, manually created and Drupal-Dev files."
+    usage: "Reset environment: remove containers, all build, uncommitted files."
     cmd: |
-      ahoy clean
-      rm -rf ./screenshots;
-      git ls-files --others -i --exclude-from=.git/info/exclude | xargs chmod 777 || true
-      git ls-files --others -i --exclude-from=.git/info/exclude | xargs rm -Rf || true
-      find . -type d -not -path "./.git/*" -empty -delete
+      ahoy confirm "All containers, build and uncomitted files will be removed, repository will be reset to the last commit. Proceed?" \
+      && ahoy clean && ./scripts/reset.sh || true
 
   fe:
     usage: Build front-end assets.
@@ -206,106 +166,116 @@ commands:
     cmd: ahoy cli "npm run watch"
 
   install-dev:
-    usage: Install dependencies.
+    usage: Install development dependencies.
     cmd: |
-      if [ -d .data ]; then docker cp -L .data $(docker-compose ps -q cli):/app/; fi
+      #:  Create data directory in the container.
+      docker-compose exec -T cli mkdir -p /tmp/data
+      #:  Copy database dump from data directory on host into container.
+      docker cp -L .data/db.sql $(docker-compose ps -q cli):/tmp/data/db.sql
+      #:  Copy development configuration files into container.
       docker cp -L behat.yml $(docker-compose ps -q cli):/app/
       docker cp -L tests $(docker-compose ps -q cli):/app/
       docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
       docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
+      #:  Install all composer dependencies, including development ones.
+      #:  Note that this will create/update composer.lock file.
       ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
+      #:  Install all npm dependencies.
+      #:  Note that this will create/update package-lock.json file.
       ahoy cli "npm install"
+      #:  Compile FE assets.
+      ahoy fe
     hide: true
 
-  flush-redis:
-    usage: Flush Redis cache.
-    cmd: docker exec -i $(docker-compose ps -q redis) redis-cli flushall > /dev/null
+  export-code:
+    usage: Export built code.
+    cmd: |
+      [ -z "${BUILD_EXPORT_DIR}" ] && exit
+      mkdir -p "${BUILD_EXPORT_DIR}" && docker-compose exec --env BUILD_EXPORT_DIR="${BUILD_EXPORT_DIR}" -T cli ./scripts/export-code.sh
+      docker cp -L $(docker-compose ps -q cli):"${BUILD_EXPORT_DIR}"/. ${BUILD_EXPORT_DIR}
 
   lint:
-    usage: Lint code.
-    cmd: |
-      ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ }" && \
-      ahoy cli "vendor/bin/phpcs -v ${PHPCS_TARGETS//,/ }" && \
-      ahoy cli "npm run lint" || \
-      [ "${ALLOW_LINT_FAIL:-0}" -eq 1 ]
+    usage: Lint back-end and front-end code.
+    cmd: ahoy cli ./scripts/lint.sh "$@"
+
+  lint-be:
+    usage: Lint back-end code.
+    cmd: ahoy cli ./scripts/lint.sh be
+
+  lint-fe:
+    usage: Lint front-end code.
+    cmd: ahoy cli ./scripts/lint.sh fe
 
   test:
     usage: Run all tests.
-    cmd: |
-      ahoy test-phpunit
-      ahoy test-behat
+    cmd: ahoy cli ./scripts/test.sh unit-bdd
 
-  test-behat:
-    usage: Run Behat tests.
-    cmd: ahoy cli "./vendor/bin/behat --strict --colors ${BEHAT_PROFILE} $@" || [ "${ALLOW_BEHAT_FAIL:-0}" -eq 1 ]
+  test-unit:
+    usage: Run Simpletest unit tests.
+    cmd: ahoy cli ./scripts/test.sh unit "$@"
 
-  test-phpunit:
-    usage: Run PHPUnit tests.
-    cmd: |
-      ahoy cli "./vendor/bin/phpunit $@" || \
-      [ "${ALLOW_PHPUNIT_FAIL:-0}" -eq 1 ]
+  test-bdd:
+    usage: Run BDD tests.
+    cmd: ahoy cli "export BEHAT_PROFILE=${BEHAT_PROFILE:-} && ./scripts/test.sh bdd $@"
 
   debug:
     usage: Enable debug configuration.
+    #: Check if the debug configuration is already enabled and, if not -
+    #: enable it and check again that it is enabled from inside of the container.
+    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=1 ahoy up cli php && ahoy cli php -v | grep -q Xdebug && ahoy title "Enabled debug confguration. Use 'ahoy up' to disable."
+
+  deploy:
+    usage: Run remote deployment procedures
     cmd: |
-      { ahoy cli php -v|grep -q Xdebug && ahoy title "Debug is already enabled"; } \
-      || { export XDEBUG_ENABLE="true" && ahoy up && ahoy cli php -v|grep -q Xdebug && ahoy title "Enabled debug configuration. Use 'ahoy up' to disable."; }
+      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as DEPLOY_PROCEED=1 ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" \
+      && ./scripts/deploy.sh "$@" || true
+
+  doctor:
+    usage: Find problems with current project setup.
+    cmd: ./scripts/doctor.sh "$@"
 
   update:
     usage: Update development stack.
-    cmd: |
-      ahoy confirm "Some committed files may become overwritten. Proceed?" \
-        && export DRUPALDEV_ALLOW_OVERRIDE=1 \
-        && export DRUPALDEV_COMMIT=${DRUPALDEV_COMMIT:-} \
-        && if [ ! -z "${DRUPALDEV_INSTALL_SCRIPT+x}" ] && [ -f "${DRUPALDEV_INSTALL_SCRIPT}" ]; then bash ${DRUPALDEV_INSTALL_SCRIPT} "$@"; else bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/${DRUPAL_VERSION}.x/install.sh?"$(date +%s)") "$@"; fi \
-        || true
+    cmd: ahoy confirm "Some committed files may become overwritten. Proceed?" && ./scripts/update.sh || true
 
+  # ----------------------------------------------------------------------------
   # Utilities.
+  # ----------------------------------------------------------------------------
   confirm:
     cmd: read -r -p "${@} [y/N] " response; [ ${response} = "y" ]
     hide: true
 
   title:
-    cmd: printf "$(tput -Txterm setaf 4)==> ${1}$(tput -Txterm sgr0)\n"
+    #: Print colored output if terminal supports it, or fallback to plain text.
+    cmd: if [ -t 1 ]; then printf "$(tput -Txterm setaf 4)==> ${1}$(tput -Txterm sgr0)\n"; else printf "==> ${1}\n"; fi
     hide: true
 
-  line:
-    cmd: printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"
-    hide: true
-
-  getvar:
-    cmd: eval echo "${@}"
-    hide: true
-
-  pre-flight:
-    cmd: |
-      export DOCTOR_CHECK_DB=${DOCTOR_CHECK_DB:-1}
-      export DOCTOR_CHECK_TOOLS=${DOCTOR_CHECK_TOOLS:-1}
-      export DOCTOR_CHECK_PORT=${DOCTOR_CHECK_PORT:-1}
-      export DOCTOR_CHECK_PYGMY=${DOCTOR_CHECK_PYGMY:-1}
-      export DOCTOR_CHECK_CLI=${DOCTOR_CHECK_CLI:-0}
-      export DOCTOR_CHECK_SSH=${DOCTOR_CHECK_SSH:-0}
-      export DOCTOR_CHECK_WEBSERVER=${DOCTOR_CHECK_WEBSERVER:-0}
-      export DOCTOR_CHECK_BOOTSTRAP=${DOCTOR_CHECK_BOOTSTRAP:-0}
-      ahoy doctor
-    hide: true
-
+#: Override entrypoint to alter default behaviour of Ahoy.
 entrypoint:
+  #: Run all commands in Bash.
   - bash
-  - "-c"
-  - "-e"
+  #: Read the commands from the string.
+  - -c
+  #: Exit the script if any statement returns a non-true return value.
+  - -e
+  #: Read variables from .env file (if exists and not empty)
+  #: (if exists and not empty).
+  #:
+  #: It is important to understand that variables set in .env file are already
+  #: available inside of the containers after stack is running (as a part of
+  #: docker-compose functionality), so most of the commands are using these
+  #: values taken from containers.
+  #:
+  #: However, since docker does not support changes to environment variables in
+  #: running containers without restarting containers, we adding this mechanism
+  #: of reading variables here to allow adjustments of some variables
+  #: (like PHPCS scan targets) without the need to restart containers.
+  #:
+  #: As a rule of thumb, use `ahoy up cli` to apply changes to variables.
   - |
-    [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs) && if [ -f .env.local ] && [ -s .env.local ]; then export $(grep -v '^#' .env.local | xargs); fi
-    #;< DEMO
-    #; Location of the demo database used for demonstration only.
-    #; This will be removed during project install.
-    export DEMO_DB="${DEMO_DB:-https://gist.githubusercontent.com/alexdesignworks/be97c5cc0e586c7915727216e9b3c460/raw/32c995f0401d051dd55181f6ff908daa8c6a63c6/db_d7.dist.sql}"
-    #; Location of the demo database used for tests only.
-    export DEMO_DB_TEST="${DEMO_DB_TEST:-https://gist.githubusercontent.com/alexdesignworks/89ea8df8d49240d130c5949ce4b4f344/raw/144e8e493710868943f0a4441c9c7e03746b91e7/db_d7.star_wars.sql}"
-    #;> DEMO
-    #;< FRESH_INSTALL
-    export DOCTOR_CHECK_DB=0
-    #;> FRESH_INSTALL
+    [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs)
     bash -e -c "$0" "$@"
+  #: Replaced with your command.
   - '{{cmd}}'
+  #: The name of the command that was run (available as $0).
   - '{{name}}'

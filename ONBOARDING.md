@@ -54,8 +54,6 @@ indicate that it was addressed.
     - [ ] Site salt.
     - [ ] Origin URL for [stage_file_proxy](https://www.drupal.org/project/stage_file_proxy) module.
     - [ ] Username and password for [shield](https://www.drupal.org/project/shield) module.                      
-- [ ] Copy values from existing `services.yml` to provided `services.yml` file.
-      Do not simply copy this file over! Transfer values one-by-one instead.
 - [ ] Assess existing `robots.txt` file and compare it with provided one. If 
       they are different - commit existing `robots.txt` file.
 - [ ] Assess existing `.htaccess` file and compare it with provided one. If 
