@@ -32,7 +32,7 @@ AC_API_DB_NAME=${AC_API_DB_NAME:-}
 AC_API_DB_BACKUP_ID=${AC_API_DB_BACKUP_ID:-}
 
 # Location of the Acquia Cloud API credentials file after running 'drush ac-api-login'.
-AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-~/.acquia/cloudapi.conf}
+AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-$HOME/.acquia/cloudapi.conf}
 
 # Directory where DB dumps are stored.
 DB_DIR=${DB_DIR:-.data}

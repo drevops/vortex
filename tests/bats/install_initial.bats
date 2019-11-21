@@ -49,17 +49,6 @@ load _helper_drupaldev
   assert_git_repo
 }
 
-@test "Install into empty directory: PROJECT from .env.local file" {
-  # Note that .env file should exist in order to read from .env.local.
-  echo "PROJECT=\"star_wars\"" > ".env"
-  echo "PROJECT=\"the_matrix\"" > ".env.local"
-
-  run_install
-
-  assert_files_present "the_matrix" "TheMatrix"
-  assert_git_repo
-}
-
 @test "Install into empty directory: install from specific commit" {
   run_install
   assert_files_present
@@ -75,7 +64,7 @@ load _helper_drupaldev
   commit2=$(git_commit "New version 2 of Drupal-Dev" "${LOCAL_REPO_DIR}")
 
   # Requiring bespoke version by commit.
-  echo DRUPALDEV_COMMIT="${commit1}">>".env.local"
+  echo DRUPALDEV_COMMIT="${commit1}">>.env
   run_install
   assert_git_repo
   assert_output_contains "This will install Drupal-Dev into your project at commit"
@@ -121,8 +110,7 @@ load _helper_drupaldev
 }
 
 @test "Install into empty directory: interactive; override; should override changed committed file and have no changes" {
-  echo "SOMEVAR=\"someval\"" >> ".env"
-  echo "DRUPALDEV_ALLOW_OVERRIDE=1" >> ".env.local"
+  echo "SOMEVAR=\"someval\"" >> .env
 
   answers=(
     "Star wars" # name
@@ -149,7 +137,6 @@ load _helper_drupaldev
   assert_git_repo
 
   assert_file_not_contains ".env" "SOMEVAR="
-  assert_file_contains ".env.local" "DRUPALDEV_ALLOW_OVERRIDE=1"
 }
 
 @test "Install into empty directory: silent; should NOT show that Drupal-Dev was previously installed" {

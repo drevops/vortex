@@ -5,6 +5,30 @@ package: your_site
 version: 8.x-0.1
 core: '8.x'
 dependencies:
+  - block_content
+  - block_place
+  - ckeditor
+  - config
+  - content_moderation
+  - field_layout
+  - field_ui
+  - help
+  - history
+  - image
+  - inline_form_errors
+  - layout_discovery
+  - media_library
+  - menu_ui
+  - node
+  - options
+  - rdf
+  - responsive_image
+  - shortcut
+  - syslog
+  - taxonomy
+  - toolbar
+  - views_ui
   - your_site_core
+
 themes:
   - seven

@@ -23,24 +23,25 @@ load _helper_drupaldev_deployment
 
   if [ ! "${SRC_DIR}" ]; then
     SRC_DIR="${BUILD_DIR}/deployment_src"
-    step "Deployment source directory is not provided - using directory ${SRC_DIR}"
+    substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
     prepare_fixture_dir "${SRC_DIR}"
 
     # Enable Acquia integration for this test to run independent deployment.
     export DRUPALDEV_OPT_PRESERVE_ACQUIA=Y
 
-    step "Create .env.local file with Acquia credentials"
+    substep "Add Acquia credentials to .env file"
     {
       echo AC_API_USER_NAME="dummy";
       echo AC_API_USER_PASS="dummy";
-    } >> "${CURRENT_PROJECT_DIR}"/.env.local
+    } >> "${CURRENT_PROJECT_DIR}"/.env
 
     # Override download from Acquia with a special flag. This still allows to
     # validate that download script expects credentials, but does not actually
     # run the download (it would fail since there is no Acquia environment
     # attached to this test).
-    # A DEMO_DB test database will be used as actual database to provision site.
-    echo "DB_DOWNLOAD_PROCEED=0" >> "${CURRENT_PROJECT_DIR}"/.env.local
+    # A DEMO_DB test database will be used as actual database to provision site
+    # during this test.
+    echo "DB_DOWNLOAD_PROCEED=0" >> "${CURRENT_PROJECT_DIR}"/.env
 
     # We need to use "current" directory as a place where the deployment script
     # is going to run from, while "SRC_DIR" is a place where files are taken
@@ -55,10 +56,10 @@ load _helper_drupaldev_deployment
     assert_files_present_integration_lagoon "star_wars" "${CURRENT_PROJECT_DIR}"
     assert_files_present_no_integration_ftp "star_wars" "${CURRENT_PROJECT_DIR}"
 
-    step "Copying built codebase into code source directory ${SRC_DIR}"
+    substep "Copying built codebase into code source directory ${SRC_DIR}"
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
   else
-    step "Using provided SRC_DIR ${SRC_DIR}"
+    substep "Using provided SRC_DIR ${SRC_DIR}"
     assert_dir_not_empty "${SRC_DIR}"
   fi
 
@@ -83,14 +84,15 @@ load _helper_drupaldev_deployment
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
   step "Running deployment"
-  export DEPLOY_REMOTE="${REMOTE_REPO_DIR}"/.git
-  export DEPLOY_ROOT="${CURRENT_PROJECT_DIR}"
-  export DEPLOY_SRC="${SRC_DIR}"
+  export DEPLOY_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
+  export DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
+  export DEPLOY_CODE_SRC="${SRC_DIR}"
+  export DEPLOY_TYPE="code"
   source scripts/deploy.sh >&3
 
   step "Checkout currently pushed branch on remote"
-  git --git-dir="${DEPLOY_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch | sed 's/\*\s//g' | xargs git --git-dir="${DEPLOY_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" checkout
-  git --git-dir="${DEPLOY_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch >&3
+  git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch | sed 's/\*\s//g' | xargs git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" checkout
+  git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch >&3
 
   step "Assert remote deployment files"
   assert_deployment_files_present "${REMOTE_REPO_DIR}"

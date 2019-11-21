@@ -105,7 +105,7 @@ load _helper_drupaldev
   touch ".docker/test2.txt"
 
   # Modify Drupal-Dev files.
-  echo "SOMEVAR=\"someval\"" >> ".env"
+  echo "SOMEVAR=\"someval\"" >> .env
   # Add all files to git repo.
   git_add_all_commit "Second commit"
 
@@ -142,13 +142,13 @@ load _helper_drupaldev
   touch ".docker/test2.txt"
 
   # Modify Drupal-Dev files.
-  echo "SOMEVAR=\"someval\"" >> ".env"
+  echo "SOMEVAR=\"someval\"" >> .env
 
   git_add ".env"
   # Add all files to git repo.
   git_add_all_commit "Second commit"
 
-  echo "DRUPALDEV_ALLOW_OVERRIDE=1" >> ".env.local"
+  echo "DRUPALDEV_ALLOW_OVERRIDE=1" >> .env
 
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"

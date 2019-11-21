@@ -61,7 +61,16 @@ x-user:
 x-environment:
   &default-environment
   #:
+  #: Local development URL. Required to make DNS request route correctly.
+  #: Do not change the default value here (it is set as a fallback). Instead,
+  #: change the value in .env file.
+  LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-your-site.docker.amazee.io}
+  #:
   #: Allow to enable XDebug by setting external environment variable.
+  #: Do not change the value here. Instead, use
+  #: ahoy debug
+  #: or
+  #: XDEBUG_ENABLE=1 docker-compose up -d
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   #:
   #: Pass-through $CI variable used to identify the CI environment.
@@ -233,6 +242,18 @@ services:
       <<: *default-environment
     depends_on:
       - cli
+    #;< LAGOON
+    labels:
+      lagoon.type: none
+    #;> LAGOON
+
+  #: Wait for services to become available.
+  wait_dependencies:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - cli
+      - mariadb
+    command: mariadb:3306
     #;< LAGOON
     labels:
       lagoon.type: none

@@ -89,20 +89,30 @@ assert_not_contains(){
 
 assert_file_exists(){
   local file="${1}"
-  if [ -f "${file}" ]; then
-    return 0
-  else
-    format_error "File ${file} does not exist" | flunk
-  fi
+
+  for f in ${file}; do
+    if [ -e "$f" ]; then
+      return 0
+    else
+      format_error "File ${file} does not exist" | flunk
+    fi
+    ## This is all we needed to know, so we can break after the first iteration.
+    break
+  done
+
+  format_error "File ${file} does not exist" | flunk
 }
 
 assert_file_not_exists(){
   local file="${1}"
-  if [ -f "${file}" ]; then
-    format_error "File ${file} exists, but should not" | flunk
-  else
-    return 0
-  fi
+
+  for f in ${file}; do
+    if [ -e "$f" ]; then
+      format_error "File ${file} exists, but should not" | flunk
+    else
+      return 0
+    fi
+  done
 }
 
 assert_dir_exists(){
@@ -434,6 +444,35 @@ read_env(){
   fi
 
   eval echo "${@}"
+}
+
+# Trim the last line of the file.
+trim_file(){
+  local sed_opts
+  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  sed_opts+=(-e '$ d')
+  sed "${sed_opts[@]}" "${1}"
+}
+
+add_var_to_file(){
+  local file="${1}"
+  local name="${2}"
+  local value="${3}"
+
+  local backup=/tmp/bkp/"${file}"
+  mkdir -p "$(dirname "${backup}")"
+
+  cp -f "${file}" "${backup}"
+
+  # shellcheck disable=SC2086
+  echo $name=$value >> "${file}"
+}
+
+restore_file(){
+  local file="${1}"
+  local backup=/tmp/bkp/"${file}"
+
+  cp -f "${backup}" "${file}"
 }
 
 # Run bats with `--tap` option to debug the output.

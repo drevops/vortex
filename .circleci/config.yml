@@ -10,15 +10,17 @@
 #: CircleCI uses "runner" container (created from specified Docker image)
 #: to checkout source code and run commands defined in this file.
 #: Application Docker containers (the ones defined in docker-compose.yml)
-#: run on *remote* docker server. The "runner" container uses Docker client
-#: to control remote Docker server (when used locally, Docker bundles both
-#: client and server into a single "Docker" application, so you may not even
-#: know that these are two different services).
+#: run on *remote* docker server, started by CircleCI as a part of their stack.
+#: The "runner" container uses Docker client to control remote Docker server
+#: (when used locally, Docker bundles both client and server into a single
+#: "Docker" application, so you may not even know that these are two different
+#: services).
 #:
 #: Because Docker images use layers, it is possible to cache Docker images
 #: between builds to significantly speedup application provisioning for each
-#: job (it requires enabling of Docker Layer Caching feature in CircleCI through
-#: support request).
+#: job (it requires enabling of Docker Layer Caching feature in CircleCI by
+#: lodging a support request).
+#: https://circleci.com/docs/2.0/docker-layer-caching/
 #;
 #; Comments starting with '#;', '#;<' or '#;>' (like the ones used for the
 #; current paragraph) are explaining Drupal-Dev inner working and can be safely
@@ -29,13 +31,13 @@ aliases:
   #-----------------------------------------------------------------------------
   # Variables.
   #-----------------------------------------------------------------------------
-  #: For YAML support of anchors and references, @see http://blog.daemonl.com/2016/02/yaml.html
+  #: For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
 
   # SSH key fingerprint to deploy code. Add private key of the user who is
-  # allowed to push to $DEPLOY_REMOTE repo under "SSH Permissions" in
+  # allowed to push to $DEPLOY_GIT_REMOTE repo under "SSH Permissions" in
   # CircleCI UI.
   #;
-  #; This is a fingerprint of the key to push Drupal-Dev project itself.
+  #; This is a fingerprint of the key to push Drupal-Dev project itself as an example.
   #; Replace this key fingerprint with your own.
   #; This is the only part in this file that needs to be changed for your project.
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
@@ -82,9 +84,10 @@ jobs:
   #: for the current build. Usually, a daily database dump is sufficient for
   #: development activities.
   #:
-  #: Set DB_SANITIZE variable to `1` in Circle CI UI to sanitize DB using
-  #: standard drush sanitization. You may also use custom SQL script to add more
-  #: sanitization steps by putting SQL statements into scripts/sanitize.sql file.
+  #: Database will be sanitized using standard drush sanitization. You may also
+  #: use custom SQL script to add more sanitization steps by putting SQL
+  #: statements into scripts/sanitize.sql file.
+  #: Set SKIP_SANITIZE_DB variable to '1' to skip sanitization altogether.
   #;< !FRESH_INSTALL
   database:
     <<: *container_config
@@ -196,7 +199,7 @@ jobs:
           #:
           #: Override deployment branch to contain tags in the branch name.
           #: https://github.com/integratedexperts/robo-git-artefact
-          command: DEPLOY_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
+          command: DEPLOY_GIT_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
           no_output_timeout: 30m
       - store_artifacts:
           path: /tmp/artifacts
@@ -304,7 +307,7 @@ workflows:
       - drupal_dev_deploy:
           requires:
             - build
-            - drupal_dev_test
+            # - drupal_dev_test
           filters:
             branches:
               # Allowed branches: 7.x, 8.x, feature/7.x-description, feature/8.x-description

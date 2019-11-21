@@ -7,6 +7,7 @@ Behat
 breakpoint
 CircleCI
 CLI
+codebase
 customisations
 DDEV
 DEPENDENCIESIO
@@ -49,6 +50,8 @@ SCSS
 SemVer
 SLAs
 toolset
+txt
+UAT
 UI
 Uncomment
 Upgradable
