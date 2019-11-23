@@ -213,6 +213,9 @@ assert_files_present_common(){
   assert_file_contains "README.md" "badge/Drupal--Dev-${DRUPAL_VERSION}.x-blue.svg"
   assert_file_contains "README.md" "https://github.com/integratedexperts/drupal-dev/tree/${DRUPAL_VERSION}.x"
 
+  # Assert that Drupal-Dev maintenance files were removed.
+  assert_dir_not_exists "docs"
+
   popd > /dev/null || exit 1
 }
 
@@ -409,7 +412,7 @@ assert_files_present_no_integration_acquia(){
 
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
-  assert_file_not_exists "scripts/download-db-acquia.sh"
+  assert_file_not_exists "scripts/drupal-dev/download-db-acquia.sh"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_not_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
   assert_file_not_contains ".env" "AC_API_DB_SITE="
@@ -478,12 +481,6 @@ assert_files_present_integration_ftp(){
   assert_file_contains ".env" "FTP_PASS="
   assert_file_contains ".env" "FTP_FILE="
 
-  assert_file_contains ".ahoy.yml" "FTP_HOST"
-  assert_file_contains ".ahoy.yml" "FTP_PORT"
-  assert_file_contains ".ahoy.yml" "FTP_USER"
-  assert_file_contains ".ahoy.yml" "FTP_PASS"
-  assert_file_contains ".ahoy.yml" "FTP_FILE"
-
   popd > /dev/null || exit 1
 }
 
@@ -498,12 +495,6 @@ assert_files_present_no_integration_ftp(){
   assert_file_not_contains ".env" "FTP_USER="
   assert_file_not_contains ".env" "FTP_PASS="
   assert_file_not_contains ".env" "FTP_FILE="
-
-  assert_file_not_contains ".ahoy.yml" "FTP_HOST"
-  assert_file_not_contains ".ahoy.yml" "FTP_PORT"
-  assert_file_not_contains ".ahoy.yml" "FTP_USER"
-  assert_file_not_contains ".ahoy.yml" "FTP_PASS"
-  assert_file_not_contains ".ahoy.yml" "FTP_FILE"
 
   popd > /dev/null || exit 1
 }
@@ -686,7 +677,9 @@ remove_development_settings(){
 }
 
 enable_demo_db(){
-  echo "DEMO_DB=$DEMO_DB_TEST" >> .env
+  # Tests are using demo database and 'ahoy download-db' command, so we need
+  # to set the CURL DB to test DB.
+  echo "CURL_DB_URL=$DEMO_DB_TEST" >> .env
 }
 
 # Copy source code at the latest commit to the destination directory.

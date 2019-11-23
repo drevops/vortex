@@ -14,32 +14,27 @@ tasks:
         command: |
           #; If Lagoon is used as non-prod environment and the database is
           #; located elsewhere, we need to get access to that remote
-          #; environmnent to download database.
+          #; environmnent to download the database dump.
           #;
-          #;< DEMO
-          #; Using dummy DB for Drupal-Dev project demonstration.
-          source .env && mkdir -p /tmp/data && curl -L $DEMO_DB -o /tmp/data/db.sql
-          #;> DEMO
           #;< ACQUIA
-          #; If source DB is in Acquia, we need to be able to use Cloud API
-          #; to download the database dump. In order to do so, we need to
-          #; provide Cloud API credentials in AC_API_USER_NAME and AC_API_USER_PASS
-          #; variables, which can be either set in your .env file and stred in
-          #; the git repository (not the best practice) or through GraphQL query
-          #; in Lagoon (need to contact Amazee support).
-          #:
-          #: Import variables from .env.
+          #: If source DB is in Acquia, we need to be able to use Cloud API
+          #: to download the database dump. In order to do so, we need to
+          #: provide Cloud API credentials in AC_API_USER_NAME and AC_API_USER_PASS
+          #: variables, which can be either set in your .env file and stored in
+          #: the git repository (not the best practice) or through GraphQL query
+          #: in Lagoon (need to contact Amazee support).
+          #;> ACQUIA
+          #: Import variables from .env file.
           export $(grep -v '^#' .env | xargs)
           #:
           #: Override resulting file (since we are running in container) and
           #: download backup.
-          DB_FILE=/tmp/data/db.sql ./scripts/download-db-acquia.sh
-          #;> ACQUIA
+          DB_FILE=/tmp/data/db.sql ./scripts/drupal-dev/download-db.sh
         service: cli
 
     - run:
         name: Install site
-        command: ./scripts/install-site.sh
+        command: ./scripts/drupal-dev/install-site.sh
         service: cli
 
 environments:

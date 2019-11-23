@@ -55,12 +55,12 @@ mkdir -p "${DRUPAL_PRIVATE_FILES}"
 
 # Export database before importing, if the flag is set.
 # Useful to automatically store database dump before starting site rebuild.
-[ "${DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && ./scripts/drupal-export-db.sh
+[ "${DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && ./scripts/drupal-dev/drupal-export-db.sh
 
 # Import database dump if present, or install fresh website from the profile.
 if [ -f "${DB_DUMP}" ]; then
   echo "==> Using existing DB dump ${DB_DUMP}"
-  [ -z "${SKIP_DB_IMPORT}" ] && ./scripts/drupal-import-db.sh
+  [ -z "${SKIP_DB_IMPORT}" ] && ./scripts/drupal-dev/drupal-import-db.sh
 else
   echo "==> Using installation profile ${DRUPAL_PROFILE}"
   drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL

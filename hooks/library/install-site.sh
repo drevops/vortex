@@ -15,4 +15,4 @@ DRUPAL_CONFIG_LABEL=vcs
 # Skip DB import as it is managed through UI.
 SKIP_DB_IMPORT=1
 
-./scripts/drupal-install-site.sh
+./scripts/drupal-dev/drupal-install-site.sh

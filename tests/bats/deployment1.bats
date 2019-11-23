@@ -39,7 +39,7 @@ load _helper_drupaldev_deployment
     # validate that download script expects credentials, but does not actually
     # run the download (it would fail since there is no Acquia environment
     # attached to this test).
-    # A DEMO_DB test database will be used as actual database to provision site
+    # A demo test database will be used as actual database to provision site
     # during this test.
     echo "DB_DOWNLOAD_PROCEED=0" >> "${CURRENT_PROJECT_DIR}"/.env
 
@@ -88,7 +88,7 @@ load _helper_drupaldev_deployment
   export DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
   export DEPLOY_CODE_SRC="${SRC_DIR}"
   export DEPLOY_TYPE="code"
-  source scripts/deploy.sh >&3
+  source scripts/drupal-dev/deploy.sh >&3
 
   step "Checkout currently pushed branch on remote"
   git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch | sed 's/\*\s//g' | xargs git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" checkout
