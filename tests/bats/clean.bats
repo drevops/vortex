@@ -4,7 +4,7 @@
 #
 
 load _helper
-load _helper_drupaldev
+load _helper_drevops
 
 @test "Clean" {
   run_install
@@ -219,7 +219,7 @@ load _helper_drupaldev
   mktouch "composer.lock"
   mktouch "docroot/sites/all/themes/custom/star_wars/package-lock.json"
 
-  git_add_all_commit "Added Drupal-Dev files"
+  git_add_all_commit "Added DrevOps files"
 
   mktouch "uncommitted_file.txt"
 
@@ -263,7 +263,7 @@ load _helper_drupaldev
 
   assert_file_not_exists "uncommitted_file.txt"
 
-  assert_file_exists "scripts/drupal-dev/download-db-acquia.sh"
+  assert_file_exists "scripts/drevops/download-db-acquia.sh"
   assert_file_exists "committed_file.txt"
 
   # The files would be committed to the consumer repo.

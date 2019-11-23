@@ -36,7 +36,7 @@
 # - DEPLOY_WEBHOOK_URL - the URL of the webhook to call.
 # - DEPLOY_WEBHOOK_RESPONSE_STATUS - the status code of the expected response.
 #
-# @see ./scripts/drupal-dev/deploy.sh
+# @see ./scripts/drevops/deploy.sh
 
 set -e
 
@@ -45,4 +45,4 @@ export DEPLOY_CODE_SRC="/workspace/code"
 export DEPLOY_CODE_ROOT="$HOME/project"
 export DEPLOY_REPORT="/tmp/artifacts/deployment_report.txt"
 
-./scripts/drupal-dev/deploy.sh
+./scripts/drevops/deploy.sh

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Check Drupal-Dev project requirements.
+# Check DrevOps project requirements.
 #
 
 set -e
