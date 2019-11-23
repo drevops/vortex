@@ -12,10 +12,10 @@ set -e
 docker network create amazeeio-network
 
 echo "==> Lint scripts code"
-scripts/lint-scripts.sh
+scripts/drupal-dev/lint-scripts.sh
 
 echo "==> Check spelling"
-scripts/lint-spelling.sh
+scripts/drupal-dev/lint-spelling.sh
 
 echo "==> Test helpers"
 bats tests/bats/helpers.bats --tap
