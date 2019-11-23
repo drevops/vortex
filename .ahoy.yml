@@ -24,25 +24,7 @@ commands:
 
   build:
     usage: Build or rebuild project.
-    cmd: |
-      #:  Check all pre-requisites before starting the stack.
-      ahoy title "Building project" && DOCTOR_CHECK_PREFLIGHT=1 ahoy doctor
-      #:  Always "clean" project files since the previous run.
-      ahoy clean
-      #:  Build images, recreate and start containers.
-      ahoy up -- --build --force-recreate
-      #: Export code built within containers before adding development dependencies.
-      ahoy export-code
-      #:  Install development dependencies.
-      ahoy install-dev
-      #:  Install site (from exisitng DB or fresh install).
-      ahoy install-site
-      #:  Show project information and a one-time login link.
-      ahoy doctor && ahoy title "Build complete" && LOGIN_LINK=1 ahoy info
-
-  # ----------------------------------------------------------------------------
-  # Docker commands.
-  # ----------------------------------------------------------------------------
+    cmd: ./scripts/drupal-dev/build.sh
 
   info:
     usage: Show information about this project.
@@ -52,6 +34,10 @@ commands:
         -e HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2) \
         -e LOGIN_LINK=${LOGIN_LINK} \
         cli ./scripts/drupal-dev/info.sh "$@"
+
+  # ----------------------------------------------------------------------------
+  # Docker commands.
+  # ----------------------------------------------------------------------------
 
   up:
     usage: Build and start all or specified Docker containers.
@@ -149,28 +135,6 @@ commands:
     usage: Watch front-end assets during development.
     cmd: ahoy cli "npm run watch"
 
-  install-dev:
-    usage: Install development dependencies.
-    cmd: |
-      #:  Create data directory in the container.
-      docker-compose exec -T cli mkdir -p /tmp/data
-      #:  Copy database dump from data directory on host into container.
-      docker cp -L .data/db.sql $(docker-compose ps -q cli):/tmp/data/db.sql
-      #:  Copy development configuration files into container.
-      docker cp -L behat.yml $(docker-compose ps -q cli):/app/
-      docker cp -L tests $(docker-compose ps -q cli):/app/
-      docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
-      docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
-      #:  Install all composer dependencies, including development ones.
-      #:  Note that this will create/update composer.lock file.
-      ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
-      #:  Install all npm dependencies.
-      #:  Note that this will create/update package-lock.json file.
-      ahoy cli "npm install"
-      #:  Compile FE assets.
-      ahoy fe
-    hide: true
-
   export-code:
     usage: Export built code.
     cmd: |
@@ -206,7 +170,7 @@ commands:
     usage: Enable debug configuration.
     #: Check if the debug configuration is already enabled and, if not -
     #: enable it and check again that it is enabled from inside of the container.
-    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=1 ahoy up cli php && ahoy cli php -v | grep -q Xdebug && ahoy title "Enabled debug confguration. Use 'ahoy up' to disable."
+    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=1 ahoy up cli php && ahoy cli php -v | grep -q Xdebug && "echo Enabled debug confguration. Use 'ahoy up' to disable."
 
   deploy:
     usage: Run remote deployment procedures
@@ -227,11 +191,6 @@ commands:
   # ----------------------------------------------------------------------------
   confirm:
     cmd: read -r -p "${@} [y/N] " response; [ ${response} = "y" ]
-    hide: true
-
-  title:
-    #: Print colored output if terminal supports it, or fallback to plain text.
-    cmd: if [ -t 1 ]; then printf "$(tput -Txterm setaf 4)==> ${1}$(tput -Txterm sgr0)\n"; else printf "==> ${1}\n"; fi
     hide: true
 
 #: Override entrypoint to alter default behaviour of Ahoy.
