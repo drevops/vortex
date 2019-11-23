@@ -383,7 +383,7 @@ assert_files_present_no_integration_acquia(){
 
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
-  assert_file_not_exists "scripts/download-db-acquia.sh"
+  assert_file_not_exists "scripts/drupal-dev/download-db-acquia.sh"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_not_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
   assert_file_not_contains ".env" "AC_API_DB_SITE="

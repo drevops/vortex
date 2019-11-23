@@ -255,7 +255,7 @@ process_stub(){
 
   if [ "$(get_value "preserve_acquia")" != "Y" ] ; then
     rm -Rf "${dir}"/hooks > /dev/null
-    rm "${dir}"/scripts/download-db-acquia.sh > /dev/null
+    rm "${dir}"/scripts/drupal-dev/download-db-acquia.sh > /dev/null
     remove_special_comments_with_content "ACQUIA" "${dir}" && bash -c "echo -n ."
   fi
 
@@ -692,7 +692,7 @@ discover_value__preserve_deployment(){
 }
 
 discover_value__preserve_acquia(){
-  { [ -d "hooks" ] || [ -f "scripts/download-db-acquia.sh" ]; } && echo "Y" || echo "N"
+  { [ -d "hooks" ] || [ -f "scripts/drupal-dev/download-db-acquia.sh" ]; } && echo "Y" || echo "N"
 }
 
 discover_value__preserve_lagoon(){

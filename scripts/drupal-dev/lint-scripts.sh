@@ -3,7 +3,7 @@
 # Lint Drupal-Dev scripts.
 #
 
-CUR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CUR_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
 targets=()
 while IFS=  read -r -d $'\0'; do
