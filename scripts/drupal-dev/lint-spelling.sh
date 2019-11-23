@@ -6,7 +6,7 @@
 
 set -e
 
-CUR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CUR_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
 targets=()
 while IFS=  read -r -d $'\0'; do
@@ -46,7 +46,7 @@ for file in "${targets[@]}"; do
     sed -E 's/\[.+\]\([^\)]+\)//g' | \
     # Remove links.
     sed -E 's/http(s)?:\/\/([^ ]+)//g' | \
-    aspell --lang=en --encoding=utf-8 --personal="${CUR_DIR}/.aspell.en.pws" list | tee /dev/stderr | [ "$(wc -l)" -eq 0 ]
+    aspell --lang=en --encoding=utf-8 --personal="${CUR_DIR}/scripts/drupal-dev/.aspell.en.pws" list | tee /dev/stderr | [ "$(wc -l)" -eq 0 ]
 
     if  [ "$?" -ne 0 ]; then
       exit 1

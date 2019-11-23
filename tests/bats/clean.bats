@@ -269,7 +269,7 @@ load _helper_drupaldev
 
   assert_file_not_exists "uncommitted_file.txt"
 
-  assert_file_exists "scripts/download-db-acquia.sh"
+  assert_file_exists "scripts/drupal-dev/download-db-acquia.sh"
   assert_file_exists "committed_file.txt"
 
   # The files would be committed to the consumer repo.

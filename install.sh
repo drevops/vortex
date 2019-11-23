@@ -255,7 +255,7 @@ process_stub(){
 
   if [ "$(get_value "preserve_acquia")" != "Y" ] ; then
     rm -Rf "${dir}"/hooks > /dev/null
-    rm "${dir}"/scripts/download-db-acquia.sh > /dev/null
+    rm "${dir}"/scripts/drupal-dev/download-db-acquia.sh > /dev/null
     remove_special_comments_with_content "ACQUIA" "${dir}" && bash -c "echo -n ."
   fi
 
@@ -329,6 +329,9 @@ process_stub(){
     remove_special_comments "${dir}"
   fi
 
+  # Remove Drupal-Dev internal files.
+  rm -Rf "${dir}"/docs > /dev/null
+
   enable_commented_code "${dir}"
 
   echo " done"
@@ -337,8 +340,9 @@ process_stub(){
 is_demo(){
   # Perform auto-discovery only if the mode was not explicitly defined.
   if [ "$DRUPALDEV_DEMO" == "" ]; then
-    # Only if using canonical-db workflow.
-    if [ "$(get_value "fresh_install")" == "n" ] && [ "${DEMO_DB+x}" ] && [ ! -f .data/db.sql ] ; then
+    # Only if using canonical-db workflow, DB url is one of the demo URLs
+    # and there is no database dump file.
+    if [ "$(get_value "fresh_install")" == "n" ] && [ -z "${CURL_DB_URL##*.dist.sql.md*}" ]  && [ ! -f .data/db.sql ] ; then
       DRUPALDEV_DEMO=1
     else
       DRUPALDEV_DEMO=0
@@ -444,8 +448,8 @@ process_demo(){
 
   # Download demo database if this is not a fresh install, the DB file does
   # not exist and the demo DB variable exists.
-  echo "==> No database dump file found in .data directory. Downloading DEMO database from ${DEMO_DB}"
-  mkdir -p .data && curl -L "${DEMO_DB}" -o .data/db.sql
+  echo "==> No database dump file found in .data directory. Downloading DEMO database from ${CURL_DB_URL}"
+  mkdir -p .data && curl -L "${CURL_DB_URL}" -o .data/db.sql
 }
 
 ################################################################################
@@ -697,7 +701,7 @@ discover_value__preserve_deployment(){
 }
 
 discover_value__preserve_acquia(){
-  { [ -d "hooks" ] || [ -f "scripts/download-db-acquia.sh" ]; } && echo "Y" || echo "N"
+  { [ -d "hooks" ] || [ -f "scripts/drupal-dev/download-db-acquia.sh" ]; } && echo "Y" || echo "N"
 }
 
 discover_value__preserve_lagoon(){
@@ -705,7 +709,7 @@ discover_value__preserve_lagoon(){
 }
 
 discover_value__preserve_ftp(){
-  { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "FTP_HOST"; } && echo "Y" || echo "N"
+  { [ -f ".env" ] && file_contains ".env" "DOWNLOAD_DB_TYPE=ftp"; } && echo "Y" || echo "N"
 }
 
 discover_value__preserve_dependenciesio(){

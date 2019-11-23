@@ -87,7 +87,7 @@ load _helper_drupaldev_deployment
   # @todo: Not implemented. Add here when implemented.
 
   # Run deployment.
-  run source scripts/deploy.sh
+  run source scripts/drupal-dev/deploy.sh
   assert_success
 
   #

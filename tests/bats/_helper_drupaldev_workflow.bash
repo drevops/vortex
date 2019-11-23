@@ -49,7 +49,7 @@ assert_ahoy_download_db(){
   rm -Rf .data/db.sql
 
   # In this test, the database is downloaded from the public URL specified in
-  # DEMO_DB variable.
+  # CURL_DB_URL variable.
   assert_file_not_exists .data/db.sql
   ahoy download-db
   assert_file_exists .data/db.sql
