@@ -307,7 +307,7 @@ workflows:
       - drupal_dev_deploy:
           requires:
             - build
-            # - drupal_dev_test
+            - drupal_dev_test
           filters:
             branches:
               # Allowed branches: 7.x, 8.x, feature/7.x-description, feature/8.x-description

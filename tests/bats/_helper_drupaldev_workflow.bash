@@ -364,7 +364,7 @@ assert_ahoy_test_bdd(){
 
   substep "Assert that Behat tests failure bypassing works"
 
-  add_var_to_file .env "ALLOW_BDD_FAIL" "1" && ahoy up cli && sync_to_container
+  add_var_to_file .env "ALLOW_BDD_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
   run ahoy test-bdd
   [ "${status}" -eq 0 ]
   sync_to_host
@@ -397,7 +397,7 @@ assert_ahoy_test_bdd(){
   # Assert failure bypass.
   substep "Assert that single Behat test failure bypassing works"
   assert_dir_empty screenshots
-  add_var_to_file .env "ALLOW_BDD_FAIL" "1" && ahoy up cli && sync_to_container
+  add_var_to_file .env "ALLOW_BDD_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
   run ahoy test-bdd tests/behat/features/homepage.feature
   [ "${status}" -eq 0 ]
   sync_to_host

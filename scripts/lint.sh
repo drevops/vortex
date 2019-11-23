@@ -11,15 +11,15 @@ set -e
 ALLOW_LINT_FAIL="${ALLOW_LINT_FAIL:-0}"
 
 # Comma-separated list of PHPCS targets (no spaces).
-PHPCS_TARGETS="${PHPCS_TARGETS:-docroot/profiles/custom/your_site_profile,docroot/modules/custom,docroot/themes/custom,docroot/sites/default/settings.php,tests}"
+PHPCS_TARGETS="${PHPCS_TARGETS:-}"
+
+# PHP Parallel Lint targets as a comma-separated list of extensions with no
+# preceding dot or space.
+PHP_LINT_TARGETS="${PHP_LINT_TARGETS:-}"
 
 # PHP Parallel Lint extensions as a comma-separated list of extensions with
 # no preceding dot or space.
 PHP_LINT_EXTENSIONS="${PHP_LINT_EXTENSIONS:-php,inc,module,theme,install}"
-
-# PHP Parallel Lint targets as a comma-separated list of extensions with no
-# preceding dot or space.
-PHP_LINT_TARGETS="${PHP_LINT_TARGETS:-tests,docroot/profiles/custom/your_site_profile,docroot/modules/custom,docroot/themes/custom,docroot/sites/default/settings.php}"
 
 # ------------------------------------------------------------------------------
 

@@ -460,18 +460,11 @@ load _helper
   pushd "${BATS_TEST_TMPDIR}"
 
   assert_file_not_exists ".env"
-  assert_file_not_exists ".env.local"
 
   echo "VAR1=val1" >> .env
   echo "VAR2=val2" >> .env
   run read_env "\$VAR1"
   assert_output_contains "val1"
-  run read_env "\$VAR2"
-  assert_output_contains "val2"
-
-  echo "VAR1=val1_override" >> ".env.local"
-  run read_env "\$VAR1"
-  assert_output_contains "val1_override"
   run read_env "\$VAR2"
   assert_output_contains "val2"
 

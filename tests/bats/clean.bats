@@ -29,9 +29,9 @@ load _helper_drupaldev
   mktouch "node_modules/somevendor/somepackage/somepackage.js"
   mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
 
-  mktouch "docroot/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
-  mktouch "docroot/themes/custom/somecustomtheme/build/css/somecustomtheme.min.css"
-  mktouch "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch "screenshots/s1.jpg"
   mktouch "screenshots/s2.jpg"
@@ -67,8 +67,8 @@ load _helper_drupaldev
   assert_dir_not_exists "vendor"
   assert_dir_not_exists "node_modules"
 
-  assert_dir_not_exists "docroot/themes/custom/somecustomtheme/build"
-  assert_file_not_exists "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/build"
+  assert_file_not_exists "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_file_exists "screenshots/s1.jpg"
   assert_file_exists "screenshots/s2.jpg"
@@ -114,10 +114,10 @@ load _helper_drupaldev
 
   mktouch "node_modules/somevendor/somepackage/somepackage.js"
   mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
-  mktouch "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
-  mktouch "docroot/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
-  mktouch "docroot/themes/custom/somecustomtheme/build/css/somecustomtheme.min.css"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
 
   mktouch "screenshots/s1.jpg"
   mktouch "screenshots/s2.jpg"
@@ -156,8 +156,8 @@ load _helper_drupaldev
   assert_dir_not_exists "vendor"
   assert_dir_not_exists "node_modules"
 
-  assert_dir_not_exists "docroot/themes/custom/somecustomtheme/build"
-  assert_file_not_exists "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/build"
+  assert_file_not_exists "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_dir_not_exists "screenshots"
 
@@ -202,9 +202,9 @@ load _helper_drupaldev
   mktouch "node_modules/somevendor/somepackage/somepackage.js"
   mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
 
-  mktouch "docroot/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
-  mktouch "docroot/themes/custom/somecustomtheme/build/css/somecustomtheme.min.css"
-  mktouch "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch "screenshots/s1.jpg"
   mktouch "screenshots/s2.jpg"
@@ -250,8 +250,8 @@ load _helper_drupaldev
   assert_dir_not_exists "vendor"
   assert_dir_not_exists "node_modules"
 
-  assert_dir_not_exists "docroot/themes/custom/somecustomtheme/build"
-  #assert_file_not_exists "docroot/themes/custom/somecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/build"
+  #assert_file_not_exists "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_dir_not_exists "screenshots"
 
