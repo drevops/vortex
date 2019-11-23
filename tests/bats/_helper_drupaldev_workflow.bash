@@ -68,7 +68,7 @@ assert_ahoy_build(){
 
   # Assert that lock files were created.
   assert_file_exists "composer.lock"
-  assert_file_exists "package-lock.json"
+  assert_file_exists "docroot/sites/all/themes/custom/star_wars/package-lock.json"
 
   # Assert that database file preserved after build.
   assert_file_exists .data/db.sql
@@ -109,7 +109,7 @@ assert_gitignore(){
   assert_git_file_is_tracked docroot/robots.txt
   # Assert that lock files were added to the git repository.
   assert_git_file_is_tracked "composer.lock"
-  assert_git_file_is_tracked "package-lock.json"
+  assert_git_file_is_tracked "docroot/sites/all/themes/custom/star_wars/package-lock.json"
   # Assert that generated files were not added to the git repository.
   assert_git_file_is_not_tracked "docroot/sites/default/settings.generated.php"
   assert_git_file_is_not_tracked ".data/db.sql"
@@ -476,7 +476,7 @@ assert_ahoy_clean(){
   assert_dir_not_exists docroot/sites/all/modules/contrib
   assert_dir_not_exists docroot/sites/all/themes/contrib
   assert_dir_not_exists vendor
-  assert_dir_not_exists node_modules
+  assert_dir_not_exists docroot/sites/all/themes/custom/star_wars/node_modules
   assert_dir_exists screenshots
 
   # Assert manually created local settings file exists.

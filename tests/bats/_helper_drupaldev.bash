@@ -139,6 +139,9 @@ assert_files_present_common(){
   assert_file_exists "docroot/sites/all/themes/custom/${suffix}/.gitignore"
   assert_file_exists "docroot/sites/all/themes/custom/${suffix}/${suffix}.info"
   assert_file_exists "docroot/sites/all/themes/custom/${suffix}/template.php"
+  assert_file_exists "docroot/sites/all/themes/custom/${suffix}/Gruntfile.js"
+  assert_file_exists "docroot/sites/all/themes/custom/${suffix}/.eslintrc.json"
+  assert_file_exists "docroot/sites/all/themes/custom/${suffix}/package.json"
 
   # Comparing binary files.
   assert_files_equal "${LOCAL_REPO_DIR}/docroot/sites/all/themes/custom/your_site_theme/screenshot.png" "docroot/sites/all/themes/custom/${suffix}/screenshot.png"
@@ -616,7 +619,7 @@ install_dependencies_stub(){
   mktouch "vendor/somevendor/somepackage/somepackage.php"
   mktouch "vendor/somevendor/somepackage/somepackage with spaces.php"
   mktouch "vendor/somevendor/somepackage/composer.json"
-  mktouch "node_modules/somevendor/somepackage/somepackage.js"
+  mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
 
   mktouch "docroot/sites/all/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "screenshots/s1.jpg"

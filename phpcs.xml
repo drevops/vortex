@@ -18,12 +18,10 @@
     <config name="testVersion" value="7.2"/>
 
     <!-- Exclude theme assets. -->
-    <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/build\/.*
-    </exclude-pattern>
-    <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/fonts\/.*
-    </exclude-pattern>
-    <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/images\/.*
-    </exclude-pattern>
+    <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/build\/.*</exclude-pattern>
+    <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
+    <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/images\/.*</exclude-pattern>
+    <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>
     <exclude-pattern>*\.min\.*</exclude-pattern>
 
     <!-- Exclude CircleCI config files. -->

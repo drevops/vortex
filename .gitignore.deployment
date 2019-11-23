@@ -14,6 +14,11 @@ docroot/sites/all/themes/custom/your_site_theme/fonts
 docroot/sites/all/themes/custom/your_site_theme/images
 docroot/sites/all/themes/custom/your_site_theme/js
 docroot/sites/all/themes/custom/your_site_theme/scss
+docroot/sites/all/themes/custom/your_site_theme/Gruntfile.js
+docroot/sites/all/themes/custom/your_site_theme/package.json
+docroot/sites/all/themes/custom/your_site_theme/package-lock.json
+docroot/sites/all/themes/custom/your_site_theme/.eslintrc.json
+docroot/sites/all/themes/custom/your_site_theme/node_modules
 docroot/sites/default/default.settings.php
 docroot/sites/default/settings.generated.php
 docroot/sites/default/default.settings.local.php
