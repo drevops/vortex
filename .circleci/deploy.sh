@@ -42,7 +42,7 @@ set -e
 
 #: Assigning values specific to CircleCI environment.
 export DEPLOY_CODE_SRC="/workspace/code"
-export DEPLOY_CODE_ROOT="/app"
+export DEPLOY_CODE_ROOT="$HOME/project"
 export DEPLOY_REPORT="/tmp/artifacts/deployment_report.txt"
 
 ./scripts/deploy.sh
