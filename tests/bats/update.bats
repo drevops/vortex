@@ -39,8 +39,8 @@ load _helper_drupaldev
   # is not supported in install.sh; only commit is supported).
   echo "# Some change to docker-compose" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
-  echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/.eslintrc.json"
-  git_add "${LOCAL_REPO_DIR}" ".eslintrc.json"
+  echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/docroot/themes/custom/star_wars/.eslintrc.json"
+  git_add "${LOCAL_REPO_DIR}" "docroot/themes/custom/star_wars/.eslintrc.json"
   latest_commit=$(git_commit "New version of Drupal-Dev" "${LOCAL_REPO_DIR}")
 
   # Override Drupal-Dev release commit in .env file.
@@ -57,7 +57,7 @@ load _helper_drupaldev
 
   # Assert that committed files were updated.
   assert_file_contains "docker-compose.yml" "# Some change to docker-compose"
-  assert_file_contains ".eslintrc.json" "# Some change to non-required file"
+  assert_file_contains "docroot/themes/custom/star_wars/.eslintrc.json" "# Some change to non-required file"
 
   # Assert that new changes need to be manually resolved.
   assert_git_not_clean

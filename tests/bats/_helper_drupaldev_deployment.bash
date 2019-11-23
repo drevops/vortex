@@ -30,10 +30,7 @@ assert_deployment_files_present(){
   assert_file_not_exists composer.lock
   assert_file_not_exists dependencies.yml
   assert_file_not_exists docker-compose.yml
-  assert_file_not_exists Gruntfile.js
   assert_file_not_exists LICENSE
-  assert_file_not_exists package.json
-  assert_file_not_exists package-lock.json
   assert_file_not_exists phpcs.xml
   assert_file_not_exists README.md
 
@@ -58,6 +55,11 @@ assert_deployment_files_present(){
   assert_file_exists docroot/themes/custom/star_wars/star_wars.info.yml
   assert_file_exists docroot/themes/custom/star_wars/star_wars.libraries.yml
   assert_file_exists docroot/themes/custom/star_wars/star_wars.theme
+  assert_file_not_exists docroot/themes/custom/star_wars/Gruntfile.js
+  assert_file_not_exists docroot/themes/custom/star_wars/package.json
+  assert_file_not_exists docroot/themes/custom/star_wars/package-lock.json
+  assert_file_not_exists docroot/themes/custom/star_wars/.eslintrc.json
+  assert_dir_not_exists docroot/themes/custom/star_wars/node_modules
 
   # Scaffolding files present.
   assert_file_exists "docroot/.editorconfig"

@@ -26,8 +26,8 @@ load _helper_drupaldev
   # Make sure that sub-repos removed.
   mktouch "vendor/othervendor/otherpackage/.git/HEAD"
 
-  mktouch "node_modules/somevendor/somepackage/somepackage.js"
-  mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage with spaces.js"
 
   mktouch "docroot/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
@@ -65,10 +65,10 @@ load _helper_drupaldev
   assert_file_exists "docroot/sites/default/files/somepublicfile.php"
 
   assert_dir_not_exists "vendor"
-  assert_dir_not_exists "node_modules"
+  assert_dir_not_exists "docroot/themes/custom/star_wars/node_modules"
 
-  assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/build"
-  assert_file_not_exists "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "docroot/themes/custom/star_wars/build"
+  assert_file_not_exists "docroot/themes/custom/star_wars/scss/_components.scss"
 
   assert_file_exists "screenshots/s1.jpg"
   assert_file_exists "screenshots/s2.jpg"
@@ -112,8 +112,8 @@ load _helper_drupaldev
   # Make sure that sub-repos removed.
   mktouch "vendor/othervendor/otherpackage/.git/HEAD"
 
-  mktouch "node_modules/somevendor/somepackage/somepackage.js"
-  mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage with spaces.js"
   mktouch "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch "docroot/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
@@ -137,7 +137,7 @@ load _helper_drupaldev
   mktouch "uncommitted_file.txt"
 
   mktouch "composer.lock"
-  mktouch "package-lock.json"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/package-lock.json"
 
   yes | ahoy reset
 
@@ -154,7 +154,7 @@ load _helper_drupaldev
   assert_file_not_exists "docroot/sites/default/files/somepublicfile.php"
 
   assert_dir_not_exists "vendor"
-  assert_dir_not_exists "node_modules"
+  assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/node_modules"
 
   assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/build"
   assert_file_not_exists "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
@@ -176,7 +176,7 @@ load _helper_drupaldev
   assert_file_not_exists "uncommitted_file.txt"
 
   assert_file_not_exists "composer.lock"
-  assert_file_not_exists "package-lock.json"
+  assert_file_not_exists "docroot/themes/custom/star_wars/package-lock.json"
 }
 
 @test "Reset; committed files" {
@@ -199,8 +199,8 @@ load _helper_drupaldev
   # Make sure that sub-repos removed.
   mktouch "vendor/othervendor/otherpackage/.git/HEAD"
 
-  mktouch "node_modules/somevendor/somepackage/somepackage.js"
-  mktouch "node_modules/somevendor/somepackage/somepackage with spaces.js"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage with spaces.js"
 
   mktouch "docroot/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
@@ -222,7 +222,7 @@ load _helper_drupaldev
   mktouch "nbproject/some_ide_file"
 
   mktouch "composer.lock"
-  mktouch "package-lock.json"
+  mktouch "docroot/themes/custom/star_wars/package-lock.json"
 
   git_add_all_commit "Added Drupal-Dev files"
 
@@ -248,7 +248,7 @@ load _helper_drupaldev
   assert_file_not_exists "docroot/sites/default/files/somepublicfile.php"
 
   assert_dir_not_exists "vendor"
-  assert_dir_not_exists "node_modules"
+  assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/node_modules"
 
   assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/build"
   #assert_file_not_exists "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
@@ -274,5 +274,5 @@ load _helper_drupaldev
 
   # The files would be committed to the consumer repo.
   assert_file_exists "composer.lock"
-  assert_file_exists "package-lock.json"
+  assert_file_exists "docroot/themes/custom/star_wars/package-lock.json"
 }

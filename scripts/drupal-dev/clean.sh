@@ -7,7 +7,6 @@ set -e
 
 rm -rf \
   ./vendor \
-  ./node_modules \
   ./docroot/core \
   ./docroot/profiles/contrib \
   ./docroot/modules/contrib \
@@ -15,3 +14,6 @@ rm -rf \
   ./docroot/themes/custom/*/build \
   ./docroot/themes/custom/*/scss/_components.scss \
   ./docroot/sites/default/settings.generated.php
+
+# shellcheck disable=SC2038
+find . -type d -name node_modules | xargs rm -Rf

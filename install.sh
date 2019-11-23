@@ -669,9 +669,9 @@ discover_value__theme(){
     # shellcheck disable=SC2012
     ls -d docroot/themes/custom/* | head -n 1 | cut -c 23-
     return
-  elif ls -d docroot/sites/all/themes/custom/* > /dev/null; then
+  elif ls -d docroot/themes/custom/* > /dev/null; then
     # shellcheck disable=SC2012
-    ls -d docroot/sites/all/themes/custom/* | head -n 1 | cut -c 33-
+    ls -d docroot/themes/custom/* | head -n 1 | cut -c 33-
     return
   fi
 }

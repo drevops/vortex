@@ -8,8 +8,10 @@
  */
 
 /* global module */
-var bootstrapPath = 'vendor/twbs/bootstrap/dist/js/bootstrap.js';
-var themePath = 'docroot/themes/custom/your_site_theme/';
+
+var librariesPaths = [
+  '../../../../../../../vendor/twbs/bootstrap/dist/js/bootstrap.js'
+];
 var themeName = 'your_site_theme';
 module.exports = function (grunt) {
   'use strict';
@@ -17,12 +19,8 @@ module.exports = function (grunt) {
     pkg: grunt.file.readJSON('package.json'),
     eslint: {
       src: [
-        'docroot/profiles/custom/**/*.js',
-        '!docroot/profiles/custom/**/*.min.js',
-        'docroot/modules/custom/**/*.js',
-        '!docroot/modules/custom/**/*.min.js',
-        'docroot/themes/custom/**/*.js',
-        '!docroot/themes/custom/**/*.min.js'
+        'js/**/*.js',
+        '!js/**/*.min.js',
       ],
       options: {
         config: '.eslintrc.json'
@@ -33,14 +31,13 @@ module.exports = function (grunt) {
         configFile: '.sass-lint.yml'
       },
       target: [
-        'docroot/themes/custom/**/*.scss',
-        'docroot/modules/custom/**/*.scss'
+        'scss/**/*.scss',
       ]
     },
     sass_globbing: {
       dev: {
         files: {
-          [themePath + 'scss/_components.scss']: themePath + 'scss/components/**/*.scss'
+          ['scss/_components.scss']: 'scss/components/**/*.scss'
         },
         options: {
           useSingleQuotes: true,
@@ -48,18 +45,17 @@ module.exports = function (grunt) {
         }
       }
     },
-    clean: [themePath + 'build'],
+    clean: ['build'],
     concat: {
       options: {
         separator: '\n\n'
       },
       dist: {
         src: [
-          bootstrapPath,
-          themePath + 'js/**/*.js',
-          '!' + themePath + 'js/' + themeName + '.min.js'
-        ],
-        dest: themePath + 'build/js/' + themeName + '.min.js'
+          'js/**/*.js',
+          '!js/' + themeName + '.min.js'
+        ].concat(librariesPaths),
+        dest: 'build/js/' + themeName + '.min.js'
       }
     },
     uglify: {
@@ -73,14 +69,14 @@ module.exports = function (grunt) {
           }
         },
         files: {
-          [themePath + 'build/js/' + themeName + '.min.js']: [themePath + 'build/js/' + themeName + '.min.js']
+          ['build/js/' + themeName + '.min.js']: ['build/js/' + themeName + '.min.js']
         }
       }
     },
     sass: {
       dev: {
         files: {
-          [themePath + 'build/css/' + themeName + '.min.css']: themePath + 'scss/style.scss'
+          ['build/css/' + themeName + '.min.css']: 'scss/style.scss'
         },
         options: {
           implementation: require('node-sass'),
@@ -90,7 +86,7 @@ module.exports = function (grunt) {
       },
       prod: {
         files: {
-          [themePath + 'build/css/' + themeName + '.min.css']: themePath + 'scss/style.scss'
+          ['build/css/' + themeName + '.min.css']: 'scss/style.scss'
         },
         options: {
           implementation: require('node-sass'),
@@ -107,30 +103,30 @@ module.exports = function (grunt) {
       },
       dev: {
         map: true,
-        src: themePath + 'build/css/' + themeName + '.min.css'
+        src: 'build/css/' + themeName + '.min.css'
       },
       prod: {
         map: false,
-        src: themePath + 'build/css/' + themeName + '.min.css'
+        src: 'build/css/' + themeName + '.min.css'
       }
     },
     copy: {
       images: {
         expand: true,
-        cwd: themePath + 'images/',
+        cwd: 'images/',
         src: '**',
-        dest: themePath + 'build/images'
+        dest: 'build/images'
       },
       fonts: {
         expand: true,
-        cwd: themePath + 'fonts/',
+        cwd: 'fonts/',
         src: '**',
-        dest: themePath + 'build/fonts'
+        dest: 'build/fonts'
       }
     },
     watch: {
       scripts: {
-        files: [themePath + 'js/**/*.js'],
+        files: ['js/**/*.js'],
         tasks: ['concat'],
         options: {
           livereload: true,
@@ -139,7 +135,7 @@ module.exports = function (grunt) {
       },
       styles: {
         files: [
-          themePath + 'scss/**/*.scss'
+          'scss/**/*.scss'
         ],
         tasks: ['sass_globbing', 'sass:dev', 'postcss:dev'],
         options: {

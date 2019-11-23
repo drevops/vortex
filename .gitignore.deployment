@@ -3,13 +3,22 @@
 # Ignore everything, but some whitelisted files.
 /*
 
-# Do not ignore docroot.
+#; To simplify maintenance of Drupal-Dev, we support only 'docroot' $DOCROOT
+#; defined explicitly here.
+#; @todo: Add support for renamed $DOCROOT.
+#;
+#; $DOCROOT is 'docroot'.
 !docroot
 # But still ignore sources.
 docroot/themes/custom/your_site_theme/fonts
 docroot/themes/custom/your_site_theme/images
 docroot/themes/custom/your_site_theme/js
 docroot/themes/custom/your_site_theme/scss
+docroot/themes/custom/your_site_theme/Gruntfile.js
+docroot/themes/custom/your_site_theme/package.json
+docroot/themes/custom/your_site_theme/package-lock.json
+docroot/themes/custom/your_site_theme/.eslintrc.json
+docroot/themes/custom/your_site_theme/node_modules
 docroot/sites/default/settings.generated.php
 docroot/sites/default/default.settings.php
 docroot/sites/default/default.services.yml

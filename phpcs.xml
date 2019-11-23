@@ -21,6 +21,7 @@
     <exclude-pattern>docroot\/themes\/custom\/.*\/build\/.*</exclude-pattern>
     <exclude-pattern>docroot\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
     <exclude-pattern>docroot\/themes\/custom\/.*\/images\/.*</exclude-pattern>
+    <exclude-pattern>docroot\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>
     <exclude-pattern>*\.min\.*</exclude-pattern>
 
     <!-- Exclude CircleCI config files. -->
