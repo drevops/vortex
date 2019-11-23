@@ -47,11 +47,11 @@ commands:
   info:
     usage: Show information about this project.
     cmd: |
-      #:  Discover DB port on host and pass into the script.
-      HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)
-      #:  Discover SOLR port on host and pass into the script.
-      HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2)
-      docker-compose exec -e LOGIN_LINK=${LOGIN_LINK} -e HOST_DB_PORT=${HOST_DB_PORT} -e HOST_SOLR_PORT=${HOST_SOLR_PORT} cli ./scripts/drupal-dev/info.sh "$@"
+      docker-compose exec \
+        -e HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2) \
+        -e HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2) \
+        -e LOGIN_LINK=${LOGIN_LINK} \
+        cli ./scripts/drupal-dev/info.sh "$@"
 
   up:
     usage: Build and start all or specified Docker containers.
