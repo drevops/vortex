@@ -39,7 +39,7 @@ load _helper_drupaldev_deployment
     # validate that download script expects credentials, but does not actually
     # run the download (it would fail since there is no Acquia environment
     # attached to this test).
-    # A DEMO_DB test database will be used as actual database to provision site
+    # A demo test database will be used as actual database to provision site
     # during this test.
     echo "DB_DOWNLOAD_PROCEED=0" >> "${CURRENT_PROJECT_DIR}"/.env
 
