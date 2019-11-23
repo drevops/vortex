@@ -11,10 +11,6 @@
 
 echo "==> Building project"
 
-CUR_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
-
-pushd "${CUR_DIR}" > /dev/null || exit 1
-
 # Check all pre-requisites before starting the stack.
 DOCTOR_CHECK_PREFLIGHT=1 ahoy doctor
 
@@ -37,17 +33,17 @@ ahoy export-code
 # Create data directory in the container and copy database dump from data
 # directory on host into container.
 ahoy cli mkdir -p /tmp/data && docker cp -L .data/db.sql $(docker-compose ps -q cli):/tmp/data/db.sql
+# Copy development configuration files into container.
+docker cp -L behat.yml $(docker-compose ps -q cli):/app/
+docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
+docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
+docker cp -L tests $(docker-compose ps -q cli):/app/
 # Install all composer dependencies, including development ones.
 # Note that this will create/update composer.lock file.
 ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
 # Install all npm dependencies and compile FE assets.
 # Note that this will create/update package-lock.json file.
 ahoy cli "npm install" && ahoy fe
-# Copy development configuration files into container.
-docker cp -L behat.yml $(docker-compose ps -q cli):/app/
-docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
-docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
-docker cp -L tests $(docker-compose ps -q cli):/app/
 
 # Install site (from existing DB or fresh install).
 ahoy install-site
@@ -59,5 +55,3 @@ echo "==> Build complete"
 
 # Show project information and a one-time login link.
 SHOW_LOGIN_LINK=1 ahoy info
-
-popd > /dev/null || exit 1
