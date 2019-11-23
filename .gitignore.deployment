@@ -3,7 +3,7 @@
 # Ignore everything, but some whitelisted files.
 /*
 
-#; To simplify maintenance of Drupal-Dev, we support only 'docroot' $DOCROOT
+#; To simplify maintenance of DrevOps, we support only 'docroot' $DOCROOT
 #; defined explicitly here.
 #; @todo: Add support for renamed $DOCROOT.
 #;

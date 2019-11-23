@@ -7,7 +7,7 @@
 # This is a router script to call relevant deployment scripts based on type.
 #
 # For required variables based on the deployment type,
-# see ./scripts/drupal-dev/download-db-[type].sh file.
+# see ./scripts/drevops/download-db-[type].sh file.
 
 set -e
 
@@ -21,15 +21,15 @@ DOWNLOAD_DB_TYPE="${DOWNLOAD_DB_TYPE:-curl}"
 
 if [ "${DOWNLOAD_DB_TYPE}" == "ftp" ]; then
   echo "==> Starting database dump download from FTP"
-  ./scripts/drupal-dev/download-db-ftp.sh
+  ./scripts/drevops/download-db-ftp.sh
 fi
 
 if [ "${DOWNLOAD_DB_TYPE}" == "curl" ]; then
   echo "==> Starting database dump download from CURL"
-  ./scripts/drupal-dev/download-db-curl.sh
+  ./scripts/drevops/download-db-curl.sh
 fi
 
 if [ "${DOWNLOAD_DB_TYPE}" == "acquia" ]; then
   echo "==> Starting database dump download from Acquia"
-  ./scripts/drupal-dev/download-db-acquia.sh
+  ./scripts/drevops/download-db-acquia.sh
 fi

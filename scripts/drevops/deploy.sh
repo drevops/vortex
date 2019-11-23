@@ -8,7 +8,7 @@
 # This is a router script to call relevant deployment scripts based on type.
 #
 # For required variables based on the deployment type,
-# see ./scripts/drupal-dev/deployment-[type].sh file.
+# see ./scripts/drevops/deployment-[type].sh file.
 
 set -e
 
@@ -29,15 +29,15 @@ fi
 
 if [ -z "${DEPLOY_TYPE##*code*}" ]; then
   echo "==> Starting 'code' deployment"
-  ./scripts/drupal-dev/deploy-code.sh
+  ./scripts/drevops/deploy-code.sh
 fi
 
 if [ -z "${DEPLOY_TYPE##*webhook*}" ]; then
   echo "==> Starting deployment ${DEPLOY_TYPE}"
-  ./scripts/drupal-dev/deploy-webhook.sh
+  ./scripts/drevops/deploy-webhook.sh
 fi
 
 if [ -z "${DEPLOY_TYPE##*docker*}" ]; then
   echo "==> Starting 'docker' deployment"
-  ./scripts/drupal-dev/deploy-docker.sh
+  ./scripts/drevops/deploy-docker.sh
 fi

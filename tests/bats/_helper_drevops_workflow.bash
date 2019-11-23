@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2154
 #
-# Helpers related to Drupal-Dev workflow testing functionality.
+# Helpers related to DrevOps workflow testing functionality.
 #
 
 prepare_sut(){
@@ -19,7 +19,7 @@ prepare_sut(){
 
   substep "Initialise the project with default settings"
   # Remove Acquia integration as we are using DEMO configuration.
-  export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
+  export DREVOPS_OPT_PRESERVE_ACQUIA=0
   # Run default install
   run_install
 
@@ -31,8 +31,8 @@ prepare_sut(){
   assert_files_present_no_integration_ftp
   assert_git_repo
 
-  substep "Add all Drupal-Dev files to new git repo"
-  git_add_all_commit "Init Drupal-Dev config"
+  substep "Add all DrevOps files to new git repo"
+  git_add_all_commit "Init DrevOps config"
 
   substep "Create IDE config file"
   mkdir -p .idea
@@ -513,7 +513,7 @@ assert_ahoy_clean(){
   create_development_settings
 
   ahoy clean
-  # Assert that initial Drupal-Dev files have not been removed.
+  # Assert that initial DrevOps files have not been removed.
   assert_files_present_common
   assert_files_present_deployment
   assert_files_present_no_integration_acquia

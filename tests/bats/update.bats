@@ -4,12 +4,12 @@
 #
 
 load _helper
-load _helper_drupaldev
+load _helper_drevops
 
 @test "Update" {
   # Add custom files
   touch "test1.txt"
-  # File resides in directory that is included in Drupal-Dev when initialised.
+  # File resides in directory that is included in DrevOps when initialised.
   mkdir -p ".docker"
   touch ".docker/test2.txt"
 
@@ -25,28 +25,28 @@ load _helper_drupaldev
 
   install_dependencies_stub
 
-  git_add_all_commit "Init Drupal-Dev"
+  git_add_all_commit "Init DrevOps"
 
   # Assert that custom file preserved.
   assert_file_exists "test1.txt"
-  # Assert that custom file in a directory used by Drupal-Dev is preserved.
+  # Assert that custom file in a directory used by DrevOps is preserved.
   assert_file_exists ".docker/test2.txt"
 
   # Assert no changes were introduced.
   assert_git_clean
 
-  # Releasing new version of Drupal-Dev (note that installing from the local tag
+  # Releasing new version of DrevOps (note that installing from the local tag
   # is not supported in install.sh; only commit is supported).
   echo "# Some change to docker-compose" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
   echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/docroot/themes/custom/star_wars/.eslintrc.json"
   git_add "${LOCAL_REPO_DIR}" "docroot/themes/custom/star_wars/.eslintrc.json"
-  latest_commit=$(git_commit "New version of Drupal-Dev" "${LOCAL_REPO_DIR}")
+  latest_commit=$(git_commit "New version of DrevOps" "${LOCAL_REPO_DIR}")
 
-  # Override Drupal-Dev release commit in .env file.
-  echo DRUPALDEV_COMMIT="${latest_commit}">>.env
+  # Override DrevOps release commit in .env file.
+  echo DREVOPS_COMMIT="${latest_commit}">>.env
   # Override install script with currently tested one.
-  export DRUPALDEV_INSTALL_SCRIPT="${CUR_DIR}/install.sh"
+  export DREVOPS_INSTALL_SCRIPT="${CUR_DIR}/install.sh"
   # shellcheck disable=SC2059
   yes | ahoy update
 

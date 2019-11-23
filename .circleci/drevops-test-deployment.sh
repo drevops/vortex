@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Run Drupal-Dev tests for deployment in CI.
+# Run DrevOps tests for deployment in CI.
 #
 # This file is removed after install/update.
 set -e

@@ -9,6 +9,8 @@
 # Acquia runs "hooks" (provided in "hooks" directory), Lagoon runs build steps
 # (specified in .lagoon.yml file) etc.
 
+set -e
+
 echo "==> Building project"
 
 # Check all pre-requisites before starting the stack.
@@ -32,18 +34,17 @@ ahoy export-code
 #
 # Create data directory in the container and copy database dump from data
 # directory on host into container.
-ahoy cli mkdir -p /tmp/data && docker cp -L .data/db.sql $(docker-compose ps -q cli):/tmp/data/db.sql
+[ -f .data/db.sql ] && ahoy cli mkdir -p /tmp/data && docker cp -L .data/db.sql $(docker-compose ps -q cli):/tmp/data/db.sql
 # Copy development configuration files into container.
 docker cp -L behat.yml $(docker-compose ps -q cli):/app/
 docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
-docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
 docker cp -L tests $(docker-compose ps -q cli):/app/
 # Install all composer dependencies, including development ones.
 # Note that this will create/update composer.lock file.
 ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
 # Install all npm dependencies and compile FE assets.
 # Note that this will create/update package-lock.json file.
-ahoy cli "npm install" && ahoy fe
+ahoy cli "npm install --prefix docroot/themes/custom/your_site_theme" && ahoy fe
 
 # Install site (from existing DB or fresh install).
 ahoy install-site

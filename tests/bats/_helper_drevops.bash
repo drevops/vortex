@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Helpers related to Drupal-Dev common testing functionality.
+# Helpers related to DrevOps common testing functionality.
 #
 
 ################################################################################
@@ -18,18 +18,18 @@
 # existing project files (e.g. from previous installations) or be empty (to
 # facilitate brand-new install).
 #
-# $DST_PROJECT_DIR - directory where Drupal-Dev may be installed to. By default,
+# $DST_PROJECT_DIR - directory where DrevOps may be installed to. By default,
 # install uses $CURRENT_PROJECT_DIR as a destination, but we use
 # $DST_PROJECT_DIR to test a scenario where different destination is provided.
 #
 # $LOCAL_REPO_DIR - directory where install script will be sourcing the instance
-# of Drupal-Dev.
+# of DrevOps.
 #
 # $APP_TMP_DIR - directory where the application may store it's temporary files.
 setup(){
   DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
   CUR_DIR="$(pwd)"
-  BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR}/drupal-dev-$(random_string)"}"
+  BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR}/drevops-$(random_string)"}"
 
   CURRENT_PROJECT_DIR="${BUILD_DIR}/star_wars"
   DST_PROJECT_DIR="${BUILD_DIR}/dst"
@@ -198,24 +198,24 @@ assert_files_present_common(){
   assert_file_contains .env "LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
 
   # Assert that documentation was processed correctly.
-  assert_file_not_contains README.md "# Drupal-Dev"
+  assert_file_not_contains README.md "# DrevOps"
 
-  # Assert that Drupal-Dev files removed.
+  # Assert that DrevOps files removed.
   assert_file_not_exists "install.sh"
   assert_file_not_exists "LICENSE"
-  assert_file_not_exists ".circleci/drupal_dev-test.sh"
-  assert_file_not_exists ".circleci/drupal_dev-test-deployment.sh"
+  assert_file_not_exists ".circleci/drevops-test.sh"
+  assert_file_not_exists ".circleci/drevops-test-deployment.sh"
   assert_dir_not_exists "tests/bats"
-  assert_file_not_contains ".circleci/config.yml" "drupal_dev_test"
-  assert_file_not_contains ".circleci/config.yml" "drupal_dev_test_deployment"
-  assert_file_not_contains ".circleci/config.yml" "drupal_dev_deploy"
-  assert_file_not_contains ".circleci/config.yml" "drupal_dev_deploy_tags"
+  assert_file_not_contains ".circleci/config.yml" "drevops_test"
+  assert_file_not_contains ".circleci/config.yml" "drevops_test_deployment"
+  assert_file_not_contains ".circleci/config.yml" "drevops_deploy"
+  assert_file_not_contains ".circleci/config.yml" "drevops_deploy_tags"
 
-  # Assert that Drupal-Dev version was replaced.
-  assert_file_contains "README.md" "badge/Drupal--Dev-${DRUPAL_VERSION}.x-blue.svg"
+  # Assert that DrevOps version was replaced.
+  assert_file_contains "README.md" "badge/DrevOps-${DRUPAL_VERSION}.x-blue.svg"
   assert_file_contains "README.md" "https://github.com/integratedexperts/drupal-dev/tree/${DRUPAL_VERSION}.x"
 
-  # Assert that Drupal-Dev maintenance files were removed.
+  # Assert that DrevOps maintenance files were removed.
   assert_dir_not_exists "docs"
 
   popd > /dev/null || exit 1
@@ -414,7 +414,7 @@ assert_files_present_no_integration_acquia(){
 
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
-  assert_file_not_exists "scripts/drupal-dev/download-db-acquia.sh"
+  assert_file_not_exists "scripts/drevops/download-db-acquia.sh"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_not_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
   assert_file_not_contains ".env" "AC_API_DB_SITE="
@@ -536,9 +536,9 @@ Drupal 8 implementation of ${name} for ${org}
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 
-[//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
+[//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DREVOPS TO TRACK INTEGRATION)
 
-[![drupal-dev.io](https://img.shields.io/badge/Drupal--Dev-DRUPALDEV_VERSION_URLENCODED-blue.svg)](https://github.com/integratedexperts/drupal-dev/tree/DRUPALDEV_VERSION)
+[![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/integratedexperts/drupal-dev/tree/DREVOPS_VERSION)
 
 some other text
 EOT
@@ -567,15 +567,15 @@ run_install(){
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null || exit 1
 
   # Force install script to be downloaded from the local repo for testing.
-  export DRUPALDEV_LOCAL_REPO="${LOCAL_REPO_DIR}"
+  export DREVOPS_LOCAL_REPO="${LOCAL_REPO_DIR}"
 
   # Use unique temporary directory for each run.
-  DRUPALDEV_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
-  prepare_fixture_dir "${DRUPALDEV_TMP_DIR}"
-  export DRUPALDEV_TMP_DIR
+  DREVOPS_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
+  prepare_fixture_dir "${DREVOPS_TMP_DIR}"
+  export DREVOPS_TMP_DIR
 
   # Enable the line below to show debug information (for easy debug of tests).
-  # export DRUPALDEV_DEBUG=1
+  # export DREVOPS_DEBUG=1
   run "${CUR_DIR}"/install.sh "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
@@ -609,7 +609,7 @@ run_install(){
 #   "nothing" # preserve_ftp
 #   "nothing" # preserve_dependenciesio
 #   "nothing" # preserve_doc_comments
-#   "nothing" # remove_drupaldev_info
+#   "nothing" # remove_drevops_info
 # )
 # output=$(run_install_interactive "${answers[@]}")
 # @endcode

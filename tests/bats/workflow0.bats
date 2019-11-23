@@ -5,8 +5,8 @@
 # Due to test speed efficiency, all assertions ran withing a single test.
 
 load _helper
-load _helper_drupaldev
-load _helper_drupaldev_workflow
+load _helper_drevops
+load _helper_drevops_workflow
 
 @test "Workflow: DB-driven" {
   prepare_sut "Starting DB-driven WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
