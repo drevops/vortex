@@ -11,6 +11,10 @@
 
 echo "==> Building project"
 
+CUR_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
+
+pushd "${CUR_DIR}" > /dev/null || exit 1
+
 # Check all pre-requisites before starting the stack.
 DOCTOR_CHECK_PREFLIGHT=1 ahoy doctor
 
@@ -55,3 +59,5 @@ echo "==> Build complete"
 
 # Show project information and a one-time login link.
 LOGIN_LINK=1 ahoy info
+
+popd > /dev/null || exit 1
