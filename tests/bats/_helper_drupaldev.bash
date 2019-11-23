@@ -452,12 +452,6 @@ assert_files_present_integration_ftp(){
   assert_file_contains ".env" "FTP_PASS="
   assert_file_contains ".env" "FTP_FILE="
 
-  assert_file_contains ".ahoy.yml" "FTP_HOST"
-  assert_file_contains ".ahoy.yml" "FTP_PORT"
-  assert_file_contains ".ahoy.yml" "FTP_USER"
-  assert_file_contains ".ahoy.yml" "FTP_PASS"
-  assert_file_contains ".ahoy.yml" "FTP_FILE"
-
   popd > /dev/null || exit 1
 }
 
@@ -472,12 +466,6 @@ assert_files_present_no_integration_ftp(){
   assert_file_not_contains ".env" "FTP_USER="
   assert_file_not_contains ".env" "FTP_PASS="
   assert_file_not_contains ".env" "FTP_FILE="
-
-  assert_file_not_contains ".ahoy.yml" "FTP_HOST"
-  assert_file_not_contains ".ahoy.yml" "FTP_PORT"
-  assert_file_not_contains ".ahoy.yml" "FTP_USER"
-  assert_file_not_contains ".ahoy.yml" "FTP_PASS"
-  assert_file_not_contains ".ahoy.yml" "FTP_FILE"
 
   popd > /dev/null || exit 1
 }
