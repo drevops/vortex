@@ -29,12 +29,12 @@ tasks:
           #:
           #: Override resulting file (since we are running in container) and
           #: download backup.
-          DB_FILE=/tmp/data/db.sql ./scripts/download-db.sh
+          DB_FILE=/tmp/data/db.sql ./scripts/drupal-dev/download-db.sh
         service: cli
 
     - run:
         name: Install site
-        command: ./scripts/install-site.sh
+        command: ./scripts/drupal-dev/install-site.sh
         service: cli
 
 environments:
