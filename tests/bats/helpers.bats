@@ -5,7 +5,7 @@
 # Each assertion tests positive and negative behaviour.
 #
 
-load test_helper
+load _helper
 
 @test "assert_success" {
   status=0
@@ -104,14 +104,50 @@ load test_helper
 @test "assert_file_exists" {
   assert_file_exists "${BATS_TEST_FILENAME}"
 
+  mktouch "${BATS_TEST_TMPDIR}/file1.txt"
+  mktouch "${BATS_TEST_TMPDIR}/file2.txt"
+  mktouch "${BATS_TEST_TMPDIR}/file3.md"
+  mktouch "${BATS_TEST_TMPDIR}/a.b.c.d.doc"
+
+  assert_file_exists "${BATS_TEST_TMPDIR}/file1.txt"
+  assert_file_exists "${BATS_TEST_TMPDIR}/file2.txt"
+  assert_file_exists "${BATS_TEST_TMPDIR}/file3.md"
+
+  assert_file_exists "${BATS_TEST_TMPDIR}/file*"
+  assert_file_exists "${BATS_TEST_TMPDIR}/*.txt"
+  assert_file_exists "${BATS_TEST_TMPDIR}/*.doc"
+
   run assert_file_exists "some_file.txt"
+  assert_failure
+
+  run assert_file_exists "${BATS_TEST_TMPDIR}/*.rtf"
+  assert_failure
+
+  run assert_file_exists "${BATS_TEST_TMPDIR}/other*"
   assert_failure
 }
 
 @test "assert_file_not_exists" {
   assert_file_not_exists "some_file.txt"
 
+  mktouch "${BATS_TEST_TMPDIR}/file1.txt"
+  mktouch "${BATS_TEST_TMPDIR}/file2.txt"
+  mktouch "${BATS_TEST_TMPDIR}/file3.md"
+
+  assert_file_not_exists "${BATS_TEST_TMPDIR}/otherfile1.txt"
+  assert_file_not_exists "${BATS_TEST_TMPDIR}/otherfile*"
+  assert_file_not_exists "${BATS_TEST_TMPDIR}/*.rtf"
+
   run assert_file_not_exists "${BATS_TEST_FILENAME}"
+  assert_failure
+
+  run assert_file_not_exists "${BATS_TEST_TMPDIR}/file1.txt"
+  assert_failure
+
+  run assert_file_not_exists "${BATS_TEST_TMPDIR}/file*"
+  assert_failure
+
+  run assert_file_not_exists "${BATS_TEST_TMPDIR}/*.txt"
   assert_failure
 }
 
@@ -343,6 +379,45 @@ load test_helper
   assert_git_not_clean "${BATS_TEST_TMPDIR}/fixture/git_repo"
 }
 
+@test "assert_git_file_is_tracked" {
+  prepare_fixture_dir "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  prepare_fixture_dir "${BATS_TEST_TMPDIR}/fixture/not_git_repo"
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" init > /dev/null
+  assert_git_repo "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  touch "${BATS_TEST_TMPDIR}/fixture/git_repo/1.txt"
+  touch "${BATS_TEST_TMPDIR}/fixture/git_repo/2.txt"
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" add 1.txt > /dev/null
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" commit -m "some message" > /dev/null
+
+  assert_git_file_is_tracked "1.txt" "${BATS_TEST_TMPDIR}/fixture/git_repo"
+
+  run assert_git_file_is_tracked "2.txt" "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  assert_failure
+
+  run assert_git_file_is_tracked "1.txt" "${BATS_TEST_TMPDIR}/fixture/not_git_repo"
+  assert_failure
+}
+
+@test "assert_git_file_is_not_tracked" {
+  prepare_fixture_dir "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  prepare_fixture_dir "${BATS_TEST_TMPDIR}/fixture/not_git_repo"
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" init > /dev/null
+  assert_git_repo "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  touch "${BATS_TEST_TMPDIR}/fixture/git_repo/1.txt"
+  touch "${BATS_TEST_TMPDIR}/fixture/git_repo/2.txt"
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" add 1.txt > /dev/null
+  git --work-tree="${BATS_TEST_TMPDIR}/fixture/git_repo" --git-dir="${BATS_TEST_TMPDIR}/fixture/git_repo/.git" commit -m "some message" > /dev/null
+
+  assert_git_file_is_not_tracked "2.txt" "${BATS_TEST_TMPDIR}/fixture/git_repo"
+
+  run assert_git_file_is_not_tracked "1.txt" "${BATS_TEST_TMPDIR}/fixture/git_repo"
+  assert_failure
+
+  run assert_git_file_is_not_tracked "2.txt" "${BATS_TEST_TMPDIR}/fixture/not_git_repo"
+  assert_failure
+}
+
+
 @test "assert_files_equal" {
   cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/fixture1.png"
   echo "some other file" > "${BATS_TEST_TMPDIR}/fixture2.png"
@@ -379,4 +454,64 @@ load test_helper
   assert_file_not_exists "${BATS_TEST_TMPDIR}/dir1/dir2/dir3/file.txt"
   mktouch "${BATS_TEST_TMPDIR}/dir1/dir2/dir3/file.txt"
   assert_file_exists "${BATS_TEST_TMPDIR}/dir1/dir2/dir3/file.txt"
+}
+
+@test "read_env" {
+  pushd "${BATS_TEST_TMPDIR}"
+
+  assert_file_not_exists ".env"
+
+  echo "VAR1=val1" >> .env
+  echo "VAR2=val2" >> .env
+  run read_env "\$VAR1"
+  assert_output_contains "val1"
+  run read_env "\$VAR2"
+  assert_output_contains "val2"
+
+  popd
+}
+
+@test "trim_file" {
+  echo "line1" >> "${BATS_TEST_TMPDIR}/file.txt"
+  echo "line2" >> "${BATS_TEST_TMPDIR}/file.txt"
+  echo "line3" >> "${BATS_TEST_TMPDIR}/file.txt"
+
+  trim_file "${BATS_TEST_TMPDIR}/file.txt"
+
+  assert_file_contains "${BATS_TEST_TMPDIR}/file.txt" "line1"
+  assert_file_contains "${BATS_TEST_TMPDIR}/file.txt" "line2"
+  assert_file_not_contains "${BATS_TEST_TMPDIR}/file.txt" "line3"
+
+  trim_file "${BATS_TEST_TMPDIR}/file.txt"
+
+  assert_file_contains "${BATS_TEST_TMPDIR}/file.txt" "line1"
+  assert_file_not_contains "${BATS_TEST_TMPDIR}/file.txt" "line2"
+  assert_file_not_contains "${BATS_TEST_TMPDIR}/file.txt" "line3"
+}
+
+@test "add_var_to_file and restore_file" {
+  debug ${BATS_TEST_TMPDIR}
+  rm -fr /tmp/bkp
+
+  echo "line1" >> "${BATS_TEST_TMPDIR}/.env"
+  echo "line2" >> "${BATS_TEST_TMPDIR}/.env"
+
+  add_var_to_file "${BATS_TEST_TMPDIR}/.env" "VAR" "value"
+
+  assert_file_exists "${BATS_TEST_TMPDIR}/.env"
+  assert_file_contains "${BATS_TEST_TMPDIR}/.env" "line1"
+  assert_file_contains "${BATS_TEST_TMPDIR}/.env" "line2"
+  assert_file_contains "${BATS_TEST_TMPDIR}/.env" "VAR=value"
+
+  assert_file_exists "/tmp/bkp/${BATS_TEST_TMPDIR}/.env"
+  assert_file_contains "/tmp/bkp/${BATS_TEST_TMPDIR}/.env" "line1"
+  assert_file_contains "/tmp/bkp/${BATS_TEST_TMPDIR}/.env" "line2"
+  assert_file_not_contains "/tmp/bkp/${BATS_TEST_TMPDIR}/.env" "VAR=value"
+
+  restore_file "${BATS_TEST_TMPDIR}/.env"
+
+  assert_file_exists "${BATS_TEST_TMPDIR}/.env"
+  assert_file_contains "${BATS_TEST_TMPDIR}/.env" "line1"
+  assert_file_contains "${BATS_TEST_TMPDIR}/.env" "line2"
+  assert_file_not_contains "${BATS_TEST_TMPDIR}/.env" "VAR=value"
 }

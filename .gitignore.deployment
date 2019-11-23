@@ -1,9 +1,15 @@
-# Replaces standard .gitignore when building a deployment artefact.
+# Replaces standard .gitignore when building a deployment artifact.
 
 # Ignore everything, but some whitelisted files.
 /*
 
+#; To simplify maintenance of Drupal-Dev, we support only 'docroot' $DOCROOT
+#; defined explicitly here.
+#; @todo: Add support for renamed $DOCROOT.
+#;
+#; $DOCROOT is 'docroot'.
 !docroot
+# But still ignore sources.
 docroot/sites/all/themes/custom/your_site_theme/fonts
 docroot/sites/all/themes/custom/your_site_theme/images
 docroot/sites/all/themes/custom/your_site_theme/js
@@ -11,5 +17,6 @@ docroot/sites/all/themes/custom/your_site_theme/scss
 docroot/sites/default/default.settings.php
 docroot/sites/default/settings.generated.php
 docroot/sites/default/default.settings.local.php
+
 !/hooks/
-!/vendor/
+!/scripts/

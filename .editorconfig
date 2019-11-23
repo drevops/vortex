@@ -9,3 +9,6 @@ indent_size = 2
 
 [*.{sh,bash,bats}]
 indent_size = 2
+
+[*.{xml}]
+indent_size = 4

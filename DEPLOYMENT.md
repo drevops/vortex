@@ -1,9 +1,9 @@
-# Deployment procedures for YOURSITE
+# Code deployment procedures for YOURSITE
 
 GitHub is a primary code repository for this project (aka "source repository").
 Acquia Cloud is a hosting provider for this project and it also has a git repository (aka "destination repository"). 
 
-The website gets deployed using artefact built on CI and pushed to Acquia Cloud. 
+The website gets deployed using artifact built on CI and pushed to Acquia Cloud. 
 
 There are 2 types of deployments: feature branches and release tags. They are exactly the same except for the resulting branch name on Acquia Cloud (see below).
 
@@ -12,7 +12,7 @@ There are 2 types of deployments: feature branches and release tags. They are ex
 2. Add this user to Acquia Cloud application with a role that allows to push
    code and use Cloud API.   
 3. Login with Deployer user and go to Acquia Cloud UI->Account->Credentials->Copy email and key from section "Cloud API".
-4. SSH into non-production server and run `drush ac-api-login`. Enter copied email and key when prompted. This will store credentials to `~/.acquia/cloudapi.conf`and they will not need to be entered again. This allows to use Cloud API drush commands within hooks. 
+4. SSH into non-production server and run `drush ac-api-login`. Enter copied email and key when prompted. This will store credentials to `$HOME/.acquia/cloudapi.conf`and they will not need to be entered again. This allows to use Cloud API drush commands within hooks. 
 5. Create SSH key (use `deployer+yourproject@yourcompany.com` as an email to distinguish SSH keys) and add it to this user. This key cannot be re-used between projects!
 6. Login to CircleCI, go to Settings->SSH Permissions->Add SSH Key and paste *private* key. This allows to push the code from CI to Acquia git repository.
 7. Copy SHH key fingerprint (looks like `16:02:e3:ca:33:04:82:58:e8:e9:3e:5d:82:17:86:b1`) and replace it inside `.circleci/config.yml`. 
@@ -23,8 +23,8 @@ There are 2 types of deployments: feature branches and release tags. They are ex
 3. CI system picks-up the update and does the following:
     1. Builds a website using production DB.
     2. Runs code standard checks and Behat tests on the built website.
-    3. Creates a deployment artefact (project files to be pushed to Acquia Cloud repository).
-    4. Pushes created artefact to the Acquia Cloud repository:
+    3. Creates a deployment artifact (project files to be pushed to Acquia Cloud repository).
+    4. Pushes created artifact to the Acquia Cloud repository:
         - for feature-based branches (i.e. `feature/ABC-123`) the code is pushed to the branch with exactly the same name.
         - for release deployments, which are tag-based (i.e. `0.1.4`), the code is pushed to the branch `deployment/[tag]` (i.e. `deployment/0.1.4`).
 4. Acquia Cloud picks up recent push to the repository and runs [post code update hooks](hooks/dev/post-code-update) on the environments where code is already deployed.

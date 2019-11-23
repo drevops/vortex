@@ -2,13 +2,14 @@
 ##
 # Run tests in CI.
 #
+
 set -e
 
 echo "==> Lint code"
 ahoy lint
 
-echo "==> Run PHPUnit tests"
-ahoy test-phpunit
+echo "==> Run Drupal unit tests"
+ahoy test-unit
 
 # Running Behat tests can be done in parallel, provided that you set
 # build concurrency CircleCI UI to a number larger then 1 container and
@@ -25,9 +26,10 @@ ahoy test-phpunit
 # which tests failed during previous run and re-runs only them.
 #
 # Lastly, we copy test results (artifacts) out of containers and
-# store them so that CircleCI could show them in 'Artifacts' tab.
+# store them so that CircleCI could show them in 'Artifacts' tab. This is done
+# outside of this script.
 
-echo "==> Run Behat tests"
-[ "${CIRCLE_NODE_TOTAL}" -gt "1" ] && BEHAT_PROFILE=--profile=p${CIRCLE_NODE_INDEX} && echo "BEHAT_PROFILE=${BEHAT_PROFILE}">>.env.local
-ahoy test-behat -- "--format=progress_fail" || ahoy test-behat -- "--rerun --format=progress_fail"
+echo "==> Run BDD tests"
+[ "${CIRCLE_NODE_TOTAL}" -gt "1" ] && BEHAT_PROFILE=p${CIRCLE_NODE_INDEX} && export BEHAT_PROFILE=${BEHAT_PROFILE}
+ahoy test-bdd -- "--format=progress_fail" || ahoy test-bdd -- "--rerun --format=progress_fail"
 

@@ -91,19 +91,18 @@ if (file_exists('/var/www/site-php')) {
 ///                       PER-ENVIRONMENT SETTINGS                           ///
 ////////////////////////////////////////////////////////////////////////////////
 
-// Environment indicator settings.
 $conf['environment_indicator_overwrite'] = TRUE;
 $conf['environment_indicator_overwritten_name'] = $conf['environment'];
-$conf['environment_indicator_overwritten_color'] = $conf['environment'] == ENVIRONMENT_PROD ? '#ff0000' : '#006600';
-$conf['environment_indicator_overwritten_text_color'] = '#ffffff';
+$conf['environment_indicator_overwritten_color'] = $conf['environment'] == ENVIRONMENT_PROD ? '#ef5350' : '#006600';
+$conf['environment_indicator_overwritten_text_color'] = $conf['environment'] == ENVIRONMENT_PROD ? '#000000' : '#ffffff';
 $conf['environment_indicator_overwritten_position'] = 'top';
 $conf['environment_indicator_overwritten_fixed'] = FALSE;
 $conf['environment_indicator_git_support'] = FALSE;
 
 if ($conf['environment'] == ENVIRONMENT_PROD) {
-  // Allow to bypass Shield.
-  $config['shield_user'] = '';
-  $config['shield_pass'] = '';
+  // Bypass Shield.
+  $conf['shield_user'] = '';
+  $conf['shield_pass'] = '';
 }
 
 if ($conf['environment'] !== ENVIRONMENT_PROD) {
@@ -111,8 +110,30 @@ if ($conf['environment'] !== ENVIRONMENT_PROD) {
   $conf['stage_file_proxy_hotlink'] = FALSE;
 }
 
-if ($conf['environment'] == ENVIRONMENT_LOCAL || $conf['environment'] == ENVIRONMENT_CI) {
+if ($conf['environment'] == ENVIRONMENT_TEST) {
+  $conf['environment_indicator_overwritten_color'] = '#fff176';
+  $conf['environment_indicator_overwritten_text_color'] = '#000000';
+}
+
+if ($conf['environment'] == ENVIRONMENT_DEV) {
+  $conf['environment_indicator_overwritten_color'] = '#4caf50';
+  $conf['environment_indicator_overwritten_text_color'] = '#000000';
+}
+
+if ($conf['environment'] == ENVIRONMENT_CI) {
   // Allow to bypass Shield.
+  $conf['shield_user'] = '';
+  $conf['shield_pass'] = '';
+
+  // Disable mail send out.
+  $conf['suspend_mail_send'] = TRUE;
+}
+
+if ($conf['environment'] == ENVIRONMENT_LOCAL) {
+  // Show all error messages on the site.
+  $conf['error_level'] = 2;
+
+  // Bypass Shield.
   $conf['shield_user'] = '';
   $conf['shield_pass'] = '';
 }

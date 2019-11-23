@@ -7,13 +7,13 @@ Behat
 breakpoint
 CircleCI
 CLI
+codebase
 customisations
 DDEV
 DEPENDENCIESIO
 Deployer
 DevOps
 dev
-Diffy
 Docksal
 Drupal
 DX
@@ -49,6 +49,8 @@ SCSS
 SemVer
 SLAs
 toolset
+txt
+UAT
 UI
 Uncomment
 Upgradable

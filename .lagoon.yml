@@ -2,50 +2,63 @@ docker-compose-yaml: docker-compose.yml
 
 tasks:
   post-rollout:
+    #:
+    #: Helper command to discover available variables. Remove in production.
     - run:
         name: env variables
         command: env
         service: cli
+
     - run:
-        name: Setup site
+        name: Download database
         command: |
-          mkdir -p /tmp/.data
+          #; If Lagoon is used as non-prod environment and the database is
+          #; located elsewhere, we need to get access to that remote
+          #; environmnent to download database.
+          #;
           #;< DEMO
-          #; Using dummy DB for Drupal-Dev project testing.
-          source .env && curl -L $DEMO_DB -o /tmp/.data/db.sql
+          #; Using dummy DB for Drupal-Dev project demonstration.
+          source .env && mkdir -p /tmp/data && curl -L $DEMO_DB -o /tmp/data/db.sql
           #;> DEMO
           #;< ACQUIA
-          #; Copy credentials from one of the Acquia environmets. We are using
-          #; Acquia environments as a storage in this case. These credentials
-          #; need to be created beforehand by SSHing into an environment and
-          #; running `drush ac-api-login` with credentials of the Deployer user.
-          drush -y rsync @your_site.dev:/home/your_site/.acquia/ ~/.acquia/
+          #; If source DB is in Acquia, we need to be able to use Cloud API
+          #; to download the database dump. In order to do so, we need to
+          #; provide Cloud API credentials in AC_API_USER_NAME and AC_API_USER_PASS
+          #; variables, which can be either set in your .env file and stred in
+          #; the git repository (not the best practice) or through GraphQL query
+          #; in Lagoon (need to contact Amazee support).
+          #:
+          #: Import variables from .env.
           export $(grep -v '^#' .env | xargs)
-          DB_DUMP_FILE=/tmp/.data/db.sql scripts/download-backup-acquia.sh
+          #:
+          #: Override resulting file (since we are running in container) and
+          #: download backup.
+          DB_FILE=/tmp/data/db.sql ./scripts/download-db-acquia.sh
           #;> ACQUIA
-          drush sql-drop -y
-          drush sql-cli < /tmp/.data/db.sql
-          drush sql-sanitize --sanitize-password=password --sanitize-email=user+%uid@localhost -y
-          # Replace lines above with a line below to enable site install.
-          # drush si -y standard --account-name=admin --site-name="YOURSITE" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
-          drush en -y your_site_core
         service: cli
+
     - run:
-        name: Run database updates
-        command: drush updb -y
-        service: cli
-    - run:
-        name: Clear caches
-        command: drush cc all
+        name: Install site
+        command: ./scripts/install-site.sh
         service: cli
 
 environments:
   master:
+    types:
+      mariadb: mariadb-shared
     cronjobs:
       - name: drush cron
-        schedule: "*/15 * * * *"
+        schedule: '*/15 * * * *'
         command: drush cron
         service: cli
     routes:
-      - varnish:
-          - "your-site-url"
+      - nginx:
+          - your-site-url:
+              tls-acme: 'true'
+          - www.your-site-url:
+              tls-acme: 'false'
+    monitoring_urls:
+      - your-site-url
+      - www.your-site-url
+routes:
+  insecure: Redirect
