@@ -207,8 +207,8 @@ load _helper_drupaldev
   # Releasing new version of Drupal-Dev.
   echo "# Some change to docker-compose" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
-  echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/.eslintrc.json"
-  git_add ".eslintrc.json" "${LOCAL_REPO_DIR}"
+  echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/.eslintrc.json"
+  git_add "docroot/themes/custom/your_site_theme/.eslintrc.json" "${LOCAL_REPO_DIR}"
   git_commit "New version of Drupal-Dev" "${LOCAL_REPO_DIR}"
 
   # Run install to update to the latest Drupal-Dev version.
@@ -221,7 +221,7 @@ load _helper_drupaldev
   # Assert that committed file was not updated.
   assert_file_not_contains "docker-compose.yml" "# Some change to docker-compose"
   # Assert that excluded file was updated.
-  assert_file_contains "${LOCAL_REPO_DIR}/.eslintrc.json" "# Some change to non-required file"
+  assert_file_contains "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/.eslintrc.json" "# Some change to non-required file"
 
   # Assert no changes to the repo.
   assert_git_clean

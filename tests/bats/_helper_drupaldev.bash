@@ -143,6 +143,8 @@ assert_files_present_common(){
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.info.yml"
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.libraries.yml"
   assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.theme"
+  assert_file_exists "docroot/themes/custom/${suffix}/Gruntfile.js"
+  assert_file_exists "docroot/themes/custom/${suffix}/package.json"
 
   # Comparing binary files.
   assert_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
@@ -645,7 +647,7 @@ install_dependencies_stub(){
   mktouch "vendor/somevendor/somepackage/somepackage.php"
   mktouch "vendor/somevendor/somepackage/somepackage with spaces.php"
   mktouch "vendor/somevendor/somepackage/composer.json"
-  mktouch "node_modules/somevendor/somepackage/somepackage.js"
+  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
 
   mktouch "docroot/modules/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "screenshots/s1.jpg"

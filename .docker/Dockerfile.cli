@@ -57,12 +57,12 @@ RUN echo "memory_limit=-1" >> /usr/local/etc/php/conf.d/memory.ini \
 #: the repository.
 #: File Gruntfile.sj is copied into image as it is required to generate
 #: front-end assets.
-COPY Gruntfile.js package.json package* /app/
+COPY docroot/themes/custom/your_site_theme/Gruntfile.js docroot/themes/custom/your_site_theme/.eslintrc.json docroot/themes/custom/your_site_theme/package.json docroot/themes/custom/your_site_theme/package* /app/docroot/themes/custom/your_site_theme/
 
 #: Install NodeJS dependencies.
 #: Since Drupal does not use NodeJS for production, it does not matter if we
 #; install development dependencnies here - they are not exposed in any way.
-RUN npm install
+RUN cd docroot/themes/custom/your_site_theme && npm install
 
 #: Copy all files into appllication source directory. Existing files are always
 #: overridden.
@@ -70,4 +70,4 @@ COPY . /app
 
 #: Compile front-end assets. Running this after copying all files as we need
 #: sources to compile assets.
-RUN npm run build
+RUN cd docroot/themes/custom/your_site_theme && npm run build
