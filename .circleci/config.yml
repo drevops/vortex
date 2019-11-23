@@ -46,7 +46,7 @@ aliases:
   - &container_config
     #:
     #: Location of checked-out files within "runner" container.
-    working_directory: /app
+    working_directory: ~/project
     environment:
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
