@@ -656,7 +656,7 @@ install_dependencies_stub(){
   mktouch "vendor/somevendor/somepackage/composer.json"
   mktouch "node_modules/somevendor/somepackage/somepackage.js"
 
-  mktouch "docroot/modules/themes/custom/somecustomtheme/build/js/somecustomtheme.min.js"
+  mktouch "docroot/modules/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "screenshots/s1.jpg"
   mktouch ".data/db.sql"
 

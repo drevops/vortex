@@ -207,7 +207,7 @@ commands:
 
   test:
     usage: Run all tests.
-    cmd: ahoy cli ./scripts/test.sh "$@"
+    cmd: ahoy cli ./scripts/test.sh unit-kernel-functional-bdd
 
   test-unit:
     usage: Run Simpletest unit tests.

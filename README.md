@@ -196,7 +196,6 @@ Run `ahoy update` to download the latest version of Drupal-Dev for your project.
 | Lagoon                                        | Deployment configuration                                                                                            | Lagoon configuration is required to perform deployments |
 |                                               | Production database from Lagoon                                                                                     | Using production database for development and automated builds (CI) requires database dump from Lagoon |
 | [dependencies.io](https://www.dependencies.io/) | Automated pull request submissions for automated updates.                                                         | Automated dependencies updates allow to keep the project up to date by automatically creating pull requests with updated dependencies on a daily basis |
-| [Diffy](https://diffy.website/) (Visual Regression)\* | Automated visual regression comparison for each deployment                                                  | Visual regression for each deployment is useful to make sure that only required changes were applied with specific code change and that the rest of the site has not changed |
 | **Maintenance (of Drupal-Dev)**               |                                                                                                                     
 | Install and upgrade                           | Follows [SemVer](https://semver.org/) model for releases                                                            | Projects may refer to a specific version of Drupal-Dev, which sets expectations about what tools and configuration is available |
 |                                               | Managed as an agile project                                                                                         | New features and defects can be addressed in a shorter development cycle.GitHub issues organised on the Kanban board provide clear visibility for future releases |
@@ -312,35 +311,37 @@ Run each command as `ahoy <command>`.
   ```  
   build                Build or rebuild project.
   clean                Remove containers and all build files.
-  cli                  Start a shell inside CLI container or run a command.
+  cli                  Start a shell or run a command inside the CLI service container.
   debug                Enable debug configuration.
+  deploy               Run remote deployment procedures
   doctor               Find problems with current project setup.
   down                 Stop Docker containers and remove container, images, volumes and networks.
   download-db          Download database.
   drush                Run drush commands in the CLI service container.
+  export-code          Export built code.
   export-db            Export database dump.
   fe                   Build front-end assets.
   fed                  Build front-end assets for development.
   few                  Watch front-end assets during development.
   flush-redis          Flush Redis cache.
-  info                 Print information about this project.
+  info                 Show information about this project.
   install-site         Install a site.
-  lint                 Lint all code.
+  lint                 Lint back-end and front-end code.
   lint-be              Lint back-end code.
   lint-fe              Lint front-end code.
   login                Login to a website.
-  logs                 Show Docker logs.
+  logs                 Show Docker logs for all or specified services.
   pull                 Pull latest docker images.
-  reset                Reset environment: remove containers, all build, manually created and Drupal-Dev files.
-  restart              Restart all stopped and running Docker containers.
-  start                Start existing Docker containers.
-  stop                 Stop running Docker containers.
+  reset                Reset environment: remove containers, all build, uncommitted files.
+  restart              Restart all or specified stopped and running Docker containers.
+  start                Start all or specified existing Docker containers.
+  stop                 Stop all or specified running Docker containers.
   test                 Run all tests.
   test-bdd             Run BDD tests.
   test-functional      Run Simpletest functional tests.
   test-kernel          Run Simpletest kernel tests.
   test-unit            Run Simpletest unit tests.
-  up                   Build and start Docker containers.
+  up                   Build and start all or specified Docker containers.
   update               Update development stack.
   ```
 

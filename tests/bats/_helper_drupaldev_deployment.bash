@@ -71,10 +71,12 @@ assert_deployment_files_present(){
 
   # Settings files present.
   assert_file_exists docroot/sites/default/settings.php
-  assert_file_not_exists docroot/sites/default/settings.generated.php:
-  assert_file_not_exists docroot/sites/default/default.local.settings.php:
-  assert_file_not_exists docroot/sites/default/local.settings.php:
-  assert_file_not_exists docroot/sites/default/default.settings.php:
+  assert_file_exists docroot/sites/default/services.yml
+  assert_file_not_exists docroot/sites/default/default.settings.php
+  assert_file_not_exists docroot/sites/default/default.services.yml
+  assert_file_not_exists docroot/sites/default/default.settings.local.php
+  assert_file_not_exists docroot/sites/default/default.services.local.yml
+  assert_file_not_exists docroot/sites/default/settings.generated.php
 
   # Only minified compiled CSS present.
   assert_file_exists docroot/themes/custom/star_wars/build/css/star_wars.min.css

@@ -17,7 +17,7 @@ ALLOW_KERNEL_TESTS_FAIL="${ALLOW_KERNEL_TESTS_FAIL:-0}"
 ALLOW_FUNCTIONAL_TESTS_FAIL="${ALLOW_FUNCTIONAL_TESTS_FAIL:-0}"
 
 # Flag to allow BDD tests to fail.
-ALLOW_BDD_FAIL="${ALLOW_BDD_FAIL:-0}"
+ALLOW_BDD_TESTS_FAIL="${ALLOW_BDD_TESTS_FAIL:-0}"
 
 # Behat profile name.
 BEHAT_PROFILE="${BEHAT_PROFILE:-}"
@@ -51,5 +51,5 @@ if [ -z "${TEST_TYPE##*bdd*}" ]; then
   shift
   [ -n "${BEHAT_PROFILE}" ] && BEHAT_PROFILE=--profile=${BEHAT_PROFILE} || true
   vendor/bin/behat --strict --colors ${BEHAT_PROFILE} "$@" || \
-  [ "${ALLOW_BDD_FAIL}" -eq 1 ]
+  [ "${ALLOW_BDD_TESTS_FAIL}" -eq 1 ]
 fi
