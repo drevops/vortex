@@ -74,8 +74,8 @@ load _helper_drupaldev_deployment
 
   # Make sure that one of the excluded directories will be ignored in the
   # deployment artifact.
-  mkdir -p "${SRC_DIR}"/node_modules
-  touch "${SRC_DIR}"/node_modules/test.txt
+  mkdir -p "${SRC_DIR}"/docroot/sites/all/themes/custom/star_wars/node_modules
+  touch "${SRC_DIR}"/docroot/sites/all/themes/custom/star_wars/node_modules/test.txt
 
   step "Preparing remote repo directory ${REMOTE_REPO_DIR}"
   prepare_fixture_dir "${REMOTE_REPO_DIR}"

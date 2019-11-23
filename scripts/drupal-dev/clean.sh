@@ -30,7 +30,9 @@ done
 # Remove other directories.
 rm -rf \
   ./vendor \
-  ./node_modules \
   ./docroot/sites/all/themes/custom/*/build \
   ./docroot/sites/all/themes/custom/*/scss/_components.scss \
   ./docroot/sites/default/settings.generated.php
+
+# shellcheck disable=SC2038
+find . -type d -name node_modules | xargs rm -Rf

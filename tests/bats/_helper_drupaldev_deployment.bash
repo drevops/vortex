@@ -22,7 +22,6 @@ assert_deployment_files_present(){
   assert_file_not_exists .dockerignore
   assert_file_not_exists .editorconfig
   assert_file_not_exists .env
-  assert_file_not_exists .eslintrc.json
   assert_file_not_exists .lagoon.yml
   assert_file_not_exists .sass-lint.yml
   assert_file_not_exists behat.yml
@@ -30,10 +29,7 @@ assert_deployment_files_present(){
   assert_file_not_exists composer.lock
   assert_file_not_exists dependencies.yml
   assert_file_not_exists docker-compose.yml
-  assert_file_not_exists Gruntfile.js
   assert_file_not_exists LICENSE
-  assert_file_not_exists package.json
-  assert_file_not_exists package-lock.json
   assert_file_not_exists phpcs.xml
   assert_file_not_exists README.md
 
@@ -56,6 +52,11 @@ assert_deployment_files_present(){
   assert_file_exists docroot/sites/all/themes/custom/star_wars/.gitignore
   assert_file_exists docroot/sites/all/themes/custom/star_wars/star_wars.info
   assert_file_exists docroot/sites/all/themes/custom/star_wars/template.php
+  assert_file_not_exists docroot/sites/all/themes/custom/star_wars/Gruntfile.js
+  assert_file_not_exists docroot/sites/all/themes/custom/star_wars/package.json
+  assert_file_not_exists docroot/sites/all/themes/custom/star_wars/package-lock.json
+  assert_file_not_exists docroot/sites/all/themes/custom/star_wars/.eslintrc.json
+  assert_dir_not_exists docroot/sites/all/themes/custom/star_wars/node_modules
 
   # Scaffolding files present.
   assert_file_exists "docroot/.htaccess"
