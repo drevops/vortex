@@ -199,6 +199,9 @@ assert_files_present_common(){
   assert_file_contains "README.md" "badge/Drupal--Dev-${DRUPAL_VERSION}.x-blue.svg"
   assert_file_contains "README.md" "https://github.com/integratedexperts/drupal-dev/tree/${DRUPAL_VERSION}.x"
 
+  # Assert that Drupal-Dev maintenance files were removed.
+  assert_dir_not_exists "docs"
+
   popd > /dev/null || exit 1
 }
 

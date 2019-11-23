@@ -329,6 +329,9 @@ process_stub(){
     remove_special_comments "${dir}"
   fi
 
+  # Remove Drupal-Dev internal files.
+  rm -Rf "${dir}"/docs > /dev/null
+
   enable_commented_code "${dir}"
 
   echo " done"
