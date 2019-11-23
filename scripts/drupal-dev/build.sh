@@ -58,6 +58,6 @@ ahoy doctor
 echo "==> Build complete"
 
 # Show project information and a one-time login link.
-LOGIN_LINK=1 ahoy info
+SHOW_LOGIN_LINK=1 ahoy info
 
 popd > /dev/null || exit 1

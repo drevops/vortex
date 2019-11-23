@@ -23,7 +23,7 @@ ahoyapi: v2
 commands:
 
   build:
-    usage: Build or rebuild project.
+    usage: Build or rebuild the project.
     cmd: ./scripts/drupal-dev/build.sh
 
   info:
@@ -32,7 +32,7 @@ commands:
       docker-compose exec \
         -e HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2) \
         -e HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2) \
-        -e LOGIN_LINK=${LOGIN_LINK} \
+        -e SHOW_LOGIN_LINK=${SHOW_LOGIN_LINK} \
         cli ./scripts/drupal-dev/info.sh "$@"
 
   # ----------------------------------------------------------------------------
