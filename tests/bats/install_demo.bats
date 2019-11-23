@@ -15,9 +15,7 @@ load _helper_drupaldev
   assert_files_present
   assert_git_repo
 
-  assert_file_contains ".ahoy.yml" "DEMO_DB"
-  assert_file_contains ".env" "DEMO_DB"
-  assert_file_contains ".lagoon.yml" "DEMO_DB"
+  assert_file_contains ".env" "CURL_DB_URL"
   assert_file_exists .data/db.sql
 }
 
@@ -31,9 +29,7 @@ load _helper_drupaldev
   assert_files_present
   assert_git_repo
 
-  assert_file_not_contains ".ahoy.yml" "DEMO_DB"
-  assert_file_not_contains ".env" "DEMO_DB"
-  assert_file_not_contains ".lagoon.yml" "DEMO_DB"
+  assert_file_not_contains ".env" "CURL_DB_URL"
   assert_file_exists .data/db.sql
 
   contents=$(cat .data/db.sql)
@@ -50,9 +46,7 @@ load _helper_drupaldev
   assert_files_present
   assert_git_repo
 
-  assert_file_not_contains ".ahoy.yml" "DEMO_DB"
-  assert_file_not_contains ".env" "DEMO_DB"
-  assert_file_not_contains ".lagoon.yml" "DEMO_DB"
+  assert_file_not_contains ".env" "CURL_DB_URL"
   assert_file_not_exists .data/db.sql
 }
 
@@ -67,9 +61,7 @@ load _helper_drupaldev
   assert_files_present
   assert_git_repo
 
-  assert_file_contains ".ahoy.yml" "DEMO_DB"
-  assert_file_contains ".env" "DEMO_DB"
-  assert_file_contains ".lagoon.yml" "DEMO_DB"
+  assert_file_contains ".env" "CURL_DB_URL"
   assert_file_exists .data/db.sql
 
   contents=$(cat .data/db.sql)
@@ -86,8 +78,6 @@ load _helper_drupaldev
   assert_files_present
   assert_git_repo
 
-  assert_file_contains ".ahoy.yml" "DEMO_DB"
-  assert_file_contains ".env" "DEMO_DB"
-  assert_file_contains ".lagoon.yml" "DEMO_DB"
+  assert_file_contains ".env" "CURL_DB_URL"
   assert_file_not_exists .data/db.sql
 }

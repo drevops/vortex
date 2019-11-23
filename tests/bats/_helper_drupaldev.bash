@@ -658,7 +658,9 @@ remove_development_settings(){
 }
 
 enable_demo_db(){
-  echo "DEMO_DB=$DEMO_DB_TEST" >> .env
+  # Tests are using demo database and 'ahoy download-db' command, so we need
+  # to set the CURL DB to test DB.
+  echo "CURL_DB_URL=$DEMO_DB_TEST" >> .env
 }
 
 # Copy source code at the latest commit to the destination directory.

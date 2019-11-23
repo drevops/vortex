@@ -116,23 +116,7 @@ commands:
   #;< !FRESH_INSTALL
   download-db:
     usage: Download database.
-    cmd: |
-      ahoy title "Downloading database"
-      #;
-      #;< DEMO: Download dummy DB.
-      #; Used for demonstration purposes. This line is removed during project installation.
-      mkdir -p .data && curl -L ${DEMO_DB} -o .data/db.sql
-      #;> DEMO
-      #;
-      #;< ACQUIA
-      # Download DB from Acquia Cloud backup.
-      ##### ./scripts/download-db-acquia.sh
-      #;> ACQUIA
-      #;
-      #;< FTP
-      # Download DB dump from FTP.
-      ##### mkdir -p .data && curl -u ${FTP_USER}:${FTP_PASS} "ftp://${FTP_HOST}:${FTP_PORT}/${FTP_FILE}" -o .data/db.sql
-      #;> FTP
+    cmd: ./scripts/download-db.sh
   #;> !FRESH_INSTALL
 
   install-site:

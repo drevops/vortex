@@ -35,10 +35,10 @@ AC_API_DB_BACKUP_ID=${AC_API_DB_BACKUP_ID:-}
 AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-$HOME/.acquia/cloudapi.conf}
 
 # Directory where DB dumps are stored.
-DB_DIR=${DB_DIR:-.data}
+DATADIR=${DATADIR:-.data}
 
 # Resulting DB dump file name. Used by external scripts to import DB.
-# Note that absolute path will be ${project_path}/${DB_DIR}/${DB_FILE_NAME}
+# Note that absolute path will be ${project_path}/${DATADIR}/${DB_FILE_NAME}
 DB_FILE_NAME=${DB_FILE_NAME:-db.sql}
 
 # Absolute path to resulting file, including name. May be used to override
@@ -84,9 +84,9 @@ self_path=$(cd -P -- "${self_dir}" && pwd -P)/$(basename -- "${BASH_SOURCE[0]}")
 project_path=$(dirname "$(dirname "${self_path}")")
 
 # Expand DB dump file name into absolute path.
-DB_FILE=${DB_FILE:-${project_path}/${DB_DIR}/${DB_FILE_NAME}}
+DB_FILE=${DB_FILE:-${project_path}/${DATADIR}/${DB_FILE_NAME}}
 # Set DB dump dir to an absolute path.
-DB_DIR=$(dirname "${DB_FILE}")
+DATADIR=$(dirname "${DB_FILE}")
 
 # Pre-flight checks.
 command -v curl > /dev/null ||  {
@@ -123,7 +123,7 @@ fi
 # Insert backup id as a suffix.
 db_dump_ext="${DB_FILE##*.}"
 db_dump_file_actual_prefix="${AC_API_DB_NAME}_backup_"
-db_dump_file_actual=${DB_DIR}/${db_dump_file_actual_prefix}${AC_API_DB_BACKUP_ID}.${db_dump_ext}
+db_dump_file_actual=${DATADIR}/${db_dump_file_actual_prefix}${AC_API_DB_BACKUP_ID}.${db_dump_ext}
 db_dump_discovered=${db_dump_file_actual}
 db_dump_compressed=${db_dump_file_actual}.gz
 
@@ -132,8 +132,8 @@ if [ -f "${db_dump_discovered}" ] ; then
 else
   # If the gzipped version exists, then we don't need to re-download it.
   if [ ! -f "${db_dump_compressed}" ] ; then
-    [ ! -d "${DB_DIR}" ] && echo "==> Creating dump directory ${DB_DIR}" && mkdir -p "${DB_DIR}"
-    [ "${DB_REMOVE_CACHED_DUMPS}" == "1" ] && echo "==> Removing all previously cached DB dumps" && rm -Rf "${DB_DIR}/${db_dump_file_actual_prefix:?}*"
+    [ ! -d "${DATADIR}" ] && echo "==> Creating dump directory ${DATADIR}" && mkdir -p "${DATADIR}"
+    [ "${DB_REMOVE_CACHED_DUMPS}" == "1" ] && echo "==> Removing all previously cached DB dumps" && rm -Rf "${DATADIR}/${db_dump_file_actual_prefix:?}*"
     echo "==> Using latest backup id ${AC_API_DB_BACKUP_ID} for DB ${AC_API_DB_NAME}"
     echo "==> Downloading DB dump into file ${db_dump_compressed}"
     echo curl --progress-bar -L -u "${AC_API_USER_NAME}":"${AC_API_USER_PASS}" "https://cloudapi.acquia.com/v1/sites/${AC_API_DB_SITE}/envs/${AC_API_DB_ENV}/dbs/${AC_API_DB_NAME}/backups/${AC_API_DB_BACKUP_ID}/download.json" -o "${db_dump_compressed}"
@@ -159,13 +159,13 @@ if [ "${latest_backup}" != "0" ] ; then
   latest_symlink=${DB_FILE}
   if [ -f "${db_dump_file_actual}" ] ; then
     echo "==> Creating a symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}"
-    (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
+    (cd "${DATADIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
   fi
 
   latest_symlink=${latest_symlink}.gz
   if [ -f "${db_dump_compressed}" ] ; then
     echo "==> Creating a symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\""
-    (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
+    (cd "${DATADIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
   fi
 fi
 
