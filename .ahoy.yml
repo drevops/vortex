@@ -178,7 +178,7 @@ commands:
     usage: Enable debug configuration.
     #: Check if the debug configuration is already enabled and, if not -
     #: enable it and check again that it is enabled from inside of the container.
-    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=1 ahoy up cli php && ahoy cli php -v | grep -q Xdebug && "echo Enabled debug confguration. Use 'ahoy up' to disable."
+    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=1 ahoy up cli php && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
 
   deploy:
     usage: Run remote deployment procedures
