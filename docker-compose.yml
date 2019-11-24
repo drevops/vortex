@@ -225,7 +225,7 @@ services:
   #: Chrome container.
   #: Used for browser testing.
   chrome:
-    # Pinned to specific image version until https://github.com/integratedexperts/drupal-dev/issues/534 is resolved.
+    # Pinned to specific image version until https://github.com/drevops/drevops/issues/534 is resolved.
     image: selenium/standalone-chrome:3.141.59-oxygen
     #:
     #: Increase '/dev/shm' partition size to avoid browser crashing.

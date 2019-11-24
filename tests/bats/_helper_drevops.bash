@@ -36,7 +36,7 @@ setup(){
   LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   APP_TMP_DIR="${BUILD_DIR}/tmp"
 
-  DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/db_d7.star_wars.sql.md
+  DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d7.star_wars.sql.md
   export DEMO_DB_TEST
 
   # Disable checks used on host machine.
@@ -200,7 +200,7 @@ assert_files_present_common(){
 
   # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "badge/DrevOps-${DRUPAL_VERSION}.x-blue.svg"
-  assert_file_contains "README.md" "https://github.com/integratedexperts/drupal-dev/tree/${DRUPAL_VERSION}.x"
+  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DRUPAL_VERSION}.x"
 
   # Assert that DrevOps maintenance files were removed.
   assert_dir_not_exists "docs"
@@ -510,7 +510,7 @@ Drupal 7 implementation of ${name} for ${org}
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
 
-[![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/integratedexperts/drupal-dev/tree/DREVOPS_VERSION)
+[![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/drevops/tree/DREVOPS_VERSION)
 
 some other text
 EOT
