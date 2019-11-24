@@ -3,9 +3,9 @@
 # DrevOps installer.
 #
 # Usage:
-# curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/7.x/install | bash
+# curl -L https://raw.githubusercontent.com/drevops/drevops/7.x/install | bash
 # or
-# curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/7.x/install | bash -s -- /path/to/destination/directory
+# curl -L https://raw.githubusercontent.com/drevops/drevops/7.x/install | bash -s -- /path/to/destination/directory
 
 { # Ensures the entire script is downloaded.
 
@@ -35,7 +35,7 @@ DREVOPS_ALLOW_OVERRIDE="${DREVOPS_ALLOW_OVERRIDE:-0}"
 # Path to local DrevOps repository. If not provided - remote will be used.
 DREVOPS_LOCAL_REPO="${DREVOPS_LOCAL_REPO:-}"
 # Organisation name to download the files from.
-DREVOPS_GH_ORG="${DREVOPS_GH_ORG:-integratedexperts}"
+DREVOPS_GH_ORG="${DREVOPS_GH_ORG:-drevops}"
 # Project name to download the files from.
 DREVOPS_GH_PROJECT="${DREVOPS_GH_PROJECT:-drevops}"
 # Optional commit to download. If not provided, latest release will be downloaded.

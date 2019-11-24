@@ -181,6 +181,6 @@ load _helper_drevops
   run_install
 
   # Assert that DrevOps version was replaced.
-  assert_file_contains "README.md" "https://github.com/integratedexperts/drupal-dev/tree/7.x-1.2.3"
+  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/7.x-1.2.3"
   assert_file_contains "README.md" "badge/DrevOps-7.x--1.2.3-blue.svg"
 }
