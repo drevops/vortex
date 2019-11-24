@@ -1,5 +1,5 @@
 theme: jekyll-theme-cayman
-title: Drupal-Dev
+title: DrevOps
 plugins:
 - jekyll-seo-tag
 google_analytics: UA-99053663-2
