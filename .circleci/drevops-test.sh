@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Run Drupal-Dev tests in CI.
+# Run DrevOps tests in CI.
 #
 # This file is removed after install/update.
 set -e
@@ -12,10 +12,10 @@ set -e
 docker network create amazeeio-network
 
 echo "==> Lint scripts code"
-scripts/drupal-dev/lint-scripts.sh
+scripts/drevops/lint-scripts.sh
 
 echo "==> Check spelling"
-scripts/drupal-dev/lint-spelling.sh
+scripts/drevops/lint-spelling.sh
 
 echo "==> Test helpers"
 bats tests/bats/helpers.bats --tap

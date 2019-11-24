@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Lint Drupal-Dev scripts.
+# Lint DrevOps scripts.
 #
 
 CUR_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"

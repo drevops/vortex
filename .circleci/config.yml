@@ -23,9 +23,9 @@
 #: https://circleci.com/docs/2.0/docker-layer-caching/
 #;
 #; Comments starting with '#;', '#;<' or '#;>' (like the ones used for the
-#; current paragraph) are explaining Drupal-Dev inner working and can be safely
+#; current paragraph) are explaining DrevOps inner working and can be safely
 #; removed for your project. They are automatically removed when installing
-#; Drupal-Dev.
+#; DrevOps.
 version: 2
 aliases:
   #-----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ aliases:
   # allowed to push to $DEPLOY_GIT_REMOTE repo under "SSH Permissions" in
   # CircleCI UI.
   #;
-  #; This is a fingerprint of the key to push Drupal-Dev project itself as an example.
+  #; This is a fingerprint of the key to push DrevOps project itself as an example.
   #; Replace this key fingerprint with your own.
   #; This is the only part in this file that needs to be changed for your project.
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
@@ -205,24 +205,24 @@ jobs:
           path: /tmp/artifacts
   #;> DEPLOYMENT
   #;----------------------------------------------------------------------------
-  #; DRUPAL-DEV development section. Will be removed during installation/update.
+  #; DREVOPS development section. Will be removed during installation/update.
   #;----------------------------------------------------------------------------
   #;
   #; We are using CircleCI config file to both run the application tests (what
-  #; a consumer site would use) and Drupal-Dev's own tests (to make sure that
+  #; a consumer site would use) and DrevOps's own tests (to make sure that
   #; this project is "buildable" at any time).
   #;
-  #;< DRUPAL-DEV
-  #; Test suite for Drupal-Dev.
-  drupal_dev_test:
+  #;< DREVOPS
+  #; Test suite for DrevOps.
+  drevops_test:
     <<: *container_config
     parallelism: 2
     steps:
       - checkout
       - *step_setup_remote_docker
-      - run: .circleci/drupal_dev-test.sh
+      - run: .circleci/drevops-test.sh
 
-  drupal_dev_test_deployment:
+  drevops_test_deployment:
     <<: *container_config
     parallelism: 2
     steps:
@@ -235,16 +235,16 @@ jobs:
           at: /workspace
       - run:
           name: Run deployment tests (long)
-          command: .circleci/drupal_dev-test-deployment.sh
+          command: .circleci/drevops-test-deployment.sh
           no_output_timeout: 30m
 
-  # Deployment of feature branches and tags for Drupal-Dev itself.
-  drupal_dev_deploy:
+  # Deployment of feature branches and tags for DrevOps itself.
+  drevops_deploy:
     <<: *job_deploy
 
-  drupal_dev_deploy_tags:
+  drevops_deploy_tags:
     <<: *job_deploy_tags
-  #;> DRUPAL-DEV
+  #;> DREVOPS
 
 workflows:
   version: 2
@@ -285,43 +285,43 @@ workflows:
               # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
       #;----------------------------------------------------------------------------
-      #; DRUPAL-DEV development section. Will be removed during installation/update.
+      #; DREVOPS development section. Will be removed during installation/update.
       #;----------------------------------------------------------------------------
       #;
-      #;< DRUPAL-DEV
+      #;< DREVOPS
       #; Remove the code below in your project.
-      #; Run unit and functional tests for Drupal-Dev.
-      - drupal_dev_test:
+      #; Run unit and functional tests for DrevOps.
+      - drevops_test:
           filters:
             tags:
               only: /.*/
-      #; Run deployment tests for Drupal-Dev.
-      - drupal_dev_test_deployment:
+      #; Run deployment tests for DrevOps.
+      - drevops_test_deployment:
           requires:
-            - drupal_dev_test
+            - drevops_test
             - build
           filters:
             tags:
               only: /.*/
-      #; Run actual deployment of Drupal-Dev code to destination codebase (integration test).
-      - drupal_dev_deploy:
+      #; Run actual deployment of DrevOps code to destination codebase (integration test).
+      - drevops_deploy:
           requires:
             - build
-            - drupal_dev_test
+            - drevops_test
           filters:
             branches:
               # Allowed branches: 7.x, 8.x, feature/7.x-description, feature/8.x-description
               only: /(?:7|8)\.x|feature\/(?:7|8)\.x[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
-      #; Run actual deployment of Drupal-Dev code to destination codebase (integration test).
-      - drupal_dev_deploy_tags:
+      #; Run actual deployment of DrevOps code to destination codebase (integration test).
+      - drevops_deploy_tags:
           requires:
             - build
-            - drupal_dev_test
+            - drevops_test
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
-      #;> DRUPAL-DEV
+      #;> DREVOPS

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Helpers related to Drupal-Dev deployment testing functionality.
+# Helpers related to DrevOps deployment testing functionality.
 #
 
 assert_deployment_files_present(){
@@ -127,7 +127,7 @@ provision_site(){
   fi
 
   step "Add all files to new git repo"
-  git_add_all_commit "Init Drupal-Dev config" "${dir}"
+  git_add_all_commit "Init DrevOps config" "${dir}"
 
   step "Build project"
   ahoy down

@@ -4,8 +4,8 @@
 #
 
 load _helper
-load _helper_drupaldev
-load _helper_drupaldev_deployment
+load _helper_drevops
+load _helper_drevops_deployment
 
 @test "Deployment; Acquia integration" {
   pushd "${BUILD_DIR}" > /dev/null || exit 1
@@ -27,7 +27,7 @@ load _helper_drupaldev_deployment
     prepare_fixture_dir "${SRC_DIR}"
 
     # Enable Acquia integration for this test to run independent deployment.
-    export DRUPALDEV_OPT_PRESERVE_ACQUIA=Y
+    export DREVOPS_OPT_PRESERVE_ACQUIA=Y
 
     substep "Add Acquia credentials to .env file"
     {
@@ -88,7 +88,7 @@ load _helper_drupaldev_deployment
   export DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
   export DEPLOY_CODE_SRC="${SRC_DIR}"
   export DEPLOY_TYPE="code"
-  source scripts/drupal-dev/deploy.sh >&3
+  source scripts/drevops/deploy.sh >&3
 
   step "Checkout currently pushed branch on remote"
   git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch | sed 's/\*\s//g' | xargs git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" checkout

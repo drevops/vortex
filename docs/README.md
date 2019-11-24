@@ -1,2 +1,2 @@
-This directory contains documentation for Drupal-Dev. It will be removed 
+This directory contains documentation for DrevOps. It will be removed 
 during install or update.
