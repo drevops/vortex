@@ -1,5 +1,5 @@
 [//]: # (#;< DRUPAL-DEV)
-# DrevOps [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+DrevOps+-+development+environment+for+Drupal+sites+with+tools+included&url=https://www.drevops.com&via=integratedexperts&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
+# DrevOps [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+DrevOps+-+Drupal+website+template+with+integrations&url=https://www.drevops.com&via=drev_ops&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
 
 [![CircleCI](https://circleci.com/gh/drevops/drevops/tree/8.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/8.x)
 ![Drupal 7](https://img.shields.io/badge/Drupal-7-blue.svg)
