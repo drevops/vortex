@@ -9,10 +9,10 @@
 #
 
 load _helper
-load _helper_drupaldev
+load _helper_drevops
 
 @test "Install parameters: empty dir; proceed switch; silent" {
-  export DRUPALDEV_PROCEED=0
+  export DREVOPS_PROCEED=0
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
@@ -20,7 +20,7 @@ load _helper_drupaldev
 }
 
 @test "Install parameters: empty dir; proceed switch; interactive" {
-  export DRUPALDEV_PROCEED=0
+  export DREVOPS_PROCEED=0
 
   answers=(
     "Star wars" # name
@@ -38,7 +38,7 @@ load _helper_drupaldev
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
     "nothing" # preserve_doc_comments
-    "nothing" # remove_drupaldev_info
+    "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
@@ -47,7 +47,7 @@ load _helper_drupaldev
 }
 
 @test "Install parameters: empty dir; defaults; silent" {
-  export DRUPALDEV_PROCEED=0
+  export DREVOPS_PROCEED=0
 
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
@@ -69,11 +69,11 @@ load _helper_drupaldev
   assert_output_contains "FTP integration:               Disabled"
   assert_output_contains "dependencies.io integration:   Enabled"
   assert_output_contains "Preserve docs in comments:     Yes"
-  assert_output_contains "Remove Drupal-Dev comments:    Yes"
+  assert_output_contains "Remove DrevOps comments:       Yes"
 }
 
 @test "Install parameters: empty dir; defaults; interactive" {
-  export DRUPALDEV_PROCEED=0
+  export DREVOPS_PROCEED=0
 
   answers=(
     "Star wars" # name
@@ -91,7 +91,7 @@ load _helper_drupaldev
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
     "nothing" # preserve_doc_comments
-    "nothing" # remove_drupaldev_info
+    "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
@@ -113,12 +113,12 @@ load _helper_drupaldev
   assert_output_contains "FTP integration:               Disabled"
   assert_output_contains "dependencies.io integration:   Enabled"
   assert_output_contains "Preserve docs in comments:     Yes"
-  assert_output_contains "Remove Drupal-Dev comments:    Yes"
+  assert_output_contains "Remove DrevOps comments:       Yes"
 }
 
 # Note that there is no silent test for this scenario.
 @test "Install parameters: empty dir; overrides and normalisation; interactive" {
-  export DRUPALDEV_PROCEED=0
+  export DREVOPS_PROCEED=0
 
   answers=(
     "star Wars" # name
@@ -136,7 +136,7 @@ load _helper_drupaldev
     "Y" # preserve_ftp
     "never" # preserve_dependenciesio
     "nnnooo" # preserve_doc_comments
-    "nooo" # remove_drupaldev_info
+    "nooo" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
@@ -157,11 +157,11 @@ load _helper_drupaldev
   assert_output_contains "FTP integration:               Enabled"
   assert_output_contains "dependencies.io integration:   Disabled"
   assert_output_contains "Preserve docs in comments:     No"
-  assert_output_contains "Remove Drupal-Dev comments:    No"
+  assert_output_contains "Remove DrevOps comments:       No"
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; silent" {
-  export DRUPALDEV_PROCEED=0
+  export DREVOPS_PROCEED=0
 
   fixture_preinstalled
 
@@ -187,11 +187,11 @@ load _helper_drupaldev
   assert_output_contains "FTP integration:               Disabled"
   assert_output_contains "dependencies.io integration:   Enabled"
   assert_output_contains "Preserve docs in comments:     Yes"
-  assert_output_contains "Remove Drupal-Dev comments:    Yes"
+  assert_output_contains "Remove DrevOps comments:       Yes"
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; interactive; accepting suggested values" {
-  export DRUPALDEV_PROCEED=0
+  export DREVOPS_PROCEED=0
 
   fixture_preinstalled
 
@@ -214,7 +214,7 @@ load _helper_drupaldev
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
     "nothing" # preserve_doc_comments
-    "nothing" # remove_drupaldev_info
+    "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
@@ -236,11 +236,11 @@ load _helper_drupaldev
   assert_output_contains "FTP integration:               Disabled"
   assert_output_contains "dependencies.io integration:   Enabled"
   assert_output_contains "Preserve docs in comments:     Yes"
-  assert_output_contains "Remove Drupal-Dev comments:    Yes"
+  assert_output_contains "Remove DrevOps comments:       Yes"
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; interactive; user input overrides discovery which overrides defaults" {
-  export DRUPALDEV_PROCEED=0
+  export DREVOPS_PROCEED=0
 
   fixture_preinstalled
 
@@ -260,7 +260,7 @@ load _helper_drupaldev
     "Y" # preserve_ftp
     "nothing" # preserve_dependenciesio - testing NOTHING value
     "Y" # preserve_doc_comments
-    "Y" # remove_drupaldev_info
+    "Y" # remove_drevops_info
   )
 
   output=$(run_install_interactive "${answers[@]}")
@@ -283,7 +283,7 @@ load _helper_drupaldev
   assert_output_contains "FTP integration:               Enabled"
   assert_output_contains "dependencies.io integration:   Enabled"
   assert_output_contains "Preserve docs in comments:     Yes"
-  assert_output_contains "Remove Drupal-Dev comments:    Yes"
+  assert_output_contains "Remove DrevOps comments:       Yes"
 }
 
 #
@@ -292,7 +292,7 @@ load _helper_drupaldev
 # Note that this helper provides only one state of the fixture site.
 #
 fixture_preinstalled(){
-  # Create readme file to pretend that Drupal-Dev was installed.
+  # Create readme file to pretend that DrevOps was installed.
   fixture_readme
 
   # Sets 'name' to 'Resistance new site'.
@@ -327,6 +327,6 @@ fixture_preinstalled(){
   # Sets 'preserve_doc_comments' to 'Yes'.
   echo "# Ahoy configuration file." >> .ahoy.yml
 
-  # Sets 'remove_drupaldev_info' to 'Yes'.
+  # Sets 'remove_drevops_info' to 'Yes'.
   echo "#;< DRUPAL-DEV" > 1.txt
 }

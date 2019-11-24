@@ -5,7 +5,7 @@
 # To add an override file, explicitly un-ignore it below and add to the
 # repository (useful for robots.txt and .htaccess file overrides).
 
-#; To simplify maintenance of Drupal-Dev, we support only 'docroot' $DOCROOT
+#; To simplify maintenance of DrevOps, we support only 'docroot' $DOCROOT
 #; defined explicitly here.
 #; @todo: Add support for renamed $DOCROOT.
 #;
@@ -34,7 +34,7 @@ docroot/sites/default/*
 !docroot/robots.txt
 
 #;< DRUPAL-DEV
-#; Ignore these files in Drupal-Dev itself, but do not ignore in consumer site.
+#; Ignore these files in DrevOps itself, but do not ignore in consumer site.
 composer.lock
 package-lock.json
 #;> DRUPAL-DEV

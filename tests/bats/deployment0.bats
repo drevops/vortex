@@ -4,8 +4,8 @@
 #
 
 load _helper
-load _helper_drupaldev
-load _helper_drupaldev_deployment
+load _helper_drevops
+load _helper_drevops_deployment
 
 @test "Deployment; no integration" {
   pushd "${BUILD_DIR}" > /dev/null || exit 1
@@ -27,7 +27,7 @@ load _helper_drupaldev_deployment
     prepare_fixture_dir "${SRC_DIR}"
 
     # Disable Acquia integration for this test to run independent deployment.
-    export DRUPALDEV_OPT_PRESERVE_ACQUIA=0
+    export DREVOPS_OPT_PRESERVE_ACQUIA=0
 
     # We need to use "current" directory as a place where the deployment script
     # is going to run from, while "SRC_DIR" is a place where files are taken
@@ -87,7 +87,7 @@ load _helper_drupaldev_deployment
   # @todo: Not implemented. Add here when implemented.
 
   # Run deployment.
-  run source scripts/drupal-dev/deploy.sh
+  run source scripts/drevops/deploy.sh
   assert_success
 
   #

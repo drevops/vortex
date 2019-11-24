@@ -4,10 +4,10 @@
 #
 
 load _helper
-load _helper_drupaldev
+load _helper_drevops
 
 @test "Variables" {
-  assert_contains "drupal-dev" "${BUILD_DIR}"
+  assert_contains "drevops" "${BUILD_DIR}"
 }
 
 @test "Install into empty directory" {
@@ -54,21 +54,21 @@ load _helper_drupaldev
   assert_files_present
   assert_git_repo
 
-  # Releasing 2 new versions of Drupal-Dev.
+  # Releasing 2 new versions of DrevOps.
   echo "# Some change to docker-compose at commit 1" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
-  commit1=$(git_commit "New version 1 of Drupal-Dev" "${LOCAL_REPO_DIR}")
+  commit1=$(git_commit "New version 1 of DrevOps" "${LOCAL_REPO_DIR}")
 
   echo "# Some change to docker-compose at commit 2" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
-  commit2=$(git_commit "New version 2 of Drupal-Dev" "${LOCAL_REPO_DIR}")
+  commit2=$(git_commit "New version 2 of DrevOps" "${LOCAL_REPO_DIR}")
 
   # Requiring bespoke version by commit.
-  echo DRUPALDEV_COMMIT="${commit1}">>.env
+  echo DREVOPS_COMMIT="${commit1}">>.env
   run_install
   assert_git_repo
-  assert_output_contains "This will install Drupal-Dev into your project at commit"
-  assert_output_contains "Downloading Drupal-Dev at ref ${commit1}"
+  assert_output_contains "This will install DrevOps into your project at commit"
+  assert_output_contains "Downloading DrevOps at ref ${commit1}"
 
   assert_files_present
   assert_file_contains "docker-compose.yml" "# Some change to docker-compose at commit 1"
@@ -100,7 +100,7 @@ load _helper_drupaldev
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
     "nothing" # preserve_doc_comments
-    "nothing" # remove_drupaldev_info
+    "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
@@ -128,7 +128,7 @@ load _helper_drupaldev
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
     "nothing" # preserve_doc_comments
-    "nothing" # remove_drupaldev_info
+    "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
@@ -139,16 +139,16 @@ load _helper_drupaldev
   assert_file_not_contains ".env" "SOMEVAR="
 }
 
-@test "Install into empty directory: silent; should NOT show that Drupal-Dev was previously installed" {
+@test "Install into empty directory: silent; should NOT show that DrevOps was previously installed" {
   output=$(run_install)
   assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
-  assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps is already installed into this project"
 
   assert_files_present
   assert_git_repo
 }
 
-@test "Install into empty directory: interactive; should show that Drupal-Dev was previously installed" {
+@test "Install into empty directory: interactive; should show that DrevOps was previously installed" {
   answers=(
     "Star wars" # name
     "nothing" # machine_name
@@ -165,22 +165,22 @@ load _helper_drupaldev
     "nothing" # preserve_ftp
     "nothing" # preserve_dependenciesio
     "nothing" # preserve_doc_comments
-    "nothing" # remove_drupaldev_info
+    "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
-  assert_output_not_contains "It looks like Drupal-Dev is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps is already installed into this project"
 
   assert_files_present
   assert_git_repo
 }
 
-@test "Install into empty directory; Drupal-Dev badge version set" {
-  export DRUPALDEV_VERSION="7.x-1.2.3"
+@test "Install into empty directory; DrevOps badge version set" {
+  export DREVOPS_VERSION="7.x-1.2.3"
 
   run_install
 
-  # Assert that Drupal-Dev version was replaced.
+  # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "https://github.com/integratedexperts/drupal-dev/tree/7.x-1.2.3"
-  assert_file_contains "README.md" "badge/Drupal--Dev-7.x--1.2.3-blue.svg"
+  assert_file_contains "README.md" "badge/DrevOps-7.x--1.2.3-blue.svg"
 }

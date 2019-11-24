@@ -12,7 +12,7 @@
 #; Comments starting with '#:' provide explicit documentation and will be
 #; automatically removed during installation or update if an option is selected.
 #;
-#; Comments starting with '#;<', '#;>' and '#;' are internal Drupal-Dev comments
+#; Comments starting with '#;<', '#;>' and '#;' are internal DrevOps comments
 #; and will be removed during installation or update.
 #;
 #; Comments starting with '#' are normal comments and will stay in the code
@@ -24,7 +24,7 @@ commands:
 
   build:
     usage: Build or rebuild the project.
-    cmd: ./scripts/drupal-dev/build.sh
+    cmd: ./scripts/drevops/build.sh
 
   info:
     usage: Show information about this project.
@@ -33,7 +33,7 @@ commands:
         -e HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2) \
         -e HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2) \
         -e SHOW_LOGIN_LINK=${SHOW_LOGIN_LINK} \
-        cli ./scripts/drupal-dev/info.sh "$@"
+        cli ./scripts/drevops/info.sh "$@"
 
   # ----------------------------------------------------------------------------
   # Docker commands.
@@ -102,26 +102,26 @@ commands:
   #;< !FRESH_INSTALL
   download-db:
     usage: Download database.
-    cmd: ./scripts/drupal-dev/download-db.sh
+    cmd: ./scripts/drevops/download-db.sh
   #;> !FRESH_INSTALL
 
   install-site:
     usage: Install a site.
-    cmd: docker-compose exec -T cli ./scripts/drupal-dev/drupal-install-site.sh
+    cmd: docker-compose exec -T cli ./scripts/drevops/drupal-install-site.sh
 
   export-db:
     usage: Export database dump.
-    cmd: docker-compose exec -T cli ./scripts/drupal-dev/drupal-export-db.sh "$@"
+    cmd: docker-compose exec -T cli ./scripts/drevops/drupal-export-db.sh "$@"
 
   clean:
     usage: Remove containers and all build files.
-    cmd: ahoy down && ./scripts/drupal-dev/clean.sh
+    cmd: ahoy down && ./scripts/drevops/clean.sh
 
   reset:
     usage: "Reset environment: remove containers, all build, uncommitted files."
     cmd: |
       ahoy confirm "All containers, build and uncomitted files will be removed, repository will be reset to the last commit. Proceed?" \
-      && ahoy clean && ./scripts/drupal-dev/reset.sh || true
+      && ahoy clean && ./scripts/drevops/reset.sh || true
 
   fe:
     usage: Build front-end assets.
@@ -139,32 +139,32 @@ commands:
     usage: Export built code.
     cmd: |
       [ -z "${BUILD_EXPORT_DIR}" ] && exit
-      mkdir -p "${BUILD_EXPORT_DIR}" && docker-compose exec --env BUILD_EXPORT_DIR="${BUILD_EXPORT_DIR}" -T cli ./scripts/drupal-dev/export-code.sh
+      mkdir -p "${BUILD_EXPORT_DIR}" && docker-compose exec --env BUILD_EXPORT_DIR="${BUILD_EXPORT_DIR}" -T cli ./scripts/drevops/export-code.sh
       docker cp -L $(docker-compose ps -q cli):"${BUILD_EXPORT_DIR}"/. ${BUILD_EXPORT_DIR}
 
   lint:
     usage: Lint back-end and front-end code.
-    cmd: ahoy cli ./scripts/drupal-dev/lint.sh "$@"
+    cmd: ahoy cli ./scripts/drevops/lint.sh "$@"
 
   lint-be:
     usage: Lint back-end code.
-    cmd: ahoy cli ./scripts/drupal-dev/lint.sh be
+    cmd: ahoy cli ./scripts/drevops/lint.sh be
 
   lint-fe:
     usage: Lint front-end code.
-    cmd: ahoy cli ./scripts/drupal-dev/lint.sh fe
+    cmd: ahoy cli ./scripts/drevops/lint.sh fe
 
   test:
     usage: Run all tests.
-    cmd: ahoy cli ./scripts/drupal-dev/test.sh unit-bdd
+    cmd: ahoy cli ./scripts/drevops/test.sh unit-bdd
 
   test-unit:
     usage: Run Simpletest unit tests.
-    cmd: ahoy cli ./scripts/drupal-dev/test.sh unit "$@"
+    cmd: ahoy cli ./scripts/drevops/test.sh unit "$@"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "export BEHAT_PROFILE=${BEHAT_PROFILE:-} && ./scripts/drupal-dev/test.sh bdd $@"
+    cmd: ahoy cli "export BEHAT_PROFILE=${BEHAT_PROFILE:-} && ./scripts/drevops/test.sh bdd $@"
 
   debug:
     usage: Enable debug configuration.
@@ -176,15 +176,15 @@ commands:
     usage: Run remote deployment procedures
     cmd: |
       ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as DEPLOY_PROCEED=1 ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" \
-      && ./scripts/drupal-dev/deploy.sh "$@" || true
+      && ./scripts/drevops/deploy.sh "$@" || true
 
   doctor:
     usage: Find problems with current project setup.
-    cmd: ./scripts/drupal-dev/doctor.sh "$@"
+    cmd: ./scripts/drevops/doctor.sh "$@"
 
   update:
     usage: Update development stack.
-    cmd: ahoy confirm "Some committed files may become overwritten. Proceed?" && ./scripts/drupal-dev/update.sh || true
+    cmd: ahoy confirm "Some committed files may become overwritten. Proceed?" && ./scripts/drevops/update.sh || true
 
   # ----------------------------------------------------------------------------
   # Utilities.
