@@ -3,9 +3,9 @@
 # DrevOps installer.
 #
 # Usage:
-# curl -L https://raw.githubusercontent.com/integratedexperts/drevops/7.x/install | bash
+# curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/7.x/install | bash
 # or
-# curl -L https://raw.githubusercontent.com/integratedexperts/drevops/7.x/install | bash -s -- /path/to/destination/directory
+# curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/7.x/install | bash -s -- /path/to/destination/directory
 
 { # Ensures the entire script is downloaded.
 

@@ -12,7 +12,7 @@ DREVOPS_ALLOW_OVERRIDE="${DREVOPS_ALLOW_OVERRIDE:-1}"
 DREVOPS_COMMIT="${DREVOPS_COMMIT:-}"
 
 # The URL of the install script.
-INSTALL_URL="${INSTALL_URL:-https://raw.githubusercontent.com/integratedexperts/drevops/${DRUPAL_VERSION}.x/install.sh}"
+INSTALL_URL="${INSTALL_URL:-https://raw.githubusercontent.com/integratedexperts/drupal-dev/${DRUPAL_VERSION}.x/install.sh}"
 
 # ------------------------------------------------------------------------------
 
