@@ -1,4 +1,4 @@
-# DrevOps [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+DrevOps+-+Drupal+website+template+with+integrations&url=https://www.drevops.com&via=drevops&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
+# DrevOps [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+DrevOps+-+Drupal+website+template+with+integrations&url=https://www.drevops.com&via=drev_ops&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
 
 #### Drupal website template with integrations
 
