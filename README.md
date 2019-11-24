@@ -1,9 +1,9 @@
 [//]: # (#;< DREVOPS)
 # DrevOps [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+DrevOps+-+development+environment+for+Drupal+sites+with+tools+included&url=https://www.drevops.com&via=integratedexperts&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
 
-[![CircleCI](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal-dev/tree/8.x)
+[![CircleCI](https://circleci.com/gh/drevops/drevops/tree/8.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/8.x)
 ![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
-[![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/integratedexperts/drupal-dev/blob/8.x/LICENSE)
+[![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/drevops/drevops/blob/8.x/LICENSE)
 [![Dependencies.io](https://img.shields.io/badge/dependencies.io-enabled-green.svg)](https://dependencies.io)
 
 #### Development environment for Drupal sites with tools included
@@ -11,9 +11,9 @@
 Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
 **Looking for Drupal 7 version?**
-[Click here to switch to Drupal 7 version](https://github.com/integratedexperts/drupal-dev/tree/7.x)
+[Click here to switch to Drupal 7 version](https://github.com/drevops/drevops/tree/7.x)
 
-![Workflow](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/workflow.png)
+![Workflow](https://raw.githubusercontent.com/wiki/drevops/drevops/images/workflow.png)
 
 ## Understanding DrevOps
 DrevOps is a Drupal project scaffolding template with included development 
@@ -81,16 +81,16 @@ projects  the way you want it!**
    For quiet installation with default settings into current directory:
     
    ```
-   bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh)
+   bash <(curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.sh)
    ```
    For interactive installation (questions and answers) into current directory:
    ```
-   bash <(curl -L https://raw.githubusercontent.com/integratedexperts/drupal-dev/8.x/install.sh) --interactive
+   bash <(curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.sh) --interactive
    ```
 <details>
 <summary>Show Installer screenshot</summary>
 
-![Installer](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/installer.png)
+![Installer](https://raw.githubusercontent.com/wiki/drevops/drevops/images/installer.png)
 </details>
 
 2. Follow instructions in the generated `README.md` files of your project. 
@@ -105,7 +105,7 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 <details>
 <summary>Show update process screenshot</summary>
 
-![Installer](https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/project-update.png)
+![Installer](https://raw.githubusercontent.com/wiki/drevops/drevops/images/project-update.png)
 </details>
 
 ## Why is DrevOps awesome?
@@ -211,7 +211,7 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 </details>
 
 ## Contributing
-- Progress is tracked as [GitHub project](https://github.com/integratedexperts/drupal-dev/projects/1). 
+- Progress is tracked as [GitHub project](https://github.com/drevops/drevops/projects/1). 
 - Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
 - Create an issue and prefix title with Drupal core version: `[8.x] Updated readme file.`. 
 - Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/8.x-updated-readme`.
@@ -269,7 +269,7 @@ Drupal 8 implementation of YOURSITE for YOURORG
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DREVOPS TO TRACK INTEGRATION)
 
-[![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/integratedexperts/drupal-dev/tree/DREVOPS_VERSION) 
+[![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/drevops/tree/DREVOPS_VERSION) 
 
 [//]: # (Remove the section below once onboarding is finished)
 ## Onboarding
