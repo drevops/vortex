@@ -197,6 +197,8 @@ projects  the way you want it!**
 - Supports pre-update and post-update hooks. 
 - Flexible [pricing model](https://www.dependencies.io/pricing/) for proprietary projects.
 
+--------------------------------------------------------------------------------
+
 ## Contributing
 - Progress is tracked as [GitHub project](https://github.com/drevops/drevops/projects/1). 
 - Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
