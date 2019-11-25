@@ -1,5 +1,3 @@
-# DrevOps [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+DrevOps+-+Drupal+website+template+with+integrations&url=https://www.drevops.com&via=drev_ops&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
-
 #### Drupal website template with integrations
 
 [Click here to see template for Drupal 8 project](https://github.com/drevops/drevops/tree/8.x) 
@@ -160,7 +158,7 @@ projects  the way you want it!**
 |                                               | One-liner [install script](install.sh) with optional wizard                                                         | Minimises the time to try DrevOps.Provides centralised point for installation into new and existing projects, as well as updates. |
 | Stability                                     | [Test suite](tests/bats) for all provided commands                                                                  | Guarantees that commands will work |
 |                                               | Own CI to run test suite                                                                                            | Pull requests and releases are stable |
-|                                               | Daily Drupal and NPM updates                                                                                        | Composer (including Drupal) and NPM packages are always using the latest versions. |
+|                                               | Daily Drupal updates                                                                                                | Composer (including Drupal) packages are always using the latest versions. |
 | Documentation                                 | Contribution guide\*                                                                                                | Engages community to contribute back |
 |                                               | [Pull request template](.github/PULL_REQUEST_TEMPLATE.md)                                                           | Helps to improve community collaboration and reduce the time for pull request management. |
 
