@@ -9,8 +9,7 @@ CUR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 targets=()
 
 targets+=(README.md)
-targets+=(DEPLOYMENT.md)
-targets+=(FAQs.md)
+targets+=(docs/README.md)
 
 echo "==> Start checking spelling"
 for file in "${targets[@]}"; do

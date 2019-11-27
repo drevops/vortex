@@ -9,16 +9,24 @@ https://www.drevops.com
 
 [Click here to switch to Drupal 7 version](https://github.com/drevops/drevops/tree/7.x)
 
-# Maintenance of marketing website
+## Maintenance of marketing website
+
+The page is published automatically once changes pushed.
+
+### Compile site locally
 
 https://help.github.com/en/enterprise/2.14/user/articles/setting-up-your-github-pages-site-locally-with-jekyll
 
 1. Install Ruby
 2. Install Bundler
-    
-        gem install bundler
-
+   ``` 
+    gem install bundler
+   ```
 3. `cd docs`
 4. `bundle install`
 5.  `bundle exec jekyll serve`
 6. Access site at http://127.0.0.1:4000/
+
+### Check spelling.
+
+Run `./scripts/check-spell.sh`

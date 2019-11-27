@@ -4,6 +4,7 @@ Amazee
 amazeeio
 Bario
 Behat
+Bundler
 breakpoint
 CircleCI
 CLI
@@ -27,6 +28,7 @@ GPL
 Gruntfile
 Hotfix
 Integrations
+integrations
 io
 JS
 Kanban
@@ -39,6 +41,7 @@ Mysql
 Nginx
 NPM
 onboarding
+PaaS
 PHP
 PHPUnit
 pre
@@ -46,10 +49,12 @@ PRs
 readme
 Robo
 sanitization
+SaaS
 SCSS
 SemVer
 SLAs
 toolset
+Tokaido
 UI
 Uncomment
 Upgradable
