@@ -1,12 +1,3 @@
-#### Drupal website template with integrations
-
-[Click here to see template for Drupal 8 project](https://github.com/drevops/drevops/tree/8.x) 
-[![CircleCI](https://circleci.com/gh/drevops/drevops/tree/8.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/8.x)
-![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
-
-[Click here to see template for Drupal 7 project](https://github.com/drevops/drevops/tree/7.x)
-[![CircleCI](https://circleci.com/gh/drevops/drevops/tree/7.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/7.x)
-![Drupal 7](https://img.shields.io/badge/Drupal-7-blue.svg)
 
 ![Workflow](https://raw.githubusercontent.com/wiki/drevops/drevops/images/workflow.png)
 

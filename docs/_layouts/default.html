@@ -38,6 +38,60 @@
       .main-content h5 {
         color: #5d5d5d;
       }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .btn-alt {
+        display: inline-block;
+        margin-bottom: 1rem;
+        color: rgba(21, 87, 153, 0.8);
+        background-color: rgba(21, 87, 153, 0.08);
+        border-color: rgba(21, 87, 153, 0.5);
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 0.3rem;
+        transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+      }
+
+      .btn-alt:hover {
+        color: #155799;
+        text-decoration: none;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-color: #155799;
+      }
+
+      .btn-alt + .btn-alt {
+        margin-left: 1rem;
+      }
+
+      @media screen and (min-width: 64em) {
+        .btn-alt {
+          padding: 0.75rem 1rem;
+        }
+      }
+
+      @media screen and (min-width: 42em) and (max-width: 64em) {
+        .btn-alt {
+          padding: 0.6rem 0.9rem;
+          font-size: 0.9rem;
+        }
+      }
+
+      @media screen and (max-width: 42em) {
+        .btn-alt {
+          display: block;
+          width: 100%;
+          padding: 0.75rem;
+          font-size: 0.9rem;
+        }
+
+        .btn-alt + .btn-alt {
+          margin-top: 1rem;
+          margin-left: 0;
+        }
+      }
     </style>
   </head>
   <body>
@@ -62,6 +116,15 @@
 
         <a href="https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+DrevOps+-+Drupal+website+template+with+integrations&amp;url=https://www.drevops.com&amp;via=drev_ops&amp;hashtags=drupal,devops,workflow,composer,template,kickstart,ci,test,build" class="twitter-mention-button" data-show-count="false" data-size="large">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
       </div>
+
+
+      <div class="content-above text-center">
+        <h2 style="padding: 2rem 0;">Drupal website template with integrations</h2>
+
+        <a href="https://github.com/drevops/drevops/tree/8.x" onclick="ga('send', 'event', 'Click', 'Button', 'View Source Before Content - 8.x');" class="btn-alt"><i class="fab fa-github"></i> Source 8.x</a>
+        <a href="https://github.com/drevops/drevops/tree/7.x" onclick="ga('send', 'event', 'Click', 'Button', 'View Source Before Content - 7.x');" class="btn-alt"><i class="fab fa-github"></i> Source 7.x</a>
+      </div>
+
 
       {{ content }}
 
