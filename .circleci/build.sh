@@ -41,8 +41,9 @@ export DOCTOR_CHECK_SSH=0
 export DOCTOR_CHECK_WEBSERVER=0
 export DOCTOR_CHECK_BOOTSTRAP=0
 
-# Create stub of local framework.
-docker network create amazeeio-network
+# Create stub of local network.
+# shellcheck disable=SC2015
+docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network
 
 ahoy build
 
