@@ -2,11 +2,7 @@
 
 /**
  * @file
- * Lagoon drushrc.php file.
- *
- * This file tells drush about the Lagoon environment.
- * It contains some defaults that the lagoon team suggests, please edit them as
- * required.
+ * Drush runtime config (drushrc) file.
  */
 
 // Skip data for some tables during sql dumps and syncs
