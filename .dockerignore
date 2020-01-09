@@ -22,6 +22,7 @@ drush/contrib/
 
 # Do not ignore other required files.
 !.docker/scripts
+!.docker/config
 !.env
 !.eslintrc.json
 !.sass-lint.yml
