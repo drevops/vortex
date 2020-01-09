@@ -1,15 +1,13 @@
 <?xml version="1.0"?>
 <ruleset name="your_site">
-    <description>PHPCS Standard for YOURSITE website, based on Drupal standards.
-    </description>
+    <description>PHPCS Standard for YOURSITE website, based on Drupal standards.</description>
 
     <rule ref="Drupal"/>
     <rule ref="DrupalPractice"/>
     <rule ref="Generic.Debug.ESLint"/>
     <rule ref="PHPCompatibility"/>
 
-    <arg name="extensions"
-         value="inc,info,install,module,php,profile,test,theme"/>
+    <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
     <arg name="colors"/>
     <arg value="sp"/>
     <arg name="parallel" value="75"/>
@@ -33,11 +31,15 @@
     <exclude-pattern>*\.context\.*</exclude-pattern>
     <exclude-pattern>*\.current_search\.*</exclude-pattern>
     <exclude-pattern>*\.custom_formatters\.*</exclude-pattern>
+    <exclude-pattern>*\.default_breakpoint_group\.*</exclude-pattern>
+    <exclude-pattern>*\.default_breakpoints\.*</exclude-pattern>
     <exclude-pattern>*\.ds\.*</exclude-pattern>
+    <exclude-pattern>*\.entityqueue_default\.*</exclude-pattern>
     <exclude-pattern>*\.facetapi_defaults\.*</exclude-pattern>
     <exclude-pattern>*\.feeds_*\.*</exclude-pattern>
     <exclude-pattern>*\.features\.*</exclude-pattern>
     <exclude-pattern>*\.field_group\.*</exclude-pattern>
+    <exclude-pattern>*\.fieldable_panels_pane_type\.*</exclude-pattern>
     <exclude-pattern>*\.file_default_displays\.*</exclude-pattern>
     <exclude-pattern>*\.file_type\.*</exclude-pattern>
     <exclude-pattern>*\.heartbeat\.*</exclude-pattern>
@@ -45,6 +47,7 @@
     <exclude-pattern>*\.linkit_profiles\.*</exclude-pattern>
     <exclude-pattern>*\.pages_default\.*</exclude-pattern>
     <exclude-pattern>*\.panels_default\.*</exclude-pattern>
+    <exclude-pattern>*\.default_picture_mapping\.*</exclude-pattern>
     <exclude-pattern>*\.rules_defaults\.*</exclude-pattern>
     <exclude-pattern>*\.strongarm\.*</exclude-pattern>
     <exclude-pattern>*\.views_default\.*</exclude-pattern>
@@ -59,19 +62,26 @@
     <rule ref="DrupalPractice.CodeAnalysis.VariableAnalysis.UndefinedVariable">
         <exclude-pattern>settings\.php</exclude-pattern>
     </rule>
+    <rule ref="DrupalPractice.Variables.GetRequestData.SuperglobalAccessedWithVar">
+        <exclude-pattern>settings\.php</exclude-pattern>
+    </rule>
 
-    <!--Allow section separators in settings.php file.-->
+    <!--Allow section separators in files.-->
     <rule ref="DrupalPractice.Commenting.CommentEmptyLine.SpacingAfter">
         <exclude-pattern>settings\.php</exclude-pattern>
+        <exclude-pattern>\.install</exclude-pattern>
     </rule>
     <rule ref="Drupal.Commenting.InlineComment.InvalidEndChar">
         <exclude-pattern>settings\.php</exclude-pattern>
+        <exclude-pattern>\.install</exclude-pattern>
     </rule>
     <rule ref="Drupal.Commenting.InlineComment.NoSpaceBefore">
         <exclude-pattern>settings\.php</exclude-pattern>
+        <exclude-pattern>\.install</exclude-pattern>
     </rule>
     <rule ref="Drupal.Commenting.InlineComment.SpacingAfter">
         <exclude-pattern>settings\.php</exclude-pattern>
+        <exclude-pattern>\.install</exclude-pattern>
     </rule>
 
     <!--Allow arrays with and without specified keys in install files.-->
@@ -97,19 +107,24 @@
     <rule ref="Drupal.Commenting.DocComment.MissingShort">
         <exclude-pattern>*.Test\.php</exclude-pattern>
         <exclude-pattern>*.TestCase\.php</exclude-pattern>
+        <exclude-pattern>*.test</exclude-pattern>
+        <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
     </rule>
     <rule ref="Drupal.Commenting.FunctionComment.Missing">
         <exclude-pattern>*.Test\.php</exclude-pattern>
         <exclude-pattern>*.TestCase\.php</exclude-pattern>
+        <exclude-pattern>*.test</exclude-pattern>
+        <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
     </rule>
 
     <!--Allow long array lines in tests.-->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
         <exclude-pattern>*.Test\.php</exclude-pattern>
         <exclude-pattern>*.TestCase\.php</exclude-pattern>
+        <exclude-pattern>*.test</exclude-pattern>
     </rule>
 
-    <!-- Ignore  Prefixing class names with project name in module behat tests.-->
+    <!-- Ignore Prefixing class names with project name in module behat tests.-->
     <rule ref="DrupalPractice.General.ClassName.ClassPrefix">
         <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
     </rule>
