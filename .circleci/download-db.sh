@@ -11,16 +11,16 @@ set -e
 # Usually in CircleCI UI to override per build cache.
 FORCE_DB_DOWNLOAD="${FORCE_DB_DOWNLOAD:-}"
 
-# Data directory location.
-DATADIR="${DATADIR:-.data}"
-
-# Pattern of the DB dump file.
-DB_DUMP_PATTERN="${DB_DUMP_PATTERN:-db*.sql}"
-
 # Semaphore file used to check if the DB has been previously downloaded.
 DB_SEMAPHORE_FILE="${DB_SEMAPHORE_FILE:-/tmp/db-new}"
 
 # ------------------------------------------------------------------------------
+
+# Directory where DB dumps are stored.
+DATADIR="${DATADIR:-.data}"
+
+# Pattern of the DB dump file.
+DB_DUMP_PATTERN="db*.sql"
 
 # Download database only if it has not been restored from the cache OR
 # if the $FORCE_DB_DOWNLOAD flag is set.
@@ -43,10 +43,15 @@ if [ -f "${DB_SEMAPHORE_FILE}" ]; then
   export SKIP_SANITIZE_DB=0
   # Do not run post DB-import scripts to work with unmodified database.
   export SKIP_POST_DB_IMPORT=1
-  .circleci/build.sh;
+  .circleci/build.sh
 fi
 
+export DB_DUMP_DIR="${HOME}/project/.data"
 if [ -f "${DB_SEMAPHORE_FILE}" ]; then
-  echo "==> Exporting built DB for caching"
-  ahoy export-db db.sql;
+  echo "==> Exporting built DB for caching to ${DB_DUMP_DIR}"
+  ahoy export-db db.sql
+  ls -alh "${DB_DUMP_DIR}"
+else
+  echo "==> Using existing DB dump in ${DB_DUMP_DIR}"
+  ls -alh "${DB_DUMP_DIR}"
 fi
