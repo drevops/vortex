@@ -31,7 +31,7 @@ if [ -z "${LINT_TYPE##*be*}" ]; then
   # Lint code for syntax errors.
   vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${PHP_LINT_EXTENSIONS} ${PHP_LINT_TARGETS//,/ } && \
   # Lint code for coding standards.
-  vendor/bin/phpcs -v ${PHPCS_TARGETS//,/ } || \
+  vendor/bin/phpcs ${PHPCS_TARGETS//,/ } || \
   # Flag to allow lint to fail.
   [ "${ALLOW_LINT_FAIL}" -eq 1 ]
 fi
