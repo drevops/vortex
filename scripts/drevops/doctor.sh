@@ -45,7 +45,6 @@ main() {
   if [ "${DOCTOR_CHECK_TOOLS}" == "1" ]; then
     [ "$(command_exists docker)" == "1" ] && error "Please install Docker (https://www.docker.com/get-started)" && exit 1
     [ "$(command_exists docker-compose)" == "1" ] && error "Please install docker-compose (https://docs.docker.com/compose/install/)" && exit 1
-    [ "$(command_exists composer)" == "1" ] && error "Please install Composer (https://getcomposer.org/)" && exit 1
     [ "$(command_exists pygmy)" == "1" ] && error "Please install Pygmy (https://pygmy.readthedocs.io/)" && exit 1
     [ "$(command_exists ahoy)" == "1" ] && error "Please install Ahoy (https://ahoy-cli.readthedocs.io/)" && exit 1
     success "All required tools are present"
