@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Cloud hook: install site
+# Acquia Cloud hook: Install site.
 #
 
 set -e
