@@ -76,7 +76,7 @@ module.exports = function (grunt) {
     sass: {
       dev: {
         files: {
-          ['build/css/' + themeName + '.min.css']: 'scss/style.scss'
+          ['build/css/' + themeName + '.min.css']: 'scss/styles.scss'
         },
         options: {
           implementation: require('node-sass'),
@@ -86,7 +86,7 @@ module.exports = function (grunt) {
       },
       prod: {
         files: {
-          ['build/css/' + themeName + '.min.css']: 'scss/style.scss'
+          ['build/css/' + themeName + '.min.css']: 'scss/styles.scss'
         },
         options: {
           implementation: require('node-sass'),
