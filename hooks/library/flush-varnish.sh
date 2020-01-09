@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-set -e
-set -x
-#
-# Flush varnish cache for specified domains.
+##
+# Acquia Cloud hook: Flush varnish cache for specified domains.
 #
 # Support sub-domains and custom domains.
 # Place your domains into domains.txt file.
@@ -10,6 +8,9 @@ set -x
 # IMPORTANT! This script uses drush ac-* commands and requires credentials
 # for Acquia Cloud. Make sure that file "$HOME/.acquia/cloudapi.conf" exists and
 # follow deployment instructions if it does not.
+
+set -e
+set -x
 
 site="$1"
 target_env="$2"
