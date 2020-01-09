@@ -89,10 +89,8 @@ else
   ssh-add "${DEPLOY_SSH_FILE}"
 fi
 
-# Disable strict host key checking, but only if SSH config file does not already
-# exist (in most cases, such file would exist in local environment and we do not
-# want to override it).
-[ ! -f "${HOME}/.ssh/config" ] && mkdir -p "${HOME}/.ssh/" && echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" > "${HOME}/.ssh/config"
+# Disable strict host key checking in CI.
+[ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >> "${HOME}/.ssh/config"
 
 echo "==> Installing a package for code push deployment."
 composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs integratedexperts/robo-git-artefact:0.4.1
