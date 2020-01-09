@@ -111,7 +111,7 @@ commands:
 
   export-db:
     usage: Export database dump.
-    cmd: docker-compose exec -T cli ./scripts/drevops/drupal-export-db.sh "$@"
+    cmd: docker-compose exec -e DB_DUMP_DIR=${DB_DUMP_DIR:-.data} -T cli ./scripts/drevops/drupal-export-db.sh "$@"
 
   clean:
     usage: Remove containers and all build files.
