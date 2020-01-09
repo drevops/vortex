@@ -31,7 +31,9 @@ commands:
     cmd: |
       docker-compose exec \
         -e HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2) \
+        #;< SOLR
         -e HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2) \
+        #;> SOLR
         -e SHOW_LOGIN_LINK=${SHOW_LOGIN_LINK} \
         cli ./scripts/drevops/info.sh "$@"
 
