@@ -6,8 +6,14 @@
 # Acquia Cloud environment using Acquia Cloud API 1.0, download and decompress
 # it into specified directory.
 #
-# It does not rely on 'drush ac-*' command, which makes it capable of running
-# on hosts without configured drush and drush aliases.
+# It does not rely on 'drush ac-api-*' commands, which makes it capable of
+# running on hosts without configured drush and drush aliases.
+#
+# It does however supports reading credentials from Acquia cloud config file
+# usually located in $HOME/.acquia/cloudapi.json. To retrieve your Cloud API
+# credentials, go to
+# Acquia Cloud UI -> Account -> Credentials -> Cloud API -> E-mail
+# Acquia Cloud UI -> Account -> Credentials -> Cloud API -> Private key->Show
 #
 # @see https://cloudapi.acquia.com/#GET__sites__site_envs__env_dbs__db_backups__backup_download-instance_route
 
@@ -15,10 +21,6 @@
 #                             REQUIRED VARIABLES
 #-------------------------------------------------------------------------------
 
-# Acquia Cloud UI -> Account -> Credentials -> Cloud API -> E-mail
-AC_API_USER_NAME=${AC_API_USER_NAME:-}
-# Acquia Cloud UI -> Account -> Credentials -> Cloud API -> Private key
-AC_API_USER_PASS=${AC_API_USER_PASS:-}
 # 'prod:<git_repo_name>'
 AC_API_DB_SITE=${AC_API_DB_SITE:-}
 AC_API_DB_ENV=${AC_API_DB_ENV:-}
@@ -27,6 +29,12 @@ AC_API_DB_NAME=${AC_API_DB_NAME:-}
 #-------------------------------------------------------------------------------
 #                              OPTIONAL VARIABLES
 #-------------------------------------------------------------------------------
+
+# Both user name and password are read from Acquia Cloud API config file by
+# default and should be provided through variables only in environments that do
+# not have Acquia CLoud API config file created (usually, non-local environments).
+AC_API_USER_NAME=${AC_API_USER_NAME:-}
+AC_API_USER_PASS=${AC_API_USER_PASS:-}
 
 # Backup id. If not specified - the latest backup id will be discovered and used.
 AC_API_DB_BACKUP_ID=${AC_API_DB_BACKUP_ID:-}
