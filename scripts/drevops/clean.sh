@@ -24,6 +24,7 @@ themes
 targets+=($(ls -p | grep -v /))
 for target in "${targets[@]}"; do
   if [ "$(git ls-files "${WEBROOT}/${target}")" == "" ]; then
+    if [ -f "${WEBROOT}/${target:?}" ]; then chmod -Rf 777 "${WEBROOT}/${target:?}"; fi
     rm -Rf "${WEBROOT}/${target:?}"
   fi
 done
