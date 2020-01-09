@@ -1,4 +1,4 @@
-[//]: # (#;< DRUPAL-DEV)
+[//]: # (#;< DREVOPS)
 # DrevOps [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+DrevOps+-+Drupal+website+template+with+integrations&url=https://www.drevops.com&via=drev_ops&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
 
 [![CircleCI](https://circleci.com/gh/drevops/drevops/tree/8.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/8.x)
@@ -254,7 +254,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 
 **All content above this line will be automatically removed during installation.**
 
-[//]: # (#;> DRUPAL-DEV)
+[//]: # (#;> DREVOPS)
 # YOURSITE
 Drupal 7 implementation of YOURSITE for YOURORG
 
@@ -267,7 +267,7 @@ Drupal 7 implementation of YOURSITE for YOURORG
 
 [//]: # (#;> DEPENDENCIESIO)
 
-[//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DRUPAL-DEV TO TRACK INTEGRATION)
+[//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DREVOPS TO TRACK INTEGRATION)
 
 [![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/drevops/tree/DREVOPS_VERSION) 
 

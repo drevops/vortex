@@ -33,11 +33,11 @@ docroot/sites/default/*
 !docroot/.htaccess
 !docroot/robots.txt
 
-#;< DRUPAL-DEV
+#;< DREVOPS
 #; Ignore these files in DrevOps itself, but do not ignore in consumer site.
 composer.lock
 package-lock.json
-#;> DRUPAL-DEV
+#;> DREVOPS
 
 # Ignore dependencies cache files.
 vendor

@@ -103,7 +103,7 @@ load _helper_drevops
     "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
-  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
 
   assert_files_present
   assert_git_repo
@@ -131,7 +131,7 @@ load _helper_drevops
     "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
-  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
 
   assert_files_present
   assert_git_repo
@@ -141,7 +141,7 @@ load _helper_drevops
 
 @test "Install into empty directory: silent; should NOT show that DrevOps was previously installed" {
   output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
   assert_output_not_contains "It looks like DrevOps is already installed into this project"
 
   assert_files_present
@@ -168,7 +168,7 @@ load _helper_drevops
     "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
-  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_not_contains "It looks like DrevOps is already installed into this project"
 
   assert_files_present

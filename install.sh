@@ -319,7 +319,7 @@ process_stub(){
 
   if [ "$(get_value "remove_drevops_info")" == "Y" ] ; then
     # Remove code required for DrevOps maintenance.
-    remove_special_comments_with_content "DRUPAL-DEV" "${dir}" && bash -c "echo -n ."
+    remove_special_comments_with_content "DREVOPS" "${dir}" && bash -c "echo -n ."
 
     # Remove other unhandled comments.
     remove_special_comments "${dir}" "#;<"
@@ -712,7 +712,7 @@ discover_value__preserve_doc_comments(){
 }
 
 discover_value__remove_drevops_info(){
-  dir_contains_string "${DST_DIR}" "#;< DRUPAL-DEV" && echo "N" || echo "Y"
+  dir_contains_string "${DST_DIR}" "#;< DREVOPS" && echo "N" || echo "Y"
 }
 
 ################################################################################
@@ -725,7 +725,7 @@ print_header_interactive(){
 
   echo
   echo "**********************************************************************"
-  echo "          WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER                *"
+  echo "          WELCOME TO DREVOPS INTERACTIVE INSTALLER                *"
   echo "**********************************************************************"
   echo "*                                                                    *"
   if [ "${commit}" == "" ]; then
@@ -764,7 +764,7 @@ print_header_silent(){
 
   echo
   echo "**********************************************************************"
-  echo "*            WELCOME TO DRUPAL-DEV SILENT INSTALLER                  *"
+  echo "*            WELCOME TO DREVOPS SILENT INSTALLER                  *"
   echo "**********************************************************************"
   echo "*                                                                    *"
   if [ "${commit}" == "" ]; then
