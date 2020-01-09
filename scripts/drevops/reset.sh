@@ -6,7 +6,7 @@
 set -e
 
 # Change permissions and remove all other untracked files.
-git ls-files --others -i --exclude-from=.gitignore | xargs -I {} -- bash -c "chmod 777 {} || true && rm -rf {} || true"
+git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -I {} -- bash -c '( chmod 777 "{}" > /dev/null || true ) && ( rm -rf "{}" > /dev/null || true )'
 
 # Reset repository files.
 git reset --hard
