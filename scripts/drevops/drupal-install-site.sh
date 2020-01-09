@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2086
 ##
-# Install site from canonical database.
+# Install site from profile or canonical database.
 #
 
 set -e
@@ -57,31 +57,29 @@ mkdir -p "${DRUPAL_PRIVATE_FILES}"
 # Useful to automatically store database dump before starting site rebuild.
 [ "${DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && ./scripts/drevops/drupal-export-db.sh
 
-# Import database dump if present, or install fresh website from the profile.
-if [ -f "${DB_DUMP}" ]; then
+# Import database dump if present, or install fresh website from the profile if
+# site is not already installed.
+if [ -z "${SKIP_DB_IMPORT}" ] && [ -f "${DB_DUMP}" ]; then
   echo "==> Using existing DB dump ${DB_DUMP}"
-  [ -z "${SKIP_DB_IMPORT}" ] && ./scripts/drevops/drupal-import-db.sh
+  ./scripts/drevops/drupal-import-db.sh
+elif drush status --fields=bootstrap | grep -q "Successful"; then
+  echo "==> Existing site found"
 else
-  echo "==> Using installation profile ${DRUPAL_PROFILE}"
+  echo "==> Existing site not found. Installing site from profile ${DRUPAL_PROFILE}"
   drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
 fi
 
 # Run post DB import scripts, if not skipped.
 if [ -z "${SKIP_POST_DB_IMPORT}" ]; then
+  echo "==> Running post DB init commands"
   # Enable custom site "core" module.
   # shellcheck disable=SC2015
   drush pml | grep -q "${DRUPAL_MODULE_PREFIX}_core" && drush en -y "${DRUPAL_MODULE_PREFIX}_core" || true
 
   # Run updates.
   drush ${DRUSH_ALIAS} updb -y
-
-  # Import Drupal configuration, if configuration files exist.
-  if ls "{DRUPAL_CONFIG_PATH}"/*.yml > /dev/null 2>&1; then
-    drush ${DRUSH_ALIAS} cim "${DRUPAL_CONFIG_LABEL}" -y
-    drush ${DRUSH_ALIAS} config-split-import -y
-  fi
 else
-  echo "==> Skipped running of post DB import commands"
+  echo "==> Skipped running of post DB init commands"
 fi
 
 # Rebuild cache.
