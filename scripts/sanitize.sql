@@ -6,7 +6,15 @@ UPDATE `users_field_data` SET `status` = '0' WHERE `uid` = '1' AND `langcode` = 
 
 -- Below are the largest tables in the database that can be truncated.
 
--- CREATE TABLE if NOT EXISTS `watchdog`;
+-- Remove webform submissions.
+-- CREATE TABLE IF NOT EXISTS `webform_submitted_data`;
+-- TRUNCATE TABLE `webform_submitted_data`;
+
+-- Remove queued items.
+-- CREATE TABLE IF NOT EXISTS `queue`;
+-- TRUNCATE TABLE `queue`;
+
+-- CREATE TABLE IF NOT EXISTS `watchdog`;
 -- TRUNCATE TABLE `watchdog`;
 --
 -- CREATE TABLE if NOT EXISTS `cache_entity`;
