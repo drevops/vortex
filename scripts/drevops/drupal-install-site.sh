@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2086
 ##
-# Install site from profile or canonical database.
+# Install site from canonical database.
 #
 
 set -e
