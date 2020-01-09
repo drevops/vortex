@@ -57,7 +57,7 @@ aliases:
         environment:
           # How often to refresh the cache of DB dump. Refer to `date` command.
           DB_TIMESTAMP: +%Y_%m_%d
-          #; Volumes mounting to host is not supported in CircleCI.
+          # Volumes mounting to host is not supported in CircleCI.
           VOLUMES_MOUNTED: 0
     # Use large resource class for faster builds.
     # Uncomment the line below if your account has this option configured.
@@ -114,7 +114,10 @@ jobs:
             #: Fallback to caching by branch name. Allows to use cache from the
             #: branch build on the previous day.
             - v1-db7-{{ .Branch }}-
-      - run: .circleci/download-db.sh
+      - run:
+          name: Import DB
+          command: .circleci/download-db.sh
+          no_output_timeout: 20m
       - save_cache:
           key: v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
@@ -138,7 +141,10 @@ jobs:
             #: any time.
             #: https://circleci.com/docs/2.0/caching/#restoring-cache
             - v1-db7-{{ .Branch }}-
-      - run: .circleci/build.sh
+      - run:
+          name: Build site
+          command: .circleci/build.sh
+          no_output_timeout: 20m
       - run: .circleci/test.sh
       - run:
           name: Process artifacts
