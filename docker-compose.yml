@@ -200,7 +200,7 @@ services:
   #: Redis container.
   #: Used for caching.
   redis:
-    image: amazeeio/redis:v1.1.2
+    image: amazeeio/redis:v1.2.0
     #;< LAGOON
     labels:
       lagoon.type: redis
