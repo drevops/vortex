@@ -30,10 +30,10 @@ $conf['livereload'] = TRUE;
 // This is usually helpful when developing updates locally.
 // By default, running DB updates will trigger cache clear and all features
 // revert.
-$conf['persistent_update_bypass'] = TRUE;
+// $conf['persistent_update_bypass'] = TRUE;
 
 // Enable context debugging.
-$conf['context_reaction_debug_enable_global'] = TRUE;
+// $conf['context_reaction_debug_enable_global'] = TRUE;
 
 // Enable Views debugging.
 $conf['views_ui_show_advanced_column'] = 1;
