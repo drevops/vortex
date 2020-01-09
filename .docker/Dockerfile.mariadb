@@ -1,0 +1,7 @@
+FROM amazeeio/mariadb-drupal:v1.1.2
+
+USER root
+COPY ./.docker/config/mariadb/my.cnf /etc/my.cnf.d/server.cnf
+RUN fix-permissions /etc/my.cnf.d/
+
+USER mysql

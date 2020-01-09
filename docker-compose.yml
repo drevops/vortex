@@ -179,7 +179,11 @@ services:
 
   #: Database container.
   mariadb:
-    image: amazeeio/mariadb-drupal:v1.1.2
+    #:
+    #: Build docker image to add application files into container.
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.mariadb
     environment:
       <<: *default-environment
     ports:
