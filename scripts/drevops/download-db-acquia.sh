@@ -77,7 +77,7 @@ extract_json_value() {
 self_start_time=$(date +%s)
 
 # Find absolute script path.
-self_dir=$(dirname -- "${BASH_SOURCE[0]}")
+self_dir="$(dirname "$(dirname -- "${BASH_SOURCE[0]}")")"
 self_path=$(cd -P -- "${self_dir}" && pwd -P)/$(basename -- "${BASH_SOURCE[0]}")
 
 # Find absolute project root.
@@ -154,6 +154,9 @@ else
     [ ! -f "${db_dump_file_actual}" ] || [ "${decompress_result}" != 0 ] && echo "==> ERROR: Unable to process DB dump file \"${db_dump_file_actual}\"" && rm -f "${db_dump_compressed}" && rm -f "${db_dump_file_actual}" && exit 1
   fi
 fi
+
+echo "==> Expanded file"
+ls -alh "${db_dump_file_actual}"
 
 # Create a symlink to the latest backup.
 if [ "${latest_backup}" != "0" ] ; then
