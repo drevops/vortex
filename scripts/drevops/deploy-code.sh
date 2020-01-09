@@ -27,7 +27,7 @@ DEPLOY_GIT_REMOTE="${DEPLOY_GIT_REMOTE:-}"
 DEPLOY_GIT_USER_NAME="${DEPLOY_GIT_USER_NAME:-"Deployer Robot"}"
 
 # Name of the user who will be committing to a remote repository.
-DEPLOY_GIT_USER_EMAIL="${DEPLOY_GIT_USER_EMAIL:-deployer@your-site-url}"
+DEPLOY_GIT_USER_EMAIL="${DEPLOY_GIT_USER_EMAIL:-}"
 
 # Source of the code to be used for artifact building.
 DEPLOY_CODE_SRC="${DEPLOY_CODE_SRC:-}"
