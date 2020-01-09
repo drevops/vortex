@@ -96,6 +96,7 @@ command -v curl > /dev/null ||  {
 # Try to read credentials from the stored config file after `drush ac-api-login`.
 if [ "${AC_API_USER_NAME}" == "" ] && [ -f "${AC_CREDENTIALS_FILE}" ]; then
   AC_API_USER_NAME=$(extract_json_value "mail" < "${AC_CREDENTIALS_FILE}")
+  [ "${AC_API_USER_NAME}" == "" ] && AC_API_USER_NAME=$(extract_json_value "email" < "${AC_CREDENTIALS_FILE}")
   AC_API_USER_PASS=$(extract_json_value "key" < "${AC_CREDENTIALS_FILE}")
 fi
 
