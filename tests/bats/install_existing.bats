@@ -151,7 +151,7 @@ load _helper_drevops
   echo "DREVOPS_ALLOW_OVERRIDE=1" >> .env
 
   output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
   assert_output_contains "ATTENTION! RUNNING IN UPDATE MODE"
 
   # Assert no changes were made.
@@ -234,7 +234,7 @@ load _helper_drevops
   touch ".docker/test2.txt"
 
   output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
   assert_output_not_contains "It looks like DrevOps is already installed into this project"
 
   install_dependencies_stub
@@ -251,7 +251,7 @@ load _helper_drevops
   touch ".docker/test2.txt"
 
   output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
   assert_output_not_contains "It looks like DrevOps is already installed into this project"
 
   install_dependencies_stub
@@ -269,7 +269,7 @@ load _helper_drevops
   touch ".docker/test2.txt"
 
   output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
   assert_output_contains "It looks like DrevOps is already installed into this project"
 
   install_dependencies_stub
@@ -283,7 +283,7 @@ load _helper_drevops
 @test "Install into existing: previously installed project, including correct readme; discovery; silent" {
   # Populate current dir with a project at current version.
   output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
   assert_output_not_contains "It looks like DrevOps is already installed into this project"
 
   # Assert files at current version.
@@ -303,7 +303,7 @@ load _helper_drevops
 
   # Run the install again.
   output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
   assert_output_contains "It looks like DrevOps is already installed into this project"
 
   assert_files_present_common

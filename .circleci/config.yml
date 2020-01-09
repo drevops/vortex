@@ -205,14 +205,14 @@ jobs:
           path: /tmp/artifacts
   #;> DEPLOYMENT
   #;----------------------------------------------------------------------------
-  #; DRUPAL-DEV development section. Will be removed during installation/update.
+  #; DREVOPS development section. Will be removed during installation/update.
   #;----------------------------------------------------------------------------
   #;
   #; We are using CircleCI config file to both run the application tests (what
   #; a consumer site would use) and DrevOps's own tests (to make sure that
   #; this project is "buildable" at any time).
   #;
-  #;< DRUPAL-DEV
+  #;< DREVOPS
   #; Test suite for DrevOps.
   drevops_test:
     <<: *container_config
@@ -244,7 +244,7 @@ jobs:
 
   drevops_deploy_tags:
     <<: *job_deploy_tags
-  #;> DRUPAL-DEV
+  #;> DREVOPS
 
 workflows:
   version: 2
@@ -285,10 +285,10 @@ workflows:
               # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
       #;----------------------------------------------------------------------------
-      #; DRUPAL-DEV development section. Will be removed during installation/update.
+      #; DREVOPS development section. Will be removed during installation/update.
       #;----------------------------------------------------------------------------
       #;
-      #;< DRUPAL-DEV
+      #;< DREVOPS
       #; Remove the code below in your project.
       #; Run unit and functional tests for DrevOps.
       - drevops_test:
@@ -324,4 +324,4 @@ workflows:
               ignore: /.*/
             tags:
               only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
-      #;> DRUPAL-DEV
+      #;> DREVOPS

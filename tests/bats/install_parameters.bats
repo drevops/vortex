@@ -14,7 +14,7 @@ load _helper_drevops
 @test "Install parameters: empty dir; proceed switch; silent" {
   export DREVOPS_PROCEED=0
   output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
   assert_files_not_present_common
 }
@@ -41,7 +41,7 @@ load _helper_drevops
     "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
-  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
   assert_files_not_present_common
 }
@@ -50,7 +50,7 @@ load _helper_drevops
   export DREVOPS_PROCEED=0
 
   output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
   assert_output_contains "Name:                          Star wars"
@@ -94,7 +94,7 @@ load _helper_drevops
     "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
-  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
   assert_output_contains "Name:                          Star wars"
@@ -139,7 +139,7 @@ load _helper_drevops
     "nooo" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
-  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
   assert_output_contains "Name:                          Star Wars"
@@ -169,7 +169,7 @@ load _helper_drevops
   rm 1.txt
 
   output=$(run_install)
-  assert_output_contains "WELCOME TO DRUPAL-DEV SILENT INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
   assert_output_contains "Name:                          Resistance new site"
@@ -217,7 +217,7 @@ load _helper_drevops
     "nothing" # remove_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
-  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
   # Note that user input takes precedence over discovered values.
@@ -264,7 +264,7 @@ load _helper_drevops
   )
 
   output=$(run_install_interactive "${answers[@]}")
-  assert_output_contains "WELCOME TO DRUPAL-DEV INTERACTIVE INSTALLER"
+  assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
   # Note that user input takes precedence over discovered values.
@@ -328,5 +328,5 @@ fixture_preinstalled(){
   echo "# Ahoy configuration file." >> .ahoy.yml
 
   # Sets 'remove_drevops_info' to 'Yes'.
-  echo "#;< DRUPAL-DEV" > 1.txt
+  echo "#;< DREVOPS" > 1.txt
 }
