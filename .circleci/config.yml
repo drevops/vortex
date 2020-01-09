@@ -106,7 +106,6 @@ jobs:
             #:
             #: Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
             #:
-            #: Cache based on the branch and timestamp. This will lookup cache
             #: Lookup cache based on the current branch and a timestamp. Allows
             #: to cache results of the very first build on the day (sanitized
             #: database dump, for example) and re-use it in all subsequent builds.
