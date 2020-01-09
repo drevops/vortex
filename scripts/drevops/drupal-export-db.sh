@@ -7,7 +7,7 @@
 set -e
 
 # Path to directory to store the DB dump.
-DB_DUMP_DIR="${DB_DUMP_DIR:-/app/.data}"
+DB_DUMP_DIR="${DB_DUMP_DIR:-.data}"
 
 # Drush alias.
 DRUSH_ALIAS="${DRUSH_ALIAS:-}"
