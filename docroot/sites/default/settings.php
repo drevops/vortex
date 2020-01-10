@@ -61,6 +61,8 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
 // Note that they are overridden for local and CI environments below.
 $conf['shield_user'] = 'CHANGEME';
 $conf['shield_pass'] = 'CHANGEME';
+// Title of the shield pop-up.
+$conf['shield_print'] = 'YOURSITE';
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
