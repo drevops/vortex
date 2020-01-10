@@ -132,6 +132,9 @@ if ($conf['environment'] == ENVIRONMENT_CI) {
   $conf['shield_user'] = '';
   $conf['shield_pass'] = '';
 
+  // Never harden permissions on sites/default/files.
+  $conf['skip_permissions_hardening'] = TRUE;
+
   // Disable mail send out.
   $conf['suspend_mail_send'] = TRUE;
 }
