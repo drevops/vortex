@@ -5,6 +5,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Path to the application.
 APP="${APP:-/app}"

@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Shortcut to set variables, but still allow to override.
 DOCTOR_CHECK_PREFLIGHT="${DOCTOR_CHECK_PREFLIGHT:-0}"

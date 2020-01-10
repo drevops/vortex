@@ -6,6 +6,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Flag to allow lint to fail.
 ALLOW_LINT_FAIL="${ALLOW_LINT_FAIL:-0}"
