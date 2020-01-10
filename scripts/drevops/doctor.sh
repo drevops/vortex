@@ -12,7 +12,7 @@ if [ "${DOCTOR_CHECK_PREFLIGHT}" == "1" ]; then
   DOCTOR_CHECK_TOOLS="${DOCTOR_CHECK_TOOLS:-1}"
   DOCTOR_CHECK_PORT="${DOCTOR_CHECK_PORT:-1}"
   DOCTOR_CHECK_PYGMY="${DOCTOR_CHECK_PYGMY:-1}"
-  DOCTOR_CHECK_CLI="${DOCTOR_CHECK_CLI:-0}"
+  DOCTOR_CHECK_CONTAINERS="${DOCTOR_CHECK_CONTAINERS:-0}"
   DOCTOR_CHECK_SSH="${DOCTOR_CHECK_SSH:-0}"
   DOCTOR_CHECK_WEBSERVER="${DOCTOR_CHECK_WEBSERVER:-0}"
   DOCTOR_CHECK_BOOTSTRAP="${DOCTOR_CHECK_BOOTSTRAP:-0}"
@@ -22,7 +22,7 @@ DOCTOR_CHECK_TOOLS="${DOCTOR_CHECK_TOOLS:-1}"
 DOCTOR_CHECK_DB="${DOCTOR_CHECK_DB:-0}"
 DOCTOR_CHECK_PORT="${DOCTOR_CHECK_PORT:-1}"
 DOCTOR_CHECK_PYGMY="${DOCTOR_CHECK_PYGMY:-1}"
-DOCTOR_CHECK_CLI="${DOCTOR_CHECK_CLI:-1}"
+DOCTOR_CHECK_CONTAINERS="${DOCTOR_CHECK_CONTAINERS:-1}"
 DOCTOR_CHECK_SSH="${DOCTOR_CHECK_SSH:-1}"
 DOCTOR_CHECK_WEBSERVER="${DOCTOR_CHECK_WEBSERVER:-1}"
 DOCTOR_CHECK_BOOTSTRAP="${DOCTOR_CHECK_BOOTSTRAP:-1}"
@@ -73,12 +73,18 @@ main() {
   fi
 
   # Check that the stack is running.
-  if [ "${DOCTOR_CHECK_CLI}" == "1" ]; then
-    if ! docker ps -q --no-trunc | grep "$(docker-compose ps -q cli)" > /dev/null 2>&1; then
-      error "CLI container is not running. Run 'ahoy up'."
-      exit 1
-    fi
-    success "CLI container is running"
+  if [ "${DOCTOR_CHECK_CONTAINERS}" == "1" ]; then
+    docker_services=(cli php nginx mariadb)
+    for docker_service in "${docker_services[@]}"; do
+    # shellcheck disable=SC2143
+      if [ -z "$(docker-compose ps -q "${docker_service}")" ] || [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q "${docker_service}")")" ]; then
+        error "${docker_service} container is not running."
+        error "$(docker-compose logs)"
+        error "Run 'ahoy up'."
+        exit 1
+      fi
+    done
+    success "All containers are running"
   fi
 
   if [ "${DOCTOR_CHECK_SSH}" == "1" ]; then
