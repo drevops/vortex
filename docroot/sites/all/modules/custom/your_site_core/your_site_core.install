@@ -18,6 +18,7 @@ function your_site_core_install() {
     module_enable(['drupal_helpers']);
   }
 
+  // Run all update functions when installing this module.
   $functions = get_defined_functions();
   foreach ($functions['user'] as $function) {
     if (strpos($function, 'your_site_core_update_') === 0) {
