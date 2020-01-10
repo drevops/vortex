@@ -19,6 +19,7 @@
 # and all files that are ignored get removed.
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Remote repository to push code to.
 DEPLOY_GIT_REMOTE="${DEPLOY_GIT_REMOTE:-}"

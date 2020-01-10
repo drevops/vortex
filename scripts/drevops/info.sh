@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 SHOW_LOGIN_LINK="${SHOW_LOGIN_LINK:-}"
 

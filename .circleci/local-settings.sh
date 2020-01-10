@@ -3,7 +3,9 @@
 # Create local settings files.
 #
 # Allows to customise CI build settings.
+
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 echo "<?php" >> docroot/sites/default/settings.local.php
 # Add local settings overrides here.

@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Create screenshots directory in case it was not created before. This is to
 # avoid this script to fail when copying artifacts that may not have been

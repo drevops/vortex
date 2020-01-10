@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # URL of the remote database. If HTTP authentication required, it must be
 # included in the variable.
