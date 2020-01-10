@@ -62,7 +62,7 @@ COPY docroot/sites/all/themes/custom/your_site_theme/Gruntfile.js docroot/sites/
 #: Install NodeJS dependencies.
 #: Since Drupal does not use NodeJS for production, it does not matter if we
 #: install development dependencnies here - they are not exposed in any way.
-RUN npm --prefix docroot/sites/all/themes/custom/your_site_theme install
+RUN npm --prefix docroot/sites/all/themes/custom/your_site_theme install --no-audit --no-progress
 
 #: Copy all files into appllication source directory. Existing files are always
 #: overridden.
