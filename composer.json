@@ -149,7 +149,8 @@
             "drupal/drupal": {
                 "User picture is deleted after calls to user_save() - https://www.drupal.org/node/935592": "https://www.drupal.org/files/issues/935592-151.patch",
                 "Administer Users permission should be separate from Administer Account Settings - https://www.drupal.org/node/366950": "https://www.drupal.org/files/issues/administer_users_-366950-196.patch",
-                "No navigation links on 404 pages - https://www.drupal.org/node/233807": "https://www.drupal.org/files/issues/drupal-navigation_on_403_404-233807-92.patch"
+                "No navigation links on 404 pages - https://www.drupal.org/node/233807": "https://www.drupal.org/files/issues/drupal-navigation_on_403_404-233807-92.patch",
+                "Add a variable to disable fixing file permissions during system_requirements() runtime checks - https://www.drupal.org/project/drupal/issues/1232572": "https://www.drupal.org/files/issues/2019-02-20/1232572-n79.patch"
             },
             "drupal/persistent_update": {
                 "Add an ability to bypass all persistent updates - https://www.drupal.org/node/2824493": "https://www.drupal.org/files/issues/bypass-all-persistent-updates-2824493-3.patch"

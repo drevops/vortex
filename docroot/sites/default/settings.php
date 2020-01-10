@@ -133,6 +133,9 @@ if ($conf['environment'] == ENVIRONMENT_LOCAL) {
   // Show all error messages on the site.
   $conf['error_level'] = 2;
 
+  // Never harden permissions on sites/default/files during local development.
+  $conf['skip_permissions_hardening'] = TRUE;
+
   // Bypass Shield.
   $conf['shield_user'] = '';
   $conf['shield_pass'] = '';
