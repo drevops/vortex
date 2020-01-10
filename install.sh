@@ -40,8 +40,10 @@ DREVOPS_GH_ORG="${DREVOPS_GH_ORG:-drevops}"
 DREVOPS_GH_PROJECT="${DREVOPS_GH_PROJECT:-drevops}"
 # Optional commit to download. If not provided, latest release will be downloaded.
 DREVOPS_COMMIT="${DREVOPS_COMMIT:-}"
-# Flag to display debug information.
+# Flag to display scripts debug information.
 DREVOPS_DEBUG="${DREVOPS_DEBUG:-0}"
+# Flag to display install debug information.
+DREVOPS_INSTALL_DEBUG="${DREVOPS_INSTALL_DEBUG:-0}"
 # Flag to proceed.
 DREVOPS_PROCEED="${DREVOPS_PROCEED:-1}"
 # Temporary directory to download and expand files to.
@@ -143,7 +145,7 @@ gather_answers(){
 
   print_summary "${is_interactive}"
 
-  [ "${DREVOPS_DEBUG}" -ne 0 ] && print_resolved_variables
+  [ "${DREVOPS_INSTALL_DEBUG}" -ne 0 ] && print_resolved_variables
 }
 
 set_answer(){
@@ -171,7 +173,7 @@ download_local(){
   local src="${1}"
   local dst="${2}"
   local commit="${3:-HEAD}"
-  [ "${DREVOPS_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the local repo"
+  [ "${DREVOPS_INSTALL_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the local repo"
 
   echo -n "==> Downloading DrevOps at ref ${commit} from local repo ${src}"
   git --git-dir="${src}/.git" --work-tree="${src}" archive --format=tar "${commit}" \
@@ -189,7 +191,7 @@ download_remote(){
   local project="${3}"
   local release_prefix="${4}"
   local commit="${5:-}"
-  [ "${DREVOPS_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the remote repo"
+  [ "${DREVOPS_INSTALL_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the remote repo"
 
   if [ "${commit}" != "" ]; then
     echo -n "==> Downloading DrevOps at commit ${commit}"
@@ -381,10 +383,10 @@ copy_files(){
       continue
     fi
 
-    [ "${DREVOPS_DEBUG}" -eq 1 ] && echo "==> Processing file ${relative_file}" || echo -n "."
+    [ "${DREVOPS_INSTALL_DEBUG}" -eq 1 ] && echo "==> Processing file ${relative_file}" || echo -n "."
 
     if [ "$(file_is_internal "${relative_file}")" -eq 1 ]; then
-      [ "${DREVOPS_DEBUG}" -eq 1 ] && echo "    Skipping internal DrevOps file ${relative_file}" || echo -n "."
+      [ "${DREVOPS_INSTALL_DEBUG}" -eq 1 ] && echo "    Skipping internal DrevOps file ${relative_file}" || echo -n "."
       continue
     fi
 
@@ -400,17 +402,17 @@ copy_files(){
         if [ -d "${file}" ]; then
           # Symlink files can be directories, so handle them differently.
           cp -fR "${file}" "${relative_parent}/" 2>/dev/null
-          [ "${DREVOPS_DEBUG}" -eq 1 ] && echo "    Copied dir ${relative_file}" || echo -n "."
+          [ "${DREVOPS_INSTALL_DEBUG}" -eq 1 ] && echo "    Copied dir ${relative_file}" || echo -n "."
         elif [ -L "${file}" ]; then
           cp -a "${file}" "${relative_parent}/" 2>/dev/null
-          [ "${DREVOPS_DEBUG}" -eq 1 ] && echo "    Copied symlink ${file} to ${relative_file}" || echo -n "."
+          [ "${DREVOPS_INSTALL_DEBUG}" -eq 1 ] && echo "    Copied symlink ${file} to ${relative_file}" || echo -n "."
         else
           cp -f "${file}" "${relative_file}" 2>/dev/null
-          [ "${DREVOPS_DEBUG}" -eq 1 ] && echo "    Copied file ${relative_file}" || echo -n "."
+          [ "${DREVOPS_INSTALL_DEBUG}" -eq 1 ] && echo "    Copied file ${relative_file}" || echo -n "."
         fi
       fi
     else
-      [ "${DREVOPS_DEBUG}" -eq 1 ] && echo "    Skipped file ${relative_file}" || echo -n "."
+      [ "${DREVOPS_INSTALL_DEBUG}" -eq 1 ] && echo "    Skipped file ${relative_file}" || echo -n "."
     fi
   done
 
@@ -1189,7 +1191,7 @@ dir_contains_string(){
 git_init(){
   local dir="${1}"
   [ -d "${dir}/.git" ] && return
-  [ "${DREVOPS_DEBUG}" -ne 0 ] && echo "DEBUG: Initialising new git repository"
+  [ "${DREVOPS_INSTALL_DEBUG}" -ne 0 ] && echo "DEBUG: Initialising new git repository"
   git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
 }
 
