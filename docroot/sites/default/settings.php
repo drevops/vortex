@@ -4,6 +4,14 @@
  * @file
  * Drupal settings.
  *
+ * The structure of this file:
+ * - Environment constants definitions.
+ * - Site-specific settings.
+ * - Environment variable initialisation.
+ * - Per-environment overrides.
+ * - Inclusion of generated settings.
+ * - Inclusion of local settings.
+ *
  * Create settings.local.php file to include local settings overrides.
  */
 
@@ -26,10 +34,7 @@ if (!defined('ENVIRONMENT_DEV')) {
   define('ENVIRONMENT_DEV', 'dev');
 }
 
-$settings['environment'] = ENVIRONMENT_LOCAL;
-if (getenv('CI')) {
-  $settings['environment'] = ENVIRONMENT_CI;
-}
+$settings['environment'] = getenv('CI') ? ENVIRONMENT_CI : ENVIRONMENT_LOCAL;
 
 $contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir('modules/contrib') ? 'modules/contrib' : 'modules');
 
