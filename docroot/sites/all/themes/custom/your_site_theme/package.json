@@ -21,6 +21,11 @@
     "node-sass": "^4.13.0",
     "sass-lint": "^1.13.1"
   },
+  "browserslist": [
+    "last 2 versions",
+    "not ie <= 8",
+    "iOS >= 7"
+  ],
   "scripts": {
     "build": "grunt",
     "build-dev": "grunt dev",
