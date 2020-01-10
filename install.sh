@@ -1054,6 +1054,7 @@ replace_string_content() {
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
     --exclude-dir=".data" \
+    --exclude-dir="scripts/drevops" \
     -l "${needle}" "${dir}" \
     | xargs sed "${sed_opts[@]}" "s@$needle@$replacement@g"
 }
@@ -1078,6 +1079,7 @@ remove_special_comments() {
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
     --exclude-dir=".data" \
+    --exclude-dir="scripts/drevops" \
     -l "${token}" "${dir}" \
     | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/d"
 }
@@ -1097,6 +1099,7 @@ remove_ignore_comments() {
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
     --exclude-dir=".data" \
+    --exclude-dir="scripts/drevops" \
     -l "${token}" "${dir}" \
     | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/{N;d;}"
 }
@@ -1113,6 +1116,7 @@ remove_special_comments_with_content() {
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
     --exclude-dir=".data" \
+    --exclude-dir="scripts/drevops" \
     -l "#;> $token" "${dir}" \
     | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/#;< $token/,/#;> $token/d"
 }
@@ -1128,6 +1132,7 @@ enable_commented_code() {
     --exclude-dir="vendor" \
     --exclude-dir="node_modules" \
     --exclude-dir=".data" \
+    --exclude-dir="scripts/drevops" \
     -l "##### " "${dir}" \
     | xargs sed "${sed_opts[@]}" -e "s/##### //g"
 }
@@ -1187,6 +1192,7 @@ dir_contains_string(){
     --exclude-dir='vendor' \
     --exclude-dir='node_modules' \
     --exclude-dir=".data" \
+    --exclude-dir="scripts/drevops" \
     -l "${string}" "${dir}"
 }
 
