@@ -108,6 +108,9 @@ $settings['trusted_host_patterns'] = [
 // Note that they are overridden for local and CI environments below.
 $config['shield.settings']['credentials']['shield']['user'] = 'CHANGEME';
 $config['shield.settings']['credentials']['shield']['pass'] = 'CHANGEME';
+// Title of the shield pop-up.
+$config['shield.settings']['print'] = 'YOURSITE';
+
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
