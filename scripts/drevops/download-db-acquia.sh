@@ -17,6 +17,9 @@
 #
 # @see https://cloudapi.acquia.com/#GET__sites__site_envs__env_dbs__db_backups__backup_download-instance_route
 
+set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
+
 #-------------------------------------------------------------------------------
 #                             REQUIRED VARIABLES
 #-------------------------------------------------------------------------------

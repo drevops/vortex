@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Path to the database dump file.
 DB_DUMP="${DB_DUMP:-/tmp/data/db.sql}"

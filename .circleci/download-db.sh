@@ -6,6 +6,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Flag to force DB download even if the cache exists.
 # Usually in CircleCI UI to override per build cache.

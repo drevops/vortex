@@ -11,6 +11,7 @@
 # see ./scripts/drevops/deployment-[type].sh file.
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # The type of deployment. Can be a combination of comma-separated values (to
 # support multiple deployments): code, docker, webhook.

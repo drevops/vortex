@@ -10,6 +10,7 @@
 # see ./scripts/drevops/download-db-[type].sh file.
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # The type of database dump download. Can be one of: ftp, curl, acquia.
 # Defaulting to CURL to allow use demo DB.

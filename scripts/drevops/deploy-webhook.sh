@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # The URL of the webhook to call. Note that any tokens should be added to
 # to the value of this variable outside of this script.

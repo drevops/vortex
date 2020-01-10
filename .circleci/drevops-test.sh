@@ -3,7 +3,9 @@
 # Run DrevOps tests in CI.
 #
 # This file is removed after install/update.
+
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 [ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name" && git config --global user.name "Test user"
 [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email" && git config --global user.email "someone@example.com"
