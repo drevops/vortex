@@ -46,7 +46,7 @@ docker cp -L tests $(docker-compose ps -q cli):/app/
 ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
 # Install all npm dependencies and compile FE assets.
 # Note that this will create/update package-lock.json file.
-ahoy cli "npm --prefix docroot/sites/all/themes/custom/your_site_theme install" && ahoy fe
+ahoy cli "npm --prefix docroot/sites/all/themes/custom/your_site_theme install --no-audit --quiet --no-progress" && ahoy fe
 
 # Install site (from existing DB or fresh install).
 ahoy install-site
