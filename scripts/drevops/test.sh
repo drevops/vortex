@@ -6,6 +6,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Flag to allow Unit tests to fail.
 ALLOW_UNIT_TESTS_FAIL="${ALLOW_UNIT_TESTS_FAIL:-0}"

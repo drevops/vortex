@@ -5,6 +5,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Path to directory to store the DB dump.
 DB_DUMP_DIR="${DB_DUMP_DIR:-.data}"

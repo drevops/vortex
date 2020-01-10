@@ -5,6 +5,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 CUR_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 

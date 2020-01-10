@@ -39,6 +39,7 @@
 # @see ./scripts/drevops/deploy.sh
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 #: Assigning values specific to CircleCI environment.
 export DEPLOY_CODE_SRC="/workspace/code"

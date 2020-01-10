@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Flag to validate composer lock.
 COMPOSER_VALIDATE_LOCK="${COMPOSER_VALIDATE_LOCK:-1}"

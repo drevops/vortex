@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Allow to override tracked files in order to receive updates.
 DREVOPS_ALLOW_OVERRIDE="${DREVOPS_ALLOW_OVERRIDE:-1}"

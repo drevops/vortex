@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # The FTP user.
 FTP_USER="${FTP_USER:-}"

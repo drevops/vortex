@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Change permissions and remove all other untracked files.
 git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -I {} -- bash -c '( chmod 777 "{}" > /dev/null || true ) && ( rm -rf "{}" > /dev/null || true )'

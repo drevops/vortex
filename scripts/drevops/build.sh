@@ -10,6 +10,7 @@
 # (specified in .lagoon.yml file) etc.
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 echo "==> Building project"
 

@@ -4,6 +4,7 @@
 #
 
 set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 rm -rf \
   ./vendor \
