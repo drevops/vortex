@@ -42,7 +42,7 @@ commands:
   up:
     usage: Build and start all or specified Docker containers.
     cmd: |
-      docker-compose up -d "$@" && if docker-compose logs | grep -q "\[Error\]"; then exit 1; fi
+      docker-compose up -d --quiet-pull "$@" && if docker-compose logs | grep -q "\[Error\]"; then exit 1; fi
       #:  Write Livereload host port information into a socket file.
       mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
 
@@ -73,7 +73,7 @@ commands:
 
   pull:
     usage: Pull latest docker images.
-    cmd: if [ ! -z "$(docker image ls -q)" ]; then docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio/ | grep -v none | xargs -n1 docker pull | cat; fi
+    cmd: if [ ! -z "$(docker image ls -q)" ]; then docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio/ | grep -v none | xargs -n1 docker pull -q | cat; fi
 
   cli:
     usage: Start a shell or run a command inside the CLI service container.
