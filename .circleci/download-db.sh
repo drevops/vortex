@@ -18,7 +18,7 @@ DB_SEMAPHORE_FILE="${DB_SEMAPHORE_FILE:-/tmp/db-new}"
 # ------------------------------------------------------------------------------
 
 # Directory where DB dumps are stored.
-DATADIR="${DATADIR:-.data}"
+DATADIR="${DATADIR:-${HOME}/project/.data}"
 
 # Pattern of the DB dump file.
 DB_DUMP_PATTERN="db*.sql"
