@@ -8,7 +8,7 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Path to directory to store the DB dump.
-DB_DUMP_DIR="${DB_DUMP_DIR:-.data}"
+DB_DUMP_DIR="${DB_DUMP_DIR:-/app/.data}"
 
 # Drush alias.
 DRUSH_ALIAS="${DRUSH_ALIAS:-}"
