@@ -4,11 +4,10 @@ options:
 # File Options
 files:
   include:
-    - 'docroot/sites/all/themes/custom/**/*.scss'
-    - 'docroot/sites/all/modules/custom/**/*.scss'
+    - '**/*.scss'
   ignore:
-    - 'docroot/sites/all/themes/custom/**/fonts/**/*.scss'
-    - 'docroot/sites/all/themes/custom/**/build/.*'
+    - 'fonts/**/*.scss'
+    - 'build/.*'
 # Rule Configuration
 rules:
   indentation:
