@@ -88,7 +88,7 @@ assert_ahoy_build(){
   assert_file_not_exists docroot/sites/all/themes/custom/star_wars/build/css/star_wars.css
   # Assert only minified compiled JS exists.
   assert_file_exists docroot/sites/all/themes/custom/star_wars/build/js/star_wars.min.js
-  assert_file_contains docroot/sites/all/themes/custom/star_wars/build/js/star_wars.min.js "function(t,Drupal){\"use strict\";Drupal.behaviors.star_wars"
+  assert_file_contains docroot/sites/all/themes/custom/star_wars/build/js/star_wars.min.js "!function(Drupal){\"use strict\";Drupal.behaviors.star_wars={attach:function(t){"
   assert_file_not_exists docroot/sites/all/themes/custom/star_wars/build/js/star_wars.js
 }
 
