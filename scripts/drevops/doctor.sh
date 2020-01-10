@@ -138,7 +138,8 @@ main() {
   fi
 
   if [ "${DOCTOR_CHECK_WEBSERVER}" == "1" ]; then
-    if ! curl -L -s -o /dev/null -w "%{http_code}" "${LOCALDEV_URL}" | grep -q 200; then
+    # Depending on the type of installation, the homepage may return 200 or 403.
+    if ! curl -L -s -o /dev/null -w "%{http_code}" "${LOCALDEV_URL}" | grep -q '200\|403'; then
       error "Web server is not accessible at http://${LOCALDEV_URL}"
       exit 1
     fi
