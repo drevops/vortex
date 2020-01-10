@@ -6,7 +6,7 @@ There is no need to set values within scripts - update values in `.env` file
 instead.
 
 ## Bash cheatsheet
-[//]: # (#;> Content mostly taken from https://gist.github.com/lee2sman/423ef08fc2318969b3eaaf5d1e14e02e)
+[//]: # ( Content mostly taken from https://gist.github.com/lee2sman/423ef08fc2318969b3eaaf5d1e14e02e)
 
 Full cheatsheet: https://devhints.io/bash
 
