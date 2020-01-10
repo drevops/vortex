@@ -574,8 +574,13 @@ run_install(){
   prepare_fixture_dir "${DREVOPS_TMP_DIR}"
   export DREVOPS_TMP_DIR
 
-  # Enable the line below to show debug information (for easy debug of tests).
+  # Enable the line below to show install debug information (for easy debug of
+  # install script tests).
+  # export DREVOPS_INSTALL_DEBUG=1
+
+  # Enable the line below to show DrevOps debug information (for easy debug of tests).
   # export DREVOPS_DEBUG=1
+
   run "${CUR_DIR}"/install.sh "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
