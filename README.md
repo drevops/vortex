@@ -240,7 +240,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 
 ## Useful projects
 
-- [CI Builder Docker image](https://github.com/integratedexperts/ci-builder) - Docker image for CI builder container with many pre-installed tools.
+- [CI Builder Docker image](https://github.com/drevops/ci-builder) - Docker image for CI builder container with many pre-installed tools.
 - [Behat Steps](https://github.com/integratedexperts/behat-steps) - Collection of Behat step definitions.
 - [Behat Screenshot](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
 - [Behat Progress Fail](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fails inline.
