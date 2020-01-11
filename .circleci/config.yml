@@ -52,8 +52,8 @@ aliases:
     docker:
       #; Using "runner" container where each job will be executed. This container
       #; has all necessary tools to run dockerized environment.
-      #; @see https://github.com/integratedexperts/ci-builder
-      - image: integratedexperts/ci-builder
+      #; @see https://github.com/drevops/ci-builder
+      - image: drevops/ci-builder
         environment:
           # Set timezone to ensure that DB cache key uses correct date.
           TZ: Australia/Melbourne
