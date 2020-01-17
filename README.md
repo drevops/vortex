@@ -317,8 +317,7 @@ Run each command as `ahoy <command>`.
   doctor       Find problems with current project setup.
   down         Stop Docker containers and remove container, images, volumes and networks.
   download-db  Download database.
-  drush        Run drush commands in the CLI service container.
-  export-code  Export built code.
+  drush        Run drush commands in the CLI service container.  
   export-db    Export database dump.
   fe           Build front-end assets.
   fed          Build front-end assets for development.

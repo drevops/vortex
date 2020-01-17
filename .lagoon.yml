@@ -25,11 +25,11 @@ tasks:
           #: in Lagoon (need to contact Amazee support).
           #;> ACQUIA
           #: Import variables from .env file.
-          export $(grep -v '^#' .env | xargs)
+          t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
           #:
-          #: Override resulting file (since we are running in container) and
-          #: download backup.
-          DB_FILE=/tmp/data/db.sql ./scripts/drevops/download-db.sh
+          #: Override resulting file (since we are running in container and
+          #: data should be stored outside of the codebase) and download backup.
+          DB_DIR=/tmp/data ./scripts/drevops/download-db.sh
         service: cli
 
     - run:

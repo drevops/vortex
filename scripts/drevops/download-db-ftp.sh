@@ -21,8 +21,11 @@ FTP_PORT="${FTP_PORT:-}"
 # The file name, including any directories.
 FTP_FILE="${FTP_FILE:-}"
 
-# Downloaded database dump file.
-DB_FILE="${DB_FILE:-.data/db.sql}"
+# Directory with database dump file.
+DB_DIR="${DB_DIR:-./.data}"
+
+# Database dump file name.
+DB_FILE="${DB_FILE:-db.sql}"
 
 #-------------------------------------------------------------------------------
 
@@ -33,6 +36,4 @@ DB_FILE="${DB_FILE:-.data/db.sql}"
 [ -z "${FTP_PORT}" ] && echo "Missing required value for FTP_PORT" && exit 1
 [ -z "${FTP_FILE}" ] && echo "Missing required value for FTP_FILE" && exit 1
 
-mkdir -p "$(dirname "${DB_FILE}")"
-
-curl -u "${FTP_USER}":"${FTP_PASS}" "ftp://${FTP_HOST}:${FTP_PORT}/${FTP_FILE}" -o "${DB_FILE}"
+curl -u "${FTP_USER}":"${FTP_PASS}" "ftp://${FTP_HOST}:${FTP_PORT}/${FTP_FILE}" -o "${DB_DIR}/${DB_FILE}"

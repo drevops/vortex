@@ -1,9 +1,11 @@
 <?php
 
+namespace Drupal\your_site_core\Tests;
+
 /**
- * Class YourSiteDrupalExampleTest.
+ * Class YourSiteCoreExampleTest.
  */
-class YourSiteDrupalExampleTest extends YourSiteDrupalTestCase {
+class YourSiteCoreExampleTest extends YourSiteCoreTestCase {
 
   /**
    * @dataProvider providerModuleListExample
