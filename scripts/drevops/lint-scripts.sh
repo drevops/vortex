@@ -16,6 +16,7 @@ done < <(
     "${CUR_DIR}"/install.sh \
     "${CUR_DIR}"/scripts \
     "${CUR_DIR}"/.circleci \
+    "${CUR_DIR}"/hooks/library \
     "${CUR_DIR}"/tests/bats \
     -type f \
     \( -name "*.sh" -or -name "*.bash" \) \
