@@ -7,7 +7,7 @@
         "cweagans/composer-patches": "^1.6.5",
         "drupal-composer/preserve-paths": "^0.1.5",
         "drupal/coffee": "^2.3",
-        "drupal/drupal": "^7.67",
+        "drupal/drupal": "^7.69",
         "drupal/drupal_helpers": "^1.4",
         "drupal/environment_indicator": "^2.9",
         "drupal/features": "^2.11",
@@ -47,6 +47,7 @@
     },
     "autoload-dev": {
         "classmap": [
+            "docroot/sites/all/modules/custom/your_site_core/tests/unit/",
             "tests/unit/"
         ]
     },

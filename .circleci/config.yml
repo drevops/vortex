@@ -1,10 +1,6 @@
 #:
 #: CircleCI 2.0 configuration file.
 #:
-#: All tasks are located in scripts in `.circleci` directory.
-#: This is to allow per-project override for a particular job without
-#: the need to modify this configuration file.
-#:
 #: Understanding CircleCI 'docker' executor.
 #:
 #: CircleCI uses "runner" container (created from specified Docker image)
@@ -23,30 +19,64 @@
 #: https://circleci.com/docs/2.0/docker-layer-caching/
 #;
 #; Comments starting with '#;', '#;<' or '#;>' (like the ones used for the
-#; current paragraph) are explaining DrevOps inner working and can be safely
+#; current paragraph) are explaining DrevOps inner workings and can be safely
 #; removed for your project. They are automatically removed when installing
-#; DrevOps.
+#; or updating DrevOps.
 version: 2
-aliases:
-  #-----------------------------------------------------------------------------
-  # Variables.
-  #-----------------------------------------------------------------------------
-  #: For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
 
-  # SSH key fingerprint to deploy code. Add private key of the user who is
-  # allowed to push to $DEPLOY_GIT_REMOTE repo under "SSH Permissions" in
-  # CircleCI UI.
+#:###############################################################################
+#: VARIABLES
+#:###############################################################################
+#: For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
+aliases:
+  #:-----------------------------------------------------------------------------
+  #: Per-project variables.
+  #:-----------------------------------------------------------------------------
+
+  # Timezone of the runner container to ensure that DB cache key uses correct date.
+  #; Replace this timezone with your own.
+  #; @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  - &timezone "Australia/Melbourne"
+
+  # SSH key fingerprint to deploy code.
+  #: Generate a separate SSH key for a user who has push permissions to
+  #: $DEPLOY_GIT_REMOTE repo with `ssh-keygen -m PEM -t rsa -C "deployer@example.com"
+  #: command and add private key under "SSH Permissions" in CircleCI UI.
   #;
   #; This is a fingerprint of the key to push DrevOps project itself as an example.
   #; Replace this key fingerprint with your own.
-  #; This is the only part in this file that needs to be changed for your project.
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+
+  #:-----------------------------------------------------------------------------
+  #: Optional variables.
+  #:-----------------------------------------------------------------------------
+
+  # How often to refresh the cache of the DB dump. Refer to `date` command.
+  - &db_cache_timestamp +%Y_%m_%d
+
+  # Database cache directory.
+  - &db_cache_dir ~/project/.data
+
+  # CI runner resource class.
+  # @see https://circleci.com/docs/2.0/configuration-reference/#resource_class
+  # Change to 'large' for faster builds. Requires lodging a support request
+  # with CircleCI o enable this feature.
+  - &resource_class medium
+
+  # Docker Layer Caching allows to significantly speed up builds by caching
+  # images built during previous runs.
+  # @see https://circleci.com/docs/2.0/docker-layer-caching/
+  # Change to 'true' (without single quotes) to enable. Requires lodging a
+  # support request with CircleCI o enable this feature.
+  - &docker_layer_caching false
+
+  #:-----------------------------------------------------------------------------
 
   #: Shared configuration applied to each job.
   - &container_config
     #:
     #: Location of checked-out files within "runner" container.
-    working_directory: ~/project
+    working_directory: &working_directory ~/project
     environment:
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
@@ -55,30 +85,42 @@ aliases:
       #; @see https://github.com/drevops/ci-builder
       - image: drevops/ci-builder
         environment:
-          # Set timezone to ensure that DB cache key uses correct date.
-          TZ: Australia/Melbourne
-          # How often to refresh the cache of DB dump. Refer to `date` command.
-          DB_TIMESTAMP: +%Y_%m_%d
+          # Set timezone to ensure that executed operations use correct timestamps.
+          TZ: *timezone
+          # How often to refresh the cache of the DB dump. Refer to `date` command.
+          DB_TIMESTAMP: *db_cache_timestamp
+          # Directory to store code exported between jobs.
+          BUILD_EXPORT_DIR: &build_export_dir /workspace/code
+          # Directory to store test results.
+          TEST_LOG_DIR: &test_log_dir /tmp/tests
+          # Directory to store test artifacts.
+          TEST_ARTIFACT_DIR: &test_artifact_dir /tmp/artifacts
+          # Directory to use for code deployments.
+          DEPLOY_CODE_SRC: *build_export_dir
+          # Source code location.
+          DEPLOY_CODE_ROOT: *working_directory
+          # Deployment report file location.
+          DEPLOY_REPORT: /tmp/artifacts/deployment_report.txt
+          # Check only minimal stack requirements.
+          DOCTOR_CHECK_MINIMAL: 1
           # Volumes mounting to host is not supported in CircleCI.
           VOLUMES_MOUNTED: 0
-    # Use large resource class for faster builds.
-    # Uncomment the line below if your account has this option configured.
-    # resource_class: xlarge
+    resource_class: *resource_class
 
   # Step to setup remote docker.
   - &step_setup_remote_docker
-    #;< CI_NO_DLC
-      setup_remote_docker
-    #;> CI_NO_DLC
-    #;< CI_DLC
-    # Uncomment lines below if your CircleCI plan supports docker layer caching.
-    # Docker Layer Caching allows to significantly speed up builds by caching
-    # images built during previous runs.
-    # @see https://circleci.com/docs/2.0/docker-layer-caching/
-    # setup_remote_docker:
-    #   docker_layer_caching: true
-    #;> CI_DLC
+     setup_remote_docker:
+       docker_layer_caching: *docker_layer_caching
+  # Step to process the codebase to be ran in CI environment.
+  - &step_process_codebase
+      run:
+        name: Process codebase to run in CI
+        #: Remove lines containing '###' and uncomment comments starting with '##'.
+        command: sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
 
+#:###############################################################################
+#: JOBS
+#:###############################################################################
 jobs:
   #: Database handling is a first step of the build.
   #:
@@ -97,6 +139,7 @@ jobs:
       - attach_workspace:
           at: /workspace
       - checkout
+      - *step_process_codebase
       - *step_setup_remote_docker
       - run:
           name: Set timestamp for database caching
@@ -116,14 +159,17 @@ jobs:
             #: Fallback to caching by branch name. Allows to use cache from the
             #: branch build on the previous day.
             - v1-db7-{{ .Branch }}-
+      #: Download database and run post DB download commands: build site and
+      #: export the database. Note that configuration changes and DB updates
+      #: are not applied, so we could cache the database as it was downloaded.
       - run:
-          name: Import DB
-          command: .circleci/download-db.sh
+          name: Download DB
+          command: DOWNLOAD_POST_PROCESS="export SKIP_POST_DB_IMPORT=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
           no_output_timeout: 20m
       - save_cache:
           key: v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_TIMESTAMP" }}
           paths:
-            - .data
+            - *db_cache_dir
   #;> !FRESH_INSTALL
 
   #; Build and test is a second step of the build. The testing is performed
@@ -135,6 +181,7 @@ jobs:
       - attach_workspace:
           at: /workspace
       - checkout
+      - *step_process_codebase
       - *step_setup_remote_docker
       - restore_cache:
           keys:
@@ -145,15 +192,27 @@ jobs:
             - v1-db7-{{ .Branch }}-
       - run:
           name: Build site
-          command: .circleci/build.sh
+          command: ahoy build
           no_output_timeout: 20m
-      - run: .circleci/test.sh
       - run:
-          name: Process artifacts
-          command: .circleci/process-artifacts.sh
+          name: Lint code
+          command: ahoy lint
+      - run:
+          name: Run tests
+          command: ahoy test
+      - run:
+          name: Process test logs and artifacts
+          command: |
+            [ -n "$(docker-compose ps -q cli)" ] && [ -n "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q cli)")" ] && (
+              ahoy cli mkdir -p "${TEST_LOG_DIR}" && docker cp "$(docker-compose ps -q cli)":"${TEST_LOG_DIR}" "${TEST_LOG_DIR}"
+              ahoy cli mkdir -p "${TEST_ARTIFACT_DIR}" && docker cp "$(docker-compose ps -q cli)":"${TEST_ARTIFACT_DIR}" "${TEST_ARTIFACT_DIR}"
+            ) || true
+          when: always
+      - store_test_results:
+          path: *test_log_dir
           when: always
       - store_artifacts:
-          path: /tmp/artifacts
+          path: *test_artifact_dir
           when: always
       #:
       #: Persisting previously built application code artifact (without
@@ -179,13 +238,12 @@ jobs:
           fingerprints:
             - *deploy_ssh_fingerprint
       - checkout
+      - *step_process_codebase
       - run:
-          #:
-          #: https://github.com/integratedexperts/robo-git-artefact
-          command: .circleci/deploy.sh
+          command: yes | ahoy deploy
           no_output_timeout: 30m
       - store_artifacts:
-          path: /tmp/artifacts
+          path: *test_artifact_dir
 
   # Deploy tags.
   deploy_tags: &job_deploy_tags
@@ -202,6 +260,7 @@ jobs:
           fingerprints:
             - *deploy_ssh_fingerprint
       - checkout
+      - *step_process_codebase
       - run:
           #:
           #: Override deployment branch to contain tags in the branch name.
@@ -209,7 +268,7 @@ jobs:
           command: DEPLOY_GIT_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
           no_output_timeout: 30m
       - store_artifacts:
-          path: /tmp/artifacts
+          path: *test_artifact_dir
   #;> DEPLOYMENT
   #;----------------------------------------------------------------------------
   #; DREVOPS development section. Will be removed during installation/update.
@@ -226,14 +285,19 @@ jobs:
     parallelism: 2
     steps:
       - checkout
+      - *step_process_codebase
       - *step_setup_remote_docker
-      - run: .circleci/drevops-test.sh
+      - run:
+          name: Run functional tests (long)
+          command: .circleci/drevops-test.sh
+          no_output_timeout: 30m
 
   drevops_test_deployment:
     <<: *container_config
     parallelism: 2
     steps:
       - checkout
+      - *step_process_codebase
       - *step_setup_remote_docker
       - add_ssh_keys:
           fingerprints:
@@ -253,6 +317,9 @@ jobs:
     <<: *job_deploy_tags
   #;> DREVOPS
 
+#:###############################################################################
+#: WORKFLOWS
+#:###############################################################################
 workflows:
   version: 2
   main:
@@ -291,9 +358,9 @@ workflows:
             tags:
               # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
-      #;----------------------------------------------------------------------------
+      #;------------------------------------------------------------------------
       #; DREVOPS development section. Will be removed during installation/update.
-      #;----------------------------------------------------------------------------
+      #;------------------------------------------------------------------------
       #;
       #;< DREVOPS
       #; Remove the code below in your project.
@@ -311,6 +378,7 @@ workflows:
             tags:
               only: /.*/
       #; Run actual deployment of DrevOps code to destination codebase (integration test).
+      #; @see https://github.com/drevops/drevops-destination
       - drevops_deploy:
           requires:
             - build
@@ -322,6 +390,7 @@ workflows:
             tags:
               ignore: /.*/
       #; Run actual deployment of DrevOps code to destination codebase (integration test).
+      #; @see https://github.com/drevops/drevops-destination
       - drevops_deploy_tags:
           requires:
             - build

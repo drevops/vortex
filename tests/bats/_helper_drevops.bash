@@ -35,6 +35,8 @@ setup(){
   DST_PROJECT_DIR="${BUILD_DIR}/dst"
   LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   APP_TMP_DIR="${BUILD_DIR}/tmp"
+  TEST_ARTIFACT_DIR="/app"
+  TEST_LOG_DIR="/app/logs"
 
   DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d7.star_wars.sql.md
   export DEMO_DB_TEST
@@ -54,6 +56,8 @@ setup(){
   export DST_PROJECT_DIR
   export LOCAL_REPO_DIR
   export APP_TMP_DIR
+  export TEST_ARTIFACT_DIR
+  export TEST_LOG_DIR
 
   prepare_fixture_dir "${BUILD_DIR}"
   prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
@@ -126,9 +130,9 @@ assert_files_present_common(){
   assert_file_exists "docroot/sites/all/modules/custom/${suffix}_core/${suffix}_core.info"
   assert_file_exists "docroot/sites/all/modules/custom/${suffix}_core/${suffix}_core.install"
   assert_file_exists "docroot/sites/all/modules/custom/${suffix}_core/${suffix}_core.module"
-  assert_file_exists "tests/unit/${suffix_camel_cased}DrupalExampleTest.php"
-  assert_file_exists "tests/unit/${suffix_camel_cased}DrupalTestCase.php"
-  assert_file_exists "tests/unit/${suffix_camel_cased}TestCase.php"
+  assert_file_exists "docroot/sites/all/modules/custom/${suffix}_core/tests/unit/${suffix_camel_cased}CoreExampleTest.php"
+  assert_file_exists "docroot/sites/all/modules/custom/${suffix}_core/tests/unit/${suffix_camel_cased}CoreTestCase.php"
+  assert_file_exists "docroot/sites/all/modules/custom/${suffix}_core/tests/unit/${suffix_camel_cased}CoreTestHelperTrait.php"
 
   # Site theme created.
   assert_dir_exists "docroot/sites/all/themes/custom/${suffix}"
@@ -221,9 +225,9 @@ assert_files_not_present_common(){
   assert_dir_not_exists "docroot/sites/all/modules/custom/${suffix}_core"
   assert_dir_not_exists "docroot/sites/all/themes/custom/${suffix}"
   assert_file_not_exists "docroot/sites/default/default.settings.local.php"
-  assert_file_not_exists "tests/unit/${suffix_camel_cased}DrupalExampleTest.php"
-  assert_file_not_exists "tests/unit/${suffix_camel_cased}DrupalTestCase.php"
-  assert_file_not_exists "tests/unit/${suffix_camel_cased}TestCase.php"
+  assert_file_not_exists "docroot/sites/all/modules/custom/${suffix}_core/tests/unit/${suffix_camel_cased}CoreExampleTest.php"
+  assert_file_not_exists "docroot/sites/all/modules/custom/${suffix}_core/tests/unit/${suffix_camel_cased}CoreTestCase.php"
+  assert_file_not_exists "docroot/sites/all/modules/custom/${suffix}_core/tests/unit/${suffix_camel_cased}CoreTestHelperTrait.php"
 
   assert_file_not_exists "FAQs.md"
   assert_file_not_exists ".ahoy.yml"
@@ -307,7 +311,6 @@ assert_files_present_deployment(){
 
   assert_file_exists ".gitignore.deployment"
   assert_file_exists "DEPLOYMENT.md"
-  assert_file_exists ".circleci/deploy.sh"
   assert_file_contains ".circleci/config.yml" "deploy: &job_deploy"
   assert_file_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
   assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
@@ -324,7 +327,6 @@ assert_files_present_no_deployment(){
 
   assert_file_not_exists ".gitignore.deployment"
   assert_file_not_exists "DEPLOYMENT.md"
-  assert_file_not_exists ".circleci/deploy.sh"
 
   # 'Required' files can be asserted for modifications only if they were not
   # committed.
@@ -814,8 +816,8 @@ substep(){
 # Sync files to host in case if volumes are not mounted from host.
 sync_to_host(){
   local dst="${1:-.}"
-  # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs)
+  # shellcheck disable=SC1090,SC1091
+  [ -f "./.env" ] && t=$(mktemp) && export -p > "$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
   [ "${VOLUMES_MOUNTED}" == "1" ] && return
   docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
 }
@@ -823,8 +825,8 @@ sync_to_host(){
 # Sync files to container in case if volumes are not mounted from host.
 sync_to_container(){
   local src="${1:-.}"
-  # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs)
+  # shellcheck disable=SC1090,SC1091
+  [ -f "./.env" ] && t=$(mktemp) && export -p > "$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
   [ "${VOLUMES_MOUNTED}" == "1" ] && return
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
 }

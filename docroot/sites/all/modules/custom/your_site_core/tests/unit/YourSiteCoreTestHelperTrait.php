@@ -1,11 +1,13 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+namespace Drupal\your_site_core\Tests;
 
 /**
- * Class YourSiteTestCase.
+ * Trait YourSiteCoreTestHelperTrait.
+ *
+ * @package Drupal\your_site_core\Tests
  */
-abstract class YourSiteTestCase extends TestCase {
+trait YourSiteCoreTestHelperTrait {
 
   /**
    * Call protected methods on the class.

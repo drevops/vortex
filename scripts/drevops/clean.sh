@@ -8,6 +8,8 @@ set -e
 
 WEBROOT="${WEBROOT:-docroot}"
 
+# ------------------------------------------------------------------------------
+
 # Remove Drupal files, but preserve explicitly committed files.
 targets=(
 includes

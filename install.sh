@@ -19,11 +19,15 @@ DST_DIR=${1:-${DST_DIR}}
 
 # Load variables from .env file.
 # This reload is required to get latest variable values during 'update' operation.
-# shellcheck disable=SC2046
-[ -f "${DST_DIR}/.env" ] && [ -s "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs)
+# shellcheck disable=SC1090,SC1091
+[ -f "${DST_DIR}/.env" ] && t=$(mktemp) && export -p > "$t" && set -a && . "${DST_DIR}/.env" && set +a && . "$t" && rm "$t" && unset t
 
 # Project name.
 PROJECT="${PROJECT:-}"
+# Directory with database dump file.
+DB_DIR="${DB_DIR:-./.data}"
+# Database dump file name.
+DB_FILE="${DB_FILE:-db.sql}"
 # Drupal version to download files for.
 DRUPAL_VERSION="${DRUPAL_VERSION:-7}"
 # Flag to run this install in interactive mode with user input.
@@ -77,8 +81,8 @@ install(){
   copy_files "${DREVOPS_TMP_DIR}" "${DST_DIR}" "${DREVOPS_ALLOW_OVERRIDE}"
 
   # Reload variables from .env file.
-  # shellcheck disable=SC2046
-  [ -f "${DST_DIR}/.env" ] && [ -s "${DST_DIR}/.env" ] && export $(grep -v '^#' "${DST_DIR}/.env" | xargs)
+  # shellcheck disable=SC1090,SC1091
+  [ -f "${DST_DIR}/.env" ] && t=$(mktemp) && export -p > "$t" && set -a && . "${DST_DIR}/.env" && set +a && . "$t" && rm "$t" && unset t
 
   process_demo
 
@@ -251,7 +255,6 @@ process_stub(){
   if [ "$(get_value "preserve_deployment")" != "Y" ] ; then
     rm "${dir}"/.gitignore.deployment > /dev/null
     rm "${dir}"/DEPLOYMENT.md > /dev/null
-    rm "${dir}"/.circleci/deploy.sh > /dev/null
     remove_special_comments_with_content "DEPLOYMENT" "${dir}" && bash -c "echo -n ."
   fi
 
@@ -344,7 +347,7 @@ is_demo(){
   if [ "$DREVOPS_DEMO" == "" ]; then
     # Only if using canonical-db workflow, DB url is one of the demo URLs
     # and there is no database dump file.
-    if [ "$(get_value "fresh_install")" == "n" ] && [ -z "${CURL_DB_URL##*.dist.sql.md*}" ]  && [ ! -f .data/db.sql ] ; then
+    if [ "$(get_value "fresh_install")" == "n" ] && [ -z "${CURL_DB_URL##*.dist.sql.md*}" ]  && [ ! -f "${DB_DIR}"/"${DB_FILE}" ] ; then
       DREVOPS_DEMO=1
     else
       DREVOPS_DEMO=0
@@ -451,7 +454,7 @@ process_demo(){
   # Download demo database if this is not a fresh install, the DB file does
   # not exist and the demo DB variable exists.
   echo "==> No database dump file found in .data directory. Downloading DEMO database from ${CURL_DB_URL}"
-  mkdir -p .data && curl -L "${CURL_DB_URL}" -o .data/db.sql
+  mkdir -p "${DST_DIR}"/"${DB_DIR}" && curl -L "${CURL_DB_URL}" -o "${DST_DIR}"/"${DB_DIR}"/"${DB_FILE}"
 }
 
 ################################################################################
@@ -629,51 +632,53 @@ discover_value(){
 }
 
 discover_value__name(){
-  if  [ -f "composer.json" ]; then
-    composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/\(.*\) for .*/\1/p'
+  if  [ -f "${DST_DIR}/composer.json" ]; then
+    composer --working-dir="${DST_DIR}" config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/\(.*\) for .*/\1/p'
   fi
 }
 
 discover_value__org(){
-  [ -f "composer.json" ] && composer config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/.* for \(.*\)/\1/p'
+  [ -f "${DST_DIR}/composer.json" ] && composer --working-dir="${DST_DIR}" config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/.* for \(.*\)/\1/p'
 }
 
 discover_value__machine_name(){
-  [ -f "composer.json" ] && composer config name | sed 's/.*\///'
+  [ -f "${DST_DIR}/composer.json" ] && composer --working-dir="${DST_DIR}" config name | sed 's/.*\///'
 }
 
 discover_value__org_machine_name(){
-  [ -f "composer.json" ] && composer config name | sed 's/\/.*//'
+  [ -f "${DST_DIR}/composer.json" ] && composer --working-dir="${DST_DIR}" config name | sed 's/\/.*//'
 }
 
 discover_value__module_prefix(){
-  if ls -d docroot/sites/all/modules/custom/*_core > /dev/null; then
-    # shellcheck disable=SC2012
-    ls -d docroot/sites/all/modules/custom/*_core | head -n 1 | cut -c 34- | sed -n 's/_core//p'
-    return
+  if ls -d "${DST_DIR}"/docroot/sites/all/modules/custom/*_core > /dev/null; then
+    for dir in "${DST_DIR}"/docroot/sites/all/modules/custom/*_core; do
+      basename "${dir}"
+      return
+    done
   fi
 }
 
 discover_value__profile(){
   # Find first non-core profile.
-  if [ -d "docroot/profiles" ]; then
-    grep -rwl "docroot/profiles" -e "Drupal 7 profile implementation of" | xargs basename | rev | cut -c 6- | rev
+  if [ -d "${DST_DIR}/docroot/profiles" ]; then
+    grep -rwl "${DST_DIR}/docroot/profiles" -e "Drupal 7 profile implementation of" | xargs basename | rev | cut -c 6- | rev
   fi
 }
 
 discover_value__theme(){
-  if ls -d docroot/sites/all/themes/custom/* > /dev/null; then
-    # shellcheck disable=SC2012
-    ls -d docroot/sites/all/themes/custom/* | head -n 1 | cut -c 33-
-    return
+  if ls -d "${DST_DIR}"/docroot/sites/all/themes/custom/* > /dev/null; then
+    for dir in "${DST_DIR}"/docroot/sites/all/themes/custom/*; do
+      basename "${dir}"
+      return
+    done
   fi
 }
 
 discover_value__url(){
-  if [ -f "docroot/sites/default/settings.php" ]; then
+  if [ -f "${DST_DIR}/docroot/sites/default/settings.php" ]; then
     # Extract from string $config['stage_file_proxy.settings']['origin'] = 'http://your-site-url/';
     # shellcheck disable=SC2002
-    cat docroot/sites/default/settings.php \
+    cat "${DST_DIR}"/docroot/sites/default/settings.php \
       | grep "config\['stage_file_proxy.settings'\]\['origin'\]" \
       | sed 's/ //g' \
       | cut -c 48- \
@@ -685,32 +690,32 @@ discover_value__url(){
 }
 
 discover_value__fresh_install(){
-  [ ! -f ".ahoy.yml" ] && echo "N" && return
-  { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "download-db:"; } && echo "N" || echo "Y"
+  [ ! -f "${DST_DIR}/.ahoy.yml" ] && echo "N" && return
+  { [ -f "${DST_DIR}/.ahoy.yml" ] && file_contains "${DST_DIR}/.ahoy.yml" "download-db:"; } && echo "N" || echo "Y"
 }
 
 discover_value__preserve_deployment(){
-  [ -f ".gitignore.deployment" ] && echo "Y" || echo "N"
+  [ -f "${DST_DIR}/.gitignore.deployment" ] && echo "Y" || echo "N"
 }
 
 discover_value__preserve_acquia(){
-  { [ -d "hooks" ] || [ -f "scripts/drevops/download-db-acquia.sh" ]; } && echo "Y" || echo "N"
+  { [ -d "${DST_DIR}/hooks" ] || [ -f "${DST_DIR}/scripts/drevops/download-db-acquia.sh" ]; } && echo "Y" || echo "N"
 }
 
 discover_value__preserve_lagoon(){
-  [ -f ".lagoon.yml" ] && echo "Y" || echo "N"
+  [ -f "${DST_DIR}/.lagoon.yml" ] && echo "Y" || echo "N"
 }
 
 discover_value__preserve_ftp(){
-  { [ -f ".env" ] && file_contains ".env" "DOWNLOAD_DB_TYPE=ftp"; } && echo "Y" || echo "N"
+  { [ -f "${DST_DIR}/.env" ] && file_contains "${DST_DIR}/.env" "DOWNLOAD_DB_TYPE=ftp"; } && echo "Y" || echo "N"
 }
 
 discover_value__preserve_dependenciesio(){
-  [ -f "dependencies.yml" ] && echo "Y" || echo "N"
+  [ -f "${DST_DIR}/dependencies.yml" ] && echo "Y" || echo "N"
 }
 
 discover_value__preserve_doc_comments(){
-  { [ -f ".ahoy.yml" ] && file_contains ".ahoy.yml" "Ahoy configuration file."; } && echo "Y" || echo "N"
+  { [ -f "${DST_DIR}/.ahoy.yml" ] && file_contains "${DST_DIR}/.ahoy.yml" "Ahoy configuration file."; } && echo "Y" || echo "N"
 }
 
 discover_value__remove_drevops_info(){
@@ -727,19 +732,19 @@ print_header_interactive(){
 
   echo
   echo "**********************************************************************"
-  echo "          WELCOME TO DREVOPS INTERACTIVE INSTALLER                *"
+  echo "          WELCOME TO DREVOPS INTERACTIVE INSTALLER                   *"
   echo "**********************************************************************"
   echo "*                                                                    *"
   if [ "${commit}" == "" ]; then
-    echo "* This will install the latest version of DrevOps into your       *"
+    echo "* This will install the latest version of DrevOps into your          *"
     echo "* project.                                                           *"
   else
-    echo "* This will install DrevOps into your project at commit           *"
-    echo "* ${commit}                           *"
+    echo "* This will install DrevOps into your project at commit              *"
+    echo "* ${commit}                              *"
   fi
   echo "*                                                                    *"
   if is_installed; then
-    echo "* It looks like DrevOps is already installed into this project.   *"
+    echo "* It looks like DrevOps is already installed into this project.      *"
     echo "*                                                                    *"
   fi
   echo "* Please answer the questions below to install configuration         *"
@@ -766,22 +771,22 @@ print_header_silent(){
 
   echo
   echo "**********************************************************************"
-  echo "*            WELCOME TO DREVOPS SILENT INSTALLER                  *"
+  echo "*            WELCOME TO DREVOPS SILENT INSTALLER                     *"
   echo "**********************************************************************"
   echo "*                                                                    *"
   if [ "${commit}" == "" ]; then
-    echo "* This will install the latest version of DrevOps into your       *"
+    echo "* This will install the latest version of DrevOps into your          *"
     echo "* project.                                                           *"
   else
-    echo "* This will install DrevOps into your project at commit           *"
+    echo "* This will install DrevOps into your project at commit              *"
     echo "* ${commit}                           *"
   fi
   echo "*                                                                    *"
   if is_installed; then
-    echo "* It looks like DrevOps is already installed into this project.   *"
+    echo "* It looks like DrevOps is already installed into this project.      *"
     echo "*                                                                    *"
   fi
-  echo "* DrevOps installer will try to discover the settings from the    *"
+  echo "* DrevOps installer will try to discover the settings from the       *"
   echo "* environment and will install configuration relevant to your site.  *"
   echo "*                                                                    *"
   if [ "${is_override}" -eq 1 ]; then
@@ -1056,7 +1061,25 @@ replace_string_filename() {
   local replacement="${2}"
   local dir="${3}"
 
-  find "${dir}" -depth -name "*${needle}*" -execdir bash -c 'mv -i "${1}" "${1//'"$needle"'/'"$replacement"'}"' bash {} \;
+  # Find all dirs, remove existing new dirs and move them to new names.
+  # This will make sure that any files relying on the parent _renamed_ dirs
+  # are also copied.
+  # shellcheck disable=SC2044
+  for file in $(find "${dir}" -type d -depth -name "*${needle}*"); do
+    newname="${file//$needle/$replacement}"
+    if [ -d "${newname}" ]; then
+      rm -rf "${newname}"
+    fi
+    mv "${file}" "${newname}"
+  done;
+
+  # Rename files.
+  # shellcheck disable=SC2044
+  for file in $(find "${dir}" -type f -depth -name "*${needle}*"); do
+    newname="${file//$needle/$replacement}"
+    mkdir -p "$(dirname "${newname}")"
+    mv "${file}" "${newname}"
+  done;
 }
 
 remove_special_comments() {

@@ -26,7 +26,7 @@ PHP_LINT_EXTENSIONS="${PHP_LINT_EXTENSIONS:-php,inc,module,theme,install}"
 
 # Provide argument as 'be' or 'fe' to lint only back-end or front-end code.
 # If no argument is provided, all code will be linted.
-LINT_TYPE="${1:-befe}"
+LINT_TYPE="${1:-be-fe}"
 
 if [ -z "${LINT_TYPE##*be*}" ]; then
   # Lint code for syntax errors.

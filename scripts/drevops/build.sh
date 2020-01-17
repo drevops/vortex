@@ -14,28 +14,59 @@ set -e
 
 echo "==> Building project"
 
-# Check all pre-requisites before starting the stack.
+# Read variables from .env file, respecting existing environment variable values.
+# shellcheck disable=SC1090,SC1091
+t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
+
+## Check all pre-requisites before starting the stack.
 DOCTOR_CHECK_PREFLIGHT=1 ahoy doctor
 
-# Always "clean" project containers and files since the previous run.
+# Create stub of local network.
+# shellcheck disable=SC2015
+docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network
+
+# Validate Composer configuration if Composer is installed.
+if command -v composer > /dev/null; then
+  if [ "$COMPOSER_VALIDATE_LOCK" = "1" ]; then
+    echo "==> Validating composer configuration, including lock file"
+    composer validate --ansi --strict --no-check-all
+  else
+    echo "==> Validating composer configuration"
+    composer validate --ansi --strict --no-check-all --no-check-lock
+  fi
+fi
+
+echo "==> Removing project containers and packages available since the previous run"
 ahoy clean
 
-# Build images, recreate and start containers.
-ahoy up -- --build --force-recreate
+echo "==> Building images, recreating and starting containers"
+# Starting containers through this script will suppress STDOUT output, but will
+# still show any STDERR output.
+# Running 'ahoy up' directly will show the build progress.
+ahoy up -- --build --force-recreate > /dev/null
 
 # Export code built within containers before adding development dependencies.
-# This is not used locally, but used in CI.
-ahoy export-code
+# This usually is not used locally, but used when production-grade code (without
+# dev dependencies) is used.
+if [ -n "${BUILD_EXPORT_DIR}" ] ; then
+  echo "==> Exporting code before adding development dependencies"
+  mkdir -p "${BUILD_EXPORT_DIR}"
+  docker-compose exec --env BUILD_EXPORT_DIR="${BUILD_EXPORT_DIR}" -T cli ./scripts/drevops/export-code.sh
+  docker cp -L $(docker-compose ps -q cli):"${BUILD_EXPORT_DIR}"/. "${BUILD_EXPORT_DIR}"
+fi
 
-# Install development dependencies.
+# Create data directory in the container and copy database dump file into
+# container, but only if it exists, while also replacing relative directory path
+# with absolute path. Note, that the DB_DIR path is the same inside and outside
+# of the container.
+[ -f "${DB_DIR}"/"${DB_FILE}" ] && ahoy cli mkdir -p "${DB_DIR}" && docker cp -L "${DB_DIR}"/"${DB_FILE}" $(docker-compose ps -q cli):"${DB_DIR/.\//${APP}/}"/"${DB_FILE}"
+
+echo "==> Installing development dependencies"
 #
 # Although we are building dependencies when Docker images are built,
 # development dependencies are not installed (as they should not be installed
 # for production images), so we are installing theme here.
 #
-# Create data directory in the container and copy database dump from data
-# directory on host into container.
-[ -f .data/db.sql ] && ahoy cli mkdir -p /tmp/data && docker cp -L .data/db.sql $(docker-compose ps -q cli):/tmp/data/db.sql
 # Copy development configuration files into container.
 docker cp -L behat.yml $(docker-compose ps -q cli):/app/
 docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/

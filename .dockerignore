@@ -26,7 +26,6 @@ drush/contrib/
 !.env
 !.eslintrc.json
 !.sass-lint.yml
-!config
 !composer.json
 !composer.lock
 !Gruntfile.js

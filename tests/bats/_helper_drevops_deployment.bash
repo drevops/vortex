@@ -109,10 +109,10 @@ provision_site(){
 
   # Special treatment for cases where volumes are not mounted from the host.
   if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
-  sed -i -e "/###/d" docker-compose.yml
-  assert_file_not_contains docker-compose.yml "###"
-  sed -i -e "s/##//" docker-compose.yml
-  assert_file_not_contains docker-compose.yml "##"
+    sed -i -e "/###/d" docker-compose.yml
+    assert_file_not_contains docker-compose.yml "###"
+    sed -i -e "s/##//" docker-compose.yml
+    assert_file_not_contains docker-compose.yml "##"
   fi
 
   step "Add all files to new git repo"
