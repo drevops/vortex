@@ -10,7 +10,7 @@
 # running on hosts without configured drush and drush aliases.
 #
 # It does however supports reading credentials from Acquia cloud config file
-# usually located in $HOME/.acquia/cloudapi.json. To retrieve your Cloud API
+# usually located in ${HOME}/.acquia/cloudapi.json. To retrieve your Cloud API
 # credentials, go to
 # Acquia Cloud UI -> Account -> Credentials -> Cloud API -> E-mail
 # Acquia Cloud UI -> Account -> Credentials -> Cloud API -> Private key->Show
@@ -43,7 +43,7 @@ AC_API_USER_PASS=${AC_API_USER_PASS:-}
 AC_API_DB_BACKUP_ID=${AC_API_DB_BACKUP_ID:-}
 
 # Location of the Acquia Cloud API credentials file after running 'drush ac-api-login'.
-AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-$HOME/.acquia/cloudapi.conf}
+AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-${HOME}/.acquia/cloudapi.conf}
 
 # Directory where DB dumps are stored.
 DATADIR=${DATADIR:-.data}
