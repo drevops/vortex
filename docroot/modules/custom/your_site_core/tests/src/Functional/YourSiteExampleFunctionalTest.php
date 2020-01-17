@@ -7,7 +7,7 @@ namespace Drupal\Tests\your_site_core\Functional;
  *
  * @group YourSiteCore
  */
-class ExampleFunctionalTest extends YourSiteCoreFunctionalTestBase {
+class YourSiteExampleFunctionalTest extends YourSiteCoreFunctionalTestBase {
 
   /**
    * @dataProvider dataProviderAdd

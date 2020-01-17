@@ -3,11 +3,11 @@
 namespace Drupal\Tests\your_site_core\Unit;
 
 /**
- * Class ExampleUnitTest.
+ * Class YourSiteExampleUnitTest.
  *
  * @group YourSiteCore
  */
-class ExampleUnitTest extends YourSiteCoreUnitTestBase {
+class YourSiteExampleUnitTest extends YourSiteCoreUnitTestBase {
 
   /**
    * @dataProvider dataProviderAdd

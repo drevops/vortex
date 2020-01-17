@@ -6,10 +6,19 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
+# Shortcut to set variables for minimal requirements checking.
+DOCTOR_CHECK_MINIMAL="${DOCTOR_CHECK_MINIMAL:-0}"
+if [ "${DOCTOR_CHECK_MINIMAL}" == "1" ]; then
+  DOCTOR_CHECK_PORT=0
+  DOCTOR_CHECK_PYGMY=0
+  DOCTOR_CHECK_SSH=0
+  DOCTOR_CHECK_WEBSERVER=0
+  DOCTOR_CHECK_BOOTSTRAP=0
+fi
+
 # Shortcut to set variables, but still allow to override.
 DOCTOR_CHECK_PREFLIGHT="${DOCTOR_CHECK_PREFLIGHT:-0}"
 if [ "${DOCTOR_CHECK_PREFLIGHT}" == "1" ]; then
-  DOCTOR_CHECK_DB="${DOCTOR_CHECK_DB:-0}"
   DOCTOR_CHECK_TOOLS="${DOCTOR_CHECK_TOOLS:-1}"
   DOCTOR_CHECK_PORT="${DOCTOR_CHECK_PORT:-1}"
   DOCTOR_CHECK_PYGMY="${DOCTOR_CHECK_PYGMY:-1}"
@@ -20,7 +29,6 @@ if [ "${DOCTOR_CHECK_PREFLIGHT}" == "1" ]; then
 fi
 
 DOCTOR_CHECK_TOOLS="${DOCTOR_CHECK_TOOLS:-1}"
-DOCTOR_CHECK_DB="${DOCTOR_CHECK_DB:-0}"
 DOCTOR_CHECK_PORT="${DOCTOR_CHECK_PORT:-1}"
 DOCTOR_CHECK_PYGMY="${DOCTOR_CHECK_PYGMY:-1}"
 DOCTOR_CHECK_CONTAINERS="${DOCTOR_CHECK_CONTAINERS:-1}"
@@ -30,7 +38,8 @@ DOCTOR_CHECK_BOOTSTRAP="${DOCTOR_CHECK_BOOTSTRAP:-1}"
 LOCALDEV_URL="${LOCALDEV_URL:-http://your-site.docker.amazee.io/}"
 SSH_KEY_FILE="${SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}"
 DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
-DATAROOT="${DATAROOT:-.data}"
+DB_DIR="${DB_DIR:-./.data}"
+DB_FILE="${DB_FILE:-db.sql}"
 
 #-------------------------------------------------------------------------------
 #                    DO NOT CHANGE ANYTHING BELOW THIS LINE
@@ -49,13 +58,6 @@ main() {
     [ "$(command_exists pygmy)" == "1" ] && error "Please install Pygmy (https://pygmy.readthedocs.io/)" && exit 1
     [ "$(command_exists ahoy)" == "1" ] && error "Please install Ahoy (https://ahoy-cli.readthedocs.io/)" && exit 1
     success "All required tools are present"
-  fi
-
-  if [ "${DOCTOR_CHECK_DB}" == "1" ]; then
-      if [ ! -e "${DATAROOT}/db.sql" ]; then
-        error "Unable to find database dump file \"${DATAROOT}/db.sql\". Please place db.sql file into \"${DATAROOT}\" or configure one of the integrations and use \"ahoy download-db\".";
-      fi
-      success "Database dump exists ${DATAROOT}/db.sql"
   fi
 
   if [ "${DOCTOR_CHECK_PORT}" == "1" ]; then

@@ -220,4 +220,4 @@ Source another script - will be executed in the context of the current script:
 
 DotEnv in bash:
 
-    [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs)
+    t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t

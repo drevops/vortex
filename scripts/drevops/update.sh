@@ -7,13 +7,13 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Allow to override tracked files in order to receive updates.
-DREVOPS_ALLOW_OVERRIDE="${DREVOPS_ALLOW_OVERRIDE:-1}"
+export DREVOPS_ALLOW_OVERRIDE="${DREVOPS_ALLOW_OVERRIDE:-1}"
 
 # Allow to provide custom DrevOps commit hash to download the sources from.
-DREVOPS_COMMIT="${DREVOPS_COMMIT:-}"
+export DREVOPS_COMMIT="${DREVOPS_COMMIT:-}"
 
 # The URL of the install script.
-INSTALL_URL="${INSTALL_URL:-https://raw.githubusercontent.com/drevops/drevops/${DRUPAL_VERSION}.x/install.sh}"
+export INSTALL_URL="${INSTALL_URL:-https://raw.githubusercontent.com/drevops/drevops/${DRUPAL_VERSION}.x/install.sh}"
 
 # ------------------------------------------------------------------------------
 

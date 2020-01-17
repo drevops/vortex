@@ -27,7 +27,10 @@ bats tests/bats/install_parameters.bats --tap
 bats tests/bats/install_integrations.bats --tap
 bats tests/bats/install_initial.bats --tap
 bats tests/bats/install_existing.bats --tap
+bats tests/bats/install_demo.bats --tap
+bats tests/bats/env.bats --tap
 bats tests/bats/clean.bats --tap
+bats tests/bats/update.bats --tap
 
 index="${CIRCLE_NODE_INDEX:-*}"
 echo "==> Test workflows (${index})"

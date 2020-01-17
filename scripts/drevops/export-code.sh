@@ -7,7 +7,7 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Directory to store exported code.
-BUILD_EXPORT_DIR="${BUILD_EXPORT_DIR:-/tmp/code}"
+BUILD_EXPORT_DIR="${BUILD_EXPORT_DIR:-}"
 
 # Path to application.
 APP="${APP:-/app}"

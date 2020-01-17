@@ -4,21 +4,64 @@
 #
 # Download is supported from FTP, CURL or Acquia Cloud.
 #
-# This is a router script to call relevant deployment scripts based on type.
+# This is a router script to call relevant database download scripts based on type.
 #
-# For required variables based on the deployment type,
+# For required variables based on the download type,
 # see ./scripts/drevops/download-db-[type].sh file.
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # The type of database dump download. Can be one of: ftp, curl, acquia.
-# Defaulting to CURL to allow use demo DB.
+# Defaulting to CURL to allow using of demo DB.
 DOWNLOAD_DB_TYPE="${DOWNLOAD_DB_TYPE:-curl}"
+
+# Flag to force DB download even if the cache exists.
+# Usually in CircleCI UI to override per build cache.
+FORCE_DB_DOWNLOAD="${FORCE_DB_DOWNLOAD:-}"
+
+# Directory with database dump file.
+DB_DIR="${DB_DIR:-./.data}"
+
+# Database dump file name.
+DB_FILE="${DB_FILE:-db.sql}"
+
+# Kill-switch to proceed with download.
+DB_DOWNLOAD_PROCEED="${DB_DOWNLOAD_PROCEED:-1}"
 
 # ------------------------------------------------------------------------------
 
-[ -z "${DOWNLOAD_DB_TYPE}" ] && echo "Missing required value for DOWNLOAD_DB_TYPE. Must be one of: ftp, curl, acquia." && exit 1
+# Pattern of the DB dump file.
+DB_FILE_PATTERN="db*.sql"
+
+# Post process command or a script used for running after the database was downloaded.
+DOWNLOAD_POST_PROCESS="${DOWNLOAD_POST_PROCESS:-}"
+
+# Kill-switch to proceed with download.
+[ "${DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "==> Skipping database download as $DB_DOWNLOAD_PROCEED is not set to 1" && exit 0
+
+# Check provided download type.
+[ -z "${DOWNLOAD_DB_TYPE}" ] && echo "ERROR: Missing required value for DOWNLOAD_DB_TYPE. Must be one of: ftp, curl, acquia." && exit 1
+
+# Check if database file exists.
+[ -d "${DB_DIR}" ] && found_db=$(find "${DB_DIR}" -name "${DB_FILE_PATTERN}")
+
+if [ -n "${found_db}" ]; then
+  echo "==> Found existing database dump file ${found_db}"
+  ls -alh "${DB_DIR}/${DB_FILE}"
+
+  if [ -z "${FORCE_DB_DOWNLOAD}" ] ; then
+    echo "==> Using existing database dump file ${found_db}. Download will not proceed. Remove existing database file or set FORCE_DB_DOWNLOAD flag to force download." && exit 0
+  else
+    echo "==> Forcefully downloading database"
+  fi
+fi
+
+mkdir -p "${DB_DIR}"
+
+# Export DB dir and file variables as they are used in child scripts.
+export DB_DIR
+export DB_FILE
 
 if [ "${DOWNLOAD_DB_TYPE}" == "ftp" ]; then
   echo "==> Starting database dump download from FTP"
@@ -33,4 +76,12 @@ fi
 if [ "${DOWNLOAD_DB_TYPE}" == "acquia" ]; then
   echo "==> Starting database dump download from Acquia"
   ./scripts/drevops/download-db-acquia.sh
+fi
+
+echo "==> Downloaded database dump file ${DB_DIR}/${DB_FILE}"
+ls -alh "${DB_DIR}/${DB_FILE}"
+
+if [ -n "${DOWNLOAD_POST_PROCESS}" ]; then
+  echo "==> Running database post download processing command(s) '${DOWNLOAD_POST_PROCESS}'"
+  eval "${DOWNLOAD_POST_PROCESS}"
 fi
