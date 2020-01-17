@@ -6,44 +6,47 @@
 # Place your domains into domains.txt file.
 #
 # IMPORTANT! This script uses drush ac-* commands and requires credentials
-# for Acquia Cloud. Make sure that file "$HOME/.acquia/cloudapi.conf" exists and
-# follow deployment instructions if it does not.
+# for Acquia Cloud. Make sure that file "${HOME}/.acquia/cloudapi.conf" exists
+# and follow deployment instructions if it does not.
 
 set -e
 set -x
 
-site="$1"
-target_env="$2"
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-DOMAINS_FILE=$DIR/../../library/domains.txt
+SITE="${1}"
+TARGET_ENV="${2}"
+DOMAINS_FILE="${DOMAINS_FILE:-../../library/domains.txt}"
 
-[ ! -f "$DOMAINS_FILE" ] && echo "ERROR: File with domains does not exist." && exit 1
-[ ! -f "$HOME/.acquia/cloudapi.conf" ] && echo "ERROR: Acquia Cloud API credentials file $HOME/.acquia/cloudapi.conf does not exist." && exit 1
+# ------------------------------------------------------------------------------
 
-while read domain; do
-  TARGET_ENV=$target_env
+[ ! -f "${DOMAINS_FILE}" ] && echo "ERROR: File with domains does not exist." && exit 1
+[ ! -f "${HOME}/.acquia/cloudapi.conf" ] && echo "ERROR: Acquia Cloud API credentials file ${HOME}/.acquia/cloudapi.conf does not exist." && exit 1
+
+while read -r domain; do
+  current_env="${TARGET_ENV}"
   # Strip placeholder for PROD environment.
-  if [ "$TARGET_ENV" == "prod" ] ; then
-    domain=${domain//\$TARGET_ENV./}
+  if [ "${current_env}" == "prod" ] ; then
+    domain="${domain//\$this_env./}"
   fi
 
   # Re-map 'test' to 'stg'.
-  if [ "$TARGET_ENV" == "test" ] ; then
-    TARGET_ENV=stage
+  if [ "${current_env}" == "test" ] ; then
+    current_env=stage
   fi
 
   # Disable replacement for unknown environments.
-  if [ "$TARGET_ENV" != "dev" ] && [ "$TARGET_ENV" != "stage" ] ; then
-    TARGET_ENV=""
+  if [ "${current_env}" != "dev" ] && [ "${current_env}" != "stage" ] ; then
+    current_env=""
   fi
 
   # Proceed only if the environment was provided.
-  if [ "$TARGET_ENV" != "" ] ; then
+  if [ "${current_env}" != "" ] ; then
     # Interpolate variables in domain name.
-    domain=$(eval echo $domain)
+    domain="$(eval echo "${domain}")"
 
     # Clear varnish cache.
-    echo drush @$site.$target_env ac-domain-purge $domain
-    drush @$site.$target_env ac-domain-purge $domain || true
+    # shellcheck disable=SC2086
+    echo drush @${SITE}.${current_env} ac-domain-purge "${domain}"
+    # shellcheck disable=SC2086
+    drush @${SITE}.${current_env} ac-domain-purge "${domain}" || true
   fi
-done <$DOMAINS_FILE
+done < "${DOMAINS_FILE}"
