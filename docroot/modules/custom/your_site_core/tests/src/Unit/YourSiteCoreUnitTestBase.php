@@ -3,7 +3,7 @@
 namespace Drupal\Tests\your_site_core\Unit;
 
 use Drupal\Tests\UnitTestCase;
-use Drupal\Tests\your_site_core\Traits\MockHelperTrait;
+use Drupal\your_site_core\Tests\YourSiteCoreTestHelperTrait;
 
 /**
  * Class YourSiteCoreUnitTestBase.
@@ -12,6 +12,6 @@ use Drupal\Tests\your_site_core\Traits\MockHelperTrait;
  */
 abstract class YourSiteCoreUnitTestBase extends UnitTestCase {
 
-  use MockHelperTrait;
+  use YourSiteCoreTestHelperTrait;
 
 }

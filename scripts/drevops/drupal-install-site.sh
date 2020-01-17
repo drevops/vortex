@@ -35,8 +35,11 @@ DRUPAL_CONFIG_LABEL="${DRUPAL_CONFIG_LABEL:-sync}"
 # Path to private files.
 DRUPAL_PRIVATE_FILES="${DRUPAL_PRIVATE_FILES:-${APP}/${WEBROOT}/sites/default/files/private}"
 
-# Path to the database dump file.
-DB_DUMP="${DB_DUMP:-.data/db.sql}"
+# Directory with database dump file.
+DB_DIR="${DB_DIR:-./.data}"
+
+# Database dump file name.
+DB_FILE="${DB_FILE:-db.sql}"
 
 # Flag to export database before import.
 DB_EXPORT_BEFORE_IMPORT="${DB_EXPORT_BEFORE_IMPORT:-0}"
@@ -60,9 +63,9 @@ mkdir -p "${DRUPAL_PRIVATE_FILES}"
 
 # Import database dump if present, or install fresh website from the profile if
 # site is not already installed.
-if [ -z "${SKIP_DB_IMPORT}" ] && [ -f "${DB_DUMP}" ]; then
-  echo "==> Using existing DB dump ${DB_DUMP}"
-  DB_DUMP=${DB_DUMP} ./scripts/drevops/drupal-import-db.sh
+if [ -z "${SKIP_DB_IMPORT}" ] && [ -f "${DB_DIR}/${DB_FILE}" ]; then
+  echo "==> Using existing DB dump ${DB_DIR}/${DB_FILE}"
+  DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" ./scripts/drevops/drupal-import-db.sh
 elif drush status --fields=bootstrap | grep -q "Successful"; then
   echo "==> Existing site found"
 else

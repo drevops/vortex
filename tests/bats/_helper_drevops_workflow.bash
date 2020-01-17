@@ -140,29 +140,37 @@ assert_ahoy_cli(){
 }
 
 assert_env_changes(){
-  step "Updated .env file and apply changes"
+  step "Update .env file and apply changes"
 
+  # Assert that .env does not contain test values.
   assert_file_not_contains ".env" "MY_CUSTOM_VAR"
   assert_file_not_contains ".env" "my_custom_var_value"
+  # Assert that test variable is not available inside of containers.
   run ahoy cli "printenv | grep -q MY_CUSTOM_VAR"
   assert_failure
+  # Assert that test value is not available inside of containers.
   run ahoy cli "echo \$MY_CUSTOM_VAR | grep -q my_custom_var_value"
   assert_failure
   assert_output_not_contains "my_custom_var_value"
 
+  # Add variable to the .env file and apply the change to container.
   add_var_to_file .env "MY_CUSTOM_VAR" "my_custom_var_value"
   ahoy up cli
   sync_to_container
 
+  # Assert that .env contains test values.
   assert_file_contains ".env" "MY_CUSTOM_VAR"
   assert_file_contains ".env" "my_custom_var_value"
+  # Assert that test variable and values are available inside of containers.
   run ahoy cli "printenv | grep MY_CUSTOM_VAR"
   assert_success
   assert_output_contains "my_custom_var_value"
+  # Assert that test variable and value are available inside of containers.
   run ahoy cli "echo \$MY_CUSTOM_VAR | grep my_custom_var_value"
   assert_output_contains "my_custom_var_value"
   assert_success
 
+  # Restore file, apply changes and assert that original behaviour has been restored.
   restore_file ".env"
   ahoy up cli
   sync_to_container
@@ -267,17 +275,25 @@ assert_ahoy_test_unit(){
   ahoy test-unit
 
   step "Assert that Drupal Unit test failure bypassing works"
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Unit/ExampleUnitTest.php
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Unit/YourSiteExampleUnitTest.php
   sync_to_container
 
   # Assert failure.
   run ahoy test-unit
   [ "${status}" -eq 1 ]
+  sync_to_host
+  assert_dir_not_empty logs
+  assert_file_exists logs/phpunit.xml
+
+  rm -R logs
 
   # Assert failure bypass.
   add_var_to_file .env "ALLOW_UNIT_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
   run ahoy test-unit
   [ "${status}" -eq 0 ]
+  sync_to_host
+  assert_dir_not_empty logs
+  assert_file_exists logs/phpunit.xml
   restore_file .env && ahoy up cli
 }
 
@@ -287,7 +303,7 @@ assert_ahoy_test_kernel(){
   ahoy test-kernel
 
   step "Assert that Kernel test failure bypassing works"
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Kernel/ExampleKernelTest.php
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Kernel/YourSiteExampleKernelTest.php
   sync_to_container
 
   # Assert failure.
@@ -307,7 +323,7 @@ assert_ahoy_test_functional(){
   ahoy test-functional
 
   step "Assert that Functional test failure bypassing works"
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Functional/ExampleFunctionalTest.php
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Functional/YourSiteExampleFunctionalTest.php
   sync_to_container
 
   # Assert failure.
@@ -448,7 +464,7 @@ assert_export_on_install_site(){
   ahoy download-db
   ahoy install-site
   sync_to_host
-  assert_file_exists .data/db_export_*
+  assert_file_exists .data/export_db_*
 
   restore_file .env && ahoy up cli && sync_to_container
 }

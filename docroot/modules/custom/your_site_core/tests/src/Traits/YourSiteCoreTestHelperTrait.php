@@ -1,15 +1,13 @@
 <?php
 
-namespace Drupal\Tests\your_site_core\Traits;
+namespace Drupal\your_site_core\Tests;
 
 /**
- * Trait MockHelperTrait.
+ * Trait YourSiteCoreTestHelperTrait.
  *
- * Helper trait to work with mocks.
- *
- * @package Drupal\Tests\your_site_core
+ * @package Drupal\your_site_core\Tests
  */
-trait MockHelperTrait {
+trait YourSiteCoreTestHelperTrait {
 
   /**
    * Call protected methods on the class.
@@ -68,7 +66,7 @@ trait MockHelperTrait {
     $property = $class->getProperty($property);
     $property->setAccessible(TRUE);
 
-    return $property->getValue($object);
+    return $property->getValue($class);
   }
 
   /**

@@ -35,6 +35,8 @@ setup(){
   DST_PROJECT_DIR="${BUILD_DIR}/dst"
   LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   APP_TMP_DIR="${BUILD_DIR}/tmp"
+  TEST_ARTIFACT_DIR="/app"
+  TEST_LOG_DIR="/app/logs"
 
   DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d8.star_wars.sql.md
   export DEMO_DB_TEST
@@ -54,6 +56,8 @@ setup(){
   export DST_PROJECT_DIR
   export LOCAL_REPO_DIR
   export APP_TMP_DIR
+  export TEST_ARTIFACT_DIR
+  export TEST_LOG_DIR
 
   prepare_fixture_dir "${BUILD_DIR}"
   prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
@@ -126,11 +130,11 @@ assert_files_present_common(){
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.install"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.module"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/ExampleUnitTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/YourSiteExampleUnitTest.php"
   assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreUnitTestBase.php"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Kernel/ExampleKernelTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
   assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Kernel/${suffix_camel_cased}CoreKernelTestBase.php"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Functional/ExampleFunctionalTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
   assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Functional/${suffix_camel_cased}CoreFunctionalTestBase.php"
 
   # Site theme created.
@@ -235,11 +239,11 @@ assert_files_not_present_common(){
   assert_dir_not_exists "docroot/themes/custom/${suffix}"
   assert_file_not_exists "docroot/sites/default/default.settings.local.php"
   assert_file_not_exists "docroot/sites/default/default.services.local.yml"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/ExampleUnitTest.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteExampleUnitTest.php"
   assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Kernel/ExampleKernelTest.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
   assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Functional/ExampleFunctionalTest.php"
+  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
   assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
 
   assert_file_not_exists "FAQs.md"
@@ -335,7 +339,6 @@ assert_files_present_deployment(){
 
   assert_file_exists ".gitignore.deployment"
   assert_file_exists "DEPLOYMENT.md"
-  assert_file_exists ".circleci/deploy.sh"
   assert_file_contains ".circleci/config.yml" "deploy: &job_deploy"
   assert_file_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
   assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
@@ -352,7 +355,6 @@ assert_files_present_no_deployment(){
 
   assert_file_not_exists ".gitignore.deployment"
   assert_file_not_exists "DEPLOYMENT.md"
-  assert_file_not_exists ".circleci/deploy.sh"
 
   # 'Required' files can be asserted for modifications only if they were not
   # committed.
@@ -804,6 +806,27 @@ git_init(){
   fi
 }
 
+# Replace string content in the directory.
+replace_string_content() {
+  local needle="${1}"
+  local replacement="${2}"
+  local dir="${3}"
+  local sed_opts
+
+  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+
+  set +e
+  grep -rI \
+  --exclude-dir=".git" \
+  --exclude-dir=".idea" \
+  --exclude-dir="vendor" \
+  --exclude-dir="node_modules" \
+  --exclude-dir=".data" \
+  -l "${needle}" "${dir}" \
+  | xargs sed "${sed_opts[@]}" "s@$needle@$replacement@g" || true
+  set -e
+}
+
 # Print step.
 step(){
   debug ""
@@ -820,8 +843,8 @@ substep(){
 # Sync files to host in case if volumes are not mounted from host.
 sync_to_host(){
   local dst="${1:-.}"
-  # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs)
+  # shellcheck disable=SC1090,SC1091
+  [ -f "./.env" ] && t=$(mktemp) && export -p > "$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
   [ "${VOLUMES_MOUNTED}" == "1" ] && return
   docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
 }
@@ -829,8 +852,8 @@ sync_to_host(){
 # Sync files to container in case if volumes are not mounted from host.
 sync_to_container(){
   local src="${1:-.}"
-  # shellcheck disable=SC2046
-  [ -f ".env" ] && export $(grep -v '^#' ".env" | xargs)
+  # shellcheck disable=SC1090,SC1091
+  [ -f "./.env" ] && t=$(mktemp) && export -p > "$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
   [ "${VOLUMES_MOUNTED}" == "1" ] && return
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
 }

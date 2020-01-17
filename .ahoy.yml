@@ -107,11 +107,11 @@ commands:
 
   install-site:
     usage: Install a site.
-    cmd: docker-compose exec -T cli ./scripts/drevops/drupal-install-site.sh
+    cmd: docker-compose exec -e SKIP_POST_DB_IMPORT=${SKIP_POST_DB_IMPORT:-} -T cli ./scripts/drevops/drupal-install-site.sh
 
   export-db:
     usage: Export database dump.
-    cmd: docker-compose exec -e DB_DUMP_DIR=${DB_DUMP_DIR:-} -T cli ./scripts/drevops/drupal-export-db.sh "$@"
+    cmd: docker-compose exec -e DB_DIR=${DB_DIR:-} -T cli ./scripts/drevops/drupal-export-db.sh "$@"
 
   clean:
     usage: Remove containers and all build files.
@@ -135,13 +135,6 @@ commands:
     usage: Watch front-end assets during development.
     cmd: ahoy cli "cd docroot/themes/custom/your_site_theme && npm run watch"
 
-  export-code:
-    usage: Export built code.
-    cmd: |
-      [ -z "${BUILD_EXPORT_DIR}" ] && exit
-      mkdir -p "${BUILD_EXPORT_DIR}" && docker-compose exec --env BUILD_EXPORT_DIR="${BUILD_EXPORT_DIR}" -T cli ./scripts/drevops/export-code.sh
-      docker cp -L $(docker-compose ps -q cli):"${BUILD_EXPORT_DIR}"/. ${BUILD_EXPORT_DIR}
-
   lint:
     usage: Lint back-end and front-end code.
     cmd: ahoy cli ./scripts/drevops/lint.sh "$@"
@@ -156,23 +149,23 @@ commands:
 
   test:
     usage: Run all tests.
-    cmd: ahoy cli ./scripts/drevops/test.sh unit-kernel-functional-bdd
+    cmd: ahoy cli "TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} TEST_LOG_DIR=${TEST_LOG_DIR} ./scripts/drevops/test.sh"
 
   test-unit:
     usage: Run Simpletest unit tests.
-    cmd: ahoy cli ./scripts/drevops/test.sh unit "$@"
+    cmd: ahoy cli "TEST_TYPE=unit TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} TEST_LOG_DIR=${TEST_LOG_DIR} ./scripts/drevops/test.sh $@"
 
   test-kernel:
     usage: Run Simpletest kernel tests.
-    cmd: ahoy cli ./scripts/drevops/test.sh kernel "$@"
+    cmd: ahoy cli "TEST_TYPE=kernel TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} TEST_LOG_DIR=${TEST_LOG_DIR} ./scripts/drevops/test.sh $@"
 
   test-functional:
     usage: Run Simpletest functional tests.
-    cmd: ahoy cli ./scripts/drevops/test.sh functional "$@"
+    cmd: ahoy cli "TEST_TYPE=functional TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} TEST_LOG_DIR=${TEST_LOG_DIR} ./scripts/drevops/test.sh $@"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "export BEHAT_PROFILE=${BEHAT_PROFILE:-} && ./scripts/drevops/test.sh bdd $@"
+    cmd: ahoy cli "TEST_TYPE=bdd TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} TEST_LOG_DIR=${TEST_LOG_DIR} BEHAT_PROFILE=${BEHAT_PROFILE:-} ./scripts/drevops/test.sh $@"
 
   debug:
     usage: Enable debug configuration.
@@ -209,8 +202,7 @@ entrypoint:
   - -c
   #: Exit the script if any statement returns a non-true return value.
   - -e
-  #: Read variables from .env file (if exists and not empty)
-  #: (if exists and not empty).
+  #: Read variables from .env file, respecting existing environment variable values.
   #:
   #: It is important to understand that variables set in .env file are already
   #: available inside of the containers after stack is running (as a part of
@@ -224,7 +216,7 @@ entrypoint:
   #:
   #: As a rule of thumb, use `ahoy up cli` to apply changes to variables.
   - |
-    [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs)
+    t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
     bash -e -c "$0" "$@"
   #: Replaced with your command.
   - '{{cmd}}'
