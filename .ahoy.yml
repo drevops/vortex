@@ -149,15 +149,15 @@ commands:
 
   test:
     usage: Run all tests.
-    cmd: ahoy cli "TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} TEST_LOG_DIR=${TEST_LOG_DIR} ./scripts/drevops/test.sh"
+    cmd: ahoy test-unit && ahoy test-bdd
 
   test-unit:
     usage: Run Simpletest unit tests.
-    cmd: ahoy cli "TEST_TYPE=unit TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} TEST_LOG_DIR=${TEST_LOG_DIR} ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "TEST_TYPE=unit TEST_LOG_DIR=${TEST_LOG_DIR} ./scripts/drevops/test.sh $@"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "TEST_TYPE=bdd TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} TEST_LOG_DIR=${TEST_LOG_DIR} BEHAT_PROFILE=${BEHAT_PROFILE:-} ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "TEST_TYPE=bdd TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} BEHAT_PROFILE=${BEHAT_PROFILE:-} BEHAT_FORMAT=${BEHAT_FORMAT:-} BEHAT_PARALLEL_INDEX=${BEHAT_PARALLEL_INDEX:-} ./scripts/drevops/test.sh $@"
 
   debug:
     usage: Enable debug configuration.
