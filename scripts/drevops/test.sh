@@ -47,6 +47,10 @@ BEHAT_PROFILE="${BEHAT_PROFILE:-default}"
 # Behat format. Optional. Defaults to "pretty".
 BEHAT_FORMAT="${BEHAT_FORMAT:-pretty}"
 
+# Behat test runner index. If is set  - the value is used as a suffix for the
+# parallel Behat profile name (e.g., p0, p1).
+BEHAT_PARALLEL_INDEX="${BEHAT_PARALLEL_INDEX:-}"
+
 # ------------------------------------------------------------------------------
 
 # Get test type or fallback to defaults.
@@ -90,14 +94,10 @@ if [ -z "${TEST_TYPE##*bdd*}" ]; then
   echo "==> Run BDD tests"
 
   # Use parallel Behat profile if using more than a single node to run tests.
-  # @todo: Add support for other CI providers.
-  # @todo:d Fix this.
-  # set -x
-  if [ "${CIRCLE_NODE_TOTAL:-1}" -gt "1" ] ; then
-    BEHAT_PROFILE="p${CIRCLE_NODE_INDEX}"
-    BEHAT_FORMAT="progress_fail"
+  if [ -n "${BEHAT_PARALLEL_INDEX}" ] ; then
+    BEHAT_PROFILE="p${BEHAT_PARALLEL_INDEX}"
   fi
-  set +x
+
   [ -n "${TEST_ARTIFACT_DIR}" ] && export BEHAT_SCREENSHOT_DIR="${TEST_ARTIFACT_DIR}/screenshots"
 
   vendor/bin/behat --strict --colors --profile="${BEHAT_PROFILE}" --format="${BEHAT_FORMAT}" "$@" || [ "${ALLOW_BDD_TESTS_FAIL}" -eq 1 ]
