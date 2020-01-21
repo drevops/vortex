@@ -95,6 +95,10 @@ aliases:
           TEST_LOG_DIR: &test_log_dir /tmp/tests
           # Directory to store test artifacts.
           TEST_ARTIFACT_DIR: &test_artifact_dir /tmp/artifacts
+          # Use compact error reporting format.
+          BEHAT_FORMAT: progress_fail
+          # Read parallel index value from the current CI node.
+          BEHAT_PARALLEL_INDEX: $CIRCLE_NODE_INDEX
           # Directory to use for code deployments.
           DEPLOY_CODE_SRC: *build_export_dir
           # Source code location.
