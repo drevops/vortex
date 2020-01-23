@@ -7,7 +7,11 @@
 # or
 # curl -L https://raw.githubusercontent.com/drevops/drevops/7.x/install | bash -s -- /path/to/destination/directory
 
+# shellcheck disable=SC2015
+
 { # Ensures the entire script is downloaded.
+
+set -e
 
 # shellcheck disable=SC2235
 ([ "${1}" == "--interactive" ] || [ "${1}" == "-i" ]) && DREVOPS_IS_INTERACTIVE=1 && shift
@@ -149,7 +153,7 @@ gather_answers(){
 
   print_summary "${is_interactive}"
 
-  [ "${DREVOPS_INSTALL_DEBUG}" -ne 0 ] && print_resolved_variables
+  [ -n "${DREVOPS_INSTALL_DEBUG}" ] && print_resolved_variables
 }
 
 set_answer(){
@@ -177,7 +181,7 @@ download_local(){
   local src="${1}"
   local dst="${2}"
   local commit="${3:-HEAD}"
-  [ "${DREVOPS_INSTALL_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the local repo"
+  [ -n "${DREVOPS_INSTALL_DEBUG}" ] && echo "DEBUG: Downloading from the local repo"
 
   echo -n "==> Downloading DrevOps at ref ${commit} from local repo ${src}"
   git --git-dir="${src}/.git" --work-tree="${src}" archive --format=tar "${commit}" \
@@ -195,7 +199,7 @@ download_remote(){
   local project="${3}"
   local release_prefix="${4}"
   local commit="${5:-}"
-  [ "${DREVOPS_INSTALL_DEBUG}" -ne 0 ] && echo "DEBUG: Downloading from the remote repo"
+  [ -n "${DREVOPS_INSTALL_DEBUG}" ] && echo "DEBUG: Downloading from the remote repo"
 
   if [ "${commit}" != "" ]; then
     echo -n "==> Downloading DrevOps at commit ${commit}"
@@ -633,24 +637,24 @@ discover_value(){
 
 discover_value__name(){
   if  [ -f "${DST_DIR}/composer.json" ]; then
-    composer --working-dir="${DST_DIR}" config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/\(.*\) for .*/\1/p'
+    composer --working-dir="${DST_DIR}" config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/\(.*\) for .*/\1/p' || true
   fi
 }
 
 discover_value__org(){
-  [ -f "${DST_DIR}/composer.json" ] && composer --working-dir="${DST_DIR}" config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/.* for \(.*\)/\1/p'
+  [ -f "${DST_DIR}/composer.json" ] && composer --working-dir="${DST_DIR}" config description | grep "Drupal [78] implementation" | cut -c 28- | sed -n 's/.* for \(.*\)/\1/p' || true
 }
 
 discover_value__machine_name(){
-  [ -f "${DST_DIR}/composer.json" ] && composer --working-dir="${DST_DIR}" config name | sed 's/.*\///'
+  [ -f "${DST_DIR}/composer.json" ] && composer --working-dir="${DST_DIR}" config name | sed 's/.*\///' || true
 }
 
 discover_value__org_machine_name(){
-  [ -f "${DST_DIR}/composer.json" ] && composer --working-dir="${DST_DIR}" config name | sed 's/\/.*//'
+  [ -f "${DST_DIR}/composer.json" ] && composer --working-dir="${DST_DIR}" config name | sed 's/\/.*//' || true
 }
 
 discover_value__module_prefix(){
-  if ls -d "${DST_DIR}"/docroot/sites/all/modules/custom/*_core > /dev/null; then
+  if ls -d "${DST_DIR}"/docroot/sites/all/modules/custom/*_core > /dev/null 2>&1; then
     for dir in "${DST_DIR}"/docroot/sites/all/modules/custom/*_core; do
       basename "${dir}"
       return
@@ -666,7 +670,7 @@ discover_value__profile(){
 }
 
 discover_value__theme(){
-  if ls -d "${DST_DIR}"/docroot/sites/all/themes/custom/* > /dev/null; then
+  if ls -d "${DST_DIR}"/docroot/sites/all/themes/custom/* > /dev/null 2>&1; then
     for dir in "${DST_DIR}"/docroot/sites/all/themes/custom/*; do
       basename "${dir}"
       return
@@ -1053,7 +1057,7 @@ replace_string_content() {
     --exclude-dir=".data" \
     --exclude-dir="scripts/drevops" \
     -l "${needle}" "${dir}" \
-    | xargs sed "${sed_opts[@]}" "s@$needle@$replacement@g"
+    | xargs sed "${sed_opts[@]}" "s@$needle@$replacement@g" || true
 }
 
 replace_string_filename() {
@@ -1065,7 +1069,7 @@ replace_string_filename() {
   # This will make sure that any files relying on the parent _renamed_ dirs
   # are also copied.
   # shellcheck disable=SC2044
-  for file in $(find "${dir}" -type d -depth -name "*${needle}*"); do
+  for file in $(find "${dir}" -depth -type d -name "*${needle}*"); do
     newname="${file//$needle/$replacement}"
     if [ -d "${newname}" ]; then
       rm -rf "${newname}"
@@ -1075,7 +1079,7 @@ replace_string_filename() {
 
   # Rename files.
   # shellcheck disable=SC2044
-  for file in $(find "${dir}" -type f -depth -name "*${needle}*"); do
+  for file in $(find "${dir}" -depth -type f -name "*${needle}*"); do
     newname="${file//$needle/$replacement}"
     mkdir -p "$(dirname "${newname}")"
     mv "${file}" "${newname}"
@@ -1096,7 +1100,7 @@ remove_special_comments() {
     --exclude-dir=".data" \
     --exclude-dir="scripts/drevops" \
     -l "${token}" "${dir}" \
-    | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/d"
+    | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/d" || true
 }
 
 # Remove ignore comments.
@@ -1116,7 +1120,7 @@ remove_ignore_comments() {
     --exclude-dir=".data" \
     --exclude-dir="scripts/drevops" \
     -l "${token}" "${dir}" \
-    | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/{N;d;}"
+    | LC_ALL=C.UTF-8  xargs sed "${sed_opts[@]}" -e "/${token}/{N;d;}" || true
 }
 
 remove_special_comments_with_content() {
@@ -1133,7 +1137,7 @@ remove_special_comments_with_content() {
     --exclude-dir=".data" \
     --exclude-dir="scripts/drevops" \
     -l "#;> $token" "${dir}" \
-    | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/#;< $token/,/#;> $token/d"
+    | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/#;< $token/,/#;> $token/d" || true
 }
 
 enable_commented_code() {
@@ -1149,7 +1153,7 @@ enable_commented_code() {
     --exclude-dir=".data" \
     --exclude-dir="scripts/drevops" \
     -l "##### " "${dir}" \
-    | xargs sed "${sed_opts[@]}" -e "s/##### //g"
+    | xargs sed "${sed_opts[@]}" -e "s/##### //g" || true
 }
 
 # Get value for a variable by name.
@@ -1214,7 +1218,7 @@ dir_contains_string(){
 git_init(){
   local dir="${1}"
   [ -d "${dir}/.git" ] && return
-  [ "${DREVOPS_INSTALL_DEBUG}" -ne 0 ] && echo "DEBUG: Initialising new git repository"
+  [ -n "${DREVOPS_INSTALL_DEBUG}" ] && echo "DEBUG: Initialising new git repository"
   git --work-tree="${dir}" --git-dir="${dir}/.git" init > /dev/null
 }
 
