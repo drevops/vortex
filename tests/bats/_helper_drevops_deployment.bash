@@ -130,8 +130,8 @@ provision_site(){
   git_add_all_commit "Init DrevOps config" "${dir}"
 
   step "Build project"
-  ahoy down
-  ahoy up -- --build --force-recreate >&3
+  export SKIP_POST_DB_IMPORT=1
+  ahoy build
   sync_to_host
 
   popd > /dev/null || exit 1

@@ -37,6 +37,7 @@ setup(){
   APP_TMP_DIR="${BUILD_DIR}/tmp"
   TEST_ARTIFACT_DIR="/app"
   TEST_LOG_DIR="/app/logs"
+  CONFIRM_RESPONSE=y
 
   DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d8.star_wars.sql.md
   export DEMO_DB_TEST
@@ -58,6 +59,7 @@ setup(){
   export APP_TMP_DIR
   export TEST_ARTIFACT_DIR
   export TEST_LOG_DIR
+  export CONFIRM_RESPONSE
 
   prepare_fixture_dir "${BUILD_DIR}"
   prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
@@ -870,7 +872,7 @@ fix_host_dependencies(){
 
   pushd "${DST_DIR}" > /dev/null || exit 1
 
-  if [ "${VOLUMES_MOUNTED:-1}" != "1" ] ; then
+  if [ -f docker-compose.yml ] && [ "${VOLUMES_MOUNTED:-1}" != "1" ] ; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml

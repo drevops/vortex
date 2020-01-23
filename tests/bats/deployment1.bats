@@ -88,11 +88,21 @@ load _helper_drevops_deployment
   export DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
   export DEPLOY_CODE_SRC="${SRC_DIR}"
   export DEPLOY_TYPE="code"
-  source scripts/drevops/deploy.sh >&3
 
-  step "Checkout currently pushed branch on remote"
-  git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch | sed 's/\*\s//g' | xargs git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" checkout
-  git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch >&3
+  run ahoy deploy
+  assert_success
+  assert_output_contains "==> Started CODE deployment"
+
+  # Assert that no other deployments ran.
+  assert_output_not_contains "==> Started WEBHOOK deployment"
+  assert_output_not_contains "==> Successfully called webhook"
+  assert_output_not_contains "ERROR: Webhook deployment failed"
+  assert_output_not_contains "==> Finished WEBHOOK deployment"
+
+  assert_output_not_contains "==> Started DOCKER deployment"
+  # @todo: Update once Docker deployment is implemented.
+  assert_output_not_contains "Docker deployment is not yet implemented"
+  assert_output_not_contains "==> Finished DOCKER deployment"
 
   step "Assert remote deployment files"
   assert_deployment_files_present "${REMOTE_REPO_DIR}"

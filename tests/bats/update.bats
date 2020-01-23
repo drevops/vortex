@@ -50,7 +50,7 @@ load _helper_drevops
   # Override install script with currently tested one to be called from ./scripts/drevops/update.sh
   export DREVOPS_INSTALL_SCRIPT="${CUR_DIR}/install.sh"
   # shellcheck disable=SC2059
-  yes | ahoy update
+  ahoy update
 
   assert_files_present
   assert_git_repo

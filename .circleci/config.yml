@@ -55,7 +55,7 @@ aliases:
   - &db_cache_timestamp +%Y_%m_%d
 
   # Database cache directory.
-  - &db_cache_dir ~/project/.data
+  - &db_cache_dir /root/project/.data
 
   # CI runner resource class.
   # @see https://circleci.com/docs/2.0/configuration-reference/#resource_class
@@ -76,7 +76,7 @@ aliases:
   - &container_config
     #:
     #: Location of checked-out files within "runner" container.
-    working_directory: &working_directory ~/project
+    working_directory: &working_directory /root/project
     environment:
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
@@ -107,6 +107,8 @@ aliases:
           DEPLOY_REPORT: /tmp/artifacts/deployment_report.txt
           # Check only minimal stack requirements.
           DOCTOR_CHECK_MINIMAL: 1
+          # Always answer 'y' to any confirmation questions.
+          CONFIRM_RESPONSE: 'y'
           # Volumes mounting to host is not supported in CircleCI.
           VOLUMES_MOUNTED: 0
     resource_class: *resource_class
@@ -244,7 +246,7 @@ jobs:
       - checkout
       - *step_process_codebase
       - run:
-          command: yes | ahoy deploy
+          command: ahoy deploy
           no_output_timeout: 30m
       - store_artifacts:
           path: *test_artifact_dir
@@ -266,10 +268,7 @@ jobs:
       - checkout
       - *step_process_codebase
       - run:
-          #:
-          #: Override deployment branch to contain tags in the branch name.
-          #: https://github.com/integratedexperts/robo-git-artefact
-          command: DEPLOY_GIT_BRANCH="deployment/[tags:-]" .circleci/deploy.sh
+          command: DEPLOY_GIT_BRANCH="deployment/[tags:-]" ahoy deploy
           no_output_timeout: 30m
       - store_artifacts:
           path: *test_artifact_dir
