@@ -87,17 +87,13 @@ load _helper_drevops_deployment
   # @todo: Not implemented. Add here when implemented.
 
   # Run deployment.
-  run source scripts/drevops/deploy.sh
+  run ahoy deploy
   assert_success
 
   #
   # Code deployment assertions.
   #
   assert_output_contains "==> Started CODE deployment"
-
-  substep "CODE: Checkout currently pushed branch on remote"
-  git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch | sed 's/\*\s//g' | xargs git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" checkout
-  git --git-dir="${DEPLOY_GIT_REMOTE}" --work-tree="${REMOTE_REPO_DIR}" branch >&3
 
   substep "CODE: Assert remote deployment files"
   assert_deployment_files_present "${REMOTE_REPO_DIR}"

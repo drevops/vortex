@@ -94,7 +94,7 @@ fi
 [ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >> "${HOME}/.ssh/config"
 
 echo "==> Installing a package for code push deployment."
-composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs integratedexperts/robo-git-artefact:0.4.1
+composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs --no-suggest integratedexperts/robo-git-artefact:^0.4
 
 # Copying git repo files meta file to the deploy code repo as it may not exist
 # in deploy code source files.

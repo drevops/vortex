@@ -139,7 +139,7 @@ load _helper_drevops
   mktouch "composer.lock"
   mktouch "docroot/themes/custom/zzzsomecustomtheme/package-lock.json"
 
-  yes | ahoy reset
+  ahoy reset
 
   assert_git_repo
   assert_files_not_present_common "star_wars"
@@ -233,7 +233,7 @@ load _helper_drevops
   git add "committed_file.txt"
   git commit -m "Added custom file" > /dev/null
 
-  yes | ahoy reset
+  ahoy reset
 
   assert_files_present_common "star_wars" "StarWars"
   assert_git_repo

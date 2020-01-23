@@ -563,7 +563,7 @@ assert_ahoy_reset(){
 
   create_development_settings
 
-  yes | ahoy reset
+  ahoy reset
 
   assert_files_present_common
   assert_files_present_deployment

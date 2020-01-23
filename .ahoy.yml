@@ -191,7 +191,8 @@ commands:
   # Utilities.
   # ----------------------------------------------------------------------------
   confirm:
-    cmd: read -r -p "${@} [y/N] " response; [ ${response} = "y" ]
+    cmd: |
+      [ -z "$CONFIRM_RESPONSE" ] && read -r -p "$1 [y/N] " CONFIRM_RESPONSE; [ "$CONFIRM_RESPONSE" = "y" ]
     hide: true
 
 #: Override entrypoint to alter default behaviour of Ahoy.
