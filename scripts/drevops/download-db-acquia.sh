@@ -80,11 +80,8 @@ extract_json_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print \$data[\"${key}\"] : exit(1);"
 }
 
-# Expand DB dump file name into absolute path.
-DB_FILE_FULL=${DB_FILE_FULL:-${DB_DIR}/${DB_FILE}}
-
 # Pre-flight checks.
-command -v curl > /dev/null || echo "ERROR: curl command is not available" && exit 1
+command -v curl > /dev/null || ( echo "ERROR: curl command is not available" && exit 1 )
 
 # Try to read credentials from the stored config file after running `drush ac-api-login`.
 if [ -z "${AC_API_USER_NAME}" ] && [ -f "${AC_CREDENTIALS_FILE}" ]; then
@@ -113,7 +110,7 @@ if [ -z "${AC_API_DB_BACKUP_ID}" ] ; then
 fi
 
 # Insert backup id as a suffix.
-db_dump_ext="${DB_FILE_FULL##*.}"
+db_dump_ext="${DB_FILE##*.}"
 db_dump_file_actual_prefix="${AC_API_DB_NAME}_backup_"
 db_dump_file_actual=${DB_DIR}/${db_dump_file_actual_prefix}${AC_API_DB_BACKUP_ID}.${db_dump_ext}
 db_dump_discovered=${db_dump_file_actual}
@@ -149,13 +146,13 @@ ls -alh "${db_dump_file_actual}"
 
 # Create a symlink to the latest backup.
 if [ "${latest_backup}" != "0" ] ; then
-  latest_symlink=${DB_FILE_FULL}
+  latest_symlink="${DB_FILE}"
   if [ -f "${db_dump_file_actual}" ] ; then
     echo "==> Creating a symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}"
     (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
   fi
 
-  latest_symlink=${latest_symlink}.gz
+  latest_symlink="${latest_symlink}.gz"
   if [ -f "${db_dump_compressed}" ] ; then
     echo "==> Creating a symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\""
     (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
