@@ -137,7 +137,6 @@ jobs:
   #: Database will be sanitized using standard drush sanitization. You may also
   #: use custom SQL script to add more sanitization steps by putting SQL
   #: statements into scripts/sanitize.sql file.
-  #: Set SKIP_SANITIZE_DB variable to '1' to skip sanitization altogether.
   #;< !FRESH_INSTALL
   database:
     <<: *container_config
