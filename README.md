@@ -285,17 +285,14 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 
 [//]: # (#;< ACQUIA)
 
-- Authenticate with Acquia Cloud API using:
-  - Run `drush ac-login`<br/> 
-  or 
-  - Add Acquia Cloud credentials to `.env` file:
-
-  ```
-    # Acquia Cloud UI->Account->Credentials->Cloud API->E-mail
-    AC_API_USER_NAME=<YOUR_USERNAME>
-    # Acquia Cloud UI->Account->Credentials->Cloud API->Private key
-    AC_API_USER_PASS=<YOUR_TOKEN>
-  ```
+- Authenticate with Acquia Cloud API
+  1. Retrieve your Acquia Cloud API credentials from your Acquia profile page:
+     Acquia Cloud UI -> Account -> Credentials -> Cloud API -> E-mail
+     Acquia Cloud UI -> Account -> Credentials -> Cloud API -> Private key->Show
+  2. Download drush aliases archive from your Acquia profile page and
+     place it to your $HOME diretory.
+  3. Run `drush ac-api-login` and provide your credentials once prompted.
+  
 [//]: # (#;> ACQUIA)
 
 [//]: # (#;< !FRESH_INSTALL)
