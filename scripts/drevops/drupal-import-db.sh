@@ -15,9 +15,6 @@ DB_FILE="${DB_FILE:-db.sql}"
 # Flag to use database import progress indicator (pv).
 DB_IMPORT_PROGRESS="${DB_IMPORT_PROGRESS:-1}"
 
-# Flag to skip sanitization of the database.
-SKIP_SANITIZE_DB="${SKIP_SANITIZE_DB:-}"
-
 # Database sanitized account email replacement.
 DB_SANITIZE_EMAIL="${DB_SANITIZE_EMAIL:-user+%uid@localhost}"
 
