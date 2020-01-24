@@ -101,8 +101,6 @@ aliases:
           TEST_ARTIFACT_DIR: &test_artifact_dir /tmp/artifacts
           # Use compact error reporting format.
           BEHAT_FORMAT: progress_fail
-          # Read parallel index value from the current CI node.
-          BEHAT_PARALLEL_INDEX: $CIRCLE_NODE_INDEX
           # Directory to use for code deployments.
           DEPLOY_CODE_SRC: *build_export_dir
           # Source code location.
@@ -204,7 +202,7 @@ jobs:
           command: ahoy lint
       - run:
           name: Run tests
-          command: ahoy test
+          command: BEHAT_PARALLEL_INDEX=$CIRCLE_NODE_INDEX ahoy test
       - run:
           name: Process test logs and artifacts
           command: |
