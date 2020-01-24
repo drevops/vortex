@@ -96,6 +96,7 @@ if [ -z "${TEST_TYPE##*bdd*}" ]; then
   # Use parallel Behat profile if using more than a single node to run tests.
   if [ -n "${BEHAT_PARALLEL_INDEX}" ] ; then
     BEHAT_PROFILE="p${BEHAT_PARALLEL_INDEX}"
+    echo "==> Running using profile \"${BEHAT_PROFILE}\""
   fi
 
   [ -n "${TEST_ARTIFACT_DIR}" ] && export BEHAT_SCREENSHOT_DIR="${TEST_ARTIFACT_DIR}/screenshots"
