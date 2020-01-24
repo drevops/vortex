@@ -87,6 +87,10 @@ aliases:
         environment:
           # Set timezone to ensure that executed operations use correct timestamps.
           TZ: *timezone
+          # Volumes mounting to host is not supported in CircleCI.
+          VOLUMES_MOUNTED: 0
+          # Always answer 'y' to any confirmation questions.
+          CONFIRM_RESPONSE: 'y'
           # How often to refresh the cache of the DB dump. Refer to `date` command.
           DB_TIMESTAMP: *db_cache_timestamp
           # Directory to store code exported between jobs.
@@ -107,10 +111,6 @@ aliases:
           DEPLOY_REPORT: /tmp/artifacts/deployment_report.txt
           # Check only minimal stack requirements.
           DOCTOR_CHECK_MINIMAL: 1
-          # Always answer 'y' to any confirmation questions.
-          CONFIRM_RESPONSE: 'y'
-          # Volumes mounting to host is not supported in CircleCI.
-          VOLUMES_MOUNTED: 0
     resource_class: *resource_class
 
   # Step to setup remote docker.

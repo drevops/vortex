@@ -121,7 +121,7 @@ commands:
     usage: "Reset environment: remove containers, all build, uncommitted files."
     cmd: |
       ahoy confirm "All containers, build and uncomitted files will be removed, repository will be reset to the last commit. Proceed?" \
-      && ahoy clean && ./scripts/drevops/reset.sh || true
+      && ahoy clean && ./scripts/drevops/reset.sh || echo "The operation was canceled."
 
   fe:
     usage: Build front-end assets.
@@ -169,7 +169,7 @@ commands:
     usage: Run remote deployment procedures
     cmd: |
       ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as DEPLOY_PROCEED=1 ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" \
-      && ./scripts/drevops/deploy.sh "$@" || true
+      && ./scripts/drevops/deploy.sh "$@" || echo "The operation was canceled."
 
   doctor:
     usage: Find problems with current project setup.
@@ -177,14 +177,14 @@ commands:
 
   update:
     usage: Update development stack.
-    cmd: ahoy confirm "Some committed files may become overwritten. Proceed?" && ./scripts/drevops/update.sh || true
+    cmd: ahoy confirm "Some committed files may become overwritten. Proceed?" && ./scripts/drevops/update.sh || echo "The operation was canceled."
 
   # ----------------------------------------------------------------------------
   # Utilities.
   # ----------------------------------------------------------------------------
   confirm:
     cmd: |
-      [ -z "$CONFIRM_RESPONSE" ] && read -r -p "$1 [y/N] " CONFIRM_RESPONSE; [ "$CONFIRM_RESPONSE" = "y" ]
+      [ -z "$CONFIRM_RESPONSE" ] && read -r -p "$1 [y/N] " CONFIRM_RESPONSE; [ "$CONFIRM_RESPONSE" = "y" ] || [ "$CONFIRM_RESPONSE" = true ]
     hide: true
 
 #: Override entrypoint to alter default behaviour of Ahoy.
