@@ -9,9 +9,6 @@ set -x
 # Create drush alias from arguments.
 export DRUSH_ALIAS="@${1}.${2}"
 
-# Override configuration label.
-export DRUPAL_CONFIG_LABEL="vcs"
-
 # Skip DB import as it is managed through UI.
 export SKIP_DB_IMPORT=1
 

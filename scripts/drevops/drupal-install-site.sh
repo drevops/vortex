@@ -29,9 +29,6 @@ DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 # Path to configuration directory.
 DRUPAL_CONFIG_PATH="${DRUPAL_CONFIG_PATH:-config/default}"
 
-# The label of the configuration directory to use for import.
-DRUPAL_CONFIG_LABEL="${DRUPAL_CONFIG_LABEL:-sync}"
-
 # Path to private files.
 DRUPAL_PRIVATE_FILES="${DRUPAL_PRIVATE_FILES:-${APP}/${WEBROOT}/sites/default/files/private}"
 
