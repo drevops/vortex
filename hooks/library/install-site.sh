@@ -6,10 +6,16 @@
 set -e
 set -x
 
+SITE="${1}"
+TARGET_ENV="${2}"
+
 # Create drush alias from arguments.
-export DRUSH_ALIAS="@${1}.${2}"
+export DRUSH_ALIAS="@${SITE}.${TARGET_ENV}"
 
 # Skip DB import as it is managed through UI.
 export SKIP_DB_IMPORT=1
 
-./scripts/drevops/drupal-install-site.sh
+export APP="/var/www/html/${SITE}.${TARGET_ENV}"
+export SCRIPTS_DIR="${APP}/scripts"
+
+"$SCRIPTS_DIR"/drevops/drupal-install-site.sh
