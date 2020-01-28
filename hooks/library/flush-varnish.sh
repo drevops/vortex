@@ -14,7 +14,8 @@ set -x
 
 SITE="${1}"
 TARGET_ENV="${2}"
-DOMAINS_FILE="${DOMAINS_FILE:-../../library/domains.txt}"
+APP="/var/www/html/${SITE}.${TARGET_ENV}"
+DOMAINS_FILE="${DOMAINS_FILE:-${APP}/hooks/library/domains.txt}"
 
 # ------------------------------------------------------------------------------
 

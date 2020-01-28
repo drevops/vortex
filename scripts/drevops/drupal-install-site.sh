@@ -63,7 +63,7 @@ mkdir -p "${DRUPAL_PRIVATE_FILES}"
 if [ -z "${SKIP_DB_IMPORT}" ] && [ -f "${DB_DIR}/${DB_FILE}" ]; then
   echo "==> Using existing DB dump ${DB_DIR}/${DB_FILE}"
   DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" ./scripts/drevops/drupal-import-db.sh
-elif drush status --fields=bootstrap | grep -q "Successful"; then
+elif drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "Successful"; then
   echo "==> Existing site found"
 else
   echo "==> Existing site not found. Installing site from profile ${DRUPAL_PROFILE}"
@@ -75,7 +75,7 @@ if [ -z "${SKIP_POST_DB_IMPORT}" ]; then
   echo "==> Running post DB init commands"
   # Enable custom site "core" module.
   # shellcheck disable=SC2015
-  drush pml | grep -q "${DRUPAL_MODULE_PREFIX}_core" && drush en -y "${DRUPAL_MODULE_PREFIX}_core" || true
+  drush ${DRUSH_ALIAS} pml | grep -q "${DRUPAL_MODULE_PREFIX}_core" && drush ${DRUSH_ALIAS} en -y "${DRUPAL_MODULE_PREFIX}_core" || true
 
   # Run updates.
   drush ${DRUSH_ALIAS} updb -y
