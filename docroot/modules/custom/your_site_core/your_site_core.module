@@ -8,27 +8,6 @@
 use Drupal\Core\Site\Settings;
 
 /**
- * Include additional early bootstrap files.
- *
- * This allows to organise contrib module-related hook implementations into
- * standalone files.
- *
- * Note that most of the modules are not available at this stage and
- * another inclusion is required in hook_init() for performance reasons.
- */
-$moduleHandler = \Drupal::moduleHandler();
-$early_bootstrap_modules = array_keys($moduleHandler->getModuleList());
-// Add more modules, inclusions for which are absolutely required at early
-// stage.
-$early_bootstrap_modules[] = 'system';
-foreach ($early_bootstrap_modules as $module_name) {
-  $module_include_file = dirname(__FILE__) . '/includes/' . $module_name . '.inc';
-  if (file_exists($module_include_file)) {
-    require_once $module_include_file;
-  }
-}
-
-/**
  * Implements hook_mail_alter().
  */
 function your_site_core_mail_alter(&$message) {
