@@ -132,11 +132,11 @@ assert_files_present_common(){
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.install"
   assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.module"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/YourSiteExampleUnitTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}ExampleUnitTest.php"
   assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreUnitTestBase.php"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Kernel/${suffix_camel_cased}ExampleKernelTest.php"
   assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Kernel/${suffix_camel_cased}CoreKernelTestBase.php"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Functional/${suffix_camel_cased}ExampleFunctionalTest.php"
   assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Functional/${suffix_camel_cased}CoreFunctionalTestBase.php"
 
   # Site theme created.
