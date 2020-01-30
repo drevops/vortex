@@ -23,8 +23,8 @@ function your_site_core_mail_alter(&$message) {
  * Implements hook_css_alter().
  */
 function your_site_core_css_alter(&$css) {
+  // Force disabling of CSS pre-processing if Livereload is enabled.
   if (Settings::get('livereload', FALSE)) {
-    // Alter css to display as link tags.
     foreach ($css as $key => $value) {
       $css[$key]['preprocess'] = FALSE;
     }
