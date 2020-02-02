@@ -10,7 +10,7 @@
         "drupal/auto_entitylabel": "^2.1@beta",
         "drupal/bootstrap_barrio": "^4.17",
         "drupal/coffee": "^1.0-beta2",
-        "drupal/config_ignore": "^2.1",
+        "drupal/config_ignore": "^2.2",
         "drupal/config_split": "^1.4",
         "drupal/config_update": "^1.5",
         "drupal/core": "^8.7",
@@ -150,9 +150,6 @@
             },
             "drupal/core": {
                 "User context missing when using toUrl in some circumstances - https://www.drupal.org/project/drupal/issues/3056234": "https://www.drupal.org/files/issues/2019-05-22/3056234-test-fix-4.patch"
-            },
-            "drupal/config_ignore": {
-                "Offset error within IgnoreFilter::activeReadMultiple() - https://www.drupal.org/project/config_ignore/issues/2972302": "https://www.drupal.org/files/issues/2018-07-31/offset-error-within-2972302-13.patch"
             },
             "drupal/token": {
                 "Node preview button generates useless menu link - https://www.drupal.org/node/2823731#comment-11905884": "https://www.drupal.org/files/issues/token_node_preview_menu_link-2823731-4.patch"
