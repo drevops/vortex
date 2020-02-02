@@ -132,12 +132,12 @@ parameters:
     # @default keyvalue.database
     # default: keyvalue.database
     # Collection-specific overrides.
-    # state: keyvalue.database
+  # state: keyvalue.database
   factory.keyvalue.expirable:
     {}
     # Default key/value expirable storage service to use.
     # @default keyvalue.database.expirable
-    # default: keyvalue.database.expirable
+  # default: keyvalue.database.expirable
   # Allowed protocols for URL generation.
   filter_protocols:
     - http
@@ -154,10 +154,10 @@ parameters:
     - webcal
     - rtsp
 
-   # Configure Cross-Site HTTP requests (CORS).
-   # Read https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
-   # for more information about the topic in general.
-   # Note: By default the configuration is disabled.
+    # Configure Cross-Site HTTP requests (CORS).
+    # Read https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+    # for more information about the topic in general.
+    # Note: By default the configuration is disabled.
   cors.config:
     enabled: false
     # Specify allowed headers, like 'x-allowed-header'.
