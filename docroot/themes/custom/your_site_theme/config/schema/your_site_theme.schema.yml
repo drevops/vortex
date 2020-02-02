@@ -1,5 +1,0 @@
-# Schema for the configuration files of the YOURSITE Theme.
-
-your_site_theme.settings:
-  type: theme_settings
-  label: 'YOURSITE Theme settings'

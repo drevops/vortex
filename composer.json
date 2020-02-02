@@ -8,7 +8,6 @@
         "drupal-composer/drupal-scaffold": "^2.5",
         "drupal/admin_toolbar": "^1.24",
         "drupal/auto_entitylabel": "^2.1@beta",
-        "drupal/bootstrap_barrio": "^4.17",
         "drupal/coffee": "^1.0-beta2",
         "drupal/config_ignore": "^2.2",
         "drupal/config_split": "^1.4",
@@ -22,7 +21,6 @@
         "drupal/stage_file_proxy": "^1.0-alpha3",
         "drupal/token": "^1.5",
         "drush/drush": "^8.1",
-        "twbs/bootstrap": "^4.1",
         "vlucas/phpdotenv": "^2.4",
         "webflo/drupal-finder": "^1.0",
         "zaporylie/composer-drupal-optimizations": "^1.0"
@@ -141,12 +139,6 @@
         "patches": {
             "behat/gherkin": {
                 "Correctly filter features, now that the base path is correctly set": "https://github.com/Behat/Gherkin/compare/v4.6.0...a7d84eb6ba245ea268a304312d14660788bf6c29.patch"
-            },
-            "drupal/better_exposed_filters": {
-                "Add core/drupal as dependency to better_exposed_filters asset libraries - https://www.drupal.org/node/2902742": "https://www.drupal.org/files/issues/add_core_drupal_as-2902742-2.patch"
-            },
-            "drupal/bootstrap_barrio": {
-                "Inconsistent handling of submit button attributes - https://www.drupal.org/node/3054256": "https://www.drupal.org/files/issues/2019-05-13/barrio-inconsistent-submit-handling-3054256-2.patch"
             },
             "drupal/core": {
                 "User context missing when using toUrl in some circumstances - https://www.drupal.org/project/drupal/issues/3056234": "https://www.drupal.org/files/issues/2019-05-22/3056234-test-fix-4.patch"
