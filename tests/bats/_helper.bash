@@ -153,7 +153,7 @@ assert_dir_not_empty(){
   if [ "$(ls -A "${dir}")" ]; then
     return 0
   else
-    format_error "Directory ${dir} is not empty, but should be" | flunk
+    format_error "Directory ${dir} is empty, but should not be" | flunk
   fi
 }
 
