@@ -52,7 +52,7 @@ if [ -z "${TEST_TYPE##*unit*}" ]; then
   echo "==> Run unit tests"
 
   phpunit_opts=(-c /app/phpunit.xml)
-  [ -n "${TEST_LOG_DIR}" ] && phpunit_opts+=(--log-junit "${TEST_LOG_DIR}"/phpunit.xml)
+  [ -n "${TEST_LOG_DIR}" ] && phpunit_opts+=(--log-junit "${TEST_LOG_DIR}"/unit.xml)
 
   vendor/bin/phpunit "${phpunit_opts[@]}" "$@" || [ "${ALLOW_UNIT_TESTS_FAIL}" -eq 1 ]
 fi
