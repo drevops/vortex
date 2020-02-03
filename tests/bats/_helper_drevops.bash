@@ -186,6 +186,13 @@ assert_files_present_common(){
   # Init command removed from Ahoy config.
   assert_file_exists ".ahoy.yml"
 
+  # Init command removed from Ahoy config.
+  assert_file_exists ".ahoy.yml"
+
+  # Special case to fix all occurrences of the stub in core files to exclude
+  # false-positives from the assertions below.
+  replace_core_stubs "${dir}" "your_site"
+
   # Assert all stub strings were replaced.
   assert_dir_not_contains_string "${dir}" "your_site"
   assert_dir_not_contains_string "${dir}" "YOURSITE"
@@ -667,6 +674,13 @@ install_dependencies_stub(){
   echo "version: \"2.3\"" > "docker-compose.override.yml"
 
   popd > /dev/null || exit 1
+}
+
+replace_core_stubs(){
+  local dir="${1}"
+  local token="${2}"
+
+  replace_string_content  "${token}" "some_other_site" "${dir}/docroot"
 }
 
 create_development_settings(){

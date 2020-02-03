@@ -88,7 +88,7 @@ assert_deployment_files_present(){
 
   # Only minified compiled JS exists.
   assert_file_exists docroot/themes/custom/star_wars/build/js/star_wars.min.js
-  assert_file_contains docroot/themes/custom/star_wars/build/js/star_wars.min.js "function(t,Drupal){\"use strict\";Drupal.behaviors.star_wars"
+  assert_file_contains docroot/themes/custom/star_wars/build/js/star_wars.min.js "!function(Drupal){\"use strict\";Drupal.behaviors.star_wars"
   assert_file_not_exists docroot/themes/custom/star_wars/build/js/star_wars.js
   assert_dir_not_exists docroot/themes/custom/star_wars/js
 
