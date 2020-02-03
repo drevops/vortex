@@ -276,7 +276,7 @@ assert_ahoy_test_unit(){
   [ "${status}" -eq 1 ]
   sync_to_host
   assert_dir_not_empty logs
-  assert_file_exists logs/phpunit.xml
+  assert_file_exists logs/unit.xml
 
   rm -R logs
 
@@ -286,7 +286,7 @@ assert_ahoy_test_unit(){
   [ "${status}" -eq 0 ]
   sync_to_host
   assert_dir_not_empty logs
-  assert_file_exists logs/phpunit.xml
+  assert_file_exists logs/unit.xml
   restore_file .env && ahoy up cli
 }
 
