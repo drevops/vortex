@@ -283,7 +283,7 @@ assert_ahoy_test_unit(){
   [ "${status}" -eq 1 ]
   sync_to_host
   assert_dir_not_empty logs
-  assert_file_exists logs/phpunit.xml
+  assert_file_exists logs/unit.xml
 
   rm -R logs
 
@@ -293,7 +293,8 @@ assert_ahoy_test_unit(){
   [ "${status}" -eq 0 ]
   sync_to_host
   assert_dir_not_empty logs
-  assert_file_exists logs/phpunit.xml
+  assert_file_exists logs/unit.xml
+
   restore_file .env && ahoy up cli
 }
 
@@ -309,11 +310,18 @@ assert_ahoy_test_kernel(){
   # Assert failure.
   run ahoy test-kernel
   [ "${status}" -eq 1 ]
+  sync_to_host
+  assert_dir_not_empty logs
+  assert_file_exists logs/kernel.xml
 
   # Assert failure bypass.
   add_var_to_file .env "ALLOW_KERNEL_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
   run ahoy test-kernel
   [ "${status}" -eq 0 ]
+  sync_to_host
+  assert_dir_not_empty logs
+  assert_file_exists logs/kernel.xml
+
   restore_file .env && ahoy up cli
 }
 
@@ -329,11 +337,18 @@ assert_ahoy_test_functional(){
   # Assert failure.
   run ahoy test-functional
   [ "${status}" -eq 1 ]
+  sync_to_host
+  assert_dir_not_empty logs
+  assert_file_exists logs/functional.xml
 
   # Assert failure bypass.
   add_var_to_file .env "ALLOW_FUNCTIONAL_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
   run ahoy test-functional
   [ "${status}" -eq 0 ]
+  sync_to_host
+  assert_dir_not_empty logs
+  assert_file_exists logs/functional.xml
+
   restore_file .env && ahoy up cli && sync_to_container
 }
 
