@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\your_site_core\Tests;
+namespace Drupal\Tests\your_site_core\Traits;
 
 /**
  * Trait YourSiteCoreTestHelperTrait.
