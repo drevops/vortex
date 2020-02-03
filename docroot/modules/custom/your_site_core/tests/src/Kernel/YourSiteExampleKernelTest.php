@@ -14,7 +14,8 @@ class YourSiteExampleKernelTest extends YourSiteCoreKernelTestBase {
    */
   public function testAdd($a, $b, $expected, $excpectExceptionMessage = NULL) {
     if ($excpectExceptionMessage) {
-      $this->setExpectedException(\Exception::class, $excpectExceptionMessage);
+      $this->expectException(\Exception::class);
+      $this->expectExceptionMessage($excpectExceptionMessage);
     }
 
     // Replace below with a call to your class method.

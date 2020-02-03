@@ -3,7 +3,7 @@
 namespace Drupal\Tests\your_site_core\Unit;
 
 use Drupal\Tests\UnitTestCase;
-use Drupal\your_site_core\Tests\YourSiteCoreTestHelperTrait;
+use Drupal\Tests\your_site_core\Traits\YourSiteCoreTestHelperTrait;
 
 /**
  * Class YourSiteCoreUnitTestBase.
