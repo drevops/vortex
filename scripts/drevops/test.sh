@@ -54,7 +54,7 @@ BEHAT_PARALLEL_INDEX="${BEHAT_PARALLEL_INDEX:-}"
 # ------------------------------------------------------------------------------
 
 # Get test type or fallback to defaults.
-TEST_TYPE="${1:-unit-kernel-functional-bdd}"
+TEST_TYPE="${TEST_TYPE:-unit-kernel-functional-bdd}"
 
 # Create log and artifact directories.
 [ -n "${TEST_LOG_DIR}" ] && mkdir -p "${TEST_LOG_DIR}"
