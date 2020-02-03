@@ -53,7 +53,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.2"
+            "php": "7.3"
         },
         "process-timeout": 0,
         "sort-packages": true

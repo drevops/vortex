@@ -13,7 +13,7 @@
     <arg name="parallel" value="75"/>
     <!--Lint code against platform version specified in composer.json
     key "config.platform.php".-->
-    <config name="testVersion" value="7.2"/>
+    <config name="testVersion" value="7.3"/>
 
     <!-- Exclude theme assets. -->
     <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/build\/.*</exclude-pattern>
