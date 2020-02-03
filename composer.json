@@ -47,8 +47,7 @@
     },
     "autoload-dev": {
         "classmap": [
-            "docroot/sites/all/modules/custom/your_site_core/tests/unit/",
-            "tests/unit/"
+            "docroot/sites/all/modules/custom/your_site_core/tests/unit/"
         ]
     },
     "config": {
