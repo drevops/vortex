@@ -23,7 +23,6 @@ Identical configuration for all environments.
 
 ![Workflow](https://raw.githubusercontent.com/wiki/drevops/drevops/images/workflow.png)
 
-
 ## Features
 - **Highly configurable**  <br/>
   All configuration is made through environment variables without the need to change any of the scripts.
@@ -39,6 +38,16 @@ Identical configuration for all environments.
   Your website can be updated to a newer version of DrevOps with minimal effort. Your project customisations are easily preserved.
 - **Documented**  <br/>
   The major areas of DrevOps are explicitly documented, while most of the code is self-documented.
+
+--------------------------------------------------------------------------------
+
+## DrupalSouth 2019 presentation
+
+<div style="text-align: center;"> 
+  <div class="embed-container">
+    <iframe src="https://www.youtube.com/embed/zOsjoWzMvmc" width="700" height="480" frameborder="0" allowfullscreen=""></iframe>
+  </div>
+</div>
 
 --------------------------------------------------------------------------------
 
