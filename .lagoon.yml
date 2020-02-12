@@ -34,8 +34,9 @@ tasks:
 
     - run:
         name: Install site
-        command: ./scripts/drevops/install-site.sh
+        command: ./scripts/drevops/drupal-install-site.sh
         service: cli
+        shell: bash
 
 environments:
   master:
