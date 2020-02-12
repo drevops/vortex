@@ -114,6 +114,7 @@ services:
       #: Find port on host with `ahoy info` or `docker-compose port cli 35729`.
       - "35729"
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
       lagoon.type: cli-persistent
       lagoon.persistent.name: nginx-php
@@ -145,6 +146,7 @@ services:
       #: requests routing is not required and/or not supported.
       - default
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
       lagoon.type: nginx-php-persistent
       lagoon.name: nginx-php
@@ -169,6 +171,7 @@ services:
     depends_on:
       - cli
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
       lagoon.type: nginx-php-persistent
       lagoon.name: nginx-php
@@ -191,8 +194,9 @@ services:
       #: Find port on host with `ahoy info` or `docker-compose port mariadb 3306`.
       - "3306"
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
-      lagoon.type: mariadb
+      lagoon.type: mariadb-single
     #;> LAGOON
 
   #;< REDIS
@@ -201,6 +205,7 @@ services:
   redis:
     image: amazeeio/redis:v1.2.0
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
       lagoon.type: redis
     #;> LAGOON
@@ -225,6 +230,7 @@ services:
       #: Find port on host with `ahoy info` or `docker-compose port solr 8983`.
       - "8983"
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
       lagoon.type: solr
     #;> LAGOON
