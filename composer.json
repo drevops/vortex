@@ -27,7 +27,7 @@
     },
     "require-dev": {
         "behat/behat": "^3.5",
-        "behat/gherkin": "^4.6.0",
+        "behat/gherkin": "^4.6.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
         "drupal/coder": "^8.2.12",
         "drupal/console": "^1.0.2",
@@ -135,11 +135,6 @@
             "docroot/sites/default/files",
             "docroot/robots.txt",
             "docroot/.htaccess"
-        ],
-        "patches": {
-            "behat/gherkin": {
-                "Correctly filter features, now that the base path is correctly set": "https://github.com/Behat/Gherkin/compare/v4.6.0...a7d84eb6ba245ea268a304312d14660788bf6c29.patch"
-            }
-        }
+        ]
     }
 }
