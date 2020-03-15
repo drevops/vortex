@@ -2,7 +2,10 @@
 #:
 # @see https://hub.docker.com/r/amazeeio/mariadb-drupal/tags?page=1
 # @see https://github.com/amazeeio/lagoon/tree/master/images/mariadb-drupal
-FROM amazeeio/mariadb-drupal:v1.2.0
+# @todo:d update docs
+ARG IMAGE
+
+FROM $IMAGE
 
 USER root
 COPY ./.docker/config/mariadb/my.cnf /etc/my.cnf.d/server.cnf

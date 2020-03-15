@@ -1,0 +1,21 @@
+{
+    "name": "drevops/drevops",
+    "description": "DrevOps tests.",
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "phpunit/phpunit": "^8.5",
+        "symfony/filesystem": "^4.4"
+    },
+    "autoload-dev": {
+        "classmap": [
+            "unit"
+        ]
+    },
+    "config": {
+        "platform": {
+            "php": "7.2"
+        },
+        "process-timeout": 0,
+        "sort-packages": true
+    }
+}

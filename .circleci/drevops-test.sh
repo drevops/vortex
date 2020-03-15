@@ -11,7 +11,7 @@ set -e
 [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email" && git config --global user.email "someone@example.com"
 
 # Create stub of local framework.
-docker network create amazeeio-network
+docker network create amazeeio-network || true
 
 echo "==> Lint scripts code"
 scripts/drevops/lint-scripts.sh
@@ -19,20 +19,27 @@ scripts/drevops/lint-scripts.sh
 echo "==> Check spelling"
 scripts/drevops/lint-spelling.sh
 
-echo "==> Test helpers"
-bats tests/bats/helpers.bats --tap
+echo "==> Run Drevops unit tests"
+pushd scripts/drevops/tests || exit 1
+composer install --no-suggest -n --ansi
+vendor/bin/phpunit unit
+popd || exit 1
+
+echo "==> Test BATS helpers"
+bats scripts/drevops/tests/bats/helpers.bats --tap
 
 echo "==> Test installation"
-bats tests/bats/install_parameters.bats --tap
-bats tests/bats/install_integrations.bats --tap
-bats tests/bats/install_initial.bats --tap
-bats tests/bats/install_existing.bats --tap
-bats tests/bats/install_demo.bats --tap
-bats tests/bats/env.bats --tap
-bats tests/bats/clean.bats --tap
-bats tests/bats/update.bats --tap
+bats scripts/drevops/tests/bats/env.bats --tap
+bats scripts/drevops/tests/bats/install_initial.bats --tap
+bats scripts/drevops/tests/bats/install_existing.bats --tap
+bats scripts/drevops/tests/bats/install_parameters.bats --tap
+bats scripts/drevops/tests/bats/install_integrations.bats --tap
+bats scripts/drevops/tests/bats/install_demo.bats --tap
+bats scripts/drevops/tests/bats/clean.bats --tap
+bats scripts/drevops/tests/bats/update.bats --tap
 
+# @todo:d
+# [ -n "${DATABASE_IMAGE}" ] && workflow=didi || workflow=dif
 index="${CIRCLE_NODE_INDEX:-*}"
 echo "==> Test workflows (${index})"
-# bats "tests/bats/workflow${index}.bats" --tap
-bats "tests/bats/workflow0.bats" --tap
+bats "scripts/drevops/tests/bats/workflow${index}.bats" --tap

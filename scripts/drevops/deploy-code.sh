@@ -98,9 +98,9 @@ composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs -
 
 # Copying git repo files meta file to the deploy code repo as it may not exist
 # in deploy code source files.
-cp -a "${DEPLOY_CODE_ROOT}"/.git "${DEPLOY_CODE_SRC}"
+cp -a "${DEPLOY_CODE_ROOT}"/.git "${DEPLOY_CODE_SRC}" || true
 # Copying deployment .gitignore as it may not exist in deploy code source files.
-cp -a "${DEPLOY_CODE_ROOT}"/.gitignore.deployment "${DEPLOY_CODE_SRC}"
+cp -a "${DEPLOY_CODE_ROOT}"/.gitignore.deployment "${DEPLOY_CODE_SRC}" || true
 
 # Run code deployment using special helper package.
 # Add --debug to debug any deployment issues.

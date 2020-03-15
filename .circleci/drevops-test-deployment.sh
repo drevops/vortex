@@ -12,4 +12,4 @@ docker network create amazeeio-network
 
 index="${CIRCLE_NODE_INDEX:-*}"
 echo "==> Test deployments (${index})"
-bats "tests/bats/deployment${index}.bats" --tap
+bats "scripts/drevops/tests/bats/deployment${index}.bats" --tap

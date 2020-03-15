@@ -1,3 +1,7 @@
 # Ignore files for distribution archives.
-/.gitattributes            export-ignore
-/install.sh                export-ignore
+/.gitattributes                         export-ignore
+/install.sh                             export-ignore
+/install.php                            export-ignore
+/scripts/drevops/tests                  export-ignore
+/.circleci/drevops-test.sh              export-ignore
+/.circleci/drevops-test-deployment.sh   export-ignore

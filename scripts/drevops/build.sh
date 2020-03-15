@@ -40,6 +40,13 @@ echo "==> Removing project containers and packages available since the previous 
 ahoy clean
 
 echo "==> Building images, recreating and starting containers"
+
+if [ -n "${DATABASE_IMAGE}" ]; then
+  echo "==> Using Docker data image ${DATABASE_IMAGE}."
+  # Try restoring the image from archive if it exists.
+  ./scripts/drevops/docker-restore-image.sh "${DATABASE_IMAGE}" "${DB_DIR}/db.tar"
+fi
+
 # Starting containers through this script will suppress STDOUT output, but will
 # still show any STDERR output.
 # Running 'ahoy up' directly will show the build progress.

@@ -51,8 +51,14 @@ aliases:
   #: Optional variables.
   #:-----------------------------------------------------------------------------
 
-  # How often to refresh the cache of the DB dump. Refer to `date` command.
-  - &db_cache_timestamp +%Y_%m_%d
+  # How often to refresh the cache of the database. Refer to `date` command.
+  # @todo:d Revert this to +%Y_%m_%d
+  - &db_cache_timestamp +%Y_%m_%d_%H_%M
+
+  # Use previous database caches on this branch as a fallback if the above cache
+  # does not match. Only allowed "yes" or "no" (include enclosing double quotes).
+  # @todo:d Revert this to yes
+  - &db_cache_fallback "no"
 
   # Database cache directory.
   - &db_cache_dir /root/project/.data
@@ -69,6 +75,12 @@ aliases:
   # Change to 'true' (without single quotes) to enable. Requires lodging a
   # support request with CircleCI o enable this feature.
   - &docker_layer_caching false
+
+  #;< DATABASE_DOWNLOAD_SOURCE_DOCKER_REGISTRY
+  # Schedule to run nightly builds. Defaults to 4am. Usually used when database
+  # captured in the Docker image layer to produce nightly database images.
+  - &nightly_schedule "0 4 * * *"
+  #;> DATABASE_DOWNLOAD_SOURCE_DOCKER_REGISTRY
 
   #:-----------------------------------------------------------------------------
 
@@ -92,7 +104,9 @@ aliases:
           # Always answer 'y' to any confirmation questions.
           CONFIRM_RESPONSE: 'y'
           # How often to refresh the cache of the DB dump. Refer to `date` command.
-          DB_TIMESTAMP: *db_cache_timestamp
+          DB_CACHE_TIMESTAMP: *db_cache_timestamp
+          # Use cache fallback if the above timestamp does not match.
+          DB_CACHE_FALLBACK: *db_cache_fallback
           # Directory to store code exported between jobs.
           BUILD_EXPORT_DIR: &build_export_dir /workspace/code
           # Directory to store test results.
@@ -128,17 +142,21 @@ aliases:
 jobs:
   #: Database handling is a first step of the build.
   #:
-  #: $DB_TIMESTAMP is used to determine if a fresh DB dump should be downloaded
+  #: $DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump should be downloaded
   #: for the current build. Usually, a daily database dump is sufficient for
   #: development activities.
+  #: $DB_CACHE_FALLBACK is used if the cache did not match $DB_CACHE_TIMESTAMP.
+  #: This allows to rely on the cache from the previous days within the same
+  #: branch.
   #:
   #: Database will be sanitized using standard drush sanitization. You may also
   #: use custom SQL script to add more sanitization steps by putting SQL
   #: statements into scripts/sanitize.sql file.
   #;< !FRESH_INSTALL
-  database:
+  database: &job_database
     <<: *container_config
     steps:
+      - run: printenv
       - attach_workspace:
           at: /workspace
       - checkout
@@ -146,7 +164,9 @@ jobs:
       - *step_setup_remote_docker
       - run:
           name: Set timestamp for database caching
-          command: echo "$(date ${DB_TIMESTAMP})" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
+          command: |
+            echo "echo $CIRCLE_WORKFLOW_ID $(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
+            echo "echo $CIRCLE_WORKFLOW_ID ${DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" > /tmp/DB_CACHE_FALLBACK && cat /tmp/DB_CACHE_FALLBACK
       - restore_cache:
           keys:
             #:
@@ -157,11 +177,11 @@ jobs:
             #: Lookup cache based on the current branch and a timestamp. Allows
             #: to cache results of the very first build on the day (sanitized
             #: database dump, for example) and re-use it in all subsequent builds.
-            - v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
             #:
             #: Fallback to caching by branch name. Allows to use cache from the
             #: branch build on the previous day.
-            - v1-db7-{{ .Branch }}-
+            - v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}
       #: Download database and run post DB download commands: build site and
       #: export the database. Note that configuration changes and DB updates
       #: are not applied, so we could cache the database as it was downloaded.
@@ -170,17 +190,18 @@ jobs:
           command: DOWNLOAD_POST_PROCESS="export SKIP_POST_DB_IMPORT=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
           no_output_timeout: 20m
       - save_cache:
-          key: v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
           paths:
             - *db_cache_dir
   #;> !FRESH_INSTALL
 
   #; Build and test is a second step of the build. The testing is performed
   #; within the same job to save time on provisioning during the job.
-  build:
+  build: &job_build
     <<: *container_config
     parallelism: 2
     steps:
+      - run: printenv
       - attach_workspace:
           at: /workspace
       - checkout
@@ -196,7 +217,7 @@ jobs:
       - run:
           name: Build site
           command: ahoy build
-          no_output_timeout: 20m
+          no_output_timeout: 30m
       - run:
           name: Lint code
           command: ahoy lint
@@ -275,12 +296,12 @@ jobs:
   #;----------------------------------------------------------------------------
   #;
   #; We are using CircleCI config file to both run the application tests (what
-  #; a consumer site would use) and DrevOps's own tests (to make sure that
+  #; a consumer site would use) and DrevOps' own tests (to make sure that
   #; this project is "buildable" at any time).
   #;
   #;< DREVOPS
   #; Test suite for DrevOps.
-  drevops_test:
+  drevops_test: &job_drevops_test
     <<: *container_config
     parallelism: 2
     steps:
@@ -315,6 +336,51 @@ jobs:
 
   drevops_deploy_tags:
     <<: *job_deploy_tags
+
+  #; Launching and testing databases stored within Docker data image.
+  #;
+  #; Switching between "database in file" (DIF, mounted data volume) and
+  #; "database-in-Docker-image" (DIDI, data volume is a part of the image) is
+  #; done by providing the value of DATABASE_IMAGE environment variable,
+  #; which would be set in .env file for consumer projects.
+  #;
+  #; Also, the source of the database can be either file (downloaded from
+  #; remote location) or a previous version of the data image.
+  #;
+  #; This means that there should be the following tests for DrevOps
+  #; database-in-Docker-image workflow functionality:
+  #; 1. DB is file -> create data image -> build and test site
+  #; 2. DB is image -> create data image -> build and test site
+  #;
+  #; Since we need to have "database" job generic for consumer sites and any
+  #; logic is controlled within DrevOps scripts, we have to create additional
+  #; test jobs below and run them as a part of the CI system for DrevOps itself.
+  #;
+  #; Job to test creation of the image from DB dump file when using DATABASE_DOWNLOAD_SOURCE_DOCKER_REGISTRY workflow.
+  drevops_didi_database_fi:
+    <<: *job_database
+    environment:
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-7.x
+      FORCE_DB_DOWNLOAD: 1
+  #; Job to test creation of the image from the previous version of the image
+  #; when using database-in-Docker-image workflow.
+  drevops_didi_database_ii:
+    <<: *job_database
+    environment:
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-7.x
+      FORCE_DB_DOWNLOAD: 1
+      DOWNLOAD_DB_TYPE: docker_image
+  #; Job to test build of the image from the previous stage of the image when
+  #; using database-in-Docker-image workflow.
+  drevops_didi_build:
+    <<: *job_build
+    environment:
+      DOWNLOAD_DB_TYPE: docker_image
+  #; Job to run DrevOps' tests for database-in-Docker-image workflow.
+  drevops_didi_test:
+    <<: *job_drevops_test
+    environment:
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-7.x
   #;> DREVOPS
 
 #:###############################################################################
@@ -322,6 +388,8 @@ jobs:
 #:###############################################################################
 workflows:
   version: 2
+  #:
+  #: Main workflow. Runs for every push to the remote repository.
   main:
     jobs:
       - database:
@@ -358,13 +426,13 @@ workflows:
             tags:
               # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
-      #;------------------------------------------------------------------------
-      #; DREVOPS development section. Will be removed during installation/update.
-      #;------------------------------------------------------------------------
-      #;
-      #;< DREVOPS
-      #; Remove the code below in your project.
-      #; Run unit and functional tests for DrevOps.
+#;------------------------------------------------------------------------
+#; DREVOPS development section. Will be removed during installation/update.
+#;------------------------------------------------------------------------
+#;
+#;< DREVOPS
+#; Remove the code below in your project.
+#; Run unit and functional tests for DrevOps.
       - drevops_test:
           filters:
             tags:
@@ -400,4 +468,40 @@ workflows:
               ignore: /.*/
             tags:
               only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
-      #;> DREVOPS
+
+  # drevops_didi_fi:
+  #   jobs:
+  #     - drevops_didi_database_fi
+  #     - drevops_didi_build:
+  #         requires:
+  #           - drevops_didi_database_fi
+  #     - drevops_didi_test:
+  #         requires:
+  #           - drevops_didi_build
+  #
+  # drevops_didi_ii:
+  #   jobs:
+  #     - drevops_didi_database_ii
+  #     - drevops_didi_build:
+  #         requires:
+  #           - drevops_didi_database_ii
+  #     - drevops_didi_test:
+  #         requires:
+  #           - drevops_didi_build
+  #;> DREVOPS
+
+  #;< DATABASE_DOWNLOAD_SOURCE_DOCKER_REGISTRY
+  #:
+  #: Nightly workflow runs overnight using the code from `master` to capture
+  #: fresh database image.
+  # nightly:
+  #   triggers:
+  #     - schedule:
+  #         cron: *nightly_schedule
+  #         filters:
+  #           branches:
+  #             only:
+  #               - master
+  #   jobs:
+  #     - database
+  #;> DATABASE_DOWNLOAD_SOURCE_DOCKER_REGISTRY

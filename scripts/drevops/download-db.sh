@@ -14,7 +14,7 @@ set -e
 
 # The type of database dump download. Can be one of: ftp, curl, acquia.
 # Defaulting to CURL to allow using of demo DB.
-DOWNLOAD_DB_TYPE="${DOWNLOAD_DB_TYPE:-curl}"
+DATABASE_DOWNLOAD_SOURCE="${DATABASE_DOWNLOAD_SOURCE:-curl}"
 
 # Flag to force DB download even if the cache exists.
 # Usually in CircleCI UI to override per build cache.
@@ -31,9 +31,6 @@ DB_DOWNLOAD_PROCEED="${DB_DOWNLOAD_PROCEED:-1}"
 
 # ------------------------------------------------------------------------------
 
-# Pattern of the DB dump file.
-DB_FILE_PATTERN="db*.sql"
-
 # Post process command or a script used for running after the database was downloaded.
 DOWNLOAD_POST_PROCESS="${DOWNLOAD_POST_PROCESS:-}"
 
@@ -41,10 +38,10 @@ DOWNLOAD_POST_PROCESS="${DOWNLOAD_POST_PROCESS:-}"
 [ "${DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "==> Skipping database download as $DB_DOWNLOAD_PROCEED is not set to 1" && exit 0
 
 # Check provided download type.
-[ -z "${DOWNLOAD_DB_TYPE}" ] && echo "ERROR: Missing required value for DOWNLOAD_DB_TYPE. Must be one of: ftp, curl, acquia." && exit 1
+[ -z "${DATABASE_DOWNLOAD_SOURCE}" ] && echo "ERROR: Missing required value for DATABASE_DOWNLOAD_SOURCE. Must be one of: ftp, curl, acquia, docker_image." && exit 1
 
 # Check if database file exists.
-[ -d "${DB_DIR}" ] && found_db=$(find "${DB_DIR}" -name "${DB_FILE_PATTERN}")
+[ -d "${DB_DIR}" ] && found_db=$(find "${DB_DIR}" -name "db*.sql" -o -name "db*.tar")
 
 if [ -n "${found_db}" ]; then
   echo "==> Found existing database dump file ${found_db}"
@@ -63,23 +60,28 @@ mkdir -p "${DB_DIR}"
 export DB_DIR
 export DB_FILE
 
-if [ "${DOWNLOAD_DB_TYPE}" == "ftp" ]; then
+if [ "${DATABASE_DOWNLOAD_SOURCE}" == "ftp" ]; then
   echo "==> Starting database dump download from FTP"
   ./scripts/drevops/download-db-ftp.sh
 fi
 
-if [ "${DOWNLOAD_DB_TYPE}" == "curl" ]; then
+if [ "${DATABASE_DOWNLOAD_SOURCE}" == "curl" ]; then
   echo "==> Starting database dump download from CURL"
   ./scripts/drevops/download-db-curl.sh
 fi
 
-if [ "${DOWNLOAD_DB_TYPE}" == "acquia" ]; then
+if [ "${DATABASE_DOWNLOAD_SOURCE}" == "acquia" ]; then
   echo "==> Starting database dump download from Acquia"
   ./scripts/drevops/download-db-acquia.sh
 fi
 
-echo "==> Downloaded database dump file ${DB_DIR}/${DB_FILE}"
-ls -alh "${DB_DIR}/${DB_FILE}"
+if [ "${DATABASE_DOWNLOAD_SOURCE}" == "docker_registry" ]; then
+  echo "==> Starting database dump download from Docker Registry"
+  ./scripts/drevops/download-db-image.sh "${DATABASE_IMAGE:-}"
+fi
+
+echo "==> Downloaded database dump file in ${DB_DIR}"
+ls -alh "${DB_DIR}"
 
 if [ -n "${DOWNLOAD_POST_PROCESS}" ]; then
   echo "==> Running database post download processing command(s) '${DOWNLOAD_POST_PROCESS}'"

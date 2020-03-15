@@ -78,14 +78,14 @@ projects  the way you want it!**
 ### Installation
 
 1. Install DrevOps<br/>
-   For quiet installation with default settings into current directory:
-    
-   ```
-   bash <(curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.sh)
-   ```
    For interactive installation (questions and answers) into current directory:
    ```
-   bash <(curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.sh) --interactive
+   curl -L https://raw.githubusercontent.com/drevops/drevops/7.x/install.php > /tmp/install.php && php /tmp/install.php --interactive; rm /tmp/install.php
+   ```
+
+   For quiet installation with default settings into current directory:    
+   ```
+   curl -L https://raw.githubusercontent.com/drevops/drevops/7.x/install.php > /tmp/install.php && php /tmp/install.php; rm /tmp/install.php
    ```
 <details>
 <summary>Show Installer screenshot</summary>
@@ -200,7 +200,7 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 | Install and upgrade                           | Follows [SemVer](https://semver.org/) model for releases                                                            | Projects may refer to a specific version of DrevOps, which sets expectations about what tools and configuration is available |
 |                                               | Managed as an agile project                                                                                         | New features and defects can be addressed in a shorter development cycle.GitHub issues organised on the Kanban board provide clear visibility for future releases |
 |                                               | One-liner [install script](install.sh) with optional wizard                                                         | Minimises the time to try DrevOps.Provides centralised point for installation into new and existing projects, as well as updates. |
-| Stability                                     | [Test suite](tests/bats) for all provided commands                                                                  | Guarantees that commands will work |
+| Stability                                     | [Test suite](scripts/drevops/tests/bats) for all provided commands                                                                  | Guarantees that commands will work |
 |                                               | Own CI to run test suite                                                                                            | Pull requests and releases are stable |
 |                                               | Daily Drupal and NPM updates                                                                                        | Composer (including Drupal) and NPM packages are always using the latest versions. |
 | Documentation                                 | Contribution guide\*                                                                                                | Engages community to contribute back |
@@ -290,7 +290,7 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
      Acquia Cloud UI -> Account -> Credentials -> Cloud API -> E-mail
      Acquia Cloud UI -> Account -> Credentials -> Cloud API -> Private key->Show
   2. Download drush aliases archive from your Acquia profile page and
-     place it to your $HOME diretory.
+     place it to your $HOME directory.
   3. Run `drush ac-api-login` and provide your credentials once prompted.
   
 [//]: # (#;> ACQUIA)

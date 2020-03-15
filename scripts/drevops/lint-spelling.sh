@@ -18,6 +18,7 @@ done < <(
     "${CUR_DIR}"/.docker \
     "${CUR_DIR}"/scripts \
     "${CUR_DIR}"/patches \
+    "${CUR_DIR}"/docs \
     -type f \
     \( -name "*.md" \) \
     -print0
