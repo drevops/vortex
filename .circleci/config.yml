@@ -51,8 +51,12 @@ aliases:
   #: Optional variables.
   #:-----------------------------------------------------------------------------
 
-  # How often to refresh the cache of the DB dump. Refer to `date` command.
+  # How often to refresh the cache of the database. Refer to `date` command.
   - &db_cache_timestamp +%Y_%m_%d
+
+  # Use previous database caches on this branch as a fallback if the above cache
+  # does not match. Only allowed "yes" or "no" (include enclosing double quotes).
+  - &db_cache_fallback "yes"
 
   # Database cache directory.
   - &db_cache_dir /root/project/.data
@@ -92,7 +96,9 @@ aliases:
           # Always answer 'y' to any confirmation questions.
           CONFIRM_RESPONSE: 'y'
           # How often to refresh the cache of the DB dump. Refer to `date` command.
-          DB_TIMESTAMP: *db_cache_timestamp
+          DB_CACHE_TIMESTAMP: *db_cache_timestamp
+          # Use cache fallback if the above timestamp does not match.
+          DB_CACHE_FALLBACK: *db_cache_fallback
           # Directory to store code exported between jobs.
           BUILD_EXPORT_DIR: &build_export_dir /workspace/code
           # Directory to store test results.
@@ -128,9 +134,13 @@ aliases:
 jobs:
   #: Database handling is a first step of the build.
   #:
-  #: $DB_TIMESTAMP is used to determine if a fresh DB dump should be downloaded
-  #: for the current build. Usually, a daily database dump is sufficient for
-  #: development activities.
+  #: $DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump should be
+  #: downloaded for the current build. Usually, a daily database dump is
+  #: sufficient for development activities.
+  #:
+  #: $DB_CACHE_FALLBACK is used if the cache did not match $DB_CACHE_TIMESTAMP.
+  #: This allows to rely on the cache from the previous days within the same
+  #: branch.
   #:
   #: Database will be sanitized using standard drush sanitization. You may also
   #: use custom SQL script to add more sanitization steps by putting SQL
@@ -146,7 +156,9 @@ jobs:
       - *step_setup_remote_docker
       - run:
           name: Set timestamp for database caching
-          command: echo "$(date ${DB_TIMESTAMP})" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
+          command: |
+            echo "echo $CIRCLE_WORKFLOW_ID $(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
+            echo "echo $CIRCLE_WORKFLOW_ID ${DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" > /tmp/DB_CACHE_FALLBACK && cat /tmp/DB_CACHE_FALLBACK
       - restore_cache:
           keys:
             #:
@@ -157,11 +169,11 @@ jobs:
             #: Lookup cache based on the current branch and a timestamp. Allows
             #: to cache results of the very first build on the day (sanitized
             #: database dump, for example) and re-use it in all subsequent builds.
-            - v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_TIMESTAMP" }}
+            - v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
             #:
             #: Fallback to caching by branch name. Allows to use cache from the
             #: branch build on the previous day.
-            - v1-db7-{{ .Branch }}-
+            - v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}
       #: Download database and run post DB download commands: build site and
       #: export the database. Note that configuration changes and DB updates
       #: are not applied, so we could cache the database as it was downloaded.
@@ -170,7 +182,7 @@ jobs:
           command: DOWNLOAD_POST_PROCESS="export SKIP_POST_DB_IMPORT=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
           no_output_timeout: 20m
       - save_cache:
-          key: v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_TIMESTAMP" }}
+          key: v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
           paths:
             - *db_cache_dir
   #;> !FRESH_INSTALL
@@ -275,7 +287,7 @@ jobs:
   #;----------------------------------------------------------------------------
   #;
   #; We are using CircleCI config file to both run the application tests (what
-  #; a consumer site would use) and DrevOps's own tests (to make sure that
+  #; a consumer site would use) and DrevOps' own tests (to make sure that
   #; this project is "buildable" at any time).
   #;
   #;< DREVOPS
@@ -322,6 +334,8 @@ jobs:
 #:###############################################################################
 workflows:
   version: 2
+  #:
+  #: Main workflow. Runs for every push to the remote repository.
   main:
     jobs:
       - database:
@@ -358,13 +372,13 @@ workflows:
             tags:
               # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
-      #;------------------------------------------------------------------------
-      #; DREVOPS development section. Will be removed during installation/update.
-      #;------------------------------------------------------------------------
-      #;
-      #;< DREVOPS
-      #; Remove the code below in your project.
-      #; Run unit and functional tests for DrevOps.
+#;------------------------------------------------------------------------
+#; DREVOPS development section. Will be removed during installation/update.
+#;------------------------------------------------------------------------
+#;
+#;< DREVOPS
+#; Remove the code below in your project.
+#; Run unit and functional tests for DrevOps.
       - drevops_test:
           filters:
             tags:
