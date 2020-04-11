@@ -290,7 +290,7 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
      Acquia Cloud UI -> Account -> Credentials -> Cloud API -> E-mail
      Acquia Cloud UI -> Account -> Credentials -> Cloud API -> Private key->Show
   2. Download drush aliases archive from your Acquia profile page and
-     place it to your $HOME diretory.
+     place it to your $HOME directory.
   3. Run `drush ac-api-login` and provide your credentials once prompted.
   
 [//]: # (#;> ACQUIA)

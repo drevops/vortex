@@ -11,7 +11,7 @@ set -e
 [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email" && git config --global user.email "someone@example.com"
 
 # Create stub of local framework.
-docker network create amazeeio-network
+docker network create amazeeio-network || true
 
 echo "==> Lint scripts code"
 scripts/drevops/lint-scripts.sh
