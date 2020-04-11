@@ -180,7 +180,7 @@ jobs:
       - run:
           name: Download DB
           command: DOWNLOAD_POST_PROCESS="export SKIP_POST_DB_IMPORT=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
-          no_output_timeout: 20m
+          no_output_timeout: 30m
       - save_cache:
           key: v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
           paths:
