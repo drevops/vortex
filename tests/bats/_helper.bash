@@ -422,8 +422,15 @@ mktouch(){
 # Format error message with optional output, if present.
 format_error(){
   local message="${1}"
+  echo "##################################################"
+  echo "#             BEGIN ERROR MESSAGE                #"
+  echo "##################################################"
   echo
-  echo "ERROR: ${message}"
+  echo "${message}"
+  echo
+  echo "##################################################"
+  echo "#              END ERROR MESSAGE                 #"
+  echo "##################################################"
   echo
 
   if [ "${output}" != "" ]; then
