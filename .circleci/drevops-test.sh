@@ -34,5 +34,4 @@ bats tests/bats/update.bats --tap
 
 index="${CIRCLE_NODE_INDEX:-*}"
 echo "==> Test workflows (${index})"
-# bats "tests/bats/workflow${index}.bats" --tap
-bats "tests/bats/workflow0.bats" --tap
+bats "tests/bats/workflow${index}.bats" --tap
