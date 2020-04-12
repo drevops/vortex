@@ -60,8 +60,8 @@ assert_ahoy_download_db(){
 assert_ahoy_build(){
   step "Run project build"
 
-  # Assert that database file exists before build.
-  assert_file_exists .data/db.sql
+  # Check that database file exists before build.
+  [ -f ".data/db.sql" ] && db_file_exists=1
 
   ahoy build >&3
   sync_to_host
@@ -70,8 +70,12 @@ assert_ahoy_build(){
   assert_file_exists "composer.lock"
   assert_file_exists "docroot/sites/all/themes/custom/star_wars/package-lock.json"
 
-  # Assert that database file preserved after build.
-  assert_file_exists .data/db.sql
+  # Assert that database file preserved after build if existed before.
+  if [ "$db_file_exists" == 1 ]; then
+    assert_file_exists .data/db.sql
+  else
+    assert_file_not_exists .data/db.sql
+  fi
 
   # Assert the presence of files from the default configuration.
   assert_files_present_common
