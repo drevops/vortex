@@ -9,9 +9,12 @@ load _helper_drevops
 load _helper_drevops_workflow
 
 @test "Workflow: fresh install" {
-  prepare_sut "Starting fresh install WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  rm -f .data/db.sql
+  export DREVOPS_SKIP_DEMO=1
+  assert_file_not_exists .data/db.sql
 
-  # If there is no database downloaded, fresh install from profile is performed.
+  prepare_sut "Starting fresh install WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  # Assert that the database was not downloaded because DREVOPS_SKIP_DEMO was set.
   assert_file_not_exists .data/db.sql
 
   assert_ahoy_build

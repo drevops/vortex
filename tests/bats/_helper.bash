@@ -219,7 +219,7 @@ assert_file_not_contains(){
 }
 
 assert_dir_contains_string(){
-  local dir="${1:-$(pwd)}"
+  local dir="${1}"
   local string="${2}"
 
   assert_dir_exists "${dir}" || return 1
@@ -232,7 +232,7 @@ assert_dir_contains_string(){
 }
 
 assert_dir_not_contains_string(){
-  local dir="${1:-$(pwd)}"
+  local dir="${1}"
   local string="${2}"
 
   [ ! -d "${dir}" ] && return 0
