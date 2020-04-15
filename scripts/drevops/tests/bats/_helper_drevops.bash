@@ -2,6 +2,7 @@
 #
 # Helpers related to DrevOps common testing functionality.
 #
+# shellcheck disable=SC2155
 
 ################################################################################
 #                          HOOK IMPLEMENTATIONS                                #
@@ -27,20 +28,25 @@
 #
 # $APP_TMP_DIR - directory where the application may store it's temporary files.
 setup(){
-  DRUPAL_VERSION="${DRUPAL_VERSION:-7}"
-  CUR_DIR="$(pwd)"
-  BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR}/drevops-$(random_string)"}"
+  export DRUPAL_VERSION="${DRUPAL_VERSION:-7}"
+  export CUR_DIR="$(pwd)"
+  export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR}/drevops-$(random_string)"}"
 
-  CURRENT_PROJECT_DIR="${BUILD_DIR}/star_wars"
-  DST_PROJECT_DIR="${BUILD_DIR}/dst"
-  LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
-  APP_TMP_DIR="${BUILD_DIR}/tmp"
-  TEST_ARTIFACT_DIR="/app"
-  TEST_LOG_DIR="/app/logs"
-  CONFIRM_RESPONSE=y
+  export CURRENT_PROJECT_DIR="${BUILD_DIR}/star_wars"
+  export DST_PROJECT_DIR="${BUILD_DIR}/dst"
+  export LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
+  export APP_TMP_DIR="${BUILD_DIR}/tmp"
+  export TEST_ARTIFACT_DIR="/app"
+  export TEST_LOG_DIR="/app/logs"
+  export CONFIRM_RESPONSE=y
 
-  DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d7.star_wars.sql.md
-  export DEMO_DB_TEST
+  export DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d7.star_wars.sql.md
+
+  # Unset any environment variables that may affect tests.
+  # These are set in CI config to override some jobs.
+  unset DATABASE_DOWNLOAD_SOURCE
+  unset DATABASE_IMAGE
+  unset FORCE_DB_DOWNLOAD
 
   # Disable checks used on host machine.
   export DOCTOR_CHECK_TOOLS=0
@@ -50,17 +56,6 @@ setup(){
   export DOCTOR_CHECK_WEBSERVER=0
   export DOCTOR_CHECK_BOOTSTRAP=0
 
-  export DRUPAL_VERSION
-  export CUR_DIR
-  export BUILD_DIR
-  export CURRENT_PROJECT_DIR
-  export DST_PROJECT_DIR
-  export LOCAL_REPO_DIR
-  export APP_TMP_DIR
-  export TEST_ARTIFACT_DIR
-  export TEST_LOG_DIR
-  export CONFIRM_RESPONSE
-
   prepare_fixture_dir "${BUILD_DIR}"
   prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
   prepare_fixture_dir "${DST_PROJECT_DIR}"
@@ -68,6 +63,8 @@ setup(){
   prepare_fixture_dir "${APP_TMP_DIR}"
   prepare_local_repo "${LOCAL_REPO_DIR}" >/dev/null
   prepare_global_gitignore
+
+  echo "BUILD_DIR dir: ${BUILD_DIR}" >&3
 
   # Change directory to the current project directory for each test. Tests
   # requiring to operate outside of CURRENT_PROJECT_DIR (like deployment tests)
@@ -537,7 +534,8 @@ EOT
 ################################################################################
 
 # Run install script.
-run_install(){
+# shellcheck disable=SC2120
+run_install_quiet(){
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null || exit 1
 
   # Force install script to be downloaded from the local repo for testing.
@@ -555,7 +553,10 @@ run_install(){
   # Enable the line below to show DrevOps debug information (for easy debug of tests).
   # export DREVOPS_DEBUG=1
 
-  run php "${CUR_DIR}/install.php" "$@"
+  opt_quiet="--quiet"
+  [ -n "${TEST_RUN_INSTALL_INTERACTIVE}" ] && opt_quiet=""
+
+  run php "${CUR_DIR}/install.php" "${opt_quiet}" "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
@@ -583,7 +584,7 @@ run_install(){
 #    "nothing" # URL
 #    "nothing" # fresh_install
 #    "nothing" # download_db_source
-#    "nothing" # db_store_type
+#    "nothing" # database_store_type
 #    "nothing" # deploy_type
 #    "nothing" # preserve_ftp
 #    "nothing" # preserve_acquia
@@ -605,11 +606,13 @@ run_install_interactive(){
     input="${input}""${val}"
   done
 
-  # shellcheck disable=SC2059
+  export TEST_RUN_INSTALL_INTERACTIVE=1
+
+  # shellcheck disable=SC2059,SC2119
   # ATTENTION! Questions change based on some answers, so using the same set of
   # answers for all tests will not work. Make sure that correct answers
   # provided for specific tests.
-  printf "$input" | run_install "--interactive"
+  printf "$input" | run_install_quiet
 }
 
 #
@@ -847,7 +850,7 @@ fix_host_dependencies(){
   # Replicate behaviour of install.php script to extract destination directory
   # passed as an argument.
   # shellcheck disable=SC2235
-  ([ "${1}" == "--interactive" ] || [ "${1}" == "-i" ]) && shift
+  ([ "${1}" == "--quiet" ] || [ "${1}" == "-q" ]) && shift
   # Destination directory, that can be overridden with the first argument to this script.
   DST_DIR="${DST_DIR:-$(pwd)}"
   DST_DIR=${1:-${DST_DIR}}

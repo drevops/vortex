@@ -21,6 +21,7 @@ done < <(
     "${CUR_DIR}"/docs \
     -type f \
     \( -name "*.md" \) \
+    -not -path "*vendor*" \
     -print0
   )
 

@@ -2,12 +2,13 @@
 #
 # Test for clean functionality.
 #
+# shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper
 load _helper_drevops
 
 @test "Clean" {
-  run_install
+  run_install_quiet
 
   assert_files_present
   assert_git_repo
@@ -87,7 +88,7 @@ load _helper_drevops
 }
 
 @test "Reset; no commit" {
-  run_install
+  run_install_quiet
 
   assert_files_present
   assert_git_repo
@@ -176,7 +177,7 @@ load _helper_drevops
 }
 
 @test "Reset; committed files" {
-  run_install
+  run_install_quiet
 
   assert_files_present
   assert_git_repo

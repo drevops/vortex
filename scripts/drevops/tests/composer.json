@@ -3,6 +3,8 @@
     "description": "DrevOps tests.",
     "license": "GPL-2.0-or-later",
     "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+        "drupal/coder": "^8.2.12",
         "phpunit/phpunit": "^8.5",
         "symfony/filesystem": "^4.4"
     },

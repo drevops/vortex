@@ -43,14 +43,13 @@ echo "==> Building images, recreating and starting containers"
 
 if [ -n "${DATABASE_IMAGE}" ]; then
   echo "==> Using Docker data image ${DATABASE_IMAGE}."
-  # Try restoring the image from archive if it exists.
+  # Try restoring the image from the archive if it exists.
   ./scripts/drevops/docker-restore-image.sh "${DATABASE_IMAGE}" "${DB_DIR}/db.tar"
 fi
 
-# Starting containers through this script will suppress STDOUT output, but will
-# still show any STDERR output.
 # Running 'ahoy up' directly will show the build progress.
-ahoy up -- --build --force-recreate > /dev/null
+[ -n "${BUILD_VERBOSE}" ] && BUILD_VERBOSE_OUTPUT="/dev/stdout" || BUILD_VERBOSE_OUTPUT="/dev/null"
+ahoy up -- --build --force-recreate > "${BUILD_VERBOSE_OUTPUT}"
 
 # Export code built within containers before adding development dependencies.
 # This usually is not used locally, but used when production-grade code (without

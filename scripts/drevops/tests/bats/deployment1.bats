@@ -2,6 +2,7 @@
 #
 # Test runner for deployment tests.
 #
+# shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper
 load _helper_drevops
@@ -102,8 +103,7 @@ load _helper_drevops_deployment
   assert_output_not_contains "==> Finished WEBHOOK deployment"
 
   assert_output_not_contains "==> Started DOCKER deployment"
-  # @todo: Update once Docker deployment is implemented.
-  assert_output_not_contains "Docker deployment is not yet implemented"
+  assert_output_not_contains "Services map is not specified in DOCKER_MAP variable."
   assert_output_not_contains "==> Finished DOCKER deployment"
 
   step "Assert remote deployment files"

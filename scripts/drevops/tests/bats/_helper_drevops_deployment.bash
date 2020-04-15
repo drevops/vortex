@@ -102,7 +102,7 @@ provision_site(){
 
   enable_demo_db
 
-  run_install
+  run_install_quiet
 
   assert_files_present_common
   assert_git_repo

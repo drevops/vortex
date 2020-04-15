@@ -1,20 +1,21 @@
 #!/usr/bin/env bats
 #
-# Tests for installer parameters for silent and interactive installation.
+# Tests for installer parameters for quiet and interactive installation.
 #
 # - proceed switch (used to stop installation)
 # - default values
 # - normalisation
 # - discovery
 #
+# shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper
 load _helper_drevops
 
-@test "Install parameters: empty dir; proceed switch; silent" {
+@test "Install parameters: empty dir; proceed switch; quiet" {
   export DREVOPS_PROCEED=0
-  output=$(run_install)
-  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
   assert_files_not_present_common
 }
@@ -33,7 +34,7 @@ load _helper_drevops
     "nothing" # URL
     "nothing" # fresh_install
     "nothing" # database_download_source
-    "nothing" # db_store_type
+    "nothing" # database_store_type
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -48,11 +49,11 @@ load _helper_drevops
   assert_files_not_present_common
 }
 
-@test "Install parameters: empty dir; defaults; silent" {
+@test "Install parameters: empty dir; defaults; quiet" {
   export DREVOPS_PROCEED=0
 
-  output=$(run_install)
-  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
   assert_output_contains "                            Name:  Star wars     "
@@ -88,7 +89,7 @@ load _helper_drevops
     "nothing" # URL
     "nothing" # fresh_install
     "nothing" # database_download_source
-    "nothing" # db_store_type
+    "nothing" # database_store_type
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -120,7 +121,7 @@ load _helper_drevops
   assert_output_contains "       Preserve DrevOps comments:  No            "
 }
 
-# Note that there is no silent test for this scenario.
+# Note that there is no quiet test for this scenario.
 @test "Install parameters: empty dir; overrides and normalisation; interactive" {
   export DREVOPS_PROCEED=0
 
@@ -136,7 +137,7 @@ load _helper_drevops
     "nah" # fresh_install
     "something" # download_db_type
     "other thing" # database_download_source
-    "dunno" # db_store_type
+    "dunno" # database_store_type
     "nnnooo" # deploy_type
     "nope" # preserve_ftp
     "dunno" # preserve_acquia
@@ -168,13 +169,13 @@ load _helper_drevops
   assert_output_contains "       Preserve DrevOps comments:  No                     "
 }
 
-@test "Install parameters: pre-installed; overrides, normalisation and discovery; silent" {
+@test "Install parameters: pre-installed; overrides, normalisation and discovery; quiet" {
   export DREVOPS_PROCEED=0
 
   fixture_preinstalled
 
-  output=$(run_install)
-  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
   assert_output_contains "                            Name:  Resistance new site          "
@@ -212,7 +213,7 @@ load _helper_drevops
     "nothing" # URL
     "nothing" # fresh_install
     "nothing" # database_download_source
-    "nothing" # db_store_type
+    "nothing" # database_store_type
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -265,7 +266,7 @@ load _helper_drevops
     "resistance forever.com" # URL
     "nah" # fresh_install
     "image" # database_download_source
-    "image" # db_store_type
+    "image" # database_store_type
     "no" # deploy_type
     "Y" # preserve_ftp
     "nothing" # preserve_acquia - testing NOTHING value - should be 'Enabled' as exists in fixture.

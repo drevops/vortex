@@ -8,6 +8,11 @@ set -e
 
 CUR_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
+echo "==> Linting installer script"
+pushd "${CUR_DIR}/scripts/drevops/tests" >/dev/null || exit 1
+vendor/bin/phpcs -s --standard=Drupal ../../../install.php
+popd >/dev/null || exit 1
+
 targets=()
 while IFS=  read -r -d $'\0'; do
     targets+=("$REPLY")
@@ -17,14 +22,14 @@ done < <(
     "${CUR_DIR}"/scripts \
     "${CUR_DIR}"/.circleci \
     "${CUR_DIR}"/hooks/library \
-    "${CUR_DIR}"/tests/bats \
+    "${CUR_DIR}"/scripts/drevops/tests/bats \
     -type f \
-    \( -name "*.sh" -or -name "*.bash" \) \
+    \( -name "*.sh" -or -name "*.bash" -or -name "*.bats" \) \
     -print0
   )
 targets+=("${CUR_DIR}/install")
 
-echo "==> Start linting scripts in ${CUR_DIR}"
+echo "==> Linting DrevOps scripts and tests in ${CUR_DIR}"
 for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"

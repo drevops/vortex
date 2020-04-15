@@ -2,6 +2,7 @@
 #
 # Test installation into empty directory.
 #
+# shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper
 load _helper_drevops
@@ -11,14 +12,14 @@ load _helper_drevops
 }
 
 @test "Install into empty directory" {
-  run_install
+  run_install_quiet
 
   assert_files_present
   assert_git_repo
 }
 
-@test "Install into empty directory: DST_DIR as argument" {
-  run_install "${DST_PROJECT_DIR}"
+@test "Install into empty directory: DST_DIR from an argument" {
+  run_install_quiet "${DST_PROJECT_DIR}"
 
   assert_files_present "dst" "Dst" "${DST_PROJECT_DIR}"
   assert_git_repo "${DST_PROJECT_DIR}"
@@ -26,7 +27,7 @@ load _helper_drevops
 
 @test "Install into empty directory: DST_DIR from env variable" {
   export DST_DIR="${DST_PROJECT_DIR}"
-  run_install
+  run_install_quiet
 
   assert_files_present "dst" "Dst" "${DST_PROJECT_DIR}"
   assert_git_repo "${DST_PROJECT_DIR}"
@@ -34,7 +35,8 @@ load _helper_drevops
 
 @test "Install into empty directory: PROJECT from env variable" {
   export PROJECT="the_matrix"
-  run_install
+
+  run_install_quiet
 
   assert_files_present "the_matrix" "TheMatrix"
   assert_git_repo
@@ -43,14 +45,14 @@ load _helper_drevops
 @test "Install into empty directory: PROJECT from .env file" {
   echo "PROJECT=\"the_matrix\"" > ".env"
 
-  run_install
+  run_install_quiet
 
   assert_files_present "the_matrix" "TheMatrix"
   assert_git_repo
 }
 
 @test "Install into empty directory: install from specific commit" {
-  run_install
+  run_install_quiet
   assert_files_present
   assert_git_repo
 
@@ -61,11 +63,11 @@ load _helper_drevops
 
   echo "# Some change to docker-compose at commit 2" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
-  commit2=$(git_commit "New version 2 of DrevOps" "${LOCAL_REPO_DIR}")
+  git_commit "New version 2 of DrevOps" "${LOCAL_REPO_DIR}"
 
   # Requiring bespoke version by commit.
   echo DREVOPS_COMMIT="${commit1}">>.env
-  run_install
+  run_install_quiet
   assert_git_repo
   assert_output_contains "This will install DrevOps into your project at commit"
   assert_output_contains "Downloading DrevOps"
@@ -77,7 +79,7 @@ load _helper_drevops
 }
 
 @test "Install into empty directory: empty directory; no local ignore" {
-  run_install
+  run_install_quiet
   assert_files_present
   assert_git_repo
 
@@ -95,9 +97,8 @@ load _helper_drevops
     "nothing" # theme
     "nothing" # URL
     "nothing" # fresh_install
-    "nothing" # download_db_type
     "nothing" # download_db_source
-    "nothing" # db_store_type
+    "nothing" # database_store_type
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -128,7 +129,7 @@ load _helper_drevops
     "nothing" # fresh_install
     "nothing" # download_db_type
     "nothing" # download_db_source
-    "nothing" # db_store_type
+    "nothing" # database_store_type
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -146,9 +147,9 @@ load _helper_drevops
   assert_file_not_contains ".env" "SOMEVAR="
 }
 
-@test "Install into empty directory: silent; should NOT show that DrevOps was previously installed" {
-  output=$(run_install)
-  assert_output_contains "WELCOME TO DREVOPS SILENT INSTALLER"
+@test "Install into empty directory: quiet; should NOT show that DrevOps was previously installed" {
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_not_contains "It looks like DrevOps is already installed into this project"
 
   assert_files_present
@@ -168,7 +169,7 @@ load _helper_drevops
     "nothing" # fresh_install
     "nothing" # download_db_type
     "nothing" # download_db_source
-    "nothing" # db_store_type
+    "nothing" # database_store_type
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -188,9 +189,46 @@ load _helper_drevops
 @test "Install into empty directory; DrevOps badge version set" {
   export DREVOPS_VERSION="7.x-1.2.3"
 
-  run_install
+  run_install_quiet
 
   # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/7.x-1.2.3"
   assert_file_contains "README.md" "badge/DrevOps-7.x--1.2.3-blue.svg"
+}
+
+@test "Install into empty directory; db from curl, storage is database import" {
+  export DATABASE_DOWNLOAD_SOURCE=curl
+  # Point demo database to the test database.
+  enable_demo_db
+
+  run_install_quiet
+
+  assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=curl"
+  assert_file_contains ".env" "CURL_DB_URL="
+  assert_file_contains ".env" "DATABASE_IMAGE="
+}
+
+@test "Install into empty directory; db from curl; storage is Docker image" {
+  export DATABASE_DOWNLOAD_SOURCE=curl
+  # Point demo database to the test database.
+  enable_demo_db
+
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x
+
+  run_install_quiet
+
+  assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=curl"
+  assert_file_contains ".env" "CURL_DB_URL="
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
+}
+
+@test "Install into empty directory; db from Docker image; storage is Docker image" {
+  export DATABASE_DOWNLOAD_SOURCE=docker_registry
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x
+
+  run_install_quiet
+
+  assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
+  assert_file_not_contains ".env" "CURL_DB_URL="
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
 }

@@ -2,6 +2,7 @@
 #
 # Test runner for deployment tests.
 #
+# shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper
 load _helper_drevops
@@ -119,9 +120,8 @@ load _helper_drevops_deployment
   # Docker deployment assertions.
   #
   assert_output_contains "==> Started DOCKER deployment"
-  # @todo: Update once Docker deployment is implemented.
-  assert_output_contains "Docker deployment is not yet implemented"
-  assert_output_contains "==> Finished DOCKER deployment"
+  assert_output_contains "Services map is not specified in DOCKER_MAP variable."
+  assert_output_not_contains "==> Finished DOCKER deployment"
 
   popd > /dev/null
 }

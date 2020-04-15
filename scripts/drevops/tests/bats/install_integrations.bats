@@ -3,11 +3,12 @@
 # Integration tests assert that all required files are present for selected
 # integrations.
 #
+# shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper
 load _helper_drevops
 
-@test "Install: empty directory; no Deployment, Acquia, Lagoon, FTP and dependencies.io integrations" {
+@test "Install: empty directory; none of Deployment, Acquia, Lagoon, FTP and dependencies.io integrations" {
  answers=(
     "Star wars" # name
     "nothing" # machine_name
@@ -19,7 +20,7 @@ load _helper_drevops
     "nothing" # URL
     "nothing" # fresh_install
     "nothing" # database_download_source
-    "nothing" # db_store_type
+    "nothing" # database_store_type
     "none" # deploy_type
     "no" # preserve_ftp
     "no" # preserve_acquia
@@ -55,7 +56,7 @@ load _helper_drevops
     "nothing" # URL
     "nothing" # fresh_install
     "curl" # database_download_source
-    "file" # db_store_type
+    "file" # database_store_type
     "nothing" # deploy_type
     "y" # preserve_ftp
     "y" # preserve_acquia
@@ -91,7 +92,7 @@ load _helper_drevops
     "nothing" # URL
     "nothing" # fresh_install
     "curl" # database_download_source
-    "file" # db_store_type
+    "file" # database_store_type
     "code" # deploy_type
     "y" # preserve_ftp
     "y" # preserve_acquia

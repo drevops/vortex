@@ -22,19 +22,8 @@ docker image inspect "${DOCKER_IMAGE}" >/dev/null 2>&1 && echo "==> Found ${DOCK
 
 if [ -f "${DOCKER_IMAGE_ARCHIVE}" ]; then
   echo "==> Found archived database Docker image file ${DOCKER_IMAGE_ARCHIVE}. Expanding..."
-
-  echo "DEBUG: BEFORE LOAD"
-  docker image list
-
-
   # Always use archived image, even if such image already exists on the host.
   docker load -q --input "${DOCKER_IMAGE_ARCHIVE}"
-
-
-  echo "DEBUG: AFTER LOAD"
-  docker image list
-
-
   # Check that image was expanded and now exists on the host or notify
   # that it will be downloaded from the registry.
   docker image inspect "${DOCKER_IMAGE}" >/dev/null 2>&1 && echo "==> Found expanded ${DOCKER_IMAGE} image on host." || echo "==> Not found expanded ${DOCKER_IMAGE} image on host. The image will be pulled from the registry."

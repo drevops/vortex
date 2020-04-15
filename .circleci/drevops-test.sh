@@ -13,17 +13,17 @@ set -e
 # Create stub of local framework.
 docker network create amazeeio-network || true
 
-echo "==> Lint scripts code"
-scripts/drevops/lint-scripts.sh
-
-echo "==> Check spelling"
-scripts/drevops/lint-spelling.sh
-
 echo "==> Run Drevops unit tests"
 pushd scripts/drevops/tests || exit 1
 composer install --no-suggest -n --ansi
 vendor/bin/phpunit unit
 popd || exit 1
+
+echo "==> Lint scripts code"
+scripts/drevops/lint-scripts.sh
+
+echo "==> Check spelling"
+scripts/drevops/lint-spelling.sh
 
 echo "==> Test BATS helpers"
 bats scripts/drevops/tests/bats/helpers.bats --tap
@@ -38,8 +38,6 @@ bats scripts/drevops/tests/bats/install_demo.bats --tap
 bats scripts/drevops/tests/bats/clean.bats --tap
 bats scripts/drevops/tests/bats/update.bats --tap
 
-# @todo:d
-# [ -n "${DATABASE_IMAGE}" ] && workflow=didi || workflow=dif
 index="${CIRCLE_NODE_INDEX:-*}"
 echo "==> Test workflows (${index})"
 bats "scripts/drevops/tests/bats/workflow${index}.bats" --tap

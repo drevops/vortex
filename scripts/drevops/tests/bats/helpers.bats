@@ -4,6 +4,7 @@
 #
 # Each assertion tests positive and negative behaviour.
 #
+# shellcheck disable=SC2129
 
 load _helper
 

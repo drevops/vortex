@@ -20,7 +20,7 @@ prepare_sut(){
   substep "Initialise the project with default settings"
 
   # Run default install
-  run_install
+  run_install_quiet
 
   assert_files_present_common
   assert_files_present_no_fresh_install
@@ -229,11 +229,12 @@ assert_ahoy_login(){
 
 assert_ahoy_export_db(){
   step "Export DB"
-  run ahoy export-db "mydb.sql"
+  file="${1:-mydb.sql}"
+  run ahoy export-db "${file}"
   assert_success
   assert_output_not_contains "Containers are not running."
   sync_to_host
-  assert_file_exists ".data/mydb.sql"
+  assert_file_exists ".data/${file}"
 }
 
 assert_ahoy_lint(){
@@ -540,4 +541,51 @@ assert_ahoy_reset(){
   assert_git_repo
 
   remove_development_settings
+}
+
+assert_page_contains(){
+  path="${1}"
+  content="${2}"
+  t=$(mktemp)
+  ahoy cli curl -s "http://nginx:8080${path}" > "${t}"
+  assert_file_contains "${t}" "${content}"
+}
+
+assert_page_not_contains(){
+  path="${1}"
+  content="${2}"
+  t=$(mktemp)
+  ahoy cli curl -s "http://nginx:8080${path}" > "${t}"
+  assert_file_not_contains "${t}" "${content}"
+}
+
+assert_reload_db(){
+  step "Reload DB image"
+
+  # Assert that used DB image has content.
+  assert_page_contains "/" "First test node"
+
+  # Change homepage content and assert that the change was applied.
+  ahoy drush vset site_frontpage user
+  assert_page_not_contains "/" "First test node"
+
+  ahoy reload-db
+  assert_page_contains "/" "First test node"
+}
+
+assert_reload_db_curl(){
+  step "Reload DB image using database from CURL"
+  name="${1:-Drupal Test Site}"
+
+  # Assert that used DB image has content.
+  assert_page_contains "/" "Welcome to ${name}"
+  # DB from file dump does not have any content.
+  assert_page_not_contains "/" "First test node"
+
+  # Change homepage content and assert that the change was applied.
+  ahoy drush vset site_frontpage user
+  assert_page_not_contains "/" "Welcome to ${name}"
+
+  ahoy reload-db
+  assert_page_contains "/" "Welcome to ${name}"
 }

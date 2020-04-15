@@ -2,6 +2,7 @@
 #
 # Test demo installation.
 #
+# shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper
 load _helper_drevops
@@ -11,7 +12,7 @@ load _helper_drevops
 
   assert_file_not_exists .data/db.sql
 
-  run_install
+  run_install_quiet
   assert_files_present
   assert_git_repo
 
@@ -25,7 +26,7 @@ load _helper_drevops
   mktouch .data/db.sql
   assert_file_exists .data/db.sql
 
-  run_install
+  run_install_quiet
   assert_files_present
   assert_git_repo
 
@@ -42,7 +43,7 @@ load _helper_drevops
 
   assert_file_not_exists .data/db.sql
 
-  run_install
+  run_install_quiet
   assert_files_present
   assert_git_repo
 
@@ -57,7 +58,7 @@ load _helper_drevops
   mktouch .data/db.sql
   assert_file_exists .data/db.sql
 
-  run_install
+  run_install_quiet
   assert_files_present
   assert_git_repo
 
@@ -74,7 +75,7 @@ load _helper_drevops
 
   assert_file_not_exists .data/db.sql
 
-  run_install
+  run_install_quiet
   assert_files_present
   assert_git_repo
 

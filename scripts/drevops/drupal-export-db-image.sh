@@ -14,9 +14,6 @@ DOCKER_IMAGE_ARCHIVE="${DOCKER_IMAGE_ARCHIVE:-}"
 # <org>/<repository>.
 DOCKER_IMAGE="${DOCKER_IMAGE:-}"
 
-# Image tag to apply to the newly created image. Defaults to "latest".
-DOCKER_IMAGE_TAG="${DOCKER_IMAGE_TAG:-latest}"
-
 # Docker registry name. Provide port, if required as <server_name>:<port>.
 # Defaults to DockerHub.
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
@@ -31,12 +28,12 @@ DB_DIR="${DB_DIR:-./.data}"
 
 echo "==> Started Docker data image export."
 
-[ -z "${DOCKER_IMAGE}" ] && echo "ERROR: Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
+[ -z "${DOCKER_IMAGE}" ] && echo "ERROR: Destination image name is not specified. Please provide docker image as a variable DOCKER_IMAGE in a format <org>/<repository>." && exit 1
 
 cid="$(docker-compose ps -q "${DOCKER_SERVICE_NAME}")"
 echo "==> Found \"${DOCKER_SERVICE_NAME}\" service container with id \"${cid}\"."
 
-new_image="${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG}"
+new_image="${DOCKER_REGISTRY}/${DOCKER_IMAGE}"
 
 echo "==> Committing image with name \"${new_image}\"."
 iid=$(docker commit "${cid}" "${new_image}")

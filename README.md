@@ -306,7 +306,7 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 ## Available `ahoy` commands
 Run each command as `ahoy <command>`.
   ```  
-  build        Build or rebuild project.
+  build        Build or rebuild the project.
   clean        Remove containers and all build files.
   cli          Start a shell or run a command inside the CLI service container.
   debug        Enable debug configuration.
@@ -314,8 +314,8 @@ Run each command as `ahoy <command>`.
   doctor       Find problems with current project setup.
   down         Stop Docker containers and remove container, images, volumes and networks.
   download-db  Download database.
-  drush        Run drush commands in the CLI service container.  
-  export-db    Export database dump.
+  drush        Run drush commands in the CLI service container.
+  export-db    Export database dump or database image (DATABASE_IMAGE variable must be set).
   fe           Build front-end assets.
   fed          Build front-end assets for development.
   few          Watch front-end assets during development.
@@ -328,6 +328,8 @@ Run each command as `ahoy <command>`.
   login        Login to a website.
   logs         Show Docker logs for all or specified services.
   pull         Pull latest docker images.
+  pull-db      Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
+  reload-db    Reload the database container using local database image.
   reset        Reset environment: remove containers, all build, uncommitted files.
   restart      Restart all or specified stopped and running Docker containers.
   start        Start all or specified existing Docker containers.

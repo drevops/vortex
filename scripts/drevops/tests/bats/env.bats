@@ -5,12 +5,14 @@
 # Note on BAT's 'run' helper command: it does not support pipes in argument, so
 # either `run bash -c "mycommand | grep mytext"` or input redirect
 # `run grep mytext <(mycommand)` should be used.
+#
+# shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper
 load _helper_drevops
 
 @test "Environment variables availability" {
-  run_install
+  run_install_quiet
 
   # Prepare temp test script used to print env variables from the script.
   echo "#!/usr/bin/env bash">test.sh && echo "printenv" >> test.sh && chmod 755 test.sh
