@@ -20,7 +20,7 @@ load _helper_drevops_deployment
   # filesystem and just treated as a remote for currently installed codebase.
   REMOTE_REPO_DIR=${REMOTE_REPO_DIR:-${BUILD_DIR}/deployment_remote}
 
-  step "Starting DEPLOYMENT tests"
+  step "Starting DEPLOYMENT tests."
 
   if [ ! "${SRC_DIR}" ]; then
     SRC_DIR="${BUILD_DIR}/deployment_src"
@@ -94,17 +94,17 @@ load _helper_drevops_deployment
 
   run ahoy deploy
   assert_success
-  assert_output_contains "==> Started CODE deployment"
+  assert_output_contains "==> Started CODE deployment."
 
   # Assert that no other deployments ran.
-  assert_output_not_contains "==> Started WEBHOOK deployment"
-  assert_output_not_contains "==> Successfully called webhook"
-  assert_output_not_contains "ERROR: Webhook deployment failed"
-  assert_output_not_contains "==> Finished WEBHOOK deployment"
+  assert_output_not_contains "==> Started WEBHOOK deployment."
+  assert_output_not_contains "==> Successfully called webhook."
+  assert_output_not_contains "ERROR: Webhook deployment failed."
+  assert_output_not_contains "==> Finished WEBHOOK deployment."
 
-  assert_output_not_contains "==> Started DOCKER deployment"
+  assert_output_not_contains "==> Started DOCKER deployment."
   assert_output_not_contains "Services map is not specified in DOCKER_MAP variable."
-  assert_output_not_contains "==> Finished DOCKER deployment"
+  assert_output_not_contains "==> Finished DOCKER deployment."
 
   step "Assert remote deployment files"
   assert_deployment_files_present "${REMOTE_REPO_DIR}"

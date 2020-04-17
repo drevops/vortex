@@ -30,7 +30,7 @@ done < <(
   )
 targets+=("${CUR_DIR}/install")
 
-echo "==> Linting DrevOps scripts and tests in ${CUR_DIR}"
+echo "==> Linting DrevOps scripts and tests in ${CUR_DIR}."
 for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"

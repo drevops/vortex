@@ -19,6 +19,6 @@ DB_FILE="${DB_FILE:-db.sql}"
 #-------------------------------------------------------------------------------
 
 # Check all required values.
-[ -z "${CURL_DB_URL}" ] && echo "Missing required value for CURL_DB_URL" && exit 1
+[ -z "${CURL_DB_URL}" ] && echo "Missing required value for CURL_DB_URL." && exit 1
 
 curl -L "${CURL_DB_URL}" -o "${DB_DIR}/${DB_FILE}"

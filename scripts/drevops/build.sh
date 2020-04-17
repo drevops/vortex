@@ -12,7 +12,7 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-echo "==> Building project"
+echo "==> Building project."
 
 # Read variables from .env file, respecting existing environment variable values.
 # shellcheck disable=SC1090,SC1091
@@ -28,18 +28,18 @@ docker network prune -f > /dev/null && docker network inspect amazeeio-network >
 # Validate Composer configuration if Composer is installed.
 if command -v composer > /dev/null; then
   if [ "$COMPOSER_VALIDATE_LOCK" = "1" ]; then
-    echo "==> Validating composer configuration, including lock file"
+    echo "==> Validating composer configuration, including lock file."
     composer validate --ansi --strict --no-check-all
   else
-    echo "==> Validating composer configuration"
+    echo "==> Validating composer configuration."
     composer validate --ansi --strict --no-check-all --no-check-lock
   fi
 fi
 
-echo "==> Removing project containers and packages available since the previous run"
+echo "==> Removing project containers and packages available since the previous run."
 ahoy clean
 
-echo "==> Building images, recreating and starting containers"
+echo "==> Building images, recreating and starting containers."
 
 if [ -n "${DATABASE_IMAGE}" ]; then
   echo "==> Using Docker data image ${DATABASE_IMAGE}."
@@ -55,7 +55,7 @@ ahoy up -- --build --force-recreate > "${BUILD_VERBOSE_OUTPUT}"
 # This usually is not used locally, but used when production-grade code (without
 # dev dependencies) is used.
 if [ -n "${BUILD_EXPORT_DIR}" ] ; then
-  echo "==> Exporting code before adding development dependencies"
+  echo "==> Exporting code before adding development dependencies."
   mkdir -p "${BUILD_EXPORT_DIR}"
   docker-compose exec --env BUILD_EXPORT_DIR="${BUILD_EXPORT_DIR}" -T cli ./scripts/drevops/export-code.sh
   docker cp -L $(docker-compose ps -q cli):"${BUILD_EXPORT_DIR}"/. "${BUILD_EXPORT_DIR}"
@@ -67,7 +67,7 @@ fi
 # of the container.
 [ -f "${DB_DIR}"/"${DB_FILE}" ] && ahoy cli mkdir -p "${DB_DIR}" && docker cp -L "${DB_DIR}"/"${DB_FILE}" $(docker-compose ps -q cli):"${DB_DIR/.\//${APP}/}"/"${DB_FILE}"
 
-echo "==> Installing development dependencies"
+echo "==> Installing development dependencies."
 #
 # Although we are building dependencies when Docker images are built,
 # development dependencies are not installed (as they should not be installed
@@ -91,7 +91,7 @@ ahoy install-site
 # Check that the site is available.
 ahoy doctor
 
-echo "==> Build complete"
+echo "==> Build complete."
 
 # Show project information and a one-time login link.
 SHOW_LOGIN_LINK=1 ahoy info

@@ -99,7 +99,7 @@ load _helper_drevops_workflow
   # Point demo database to the test database.
   enable_demo_db
 
-  # Assert that DEMO database was downloaded.
+  # Assert that DEMO database is downloaded.
   assert_ahoy_download_db
 
   assert_ahoy_build

@@ -20,7 +20,7 @@ load _helper_drevops_deployment
   # filesystem and just treated as a remote for currently installed codebase.
   REMOTE_REPO_DIR=${REMOTE_REPO_DIR:-${BUILD_DIR}/deployment_remote}
 
-  step "Starting DEPLOYMENT tests"
+  step "Starting DEPLOYMENT tests."
 
   if [ ! "${SRC_DIR}" ]; then
     SRC_DIR="${BUILD_DIR}/deployment_src"
@@ -40,7 +40,7 @@ load _helper_drevops_deployment
     assert_files_present_no_integration_lagoon "star_wars" "${CURRENT_PROJECT_DIR}"
     assert_files_present_no_integration_ftp "star_wars" "${CURRENT_PROJECT_DIR}"
 
-    substep "Copying built codebase into code source directory ${SRC_DIR}"
+    substep "Copying built codebase into code source directory ${SRC_DIR}."
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
   else
     substep "Using provided SRC_DIR ${SRC_DIR}"
@@ -62,7 +62,7 @@ load _helper_drevops_deployment
   mkdir -p "${SRC_DIR}"/docroot/sites/all/themes/custom/star_wars/node_modules
   touch "${SRC_DIR}"/docroot/sites/all/themes/custom/star_wars/node_modules/test.txt
 
-  substep "Preparing remote repo directory ${REMOTE_REPO_DIR}"
+  substep "Preparing remote repo directory ${REMOTE_REPO_DIR}."
   prepare_fixture_dir "${REMOTE_REPO_DIR}"
   git_init 1 "${REMOTE_REPO_DIR}"
 
@@ -70,7 +70,7 @@ load _helper_drevops_deployment
 
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
-  substep "Running deployment"
+  substep "Running deployment."
   # This deployment uses all 3 types.
   export DEPLOY_TYPE="code,webhook,docker"
 
@@ -98,30 +98,32 @@ load _helper_drevops_deployment
   #
   # Code deployment assertions.
   #
-  assert_output_contains "==> Started CODE deployment"
+  assert_output_contains "==> Started CODE deployment."
 
-  substep "CODE: Assert remote deployment files"
+  substep "CODE: Assert remote deployment files."
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
 
   # Assert Acquia hooks are absent.
   assert_files_present_no_integration_acquia "${REMOTE_REPO_DIR}"
 
-  assert_output_contains "==> Finished CODE deployment"
+  assert_output_contains "==> Finished CODE deployment."
 
   #
   # Webhook deployment assertions.
   #
-  assert_output_contains "==> Started WEBHOOK deployment"
-  assert_output_contains "==> Successfully called webhook"
-  assert_output_not_contains "ERROR: Webhook deployment failed"
-  assert_output_contains "==> Finished WEBHOOK deployment"
+  assert_output_contains "==> Started WEBHOOK deployment."
+  assert_output_contains "==> Successfully called webhook."
+  assert_output_not_contains "ERROR: Webhook deployment failed."
+  assert_output_contains "==> Finished WEBHOOK deployment."
 
   #
   # Docker deployment assertions.
   #
-  assert_output_contains "==> Started DOCKER deployment"
+  # By default, Docker deployment will not proceed if service-to-image map
+  # is not specified in DOCKER_MAP variable and will exit normally.
+  assert_output_contains "==> Started DOCKER deployment."
   assert_output_contains "Services map is not specified in DOCKER_MAP variable."
-  assert_output_not_contains "==> Finished DOCKER deployment"
+  assert_output_not_contains "==> Finished DOCKER deployment."
 
   popd > /dev/null
 }

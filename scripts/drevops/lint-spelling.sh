@@ -31,7 +31,7 @@ targets+=(FAQs.md)
 targets+=(ONBOARDING.md)
 targets+=(README.md)
 
-echo "==> Start checking spelling"
+echo "==> Start checking spelling."
 for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"

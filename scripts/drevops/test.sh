@@ -49,7 +49,7 @@ TEST_TYPE="${TEST_TYPE:-unit-bdd}"
 [ -n "${TEST_ARTIFACT_DIR}" ] && mkdir -p "${TEST_ARTIFACT_DIR}"
 
 if [ -z "${TEST_TYPE##*unit*}" ]; then
-  echo "==> Run unit tests"
+  echo "==> Run unit tests."
 
   phpunit_opts=(-c /app/phpunit.xml)
   [ -n "${TEST_LOG_DIR}" ] && phpunit_opts+=(--log-junit "${TEST_LOG_DIR}"/unit.xml)
@@ -58,12 +58,12 @@ if [ -z "${TEST_TYPE##*unit*}" ]; then
 fi
 
 if [ -z "${TEST_TYPE##*bdd*}" ]; then
-  echo "==> Run BDD tests"
+  echo "==> Run BDD tests."
 
   # Use parallel Behat profile if using more than a single node to run tests.
   if [ -n "${BEHAT_PARALLEL_INDEX}" ] ; then
     BEHAT_PROFILE="p${BEHAT_PARALLEL_INDEX}"
-    echo "==> Running using profile \"${BEHAT_PROFILE}\""
+    echo "==> Running using profile \"${BEHAT_PROFILE}\"."
   fi
 
   [ -n "${TEST_ARTIFACT_DIR}" ] && export BEHAT_SCREENSHOT_DIR="${TEST_ARTIFACT_DIR}/screenshots"

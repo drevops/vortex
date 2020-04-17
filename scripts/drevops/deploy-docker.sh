@@ -24,7 +24,7 @@ DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 
 # ------------------------------------------------------------------------------
 
-echo "==> Started DOCKER deployment"
+echo "==> Started DOCKER deployment."
 
 # Only deploy if the map was provided, but do not fail if it has not as this
 # may be called as a part of another task.
@@ -73,4 +73,4 @@ for key in "${!services[@]}"; do
   docker push "${new_image}"
 done
 
-echo "==> Finished DOCKER deployment"
+echo "==> Finished DOCKER deployment."

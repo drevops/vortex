@@ -79,8 +79,8 @@ load _helper_drevops_workflow
   export DREVOPS_SKIP_DEMO=1
 
   export DATABASE_DOWNLOAD_SOURCE=docker_registry
-  # @todo: Replace with test image. This demo image should be used only for
-  # demos.
+  # Re-use demo image (rather than a test image) as we do not make permanent
+  # changes to it.
   export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.

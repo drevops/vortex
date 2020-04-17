@@ -43,7 +43,7 @@ setup(){
   export DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d7.star_wars.sql.md
 
   # Unset any environment variables that may affect tests.
-  # These are set in CI config to override some jobs.
+  # These are set in CI config to override values set in .env file for some jobs.
   unset DATABASE_DOWNLOAD_SOURCE
   unset DATABASE_IMAGE
   unset FORCE_DB_DOWNLOAD
@@ -573,26 +573,26 @@ run_install_quiet(){
 # default values.
 #
 # @code
-#  answers=(
-#    "Star wars" # name
-#    "nothing" # machine_name
-#    "nothing" # org
-#    "nothing" # org_machine_name
-#    "nothing" # module_prefix
-#    "nothing" # profile
-#    "nothing" # theme
-#    "nothing" # URL
-#    "nothing" # fresh_install
-#    "nothing" # download_db_source
-#    "nothing" # database_store_type
-#    "nothing" # deploy_type
-#    "nothing" # preserve_ftp
-#    "nothing" # preserve_acquia
-#    "nothing" # preserve_lagoon
-#    "nothing" # preserve_dependenciesio
-#    "nothing" # preserve_doc_comments
-#    "nothing" # preserve_drevops_info
-#  )
+# answers=(
+#   "Star wars" # name
+#   "nothing" # machine_name
+#   "nothing" # org
+#   "nothing" # org_machine_name
+#   "nothing" # module_prefix
+#   "nothing" # profile
+#   "nothing" # theme
+#   "nothing" # URL
+#   "nothing" # fresh_install
+#   "nothing" # download_db_source
+#   "nothing" # database_store_type
+#   "nothing" # deploy_type
+#   "nothing" # preserve_ftp
+#   "nothing" # preserve_acquia
+#   "nothing" # preserve_lagoon
+#   "nothing" # preserve_dependenciesio
+#   "nothing" # preserve_doc_comments
+#   "nothing" # preserve_drevops_info
+# )
 # output=$(run_install_interactive "${answers[@]}")
 # @endcode
 run_install_interactive(){
@@ -606,6 +606,7 @@ run_install_interactive(){
     input="${input}""${val}"
   done
 
+  # Force installer to be interactive.
   export TEST_RUN_INSTALL_INTERACTIVE=1
 
   # shellcheck disable=SC2059,SC2119
