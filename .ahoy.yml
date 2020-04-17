@@ -42,21 +42,21 @@ commands:
   up:
     usage: Build and start all or specified Docker containers.
     cmd: |
-      docker-compose up -d --quiet-pull "$@" && if docker-compose logs | grep -q "\[Error\]"; then exit 1; fi
-      #:  Write Livereload host port information into a socket file.
+      docker-compose up -d "$@" && if docker-compose logs | grep -q "\[Error\]"; then exit 1; fi
+      #: Write Livereload host port information into a socket file.
       mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
-    #:  Always remove dangling volumes after removing containers to prevent
-    #:  data data leaking between builds (resulting in inconsistent builds).
+    #: Always remove dangling volumes after removing containers to prevent
+    #: data leaking between builds (resulting in inconsistent builds).
     cmd: "if [ -f \"docker-compose.yml\" ]; then docker-compose down --volumes; fi"
 
   start:
     usage: Start all or specified existing Docker containers.
     cmd: |
       docker-compose start "$@"
-      #:  Write Livereload host port information into a socket file.
+      #: Write Livereload host port information into a socket file.
       mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
 
   stop:
@@ -105,13 +105,28 @@ commands:
     cmd: ./scripts/drevops/download-db.sh
   #;> !FRESH_INSTALL
 
+  reload-db:
+    usage: Reload the database container using local database image.
+    cmd: |
+      ahoy confirm "Running this command will replace your current database. Are you sure?" &&
+      docker-compose rm -f -s -v mariadb && ahoy up -- --build mariadb && ahoy install-site && ahoy info && ahoy login ||
+      echo "The operation was canceled."
+
   install-site:
     usage: Install a site.
     cmd: docker-compose exec -e SKIP_POST_DB_IMPORT=${SKIP_POST_DB_IMPORT:-} -T cli ./scripts/drevops/drupal-install-site.sh
 
   export-db:
-    usage: Export database dump.
-    cmd: docker-compose exec -e DB_DIR=${DB_DIR:-} -T cli ./scripts/drevops/drupal-export-db.sh "$@"
+    usage: Export database dump or database image (DATABASE_IMAGE variable must be set).
+    cmd: |
+      [ -z "${DATABASE_IMAGE}" ] && docker-compose exec -e DB_DIR=${DB_DIR:-} -T cli ./scripts/drevops/drupal-export-db.sh "$@" || \
+      ( DOCKER_IMAGE="${DATABASE_IMAGE}" ./scripts/drevops/drupal-export-db-image.sh "$@";
+        if [ -n "${EXPORT_DB_DEPLOY_DOCKER}" ]; then DOCKER_MAP=mariadb=${DATABASE_IMAGE} ./scripts/drevops/deploy-docker.sh; fi )
+
+  pull-db:
+    usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
+    cmd: |
+      [ -n "${DATABASE_IMAGE}" ] && docker pull $DATABASE_IMAGE
 
   clean:
     usage: Remove containers and all build files.

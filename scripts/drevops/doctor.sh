@@ -53,18 +53,18 @@ main() {
   status "Checking project requirements"
 
   if [ "${DOCTOR_CHECK_TOOLS}" == "1" ]; then
-    [ "$(command_exists docker)" == "1" ] && error "Please install Docker (https://www.docker.com/get-started)" && exit 1
-    [ "$(command_exists docker-compose)" == "1" ] && error "Please install docker-compose (https://docs.docker.com/compose/install/)" && exit 1
-    [ "$(command_exists pygmy)" == "1" ] && error "Please install Pygmy (https://pygmy.readthedocs.io/)" && exit 1
-    [ "$(command_exists ahoy)" == "1" ] && error "Please install Ahoy (https://ahoy-cli.readthedocs.io/)" && exit 1
-    success "All required tools are present"
+    [ "$(command_exists docker)" == "1" ] && error "Please install Docker (https://www.docker.com/get-started)." && exit 1
+    [ "$(command_exists docker-compose)" == "1" ] && error "Please install docker-compose (https://docs.docker.com/compose/install/)." && exit 1
+    [ "$(command_exists pygmy)" == "1" ] && error "Please install Pygmy (https://pygmy.readthedocs.io/)." && exit 1
+    [ "$(command_exists ahoy)" == "1" ] && error "Please install Ahoy (https://ahoy-cli.readthedocs.io/)." && exit 1
+    success "All required tools are present."
   fi
 
   if [ "${DOCTOR_CHECK_PORT}" == "1" ]; then
     if ! lsof -i :80 | grep LISTEN | grep -q om.docke; then
-      error "Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'"
+      error "Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'."
     fi
-    success "Port 80 is available"
+    success "Port 80 is available."
   fi
 
   if [ "${DOCTOR_CHECK_PYGMY}" == "1" ]; then
@@ -72,7 +72,7 @@ main() {
       error "pygmy is not running. Run 'pygmy up' to start pygmy."
       exit 1
     fi
-    success "Pygmy is running"
+    success "Pygmy is running."
   fi
 
   # Check that the stack is running.
@@ -126,7 +126,7 @@ main() {
       error "SSH key is added to Pygmy, but the volume is not mounted into container. Make sure that your your \"docker-compose.yml\" has the following lines:"
       error "volumes_from:"
       error "  - container:amazeeio-ssh-agent"
-      error "After adding these lines, run 'ahoy up -- --build'"
+      error "After adding these lines, run 'ahoy up -- --build'."
       exit 1
     fi
 
@@ -136,27 +136,27 @@ main() {
       exit 1
     fi
 
-    success "SSH key is available within CLI container"
+    success "SSH key is available within CLI container."
   fi
 
   if [ "${DOCTOR_CHECK_WEBSERVER}" == "1" ]; then
     # Depending on the type of installation, the homepage may return 200 or 403.
     if ! curl -L -s -o /dev/null -w "%{http_code}" "${LOCALDEV_URL}" | grep -q '200\|403'; then
-      error "Web server is not accessible at http://${LOCALDEV_URL}"
+      error "Web server is not accessible at http://${LOCALDEV_URL}."
       exit 1
     fi
-    success "Web server is running and accessible at http://${LOCALDEV_URL}"
+    success "Web server is running and accessible at http://${LOCALDEV_URL}."
   fi
 
   if [ "${DOCTOR_CHECK_BOOTSTRAP}" == "1" ]; then
     if ! curl -L -s -N "${LOCALDEV_URL}" | grep -q -i "name=\"Generator\" content=\"Drupal ${DRUPAL_VERSION}"; then
-      error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'"
+      error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
       exit 1
     fi
-    success "Successfully bootstrapped website at http://${LOCALDEV_URL}"
+    success "Successfully bootstrapped website at http://${LOCALDEV_URL}."
   fi
 
-  status "All required checks have passed"
+  status "All required checks have passed."
 }
 
 #

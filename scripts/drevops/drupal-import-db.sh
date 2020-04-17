@@ -26,12 +26,12 @@ DB_SANITIZE_FILE="${DB_SANITIZE_FILE:-/app/scripts/sanitize.sql}"
 
 # ------------------------------------------------------------------------------
 
-[ ! -f "${DB_DIR}/${DB_FILE}" ] && echo "ERROR: Database dump ${DB_DIR}/${DB_FILE} not found" && exit 1
+[ ! -f "${DB_DIR}/${DB_FILE}" ] && echo "ERROR: Database dump ${DB_DIR}/${DB_FILE} not found." && exit 1
 
-echo "==> Removing existing database tables"
+echo "==> Removing existing database tables."
 drush sql-drop -y
 
-echo "==> Importing database"
+echo "==> Importing database."
 if [ "${DB_IMPORT_PROGRESS}" -eq 1 ]; then
   pv "${DB_DIR}/${DB_FILE}" | drush sql-cli
 else
@@ -44,6 +44,6 @@ drush sql-sanitize --sanitize-password="${DB_SANITIZE_PASSWORD}" --sanitize-emai
 # Sanitize using additional SQL commands provided in file.
 # To skip custom sanitization, remove the DB_SANITIZE_FILE file from the codebase.
 if [ -f "${DB_SANITIZE_FILE}" ]; then
-  echo "==> Applying custom sanitization commands from file ${DB_SANITIZE_FILE}"
+  echo "==> Applying custom sanitization commands from file ${DB_SANITIZE_FILE}."
   drush sql-query --file="${DB_SANITIZE_FILE}"
 fi

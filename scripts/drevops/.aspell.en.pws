@@ -14,9 +14,14 @@ DDEV
 DEPENDENCIESIO
 Deployer
 DevOps
+DIDI
+DIF
 dev
 Docksal
 Drupal
+drush
+DREVOPS
+DrevOps
 DX
 env
 formatter
@@ -45,6 +50,7 @@ pre
 PRs
 readme
 Robo
+runtime
 sanitization
 SCSS
 SemVer
@@ -56,5 +62,6 @@ UI
 Uncomment
 Upgradable
 VueJS
+WIP
 Xdebug
 YOURORG
