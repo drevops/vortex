@@ -78,14 +78,14 @@ projects  the way you want it!**
 ### Installation
 
 1. Install DrevOps<br/>
-   For quiet installation with default settings into current directory:
-    
-   ```
-   bash <(curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.sh)
-   ```
    For interactive installation (questions and answers) into current directory:
    ```
-   bash <(curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.sh) --interactive
+   curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php > /tmp/install.php && php /tmp/install.php --interactive; rm /tmp/install.php
+   ```
+
+   For quiet installation with default settings into current directory:    
+   ```
+   curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php > /tmp/install.php && php /tmp/install.php; rm /tmp/install.php
    ```
 <details>
 <summary>Show Installer screenshot</summary>
@@ -200,7 +200,7 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 | Install and upgrade                           | Follows [SemVer](https://semver.org/) model for releases                                                            | Projects may refer to a specific version of DrevOps, which sets expectations about what tools and configuration is available |
 |                                               | Managed as an agile project                                                                                         | New features and defects can be addressed in a shorter development cycle.GitHub issues organised on the Kanban board provide clear visibility for future releases |
 |                                               | One-liner [install script](install.sh) with optional wizard                                                         | Minimises the time to try DrevOps.Provides centralised point for installation into new and existing projects, as well as updates. |
-| Stability                                     | [Test suite](tests/bats) for all provided commands                                                                  | Guarantees that commands will work |
+| Stability                                     | [Test suite](scripts/drevops/tests/bats) for all provided commands                                                                  | Guarantees that commands will work |
 |                                               | Own CI to run test suite                                                                                            | Pull requests and releases are stable |
 |                                               | Daily Drupal and NPM updates                                                                                        | Composer (including Drupal) and NPM packages are always using the latest versions. |
 | Documentation                                 | Contribution guide\*                                                                                                | Engages community to contribute back |
@@ -306,39 +306,39 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 ## Available `ahoy` commands
 Run each command as `ahoy <command>`.
   ```  
-  build                Build or rebuild project.
-  clean                Remove containers and all build files.
-  cli                  Start a shell or run a command inside the CLI service container.
-  debug                Enable debug configuration.
-  deploy               Run remote deployment procedures
-  doctor               Find problems with current project setup.
-  down                 Stop Docker containers and remove container, images, volumes and networks.
-  download-db          Download database.
-  drush                Run drush commands in the CLI service container.
-  export-db            Export database dump.
-  fe                   Build front-end assets.
-  fed                  Build front-end assets for development.
-  few                  Watch front-end assets during development.
-  flush-redis          Flush Redis cache.
-  info                 Show information about this project.
-  install-site         Install a site.
-  lint                 Lint back-end and front-end code.
-  lint-be              Lint back-end code.
-  lint-fe              Lint front-end code.
-  login                Login to a website.
-  logs                 Show Docker logs for all or specified services.
-  pull                 Pull latest docker images.
-  reset                Reset environment: remove containers, all build, uncommitted files.
-  restart              Restart all or specified stopped and running Docker containers.
-  start                Start all or specified existing Docker containers.
-  stop                 Stop all or specified running Docker containers.
-  test                 Run all tests.
-  test-bdd             Run BDD tests.
-  test-functional      Run Simpletest functional tests.
-  test-kernel          Run Simpletest kernel tests.
-  test-unit            Run Simpletest unit tests.
-  up                   Build and start all or specified Docker containers.
-  update               Update development stack.
+  build        Build or rebuild the project.
+  clean        Remove containers and all build files.
+  cli          Start a shell or run a command inside the CLI service container.
+  debug        Enable debug configuration.
+  deploy       Run remote deployment procedures
+  doctor       Find problems with current project setup.
+  down         Stop Docker containers and remove container, images, volumes and networks.
+  download-db  Download database.
+  drush        Run drush commands in the CLI service container.
+  export-db    Export database dump or database image (DATABASE_IMAGE variable must be set).
+  fe           Build front-end assets.
+  fed          Build front-end assets for development.
+  few          Watch front-end assets during development.
+  flush-redis  Flush Redis cache.
+  info         Show information about this project.
+  install-site Install a site.
+  lint         Lint back-end and front-end code.
+  lint-be      Lint back-end code.
+  lint-fe      Lint front-end code.
+  login        Login to a website.
+  logs         Show Docker logs for all or specified services.
+  pull         Pull latest docker images.
+  pull-db      Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
+  reload-db    Reload the database container using local database image.
+  reset        Reset environment: remove containers, all build, uncommitted files.
+  restart      Restart all or specified stopped and running Docker containers.
+  start        Start all or specified existing Docker containers.
+  stop         Stop all or specified running Docker containers.
+  test         Run all tests.
+  test-bdd     Run BDD tests.
+  test-unit    Run Simpletest unit tests.
+  up           Build and start all or specified Docker containers.
+  update       Update development stack.
   ```
 
 ### Updating development stack

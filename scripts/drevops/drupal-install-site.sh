@@ -49,7 +49,7 @@ SKIP_POST_DB_IMPORT="${SKIP_POST_DB_IMPORT:-}"
 
 # ------------------------------------------------------------------------------
 
-echo "==> Installing site"
+echo "==> Installing site."
 
 # Create private files directory.
 mkdir -p "${DRUPAL_PRIVATE_FILES}"
@@ -61,18 +61,18 @@ mkdir -p "${DRUPAL_PRIVATE_FILES}"
 # Import database dump if present, or install fresh website from the profile if
 # site is not already installed.
 if [ -z "${SKIP_DB_IMPORT}" ] && [ -f "${DB_DIR}/${DB_FILE}" ]; then
-  echo "==> Using existing DB dump ${DB_DIR}/${DB_FILE}"
+  echo "==> Using existing DB dump ${DB_DIR}/${DB_FILE}."
   DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" ./scripts/drevops/drupal-import-db.sh
 elif drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "Successful"; then
-  echo "==> Existing site found"
+  echo "==> Existing site found."
 else
-  echo "==> Existing site not found. Installing site from profile ${DRUPAL_PROFILE}"
+  echo "==> Existing site not found. Installing site from profile ${DRUPAL_PROFILE}."
   drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
 fi
 
 # Run post DB import scripts, if not skipped.
 if [ -z "${SKIP_POST_DB_IMPORT}" ]; then
-  echo "==> Running post DB init commands"
+  echo "==> Running post DB init commands."
   # Enable custom site "core" module.
   # shellcheck disable=SC2015
   drush ${DRUSH_ALIAS} pml | grep -q "${DRUPAL_MODULE_PREFIX}_core" && drush ${DRUSH_ALIAS} en -y "${DRUPAL_MODULE_PREFIX}_core" || true
@@ -86,7 +86,7 @@ if [ -z "${SKIP_POST_DB_IMPORT}" ]; then
     drush ${DRUSH_ALIAS} config-split-import -y
   fi
 else
-  echo "==> Skipped running of post DB init commands"
+  echo "==> Skipped running of post DB init commands."
 fi
 
 # Rebuild cache.

@@ -81,7 +81,7 @@ extract_json_value() {
 }
 
 # Pre-flight checks.
-command -v curl > /dev/null || ( echo "ERROR: curl command is not available" && exit 1 )
+command -v curl > /dev/null || ( echo "ERROR: curl command is not available." && exit 1 )
 
 # Try to read credentials from the stored config file after running `drush ac-api-login`.
 if [ -z "${AC_API_USER_NAME}" ] && [ -f "${AC_CREDENTIALS_FILE}" ]; then
@@ -93,19 +93,19 @@ if [ -z "${AC_API_USER_NAME}" ] && [ -f "${AC_CREDENTIALS_FILE}" ]; then
 fi
 
 # Check that all required variables are present.
-[ -z "${AC_API_USER_NAME}" ] && echo "ERROR: Missing value for AC_API_USER_NAME" && exit 1
-[ -z "${AC_API_USER_PASS}" ] && echo "ERROR: Missing value for AC_API_USER_PASS" && exit 1
-[ -z "${AC_API_DB_SITE}" ] && echo "ERROR: Missing value for AC_API_DB_SITE" && exit 1
-[ -z "${AC_API_DB_ENV}" ] && echo "ERROR: Missing value for AC_API_DB_ENV" && exit 1
-[ -z "${AC_API_DB_NAME}" ] && echo "ERROR: Missing value for AC_API_DB_NAME" && exit 1
+[ -z "${AC_API_USER_NAME}" ] && echo "ERROR: Missing value for AC_API_USER_NAME." && exit 1
+[ -z "${AC_API_USER_PASS}" ] && echo "ERROR: Missing value for AC_API_USER_PASS." && exit 1
+[ -z "${AC_API_DB_SITE}" ] && echo "ERROR: Missing value for AC_API_DB_SITE." && exit 1
+[ -z "${AC_API_DB_ENV}" ] && echo "ERROR: Missing value for AC_API_DB_ENV." && exit 1
+[ -z "${AC_API_DB_NAME}" ] && echo "ERROR: Missing value for AC_API_DB_NAME." && exit 1
 
 latest_backup=0
 if [ -z "${AC_API_DB_BACKUP_ID}" ] ; then
-  echo "==> Discovering latest backup id for DB ${AC_API_DB_NAME}"
+  echo "==> Discovering latest backup id for DB ${AC_API_DB_NAME}."
   BACKUPS_JSON=$(curl --progress-bar -L -u "${AC_API_USER_NAME}":"${AC_API_USER_PASS}" "https://cloudapi.acquia.com/v1/sites/${AC_API_DB_SITE}/envs/${AC_API_DB_ENV}/dbs/${AC_API_DB_NAME}/backups.json")
   # Acquia response has all backups sorted chronologically by created date.
   AC_API_DB_BACKUP_ID=$(echo "${BACKUPS_JSON}" | extract_json_last_value "id")
-  [ -z "${AC_API_DB_BACKUP_ID}" ] && echo "ERROR: Unable to discover backup id" && exit 1
+  [ -z "${AC_API_DB_BACKUP_ID}" ] && echo "ERROR: Unable to discover backup id." && exit 1
   latest_backup=1
 fi
 
@@ -117,44 +117,44 @@ db_dump_discovered=${db_dump_file_actual}
 db_dump_compressed=${db_dump_file_actual}.gz
 
 if [ -f "${db_dump_discovered}" ] ; then
-  echo "==> Found existing cached DB file \"${db_dump_discovered}\" for DB \"${AC_API_DB_NAME}\""
+  echo "==> Found existing cached DB file \"${db_dump_discovered}\" for DB \"${AC_API_DB_NAME}\"."
 else
   # If the gzipped version exists, then we don't need to re-download it.
   if [ ! -f "${db_dump_compressed}" ] ; then
     [ ! -d "${DB_DIR}" ] && echo "==> Creating dump directory ${DB_DIR}" && mkdir -p "${DB_DIR}"
-    echo "==> Using latest backup id ${AC_API_DB_BACKUP_ID} for DB ${AC_API_DB_NAME}"
-    echo "==> Downloading DB dump into file ${db_dump_compressed}"
+    echo "==> Using latest backup id ${AC_API_DB_BACKUP_ID} for DB ${AC_API_DB_NAME}."
+    echo "==> Downloading DB dump into file ${db_dump_compressed}."
     curl --progress-bar -L -u "${AC_API_USER_NAME}":"${AC_API_USER_PASS}" "https://cloudapi.acquia.com/v1/sites/${AC_API_DB_SITE}/envs/${AC_API_DB_ENV}/dbs/${AC_API_DB_NAME}/backups/${AC_API_DB_BACKUP_ID}/download.json" -o "${db_dump_compressed}"
     # shellcheck disable=SC2181
-    [ $? -ne 0 ] && echo "ERROR: Unable to download database ${AC_API_DB_NAME}" && exit 1
+    [ $? -ne 0 ] && echo "ERROR: Unable to download database ${AC_API_DB_NAME}." && exit 1
   else
-    echo "==> Found existing cached gzipped DB file ${db_dump_compressed} for DB ${AC_API_DB_NAME}"
+    echo "==> Found existing cached gzipped DB file ${db_dump_compressed} for DB ${AC_API_DB_NAME}."
   fi
 
   # Expanding file, if required.
   if [ "${DB_DECOMPRESS_BACKUP}" != "0" ] ; then
-    echo "==> Expanding DB file ${db_dump_compressed} into ${db_dump_file_actual}"
+    echo "==> Expanding DB file ${db_dump_compressed} into ${db_dump_file_actual}."
     gunzip -c "${db_dump_compressed}" > "${db_dump_file_actual}"
     decompress_result=$?
     rm "${db_dump_compressed}"
-    [ ! -f "${db_dump_file_actual}" ] || [ "${decompress_result}" != 0 ] && echo "ERROR: Unable to process DB dump file \"${db_dump_file_actual}\"" && rm -f "${db_dump_compressed}" && rm -f "${db_dump_file_actual}" && exit 1
+    [ ! -f "${db_dump_file_actual}" ] || [ "${decompress_result}" != 0 ] && echo "ERROR: Unable to process DB dump file \"${db_dump_file_actual}\"." && rm -f "${db_dump_compressed}" && rm -f "${db_dump_file_actual}" && exit 1
   fi
 fi
 
-echo "==> Expanded file"
+echo "==> Expanded file."
 ls -alh "${db_dump_file_actual}"
 
 # Create a symlink to the latest backup.
 if [ "${latest_backup}" != "0" ] ; then
   latest_symlink="${DB_FILE}"
   if [ -f "${db_dump_file_actual}" ] ; then
-    echo "==> Creating a symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}"
+    echo "==> Creating a symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}."
     (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
   fi
 
   latest_symlink="${latest_symlink}.gz"
   if [ -f "${db_dump_compressed}" ] ; then
-    echo "==> Creating a symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\""
+    echo "==> Creating a symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\"."
     (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
   fi
 fi

@@ -13,25 +13,31 @@ set -e
 # Create stub of local framework.
 docker network create amazeeio-network || true
 
-echo "==> Lint scripts code"
+echo "==> Run DrevOps unit tests."
+pushd scripts/drevops/tests || exit 1
+composer install --no-suggest -n --ansi
+vendor/bin/phpunit unit
+popd || exit 1
+
+echo "==> Lint scripts code."
 scripts/drevops/lint-scripts.sh
 
-echo "==> Check spelling"
+echo "==> Check spelling."
 scripts/drevops/lint-spelling.sh
 
-echo "==> Test helpers"
-bats tests/bats/helpers.bats --tap
+echo "==> Test BATS helpers."
+bats scripts/drevops/tests/bats/helpers.bats --tap
 
-echo "==> Test installation"
-bats tests/bats/install_parameters.bats --tap
-bats tests/bats/install_integrations.bats --tap
-bats tests/bats/install_initial.bats --tap
-bats tests/bats/install_existing.bats --tap
-bats tests/bats/install_demo.bats --tap
-bats tests/bats/env.bats --tap
-bats tests/bats/clean.bats --tap
-bats tests/bats/update.bats --tap
+echo "==> Test installation."
+bats scripts/drevops/tests/bats/env.bats --tap
+bats scripts/drevops/tests/bats/install_initial.bats --tap
+bats scripts/drevops/tests/bats/install_existing.bats --tap
+bats scripts/drevops/tests/bats/install_parameters.bats --tap
+bats scripts/drevops/tests/bats/install_integrations.bats --tap
+bats scripts/drevops/tests/bats/install_demo.bats --tap
+bats scripts/drevops/tests/bats/clean.bats --tap
+bats scripts/drevops/tests/bats/update.bats --tap
 
 index="${CIRCLE_NODE_INDEX:-*}"
-echo "==> Test workflows (${index})"
-bats "tests/bats/workflow${index}.bats" --tap
+echo "==> Test workflows (${index})."
+bats "scripts/drevops/tests/bats/workflow${index}.bats" --tap
