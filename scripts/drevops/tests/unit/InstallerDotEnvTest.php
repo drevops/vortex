@@ -4,6 +4,9 @@ namespace Drevops\Tests;
 
 /**
  * Class InstallerDotEnvTest.
+ *
+ * phpcs:disable Drupal.Commenting.FunctionComment.Missing
+ * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 class InstallerDotEnvTest extends DrevopsTestCase {
 

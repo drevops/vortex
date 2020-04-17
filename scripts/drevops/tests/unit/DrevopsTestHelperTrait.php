@@ -6,6 +6,9 @@ namespace Drevops\Tests;
  * Trait DrevopsTestHelperTrait.
  *
  * @package Drevops\Tests
+ *
+ * phpcs:disable Drupal.Commenting.FunctionComment.Missing
+ * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 trait DrevopsTestHelperTrait {
 

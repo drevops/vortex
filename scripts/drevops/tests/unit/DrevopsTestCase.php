@@ -9,6 +9,9 @@ use Symfony\Component\Filesystem\Filesystem;
  * Class DrevopsTestCase.
  *
  * @package Drevops\Tests
+ *
+ * phpcs:disable Drupal.Commenting.FunctionComment.Missing
+ * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 abstract class DrevopsTestCase extends TestCase {
 

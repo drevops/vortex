@@ -1,6 +1,6 @@
 {
-    "name": "drevops/drevops",
-    "description": "DrevOps tests.",
+    "name": "drevops/drevops-installer-tests",
+    "description": "DrevOps installer tests.",
     "license": "GPL-2.0-or-later",
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",

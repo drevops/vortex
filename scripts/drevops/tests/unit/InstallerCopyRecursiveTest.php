@@ -4,6 +4,9 @@ namespace Drevops\Tests;
 
 /**
  * Class InstallerCopyRecursiveTest.
+ *
+ * phpcs:disable Drupal.Commenting.FunctionComment.Missing
+ * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 class InstallerCopyRecursiveTest extends DrevopsTestCase {
 
