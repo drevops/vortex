@@ -18,8 +18,10 @@ done < <(
     "${CUR_DIR}"/.docker \
     "${CUR_DIR}"/scripts \
     "${CUR_DIR}"/patches \
+    "${CUR_DIR}"/docs \
     -type f \
     \( -name "*.md" \) \
+    -not -path "*vendor*" \
     -print0
   )
 
@@ -29,7 +31,7 @@ targets+=(FAQs.md)
 targets+=(ONBOARDING.md)
 targets+=(README.md)
 
-echo "==> Start checking spelling"
+echo "==> Start checking spelling."
 for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"

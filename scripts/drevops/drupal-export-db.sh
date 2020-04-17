@@ -29,7 +29,7 @@ drush ${DRUSH_ALIAS} sql-dump --skip-tables-key=common --result-file="${DUMP_FIL
 
 # Check that file was saved and output saved dump file name.
 if [ -f "${DUMP_FILE}" ] && [ -s "${DUMP_FILE}" ]; then
-  echo "==> Exported database dump saved ${DUMP_FILE}"
+  echo "==> Exported database dump saved ${DUMP_FILE}."
 else
-  echo "ERROR: Unable to save dump file ${DUMP_FILE}" && exit 1
+  echo "ERROR: Unable to save dump file ${DUMP_FILE}." && exit 1
 fi

@@ -1,26 +1,18 @@
 #!/usr/bin/env bash
 ##
-# Updated Drual-Dev.
+# Update Drual-Dev.
 #
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-# Allow to override tracked files in order to receive updates.
-export DREVOPS_ALLOW_OVERRIDE="${DREVOPS_ALLOW_OVERRIDE:-1}"
+# The URL of the install script.
+export DREVOPS_INSTALL_URL="${DREVOPS_INSTALL_URL:-https://raw.githubusercontent.com/drevops/drevops/${DRUPAL_VERSION:-7}.x/install.php}"
 
 # Allow to provide custom DrevOps commit hash to download the sources from.
 export DREVOPS_COMMIT="${DREVOPS_COMMIT:-}"
 
-# The URL of the install script.
-export INSTALL_URL="${INSTALL_URL:-https://raw.githubusercontent.com/drevops/drevops/${DRUPAL_VERSION}.x/install.sh}"
-
 # ------------------------------------------------------------------------------
 
-# Use local (if provided) or remote install script.
-if [ -n "${DREVOPS_INSTALL_SCRIPT+x}" ] && [ -f "${DREVOPS_INSTALL_SCRIPT}" ]; then
-  bash "${DREVOPS_INSTALL_SCRIPT}" "$@";
-else
-  bash <(curl -L "${INSTALL_URL}"?"$(date +%s)") "$@";
-fi
+curl -L "${DREVOPS_INSTALL_URL}"?"$(date +%s)" > /tmp/install.php && php /tmp/install.php --quiet; rm /tmp/install.php;
 
