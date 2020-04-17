@@ -7,6 +7,6 @@ FROM ${CLI_IMAGE:-cli} as cli
 
 # @see https://hub.docker.com/r/amazeeio/php/tags?page=1&name=fpm
 # @see https://github.com/amazeeio/lagoon/tree/master/images/php/fpm
-FROM amazeeio/php:7.3-fpm-v1.2.0
+FROM amazeeio/php:7.3-fpm-v1.4.1
 
 COPY --from=cli /app /app
