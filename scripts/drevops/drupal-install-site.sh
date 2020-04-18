@@ -60,7 +60,7 @@ mkdir -p "${DRUPAL_PRIVATE_FILES}"
 
 # Import database dump if present, or install fresh website from the profile if
 # site is not already installed.
-if [ -z "${SKIP_DB_IMPORT}" ] && [ -f "${DB_DIR}/${DB_FILE}" ]; then
+if [ -z "${SKIP_DB_IMPORT}" ] && [ -z "${DATABASE_IMAGE}" ] && [ -f "${DB_DIR}/${DB_FILE}" ]; then
   echo "==> Using existing DB dump ${DB_DIR}/${DB_FILE}."
   DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" ./scripts/drevops/drupal-import-db.sh
 elif drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "Successful"; then
