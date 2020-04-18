@@ -42,6 +42,7 @@ for value in "${values[@]}"; do
   images+=("${parts[1]}")
 done
 
+# Login to the registry.
 ./scripts/drevops/docker-login.sh
 
 for key in "${!services[@]}"; do

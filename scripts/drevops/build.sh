@@ -43,9 +43,8 @@ echo "==> Building images, recreating and starting containers."
 
 if [ -n "${DATABASE_IMAGE}" ]; then
   echo "==> Using Docker data image ${DATABASE_IMAGE}."
-
+  # Always login to the registry to have access to the private images.
   ./scripts/drevops/docker-login.sh
-
   # Try restoring the image from the archive if it exists.
   ./scripts/drevops/docker-restore-image.sh "${DATABASE_IMAGE}" "${DB_DIR}/db.tar"
 fi
