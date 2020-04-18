@@ -17,10 +17,10 @@ DREVOPS_INSTALL_URL="${DREVOPS_INSTALL_URL:-https://raw.githubusercontent.com/dr
 echo "This install script has been deprecated and replaced with a new install script."
 echo
 echo "For interactive installation or update:"
-echo "curl -L ${DREVOPS_INSTALL_URL}?$(date +%s) > /tmp/install.php && php /tmp/install.php; rm /tmp/install.php"
+echo "curl -L ${DREVOPS_INSTALL_URL}?$(date +%s) > /tmp/install.php && php /tmp/install.php; rm /tmp/install.php >/dev/null"
 echo
 echo "For quiet installation or update:"
-echo "curl -L ${DREVOPS_INSTALL_URL}?$(date +%s) > /tmp/install.php && php /tmp/install.php --quiet; rm /tmp/install.php"
+echo "curl -L ${DREVOPS_INSTALL_URL}?$(date +%s) > /tmp/install.php && php /tmp/install.php --quiet; rm /tmp/install.php >/dev/null"
 echo
 
 }
