@@ -52,11 +52,11 @@ DOWNLOAD_POST_PROCESS="${DOWNLOAD_POST_PROCESS:-}"
 [ -d "${DB_DIR}" ] && found_db=$(find "${DB_DIR}" -name "db*.sql" -o -name "db*.tar")
 
 if [ -n "${found_db}" ]; then
-  echo "==> Found existing database dump file ${found_db}."
+  echo "==> Found existing database dump file(s)."
   ls -alh "${DB_DIR}/${DB_FILE}"
 
   if [ -z "${FORCE_DB_DOWNLOAD}" ] ; then
-    echo "==> Using existing database dump file ${found_db}. Download will not proceed. Remove existing database file or set FORCE_DB_DOWNLOAD flag to force download." && exit 0
+    echo "==> Using existing database dump file(s). Download will not proceed. Remove existing database file or set FORCE_DB_DOWNLOAD flag to force download." && exit 0
   else
     echo "==> Forcefully downloading database."
   fi
