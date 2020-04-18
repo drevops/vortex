@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Update Drual-Dev.
+# Update DrevOps.
 #
 
 set -e
