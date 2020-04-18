@@ -164,9 +164,9 @@ jobs:
       - run:
           name: Set cache keys for database caching
           command: |
-            echo "echo $CIRCLE_WORKFLOW_ID" > /tmp/DB_CACHE_WORKFLOW_ID && cat /tmp/DB_CACHE_WORKFLOW_ID
-            echo "echo $(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
-            echo "echo ${DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" > /tmp/DB_CACHE_FALLBACK && cat /tmp/DB_CACHE_FALLBACK
+            echo "${CI_WORKFLOW_NAME:-main}" > /tmp/DB_CACHE_WORKFLOW_NAME && cat /tmp/DB_CACHE_WORKFLOW_NAME
+            echo "$(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
+            echo "${DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" > /tmp/DB_CACHE_FALLBACK && cat /tmp/DB_CACHE_FALLBACK
       - restore_cache:
           keys:
             #:
@@ -177,11 +177,11 @@ jobs:
             #: Lookup cache based on the current branch and a timestamp. Allows
             #: to cache results of the very first build on the day (sanitized
             #: database dump, for example) and re-use it in all subsequent builds.
-            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_ID" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
             #:
             #: Fallback to caching by branch name. Allows to use cache from the
             #: branch build on the previous day.
-            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_ID" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}
+            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}
       #: Download database and run post DB download commands: build site and
       #: export the database. Note that configuration changes and DB updates
       #: are not applied, so we could cache the database as it was downloaded.
@@ -190,7 +190,7 @@ jobs:
           command: DOWNLOAD_POST_PROCESS="export SKIP_POST_DB_IMPORT=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
           no_output_timeout: 30m
       - save_cache:
-          key: v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_ID" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+          key: v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
           paths:
             - *db_cache_dir
 
@@ -220,7 +220,7 @@ jobs:
       - run:
           name: Set cache keys for database caching
           command: |
-            echo "echo $CIRCLE_WORKFLOW_ID" > /tmp/DB_CACHE_WORKFLOW_ID && cat /tmp/DB_CACHE_WORKFLOW_ID
+            echo "${CI_WORKFLOW_NAME:-main}" > /tmp/DB_CACHE_WORKFLOW_NAME && cat /tmp/DB_CACHE_WORKFLOW_NAME
       - restore_cache:
           keys:
             #:
@@ -229,7 +229,7 @@ jobs:
             #; This allows to run nightly jobs as a part of one workflow, but
             #; use cached data in another ones.
             #: https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_ID" }}
+            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}
             - v1-db8-{{ .Branch }}-
       - run:
           name: Build site
@@ -394,6 +394,9 @@ jobs:
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
       EXPORT_DB_DEPLOY_DOCKER: 1
+      #; CircleCI does not provide workflow name variable, so we have to
+      #; explicitly set it within a job.
+      CI_WORKFLOW_NAME: drevops_didi_fi
   #; Job to test creation of the image from the previous version of the image
   #; when using database-in-Docker-image workflow.
   drevops_didi_database_ii:
@@ -405,14 +408,23 @@ jobs:
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
       EXPORT_DB_DEPLOY_DOCKER: 1
+      #; CircleCI does not provide workflow name variable, so we have to
+      #; explicitly set it within a job.
+      CI_WORKFLOW_NAME: drevops_didi_ii
   #; Job to test build of the image from the previous stage of the image when
   #; using database-in-Docker-image workflow. Overwriting just the DATABASE_IMAGE
   #; variable should change the storage mechanisms, but preserve application-level
   #; stack operation.
-  drevops_didi_build:
+  drevops_didi_build_fi:
     <<: *job_build
     environment:
       DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:latest
+      CI_WORKFLOW_NAME: drevops_didi_fi
+  drevops_didi_build_ii:
+    <<: *job_build
+    environment:
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:latest
+      CI_WORKFLOW_NAME: drevops_didi_ii
   #;> DREVOPS
 
 #:###############################################################################
@@ -505,15 +517,15 @@ workflows:
   drevops_didi_fi:
     jobs:
       - drevops_didi_database_fi
-      - drevops_didi_build:
+      - drevops_didi_build_fi:
           requires:
             - drevops_didi_database_fi
 
-  #; Test workflow to test DATABASE_IMAGE workflow for DB from image.
+  #; Test workflow to test DATABASE_IMAGE workflow for DB from docker registry.
   drevops_didi_ii:
     jobs:
       - drevops_didi_database_ii
-      - drevops_didi_build:
+      - drevops_didi_build_ii:
           requires:
             - drevops_didi_database_ii
   #;----------------------------------------------------------------------------
