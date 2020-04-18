@@ -17,10 +17,17 @@ TARGET_ENV="${2}"
 APP="/var/www/html/${SITE}.${TARGET_ENV}"
 DOMAINS_FILE="${DOMAINS_FILE:-${APP}/hooks/library/domains.txt}"
 
+DEPLOY_API_USER_NAME="${DEPLOY_API_USER_NAME?not set}"
+DEPLOY_API_USER_PASS="${DEPLOY_API_USER_PASS?not set}"
+
 # ------------------------------------------------------------------------------
 
 [ ! -f "${DOMAINS_FILE}" ] && echo "ERROR: File with domains does not exist." && exit 1
-[ ! -f "${HOME}/.acquia/cloudapi.conf" ] && echo "ERROR: Acquia Cloud API credentials file ${HOME}/.acquia/cloudapi.conf does not exist." && exit 1
+
+[ -n "${SKIP_FLUSH_VARNISH}" ] && echo "Skipping flush varnish." && exit
+
+# Login to Acquia Cloud.
+drush @${SITE}.${TARGET_ENV} ac-api-login --email="${DEPLOY_API_USER_NAME}" --key="${DEPLOY_API_USER_PASS}"
 
 while read -r domain; do
   # Special variable to remap target env to the sub-domain prefix based on UI name.
