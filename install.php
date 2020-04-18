@@ -706,7 +706,7 @@ function ask($question, $default) {
 
   $question = "> $question [$default] ";
 
-  out($question, 'info', FALSE);
+  out($question, 'question', FALSE);
   $handle = get_stdin_handle();
   $answer = trim(fgets($handle));
 
