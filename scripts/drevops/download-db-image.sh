@@ -23,14 +23,7 @@ echo "==> Start Docker data image download."
 
 [ -z "${DOCKER_IMAGE}" ] && echo "ERROR: Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
 
-if [ -f "$HOME/.docker/config.json" ] && grep -q "${DOCKER_REGISTRY}" "$HOME/.docker/config.json"; then
-  echo "==> Already logged in to registry \"${DOCKER_REGISTRY}\"."
-elif [ -n "${DOCKER_REGISTRY_USERNAME}" ] &&  [ -n "${DOCKER_REGISTRY_TOKEN}" ]; then
-  echo "==> Logging in to registry \"${DOCKER_REGISTRY}\"."
-  docker login --username "${DOCKER_REGISTRY_USERNAME}" --password "${DOCKER_REGISTRY_TOKEN}" "${DOCKER_REGISTRY}"
-else
-  echo "==> Skipping login into registry as either DOCKER_REGISTRY_USERNAME or DOCKER_REGISTRY_TOKEN was not provided."
-fi
+./scripts/drevops/docker-login.sh
 
 new_image="${DOCKER_REGISTRY}/${DOCKER_IMAGE}"
 
