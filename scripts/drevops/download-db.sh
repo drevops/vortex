@@ -53,7 +53,7 @@ DOWNLOAD_POST_PROCESS="${DOWNLOAD_POST_PROCESS:-}"
 
 if [ -n "${found_db}" ]; then
   echo "==> Found existing database dump file(s)."
-  ls -alh "${DB_DIR}/${DB_FILE}"
+  ls -alh "${DB_DIR}"
 
   if [ -z "${FORCE_DB_DOWNLOAD}" ] ; then
     echo "==> Using existing database dump file(s). Download will not proceed. Remove existing database file or set FORCE_DB_DOWNLOAD flag to force download." && exit 0
