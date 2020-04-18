@@ -42,13 +42,7 @@ for value in "${values[@]}"; do
   images+=("${parts[1]}")
 done
 
-# Login to Docker registry.
-if [ -f "$HOME/.docker/config.json" ] && grep -q "${DOCKER_REGISTRY}" "$HOME/.docker/config.json"; then
-  echo "==> Already logged in to registry \"${DOCKER_REGISTRY}\"."
-elif [ -n "${DOCKER_REGISTRY_USERNAME}" ] &&  [ -n "${DOCKER_REGISTRY_TOKEN}" ]; then
-  echo "==> Logging in to registry \"${DOCKER_REGISTRY}\"."
-  docker login --username "${DOCKER_REGISTRY_USERNAME}" --password "${DOCKER_REGISTRY_TOKEN}" "${DOCKER_REGISTRY}"
-fi
+./scripts/drevops/docker-login.sh
 
 for key in "${!services[@]}"; do
   service="${services[$key]}"
