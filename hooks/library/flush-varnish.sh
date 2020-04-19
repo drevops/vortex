@@ -27,6 +27,7 @@ DEPLOY_API_USER_PASS="${DEPLOY_API_USER_PASS?not set}"
 [ -n "${SKIP_FLUSH_VARNISH}" ] && echo "Skipping flush varnish." && exit
 
 # Login to Acquia Cloud.
+# shellcheck disable=SC2086
 drush @${SITE}.${TARGET_ENV} ac-api-login --email="${DEPLOY_API_USER_NAME}" --key="${DEPLOY_API_USER_PASS}"
 
 while read -r domain; do
@@ -55,6 +56,6 @@ while read -r domain; do
 
     # Clear varnish cache.
     # shellcheck disable=SC2086
-    echo drush @${SITE}.${TARGET_ENV} ac-domain-purge "${domain}" || true
+    drush @${SITE}.${TARGET_ENV} ac-domain-purge "${domain}" || true
   fi
 done < "${DOMAINS_FILE}"
