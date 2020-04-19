@@ -109,6 +109,8 @@ aliases:
           DB_CACHE_FALLBACK: *db_cache_fallback
           # Directory to store code exported between jobs.
           BUILD_EXPORT_DIR: &build_export_dir /workspace/code
+          # Do not use symlink when downloading database dump (useful only locally).
+          DB_USE_SYMLINK: false
           # Directory to store test results.
           TEST_LOG_DIR: &test_log_dir /tmp/tests
           # Directory to store test artifacts.
