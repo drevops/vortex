@@ -60,6 +60,9 @@ DB_FILE="${DB_FILE:-db.sql}"
 # downloaded and not decompressed.
 DB_DECOMPRESS_BACKUP=${DB_DECOMPRESS_BACKUP:-1}
 
+# Use symlink when downloading files.
+DB_USE_SYMLINK="${DB_USE_SYMLINK:-true}"
+
 #-------------------------------------------------------------------------------
 #                       DO NOT CHANGE ANYTHING BELOW THIS LINE
 #-------------------------------------------------------------------------------
@@ -144,17 +147,22 @@ fi
 echo "==> Expanded file."
 ls -alh "${db_dump_file_actual}"
 
-# Create a symlink to the latest backup.
-if [ "${latest_backup}" != "0" ] ; then
-  latest_symlink="${DB_FILE}"
-  if [ -f "${db_dump_file_actual}" ] ; then
-    echo "==> Creating a symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}."
-    (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
-  fi
+if [ "${DB_USE_SYMLINK}" == true ]; then
+  # Create a symlink to the latest backup.
+  if [ "${latest_backup}" != "0" ] ; then
+    latest_symlink="${DB_FILE}"
+    if [ -f "${db_dump_file_actual}" ] ; then
+      echo "==> Creating a symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}."
+      (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
+    fi
 
-  latest_symlink="${latest_symlink}.gz"
-  if [ -f "${db_dump_compressed}" ] ; then
-    echo "==> Creating a symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\"."
-    (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
+    latest_symlink="${latest_symlink}.gz"
+    if [ -f "${db_dump_compressed}" ] ; then
+      echo "==> Creating a symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\"."
+      (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
+    fi
   fi
+else
+  echo "==> Renaming file \"${db_dump_file_actual}\" to \"${DB_DIR}/${DB_FILE}\"."
+  mv "${db_dump_file_actual}" "${DB_DIR}/${DB_FILE}"
 fi
