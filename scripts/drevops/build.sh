@@ -67,7 +67,7 @@ fi
 # container, but only if it exists, while also replacing relative directory path
 # with absolute path. Note, that the DB_DIR path is the same inside and outside
 # of the container.
-[ -f "${DB_DIR}"/"${DB_FILE}" ] && ahoy cli mkdir -p "${DB_DIR}" && docker cp -L "${DB_DIR}"/"${DB_FILE}" $(docker-compose ps -q cli):"${DB_DIR/.\//${APP}/}"/"${DB_FILE}"
+[ -f "${DB_DIR}"/"${DB_FILE}" ] && ahoy cli mkdir -p "${DB_DIR}" && docker cp -L "${DB_DIR}"/"${DB_FILE}" $(docker-compose ps -q cli):"${DB_DIR/.\//${APP}/}"/"${DB_FILE}" && echo "==> Copied database file into container"
 
 echo "==> Installing development dependencies."
 #
@@ -89,6 +89,18 @@ ahoy cli "npm --prefix docroot/sites/all/themes/custom/your_site_theme install -
 
 # Install site (from existing DB or fresh install).
 ahoy install-site
+
+# Special handling of downloaded DB dump file in CI.
+# We need to force importing of the database dump from the file into the
+# database image with existing site, but only for the first time this file
+# is downloaded (we do not want to import it in another stages where cached
+# database image should be used instead of dump file). So we are removing the
+# database dump file after import so it is not imported again on the next run.
+# But this only should be applied in CI and only if we are using database in
+# image storage.
+# This also prevent us from caching both dump file and an exported image,
+# which would double the size of the cache.
+if [ -n "${CI}" ] && [ -n "${DATABASE_IMAGE}" ] && [ -f "${DB_DIR}/${DB_FILE}" ]; then echo "==> Removing DB dump file in CI."; rm "${DB_DIR}/${DB_FILE}" || true; fi
 
 # Check that the site is available.
 ahoy doctor
