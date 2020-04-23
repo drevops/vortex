@@ -322,8 +322,8 @@ fixture_preinstalled(){
   mkdir -p docroot/modules/custom/yetanother_resist
 
   # Sets 'theme' to 'resisting'.
-  mkdir -p docroot/themes/custom/resisting
-  mkdir -p docroot/themes/custom/yetanothertheme
+  mktouch docroot/sites/all/themes/custom/resisting/resisting.info.yml
+  mktouch docroot/sites/all/themes/custom/yetanothertheme/yetanothertheme.info.yml
 
   # Sets 'url' to 'www.resistance-star-wars.com'.
   mkdir -p docroot/sites/default
