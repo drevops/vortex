@@ -14,6 +14,9 @@ set -e
 
 echo "==> Building project."
 
+# Suppress any confirmation dialogs in descendant calls.
+export CONFIRM_RESPONSE=y
+
 # Read variables from .env file, respecting existing environment variable values.
 # shellcheck disable=SC1090,SC1091
 t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
