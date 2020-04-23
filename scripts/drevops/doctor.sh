@@ -149,7 +149,7 @@ main() {
   fi
 
   if [ "${DOCTOR_CHECK_BOOTSTRAP}" == "1" ]; then
-    if ! curl -L -s -N "${LOCALDEV_URL}" | grep -q -i "charset=\"utf-8\""; then
+    if ! curl -L -s -N "${LOCALDEV_URL}" | grep -q -i "charset="; then
       error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
       exit 1
     fi
