@@ -139,6 +139,11 @@ if (file_exists('/var/www/site-php')) {
       $settings['environment'] = ENVIRONMENT_PROD;
       break;
   }
+
+
+  if (strpos($_ENV['AH_SITE_ENVIRONMENT'], 'ode') === 0) {
+    $conf['environment'] = ENVIRONMENT_DEV;
+  }
 }
 // #;> ACQUIA
 
