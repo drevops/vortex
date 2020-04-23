@@ -24,7 +24,9 @@ commands:
 
   build:
     usage: Build or rebuild the project.
-    cmd: ./scripts/drevops/build.sh
+    cmd: |
+      ahoy confirm "Running this command will remove your current database and files. Are you sure?" &&
+      ./scripts/drevops/build.sh
 
   info:
     usage: Show information about this project.
@@ -48,9 +50,11 @@ commands:
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
-    #: Always remove dangling volumes after removing containers to prevent
-    #: data leaking between builds (resulting in inconsistent builds).
-    cmd: "if [ -f \"docker-compose.yml\" ]; then docker-compose down --volumes; fi"
+    cmd: |
+      ahoy confirm "Running this command will remove your current database. Are you sure?" &&
+      #: Always remove dangling volumes after removing containers to prevent
+      #: data leaking between builds (resulting in inconsistent builds).
+      if [ -f "docker-compose.yml" ]; then docker-compose down --volumes; fi
 
   start:
     usage: Start all or specified existing Docker containers.
