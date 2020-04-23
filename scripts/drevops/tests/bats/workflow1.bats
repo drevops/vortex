@@ -17,7 +17,7 @@ load _helper_drevops_workflow
   export DATABASE_DOWNLOAD_SOURCE=docker_registry
   # @todo: Replace with test image. This demo image should be used only for
   # demos.
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
   export DOCKER_REGISTRY_USERNAME=
@@ -36,7 +36,7 @@ load _helper_drevops_workflow
   assert_file_not_exists .data/db.sql
 
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
   assert_file_not_contains ".env" "CURL_DB_URL="
 
   assert_ahoy_build
@@ -81,7 +81,7 @@ load _helper_drevops_workflow
   export DATABASE_DOWNLOAD_SOURCE=docker_registry
   # Re-use demo image (rather than a test image) as we do not make permanent
   # changes to it.
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
   export DOCKER_REGISTRY_USERNAME=
@@ -99,7 +99,7 @@ load _helper_drevops_workflow
   assert_file_not_exists .data/db.sql
 
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
   assert_file_not_contains ".env" "CURL_DB_URL="
 
   assert_ahoy_build
@@ -143,7 +143,7 @@ load _helper_drevops_workflow
   # Point demo database to the test database.
   enable_demo_db
 
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
   export DOCKER_REGISTRY_USERNAME=
@@ -161,7 +161,7 @@ load _helper_drevops_workflow
 
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=curl"
   assert_file_contains ".env" "CURL_DB_URL="
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
 
   assert_ahoy_build
 

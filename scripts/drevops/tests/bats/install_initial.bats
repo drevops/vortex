@@ -213,22 +213,22 @@ load _helper_drevops
   # Point demo database to the test database.
   enable_demo_db
 
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x
 
   run_install_quiet
 
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=curl"
   assert_file_contains ".env" "CURL_DB_URL="
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
 }
 
 @test "Install into empty directory; db from Docker image; storage is Docker image" {
   export DATABASE_DOWNLOAD_SOURCE=docker_registry
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x
 
   run_install_quiet
 
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
   assert_file_not_contains ".env" "CURL_DB_URL="
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
 }

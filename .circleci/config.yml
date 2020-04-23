@@ -392,7 +392,7 @@ jobs:
       #; Note that here and below we are using "destination" demo image - this
       #; is to allow updating of this image from CI tests without jeopardizing
       #; main demo image.
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:latest
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x:latest
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
       EXPORT_DB_DEPLOY_DOCKER: 1
@@ -406,7 +406,7 @@ jobs:
     environment:
       DATABASE_DOWNLOAD_SOURCE: docker_registry
       FORCE_DB_DOWNLOAD: 1
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:latest
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x:latest
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
       EXPORT_DB_DEPLOY_DOCKER: 1
@@ -420,12 +420,12 @@ jobs:
   drevops_didi_build_fi:
     <<: *job_build
     environment:
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:latest
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x:latest
       CI_WORKFLOW_NAME: drevops_didi_fi
   drevops_didi_build_ii:
     <<: *job_build
     environment:
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:latest
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x:latest
       CI_WORKFLOW_NAME: drevops_didi_ii
   #;> DREVOPS
 
