@@ -9,6 +9,8 @@ set -x
 SITE="${1}"
 TARGET_ENV="${2}"
 
+[ -n "${SKIP_INSTALL_SITE}" ] && echo "Skipping install site." && exit
+
 # Create drush alias from arguments.
 export DRUSH_ALIAS="@${SITE}.${TARGET_ENV}"
 
