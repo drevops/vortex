@@ -6,11 +6,11 @@
  *
  * Usage:
  * @code
- * curl -L https://raw.githubusercontent.com/drevops/drevops/7.x/install.php | php
- * curl -L https://raw.githubusercontent.com/drevops/drevops/7.x/install.php | php -- /path/to/destination/directory
- * curl -L https://raw.githubusercontent.com/drevops/drevops/7.x/install.php | php -- --quiet /path/to/destination/directory
- * curl -L https://raw.githubusercontent.com/drevops/drevops/7.x/install.php | php -- help
- * curl -L https://raw.githubusercontent.com/drevops/drevops/7.x/install.php | php -- --help
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php | php
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php | php -- /path/to/destination/directory
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php | php -- --quiet /path/to/destination/directory
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php | php -- help
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php | php -- --help
  * @endcode
  *
  * Variables precedence (top values win):
@@ -27,7 +27,7 @@
 /**
  * Defines Drupal version supported by this installer.
  */
-define('INSTALLER_DRUPAL_VERSION', 7);
+define('INSTALLER_DRUPAL_VERSION', 8);
 
 /**
  * Defines current working directory.
@@ -421,7 +421,7 @@ function process__string_tokens($dir) {
   dir_replace_content('your_org',          get_answer('org_machine_name'),   $dir);
   dir_replace_content('YOURORG',           get_answer('org'),                $dir);
   dir_replace_content('your-site-url',     get_answer('url'),                $dir);
-  dir_replace_content('your_site',         get_answer('module_prefix'),      $dir . '/docroot/sites/all/modules/custom');
+  dir_replace_content('your_site',         get_answer('module_prefix'),      $dir . '/docroot/modules/custom');
   dir_replace_content('your_site',         get_answer('machine_name'),       $dir);
   dir_replace_content('your-site',         $machine_name_hyphenated,         $dir);
   dir_replace_content('YOURSITE',          get_answer('name'),               $dir);
@@ -432,7 +432,7 @@ function process__string_tokens($dir) {
   dir_replace_content('DREVOPS_VERSION',             get_config('DREVOPS_VERSION'),  $dir);
 
   replace_string_filename('your_site_theme',  get_answer('theme'),              $dir);
-  replace_string_filename('your_site',        get_answer('module_prefix'),      $dir . '/docroot/sites/all/modules/custom');
+  replace_string_filename('your_site',        get_answer('module_prefix'),      $dir . '/docroot/modules/custom');
   replace_string_filename('your_org',         get_answer('org_machine_name'),   $dir);
   replace_string_filename('your_site',        get_answer('machine_name'),       $dir);
   // @formatter:on
@@ -1040,10 +1040,12 @@ function discover_value__module_prefix() {
 function discover_value__profile() {
   $locations = [
     get_dst_dir() . '/docroot/profiles/*/*.info',
+    get_dst_dir() . '/docroot/profiles/*/*.info.yml',
     get_dst_dir() . '/docroot/profiles/custom/*/*.info',
+    get_dst_dir() . '/docroot/profiles/custom/*/*.info.yml',
   ];
 
-  $name = find_matching_path($locations, 'Drupal 7 profile implementation of');
+  $name = find_matching_path($locations, 'Drupal 8 profile implementation of');
 
   if (empty($name)) {
     return NULL;
@@ -1051,7 +1053,7 @@ function discover_value__profile() {
 
   if ($name) {
     $name = basename($name);
-    $name = str_replace(['.info', '.info.yml'], '', $name);
+    $name = str_replace(['.info.yml', '.info'], '', $name);
   }
 
   return $name;
@@ -1077,7 +1079,7 @@ function discover_value__theme() {
 
   if ($name) {
     $name = basename($name);
-    $name = str_replace(['.info', '.info.yml'], '', $name);
+    $name = str_replace(['.info.yml', '.info'], '', $name);
   }
 
   return $name;
