@@ -111,8 +111,6 @@ provision_site(){
 
   step "Initialise the project with the default settings"
 
-  enable_demo_db
-
   run_install_quiet
 
   assert_files_present_common

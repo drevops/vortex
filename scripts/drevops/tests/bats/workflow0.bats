@@ -13,9 +13,6 @@ load _helper_drevops_workflow
 @test "Workflow: DB-driven" {
   prepare_sut "Starting DB-driven WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
-  # Point demo database to the test database.
-  enable_demo_db
-
   assert_ahoy_download_db
 
   assert_ahoy_build
@@ -103,9 +100,6 @@ load _helper_drevops_workflow
 
 @test "Idempotence" {
   prepare_sut "Starting idempotence tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
-
-  # Point demo database to the test database.
-  enable_demo_db
 
   # Assert that DEMO database is downloaded.
   assert_ahoy_download_db

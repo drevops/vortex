@@ -140,8 +140,6 @@ load _helper_drevops_workflow
 
 @test "Workflow: download from curl, storage in docker image" {
   export DATABASE_DOWNLOAD_SOURCE=curl
-  # Point demo database to the test database.
-  enable_demo_db
 
   export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x
   # Explicitly specify that we do not want to login into the public registry

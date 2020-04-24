@@ -579,6 +579,16 @@ run_install_quiet(){
   prepare_fixture_dir "${DREVOPS_TMP_DIR}"
   export DREVOPS_TMP_DIR
 
+  # Tests are using demo database and 'ahoy download-db' command, so we need
+  # to set the CURL DB to test DB.
+  #
+  # Override demo database with test demo database. This is required to use
+  # test assertions ("star wars") with demo database.
+  #
+  # Installer will load environment variable and it will take precedence over
+  # the value in .env file.
+  export CURL_DB_URL="$DEMO_DB_TEST"
+
   # Enable the line below to show install debug information (for easy debug of
   # install script tests).
   # export DREVOPS_INSTALL_DEBUG=1
@@ -704,18 +714,6 @@ remove_development_settings(){
   substep "Remove development settings"
   rm -f docroot/sites/default/settings.local.php || true
   rm -f docroot/sites/default/services.local.yml || true
-}
-
-enable_demo_db(){
-  # Tests are using demo database and 'ahoy download-db' command, so we need
-  # to set the CURL DB to test DB.
-  #
-  # Override demo database with test demo database. This is required to use
-  # test assertions ("star wars") with demo database.
-  #
-  # Installer will load environment variable and it will take precedence over
-  # the value in .env file.
-  export CURL_DB_URL="$DEMO_DB_TEST"
 }
 
 # Copy source code at the latest commit to the destination directory.

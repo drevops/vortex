@@ -480,7 +480,6 @@ assert_export_on_install_site(){
   ahoy cli "rm -Rf .data/*"
 
   add_var_to_file .env "DB_EXPORT_BEFORE_IMPORT" "1"
-  enable_demo_db
   ahoy up cli && sync_to_container
 
   ahoy download-db

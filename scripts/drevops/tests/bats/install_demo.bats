@@ -8,8 +8,6 @@ load _helper
 load _helper_drevops
 
 @test "Demo auto discovery - enabled" {
-  enable_demo_db
-
   assert_file_not_exists .data/db.sql
 
   run_install_quiet
@@ -21,8 +19,6 @@ load _helper_drevops
 }
 
 @test "Demo auto discovery - disabled" {
-  enable_demo_db
-
   mktouch .data/db.sql
   assert_file_exists .data/db.sql
 
@@ -38,7 +34,6 @@ load _helper_drevops
 }
 
 @test "Demo force disabled" {
-  enable_demo_db
   export DREVOPS_DEMO=0
 
   assert_file_not_exists .data/db.sql
@@ -52,7 +47,6 @@ load _helper_drevops
 }
 
 @test "Demo force enabled" {
-  enable_demo_db
   export DREVOPS_DEMO=1
 
   mktouch .data/db.sql
@@ -70,7 +64,6 @@ load _helper_drevops
 }
 
 @test "Demo auto discovery - enabled; skip demo processing" {
-  enable_demo_db
   echo "DREVOPS_SKIP_DEMO=1">> .env
 
   assert_file_not_exists .data/db.sql
