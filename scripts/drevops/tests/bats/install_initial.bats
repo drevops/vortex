@@ -198,8 +198,6 @@ load _helper_drevops
 
 @test "Install into empty directory; db from curl, storage is database import" {
   export DATABASE_DOWNLOAD_SOURCE=curl
-  # Point demo database to the test database.
-  enable_demo_db
 
   run_install_quiet
 
@@ -210,8 +208,6 @@ load _helper_drevops
 
 @test "Install into empty directory; db from curl; storage is Docker image" {
   export DATABASE_DOWNLOAD_SOURCE=curl
-  # Point demo database to the test database.
-  enable_demo_db
 
   export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x
 
