@@ -60,6 +60,16 @@ assert_ahoy_download_db(){
 assert_ahoy_build(){
   step "Run project build"
 
+  # Tests are using demo database and 'ahoy download-db' command, so we need
+  # to set the CURL DB to test DB.
+  #
+  # Override demo database with test demo database. This is required to use
+  # test assertions ("star wars") with demo database.
+  #
+  # Installer will load environment variable and it will take precedence over
+  # the value in .env file.
+  export CURL_DB_URL="$DEMO_DB_TEST"
+
   # Check that database file exists before build.
   [ -f ".data/db.sql" ] && db_file_exists=1
 
