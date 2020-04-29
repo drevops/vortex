@@ -11,7 +11,7 @@ https://www.drevops.com
 
 ## Maintenance of marketing website
 
-The page is published automatically once changes pushed.
+The page is published automatically once changes are pushed.
 
 ### Compile site locally
 
@@ -22,10 +22,13 @@ https://help.github.com/en/enterprise/2.14/user/articles/setting-up-your-github-
    ``` 
     gem install bundler
    ```
-3. `cd docs`
-4. `bundle install`
-5.  `bundle exec jekyll serve`
-6. Access site at http://127.0.0.1:4000/
+3. Build and serve site:
+   ```
+   cd docs
+   bundle install
+   bundle exec jekyll serve
+   ```
+4. Access site at http://127.0.0.1:4000/
 
 ### Check spelling.
 
