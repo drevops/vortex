@@ -1,5 +1,5 @@
 [//]: # (#;< DREVOPS)
-# DrevOps [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B+%F0%9F%90%B3%2B+%E2%9C%93%E2%9C%93%E2%9C%93+%2B+%F0%9F%A4%96+%3D+DrevOps+-+Drupal+website+template+with+integrations&url=https://www.drevops.com&via=drev_ops&hashtags=drupal,workflow,composer,template,kickstart,ci,test,build)
+# DrevOps [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B%20%F0%9F%90%B3%20%2B%20%E2%9C%93%E2%9C%93%E2%9C%93%20%2B%20%F0%9F%A4%96%20%3D%20DrevOps%20-%20%20Build%2C%20Test%2C%20Deploy%20scripts%20for%20Drupal%20using%20Docker%20and%20CI%2FCD&amp;url=https://www.drevops.com&amp;via=drev_ops&amp;hashtags=drupal,devops,workflow,composer,template,kickstart,ci,test,build)
 
 [![CircleCI](https://circleci.com/gh/drevops/drevops/tree/8.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/8.x)
 ![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
@@ -240,13 +240,15 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 
 ## Useful projects
 
+- [Drupal module testing in CircleCI](https://github.com/integratedexperts/drupal_circleci)
+- [MariaDB Docker image with enclosed data](https://github.com/drevops/mariadb-drupal-data) - Docker image to capture database data as a Docker layer.
 - [CI Builder Docker image](https://github.com/drevops/ci-builder) - Docker image for CI builder container with many pre-installed tools.
 - [Behat Steps](https://github.com/integratedexperts/behat-steps) - Collection of Behat step definitions.
 - [Behat Screenshot](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
 - [Behat Progress Fail](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fails inline.
 - [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing.
-- [Robo Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artifact to remote repository.
-- [GitHub Labels](https://github.com/integratedexperts/github-labels) - Shell script to create labels on GitHub.
+- [Code Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artifact to remote repository.
+- [GitHub Labels](https://github.com/integratedexperts/github-labels) - create labels on GitHub in bulk.
 - [Formatted git messages](https://github.com/alexdesignworks/git-hooks) - pre-commit git hook to check that commit messages formatted correctly. 
 
 --------------------------------------------------------------------------------
