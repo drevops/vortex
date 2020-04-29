@@ -224,7 +224,7 @@ assert_dir_contains_string(){
 
   assert_dir_exists "${dir}" || return 1
 
-  if grep -rI --exclude-dir="${dir}/.git" --exclude-dir="${dir}/.idea" --exclude-dir="vendor" --exclude-dir="node_modules" --exclude-dir="${dir}/.data" --exclude-dir="drevops" -l "${string}" "${dir}"; then
+  if grep -rI --exclude-dir=".git" --exclude-dir=".idea" --exclude-dir="vendor" --exclude-dir="node_modules" --exclude-dir=".data" --exclude-dir="drevops" -l "${string}" "${dir}"; then
     return 0
   else
     format_error "Directory ${dir} does not contain a string '${string}'" | flunk
@@ -237,7 +237,7 @@ assert_dir_not_contains_string(){
 
   [ ! -d "${dir}" ] && return 0
 
-  if grep -rI --exclude-dir="${dir}/.git" --exclude-dir="${dir}/.idea" --exclude-dir="vendor" --exclude-dir="node_modules" --exclude-dir="${dir}/.data" --exclude-dir="drevops" -l "${string}" "${dir}"; then
+  if grep -rI --exclude-dir=".git" --exclude-dir=".idea" --exclude-dir="vendor" --exclude-dir="node_modules" --exclude-dir=".data" --exclude-dir="drevops" -l "${string}" "${dir}"; then
     format_error "Directory ${dir} contains string '${string}', but should not" | flunk
   else
     return 0

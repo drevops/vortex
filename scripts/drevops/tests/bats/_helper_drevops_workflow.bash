@@ -45,6 +45,16 @@ assert_ahoy_download_db(){
 
   substep "Download the database"
 
+  # Tests are using demo database and 'ahoy download-db' command, so we need
+  # to set the CURL DB to test DB.
+  #
+  # Override demo database with test demo database. This is required to use
+  # test assertions ("star wars") with demo database.
+  #
+  # Ahoy will load environment variable and it will take precedence over
+  # the value in .env file.
+  export CURL_DB_URL="$DEMO_DB_TEST"
+
   # Remove any previously downloaded DB dumps.
   rm -Rf .data/db.sql
 
@@ -66,7 +76,7 @@ assert_ahoy_build(){
   # Override demo database with test demo database. This is required to use
   # test assertions ("star wars") with demo database.
   #
-  # Installer will load environment variable and it will take precedence over
+  # Ahoy will load environment variable and it will take precedence over
   # the value in .env file.
   export CURL_DB_URL="$DEMO_DB_TEST"
 
@@ -486,13 +496,21 @@ assert_ahoy_fe(){
 assert_export_on_install_site(){
   step "Export DB on install"
 
+  substep "Remove previously downloaded DB file"
   rm -Rf .data/*
   ahoy cli "rm -Rf .data/*"
 
+  substep "Set .env variables"
   add_var_to_file .env "DB_EXPORT_BEFORE_IMPORT" "1"
+  add_var_to_file .env "CURL_DB_URL" "$DEMO_DB_TEST"
   ahoy up cli && sync_to_container
 
+  substep "Download DB file"
   ahoy download-db
+  # shellcheck disable=SC2002
+  cat ".data/db.sql" | head -n 1 >&3
+
+  substep "Install site"
   ahoy install-site
   sync_to_host
   assert_file_exists .data/export_db_*
@@ -621,7 +639,7 @@ assert_page_contains(){
   path="${1}"
   content="${2}"
   t=$(mktemp)
-  ahoy cli curl -s "http://nginx:8080${path}" > "${t}"
+  ahoy cli curl -L -s "http://nginx:8080${path}" > "${t}"
   assert_file_contains "${t}" "${content}"
 }
 
@@ -629,7 +647,7 @@ assert_page_not_contains(){
   path="${1}"
   content="${2}"
   t=$(mktemp)
-  ahoy cli curl -s "http://nginx:8080${path}" > "${t}"
+  ahoy cli curl -L -s "http://nginx:8080${path}" > "${t}"
   assert_file_not_contains "${t}" "${content}"
 }
 
@@ -640,7 +658,7 @@ assert_reload_db(){
   assert_page_contains "/" "First test node"
 
   # Change homepage content and assert that the change was applied.
-  ahoy drush vset site_frontpage user
+  ahoy drush config-set system.site page.front /user -y
   assert_page_not_contains "/" "First test node"
 
   ahoy reload-db
@@ -657,7 +675,7 @@ assert_reload_db_curl(){
   assert_page_not_contains "/" "First test node"
 
   # Change homepage content and assert that the change was applied.
-  ahoy drush vset site_frontpage user
+  ahoy drush config-set system.site page.front /user -y
   assert_page_not_contains "/" "Welcome to ${name}"
 
   ahoy reload-db
