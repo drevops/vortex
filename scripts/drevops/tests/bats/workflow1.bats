@@ -114,9 +114,9 @@ load _helper_drevops_workflow
   #
   # Assert that used DB image has content.
   assert_page_contains "/" "First test node"
-  assert_page_contains "/" "Username"
+  assert_page_not_contains "/" "Username"
   # Change homepage content and assert that the change was applied.
-  ahoy drush vset site_frontpage user
+  ahoy drush config-set system.site page.front /user -y
   assert_page_not_contains "/" "First test node"
   assert_page_contains "/" "Username"
 
