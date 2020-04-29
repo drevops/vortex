@@ -2,10 +2,24 @@ version: 2
 jobs:
   build:
     docker:
-    - image: integratedexperts/ci-builder
+      - image: drevops/ci-builder
     working_directory: /app
     steps:
-    - checkout
-    - run:
-        name: Check spelling
-        command: ./scripts/check-spell.sh
+      - checkout
+      - run:
+          name: Check spelling
+          command: ./scripts/check-spell.sh
+      - run:
+          name: Install ruby and bundler
+          command: |
+            apt-get install -y ruby-full zlib1g-dev
+            gem install bundler
+      - run:
+          name: Build site
+          command: |
+            cd docs
+            bundle install
+            bundle exec jekyll build
+      - store_artifacts:
+          path: docs/_site
+          when: always
