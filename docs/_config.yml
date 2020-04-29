@@ -1,5 +1,14 @@
 theme: jekyll-theme-cayman
 title: DrevOps
+tagline: Build, Test, Deploy scripts for Drupal
+description: >-
+  DevOps for Drupal: Build, Test, Deploy scripts using Docker and CI/CD
+author:
+  twitter: alexskrypnyk
+twitter:
+  username: drev_ops
+  card: summary
+logo: drevops_logo_white.png
 plugins:
 - jekyll-seo-tag
 google_analytics: UA-87769268-3
