@@ -164,7 +164,7 @@ load _helper_drevops_workflow
   assert_ahoy_build
 
   # Assert that DB reload would revert the content.
-  assert_reload_db_curl "Star Wars"
+  assert_reload_db
 
   # Other stack asserts.
   assert_gitignore

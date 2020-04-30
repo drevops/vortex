@@ -664,20 +664,3 @@ assert_reload_db(){
   ahoy reload-db
   assert_page_contains "/" "First test node"
 }
-
-assert_reload_db_curl(){
-  step "Reload DB image using database from CURL"
-  name="${1:-Drupal Test Site}"
-
-  # Assert that used DB image has content.
-  assert_page_contains "/" "Welcome to ${name}"
-  # DB from file dump does not have any content.
-  assert_page_not_contains "/" "First test node"
-
-  # Change homepage content and assert that the change was applied.
-  ahoy drush config-set system.site page.front /user -y
-  assert_page_not_contains "/" "Welcome to ${name}"
-
-  ahoy reload-db
-  assert_page_contains "/" "Welcome to ${name}"
-}
