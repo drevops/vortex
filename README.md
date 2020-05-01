@@ -1,19 +1,28 @@
 [//]: # (#;< DREVOPS)
-# DrevOps [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B%20%F0%9F%90%B3%20%2B%20%E2%9C%93%E2%9C%93%E2%9C%93%20%2B%20%F0%9F%A4%96%20%3D%20DrevOps%20-%20%20Build%2C%20Test%2C%20Deploy%20scripts%20for%20Drupal%20using%20Docker%20and%20CI%2FCD&amp;url=https://www.drevops.com&amp;via=drev_ops&amp;hashtags=drupal,devops,workflow,composer,template,kickstart,ci,test,build)
+<p align="center">
+	<img width="400" src="https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/drevops_logo_text_white.png" alt="DrevOps Logo" />
+</div>
+<h3 align="center">Build, Test, Deploy scripts for Drupal using Docker and CI/CD</h3>
+<div align="center">
 
 [![CircleCI](https://circleci.com/gh/drevops/drevops/tree/8.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/8.x)
 ![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
 [![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/drevops/drevops/blob/8.x/LICENSE)
 [![Dependencies.io](https://img.shields.io/badge/dependencies.io-enabled-green.svg)](https://dependencies.io)
+[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B%20%F0%9F%90%B3%20%2B%20%E2%9C%93%E2%9C%93%E2%9C%93%20%2B%20%F0%9F%A4%96%20%3D%20DrevOps%20-%20%20Build%2C%20Test%2C%20Deploy%20scripts%20for%20Drupal%20using%20Docker%20and%20CI%2FCD&amp;url=https://www.drevops.com&amp;via=drev_ops&amp;hashtags=drupal,devops,workflow,composer,template,kickstart,ci,test,build)
 
-#### Build, Test, Deploy scripts for Drupal using Docker and CI/CD
+</div>
 
-Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
+<hr>
+ 
+### Installation
+1. Run installer:
+   ```
+   curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php > /tmp/install.php && php /tmp/install.php --interactive; rm /tmp/install.php
+   ```
+2. Commit added files.
 
-**Looking for Drupal 7 version?**
-[Click here to switch to Drupal 7 version](https://github.com/drevops/drevops/tree/7.x)
-
-![Workflow](https://raw.githubusercontent.com/wiki/drevops/drevops/images/workflow.png)
+3. Follow instructions in the generated `README.md` files of your project.
 
 ## Understanding DrevOps
 DrevOps is a Drupal project scaffolding template with included development 
@@ -75,29 +84,7 @@ projects  the way you want it!**
 
 </details>
 
-### Installation
-
-1. Install DrevOps<br/>
-   For interactive installation (questions and answers) into current directory:
-   ```
-   curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php > /tmp/install.php && php /tmp/install.php --interactive; rm /tmp/install.php
-   ```
-
-   For quiet installation with default settings into current directory:    
-   ```
-   curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php > /tmp/install.php && php /tmp/install.php; rm /tmp/install.php
-   ```
-<details>
-<summary>Show Installer screenshot</summary>
-
-![Installer](https://raw.githubusercontent.com/wiki/drevops/drevops/images/installer.png)
-</details>
-
-2. Follow instructions in the generated `README.md` files of your project. 
-
-3. Commit added files
-
-4. Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progress. 
+![Workflow](https://raw.githubusercontent.com/wiki/drevops/drevops/images/workflow.png)
 
 ### Updating DrevOps
 Run `ahoy update` to download the latest version of DrevOps for your project.  
