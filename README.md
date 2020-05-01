@@ -6,7 +6,7 @@
 [![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/drevops/drevops/blob/8.x/LICENSE)
 [![Dependencies.io](https://img.shields.io/badge/dependencies.io-enabled-green.svg)](https://dependencies.io)
 
-#### Development environment for Drupal sites with tools included
+#### Build, Test, Deploy scripts for Drupal using Docker and CI/CD
 
 Composer-based Drupal 8 project scaffolding with code linting, tests and automated builds (CI) integration.
 
