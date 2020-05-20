@@ -27,7 +27,7 @@ DRUPAL_SITE_NAME="${DRUPAL_SITE_NAME:-Example site}"
 DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
 # Path to configuration directory.
-DRUPAL_CONFIG_PATH="${DRUPAL_CONFIG_PATH:-config/default}"
+DRUPAL_CONFIG_PATH="${DRUPAL_CONFIG_PATH:-./config/default}"
 
 # Path to private files.
 DRUPAL_PRIVATE_FILES="${DRUPAL_PRIVATE_FILES:-${APP}/${WEBROOT}/sites/default/files/private}"
@@ -81,9 +81,13 @@ if [ -z "${SKIP_POST_DB_IMPORT}" ]; then
   drush ${DRUSH_ALIAS} updb -y
 
   # Import Drupal configuration, if configuration files exist.
-  if ls "{DRUPAL_CONFIG_PATH}"/*.yml > /dev/null 2>&1; then
+  if ls "${DRUPAL_CONFIG_PATH}"/*.yml > /dev/null 2>&1; then
     drush ${DRUSH_ALIAS} cim "${DRUPAL_CONFIG_LABEL}" -y
-    drush ${DRUSH_ALIAS} config-split-import -y
+    if drush pml --status=enabled | grep -q config_split; then
+      drush ${DRUSH_ALIAS} config-split-import -y
+    fi
+  else
+    echo "==> Configuration was not found in ${DRUPAL_CONFIG_PATH} path."
   fi
 else
   echo "==> Skipped running of post DB init commands."
@@ -91,3 +95,6 @@ fi
 
 # Rebuild cache.
 drush ${DRUSH_ALIAS} cr
+
+# Unblock admin user.
+drush sqlq "SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" | head -n 1 | xargs drush -- uublk
