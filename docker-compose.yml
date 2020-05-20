@@ -64,7 +64,9 @@ x-environment:
   #: Local development URL. Required to make DNS request route correctly.
   #: Do not change the default value here (it is set as a fallback). Instead,
   #: change the value in .env file.
-  LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-your-site.docker.amazee.io}
+  LAGOON_LOCALDEV_URL: &default-url ${LOCALDEV_URL:-your-site.docker.amazee.io}
+  #; Amazeeio images require Lagoon route for Drush 9+ alias configuration.
+  LAGOON_ROUTE: *default-url
   #:
   #: Allow to enable XDebug by setting external environment variable.
   #: Do not change the value here. Instead, use

@@ -154,6 +154,8 @@ if (file_exists('/var/www/site-php')) {
 $config['environment_indicator.indicator']['name'] = $settings['environment'];
 $config['environment_indicator.indicator']['bg_color'] = $settings['environment'] == ENVIRONMENT_PROD ? '#ef5350' : '#006600';
 $config['environment_indicator.indicator']['fg_color'] = $settings['environment'] == ENVIRONMENT_PROD ? '#000000' : '#ffffff';
+$config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
+$config['environment_indicator.settings']['favicon'] = TRUE;
 
 if ($settings['environment'] == ENVIRONMENT_PROD) {
   // Bypass Shield.
