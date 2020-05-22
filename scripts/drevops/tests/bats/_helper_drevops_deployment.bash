@@ -26,7 +26,6 @@ assert_deployment_files_present(){
   assert_file_not_exists .lagoon.yml
   assert_file_not_exists .sass-lint.yml
   assert_file_not_exists behat.yml
-  assert_file_not_exists composer.json
   assert_file_not_exists composer.lock
   assert_file_not_exists dependencies.yml
   assert_file_not_exists docker-compose.yml
@@ -98,6 +97,9 @@ assert_deployment_files_present(){
 
   # Assert configuration dir exists.
   assert_dir_exists config/default
+
+  # Assert composer.json exists to allow autoloading.
+  assert_file_exists composer.json
 
   popd > /dev/null || exit 1
 }
