@@ -7,6 +7,9 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
+# Path to the application.
+APP="${APP:-/app}"
+
 # Directory with database dump file.
 DB_DIR="${DB_DIR:-./.data}"
 
@@ -14,6 +17,8 @@ DB_DIR="${DB_DIR:-./.data}"
 DRUSH_ALIAS="${DRUSH_ALIAS:-}"
 
 # ------------------------------------------------------------------------------
+
+drush="${APP}/vendor/bin/drush"
 
 # Create directory to store database dump.
 mkdir -p "${DB_DIR}"
@@ -25,7 +30,7 @@ DUMP_FILE=$([ "${1}" ] && echo "${DB_DIR}/${1}" || echo "${DB_DIR}/export_db_$(d
 # Dump database into a file. Also, convert relative path to an absolute one, as
 # the result file is relative to Drupal root, but provided paths are relative
 # to the project root.
-drush ${DRUSH_ALIAS} sql-dump --skip-tables-key=common --result-file="${DUMP_FILE/.\//${APP}/}" -q
+$drush ${DRUSH_ALIAS} sql-dump --skip-tables-key=common --result-file="${DUMP_FILE/.\//${APP}/}" -q
 
 # Check that file was saved and output saved dump file name.
 if [ -f "${DUMP_FILE}" ] && [ -s "${DUMP_FILE}" ]; then

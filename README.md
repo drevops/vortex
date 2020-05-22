@@ -14,7 +14,7 @@
 </div>
 
 <hr>
- 
+
 ### Installation
 1. Run installer:
    ```
@@ -25,24 +25,24 @@
 3. Follow instructions in the generated `README.md` files of your project.
 
 ## Understanding DrevOps
-DrevOps is a Drupal project scaffolding template with included development 
-environment, CI configuration and tools. It can be used on new or existing 
-projects as is or can be customized as required. It may also be used as a 
-reference for custom configurations. 
+DrevOps is a Drupal project scaffolding template with included development
+environment, CI configuration and tools. It can be used on new or existing
+projects as is or can be customized as required. It may also be used as a
+reference for custom configurations.
 
-DrevOps is designed to support updating of the code templates it provides. 
+DrevOps is designed to support updating of the code templates it provides.
 This makes it easy to keep projects using DrevOps up-to-date with the latest
-scaffolding code.  
+scaffolding code.
 
-DrevOps supports both database-driven development and fresh install for every 
-build. Database-driven development is when the existing production database is 
-used for every build (useful for product development), while fresh install is 
-when the site is installed from the scratch during every build (useful for 
-module or profile development).  
+DrevOps supports both database-driven development and fresh install for every
+build. Database-driven development is when the existing production database is
+used for every build (useful for product development), while fresh install is
+when the site is installed from the scratch during every build (useful for
+module or profile development).
 
 DrevOps has own automated tests that guarantees stability and ease of maintenance.
 
-<details> 
+<details>
 
 **<summary>Expand for more non-technical information</summary>**
 
@@ -52,42 +52,42 @@ Increase the quality of the produced Drupal websites with minimum setup effort a
 ### Why is this problem important?
 High quality Drupal websites are stable, secure, faster and safer to change.
 
-But developers do not always have the time or skills to setup the tools required 
+But developers do not always have the time or skills to setup the tools required
 to produce and maintain high-quality Drupal websites.
 
 ### How does DrevOps solve it?
-Quick install of best practices Drupal configuration on Docker stack using a 
-single command lowers entry barrier, while unification of the developer's 
+Quick install of best practices Drupal configuration on Docker stack using a
+single command lowers entry barrier, while unification of the developer's
 experience improves development speed across projects.
 
 ### Who is it for?
-- Digital agencies that want to standardise their development stack (standard 
+- Digital agencies that want to standardise their development stack (standard
   operating environment) across projects
 - Developers that are looking for best practices
-- Developers that do not possess required time or knowledge to setup these tools 
-  themselves 
+- Developers that do not possess required time or knowledge to setup these tools
+  themselves
 
 ### How does it work?
 - You run installer script once
 - DrevOps brings the latest release into your codebase
 - You commit all new files
-- If required, you may override files with changes relevant only to a specific 
-  project.  
+- If required, you may override files with changes relevant only to a specific
+  project.
 
 ### What if I don't like the defaults this project provides?
-Since DrevOps is a template, it can be forked and adjusted to your needs. The 
+Since DrevOps is a template, it can be forked and adjusted to your needs. The
 installer script will continue to work with your fork, provided that you adjust
-several environment variables. 
+several environment variables.
 
-**In other words - you will have your own development templates for your own 
-projects  the way you want it!**  
+**In other words - you will have your own development templates for your own
+projects  the way you want it!**
 
 </details>
 
 ![Workflow](https://raw.githubusercontent.com/wiki/drevops/drevops/images/workflow.png)
 
 ### Updating DrevOps
-Run `ahoy update` to download the latest version of DrevOps for your project.  
+Run `ahoy update` to download the latest version of DrevOps for your project.
 
 <details>
 <summary>Show update process screenshot</summary>
@@ -127,8 +127,8 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 **<summary>More details</summary>**
 
 | **Area**                                      | **Feature**                                                                                                         | **Why it is important** |
-| --- | --- | --- |                                                                                                                                                   
-| **Drupal**                                    |                                                                                                                     
+| --- | --- | --- |
+| **Drupal**                                    |
 | Versions                                      | Drupal 7 support                                                                                                    | Drupal 7 is still widely used |
 |                                               | Drupal 8 support                                                                                                    | Drupal 8 is current version   |
 |                                               | Separate branches for each Drupal version                                                                           | Handling both Drupal versions in the same repository allows to easily re-use some commits across branches. |
@@ -156,17 +156,17 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 |                                               | [PHP Version compatibility](https://github.com/PHPCompatibility/PHPCompatibility)                                   | To avoid language constructs that may not be supported by a certain version of the language |
 | JavaScript                                    | [Drupal JS coding standards](https://www.drupal.org/docs/develop/standards/javascript/javascript-coding-standards)  | To increase code quality and lower technical debt |
 | SASS/SCSS                                     |                                                                                                                     | To increase code quality and lower technical debt |
-| **Testing**                                   |                                                                                                                     
+| **Testing**                                   |
 | [PHPUnit](https://phpunit.de/)\*              | Configuration + examples                                                                                            | Enables unit-testing capability to improve code quality and stability |
 | [Behat](http://behat.org)                     | [Configuration](behat.yml) + [examples](tests/behat/features)                                                       | Enables integration-testing capability using fast tests to improve code quality and stability |
 |                                               | Browser testing                                                                                                     | Enables integration-testing capability with JavaScript support to improve code quality and stability |
-| **Automated builds**                          |                                                                                                                     
+| **Automated builds**                          |
 | [CI template](.circleci/config.yml)           | Build + Test + Deploy                                                                                               | Standard workflow for automated builds |
 |                                               | Conditional Deploy                                                                                                  | Supports conditional deployments based on tags and branches to allow selective deployments |
 |                                               | Parallel builds to speedup pipeline                                                                                 | Running jobs in parallel may significantly lower the build time for large projects |
 |                                               | Cached database support                                                                                             | Reduce build times by using daily cached database |
 |                                               | Identical environment as local and production                                                                       | While running on a 3rd party provider, CI uses hosting stack identical to the local and production in order to identify any problems at early stages.CI also acts as a &#39;shadow&#39; developer by running exactly the same commands as what a developer would run locally. |
-| **Documentation**                             |                                                                                                                     
+| **Documentation**                             |
 | Readme files                                  | Generic project information                                                                                         | Helps to find relevant project information in one place |
 |                                               | Local environment setup                                                                                             | Helps to lower project onboarding time |
 |                                               | List of available commands                                                                                          | Helps to lower project onboarding time |
@@ -176,14 +176,14 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 | Onboarding checklist                          | [Onboarding checklist](.github/ONBOARDING.md)                                                                       | Helps to track the progress of onboarding to DrevOps |
 | GitHub management                             | [Pull request template](.github/PULL_REQUEST_TEMPLATE.md)                                                           | Helps to improve team collaboration and reduce the time for pull request management |
 |                                               | Pre-defined issue and pull request labels\*                                                                         | Helps to improve team collaboration and reduce the time for pull request management |
-| **Integrations and deployments** |                                                                                                                                                  
+| **Integrations and deployments** |
 | Acquia                                        | Production database from Acquia                                                                                     | Using production database for development and automated builds (CI) requires database dump from Acquia |
 |                                               | Deploy code to Acquia                                                                                               | Deploying to Acquia requires packaging Composer-based project into artifact before pushing |
 |                                               | [Deployment hooks](hooks)                                                                                           | Standardised deployment hooks guarantee that every deployment is reproducible |
 | Lagoon                                        | Deployment configuration                                                                                            | Lagoon configuration is required to perform deployments |
 |                                               | Production database from Lagoon                                                                                     | Using production database for development and automated builds (CI) requires database dump from Lagoon |
 | [dependencies.io](https://www.dependencies.io/) | Automated pull request submissions for automated updates.                                                         | Automated dependencies updates allow to keep the project up to date by automatically creating pull requests with updated dependencies on a daily basis |
-| **Maintenance (of DrevOps)**               |                                                                                                                     
+| **Maintenance (of DrevOps)**               |
 | Install and upgrade                           | Follows [SemVer](https://semver.org/) model for releases                                                            | Projects may refer to a specific version of DrevOps, which sets expectations about what tools and configuration is available |
 |                                               | Managed as an agile project                                                                                         | New features and defects can be addressed in a shorter development cycle.GitHub issues organised on the Kanban board provide clear visibility for future releases |
 |                                               | One-liner [install script](install.sh) with optional wizard                                                         | Minimises the time to try DrevOps.Provides centralised point for installation into new and existing projects, as well as updates. |
@@ -198,25 +198,25 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 </details>
 
 ## Contributing
-- Progress is tracked as [GitHub project](https://github.com/drevops/drevops/projects/1). 
+- Progress is tracked as [GitHub project](https://github.com/drevops/drevops/projects/1).
 - Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
-- Create an issue and prefix title with Drupal core version: `[8.x] Updated readme file.`. 
+- Create an issue and prefix title with Drupal core version: `[8.x] Updated readme file.`.
 - Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/8.x-updated-readme`.
 
 ### Main concepts behind DrevOps
 - **Fetch as much of development configuration as possible from DrevOps repository**<br/>
-  Allows to keep your project up-to-date with DrevOps  
-- **Avoid adding things to the wrong places**<br/> 
+  Allows to keep your project up-to-date with DrevOps
+- **Avoid adding things to the wrong places**<br/>
   Example: Using Composer scripts for workflow commands. Instead, use tools specifically designed for this, like Ahoy
-- **Abstract similar functionality into steps**<br/> 
+- **Abstract similar functionality into steps**<br/>
   Allows to apply changes at the larger scale without the need to modify each project
-- **Run the most of the code in the containers**<br/> 
+- **Run the most of the code in the containers**<br/>
   Reduces the number of required tools on the host machine
 
 --------------------------------------------------------------------------------
 
 ## Paid support
-[Integrated Experts](https://github.com/integratedexperts) provides paid support for DrevOps: 
+[Integrated Experts](https://github.com/integratedexperts) provides paid support for DrevOps:
 - New and existing project onboarding.
 - Support plans with SLAs.
 - Priority feature implementation.
@@ -236,7 +236,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 - [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing.
 - [Code Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artifact to remote repository.
 - [GitHub Labels](https://github.com/integratedexperts/github-labels) - create labels on GitHub in bulk.
-- [Formatted git messages](https://github.com/alexdesignworks/git-hooks) - pre-commit git hook to check that commit messages formatted correctly. 
+- [Formatted git messages](https://github.com/alexdesignworks/git-hooks) - pre-commit git hook to check that commit messages formatted correctly.
 
 --------------------------------------------------------------------------------
 **Below is a content of the `README.md` file that will be added to your project.**
@@ -258,11 +258,11 @@ Drupal 8 implementation of YOURSITE for YOURORG
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DREVOPS TO TRACK INTEGRATION)
 
-[![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/drevops/tree/DREVOPS_VERSION) 
+[![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/drevops/tree/DREVOPS_VERSION)
 
 [//]: # (Remove the section below once onboarding is finished)
 ## Onboarding
-Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progress. 
+Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progress.
 
 ## Local environment setup
 - Make sure that you have latest versions of all required software installed:
@@ -270,31 +270,29 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
   - [Pygmy](https://pygmy.readthedocs.io/)
   - [Ahoy](https://github.com/ahoy-cli/ahoy)
 - Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
-- Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
+- Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).
 
 [//]: # (#;< ACQUIA)
 
 - Authenticate with Acquia Cloud API
-  1. Retrieve your Acquia Cloud API credentials from your Acquia profile page:
-     Acquia Cloud UI -> Account -> Credentials -> Cloud API -> E-mail
-     Acquia Cloud UI -> Account -> Credentials -> Cloud API -> Private key->Show
-  2. Download drush aliases archive from your Acquia profile page and
-     place it to your $HOME directory.
-  3. Run `drush ac-api-login` and provide your credentials once prompted.
-  
+  1. Create your Acquia Cloud API token:
+     Acquia Cloud UI -> Account -> API tokens -> Create Token
+  2. Populate `$AC_API_KEY` and `$AC_API_SECRET` environment variables in
+     `.env.local` file with values generated in the step above.
+
 [//]: # (#;> ACQUIA)
 
 [//]: # (#;< !FRESH_INSTALL)
 
 - `ahoy download-db`
-  
+
 [//]: # (#;> !FRESH_INSTALL)
 - `pygmy up`
 - `ahoy build`
 
 ## Available `ahoy` commands
 Run each command as `ahoy <command>`.
-  ```  
+  ```
   build        Build or rebuild the project.
   clean        Remove containers and all build files.
   cli          Start a shell or run a command inside the CLI service container.
@@ -333,14 +331,14 @@ Run each command as `ahoy <command>`.
 ### Updating development stack
 
 Development stack needs to be downloaded for each environment, but some files may be committed to the project repository.
-Update process brings new versions of development stack files and may overwrite some of them. The changes in these files 
-need to be reviewed and selectively committed. 
+Update process brings new versions of development stack files and may overwrite some of them. The changes in these files
+need to be reviewed and selectively committed.
 
-1. Start a new branch to make sure that your changes do not affect the main branch   
-2. Run `ahoy update` to download the latest version of the development stack 
-3. Review and commit changes 
+1. Start a new branch to make sure that your changes do not affect the main branch
+2. Run `ahoy update` to download the latest version of the development stack
+3. Review and commit changes
 4. Make sure that your CI build passes with updated development stack configuration
-5. Merge your changes to the main branch    
+5. Merge your changes to the main branch
 
 ## Adding Drupal modules
 
@@ -356,7 +354,7 @@ need to be reviewed and selectively committed.
             "drupal/core": {
                 "Contextual links should not be added inside another link - https://www.drupal.org/node/2898875": "https://www.drupal.org/files/issues/contextual_links_should-2898875-3.patch"
             }
-        }    
+        }
     }
 ```
 
@@ -365,29 +363,29 @@ need to be reviewed and selectively committed.
 ## Front-end and Livereload
 - `ahoy fe` - build SCSS and JS assets.
 - `ahoy fed` - build SCSS and JS assets for development.
-- `ahoy few` - watch asset changes and reload the browser (using Livereload). To enable Livereload integration with Drupal, add to `settings.php` file (already added to `settings.local.php`): 
+- `ahoy few` - watch asset changes and reload the browser (using Livereload). To enable Livereload integration with Drupal, add to `settings.php` file (already added to `settings.local.php`):
   ```
   $settings['livereload'] = TRUE;
   ```
 
 ## Coding standards
-PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with Drupal rules from [Coder](https://www.drupal.org/project/coder) module and additional local overrides in `phpcs.xml` and `.eslintrc.json`.   
+PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with Drupal rules from [Coder](https://www.drupal.org/project/coder) module and additional local overrides in `phpcs.xml` and `.eslintrc.json`.
 
 SASS and SCSS code linting use [Sass Lint](https://github.com/sasstools/sass-lint) with additional local overrides in `.sass-lint.yml`.
 
 Set `ALLOW_LINT_FAIL=1` in `.env` to allow lint failures.
 
 ## Behat tests
-Behat configuration uses multiple extensions: 
+Behat configuration uses multiple extensions:
 - [Drupal Behat Extension](https://github.com/jhedstrom/drupalextension) - Drupal integration layer. Allows to work with Drupal API from within step definitions.
 - [Behat Screenshot Extension](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
 - [Behat Progress Fail Output Extension](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fail messages inline. Useful to get feedback about failed tests while continuing test run.
 - `FeatureContext` - Site-specific context with custom step definitions.
 
-Add `@skipped` tag to failing tests if you would like to skip them.  
+Add `@skipped` tag to failing tests if you would like to skip them.
 
 ## Automated builds (Continuous Integration)
-In software engineering, continuous integration (CI) is the practice of merging all developer working copies to a shared mainline several times a day. 
+In software engineering, continuous integration (CI) is the practice of merging all developer working copies to a shared mainline several times a day.
 Before feature changes can be merged into a shared mainline, a complete build must run and pass all tests on CI server.
 
 This project uses [Circle CI](https://circleci.com/) as a CI server: it imports production backups into fully built codebase and runs code linting and tests. When tests pass, a deployment process is triggered for nominated branches (usually, `master` and `develop`).
@@ -410,16 +408,16 @@ Test artifacts (screenshots etc.) are available under "Artifacts" tab in Circle 
 ## Deployment
 Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
 
-[//]: # (#;> DEPLOYMENT)        
+[//]: # (#;> DEPLOYMENT)
 
 [//]: # (#;< DEPENDENCIESIO)
 
 ## Automated patching
-[dependencies.io](https://dependencies.io) integration allows to keep the 
-project up to date by automatically creating pull requests with updated 
-dependencies on a daily basis. 
+[dependencies.io](https://dependencies.io) integration allows to keep the
+project up to date by automatically creating pull requests with updated
+dependencies on a daily basis.
 
-[//]: # (#;> DEPENDENCIESIO)                                                    
+[//]: # (#;> DEPENDENCIESIO)
 
 ## FAQs
 Please refer to [FAQs](FAQs.md)

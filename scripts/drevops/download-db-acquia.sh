@@ -3,24 +3,21 @@
 # Download DB dump from the latest Acquia Cloud backup.
 #
 # This script will discover latest available backup in the specified
-# Acquia Cloud environment using Acquia Cloud API 1.0, download and decompress
+# Acquia Cloud environment using Acquia Cloud API 2.0, download and decompress
 # it into specified directory.
 #
 # It does not rely on 'drush ac-api-*' commands, which makes it capable of
 # running on hosts without configured drush and drush aliases.
 #
-# It does however supports reading credentials from Acquia cloud config file
-# usually located in ${HOME}/.acquia/cloudapi.json. To retrieve your Cloud API
-# credentials from Acquia UI, go to
-# Acquia Cloud UI -> Account -> Credentials -> Cloud API -> E-mail
-# Acquia Cloud UI -> Account -> Credentials -> Cloud API -> Private key->Show
+# It does require to have Cloud API token Key and Secret provided.
+# To create your Cloud API token Acquia UI, go to
+# Acquia Cloud UI -> Account -> API tokens -> Create Token
 #
-# Once retrieved, run `drush ac-api-login` in the environment where the database
-# will be downloaded and provide email and token.
-# Alternatively, populate $AC_API_USER_NAME and $AC_API_USER_PASS environment
-# variables.
+# Populate $AC_API_KEY and $AC_API_SECRET environment variables in .env.local
+# file with values generated in the step above.
 #
-# @see https://cloudapi.acquia.com/#GET__sites__site_envs__env_dbs__db_backups__backup_download-instance_route
+# @see https://docs.acquia.com/acquia-cloud/develop/api/auth/#cloud-generate-api-token
+# @see https://cloudapi-docs.acquia.com/#/Environments/getEnvironmentsDatabaseDownloadBackup
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -30,7 +27,7 @@ set -e
 #-------------------------------------------------------------------------------
 
 # 'prod:<git_repo_name>'
-AC_API_DB_SITE="${AC_API_DB_SITE:-}"
+AC_API_DB_APP="${AC_API_DB_APP:-}"
 AC_API_DB_ENV="${AC_API_DB_ENV:-}"
 AC_API_DB_NAME="${AC_API_DB_NAME:-}"
 
@@ -38,17 +35,15 @@ AC_API_DB_NAME="${AC_API_DB_NAME:-}"
 #                              OPTIONAL VARIABLES
 #-------------------------------------------------------------------------------
 
-# Both user name and password are read from Acquia Cloud API config file by
-# default and should be provided through variables only in environments that do
-# not have Acquia CLoud API config file created (usually, non-local environments).
-AC_API_USER_NAME="${AC_API_USER_NAME:-}"
-AC_API_USER_PASS="${AC_API_USER_PASS:-}"
+# Both user key and secret are read from environment variables or .env.local
+# file. They should be provided through environment variables only in
+# environments that do not have .env.local file created (usually, non-local
+# environments).
+AC_API_KEY="${AC_API_KEY:-}"
+AC_API_SECRET="${AC_API_SECRET:-}"
 
-# Backup id. If not specified - the latest backup id will be discovered and used.
-AC_API_DB_BACKUP_ID=${AC_API_DB_BACKUP_ID:-}
-
-# Location of the Acquia Cloud API credentials file after running 'drush ac-api-login'.
-AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-${HOME}/.acquia/cloudapi.conf}
+# Location of the file with credentials.
+AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-.env.local}
 
 # Directory where DB dumps are stored.
 DB_DIR="${DB_DIR:-./.data}"
@@ -72,7 +67,7 @@ DB_USE_SYMLINK="${DB_USE_SYMLINK:-true}"
 #
 extract_json_last_value() {
   local key=$1
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print \$last[\"${key}\"] : exit(1);"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
 #
@@ -80,42 +75,45 @@ extract_json_last_value() {
 #
 extract_json_value() {
   local key=$1
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print \$data[\"${key}\"] : exit(1);"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
 # Pre-flight checks.
 command -v curl > /dev/null || ( echo "ERROR: curl command is not available." && exit 1 )
 
 # Try to read credentials from the stored config file after running `drush ac-api-login`.
-if [ -z "${AC_API_USER_NAME}" ] && [ -f "${AC_CREDENTIALS_FILE}" ]; then
-  set +e
-  AC_API_USER_NAME=$(extract_json_value "mail" < "${AC_CREDENTIALS_FILE}")
-  [ -z "${AC_API_USER_NAME}" ] && AC_API_USER_NAME=$(extract_json_value "email" < "${AC_CREDENTIALS_FILE}")
-  AC_API_USER_PASS=$(extract_json_value "key" < "${AC_CREDENTIALS_FILE}")
-  set -e
+if [ -z "${AC_API_KEY}" ] && [ -f "${AC_CREDENTIALS_FILE}" ]; then
+  # shellcheck disable=SC1090
+  t=$(mktemp) && export -p > "$t" && set -a && . "${AC_CREDENTIALS_FILE}" && set +a && . "$t" && rm "$t" && unset t
 fi
 
 # Check that all required variables are present.
-[ -z "${AC_API_USER_NAME}" ] && echo "ERROR: Missing value for AC_API_USER_NAME." && exit 1
-[ -z "${AC_API_USER_PASS}" ] && echo "ERROR: Missing value for AC_API_USER_PASS." && exit 1
-[ -z "${AC_API_DB_SITE}" ] && echo "ERROR: Missing value for AC_API_DB_SITE." && exit 1
+[ -z "${AC_API_DB_APP}" ] && echo "ERROR: Missing value for AC_API_DB_APP." && exit 1
 [ -z "${AC_API_DB_ENV}" ] && echo "ERROR: Missing value for AC_API_DB_ENV." && exit 1
 [ -z "${AC_API_DB_NAME}" ] && echo "ERROR: Missing value for AC_API_DB_NAME." && exit 1
+[ -z "${AC_API_KEY}" ] && echo "ERROR: Missing value for AC_API_KEY." && exit 1
+[ -z "${AC_API_SECRET}" ] && echo "ERROR: Missing value for AC_API_SECRET." && exit 1
 
-latest_backup=0
-if [ -z "${AC_API_DB_BACKUP_ID}" ] ; then
-  echo "==> Discovering latest backup id for DB ${AC_API_DB_NAME}."
-  BACKUPS_JSON=$(curl --progress-bar -L -u "${AC_API_USER_NAME}":"${AC_API_USER_PASS}" "https://cloudapi.acquia.com/v1/sites/${AC_API_DB_SITE}/envs/${AC_API_DB_ENV}/dbs/${AC_API_DB_NAME}/backups.json")
-  # Acquia response has all backups sorted chronologically by created date.
-  AC_API_DB_BACKUP_ID=$(echo "${BACKUPS_JSON}" | extract_json_last_value "id")
-  [ -z "${AC_API_DB_BACKUP_ID}" ] && echo "ERROR: Unable to discover backup id." && exit 1
-  latest_backup=1
-fi
+echo "==> Retrieving authentication token."
+TOKEN_JSON=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${AC_API_KEY}" --data-urlencode "client_secret=${AC_API_SECRET}" --data-urlencode "grant_type=client_credentials")
+TOKEN=$(echo "${TOKEN_JSON}" | extract_json_value "access_token")
+[ -z "${TOKEN}" ] && echo "ERROR: Unable to retrieve a token." && exit 1
+
+echo "==> Retrieving ${AC_API_DB_ENV} environment id."
+ENVS_JSON=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $TOKEN" "https://cloud.acquia.com/api/applications/${AC_API_DB_APP}/environments?filter=name%3D${AC_API_DB_ENV}")
+ENV_ID=$(echo "${ENVS_JSON}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
+[ -z "${ENV_ID}" ] && echo "ERROR: Unable to retrieve an environment ID." && exit 1
+
+echo "==> Discovering latest backup id for DB ${AC_API_DB_NAME}."
+BACKUPS_JSON=$(curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $TOKEN" "https://cloud.acquia.com/api/environments/${ENV_ID}/databases/${AC_API_DB_NAME}/backups?sort=created")
+# Acquia response has all backups sorted chronologically by created date.
+BACKUP_ID=$(echo "${BACKUPS_JSON}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
+[ -z "${BACKUP_ID}" ] && echo "ERROR: Unable to discover backup id." && exit 1
 
 # Insert backup id as a suffix.
 db_dump_ext="${DB_FILE##*.}"
 db_dump_file_actual_prefix="${AC_API_DB_NAME}_backup_"
-db_dump_file_actual=${DB_DIR}/${db_dump_file_actual_prefix}${AC_API_DB_BACKUP_ID}.${db_dump_ext}
+db_dump_file_actual=${DB_DIR}/${db_dump_file_actual_prefix}${BACKUP_ID}.${db_dump_ext}
 db_dump_discovered=${db_dump_file_actual}
 db_dump_compressed=${db_dump_file_actual}.gz
 
@@ -125,9 +123,16 @@ else
   # If the gzipped version exists, then we don't need to re-download it.
   if [ ! -f "${db_dump_compressed}" ] ; then
     [ ! -d "${DB_DIR}" ] && echo "==> Creating dump directory ${DB_DIR}" && mkdir -p "${DB_DIR}"
-    echo "==> Using latest backup id ${AC_API_DB_BACKUP_ID} for DB ${AC_API_DB_NAME}."
+    echo "==> Using latest backup id ${BACKUP_ID} for DB ${AC_API_DB_NAME}."
+
+    echo "==> Discovering backup url."
+    BACKUP_JSON=$(curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $TOKEN" "https://cloud.acquia.com/api/environments/${ENV_ID}/databases/${AC_API_DB_NAME}/backups/${BACKUP_ID}/actions/download")
+    BACKUP_URL=$(echo "${BACKUP_JSON}" | extract_json_value "url")
+    [ -z "${BACKUP_URL}" ] && echo "ERROR: Unable to discover backup URL." && exit 1
+
     echo "==> Downloading DB dump into file ${db_dump_compressed}."
-    curl --progress-bar -L -u "${AC_API_USER_NAME}":"${AC_API_USER_PASS}" "https://cloudapi.acquia.com/v1/sites/${AC_API_DB_SITE}/envs/${AC_API_DB_ENV}/dbs/${AC_API_DB_NAME}/backups/${AC_API_DB_BACKUP_ID}/download.json" -o "${db_dump_compressed}"
+    curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $TOKEN" "${BACKUP_URL}" -o "${db_dump_compressed}"
+
     # shellcheck disable=SC2181
     [ $? -ne 0 ] && echo "ERROR: Unable to download database ${AC_API_DB_NAME}." && exit 1
   else
@@ -148,19 +153,16 @@ echo "==> Expanded file."
 ls -alh "${db_dump_file_actual}"
 
 if [ "${DB_USE_SYMLINK}" == true ]; then
-  # Create a symlink to the latest backup.
-  if [ "${latest_backup}" != "0" ] ; then
-    latest_symlink="${DB_FILE}"
-    if [ -f "${db_dump_file_actual}" ] ; then
-      echo "==> Creating a symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}."
-      (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
-    fi
+  latest_symlink="${DB_FILE}"
+  if [ -f "${db_dump_file_actual}" ] ; then
+    echo "==> Creating a symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}."
+    (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
+  fi
 
-    latest_symlink="${latest_symlink}.gz"
-    if [ -f "${db_dump_compressed}" ] ; then
-      echo "==> Creating a symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\"."
-      (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
-    fi
+  latest_symlink="${latest_symlink}.gz"
+  if [ -f "${db_dump_compressed}" ] ; then
+    echo "==> Creating a symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\"."
+    (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
   fi
 else
   echo "==> Renaming file \"${db_dump_file_actual}\" to \"${DB_DIR}/${DB_FILE}\"."

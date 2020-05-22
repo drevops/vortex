@@ -17,14 +17,14 @@ TARGET_ENV="${2}"
 APP="/var/www/html/${SITE}.${TARGET_ENV}"
 DOMAINS_FILE="${DOMAINS_FILE:-${APP}/hooks/library/domains.txt}"
 
+[ -n "${SKIP_FLUSH_VARNISH}" ] && echo "Skipping flush varnish." && exit
+
 DEPLOY_API_USER_NAME="${DEPLOY_API_USER_NAME?not set}"
 DEPLOY_API_USER_PASS="${DEPLOY_API_USER_PASS?not set}"
 
 # ------------------------------------------------------------------------------
 
 [ ! -f "${DOMAINS_FILE}" ] && echo "ERROR: File with domains does not exist." && exit 1
-
-[ -n "${SKIP_FLUSH_VARNISH}" ] && echo "Skipping flush varnish." && exit
 
 # Login to Acquia Cloud.
 # shellcheck disable=SC2086
