@@ -64,18 +64,15 @@ class ScriptHandler {
       $event->getIO()->write(sprintf('Created a "%s" file from default settings', $servicesFile));
     }
 
-    // Add CONFIG_SYNC_DIRECTORY settings to the settings file.
+    // Add 'config_sync_directory' settings to the settings file.
     if ($fs->exists($settingsFile)) {
       $configPath = Path::makeRelative($drupalFinder->getComposerRoot() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'default', $drupalRoot);
-      if (strpos(file_get_contents($settingsFile), 'CONFIG_SYNC_DIRECTORY') === FALSE) {
+      if (strpos(file_get_contents($settingsFile), 'config_sync_directory') === FALSE) {
         $settings_string = <<<SETTINGS
-\$settings['config_directories'] = [
-  CONFIG_SYNC_DIRECTORY => '$configPath',  
-];
-
+\$settings['config_sync_directory'] = '$configPath';
 SETTINGS;
         self::appendToFile($settingsFile, $settings_string);
-        $event->getIO()->write('Added CONFIG_SYNC_DIRECTORY to settings file');
+        $event->getIO()->write('Added config_sync_directory to settings file');
       }
     }
 
