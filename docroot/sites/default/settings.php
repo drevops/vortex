@@ -48,9 +48,7 @@ date_default_timezone_set('Australia/Melbourne');
 $settings['entity_update_batch_size'] = 50;
 
 // Location of the site configuration files.
-$config_directories = [
-  CONFIG_SYNC_DIRECTORY => '../config/default',
-];
+$settings['config_sync_directory'] = '../config/default';
 
 // Salt for one-time login links, cancel links, form tokens, etc.
 $settings['hash_salt'] = hash('sha256', 'CHANGE_ME');
