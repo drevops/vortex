@@ -539,10 +539,10 @@ workflows:
   nightly:
     triggers:
       - schedule:
-         cron: *nightly_schedule
-         filters:
-           branches:
-             only:
-               - *nightly_branch
+          cron: *nightly_schedule
+          filters:
+            branches:
+              only:
+                - *nightly_branch
     jobs:
       - database_nightly
