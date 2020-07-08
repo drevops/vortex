@@ -10,6 +10,7 @@ CUR_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
 echo "==> Linting installer script and tests."
 pushd "${CUR_DIR}/scripts/drevops/tests" >/dev/null || exit 1
+[ ! -f "vendor/bin/phpcs" ] && composer install
 vendor/bin/phpcs -s --standard=Drupal ../../../install.php
 vendor/bin/phpcs -s --standard=Drupal unit
 popd >/dev/null || exit 1
