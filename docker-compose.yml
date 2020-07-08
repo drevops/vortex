@@ -85,6 +85,8 @@ x-environment:
   #: Allow to override Lagoon environment type, defaulting it to 'local'.
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
   #;> LAGOON
+  # Temporary fix for xdebug.remote_host not correctly discovering DOCKERHOST.
+  # @see https://github.com/amazeeio/lagoon/issues/1088
   DOCKERHOST: ${DOCKERHOST:-host.docker.internal}
 
 # ------------------------------------------------------------------------------
