@@ -169,6 +169,7 @@ jobs:
           command: |
             echo "${CI_WORKFLOW_NAME:-main}" > /tmp/DB_CACHE_WORKFLOW_NAME && cat /tmp/DB_CACHE_WORKFLOW_NAME
             echo "$(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
+            if [ -z "${CIRCLE_BRANCH}" ] || [ -n "${CIRCLE_BRANCH##feature*}" ]; then echo "Cache fallback disabled for non-feature branch."; export DB_CACHE_FALLBACK=no; fi
             echo "${DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" > /tmp/DB_CACHE_FALLBACK && cat /tmp/DB_CACHE_FALLBACK
       - restore_cache:
           keys:
