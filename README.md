@@ -373,7 +373,9 @@ PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_
 
 SASS and SCSS code linting use [Sass Lint](https://github.com/sasstools/sass-lint) with additional local overrides in `.sass-lint.yml`.
 
-Set `ALLOW_LINT_FAIL=1` in `.env` to allow lint failures.
+Set `ALLOW_LINT_FAIL_BE=1` in `.env` to allow back-end code lint failures.
+
+Set `ALLOW_LINT_FAIL_FE=1` in `.env` to allow front-end code lint failures.
 
 ## Behat tests
 Behat configuration uses multiple extensions:

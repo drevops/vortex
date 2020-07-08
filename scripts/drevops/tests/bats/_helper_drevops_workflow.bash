@@ -282,11 +282,10 @@ assert_ahoy_lint(){
   run ahoy lint-be
   [ "${status}" -eq 1 ]
   run ahoy lint-fe
-  # @todo: Fix sass-lint not returning correct exist code on warnings.
-  [ "${status}" -eq 0 ]
+  [ "${status}" -eq 1 ]
 
   # Assert failure bypass.
-  add_var_to_file .env "ALLOW_LINT_FAIL" "1" && ahoy up cli && sync_to_container
+  add_var_to_file .env "ALLOW_LINT_FAIL_BE" "1" && add_var_to_file .env "ALLOW_LINT_FAIL_FE" "1" && ahoy up cli && sync_to_container
   run ahoy lint
   [ "${status}" -eq 0 ]
   run ahoy lint-be

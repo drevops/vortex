@@ -28,7 +28,8 @@ module.exports = function (grunt) {
     },
     sasslint: {
       options: {
-        configFile: '.sass-lint.yml'
+        configFile: '.sass-lint.yml',
+        warningsAreErrors: true
       },
       target: [
         'scss/**/*.scss',
