@@ -42,7 +42,7 @@ fi
 
 if [ -z "${LINT_TYPE##*fe*}" ]; then
   # Lint code using front-end linter.
-  npm run --prefix docroot/themes/custom/simplyenergy lint || \
+  npm run --prefix docroot/themes/custom/your_site_theme lint || \
   # Flag to allow lint to fail.
   [ "${ALLOW_FE_LINT_FAIL}" -eq 1 ]
 fi
