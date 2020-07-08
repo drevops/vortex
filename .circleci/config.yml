@@ -75,9 +75,10 @@ aliases:
   # support request with CircleCI to enable this feature.
   - &docker_layer_caching false
 
-  # Schedule to run nightly builds. Defaults to 4am. Usually used when database
-  # captured in the Docker image layer to produce nightly database caches.
-  - &nightly_schedule "0 4 * * *"
+  # Schedule to run nightly builds. Defaults to 4am UTC (make sure to adjust for
+  # your time zone). Usually used when database captured in the Docker image
+  # layer to produce nightly database caches.
+  - &nightly_schedule "0 15 * * *"
 
   # The branch used for nightly builds.
   - &nightly_branch develop
