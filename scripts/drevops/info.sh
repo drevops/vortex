@@ -15,6 +15,9 @@ SHOW_LOGIN_LINK="${SHOW_LOGIN_LINK:-}"
 
 drush="${APP}/vendor/bin/drush"
 
+# Use local or global Drush.
+drush="$(command -v drush || echo "${APP}/vendor/bin/drush")"
+
 echo  "Project                  : ${PROJECT}"
 echo  "Site local URL           : http://${LOCALDEV_URL}"
 echo  "Path to project          : ${APP}"

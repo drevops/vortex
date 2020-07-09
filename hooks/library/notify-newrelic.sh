@@ -4,7 +4,7 @@
 #
 
 set -e
-set -x
+[ -n "${DEPLOY_API_DEBUG}" ] && set -x
 
 SITE=$1
 TARGET_ENV=$2

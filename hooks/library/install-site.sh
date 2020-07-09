@@ -4,7 +4,7 @@
 #
 
 set -e
-set -x
+[ -n "${DEPLOY_API_DEBUG}" ] && set -x
 
 SITE="${1}"
 TARGET_ENV="${2}"
@@ -12,7 +12,7 @@ TARGET_ENV="${2}"
 [ -n "${SKIP_INSTALL_SITE}" ] && echo "Skipping install site." && exit
 
 export APP="/var/www/html/${SITE}.${TARGET_ENV}"
-export SCRIPTS_DIR="${APP}/scripts"
+export SCRIPTS_DIR="${SCRIPTS_DIR:-"${APP}/scripts"}"
 
 # Create drush alias from arguments.
 export DRUSH_ALIAS="@${SITE}.${TARGET_ENV}"

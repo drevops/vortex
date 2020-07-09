@@ -1,61 +1,22 @@
 #!/usr/bin/env bash
 ##
-# Acquia Cloud hook: Flush varnish cache for specified domains.
+# Acquia Cloud hook: Flush Varnish cache for specified domains.
 #
-# Support sub-domains and custom domains.
-# Place your domains into domains.txt file.
-#
-# IMPORTANT! This script uses drush ac-* commands and requires credentials
-# for Acquia Cloud. Make sure that file "${HOME}/.acquia/cloudapi.conf" exists
-# and follow deployment instructions if it does not.
-
 set -e
-set -x
+[ -n "${DEPLOY_API_DEBUG}" ] && set -x
 
 SITE="${1}"
 TARGET_ENV="${2}"
-APP="/var/www/html/${SITE}.${TARGET_ENV}"
-DOMAINS_FILE="${DOMAINS_FILE:-${APP}/hooks/library/domains.txt}"
 
-[ -n "${SKIP_FLUSH_VARNISH}" ] && echo "Skipping flush varnish." && exit
+[ -n "${SKIP_FLUSH_VARNISH}" ] && echo "Skipping flush Varnish." && exit 0
 
-DEPLOY_API_USER_NAME="${DEPLOY_API_USER_NAME?not set}"
-DEPLOY_API_USER_PASS="${DEPLOY_API_USER_PASS?not set}"
+export SCRIPTS_DIR="${SCRIPTS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/scripts"}"
+export HOOKS_DIR="${HOOKS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/hooks"}"
 
-# ------------------------------------------------------------------------------
+# Site name for AC API.
+export AC_API_APP_NAME="${AC_API_APP_NAME:-${SITE}}"
 
-[ ! -f "${DOMAINS_FILE}" ] && echo "ERROR: File with domains does not exist." && exit 1
+export AC_API_VARNISH_ENV="${TARGET_ENV}"
+export AC_API_VARNISH_DOMAINS_FILE="${HOOKS_DIR}/library/domains.txt"
 
-# Login to Acquia Cloud.
-# shellcheck disable=SC2086
-drush @${SITE}.${TARGET_ENV} ac-api-login --email="${DEPLOY_API_USER_NAME}" --key="${DEPLOY_API_USER_PASS}"
-
-while read -r domain; do
-  # Special variable to remap target env to the sub-domain prefix based on UI name.
-  TARGET_ENV_REMAP="${TARGET_ENV}"
-  # Strip placeholder for PROD environment.
-  if [ "${TARGET_ENV}" == "prod" ] ; then
-    domain="${domain//\$TARGET_ENV_REMAP./}"
-    domain="${domain//\$TARGET_ENV./}"
-  fi
-
-  # Re-map 'test' to 'stage' as seen in UI.
-  if [ "${TARGET_ENV}" == "test" ] ; then
-    TARGET_ENV_REMAP=stage
-  fi
-
-  # Disable replacement for unknown environments.
-  if [ "${TARGET_ENV}" != "dev" ] && [ "${TARGET_ENV}" != "test" ] && [ "${TARGET_ENV}" != "prod" ]; then
-    TARGET_ENV_REMAP=""
-  fi
-
-  # Proceed only if the environment was provided.
-  if [ "${TARGET_ENV_REMAP}" != "" ] ; then
-    # Interpolate variables in domain name.
-    domain="$(eval echo "${domain}")"
-
-    # Clear varnish cache.
-    # shellcheck disable=SC2086
-    drush @${SITE}.${TARGET_ENV} ac-domain-purge "${domain}" || true
-  fi
-done < "${DOMAINS_FILE}"
+"$SCRIPTS_DIR/drevops/purge-cache-acquia.sh"

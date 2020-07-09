@@ -31,6 +31,9 @@ DB_SANITIZE_FILE="${DB_SANITIZE_FILE:-/app/scripts/sanitize.sql}"
 
 drush="${APP}/vendor/bin/drush"
 
+# Use local or global Drush.
+drush="$(command -v drush || echo "${APP}/vendor/bin/drush")"
+
 [ ! -f "${DB_DIR}/${DB_FILE}" ] && echo "ERROR: Database dump ${DB_DIR}/${DB_FILE} not found." && exit 1
 
 echo "==> Removing existing database tables."
