@@ -150,7 +150,7 @@ else
 fi
 
 echo "==> Expanded file."
-ls -alh "${db_dump_file_actual}"
+ls -Alh "${db_dump_file_actual}"
 
 if [ "${DB_USE_SYMLINK}" == true ]; then
   latest_symlink="${DB_FILE}"
