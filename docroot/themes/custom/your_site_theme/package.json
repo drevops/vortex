@@ -4,7 +4,7 @@
   "private": true,
   "description": "NPM dependencies for YOURSITE project",
   "devDependencies": {
-    "autoprefixer": "^9.7.1",
+    "autoprefixer": "~9.7.0",
     "eslint": "^6.6.0",
     "grunt": "^1.0.4",
     "grunt-contrib-clean": "^2.0.0",
