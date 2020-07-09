@@ -26,9 +26,11 @@ set -e
 #                             REQUIRED VARIABLES
 #-------------------------------------------------------------------------------
 
-# 'prod:<git_repo_name>'
-AC_API_DB_APP="${AC_API_DB_APP:-}"
+# Application name. Used to discover UUID.
+AC_API_APP_NAME="${AC_API_APP_NAME:-}"
+# Source environment name to download the database dump.
 AC_API_DB_ENV="${AC_API_DB_ENV:-}"
+# Database name within source environment to download the database dump.
 AC_API_DB_NAME="${AC_API_DB_NAME:-}"
 
 #-------------------------------------------------------------------------------
@@ -81,14 +83,14 @@ extract_json_value() {
 # Pre-flight checks.
 command -v curl > /dev/null || ( echo "ERROR: curl command is not available." && exit 1 )
 
-# Try to read credentials from the stored config file after running `drush ac-api-login`.
+# Try to read credentials from the credentials file.
 if [ -z "${AC_API_KEY}" ] && [ -f "${AC_CREDENTIALS_FILE}" ]; then
   # shellcheck disable=SC1090
   t=$(mktemp) && export -p > "$t" && set -a && . "${AC_CREDENTIALS_FILE}" && set +a && . "$t" && rm "$t" && unset t
 fi
 
 # Check that all required variables are present.
-[ -z "${AC_API_DB_APP}" ] && echo "ERROR: Missing value for AC_API_DB_APP." && exit 1
+[ -z "${AC_API_APP_NAME}" ] && echo "ERROR: Missing value for AC_API_APP_NAME." && exit 1
 [ -z "${AC_API_DB_ENV}" ] && echo "ERROR: Missing value for AC_API_DB_ENV." && exit 1
 [ -z "${AC_API_DB_NAME}" ] && echo "ERROR: Missing value for AC_API_DB_NAME." && exit 1
 [ -z "${AC_API_KEY}" ] && echo "ERROR: Missing value for AC_API_KEY." && exit 1
@@ -99,8 +101,13 @@ TOKEN_JSON=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-
 TOKEN=$(echo "${TOKEN_JSON}" | extract_json_value "access_token")
 [ -z "${TOKEN}" ] && echo "ERROR: Unable to retrieve a token." && exit 1
 
+echo "==> Retrieving ${AC_API_APP_NAME} application UUID."
+APP_UUID_JSON=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $TOKEN" "https://cloud.acquia.com/api/applications?filter=name%3D${AC_API_APP_NAME/ /%20}")
+APP_UUID=$(echo "${APP_UUID_JSON}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
+[ -z "${APP_UUID}" ] && echo "ERROR: Unable to retrieve an environment UUID." && exit 1
+
 echo "==> Retrieving ${AC_API_DB_ENV} environment id."
-ENVS_JSON=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $TOKEN" "https://cloud.acquia.com/api/applications/${AC_API_DB_APP}/environments?filter=name%3D${AC_API_DB_ENV}")
+ENVS_JSON=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $TOKEN" "https://cloud.acquia.com/api/applications/${APP_UUID}/environments?filter=name%3D${AC_API_DB_ENV}")
 ENV_ID=$(echo "${ENVS_JSON}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
 [ -z "${ENV_ID}" ] && echo "ERROR: Unable to retrieve an environment ID." && exit 1
 

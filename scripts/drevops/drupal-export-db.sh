@@ -20,6 +20,9 @@ DRUSH_ALIAS="${DRUSH_ALIAS:-}"
 
 drush="${APP}/vendor/bin/drush"
 
+# Use local or global Drush.
+drush="$(command -v drush || echo "${APP}/vendor/bin/drush")"
+
 # Create directory to store database dump.
 mkdir -p "${DB_DIR}"
 
