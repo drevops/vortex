@@ -53,7 +53,7 @@ DOWNLOAD_POST_PROCESS="${DOWNLOAD_POST_PROCESS:-}"
 
 if [ -n "${found_db}" ]; then
   echo "==> Found existing database dump file(s)."
-  ls -alh "${DB_DIR}"
+  ls -Alh "${DB_DIR}"
 
   if [ -z "${FORCE_DB_DOWNLOAD}" ] ; then
     echo "==> Using existing database dump file(s). Download will not proceed. Remove existing database file or set FORCE_DB_DOWNLOAD flag to force download." && exit 0
@@ -89,7 +89,7 @@ if [ "${DATABASE_DOWNLOAD_SOURCE}" == "docker_registry" ]; then
 fi
 
 echo "==> Downloaded database dump file in ${DB_DIR}."
-ls -alh "${DB_DIR}"
+ls -Alh "${DB_DIR}"
 
 if [ -n "${DOWNLOAD_POST_PROCESS}" ]; then
   echo "==> Running database post download processing command(s) '${DOWNLOAD_POST_PROCESS}'."
