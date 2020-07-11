@@ -739,8 +739,8 @@ prepare_local_repo(){
   fi
 
   git_init 0 "${dir}"
-  [ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name" && git config --global user.name "Some User"
-  [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email" && git config --global user.email "some.user@example.com"
+  [ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name." && git config --global user.name "Some User"
+  [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email." && git config --global user.email "some.user@example.com"
   commit=$(git_add_all_commit "Initial commit" "${dir}")
 
   echo "${commit}"

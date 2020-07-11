@@ -70,7 +70,7 @@ fi
 # container, but only if it exists, while also replacing relative directory path
 # with absolute path. Note, that the DB_DIR path is the same inside and outside
 # of the container.
-[ -f "${DB_DIR}"/"${DB_FILE}" ] && ahoy cli mkdir -p "${DB_DIR}" && docker cp -L "${DB_DIR}"/"${DB_FILE}" $(docker-compose ps -q cli):"${DB_DIR/.\//${APP}/}"/"${DB_FILE}" && echo "==> Copied database file into container"
+[ -f "${DB_DIR}"/"${DB_FILE}" ] && ahoy cli mkdir -p "${DB_DIR}" && docker cp -L "${DB_DIR}"/"${DB_FILE}" $(docker-compose ps -q cli):"${DB_DIR/.\//${APP}/}"/"${DB_FILE}" && echo "==> Copied database file into container."
 
 echo "==> Installing development dependencies."
 #
