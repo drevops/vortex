@@ -58,7 +58,7 @@ RUN echo "memory_limit=-1" >> /usr/local/etc/php/conf.d/memory.ini \
 #: File Gruntfile.sj is copied into image as it is required to generate
 #: front-end assets.
 COPY docroot/themes/custom/your_site_theme/Gruntfile.js docroot/themes/custom/your_site_theme/.eslintrc.json docroot/themes/custom/your_site_theme/package.json docroot/themes/custom/your_site_theme/package* /app/docroot/themes/custom/your_site_theme/
-COPY docroot/themes/custom/your_site_theme/patches /app/docroot/themes/custom/simplyenergy/patches
+COPY docroot/themes/custom/your_site_theme/patches /app/docroot/themes/custom/your_site_theme/patches
 
 #: Install NodeJS dependencies.
 #: Since Drupal does not use NodeJS for production, it does not matter if we
