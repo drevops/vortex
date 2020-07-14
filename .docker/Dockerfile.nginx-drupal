@@ -6,7 +6,7 @@ FROM ${CLI_IMAGE:-cli} as cli
 
 # @see https://hub.docker.com/r/amazeeio/nginx-drupal/tags?page=1
 # @see https://github.com/amazeeio/lagoon/tree/master/images/nginx-drupal
-FROM amazeeio/nginx-drupal:v1.7.1
+FROM amazeeio/nginx-drupal:v1.8.1
 
 ENV WEBROOT=docroot
 
