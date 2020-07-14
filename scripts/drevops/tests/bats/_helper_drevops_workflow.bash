@@ -285,7 +285,10 @@ assert_ahoy_lint(){
   [ "${status}" -eq 1 ]
 
   # Assert failure bypass.
-  add_var_to_file .env "ALLOW_LINT_FAIL_BE" "1" && add_var_to_file .env "ALLOW_LINT_FAIL_FE" "1" && ahoy up cli && sync_to_container
+  add_var_to_file .env "ALLOW_BE_LINT_FAIL" "1"
+  add_var_to_file .env "ALLOW_FE_LINT_FAIL" "1"
+  ahoy up cli && sync_to_container
+
   run ahoy lint
   [ "${status}" -eq 0 ]
   run ahoy lint-be
