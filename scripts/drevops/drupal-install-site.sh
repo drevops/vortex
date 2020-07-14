@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2086
+# shellcheck disable=SC2086,SC2002
 ##
 # Install site from canonical database.
 #
@@ -53,6 +53,9 @@ SKIP_DB_IMPORT="${SKIP_DB_IMPORT:-}"
 # Flag to skip running post DB import commands.
 SKIP_POST_DB_IMPORT="${SKIP_POST_DB_IMPORT:-}"
 
+# Flag to force fresh install even if the site exists.
+FORCE_FRESH_INSTALL="${FORCE_FRESH_INSTALL:-}"
+
 # ------------------------------------------------------------------------------
 
 echo "==> Installing site."
@@ -74,11 +77,17 @@ mkdir -p "${DRUPAL_PRIVATE_FILES}"
 if [ -z "${SKIP_DB_IMPORT}" ] && [ -f "${DB_DIR}/${DB_FILE}" ]; then
   echo "==> Using existing DB dump ${DB_DIR}/${DB_FILE}."
   DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" ./scripts/drevops/drupal-import-db.sh
-elif $drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "Successful"; then
+elif $drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "Successful" && [ "${FORCE_FRESH_INSTALL}" != "1" ]; then
   echo "==> Existing site found."
 else
   echo "==> Existing site not found. Installing site from profile ${DRUPAL_PROFILE}."
-  $drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+
+  if ls "${DRUPAL_CONFIG_PATH}"/*.yml > /dev/null 2>&1; then
+    $drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" --config-dir=${DRUPAL_CONFIG_PATH} install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+    SKIP_POST_DB_IMPORT=1
+  else
+    $drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+  fi
 fi
 
 # Run post DB import scripts, if not skipped.
@@ -90,9 +99,15 @@ if [ -z "${SKIP_POST_DB_IMPORT}" ]; then
 
   # Import Drupal configuration, if configuration files exist.
   if ls "${DRUPAL_CONFIG_PATH}"/*.yml > /dev/null 2>&1; then
+    if [ -f "${DRUPAL_CONFIG_PATH}/system.site.yml" ]; then
+      config_uuid="$(cat "${DRUPAL_CONFIG_PATH}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
+      $drush config-set system.site uuid "${config_uuid}"
+    fi
+
     $drush ${DRUSH_ALIAS} cim "${DRUPAL_CONFIG_LABEL}" -y
+
     if $drush pml --status=enabled | grep -q config_split; then
-      $drush ${DRUSH_ALIAS} config-split-import -y
+      $drush ${DRUSH_ALIAS} config-split:import -y
     fi
   else
     echo "==> Configuration was not found in ${DRUPAL_CONFIG_PATH} path."
