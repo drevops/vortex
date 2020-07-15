@@ -84,7 +84,7 @@ docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
 docker cp -L tests $(docker-compose ps -q cli):/app/
 # Install all composer dependencies, including development ones.
 # Note that this will create/update composer.lock file.
-ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
+ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install -n --ansi --prefer-dist --no-suggest"
 # Install all npm dependencies and compile FE assets.
 # Note that this will create/update package-lock.json file.
 ahoy cli "npm --prefix docroot/themes/custom/your_site_theme install --no-audit --quiet --no-progress --unsafe-perm" && ahoy fe
