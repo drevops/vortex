@@ -448,8 +448,8 @@ jobs:
 workflows:
   version: 2
   #:
-  #: Main workflow. Runs for every push to the remote repository.
-  main:
+  #: Commit workflow. Runs for every commit push to the remote repository.
+  commit:
     jobs:
       - database:
           filters:
