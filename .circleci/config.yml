@@ -409,9 +409,9 @@ jobs:
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
       EXPORT_DB_DEPLOY_DOCKER: 1
-      #; CircleCI does not provide workflow name variable, so we have to
-      #; explicitly set it within a job.
-      CI_WORKFLOW_NAME: drevops_didi_fi
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_fi
   #; Job to test creation of the image from the previous version of the image
   #; when using database-in-Docker-image workflow.
   drevops_didi_database_ii:
@@ -423,9 +423,9 @@ jobs:
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
       EXPORT_DB_DEPLOY_DOCKER: 1
-      #; CircleCI does not provide workflow name variable, so we have to
-      #; explicitly set it within a job.
-      CI_WORKFLOW_NAME: drevops_didi_ii
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_ii
   #; Job to test build of the image from the previous stage of the image when
   #; using database-in-Docker-image workflow. Overwriting just the DATABASE_IMAGE
   #; variable should change the storage mechanisms, but preserve application-level
@@ -434,12 +434,16 @@ jobs:
     <<: *job_build
     environment:
       DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x:latest
-      CI_WORKFLOW_NAME: drevops_didi_fi
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_fi
   drevops_didi_build_ii:
     <<: *job_build
     environment:
       DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x:latest
-      CI_WORKFLOW_NAME: drevops_didi_ii
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_ii
   #;> DREVOPS
 
 #:###############################################################################
