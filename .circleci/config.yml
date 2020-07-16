@@ -58,6 +58,9 @@ aliases:
   # does not match (for example, the cache is available only from the previous
   # day). Only allowed "yes" or "no" (include enclosing double quotes).
   - &db_cache_fallback "yes"
+  - # Which branch to use for a source of the DB caches. Usually, it is the default
+  # project branch or *nightly_branch (see below).
+  - &db_cache_branch "develop"
 
   # Database cache directory.
   - &db_cache_dir /root/project/.data
@@ -78,7 +81,7 @@ aliases:
   # Schedule to run nightly builds. Defaults to 4am UTC (make sure to adjust for
   # your time zone). Usually used when database captured in the Docker image
   # layer to produce nightly database caches.
-  - &nightly_schedule "0 15 * * *"
+  - &nightly_schedule "0 18 * * *"
 
   # The branch used for nightly builds.
   - &nightly_branch develop
@@ -108,6 +111,8 @@ aliases:
           DB_CACHE_TIMESTAMP: *db_cache_timestamp
           # Use cache fallback if the above timestamp does not match.
           DB_CACHE_FALLBACK: *db_cache_fallback
+          # Which branch to use as a source of DB caches.
+          DB_CACHE_BRANCH: *db_cache_branch
           # Directory to store code exported between jobs.
           BUILD_EXPORT_DIR: &build_export_dir /workspace/code
           # Do not use symlink when downloading database dump (useful only locally).
@@ -167,10 +172,11 @@ jobs:
       - run:
           name: Set cache keys for database caching
           command: |
-            echo "${CI_WORKFLOW_NAME:-main}" > /tmp/DB_CACHE_WORKFLOW_NAME && cat /tmp/DB_CACHE_WORKFLOW_NAME
-            echo "$(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
-            if [ -z "${CIRCLE_BRANCH}" ] || [ -n "${CIRCLE_BRANCH##feature*}" ]; then echo "Cache fallback disabled for non-feature branch."; export DB_CACHE_FALLBACK=no; fi
+            echo "${DB_CACHE_BRANCH}" > /tmp/DB_CACHE_BRANCH && cat /tmp/DB_CACHE_BRANCH
             echo "${DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" > /tmp/DB_CACHE_FALLBACK && cat /tmp/DB_CACHE_FALLBACK
+            echo "$(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
+            echo "yes" > /tmp/DB_CACHE_FALLBACK_YES && cat /tmp/DB_CACHE_FALLBACK_YES
+
       - restore_cache:
           keys:
             #:
@@ -178,14 +184,14 @@ jobs:
             #:
             #: Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
             #:
-            #: Lookup cache based on the current branch and a timestamp. Allows
-            #: to cache results of the very first build on the day (sanitized
-            #: database dump, for example) and re-use it in all subsequent builds.
-            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+            #: Lookup cache based on the default branch and a timestamp. Allows
+            #: to use cache from the very first build on the day (sanitized
+            #: database dump, for example).
+            - v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
             #:
-            #: Fallback to caching by branch name. Allows to use cache from the
-            #: branch build on the previous day.
-            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}
+            #: Fallback to caching by default branch name only. Allows to use
+            #: cache from the branch build on the previous day.
+            - v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-
       #: Download database and run post DB download commands: build site and
       #: export the database. Note that configuration changes and DB updates
       #: are not applied, so we could cache the database as it was downloaded.
@@ -194,7 +200,11 @@ jobs:
           command: DOWNLOAD_POST_PROCESS="export SKIP_POST_DB_IMPORT=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
           no_output_timeout: 30m
       - save_cache:
-          key: v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+          # Save cache per default branch and the timestamp. Note that the
+          # cache fallback flag is enabled for this case in order to
+          # save cache even if fallback is not used when restoring it.
+          # The cache will not be saved if it already exist.
+          key: v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
           paths:
             - *db_cache_dir
 
@@ -203,8 +213,9 @@ jobs:
     <<: *job_database
     environment:
       # Enforce fresh DB build (do not rely on fallback caches).
-      DB_CACHE_TIMESTAMP: +%Y_%m_%d_%H_%M_%S
       DB_CACHE_FALLBACK: 'no'
+      # Always use fresh base image for the database.
+      DATABASE_IMAGE_BASE: drevops/mariadb-drupal-data
       # Deploy docker image (if DOCKER_IMAGE storage is used) to provide fresh
       # daily images for developers.
       EXPORT_DB_DEPLOY_DOCKER: 1
@@ -224,17 +235,17 @@ jobs:
       - run:
           name: Set cache keys for database caching
           command: |
-            echo "${CI_WORKFLOW_NAME:-main}" > /tmp/DB_CACHE_WORKFLOW_NAME && cat /tmp/DB_CACHE_WORKFLOW_NAME
+            echo "${DB_CACHE_BRANCH}" > /tmp/DB_CACHE_BRANCH && cat /tmp/DB_CACHE_BRANCH
+            echo "yes" > /tmp/DB_CACHE_FALLBACK_YES && cat /tmp/DB_CACHE_FALLBACK_YES
+            echo "$(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
       - restore_cache:
           keys:
-            #:
-            #: Use cached artifacts from previous builds of this branch ran at
-            #: any time, but try to find caches withing the same workflow first.
-            #; This allows to run nightly jobs as a part of one workflow, but
-            #; use cached data in another ones.
-            #: https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}
-            - v1-db8-{{ .Branch }}-
+            #
+            # Use cached artifacts from previous builds of this branch ran at
+            # any time.
+            # https://circleci.com/docs/2.0/caching/#restoring-cache
+            - v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+            - v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-
       - run:
           name: Build site
           command: ahoy build
@@ -398,9 +409,9 @@ jobs:
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
       EXPORT_DB_DEPLOY_DOCKER: 1
-      #; CircleCI does not provide workflow name variable, so we have to
-      #; explicitly set it within a job.
-      CI_WORKFLOW_NAME: drevops_didi_fi
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_fi
   #; Job to test creation of the image from the previous version of the image
   #; when using database-in-Docker-image workflow.
   drevops_didi_database_ii:
@@ -412,9 +423,9 @@ jobs:
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
       EXPORT_DB_DEPLOY_DOCKER: 1
-      #; CircleCI does not provide workflow name variable, so we have to
-      #; explicitly set it within a job.
-      CI_WORKFLOW_NAME: drevops_didi_ii
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_ii
   #; Job to test build of the image from the previous stage of the image when
   #; using database-in-Docker-image workflow. Overwriting just the DATABASE_IMAGE
   #; variable should change the storage mechanisms, but preserve application-level
@@ -423,12 +434,16 @@ jobs:
     <<: *job_build
     environment:
       DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x:latest
-      CI_WORKFLOW_NAME: drevops_didi_fi
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_fi
   drevops_didi_build_ii:
     <<: *job_build
     environment:
       DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x:latest
-      CI_WORKFLOW_NAME: drevops_didi_ii
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_ii
   #;> DREVOPS
 
 #:###############################################################################
@@ -437,8 +452,8 @@ jobs:
 workflows:
   version: 2
   #:
-  #: Main workflow. Runs for every push to the remote repository.
-  main:
+  #: Commit workflow. Runs for every commit push to the remote repository.
+  commit:
     jobs:
       - database:
           filters:
