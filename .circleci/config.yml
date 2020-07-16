@@ -184,14 +184,14 @@ jobs:
             #:
             #: Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
             #:
-            #: Lookup cache based on the current branch and a timestamp. Allows
-            #: to cache results of the very first build on the day (sanitized
-            #: database dump, for example) and re-use it in all subsequent builds.
-            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+            #: Lookup cache based on the default branch and a timestamp. Allows
+            #: to use cache from the very first build on the day (sanitized
+            #: database dump, for example).
+            - v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
             #:
-            #: Fallback to caching by branch name. Allows to use cache from the
-            #: branch build on the previous day.
-            - v1-db8-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}
+            #: Fallback to caching by default branch name only. Allows to use
+            #: cache from the branch build on the previous day.
+            - v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-
       #: Download database and run post DB download commands: build site and
       #: export the database. Note that configuration changes and DB updates
       #: are not applied, so we could cache the database as it was downloaded.
