@@ -106,6 +106,10 @@ assert_deployment_files_present(){
 
 provision_site(){
   local dir="${1:-$(pwd)}"
+  local should_build="${2:-1}"
+  shift || true
+  shift || true
+  local answers=("$@")
 
   pushd "${dir}" > /dev/null || exit 1
 
@@ -113,7 +117,12 @@ provision_site(){
 
   step "Initialise the project with the default settings"
 
-  run_install_quiet
+  # shellcheck disable=SC2128
+  if [ -n "${answers}" ]; then
+    run_install_interactive "${answers[@]}"
+  else
+    run_install_quiet
+  fi
 
   assert_files_present_common
   assert_git_repo
@@ -129,10 +138,12 @@ provision_site(){
   step "Add all files to new git repo"
   git_add_all_commit "Init DrevOps config" "${dir}"
 
-  step "Build project"
-  export SKIP_POST_DB_IMPORT=1
-  ahoy build
-  sync_to_host
+  if [ "${should_build}" == "1" ]; then
+    step "Build project"
+    export SKIP_POST_DB_IMPORT=1
+    ahoy build
+    sync_to_host
+  fi
 
   popd > /dev/null || exit 1
 }

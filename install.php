@@ -357,11 +357,13 @@ function process__database_image($dir) {
 }
 
 function process__deploy_type($dir) {
-  if (get_answer('deploy_type') != 'none') {
+  $type = get_answer('deploy_type');
+  if ($type != 'none') {
+    file_replace_content('/DEPLOY_TYPE=.*/', "DEPLOY_TYPE=$type", $dir . '/.env');
     remove_token_with_content('!DEPLOYMENT', $dir);
   }
   else {
-    if (strpos(get_answer('deploy_type'), 'code') === FALSE) {
+    if (strpos($type, 'code') === FALSE) {
       @unlink("$dir/.gitignore.deployment");
     }
     @unlink("$dir/DEPLOYMENT.md");
@@ -646,7 +648,7 @@ function gather_answers() {
   // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
   // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
 
-  ask_for_answer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook notification, [c]ode artifact, [d]ocker image, [n]one as a comma-separated list)?');
+  ask_for_answer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook notification, [c]ode artifact, [d]ocker image, [l]agoon, [n]one as a comma-separated list)?');
 
   if (get_answer('database_download_source') != 'ftp') {
     ask_for_answer('preserve_ftp', 'Do you want to keep FTP integration?');
@@ -1370,6 +1372,11 @@ function normalise_answer__deploy_type($value) {
         $normalised[] = 'docker';
         break;
 
+      case 'l':
+      case 'lagoon':
+        $normalised[] = 'lagoon';
+        break;
+
       case 'n':
       case 'none':
         $normalised[] = 'none';
@@ -1422,9 +1429,9 @@ function print_help() {
 DrevOps Installer
 ------------------
 Arguments
-  destination          Destination directory. Optional. Defaults to the current 
+  destination          Destination directory. Optional. Defaults to the current
                        directory.
-                        
+
 Options
   --help               This help.
   --quiet              Quiet installation.
