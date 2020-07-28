@@ -78,7 +78,7 @@ if [ -z "${SKIP_DB_IMPORT}" ] && [ -f "${DB_DIR}/${DB_FILE}" ]; then
   echo "==> Using existing DB dump ${DB_DIR}/${DB_FILE}."
   DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" ./scripts/drevops/drupal-import-db.sh
 elif $drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "Successful" && [ "${FORCE_FRESH_INSTALL}" != "1" ]; then
-  echo "==> Existing site found."
+  echo "==> Existing site found. Re-run with FORCE_FRESH_INSTALL=1 to forcefully re-install."
 else
   echo "==> Existing site not found. Installing site from profile ${DRUPAL_PROFILE}."
 
