@@ -28,6 +28,9 @@ scripts/drevops/lint-spelling.sh
 echo "==> Test BATS helpers."
 bats scripts/drevops/tests/bats/helpers.bats --tap
 
+echo "==> Test BATS mock."
+bats scripts/drevops/tests/bats/mock.bats --tap
+
 echo "==> Test installation."
 bats scripts/drevops/tests/bats/env.bats --tap
 bats scripts/drevops/tests/bats/install_initial.bats --tap
