@@ -27,9 +27,15 @@ DEPLOY_SSH_FINGERPRINT="${DEPLOY_SSH_FINGERPRINT:-}"
 # Default SSH file used if custom fingerprint is not provided.
 DEPLOY_SSH_FILE="${DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}"
 
+# Location of the Lagoon CLI binary.
+LAGOON_BIN_PATH="${LAGOON_BIN_PATH:-/tmp}"
+
+# Flag to force the installation of Lagoon CLI.
+FORCE_INSTALL_LAGOON_CLI="${FORCE_INSTALL_LAGOON_CLI:-}"
+
 # ------------------------------------------------------------------------------
 
-echo "==> Started CODE deployment."
+echo "==> Started LAGOON deployment."
 
 ## Check all required values.
 [ -z "${LAGOON_PROJECT}" ] && echo "Missing required value for LAGOON_PROJECT." && exit 1
@@ -56,16 +62,17 @@ fi
 # Disable strict host key checking in CI.
 [ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >> "${HOME}/.ssh/config"
 
-if ! command -v lagoon >/dev/null; then
+if ! command -v lagoon >/dev/null || [ -n "${FORCE_INSTALL_LAGOON_CLI}" ]; then
   echo "==> Installing Lagoon CLI."
   curl -s https://api.github.com/repos/amazeeio/lagoon-cli/releases/latest \
     | grep "browser_download_url" \
     | grep -i "$(uname -s)-amd64\"$" \
     | cut -d '"' -f 4 \
-    | xargs curl -L -o /tmp/lagoon
-    chmod +x /tmp/lagoon
+    | xargs curl -L -o "${LAGOON_BIN_PATH}/lagoon"
+  chmod +x "${LAGOON_BIN_PATH}/lagoon"
+  export PATH="${PATH}:${LAGOON_BIN_PATH}"
 fi
 
-/tmp/lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" deploy branch -p "${LAGOON_PROJECT}" -b "${DEPLOY_BRANCH}"
+lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" deploy branch -p "${LAGOON_PROJECT}" -b "${DEPLOY_BRANCH}"
 
-echo "==> Finished CODE deployment."
+echo "==> Finished LAGOON deployment."
