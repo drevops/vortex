@@ -296,7 +296,7 @@ jobs:
       - checkout
       - *step_process_codebase
       - run:
-          command: ahoy deploy
+          command: DEPLOY_BRANCH="$CIRCLE_BRANCH" ahoy deploy
           no_output_timeout: 30m
       - store_artifacts:
           path: *test_artifact_dir
