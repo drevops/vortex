@@ -58,7 +58,8 @@ aliases:
   # does not match (for example, the cache is available only from the previous
   # day). Only allowed "yes" or "no" (include enclosing double quotes).
   - &db_cache_fallback "yes"
-  - # Which branch to use for a source of the DB caches. Usually, it is the default
+
+  # Which branch to use for a source of the DB caches. Usually, it is the default
   # project branch or *nightly_branch (see below).
   - &db_cache_branch "develop"
 
