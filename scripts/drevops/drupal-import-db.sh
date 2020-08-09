@@ -27,6 +27,9 @@ DB_SANITIZE_PASSWORD="${DB_SANITIZE_PASSWORD:-password}"
 # Path to file with custom sanitization SQL queries.
 DB_SANITIZE_FILE="${DB_SANITIZE_FILE:-/app/scripts/sanitize.sql}"
 
+# Flag to skip DB sanitization.
+SKIP_DB_SANITIZE="${SKIP_DB_SANITIZE:-}"
+
 # ------------------------------------------------------------------------------
 
 drush="${APP}/vendor/bin/drush"
@@ -46,12 +49,14 @@ else
   $drush sqlc < "${DB_DIR}/${DB_FILE}"
 fi
 
-# Always sanitize password and email using standard methods.
-$drush sql-sanitize --sanitize-password="${DB_SANITIZE_PASSWORD}" --sanitize-email="${DB_SANITIZE_EMAIL}" -y
+if [ -z "${SKIP_DB_SANITIZE}" ]; then
+  # Always sanitize password and email using standard methods.
+  $drush sql-sanitize --sanitize-password="${DB_SANITIZE_PASSWORD}" --sanitize-email="${DB_SANITIZE_EMAIL}" -y
 
-# Sanitize using additional SQL commands provided in file.
-# To skip custom sanitization, remove the DB_SANITIZE_FILE file from the codebase.
-if [ -f "${DB_SANITIZE_FILE}" ]; then
-  echo "==> Applying custom sanitization commands from file ${DB_SANITIZE_FILE}."
-  $drush sql-query --file="${DB_SANITIZE_FILE}"
+  # Sanitize using additional SQL commands provided in file.
+  # To skip custom sanitization, remove the DB_SANITIZE_FILE file from the codebase.
+  if [ -f "${DB_SANITIZE_FILE}" ]; then
+    echo "==> Applying custom sanitization commands from file ${DB_SANITIZE_FILE}."
+    $drush sql-query --file="${DB_SANITIZE_FILE}"
+  fi
 fi
