@@ -16,7 +16,7 @@ SHOW_LOGIN_LINK="${SHOW_LOGIN_LINK:-}"
 drush="${APP}/vendor/bin/drush"
 
 # Use local or global Drush.
-drush="$(command -v drush || echo "${APP}/vendor/bin/drush")"
+drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 echo  "Project                  : ${PROJECT}"
 echo  "Site local URL           : http://${LOCALDEV_URL}"

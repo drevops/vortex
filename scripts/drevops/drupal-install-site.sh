@@ -63,7 +63,7 @@ echo "==> Installing site."
 drush="${APP}/vendor/bin/drush"
 
 # Use local or global Drush.
-drush="$(command -v drush || echo "${APP}/vendor/bin/drush")"
+drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 # Create private files directory.
 mkdir -p "${DRUPAL_PRIVATE_FILES}"
