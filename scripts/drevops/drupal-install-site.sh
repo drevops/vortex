@@ -133,6 +133,9 @@ fi
 # Rebuild cache.
 $drush ${DRUSH_ALIAS} cr
 
+# Run post-config import updates for the cases when updates rely on imported configuration.
+$drush ${DRUSH_ALIAS} post-config-import-update
+
 # Unblock admin user.
 if [ "${DRUPAL_UNBLOCK_ADMIN}" == "1" ]; then
   $drush ${DRUSH_ALIAS} sqlq "SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" | head -n 1 | xargs $drush -- uublk

@@ -1,0 +1,6 @@
+services:
+  your_site_core.commands:
+    class: \Drupal\your_site_core\Commands\PostConfigImportUpdateCommands
+    arguments: []
+    tags:
+      - { name: drush.command }
