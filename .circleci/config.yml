@@ -38,6 +38,16 @@ aliases:
   #; @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   - &timezone "Australia/Melbourne"
 
+  # SSH key fingerprint to download the database.
+  #: Generate a separate SSH key for a user who has read permissions to download
+  #: the database from the remote host with
+  #: `ssh-keygen -m PEM -t rsa -C "deployer@example.com" command and add private
+  #: key under "SSH Permissions" in CircleCI UI.
+  #;
+  #; This is a fingerprint of the key to read DrevOps project itself as an example.
+  #; Replace this key fingerprint with your own.
+  - &database_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+
   # SSH key fingerprint to deploy code.
   #: Generate a separate SSH key for a user who has push permissions to
   #: $DEPLOY_GIT_REMOTE repo with `ssh-keygen -m PEM -t rsa -C "deployer@example.com"
@@ -95,6 +105,7 @@ aliases:
     #: Location of checked-out files within "runner" container.
     working_directory: &working_directory /root/project
     environment:
+      DATABASE_SSH_FINGERPRINT: *database_ssh_fingerprint
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       #; Using "runner" container where each job will be executed. This container
@@ -167,6 +178,10 @@ jobs:
     steps:
       - attach_workspace:
           at: /workspace
+      # Add SSH key into "runner" container to have SSH access to download DB.
+      - add_ssh_keys:
+          fingerprints:
+            - *database_ssh_fingerprint
       - checkout
       - *step_process_codebase
       - *step_setup_remote_docker

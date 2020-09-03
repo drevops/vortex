@@ -98,6 +98,8 @@ $settings['entity_update_batch_size'] = 50;
 $settings['trusted_host_patterns'] = [
   // Local URL.
   '^.+\.docker\.amazee\.io$',
+  // Lagoon URL.
+  '^.+\.au\.amazee\.io$',
   // URL when accessed from Behat tests.
   '^nginx$',
 ];
@@ -144,6 +146,15 @@ if (file_exists('/var/www/site-php')) {
   }
 }
 // #;> ACQUIA
+
+// #;< LAGOON
+if (getenv('LAGOON_ENVIRONMENT_TYPE') == 'production') {
+  $settings['environment'] = ENVIRONMENT_PROD;
+}
+elseif (getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
+  $settings['environment'] = ENVIRONMENT_DEV;
+}
+// #;> LAGOON
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-ENVIRONMENT SETTINGS                           ///
@@ -215,6 +226,21 @@ if ($settings['environment'] == ENVIRONMENT_LOCAL) {
 if (file_exists($app_root . '/' . $site_path . '/settings.generated.php')) {
   include $app_root . '/' . $site_path . '/settings.generated.php';
 }
+
+// #;< LAGOON
+// @todo: Remove once scripts/composer/DrupalSettings.php is updated.
+if (getenv('LAGOON')) {
+  $databases['default']['default'] = [
+    'driver' => 'mysql',
+    'database' => getenv('MARIADB_DATABASE') ?: 'drupal',
+    'username' => getenv('MARIADB_USERNAME') ?: 'drupal',
+    'password' => getenv('MARIADB_PASSWORD') ?: 'drupal',
+    'host' => getenv('MARIADB_HOST') ?: 'mariadb',
+    'port' => 3306,
+    'prefix' => '',
+  ];
+}
+// #;> LAGOON
 
 // Load local development override configuration, if available.
 //
