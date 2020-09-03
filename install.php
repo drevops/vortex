@@ -628,7 +628,7 @@ function gather_answers() {
     set_answer('database_image', '');
   }
   else {
-    ask_for_answer('database_download_source', "When developing locally, where do you download the database dump from:\n  - [u]rl\n  - [f]tp\n  - [a]cquia backup\n  - [d]ocker registry?");
+    ask_for_answer('database_download_source', "When developing locally, where do you download the database dump from:\n  - [u]rl\n  - [f]tp\n  - [a]cquia backup\n  - [l]agoon\n  - [d]ocker registry?");
 
     if (get_answer('database_download_source') != 'docker_registry') {
       // Note that "database_store_type" is a pseudo-answer - it is only used to
@@ -1167,7 +1167,13 @@ function discover_value__preserve_lagoon() {
     return NULL;
   }
 
-  return ANSWER_YES;
+  $value = get_value_from_dst_dotenv('DATABASE_DOWNLOAD_SOURCE');
+
+  if (is_null($value)) {
+    return NULL;
+  }
+
+  return $value == 'lagoon' ? ANSWER_YES : ANSWER_NO;
 }
 
 function discover_value__preserve_ftp() {
@@ -1307,6 +1313,10 @@ function normalise_answer__database_download_source($value) {
     case 'a':
     case 'acquia':
       return 'acquia';
+
+    case 'l':
+    case 'lagoon':
+      return 'lagoon';
 
     case 'i':
     case 'd':
