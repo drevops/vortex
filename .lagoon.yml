@@ -12,29 +12,42 @@ tasks:
     - run:
         name: Download database
         command: |
-          #; If Lagoon is used as non-prod environment and the database is
-          #; located elsewhere, we need to get access to that remote
-          #; environmnent to download the database dump.
-          #;
-          #;< ACQUIA
-          #: If source DB is in Acquia, we need to be able to use Cloud API
-          #: to download the database dump. In order to do so, we need to
-          #: provide Cloud API credentials in AC_API_USER_NAME and AC_API_USER_PASS
-          #: variables, which can be either set in your .env file and stored in
-          #: the git repository (not the best practice) or through GraphQL query
-          #: in Lagoon (need to contact Amazee support).
-          #;> ACQUIA
-          #: Import variables from .env file.
+          # Import variables from .env file.
           t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
-          #:
-          #: Override resulting file (since we are running in container and
-          #: data should be stored outside of the codebase) and download backup.
-          DB_DIR=/tmp/data ./scripts/drevops/download-db.sh
+          # Store DB dump in temp location instead of '.data'.
+          export DB_DIR=/tmp/data
+          # Do not load SSH file to access master environment to download the
+          # DB as Lagoon has the keys already loaded in the SSH agent.
+          export LAGOON_SSH_KEY_FILE=false
+          # Remove previously saved dumps in this environment.
+          rm -Rf $DB_DIR
+          # Download the database dump.
+          ./scripts/drevops/download-db.sh
         service: cli
 
     - run:
         name: Install site
-        command: ./scripts/drevops/drupal-install-site.sh
+        command: |
+          # Import variables from .env file.
+          t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
+          # Read DB dump from the temp location instead of '.data'.
+          export DB_DIR=/tmp/data
+          # Do not sanitize DB.
+          export SKIP_DB_SANITIZE=1
+
+          if [ "$LAGOON_ENVIRONMENT_TYPE" == "production" ]; then
+            # Never overwrite existing DB when production site already exists.
+            export DB_IMPORT_OVERWRITE_EXISTING=0
+            # Never unblock admin user in production.
+            export DRUPAL_UNBLOCK_ADMIN=0
+          else
+            # Do not overwrite existing DB if non-production site already exists.
+            # @note: Change this to 1 in order to re-install site on every commit.
+            export DB_IMPORT_OVERWRITE_EXISTING=0
+          fi
+
+          # Install site.
+          ./scripts/drevops/drupal-install-site.sh
         service: cli
         shell: bash
 
