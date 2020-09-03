@@ -133,6 +133,10 @@ fi
 # Rebuild cache.
 $drush ${DRUSH_ALIAS} cr
 
+# Enable custom site "core" module.
+# shellcheck disable=SC2015
+drush ${DRUSH_ALIAS} pml | grep -q "${DRUPAL_MODULE_PREFIX}_core" && drush ${DRUSH_ALIAS} en -y "${DRUPAL_MODULE_PREFIX}_core" || true
+
 # Run post-config import updates for the cases when updates rely on imported configuration.
 $drush ${DRUSH_ALIAS} post-config-import-update
 
