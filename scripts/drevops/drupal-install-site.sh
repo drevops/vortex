@@ -3,6 +3,7 @@
 ##
 # Install site from canonical database.
 #
+# shellcheck disable=SC2235
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -56,6 +57,10 @@ SKIP_POST_DB_IMPORT="${SKIP_POST_DB_IMPORT:-}"
 # Flag to force fresh install even if the site exists.
 FORCE_FRESH_INSTALL="${FORCE_FRESH_INSTALL:-}"
 
+# Flag to always overwrite existing database. Usually set to 0 in deployed
+# environments.
+DB_IMPORT_OVERWRITE_EXISTING="${DB_IMPORT_OVERWRITE_EXISTING:-1}"
+
 # ------------------------------------------------------------------------------
 
 echo "==> Installing site."
@@ -72,48 +77,57 @@ mkdir -p "${DRUPAL_PRIVATE_FILES}"
 # Useful to automatically store database dump before starting site rebuild.
 [ "${DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && ./scripts/drevops/drupal-export-db.sh
 
+site_is_installed="$($drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "Successful" && echo true || echo false)"
+
 # Import database dump if present, or install fresh website from the profile if
 # site is not already installed.
-if [ -z "${SKIP_DB_IMPORT}" ] && [ -f "${DB_DIR}/${DB_FILE}" ]; then
+# Note that if the site will be re-installed from the database only if it does
+# not already exist.
+if [ -z "${SKIP_DB_IMPORT}" ] && [ -f "${DB_DIR}/${DB_FILE}" ] && ( [ "${site_is_installed}" != "true" ] || [ "${DB_IMPORT_OVERWRITE_EXISTING}" ==  "1" ] ) ; then
   echo "==> Using existing DB dump ${DB_DIR}/${DB_FILE}."
   DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" ./scripts/drevops/drupal-import-db.sh
-elif $drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "Successful" && [ "${FORCE_FRESH_INSTALL}" != "1" ]; then
+elif [ "${site_is_installed}" == "true" ] && [ "${FORCE_FRESH_INSTALL}" != "1" ]; then
   echo "==> Existing site found. Re-run with FORCE_FRESH_INSTALL=1 to forcefully re-install."
 else
   echo "==> Existing site not found. Installing site from profile ${DRUPAL_PROFILE}."
 
   if ls "${DRUPAL_CONFIG_PATH}"/*.yml > /dev/null 2>&1; then
     $drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" --config-dir=${DRUPAL_CONFIG_PATH} install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+    $drush ${DRUSH_ALIAS} updb -y
     SKIP_POST_DB_IMPORT=1
   else
     $drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
   fi
 fi
 
-# Run post DB import scripts, if not skipped.
-if [ -z "${SKIP_POST_DB_IMPORT}" ]; then
-  echo "==> Running post DB init commands."
+# Skip running of post DB import scripts and finish installation.
+if [ -n "${SKIP_POST_DB_IMPORT}" ]; then
+  echo "==> Skipped running of post DB init commands."
+  # Rebuild cache.
+  $drush ${DRUSH_ALIAS} cr
+  # Exit as there is nothing that should be ran after this.
+  exit 0
+fi
 
-  # Run updates.
-  $drush ${DRUSH_ALIAS} updb -y
+echo "==> Running post DB init commands."
 
-  # Import Drupal configuration, if configuration files exist.
-  if ls "${DRUPAL_CONFIG_PATH}"/*.yml > /dev/null 2>&1; then
-    if [ -f "${DRUPAL_CONFIG_PATH}/system.site.yml" ]; then
-      config_uuid="$(cat "${DRUPAL_CONFIG_PATH}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
-      $drush config-set system.site uuid "${config_uuid}"
-    fi
+# Run updates.
+$drush ${DRUSH_ALIAS} updb -y
 
-    $drush ${DRUSH_ALIAS} cim "${DRUPAL_CONFIG_LABEL}" -y
+# Import Drupal configuration, if configuration files exist.
+if ls "${DRUPAL_CONFIG_PATH}"/*.yml > /dev/null 2>&1; then
+  if [ -f "${DRUPAL_CONFIG_PATH}/system.site.yml" ]; then
+    config_uuid="$(cat "${DRUPAL_CONFIG_PATH}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
+    $drush config-set system.site uuid "${config_uuid}"
+  fi
 
-    if $drush pml --status=enabled | grep -q config_split; then
-      $drush ${DRUSH_ALIAS} config-split:import -y
-    fi
-  else
-    echo "==> Configuration was not found in ${DRUPAL_CONFIG_PATH} path."
+  $drush ${DRUSH_ALIAS} cim "${DRUPAL_CONFIG_LABEL}" -y
+
+  if $drush pml --status=enabled | grep -q config_split; then
+    $drush ${DRUSH_ALIAS} config-split:import -y
   fi
 else
-  echo "==> Skipped running of post DB init commands."
+  echo "==> Configuration was not found in ${DRUPAL_CONFIG_PATH} path."
 fi
 
 # Rebuild cache.
@@ -121,5 +135,6 @@ $drush ${DRUSH_ALIAS} cr
 
 # Unblock admin user.
 if [ "${DRUPAL_UNBLOCK_ADMIN}" == "1" ]; then
-  $drush sqlq "SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" | head -n 1 | xargs $drush -- uublk
+  $drush ${DRUSH_ALIAS} sqlq "SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" | head -n 1 | xargs $drush -- uublk
+  $drush uli
 fi
