@@ -1,5 +1,15 @@
 docker-compose-yaml: docker-compose.yml
 
+# Uncomment below to login into container registries if using private images.
+# container-registries:
+#  dockerhub:
+#    username: <dockerhub username>
+#    # Environment variable name (`DOCKER_REGISTRY_PASSWORD` in this case) with
+#    # the registry password added injected into container via LagoonCLI or
+#    # GraphQL.
+#    # @see https://lagoon.readthedocs.io/en/v0.24.0/using_lagoon/environment_variables/#runtime-environment-variables-lagoon-api
+#    password: DOCKER_REGISTRY_PASSWORD
+
 tasks:
   post-rollout:
     #:
@@ -26,17 +36,55 @@ tasks:
           #;> ACQUIA
           #: Import variables from .env file.
           t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
-          #:
-          #: Override resulting file (since we are running in container and
-          #: data should be stored outside of the codebase) and download backup.
-          DB_DIR=/tmp/data ./scripts/drevops/download-db.sh
+          # Store DB dump in temp location instead of '.data'.
+          export DB_DIR=/tmp/data
+          # Do not load SSH file to access master environment to download the
+          # DB as Lagoon already has the keys loaded into the SSH agent.
+          export LAGOON_SSH_KEY_FILE=false
+          # Remove previously saved dumps in this environment.
+          rm -Rf $DB_DIR
+          # Download the database dump.
+          ./scripts/drevops/download-db.sh
         service: cli
 
     - run:
         name: Install site
-        command: ./scripts/drevops/drupal-install-site.sh
+        command: |
+          # Import variables from .env file.
+          t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
+          # Read DB dump from the temp location instead of '.data'.
+          export DB_DIR=/tmp/data
+          # Do not sanitize DB.
+          export SKIP_DB_SANITIZE=1
+
+          if [ "$LAGOON_ENVIRONMENT_TYPE" == "production" ]; then
+            # Never overwrite existing DB when production site already exists.
+            export DB_IMPORT_OVERWRITE_EXISTING=0
+            # Never unblock admin user in production.
+            export DRUPAL_UNBLOCK_ADMIN=0
+          else
+            # Do not overwrite existing DB if non-production site already exists.
+            # @note: Change this to 1 in order to re-install site on every commit.
+            export DB_IMPORT_OVERWRITE_EXISTING=0
+          fi
+
+          # Install site.
+          ./scripts/drevops/drupal-install-site.sh
         service: cli
         shell: bash
+
+    - run:
+        name: Send notification
+        command: |
+          [ -n "${SKIP_NOTIFY_DEPLOYMENT}" ] && echo "Skipping sending of deployment notification." && exit 0
+
+          php ./scripts/drevops/notify-deployment.php \
+            "YOURSITE" \
+            "lagoon-deploy@your-site-url" \
+            "your.name@your-site-url|Your Name" \
+            "$LAGOON_GIT_BRANCH" \
+            "$LAGOON_ROUTES"
+        service: cli
 
 environments:
   master:

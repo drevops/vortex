@@ -7,6 +7,8 @@ use Drupal\Tests\your_site_core\Traits\YourSiteCoreTestHelperTrait;
 
 /**
  * Class YourSiteCoreKernelTestBase.
+ *
+ * Base class for kernel tests.
  */
 abstract class YourSiteCoreKernelTestBase extends KernelTestBase {
 

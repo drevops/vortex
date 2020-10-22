@@ -13,9 +13,7 @@ SHOW_LOGIN_LINK="${SHOW_LOGIN_LINK:-}"
 
 # ------------------------------------------------------------------------------
 
-drush="${APP}/vendor/bin/drush"
-
-# Use local or global Drush.
+# Use local or global Drush, giving priority to a local drush.
 drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 echo  "Project                  : ${PROJECT}"

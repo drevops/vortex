@@ -5,6 +5,8 @@ namespace Drupal\Tests\your_site_core\Unit;
 /**
  * Class YourSiteExampleUnitTest.
  *
+ * Example test case class.
+ *
  * @group YourSiteCore
  */
 class YourSiteExampleUnitTest extends YourSiteCoreUnitTestBase {
