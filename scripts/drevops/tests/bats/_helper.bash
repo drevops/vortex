@@ -9,8 +9,6 @@
 if [ -z "$TEST_PATH_INITIALIZED" ]; then
   export TEST_PATH_INITIALIZED=true
 
-  # Rewrite environment PATH to make commands isolated.
-  PATH=/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin
   # Add BATS test directory to the PATH.
   PATH="$(dirname "${BATS_TEST_DIRNAME}"):$PATH"
 
