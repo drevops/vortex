@@ -5,6 +5,8 @@ namespace Drupal\Tests\your_site_core\Traits;
 /**
  * Trait YourSiteCoreTestHelperTrait.
  *
+ * Helper trait for tests.
+ *
  * @package Drupal\your_site_core\Tests
  */
 trait YourSiteCoreTestHelperTrait {

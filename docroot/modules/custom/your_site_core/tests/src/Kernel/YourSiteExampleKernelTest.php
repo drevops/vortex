@@ -5,6 +5,8 @@ namespace Drupal\Tests\your_site_core\Kernel;
 /**
  * Class YourSiteExampleKernelTest.
  *
+ * Example test case class.
+ *
  * @group YourSiteCore
  */
 class YourSiteExampleKernelTest extends YourSiteCoreKernelTestBase {
