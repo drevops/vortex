@@ -5,6 +5,8 @@ namespace Drupal\Tests\your_site_core\Functional;
 /**
  * Class ExampleFunctionalTest.
  *
+ * Example test case class.
+ *
  * @group YourSiteCore
  */
 class YourSiteExampleFunctionalTest extends YourSiteCoreFunctionalTestBase {
