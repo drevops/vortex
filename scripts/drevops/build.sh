@@ -28,14 +28,22 @@ DOCTOR_CHECK_PREFLIGHT=1 ahoy doctor
 # shellcheck disable=SC2015
 docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network
 
-# Validate Composer configuration if Composer is installed.
-if command -v composer > /dev/null; then
-  if [ "$COMPOSER_VALIDATE_LOCK" = "1" ]; then
-    echo "==> Validating composer configuration, including lock file."
+if command -v composer >/dev/null; then
+  # Validate Composer configuration if Composer is installed.
+  if [ "${COMPOSER_VALIDATE_LOCK}" = "1" ]; then
+    echo "==> Validating Composer configuration, including lock file."
     composer validate --ansi --strict --no-check-all
   else
-    echo "==> Validating composer configuration."
+    echo "==> Validating Composer configuration."
     composer validate --ansi --strict --no-check-all --no-check-lock
+  fi
+
+  # Check Composer requirements.
+  # Checks that your PHP and extensions versions match the platform
+  # requirements of the installed packages.
+  if [ -f "composer.lock" ] && [ "${COMPOSER_CHECK_REQUIREMENTS}" = "1" ]; then
+    echo "==> Checking Composer platform requirements."
+    composer check-platform-reqs
   fi
 fi
 
