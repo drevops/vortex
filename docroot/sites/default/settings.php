@@ -115,11 +115,12 @@ $config['shield.settings']['print'] = 'YOURSITE';
 ////////////////////////////////////////////////////////////////////////////////
 
 // #;< ACQUIA
-// Include Acquia settings.
+// Initialise environment type in Acquia environment.
 // @see https://docs.acquia.com/acquia-cloud/develop/env-variable
 if (file_exists('/var/www/site-php')) {
   // Delay the initial database connection.
   $config['acquia_hosting_settings_autoconnect'] = FALSE;
+  // Include Acquia environment settings.
   require '/var/www/site-php/your_site/your_site-settings.inc';
   // Do not put any Acquia-specific settings in this code block. It is used
   // for explicit mapping of Acquia environments to $conf['environment']
@@ -138,12 +139,47 @@ if (file_exists('/var/www/site-php')) {
       break;
   }
 
-
+  // Treat ODE environments as 'dev'.
   if (strpos($_ENV['AH_SITE_ENVIRONMENT'], 'ode') === 0) {
     $settings['environment'] = ENVIRONMENT_DEV;
   }
 }
 // #;> ACQUIA
+
+// #;< LAGOON
+// Initialise environment type in Lagoon environment.
+if (getenv('LAGOON')) {
+  if (getenv('LAGOON_ENVIRONMENT_TYPE') == 'production') {
+    $settings['environment'] = ENVIRONMENT_PROD;
+  }
+  // Use a dedicated branch to identify production environment.
+  // This is useful when 'production' Lagoon environment is not provisioned yet.
+  elseif (getenv('LAGOON_GIT_BRANCH') == getenv('LAGOON_PRODUCTION_BRANCH')) {
+    $settings['environment'] = ENVIRONMENT_PROD;
+  }
+  elseif (getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
+    $settings['environment'] = ENVIRONMENT_DEV;
+  }
+
+  // Lagoon version.
+  if (!defined('LAGOON_VERSION')) {
+    define('LAGOON_VERSION', '1');
+  }
+
+  // Lagoon reverse proxy settings.
+  $settings['reverse_proxy'] = TRUE;
+
+  // Trusted host patterns for Lagoon internal routes.
+  // Do not add vanity domains here. Use the $settings['trusted_host_patterns']
+  // array in a previous section.
+  if (getenv('LAGOON_ROUTES')) {
+    $patterns = str_replace(['.', 'https://', 'http://', ','], [
+      '\.', '', '', '|',
+    ], getenv('LAGOON_ROUTES'));
+    $settings['trusted_host_patterns'][] = '^' . $patterns . '$';
+  }
+}
+// #;> LAGOON
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-ENVIRONMENT SETTINGS                           ///
