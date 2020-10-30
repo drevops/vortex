@@ -190,6 +190,7 @@ services:
       dockerfile: .docker/Dockerfile.mariadb
       args:
         IMAGE: "${DATABASE_IMAGE:-amazeeio/mariadb-drupal:v1.8.1}"
+    << : *default-user
     environment:
       <<: *default-environment
     ports:
@@ -199,8 +200,9 @@ services:
       - "3306"
     #;< LAGOON
     #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
+    #: Make sure to destroy and re-deploy an environment if this value changes.
     labels:
-      lagoon.type: mariadb-single
+      lagoon.type: mariadb
     #;> LAGOON
 
   #;< REDIS
