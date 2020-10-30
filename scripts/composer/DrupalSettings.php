@@ -149,11 +149,11 @@ GENERATEDSETTINGS;
     [
       'default' =>
         [
-          'database' => '${options['mysql_database']}',
-          'username' => '${options['mysql_user']}',
-          'password' => '${options['mysql_password']}',
-          'host' => '${options['mysql_host']}',
-          'port' => '${options['mysql_port']}',
+          'database' => getenv('MARIADB_DATABASE') ?: '${options['mysql_database']}',
+          'username' => getenv('MARIADB_USERNAME') ?: '${options['mysql_user']}',
+          'password' => getenv('MARIADB_PASSWORD') ?: '${options['mysql_password']}',
+          'host' => getenv('MARIADB_HOST') ?: '${options['mysql_host']}',
+          'port' => getenv('MARIADB_PORT') ?: '${options['mysql_port']}',
           'driver' => 'mysql',
           'prefix' => '${options['mysql_prefix']}',
         ],
