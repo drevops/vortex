@@ -83,8 +83,20 @@ assert_ahoy_build(){
   # Check that database file exists before build.
   [ -f ".data/db.sql" ] && db_file_exists=1
 
-  ahoy build >&3
+  run ahoy build
+  # shellcheck disable=SC2154
+  echo "${output}" >&3
   sync_to_host
+
+  # Assert output messages. Note that only asserting generic messages that do
+  # not depend on the type of the workflow.
+  assert_output_contains "==> Building project."
+  assert_output_contains "==> Removing project containers and packages available since the previous run."
+  assert_output_contains "==> Building images, recreating and starting containers."
+  assert_output_contains "==> Installing development dependencies."
+  assert_output_contains "==> Example post site install operations."
+  assert_output_contains "==> Perform example operations in non-production environment."
+  assert_output_contains "==> Build complete."
 
   # Assert that lock files were created.
   assert_file_exists "composer.lock"
