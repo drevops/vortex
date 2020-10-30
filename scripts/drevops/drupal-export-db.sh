@@ -18,8 +18,6 @@ DRUSH_ALIAS="${DRUSH_ALIAS:-}"
 
 # ------------------------------------------------------------------------------
 
-drush="${APP}/vendor/bin/drush"
-
 # Use local or global Drush.
 drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
 
