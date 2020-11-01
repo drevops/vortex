@@ -3,11 +3,11 @@
 # Helpers related to DrevOps deployment testing functionality.
 #
 
-assert_deployment_files_present(){
+assert_deployment_files_present() {
   local dir="${1:-$(pwd)}"
   local has_custom_profile="${2:-0}"
 
-  pushd "${dir}" > /dev/null || exit 1
+  pushd "${dir}" >/dev/null || exit 1
 
   assert_dir_not_exists .circleci
   assert_dir_not_exists .data
@@ -101,17 +101,17 @@ assert_deployment_files_present(){
   # Assert composer.json exists to allow autoloading.
   assert_file_exists composer.json
 
-  popd > /dev/null || exit 1
+  popd >/dev/null || exit 1
 }
 
-provision_site(){
+provision_site() {
   local dir="${1:-$(pwd)}"
   local should_build="${2:-1}"
   shift || true
   shift || true
   local answers=("$@")
 
-  pushd "${dir}" > /dev/null || exit 1
+  pushd "${dir}" >/dev/null || exit 1
 
   assert_files_not_present_common
 
@@ -128,7 +128,7 @@ provision_site(){
   assert_git_repo
 
   # Special treatment for cases where volumes are not mounted from the host.
-  if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
+  if [ "${VOLUMES_MOUNTED}" != "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml
@@ -145,5 +145,5 @@ provision_site(){
     sync_to_host
   fi
 
-  popd > /dev/null || exit 1
+  popd >/dev/null || exit 1
 }
