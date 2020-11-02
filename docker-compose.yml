@@ -190,7 +190,6 @@ services:
       dockerfile: .docker/Dockerfile.mariadb
       args:
         IMAGE: "${DATABASE_IMAGE:-amazeeio/mariadb-drupal:v1.8.1}"
-    << : *default-user
     environment:
       <<: *default-environment
     ports:
