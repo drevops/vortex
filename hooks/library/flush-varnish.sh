@@ -3,7 +3,7 @@
 # Acquia Cloud hook: Flush Varnish cache for specified domains.
 #
 set -e
-[ -n "${DEPLOY_API_DEBUG}" ] && set -x
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 SITE="${1}"
 TARGET_ENV="${2}"

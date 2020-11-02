@@ -4,7 +4,7 @@
 # @see https://cloudapi-docs.acquia.com/#/Environments/postEnvironmentsDatabases
 
 set -e
-[ -n "${DEPLOY_API_DEBUG}" ] && set -x
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
 #-------------------------------------------------------------------------------
 #                             REQUIRED VARIABLES
