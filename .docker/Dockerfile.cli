@@ -4,7 +4,7 @@
 #:
 # @see https://hub.docker.com/r/amazeeio/php/tags?page=1&name=cli-drupal
 # @see https://github.com/amazeeio/lagoon/tree/main/images/php/cli-drupal
-FROM amazeeio/php:7.3-cli-drupal-v1.10.0
+FROM amazeeio/php:7.4-cli-drupal-v1.10.0
 
 #: Set default values for environment variables. Any values provided in
 #: docker-compose.yml or .env file will override these values during build stage.
