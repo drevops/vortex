@@ -4,7 +4,7 @@
 # Helpers related to DrevOps workflow testing functionality.
 #
 
-prepare_sut(){
+prepare_sut() {
   step "Run SUT preparation"
 
   DRUPAL_VERSION=${DRUPAL_VERSION:-8}
@@ -40,7 +40,7 @@ prepare_sut(){
   assert_file_exists .idea/idea_file.txt
 }
 
-assert_ahoy_download_db(){
+assert_ahoy_download_db() {
   step "Run DB download"
 
   substep "Download the database"
@@ -67,7 +67,7 @@ assert_ahoy_download_db(){
   trim_file .env
 }
 
-assert_ahoy_build(){
+assert_ahoy_build() {
   step "Run project build"
 
   # Tests are using demo database and 'ahoy download-db' command, so we need
@@ -130,7 +130,7 @@ assert_ahoy_build(){
   assert_file_not_exists docroot/themes/custom/star_wars/build/js/star_wars.js
 }
 
-assert_gitignore(){
+assert_gitignore() {
   local skip_commit="${1:-0}"
 
   step "Run .gitignore test"
@@ -168,7 +168,7 @@ assert_gitignore(){
   remove_development_settings
 }
 
-assert_ahoy_cli(){
+assert_ahoy_cli() {
   step "Run ClI command"
 
   run ahoy cli "echo Test from inside of the container"
@@ -177,7 +177,7 @@ assert_ahoy_cli(){
   assert_output_contains "Test from inside of the container"
 }
 
-assert_env_changes(){
+assert_env_changes() {
   step "Update .env file and apply changes"
 
   # Assert that .env does not contain test values.
@@ -222,7 +222,7 @@ assert_env_changes(){
   assert_output_not_contains "my_custom_var_value"
 }
 
-assert_ahoy_drush(){
+assert_ahoy_drush() {
   step "Run Drush command"
 
   run ahoy drush st
@@ -230,7 +230,7 @@ assert_ahoy_drush(){
   assert_output_not_contains "Containers are not running."
 }
 
-assert_ahoy_info(){
+assert_ahoy_info() {
   step "Run site info"
 
   run ahoy info
@@ -250,7 +250,7 @@ assert_ahoy_info(){
   assert_output_not_contains "Containers are not running."
 }
 
-assert_ahoy_docker_logs(){
+assert_ahoy_docker_logs() {
   step "Show Docker logs"
 
   run ahoy logs
@@ -258,7 +258,7 @@ assert_ahoy_docker_logs(){
   assert_output_not_contains "Containers are not running."
 }
 
-assert_ahoy_login(){
+assert_ahoy_login() {
   step "Generate one-time login link"
 
   run ahoy login
@@ -266,7 +266,7 @@ assert_ahoy_login(){
   assert_output_not_contains "Containers are not running."
 }
 
-assert_ahoy_export_db(){
+assert_ahoy_export_db() {
   step "Export DB"
   file="${1:-mydb.sql}"
   run ahoy export-db "${file}"
@@ -276,7 +276,7 @@ assert_ahoy_export_db(){
   assert_file_exists ".data/${file}"
 }
 
-assert_ahoy_lint(){
+assert_ahoy_lint() {
   step "Lint code"
 
   run ahoy lint
@@ -284,8 +284,8 @@ assert_ahoy_lint(){
   assert_output_not_contains "Containers are not running."
 
   step "Assert that lint failure bypassing works"
-  echo "\$a=1;" >> docroot/modules/custom/star_wars_core/star_wars_core.module
-  echo ".abc{margin: 0px;}" >> docroot/themes/custom/star_wars/scss/components/_layout.scss
+  echo "\$a=1;" >>docroot/modules/custom/star_wars_core/star_wars_core.module
+  echo ".abc{margin: 0px;}" >>docroot/themes/custom/star_wars/scss/components/_layout.scss
   sync_to_container
 
   # Assert failure.
@@ -310,7 +310,7 @@ assert_ahoy_lint(){
   restore_file .env && ahoy up cli
 }
 
-assert_ahoy_test_unit(){
+assert_ahoy_test_unit() {
   step "Run unit tests"
 
   ahoy test-unit
@@ -339,7 +339,7 @@ assert_ahoy_test_unit(){
   restore_file .env && ahoy up cli
 }
 
-assert_ahoy_test_kernel(){
+assert_ahoy_test_kernel() {
   step "Run Kernel tests"
 
   ahoy test-kernel
@@ -366,7 +366,7 @@ assert_ahoy_test_kernel(){
   restore_file .env && ahoy up cli
 }
 
-assert_ahoy_test_functional(){
+assert_ahoy_test_functional() {
   step "Run Functional tests"
 
   ahoy test-functional
@@ -393,14 +393,15 @@ assert_ahoy_test_functional(){
   restore_file .env && ahoy up cli && sync_to_container
 }
 
-assert_ahoy_test_bdd(){
+assert_ahoy_test_bdd() {
   step "Run BDD tests"
 
   substep "Run all BDD tests"
   ahoy test-bdd
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   substep "Run tagged BDD tests"
   assert_dir_empty screenshots
@@ -411,7 +412,8 @@ assert_ahoy_test_bdd(){
   # image screenshots.
   assert_file_exists "screenshots/*html"
   assert_file_not_exists "screenshots/*png"
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   substep "Run profile BDD tests based on BEHAT_PROFILE variable"
   assert_dir_empty screenshots
@@ -422,17 +424,19 @@ assert_ahoy_test_bdd(){
   # image screenshots.
   assert_file_exists "screenshots/*html"
   assert_file_not_exists "screenshots/*png"
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   substep "Assert that Behat tests failure works"
-  echo "And I should be in the \"some-non-existing-page\" path" >> tests/behat/features/homepage.feature
+  echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
   sync_to_container
   assert_dir_empty screenshots
   run ahoy test-bdd
   [ "${status}" -eq 1 ]
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   substep "Assert that Behat tests failure bypassing works"
 
@@ -441,7 +445,8 @@ assert_ahoy_test_bdd(){
   [ "${status}" -eq 0 ]
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
   # Remove failing step from the feature.
   trim_file tests/behat/features/homepage.feature
   sync_to_container
@@ -452,11 +457,12 @@ assert_ahoy_test_bdd(){
   ahoy test-bdd tests/behat/features/homepage.feature
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   substep "Assert that single Behat test failure works"
   assert_dir_empty screenshots
-  echo "And I should be in the \"some-non-existing-page\" path" >> tests/behat/features/homepage.feature
+  echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
   ahoy up cli && sync_to_container
   # Assert failure.
   run ahoy test-bdd tests/behat/features/homepage.feature
@@ -464,7 +470,8 @@ assert_ahoy_test_bdd(){
   [ "${status}" -eq 1 ]
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   # Assert failure bypass.
   substep "Assert that single Behat test failure bypassing works"
@@ -474,7 +481,8 @@ assert_ahoy_test_bdd(){
   [ "${status}" -eq 0 ]
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   # Remove failing step from the feature.
   trim_file tests/behat/features/homepage.feature
@@ -483,13 +491,13 @@ assert_ahoy_test_bdd(){
   restore_file .env && ahoy up cli && sync_to_container
 }
 
-assert_ahoy_fe(){
+assert_ahoy_fe() {
   step "FE assets"
 
   substep "Build FE assets for production"
   assert_file_not_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#7e57e2"
-  echo "\$color-tester: #7e57e2;" >> docroot/themes/custom/star_wars/scss/_variables.scss
-  echo "\$body-bg: \$color-tester;" >> docroot/themes/custom/star_wars/scss/_variables.scss
+  echo "\$color-tester: #7e57e2;" >>docroot/themes/custom/star_wars/scss/_variables.scss
+  echo "\$body-bg: \$color-tester;" >>docroot/themes/custom/star_wars/scss/_variables.scss
   sync_to_container
   ahoy fe
   sync_to_host
@@ -497,8 +505,8 @@ assert_ahoy_fe(){
 
   substep "Build FE assets for development"
   assert_file_not_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#91ea5e"
-  echo "\$color-please: #91ea5e;" >> docroot/themes/custom/star_wars/scss/_variables.scss
-  echo "\$body-bg: \$color-please;" >> docroot/themes/custom/star_wars/scss/_variables.scss
+  echo "\$color-please: #91ea5e;" >>docroot/themes/custom/star_wars/scss/_variables.scss
+  echo "\$body-bg: \$color-please;" >>docroot/themes/custom/star_wars/scss/_variables.scss
   sync_to_container
   ahoy fed
   sync_to_host
@@ -507,7 +515,7 @@ assert_ahoy_fe(){
   assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background: #91ea5e"
 }
 
-assert_export_on_install_site(){
+assert_export_on_install_site() {
   step "Export DB on install"
 
   substep "Remove previously downloaded DB file"
@@ -532,7 +540,7 @@ assert_export_on_install_site(){
   restore_file .env && ahoy up cli && sync_to_container
 }
 
-assert_ahoy_debug(){
+assert_ahoy_debug() {
   step "Xdebug"
 
   substep "Enable debug"
@@ -583,7 +591,7 @@ assert_ahoy_debug(){
   assert_output_not_contains "Enabled"
 }
 
-assert_ahoy_clean(){
+assert_ahoy_clean() {
   step "Clean"
 
   # Prepare to assert that manually created file is not removed.
@@ -621,7 +629,7 @@ assert_ahoy_clean(){
   remove_development_settings
 }
 
-assert_ahoy_reset(){
+assert_ahoy_reset() {
   step "Reset"
 
   create_development_settings
@@ -649,23 +657,23 @@ assert_ahoy_reset(){
   remove_development_settings
 }
 
-assert_page_contains(){
+assert_page_contains() {
   path="${1}"
   content="${2}"
   t=$(mktemp)
-  ahoy cli curl -L -s "http://nginx:8080${path}" > "${t}"
+  ahoy cli curl -L -s "http://nginx:8080${path}" >"${t}"
   assert_file_contains "${t}" "${content}"
 }
 
-assert_page_not_contains(){
+assert_page_not_contains() {
   path="${1}"
   content="${2}"
   t=$(mktemp)
-  ahoy cli curl -L -s "http://nginx:8080${path}" > "${t}"
+  ahoy cli curl -L -s "http://nginx:8080${path}" >"${t}"
   assert_file_not_contains "${t}" "${content}"
 }
 
-assert_reload_db(){
+assert_reload_db() {
   step "Reload DB image"
 
   # Assert that used DB image has content.
