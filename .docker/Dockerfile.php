@@ -6,7 +6,7 @@ ARG CLI_IMAGE
 FROM ${CLI_IMAGE:-cli} as cli
 
 # @see https://hub.docker.com/r/amazeeio/php/tags?page=1&name=fpm
-# @see https://github.com/amazeeio/lagoon/tree/master/images/php/fpm
-FROM amazeeio/php:7.3-fpm-v1.8.1
+# @see https://github.com/amazeeio/lagoon/tree/main/images/php/fpm
+FROM amazeeio/php:7.4-fpm-v1.10.0
 
 COPY --from=cli /app /app
