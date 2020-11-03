@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 ##
 # Run DrevOps tests for deployment in CI.
-#
-# This file is removed after install/update.
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x

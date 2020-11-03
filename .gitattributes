@@ -64,6 +64,6 @@
 /.gitattributes                         export-ignore
 /install.sh                             export-ignore
 /install.php                            export-ignore
+/scripts/drevops/docs                   export-ignore
 /scripts/drevops/tests                  export-ignore
-/.circleci/drevops-test.sh              export-ignore
-/.circleci/drevops-test-deployment.sh   export-ignore
+/scripts/drevops/utils                  export-ignore
