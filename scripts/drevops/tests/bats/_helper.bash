@@ -3,7 +3,7 @@
 # @file
 # Bats test helpers.
 #
-# shellcheck disable=SC2119,SC2120
+# shellcheck disable=SC2119,SC2120,SC2044
 
 # Guard against bats executing this twice
 if [ -z "$TEST_PATH_INITIALIZED" ]; then
@@ -350,6 +350,24 @@ assert_files_not_equal() {
   else
     return 0
   fi
+}
+
+assert_dirs_equal() {
+  local dir1="${1}"
+  local dir2="${2}"
+
+  assert_dir_exists "${dir1}" || return 1
+  assert_dir_exists "${dir2}" || return 1
+
+  for file in $(find "${dir1}/" -type f); do
+    assert_files_equal "${file}" "${file/${dir1}/${dir2}}" || return 1
+  done
+
+  for file in $(find "${dir2}/" -type f); do
+    assert_files_equal "${file}" "${file/${dir2}/${dir1}}" || return 1
+  done
+
+  return 0
 }
 
 assert_empty() {

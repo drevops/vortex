@@ -228,3 +228,12 @@ load _helper_drevops
   assert_file_not_contains ".env" "CURL_DB_URL="
   assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
 }
+
+@test "Install into empty directory; DrevOps scripts are not modified" {
+  run_install_quiet "${DST_PROJECT_DIR}"
+
+  assert_files_present "dst" "Dst" "${DST_PROJECT_DIR}"
+  assert_git_repo "${DST_PROJECT_DIR}"
+
+  assert_dirs_equal "${LOCAL_REPO_DIR}/scripts" "${DST_PROJECT_DIR}/scripts"
+}
