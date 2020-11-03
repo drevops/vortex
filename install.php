@@ -1865,6 +1865,7 @@ function internal_paths() {
     '/.circleci/drevops-test.sh',
     '/.circleci/drevops-test-deployment.sh',
     '/scripts/drevops/tests',
+    '/scripts/drevops/.aspell.en.pws',
   ];
 }
 
