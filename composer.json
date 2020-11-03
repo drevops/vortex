@@ -3,7 +3,7 @@
     "description": "Drupal 8 implementation of YOURSITE for YOURORG",
     "license": "proprietary",
     "require": {
-        "php": ">=7.3",
+        "php": ">=7.4",
         "composer/installers": "^1.9",
         "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^1.27",
@@ -45,7 +45,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.3"
+            "php": "7.4"
         },
         "process-timeout": 0,
         "sort-packages": true
