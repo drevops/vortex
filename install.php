@@ -500,9 +500,9 @@ function process__preserve_drevops_info($dir) {
 
 function process__drevops_internal($dir) {
   // Remove DrevOps internal files.
-  rmdir_recursive("$dir/docs");
-  rmdir_recursive("$dir/tests/bats");
-  rmdir_recursive("$dir/tests/unit/drevops");
+  rmdir_recursive("$dir/scripts/drevops/docs");
+  rmdir_recursive("$dir/scripts/drevops/tests");
+  rmdir_recursive("$dir/scripts/drevops/utils");
 
   // Remove other unhandled tokenized comments.
   remove_token_line('#;<', $dir);
@@ -1862,9 +1862,9 @@ function internal_paths() {
     '/install.sh',
     '/install.php',
     '/LICENSE',
-    '/.circleci/drevops-test.sh',
-    '/.circleci/drevops-test-deployment.sh',
+    '/scripts/drevops/docs',
     '/scripts/drevops/tests',
+    '/scripts/drevops/utils',
   ];
 }
 

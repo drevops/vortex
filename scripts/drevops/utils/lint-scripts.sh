@@ -6,7 +6,7 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-CUR_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
+CUR_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")")"
 
 if [ -d "${CUR_DIR}/scripts/drevops/tests" ]; then
   echo "==> Linting installer script and tests."
@@ -26,6 +26,7 @@ done < <(
     "${CUR_DIR}"/scripts \
     "${CUR_DIR}"/.circleci \
     "${CUR_DIR}"/hooks/library \
+    "${CUR_DIR}"/scripts/drevops/utils \
     "${CUR_DIR}"/scripts/drevops/tests/bats \
     -type f \
     \( -name "*.sh" -or -name "*.bash" -or -name "*.bats" \) \

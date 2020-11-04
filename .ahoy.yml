@@ -144,15 +144,15 @@ commands:
 
   fe:
     usage: Build front-end assets.
-    cmd: ahoy cli "cd docroot/themes/custom/your_site_theme && npm run build"
+    cmd: ahoy cli "cd docroot/themes/custom/${DRUPAL_THEME} && npm run build"
 
   fed:
     usage: Build front-end assets for development.
-    cmd: ahoy cli "cd docroot/themes/custom/your_site_theme && npm run build-dev"
+    cmd: ahoy cli "cd docroot/themes/custom/${DRUPAL_THEME} && npm run build-dev"
 
   few:
     usage: Watch front-end assets during development.
-    cmd: ahoy cli "cd docroot/themes/custom/your_site_theme && npm run watch"
+    cmd: ahoy cli "cd docroot/themes/custom/${DRUPAL_THEME} && npm run watch"
 
   lint:
     usage: Lint back-end and front-end code.
