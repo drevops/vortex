@@ -10,15 +10,15 @@
 #; $DOCROOT is 'docroot'.
 !docroot
 # But still ignore sources.
-docroot/themes/custom/**/fonts
-docroot/themes/custom/**/images
-docroot/themes/custom/**/js
-docroot/themes/custom/**/scss
-docroot/themes/custom/**/Gruntfile.js
-docroot/themes/custom/**/package.json
-docroot/themes/custom/**/package-lock.json
-docroot/themes/custom/**/.eslintrc.json
-docroot/themes/custom/**/node_modules
+docroot/themes/custom/your_site_theme/fonts
+docroot/themes/custom/your_site_theme/images
+docroot/themes/custom/your_site_theme/js
+docroot/themes/custom/your_site_theme/scss
+docroot/themes/custom/your_site_theme/Gruntfile.js
+docroot/themes/custom/your_site_theme/package.json
+docroot/themes/custom/your_site_theme/package-lock.json
+docroot/themes/custom/your_site_theme/.eslintrc.json
+docroot/themes/custom/your_site_theme/node_modules
 docroot/sites/default/settings.generated.php
 docroot/sites/default/default.settings.php
 docroot/sites/default/default.services.yml
