@@ -34,7 +34,7 @@ fi
 
 php ./scripts/drevops/notify-deployment.php \
   "YOURSITE" \
-  "lagoon-deploy@your-site-url" \
+  "acquia-deploy@your-site-url" \
   "your.name@your-site-url|Your Name" \
   "${BRANCH}" \
   "${url}"
