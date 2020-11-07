@@ -39,7 +39,7 @@ DRUPAL_PRIVATE_FILES="${DRUPAL_PRIVATE_FILES:-${APP}/${WEBROOT}/sites/default/fi
 DRUPAL_UNBLOCK_ADMIN="${DRUPAL_UNBLOCK_ADMIN:-1}"
 
 # Directory with database dump file.
-DB_DIR="${DB_DIR:-./.data}"
+DB_DIR="${DB_DIR:-${APP}/.data}"
 
 # Database dump file name.
 DB_FILE="${DB_FILE:-db.sql}"
@@ -72,7 +72,7 @@ mkdir -p "${DRUPAL_PRIVATE_FILES}"
 
 # Export database before importing, if the flag is set.
 # Useful to automatically store database dump before starting site rebuild.
-[ "${DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && ./scripts/drevops/drupal-export-db.sh
+[ "${DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && "${APP}/scripts/drevops/drupal-export-db.sh"
 
 site_is_installed="$($drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
 
@@ -80,18 +80,18 @@ site_is_installed="$($drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "
 if
   # Not skipping DB import AND
   [ -z "${SKIP_DB_IMPORT}" ] &&
-    # DB dump file exists AND
-    [ -f "${DB_DIR}/${DB_FILE}" ] &&
-    # Site is not installed OR allowed to overwrite existing site.
-    ([ "${site_is_installed}" != "1" ] || [ "${DB_IMPORT_OVERWRITE_EXISTING}" == "1" ])
+  # DB dump file exists AND
+  [ -f "${DB_DIR}/${DB_FILE}" ] &&
+  # Site is not installed OR allowed to overwrite existing site.
+  ([ "${site_is_installed}" != "1" ] || [ "${DB_IMPORT_OVERWRITE_EXISTING}" == "1" ])
 then
   echo "==> Using existing DB dump ${DB_DIR}/${DB_FILE}."
-  DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" ./scripts/drevops/drupal-import-db.sh
+  DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" "${APP}/scripts/drevops/drupal-import-db.sh"
 elif
   # If site is installed AND
   [ "${site_is_installed}" == "1" ] &&
-    # Not allowed to forcefully install from profile.
-    [ "${FORCE_FRESH_INSTALL}" != "1" ]
+  # Not allowed to forcefully install from profile.
+  [ "${FORCE_FRESH_INSTALL}" != "1" ]
 then
   echo "==> Existing site found. Re-run with FORCE_FRESH_INSTALL=1 to forcefully re-install."
 else
@@ -120,7 +120,7 @@ if [ -n "${SKIP_POST_DB_IMPORT}" ]; then
   # Rebuild cache.
   $drush ${DRUSH_ALIAS} cr
   # Sanitize DB.
-  ./scripts/drevops/drupal-sanitize-db.sh
+  "${APP}/scripts/drevops/drupal-sanitize-db.sh"
   # Exit as there is nothing that should be ran after this.
   exit 0
 fi
@@ -161,7 +161,7 @@ if $drush ${DRUSH_ALIAS} list | grep -q post-config-import-update; then
 fi
 
 # Sanitize database.
-./scripts/drevops/drupal-sanitize-db.sh
+"${APP}/scripts/drevops/drupal-sanitize-db.sh"
 
 # Unblock admin user.
 if [ "${DRUPAL_UNBLOCK_ADMIN}" == "1" ]; then
@@ -171,10 +171,10 @@ if [ "${DRUPAL_UNBLOCK_ADMIN}" == "1" ]; then
 fi
 
 # Run custom drupal site install scripts.
-# The files should be located in "./scripts/custom/" directory and must have
+# The files should be located in ""${APP}"/scripts/custom/" directory and must have
 # "drupal-install-site-" prefix and ".sh" extension.
-if [ -d "./scripts/custom" ]; then
-  for file in ./scripts/custom/drupal-install-site-*.sh; do
+if [ -d "${APP}/scripts/custom" ]; then
+  for file in "${APP}"/scripts/custom/drupal-install-site-*.sh; do
     if [ -r "${file}" ]; then
       . "${file}"
     fi
