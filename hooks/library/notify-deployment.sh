@@ -18,6 +18,8 @@ ACQUIA_DOMAIN="prod.acquia-sites.com";
 
 [ -n "${SKIP_NOTIFY_DEPLOYMENT}" ] && echo "Skipping sending of deployment notification." && exit 0
 
+export SCRIPTS_DIR="${SCRIPTS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/scripts"}"
+
 # ODE environments do not support custom domains - use acquia domains instead.
 if [ "${TARGET_ENV#ode}" != "${TARGET_ENV}" ]; then
   url="https://${SITE}${TARGET_ENV}.${ACQUIA_DOMAIN}"
@@ -32,7 +34,7 @@ else
   url="https://${subdomain}.${DOMAIN}";
 fi
 
-php ./scripts/drevops/notify-deployment.php \
+php "${SCRIPTS_DIR}/drevops/notify-deployment.php" \
   "YOURSITE" \
   "acquia-deploy@your-site-url" \
   "your.name@your-site-url|Your Name" \
