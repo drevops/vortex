@@ -127,6 +127,15 @@ fi
 
 echo "==> Running post DB init commands."
 
+echo -n "==> Current Drupal environment: "
+environment="$($drush ${DRUSH_ALIAS} ev "print \Drupal\core\Site\Settings::get('environment');")"
+echo "${environment}" && echo
+
+if [ -n "${DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" ]; then
+  echo "==> Enabled maintenance mode."
+  $drush ${DRUSH_ALIAS} state:set system.maintenance_mode 1 --input-format=integer
+fi
+
 # Run updates.
 $drush ${DRUSH_ALIAS} updb -y
 
@@ -152,10 +161,8 @@ fi
 # Rebuild cache.
 $drush ${DRUSH_ALIAS} cr
 
-# Print current environment as seen by Drupal settings.
-echo -n "==> Current Drupal environment: " && $drush ${DRUSH_ALIAS} ev "print \Drupal\core\Site\Settings::get('environment');" && echo
-
 # Run post-config import updates for the cases when updates rely on imported configuration.
+# @see PostConfigImportUpdateHelper::registerPostConfigImportUpdate()
 if $drush ${DRUSH_ALIAS} list | grep -q post-config-import-update; then
   $drush ${DRUSH_ALIAS} post-config-import-update
 fi
@@ -180,4 +187,9 @@ if [ -d "${APP}/scripts/custom" ]; then
     fi
   done
   unset file
+fi
+
+if [ -n "${DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" ]; then
+  echo "==> Disabled maintenance mode."
+  $drush ${DRUSH_ALIAS} state:set system.maintenance_mode 0 --input-format=integer
 fi
