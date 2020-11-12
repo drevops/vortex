@@ -275,12 +275,24 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 [//]: # (#;< ACQUIA)
 
 - Authenticate with Acquia Cloud API
-  1. Create your Acquia Cloud API token:
+  1. Create your Acquia Cloud API token:<br/>
      Acquia Cloud UI -> Account -> API tokens -> Create Token
-  2. Populate `$AC_API_KEY` and `$AC_API_SECRET` environment variables in
+  2. Copy `default.env.local` to `.env.local`.
+  3. Populate `$AC_API_KEY` and `$AC_API_SECRET` environment variables in
      `.env.local` file with values generated in the step above.
 
 [//]: # (#;> ACQUIA)
+
+[//]: # (#;< LAGOON)
+
+- Authenticate with Lagoon
+  1. Create an SSH key and add it to your account in the [Lagoon Dashboard](https://ui-lagoon-master.ch.amazee.io/).
+  2. Copy `default.env.local` to `.env.local`.
+  3. Update `$LAGOON_SSH_KEY_FILE` environment variable in `.env.local` file
+  with the path to the SSH key.
+
+[//]: # (#;> LAGOON)
+
 
 [//]: # (#;< !FRESH_INSTALL)
 
