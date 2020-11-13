@@ -8,6 +8,8 @@ use Drush\Commands\DrushCommands;
 /**
  * Class PostConfigImportUpdateCommands.
  *
+ * Drush command to run post config import updates.
+ *
  * @package Drush\Commands
  */
 class PostConfigImportUpdateCommands extends DrushCommands {
