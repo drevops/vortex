@@ -1,7 +1,7 @@
-#: PHP FPM container.
-#:
-#: All web requests are sent from Nginx to this container.
-#: This container would be scaled up/down in production.
+# PHP FPM container.
+#
+# All web requests are sent from Nginx to this container.
+# This container would be scaled up/down in production.
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE:-cli} as cli
 

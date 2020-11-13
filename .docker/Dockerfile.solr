@@ -1,4 +1,4 @@
-#: Solr container.
+# Solr container.
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE} as cli
 

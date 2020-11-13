@@ -1,6 +1,6 @@
-#: Nginx container.
-#:
-#: All web requests are sent to this container.
+# Nginx container.
+#
+# All web requests are sent to this container.
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE:-cli} as cli
 
