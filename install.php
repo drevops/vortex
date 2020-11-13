@@ -234,6 +234,11 @@ function copy_files() {
   if (is_dir($src) && !dir_is_empty($src)) {
     copy_recursive($src, $dst);
   }
+
+  // Special case for .env.local as it may exist.
+  if (!file_exists($dst . '/.env.local')) {
+    copy_recursive($dst . '/default.env.local', $dst . '/.env.local');
+  }
 }
 
 function copy_recursive($source, $dest, $permissions = 0755, $copy_empty_dirs = FALSE) {

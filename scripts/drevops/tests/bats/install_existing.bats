@@ -273,3 +273,38 @@ load _helper_drevops
   # Assert no changes were introduced.
   assert_git_clean
 }
+
+@test "Install into existing: previously installed project, including updated .env.local; discovery; quiet" {
+  # Populate current dir with a project at current version.
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
+  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+
+  # Assert files at current version.
+  assert_files_present
+  assert_git_repo
+
+  install_dependencies_stub
+
+  # Add all files to git repo.
+  git_add_all_commit "Second commit"
+  # Remove all non-committed files.
+  git reset --hard
+
+  assert_files_present_common "star_wars" "StarWars"
+
+  # Add a change to .env.local.
+  echo "some random content" >> ".env.local"
+  assert_file_contains ".env.local" "some random content"
+
+  # Run the install again.
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
+  assert_output_contains "It looks like DrevOps is already installed into this project"
+
+  assert_files_present_common
+  assert_git_repo
+
+  # Assert that .env.local has not been changed.
+  assert_file_contains ".env.local" "some random content"
+}

@@ -136,6 +136,8 @@ assert_files_present() {
 
   assert_files_present_common "${suffix}" "${suffix_camel_cased}" "${dir}"
 
+  assert_local_files_present "${dir}"
+
   # Assert Drupal profile not present by default.
   assert_files_present_no_profile "${suffix}" "${dir}"
 
@@ -156,6 +158,14 @@ assert_files_present() {
 
   # Assert dependencies.io integration preserved.
   assert_files_present_integration_dependenciesio "${suffix}" "${dir}"
+}
+
+assert_local_files_present() {
+  local dir="${1:-$(pwd)}"
+
+  pushd "${dir}" >/dev/null || exit 1
+  assert_file_exists ".env.local"
+  popd >/dev/null || exit 1
 }
 
 assert_files_present_common() {
@@ -228,11 +238,8 @@ assert_files_present_common() {
   # Documentation information added.
   assert_file_exists "FAQs.md"
 
-  # Init command removed from Ahoy config.
   assert_file_exists ".ahoy.yml"
-
-  # Init command removed from Ahoy config.
-  assert_file_exists ".ahoy.yml"
+  assert_file_exists ".env"
 
   # Special case to fix all occurrences of the stub in core files to exclude
   # false-positives from the assertions below.
@@ -303,6 +310,7 @@ assert_files_not_present_common() {
 
   assert_file_not_exists "FAQs.md"
   assert_file_not_exists ".ahoy.yml"
+  assert_file_not_exists ".env"
 
   if [ "${has_required_files}" -eq 1 ]; then
     assert_file_exists "README.md"
