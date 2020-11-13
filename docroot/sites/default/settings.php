@@ -113,6 +113,8 @@ $config['shield.settings']['credentials']['shield']['pass'] = 'CHANGEME';
 // Title of the shield pop-up.
 $config['shield.settings']['print'] = 'YOURSITE';
 
+// Exclude modules from export.
+$settings['config_exclude_modules'] = [];
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
