@@ -1,5 +1,5 @@
-#: MariaDB container.
-#:
+# MariaDB container.
+#
 # @see https://hub.docker.com/r/amazeeio/mariadb-drupal/tags?page=1
 # @see https://github.com/amazeeio/lagoon/tree/main/images/mariadb-drupal
 #
