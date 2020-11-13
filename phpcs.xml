@@ -108,4 +108,24 @@
         <exclude-pattern>.*</exclude-pattern>
     </rule>
 
+    <!--Force no empty lines after function opening brace.-->
+    <rule ref="Squiz.WhiteSpace.FunctionOpeningBraceSpace">
+      <type>warning</type>
+    </rule>
+
+    <!--Force no empty lines before function closing brace.-->
+    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen">
+      <type>warning</type>
+    </rule>
+
+    <!--Force no empty lines before control structure closing.-->
+    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose">
+      <type>warning</type>
+    </rule>
+
+    <!--Force no empty lines after control structure closing.-->
+    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.LineAfterClose">
+      <type>warning</type>
+    </rule>
+
 </ruleset>
