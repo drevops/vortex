@@ -100,6 +100,10 @@ $settings['trusted_host_patterns'] = [
   '^.+\.docker\.amazee\.io$',
   // URL when accessed from Behat tests.
   '^nginx$',
+  // #;< LAGOON
+  // Lagoon URL.
+  '^.+\.au\.amazee\.io$',
+  // #;> LAGOON
 ];
 
 // Default Shield credentials.
