@@ -236,7 +236,7 @@ entrypoint:
   #:
   #: As a rule of thumb, use `ahoy up cli` to apply changes to variables.
   - |
-    t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
+    t=$(mktemp) && export -p > "$t" && set -a && . ./.env && if [ -f ./.env.local ];then . ./.env.local;fi && set +a && . "$t" && rm "$t" && unset t
     bash -e -c "$0" "$@"
   #: Replaced with your command.
   - '{{cmd}}'

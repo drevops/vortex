@@ -310,7 +310,6 @@ assert_files_not_present_common() {
 
   assert_file_not_exists "FAQs.md"
   assert_file_not_exists ".ahoy.yml"
-  assert_file_not_exists ".env"
 
   if [ "${has_required_files}" -eq 1 ]; then
     assert_file_exists "README.md"
