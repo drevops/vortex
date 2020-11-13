@@ -7,7 +7,6 @@
     <rule ref="Generic.Debug.ESLint"/>
     <rule ref="PHPCompatibility"/>
 
-    <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
     <arg name="extensions" value="inc,info,install,module,php,profile,test,theme,js,css"/>
     <arg name="colors"/>
     <arg value="sp"/>
