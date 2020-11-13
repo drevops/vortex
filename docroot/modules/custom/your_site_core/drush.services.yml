@@ -1,5 +1,5 @@
 services:
-  se_core.commands:
+  your_site_core.commands:
     class: \Drupal\your_site_core\Commands\PostConfigImportUpdateCommands
     arguments: []
     tags:
