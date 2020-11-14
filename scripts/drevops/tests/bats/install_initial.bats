@@ -237,3 +237,12 @@ load _helper_drevops
 
   assert_dirs_equal "${LOCAL_REPO_DIR}/scripts" "${DST_PROJECT_DIR}/scripts"
 }
+
+@test "Install into empty directory; Images are not modified" {
+  run_install_quiet "${DST_PROJECT_DIR}"
+
+  assert_files_present "dst" "Dst" "${DST_PROJECT_DIR}"
+  assert_git_repo "${DST_PROJECT_DIR}"
+
+  assert_files_equal "${LOCAL_REPO_DIR}/tests/behat/fixtures/image.jpg" "${DST_PROJECT_DIR}/tests/behat/fixtures/image.jpg"
+}

@@ -1720,7 +1720,7 @@ function is_regex($str) {
 }
 
 function file_replace_content($needle, $replacement, $filename) {
-  if (!is_readable($filename)) {
+  if (!is_readable($filename) || file_is_excluded_from_processing($filename)) {
     return FALSE;
   }
 
@@ -1761,6 +1761,10 @@ function remove_token_line($token, $dir) {
 }
 
 function remove_token_from_file($filename, $token_begin, $token_end = NULL, $with_content = FALSE) {
+  if (file_is_excluded_from_processing($filename)) {
+    return;
+  }
+
   $token_end = $token_end ?? $token_begin;
 
   $content = file_get_contents($filename);
@@ -1876,6 +1880,18 @@ function internal_paths() {
 function is_internal_path($relative_path) {
   $relative_path = '/' . ltrim($relative_path, './');
   return in_array($relative_path, internal_paths());
+}
+
+function file_is_excluded_from_processing($filename) {
+  $excluded_patterns = [
+    '.+\.png',
+    '.+\.jpg',
+    '.+\.jpeg',
+    '.+\.bpm',
+    '.+\.tiff',
+  ];
+
+  return preg_match('/^(' . implode('|', $excluded_patterns) . ')$/', $filename);
 }
 
 // ////////////////////////////////////////////////////////////////////////// //
