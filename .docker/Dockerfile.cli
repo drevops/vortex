@@ -3,7 +3,7 @@
 # All CLI operations performed in this container.
 #
 # @see https://hub.docker.com/r/amazeeio/php/tags?page=1&name=cli-drupal
-# @see https://github.com/amazeeio/lagoon/tree/main/images/php/cli-drupal
+# @see https://github.com/uselagoon/lagoon-images/tree/main/images/php/cli-drupal
 FROM amazeeio/php:7.4-cli-drupal-20.10.0
 
 # Set default values for environment variables. Any values provided in
