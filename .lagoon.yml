@@ -4,11 +4,11 @@ docker-compose-yaml: docker-compose.yml
 # container-registries:
 #  dockerhub:
 #    username: <dockerhub username>
-#    # Environment variable name (`DOCKER_REGISTRY_PASSWORD` in this case) with
+#    # Environment variable name (`DOCKER_REGISTRY_TOKEN` in this case) with
 #    # the registry password added injected into container via LagoonCLI or
 #    # GraphQL.
 #    # @see https://lagoon.readthedocs.io/en/v0.24.0/using_lagoon/environment_variables/#runtime-environment-variables-lagoon-api
-#    password: DOCKER_REGISTRY_PASSWORD
+#    password: DOCKER_REGISTRY_TOKEN
 
 tasks:
   post-rollout:
