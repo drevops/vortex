@@ -23,6 +23,9 @@ export DRUPAL_CONFIG_LABEL=vcs
 # Skip DB import as it is managed through UI.
 export SKIP_DB_IMPORT=1
 
+# Do not sanitize DB.
+export SKIP_DB_SANITIZE=1
+
 # Do not unblock admin account.
 export DRUPAL_UNBLOCK_ADMIN=0
 
