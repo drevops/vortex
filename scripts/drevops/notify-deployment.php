@@ -33,9 +33,11 @@ EOF;
 
 
 $sent = [];
-$to_emails = explode(', ', $to_emails);
+$to_emails = explode(',', $to_emails);
 foreach ($to_emails as $email_with_name) {
-  [$email, $name] = explode('|', $email_with_name);
+  [$email, $name] = explode('|', trim($email_with_name));
+  $email = trim($email);
+  $name = trim($name);
   if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $to = !empty($name) ? '"' . $name . '" <' . $email . '>' : $email;
     mail($to, $subject, $content, 'From: ' . $from_email);
