@@ -13,6 +13,8 @@
 
 </div>
 
+**Please help to improve this [README.md](README.md) file to make it more clear what this project does for the newcomers.**
+
 <hr>
 
 ### Installation
