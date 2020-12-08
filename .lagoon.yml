@@ -65,7 +65,7 @@ tasks:
           else
             # Do not overwrite existing DB if non-production site already exists.
             # @note: Change this to 1 in order to re-install site on every commit.
-            export DB_IMPORT_OVERWRITE_EXISTING=0
+            export DB_IMPORT_OVERWRITE_EXISTING=${DB_IMPORT_OVERWRITE_EXISTING:-0}
           fi
 
           # Install site.
@@ -77,7 +77,6 @@ tasks:
         name: Send notification
         command: |
           [ -n "${SKIP_NOTIFY_DEPLOYMENT}" ] && echo "Skipping sending of deployment notification." && exit 0
-
           php ./scripts/drevops/notify-deployment.php \
             "YOURSITE" \
             "lagoon-deploy@your-site-url" \
@@ -87,20 +86,36 @@ tasks:
         service: cli
 
 environments:
+  # Branch name that represents production environment.
   master:
     cronjobs:
       - name: drush cron
         schedule: '*/15 * * * *'
         command: drush cron --root=/app
         service: cli
-    routes:
-      - nginx:
-          - your-site-url:
-              tls-acme: 'true'
-          - www.your-site-url:
-              tls-acme: 'false'
+    # Uncomment below to enable installing a custom SSL certificate.
+    # By default, Lagoon installs Let's Encrypt certificates for all environments.
+    # routes:
+    #   - nginx-php:
+    #       - www.your-site-url:
+    #           tls-acme: 'false'
     monitoring_urls:
-      - your-site-url
       - www.your-site-url
+  # Branch name that represents development environment.
+  develop:
+    cronjobs:
+      - name: drush cron
+        schedule: '*/15 * * * *'
+        command: drush cron --root=/app
+        service: cli
+    # Uncomment below to enable installing a custom SSL certificate.
+    # By default, Lagoon installs Let's Encrypt certificates for all environments.
+    # routes:
+    #   - nginx-php:
+    #       - dev.your-site-url:
+    #           tls-acme: 'false'
+    monitoring_urls:
+      - dev.your-site-url
+
 routes:
   insecure: Redirect
