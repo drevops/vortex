@@ -57,7 +57,7 @@ tasks:
           # Do not sanitize DB.
           export SKIP_DB_SANITIZE=1
 
-          if [ "$LAGOON_ENVIRONMENT_TYPE" == "production" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" == "production" ] || [ "$LAGOON_GIT_BRANCH" == "$LAGOON_PRODUCTION_BRANCH" ]; then
             # Never overwrite existing DB when production site already exists.
             export DB_IMPORT_OVERWRITE_EXISTING=0
             # Never unblock admin user in production.
