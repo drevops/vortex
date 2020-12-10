@@ -31,7 +31,7 @@ DB_FILE="${DB_FILE:-db.sql}"
 LAGOON_PROJECT="${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}"
 
 # The source environment for the database source.
-LAGOON_ENVIRONMENT="${LAGOON_ENVIRONMENT:-master}"
+LAGOON_DB_ENVIRONMENT="${LAGOON_DB_ENVIRONMENT:-master}"
 
 # Remote DB dump directory location.
 LAGOON_REMOTE_DB_DIR="/tmp"
@@ -58,7 +58,7 @@ LAGOON_SSH_HOST="${LAGOON_SSH_HOST:-ssh.lagoon.amazeeio.cloud}"
 LAGOON_SSH_PORT="${LAGOON_SSH_PORT:-32222}"
 
 # The SSH user of the Lagoon environment.
-LAGOON_SSH_USER="${LAGOON_SSH_USER:-${LAGOON_PROJECT}-${LAGOON_ENVIRONMENT}}"
+LAGOON_SSH_USER="${LAGOON_SSH_USER:-${LAGOON_PROJECT}-${LAGOON_DB_ENVIRONMENT}}"
 
 #-------------------------------------------------------------------------------
 #                       DO NOT CHANGE ANYTHING BELOW THIS LINE
