@@ -168,7 +168,7 @@ commands:
 
   test:
     usage: Run all tests.
-    cmd: ahoy test-unit && ahoy test-bdd
+    cmd: ahoy test-unit && ahoy test-kernel && ahoy test-functional && ahoy test-bdd
 
   test-unit:
     usage: Run PhpUnit unit tests.
