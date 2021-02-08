@@ -337,7 +337,7 @@ Run each command as `ahoy <command>`.
   stop         Stop all or specified running Docker containers.
   test         Run all tests.
   test-bdd     Run BDD tests.
-  test-unit    Run Simpletest unit tests.
+  test-unit    Run PhpUnit unit tests.
   up           Build and start all or specified Docker containers.
   update       Update development stack.
   ```
