@@ -168,18 +168,18 @@ commands:
 
   test:
     usage: Run all tests.
-    cmd: ahoy test-unit && ahoy test-bdd
+    cmd: ahoy test-unit && ahoy test-kernel && ahoy test-functional && ahoy test-bdd
 
   test-unit:
-    usage: Run Simpletest unit tests.
+    usage: Run PhpUnit unit tests.
     cmd: ahoy cli "TEST_TYPE=unit TEST_LOG_DIR=${TEST_LOG_DIR} ./scripts/drevops/test.sh $@"
 
   test-kernel:
-    usage: Run Simpletest kernel tests.
+    usage: Run PhpUnit kernel tests.
     cmd: ahoy cli "TEST_TYPE=kernel TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} TEST_LOG_DIR=${TEST_LOG_DIR} ./scripts/drevops/test.sh $@"
 
   test-functional:
-    usage: Run Simpletest functional tests.
+    usage: Run PhpUnit functional tests.
     cmd: ahoy cli "TEST_TYPE=functional TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} TEST_LOG_DIR=${TEST_LOG_DIR} ./scripts/drevops/test.sh $@"
 
   test-bdd:
