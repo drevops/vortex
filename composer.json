@@ -1,6 +1,6 @@
 {
     "name": "your_org/your_site",
-    "description": "Drupal 8 implementation of YOURSITE for YOURORG",
+    "description": "Drupal 9 implementation of YOURSITE for YOURORG",
     "license": "proprietary",
     "require": {
         "php": ">=7.4",
@@ -12,8 +12,8 @@
         "drupal/config_split": "^1.7",
         "drupal/config_update": "^1.7",
         "drupal/console": "^1.9",
-        "drupal/core-composer-scaffold": "^8",
-        "drupal/core-recommended": "^8",
+        "drupal/core-composer-scaffold": "^9",
+        "drupal/core-recommended": "^9",
         "drupal/environment_indicator": "^3.7",
         "drupal/pathauto": "^1.8",
         "drupal/permissions_filter": "^1.1",
@@ -28,7 +28,7 @@
         "zaporylie/composer-drupal-optimizations": "^1.2"
     },
     "require-dev": {
-        "drupal/core-dev": "^8.9",
+        "drupal/core-dev": "^9",
         "behat/behat": "^3.7",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4",
         "drupal/drupal-extension": "^3.4",
