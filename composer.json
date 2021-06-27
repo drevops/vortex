@@ -30,9 +30,9 @@
     },
     "require-dev": {
         "drupal/core-dev": "^9.2",
-        "behat/behat": "^3.7",
+        "behat/behat": "^3.8",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-        "drupal/drupal-extension": "^3.4",
+        "drupal/drupal-extension": "^4.1",
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
         "integratedexperts/behat-steps": "^0.1",
