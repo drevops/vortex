@@ -28,7 +28,7 @@ ENV WEBROOT=docroot \
 # Adding more tools.
 RUN apk update \
     && apk add pv \
-               python3 \
+               python2 \
                make \
                g++ \
     && rm -rf /var/cache/apk/*
