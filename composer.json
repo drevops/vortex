@@ -12,8 +12,9 @@
         "drupal/config_split": "^1.7",
         "drupal/config_update": "^1.7",
         "drupal/console": "^1.9",
-        "drupal/core-composer-scaffold": "^9",
-        "drupal/core-recommended": "^9",
+        "drupal/core-composer-scaffold": "^9.1",
+        "drupal/core-project-message": "^9.1",
+        "drupal/core-recommended": "^9.1",
         "drupal/environment_indicator": "^3.7",
         "drupal/pathauto": "^1.8",
         "drupal/permissions_filter": "^1.1",
@@ -28,7 +29,7 @@
         "zaporylie/composer-drupal-optimizations": "^1.2"
     },
     "require-dev": {
-        "drupal/core-dev": "^9",
+        "drupal/core-dev": "^9.1",
         "behat/behat": "^3.7",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4",
         "drupal/drupal-extension": "^3.4",
@@ -57,7 +58,7 @@
     "repositories": {
         "drupal": {
             "type": "composer",
-            "url": "https://packages.drupal.org/9"
+            "url": "https://packages.drupal.org/8"
         },
         "asset-packagist": {
             "type": "composer",
