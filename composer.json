@@ -29,15 +29,16 @@
         "zaporylie/composer-drupal-optimizations": "^1.2"
     },
     "require-dev": {
-        "drupal/core-dev": "^9.2",
         "behat/behat": "^3.8",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+        "drupal/core-dev": "^9.2",
         "drupal/drupal-extension": "^4.1",
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
         "integratedexperts/behat-steps": "^0.1",
         "php-parallel-lint/php-parallel-lint": "^1.2",
         "phpcompatibility/php-compatibility": "^9.0",
+        "phpspec/prophecy-phpunit": "^2",
         "pyrech/composer-changelogs": "^1.7"
     },
     "autoload": {
