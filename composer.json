@@ -46,7 +46,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.4"
+            "php": "8.0"
         },
         "process-timeout": 0,
         "sort-packages": true
@@ -57,7 +57,7 @@
     "repositories": {
         "drupal": {
             "type": "composer",
-            "url": "https://packages.drupal.org/8"
+            "url": "https://packages.drupal.org/9"
         },
         "asset-packagist": {
             "type": "composer",
