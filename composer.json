@@ -15,7 +15,7 @@
         "drupal/core-composer-scaffold": "^9.2",
         "drupal/core-project-message": "^9.2",
         "drupal/core-recommended": "^9.2",
-        "drupal/environment_indicator": "^3.7",
+        "drupal/environment_indicator": "^4.0",
         "drupal/pathauto": "^1.8",
         "drupal/permissions_filter": "^1.1",
         "drupal/redirect": "^1.6",
