@@ -6,7 +6,7 @@
         "php": ">=7.4",
         "composer/installers": "^1.9",
         "cweagans/composer-patches": "^1.7",
-        "drupal/admin_toolbar": "^1.27",
+        "drupal/admin_toolbar": "^3.0",
         "drupal/coffee": "^1",
         "drupal/config_ignore": "^2.2",
         "drupal/config_split": "^1.7",
