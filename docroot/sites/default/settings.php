@@ -160,7 +160,7 @@ if (getenv('LAGOON')) {
   }
   // Use a dedicated branch to identify production environment.
   // This is useful when 'production' Lagoon environment is not provisioned yet.
-  elseif (getenv('LAGOON_GIT_BRANCH') == getenv('LAGOON_PRODUCTION_BRANCH', 'production')) {
+  elseif (getenv('LAGOON_GIT_BRANCH') !== FALSE && getenv('LAGOON_GIT_BRANCH') == getenv('LAGOON_PRODUCTION_BRANCH')) {
     $settings['environment'] = ENVIRONMENT_PROD;
   }
   elseif (getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
