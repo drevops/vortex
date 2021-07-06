@@ -20,7 +20,7 @@
 ### Installation
 1. Run installer:
    ```
-   curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php > /tmp/install.php && php /tmp/install.php --interactive; rm /tmp/install.php
+   curl -L https://raw.githubusercontent.com/richardgaunt/drevops/9.x/install.php > /tmp/install.php && php /tmp/install.php --interactive; rm /tmp/install.php
    ```
 2. Commit added files.
 
