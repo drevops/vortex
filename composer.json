@@ -35,7 +35,7 @@
         "drupal/drupal-extension": "^4.1",
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
-        "integratedexperts/behat-steps": "^0.1",
+        "integratedexperts/behat-steps": "^0.2.2",
         "php-parallel-lint/php-parallel-lint": "^1.2",
         "phpcompatibility/php-compatibility": "^9.0",
         "phpspec/prophecy-phpunit": "^2",
