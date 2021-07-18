@@ -9,6 +9,7 @@
  * Implements hook_install().
  */
 function your_site_core_install() {
+  module_load_include('php', 'your_site_core', 'your_site_core.post_update');
   $functions = get_defined_functions();
   // Run all update functions when installing this module.
   foreach ($functions['user'] as $function) {
@@ -16,6 +17,18 @@ function your_site_core_install() {
       call_user_func($function);
     }
   }
+
+  // Reset all post_update updates for this module.
+  $key_value = \Drupal::keyValue('post_update');
+  $executed_updates = $key_value->get('existing_updates', []);
+  // Run all post-update functions when installing this module.
+  foreach ($executed_updates as $k => $function) {
+    if (strpos($function, 'your_site_core_post_update_') === 0) {
+      unset($executed_updates[$k]);
+    }
+  }
+  $executed_updates = array_values($executed_updates);
+  $key_value->set('existing_updates', $executed_updates);
 }
 
 /**
