@@ -46,7 +46,7 @@ COPY composer.json composer.* .env* /app/
 # Install PHP dependencies, but without development dependencies. This is very
 # important, because we do not want potential security issues to be exposed to
 # production environment.
-RUN COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --no-suggest --optimize-autoloader
+RUN composer self-update && COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --no-suggest --optimize-autoloader
 
 # Install NodeJS dependencies.
 # Note that package-lock.json is not explicitly copied, allowing to run the
