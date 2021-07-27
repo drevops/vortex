@@ -14,7 +14,7 @@ default:
         - Drupal\DrupalExtension\Context\MinkContext
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext
-        - IntegratedExperts\BehatScreenshotExtension\Context\ScreenshotContext
+        - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
 
   extensions:
     Behat\MinkExtension:
@@ -41,10 +41,7 @@ default:
         success_message_selector: '.messages.status'
         warning_message_selector: '.messages.warning'
     # Allows to capture HTML and JPG screenshots (based on the driver used).
-    IntegratedExperts\BehatScreenshotExtension:
-      dir: '%paths.base%/screenshots'
-      fail: true
-      purge: false
+    DrevOps\BehatScreenshotExtension: ~
     # Show explicit fail information and continue the test run.
     IntegratedExperts\BehatFormatProgressFail\FormatExtension: ~
 

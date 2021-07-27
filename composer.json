@@ -34,7 +34,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
         "drupal/drupal-extension": "^3.4",
         "integratedexperts/behat-format-progress-fail": "^0.2",
-        "integratedexperts/behat-screenshot": "^0.7",
+        "drevops/behat-screenshot": "^1",
         "php-parallel-lint/php-parallel-lint": "^1.2",
         "phpcompatibility/php-compatibility": "^9.0",
         "pyrech/composer-changelogs": "^1.7"
