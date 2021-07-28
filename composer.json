@@ -33,7 +33,7 @@
         "drevops/behat-steps": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
         "drupal/drupal-extension": "^3.4",
-        "integratedexperts/behat-format-progress-fail": "^0.2",
+        "drevops/behat-format-progress-fail": "^1",
         "drevops/behat-screenshot": "^1",
         "php-parallel-lint/php-parallel-lint": "^1.2",
         "phpcompatibility/php-compatibility": "^9.0",

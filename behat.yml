@@ -43,7 +43,7 @@ default:
     # Allows to capture HTML and JPG screenshots (based on the driver used).
     DrevOps\BehatScreenshotExtension: ~
     # Show explicit fail information and continue the test run.
-    IntegratedExperts\BehatFormatProgressFail\FormatExtension: ~
+    DrevOps\BehatFormatProgressFail\FormatExtension: ~
 
 p0:
   gherkin:
