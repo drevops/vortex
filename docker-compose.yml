@@ -59,13 +59,15 @@ x-environment:
   #: Local development URL. Required to make DNS request route correctly.
   #: Do not change the default value here (it is set as a fallback). Instead,
   #: change the value in .env file.
-  LAGOON_LOCALDEV_URL: ${LOCALDEV_URL:-your-site.docker.amazee.io}
+  LAGOON_LOCALDEV_URL: &default-url ${LOCALDEV_URL:-your-site.docker.amazee.io}
+  #; Amazeeio images require Lagoon route for Drush 9+ alias configuration.
+  LAGOON_ROUTE: *default-url
   #:
   #: Allow to enable XDebug by setting external environment variable.
   #: Do not change the value here. Instead, use
   #: ahoy debug
   #: or
-  #: XDEBUG_ENABLE=1 docker-compose up -d
+  #: XDEBUG_ENABLE=true docker-compose up -d
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   #:
   #: Pass-through $CI variable used to identify the CI environment.
@@ -110,6 +112,7 @@ services:
       #: Find port on host with `ahoy info` or `docker-compose port cli 35729`.
       - "35729"
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
       lagoon.type: cli-persistent
       lagoon.persistent.name: nginx-php
@@ -141,6 +144,7 @@ services:
       #: requests routing is not required and/or not supported.
       - default
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
       lagoon.type: nginx-php-persistent
       lagoon.name: nginx-php
@@ -165,6 +169,7 @@ services:
     depends_on:
       - cli
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
       lagoon.type: nginx-php-persistent
       lagoon.name: nginx-php
@@ -180,7 +185,7 @@ services:
       context: .
       dockerfile: .docker/Dockerfile.mariadb
       args:
-        IMAGE: "${DATABASE_IMAGE:-amazeeio/mariadb-drupal:v1.4.1}"
+        IMAGE: "${DATABASE_IMAGE:-amazeeio/mariadb-drupal:20.10.0}"
     environment:
       <<: *default-environment
     ports:
@@ -189,6 +194,8 @@ services:
       #: Find port on host with `ahoy info` or `docker-compose port mariadb 3306`.
       - "3306"
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
+    #: Make sure to destroy and re-deploy an environment if this value changes.
     labels:
       lagoon.type: mariadb
     #;> LAGOON
@@ -197,8 +204,9 @@ services:
   #: Redis container.
   #: Used for caching.
   redis:
-    image: amazeeio/redis:v1.4.1
+    image: amazeeio/redis:6-20.10.0
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
       lagoon.type: redis
     #;> LAGOON
@@ -223,6 +231,7 @@ services:
       #: Find port on host with `ahoy info` or `docker-compose port solr 8983`.
       - "8983"
     #;< LAGOON
+    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
       lagoon.type: solr
     #;> LAGOON

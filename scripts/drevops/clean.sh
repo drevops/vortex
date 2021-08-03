@@ -23,14 +23,19 @@ sites/default/settings.generated.php
 themes
 )
 
+# Explicitly reset permissions for sites/default.
+chmod 755 "${WEBROOT}/sites/default"
+
 # shellcheck disable=SC2207,SC2010
 targets+=($(ls -p | grep -v /))
 for target in "${targets[@]}"; do
+  # Check if the target is not committed to git.
   if [ "$(git ls-files "${WEBROOT}/${target}")" == "" ]; then
     if [ -f "${WEBROOT}/${target:?}" ]; then chmod -Rf 777 "${WEBROOT}/${target:?}"; fi
     rm -Rf "${WEBROOT}/${target:?}"
   fi
 done
+
 # Remove other directories.
 rm -rf \
   ./vendor \

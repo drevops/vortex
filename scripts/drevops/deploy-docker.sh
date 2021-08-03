@@ -22,6 +22,9 @@ DOCKER_REGISTRY_TOKEN="${DOCKER_REGISTRY_TOKEN:-}"
 # Defaults to DockerHub.
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 
+# The tag of the image to push to. Defaults to 'latest'.
+DOCKER_IMAGE_TAG="${DOCKER_IMAGE_TAG:-latest}"
+
 # ------------------------------------------------------------------------------
 
 echo "==> Started DOCKER deployment."
@@ -56,7 +59,7 @@ for key in "${!services[@]}"; do
   [ -z "${cid}" ] && echo "ERROR: Service \"${service}\" is not running." && exit 1
   echo "==> Found \"${service}\" service container with id \"${cid}\"."
 
-  [ -n "${image##*:*}" ] && image="${image}:latest"
+  [ -n "${image##*:*}" ] && image="${image}:${DOCKER_IMAGE_TAG}"
   new_image="${DOCKER_REGISTRY}/${image}"
 
   echo "==> Committing image with name \"${new_image}\"."

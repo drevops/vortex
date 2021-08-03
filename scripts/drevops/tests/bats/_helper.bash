@@ -3,14 +3,12 @@
 # @file
 # Bats test helpers.
 #
-# shellcheck disable=SC2119,SC2120
+# shellcheck disable=SC2119,SC2120,SC2044
 
 # Guard against bats executing this twice
 if [ -z "$TEST_PATH_INITIALIZED" ]; then
   export TEST_PATH_INITIALIZED=true
 
-  # Rewrite environment PATH to make commands isolated.
-  PATH=/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin
   # Add BATS test directory to the PATH.
   PATH="$(dirname "${BATS_TEST_DIRNAME}"):$PATH"
 
@@ -23,7 +21,7 @@ if [ -z "$TEST_PATH_INITIALIZED" ]; then
   # shellcheck disable=SC2002
   random_suffix=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 4 | head -n 1)
   BATS_TEST_TMPDIR="${BATS_TMPDIR}/bats-test-tmp-${random_suffix}"
-  [ -d "${BATS_TEST_TMPDIR}" ] && rm -Rf "${BATS_TEST_TMPDIR}" > /dev/null
+  [ -d "${BATS_TEST_TMPDIR}" ] && rm -Rf "${BATS_TEST_TMPDIR}" >/dev/null
   mkdir -p "${BATS_TEST_TMPDIR}"
 
   export BATS_TEST_TMPDIR
@@ -31,15 +29,18 @@ if [ -z "$TEST_PATH_INITIALIZED" ]; then
   echo "BATS_TEST_TMPDIR dir: ${BATS_TEST_TMPDIR}" >&3
 fi
 
-flunk(){
-  { if [ "$#" -eq 0 ]; then cat -
-    else echo "$@"
+flunk() {
+  {
+    if [ "$#" -eq 0 ]; then
+      cat -
+    else
+      echo "$@"
     fi
   } | sed "s:${BATS_TEST_TMPDIR}:\${BATS_TEST_TMPDIR}:g" >&2
   return 1
 }
 
-assert_success(){
+assert_success() {
   # shellcheck disable=SC2154
   if [ "${status}" -ne 0 ]; then
     format_error "command failed with exit status ${status}" | flunk
@@ -48,7 +49,7 @@ assert_success(){
   fi
 }
 
-assert_failure(){
+assert_failure() {
   # shellcheck disable=SC2154
   if [ "${status}" -eq 0 ]; then
     format_error "expected failed exit status" | flunk
@@ -57,37 +58,38 @@ assert_failure(){
   fi
 }
 
-assert_equal(){
+assert_equal() {
   if [ "$1" != "$2" ]; then
-    { echo "expected: ${1}"
+    {
+      echo "expected: ${1}"
       echo "actual:   ${2}"
     } | flunk
   fi
 }
 
-assert_contains(){
+assert_contains() {
   local needle="${1}"
   local haystack="${2}"
 
-  if echo "$haystack" | $(type -p ggrep grep | head -1) -i -F -- "$needle" > /dev/null; then
+  if echo "$haystack" | $(type -p ggrep grep | head -1) -i -F -- "$needle" >/dev/null; then
     return 0
   else
     format_error "String '${haystack}' does not contain '${needle}'" | flunk
   fi
 }
 
-assert_not_contains(){
+assert_not_contains() {
   local needle="${1}"
   local haystack="${2}"
 
-  if echo "$haystack" | $(type -p ggrep grep | head -1) -i -F -- "$needle" > /dev/null; then
-    format_error "String '${haystack}'\n contains '${needle}', but should not" | flunk
+  if echo "$haystack" | $(type -p ggrep grep | head -1) -i -F -- "$needle" >/dev/null; then
+    format_error "String '${haystack}' contains '${needle}', but should not" | flunk
   else
     return 0
   fi
 }
 
-assert_file_exists(){
+assert_file_exists() {
   local file="${1}"
 
   for f in ${file}; do
@@ -103,7 +105,7 @@ assert_file_exists(){
   format_error "File ${file} does not exist" | flunk
 }
 
-assert_file_not_exists(){
+assert_file_not_exists() {
   local file="${1}"
 
   for f in ${file}; do
@@ -115,27 +117,27 @@ assert_file_not_exists(){
   done
 }
 
-assert_dir_exists(){
+assert_dir_exists() {
   local dir="${1}"
 
-  if [ -d "${dir}" ] ; then
+  if [ -d "${dir}" ]; then
     return 0
   else
     format_error "Directory ${dir} does not exist" | flunk
   fi
 }
 
-assert_dir_not_exists(){
+assert_dir_not_exists() {
   local dir="${1:-$(pwd)}"
 
-  if [ -d "${dir}" ] ; then
+  if [ -d "${dir}" ]; then
     format_error "Directory ${dir} exists, but should not" | flunk
   else
     return 0
   fi
 }
 
-assert_dir_empty(){
+assert_dir_empty() {
   local dir="${1:-$(pwd)}"
   assert_dir_exists "${dir}" || return 1
 
@@ -146,7 +148,7 @@ assert_dir_empty(){
   fi
 }
 
-assert_dir_not_empty(){
+assert_dir_not_empty() {
   local dir="${1:-$(pwd)}"
   assert_dir_exists "${dir}"
 
@@ -157,7 +159,7 @@ assert_dir_not_empty(){
   fi
 }
 
-assert_symlink_exists(){
+assert_symlink_exists() {
   local file="${1}"
 
   if [ ! -h "${file}" ] && [ -f "${file}" ]; then
@@ -169,7 +171,7 @@ assert_symlink_exists(){
   fi
 }
 
-assert_symlink_not_exists(){
+assert_symlink_not_exists() {
   local file="${1}"
 
   if [ ! -h "${file}" ] && [ -f "${file}" ]; then
@@ -181,15 +183,15 @@ assert_symlink_not_exists(){
   fi
 }
 
-assert_file_mode(){
+assert_file_mode() {
   local file="${1}"
   local perm="${2}"
   assert_file_exists "${file}"
 
   if [ "$(uname)" == "Darwin" ]; then
-    parsed=$(printf "%.3o\n" $(( $(stat -f '0%Lp' "$file") & ~0022 )))
+    parsed=$(printf "%.3o\n" $(($(stat -f '0%Lp' "$file") & ~0022)))
   else
-    parsed=$(printf "%.3o\n" $(( $(stat --printf '0%a' "$file") & ~0022 )))
+    parsed=$(printf "%.3o\n" $(($(stat --printf '0%a' "$file") & ~0022)))
   fi
 
   if [ "${parsed}" != "${perm}" ]; then
@@ -199,7 +201,7 @@ assert_file_mode(){
   fi
 }
 
-assert_file_contains(){
+assert_file_contains() {
   local file="${1}"
   local string="${2}"
   assert_file_exists "${file}"
@@ -208,7 +210,7 @@ assert_file_contains(){
   assert_contains "${string}" "${contents}"
 }
 
-assert_file_not_contains(){
+assert_file_not_contains() {
   local file="${1}"
   local string="${2}"
 
@@ -218,33 +220,33 @@ assert_file_not_contains(){
   assert_not_contains "${string}" "${contents}"
 }
 
-assert_dir_contains_string(){
+assert_dir_contains_string() {
   local dir="${1}"
   local string="${2}"
 
   assert_dir_exists "${dir}" || return 1
 
-  if grep -rI --exclude-dir="${dir}/.git" --exclude-dir="${dir}/.idea" --exclude-dir="vendor" --exclude-dir="node_modules" --exclude-dir="${dir}/.data" --exclude-dir="drevops" -l "${string}" "${dir}"; then
+  if grep -rI --exclude-dir=".git" --exclude-dir=".idea" --exclude-dir="vendor" --exclude-dir="node_modules" --exclude-dir=".data" --exclude-dir="drevops" -l "${string}" "${dir}"; then
     return 0
   else
     format_error "Directory ${dir} does not contain a string '${string}'" | flunk
   fi
 }
 
-assert_dir_not_contains_string(){
+assert_dir_not_contains_string() {
   local dir="${1}"
   local string="${2}"
 
   [ ! -d "${dir}" ] && return 0
 
-  if grep -rI --exclude-dir="${dir}/.git" --exclude-dir="${dir}/.idea" --exclude-dir="vendor" --exclude-dir="node_modules" --exclude-dir="${dir}/.data" --exclude-dir="drevops" -l "${string}" "${dir}"; then
+  if grep -rI --exclude-dir=".git" --exclude-dir=".idea" --exclude-dir="vendor" --exclude-dir="node_modules" --exclude-dir=".data" --exclude-dir="drevops" -l "${string}" "${dir}"; then
     format_error "Directory ${dir} contains string '${string}', but should not" | flunk
   else
     return 0
   fi
 }
 
-assert_git_repo(){
+assert_git_repo() {
   local dir="${1:-$(pwd)}"
 
   assert_dir_exists "${dir}" || return 1
@@ -252,7 +254,7 @@ assert_git_repo(){
   if [ -d "${dir}/.git" ]; then
     log=$(git --work-tree="${dir}" --git-dir="${dir}/.git" status 2>&1)
 
-    if echo "${log}" | $(type -p ggrep grep | head -1) -i -F -- "not a git repository" > /dev/null; then
+    if echo "${log}" | $(type -p ggrep grep | head -1) -i -F -- "not a git repository" >/dev/null; then
       format_error "Directory ${dir} exists, but it is not a git repository"
       return 1
     fi
@@ -263,7 +265,7 @@ assert_git_repo(){
   fi
 }
 
-assert_not_git_repo(){
+assert_not_git_repo() {
   local dir="${1:-$(pwd)}"
 
   assert_dir_exists "${dir}" || return 1
@@ -275,7 +277,7 @@ assert_not_git_repo(){
   fi
 }
 
-assert_git_clean(){
+assert_git_clean() {
   local dir="${1:-$(pwd)}"
   local message
 
@@ -285,7 +287,7 @@ assert_git_clean(){
   assert_contains "nothing to commit" "${message}"
 }
 
-assert_git_not_clean(){
+assert_git_not_clean() {
   local dir="${1:-$(pwd)}"
   local message
 
@@ -295,7 +297,7 @@ assert_git_not_clean(){
   assert_not_contains "nothing to commit" "${message}"
 }
 
-assert_git_file_is_tracked(){
+assert_git_file_is_tracked() {
   local file="${1:-}"
   local dir="${2:-$(pwd)}"
 
@@ -307,7 +309,7 @@ assert_git_file_is_tracked(){
   return $?
 }
 
-assert_git_file_is_not_tracked(){
+assert_git_file_is_not_tracked() {
   local file="${1:-}"
   local dir="${2:-$(pwd)}"
 
@@ -317,12 +319,12 @@ assert_git_file_is_not_tracked(){
 
   if git --work-tree="${dir}" --git-dir="${dir}/.git" ls-files --error-unmatch "${1}" &>/dev/null; then
     return 1
-   else
+  else
     return 0
   fi
 }
 
-assert_files_equal(){
+assert_files_equal() {
   local file1="${1}"
   local file2="${2}"
 
@@ -336,7 +338,7 @@ assert_files_equal(){
   fi
 }
 
-assert_files_not_equal(){
+assert_files_not_equal() {
   local file1="${1}"
   local file2="${2}"
 
@@ -350,23 +352,41 @@ assert_files_not_equal(){
   fi
 }
 
-assert_empty(){
-  if [ "${1}" == "" ] ; then
+assert_dirs_equal() {
+  local dir1="${1}"
+  local dir2="${2}"
+
+  assert_dir_exists "${dir1}" || return 1
+  assert_dir_exists "${dir2}" || return 1
+
+  for file in $(find "${dir1}/" -type f); do
+    assert_files_equal "${file}" "${file/${dir1}/${dir2}}" || return 1
+  done
+
+  for file in $(find "${dir2}/" -type f); do
+    assert_files_equal "${file}" "${file/${dir2}/${dir1}}" || return 1
+  done
+
+  return 0
+}
+
+assert_empty() {
+  if [ "${1}" == "" ]; then
     return 0
   else
     format_error "String ${1} is not empty, but should be" | flunk
   fi
 }
 
-assert_not_empty(){
-  if [ "${1}" == "" ] ; then
+assert_not_empty() {
+  if [ "${1}" == "" ]; then
     format_error "String ${1} is empty, but should not be" | flunk
   else
     return 0
   fi
 }
 
-assert_output(){
+assert_output() {
   local expected
   if [ $# -eq 0 ]; then
     expected="$(cat -)"
@@ -377,7 +397,7 @@ assert_output(){
   assert_equal "${expected}" "${output}"
 }
 
-assert_output_contains(){
+assert_output_contains() {
   local expected
   if [ $# -eq 0 ]; then
     expected="$(cat -)"
@@ -388,7 +408,7 @@ assert_output_contains(){
   assert_contains "${expected}" "${output}"
 }
 
-assert_output_not_contains(){
+assert_output_not_contains() {
   local expected
   if [ $# -eq 0 ]; then
     expected="$(cat -)"
@@ -399,7 +419,7 @@ assert_output_not_contains(){
   assert_not_contains "${expected}" "${output}"
 }
 
-random_string(){
+random_string() {
   local len="${1:-8}"
   local ret
   # shellcheck disable=SC2002
@@ -407,20 +427,20 @@ random_string(){
   echo "${ret}"
 }
 
-prepare_fixture_dir(){
+prepare_fixture_dir() {
   local dir="${1:-$(pwd)}"
-  rm -Rf "${dir}" > /dev/null
+  rm -Rf "${dir}" >/dev/null
   mkdir -p "${dir}"
   assert_dir_exists "${dir}"
 }
 
-mktouch(){
+mktouch() {
   local file="${1}"
   mkdir -p "$(dirname "${file}")" && touch "${file}"
 }
 
 # Format error message with optional output, if present.
-format_error(){
+format_error() {
   local message="${1}"
   echo "##################################################"
   echo "#             BEGIN ERROR MESSAGE                #"
@@ -441,22 +461,22 @@ format_error(){
   fi
 }
 
-read_env(){
+read_env() {
   # shellcheck disable=SC1090,SC1091
-  [ -f "./.env" ] && t=$(mktemp) && export -p > "$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
+  [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
 
   eval echo "${@}"
 }
 
 # Trim the last line of the file.
-trim_file(){
+trim_file() {
   local sed_opts
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
   sed_opts+=(-e '$ d')
   sed "${sed_opts[@]}" "${1}"
 }
 
-add_var_to_file(){
+add_var_to_file() {
   local file="${1}"
   local name="${2}"
   local value="${3}"
@@ -467,10 +487,10 @@ add_var_to_file(){
   cp -f "${file}" "${backup}"
 
   # shellcheck disable=SC2086
-  echo $name=$value >> "${file}"
+  echo $name=$value >>"${file}"
 }
 
-restore_file(){
+restore_file() {
   local file="${1}"
   local backup=/tmp/bkp/"${file}"
 
@@ -478,6 +498,6 @@ restore_file(){
 }
 
 # Run bats with `--tap` option to debug the output.
-debug(){
+debug() {
   echo "${1}" >&3
 }

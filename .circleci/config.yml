@@ -38,6 +38,14 @@ aliases:
   #; @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   - &timezone "Australia/Melbourne"
 
+  # SSH key fingerprint to download the database.
+  #: Generate a separate SSH key for a user who has permissions to download the
+  #: database from the production environment.
+  #;
+  #; This is a fingerprint of the key to test DrevOps project itself as an example.
+  #; Replace this key fingerprint with your own.
+  - &database_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+
   # SSH key fingerprint to deploy code.
   #: Generate a separate SSH key for a user who has push permissions to
   #: $DEPLOY_GIT_REMOTE repo with `ssh-keygen -m PEM -t rsa -C "deployer@example.com"
@@ -58,6 +66,9 @@ aliases:
   # does not match (for example, the cache is available only from the previous
   # day). Only allowed "yes" or "no" (include enclosing double quotes).
   - &db_cache_fallback "yes"
+  # Which branch to use for a source of the DB caches. Usually, it is the default
+  # project branch or *nightly_branch (see below).
+  - &db_cache_branch "develop"
 
   # Database cache directory.
   - &db_cache_dir /root/project/.data
@@ -75,9 +86,10 @@ aliases:
   # support request with CircleCI to enable this feature.
   - &docker_layer_caching false
 
-  # Schedule to run nightly builds. Defaults to 4am. Usually used when database
-  # captured in the Docker image layer to produce nightly database caches.
-  - &nightly_schedule "0 4 * * *"
+  # Schedule to run nightly builds. Defaults to 4am UTC (make sure to adjust for
+  # your time zone). Usually used when database captured in the Docker image
+  # layer to produce nightly database caches.
+  - &nightly_schedule "0 18 * * *"
 
   # The branch used for nightly builds.
   - &nightly_branch develop
@@ -90,6 +102,7 @@ aliases:
     #: Location of checked-out files within "runner" container.
     working_directory: &working_directory /root/project
     environment:
+      DATABASE_SSH_FINGERPRINT: *database_ssh_fingerprint
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       #; Using "runner" container where each job will be executed. This container
@@ -107,6 +120,8 @@ aliases:
           DB_CACHE_TIMESTAMP: *db_cache_timestamp
           # Use cache fallback if the above timestamp does not match.
           DB_CACHE_FALLBACK: *db_cache_fallback
+          # Which branch to use as a source of DB caches.
+          DB_CACHE_BRANCH: *db_cache_branch
           # Directory to store code exported between jobs.
           BUILD_EXPORT_DIR: &build_export_dir /workspace/code
           # Do not use symlink when downloading database dump (useful only locally).
@@ -129,14 +144,14 @@ aliases:
 
   # Step to setup remote docker.
   - &step_setup_remote_docker
-     setup_remote_docker:
-       docker_layer_caching: *docker_layer_caching
+    setup_remote_docker:
+      docker_layer_caching: *docker_layer_caching
   # Step to process the codebase to be ran in CI environment.
   - &step_process_codebase
-      run:
-        name: Process codebase to run in CI
-        #: Remove lines containing '###' and uncomment comments starting with '##'.
-        command: sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
+    run:
+      name: Process codebase to run in CI
+      #: Remove lines containing '###' and uncomment comments starting with '##'.
+      command: sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
 
 #:###############################################################################
 #: JOBS
@@ -160,15 +175,21 @@ jobs:
     steps:
       - attach_workspace:
           at: /workspace
+      # Add SSH key into "runner" container to have SSH access to download DB.
+      - add_ssh_keys:
+          fingerprints:
+            - *database_ssh_fingerprint
       - checkout
       - *step_process_codebase
       - *step_setup_remote_docker
       - run:
           name: Set cache keys for database caching
           command: |
-            echo "${CI_WORKFLOW_NAME:-main}" > /tmp/DB_CACHE_WORKFLOW_NAME && cat /tmp/DB_CACHE_WORKFLOW_NAME
-            echo "$(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
+            echo "${DB_CACHE_BRANCH}" > /tmp/DB_CACHE_BRANCH && cat /tmp/DB_CACHE_BRANCH
             echo "${DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" > /tmp/DB_CACHE_FALLBACK && cat /tmp/DB_CACHE_FALLBACK
+            echo "$(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
+            echo "yes" > /tmp/DB_CACHE_FALLBACK_YES && cat /tmp/DB_CACHE_FALLBACK_YES
+
       - restore_cache:
           keys:
             #:
@@ -176,14 +197,14 @@ jobs:
             #:
             #: Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
             #:
-            #: Lookup cache based on the current branch and a timestamp. Allows
-            #: to cache results of the very first build on the day (sanitized
-            #: database dump, for example) and re-use it in all subsequent builds.
-            - v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+            #: Lookup cache based on the default branch and a timestamp. Allows
+            #: to use cache from the very first build on the day (sanitized
+            #: database dump, for example).
+            - v1-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
             #:
-            #: Fallback to caching by branch name. Allows to use cache from the
-            #: branch build on the previous day.
-            - v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}
+            #: Fallback to caching by default branch name only. Allows to use
+            #: cache from the branch build on the previous day.
+            - v1-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-
       #: Download database and run post DB download commands: build site and
       #: export the database. Note that configuration changes and DB updates
       #: are not applied, so we could cache the database as it was downloaded.
@@ -192,7 +213,11 @@ jobs:
           command: DOWNLOAD_POST_PROCESS="export SKIP_POST_DB_IMPORT=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
           no_output_timeout: 30m
       - save_cache:
-          key: v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+          # Save cache per default branch and the timestamp. Note that the
+          # cache fallback flag is enabled for this case in order to
+          # save cache even if fallback is not used when restoring it.
+          # The cache will not be saved if it already exist.
+          key: v1-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
           paths:
             - *db_cache_dir
 
@@ -201,8 +226,9 @@ jobs:
     <<: *job_database
     environment:
       # Enforce fresh DB build (do not rely on fallback caches).
-      DB_CACHE_TIMESTAMP: +%Y_%m_%d_%H_%M_%S
       DB_CACHE_FALLBACK: 'no'
+      # Always use fresh base image for the database.
+      DATABASE_IMAGE_BASE: drevops/mariadb-drupal-data
       # Deploy docker image (if DOCKER_IMAGE storage is used) to provide fresh
       # daily images for developers.
       EXPORT_DB_DEPLOY_DOCKER: 1
@@ -222,17 +248,17 @@ jobs:
       - run:
           name: Set cache keys for database caching
           command: |
-            echo "${CI_WORKFLOW_NAME:-main}" > /tmp/DB_CACHE_WORKFLOW_NAME && cat /tmp/DB_CACHE_WORKFLOW_NAME
+            echo "${DB_CACHE_BRANCH}" > /tmp/DB_CACHE_BRANCH && cat /tmp/DB_CACHE_BRANCH
+            echo "yes" > /tmp/DB_CACHE_FALLBACK_YES && cat /tmp/DB_CACHE_FALLBACK_YES
+            echo "$(date ${DB_CACHE_TIMESTAMP})" > /tmp/DB_CACHE_TIMESTAMP && cat /tmp/DB_CACHE_TIMESTAMP
       - restore_cache:
           keys:
-            #:
-            #: Use cached artifacts from previous builds of this branch ran at
-            #: any time, but try to find caches withing the same workflow first.
-            #; This allows to run nightly jobs as a part of one workflow, but
-            #; use cached data in another ones.
-            #: https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v1-db7-{{ .Branch }}-{{ checksum "/tmp/DB_CACHE_WORKFLOW_NAME" }}
-            - v1-db7-{{ .Branch }}-
+            #
+            # Use cached artifacts from previous builds of this branch ran at
+            # any time.
+            # https://circleci.com/docs/2.0/caching/#restoring-cache
+            - v1-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+            - v1-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-
       - run:
           name: Build site
           command: ahoy build
@@ -242,7 +268,7 @@ jobs:
           command: ahoy lint
       - run:
           name: Run tests
-          command: BEHAT_PARALLEL_INDEX=$CIRCLE_NODE_INDEX ahoy test
+          command: 'if [ $CIRCLE_NODE_TOTAL -gt 1 ]; then export BEHAT_PARALLEL_INDEX=$CIRCLE_NODE_INDEX; fi && ahoy test'
       - run:
           name: Process test logs and artifacts
           command: |
@@ -283,7 +309,7 @@ jobs:
       - checkout
       - *step_process_codebase
       - run:
-          command: ahoy deploy
+          command: DEPLOY_BRANCH="$CIRCLE_BRANCH" ahoy deploy
           no_output_timeout: 30m
       - store_artifacts:
           path: *test_artifact_dir
@@ -330,8 +356,8 @@ jobs:
       - *step_setup_remote_docker
       - run:
           name: Run functional tests (long)
-          command: .circleci/drevops-test.sh
-          no_output_timeout: 30m
+          command: scripts/drevops/utils/ci-drevops-test.sh
+          no_output_timeout: 60m
 
   drevops_test_deployment:
     <<: *container_config
@@ -347,8 +373,8 @@ jobs:
           at: /workspace
       - run:
           name: Run deployment tests (long)
-          command: .circleci/drevops-test-deployment.sh
-          no_output_timeout: 30m
+          command: scripts/drevops/utils/ci-drevops-test-deployment.sh
+          no_output_timeout: 60m
 
   # Deployment of feature branches and tags for DrevOps itself.
   drevops_deploy:
@@ -392,13 +418,16 @@ jobs:
       #; Note that here and below we are using "destination" demo image - this
       #; is to allow updating of this image from CI tests without jeopardizing
       #; main demo image.
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:latest
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x
+      #; Use a separate tag to make sure that pushed image does not affect
+      #; other tests (pushing broken image as 'latest' will fail other tests).
+      DOCKER_IMAGE_TAG: drevops_didi_database_fi
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
       EXPORT_DB_DEPLOY_DOCKER: 1
-      #; CircleCI does not provide workflow name variable, so we have to
-      #; explicitly set it within a job.
-      CI_WORKFLOW_NAME: drevops_didi_fi
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_fi
   #; Job to test creation of the image from the previous version of the image
   #; when using database-in-Docker-image workflow.
   drevops_didi_database_ii:
@@ -406,13 +435,14 @@ jobs:
     environment:
       DATABASE_DOWNLOAD_SOURCE: docker_registry
       FORCE_DB_DOWNLOAD: 1
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:latest
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x
+      DOCKER_IMAGE_TAG: drevops_didi_database_ii
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
       EXPORT_DB_DEPLOY_DOCKER: 1
-      #; CircleCI does not provide workflow name variable, so we have to
-      #; explicitly set it within a job.
-      CI_WORKFLOW_NAME: drevops_didi_ii
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_ii
   #; Job to test build of the image from the previous stage of the image when
   #; using database-in-Docker-image workflow. Overwriting just the DATABASE_IMAGE
   #; variable should change the storage mechanisms, but preserve application-level
@@ -420,13 +450,17 @@ jobs:
   drevops_didi_build_fi:
     <<: *job_build
     environment:
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:latest
-      CI_WORKFLOW_NAME: drevops_didi_fi
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:drevops_didi_database_fi
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_fi
   drevops_didi_build_ii:
     <<: *job_build
     environment:
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:latest
-      CI_WORKFLOW_NAME: drevops_didi_ii
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-7.x:drevops_didi_database_ii
+      #; Use custom cache key for this workflow to make sure that caches from
+      #; the main workflow are separated from this one.
+      DB_CACHE_BRANCH: drevops_didi_ii
   #;> DREVOPS
 
 #:###############################################################################
@@ -435,8 +469,8 @@ jobs:
 workflows:
   version: 2
   #:
-  #: Main workflow. Runs for every push to the remote repository.
-  main:
+  #: Commit workflow. Runs for every commit push to the remote repository.
+  commit:
     jobs:
       - database:
           filters:
@@ -459,8 +493,8 @@ workflows:
               # - master, develop, ci, cisomething
               # - release/123, release/123.456, release/123.456.789, release/123.456.789-rc123
               # - hotfix/123, hotfix/123.456, hotfix/123.456.789
-              # - feature/description, feature/123-description, but not feature/8.x-description or feature/7.x-description
-              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-)[a-zA-z0-9\-\.\,]+/
+              # - feature/description, feature/123-description, but not feature/7.x-description or feature/7.x-description
+              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|7.x-)[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
       - deploy_tags:
@@ -499,7 +533,7 @@ workflows:
             - drevops_test
           filters:
             branches:
-              # Allowed branches: 7.x, 8.x, feature/7.x-description, feature/8.x-description
+              # Allowed branches: 7.x, 7.x, feature/7.x-description, feature/7.x-description
               only: /(?:7|8)\.x|feature\/(?:7|8)\.x[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
@@ -538,10 +572,10 @@ workflows:
   nightly:
     triggers:
       - schedule:
-         cron: *nightly_schedule
-         filters:
-           branches:
-             only:
-               - *nightly_branch
+          cron: *nightly_schedule
+          filters:
+            branches:
+              only:
+                - *nightly_branch
     jobs:
       - database_nightly

@@ -1,3 +1,5 @@
 This directory contains DrevOps and your custom scripts.
 
-Place your scripts here. Do not override scripts in `drevops` directory.
+Add your custom per-project scripts into `./scripts/custom` directory.
+
+Do not override scripts in `drevops` directory.

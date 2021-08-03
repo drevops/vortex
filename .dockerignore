@@ -36,3 +36,6 @@ drush/contrib/
 #;< ACQUIA
 !hooks
 #;> ACQUIA
+#;< LAGOON
+!.lagoon.env.*
+#;> LAGOON

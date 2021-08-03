@@ -1,12 +1,12 @@
-#: Nginx container.
-#:
-#: All web requests are sent to this container.
+# Nginx container.
+#
+# All web requests are sent to this container.
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE:-cli} as cli
 
 # @see https://hub.docker.com/r/amazeeio/nginx-drupal/tags?page=1
-# @see https://github.com/amazeeio/lagoon/tree/master/images/nginx-drupal
-FROM amazeeio/nginx-drupal:v1.4.1
+# @see https://github.com/uselagoon/lagoon-images/tree/main/images/nginx-drupal
+FROM amazeeio/nginx-drupal:20.10.0
 
 ENV WEBROOT=docroot
 

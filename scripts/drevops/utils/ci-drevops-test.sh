@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 ##
 # Run DrevOps tests in CI.
-#
-# This file is removed after install/update.
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -20,13 +18,16 @@ vendor/bin/phpunit unit
 popd || exit 1
 
 echo "==> Lint scripts code."
-scripts/drevops/lint-scripts.sh
+scripts/drevops/utils/lint-scripts.sh
 
 echo "==> Check spelling."
-scripts/drevops/lint-spelling.sh
+scripts/drevops/utils/lint-spelling.sh
 
 echo "==> Test BATS helpers."
 bats scripts/drevops/tests/bats/helpers.bats --tap
+
+echo "==> Test BATS mock."
+bats scripts/drevops/tests/bats/mock.bats --tap
 
 echo "==> Test installation."
 bats scripts/drevops/tests/bats/env.bats --tap

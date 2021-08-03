@@ -6,11 +6,11 @@
  */
 
 use Drupal\DrupalExtension\Context\DrupalContext;
-use IntegratedExperts\BehatSteps\D7\ContentTrait;
-use IntegratedExperts\BehatSteps\D7\TaxonomyTrait;
-use IntegratedExperts\BehatSteps\D7\WatchdogTrait;
-use IntegratedExperts\BehatSteps\FieldTrait;
-use IntegratedExperts\BehatSteps\PathTrait;
+use DrevOps\BehatSteps\D7\ContentTrait;
+use DrevOps\BehatSteps\D7\TaxonomyTrait;
+use DrevOps\BehatSteps\D7\WatchdogTrait;
+use DrevOps\BehatSteps\FieldTrait;
+use DrevOps\BehatSteps\PathTrait;
 
 /**
  * Defines application features from the specific context.

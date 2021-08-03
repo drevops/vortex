@@ -4,7 +4,7 @@
 # Helpers related to DrevOps workflow testing functionality.
 #
 
-prepare_sut(){
+prepare_sut() {
   step "Run SUT preparation"
 
   DRUPAL_VERSION=${DRUPAL_VERSION:-7}
@@ -40,10 +40,20 @@ prepare_sut(){
   assert_file_exists .idea/idea_file.txt
 }
 
-assert_ahoy_download_db(){
+assert_ahoy_download_db() {
   step "Run DB download"
 
   substep "Download the database"
+
+  # Tests are using demo database and 'ahoy download-db' command, so we need
+  # to set the CURL DB to test DB.
+  #
+  # Override demo database with test demo database. This is required to use
+  # test assertions ("star wars") with demo database.
+  #
+  # Ahoy will load environment variable and it will take precedence over
+  # the value in .env file.
+  export CURL_DB_URL="$DEMO_DB_TEST"
 
   # Remove any previously downloaded DB dumps.
   rm -Rf .data/db.sql
@@ -57,14 +67,36 @@ assert_ahoy_download_db(){
   trim_file .env
 }
 
-assert_ahoy_build(){
+assert_ahoy_build() {
   step "Run project build"
+
+  # Tests are using demo database and 'ahoy download-db' command, so we need
+  # to set the CURL DB to test DB.
+  #
+  # Override demo database with test demo database. This is required to use
+  # test assertions ("star wars") with demo database.
+  #
+  # Ahoy will load environment variable and it will take precedence over
+  # the value in .env file.
+  export CURL_DB_URL="$DEMO_DB_TEST"
 
   # Check that database file exists before build.
   [ -f ".data/db.sql" ] && db_file_exists=1
 
-  ahoy build >&3
+  run ahoy build
+  # shellcheck disable=SC2154
+  echo "${output}" >&3
   sync_to_host
+
+  # Assert output messages. Note that only asserting generic messages that do
+  # not depend on the type of the workflow.
+  assert_output_contains "==> Building project."
+  assert_output_contains "==> Removing project containers and packages available since the previous run."
+  assert_output_contains "==> Building images, recreating and starting containers."
+  assert_output_contains "==> Installing development dependencies."
+  assert_output_contains "==> Example post site install operations."
+  assert_output_contains "==> Perform example operations in non-production environment."
+  assert_output_contains "==> Build complete."
 
   # Assert that lock files were created.
   assert_file_exists "composer.lock"
@@ -98,7 +130,7 @@ assert_ahoy_build(){
   assert_file_not_exists docroot/sites/all/themes/custom/star_wars/build/js/star_wars.js
 }
 
-assert_gitignore(){
+assert_gitignore() {
   local skip_commit="${1:-0}"
 
   step "Run .gitignore test"
@@ -129,7 +161,7 @@ assert_gitignore(){
   remove_development_settings
 }
 
-assert_ahoy_cli(){
+assert_ahoy_cli() {
   step "Run ClI command"
 
   run ahoy cli "echo Test from inside of the container"
@@ -138,7 +170,7 @@ assert_ahoy_cli(){
   assert_output_contains "Test from inside of the container"
 }
 
-assert_env_changes(){
+assert_env_changes() {
   step "Update .env file and apply changes"
 
   # Assert that .env does not contain test values.
@@ -183,7 +215,7 @@ assert_env_changes(){
   assert_output_not_contains "my_custom_var_value"
 }
 
-assert_ahoy_drush(){
+assert_ahoy_drush() {
   step "Run Drush command"
 
   run ahoy drush st
@@ -191,7 +223,7 @@ assert_ahoy_drush(){
   assert_output_not_contains "Containers are not running."
 }
 
-assert_ahoy_info(){
+assert_ahoy_info() {
   step "Run site info"
 
   run ahoy info
@@ -211,7 +243,7 @@ assert_ahoy_info(){
   assert_output_not_contains "Containers are not running."
 }
 
-assert_ahoy_docker_logs(){
+assert_ahoy_docker_logs() {
   step "Show Docker logs"
 
   run ahoy logs
@@ -219,7 +251,7 @@ assert_ahoy_docker_logs(){
   assert_output_not_contains "Containers are not running."
 }
 
-assert_ahoy_login(){
+assert_ahoy_login() {
   step "Generate one-time login link"
 
   run ahoy login
@@ -227,7 +259,7 @@ assert_ahoy_login(){
   assert_output_not_contains "Containers are not running."
 }
 
-assert_ahoy_export_db(){
+assert_ahoy_export_db() {
   step "Export DB"
   file="${1:-mydb.sql}"
   run ahoy export-db "${file}"
@@ -237,7 +269,7 @@ assert_ahoy_export_db(){
   assert_file_exists ".data/${file}"
 }
 
-assert_ahoy_lint(){
+assert_ahoy_lint() {
   step "Lint code"
 
   run ahoy lint
@@ -255,11 +287,13 @@ assert_ahoy_lint(){
   run ahoy lint-be
   [ "${status}" -eq 1 ]
   run ahoy lint-fe
-  # @todo: Fix sass-lint not returning correct exist code on warnings.
-  [ "${status}" -eq 0 ]
+  [ "${status}" -eq 1 ]
 
   # Assert failure bypass.
-  add_var_to_file .env "ALLOW_LINT_FAIL" "1" && ahoy up cli && sync_to_container
+  add_var_to_file .env "ALLOW_BE_LINT_FAIL" "1"
+  add_var_to_file .env "ALLOW_FE_LINT_FAIL" "1"
+  ahoy up cli && sync_to_container
+
   run ahoy lint
   [ "${status}" -eq 0 ]
   run ahoy lint-be
@@ -269,7 +303,7 @@ assert_ahoy_lint(){
   restore_file .env && ahoy up cli
 }
 
-assert_ahoy_test_unit(){
+assert_ahoy_test_unit() {
   step "Run unit tests"
 
   ahoy test-unit
@@ -294,6 +328,7 @@ assert_ahoy_test_unit(){
   sync_to_host
   assert_dir_not_empty logs
   assert_file_exists logs/unit.xml
+
   restore_file .env && ahoy up cli
 }
 
@@ -304,7 +339,8 @@ assert_ahoy_test_bdd(){
   ahoy test-bdd
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   substep "Run tagged BDD tests"
   assert_dir_empty screenshots
@@ -315,7 +351,8 @@ assert_ahoy_test_bdd(){
   # image screenshots.
   assert_file_exists "screenshots/*html"
   assert_file_not_exists "screenshots/*png"
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   substep "Run profile BDD tests based on BEHAT_PROFILE variable"
   assert_dir_empty screenshots
@@ -326,17 +363,19 @@ assert_ahoy_test_bdd(){
   # image screenshots.
   assert_file_exists "screenshots/*html"
   assert_file_not_exists "screenshots/*png"
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   substep "Assert that Behat tests failure works"
-  echo "And I should be in the \"some-non-existing-page\" path" >> tests/behat/features/homepage.feature
+  echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
   sync_to_container
   assert_dir_empty screenshots
   run ahoy test-bdd
   [ "${status}" -eq 1 ]
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   substep "Assert that Behat tests failure bypassing works"
 
@@ -345,7 +384,8 @@ assert_ahoy_test_bdd(){
   [ "${status}" -eq 0 ]
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
   # Remove failing step from the feature.
   trim_file tests/behat/features/homepage.feature
   sync_to_container
@@ -356,11 +396,12 @@ assert_ahoy_test_bdd(){
   ahoy test-bdd tests/behat/features/homepage.feature
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   substep "Assert that single Behat test failure works"
   assert_dir_empty screenshots
-  echo "And I should be in the \"some-non-existing-page\" path" >> tests/behat/features/homepage.feature
+  echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
   ahoy up cli && sync_to_container
   # Assert failure.
   run ahoy test-bdd tests/behat/features/homepage.feature
@@ -368,7 +409,8 @@ assert_ahoy_test_bdd(){
   [ "${status}" -eq 1 ]
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   # Assert failure bypass.
   substep "Assert that single Behat test failure bypassing works"
@@ -378,7 +420,8 @@ assert_ahoy_test_bdd(){
   [ "${status}" -eq 0 ]
   sync_to_host
   assert_dir_not_empty screenshots
-  rm -rf screenshots/*; ahoy cli rm -rf /app/screenshots/*
+  rm -rf screenshots/*
+  ahoy cli rm -rf /app/screenshots/*
 
   # Remove failing step from the feature.
   trim_file tests/behat/features/homepage.feature
@@ -387,13 +430,13 @@ assert_ahoy_test_bdd(){
   restore_file .env && ahoy up cli && sync_to_container
 }
 
-assert_ahoy_fe(){
+assert_ahoy_fe() {
   step "FE assets"
 
   substep "Build FE assets for production"
   assert_file_not_contains "docroot/sites/all/themes/custom/star_wars/build/css/star_wars.min.css" "#7e57e2"
-  echo "\$color-tester: #7e57e2;" >> docroot/sites/all/themes/custom/star_wars/scss/_variables.scss
-  echo "\$body-bg: \$color-tester;" >> docroot/sites/all/themes/custom/star_wars/scss/_variables.scss
+  echo "\$color-tester: #7e57e2;" >>docroot/sites/all/themes/custom/star_wars/scss/_variables.scss
+  echo "\$body-bg: \$color-tester;" >>docroot/sites/all/themes/custom/star_wars/scss/_variables.scss
   sync_to_container
   ahoy fe
   sync_to_host
@@ -401,8 +444,8 @@ assert_ahoy_fe(){
 
   substep "Build FE assets for development"
   assert_file_not_contains "docroot/sites/all/themes/custom/star_wars/build/css/star_wars.min.css" "#91ea5e"
-  echo "\$color-please: #91ea5e;" >> docroot/sites/all/themes/custom/star_wars/scss/_variables.scss
-  echo "\$body-bg: \$color-please;" >> docroot/sites/all/themes/custom/star_wars/scss/_variables.scss
+  echo "\$color-please: #91ea5e;" >>docroot/sites/all/themes/custom/star_wars/scss/_variables.scss
+  echo "\$body-bg: \$color-please;" >>docroot/sites/all/themes/custom/star_wars/scss/_variables.scss
   sync_to_container
   ahoy fed
   sync_to_host
@@ -411,17 +454,24 @@ assert_ahoy_fe(){
   assert_file_contains "docroot/sites/all/themes/custom/star_wars/build/css/star_wars.min.css" "background: #91ea5e"
 }
 
-assert_export_on_install_site(){
+assert_export_on_install_site() {
   step "Export DB on install"
 
+  substep "Remove previously downloaded DB file"
   rm -Rf .data/*
   ahoy cli "rm -Rf .data/*"
 
+  substep "Set .env variables"
   add_var_to_file .env "DB_EXPORT_BEFORE_IMPORT" "1"
-  enable_demo_db
+  add_var_to_file .env "CURL_DB_URL" "$DEMO_DB_TEST"
   ahoy up cli && sync_to_container
 
+  substep "Download DB file"
   ahoy download-db
+  # shellcheck disable=SC2002
+  cat ".data/db.sql" | head -n 1 >&3
+
+  substep "Install site"
   ahoy install-site
   sync_to_host
   assert_file_exists .data/export_db_*
@@ -429,7 +479,7 @@ assert_export_on_install_site(){
   restore_file .env && ahoy up cli && sync_to_container
 }
 
-assert_ahoy_debug(){
+assert_ahoy_debug() {
   step "Xdebug"
 
   substep "Enable debug"
@@ -480,7 +530,7 @@ assert_ahoy_debug(){
   assert_output_not_contains "Enabled"
 }
 
-assert_ahoy_clean(){
+assert_ahoy_clean() {
   step "Clean"
 
   # Prepare to assert that manually created file is not removed.
@@ -516,7 +566,7 @@ assert_ahoy_clean(){
   remove_development_settings
 }
 
-assert_ahoy_reset(){
+assert_ahoy_reset() {
   step "Reset"
 
   create_development_settings
@@ -543,23 +593,23 @@ assert_ahoy_reset(){
   remove_development_settings
 }
 
-assert_page_contains(){
+assert_page_contains() {
   path="${1}"
   content="${2}"
   t=$(mktemp)
-  ahoy cli curl -s "http://nginx:8080${path}" > "${t}"
+  ahoy cli curl -L -s "http://nginx:8080${path}" >"${t}"
   assert_file_contains "${t}" "${content}"
 }
 
-assert_page_not_contains(){
+assert_page_not_contains() {
   path="${1}"
   content="${2}"
   t=$(mktemp)
-  ahoy cli curl -s "http://nginx:8080${path}" > "${t}"
+  ahoy cli curl -L -s "http://nginx:8080${path}" >"${t}"
   assert_file_not_contains "${t}" "${content}"
 }
 
-assert_reload_db(){
+assert_reload_db_image() {
   step "Reload DB image"
 
   # Assert that used DB image has content.
@@ -571,21 +621,4 @@ assert_reload_db(){
 
   ahoy reload-db
   assert_page_contains "/" "First test node"
-}
-
-assert_reload_db_curl(){
-  step "Reload DB image using database from CURL"
-  name="${1:-Drupal Test Site}"
-
-  # Assert that used DB image has content.
-  assert_page_contains "/" "Welcome to ${name}"
-  # DB from file dump does not have any content.
-  assert_page_not_contains "/" "First test node"
-
-  # Change homepage content and assert that the change was applied.
-  ahoy drush vset site_frontpage user
-  assert_page_not_contains "/" "Welcome to ${name}"
-
-  ahoy reload-db
-  assert_page_contains "/" "Welcome to ${name}"
 }

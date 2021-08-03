@@ -1,0 +1,55 @@
+//
+// Additional mixins.
+//
+
+//
+// Add outline to a block without introducing changes to element dimensions.
+//
+@mixin block-debug($text: false, $color: #f00) {
+  // Outline without changing element's dimensions.
+  box-shadow: 0 0 1px 1px $color inset;
+
+  @if $text {
+    &::before {
+      border: 1px solid $color;
+      color: $color;
+      content: $text;
+      left: 0;
+      padding: 10px;
+      position: absolute;
+      z-index: 10000;
+    }
+  }
+}
+
+//
+// Reset the box model dimensions.
+//
+@mixin reset-box-model {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+//
+// Create Font Awesome icon.
+//
+// Bootstrap has inclusion of compiled Font Awesome assets. This mixin allows
+// to add Font Awesome icon to a custom element using included font.
+@mixin fa-icon($icon, $bold: false) {
+  &::before {
+    -moz-osx-font-smoothing: grayscale; // sass-lint:disable-line no-vendor-prefixes
+    -webkit-font-smoothing: antialiased; // sass-lint:disable-line no-vendor-prefixes
+    content: unquote("\"#{ $icon }\""); // sass-lint:disable-line quotes
+    display: inline-block;
+    font-family: 'Font Awesome\ 5 Free';
+    font-style: normal;
+    font-variant: normal;
+    line-height: 1;
+    text-rendering: auto;
+
+    @if $bold {
+      font-weight: bold;
+    }
+  }
+}

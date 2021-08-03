@@ -4,6 +4,8 @@ namespace Drupal\your_site_core\Tests;
 
 /**
  * Class YourSiteCoreExampleTest.
+ *
+ * Site core example test.
  */
 class YourSiteCoreExampleTest extends YourSiteCoreTestCase {
 

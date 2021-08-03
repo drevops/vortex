@@ -8,8 +8,11 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-# Flag to allow lint to fail.
-ALLOW_LINT_FAIL="${ALLOW_LINT_FAIL:-0}"
+# Flag to allow BE lint to fail.
+ALLOW_BE_LINT_FAIL="${ALLOW_BE_LINT_FAIL:-0}"
+
+# Flag to allow FE lint to fail.
+ALLOW_FE_LINT_FAIL="${ALLOW_FE_LINT_FAIL:-0}"
 
 # Comma-separated list of PHPCS targets (no spaces).
 PHPCS_TARGETS="${PHPCS_TARGETS:-}"
@@ -21,6 +24,9 @@ PHP_LINT_TARGETS="${PHP_LINT_TARGETS:-}"
 # PHP Parallel Lint extensions as a comma-separated list of extensions with
 # no preceding dot or space.
 PHP_LINT_EXTENSIONS="${PHP_LINT_EXTENSIONS:-php,inc,module,theme,install}"
+
+# Drupal theme name.
+DRUPAL_THEME="${DRUPAL_THEME:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -34,12 +40,12 @@ if [ -z "${LINT_TYPE##*be*}" ]; then
   # Lint code for coding standards.
   vendor/bin/phpcs ${PHPCS_TARGETS//,/ } || \
   # Flag to allow lint to fail.
-  [ "${ALLOW_LINT_FAIL}" -eq 1 ]
+  [ "${ALLOW_BE_LINT_FAIL}" -eq 1 ]
 fi
 
-if [ -z "${LINT_TYPE##*fe*}" ]; then
+if [ -z "${LINT_TYPE##*fe*}" ] && [ -n "${DRUPAL_THEME}" ]; then
   # Lint code using front-end linter.
-  npm run --prefix docroot/sites/all/themes/custom/your_site_theme lint || \
+  npm run --prefix "docroot/sites/all/themes/custom/${DRUPAL_THEME}" lint || \
   # Flag to allow lint to fail.
-  [ "${ALLOW_LINT_FAIL}" -eq 1 ]
+  [ "${ALLOW_FE_LINT_FAIL}" -eq 1 ]
 fi

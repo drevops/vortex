@@ -4,11 +4,11 @@
 #
 
 set -e
-set -x
+[ -n "${DREVOPS_DEBUG}" ] && set -x
 
-SITE=$1
-TARGET_ENV=$2
-DEPLOY_REF=$4
+SITE="${1}"
+TARGET_ENV="${2}"
+DEPLOY_REF="${4}"
 
 NEWRELIC_USER="${NEWRELIC_USER:-}"
 NEWRELIC_APPID="${NEWRELIC_APPID:-}"
