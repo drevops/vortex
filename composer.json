@@ -3,11 +3,12 @@
     "description": "Drupal 7 implementation of YOURSITE for YOURORG",
     "license": "proprietary",
     "require": {
-        "composer/installers": "^1.7",
-        "cweagans/composer-patches": "^1.6.5",
-        "drupal-composer/preserve-paths": "^0.1.5",
+        "php": ">=7.4",
+        "composer/installers": "^1.9",
+        "cweagans/composer-patches": "^1.7",
+        "drupal-composer/preserve-paths": "^0.1.6",
         "drupal/coffee": "^2.3",
-        "drupal/drupal": "^7.69",
+        "drupal/drupal": "^7.81",
         "drupal/drupal_helpers": "^1.4",
         "drupal/environment_indicator": "^2.9",
         "drupal/features": "^2.11",
@@ -19,22 +20,22 @@
         "drupal/wysiwyg": "^2.6",
         "drush/drush": "^8.1",
         "library/ckeditor": "^4.9.2",
-        "vlucas/phpdotenv": "^2.4",
-        "webflo/drupal-finder": "^1.0",
-        "zaporylie/composer-drupal-optimizations": "^1.0"
+        "vlucas/phpdotenv": "^5.1",
+        "webflo/drupal-finder": "^1.2",
+        "zaporylie/composer-drupal-optimizations": "^1.2"
     },
     "require-dev": {
         "behat/behat": "^3.5",
         "behat/gherkin": "^4.6.1",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
         "drupal/coder": "^8.2.12",
         "drupal/console": "^1.0.2",
         "drupal/drupal-extension": "^3.4",
-        "integratedexperts/behat-format-progress-fail": "^0.2",
-        "integratedexperts/behat-screenshot": "^0.7",
-        "integratedexperts/behat-steps": "^0.1.0",
-        "jakub-onderka/php-parallel-lint": "^1.0",
+        "drevops/behat-format-progress-fail": "^1",
+        "drevops/behat-screenshot": "^1",
+        "drevops/behat-steps": "^1",
         "mikey179/vfsstream": "^1.6",
+        "php-parallel-lint/php-parallel-lint": "^1.2",
         "phpcompatibility/php-compatibility": "^9.0",
         "phpunit/phpunit": "^6.5",
         "symfony/filesystem": "^3.2.8",
@@ -52,7 +53,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.3"
+            "php": "7.4"
         },
         "process-timeout": 0,
         "sort-packages": true
@@ -130,9 +131,6 @@
             "docroot/.htaccess"
         ],
         "patches": {
-            "drupal/drupal": {
-                "Add a variable to disable fixing file permissions during system_requirements() runtime checks - https://www.drupal.org/project/drupal/issues/1232572": "https://www.drupal.org/files/issues/2019-02-20/1232572-n79.patch"
-            },
             "drupal/persistent_update": {
                 "Add an ability to bypass all persistent updates - https://www.drupal.org/node/2824493": "https://www.drupal.org/files/issues/bypass-all-persistent-updates-2824493-3.patch"
             }

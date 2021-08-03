@@ -125,7 +125,7 @@ commands:
     cmd: |
       [ -z "${DATABASE_IMAGE}" ] && docker-compose exec -e DB_DIR=${DB_DIR:-} -T cli ./scripts/drevops/drupal-export-db.sh "$@" || \
       ( DOCKER_IMAGE="${DATABASE_IMAGE}" ./scripts/drevops/drupal-export-db-image.sh "$@";
-        if [ -n "${EXPORT_DB_DEPLOY_DOCKER}" ]; then DOCKER_MAP=mariadb=${DATABASE_IMAGE} ./scripts/drevops/deploy-docker.sh; fi )
+        if [ -n "${EXPORT_DB_DEPLOY_DOCKER}" ]; then DOCKER_MAP=mariadb=${DATABASE_IMAGE} DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG} ./scripts/drevops/deploy-docker.sh; fi )
 
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
@@ -142,17 +142,21 @@ commands:
       ahoy confirm "All containers, build and uncomitted files will be removed, repository will be reset to the last commit. Proceed?" \
       && ahoy clean && ./scripts/drevops/reset.sh || echo "The operation was canceled."
 
+  fei:
+    usage: Install front-end assets.
+    cmd: ahoy cli "npm --prefix docroot/sites/all/themes/custom/${DRUPAL_THEME} install"
+
   fe:
     usage: Build front-end assets.
-    cmd: ahoy cli "cd docroot/sites/all/themes/custom/your_site_theme && npm run build"
+    cmd: ahoy cli "cd docroot/sites/all/themes/custom/${DRUPAL_THEME} && npm run build"
 
   fed:
     usage: Build front-end assets for development.
-    cmd: ahoy cli "cd docroot/sites/all/themes/custom/your_site_theme && npm run build-dev"
+    cmd: ahoy cli "cd docroot/sites/all/themes/custom/${DRUPAL_THEME} && npm run build-dev"
 
   few:
     usage: Watch front-end assets during development.
-    cmd: ahoy cli "cd docroot/sites/all/themes/custom/your_site_theme && npm run watch"
+    cmd: ahoy cli "cd docroot/sites/all/themes/custom/${DRUPAL_THEME} && npm run watch"
 
   lint:
     usage: Lint back-end and front-end code.
@@ -176,13 +180,13 @@ commands:
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "TEST_TYPE=bdd TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} BEHAT_PROFILE=${BEHAT_PROFILE:-} BEHAT_FORMAT=${BEHAT_FORMAT:-} BEHAT_PARALLEL_INDEX=${BEHAT_PARALLEL_INDEX:-} ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "TEST_TYPE=bdd TEST_ARTIFACT_DIR=${TEST_ARTIFACT_DIR} BEHAT_PROFILE=${BEHAT_PROFILE:-} BEHAT_FORMAT=${BEHAT_FORMAT:-} BEHAT_PARALLEL_INDEX=${BEHAT_PARALLEL_INDEX:-} BEHAT_SCREENSHOT_PURGE=${BEHAT_SCREENSHOT_PURGE-} ./scripts/drevops/test.sh $@"
 
   debug:
     usage: Enable debug configuration.
     #: Check if the debug configuration is already enabled and, if not -
     #: enable it and check again that it is enabled from inside of the container.
-    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=1 ahoy up cli php && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
+    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
 
   deploy:
     usage: Run remote deployment procedures
@@ -228,7 +232,7 @@ entrypoint:
   #:
   #: As a rule of thumb, use `ahoy up cli` to apply changes to variables.
   - |
-    t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
+    t=$(mktemp) && export -p > "$t" && set -a && . ./.env && if [ -f ./.env.local ];then . ./.env.local;fi && set +a && . "$t" && rm "$t" && unset t
     bash -e -c "$0" "$@"
   #: Replaced with your command.
   - '{{cmd}}'

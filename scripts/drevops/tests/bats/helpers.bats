@@ -433,7 +433,6 @@ load _helper
   assert_failure
 }
 
-
 @test "assert_files_equal" {
   cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/fixture1.png"
   echo "some other file" > "${BATS_TEST_TMPDIR}/fixture2.png"
@@ -463,6 +462,65 @@ load _helper
   assert_failure
 
   run assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture3.png"
+  assert_failure
+}
+
+@test "assert_dirs_equal" {
+  # Assert that files in the root are equal.
+  mkdir -p "${BATS_TEST_TMPDIR}/t11"
+  mkdir -p "${BATS_TEST_TMPDIR}/t12"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t11/fixture1.png"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t12/fixture1.png"
+  assert_dirs_equal "${BATS_TEST_TMPDIR}/t11" "${BATS_TEST_TMPDIR}/t12"
+
+  # Assert that files in the root are not equal.
+  echo "some other file" > "${BATS_TEST_TMPDIR}/t12/fixture1.png"
+  run assert_dirs_equal "${BATS_TEST_TMPDIR}/t11" "${BATS_TEST_TMPDIR}/t12"
+  assert_failure
+
+  # Assert that files in the subdirs are equal.
+  mkdir -p "${BATS_TEST_TMPDIR}/t31/subdir"
+  mkdir -p "${BATS_TEST_TMPDIR}/t32/subdir"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t31/subdir/fixture1.png"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t32/subdir/fixture1.png"
+  assert_dirs_equal "${BATS_TEST_TMPDIR}/t31" "${BATS_TEST_TMPDIR}/t32"
+
+  # Assert that files in the subdirs are not equal.
+  echo "some other file" > "${BATS_TEST_TMPDIR}/t32/subdir/fixture1.png"
+  run assert_dirs_equal "${BATS_TEST_TMPDIR}/t31" "${BATS_TEST_TMPDIR}/t32"
+  assert_failure
+
+  # Assert that files in the root and subdirs are equal.
+  mkdir -p "${BATS_TEST_TMPDIR}/t41/subdir"
+  mkdir -p "${BATS_TEST_TMPDIR}/t42/subdir"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t41/fixture1.png"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t41/.hidden"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t41/subdir/fixture1.png"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t42/fixture1.png"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t42/.hidden"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t42/subdir/fixture1.png"
+  assert_dirs_equal "${BATS_TEST_TMPDIR}/t41" "${BATS_TEST_TMPDIR}/t42"
+
+  # Assert that files in the root and subdirs are not equal.
+  echo "some other file" > "${BATS_TEST_TMPDIR}/t42/subdir/fixture1.png"
+  run assert_dirs_equal "${BATS_TEST_TMPDIR}/t41" "${BATS_TEST_TMPDIR}/t42"
+  assert_failure
+
+  # Assert that missing files trigger a failure.
+  mkdir -p "${BATS_TEST_TMPDIR}/t51/subdir"
+  mkdir -p "${BATS_TEST_TMPDIR}/t52/subdir"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t51/fixture1.png"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t51/.hidden"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t51/subdir/fixture1.png"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t51/subdir/fixture2.png"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t52/fixture1.png"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t52/.hidden"
+  cp "${BATS_TEST_DIRNAME}/fixture.png" "${BATS_TEST_TMPDIR}/t52/subdir/fixture1.png"
+  run assert_dirs_equal "${BATS_TEST_TMPDIR}/t51" "${BATS_TEST_TMPDIR}/t52"
+  assert_failure
+
+  # Assert non-existing dirs are failing.
+  run assert_dirs_equal "${BATS_TEST_TMPDIR}/t61" "${BATS_TEST_TMPDIR}/t62"
   assert_failure
 }
 

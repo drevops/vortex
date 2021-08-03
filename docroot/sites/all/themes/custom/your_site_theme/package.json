@@ -4,7 +4,7 @@
   "private": true,
   "description": "NPM dependencies for YOURSITE project",
   "devDependencies": {
-    "autoprefixer": "^9.7.1",
+    "autoprefixer": "~9.7.0",
     "eslint": "^6.6.0",
     "grunt": "^1.0.4",
     "grunt-contrib-clean": "^2.0.0",
@@ -19,6 +19,7 @@
     "grunt-sass-lint": "^0.2.4",
     "gruntify-eslint": "5.0.0",
     "node-sass": "^4.13.0",
+    "patch-package": "^6.2.2",
     "sass-lint": "^1.13.1"
   },
   "browserslist": [
@@ -30,6 +31,7 @@
     "build": "grunt",
     "build-dev": "grunt dev",
     "lint": "grunt lint",
-    "watch": "grunt watch"
+    "watch": "grunt watch",
+    "postinstall": "patch-package"
   }
 }

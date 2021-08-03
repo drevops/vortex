@@ -3,11 +3,11 @@
 # Helpers related to DrevOps deployment testing functionality.
 #
 
-assert_deployment_files_present(){
+assert_deployment_files_present() {
   local dir="${1:-$(pwd)}"
   local has_custom_profile="${2:-0}"
 
-  pushd "${dir}" > /dev/null || exit 1
+  pushd "${dir}" >/dev/null || exit 1
 
   assert_dir_not_exists .circleci
   assert_dir_not_exists .data
@@ -80,7 +80,7 @@ assert_deployment_files_present(){
 
   # Only minified compiled JS exists.
   assert_file_exists docroot/sites/all/themes/custom/star_wars/build/js/star_wars.min.js
-  assert_file_contains docroot/sites/all/themes/custom/star_wars/build/js/star_wars.min.js "!function(Drupal){\"use strict\";Drupal.behaviors.star_wars={attach:function(t){"
+  assert_file_contains docroot/sites/all/themes/custom/star_wars/build/js/star_wars.min.js "!function(Drupal){\"use strict\";Drupal.behaviors.star_wars"
   assert_file_not_exists docroot/sites/all/themes/custom/star_wars/build/js/star_wars.js
   assert_dir_not_exists docroot/sites/all/themes/custom/star_wars/js
 
@@ -91,24 +91,31 @@ assert_deployment_files_present(){
   popd > /dev/null || exit 1
 }
 
-provision_site(){
+provision_site() {
   local dir="${1:-$(pwd)}"
+  local should_build="${2:-1}"
+  shift || true
+  shift || true
+  local answers=("$@")
 
-  pushd "${dir}" > /dev/null || exit 1
+  pushd "${dir}" >/dev/null || exit 1
 
   assert_files_not_present_common
 
   step "Initialise the project with the default settings"
 
-  enable_demo_db
-
-  run_install_quiet
+  # shellcheck disable=SC2128
+  if [ -n "${answers}" ]; then
+    run_install_interactive "${answers[@]}"
+  else
+    run_install_quiet
+  fi
 
   assert_files_present_common
   assert_git_repo
 
   # Special treatment for cases where volumes are not mounted from the host.
-  if [ "${VOLUMES_MOUNTED}" != "1" ] ; then
+  if [ "${VOLUMES_MOUNTED}" != "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml
@@ -118,10 +125,12 @@ provision_site(){
   step "Add all files to new git repo"
   git_add_all_commit "Init DrevOps config" "${dir}"
 
-  step "Build project"
-  export SKIP_POST_DB_IMPORT=1
-  ahoy build
-  sync_to_host
+  if [ "${should_build}" == "1" ]; then
+    step "Build project"
+    export SKIP_POST_DB_IMPORT=1
+    ahoy build
+    sync_to_host
+  fi
 
-  popd > /dev/null || exit 1
+  popd >/dev/null || exit 1
 }

@@ -70,7 +70,7 @@ fi
 # container, but only if it exists, while also replacing relative directory path
 # with absolute path. Note, that the DB_DIR path is the same inside and outside
 # of the container.
-[ -f "${DB_DIR}"/"${DB_FILE}" ] && ahoy cli mkdir -p "${DB_DIR}" && docker cp -L "${DB_DIR}"/"${DB_FILE}" $(docker-compose ps -q cli):"${DB_DIR/.\//${APP}/}"/"${DB_FILE}" && echo "==> Copied database file into container"
+[ -f "${DB_DIR}"/"${DB_FILE}" ] && ahoy cli mkdir -p "${DB_DIR}" && docker cp -L "${DB_DIR}"/"${DB_FILE}" $(docker-compose ps -q cli):"${DB_DIR/.\//${APP}/}"/"${DB_FILE}" && echo "==> Copied database file into container."
 
 echo "==> Installing development dependencies."
 #
@@ -85,10 +85,13 @@ docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
 docker cp -L tests $(docker-compose ps -q cli):/app/
 # Install all composer dependencies, including development ones.
 # Note that this will create/update composer.lock file.
-ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
-# Install all npm dependencies and compile FE assets.
-# Note that this will create/update package-lock.json file.
-ahoy cli "npm --prefix docroot/sites/all/themes/custom/your_site_theme install --no-audit --quiet --no-progress" && ahoy fe
+ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install -n --ansi --prefer-dist --no-suggest"
+
+if [ -n "${DRUPAL_THEME}" ]; then
+  # Install all npm dependencies and compile FE assets.
+  # Note that this will create/update package-lock.json file.
+  ahoy cli "npm --prefix docroot/sites/all/themes/custom/${DRUPAL_THEME} install --no-audit --quiet --no-progress --unsafe-perm" && ahoy fe
+fi
 
 # Install site (from existing DB or fresh install).
 ahoy install-site

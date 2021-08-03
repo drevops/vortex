@@ -22,7 +22,7 @@ DEPLOY_PROCEED="${DEPLOY_PROCEED:-}"
 
 # ------------------------------------------------------------------------------
 
-[ -z "${DEPLOY_TYPE}" ] && echo "Missing required value for DEPLOY_TYPE. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook." && exit 1
+[ -z "${DEPLOY_TYPE}" ] && echo "Missing required value for DEPLOY_TYPE. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
 
 if [ -z "${DEPLOY_PROCEED}" ]; then
   echo "Skipping deployment ${DEPLOY_TYPE}." && exit 0
@@ -41,4 +41,9 @@ fi
 if [ -z "${DEPLOY_TYPE##*docker*}" ]; then
   echo "==> Starting 'docker' deployment."
   ./scripts/drevops/deploy-docker.sh
+fi
+
+if [ -z "${DEPLOY_TYPE##*lagoon*}" ]; then
+  echo "==> Starting 'lagoon' deployment."
+  ./scripts/drevops/deploy-lagoon.sh
 fi

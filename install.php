@@ -234,6 +234,11 @@ function copy_files() {
   if (is_dir($src) && !dir_is_empty($src)) {
     copy_recursive($src, $dst);
   }
+
+  // Special case for .env.local as it may exist.
+  if (!file_exists($dst . '/.env.local')) {
+    copy_recursive($dst . '/default.env.local', $dst . '/.env.local');
+  }
 }
 
 function copy_recursive($source, $dest, $permissions = 0755, $copy_empty_dirs = FALSE) {
@@ -357,11 +362,13 @@ function process__database_image($dir) {
 }
 
 function process__deploy_type($dir) {
-  if (get_answer('deploy_type') != 'none') {
+  $type = get_answer('deploy_type');
+  if ($type != 'none') {
+    file_replace_content('/DEPLOY_TYPE=.*/', "DEPLOY_TYPE=$type", $dir . '/.env');
     remove_token_with_content('!DEPLOYMENT', $dir);
   }
   else {
-    if (strpos(get_answer('deploy_type'), 'code') === FALSE) {
+    if (strpos($type, 'code') === FALSE) {
       @unlink("$dir/.gitignore.deployment");
     }
     @unlink("$dir/DEPLOYMENT.md");
@@ -498,9 +505,9 @@ function process__preserve_drevops_info($dir) {
 
 function process__drevops_internal($dir) {
   // Remove DrevOps internal files.
-  rmdir_recursive("$dir/docs");
-  rmdir_recursive("$dir/tests/bats");
-  rmdir_recursive("$dir/tests/unit/drevops");
+  rmdir_recursive("$dir/scripts/drevops/docs");
+  rmdir_recursive("$dir/scripts/drevops/tests");
+  rmdir_recursive("$dir/scripts/drevops/utils");
 
   // Remove other unhandled tokenized comments.
   remove_token_line('#;<', $dir);
@@ -646,7 +653,7 @@ function gather_answers() {
   // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
   // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
 
-  ask_for_answer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook notification, [c]ode artifact, [d]ocker image, [n]one as a comma-separated list)?');
+  ask_for_answer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook notification, [c]ode artifact, [d]ocker image, [l]agoon, [n]one as a comma-separated list)?');
 
   if (get_answer('database_download_source') != 'ftp') {
     ask_for_answer('preserve_ftp', 'Do you want to keep FTP integration?');
@@ -1051,7 +1058,7 @@ function discover_value__profile() {
 
   if ($name) {
     $name = basename($name);
-    $name = str_replace(['.info', '.info.yml'], '', $name);
+    $name = str_replace(['.info.yml', '.info'], '', $name);
   }
 
   return $name;
@@ -1077,7 +1084,7 @@ function discover_value__theme() {
 
   if ($name) {
     $name = basename($name);
-    $name = str_replace(['.info', '.info.yml'], '', $name);
+    $name = str_replace(['.info.yml', '.info'], '', $name);
   }
 
   return $name;
@@ -1368,6 +1375,11 @@ function normalise_answer__deploy_type($value) {
         $normalised[] = 'docker';
         break;
 
+      case 'l':
+      case 'lagoon':
+        $normalised[] = 'lagoon';
+        break;
+
       case 'n':
       case 'none':
         $normalised[] = 'none';
@@ -1420,9 +1432,9 @@ function print_help() {
 DrevOps Installer
 ------------------
 Arguments
-  destination          Destination directory. Optional. Defaults to the current 
+  destination          Destination directory. Optional. Defaults to the current
                        directory.
-                        
+
 Options
   --help               This help.
   --quiet              Quiet installation.
@@ -1706,7 +1718,7 @@ function is_regex($str) {
 }
 
 function file_replace_content($needle, $replacement, $filename) {
-  if (!is_readable($filename)) {
+  if (!is_readable($filename) || file_is_excluded_from_processing($filename)) {
     return FALSE;
   }
 
@@ -1747,6 +1759,10 @@ function remove_token_line($token, $dir) {
 }
 
 function remove_token_from_file($filename, $token_begin, $token_end = NULL, $with_content = FALSE) {
+  if (file_is_excluded_from_processing($filename)) {
+    return;
+  }
+
   $token_end = $token_end ?? $token_begin;
 
   $content = file_get_contents($filename);
@@ -1853,15 +1869,27 @@ function internal_paths() {
     '/install.sh',
     '/install.php',
     '/LICENSE',
-    '/.circleci/drevops-test.sh',
-    '/.circleci/drevops-test-deployment.sh',
+    '/scripts/drevops/docs',
     '/scripts/drevops/tests',
+    '/scripts/drevops/utils',
   ];
 }
 
 function is_internal_path($relative_path) {
   $relative_path = '/' . ltrim($relative_path, './');
   return in_array($relative_path, internal_paths());
+}
+
+function file_is_excluded_from_processing($filename) {
+  $excluded_patterns = [
+    '.+\.png',
+    '.+\.jpg',
+    '.+\.jpeg',
+    '.+\.bpm',
+    '.+\.tiff',
+  ];
+
+  return preg_match('/^(' . implode('|', $excluded_patterns) . ')$/', $filename);
 }
 
 // ////////////////////////////////////////////////////////////////////////// //

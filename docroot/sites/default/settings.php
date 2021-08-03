@@ -44,9 +44,13 @@ ini_set('date.timezone', 'Australia/Melbourne');
 date_default_timezone_set('Australia/Melbourne');
 
 // Salt for one-time login links, cancel links, form tokens, etc.
+// phpcs:disable DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable
 $drupal_hash_salt = 'CHANGE_ME';
+// phpcs:enable DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable
 
+// phpcs:disable DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable
 $update_free_access = FALSE;
+// phpcs:enable DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 ini_set('session.gc_probability', 1);
 ini_set('session.gc_divisor', 100);
@@ -99,6 +103,31 @@ if (file_exists('/var/www/site-php')) {
   }
 }
 // #;> ACQUIA
+
+// #;< LAGOON
+// Initialise environment type in Lagoon environment.
+if (getenv('LAGOON')) {
+  if (getenv('LAGOON_ENVIRONMENT_TYPE') == 'production') {
+    $conf['environment'] = ENVIRONMENT_PROD;
+  }
+  // Use a dedicated branch to identify production environment.
+  // This is useful when 'production' Lagoon environment is not provisioned yet.
+  elseif (getenv('LAGOON_GIT_BRANCH') !== FALSE && getenv('LAGOON_GIT_BRANCH') == getenv('LAGOON_PRODUCTION_BRANCH')) {
+    $conf['environment'] = ENVIRONMENT_PROD;
+  }
+  elseif (getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
+    $conf['environment'] = ENVIRONMENT_DEV;
+  }
+
+  // Lagoon version.
+  if (!defined('LAGOON_VERSION')) {
+    define('LAGOON_VERSION', '1');
+  }
+
+  // Lagoon reverse proxy settings.
+  $conf['reverse_proxy'] = TRUE;
+}
+// #;> LAGOON
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-ENVIRONMENT SETTINGS                           ///

@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
-<ruleset name="your_site">
-    <description>PHPCS Standard for YOURSITE website, based on Drupal standards.</description>
+<ruleset name="custom">
+    <description>Custom PHPCS Standard, based on Drupal standards.</description>
 
     <rule ref="Drupal"/>
     <rule ref="DrupalPractice"/>
     <rule ref="Generic.Debug.ESLint"/>
     <rule ref="PHPCompatibility"/>
 
-    <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
+    <arg name="extensions" value="inc,info,install,module,php,profile,test,theme,js,css"/>
     <arg name="colors"/>
     <arg value="sp"/>
     <arg name="parallel" value="75"/>
     <!--Lint code against platform version specified in composer.json
     key "config.platform.php".-->
-    <config name="testVersion" value="7.3"/>
+    <config name="testVersion" value="7.4"/>
 
     <!-- Exclude theme assets. -->
     <exclude-pattern>docroot\/sites\/all\/themes\/custom\/.*\/build\/.*</exclude-pattern>
@@ -132,6 +132,26 @@
     <!-- Allow inline block comments until https://www.drupal.org/project/drupal/issues/2305593 is resolved. -->
     <rule ref="Drupal.Commenting.InlineComment.DocBlock">
         <exclude-pattern>.*</exclude-pattern>
+    </rule>
+
+    <!--Force no empty lines after function opening brace.-->
+    <rule ref="Squiz.WhiteSpace.FunctionOpeningBraceSpace">
+      <type>warning</type>
+    </rule>
+
+    <!--Force no empty lines before function closing brace.-->
+    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen">
+      <type>warning</type>
+    </rule>
+
+    <!--Force no empty lines before control structure closing.-->
+    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose">
+      <type>warning</type>
+    </rule>
+
+    <!--Force no empty lines after control structure closing.-->
+    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.LineAfterClose">
+      <type>warning</type>
     </rule>
 
 </ruleset>

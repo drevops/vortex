@@ -19,6 +19,8 @@ if (!defined('DRUPAL_ROOT')) {
 /**
  * Class YourSiteCoreTestCase.
  *
+ * Site core example test.
+ *
  * @package Drupal\your_site_core\Tests
  */
 abstract class YourSiteCoreTestCase extends TestCase {

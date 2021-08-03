@@ -21,7 +21,7 @@ ahoy login
 ```
 
 ## How to connect to the database?
-1. Run `ahoy info` and grab the DB host port number. 
+1. Run `ahoy info` and grab the DB host port number.
 2. Use these connection details:
   - Host: `127.0.0.1`
   - Username: `drupal`
@@ -39,13 +39,21 @@ ahoy login
 1. Run `ahoy debug`
 2. Enable listening for incoming debug connections in your IDE.
 3. If required, provide server URL to your IDE as it appears in the browser.
-4. Enable Xdebug flag in the request coming from your web browser (use one of 
+4. Enable Xdebug flag in the request coming from your web browser (use one of
    the extensions or add `?XDEBUG_SESSION_START=1` to your URL).
 5. Set a breakpoint in your IDE and perform a request in the web browser.
 
-Use the same commands to debug CLI scripts.  
+Use the same commands to debug CLI scripts.
 
 Use `ahoy up` to restart the stack without Xdebug enabled.
+
+## How to use Xdebug on Behat scripts?
+1. Enable debugging: `ahoy debug`
+2. Enter CLI container: `ahoy cli`
+3. Run Behat tests:
+   ```
+   vendor/bin/behat path/to/test.feature
+   ```
 
 ## What should I do to switch to a "clean" branch environment?
 Provided that your stack is already running:
@@ -55,7 +63,7 @@ Provided that your stack is already running:
 
 Note that you do not need to rebuild the full stack using `ahoy build` every time.
 However, sometimes you would want to have an absolutely clean environment - in that
-case, use `ahoy build`.  
+case, use `ahoy build`.
 
 ## How to just import the database?
 Provided that your stack is already running:

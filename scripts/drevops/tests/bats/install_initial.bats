@@ -198,8 +198,6 @@ load _helper_drevops
 
 @test "Install into empty directory; db from curl, storage is database import" {
   export DATABASE_DOWNLOAD_SOURCE=curl
-  # Point demo database to the test database.
-  enable_demo_db
 
   run_install_quiet
 
@@ -210,8 +208,6 @@ load _helper_drevops
 
 @test "Install into empty directory; db from curl; storage is Docker image" {
   export DATABASE_DOWNLOAD_SOURCE=curl
-  # Point demo database to the test database.
-  enable_demo_db
 
   export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x
 
@@ -231,4 +227,22 @@ load _helper_drevops
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
   assert_file_not_contains ".env" "CURL_DB_URL="
   assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
+}
+
+@test "Install into empty directory; DrevOps scripts are not modified" {
+  run_install_quiet "${DST_PROJECT_DIR}"
+
+  assert_files_present "dst" "Dst" "${DST_PROJECT_DIR}"
+  assert_git_repo "${DST_PROJECT_DIR}"
+
+  assert_dirs_equal "${LOCAL_REPO_DIR}/scripts" "${DST_PROJECT_DIR}/scripts"
+}
+
+@test "Install into empty directory; Images are not modified" {
+  run_install_quiet "${DST_PROJECT_DIR}"
+
+  assert_files_present "dst" "Dst" "${DST_PROJECT_DIR}"
+  assert_git_repo "${DST_PROJECT_DIR}"
+
+  assert_files_equal "${LOCAL_REPO_DIR}/tests/behat/fixtures/image.jpg" "${DST_PROJECT_DIR}/tests/behat/fixtures/image.jpg"
 }
