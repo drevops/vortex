@@ -72,7 +72,7 @@ x-environment:
   #: Do not change the value here. Instead, use
   #: ahoy debug
   #: or
-  #: XDEBUG_ENABLE=1 docker-compose up -d
+  #: XDEBUG_ENABLE=true docker-compose up -d
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   #:
   #: Pass-through $CI variable used to identify the CI environment.
