@@ -142,6 +142,10 @@ commands:
       ahoy confirm "All containers, build and uncomitted files will be removed, repository will be reset to the last commit. Proceed?" \
       && ahoy clean && ./scripts/drevops/reset.sh || echo "The operation was canceled."
 
+  fei:
+    usage: Install front-end assets.
+    cmd: ahoy cli "npm --prefix docroot/sites/all/themes/custom/${DRUPAL_THEME} install"
+
   fe:
     usage: Build front-end assets.
     cmd: ahoy cli "cd docroot/themes/custom/${DRUPAL_THEME} && npm run build"

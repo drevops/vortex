@@ -317,6 +317,7 @@ Run each command as `ahoy <command>`.
   download-db  Download database.
   drush        Run drush commands in the CLI service container.
   export-db    Export database dump or database image (DATABASE_IMAGE variable must be set).
+  fei          Install front-end assets.
   fe           Build front-end assets.
   fed          Build front-end assets for development.
   few          Watch front-end assets during development.

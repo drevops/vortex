@@ -673,7 +673,7 @@ assert_page_not_contains() {
   assert_file_not_contains "${t}" "${content}"
 }
 
-assert_reload_db() {
+assert_reload_db_image() {
   step "Reload DB image"
 
   # Assert that used DB image has content.
