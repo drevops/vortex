@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-
-load "${BASH_SOURCE[0]%/*}"/_mock.bash
-
 #
 # Helpers related to DrevOps common testing functionality.
 #
 # shellcheck disable=SC2155
+
+load "${BASH_SOURCE[0]%/*}"/_mock.bash
 
 ################################################################################
 #                          HOOK IMPLEMENTATIONS                                #

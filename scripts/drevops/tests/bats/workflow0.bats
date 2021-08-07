@@ -113,15 +113,18 @@ load _helper_drevops_workflow
   assert_ahoy_info
   assert_ahoy_login
 
+  # Assert that after default installation the page does not contain text.
+  assert_page_contains "/" "Welcome"
+
   substep "Change site content"
   ahoy drush config-set system.site page.front /user -y
-  assert_page_contains "/" "Username"
+  assert_page_not_contains "/" "Welcome"
 
   substep "Re-install site"
   ahoy install-site >&3
 
   substep "Assert content was not removed after re-install"
-  assert_page_contains "/" "Username"
+  assert_page_not_contains "/" "Welcome"
 
   substep "Add FORCE_FRESH_INSTALL variable and re-install site"
   # Add variable to the .env file and apply the change to container.
@@ -133,7 +136,7 @@ load _helper_drevops_workflow
   ahoy install-site
 
   substep "Assert site was fully re-installed"
-  assert_page_not_contains "/" "Username"
+  assert_page_contains "/" "Welcome"
 }
 
 @test "Idempotence" {
