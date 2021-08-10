@@ -22,6 +22,7 @@ docroot/sites/all/themes/custom/your_site_theme/node_modules
 docroot/sites/default/default.settings.php
 docroot/sites/default/settings.generated.php
 docroot/sites/default/default.settings.local.php
+docroot/sites/default/files
 
 !/hooks/
 !/scripts/
