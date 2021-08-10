@@ -430,6 +430,20 @@ assert_ahoy_test_bdd(){
   restore_file .env && ahoy up cli && sync_to_container
 }
 
+assert_ahoy_fei() {
+  step "FE dependencies install"
+
+  substep "Remove existing Node modules"
+  rm -Rf "docroot/sites/all/themes/custom/star_wars/node_modules"
+  assert_dir_not_exists "docroot/sites/all/themes/custom/star_wars/node_modules"
+  sync_to_container
+
+  substep "Install Node modules"
+  ahoy fei
+  sync_to_host
+  assert_dir_exists "docroot/sites/all/themes/custom/star_wars/node_modules"
+}
+
 assert_ahoy_fe() {
   step "FE assets"
 
