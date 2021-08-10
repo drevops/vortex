@@ -16,7 +16,6 @@ if [ "${DOCTOR_CHECK_MINIMAL}" == "1" ]; then
   DOCTOR_CHECK_BOOTSTRAP=0
 fi
 
-
 # Shortcut to set variables, but still allow to override.
 DOCTOR_CHECK_PREFLIGHT="${DOCTOR_CHECK_PREFLIGHT:-0}"
 if [ "${DOCTOR_CHECK_PREFLIGHT}" == "1" ]; then
@@ -133,7 +132,7 @@ main() {
 
     # Check that ssh key is available in the container.
     if ! docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L | grep -q 'ssh-rsa'" ; then
-      error "SSH key was not added into container. Run 'ahoy up -- --build'."
+      error "SSH key was not added into container. Run 'pygmy stop && pygmy start'."
       exit 1
     fi
 
