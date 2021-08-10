@@ -109,6 +109,9 @@ aliases:
       #; has all necessary tools to run dockerized environment.
       #; @see https://github.com/drevops/ci-builder
       - image: drevops/ci-builder
+        auth:
+          username: $DOCKER_REGISTRY_USERNAME
+          password: $DOCKER_REGISTRY_TOKEN
         environment:
           # Set timezone to ensure that executed operations use correct timestamps.
           TZ: *timezone
