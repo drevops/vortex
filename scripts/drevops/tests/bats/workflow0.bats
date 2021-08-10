@@ -38,6 +38,8 @@ load _helper_drevops_workflow
 
   assert_ahoy_test_bdd
 
+  assert_ahoy_fei
+
   assert_ahoy_fe
 
   assert_export_on_install_site
