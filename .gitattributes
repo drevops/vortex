@@ -67,3 +67,4 @@
 /scripts/drevops/docs                   export-ignore
 /scripts/drevops/tests                  export-ignore
 /scripts/drevops/utils                  export-ignore
+/.github/FUNDING.yml                    export-ignore
