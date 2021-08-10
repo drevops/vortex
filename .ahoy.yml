@@ -144,7 +144,7 @@ commands:
 
   fei:
     usage: Install front-end assets.
-    cmd: ahoy cli "npm --prefix docroot/sites/all/themes/custom/${DRUPAL_THEME} install"
+    cmd: ahoy cli "npm --prefix docroot/themes/custom/${DRUPAL_THEME} install"
 
   fe:
     usage: Build front-end assets.
