@@ -495,14 +495,14 @@ assert_ahoy_fei() {
   step "FE dependencies install"
 
   substep "Remove existing Node modules"
-  rm -Rf "docroot/sites/all/themes/custom/star_wars/node_modules"
-  assert_dir_not_exists "docroot/sites/all/themes/custom/star_wars/node_modules"
+  rm -Rf "docroot/themes/custom/star_wars/node_modules"
+  assert_dir_not_exists "docroot/themes/custom/star_wars/node_modules"
   sync_to_container
 
   substep "Install Node modules"
   ahoy fei
   sync_to_host
-  assert_dir_exists "docroot/sites/all/themes/custom/star_wars/node_modules"
+  assert_dir_exists "docroot/themes/custom/star_wars/node_modules"
 }
 
 assert_ahoy_fe() {
