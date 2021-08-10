@@ -6,9 +6,9 @@
  */
 
 use Drupal\DrupalExtension\Context\DrupalContext;
-use DrevOps\BehatSteps\D8\ContentTrait;
-use DrevOps\BehatSteps\D8\TaxonomyTrait;
-use DrevOps\BehatSteps\D8\WatchdogTrait;
+use DrevOps\BehatSteps\ContentTrait;
+use DrevOps\BehatSteps\TaxonomyTrait;
+use DrevOps\BehatSteps\WatchdogTrait;
 use DrevOps\BehatSteps\FieldTrait;
 use DrevOps\BehatSteps\PathTrait;
 
