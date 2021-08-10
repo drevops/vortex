@@ -156,7 +156,9 @@ commands:
 
   few:
     usage: Watch front-end assets during development.
-    cmd: ahoy cli "cd docroot/themes/custom/${DRUPAL_THEME} && npm run watch"
+    cmd: |
+      ahoy cli "pkill -9 -f grunt" || true
+      ahoy cli "cd docroot/themes/custom/${DRUPAL_THEME} && npm run watch"
 
   lint:
     usage: Lint back-end and front-end code.
