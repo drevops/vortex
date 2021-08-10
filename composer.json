@@ -39,7 +39,8 @@
         "phpcompatibility/php-compatibility": "^9.0",
         "phpunit/phpunit": "^6.5",
         "symfony/filesystem": "^3.2.8",
-        "symfony/phpunit-bridge": "^3.4.3"
+        "symfony/phpunit-bridge": "^3.4.3",
+        "pyrech/composer-changelogs": "^1.7"
     },
     "autoload": {
         "classmap": [
