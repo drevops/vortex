@@ -271,6 +271,7 @@ assert_files_present_common() {
   assert_dir_not_exists "scripts/drevops/docs"
   assert_dir_not_exists "scripts/drevops/tests"
   assert_dir_not_exists "scripts/drevops/utils"
+  assert_file_not_exists ".github/FUNDING.yml"
   assert_file_not_contains ".circleci/config.yml" "drevops_test"
   assert_file_not_contains ".circleci/config.yml" "drevops_test_deployment"
   assert_file_not_contains ".circleci/config.yml" "drevops_deploy"
