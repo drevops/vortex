@@ -30,7 +30,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
         "drupal/coder": "^8.2.12",
         "drupal/console": "^1.0.2",
-        "drupal/drupal-extension": "^3.4",
+        "drupal/drupal-extension": "^4",
         "drevops/behat-format-progress-fail": "^1",
         "drevops/behat-screenshot": "^1",
         "drevops/behat-steps": "^1",
