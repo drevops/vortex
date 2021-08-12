@@ -393,6 +393,7 @@ function process__preserve_lagoon($dir) {
   else {
     @unlink("$dir/drush/aliases.drushrc.php");
     @unlink("$dir/.lagoon.yml");
+    @unlink("$dir/.github/workflows/dispatch-webhook-lagoon.yml");
     remove_token_with_content('LAGOON', $dir);
   }
 }
@@ -508,7 +509,7 @@ function process__drevops_internal($dir) {
   rmdir_recursive("$dir/scripts/drevops/docs");
   rmdir_recursive("$dir/scripts/drevops/tests");
   rmdir_recursive("$dir/scripts/drevops/utils");
-  unlink("$dir/.github/FUNDING.yml");
+  @unlink("$dir/.github/FUNDING.yml");
 
   // Remove other unhandled tokenized comments.
   remove_token_line('#;<', $dir);
