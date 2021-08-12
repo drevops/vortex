@@ -41,10 +41,14 @@ tasks:
           # Do not load SSH file to access master environment to download the
           # DB as Lagoon already has the keys loaded into the SSH agent.
           export LAGOON_SSH_KEY_FILE=false
-          # Remove previously saved dumps in this environment.
-          rm -Rf $DB_DIR
-          # Download the database dump.
-          ./scripts/drevops/download-db.sh
+          if [ "$LAGOON_ENVIRONMENT_TYPE" == "production" ] || [ "$LAGOON_GIT_BRANCH" == "$LAGOON_PRODUCTION_BRANCH" ]; then
+            echo "==> Skipping DB download in the production environment."
+          else
+            # Remove previously saved dumps in this environment.
+            rm -Rf $DB_DIR
+            # Download the database dump.
+            ./scripts/drevops/download-db.sh
+          fi
         service: cli
 
     - run:
@@ -76,12 +80,12 @@ tasks:
     - run:
         name: Send notification
         command: |
-          [ -n "${SKIP_NOTIFY_DEPLOYMENT}" ] && echo "Skipping sending of deployment notification." && exit 0
+          [[ -n "$LAGOON_PR_NUMBER" ]] && GIT_REF=$LAGOON_PR_NUMBER || GIT_REF=$LAGOON_GIT_BRANCH
           php ./scripts/drevops/notify-deployment.php \
             "YOURSITE" \
             "lagoon-deploy@your-site-url" \
             "your.name@your-site-url|Your Name" \
-            "$LAGOON_GIT_BRANCH" \
+            "$GIT_REF" \
             "$LAGOON_ROUTES"
         service: cli
 
