@@ -465,6 +465,7 @@ assert_files_present_integration_lagoon() {
 
   assert_file_exists ".lagoon.yml"
   assert_file_exists "drush/aliases.drushrc.php"
+  assert_file_exists ".github/workflows/dispatch-webhook-lagoon.yml"
   assert_file_contains "docker-compose.yml" "labels"
   assert_file_contains "docker-compose.yml" "lagoon.type: cli-persistent"
   assert_file_contains "docker-compose.yml" "lagoon.persistent.name: nginx"
@@ -486,6 +487,7 @@ assert_files_present_no_integration_lagoon() {
 
   assert_file_not_exists ".lagoon.yml"
   assert_file_not_exists "drush/aliases.drushrc.php"
+  assert_file_not_exists ".github/workflows/dispatch-webhook-lagoon.yml"
   assert_file_not_contains "docker-compose.yml" "labels"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: cli-persistent"
   assert_file_not_contains "docker-compose.yml" "lagoon.persistent.name: nginx"

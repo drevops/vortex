@@ -13,6 +13,15 @@ LAGOON_PROJECT="${LAGOON_PROJECT:-}"
 # The Lagoon branch to deploy.
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-}"
 
+# The PR number to deploy.
+DEPLOY_PR="${DEPLOY_PR:-}"
+
+# The PR head branch to deploy.
+DEPLOY_PR_HEAD="${DEPLOY_PR_HEAD:-}"
+
+# The PR base branch (the branch the PR is raised against). Defaults to 'develop'.
+DEPLOY_PR_BASE_BRANCH="${DEPLOY_PR_BASE_BRANCH:-develop}"
+
 # The Lagoon instance to interact with.
 LAGOON_INSTANCE="${LAGOON_INSTANCE:-amazeeio}"
 
@@ -73,6 +82,14 @@ if ! command -v lagoon >/dev/null || [ -n "${FORCE_INSTALL_LAGOON_CLI}" ]; then
   export PATH="${PATH}:${LAGOON_BIN_PATH}"
 fi
 
-lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" deploy branch -p "${LAGOON_PROJECT}" -b "${DEPLOY_BRANCH}"
+if [ -n "${DEPLOY_PR}" ]; then
+  # If PR deployments are not configured in Lagoon - it will filter it out and will not deploy.
+  echo "  > Deploying environment: project ${LAGOON_PROJECT}, PR: ${DEPLOY_PR}."
+  lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" deploy pullrequest -p "${LAGOON_PROJECT}" -n "${DEPLOY_PR}" --baseBranchName "${DEPLOY_PR_BASE_BRANCH}" -R "origin/${DEPLOY_PR_BASE_BRANCH}" -H "${DEPLOY_BRANCH}" -M "${DEPLOY_PR_HEAD}" -t "PR ${DEPLOY_PR}"
+else
+  # If current branch deployments does not match a regex in Lagoon - it will filter it out and will not deploy.
+  echo "  > Deploying environment: project ${LAGOON_PROJECT}, branch: ${DEPLOY_BRANCH}."
+  lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" deploy branch -p "${LAGOON_PROJECT}" -b "${DEPLOY_BRANCH}"
+fi
 
 echo "==> Finished LAGOON deployment."
