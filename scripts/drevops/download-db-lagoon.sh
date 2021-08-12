@@ -12,7 +12,7 @@
 #
 # It does require to use SSH key added to one of the users in Lagoon who has
 # SSH access.
-# shellcheck disable=SC2029,SC1091
+# shellcheck disable=SC2029,SC1091,SC2124,SC2140
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -101,15 +101,13 @@ ssh \
   "${LAGOON_SSH_USER}@${LAGOON_SSH_HOST}" service=cli container=cli \
   "if [ ! -f \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\" ]; then \
      [ -n \"${LAGOON_REMOTE_DB_FILE_CLEANUP}\" ] && rm -f \"${LAGOON_REMOTE_DB_DIR}\"\/${LAGOON_REMOTE_DB_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
-     echo \"Creating a backup ${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}.\"; \
-     /app/vendor/bin/drush --root=/app/docroot sql-dump > \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\"; \
+     echo \"   > Creating a backup ${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}.\"; \
+     /app/vendor/bin/drush --root=/app/docroot sql-dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,cache* --extra-dump=--no-tablespaces > \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\"; \
    else \
-     echo \"Using existing dump ${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}.\"; \
+     echo \"   > Using existing dump ${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}.\"; \
    fi"
 
 echo "==> Downloading a backup."
-ssh \
-  "${ssh_opts[@]}" \
-  "${LAGOON_SSH_USER}@${LAGOON_SSH_HOST}" service=cli container=cli \
-  "cd ${LAGOON_REMOTE_DB_DIR} && tar cf - ${LAGOON_REMOTE_DB_FILE}" \
-  | tar xO "${LAGOON_REMOTE_DB_FILE}" >"${DB_DIR}/${DB_FILE}"
+ssh_opts_string="${ssh_opts[@]}"
+rsync_opts=(-e "ssh $ssh_opts_string")
+rsync "${rsync_opts[@]}" "${LAGOON_SSH_USER}@${LAGOON_SSH_HOST}":"${LAGOON_REMOTE_DB_DIR}"/"${LAGOON_REMOTE_DB_FILE}" "${DB_DIR}/${DB_FILE}"
