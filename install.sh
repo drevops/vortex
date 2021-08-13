@@ -11,8 +11,8 @@
 
 set -e
 
-DRUPAL_VERSION="${DRUPAL_VERSION:-8}"
 DREVOPS_INSTALL_URL="${DREVOPS_INSTALL_URL:-https://raw.githubusercontent.com/drevops/drevops/${DRUPAL_VERSION:-8}.x/install.php}"
+DRUPAL_VERSION="${DRUPAL_VERSION:-9}"
 
 echo "This install script has been deprecated and replaced with a new install script."
 echo

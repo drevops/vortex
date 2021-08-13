@@ -1,6 +1,6 @@
 {
     "name": "your_org/your_site",
-    "description": "Drupal 8 implementation of YOURSITE for YOURORG",
+    "description": "Drupal 9 implementation of YOURSITE for YOURORG",
     "license": "proprietary",
     "require": {
         "php": ">=7.4",
@@ -12,8 +12,9 @@
         "drupal/config_split": "^1.7",
         "drupal/config_update": "^1.7",
         "drupal/console": "^1.9",
-        "drupal/core-composer-scaffold": "^8",
-        "drupal/core-recommended": "^8",
+        "drupal/core-composer-scaffold": "^9.2",
+        "drupal/core-project-message": "^9.2",
+        "drupal/core-recommended": "^9.2",
         "drupal/environment_indicator": "^4.0",
         "drupal/pathauto": "^1.8",
         "drupal/permissions_filter": "^1.1",
@@ -28,7 +29,7 @@
         "zaporylie/composer-drupal-optimizations": "^1.2"
     },
     "require-dev": {
-        "drupal/core-dev": "^8.9",
+        "drupal/core-dev": "^9.2",
         "behat/behat": "^3.7",
         "drevops/behat-steps": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -37,6 +38,7 @@
         "drevops/behat-screenshot": "^1",
         "php-parallel-lint/php-parallel-lint": "^1.2",
         "phpcompatibility/php-compatibility": "^9.0",
+        "phpspec/prophecy-phpunit": "^2",
         "pyrech/composer-changelogs": "^1.7"
     },
     "autoload": {
@@ -46,7 +48,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.4"
+            "php": "8.0"
         },
         "process-timeout": 0,
         "sort-packages": true

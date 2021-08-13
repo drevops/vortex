@@ -12,4 +12,9 @@ abstract class YourSiteCoreFunctionalTestBase extends BrowserTestBase {
 
   use YourSiteCoreTestHelperTrait;
 
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stable';
+
 }
