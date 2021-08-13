@@ -187,13 +187,13 @@ load _helper_drevops
 }
 
 @test "Install into empty directory; DrevOps badge version set" {
-  export DREVOPS_VERSION="8.x-1.2.3"
+  export DREVOPS_VERSION="9.x-1.2.3"
 
   run_install_quiet
 
   # Assert that DrevOps version was replaced.
-  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/8.x-1.2.3"
-  assert_file_contains "README.md" "badge/DrevOps-8.x--1.2.3-blue.svg"
+  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/9.x-1.2.3"
+  assert_file_contains "README.md" "badge/DrevOps-9.x--1.2.3-blue.svg"
 }
 
 @test "Install into empty directory; db from curl, storage is database import" {
@@ -209,24 +209,24 @@ load _helper_drevops
 @test "Install into empty directory; db from curl; storage is Docker image" {
   export DATABASE_DOWNLOAD_SOURCE=curl
 
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x
 
   run_install_quiet
 
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=curl"
   assert_file_contains ".env" "CURL_DB_URL="
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
 }
 
 @test "Install into empty directory; db from Docker image; storage is Docker image" {
   export DATABASE_DOWNLOAD_SOURCE=docker_registry
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x
 
   run_install_quiet
 
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
   assert_file_not_contains ".env" "CURL_DB_URL="
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
 }
 
 @test "Install into empty directory; DrevOps scripts are not modified" {

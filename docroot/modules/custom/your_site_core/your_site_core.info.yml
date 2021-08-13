@@ -2,5 +2,4 @@ name: YOURSITE Core
 type: module
 description: Core feature for site settings.
 core_version_requirement: ^9
-version: 9.x-1.0.0
 package: your_site

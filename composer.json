@@ -12,9 +12,9 @@
         "drupal/config_split": "^1.7",
         "drupal/config_update": "^1.7",
         "drupal/console": "^1.9",
-        "drupal/core-composer-scaffold": "^9.2",
-        "drupal/core-project-message": "^9.2",
-        "drupal/core-recommended": "^9.2",
+        "drupal/core-composer-scaffold": "^9",
+        "drupal/core-project-message": "^9",
+        "drupal/core-recommended": "^9",
         "drupal/environment_indicator": "^4.0",
         "drupal/pathauto": "^1.8",
         "drupal/permissions_filter": "^1.1",
@@ -29,13 +29,13 @@
         "zaporylie/composer-drupal-optimizations": "^1.2"
     },
     "require-dev": {
-        "drupal/core-dev": "^9.2",
         "behat/behat": "^3.7",
-        "drevops/behat-steps": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-        "drupal/drupal-extension": "^4",
         "drevops/behat-format-progress-fail": "^1",
         "drevops/behat-screenshot": "^1",
+        "drevops/behat-steps": "^1",
+        "drupal/core-dev": "^9",
+        "drupal/drupal-extension": "^4",
         "php-parallel-lint/php-parallel-lint": "^1.2",
         "phpcompatibility/php-compatibility": "^9.0",
         "phpspec/prophecy-phpunit": "^2",
@@ -48,7 +48,7 @@
     },
     "config": {
         "platform": {
-            "php": "8.0"
+            "php": "7.4"
         },
         "process-timeout": 0,
         "sort-packages": true

@@ -4,7 +4,7 @@
 #
 # Due to test speed efficiency, all assertions ran withing a single test.
 #
-# Throughout these tests, a "drevops/drevops-mariadb-drupal-data-test-8.x"
+# Throughout these tests, a "drevops/drevops-mariadb-drupal-data-test-9.x"
 # test image is used: it is seeded with content from the pre-built fixture
 # "Star wars" test site.
 #
@@ -19,7 +19,7 @@ load _helper_drevops_workflow
   export DREVOPS_SKIP_DEMO=1
 
   export DATABASE_DOWNLOAD_SOURCE=docker_registry
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-8.x
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
   export DOCKER_REGISTRY_USERNAME=
@@ -38,7 +38,7 @@ load _helper_drevops_workflow
   assert_file_not_exists .data/db.sql
 
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-8.x"
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
   # Assert that demo config was removed as a part of the install.
   assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
   assert_file_not_contains ".env" "CURL_DB_URL="
@@ -83,7 +83,7 @@ load _helper_drevops_workflow
   export DREVOPS_SKIP_DEMO=1
 
   export DATABASE_DOWNLOAD_SOURCE=docker_registry
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-8.x
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
   export DOCKER_REGISTRY_USERNAME=
@@ -101,7 +101,7 @@ load _helper_drevops_workflow
   assert_file_not_exists .data/db.sql
 
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-8.x"
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
   # Assert that demo config was removed as a part of the install.
   assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
   assert_file_not_contains ".env" "CURL_DB_URL="
@@ -150,7 +150,7 @@ load _helper_drevops_workflow
   # a real image.
   # @todo: build.sh may need to have a support to create a local image if
   # it does not exist.
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-8.x
+  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
   export DOCKER_REGISTRY_USERNAME=
@@ -167,7 +167,7 @@ load _helper_drevops_workflow
   assert_file_exists .data/db.sql
 
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=curl"
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-8.x"
+  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
   # Assert that demo config was removed as a part of the install.
   assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
   assert_file_contains ".env" "CURL_DB_URL="

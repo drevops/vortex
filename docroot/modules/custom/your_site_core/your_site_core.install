@@ -37,5 +37,5 @@ function your_site_core_install() {
 function your_site_core_update_8000() {
   \Drupal::service('theme_installer')->install(['classy']);
   \Drupal::service('theme_installer')->install(['your_site_theme']);
-  \Drupal::service('theme_handler')->setDefault('your_site_theme');
+  \Drupal::service('config.factory')->getEditable('system.theme')->set('default', 'your_site_theme')->save();
 }

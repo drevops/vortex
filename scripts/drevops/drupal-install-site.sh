@@ -144,7 +144,7 @@ if ls "${DRUPAL_CONFIG_PATH}"/*.yml >/dev/null 2>&1; then
   # Update site UUID from the configuration.
   if [ -f "${DRUPAL_CONFIG_PATH}/system.site.yml" ]; then
     config_uuid="$(cat "${DRUPAL_CONFIG_PATH}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
-    $drush ${DRUSH_ALIAS} config-set system.site uuid "${config_uuid}"
+    $drush ${DRUSH_ALIAS} config-set system.site uuid "${config_uuid}" --yes
   fi
 
   # Import configuration.

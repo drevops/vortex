@@ -42,7 +42,7 @@ setup() {
   export TEST_LOG_DIR="/app/logs"
   export CONFIRM_RESPONSE=y
 
-  export DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d8.star_wars.sql.md
+  export DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d9.star_wars.sql.md
 
   # Unset any environment variables that may affect tests.
   # These are set in CI config to override values set in .env file for some jobs.
