@@ -228,6 +228,8 @@ jobs:
   database_nightly:
     <<: *job_database
     environment:
+      DATABASE_SSH_FINGERPRINT: *database_ssh_fingerprint
+      DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
       DB_CACHE_FALLBACK: 'no'
       # Always use fresh base image for the database.
