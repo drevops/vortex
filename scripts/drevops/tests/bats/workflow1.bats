@@ -40,7 +40,7 @@ load _helper_drevops_workflow
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
   assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-8.x"
   # Assert that demo config was removed as a part of the install.
-  assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
+  assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
   assert_file_not_contains ".env" "CURL_DB_URL="
 
   assert_ahoy_build
@@ -103,7 +103,7 @@ load _helper_drevops_workflow
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
   assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-8.x"
   # Assert that demo config was removed as a part of the install.
-  assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
+  assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
   assert_file_not_contains ".env" "CURL_DB_URL="
 
   assert_ahoy_build
@@ -169,7 +169,7 @@ load _helper_drevops_workflow
   assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=curl"
   assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-8.x"
   # Assert that demo config was removed as a part of the install.
-  assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
+  assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-8.x"
   assert_file_contains ".env" "CURL_DB_URL="
 
   assert_ahoy_build
