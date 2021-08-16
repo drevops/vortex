@@ -45,7 +45,7 @@ DOWNLOAD_POST_PROCESS="${DOWNLOAD_POST_PROCESS:-}"
 [ "${DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "==> Skipping database download as $DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
 # Check provided download type.
-[ -z "${DATABASE_DOWNLOAD_SOURCE}" ] && echo "ERROR: Missing required value for DATABASE_DOWNLOAD_SOURCE. Must be one of: ftp, curl, acquia, docker_registry." && exit 1
+[ -z "${DATABASE_DOWNLOAD_SOURCE}" ] && echo "ERROR: Missing required value for DATABASE_DOWNLOAD_SOURCE. Must be one of: ftp, curl, acquia, lagoon, docker_registry." && exit 1
 
 # Check if database file exists.
 # @todo: Implement better support based on $DB_FILE.

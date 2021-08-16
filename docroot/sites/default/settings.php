@@ -89,12 +89,17 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 // The default list of directories that will be ignored by Drupal's file API.
 $settings['file_scan_ignore_directories'] = [
   'node_modules',
+  'bower_components',
 ];
 
 // The default number of entities to update in a batch process.
 $settings['entity_update_batch_size'] = 50;
 
+// Trusted Host Patterns.
 // Settings for other environments are included below.
+// If your site runs on multiple domains, you need to add these domains here.
+// escape dots, remove schema, use commas as regex separator.
+// See https://www.drupal.org/node/2410395 for more information.
 $settings['trusted_host_patterns'] = [
   // Local URL.
   '^.+\.docker\.amazee\.io$',
@@ -108,8 +113,8 @@ $settings['trusted_host_patterns'] = [
 
 // Default Shield credentials.
 // Note that they are overridden for local and CI environments below.
-$config['shield.settings']['credentials']['shield']['user'] = 'CHANGEME';
-$config['shield.settings']['credentials']['shield']['pass'] = 'CHANGEME';
+$config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
+$config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
 // Title of the shield pop-up.
 $config['shield.settings']['print'] = 'YOURSITE';
 
@@ -184,6 +189,10 @@ if (getenv('LAGOON')) {
     ], getenv('LAGOON_ROUTES'));
     $settings['trusted_host_patterns'][] = '^' . $patterns . '$';
   }
+
+  // Hash salt.
+  // MARIADB_HOST on Lagoon is a randomly generated service name.
+  $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST'));
 }
 // #;> LAGOON
 

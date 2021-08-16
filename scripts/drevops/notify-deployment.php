@@ -12,10 +12,15 @@ if (getenv('SKIP_NOTIFY_DEPLOYMENT')) {
   exit;
 }
 
-[, $site_name, $from_email, $to_emails, $branch, $url] = $argv;
+array_shift($argv);
+$site_name = $argv[0] ?? NULL;
+$from_email = $argv[1] ?? NULL;
+$to_emails = $argv[2] ?? NULL;
+$branch = $argv[3] ?? NULL;
+$url = $argv[4] ?? NULL;
 
 if (empty($site_name) || empty($from_email) || empty($to_emails) || empty($branch) || empty($url)) {
-  print 'ERROR: One of the required parameters is empty: ' . print_r($argv, TRUE);
+  print 'ERROR: One of the required parameters is empty.';
   exit;
 }
 
