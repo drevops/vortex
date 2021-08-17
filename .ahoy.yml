@@ -84,6 +84,9 @@ commands:
     #: The shell is started if no arguments were provided to this command.
     cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec -T cli bash -c "$*"; else docker-compose exec cli bash; fi
 
+  composer:
+    usage: Run composer commands in the CLI service container.
+    cmd: docker-compose exec -T cli composer "$@"
   drush:
     usage: Run drush commands in the CLI service container.
     cmd: docker-compose exec -T cli drush -l ${LOCALDEV_URL} "$@"

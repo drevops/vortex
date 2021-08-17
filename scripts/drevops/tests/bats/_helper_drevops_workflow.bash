@@ -222,6 +222,15 @@ assert_env_changes() {
   assert_output_not_contains "my_custom_var_value"
 }
 
+assert_ahoy_composer() {
+  step "Run composer command"
+
+  run ahoy composer about
+  assert_success
+  assert_output_contains "Composer - Dependency Manager for PHP - version 2."
+  assert_output_contains "Composer is a dependency manager tracking local dependencies of your projects and libraries."
+}
+
 assert_ahoy_drush() {
   step "Run Drush command"
 
