@@ -22,6 +22,8 @@ load _helper_drevops_workflow
 
   assert_env_changes
 
+  assert_ahoy_composer
+
   assert_ahoy_drush
 
   assert_ahoy_info
@@ -68,6 +70,8 @@ load _helper_drevops_workflow
   assert_gitignore
 
   assert_ahoy_cli
+
+  assert_ahoy_composer
 
   assert_ahoy_drush
 
