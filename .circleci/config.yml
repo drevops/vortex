@@ -203,11 +203,11 @@ jobs:
             #: Lookup cache based on the default branch and a timestamp. Allows
             #: to use cache from the very first build on the day (sanitized
             #: database dump, for example).
-            - v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+            - v5-db9-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
             #:
             #: Fallback to caching by default branch name only. Allows to use
             #: cache from the branch build on the previous day.
-            - v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-
+            - v5-db9-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-
       #: Download database and run post DB download commands: build site and
       #: export the database. Note that configuration changes and DB updates
       #: are not applied, so we could cache the database as it was downloaded.
@@ -220,7 +220,7 @@ jobs:
           # cache fallback flag is enabled for this case in order to
           # save cache even if fallback is not used when restoring it.
           # The cache will not be saved if it already exist.
-          key: v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+          key: v5-db9-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
           paths:
             - *db_cache_dir
 
@@ -262,8 +262,8 @@ jobs:
             # Use cached artifacts from previous builds of this branch ran at
             # any time.
             # https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
-            - v1-db8-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-
+            - v5-db9-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+            - v5-db9-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-
       - run:
           name: Build site
           command: ahoy build
@@ -423,7 +423,7 @@ jobs:
       #; Note that here and below we are using "destination" demo image - this
       #; is to allow updating of this image from CI tests without jeopardizing
       #; main demo image.
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
       #; Use a separate tag to make sure that pushed image does not affect
       #; other tests (pushing broken image as 'latest' will fail other tests).
       DOCKER_IMAGE_TAG: drevops_didi_database_fi
@@ -440,7 +440,7 @@ jobs:
     environment:
       DATABASE_DOWNLOAD_SOURCE: docker_registry
       FORCE_DB_DOWNLOAD: 1
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
       DOCKER_IMAGE_TAG: drevops_didi_database_ii
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
@@ -455,14 +455,14 @@ jobs:
   drevops_didi_build_fi:
     <<: *job_build
     environment:
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x:drevops_didi_database_fi
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x:drevops_didi_database_fi
       #; Use custom cache key for this workflow to make sure that caches from
       #; the main workflow are separated from this one.
       DB_CACHE_BRANCH: drevops_didi_fi
   drevops_didi_build_ii:
     <<: *job_build
     environment:
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-8.x:drevops_didi_database_ii
+      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x:drevops_didi_database_ii
       #; Use custom cache key for this workflow to make sure that caches from
       #; the main workflow are separated from this one.
       DB_CACHE_BRANCH: drevops_didi_ii
@@ -498,8 +498,8 @@ workflows:
               # - master, develop, ci, cisomething
               # - release/123, release/123.456, release/123.456.789, release/123.456.789-rc123
               # - hotfix/123, hotfix/123.456, hotfix/123.456.789
-              # - feature/description, feature/123-description, but not feature/8.x-description or feature/7.x-description
-              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-)[a-zA-z0-9\-\.\,]+/
+              # - feature/description, feature/123-description, but not feature/9.x-description or feature/7.x-description
+              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-|9.x-)[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
       - deploy_tags:
@@ -538,8 +538,8 @@ workflows:
             - drevops_test
           filters:
             branches:
-              # Allowed branches: 7.x, 8.x, feature/7.x-description, feature/8.x-description
-              only: /(?:7|8)\.x|feature\/(?:7|8)\.x[a-zA-z0-9\-\.\,]+/
+              # Allowed branches: 7.x, 8.x, 9.x, feature/7.x-description, feature/8.x-description, feature/9.x-description
+              only: /(?:7|8|9)\.x|feature\/(?:7|8|9)\.x[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
       #; Run actual deployment of DrevOps code to destination codebase (integration test).
@@ -552,7 +552,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
+              only: /^(?:7|8|9)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
 
   #; Test workflow to test DATABASE_IMAGE workflow for DB from file.
   drevops_didi_fi:

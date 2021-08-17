@@ -6,11 +6,11 @@
  *
  * Usage:
  * @code
- * curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php | php
- * curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php | php -- /path/to/destination/directory
- * curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php | php -- --quiet /path/to/destination/directory
- * curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php | php -- help
- * curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php | php -- --help
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php -- /path/to/destination/directory
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php -- --quiet /path/to/destination/directory
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php -- help
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php -- --help
  * @endcode
  *
  * Variables precedence (top values win):
@@ -27,7 +27,7 @@
 /**
  * Defines Drupal version supported by this installer.
  */
-define('INSTALLER_DRUPAL_VERSION', 8);
+define('INSTALLER_DRUPAL_VERSION', 9);
 
 /**
  * Defines current working directory.
@@ -158,7 +158,7 @@ function process_demo() {
 }
 
 /**
- * Handling processing for Drupal 7 and Drupal 8.
+ * Handling processing for Drupal 7, Drupal 8 and Drupal 9.
  */
 function process() {
   $dir = get_config('DREVOPS_TMP_DIR');
@@ -984,7 +984,7 @@ function discover_value($name) {
 
 function discover_value__name() {
   $value = get_composer_json_value('description');
-  if ($value && preg_match('/Drupal [78] implementation of ([^"]+) for ([^"]+)/', $value, $matches)) {
+  if ($value && preg_match('/Drupal [789] implementation of ([^"]+) for ([^"]+)/', $value, $matches)) {
     if (!empty($matches[1])) {
       return $matches[1];
     }
@@ -1004,7 +1004,7 @@ function discover_value__machine_name() {
 
 function discover_value__org() {
   $value = get_composer_json_value('description');
-  if ($value && preg_match('/Drupal [78] implementation of ([^"]+) for ([^"]+)/', $value, $matches)) {
+  if ($value && preg_match('/Drupal [789] implementation of ([^"]+) for ([^"]+)/', $value, $matches)) {
     if (!empty($matches[2])) {
       return $matches[2];
     }
@@ -1054,7 +1054,7 @@ function discover_value__profile() {
     get_dst_dir() . '/docroot/profiles/custom/*/*.info.yml',
   ];
 
-  $name = find_matching_path($locations, 'Drupal 8 profile implementation of');
+  $name = find_matching_path($locations, 'Drupal 9 profile implementation of');
 
   if (empty($name)) {
     return NULL;
@@ -1104,7 +1104,7 @@ function discover_value__url() {
 
   $contents = file_get_contents($path);
 
-  // Drupal 8.
+  // Drupal 8 and 9.
   if (preg_match('/\$config\s*\[\'stage_file_proxy.settings\'\]\s*\[\'origin\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $contents, $matches)) {
     if (!empty($matches[1])) {
       $origin = $matches[1];

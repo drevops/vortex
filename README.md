@@ -6,7 +6,7 @@
 <div align="center">
 
 [![CircleCI](https://circleci.com/gh/drevops/drevops/tree/8.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/8.x)
-![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
+![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg)
 [![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/drevops/drevops/blob/8.x/LICENSE)
 [![Dependencies.io](https://img.shields.io/badge/dependencies.io-enabled-green.svg)](https://dependencies.io)
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B%20%F0%9F%90%B3%20%2B%20%E2%9C%93%E2%9C%93%E2%9C%93%20%2B%20%F0%9F%A4%96%20%3D%20DrevOps%20-%20%20Build%2C%20Test%2C%20Deploy%20scripts%20for%20Drupal%20using%20Docker%20and%20CI%2FCD&amp;url=https://www.drevops.com&amp;via=drev_ops&amp;hashtags=drupal,devops,workflow,composer,template,kickstart,ci,test,build)
@@ -131,8 +131,9 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 | **Area**                                      | **Feature**                                                                                                         | **Why it is important** |
 | --- | --- | --- |
 | **Drupal**                                    |
-| Versions                                      | Drupal 7 support                                                                                                    | Drupal 7 is still widely used |
-|                                               | Drupal 8 support                                                                                                    | Drupal 8 is current version   |
+| Versions                                      | Drupal 7 support                                                                                                    | Drupal 7                      |
+|                                               | Drupal 8 support                                                                                                    | Drupal 8 is still widely used |
+|                                               | Drupal 9 support                                                                                                    | Drupal 9 is current version   |
 |                                               | Separate branches for each Drupal version                                                                           | Handling both Drupal versions in the same repository allows to easily re-use some commits across branches. |
 | [Composer-based configuration](composer.json) | Pure composer configuration                                                                                         | Website is assembled using industry-standard tools such as Composer |
 |                                               | Uses [drupal-scaffold](https://github.com/drupal-composer/drupal-scaffold)                                          | Industry-standard composer package to scaffold some of Drupal files |
@@ -247,7 +248,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 
 [//]: # (#;> DREVOPS)
 # YOURSITE
-Drupal 8 implementation of YOURSITE for YOURORG
+Drupal 9 implementation of YOURSITE for YOURORG
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 ![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
