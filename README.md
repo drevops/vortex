@@ -251,7 +251,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 Drupal 9 implementation of YOURSITE for YOURORG
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
-![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
+![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg)
 
 [//]: # (#;< DEPENDENCIESIO)
 
