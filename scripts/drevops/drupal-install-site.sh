@@ -167,7 +167,8 @@ $drush ${DRUSH_ALIAS} cr
 
 # Run post-config import updates for the cases when updates rely on imported configuration.
 # @see PostConfigImportUpdateHelper::registerPostConfigImportUpdate()
-if $drush ${DRUSH_ALIAS} list | grep -q post-config-import-update; then
+if $drush ${DRUSH_ALIAS} list | grep -q pciu; then
+  echo "==> Running post config import updates."
   $drush ${DRUSH_ALIAS} post-config-import-update
 fi
 
