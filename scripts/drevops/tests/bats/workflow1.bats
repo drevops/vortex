@@ -43,6 +43,9 @@ load _helper_drevops_workflow
   assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
   assert_file_not_contains ".env" "CURL_DB_URL="
 
+  assert_file_contains "default.env.local" "DOCKER_REGISTRY_USERNAME="
+  assert_file_contains "default.env.local" "DOCKER_REGISTRY_TOKEN="
+
   assert_ahoy_build
 
   # Assert that DB reload would revert the content.
@@ -105,6 +108,9 @@ load _helper_drevops_workflow
   # Assert that demo config was removed as a part of the install.
   assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
   assert_file_not_contains ".env" "CURL_DB_URL="
+
+  assert_file_contains "default.env.local" "DOCKER_REGISTRY_USERNAME="
+  assert_file_contains "default.env.local" "DOCKER_REGISTRY_TOKEN="
 
   assert_ahoy_build
 
@@ -171,6 +177,9 @@ load _helper_drevops_workflow
   # Assert that demo config was removed as a part of the install.
   assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-7.x"
   assert_file_contains ".env" "CURL_DB_URL="
+
+  assert_file_not_contains "default.env.local" "DOCKER_REGISTRY_USERNAME="
+  assert_file_not_contains "default.env.local" "DOCKER_REGISTRY_TOKEN="
 
   assert_ahoy_build
 

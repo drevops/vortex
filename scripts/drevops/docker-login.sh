@@ -13,10 +13,12 @@ DOCKER_REGISTRY_TOKEN="${DOCKER_REGISTRY_TOKEN:-}"
 # Docker registry name. Provide port, if required as <server_name>:<port>.
 # Defaults to DockerHub.
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
+# Flag to force login to the registry.
+DOCKER_REGISTRY_LOGIN_FORCE="${DOCKER_REGISTRY_LOGIN_FORCE:-}"
 
 # ------------------------------------------------------------------------------
 
-if [ -f "$HOME/.docker/config.json" ] && grep -q "${DOCKER_REGISTRY}" "$HOME/.docker/config.json"; then
+if [ -f "$HOME/.docker/config.json" ] && [ -z "${DOCKER_REGISTRY_LOGIN_FORCE}" ] && grep -q "${DOCKER_REGISTRY}" "$HOME/.docker/config.json"; then
   echo "==> Already logged in to registry \"${DOCKER_REGISTRY}\"."
 elif [ -n "${DOCKER_REGISTRY_USERNAME}" ] &&  [ -n "${DOCKER_REGISTRY_TOKEN}" ]; then
   echo "==> Logging in to registry \"${DOCKER_REGISTRY}\"."

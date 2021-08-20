@@ -133,7 +133,7 @@ commands:
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
     cmd: |
-      [ -n "${DATABASE_IMAGE}" ] && docker pull $DATABASE_IMAGE
+      [ -n "${DATABASE_IMAGE}" ] && DOCKER_REGISTRY_LOGIN_FORCE=1 ./scripts/drevops/docker-login.sh && docker pull $DATABASE_IMAGE
 
   clean:
     usage: Remove containers and all build files.
