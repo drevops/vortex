@@ -87,9 +87,10 @@ commands:
   composer:
     usage: Run composer commands in the CLI service container.
     cmd: docker-compose exec -T cli composer "$@"
+
   drush:
     usage: Run drush commands in the CLI service container.
-    cmd: docker-compose exec -T cli drush -l ${LOCALDEV_URL} "$@"
+    cmd: docker-compose exec -T cli bash -c "drush -l ${LOCALDEV_URL} $*"
 
   #;< REDIS
   flush-redis:
