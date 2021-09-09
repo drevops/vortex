@@ -5,9 +5,9 @@
 <h3 align="center">Build, Test, Deploy scripts for Drupal using Docker and CI/CD</h3>
 <div align="center">
 
-[![CircleCI](https://circleci.com/gh/drevops/drevops/tree/8.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/8.x)
+[![CircleCI](https://circleci.com/gh/drevops/drevops/tree/9.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/9.x)
 ![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg)
-[![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/drevops/drevops/blob/8.x/LICENSE)
+[![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/drevops/drevops/blob/9.x/LICENSE)
 [![Dependencies.io](https://img.shields.io/badge/dependencies.io-enabled-green.svg)](https://dependencies.io)
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B%20%F0%9F%90%B3%20%2B%20%E2%9C%93%E2%9C%93%E2%9C%93%20%2B%20%F0%9F%A4%96%20%3D%20DrevOps%20-%20%20Build%2C%20Test%2C%20Deploy%20scripts%20for%20Drupal%20using%20Docker%20and%20CI%2FCD&amp;url=https://www.drevops.com&amp;via=drev_ops&amp;hashtags=drupal,devops,workflow,composer,template,kickstart,ci,test,build)
 
@@ -20,7 +20,7 @@
 ### Installation
 1. Run installer:
    ```
-   curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php > /tmp/install.php && php /tmp/install.php --interactive; rm /tmp/install.php
+   curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php > /tmp/install.php && php /tmp/install.php --interactive; rm /tmp/install.php
    ```
 2. Commit added files.
 
@@ -202,9 +202,9 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 
 ## Contributing
 - Progress is tracked as [GitHub project](https://github.com/drevops/drevops/projects/1).
-- Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
-- Create an issue and prefix title with Drupal core version: `[8.x] Updated readme file.`.
-- Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/8.x-updated-readme`.
+- Development takes place in 3 independent branches named after Drupal core version: `9.x`, `8.x` and `7.x`.
+- Create an issue and prefix title with Drupal core version: `[9.x] Updated readme file.`.
+- Create PRs with branches prefixed with Drupal core version: `9.x`, `8.x` or `7.x`. For example, `feature/9.x-updated-readme`.
 
 ### Main concepts behind DrevOps
 - **Fetch as much of development configuration as possible from DrevOps repository**<br/>
