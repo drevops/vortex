@@ -34,7 +34,7 @@ function your_site_core_install() {
 /**
  * Enables 'your_site_theme' theme.
  */
-function your_site_core_update_8000() {
+function your_site_core_update_9000() {
   \Drupal::service('theme_installer')->install(['classy']);
   \Drupal::service('theme_installer')->install(['your_site_theme']);
   \Drupal::service('config.factory')->getEditable('system.theme')->set('default', 'your_site_theme')->save();
