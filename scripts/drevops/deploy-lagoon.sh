@@ -73,7 +73,7 @@ fi
 
 if ! command -v lagoon >/dev/null || [ -n "${FORCE_INSTALL_LAGOON_CLI}" ]; then
   echo "==> Installing Lagoon CLI."
-  curl -s https://api.github.com/repos/amazeeio/lagoon-cli/releases/latest \
+  curl -sL https://api.github.com/repos/amazeeio/lagoon-cli/releases/latest \
     | grep "browser_download_url" \
     | grep -i "$(uname -s)-amd64\"$" \
     | cut -d '"' -f 4 \
