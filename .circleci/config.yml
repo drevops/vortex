@@ -108,7 +108,7 @@ aliases:
       #; Using "runner" container where each job will be executed. This container
       #; has all necessary tools to run dockerized environment.
       #; @see https://github.com/drevops/ci-builder
-      - image: drevops/ci-builder:composer2
+      - image: drevops/ci-builder
         auth:
           username: $DOCKER_REGISTRY_USERNAME
           password: $DOCKER_REGISTRY_TOKEN
