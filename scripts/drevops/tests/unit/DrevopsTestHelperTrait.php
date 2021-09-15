@@ -5,6 +5,8 @@ namespace Drevops\Tests;
 /**
  * Trait DrevopsTestHelperTrait.
  *
+ * DrevopsTestHelperTrait fixture class.
+ *
  * @package Drevops\Tests
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing

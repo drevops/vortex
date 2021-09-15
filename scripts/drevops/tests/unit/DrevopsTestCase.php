@@ -8,6 +8,8 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * Class DrevopsTestCase.
  *
+ * DrevopsTestCase fixture class.
+ *
  * @package Drevops\Tests
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
