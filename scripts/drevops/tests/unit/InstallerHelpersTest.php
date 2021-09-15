@@ -5,6 +5,8 @@ namespace Drevops\Tests;
 /**
  * Class InstallerHelpersTest.
  *
+ * InstallerHelpersTest fixture class.
+ *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
