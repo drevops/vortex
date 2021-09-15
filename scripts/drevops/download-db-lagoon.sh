@@ -91,6 +91,7 @@ fi
 ssh_opts=(-o "UserKnownHostsFile=/dev/null")
 ssh_opts+=(-o "StrictHostKeyChecking=no")
 ssh_opts+=(-o "LogLevel=error")
+ssh_opts+=(-o "IdentitiesOnly=yes")
 ssh_opts+=(-p "${LAGOON_SSH_PORT}")
 if [ "${LAGOON_SSH_KEY_FILE}" != false ]; then
   ssh_opts+=(-i "${LAGOON_SSH_KEY_FILE}")
