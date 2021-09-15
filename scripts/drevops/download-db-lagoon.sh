@@ -102,7 +102,7 @@ ssh \
   "if [ ! -f \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\" ]; then \
      [ -n \"${LAGOON_REMOTE_DB_FILE_CLEANUP}\" ] && rm -f \"${LAGOON_REMOTE_DB_DIR}\"\/${LAGOON_REMOTE_DB_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
      echo \"   > Creating a backup ${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}.\"; \
-     /app/vendor/bin/drush --root=/app/docroot sql-dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,cache* > \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\"; \
+     /app/vendor/bin/drush --root=/app/docroot sql-dump --extra=--no-tablespaces --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,cache* > \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\"; \
    else \
      echo \"   > Using existing dump ${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}.\"; \
    fi"

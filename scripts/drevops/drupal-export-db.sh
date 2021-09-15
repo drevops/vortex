@@ -31,7 +31,7 @@ DUMP_FILE=$([ "${1}" ] && echo "${DB_DIR}/${1}" || echo "${DB_DIR}/export_db_$(d
 # Dump database into a file. Also, convert relative path to an absolute one, as
 # the result file is relative to Drupal root, but provided paths are relative
 # to the project root.
-$drush ${DRUSH_ALIAS} sql-dump --skip-tables-key=common --result-file="${DUMP_FILE/.\//${APP}/}" -q
+$drush ${DRUSH_ALIAS} sql-dump --skip-tables-key=common --extra=--no-tablespaces --result-file="${DUMP_FILE/.\//${APP}/}" -q
 
 # Check that file was saved and output saved dump file name.
 if [ -f "${DUMP_FILE}" ] && [ -s "${DUMP_FILE}" ]; then
