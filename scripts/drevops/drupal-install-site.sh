@@ -187,7 +187,7 @@ fi
 # "drupal-install-site-" prefix and ".sh" extension.
 if [ -d "${APP}/scripts/custom" ]; then
   for file in "${APP}"/scripts/custom/drupal-install-site-*.sh; do
-    if [ -r "${file}" ]; then
+    if [ -f "${file}" ]; then
       . "${file}"
     fi
   done
