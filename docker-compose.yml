@@ -189,7 +189,7 @@ services:
       context: .
       dockerfile: .docker/Dockerfile.mariadb
       args:
-        IMAGE: "${DATABASE_IMAGE:-amazeeio/mariadb-drupal:21.7.0}"
+        IMAGE: "${DATABASE_IMAGE:-uselagoon/mariadb-drupal:21.11.0}"
     environment:
       <<: *default-environment
     ports:
@@ -208,7 +208,7 @@ services:
   #: Redis container.
   #: Used for caching.
   redis:
-    image: amazeeio/redis:6-21.7.0
+    image: uselagoon/redis-6:21.11.0
     #;< LAGOON
     #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
     labels:
