@@ -79,13 +79,16 @@ site_is_installed="$($drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "
 # Install site from the database dump or from profile.
 if
   # Not skipping DB import AND
-  [ -z "${SKIP_DB_IMPORT}" ] &&
+  [ "${SKIP_DB_IMPORT}" != "1" ] &&
   # DB dump file exists AND
   [ -f "${DB_DIR}/${DB_FILE}" ] &&
   # Site is not installed OR allowed to overwrite existing site.
   ([ "${site_is_installed}" != "1" ] || [ "${DB_IMPORT_OVERWRITE_EXISTING}" == "1" ])
 then
-  echo "==> Using existing DB dump ${DB_DIR}/${DB_FILE}."
+  echo "****************************************"
+  echo "==> Importing database from dump."
+  echo "  > Using DB dump ${DB_DIR}/${DB_FILE}."
+  echo "****************************************"
   DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" "${APP}/scripts/drevops/drupal-import-db.sh"
 elif
   # If site is installed AND
@@ -93,7 +96,11 @@ elif
   # Not allowed to forcefully install from profile.
   [ "${FORCE_FRESH_INSTALL}" != "1" ]
 then
-  echo "==> Existing site found. Re-run with FORCE_FRESH_INSTALL=1 to forcefully re-install."
+  echo "****************************************"
+  echo "==> Existing site found."
+  echo "  > Database will be preserved."
+  echo "  > Re-run with FORCE_FRESH_INSTALL=1 to forcefully re-install."
+  echo "****************************************"
 else
   echo "==> Existing site not found. Installing site from profile ${DRUPAL_PROFILE}."
   # Install from profile with default configuration.
@@ -146,6 +153,7 @@ fi
 if [ -d "${APP}/scripts/custom" ]; then
   for file in "${APP}"/scripts/custom/drupal-install-site-*.sh; do
     if [ -f "${file}" ]; then
+      echo "==> Running custom post-install script ${file}."
       . "${file}"
     fi
   done
