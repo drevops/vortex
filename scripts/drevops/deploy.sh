@@ -28,6 +28,37 @@ if [ -z "${DEPLOY_PROCEED}" ]; then
   echo "Skipping deployment ${DEPLOY_TYPE}." && exit 0
 fi
 
+if [ -n "${DEPLOY_PR}" ]; then
+  # Allow to skip deployment by providing 'DEPLOY_SKIP_PR_<NUMBER>'
+  # variable with value set to "1", where <NUMBER> is a PR number name with
+  # spaces, hyphens and forward slashes replaced with underscores and then
+  # capitalised.
+  # Example:
+  # For 'pr-123' branch, the variable name is DEPLOY_SKIP_PR_123
+  pr_skip_var="DEPLOY_SKIP_PR_${DEPLOY_PR}"
+  if [ -n "${!pr_skip_var}" ]; then
+    echo "  > Found skip variable $pr_skip_var for PR ${DEPLOY_PR}."
+    echo "Skipping deployment ${DEPLOY_TYPE}." && exit 0
+  fi
+fi
+
+if [ -n "${DEPLOY_BRANCH}" ]; then
+  # Allow to skip deployment by providing 'DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>'
+  # variable with value set to "1", where <SAFE_BRANCH> is a branch name with
+  # spaces, hyphens and forward slashes replaced with underscores and then
+  # capitalised.
+  # Example:
+  # For 'master' branch, the variable name is DEPLOY_SKIP_BRANCH_MASTER
+  # For 'feature/my complex feature-123 update' branch, the variable name
+  # is DEPLOY_SKIP_BRANCH_MY_COMPLEX_FEATURE_123_UPDATE
+  safe_branch_name="$(echo "${DEPLOY_BRANCH}" | tr -d '\n' | tr '[:space:]' '_' | tr '-' '_' | tr '/' '_' | tr -cd '[:alnum:]_' | tr '[:lower:]' '[:upper:]')"
+  branch_skip_var="DEPLOY_SKIP_BRANCH_${safe_branch_name}"
+  if [ -n "${!branch_skip_var}" ]; then
+    echo "  > Found skip variable $branch_skip_var for branch ${DEPLOY_BRANCH}."
+    echo "Skipping deployment ${DEPLOY_TYPE}." && exit 0
+  fi
+fi
+
 if [ -z "${DEPLOY_TYPE##*code*}" ]; then
   echo "==> Starting 'code' deployment."
   ./scripts/drevops/deploy-code.sh
