@@ -199,7 +199,10 @@ load _helper_drevops_deployment
 
   # Assert lagoon binary exists and was called.
   assert_file_exists "${LAGOON_BIN_PATH}/lagoon"
-  assert_equal 1 "$(mock_get_call_num "${mock_lagoon}")"
+
+  # Deployment script calls API twice: once to get a list of already deployed
+  # environments and once to trigger a deployment.
+  assert_equal 2 "$(mock_get_call_num "${mock_lagoon}")"
   assert_contains "-l testlagoon deploy branch -p testproject -b testbranch" "$(mock_get_call_args "${mock_lagoon}")"
 
   # Assert that no other deployments ran.
