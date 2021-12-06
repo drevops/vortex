@@ -203,11 +203,11 @@ jobs:
             #: Lookup cache based on the default branch and a timestamp. Allows
             #: to use cache from the very first build on the day (sanitized
             #: database dump, for example).
-            - v1-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+            - v2-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
             #:
             #: Fallback to caching by default branch name only. Allows to use
             #: cache from the branch build on the previous day.
-            - v1-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-
+            - v2-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK" }}-
       #: Download database and run post DB download commands: build site and
       #: export the database. Note that configuration changes and DB updates
       #: are not applied, so we could cache the database as it was downloaded.
@@ -220,7 +220,7 @@ jobs:
           # cache fallback flag is enabled for this case in order to
           # save cache even if fallback is not used when restoring it.
           # The cache will not be saved if it already exist.
-          key: v1-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+          key: v2-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
           paths:
             - *db_cache_dir
 
@@ -262,8 +262,8 @@ jobs:
             # Use cached artifacts from previous builds of this branch ran at
             # any time.
             # https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v1-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
-            - v1-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-
+            - v2-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DB_CACHE_TIMESTAMP" }}
+            - v2-db7-{{ checksum "/tmp/DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DB_CACHE_FALLBACK_YES" }}-
       - run:
           name: Build site
           command: ahoy build
