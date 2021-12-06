@@ -20,7 +20,7 @@
 ### Installation
 1. Run installer:
    ```
-   curl -L https://raw.githubusercontent.com/drevops/drevops/8.x/install.php > /tmp/install.php && php /tmp/install.php --interactive; rm /tmp/install.php
+   curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php > /tmp/install.php && php /tmp/install.php --interactive; rm /tmp/install.php
    ```
 2. Commit added files.
 
@@ -131,8 +131,9 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 | **Area**                                      | **Feature**                                                                                                         | **Why it is important** |
 | --- | --- | --- |
 | **Drupal**                                    |
-| Versions                                      | Drupal 7 support                                                                                                    | Drupal 7 is still widely used |
-|                                               | Drupal 8 support                                                                                                    | Drupal 8 is current version   |
+| Versions                                      | Drupal 7 support                                                                                                    | Drupal 7                      |
+|                                               | Drupal 8 support                                                                                                    | Drupal 8 is still widely used |
+|                                               | Drupal 9 support                                                                                                    | Drupal 9 is current version   |
 |                                               | Separate branches for each Drupal version                                                                           | Handling both Drupal versions in the same repository allows to easily re-use some commits across branches. |
 | [Composer-based configuration](composer.json) | Pure composer configuration                                                                                         | Website is assembled using industry-standard tools such as Composer |
 |                                               | Uses [drupal-scaffold](https://github.com/drupal-composer/drupal-scaffold)                                          | Industry-standard composer package to scaffold some of Drupal files |
@@ -201,9 +202,9 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 
 ## Contributing
 - Progress is tracked as [GitHub project](https://github.com/drevops/drevops/projects/1).
-- Development takes place in 2 independent branches named after Drupal core version: `7.x` or `8.x`.
-- Create an issue and prefix title with Drupal core version: `[8.x] Updated readme file.`.
-- Create PRs with branches prefixed with Drupal core version: `7.x` or `8.x`. For example, `feature/8.x-updated-readme`.
+- Development takes place in 3 independent branches named after Drupal core version: `9.x`, `8.x` and `7.x`.
+- Create an issue and prefix title with Drupal core version: `[9.x] Updated readme file.`.
+- Create PRs with branches prefixed with Drupal core version: `9.x`, `8.x` or `7.x`. For example, `feature/9.x-updated-readme`.
 
 ### Main concepts behind DrevOps
 - **Fetch as much of development configuration as possible from DrevOps repository**<br/>
@@ -247,10 +248,10 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 
 [//]: # (#;> DREVOPS)
 # YOURSITE
-Drupal 8 implementation of YOURSITE for YOURORG
+Drupal 7 implementation of YOURSITE for YOURORG
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
-![Drupal 8](https://img.shields.io/badge/Drupal-8-blue.svg)
+![Drupal 7](https://img.shields.io/badge/Drupal-7-blue.svg)
 
 [//]: # (#;< DEPENDENCIESIO)
 
@@ -324,139 +325,21 @@ pygmy up
 
 Copy `default.docker-compose.override.yml` to `docker-compose.override.yml`.
 
-##
+## Testing
+Please refer to [testing documentation](TESTING.md).
 
-## Available `ahoy` commands
-Run each command as `ahoy <command>`.
-  ```
-  build        Build or rebuild the project.
-  clean        Remove containers and all build files.
-  cli          Start a shell or run a command inside the CLI service container.
-  debug        Enable debug configuration.
-  deploy       Run remote deployment procedures
-  doctor       Find problems with current project setup.
-  down         Stop Docker containers and remove container, images, volumes and networks.
-  download-db  Download database.
-  drush        Run drush commands in the CLI service container.
-  export-db    Export database dump or database image (DATABASE_IMAGE variable must be set).
-  fei          Install front-end assets.
-  fe           Build front-end assets.
-  fed          Build front-end assets for development.
-  few          Watch front-end assets during development.
-  flush-redis  Flush Redis cache.
-  info         Show information about this project.
-  install-site Install a site.
-  lint         Lint back-end and front-end code.
-  lint-be      Lint back-end code.
-  lint-fe      Lint front-end code.
-  login        Login to a website.
-  logs         Show Docker logs for all or specified services.
-  pull         Pull latest docker images.
-  pull-db      Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
-  reload-db    Reload the database container using local database image.
-  reset        Reset environment: remove containers, all build, uncommitted files.
-  restart      Restart all or specified stopped and running Docker containers.
-  start        Start all or specified existing Docker containers.
-  stop         Stop all or specified running Docker containers.
-  test         Run all tests.
-  test-bdd     Run BDD tests.
-  test-unit    Run Simpletest unit tests.
-  up           Build and start all or specified Docker containers.
-  update       Update development stack.
-  ```
-
-### Updating development stack
-
-Development stack needs to be downloaded for each environment, but some files may be committed to the project repository.
-Update process brings new versions of development stack files and may overwrite some of them. The changes in these files
-need to be reviewed and selectively committed.
-
-1. Start a new branch to make sure that your changes do not affect the main branch
-2. Run `ahoy update` to download the latest version of the development stack
-3. Review and commit changes
-4. Make sure that your CI build passes with updated development stack configuration
-5. Merge your changes to the main branch
-
-## Adding Drupal modules
-
-`composer require drupal/module_name`
-
-## Adding patches for Drupal modules
-
-1. Add `title` and `url` to patch on https://drupal.org to the `patches` array in `extra` section in `composer.json`.
-
-```
-    "extra": {
-        "patches": {
-            "drupal/core": {
-                "Contextual links should not be added inside another link - https://www.drupal.org/node/2898875": "https://www.drupal.org/files/issues/contextual_links_should-2898875-3.patch"
-            }
-        }
-    }
-```
-
-2. `composer update --lock`
-
-## Front-end and Livereload
-- `ahoy fe` - build SCSS and JS assets.
-- `ahoy fed` - build SCSS and JS assets for development.
-- `ahoy few` - watch asset changes and reload the browser (using Livereload). To enable Livereload integration with Drupal, add to `settings.php` file (already added to `settings.local.php`):
-  ```
-  $settings['livereload'] = TRUE;
-  ```
-
-## Coding standards
-PHP and JS code linting uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with Drupal rules from [Coder](https://www.drupal.org/project/coder) module and additional local overrides in `phpcs.xml` and `.eslintrc.json`.
-
-SASS and SCSS code linting use [Sass Lint](https://github.com/sasstools/sass-lint) with additional local overrides in `.sass-lint.yml`.
-
-Set `ALLOW_LINT_FAIL_BE=1` in `.env` to allow back-end code lint failures.
-
-Set `ALLOW_LINT_FAIL_FE=1` in `.env` to allow front-end code lint failures.
-
-## Behat tests
-Behat configuration uses multiple extensions:
-- [Drupal Behat Extension](https://github.com/jhedstrom/drupalextension) - Drupal integration layer. Allows to work with Drupal API from within step definitions.
-- [Behat Screenshot Extension](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
-- [Behat Progress Fail Output Extension](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fail messages inline. Useful to get feedback about failed tests while continuing test run.
-- `FeatureContext` - Site-specific context with custom step definitions.
-
-Add `@skipped` tag to failing tests if you would like to skip them.
-
-## Automated builds (Continuous Integration)
-In software engineering, continuous integration (CI) is the practice of merging all developer working copies to a shared mainline several times a day.
-Before feature changes can be merged into a shared mainline, a complete build must run and pass all tests on CI server.
-
-This project uses [Circle CI](https://circleci.com/) as a CI server: it imports production backups into fully built codebase and runs code linting and tests. When tests pass, a deployment process is triggered for nominated branches (usually, `master` and `develop`).
-
-Add `[skip ci]` to the commit subject to skip CI build. Useful for documentation changes.
-
-### SSH
-Circle CI supports shell access to the build for 120 minutes after the build is finished when the build is started with SSH support. Use "Rerun job with SSH" button in Circle CI UI to start build with SSH support.
-
-### Cache
-Circle CI supports caching between builds. The cache takes care of saving the state of your dependencies between builds, therefore making the builds run faster.
-Each branch of your project will have a separate cache. If it is the very first build for a branch, the cache from the default branch on GitHub (normally `master`) will be used. If there is no cache for master, the cache from other branches will be used.
-If the build has inconsistent results (build fails in CI but passes locally), try to re-running the build without cache by clicking 'Rebuild without cache' button.
-
-### Test artifacts
-Test artifacts (screenshots etc.) are available under "Artifacts" tab in Circle CI UI.
+## CI
+Please refer to [CI documentation](CI.md).
 
 [//]: # (#;< DEPLOYMENT)
 
 ## Deployment
-Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)
+Please refer to [deployment documentation](DEPLOYMENT.md).
 
 [//]: # (#;> DEPLOYMENT)
 
-[//]: # (#;< DEPENDENCIESIO)
-
-## Automated patching
-[dependencies.io](https://dependencies.io) integration allows to keep the
-project up to date by automatically creating pull requests with updated
-dependencies on a daily basis.
-
-[//]: # (#;> DEPENDENCIESIO)
+## Releasing
+Please refer to [releasing documentation](RELEASING.md).
 
 ## FAQs
-Please refer to [FAQs](FAQs.md)
+Please refer to [FAQs](FAQs.md).

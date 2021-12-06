@@ -370,7 +370,7 @@ assert_files_present_deployment() {
   assert_file_exists "DEPLOYMENT.md"
   assert_file_contains ".circleci/config.yml" "deploy: &job_deploy"
   assert_file_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
-  assert_file_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+  assert_file_contains "README.md" "[deployment documentation](DEPLOYMENT.md)"
 
   popd >/dev/null || exit 1
 }
@@ -388,7 +388,7 @@ assert_files_present_no_deployment() {
   # 'Required' files can be asserted for modifications only if they were not
   # committed.
   if [ "${has_committed_files}" -eq 0 ]; then
-    assert_file_not_contains "README.md" "Please refer to [DEPLOYMENT.md](DEPLOYMENT.md)"
+    assert_file_not_contains "README.md" "[deployment documentation](DEPLOYMENT.md)"
     assert_file_not_contains ".circleci/config.yml" "deploy: &job_deploy"
     assert_file_not_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
   fi
@@ -538,7 +538,7 @@ assert_files_present_integration_dependenciesio() {
   pushd "${dir}" >/dev/null || exit 1
 
   assert_file_exists "dependencies.yml"
-  assert_file_contains README.md "Automated patching"
+  assert_file_contains CI.md "Automated patching"
 
   popd >/dev/null || exit 1
 }
