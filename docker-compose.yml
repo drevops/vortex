@@ -208,6 +208,8 @@ services:
   #: Redis container.
   #: Used for caching.
   redis:
+    # @see https://hub.docker.com/r/uselagoon/redis/tags
+    # @see https://github.com/uselagoon/lagoon-images/tree/main/images/redis
     image: uselagoon/redis-6:21.11.0
     #;< LAGOON
     #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
