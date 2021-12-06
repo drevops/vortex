@@ -68,3 +68,23 @@ case, use `ahoy build`.
 ## How to just import the database?
 Provided that your stack is already running:
 `ahoy drush sql-drop -y; ahoy drush sql-cli < .data/db.sql`
+
+## How to add Drupal modules
+
+`composer require drupal/module_name`
+
+## Adding patches for Drupal modules
+
+1. Add `title` and `url` to patch on https://drupal.org to the `patches` array in `extra` section in `composer.json`.
+
+```
+    "extra": {
+        "patches": {
+            "drupal/core": {
+                "Contextual links should not be added inside another link - https://www.drupal.org/node/2898875": "https://www.drupal.org/files/issues/contextual_links_should-2898875-3.patch"
+            }
+        }
+    }
+```
+
+2. `composer update --lock`
