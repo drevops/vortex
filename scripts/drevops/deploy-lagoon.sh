@@ -131,6 +131,7 @@ else
         echo "  > Remove a DB import override flag for the current deployment."
         # Note that a variable will be read by Lagoon during queuing of the build.
         lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" delete variable -p "${LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DB_IMPORT_OVERWRITE_EXISTING || true
+        lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" add variable -p "${LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DB_IMPORT_OVERWRITE_EXISTING -V 0 -S global || true
       fi
 
     # Deployment of the fresh environment.
@@ -177,6 +178,7 @@ else
         echo "  > Remove a DB import override flag for the current deployment."
         # Note that a variable will be read by Lagoon during queuing of the build.
         lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" delete variable -p "${LAGOON_PROJECT}" -e "${DEPLOY_BRANCH}" -N DB_IMPORT_OVERWRITE_EXISTING || true
+        lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" add variable -p "${LAGOON_PROJECT}" -e "${DEPLOY_BRANCH}" -N DB_IMPORT_OVERWRITE_EXISTING -V 0 -S global || true
       fi
 
     # Deployment of the fresh environment.
