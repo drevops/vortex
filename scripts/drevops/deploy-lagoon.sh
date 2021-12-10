@@ -113,6 +113,11 @@ else
     # Re-deployment of the existing environment.
     if [ "${is_redeploy}" == "1" ]; then
 
+      # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
+      # @see https://github.com/uselagoon/lagoon/issues/1922
+      lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" delete variable -p "${LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DB_IMPORT_OVERWRITE_EXISTING || true
+      lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" add variable -p "${LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DB_IMPORT_OVERWRITE_EXISTING -V 0 -S global || true
+
       # Override DB during re-deployment.
       if [ "${DEPLOY_ACTION}" == "deploy_override_db" ]; then
         echo "  > Add a DB import override flag for the current deployment."
@@ -159,6 +164,11 @@ else
 
     # Re-deployment of the existing environment.
     if [ "${is_redeploy}" == "1" ]; then
+
+      # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
+      # @see https://github.com/uselagoon/lagoon/issues/1922
+      lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" delete variable -p "${LAGOON_PROJECT}" -e "${DEPLOY_BRANCH}" -N DB_IMPORT_OVERWRITE_EXISTING || true
+      lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" add variable -p "${LAGOON_PROJECT}" -e "${DEPLOY_BRANCH}" -N DB_IMPORT_OVERWRITE_EXISTING -V 0 -S global || true
 
       # Override DB during re-deployment.
       if [ "${DEPLOY_ACTION}" == "deploy_override_db" ]; then
