@@ -4,7 +4,7 @@
 #
 # @see https://hub.docker.com/r/uselagoon/php-7.4-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
-FROM uselagoon/php-7.4-cli-drupal:21.11.0
+FROM uselagoon/php-7.4-cli-drupal:21.12.1
 
 # Set default values for environment variables. Any values provided in
 # docker-compose.yml or .env file will override these values during build stage.
