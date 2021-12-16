@@ -6,7 +6,7 @@ FROM ${CLI_IMAGE:-cli} as cli
 
 # @see https://hub.docker.com/r/uselagoon/nginx-drupal/tags?page=1
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/nginx-drupal
-FROM uselagoon/nginx-drupal:21.11.0
+FROM uselagoon/nginx-drupal:21.12.1
 
 ENV WEBROOT=docroot
 

@@ -4,7 +4,7 @@ FROM ${CLI_IMAGE} as cli
 
 # @see https://hub.docker.com/r/uselagoon/solr-7.7-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/solr-drupal
-FROM uselagoon/solr-7.7-drupal:21.11.0
+FROM uselagoon/solr-7.7-drupal:21.12.1
 
 # Uncomment below after installing search_api_solr Drupal module (it must exist
 # in the codebase).
