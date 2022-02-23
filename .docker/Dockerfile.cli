@@ -42,7 +42,7 @@ ADD scripts /app/scripts
 # repository.
 # File .env (and other environment files) is copied into image as it may be
 # required by composer scripts to get some additions variables.
-COPY composer.json composer.* .env* /app/
+COPY composer.json composer.* .env* auth* /app/
 
 # Install PHP dependencies, but without development dependencies. This is very
 # important, because we do not want potential security issues to be exposed to
