@@ -67,8 +67,16 @@ x-environment:
   LAGOON_LOCALDEV_URL: &default-url ${LOCALDEV_URL:-your-site.docker.amazee.io}
   #; Amazeeio images require Lagoon route for Drush 9+ alias configuration.
   LAGOON_ROUTE: *default-url
+  #;< LAGOON
   #:
-  #: Allow to enable XDebug by setting external environment variable.
+  #: Re-using global project name for Lagoon.
+  LAGOON_PROJECT: *project
+  #:
+  #: Allow overriding Lagoon environment type, defaulting it to 'local'.
+  LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
+  #;> LAGOON
+  #:
+  #: Allow enabling XDebug by setting external environment variable.
   #: Do not change the value here. Instead, use
   #: ahoy debug
   #: or
@@ -77,14 +85,9 @@ x-environment:
   #:
   #: Pass-through $CI variable used to identify the CI environment.
   CI: ${CI:-}
-  #;< LAGOON
   #:
-  #: Re-using global project name for Lagoon.
-  LAGOON_PROJECT: *project
-  #:
-  #: Allow to override Lagoon environment type, defaulting it to 'local'.
-  LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
-  #;> LAGOON
+  # Uncomment below if emails are not being received by Mailhog locally.
+  # SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
 
 # ------------------------------------------------------------------------------
 # Services.
