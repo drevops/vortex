@@ -149,6 +149,7 @@ aliases:
   - &step_setup_remote_docker
     setup_remote_docker:
       docker_layer_caching: *docker_layer_caching
+      version: 19.03.13
   # Step to process the codebase to be ran in CI environment.
   - &step_process_codebase
     run:
