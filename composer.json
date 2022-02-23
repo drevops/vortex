@@ -51,7 +51,18 @@
             "php": "7.4"
         },
         "process-timeout": 0,
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/installers": true,
+            "cweagans/composer-patches": true,
+            "drupal/console-extend-plugin": true,
+            "drupal/core-composer-scaffold": true,
+            "drupal/core-project-message": true,
+            "oomphinc/composer-installers-extender": true,
+            "pyrech/composer-changelogs": true,
+            "zaporylie/composer-drupal-optimizations": true
+        }
     },
     "conflict": {
         "drupal/drupal": "*"
