@@ -99,7 +99,7 @@ else
     # Discover all available environments to check if this is a fresh deployment
     # or a re-deployment of the existing environment.
     lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" list environments -p "${LAGOON_PROJECT}" --output-json --pretty >/tmp/lagoon-envs.json
-    names="$(jq -r '.data[] | select(.deploytype | contains("pullrequest")) | .name' /tmp/lagoon-envs.json)"
+    names="$(jq -r '.data[] | select(.deploytype | contains("pullrequest")) | .name' /tmp/lagoon-envs.json 2>&1 /dev/null || echo '')"
 
     is_redeploy=0
     for name in $names; do
@@ -151,7 +151,7 @@ else
     # Discover all available environments to check if this is a fresh deployment
     # or a re-deployment of the existing environment.
     lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" list environments -p "${LAGOON_PROJECT}" --output-json --pretty >/tmp/lagoon-envs.json
-    names="$(jq -r '.data[] | select(.deploytype | contains("branch")) | .name' /tmp/lagoon-envs.json)"
+    names="$(jq -r '.data[] | select(.deploytype | contains("branch")) | .name' /tmp/lagoon-envs.json 2>&1 /dev/null || echo '')"
 
     is_redeploy=0
     for name in $names; do
