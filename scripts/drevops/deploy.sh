@@ -23,7 +23,7 @@ DEPLOY_PROCEED="${DEPLOY_PROCEED:-}"
 # Flag to allow skipping of a deployment using additional flags.
 # Different to DEPLOY_PROCEED in a way that DEPLOY_PROCEED is a failsafe
 # to prevent any deployments, while DEPLOY_ALLOW_SKIP allows to selectively skip
-# certain deployments using 'DEPLOY_SKIP_PR_<NUMBER>' and  'DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>'
+# certain deployments using 'DEPLOY_SKIP_PR_<NUMBER>' and 'DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>'
 # variables.
 DEPLOY_ALLOW_SKIP="${DEPLOY_ALLOW_SKIP:-}"
 
