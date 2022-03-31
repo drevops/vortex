@@ -23,6 +23,9 @@ DRUPAL_MODULE_PREFIX="${DRUPAL_MODULE_PREFIX:-}"
 # Drupal site name
 DRUPAL_SITE_NAME="${DRUPAL_SITE_NAME:-Example site}"
 
+# Drupal site name
+DRUPAL_SITE_MAIL="${DRUPAL_SITE_MAIL:-webmaster@example.com}"
+
 # Profile machine name.
 DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
@@ -118,7 +121,7 @@ else
     SKIP_POST_DB_IMPORT=1
   else
     # Install from profile with default configuration.
-    $drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+    $drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" --site-mail="${DRUPAL_SITE_MAIL}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
   fi
 fi
 
