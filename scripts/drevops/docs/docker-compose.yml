@@ -1,0 +1,21 @@
+version: '2.3'
+services:
+  mkdocs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      LAGOON_LOCALDEV_HTTP_PORT: 8000
+    networks:
+      - amazeeio-network
+      - default
+    volumes: ### Removed in CI.
+      - ${PWD}:/app  ### Removed in CI.
+    ports:
+      - 8000:8000
+  linkchecker:
+    image: jare/linkchecker
+
+networks:
+  amazeeio-network:
+    external: true

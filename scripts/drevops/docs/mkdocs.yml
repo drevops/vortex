@@ -1,0 +1,97 @@
+#
+# MkDocs configuration.
+#
+# @see https://squidfunk.github.io/mkdocs-material/
+#
+# To compile and serve during development, run this in the current directory:
+#
+# ahoy build
+#
+# To check spelling:
+#
+# ahoy test
+#
+
+# Project information
+site_name: DrevOps
+site_description: Documentation for DrevOps
+site_url: https://docs.drevops.com
+
+# Repository
+repo_name: drevops/drevops
+repo_url: https://github.com/drevops/drevops
+edit_uri: ""
+
+# Copyright
+copyright: 'Copyright &copy;2022 DrevOps'
+
+# Configuration.
+docs_dir: .
+
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+  font:
+    text: Roboto
+    code: Roboto Mono
+  palette:
+    primary: indigo
+    accent: indigo
+  language: en
+  # @todo: Review and enable tabs based on content.
+  feature:
+    tabs: true
+
+  # Don't include MkDocs' JavaScript
+  include_search_page: false
+  search_index_only: true
+
+plugins:
+  - same-dir
+  - search
+
+## Customization
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/drevops/drevops
+  analytics:
+    provider: google
+    property: G-9T1JR2V5RL
+
+# Extensions
+markdown_extensions:
+  - markdown.extensions.admonition
+  - markdown.extensions.attr_list
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - markdown.extensions.def_list
+  - markdown.extensions.footnotes
+  - markdown.extensions.meta
+  - markdown.extensions.toc:
+      permalink: true
+      toc_depth: 2
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: drevops
+      repo: drevops
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - mdx_include
+
+# IMPORTANT! Do not add any configuration below navigation section.
+nav:
+  - About: index.md
