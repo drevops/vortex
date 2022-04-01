@@ -467,6 +467,53 @@ jobs:
       #; Use custom cache key for this workflow to make sure that caches from
       #; the main workflow are separated from this one.
       DB_CACHE_BRANCH: drevops_didi_ii
+
+  #; Publish docs to doc.drevops.com
+  drevops_docs: &job_drevops_docs
+    <<: *container_config
+    steps:
+      - checkout
+      - *step_process_codebase
+      - *step_setup_remote_docker
+      - add_ssh_keys:
+          fingerprints:
+            - "22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
+      - run:
+          name: Publish docs
+          command: |
+            cd scripts/drevops/docs
+            sed -i -e "/###/d" docker-compose.yml
+            ahoy build
+            ahoy test
+            ahoy publish
+            mkdir -p /tmp/docs
+            docker cp "$(docker-compose ps -q mkdocs)":"/app/site/." "/tmp/docs"
+      - run:
+          name: Configure SSH.
+          command: |
+            DEPLOY_DOCS_SSH_FINGERPRINT="22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
+            # Configure SSH to configure git and SSH to connect to remote servers for deployment.
+            [ "$(git config --global user.name)" == "" ]  && git config --global user.name "${DEPLOY_GIT_USER_NAME}"
+            [ "$(git config --global user.email)" == "" ] && git config --global user.email "${DEPLOY_GIT_USER_EMAIL}"
+            mkdir -p "${HOME}/.ssh/"
+            echo -e "Host *\n\tStrictHostKeyChecking no\n" > "${HOME}/.ssh/config"
+            DEPLOY_DOCS_SSH_FILE="${DEPLOY_DOCS_SSH_FINGERPRINT//:}"
+            DEPLOY_DOCS_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_DOCS_SSH_FILE//\"}"
+            if [ -f "${DEPLOY_DOCS_SSH_FILE}" ]; then
+              echo "Found Deploy SSH key file ${DEPLOY_DOCS_SSH_FILE}"
+              ssh-add -D > /dev/null
+              ssh-add "${DEPLOY_DOCS_SSH_FILE}"
+            fi
+      - run:
+          name: Deploy docs
+          command: |
+            cd /tmp/docs
+            git init
+            git checkout -b master
+            git add -A
+            git commit -m "Automatically pushed from drevops/drevops"
+            git remote add origin git@github.com:drevops/docs.git
+            git push origin master --force
   #;> DREVOPS
 
 #:###############################################################################
@@ -552,6 +599,17 @@ workflows:
           filters:
             branches:
               ignore: /.*/
+            tags:
+              only: /^(?:7|8|9)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
+
+      #; Build DrevOps docs.
+      - drevops_docs:
+          requires:
+            - build
+            - drevops_test
+          filters:
+            branches:
+              only: /^feature\/docs-update$/
             tags:
               only: /^(?:7|8|9)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
 
