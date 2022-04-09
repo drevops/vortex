@@ -27,6 +27,9 @@ DB_DIR="${DB_DIR:-./.data}"
 # Database dump file name on the host.
 DB_FILE="${DB_FILE:-db.sql}"
 
+# Flag to download a fresh copy of the database.
+DATABASE_DOWNLOAD_REFRESH="${DATABASE_DOWNLOAD_REFRESH:-}"
+
 # Lagoon project name.
 LAGOON_PROJECT="${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}"
 
@@ -100,7 +103,7 @@ fi
 ssh \
  "${ssh_opts[@]}" \
   "${LAGOON_SSH_USER}@${LAGOON_SSH_HOST}" service=cli container=cli \
-  "if [ ! -f \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\" ]; then \
+  "if [ ! -f \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\" ] || [ \"${DATABASE_DOWNLOAD_REFRESH}\" == \"1\" ] ; then \
      [ -n \"${LAGOON_REMOTE_DB_FILE_CLEANUP}\" ] && rm -f \"${LAGOON_REMOTE_DB_DIR}\"\/${LAGOON_REMOTE_DB_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
      echo \"   > Creating a backup ${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}.\"; \
      /app/vendor/bin/drush --root=/app/docroot sql-dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,cache* --extra-dump=--no-tablespaces > \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\"; \
