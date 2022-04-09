@@ -734,7 +734,7 @@ function ask($question, $default) {
 function get_config($name, $default = NULL) {
   global $_config;
 
-  return isset($_config[$name]) ? $_config[$name] : $default;
+  return $_config[$name] ?? $default;
 }
 
 function set_config($name, $value) {

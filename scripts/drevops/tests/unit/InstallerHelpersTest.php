@@ -10,7 +10,7 @@ namespace Drevops\Tests;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class InstallerHelpersTest extends DrevopsTestCase {
+class InstallerHelpersTest extends InstallerTestCase {
 
   /**
    * @dataProvider dataProviderToHumanName

@@ -6,16 +6,16 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class DrevopsTestCase.
+ * Class InstallerTestCase.
  *
- * DrevopsTestCase fixture class.
+ * InstallerTestCase fixture class.
  *
  * @package Drevops\Tests
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-abstract class DrevopsTestCase extends TestCase {
+abstract class InstallerTestCase extends TestCase {
 
   use DrevopsTestHelperTrait;
 
@@ -65,19 +65,6 @@ abstract class DrevopsTestCase extends TestCase {
     }
 
     return $path;
-  }
-
-  protected function flattenFileTree($tree, $parent = '.') {
-    $flatten = [];
-    foreach ($tree as $dir => $file) {
-      if (is_array($file)) {
-        $flatten = array_merge($flatten, $this->flattenFileTree($file, $parent . DIRECTORY_SEPARATOR . $dir));
-      }
-      else {
-        $flatten[] = $parent . DIRECTORY_SEPARATOR . $file;
-      }
-    }
-    return $flatten;
   }
 
 }

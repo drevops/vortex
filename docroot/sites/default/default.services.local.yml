@@ -1,9 +1,11 @@
 parameters:
   http.response.debug_cacheability_headers: true
-  twig.config: # Disabling twig debugging and auto reload, plus enabling twig caching.
+  # Disable twig debugging and auto reload, plus enable twig caching.
+  twig.config:
       debug: true
       auto_reload: null
-      cache: true # Twig cache allows Xdebug to work with .twig files.
+      # Twig cache allows Xdebug to work with .twig files.
+      cache: true
 services:
   cache.backend.null:
     class: Drupal\Core\Cache\NullBackendFactory
