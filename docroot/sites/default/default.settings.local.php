@@ -21,9 +21,6 @@ $config['system.performance']['css']['preprocess'] = FALSE;
 // Disable JavaScript files aggregation.
 $config['system.performance']['js']['preprocess'] = FALSE;
 
-// Skip permissions hardening.
-$settings['skip_permissions_hardening'] = TRUE;
-
 // Enable Livereload.
 $settings['livereload'] = TRUE;
 

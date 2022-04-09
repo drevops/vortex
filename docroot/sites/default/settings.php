@@ -2,21 +2,25 @@
 
 /**
  * @file
- * Drupal settings.
+ * Drupal site-specific configuration file.
  *
  * The structure of this file:
  * - Environment constants definitions.
  * - Site-specific settings.
  * - Environment variable initialisation.
  * - Per-environment overrides.
- * - Inclusion of generated settings.
+ * - Inclusion of generated settings. The database connection string will be
+ *   injected in these generated settings.
  * - Inclusion of local settings.
  *
  * Create settings.local.php file to include local settings overrides.
  */
 
-// Environment constants.
-// Use these constants anywhere in code to alter behaviour for specific
+////////////////////////////////////////////////////////////////////////////////
+///                       ENVIRONMENT CONSTANTS                              ///
+////////////////////////////////////////////////////////////////////////////////
+
+// Use these constants anywhere in code to alter behaviour for a specific
 // environment.
 if (!defined('ENVIRONMENT_LOCAL')) {
   define('ENVIRONMENT_LOCAL', 'local');
@@ -34,21 +38,31 @@ if (!defined('ENVIRONMENT_DEV')) {
   define('ENVIRONMENT_DEV', 'dev');
 }
 
-$settings['environment'] = getenv('CI') ? ENVIRONMENT_CI : ENVIRONMENT_LOCAL;
-
-$contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir('modules/contrib') ? 'modules/contrib' : 'modules');
+$settings['environment'] = !empty(getenv('CI')) ? ENVIRONMENT_CI : ENVIRONMENT_LOCAL;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       SITE-SPECIFIC SETTINGS                             ///
 ////////////////////////////////////////////////////////////////////////////////
+$app_root = $app_root ?? dirname(__DIR__, 2);
+$site_path = $site_path ?? 'sites/default';
+$contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir('modules/contrib') ? 'modules/contrib' : 'modules');
 
-ini_set('date.timezone', 'Australia/Melbourne');
-date_default_timezone_set('Australia/Melbourne');
-
-$settings['entity_update_batch_size'] = 50;
+// Load services definition file.
+$settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 
 // Location of the site configuration files.
 $settings['config_sync_directory'] = '../config/default';
+
+// Temp directory.
+if (getenv('TMP')) {
+  $settings['file_temp_path'] = getenv('TMP');
+}
+
+// Private directory.
+$settings['file_private_path'] = 'sites/default/files/private';
+
+ini_set('date.timezone', 'Australia/Melbourne');
+date_default_timezone_set('Australia/Melbourne');
 
 // Salt for one-time login links, cancel links, form tokens, etc.
 $settings['hash_salt'] = hash('sha256', 'CHANGE_ME');
@@ -57,34 +71,8 @@ $settings['hash_salt'] = hash('sha256', 'CHANGE_ME');
 $config['system.performance']['cache']['page']['max_age'] = 900;
 
 // Aggregate CSS and JS files.
-$config['system.performance']['css']['preprocess'] = 1;
-$config['system.performance']['js']['preprocess'] = 1;
-
-// Fast404.
-$settings['fast404_exts'] = '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
-$settings['fast404_allow_anon_imagecache'] = TRUE;
-$settings['fast404_whitelist'] = [
-  'index.php',
-  'rss.xml',
-  'install.php',
-  'cron.php',
-  'update.php',
-  'xmlrpc.php',
-];
-$settings['fast404_string_whitelisting'] = ['/advagg_'];
-$settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
-if (file_exists($contrib_path . '/fast404/fast404.inc')) {
-  include_once $contrib_path . '/fast404/fast404.inc';
-  fast404_preboot($settings);
-}
-
-// Temp directory.
-if (getenv('TMP')) {
-  $config['system.file']['path']['temporary'] = getenv('TMP');
-}
-
-// Load services definition file.
-$settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
+$config['system.performance']['css']['preprocess'] = TRUE;
+$config['system.performance']['js']['preprocess'] = TRUE;
 
 // The default list of directories that will be ignored by Drupal's file API.
 $settings['file_scan_ignore_directories'] = [
@@ -111,15 +99,35 @@ $settings['trusted_host_patterns'] = [
   // #;> LAGOON
 ];
 
+// Modules excluded from config export.
+$settings['config_exclude_modules'] = [];
+
 // Default Shield credentials.
-// Note that they are overridden for local and CI environments below.
+// These are overridden for some environments below.
 $config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
 $config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
 // Title of the shield pop-up.
 $config['shield.settings']['print'] = 'YOURSITE';
 
-// Exclude modules from export.
-$settings['config_exclude_modules'] = [];
+// Fast404.
+$settings['fast404_exts'] = '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+$settings['fast404_allow_anon_imagecache'] = TRUE;
+$settings['fast404_whitelist'] = [
+  'index.php',
+  'rss.xml',
+  'install.php',
+  'cron.php',
+  'update.php',
+  'xmlrpc.php',
+];
+$settings['fast404_string_whitelisting'] = ['/advagg_'];
+$settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+if (file_exists($contrib_path . '/fast404/fast404.inc')) {
+  include_once $contrib_path . '/fast404/fast404.inc';
+  if (function_exists('fast404_preboot')) {
+    fast404_preboot($settings);
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
@@ -128,30 +136,33 @@ $settings['config_exclude_modules'] = [];
 // #;< ACQUIA
 // Initialise environment type in Acquia environment.
 // @see https://docs.acquia.com/acquia-cloud/develop/env-variable
-if (file_exists('/var/www/site-php')) {
+if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Delay the initial database connection.
   $config['acquia_hosting_settings_autoconnect'] = FALSE;
   // Include Acquia environment settings.
-  require '/var/www/site-php/your_site/your_site-settings.inc';
+  if (file_exists('/var/www/site-php/your_site/your_site-settings.inc')) {
+    require '/var/www/site-php/your_site/your_site-settings.inc';
+  }
   // Do not put any Acquia-specific settings in this code block. It is used
-  // for explicit mapping of Acquia environments to $conf['environment']
-  // variable only. Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
-  switch ($_ENV['AH_SITE_ENVIRONMENT']) {
-    case 'dev':
-      $settings['environment'] = ENVIRONMENT_DEV;
+  // to explicitly map Acquia environments to $conf['environment']
+  // variable only.
+  // Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
+  switch (getenv('AH_SITE_ENVIRONMENT')) {
+    case 'prod':
+      $settings['environment'] = ENVIRONMENT_PROD;
       break;
 
     case 'test':
       $settings['environment'] = ENVIRONMENT_TEST;
       break;
 
-    case 'prod':
-      $settings['environment'] = ENVIRONMENT_PROD;
+    case 'dev':
+      $settings['environment'] = ENVIRONMENT_DEV;
       break;
   }
 
   // Treat ODE environments as 'dev'.
-  if (strpos($_ENV['AH_SITE_ENVIRONMENT'], 'ode') === 0) {
+  if (strpos(getenv('AH_SITE_ENVIRONMENT'), 'ode') === 0) {
     $settings['environment'] = ENVIRONMENT_DEV;
   }
 }
@@ -165,7 +176,7 @@ if (getenv('LAGOON')) {
   }
   // Use a dedicated branch to identify production environment.
   // This is useful when 'production' Lagoon environment is not provisioned yet.
-  elseif (getenv('LAGOON_GIT_BRANCH') !== FALSE && getenv('LAGOON_GIT_BRANCH') == getenv('LAGOON_PRODUCTION_BRANCH')) {
+  elseif (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('LAGOON_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') == getenv('LAGOON_PRODUCTION_BRANCH')) {
     $settings['environment'] = ENVIRONMENT_PROD;
   }
   elseif (getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
@@ -235,7 +246,7 @@ if ($settings['environment'] == ENVIRONMENT_CI) {
   // Never harden permissions on sites/default/files.
   $settings['skip_permissions_hardening'] = TRUE;
 
-  // Allow to bypass Shield.
+  // Allow bypassing Shield.
   $config['shield.settings']['credentials']['shield']['user'] = '';
   $config['shield.settings']['credentials']['shield']['pass'] = '';
 
@@ -270,9 +281,12 @@ if (file_exists($app_root . '/' . $site_path . '/settings.generated.php')) {
 // Load local development override configuration, if available.
 //
 // Use settings.local.php to override variables on secondary (staging,
-// development, etc) installations of this site. Typically used to disable
+// development, etc.) installations of this site. Typically, used to disable
 // caching, JavaScript/CSS compression, re-routing of outgoing emails, and
 // other things that should not happen on development and testing sites.
+//
+// Copy default.settings.local.php and default.services.local.yml to
+// settings.local.php and services.local.yml respectively.
 //
 // Keep this code block at the end of this file to take full effect.
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {

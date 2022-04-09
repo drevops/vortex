@@ -453,7 +453,7 @@ assert_files_present_integration_acquia() {
   assert_symlink_not_exists "hooks/prod/post-db-copy"
   assert_symlink_exists "hooks/prod/post-code-update/1.notify-newrelic.sh"
 
-  assert_file_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
+  assert_file_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php"
   assert_file_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
 
   if [ "${include_scripts}" -eq 1 ]; then

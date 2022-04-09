@@ -12,6 +12,8 @@ set -e
 docker network create amazeeio-network || true
 
 echo "==> Run DrevOps unit tests."
+composer install --ignore-platform-reqs --no-interaction --prefer-source
+composer run post-install-cmd
 pushd scripts/drevops/tests || exit 1
 composer install --no-suggest -n --ansi
 vendor/bin/phpunit unit

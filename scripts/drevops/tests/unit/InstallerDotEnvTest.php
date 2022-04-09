@@ -10,7 +10,7 @@ namespace Drevops\Tests;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class InstallerDotEnvTest extends DrevopsTestCase {
+class InstallerDotEnvTest extends InstallerTestCase {
 
   /**
    * Backup value of the $GLOBALS['_SERVER'] variable.

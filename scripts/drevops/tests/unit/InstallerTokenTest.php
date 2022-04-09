@@ -10,7 +10,7 @@ namespace Drevops\Tests;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class InstallerTokenTest extends DrevopsTestCase {
+class InstallerTokenTest extends InstallerTestCase {
 
   public function setUp(): void {
     parent::setUp();
@@ -20,6 +20,19 @@ class InstallerTokenTest extends DrevopsTestCase {
   protected function tearDown(): void {
     parent::tearDown();
     $this->cleanupFixtureDir();
+  }
+
+  protected function flattenFileTree($tree, $parent = '.') {
+    $flatten = [];
+    foreach ($tree as $dir => $file) {
+      if (is_array($file)) {
+        $flatten = array_merge($flatten, $this->flattenFileTree($file, $parent . DIRECTORY_SEPARATOR . $dir));
+      }
+      else {
+        $flatten[] = $parent . DIRECTORY_SEPARATOR . $file;
+      }
+    }
+    return $flatten;
   }
 
   /**
