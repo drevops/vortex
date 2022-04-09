@@ -103,6 +103,7 @@
                 "web-root": "./docroot"
             },
             "file-mapping": {
+                "[project-root]/.editorconfig": false,
                 "[project-root]/.gitattributes": false,
                 "[web-root]/.htaccess": false,
                 "[web-root]/.ht.router.php": false,

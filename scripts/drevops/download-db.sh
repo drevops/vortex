@@ -23,6 +23,9 @@ set -e
 # database storage (when DATABASE_IMAGE variable has a value).
 DATABASE_DOWNLOAD_SOURCE="${DATABASE_DOWNLOAD_SOURCE:-curl}"
 
+# Flag to download a fresh copy of the database dump if the methods supports it.
+DATABASE_DOWNLOAD_REFRESH="${DATABASE_DOWNLOAD_REFRESH:-}"
+
 # Flag to force DB download even if the cache exists.
 # Usually set in CircleCI UI to override per build cache.
 FORCE_DB_DOWNLOAD="${FORCE_DB_DOWNLOAD:-}"
@@ -67,6 +70,7 @@ mkdir -p "${DB_DIR}"
 # Export DB dir and file variables as they are used in child scripts.
 export DB_DIR
 export DB_FILE
+export DATABASE_DOWNLOAD_REFRESH
 
 if [ "${DATABASE_DOWNLOAD_SOURCE}" == "ftp" ]; then
   echo "==> Starting database dump download from FTP."
