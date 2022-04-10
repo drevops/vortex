@@ -103,9 +103,12 @@ $settings['trusted_host_patterns'] = [
 $settings['config_exclude_modules'] = [];
 
 // Default Shield credentials.
-// These are overridden for some environments below.
-$config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
-$config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
+// Shield can be enabled and disabled in production though UI. For other
+// environments, shield is enforced to be enabled.
+// 'SHIELD_USER' and 'SHIELD_PASS' environment variables should be added in
+// the environment.
+$config['shield.settings']['credentials']['shield']['user'] = getenv('SHIELD_USER');
+$config['shield.settings']['credentials']['shield']['pass'] = getenv('SHIELD_PASS');
 // Title of the shield pop-up.
 $config['shield.settings']['print'] = 'YOURSITE';
 
@@ -218,14 +221,14 @@ $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 $config['environment_indicator.settings']['favicon'] = TRUE;
 
 if ($settings['environment'] == ENVIRONMENT_PROD) {
-  // Bypass Shield.
-  $config['shield.settings']['credentials']['shield']['user'] = '';
-  $config['shield.settings']['credentials']['shield']['pass'] = '';
+  // Overrides for production.
 }
-
-if ($settings['environment'] !== ENVIRONMENT_PROD) {
+else {
   $config['stage_file_proxy.settings']['origin'] = 'http://your-site-url/';
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
+
+  // Enforce shield.
+  $config['shield.settings']['shield_enable'] = TRUE;
 }
 
 if ($settings['environment'] == ENVIRONMENT_TEST) {
@@ -246,9 +249,8 @@ if ($settings['environment'] == ENVIRONMENT_CI) {
   // Never harden permissions on sites/default/files.
   $settings['skip_permissions_hardening'] = TRUE;
 
-  // Allow bypassing Shield.
-  $config['shield.settings']['credentials']['shield']['user'] = '';
-  $config['shield.settings']['credentials']['shield']['pass'] = '';
+  // Bypass shield.
+  $config['shield.settings']['shield_enable'] = FALSE;
 
   // Disable mail send out.
   $settings['suspend_mail_send'] = TRUE;
@@ -264,9 +266,8 @@ if ($settings['environment'] == ENVIRONMENT_LOCAL) {
   // Never harden permissions on sites/default/files during local development.
   $settings['skip_permissions_hardening'] = TRUE;
 
-  // Bypass Shield.
-  $config['shield.settings']['credentials']['shield']['user'] = '';
-  $config['shield.settings']['credentials']['shield']['pass'] = '';
+  // Bypass shield.
+  $config['shield.settings']['shield_enable'] = FALSE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
