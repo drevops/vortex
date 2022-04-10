@@ -88,6 +88,10 @@ x-environment:
   #:
   # Uncomment below if emails are not being received by Mailhog locally.
   # SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
+  #
+  # Set Shield credentials from the environment variables.
+  SHIELD_USER: ${SHIELD_USER:-}
+  SHIELD_PASS: ${SHIELD_PASS:-}
 
 # ------------------------------------------------------------------------------
 # Services.

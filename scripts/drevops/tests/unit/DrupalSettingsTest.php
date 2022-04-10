@@ -115,6 +115,8 @@ class DrupalSettingsTest extends DrupalTestCase {
   }
 
   public function testEnvironmentLocal() {
+    $this->setEnvVars([]);
+
     $this->requireSettings();
 
     $default_config = $this->getDefaultConfig();
@@ -165,6 +167,7 @@ class DrupalSettingsTest extends DrupalTestCase {
     unset($default_config['system.logging']);
     $default_config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
     $default_config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
+    $default_config['shield.settings']['shield_enable'] = TRUE;
 
     unset($default_settings['skip_permissions_hardening']);
     $default_settings['environment'] = ENVIRONMENT_DEV;
@@ -193,6 +196,7 @@ class DrupalSettingsTest extends DrupalTestCase {
     unset($default_config['system.logging']);
     $default_config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
     $default_config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
+    $default_config['shield.settings']['shield_enable'] = TRUE;
 
     unset($default_settings['skip_permissions_hardening']);
     $default_settings['environment'] = ENVIRONMENT_TEST;
@@ -219,8 +223,9 @@ class DrupalSettingsTest extends DrupalTestCase {
     unset($default_config['config_split.config_split.local']);
     unset($default_config['system.logging']);
     unset($default_config['stage_file_proxy.settings']);
-    $default_config['shield.settings']['credentials']['shield']['user'] = '';
-    $default_config['shield.settings']['credentials']['shield']['pass'] = '';
+    $default_config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
+    $default_config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
+    unset($default_config['shield.settings']['shield_enable']);
 
     unset($default_settings['skip_permissions_hardening']);
     $default_settings['environment'] = ENVIRONMENT_PROD;
@@ -446,6 +451,8 @@ class DrupalSettingsTest extends DrupalTestCase {
     if (empty($vars['CI'])) {
       $vars['CI'] = FALSE;
     }
+    $vars['SHIELD_USER'] = 'CHANGE_ME';
+    $vars['SHIELD_PASS'] = 'CHANGE_ME';
     $this->envVars = $vars + $this->envVars;
     foreach ($this->envVars as $name => $value) {
       putenv("$name=$value");
@@ -482,8 +489,9 @@ class DrupalSettingsTest extends DrupalTestCase {
     $config['system.performance']['js']['preprocess'] = 1;
     $config['system.logging']['error_level'] = 'all';
     $config['shield.settings']['print'] = 'YOURSITE';
-    $config['shield.settings']['credentials']['shield']['user'] = '';
-    $config['shield.settings']['credentials']['shield']['pass'] = '';
+    $config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
+    $config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
+    $config['shield.settings']['shield_enable'] = FALSE;
     $config['stage_file_proxy.settings']['origin'] = 'http://your-site-url/';
     $config['stage_file_proxy.settings']['hotlink'] = FALSE;
     $config['environment_indicator.indicator']['name'] = ENVIRONMENT_LOCAL;
