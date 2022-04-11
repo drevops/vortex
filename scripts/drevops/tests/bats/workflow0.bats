@@ -13,6 +13,8 @@ load _helper_drevops_workflow
 @test "Workflow: DB-driven" {
   prepare_sut "Starting DB-driven WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
+  assert_ahoy_doctor_info
+
   assert_ahoy_download_db
 
   assert_ahoy_build
