@@ -13,8 +13,6 @@ load _helper_drevops_workflow
 @test "Workflow: DB-driven" {
   prepare_sut "Starting DB-driven WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
-  assert_ahoy_doctor_info
-
   assert_ahoy_download_db
 
   assert_ahoy_build
@@ -162,4 +160,12 @@ load _helper_drevops_workflow
   # Skip committing of the files.
   assert_gitignore 1
   assert_ahoy_test_bdd
+}
+
+@test "Utilities" {
+  prepare_sut "Starting utilities tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+
+  assert_ahoy_doctor_info
+
+  assert_ahoy_github_labels
 }

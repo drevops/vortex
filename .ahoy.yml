@@ -208,6 +208,10 @@ commands:
       ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as DEPLOY_PROCEED=1 ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" \
       && ./scripts/drevops/deploy.sh "$@" || echo "The operation was canceled."
 
+  github-labels:
+    usage: Update project's GitHub labels
+    cmd: ./scripts/drevops/github-labels.sh "$@"
+
   doctor:
     usage: Find problems with current project setup.
     cmd: ./scripts/drevops/doctor.sh "$@"

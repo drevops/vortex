@@ -40,19 +40,6 @@ prepare_sut() {
   assert_file_exists .idea/idea_file.txt
 }
 
-assert_ahoy_doctor_info() {
-  step "Run Doctor Info"
-
-  run ahoy doctor info
-  assert_success
-  assert_output_contains "System information"
-  assert_output_contains "Operating system"
-  assert_output_contains "Docker"
-  assert_output_contains "Docker Compose"
-  assert_output_contains "Pygmy"
-  assert_output_contains "Ahoy"
-}
-
 assert_ahoy_download_db() {
   step "Run DB download"
 
@@ -721,4 +708,60 @@ assert_reload_db_image() {
 
   ahoy reload-db
   assert_page_contains "/" "First test node"
+}
+
+assert_ahoy_doctor_info() {
+  step "Run ahoy doctor info"
+
+  run ahoy doctor info
+  assert_success
+  assert_output_contains "System information"
+  assert_output_contains "Operating system"
+  assert_output_contains "Docker"
+  assert_output_contains "Docker Compose"
+  assert_output_contains "Pygmy"
+  assert_output_contains "Ahoy"
+}
+
+assert_ahoy_github_labels() {
+  step "Run ahoy github-labels"
+
+  export GITHUB_TOKEN="${GITHUB_TOKEN:-$TEST_GITHUB_TOKEN}"
+
+  # Use "drevops/drevops-destination" as an example GitHub project.
+  run ahoy github-labels drevops/drevops-destination
+  assert_success
+  assert_output_not_contains "ERROR"
+
+  run curl https://github.com/drevops/drevops-destination/labels
+
+  assert_output_contains ">AUTOMERGE<"
+  assert_output_contains "Pull request has been approved and set to automerge"
+  assert_output_contains ">CONFLICT<"
+  assert_output_contains "Pull request has a conflict that needs to be resolved before it can be merged"
+  assert_output_contains ">DO NOT MERGE<"
+  assert_output_contains "Do not merge this pull request"
+  assert_output_contains ">Do not review<"
+  assert_output_contains "Do not review this pull request"
+  assert_output_contains ">Needs review<"
+  assert_output_contains "Pull request needs a review from assigned developers"
+  assert_output_contains ">Questions<"
+  assert_output_contains "Pull request has some questions that need to be answered before further review can progress"
+  assert_output_contains ">Ready for test<"
+  assert_output_contains "Pull request is ready for manual testing"
+  assert_output_contains ">Ready to be merged<"
+  assert_output_contains "Pull request is ready to be merged (assigned after testing is complete)"
+  assert_output_contains ">Requires more work<"
+  assert_output_contains "Pull request was reviewed and reviver(s) asked to work further on the pull request"
+  assert_output_contains ">URGENT<"
+  assert_output_contains "Pull request needs to be urgently reviewed"
+
+  assert_output_not_contains ">bug<"
+  assert_output_not_contains ">duplicate<"
+  assert_output_not_contains ">enhancement<"
+  assert_output_not_contains ">help wanted<"
+  assert_output_not_contains ">good first issue<"
+  assert_output_not_contains ">invalid<"
+  assert_output_not_contains ">question<"
+  assert_output_not_contains ">wontfix<"
 }
