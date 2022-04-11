@@ -20,6 +20,14 @@ tasks:
         service: cli
 
     - run:
+        name: Backup DB before deployment in production
+        command: |
+          if [ "$LAGOON_ENVIRONMENT_TYPE" == "production" ] || [ "$LAGOON_GIT_BRANCH" == "$LAGOON_PRODUCTION_BRANCH" ]; then
+            DB_DIR=/app/docroot/sites/default/files/private/pre_deployment_backups ./scripts/drevops/drupal-export-db.sh
+          fi
+        service: cli
+
+    - run:
         name: Download database
         command: |
           #; If Lagoon is used as non-prod environment and the database is
