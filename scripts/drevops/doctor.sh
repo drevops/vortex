@@ -50,6 +50,8 @@ DB_FILE="${DB_FILE:-db.sql}"
 # Main entry point.
 #
 main() {
+  [ "$1" == "info" ] && system_info && exit
+
   status "Checking project requirements"
 
   if [ "${DOCTOR_CHECK_TOOLS}" == "1" ]; then
@@ -161,6 +163,40 @@ main() {
   status "All required checks have passed."
 }
 
+system_info() {
+  status "System information"
+  echo
+
+  notice "- Operating system -"
+  if [ "$(uname)" == "Darwin" ]; then
+    sw_vers
+  else
+    lsb_release -a
+  fi
+  echo
+
+  notice "- Docker -"
+  echo "Path to binary: $(which docker)"
+  docker -v
+  docker info
+  echo
+
+  notice "- Docker Compose -"
+  echo "Path to binary: $(which docker-compose)"
+  docker-compose version
+  echo
+
+  notice "- Pygmy -"
+  echo "Path to binary: $(which pygmy)"
+  pygmy version
+  echo
+
+  notice "- Ahoy -"
+  echo "Path to binary: $(which ahoy)"
+  ahoy --version
+  echo
+}
+
 #
 # Check that command exists.
 #
@@ -183,6 +219,13 @@ command_exists() {
 #
 status() {
   cecho blue "✚ $1";
+}
+
+#
+# Notice echo.
+#
+notice() {
+  cecho yellow "$1";
 }
 
 #
@@ -221,8 +264,11 @@ cecho() {
     *) message="$1"
   esac
 
-  # Format message with color codes, but only if a correct color was provided.
-  [ -n "$color" ] && message="${color}${message}${prefix}0m"
+  # Format message with color codes, but only if an output supports colors and
+  # a correct color was provided.
+  if [ -t 1 ]; then
+    [ -n "$color" ] && message="${color}${message}${prefix}0m"
+  fi
 
   echo -e "$message"
 }

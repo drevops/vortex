@@ -40,6 +40,19 @@ prepare_sut() {
   assert_file_exists .idea/idea_file.txt
 }
 
+assert_ahoy_doctor_info() {
+  step "Run Doctor Info"
+
+  run ahoy doctor info
+  assert_success
+  assert_output_contains "System information"
+  assert_output_contains "Operating system"
+  assert_output_contains "Docker"
+  assert_output_contains "Docker Compose"
+  assert_output_contains "Pygmy"
+  assert_output_contains "Ahoy"
+}
+
 assert_ahoy_download_db() {
   step "Run DB download"
 
