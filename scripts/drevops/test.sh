@@ -102,6 +102,6 @@ if [ -z "${TEST_TYPE##*bdd*}" ]; then
   [ -n "${TEST_ARTIFACT_DIR}" ] && export BEHAT_SCREENSHOT_DIR="${TEST_ARTIFACT_DIR}/screenshots"
 
   vendor/bin/behat --strict --colors --profile="${BEHAT_PROFILE}" --format="${BEHAT_FORMAT}" "$@" \
-  || vendor/bin/behat --strict --colors --profile="${BEHAT_PROFILE}" --format="${BEHAT_FORMAT}" --rerun "$@" \
+  || ( [ -n "${CI}" ] && vendor/bin/behat --strict --colors --profile="${BEHAT_PROFILE}" --format="${BEHAT_FORMAT}" --rerun "$@" ) \
   || [ "${ALLOW_BDD_TESTS_FAIL}" -eq 1 ]
 fi
