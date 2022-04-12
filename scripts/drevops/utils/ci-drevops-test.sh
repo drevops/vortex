@@ -40,7 +40,3 @@ bats scripts/drevops/tests/bats/install_integrations.bats --tap
 bats scripts/drevops/tests/bats/install_demo.bats --tap
 bats scripts/drevops/tests/bats/clean.bats --tap
 bats scripts/drevops/tests/bats/update.bats --tap
-
-index="${CIRCLE_NODE_INDEX:-*}"
-echo "==> Test workflows (${index})."
-bats "scripts/drevops/tests/bats/workflow${index}.bats" --tap

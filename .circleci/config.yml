@@ -355,17 +355,29 @@ jobs:
   #; Test suite for DrevOps.
   drevops_test: &job_drevops_test
     <<: *container_config
+    parallelism: 1
+    steps:
+      - checkout
+      - *step_process_codebase
+      - *step_setup_remote_docker
+      - run:
+          name: Run functional tests
+          command: scripts/drevops/utils/ci-drevops-test.sh
+          no_output_timeout: 60m
+
+  drevops_test_workflow: &job_drevops_test_workflow
+    <<: *container_config
     parallelism: 2
     steps:
       - checkout
       - *step_process_codebase
       - *step_setup_remote_docker
       - run:
-          name: Run functional tests (long)
-          command: scripts/drevops/utils/ci-drevops-test.sh
+          name: Run workflow tests (long)
+          command: scripts/drevops/utils/ci-drevops-test-workflow.sh
           no_output_timeout: 60m
 
-  drevops_test_deployment:
+  drevops_test_deployment: &job_drevops_test_deployment
     <<: *container_config
     parallelism: 2
     steps:
@@ -570,10 +582,15 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - drevops_test_workflow:
+          filters:
+            tags:
+              only: /.*/
       #; Run deployment tests for DrevOps.
       - drevops_test_deployment:
           requires:
             - drevops_test
+            - drevops_test_workflow
             - build
           filters:
             tags:
@@ -584,6 +601,7 @@ workflows:
           requires:
             - build
             - drevops_test
+            - drevops_test_workflow
           filters:
             branches:
               # Allowed branches: 7.x, 8.x, 9.x, feature/7.x-description, feature/8.x-description, feature/9.x-description
@@ -596,6 +614,7 @@ workflows:
           requires:
             - build
             - drevops_test
+            - drevops_test_workflow
           filters:
             branches:
               ignore: /.*/
@@ -607,6 +626,7 @@ workflows:
           requires:
             - build
             - drevops_test
+            - drevops_test_workflow
           filters:
             branches:
               only: /^feature\/docs-update$/
