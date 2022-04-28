@@ -104,8 +104,8 @@ commands:
 
   login:
     usage: Login to a website.
-    #: Unblock user 1 and generate a one time login link.
-    cmd: ahoy drush uublk 1 -q && ahoy drush uli "$@"
+    # Unblock user 1 and generate a one time login link.
+    cmd: ahoy cli ./scripts/drevops/drupal-login.sh
 
   #;< !FRESH_INSTALL
   download-db:

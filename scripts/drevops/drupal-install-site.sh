@@ -188,12 +188,24 @@ fi
 # Sanitize database.
 "${APP}/scripts/drevops/drupal-sanitize-db.sh"
 
-# Unblock admin user.
-if [ "${DRUPAL_UNBLOCK_ADMIN}" == "1" ]; then
-  echo "==> Unblocking admin user."
-  $drush ${DRUSH_ALIAS} sqlq "SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" | head -n 1 | xargs $drush -- uublk
-  $drush uli
+# User mail and name for use 0 could have been sanitized - resetting it.
+echo "  > Resetting user 0 username and email."
+$drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+$drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+
+# User mail could have been sanitized - setting it back to a pre-defined mail.
+if [ -n "${DRUPAL_ADMIN_MAIL}" ]; then
+  echo "  > Updating user 1 email"
+  $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` SET mail = '${DRUPAL_ADMIN_MAIL}' WHERE uid = '1';"
 fi
+
+if [ "${DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" == "1" ]; then
+  echo "  > Updating user 1 username with user email"
+  $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid = '1';"
+fi
+
+# Generate a one-time login link.
+"${APP}/scripts/drevops/drupal-login.sh"
 
 # Run custom drupal site install scripts.
 # The files should be located in ""${APP}"/scripts/custom/" directory and must have
