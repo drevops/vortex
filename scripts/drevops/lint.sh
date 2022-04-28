@@ -43,7 +43,7 @@ if [ -z "${LINT_TYPE##*be*}" ]; then
   [ "${ALLOW_BE_LINT_FAIL}" -eq 1 ]
 fi
 
-if [ -z "${LINT_TYPE##*fe*}" ] && [ -n "${DRUPAL_THEME}" ]; then
+if [ -z "${LINT_TYPE##*fe*}" ] && [ -n "${DRUPAL_THEME}" ] && grep -q lint "docroot/themes/custom/${DRUPAL_THEME}/package.json"; then
   # Lint code using front-end linter.
   npm run --prefix "docroot/themes/custom/${DRUPAL_THEME}" lint || \
   # Flag to allow lint to fail.
