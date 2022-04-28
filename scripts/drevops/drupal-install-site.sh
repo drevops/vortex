@@ -169,7 +169,7 @@ if ls "${DRUPAL_CONFIG_PATH}"/*.yml >/dev/null 2>&1; then
     # failing on import for the non-existing environment is currently
     # the same as not failing on failed import.
     # @see https://www.drupal.org/project/config_split/issues/3171819
-    $drush ${DRUSH_ALIAS} config-split:import -y "${environment}" || true
+    $drush ${DRUSH_ALIAS} config-split:import -y "${environment:-}" || true
   fi
 else
   echo "==> Configuration was not found in ${DRUPAL_CONFIG_PATH} path."
