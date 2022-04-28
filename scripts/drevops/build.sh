@@ -89,7 +89,8 @@ ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install -n --ansi --prefer-dist --no
 if [ -n "${DRUPAL_THEME}" ]; then
   # Install all npm dependencies and compile FE assets.
   # Note that this will create/update package-lock.json file.
-  ahoy cli "npm --prefix docroot/themes/custom/${DRUPAL_THEME} install --no-audit --quiet --no-progress --unsafe-perm" && ahoy fe
+  [ -z "${CI}" ] && ahoy fei
+  [ -z "${CI}" ] && ahoy fe
 fi
 
 # Install site (from existing DB or fresh install).
