@@ -106,7 +106,7 @@ do
   sleep "${AC_API_STATUS_INTERVAL}"
   TASK_STATUS_JSON=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $TOKEN" "${NOTIFICATION_URL}")
   TASK_STATE=$(echo "$TASK_STATUS_JSON" | extract_json_value "status")
-  [ "$TASK_STATE" == "completed" ] && TASK_COMPLETED=1 && break
+  [ "$TASK_STATE" = "completed" ] && TASK_COMPLETED=1 && break
 
   echo "==> Retrieving authentication token."
   TOKEN_JSON=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${AC_API_KEY}" --data-urlencode "client_secret=${AC_API_SECRET}" --data-urlencode "grant_type=client_credentials")
@@ -115,7 +115,7 @@ do
 done
 echo
 
-if [ "${TASK_COMPLETED}" == "0" ] ; then
+if [ "${TASK_COMPLETED}" = "0" ] ; then
   echo "==> Unable to copy files from $AC_API_FILES_SRC_ENV to $AC_API_FILES_DST_ENV environment."
   exit 1
 fi

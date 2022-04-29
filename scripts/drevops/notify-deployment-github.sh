@@ -10,7 +10,7 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-{ [ "${SKIP_NOTIFY_DEPLOYMENT}" == "1" ] || [ "${SKIP_NOTIFY_GITHUB_DEPLOYMENT}" == "1" ]; } && echo "Skipping notification of GitHub deployment." && exit 0
+{ [ "${SKIP_NOTIFY_DEPLOYMENT}" = "1" ] || [ "${SKIP_NOTIFY_GITHUB_DEPLOYMENT}" = "1" ]; } && echo "Skipping notification of GitHub deployment." && exit 0
 
 # Deployment GitHub token.
 NOTIFY_DEPLOY_GITHUB_TOKEN="${NOTIFY_DEPLOY_GITHUB_TOKEN:-}"
@@ -56,7 +56,7 @@ extract_json_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-if [ "${NOTIFY_DEPLOY_GITHUB_OPERATION}" == "start" ]; then
+if [ "${NOTIFY_DEPLOY_GITHUB_OPERATION}" = "start" ]; then
   payload="$(curl \
     -X POST \
     -H "Authorization: token ${NOTIFY_DEPLOY_GITHUB_TOKEN}" \

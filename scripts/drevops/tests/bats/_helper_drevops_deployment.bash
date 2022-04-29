@@ -138,7 +138,7 @@ provision_site() {
   step "Add all files to new git repo"
   git_add_all_commit "Init DrevOps config" "${dir}"
 
-  if [ "${should_build}" == "1" ]; then
+  if [ "${should_build}" = "1" ]; then
     step "Build project"
     export SKIP_POST_DB_IMPORT=1
     ahoy build

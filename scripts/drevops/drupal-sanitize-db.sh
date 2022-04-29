@@ -44,7 +44,7 @@ echo "  > Sanitizing database using drush sql-sanitize."
 # Always sanitize password and email using standard methods.
 $drush ${DRUSH_ALIAS} sql-sanitize --sanitize-password="${DB_SANITIZE_PASSWORD}" --sanitize-email="${DB_SANITIZE_EMAIL}" -y
 
-if [ "${DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" == "1" ]; then
+if [ "${DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" = "1" ]; then
   echo "  > Updating username with user email."
   $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';"
 fi

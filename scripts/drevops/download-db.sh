@@ -72,27 +72,27 @@ export DB_DIR
 export DB_FILE
 export DATABASE_DOWNLOAD_REFRESH
 
-if [ "${DATABASE_DOWNLOAD_SOURCE}" == "ftp" ]; then
+if [ "${DATABASE_DOWNLOAD_SOURCE}" = "ftp" ]; then
   echo "==> Starting database dump download from FTP."
   ./scripts/drevops/download-db-ftp.sh
 fi
 
-if [ "${DATABASE_DOWNLOAD_SOURCE}" == "curl" ]; then
+if [ "${DATABASE_DOWNLOAD_SOURCE}" = "curl" ]; then
   echo "==> Starting database dump download from CURL."
   ./scripts/drevops/download-db-curl.sh
 fi
 
-if [ "${DATABASE_DOWNLOAD_SOURCE}" == "acquia" ]; then
+if [ "${DATABASE_DOWNLOAD_SOURCE}" = "acquia" ]; then
   echo "==> Starting database dump download from Acquia."
   ./scripts/drevops/download-db-acquia.sh
 fi
 
-if [ "${DATABASE_DOWNLOAD_SOURCE}" == "lagoon" ]; then
+if [ "${DATABASE_DOWNLOAD_SOURCE}" = "lagoon" ]; then
   echo "==> Starting database dump download from Lagoon."
   ./scripts/drevops/download-db-lagoon.sh
 fi
 
-if [ "${DATABASE_DOWNLOAD_SOURCE}" == "docker_registry" ]; then
+if [ "${DATABASE_DOWNLOAD_SOURCE}" = "docker_registry" ]; then
   echo "==> Starting database dump download from Docker Registry."
   ./scripts/drevops/download-db-image.sh "${DATABASE_IMAGE:-}"
 fi

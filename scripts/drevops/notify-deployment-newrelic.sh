@@ -6,7 +6,7 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-[ "${SKIP_NOTIFY_DEPLOYMENT}" == "1" ] && echo "Skipping notify deployment." && exit 0
+[ "${SKIP_NOTIFY_DEPLOYMENT}" = "1" ] && echo "Skipping notify deployment." && exit 0
 
 # The API key. Usually of type 'USER'.
 NOTIFY_NEWRELIC_APIKEY="${NOTIFY_NEWRELIC_APIKEY:-}"

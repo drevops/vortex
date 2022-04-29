@@ -705,7 +705,7 @@ run_install_interactive() {
 
   for i in "${answers[@]}"; do
     val="${i}"
-    [ "${i}" == "nothing" ] && val='\n' || val="${val}"'\n'
+    [ "${i}" = "nothing" ] && val='\n' || val="${val}"'\n'
     input="${input}""${val}"
   done
 
@@ -799,8 +799,8 @@ prepare_local_repo() {
   fi
 
   git_init 0 "${dir}"
-  [ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name." && git config --global user.name "Some User"
-  [ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email." && git config --global user.email "some.user@example.com"
+  [ "$(git config --global user.name)" = "" ] && echo "==> Configuring global git user name." && git config --global user.name "Some User"
+  [ "$(git config --global user.email)" = "" ] && echo "==> Configuring global git user email." && git config --global user.email "some.user@example.com"
   commit=$(git_add_all_commit "Initial commit" "${dir}")
 
   echo "${commit}"
@@ -898,7 +898,7 @@ replace_string_content() {
   local dir="${3}"
   local sed_opts
 
-  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
 
   set +e
   grep -rI \
@@ -930,7 +930,7 @@ sync_to_host() {
   local dst="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
-  [ "${VOLUMES_MOUNTED}" == "1" ] && return
+  [ "${VOLUMES_MOUNTED}" = "1" ] && return
   docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
 }
 
@@ -939,7 +939,7 @@ sync_to_container() {
   local src="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
-  [ "${VOLUMES_MOUNTED}" == "1" ] && return
+  [ "${VOLUMES_MOUNTED}" = "1" ] && return
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
 }
 
@@ -948,7 +948,7 @@ fix_host_dependencies() {
   # Replicate behaviour of install.php script to extract destination directory
   # passed as an argument.
   # shellcheck disable=SC2235
-  ([ "${1}" == "--quiet" ] || [ "${1}" == "-q" ]) && shift
+  ([ "${1}" = "--quiet" ] || [ "${1}" = "-q" ]) && shift
   # Destination directory, that can be overridden with the first argument to this script.
   DST_DIR="${DST_DIR:-$(pwd)}"
   DST_DIR=${1:-${DST_DIR}}

@@ -96,13 +96,13 @@ while read -r DOMAIN; do
   # Special variable to remap target env to the sub-domain prefix based on UI name.
   TARGET_ENV_REMAP="${TARGET_ENV}"
   # Strip placeholder for PROD environment.
-  if [ "${TARGET_ENV}" == "prod" ] ; then
+  if [ "${TARGET_ENV}" = "prod" ] ; then
     DOMAIN="${DOMAIN//\$TARGET_ENV_REMAP./}"
     DOMAIN="${DOMAIN//\$TARGET_ENV./}"
   fi
 
   # Re-map 'test' to 'stage' as seen in UI.
-  if [ "${TARGET_ENV}" == "test" ] ; then
+  if [ "${TARGET_ENV}" = "test" ] ; then
     TARGET_ENV_REMAP=stage
   fi
 
@@ -131,7 +131,7 @@ if [ "${#DOMAINS_LIST[@]}" -gt 0 ]; then
 
     # If domain does not exist - notification will be empty; we are skipping
     # non-existing domains without a failure.
-    if [ "${NOTIFICATION_URL}" == "" ]; then
+    if [ "${NOTIFICATION_URL}" = "" ]; then
       echo "==> Unable to flush Varnish for ${AC_API_VARNISH_ENV} environment domain ${domain} as it does not exist."
       break;
     fi
@@ -145,7 +145,7 @@ if [ "${#DOMAINS_LIST[@]}" -gt 0 ]; then
       sleep "${AC_API_STATUS_INTERVAL}"
       TASK_STATUS_JSON=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $TOKEN" "${NOTIFICATION_URL}")
       TASK_STATE=$(echo "$TASK_STATUS_JSON" | extract_json_value "status")
-      if [ "$TASK_STATE" == "completed" ]; then
+      if [ "$TASK_STATE" = "completed" ]; then
         echo "==> Successfully flushed Varnish cache for ${AC_API_VARNISH_ENV} environment domain ${domain}."
         TASK_COMPLETED=1;
         break 1;
@@ -158,7 +158,7 @@ if [ "${#DOMAINS_LIST[@]}" -gt 0 ]; then
     done
     echo
 
-    if [ "${TASK_COMPLETED}" == "0" ] ; then
+    if [ "${TASK_COMPLETED}" = "0" ] ; then
       echo "==> Unable to flush Varnish for ${AC_API_VARNISH_ENV} environment domain ${domain}."
     fi
   done;
