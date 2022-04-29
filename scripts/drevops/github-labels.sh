@@ -54,7 +54,7 @@ main(){
   echo "==> Processing GitHub labels."
 
   echo
-  if [ "${GITHUB_DELETE_EXISTING_LABELS}" == "1" ]; then
+  if [ "${GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
     echo "  This script will remove the default GitHub labels."
   else
     echo "  This script will not remove the default GitHub labels."
@@ -63,20 +63,20 @@ main(){
   echo "  A personal access token is required to access private repositories."
   echo
 
-  if [  "${GITHUB_REPO}" == "" ]; then
+  if [  "${GITHUB_REPO}" = "" ]; then
     echo ''
     echo -n 'Enter GitHub Org/Repo (e.g. myorg/myrepo): '
     read -r GITHUB_REPO
   fi
 
-  [  "${GITHUB_REPO}" == "" ] && echo "ERROR: GitHub repository name is required" && exit 1
+  [  "${GITHUB_REPO}" = "" ] && echo "ERROR: GitHub repository name is required" && exit 1
 
-  if [  "${GITHUB_TOKEN}" == "" ]; then
+  if [  "${GITHUB_TOKEN}" = "" ]; then
     echo ''
     echo -n 'GitHub Personal Access Token: '
     read -r -s GITHUB_TOKEN
   fi
-  [  "${GITHUB_TOKEN}" == "" ] && echo "ERROR: GitHub token name is required" && exit 1
+  [  "${GITHUB_TOKEN}" = "" ] && echo "ERROR: GitHub token name is required" && exit 1
 
   repo_org=$(echo "$GITHUB_REPO" | cut -f1 -d /)
   repo_name=$(echo "$GITHUB_REPO" | cut -f2 -d /)
@@ -92,7 +92,7 @@ main(){
   timeout 5
   echo
 
-  if [ "${GITHUB_DELETE_EXISTING_LABELS}" == "1" ]; then
+  if [ "${GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
     echo "  > Checking existing labels"
     existing_labels_strings="$(label_all)"
     # shellcheck disable=SC2207
@@ -149,7 +149,7 @@ is_provided_label(){
   for value in "${GITHUB_LABELS[@]}"; do
     if (( count % 3 == 0)); then
       name="${value}"
-      if [ "${label}" == "${name}" ]; then
+      if [ "${label}" = "${name}" ]; then
         return 0;
       fi
     fi
@@ -169,7 +169,7 @@ user_has_access(){
     --request GET \
     "https://api.github.com/repos/${repo_org}/${repo_name}/labels" \
   )
-  [ "${status}" == "200" ]
+  [ "${status}" = "200" ]
 }
 
 label_all(){
@@ -195,7 +195,7 @@ label_exists() {
     --request GET \
     "https://api.github.com/repos/${repo_org}/${repo_name}/labels/${name_encoded}" \
     )
-  [ "${status}" == "200" ]
+  [ "${status}" = "200" ]
 }
 
 label_create(){
@@ -211,7 +211,7 @@ label_create(){
     --data "{\"name\":\"${name}\",\"color\":\"${color}\", \"description\":\"${description}\"}" \
     "https://api.github.com/repos/${repo_org}/${repo_name}/labels" \
   )
-  [ "${status}" == "201" ]
+  [ "${status}" = "201" ]
 }
 
 label_update(){
@@ -228,7 +228,7 @@ label_update(){
     --data "{\"name\":\"${name}\",\"color\":\"${color}\", \"description\":\"${description}\"}" \
     "https://api.github.com/repos/${repo_org}/${repo_name}/labels/${name_encoded}" \
   )
-  [ "${status}" == "200" ]
+  [ "${status}" = "200" ]
 }
 
 label_delete(){
@@ -244,7 +244,7 @@ label_delete(){
     --request DELETE \
     "https://api.github.com/repos/${repo_org}/${repo_name}/labels/${name_encoded}" \
   )
-  [ "${status}" == "204" ]
+  [ "${status}" = "204" ]
 }
 
 jsonval(){

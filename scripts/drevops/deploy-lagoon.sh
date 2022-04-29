@@ -86,7 +86,7 @@ fi
 
 # ACTION: 'destroy'
 # Explicitly specifying "destroy" action as a failsafe.
-if [ "${DEPLOY_ACTION}" == "destroy" ]; then
+if [ "${DEPLOY_ACTION}" = "destroy" ]; then
   echo "  > Destroying environment: project ${LAGOON_PROJECT}, branch: ${DEPLOY_BRANCH}."
   lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" delete environment -p "${LAGOON_PROJECT}" -e "${DEPLOY_BRANCH}" || true
 
@@ -103,7 +103,7 @@ else
 
     is_redeploy=0
     for name in $names; do
-      if [ "${deploy_pr_full}" == "${name}" ]; then
+      if [ "${deploy_pr_full}" = "${name}" ]; then
         echo "  > Found already deployed environment for PR \"${DEPLOY_PR}\"."
         is_redeploy=1;
         break;
@@ -111,7 +111,7 @@ else
     done
 
     # Re-deployment of the existing environment.
-    if [ "${is_redeploy}" == "1" ]; then
+    if [ "${is_redeploy}" = "1" ]; then
 
       # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       # @see https://github.com/uselagoon/lagoon/issues/1922
@@ -119,7 +119,7 @@ else
       lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" add variable -p "${LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DB_IMPORT_OVERWRITE_EXISTING -V 0 -S global || true
 
       # Override DB during re-deployment.
-      if [ "${DEPLOY_ACTION}" == "deploy_override_db" ]; then
+      if [ "${DEPLOY_ACTION}" = "deploy_override_db" ]; then
         echo "  > Add a DB import override flag for the current deployment."
         # To update variable value, we need to remove it and add again.
         lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" delete variable -p "${LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DB_IMPORT_OVERWRITE_EXISTING || true
@@ -129,7 +129,7 @@ else
       echo "  > Redeploying environment: project ${LAGOON_PROJECT}, PR: ${DEPLOY_PR}."
       lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" deploy pullrequest -p "${LAGOON_PROJECT}" -n "${DEPLOY_PR}" --baseBranchName "${DEPLOY_PR_BASE_BRANCH}" -R "origin/${DEPLOY_PR_BASE_BRANCH}" -H "${DEPLOY_BRANCH}" -M "${DEPLOY_PR_HEAD}" -t "${deploy_pr_full}"
 
-      if [ "${DEPLOY_ACTION}" == "deploy_override_db" ]; then
+      if [ "${DEPLOY_ACTION}" = "deploy_override_db" ]; then
         echo "  > Waiting for deployment to be queued."
         sleep 10
 
@@ -155,7 +155,7 @@ else
 
     is_redeploy=0
     for name in $names; do
-      if [ "${DEPLOY_BRANCH}" == "${name}" ]; then
+      if [ "${DEPLOY_BRANCH}" = "${name}" ]; then
         echo "  > Found already deployed environment for branch \"${DEPLOY_BRANCH}\"."
         is_redeploy=1;
         break;
@@ -163,7 +163,7 @@ else
     done
 
     # Re-deployment of the existing environment.
-    if [ "${is_redeploy}" == "1" ]; then
+    if [ "${is_redeploy}" = "1" ]; then
 
       # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       # @see https://github.com/uselagoon/lagoon/issues/1922
@@ -171,7 +171,7 @@ else
       lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" add variable -p "${LAGOON_PROJECT}" -e "${DEPLOY_BRANCH}" -N DB_IMPORT_OVERWRITE_EXISTING -V 0 -S global || true
 
       # Override DB during re-deployment.
-      if [ "${DEPLOY_ACTION}" == "deploy_override_db" ]; then
+      if [ "${DEPLOY_ACTION}" = "deploy_override_db" ]; then
         echo "  > Add a DB import override flag for the current deployment."
         # To update variable value, we need to remove it and add again.
         lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" delete variable -p "${LAGOON_PROJECT}" -e "${DEPLOY_BRANCH}" -N DB_IMPORT_OVERWRITE_EXISTING || true
@@ -181,7 +181,7 @@ else
       echo "  > Redeploying environment: project ${LAGOON_PROJECT}, branch: ${DEPLOY_BRANCH}."
       lagoon --force --skip-update-check -i "${DEPLOY_SSH_FILE}" -l "${LAGOON_INSTANCE}" deploy latest -p "${LAGOON_PROJECT}" -e "${DEPLOY_BRANCH}" || true
 
-      if [ "${DEPLOY_ACTION}" == "deploy_override_db" ]; then
+      if [ "${DEPLOY_ACTION}" = "deploy_override_db" ]; then
         echo "  > Waiting for deployment to be queued."
         sleep 10
 

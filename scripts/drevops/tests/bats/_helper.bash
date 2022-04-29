@@ -188,7 +188,7 @@ assert_file_mode() {
   local perm="${2}"
   assert_file_exists "${file}"
 
-  if [ "$(uname)" == "Darwin" ]; then
+  if [ "$(uname)" = "Darwin" ]; then
     parsed=$(printf "%.3o\n" $(($(stat -f '0%Lp' "$file") & ~0022)))
   else
     parsed=$(printf "%.3o\n" $(($(stat --printf '0%a' "$file") & ~0022)))
@@ -371,7 +371,7 @@ assert_dirs_equal() {
 }
 
 assert_empty() {
-  if [ "${1}" == "" ]; then
+  if [ "${1}" = "" ]; then
     return 0
   else
     format_error "String ${1} is not empty, but should be" | flunk
@@ -379,7 +379,7 @@ assert_empty() {
 }
 
 assert_not_empty() {
-  if [ "${1}" == "" ]; then
+  if [ "${1}" = "" ]; then
     format_error "String ${1} is empty, but should not be" | flunk
   else
     return 0
@@ -471,7 +471,7 @@ read_env() {
 # Trim the last line of the file.
 trim_file() {
   local sed_opts
-  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
   sed_opts+=(-e '$ d')
   sed "${sed_opts[@]}" "${1}"
 }

@@ -86,7 +86,7 @@ if
   # DB dump file exists AND
   [ -f "${DB_DIR}/${DB_FILE}" ] &&
   # Site is not installed OR allowed to overwrite existing site.
-  ([ "${site_is_installed}" != "1" ] || [ "${DB_IMPORT_OVERWRITE_EXISTING}" == "1" ])
+  ([ "${site_is_installed}" != "1" ] || [ "${DB_IMPORT_OVERWRITE_EXISTING}" = "1" ])
 then
   echo "****************************************"
   echo "==> Importing database from dump."
@@ -95,7 +95,7 @@ then
   DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" "${APP}/scripts/drevops/drupal-import-db.sh"
 elif
   # If site is installed AND
-  [ "${site_is_installed}" == "1" ] &&
+  [ "${site_is_installed}" = "1" ] &&
   # Not allowed to forcefully install from profile.
   [ "${FORCE_FRESH_INSTALL}" != "1" ]
 then
@@ -199,7 +199,7 @@ if [ -n "${DRUPAL_ADMIN_MAIL}" ]; then
   $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` SET mail = '${DRUPAL_ADMIN_MAIL}' WHERE uid = '1';"
 fi
 
-if [ "${DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" == "1" ]; then
+if [ "${DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" = "1" ]; then
   echo "  > Updating user 1 username with user email"
   $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid = '1';"
 fi

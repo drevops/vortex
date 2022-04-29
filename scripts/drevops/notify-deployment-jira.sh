@@ -10,7 +10,7 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-{ [ "${SKIP_NOTIFY_DEPLOYMENT}" == "1" ] || [ "${SKIP_NOTIFY_GITHUB_DEPLOYMENT}" == "1" ]; } && echo "Skipping notification of GitHub deployment." && exit 0
+{ [ "${SKIP_NOTIFY_DEPLOYMENT}" = "1" ] || [ "${SKIP_NOTIFY_GITHUB_DEPLOYMENT}" = "1" ]; } && echo "Skipping notification of GitHub deployment." && exit 0
 
 # JIRA user.
 NOTIFY_DEPLOY_JIRA_USER="${NOTIFY_DEPLOY_JIRA_USER:-}"
@@ -80,7 +80,7 @@ extract_issue() {
 
 echo "  > Extracting issue"
 issue="$(extract_issue "${NOTIFY_DEPLOY_BRANCH}")"
-[ "${issue}" == "" ] && echo "ERROR: Branch ${NOTIFY_DEPLOY_BRANCH} does not contain issue number." && exit 1
+[ "${issue}" = "" ] && echo "ERROR: Branch ${NOTIFY_DEPLOY_BRANCH} does not contain issue number." && exit 1
 echo "    Found issue ${issue}"
 
 echo "  > Creating API token"
@@ -133,7 +133,7 @@ if [ -n "${NOTIFY_DEPLOY_JIRA_TRANSITION}" ]; then
     --url "${NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/transitions")"
 
   transition_id="$(echo "${payload}" | extract_json_value "transitions" | extract_json_value_by_value "name" "${NOTIFY_DEPLOY_JIRA_TRANSITION}" "id" || echo "error")"
-  { [ "${transition_id}" == "" ] || [ "$(expr "x$transition_id" : "x[0-9]*$")" -eq 0 ]; } &&  echo "ERROR: Failed to retrieve transition ID" && exit 1
+  { [ "${transition_id}" = "" ] || [ "$(expr "x$transition_id" : "x[0-9]*$")" -eq 0 ]; } &&  echo "ERROR: Failed to retrieve transition ID" && exit 1
   echo -n "success"
 
   payload="$(curl \

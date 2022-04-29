@@ -35,7 +35,7 @@ if [ "${DEPLOY_PROCEED}" != "1" ]; then
   echo "Skipping deployment ${DEPLOY_TYPE}." && exit 0
 fi
 
-if [ "${DEPLOY_ALLOW_SKIP}" == "1" ]; then
+if [ "${DEPLOY_ALLOW_SKIP}" = "1" ]; then
   echo "  > Found flag to allow skipping a deployment."
 
   if [ -n "${DEPLOY_PR}" ]; then

@@ -98,7 +98,7 @@ Ask for user input:
       echo "and another line"
     fi
 
-    if [ "${VAR}" == "value" ] then
+    if [ "${VAR}" = "value" ] then
       echo "output"
       echo "another line"
     fi
@@ -108,25 +108,25 @@ Ask for user input:
       echo "another line"
     fi
 
-    if [ "${VAR1}" == "value1" ] && [ "${VAR2}" == "value2" ] then
+    if [ "${VAR1}" = "value1" ] && [ "${VAR2}" = "value2" ] then
       echo "output"
       echo "another line"
     fi
 
-    if { [ "${VAR1}" == "value1" ] && [ "${VAR2}" == "value2" ] } || [ "${VAR3}" == "value3" ]; then
+    if { [ "${VAR1}" = "value1" ] && [ "${VAR2}" = "value2" ] } || [ "${VAR3}" = "value3" ]; then
       echo "output"
       echo "another line"
     fi
 
 One-liners:
 
-    [ "${VAR1}" == "value1" ] && echo "line" || exit 1
+    [ "${VAR1}" = "value1" ] && echo "line" || exit 1
 
-    { [ "${VAR1}" == "value1" ] && [ "${VAR2}" == "value2" ] } || [ "${VAR3}" == "value3" ] && echo "line" || exit 1
+    { [ "${VAR1}" = "value1" ] && [ "${VAR2}" = "value2" ] } || [ "${VAR3}" = "value3" ] && echo "line" || exit 1
 
 String comparisons:
 
-    [ "${VAR1}" == "value1" ] && echo "equal"
+    [ "${VAR1}" = "value1" ] && echo "equal"
 
     [ "${VAR1}" != "value1" ] && echo "not equal"
 

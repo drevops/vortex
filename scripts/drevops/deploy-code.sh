@@ -69,8 +69,8 @@ echo "==> Started CODE deployment."
 [ -z "${DEPLOY_GIT_USER_EMAIL}" ] && echo "Missing required value for DEPLOY_GIT_USER_EMAIL." && exit 1
 
 # Configure global git settings, if they do not exist.
-[ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name." && git config --global user.name "${DEPLOY_GIT_USER_NAME}"
-[ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email." && git config --global user.email "${DEPLOY_GIT_USER_EMAIL}"
+[ "$(git config --global user.name)" = "" ] && echo "==> Configuring global git user name." && git config --global user.name "${DEPLOY_GIT_USER_NAME}"
+[ "$(git config --global user.email)" = "" ] && echo "==> Configuring global git user email." && git config --global user.email "${DEPLOY_GIT_USER_EMAIL}"
 
 # Use custom deploy key if fingerprint is provided.
 if [ -n "${DEPLOY_SSH_FINGERPRINT}" ]; then
