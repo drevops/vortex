@@ -272,10 +272,10 @@ assert_files_present_common() {
   assert_dir_not_exists "scripts/drevops/tests"
   assert_dir_not_exists "scripts/drevops/utils"
   assert_file_not_exists ".github/FUNDING.yml"
-  assert_file_not_contains ".circleci/config.yml" "drevops_test"
-  assert_file_not_contains ".circleci/config.yml" "drevops_test_deployment"
-  assert_file_not_contains ".circleci/config.yml" "drevops_deploy"
-  assert_file_not_contains ".circleci/config.yml" "drevops_deploy_tags"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test_deployment"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_deploy"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_deploy_tags"
 
   # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"

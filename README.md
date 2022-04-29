@@ -1,4 +1,4 @@
-[//]: # (#;< DREVOPS)
+[//]: # (#;< DREVOPS_DEV)
 <p align="center">
 	<img width="400" src="https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/drevops_logo_text_white.png" alt="DrevOps Logo" />
 </div>
@@ -246,7 +246,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 
 **All content above this line will be automatically removed during installation.**
 
-[//]: # (#;> DREVOPS)
+[//]: # (#;> DREVOPS_DEV)
 # YOURSITE
 Drupal 9 implementation of YOURSITE for YOURORG
 

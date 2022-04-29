@@ -497,7 +497,7 @@ function process__demo_mode($dir) {
 function process__preserve_drevops_info($dir) {
   if (get_answer('preserve_drevops_info') == ANSWER_NO) {
     // Remove code required for DrevOps maintenance.
-    remove_token_with_content('DREVOPS', $dir);
+    remove_token_with_content('DREVOPS_DEV', $dir);
 
     // Remove all other comments.
     remove_token_line('#;', $dir);
@@ -693,7 +693,7 @@ function ask_should_proceed() {
 
   // Kill-switch to not proceed with install. If false, the install will not
   // proceed despite the answer received above.
-  if (!get_config('DREVOPS_PROCEED')) {
+  if (!get_config('DREVOPS_PROCEED_INSTALLATION')) {
     $proceed = ANSWER_NO;
   }
 
@@ -838,7 +838,7 @@ function init_config() {
   set_config('DREVOPS_INSTALL_DEBUG', (bool) getenv_or_default('DREVOPS_INSTALL_DEBUG', FALSE));
   // Flag to proceed with installation. If FALSE - the installation will only
   // print resolved values and will not proceed.
-  set_config('DREVOPS_PROCEED', (bool) getenv_or_default('DREVOPS_PROCEED', TRUE));
+  set_config('DREVOPS_PROCEED_INSTALLATION', (bool) getenv_or_default('DREVOPS_PROCEED_INSTALLATION', TRUE));
   // Temporary directory to download and expand files to.
   set_config('DREVOPS_TMP_DIR', getenv_or_default('DREVOPS_TMP_DIR', tempdir()));
   // Path to local DrevOps repository. If not provided - remote will be used.

@@ -41,11 +41,11 @@ docroot/sites/default/*
 !docroot/robots.txt
 !docroot/update.php
 
-#;< DREVOPS
+#;< DREVOPS_DEV
 #; Ignore these files in DrevOps itself, but do not ignore in consumer site.
 composer.lock
 package-lock.json
-#;> DREVOPS
+#;> DREVOPS_DEV
 
 # Ignore dependencies cache files.
 vendor
