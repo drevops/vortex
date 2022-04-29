@@ -53,7 +53,7 @@ if [ -n "${DATABASE_IMAGE}" ]; then
 fi
 
 # Running 'ahoy up' directly will show the build progress.
-[ -n "${BUILD_VERBOSE}" ] && BUILD_VERBOSE_OUTPUT="/dev/stdout" || BUILD_VERBOSE_OUTPUT="/dev/null"
+[ "${BUILD_VERBOSE}" = "1" ] && BUILD_VERBOSE_OUTPUT="/dev/stdout" || BUILD_VERBOSE_OUTPUT="/dev/null"
 ahoy up -- --build --force-recreate > "${BUILD_VERBOSE_OUTPUT}"
 
 # Export code built within containers before adding development dependencies.

@@ -31,6 +31,6 @@ fi
 echo  "Mailhog URL              : http://mailhog.docker.amazee.io/"
 echo  "Xdebug                   : $(php -v | grep -q Xdebug && echo "Enabled" || echo "Disabled")"
 # For performance, generate one-time login link only if explicitly requested.
-if [ -n "${SHOW_LOGIN_LINK}" ] || [ -n "${1}" ]; then
+if [ "${SHOW_LOGIN_LINK}" = "1" ] || [ -n "${1}" ]; then
   echo  "One-time login           : $($drush uublk 1 -q && $drush uli -l "${LOCALDEV_URL}" --no-browser)"
 fi

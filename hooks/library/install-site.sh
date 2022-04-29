@@ -9,7 +9,7 @@ set -e
 SITE="${1}"
 TARGET_ENV="${2}"
 
-[ -n "${SKIP_INSTALL_SITE}" ] && echo "Skipping install site." && exit
+[ "${SKIP_INSTALL_SITE}" = "1" ] && echo "Skipping install site." && exit
 
 export APP="/var/www/html/${SITE}.${TARGET_ENV}"
 export SCRIPTS_DIR="${SCRIPTS_DIR:-"${APP}/scripts"}"

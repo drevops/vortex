@@ -8,7 +8,7 @@ set -e
 SITE="${1}"
 TARGET_ENV="${2}"
 
-[ -n "${SKIP_FLUSH_VARNISH}" ] && echo "Skipping flush Varnish." && exit 0
+[ "${SKIP_FLUSH_VARNISH}" = "1" ] && echo "Skipping flush Varnish." && exit 0
 
 export SCRIPTS_DIR="${SCRIPTS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/scripts"}"
 export HOOKS_DIR="${HOOKS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/hooks"}"

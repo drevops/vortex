@@ -137,7 +137,7 @@ commands:
     cmd: |
       [ -z "${DATABASE_IMAGE}" ] && docker-compose exec -e DB_DIR=${DB_DIR:-} -T cli ./scripts/drevops/drupal-export-db.sh "$@" || \
       ( DOCKER_IMAGE="${DATABASE_IMAGE}" ./scripts/drevops/drupal-export-db-image.sh "$@";
-        if [ -n "${EXPORT_DB_DEPLOY_DOCKER}" ]; then DOCKER_MAP=mariadb=${DATABASE_IMAGE} DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG} ./scripts/drevops/deploy-docker.sh; fi )
+        if [ "${EXPORT_DB_DEPLOY_DOCKER}" = "1" ]; then DOCKER_MAP=mariadb=${DATABASE_IMAGE} DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG} ./scripts/drevops/deploy-docker.sh; fi )
 
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.

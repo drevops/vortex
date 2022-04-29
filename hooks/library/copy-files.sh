@@ -8,7 +8,7 @@ set -e
 SITE="${1}"
 TARGET_ENV="${2}"
 
-[ -n "${SKIP_COPY_FILES}" ] && echo "Skipping copying of files Varnish." && exit 0
+[ "${SKIP_COPY_FILES}" = "1" ] && echo "Skipping copying of files Varnish." && exit 0
 
 export SCRIPTS_DIR="${SCRIPTS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/scripts"}"
 export HOOKS_DIR="${HOOKS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/hooks"}"

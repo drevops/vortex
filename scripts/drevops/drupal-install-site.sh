@@ -128,7 +128,7 @@ fi
 # Skip running of post DB import scripts and finish installation.
 # Useful when need to capture database state before any updates ran (for
 # example, DB caching in CI).
-if [ -n "${SKIP_POST_DB_IMPORT}" ]; then
+if [ "${SKIP_POST_DB_IMPORT}" = "1" ]; then
   echo "==> Skipped running of post DB init commands."
   # Rebuild cache.
   $drush ${DRUSH_ALIAS} cr
@@ -140,7 +140,7 @@ fi
 
 echo "==> Running post DB init commands."
 
-if [ -n "${DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" ]; then
+if [ "${DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" = "1" ]; then
   echo "==> Enabled maintenance mode."
   $drush ${DRUSH_ALIAS} state:set system.maintenance_mode 1 --input-format=integer
 fi
@@ -220,7 +220,7 @@ if [ -d "${APP}/scripts/custom" ]; then
   unset file
 fi
 
-if [ -n "${DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" ]; then
+if [ "${DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" = "1" ]; then
   echo "==> Disabled maintenance mode."
   $drush ${DRUSH_ALIAS} state:set system.maintenance_mode 0 --input-format=integer
 fi
