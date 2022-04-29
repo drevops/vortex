@@ -443,15 +443,17 @@ assert_files_present_integration_acquia() {
   assert_dir_exists "hooks/common/post-code-update"
   assert_symlink_exists "hooks/common/post-code-update/1.install-site.sh"
   assert_symlink_exists "hooks/common/post-code-update/2.flush-varnish.sh"
+  assert_symlink_exists "hooks/common/post-code-update/3.notify-deployment-email.sh"
   assert_symlink_exists "hooks/common/post-code-deploy"
   assert_symlink_exists "hooks/common/post-db-copy/1.install-site.sh"
   assert_symlink_exists "hooks/common/post-db-copy/2.flush-varnish.sh"
+  assert_symlink_exists "hooks/common/post-db-copy/3.notify-deployment-email.sh"
 
   assert_dir_exists "hooks/prod"
   assert_dir_exists "hooks/prod/post-code-deploy"
   assert_symlink_exists "hooks/prod/post-code-update"
   assert_symlink_not_exists "hooks/prod/post-db-copy"
-  assert_symlink_exists "hooks/prod/post-code-update/1.notify-newrelic.sh"
+  assert_symlink_exists "hooks/prod/post-code-update/1.notify-deployment-newrelic.sh"
 
   assert_file_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php"
   assert_file_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
