@@ -37,6 +37,14 @@ commands:
         -e SHOW_LOGIN_LINK=${SHOW_LOGIN_LINK} \
         cli ./scripts/drevops/info.sh "$@"
 
+  db:
+    usage: Open DB in Sequel Ace
+    cmd: |
+      uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace'|grep -q "Ace" \
+      && HOST_DB_PORT="$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" \
+      && open "mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@127.0.0.1:${HOST_DB_PORT}/drupal" -a "Sequel Ace" \
+      || echo "Not a supported OS or Sequel Ace is not installed."
+
   # ----------------------------------------------------------------------------
   # Docker commands.
   # ----------------------------------------------------------------------------
