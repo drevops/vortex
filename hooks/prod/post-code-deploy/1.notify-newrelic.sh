@@ -1,1 +1,0 @@
-../../library/notify-newrelic.sh

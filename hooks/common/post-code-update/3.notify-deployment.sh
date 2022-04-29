@@ -1,1 +1,0 @@
-../../library/notify-deployment.sh
