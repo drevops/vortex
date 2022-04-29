@@ -22,7 +22,7 @@ NOTIFY_NEWRELIC_APIKEY="${NOTIFY_NEWRELIC_APIKEY:-}"
 
 # ------------------------------------------------------------------------------
 
-[ -n "${SKIP_NOTIFY_DEPLOYMENT}" ] && echo "Skipping sending of deployment notification." && exit 0
+[ "${SKIP_NOTIFY_DEPLOYMENT}" = "1" ] && echo "Skipping sending of deployment notification." && exit 0
 
 export SCRIPTS_DIR="${SCRIPTS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/scripts"}"
 

@@ -656,7 +656,7 @@ run_install_quiet() {
   # export DREVOPS_DEBUG=1
 
   opt_quiet="--quiet"
-  [ -n "${TEST_RUN_INSTALL_INTERACTIVE}" ] && opt_quiet=""
+  [ "${TEST_RUN_INSTALL_INTERACTIVE}" = "1" ] && opt_quiet=""
 
   run php "${CUR_DIR}/install.php" "${opt_quiet}" "$@"
 

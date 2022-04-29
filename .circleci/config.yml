@@ -285,10 +285,8 @@ jobs:
           when: always
       - store_test_results:
           path: *test_log_dir
-          when: always
       - store_artifacts:
           path: *test_artifact_dir
-          when: always
       #:
       #: Persisting previously built application code artifact (without
       #: development dependencies) to use it in deployment job.
