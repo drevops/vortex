@@ -72,24 +72,24 @@ load _helper_drevops_deployment
 
   substep "Running deployment."
   # This deployment uses all 3 types.
-  export DEPLOY_TYPE="code,webhook,docker"
+  export DREVOPS_DEPLOY_TYPE="code,webhook,docker"
 
   # Variables for CODE deployment.
-  export DEPLOY_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
+  export DREVOPS_DEPLOY_CODE_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
   export DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
   export DEPLOY_CODE_SRC="${SRC_DIR}"
-  export DEPLOY_GIT_USER_EMAIL="${DEPLOY_GIT_USER_EMAIL:-testuser@example.com}"
+  export DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL="${DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL:-testuser@example.com}"
 
   # Variables for WEBHOOK deployment.
-  export DEPLOY_WEBHOOK_URL=http://example.com
-  export DEPLOY_WEBHOOK_RESPONSE_STATUS=200
+  export DREVOPS_DEPLOY_WEBHOOK_URL=http://example.com
+  export DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS=200
 
   # Variables for DOCKER deployment.
   # @todo: Not implemented. Add here when implemented.
 
   # Proceed with deployment.
   # @todo: Add tests for deployment kill-switch.
-  export DEPLOY_PROCEED=1
+  export DREVOPS_DEPLOY_PROCEED=1
 
   # Run deployment.
   run ahoy deploy
@@ -174,18 +174,18 @@ load _helper_drevops_deployment
 
   substep "Running deployment."
 
-  export DEPLOY_TYPE="webhook"
+  export DREVOPS_DEPLOY_TYPE="webhook"
 
   # Variables for WEBHOOK deployment.
-  export DEPLOY_WEBHOOK_URL=http://example.com
-  export DEPLOY_WEBHOOK_RESPONSE_STATUS=200
+  export DREVOPS_DEPLOY_WEBHOOK_URL=http://example.com
+  export DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS=200
 
   #
   # Test assertions.
   #
 
   step "Run deployment without proceed flag set."
-  export DEPLOY_PROCEED=0
+  export DREVOPS_DEPLOY_PROCEED=0
 
   run ahoy deploy
   assert_success
@@ -193,7 +193,7 @@ load _helper_drevops_deployment
   assert_output_not_contains "==> Started WEBHOOK deployment."
 
   substep "Run deployment without skip flag set."
-  export DEPLOY_PROCEED=1
+  export DREVOPS_DEPLOY_PROCEED=1
 
   run ahoy deploy
   assert_success
@@ -202,7 +202,7 @@ load _helper_drevops_deployment
   assert_output_contains "==> Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set, but without per-branch or per-pr skip flags."
-  export DEPLOY_PROCEED=1
+  export DREVOPS_DEPLOY_PROCEED=1
   export DEPLOY_ALLOW_SKIP=1
 
   run ahoy deploy
@@ -213,7 +213,7 @@ load _helper_drevops_deployment
   assert_output_contains "==> Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set and with per-branch flag set."
-  export DEPLOY_PROCEED=1
+  export DREVOPS_DEPLOY_PROCEED=1
   export DEPLOY_ALLOW_SKIP=1
 
   export DEPLOY_BRANCH="feature/test"
@@ -228,7 +228,7 @@ load _helper_drevops_deployment
   assert_output_not_contains "==> Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set and with per-pr flag set."
-  export DEPLOY_PROCEED=1
+  export DREVOPS_DEPLOY_PROCEED=1
   export DEPLOY_ALLOW_SKIP=1
 
   export DEPLOY_PR="123"
@@ -243,7 +243,7 @@ load _helper_drevops_deployment
   assert_output_not_contains "==> Finished WEBHOOK deployment."
 
   step "Run deployment without skip flag set and with per-pr flag set."
-  export DEPLOY_PROCEED=1
+  export DREVOPS_DEPLOY_PROCEED=1
   unset DEPLOY_ALLOW_SKIP
 
   export DEPLOY_PR="123"

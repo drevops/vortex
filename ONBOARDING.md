@@ -107,7 +107,7 @@ indicate that it was addressed.
 - [ ] Configure Lagoon integration:
     - [ ] Submit a request to AmazeeIO to create a project.
     - [ ] Add your public key to the project.
-    - [ ] Set `LAGOON_INTEGRATION_COMPLETE=1` in `.env` file.
+    - [ ] Set `DREVOPS_LAGOON_INTEGRATION_COMPLETE=1` in `.env` file.
     - [ ] Ensure that you have access to Lagoon: run `ahoy cli` and `drush sa` -
           a list of available environments should be shown (at least one
           environment).

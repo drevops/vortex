@@ -27,6 +27,6 @@ export SKIP_DB_IMPORT=1
 export SKIP_DB_SANITIZE=1
 
 # Do not unblock admin account.
-export DRUPAL_UNBLOCK_ADMIN=0
+export DREVOPS_DRUPAL_UNBLOCK_ADMIN=0
 
 "$SCRIPTS_DIR"/drevops/drupal-install-site.sh

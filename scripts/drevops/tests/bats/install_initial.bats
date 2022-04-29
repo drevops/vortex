@@ -33,8 +33,8 @@ load _helper_drevops
   assert_git_repo "${DST_PROJECT_DIR}"
 }
 
-@test "Install into empty directory: PROJECT from env variable" {
-  export PROJECT="the_matrix"
+@test "Install into empty directory: DREVOPS_PROJECT from env variable" {
+  export DREVOPS_PROJECT="the_matrix"
 
   run_install_quiet
 
@@ -42,8 +42,8 @@ load _helper_drevops
   assert_git_repo
 }
 
-@test "Install into empty directory: PROJECT from .env file" {
-  echo "PROJECT=\"the_matrix\"" > ".env"
+@test "Install into empty directory: DREVOPS_PROJECT from .env file" {
+  echo "DREVOPS_PROJECT=\"the_matrix\"" > ".env"
 
   run_install_quiet
 
@@ -197,36 +197,36 @@ load _helper_drevops
 }
 
 @test "Install into empty directory; db from curl, storage is database import" {
-  export DATABASE_DOWNLOAD_SOURCE=curl
+  export DREVOPS_DATABASE_DOWNLOAD_SOURCE=curl
 
   run_install_quiet
 
-  assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=curl"
-  assert_file_contains ".env" "CURL_DB_URL="
-  assert_file_contains ".env" "DATABASE_IMAGE="
+  assert_file_contains ".env" "DREVOPS_DATABASE_DOWNLOAD_SOURCE=curl"
+  assert_file_contains ".env" "DREVOPS_CURL_DB_URL="
+  assert_file_contains ".env" "DREVOPS_DATABASE_IMAGE="
 }
 
 @test "Install into empty directory; db from curl; storage is Docker image" {
-  export DATABASE_DOWNLOAD_SOURCE=curl
+  export DREVOPS_DATABASE_DOWNLOAD_SOURCE=curl
 
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x
+  export DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x
 
   run_install_quiet
 
-  assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=curl"
-  assert_file_contains ".env" "CURL_DB_URL="
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
+  assert_file_contains ".env" "DREVOPS_DATABASE_DOWNLOAD_SOURCE=curl"
+  assert_file_contains ".env" "DREVOPS_CURL_DB_URL="
+  assert_file_contains ".env" "DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
 }
 
 @test "Install into empty directory; db from Docker image; storage is Docker image" {
-  export DATABASE_DOWNLOAD_SOURCE=docker_registry
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x
+  export DREVOPS_DATABASE_DOWNLOAD_SOURCE=docker_registry
+  export DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x
 
   run_install_quiet
 
-  assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
-  assert_file_not_contains ".env" "CURL_DB_URL="
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
+  assert_file_contains ".env" "DREVOPS_DATABASE_DOWNLOAD_SOURCE=docker_registry"
+  assert_file_not_contains ".env" "DREVOPS_CURL_DB_URL="
+  assert_file_contains ".env" "DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
 }
 
 @test "Install into empty directory; DrevOps scripts are not modified" {

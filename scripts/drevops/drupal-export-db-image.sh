@@ -16,13 +16,13 @@ DOCKER_IMAGE="${DOCKER_IMAGE:-}"
 
 # Docker registry name. Provide port, if required as <server_name>:<port>.
 # Defaults to DockerHub.
-DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
+DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-docker.io}"
 
 # The service name to capture. Optional. Defaults to "mariadb".
 DOCKER_SERVICE_NAME="${DOCKER_SERVICE_NAME:-mariadb}"
 
 # Directory with database image archive file. Optional. Defaults to "./.data".
-DB_DIR="${DB_DIR:-./.data}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 
 # ------------------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ echo "==> Started Docker data image export."
 cid="$(docker-compose ps -q "${DOCKER_SERVICE_NAME}")"
 echo "==> Found \"${DOCKER_SERVICE_NAME}\" service container with id \"${cid}\"."
 
-new_image="${DOCKER_REGISTRY}/${DOCKER_IMAGE}"
+new_image="${DREVOPS_DOCKER_REGISTRY}/${DOCKER_IMAGE}"
 
 echo "==> Committing image with name \"${new_image}\"."
 iid=$(docker commit "${cid}" "${new_image}")
@@ -41,11 +41,11 @@ iid="${iid#sha256:}"
 echo "==> Committed image with id \"${iid}\"."
 
 # Create directory to store database dump.
-mkdir -p "${DB_DIR}"
+mkdir -p "${DREVOPS_DB_DIR}"
 
 # Create dump file name with a timestamp or use the file name provided
 # as a first argument. Also, make sure that the extension is correct.
-DOCKER_IMAGE_ARCHIVE=$([ "${1}" ] && echo "${DB_DIR}/${1//.sql/.tar}" || echo "${DB_DIR}/export_db_$(date +%Y_%m_%d_%H_%M_%S).tar")
+DOCKER_IMAGE_ARCHIVE=$([ "${1}" ] && echo "${DREVOPS_DB_DIR}/${1//.sql/.tar}" || echo "${DREVOPS_DB_DIR}/export_db_$(date +%Y_%m_%d_%H_%M_%S).tar")
 
 echo "==> Exporting database image archive to \"${DOCKER_IMAGE_ARCHIVE}\" file."
 

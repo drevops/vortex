@@ -16,8 +16,8 @@ SHOW_LOGIN_LINK="${SHOW_LOGIN_LINK:-}"
 # Use local or global Drush, giving priority to a local drush.
 drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
 
-echo  "Project                  : ${PROJECT}"
-echo  "Site local URL           : http://${LOCALDEV_URL}"
+echo  "Project                  : ${DREVOPS_PROJECT}"
+echo  "Site local URL           : http://${DREVOPS_LOCALDEV_URL}"
 echo  "Path to project          : ${APP}"
 echo  "Path to docroot          : ${APP}/${WEBROOT}"
 echo  "DB host                  : ${MARIADB_HOST}"
@@ -32,5 +32,5 @@ echo  "Mailhog URL              : http://mailhog.docker.amazee.io/"
 echo  "Xdebug                   : $(php -v | grep -q Xdebug && echo "Enabled" || echo "Disabled")"
 # For performance, generate one-time login link only if explicitly requested.
 if [ "${SHOW_LOGIN_LINK}" = "1" ] || [ -n "${1}" ]; then
-  echo  "One-time login           : $($drush uublk 1 -q && $drush uli -l "${LOCALDEV_URL}" --no-browser)"
+  echo  "One-time login           : $($drush uublk 1 -q && $drush uli -l "${DREVOPS_LOCALDEV_URL}" --no-browser)"
 fi

@@ -8,17 +8,17 @@ set -e
 
 # URL of the remote database. If HTTP authentication required, it must be
 # included in the variable.
-CURL_DB_URL="${CURL_DB_URL:-}"
+DREVOPS_CURL_DB_URL="${DREVOPS_CURL_DB_URL:-}"
 
 # Directory with database dump file.
-DB_DIR="${DB_DIR:-./.data}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 
 # Database dump file name.
-DB_FILE="${DB_FILE:-db.sql}"
+DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 #-------------------------------------------------------------------------------
 
 # Check all required values.
-[ -z "${CURL_DB_URL}" ] && echo "Missing required value for CURL_DB_URL." && exit 1
+[ -z "${DREVOPS_CURL_DB_URL}" ] && echo "Missing required value for DREVOPS_CURL_DB_URL." && exit 1
 
-curl -L "${CURL_DB_URL}" -o "${DB_DIR}/${DB_FILE}"
+curl -L "${DREVOPS_CURL_DB_URL}" -o "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"

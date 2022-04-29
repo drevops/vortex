@@ -29,7 +29,7 @@ load _helper_drevops_deployment
 
     # Enable Acquia integration for this test to run independent deployment
     # by using install auto-discovery.
-    export DATABASE_DOWNLOAD_SOURCE="acquia"
+    export DREVOPS_DATABASE_DOWNLOAD_SOURCE="acquia"
 
     # Override download from Acquia with a special flag. This still allows to
     # validate that download script expects credentials, but does not actually
@@ -82,15 +82,15 @@ load _helper_drevops_deployment
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
   step "Running deployment"
-  export DEPLOY_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
+  export DREVOPS_DEPLOY_CODE_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
   export DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
   export DEPLOY_CODE_SRC="${SRC_DIR}"
-  export DEPLOY_GIT_USER_EMAIL="${DEPLOY_GIT_USER_EMAIL:-testuser@example.com}"
-  export DEPLOY_TYPE="code"
+  export DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL="${DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL:-testuser@example.com}"
+  export DREVOPS_DEPLOY_TYPE="code"
 
   # Proceed with deployment.
   # @todo: Add tests for deployment kill-switch.
-  export DEPLOY_PROCEED=1
+  export DREVOPS_DEPLOY_PROCEED=1
 
   run ahoy deploy
   assert_success
@@ -189,7 +189,7 @@ load _helper_drevops_deployment
   mock_lagoon=$(mock_command "lagoon")
 
   # Proceed with deployment.
-  export DEPLOY_PROCEED=1
+  export DREVOPS_DEPLOY_PROCEED=1
 
   run ahoy deploy
   assert_success

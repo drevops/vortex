@@ -19,7 +19,7 @@ version: '2.3'
 #: Project name. Used in multiple places to name built Docker images.
 #: Do not change here, instead update .env file.
 x-project:
-  &project ${PROJECT:-your_site}
+  &project ${DREVOPS_PROJECT:-your_site}
 
 #: Volumes available in each container to share application data.
 x-volumes:
@@ -64,7 +64,7 @@ x-environment:
   #: Local development URL. Required to make DNS request route correctly.
   #: Do not change the default value here (it is set as a fallback). Instead,
   #: change the value in .env file.
-  LAGOON_LOCALDEV_URL: &default-url ${LOCALDEV_URL:-your-site.docker.amazee.io}
+  LAGOON_DREVOPS_LOCALDEV_URL: &default-url ${DREVOPS_LOCALDEV_URL:-your-site.docker.amazee.io}
   #; Amazeeio images require Lagoon route for Drush 9+ alias configuration.
   LAGOON_ROUTE: *default-url
   #;< LAGOON
@@ -196,7 +196,7 @@ services:
       context: .
       dockerfile: .docker/Dockerfile.mariadb
       args:
-        IMAGE: "${DATABASE_IMAGE:-uselagoon/mariadb-drupal:21.12.1}"
+        IMAGE: "${DREVOPS_DATABASE_IMAGE:-uselagoon/mariadb-drupal:21.12.1}"
     environment:
       <<: *default-environment
     ports:

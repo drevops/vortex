@@ -30,7 +30,7 @@ docker network prune -f > /dev/null && docker network inspect amazeeio-network >
 
 # Validate Composer configuration if Composer is installed.
 if command -v composer > /dev/null; then
-  if [ "$COMPOSER_VALIDATE_LOCK" = "1" ]; then
+  if [ "$DREVOPS_COMPOSER_VALIDATE_LOCK" = "1" ]; then
     echo "==> Validating composer configuration, including lock file."
     composer validate --ansi --strict --no-check-all
   else
@@ -44,16 +44,16 @@ ahoy clean
 
 echo "==> Building images, recreating and starting containers."
 
-if [ -n "${DATABASE_IMAGE}" ]; then
-  echo "==> Using Docker data image ${DATABASE_IMAGE}."
+if [ -n "${DREVOPS_DATABASE_IMAGE}" ]; then
+  echo "==> Using Docker data image ${DREVOPS_DATABASE_IMAGE}."
   # Always login to the registry to have access to the private images.
   ./scripts/drevops/docker-login.sh
   # Try restoring the image from the archive if it exists.
-  ./scripts/drevops/docker-restore-image.sh "${DATABASE_IMAGE}" "${DB_DIR}/db.tar"
+  ./scripts/drevops/docker-restore-image.sh "${DREVOPS_DATABASE_IMAGE}" "${DREVOPS_DB_DIR}/db.tar"
 fi
 
 # Running 'ahoy up' directly will show the build progress.
-[ "${BUILD_VERBOSE}" = "1" ] && BUILD_VERBOSE_OUTPUT="/dev/stdout" || BUILD_VERBOSE_OUTPUT="/dev/null"
+[ "${DREVOPS_BUILD_VERBOSE}" = "1" ] && BUILD_VERBOSE_OUTPUT="/dev/stdout" || BUILD_VERBOSE_OUTPUT="/dev/null"
 ahoy up -- --build --force-recreate > "${BUILD_VERBOSE_OUTPUT}"
 
 # Export code built within containers before adding development dependencies.
@@ -68,9 +68,9 @@ fi
 
 # Create data directory in the container and copy database dump file into
 # container, but only if it exists, while also replacing relative directory path
-# with absolute path. Note, that the DB_DIR path is the same inside and outside
+# with absolute path. Note, that the DREVOPS_DB_DIR path is the same inside and outside
 # of the container.
-[ -f "${DB_DIR}"/"${DB_FILE}" ] && ahoy cli mkdir -p "${DB_DIR}" && docker cp -L "${DB_DIR}"/"${DB_FILE}" $(docker-compose ps -q cli):"${DB_DIR/.\//${APP}/}"/"${DB_FILE}" && echo "==> Copied database file into container."
+[ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ] && ahoy cli mkdir -p "${DREVOPS_DB_DIR}" && docker cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" $(docker-compose ps -q cli):"${DREVOPS_DB_DIR/.\//${APP}/}"/"${DREVOPS_DB_FILE}" && echo "==> Copied database file into container."
 
 echo "==> Installing development dependencies."
 #
@@ -86,7 +86,7 @@ docker cp -L tests $(docker-compose ps -q cli):/app/
 # Note that this will create/update composer.lock file.
 ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install -n --ansi --prefer-dist --no-suggest"
 
-if [ -n "${DRUPAL_THEME}" ]; then
+if [ -n "${DREVOPS_DRUPAL_THEME}" ]; then
   # Install all npm dependencies and compile FE assets.
   # Note that this will create/update package-lock.json file.
   [ -z "${CI}" ] && ahoy fei
@@ -106,7 +106,7 @@ ahoy install-site
 # image storage.
 # This also prevent us from caching both dump file and an exported image,
 # which would double the size of the cache.
-if [ -n "${CI}" ] && [ -n "${DATABASE_IMAGE}" ] && [ -f "${DB_DIR}/${DB_FILE}" ]; then echo "==> Removing DB dump file in CI."; rm "${DB_DIR}/${DB_FILE}" || true; fi
+if [ -n "${CI}" ] && [ -n "${DREVOPS_DATABASE_IMAGE}" ] && [ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ]; then echo "==> Removing DB dump file in CI."; rm "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" || true; fi
 
 # Check that the site is available.
 ahoy doctor

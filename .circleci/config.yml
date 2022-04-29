@@ -44,11 +44,11 @@ aliases:
   #;
   #; This is a fingerprint of the key to test DrevOps project itself as an example.
   #; Replace this key fingerprint with your own.
-  - &database_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+  - &db_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
 
   # SSH key fingerprint to deploy code.
   #: Generate a separate SSH key for a user who has push permissions to
-  #: $DEPLOY_GIT_REMOTE repo with `ssh-keygen -m PEM -t rsa -C "deployer@example.com"
+  #: $DREVOPS_DEPLOY_CODE_GIT_REMOTE repo with `ssh-keygen -m PEM -t rsa -C "deployer@example.com"
   #: command and add private key under "SSH Permissions" in CircleCI UI.
   #;
   #; This is a fingerprint of the key to push DrevOps project itself as an example.
@@ -102,16 +102,16 @@ aliases:
     #: Location of checked-out files within "runner" container.
     working_directory: &working_directory /root/project
     environment:
-      DATABASE_SSH_FINGERPRINT: *database_ssh_fingerprint
-      DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
+      DREVOPS_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
+      DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       #; Using "runner" container where each job will be executed. This container
       #; has all necessary tools to run dockerized environment.
       #; @see https://github.com/drevops/ci-builder
       - image: drevops/ci-builder
         auth:
-          username: $DOCKER_REGISTRY_USERNAME
-          password: $DOCKER_REGISTRY_TOKEN
+          username: $DREVOPS_DOCKER_REGISTRY_USERNAME
+          password: $DREVOPS_DOCKER_REGISTRY_TOKEN
         environment:
           # Set timezone to ensure that executed operations use correct timestamps.
           TZ: *timezone
@@ -140,7 +140,7 @@ aliases:
           # Source code location.
           DEPLOY_CODE_ROOT: *working_directory
           # Deployment report file location.
-          DEPLOY_REPORT: /tmp/artifacts/deployment_report.txt
+          DREVOPS_DEPLOY_REPORT_FILE: /tmp/artifacts/deployment_report.txt
           # Check only minimal stack requirements.
           DOCTOR_CHECK_MINIMAL: 1
     resource_class: *resource_class
@@ -182,7 +182,7 @@ jobs:
       # Add SSH key into "runner" container to have SSH access to download DB.
       - add_ssh_keys:
           fingerprints:
-            - *database_ssh_fingerprint
+            - *db_ssh_fingerprint
       - checkout
       - *step_process_codebase
       - *step_setup_remote_docker
@@ -229,12 +229,12 @@ jobs:
   database_nightly:
     <<: *job_database
     environment:
-      DATABASE_SSH_FINGERPRINT: *database_ssh_fingerprint
-      DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
+      DREVOPS_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
+      DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
       DB_CACHE_FALLBACK: 'no'
       # Always use fresh base image for the database.
-      DATABASE_IMAGE_BASE: drevops/mariadb-drupal-data
+      DREVOPS_DATABASE_IMAGE_BASE: drevops/mariadb-drupal-data
       # Deploy docker image (if DOCKER_IMAGE storage is used) to provide fresh
       # daily images for developers.
       EXPORT_DB_DEPLOY_DOCKER: 1
@@ -403,7 +403,7 @@ jobs:
   #;
   #; Switching between "database in file" (DIF, mounted data volume) and
   #; "database-in-Docker-image" (DIDI, data volume is a part of the image) is
-  #; done by providing the value of DATABASE_IMAGE environment variable,
+  #; done by providing the value of DREVOPS_DATABASE_IMAGE environment variable,
   #; which would be set in .env file for consumer projects.
   #;
   #; Also, the source of the database can be either file (downloaded from
@@ -419,22 +419,22 @@ jobs:
   #; test jobs below and run them as a part of the CI system for DrevOps itself.
   #;
   #; Job to test creation of the image from DB dump file when using
-  #; DATABASE_IMAGE workflow.
+  #; DREVOPS_DATABASE_IMAGE workflow.
   drevops_didi_database_fi:
     <<: *job_database
     environment:
-      DATABASE_DOWNLOAD_SOURCE: curl
+      DREVOPS_DATABASE_DOWNLOAD_SOURCE: curl
       FORCE_DB_DOWNLOAD: 1
       #; Use Docker database storage despite that the file is coming
       #; from CURL - this is to make sure that image is exported into cache
       #; to be used between jobs. Note that in consumer project .env file would
-      #; have DATABASE_IMAGE variable set and this environment variable would
+      #; have DREVOPS_DATABASE_IMAGE variable set and this environment variable would
       #; not be required.
       #;
       #; Note that here and below we are using "destination" demo image - this
       #; is to allow updating of this image from CI tests without jeopardizing
       #; main demo image.
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
+      DREVOPS_DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
       #; Use a separate tag to make sure that pushed image does not affect
       #; other tests (pushing broken image as 'latest' will fail other tests).
       DOCKER_IMAGE_TAG: drevops_didi_database_fi
@@ -449,9 +449,9 @@ jobs:
   drevops_didi_database_ii:
     <<: *job_database
     environment:
-      DATABASE_DOWNLOAD_SOURCE: docker_registry
+      DREVOPS_DATABASE_DOWNLOAD_SOURCE: docker_registry
       FORCE_DB_DOWNLOAD: 1
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
+      DREVOPS_DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
       DOCKER_IMAGE_TAG: drevops_didi_database_ii
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
@@ -460,20 +460,20 @@ jobs:
       #; the main workflow are separated from this one.
       DB_CACHE_BRANCH: drevops_didi_ii
   #; Job to test build of the image from the previous stage of the image when
-  #; using database-in-Docker-image workflow. Overwriting just the DATABASE_IMAGE
+  #; using database-in-Docker-image workflow. Overwriting just the DREVOPS_DATABASE_IMAGE
   #; variable should change the storage mechanisms, but preserve application-level
   #; stack operation.
   drevops_didi_build_fi:
     <<: *job_build
     environment:
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x:drevops_didi_database_fi
+      DREVOPS_DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x:drevops_didi_database_fi
       #; Use custom cache key for this workflow to make sure that caches from
       #; the main workflow are separated from this one.
       DB_CACHE_BRANCH: drevops_didi_fi
   drevops_didi_build_ii:
     <<: *job_build
     environment:
-      DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x:drevops_didi_database_ii
+      DREVOPS_DATABASE_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x:drevops_didi_database_ii
       #; Use custom cache key for this workflow to make sure that caches from
       #; the main workflow are separated from this one.
       DB_CACHE_BRANCH: drevops_didi_ii
@@ -503,8 +503,8 @@ jobs:
           command: |
             DEPLOY_DOCS_SSH_FINGERPRINT="22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
             # Configure SSH to configure git and SSH to connect to remote servers for deployment.
-            [ "$(git config --global user.name)" == "" ]  && git config --global user.name "${DEPLOY_GIT_USER_NAME}"
-            [ "$(git config --global user.email)" == "" ] && git config --global user.email "${DEPLOY_GIT_USER_EMAIL}"
+            [ "$(git config --global user.name)" == "" ]  && git config --global user.name "${DREVOPS_DEPLOY_CODE_GIT_USER_NAME}"
+            [ "$(git config --global user.email)" == "" ] && git config --global user.email "${DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL}"
             mkdir -p "${HOME}/.ssh/"
             echo -e "Host *\n\tStrictHostKeyChecking no\n" > "${HOME}/.ssh/config"
             DEPLOY_DOCS_SSH_FILE="${DEPLOY_DOCS_SSH_FINGERPRINT//:}"
@@ -631,7 +631,7 @@ workflows:
             tags:
               only: /^(?:7|8|9)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
 
-  #; Test workflow to test DATABASE_IMAGE workflow for DB from file.
+  #; Test workflow to test DREVOPS_DATABASE_IMAGE workflow for DB from file.
   drevops_didi_fi:
     jobs:
       - drevops_didi_database_fi
@@ -639,7 +639,7 @@ workflows:
           requires:
             - drevops_didi_database_fi
 
-  #; Test workflow to test DATABASE_IMAGE workflow for DB from docker registry.
+  #; Test workflow to test DREVOPS_DATABASE_IMAGE workflow for DB from docker registry.
   drevops_didi_ii:
     jobs:
       - drevops_didi_database_ii

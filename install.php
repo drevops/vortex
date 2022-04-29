@@ -27,7 +27,7 @@
 /**
  * Defines Drupal version supported by this installer.
  */
-define('INSTALLER_DRUPAL_VERSION', 9);
+define('INSTALLER_DREVOPS_DRUPAL_VERSION', 9);
 
 /**
  * Defines current working directory.
@@ -137,13 +137,13 @@ function process_demo() {
     return;
   }
 
-  $url = getenv_or_default('CURL_DB_URL');
+  $url = getenv_or_default('DREVOPS_CURL_DB_URL');
   if (empty($url)) {
     return;
   }
 
-  $dir = get_dst_dir() . DIRECTORY_SEPARATOR . getenv_or_default('DB_DIR', './.data');
-  $file = getenv_or_default('DB_FILE', 'db.sql');
+  $dir = get_dst_dir() . DIRECTORY_SEPARATOR . getenv_or_default('DREVOPS_DB_DIR', './.data');
+  $file = getenv_or_default('DREVOPS_DB_FILE', 'db.sql');
   status(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $dir, $url), INSTALLER_STATUS_MESSAGE, FALSE);
   if (!file_exists($dir)) {
     mkdir($dir);
@@ -339,32 +339,32 @@ function process__fresh_install($dir) {
 
 function process__database_download_source($dir) {
   $type = get_answer('database_download_source');
-  file_replace_content('/DATABASE_DOWNLOAD_SOURCE=.*/', "DATABASE_DOWNLOAD_SOURCE=$type", $dir . '/.env');
+  file_replace_content('/DREVOPS_DATABASE_DOWNLOAD_SOURCE=.*/', "DREVOPS_DATABASE_DOWNLOAD_SOURCE=$type", $dir . '/.env');
 
   if ($type == 'docker_registry') {
-    remove_token_with_content('!DATABASE_DOWNLOAD_SOURCE_DOCKER_REGISTRY', $dir);
+    remove_token_with_content('!DREVOPS_DATABASE_DOWNLOAD_SOURCE_DREVOPS_DOCKER_REGISTRY', $dir);
   }
   else {
-    remove_token_with_content('DATABASE_DOWNLOAD_SOURCE_DOCKER_REGISTRY', $dir);
+    remove_token_with_content('DREVOPS_DATABASE_DOWNLOAD_SOURCE_DREVOPS_DOCKER_REGISTRY', $dir);
   }
 }
 
 function process__database_image($dir) {
   $image = get_answer('database_image');
-  file_replace_content('/DATABASE_IMAGE=.*/', "DATABASE_IMAGE=$image", $dir . '/.env');
+  file_replace_content('/DREVOPS_DATABASE_IMAGE=.*/', "DREVOPS_DATABASE_IMAGE=$image", $dir . '/.env');
 
   if ($image) {
-    remove_token_with_content('!DATABASE_IMAGE', $dir);
+    remove_token_with_content('!DREVOPS_DATABASE_IMAGE', $dir);
   }
   else {
-    remove_token_with_content('DATABASE_IMAGE', $dir);
+    remove_token_with_content('DREVOPS_DATABASE_IMAGE', $dir);
   }
 }
 
 function process__deploy_type($dir) {
   $type = get_answer('deploy_type');
   if ($type != 'none') {
-    file_replace_content('/DEPLOY_TYPE=.*/', "DEPLOY_TYPE=$type", $dir . '/.env');
+    file_replace_content('/DREVOPS_DEPLOY_TYPE=.*/', "DREVOPS_DEPLOY_TYPE=$type", $dir . '/.env');
     remove_token_with_content('!DEPLOYMENT', $dir);
   }
   else {
@@ -463,7 +463,7 @@ function process__demo_mode($dir) {
   if (is_null(get_config('DREVOPS_DEMO'))) {
     if (get_answer('fresh_install') == ANSWER_NO) {
       $download_source = get_answer('database_download_source');
-      $db_file = getenv_or_default('DB_DIR', './.data') . DIRECTORY_SEPARATOR . getenv_or_default('DB_FILE', 'db.sql');
+      $db_file = getenv_or_default('DREVOPS_DB_DIR', './.data') . DIRECTORY_SEPARATOR . getenv_or_default('DREVOPS_DB_FILE', 'db.sql');
       $has_comment = file_contains('to allow to demonstrate how DrevOps works without', get_dst_dir() . '/.env');
 
       // Enable DrevOps demo mode if download source is file AND
@@ -833,7 +833,7 @@ function init_cli_args_and_options($argv) {
  */
 function init_config() {
   // Internal version of DrevOps.
-  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DRUPAL_VERSION . '.x'));
+  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DREVOPS_DRUPAL_VERSION . '.x'));
   // Flag to display install debug information.
   set_config('DREVOPS_INSTALL_DEBUG', (bool) getenv_or_default('DREVOPS_INSTALL_DEBUG', FALSE));
   // Flag to proceed with installation. If FALSE - the installation will only
@@ -888,7 +888,7 @@ function get_default_value($name) {
 }
 
 function get_default_value__name() {
-  return getenv_or_default('PROJECT', basename(get_dst_dir()));
+  return getenv_or_default('DREVOPS_PROJECT', basename(get_dst_dir()));
 }
 
 function get_default_value__machine_name() {
@@ -1133,7 +1133,7 @@ function discover_value__fresh_install() {
 }
 
 function discover_value__database_download_source() {
-  return get_value_from_dst_dotenv('DATABASE_DOWNLOAD_SOURCE');
+  return get_value_from_dst_dotenv('DREVOPS_DATABASE_DOWNLOAD_SOURCE');
 }
 
 function discover_value__database_store_type() {
@@ -1141,18 +1141,18 @@ function discover_value__database_store_type() {
 }
 
 function discover_value__database_image() {
-  return get_value_from_dst_dotenv('DATABASE_IMAGE');
+  return get_value_from_dst_dotenv('DREVOPS_DATABASE_IMAGE');
 }
 
 function discover_value__deploy_type() {
-  return get_value_from_dst_dotenv('DEPLOY_TYPE');
+  return get_value_from_dst_dotenv('DREVOPS_DEPLOY_TYPE');
 }
 
 function discover_value__preserve_acquia() {
   if (is_readable(get_dst_dir() . '/hooks')) {
     return ANSWER_YES;
   }
-  $value = get_value_from_dst_dotenv('DATABASE_DOWNLOAD_SOURCE');
+  $value = get_value_from_dst_dotenv('DREVOPS_DATABASE_DOWNLOAD_SOURCE');
 
   if (is_null($value)) {
     return NULL;
@@ -1178,7 +1178,7 @@ function discover_value__preserve_lagoon() {
 }
 
 function discover_value__preserve_ftp() {
-  $value = get_value_from_dst_dotenv('DATABASE_DOWNLOAD_SOURCE');
+  $value = get_value_from_dst_dotenv('DREVOPS_DATABASE_DOWNLOAD_SOURCE');
   if (is_null($value)) {
     return NULL;
   }
@@ -1506,7 +1506,7 @@ function print_header_quiet() {
 function print_summary() {
   $values['Current directory'] = CUR_DIR;
   $values['Destination directory'] = get_dst_dir();
-  $values['Drupal version'] = getenv_or_default('DRUPAL_VERSION', INSTALLER_DRUPAL_VERSION);
+  $values['Drupal version'] = getenv_or_default('DREVOPS_DRUPAL_VERSION', INSTALLER_DREVOPS_DRUPAL_VERSION);
   $values['DrevOps version'] = get_config('DREVOPS_VERSION');
   $values['DrevOps commit'] = format_not_empty(get_config('DREVOPS_COMMIT'), 'Latest');
 

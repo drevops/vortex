@@ -67,7 +67,7 @@ To fresh the database in the existing Lagoon environment with the databSe from
 production environment, run:
 
 ```
-DEPLOY_BRANCH=<YOUR/BRANCH-NAME> DEPLOY_PROCEED=1 DEPLOY_ACTION=deploy_override_db ahoy deploy
+DEPLOY_BRANCH=<YOUR/BRANCH-NAME> DREVOPS_DEPLOY_PROCEED=1 DEPLOY_ACTION=deploy_override_db ahoy deploy
 ```
 
 ### Nightly environments refresh

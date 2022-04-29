@@ -9,7 +9,7 @@ set -e
 [ "${SKIP_NOTIFY_DEPLOYMENT}" = "1" ] && echo "Skipping notify deployment." && exit 0
 
 # The API key. Usually of type 'USER'.
-NOTIFY_NEWRELIC_APIKEY="${NOTIFY_NEWRELIC_APIKEY:-}"
+DREVOPS_NOTIFY_NEWRELIC_APIKEY="${DREVOPS_NOTIFY_NEWRELIC_APIKEY:-}"
 
 # Deployment reference, such as a git SHA.
 NOTIFY_DEPLOY_REF="${NOTIFY_DEPLOY_REF:-}"
@@ -34,7 +34,7 @@ NOTIFY_NEWRELIC_ENDPOINT="${NOTIFY_NEWRELIC_ENDPOINT:-https://api.newrelic.com/v
 
 # ------------------------------------------------------------------------------
 
-[ -z "${NOTIFY_NEWRELIC_APIKEY}" ] && echo "ERROR: Missing required value for NOTIFY_NEWRELIC_APIKEY" && exit 1
+[ -z "${DREVOPS_NOTIFY_NEWRELIC_APIKEY}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_NEWRELIC_APIKEY" && exit 1
 [ -z "${NOTIFY_DEPLOY_REF}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_REF" && exit 1
 [ -z "${NOTIFY_NEWRELIC_APPNAME}" ] && echo "ERROR: Missing required value for NOTIFY_NEWRELIC_APPNAME" && exit 1
 [ -z "${NOTIFY_NEWRELIC_DESCRIPTION}" ] && echo "ERROR: Missing required value for NOTIFY_NEWRELIC_DESCRIPTION" && exit 1
@@ -46,7 +46,7 @@ echo "==> Started New Relic notification"
 # Discover APP id by name if it was not provided.
 if [ -z "${NOTIFY_NEWRELIC_APPID}" ] && [ -n "${NOTIFY_NEWRELIC_APPNAME}" ]; then
   NOTIFY_NEWRELIC_APPID="$(curl -s -X GET "${NOTIFY_NEWRELIC_ENDPOINT}/applications.json" \
-    -H "Api-Key:${NOTIFY_NEWRELIC_APIKEY}" \
+    -H "Api-Key:${DREVOPS_NOTIFY_NEWRELIC_APIKEY}" \
     -s -G -d "filter[name]=${NOTIFY_NEWRELIC_APPNAME}&exclude_links=true" |
     cut -c 24- |
     cut -c -10)"
@@ -56,7 +56,7 @@ fi
 
 if ! curl -X POST "${NOTIFY_NEWRELIC_ENDPOINT}/applications/${NOTIFY_NEWRELIC_APPID}/deployments.json" \
   -L -s -o /dev/null -w "%{http_code}" \
-  -H "Api-Key:${NOTIFY_NEWRELIC_APIKEY}" \
+  -H "Api-Key:${DREVOPS_NOTIFY_NEWRELIC_APIKEY}" \
   -H 'Content-Type: application/json' \
   -d \
   "{

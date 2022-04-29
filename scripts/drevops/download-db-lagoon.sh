@@ -22,10 +22,10 @@ set -e
 #-------------------------------------------------------------------------------
 
 # Directory where DB dumps are stored on the host.
-DB_DIR="${DB_DIR:-./.data}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 
 # Database dump file name on the host.
-DB_FILE="${DB_FILE:-db.sql}"
+DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 # Flag to download a fresh copy of the database.
 DATABASE_DOWNLOAD_REFRESH="${DATABASE_DOWNLOAD_REFRESH:-}"
@@ -37,22 +37,22 @@ LAGOON_PROJECT="${LAGOON_PROJECT:?Missing required environment variable LAGOON_P
 LAGOON_DB_ENVIRONMENT="${LAGOON_DB_ENVIRONMENT:-master}"
 
 # Remote DB dump directory location.
-LAGOON_REMOTE_DB_DIR="/tmp"
+LAGOON_REMOTE_DREVOPS_DB_DIR="/tmp"
 
 # Remote DB dump file name. Cached by the date suffix.
-LAGOON_REMOTE_DB_FILE="${LAGOON_REMOTE_DB_FILE:-db_$(date +%Y_%m_%d).sql}"
+LAGOON_REMOTE_DREVOPS_DB_FILE="${LAGOON_REMOTE_DREVOPS_DB_FILE:-db_$(date +%Y_%m_%d).sql}"
 
 # Wildcard file name to cleanup previously created dump files.
-# Cleanup runs only if the variable is set and LAGOON_REMOTE_DB_FILE does not
+# Cleanup runs only if the variable is set and LAGOON_REMOTE_DREVOPS_DB_FILE does not
 # exist.
-LAGOON_REMOTE_DB_FILE_CLEANUP="${LAGOON_REMOTE_DB_FILE_CLEANUP:-db_*.sql}"
+LAGOON_REMOTE_DREVOPS_DB_FILE_CLEANUP="${LAGOON_REMOTE_DREVOPS_DB_FILE_CLEANUP:-db_*.sql}"
 
 # The SSH key used to SSH into Lagoon.
 LAGOON_SSH_KEY_FILE="${LAGOON_SSH_KEY_FILE:-}"
 
 # The SSH key fingerprint. If provided - the key will be looked-up and loaded
 # into ssh client.
-DATABASE_SSH_FINGERPRINT="${DATABASE_SSH_FINGERPRINT:-}"
+DREVOPS_DB_SSH_FINGERPRINT="${DREVOPS_DB_SSH_FINGERPRINT:-}"
 
 # The SSH host of the Lagoon environment.
 LAGOON_SSH_HOST="${LAGOON_SSH_HOST:-ssh.lagoon.amazeeio.cloud}"
@@ -74,9 +74,9 @@ if [ -f ".env.local" ]; then
 fi
 
 # Discover and load a custom database dump key if fingerprint is provided.
-if [ -n "${DATABASE_SSH_FINGERPRINT}" ]; then
+if [ -n "${DREVOPS_DB_SSH_FINGERPRINT}" ]; then
   echo "==> Custom database dump key is provided."
-  LAGOON_SSH_KEY_FILE="${DATABASE_SSH_FINGERPRINT//:}"
+  LAGOON_SSH_KEY_FILE="${DREVOPS_DB_SSH_FINGERPRINT//:}"
   LAGOON_SSH_KEY_FILE="${HOME}/.ssh/id_rsa_${LAGOON_SSH_KEY_FILE//\"}"
 
   [ ! -f "${LAGOON_SSH_KEY_FILE}" ] && echo "ERROR: SSH key file ${LAGOON_SSH_KEY_FILE} does not exist." && exit 1
@@ -103,15 +103,15 @@ fi
 ssh \
  "${ssh_opts[@]}" \
   "${LAGOON_SSH_USER}@${LAGOON_SSH_HOST}" service=cli container=cli \
-  "if [ ! -f \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\" ] || [ \"${DATABASE_DOWNLOAD_REFRESH}\" == \"1\" ] ; then \
-     [ -n \"${LAGOON_REMOTE_DB_FILE_CLEANUP}\" ] && rm -f \"${LAGOON_REMOTE_DB_DIR}\"\/${LAGOON_REMOTE_DB_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
-     echo \"   > Creating a backup ${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}.\"; \
-     /app/vendor/bin/drush --root=/app/docroot sql-dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,cache* --extra-dump=--no-tablespaces > \"${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}\"; \
+  "if [ ! -f \"${LAGOON_REMOTE_DREVOPS_DB_DIR}/${LAGOON_REMOTE_DREVOPS_DB_FILE}\" ] || [ \"${DATABASE_DOWNLOAD_REFRESH}\" == \"1\" ] ; then \
+     [ -n \"${LAGOON_REMOTE_DREVOPS_DB_FILE_CLEANUP}\" ] && rm -f \"${LAGOON_REMOTE_DREVOPS_DB_DIR}\"\/${LAGOON_REMOTE_DREVOPS_DB_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
+     echo \"   > Creating a backup ${LAGOON_REMOTE_DREVOPS_DB_DIR}/${LAGOON_REMOTE_DREVOPS_DB_FILE}.\"; \
+     /app/vendor/bin/drush --root=/app/docroot sql-dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,cache* --extra-dump=--no-tablespaces > \"${LAGOON_REMOTE_DREVOPS_DB_DIR}/${LAGOON_REMOTE_DREVOPS_DB_FILE}\"; \
    else \
-     echo \"   > Using existing dump ${LAGOON_REMOTE_DB_DIR}/${LAGOON_REMOTE_DB_FILE}.\"; \
+     echo \"   > Using existing dump ${LAGOON_REMOTE_DREVOPS_DB_DIR}/${LAGOON_REMOTE_DREVOPS_DB_FILE}.\"; \
    fi"
 
 echo "==> Downloading a backup."
 ssh_opts_string="${ssh_opts[@]}"
 rsync_opts=(-e "ssh $ssh_opts_string")
-rsync "${rsync_opts[@]}" "${LAGOON_SSH_USER}@${LAGOON_SSH_HOST}":"${LAGOON_REMOTE_DB_DIR}"/"${LAGOON_REMOTE_DB_FILE}" "${DB_DIR}/${DB_FILE}"
+rsync "${rsync_opts[@]}" "${LAGOON_SSH_USER}@${LAGOON_SSH_HOST}":"${LAGOON_REMOTE_DREVOPS_DB_DIR}"/"${LAGOON_REMOTE_DREVOPS_DB_FILE}" "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"

@@ -7,10 +7,10 @@
 prepare_sut() {
   step "Run SUT preparation"
 
-  DRUPAL_VERSION=${DRUPAL_VERSION:-9}
+  DREVOPS_DRUPAL_VERSION=${DREVOPS_DRUPAL_VERSION:-9}
   VOLUMES_MOUNTED=${VOLUMES_MOUNTED:-1}
 
-  assert_not_empty "${DRUPAL_VERSION}"
+  assert_not_empty "${DREVOPS_DRUPAL_VERSION}"
   assert_not_empty "${VOLUMES_MOUNTED}"
 
   debug "${1}"
@@ -53,13 +53,13 @@ assert_ahoy_download_db() {
   #
   # Ahoy will load environment variable and it will take precedence over
   # the value in .env file.
-  export CURL_DB_URL="$DEMO_DB_TEST"
+  export DREVOPS_CURL_DB_URL="$DEMO_DB_TEST"
 
   # Remove any previously downloaded DB dumps.
   rm -Rf .data/db.sql
 
   # In this test, the database is downloaded from the public URL specified in
-  # CURL_DB_URL variable.
+  # DREVOPS_CURL_DB_URL variable.
   assert_file_not_exists .data/db.sql
   ahoy download-db
   assert_file_exists .data/db.sql
@@ -78,7 +78,7 @@ assert_ahoy_build() {
   #
   # Ahoy will load environment variable and it will take precedence over
   # the value in .env file.
-  export CURL_DB_URL="$DEMO_DB_TEST"
+  export DREVOPS_CURL_DB_URL="$DEMO_DB_TEST"
 
   # Check that database file exists before build.
   [ -f ".data/db.sql" ] && db_file_exists=1
@@ -306,8 +306,8 @@ assert_ahoy_lint() {
   [ "${status}" -eq 1 ]
 
   # Assert failure bypass.
-  add_var_to_file .env "ALLOW_BE_LINT_FAIL" "1"
-  add_var_to_file .env "ALLOW_FE_LINT_FAIL" "1"
+  add_var_to_file .env "DREVOPS_ALLOW_BE_LINT_FAIL" "1"
+  add_var_to_file .env "DREVOPS_ALLOW_FE_LINT_FAIL" "1"
   ahoy up cli && sync_to_container
 
   run ahoy lint
@@ -338,7 +338,7 @@ assert_ahoy_test_unit() {
   rm -R logs
 
   # Assert failure bypass.
-  add_var_to_file .env "ALLOW_UNIT_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
+  add_var_to_file .env "DREVOPS_ALLOW_UNIT_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
   run ahoy test-unit
   [ "${status}" -eq 0 ]
   sync_to_host
@@ -365,7 +365,7 @@ assert_ahoy_test_kernel() {
   assert_file_exists logs/kernel.xml
 
   # Assert failure bypass.
-  add_var_to_file .env "ALLOW_KERNEL_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
+  add_var_to_file .env "DREVOPS_ALLOW_KERNEL_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
   run ahoy test-kernel
   [ "${status}" -eq 0 ]
   sync_to_host
@@ -392,7 +392,7 @@ assert_ahoy_test_functional() {
   assert_file_exists logs/functional.xml
 
   # Assert failure bypass.
-  add_var_to_file .env "ALLOW_FUNCTIONAL_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
+  add_var_to_file .env "DREVOPS_ALLOW_FUNCTIONAL_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
   run ahoy test-functional
   [ "${status}" -eq 0 ]
   sync_to_host
@@ -449,7 +449,7 @@ assert_ahoy_test_bdd() {
 
   substep "Assert that Behat tests failure bypassing works"
 
-  add_var_to_file .env "ALLOW_BDD_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
+  add_var_to_file .env "DREVOPS_ALLOW_BDD_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
   run ahoy test-bdd
   [ "${status}" -eq 0 ]
   sync_to_host
@@ -485,7 +485,7 @@ assert_ahoy_test_bdd() {
   # Assert failure bypass.
   substep "Assert that single Behat test failure bypassing works"
   assert_dir_empty screenshots
-  add_var_to_file .env "ALLOW_BDD_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
+  add_var_to_file .env "DREVOPS_ALLOW_BDD_TESTS_FAIL" "1" && ahoy up cli && sync_to_container
   run ahoy test-bdd tests/behat/features/homepage.feature
   [ "${status}" -eq 0 ]
   sync_to_host
@@ -546,8 +546,8 @@ assert_export_on_install_site() {
   ahoy cli "rm -Rf .data/*"
 
   substep "Set .env variables"
-  add_var_to_file .env "DB_EXPORT_BEFORE_IMPORT" "1"
-  add_var_to_file .env "CURL_DB_URL" "$DEMO_DB_TEST"
+  add_var_to_file .env "DREVOPS_DB_EXPORT_BEFORE_IMPORT" "1"
+  add_var_to_file .env "DREVOPS_CURL_DB_URL" "$DEMO_DB_TEST"
   ahoy up cli && sync_to_container
 
   substep "Download DB file"

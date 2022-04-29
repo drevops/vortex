@@ -13,10 +13,10 @@ set -e
 { [ "${SKIP_NOTIFY_DEPLOYMENT}" = "1" ] || [ "${SKIP_NOTIFY_GITHUB_DEPLOYMENT}" = "1" ]; } && echo "Skipping notification of GitHub deployment." && exit 0
 
 # JIRA user.
-NOTIFY_DEPLOY_JIRA_USER="${NOTIFY_DEPLOY_JIRA_USER:-}"
+DREVOPS_NOTIFY_DEPLOY_JIRA_USER="${DREVOPS_NOTIFY_DEPLOY_JIRA_USER:-}"
 
 # JIRA token.
-NOTIFY_DEPLOY_JIRA_TOKEN="${NOTIFY_DEPLOY_JIRA_TOKEN:-}"
+DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN="${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN:-}"
 
 # Deployment reference, such as a git SHA.
 NOTIFY_DEPLOY_BRANCH="${NOTIFY_DEPLOY_BRANCH:-}"
@@ -37,8 +37,8 @@ NOTIFY_JIRA_ENDPOINT="${NOTIFY_JIRA_ENDPOINT:-https://jira.atlassian.com}"
 
 # ------------------------------------------------------------------------------
 
-[ -z "${NOTIFY_DEPLOY_JIRA_USER}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_JIRA_USER" && exit 1
-[ -z "${NOTIFY_DEPLOY_JIRA_TOKEN}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_JIRA_TOKEN" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_USER" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN" && exit 1
 [ -z "${NOTIFY_DEPLOY_BRANCH}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_BRANCH" && exit 1
 [ -z "${NOTIFY_DEPLOY_JIRA_COMMENT}" ] && [ -z "${NOTIFY_DEPLOY_JIRA_TRANSITION}" ] && [ -z "${NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ] && echo "ERROR: At least one of the NOTIFY_DEPLOY_JIRA_COMMENT, NOTIFY_DEPLOY_JIRA_TRANSITION or NOTIFY_DEPLOY_JIRA_ASSIGNEE is required" && exit 1
 
@@ -84,7 +84,7 @@ issue="$(extract_issue "${NOTIFY_DEPLOY_BRANCH}")"
 echo "    Found issue ${issue}"
 
 echo "  > Creating API token"
-token="$(echo -n "${NOTIFY_DEPLOY_JIRA_USER}:${NOTIFY_DEPLOY_JIRA_TOKEN}" | base64 -w 0)"
+token="$(echo -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}:${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" | base64 -w 0)"
 
 echo -n "  > Checking API access..."
 payload="$(curl \
