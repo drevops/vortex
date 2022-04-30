@@ -33,7 +33,8 @@
 | `DREVOPS_DEPLOY_PROCEED`                          | `1`                                                                                                                                   |                   |
 | `DREVOPS_DEPLOY_REPORT_FILE`                      | `<EMPTY>`                                                                                                                             |                   |
 | `DREVOPS_DEPLOY_TYPE`                             | `<EMPTY>`                                                                                                                             |                   |
-| `DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS`          | `<EMPTY>`                                                                                                                             |                   |
+| `DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS`          | `200`                                                                                                                                 |                   |
+| `DREVOPS_DEPLOY_WEBHOOK_METHOD`                   | `GET`                                                                                                                                 |                   |
 | `DREVOPS_DEPLOY_WEBHOOK_URL`                      | `<EMPTY>`                                                                                                                             |                   |
 | `DREVOPS_DOCKER_REGISTRY`                         | `docker.io`                                                                                                                           |                   |
 | `DREVOPS_DOCKER_REGISTRY_TOKEN`                   | `<EMPTY>`                                                                                                                             |                   |
