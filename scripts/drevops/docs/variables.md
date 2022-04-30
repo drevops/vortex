@@ -9,13 +9,13 @@
    For example, to specify API key for NewRelic deployment notification call,
    the variable name is `DREVOPS_NOTIFY_NEWRELIC_API_KEY`, where `NOTIFY` is an
    "action" and `NEWRELIC` is a "service provider".
-3. Project-base variables SHOULD start with project prefix (usually the value
-   of `DREVOPS_DRUPAL_MODULE_PREFIX`).<br/>
+3. Project-base variables SHOULD start with `DRUPAL_` prefix and have a second
+   prefix of the module name.<br/>
    This is to clearly distinguish between DrevOps, 3rd party services variables
-   and per-project variables.<br/>
+   and Drupal variables.<br/>
    For example, to specify a user for Drupal's Shield module configuration,
-   use `YOURSITE_DRUPAL_SHIELD_USER`, where `YOURSITE` is your site project
-   prefix and `DRUPAL` is a name of the service.
+   use `DRUPAL_SHIELD_USER`, where `DRUPAL` is a prefix and `SHIELD` is a module
+   name.
 4. Variables SHOULD NOT be exported into the global scope unless absolutely
    necessary.<br/>
    Therefore, values in `.env` SHOULD have default values set, but SHOULD be

@@ -455,8 +455,8 @@ class DrupalSettingsTest extends DrupalTestCase {
       $vars['LAGOON'] = FALSE;
     }
     $vars['TMP'] = '/tmp-test';
-    $vars['YS_DRUPAL_SHIELD_USER'] = 'CHANGE_ME';
-    $vars['YS_DRUPAL_SHIELD_PASS'] = 'CHANGE_ME';
+    $vars['DRUPAL_SHIELD_USER'] = 'CHANGE_ME';
+    $vars['DRUPAL_SHIELD_PASS'] = 'CHANGE_ME';
     $this->envVars = $vars + $this->envVars;
     foreach ($this->envVars as $name => $value) {
       putenv("$name=$value");

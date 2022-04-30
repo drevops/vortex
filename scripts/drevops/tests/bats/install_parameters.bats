@@ -60,7 +60,7 @@ load _helper_drevops
   assert_output_contains "                    Machine name:  star_wars     "
   assert_output_contains "                    Organisation:  Star wars Org "
   assert_output_contains "       Organisation machine name:  star_wars_org "
-  assert_output_contains "                   Module prefix:  star_wars     "
+  assert_output_contains "                   Module prefix:  sw            "
   assert_output_contains "                         Profile:  standard      "
   assert_output_contains "                      Theme name:  star_wars     "
   assert_output_contains "                             URL:  star-wars.com "
@@ -106,7 +106,7 @@ load _helper_drevops
   assert_output_contains "                    Machine name:  star_wars     "
   assert_output_contains "                    Organisation:  Star wars Org "
   assert_output_contains "       Organisation machine name:  star_wars_org "
-  assert_output_contains "                   Module prefix:  star_wars     "
+  assert_output_contains "                   Module prefix:  sw            "
   assert_output_contains "                         Profile:  standard      "
   assert_output_contains "                      Theme name:  star_wars     "
   assert_output_contains "                             URL:  star-wars.com "
@@ -251,16 +251,16 @@ load _helper_drevops
 
   fixture_preinstalled
 
-  # Order of values overrides for interactive install into existing dir (bottom wins):
+  # Order of values overrides for interactive installation into existing dir (bottom wins):
   # - default value
   # - discovered value
-  # - entered value (but if nothing entered, will fallback to discovered value).
+  # - entered value (but if nothing entered, will fall back to discovered value).
   answers=(
     "star Wars" # name
     "star wars MaCHine" # machine_name
     "The Empire" # org
     "the new empire" # morh_machine_name
-    "s W" # module_prefix
+    "W s" # module_prefix
     "S w Profile" # profile
     "light saber" # theme
     "resistance forever.com" # URL
@@ -286,8 +286,8 @@ load _helper_drevops
   assert_output_contains "                    Machine name:  star_wars_machine      "
   assert_output_contains "                    Organisation:  The Empire             "
   assert_output_contains "       Organisation machine name:  the_new_empire         "
-  assert_output_contains "                   Module prefix:  s_w                    "
-  assert_output_contains "                         Profile:  s_w_profile            "
+  assert_output_contains "                   Module prefix:  w_s                    "
+  assert_output_contains "                         Profile:  s_w_profile             "
   assert_output_contains "                      Theme name:  light_saber            "
   assert_output_contains "                             URL:  resistance-forever.com "
   assert_output_contains "        Database download source:  docker_registry        "
@@ -300,7 +300,7 @@ load _helper_drevops
   assert_output_contains "       Preserve docs in comments:  No                     "
   assert_output_contains "       Preserve DrevOps comments:  No                     "
 }
-
+#
 #
 # Helper to create fixture files to fake pre-installed state.
 #

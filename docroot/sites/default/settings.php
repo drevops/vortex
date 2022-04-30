@@ -106,10 +106,10 @@ $settings['config_exclude_modules'] = [];
 // Default Shield credentials.
 // Shield can be enabled and disabled in production though UI. For other
 // environments, shield is enforced to be enabled.
-// 'YS_DRUPAL_SHIELD_USER' and 'YS_DRUPAL_SHIELD_PASS' environment
+// 'DRUPAL_SHIELD_USER' and 'DRUPAL_SHIELD_PASS' environment
 // variables should be added in the environment.
-$config['shield.settings']['credentials']['shield']['user'] = getenv('YS_DRUPAL_SHIELD_USER');
-$config['shield.settings']['credentials']['shield']['pass'] = getenv('YS_DRUPAL_SHIELD_PASS');
+$config['shield.settings']['credentials']['shield']['user'] = getenv('DRUPAL_SHIELD_USER');
+$config['shield.settings']['credentials']['shield']['pass'] = getenv('DRUPAL_SHIELD_PASS');
 // Title of the shield pop-up.
 $config['shield.settings']['print'] = 'YOURSITE';
 
@@ -213,7 +213,7 @@ if ($settings['environment'] == ENVIRONMENT_PROD) {
   $config['environment_indicator.settings']['favicon'] = TRUE;
 }
 else {
-  $config['stage_file_proxy.settings']['origin'] = sprintf('https://%s:%s@your-site-url/', getenv('YS_DRUPAL_SHIELD_USER'), getenv('YS_DRUPAL_SHIELD_PASS'));
+  $config['stage_file_proxy.settings']['origin'] = sprintf('https://%s:%s@your-site-url/', getenv('DRUPAL_SHIELD_USER'), getenv('DRUPAL_SHIELD_PASS'));
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
 
   $config['environment_indicator.indicator']['name'] = $settings['environment'];

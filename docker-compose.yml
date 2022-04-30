@@ -90,8 +90,8 @@ x-environment:
   # SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
   #
   # Set Shield credentials from the environment variables.
-  YS_DRUPAL_SHIELD_USER: ${YS_DRUPAL_SHIELD_USER:-}
-  YS_DRUPAL_SHIELD_PASS: ${YS_DRUPAL_SHIELD_PASS:-}
+  DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
+  DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
 
 # ------------------------------------------------------------------------------
 # Services.

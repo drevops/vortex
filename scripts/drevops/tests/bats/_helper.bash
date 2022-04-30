@@ -305,7 +305,7 @@ assert_git_file_is_tracked() {
     return 1
   fi
 
-  git --work-tree="${dir}" --git-dir="${dir}/.git" ls-files --error-unmatch "${1}" &>/dev/null
+  git --work-tree="${dir}" --git-dir="${dir}/.git" ls-files --error-unmatch "${file}" &>/dev/null
   return $?
 }
 
@@ -317,7 +317,7 @@ assert_git_file_is_not_tracked() {
     return 1
   fi
 
-  if git --work-tree="${dir}" --git-dir="${dir}/.git" ls-files --error-unmatch "${1}" &>/dev/null; then
+  if git --work-tree="${dir}" --git-dir="${dir}/.git" ls-files --error-unmatch "${file}" &>/dev/null; then
     return 1
   else
     return 0

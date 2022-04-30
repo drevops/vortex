@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 .layout-container {
   $max-width: 1200px;
 
@@ -18,12 +20,12 @@
 
     .layout-content {
       order: 2;
-      width: $max-width / 3 * 2;
+      width: math.div($max-width, 3) * 2;
     }
 
     .layout-sidebar-first {
       order: 1;
-      width: $max-width / 3 * 1;
+      width: math.div($max-width, 3) * 1;
     }
   }
 }

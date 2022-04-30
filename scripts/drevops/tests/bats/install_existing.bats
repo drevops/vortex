@@ -260,7 +260,7 @@ load _helper_drevops
   git clean -f -d
   git clean -f -d
   assert_git_clean
-  assert_files_present_common "star_wars" "StarWars"
+  assert_files_present_common
 
   # Run the install again.
   output=$(run_install_quiet)
@@ -291,7 +291,7 @@ load _helper_drevops
   # Remove all non-committed files.
   git reset --hard
 
-  assert_files_present_common "star_wars" "StarWars"
+  assert_files_present_common
 
   # Add a change to .env.local.
   echo "some random content" >> ".env.local"
