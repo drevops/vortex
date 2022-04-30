@@ -1170,10 +1170,10 @@ function discover_value__preserve_lagoon() {
     return ANSWER_YES;
   }
 
-  $value = get_value_from_dst_dotenv('LAGOON_PROJECT');
+  $value = get_value_from_dst_dotenv('DREVOPS_LAGOON_PROJECT');
 
-  // Special case - only work with non-empty value as 'LAGOON_PROJECT' may not
-  // exist in installed site's .env file.
+  // Special case - only work with non-empty value as 'DREVOPS_LAGOON_PROJECT'
+  // may not exist in installed site's .env file.
   if (empty($value)) {
     return NULL;
   }

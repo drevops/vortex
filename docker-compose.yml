@@ -70,7 +70,7 @@ x-environment:
   #;< LAGOON
   #:
   #: Re-using global project name for Lagoon.
-  LAGOON_PROJECT: *project
+  DREVOPS_LAGOON_PROJECT: *project
   #:
   #: Allow overriding Lagoon environment type, defaulting it to 'local'.
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
@@ -123,7 +123,7 @@ services:
       #: Find port on host with `ahoy info` or `docker-compose port cli 35729`.
       - "35729"
     #;< LAGOON
-    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
+    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     labels:
       lagoon.type: cli-persistent
       lagoon.persistent.name: nginx-php
@@ -155,7 +155,7 @@ services:
       #: requests routing is not required and/or not supported.
       - default
     #;< LAGOON
-    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
+    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     labels:
       lagoon.type: nginx-php-persistent
       lagoon.name: nginx-php
@@ -180,7 +180,7 @@ services:
     depends_on:
       - cli
     #;< LAGOON
-    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
+    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     labels:
       lagoon.type: nginx-php-persistent
       lagoon.name: nginx-php
@@ -196,7 +196,7 @@ services:
       context: .
       dockerfile: .docker/Dockerfile.mariadb
       args:
-        IMAGE: "${DREVOPS_DATABASE_IMAGE:-uselagoon/mariadb-drupal:21.12.1}"
+        IMAGE: "${DREVOPS_DATABASE_IMAGE:-uselagoon/mariadb-drupal:22.4.1}"
     environment:
       <<: *default-environment
     ports:
@@ -205,7 +205,7 @@ services:
       #: Find port on host with `ahoy info` or `docker-compose port mariadb 3306`.
       - "3306"
     #;< LAGOON
-    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
+    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     #: Make sure to destroy and re-deploy an environment if this value changes.
     labels:
       lagoon.type: mariadb
@@ -217,10 +217,12 @@ services:
   redis:
     # @see https://hub.docker.com/r/uselagoon/redis/tags
     # @see https://github.com/uselagoon/lagoon-images/tree/main/images/redis
-    image: uselagoon/redis-6:21.12.1
+    image: uselagoon/redis-6:22.4.1
     #;< LAGOON
-    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
+    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     labels:
+      # Change to 'none' if dedicated Redis service is used.
+      # Locally, we still want Redis to run.
       lagoon.type: redis
     #;> LAGOON
   #;> REDIS
@@ -244,7 +246,7 @@ services:
       #: Find port on host with `ahoy info` or `docker-compose port solr 8983`.
       - "8983"
     #;< LAGOON
-    #: https://lagoon.readthedocs.io/en/latest/using_lagoon/service_types/#service-types
+    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     labels:
       lagoon.type: solr
     #;> LAGOON
@@ -253,8 +255,7 @@ services:
   #: Chrome container.
   #: Used for browser testing.
   chrome:
-    # Pinned to specific image version until https://github.com/drevops/drevops/issues/534 is resolved.
-    image: selenium/standalone-chrome:3.141.59-oxygen
+    image: selenium/standalone-chrome
     #:
     #: Increase '/dev/shm' partition size to avoid browser crashing.
     shm_size: '1gb'
