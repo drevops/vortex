@@ -18,8 +18,8 @@
     "grunt-sass-globbing": "^1.5",
     "grunt-sass-lint": "^0.2",
     "gruntify-eslint": "^5",
-    "node-sass": "^6",
     "patch-package": "^6",
+    "sass": "^1.51.0",
     "sass-lint": "^1.13.1"
   },
   "browserslist": [

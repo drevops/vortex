@@ -33,9 +33,7 @@ ENV WEBROOT=docroot \
 # rebuilt.
 
 # Adding more tools.
-RUN apk add --no-cache pv=1.6 python3=3.9.5 make=4.3 gcc=10.3.1 g++=10.3.1 \
-    && ln -sf python3 /usr/bin/python \
-    && rm -rf /var/cache/apk/*
+RUN apk add --no-cache pv~1.6
 
 # Adding patches and scripts.
 COPY patches /app/patches
