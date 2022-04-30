@@ -46,7 +46,7 @@ DEPLOY_CODE_ROOT="${DEPLOY_CODE_ROOT:-$(pwd)}"
 DREVOPS_DEPLOY_SSH_FINGERPRINT="${DREVOPS_DEPLOY_SSH_FINGERPRINT:-}"
 
 # Default SSH file used if custom fingerprint is not provided.
-DEPLOY_SSH_FILE="${DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}"
+DREVOPS_DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}"
 
 # Deployment report file name.
 DREVOPS_DEPLOY_REPORT_FILE="${DREVOPS_DEPLOY_REPORT_FILE:-${DEPLOY_CODE_ROOT}/deployment_report.txt}"
@@ -75,19 +75,19 @@ echo "==> Started CODE deployment."
 # Use custom deploy key if fingerprint is provided.
 if [ -n "${DREVOPS_DEPLOY_SSH_FINGERPRINT}" ]; then
   echo "==> Custom deployment key is provided."
-  DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FINGERPRINT//:}"
-  DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_SSH_FILE//\"}"
+  DREVOPS_DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FINGERPRINT//:}"
+  DREVOPS_DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_SSH_FILE//\"}"
 fi
 
-[ ! -f "${DEPLOY_SSH_FILE}" ] && echo "ERROR: SSH key file ${DEPLOY_SSH_FILE} does not exist." && exit 1
+[ ! -f "${DREVOPS_DEPLOY_SSH_FILE}" ] && echo "ERROR: SSH key file ${DREVOPS_DEPLOY_SSH_FILE} does not exist." && exit 1
 
-if ssh-add -l | grep -q "${DEPLOY_SSH_FILE}"; then
-  echo "==> SSH agent has ${DEPLOY_SSH_FILE} key loaded."
+if ssh-add -l | grep -q "${DREVOPS_DEPLOY_SSH_FILE}"; then
+  echo "==> SSH agent has ${DREVOPS_DEPLOY_SSH_FILE} key loaded."
 else
   echo "==> SSH agent does not have default key loaded. Trying to load."
   # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
   ssh-add -D > /dev/null
-  ssh-add "${DEPLOY_SSH_FILE}"
+  ssh-add "${DREVOPS_DEPLOY_SSH_FILE}"
 fi
 
 # Disable strict host key checking in CI.

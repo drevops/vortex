@@ -203,56 +203,56 @@ load _helper_drevops_deployment
 
   step "Run deployment with skip flag set, but without per-branch or per-pr skip flags."
   export DREVOPS_DEPLOY_PROCEED=1
-  export DEPLOY_ALLOW_SKIP=1
+  export DREVOPS_DEPLOY_SKIP=1
 
   run ahoy deploy
   assert_success
   assert_output_not_contains "Skipping deployment webhook."
-  assert_output_contains "Found flag to allow skipping a deployment."
+  assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "==> Started WEBHOOK deployment."
   assert_output_contains "==> Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set and with per-branch flag set."
   export DREVOPS_DEPLOY_PROCEED=1
-  export DEPLOY_ALLOW_SKIP=1
+  export DREVOPS_DEPLOY_SKIP=1
 
-  export DEPLOY_BRANCH="feature/test"
-  export DEPLOY_SKIP_BRANCH_FEATURE_TEST=1
+  export DREVOPS_DEPLOY_BRANCH="feature/test"
+  export DREVOPS_DEPLOY_SKIP_BRANCH_FEATURE_TEST=1
 
   run ahoy deploy
   assert_success
-  assert_output_contains "Found flag to allow skipping a deployment."
-  assert_output_contains "Found skip variable DEPLOY_SKIP_BRANCH_FEATURE_TEST for branch feature/test."
+  assert_output_contains "Found flag to skip a deployment."
+  assert_output_contains "Found skip variable DREVOPS_DEPLOY_SKIP_BRANCH_FEATURE_TEST for branch feature/test."
   assert_output_contains "Skipping deployment webhook."
   assert_output_not_contains "==> Started WEBHOOK deployment."
   assert_output_not_contains "==> Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set and with per-pr flag set."
   export DREVOPS_DEPLOY_PROCEED=1
-  export DEPLOY_ALLOW_SKIP=1
+  export DREVOPS_DEPLOY_SKIP=1
 
-  export DEPLOY_PR="123"
-  export DEPLOY_SKIP_PR_123=1
+  export DREVOPS_DEPLOY_PR="123"
+  export DREVOPS_DEPLOY_SKIP_PR_123=1
 
   run ahoy deploy
   assert_success
-  assert_output_contains "Found flag to allow skipping a deployment."
-  assert_output_contains "Found skip variable DEPLOY_SKIP_PR_123 for PR 123."
+  assert_output_contains "Found flag to skip a deployment."
+  assert_output_contains "Found skip variable DREVOPS_DEPLOY_SKIP_PR_123 for PR 123."
   assert_output_contains "Skipping deployment webhook."
   assert_output_not_contains "==> Started WEBHOOK deployment."
   assert_output_not_contains "==> Finished WEBHOOK deployment."
 
   step "Run deployment without skip flag set and with per-pr flag set."
   export DREVOPS_DEPLOY_PROCEED=1
-  unset DEPLOY_ALLOW_SKIP
+  unset DREVOPS_DEPLOY_SKIP
 
-  export DEPLOY_PR="123"
-  export DEPLOY_SKIP_PR_123=1
+  export DREVOPS_DEPLOY_PR="123"
+  export DREVOPS_DEPLOY_SKIP_PR_123=1
 
   run ahoy deploy
   assert_success
-  assert_output_not_contains "Found flag to allow skipping a deployment."
-  assert_output_not_contains "Found skip variable DEPLOY_SKIP_PR_123 for PR 123."
+  assert_output_not_contains "Found flag to skip a deployment."
+  assert_output_not_contains "Found skip variable DREVOPS_DEPLOY_SKIP_PR_123 for PR 123."
   assert_output_not_contains "Skipping deployment webhook."
   assert_output_contains "==> Started WEBHOOK deployment."
   assert_output_contains "==> Finished WEBHOOK deployment."

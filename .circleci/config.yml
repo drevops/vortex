@@ -313,7 +313,7 @@ jobs:
       - checkout
       - *step_process_codebase
       - run:
-          command: DEPLOY_BRANCH="$CIRCLE_BRANCH" DEPLOY_PR="$(echo $CIRCLE_PULL_REQUEST | cut -d'/' -f 7)" DEPLOY_PR_HEAD=$CIRCLE_SHA1 ahoy deploy
+          command: DREVOPS_DEPLOY_BRANCH="$CIRCLE_BRANCH" DREVOPS_DEPLOY_PR="$(echo $CIRCLE_PULL_REQUEST | cut -d'/' -f 7)" DREVOPS_DEPLOY_PR_HEAD=$CIRCLE_SHA1 ahoy deploy
           no_output_timeout: 30m
       - store_artifacts:
           path: *test_artifact_dir

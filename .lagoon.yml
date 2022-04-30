@@ -34,7 +34,7 @@ tasks:
     - run:
         name: Backup DB before deployment in production
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$LAGOON_PRODUCTION_BRANCH" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_LAGOON_PRODUCTION_BRANCH" ]; then
             DREVOPS_DB_DIR=/app/docroot/sites/default/files/private/pre_deployment_backups ./scripts/drevops/drupal-export-db.sh
           fi
         service: cli
@@ -60,8 +60,8 @@ tasks:
           export DREVOPS_DB_DIR=/tmp/data
           # Do not load SSH file to access production environment to download the
           # DB as Lagoon already has the keys loaded into the SSH agent.
-          export LAGOON_SSH_KEY_FILE=false
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$LAGOON_PRODUCTION_BRANCH" ]; then
+          export DREVOPS_LAGOON_SSH_KEY_FILE=false
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_LAGOON_PRODUCTION_BRANCH" ]; then
             echo "==> Skipping DB download in the production environment."
           else
             # Remove previously saved dumps in this environment.
@@ -79,7 +79,7 @@ tasks:
           # Read DB dump from the temp location instead of '.data'.
           export DREVOPS_DB_DIR=/tmp/data
 
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$LAGOON_PRODUCTION_BRANCH" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_LAGOON_PRODUCTION_BRANCH" ]; then
             # Never overwrite existing DB when production site already exists.
             export DREVOPS_DB_OVERWRITE_EXISTING=0
             # Never unblock admin user in production.
@@ -112,7 +112,7 @@ tasks:
 
           if [ "$NEWRELIC_ENABLED" = "1" ] && [ -n "$NEWRELIC_LICENSE" ] && [ -n "$DREVOPS_NOTIFY_NEWRELIC_APIKEY" ]; then
             [ -n "$LAGOON_PR_NUMBER" ] && GIT_SHA=$LAGOON_PR_HEAD_SHA || GIT_SHA=$LAGOON_GIT_SHA
-            NOTIFY_NEWRELIC_APPNAME="$LAGOON_PROJECT-$GIT_SHA" \
+            NOTIFY_NEWRELIC_APPNAME="$DREVOPS_LAGOON_PROJECT-$GIT_SHA" \
             NOTIFY_DEPLOY_REF="$GIT_SHA" \
             ./scripts/drevops/notify-deployment-newrelic.sh
           fi
@@ -129,7 +129,7 @@ tasks:
           if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}" ] && [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" ]; then
             [ -n "$LAGOON_PR_NUMBER" ] && GIT_BRANCH=$LAGOON_PR_HEAD_BRANCH || GIT_BRANCH=$LAGOON_GIT_BRANCH
             NOTIFY_JIRA_ENDPOINT="${NOTIFY_JIRA_ENDPOINT:-https://jira.atlassian.com}" \
-            NOTIFY_DEPLOY_BRANCH="$GIT_BRANCH" \
+            NOTIFY_DREVOPS_DEPLOY_BRANCH="$GIT_BRANCH" \
             NOTIFY_DEPLOY_ENVIRONMENT_URL="$LAGOON_ROUTE" \
             ./scripts/drevops/notify-deployment-jira.sh || true
           fi

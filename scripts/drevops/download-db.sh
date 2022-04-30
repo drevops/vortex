@@ -24,7 +24,7 @@ set -e
 DREVOPS_DATABASE_DOWNLOAD_SOURCE="${DREVOPS_DATABASE_DOWNLOAD_SOURCE:-curl}"
 
 # Flag to download a fresh copy of the database dump if the methods supports it.
-DATABASE_DOWNLOAD_REFRESH="${DATABASE_DOWNLOAD_REFRESH:-}"
+DREVOPS_DB_DOWNLOAD_REFRESH="${DREVOPS_DB_DOWNLOAD_REFRESH:-}"
 
 # Flag to force DB download even if the cache exists.
 # Usually set in CircleCI UI to override per build cache.
@@ -70,7 +70,7 @@ mkdir -p "${DREVOPS_DB_DIR}"
 # Export DB dir and file variables as they are used in child scripts.
 export DREVOPS_DB_DIR
 export DREVOPS_DB_FILE
-export DATABASE_DOWNLOAD_REFRESH
+export DREVOPS_DB_DOWNLOAD_REFRESH
 
 if [ "${DREVOPS_DATABASE_DOWNLOAD_SOURCE}" = "ftp" ]; then
   echo "==> Starting database dump download from FTP."
@@ -89,6 +89,8 @@ fi
 
 if [ "${DREVOPS_DATABASE_DOWNLOAD_SOURCE}" = "lagoon" ]; then
   echo "==> Starting database dump download from Lagoon."
+  export DREVOPS_DB_LAGOON_PROJECT="${DREVOPS_DB_LAGOON_PROJECT:-${DREVOPS_LAGOON_PROJECT}}"
+  export DREVOPS_DB_LAGOON_SSH_KEY_FILE="${DREVOPS_DB_LAGOON_SSH_KEY_FILE:-${DREVOPS_LAGOON_SSH_KEY_FILE}}"
   ./scripts/drevops/download-db-lagoon.sh
 fi
 
