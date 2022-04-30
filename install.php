@@ -431,7 +431,7 @@ function process__string_tokens($dir) {
   dir_replace_content('your_org',          get_answer('org_machine_name'),           $dir);
   dir_replace_content('YOURORG',           get_answer('org'),                        $dir);
   dir_replace_content('your-site-url',     get_answer('url'),                        $dir);
-  dir_replace_content('ys_core',           get_answer('module_prefix'),              $dir . '/docroot/modules/custom');
+  dir_replace_content('ys_core',           get_answer('module_prefix') . '_core',    $dir . '/docroot/modules/custom');
   dir_replace_content('YsCore',            $module_prefix_camel_cased . 'Core',      $dir . '/docroot/modules/custom');
   dir_replace_content('YS',                $module_prefix_upper_cased,               $dir);
   dir_replace_content('your-site',         $machine_name_hyphenated,                 $dir);
@@ -908,7 +908,7 @@ function get_default_value__org_machine_name() {
 }
 
 function get_default_value__module_prefix() {
-  return get_answer('machine_name');
+  return to_abbreviation(get_answer('machine_name'));
 }
 
 function get_default_value__profile() {
@@ -2097,6 +2097,17 @@ function to_machine_name($value, $preserve_chars = []) {
 function to_camel_case($value, $capitalise_first = FALSE) {
   $value = str_replace(' ', '', ucwords(preg_replace('/[^a-zA-Z0-9]/', ' ', $value)));
   return $capitalise_first ? $value : lcfirst($value);
+}
+
+function to_abbreviation($value, $length = 2, $word_delim = '_') {
+  $parts = explode($word_delim, $value);
+  if (count($parts) == 1) {
+    return strlen($parts[0]) > $length ? substr($parts[0], 0, $length) : $value;
+  }
+
+  return implode('', array_map(function ($word) {
+    return substr($word, 0, 1);
+  }, $parts));
 }
 
 function execute_callback($prefix, $name) {
