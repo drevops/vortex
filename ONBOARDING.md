@@ -112,7 +112,7 @@ indicate that it was addressed.
           a list of available environments should be shown (at least one
           environment).
     - [ ] Ensure that you have access to Lagoon UI.
-    - [ ] Setup [Slack notifications](https://lagoon.readthedocs.io/en/latest/administering_lagoon/graphql_api/#adding-notifications-to-the-project)
+    - [ ] Setup [Slack notifications](https://docs.lagoon.sh/administering-lagoon/graphql-queries/#adding-notifications-to-the-project)
     - [ ] Push to remote and ensure that Lagoon was successfully deployed.
 
 [//]: # (#;> LAGOON)

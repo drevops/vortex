@@ -11,7 +11,7 @@ environment_variables:
 #    # Environment variable name (`DREVOPS_DOCKER_REGISTRY_TOKEN` in this case) with
 #    # the registry password added injected into container via LagoonCLI or
 #    # GraphQL.
-#    # @see https://lagoon.readthedocs.io/en/v0.24.0/using_lagoon/environment_variables/#runtime-environment-variables-lagoon-api
+#    # @see https://docs.lagoon.sh/using-lagoon-advanced/environment-variables/#runtime-environment-variables-lagoon-api
 #    password: DREVOPS_DOCKER_REGISTRY_TOKEN
 
 tasks:
