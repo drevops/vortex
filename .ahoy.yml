@@ -98,7 +98,7 @@ commands:
 
   drush:
     usage: Run drush commands in the CLI service container.
-    cmd: docker-compose exec -T cli bash -c "drush -l ${LOCALDEV_URL} $*"
+    cmd: docker-compose exec -T cli bash -c "drush -l ${DREVOPS_LOCALDEV_URL} $*"
 
   #;< REDIS
   flush-redis:
@@ -133,16 +133,16 @@ commands:
     cmd: docker-compose exec -e SKIP_POST_DB_IMPORT=${SKIP_POST_DB_IMPORT:-} -T cli ./scripts/drevops/drupal-install-site.sh
 
   export-db:
-    usage: Export database dump or database image (DATABASE_IMAGE variable must be set).
+    usage: Export database dump or database image (DREVOPS_DATABASE_IMAGE variable must be set).
     cmd: |
-      [ -z "${DATABASE_IMAGE}" ] && docker-compose exec -e DB_DIR=${DB_DIR:-} -T cli ./scripts/drevops/drupal-export-db.sh "$@" || \
-      ( DOCKER_IMAGE="${DATABASE_IMAGE}" ./scripts/drevops/drupal-export-db-image.sh "$@";
-        if [ "${EXPORT_DB_DEPLOY_DOCKER}" = "1" ]; then DOCKER_MAP=mariadb=${DATABASE_IMAGE} DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG} ./scripts/drevops/deploy-docker.sh; fi )
+      [ -z "${DREVOPS_DATABASE_IMAGE}" ] && docker-compose exec -e DREVOPS_DB_DIR=${DREVOPS_DB_DIR:-} -T cli ./scripts/drevops/drupal-export-db.sh "$@" || \
+      ( DOCKER_IMAGE="${DREVOPS_DATABASE_IMAGE}" ./scripts/drevops/drupal-export-db-image.sh "$@";
+        if [ "${EXPORT_DB_DEPLOY_DOCKER}" = "1" ]; then DOCKER_MAP=mariadb=${DREVOPS_DATABASE_IMAGE} DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG} ./scripts/drevops/deploy-docker.sh; fi )
 
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
     cmd: |
-      [ -n "${DATABASE_IMAGE}" ] && docker pull $DATABASE_IMAGE
+      [ -n "${DREVOPS_DATABASE_IMAGE}" ] && docker pull $DREVOPS_DATABASE_IMAGE
 
   clean:
     usage: Remove containers and all build files.
@@ -156,21 +156,21 @@ commands:
 
   fei:
     usage: Install front-end assets.
-    cmd: ahoy cli "npm --prefix docroot/themes/custom/${DRUPAL_THEME} install"
+    cmd: ahoy cli "npm --prefix docroot/themes/custom/${DREVOPS_DRUPAL_THEME} install"
 
   fe:
     usage: Build front-end assets.
-    cmd: ahoy cli "cd docroot/themes/custom/${DRUPAL_THEME} && npm run build"
+    cmd: ahoy cli "cd docroot/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build"
 
   fed:
     usage: Build front-end assets for development.
-    cmd: ahoy cli "cd docroot/themes/custom/${DRUPAL_THEME} && npm run build-dev"
+    cmd: ahoy cli "cd docroot/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build-dev"
 
   few:
     usage: Watch front-end assets during development.
     cmd: |
       ahoy cli "pkill -9 -f grunt" || true
-      ahoy cli "cd docroot/themes/custom/${DRUPAL_THEME} && npm run watch"
+      ahoy cli "cd docroot/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run watch"
 
   lint:
     usage: Lint back-end and front-end code.
@@ -213,7 +213,7 @@ commands:
   deploy:
     usage: Run remote deployment procedures
     cmd: |
-      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as DEPLOY_PROCEED=1 ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" \
+      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as DREVOPS_DEPLOY_PROCEED=1 ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" \
       && ./scripts/drevops/deploy.sh "$@" || echo "The operation was canceled."
 
   github-labels:

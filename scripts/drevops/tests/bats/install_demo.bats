@@ -14,7 +14,7 @@ load _helper_drevops
   assert_files_present
   assert_git_repo
 
-  assert_file_contains ".env" "CURL_DB_URL"
+  assert_file_contains ".env" "DREVOPS_CURL_DB_URL"
   assert_file_exists .data/db.sql
 }
 
@@ -26,7 +26,7 @@ load _helper_drevops
   assert_files_present
   assert_git_repo
 
-  assert_file_not_contains ".env" "CURL_DB_URL=http"
+  assert_file_not_contains ".env" "DREVOPS_CURL_DB_URL=http"
   assert_file_exists .data/db.sql
 
   contents=$(cat .data/db.sql)
@@ -42,7 +42,7 @@ load _helper_drevops
   assert_files_present
   assert_git_repo
 
-  assert_file_not_contains ".env" "CURL_DB_URL=http"
+  assert_file_not_contains ".env" "DREVOPS_CURL_DB_URL=http"
   assert_file_not_exists .data/db.sql
 }
 
@@ -56,7 +56,7 @@ load _helper_drevops
   assert_files_present
   assert_git_repo
 
-  assert_file_contains ".env" "CURL_DB_URL=http"
+  assert_file_contains ".env" "DREVOPS_CURL_DB_URL=http"
   assert_file_exists .data/db.sql
 
   contents=$(cat .data/db.sql)
@@ -72,6 +72,6 @@ load _helper_drevops
   assert_files_present
   assert_git_repo
 
-  assert_file_contains ".env" "CURL_DB_URL=http"
+  assert_file_contains ".env" "DREVOPS_CURL_DB_URL=http"
   assert_file_not_exists .data/db.sql
 }

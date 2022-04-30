@@ -24,16 +24,16 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Flag to allow Unit tests to fail.
-ALLOW_UNIT_TESTS_FAIL="${ALLOW_UNIT_TESTS_FAIL:-0}"
+DREVOPS_ALLOW_UNIT_TESTS_FAIL="${DREVOPS_ALLOW_UNIT_TESTS_FAIL:-0}"
 
 # Flag to allow Kernel tests to fail.
-ALLOW_KERNEL_TESTS_FAIL="${ALLOW_KERNEL_TESTS_FAIL:-0}"
+DREVOPS_ALLOW_KERNEL_TESTS_FAIL="${DREVOPS_ALLOW_KERNEL_TESTS_FAIL:-0}"
 
 # Flag to allow Functional tests to fail.
-ALLOW_FUNCTIONAL_TESTS_FAIL="${ALLOW_FUNCTIONAL_TESTS_FAIL:-0}"
+DREVOPS_ALLOW_FUNCTIONAL_TESTS_FAIL="${DREVOPS_ALLOW_FUNCTIONAL_TESTS_FAIL:-0}"
 
 # Flag to allow BDD tests to fail.
-ALLOW_BDD_TESTS_FAIL="${ALLOW_BDD_TESTS_FAIL:-0}"
+DREVOPS_ALLOW_BDD_TESTS_FAIL="${DREVOPS_ALLOW_BDD_TESTS_FAIL:-0}"
 
 # Directory to store test result files.
 TEST_LOG_DIR="${TEST_LOG_DIR:-}"
@@ -67,7 +67,7 @@ if [ -z "${TEST_TYPE##*unit*}" ]; then
   [ -n "${TEST_LOG_DIR}" ] && phpunit_opts+=(--log-junit "${TEST_LOG_DIR}"/unit.xml)
 
   vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --filter '/.*Unit.*/' "$@" \
-  || [ "${ALLOW_UNIT_TESTS_FAIL}" -eq 1 ]
+  || [ "${DREVOPS_ALLOW_UNIT_TESTS_FAIL}" -eq 1 ]
 fi
 
 if [ -z "${TEST_TYPE##*kernel*}" ]; then
@@ -77,7 +77,7 @@ if [ -z "${TEST_TYPE##*kernel*}" ]; then
   [ -n "${TEST_LOG_DIR}" ] && phpunit_opts+=(--log-junit "${TEST_LOG_DIR}"/kernel.xml)
 
   vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --filter '/.*Kernel.*/' "$@" \
-  || [ "${ALLOW_KERNEL_TESTS_FAIL:-0}" -eq 1 ]
+  || [ "${DREVOPS_ALLOW_KERNEL_TESTS_FAIL:-0}" -eq 1 ]
 fi
 
 if [ -z "${TEST_TYPE##*functional*}" ]; then
@@ -87,7 +87,7 @@ if [ -z "${TEST_TYPE##*functional*}" ]; then
   [ -n "${TEST_LOG_DIR}" ] && phpunit_opts+=(--log-junit "${TEST_LOG_DIR}"/functional.xml)
 
   vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --filter '/.*Functional.*/' "$@" \
-  || [ "${ALLOW_FUNCTIONAL_TESTS_FAIL:-0}" -eq 1 ]
+  || [ "${DREVOPS_ALLOW_FUNCTIONAL_TESTS_FAIL:-0}" -eq 1 ]
 fi
 
 if [ -z "${TEST_TYPE##*bdd*}" ]; then
@@ -103,5 +103,5 @@ if [ -z "${TEST_TYPE##*bdd*}" ]; then
 
   vendor/bin/behat --strict --colors --profile="${BEHAT_PROFILE}" --format="${BEHAT_FORMAT}" "$@" \
   || ( [ -n "${CI}" ] && vendor/bin/behat --strict --colors --profile="${BEHAT_PROFILE}" --format="${BEHAT_FORMAT}" --rerun "$@" ) \
-  || [ "${ALLOW_BDD_TESTS_FAIL}" -eq 1 ]
+  || [ "${DREVOPS_ALLOW_BDD_TESTS_FAIL}" -eq 1 ]
 fi

@@ -48,10 +48,10 @@ AC_API_SECRET="${AC_API_SECRET:-}"
 AC_CREDENTIALS_FILE=${AC_CREDENTIALS_FILE:-.env.local}
 
 # Directory where DB dumps are stored.
-DB_DIR="${DB_DIR:-./.data}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 
 # Database dump file name.
-DB_FILE="${DB_FILE:-db.sql}"
+DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 # Flag to decompress backup. If not set to 1 - the DB dump will only be
 # downloaded and not decompressed.
@@ -118,9 +118,9 @@ BACKUP_ID=$(echo "${BACKUPS_JSON}" | extract_json_value "_embedded" | extract_js
 [ -z "${BACKUP_ID}" ] && echo "ERROR: Unable to discover backup id." && exit 1
 
 # Insert backup id as a suffix.
-db_dump_ext="${DB_FILE##*.}"
+db_dump_ext="${DREVOPS_DB_FILE##*.}"
 db_dump_file_actual_prefix="${AC_API_DB_NAME}_backup_"
-db_dump_file_actual=${DB_DIR}/${db_dump_file_actual_prefix}${BACKUP_ID}.${db_dump_ext}
+db_dump_file_actual=${DREVOPS_DB_DIR}/${db_dump_file_actual_prefix}${BACKUP_ID}.${db_dump_ext}
 db_dump_discovered=${db_dump_file_actual}
 db_dump_compressed=${db_dump_file_actual}.gz
 
@@ -129,7 +129,7 @@ if [ -f "${db_dump_discovered}" ] ; then
 else
   # If the gzipped version exists, then we don't need to re-download it.
   if [ ! -f "${db_dump_compressed}" ] ; then
-    [ ! -d "${DB_DIR}" ] && echo "==> Creating dump directory ${DB_DIR}" && mkdir -p "${DB_DIR}"
+    [ ! -d "${DREVOPS_DB_DIR}" ] && echo "==> Creating dump directory ${DREVOPS_DB_DIR}" && mkdir -p "${DREVOPS_DB_DIR}"
     echo "==> Using latest backup id ${BACKUP_ID} for DB ${AC_API_DB_NAME}."
 
     echo "==> Discovering backup url."
@@ -160,18 +160,18 @@ echo "==> Expanded file."
 ls -Alh "${db_dump_file_actual}"
 
 if [ "${DB_USE_SYMLINK}" == true ]; then
-  latest_symlink="${DB_FILE}"
+  latest_symlink="${DREVOPS_DB_FILE}"
   if [ -f "${db_dump_file_actual}" ] ; then
     echo "==> Creating a symlink \"$(basename "${db_dump_file_actual}")\" => ${latest_symlink}."
-    (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
+    (cd "${DREVOPS_DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_file_actual}")" "${latest_symlink}")
   fi
 
   latest_symlink="${latest_symlink}.gz"
   if [ -f "${db_dump_compressed}" ] ; then
     echo "==> Creating a symlink \"$(basename "${db_dump_compressed}")\" => \"${latest_symlink}\"."
-    (cd "${DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
+    (cd "${DREVOPS_DB_DIR}" && rm -f "${latest_symlink}" && ln -s "$(basename "${db_dump_compressed}")" "${latest_symlink}")
   fi
 else
-  echo "==> Renaming file \"${db_dump_file_actual}\" to \"${DB_DIR}/${DB_FILE}\"."
-  mv "${db_dump_file_actual}" "${DB_DIR}/${DB_FILE}"
+  echo "==> Renaming file \"${db_dump_file_actual}\" to \"${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}\"."
+  mv "${db_dump_file_actual}" "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 fi

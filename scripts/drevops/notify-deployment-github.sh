@@ -13,7 +13,7 @@ set -e
 { [ "${SKIP_NOTIFY_DEPLOYMENT}" = "1" ] || [ "${SKIP_NOTIFY_GITHUB_DEPLOYMENT}" = "1" ]; } && echo "Skipping notification of GitHub deployment." && exit 0
 
 # Deployment GitHub token.
-NOTIFY_DEPLOY_GITHUB_TOKEN="${NOTIFY_DEPLOY_GITHUB_TOKEN:-}"
+DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN="${DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN:-}"
 
 # Deployment repository.
 NOTIFY_DEPLOY_REPOSITORY="${NOTIFY_DEPLOY_REPOSITORY:-}"
@@ -32,7 +32,7 @@ NOTIFY_DEPLOY_ENVIRONMENT_TYPE="${NOTIFY_DEPLOY_ENVIRONMENT_TYPE:-PR}"
 
 # ------------------------------------------------------------------------------
 
-[ -z "${NOTIFY_DEPLOY_GITHUB_TOKEN}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_GITHUB_TOKEN" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN" && exit 1
 [ -z "${NOTIFY_DEPLOY_REPOSITORY}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_REPOSITORY" && exit 1
 [ -z "${NOTIFY_DEPLOY_REF}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_REF" && exit 1
 [ -z "${NOTIFY_DEPLOY_GITHUB_OPERATION}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_GITHUB_OPERATION" && exit 1
@@ -59,7 +59,7 @@ extract_json_value() {
 if [ "${NOTIFY_DEPLOY_GITHUB_OPERATION}" = "start" ]; then
   payload="$(curl \
     -X POST \
-    -H "Authorization: token ${NOTIFY_DEPLOY_GITHUB_TOKEN}" \
+    -H "Authorization: token ${DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     -s \
     "https://api.github.com/repos/${NOTIFY_DEPLOY_REPOSITORY}/deployments" \
@@ -77,7 +77,7 @@ else
   # Returns all deployment for this SHA sorted from the latest to the oldest.
   payload="$(curl \
     -X GET \
-    -H "Authorization: token ${NOTIFY_DEPLOY_GITHUB_TOKEN}" \
+    -H "Authorization: token ${DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     -s \
     "https://api.github.com/repos/${NOTIFY_DEPLOY_REPOSITORY}/deployments?ref=${NOTIFY_DEPLOY_REF}")"
@@ -91,7 +91,7 @@ else
   payload="$(curl \
     -X POST \
     -H "Accept: application/vnd.github.v3+json" \
-    -H "Authorization: token ${NOTIFY_DEPLOY_GITHUB_TOKEN}" \
+    -H "Authorization: token ${DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN}" \
     "https://api.github.com/repos/${NOTIFY_DEPLOY_REPOSITORY}/deployments/${deployment_id}/statuses" \
     -s \
     -d "{\"state\":\"success\", \"environment_url\": \"${NOTIFY_DEPLOY_ENVIRONMENT_URL}\"}")"

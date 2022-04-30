@@ -15,12 +15,12 @@ DOCKER_MAP="${DOCKER_MAP:-}"
 
 # Docker registry credentials to read and write Docker images.
 # Note that for CI, these variables should be set through UI.
-DOCKER_REGISTRY_USERNAME="${DOCKER_REGISTRY_USERNAME:-}"
-DOCKER_REGISTRY_TOKEN="${DOCKER_REGISTRY_TOKEN:-}"
+DREVOPS_DOCKER_REGISTRY_USERNAME="${DREVOPS_DOCKER_REGISTRY_USERNAME:-}"
+DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN:-}"
 
 # Docker registry name. Provide port, if required as <server_name>:<port>.
 # Defaults to DockerHub.
-DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
+DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-docker.io}"
 
 # The tag of the image to push to. Defaults to 'latest'.
 DOCKER_IMAGE_TAG="${DOCKER_IMAGE_TAG:-latest}"
@@ -60,7 +60,7 @@ for key in "${!services[@]}"; do
   echo "==> Found \"${service}\" service container with id \"${cid}\"."
 
   [ -n "${image##*:*}" ] && image="${image}:${DOCKER_IMAGE_TAG}"
-  new_image="${DOCKER_REGISTRY}/${image}"
+  new_image="${DREVOPS_DOCKER_REGISTRY}/${image}"
 
   echo "==> Committing image with name \"${new_image}\"."
   iid=$(docker commit "${cid}" "${new_image}")

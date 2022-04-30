@@ -17,13 +17,13 @@ APP="${APP:-/app}"
 DRUSH_ALIAS="${DRUSH_ALIAS:-}"
 
 # Database sanitized account email replacement.
-DB_SANITIZE_EMAIL="${DB_SANITIZE_EMAIL:-user+%uid@localhost}"
+DREVOPS_DB_SANITIZE_EMAIL="${DREVOPS_DB_SANITIZE_EMAIL:-user+%uid@localhost}"
 
 # Database sanitized account password replacement.
-DB_SANITIZE_PASSWORD="${DB_SANITIZE_PASSWORD:-${RANDOM}${RANDOM}${RANDOM}${RANDOM}}"
+DREVOPS_DB_SANITIZE_PASSWORD="${DREVOPS_DB_SANITIZE_PASSWORD:-${RANDOM}${RANDOM}${RANDOM}${RANDOM}}"
 
 # Replace username with mail.
-DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL="${DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL:-0}"
+DREVOPS_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL="${DREVOPS_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL:-0}"
 
 # Path to file with custom sanitization SQL queries.
 # To skip custom sanitization, remove the DB_SANITIZE_FILE file from the codebase.
@@ -42,9 +42,9 @@ echo "==> Started database sanitization."
 
 echo "  > Sanitizing database using drush sql-sanitize."
 # Always sanitize password and email using standard methods.
-$drush ${DRUSH_ALIAS} sql-sanitize --sanitize-password="${DB_SANITIZE_PASSWORD}" --sanitize-email="${DB_SANITIZE_EMAIL}" -y
+$drush ${DRUSH_ALIAS} sql-sanitize --sanitize-password="${DREVOPS_DB_SANITIZE_PASSWORD}" --sanitize-email="${DREVOPS_DB_SANITIZE_EMAIL}" -y
 
-if [ "${DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" = "1" ]; then
+if [ "${DREVOPS_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" = "1" ]; then
   echo "  > Updating username with user email."
   $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';"
 fi

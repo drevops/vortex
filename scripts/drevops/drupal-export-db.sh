@@ -11,7 +11,7 @@ set -e
 APP="${APP:-/app}"
 
 # Directory with database dump file.
-DB_DIR="${DB_DIR:-./.data}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 
 # Drush alias.
 DRUSH_ALIAS="${DRUSH_ALIAS:-}"
@@ -22,11 +22,11 @@ DRUSH_ALIAS="${DRUSH_ALIAS:-}"
 drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 # Create directory to store database dump.
-mkdir -p "${DB_DIR}"
+mkdir -p "${DREVOPS_DB_DIR}"
 
 # Create dump file name with a timestamp or use the file name provided
 # as a first argument.
-DUMP_FILE=$([ "${1}" ] && echo "${DB_DIR}/${1}" || echo "${DB_DIR}/export_db_$(date +%Y_%m_%d_%H_%M_%S).sql")
+DUMP_FILE=$([ "${1}" ] && echo "${DREVOPS_DB_DIR}/${1}" || echo "${DREVOPS_DB_DIR}/export_db_$(date +%Y_%m_%d_%H_%M_%S).sql")
 
 # Dump database into a file. Also, convert relative path to an absolute one, as
 # the result file is relative to Drupal root, but provided paths are relative

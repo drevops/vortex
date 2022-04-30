@@ -22,13 +22,13 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Remote repository to push code to.
-DEPLOY_GIT_REMOTE="${DEPLOY_GIT_REMOTE:-}"
+DREVOPS_DEPLOY_CODE_GIT_REMOTE="${DREVOPS_DEPLOY_CODE_GIT_REMOTE:-}"
 
 # Email address of the user who will be committing to a remote repository.
-DEPLOY_GIT_USER_NAME="${DEPLOY_GIT_USER_NAME:-"Deployer Robot"}"
+DREVOPS_DEPLOY_CODE_GIT_USER_NAME="${DREVOPS_DEPLOY_CODE_GIT_USER_NAME:-"Deployer Robot"}"
 
 # Name of the user who will be committing to a remote repository.
-DEPLOY_GIT_USER_EMAIL="${DEPLOY_GIT_USER_EMAIL:-}"
+DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL="${DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL:-}"
 
 # Source of the code to be used for artifact building.
 DEPLOY_CODE_SRC="${DEPLOY_CODE_SRC:-}"
@@ -43,13 +43,13 @@ DEPLOY_CODE_ROOT="${DEPLOY_CODE_ROOT:-$(pwd)}"
 # In most cases, the default SSH key does not work (because it is a read-only
 # key used by CircleCI to checkout code from git), so you should add another
 # deployment key.
-DEPLOY_SSH_FINGERPRINT="${DEPLOY_SSH_FINGERPRINT:-}"
+DREVOPS_DEPLOY_SSH_FINGERPRINT="${DREVOPS_DEPLOY_SSH_FINGERPRINT:-}"
 
 # Default SSH file used if custom fingerprint is not provided.
 DEPLOY_SSH_FILE="${DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}"
 
 # Deployment report file name.
-DEPLOY_REPORT="${DEPLOY_REPORT:-${DEPLOY_CODE_ROOT}/deployment_report.txt}"
+DREVOPS_DEPLOY_REPORT_FILE="${DREVOPS_DEPLOY_REPORT_FILE:-${DEPLOY_CODE_ROOT}/deployment_report.txt}"
 
 # Remote repository branch. Can be a specific branch or a token.
 # @see https://github.com/integratedexperts/robo-git-artefact#token-support
@@ -60,22 +60,22 @@ DEPLOY_GIT_BRANCH="${DEPLOY_GIT_BRANCH:-[branch]}"
 echo "==> Started CODE deployment."
 
 # Check all required values.
-[ -z "${DEPLOY_GIT_REMOTE}" ] && echo "Missing required value for DEPLOY_GIT_REMOTE." && exit 1
+[ -z "${DREVOPS_DEPLOY_CODE_GIT_REMOTE}" ] && echo "Missing required value for DREVOPS_DEPLOY_CODE_GIT_REMOTE." && exit 1
 [ -z "${DEPLOY_GIT_BRANCH}" ] && echo "Missing required value for DEPLOY_GIT_BRANCH." && exit 1
 [ -z "${DEPLOY_CODE_SRC}" ] && echo "Missing required value for DEPLOY_CODE_SRC." && exit 1
 [ -z "${DEPLOY_CODE_ROOT}" ] && echo "Missing required value for DEPLOY_CODE_ROOT." && exit 1
-[ -z "${DEPLOY_REPORT}" ] && echo "Missing required value for DEPLOY_REPORT." && exit 1
-[ -z "${DEPLOY_GIT_USER_NAME}" ] && echo "Missing required value for DEPLOY_GIT_USER_NAME." && exit 1
-[ -z "${DEPLOY_GIT_USER_EMAIL}" ] && echo "Missing required value for DEPLOY_GIT_USER_EMAIL." && exit 1
+[ -z "${DREVOPS_DEPLOY_REPORT_FILE}" ] && echo "Missing required value for DREVOPS_DEPLOY_REPORT_FILE." && exit 1
+[ -z "${DREVOPS_DEPLOY_CODE_GIT_USER_NAME}" ] && echo "Missing required value for DREVOPS_DEPLOY_CODE_GIT_USER_NAME." && exit 1
+[ -z "${DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL}" ] && echo "Missing required value for DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL." && exit 1
 
 # Configure global git settings, if they do not exist.
-[ "$(git config --global user.name)" = "" ] && echo "==> Configuring global git user name." && git config --global user.name "${DEPLOY_GIT_USER_NAME}"
-[ "$(git config --global user.email)" = "" ] && echo "==> Configuring global git user email." && git config --global user.email "${DEPLOY_GIT_USER_EMAIL}"
+[ "$(git config --global user.name)" = "" ] && echo "==> Configuring global git user name." && git config --global user.name "${DREVOPS_DEPLOY_CODE_GIT_USER_NAME}"
+[ "$(git config --global user.email)" = "" ] && echo "==> Configuring global git user email." && git config --global user.email "${DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL}"
 
 # Use custom deploy key if fingerprint is provided.
-if [ -n "${DEPLOY_SSH_FINGERPRINT}" ]; then
+if [ -n "${DREVOPS_DEPLOY_SSH_FINGERPRINT}" ]; then
   echo "==> Custom deployment key is provided."
-  DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}"
+  DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FINGERPRINT//:}"
   DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_SSH_FILE//\"}"
 fi
 
@@ -105,12 +105,12 @@ cp -a "${DEPLOY_CODE_ROOT}"/.gitignore.deployment "${DEPLOY_CODE_SRC}" || true
 # Run code deployment using special helper package.
 # Add --debug to debug any deployment issues.
 "${HOME}/.composer/vendor/bin/robo" --ansi \
-  --load-from "${HOME}/.composer/vendor/integratedexperts/robo-git-artefact/RoboFile.php" artefact "${DEPLOY_GIT_REMOTE}" \
+  --load-from "${HOME}/.composer/vendor/integratedexperts/robo-git-artefact/RoboFile.php" artefact "${DREVOPS_DEPLOY_CODE_GIT_REMOTE}" \
   --root="${DEPLOY_CODE_ROOT}" \
   --src="${DEPLOY_CODE_SRC}" \
   --branch="${DEPLOY_GIT_BRANCH}" \
   --gitignore="${DEPLOY_CODE_SRC}"/.gitignore.deployment \
-  --report="${DEPLOY_REPORT}" \
+  --report="${DREVOPS_DEPLOY_REPORT_FILE}" \
   --push
 
 echo "==> Finished CODE deployment."

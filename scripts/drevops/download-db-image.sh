@@ -11,12 +11,12 @@ set -e
 DOCKER_IMAGE="${1:-}"
 
 # The username of the docker registry to download the database from.
-DOCKER_REGISTRY_USERNAME="${DOCKER_REGISTRY_USERNAME:-}"
+DREVOPS_DOCKER_REGISTRY_USERNAME="${DREVOPS_DOCKER_REGISTRY_USERNAME:-}"
 # The token of the docker registry to download the database from.
-DOCKER_REGISTRY_TOKEN="${DOCKER_REGISTRY_TOKEN:-}"
+DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN:-}"
 # Docker registry name. Provide port, if required as <server_name>:<port>.
 # Defaults to DockerHub.
-DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
+DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-docker.io}"
 
 #-------------------------------------------------------------------------------
 echo "==> Start Docker data image download."
@@ -25,7 +25,7 @@ echo "==> Start Docker data image download."
 
 ./scripts/drevops/docker-login.sh
 
-new_image="${DOCKER_REGISTRY}/${DOCKER_IMAGE}"
+new_image="${DREVOPS_DOCKER_REGISTRY}/${DOCKER_IMAGE}"
 
 docker pull "${new_image}"
 

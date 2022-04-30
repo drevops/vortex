@@ -35,11 +35,11 @@ DOCTOR_CHECK_CONTAINERS="${DOCTOR_CHECK_CONTAINERS:-1}"
 DOCTOR_CHECK_SSH="${DOCTOR_CHECK_SSH:-1}"
 DOCTOR_CHECK_WEBSERVER="${DOCTOR_CHECK_WEBSERVER:-1}"
 DOCTOR_CHECK_BOOTSTRAP="${DOCTOR_CHECK_BOOTSTRAP:-1}"
-LOCALDEV_URL="${LOCALDEV_URL:-}"
+DREVOPS_LOCALDEV_URL="${DREVOPS_LOCALDEV_URL:-}"
 SSH_KEY_FILE="${SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}"
-DRUPAL_VERSION="${DRUPAL_VERSION:-9}"
-DB_DIR="${DB_DIR:-./.data}"
-DB_FILE="${DB_FILE:-db.sql}"
+DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
+DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 #-------------------------------------------------------------------------------
 #                    DO NOT CHANGE ANYTHING BELOW THIS LINE
@@ -141,22 +141,22 @@ main() {
     success "SSH key is available within CLI container."
   fi
 
-  if [ -n "${LOCALDEV_URL}" ]; then
+  if [ -n "${DREVOPS_LOCALDEV_URL}" ]; then
     if [ "${DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
       # Depending on the type of installation, the homepage may return 200 or 403.
-      if ! curl -L -s -o /dev/null -w "%{http_code}" "${LOCALDEV_URL}" | grep -q '200\|403'; then
-        error "Web server is not accessible at http://${LOCALDEV_URL}."
+      if ! curl -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_LOCALDEV_URL}" | grep -q '200\|403'; then
+        error "Web server is not accessible at http://${DREVOPS_LOCALDEV_URL}."
         exit 1
       fi
-      success "Web server is running and accessible at http://${LOCALDEV_URL}."
+      success "Web server is running and accessible at http://${DREVOPS_LOCALDEV_URL}."
     fi
 
     if [ "${DOCTOR_CHECK_BOOTSTRAP}" = "1" ]; then
-      if ! curl -L -s -N "${LOCALDEV_URL}" | grep -q -i "charset="; then
+      if ! curl -L -s -N "${DREVOPS_LOCALDEV_URL}" | grep -q -i "charset="; then
         error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
         exit 1
       fi
-      success "Successfully bootstrapped website at http://${LOCALDEV_URL}."
+      success "Successfully bootstrapped website at http://${DREVOPS_LOCALDEV_URL}."
     fi
   fi
 

@@ -30,7 +30,7 @@ load "${BASH_SOURCE[0]%/*}"/_mock.bash
 #
 # $APP_TMP_DIR - directory where the application may store it's temporary files.
 setup() {
-  export DRUPAL_VERSION="${DRUPAL_VERSION:-9}"
+  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
   export CUR_DIR="$(pwd)"
   export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR}/drevops-$(random_string)"}"
 
@@ -46,8 +46,8 @@ setup() {
 
   # Unset any environment variables that may affect tests.
   # These are set in CI config to override values set in .env file for some jobs.
-  unset DATABASE_DOWNLOAD_SOURCE
-  unset DATABASE_IMAGE
+  unset DREVOPS_DATABASE_DOWNLOAD_SOURCE
+  unset DREVOPS_DATABASE_IMAGE
   unset FORCE_DB_DOWNLOAD
 
   # Disable checks used on host machine.
@@ -258,8 +258,8 @@ assert_files_present_common() {
   assert_dir_not_contains_string "${dir}" "#;>"
 
   # Assert that project name is correct.
-  assert_file_contains .env "PROJECT=${suffix}"
-  assert_file_contains .env "LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
+  assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
+  assert_file_contains .env "DREVOPS_LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# DrevOps"
@@ -272,14 +272,14 @@ assert_files_present_common() {
   assert_dir_not_exists "scripts/drevops/tests"
   assert_dir_not_exists "scripts/drevops/utils"
   assert_file_not_exists ".github/FUNDING.yml"
-  assert_file_not_contains ".circleci/config.yml" "drevops_test"
-  assert_file_not_contains ".circleci/config.yml" "drevops_test_deployment"
-  assert_file_not_contains ".circleci/config.yml" "drevops_deploy"
-  assert_file_not_contains ".circleci/config.yml" "drevops_deploy_tags"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test_deployment"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_deploy"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_deploy_tags"
 
   # Assert that DrevOps version was replaced.
-  assert_file_contains "README.md" "badge/DrevOps-${DRUPAL_VERSION}.x-blue.svg"
-  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DRUPAL_VERSION}.x"
+  assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
+  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_DRUPAL_VERSION}.x"
 
   # Assert that DrevOps maintenance files were removed.
   assert_dir_not_exists "docs"
@@ -344,7 +344,7 @@ assert_files_present_profile() {
   # Site profile created.
   assert_dir_exists "docroot/profiles/custom/${suffix}profile"
   assert_file_exists "docroot/profiles/custom/${suffix}profile/${suffix}profile.info.yml"
-  assert_file_contains ".env" "DRUPAL_PROFILE="
+  assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE="
   assert_file_contains ".env" "docroot/profiles/custom/${suffix}profile,"
 
   popd >/dev/null || exit 1
@@ -358,7 +358,7 @@ assert_files_present_no_profile() {
 
   # Site profile created.
   assert_dir_not_exists "docroot/profiles/custom/${suffix}profile"
-  assert_file_contains ".env" "DRUPAL_PROFILE=standard"
+  assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE=standard"
   assert_file_not_contains ".env" "docroot/profiles/custom/${suffix}profile,"
   # Assert that there is no renaming of the custom profile with core profile name.
   assert_dir_not_exists "docroot/profiles/custom/standard"
@@ -540,10 +540,10 @@ assert_files_present_integration_ftp() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_contains ".env" "FTP_HOST="
+  assert_file_contains ".env" "DREVOPS_DB_FTP_HOST="
   assert_file_contains ".env" "FTP_PORT="
-  assert_file_contains ".env" "FTP_USER="
-  assert_file_contains ".env" "FTP_PASS="
+  assert_file_contains ".env" "DREVOPS_DB_FTP_USER="
+  assert_file_contains ".env" "DREVOPS_DB_FTP_PASS="
   assert_file_contains ".env" "FTP_FILE="
 
   popd >/dev/null || exit 1
@@ -555,10 +555,10 @@ assert_files_present_no_integration_ftp() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_not_contains ".env" "FTP_HOST="
+  assert_file_not_contains ".env" "DREVOPS_DB_FTP_HOST="
   assert_file_not_contains ".env" "FTP_PORT="
-  assert_file_not_contains ".env" "FTP_USER="
-  assert_file_not_contains ".env" "FTP_PASS="
+  assert_file_not_contains ".env" "DREVOPS_DB_FTP_USER="
+  assert_file_not_contains ".env" "DREVOPS_DB_FTP_PASS="
   assert_file_not_contains ".env" "FTP_FILE="
 
   popd >/dev/null || exit 1
@@ -646,7 +646,7 @@ run_install_quiet() {
   #
   # Installer will load environment variable and it will take precedence over
   # the value in .env file.
-  export CURL_DB_URL="$DEMO_DB_TEST"
+  export DREVOPS_CURL_DB_URL="$DEMO_DB_TEST"
 
   # Enable the line below to show install debug information (for easy debug of
   # install script tests).

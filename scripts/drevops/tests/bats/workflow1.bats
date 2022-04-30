@@ -18,30 +18,30 @@ load _helper_drevops_workflow
   # Do not use demo database - testing demo database discovery is another test.
   export DREVOPS_SKIP_DEMO=1
 
-  export DATABASE_DOWNLOAD_SOURCE=docker_registry
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
+  export DREVOPS_DATABASE_DOWNLOAD_SOURCE=docker_registry
+  export DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DOCKER_REGISTRY_USERNAME=
-  export DOCKER_REGISTRY_TOKEN=
+  export DREVOPS_DOCKER_REGISTRY_USERNAME=
+  export DREVOPS_DOCKER_REGISTRY_TOKEN=
 
   # Make sure that demo database will not be downloaded.
   rm -f .data/db.sql
   assert_file_not_exists .data/db.sql
 
   # Remove any existing images to download the fresh one.
-  docker image rm "${DATABASE_IMAGE}" || true
-  docker image ls | grep -q -v "${DATABASE_IMAGE}"
+  docker image rm "${DREVOPS_DATABASE_IMAGE}" || true
+  docker image ls | grep -q -v "${DREVOPS_DATABASE_IMAGE}"
 
-  prepare_sut "Starting download from image, storage in docker image WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  prepare_sut "Starting download from image, storage in docker image WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
   # Assert that the database was not downloaded because DREVOPS_SKIP_DEMO was set.
   assert_file_not_exists .data/db.sql
 
-  assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
+  assert_file_contains ".env" "DREVOPS_DATABASE_DOWNLOAD_SOURCE=docker_registry"
+  assert_file_contains ".env" "DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
   # Assert that demo config was removed as a part of the install.
-  assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
-  assert_file_not_contains ".env" "CURL_DB_URL="
+  assert_file_not_contains ".env" "DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
+  assert_file_not_contains ".env" "DREVOPS_CURL_DB_URL="
 
   assert_ahoy_build
 
@@ -82,29 +82,29 @@ load _helper_drevops_workflow
   # Do not use demo database - testing demo database discovery is another test.
   export DREVOPS_SKIP_DEMO=1
 
-  export DATABASE_DOWNLOAD_SOURCE=docker_registry
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
+  export DREVOPS_DATABASE_DOWNLOAD_SOURCE=docker_registry
+  export DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DOCKER_REGISTRY_USERNAME=
-  export DOCKER_REGISTRY_TOKEN=
+  export DREVOPS_DOCKER_REGISTRY_USERNAME=
+  export DREVOPS_DOCKER_REGISTRY_TOKEN=
 
   # Make sure that demo database will not be downloaded.
   rm -f .data/db.sql
   assert_file_not_exists .data/db.sql
   # Remove any existing images to download the fresh one.
-  docker image rm "${DATABASE_IMAGE}" || true
-  docker image ls | grep -q -v "${DATABASE_IMAGE}"
+  docker image rm "${DREVOPS_DATABASE_IMAGE}" || true
+  docker image ls | grep -q -v "${DREVOPS_DATABASE_IMAGE}"
 
-  prepare_sut "Starting download from image, storage in docker image WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  prepare_sut "Starting download from image, storage in docker image WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
   # Assert that the database was not downloaded because DREVOPS_SKIP_DEMO was set.
   assert_file_not_exists .data/db.sql
 
-  assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=docker_registry"
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
+  assert_file_contains ".env" "DREVOPS_DATABASE_DOWNLOAD_SOURCE=docker_registry"
+  assert_file_contains ".env" "DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
   # Assert that demo config was removed as a part of the install.
-  assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
-  assert_file_not_contains ".env" "CURL_DB_URL="
+  assert_file_not_contains ".env" "DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
+  assert_file_not_contains ".env" "DREVOPS_CURL_DB_URL="
 
   assert_ahoy_build
 
@@ -129,8 +129,8 @@ load _helper_drevops_workflow
 
   substep "Remove existing image and assert that exported image still exists."
   ahoy clean
-  docker image rm "${DATABASE_IMAGE}" || true
-  docker image ls | grep -q -v "${DATABASE_IMAGE}"
+  docker image rm "${DREVOPS_DATABASE_IMAGE}" || true
+  docker image ls | grep -q -v "${DREVOPS_DATABASE_IMAGE}"
   assert_file_exists .data/db.tar
 
   substep "Re-run build to use  DB image"
@@ -143,34 +143,34 @@ load _helper_drevops_workflow
 }
 
 @test "Workflow: download from curl, storage in docker image" {
-  export DATABASE_DOWNLOAD_SOURCE=curl
+  export DREVOPS_DATABASE_DOWNLOAD_SOURCE=curl
 
   # While the DB will be loaded from the file, the DB image must exist
   # so that Docker Compose could start a container, so the image should be
   # a real image.
   # @todo: build.sh may need to have a support to create a local image if
   # it does not exist.
-  export DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
+  export DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DOCKER_REGISTRY_USERNAME=
-  export DOCKER_REGISTRY_TOKEN=
+  export DREVOPS_DOCKER_REGISTRY_USERNAME=
+  export DREVOPS_DOCKER_REGISTRY_TOKEN=
 
   rm -f .data/db.sql
   assert_file_not_exists .data/db.sql
 
   # Remove any existing images to download the fresh one.
-  docker image rm "${DATABASE_IMAGE}" || true
-  docker image ls | grep -q -v "${DATABASE_IMAGE}"
+  docker image rm "${DREVOPS_DATABASE_IMAGE}" || true
+  docker image ls | grep -q -v "${DREVOPS_DATABASE_IMAGE}"
 
-  prepare_sut "Starting download from curl, storage in docker image WORKFLOW tests for Drupal ${DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  prepare_sut "Starting download from curl, storage in docker image WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
   assert_file_exists .data/db.sql
 
-  assert_file_contains ".env" "DATABASE_DOWNLOAD_SOURCE=curl"
-  assert_file_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
+  assert_file_contains ".env" "DREVOPS_DATABASE_DOWNLOAD_SOURCE=curl"
+  assert_file_contains ".env" "DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
   # Assert that demo config was removed as a part of the install.
-  assert_file_not_contains ".env" "DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
-  assert_file_contains ".env" "CURL_DB_URL="
+  assert_file_not_contains ".env" "DREVOPS_DATABASE_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
+  assert_file_contains ".env" "DREVOPS_CURL_DB_URL="
 
   assert_ahoy_build
 

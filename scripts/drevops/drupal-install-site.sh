@@ -17,17 +17,17 @@ WEBROOT="${WEBROOT:-docroot}"
 DRUSH_ALIAS="${DRUSH_ALIAS:-}"
 
 # Drupal custom module prefix.
-# If provided, the ${DRUPAL_MODULE_PREFIX}_core will be enabled (if exists).
-DRUPAL_MODULE_PREFIX="${DRUPAL_MODULE_PREFIX:-}"
+# If provided, the ${DREVOPS_DRUPAL_MODULE_PREFIX}_core will be enabled (if exists).
+DREVOPS_DRUPAL_MODULE_PREFIX="${DREVOPS_DRUPAL_MODULE_PREFIX:-}"
 
 # Drupal site name
-DRUPAL_SITE_NAME="${DRUPAL_SITE_NAME:-Example site}"
+DREVOPS_DRUPAL_SITE_NAME="${DREVOPS_DRUPAL_SITE_NAME:-Example site}"
 
 # Drupal site name
 DRUPAL_SITE_MAIL="${DRUPAL_SITE_MAIL:-webmaster@example.com}"
 
 # Profile machine name.
-DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
+DREVOPS_DRUPAL_PROFILE="${DREVOPS_DRUPAL_PROFILE:-standard}"
 
 # Path to configuration directory.
 DRUPAL_CONFIG_PATH="${DRUPAL_CONFIG_PATH:-${APP}/config/default}"
@@ -39,16 +39,16 @@ DRUPAL_CONFIG_LABEL="${DRUPAL_CONFIG_LABEL:-}"
 DRUPAL_PRIVATE_FILES="${DRUPAL_PRIVATE_FILES:-${APP}/${WEBROOT}/sites/default/files/private}"
 
 # Flag to unblock admin.
-DRUPAL_UNBLOCK_ADMIN="${DRUPAL_UNBLOCK_ADMIN:-1}"
+DREVOPS_DRUPAL_UNBLOCK_ADMIN="${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-1}"
 
 # Directory with database dump file.
-DB_DIR="${DB_DIR:-${APP}/.data}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-${APP}/.data}"
 
 # Database dump file name.
-DB_FILE="${DB_FILE:-db.sql}"
+DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 # Flag to export database before import.
-DB_EXPORT_BEFORE_IMPORT="${DB_EXPORT_BEFORE_IMPORT:-0}"
+DREVOPS_DB_EXPORT_BEFORE_IMPORT="${DREVOPS_DB_EXPORT_BEFORE_IMPORT:-0}"
 
 # Flag to skip DB import.
 SKIP_DB_IMPORT="${SKIP_DB_IMPORT:-}"
@@ -57,11 +57,11 @@ SKIP_DB_IMPORT="${SKIP_DB_IMPORT:-}"
 SKIP_POST_DB_IMPORT="${SKIP_POST_DB_IMPORT:-}"
 
 # Flag to force fresh install even if the site exists.
-FORCE_FRESH_INSTALL="${FORCE_FRESH_INSTALL:-}"
+DREVOPS_FORCE_FRESH_INSTALL="${DREVOPS_FORCE_FRESH_INSTALL:-}"
 
 # Flag to always overwrite existing database. Usually set to 0 in deployed
 # environments.
-DB_IMPORT_OVERWRITE_EXISTING="${DB_IMPORT_OVERWRITE_EXISTING:-1}"
+DREVOPS_DB_OVERWRITE_EXISTING="${DREVOPS_DB_OVERWRITE_EXISTING:-1}"
 
 # ------------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ mkdir -p "${DRUPAL_PRIVATE_FILES}"
 
 # Export database before importing, if the flag is set.
 # Useful to automatically store database dump before starting site rebuild.
-[ "${DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && "${APP}/scripts/drevops/drupal-export-db.sh"
+[ "${DREVOPS_DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && "${APP}/scripts/drevops/drupal-export-db.sh"
 
 site_is_installed="$($drush ${DRUSH_ALIAS} status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
 
@@ -84,44 +84,44 @@ if
   # Not skipping DB import AND
   [ "${SKIP_DB_IMPORT}" != "1" ] &&
   # DB dump file exists AND
-  [ -f "${DB_DIR}/${DB_FILE}" ] &&
+  [ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ] &&
   # Site is not installed OR allowed to overwrite existing site.
-  ([ "${site_is_installed}" != "1" ] || [ "${DB_IMPORT_OVERWRITE_EXISTING}" = "1" ])
+  ([ "${site_is_installed}" != "1" ] || [ "${DREVOPS_DB_OVERWRITE_EXISTING}" = "1" ])
 then
   echo "****************************************"
   echo "==> Importing database from dump."
-  echo "  > Using DB dump ${DB_DIR}/${DB_FILE}."
+  echo "  > Using DB dump ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}."
   echo "****************************************"
-  DB_DIR="${DB_DIR}" DB_FILE="${DB_FILE}" "${APP}/scripts/drevops/drupal-import-db.sh"
+  DREVOPS_DB_DIR="${DREVOPS_DB_DIR}" DREVOPS_DB_FILE="${DREVOPS_DB_FILE}" "${APP}/scripts/drevops/drupal-import-db.sh"
 elif
   # If site is installed AND
   [ "${site_is_installed}" = "1" ] &&
   # Not allowed to forcefully install from profile.
-  [ "${FORCE_FRESH_INSTALL}" != "1" ]
+  [ "${DREVOPS_FORCE_FRESH_INSTALL}" != "1" ]
 then
   echo "****************************************"
   echo "==> Existing site found."
   echo "  > Database will be preserved."
-  echo "  > Re-run with FORCE_FRESH_INSTALL=1 to forcefully re-install."
+  echo "  > Re-run with DREVOPS_FORCE_FRESH_INSTALL=1 to forcefully re-install."
   echo "****************************************"
 else
   echo "****************************************"
   echo "==> Existing site not found."
-  echo "  > Installing site from profile ${DRUPAL_PROFILE}."
+  echo "  > Installing site from profile ${DREVOPS_DRUPAL_PROFILE}."
   echo "****************************************"
 
   # Scan for configuration files.
   if ls "${DRUPAL_CONFIG_PATH}"/*.yml >/dev/null 2>&1; then
     echo "==> Using found configuration files."
     # Install from profile and configuration.
-    $drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" --config-dir=${DRUPAL_CONFIG_PATH} install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+    $drush ${DRUSH_ALIAS} si "${DREVOPS_DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DREVOPS_DRUPAL_SITE_NAME}" --config-dir=${DRUPAL_CONFIG_PATH} install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
     # Run updates.
     $drush ${DRUSH_ALIAS} updb -y
     # Mark to skip any other operations as the site is now fully built.
     SKIP_POST_DB_IMPORT=1
   else
     # Install from profile with default configuration.
-    $drush ${DRUSH_ALIAS} si "${DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DRUPAL_SITE_NAME}" --site-mail="${DRUPAL_SITE_MAIL}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+    $drush ${DRUSH_ALIAS} si "${DREVOPS_DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DREVOPS_DRUPAL_SITE_NAME}" --site-mail="${DRUPAL_SITE_MAIL}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
   fi
 fi
 
@@ -140,7 +140,7 @@ fi
 
 echo "==> Running post DB init commands."
 
-if [ "${DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" = "1" ]; then
+if [ "${DREVOPS_DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" = "1" ]; then
   echo "==> Enabled maintenance mode."
   $drush ${DRUSH_ALIAS} state:set system.maintenance_mode 1 --input-format=integer
 fi
@@ -194,12 +194,12 @@ $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` SET mail = '', name
 $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
 
 # User mail could have been sanitized - setting it back to a pre-defined mail.
-if [ -n "${DRUPAL_ADMIN_MAIL}" ]; then
+if [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL}" ]; then
   echo "  > Updating user 1 email"
-  $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` SET mail = '${DRUPAL_ADMIN_MAIL}' WHERE uid = '1';"
+  $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` SET mail = '${DREVOPS_DRUPAL_ADMIN_EMAIL}' WHERE uid = '1';"
 fi
 
-if [ "${DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" = "1" ]; then
+if [ "${DREVOPS_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" = "1" ]; then
   echo "  > Updating user 1 username with user email"
   $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid = '1';"
 fi
@@ -220,7 +220,7 @@ if [ -d "${APP}/scripts/custom" ]; then
   unset file
 fi
 
-if [ "${DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" = "1" ]; then
+if [ "${DREVOPS_DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" = "1" ]; then
   echo "==> Disabled maintenance mode."
   $drush ${DRUSH_ALIAS} state:set system.maintenance_mode 0 --input-format=integer
 fi
