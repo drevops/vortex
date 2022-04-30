@@ -1,15 +1,15 @@
 <?php
 
-namespace Drupal\Tests\your_site_core\Traits;
+namespace Drupal\Tests\ys_core\Traits;
 
 /**
- * Trait YourSiteCoreTestHelperTrait.
+ * Trait YsCoreTestHelperTrait.
  *
  * Helper trait for tests.
  *
- * @package Drupal\your_site_core\Tests
+ * @package Drupal\ys_core\Tests
  */
-trait YourSiteCoreTestHelperTrait {
+trait YsCoreTestHelperTrait {
 
   /**
    * Call protected methods on the class.

@@ -28,6 +28,7 @@ docroot/sites/default/*
 !docroot/sites/default/services.yml
 !docroot/sites/default/default.settings.local.php
 !docroot/sites/default/default.services.local.yml
+!docroot/sites/default/includes
 # Preserve default settings files to use them in Functional test.
 !docroot/sites/default/default.settings.php
 !docroot/sites/default/default.services.yml

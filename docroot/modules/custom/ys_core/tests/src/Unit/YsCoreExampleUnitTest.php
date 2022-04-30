@@ -1,15 +1,15 @@
 <?php
 
-namespace Drupal\Tests\your_site_core\Functional;
+namespace Drupal\Tests\ys_core\Unit;
 
 /**
- * Class ExampleFunctionalTest.
+ * Class YsCoreExampleUnitTest.
  *
  * Example test case class.
  *
- * @group YourSiteCore
+ * @group YsCore
  */
-class YourSiteExampleFunctionalTest extends YourSiteCoreFunctionalTestBase {
+class YsCoreExampleUnitTest extends YsCoreUnitTestBase {
 
   /**
    * @dataProvider dataProviderAdd

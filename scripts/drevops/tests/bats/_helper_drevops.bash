@@ -129,8 +129,8 @@ mock_command() {
 ################################################################################
 
 assert_files_present() {
-  local suffix="${1:-star_wars}"
-  local suffix_camel_cased="${2:-StarWars}"
+  local suffix="${1:-sw}"
+  local suffix_camel_cased="${2:-Sw}"
   local dir="${3:-$(pwd)}"
 
   assert_files_present_common "${suffix}" "${suffix_camel_cased}" "${dir}"
@@ -168,8 +168,8 @@ assert_local_files_present() {
 }
 
 assert_files_present_common() {
-  local suffix="${1:-star_wars}"
-  local suffix_camel_cased="${2:-StarWars}"
+  local suffix="${1:-sw}"
+  local suffix_camel_cased="${2:-Sw}"
   local dir="${3:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -177,7 +177,7 @@ assert_files_present_common() {
   # Stub profile removed.
   assert_dir_not_exists "docroot/profiles/custom/your_site_profile"
   # Stub code module removed.
-  assert_dir_not_exists "docroot/modules/custom/your_site_core"
+  assert_dir_not_exists "docroot/modules/custom/ys_core"
   # Stub theme removed.
   assert_dir_not_exists "docroot/themes/custom/your_site_theme"
 
@@ -288,25 +288,25 @@ assert_files_present_common() {
 }
 
 assert_files_not_present_common() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local has_required_files="${2:-0}"
   local dir="${3:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_dir_not_exists "docroot/modules/custom/your_site_core"
+  assert_dir_not_exists "docroot/modules/custom/ys_core"
   assert_dir_not_exists "docroot/themes/custom/your_site_theme"
   assert_dir_not_exists "docroot/profiles/custom/${suffix}_profile"
   assert_dir_not_exists "docroot/modules/custom/${suffix}_core"
   assert_dir_not_exists "docroot/themes/custom/${suffix}"
   assert_file_not_exists "docroot/sites/default/default.settings.local.php"
   assert_file_not_exists "docroot/sites/default/default.services.local.yml"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteExampleUnitTest.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Unit/YourSiteExampleUnitTest.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
 
   assert_file_not_exists "FAQs.md"
   assert_file_not_exists ".ahoy.yml"
@@ -336,7 +336,7 @@ assert_files_not_present_common() {
 }
 
 assert_files_present_profile() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -351,7 +351,7 @@ assert_files_present_profile() {
 }
 
 assert_files_present_no_profile() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -368,7 +368,7 @@ assert_files_present_no_profile() {
 }
 
 assert_files_present_fresh_install() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -380,7 +380,7 @@ assert_files_present_fresh_install() {
 }
 
 assert_files_present_no_fresh_install() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -392,7 +392,7 @@ assert_files_present_no_fresh_install() {
 }
 
 assert_files_present_deployment() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -407,7 +407,7 @@ assert_files_present_deployment() {
 }
 
 assert_files_present_no_deployment() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local has_committed_files="${2:-0}"
   local dir="${3:-$(pwd)}"
 
@@ -428,7 +428,7 @@ assert_files_present_no_deployment() {
 }
 
 assert_files_present_integration_acquia() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local include_scripts="${2:-1}"
   local dir="${3:-$(pwd)}"
 
@@ -469,7 +469,7 @@ assert_files_present_integration_acquia() {
 }
 
 assert_files_present_no_integration_acquia() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -491,7 +491,7 @@ assert_files_present_no_integration_acquia() {
 }
 
 assert_files_present_integration_lagoon() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -513,7 +513,7 @@ assert_files_present_integration_lagoon() {
 }
 
 assert_files_present_no_integration_lagoon() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -535,7 +535,7 @@ assert_files_present_no_integration_lagoon() {
 }
 
 assert_files_present_integration_ftp() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -550,7 +550,7 @@ assert_files_present_integration_ftp() {
 }
 
 assert_files_present_no_integration_ftp() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -565,7 +565,7 @@ assert_files_present_no_integration_ftp() {
 }
 
 assert_files_present_integration_dependenciesio() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -577,7 +577,7 @@ assert_files_present_integration_dependenciesio() {
 }
 
 assert_files_present_no_integration_dependenciesio() {
-  local suffix="${1:-star_wars}"
+  local suffix="${1:-sw}"
   local dir="${2:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1

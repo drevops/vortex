@@ -11,6 +11,9 @@ set -e
 # Create stub of local framework.
 docker network create amazeeio-network || true
 
+# Run Composer Install deps to make sure that scripts run.
+composer install --ignore-platform-reqs --no-interaction --prefer-source
+
 echo "==> Run DrevOps unit tests."
 composer install --ignore-platform-reqs --no-interaction --prefer-source
 composer run post-install-cmd
