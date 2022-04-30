@@ -67,7 +67,7 @@ To fresh the database in the existing Lagoon environment with the databSe from
 production environment, run:
 
 ```
-DEPLOY_BRANCH=<YOUR/BRANCH-NAME> DREVOPS_DEPLOY_PROCEED=1 DEPLOY_ACTION=deploy_override_db ahoy deploy
+DREVOPS_DEPLOY_BRANCH=<YOUR/BRANCH-NAME> DREVOPS_DEPLOY_PROCEED=1 DREVOPS_DEPLOY_ACTION=deploy_override_db ahoy deploy
 ```
 
 ### Nightly environments refresh
@@ -82,6 +82,6 @@ Currently, the refresh is configured to happen at 5am and applies to `develop`
 and `master` environments.
 
 It is possible to skip nightly deployments for certain environments:
-1. Add `DEPLOY_ALLOW_SKIP=1` to the deployment command to allow skipping of the deployments (already added to the current CI configuration).
-2. Add `DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>` with value of `1` to the variables in CircleCI UI.
+1. Add `DREVOPS_DEPLOY_SKIP=1` to the deployment command to allow skipping of the deployments (already added to the current CI configuration).
+2. Add `DREVOPS_DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>` with value of `1` to the variables in CircleCI UI.
 [//]: # (#;> LAGOON)

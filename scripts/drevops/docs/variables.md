@@ -1,5 +1,36 @@
 # Variables
 
+## Rules
+
+1. All DrevOps variables MUST start with `DREVOPS_`.<br/>
+   This is to clearly distinguish between DrevOps and 3rd party variables.
+2. All DrevOps action-specific variables MUST have a prefix. If action has a
+   specific service provider attached - a second prefix MUST be added.<br/>
+   For example, to specify API key for NewRelic deployment notification call,
+   the variable name is `DREVOPS_NOTIFY_NEWRELIC_API_KEY`, where `NOTIFY` is an
+   "action" and `NEWRELIC` is a "service provider".
+3. Project-base variables SHOULD start with project prefix (usually the value
+   of `DREVOPS_DRUPAL_MODULE_PREFIX`).<br/>
+   This is to clearly distinguish between DrevOps, 3rd party services variables
+   and per-project variables.<br/>
+   For example, to specify a user for Drupal's Shield module configuration,
+   use `YOURSITE_DRUPAL_SHIELD_USER`, where `YOURSITE` is your site project
+   prefix and `DRUPAL` is a name of the service.
+4. Variables SHOULD NOT be exported into the global scope unless absolutely
+   necessary.<br/>
+   Therefore, values in `.env` SHOULD have default values set, but SHOULD be
+   commented out. This provides visibility, but prevent global scope exposure.
+
+## Override order (bottom values win):
+
+- default value in container
+- default value in `docker-compose.yml`
+- value in `.env` (last value wins)
+- value in `.env.local` (last value wins)
+- value from environment
+
+## Variables list
+
 | **New name**                                      | **Default value**                                                                                                                     | **Description**   |
 |---------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|-------------------|
 | `APP`                                             | `/app`                                                                                                                                |                   |

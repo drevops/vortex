@@ -70,7 +70,7 @@ x-environment:
   #;< LAGOON
   #:
   #: Re-using global project name for Lagoon.
-  LAGOON_PROJECT: *project
+  DREVOPS_LAGOON_PROJECT: *project
   #:
   #: Allow overriding Lagoon environment type, defaulting it to 'local'.
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}

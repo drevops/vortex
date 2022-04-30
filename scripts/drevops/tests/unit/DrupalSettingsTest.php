@@ -314,7 +314,7 @@ class DrupalSettingsTest extends DrupalTestCase {
       [
         [
           'LAGOON' => 1,
-          'LAGOON_PRODUCTION_BRANCH' => FALSE,
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => FALSE,
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -322,7 +322,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => FALSE,
-          'LAGOON_PRODUCTION_BRANCH' => FALSE,
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => FALSE,
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -330,7 +330,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => 'somebranch',
-          'LAGOON_PRODUCTION_BRANCH' => FALSE,
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => FALSE,
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -338,7 +338,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => FALSE,
-          'LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -346,7 +346,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => 'somebranch',
-          'LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -354,7 +354,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => '',
-          'LAGOON_PRODUCTION_BRANCH' => '',
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => '',
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -362,7 +362,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => 'somebranch',
-          'LAGOON_PRODUCTION_BRANCH' => 'somebranch',
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'somebranch',
         ],
         ENVIRONMENT_PROD,
       ],

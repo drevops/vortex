@@ -19,7 +19,7 @@ DREVOPS_NOTIFY_DEPLOY_JIRA_USER="${DREVOPS_NOTIFY_DEPLOY_JIRA_USER:-}"
 DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN="${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN:-}"
 
 # Deployment reference, such as a git SHA.
-NOTIFY_DEPLOY_BRANCH="${NOTIFY_DEPLOY_BRANCH:-}"
+NOTIFY_DREVOPS_DEPLOY_BRANCH="${NOTIFY_DREVOPS_DEPLOY_BRANCH:-}"
 
 # Deployment environment URL.
 NOTIFY_DEPLOY_ENVIRONMENT_URL="${NOTIFY_DEPLOY_ENVIRONMENT_URL:-}"
@@ -39,7 +39,7 @@ NOTIFY_JIRA_ENDPOINT="${NOTIFY_JIRA_ENDPOINT:-https://jira.atlassian.com}"
 
 [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_USER" && exit 1
 [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN" && exit 1
-[ -z "${NOTIFY_DEPLOY_BRANCH}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_BRANCH" && exit 1
+[ -z "${NOTIFY_DREVOPS_DEPLOY_BRANCH}" ] && echo "ERROR: Missing required value for NOTIFY_DREVOPS_DEPLOY_BRANCH" && exit 1
 [ -z "${NOTIFY_DEPLOY_JIRA_COMMENT}" ] && [ -z "${NOTIFY_DEPLOY_JIRA_TRANSITION}" ] && [ -z "${NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ] && echo "ERROR: At least one of the NOTIFY_DEPLOY_JIRA_COMMENT, NOTIFY_DEPLOY_JIRA_TRANSITION or NOTIFY_DEPLOY_JIRA_ASSIGNEE is required" && exit 1
 
 echo "==> Started JIRA deployment notification"
@@ -79,8 +79,8 @@ extract_issue() {
 }
 
 echo "  > Extracting issue"
-issue="$(extract_issue "${NOTIFY_DEPLOY_BRANCH}")"
-[ "${issue}" = "" ] && echo "ERROR: Branch ${NOTIFY_DEPLOY_BRANCH} does not contain issue number." && exit 1
+issue="$(extract_issue "${NOTIFY_DREVOPS_DEPLOY_BRANCH}")"
+[ "${issue}" = "" ] && echo "ERROR: Branch ${NOTIFY_DREVOPS_DEPLOY_BRANCH} does not contain issue number." && exit 1
 echo "    Found issue ${issue}"
 
 echo "  > Creating API token"
