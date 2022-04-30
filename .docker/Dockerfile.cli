@@ -4,7 +4,7 @@
 #
 # @see https://hub.docker.com/r/uselagoon/php-7.4-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
-FROM uselagoon/php-7.4-cli-drupal:21.12.1
+FROM uselagoon/php-7.4-cli-drupal:22.4.1
 
 # Add missing variables.
 # @todo Remove once https://github.com/uselagoon/lagoon/issues/3121 is resolved.
@@ -33,14 +33,13 @@ ENV WEBROOT=docroot \
 # rebuilt.
 
 # Adding more tools.
-RUN apk update \
-    && apk add pv python3 make gcc g++ \
+RUN apk add --no-cache pv=1.6 python3=3.9.5 make=4.3 gcc=10.3.1 g++=10.3.1 \
     && ln -sf python3 /usr/bin/python \
     && rm -rf /var/cache/apk/*
 
 # Adding patches and scripts.
-ADD patches /app/patches
-ADD scripts /app/scripts
+COPY patches /app/patches
+COPY scripts /app/scripts
 
 # Copy files required for PHP dependencies resolution.
 # Note that composer.lock is not explicitly copied, allowing to run the stack
@@ -51,10 +50,13 @@ ADD scripts /app/scripts
 # required by composer scripts to get some additions variables.
 COPY composer.json composer.* .env* auth* /app/
 
+# Install Composer 2 and remove optimisation package used with Composer 1.
+RUN composer self-update --2 && composer global remove -n -q hirak/prestissimo
+
 # Install PHP dependencies, but without development dependencies. This is very
 # important, because we do not want potential security issues to be exposed to
 # production environment.
-RUN composer self-update --2 && composer global remove -n -q hirak/prestissimo && COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --no-suggest --optimize-autoloader
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
 
 # Install NodeJS dependencies.
 # Note that package-lock.json is not explicitly copied, allowing to run the
@@ -77,4 +79,7 @@ COPY . /app
 
 # Compile front-end assets. Running this after copying all files as we need
 # sources to compile assets.
-RUN cd docroot/themes/custom/your_site_theme && npm run build
+WORKDIR /app/docroot/themes/custom/your_site_theme
+RUN npm run build
+
+WORKDIR /app
