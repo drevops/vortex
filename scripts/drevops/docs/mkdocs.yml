@@ -95,3 +95,4 @@ markdown_extensions:
 # IMPORTANT! Do not add any configuration below navigation section.
 nav:
   - About: index.md
+  - Variables: variables.md
