@@ -136,11 +136,11 @@ aliases:
           # Use compact error reporting format.
           BEHAT_FORMAT: progress_fail
           # Directory to use for code deployments.
-          DEPLOY_CODE_SRC: *build_export_dir
+          DREVOPS_DEPLOY_CODE_SRC: *build_export_dir
           # Source code location.
-          DEPLOY_CODE_ROOT: *working_directory
+          DREVOPS_DEPLOY_CODE_ROOT: *working_directory
           # Deployment report file location.
-          DREVOPS_DEPLOY_REPORT_FILE: /tmp/artifacts/deployment_report.txt
+          DREVOPS_DEPLOY_CODE_REPORT_FILE: /tmp/artifacts/deployment_report.txt
           # Check only minimal stack requirements.
           DOCTOR_CHECK_MINIMAL: 1
     resource_class: *resource_class
@@ -313,7 +313,11 @@ jobs:
       - checkout
       - *step_process_codebase
       - run:
-          command: DREVOPS_DEPLOY_BRANCH="$CIRCLE_BRANCH" DREVOPS_DEPLOY_PR="$(echo $CIRCLE_PULL_REQUEST | cut -d'/' -f 7)" DREVOPS_DEPLOY_PR_HEAD=$CIRCLE_SHA1 ahoy deploy
+          command: |
+            DREVOPS_DEPLOY_BRANCH="$CIRCLE_BRANCH" \
+            DREVOPS_DEPLOY_PR="$(echo $CIRCLE_PULL_REQUEST | cut -d'/' -f 7)" \
+            DREVOPS_DEPLOY_PR_HEAD=$CIRCLE_SHA1 \
+            ahoy deploy
           no_output_timeout: 30m
       - store_artifacts:
           path: *test_artifact_dir
@@ -335,7 +339,9 @@ jobs:
       - checkout
       - *step_process_codebase
       - run:
-          command: DEPLOY_GIT_BRANCH="deployment/[tags:-]" ahoy deploy
+          command: |
+            DREVOPS_DEPLOY_CODE_GIT_BRANCH="deployment/[tags:-]" \
+            ahoy deploy
           no_output_timeout: 30m
       - store_artifacts:
           path: *test_artifact_dir
@@ -503,8 +509,8 @@ jobs:
           command: |
             DEPLOY_DOCS_SSH_FINGERPRINT="22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
             # Configure SSH to configure git and SSH to connect to remote servers for deployment.
-            [ "$(git config --global user.name)" == "" ]  && git config --global user.name "${DREVOPS_DEPLOY_CODE_GIT_USER_NAME}"
-            [ "$(git config --global user.email)" == "" ] && git config --global user.email "${DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL}"
+            [ "$(git config --global user.name)" == "" ]  && git config --global user.name "Deployment robot"
+            [ "$(git config --global user.email)" == "" ] && git config --global user.email "alex@integratedexperts.com"
             mkdir -p "${HOME}/.ssh/"
             echo -e "Host *\n\tStrictHostKeyChecking no\n" > "${HOME}/.ssh/config"
             DEPLOY_DOCS_SSH_FILE="${DEPLOY_DOCS_SSH_FINGERPRINT//:}"
@@ -586,10 +592,6 @@ workflows:
               only: /.*/
       #; Run deployment tests for DrevOps.
       - drevops_dev_test_deployment:
-          requires:
-            - drevops_dev_test
-            - drevops_dev_test_workflow
-            - build
           filters:
             tags:
               only: /.*/

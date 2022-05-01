@@ -62,7 +62,7 @@
 | `DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL`              | `<EMPTY>`                                                                                                                             |                   |
 | `DREVOPS_DEPLOY_CODE_GIT_USER_NAME`               | `<EMPTY>`                                                                                                                             |                   |
 | `DREVOPS_DEPLOY_PROCEED`                          | `1`                                                                                                                                   |                   |
-| `DREVOPS_DEPLOY_REPORT_FILE`                      | `<EMPTY>`                                                                                                                             |                   |
+| `DREVOPS_DEPLOY_CODE_REPORT_FILE`                 | `<EMPTY>`                                                                                                                             |                   |
 | `DREVOPS_DEPLOY_TYPE`                             | `<EMPTY>`                                                                                                                             |                   |
 | `DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS`          | `200`                                                                                                                                 |                   |
 | `DREVOPS_DEPLOY_WEBHOOK_METHOD`                   | `GET`                                                                                                                                 |                   |

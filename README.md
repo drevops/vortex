@@ -237,7 +237,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 - [Behat Screenshot](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
 - [Behat Progress Fail](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fails inline.
 - [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing.
-- [Code Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artifact to remote repository.
+- [Code Artifact Builder](https://github.com/drevops/git-artifact) - Robo task to push git artifact to remote repository.
 - [GitHub Labels](https://github.com/integratedexperts/github-labels) - create labels on GitHub in bulk.
 - [Formatted git messages](https://github.com/alexdesignworks/git-hooks) - pre-commit git hook to check that commit messages formatted correctly.
 
