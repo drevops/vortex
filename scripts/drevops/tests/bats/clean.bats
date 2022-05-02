@@ -143,7 +143,7 @@ load _helper_drevops
   ahoy reset
 
   assert_git_repo
-  assert_files_not_present_common "star_wars"
+  assert_files_not_present_common
 
   assert_dir_not_exists "docroot/core"
   assert_dir_not_exists "docroot/modules/contrib"
@@ -236,7 +236,7 @@ load _helper_drevops
 
   ahoy reset
 
-  assert_files_present_common "star_wars" "StarWars"
+  assert_files_present_common
   assert_git_repo
 
   assert_dir_not_exists "docroot/core"

@@ -14,6 +14,8 @@
  * - Inclusion of local settings.
  *
  * Create settings.local.php file to include local settings overrides.
+ *
+ * @phpcs:ignoreFile DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable
  */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,9 +63,6 @@ if (getenv('TMP')) {
 // Private directory.
 $settings['file_private_path'] = 'sites/default/files/private';
 
-ini_set('date.timezone', 'Australia/Melbourne');
-date_default_timezone_set('Australia/Melbourne');
-
 // Salt for one-time login links, cancel links, form tokens, etc.
 $settings['hash_salt'] = hash('sha256', 'CHANGE_ME');
 
@@ -94,6 +93,8 @@ $settings['trusted_host_patterns'] = [
   // URL when accessed from Behat tests.
   '^nginx$',
   // #;< LAGOON
+  // URL when accessed from PHP processes in Lagoon.
+  '^nginx\-php$',
   // Lagoon URL.
   '^.+\.au\.amazee\.io$',
   // #;> LAGOON
@@ -105,30 +106,20 @@ $settings['config_exclude_modules'] = [];
 // Default Shield credentials.
 // Shield can be enabled and disabled in production though UI. For other
 // environments, shield is enforced to be enabled.
-// 'SHIELD_USER' and 'SHIELD_PASS' environment variables should be added in
-// the environment.
-$config['shield.settings']['credentials']['shield']['user'] = getenv('SHIELD_USER');
-$config['shield.settings']['credentials']['shield']['pass'] = getenv('SHIELD_PASS');
+// 'DRUPAL_SHIELD_USER' and 'DRUPAL_SHIELD_PASS' environment
+// variables should be added in the environment.
+$config['shield.settings']['credentials']['shield']['user'] = getenv('DRUPAL_SHIELD_USER');
+$config['shield.settings']['credentials']['shield']['pass'] = getenv('DRUPAL_SHIELD_PASS');
 // Title of the shield pop-up.
 $config['shield.settings']['print'] = 'YOURSITE';
 
-// Fast404.
-$settings['fast404_exts'] = '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
-$settings['fast404_allow_anon_imagecache'] = TRUE;
-$settings['fast404_whitelist'] = [
-  'index.php',
-  'rss.xml',
-  'install.php',
-  'cron.php',
-  'update.php',
-  'xmlrpc.php',
-];
-$settings['fast404_string_whitelisting'] = ['/advagg_'];
-$settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
-if (file_exists($contrib_path . '/fast404/fast404.inc')) {
-  include_once $contrib_path . '/fast404/fast404.inc';
-  if (function_exists('fast404_preboot')) {
-    fast404_preboot($settings);
+ini_set('date.timezone', 'Australia/Melbourne');
+date_default_timezone_set('Australia/Melbourne');
+
+// Include additional site-wide settings.
+if (file_exists($app_root . '/' . $site_path . '/includes')) {
+  foreach (glob($app_root . '/' . $site_path . '/includes/settings.*.php') as $filename) {
+    require_once $filename;
   }
 }
 
@@ -214,18 +205,22 @@ if (getenv('LAGOON')) {
 ///                       PER-ENVIRONMENT SETTINGS                           ///
 ////////////////////////////////////////////////////////////////////////////////
 
-$config['environment_indicator.indicator']['name'] = $settings['environment'];
-$config['environment_indicator.indicator']['bg_color'] = $settings['environment'] == ENVIRONMENT_PROD ? '#ef5350' : '#006600';
-$config['environment_indicator.indicator']['fg_color'] = $settings['environment'] == ENVIRONMENT_PROD ? '#000000' : '#ffffff';
-$config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-$config['environment_indicator.settings']['favicon'] = TRUE;
-
 if ($settings['environment'] == ENVIRONMENT_PROD) {
-  // Overrides for production.
+  $config['environment_indicator.indicator']['name'] = $settings['environment'];
+  $config['environment_indicator.indicator']['bg_color'] = '#ef5350';
+  $config['environment_indicator.indicator']['fg_color'] = '#000000';
+  $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
+  $config['environment_indicator.settings']['favicon'] = TRUE;
 }
 else {
-  $config['stage_file_proxy.settings']['origin'] = 'http://your-site-url/';
+  $config['stage_file_proxy.settings']['origin'] = sprintf('https://%s:%s@your-site-url/', getenv('DRUPAL_SHIELD_USER'), getenv('DRUPAL_SHIELD_PASS'));
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
+
+  $config['environment_indicator.indicator']['name'] = $settings['environment'];
+  $config['environment_indicator.indicator']['bg_color'] = '#006600';
+  $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
+  $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
+  $config['environment_indicator.settings']['favicon'] = TRUE;
 
   // Enforce shield.
   $config['shield.settings']['shield_enable'] = TRUE;
@@ -233,12 +228,14 @@ else {
 
 if ($settings['environment'] == ENVIRONMENT_TEST) {
   $config['config_split.config_split.test']['status'] = TRUE;
+
   $config['environment_indicator.indicator']['bg_color'] = '#fff176';
   $config['environment_indicator.indicator']['fg_color'] = '#000000';
 }
 
 if ($settings['environment'] == ENVIRONMENT_DEV) {
   $config['config_split.config_split.dev']['status'] = TRUE;
+
   $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
   $config['environment_indicator.indicator']['fg_color'] = '#000000';
 }

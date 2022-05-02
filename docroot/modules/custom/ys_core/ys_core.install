@@ -8,12 +8,12 @@
 /**
  * Implements hook_install().
  */
-function your_site_core_install() {
-  module_load_include('php', 'your_site_core', 'your_site_core.post_update');
+function ys_core_install() {
+  module_load_include('php', 'ys_core', 'ys_core.post_update');
   $functions = get_defined_functions();
   // Run all update functions when installing this module.
   foreach ($functions['user'] as $function) {
-    if (strpos($function, 'your_site_core_update_') === 0) {
+    if (strpos($function, 'ys_core_update_') === 0) {
       call_user_func($function);
     }
   }
@@ -23,7 +23,7 @@ function your_site_core_install() {
   $executed_updates = $key_value->get('existing_updates', []);
   // Run all post-update functions when installing this module.
   foreach ($executed_updates as $k => $function) {
-    if (strpos($function, 'your_site_core_post_update_') === 0) {
+    if (strpos($function, 'ys_core_post_update_') === 0) {
       unset($executed_updates[$k]);
     }
   }
@@ -34,7 +34,7 @@ function your_site_core_install() {
 /**
  * Enables 'your_site_theme' theme.
  */
-function your_site_core_update_9000() {
+function ys_core_update_9000() {
   \Drupal::service('theme_installer')->install(['classy']);
   \Drupal::service('theme_installer')->install(['your_site_theme']);
   \Drupal::service('config.factory')->getEditable('system.theme')->set('default', 'your_site_theme')->save();

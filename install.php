@@ -420,29 +420,32 @@ function process__preserve_dependenciesio($dir) {
 function process__string_tokens($dir) {
   $machine_name_hyphenated = str_replace('_', '-', get_answer('machine_name'));
   $machine_name_camel_cased = to_camel_case(get_answer('machine_name'), TRUE);
+  $module_prefix_capitalised = to_camel_case(get_answer('module_prefix'), TRUE);
   $drevops_version_urlencoded = str_replace('-', '--', get_config('DREVOPS_VERSION'));
 
   // @formatter:off
   // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
   // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
-  dir_replace_content('your_site_theme',   get_answer('theme'),              $dir);
-  dir_replace_content('your_org',          get_answer('org_machine_name'),   $dir);
-  dir_replace_content('YOURORG',           get_answer('org'),                $dir);
-  dir_replace_content('your-site-url',     get_answer('url'),                $dir);
-  dir_replace_content('your_site',         get_answer('module_prefix'),      $dir . '/docroot/modules/custom');
-  dir_replace_content('your_site',         get_answer('machine_name'),       $dir);
-  dir_replace_content('your-site',         $machine_name_hyphenated,         $dir);
-  dir_replace_content('YOURSITE',          get_answer('name'),               $dir);
-  dir_replace_content('YourSite',          $machine_name_camel_cased,        $dir);
-  replace_string_filename('YourSite',         $machine_name_camel_cased,        $dir);
+  dir_replace_content('your_site_theme',   get_answer('theme'),                      $dir);
+  dir_replace_content('your_org',          get_answer('org_machine_name'),           $dir);
+  dir_replace_content('YOURORG',           get_answer('org'),                        $dir);
+  dir_replace_content('your-site-url',     get_answer('url'),                        $dir);
+  dir_replace_content('ys_core',           get_answer('module_prefix') . '_core',    $dir . '/docroot/modules/custom');
+  dir_replace_content('YsCore',            $module_prefix_capitalised . 'Core',      $dir . '/docroot/modules/custom');
+  dir_replace_content('your-site',         $machine_name_hyphenated,                 $dir);
+  dir_replace_content('your_site',         get_answer('machine_name'),               $dir);
+  dir_replace_content('YOURSITE',          get_answer('name'),                       $dir);
+  dir_replace_content('YourSite',          $machine_name_camel_cased,                $dir);
+  replace_string_filename('YourSite',      $machine_name_camel_cased,                $dir);
 
   dir_replace_content('DREVOPS_VERSION_URLENCODED',  $drevops_version_urlencoded,    $dir);
   dir_replace_content('DREVOPS_VERSION',             get_config('DREVOPS_VERSION'),  $dir);
 
-  replace_string_filename('your_site_theme',  get_answer('theme'),              $dir);
-  replace_string_filename('your_site',        get_answer('module_prefix'),      $dir . '/docroot/modules/custom');
-  replace_string_filename('your_org',         get_answer('org_machine_name'),   $dir);
-  replace_string_filename('your_site',        get_answer('machine_name'),       $dir);
+  replace_string_filename('your_site_theme',  get_answer('theme'),                   $dir);
+  replace_string_filename('ys_core',          get_answer('module_prefix') . '_core', $dir . '/docroot/modules/custom');
+  replace_string_filename('YsCore',           $module_prefix_capitalised . 'Core',   $dir . '/docroot/modules/custom');
+  replace_string_filename('your_org',         get_answer('org_machine_name'),        $dir);
+  replace_string_filename('your_site',        get_answer('machine_name'),            $dir);
   // @formatter:on
   // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
   // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
@@ -888,7 +891,7 @@ function get_default_value($name) {
 }
 
 function get_default_value__name() {
-  return getenv_or_default('DREVOPS_PROJECT', basename(get_dst_dir()));
+  return to_human_name(getenv_or_default('DREVOPS_PROJECT', basename(get_dst_dir())));
 }
 
 function get_default_value__machine_name() {
@@ -904,7 +907,7 @@ function get_default_value__org_machine_name() {
 }
 
 function get_default_value__module_prefix() {
-  return get_answer('machine_name');
+  return to_abbreviation(get_answer('machine_name'));
 }
 
 function get_default_value__profile() {
@@ -2093,6 +2096,21 @@ function to_machine_name($value, $preserve_chars = []) {
 function to_camel_case($value, $capitalise_first = FALSE) {
   $value = str_replace(' ', '', ucwords(preg_replace('/[^a-zA-Z0-9]/', ' ', $value)));
   return $capitalise_first ? $value : lcfirst($value);
+}
+
+function to_abbreviation($value, $length = 2, $word_delim = '_') {
+  $value = trim($value);
+  $value = str_replace(' ', '_', $value);
+  $parts = explode($word_delim, $value);
+  if (count($parts) == 1) {
+    return strlen($parts[0]) > $length ? substr($parts[0], 0, $length) : $value;
+  }
+
+  $value = implode('', array_map(function ($word) {
+    return substr($word, 0, 1);
+  }, $parts));
+
+  return substr($value, 0, $length);
 }
 
 function execute_callback($prefix, $name) {

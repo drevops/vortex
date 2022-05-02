@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\your_site_core;
+namespace Drupal\ys_core;
 
 use Drush\Drush;
 use Drush\Log\LogLevel;
@@ -8,7 +8,7 @@ use Drush\Log\LogLevel;
 /**
  * Class to register and execute post config import commands.
  *
- * @package Drupal\your_site_core
+ * @package Drupal\ys_core
  *
  * @see https://www.drupal.org/project/drupal/issues/2901418
  */

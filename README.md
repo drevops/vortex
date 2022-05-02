@@ -140,7 +140,7 @@ Run `ahoy update` to download the latest version of DrevOps for your project.
 |                                               | [Scripts](scripts/composer) to create required settings and files with environment variables support                | Required files and directories created automatically.Environment variables override support allows to provide override values without the need to change scripts. Useful for per-environment overrides. |
 |                                               | [Settings file](docroot/sites/default/settings.php) with multi-environment support        | Per-environment variables allow to easily target specific settings to specific environments without too much mess |
 |                                               | [Best-practices development modules](composer.json)                                                                 | Having the same development modules on each website helps to reduce development time. |
-| Custom [module scaffolding](docroot/modules/custom/your_site_core/your_site_core.module) | Mechanism to organise contributed module-related hook implementations into standalone files | Helps avoid large files with all hook implementation, which leads to a simple maintenance. |
+| Custom [module scaffolding](docroot/modules/custom/ys_core/ys_core.module) | Mechanism to organise contributed module-related hook implementations into standalone files | Helps avoid large files with all hook implementation, which leads to a simple maintenance. |
 | Custom [theme scaffolding](docroot/themes/custom/your_site_theme)                      | |                                                                          |
 |                                               | Grunt + SASS/SCSS + globbing + Livereload                                                                           | Grunt configuration defines multiple build steps to work with frontend in Drupal.<br/>Livereload allows to automatically refresh the page once there are changes to styles or scripts. |
 | Patches management                            | Based on [composer-patches](https://github.com/cweagans/composer-patches)                                           | Support for custom (per-project) and contributed patches is simply essential for any project. |
@@ -237,7 +237,7 @@ Contact us at [support@integratedexperts.com](mailto:support@integratedexperts.c
 - [Behat Screenshot](https://github.com/integratedexperts/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
 - [Behat Progress Fail](https://github.com/integratedexperts/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fails inline.
 - [Behat Relativity](https://github.com/integratedexperts/behat-relativity) - Behat context for relative elements testing.
-- [Code Artifact Builder](https://github.com/integratedexperts/robo-git-artefact) - Robo task to push git artifact to remote repository.
+- [Code Artifact Builder](https://github.com/drevops/git-artifact) - Robo task to push git artifact to remote repository.
 - [GitHub Labels](https://github.com/integratedexperts/github-labels) - create labels on GitHub in bulk.
 - [Formatted git messages](https://github.com/alexdesignworks/git-hooks) - pre-commit git hook to check that commit messages formatted correctly.
 

@@ -129,34 +129,35 @@ mock_command() {
 ################################################################################
 
 assert_files_present() {
-  local suffix="${1:-star_wars}"
-  local suffix_camel_cased="${2:-StarWars}"
-  local dir="${3:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+  local suffix_abbreviated="${3:-sw}"
+  local suffix_abbreviated_camel_cased="${4:-Sw}"
 
-  assert_files_present_common "${suffix}" "${suffix_camel_cased}" "${dir}"
+  assert_files_present_common "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}"
 
   assert_local_files_present "${dir}"
 
   # Assert Drupal profile not present by default.
-  assert_files_present_no_profile "${suffix}" "${dir}"
+  assert_files_present_no_profile "${dir}" "${suffix}"
 
   # Assert Drupal is not freshly installed by default.
-  assert_files_present_no_fresh_install "${suffix}" "${dir}"
+  assert_files_present_no_fresh_install "${dir}" "${suffix}"
 
   # Assert deployments preserved.
-  assert_files_present_deployment "${suffix}" "${dir}"
+  assert_files_present_deployment "${dir}" "${suffix}"
 
   # Assert Acquia integration is not preserved.
-  assert_files_present_no_integration_acquia "${suffix}" "${dir}"
+  assert_files_present_no_integration_acquia "${dir}" "${suffix}"
 
   # Assert Lagoon integration is not preserved.
-  assert_files_present_no_integration_lagoon "${suffix}" "${dir}"
+  assert_files_present_no_integration_lagoon "${dir}" "${suffix}"
 
   # Assert FTP integration removed by default.
-  assert_files_present_no_integration_ftp "${suffix}" "${dir}"
+  assert_files_present_no_integration_ftp "${dir}" "${suffix}"
 
   # Assert dependencies.io integration preserved.
-  assert_files_present_integration_dependenciesio "${suffix}" "${dir}"
+  assert_files_present_integration_dependenciesio "${dir}" "${suffix}"
 }
 
 assert_local_files_present() {
@@ -168,30 +169,31 @@ assert_local_files_present() {
 }
 
 assert_files_present_common() {
-  local suffix="${1:-star_wars}"
-  local suffix_camel_cased="${2:-StarWars}"
-  local dir="${3:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+  local suffix_abbreviated="${3:-sw}"
+  local suffix_abbreviated_camel_cased="${4:-Sw}"
 
   pushd "${dir}" >/dev/null || exit 1
 
   # Stub profile removed.
   assert_dir_not_exists "docroot/profiles/custom/your_site_profile"
   # Stub code module removed.
-  assert_dir_not_exists "docroot/modules/custom/your_site_core"
+  assert_dir_not_exists "docroot/modules/custom/ys_core"
   # Stub theme removed.
   assert_dir_not_exists "docroot/themes/custom/your_site_theme"
 
   # Site core module created.
-  assert_dir_exists "docroot/modules/custom/${suffix}_core"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.info.yml"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.install"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/${suffix}_core.module"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}ExampleUnitTest.php"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Unit/${suffix_camel_cased}CoreUnitTestBase.php"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Kernel/${suffix_camel_cased}ExampleKernelTest.php"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Kernel/${suffix_camel_cased}CoreKernelTestBase.php"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Functional/${suffix_camel_cased}ExampleFunctionalTest.php"
-  assert_file_exists "docroot/modules/custom/${suffix}_core/tests/src/Functional/${suffix_camel_cased}CoreFunctionalTestBase.php"
+  assert_dir_exists "docroot/modules/custom/${suffix_abbreviated}_core"
+  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.info.yml"
+  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.install"
+  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.module"
+  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreExampleUnitTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreUnitTestBase.php"
+  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreExampleKernelTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreKernelTestBase.php"
+  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreExampleFunctionalTest.php"
+  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreFunctionalTestBase.php"
 
   # Site theme created.
   assert_dir_exists "docroot/themes/custom/${suffix}"
@@ -288,25 +290,26 @@ assert_files_present_common() {
 }
 
 assert_files_not_present_common() {
-  local suffix="${1:-star_wars}"
-  local has_required_files="${2:-0}"
-  local dir="${3:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-sw}"
+  local suffix_abbreviated="${3:-sw}"
+  local has_required_files="${3:-0}"
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_dir_not_exists "docroot/modules/custom/your_site_core"
+  assert_dir_not_exists "docroot/modules/custom/ys_core"
   assert_dir_not_exists "docroot/themes/custom/your_site_theme"
   assert_dir_not_exists "docroot/profiles/custom/${suffix}_profile"
-  assert_dir_not_exists "docroot/modules/custom/${suffix}_core"
+  assert_dir_not_exists "docroot/modules/custom/${suffix_abbreviated}_core"
   assert_dir_not_exists "docroot/themes/custom/${suffix}"
   assert_file_not_exists "docroot/sites/default/default.settings.local.php"
   assert_file_not_exists "docroot/sites/default/default.services.local.yml"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteExampleUnitTest.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
-  assert_file_not_exists "docroot/modules/custom/your_site_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Unit/YourSiteExampleUnitTest.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
+  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
 
   assert_file_not_exists "FAQs.md"
   assert_file_not_exists ".ahoy.yml"
@@ -336,30 +339,30 @@ assert_files_not_present_common() {
 }
 
 assert_files_present_profile() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
   # Site profile created.
-  assert_dir_exists "docroot/profiles/custom/${suffix}profile"
-  assert_file_exists "docroot/profiles/custom/${suffix}profile/${suffix}profile.info.yml"
+  assert_dir_exists "docroot/profiles/custom/${suffix}_profile"
+  assert_file_exists "docroot/profiles/custom/${suffix}_profile/${suffix}_profile.info.yml"
   assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE="
-  assert_file_contains ".env" "docroot/profiles/custom/${suffix}profile,"
+  assert_file_contains ".env" "docroot/profiles/custom/${suffix}_profile,"
 
   popd >/dev/null || exit 1
 }
 
 assert_files_present_no_profile() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
   # Site profile created.
-  assert_dir_not_exists "docroot/profiles/custom/${suffix}profile"
+  assert_dir_not_exists "docroot/profiles/custom/${suffix}_profile"
   assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE=standard"
-  assert_file_not_contains ".env" "docroot/profiles/custom/${suffix}profile,"
+  assert_file_not_contains ".env" "docroot/profiles/custom/${suffix}_profile,"
   # Assert that there is no renaming of the custom profile with core profile name.
   assert_dir_not_exists "docroot/profiles/custom/standard"
   assert_file_not_contains ".env" "docroot/profiles/custom/standard,"
@@ -368,8 +371,8 @@ assert_files_present_no_profile() {
 }
 
 assert_files_present_fresh_install() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -380,8 +383,8 @@ assert_files_present_fresh_install() {
 }
 
 assert_files_present_no_fresh_install() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -392,8 +395,8 @@ assert_files_present_no_fresh_install() {
 }
 
 assert_files_present_deployment() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -407,9 +410,9 @@ assert_files_present_deployment() {
 }
 
 assert_files_present_no_deployment() {
-  local suffix="${1:-star_wars}"
-  local has_committed_files="${2:-0}"
-  local dir="${3:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+  local has_committed_files="${3:-0}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -428,9 +431,9 @@ assert_files_present_no_deployment() {
 }
 
 assert_files_present_integration_acquia() {
-  local suffix="${1:-star_wars}"
-  local include_scripts="${2:-1}"
-  local dir="${3:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-sw}"
+  local include_scripts="${3:-1}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -469,8 +472,8 @@ assert_files_present_integration_acquia() {
 }
 
 assert_files_present_no_integration_acquia() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -491,8 +494,8 @@ assert_files_present_no_integration_acquia() {
 }
 
 assert_files_present_integration_lagoon() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -513,8 +516,8 @@ assert_files_present_integration_lagoon() {
 }
 
 assert_files_present_no_integration_lagoon() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -535,8 +538,8 @@ assert_files_present_no_integration_lagoon() {
 }
 
 assert_files_present_integration_ftp() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -550,8 +553,8 @@ assert_files_present_integration_ftp() {
 }
 
 assert_files_present_no_integration_ftp() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -565,8 +568,8 @@ assert_files_present_no_integration_ftp() {
 }
 
 assert_files_present_integration_dependenciesio() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -577,8 +580,8 @@ assert_files_present_integration_dependenciesio() {
 }
 
 assert_files_present_no_integration_dependenciesio() {
-  local suffix="${1:-star_wars}"
-  local dir="${2:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -589,9 +592,9 @@ assert_files_present_no_integration_dependenciesio() {
 }
 
 fixture_readme() {
-  local name="${1:-Star Wars}"
-  local org="${2:-Star Wars Org}"
-  local dir="${3:-$(pwd)}"
+  local dir="${1:-$(pwd)}"
+  local name="${2:-Star Wars}"
+  local org="${3:-Star Wars Org}"
 
   cat <<EOT >>"${dir}"/README.md
 # ${name}

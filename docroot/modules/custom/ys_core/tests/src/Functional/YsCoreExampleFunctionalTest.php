@@ -1,15 +1,15 @@
 <?php
 
-namespace Drupal\Tests\your_site_core\Kernel;
+namespace Drupal\Tests\ys_core\Functional;
 
 /**
- * Class YourSiteExampleKernelTest.
+ * Class YsCoreExampleFunctionalTest.
  *
  * Example test case class.
  *
- * @group YourSiteCore
+ * @group YsCore
  */
-class YourSiteExampleKernelTest extends YourSiteCoreKernelTestBase {
+class YsCoreExampleFunctionalTest extends YsCoreFunctionalTestBase {
 
   /**
    * @dataProvider dataProviderAdd

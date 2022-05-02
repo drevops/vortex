@@ -451,8 +451,12 @@ class DrupalSettingsTest extends DrupalTestCase {
     if (empty($vars['CI'])) {
       $vars['CI'] = FALSE;
     }
-    $vars['SHIELD_USER'] = 'CHANGE_ME';
-    $vars['SHIELD_PASS'] = 'CHANGE_ME';
+    if (empty($vars['LAGOON'])) {
+      $vars['LAGOON'] = FALSE;
+    }
+    $vars['TMP'] = '/tmp-test';
+    $vars['DRUPAL_SHIELD_USER'] = 'CHANGE_ME';
+    $vars['DRUPAL_SHIELD_PASS'] = 'CHANGE_ME';
     $this->envVars = $vars + $this->envVars;
     foreach ($this->envVars as $name => $value) {
       putenv("$name=$value");
@@ -492,7 +496,7 @@ class DrupalSettingsTest extends DrupalTestCase {
     $config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
     $config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
     $config['shield.settings']['shield_enable'] = FALSE;
-    $config['stage_file_proxy.settings']['origin'] = 'http://your-site-url/';
+    $config['stage_file_proxy.settings']['origin'] = 'https://CHANGE_ME:CHANGE_ME@your-site-url/';
     $config['stage_file_proxy.settings']['hotlink'] = FALSE;
     $config['environment_indicator.indicator']['name'] = ENVIRONMENT_LOCAL;
     $config['environment_indicator.indicator']['bg_color'] = '#006600';
@@ -510,18 +514,7 @@ class DrupalSettingsTest extends DrupalTestCase {
     $settings['environment'] = ENVIRONMENT_LOCAL;
     $settings['config_sync_directory'] = '../config/default';
     $settings['hash_salt'] = hash('sha256', 'CHANGE_ME');
-    $settings['fast404_exts'] = '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
-    $settings['fast404_allow_anon_imagecache'] = TRUE;
-    $settings['fast404_whitelist'] = [
-      'index.php',
-      'rss.xml',
-      'install.php',
-      'cron.php',
-      'update.php',
-      'xmlrpc.php',
-    ];
-    $settings['fast404_string_whitelisting'] = ['/advagg_'];
-    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['file_temp_path'] = '/tmp-test';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
@@ -535,6 +528,7 @@ class DrupalSettingsTest extends DrupalTestCase {
       '^.+\.docker\.amazee\.io$',
       // URL when accessed from Behat tests.
       '^nginx$',
+      '^nginx\-php$',
       // #;< LAGOON
       // Lagoon URL.
       '^.+\.au\.amazee\.io$',

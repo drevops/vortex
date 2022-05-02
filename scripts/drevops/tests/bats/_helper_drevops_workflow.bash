@@ -293,7 +293,7 @@ assert_ahoy_lint() {
   assert_output_not_contains "Containers are not running."
 
   step "Assert that lint failure bypassing works"
-  echo "\$a=1;" >>docroot/modules/custom/star_wars_core/star_wars_core.module
+  echo "\$a=1;" >>docroot/modules/custom/sw_core/sw_core.module
   echo ".abc{margin: 0px;}" >>docroot/themes/custom/star_wars/scss/components/_layout.scss
   sync_to_container
 
@@ -325,7 +325,7 @@ assert_ahoy_test_unit() {
   ahoy test-unit
 
   step "Assert that Drupal Unit test failure bypassing works"
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Unit/StarWarsExampleUnitTest.php
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/sw_core/tests/src/Unit/SwCoreExampleUnitTest.php
   sync_to_container
 
   # Assert failure.
@@ -354,7 +354,7 @@ assert_ahoy_test_kernel() {
   ahoy test-kernel
 
   step "Assert that Kernel test failure bypassing works"
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Kernel/StarWarsExampleKernelTest.php
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/sw_core/tests/src/Kernel/SwCoreExampleKernelTest.php
   sync_to_container
 
   # Assert failure.
@@ -381,7 +381,7 @@ assert_ahoy_test_functional() {
   ahoy test-functional
 
   step "Assert that Functional test failure bypassing works"
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/star_wars_core/tests/src/Functional/StarWarsExampleFunctionalTest.php
+  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/sw_core/tests/src/Functional/SwCoreExampleFunctionalTest.php
   sync_to_container
 
   # Assert failure.

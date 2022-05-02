@@ -46,11 +46,11 @@ load _helper_drevops_deployment
     # built on previous build stages.
     provision_site "${CURRENT_PROJECT_DIR}"
 
-    assert_files_present_common "star_wars" "StarWars" "${CURRENT_PROJECT_DIR}"
-    assert_files_present_deployment "star_wars" "${CURRENT_PROJECT_DIR}"
-    assert_files_present_integration_acquia "star_wars" 1 "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_lagoon "star_wars" "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_ftp "star_wars" "${CURRENT_PROJECT_DIR}"
+    assert_files_present_common "${CURRENT_PROJECT_DIR}"
+    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+    assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}" "sw" 1
+    assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
+    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 
     substep "Copying built codebase into code source directory ${SRC_DIR}"
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -61,11 +61,11 @@ load _helper_drevops_deployment
 
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
-  assert_files_present_common "star_wars" "StarWars" "${SRC_DIR}"
-  assert_files_present_deployment "star_wars" "${SRC_DIR}"
-  assert_files_present_integration_acquia "star_wars" 1 "${SRC_DIR}"
-  assert_files_present_no_integration_lagoon "star_wars" "${SRC_DIR}"
-  assert_files_present_no_integration_ftp "star_wars" "${SRC_DIR}"
+  assert_files_present_common "${SRC_DIR}"
+  assert_files_present_deployment "${SRC_DIR}"
+  assert_files_present_integration_acquia "${SRC_DIR}" "sw" 1
+  assert_files_present_no_integration_lagoon "${SRC_DIR}"
+  assert_files_present_no_integration_ftp "${SRC_DIR}"
   assert_git_repo "${SRC_DIR}"
 
   # Make sure that one of the excluded directories will be ignored in the
@@ -83,8 +83,8 @@ load _helper_drevops_deployment
 
   step "Running deployment"
   export DREVOPS_DEPLOY_CODE_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
-  export DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
-  export DEPLOY_CODE_SRC="${SRC_DIR}"
+  export DREVOPS_DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
+  export DREVOPS_DEPLOY_CODE_SRC="${SRC_DIR}"
   export DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL="${DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL:-testuser@example.com}"
   export DREVOPS_DEPLOY_TYPE="code"
 
@@ -113,7 +113,7 @@ load _helper_drevops_deployment
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
 
   # Assert Acquia hooks are present.
-  assert_files_present_integration_acquia "star_wars" 0 "${REMOTE_REPO_DIR}"
+  assert_files_present_integration_acquia "${REMOTE_REPO_DIR}" "sw" 0
 
   popd > /dev/null
 }
@@ -155,22 +155,22 @@ load _helper_drevops_deployment
   )
   provision_site "${CURRENT_PROJECT_DIR}" 0 "${answers[@]}"
 
-  assert_files_present_common "star_wars" "StarWars" "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "star_wars" "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "star_wars" "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_acquia "star_wars" "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_ftp "star_wars" "${CURRENT_PROJECT_DIR}"
+  assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 
   substep "Copying built codebase into code source directory ${SRC_DIR}"
   cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
 
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
-  assert_files_present_common "star_wars" "StarWars" "${SRC_DIR}"
-  assert_files_present_deployment "star_wars" "${SRC_DIR}"
-  assert_files_present_integration_lagoon "star_wars" "${SRC_DIR}"
-  assert_files_present_no_integration_acquia "star_wars" "${SRC_DIR}"
-  assert_files_present_no_integration_ftp "star_wars" "${SRC_DIR}"
+  assert_files_present_common "${SRC_DIR}"
+  assert_files_present_deployment "${SRC_DIR}"
+  assert_files_present_integration_lagoon "${SRC_DIR}"
+  assert_files_present_no_integration_acquia "${SRC_DIR}"
+  assert_files_present_no_integration_ftp "${SRC_DIR}"
   assert_git_repo "${SRC_DIR}"
 
   popd > /dev/null

@@ -28,7 +28,7 @@ dependencies:
   - taxonomy
   - toolbar
   - views_ui
-  - your_site_core
+  - ys_core
 
 themes:
   - seven

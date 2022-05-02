@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\your_site_core\Commands;
+namespace Drupal\ys_core\Commands;
 
-use Drupal\your_site_core\PostConfigImportUpdateHelper;
+use Drupal\ys_core\PostConfigImportUpdateHelper;
 use Drush\Commands\DrushCommands;
 
 /**
