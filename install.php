@@ -137,7 +137,7 @@ function process_demo() {
     return;
   }
 
-  $url = getenv_or_default('DREVOPS_CURL_DB_URL');
+  $url = getenv_or_default('DREVOPS_DB_DOWNLOAD_CURL_URL');
   if (empty($url)) {
     return;
   }
@@ -339,7 +339,7 @@ function process__fresh_install($dir) {
 
 function process__database_download_source($dir) {
   $type = get_answer('database_download_source');
-  file_replace_content('/DREVOPS_DATABASE_DOWNLOAD_SOURCE=.*/', "DREVOPS_DATABASE_DOWNLOAD_SOURCE=$type", $dir . '/.env');
+  file_replace_content('/DREVOPS_DB_DOWNLOAD_SOURCE=.*/', "DREVOPS_DB_DOWNLOAD_SOURCE=$type", $dir . '/.env');
 
   if ($type == 'docker_registry') {
     remove_token_with_content('!DREVOPS_DATABASE_DOWNLOAD_SOURCE_DREVOPS_DOCKER_REGISTRY', $dir);
@@ -351,13 +351,13 @@ function process__database_download_source($dir) {
 
 function process__database_image($dir) {
   $image = get_answer('database_image');
-  file_replace_content('/DREVOPS_DATABASE_IMAGE=.*/', "DREVOPS_DATABASE_IMAGE=$image", $dir . '/.env');
+  file_replace_content('/DREVOPS_DB_DOCKER_IMAGE=.*/', "DREVOPS_DB_DOCKER_IMAGE=$image", $dir . '/.env');
 
   if ($image) {
-    remove_token_with_content('!DREVOPS_DATABASE_IMAGE', $dir);
+    remove_token_with_content('!DREVOPS_DB_DOCKER_IMAGE', $dir);
   }
   else {
-    remove_token_with_content('DREVOPS_DATABASE_IMAGE', $dir);
+    remove_token_with_content('DREVOPS_DB_DOCKER_IMAGE', $dir);
   }
 }
 
@@ -1136,7 +1136,7 @@ function discover_value__fresh_install() {
 }
 
 function discover_value__database_download_source() {
-  return get_value_from_dst_dotenv('DREVOPS_DATABASE_DOWNLOAD_SOURCE');
+  return get_value_from_dst_dotenv('DREVOPS_DB_DOWNLOAD_SOURCE');
 }
 
 function discover_value__database_store_type() {
@@ -1144,7 +1144,7 @@ function discover_value__database_store_type() {
 }
 
 function discover_value__database_image() {
-  return get_value_from_dst_dotenv('DREVOPS_DATABASE_IMAGE');
+  return get_value_from_dst_dotenv('DREVOPS_DB_DOCKER_IMAGE');
 }
 
 function discover_value__deploy_type() {
@@ -1155,7 +1155,7 @@ function discover_value__preserve_acquia() {
   if (is_readable(get_dst_dir() . '/hooks')) {
     return ANSWER_YES;
   }
-  $value = get_value_from_dst_dotenv('DREVOPS_DATABASE_DOWNLOAD_SOURCE');
+  $value = get_value_from_dst_dotenv('DREVOPS_DB_DOWNLOAD_SOURCE');
 
   if (is_null($value)) {
     return NULL;
@@ -1181,7 +1181,7 @@ function discover_value__preserve_lagoon() {
 }
 
 function discover_value__preserve_ftp() {
-  $value = get_value_from_dst_dotenv('DREVOPS_DATABASE_DOWNLOAD_SOURCE');
+  $value = get_value_from_dst_dotenv('DREVOPS_DB_DOWNLOAD_SOURCE');
   if (is_null($value)) {
     return NULL;
   }

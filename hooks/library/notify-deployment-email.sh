@@ -16,7 +16,7 @@ ACQUIA_DOMAIN="prod.acquia-sites.com";
 
 # ------------------------------------------------------------------------------
 
-[ "${SKIP_NOTIFY_DEPLOYMENT}" = "1" ] && echo "Skipping sending of deployment notification." && exit 0
+[ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] && echo "Skipping sending of deployment notification." && exit 0
 
 export SCRIPTS_DIR="${SCRIPTS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/scripts"}"
 
@@ -34,7 +34,7 @@ else
   url="https://${subdomain}.${DOMAIN}";
 fi
 
-php "${SCRIPTS_DIR}/drevops/notify-deployment.php" \
+php "${SCRIPTS_DIR}/drevops/notify-deployment-email.php" \
   "YOURSITE" \
   "acquia-deploy@your-site-url" \
   "your.name@your-site-url|Your Name" \

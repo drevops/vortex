@@ -8,33 +8,30 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Flag to skip DB sanitization.
-SKIP_DB_SANITIZE="${SKIP_DB_SANITIZE:-}"
+DREVOPS_DRUPAL_DB_SANITIZE_SKIP="${DREVOPS_DRUPAL_DB_SANITIZE_SKIP:-}"
 
 # Path to the application.
 APP="${APP:-/app}"
 
-# Drush alias.
-DRUSH_ALIAS="${DRUSH_ALIAS:-}"
-
 # Database sanitized account email replacement.
-DREVOPS_DB_SANITIZE_EMAIL="${DREVOPS_DB_SANITIZE_EMAIL:-user+%uid@localhost}"
+DREVOPS_DRUPAL_DB_SANITIZE_EMAIL="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL:-user+%uid@localhost}"
 
 # Database sanitized account password replacement.
-DREVOPS_DB_SANITIZE_PASSWORD="${DREVOPS_DB_SANITIZE_PASSWORD:-${RANDOM}${RANDOM}${RANDOM}${RANDOM}}"
+DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="${DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD:-${RANDOM}${RANDOM}${RANDOM}${RANDOM}}"
 
 # Replace username with mail.
-DREVOPS_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL="${DREVOPS_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL:-0}"
+DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL="${DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL:-0}"
 
 # Path to file with custom sanitization SQL queries.
-# To skip custom sanitization, remove the DB_SANITIZE_FILE file from the codebase.
-DB_SANITIZE_FILE="${DB_SANITIZE_FILE:-${APP}/scripts/sanitize.sql}"
+# To skip custom sanitization, remove the DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE file from the codebase.
+DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE:-${APP}/scripts/sanitize.sql}"
 
 # ------------------------------------------------------------------------------
 
 # Use local or global Drush, giving priority to a local drush.
 drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
 
-if [ "${SKIP_DB_SANITIZE}" = "1" ]; then
+if [ "${DREVOPS_DRUPAL_DB_SANITIZE_SKIP}" = "1" ]; then
   echo "==> Skipped database sanitization." && exit 0
 fi
 
@@ -42,18 +39,18 @@ echo "==> Started database sanitization."
 
 echo "  > Sanitizing database using drush sql-sanitize."
 # Always sanitize password and email using standard methods.
-$drush ${DRUSH_ALIAS} sql-sanitize --sanitize-password="${DREVOPS_DB_SANITIZE_PASSWORD}" --sanitize-email="${DREVOPS_DB_SANITIZE_EMAIL}" -y
+$drush sql-sanitize --sanitize-password="${DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD}" --sanitize-email="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL}" -y
 
-if [ "${DREVOPS_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" = "1" ]; then
+if [ "${DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" = "1" ]; then
   echo "  > Updating username with user email."
-  $drush ${DRUSH_ALIAS} sql-query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';"
+  $drush sql-query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';"
 fi
 
 # Sanitize using additional SQL commands provided in file.
-# To skip custom sanitization, remove the DB_SANITIZE_FILE file from the codebase.
-if [ -f "${DB_SANITIZE_FILE}" ]; then
-  echo "  > Applying custom sanitization commands from file ${DB_SANITIZE_FILE}."
-  $drush ${DRUSH_ALIAS} sql-query --file="${DB_SANITIZE_FILE}"
+# To skip custom sanitization, remove the DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE file from the codebase.
+if [ -f "${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}" ]; then
+  echo "  > Applying custom sanitization commands from file ${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}."
+  $drush sql-query --file="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}"
 fi
 
 echo "==> Finished database sanitization."

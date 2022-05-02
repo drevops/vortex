@@ -4,12 +4,12 @@
  * Send deployment notifications.
  *
  * Usage:
- * php notify-deployment.php "Site Name", "from@example.com",
+ * php notify-deployment-email.php "Site Name", "from@example.com",
  * "to1@example.com|Jane Doe, to2@example.com|John Doe", "git-branch",
  * "https://environment-url-example.com"
  */
 
-if (getenv('SKIP_NOTIFY_DEPLOYMENT')) {
+if (getenv('DREVOPS_NOTIFY_DEPLOYMENT_SKIP')) {
   print "Skipping notify deployment.";
   exit;
 }

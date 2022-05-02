@@ -6,8 +6,8 @@
 # Interactive prompt:
 # ./github-labels
 #
-# Silent, if $GITHUB_TOKEN is set in environment and repository provided as an argument:
-# GITHUB_TOKEN=ghp_123 GITHUB_REPO=myorg/myrepo ./github-labels
+# Silent, if $DREVOPS_GITHUB_TOKEN is set in environment and repository provided as an argument:
+# DREVOPS_GITHUB_TOKEN=ghp_123 DREVOPS_GITHUB_REPO=myorg/myrepo ./github-labels
 #
 # shellcheck disable=SC2155
 
@@ -15,17 +15,17 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # GitHub token to perform operations.
-GITHUB_TOKEN="${GITHUB_TOKEN:-}"
+DREVOPS_GITHUB_TOKEN="${DREVOPS_GITHUB_TOKEN:-${GITHUB_TOKEN}}"
 
 # GitHub repository as "org/name" to perform operations on.
-GITHUB_REPO="${GITHUB_REPO:-$1}"
+DREVOPS_GITHUB_REPO="${DREVOPS_GITHUB_REPO:-$1}"
 
 # Delete existing labels to mirror the list below.
-GITHUB_DELETE_EXISTING_LABELS="${GITHUB_DELETE_EXISTING_LABELS:-1}"
+DREVOPS_GITHUB_DELETE_EXISTING_LABELS="${DREVOPS_GITHUB_DELETE_EXISTING_LABELS:-1}"
 
 # Array of labels to create. If DELETE_EXISTING_LABELS=1, the labels list will
 # be exactly as below, otherwise labels below will be added to existing ones.
-GITHUB_LABELS=(
+labels=(
   "AUTOMERGE" "934BF4" "Pull request has been approved and set to automerge"
   "CONFLICT" "bc143e" "Pull request has a conflict that needs to be resolved before it can be merged"
   "DO NOT MERGE" "d93f0b" "Do not merge this pull request"
@@ -54,7 +54,7 @@ main(){
   echo "==> Processing GitHub labels."
 
   echo
-  if [ "${GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
+  if [ "${DREVOPS_GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
     echo "  This script will remove the default GitHub labels."
   else
     echo "  This script will not remove the default GitHub labels."
@@ -63,23 +63,23 @@ main(){
   echo "  A personal access token is required to access private repositories."
   echo
 
-  if [  "${GITHUB_REPO}" = "" ]; then
+  if [  "${DREVOPS_GITHUB_REPO}" = "" ]; then
     echo ''
     echo -n 'Enter GitHub Org/Repo (e.g. myorg/myrepo): '
-    read -r GITHUB_REPO
+    read -r DREVOPS_GITHUB_REPO
   fi
 
-  [  "${GITHUB_REPO}" = "" ] && echo "ERROR: GitHub repository name is required" && exit 1
+  [  "${DREVOPS_GITHUB_REPO}" = "" ] && echo "ERROR: GitHub repository name is required" && exit 1
 
-  if [  "${GITHUB_TOKEN}" = "" ]; then
+  if [  "${DREVOPS_GITHUB_TOKEN}" = "" ]; then
     echo ''
     echo -n 'GitHub Personal Access Token: '
-    read -r -s GITHUB_TOKEN
+    read -r -s DREVOPS_GITHUB_TOKEN
   fi
-  [  "${GITHUB_TOKEN}" = "" ] && echo "ERROR: GitHub token name is required" && exit 1
+  [  "${DREVOPS_GITHUB_TOKEN}" = "" ] && echo "ERROR: GitHub token name is required" && exit 1
 
-  repo_org=$(echo "$GITHUB_REPO" | cut -f1 -d /)
-  repo_name=$(echo "$GITHUB_REPO" | cut -f2 -d /)
+  repo_org=$(echo "$DREVOPS_GITHUB_REPO" | cut -f1 -d /)
+  repo_name=$(echo "$DREVOPS_GITHUB_REPO" | cut -f2 -d /)
 
   if ! user_has_access; then
     echo "ERROR: User does not have access to specified repository. Please check your credentials" && exit 1
@@ -92,7 +92,7 @@ main(){
   timeout 5
   echo
 
-  if [ "${GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
+  if [ "${DREVOPS_GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
     echo "  > Checking existing labels"
     existing_labels_strings="$(label_all)"
     # shellcheck disable=SC2207
@@ -110,7 +110,7 @@ main(){
   fi
 
   count=0
-  for value in "${GITHUB_LABELS[@]}"; do
+  for value in "${labels[@]}"; do
     if (( count % 3 == 0)); then
       name="${value}"
     elif (( count % 3 == 1)); then
@@ -146,7 +146,7 @@ is_provided_label(){
   label="${1}"
 
   count=0
-  for value in "${GITHUB_LABELS[@]}"; do
+  for value in "${labels[@]}"; do
     if (( count % 3 == 0)); then
       name="${value}"
       if [ "${label}" = "${name}" ]; then
@@ -162,7 +162,7 @@ is_provided_label(){
 user_has_access(){
   status=$( \
     curl -s -I \
-    -u "${GITHUB_TOKEN}":x-oauth-basic \
+    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
     --include -H "Accept: application/vnd.github.symmetra-preview+json" \
     -o /dev/null \
     -w "%{http_code}" \
@@ -175,7 +175,7 @@ user_has_access(){
 label_all(){
   response=$( \
     curl -s \
-    -u "${GITHUB_TOKEN}":x-oauth-basic \
+    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
     --include -H "Accept: application/vnd.github.symmetra-preview+json" \
     --request GET \
     "https://api.github.com/repos/${repo_org}/${repo_name}/labels" \
@@ -188,7 +188,7 @@ label_exists() {
   local name_encoded=$(uriencode "${name}")
   status=$( \
     curl -s -I \
-    -u "${GITHUB_TOKEN}":x-oauth-basic \
+    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
     --include -H "Accept: application/vnd.github.symmetra-preview+json" \
     -o /dev/null \
     -w "%{http_code}" \
@@ -203,7 +203,7 @@ label_create(){
   local color="${2}"
   local description="${3}"
   local status=$(curl -s \
-    -u "${GITHUB_TOKEN}":x-oauth-basic \
+    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
     -H "Accept: application/vnd.github.symmetra-preview+json" \
     -o /dev/null \
     -w "%{http_code}" \
@@ -220,7 +220,7 @@ label_update(){
   local description="${3}"
   local name_encoded=$(uriencode "${name}")
   local status=$(curl -s \
-    -u "${GITHUB_TOKEN}":x-oauth-basic \
+    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
     -H "Accept: application/vnd.github.symmetra-preview+json" \
     -o /dev/null \
     -w "%{http_code}" \
@@ -237,7 +237,7 @@ label_delete(){
   local description="${3}"
   local name_encoded=$(uriencode "${name}")
   local status=$(curl -s \
-    -u "${GITHUB_TOKEN}":x-oauth-basic \
+    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
     -H "Accept: application/vnd.github.symmetra-preview+json" \
     -o /dev/null \
     -w "%{http_code}" \

@@ -150,10 +150,10 @@ GENERATEDSETTINGS;
       'default' =>
         [
           'database' => getenv('MARIADB_DATABASE') ?: '${options['mysql_database']}',
-          'username' => getenv('MARIADB_USERNAME') ?: '${options['mysql_user']}',
-          'password' => getenv('MARIADB_PASSWORD') ?: '${options['mysql_password']}',
-          'host' => getenv('MARIADB_HOST') ?: '${options['mysql_host']}',
-          'port' => getenv('MARIADB_PORT') ?: '${options['mysql_port']}',
+          'username' => getenv('DREVOPS_MARIADB_USERNAME') ?: '${options['mysql_user']}',
+          'password' => getenv('DREVOPS_MARIADB_PASSWORD') ?: '${options['mysql_password']}',
+          'host' => getenv('DREVOPS_MARIADB_HOST') ?: '${options['mysql_host']}',
+          'port' => getenv('DREVOPS_MARIADB_PORT') ?: '${options['mysql_port']}',
           'driver' => 'mysql',
           'prefix' => '${options['mysql_prefix']}',
         ],

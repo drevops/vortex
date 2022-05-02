@@ -38,25 +38,25 @@ setup() {
   export DST_PROJECT_DIR="${BUILD_DIR}/dst"
   export LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   export APP_TMP_DIR="${BUILD_DIR}/tmp"
-  export TEST_ARTIFACT_DIR="/app"
-  export TEST_LOG_DIR="/app/logs"
-  export CONFIRM_RESPONSE=y
+  export DREVOPS_TEST_ARTIFACT_DIR="/app"
+  export DREVOPS_TEST_REPORTS_DIR="/app/logs"
+  export DREVOPS_CONFIRM_RESPONSE=y
 
-  export DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d9.star_wars.sql.md
+  export DREVOPS_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d9.star_wars.sql.md
 
   # Unset any environment variables that may affect tests.
   # These are set in CI config to override values set in .env file for some jobs.
-  unset DREVOPS_DATABASE_DOWNLOAD_SOURCE
-  unset DREVOPS_DATABASE_IMAGE
-  unset FORCE_DB_DOWNLOAD
+  unset DREVOPS_DB_DOWNLOAD_SOURCE
+  unset DREVOPS_DB_DOCKER_IMAGE
+  unset DREVOPS_DB_DOWNLOAD_FORCE
 
   # Disable checks used on host machine.
-  export DOCTOR_CHECK_TOOLS=0
-  export DOCTOR_CHECK_PYGMY=0
-  export DOCTOR_CHECK_PORT=0
-  export DOCTOR_CHECK_SSH=0
-  export DOCTOR_CHECK_WEBSERVER=0
-  export DOCTOR_CHECK_BOOTSTRAP=0
+  export DREVOPS_DOCTOR_CHECK_TOOLS=0
+  export DREVOPS_DOCTOR_CHECK_PYGMY=0
+  export DREVOPS_DOCTOR_CHECK_PORT=0
+  export DREVOPS_DOCTOR_CHECK_SSH=0
+  export DREVOPS_DOCTOR_CHECK_WEBSERVER=0
+  export DREVOPS_DOCTOR_CHECK_BOOTSTRAP=0
 
   prepare_fixture_dir "${BUILD_DIR}"
   prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
@@ -543,10 +543,10 @@ assert_files_present_integration_ftp() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_contains ".env" "DREVOPS_DB_FTP_HOST="
+  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_HOST="
   assert_file_contains ".env" "FTP_PORT="
-  assert_file_contains ".env" "DREVOPS_DB_FTP_USER="
-  assert_file_contains ".env" "DREVOPS_DB_FTP_PASS="
+  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_USER="
+  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
   assert_file_contains ".env" "FTP_FILE="
 
   popd >/dev/null || exit 1
@@ -558,10 +558,10 @@ assert_files_present_no_integration_ftp() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_not_contains ".env" "DREVOPS_DB_FTP_HOST="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_HOST="
   assert_file_not_contains ".env" "FTP_PORT="
-  assert_file_not_contains ".env" "DREVOPS_DB_FTP_USER="
-  assert_file_not_contains ".env" "DREVOPS_DB_FTP_PASS="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_USER="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
   assert_file_not_contains ".env" "FTP_FILE="
 
   popd >/dev/null || exit 1
@@ -649,7 +649,7 @@ run_install_quiet() {
   #
   # Installer will load environment variable and it will take precedence over
   # the value in .env file.
-  export DREVOPS_CURL_DB_URL="$DEMO_DB_TEST"
+  export DREVOPS_DB_DOWNLOAD_CURL_URL="$DREVOPS_DEMO_DB_TEST"
 
   # Enable the line below to show install debug information (for easy debug of
   # install script tests).
@@ -933,7 +933,7 @@ sync_to_host() {
   local dst="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
-  [ "${VOLUMES_MOUNTED}" = "1" ] && return
+  [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" = "1" ] && return
   docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
 }
 
@@ -942,7 +942,7 @@ sync_to_container() {
   local src="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
-  [ "${VOLUMES_MOUNTED}" = "1" ] && return
+  [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" = "1" ] && return
   docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
 }
 
@@ -958,7 +958,7 @@ fix_host_dependencies() {
 
   pushd "${DST_DIR}" >/dev/null || exit 1
 
-  if [ -f docker-compose.yml ] && [ "${VOLUMES_MOUNTED:-1}" != "1" ]; then
+  if [ -f docker-compose.yml ] && [ "${DREVOPS_DEV_VOLUMES_MOUNTED:-1}" != "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml

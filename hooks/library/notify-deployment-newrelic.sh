@@ -22,12 +22,12 @@ DREVOPS_NOTIFY_NEWRELIC_APIKEY="${DREVOPS_NOTIFY_NEWRELIC_APIKEY:-}"
 
 # ------------------------------------------------------------------------------
 
-[ "${SKIP_NOTIFY_DEPLOYMENT}" = "1" ] && echo "Skipping sending of deployment notification." && exit 0
+[ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] && echo "Skipping sending of deployment notification." && exit 0
 
 export SCRIPTS_DIR="${SCRIPTS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/scripts"}"
 
 if [ "${NEWRELIC_ENABLED}" = "1" ] && [ -n "${NEWRELIC_LICENSE}" ] && [ -n "${DREVOPS_NOTIFY_NEWRELIC_APIKEY}" ]; then
-  NOTIFY_NEWRELIC_APPNAME="${SITE}-${TARGET_ENV}" \
-  NOTIFY_DEPLOY_REF="${REF}" \
+  DREVOPS_NOTIFY_NEWRELIC_APPNAME="${SITE}-${TARGET_ENV}" \
+  DREVOPS_NOTIFY_DEPLOY_REF="${REF}" \
   . "${SCRIPTS_DIR}"/drevops/notify-deployment-newrelic.sh
 fi

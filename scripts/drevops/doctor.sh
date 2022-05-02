@@ -7,39 +7,36 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Shortcut to set variables for minimal requirements checking.
-DOCTOR_CHECK_MINIMAL="${DOCTOR_CHECK_MINIMAL:-0}"
-if [ "${DOCTOR_CHECK_MINIMAL}" = "1" ]; then
-  DOCTOR_CHECK_PORT=0
-  DOCTOR_CHECK_PYGMY=0
-  DOCTOR_CHECK_SSH=0
-  DOCTOR_CHECK_WEBSERVER=0
-  DOCTOR_CHECK_BOOTSTRAP=0
+DREVOPS_DOCTOR_CHECK_MINIMAL="${DREVOPS_DOCTOR_CHECK_MINIMAL:-0}"
+if [ "${DREVOPS_DOCTOR_CHECK_MINIMAL}" = "1" ]; then
+  DREVOPS_DOCTOR_CHECK_PORT=0
+  DREVOPS_DOCTOR_CHECK_PYGMY=0
+  DREVOPS_DOCTOR_CHECK_SSH=0
+  DREVOPS_DOCTOR_CHECK_WEBSERVER=0
+  DREVOPS_DOCTOR_CHECK_BOOTSTRAP=0
 fi
 
 # Shortcut to set variables, but still allow to override.
-DOCTOR_CHECK_PREFLIGHT="${DOCTOR_CHECK_PREFLIGHT:-0}"
-if [ "${DOCTOR_CHECK_PREFLIGHT}" = "1" ]; then
-  DOCTOR_CHECK_TOOLS="${DOCTOR_CHECK_TOOLS:-1}"
-  DOCTOR_CHECK_PORT="${DOCTOR_CHECK_PORT:-1}"
-  DOCTOR_CHECK_PYGMY="${DOCTOR_CHECK_PYGMY:-1}"
-  DOCTOR_CHECK_CONTAINERS="${DOCTOR_CHECK_CONTAINERS:-0}"
-  DOCTOR_CHECK_SSH="${DOCTOR_CHECK_SSH:-0}"
-  DOCTOR_CHECK_WEBSERVER="${DOCTOR_CHECK_WEBSERVER:-0}"
-  DOCTOR_CHECK_BOOTSTRAP="${DOCTOR_CHECK_BOOTSTRAP:-0}"
+DREVOPS_DOCTOR_CHECK_PREFLIGHT="${DREVOPS_DOCTOR_CHECK_PREFLIGHT:-0}"
+if [ "${DREVOPS_DOCTOR_CHECK_PREFLIGHT}" = "1" ]; then
+  DREVOPS_DOCTOR_CHECK_TOOLS="${DREVOPS_DOCTOR_CHECK_TOOLS:-1}"
+  DREVOPS_DOCTOR_CHECK_PORT="${DREVOPS_DOCTOR_CHECK_PORT:-1}"
+  DREVOPS_DOCTOR_CHECK_PYGMY="${DREVOPS_DOCTOR_CHECK_PYGMY:-1}"
+  DREVOPS_DOCTOR_CHECK_CONTAINERS="${DREVOPS_DOCTOR_CHECK_CONTAINERS:-0}"
+  DREVOPS_DOCTOR_CHECK_SSH="${DREVOPS_DOCTOR_CHECK_SSH:-0}"
+  DREVOPS_DOCTOR_CHECK_WEBSERVER="${DREVOPS_DOCTOR_CHECK_WEBSERVER:-0}"
+  DREVOPS_DOCTOR_CHECK_BOOTSTRAP="${DREVOPS_DOCTOR_CHECK_BOOTSTRAP:-0}"
 fi
 
-DOCTOR_CHECK_TOOLS="${DOCTOR_CHECK_TOOLS:-1}"
-DOCTOR_CHECK_PORT="${DOCTOR_CHECK_PORT:-1}"
-DOCTOR_CHECK_PYGMY="${DOCTOR_CHECK_PYGMY:-1}"
-DOCTOR_CHECK_CONTAINERS="${DOCTOR_CHECK_CONTAINERS:-1}"
-DOCTOR_CHECK_SSH="${DOCTOR_CHECK_SSH:-1}"
-DOCTOR_CHECK_WEBSERVER="${DOCTOR_CHECK_WEBSERVER:-1}"
-DOCTOR_CHECK_BOOTSTRAP="${DOCTOR_CHECK_BOOTSTRAP:-1}"
+DREVOPS_DOCTOR_CHECK_TOOLS="${DREVOPS_DOCTOR_CHECK_TOOLS:-1}"
+DREVOPS_DOCTOR_CHECK_PORT="${DREVOPS_DOCTOR_CHECK_PORT:-1}"
+DREVOPS_DOCTOR_CHECK_PYGMY="${DREVOPS_DOCTOR_CHECK_PYGMY:-1}"
+DREVOPS_DOCTOR_CHECK_CONTAINERS="${DREVOPS_DOCTOR_CHECK_CONTAINERS:-1}"
+DREVOPS_DOCTOR_CHECK_SSH="${DREVOPS_DOCTOR_CHECK_SSH:-1}"
+DREVOPS_DOCTOR_CHECK_WEBSERVER="${DREVOPS_DOCTOR_CHECK_WEBSERVER:-1}"
+DREVOPS_DOCTOR_CHECK_BOOTSTRAP="${DREVOPS_DOCTOR_CHECK_BOOTSTRAP:-1}"
 DREVOPS_LOCALDEV_URL="${DREVOPS_LOCALDEV_URL:-}"
-SSH_KEY_FILE="${SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}"
-DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
-DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
-DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
+DREVOPS_DOCTOR_SSH_KEY_FILE="${DREVOPS_DOCTOR_SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}"
 
 #-------------------------------------------------------------------------------
 #                    DO NOT CHANGE ANYTHING BELOW THIS LINE
@@ -54,7 +51,7 @@ main() {
 
   status "Checking project requirements"
 
-  if [ "${DOCTOR_CHECK_TOOLS}" = "1" ]; then
+  if [ "${DREVOPS_DOCTOR_CHECK_TOOLS}" = "1" ]; then
     [ "$(command_exists docker)" = "1" ] && error "Please install Docker (https://www.docker.com/get-started)." && exit 1
     [ "$(command_exists docker-compose)" = "1" ] && error "Please install docker-compose (https://docs.docker.com/compose/install/)." && exit 1
     [ "$(command_exists pygmy)" = "1" ] && error "Please install Pygmy (https://pygmy.readthedocs.io/)." && exit 1
@@ -62,14 +59,14 @@ main() {
     success "All required tools are present."
   fi
 
-  if [ "${DOCTOR_CHECK_PORT}" = "1" ] && [ "${OSTYPE}" != "linux-gnu" ]; then
+  if [ "${DREVOPS_DOCTOR_CHECK_PORT}" = "1" ] && [ "${OSTYPE}" != "linux-gnu" ]; then
     if ! lsof -i :80 | grep LISTEN | grep -q om.docke; then
       error "Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'."
     fi
     success "Port 80 is available."
   fi
 
-  if [ "${DOCTOR_CHECK_PYGMY}" = "1" ]; then
+  if [ "${DREVOPS_DOCTOR_CHECK_PYGMY}" = "1" ]; then
     if ! pygmy status > /dev/null 2>&1; then
       error "pygmy is not running. Run 'pygmy up' to start pygmy."
       exit 1
@@ -78,7 +75,7 @@ main() {
   fi
 
   # Check that the stack is running.
-  if [ "${DOCTOR_CHECK_CONTAINERS}" = "1" ]; then
+  if [ "${DREVOPS_DOCTOR_CHECK_CONTAINERS}" = "1" ]; then
     docker_services=(cli php nginx mariadb)
     for docker_service in "${docker_services[@]}"; do
     # shellcheck disable=SC2143
@@ -92,7 +89,7 @@ main() {
     success "All containers are running"
   fi
 
-  if [ "${DOCTOR_CHECK_SSH}" = "1" ]; then
+  if [ "${DREVOPS_DOCTOR_CHECK_SSH}" = "1" ]; then
     # SSH key injection is required to access Lagoon services from within
     # containers. For example, to connect to production environment to run
     # drush script.
@@ -118,7 +115,7 @@ main() {
     # available in CLI container.
 
     # Check that the key is injected into pygmy ssh-agent container.
-    if ! pygmy status 2>&1 | grep -q "${SSH_KEY_FILE}"; then
+    if ! pygmy status 2>&1 | grep -q "${DREVOPS_DOCTOR_SSH_KEY_FILE}"; then
       error "SSH key is not added to pygmy. Run 'pygmy stop && pygmy start' and then 'ahoy up -- --build'."
       exit 1
     fi
@@ -142,7 +139,7 @@ main() {
   fi
 
   if [ -n "${DREVOPS_LOCALDEV_URL}" ]; then
-    if [ "${DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
+    if [ "${DREVOPS_DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
       # Depending on the type of installation, the homepage may return 200 or 403.
       if ! curl -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_LOCALDEV_URL}" | grep -q '200\|403'; then
         error "Web server is not accessible at http://${DREVOPS_LOCALDEV_URL}."
@@ -151,7 +148,7 @@ main() {
       success "Web server is running and accessible at http://${DREVOPS_LOCALDEV_URL}."
     fi
 
-    if [ "${DOCTOR_CHECK_BOOTSTRAP}" = "1" ]; then
+    if [ "${DREVOPS_DOCTOR_CHECK_BOOTSTRAP}" = "1" ]; then
       if ! curl -L -s -N "${DREVOPS_LOCALDEV_URL}" | grep -q -i "charset="; then
         error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
         exit 1

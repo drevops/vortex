@@ -128,7 +128,7 @@ provision_site() {
   assert_git_repo
 
   # Special treatment for cases where volumes are not mounted from the host.
-  if [ "${VOLUMES_MOUNTED}" != "1" ]; then
+  if [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" != "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml
@@ -140,7 +140,7 @@ provision_site() {
 
   if [ "${should_build}" = "1" ]; then
     step "Build project"
-    export SKIP_POST_DB_IMPORT=1
+    export DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT=1
     ahoy build
     sync_to_host
   fi

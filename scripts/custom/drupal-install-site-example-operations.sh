@@ -15,9 +15,6 @@ APP="${APP:-/app}"
 # Path to the DOCROOT.
 WEBROOT="${WEBROOT:-docroot}"
 
-# Drush alias.
-DRUSH_ALIAS="${DRUSH_ALIAS:-}"
-
 # ------------------------------------------------------------------------------
 
 echo "==> Example post site install operations."
@@ -26,7 +23,7 @@ echo "==> Example post site install operations."
 drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 # Perform operations based on the current environment.
-if $drush ${DRUSH_ALIAS} ev "print \Drupal\core\Site\Settings::get('environment');" | grep -q -e dev -e test -e ci -e local; then
+if $drush ev "print \Drupal\core\Site\Settings::get('environment');" | grep -q -e dev -e test -e ci -e local; then
   echo "==> Perform example operations in non-production environment."
 
   # @todo: Add your custom operations here.

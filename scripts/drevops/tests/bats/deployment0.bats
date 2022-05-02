@@ -121,9 +121,9 @@ load _helper_drevops_deployment
   # Docker deployment assertions.
   #
   # By default, Docker deployment will not proceed if service-to-image map
-  # is not specified in DOCKER_MAP variable and will exit normally.
+  # is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable and will exit normally.
   assert_output_contains "==> Started DOCKER deployment."
-  assert_output_contains "Services map is not specified in DOCKER_MAP variable."
+  assert_output_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
   assert_output_not_contains "==> Finished DOCKER deployment."
 
   popd > /dev/null

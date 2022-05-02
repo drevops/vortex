@@ -10,35 +10,35 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-{ [ "${SKIP_NOTIFY_DEPLOYMENT}" = "1" ] || [ "${SKIP_NOTIFY_GITHUB_DEPLOYMENT}" = "1" ]; } && echo "Skipping notification of GitHub deployment." && exit 0
+{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${SKIP_NOTIFY_GITHUB_DEPLOYMENT}" = "1" ]; } && echo "Skipping notification of GitHub deployment." && exit 0
 
 # Deployment GitHub token.
-DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN="${DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN:-}"
+DREVOPS_NOTIFY_GITHUB_TOKEN="${DREVOPS_NOTIFY_GITHUB_TOKEN:-${GITHUB_TOKEN}}"
 
 # Deployment repository.
-NOTIFY_DEPLOY_REPOSITORY="${NOTIFY_DEPLOY_REPOSITORY:-}"
+DREVOPS_NOTIFY_DEPLOY_REPOSITORY="${DREVOPS_NOTIFY_DEPLOY_REPOSITORY:-}"
 
 # Deployment reference, such as a git SHA.
-NOTIFY_DEPLOY_REF="${NOTIFY_DEPLOY_REF:-}"
+DREVOPS_NOTIFY_DEPLOY_REF="${DREVOPS_NOTIFY_DEPLOY_REF:-}"
 
 # Operation type: start or finish.
-NOTIFY_DEPLOY_GITHUB_OPERATION="${NOTIFY_DEPLOY_GITHUB_OPERATION:-}"
+DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION="${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION:-}"
 
 # Deployment environment URL.
-NOTIFY_DEPLOY_ENVIRONMENT_URL="${NOTIFY_DEPLOY_ENVIRONMENT_URL:-}"
+DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL="${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL:-}"
 
 # Deployment environment type: production, uat, dev, pr.
-NOTIFY_DEPLOY_ENVIRONMENT_TYPE="${NOTIFY_DEPLOY_ENVIRONMENT_TYPE:-PR}"
+DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE="${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE:-PR}"
 
 # ------------------------------------------------------------------------------
 
-[ -z "${DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN" && exit 1
-[ -z "${NOTIFY_DEPLOY_REPOSITORY}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_REPOSITORY" && exit 1
-[ -z "${NOTIFY_DEPLOY_REF}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_REF" && exit 1
-[ -z "${NOTIFY_DEPLOY_GITHUB_OPERATION}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_GITHUB_OPERATION" && exit 1
-[ -z "${NOTIFY_DEPLOY_ENVIRONMENT_TYPE}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_ENVIRONMENT_TYPE" && exit 1
+[ -z "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_GITHUB_TOKEN" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_REPOSITORY" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_REF}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_REF" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE" && exit 1
 
-echo "==> Started GitHub deployment notification for operation ${NOTIFY_DEPLOY_GITHUB_OPERATION}"
+echo "==> Started GitHub deployment notification for operation ${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}"
 
 #
 # Function to extract last value from JSON object passed via STDIN.
@@ -56,14 +56,14 @@ extract_json_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-if [ "${NOTIFY_DEPLOY_GITHUB_OPERATION}" = "start" ]; then
+if [ "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" = "start" ]; then
   payload="$(curl \
     -X POST \
-    -H "Authorization: token ${DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN}" \
+    -H "Authorization: token ${DREVOPS_NOTIFY_GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     -s \
-    "https://api.github.com/repos/${NOTIFY_DEPLOY_REPOSITORY}/deployments" \
-    -d "{\"ref\":\"${NOTIFY_DEPLOY_REF}\", \"environment\": \"${NOTIFY_DEPLOY_ENVIRONMENT_TYPE}\", \"auto_merge\": false}")"
+    "https://api.github.com/repos/${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}/deployments" \
+    -d "{\"ref\":\"${DREVOPS_NOTIFY_DEPLOY_REF}\", \"environment\": \"${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE}\", \"auto_merge\": false}")"
 
   deployment_id="$(echo "${payload}" | extract_json_value "id")"
 
@@ -72,15 +72,15 @@ if [ "${NOTIFY_DEPLOY_GITHUB_OPERATION}" = "start" ]; then
 
   echo "  > Marked deployment as started"
 else
-  [ -z "${NOTIFY_DEPLOY_ENVIRONMENT_URL}" ] && echo "ERROR: Missing required value for NOTIFY_DEPLOY_ENVIRONMENT_URL" && exit 1
+  [ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL" && exit 1
 
   # Returns all deployment for this SHA sorted from the latest to the oldest.
   payload="$(curl \
     -X GET \
-    -H "Authorization: token ${DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN}" \
+    -H "Authorization: token ${DREVOPS_NOTIFY_GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     -s \
-    "https://api.github.com/repos/${NOTIFY_DEPLOY_REPOSITORY}/deployments?ref=${NOTIFY_DEPLOY_REF}")"
+    "https://api.github.com/repos/${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}/deployments?ref=${DREVOPS_NOTIFY_DEPLOY_REF}")"
 
   deployment_id="$(echo "${payload}" | extract_json_first_value "id")"
 
@@ -91,10 +91,10 @@ else
   payload="$(curl \
     -X POST \
     -H "Accept: application/vnd.github.v3+json" \
-    -H "Authorization: token ${DREVOPS_NOTIFY_DEPLOY_GITHUB_TOKEN}" \
-    "https://api.github.com/repos/${NOTIFY_DEPLOY_REPOSITORY}/deployments/${deployment_id}/statuses" \
+    -H "Authorization: token ${DREVOPS_NOTIFY_GITHUB_TOKEN}" \
+    "https://api.github.com/repos/${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}/deployments/${deployment_id}/statuses" \
     -s \
-    -d "{\"state\":\"success\", \"environment_url\": \"${NOTIFY_DEPLOY_ENVIRONMENT_URL}\"}")"
+    -d "{\"state\":\"success\", \"environment_url\": \"${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}\"}")"
 
   status="$(echo "${payload}" | extract_json_value "state")"
 

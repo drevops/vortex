@@ -15,16 +15,16 @@ export APP="/var/www/html/${SITE}.${TARGET_ENV}"
 export SCRIPTS_DIR="${SCRIPTS_DIR:-"${APP}/scripts"}"
 
 # Create drush alias from arguments.
-export DRUSH_ALIAS="@${SITE}.${TARGET_ENV}"
+export DREVOPS_DRUSH_ALIAS="@${SITE}.${TARGET_ENV}"
 
 # Override config label.
-export DRUPAL_CONFIG_LABEL=vcs
+export DREVOPS_DRUPAL_CONFIG_LABEL=vcs
 
 # Skip DB import as it is managed through UI.
-export SKIP_DB_IMPORT=1
+export DREVOPS_DRUPAL_SKIP_DB_IMPORT=1
 
 # Do not sanitize DB.
-export SKIP_DB_SANITIZE=1
+export DREVOPS_DRUPAL_DB_SANITIZE_SKIP=1
 
 # Do not unblock admin account.
 export DREVOPS_DRUPAL_UNBLOCK_ADMIN=0
