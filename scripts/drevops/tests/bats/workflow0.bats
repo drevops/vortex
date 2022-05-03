@@ -104,7 +104,7 @@ load _helper_drevops_workflow
   assert_ahoy_reset
 }
 
-@test "Workflow: fresh install forced if DREVOPS_FORCE_FRESH_INSTALL=1 and site already exists" {
+@test "Workflow: fresh install forced if DREVOPS_DRUPAL_FORCE_FRESH_INSTALL=1 and site already exists" {
   rm -f .data/db.sql
   export DREVOPS_SKIP_DEMO=1
   assert_file_not_exists .data/db.sql
@@ -132,9 +132,9 @@ load _helper_drevops_workflow
   substep "Assert content was not removed after re-install"
   assert_page_not_contains "/" "Welcome"
 
-  substep "Add DREVOPS_FORCE_FRESH_INSTALL variable and re-install site"
+  substep "Add DREVOPS_DRUPAL_FORCE_FRESH_INSTALL variable and re-install site"
   # Add variable to the .env file and apply the change to container.
-  add_var_to_file .env "DREVOPS_FORCE_FRESH_INSTALL" "1"
+  add_var_to_file .env "DREVOPS_DRUPAL_FORCE_FRESH_INSTALL" "1"
   ahoy up cli
   sync_to_container
 

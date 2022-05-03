@@ -196,7 +196,7 @@ services:
       context: .
       dockerfile: .docker/Dockerfile.mariadb
       args:
-        IMAGE: "${DREVOPS_DATABASE_IMAGE:-uselagoon/mariadb-drupal:22.4.1}"
+        IMAGE: "${DREVOPS_DB_DOCKER_IMAGE:-uselagoon/mariadb-drupal:22.4.1}"
     environment:
       <<: *default-environment
     ports:

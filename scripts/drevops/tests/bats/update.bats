@@ -49,7 +49,7 @@ load _helper_drevops
   # Enforce debugging of the install script.
   export DREVOPS_INSTALL_DEBUG=1
   # Override install script with currently tested one to be called from ./scripts/drevops/update.sh
-  export DREVOPS_INSTALL_URL="file://${CUR_DIR}/install.php"
+  export DREVOPS_INSTALLER_URL="file://${CUR_DIR}/install.php"
   # shellcheck disable=SC2059
   ahoy update
 

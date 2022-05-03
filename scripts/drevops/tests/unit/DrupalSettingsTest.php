@@ -104,7 +104,7 @@ class DrupalSettingsTest extends DrupalTestCase {
     $default_config = $this->getDefaultConfig();
     $default_settings = $this->getDefaultSettings();
 
-    $default_settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST'));
+    $default_settings['hash_salt'] = hash('sha256', getenv('DREVOPS_MARIADB_HOST'));
     $default_settings['reverse_proxy'] = TRUE;
     $default_settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
 
@@ -425,10 +425,10 @@ class DrupalSettingsTest extends DrupalTestCase {
       [
         [
           'MARIADB_DATABASE' => 'db_name',
-          'MARIADB_USERNAME' => 'db_user',
-          'MARIADB_PASSWORD' => 'db_pass',
-          'MARIADB_HOST' => 'db_host',
-          'MARIADB_PORT' => 'db_port',
+          'DREVOPS_MARIADB_USERNAME' => 'db_user',
+          'DREVOPS_MARIADB_PASSWORD' => 'db_pass',
+          'DREVOPS_MARIADB_HOST' => 'db_host',
+          'DREVOPS_MARIADB_PORT' => 'db_port',
         ],
         [
           'default' => [

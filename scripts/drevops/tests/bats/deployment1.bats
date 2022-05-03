@@ -29,7 +29,7 @@ load _helper_drevops_deployment
 
     # Enable Acquia integration for this test to run independent deployment
     # by using install auto-discovery.
-    export DREVOPS_DATABASE_DOWNLOAD_SOURCE="acquia"
+    export DREVOPS_DB_DOWNLOAD_SOURCE="acquia"
 
     # Override download from Acquia with a special flag. This still allows to
     # validate that download script expects credentials, but does not actually
@@ -37,7 +37,7 @@ load _helper_drevops_deployment
     # attached to this test).
     # A demo test database will be used as actual database to provision site
     # during this test.
-    echo "DB_DOWNLOAD_PROCEED=0" >> "${CURRENT_PROJECT_DIR}"/.env
+    echo "DREVOPS_DB_DOWNLOAD_PROCEED=0" >> "${CURRENT_PROJECT_DIR}"/.env
 
     # We need to use "current" directory as a place where the deployment script
     # is going to run from, while "SRC_DIR" is a place where files are taken
@@ -103,7 +103,7 @@ load _helper_drevops_deployment
   assert_output_not_contains "==> Finished WEBHOOK deployment."
 
   assert_output_not_contains "==> Started DOCKER deployment."
-  assert_output_not_contains "Services map is not specified in DOCKER_MAP variable."
+  assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
   assert_output_not_contains "==> Finished DOCKER deployment."
 
   assert_output_not_contains "==> Started LAGOON deployment."
@@ -180,8 +180,8 @@ load _helper_drevops_deployment
   step "Running deployment"
   # Always force installing of the Lagoon CLI binary in tests rather then using
   # a local version.
-  export DREVOPS_DEPLOY_LAGOONCLI_FORCE_INSTALL=1
-  export DREVOPS_DEPLOY_LAGOONCLI_BIN_PATH="${APP_TMP_DIR}"
+  export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL=1
+  export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH="${APP_TMP_DIR}"
   export DREVOPS_DEPLOY_LAGOON_INSTANCE="testlagoon"
   export DREVOPS_LAGOON_PROJECT="testproject"
   export DREVOPS_DEPLOY_BRANCH="testbranch"
@@ -198,7 +198,7 @@ load _helper_drevops_deployment
   assert_output_contains "==> Finished Lagoon deployment."
 
   # Assert lagoon binary exists and was called.
-  assert_file_exists "${DREVOPS_DEPLOY_LAGOONCLI_BIN_PATH}/lagoon"
+  assert_file_exists "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
 
   # Deployment script calls API twice: once to get a list of already deployed
   # environments and once to trigger a deployment.
@@ -215,7 +215,7 @@ load _helper_drevops_deployment
   assert_output_not_contains "==> Finished WEBHOOK deployment."
 
   assert_output_not_contains "==> Started DOCKER deployment."
-  assert_output_not_contains "Services map is not specified in DOCKER_MAP variable."
+  assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
   assert_output_not_contains "==> Finished DOCKER deployment."
 
   popd > /dev/null

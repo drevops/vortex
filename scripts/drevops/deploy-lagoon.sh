@@ -39,10 +39,10 @@ DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT="${DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT:-
 DREVOPS_DEPLOY_LAGOON_SSH_FILE="${DREVOPS_DEPLOY_LAGOON_SSH_FILE:-${HOME}/.ssh/id_rsa}"
 
 # Location of the Lagoon CLI binary.
-DREVOPS_DEPLOY_LAGOONCLI_BIN_PATH="${DREVOPS_DEPLOY_LAGOONCLI_BIN_PATH:-/tmp}"
+DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH="${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH:-/tmp}"
 
 # Flag to force the installation of Lagoon CLI.
-DREVOPS_DEPLOY_LAGOONCLI_FORCE_INSTALL="${DREVOPS_DEPLOY_LAGOONCLI_FORCE_INSTALL:-}"
+DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL="${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -73,15 +73,15 @@ fi
 # Disable strict host key checking in CI.
 [ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >> "${HOME}/.ssh/config"
 
-if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_DEPLOY_LAGOONCLI_FORCE_INSTALL}" ]; then
+if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL}" ]; then
   echo "==> Installing Lagoon CLI."
   curl -sL https://api.github.com/repos/amazeeio/lagoon-cli/releases/latest \
     | grep "browser_download_url" \
     | grep -i "$(uname -s)-amd64\"$" \
     | cut -d '"' -f 4 \
-    | xargs curl -L -o "${DREVOPS_DEPLOY_LAGOONCLI_BIN_PATH}/lagoon"
-  chmod +x "${DREVOPS_DEPLOY_LAGOONCLI_BIN_PATH}/lagoon"
-  export PATH="${PATH}:${DREVOPS_DEPLOY_LAGOONCLI_BIN_PATH}"
+    | xargs curl -L -o "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
+  chmod +x "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
+  export PATH="${PATH}:${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}"
 fi
 
 # ACTION: 'destroy'
