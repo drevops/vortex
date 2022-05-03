@@ -96,3 +96,4 @@ markdown_extensions:
 nav:
   - About: index.md
   - Variables: variables.md
+  - Docker: docker.md

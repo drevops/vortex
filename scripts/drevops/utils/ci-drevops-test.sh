@@ -36,6 +36,7 @@ bats scripts/drevops/tests/bats/mock.bats --tap
 
 echo "==> Test installation."
 bats scripts/drevops/tests/bats/env.bats --tap
+bats scripts/drevops/tests/bats/docker-compose.bats --tap
 bats scripts/drevops/tests/bats/install_initial.bats --tap
 bats scripts/drevops/tests/bats/install_existing.bats --tap
 bats scripts/drevops/tests/bats/install_parameters.bats --tap

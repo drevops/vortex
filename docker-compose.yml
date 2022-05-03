@@ -1,95 +1,69 @@
-#: Docker Compose configuration file.
-#:
-#: - Using a single file to work in local, CI and production environments.
-#: - Local overrides are possible using docker-composer.override.yml file.
-#: - Environment variables are read from .env file.
-#; - Use inline comments containing '###' to have the line removed in CI.
-#; - Use inline comments starting with '##' to have the line being automatically
-#;   uncommented in CI.
+# Docker Compose configuration file.
+#
+# - Using a single file to work in local, CI and production environments.
+# - Local overrides are possible using docker-composer.override.yml file.
+# - Environment variables are read from .env file.
+# - Use inline comments containing '###' to have the line removed in CI.
+# - Use inline comments starting with '##' to have the line being automatically
+#   uncommented in CI.
 #; - Comments starting with '#;', '#;<' or '#;>' (like the ones used for the
 #;   current paragraph) are explaining DrevOps inner workings and can be
 #;   safely removed for your project. They are automatically removed when
 #;   installing or updating DrevOps.
+#;
+# See more about DrevOps Docker at https://docs.drevops.com/docker/
+
 version: '2.3'
 
 # ------------------------------------------------------------------------------
 # Variable aliases.
 # ------------------------------------------------------------------------------
 
-#: Project name. Used in multiple places to name built Docker images.
-#: Do not change here, instead update .env file.
-x-project:
-  &project ${DREVOPS_PROJECT:-your_site}
-
-#: Volumes available in each container to share application data.
+# Volumes available in each container to share application data.
+# See more about Docker host volume mounting at https://docs.drevops.com/docker#host-volume-mounting-in-docker-based-projects
 x-volumes:
   &default-volumes
-  #: Understanding host mounting in Docker-based projects.
-  #:
-  #: To share application code between services (containers), Docker uses volumes.
-  #: When used in non-development environments, containers have access to
-  #: the same shared files using volumes and these volumes do not need to be
-  #: mounted from the host. But for development environment, when the code
-  #: constantly changes on the host, we need to have these changes synchronized
-  #: into all containers. Since we are using single `docker-compose.yml` file for
-  #: all environments, we have to accommodate both cases, so we are specifying an
-  #: override for the same directory as a mounted volume as a commented-out lines,
-  #: which will be automatically uncommented in CI.
-  #:
-  #: See Docker Compose reference about volumes https://docs.docker.com/compose/compose-file/compose-file-v2/#volume-configuration-reference
   volumes:
-    #:
-    #: All application files mounted into container.
+    # All application files mounted into container.
     - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
-    #:
-    #: Override mount for files to allow different type of syncing to optimise
-    #: performance.
+    # Override mount for files to allow different type of syncing to optimise performance.
     - ./docroot/sites/default/files:/app/docroot/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
-    #:
-    #: Use the same volumes in environments without host mounts support.
+    # Use the same volumes in environments without host mounts support.
     ##- app:/app # Override for environment without host mounts. Automatically uncommented in CI.
     ##- files:/app/docroot/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
 
-#: The default user under which the containers should run.
+# The default user under which the containers should run.
 x-user:
   &default-user
   # Change this if you are on linux and run with another user than id `1000`
   user: '1000'
 
-#: Environment variables set in all containers during build and runtime.
-#: Do not change values here, instead modify .env file.
+# Environment variables set in all containers during build and runtime.
+#;< LAGOON
+# Note that these variables are not read from here in Lagoon environment.
+#;> LAGOON
 x-environment:
   &default-environment
-  #:
-  #: Local development URL. Required to make DNS request route correctly.
-  #: Do not change the default value here (it is set as a fallback). Instead,
-  #: change the value in .env file.
-  LAGOON_DREVOPS_LOCALDEV_URL: &default-url ${DREVOPS_LOCALDEV_URL:-your-site.docker.amazee.io}
-  #; Amazeeio images require Lagoon route for Drush 9+ alias configuration.
+  # Project name. Defaults to Docker Compose project name (which defaults to the current directory).
+  DREVOPS_PROJECT: ${DREVOPS_PROJECT:-your_site}
+  # Local development URL used in Lagoon images.
+  LAGOON_LOCALDEV_URL: &default-url ${DREVOPS_LOCALDEV_URL:-your-site.docker.amazee.io}
+  # Local route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
   #;< LAGOON
-  #:
-  #: Re-using global project name for Lagoon.
-  DREVOPS_LAGOON_PROJECT: *project
-  #:
-  #: Allow overriding Lagoon environment type, defaulting it to 'local'.
+  #: Global project name for Lagoon.
+  LAGOON_PROJECT: ${LAGOON_PROJECT:-your_site}
+  #: Lagoon environment type.
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
   #;> LAGOON
   #:
-  #: Allow enabling XDebug by setting external environment variable.
-  #: Do not change the value here. Instead, use
-  #: ahoy debug
-  #: or
-  #: XDEBUG_ENABLE=true docker-compose up -d
+  # Enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker-compose up -d".
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
-  #:
-  #: Pass-through $CI variable used to identify the CI environment.
+  # Pass-through $CI variable used to identify the CI environment.
   CI: ${CI:-}
-  #:
   # Uncomment below if emails are not being received by Mailhog locally.
   # SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
-  #
-  # Set Shield credentials from the environment variables.
+  # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
 
@@ -99,46 +73,34 @@ x-environment:
 
 services:
 
-  #: CLI container.
+  # CLI container, used for executing CLI commands such as Composer, Drush etc. Not used to handle web requests.
   cli:
-    #:
-    #: Build docker image to add application files into container.
     build:
       context: .
       dockerfile: .docker/Dockerfile.cli
-    #:
-    #: The name of the Docker image is the name of the project.
-    image: *project
+    image: &cli-image ${DREVOPS_PROJECT:-your_site}-cli
     <<: *default-volumes
     user: root
     environment:
       <<: *default-environment
-    #: Mount volumes from Pygmy to inject host SSH key into container.
-    #: https://pygmy.readthedocs.io/en/master/ssh_agent/
+    # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
     volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
       - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
     ports:
-      #:
-      #: Livereload port.
-      #: Find port on host with `ahoy info` or `docker-compose port cli 35729`.
-      - "35729"
+      - "35729" # Livereload port in container. Find port on host with `ahoy info` or `docker-compose port cli 35729`.
     #;< LAGOON
-    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     labels:
-      lagoon.type: cli-persistent
-      lagoon.persistent.name: nginx-php
-      lagoon.persistent: /app/docroot/sites/default/files/
+      lagoon.type: cli-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+      lagoon.persistent.name: &lagoon-nginx-name nginx-php # Mount the persistent storage of nginx-php pod into this container.
+      lagoon.persistent: &lagoon-drupal-files /app/docroot/sites/default/files/  # Location where the persistent storage should be mounted.
     #;> LAGOON
 
-  #: Nginx container.
   nginx:
-    #:
-    #: Build docker image to add application files into container.
     build:
       context: .
       dockerfile: .docker/Dockerfile.nginx-drupal
       args:
-        CLI_IMAGE: *project
+        CLI_IMAGE: *cli-image
     <<: *default-volumes
     <<: *default-user
     environment:
@@ -146,33 +108,23 @@ services:
     depends_on:
       - cli
     networks:
-      #:
-      #: This network is supported by Pygmy and used to route all requests to
-      #: host machine.
-      - amazeeio-network
-      #:
-      #: This is a standard network and is used for all other environments, where
-      #: requests routing is not required and/or not supported.
-      - default
+      - amazeeio-network # This network is supported by Pygmy and used to route all requests to host machine.
+      - default # This is a standard network and is used for all other environments, where requests routing is not required and/or not supported.
     #;< LAGOON
-    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     labels:
-      lagoon.type: nginx-php-persistent
-      lagoon.name: nginx-php
-      lagoon.persistent: /app/docroot/sites/default/files/
+      lagoon.type: nginx-php-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+      lagoon.name: *lagoon-nginx-name
+      lagoon.persistent: *lagoon-drupal-files
       lagoon.persistent.class: slow
     #;> LAGOON
 
-  #: PHP FPM container.
-  #: All web requests going to this container.
+  # PHP FPM container. All web requests are going through this container.
   php:
-    #:
-    #: Build docker image to add application files into container.
     build:
       context: .
       dockerfile: .docker/Dockerfile.php
       args:
-        CLI_IMAGE: *project
+        CLI_IMAGE: *cli-image
     <<: *default-volumes
     <<: *default-user
     environment:
@@ -180,98 +132,70 @@ services:
     depends_on:
       - cli
     #;< LAGOON
-    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     labels:
-      lagoon.type: nginx-php-persistent
-      lagoon.name: nginx-php
-      lagoon.persistent: /app/docroot/sites/default/files/
+      lagoon.type: nginx-php-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+      lagoon.name: *lagoon-nginx-name
+      lagoon.persistent: *lagoon-drupal-files
       lagoon.persistent.class: slow
     #;> LAGOON
 
-  #: Database container.
   mariadb:
-    #:
-    #: Build docker image to add application files into container.
     build:
       context: .
       dockerfile: .docker/Dockerfile.mariadb
       args:
-        IMAGE: "${DREVOPS_DB_DOCKER_IMAGE:-uselagoon/mariadb-drupal:22.4.1}"
+        IMAGE: "${DREVOPS_DB_DOCKER_IMAGE:-uselagoon/mariadb-drupal:22.4.1}" # Use custom database image (if defined) or fallback to standard database image.
     environment:
       <<: *default-environment
     ports:
-      #:
-      #: MariaDB port.
-      #: Find port on host with `ahoy info` or `docker-compose port mariadb 3306`.
-      - "3306"
+      - "3306" # MariaDB port in container. Find port on host with `ahoy info` or `docker-compose port mariadb 3306`.
     #;< LAGOON
-    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
-    #: Make sure to destroy and re-deploy an environment if this value changes.
     labels:
-      lagoon.type: mariadb
+      lagoon.type: mariadb # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     #;> LAGOON
 
   #;< REDIS
-  #: Redis container.
-  #: Used for caching.
   redis:
-    # @see https://hub.docker.com/r/uselagoon/redis/tags
-    # @see https://github.com/uselagoon/lagoon-images/tree/main/images/redis
     image: uselagoon/redis-6:22.4.1
     #;< LAGOON
-    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     labels:
-      # Change to 'none' if dedicated Redis service is used.
-      # Locally, we still want Redis to run.
-      lagoon.type: redis
+      lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     #;> LAGOON
   #;> REDIS
 
   #;< SOLR
-  #: Search engine container.
   solr:
-    #:
-    #: Build docker image to apply modifications required for this application.
     build:
       context: .
       dockerfile: .docker/Dockerfile.solr
       args:
-        CLI_IMAGE: *project
+        CLI_IMAGE: *cli-image
     <<: *default-user
     environment:
       <<: *default-environment
     ports:
-      #:
-      #: Solr port.
-      #: Find port on host with `ahoy info` or `docker-compose port solr 8983`.
-      - "8983"
+      - "8983" # Solr port in container. Find port on host with `ahoy info` or `docker-compose port solr 8983`.
     #;< LAGOON
-    #: https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     labels:
-      lagoon.type: solr
+      lagoon.type: solr # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     #;> LAGOON
   #;> SOLR
 
-  #: Chrome container.
-  #: Used for browser testing.
+  # Chrome container, used for browser testing.
   chrome:
     image: selenium/standalone-chrome
-    #:
-    #: Increase '/dev/shm' partition size to avoid browser crashing.
-    shm_size: '1gb'
-    #:
-    #: Use default volumes to provide access to test fixtures.
-    <<: *default-volumes
+    shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
+    <<: *default-volumes # Use default volumes to provide access to test fixtures.
     environment:
       <<: *default-environment
     depends_on:
       - cli
     #;< LAGOON
     labels:
-      lagoon.type: none
+      lagoon.type: none # Do not deploy in Lagoon.
     #;> LAGOON
 
-  #: Wait for services to become available.
+  # Helper container to wait for services to become available.
   wait_dependencies:
     image: dadarek/wait-for-dependencies
     depends_on:
@@ -280,7 +204,7 @@ services:
     command: mariadb:3306
     #;< LAGOON
     labels:
-      lagoon.type: none
+      lagoon.type: none # Do not deploy in Lagoon.
     #;> LAGOON
 
 networks:

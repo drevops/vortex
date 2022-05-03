@@ -112,7 +112,7 @@ tasks:
 
           if [ "$NEWRELIC_ENABLED" = "1" ] && [ -n "$NEWRELIC_LICENSE" ] && [ -n "$DREVOPS_NOTIFY_NEWRELIC_APIKEY" ]; then
             [ -n "$LAGOON_PR_NUMBER" ] && GIT_SHA=$LAGOON_PR_HEAD_SHA || GIT_SHA=$LAGOON_GIT_SHA
-            DREVOPS_NOTIFY_NEWRELIC_APPNAME="$DREVOPS_LAGOON_PROJECT-$GIT_SHA" \
+            DREVOPS_NOTIFY_NEWRELIC_APPNAME="$LAGOON_PROJECT-$GIT_SHA" \
             DREVOPS_NOTIFY_DEPLOY_REF="$GIT_SHA" \
             ./scripts/drevops/notify-deployment-newrelic.sh
           fi
