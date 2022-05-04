@@ -36,7 +36,7 @@ theme:
     text: Roboto
     code: Roboto Mono
   palette:
-    primary: indigo
+    primary: black
     accent: indigo
   language: en
   # @todo: Review and enable tabs based on content.
@@ -71,7 +71,7 @@ markdown_extensions:
   - markdown.extensions.meta
   - markdown.extensions.toc:
       permalink: true
-      toc_depth: 2
+      toc_depth: 3
   - pymdownx.arithmatex
   - pymdownx.betterem:
       smart_enable: all

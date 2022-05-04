@@ -56,17 +56,23 @@ function main(array $argv, $argc) {
 
   ksort($all_variables);
 
-  $csv = render_variables_data($all_variables);
+  if (get_config('ticks')) {
+    $all_variables = process_description_ticks($all_variables);
+  }
 
-  if (get_config('markdown')) {
+  if (get_config('markdown') == 'table') {
+    $csv = render_variables_data($all_variables);
     $csvTable = new CSVTable($csv, get_config('csv_delim'));
     print $csvTable->getMarkup();
   }
+  elseif (get_config('markdown')) {
+    $markdown_blocks = new MarkdownBlocks($all_variables, get_config('markdown'));
+    print $markdown_blocks->getMarkup();
+  }
   else {
-    print $csv;
+    print render_variables_data($all_variables);;
   }
 }
-
 
 /**
  * Initialise CLI options.
@@ -74,9 +80,10 @@ function main(array $argv, $argc) {
 function init_cli_args_and_options($argv, $argc) {
   $opts = [
     'exclude-file:' => 'e:',
-    'markdown' => 'm',
+    'markdown::' => 'm::',
     'csv-delim:' => 'c:',
     'ticks' => 't',
+    'slugify' => 's',
     'unset:' => 'u:',
     'filter-prefix' => 'p',
     'filter-global' => 'g',
@@ -102,12 +109,12 @@ function init_cli_args_and_options($argv, $argc) {
     'exclude-file' => FALSE,
     'markdown' => FALSE,
     'ticks' => FALSE,
+    'slugify' => FALSE,
     'filter-prefix' => '',
     'filter-global' => '',
     'unset' => '<UNSET>',
     'csv-delim' => ';',
   ];
-
 
   $pos_args = array_slice($argv, $optind);
   $pos_args = array_filter($pos_args);
@@ -139,10 +146,16 @@ function init_cli_args_and_options($argv, $argc) {
     $options['exclude-file'] = $exclude_file;
   }
 
+  if ($options['markdown'] !== FALSE) {
+    // Table or a contents of the file with a template.
+    $options['markdown'] = $options['markdown'] == 'table' ? 'table' : (is_readable($options['markdown']) ? file_get_contents($options['markdown']) : FALSE);
+  }
+
   set_config('markdown', $options['markdown']);
   set_config('exclude_file', $options['exclude-file']);
   set_config('csv_delim', $options['csv-delim']);
   set_config('ticks', $options['ticks']);
+  set_config('slugify', $options['slugify']);
   set_config('unset_value', $options['unset']);
   set_config('filter_prefix', $options['filter-prefix']);
   set_config('filter_global', $options['filter-global']);
@@ -155,7 +168,10 @@ function get_targets($path) {
     $files[] = $path;
   }
   else {
-    $files = glob($path . '/*.sh');
+    if (is_readable($path . '/.env')) {
+      $files[] = $path . '/.env';
+    }
+    $files = array_merge($files, glob($path . '/*.{bash,sh}', GLOB_BRACE));
   }
 
   return $files;
@@ -202,6 +218,8 @@ function extract_variables_from_file($file) {
 }
 
 function extract_variable_name($string) {
+  $string = trim($string);
+
   // Assignment.
   if (preg_match('/^([a-zA-Z][a-zA-Z0-9_]*)=.*$/', $string, $matches)) {
     return $matches[1];
@@ -220,7 +238,7 @@ function extract_variable_value($string) {
 
   $value_string = '';
   // Assignment.
-  if (preg_match('/{?[a-zA-Z][a-zA-Z0-9_]*}?="?(.*)"?/', $string, $matches)) {
+  if (preg_match('/{?[a-zA-Z][a-zA-Z0-9_]*}?="?([^"]*)"?/', $string, $matches)) {
     $value_string = $matches[1];
   }
 
@@ -230,13 +248,13 @@ function extract_variable_value($string) {
 
   // Value is in the second part of the assigned value.
   if (strpos($value_string, ':') !== FALSE) {
-    if (preg_match('/\${[a-zA-Z][a-zA-Z0-9_]*:-?\$?{?([a-zA-Z][a-zA-Z0-9_]*)/', $value_string, $matches)) {
+    if (preg_match('/\${[a-zA-Z][a-zA-Z0-9_]*:-?\$?{?([a-zA-Z][^}]*)/', $value_string, $matches)) {
       $value = $matches[1];
     }
   }
   else {
     // Value is a simple scalar or another value.
-    if (preg_match('/{?([a-zA-Z][a-zA-Z0-9_]*)/', $value_string, $matches)) {
+    if (preg_match('/{?([a-zA-Z][^}]*)/', $value_string, $matches)) {
       $value = $matches[1];
     }
     else {
@@ -252,7 +270,11 @@ function extract_variable_description($lines, $k, $comment_delim = '#') {
 
   // Look up until the first non-comment line.
   while ($k > 0 && strpos(trim($lines[$k - 1]), $comment_delim) === 0) {
-    $comment_lines[] = trim(ltrim(trim($lines[$k - 1]), $comment_delim));
+    $line = trim(ltrim(trim($lines[$k - 1]), $comment_delim));
+    // Completely skip special comment lines.
+    if (strpos(trim($lines[$k - 1]), '#;<') !== 0 && strpos(trim($lines[$k - 1]), '#;>') !== 0) {
+      $comment_lines[] = $line;
+    }
     $k--;
   }
 
@@ -270,12 +292,50 @@ function render_variables_data($variables) {
         $variable['default_value'] = '`' . $variable['default_value'] . '`';
       }
     }
+
     fputcsv($csv, $variable, get_config('csv_delim'));
   }
 
   rewind($csv);
 
   return stream_get_contents($csv);
+}
+
+function process_description_ticks($variables) {
+  $variables_sorted = $variables;
+  krsort($variables_sorted, SORT_NATURAL);
+
+  foreach ($variables as $k => $variable) {
+    // Replace in description.
+    $replaced = [];
+    foreach (array_keys($variables_sorted) as $other_name) {
+      // Cleanup and optionally convert variables to links.
+      if (strpos($variable['description'], $other_name) !== FALSE) {
+        $already_added = (bool) count(array_filter($replaced, function ($v) use ($other_name) {
+          return strpos($v, $other_name) !== FALSE;
+        }));
+
+        if (!$already_added) {
+          if (get_config('slugify')) {
+            $other_name_slug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '_', $other_name));
+            $replacement = sprintf('[`$%s`](#%s)', $other_name, $other_name_slug);
+          }
+          else {
+            $replacement = '`$' . $other_name . '`';
+          }
+          $variable['description'] = preg_replace('/`?\$?' . $other_name . '`?/', $replacement, $variable['description']);
+          $replaced[] = $other_name;
+        }
+      }
+    }
+
+    // Convert digits to code values.
+    $variable['description'] = preg_replace('/\b((?<!`)[0-9]+)\b/', '`${1}`', $variable['description']);
+
+    $variables[$k] = $variable;
+  }
+
+  return $variables;
 }
 
 /**
@@ -316,7 +376,7 @@ class CSVTable {
     // Fill the rows with Markdown output
     $this->header = ""; // Table header
     $this->rows = ""; // Table rows
-    $this->CSVtoTable($this->csv);
+    $this->CSVtoTable();
   }
 
   private function CSVtoTable() {
@@ -429,6 +489,52 @@ class CSVTable {
 
   public function getMarkup() {
     return $this->header . $this->rows;
+  }
+}
+
+// ////////////////////////////////////////////////////////////////////////// //
+//                                CSVBlock                                    //
+// ////////////////////////////////////////////////////////////////////////// //
+
+class MarkdownBlocks {
+
+  protected $array;
+
+  protected $template;
+
+  protected $markup;
+
+  public function __construct($array, $template) {
+    $this->array = $array;
+    $this->template = $template;
+    $this->markup = $this->CSVtoBlock();
+  }
+
+  protected function CSVtoBlock() {
+    $content = '';
+
+    foreach ($this->array as $item) {
+      $placeholders = array_combine(array_map(function ($v) {
+        return '{{ ' . $v . ' }}';
+      }, array_keys($item)), $item);
+      $content .= str_replace("\n\n\n", "\n", strtr($this->template, $placeholders));
+    }
+
+    return $content;
+  }
+
+  public function toArray($csv) {
+    $array = [];
+    $parsed = str_getcsv($csv, "\n"); // Parse the rows
+    foreach ($parsed as &$row) {
+      $row = str_getcsv($row, $this->delim, $this->enclosure); // Parse the items in rows
+      array_push($array, $row);
+    }
+    return $array;
+  }
+
+  public function getMarkup() {
+    return $this->markup;
   }
 }
 
