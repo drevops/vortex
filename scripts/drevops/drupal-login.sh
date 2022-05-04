@@ -10,9 +10,6 @@ set -e
 # Path to the application.
 APP="${APP:-/app}"
 
-# Path to the DOCROOT.
-WEBROOT="${WEBROOT:-docroot}"
-
 # Flag to unblock admin.
 DREVOPS_DRUPAL_UNBLOCK_ADMIN="${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-1}"
 

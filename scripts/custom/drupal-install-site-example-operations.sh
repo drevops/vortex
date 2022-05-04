@@ -12,9 +12,6 @@ set -e
 # Path to the application.
 APP="${APP:-/app}"
 
-# Path to the DOCROOT.
-WEBROOT="${WEBROOT:-docroot}"
-
 # ------------------------------------------------------------------------------
 
 echo "==> Example post site install operations."

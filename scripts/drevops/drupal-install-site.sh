@@ -10,9 +10,6 @@ set -e
 # Path to the application.
 APP="${APP:-/app}"
 
-# Path to the DOCROOT.
-WEBROOT="${WEBROOT:-docroot}"
-
 # Drupal custom module prefix.
 # @todo Remove this as modeule prefix is not used anywhere.
 DREVOPS_DRUPAL_MODULE_PREFIX="${DREVOPS_DRUPAL_MODULE_PREFIX:-}"
@@ -33,10 +30,7 @@ DREVOPS_DRUPAL_CONFIG_PATH="${DREVOPS_DRUPAL_CONFIG_PATH:-${APP}/config/default}
 DREVOPS_DRUPAL_CONFIG_LABEL="${DREVOPS_DRUPAL_CONFIG_LABEL:-}"
 
 # Path to private files.
-DREVOPS_DRUPAL_PRIVATE_FILES="${DREVOPS_DRUPAL_PRIVATE_FILES:-${APP}/${WEBROOT}/sites/default/files/private}"
-
-# Flag to unblock admin.
-DREVOPS_DRUPAL_UNBLOCK_ADMIN="${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-1}"
+DREVOPS_DRUPAL_PRIVATE_FILES="${DREVOPS_DRUPAL_PRIVATE_FILES:-${APP}/docroot/sites/default/files/private}"
 
 # Directory with database dump file.
 DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-${APP}/.data}"

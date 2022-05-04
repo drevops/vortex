@@ -20,7 +20,7 @@ drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush
 echo  "Project                  : ${DREVOPS_PROJECT}"
 echo  "Site local URL           : http://${DREVOPS_LOCALDEV_URL}"
 echo  "Path to project          : ${APP}"
-echo  "Path to docroot          : ${APP}/${WEBROOT}"
+echo  "Path to docroot          : ${APP}/docroot"
 echo  "DB host                  : ${DREVOPS_MARIADB_HOST}"
 echo  "DB username              : ${DREVOPS_MARIADB_USER}"
 echo  "DB password              : ${DREVOPS_MARIADB_PASSWORD}"
