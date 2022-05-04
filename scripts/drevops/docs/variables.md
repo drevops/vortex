@@ -127,7 +127,7 @@ Name                                                    |Default value          
 `DREVOPS_DRUPAL_MODULE_PREFIX`                          |`<NOT SET>`                              |Drupal custom module prefix. @todo Remove this as modeule prefix is not used anywhere.
 `DREVOPS_DRUPAL_PRIVATE_FILES`                          |`APP`                                    |Path to private files.
 `DREVOPS_DRUPAL_PROFILE`                                |`standard`                               |Profile machine name.
-`DREVOPS_DRUPAL_SITE_MAIL`                              |`webmaster`                              |Drupal site name
+`DREVOPS_DRUPAL_SITE_EMAIL`                              |`webmaster`                              |Drupal site name
 `DREVOPS_DRUPAL_SITE_NAME`                              |`Example`                                |Drupal site name
 `DREVOPS_DRUPAL_SKIP_DB_IMPORT`                         |`<NOT SET>`                              |Flag to skip DB import.
 `DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT`                    |`<NOT SET>`                              |Flag to skip running post DB import commands.

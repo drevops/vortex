@@ -18,7 +18,7 @@ DREVOPS_DRUPAL_MODULE_PREFIX="${DREVOPS_DRUPAL_MODULE_PREFIX:-}"
 DREVOPS_DRUPAL_SITE_NAME="${DREVOPS_DRUPAL_SITE_NAME:-Example site}"
 
 # Drupal site name
-DREVOPS_DRUPAL_SITE_MAIL="${DREVOPS_DRUPAL_SITE_MAIL:-webmaster@example.com}"
+DREVOPS_DRUPAL_SITE_EMAIL="${DREVOPS_DRUPAL_SITE_EMAIL:-webmaster@example.com}"
 
 # Profile machine name.
 DREVOPS_DRUPAL_PROFILE="${DREVOPS_DRUPAL_PROFILE:-standard}"
@@ -112,7 +112,7 @@ else
     DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT=1
   else
     # Install from profile with default configuration.
-    $drush si "${DREVOPS_DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DREVOPS_DRUPAL_SITE_NAME}" --site-mail="${DREVOPS_DRUPAL_SITE_MAIL}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+    $drush si "${DREVOPS_DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DREVOPS_DRUPAL_SITE_NAME}" --site-mail="${DREVOPS_DRUPAL_SITE_EMAIL}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
   fi
 fi
 
