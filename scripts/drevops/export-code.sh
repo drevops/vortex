@@ -10,12 +10,12 @@ set -e
 DREVOPS_BUILD_CODE_EXPORT_DIR="${DREVOPS_BUILD_CODE_EXPORT_DIR:-}"
 
 # Path to application.
-APP="${APP:-/app}"
+DREVOPS_APP="${APP:-/app}"
 
 # ------------------------------------------------------------------------------
 
 if [ -n "${DREVOPS_BUILD_CODE_EXPORT_DIR}" ]; then
   mkdir -p "${DREVOPS_BUILD_CODE_EXPORT_DIR}"
-  cp -R "${APP}"/. "${DREVOPS_BUILD_CODE_EXPORT_DIR}"
+  cp -R "${DREVOPS_APP}"/. "${DREVOPS_BUILD_CODE_EXPORT_DIR}"
   rm -Rf "${DREVOPS_BUILD_CODE_EXPORT_DIR}"/node_modules >/dev/null;
 fi

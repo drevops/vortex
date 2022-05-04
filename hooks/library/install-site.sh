@@ -11,8 +11,8 @@ TARGET_ENV="${2}"
 
 [ "${SKIP_INSTALL_SITE}" = "1" ] && echo "Skipping install site." && exit
 
-export APP="/var/www/html/${SITE}.${TARGET_ENV}"
-export SCRIPTS_DIR="${SCRIPTS_DIR:-"${APP}/scripts"}"
+export DREVOPS_APP="/var/www/html/${SITE}.${TARGET_ENV}"
+export SCRIPTS_DIR="${SCRIPTS_DIR:-"${DREVOPS_APP}/scripts"}"
 
 # Create drush alias from arguments.
 export DREVOPS_DRUSH_ALIAS="@${SITE}.${TARGET_ENV}"

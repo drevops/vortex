@@ -70,7 +70,7 @@ fi
 # container, but only if it exists, while also replacing relative directory path
 # with absolute path. Note, that the DREVOPS_DB_DIR path is the same inside and outside
 # of the container.
-[ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ] && ahoy cli mkdir -p "${DREVOPS_DB_DIR}" && docker cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" $(docker-compose ps -q cli):"${DREVOPS_DB_DIR/.\//${APP}/}"/"${DREVOPS_DB_FILE}" && echo "==> Copied database file into container."
+[ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ] && ahoy cli mkdir -p "${DREVOPS_DB_DIR}" && docker cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" $(docker-compose ps -q cli):"${DREVOPS_DB_DIR/.\//${DREVOPS_APP}/}"/"${DREVOPS_DB_FILE}" && echo "==> Copied database file into container."
 
 echo "==> Installing development dependencies."
 #

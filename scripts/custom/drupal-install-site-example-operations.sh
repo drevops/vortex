@@ -10,14 +10,14 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Path to the application.
-APP="${APP:-/app}"
+DREVOPS_APP="${APP:-/app}"
 
 # ------------------------------------------------------------------------------
 
 echo "==> Example post site install operations."
 
 # Use local or global Drush, giving priority to a local drush.
-drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
+drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 # Perform operations based on the current environment.
 if $drush ev "print \Drupal\core\Site\Settings::get('environment');" | grep -q -e dev -e test -e ci -e local; then

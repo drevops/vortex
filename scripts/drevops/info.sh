@@ -7,7 +7,7 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Path to the application.
-APP="${APP:-/app}"
+DREVOPS_APP="${APP:-/app}"
 
 # Show login link.
 DREVOPS_SHOW_LOGIN_LINK="${DREVOPS_SHOW_LOGIN_LINK:-}"
@@ -15,12 +15,12 @@ DREVOPS_SHOW_LOGIN_LINK="${DREVOPS_SHOW_LOGIN_LINK:-}"
 # ------------------------------------------------------------------------------
 
 # Use local or global Drush, giving priority to a local drush.
-drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
+drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 echo  "Project                  : ${DREVOPS_PROJECT}"
 echo  "Site local URL           : http://${DREVOPS_LOCALDEV_URL}"
-echo  "Path to project          : ${APP}"
-echo  "Path to docroot          : ${APP}/docroot"
+echo  "Path to project          : ${DREVOPS_APP}"
+echo  "Path to docroot          : ${DREVOPS_APP}/docroot"
 echo  "DB host                  : ${DREVOPS_MARIADB_HOST}"
 echo  "DB username              : ${DREVOPS_MARIADB_USER}"
 echo  "DB password              : ${DREVOPS_MARIADB_PASSWORD}"

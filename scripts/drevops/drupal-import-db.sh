@@ -7,7 +7,7 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Path to the application.
-APP="${APP:-/app}"
+DREVOPS_APP="${APP:-/app}"
 
 # Flag to use database import progress indicator (pv).
 DREVOPS_DB_IMPORT_PROGRESS="${DREVOPS_DB_IMPORT_PROGRESS:-1}"
@@ -21,7 +21,7 @@ DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 # ------------------------------------------------------------------------------
 
 # Use local or global Drush.
-drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
+drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 [ ! -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ] && echo "ERROR: Database dump ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} not found." && exit 1
 

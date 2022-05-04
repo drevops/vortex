@@ -11,7 +11,7 @@ set -e
 DREVOPS_DRUPAL_DB_SANITIZE_SKIP="${DREVOPS_DRUPAL_DB_SANITIZE_SKIP:-}"
 
 # Path to the application.
-APP="${APP:-/app}"
+DREVOPS_APP="${APP:-/app}"
 
 # Database sanitized account email replacement.
 DREVOPS_DRUPAL_DB_SANITIZE_EMAIL="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL:-user+%uid@localhost}"
@@ -24,12 +24,12 @@ DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL="${DREVOPS_DRUPAL_DB_SANI
 
 # Path to file with custom sanitization SQL queries.
 # To skip custom sanitization, remove the DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE file from the codebase.
-DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE:-${APP}/scripts/sanitize.sql}"
+DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE:-${DREVOPS_APP}/scripts/sanitize.sql}"
 
 # ------------------------------------------------------------------------------
 
 # Use local or global Drush, giving priority to a local drush.
-drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
+drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 if [ "${DREVOPS_DRUPAL_DB_SANITIZE_SKIP}" = "1" ]; then
   echo "==> Skipped database sanitization." && exit 0
