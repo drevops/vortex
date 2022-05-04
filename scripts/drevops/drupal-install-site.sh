@@ -10,10 +10,6 @@ set -e
 # Path to the application.
 DREVOPS_APP="${APP:-/app}"
 
-# Drupal custom module prefix.
-# @todo Remove this as modeule prefix is not used anywhere.
-DREVOPS_DRUPAL_MODULE_PREFIX="${DREVOPS_DRUPAL_MODULE_PREFIX:-}"
-
 # Drupal site name
 DREVOPS_DRUPAL_SITE_NAME="${DREVOPS_DRUPAL_SITE_NAME:-Example site}"
 

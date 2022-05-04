@@ -33,6 +33,7 @@
 
 Name                                                    |Default value                            |Description
 --------------------------------------------------------|-----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`DREVOPS_APP`                                           |`<NOT SET>`                              |Path to the application.
 `DREVOPS_BUILD_CODE_EXPORT_DIR`                         |`<NOT SET>`                              |Export code built within containers before adding development dependencies. This usually is not used locally, but used when production-grade code (without dev dependencies) is used.
 `DREVOPS_BUILD_VERBOSE`                                 |`dev`                                    |Running 'ahoy up' directly will show the build progress.
 `DREVOPS_COMMIT`                                        |`<NOT SET>`                              |Allow providing custom DrevOps commit hash to download the sources from.
@@ -117,17 +118,16 @@ Name                                                    |Default value          
 `DREVOPS_DRUPAL_ADMIN_EMAIL`                            |`<NOT SET>`                              |User mail could have been sanitized - setting it back to a pre-defined mail.
 `DREVOPS_DRUPAL_BUILD_WITH_MAINTENANCE_MODE`            |`<NOT SET>`                              |
 `DREVOPS_DRUPAL_CONFIG_LABEL`                           |`<NOT SET>`                              |Config label.
-`DREVOPS_DRUPAL_CONFIG_PATH`                            |`APP`                                    |Path to configuration directory.
-`DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE`            |`APP`                                    |Path to file with custom sanitization SQL queries. To skip custom sanitization, remove the DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE file from the codebase.
+`DREVOPS_DRUPAL_CONFIG_PATH`                            |`DREVOPS_APP`                            |Path to configuration directory.
+`DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE`            |`DREVOPS_APP`                            |Path to file with custom sanitization SQL queries. To skip custom sanitization, remove the DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE file from the codebase.
 `DREVOPS_DRUPAL_DB_SANITIZE_EMAIL`                      |`user`                                   |Database sanitized account email replacement.
 `DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD`                   |`RANDOM`                                 |Database sanitized account password replacement.
 `DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL`|`<NOT SET>`                              |
 `DREVOPS_DRUPAL_DB_SANITIZE_SKIP`                       |`<NOT SET>`                              |Flag to skip DB sanitization.
 `DREVOPS_DRUPAL_FORCE_FRESH_INSTALL`                    |`<NOT SET>`                              |Flag to force fresh install even if the site exists.
-`DREVOPS_DRUPAL_MODULE_PREFIX`                          |`<NOT SET>`                              |Drupal custom module prefix. @todo Remove this as modeule prefix is not used anywhere.
-`DREVOPS_DRUPAL_PRIVATE_FILES`                          |`APP`                                    |Path to private files.
+`DREVOPS_DRUPAL_PRIVATE_FILES`                          |`DREVOPS_APP`                            |Path to private files.
 `DREVOPS_DRUPAL_PROFILE`                                |`standard`                               |Profile machine name.
-`DREVOPS_DRUPAL_SITE_EMAIL`                              |`webmaster`                              |Drupal site name
+`DREVOPS_DRUPAL_SITE_EMAIL`                             |`webmaster`                              |Drupal site name
 `DREVOPS_DRUPAL_SITE_NAME`                              |`Example`                                |Drupal site name
 `DREVOPS_DRUPAL_SKIP_DB_IMPORT`                         |`<NOT SET>`                              |Flag to skip DB import.
 `DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT`                    |`<NOT SET>`                              |Flag to skip running post DB import commands.
