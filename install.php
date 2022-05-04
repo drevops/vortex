@@ -27,7 +27,7 @@
 /**
  * Defines Drupal version supported by this installer.
  */
-define('INSTALLER_DREVOPS_DRUPAL_VERSION', 9);
+define('INSTALLER_DRUPAL_VERSION', 9);
 
 /**
  * Defines current working directory.
@@ -836,7 +836,7 @@ function init_cli_args_and_options($argv) {
  */
 function init_config() {
   // Internal version of DrevOps.
-  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DREVOPS_DRUPAL_VERSION . '.x'));
+  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DRUPAL_VERSION . '.x'));
   // Flag to display install debug information.
   set_config('DREVOPS_INSTALL_DEBUG', (bool) getenv_or_default('DREVOPS_INSTALL_DEBUG', FALSE));
   // Flag to proceed with installation. If FALSE - the installation will only
@@ -1509,7 +1509,7 @@ function print_header_quiet() {
 function print_summary() {
   $values['Current directory'] = CUR_DIR;
   $values['Destination directory'] = get_dst_dir();
-  $values['Drupal version'] = getenv_or_default('DREVOPS_DRUPAL_VERSION', INSTALLER_DREVOPS_DRUPAL_VERSION);
+  $values['Drupal version'] = getenv_or_default('DREVOPS_DRUPAL_VERSION', INSTALLER_DRUPAL_VERSION);
   $values['DrevOps version'] = get_config('DREVOPS_VERSION');
   $values['DrevOps commit'] = format_not_empty(get_config('DREVOPS_COMMIT'), 'Latest');
 

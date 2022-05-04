@@ -18,7 +18,7 @@
  * ./extract-shell-variables.php -e ../extract-shell-variables-excluded.txt path/to/file
  *
  * Full:
- * ./extract-shell-variables.php  -t -m -e ./extract-shell-variables-excluded.txt ../
+ * ./extract-shell-variables.php  -t -m -e ./extract-shell-variables-excluded.txt -u "<NOT SET>" ../
  */
 
 /**

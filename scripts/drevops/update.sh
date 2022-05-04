@@ -7,7 +7,7 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # The URL of the installer script.
-export DREVOPS_INSTALLER_URL="${DREVOPS_INSTALLER_URL:-https://raw.githubusercontent.com/drevops/drevops/${DREVOPS_DRUPAL_VERSION:-7}.x/install.php}"
+export DREVOPS_INSTALLER_URL="${DREVOPS_INSTALLER_URL:-https://raw.githubusercontent.com/drevops/drevops/${DREVOPS_DRUPAL_VERSION:-9}.x/install.php}"
 
 # Allow providing custom DrevOps commit hash to download the sources from.
 export DREVOPS_COMMIT="${DREVOPS_COMMIT:-}"
