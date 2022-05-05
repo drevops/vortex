@@ -31,6 +31,12 @@
 
 ## Variables list
 
+### `COMPOSE_PROJECT_NAME`
+
+Docker Compose project name (all containers will have this name). Defaults to the name of the project directory.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_APP`
 
 Path to the root of the project inside of the container.
@@ -63,7 +69,7 @@ Default value: `data`
 
 ### `DREVOPS_DB_DOCKER_IMAGE`
 
-Database-in-Docker-image database storage. Allows to store database in Docker image for local development and in CI. This allows to avoid waiting for long database imports for large databases when bulding sites. Note that the source database coming from the production environment can still be imported as a dump file if [`$DREVOPS_DB_DOWNLOAD_SOURCE`](#drevops_db_download_source)!=docker_registry or can be using previsous version of the image if [`$DREVOPS_DB_DOWNLOAD_SOURCE`](#drevops_db_download_source)=docker_registry. Database image name in format <org>/<image_name>:<label>. Use drevops/drevops-mariadb-drupal-data as a starting Docker image for your Database-in-Docker-image database. @see https://github.com/drevops/mariadb-drupal-data IMPORATANT! Providing a value for this variable switches the database storage mechanism and other underlying operations to use database-in-Docker-image for development and CI, so be cautios when making this change (i.e. the workflow is controlled from a single variable, which means that "with great power comes great responsibility").
+Database-in-Docker-image database storage.<br/>Allows to store database in Docker image for local development and in CI. This allows to avoid waiting for long database imports for large databases when bulding sites.<br/>Note that the source database coming from the production environment can still be imported as a dump file if [`$DREVOPS_DB_DOWNLOAD_SOURCE`](#drevops_db_download_source)!=docker_registry` or can be using previsous version of the image if [`$DREVOPS_DB_DOWNLOAD_SOURCE`](#drevops_db_download_source)=docker_registry`.<br/>Database image name in format `<org>/<image_name>:<label>`.<br/>Use `drevops/drevops-mariadb-drupal-data` as a starting Docker image for your Database-in-Docker-image database. @see https://github.com/drevops/mariadb-drupal-data<br/>IMPORATANT! Providing a value for this variable switches the database storage mechanism and other underlying operations to use database-in-Docker-image for development and CI, so be cautios when making this change (i.e. the workflow is controlled from a single variable, which means that "with great power comes great responsibility").
 
 Default value: `UNDEFINED`
 
@@ -181,13 +187,13 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_SOURCE`
 
-Where the database is downloaded from: - "url" - directly from URL as a file using CURL. - "ftp" - directly from FTP as a file using CURL. - "acquia" - from latest Acquia backup via Cloud API as a file. - "lagoon" - from Laggon master enveronment as a file. - "docker_registry" - from the docker registry as a docker image. - "none" - not downloaded, site is freshly installed for every build. Note that "docker_registry" works only for database-in-Docker-image database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) variable has a value).
+Where the database is downloaded from: - "url" - directly from URL as a file using CURL. - "ftp" - directly from FTP as a file using CURL. - "acquia" - from latest Acquia backup via Cloud API as a file. - "lagoon" - from Laggon master enveronment as a file. - "docker_registry" - from the docker registry as a docker image. - "none" - not downloaded, site is freshly installed for every build.<br/>Note that "docker_registry" works only for database-in-Docker-image database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) variable has a value).
 
 Default value: `curl`
 
 ### `DREVOPS_DB_EXPORT_BEFORE_IMPORT`
 
-Set to `1` in order to enable DB exporting before importing. Useful to backup DB during development.
+Flag to export database before import.
 
 Default value: `UNDEFINED`
 
@@ -369,7 +375,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_PROCEED`
 
-Flag to proceed with deployment. Set to "`1`" once the deployment configuration is configured in CI and is ready. @see scripts/drevops/deploy-<type>.sh for more variables.
+Flag to proceed with deployment. Set to `1` once the deployment configuration is configured in CI and is ready.
 
 Default value: `UNDEFINED`
 
@@ -613,9 +619,9 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_GITHUB_TOKEN`
 
-!/usr/bin/env bash Update project labels in GitHub. @usage: Interactive prompt: ./github-labels
+GitHub token to perform operations.
 
-Default value: `UNDEFINED`
+Default value: `GITHUB_TOKEN`
 
 ### `DREVOPS_HOST_DB_PORT`
 
@@ -687,19 +693,25 @@ Default value: `your-site.docker.amazee.io`
 
 ### `DREVOPS_MARIADB_HOST`
 
-Database connection details (these are not used in production).
+Local database host (not used in production).
 
 Default value: `mariadb`
 
 ### `DREVOPS_MARIADB_PASSWORD`
 
+Local database password (not used in production).
+
 Default value: `drupal`
 
 ### `DREVOPS_MARIADB_PORT`
 
+Local database port (not used in production).
+
 Default value: `3306`
 
 ### `DREVOPS_MARIADB_USER`
+
+Local database user (not used in production).
 
 Default value: `drupal`
 

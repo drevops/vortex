@@ -29,7 +29,7 @@ function main(array $argv, $argc) {
 
   $files = get_targets(get_config('paths'));
 
-  if(get_config('debug')) {
+  if (get_config('debug')) {
     print "Scanning files:\n" . implode("\n", $files) . "\n";
   }
 
@@ -133,7 +133,7 @@ function init_cli_args_and_options($argv, $argc) {
 
   $paths = $pos_args;
 
-  foreach ($paths as $k=>$path) {
+  foreach ($paths as $k => $path) {
     if (strpos($path, './') !== 0 && strpos($path, '/') !== 0) {
       $paths[$k] = realpath(getcwd() . DIRECTORY_SEPARATOR . $path);
     }
@@ -242,16 +242,17 @@ function extract_variables_from_file($file) {
 function extract_variable_name($string) {
   $string = trim($string);
 
-  // Assignment.
-  if (preg_match('/^([a-zA-Z][a-zA-Z0-9_]*)=.*$/', $string, $matches)) {
-    return $matches[1];
-  }
+  if (!is_comment($string)) {
+    // Assignment.
+    if (preg_match('/^([a-zA-Z][a-zA-Z0-9_]*)=.*$/', $string, $matches)) {
+      return $matches[1];
+    }
 
-  // Usage.
-  if (preg_match('/\${?([a-zA-Z][a-zA-Z0-9_]*)/', $string, $matches)) {
-    return $matches[1];
+    // Usage.
+    if (preg_match('/\${?([a-zA-Z][a-zA-Z0-9_]*)/', $string, $matches)) {
+      return $matches[1];
+    }
   }
-
   return FALSE;
 }
 
@@ -300,7 +301,21 @@ function extract_variable_description($lines, $k, $comment_delim = '#') {
     $k--;
   }
 
-  return implode(' ', array_reverse(array_filter($comment_lines)));
+  $comment_lines = array_reverse($comment_lines);
+  array_walk($comment_lines, function (&$value) {
+    $value = empty($value) ? "\n" : trim($value);
+  });
+
+  $output = implode(' ', $comment_lines);
+  $output = str_replace(" \n ", "\n", $output);
+  $output = str_replace(" \n", "\n", $output);
+  $output = str_replace("\n ", "\n", $output);
+
+  return $output;
+}
+
+function is_comment($string) {
+  return strpos(trim($string), '#') === 0;
 }
 
 function render_variables_data($variables) {
@@ -358,7 +373,7 @@ function process_description_ticks($variables) {
     if (get_config('ticks_list')) {
       foreach (get_config('ticks_list') as $token) {
         $token = trim($token);
-        $variable['description'] = preg_replace('/\b((?<!`)' . $token . ')\b/', '`${1}`', $variable['description']);
+        $variable['description'] = preg_replace('/\b((?<!`)' . preg_quote($token, '/') . ')\b/', '`${1}`', $variable['description']);
       }
     }
 
@@ -544,9 +559,15 @@ class MarkdownBlocks {
     $content = '';
 
     foreach ($this->array as $item) {
-      $placeholders = array_combine(array_map(function ($v) {
+      $placeholders_tokens = array_map(function ($v) {
         return '{{ ' . $v . ' }}';
-      }, array_keys($item)), $item);
+      }, array_keys($item));
+
+      $placeholders_values = array_map(function ($v) {
+        return str_replace("\n", "<br/>", $v);
+      }, $item);
+
+      $placeholders = array_combine($placeholders_tokens, $placeholders_values);
       $content .= str_replace("\n\n\n", "\n", strtr($this->template, $placeholders));
     }
 

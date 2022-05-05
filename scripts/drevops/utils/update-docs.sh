@@ -17,4 +17,4 @@ sed "${sed_opts[@]}" '/## Variables list/,$d' "$var_file"
 
 echo "## Variables list" >> $var_file
 echo >> $var_file
-./extract-shell-variables.php -t -s -l extract-shell-variables-ticks-included.txt --filter-global --markdown=extract-shell-variables-template.md -e ./extract-shell-variables-excluded.txt -u "UNDEFINED" ../../../.env .. >> $var_file
+./extract-shell-variables.php -t -s -l extract-shell-variables-ticks-included.txt --filter-global --markdown=extract-shell-variables-template.md -e ./extract-shell-variables-excluded.txt -u "UNDEFINED" ../../../.env extract-shell-variables-additional-variables.sh .. >> $var_file

@@ -11,7 +11,8 @@ TBD
 Note that `docker-composer.yml` does not support default values evaluation in
 variables assignment. E.g.,
 
-    VARIABLE2: ${VARIABLE1:-$VARIABLE3}
+    environment:
+      VARIABLE2: ${VARIABLE1:-$VARIABLE3}
 
 `$VARIABLE3` will not be evaluated if `$VARIABLE1`
 is not provided (it will be a literal string `$VARIABLE3`).

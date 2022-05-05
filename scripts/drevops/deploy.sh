@@ -17,7 +17,8 @@ set -e
 # support multiple deployments): code, docker, webhook, lagoon.
 DREVOPS_DEPLOY_TYPE="${DREVOPS_DEPLOY_TYPE:-${1}}"
 
-# Flag to proceed with deployment.
+# Flag to proceed with deployment. Set to 1 once the deployment configuration
+# is configured in CI and is ready.
 DREVOPS_DEPLOY_PROCEED="${DREVOPS_DEPLOY_PROCEED:-}"
 
 # Flag to allow skipping of a deployment using additional flags.

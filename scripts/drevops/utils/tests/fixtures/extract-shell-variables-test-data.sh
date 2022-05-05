@@ -49,7 +49,7 @@ VARENV1=valenv1
 
 VARENV2=
 
-# Comment from script with reference to composer.lock and `composer.lock` again.
+# Comment from script with reference to composer.lock and `composer.lock` again and somespecialtoken and `somespecialtoken` again and drevops/drevops-mariadb-drupal-data and `drevops/drevops-mariadb-drupal-data` again.
 VARENV3=valenv3
 
 # Comment 2 from script without a leading space that goes on

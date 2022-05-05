@@ -4,10 +4,11 @@
 #
 # @usage:
 # Interactive prompt:
-# ./github-labels
+# ./github-labels.sh
 #
-# Silent, if $DREVOPS_GITHUB_TOKEN is set in environment and repository provided as an argument:
-# DREVOPS_GITHUB_TOKEN=ghp_123 DREVOPS_GITHUB_REPO=myorg/myrepo ./github-labels
+# Silent, if $DREVOPS_GITHUB_TOKEN or $GITHUB_TOKEN is set in an environment and
+# a repository provided as an argument:
+# DREVOPS_GITHUB_TOKEN=ghp_123 DREVOPS_GITHUB_REPO=myorg/myrepo ./github-labels.sh
 #
 # shellcheck disable=SC2155
 
