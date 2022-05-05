@@ -186,7 +186,7 @@ if [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL}" ]; then
   $drush sql-query "UPDATE \`users_field_data\` SET mail = '${DREVOPS_DRUPAL_ADMIN_EMAIL}' WHERE uid = '1';"
 fi
 
-if [ "${DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" = "1" ]; then
+if [ "${DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_WITH_EMAIL}" = "1" ]; then
   echo "  > Updating user 1 username with user email"
   $drush sql-query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid = '1';"
 fi

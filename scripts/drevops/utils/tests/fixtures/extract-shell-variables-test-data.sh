@@ -49,7 +49,7 @@ VARENV1=valenv1
 
 VARENV2=
 
-# Comment from script.
+# Comment from script with reference to composer.lock and `composer.lock` again.
 VARENV3=valenv3
 
 # Comment 2 from script without a leading space that goes on

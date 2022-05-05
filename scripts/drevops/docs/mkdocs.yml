@@ -97,3 +97,4 @@ nav:
   - About: index.md
   - Variables: variables.md
   - Docker: docker.md
+  - Build: build.md

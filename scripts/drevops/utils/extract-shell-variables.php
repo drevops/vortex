@@ -11,7 +11,7 @@
  * This is helpful to maintain a table of variables and their descriptions in
  * documentation.
  *
- * ./extract-shell-variables.php path/to/file
+ * ./extract-shell-variables.php path/to/file1 path/to/file2
  * ./extract-shell-variables.php path/to/dir
  *
  * With excluded file:
@@ -27,7 +27,11 @@
 function main(array $argv, $argc) {
   init_cli_args_and_options($argv, $argc);
 
-  $files = get_targets(get_config('path'));
+  $files = get_targets(get_config('paths'));
+
+  if(get_config('debug')) {
+    print "Scanning files:\n" . implode("\n", $files) . "\n";
+  }
 
   $all_variables = [];
   foreach ($files as $file) {
@@ -79,10 +83,12 @@ function main(array $argv, $argc) {
  */
 function init_cli_args_and_options($argv, $argc) {
   $opts = [
+    'debug' => 'd',
     'exclude-file:' => 'e:',
     'markdown::' => 'm::',
     'csv-delim:' => 'c:',
     'ticks' => 't',
+    'ticks-list:' => 'l:',
     'slugify' => 's',
     'unset:' => 'u:',
     'filter-prefix' => 'p',
@@ -105,10 +111,12 @@ function init_cli_args_and_options($argv, $argc) {
   }
 
   $options += [
-    'path' => '',
+    'paths' => '',
+    'debug' => FALSE,
     'exclude-file' => FALSE,
     'markdown' => FALSE,
     'ticks' => FALSE,
+    'ticks-list' => FALSE,
     'slugify' => FALSE,
     'filter-prefix' => '',
     'filter-global' => '',
@@ -120,22 +128,24 @@ function init_cli_args_and_options($argv, $argc) {
   $pos_args = array_filter($pos_args);
 
   if (count($pos_args) < 1) {
-    die('ERROR: Path to a file or a directory is required.');
+    die('ERROR: At least one path to a file or a directory is required.');
   }
 
-  $path = reset($pos_args);
+  $paths = $pos_args;
 
-  if (strpos($path, './') !== 0 && strpos($path, '/') !== 0) {
-    $path = getcwd() . DIRECTORY_SEPARATOR . $path;
+  foreach ($paths as $k=>$path) {
+    if (strpos($path, './') !== 0 && strpos($path, '/') !== 0) {
+      $paths[$k] = realpath(getcwd() . DIRECTORY_SEPARATOR . $path);
+    }
+
+    if (!$paths[$k] || !is_readable($paths[$k])) {
+      die(sprintf('ERROR: Unable to read a "%s" path to scan.', $path));
+    }
   }
 
-  if (!is_readable($path)) {
-    die('ERROR: Unable to read a path to scan.');
-  }
-  $options['path'] = $path;
+  $options['paths'] = $paths;
 
   $exclude_file = $options['exclude-file'];
-
   if ($exclude_file) {
     if (strpos($exclude_file, './') !== 0 && strpos($exclude_file, '/') !== 0) {
       $exclude_file = getcwd() . DIRECTORY_SEPARATOR . $exclude_file;
@@ -151,27 +161,39 @@ function init_cli_args_and_options($argv, $argc) {
     $options['markdown'] = $options['markdown'] == 'table' ? 'table' : (is_readable($options['markdown']) ? file_get_contents($options['markdown']) : FALSE);
   }
 
+  if ($options['ticks-list'] !== FALSE) {
+    // A comma-separated list of strings or a file with additional "code" items.
+    $options['ticks-list'] = is_readable($options['ticks-list'])
+      ? array_filter(explode("\n", file_get_contents($options['ticks-list'])))
+      : array_filter(explode(',', $options['ticks-list']));
+  }
+
+  set_config('debug', $options['debug']);
   set_config('markdown', $options['markdown']);
   set_config('exclude_file', $options['exclude-file']);
   set_config('csv_delim', $options['csv-delim']);
   set_config('ticks', $options['ticks']);
+  set_config('ticks_list', $options['ticks-list']);
   set_config('slugify', $options['slugify']);
   set_config('unset_value', $options['unset']);
   set_config('filter_prefix', $options['filter-prefix']);
   set_config('filter_global', $options['filter-global']);
-  set_config('path', $options['path']);
+  set_config('paths', $options['paths']);
 }
 
-function get_targets($path) {
+function get_targets($paths) {
   $files = [];
-  if (is_file($path)) {
-    $files[] = $path;
-  }
-  else {
-    if (is_readable($path . '/.env')) {
-      $files[] = $path . '/.env';
+
+  foreach ($paths as $path) {
+    if (is_file($path)) {
+      $files[] = $path;
     }
-    $files = array_merge($files, glob($path . '/*.{bash,sh}', GLOB_BRACE));
+    else {
+      if (is_readable($path . '/.env')) {
+        $files[] = $path . '/.env';
+      }
+      $files = array_merge($files, glob($path . '/*.{bash,sh}', GLOB_BRACE));
+    }
   }
 
   return $files;
@@ -331,6 +353,14 @@ function process_description_ticks($variables) {
 
     // Convert digits to code values.
     $variable['description'] = preg_replace('/\b((?<!`)[0-9]+)\b/', '`${1}`', $variable['description']);
+
+    // Process all additional code items.
+    if (get_config('ticks_list')) {
+      foreach (get_config('ticks_list') as $token) {
+        $token = trim($token);
+        $variable['description'] = preg_replace('/\b((?<!`)' . $token . ')\b/', '`${1}`', $variable['description']);
+      }
+    }
 
     $variables[$k] = $variable;
   }

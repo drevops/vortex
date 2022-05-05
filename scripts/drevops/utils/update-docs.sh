@@ -2,6 +2,9 @@
 ##
 # Update docs.
 #
+# @usage
+# cd scripts/drevops/utils && ./update-docs.sh
+#
 # shellcheck disable=SC2129
 
 set -e
@@ -10,9 +13,8 @@ set -e
 sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
 
 var_file=../docs/variables.md
-#cat $var_file | tr '\n' '\r' | sed 's/## Variables list.*//'  | tr '\r' '\n' > ../docs/variables.md
 sed "${sed_opts[@]}" '/## Variables list/,$d' "$var_file"
 
 echo "## Variables list" >> $var_file
 echo >> $var_file
-./extract-shell-variables.php  -t -s --markdown=extract-shell-variables-template.md -e ./extract-shell-variables-excluded.txt -u "<NOT SET>" ../../../ >> $var_file
+./extract-shell-variables.php -t -s -l extract-shell-variables-ticks-included.txt --filter-global --markdown=extract-shell-variables-template.md -e ./extract-shell-variables-excluded.txt -u "UNDEFINED" ../../../.env .. >> $var_file

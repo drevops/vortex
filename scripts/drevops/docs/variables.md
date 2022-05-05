@@ -37,21 +37,21 @@ Path to the root of the project inside of the container.
 
 Default value: `app`
 
-### `DREVOPS_BUILD_VERBOSE`
+### `DREVOPS_BUILD_CODE_EXPORT_DIR`
 
-Starting containers will suppress STDOUT output, but will still show any STDERR output. Set this to `1` to allow STDOUT output.
+Export code built within containers before adding development dependencies. This usually is not used locally, but used when production-grade code (without dev dependencies) is used.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_COMMIT`
 
-Allows to pin DrevOps to a specific commit when updating with `ahoy update`. If this is not set, the latest release of DrevOps for specified [`$DREVOPS_DRUPAL_VERSION`](#drevops_drupal_version) will be used.
+Allow providing custom DrevOps commit hash to download the sources from.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_COMPOSER_VALIDATE_LOCK`
 
-Validate composer lock file.
+Validate `composer.lock` file.
 
 Default value: `1`
 
@@ -65,13 +65,19 @@ Default value: `data`
 
 Database-in-Docker-image database storage. Allows to store database in Docker image for local development and in CI. This allows to avoid waiting for long database imports for large databases when bulding sites. Note that the source database coming from the production environment can still be imported as a dump file if [`$DREVOPS_DB_DOWNLOAD_SOURCE`](#drevops_db_download_source)!=docker_registry or can be using previsous version of the image if [`$DREVOPS_DB_DOWNLOAD_SOURCE`](#drevops_db_download_source)=docker_registry. Database image name in format <org>/<image_name>:<label>. Use drevops/drevops-mariadb-drupal-data as a starting Docker image for your Database-in-Docker-image database. @see https://github.com/drevops/mariadb-drupal-data IMPORATANT! Providing a value for this variable switches the database storage mechanism and other underlying operations to use database-in-Docker-image for development and CI, so be cautios when making this change (i.e. the workflow is controlled from a single variable, which means that "with great power comes great responsibility").
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_CURL_URL`
 
 Database dump file source: CURL. Provide a URL to the DB dump file with optional HTTP Basic Authentication creadentials embedded into URL value.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
+
+### `DREVOPS_DB_DOWNLOAD_FORCE`
+
+Flag to force DB download even if the cache exists. Usually set in CircleCI UI to override per build cache.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_FILE`
 
@@ -81,11 +87,11 @@ Default value: `db.sql`
 
 Database dump file source: FTP. Note that for CI, these variables should be set through UI.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_PASS`
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_PORT`
 
@@ -93,13 +99,85 @@ Default value: `21`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_USER`
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT`
 
 Lagoon environment to download DB from.
 
 Default value: `master`
+
+### `DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT`
+
+Lagoon project name.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR`
+
+Remote DB dump directory location.
+
+Default value: `tmp`
+
+### `DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE`
+
+Remote DB dump file name. Cached by the date suffix.
+
+Default value: `db_$(date +%Y_%m_%d).sql`
+
+### `DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP`
+
+Wildcard file name to cleanup previously created dump files. Cleanup runs only if the variable is set and [`$DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE`](#drevops_db_download_lagoon_remote_file) does not exist.
+
+Default value: `db_*.sql`
+
+### `DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT`
+
+The SSH key fingerprint. If provided - the key will be looked-up and loaded into ssh client.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST`
+
+The SSH host of the Lagoon environment.
+
+Default value: `ssh.lagoon.amazeeio.cloud`
+
+### `DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE`
+
+The SSH key used to SSH into Lagoon.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DB_DOWNLOAD_LAGOON_SSH_PORT`
+
+The SSH port of the Lagoon environment.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER`
+
+The SSH user of the Lagoon environment.
+
+Default value: `DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT`
+
+### `DREVOPS_DB_DOWNLOAD_POST_PROCESS`
+
+Post process command or a script used for running after the database was downloaded.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DB_DOWNLOAD_PROCEED`
+
+Kill-switch to proceed with download.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DB_DOWNLOAD_REFRESH`
+
+Flag to download a fresh copy of the database.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_SOURCE`
 
@@ -111,7 +189,7 @@ Default value: `curl`
 
 Set to `1` in order to enable DB exporting before importing. Useful to backup DB during development.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_FILE`
 
@@ -119,23 +197,223 @@ Database dump file name. Note that Docker image archive will use the same file n
 
 Default value: `db.sql`
 
+### `DREVOPS_DB_IMPORT_PROGRESS`
+
+Flag to use database import progress indicator (pv).
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DB_OVERWRITE_EXISTING`
+
+Flag to always overwrite existing database. Usually set to `0` in deployed environments.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_DEBUG`
 
-Set to `1` to print debug information in DrevOps scripts.
+Default value: `UNDEFINED`
 
-Default value: `<NOT SET>`
+### `DREVOPS_DEPLOY_BRANCH`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_CODE_GIT_BRANCH`
+
+Remote repository branch. Can be a specific branch or a token. @see https://github.com/drevops/git-artifact#token-support
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_CODE_GIT_REMOTE`
+
+Remote repository to push code to.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL`
+
+Name of the user who will be committing to a remote repository.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_CODE_GIT_USER_NAME`
+
+Email address of the user who will be committing to a remote repository.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_CODE_REPORT_FILE`
+
+Deployment report file name.
+
+Default value: `DREVOPS_DEPLOY_CODE_ROOT`
+
+### `DREVOPS_DEPLOY_CODE_ROOT`
+
+The root directory where the deployment script should run from. Defaults to the current directory.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_CODE_SRC`
+
+Source of the code to be used for artifact building.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_CODE_SSH_FILE`
+
+Default SSH file used if custom fingerprint is not provided.
+
+Default value: `HOME`
+
+### `DREVOPS_DEPLOY_CODE_SSH_FINGERPRINT`
+
+SSH key fingerprint used to connect to remote. If not used, the currently loaded default SSH key (the key used for code checkout) will be used or deployment will fail with an error if the default SSH key is not loaded. In most cases, the default SSH key does not work (because it is a read-only key used by CircleCI to checkout code from git), so you should add another deployment key.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_DOCKER_IMAGE_TAG`
+
+The tag of the image to push to. Defaults to 'latest'.
+
+Default value: `latest`
+
+### `DREVOPS_DEPLOY_DOCKER_MAP`
+
+Comma-separated map of docker services and images to use for deployment in format "service1=org/image1,service2=org/image2".
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_DOCKER_REGISTRY`
+
+Docker registry name. Provide port, if required as <server_name>:<port>. Defaults to DockerHub.
+
+Default value: `docker.io`
+
+### `DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME`
+
+Docker registry credentials to read and write Docker images. Note that for CI, these variables should be set through UI.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_LAGOON_ACTION`
+
+Default value: `create`
+
+### `DREVOPS_DEPLOY_LAGOON_BRANCH`
+
+The Lagoon branch to deploy.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_LAGOON_INSTANCE`
+
+The Lagoon instance to interact with.
+
+Default value: `amazeeio`
+
+### `DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH`
+
+Location of the Lagoon CLI binary.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL`
+
+Flag to force the installation of Lagoon CLI.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_LAGOON_PR`
+
+The PR number to deploy.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_LAGOON_PROJECT`
+
+The Lagoon project to perform deployment for.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_LAGOON_PR_BASE_BRANCH`
+
+The PR base branch (the branch the PR is raised against). Defaults to 'develop'.
+
+Default value: `develop`
+
+### `DREVOPS_DEPLOY_LAGOON_PR_HEAD`
+
+The PR head branch to deploy.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_LAGOON_SSH_FILE`
+
+Default SSH file used if custom fingerprint is not provided.
+
+Default value: `HOME`
+
+### `DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT`
+
+SSH key fingerprint used to connect to remote. If not used, the currently loaded default SSH key (the key used for code checkout) will be used or deployment will fail with an error if the default SSH key is not loaded. In most cases, the default SSH key does not work (because it is a read-only key used by CircleCI to checkout code from git), so you should add another deployment key.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_PR`
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_PROCEED`
 
 Flag to proceed with deployment. Set to "`1`" once the deployment configuration is configured in CI and is ready. @see scripts/drevops/deploy-<type>.sh for more variables.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_SKIP`
+
+Flag to allow skipping of a deployment using additional flags. Different to [`$DREVOPS_DEPLOY_PROCEED`](#drevops_deploy_proceed) in a way that [`$DREVOPS_DEPLOY_PROCEED`](#drevops_deploy_proceed) is a failsafe to prevent any deployments, while [`$DREVOPS_DEPLOY_SKIP`](#drevops_deploy_skip) allows to selectively skip certain deployments using '[`$DREVOPS_DEPLOY_SKIP`](#drevops_deploy_skip)_PR_<NUMBER>' and '[`$DREVOPS_DEPLOY_SKIP`](#drevops_deploy_skip)_BRANCH_<SAFE_BRANCH>' variables.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_TYPE`
 
 The type of deployemt. Combination of comma-separated values to support multiple deployments: "code", "docker", "webhook", "lagoon".
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_WEBHOOK_METHOD`
+
+Webhook call method.
+
+Default value: `GET`
+
+### `DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS`
+
+The status code of the expected response.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_WEBHOOK_URL`
+
+The URL of the webhook to call. Note that any tokens should be added to the value of this variable outside this script.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCKER_IMAGE`
+
+Docker image passed as a first argument to this script in a form of <org>/<repository>.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCKER_IMAGE_ARCHIVE`
+
+Docker image archive file to restore passed as a second argument to this script.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DOCKER_REGISTRY`
 
@@ -145,61 +423,163 @@ Default value: `docker.io`
 
 ### `DREVOPS_DOCKER_REGISTRY_TOKEN`
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DOCKER_REGISTRY_USERNAME`
 
 Docker registry credentials to read and write Docker images. Note that for CI, these variables should be set through UI.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCKER_SERVICE_NAME`
+
+The service name to capture. Optional. Defaults to "mariadb".
+
+Default value: `mariadb`
+
+### `DREVOPS_DOCKER_VERBOSE`
+
+Print debug information from Docker build.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCTOR_CHECK_BOOTSTRAP`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCTOR_CHECK_CONTAINERS`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCTOR_CHECK_MINIMAL`
+
+Shortcut to set variables for minimal requirements checking.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCTOR_CHECK_PORT`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCTOR_CHECK_PREFLIGHT`
+
+Check all pre-requisites before starting the stack.
+
+Default value: `ahoy doctor`
+
+### `DREVOPS_DOCTOR_CHECK_PYGMY`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCTOR_CHECK_SSH`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCTOR_CHECK_TOOLS`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCTOR_CHECK_WEBSERVER`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCTOR_SSH_KEY_FILE`
+
+Default value: `HOME`
 
 ### `DREVOPS_DRUPAL_ADMIN_EMAIL`
 
-Drupal admin email. Leave empty to not reset.
+User mail could have been sanitized - setting it back to a pre-defined mail.
 
-Default value: `webmaster@your-site-url`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DRUPAL_BUILD_WITH_MAINTENANCE_MODE`
 
-Set to `1` to put the site into a maintenance mode during deployment.
+Put the site into a maintenance mode during the build.
 
 Default value: `1`
+
+### `DREVOPS_DRUPAL_CONFIG_LABEL`
+
+Config label.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DRUPAL_CONFIG_PATH`
+
+Path to configuration directory.
+
+Default value: `DREVOPS_APP`
+
+### `DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE`
+
+Path to file with custom sanitization SQL queries. To skip custom sanitization, remove the [`$DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE`](#drevops_drupal_db_sanitize_additional_file) file from the codebase.
+
+Default value: `DREVOPS_APP`
 
 ### `DREVOPS_DRUPAL_DB_SANITIZE_EMAIL`
 
-Sanitization email pattern.
+Sanitization email pattern. Sanitisation is enabled by default in all non-production environments. @see https://docs.drevops.com/build#sanitization
 
 Default value: `uid@your-site-url`
 
-### `DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL`
+### `DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD`
 
-Replace username with email. Useful on sites where username is email.
+Database sanitized account password replacement.
 
-Default value: `1`
+Default value: `RANDOM`
+
+### `DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_WITH_EMAIL`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DRUPAL_DB_SANITIZE_SKIP`
+
+Flag to skip DB sanitization.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DRUPAL_FORCE_FRESH_INSTALL`
 
 Set to `1` to force fresh install even if the site exists. Useful for profile-based deployments into existing environments.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
+
+### `DREVOPS_DRUPAL_PRIVATE_FILES`
+
+Path to private files.
+
+Default value: `DREVOPS_APP`
 
 ### `DREVOPS_DRUPAL_PROFILE`
 
-Drupal profile name.
+Drupal profile name (used only when installing from profile).
 
 Default value: `your_site_profile`
 
 ### `DREVOPS_DRUPAL_SITE_EMAIL`
 
-Drupal site name.
+Drupal site email (used only when installing from profile).
 
 Default value: `webmaster@your-site-url`
 
 ### `DREVOPS_DRUPAL_SITE_NAME`
 
-Drupal site name.
+Drupal site name (used only when installing from profile).
 
 Default value: `YOURSITE`
+
+### `DREVOPS_DRUPAL_SKIP_DB_IMPORT`
+
+Flag to skip DB import.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT`
+
+Flag to skip running post DB import commands.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DRUPAL_THEME`
 
@@ -209,7 +589,7 @@ Default value: `your_site_theme`
 
 ### `DREVOPS_DRUPAL_UNBLOCK_ADMIN`
 
-Unblock admin account during deployment.
+Unblock admin account after build finishes.
 
 Default value: `1`
 
@@ -219,11 +599,43 @@ Drupal version.
 
 Default value: `9`
 
+### `DREVOPS_GITHUB_DELETE_EXISTING_LABELS`
+
+Delete existing labels to mirror the list below.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_GITHUB_REPO`
+
+GitHub repository as "org/name" to perform operations on.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_GITHUB_TOKEN`
+
+!/usr/bin/env bash Update project labels in GitHub. @usage: Interactive prompt: ./github-labels
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_HOST_DB_PORT`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_HOST_SOLR_PORT`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_INSTALLER_URL`
+
+The URL of the installer script.
+
+Default value: `https://raw.githubusercontent.com/drevops/drevops/${DREVOPS_DRUPAL_VERSION:-9`
+
 ### `DREVOPS_LAGOON_INTEGRATION_COMPLETE`
 
 Set this to `1` once Lagoon integration is complete. This will provide access to Lagoon environments from the CLI container.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_LAGOON_PRODUCTION_BRANCH`
 
@@ -233,33 +645,39 @@ Default value: `master`
 
 ### `DREVOPS_LINT_BE_ALLOW_FAILURE`
 
-Flag to allow BE code linting failures.
+Allow BE code linting failures.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_LINT_FE_ALLOW_FAILURE`
 
-Flag to allow FE code linting failures.
+Allow FE code linting failures.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_LINT_PHPCS_TARGETS`
 
-Comma-separated list of PHPCS targets (no spaces).
+PHPCS comma-separated list of targets.
 
 Default value: `docroot/profiles/custom/your_site_profile, docroot/modules/custom, docroot/themes/custom, docroot/sites/default/settings.php, tests`
 
 ### `DREVOPS_LINT_PHPLINT_EXTENSIONS`
 
-PHP Parallel Lint extensions as a comma-separated list of extensions with no preceding dot or space.
+PHP Parallel Lint comma-separated list of extensions (no preceding dot).
 
 Default value: `php, inc, module, theme, install`
 
 ### `DREVOPS_LINT_PHPLINT_TARGETS`
 
-PHP Parallel Lint targets as a comma-separated list of extensions with no preceding dot or space.
+PHP Parallel Lint comma-separated list of targets.
 
 Default value: `docroot/profiles/custom/your_site_profile, docroot/modules/custom, docroot/themes/custom, docroot/sites/default/settings.php, tests`
+
+### `DREVOPS_LINT_TYPE`
+
+Provide argument as 'be' or 'fe' to lint only back-end or front-end code. If no argument is provided, all code will be linted.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_LOCALDEV_URL`
 
@@ -269,7 +687,7 @@ Default value: `your-site.docker.amazee.io`
 
 ### `DREVOPS_MARIADB_HOST`
 
-Database connection details. Note that these are not used in production.
+Database connection details (these are not used in production).
 
 Default value: `mariadb`
 
@@ -285,33 +703,191 @@ Default value: `3306`
 
 Default value: `drupal`
 
+### `DREVOPS_NOTIFY_DEPLOYMENT_SKIP`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_BRANCH`
+
+Deployment reference, such as a git SHA.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE`
+
+Deployment environment type: production, uat, dev, pr.
+
+Default value: `PR`
+
+### `DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL`
+
+Deployment environment URL.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION`
+
+Operation type: start or finish.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN`
+
+JIRA token.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION`
+
+State to move the ticket to.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_JIRA_USER`
+
+JIRA user.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_REF`
+
+Deployment reference, such as a git SHA.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_REPOSITORY`
+
+Deployment repository.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_GITHUB_TOKEN`
+
+Deployment GitHub token.
+
+Default value: `GITHUB_TOKEN`
+
+### `DREVOPS_NOTIFY_JIRA_ENDPOINT`
+
+JIRA API endpoint.l
+
+Default value: `https://jira.atlassian.com`
+
+### `DREVOPS_NOTIFY_NEWRELIC_APIKEY`
+
+The API key. Usually of type 'USER'.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_NEWRELIC_APPID`
+
+Optional Application ID. Will be discovered automatically from application name if not provided.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_NEWRELIC_APPNAME`
+
+Application name as it appears in the dashboard.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_NEWRELIC_CHANGELOG`
+
+Optional deployment changelog. Defaults to description.
+
+Default value: `DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION`
+
+### `DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION`
+
+Optional deployment description.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_NEWRELIC_ENDPOINT`
+
+Optional endpoint.
+
+Default value: `https://api.newrelic.com/v2`
+
+### `DREVOPS_NOTIFY_NEWRELIC_USER`
+
+Optional user name performing the deployment.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_PROJECT`
 
 Project name.
 
 Default value: `your_site`
 
+### `DREVOPS_SHOW_LOGIN_LINK`
+
+Show project information and a one-time login link.
+
+Default value: `ahoy info`
+
+### `DREVOPS_TEST_ARTIFACT_DIR`
+
+Directory to store test artifact files.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_TEST_BDD_ALLOW_FAILURE`
 
-Flag to allow BDD tests to fail.
+Allow BDD tests failures.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
+
+### `DREVOPS_TEST_BEHAT_FORMAT`
+
+Behat format. Optional. Defaults to "pretty".
+
+Default value: `pretty`
+
+### `DREVOPS_TEST_BEHAT_PARALLEL_INDEX`
+
+Behat test runner index. If is set  - the value is used as a suffix for the parallel Behat profile name (e.g., p0, p1).
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TEST_BEHAT_PROFILE`
+
+Behat profile name. Optional. Defaults to "default".
+
+Default value: `default`
 
 ### `DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE`
 
-Flag to allow Functional tests to fail.
+Allow custom Functional tests failures.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_TEST_KERNEL_ALLOW_FAILURE`
 
-Flag to allow Kernel tests to fail.
+Allow custom Kernel tests failures.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
+
+### `DREVOPS_TEST_REPORTS_DIR`
+
+Directory to store test result files.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TEST_TYPE`
+
+Get test type or fallback to defaults.
+
+Default value: `unit-kernel-functional-bdd`
 
 ### `DREVOPS_TEST_UNIT_ALLOW_FAILURE`
 
-Flag to allow Unit tests to fail.
+Allow custom Unit tests failures.
 
-Default value: `<NOT SET>`
+Default value: `UNDEFINED`
 

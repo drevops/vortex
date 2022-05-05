@@ -3,7 +3,7 @@
 ##
 # Build project.
 #
-# IMPORTANT! This script runs outside of the container on the host system.
+# IMPORTANT! This script runs outside the container on the host system.
 # It is used to orchestrate other commands to "build" the project. Similar
 # approach is used by hosting providers when code is received. For example,
 # Acquia runs "hooks" (provided in "hooks" directory), Lagoon runs build steps
@@ -11,6 +11,12 @@
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
+
+# Print debug information in DrevOps scripts.
+DREVOPS_DEBUG="${DREVOPS_DEBUG:-}"
+
+# Print debug information from Docker build.
+DREVOPS_DOCKER_VERBOSE="${DREVOPS_DOCKER_VERBOSE:-}"
 
 echo "==> Building project."
 
@@ -53,7 +59,7 @@ if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
 fi
 
 # Running 'ahoy up' directly will show the build progress.
-[ "${DREVOPS_BUILD_VERBOSE}" = "1" ] && build_verbose_output="/dev/stdout" || build_verbose_output="/dev/null"
+[ "${DREVOPS_DOCKER_VERBOSE}" = "1" ] && build_verbose_output="/dev/stdout" || build_verbose_output="/dev/null"
 ahoy up -- --build --force-recreate > "${build_verbose_output}"
 
 # Export code built within containers before adding development dependencies.

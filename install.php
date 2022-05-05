@@ -342,10 +342,10 @@ function process__database_download_source($dir) {
   file_replace_content('/DREVOPS_DB_DOWNLOAD_SOURCE=.*/', "DREVOPS_DB_DOWNLOAD_SOURCE=$type", $dir . '/.env');
 
   if ($type == 'docker_registry') {
-    remove_token_with_content('!DREVOPS_DATABASE_DOWNLOAD_SOURCE_DOCKER_REGISTRY', $dir);
+    remove_token_with_content('!DREVOPS_DB_DOWNLOAD_SOURCE_DOCKER_REGISTRY', $dir);
   }
   else {
-    remove_token_with_content('DREVOPS_DATABASE_DOWNLOAD_SOURCE_DOCKER_REGISTRY', $dir);
+    remove_token_with_content('DREVOPS_DB_DOWNLOAD_SOURCE_DOCKER_REGISTRY', $dir);
   }
 }
 
