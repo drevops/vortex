@@ -11,7 +11,7 @@ load _helper_drevops
   assert_contains "drevops" "${BUILD_DIR}"
 }
 
-@test "Install into empty directory" {
+@test "Install into empty directory only" {
   run_install_quiet
 
   assert_files_present
@@ -203,7 +203,6 @@ load _helper_drevops
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=curl"
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL="
-  assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE="
 }
 
 @test "Install into empty directory; db from curl; storage is Docker image" {

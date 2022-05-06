@@ -97,5 +97,7 @@ nav:
   - About: index.md
   - Variables: variables.md
   - Docker: docker.md
+  - Database: database.md
   - Build: build.md
+  - Deployment: deployment.md
   - Maintenance: maintenance.md

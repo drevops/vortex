@@ -63,47 +63,55 @@ Default value: `1`
 
 ### `DREVOPS_DB_DIR`
 
-Directory with database dump data (file or Docker image archive).
+Database dump data directory (file or Docker image archive).
 
 Default value: `data`
 
 ### `DREVOPS_DB_DOCKER_IMAGE`
 
-Database-in-Docker-image database storage.<br/>Allows to store database in Docker image for local development and in CI. This allows to avoid waiting for long database imports for large databases when bulding sites.<br/>Note that the source database coming from the production environment can still be imported as a dump file if [`$DREVOPS_DB_DOWNLOAD_SOURCE`](#drevops_db_download_source)!=docker_registry` or can be using previsous version of the image if [`$DREVOPS_DB_DOWNLOAD_SOURCE`](#drevops_db_download_source)=docker_registry`.<br/>Database image name in format `<org>/<image_name>:<label>`.<br/>Use `drevops/drevops-mariadb-drupal-data` as a starting Docker image for your Database-in-Docker-image database. @see https://github.com/drevops/mariadb-drupal-data<br/>IMPORATANT! Providing a value for this variable switches the database storage mechanism and other underlying operations to use database-in-Docker-image for development and CI, so be cautios when making this change (i.e. the workflow is controlled from a single variable, which means that "with great power comes great responsibility").
+Name of the database docker image to use. Uncomment to use an image with a DB data loaded into it. @see https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_CURL_URL`
 
-Database dump file source: CURL. Provide a URL to the DB dump file with optional HTTP Basic Authentication creadentials embedded into URL value.
+Database dump file source from CURL, with optional HTTP Basic Authentication credentials embedded into the value.
 
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_FORCE`
 
-Flag to force DB download even if the cache exists. Usually set in CircleCI UI to override per build cache.
+Always override existing downloaded DB dump. Leave empty to always ask before overwriting existing DB dump.
 
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_FILE`
 
+Database dump FTP file name.
+
 Default value: `db.sql`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_HOST`
 
-Database dump file source: FTP. Note that for CI, these variables should be set through UI.
+Database dump FTP host.
 
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_PASS`
 
+Database dump FTP password.
+
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_PORT`
 
+Database dump FTP port.
+
 Default value: `21`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_USER`
+
+Database dump FTP user.
 
 Default value: `UNDEFINED`
 
@@ -187,9 +195,15 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_SOURCE`
 
-Where the database is downloaded from: - "url" - directly from URL as a file using CURL. - "ftp" - directly from FTP as a file using CURL. - "acquia" - from latest Acquia backup via Cloud API as a file. - "lagoon" - from Laggon master enveronment as a file. - "docker_registry" - from the docker registry as a docker image. - "none" - not downloaded, site is freshly installed for every build.<br/>Note that "docker_registry" works only for database-in-Docker-image database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) variable has a value).
+Database can be sourced from one of the following locations: - "url" - directly from URL as a file using CURL. - "ftp" - directly from FTP as a file using CURL. - "acquia" - from the latest Acquia backup via Cloud API as a file. - "lagoon" - from Lagoon master enveronment as a file. - "docker_registry" - from the docker registry as a docker image. - "none" - not downloaded, site is freshly installed for every build.<br/>Note that "docker_registry" works only for database-in-Docker-image database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) variable has a value).
 
 Default value: `curl`
+
+### `DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE`
+
+SSH key file used to access Lagoon environment to download the database. Create an SSH key and add it to your account in the Lagoon Dashboard.
+
+Default value: `HOME/.ssh/id_rsa`
 
 ### `DREVOPS_DB_EXPORT_BEFORE_IMPORT`
 
@@ -199,7 +213,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_FILE`
 
-Database dump file name. Note that Docker image archive will use the same file name, but with '.tar' extension.
+Database dump file name (Docker image archive will use '.tar' extension).
 
 Default value: `db.sql`
 
@@ -387,9 +401,9 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_TYPE`
 
-The type of deployemt. Combination of comma-separated values to support multiple deployments: "code", "docker", "webhook", "lagoon".
+Combination of comma-separated values to support multiple deployments: "code", "docker", "webhook", "lagoon".
 
-Default value: `UNDEFINED`
+Default value: `code`
 
 ### `DREVOPS_DEPLOY_WEBHOOK_METHOD`
 
@@ -423,7 +437,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DOCKER_REGISTRY`
 
-Docker registry.
+Docker registry
 
 Default value: `docker.io`
 
@@ -637,18 +651,6 @@ The URL of the installer script.
 
 Default value: `https://raw.githubusercontent.com/drevops/drevops/${DREVOPS_DRUPAL_VERSION:-9`
 
-### `DREVOPS_LAGOON_INTEGRATION_COMPLETE`
-
-Set this to `1` once Lagoon integration is complete. This will provide access to Lagoon environments from the CLI container.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_LAGOON_PRODUCTION_BRANCH`
-
-Dedicated branch to identify production environment. See settings.php for more details.
-
-Default value: `master`
-
 ### `DREVOPS_LINT_BE_ALLOW_FAILURE`
 
 Allow BE code linting failures.
@@ -831,6 +833,12 @@ Optional user name performing the deployment.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_PRODUCTION_BRANCH`
+
+Dedicated branch to identify production environment.
+
+Default value: `master`
+
 ### `DREVOPS_PROJECT`
 
 Project name.
@@ -902,4 +910,10 @@ Default value: `unit-kernel-functional-bdd`
 Allow custom Unit tests failures.
 
 Default value: `UNDEFINED`
+
+### `LAGOON_PROJECT`
+
+Lagoon project name. Uncomment if different from [`$DREVOPS_PROJECT`](#drevops_project).
+
+Default value: `your_site`
 

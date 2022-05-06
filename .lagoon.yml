@@ -34,7 +34,7 @@ tasks:
     - run:
         name: Backup DB before deployment in production
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_LAGOON_PRODUCTION_BRANCH" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_PRODUCTION_BRANCH" ]; then
             DREVOPS_DB_DIR=/app/docroot/sites/default/files/private/pre_deployment_backups ./scripts/drevops/drupal-export-db.sh
           fi
         service: cli
@@ -61,7 +61,7 @@ tasks:
           # Do not load SSH file to access production environment to download the
           # DB as Lagoon already has the keys loaded into the SSH agent.
           export DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE=false
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_LAGOON_PRODUCTION_BRANCH" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_PRODUCTION_BRANCH" ]; then
             echo "==> Skipping DB download in the production environment."
           else
             # Remove previously saved dumps in this environment.
@@ -79,7 +79,7 @@ tasks:
           # Read DB dump from the temp location instead of '.data'.
           export DREVOPS_DB_DIR=/tmp/data
 
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_LAGOON_PRODUCTION_BRANCH" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_PRODUCTION_BRANCH" ]; then
             # Never overwrite existing DB when production site already exists.
             export DREVOPS_DB_OVERWRITE_EXISTING=0
             # Never unblock admin user in production.

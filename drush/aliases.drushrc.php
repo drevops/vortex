@@ -5,9 +5,8 @@
  * Drush aliases.
  */
 
-// Only enable aliases if Bay integration was fully setup or this is running
-// in Bay.
-if (!getenv('DREVOPS_LAGOON_INTEGRATION_COMPLETE') && !getenv('LAGOON_GIT_BRANCH')) {
+// Only enable aliases if enabled or this is running in Lagoon.
+if (!getenv('DREVOPS_LAGOON_ENABLE_DRUSH_ALIASES') && !getenv('LAGOON_GIT_BRANCH')) {
   return;
 }
 

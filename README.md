@@ -270,7 +270,7 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 ## Local environment setup
 - Make sure that you have latest versions of all required software installed:
   - [Docker](https://www.docker.com/)
-  - [Pygmy](https://pygmy.readthedocs.io/)
+  - [Pygmy](https://github.com/pygmystack/pygmy)
   - [Ahoy](https://github.com/ahoy-cli/ahoy)
 - Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 - Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).
@@ -306,22 +306,6 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 - `ahoy build`
 
 ### Apple M1 adjustments
-
-The AIO supported version of Pygmy does not appear to receive updates any longer,
-appears pygmy-go is the de-facto standard going forward. There is not a stable
-release with Apple Silicon support yet, however the following dev branch is
-entirely functional, so we need to build from sources.
-
-```
-pygmy down && pygmy-go down
-git clone --branch arm_testing git@github.com:tobybellwood/pygmy-go.git ./pygmy-go-dev
-cd ./pygmy-go-dev
-make build
-cd builds
-cp pygmy-go-darwin-arm64 $(which pygmy)
-pygmy version # should output 'Pygmy version unidentifiable.'
-pygmy up
-```
 
 Copy `default.docker-compose.override.yml` to `docker-compose.override.yml`.
 

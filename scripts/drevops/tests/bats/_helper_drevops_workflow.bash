@@ -38,6 +38,11 @@ prepare_sut() {
   mkdir -p .idea
   touch .idea/idea_file.txt
   assert_file_exists .idea/idea_file.txt
+
+  if [ "$(uname -m)" = 'arm64' ]; then
+    substep "Override local Docker Compose for ARM."
+    cp default.docker-compose.override.yml docker-compose.override.yml
+  fi
 }
 
 assert_ahoy_download_db() {
@@ -320,7 +325,7 @@ assert_ahoy_lint() {
 }
 
 assert_ahoy_test_unit() {
-  step "Run unit tests"
+  step "Run Drupal Unit tests"
 
   ahoy test-unit
 
@@ -349,11 +354,11 @@ assert_ahoy_test_unit() {
 }
 
 assert_ahoy_test_kernel() {
-  step "Run Kernel tests"
+  step "Run Drupal Kernel tests"
 
   ahoy test-kernel
 
-  step "Assert that Kernel test failure bypassing works"
+  step "Assert that Drupal Kernel test failure bypassing works"
   sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/sw_core/tests/src/Kernel/SwCoreExampleKernelTest.php
   sync_to_container
 
@@ -376,11 +381,11 @@ assert_ahoy_test_kernel() {
 }
 
 assert_ahoy_test_functional() {
-  step "Run Functional tests"
+  step "Run Drupal Functional tests"
 
   ahoy test-functional
 
-  step "Assert that Functional test failure bypassing works"
+  step "Assert that Drupal Functional test failure bypassing works"
   sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/sw_core/tests/src/Functional/SwCoreExampleFunctionalTest.php
   sync_to_container
 
