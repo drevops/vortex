@@ -28,3 +28,24 @@ DREVOPS_DOCKER_REGISTRY=docker.io
 # Note that for CI, these variables should be set through UI.
 DREVOPS_DOCKER_REGISTRY_USERNAME=
 DREVOPS_DOCKER_REGISTRY_TOKEN=
+
+# Skip copying of database between Acquia environments.
+DREVOPS_TASK_COPY_DB_ACQUIA_SKIP=
+
+# Skip copying of files between Acquia environments.
+DREVOPS_TASK_COPY_FILES_ACQUIA_SKIP=
+
+# Skip purging of edge cache in Acquia environments.
+DREVOPS_TASK_PURGE_CACHE_ACQUIA_SKIP=
+
+# Skip Drupal site installation in Acquia environments.
+DREVOPS_TASK_DRUPAL_SITE_INSTALL_ACQUIA_SKIP=
+
+# Skip deployment email notification in Acquia environments.
+DREVOPS_TASK_NOTIFY_DEPLOYMENT_EMAIL_ACQUIA_SKIP=
+
+# New Relic availability flag.
+NEWRELIC_ENABLED=
+
+# New Relic license.
+NEWRELIC_LICENSE=

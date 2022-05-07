@@ -1,1 +1,1 @@
-../../library/flush-varnish.sh
+../../library/purge-cache.sh

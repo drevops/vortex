@@ -1,33 +1,21 @@
 #!/usr/bin/env bash
 ##
-# Acquia Cloud hook: Notify Newrelic.
+# Acquia Cloud hook: Send deployment notification to New Relic.
 #
-# shellcheck disable=SC1090
+# Environment variables must be set in Acquia UI globally or for each environment.
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-SITE="${1}"
-TARGET_ENV="${2}"
-BRANCH="${3}"
-REF="${4}:-${BRANCH}"
+site="${1}"
+target_env="${2}"
+branch="${3}"
+ref="${4}:-${branch}"
 
-# Flag to enable New Relic.
-NEWRELIC_ENABLED="${NEWRELIC_ENABLED:-}"
-
-# New Relic license.
-NEWRELIC_LICENSE="${NEWRELIC_LICENSE:-}"
-
-DREVOPS_NOTIFY_NEWRELIC_APIKEY="${DREVOPS_NOTIFY_NEWRELIC_APIKEY:-}"
-
-# ------------------------------------------------------------------------------
-
-[ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] && echo "Skipping sending of deployment notification." && exit 0
-
-export SCRIPTS_DIR="${SCRIPTS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/scripts"}"
+[ "${DREVOPS_TASK_NOTIFY_DEPLOYMENT_NEWRELIC_ACQUIA_SKIP}" = "1" ] && echo "Skip New Relic deployment notification in Acquia environment." && exit 0
 
 if [ "${NEWRELIC_ENABLED}" = "1" ] && [ -n "${NEWRELIC_LICENSE}" ] && [ -n "${DREVOPS_NOTIFY_NEWRELIC_APIKEY}" ]; then
-  DREVOPS_NOTIFY_NEWRELIC_APPNAME="${SITE}-${TARGET_ENV}" \
-  DREVOPS_NOTIFY_DEPLOY_REF="${REF}" \
-  . "${SCRIPTS_DIR}"/drevops/notify-deployment-newrelic.sh
+  export DREVOPS_NOTIFY_NEWRELIC_APP_NAME="${site}-${target_env}"
+  export DREVOPS_NOTIFY_DEPLOY_REF="${ref}"
+  "/var/www/html/${site}.${target_env}/scripts/drevops/notify-deployment-newrelic.sh"
 fi

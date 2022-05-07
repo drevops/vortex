@@ -281,7 +281,7 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
   1. Create your Acquia Cloud API token:<br/>
      Acquia Cloud UI -> Account -> API tokens -> Create Token
   2. Copy `default.env.local` to `.env.local`.
-  3. Populate `$AC_API_KEY` and `$AC_API_SECRET` environment variables in
+  3. Populate `$DREVOPS_ACQUIA_KEY` and `$DREVOPS_ACQUIA_SECRET` environment variables in
      `.env.local` file with values generated in the step above.
 
 [//]: # (#;> ACQUIA)

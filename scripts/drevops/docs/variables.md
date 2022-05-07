@@ -2,21 +2,30 @@
 
 ## Rules
 
-1. All DrevOps variables MUST start with `DREVOPS_`.<br/>
+1. Local variables are written in lowercase, global - uppercase.
+
+2. All DrevOps variables MUST start with `DREVOPS_`.<br/>
    This is to clearly distinguish between DrevOps and 3rd party variables.
-2. All DrevOps action-specific variables MUST have a prefix. If action has a
-   specific service provider attached - a second prefix MUST be added.<br/>
-   For example, to specify API key for NewRelic deployment notification call,
+
+3. All DrevOps action-specific script variables MUST be namespaced within own
+   script and map their default values to the global DrevOps variables.
+
+4. All DrevOps action-specific variables MUST be namespaced with a prefix.
+   If action has a specific service provider attached - a second prefix MUST
+   be added.<br/>
+   For example, to specify API key for New Relic deployment notification call,
    the variable name is `DREVOPS_NOTIFY_NEWRELIC_API_KEY`, where `NOTIFY` is an
    "action" and `NEWRELIC` is a "service provider".
-3. Project-base variables SHOULD start with `DRUPAL_` prefix and have a second
+
+5. Project-base variables SHOULD start with `DRUPAL_` prefix and have a second
    prefix of the module name.<br/>
    This is to clearly distinguish between DrevOps, 3rd party services variables
    and Drupal variables.<br/>
    For example, to specify a user for Drupal's Shield module configuration,
    use `DRUPAL_SHIELD_USER`, where `DRUPAL` is a prefix and `SHIELD` is a module
    name.
-4. Variables SHOULD NOT be exported into the global scope unless absolutely
+
+6. Variables SHOULD NOT be exported into the global scope unless absolutely
    necessary.<br/>
    Therefore, values in `.env` SHOULD have default values set, but SHOULD be
    commented out. This provides visibility, but prevent global scope exposure.
@@ -31,9 +40,31 @@
 
 ## Variables list
 
+### `AC_API_FILES_SRC_ENV`
+
+Default value: `UNDEFINED`
+
 ### `COMPOSE_PROJECT_NAME`
 
 Docker Compose project name (all containers will have this name). Defaults to the name of the project directory.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_ACQUIA_APP_NAME`
+
+Database dump Acquia application name.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_ACQUIA_KEY`
+
+Acquia Cloud API key.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_ACQUIA_SECRET`
+
+Acquia Cloud API secret.
 
 Default value: `UNDEFINED`
 
@@ -72,6 +103,48 @@ Default value: `data`
 Name of the database docker image to use. Uncomment to use an image with a DB data loaded into it. @see https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 
 Default value: `UNDEFINED`
+
+### `DREVOPS_DB_DOWNLOAD_ACQUIA_APP_NAME`
+
+Application name. Used to discover UUID.
+
+Default value: `DREVOPS_ACQUIA_APP_NAME`
+
+### `DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME`
+
+Database dump Acquia database name.
+
+Default value: `your_site`
+
+### `DREVOPS_DB_DOWNLOAD_ACQUIA_DIR`
+
+Directory where DB dumps are stored.
+
+Default value: `DREVOPS_DB_DIR`
+
+### `DREVOPS_DB_DOWNLOAD_ACQUIA_ENV`
+
+Database dump Acquia database environment.
+
+Default value: `prod`
+
+### `DREVOPS_DB_DOWNLOAD_ACQUIA_FILE`
+
+Database dump file name.
+
+Default value: `DREVOPS_DB_FILE`
+
+### `DREVOPS_DB_DOWNLOAD_ACQUIA_KEY`
+
+Acquia Cloud API key.
+
+Default value: `DREVOPS_ACQUIA_KEY`
+
+### `DREVOPS_DB_DOWNLOAD_ACQUIA_SECRET`
+
+Acquia Cloud API secret.
+
+Default value: `DREVOPS_ACQUIA_SECRET`
 
 ### `DREVOPS_DB_DOWNLOAD_CURL_URL`
 
@@ -803,7 +876,7 @@ Optional Application ID. Will be discovered automatically from application name 
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_NOTIFY_NEWRELIC_APPNAME`
+### `DREVOPS_NOTIFY_NEWRELIC_APP_NAME`
 
 Application name as it appears in the dashboard.
 
@@ -850,6 +923,168 @@ Default value: `your_site`
 Show project information and a one-time login link.
 
 Default value: `ahoy info`
+
+### `DREVOPS_TASK_COPY_DB_ACQUIA_APP_NAME`
+
+Application name. Used to discover UUID.
+
+Default value: `DREVOPS_ACQUIA_APP_NAME`
+
+### `DREVOPS_TASK_COPY_DB_ACQUIA_DST`
+
+Destination environment name to copy DB to.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_COPY_DB_ACQUIA_KEY`
+
+Acquia Cloud API key.
+
+Default value: `DREVOPS_ACQUIA_KEY`
+
+### `DREVOPS_TASK_COPY_DB_ACQUIA_NAME`
+
+Database name to copy.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_COPY_DB_ACQUIA_SECRET`
+
+Acquia Cloud API secret.
+
+Default value: `DREVOPS_ACQUIA_SECRET`
+
+### `DREVOPS_TASK_COPY_DB_ACQUIA_SKIP`
+
+Skip copying of database between Acquia environments.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_COPY_DB_ACQUIA_SRC`
+
+Source environment name to copy DB from.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL`
+
+Interval in seconds to check task status.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_COPY_DB_ACQUIA_STATUS_RETRIES`
+
+Number of status retrieval retries. If this limit reached and task has not yet finished, the task is considered failed.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_COPY_FILES_ACQUIA_APP_NAME`
+
+Application name. Used to discover UUID.
+
+Default value: `DREVOPS_ACQUIA_APP_NAME`
+
+### `DREVOPS_TASK_COPY_FILES_ACQUIA_DST`
+
+Destination environment name to copy to.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_COPY_FILES_ACQUIA_KEY`
+
+Acquia Cloud API key.
+
+Default value: `DREVOPS_ACQUIA_KEY`
+
+### `DREVOPS_TASK_COPY_FILES_ACQUIA_SECRET`
+
+Acquia Cloud API secret.
+
+Default value: `DREVOPS_ACQUIA_SECRET`
+
+### `DREVOPS_TASK_COPY_FILES_ACQUIA_SKIP`
+
+Skip copying of files between Acquia environments.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_COPY_FILES_ACQUIA_SRC`
+
+Source environment name to copy from.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL`
+
+Interval in seconds to check task status.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES`
+
+Number of status retrieval retries. If this limit reached and task has not yet finished, the task is considered failed.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_DRUPAL_SITE_INSTALL_ACQUIA_SKIP`
+
+Skip Drupal site installation in Acquia environments.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_NOTIFY_DEPLOYMENT_EMAIL_ACQUIA_SKIP`
+
+Skip deployment email notification in Acquia environments.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME`
+
+Application name. Used to discover UUID.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE`
+
+File with a list of domains that should be purged.
+
+Default value: `domains.txt`
+
+### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV`
+
+An environment name to purge cache for.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY`
+
+Acquia Cloud API key.
+
+Default value: `DREVOPS_ACQUIA_KEY`
+
+### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET`
+
+Acquia Cloud API secret.
+
+Default value: `DREVOPS_ACQUIA_SECRET`
+
+### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_SKIP`
+
+Skip purging of edge cache in Acquia environments.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL`
+
+Interval in seconds to check task status.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES`
+
+Number of status retrieval retries. If this limit reached and task has not yet finished, the task is considered failed.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_TEST_ARTIFACT_DIR`
 
@@ -911,9 +1146,25 @@ Allow custom Unit tests failures.
 
 Default value: `UNDEFINED`
 
+### `ENV_ID`
+
+Default value: `echo `
+
 ### `LAGOON_PROJECT`
 
 Lagoon project name. Uncomment if different from [`$DREVOPS_PROJECT`](#drevops_project).
 
 Default value: `your_site`
+
+### `NEWRELIC_ENABLED`
+
+New Relic availability flag.
+
+Default value: `UNDEFINED`
+
+### `NEWRELIC_LICENSE`
+
+New Relic license.
+
+Default value: `UNDEFINED`
 

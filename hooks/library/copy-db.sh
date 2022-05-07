@@ -1,26 +1,22 @@
 #!/usr/bin/env bash
 ##
-# Acquia Cloud hook: Copy database from production to the current environment.
+# Acquia Cloud hook: Copy database between environments.
 #
+# Environment variables must be set in Acquia UI globally or for each environment.
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-SITE="${1}"
-TARGET_ENV="${2}"
+site="${1}"
+target_env="${2}"
 
-[ "${SKIP_COPY_FILES}" = "1" ] && echo "Skipping copying of files Varnish." && exit 0
+[ "${DREVOPS_TASK_COPY_DB_ACQUIA_SKIP}" = "1" ] && echo "Skipping copying of database between Acquia environments." && exit 0
 
-export SCRIPTS_DIR="${SCRIPTS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/scripts"}"
-export HOOKS_DIR="${HOOKS_DIR:-"/var/www/html/${SITE}.${TARGET_ENV}/hooks"}"
+export DREVOPS_TASK_COPY_DB_ACQUIA_KEY="${DREVOPS_TASK_COPY_DB_ACQUIA_KEY?not set}"
+export DREVOPS_TASK_COPY_DB_ACQUIA_SECRET="${DREVOPS_TASK_COPY_DB_ACQUIA_SECRET?not set}"
+export DREVOPS_TASK_COPY_DB_ACQUIA_APP_NAME="${DREVOPS_ACQUIA_APP_NAME:-${site}}"
+export DREVOPS_TASK_COPY_DB_ACQUIA_SRC="${DREVOPS_TASK_COPY_DB_ACQUIA_SRC:-prod}"
+export DREVOPS_TASK_COPY_DB_ACQUIA_DST="${DREVOPS_TASK_COPY_DB_ACQUIA_DST:-${target_env}}"
+export DREVOPS_TASK_COPY_DB_ACQUIA_NAME="${DREVOPS_TASK_COPY_DB_ACQUIA_NAME?not set}"
 
-# Site name for AC API.
-export AC_API_APP_NAME="${AC_API_APP_NAME:-${SITE}}"
-
-# Acquia DB deploy details.
-export AC_API_DB_SRC_ENV="${AC_API_FILES_SRC_ENV:-prod}"
-export AC_API_DB_DST_ENV="${AC_API_FILES_DST_ENV:-${TARGET_ENV}}"
-
-# Database name should be set in Acquia UI as a variable.
-export AC_API_DB_NAME="${AC_API_DB_NAME?not set}"
-
-"$SCRIPTS_DIR/drevops/copy-db-acquia.sh"
+"/var/www/html/${site}.${target_env}/scripts/drevops/task-copy-db-acquia.sh"

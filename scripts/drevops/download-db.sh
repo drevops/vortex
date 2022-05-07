@@ -83,7 +83,6 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "curl" ]; then
 fi
 
 if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "acquia" ]; then
-  echo "==> Starting database dump download from Acquia."
   ./scripts/drevops/download-db-acquia.sh
 fi
 

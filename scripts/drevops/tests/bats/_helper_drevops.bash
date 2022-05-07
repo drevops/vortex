@@ -222,8 +222,6 @@ assert_files_present_drevops() {
   # Core DrevOps files.
   assert_file_exists "scripts/drevops/build.sh"
   assert_file_exists "scripts/drevops/clean.sh"
-  assert_file_exists "scripts/drevops/copy-db-acquia.sh"
-  assert_file_exists "scripts/drevops/copy-files-acquia.sh"
   assert_file_exists "scripts/drevops/deploy.sh"
   assert_file_exists "scripts/drevops/deploy-code.sh"
   assert_file_exists "scripts/drevops/deploy-docker.sh"
@@ -252,8 +250,10 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/notify-deployment-github.sh"
   assert_file_exists "scripts/drevops/notify-deployment-jira.sh"
   assert_file_exists "scripts/drevops/notify-deployment-newrelic.sh"
-  assert_file_exists "scripts/drevops/purge-cache-acquia.sh"
   assert_file_exists "scripts/drevops/reset.sh"
+  assert_file_exists "scripts/drevops/task-copy-db-acquia.sh"
+  assert_file_exists "scripts/drevops/task-copy-files-acquia.sh"
+  assert_file_exists "scripts/drevops/task-purge-cache-acquia.sh"
   assert_file_exists "scripts/drevops/test.sh"
   assert_file_exists "scripts/drevops/update.sh"
 
@@ -548,17 +548,21 @@ assert_files_present_integration_acquia() {
 
   assert_dir_exists "hooks"
   assert_dir_exists "hooks/library"
-  assert_file_mode "hooks/library/flush-varnish.sh" "755"
+  assert_file_mode "hooks/library/copy-db.sh" "755"
+  assert_file_mode "hooks/library/copy-files.sh" "755"
   assert_file_mode "hooks/library/install-site.sh" "755"
+  assert_file_mode "hooks/library/notify-deployment-email.sh" "755"
+  assert_file_mode "hooks/library/notify-deployment-newrelic.sh" "755"
+  assert_file_mode "hooks/library/purge-cache.sh" "755"
 
   assert_dir_exists "hooks/common"
   assert_dir_exists "hooks/common/post-code-update"
   assert_symlink_exists "hooks/common/post-code-update/1.install-site.sh"
-  assert_symlink_exists "hooks/common/post-code-update/2.flush-varnish.sh"
+  assert_symlink_exists "hooks/common/post-code-update/2.purge-cache.sh"
   assert_symlink_exists "hooks/common/post-code-update/3.notify-deployment-email.sh"
   assert_symlink_exists "hooks/common/post-code-deploy"
   assert_symlink_exists "hooks/common/post-db-copy/1.install-site.sh"
-  assert_symlink_exists "hooks/common/post-db-copy/2.flush-varnish.sh"
+  assert_symlink_exists "hooks/common/post-db-copy/2.purge-cache.sh"
   assert_symlink_exists "hooks/common/post-db-copy/3.notify-deployment-email.sh"
 
   assert_dir_exists "hooks/prod"
@@ -572,9 +576,9 @@ assert_files_present_integration_acquia() {
 
   if [ "${include_scripts}" -eq 1 ]; then
     assert_dir_exists "scripts"
-    assert_file_contains ".env" "AC_API_APP_NAME="
-    assert_file_contains ".env" "AC_API_DB_ENV="
-    assert_file_contains ".env" "AC_API_DB_NAME="
+    assert_file_contains ".env" "DREVOPS_ACQUIA_APP_NAME="
+    assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
+    assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
   fi
 
   popd >/dev/null || exit 1
@@ -590,12 +594,12 @@ assert_files_present_no_integration_acquia() {
   assert_dir_not_exists "hooks/library"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_not_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
-  assert_file_not_contains ".env" "AC_API_APP_NAME="
-  assert_file_not_contains ".env" "AC_API_DB_ENV="
-  assert_file_not_contains ".env" "AC_API_DB_NAME="
-  assert_file_not_contains ".ahoy.yml" "AC_API_APP_NAME="
-  assert_file_not_contains ".ahoy.yml" "AC_API_DB_ENV="
-  assert_file_not_contains ".ahoy.yml" "AC_API_DB_NAME="
+  assert_file_not_contains ".env" "DREVOPS_ACQUIA_APP_NAME="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
+  assert_file_not_contains ".ahoy.yml" "DREVOPS_ACQUIA_APP_NAME="
+  assert_file_not_contains ".ahoy.yml" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
+  assert_file_not_contains ".ahoy.yml" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
   assert_dir_not_contains_string "${dir}" "AC_API_USER_NAME"
   assert_dir_not_contains_string "${dir}" "AC_API_USER_PASS"
 
