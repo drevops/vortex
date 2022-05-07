@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2046
 ##
 # Build project.
 #
@@ -8,6 +7,13 @@
 # approach is used by hosting providers when code is received. For example,
 # Acquia runs "hooks" (provided in "hooks" directory), Lagoon runs build steps
 # (specified in .lagoon.yml file) etc.
+#
+# shellcheck disable=SC2046
+
+# Read variables from .env and .env.local files, respecting existing environment
+# variable values.
+# shellcheck disable=SC1090,SC1091
+t=$(mktemp) && export -p > "$t" && set -a && . ./.env && if [ -f ./.env.local ];then . ./.env.local;fi && set +a && . "$t" && rm "$t" && unset t
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -23,24 +29,20 @@ echo "==> Building project."
 # Suppress any confirmation dialogs in descendant calls.
 export DREVOPS_CONFIRM_RESPONSE=y
 
-# Read variables from .env file, respecting existing environment variable values.
-# shellcheck disable=SC1090,SC1091
-t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
-
 ## Check all pre-requisites before starting the stack.
-DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 ahoy doctor
+export DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 && ./scripts/drevops/doctor.sh
 
 # Create stub of local network.
 # shellcheck disable=SC2015
-docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network
+docker network prune -f > /dev/null 2>&1 && docker network inspect amazeeio-network > /dev/null 2>&1 || docker network create amazeeio-network > /dev/null 2>&1 || true
 
 # Validate Composer configuration if Composer is installed.
 if command -v composer > /dev/null; then
   if [ "$DREVOPS_COMPOSER_VALIDATE_LOCK" = "1" ]; then
-    echo "==> Validating composer configuration, including lock file."
+    echo "  > Validating composer configuration, including lock file."
     composer validate --ansi --strict --no-check-all
   else
-    echo "==> Validating composer configuration."
+    echo "  > Validating composer configuration."
     composer validate --ansi --strict --no-check-all --no-check-lock
   fi
 fi
@@ -58,25 +60,29 @@ if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
   ./scripts/drevops/docker-restore-image.sh "${DREVOPS_DB_DOCKER_IMAGE}" "${DREVOPS_DB_DIR}/db.tar"
 fi
 
-# Running 'ahoy up' directly will show the build progress.
 [ "${DREVOPS_DOCKER_VERBOSE}" = "1" ] && build_verbose_output="/dev/stdout" || build_verbose_output="/dev/null"
 ahoy up -- --build --force-recreate > "${build_verbose_output}"
 
 # Export code built within containers before adding development dependencies.
-# This usually is not used locally, but used when production-grade code (without
-# dev dependencies) is used.
-if [ -n "${DREVOPS_BUILD_CODE_EXPORT_DIR}" ] ; then
+# Usually this is needed to create a code artifact without development
+# dependencies.
+if [ -n "${DREVOPS_EXPORT_CODE_DIR}" ] ; then
   echo "==> Exporting code before adding development dependencies."
-  mkdir -p "${DREVOPS_BUILD_CODE_EXPORT_DIR}"
-  docker-compose exec --env DREVOPS_BUILD_CODE_EXPORT_DIR="${DREVOPS_BUILD_CODE_EXPORT_DIR}" -T cli ./scripts/drevops/export-code.sh
-  docker cp -L $(docker-compose ps -q cli):"${DREVOPS_BUILD_CODE_EXPORT_DIR}"/. "${DREVOPS_BUILD_CODE_EXPORT_DIR}"
+  mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
+  docker-compose exec --env DREVOPS_EXPORT_CODE_DIR="${DREVOPS_EXPORT_CODE_DIR}" -T cli ./scripts/drevops/export-code.sh
+  # Copy from container to the host.
+  docker cp -L $(docker-compose ps -q cli):"${DREVOPS_EXPORT_CODE_DIR}"/. "${DREVOPS_EXPORT_CODE_DIR}"
 fi
 
 # Create data directory in the container and copy database dump file into
 # container, but only if it exists, while also replacing relative directory path
-# with absolute path. Note, that the DREVOPS_DB_DIR path is the same inside and outside
-# of the container.
-[ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ] && ahoy cli mkdir -p "${DREVOPS_DB_DIR}" && docker cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" $(docker-compose ps -q cli):"${DREVOPS_DB_DIR/.\//${DREVOPS_APP}/}"/"${DREVOPS_DB_FILE}" && echo "==> Copied database file into container."
+# with absolute path. Note, that the DREVOPS_DB_DIR path is the same inside and
+# outside the container.
+if [ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ]; then
+  ahoy cli mkdir -p "${DREVOPS_DB_DIR}"
+  docker cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" $(docker-compose ps -q cli):"${DREVOPS_DB_DIR/.\//${DREVOPS_APP}/}"/"${DREVOPS_DB_FILE}" \
+  && echo "==> Copied database file into container."
+fi
 
 echo "==> Installing development dependencies."
 #
@@ -89,12 +95,12 @@ docker cp -L behat.yml $(docker-compose ps -q cli):/app/
 docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
 docker cp -L tests $(docker-compose ps -q cli):/app/
 # Install all composer dependencies, including development ones.
-# Note that this will create/update composer.lock file.
+# Note that this will create composer.lock file if it does not exist.
 ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install -n --ansi --prefer-dist"
 
 if [ -n "${DREVOPS_DRUPAL_THEME}" ]; then
   # Install all npm dependencies and compile FE assets.
-  # Note that this will create/update package-lock.json file.
+  # Note that this will create package-lock.json file if it does not exist.
   [ -z "${CI}" ] && ahoy fei
   [ -z "${CI}" ] && ahoy fe
 fi
@@ -107,12 +113,15 @@ ahoy install-site
 # database image with existing site, but only for the first time this file
 # is downloaded (we do not want to import it in another stages where cached
 # database image should be used instead of dump file). So we are removing the
-# database dump file after import so it is not imported again on the next run.
-# But this only should be applied in CI and only if we are using database in
-# image storage.
+# database dump file after import so that it is not imported again on the next
+# run. But this only should be applied in CI and only if we are using database
+# in image storage.
 # This also prevent us from caching both dump file and an exported image,
 # which would double the size of the cache.
-if [ -n "${CI}" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ] && [ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ]; then echo "==> Removing DB dump file in CI."; rm "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" || true; fi
+if [ -n "${CI}" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ] && [ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ]; then
+  echo "==> Removing DB dump file in CI.";
+  rm "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" || true;
+fi
 
 # Check that the site is available.
 ahoy doctor
@@ -120,4 +129,4 @@ ahoy doctor
 echo "==> Build complete."
 
 # Show project information and a one-time login link.
-DREVOPS_SHOW_LOGIN_LINK=1 ahoy info
+DREVOPS_DRUPAL_SHOW_LOGIN_LINK=1 ahoy info

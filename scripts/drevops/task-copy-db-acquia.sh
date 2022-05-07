@@ -41,7 +41,7 @@ DREVOPS_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL="${DREVOPS_TASK_COPY_DB_ACQUIA_STATU
 
 #-------------------------------------------------------------------------------
 
-echo "==> Starting database copying from between environments in Acquia."
+echo "==> Started database copying from between environments in Acquia."
 
 #
 # Extract last value from JSON object passed via STDIN.

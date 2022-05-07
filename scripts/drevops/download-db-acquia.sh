@@ -42,7 +42,7 @@ DREVOPS_DB_DOWNLOAD_ACQUIA_FILE="${DREVOPS_DB_DOWNLOAD_ACQUIA_FILE:-${DREVOPS_DB
 
 #-------------------------------------------------------------------------------
 
-echo "==> Starting database dump download from Acquia."
+echo "==> Started database dump download from Acquia."
 
 #
 # Extract last value from JSON object passed via STDIN.

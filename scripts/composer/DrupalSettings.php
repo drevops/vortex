@@ -44,7 +44,7 @@ class DrupalSettings {
       $content = self::getDefaultDrupalSettingsContent($options);
       $fs->dumpFile($options['settings_path'], $content);
       $fs->chmod($options['settings_path'], 0644);
-      $event->getIO()->write(sprintf('Created file %s with chmod 0644', $options['settings_path'] . PHP_EOL . $content));
+      $event->getIO()->write(sprintf('Created file %s with', $options['settings_path']));
     }
     else {
       $event->getIO()->write(sprintf('Skipping creation of Drupal settings file "%s" - file already exists', $options['settings_path']));

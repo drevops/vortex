@@ -26,7 +26,7 @@ DREVOPS_DB_DOWNLOAD_SOURCE="${DREVOPS_DB_DOWNLOAD_SOURCE:-curl}"
 # Flag to download a fresh copy of the database dump if the methods supports it.
 DREVOPS_DB_DOWNLOAD_REFRESH="${DREVOPS_DB_DOWNLOAD_REFRESH:-}"
 
-# Flag to force DB download even if the cache exists.
+# Force DB download even if the cache exists.
 # Usually set in CircleCI UI to override per build cache.
 DREVOPS_DB_DOWNLOAD_FORCE="${DREVOPS_DB_DOWNLOAD_FORCE:-}"
 
@@ -73,12 +73,12 @@ export DREVOPS_DB_FILE
 export DREVOPS_DB_DOWNLOAD_REFRESH
 
 if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "ftp" ]; then
-  echo "==> Starting database dump download from FTP."
+  echo "==> Started database dump download from FTP."
   ./scripts/drevops/download-db-ftp.sh
 fi
 
 if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "curl" ]; then
-  echo "==> Starting database dump download from CURL."
+  echo "==> Started database dump download from CURL."
   ./scripts/drevops/download-db-curl.sh
 fi
 
@@ -87,7 +87,7 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "acquia" ]; then
 fi
 
 if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "lagoon" ]; then
-  echo "==> Starting database dump download from Lagoon."
+  echo "==> Started database dump download from Lagoon."
   export DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT="${DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT:-${LAGOON_PROJECT}}"
   export DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE:-${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}}"
   export DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT:-${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT}}"
@@ -95,8 +95,12 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "lagoon" ]; then
 fi
 
 if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "docker_registry" ]; then
-  echo "==> Starting database dump download from Docker Registry."
-  ./scripts/drevops/download-db-image.sh "${DREVOPS_DB_DOCKER_IMAGE:-}"
+  echo "==> Started database dump download from Docker Registry."
+  export DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE="${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE:-${DREVOPS_DB_DOCKER_IMAGE}}"
+  export DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_USERNAME="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_USERNAME:-${DREVOPS_DOCKER_REGISTRY_USERNAME}}"
+  export DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN:-${DREVOPS_DOCKER_REGISTRY_TOKEN}}"
+  export DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY:-${DREVOPS_DOCKER_REGISTRY:-docker.io}}"
+  ./scripts/drevops/download-db-image.sh
 fi
 
 echo "==> Downloaded database dump file in ${DREVOPS_DB_DIR}."

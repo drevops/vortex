@@ -21,14 +21,6 @@ DREVOPS_DB_DOWNLOAD_FORCE=
 # @see https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 DREVOPS_DB_DOCKER_IMAGE=your_org/your_site:latest
 
-# Docker registry
-DREVOPS_DOCKER_REGISTRY=docker.io
-
-# Docker registry credentials to read and write Docker images.
-# Note that for CI, these variables should be set through UI.
-DREVOPS_DOCKER_REGISTRY_USERNAME=
-DREVOPS_DOCKER_REGISTRY_TOKEN=
-
 # Skip copying of database between Acquia environments.
 DREVOPS_TASK_COPY_DB_ACQUIA_SKIP=
 
@@ -49,3 +41,6 @@ NEWRELIC_ENABLED=
 
 # New Relic license.
 NEWRELIC_LICENSE=
+
+# Proceed with Docker image deployment after it was exported.
+DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED=

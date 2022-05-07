@@ -74,12 +74,6 @@ Path to the root of the project inside of the container.
 
 Default value: `app`
 
-### `DREVOPS_BUILD_CODE_EXPORT_DIR`
-
-Export code built within containers before adding development dependencies. This usually is not used locally, but used when production-grade code (without dev dependencies) is used.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_COMMIT`
 
 Allow providing custom DrevOps commit hash to download the sources from.
@@ -151,6 +145,30 @@ Default value: `DREVOPS_ACQUIA_SECRET`
 Database dump file source from CURL, with optional HTTP Basic Authentication credentials embedded into the value.
 
 Default value: `UNDEFINED`
+
+### `DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE`
+
+The Docker image containing database passed in a form of `<org>/<repository>`.
+
+Default value: `DREVOPS_DB_DOCKER_IMAGE`
+
+### `DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY`
+
+The name of the Docker registry to download the database from.
+
+Default value: `DREVOPS_DOCKER_REGISTRY:-docker.io`
+
+### `DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN`
+
+The token of the docker registry to download the database from.
+
+Default value: `DREVOPS_DOCKER_REGISTRY_TOKEN`
+
+### `DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_USERNAME`
+
+The username of the docker registry to download the database from.
+
+Default value: `DREVOPS_DOCKER_REGISTRY_USERNAME`
 
 ### `DREVOPS_DB_DOWNLOAD_FORCE`
 
@@ -284,13 +302,61 @@ Flag to export database before import.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE`
+
+Docker image archive file name.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DB_EXPORT_DOCKER_DIR`
+
+Directory with database image archive file.
+
+Default value: `DREVOPS_DB_DIR`
+
+### `DREVOPS_DB_EXPORT_DOCKER_IMAGE`
+
+Docker image to store in a form of `<org>/<repository>`.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DB_EXPORT_DOCKER_REGISTRY`
+
+Docker registry name.
+
+Default value: `DREVOPS_DOCKER_REGISTRY:-docker.io`
+
+### `DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME`
+
+The service name to capture.
+
+Default value: `mariadb`
+
+### `DREVOPS_DB_EXPORT_FILE_DIR`
+
+Directory with database dump file.
+
+Default value: `DREVOPS_DB_DIR`
+
 ### `DREVOPS_DB_FILE`
 
 Database dump file name (Docker image archive will use '.tar' extension).
 
 Default value: `db.sql`
 
-### `DREVOPS_DB_IMPORT_PROGRESS`
+### `DREVOPS_DB_IMPORT_FILE_DIR`
+
+Directory with database dump file.
+
+Default value: `DREVOPS_DB_DIR`
+
+### `DREVOPS_DB_IMPORT_FILE_NAME`
+
+Database dump file name.
+
+Default value: `DREVOPS_DB_FILE`
+
+### `DREVOPS_DB_IMPORT_FILE_PROGRESS`
 
 Flag to use database import progress indicator (pv).
 
@@ -378,19 +444,21 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_DOCKER_REGISTRY`
 
-Docker registry name. Provide port, if required as <server_name>:<port>. Defaults to DockerHub.
+The registry of the docker registry to deploy Docker image to.
 
-Default value: `docker.io`
+Default value: `DREVOPS_DOCKER_REGISTRY:-docker.io`
 
 ### `DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN`
 
-Default value: `UNDEFINED`
+The token of the docker registry to deploy Docker image to.
+
+Default value: `DREVOPS_DOCKER_REGISTRY_TOKEN`
 
 ### `DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME`
 
-Docker registry credentials to read and write Docker images. Note that for CI, these variables should be set through UI.
+The username of the docker registry to deploy Docker image to.
 
-Default value: `UNDEFINED`
+Default value: `DREVOPS_DOCKER_REGISTRY_USERNAME`
 
 ### `DREVOPS_DEPLOY_LAGOON_ACTION`
 
@@ -496,39 +564,35 @@ The URL of the webhook to call. Note that any tokens should be added to the valu
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DOCKER_IMAGE`
-
-Docker image passed as a first argument to this script in a form of <org>/<repository>.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DOCKER_IMAGE_ARCHIVE`
-
-Docker image archive file to restore passed as a second argument to this script.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_DOCKER_REGISTRY`
 
-Docker registry
+Docker registry name. Provide port, if required as <server_name>:<port>.
 
 Default value: `docker.io`
 
 ### `DREVOPS_DOCKER_REGISTRY_TOKEN`
 
+The token to log into the Docker registry.
+
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DOCKER_REGISTRY_USERNAME`
 
-Docker registry credentials to read and write Docker images. Note that for CI, these variables should be set through UI.
+The username to log into the Docker registry.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DOCKER_SERVICE_NAME`
+### `DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE`
 
-The service name to capture. Optional. Defaults to "mariadb".
+Docker image archive file to restore passed as a second argument to this script.
 
-Default value: `mariadb`
+Default value: `UNDEFINED`
+
+### `DREVOPS_DOCKER_RESTORE_IMAGE`
+
+Docker image archive file name.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DOCKER_VERBOSE`
 
@@ -546,7 +610,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DOCTOR_CHECK_MINIMAL`
 
-Shortcut to set variables for minimal requirements checking.
+Check minimal Doctor requirements.
 
 Default value: `UNDEFINED`
 
@@ -556,9 +620,9 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DOCTOR_CHECK_PREFLIGHT`
 
-Check all pre-requisites before starting the stack.
+Check pre-flight Doctor requirements.
 
-Default value: `ahoy doctor`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DOCTOR_CHECK_PYGMY`
 
@@ -576,7 +640,15 @@ Default value: `UNDEFINED`
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_DOCTOR_LOCALDEV_URL`
+
+Local development URL (no trailing slashes).
+
+Default value: `your-site.docker.amazee.io`
+
 ### `DREVOPS_DOCTOR_SSH_KEY_FILE`
+
+Default SSH key file.
 
 Default value: `HOME`
 
@@ -614,7 +686,7 @@ Default value: `DREVOPS_APP`
 
 Sanitization email pattern. Sanitisation is enabled by default in all non-production environments. @see https://docs.drevops.com/build#sanitization
 
-Default value: `uid@your-site-url`
+Default value: `user_%uid@your-site-url.example`
 
 ### `DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD`
 
@@ -650,11 +722,17 @@ Drupal profile name (used only when installing from profile).
 
 Default value: `your_site_profile`
 
+### `DREVOPS_DRUPAL_SHOW_LOGIN_LINK`
+
+Show project information and a one-time login link.
+
+Default value: `ahoy info`
+
 ### `DREVOPS_DRUPAL_SITE_EMAIL`
 
 Drupal site email (used only when installing from profile).
 
-Default value: `webmaster@your-site-url`
+Default value: `webmaster@your-site-url.example`
 
 ### `DREVOPS_DRUPAL_SITE_NAME`
 
@@ -691,6 +769,18 @@ Default value: `1`
 Drupal version.
 
 Default value: `9`
+
+### `DREVOPS_EXPORT_CODE_DIR`
+
+Export code built within containers before adding development dependencies. Usually this is needed to create a code artifact without development dependencies.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED`
+
+Proceed with Docker image deployment after it was exported.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_GITHUB_DELETE_EXISTING_LABELS`
 
@@ -759,12 +849,6 @@ Default value: `docroot/profiles/custom/your_site_profile, docroot/modules/custo
 Provide argument as 'be' or 'fe' to lint only back-end or front-end code. If no argument is provided, all code will be linted.
 
 Default value: `UNDEFINED`
-
-### `DREVOPS_LOCALDEV_URL`
-
-Local development URL (no trailing slashes).
-
-Default value: `your-site.docker.amazee.io`
 
 ### `DREVOPS_MARIADB_HOST`
 
@@ -917,12 +1001,6 @@ Default value: `master`
 Project name.
 
 Default value: `your_site`
-
-### `DREVOPS_SHOW_LOGIN_LINK`
-
-Show project information and a one-time login link.
-
-Default value: `ahoy info`
 
 ### `DREVOPS_TASK_COPY_DB_ACQUIA_APP_NAME`
 

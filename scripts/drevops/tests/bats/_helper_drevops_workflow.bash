@@ -99,8 +99,9 @@ assert_ahoy_build() {
   assert_output_contains "==> Removing project containers and packages available since the previous run."
   assert_output_contains "==> Building images, recreating and starting containers."
   assert_output_contains "==> Installing development dependencies."
-  assert_output_contains "==> Example post site install operations."
-  assert_output_contains "==> Perform example operations in non-production environment."
+  assert_output_contains "==> Started example post site install operations."
+  assert_output_contains "  > Perform example operations in non-production environment."
+  assert_output_contains "==> Finished example post site install operations."
   assert_output_contains "==> Build complete."
 
   # Assert that lock files were created.
@@ -720,7 +721,7 @@ assert_ahoy_doctor_info() {
 
   run ahoy doctor info
   assert_success
-  assert_output_contains "System information"
+  assert_output_contains "System information report"
   assert_output_contains "Operating system"
   assert_output_contains "Docker"
   assert_output_contains "Docker Compose"

@@ -74,24 +74,24 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*code*}" ]; then
-  echo "==> Starting 'code' deployment."
+  echo "==> Started 'code' deployment."
   export DREVOPS_DEPLOY_CODE_SSH_FINGERPRINT="${DREVOPS_DEPLOY_CODE_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_SSH_FINGERPRINT}}"
   export DREVOPS_DEPLOY_CODE_SSH_FILE="${DREVOPS_DEPLOY_CODE_SSH_FILE:-${DREVOPS_DEPLOY_SSH_FILE}}"
   ./scripts/drevops/deploy-code.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*webhook*}" ]; then
-  echo "==> Starting 'webhook' deployment."
+  echo "==> Started 'webhook' deployment."
   ./scripts/drevops/deploy-webhook.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*docker*}" ]; then
-  echo "==> Starting 'docker' deployment."
+  echo "==> Started 'docker' deployment."
   ./scripts/drevops/deploy-docker.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*lagoon*}" ]; then
-  echo "==> Starting 'lagoon' deployment."
+  echo "==> Started 'lagoon' deployment."
   export DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT="${DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_SSH_FINGERPRINT}}"
   export DREVOPS_DEPLOY_LAGOON_SSH_FILE="${DREVOPS_DEPLOY_LAGOON_SSH_FILE:-${DREVOPS_DEPLOY_SSH_FILE}}"
   export DREVOPS_DEPLOY_LAGOON_PROJECT="${DREVOPS_DEPLOY_LAGOON_PROJECT:-${LAGOON_PROJECT}}"

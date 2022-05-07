@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 ##
-# Export code artifact.
+# Export code.
 #
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-# Directory to store exported code.
-DREVOPS_BUILD_CODE_EXPORT_DIR="${DREVOPS_BUILD_CODE_EXPORT_DIR:-}"
-
 # Path to application.
 DREVOPS_APP="${APP:-/app}"
 
+# Directory to store exported code.
+DREVOPS_EXPORT_CODE_DIR="${DREVOPS_EXPORT_CODE_DIR:-}"
+
 # ------------------------------------------------------------------------------
 
-if [ -n "${DREVOPS_BUILD_CODE_EXPORT_DIR}" ]; then
-  mkdir -p "${DREVOPS_BUILD_CODE_EXPORT_DIR}"
-  cp -R "${DREVOPS_APP}"/. "${DREVOPS_BUILD_CODE_EXPORT_DIR}"
-  rm -Rf "${DREVOPS_BUILD_CODE_EXPORT_DIR}"/node_modules >/dev/null;
+if [ -n "${DREVOPS_EXPORT_CODE_DIR}" ]; then
+  mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
+  cp -R "${DREVOPS_APP}"/. "${DREVOPS_EXPORT_CODE_DIR}"
+  rm -Rf "${DREVOPS_EXPORT_CODE_DIR}"/node_modules >/dev/null;
 fi

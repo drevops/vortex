@@ -6,8 +6,12 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-# Shortcut to set variables for minimal requirements checking.
+# Check minimal Doctor requirements.
 DREVOPS_DOCTOR_CHECK_MINIMAL="${DREVOPS_DOCTOR_CHECK_MINIMAL:-0}"
+
+# Check pre-flight Doctor requirements.
+DREVOPS_DOCTOR_CHECK_PREFLIGHT="${DREVOPS_DOCTOR_CHECK_PREFLIGHT:-0}"
+
 if [ "${DREVOPS_DOCTOR_CHECK_MINIMAL}" = "1" ]; then
   DREVOPS_DOCTOR_CHECK_PORT=0
   DREVOPS_DOCTOR_CHECK_PYGMY=0
@@ -16,8 +20,6 @@ if [ "${DREVOPS_DOCTOR_CHECK_MINIMAL}" = "1" ]; then
   DREVOPS_DOCTOR_CHECK_BOOTSTRAP=0
 fi
 
-# Shortcut to set variables, but still allow to override.
-DREVOPS_DOCTOR_CHECK_PREFLIGHT="${DREVOPS_DOCTOR_CHECK_PREFLIGHT:-0}"
 if [ "${DREVOPS_DOCTOR_CHECK_PREFLIGHT}" = "1" ]; then
   DREVOPS_DOCTOR_CHECK_TOOLS="${DREVOPS_DOCTOR_CHECK_TOOLS:-1}"
   DREVOPS_DOCTOR_CHECK_PORT="${DREVOPS_DOCTOR_CHECK_PORT:-1}"
@@ -28,20 +30,34 @@ if [ "${DREVOPS_DOCTOR_CHECK_PREFLIGHT}" = "1" ]; then
   DREVOPS_DOCTOR_CHECK_BOOTSTRAP="${DREVOPS_DOCTOR_CHECK_BOOTSTRAP:-0}"
 fi
 
+# Check Doctor requirements for presence of tools.
 DREVOPS_DOCTOR_CHECK_TOOLS="${DREVOPS_DOCTOR_CHECK_TOOLS:-1}"
+
+# Check Doctor requirements for port of availability.
 DREVOPS_DOCTOR_CHECK_PORT="${DREVOPS_DOCTOR_CHECK_PORT:-1}"
+
+# Check Doctor requirements for Pygmy of availability.
 DREVOPS_DOCTOR_CHECK_PYGMY="${DREVOPS_DOCTOR_CHECK_PYGMY:-1}"
+
+# Check Doctor requirements for container status.
 DREVOPS_DOCTOR_CHECK_CONTAINERS="${DREVOPS_DOCTOR_CHECK_CONTAINERS:-1}"
+
+# Check Doctor requirements for SSH key.
 DREVOPS_DOCTOR_CHECK_SSH="${DREVOPS_DOCTOR_CHECK_SSH:-1}"
+
+# Check Doctor requirements for webserver status.
 DREVOPS_DOCTOR_CHECK_WEBSERVER="${DREVOPS_DOCTOR_CHECK_WEBSERVER:-1}"
+
+# Check Doctor requirements for application bootstrap status.
 DREVOPS_DOCTOR_CHECK_BOOTSTRAP="${DREVOPS_DOCTOR_CHECK_BOOTSTRAP:-1}"
-DREVOPS_LOCALDEV_URL="${DREVOPS_LOCALDEV_URL:-}"
+
+# Local development URL.
+DREVOPS_DOCTOR_LOCALDEV_URL="${DREVOPS_DOCTOR_LOCALDEV_URL:-${DREVOPS_LOCALDEV_URL}}"
+
+# Default SSH key file.
 DREVOPS_DOCTOR_SSH_KEY_FILE="${DREVOPS_DOCTOR_SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}"
 
 #-------------------------------------------------------------------------------
-#                    DO NOT CHANGE ANYTHING BELOW THIS LINE
-#-------------------------------------------------------------------------------
-
 
 #
 # Main entry point.
@@ -49,7 +65,7 @@ DREVOPS_DOCTOR_SSH_KEY_FILE="${DREVOPS_DOCTOR_SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}
 main() {
   [ "$1" = "info" ] && system_info && exit
 
-  status "Checking project requirements"
+  cecho blue "🔎 Checking project requirements"
 
   if [ "${DREVOPS_DOCTOR_CHECK_TOOLS}" = "1" ]; then
     [ "$(command_exists docker)" = "1" ] && error "Please install Docker (https://www.docker.com/get-started)." && exit 1
@@ -114,57 +130,58 @@ main() {
     # restarted - the volume mount will retain and the key will still be
     # available in CLI container.
 
+    ssh_key_added=1
     # Check that the key is injected into pygmy ssh-agent container.
     if ! pygmy status 2>&1 | grep -q "${DREVOPS_DOCTOR_SSH_KEY_FILE}"; then
-      error "SSH key is not added to pygmy. Run 'pygmy stop && pygmy start' and then 'ahoy up -- --build'."
-      exit 1
+      warning "SSH key is not added to pygmy. Run 'pygmy restart' and then 'ahoy up -- --build'."
+      ssh_key_added=0
     fi
 
     # Check that the volume is mounted into CLI container.
     if ! docker exec -i "$(docker-compose ps -q cli)" bash -c "grep \"^/dev\" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent"; then
-      error "SSH key is added to Pygmy, but the volume is not mounted into container. Make sure that your your \"docker-compose.yml\" has the following lines:"
-      error "volumes_from:"
-      error "  - container:amazeeio-ssh-agent"
-      error "After adding these lines, run 'ahoy up -- --build'."
-      exit 1
+      warning "SSH key is added to Pygmy, but the volume is not mounted into container. Make sure that your your \"docker-compose.yml\" has the following lines:"
+      warning "volumes_from:"
+      warning "  - container:amazeeio-ssh-agent"
+      warning "After adding these lines, run 'ahoy up -- --build'."
+      ssh_key_added=0
     fi
 
     # Check that ssh key is available in the container.
-    if ! docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L | grep -q 'ssh-rsa'" ; then
-      error "SSH key was not added into container. Run 'pygmy stop && pygmy start'."
-      exit 1
+    if [ "${ssh_key_added}" = "1" ] && ! docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L | grep -q 'ssh-rsa'" ; then
+      warning "SSH key was not added into container. Run 'pygmy restart'."
+      ssh_key_added=0
     fi
 
-    success "SSH key is available within CLI container."
+    [ "${ssh_key_added}" = "1" ] && success "SSH key is available within CLI container."
   fi
 
-  if [ -n "${DREVOPS_LOCALDEV_URL}" ]; then
+  if [ -n "${DREVOPS_DOCTOR_LOCALDEV_URL}" ]; then
     if [ "${DREVOPS_DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
       # Depending on the type of installation, the homepage may return 200 or 403.
-      if ! curl -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_LOCALDEV_URL}" | grep -q '200\|403'; then
-        error "Web server is not accessible at http://${DREVOPS_LOCALDEV_URL}."
+      if ! curl -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_DOCTOR_LOCALDEV_URL}" | grep -q '200\|403'; then
+        error "Web server is not accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
         exit 1
       fi
-      success "Web server is running and accessible at http://${DREVOPS_LOCALDEV_URL}."
+      success "Web server is running and accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
     fi
 
     if [ "${DREVOPS_DOCTOR_CHECK_BOOTSTRAP}" = "1" ]; then
-      if ! curl -L -s -N "${DREVOPS_LOCALDEV_URL}" | grep -q -i "charset="; then
+      if ! curl -L -s -N "${DREVOPS_DOCTOR_LOCALDEV_URL}" | grep -q -i "charset="; then
         error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
         exit 1
       fi
-      success "Successfully bootstrapped website at http://${DREVOPS_LOCALDEV_URL}."
+      success "Successfully bootstrapped website at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
     fi
   fi
 
-  status "All required checks have passed."
+  cecho blue "👌 All required checks have passed."
 }
 
 system_info() {
-  status "System information"
+  status "System information report"
   echo
 
-  notice "- Operating system -"
+  heading "- Operating system -"
   if [ "$(uname)" = "Darwin" ]; then
     sw_vers
   else
@@ -172,23 +189,23 @@ system_info() {
   fi
   echo
 
-  notice "- Docker -"
+  heading "- Docker -"
   echo "Path to binary: $(which docker)"
   docker -v
   docker info
   echo
 
-  notice "- Docker Compose -"
+  heading "- Docker Compose -"
   echo "Path to binary: $(which docker-compose)"
   docker-compose version
   echo
 
-  notice "- Pygmy -"
+  heading "- Pygmy -"
   echo "Path to binary: $(which pygmy)"
   pygmy version
   echo
 
-  notice "- Ahoy -"
+  heading "- Ahoy -"
   echo "Path to binary: $(which ahoy)"
   ahoy --version
   echo
@@ -219,10 +236,10 @@ status() {
 }
 
 #
-# Notice echo.
+# Warning echo.
 #
-notice() {
-  cecho yellow "$1";
+warning() {
+  cecho yellow "  ⚠  $1";
 }
 
 #
@@ -238,6 +255,13 @@ success() {
 error() {
   cecho red "  ✘ $1";
   exit 1
+}
+
+#
+# Heading echo.
+#
+heading() {
+  cecho yellow "$1";
 }
 
 #

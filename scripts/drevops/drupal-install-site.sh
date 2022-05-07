@@ -62,7 +62,7 @@ mkdir -p "${DREVOPS_DRUPAL_PRIVATE_FILES}"
 
 # Export database before importing, if the flag is set.
 # Useful to automatically store database dump before starting site rebuild.
-[ "${DREVOPS_DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && "${DREVOPS_APP}/scripts/drevops/drupal-export-db.sh"
+[ "${DREVOPS_DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && "${DREVOPS_APP}/scripts/drevops/export-db-file.sh"
 
 site_is_installed="$($drush status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
 
@@ -79,7 +79,7 @@ then
   echo "==> Importing database from dump."
   echo "  > Using DB dump ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}."
   echo "****************************************"
-  DREVOPS_DB_DIR="${DREVOPS_DB_DIR}" DREVOPS_DB_FILE="${DREVOPS_DB_FILE}" "${DREVOPS_APP}/scripts/drevops/drupal-import-db.sh"
+  DREVOPS_DB_DIR="${DREVOPS_DB_DIR}" DREVOPS_DB_FILE="${DREVOPS_DB_FILE}" "${DREVOPS_APP}/scripts/drevops/import-db-file.sh"
 elif
   # If site is installed AND
   [ "${site_is_installed}" = "1" ] &&

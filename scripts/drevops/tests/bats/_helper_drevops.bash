@@ -182,7 +182,7 @@ assert_files_present_common() {
 
   # Assert that project name is correct.
   assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
-  assert_file_contains .env "DREVOPS_LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
+  assert_file_contains .env "DREVOPS_DOCTOR_LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
 
   # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
@@ -236,9 +236,9 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/download-db-ftp.sh"
   assert_file_exists "scripts/drevops/download-db-image.sh"
   assert_file_exists "scripts/drevops/download-db-lagoon.sh"
-  assert_file_exists "scripts/drevops/drupal-export-db.sh"
-  assert_file_exists "scripts/drevops/drupal-export-db-image.sh"
-  assert_file_exists "scripts/drevops/drupal-import-db.sh"
+  assert_file_exists "scripts/drevops/export-db-file.sh"
+  assert_file_exists "scripts/drevops/export-db-docker.sh"
+  assert_file_exists "scripts/drevops/import-db-file.sh"
   assert_file_exists "scripts/drevops/drupal-install-site.sh"
   assert_file_exists "scripts/drevops/drupal-login.sh"
   assert_file_exists "scripts/drevops/drupal-sanitize-db.sh"
@@ -389,7 +389,7 @@ assert_files_present_drupal(){
   assert_dir_not_contains_string "${dir}" "your_site_theme"
   assert_dir_not_contains_string "${dir}" "your_org"
   assert_dir_not_contains_string "${dir}" "YOURORG"
-  assert_dir_not_contains_string "${dir}" "your-site-url"
+  assert_dir_not_contains_string "${dir}" "your-site-url.example"
   # Assert all special comments were removed.
   assert_dir_not_contains_string "${dir}" "#;"
   assert_dir_not_contains_string "${dir}" "#;<"

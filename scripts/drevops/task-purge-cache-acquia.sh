@@ -38,7 +38,7 @@ DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL="${DREVOPS_TASK_PURGE_CACHE_ACQU
 
 #-------------------------------------------------------------------------------
 
-echo "==> Starting cache purging in Acquia."
+echo "==> Started cache purging in Acquia."
 
 #
 # Extract last value from JSON object passed via STDIN.

@@ -213,7 +213,7 @@ if ($settings['environment'] == ENVIRONMENT_PROD) {
   $config['environment_indicator.settings']['favicon'] = TRUE;
 }
 else {
-  $config['stage_file_proxy.settings']['origin'] = sprintf('https://%s:%s@your-site-url/', getenv('DRUPAL_SHIELD_USER'), getenv('DRUPAL_SHIELD_PASS'));
+  $config['stage_file_proxy.settings']['origin'] = sprintf('https://%s:%s@your-site-url.example/', getenv('DRUPAL_SHIELD_USER'), getenv('DRUPAL_SHIELD_PASS'));
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
 
   $config['environment_indicator.indicator']['name'] = $settings['environment'];

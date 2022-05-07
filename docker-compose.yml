@@ -47,7 +47,7 @@ x-environment:
   # Project name. Defaults to Docker Compose project name (which defaults to the current directory).
   DREVOPS_PROJECT: ${DREVOPS_PROJECT:-your_site}
   # Local development URL used in Lagoon images.
-  LAGOON_LOCALDEV_URL: &default-url ${DREVOPS_LOCALDEV_URL:-your-site.docker.amazee.io}
+  LAGOON_LOCALDEV_URL: &default-url ${DREVOPS_DOCTOR_LOCALDEV_URL:-your-site.docker.amazee.io}
   # Local route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
   #;< LAGOON

@@ -496,7 +496,7 @@ class DrupalSettingsTest extends DrupalTestCase {
     $config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
     $config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
     $config['shield.settings']['shield_enable'] = FALSE;
-    $config['stage_file_proxy.settings']['origin'] = 'https://CHANGE_ME:CHANGE_ME@your-site-url/';
+    $config['stage_file_proxy.settings']['origin'] = 'https://CHANGE_ME:CHANGE_ME@your-site-url.example/';
     $config['stage_file_proxy.settings']['hotlink'] = FALSE;
     $config['environment_indicator.indicator']['name'] = ENVIRONMENT_LOCAL;
     $config['environment_indicator.indicator']['bg_color'] = '#006600';
