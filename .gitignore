@@ -5,11 +5,8 @@
 # To add an override file, explicitly un-ignore it below and add to the
 # repository (useful for robots.txt and .htaccess file overrides).
 
-#; To simplify maintenance of DrevOps, we support only 'docroot' $DOCROOT
+#; To simplify maintenance of DrevOps, we support only 'docroot' document root
 #; defined explicitly here.
-#; @todo: Add support for renamed $DOCROOT.
-#;
-#; $DOCROOT is 'docroot'.
 docroot/*
 !docroot/sites/
 docroot/sites/*

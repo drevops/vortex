@@ -17,7 +17,8 @@ set -e
 # support multiple deployments): code, docker, webhook, lagoon.
 DREVOPS_DEPLOY_TYPE="${DREVOPS_DEPLOY_TYPE:-${1}}"
 
-# Flag to proceed with deployment.
+# Flag to proceed with deployment. Set to 1 once the deployment configuration
+# is configured in CI and is ready.
 DREVOPS_DEPLOY_PROCEED="${DREVOPS_DEPLOY_PROCEED:-}"
 
 # Flag to allow skipping of a deployment using additional flags.
@@ -73,27 +74,27 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*code*}" ]; then
-  echo "==> Starting 'code' deployment."
+  echo "==> Started 'code' deployment."
   export DREVOPS_DEPLOY_CODE_SSH_FINGERPRINT="${DREVOPS_DEPLOY_CODE_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_SSH_FINGERPRINT}}"
   export DREVOPS_DEPLOY_CODE_SSH_FILE="${DREVOPS_DEPLOY_CODE_SSH_FILE:-${DREVOPS_DEPLOY_SSH_FILE}}"
   ./scripts/drevops/deploy-code.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*webhook*}" ]; then
-  echo "==> Starting 'webhook' deployment."
+  echo "==> Started 'webhook' deployment."
   ./scripts/drevops/deploy-webhook.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*docker*}" ]; then
-  echo "==> Starting 'docker' deployment."
+  echo "==> Started 'docker' deployment."
   ./scripts/drevops/deploy-docker.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*lagoon*}" ]; then
-  echo "==> Starting 'lagoon' deployment."
+  echo "==> Started 'lagoon' deployment."
   export DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT="${DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_SSH_FINGERPRINT}}"
   export DREVOPS_DEPLOY_LAGOON_SSH_FILE="${DREVOPS_DEPLOY_LAGOON_SSH_FILE:-${DREVOPS_DEPLOY_SSH_FILE}}"
-  export DREVOPS_DEPLOY_LAGOON_PROJECT="${DREVOPS_DEPLOY_LAGOON_PROJECT:-${DREVOPS_LAGOON_PROJECT}}"
+  export DREVOPS_DEPLOY_LAGOON_PROJECT="${DREVOPS_DEPLOY_LAGOON_PROJECT:-${LAGOON_PROJECT}}"
   export DREVOPS_DEPLOY_LAGOON_ACTION="${DREVOPS_DEPLOY_LAGOON_ACTION:-${DREVOPS_DEPLOY_ACTION}}"
   export DREVOPS_DEPLOY_LAGOON_BRANCH="${DREVOPS_DEPLOY_LAGOON_BRANCH:-${DREVOPS_DEPLOY_BRANCH}}"
   export DREVOPS_DEPLOY_LAGOON_PR="${DREVOPS_DEPLOY_LAGOON_PR:-${DREVOPS_DEPLOY_PR}}"

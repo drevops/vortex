@@ -183,7 +183,7 @@ load _helper_drevops_deployment
   export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL=1
   export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH="${APP_TMP_DIR}"
   export DREVOPS_DEPLOY_LAGOON_INSTANCE="testlagoon"
-  export DREVOPS_LAGOON_PROJECT="testproject"
+  export LAGOON_PROJECT="testproject"
   export DREVOPS_DEPLOY_BRANCH="testbranch"
 
   mock_lagoon=$(mock_command "lagoon")

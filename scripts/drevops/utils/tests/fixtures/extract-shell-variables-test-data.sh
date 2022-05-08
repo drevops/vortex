@@ -21,10 +21,10 @@ VAR8=val8
 VAR9=val9
 
 #Description without a leading space.
-VAR10=val10
+VAR10="val10"
 
 # Description without a leading space that goes on
-# multiple lines.
+# multiple lines and has a `VAR7`, `$VAR8`, $VAR9, VAR10 and VAR12 variable reference.
 VAR11=val11
 
 # Description without a leading space that goes on
@@ -44,3 +44,17 @@ VAR14=val14
 VAR15=val16
 
 VAR17=val17
+
+VARENV1=valenv1
+
+VARENV2=
+
+# Comment from script with reference to composer.lock and `composer.lock` again and somespecialtoken and `somespecialtoken` again and drevops/drevops-mariadb-drupal-data and `drevops/drevops-mariadb-drupal-data` again.
+VARENV3=valenv3
+
+# Comment 2 from script without a leading space that goes on
+# multiple lines.
+ VARENV4=
+
+#VAR20=
+#VAR21=val21

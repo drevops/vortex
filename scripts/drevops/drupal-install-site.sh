@@ -8,38 +8,28 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Path to the application.
-APP="${APP:-/app}"
-
-# Path to the DOCROOT.
-WEBROOT="${WEBROOT:-docroot}"
-
-# Drupal custom module prefix.
-# @todo Remove this as modeule prefix is not used anywhere.
-DREVOPS_DRUPAL_MODULE_PREFIX="${DREVOPS_DRUPAL_MODULE_PREFIX:-}"
+DREVOPS_APP="${APP:-/app}"
 
 # Drupal site name
 DREVOPS_DRUPAL_SITE_NAME="${DREVOPS_DRUPAL_SITE_NAME:-Example site}"
 
 # Drupal site name
-DREVOPS_DRUPAL_SITE_MAIL="${DREVOPS_DRUPAL_SITE_MAIL:-webmaster@example.com}"
+DREVOPS_DRUPAL_SITE_EMAIL="${DREVOPS_DRUPAL_SITE_EMAIL:-webmaster@example.com}"
 
 # Profile machine name.
 DREVOPS_DRUPAL_PROFILE="${DREVOPS_DRUPAL_PROFILE:-standard}"
 
 # Path to configuration directory.
-DREVOPS_DRUPAL_CONFIG_PATH="${DREVOPS_DRUPAL_CONFIG_PATH:-${APP}/config/default}"
+DREVOPS_DRUPAL_CONFIG_PATH="${DREVOPS_DRUPAL_CONFIG_PATH:-${DREVOPS_APP}/config/default}"
 
 # Config label.
 DREVOPS_DRUPAL_CONFIG_LABEL="${DREVOPS_DRUPAL_CONFIG_LABEL:-}"
 
 # Path to private files.
-DREVOPS_DRUPAL_PRIVATE_FILES="${DREVOPS_DRUPAL_PRIVATE_FILES:-${APP}/${WEBROOT}/sites/default/files/private}"
-
-# Flag to unblock admin.
-DREVOPS_DRUPAL_UNBLOCK_ADMIN="${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-1}"
+DREVOPS_DRUPAL_PRIVATE_FILES="${DREVOPS_DRUPAL_PRIVATE_FILES:-${DREVOPS_APP}/docroot/sites/default/files/private}"
 
 # Directory with database dump file.
-DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-${APP}/.data}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-${DREVOPS_APP}/.data}"
 
 # Database dump file name.
 DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
@@ -65,14 +55,14 @@ DREVOPS_DB_OVERWRITE_EXISTING="${DREVOPS_DB_OVERWRITE_EXISTING:-1}"
 echo "==> Installing site."
 
 # Use local or global Drush, giving priority to a local drush.
-drush="$(if [ -f "${APP}/vendor/bin/drush" ]; then echo "${APP}/vendor/bin/drush"; else command -v drush; fi)"
+drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 # Create private files directory.
 mkdir -p "${DREVOPS_DRUPAL_PRIVATE_FILES}"
 
 # Export database before importing, if the flag is set.
 # Useful to automatically store database dump before starting site rebuild.
-[ "${DREVOPS_DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && "${APP}/scripts/drevops/drupal-export-db.sh"
+[ "${DREVOPS_DB_EXPORT_BEFORE_IMPORT}" -eq 1 ] && "${DREVOPS_APP}/scripts/drevops/export-db-file.sh"
 
 site_is_installed="$($drush status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
 
@@ -89,7 +79,7 @@ then
   echo "==> Importing database from dump."
   echo "  > Using DB dump ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}."
   echo "****************************************"
-  DREVOPS_DB_DIR="${DREVOPS_DB_DIR}" DREVOPS_DB_FILE="${DREVOPS_DB_FILE}" "${APP}/scripts/drevops/drupal-import-db.sh"
+  DREVOPS_DB_DIR="${DREVOPS_DB_DIR}" DREVOPS_DB_FILE="${DREVOPS_DB_FILE}" "${DREVOPS_APP}/scripts/drevops/import-db-file.sh"
 elif
   # If site is installed AND
   [ "${site_is_installed}" = "1" ] &&
@@ -118,7 +108,7 @@ else
     DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT=1
   else
     # Install from profile with default configuration.
-    $drush si "${DREVOPS_DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DREVOPS_DRUPAL_SITE_NAME}" --site-mail="${DREVOPS_DRUPAL_SITE_MAIL}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+    $drush si "${DREVOPS_DRUPAL_PROFILE}" -y --account-name=admin --site-name="${DREVOPS_DRUPAL_SITE_NAME}" --site-mail="${DREVOPS_DRUPAL_SITE_EMAIL}" install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
   fi
 fi
 
@@ -130,7 +120,7 @@ if [ "${DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT}" = "1" ]; then
   # Rebuild cache.
   $drush cr
   # Sanitize DB.
-  "${APP}/scripts/drevops/drupal-sanitize-db.sh"
+  "${DREVOPS_APP}/scripts/drevops/drupal-sanitize-db.sh"
   # Exit as there is nothing that should be ran after this.
   exit 0
 fi
@@ -183,7 +173,7 @@ if $drush list | grep -q pciu; then
 fi
 
 # Sanitize database.
-"${APP}/scripts/drevops/drupal-sanitize-db.sh"
+"${DREVOPS_APP}/scripts/drevops/drupal-sanitize-db.sh"
 
 # User mail and name for use 0 could have been sanitized - resetting it.
 echo "  > Resetting user 0 username and email."
@@ -196,19 +186,19 @@ if [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL}" ]; then
   $drush sql-query "UPDATE \`users_field_data\` SET mail = '${DREVOPS_DRUPAL_ADMIN_EMAIL}' WHERE uid = '1';"
 fi
 
-if [ "${DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_FROM_EMAIL}" = "1" ]; then
+if [ "${DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_WITH_EMAIL}" = "1" ]; then
   echo "  > Updating user 1 username with user email"
   $drush sql-query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid = '1';"
 fi
 
 # Generate a one-time login link.
-"${APP}/scripts/drevops/drupal-login.sh"
+"${DREVOPS_APP}/scripts/drevops/drupal-login.sh"
 
 # Run custom drupal site install scripts.
-# The files should be located in ""${APP}"/scripts/custom/" directory and must have
+# The files should be located in ""${DREVOPS_APP}"/scripts/custom/" directory and must have
 # "drupal-install-site-" prefix and ".sh" extension.
-if [ -d "${APP}/scripts/custom" ]; then
-  for file in "${APP}"/scripts/custom/drupal-install-site-*.sh; do
+if [ -d "${DREVOPS_APP}/scripts/custom" ]; then
+  for file in "${DREVOPS_APP}"/scripts/custom/drupal-install-site-*.sh; do
     if [ -f "${file}" ]; then
       echo "==> Running custom post-install script ${file}."
       . "${file}"

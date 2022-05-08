@@ -314,7 +314,7 @@ class DrupalSettingsTest extends DrupalTestCase {
       [
         [
           'LAGOON' => 1,
-          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => FALSE,
+          'DREVOPS_PRODUCTION_BRANCH' => FALSE,
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -322,7 +322,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => FALSE,
-          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => FALSE,
+          'DREVOPS_PRODUCTION_BRANCH' => FALSE,
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -330,7 +330,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => 'somebranch',
-          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => FALSE,
+          'DREVOPS_PRODUCTION_BRANCH' => FALSE,
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -338,7 +338,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => FALSE,
-          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
+          'DREVOPS_PRODUCTION_BRANCH' => 'otherbranch',
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -346,7 +346,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => 'somebranch',
-          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
+          'DREVOPS_PRODUCTION_BRANCH' => 'otherbranch',
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -354,7 +354,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => '',
-          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => '',
+          'DREVOPS_PRODUCTION_BRANCH' => '',
         ],
         ENVIRONMENT_LOCAL,
       ],
@@ -362,7 +362,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => 'somebranch',
-          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'somebranch',
+          'DREVOPS_PRODUCTION_BRANCH' => 'somebranch',
         ],
         ENVIRONMENT_PROD,
       ],
@@ -496,7 +496,7 @@ class DrupalSettingsTest extends DrupalTestCase {
     $config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
     $config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
     $config['shield.settings']['shield_enable'] = FALSE;
-    $config['stage_file_proxy.settings']['origin'] = 'https://CHANGE_ME:CHANGE_ME@your-site-url/';
+    $config['stage_file_proxy.settings']['origin'] = 'https://CHANGE_ME:CHANGE_ME@your-site-url.example/';
     $config['stage_file_proxy.settings']['hotlink'] = FALSE;
     $config['environment_indicator.indicator']['name'] = ENVIRONMENT_LOCAL;
     $config['environment_indicator.indicator']['bg_color'] = '#006600';

@@ -64,6 +64,7 @@ setup() {
   prepare_fixture_dir "${LOCAL_REPO_DIR}"
   prepare_fixture_dir "${APP_TMP_DIR}"
   prepare_local_repo "${LOCAL_REPO_DIR}" >/dev/null
+  prepare_global_gitconfig
   prepare_global_gitignore
 
   echo "BUILD_DIR dir: ${BUILD_DIR}" >&3
@@ -83,7 +84,7 @@ teardown() {
 }
 
 ################################################################################
-#                               COMMAND MOCK                                   #
+#                            COMMAND MOCKING                                   #
 ################################################################################
 
 # Setup mock support.
@@ -136,7 +137,7 @@ assert_files_present() {
 
   assert_files_present_common "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}"
 
-  assert_local_files_present "${dir}"
+  assert_files_local_present "${dir}"
 
   # Assert Drupal profile not present by default.
   assert_files_present_no_profile "${dir}" "${suffix}"
@@ -160,7 +161,7 @@ assert_files_present() {
   assert_files_present_integration_dependenciesio "${dir}" "${suffix}"
 }
 
-assert_local_files_present() {
+assert_files_local_present() {
   local dir="${1:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -175,6 +176,145 @@ assert_files_present_common() {
   local suffix_abbreviated_camel_cased="${4:-Sw}"
 
   pushd "${dir}" >/dev/null || exit 1
+
+  # Default DrevOps files present.
+  assert_files_present_drevops "${dir}"
+
+  # Assert that project name is correct.
+  assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
+  assert_file_contains .env "DREVOPS_DOCTOR_LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
+
+  # Assert that DrevOps version was replaced.
+  assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
+  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_DRUPAL_VERSION}.x"
+
+  assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}"
+
+  popd >/dev/null || exit 1
+}
+
+# These files should exist in every project.
+assert_files_present_drevops() {
+  local dir="${1:-$(pwd)}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_exists ".circleci/config.yml"
+
+  assert_file_exists ".docker/Dockerfile.cli"
+  assert_file_exists ".docker/Dockerfile.mariadb"
+  assert_file_exists ".docker/Dockerfile.nginx-drupal"
+  assert_file_exists ".docker/Dockerfile.php"
+  assert_file_exists ".docker/Dockerfile.solr"
+  assert_file_exists ".docker/scripts/.gitkeep"
+  assert_file_exists ".docker/config/mariadb/my.cnf"
+
+  assert_file_exists ".github/PULL_REQUEST_TEMPLATE.md"
+
+  assert_dir_exists "config/default"
+
+  assert_file_exists "patches/.gitkeep"
+
+  assert_file_exists "scripts/composer/DrupalSettings.php"
+  assert_file_exists "scripts/composer/ScriptHandler.php"
+  assert_file_exists "scripts/custom/.gitkeep"
+
+  # Core DrevOps files.
+  assert_file_exists "scripts/drevops/build.sh"
+  assert_file_exists "scripts/drevops/clean.sh"
+  assert_file_exists "scripts/drevops/deploy.sh"
+  assert_file_exists "scripts/drevops/deploy-code.sh"
+  assert_file_exists "scripts/drevops/deploy-docker.sh"
+  assert_file_exists "scripts/drevops/deploy-lagoon.sh"
+  assert_file_exists "scripts/drevops/deploy-webhook.sh"
+  assert_file_exists "scripts/drevops/docker-login.sh"
+  assert_file_exists "scripts/drevops/docker-restore-image.sh"
+  assert_file_exists "scripts/drevops/doctor.sh"
+  assert_file_exists "scripts/drevops/download-db.sh"
+  assert_file_exists "scripts/drevops/download-db-acquia.sh"
+  assert_file_exists "scripts/drevops/download-db-curl.sh"
+  assert_file_exists "scripts/drevops/download-db-ftp.sh"
+  assert_file_exists "scripts/drevops/download-db-image.sh"
+  assert_file_exists "scripts/drevops/download-db-lagoon.sh"
+  assert_file_exists "scripts/drevops/export-db-file.sh"
+  assert_file_exists "scripts/drevops/export-db-docker.sh"
+  assert_file_exists "scripts/drevops/import-db-file.sh"
+  assert_file_exists "scripts/drevops/drupal-install-site.sh"
+  assert_file_exists "scripts/drevops/drupal-login.sh"
+  assert_file_exists "scripts/drevops/drupal-sanitize-db.sh"
+  assert_file_exists "scripts/drevops/export-code.sh"
+  assert_file_exists "scripts/drevops/github-labels.sh"
+  assert_file_exists "scripts/drevops/info.sh"
+  assert_file_exists "scripts/drevops/lint.sh"
+  assert_file_exists "scripts/drevops/notify-deployment-email.php"
+  assert_file_exists "scripts/drevops/notify-deployment-github.sh"
+  assert_file_exists "scripts/drevops/notify-deployment-jira.sh"
+  assert_file_exists "scripts/drevops/notify-deployment-newrelic.sh"
+  assert_file_exists "scripts/drevops/reset.sh"
+  assert_file_exists "scripts/drevops/task-copy-db-acquia.sh"
+  assert_file_exists "scripts/drevops/task-copy-files-acquia.sh"
+  assert_file_exists "scripts/drevops/task-purge-cache-acquia.sh"
+  assert_file_exists "scripts/drevops/test.sh"
+  assert_file_exists "scripts/drevops/update.sh"
+
+  assert_file_exists "scripts/sanitize.sql"
+
+  assert_file_exists "tests/behat/bootstrap/FeatureContext.php"
+  assert_dir_exists "tests/behat/features"
+  assert_file_exists "tests/behat/fixtures/.gitkeep"
+
+  assert_file_exists ".ahoy.yml"
+  assert_file_exists ".dockerignore"
+  assert_file_exists ".editorconfig"
+  assert_file_exists ".env"
+  assert_file_not_exists ".gitattributes"
+  assert_file_exists ".gitignore"
+  assert_file_exists "behat.yml"
+  assert_file_exists "composer.json"
+  assert_file_exists "default.docker-compose.override.yml"
+  assert_file_exists "default.env.local"
+  assert_file_exists "docker-compose.yml"
+  assert_file_exists "phpcs.xml"
+
+  # Documentation information present.
+  assert_file_exists "FAQs.md"
+  assert_file_exists "CI.md"
+  assert_file_exists "RELEASING.md"
+  assert_file_exists "TESTING.md"
+
+  # Assert that DrevOps files removed.
+  assert_file_not_exists "install.php"
+  assert_file_not_exists "install.sh"
+  assert_file_not_exists "LICENSE"
+  assert_dir_not_exists "scripts/drevops/docs"
+  assert_dir_not_exists "scripts/drevops/tests"
+  assert_dir_not_exists "scripts/drevops/utils"
+  assert_file_not_exists ".github/FUNDING.yml"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test_workflow"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test_deployment"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_deploy"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_deploy_tags"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_database_fi"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_database_ii"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_build_fi"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_build_ii"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_docs"
+
+  # Assert that documentation was processed correctly.
+  assert_file_not_contains README.md "# DrevOps"
+
+  popd >/dev/null || exit 1
+}
+
+assert_files_present_drupal(){
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+  local suffix_abbreviated="${3:-sw}"
+  local suffix_abbreviated_camel_cased="${4:-Sw}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
 
   # Stub profile removed.
   assert_dir_not_exists "docroot/profiles/custom/your_site_profile"
@@ -211,7 +351,7 @@ assert_files_present_common() {
   # Comparing binary files.
   assert_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
 
-  # Scaffolding files exist.
+  # Drupal scaffolding files exist.
   assert_file_exists "docroot/.editorconfig"
   assert_file_exists "docroot/.eslintignore"
   assert_file_exists "docroot/.gitattributes"
@@ -227,6 +367,8 @@ assert_files_present_common() {
   assert_file_exists "docroot/sites/default/settings.php"
   assert_file_mode "docroot/sites/default/settings.php" "644"
 
+  assert_dir_exists "docroot/sites/default/includes/"
+
   assert_file_exists "docroot/sites/default/default.settings.php"
   assert_file_exists "docroot/sites/default/default.services.yml"
 
@@ -235,12 +377,6 @@ assert_files_present_common() {
 
   assert_file_exists "docroot/sites/default/default.services.local.yml"
   assert_file_mode "docroot/sites/default/default.services.local.yml" "644"
-
-  # Documentation information added.
-  assert_file_exists "FAQs.md"
-
-  assert_file_exists ".ahoy.yml"
-  assert_file_exists ".env"
 
   # Special case to fix all occurrences of the stub in core files to exclude
   # false-positives from the assertions below.
@@ -253,38 +389,11 @@ assert_files_present_common() {
   assert_dir_not_contains_string "${dir}" "your_site_theme"
   assert_dir_not_contains_string "${dir}" "your_org"
   assert_dir_not_contains_string "${dir}" "YOURORG"
-  assert_dir_not_contains_string "${dir}" "your-site-url"
+  assert_dir_not_contains_string "${dir}" "your-site-url.example"
   # Assert all special comments were removed.
   assert_dir_not_contains_string "${dir}" "#;"
   assert_dir_not_contains_string "${dir}" "#;<"
   assert_dir_not_contains_string "${dir}" "#;>"
-
-  # Assert that project name is correct.
-  assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
-  assert_file_contains .env "DREVOPS_LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
-
-  # Assert that documentation was processed correctly.
-  assert_file_not_contains README.md "# DrevOps"
-
-  # Assert that DrevOps files removed.
-  assert_file_not_exists "install.php"
-  assert_file_not_exists "install.sh"
-  assert_file_not_exists "LICENSE"
-  assert_dir_not_exists "scripts/drevops/docs"
-  assert_dir_not_exists "scripts/drevops/tests"
-  assert_dir_not_exists "scripts/drevops/utils"
-  assert_file_not_exists ".github/FUNDING.yml"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test_deployment"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_deploy"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_deploy_tags"
-
-  # Assert that DrevOps version was replaced.
-  assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
-  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_DRUPAL_VERSION}.x"
-
-  # Assert that DrevOps maintenance files were removed.
-  assert_dir_not_exists "docs"
 
   popd >/dev/null || exit 1
 }
@@ -439,17 +548,21 @@ assert_files_present_integration_acquia() {
 
   assert_dir_exists "hooks"
   assert_dir_exists "hooks/library"
-  assert_file_mode "hooks/library/flush-varnish.sh" "755"
+  assert_file_mode "hooks/library/copy-db.sh" "755"
+  assert_file_mode "hooks/library/copy-files.sh" "755"
   assert_file_mode "hooks/library/install-site.sh" "755"
+  assert_file_mode "hooks/library/notify-deployment-email.sh" "755"
+  assert_file_mode "hooks/library/notify-deployment-newrelic.sh" "755"
+  assert_file_mode "hooks/library/purge-cache.sh" "755"
 
   assert_dir_exists "hooks/common"
   assert_dir_exists "hooks/common/post-code-update"
   assert_symlink_exists "hooks/common/post-code-update/1.install-site.sh"
-  assert_symlink_exists "hooks/common/post-code-update/2.flush-varnish.sh"
+  assert_symlink_exists "hooks/common/post-code-update/2.purge-cache.sh"
   assert_symlink_exists "hooks/common/post-code-update/3.notify-deployment-email.sh"
   assert_symlink_exists "hooks/common/post-code-deploy"
   assert_symlink_exists "hooks/common/post-db-copy/1.install-site.sh"
-  assert_symlink_exists "hooks/common/post-db-copy/2.flush-varnish.sh"
+  assert_symlink_exists "hooks/common/post-db-copy/2.purge-cache.sh"
   assert_symlink_exists "hooks/common/post-db-copy/3.notify-deployment-email.sh"
 
   assert_dir_exists "hooks/prod"
@@ -463,9 +576,9 @@ assert_files_present_integration_acquia() {
 
   if [ "${include_scripts}" -eq 1 ]; then
     assert_dir_exists "scripts"
-    assert_file_contains ".env" "AC_API_APP_NAME="
-    assert_file_contains ".env" "AC_API_DB_ENV="
-    assert_file_contains ".env" "AC_API_DB_NAME="
+    assert_file_contains ".env" "DREVOPS_ACQUIA_APP_NAME="
+    assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
+    assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
   fi
 
   popd >/dev/null || exit 1
@@ -481,12 +594,12 @@ assert_files_present_no_integration_acquia() {
   assert_dir_not_exists "hooks/library"
   assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_not_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
-  assert_file_not_contains ".env" "AC_API_APP_NAME="
-  assert_file_not_contains ".env" "AC_API_DB_ENV="
-  assert_file_not_contains ".env" "AC_API_DB_NAME="
-  assert_file_not_contains ".ahoy.yml" "AC_API_APP_NAME="
-  assert_file_not_contains ".ahoy.yml" "AC_API_DB_ENV="
-  assert_file_not_contains ".ahoy.yml" "AC_API_DB_NAME="
+  assert_file_not_contains ".env" "DREVOPS_ACQUIA_APP_NAME="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
+  assert_file_not_contains ".ahoy.yml" "DREVOPS_ACQUIA_APP_NAME="
+  assert_file_not_contains ".ahoy.yml" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
+  assert_file_not_contains ".ahoy.yml" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
   assert_dir_not_contains_string "${dir}" "AC_API_USER_NAME"
   assert_dir_not_contains_string "${dir}" "AC_API_USER_PASS"
 
@@ -504,13 +617,17 @@ assert_files_present_integration_lagoon() {
   assert_file_exists ".github/workflows/dispatch-webhook-lagoon.yml"
   assert_file_contains "docker-compose.yml" "labels"
   assert_file_contains "docker-compose.yml" "lagoon.type: cli-persistent"
-  assert_file_contains "docker-compose.yml" "lagoon.persistent.name: nginx"
-  assert_file_contains "docker-compose.yml" "lagoon.persistent: /app/docroot/sites/default/files/"
+  assert_file_contains "docker-compose.yml" "lagoon.persistent.name: &lagoon-nginx-name nginx-php"
+  assert_file_contains "docker-compose.yml" "lagoon.persistent: &lagoon-drupal-files /app/docroot/sites/default/files/"
   assert_file_contains "docker-compose.yml" "lagoon.type: nginx-php-persistent"
-  assert_file_contains "docker-compose.yml" "lagoon.name: nginx"
+  assert_file_contains "docker-compose.yml" "lagoon.name: *lagoon-nginx-name"
   assert_file_contains "docker-compose.yml" "lagoon.type: mariadb"
   assert_file_contains "docker-compose.yml" "lagoon.type: solr"
   assert_file_contains "docker-compose.yml" "lagoon.type: none"
+
+  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT="
+  assert_file_contains ".env" "DREVOPS_LAGOON_ENABLE_DRUSH_ALIASES="
+  assert_file_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
 
   popd >/dev/null || exit 1
 }
@@ -526,13 +643,17 @@ assert_files_present_no_integration_lagoon() {
   assert_file_not_exists ".github/workflows/dispatch-webhook-lagoon.yml"
   assert_file_not_contains "docker-compose.yml" "labels"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: cli-persistent"
-  assert_file_not_contains "docker-compose.yml" "lagoon.persistent.name: nginx"
-  assert_file_not_contains "docker-compose.yml" "lagoon.persistent: /app/docroot/sites/default/files/"
+  assert_file_not_contains "docker-compose.yml" "lagoon.persistent.name: &lagoon-nginx-name nginx-php"
+  assert_file_not_contains "docker-compose.yml" "lagoon.persistent: &lagoon-drupal-files /app/docroot/sites/default/files/"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: nginx-php-persistent"
-  assert_file_not_contains "docker-compose.yml" "lagoon.name: nginx"
+  assert_file_not_contains "docker-compose.yml" "lagoon.name: *lagoon-nginx-name"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: mariadb"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: solr"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
+
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT="
+  assert_file_not_contains ".env" "DREVOPS_LAGOON_ENABLE_DRUSH_ALIASES="
+  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
 
   popd >/dev/null || exit 1
 }
@@ -544,10 +665,12 @@ assert_files_present_integration_ftp() {
   pushd "${dir}" >/dev/null || exit 1
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_HOST="
-  assert_file_contains ".env" "FTP_PORT="
-  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_USER="
-  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
-  assert_file_contains ".env" "FTP_FILE="
+  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_PORT="
+  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_FILE="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_USER="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
+  assert_file_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_USER="
+  assert_file_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
 
   popd >/dev/null || exit 1
 }
@@ -559,10 +682,12 @@ assert_files_present_no_integration_ftp() {
   pushd "${dir}" >/dev/null || exit 1
 
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_HOST="
-  assert_file_not_contains ".env" "FTP_PORT="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_PORT="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_FILE="
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_USER="
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
-  assert_file_not_contains ".env" "FTP_FILE="
+  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_USER="
+  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
 
   popd >/dev/null || exit 1
 }
@@ -807,6 +932,10 @@ prepare_local_repo() {
   commit=$(git_add_all_commit "Initial commit" "${dir}")
 
   echo "${commit}"
+}
+
+prepare_global_gitconfig() {
+  git config --global init.defaultBranch >/dev/null ||  git config --global init.defaultBranch "master"
 }
 
 prepare_global_gitignore() {

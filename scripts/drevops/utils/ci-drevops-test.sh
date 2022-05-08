@@ -9,7 +9,7 @@ set -e
 [ "$(git config --global user.email)" = "" ] && echo "==> Configuring global git user email" && git config --global user.email "someone@example.com"
 
 # Create stub of local framework.
-docker network create amazeeio-network || true
+docker network create amazeeio-network 2> /dev/null || true
 
 # Run Composer Install deps to make sure that scripts run.
 composer install --ignore-platform-reqs --no-interaction --prefer-source
@@ -36,6 +36,7 @@ bats scripts/drevops/tests/bats/mock.bats --tap
 
 echo "==> Test installation."
 bats scripts/drevops/tests/bats/env.bats --tap
+bats scripts/drevops/tests/bats/docker-compose.bats --tap
 bats scripts/drevops/tests/bats/install_initial.bats --tap
 bats scripts/drevops/tests/bats/install_existing.bats --tap
 bats scripts/drevops/tests/bats/install_parameters.bats --tap

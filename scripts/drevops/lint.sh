@@ -36,7 +36,7 @@ DREVOPS_LINT_TYPE="${1:-be-fe}"
 
 if [ -z "${DREVOPS_LINT_TYPE##*be*}" ]; then
   # Lint code for syntax errors.
-  vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${DREVOPS_LINT_PHPLINT_EXTENSIONS} ${DREVOPS_LINT_PHPLINT_TARGETS//,/ } && \
+  vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${DREVOPS_LINT_PHPLINT_EXTENSIONS// /} ${DREVOPS_LINT_PHPLINT_TARGETS//,/ } && \
   # Lint code for coding standards.
   vendor/bin/phpcs ${DREVOPS_LINT_PHPCS_TARGETS//,/ } || \
   # Flag to allow lint to fail.

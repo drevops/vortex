@@ -10,7 +10,7 @@ load _helper_drevops
 @test "Mock: calls and arguments" {
   mock_curl=$(mock_command "curl")
 
-  "${CUR_DIR}/scripts/drevops/tests/bats/fixture.sh"
+  "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/fixture.sh"
 
   assert_equal 2 "$(mock_get_call_num "${mock_curl}")"
 
@@ -23,7 +23,7 @@ load _helper_drevops
   mock_set_output "${mock_curl}" "testoutput1" 1
   mock_set_output "${mock_curl}" "testoutput2" 2
 
-  run "${CUR_DIR}/scripts/drevops/tests/bats/fixture.sh"
+  run "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/fixture.sh"
   assert_success
   assert_equal 2 "$(mock_get_call_num "${mock_curl}")"
   assert_output_contains "testoutput1"
@@ -34,7 +34,7 @@ load _helper_drevops
   mock_curl=$(mock_command "curl")
   mock_set_status "${mock_curl}" 1 1
 
-  run "${CUR_DIR}/scripts/drevops/tests/bats/fixture.sh"
+  run "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/fixture.sh"
   assert_failure
   assert_equal 1 "$(mock_get_call_num "${mock_curl}")"
 }

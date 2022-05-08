@@ -64,8 +64,6 @@ DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 #-------------------------------------------------------------------------------
-#                       DO NOT CHANGE ANYTHING BELOW THIS LINE
-#-------------------------------------------------------------------------------
 
 # Try to read credentials from the credentials file.
 if [ -f ".env.local" ]; then

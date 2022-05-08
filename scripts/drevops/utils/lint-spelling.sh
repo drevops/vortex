@@ -25,7 +25,6 @@ done < <(
     -print0
   )
 
-targets+=(README.md)
 targets+=(DEPLOYMENT.md)
 targets+=(FAQs.md)
 targets+=(ONBOARDING.md)

@@ -27,7 +27,7 @@
 /**
  * Defines Drupal version supported by this installer.
  */
-define('INSTALLER_DREVOPS_DRUPAL_VERSION', 9);
+define('INSTALLER_DRUPAL_VERSION', 9);
 
 /**
  * Defines current working directory.
@@ -342,10 +342,10 @@ function process__database_download_source($dir) {
   file_replace_content('/DREVOPS_DB_DOWNLOAD_SOURCE=.*/', "DREVOPS_DB_DOWNLOAD_SOURCE=$type", $dir . '/.env');
 
   if ($type == 'docker_registry') {
-    remove_token_with_content('!DREVOPS_DATABASE_DOWNLOAD_SOURCE_DREVOPS_DOCKER_REGISTRY', $dir);
+    remove_token_with_content('!DREVOPS_DB_DOWNLOAD_SOURCE_DOCKER_REGISTRY', $dir);
   }
   else {
-    remove_token_with_content('DREVOPS_DATABASE_DOWNLOAD_SOURCE_DREVOPS_DOCKER_REGISTRY', $dir);
+    remove_token_with_content('DREVOPS_DB_DOWNLOAD_SOURCE_DOCKER_REGISTRY', $dir);
   }
 }
 
@@ -426,26 +426,26 @@ function process__string_tokens($dir) {
   // @formatter:off
   // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
   // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
-  dir_replace_content('your_site_theme',   get_answer('theme'),                      $dir);
-  dir_replace_content('your_org',          get_answer('org_machine_name'),           $dir);
-  dir_replace_content('YOURORG',           get_answer('org'),                        $dir);
-  dir_replace_content('your-site-url',     get_answer('url'),                        $dir);
-  dir_replace_content('ys_core',           get_answer('module_prefix') . '_core',    $dir . '/docroot/modules/custom');
-  dir_replace_content('YsCore',            $module_prefix_capitalised . 'Core',      $dir . '/docroot/modules/custom');
-  dir_replace_content('your-site',         $machine_name_hyphenated,                 $dir);
-  dir_replace_content('your_site',         get_answer('machine_name'),               $dir);
-  dir_replace_content('YOURSITE',          get_answer('name'),                       $dir);
-  dir_replace_content('YourSite',          $machine_name_camel_cased,                $dir);
-  replace_string_filename('YourSite',      $machine_name_camel_cased,                $dir);
+  dir_replace_content('your_site_theme',       get_answer('theme'),                      $dir);
+  dir_replace_content('your_org',              get_answer('org_machine_name'),           $dir);
+  dir_replace_content('YOURORG',               get_answer('org'),                        $dir);
+  dir_replace_content('your-site-url.example', get_answer('url'),                        $dir);
+  dir_replace_content('ys_core',               get_answer('module_prefix') . '_core',    $dir . '/docroot/modules/custom');
+  dir_replace_content('YsCore',                $module_prefix_capitalised . 'Core',      $dir . '/docroot/modules/custom');
+  dir_replace_content('your-site',             $machine_name_hyphenated,                 $dir);
+  dir_replace_content('your_site',             get_answer('machine_name'),               $dir);
+  dir_replace_content('YOURSITE',              get_answer('name'),                       $dir);
+  dir_replace_content('YourSite',              $machine_name_camel_cased,                $dir);
+  replace_string_filename('YourSite',          $machine_name_camel_cased,                $dir);
 
-  dir_replace_content('DREVOPS_VERSION_URLENCODED',  $drevops_version_urlencoded,    $dir);
-  dir_replace_content('DREVOPS_VERSION',             get_config('DREVOPS_VERSION'),  $dir);
+  dir_replace_content('DREVOPS_VERSION_URLENCODED', $drevops_version_urlencoded,    $dir);
+  dir_replace_content('DREVOPS_VERSION',            get_config('DREVOPS_VERSION'),  $dir);
 
-  replace_string_filename('your_site_theme',  get_answer('theme'),                   $dir);
-  replace_string_filename('ys_core',          get_answer('module_prefix') . '_core', $dir . '/docroot/modules/custom');
-  replace_string_filename('YsCore',           $module_prefix_capitalised . 'Core',   $dir . '/docroot/modules/custom');
-  replace_string_filename('your_org',         get_answer('org_machine_name'),        $dir);
-  replace_string_filename('your_site',        get_answer('machine_name'),            $dir);
+  replace_string_filename('your_site_theme',   get_answer('theme'),                   $dir);
+  replace_string_filename('ys_core',           get_answer('module_prefix') . '_core', $dir . '/docroot/modules/custom');
+  replace_string_filename('YsCore',            $module_prefix_capitalised . 'Core',   $dir . '/docroot/modules/custom');
+  replace_string_filename('your_org',          get_answer('org_machine_name'),        $dir);
+  replace_string_filename('your_site',         get_answer('machine_name'),            $dir);
   // @formatter:on
   // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
   // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
@@ -836,7 +836,7 @@ function init_cli_args_and_options($argv) {
  */
 function init_config() {
   // Internal version of DrevOps.
-  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DREVOPS_DRUPAL_VERSION . '.x'));
+  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DRUPAL_VERSION . '.x'));
   // Flag to display install debug information.
   set_config('DREVOPS_INSTALL_DEBUG', (bool) getenv_or_default('DREVOPS_INSTALL_DEBUG', FALSE));
   // Flag to proceed with installation. If FALSE - the installation will only
@@ -1169,9 +1169,9 @@ function discover_value__preserve_lagoon() {
     return ANSWER_YES;
   }
 
-  $value = get_value_from_dst_dotenv('DREVOPS_LAGOON_PROJECT');
+  $value = get_value_from_dst_dotenv('LAGOON_PROJECT');
 
-  // Special case - only work with non-empty value as 'DREVOPS_LAGOON_PROJECT'
+  // Special case - only work with non-empty value as 'LAGOON_PROJECT'
   // may not exist in installed site's .env file.
   if (empty($value)) {
     return NULL;
@@ -1509,7 +1509,7 @@ function print_header_quiet() {
 function print_summary() {
   $values['Current directory'] = CUR_DIR;
   $values['Destination directory'] = get_dst_dir();
-  $values['Drupal version'] = getenv_or_default('DREVOPS_DRUPAL_VERSION', INSTALLER_DREVOPS_DRUPAL_VERSION);
+  $values['Drupal version'] = getenv_or_default('DREVOPS_DRUPAL_VERSION', INSTALLER_DRUPAL_VERSION);
   $values['DrevOps version'] = get_config('DREVOPS_VERSION');
   $values['DrevOps commit'] = format_not_empty(get_config('DREVOPS_COMMIT'), 'Latest');
 

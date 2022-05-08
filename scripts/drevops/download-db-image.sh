@@ -6,27 +6,28 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-# Docker image to store passed as a first argument to the script in a form of
-# <org>/<repository>.
-DREVOPS_DOCKER_IMAGE="${1:-}"
+# The Docker image containing database passed in a form of `<org>/<repository>`.
+DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE="${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE:-${DREVOPS_DB_DOCKER_IMAGE}}"
 
 # The username of the docker registry to download the database from.
-DREVOPS_DOCKER_REGISTRY_USERNAME="${DREVOPS_DOCKER_REGISTRY_USERNAME:-}"
+DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_USERNAME="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_USERNAME:-${DREVOPS_DOCKER_REGISTRY_USERNAME}}"
+
 # The token of the docker registry to download the database from.
-DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN:-}"
-# Docker registry name. Provide port, if required as <server_name>:<port>.
-# Defaults to DockerHub.
-DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-docker.io}"
+DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN:-${DREVOPS_DOCKER_REGISTRY_TOKEN}}"
+
+# The name of the Docker registry to download the database from.
+DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY:-${DREVOPS_DOCKER_REGISTRY:-docker.io}}"
 
 #-------------------------------------------------------------------------------
 echo "==> Start Docker data image download."
 
-[ -z "${DREVOPS_DOCKER_IMAGE}" ] && echo "ERROR: Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
+[ -z "${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE}" ] && echo "ERROR: Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
 
+export DREVOPS_DOCKER_REGISTRY_USERNAME="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_USERNAME}"
+export DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN}"
+export DREVOPS_DOCKER_REGISTRY="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY}"
 ./scripts/drevops/docker-login.sh
 
-new_image="${DREVOPS_DOCKER_REGISTRY}/${DREVOPS_DOCKER_IMAGE}"
-
-docker pull "${new_image}"
+docker pull "${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY}/${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE}"
 
 echo "==> Finish Docker data image download."

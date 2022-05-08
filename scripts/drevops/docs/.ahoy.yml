@@ -22,7 +22,7 @@ commands:
   info:
     usage: Print information about this project.
     cmd: |
-      ahoy line "Site local URL: " ${LAGOON_DREVOPS_LOCALDEV_URL}
+      ahoy line "Site local URL: " ${LAGOON_DREVOPS_DOCTOR_LOCALDEV_URL}
 
   version:
     usage: MkDocs version
@@ -56,7 +56,7 @@ entrypoint:
   - "-c"
   - "-e"
   - |
-    export LAGOON_DREVOPS_LOCALDEV_URL=http://drevops-docs.docker.amazee.io:8000
+    export LAGOON_DREVOPS_DOCTOR_LOCALDEV_URL=http://drevops-docs.docker.amazee.io:8000
     bash -e -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'

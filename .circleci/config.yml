@@ -124,7 +124,7 @@ aliases:
           # Which branch to use as a source of DB caches.
           DREVOPS_CI_DB_CACHE_BRANCH: *drevops_ci_db_cache_branch
           # Directory to store code exported between jobs.
-          DREVOPS_BUILD_CODE_EXPORT_DIR: &build_export_dir /workspace/code
+          DREVOPS_EXPORT_CODE_DIR: &build_export_dir /workspace/code
           # Do not use symlink when downloading database dump (useful only locally).
           DB_USE_SYMLINK: false
           # Directory to store test results.
@@ -216,7 +216,7 @@ jobs:
       #: are not applied, so we could cache the database as it was downloaded.
       - run:
           name: Download DB
-          command: DREVOPS_DB_DOWNLOAD_POST_PROCESS="export DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
+          command: DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE="${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE:-${DREVOPS_DB_DOCKER_IMAGE}}" DREVOPS_DB_DOWNLOAD_POST_PROCESS="export DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
           no_output_timeout: 30m
       - save_cache:
           # Save cache per default branch and the timestamp. Note that the
@@ -237,9 +237,9 @@ jobs:
       DREVOPS_CI_DB_CACHE_FALLBACK: 'no'
       # Always use fresh base image for the database.
       DREVOPS_DB_DOCKER_IMAGE_BASE: drevops/mariadb-drupal-data
-      # Deploy docker image (if DREVOPS_DOCKER_IMAGE storage is used) to provide fresh
-      # daily images for developers.
-      EXPORT_DB_DEPLOY_DOCKER: 1
+      # Deploy docker image (if DREVOPS_DB_EXPORT_DOCKER_IMAGE storage is used)
+      # to provide fresh daily images for developers.
+      DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
   #;> !FRESH_INSTALL
 
   #; Build and test is a second step of the build. The testing is performed
@@ -445,10 +445,10 @@ jobs:
       DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
       #; Use a separate tag to make sure that pushed image does not affect
       #; other tests (pushing broken image as 'latest' will fail other tests).
-      DOCKER_IMAGE_TAG: drevops_dev_didi_database_fi
+      DREVOPS_DOCKER_IMAGE_TAG: drevops_dev_didi_database_fi
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
-      EXPORT_DB_DEPLOY_DOCKER: 1
+      DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
       #; Use custom cache key for this workflow to make sure that caches from
       #; the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: drevops_dev_didi_fi
@@ -460,10 +460,10 @@ jobs:
       DREVOPS_DB_DOWNLOAD_SOURCE: docker_registry
       DREVOPS_DB_DOWNLOAD_FORCE: 1
       DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
-      DOCKER_IMAGE_TAG: drevops_dev_database_ii
+      DREVOPS_DOCKER_IMAGE_TAG: drevops_dev_database_ii
       #; Also, use this job to test pushing of the DB image to the Docker
       #; registry so mimic what database_nightly job would do.
-      EXPORT_DB_DEPLOY_DOCKER: 1
+      DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
       #; Use custom cache key for this workflow to make sure that caches from
       #; the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: drevops_dev_didi_ii

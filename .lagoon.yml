@@ -8,9 +8,8 @@ environment_variables:
 # container-registries:
 #  dockerhub:
 #    username: <dockerhub username>
-#    # Environment variable name (`DREVOPS_DOCKER_REGISTRY_TOKEN` in this case) with
-#    # the registry password added injected into container via LagoonCLI or
-#    # GraphQL.
+#    # Environment variable $DREVOPS_DOCKER_REGISTRY_TOKEN with Docker registry
+#    # password is injected into container via LagoonCLI.
 #    # @see https://docs.lagoon.sh/using-lagoon-advanced/environment-variables/#runtime-environment-variables-lagoon-api
 #    password: DREVOPS_DOCKER_REGISTRY_TOKEN
 
@@ -34,8 +33,8 @@ tasks:
     - run:
         name: Backup DB before deployment in production
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_LAGOON_PRODUCTION_BRANCH" ]; then
-            DREVOPS_DB_DIR=/app/docroot/sites/default/files/private/pre_deployment_backups ./scripts/drevops/drupal-export-db.sh
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_PRODUCTION_BRANCH" ]; then
+            DREVOPS_DB_DIR=/app/docroot/sites/default/files/private/pre_deployment_backups ./scripts/drevops/export-db-file.sh
           fi
         service: cli
 
@@ -61,7 +60,7 @@ tasks:
           # Do not load SSH file to access production environment to download the
           # DB as Lagoon already has the keys loaded into the SSH agent.
           export DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE=false
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_LAGOON_PRODUCTION_BRANCH" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_PRODUCTION_BRANCH" ]; then
             echo "==> Skipping DB download in the production environment."
           else
             # Remove previously saved dumps in this environment.
@@ -79,7 +78,7 @@ tasks:
           # Read DB dump from the temp location instead of '.data'.
           export DREVOPS_DB_DIR=/tmp/data
 
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_LAGOON_PRODUCTION_BRANCH" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_PRODUCTION_BRANCH" ]; then
             # Never overwrite existing DB when production site already exists.
             export DREVOPS_DB_OVERWRITE_EXISTING=0
             # Never unblock admin user in production.
@@ -105,14 +104,14 @@ tasks:
           [ -n "$LAGOON_PR_NUMBER" ] && GIT_REF=$LAGOON_PR_NUMBER || GIT_REF=$LAGOON_GIT_BRANCH
           php ./scripts/drevops/notify-deployment-email.php \
             "YOURSITE" \
-            "lagoon-deploy@your-site-url" \
-            "your.name@your-site-url|Your Name" \
+            "lagoon-deploy@your-site-url.example" \
+            "your.name@your-site-url.example|Your Name" \
             "$GIT_REF" \
             "$LAGOON_ROUTES"
 
           if [ "$NEWRELIC_ENABLED" = "1" ] && [ -n "$NEWRELIC_LICENSE" ] && [ -n "$DREVOPS_NOTIFY_NEWRELIC_APIKEY" ]; then
             [ -n "$LAGOON_PR_NUMBER" ] && GIT_SHA=$LAGOON_PR_HEAD_SHA || GIT_SHA=$LAGOON_GIT_SHA
-            DREVOPS_NOTIFY_NEWRELIC_APPNAME="$DREVOPS_LAGOON_PROJECT-$GIT_SHA" \
+            DREVOPS_NOTIFY_NEWRELIC_APP_NAME="$LAGOON_PROJECT-$GIT_SHA" \
             DREVOPS_NOTIFY_DEPLOY_REF="$GIT_SHA" \
             ./scripts/drevops/notify-deployment-newrelic.sh
           fi
@@ -148,10 +147,10 @@ environments:
     # By default, Lagoon installs Let's Encrypt certificates for all environments.
     # routes:
     #   - nginx-php:
-    #       - www.your-site-url:
+    #       - www.your-site-url.example:
     #           tls-acme: 'false'
     monitoring_urls:
-      - www.your-site-url
+      - www.your-site-url.example
   # Branch name that represents development environment.
   develop:
     cronjobs:
@@ -163,10 +162,10 @@ environments:
     # By default, Lagoon installs Let's Encrypt certificates for all environments.
     # routes:
     #   - nginx-php:
-    #       - dev.your-site-url:
+    #       - dev.your-site-url.example:
     #           tls-acme: 'false'
     monitoring_urls:
-      - dev.your-site-url
+      - dev.your-site-url.example
 
 routes:
   insecure: Redirect

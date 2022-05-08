@@ -1,1 +1,0 @@
-../../library/flush-varnish.sh

@@ -34,7 +34,7 @@ commands:
       docker-compose exec \
         -e DREVOPS_HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2) \
         -e DREVOPS_HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2) \
-        -e DREVOPS_SHOW_LOGIN_LINK=${DREVOPS_SHOW_LOGIN_LINK} \
+        -e DREVOPS_DRUPAL_SHOW_LOGIN=${DREVOPS_DRUPAL_SHOW_LOGIN} \
         cli ./scripts/drevops/info.sh "$@"
 
   db:
@@ -62,7 +62,7 @@ commands:
       ahoy confirm "Running this command will remove your current database. Are you sure?" &&
       #: Always remove dangling volumes after removing containers to prevent
       #: data leaking between builds (resulting in inconsistent builds).
-      if [ -f "docker-compose.yml" ]; then docker-compose down --volumes; fi
+      if [ -f "docker-compose.yml" ]; then docker-compose down --volumes > /dev/null 2>&1; fi
 
   start:
     usage: Start all or specified existing Docker containers.
@@ -98,7 +98,7 @@ commands:
 
   drush:
     usage: Run drush commands in the CLI service container.
-    cmd: docker-compose exec -T cli bash -c "drush -l ${DREVOPS_LOCALDEV_URL} $*"
+    cmd: docker-compose exec -T cli bash -c "drush -l ${DREVOPS_DOCTOR_LOCALDEV_URL} $*"
 
   #;< REDIS
   flush-redis:
@@ -135,9 +135,9 @@ commands:
   export-db:
     usage: Export database dump or database image (DREVOPS_DB_DOCKER_IMAGE variable must be set).
     cmd: |
-      [ -z "${DREVOPS_DB_DOCKER_IMAGE}" ] && docker-compose exec -e DREVOPS_DB_DIR=${DREVOPS_DB_DIR:-} -T cli ./scripts/drevops/drupal-export-db.sh "$@" || \
-      ( DREVOPS_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE}" ./scripts/drevops/drupal-export-db-image.sh "$@";
-        if [ "${EXPORT_DB_DEPLOY_DOCKER}" = "1" ]; then DREVOPS_DEPLOY_DOCKER_MAP=mariadb=${DREVOPS_DB_DOCKER_IMAGE} DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG} ./scripts/drevops/deploy-docker.sh; fi )
+      [ -z "${DREVOPS_DB_DOCKER_IMAGE}" ] && docker-compose exec -e DREVOPS_DB_DIR=${DREVOPS_DB_DIR:-} -T cli ./scripts/drevops/export-db-file.sh "$@" || \
+      ( DREVOPS_DB_EXPORT_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE}" ./scripts/drevops/export-db-docker.sh "$@";
+      if [ "${DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED}" = "1" ]; then DREVOPS_DEPLOY_DOCKER_MAP=mariadb=${DREVOPS_DB_DOCKER_IMAGE} DREVOPS_DEPLOY_DOCKER_IMAGE_TAG=${DREVOPS_DOCKER_IMAGE_TAG} ./scripts/drevops/deploy-docker.sh; fi )
 
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.

@@ -170,7 +170,7 @@ if (getenv('LAGOON')) {
   }
   // Use a dedicated branch to identify production environment.
   // This is useful when 'production' Lagoon environment is not provisioned yet.
-  elseif (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') == getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) {
+  elseif (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('DREVOPS_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') == getenv('DREVOPS_PRODUCTION_BRANCH')) {
     $settings['environment'] = ENVIRONMENT_PROD;
   }
   elseif (getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
@@ -213,7 +213,7 @@ if ($settings['environment'] == ENVIRONMENT_PROD) {
   $config['environment_indicator.settings']['favicon'] = TRUE;
 }
 else {
-  $config['stage_file_proxy.settings']['origin'] = sprintf('https://%s:%s@your-site-url/', getenv('DRUPAL_SHIELD_USER'), getenv('DRUPAL_SHIELD_PASS'));
+  $config['stage_file_proxy.settings']['origin'] = sprintf('https://%s:%s@your-site-url.example/', getenv('DRUPAL_SHIELD_USER'), getenv('DRUPAL_SHIELD_PASS'));
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
 
   $config['environment_indicator.indicator']['name'] = $settings['environment'];
