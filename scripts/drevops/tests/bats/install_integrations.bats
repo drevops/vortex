@@ -93,7 +93,7 @@ load _helper_drevops
     "nothing" # fresh_install
     "curl" # database_download_source
     "file" # database_store_type
-    "code" # deploy_type
+    "artifact" # deploy_type
     "y" # preserve_ftp
     "y" # preserve_acquia
     "y" # preserve_lagoon
@@ -127,7 +127,7 @@ load _helper_drevops
     "nothing" # theme
     "nothing" # URL
     "y" # fresh_install
-    "code" # deploy_type
+    "artifact" # deploy_type
     "y" # preserve_ftp
     "y" # preserve_acquia
     "y" # preserve_lagoon

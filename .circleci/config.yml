@@ -48,7 +48,7 @@ aliases:
 
   # SSH key fingerprint to deploy code.
   #: Generate a separate SSH key for a user who has push permissions to
-  #: $DREVOPS_DEPLOY_CODE_GIT_REMOTE repo with `ssh-keygen -m PEM -t rsa -C "deployer@example.com"
+  #: $DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE repo with `ssh-keygen -m PEM -t rsa -C "deployer@example.com"
   #: command and add private key under "SSH Permissions" in CircleCI UI.
   #;
   #; This is a fingerprint of the key to push DrevOps project itself as an example.
@@ -128,31 +128,32 @@ aliases:
           # Do not use symlink when downloading database dump (useful only locally).
           DB_USE_SYMLINK: false
           # Directory to store test results.
-          DREVOPS_TEST_REPORTS_DIR: &DREVOPS_TEST_REPORTS_DIR /tmp/tests
+          DREVOPS_TEST_REPORTS_DIR: &drevops_test_reports_dir /tmp/tests
           # Directory to store test artifacts.
-          DREVOPS_TEST_ARTIFACT_DIR: &DREVOPS_TEST_ARTIFACT_DIR /tmp/artifacts
+          DREVOPS_TEST_ARTIFACT_DIR: &drevops_test_artifact_dir /tmp/artifacts
           # Use compact error reporting format.
           DREVOPS_TEST_BEHAT_FORMAT: progress_fail
-          # Directory to use for code deployments.
-          DREVOPS_DEPLOY_CODE_SRC: *build_export_dir
-          # Source code location.
-          DREVOPS_DEPLOY_CODE_ROOT: *working_directory
-          # Deployment report file location.
-          DREVOPS_DEPLOY_CODE_REPORT_FILE: /tmp/artifacts/deployment_report.txt
+          # Directory to use for artifact deployments.
+          DREVOPS_DEPLOY_ARTIFACT_SRC: *build_export_dir
+          # Source code location for artifact deployments.
+          DREVOPS_DEPLOY_ARTIFACT_ROOT: *working_directory
+          # Report file location for artifact deployments.
+          DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE: /tmp/artifacts/deployment_report.txt
           # Check only minimal stack requirements.
           DREVOPS_DOCTOR_CHECK_MINIMAL: 1
           #;< DREVOPS_DEV
-          # Volumes mounting to host is not supported in CircleCI.
+          # Volumes mounting to host is not supported in CircleCI. This is used
+          # for DrevOps own tests and will be automatically removed upon installation.
           DREVOPS_DEV_VOLUMES_MOUNTED: 0
           #;> DREVOPS_DEV
     resource_class: *resource_class
 
-  # Step to setup remote docker.
+  # Set up remote docker.
   - &step_setup_remote_docker
     setup_remote_docker:
       docker_layer_caching: *docker_layer_caching
       version: 19.03.13
-  # Step to process the codebase to be ran in CI environment.
+  # Process the codebase to be run in CI environment.
   - &step_process_codebase
     run:
       name: Process codebase to run in CI
@@ -286,9 +287,9 @@ jobs:
             ) || true
           when: always
       - store_test_results:
-          path: *DREVOPS_TEST_REPORTS_DIR
+          path: *drevops_test_reports_dir
       - store_artifacts:
-          path: *DREVOPS_TEST_ARTIFACT_DIR
+          path: *drevops_test_artifact_dir
       #:
       #: Persisting previously built application code artifact (without
       #: development dependencies) to use it in deployment job.
@@ -322,7 +323,7 @@ jobs:
             ahoy deploy
           no_output_timeout: 30m
       - store_artifacts:
-          path: *DREVOPS_TEST_ARTIFACT_DIR
+          path: *drevops_test_artifact_dir
 
   # Deploy tags.
   deploy_tags: &job_deploy_tags
@@ -342,11 +343,11 @@ jobs:
       - *step_process_codebase
       - run:
           command: |
-            DREVOPS_DEPLOY_CODE_GIT_BRANCH="deployment/[tags:-]" \
+            DREVOPS_DEPLOY_ARTIFACT_GIT_BRANCH="deployment/[tags:-]" \
             ahoy deploy
           no_output_timeout: 30m
       - store_artifacts:
-          path: *DREVOPS_TEST_ARTIFACT_DIR
+          path: *drevops_test_artifact_dir
   #;> DEPLOYMENT
 
   #;----------------------------------------------------------------------------

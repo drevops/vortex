@@ -368,7 +368,7 @@ function process__deploy_type($dir) {
     remove_token_with_content('!DEPLOYMENT', $dir);
   }
   else {
-    if (strpos($type, 'code') === FALSE) {
+    if (strpos($type, 'artifact') === FALSE) {
       @unlink("$dir/.gitignore.deployment");
     }
     @unlink("$dir/DEPLOYMENT.md");
@@ -943,7 +943,7 @@ function get_default_value__database_image() {
 }
 
 function get_default_value__deploy_type() {
-  return 'code';
+  return 'artifact';
 }
 
 function get_default_value__preserve_acquia() {
@@ -1374,7 +1374,9 @@ function normalise_answer__deploy_type($value) {
 
       case 'c':
       case 'code':
-        $normalised[] = 'code';
+      case 'a':
+      case 'artifact':
+        $normalised[] = 'artifact';
         break;
 
       case 'd':

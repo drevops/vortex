@@ -73,11 +73,11 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
   fi
 fi
 
-if [ -z "${DREVOPS_DEPLOY_TYPE##*code*}" ]; then
-  echo "==> Started 'code' deployment."
-  export DREVOPS_DEPLOY_CODE_SSH_FINGERPRINT="${DREVOPS_DEPLOY_CODE_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_SSH_FINGERPRINT}}"
-  export DREVOPS_DEPLOY_CODE_SSH_FILE="${DREVOPS_DEPLOY_CODE_SSH_FILE:-${DREVOPS_DEPLOY_SSH_FILE}}"
-  ./scripts/drevops/deploy-code.sh
+if [ -z "${DREVOPS_DEPLOY_TYPE##*artifact*}" ]; then
+  echo "==> Started 'artifact' deployment."
+  export DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT="${DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_SSH_FINGERPRINT}}"
+  export DREVOPS_DEPLOY_ARTIFACT_SSH_FILE="${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE:-${DREVOPS_DEPLOY_SSH_FILE}}"
+  ./scripts/drevops/deploy-artifact.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*webhook*}" ]; then

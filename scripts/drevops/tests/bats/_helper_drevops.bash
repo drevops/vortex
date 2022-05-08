@@ -223,7 +223,7 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/build.sh"
   assert_file_exists "scripts/drevops/clean.sh"
   assert_file_exists "scripts/drevops/deploy.sh"
-  assert_file_exists "scripts/drevops/deploy-code.sh"
+  assert_file_exists "scripts/drevops/deploy-artifact.sh"
   assert_file_exists "scripts/drevops/deploy-docker.sh"
   assert_file_exists "scripts/drevops/deploy-lagoon.sh"
   assert_file_exists "scripts/drevops/deploy-webhook.sh"
