@@ -28,7 +28,7 @@ prepare_sut() {
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
   assert_files_present_no_integration_ftp
-  assert_files_present_integration_dependenciesio
+  assert_files_present_integration_renovatebot
   assert_git_repo
 
   substep "Add all DrevOps files to new git repo"
@@ -122,7 +122,7 @@ assert_ahoy_build() {
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
   assert_files_present_no_integration_ftp
-  assert_files_present_integration_dependenciesio
+  assert_files_present_integration_renovatebot
 
   # Assert generated settings file exists.
   assert_file_exists docroot/sites/default/settings.generated.php

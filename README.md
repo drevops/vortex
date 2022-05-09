@@ -7,8 +7,7 @@
 
 [![CircleCI](https://circleci.com/gh/drevops/drevops/tree/9.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/9.x)
 ![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg)
-[![Licence: GPL 3](https://img.shields.io/badge/licence-GPL3-blue.svg)](https://github.com/drevops/drevops/blob/9.x/LICENSE)
-[![Dependencies.io](https://img.shields.io/badge/dependencies.io-enabled-green.svg)](https://dependencies.io)
+[![Licence: GPL 3](https://img.shields.io/badge/Licence-GPL3-blue.svg)](https://github.com/drevops/drevops/blob/9.x/LICENSE)
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B%20%F0%9F%90%B3%20%2B%20%E2%9C%93%E2%9C%93%E2%9C%93%20%2B%20%F0%9F%A4%96%20%3D%20DrevOps%20-%20%20Build%2C%20Test%2C%20Deploy%20scripts%20for%20Drupal%20using%20Docker%20and%20CI%2FCD&amp;url=https://www.drevops.com&amp;via=drev_ops&amp;hashtags=drupal,devops,workflow,composer,template,kickstart,ci,test,build)
 
 </div>
@@ -110,11 +109,11 @@ Drupal 9 implementation of YOURSITE for YOURORG
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 ![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg)
 
-[//]: # (#;< DEPENDENCIESIO)
+[//]: # (#;< RENOVATEBOT)
 
-[![Dependencies.io](https://img.shields.io/badge/dependencies.io-enabled-green.svg)](https://dependencies.io)
+[![RenovateBot](https://img.shields.io/badge/RenovateBot-enabled-brightgreen.svg?logo=renovatebot)](https://renovatebot.com)
 
-[//]: # (#;> DEPENDENCIESIO)
+[//]: # (#;> RENOVATEBOT)
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DREVOPS TO TRACK INTEGRATION)
 

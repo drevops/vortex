@@ -182,7 +182,7 @@ function process() {
     'preserve_acquia',
     'preserve_lagoon',
     'preserve_ftp',
-    'preserve_dependenciesio',
+    'preserve_renovatebot',
     'string_tokens',
     'preserve_doc_comments',
     'demo_mode',
@@ -415,13 +415,13 @@ function process__preserve_ftp($dir) {
   }
 }
 
-function process__preserve_dependenciesio($dir) {
-  if (get_answer('preserve_dependenciesio') == ANSWER_YES) {
-    remove_token_with_content('!DEPENDENCIESIO', $dir);
+function process__preserve_renovatebot($dir) {
+  if (get_answer('preserve_renovatebot') == ANSWER_YES) {
+    remove_token_with_content('!RENOVATEBOT', $dir);
   }
   else {
-    @unlink("$dir/dependencies.yml");
-    remove_token_with_content('DEPENDENCIESIO', $dir);
+    @unlink("$dir/renovate.json");
+    remove_token_with_content('RENOVATEBOT', $dir);
   }
 }
 
@@ -683,7 +683,7 @@ function gather_answers() {
   }
 
   ask_for_answer('preserve_lagoon', 'Do you want to keep Amazee.io Lagoon integration?');
-  ask_for_answer('preserve_dependenciesio', 'Do you want to keep dependencies.io integration?');
+  ask_for_answer('preserve_renovatebot', 'Do you want to keep RenovateBot integration?');
 
   ask_for_answer('preserve_doc_comments', 'Do you want to keep detailed documentation in comments?');
   ask_for_answer('preserve_drevops_info', 'Do you want to keep all DrevOps information?');
@@ -966,7 +966,7 @@ function get_default_value__preserve_ftp() {
   return ANSWER_NO;
 }
 
-function get_default_value__preserve_dependenciesio() {
+function get_default_value__preserve_renovatebot() {
   return ANSWER_YES;
 }
 
@@ -1197,11 +1197,11 @@ function discover_value__preserve_ftp() {
   return $value == 'ftp' ? ANSWER_YES : ANSWER_NO;
 }
 
-function discover_value__preserve_dependenciesio() {
+function discover_value__preserve_renovatebot() {
   if (!is_installed()) {
     return NULL;
   }
-  return is_readable(get_dst_dir() . '/dependencies.yml') ? ANSWER_YES : ANSWER_NO;
+  return is_readable(get_dst_dir() . '/renovate.json') ? ANSWER_YES : ANSWER_NO;
 }
 
 function discover_value__preserve_doc_comments() {
@@ -1425,7 +1425,7 @@ function normalise_answer__preserve_ftp($value) {
   return strtolower($value) != ANSWER_YES ? ANSWER_NO : ANSWER_YES;
 }
 
-function normalise_answer__preserve_dependenciesio($value) {
+function normalise_answer__preserve_renovatebot($value) {
   return strtolower($value) != ANSWER_YES ? ANSWER_NO : ANSWER_YES;
 }
 
@@ -1552,7 +1552,7 @@ function print_summary() {
   $values['FTP integration'] = format_enabled(get_answer('preserve_ftp'));
   $values['Acquia integration'] = format_enabled(get_answer('preserve_acquia'));
   $values['Lagoon integration'] = format_enabled(get_answer('preserve_lagoon'));
-  $values['dependencies.io integration'] = format_enabled(get_answer('preserve_dependenciesio'));
+  $values['RenovateBot integration'] = format_enabled(get_answer('preserve_renovatebot'));
   $values['Preserve docs in comments'] = format_yes_no(get_answer('preserve_doc_comments'));
   $values['Preserve DrevOps comments'] = format_yes_no(get_answer('preserve_drevops_info'));
 

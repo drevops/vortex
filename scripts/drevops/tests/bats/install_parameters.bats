@@ -39,7 +39,7 @@ load _helper_drevops
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
@@ -56,23 +56,23 @@ load _helper_drevops
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
-  assert_output_contains "                            Name:  Star wars     "
-  assert_output_contains "                    Machine name:  star_wars     "
-  assert_output_contains "                    Organisation:  Star wars Org "
-  assert_output_contains "       Organisation machine name:  star_wars_org "
-  assert_output_contains "                   Module prefix:  sw            "
-  assert_output_contains "                         Profile:  standard      "
-  assert_output_contains "                      Theme name:  star_wars     "
-  assert_output_contains "                             URL:  star-wars.com "
-  assert_output_contains "        Database download source:  curl          "
-  assert_output_contains "             Database store type:  file          "
-  assert_output_contains "                      Deployment:  artifact      "
-  assert_output_contains "                 FTP integration:  Disabled      "
-  assert_output_contains "              Acquia integration:  Disabled      "
-  assert_output_contains "              Lagoon integration:  Disabled      "
-  assert_output_contains "     dependencies.io integration:  Enabled       "
-  assert_output_contains "       Preserve docs in comments:  Yes           "
-  assert_output_contains "       Preserve DrevOps comments:  No            "
+  assert_output_contains "                          Name:  Star wars     "
+  assert_output_contains "                  Machine name:  star_wars     "
+  assert_output_contains "                  Organisation:  Star wars Org "
+  assert_output_contains "     Organisation machine name:  star_wars_org "
+  assert_output_contains "                 Module prefix:  sw            "
+  assert_output_contains "                       Profile:  standard      "
+  assert_output_contains "                    Theme name:  star_wars     "
+  assert_output_contains "                           URL:  star-wars.com "
+  assert_output_contains "      Database download source:  curl          "
+  assert_output_contains "           Database store type:  file          "
+  assert_output_contains "                    Deployment:  artifact      "
+  assert_output_contains "               FTP integration:  Disabled      "
+  assert_output_contains "            Acquia integration:  Disabled      "
+  assert_output_contains "            Lagoon integration:  Disabled      "
+  assert_output_contains "       RenovateBot integration:  Enabled       "
+  assert_output_contains "     Preserve docs in comments:  Yes           "
+  assert_output_contains "     Preserve DrevOps comments:  No            "
 }
 
 @test "Install parameters: empty dir; defaults; interactive" {
@@ -94,7 +94,7 @@ load _helper_drevops
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
@@ -102,23 +102,23 @@ load _helper_drevops
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
-  assert_output_contains "                            Name:  Star wars     "
-  assert_output_contains "                    Machine name:  star_wars     "
-  assert_output_contains "                    Organisation:  Star wars Org "
-  assert_output_contains "       Organisation machine name:  star_wars_org "
-  assert_output_contains "                   Module prefix:  sw            "
-  assert_output_contains "                         Profile:  standard      "
-  assert_output_contains "                      Theme name:  star_wars     "
-  assert_output_contains "                             URL:  star-wars.com "
-  assert_output_contains "        Database download source:  curl          "
-  assert_output_contains "             Database store type:  file          "
-  assert_output_contains "                      Deployment:  artifact      "
-  assert_output_contains "                 FTP integration:  Disabled      "
-  assert_output_contains "              Acquia integration:  Disabled      "
-  assert_output_contains "              Lagoon integration:  Disabled      "
-  assert_output_contains "     dependencies.io integration:  Enabled       "
-  assert_output_contains "       Preserve docs in comments:  Yes           "
-  assert_output_contains "       Preserve DrevOps comments:  No            "
+  assert_output_contains "                          Name:  Star wars     "
+  assert_output_contains "                  Machine name:  star_wars     "
+  assert_output_contains "                  Organisation:  Star wars Org "
+  assert_output_contains "     Organisation machine name:  star_wars_org "
+  assert_output_contains "                 Module prefix:  sw            "
+  assert_output_contains "                       Profile:  standard      "
+  assert_output_contains "                    Theme name:  star_wars     "
+  assert_output_contains "                           URL:  star-wars.com "
+  assert_output_contains "      Database download source:  curl          "
+  assert_output_contains "           Database store type:  file          "
+  assert_output_contains "                    Deployment:  artifact      "
+  assert_output_contains "               FTP integration:  Disabled      "
+  assert_output_contains "            Acquia integration:  Disabled      "
+  assert_output_contains "            Lagoon integration:  Disabled      "
+  assert_output_contains "       RenovateBot integration:  Enabled       "
+  assert_output_contains "     Preserve docs in comments:  Yes           "
+  assert_output_contains "     Preserve DrevOps comments:  No            "
 }
 
 # Note that there is no quiet test for this scenario.
@@ -142,7 +142,7 @@ load _helper_drevops
     "nope" # preserve_ftp
     "dunno" # preserve_acquia
     "nah" # preserve_lagoon
-    "never" # preserve_dependenciesio
+    "never" # preserve_renovatebot
     "nnnooo" # preserve_doc_comments
     "nooo" # preserve_drevops_info
   )
@@ -150,23 +150,23 @@ load _helper_drevops
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed."
 
-  assert_output_contains "                            Name:  Star wars              "
-  assert_output_contains "                    Machine name:  star_wars_machine      "
-  assert_output_contains "                    Organisation:  The Empire             "
-  assert_output_contains "       Organisation machine name:  the_new_empire         "
-  assert_output_contains "                   Module prefix:  s_w                    "
-  assert_output_contains "                         Profile:  s_w_profile            "
-  assert_output_contains "                      Theme name:  light_saber            "
-  assert_output_contains "                             URL:  resistance-forever.com "
-  assert_output_contains "        Database download source:  curl                   "
-  assert_output_contains "             Database store type:  file                   "
-  assert_output_contains "                      Deployment:  Disabled               "
-  assert_output_contains "                 FTP integration:  Disabled               "
-  assert_output_contains "              Acquia integration:  Disabled               "
-  assert_output_contains "              Lagoon integration:  Disabled               "
-  assert_output_contains "     dependencies.io integration:  Disabled               "
-  assert_output_contains "       Preserve docs in comments:  No                     "
-  assert_output_contains "       Preserve DrevOps comments:  No                     "
+  assert_output_contains "                          Name:  Star wars              "
+  assert_output_contains "                  Machine name:  star_wars_machine      "
+  assert_output_contains "                  Organisation:  The Empire             "
+  assert_output_contains "     Organisation machine name:  the_new_empire         "
+  assert_output_contains "                 Module prefix:  s_w                    "
+  assert_output_contains "                       Profile:  s_w_profile            "
+  assert_output_contains "                    Theme name:  light_saber            "
+  assert_output_contains "                           URL:  resistance-forever.com "
+  assert_output_contains "      Database download source:  curl                   "
+  assert_output_contains "           Database store type:  file                   "
+  assert_output_contains "                    Deployment:  Disabled               "
+  assert_output_contains "               FTP integration:  Disabled               "
+  assert_output_contains "            Acquia integration:  Disabled               "
+  assert_output_contains "            Lagoon integration:  Disabled               "
+  assert_output_contains "       RenovateBot integration:  Disabled               "
+  assert_output_contains "     Preserve docs in comments:  No                     "
+  assert_output_contains "     Preserve DrevOps comments:  No                     "
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; quiet" {
@@ -178,23 +178,23 @@ load _helper_drevops
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
-  assert_output_contains "                            Name:  Resistance new site          "
-  assert_output_contains "                    Machine name:  resistance_site              "
-  assert_output_contains "                    Organisation:  The Resistance               "
-  assert_output_contains "       Organisation machine name:  the_next_resistance          "
-  assert_output_contains "                   Module prefix:  another_resist               "
-  assert_output_contains "                         Profile:  standard                     "
-  assert_output_contains "                      Theme name:  resisting                    "
-  assert_output_contains "                             URL:  www.resistance-star-wars.com "
-  assert_output_contains "        Database download source:  curl                         "
-  assert_output_contains "             Database store type:  file                         "
-  assert_output_contains "                      Deployment:  artifact                     "
-  assert_output_contains "                 FTP integration:  Disabled                     "
-  assert_output_contains "              Acquia integration:  Enabled                      "
-  assert_output_contains "              Lagoon integration:  Enabled                      "
-  assert_output_contains "     dependencies.io integration:  Enabled                      "
-  assert_output_contains "       Preserve docs in comments:  Yes                          "
-  assert_output_contains "       Preserve DrevOps comments:  Yes                          "
+  assert_output_contains "                          Name:  Resistance new site          "
+  assert_output_contains "                  Machine name:  resistance_site              "
+  assert_output_contains "                  Organisation:  The Resistance               "
+  assert_output_contains "     Organisation machine name:  the_next_resistance          "
+  assert_output_contains "                 Module prefix:  another_resist               "
+  assert_output_contains "                       Profile:  standard                     "
+  assert_output_contains "                    Theme name:  resisting                    "
+  assert_output_contains "                           URL:  www.resistance-star-wars.com "
+  assert_output_contains "      Database download source:  curl                         "
+  assert_output_contains "           Database store type:  file                         "
+  assert_output_contains "                    Deployment:  artifact                     "
+  assert_output_contains "               FTP integration:  Disabled                     "
+  assert_output_contains "            Acquia integration:  Enabled                      "
+  assert_output_contains "            Lagoon integration:  Enabled                      "
+  assert_output_contains "       RenovateBot integration:  Enabled                      "
+  assert_output_contains "     Preserve docs in comments:  Yes                          "
+  assert_output_contains "     Preserve DrevOps comments:  Yes                          "
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; interactive; accepting suggested values" {
@@ -218,7 +218,7 @@ load _helper_drevops
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
@@ -227,23 +227,23 @@ load _helper_drevops
   assert_output_contains "Aborting project installation. No files were changed"
 
   # Note that user input takes precedence over discovered values.
-  assert_output_contains "                            Name:  Resistance new site          "
-  assert_output_contains "                    Machine name:  resistance_site              "
-  assert_output_contains "                    Organisation:  The Resistance               "
-  assert_output_contains "       Organisation machine name:  the_next_resistance          "
-  assert_output_contains "                   Module prefix:  another_resist               "
-  assert_output_contains "                         Profile:  standard                     "
-  assert_output_contains "                      Theme name:  resisting                    "
-  assert_output_contains "                             URL:  www.resistance-star-wars.com "
-  assert_output_contains "        Database download source:  curl                         "
-  assert_output_contains "             Database store type:  file                         "
-  assert_output_contains "                      Deployment:  artifact                     "
-  assert_output_contains "                 FTP integration:  Disabled                     "
-  assert_output_contains "              Acquia integration:  Enabled                      "
-  assert_output_contains "              Lagoon integration:  Enabled                      "
-  assert_output_contains "     dependencies.io integration:  Enabled                      "
-  assert_output_contains "       Preserve docs in comments:  Yes                          "
-  assert_output_contains "       Preserve DrevOps comments:  Yes                          "
+  assert_output_contains "                          Name:  Resistance new site          "
+  assert_output_contains "                  Machine name:  resistance_site              "
+  assert_output_contains "                  Organisation:  The Resistance               "
+  assert_output_contains "     Organisation machine name:  the_next_resistance          "
+  assert_output_contains "                 Module prefix:  another_resist               "
+  assert_output_contains "                       Profile:  standard                     "
+  assert_output_contains "                    Theme name:  resisting                    "
+  assert_output_contains "                           URL:  www.resistance-star-wars.com "
+  assert_output_contains "      Database download source:  curl                         "
+  assert_output_contains "           Database store type:  file                         "
+  assert_output_contains "                    Deployment:  artifact                     "
+  assert_output_contains "               FTP integration:  Disabled                     "
+  assert_output_contains "            Acquia integration:  Enabled                      "
+  assert_output_contains "            Lagoon integration:  Enabled                      "
+  assert_output_contains "       RenovateBot integration:  Enabled                      "
+  assert_output_contains "     Preserve docs in comments:  Yes                          "
+  assert_output_contains "     Preserve DrevOps comments:  Yes                          "
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; interactive; user input overrides discovery which overrides defaults" {
@@ -271,7 +271,7 @@ load _helper_drevops
     "Y" # preserve_ftp
     "nothing" # preserve_acquia - testing NOTHING value - should be 'Enabled' as exists in fixture.
     "nah" # preserve_lagoon
-    "nothing" # preserve_dependenciesio - testing NOTHING value - should be 'Enabled as exists in fixture.
+    "nothing" # preserve_renovatebot - testing NOTHING value - should be 'Enabled as exists in fixture.
     "n" # preserve_doc_comments
     "n" # preserve_drevops_info
   )
@@ -282,23 +282,23 @@ load _helper_drevops
   assert_output_contains "Aborting project installation. No files were changed"
 
   # Note that user input takes precedence over discovered values.
-  assert_output_contains "                            Name:  Star wars              "
-  assert_output_contains "                    Machine name:  star_wars_machine      "
-  assert_output_contains "                    Organisation:  The Empire             "
-  assert_output_contains "       Organisation machine name:  the_new_empire         "
-  assert_output_contains "                   Module prefix:  w_s                    "
-  assert_output_contains "                         Profile:  s_w_profile             "
-  assert_output_contains "                      Theme name:  light_saber            "
-  assert_output_contains "                             URL:  resistance-forever.com "
-  assert_output_contains "        Database download source:  docker_registry        "
-  assert_output_contains "             Database store type:  docker_image           "
-  assert_output_contains "                      Deployment:  Disabled               "
-  assert_output_contains "                 FTP integration:  Enabled                "
-  assert_output_contains "              Acquia integration:  Enabled                "
-  assert_output_contains "              Lagoon integration:  Disabled               "
-  assert_output_contains "     dependencies.io integration:  Enabled                "
-  assert_output_contains "       Preserve docs in comments:  No                     "
-  assert_output_contains "       Preserve DrevOps comments:  No                     "
+  assert_output_contains "                          Name:  Star wars              "
+  assert_output_contains "                  Machine name:  star_wars_machine      "
+  assert_output_contains "                  Organisation:  The Empire             "
+  assert_output_contains "     Organisation machine name:  the_new_empire         "
+  assert_output_contains "                 Module prefix:  w_s                    "
+  assert_output_contains "                       Profile:  s_w_profile             "
+  assert_output_contains "                    Theme name:  light_saber            "
+  assert_output_contains "                           URL:  resistance-forever.com "
+  assert_output_contains "      Database download source:  docker_registry        "
+  assert_output_contains "           Database store type:  docker_image           "
+  assert_output_contains "                    Deployment:  Disabled               "
+  assert_output_contains "               FTP integration:  Enabled                "
+  assert_output_contains "            Acquia integration:  Enabled                "
+  assert_output_contains "            Lagoon integration:  Disabled               "
+  assert_output_contains "       RenovateBot integration:  Enabled                "
+  assert_output_contains "     Preserve docs in comments:  No                     "
+  assert_output_contains "     Preserve DrevOps comments:  No                     "
 }
 #
 #
@@ -334,7 +334,7 @@ fixture_preinstalled(){
   # Sets 'preserve_lagoon' to 'Yes'.
   touch .lagoon.yml
   # Sets 'preserve_dependencies' to 'Yes'.
-  touch dependencies.yml
+  touch renovate.json
 
   # Sets 'fresh_install' to 'No'.
   echo "download-db:" >> .ahoy.yml
