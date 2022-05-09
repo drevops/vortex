@@ -39,7 +39,7 @@ setup() {
   export LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   export APP_TMP_DIR="${BUILD_DIR}/tmp"
   export DREVOPS_TEST_ARTIFACT_DIR="/app"
-  export DREVOPS_TEST_REPORTS_DIR="/app/logs"
+  export DREVOPS_TEST_REPORTS_DIR="/app/test_reports"
   export DREVOPS_CONFIRM_RESPONSE=y
 
   export DREVOPS_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d9.star_wars.sql.md

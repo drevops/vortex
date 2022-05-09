@@ -338,18 +338,18 @@ assert_ahoy_test_unit() {
   run ahoy test-unit
   [ "${status}" -eq 1 ]
   sync_to_host
-  assert_dir_not_empty logs
-  assert_file_exists logs/unit.xml
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/phpunit/unit.xml
 
-  rm -R logs
+  rm -R test_reports
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_UNIT_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-unit
   [ "${status}" -eq 0 ]
   sync_to_host
-  assert_dir_not_empty logs
-  assert_file_exists logs/unit.xml
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/phpunit/unit.xml
 
   restore_file .env && ahoy up cli
 }
@@ -367,16 +367,16 @@ assert_ahoy_test_kernel() {
   run ahoy test-kernel
   [ "${status}" -eq 1 ]
   sync_to_host
-  assert_dir_not_empty logs
-  assert_file_exists logs/kernel.xml
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/phpunit/kernel.xml
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_KERNEL_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-kernel
   [ "${status}" -eq 0 ]
   sync_to_host
-  assert_dir_not_empty logs
-  assert_file_exists logs/kernel.xml
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/phpunit/kernel.xml
 
   restore_file .env && ahoy up cli
 }
@@ -394,16 +394,16 @@ assert_ahoy_test_functional() {
   run ahoy test-functional
   [ "${status}" -eq 1 ]
   sync_to_host
-  assert_dir_not_empty logs
-  assert_file_exists logs/functional.xml
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/phpunit/functional.xml
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-functional
   [ "${status}" -eq 0 ]
   sync_to_host
-  assert_dir_not_empty logs
-  assert_file_exists logs/functional.xml
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/phpunit/functional.xml
 
   restore_file .env && ahoy up cli && sync_to_container
 }
@@ -422,6 +422,10 @@ assert_ahoy_test_bdd() {
   assert_dir_empty screenshots
   ahoy test-bdd -- --tags=p0
   sync_to_host
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/behat/default.xml
+  rm -rf test_reports/*
+  ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty screenshots
   # Test tagged with p0 are non-browser tests, so there should not be any
   # image screenshots.
@@ -434,6 +438,10 @@ assert_ahoy_test_bdd() {
   assert_dir_empty screenshots
   DREVOPS_TEST_BEHAT_PROFILE=p0 ahoy test-bdd
   sync_to_host
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/behat/default.xml
+  rm -rf test_reports/*
+  ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty screenshots
   # Test tagged with p0 are non-browser tests, so there should not be any
   # image screenshots.
@@ -445,10 +453,15 @@ assert_ahoy_test_bdd() {
   substep "Assert that Behat tests failure works"
   echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
   sync_to_container
+
   assert_dir_empty screenshots
   run ahoy test-bdd
   [ "${status}" -eq 1 ]
   sync_to_host
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/behat/default.xml
+  rm -rf test_reports/*
+  ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty screenshots
   rm -rf screenshots/*
   ahoy cli rm -rf /app/screenshots/*
@@ -459,6 +472,10 @@ assert_ahoy_test_bdd() {
   run ahoy test-bdd
   [ "${status}" -eq 0 ]
   sync_to_host
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/behat/default.xml
+  rm -rf test_reports/*
+  ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty screenshots
   rm -rf screenshots/*
   ahoy cli rm -rf /app/screenshots/*
@@ -471,6 +488,10 @@ assert_ahoy_test_bdd() {
   assert_dir_empty screenshots
   ahoy test-bdd tests/behat/features/homepage.feature
   sync_to_host
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/behat/default.xml
+  rm -rf test_reports/*
+  ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty screenshots
   rm -rf screenshots/*
   ahoy cli rm -rf /app/screenshots/*
@@ -481,9 +502,12 @@ assert_ahoy_test_bdd() {
   ahoy up cli && sync_to_container
   # Assert failure.
   run ahoy test-bdd tests/behat/features/homepage.feature
-
   [ "${status}" -eq 1 ]
   sync_to_host
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/behat/default.xml
+  rm -rf test_reports/*
+  ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty screenshots
   rm -rf screenshots/*
   ahoy cli rm -rf /app/screenshots/*
@@ -495,6 +519,10 @@ assert_ahoy_test_bdd() {
   run ahoy test-bdd tests/behat/features/homepage.feature
   [ "${status}" -eq 0 ]
   sync_to_host
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/behat/default.xml
+  rm -rf test_reports/*
+  ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty screenshots
   rm -rf screenshots/*
   ahoy cli rm -rf /app/screenshots/*
