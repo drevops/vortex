@@ -82,11 +82,11 @@ load _helper_drevops_deployment
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
   step "Running deployment"
-  export DREVOPS_DEPLOY_CODE_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
-  export DREVOPS_DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
-  export DREVOPS_DEPLOY_CODE_SRC="${SRC_DIR}"
-  export DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL="${DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL:-testuser@example.com}"
-  export DREVOPS_DEPLOY_TYPE="code"
+  export DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
+  export DREVOPS_DEPLOY_ARTIFACT_ROOT="${CURRENT_PROJECT_DIR}"
+  export DREVOPS_DEPLOY_ARTIFACT_SRC="${SRC_DIR}"
+  export DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL="${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL:-testuser@example.com}"
+  export DREVOPS_DEPLOY_TYPE="artifact"
 
   # Proceed with deployment.
   # @todo: Add tests for deployment kill-switch.
@@ -94,7 +94,7 @@ load _helper_drevops_deployment
 
   run ahoy deploy
   assert_success
-  assert_output_contains "==> Started CODE deployment."
+  assert_output_contains "==> Started ARTIFACT deployment."
 
   # Assert that no other deployments ran.
   assert_output_not_contains "==> Started WEBHOOK deployment."
@@ -206,8 +206,8 @@ load _helper_drevops_deployment
   assert_contains "-l testlagoon deploy branch -p testproject -b testbranch" "$(mock_get_call_args "${mock_lagoon}")"
 
   # Assert that no other deployments ran.
-  assert_output_not_contains "==> Started CODE deployment."
-  assert_output_not_contains "==> Finished CODE deployment."
+  assert_output_not_contains "==> Started ARTIFACT deployment."
+  assert_output_not_contains "==> Finished ARTIFACT deployment."
 
   assert_output_not_contains "==> Started WEBHOOK deployment."
   assert_output_not_contains "==> Successfully called webhook."

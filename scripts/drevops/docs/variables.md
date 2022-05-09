@@ -372,61 +372,61 @@ Default value: `UNDEFINED`
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DEPLOY_BRANCH`
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DEPLOY_CODE_GIT_BRANCH`
+### `DREVOPS_DEPLOY_ARTIFACT_GIT_BRANCH`
 
 Remote repository branch. Can be a specific branch or a token. @see https://github.com/drevops/git-artifact#token-support
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DEPLOY_CODE_GIT_REMOTE`
+### `DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE`
 
 Remote repository to push code to.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL`
+### `DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL`
 
 Name of the user who will be committing to a remote repository.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DEPLOY_CODE_GIT_USER_NAME`
+### `DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME`
 
 Email address of the user who will be committing to a remote repository.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DEPLOY_CODE_REPORT_FILE`
+### `DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE`
 
 Deployment report file name.
 
-Default value: `DREVOPS_DEPLOY_CODE_ROOT`
+Default value: `DREVOPS_DEPLOY_ARTIFACT_ROOT`
 
-### `DREVOPS_DEPLOY_CODE_ROOT`
+### `DREVOPS_DEPLOY_ARTIFACT_ROOT`
 
 The root directory where the deployment script should run from. Defaults to the current directory.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DEPLOY_CODE_SRC`
+### `DREVOPS_DEPLOY_ARTIFACT_SRC`
 
 Source of the code to be used for artifact building.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DEPLOY_CODE_SSH_FILE`
+### `DREVOPS_DEPLOY_ARTIFACT_SSH_FILE`
 
 Default SSH file used if custom fingerprint is not provided.
 
 Default value: `HOME`
 
-### `DREVOPS_DEPLOY_CODE_SSH_FINGERPRINT`
+### `DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT`
 
-SSH key fingerprint used to connect to remote. If not used, the currently loaded default SSH key (the key used for code checkout) will be used or deployment will fail with an error if the default SSH key is not loaded. In most cases, the default SSH key does not work (because it is a read-only key used by CircleCI to checkout code from git), so you should add another deployment key.
+SSH key fingerprint used to connect to remote.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_BRANCH`
 
 Default value: `UNDEFINED`
 
@@ -542,9 +542,9 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_TYPE`
 
-Combination of comma-separated values to support multiple deployments: "code", "docker", "webhook", "lagoon".
+Combination of comma-separated values to support multiple deployments: "artifact","docker", "webhook", "lagoon".
 
-Default value: `code`
+Default value: `artifact`
 
 ### `DREVOPS_DEPLOY_WEBHOOK_METHOD`
 

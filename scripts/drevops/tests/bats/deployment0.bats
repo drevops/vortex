@@ -72,13 +72,13 @@ load _helper_drevops_deployment
 
   substep "Running deployment."
   # This deployment uses all 3 types.
-  export DREVOPS_DEPLOY_TYPE="code,webhook,docker"
+  export DREVOPS_DEPLOY_TYPE="artifact,webhook,docker"
 
-  # Variables for CODE deployment.
-  export DREVOPS_DEPLOY_CODE_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
-  export DREVOPS_DEPLOY_CODE_ROOT="${CURRENT_PROJECT_DIR}"
-  export DREVOPS_DEPLOY_CODE_SRC="${SRC_DIR}"
-  export DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL="${DREVOPS_DEPLOY_CODE_GIT_USER_EMAIL:-testuser@example.com}"
+  # Variables for ARTIFACT deployment.
+  export DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
+  export DREVOPS_DEPLOY_ARTIFACT_ROOT="${CURRENT_PROJECT_DIR}"
+  export DREVOPS_DEPLOY_ARTIFACT_SRC="${SRC_DIR}"
+  export DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL="${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL:-testuser@example.com}"
 
   # Variables for WEBHOOK deployment.
   export DREVOPS_DEPLOY_WEBHOOK_URL=http://example.com
@@ -96,18 +96,18 @@ load _helper_drevops_deployment
   assert_success
 
   #
-  # Code deployment assertions.
+  # Artifact deployment assertions.
   #
 
-  assert_output_contains "==> Started CODE deployment."
+  assert_output_contains "==> Started ARTIFACT deployment."
 
-  substep "CODE: Assert remote deployment files."
+  substep "ARTIFACT: Assert remote deployment files."
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
 
   # Assert Acquia hooks are absent.
   assert_files_present_no_integration_acquia "${REMOTE_REPO_DIR}"
 
-  assert_output_contains "==> Finished CODE deployment."
+  assert_output_contains "==> Finished ARTIFACT deployment."
 
   #
   # Webhook deployment assertions.
