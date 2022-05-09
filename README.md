@@ -54,7 +54,7 @@ experience improves development speed across projects.
 
 1. Run [installer](https://github.com/drevops/drevops/blob/9.x/install.php):
    ```
-   curl -SsL http://installnow.drevops.com | php
+   curl -SsL http://install.drevops.com | php
    ```
 2. Commit added files.
 

@@ -840,6 +840,9 @@ run_install_interactive() {
   # Force installer to be interactive.
   export TEST_RUN_INSTALL_INTERACTIVE=1
 
+  # Force TTY to get answers through pipe.
+  export DREVOPS_INSTALLER_FORCE_TTY=1
+
   # shellcheck disable=SC2059,SC2119
   # ATTENTION! Questions change based on some answers, so using the same set of
   # answers for all tests will not work. Make sure that correct answers

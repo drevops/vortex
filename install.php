@@ -2,9 +2,17 @@
 
 /**
  * @file
- * DrevOps installer.
+ * DrevOps CLI installer.
+ *
+ * <!-- -->
+ * DrevOps CLI installer.<br/>
+ * Run in your terminal:<br/>
+ * <code>curl -SsL http://install.drevops.com | php</code><br/>
+ * More details: <a href="https://docs.drevops.com">https://docs.drevops.com</a>
+ * <!--
  *
  * Usage:
+ *
  * @code
  * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php
  * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php -- /path/to/destination/directory
@@ -2141,7 +2149,8 @@ function get_composer_json_value($name) {
 function get_stdin_handle() {
   global $_stdin_handle;
   if (!$_stdin_handle) {
-    $_stdin_handle = fopen('php://stdin', 'r');
+    $h = fopen('php://stdin', 'r');
+    $_stdin_handle = stream_isatty($h) || getenv('DREVOPS_INSTALLER_FORCE_TTY') ? $h : fopen('/dev/tty', 'r+');
   }
   return $_stdin_handle;
 }
