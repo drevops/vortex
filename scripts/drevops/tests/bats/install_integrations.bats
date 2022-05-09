@@ -8,7 +8,7 @@
 load _helper
 load _helper_drevops
 
-@test "Install: empty directory; none of Deployment, Acquia, Lagoon, FTP and dependencies.io integrations" {
+@test "Install: empty directory; none of Deployment, Acquia, Lagoon, FTP and renovatebot integrations" {
  answers=(
     "Star wars" # name
     "nothing" # machine_name
@@ -25,7 +25,7 @@ load _helper_drevops
     "no" # preserve_ftp
     "no" # preserve_acquia
     "no" # preserve_lagoon
-    "no" # preserve_dependenciesio
+    "no" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
@@ -41,7 +41,7 @@ load _helper_drevops
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
   assert_files_present_no_integration_ftp
-  assert_files_present_no_integration_dependenciesio
+  assert_files_present_no_integration_renovatebot
 }
 
 @test "Install: empty directory; all integrations" {
@@ -61,7 +61,7 @@ load _helper_drevops
     "y" # preserve_ftp
     "y" # preserve_acquia
     "y" # preserve_lagoon
-    "y" # preserve_dependenciesio
+    "y" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
@@ -77,7 +77,7 @@ load _helper_drevops
   assert_files_present_integration_acquia
   assert_files_present_integration_lagoon
   assert_files_present_integration_ftp
-  assert_files_present_integration_dependenciesio
+  assert_files_present_integration_renovatebot
 }
 
 @test "Install: empty directory; deployment - code" {
@@ -97,7 +97,7 @@ load _helper_drevops
     "y" # preserve_ftp
     "y" # preserve_acquia
     "y" # preserve_lagoon
-    "y" # preserve_dependenciesio
+    "y" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
@@ -113,7 +113,7 @@ load _helper_drevops
   assert_files_present_integration_acquia
   assert_files_present_integration_lagoon
   assert_files_present_integration_ftp
-  assert_files_present_integration_dependenciesio
+  assert_files_present_integration_renovatebot
 }
 
 @test "Install: empty directory; fresh_install" {
@@ -131,7 +131,7 @@ load _helper_drevops
     "y" # preserve_ftp
     "y" # preserve_acquia
     "y" # preserve_lagoon
-    "y" # preserve_dependenciesio
+    "y" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
@@ -147,5 +147,5 @@ load _helper_drevops
   assert_files_present_integration_acquia
   assert_files_present_integration_lagoon
   assert_files_present_integration_ftp
-  assert_files_present_integration_dependenciesio
+  assert_files_present_integration_renovatebot
 }

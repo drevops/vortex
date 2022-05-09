@@ -117,12 +117,12 @@ indicate that it was addressed.
 
 [//]: # (#;> LAGOON)
 
-[//]: # (#;< DEPENDENCIESIO)
+[//]: # (#;< RENOVATEBOT)
 
-- [ ] Configure dependencies.io by logging in with your GitHub account and
+- [ ] Configure renovatebot.com by logging in with your GitHub account and
       adding a project through UI.
 
-[//]: # (#;> DEPENDENCIESIO)
+[//]: # (#;> RENOVATEBOT)
 
 ## 5. Cleanup
 

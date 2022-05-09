@@ -157,8 +157,8 @@ assert_files_present() {
   # Assert FTP integration removed by default.
   assert_files_present_no_integration_ftp "${dir}" "${suffix}"
 
-  # Assert dependencies.io integration preserved.
-  assert_files_present_integration_dependenciesio "${dir}" "${suffix}"
+  # Assert renovatebot.com integration preserved.
+  assert_files_present_integration_renovatebot "${dir}" "${suffix}"
 }
 
 assert_files_local_present() {
@@ -692,26 +692,27 @@ assert_files_present_no_integration_ftp() {
   popd >/dev/null || exit 1
 }
 
-assert_files_present_integration_dependenciesio() {
+assert_files_present_integration_renovatebot() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_exists "dependencies.yml"
+  assert_file_exists "renovate.json"
   assert_file_contains CI.md "Automated patching"
 
   popd >/dev/null || exit 1
 }
 
-assert_files_present_no_integration_dependenciesio() {
+assert_files_present_no_integration_renovatebot() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_not_exists "dependencies.yml"
-  assert_dir_not_contains_string "${dir}" "dependencies.io"
+  assert_file_not_exists "renovate.json"
+  assert_dir_not_contains_string "${dir}" "renovatebot"
+  assert_dir_not_contains_string "${dir}" "renovatebot.com"
 
   popd >/dev/null || exit 1
 }
@@ -821,7 +822,7 @@ run_install_quiet() {
 #   "nothing" # preserve_ftp
 #   "nothing" # preserve_acquia
 #   "nothing" # preserve_lagoon
-#   "nothing" # preserve_dependenciesio
+#   "nothing" # preserve_renovatebot
 #   "nothing" # preserve_doc_comments
 #   "nothing" # preserve_drevops_info
 # )

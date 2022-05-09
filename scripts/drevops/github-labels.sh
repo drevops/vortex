@@ -37,6 +37,7 @@ labels=(
   "Ready to be merged" "c2e0c6" "Pull request is ready to be merged (assigned after testing is complete)"
   "Requires more work" "b60205" "Pull request was reviewed and reviver(s) asked to work further on the pull request"
   "URGENT" "d93f0b" "Pull request needs to be urgently reviewed"
+  "dependencies" "62E795" "Pull request was raised automatically by a dependency bot"
 
   # Uncomment default Github labels below to preserve them.
   # "bug"                 "d73a4a"  "Something isn't working"

@@ -1,0 +1,38 @@
+{
+    "extends": ["config:base"],
+    "branchPrefix": "deps/",
+    "labels": ["dependencies", "Dependencies"],
+    "assignees": [],
+    "ignorePresets": [":prHourlyLimit2"],
+    "rangeStrategy": "update-lockfile",
+    "packageRules": [
+        {
+            "groupName": "Minor and Patch Core",
+            "groupSlug": "minor-patch-core",
+            "schedule": ["before 2am"],
+            "matchDatasources": ["packagist"],
+            "matchUpdateTypes": ["patch", "minor"],
+            "matchPackageNames": [
+                "drupal/core-composer-scaffold",
+                "drupal/core-project-message",
+                "drupal/core-recommended"
+            ]
+        },
+        {
+            "groupName": "Major Core - skipped",
+            "matchDatasources": ["packagist"],
+            "matchUpdateTypes": ["major"],
+            "matchPackagePatterns": ["^drupal/core-"],
+            "enabled": false
+        },
+        {
+            "groupName": "All Contrib",
+            "groupSlug": "all-contrib",
+            "schedule": ["every weekend"],
+            "matchDatasources": ["packagist"],
+            "matchUpdateTypes": ["major", "minor", "patch"],
+            "matchPackagePatterns": [".*"],
+            "excludePackagePatterns": ["^drupal/core-"]
+        }
+    ]
+}

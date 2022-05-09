@@ -149,7 +149,7 @@ load _helper_drevops_deployment
     "n" # preserve_ftp
     "n" # preserve_acquia
     "y" # preserve_lagoon
-    "n" # preserve_dependenciesio
+    "n" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )

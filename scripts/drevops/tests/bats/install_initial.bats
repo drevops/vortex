@@ -103,7 +103,7 @@ load _helper_drevops
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
@@ -134,7 +134,7 @@ load _helper_drevops
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
@@ -174,7 +174,7 @@ load _helper_drevops
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
-    "nothing" # preserve_dependenciesio
+    "nothing" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
