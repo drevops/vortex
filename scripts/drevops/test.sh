@@ -9,7 +9,7 @@
 # ./test.sh
 #
 # Run unit tests:
-# DREVOPS_TEST_TYPE=bdd ./test.sh
+# DREVOPS_TEST_TYPE=unit ./test.sh
 #
 # Run kernel tests:
 # DREVOPS_TEST_TYPE=kernel ./test.sh
@@ -18,7 +18,7 @@
 # DREVOPS_TEST_TYPE=functional ./test.sh
 #
 # Run bdd tests:
-# DREVOPS_TEST_TYPE=unit ./test.sh
+# DREVOPS_TEST_TYPE=bdd ./test.sh
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -64,7 +64,7 @@ if [ -z "${DREVOPS_TEST_TYPE##*unit*}" ]; then
   echo "==> Run unit tests."
 
   phpunit_opts=(-c /app/docroot/core/phpunit.xml.dist)
-  [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}"/unit.xml)
+  [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}"/phpunit/unit.xml)
 
   vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --filter '/.*Unit.*/' "$@" \
   || [ "${DREVOPS_TEST_UNIT_ALLOW_FAILURE}" -eq 1 ]
@@ -74,7 +74,7 @@ if [ -z "${DREVOPS_TEST_TYPE##*kernel*}" ]; then
   echo "==> Run Kernel tests"
 
   phpunit_opts=(-c /app/docroot/core/phpunit.xml.dist)
-  [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}"/kernel.xml)
+  [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}"/phpunit/kernel.xml)
 
   vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --filter '/.*Kernel.*/' "$@" \
   || [ "${DREVOPS_TEST_KERNEL_ALLOW_FAILURE:-0}" -eq 1 ]
@@ -84,7 +84,7 @@ if [ -z "${DREVOPS_TEST_TYPE##*functional*}" ]; then
   echo "==> Run Functional tests"
 
   phpunit_opts=(-c /app/docroot/core/phpunit.xml.dist)
-  [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}"/functional.xml)
+  [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}"/phpunit/functional.xml)
 
   vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --filter '/.*Functional.*/' "$@" \
   || [ "${DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE:-0}" -eq 1 ]
@@ -101,7 +101,17 @@ if [ -z "${DREVOPS_TEST_TYPE##*bdd*}" ]; then
 
   [ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && export BEHAT_SCREENSHOT_DIR="${DREVOPS_TEST_ARTIFACT_DIR}/screenshots"
 
-  vendor/bin/behat --strict --colors --profile="${DREVOPS_TEST_BEHAT_PROFILE}" --format="${DREVOPS_TEST_BEHAT_FORMAT}" "$@" \
-  || ( [ -n "${CI}" ] && vendor/bin/behat --strict --colors --profile="${DREVOPS_TEST_BEHAT_PROFILE}" --format="${DREVOPS_TEST_BEHAT_FORMAT}" --rerun "$@" ) \
+  behat_opts=(
+    --strict
+    --colors
+    --profile="${DREVOPS_TEST_BEHAT_PROFILE}"
+    --format="${DREVOPS_TEST_BEHAT_FORMAT}"
+    --out std
+  )
+
+  [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && behat_opts+=(--format "junit" --out "${DREVOPS_TEST_REPORTS_DIR}"/behat)
+
+  vendor/bin/behat "${behat_opts[@]}" "$@" \
+  || ( [ -n "${CI}" ] && vendor/bin/behat "${behat_opts[@]}" "$@" ) \
   || [ "${DREVOPS_TEST_BDD_ALLOW_FAILURE}" -eq 1 ]
 fi

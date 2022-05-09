@@ -52,6 +52,7 @@ node_modules
 # Assets.
 docroot/themes/**/build
 screenshots
+test_reports
 .data
 
 # Ignore local override files.
