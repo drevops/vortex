@@ -48,8 +48,6 @@ load _helper_drevops_workflow
 
   assert_ahoy_fe
 
-  assert_export_on_install_site
-
   assert_ahoy_debug
 
   assert_ahoy_clean
@@ -57,7 +55,7 @@ load _helper_drevops_workflow
   assert_ahoy_reset
 }
 
-@test "Workflow: fresh install automatically discovered if database does not exist" {
+@test "Workflow: profile-driven" {
   rm -f .data/db.sql
   export DREVOPS_SKIP_DEMO=1
   assert_file_not_exists .data/db.sql
@@ -65,6 +63,8 @@ load _helper_drevops_workflow
   prepare_sut "Starting fresh install WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
   # Assert that the database was not downloaded because DREVOPS_SKIP_DEMO was set.
   assert_file_not_exists .data/db.sql
+
+  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1" >> .env
 
   assert_ahoy_build
   assert_gitignore
@@ -95,54 +95,11 @@ load _helper_drevops_workflow
 
   assert_ahoy_fe
 
-  assert_export_on_install_site
-
   assert_ahoy_debug
 
   assert_ahoy_clean
 
   assert_ahoy_reset
-}
-
-@test "Workflow: fresh install forced if DREVOPS_DRUPAL_FORCE_FRESH_INSTALL=1 and site already exists" {
-  rm -f .data/db.sql
-  export DREVOPS_SKIP_DEMO=1
-  assert_file_not_exists .data/db.sql
-
-  prepare_sut "Starting fresh install WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
-  # Assert that the database was not downloaded because DREVOPS_SKIP_DEMO was set.
-  assert_file_not_exists .data/db.sql
-
-  substep "Build the project with default settings"
-  assert_ahoy_build
-  assert_gitignore
-  assert_ahoy_info
-  assert_ahoy_login
-
-  # Assert that after default installation the page does not contain text.
-  assert_page_contains "/" "Welcome"
-
-  substep "Change site content"
-  ahoy drush config-set system.site page.front /user -y
-  assert_page_not_contains "/" "Welcome"
-
-  substep "Re-install site"
-  ahoy install-site >&3
-
-  substep "Assert content was not removed after re-install"
-  assert_page_not_contains "/" "Welcome"
-
-  substep "Add DREVOPS_DRUPAL_FORCE_FRESH_INSTALL variable and re-install site"
-  # Add variable to the .env file and apply the change to container.
-  add_var_to_file .env "DREVOPS_DRUPAL_FORCE_FRESH_INSTALL" "1"
-  ahoy up cli
-  sync_to_container
-
-  substep "Re-install site"
-  ahoy install-site
-
-  substep "Assert site was fully re-installed"
-  assert_page_contains "/" "Welcome"
 }
 
 @test "Idempotence" {

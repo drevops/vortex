@@ -8,7 +8,7 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Path to the application.
-DREVOPS_APP="${APP:-/app}"
+DREVOPS_APP="${DREVOPS_APP:-/app}"
 
 # Directory with database dump file.
 DREVOPS_DB_EXPORT_FILE_DIR="${DREVOPS_DB_DIR:-${DREVOPS_DB_DIR}}"

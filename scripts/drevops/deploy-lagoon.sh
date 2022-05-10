@@ -115,15 +115,15 @@ else
 
       # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       # @see https://github.com/uselagoon/lagoon/issues/1922
-      lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DB_OVERWRITE_EXISTING || true
-      lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DB_OVERWRITE_EXISTING -V 0 -S global || true
+      lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB || true
+      lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 0 -S global || true
 
       # Override DB during re-deployment.
       if [ "${DREVOPS_DEPLOY_LAGOON_ACTION}" = "deploy_override_db" ]; then
         echo "  > Add a DB import override flag for the current deployment."
         # To update variable value, we need to remove it and add again.
-        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DB_OVERWRITE_EXISTING || true
-        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DB_OVERWRITE_EXISTING -V 1 -S global || true
+        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB || true
+        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 1 -S global || true
       fi
 
       echo "  > Redeploying environment: project ${DREVOPS_DEPLOY_LAGOON_PROJECT}, PR: ${DREVOPS_DEPLOY_LAGOON_PR}."
@@ -135,8 +135,8 @@ else
 
         echo "  > Remove a DB import override flag for the current deployment."
         # Note that a variable will be read by Lagoon during queuing of the build.
-        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DB_OVERWRITE_EXISTING || true
-        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DB_OVERWRITE_EXISTING -V 0 -S global || true
+        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB || true
+        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${deploy_pr_full}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 0 -S global || true
       fi
 
     # Deployment of the fresh environment.
@@ -167,15 +167,15 @@ else
 
       # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       # @see https://github.com/uselagoon/lagoon/issues/1922
-      lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DB_OVERWRITE_EXISTING || true
-      lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DB_OVERWRITE_EXISTING -V 0 -S global || true
+      lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB || true
+      lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 0 -S global || true
 
       # Override DB during re-deployment.
       if [ "${DREVOPS_DEPLOY_LAGOON_ACTION}" = "deploy_override_db" ]; then
         echo "  > Add a DB import override flag for the current deployment."
         # To update variable value, we need to remove it and add again.
-        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DB_OVERWRITE_EXISTING || true
-        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DB_OVERWRITE_EXISTING -V 1 -S global || true
+        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB || true
+        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 1 -S global || true
       fi
 
       echo "  > Redeploying environment: project ${DREVOPS_DEPLOY_LAGOON_PROJECT}, branch: ${DREVOPS_DEPLOY_LAGOON_BRANCH}."
@@ -187,8 +187,8 @@ else
 
         echo "  > Remove a DB import override flag for the current deployment."
         # Note that a variable will be read by Lagoon during queuing of the build.
-        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DB_OVERWRITE_EXISTING || true
-        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DB_OVERWRITE_EXISTING -V 0 -S global || true
+        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" delete variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB || true
+        lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" add variable -p "${DREVOPS_DEPLOY_LAGOON_PROJECT}" -e "${DREVOPS_DEPLOY_LAGOON_BRANCH}" -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 0 -S global || true
       fi
 
     # Deployment of the fresh environment.

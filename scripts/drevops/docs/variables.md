@@ -308,12 +308,6 @@ SSH key file used to access Lagoon environment to download the database. Create 
 
 Default value: `HOME/.ssh/id_rsa`
 
-### `DREVOPS_DB_EXPORT_BEFORE_IMPORT`
-
-Flag to export database before import.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE`
 
 Docker image archive file name.
@@ -355,30 +349,6 @@ Default value: `DREVOPS_DB_DIR`
 Database dump file name (Docker image archive will use '.tar' extension).
 
 Default value: `db.sql`
-
-### `DREVOPS_DB_IMPORT_FILE_DIR`
-
-Directory with database dump file.
-
-Default value: `DREVOPS_DB_DIR`
-
-### `DREVOPS_DB_IMPORT_FILE_NAME`
-
-Database dump file name.
-
-Default value: `DREVOPS_DB_FILE`
-
-### `DREVOPS_DB_IMPORT_FILE_PROGRESS`
-
-Flag to use database import progress indicator (pv).
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DB_OVERWRITE_EXISTING`
-
-Flag to always overwrite existing database. Usually set to `0` in deployed environments.
-
-Default value: `UNDEFINED`
 
 ### `DREVOPS_DEBUG`
 
@@ -668,15 +638,7 @@ Default value: `HOME`
 
 ### `DREVOPS_DRUPAL_ADMIN_EMAIL`
 
-User mail could have been sanitized - setting it back to a pre-defined mail.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DRUPAL_BUILD_WITH_MAINTENANCE_MODE`
-
-Put the site into a maintenance mode during the build.
-
-Default value: `1`
+Default value: `DREVOPS_DRUPAL_ADMIN_EMAIL`
 
 ### `DREVOPS_DRUPAL_CONFIG_LABEL`
 
@@ -710,19 +672,45 @@ Default value: `RANDOM`
 
 ### `DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_WITH_EMAIL`
 
-Default value: `UNDEFINED`
-
-### `DREVOPS_DRUPAL_DB_SANITIZE_SKIP`
-
-Flag to skip DB sanitization.
+Replace username with mail.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DRUPAL_FORCE_FRESH_INSTALL`
+### `DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP`
 
-Set to `1` to force fresh install even if the site exists. Useful for profile-based deployments into existing environments.
+Skip database sanitization.
 
 Default value: `UNDEFINED`
+
+### `DREVOPS_DRUPAL_INSTALL_FROM_PROFILE`
+
+Set to `1` to install a site from profile instead of database file dump.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP`
+
+Flag to skip running post DB import commands. Useful to only import the database from file (or install from profile) and not perform any additional operations. For example, when need to capture database state before any updates ran (for example, DB caching in CI).
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB`
+
+Flag to always overwrite existing database. Usually set to `0` in deployed environments and can be temporary set to `1` for a specific deployment. Set this to `1` in .env.local to override when developing localy.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE`
+
+Put the site into a maintenance mode during site installation phase.
+
+Default value: `1`
+
+### `DREVOPS_DRUPAL_LOGIN_UNBLOCK_ADMIN`
+
+Unblock admin account when logging in.
+
+Default value: `1`
 
 ### `DREVOPS_DRUPAL_PRIVATE_FILES`
 
@@ -754,29 +742,11 @@ Drupal site name (used only when installing from profile).
 
 Default value: `YOURSITE`
 
-### `DREVOPS_DRUPAL_SKIP_DB_IMPORT`
-
-Flag to skip DB import.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT`
-
-Flag to skip running post DB import commands.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_DRUPAL_THEME`
 
 Drupal theme name.
 
 Default value: `your_site_theme`
-
-### `DREVOPS_DRUPAL_UNBLOCK_ADMIN`
-
-Unblock admin account after build finishes.
-
-Default value: `1`
 
 ### `DREVOPS_DRUPAL_VERSION`
 

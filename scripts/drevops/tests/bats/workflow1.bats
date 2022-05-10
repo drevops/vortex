@@ -36,6 +36,8 @@ load _helper_drevops_workflow
   prepare_sut "Starting download from image, storage in docker image WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
   # Assert that the database was not downloaded because DREVOPS_SKIP_DEMO was set.
   assert_file_not_exists .data/db.sql
+  # Remove .env.local added by the installer script.
+  rm .env.local > /dev/null
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry"
   assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
@@ -99,6 +101,8 @@ load _helper_drevops_workflow
   prepare_sut "Starting download from image, storage in docker image WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
   # Assert that the database was not downloaded because DREVOPS_SKIP_DEMO was set.
   assert_file_not_exists .data/db.sql
+  # Remove .env.local added by the installer script.
+  rm .env.local > /dev/null
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry"
   assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"

@@ -39,7 +39,7 @@ prepare_sut() {
   touch .idea/idea_file.txt
   assert_file_exists .idea/idea_file.txt
 
-  if [ "$(uname -m)" = 'arm64' ]; then
+  if uname -a|grep -q ARM64; then
     substep "Override local Docker Compose for ARM."
     cp default.docker-compose.override.yml docker-compose.override.yml
   fi
@@ -99,9 +99,6 @@ assert_ahoy_build() {
   assert_output_contains "==> Removing project containers and packages available since the previous run."
   assert_output_contains "==> Building images, recreating and starting containers."
   assert_output_contains "==> Installing development dependencies."
-  assert_output_contains "==> Started example post site install operations."
-  assert_output_contains "  > Perform example operations in non-production environment."
-  assert_output_contains "==> Finished example post site install operations."
   assert_output_contains "==> Build complete."
 
   # Assert that lock files were created.
@@ -250,18 +247,19 @@ assert_ahoy_info() {
 
   run ahoy info
   assert_success
-  assert_output_contains "Project name      : star_wars"
-  assert_output_contains "Site local URL    : http://star-wars.docker.amazee.io"
-  assert_output_contains "Path to project   : /app"
-  assert_output_contains "Path to docroot   : /app/docroot"
-  assert_output_contains "DB host           : mariadb"
-  assert_output_contains "DB username       : drupal"
-  assert_output_contains "DB password       : drupal"
-  assert_output_contains "DB port           : 3306"
-  assert_output_contains "DB port on host   :"
-  assert_output_contains "Solr port on host :"
-  assert_output_contains "Mailhog URL       : http://mailhog.docker.amazee.io/"
-  assert_output_contains "Xdebug            : Disabled ('ahoy debug' to enable)"
+  assert_output_contains "Project name                : star_wars"
+  assert_output_contains "Docker Compose project name : star_wars"
+  assert_output_contains "Site local URL              : http://star-wars.docker.amazee.io"
+  assert_output_contains "Path to project             : /app"
+  assert_output_contains "Path to docroot             : /app/docroot"
+  assert_output_contains "DB host                     : mariadb"
+  assert_output_contains "DB username                 : drupal"
+  assert_output_contains "DB password                 : drupal"
+  assert_output_contains "DB port                     : 3306"
+  assert_output_contains "DB port on host             :"
+  assert_output_contains "Solr port on host           :"
+  assert_output_contains "Mailhog URL                 : http://mailhog.docker.amazee.io/"
+  assert_output_contains "Xdebug                      : Disabled ('ahoy debug' to enable)"
   assert_output_not_contains "Containers are not running."
 }
 
@@ -436,6 +434,7 @@ assert_ahoy_test_bdd() {
 
   substep "Run profile BDD tests based on DREVOPS_TEST_BEHAT_PROFILE variable"
   assert_dir_empty screenshots
+  ahoy cli mkdir -p /app/test_reports/behat
   DREVOPS_TEST_BEHAT_PROFILE=p0 ahoy test-bdd
   sync_to_host
   assert_dir_not_empty test_reports
@@ -570,31 +569,6 @@ assert_ahoy_fe() {
   # Note that assets compiled for development are not minified (contains spaces
   # between properties and their values).
   assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background: #91ea5e"
-}
-
-assert_export_on_install_site() {
-  step "Export DB on install"
-
-  substep "Remove previously downloaded DB file"
-  rm -Rf .data/*
-  ahoy cli "rm -Rf .data/*"
-
-  substep "Set .env variables"
-  add_var_to_file .env "DREVOPS_DB_EXPORT_BEFORE_IMPORT" "1"
-  add_var_to_file .env "DREVOPS_DB_DOWNLOAD_CURL_URL" "$DREVOPS_DEMO_DB_TEST"
-  ahoy up cli && sync_to_container
-
-  substep "Download DB file"
-  ahoy download-db
-  # shellcheck disable=SC2002
-  cat ".data/db.sql" | head -n 1 >&3
-
-  substep "Install site"
-  ahoy install-site
-  sync_to_host
-  assert_file_exists .data/export_db_*
-
-  restore_file .env && ahoy up cli && sync_to_container
 }
 
 assert_ahoy_debug() {
