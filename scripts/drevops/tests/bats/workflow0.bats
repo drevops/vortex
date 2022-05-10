@@ -165,6 +165,8 @@ load _helper_drevops_workflow
 @test "Utilities" {
   prepare_sut "Starting utilities tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
+  assert_ahoy_local
+
   assert_ahoy_doctor_info
 
   assert_ahoy_github_labels

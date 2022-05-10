@@ -116,7 +116,7 @@ aliases:
           # Set timezone to ensure that executed operations use correct timestamps.
           TZ: *timezone
           # Always answer 'y' to any confirmation questions.
-          DREVOPS_CONFIRM_RESPONSE: 'y'
+          DREVOPS_AHOY_CONFIRM_RESPONSE: 'y'
           # How often to refresh the cache of the DB dump. Refer to `date` command.
           DREVOPS_CI_DB_CACHE_TIMESTAMP: *drevops_ci_db_cache_timestamp
           # Use cache fallback if the above timestamp does not match.

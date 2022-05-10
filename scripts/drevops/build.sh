@@ -27,7 +27,7 @@ DREVOPS_DOCKER_VERBOSE="${DREVOPS_DOCKER_VERBOSE:-}"
 echo "==> Building project."
 
 # Suppress any confirmation dialogs in descendant calls.
-export DREVOPS_CONFIRM_RESPONSE=y
+export DREVOPS_AHOY_CONFIRM_RESPONSE=y
 
 ## Check all pre-requisites before starting the stack.
 export DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 && ./scripts/drevops/doctor.sh

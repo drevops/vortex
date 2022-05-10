@@ -228,12 +228,17 @@ commands:
     usage: Update development stack.
     cmd: ahoy confirm "Some committed files may become overwritten. Proceed?" && ./scripts/drevops/update.sh || echo "The operation was canceled."
 
+  local:
+    usage: Custom local commands. See `ahoy local help`.
+    cmd: |
+      if [ -n "${DREVOPS_AHOY_LOCAL_FILE}" ] && [ -f "${DREVOPS_AHOY_LOCAL_FILE}" ]; then ahoy -f "${DREVOPS_AHOY_LOCAL_FILE}" "$@"; fi
+
   # ----------------------------------------------------------------------------
   # Utilities.
   # ----------------------------------------------------------------------------
   confirm:
     cmd: |
-      [ -z "$DREVOPS_CONFIRM_RESPONSE" ] && read -r -p "$1 [y/N] " DREVOPS_CONFIRM_RESPONSE; [ "$DREVOPS_CONFIRM_RESPONSE" = "y" ] || [ "$DREVOPS_CONFIRM_RESPONSE" = true ]
+      [ -z "$DREVOPS_AHOY_CONFIRM_RESPONSE" ] && read -r -p "$1 [y/N] " DREVOPS_AHOY_CONFIRM_RESPONSE; [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = true ]
     hide: true
 
 #: Override entrypoint to alter default behaviour of Ahoy.
