@@ -1570,12 +1570,12 @@ function print_footer() {
   status('Finished installing DrevOps. Review changes and commit required files.', INSTALLER_STATUS_SUCCESS);
 }
 
-function print_title($text, $fill = '*', $width = 80) {
+function print_title($text, $fill = '-', $width = 80, $cols = '|') {
   print_divider($fill, $width);
   $lines = explode(PHP_EOL, wordwrap($text, $width - 4, PHP_EOL));
   foreach ($lines as $line) {
     $line = ' ' . $line . ' ';
-    print $fill . str_pad($line, $width - 2, ' ', STR_PAD_BOTH) . $fill . PHP_EOL;
+    print $cols . str_pad($line, $width - 2, ' ', STR_PAD_BOTH) . $cols . PHP_EOL;
   }
   print_divider($fill, $width);
 }
@@ -1591,22 +1591,22 @@ function print_subtitle($text, $fill = '=', $width = 80) {
   }
 }
 
-function print_divider($fill = '=', $width = 80) {
-  print str_repeat($fill, $width) . PHP_EOL;
+function print_divider($fill = '-', $width = 80, $corners = 'x') {
+  print $corners . str_repeat($fill, $width - 2) . $corners . PHP_EOL;
 }
 
-function print_box($content, $title = '', $fill = '*', $padding = 2, $width = 80) {
+function print_box($content, $title = '', $fill = '-', $padding = 2, $width = 80, $cols = '|', $corners = 'x') {
   $max_width = $width - 2 - $padding * 2;
   $lines = explode(PHP_EOL, wordwrap(rtrim($content, PHP_EOL), $max_width, PHP_EOL));
   $pad = str_pad(' ', $padding);
-  $mask = "{$fill}{$pad}%-{$max_width}s{$pad}{$fill}" . PHP_EOL;
+  $mask = "{$cols}{$pad}%-{$max_width}s{$pad}{$cols}" . PHP_EOL;
 
   print PHP_EOL;
   if (!empty($title)) {
     print_title($title, $fill, $width);
   }
   else {
-    print_divider($fill, $width);
+    print_divider($fill, $width, $corners);
   }
 
   array_unshift($lines, '');
