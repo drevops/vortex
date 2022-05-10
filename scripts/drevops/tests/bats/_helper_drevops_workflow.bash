@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154
+# shellcheck disable=SC2154,SC2129
 #
 # Helpers related to DrevOps workflow testing functionality.
 #
@@ -789,6 +789,8 @@ assert_ahoy_github_labels() {
   assert_output_contains "Pull request was reviewed and reviver(s) asked to work further on the pull request"
   assert_output_contains ">URGENT<"
   assert_output_contains "Pull request needs to be urgently reviewed"
+  assert_output_contains ">dependencies<"
+  assert_output_contains "Pull request was raised automatically by a dependency bot"
 
   assert_output_not_contains ">bug<"
   assert_output_not_contains ">duplicate<"
@@ -798,4 +800,43 @@ assert_ahoy_github_labels() {
   assert_output_not_contains ">invalid<"
   assert_output_not_contains ">question<"
   assert_output_not_contains ">wontfix<"
+}
+
+assert_ahoy_local() {
+  step "Run ahoy local commands"
+
+  substep "Assert calling local commands without local file does not throw error"
+  run ahoy local
+  assert_success
+  assert_output_not_contains "[fatal]"
+
+  substep "Assert calling local commands with local file path specified but no file does not throw error"
+  assert_file_contains "default.env.local" "DREVOPS_AHOY_LOCAL_FILE="
+  assert_file_exists "default.ahoy.local.yml"
+  assert_file_not_exists ".ahoy.local.yml"
+  touch .env.local
+  add_var_to_file .env.local "DREVOPS_AHOY_LOCAL_FILE" ".ahoy.local.yml"
+  run ahoy local
+  assert_success
+  assert_output_not_contains "[fatal]"
+
+  substep "Assert calling local commands with local file path specified and file is present works correctly"
+  cp "default.ahoy.local.yml" ".ahoy.local.yml"
+  run ahoy local help
+  assert_success
+  assert_output_contains "==> Custom local commands"
+  assert_output_not_contains "[fatal]"
+
+  substep "Assert calling local commands with local file path specified and file is present and file return non-zero exit code"
+
+  echo >> ".ahoy.local.yml"
+  echo "  mylocalcommand:" >> ".ahoy.local.yml"
+  echo "    cmd: |" >> ".ahoy.local.yml"
+  echo "      echo 'expected failure'" >> ".ahoy.local.yml"
+  echo "      exit 1" >> ".ahoy.local.yml"
+
+  run ahoy local mylocalcommand
+  assert_failure
+  assert_output_contains "expected failure"
+  assert_output_not_contains "[fatal]"
 }

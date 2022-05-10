@@ -68,6 +68,18 @@ Acquia Cloud API secret.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_AHOY_CONFIRM_RESPONSE`
+
+Uncomment below to suppress Ahoy prompts.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_AHOY_LOCAL_FILE`
+
+Local Ahoy commands file inclusion. Uncomment and copy default`.ahoy.local.yml` to .ahoy.local.yml
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_APP`
 
 Path to the root of the project inside of the container.
@@ -369,6 +381,8 @@ Flag to always overwrite existing database. Usually set to `0` in deployed envir
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DEBUG`
+
+Print debug information in DrevOps scripts.
 
 Default value: `UNDEFINED`
 
