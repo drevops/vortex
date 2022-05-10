@@ -52,7 +52,7 @@ DREVOPS_DB_OVERWRITE_EXISTING="${DREVOPS_DB_OVERWRITE_EXISTING:-1}"
 
 # ------------------------------------------------------------------------------
 
-echo "==> Installing site."
+echo "==> Started site installation."
 
 # Use local or global Drush, giving priority to a local drush.
 drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
@@ -75,10 +75,10 @@ if
   # Site is not installed OR allowed to overwrite existing site.
   ([ "${site_is_installed}" != "1" ] || [ "${DREVOPS_DB_OVERWRITE_EXISTING}" = "1" ])
 then
-  echo "****************************************"
+  echo "========================================"
   echo "==> Importing database from dump."
   echo "  > Using DB dump ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}."
-  echo "****************************************"
+  echo "========================================"
   DREVOPS_DB_DIR="${DREVOPS_DB_DIR}" DREVOPS_DB_FILE="${DREVOPS_DB_FILE}" "${DREVOPS_APP}/scripts/drevops/import-db-file.sh"
 elif
   # If site is installed AND
@@ -86,16 +86,16 @@ elif
   # Not allowed to forcefully install from profile.
   [ "${DREVOPS_DRUPAL_FORCE_FRESH_INSTALL}" != "1" ]
 then
-  echo "****************************************"
+  echo "========================================"
   echo "==> Existing site found."
   echo "  > Database will be preserved."
   echo "  > Re-run with DREVOPS_DRUPAL_FORCE_FRESH_INSTALL=1 to forcefully re-install."
-  echo "****************************************"
+  echo "========================================"
 else
-  echo "****************************************"
+  echo "========================================"
   echo "==> Existing site not found."
   echo "  > Installing site from profile ${DREVOPS_DRUPAL_PROFILE}."
-  echo "****************************************"
+  echo "========================================"
 
   # Scan for configuration files.
   if ls "${DREVOPS_DRUPAL_CONFIG_PATH}"/*.yml >/dev/null 2>&1; then
@@ -211,3 +211,5 @@ if [ "${DREVOPS_DRUPAL_BUILD_WITH_MAINTENANCE_MODE}" = "1" ]; then
   echo "==> Disabled maintenance mode."
   $drush state:set system.maintenance_mode 0 --input-format=integer
 fi
+
+echo "==> Finished site installation."

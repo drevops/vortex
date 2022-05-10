@@ -14,22 +14,23 @@ DREVOPS_DRUPAL_SHOW_LOGIN_LINK="${DREVOPS_DRUPAL_SHOW_LOGIN_LINK:-}"
 
 # ------------------------------------------------------------------------------
 
-echo  "Project                  : ${DREVOPS_PROJECT}"
-echo  "Site local URL           : http://${DREVOPS_DOCTOR_LOCALDEV_URL}"
-echo  "Path to project          : ${DREVOPS_APP}"
-echo  "Path to docroot          : ${DREVOPS_APP}/docroot"
-echo  "DB host                  : ${DREVOPS_MARIADB_HOST}"
-echo  "DB username              : ${DREVOPS_MARIADB_USER}"
-echo  "DB password              : ${DREVOPS_MARIADB_PASSWORD}"
-echo  "DB port                  : ${DREVOPS_MARIADB_PORT}"
-echo  "DB port on host          : ${DREVOPS_HOST_DB_PORT}"
+echo
+echo "Project name      : ${DREVOPS_PROJECT}"
+echo "Site local URL    : http://${DREVOPS_DOCTOR_LOCALDEV_URL}"
+echo "Path to project   : ${DREVOPS_APP}"
+echo "Path to docroot   : ${DREVOPS_APP}/docroot"
+echo "DB host           : ${DREVOPS_MARIADB_HOST}"
+echo "DB username       : ${DREVOPS_MARIADB_USER}"
+echo "DB password       : ${DREVOPS_MARIADB_PASSWORD}"
+echo "DB port           : ${DREVOPS_MARIADB_PORT}"
+echo "DB port on host   : ${DREVOPS_HOST_DB_PORT} ('ahoy db' to start SequelAce)"
 if [ -n "${DREVOPS_HOST_SOLR_PORT}" ]; then
-  echo  "Solr port on host        : ${DREVOPS_HOST_SOLR_PORT}"
+  echo "Solr port on host : ${DREVOPS_HOST_SOLR_PORT}"
 fi
-echo  "Mailhog URL              : http://mailhog.docker.amazee.io/"
-echo  "Xdebug                   : $(php -v | grep -q Xdebug && echo "Enabled" || echo "Disabled")"
-
+echo "Mailhog URL       : http://mailhog.docker.amazee.io/"
+echo "Xdebug            : $(php -v | grep -q Xdebug && echo "Enabled ('ahoy up cli' to disable)" || echo "Disabled ('ahoy debug' to enable)")"
 if [ "${DREVOPS_DRUPAL_SHOW_LOGIN_LINK}" = "1" ] || [ -n "${1}" ]; then
-  echo -n "One-time login           : "
+  echo -n "Site login link   : "
   ./scripts/drevops/drupal-login.sh
 fi
+echo

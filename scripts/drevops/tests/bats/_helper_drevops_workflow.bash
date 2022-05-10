@@ -250,18 +250,18 @@ assert_ahoy_info() {
 
   run ahoy info
   assert_success
-  assert_output_contains "Project                  : star_wars"
-  assert_output_contains "Site local URL           : http://star-wars.docker.amazee.io"
-  assert_output_contains "Path to project          : /app"
-  assert_output_contains "Path to docroot          : /app/docroot"
-  assert_output_contains "DB host                  : mariadb"
-  assert_output_contains "DB username              : drupal"
-  assert_output_contains "DB password              : drupal"
-  assert_output_contains "DB port                  : 3306"
-  assert_output_contains "DB port on host          :"
-  assert_output_contains "Solr port on host        :"
-  assert_output_contains "Mailhog URL              : http://mailhog.docker.amazee.io/"
-  assert_output_contains "Xdebug                   : Disabled"
+  assert_output_contains "Project name      : star_wars"
+  assert_output_contains "Site local URL    : http://star-wars.docker.amazee.io"
+  assert_output_contains "Path to project   : /app"
+  assert_output_contains "Path to docroot   : /app/docroot"
+  assert_output_contains "DB host           : mariadb"
+  assert_output_contains "DB username       : drupal"
+  assert_output_contains "DB password       : drupal"
+  assert_output_contains "DB port           : 3306"
+  assert_output_contains "DB port on host   :"
+  assert_output_contains "Solr port on host :"
+  assert_output_contains "Mailhog URL       : http://mailhog.docker.amazee.io/"
+  assert_output_contains "Xdebug            : Disabled ('ahoy debug' to enable)"
   assert_output_not_contains "Containers are not running."
 }
 
