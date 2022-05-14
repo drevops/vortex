@@ -38,7 +38,6 @@ setup() {
   export DST_PROJECT_DIR="${BUILD_DIR}/dst"
   export LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   export APP_TMP_DIR="${BUILD_DIR}/tmp"
-  export DREVOPS_TEST_ARTIFACT_DIR="/app"
   export DREVOPS_TEST_REPORTS_DIR="/app/test_reports"
   export DREVOPS_AHOY_CONFIRM_RESPONSE=y
 
@@ -872,7 +871,7 @@ install_dependencies_stub() {
   mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
 
   mktouch "docroot/modules/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
-  mktouch "screenshots/s1.jpg"
+  mktouch "tests/behat/screenshots/s1.jpg"
   mktouch ".data/db.sql"
 
   mktouch "docroot/sites/default/settings.local.php"

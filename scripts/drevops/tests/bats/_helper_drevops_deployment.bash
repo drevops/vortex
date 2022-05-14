@@ -16,7 +16,7 @@ assert_deployment_files_present() {
   assert_dir_not_exists .gitignore.deployment
   assert_dir_not_exists node_modules
   assert_dir_not_exists patches
-  assert_dir_not_exists screenshots
+  assert_dir_not_exists tests/behat/screenshots
   assert_dir_not_exists tests
   assert_file_not_exists .ahoy.yml
   assert_file_not_exists .dockerignore

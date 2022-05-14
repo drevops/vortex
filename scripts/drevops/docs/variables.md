@@ -110,6 +110,10 @@ Name of the database docker image to use. Uncomment to use an image with a DB da
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_DB_DOCKER_IMAGE_BASE`
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_DB_DOWNLOAD_ACQUIA_APP_NAME`
 
 Application name. Used to discover UUID.
