@@ -41,7 +41,8 @@ default:
         success_message_selector: '.messages.status'
         warning_message_selector: '.messages.warning'
     # Allows to capture HTML and JPG screenshots (based on the driver used).
-    DrevOps\BehatScreenshotExtension: ~
+    DrevOps\BehatScreenshotExtension:
+      dir: '%paths.base%/tests/behat/screenshots'
     # Show explicit fail information and continue the test run.
     DrevOps\BehatFormatProgressFail\FormatExtension: ~
 

@@ -34,8 +34,8 @@ load _helper_drevops
   mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
   mktouch "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
-  mktouch "screenshots/s1.jpg"
-  mktouch "screenshots/s2.jpg"
+  mktouch "tests/behat/screenshots/s1.jpg"
+  mktouch "tests/behat/screenshots/s2.jpg"
 
   mktouch ".data/db.sql"
   mktouch ".data/db_2.sql"
@@ -71,8 +71,8 @@ load _helper_drevops
   assert_dir_not_exists "docroot/themes/custom/star_wars/build"
   assert_file_not_exists "docroot/themes/custom/star_wars/scss/_components.scss"
 
-  assert_file_exists "screenshots/s1.jpg"
-  assert_file_exists "screenshots/s2.jpg"
+  assert_file_exists "tests/behat/screenshots/s1.jpg"
+  assert_file_exists "tests/behat/screenshots/s2.jpg"
 
   assert_file_exists ".data/db.sql"
   assert_file_exists ".data/db_2.sql"
@@ -120,8 +120,8 @@ load _helper_drevops
   mktouch "docroot/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
 
-  mktouch "screenshots/s1.jpg"
-  mktouch "screenshots/s2.jpg"
+  mktouch "tests/behat/screenshots/s1.jpg"
+  mktouch "tests/behat/screenshots/s2.jpg"
 
   mktouch ".data/db.sql"
   mktouch ".data/db_2.sql"
@@ -160,7 +160,7 @@ load _helper_drevops
   assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/build"
   assert_file_not_exists "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
-  assert_dir_not_exists "screenshots"
+  assert_dir_not_exists "tests/behat/screenshots"
 
   assert_file_not_exists ".data/db.sql"
   assert_file_not_exists ".data/db_2.sql"
@@ -207,8 +207,8 @@ load _helper_drevops
   mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
   mktouch "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
-  mktouch "screenshots/s1.jpg"
-  mktouch "screenshots/s2.jpg"
+  mktouch "tests/behat/screenshots/s1.jpg"
+  mktouch "tests/behat/screenshots/s2.jpg"
 
   mktouch ".data/db.sql"
   mktouch ".data/db_2.sql"
@@ -254,7 +254,7 @@ load _helper_drevops
   assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/build"
   #assert_file_not_exists "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
-  assert_dir_not_exists "screenshots"
+  assert_dir_not_exists "tests/behat/screenshots"
 
   assert_file_not_exists ".data/db.sql"
   assert_file_not_exists ".data/db_2.sql"

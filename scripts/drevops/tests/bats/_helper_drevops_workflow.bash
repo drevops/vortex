@@ -412,28 +412,28 @@ assert_ahoy_test_bdd() {
   substep "Run all BDD tests"
   ahoy test-bdd
   sync_to_host
-  assert_dir_not_empty screenshots
-  rm -rf screenshots/*
-  ahoy cli rm -rf /app/screenshots/*
+  assert_dir_not_empty tests/behat/screenshots
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   substep "Run tagged BDD tests"
-  assert_dir_empty screenshots
+  assert_dir_empty tests/behat/screenshots
   ahoy test-bdd -- --tags=p0
   sync_to_host
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/behat/default.xml
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
-  assert_dir_not_empty screenshots
+  assert_dir_not_empty tests/behat/screenshots
   # Test tagged with p0 are non-browser tests, so there should not be any
   # image screenshots.
-  assert_file_exists "screenshots/*html"
-  assert_file_not_exists "screenshots/*png"
-  rm -rf screenshots/*
-  ahoy cli rm -rf /app/screenshots/*
+  assert_file_exists "tests/behat/screenshots/*html"
+  assert_file_not_exists "tests/behat/screenshots/*png"
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   substep "Run profile BDD tests based on DREVOPS_TEST_BEHAT_PROFILE variable"
-  assert_dir_empty screenshots
+  assert_dir_empty tests/behat/screenshots
   ahoy cli mkdir -p /app/test_reports/behat
   DREVOPS_TEST_BEHAT_PROFILE=p0 ahoy test-bdd
   sync_to_host
@@ -441,19 +441,19 @@ assert_ahoy_test_bdd() {
   assert_file_exists test_reports/behat/default.xml
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
-  assert_dir_not_empty screenshots
+  assert_dir_not_empty tests/behat/screenshots
   # Test tagged with p0 are non-browser tests, so there should not be any
   # image screenshots.
-  assert_file_exists "screenshots/*html"
-  assert_file_not_exists "screenshots/*png"
-  rm -rf screenshots/*
-  ahoy cli rm -rf /app/screenshots/*
+  assert_file_exists "tests/behat/screenshots/*html"
+  assert_file_not_exists "tests/behat/screenshots/*png"
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   substep "Assert that Behat tests failure works"
   echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
   sync_to_container
 
-  assert_dir_empty screenshots
+  assert_dir_empty tests/behat/screenshots
   run ahoy test-bdd
   [ "${status}" -eq 1 ]
   sync_to_host
@@ -461,9 +461,9 @@ assert_ahoy_test_bdd() {
   assert_file_exists test_reports/behat/default.xml
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
-  assert_dir_not_empty screenshots
-  rm -rf screenshots/*
-  ahoy cli rm -rf /app/screenshots/*
+  assert_dir_not_empty tests/behat/screenshots
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   substep "Assert that Behat tests failure bypassing works"
 
@@ -475,28 +475,28 @@ assert_ahoy_test_bdd() {
   assert_file_exists test_reports/behat/default.xml
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
-  assert_dir_not_empty screenshots
-  rm -rf screenshots/*
-  ahoy cli rm -rf /app/screenshots/*
+  assert_dir_not_empty tests/behat/screenshots
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
   # Remove failing step from the feature.
   trim_file tests/behat/features/homepage.feature
   sync_to_container
   restore_file .env && ahoy up cli && sync_to_container
 
   substep "Run single Behat test"
-  assert_dir_empty screenshots
+  assert_dir_empty tests/behat/screenshots
   ahoy test-bdd tests/behat/features/homepage.feature
   sync_to_host
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/behat/default.xml
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
-  assert_dir_not_empty screenshots
-  rm -rf screenshots/*
-  ahoy cli rm -rf /app/screenshots/*
+  assert_dir_not_empty tests/behat/screenshots
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   substep "Assert that single Behat test failure works"
-  assert_dir_empty screenshots
+  assert_dir_empty tests/behat/screenshots
   echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
   ahoy up cli && sync_to_container
   # Assert failure.
@@ -507,13 +507,13 @@ assert_ahoy_test_bdd() {
   assert_file_exists test_reports/behat/default.xml
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
-  assert_dir_not_empty screenshots
-  rm -rf screenshots/*
-  ahoy cli rm -rf /app/screenshots/*
+  assert_dir_not_empty tests/behat/screenshots
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   # Assert failure bypass.
   substep "Assert that single Behat test failure bypassing works"
-  assert_dir_empty screenshots
+  assert_dir_empty tests/behat/screenshots
   add_var_to_file .env "DREVOPS_TEST_BDD_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-bdd tests/behat/features/homepage.feature
   [ "${status}" -eq 0 ]
@@ -522,9 +522,9 @@ assert_ahoy_test_bdd() {
   assert_file_exists test_reports/behat/default.xml
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
-  assert_dir_not_empty screenshots
-  rm -rf screenshots/*
-  ahoy cli rm -rf /app/screenshots/*
+  assert_dir_not_empty tests/behat/screenshots
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   # Remove failing step from the feature.
   trim_file tests/behat/features/homepage.feature
@@ -642,7 +642,7 @@ assert_ahoy_clean() {
   assert_dir_not_exists docroot/themes/contrib
   assert_dir_not_exists vendor
   assert_dir_not_exists docroot/themes/custom/star_wars/node_modules
-  assert_dir_exists screenshots
+  assert_dir_exists tests/behat/screenshots
 
   # Assert manually created local settings file exists.
   assert_file_exists docroot/sites/default/settings.local.php
@@ -681,7 +681,7 @@ assert_ahoy_reset() {
   # Assert IDE config file still exists.
   assert_file_exists .idea/idea_file.txt
 
-  assert_dir_not_exists screenshots
+  assert_dir_not_exists tests/behat/screenshots
 
   assert_git_repo
 
