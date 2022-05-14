@@ -238,7 +238,6 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/download-db-lagoon.sh"
   assert_file_exists "scripts/drevops/export-db-file.sh"
   assert_file_exists "scripts/drevops/export-db-docker.sh"
-  assert_file_exists "scripts/drevops/import-db-file.sh"
   assert_file_exists "scripts/drevops/drupal-install-site.sh"
   assert_file_exists "scripts/drevops/drupal-login.sh"
   assert_file_exists "scripts/drevops/drupal-sanitize-db.sh"
@@ -600,8 +599,8 @@ assert_files_present_no_integration_acquia() {
   assert_file_not_contains ".ahoy.yml" "DREVOPS_ACQUIA_APP_NAME="
   assert_file_not_contains ".ahoy.yml" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
   assert_file_not_contains ".ahoy.yml" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
-  assert_dir_not_contains_string "${dir}" "AC_API_USER_NAME"
-  assert_dir_not_contains_string "${dir}" "AC_API_USER_PASS"
+  assert_dir_not_contains_string "${dir}" "DREVOPS_ACQUIA_KEY"
+  assert_dir_not_contains_string "${dir}" "DREVOPS_ACQUIA_SECRET"
 
   popd >/dev/null || exit 1
 }

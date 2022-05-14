@@ -7,11 +7,8 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-# Flag to skip DB sanitization.
-DREVOPS_DRUPAL_DB_SANITIZE_SKIP="${DREVOPS_DRUPAL_DB_SANITIZE_SKIP:-}"
-
 # Path to the application.
-DREVOPS_APP="${APP:-/app}"
+DREVOPS_APP="${DREVOPS_APP:-/app}"
 
 # Database sanitized account email replacement.
 DREVOPS_DRUPAL_DB_SANITIZE_EMAIL="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL:-user+%uid@localhost}"
@@ -31,10 +28,6 @@ DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIO
 # Use local or global Drush, giving priority to a local drush.
 drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
 
-if [ "${DREVOPS_DRUPAL_DB_SANITIZE_SKIP}" = "1" ]; then
-  echo "==> Skipped database sanitization." && exit 0
-fi
-
 echo "==> Started database sanitization."
 
 echo "  > Sanitizing database using drush sql-sanitize."
@@ -51,6 +44,17 @@ fi
 if [ -f "${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}" ]; then
   echo "  > Applying custom sanitization commands from file ${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}."
   $drush sql-query --file="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}"
+fi
+
+# User mail and name for use 0 could have been sanitized - resetting it.
+echo "  > Resetting user 0 username and email."
+$drush sql-query "UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+$drush sql-query "UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+
+# User email could have been sanitized - setting it back to a pre-defined email.
+if [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL}" ]; then
+  echo "  > Updating user 1 email"
+  $drush sql-query "UPDATE \`users_field_data\` SET mail = '${DREVOPS_DRUPAL_ADMIN_EMAIL}' WHERE uid = '1';"
 fi
 
 echo "==> Finished database sanitization."

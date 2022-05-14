@@ -217,7 +217,7 @@ jobs:
       #: are not applied, so we could cache the database as it was downloaded.
       - run:
           name: Download DB
-          command: DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE="${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE:-${DREVOPS_DB_DOCKER_IMAGE}}" DREVOPS_DB_DOWNLOAD_POST_PROCESS="export DREVOPS_DRUPAL_SKIP_POST_DB_IMPORT=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
+          command: DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE="${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE:-${DREVOPS_DB_DOCKER_IMAGE}}" DREVOPS_DB_DOWNLOAD_POST_PROCESS="export DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP=1 && ahoy build && ahoy export-db db.sql" ahoy download-db
           no_output_timeout: 30m
       - save_cache:
           # Save cache per default branch and the timestamp. Note that the
