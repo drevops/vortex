@@ -606,11 +606,11 @@ workflows:
           filters:
             branches:
               # Allowed branches:
-              # - master, develop, ci, cisomething
+              # - main, master, develop, ci, cisomething
               # - release/123, release/123.456, release/123.456.789, release/123.456.789-rc123
               # - hotfix/123, hotfix/123.456, hotfix/123.456.789
               # - feature/description, feature/123-description, but not feature/9.x-description or feature/7.x-description
-              only: /master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-|9.x-)[a-zA-z0-9\-\.\,]+/
+              only: /main|master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-|9.x-)[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
       - deploy_tags:

@@ -61,7 +61,7 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
     # capitalised.
     #
     # Example:
-    # For 'master' branch, the variable name is DREVOPS_DEPLOY_SKIP_BRANCH_MASTER
+    # For 'main' branch, the variable name is DREVOPS_DEPLOY_SKIP_BRANCH_MAIN
     # For 'feature/my complex feature-123 update' branch, the variable name
     # is DREVOPS_DEPLOY_SKIP_BRANCH_MY_COMPLEX_FEATURE_123_UPDATE
     safe_branch_name="$(echo "${DREVOPS_DEPLOY_BRANCH}" | tr -d '\n' | tr '[:space:]' '_' | tr '-' '_' | tr '/' '_' | tr -cd '[:alnum:]_' | tr '[:lower:]' '[:upper:]')"

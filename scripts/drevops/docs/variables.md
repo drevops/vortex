@@ -226,7 +226,7 @@ Default value: `UNDEFINED`
 
 Lagoon environment to download DB from.
 
-Default value: `master`
+Default value: `main`
 
 ### `DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT`
 
@@ -302,7 +302,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_SOURCE`
 
-Database can be sourced from one of the following locations: - "url" - directly from URL as a file using CURL. - "ftp" - directly from FTP as a file using CURL. - "acquia" - from the latest Acquia backup via Cloud API as a file. - "lagoon" - from Lagoon master enveronment as a file. - "docker_registry" - from the docker registry as a docker image. - "none" - not downloaded, site is freshly installed for every build.<br/>Note that "docker_registry" works only for database-in-Docker-image database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) variable has a value).
+Database can be sourced from one of the following locations: - "url" - directly from URL as a file using CURL. - "ftp" - directly from FTP as a file using CURL. - "acquia" - from the latest Acquia backup via Cloud API as a file. - "lagoon" - from Lagoon main enveronment as a file. - "docker_registry" - from the docker registry as a docker image. - "none" - not downloaded, site is freshly installed for every build.<br/>Note that "docker_registry" works only for database-in-Docker-image database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) variable has a value).
 
 Default value: `curl`
 
@@ -982,7 +982,7 @@ Default value: `UNDEFINED`
 
 Dedicated branch to identify production environment.
 
-Default value: `master`
+Default value: `main`
 
 ### `DREVOPS_PROJECT`
 
