@@ -1,13 +1,13 @@
-#:
-#: Ahoy configuration file.
-#: http://www.ahoycli.com/
-#:
-#: Provides development experience shortcuts to work with the stack.
-#: Any command can be copy-pasted directly into terminal and ran without using
-#: Ahoy.
-#:
-#: Do not add values directly into this file. Use .env file instead.
-#: Run `ahoy up cli` to apply environment variables changes to containers.
+#
+# Ahoy configuration file.
+# http://www.ahoycli.com/
+#
+# Provides development experience shortcuts to work with the stack.
+# Any command can be copy-pasted directly into terminal and ran without using
+# Ahoy.
+#
+# Do not add values directly into this file. Use .env file instead.
+# Run `ahoy up cli` to apply environment variables changes to containers.
 #;
 #; Comments starting with '#:' provide explicit documentation and will be
 #; automatically removed during installation or update if an option is selected.
@@ -39,7 +39,7 @@ commands:
         cli ./scripts/drevops/info.sh "$@"
 
   db:
-    usage: Open DB in Sequel Ace
+    usage: Open DB in Sequel Ace.
     cmd: |
       uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace'|grep -q "Ace" \
       && DREVOPS_HOST_DB_PORT="$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" \
@@ -51,41 +51,37 @@ commands:
   # ----------------------------------------------------------------------------
 
   up:
-    usage: Build and start all or specified Docker containers.
+    usage: Build and start Docker containers.
     cmd: |
       docker-compose up -d "$@" && if docker-compose logs | grep -q "\[Error\]"; then exit 1; fi
-      #: Write Livereload host port information into a socket file.
       mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
     cmd: |
       ahoy confirm "Running this command will remove your current database. Are you sure?" &&
-      #: Always remove dangling volumes after removing containers to prevent
-      #: data leaking between builds (resulting in inconsistent builds).
       if [ -f "docker-compose.yml" ]; then docker-compose down --volumes > /dev/null 2>&1; fi
 
   start:
-    usage: Start all or specified existing Docker containers.
+    usage: Start existing Docker containers.
     cmd: |
       docker-compose start "$@"
-      #: Write Livereload host port information into a socket file.
       mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
 
   stop:
-    usage: Stop all or specified running Docker containers.
+    usage: Stop running Docker containers.
     cmd: docker-compose stop "$@"
 
   restart:
-    usage: Restart all or specified stopped and running Docker containers.
+    usage: Restart stopped or running Docker containers.
     cmd: docker-compose restart "$@"
 
   logs:
-    usage: Show Docker logs for all or specified services.
+    usage: Show Docker logs for services.
     cmd: docker-compose logs "$@"
 
   pull:
-    usage: Pull latest docker images.
+    usage: Pull latest Docker images.
     cmd: if [ ! -z "$(docker image ls -q)" ]; then docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep uselagoon/ | grep -v none | xargs -n1 docker pull -q | cat; fi
 
   cli:
@@ -94,11 +90,11 @@ commands:
     cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec -T cli bash -c "$*"; else docker-compose exec cli bash; fi
 
   composer:
-    usage: Run composer commands in the CLI service container.
+    usage: Run Composer commands in the CLI service container.
     cmd: docker-compose exec -T cli composer "$@"
 
   drush:
-    usage: Run drush commands in the CLI service container.
+    usage: Run Drush commands in the CLI service container.
     cmd: docker-compose exec -T cli bash -c "drush -l ${DREVOPS_DOCTOR_LOCALDEV_URL} $*"
 
   #;< REDIS
@@ -146,11 +142,11 @@ commands:
       [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ] && docker pull $DREVOPS_DB_DOCKER_IMAGE
 
   clean:
-    usage: Remove containers and all build files.
+    usage: Remove Docker containers and all build files.
     cmd: ahoy down && ./scripts/drevops/clean.sh
 
   reset:
-    usage: "Reset environment: remove containers, all build, uncommitted files."
+    usage: "Remove containers, all build, uncommitted files."
     cmd: |
       ahoy confirm "All containers, build and uncomitted files will be removed, repository will be reset to the last commit. Proceed?" \
       && ahoy clean && ./scripts/drevops/reset.sh || echo "The operation was canceled."
@@ -206,19 +202,17 @@ commands:
     cmd: ahoy cli "DREVOPS_TEST_TYPE=bdd DREVOPS_TEST_ARTIFACT_DIR=${DREVOPS_TEST_ARTIFACT_DIR} DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR} DREVOPS_TEST_BEHAT_PROFILE=${DREVOPS_TEST_BEHAT_PROFILE:-} DREVOPS_TEST_BEHAT_FORMAT=${DREVOPS_TEST_BEHAT_FORMAT:-} DREVOPS_TEST_BEHAT_PARALLEL_INDEX=${DREVOPS_TEST_BEHAT_PARALLEL_INDEX:-} BEHAT_SCREENSHOT_PURGE=${BEHAT_SCREENSHOT_PURGE-} ./scripts/drevops/test.sh $@"
 
   debug:
-    usage: Enable debug configuration.
-    #: Check if the debug configuration is already enabled and, if not -
-    #: enable it and check again that it is enabled from inside of the container.
+    usage: Enable PHP Xdebug.
     cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
 
   deploy:
-    usage: Run remote deployment procedures
+    usage: Run remote deployment procedures.
     cmd: |
       ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as DREVOPS_DEPLOY_PROCEED=1 ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" \
       && ./scripts/drevops/deploy.sh "$@" || echo "The operation was canceled."
 
   github-labels:
-    usage: Update project's GitHub labels
+    usage: Update project's GitHub labels.
     cmd: ./scripts/drevops/github-labels.sh "$@"
 
   doctor:
@@ -258,8 +252,8 @@ entrypoint:
   #: values taken from containers.
   #:
   #: However, since docker does not support changes to environment variables in
-  #: running containers without restarting containers, we adding this mechanism
-  #: of reading variables here to allow adjustments of some variables
+  #: running containers without restarting containers, we are adding this
+  #: mechanism of reading variables here to allow adjustments of some variables
   #: (like PHPCS scan targets) without the need to restart containers.
   #:
   #: As a rule of thumb, use `ahoy up cli` to apply changes to variables.
