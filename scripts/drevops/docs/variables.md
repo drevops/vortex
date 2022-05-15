@@ -1098,6 +1098,46 @@ Skip Drupal site installation in Acquia environments.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_TASK_LAGOON_BIN_PATH`
+
+Location of the Lagoon CLI binary.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_LAGOON_BRANCH`
+
+The Lagoon branch to run the task on.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_LAGOON_COMMAND`
+
+The task command to execute.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_LAGOON_INSTALL_CLI_FORCE`
+
+Flag to force the installation of Lagoon CLI.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_LAGOON_INSTANCE`
+
+The Lagoon instance to interact with.
+
+Default value: `amazeeio`
+
+### `DREVOPS_TASK_LAGOON_NAME`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_LAGOON_PROJECT`
+
+The Lagoon project to run taks for.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_TASK_NOTIFY_DEPLOYMENT_EMAIL_ACQUIA_SKIP`
 
 Skip deployment email notification in Acquia environments.
@@ -1149,6 +1189,18 @@ Default value: `UNDEFINED`
 ### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES`
 
 Number of status retrieval retries. If this limit reached and task has not yet finished, the task is considered failed.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_SSH_FILE`
+
+Default SSH file used if custom fingerprint is not provided.
+
+Default value: `HOME`
+
+### `DREVOPS_TASK_SSH_FINGERPRINT`
+
+SSH key fingerprint used to connect to remote.<br/>If not used, the currently loaded default SSH key (the key used for code checkout) will be used or deployment will fail with an error if the default SSH key is not loaded. In most cases, the default SSH key does not work (because it is a read-only key used by CircleCI to checkout code from git), so you should add another deployment key.
 
 Default value: `UNDEFINED`
 
