@@ -15,8 +15,6 @@ environment_variables:
 
 tasks:
   post-rollout:
-    #:
-    #: Helper command to discover available variables. Remove in production.
     - run:
         name: Set GitHub deployment status
         command: |
@@ -54,9 +52,6 @@ tasks:
           #: or using lagooncli as a project-wide variable.
           #;> ACQUIA
 
-          #: Import variables from .env file.
-          t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
-
           # Store DB dump in temp location instead of '.data'.
           export DREVOPS_DB_DIR=/tmp/data
 
@@ -67,9 +62,7 @@ tasks:
           if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_PRODUCTION_BRANCH" ]; then
             echo "==> Skipping DB download in the production environment."
           else
-            # Remove previously saved dumps in this environment.
             rm -Rf $DREVOPS_DB_DIR
-            # Download the database dump.
             ./scripts/drevops/download-db.sh
           fi
         service: cli
@@ -77,9 +70,6 @@ tasks:
     - run:
         name: Install site
         command: |
-          # Import variables from .env file.
-          t=$(mktemp) && export -p > "$t" && set -a && . ./.env && set +a && . "$t" && rm "$t" && unset t
-
           # Read DB dump from the temp location instead of '.data'.
           export DREVOPS_DB_DIR=/tmp/data
 
@@ -90,14 +80,6 @@ tasks:
             export DREVOPS_DRUPAL_LOGIN_UNBLOCK_ADMIN=0
             # Never sanitize DB.
             export DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP=1
-          else
-            # Do not overwrite existing DB if non-production site already exists.
-            # This variable can be set for a specific environment before
-            # re-deployment (using lagooncli) to get a fresh copy of the database
-            # onto the environment. See DEPLOYMENT.md for more information.
-            export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=${DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB:-0}
-            # Sanitize, unless set to skip.
-            export DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP="${DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP:-0}"
           fi
 
           # Install site.
