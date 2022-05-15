@@ -938,7 +938,7 @@ prepare_local_repo() {
 }
 
 prepare_global_gitconfig() {
-  git config --global init.defaultBranch >/dev/null ||  git config --global init.defaultBranch "master"
+  git config --global init.defaultBranch >/dev/null ||  git config --global init.defaultBranch "main"
 }
 
 prepare_global_gitignore() {

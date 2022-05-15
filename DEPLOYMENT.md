@@ -46,8 +46,8 @@ OR
 ### Release outcome
 1. Release branch exists as `deployment/X.Y.Z` in remote GitHub repository.
 2. Release tag exists as `X.Y.Z` in remote GitHub repository.
-3. The `HEAD` of the `master` branch has `X.Y.Z` tag assigned.
-4. The hash of the `HEAD` of the `master` branch exists in the `develop` branch. This is to ensure that everything pushed to `master` exists in `developed` (in case if `master` had any hot-fixes that not yet have been merged to `develop`).
+3. The `HEAD` of the `main` branch has `X.Y.Z` tag assigned.
+4. The hash of the `HEAD` of the `main` branch exists in the `develop` branch. This is to ensure that everything pushed to `main` exists in `developed` (in case if `main` had any hot-fixes that not yet have been merged to `develop`).
 5. There are no PRs in GitHub related to releases.
 6. Release branch is available on Acquia Cloud as `deployment/X.Y.Z` branch. Note: we are building release branches on Acquia Cloud out of tags in GitHub.
 7. Release branch `deployment/X.Y.Z` is deployed into PROD environment. Note: we are NOT deploying tags to Acquia Cloud PROD.
@@ -56,7 +56,7 @@ OR
 Since Acquia Cloud becomes a destination repository, the following rules MUST be followed by all developers:
 1. There should be no direct access to Acquia Cloud repository for anyone except for project Technical Lead and Deployer user.
 2. There should be no pushes to Acquia Cloud repository.
-3. There may be `master` or `develop` branch in Acquia Cloud repository.
+3. There may be `main` or `develop` branch in Acquia Cloud repository.
 4. Technical Lead is expected to regularly cleanup `feature/*` branches in Acquia Cloud repository.
 [//]: # (#;< ACQUIA)
 
@@ -79,7 +79,7 @@ This is usually done to make sure that selected environments have the latest
 content from the production environment.
 
 Currently, the refresh is configured to happen at 5am and applies to `develop`
-and `master` environments.
+and `main` environments.
 
 It is possible to skip nightly deployments for certain environments:
 1. Add `DREVOPS_DEPLOY_SKIP=1` to the deployment command to allow skipping of the deployments (already added to the current CI configuration).
