@@ -16,6 +16,13 @@ environment_variables:
 tasks:
   post-rollout:
     - run:
+        name: Show DrevOps variables.
+        command: |
+          env -0  | sort -z | tr '\0' '\n' | grep ^DREVOPS_
+        service: cli
+        shell: bash
+
+    - run:
         name: Set GitHub deployment status
         command: |
           if  [ -n "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && [ -n "$LAGOON_PR_NUMBER" ]; then
