@@ -38,6 +38,7 @@ setup() {
   export DST_PROJECT_DIR="${BUILD_DIR}/dst"
   export LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   export APP_TMP_DIR="${BUILD_DIR}/tmp"
+  export DREVOPS_TEST_ARTIFACT_DIR="/app/tests/behat"
   export DREVOPS_TEST_REPORTS_DIR="/app/test_reports"
   export DREVOPS_AHOY_CONFIRM_RESPONSE=y
 
