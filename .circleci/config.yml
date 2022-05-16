@@ -624,6 +624,7 @@ workflows:
           filters:
             tags:
               only: /.*/
+      #;< DEPLOYMENT
       - deploy:
           requires:
             - build
@@ -646,6 +647,7 @@ workflows:
             tags:
               # Allowed tags: 1, 123, 123.456, 123.456.789, 123.456.789-rc123
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
+      #;> DEPLOYMENT
   #;------------------------------------------------------------------------
   #; DREVOPS development section. Will be removed during installation/update.
   #;------------------------------------------------------------------------
