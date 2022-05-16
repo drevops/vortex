@@ -533,6 +533,8 @@ assert_files_present_no_deployment() {
     assert_file_not_contains "README.md" "[deployment documentation](DEPLOYMENT.md)"
     assert_file_not_contains ".circleci/config.yml" "deploy: &job_deploy"
     assert_file_not_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
+    assert_file_not_contains ".circleci/config.yml" "- deploy:"
+    assert_file_not_contains ".circleci/config.yml" "- deploy_tags:"
   fi
 
   popd >/dev/null || exit 1
