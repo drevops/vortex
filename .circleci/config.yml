@@ -350,6 +350,30 @@ jobs:
           path: *drevops_test_artifact_dir
   #;> DEPLOYMENT
 
+  #;< RENOVATEBOT
+  # Self-hosted RenovateBot.
+  # Add RENOVATE_TOKEN as an environment variable with GitHub access token in UI.
+  renovatebot_self_hosted:
+    docker:
+      - image: renovate/renovate:latest
+        environment:
+          RENOVATE_PLATFORM: 'github'
+          RENOVATE_AUTODISCOVER: false
+          RENOVATE_DEPENDENCY_DASHBOARD: true
+          RENOVATE_DEPENDENCY_DASHBOARD_TITLE: 'RenovateBot Dependency Dashboard (self-hosted)'
+          RENOVATE_GIT_AUTHOR: 'RenovateBot Self Hosted <renovatebot@your-site-url.example>'
+          # Make sure that correct repository is specified or bot will go
+          # through all repositories that a RENOVATE_TOKEN token has access to.
+          RENOVATE_REPOSITORIES: 'your_org/your_site'
+          # Set to 'false' once setup is complete and at bot ran at least once without errors.
+          RENOVATE_DRY_RUN: true
+          LOG_LEVEL: debug
+    steps:
+      - checkout
+      - run: renovate-config-validator
+      - run: renovate
+  #;> RENOVATEBOT
+
   #;----------------------------------------------------------------------------
   #; DREVOPS development section. Will be removed during installation/update.
   #;----------------------------------------------------------------------------
@@ -720,3 +744,16 @@ workflows:
                 - *nightly_branch
     jobs:
       - database_nightly
+
+  #;< RENOVATEBOT
+  renovatebot_self_hosted:
+    triggers:
+      - schedule:
+          cron: "15 * * * *"
+          filters:
+            branches:
+              only:
+                - *nightly_branch
+    jobs:
+      - renovatebot_self_hosted
+  #;> RENOVATEBOT

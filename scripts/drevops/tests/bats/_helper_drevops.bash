@@ -699,6 +699,7 @@ assert_files_present_integration_renovatebot() {
 
   assert_file_exists "renovate.json"
   assert_file_contains CI.md "Automated patching"
+  assert_dir_contains_string "${dir}" "renovatebot_self_hosted"
 
   popd >/dev/null || exit 1
 }
@@ -712,6 +713,7 @@ assert_files_present_no_integration_renovatebot() {
   assert_file_not_exists "renovate.json"
   assert_dir_not_contains_string "${dir}" "renovatebot"
   assert_dir_not_contains_string "${dir}" "renovatebot.com"
+  assert_dir_not_contains_string "${dir}" "renovatebot_self_hosted"
 
   popd >/dev/null || exit 1
 }
