@@ -5,6 +5,7 @@
     "assignees": [],
     "ignorePresets": [":prHourlyLimit2"],
     "rangeStrategy": "update-lockfile",
+    "enabledManagers": ["composer"],
     "packageRules": [
         {
             "groupName": "Minor and Patch Core",
