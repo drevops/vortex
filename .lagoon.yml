@@ -38,7 +38,7 @@ tasks:
     - run:
         name: Backup DB before deployment in production
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_PRODUCTION_BRANCH" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
             DREVOPS_DB_DIR=/app/docroot/sites/default/files/private/pre_deployment_backups ./scripts/drevops/export-db-file.sh
           fi
         service: cli
@@ -66,7 +66,7 @@ tasks:
           # the DB as Lagoon already has the keys loaded into the SSH agent.
           export DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE=false
 
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "$DREVOPS_PRODUCTION_BRANCH" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Skipping DB download in the production environment."
           else
             rm -Rf $DREVOPS_DB_DIR
