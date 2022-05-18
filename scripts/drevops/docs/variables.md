@@ -1264,6 +1264,12 @@ Allow custom Unit tests failures.
 
 Default value: `UNDEFINED`
 
+### `DREVOP_MARIADB_DATABASE`
+
+Local database name (not used in production).
+
+Default value: `drupal`
+
 ### `ENV_ID`
 
 Default value: `echo `
