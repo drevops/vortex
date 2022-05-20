@@ -21,8 +21,7 @@ version: '2.3'
 
 # Volumes available in each container to share application data.
 # See more about Docker host volume mounting at https://docs.drevops.com/docker#host-volume-mounting-in-docker-based-projects
-x-volumes:
-  &default-volumes
+x-volumes: &default-volumes
   volumes:
     # All application files mounted into container.
     - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
@@ -33,8 +32,7 @@ x-volumes:
     ##- files:/app/docroot/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
 
 # The default user under which the containers should run.
-x-user:
-  &default-user
+x-user: &default-user
   # Change this if you are on linux and run with another user than id `1000`
   user: '1000'
 
@@ -42,37 +40,34 @@ x-user:
 #;< LAGOON
 # Note that these variables are not read from here in Lagoon environment.
 #;> LAGOON
-x-environment:
-  &default-environment
-  # Project name. Defaults to Docker Compose project name (which defaults to the current directory).
-  DREVOPS_PROJECT: ${DREVOPS_PROJECT:-your_site}
+x-environment: &default-environment
   # Local development URL used in Lagoon images.
-  LAGOON_LOCALDEV_URL: &default-url ${DREVOPS_DOCTOR_LOCALDEV_URL:-your-site.docker.amazee.io}
+  LAGOON_LOCALDEV_URL: &default-url ${DREVOPS_LOCALDEV_URL:-example.docker.amazee.io}
   # Local route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
-  #;< LAGOON
-  #: Global project name for Lagoon.
-  LAGOON_PROJECT: ${LAGOON_PROJECT:-your_site}
-  #: Lagoon environment type.
-  LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
-  #;> LAGOON
-  #:
   # Enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker-compose up -d".
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   # Pass-through $CI variable used to identify the CI environment.
   CI: ${CI:-}
   # Uncomment below if emails are not being received by Mailhog locally.
   # SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
+  # Uncomment below if emails are not being received by Mailhog locally.
+  # SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
+  #;< LAGOON
+  #: Global project name for Lagoon.
+  LAGOON_PROJECT: ${LAGOON_PROJECT:-example}
+  #: Lagoon environment type.
+  LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
+  #;> LAGOON
 
 # ------------------------------------------------------------------------------
 # Services.
 # ------------------------------------------------------------------------------
 
 services:
-
   # CLI container, used for executing CLI commands such as Composer, Drush etc. Not used to handle web requests.
   cli:
     build:

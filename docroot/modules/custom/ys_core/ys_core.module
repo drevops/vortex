@@ -53,7 +53,7 @@ function _ys_core_attach_livereload(&$page) {
   if (!$livereload_url) {
     $socket_file = \Drupal::service('file_system')->realpath('public://livereload.sock');
     if (file_exists($socket_file)) {
-      $url = getenv('DREVOPS_DOCTOR_LOCALDEV_URL');
+      $url = getenv('DREVOPS_LOCALDEV_URL');
       $port = trim(file_get_contents($socket_file));
       if (!empty($url) && is_numeric($port)) {
         $livereload_url = "$url:$port";
