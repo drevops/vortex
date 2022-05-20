@@ -630,9 +630,9 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DOCTOR_LOCALDEV_URL`
 
-Local development URL (no trailing slashes).
+Local development URL.
 
-Default value: `your-site.docker.amazee.io`
+Default value: `DREVOPS_LOCALDEV_URL`
 
 ### `DREVOPS_DOCTOR_SSH_KEY_FILE`
 
@@ -837,6 +837,18 @@ Default value: `docroot/profiles/custom/your_site_profile, docroot/modules/custo
 Provide argument as 'be' or 'fe' to lint only back-end or front-end code. If no argument is provided, all code will be linted.
 
 Default value: `UNDEFINED`
+
+### `DREVOPS_LOCALDEV_URL`
+
+Local development URL (no trailing slashes).
+
+Default value: `your-site.docker.amazee.io`
+
+### `DREVOPS_MARIADB_DATABASE`
+
+Local database name (not used in production).
+
+Default value: `drupal`
 
 ### `DREVOPS_MARIADB_HOST`
 
@@ -1264,19 +1276,13 @@ Allow custom Unit tests failures.
 
 Default value: `UNDEFINED`
 
-### `DREVOP_MARIADB_DATABASE`
-
-Local database name (not used in production).
-
-Default value: `drupal`
-
 ### `ENV_ID`
 
 Default value: `echo `
 
 ### `LAGOON_PROJECT`
 
-Lagoon project name. Uncomment if different from [`$DREVOPS_PROJECT`](#drevops_project).
+Lagoon project name. May be different from [`$DREVOPS_PROJECT`](#drevops_project).
 
 Default value: `your_site`
 

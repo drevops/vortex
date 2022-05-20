@@ -17,7 +17,7 @@ DREVOPS_DRUPAL_SHOW_LOGIN_LINK="${DREVOPS_DRUPAL_SHOW_LOGIN_LINK:-}"
 echo
 echo "Project name                : ${DREVOPS_PROJECT}"
 echo "Docker Compose project name : ${COMPOSE_PROJECT_NAME:-}"
-echo "Site local URL              : http://${DREVOPS_DOCTOR_LOCALDEV_URL}"
+echo "Site local URL              : http://${DREVOPS_LOCALDEV_URL}"
 echo "Path to project             : ${DREVOPS_APP}"
 echo "Path to docroot             : ${DREVOPS_APP}/docroot"
 echo "DB host                     : ${DREVOPS_MARIADB_HOST}"

@@ -95,7 +95,7 @@ commands:
 
   drush:
     usage: Run Drush commands in the CLI service container.
-    cmd: docker-compose exec -T cli bash -c "drush -l ${DREVOPS_DOCTOR_LOCALDEV_URL} $*"
+    cmd: docker-compose exec -T cli bash -c "drush -l ${DREVOPS_LOCALDEV_URL} $*"
 
   #;< REDIS
   flush-redis:

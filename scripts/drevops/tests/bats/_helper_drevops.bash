@@ -182,7 +182,7 @@ assert_files_present_common() {
 
   # Assert that project name is correct.
   assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
-  assert_file_contains .env "DREVOPS_DOCTOR_LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
+  assert_file_contains .env "DREVOPS_LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
 
   # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
