@@ -41,8 +41,10 @@ x-user: &default-user
 # Note that these variables are not read from here in Lagoon environment.
 #;> LAGOON
 x-environment: &default-environment
+  # Project name. Defaults to Docker Compose project name (which defaults to the current directory).
+  DREVOPS_PROJECT: ${DREVOPS_PROJECT:-example_site}
   # Local development URL used in Lagoon images.
-  LAGOON_LOCALDEV_URL: &default-url ${DREVOPS_LOCALDEV_URL:-example.docker.amazee.io}
+  LAGOON_LOCALDEV_URL: &default-url ${DREVOPS_LOCALDEV_URL:-example-site.docker.amazee.io}
   # Local route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
   # Enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker-compose up -d".
@@ -58,7 +60,7 @@ x-environment: &default-environment
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
   #;< LAGOON
   #: Global project name for Lagoon.
-  LAGOON_PROJECT: ${LAGOON_PROJECT:-example}
+  LAGOON_PROJECT: ${LAGOON_PROJECT:-example_site}
   #: Lagoon environment type.
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
   #;> LAGOON
@@ -73,7 +75,7 @@ services:
     build:
       context: .
       dockerfile: .docker/Dockerfile.cli
-    image: &cli-image ${DREVOPS_PROJECT:-your_site}-cli
+    image: &cli-image ${DREVOPS_PROJECT:-example_site}-cli
     <<: *default-volumes
     user: root
     environment:

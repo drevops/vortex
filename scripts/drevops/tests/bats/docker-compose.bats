@@ -36,7 +36,7 @@ load _helper_drevops
 
   prepare_docker_compose_fixture
 
-  assert_files_equal docker-compose.actual.yml docker-compose.expected.yml
+  assert_files_equal docker-compose.actual.yml docker-compose.expected2.yml
 }
 
 prepare_docker_compose() {
@@ -52,6 +52,7 @@ prepare_docker_compose() {
 
 prepare_docker_compose_fixture() {
   cp "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/docker-compose.fixture.yml" docker-compose.expected.yml
+  cp "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/docker-compose.fixture2.yml" docker-compose.expected2.yml
   replace_string_content "FIXTURE_CUR_DIR" "${CURRENT_PROJECT_DIR}" "${CURRENT_PROJECT_DIR}"
 
   # Replace symlink /private paths in MacOS.
