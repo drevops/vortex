@@ -424,20 +424,71 @@ class DrupalSettingsTest extends DrupalTestCase {
 
       [
         [
-          'MARIADB_DATABASE' => 'db_name',
-          'DREVOPS_MARIADB_USERNAME' => 'db_user',
-          'DREVOPS_MARIADB_PASSWORD' => 'db_pass',
-          'DREVOPS_MARIADB_HOST' => 'db_host',
-          'DREVOPS_MARIADB_PORT' => 'db_port',
+          'DREVOPS_MARIADB_DATABASE' => 'test_db_name',
+          'DREVOPS_MARIADB_USERNAME' => 'test_db_user',
+          'DREVOPS_MARIADB_PASSWORD' => 'test_db_pass',
+          'DREVOPS_MARIADB_HOST' => 'test_db_host',
+          'DREVOPS_MARIADB_PORT' => 'test_db_port',
         ],
         [
           'default' => [
             'default' => [
-              'database' => 'db_name',
-              'username' => 'db_user',
-              'password' => 'db_pass',
-              'host' => 'db_host',
-              'port' => 'db_port',
+              'database' => 'test_db_name',
+              'username' => 'test_db_user',
+              'password' => 'test_db_pass',
+              'host' => 'test_db_host',
+              'port' => 'test_db_port',
+              'driver' => 'mysql',
+              'prefix' => '',
+            ],
+          ],
+        ],
+      ],
+
+      [
+        [
+          'DREVOPS_MARIADB_DATABASE' => 'test_db_name',
+          'DREVOPS_MARIADB_USERNAME' => 'test_db_user',
+          'DREVOPS_MARIADB_PASSWORD' => 'test_db_pass',
+          'DREVOPS_MARIADB_HOST' => 'test_db_host',
+          'DREVOPS_MARIADB_PORT' => 'test_db_port',
+          'MARIADB_DATABASE' => 'test2_db_name',
+          'MARIADB_USERNAME' => 'test2_db_user',
+          'MARIADB_PASSWORD' => 'test2_db_pass',
+          'MARIADB_HOST' => 'test2_db_host',
+          'MARIADB_PORT' => 'test2_db_port',
+        ],
+        [
+          'default' => [
+            'default' => [
+              'database' => 'test2_db_name',
+              'username' => 'test2_db_user',
+              'password' => 'test2_db_pass',
+              'host' => 'test2_db_host',
+              'port' => 'test2_db_port',
+              'driver' => 'mysql',
+              'prefix' => '',
+            ],
+          ],
+        ],
+      ],
+
+      [
+        [
+          'MARIADB_DATABASE' => 'test_db_name',
+          'MARIADB_USERNAME' => 'test_db_user',
+          'MARIADB_PASSWORD' => 'test_db_pass',
+          'MARIADB_HOST' => 'test_db_host',
+          'MARIADB_PORT' => 'test_db_port',
+        ],
+        [
+          'default' => [
+            'default' => [
+              'database' => 'test_db_name',
+              'username' => 'test_db_user',
+              'password' => 'test_db_pass',
+              'host' => 'test_db_host',
+              'port' => 'test_db_port',
               'driver' => 'mysql',
               'prefix' => '',
             ],
