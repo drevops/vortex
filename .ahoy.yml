@@ -35,7 +35,7 @@ commands:
         -e COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}} \
         -e DREVOPS_HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2) \
         -e DREVOPS_HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2) \
-        -e DREVOPS_DRUPAL_SHOW_LOGIN=${DREVOPS_DRUPAL_SHOW_LOGIN} \
+        -e DREVOPS_DRUPAL_SHOW_LOGIN_LINK=${DREVOPS_DRUPAL_SHOW_LOGIN_LINK} \
         cli ./scripts/drevops/info.sh "$@"
 
   db:
