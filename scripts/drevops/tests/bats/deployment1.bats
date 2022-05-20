@@ -178,7 +178,7 @@ load _helper_drevops_deployment
   pushd "${CURRENT_PROJECT_DIR}" > /dev/null
 
   step "Running deployment"
-  # Always force installing of the Lagoon CLI binary in tests rather then using
+  # Always force installing of the Lagoon CLI binary in tests rather than using
   # a local version.
   export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL=1
   export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH="${APP_TMP_DIR}"
