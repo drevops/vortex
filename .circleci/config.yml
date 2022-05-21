@@ -125,8 +125,6 @@ aliases:
           DREVOPS_CI_DB_CACHE_BRANCH: *drevops_ci_db_cache_branch
           # Directory to store code exported between jobs.
           DREVOPS_EXPORT_CODE_DIR: &build_export_dir /workspace/code
-          # Do not use symlink when downloading database dump (useful only locally).
-          DB_USE_SYMLINK: false
           # Directory to store test results.
           DREVOPS_TEST_REPORTS_DIR: &drevops_test_reports_dir /tmp/tests
           # Directory to store test artifacts.
