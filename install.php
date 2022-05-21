@@ -824,10 +824,10 @@ function init_cli_args_and_options($argv) {
   }
 
   if (!empty($pos_args)) {
-    set_config('DST_DIR', reset($pos_args));
+    set_config('DREVOPS_INSTALL_DST_DIR', reset($pos_args));
   }
   else {
-    set_config('DST_DIR', getenv_or_default('DST_DIR', CUR_DIR));
+    set_config('DREVOPS_INSTALL_DST_DIR', getenv_or_default('DREVOPS_INSTALL_DST_DIR', CUR_DIR));
   }
 }
 
@@ -868,7 +868,7 @@ function init_config() {
 }
 
 function get_dst_dir() {
-  return get_config('DST_DIR');
+  return get_config('DREVOPS_INSTALL_DST_DIR');
 }
 
 /**

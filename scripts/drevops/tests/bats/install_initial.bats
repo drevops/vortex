@@ -18,15 +18,15 @@ load _helper_drevops
   assert_git_repo
 }
 
-@test "Install into empty directory: DST_DIR from an argument" {
+@test "Install into empty directory: DREVOPS_INSTALL_DST_DIR from an argument" {
   run_install_quiet "${DST_PROJECT_DIR}"
 
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds"
   assert_git_repo "${DST_PROJECT_DIR}"
 }
 
-@test "Install into empty directory: DST_DIR from env variable" {
-  export DST_DIR="${DST_PROJECT_DIR}"
+@test "Install into empty directory: DREVOPS_INSTALL_DST_DIR from env variable" {
+  export DREVOPS_INSTALL_DST_DIR="${DST_PROJECT_DIR}"
   run_install_quiet
 
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds"

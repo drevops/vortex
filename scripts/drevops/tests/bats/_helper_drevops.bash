@@ -1089,10 +1089,10 @@ fix_host_dependencies() {
   # shellcheck disable=SC2235
   ([ "${1}" = "--quiet" ] || [ "${1}" = "-q" ]) && shift
   # Destination directory, that can be overridden with the first argument to this script.
-  DST_DIR="${DST_DIR:-$(pwd)}"
-  DST_DIR=${1:-${DST_DIR}}
+  DREVOPS_INSTALL_DST_DIR="${DREVOPS_INSTALL_DST_DIR:-$(pwd)}"
+  DREVOPS_INSTALL_DST_DIR=${1:-${DREVOPS_INSTALL_DST_DIR}}
 
-  pushd "${DST_DIR}" >/dev/null || exit 1
+  pushd "${DREVOPS_INSTALL_DST_DIR}" >/dev/null || exit 1
 
   if [ -f docker-compose.yml ] && [ "${DREVOPS_DEV_VOLUMES_MOUNTED:-1}" != "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
