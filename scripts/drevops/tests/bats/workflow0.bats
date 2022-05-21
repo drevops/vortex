@@ -57,11 +57,11 @@ load _helper_drevops_workflow
 
 @test "Workflow: profile-driven" {
   rm -f .data/db.sql
-  export DREVOPS_SKIP_DEMO=1
+  export DREVOPS_INSTALL_DEMO_SKIP=1
   assert_file_not_exists .data/db.sql
 
   prepare_sut "Starting fresh install WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
-  # Assert that the database was not downloaded because DREVOPS_SKIP_DEMO was set.
+  # Assert that the database was not downloaded because DREVOPS_INSTALL_DEMO_SKIP was set.
   assert_file_not_exists .data/db.sql
 
   echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1" >> .env

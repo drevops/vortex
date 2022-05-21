@@ -10,7 +10,7 @@ set -e
 export DREVOPS_INSTALLER_URL="${DREVOPS_INSTALLER_URL:-https://raw.githubusercontent.com/drevops/drevops/${DREVOPS_DRUPAL_VERSION:-9}.x/install.php}"
 
 # Allow providing custom DrevOps commit hash to download the sources from.
-export DREVOPS_COMMIT="${DREVOPS_COMMIT:-}"
+export DREVOPS_INSTALL_COMMIT="${DREVOPS_INSTALL_COMMIT:-}"
 
 # ------------------------------------------------------------------------------
 

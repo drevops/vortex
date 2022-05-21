@@ -45,7 +45,7 @@ load _helper_drevops
   latest_commit=$(git_commit "New version of DrevOps" "${LOCAL_REPO_DIR}")
 
   # Override DrevOps release commit in .env file.
-  echo DREVOPS_COMMIT="${latest_commit}">>.env
+  echo DREVOPS_INSTALL_COMMIT="${latest_commit}">>.env
   # Enforce debugging of the install script.
   export DREVOPS_INSTALL_DEBUG=1
   # Override install script with currently tested one to be called from ./scripts/drevops/update.sh

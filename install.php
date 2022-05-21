@@ -141,7 +141,7 @@ function finalise_interactions() {
 }
 
 function process_demo() {
-  if (empty(get_config('DREVOPS_DEMO')) || !empty(get_config('DREVOPS_SKIP_DEMO'))) {
+  if (empty(get_config('DREVOPS_INSTALL_DEMO')) || !empty(get_config('DREVOPS_INSTALL_DEMO_SKIP'))) {
     return;
   }
 
@@ -169,7 +169,7 @@ function process_demo() {
  * Handling processing for Drupal 7, Drupal 8 and Drupal 9.
  */
 function process() {
-  $dir = get_config('DREVOPS_TMP_DIR');
+  $dir = get_config('DREVOPS_INSTALL_TMP_DIR');
 
   status('Replacing tokens ', INSTALLER_STATUS_MESSAGE, FALSE);
 
@@ -201,7 +201,7 @@ function process() {
 }
 
 function copy_files() {
-  $src = get_config('DREVOPS_TMP_DIR');
+  $src = get_config('DREVOPS_INSTALL_TMP_DIR');
   $dst = get_dst_dir();
 
   // Due to the way symlinks can be ordered, we cannot copy files one-by-one
@@ -471,7 +471,7 @@ function process__preserve_doc_comments($dir) {
 
 function process__demo_mode($dir) {
   // Only discover demo mode if not explicitly set.
-  if (is_null(get_config('DREVOPS_DEMO'))) {
+  if (is_null(get_config('DREVOPS_INSTALL_DEMO'))) {
     if (get_answer('fresh_install') == ANSWER_NO) {
       $download_source = get_answer('database_download_source');
       $db_file = getenv_or_default('DREVOPS_DB_DIR', './.data') . DIRECTORY_SEPARATOR . getenv_or_default('DREVOPS_DB_FILE', 'db.sql');
@@ -482,25 +482,25 @@ function process__demo_mode($dir) {
       // destination .env file.
       if ($download_source != 'docker_registry') {
         if ($has_comment || !file_exists($db_file)) {
-          set_config('DREVOPS_DEMO', TRUE);
+          set_config('DREVOPS_INSTALL_DEMO', TRUE);
         }
         else {
-          set_config('DREVOPS_DEMO', FALSE);
+          set_config('DREVOPS_INSTALL_DEMO', FALSE);
         }
       }
       elseif ($has_comment || $download_source == 'docker_registry') {
-        set_config('DREVOPS_DEMO', TRUE);
+        set_config('DREVOPS_INSTALL_DEMO', TRUE);
       }
       else {
-        set_config('DREVOPS_DEMO', FALSE);
+        set_config('DREVOPS_INSTALL_DEMO', FALSE);
       }
     }
     else {
-      set_config('DREVOPS_DEMO', FALSE);
+      set_config('DREVOPS_INSTALL_DEMO', FALSE);
     }
   }
 
-  if (!get_config('DREVOPS_DEMO')) {
+  if (!get_config('DREVOPS_INSTALL_DEMO')) {
     remove_token_with_content('DEMO', $dir);
   }
 }
@@ -540,7 +540,7 @@ function process__enable_commented_code($dir) {
  * Download DrevOps source files.
  */
 function download() {
-  if (get_config('DREVOPS_LOCAL_REPO')) {
+  if (get_config('DREVOPS_INSTALL_LOCAL_REPO')) {
     download_local();
   }
   else {
@@ -549,9 +549,9 @@ function download() {
 }
 
 function download_local() {
-  $dst = get_config('DREVOPS_TMP_DIR');
-  $repo = get_config('DREVOPS_LOCAL_REPO');
-  $ref = get_config('DREVOPS_COMMIT');
+  $dst = get_config('DREVOPS_INSTALL_TMP_DIR');
+  $repo = get_config('DREVOPS_INSTALL_LOCAL_REPO');
+  $ref = get_config('DREVOPS_INSTALL_COMMIT');
 
   status(sprintf('Downloading DrevOps from the local repository "%s" at ref "%s".', $repo, $ref), INSTALLER_STATUS_MESSAGE, FALSE);
 
@@ -571,10 +571,10 @@ function download_local() {
 }
 
 function download_remote() {
-  $dst = get_config('DREVOPS_TMP_DIR');
+  $dst = get_config('DREVOPS_INSTALL_TMP_DIR');
   $org = 'drevops';
   $project = 'drevops';
-  $ref = get_config('DREVOPS_COMMIT');
+  $ref = get_config('DREVOPS_INSTALL_COMMIT');
   $release_prefix = get_config('DREVOPS_VERSION');
 
   if ($ref == 'HEAD') {
@@ -704,7 +704,7 @@ function ask_should_proceed() {
 
   // Kill-switch to not proceed with install. If false, the install will not
   // proceed despite the answer received above.
-  if (!get_config('DREVOPS_PROCEED_INSTALLATION')) {
+  if (!get_config('DREVOPS_INSTALL_PROCEED')) {
     $proceed = ANSWER_NO;
   }
 
@@ -849,22 +849,22 @@ function init_config() {
   set_config('DREVOPS_INSTALL_DEBUG', (bool) getenv_or_default('DREVOPS_INSTALL_DEBUG', FALSE));
   // Flag to proceed with installation. If FALSE - the installation will only
   // print resolved values and will not proceed.
-  set_config('DREVOPS_PROCEED_INSTALLATION', (bool) getenv_or_default('DREVOPS_PROCEED_INSTALLATION', TRUE));
+  set_config('DREVOPS_INSTALL_PROCEED', (bool) getenv_or_default('DREVOPS_INSTALL_PROCEED', TRUE));
   // Temporary directory to download and expand files to.
-  set_config('DREVOPS_TMP_DIR', getenv_or_default('DREVOPS_TMP_DIR', tempdir()));
+  set_config('DREVOPS_INSTALL_TMP_DIR', getenv_or_default('DREVOPS_INSTALL_TMP_DIR', tempdir()));
   // Path to local DrevOps repository. If not provided - remote will be used.
-  set_config('DREVOPS_LOCAL_REPO', getenv_or_default('DREVOPS_LOCAL_REPO'));
+  set_config('DREVOPS_INSTALL_LOCAL_REPO', getenv_or_default('DREVOPS_INSTALL_LOCAL_REPO'));
   // Optional commit to download. If not provided, latest release will be
   // downloaded.
-  set_config('DREVOPS_COMMIT', getenv_or_default('DREVOPS_COMMIT', 'HEAD'));
+  set_config('DREVOPS_INSTALL_COMMIT', getenv_or_default('DREVOPS_INSTALL_COMMIT', 'HEAD'));
 
   // Internal flag to enforce DEMO mode. If not set, the demo mode will be
   // discovered automatically.
-  if (!is_null(getenv_or_default('DREVOPS_DEMO'))) {
-    set_config('DREVOPS_DEMO', (bool) getenv_or_default('DREVOPS_DEMO'));
+  if (!is_null(getenv_or_default('DREVOPS_INSTALL_DEMO'))) {
+    set_config('DREVOPS_INSTALL_DEMO', (bool) getenv_or_default('DREVOPS_INSTALL_DEMO'));
   }
   // Internal flag to skip processing of the demo mode.
-  set_config('DREVOPS_SKIP_DEMO', (bool) getenv_or_default('DREVOPS_SKIP_DEMO', FALSE));
+  set_config('DREVOPS_INSTALL_DEMO_SKIP', (bool) getenv_or_default('DREVOPS_INSTALL_DEMO_SKIP', FALSE));
 }
 
 function get_dst_dir() {
@@ -872,14 +872,14 @@ function get_dst_dir() {
 }
 
 /**
- * Shorthand to get the value of DREVOPS_IS_INTERACTIVE.
+ * Shorthand to get the value of whether install should be quiet.
  */
 function is_quiet() {
   return get_config('quiet');
 }
 
 /**
- * Shorthand to get the value of DREVOPS_IS_INTERACTIVE.
+ * Shorthand to get the value of DREVOPS_INSTALL_DEBUG.
  */
 function is_install_debug() {
   return get_config('DREVOPS_INSTALL_DEBUG');
@@ -1470,7 +1470,7 @@ function print_header() {
 }
 
 function print_header_interactive() {
-  $commit = get_config('DREVOPS_COMMIT');
+  $commit = get_config('DREVOPS_INSTALL_COMMIT');
 
   $content = '';
   if ($commit == 'HEAD') {
@@ -1495,7 +1495,7 @@ function print_header_interactive() {
 }
 
 function print_header_quiet() {
-  $commit = get_config('DREVOPS_COMMIT');
+  $commit = get_config('DREVOPS_INSTALL_COMMIT');
 
   $content = '';
   if ($commit == 'HEAD') {
@@ -1521,7 +1521,7 @@ function print_summary() {
   $values['Destination directory'] = get_dst_dir();
   $values['Drupal version'] = getenv_or_default('DREVOPS_DRUPAL_VERSION', INSTALLER_DRUPAL_VERSION);
   $values['DrevOps version'] = get_config('DREVOPS_VERSION');
-  $values['DrevOps commit'] = format_not_empty(get_config('DREVOPS_COMMIT'), 'Latest');
+  $values['DrevOps commit'] = format_not_empty(get_config('DREVOPS_INSTALL_COMMIT'), 'Latest');
 
   $values[] = '';
   $values[] = str_repeat('*', 80 - 2 - 2 * 2);

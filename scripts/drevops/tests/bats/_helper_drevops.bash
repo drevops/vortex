@@ -42,7 +42,7 @@ setup() {
   export DREVOPS_TEST_REPORTS_DIR="/app/test_reports"
   export DREVOPS_AHOY_CONFIRM_RESPONSE=y
 
-  export DREVOPS_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d9.star_wars.sql.md
+  export DREVOPS_INSTALL_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d9.star_wars.sql.md
 
   # Unset any environment variables that may affect tests.
   # These are set in CI config to override values set in .env file for some jobs.
@@ -763,12 +763,12 @@ run_install_quiet() {
   pushd "${CURRENT_PROJECT_DIR}" >/dev/null || exit 1
 
   # Force install script to be downloaded from the local repo for testing.
-  export DREVOPS_LOCAL_REPO="${LOCAL_REPO_DIR}"
+  export DREVOPS_INSTALL_LOCAL_REPO="${LOCAL_REPO_DIR}"
 
   # Use unique temporary directory for each run.
-  DREVOPS_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
-  prepare_fixture_dir "${DREVOPS_TMP_DIR}"
-  export DREVOPS_TMP_DIR
+  DREVOPS_INSTALL_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
+  prepare_fixture_dir "${DREVOPS_INSTALL_TMP_DIR}"
+  export DREVOPS_INSTALL_TMP_DIR
 
   # Tests are using demo database and 'ahoy download-db' command, so we need
   # to set the CURL DB to test DB.
@@ -778,7 +778,7 @@ run_install_quiet() {
   #
   # Installer will load environment variable and it will take precedence over
   # the value in .env file.
-  export DREVOPS_DB_DOWNLOAD_CURL_URL="$DREVOPS_DEMO_DB_TEST"
+  export DREVOPS_DB_DOWNLOAD_CURL_URL="$DREVOPS_INSTALL_DEMO_DB_TEST"
 
   # Enable the line below to show install debug information (for easy debug of
   # install script tests).
