@@ -142,8 +142,11 @@ assert_files_present() {
   # Assert Drupal profile not present by default.
   assert_files_present_no_profile "${dir}" "${suffix}"
 
-  # Assert Drupal is not freshly installed by default.
-  assert_files_present_no_fresh_install "${dir}" "${suffix}"
+  # Assert Drupal is not installed from the profile by default.
+  assert_files_present_no_install_from_profile "${dir}" "${suffix}"
+
+  # Assert Drupal is not set to override an existing DB by default.
+  assert_files_present_no_override_existing_db "${dir}" "${suffix}"
 
   # Assert deployments preserved.
   assert_files_present_deployment "${dir}" "${suffix}"
@@ -208,10 +211,18 @@ assert_files_present_drevops() {
   assert_file_exists ".docker/Dockerfile.solr"
   assert_file_exists ".docker/scripts/.gitkeep"
   assert_file_exists ".docker/config/mariadb/my.cnf"
+  assert_file_exists ".docker/config/solr/elevate.xml"
+  assert_file_exists ".docker/config/solr/schema.xml"
+  assert_file_exists ".docker/config/solr/solrconfig.xml"
+  assert_file_exists ".docker/config/solr/solrcore.properties"
 
   assert_file_exists ".github/PULL_REQUEST_TEMPLATE.md"
 
+  assert_dir_exists "config/ci"
   assert_dir_exists "config/default"
+  assert_dir_exists "config/dev"
+  assert_dir_exists "config/local"
+  assert_dir_exists "config/test"
 
   assert_file_exists "patches/.gitkeep"
 
@@ -270,14 +281,16 @@ assert_files_present_drevops() {
   assert_file_exists ".gitignore"
   assert_file_exists "behat.yml"
   assert_file_exists "composer.json"
+  assert_file_exists "default.ahoy.local.yml"
   assert_file_exists "default.docker-compose.override.yml"
   assert_file_exists "default.env.local"
   assert_file_exists "docker-compose.yml"
   assert_file_exists "phpcs.xml"
 
   # Documentation information present.
-  assert_file_exists "FAQs.md"
   assert_file_exists "CI.md"
+  assert_file_exists "FAQs.md"
+  assert_file_exists "README.md"
   assert_file_exists "RELEASING.md"
   assert_file_exists "TESTING.md"
 
@@ -299,6 +312,9 @@ assert_files_present_drevops() {
   assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_build_fi"
   assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_build_ii"
   assert_file_not_contains ".circleci/config.yml" "drevops_dev_docs"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_fi"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_ii"
+  assert_file_not_contains ".circleci/config.yml" "drevops_dev_installer"
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# DrevOps"
@@ -383,6 +399,7 @@ assert_files_present_drupal(){
 
   # Assert all stub strings were replaced.
   assert_dir_not_contains_string "${dir}" "your_site"
+  assert_dir_not_contains_string "${dir}" "ys_core"
   assert_dir_not_contains_string "${dir}" "YOURSITE"
   assert_dir_not_contains_string "${dir}" "YourSite"
   assert_dir_not_contains_string "${dir}" "your_site_theme"
@@ -478,26 +495,88 @@ assert_files_present_no_profile() {
   popd >/dev/null || exit 1
 }
 
-assert_files_present_fresh_install() {
+assert_files_present_install_from_profile() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1"
 
   assert_file_exists ".ahoy.yml"
   assert_file_not_contains ".ahoy.yml" "download-db:"
 
+  assert_file_not_contains "README.md" "ahoy download-db"
+
+  assert_file_not_contains ".circleci/config.yml" "db_ssh_fingerprint"
+  assert_file_not_contains ".circleci/config.yml" "drevops_ci_db_cache_timestamp"
+  assert_file_not_contains ".circleci/config.yml" "drevops_ci_db_cache_fallback"
+  assert_file_not_contains ".circleci/config.yml" "drevops_ci_db_cache_branch"
+  assert_file_not_contains ".circleci/config.yml" "db_cache_dir"
+  assert_file_not_contains ".circleci/config.yml" "nightly_db_schedule"
+  assert_file_not_contains ".circleci/config.yml" "nightly_db_branch"
+  assert_file_not_contains ".circleci/config.yml" "DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT"
+  assert_file_not_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_TIMESTAMP"
+  assert_file_not_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_FALLBACK"
+  assert_file_not_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_BRANCH"
+  assert_file_not_contains ".circleci/config.yml" "database: &job_database"
+  assert_file_not_contains ".circleci/config.yml" "database_nightly"
+  assert_file_not_contains ".circleci/config.yml" "name: Set cache keys for database caching"
+  assert_file_not_contains ".circleci/config.yml" "- database:"
+
   popd >/dev/null || exit 1
 }
 
-assert_files_present_no_fresh_install() {
+assert_files_present_no_install_from_profile() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
+  assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=0"
+
   assert_file_exists ".ahoy.yml"
   assert_file_contains ".ahoy.yml" "download-db:"
+
+  assert_file_contains "README.md" "ahoy download-db"
+
+  assert_file_contains ".circleci/config.yml" "db_ssh_fingerprint"
+  assert_file_contains ".circleci/config.yml" "drevops_ci_db_cache_timestamp"
+  assert_file_contains ".circleci/config.yml" "drevops_ci_db_cache_fallback"
+  assert_file_contains ".circleci/config.yml" "drevops_ci_db_cache_branch"
+  assert_file_contains ".circleci/config.yml" "db_cache_dir"
+  assert_file_contains ".circleci/config.yml" "nightly_db_schedule"
+  assert_file_contains ".circleci/config.yml" "nightly_db_branch"
+  assert_file_contains ".circleci/config.yml" "DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT"
+  assert_file_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_TIMESTAMP"
+  assert_file_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_FALLBACK"
+  assert_file_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_BRANCH"
+  assert_file_contains ".circleci/config.yml" "database: &job_database"
+  assert_file_contains ".circleci/config.yml" "database_nightly"
+  assert_file_contains ".circleci/config.yml" "name: Set cache keys for database caching"
+  assert_file_contains ".circleci/config.yml" "- database:"
+
+  popd >/dev/null || exit 1
+}
+
+assert_files_present_override_existing_db(){
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1"
+
+  popd >/dev/null || exit 1
+}
+
+assert_files_present_no_override_existing_db(){
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
 
   popd >/dev/null || exit 1
 }
@@ -700,8 +779,12 @@ assert_files_present_integration_renovatebot() {
   pushd "${dir}" >/dev/null || exit 1
 
   assert_file_exists "renovate.json"
+
+  assert_file_contains ".circleci/config.yml" "renovatebot_self_hosted"
+  assert_file_contains ".circleci/config.yml" "nightly_renovatebot_branch"
+  assert_file_contains ".circleci/config.yml" "- *nightly_renovatebot_branch"
+
   assert_file_contains CI.md "Automated patching"
-  assert_dir_contains_string "${dir}" "renovatebot_self_hosted"
 
   popd >/dev/null || exit 1
 }
@@ -713,9 +796,12 @@ assert_files_present_no_integration_renovatebot() {
   pushd "${dir}" >/dev/null || exit 1
 
   assert_file_not_exists "renovate.json"
-  assert_dir_not_contains_string "${dir}" "renovatebot"
-  assert_dir_not_contains_string "${dir}" "renovatebot.com"
-  assert_dir_not_contains_string "${dir}" "renovatebot_self_hosted"
+
+  assert_file_not_contains ".circleci/config.yml" "renovatebot_self_hosted"
+  assert_file_not_contains ".circleci/config.yml" "nightly_renovatebot_branch"
+  assert_file_not_contains ".circleci/config.yml" "- *nightly_renovatebot_branch"
+
+  assert_file_not_contains CI.md "Automated patching"
 
   popd >/dev/null || exit 1
 }
@@ -818,7 +904,7 @@ run_install_quiet() {
 #   "nothing" # profile
 #   "nothing" # theme
 #   "nothing" # URL
-#   "nothing" # fresh_install
+#   "nothing" # install_from_profile
 #   "nothing" # download_db_source
 #   "nothing" # database_store_type
 #   "nothing" # deploy_type

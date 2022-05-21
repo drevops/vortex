@@ -142,9 +142,10 @@ load _helper_drevops_deployment
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "nothing" # fresh_install
+    "nothing" # install_from_profile
     "nothing" # database_download_source
     "nothing" # database_store_type
+    "nothing" # override_existing_db
     "lagoon" # deploy_type
     "n" # preserve_ftp
     "n" # preserve_acquia

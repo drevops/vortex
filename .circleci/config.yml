@@ -38,6 +38,7 @@ aliases:
   #; @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   - &timezone "Australia/Melbourne"
 
+  #;< !INSTALL_FROM_PROFILE
   # SSH key fingerprint to download the database.
   #: Generate a separate SSH key for a user who has permissions to download the
   #: database from the production environment.
@@ -45,6 +46,7 @@ aliases:
   #; This is a fingerprint of the key to test DrevOps project itself as an example.
   #; Replace this key fingerprint with your own.
   - &db_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+  #;> !INSTALL_FROM_PROFILE
 
   # SSH key fingerprint to deploy code.
   #: Generate a separate SSH key for a user who has push permissions to
@@ -58,7 +60,7 @@ aliases:
   #:-----------------------------------------------------------------------------
   #: Optional variables.
   #:-----------------------------------------------------------------------------
-
+  #;< !INSTALL_FROM_PROFILE
   # How often to refresh the cache of the database. Refer to `date` command.
   - &drevops_ci_db_cache_timestamp +%Y_%m_%d
 
@@ -67,11 +69,12 @@ aliases:
   # day). Only allowed "yes" or "no" (include enclosing double quotes).
   - &drevops_ci_db_cache_fallback "yes"
   # Which branch to use for a source of the DB caches. Usually, it is the default
-  # project branch or *nightly_branch (see below).
+  # project branch or *nightly_db_branch (see below).
   - &drevops_ci_db_cache_branch "develop"
 
   # Database cache directory.
   - &db_cache_dir /root/project/.data
+  #;> !INSTALL_FROM_PROFILE
 
   # CI runner resource class.
   # @see https://circleci.com/docs/2.0/configuration-reference/#resource_class
@@ -86,13 +89,20 @@ aliases:
   # support request with CircleCI to enable this feature.
   - &docker_layer_caching false
 
+  #;< !INSTALL_FROM_PROFILE
   # Schedule to run nightly builds. Defaults to 4am UTC (make sure to adjust for
   # your time zone). Usually used when database captured in the Docker image
   # layer to produce nightly database caches.
-  - &nightly_schedule "0 18 * * *"
+  - &nightly_db_schedule "0 18 * * *"
 
   # The branch used for nightly builds.
-  - &nightly_branch develop
+  - &nightly_db_branch develop
+  #;> !INSTALL_FROM_PROFILE
+
+  #;< RENOVATEBOT
+  # The branch to run RenovateBot on.
+  - &nightly_renovatebot_branch develop
+  #;> RENOVATEBOT
 
   #:-----------------------------------------------------------------------------
 
@@ -102,7 +112,9 @@ aliases:
     #: Location of checked-out files within "runner" container.
     working_directory: &working_directory /root/project
     environment:
+      #;< !INSTALL_FROM_PROFILE
       DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
+      #;> !INSTALL_FROM_PROFILE
       DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       #; Using "runner" container where each job will be executed. This container
@@ -117,12 +129,14 @@ aliases:
           TZ: *timezone
           # Always answer 'y' to any confirmation questions.
           DREVOPS_AHOY_CONFIRM_RESPONSE: 'y'
+          #;< !INSTALL_FROM_PROFILE
           # How often to refresh the cache of the DB dump. Refer to `date` command.
           DREVOPS_CI_DB_CACHE_TIMESTAMP: *drevops_ci_db_cache_timestamp
           # Use cache fallback if the above timestamp does not match.
           DREVOPS_CI_DB_CACHE_FALLBACK: *drevops_ci_db_cache_fallback
           # Which branch to use as a source of DB caches.
-          DREVOPS_CI_DB_CACHE_BRANCH: *drevops_ci_db_cache_branch
+          DREVOPS_CI_DB_CACHE_BRANCHDREVOPS_CI_DB_CACHE_BRANCH: *drevops_ci_db_cache_branch
+          #;> !INSTALL_FROM_PROFILE
           # Directory to store code exported between jobs.
           DREVOPS_EXPORT_CODE_DIR: &build_export_dir /workspace/code
           # Directory to store test results.
@@ -151,6 +165,7 @@ aliases:
     setup_remote_docker:
       docker_layer_caching: *docker_layer_caching
       version: 19.03.13
+
   # Process the codebase to be run in CI environment.
   - &step_process_codebase
     run:
@@ -162,7 +177,7 @@ aliases:
 #: JOBS
 #:###############################################################################
 jobs:
-  #;< !FRESH_INSTALL
+  #;< !INSTALL_FROM_PROFILE
   #: Database handling is a first step of the build.
   #:
   #: $DREVOPS_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump should be downloaded
@@ -239,7 +254,7 @@ jobs:
       # Deploy docker image (if DREVOPS_DB_EXPORT_DOCKER_IMAGE storage is used)
       # to provide fresh daily images for developers.
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
-  #;> !FRESH_INSTALL
+  #;> !INSTALL_FROM_PROFILE
 
   #; Build and test is a second step of the build. The testing is performed
   #; within the same job to save time on provisioning during the job.
@@ -252,6 +267,7 @@ jobs:
       - checkout
       - *step_process_codebase
       - *step_setup_remote_docker
+      #;< !INSTALL_FROM_PROFILE
       - run:
           name: Set cache keys for database caching
           command: |
@@ -266,6 +282,7 @@ jobs:
             # https://circleci.com/docs/2.0/caching/#restoring-cache
             - v5-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_TIMESTAMP" }}
             - v5-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK_YES" }}-
+      #;> !INSTALL_FROM_PROFILE
       - run:
           name: Build site
           command: ahoy build
@@ -610,15 +627,17 @@ workflows:
   #: Commit workflow. Runs for every commit push to the remote repository.
   commit:
     jobs:
+      #;< !INSTALL_FROM_PROFILE
       - database:
           filters:
             tags:
               only: /.*/
+      #;> !INSTALL_FROM_PROFILE
       - build:
-          #;< !FRESH_INSTALL
+          #;< !INSTALL_FROM_PROFILE
           requires:
             - database
-          #;> !FRESH_INSTALL
+          #;> !INSTALL_FROM_PROFILE
           filters:
             tags:
               only: /.*/
@@ -732,18 +751,20 @@ workflows:
   #;----------------------------------------------------------------------------
   #;> DREVOPS_DEV
 
-  #: Nightly workflow runs overnight using the code from `nightly_branch`
+  #;< !INSTALL_FROM_PROFILE
+  #: Nightly workflow runs overnight using the code from `nightly_db_branch`
   #: (the default branch) to capture fresh database and cache it.
-  nightly:
+  nightly_db:
     triggers:
       - schedule:
-          cron: *nightly_schedule
+          cron: *nightly_db_schedule
           filters:
             branches:
               only:
-                - *nightly_branch
+                - *nightly_db_branch
     jobs:
       - database_nightly
+  #;> !INSTALL_FROM_PROFILE
 
   #;< RENOVATEBOT
   renovatebot_self_hosted:
@@ -753,7 +774,7 @@ workflows:
           filters:
             branches:
               only:
-                - *nightly_branch
+                - *nightly_renovatebot_branch
     jobs:
       - renovatebot_self_hosted
   #;> RENOVATEBOT

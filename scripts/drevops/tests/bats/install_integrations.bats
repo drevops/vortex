@@ -18,9 +18,10 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "nothing" # fresh_install
+    "nothing" # install_from_profile
     "nothing" # database_download_source
     "nothing" # database_store_type
+    "nothing" # override_existing_db
     "none" # deploy_type
     "no" # preserve_ftp
     "no" # preserve_acquia
@@ -36,7 +37,7 @@ load _helper_drevops
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_fresh_install
+  assert_files_present_no_install_from_profile
   assert_files_present_no_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
@@ -54,9 +55,10 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "nothing" # fresh_install
+    "nothing" # install_from_profile
     "curl" # database_download_source
     "file" # database_store_type
+    "nothing" # override_existing_db
     "nothing" # deploy_type
     "y" # preserve_ftp
     "y" # preserve_acquia
@@ -72,7 +74,7 @@ load _helper_drevops
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_fresh_install
+  assert_files_present_no_install_from_profile
   assert_files_present_deployment
   assert_files_present_integration_acquia
   assert_files_present_integration_lagoon
@@ -90,9 +92,10 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "nothing" # fresh_install
+    "nothing" # install_from_profile
     "curl" # database_download_source
     "file" # database_store_type
+    "nothing" # override_existing_db
     "artifact" # deploy_type
     "y" # preserve_ftp
     "y" # preserve_acquia
@@ -108,7 +111,7 @@ load _helper_drevops
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_fresh_install
+  assert_files_present_no_install_from_profile
   assert_files_present_deployment
   assert_files_present_integration_acquia
   assert_files_present_integration_lagoon
@@ -116,7 +119,7 @@ load _helper_drevops
   assert_files_present_integration_renovatebot
 }
 
-@test "Install: empty directory; fresh_install" {
+@test "Install: empty directory; install_from_profile" {
  answers=(
     "Star wars" # name
     "nothing" # machine_name
@@ -126,7 +129,8 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "y" # fresh_install
+    "y" # install_from_profile
+    "nothing" # override_existing_db
     "artifact" # deploy_type
     "y" # preserve_ftp
     "y" # preserve_acquia
@@ -142,7 +146,7 @@ load _helper_drevops
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_fresh_install
+  assert_files_present_install_from_profile
   assert_files_present_deployment
   assert_files_present_integration_acquia
   assert_files_present_integration_lagoon
