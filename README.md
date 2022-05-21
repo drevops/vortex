@@ -153,11 +153,11 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 [//]: # (#;> LAGOON)
 
 
-[//]: # (#;< !FRESH_INSTALL)
+[//]: # (#;< !INSTALL_FROM_PROFILE)
 
 - `ahoy download-db`
 
-[//]: # (#;> !FRESH_INSTALL)
+[//]: # (#;> !INSTALL_FROM_PROFILE)
 - `pygmy up`
 - `ahoy build`
 

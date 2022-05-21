@@ -175,9 +175,10 @@ function process() {
 
   $processors = [
     'profile',
-    'fresh_install',
+    'install_from_profile',
     'database_download_source',
     'database_image',
+    'override_existing_db',
     'deploy_type',
     'preserve_acquia',
     'preserve_lagoon',
@@ -336,12 +337,14 @@ function process__profile($dir) {
   dir_replace_content('your_site_profile', get_answer('profile'), $dir);
 }
 
-function process__fresh_install($dir) {
-  if (get_answer('fresh_install') == ANSWER_YES) {
-    remove_token_with_content('!FRESH_INSTALL', $dir);
+function process__install_from_profile($dir) {
+  if (get_answer('install_from_profile') == ANSWER_YES) {
+    file_replace_content('/DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=.*/', "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1", $dir . '/.env');
+    remove_token_with_content('!INSTALL_FROM_PROFILE', $dir);
   }
   else {
-    remove_token_with_content('FRESH_INSTALL', $dir);
+    file_replace_content('/DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=.*/', "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=0", $dir . '/.env');
+    remove_token_with_content('INSTALL_FROM_PROFILE', $dir);
   }
 }
 
@@ -366,6 +369,15 @@ function process__database_image($dir) {
   }
   else {
     remove_token_with_content('DREVOPS_DB_DOCKER_IMAGE', $dir);
+  }
+}
+
+function process__override_existing_db($dir) {
+  if (get_answer('override_existing_db') == ANSWER_YES) {
+    file_replace_content('/DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=.*/', "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1", $dir . '/.env');
+  }
+  else {
+    file_replace_content('/DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=.*/', "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0", $dir . '/.env');
   }
 }
 
@@ -472,7 +484,7 @@ function process__preserve_doc_comments($dir) {
 function process__demo_mode($dir) {
   // Only discover demo mode if not explicitly set.
   if (is_null(get_config('DREVOPS_INSTALL_DEMO'))) {
-    if (get_answer('fresh_install') == ANSWER_NO) {
+    if (get_answer('install_from_profile') == ANSWER_NO) {
       $download_source = get_answer('database_download_source');
       $db_file = getenv_or_default('DREVOPS_DB_DIR', './.data') . DIRECTORY_SEPARATOR . getenv_or_default('DREVOPS_DB_FILE', 'db.sql');
       $has_comment = file_contains('to allow to demonstrate how DrevOps works without', get_dst_dir() . '/.env');
@@ -635,18 +647,18 @@ function gather_answers() {
   ask_for_answer('org',               'What is your organization name');
   ask_for_answer('org_machine_name',  'What is your organization machine name?');
   ask_for_answer('module_prefix',     'What is your project-specific module prefix?');
-  ask_for_answer('profile',           'What is your custom profile machine name (leave empty to not use profile)?');
+  ask_for_answer('profile',           'What is your custom profile machine name (leave empty to use "standard" profile)?');
   ask_for_answer('theme',             'What is your theme machine name?');
   ask_for_answer('url',               'What is your site public URL?');
 
-  ask_for_answer('fresh_install',     'Do you want to use fresh Drupal installation for every build?');
+  ask_for_answer('install_from_profile', 'Do you want to install from profile (leave empty or "n" for using database?');
 
-  if (get_answer('fresh_install') == ANSWER_YES) {
+  if (get_answer('install_from_profile') == ANSWER_YES) {
     set_answer('database_download_source', 'none');
     set_answer('database_image', '');
   }
   else {
-    ask_for_answer('database_download_source', "When developing locally, where do you download the database dump from:\n  - [u]rl\n  - [f]tp\n  - [a]cquia backup\n  - [d]ocker registry?");
+    ask_for_answer('database_download_source', "Where does the database dump come from into every environment:\n  - [u]rl\n  - [f]tp\n  - [a]cquia backup\n  - [d]ocker registry?");
 
     if (get_answer('database_download_source') != 'docker_registry') {
       // Note that "database_store_type" is a pseudo-answer - it is only used to
@@ -666,6 +678,8 @@ function gather_answers() {
   // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
   // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
 
+  ask_for_answer('override_existing_db', 'Do you want to override existing database in the environment?');
+
   ask_for_answer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook notification, [c]ode artifact, [d]ocker image, [l]agoon, [n]one as a comma-separated list)?');
 
   if (get_answer('database_download_source') != 'ftp') {
@@ -683,6 +697,7 @@ function gather_answers() {
   }
 
   ask_for_answer('preserve_lagoon', 'Do you want to keep Amazee.io Lagoon integration?');
+
   ask_for_answer('preserve_renovatebot', 'Do you want to keep RenovateBot integration?');
 
   ask_for_answer('preserve_doc_comments', 'Do you want to keep detailed documentation in comments?');
@@ -934,7 +949,7 @@ function get_default_value__url() {
   return $value;
 }
 
-function get_default_value__fresh_install() {
+function get_default_value__install_from_profile() {
   return ANSWER_NO;
 }
 
@@ -948,6 +963,10 @@ function get_default_value__database_store_type() {
 
 function get_default_value__database_image() {
   return 'drevops/mariadb-drupal-data:latest';
+}
+
+function get_default_value__override_existing_db() {
+  return ANSWER_NO;
 }
 
 function get_default_value__deploy_type() {
@@ -1134,13 +1153,8 @@ function discover_value__url() {
   return !empty($origin) ? $origin : NULL;
 }
 
-function discover_value__fresh_install() {
-  $file = get_dst_dir() . '/.ahoy.yml';
-  if (!file_exists($file)) {
-    return NULL;
-  }
-  $found = file_contains('download-db:', $file);
-  return $found ? ANSWER_NO : ANSWER_YES;
+function discover_value__install_from_profile() {
+  return get_value_from_dst_dotenv('DREVOPS_DRUPAL_INSTALL_FROM_PROFILE');
 }
 
 function discover_value__database_download_source() {
@@ -1153,6 +1167,10 @@ function discover_value__database_store_type() {
 
 function discover_value__database_image() {
   return get_value_from_dst_dotenv('DREVOPS_DB_DOCKER_IMAGE');
+}
+
+function discover_value__override_existing_db() {
+  return get_value_from_dst_dotenv('DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB');
 }
 
 function discover_value__deploy_type() {
@@ -1310,7 +1328,7 @@ function normalise_answer__url($url) {
   return str_replace([' ', '_'], '-', $url);
 }
 
-function normalise_answer__fresh_install($value) {
+function normalise_answer__install_from_profile($value) {
   return strtolower($value) != ANSWER_YES ? ANSWER_NO : ANSWER_YES;
 }
 
@@ -1366,6 +1384,10 @@ function normalise_answer__database_store_type($value) {
 function normalise_answer__database_image($value) {
   $value = to_machine_name($value, ['-', '/', ':', '.']);
   return strpos($value, ':') !== FALSE ? $value : $value . ':latest';
+}
+
+function normalise_answer__override_existing_db($value) {
+  return strtolower($value) != ANSWER_YES ? ANSWER_NO : ANSWER_YES;
 }
 
 function normalise_answer__deploy_type($value) {
@@ -1536,18 +1558,16 @@ function print_summary() {
   $values['Theme name'] = get_answer('theme');
   $values['URL'] = get_answer('url');
 
-  if (get_answer('fresh_install') == ANSWER_YES) {
-    $values['Fresh install for every build'] = format_yes_no(get_answer('fresh_install'));
-  }
-  else {
-    $values['Database download source'] = get_answer('database_download_source');
-    $image = get_answer('database_image');
-    $values['Database store type'] = !empty($image) ? 'docker_image' : 'file';
-    if ($image) {
-      $values['Database image name'] = $image;
-    }
+  $values['Install from profile'] = format_yes_no(get_answer('install_from_profile'));
+
+  $values['Database download source'] = get_answer('database_download_source');
+  $image = get_answer('database_image');
+  $values['Database store type'] = !empty($image) ? 'docker_image' : 'file';
+  if ($image) {
+    $values['Database image name'] = $image;
   }
 
+  $values['Override existing database'] = format_yes_no(get_answer('override_existing_db'));
   $values['Deployment'] = format_not_empty(get_answer('deploy_type'), 'Disabled');
   $values['FTP integration'] = format_enabled(get_answer('preserve_ftp'));
   $values['Acquia integration'] = format_enabled(get_answer('preserve_acquia'));

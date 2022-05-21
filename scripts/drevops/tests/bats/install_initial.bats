@@ -96,9 +96,10 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "nothing" # fresh_install
+    "nothing" # install_from_profile
     "nothing" # download_db_source
     "nothing" # database_store_type
+    "nothing" # override_existing_db
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -126,10 +127,11 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "nothing" # fresh_install
+    "nothing" # install_from_profile
     "nothing" # download_db_type
     "nothing" # download_db_source
     "nothing" # database_store_type
+    "nothing" # override_existing_db
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -166,10 +168,11 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "nothing" # fresh_install
+    "nothing" # install_from_profile
     "nothing" # download_db_type
     "nothing" # download_db_source
     "nothing" # database_store_type
+    "nothing" # override_existing_db
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia

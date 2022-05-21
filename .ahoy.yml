@@ -112,11 +112,11 @@ commands:
     # Unblock user 1 and generate a one time login link.
     cmd: ahoy cli ./scripts/drevops/drupal-login.sh
 
-  #;< !FRESH_INSTALL
+  #;< !INSTALL_FROM_PROFILE
   download-db:
     usage: Download database.
     cmd: ./scripts/drevops/download-db.sh
-  #;> !FRESH_INSTALL
+  #;> !INSTALL_FROM_PROFILE
 
   reload-db:
     usage: Reload the database container using local database image.

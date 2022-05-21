@@ -32,9 +32,10 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "nothing" # fresh_install
+    "nothing" # install_from_profile
     "nothing" # database_download_source
     "nothing" # database_store_type
+    "nothing" # override_existing_db
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -64,8 +65,10 @@ load _helper_drevops
   assert_output_contains "                       Profile:  standard      "
   assert_output_contains "                    Theme name:  star_wars     "
   assert_output_contains "                           URL:  star-wars.com "
+  assert_output_contains "          Install from profile:  No            "
   assert_output_contains "      Database download source:  curl          "
   assert_output_contains "           Database store type:  file          "
+  assert_output_contains "    Override existing database:  No            "
   assert_output_contains "                    Deployment:  artifact      "
   assert_output_contains "               FTP integration:  Disabled      "
   assert_output_contains "            Acquia integration:  Disabled      "
@@ -87,7 +90,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "nothing" # fresh_install
+    "nothing" # install_from_profile
     "nothing" # database_download_source
     "nothing" # database_store_type
     "nothing" # deploy_type
@@ -110,8 +113,10 @@ load _helper_drevops
   assert_output_contains "                       Profile:  standard      "
   assert_output_contains "                    Theme name:  star_wars     "
   assert_output_contains "                           URL:  star-wars.com "
+  assert_output_contains "          Install from profile:  No            "
   assert_output_contains "      Database download source:  curl          "
   assert_output_contains "           Database store type:  file          "
+  assert_output_contains "    Override existing database:  No            "
   assert_output_contains "                    Deployment:  artifact      "
   assert_output_contains "               FTP integration:  Disabled      "
   assert_output_contains "            Acquia integration:  Disabled      "
@@ -134,10 +139,11 @@ load _helper_drevops
     "S w Profile" # profile
     "light saber" # theme
     "resistance forever.com" # URL
-    "nah" # fresh_install
+    "nah" # install_from_profile
     "something" # download_db_type
     "other thing" # database_download_source
     "dunno" # database_store_type
+    "nnnnnno" #override_existing_db
     "nnnooo" # deploy_type
     "nope" # preserve_ftp
     "dunno" # preserve_acquia
@@ -158,8 +164,10 @@ load _helper_drevops
   assert_output_contains "                       Profile:  s_w_profile            "
   assert_output_contains "                    Theme name:  light_saber            "
   assert_output_contains "                           URL:  resistance-forever.com "
+  assert_output_contains "          Install from profile:  No                     "
   assert_output_contains "      Database download source:  curl                   "
   assert_output_contains "           Database store type:  file                   "
+  assert_output_contains "    Override existing database:  No                     "
   assert_output_contains "                    Deployment:  Disabled               "
   assert_output_contains "               FTP integration:  Disabled               "
   assert_output_contains "            Acquia integration:  Disabled               "
@@ -184,10 +192,12 @@ load _helper_drevops
   assert_output_contains "     Organisation machine name:  the_next_resistance          "
   assert_output_contains "                 Module prefix:  another_resist               "
   assert_output_contains "                       Profile:  standard                     "
+  assert_output_contains "          Install from profile:  No                           "
   assert_output_contains "                    Theme name:  resisting                    "
   assert_output_contains "                           URL:  www.resistance-star-wars.com "
   assert_output_contains "      Database download source:  curl                         "
   assert_output_contains "           Database store type:  file                         "
+  assert_output_contains "    Override existing database:  No                           "
   assert_output_contains "                    Deployment:  artifact                     "
   assert_output_contains "               FTP integration:  Disabled                     "
   assert_output_contains "            Acquia integration:  Enabled                      "
@@ -211,9 +221,10 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
-    "nothing" # fresh_install
+    "nothing" # install_from_profile
     "nothing" # database_download_source
     "nothing" # database_store_type
+    "nothing" # override_existing_db
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -235,8 +246,10 @@ load _helper_drevops
   assert_output_contains "                       Profile:  standard                     "
   assert_output_contains "                    Theme name:  resisting                    "
   assert_output_contains "                           URL:  www.resistance-star-wars.com "
+  assert_output_contains "          Install from profile:  No                           "
   assert_output_contains "      Database download source:  curl                         "
   assert_output_contains "           Database store type:  file                         "
+  assert_output_contains "    Override existing database:  No                           "
   assert_output_contains "                    Deployment:  artifact                     "
   assert_output_contains "               FTP integration:  Disabled                     "
   assert_output_contains "            Acquia integration:  Enabled                      "
@@ -264,9 +277,10 @@ load _helper_drevops
     "S w Profile" # profile
     "light saber" # theme
     "resistance forever.com" # URL
-    "nah" # fresh_install
+    "nah" # install_from_profile
     "image" # database_download_source
     "image" # database_store_type
+    "no" # override_existing_db
     "no" # deploy_type
     "Y" # preserve_ftp
     "nothing" # preserve_acquia - testing NOTHING value - should be 'Enabled' as exists in fixture.
@@ -287,11 +301,13 @@ load _helper_drevops
   assert_output_contains "                  Organisation:  The Empire             "
   assert_output_contains "     Organisation machine name:  the_new_empire         "
   assert_output_contains "                 Module prefix:  w_s                    "
-  assert_output_contains "                       Profile:  s_w_profile             "
+  assert_output_contains "                       Profile:  s_w_profile            "
   assert_output_contains "                    Theme name:  light_saber            "
   assert_output_contains "                           URL:  resistance-forever.com "
+  assert_output_contains "          Install from profile:  No                     "
   assert_output_contains "      Database download source:  docker_registry        "
   assert_output_contains "           Database store type:  docker_image           "
+  assert_output_contains "    Override existing database:  No                     "
   assert_output_contains "                    Deployment:  Disabled               "
   assert_output_contains "               FTP integration:  Enabled                "
   assert_output_contains "            Acquia integration:  Enabled                "
@@ -337,7 +353,10 @@ fixture_preinstalled(){
   touch renovate.json
 
   # Sets 'fresh_install' to 'No'.
-  echo "download-db:" >> .ahoy.yml
+  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=0" >> .env
+
+  # Sets 'override_existing_db' to 'No'.
+  echo "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0" >> .env
 
   # Sets 'preserve_doc_comments' to 'Yes'.
   echo "# Ahoy configuration file." >> .ahoy.yml
