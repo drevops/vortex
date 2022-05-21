@@ -66,7 +66,7 @@ load _helper_drevops
   git_commit "New version 2 of DrevOps" "${LOCAL_REPO_DIR}"
 
   # Requiring bespoke version by commit.
-  echo DREVOPS_COMMIT="${commit1}">>.env
+  echo DREVOPS_INSTALL_COMMIT="${commit1}">>.env
   run_install_quiet
   assert_git_repo
   assert_output_contains "This will install DrevOps into your project at commit"

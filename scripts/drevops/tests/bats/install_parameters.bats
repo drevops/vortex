@@ -13,7 +13,7 @@ load _helper
 load _helper_drevops
 
 @test "Install parameters: empty dir; proceed switch; quiet" {
-  export DREVOPS_PROCEED_INSTALLATION=0
+  export DREVOPS_INSTALL_PROCEED=0
   output=$(run_install_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
@@ -21,7 +21,7 @@ load _helper_drevops
 }
 
 @test "Install parameters: empty dir; proceed switch; interactive" {
-  export DREVOPS_PROCEED_INSTALLATION=0
+  export DREVOPS_INSTALL_PROCEED=0
 
   answers=(
     "Star wars" # name
@@ -50,7 +50,7 @@ load _helper_drevops
 }
 
 @test "Install parameters: empty dir; defaults; quiet" {
-  export DREVOPS_PROCEED_INSTALLATION=0
+  export DREVOPS_INSTALL_PROCEED=0
 
   output=$(run_install_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
@@ -76,7 +76,7 @@ load _helper_drevops
 }
 
 @test "Install parameters: empty dir; defaults; interactive" {
-  export DREVOPS_PROCEED_INSTALLATION=0
+  export DREVOPS_INSTALL_PROCEED=0
 
   answers=(
     "Star wars" # name
@@ -123,7 +123,7 @@ load _helper_drevops
 
 # Note that there is no quiet test for this scenario.
 @test "Install parameters: empty dir; overrides and normalisation; interactive" {
-  export DREVOPS_PROCEED_INSTALLATION=0
+  export DREVOPS_INSTALL_PROCEED=0
 
   answers=(
     "star Wars" # name
@@ -170,7 +170,7 @@ load _helper_drevops
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; quiet" {
-  export DREVOPS_PROCEED_INSTALLATION=0
+  export DREVOPS_INSTALL_PROCEED=0
 
   fixture_preinstalled
 
@@ -198,7 +198,7 @@ load _helper_drevops
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; interactive; accepting suggested values" {
-  export DREVOPS_PROCEED_INSTALLATION=0
+  export DREVOPS_INSTALL_PROCEED=0
 
   fixture_preinstalled
 
@@ -247,7 +247,7 @@ load _helper_drevops
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; interactive; user input overrides discovery which overrides defaults" {
-  export DREVOPS_PROCEED_INSTALLATION=0
+  export DREVOPS_INSTALL_PROCEED=0
 
   fixture_preinstalled
 

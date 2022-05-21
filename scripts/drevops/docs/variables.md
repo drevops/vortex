@@ -86,12 +86,6 @@ Path to the root of the project inside of the container.
 
 Default value: `app`
 
-### `DREVOPS_COMMIT`
-
-Allow providing custom DrevOps commit hash to download the sources from.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_COMPOSER_VALIDATE_LOCK`
 
 Validate `composer.lock` file.
@@ -801,6 +795,12 @@ Default value: `UNDEFINED`
 The URL of the installer script.
 
 Default value: `https://raw.githubusercontent.com/drevops/drevops/${DREVOPS_DRUPAL_VERSION:-9`
+
+### `DREVOPS_INSTALL_COMMIT`
+
+Allow providing custom DrevOps commit hash to download the sources from.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_LINT_BE_ALLOW_FAILURE`
 
