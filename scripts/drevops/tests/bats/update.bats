@@ -51,8 +51,8 @@ load _helper_drevops
   # Override install script with currently tested one to be called from ./scripts/drevops/update.sh
   export DREVOPS_INSTALLER_URL="file://${CUR_DIR}/install.php"
   # shellcheck disable=SC2059
-  ahoy update
-
+  run ahoy update
+  assert_success
   assert_files_present
   assert_git_repo
 
