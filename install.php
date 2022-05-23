@@ -385,12 +385,14 @@ function process__deploy_type($dir) {
   $type = get_answer('deploy_type');
   if ($type != 'none') {
     file_replace_content('/DREVOPS_DEPLOY_TYPE=.*/', "DREVOPS_DEPLOY_TYPE=$type", $dir . '/.env');
-    remove_token_with_content('!DEPLOYMENT', $dir);
-  }
-  else {
+
     if (strpos($type, 'artifact') === FALSE) {
       @unlink("$dir/.gitignore.deployment");
     }
+
+    remove_token_with_content('!DEPLOYMENT', $dir);
+  }
+  else {
     @unlink("$dir/DEPLOYMENT.md");
     remove_token_with_content('DEPLOYMENT', $dir);
   }
@@ -1154,7 +1156,7 @@ function discover_value__url() {
 }
 
 function discover_value__install_from_profile() {
-  return get_value_from_dst_dotenv('DREVOPS_DRUPAL_INSTALL_FROM_PROFILE');
+  return get_value_from_dst_dotenv('DREVOPS_DRUPAL_INSTALL_FROM_PROFILE') ? ANSWER_YES : ANSWER_NO;
 }
 
 function discover_value__database_download_source() {
@@ -1170,7 +1172,7 @@ function discover_value__database_image() {
 }
 
 function discover_value__override_existing_db() {
-  return get_value_from_dst_dotenv('DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB');
+  return get_value_from_dst_dotenv('DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB') ? ANSWER_YES : ANSWER_NO;
 }
 
 function discover_value__deploy_type() {
@@ -1192,6 +1194,10 @@ function discover_value__preserve_acquia() {
 
 function discover_value__preserve_lagoon() {
   if (is_readable(get_dst_dir() . '/.lagoon.yml')) {
+    return ANSWER_YES;
+  }
+
+  if (get_answer('deploy_type') == 'lagoon') {
     return ANSWER_YES;
   }
 

@@ -587,7 +587,6 @@ assert_files_present_deployment() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_exists ".gitignore.deployment"
   assert_file_exists "DEPLOYMENT.md"
   assert_file_contains ".circleci/config.yml" "deploy: &job_deploy"
   assert_file_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"

@@ -308,3 +308,148 @@ load _helper_drevops
   # Assert that .env.local has not been changed.
   assert_file_contains ".env.local" "some random content"
 }
+
+@test "Install into existing: previously installed project; install_from_profile; discovery; quiet" {
+  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1" >> ".env"
+
+  # Populate current dir with a project at current version.
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
+  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_common
+  assert_files_present_install_from_profile
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_integration_renovatebot
+}
+
+@test "Install into existing: previously installed project; override_existing_db; discovery; quiet" {
+  echo "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1" >> ".env"
+
+  # Populate current dir with a project at current version.
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
+  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_common
+  assert_files_present_no_install_from_profile
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_integration_renovatebot
+
+  assert_files_present_override_existing_db
+}
+
+@test "Install into existing: previously installed project; Deployment; discovery; quiet" {
+  echo "DREVOPS_DEPLOY_TYPE=lagoon" >> ".env"
+
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
+  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_common
+  assert_files_present_no_install_from_profile
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_integration_renovatebot
+}
+
+@test "Install into existing: previously installed project; Acquia; discovery; quiet" {
+  # Populate current dir with a project at current version.
+  run_install_quiet
+
+  # Assert files at current version.
+  assert_files_present
+  assert_git_repo
+
+  mkdir hooks
+
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
+  assert_output_contains "It looks like DrevOps is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_common
+  assert_files_present_no_install_from_profile
+  assert_files_present_deployment
+  assert_files_present_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_integration_renovatebot
+}
+
+@test "Install into existing: previously installed project; Lagoon; discovery; quiet" {
+  # Populate current dir with a project at current version.
+  run_install_quiet
+
+  # Assert files at current version.
+  assert_files_present
+  assert_git_repo
+
+  touch .lagoon.yml
+
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
+  assert_output_contains "It looks like DrevOps is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_common
+  assert_files_present_no_install_from_profile
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_integration_renovatebot
+}
+
+@test "Install into existing: previously installed project; Renovate; discovery; quiet" {
+  # Populate current dir with a project at current version.
+  run_install_quiet
+
+  # Assert files at current version.
+  assert_files_present
+  assert_git_repo
+
+  rm -Rf renovate.json
+
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
+  assert_output_contains "It looks like DrevOps is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_common
+  assert_files_present_no_install_from_profile
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_no_integration_renovatebot
+}
