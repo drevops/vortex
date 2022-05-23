@@ -309,6 +309,21 @@ load _helper_drevops
   assert_file_contains ".env.local" "some random content"
 }
 
+@test "Install into existing: previously installed project; custom profile; discovery; quiet" {
+  echo "DREVOPS_DRUPAL_PROFILE=star_wars_profile" >> ".env"
+
+  # Populate current dir with a project at current version.
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
+  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_profile
+}
+
 @test "Install into existing: previously installed project; install_from_profile; discovery; quiet" {
   echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1" >> ".env"
 
