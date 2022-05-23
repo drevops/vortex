@@ -1016,7 +1016,7 @@ function discover_value($name) {
 
 function discover_value__name() {
   $value = get_composer_json_value('description');
-  if ($value && preg_match('/Drupal [789] implementation of ([^"]+) for ([^"]+)/', $value, $matches)) {
+  if ($value && preg_match('/Drupal [789] .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
     if (!empty($matches[1])) {
       return $matches[1];
     }
@@ -1036,7 +1036,7 @@ function discover_value__machine_name() {
 
 function discover_value__org() {
   $value = get_composer_json_value('description');
-  if ($value && preg_match('/Drupal [789] implementation of ([^"]+) for ([^"]+)/', $value, $matches)) {
+  if ($value && preg_match('/Drupal [789] .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
     if (!empty($matches[2])) {
       return $matches[2];
     }
@@ -1089,6 +1089,10 @@ function discover_value__profile() {
   $name = find_matching_path($locations, 'Drupal 9 profile implementation of');
 
   if (empty($name)) {
+    $name = get_value_from_dst_dotenv('DREVOPS_DRUPAL_PROFILE');
+    if (!empty($name)) {
+      return $name;
+    }
     return NULL;
   }
 
