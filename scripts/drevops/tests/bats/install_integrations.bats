@@ -132,10 +132,10 @@ load _helper_drevops
     "y" # install_from_profile
     "nothing" # override_existing_db
     "artifact" # deploy_type
-    "y" # preserve_ftp
-    "y" # preserve_acquia
-    "y" # preserve_lagoon
-    "y" # preserve_renovatebot
+    "n" # preserve_ftp
+    "n" # preserve_acquia
+    "n" # preserve_lagoon
+    "n" # preserve_renovatebot
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
@@ -148,8 +148,8 @@ load _helper_drevops
   assert_files_present_common
   assert_files_present_install_from_profile
   assert_files_present_deployment
-  assert_files_present_integration_acquia
-  assert_files_present_integration_lagoon
-  assert_files_present_integration_ftp
-  assert_files_present_integration_renovatebot
+  assert_files_present_no_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_no_integration_renovatebot
 }
