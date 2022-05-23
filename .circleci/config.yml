@@ -135,7 +135,7 @@ aliases:
           # Use cache fallback if the above timestamp does not match.
           DREVOPS_CI_DB_CACHE_FALLBACK: *drevops_ci_db_cache_fallback
           # Which branch to use as a source of DB caches.
-          DREVOPS_CI_DB_CACHE_BRANCHDREVOPS_CI_DB_CACHE_BRANCH: *drevops_ci_db_cache_branch
+          DREVOPS_CI_DB_CACHE_BRANCH: *drevops_ci_db_cache_branch
           #;> !INSTALL_FROM_PROFILE
           # Directory to store code exported between jobs.
           DREVOPS_EXPORT_CODE_DIR: &build_export_dir /workspace/code
