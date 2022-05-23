@@ -502,6 +502,9 @@ assert_files_present_install_from_profile() {
   pushd "${dir}" >/dev/null || exit 1
 
   assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1"
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE"
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL"
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT"
 
   assert_file_exists ".ahoy.yml"
   assert_file_not_contains ".ahoy.yml" "download-db:"
