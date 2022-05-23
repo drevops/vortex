@@ -394,6 +394,7 @@ function process__deploy_type($dir) {
   }
   else {
     @unlink("$dir/DEPLOYMENT.md");
+    @unlink("$dir/.gitignore.deployment");
     remove_token_with_content('DEPLOYMENT', $dir);
   }
 }
@@ -1079,6 +1080,13 @@ function discover_value__module_prefix() {
 }
 
 function discover_value__profile() {
+  if (is_installed()) {
+    $name = get_value_from_dst_dotenv('DREVOPS_DRUPAL_PROFILE');
+    if (!empty($name)) {
+      return $name;
+    }
+  }
+
   $locations = [
     get_dst_dir() . '/docroot/profiles/*/*.info',
     get_dst_dir() . '/docroot/profiles/*/*.info.yml',
@@ -1089,10 +1097,6 @@ function discover_value__profile() {
   $name = find_matching_path($locations, 'Drupal 9 profile implementation of');
 
   if (empty($name)) {
-    $name = get_value_from_dst_dotenv('DREVOPS_DRUPAL_PROFILE');
-    if (!empty($name)) {
-      return $name;
-    }
     return NULL;
   }
 
@@ -1105,6 +1109,13 @@ function discover_value__profile() {
 }
 
 function discover_value__theme() {
+  if (is_installed()) {
+    $name = get_value_from_dst_dotenv('DREVOPS_DRUPAL_THEME');
+    if (!empty($name)) {
+      return $name;
+    }
+  }
+
   $locations = [
     get_dst_dir() . '/docroot/themes/custom/*/*.info',
     get_dst_dir() . '/docroot/themes/custom/*/*.info.yml',
