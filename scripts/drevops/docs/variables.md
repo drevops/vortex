@@ -74,12 +74,6 @@ Uncomment below to suppress Ahoy prompts.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_AHOY_LOCAL_FILE`
-
-Local Ahoy commands file inclusion. Uncomment and copy default`.ahoy.local.yml` to .ahoy.local.yml
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_APP`
 
 Path to the root of the project inside of the container.
@@ -658,7 +652,7 @@ Default value: `DREVOPS_APP`
 
 ### `DREVOPS_DRUPAL_DB_SANITIZE_EMAIL`
 
-Sanitization email pattern. Sanitisation is enabled by default in all non-production environments. @see https://docs.drevops.com/build#sanitization
+Sanitization email pattern. Sanitization is enabled by default in all non-production environments. @see https://docs.drevops.com/build#sanitization
 
 Default value: `user_%uid@your-site-url.example`
 
@@ -1146,7 +1140,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_TASK_LAGOON_PROJECT`
 
-The Lagoon project to run taks for.
+The Lagoon project to run tasks for.
 
 Default value: `UNDEFINED`
 

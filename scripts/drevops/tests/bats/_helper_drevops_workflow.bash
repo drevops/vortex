@@ -783,16 +783,7 @@ assert_ahoy_local() {
   run ahoy local
   assert_success
   assert_output_not_contains "[fatal]"
-
-  substep "Assert calling local commands with local file path specified but no file does not throw error"
-  assert_file_contains "default.env.local" "DREVOPS_AHOY_LOCAL_FILE="
-  assert_file_exists "default.ahoy.local.yml"
-  assert_file_not_exists ".ahoy.local.yml"
-  touch .env.local
-  add_var_to_file .env.local "DREVOPS_AHOY_LOCAL_FILE" ".ahoy.local.yml"
-  run ahoy local
-  assert_success
-  assert_output_not_contains "[fatal]"
+  assert_output_contains ".ahoy.local.yml does not exist. Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
 
   substep "Assert calling local commands with local file path specified and file is present works correctly"
   cp "default.ahoy.local.yml" ".ahoy.local.yml"
@@ -800,6 +791,7 @@ assert_ahoy_local() {
   assert_success
   assert_output_contains "==> Custom local commands"
   assert_output_not_contains "[fatal]"
+  assert_output_not_contains ".ahoy.local.yml does not exist. Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
 
   substep "Assert calling local commands with local file path specified and file is present and file return non-zero exit code"
 
@@ -813,4 +805,5 @@ assert_ahoy_local() {
   assert_failure
   assert_output_contains "expected failure"
   assert_output_not_contains "[fatal]"
+  assert_output_not_contains ".ahoy.local.yml does not exist. Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
 }
