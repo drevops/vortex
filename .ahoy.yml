@@ -226,7 +226,7 @@ commands:
   local:
     usage: Custom local commands. See `ahoy local help`.
     cmd: |
-      if [ -n "${DREVOPS_AHOY_LOCAL_FILE}" ] && [ -f "${DREVOPS_AHOY_LOCAL_FILE}" ]; then ahoy -f "${DREVOPS_AHOY_LOCAL_FILE}" "$@"; fi
+      if [ -f .ahoy.local.yml ]; then ahoy -f ".ahoy.local.yml" "$@"; else echo ".ahoy.local.yml does not exist. Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."; fi
 
   # ----------------------------------------------------------------------------
   # Utilities.

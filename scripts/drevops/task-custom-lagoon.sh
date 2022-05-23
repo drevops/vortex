@@ -9,7 +9,7 @@ set -e
 
 DREVOPS_TASK_LAGOON_NAME="${DREVOPS_TASK_LAGOON_NAME:-}"
 
-# The Lagoon project to run taks for.
+# The Lagoon project to run tasks for.
 DREVOPS_TASK_LAGOON_PROJECT="${DREVOPS_TASK_LAGOON_PROJECT:-}"
 
 # The Lagoon branch to run the task on.

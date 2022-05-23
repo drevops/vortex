@@ -48,10 +48,6 @@ DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED=
 # Uncomment below to suppress Ahoy prompts.
 DREVOPS_AHOY_CONFIRM_RESPONSE=
 
-# Local Ahoy commands file inclusion.
-# Uncomment and copy default.ahoy.local.yml to .ahoy.local.yml
-DREVOPS_AHOY_LOCAL_FILE=
-
 # Print debug information in DrevOps scripts.
 DREVOPS_DEBUG=
 
