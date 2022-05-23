@@ -794,7 +794,7 @@ Default value: `UNDEFINED`
 
 The URL of the installer script.
 
-Default value: `https://raw.githubusercontent.com/drevops/drevops/${DREVOPS_DRUPAL_VERSION:-9`
+Default value: `https://install.drevops.com`
 
 ### `DREVOPS_INSTALL_COMMIT`
 
