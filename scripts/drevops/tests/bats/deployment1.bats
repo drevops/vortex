@@ -221,3 +221,138 @@ load _helper_drevops_deployment
 
   popd > /dev/null
 }
+
+@test "Deployment; Lagoon integration; install_from_profile; redeploy" {
+  pushd "${BUILD_DIR}" > /dev/null || exit 1
+
+  # Source directory for initialised codebase.
+  # If not provided - directory will be created and a site will be initialised.
+  # This is to facilitate local testing.
+  SRC_DIR="${SRC_DIR:-}"
+
+  step "Starting DEPLOYMENT tests."
+
+  SRC_DIR="${BUILD_DIR}/deployment_src"
+  substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
+  prepare_fixture_dir "${SRC_DIR}"
+
+  # Provision the codebase with Lagoon deployment type and Lagoon integration.
+  answers=(
+    "Star wars" # name
+    "nothing" # machine_name
+    "nothing" # org
+    "nothing" # org_machine_name
+    "nothing" # module_prefix
+    "nothing" # profile
+    "nothing" # theme
+    "nothing" # URL
+    "y" # install_from_profile
+    "y" # override_existing_db
+    "lagoon" # deploy_type
+    "n" # preserve_ftp
+    "n" # preserve_acquia
+    "y" # preserve_lagoon
+    "n" # preserve_renovatebot
+    "nothing" # preserve_doc_comments
+    "nothing" # preserve_drevops_info
+  )
+
+  provision_site "${CURRENT_PROJECT_DIR}" 0 "${answers[@]}"
+
+  assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_install_from_profile "${CURRENT_PROJECT_DIR}"
+  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
+  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
+  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
+
+  substep "Copying built codebase into code source directory ${SRC_DIR}"
+  cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
+
+  # Make sure that all files were copied out from the container or passed from
+  # the previous stage of the build.
+  assert_files_present_common "${SRC_DIR}"
+  assert_files_present_deployment "${SRC_DIR}"
+  assert_files_present_integration_lagoon "${SRC_DIR}"
+  assert_files_present_no_integration_acquia "${SRC_DIR}"
+  assert_files_present_no_integration_ftp "${SRC_DIR}"
+  assert_git_repo "${SRC_DIR}"
+
+  popd > /dev/null
+
+  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
+
+  step "Running deployment"
+  # Always force installing of the Lagoon CLI binary in tests rather than using
+  # a local version.
+  export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL=1
+  export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH="${APP_TMP_DIR}"
+  export DREVOPS_DEPLOY_LAGOON_INSTANCE="testlagoon"
+  export LAGOON_PROJECT="testproject"
+  export DREVOPS_DEPLOY_BRANCH="testbranch"
+
+  mock_lagoon=$(mock_command "lagoon")
+  # Existing environment.
+  mock_set_output "${mock_lagoon}" '{"data": [{"deploytype": "branch", "environment": "development", "id": "364889", "name": "testbranch", "openshiftprojectname": "testproject-testbranch", "route": "https://nginx-php.develop.civic.au2.amazee.io"}]}' 1
+  # Set variables.
+  mock_set_output "${mock_lagoon}" "success" 2
+  mock_set_output "${mock_lagoon}" "success" 3
+  # Set variables.
+  mock_set_output "${mock_lagoon}" "success" 4
+  mock_set_output "${mock_lagoon}" "success" 5
+  # Redeploying env.
+  mock_set_output "${mock_lagoon}" "success" 6
+  # Remove variables.
+  mock_set_output "${mock_lagoon}" "success" 7
+  mock_set_output "${mock_lagoon}" "success" 8
+
+  # Proceed with deployment.
+  export DREVOPS_DEPLOY_PROCEED=1
+
+  run ahoy deploy
+  assert_success
+
+  assert_output_contains "==> Started Lagoon deployment."
+  assert_output_contains "  > Database override flag is set to override existing database."
+  assert_output_contains "  > Deploying with override flag is set to override existing database."
+  assert_output_contains "  > Found already deployed environment for branch \"testbranch\"."
+  assert_output_contains "  > Add a DB import override flag for the current deployment."
+  assert_output_contains "  > Redeploying environment: project testproject, branch: testbranch."
+  assert_output_contains "  > Waiting for deployment to be queued."
+  assert_output_contains "  > Remove a DB import override flag for the current deployment."
+  assert_output_contains "==> Finished Lagoon deployment."
+
+  # Assert lagoon binary exists and was called.
+  assert_file_exists "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
+
+  # Deployment script calls API several times.
+  assert_equal 8 "$(mock_get_call_num "${mock_lagoon}")"
+  # Get a list of environments.
+  assert_contains "-l testlagoon list environments -p testproject --output-json --pretty" "$(mock_get_call_args "${mock_lagoon}" 1)"
+  # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
+  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB" "$(mock_get_call_args "${mock_lagoon}" 2)"
+  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 3)"
+  # Override DB during re-deployment.
+  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB" "$(mock_get_call_args "${mock_lagoon}" 4)"
+  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 1 -S global" "$(mock_get_call_args "${mock_lagoon}" 5)"
+  # Redeploy.
+  assert_contains "-l testlagoon deploy latest -p testproject -e testbranch" "$(mock_get_call_args "${mock_lagoon}" 6)"
+  # Remove a DB import override flag for the current deployment.
+  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB" "$(mock_get_call_args "${mock_lagoon}" 7)"
+  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 8)"
+
+  # Assert that no other deployments ran.
+  assert_output_not_contains "==> Started ARTIFACT deployment."
+  assert_output_not_contains "==> Finished ARTIFACT deployment."
+
+  assert_output_not_contains "==> Started WEBHOOK deployment."
+  assert_output_not_contains "==> Successfully called webhook."
+  assert_output_not_contains "ERROR: Webhook deployment failed."
+  assert_output_not_contains "==> Finished WEBHOOK deployment."
+
+  assert_output_not_contains "==> Started DOCKER deployment."
+  assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
+  assert_output_not_contains "==> Finished DOCKER deployment."
+
+  popd > /dev/null
+}

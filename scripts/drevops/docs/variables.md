@@ -348,6 +348,12 @@ Print debug information in DrevOps scripts.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_DEPLOY_ACTION`
+
+Deploy action. Values can be one of: create, destroy, override_existing_db.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_DEPLOY_ARTIFACT_GIT_BRANCH`
 
 Remote repository branch. Can be a specific branch or a token. @see https://github.com/drevops/git-artifact#token-support
@@ -437,6 +443,8 @@ The username of the docker registry to deploy Docker image to.
 Default value: `DREVOPS_DOCKER_REGISTRY_USERNAME`
 
 ### `DREVOPS_DEPLOY_LAGOON_ACTION`
+
+Deploy action. Values can be one of: create, destroy, override_existing_db.
 
 Default value: `create`
 

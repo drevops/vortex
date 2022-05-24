@@ -707,7 +707,6 @@ assert_files_present_integration_lagoon() {
   assert_file_contains "docker-compose.yml" "lagoon.type: solr"
   assert_file_contains "docker-compose.yml" "lagoon.type: none"
 
-  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT="
   assert_file_contains ".env" "DREVOPS_LAGOON_ENABLE_DRUSH_ALIASES="
   assert_file_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
 
