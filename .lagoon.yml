@@ -122,7 +122,7 @@ tasks:
             "$GIT_REF" \
             "$LAGOON_ROUTES"
 
-          if [ "$NEWRELIC_ENABLED" = "1" ] && [ -n "$NEWRELIC_LICENSE" ] && [ -n "$DREVOPS_NOTIFY_NEWRELIC_APIKEY" ]; then
+          if [ -n "$NEWRELIC_ENABLED" ] && [ -n "$NEWRELIC_LICENSE" ] && [ -n "$DREVOPS_NOTIFY_NEWRELIC_APIKEY" ]; then
             [ -n "$LAGOON_PR_NUMBER" ] && GIT_SHA=${LAGOON_PR_HEAD_SHA#origin/} || GIT_SHA=$LAGOON_GIT_SHA
             DREVOPS_NOTIFY_NEWRELIC_APP_NAME="$LAGOON_PROJECT-$GIT_SHA" \
             DREVOPS_NOTIFY_DEPLOY_REF="$GIT_SHA" \
