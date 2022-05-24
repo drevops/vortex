@@ -39,10 +39,11 @@ tasks:
         name: Backup DB before deployment in production
         command: |
           if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
+            echo "==> Running in PRODUCTION environment."
             DREVOPS_DB_DIR=/app/docroot/sites/default/files/private/pre_deployment_backups ./scripts/drevops/export-db-file.sh
           fi
         service: cli
-
+    #;< !INSTALL_FROM_PROFILE
     - run:
         name: Download database
         command: |
@@ -67,13 +68,13 @@ tasks:
           export DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE=false
 
           if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
-            echo "==> Skipping DB download in the production environment."
+            echo "==> Skipping DB download in the PRODUCTION environment."
           else
             rm -Rf $DREVOPS_DB_DIR
             ./scripts/drevops/download-db.sh
           fi
         service: cli
-
+    #;> !INSTALL_FROM_PROFILE
     - run:
         name: Install site
         command: |
@@ -81,8 +82,11 @@ tasks:
           export DREVOPS_DB_DIR=/tmp/data
 
           if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
+            echo "==> Running in PRODUCTION environment."
+            #;< !INSTALL_FROM_PROFILE
             # Never overwrite existing DB when production site already exists.
             export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0
+            #;> !INSTALL_FROM_PROFILE
             # Never unblock admin user in production.
             export DREVOPS_DRUPAL_LOGIN_UNBLOCK_ADMIN=0
             # Never sanitize DB.

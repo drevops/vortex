@@ -28,6 +28,10 @@ DREVOPS_DEPLOY_PROCEED="${DREVOPS_DEPLOY_PROCEED:-}"
 # 'DREVOPS_DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>' variables.
 DREVOPS_DEPLOY_SKIP="${DREVOPS_DEPLOY_SKIP:-}"
 
+# Deploy action.
+# Values can be one of: create, destroy, override_existing_db.
+DREVOPS_DEPLOY_ACTION="${DREVOPS_DEPLOY_ACTION:-}"
+
 # ------------------------------------------------------------------------------
 
 [ -z "${DREVOPS_DEPLOY_TYPE}" ] && echo "Missing required value for DREVOPS_DEPLOY_TYPE. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
@@ -92,6 +96,16 @@ fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*lagoon*}" ]; then
   echo "==> Started 'lagoon' deployment."
+  if [ "${DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB}" = "1" ]; then
+    echo "  > Database override flag is set to override existing database."
+    export DREVOPS_DEPLOY_ACTION="${DREVOPS_DEPLOY_ACTION:-deploy_override_db}"
+    if [ "${DREVOPS_DEPLOY_ACTION}" = "deploy_override_db" ]; then
+      echo "  > Deploying with override flag is set to override existing database."
+    else
+      echo "  > Deploying with override flag is set to not override existing database."
+    fi
+  fi
+
   export DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT="${DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_SSH_FINGERPRINT}}"
   export DREVOPS_DEPLOY_LAGOON_SSH_FILE="${DREVOPS_DEPLOY_LAGOON_SSH_FILE:-${DREVOPS_DEPLOY_SSH_FILE}}"
   export DREVOPS_DEPLOY_LAGOON_PROJECT="${DREVOPS_DEPLOY_LAGOON_PROJECT:-${LAGOON_PROJECT}}"
