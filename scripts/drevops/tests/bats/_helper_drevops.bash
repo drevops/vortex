@@ -506,6 +506,15 @@ assert_files_present_install_from_profile() {
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT"
 
+  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FORCE"
+  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_USER"
+  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_PASS"
+  assert_file_not_contains "default.env.local" "DREVOPS_ACQUIA_KEY"
+  assert_file_not_contains "default.env.local" "DREVOPS_ACQUIA_SECRET"
+  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE"
+  assert_file_not_contains "default.env.local" "DREVOPS_DOCKER_REGISTRY_USERNAME"
+  assert_file_not_contains "default.env.local" "DREVOPS_DOCKER_REGISTRY_TOKEN"
+
   assert_file_exists ".ahoy.yml"
   assert_file_not_contains ".ahoy.yml" "download-db:"
 
@@ -708,7 +717,6 @@ assert_files_present_integration_lagoon() {
   assert_file_contains "docker-compose.yml" "lagoon.type: none"
 
   assert_file_contains ".env" "DREVOPS_LAGOON_ENABLE_DRUSH_ALIASES="
-  assert_file_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
 
   popd >/dev/null || exit 1
 }
