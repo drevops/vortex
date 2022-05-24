@@ -8,7 +8,7 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Deploy action.
-# Values can be one of: create, destroy, override_existing_db.
+# Values can be one of: deploy, deploy_override_db, destroy.
 DREVOPS_DEPLOY_LAGOON_ACTION="${DREVOPS_DEPLOY_LAGOON_ACTION:-create}"
 
 # The Lagoon project to perform deployment for.

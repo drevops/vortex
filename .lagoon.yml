@@ -27,7 +27,7 @@ tasks:
         command: |
           if  [ -n "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && [ -n "$LAGOON_PR_NUMBER" ]; then
             [ -n "$LAGOON_PR_NUMBER" ] && GIT_SHA=$LAGOON_PR_HEAD_SHA || GIT_SHA=$LAGOON_GIT_SHA
-            DREVOPS_NOTIFY_DEPLOY_REPOSITORY="salsadigitalauorg/oni-osp" \
+            DREVOPS_NOTIFY_DEPLOY_REPOSITORY="your_org/your_site" \
             DREVOPS_NOTIFY_DEPLOY_REF="$GIT_SHA" \
             DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION="start" \
             ./scripts/drevops/notify-deployment-github.sh || true
@@ -80,6 +80,19 @@ tasks:
         command: |
           # Read DB dump from the temp location instead of '.data'.
           export DREVOPS_DB_DIR=/tmp/data
+
+          #;< INSTALL_FROM_PROFILE
+          # Deployments from UI are not able to bypass the value of
+          # DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB set by the deploy-lagoon.sh
+          # during previous deployments (it sets value to '0' to mitigate Lagoon bug
+          # where environment variables cannot be deleted and have to be set to a value).
+          # @see https://github.com/uselagoon/lagoon/issues/1922
+          # Explicitly set DB overwrite flag to the value from .env file for
+          # deployments from the profile.
+          if [ "$DREVOPS_DRUPAL_INSTALL_FROM_PROFILE" = "1" ]; then
+            export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB="$(cat .env | grep ^DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB | cut -c45-)"
+          fi
+          #;> INSTALL_FROM_PROFILE
 
           if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."

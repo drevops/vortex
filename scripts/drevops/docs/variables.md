@@ -350,9 +350,9 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_ACTION`
 
-Deploy action. Values can be one of: create, destroy, override_existing_db.
+Deploy action. Values can be one of: deploy, deploy_override_db, destroy.
 
-Default value: `UNDEFINED`
+Default value: `deploy`
 
 ### `DREVOPS_DEPLOY_ARTIFACT_GIT_BRANCH`
 
@@ -444,7 +444,7 @@ Default value: `DREVOPS_DOCKER_REGISTRY_USERNAME`
 
 ### `DREVOPS_DEPLOY_LAGOON_ACTION`
 
-Deploy action. Values can be one of: create, destroy, override_existing_db.
+Deploy action. Values can be one of: deploy, deploy_override_db, destroy.
 
 Default value: `create`
 

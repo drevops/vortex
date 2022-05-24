@@ -247,7 +247,7 @@ load _helper_drevops_deployment
     "nothing" # theme
     "nothing" # URL
     "y" # install_from_profile
-    "y" # override_existing_db
+    "n" # override_existing_db
     "lagoon" # deploy_type
     "n" # preserve_ftp
     "n" # preserve_acquia
@@ -308,13 +308,13 @@ load _helper_drevops_deployment
 
   # Proceed with deployment.
   export DREVOPS_DEPLOY_PROCEED=1
+  # Deployment action to override db.
+  export DREVOPS_DEPLOY_ACTION="deploy_override_db"
 
   run ahoy deploy
   assert_success
 
   assert_output_contains "==> Started Lagoon deployment."
-  assert_output_contains "  > Database override flag is set to override existing database."
-  assert_output_contains "  > Deploying with override flag is set to override existing database."
   assert_output_contains "  > Found already deployed environment for branch \"testbranch\"."
   assert_output_contains "  > Add a DB import override flag for the current deployment."
   assert_output_contains "  > Redeploying environment: project testproject, branch: testbranch."

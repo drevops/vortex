@@ -80,6 +80,10 @@ load _helper_drevops
   assert_files_present_integration_lagoon
   assert_files_present_integration_ftp
   assert_files_present_integration_renovatebot
+
+  assert_file_contains ".lagoon.yml" "name: Download database"
+  assert_file_contains ".lagoon.yml" "export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
+  assert_file_not_contains ".lagoon.yml" "# Deployments from UI are not able to bypass the value of"
 }
 
 @test "Install: empty directory; deployment - code" {
@@ -117,6 +121,10 @@ load _helper_drevops
   assert_files_present_integration_lagoon
   assert_files_present_integration_ftp
   assert_files_present_integration_renovatebot
+
+  assert_file_contains ".lagoon.yml" "name: Download database"
+  assert_file_contains ".lagoon.yml" "export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
+  assert_file_not_contains ".lagoon.yml" "# Deployments from UI are not able to bypass the value of"
 }
 
 @test "Install: empty directory; install_from_profile" {
@@ -190,4 +198,5 @@ load _helper_drevops
 
   assert_file_not_contains ".lagoon.yml" "name: Download database"
   assert_file_not_contains ".lagoon.yml" "export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
+  assert_file_contains ".lagoon.yml" "# Deployments from UI are not able to bypass the value of"
 }
