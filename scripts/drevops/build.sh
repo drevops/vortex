@@ -59,7 +59,7 @@ if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
   # Try restoring the image from the archive if it exists.
   ./scripts/drevops/docker-restore-image.sh "${DREVOPS_DB_DOCKER_IMAGE}" "${DREVOPS_DB_DIR}/db.tar"
   # If the image does not exist and base image was provided - use the base
-  # image which allows '"clean slate" for the database.
+  # image which allows "clean slate" for the database.
   if [ ! -f "${DREVOPS_DB_DIR}/db.tar" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE_BASE}" ]; then
     echo "==> Database image was not found. Using base image ${DREVOPS_DB_DOCKER_IMAGE_BASE}."
     export DREVOPS_DB_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE_BASE}"

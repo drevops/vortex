@@ -21,6 +21,11 @@ DREVOPS_DB_DOWNLOAD_FORCE=
 # @see https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 DREVOPS_DB_DOCKER_IMAGE=your_org/your_site:latest
 
+# Name of the database fall-back docker image to use. If the image specified in
+# DREVOPS_DB_DOCKER_IMAGE does not exist and base image was provided - it will
+# be used as a "clean slate" for the database.
+DREVOPS_DB_DOCKER_IMAGE_BASE=
+
 # Skip copying of database between Acquia environments.
 DREVOPS_TASK_COPY_DB_ACQUIA_SKIP=
 
@@ -53,3 +58,12 @@ DREVOPS_DEBUG=
 
 # Print debug information from Docker build.
 DREVOPS_DOCKER_VERBOSE=
+
+# Drupal admin email. May need to be reset if database was sanitized.
+DREVOPS_DRUPAL_ADMIN_EMAIL="webmaster@your-site-url.example"
+
+# Directory to store exported code.
+DREVOPS_EXPORT_CODE_DIR=
+
+# Flag to skip Email deployment notification.
+DREVOPS_NOTIFY_DEPLOY_EMAIL_SKIP=

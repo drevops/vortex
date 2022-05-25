@@ -40,10 +40,6 @@
 
 ## Variables list
 
-### `AC_API_FILES_SRC_ENV`
-
-Default value: `UNDEFINED`
-
 ### `COMPOSE_PROJECT_NAME`
 
 Docker Compose project name (all containers will have this name). Defaults to the name of the project directory.
@@ -99,6 +95,8 @@ Name of the database docker image to use. Uncomment to use an image with a DB da
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOCKER_IMAGE_BASE`
+
+Name of the database fall-back docker image to use. If the image specified in [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) does not exist and base image was provided - it will be used as a "clean slate" for the database.
 
 Default value: `UNDEFINED`
 
@@ -350,7 +348,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_ACTION`
 
-Deploy action. Values can be one of: deploy, deploy_override_db, destroy.
+Deployment action. Values can be one of: deploy, deploy_override_db, destroy.
 
 Default value: `deploy`
 
@@ -410,6 +408,8 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_BRANCH`
 
+Deployment pull request number without "pr-" prefix.
+
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_DOCKER_IMAGE_TAG`
@@ -428,19 +428,19 @@ Default value: `UNDEFINED`
 
 The registry of the docker registry to deploy Docker image to.
 
-Default value: `DREVOPS_DOCKER_REGISTRY:-docker.io`
+Default value: `docker.io`
 
 ### `DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN`
 
 The token of the docker registry to deploy Docker image to.
 
-Default value: `DREVOPS_DOCKER_REGISTRY_TOKEN`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME`
 
 The username of the docker registry to deploy Docker image to.
 
-Default value: `DREVOPS_DOCKER_REGISTRY_USERNAME`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_LAGOON_ACTION`
 
@@ -509,6 +509,8 @@ SSH key fingerprint used to connect to remote. If not used, the currently loaded
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_PR`
+
+Deployment pull request number without "pr-" prefix.
 
 Default value: `UNDEFINED`
 
@@ -638,7 +640,9 @@ Default value: `HOME`
 
 ### `DREVOPS_DRUPAL_ADMIN_EMAIL`
 
-Default value: `DREVOPS_DRUPAL_ADMIN_EMAIL`
+Drupal admin email. May need to be reset if database was sanitized.
+
+Default value: `webmaster@your-site-url.example`
 
 ### `DREVOPS_DRUPAL_CONFIG_LABEL`
 
@@ -756,7 +760,7 @@ Default value: `9`
 
 ### `DREVOPS_EXPORT_CODE_DIR`
 
-Export code built within containers before adding development dependencies. Usually this is needed to create a code artifact without development dependencies.
+Directory to store exported code.
 
 Default value: `UNDEFINED`
 
@@ -783,14 +787,6 @@ Default value: `UNDEFINED`
 GitHub token to perform operations.
 
 Default value: `GITHUB_TOKEN`
-
-### `DREVOPS_HOST_DB_PORT`
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_HOST_SOLR_PORT`
-
-Default value: `UNDEFINED`
 
 ### `DREVOPS_INSTALLER_URL`
 
@@ -878,11 +874,19 @@ Default value: `drupal`
 
 ### `DREVOPS_NOTIFY_DEPLOYMENT_SKIP`
 
+Flag to skip deployment notification.
+
 Default value: `UNDEFINED`
 
 ### `DREVOPS_NOTIFY_DEPLOY_BRANCH`
 
 Deployment reference, such as a git SHA.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_EMAIL_SKIP`
+
+Flag to skip Email deployment notification.
 
 Default value: `UNDEFINED`
 
@@ -904,7 +908,19 @@ Operation type: start or finish.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP`
+
+Flag to skip GitHub deployment notification.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP`
+
+Flag to skip NewRelic deployment notification.
 
 Default value: `UNDEFINED`
 
@@ -923,6 +939,12 @@ Default value: `UNDEFINED`
 ### `DREVOPS_NOTIFY_DEPLOY_JIRA_USER`
 
 JIRA user.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP`
+
+Flag to skip NewRelic deployment notification.
 
 Default value: `UNDEFINED`
 

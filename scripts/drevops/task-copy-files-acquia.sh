@@ -112,11 +112,11 @@ done
 echo
 
 if [ "${task_completed}" = "0" ] ; then
-  echo "ERROR: Unable to copy files from $AC_API_FILES_SRC_ENV to $AC_API_FILES_DST_ENV environment."
+  echo "ERROR: Unable to copy files from $DREVOPS_TASK_COPY_FILES_ACQUIA_SRC to $DREVOPS_TASK_COPY_FILES_ACQUIA_DST environment."
   exit 1
 fi
 
-echo "  > Successfully copied files from $AC_API_FILES_SRC_ENV to $AC_API_FILES_DST_ENV environment."
+echo "  > Successfully copied files from $DREVOPS_TASK_COPY_FILES_ACQUIA_SRC to $DREVOPS_TASK_COPY_FILES_ACQUIA_DST environment."
 
 self_elapsed_time=$((SECONDS))
 echo "  > Run duration: $((self_elapsed_time/60)) min $((self_elapsed_time%60)) sec."

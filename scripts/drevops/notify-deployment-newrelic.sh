@@ -6,8 +6,6 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-[ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] && echo "Skipping notify deployment." && exit 0
-
 # The API key. Usually of type 'USER'.
 DREVOPS_NOTIFY_NEWRELIC_APIKEY="${DREVOPS_NOTIFY_NEWRELIC_APIKEY:-}"
 
@@ -32,7 +30,15 @@ DREVOPS_NOTIFY_NEWRELIC_USER="${DREVOPS_NOTIFY_NEWRELIC_USER:-"Deployment robot"
 # Optional endpoint.
 DREVOPS_NOTIFY_NEWRELIC_ENDPOINT="${DREVOPS_NOTIFY_NEWRELIC_ENDPOINT:-https://api.newrelic.com/v2}"
 
+# Flag to skip notification.
+DREVOPS_NOTIFY_DEPLOYMENT_SKIP="${DREVOPS_NOTIFY_DEPLOYMENT_SKIP:-}"
+
+# Flag to skip NewRelic deployment notification.
+DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP="${DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP:-}"
+
 # ------------------------------------------------------------------------------
+
+{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP}" = "1" ]; } && echo "Skipping NewRelic notification of deployment." && exit 0
 
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_APIKEY}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_NEWRELIC_APIKEY" && exit 1
 [ -z "${DREVOPS_NOTIFY_DEPLOY_REF}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_REF" && exit 1
