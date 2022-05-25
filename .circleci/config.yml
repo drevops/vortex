@@ -138,7 +138,7 @@ aliases:
           DREVOPS_CI_DB_CACHE_BRANCH: *drevops_ci_db_cache_branch
           #;> !INSTALL_FROM_PROFILE
           # Directory to store code exported between jobs.
-          DREVOPS_EXPORT_CODE_DIR: &build_export_dir /workspace/code
+          DREVOPS_EXPORT_CODE_DIR: &drevops_build_export_dir /workspace/code
           # Directory to store test results.
           DREVOPS_TEST_REPORTS_DIR: &drevops_test_reports_dir /tmp/tests
           # Directory to store test artifacts.
@@ -146,7 +146,7 @@ aliases:
           # Use compact error reporting format.
           DREVOPS_TEST_BEHAT_FORMAT: progress_fail
           # Directory to use for artifact deployments.
-          DREVOPS_DEPLOY_ARTIFACT_SRC: *build_export_dir
+          DREVOPS_DEPLOY_ARTIFACT_SRC: *drevops_build_export_dir
           # Source code location for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
@@ -220,11 +220,11 @@ jobs:
             #: Lookup cache based on the default branch and a timestamp. Allows
             #: to use cache from the very first build on the day (sanitized
             #: database dump, for example).
-            - v5-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_TIMESTAMP" }}
+            - v1-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_TIMESTAMP" }}
             #:
             #: Fallback to caching by default branch name only. Allows to use
             #: cache from the branch build on the previous day.
-            - v5-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK" }}-
+            - v1-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK" }}-
       #: Download database and run post DB download commands: build site and
       #: export the database. Note that configuration changes and DB updates
       #: are not applied, so we could cache the database as it was downloaded.
@@ -237,7 +237,7 @@ jobs:
           # cache fallback flag is enabled for this case in order to
           # save cache even if fallback is not used when restoring it.
           # The cache will not be saved if it already exist.
-          key: v5-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_TIMESTAMP" }}
+          key: v1-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_TIMESTAMP" }}
           paths:
             - *db_cache_dir
 
@@ -280,8 +280,8 @@ jobs:
             # Use cached artifacts from previous builds of this branch ran at
             # any time.
             # https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v5-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_TIMESTAMP" }}
-            - v5-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK_YES" }}-
+            - v1-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK_YES" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_TIMESTAMP" }}
+            - v1-db9-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_BRANCH" }}-{{ checksum "/tmp/DREVOPS_CI_DB_CACHE_FALLBACK_YES" }}-
       #;> !INSTALL_FROM_PROFILE
       - run:
           name: Build site
@@ -649,10 +649,11 @@ workflows:
             branches:
               # Allowed branches:
               # - main, master, develop, ci, cisomething
+              # - deps/*
               # - release/123, release/123.456, release/123.456.789, release/123.456.789-rc123
               # - hotfix/123, hotfix/123.456, hotfix/123.456.789
               # - feature/description, feature/123-description, but not feature/9.x-description or feature/7.x-description
-              only: /main|master|develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-|9.x-)[a-zA-z0-9\-\.\,]+/
+              only: /main|master|develop|ci.*|deps\/.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-|9.x-)[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
       - deploy_tags:
