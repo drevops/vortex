@@ -19,6 +19,7 @@ VAR15;val16;
 VAR17;val17;
 VAR2;val2;
 VAR3;val3;
+VAR33;VAR32;
 VAR4;val4;
 VAR5;abc;
 VAR6;VAR5;
@@ -46,6 +47,7 @@ VAR13;val13;"And has an empty line before it without a content."
 VAR15;val16;
 VAR2;val2;
 VAR3;val3;
+VAR33;VAR32;
 VAR4;val4;
 VAR5;abc;
 VAR6;VAR5;
@@ -73,6 +75,7 @@ VAR13;val13;"And has an empty line before it without a content."
 VAR15;val16;
 VAR2;val2;
 VAR3;val3;
+VAR33;VAR32;
 VAR4;val4;
 VAR5;abc;
 VAR6;VAR5;
@@ -102,6 +105,7 @@ And has a comment with no content."
 `VAR17`;`val17`;
 `VAR2`;`val2`;
 `VAR3`;`val3`;
+`VAR33`;`VAR32`;
 `VAR4`;`val4`;
 `VAR5`;`abc`;
 `VAR6`;`VAR5`;
@@ -131,6 +135,7 @@ And has a comment with no content."
 `VAR17`;`val17`;
 `VAR2`;`val2`;
 `VAR3`;`val3`;
+`VAR33`;`VAR32`;
 `VAR4`;`val4`;
 `VAR5`;`abc`;
 `VAR6`;`VAR5`;
@@ -160,6 +165,7 @@ And has a comment with no content."
 `VAR17`;`val17`;
 `VAR2`;`val2`;
 `VAR3`;`val3`;
+`VAR33`;`VAR32`;
 `VAR4`;`val4`;
 `VAR5`;`abc`;
 `VAR6`;`VAR5`;
@@ -189,6 +195,7 @@ VAR15;val16;
 VAR17;val17;
 VAR2;val2bash;
 VAR3;val3;
+VAR33;VAR32;
 VAR4;val4;
 VAR5;abc;
 VAR6;VAR5;
@@ -218,6 +225,7 @@ VAR15;val16;
 VAR17;val17;
 VAR2;val2bash;
 VAR3;val3;
+VAR33;VAR32;
 VAR4;val4;
 VAR5;abc;
 VAR6;VAR5;
@@ -282,6 +290,10 @@ Default value: `val2`
 ### `VAR3`
 
 Default value: `val3`
+
+### `VAR33`
+
+Default value: `VAR32`
 
 ### `VAR4`
 

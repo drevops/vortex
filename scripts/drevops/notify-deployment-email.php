@@ -9,7 +9,7 @@
  * "https://environment-url-example.com"
  */
 
-if (getenv('DREVOPS_NOTIFY_DEPLOYMENT_SKIP')) {
+if (getenv('DREVOPS_NOTIFY_DEPLOYMENT_SKIP') || getenv('DREVOPS_NOTIFY_DEPLOY_EMAIL_SKIP')) {
   print "Skipping notify deployment.";
   exit;
 }

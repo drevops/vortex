@@ -64,6 +64,16 @@ function main(array $argv, $argc) {
     $all_variables = process_description_ticks($all_variables);
   }
 
+  // Exclude non-assignments.
+  array_walk($all_variables, function (&$value) {
+    if ($value['is_assignment']) {
+      unset($value['is_assignment']);
+      return;
+    }
+    $value = FALSE;
+  });
+  $all_variables = array_filter($all_variables);
+
   if (get_config('markdown') == 'table') {
     $csv = render_variables_data($all_variables);
     $csvTable = new CSVTable($csv, get_config('csv_delim'));
@@ -210,21 +220,31 @@ function extract_variables_from_file($file) {
       'name' => '',
       'default_value' => '',
       'description' => '',
+      'is_assignment' => FALSE,
     ];
 
-    $variable_name = extract_variable_name($line);
+    $variable_name_details = extract_variable_name($line);
 
-    // Only use the very first occurrence.
-    if (!empty($variables[$variable_name])) {
+    if (empty($variable_name_details)) {
       continue;
     }
 
+    // Only use the very first occurrence.
+    if (!empty($variables[$variable_name_details['name']])) {
+      continue;
+    }
+
+    $variable_name = $variable_name_details['name'];
+
     if ($variable_name) {
       $variable_data['name'] = $variable_name;
+      $variable_data['is_assignment'] = $variable_name_details['is_assignment'];
 
-      $variable_value = extract_variable_value($line);
-      if ($variable_value) {
-        $variable_data['default_value'] = $variable_value;
+      if ($variable_name_details['is_assignment']) {
+        $variable_value = extract_variable_value($line);
+        if ($variable_value) {
+          $variable_data['default_value'] = $variable_value;
+        }
       }
 
       $variable_desc = extract_variable_description($lines, $k);
@@ -245,12 +265,26 @@ function extract_variable_name($string) {
   if (!is_comment($string)) {
     // Assignment.
     if (preg_match('/^([a-zA-Z][a-zA-Z0-9_]*)=.*$/', $string, $matches)) {
-      return $matches[1];
+      return [
+        'name' => $matches[1],
+        'is_assignment' => TRUE,
+      ];
     }
 
-    // Usage.
-    if (preg_match('/\${?([a-zA-Z][a-zA-Z0-9_]*)/', $string, $matches)) {
-      return $matches[1];
+    // Usage as ${variable}.
+    if (preg_match('/\${([a-zA-Z][a-zA-Z0-9_]*)}/', $string, $matches)) {
+      return [
+        'name' => $matches[1],
+        'is_assignment' => FALSE,
+      ];
+    }
+
+    // Usage as $variable.
+    if (preg_match('/\$([a-zA-Z][a-zA-Z0-9_]*)/', $string, $matches)) {
+      return [
+        'name' => $matches[1],
+        'is_assignment' => FALSE,
+      ];
     }
   }
   return FALSE;

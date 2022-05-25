@@ -10,8 +10,6 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${SKIP_NOTIFY_GITHUB_DEPLOYMENT}" = "1" ]; } && echo "Skipping notification of GitHub deployment." && exit 0
-
 # JIRA user.
 DREVOPS_NOTIFY_DEPLOY_JIRA_USER="${DREVOPS_NOTIFY_DEPLOY_JIRA_USER:-}"
 
@@ -35,7 +33,15 @@ DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE="${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE:-}"
 # JIRA API endpoint.l
 DREVOPS_NOTIFY_JIRA_ENDPOINT="${DREVOPS_NOTIFY_JIRA_ENDPOINT:-https://jira.atlassian.com}"
 
+# Flag to skip notification.
+DREVOPS_NOTIFY_DEPLOYMENT_SKIP="${DREVOPS_NOTIFY_DEPLOYMENT_SKIP:-}"
+
+# Flag to skip NewRelic deployment notification.
+DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP="${DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP:-}"
+
 # ------------------------------------------------------------------------------
+
+{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP}" = "1" ]; } && echo "Skipping JIRA notification of deployment." && exit 0
 
 [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_USER" && exit 1
 [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN" && exit 1

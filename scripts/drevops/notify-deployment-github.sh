@@ -10,8 +10,6 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${SKIP_NOTIFY_GITHUB_DEPLOYMENT}" = "1" ]; } && echo "Skipping notification of GitHub deployment." && exit 0
-
 # Deployment GitHub token.
 DREVOPS_NOTIFY_GITHUB_TOKEN="${DREVOPS_NOTIFY_GITHUB_TOKEN:-${GITHUB_TOKEN}}"
 
@@ -30,7 +28,15 @@ DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL="${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL:-
 # Deployment environment type: production, uat, dev, pr.
 DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE="${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE:-PR}"
 
+# Flag to skip deployment notification.
+DREVOPS_NOTIFY_DEPLOYMENT_SKIP="${DREVOPS_NOTIFY_DEPLOYMENT_SKIP:-}"
+
+# Flag to skip GitHub deployment notification.
+DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP="${DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP:-}"
+
 # ------------------------------------------------------------------------------
+
+{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP}" = "1" ]; } && echo "Skipping GitHub notification of deployment." && exit 0
 
 [ -z "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_GITHUB_TOKEN" && exit 1
 [ -z "${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_REPOSITORY" && exit 1
