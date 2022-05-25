@@ -380,7 +380,7 @@ jobs:
           # Make sure that correct repository is specified or bot will go
           # through all repositories that a RENOVATE_TOKEN token has access to.
           RENOVATE_REPOSITORIES: 'your_org/your_site'
-          # Set to 'false' once setup is complete and at bot ran at least once without errors.
+          # Set to 'false' once setup is complete and a bot ran at least once without errors.
           RENOVATE_DRY_RUN: true
           LOG_LEVEL: debug
     steps:
@@ -771,7 +771,7 @@ workflows:
   renovatebot_self_hosted:
     triggers:
       - schedule:
-          cron: "15 * * * *"
+          cron: "5 11,23 * * *"
           filters:
             branches:
               only:
