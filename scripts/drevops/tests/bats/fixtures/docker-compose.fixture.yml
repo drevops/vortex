@@ -22,8 +22,8 @@ services:
       lagoon.type: none
     shm_size: 1gb
     volumes:
-    - app:/app:rw
-    - files:/app/docroot/sites/default/files:rw
+      - app:/app:rw
+      - files:/app/docroot/sites/default/files:rw
   cli:
     build:
       context: FIXTURE_CUR_DIR
@@ -44,11 +44,11 @@ services:
       lagoon.persistent.name: nginx-php
       lagoon.type: cli-persistent
     ports:
-    - target: 35729
+      - target: 35729
     user: root
     volumes:
-    - app:/app:rw
-    - files:/app/docroot/sites/default/files:rw
+      - app:/app:rw
+      - files:/app/docroot/sites/default/files:rw
   mariadb:
     build:
       args:
@@ -68,7 +68,7 @@ services:
     labels:
       lagoon.type: mariadb
     ports:
-    - target: 3306
+      - target: 3306
   nginx:
     build:
       args:
@@ -98,8 +98,8 @@ services:
       default: null
     user: '1000'
     volumes:
-    - app:/app:rw
-    - files:/app/docroot/sites/default/files:rw
+      - app:/app:rw
+      - files:/app/docroot/sites/default/files:rw
   php:
     build:
       args:
@@ -126,8 +126,8 @@ services:
       lagoon.type: nginx-php-persistent
     user: '1000'
     volumes:
-    - app:/app:rw
-    - files:/app/docroot/sites/default/files:rw
+      - app:/app:rw
+      - files:/app/docroot/sites/default/files:rw
   redis:
     image: uselagoon/redis-6:22.4.1
     labels:
@@ -151,7 +151,7 @@ services:
     labels:
       lagoon.type: solr
     ports:
-    - target: 8983
+      - target: 8983
     user: '1000'
   wait_dependencies:
     command: mariadb:3306
