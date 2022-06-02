@@ -433,35 +433,35 @@ load _helper
   assert_failure
 }
 
-@test "assert_files_equal" {
+@test "assert_binary_files_equal" {
   cp "${BATS_TEST_DIRNAME}/fixtures/fixture.png" "${BATS_TEST_TMPDIR}/fixture1.png"
   echo "some other file" > "${BATS_TEST_TMPDIR}/fixture2.png"
 
-  assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture1.png"
+  assert_binary_files_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture1.png"
 
-  run assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture2.png"
+  run assert_binary_files_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture2.png"
   assert_failure
 
-  run assert_files_equal "${BATS_TEST_TMPDIR}/fixture3.png" "${BATS_TEST_TMPDIR}/fixture4.png"
+  run assert_binary_files_equal "${BATS_TEST_TMPDIR}/fixture3.png" "${BATS_TEST_TMPDIR}/fixture4.png"
   assert_failure
 
-  run assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture3.png"
+  run assert_binary_files_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture3.png"
   assert_failure
 }
 
-@test "assert_files_not_equal" {
+@test "assert_binary_files_not_equal" {
   cp "${BATS_TEST_DIRNAME}/fixtures/fixture.png" "${BATS_TEST_TMPDIR}/fixture1.png"
   echo "some other file" > "${BATS_TEST_TMPDIR}/fixture2.png"
 
-  assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture2.png"
+  assert_binary_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture2.png"
 
-  run assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture1.png"
+  run assert_binary_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture1.png"
   assert_failure
 
-  run assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture3.png" "${BATS_TEST_TMPDIR}/fixture1.png"
+  run assert_binary_files_not_equal "${BATS_TEST_TMPDIR}/fixture3.png" "${BATS_TEST_TMPDIR}/fixture1.png"
   assert_failure
 
-  run assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture3.png"
+  run assert_binary_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.png" "${BATS_TEST_TMPDIR}/fixture3.png"
   assert_failure
 }
 
