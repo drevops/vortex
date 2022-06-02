@@ -433,6 +433,74 @@ load _helper
   assert_failure
 }
 
+@test "assert_files_equal" {
+  cp "${BATS_TEST_DIRNAME}/fixtures/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture1.txt"
+  cp "${BATS_TEST_DIRNAME}/fixtures/fixture1_newline.txt" "${BATS_TEST_TMPDIR}/fixture1_newline.txt"
+  cp "${BATS_TEST_DIRNAME}/fixtures/fixture2.txt" "${BATS_TEST_TMPDIR}/fixture2.txt"
+
+  assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture1.txt"
+
+  run assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture2.txt"
+  assert_failure
+  assert_output_contains "< Third line"
+  assert_output_contains "> Third line changed"
+
+  run assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture1_newline.txt"
+  assert_failure
+  assert_output_contains "<"
+
+  run assert_files_equal "${BATS_TEST_TMPDIR}/fixture3.txt" "${BATS_TEST_TMPDIR}/fixture4.txt"
+  assert_failure
+
+  run assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture3.txt"
+  assert_failure
+
+  # Same as above, but ignoring whitespace.
+  cp "${BATS_TEST_DIRNAME}/fixtures/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture1.txt"
+  cp "${BATS_TEST_DIRNAME}/fixtures/fixture1_newline.txt" "${BATS_TEST_TMPDIR}/fixture1_newline.txt"
+  cp "${BATS_TEST_DIRNAME}/fixtures/fixture2.txt" "${BATS_TEST_TMPDIR}/fixture2.txt"
+
+  assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture1.txt"
+  assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture1_newline.txt" 1
+
+  run assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture2.txt"
+  assert_failure
+  assert_output_contains "< Third line"
+  assert_output_contains "> Third line changed"
+
+  run assert_files_equal "${BATS_TEST_TMPDIR}/fixture3.txt" "${BATS_TEST_TMPDIR}/fixture4.txt"
+  assert_failure
+
+  run assert_files_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture3.txt"
+  assert_failure
+}
+
+@test "assert_files_not_equal" {
+  cp "${BATS_TEST_DIRNAME}/fixtures/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture1.txt"
+  cp "${BATS_TEST_DIRNAME}/fixtures/fixture1_newline.txt" "${BATS_TEST_TMPDIR}/fixture1_newline.txt"
+  cp "${BATS_TEST_DIRNAME}/fixtures/fixture2.txt" "${BATS_TEST_TMPDIR}/fixture2.txt"
+
+  assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture2.txt"
+  assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture1_newline.txt"
+
+  run assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture1.txt"
+  assert_failure
+  assert_output_not_contains "< Third line"
+  assert_output_not_contains "> Third line changed"
+
+  run assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture1_newline.txt" 1
+  assert_failure
+  assert_output_not_contains "<"
+
+  run assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture3.txt" "${BATS_TEST_TMPDIR}/fixture1.txt"
+  assert_failure
+
+  run assert_files_not_equal "${BATS_TEST_TMPDIR}/fixture1.txt" "${BATS_TEST_TMPDIR}/fixture3.txt"
+  assert_failure
+
+  # Same as above, but ignoring whitespace.
+}
+
 @test "assert_binary_files_equal" {
   cp "${BATS_TEST_DIRNAME}/fixtures/fixture.png" "${BATS_TEST_TMPDIR}/fixture1.png"
   echo "some other file" > "${BATS_TEST_TMPDIR}/fixture2.png"
