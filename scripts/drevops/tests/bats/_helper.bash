@@ -324,7 +324,7 @@ assert_git_file_is_not_tracked() {
   fi
 }
 
-assert_files_equal() {
+assert_binary_files_equal() {
   local file1="${1}"
   local file2="${2}"
 
@@ -338,7 +338,7 @@ assert_files_equal() {
   fi
 }
 
-assert_files_not_equal() {
+assert_binary_files_not_equal() {
   local file1="${1}"
   local file2="${2}"
 
@@ -360,11 +360,11 @@ assert_dirs_equal() {
   assert_dir_exists "${dir2}" || return 1
 
   for file in $(find "${dir1}/" -type f); do
-    assert_files_equal "${file}" "${file/${dir1}/${dir2}}" || return 1
+    assert_binary_files_equal "${file}" "${file/${dir1}/${dir2}}" || return 1
   done
 
   for file in $(find "${dir2}/" -type f); do
-    assert_files_equal "${file}" "${file/${dir2}/${dir1}}" || return 1
+    assert_binary_files_equal "${file}" "${file/${dir2}/${dir1}}" || return 1
   done
 
   return 0

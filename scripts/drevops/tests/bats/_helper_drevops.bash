@@ -364,7 +364,7 @@ assert_files_present_drupal(){
   assert_file_exists "docroot/themes/custom/${suffix}/package.json"
 
   # Comparing binary files.
-  assert_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
+  assert_binary_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
 
   # Drupal scaffolding files exist.
   assert_file_exists "docroot/.editorconfig"

@@ -246,5 +246,5 @@ load _helper_drevops
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds"
   assert_git_repo "${DST_PROJECT_DIR}"
 
-  assert_files_equal "${LOCAL_REPO_DIR}/tests/behat/fixtures/image.jpg" "${DST_PROJECT_DIR}/tests/behat/fixtures/image.jpg"
+  assert_binary_files_equal "${LOCAL_REPO_DIR}/tests/behat/fixtures/image.jpg" "${DST_PROJECT_DIR}/tests/behat/fixtures/image.jpg"
 }
