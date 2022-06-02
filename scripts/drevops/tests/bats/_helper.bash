@@ -3,7 +3,7 @@
 # @file
 # Bats test helpers.
 #
-# shellcheck disable=SC2119,SC2120,SC2044
+# shellcheck disable=SC2119,SC2120,SC2044,SC2294
 
 # Guard against bats executing this twice
 if [ -z "$TEST_PATH_INITIALIZED" ]; then

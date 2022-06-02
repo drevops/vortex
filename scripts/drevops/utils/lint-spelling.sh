@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2181,SC2016,SC2002
 ##
 # Check spelling.
 #
+# shellcheck disable=SC2181,SC2016,SC2002,SC2266
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
