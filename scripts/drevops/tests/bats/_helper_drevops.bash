@@ -32,7 +32,7 @@ load "${BASH_SOURCE[0]%/*}"/_mock.bash
 setup() {
   export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
   export CUR_DIR="$(pwd)"
-  export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR}/drevops-$(random_string)"}"
+  export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR//\/\//\/}/drevops-$(random_string)"}"
 
   export CURRENT_PROJECT_DIR="${BUILD_DIR}/star_wars"
   export DST_PROJECT_DIR="${BUILD_DIR}/dst"

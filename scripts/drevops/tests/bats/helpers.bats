@@ -8,6 +8,13 @@
 
 load _helper
 
+@test "bats_internals" {
+  echo "Bats version ${BATS_VERSION}">&3
+  [ "${BATS_FILE_TMPDIR}" != "" ]
+  [ "${BATS_TEST_TMPDIR}" != "" ]
+  [ "${BATS_SUITE_TMPDIR}" != "" ]
+}
+
 @test "assert_success" {
   status=0
   assert_success
