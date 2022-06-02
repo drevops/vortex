@@ -21,7 +21,7 @@ load _helper_drevops
 
   prepare_docker_compose_fixture
 
-  assert_binary_files_equal docker-compose.actual.yml docker-compose.expected.yml
+  assert_files_equal docker-compose.actual.yml docker-compose.expected.yml 1
 }
 
 @test "Docker Compose: default without .env" {
@@ -36,7 +36,7 @@ load _helper_drevops
 
   prepare_docker_compose_fixture
 
-  assert_binary_files_equal docker-compose.actual.yml docker-compose.expected2.yml
+  assert_files_equal docker-compose.actual.yml docker-compose.expected2.yml 1
 }
 
 prepare_docker_compose() {
