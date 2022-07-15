@@ -11,9 +11,12 @@
     <arg name="colors"/>
     <arg value="sp"/>
     <arg name="parallel" value="75"/>
-    <!--Lint code against platform version specified in composer.json
-    key "config.platform.php".-->
+    <!-- Lint code against platform version specified in composer.json key "config.platform.php". -->
     <config name="testVersion" value="8.0"/>
+
+    <!-- Exclude CircleCI config files. -->
+    <exclude-pattern>circle\.yml</exclude-pattern>
+    <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
 
     <!-- Exclude theme assets. -->
     <exclude-pattern>docroot\/themes\/custom\/.*\/build\/.*</exclude-pattern>
@@ -22,113 +25,30 @@
     <exclude-pattern>docroot\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>
     <exclude-pattern>*\.min\.*</exclude-pattern>
 
-    <!-- Exclude CircleCI config files. -->
-    <exclude-pattern>circle\.yml</exclude-pattern>
-    <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
-
-    <!--Force short array syntax.-->
-    <rule ref="Generic.Arrays.DisallowLongArraySyntax.Found">
+    <!-- Force no empty lines after function opening brace. -->
+    <rule ref="Squiz.WhiteSpace.FunctionOpeningBraceSpace">
         <type>warning</type>
     </rule>
 
-    <!--Allow global variables in settings file.-->
-    <rule ref="DrupalPractice.CodeAnalysis.VariableAnalysis.UndefinedVariable">
-        <exclude-pattern>settings\.php</exclude-pattern>
-    </rule>
-    <rule ref="DrupalPractice.Variables.GetRequestData.SuperglobalAccessedWithVar">
-        <exclude-pattern>settings\.php</exclude-pattern>
+    <!-- Force no empty lines before control structure closing. -->
+    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose">
+        <type>warning</type>
     </rule>
 
-    <!--Allow section separators in files.-->
-    <rule ref="DrupalPractice.Commenting.CommentEmptyLine.SpacingAfter">
-        <exclude-pattern>settings\.php</exclude-pattern>
-        <exclude-pattern>\.install</exclude-pattern>
-    </rule>
-    <rule ref="Drupal.Commenting.InlineComment.InvalidEndChar">
-        <exclude-pattern>settings\.php</exclude-pattern>
-        <exclude-pattern>\.install</exclude-pattern>
-    </rule>
-    <rule ref="Drupal.Commenting.InlineComment.NoSpaceBefore">
-        <exclude-pattern>settings\.php</exclude-pattern>
-        <exclude-pattern>\.install</exclude-pattern>
-    </rule>
-    <rule ref="Drupal.Commenting.InlineComment.SpacingAfter">
-        <exclude-pattern>settings\.php</exclude-pattern>
-        <exclude-pattern>\.install</exclude-pattern>
+    <!-- Force no empty lines after control structure closing. -->
+    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.LineAfterClose">
+        <type>warning</type>
     </rule>
 
-    <!--Allow arrays with and without specified keys in install files.-->
-    <rule ref="Squiz.Arrays.ArrayDeclaration.KeySpecified">
-        <exclude-pattern>*\.install</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.Arrays.ArrayDeclaration.NoKeySpecified">
-        <exclude-pattern>*\.install</exclude-pattern>
-    </rule>
-
-    <!--Allow version in custom modules.-->
-    <rule ref="Drupal.InfoFiles.AutoAddedKeys.Version">
-        <exclude-pattern>custom/*\.info\.yml</exclude-pattern>
-    </rule>
-
-    <!--Do not re quire dependencies namespace in profiles.-->
-    <rule ref="DrupalPractice.InfoFiles.NamespacedDependency.NonNamespaced">
-        <exclude-pattern>profiles\/*/*\.info\.yml</exclude-pattern>
-    </rule>
-
-    <!--Allow uncommented functions in tests as they usually provide enough
-    information from their names.-->
-    <rule ref="Drupal.Commenting.DocComment.MissingShort">
-        <exclude-pattern>*.Test\.php</exclude-pattern>
-        <exclude-pattern>*.TestCase\.php</exclude-pattern>
-        <exclude-pattern>*.test</exclude-pattern>
-        <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
-    </rule>
-    <rule ref="Drupal.Commenting.FunctionComment.Missing">
-        <exclude-pattern>*.Test\.php</exclude-pattern>
-        <exclude-pattern>*.TestCase\.php</exclude-pattern>
-        <exclude-pattern>*.test</exclude-pattern>
-        <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
-    </rule>
-
-    <!--Allow long array lines in tests.-->
+    <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
         <exclude-pattern>*.Test\.php</exclude-pattern>
         <exclude-pattern>*.TestCase\.php</exclude-pattern>
         <exclude-pattern>*.test</exclude-pattern>
     </rule>
 
-    <!-- Ignore Prefixing class names with project name in module behat tests.-->
+    <!-- Ignore Prefixing class names with project name in module behat tests. -->
     <rule ref="DrupalPractice.General.ClassName.ClassPrefix">
         <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
-    </rule>
-
-    <!-- Allow inline block comments until https://www.drupal.org/project/drupal/issues/2305593 is resolved. -->
-    <rule ref="Drupal.Commenting.InlineComment.DocBlock">
-        <exclude-pattern>.*</exclude-pattern>
-    </rule>
-
-    <!--Force no empty lines after function opening brace.-->
-    <rule ref="Squiz.WhiteSpace.FunctionOpeningBraceSpace">
-      <type>warning</type>
-    </rule>
-
-    <!--Force no empty lines before function closing brace.-->
-    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen">
-      <type>warning</type>
-    </rule>
-
-    <!--Force no empty lines before control structure closing.-->
-    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose">
-      <type>warning</type>
-    </rule>
-
-    <!--Force no empty lines after control structure closing.-->
-    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.LineAfterClose">
-      <type>warning</type>
-    </rule>
-
-    <!--Do not scan .js files for uppercase TRUE/FALSE.-->
-    <rule ref="Generic.PHP.UpperCaseConstant.Found">
-        <exclude-pattern>*\.js</exclude-pattern>
     </rule>
 </ruleset>

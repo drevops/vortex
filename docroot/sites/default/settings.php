@@ -15,7 +15,10 @@
  *
  * Create settings.local.php file to include local settings overrides.
  *
- * @phpcs:ignoreFile DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable
+ * @phpcs:disable Drupal.Commenting.InlineComment.NoSpaceBefore
+ * @phpcs:disable Drupal.Commenting.InlineComment.SpacingAfter
+ * @phpcs:disable DrupalPractice.Commenting.CommentEmptyLine.SpacingAfter
+ * @phpcs:disable DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable
  */
 
 ////////////////////////////////////////////////////////////////////////////////
