@@ -127,4 +127,8 @@
       <type>warning</type>
     </rule>
 
+    <!--Do not scan .js files for uppercase TRUE/FALSE.-->
+    <rule ref="Generic.PHP.UpperCaseConstant.Found">
+        <exclude-pattern>*\.js</exclude-pattern>
+    </rule>
 </ruleset>
