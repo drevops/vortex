@@ -30,6 +30,7 @@ scripts/drevops/utils/lint-spelling.sh
 
 echo "==> Test BATS helpers."
 bats scripts/drevops/tests/bats/helpers.bats --tap
+bats scripts/drevops/tests/bats/helpers_drevops.bats --tap
 
 echo "==> Test BATS mock."
 bats scripts/drevops/tests/bats/mock.bats --tap
