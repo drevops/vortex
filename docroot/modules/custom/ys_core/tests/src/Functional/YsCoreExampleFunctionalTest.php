@@ -12,6 +12,8 @@ namespace Drupal\Tests\ys_core\Functional;
 class YsCoreExampleFunctionalTest extends YsCoreFunctionalTestBase {
 
   /**
+   * Tests addition.
+   *
    * @dataProvider dataProviderAdd
    */
   public function testAdd($a, $b, $expected, $expectExceptionMessage = NULL) {
@@ -26,6 +28,9 @@ class YsCoreExampleFunctionalTest extends YsCoreFunctionalTestBase {
     $this->assertEquals($expected, $actual);
   }
 
+  /**
+   * Data provider for testAdd().
+   */
   public function dataProviderAdd() {
     return [
       [0, 0, 0],
