@@ -170,9 +170,9 @@ $databases = [];
  * information on these defaults and the potential issues.
  *
  * More details can be found in the constructor methods for each driver:
- * - \Drupal\Core\Database\Driver\mysql\Connection::__construct()
- * - \Drupal\Core\Database\Driver\pgsql\Connection::__construct()
- * - \Drupal\Core\Database\Driver\sqlite\Connection::__construct()
+ * - \Drupal\mysql\Driver\Database\mysql\Connection::__construct()
+ * - \Drupal\pgsql\Driver\Database\pgsql\Connection::__construct()
+ * - \Drupal\sqlite\Driver\Database\sqlite\Connection::__construct()
  *
  * Sample Database configuration format for PostgreSQL (pgsql):
  * @code
@@ -703,6 +703,8 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
  * @endcode
  * will allow the site to run off of all variants of example.com and
  * example.org, with all subdomains included.
+ *
+ * @see https://www.drupal.org/docs/installing-drupal/trusted-host-settings
  */
 
 /**
