@@ -31,7 +31,7 @@
     "build": "grunt",
     "build-dev": "grunt dev",
     "lint": "grunt lint",
-    "watch": "grunt watch",
+    "watch": "grunt watch-dev",
     "postinstall": "patch-package"
   }
 }
