@@ -67,8 +67,6 @@ drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/
 # Note that "flag" variable values are printed as-is to make it easy to visually
 # assert their values.
 echo
-echo "  > Drush binary                 : ${drush}"
-echo "  > Drush version                : $($drush --version)"
 echo "  > App dir                      : ${DREVOPS_APP}"
 echo "  > Site name                    : ${DREVOPS_DRUPAL_SITE_NAME}"
 echo "  > Site email                   : ${DREVOPS_DRUPAL_SITE_EMAIL}"
@@ -82,6 +80,9 @@ echo "  > Private files directory      : ${DREVOPS_DRUPAL_PRIVATE_FILES}"
 echo "  > Config path                  : ${DREVOPS_DRUPAL_CONFIG_PATH}"
 echo "  > Config directory label       : ${DREVOPS_DRUPAL_CONFIG_LABEL}"
 echo "  > DB dump file path            : ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
+echo "  > Drush binary                 : ${drush}"
+echo "  > Drush version                : $($drush --version)"
+echo "  > Drupal core version          : $(drush status --field=drupal-version)"
 
 site_is_installed="$($drush status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
 echo "  > Existing site found          : ${site_is_installed}"

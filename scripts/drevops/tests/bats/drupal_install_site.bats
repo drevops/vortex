@@ -24,6 +24,9 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > DB dump file path            : ${LOCAL_REPO_DIR}/.data/db.sql"
   assert_output_contains "  > Existing site found          : ${6:-0}"
   assert_output_contains "  > Configuration files present  : ${7:-0}"
+  assert_output_contains "  > Drush binary                 :"
+  assert_output_contains "  > Drush version                :"
+  assert_output_contains "  > Drupal core version          :"
 }
 
 @test "Site install: DB; no site" {
@@ -39,41 +42,45 @@ assert_drupal_install_site_info(){
   mock_drush=$(mock_command "drush")
   # Drush version.
   mock_set_output "${mock_drush}" "Mocked drush version" 1
+  # Drupal core version.
+  mock_set_output "${mock_drush}" "Mocked core version" 2
   # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "fail" 2
+  mock_set_output "${mock_drush}" "fail" 3
   # 2 calls to import DB from file.
-  mock_set_status "${mock_drush}" 0 3
   mock_set_status "${mock_drush}" 0 4
-  # Enable maintenance mode.
   mock_set_status "${mock_drush}" 0 5
-  # Running updates.
+  # Enable maintenance mode.
   mock_set_status "${mock_drush}" 0 6
-  # Rebuild cache.
+  # Running updates.
   mock_set_status "${mock_drush}" 0 7
+  # Rebuild cache.
+  mock_set_status "${mock_drush}" 0 8
   # Environment name.
-  mock_set_output "${mock_drush}" "ci" 8
+  mock_set_output "${mock_drush}" "ci" 9
   # List all drush commands to check for pciu command presence.
-  mock_set_output "${mock_drush}" "none" 9
+  mock_set_output "${mock_drush}" "none" 10
   # Sanitization commands.
-  mock_set_status "${mock_drush}" 0 10
   mock_set_status "${mock_drush}" 0 11
   mock_set_status "${mock_drush}" 0 12
   mock_set_status "${mock_drush}" 0 13
+  mock_set_status "${mock_drush}" 0 14
   # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 14
+  mock_set_output "${mock_drush}" "ci" 15
   # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 15
+  mock_set_status "${mock_drush}" 0 16
   # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 16
-  mock_set_output "${mock_drush}" "admin" 17
-  mock_set_status "${mock_drush}" 0 18
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 19
+  mock_set_output "${mock_drush}" "none" 17
+  mock_set_output "${mock_drush}" "admin" 18
+  mock_set_status "${mock_drush}" 0 19
+  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 20
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 2)"
+  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
+
+  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
 
   assert_drupal_install_site_info 0 0 0 1 0 0 0
 
@@ -88,8 +95,8 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Successfully imported database from dump file."
   assert_output_contains "========================================"
 
-  assert_equal "-q sql-drop -y" "$(mock_get_call_args "${mock_drush}" 3)"
-  assert_equal "sqlc" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "-q sql-drop -y" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "sqlc" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_not_contains "ERROR: Unable to import database from file."
   assert_output_not_contains "       Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
@@ -108,10 +115,10 @@ assert_drupal_install_site_info(){
   assert_output_contains "==> Running post-install operations."
 
   assert_output_contains "==> Enabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 6)"
 
   assert_output_contains "==> Running database updates."
-  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 6)"
+  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 7)"
 
   assert_output_contains "==> Importing Drupal configuration if it exists."
   assert_output_not_contains "  > Updated site UUID from the configuration with"
@@ -120,24 +127,24 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
 
   assert_output_contains "==> Rebuilding cache."
-  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 7)"
+  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 8)"
 
   assert_output_contains "==> Current Drupal environment: ci"
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 8)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
 
   assert_output_not_contains "==> Running post config import updates."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 9)"
+  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   # Sanitization is skipped for the existing database.
   assert_output_contains "==> Started database sanitization."
   assert_output_contains "  > Sanitizing database using drush sql-sanitize."
-  assert_equal "sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost -y" "$(mock_get_call_args "${mock_drush}" 10)"
+  assert_equal "sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost -y" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_output_not_contains "  > Updating username with user email."
   assert_output_contains "  > Applying custom sanitization commands from file ${LOCAL_REPO_DIR}/scripts/sanitize.sql"
-  assert_equal "sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_equal "sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "  > Resetting user 0 username and email."
-  assert_equal "sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_equal "sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
   assert_output_not_contains "  > Updating user 1 email"
   assert_output_contains "==> Finished database sanitization."
   assert_output_not_contains "==> Skipped database sanitization."
@@ -146,16 +153,16 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Started example post site install operations."
   assert_output_contains "    Executing example operations in non-production environment."
   assert_output_contains "  > Finished example post site install operations."
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 14)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 15)"
 
   assert_output_contains "==> Disabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 15)"
+  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 16)"
 
   # One-time login link.
-  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 17)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 18)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 19)"
+  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 17)"
+  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 18)"
+  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 19)"
+  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 20)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "==> Finished site installation."
@@ -175,33 +182,37 @@ assert_drupal_install_site_info(){
   mock_drush=$(mock_command "drush")
   # Drush version.
   mock_set_output "${mock_drush}" "Mocked drush version" 1
+  # Drupal core version.
+  mock_set_output "${mock_drush}" "Mocked core version" 2
   # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "Successful" 2
+  mock_set_output "${mock_drush}" "Successful" 3
   # Enable maintenance mode.
-  mock_set_status "${mock_drush}" 0 3
-  # Running updates.
   mock_set_status "${mock_drush}" 0 4
-  # Rebuild cache.
+  # Running updates.
   mock_set_status "${mock_drush}" 0 5
+  # Rebuild cache.
+  mock_set_status "${mock_drush}" 0 6
   # Environment name.
-  mock_set_output "${mock_drush}" "ci" 6
+  mock_set_output "${mock_drush}" "ci" 7
   # List all drush commands to check for pciu command presence.
-  mock_set_output "${mock_drush}" "none" 7
+  mock_set_output "${mock_drush}" "none" 8
   # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 8
+  mock_set_output "${mock_drush}" "ci" 9
   # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 9
+  mock_set_status "${mock_drush}" 0 10
   # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 10
-  mock_set_output "${mock_drush}" "admin" 11
-  mock_set_status "${mock_drush}" 0 12
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 13
+  mock_set_output "${mock_drush}" "none" 11
+  mock_set_output "${mock_drush}" "admin" 12
+  mock_set_status "${mock_drush}" 0 13
+  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 14
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 2)"
+  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
+
+  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
 
   assert_drupal_install_site_info 0 0 0 1 0 1 0
 
@@ -229,10 +240,10 @@ assert_drupal_install_site_info(){
   assert_output_contains "==> Running post-install operations."
 
   assert_output_contains "==> Enabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 3)"
+  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 4)"
 
   assert_output_contains "==> Running database updates."
-  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_contains "==> Importing Drupal configuration if it exists."
   assert_output_not_contains "  > Updated site UUID from the configuration with"
@@ -241,13 +252,13 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
 
   assert_output_contains "==> Rebuilding cache."
-  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 6)"
 
   assert_output_contains "==> Current Drupal environment: ci"
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 6)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 7)"
 
   assert_output_not_contains "==> Running post config import updates."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 7)"
+  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 8)"
 
   # Sanitization is skipped for the existing database.
   assert_output_contains "==> Skipped database sanitization."
@@ -263,16 +274,16 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Started example post site install operations."
   assert_output_contains "    Executing example operations in non-production environment."
   assert_output_contains "  > Finished example post site install operations."
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 8)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
 
   assert_output_contains "==> Disabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 9)"
+  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 10)"
 
   # One-time login link.
-  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 10)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 11)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 12)"
+  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 14)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "==> Finished site installation."
@@ -292,43 +303,48 @@ assert_drupal_install_site_info(){
   touch "${LOCAL_REPO_DIR}/.data/db.sql"
 
   mock_drush=$(mock_command "drush")
+
   # Drush version.
   mock_set_output "${mock_drush}" "Mocked drush version" 1
+  # Drupal core version.
+  mock_set_output "${mock_drush}" "Mocked core version" 2
   # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "Successful" 2
+  mock_set_output "${mock_drush}" "Successful" 3
   # 2 calls to import DB from file.
-  mock_set_status "${mock_drush}" 0 3
   mock_set_status "${mock_drush}" 0 4
-  # Enable maintenance mode.
   mock_set_status "${mock_drush}" 0 5
-  # Running updates.
+  # Enable maintenance mode.
   mock_set_status "${mock_drush}" 0 6
-  # Rebuild cache.
+  # Running updates.
   mock_set_status "${mock_drush}" 0 7
+  # Rebuild cache.
+  mock_set_status "${mock_drush}" 0 8
   # Environment name.
-  mock_set_output "${mock_drush}" "ci" 8
+  mock_set_output "${mock_drush}" "ci" 9
   # List all drush commands to check for pciu command presence.
-  mock_set_output "${mock_drush}" "none" 9
+  mock_set_output "${mock_drush}" "none" 10
   # Sanitization commands.
-  mock_set_status "${mock_drush}" 0 10
   mock_set_status "${mock_drush}" 0 11
   mock_set_status "${mock_drush}" 0 12
   mock_set_status "${mock_drush}" 0 13
+  mock_set_status "${mock_drush}" 0 14
   # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 14
+  mock_set_output "${mock_drush}" "ci" 15
   # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 15
+  mock_set_status "${mock_drush}" 0 16
   # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 16
-  mock_set_output "${mock_drush}" "admin" 17
-  mock_set_status "${mock_drush}" 0 18
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 19
+  mock_set_output "${mock_drush}" "none" 17
+  mock_set_output "${mock_drush}" "admin" 18
+  mock_set_status "${mock_drush}" 0 19
+  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 20
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 2)"
+  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
+
+  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
 
   assert_drupal_install_site_info 0 1 0 1 0 1 0
 
@@ -343,8 +359,8 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Successfully imported database from dump file."
   assert_output_contains "========================================"
 
-  assert_equal "-q sql-drop -y" "$(mock_get_call_args "${mock_drush}" 3)"
-  assert_equal "sqlc" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "-q sql-drop -y" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "sqlc" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_not_contains "  > Site content will be preserved."
   assert_output_not_contains "  > Sanitization will be skipped for an existing database."
@@ -359,10 +375,10 @@ assert_drupal_install_site_info(){
   assert_output_contains "==> Running post-install operations."
 
   assert_output_contains "==> Enabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 6)"
 
   assert_output_contains "==> Running database updates."
-  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 6)"
+  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 7)"
 
   assert_output_contains "==> Importing Drupal configuration if it exists."
   assert_output_not_contains "  > Updated site UUID from the configuration with"
@@ -371,23 +387,23 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
 
   assert_output_contains "==> Rebuilding cache."
-  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 7)"
+  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 8)"
 
   assert_output_contains "==> Current Drupal environment: ci"
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 8)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
 
   assert_output_not_contains "==> Running post config import updates."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 9)"
+  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "==> Started database sanitization."
   assert_output_contains "  > Sanitizing database using drush sql-sanitize."
-  assert_equal "sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost -y" "$(mock_get_call_args "${mock_drush}" 10)"
+  assert_equal "sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost -y" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_output_not_contains "  > Updating username with user email."
   assert_output_contains "  > Applying custom sanitization commands from file ${LOCAL_REPO_DIR}/scripts/sanitize.sql"
-  assert_equal "sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_equal "sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "  > Resetting user 0 username and email."
-  assert_equal "sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_equal "sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
   assert_output_not_contains "  > Updating user 1 email"
   assert_output_contains "==> Finished database sanitization."
   assert_output_not_contains "==> Skipped database sanitization."
@@ -396,16 +412,16 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Started example post site install operations."
   assert_output_contains "    Executing example operations in non-production environment."
   assert_output_contains "  > Finished example post site install operations."
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 14)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 15)"
 
   assert_output_contains "==> Disabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 15)"
+  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 16)"
 
   # One-time login link.
-  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 17)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 18)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 19)"
+  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 17)"
+  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 18)"
+  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 19)"
+  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 20)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "==> Finished site installation."
@@ -424,41 +440,45 @@ assert_drupal_install_site_info(){
   mock_drush=$(mock_command "drush")
   # Drush version.
   mock_set_output "${mock_drush}" "Mocked drush version" 1
+  # Drupal core version.
+  mock_set_output "${mock_drush}" "Mocked core version" 2
   # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "fail" 2
+  mock_set_output "${mock_drush}" "fail" 3
   # 2 calls to install site from profile.
-  mock_set_status "${mock_drush}" 0 3
   mock_set_status "${mock_drush}" 0 4
-  # Enable maintenance mode.
   mock_set_status "${mock_drush}" 0 5
-  # Running updates.
+  # Enable maintenance mode.
   mock_set_status "${mock_drush}" 0 6
-  # Rebuild cache.
+  # Running updates.
   mock_set_status "${mock_drush}" 0 7
+  # Rebuild cache.
+  mock_set_status "${mock_drush}" 0 8
   # Environment name.
-  mock_set_output "${mock_drush}" "ci" 8
+  mock_set_output "${mock_drush}" "ci" 9
   # List all drush commands to check for pciu command presence.
-  mock_set_output "${mock_drush}" "none" 9
+  mock_set_output "${mock_drush}" "none" 10
   # Sanitization commands.
-  mock_set_status "${mock_drush}" 0 10
   mock_set_status "${mock_drush}" 0 11
   mock_set_status "${mock_drush}" 0 12
   mock_set_status "${mock_drush}" 0 13
+  mock_set_status "${mock_drush}" 0 14
   # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 14
+  mock_set_output "${mock_drush}" "ci" 15
   # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 15
+  mock_set_status "${mock_drush}" 0 16
   # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 16
-  mock_set_output "${mock_drush}" "admin" 17
-  mock_set_status "${mock_drush}" 0 18
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 19
+  mock_set_output "${mock_drush}" "none" 17
+  mock_set_output "${mock_drush}" "admin" 18
+  mock_set_status "${mock_drush}" 0 19
+  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 20
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 2)"
+  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
+
+  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
 
   assert_drupal_install_site_info 1 0 0 1 0 0 0
 
@@ -473,8 +493,8 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Successfully installed a site from profile."
   assert_output_contains "========================================"
 
-  assert_equal "-q sql-drop -y" "$(mock_get_call_args "${mock_drush}" 3)"
-  assert_equal "si standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL -y" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "-q sql-drop -y" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "si standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL -y" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_not_contains "ERROR: Unable to import database from file."
   assert_output_not_contains "       Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
@@ -494,10 +514,10 @@ assert_drupal_install_site_info(){
   assert_output_contains "==> Running post-install operations."
 
   assert_output_contains "==> Enabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 6)"
 
   assert_output_contains "==> Running database updates."
-  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 6)"
+  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 7)"
 
   assert_output_contains "==> Importing Drupal configuration if it exists."
   assert_output_not_contains "  > Updated site UUID from the configuration with"
@@ -506,23 +526,23 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
 
   assert_output_contains "==> Rebuilding cache."
-  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 7)"
+  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 8)"
 
   assert_output_contains "==> Current Drupal environment: ci"
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 8)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
 
   assert_output_not_contains "==> Running post config import updates."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 9)"
+  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "==> Started database sanitization."
   assert_output_contains "  > Sanitizing database using drush sql-sanitize."
-  assert_equal "sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost -y" "$(mock_get_call_args "${mock_drush}" 10)"
+  assert_equal "sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost -y" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_output_not_contains "  > Updating username with user email."
   assert_output_contains "  > Applying custom sanitization commands from file ${LOCAL_REPO_DIR}/scripts/sanitize.sql"
-  assert_equal "sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_equal "sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "  > Resetting user 0 username and email."
-  assert_equal "sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_equal "sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
   assert_output_not_contains "  > Updating user 1 email"
   assert_output_contains "==> Finished database sanitization."
   assert_output_not_contains "==> Skipped database sanitization."
@@ -531,16 +551,16 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Started example post site install operations."
   assert_output_contains "    Executing example operations in non-production environment."
   assert_output_contains "  > Finished example post site install operations."
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 14)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 15)"
 
   assert_output_contains "==> Disabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 15)"
+  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 16)"
 
   # One-time login link.
-  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 17)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 18)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 19)"
+  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 17)"
+  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 18)"
+  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 19)"
+  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 20)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "==> Finished site installation."
@@ -558,33 +578,37 @@ assert_drupal_install_site_info(){
   mock_drush=$(mock_command "drush")
   # Drush version.
   mock_set_output "${mock_drush}" "Mocked drush version" 1
+  # Drupal core version.
+  mock_set_output "${mock_drush}" "Mocked core version" 2
   # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "Successful" 2
+  mock_set_output "${mock_drush}" "Successful" 3
   # Enable maintenance mode.
-  mock_set_status "${mock_drush}" 0 3
-  # Running updates.
   mock_set_status "${mock_drush}" 0 4
-  # Rebuild cache.
+  # Running updates.
   mock_set_status "${mock_drush}" 0 5
+  # Rebuild cache.
+  mock_set_status "${mock_drush}" 0 6
   # Environment name.
-  mock_set_output "${mock_drush}" "ci" 6
+  mock_set_output "${mock_drush}" "ci" 7
   # List all drush commands to check for pciu command presence.
-  mock_set_output "${mock_drush}" "none" 7
+  mock_set_output "${mock_drush}" "none" 8
   # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 8
+  mock_set_output "${mock_drush}" "ci" 9
   # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 9
+  mock_set_status "${mock_drush}" 0 10
   # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 10
-  mock_set_output "${mock_drush}" "admin" 11
-  mock_set_status "${mock_drush}" 0 12
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 13
+  mock_set_output "${mock_drush}" "none" 11
+  mock_set_output "${mock_drush}" "admin" 12
+  mock_set_status "${mock_drush}" 0 13
+  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 14
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 2)"
+  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
+
+  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
 
   assert_drupal_install_site_info 1 0 0 1 0 1 0
 
@@ -612,10 +636,10 @@ assert_drupal_install_site_info(){
   assert_output_contains "==> Running post-install operations."
 
   assert_output_contains "==> Enabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 3)"
+  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 4)"
 
   assert_output_contains "==> Running database updates."
-  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_contains "==> Importing Drupal configuration if it exists."
   assert_output_not_contains "  > Updated site UUID from the configuration with"
@@ -624,13 +648,13 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
 
   assert_output_contains "==> Rebuilding cache."
-  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 6)"
 
   assert_output_contains "==> Current Drupal environment: ci"
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 6)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 7)"
 
   assert_output_not_contains "==> Running post config import updates."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 7)"
+  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 8)"
 
   # Sanitization is skipped for the existing database.
   assert_output_contains "==> Skipped database sanitization."
@@ -646,16 +670,16 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Started example post site install operations."
   assert_output_contains "    Executing example operations in non-production environment."
   assert_output_contains "  > Finished example post site install operations."
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 8)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
 
   assert_output_contains "==> Disabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 9)"
+  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 10)"
 
   # One-time login link.
-  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 10)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 11)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 12)"
+  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 14)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "==> Finished site installation."
@@ -675,41 +699,45 @@ assert_drupal_install_site_info(){
   mock_drush=$(mock_command "drush")
   # Drush version.
   mock_set_output "${mock_drush}" "Mocked drush version" 1
+  # Drupal core version.
+  mock_set_output "${mock_drush}" "Mocked core version" 2
   # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "Successful" 2
+  mock_set_output "${mock_drush}" "Successful" 3
   # 2 calls to install site from profile.
-  mock_set_status "${mock_drush}" 0 3
   mock_set_status "${mock_drush}" 0 4
-  # Enable maintenance mode.
   mock_set_status "${mock_drush}" 0 5
-  # Running updates.
+  # Enable maintenance mode.
   mock_set_status "${mock_drush}" 0 6
-  # Rebuild cache.
+  # Running updates.
   mock_set_status "${mock_drush}" 0 7
+  # Rebuild cache.
+  mock_set_status "${mock_drush}" 0 8
   # Environment name.
-  mock_set_output "${mock_drush}" "ci" 8
+  mock_set_output "${mock_drush}" "ci" 9
   # List all drush commands to check for pciu command presence.
-  mock_set_output "${mock_drush}" "none" 9
+  mock_set_output "${mock_drush}" "none" 10
   # Sanitization commands.
-  mock_set_status "${mock_drush}" 0 10
   mock_set_status "${mock_drush}" 0 11
   mock_set_status "${mock_drush}" 0 12
   mock_set_status "${mock_drush}" 0 13
+  mock_set_status "${mock_drush}" 0 14
   # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 14
+  mock_set_output "${mock_drush}" "ci" 15
   # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 15
+  mock_set_status "${mock_drush}" 0 16
   # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 16
-  mock_set_output "${mock_drush}" "admin" 17
-  mock_set_status "${mock_drush}" 0 18
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 19
+  mock_set_output "${mock_drush}" "none" 17
+  mock_set_output "${mock_drush}" "admin" 18
+  mock_set_status "${mock_drush}" 0 19
+  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 20
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 2)"
+  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
+
+  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
 
   assert_drupal_install_site_info 1 1 0 1 0 1 0
 
@@ -724,8 +752,8 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Successfully installed a site from profile."
   assert_output_contains "========================================"
 
-  assert_equal "-q sql-drop -y" "$(mock_get_call_args "${mock_drush}" 3)"
-  assert_equal "si standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL -y" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "-q sql-drop -y" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "si standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL -y" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_not_contains "  > Site content will be preserved."
   assert_output_not_contains "  > Sanitization will be skipped for an existing database."
@@ -740,10 +768,10 @@ assert_drupal_install_site_info(){
   assert_output_contains "==> Running post-install operations."
 
   assert_output_contains "==> Enabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 6)"
 
   assert_output_contains "==> Running database updates."
-  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 6)"
+  assert_equal "updb -y" "$(mock_get_call_args "${mock_drush}" 7)"
 
   assert_output_contains "==> Importing Drupal configuration if it exists."
   assert_output_not_contains "  > Updated site UUID from the configuration with"
@@ -752,23 +780,23 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
 
   assert_output_contains "==> Rebuilding cache."
-  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 7)"
+  assert_equal "cr" "$(mock_get_call_args "${mock_drush}" 8)"
 
   assert_output_contains "==> Current Drupal environment: ci"
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 8)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
 
   assert_output_not_contains "==> Running post config import updates."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 9)"
+  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "==> Started database sanitization."
   assert_output_contains "  > Sanitizing database using drush sql-sanitize."
-  assert_equal "sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost -y" "$(mock_get_call_args "${mock_drush}" 10)"
+  assert_equal "sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost -y" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_output_not_contains "  > Updating username with user email."
   assert_output_contains "  > Applying custom sanitization commands from file ${LOCAL_REPO_DIR}/scripts/sanitize.sql"
-  assert_equal "sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_equal "sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "  > Resetting user 0 username and email."
-  assert_equal "sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_equal "sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
   assert_output_not_contains "  > Updating user 1 email"
   assert_output_contains "==> Finished database sanitization."
   assert_output_not_contains "==> Skipped database sanitization."
@@ -777,16 +805,16 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Started example post site install operations."
   assert_output_contains "    Executing example operations in non-production environment."
   assert_output_contains "  > Finished example post site install operations."
-  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 14)"
+  assert_equal "ev print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 15)"
 
   assert_output_contains "==> Disabled maintenance mode."
-  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 15)"
+  assert_equal "state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 16)"
 
   # One-time login link.
-  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 17)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 18)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 19)"
+  assert_equal "pml --status=enabled" "$(mock_get_call_args "${mock_drush}" 17)"
+  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 18)"
+  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 19)"
+  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 20)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "==> Finished site installation."
