@@ -20,7 +20,7 @@ set -e
 DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE="${DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE:-}"
 
 # Email address of the user who will be committing to a remote repository.
-DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME="${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME:-"Deployer Robot"}"
+DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME="${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME:-"Deployment Robot"}"
 
 # Name of the user who will be committing to a remote repository.
 DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL="${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL:-}"
