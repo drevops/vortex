@@ -456,9 +456,27 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_LAGOON_INSTANCE`
 
-The Lagoon instance to interact with.
+The Lagoon instance name to interact with.
 
 Default value: `amazeeio`
+
+### `DREVOPS_DEPLOY_LAGOON_INSTANCE_GRAPHQL`
+
+The Lagoon instance GraphQL endpoint to interact with.
+
+Default value: `https://api.lagoon.amazeeio.cloud/graphql`
+
+### `DREVOPS_DEPLOY_LAGOON_INSTANCE_HOSTNAME`
+
+The Lagoon instance hostname to interact with.
+
+Default value: `ssh.lagoon.amazeeio.cloud`
+
+### `DREVOPS_DEPLOY_LAGOON_INSTANCE_PORT`
+
+The Lagoon instance port to interact with.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH`
 
@@ -471,6 +489,12 @@ Default value: `UNDEFINED`
 Flag to force the installation of Lagoon CLI.
 
 Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSION`
+
+Lagoon CLI version to use.
+
+Default value: `latest`
 
 ### `DREVOPS_DEPLOY_LAGOON_PR`
 
@@ -1160,9 +1184,33 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_TASK_LAGOON_INSTANCE`
 
-The Lagoon instance to interact with.
+The Lagoon instance name to interact with.
 
 Default value: `amazeeio`
+
+### `DREVOPS_TASK_LAGOON_INSTANCE_GRAPHQL`
+
+The Lagoon instance GraphQL endpoint to interact with.
+
+Default value: `https://api.lagoon.amazeeio.cloud/graphql`
+
+### `DREVOPS_TASK_LAGOON_INSTANCE_HOSTNAME`
+
+The Lagoon instance hostname to interact with.
+
+Default value: `ssh.lagoon.amazeeio.cloud`
+
+### `DREVOPS_TASK_LAGOON_INSTANCE_PORT`
+
+The Lagoon instance port to interact with.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION`
+
+Lagoon CLI version to use.
+
+Default value: `latest`
 
 ### `DREVOPS_TASK_LAGOON_NAME`
 

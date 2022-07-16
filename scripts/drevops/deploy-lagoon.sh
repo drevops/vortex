@@ -26,8 +26,17 @@ DREVOPS_DEPLOY_LAGOON_PR_HEAD="${DREVOPS_DEPLOY_LAGOON_PR_HEAD:-}"
 # The PR base branch (the branch the PR is raised against). Defaults to 'develop'.
 DREVOPS_DEPLOY_LAGOON_PR_BASE_BRANCH="${DREVOPS_DEPLOY_LAGOON_PR_BASE_BRANCH:-develop}"
 
-# The Lagoon instance to interact with.
+# The Lagoon instance name to interact with.
 DREVOPS_DEPLOY_LAGOON_INSTANCE="${DREVOPS_DEPLOY_LAGOON_INSTANCE:-amazeeio}"
+
+# The Lagoon instance GraphQL endpoint to interact with.
+DREVOPS_DEPLOY_LAGOON_INSTANCE_GRAPHQL="${DREVOPS_DEPLOY_LAGOON_INSTANCE_GRAPHQL:-https://api.lagoon.amazeeio.cloud/graphql}"
+
+# The Lagoon instance hostname to interact with.
+DREVOPS_DEPLOY_LAGOON_INSTANCE_HOSTNAME="${DREVOPS_DEPLOY_LAGOON_INSTANCE_HOSTNAME:-ssh.lagoon.amazeeio.cloud}"
+
+# The Lagoon instance port to interact with.
+DREVOPS_DEPLOY_LAGOON_INSTANCE_PORT="${DREVOPS_DEPLOY_LAGOON_INSTANCE_PORT:-32222}"
 
 # SSH key fingerprint used to connect to remote. If not used, the currently
 # loaded default SSH key (the key used for code checkout) will be used or
@@ -45,6 +54,9 @@ DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH="${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_
 
 # Flag to force the installation of Lagoon CLI.
 DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL="${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL:-}"
+
+# Lagoon CLI version to use.
+DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSION="${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSION:-latest}"
 
 # ------------------------------------------------------------------------------
 
@@ -77,7 +89,13 @@ fi
 
 if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL}" ]; then
   echo "==> Installing Lagoon CLI."
-  curl -sL https://api.github.com/repos/amazeeio/lagoon-cli/releases/latest \
+
+  lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/latest"
+  if [ "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSION}" != "latest" ]; then
+    lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/tags/${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSION}"
+  fi
+
+  curl -sL "${lagooncli_download_url}" \
     | grep "browser_download_url" \
     | grep -i "$(uname -s)-amd64\"$" \
     | cut -d '"' -f 4 \
@@ -85,6 +103,9 @@ if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FOR
   chmod +x "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
   export PATH="${PATH}:${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}"
 fi
+
+echo "==> Configuring Lagoon instance."
+lagoon config add --force -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" -g "${DREVOPS_DEPLOY_LAGOON_INSTANCE_GRAPHQL}" -H "${DREVOPS_DEPLOY_LAGOON_INSTANCE_HOSTNAME}" -P "${DREVOPS_DEPLOY_LAGOON_INSTANCE_PORT}"
 
 # ACTION: 'destroy'
 # Explicitly specifying "destroy" action as a failsafe.
