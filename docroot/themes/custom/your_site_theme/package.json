@@ -5,10 +5,10 @@
   "description": "NPM dependencies for YOURSITE project",
   "devDependencies": {
     "autoprefixer": "^9",
-    "eslint": "^7.32",
-    "grunt": "^1.4",
-    "grunt-contrib-clean": "^2.0",
-    "grunt-contrib-concat": "^1",
+    "eslint": "^8",
+    "grunt": "^1.5",
+    "grunt-contrib-clean": "^2",
+    "grunt-contrib-concat": "^2",
     "grunt-contrib-copy": "^1",
     "grunt-contrib-uglify": "^5",
     "grunt-contrib-watch": "^1",
@@ -19,8 +19,8 @@
     "grunt-sass-lint": "^0.2",
     "gruntify-eslint": "^5",
     "patch-package": "^6",
-    "sass": "^1.51.0",
-    "sass-lint": "^1.13.1"
+    "sass": "^1.53",
+    "sass-lint": "^1.13"
   },
   "browserslist": [
     "last 2 versions",
@@ -31,7 +31,7 @@
     "build": "grunt",
     "build-dev": "grunt dev",
     "lint": "grunt lint",
-    "watch": "grunt watch",
+    "watch": "grunt watch-dev",
     "postinstall": "patch-package"
   }
 }

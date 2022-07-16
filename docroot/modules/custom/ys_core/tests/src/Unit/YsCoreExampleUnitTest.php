@@ -12,12 +12,14 @@ namespace Drupal\Tests\ys_core\Unit;
 class YsCoreExampleUnitTest extends YsCoreUnitTestBase {
 
   /**
+   * Tests addition.
+   *
    * @dataProvider dataProviderAdd
    */
-  public function testAdd($a, $b, $expected, $excpectExceptionMessage = NULL) {
-    if ($excpectExceptionMessage) {
+  public function testAdd($a, $b, $expected, $expectExceptionMessage = NULL) {
+    if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
-      $this->expectExceptionMessage($excpectExceptionMessage);
+      $this->expectExceptionMessage($expectExceptionMessage);
     }
 
     // Replace below with a call to your class method.
@@ -26,6 +28,9 @@ class YsCoreExampleUnitTest extends YsCoreUnitTestBase {
     $this->assertEquals($expected, $actual);
   }
 
+  /**
+   * Data provider for testAdd().
+   */
   public function dataProviderAdd() {
     return [
       [0, 0, 0],

@@ -5,6 +5,7 @@
  * Run `grunt` for to process with dev settings.
  * Run `grunt prod` to process with prod settings.
  * Run `grunt watch` to start watching with dev settings.
+ * @phpcs:ignoreFile
  */
 
 /* global module */
@@ -162,6 +163,10 @@ module.exports = function (grunt) {
   grunt.registerTask('lint', ['eslint', 'sasslint']);
   grunt.registerTask('prod', ['sass_globbing', 'clean', 'concat', 'uglify:prod', 'sass:prod', 'postcss:prod', 'copy']);
   grunt.registerTask('dev', ['sass_globbing', 'clean', 'concat', 'sass:dev', 'postcss:dev', 'copy']);
+  grunt.registerTask('watch_message', function() {
+    grunt.log.writeln('If using Chrome, make sure that "Disable cache (while DevTools is open)" setting is selected and DevTools are opened or browser will cache assets.');
+  });
+  grunt.registerTask('watch-dev', ['dev', 'watch_message', 'watch']);
   // By default, run grunt with prod settings.
   grunt.registerTask('default', ['prod']);
 };

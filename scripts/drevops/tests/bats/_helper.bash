@@ -327,6 +327,42 @@ assert_git_file_is_not_tracked() {
 assert_files_equal() {
   local file1="${1}"
   local file2="${2}"
+  local ignore_spaces="${3:-0}"
+
+  diff_opts=()
+  [ "${ignore_spaces}" = 1 ] && diff_opts+=(-B -b)
+
+  assert_file_exists "${file1}" || return 1
+  assert_file_exists "${file2}" || return 1
+
+  if diff "${diff_opts[@]}" "${file1}" "${file2}"; then
+    return 0
+  else
+    format_error "File ${file1} is not equal to file ${file2}" | flunk
+  fi
+}
+
+assert_files_not_equal() {
+  local file1="${1}"
+  local file2="${2}"
+  local ignore_spaces="${3:-0}"
+
+  diff_opts=()
+  [ "${ignore_spaces}" = 1 ] && diff_opts+=(-B -b)
+
+  assert_file_exists "${file1}" || return 1
+  assert_file_exists "${file2}" || return 1
+
+  if diff "${diff_opts[@]}" "${file1}" "${file2}"; then
+    format_error "File ${file1} is equal to file ${file2}, but it should not be" | flunk
+  else
+    return 0
+  fi
+}
+
+assert_binary_files_equal() {
+  local file1="${1}"
+  local file2="${2}"
 
   assert_file_exists "${file1}" || return 1
   assert_file_exists "${file2}" || return 1
@@ -338,7 +374,7 @@ assert_files_equal() {
   fi
 }
 
-assert_files_not_equal() {
+assert_binary_files_not_equal() {
   local file1="${1}"
   local file2="${2}"
 
@@ -360,11 +396,11 @@ assert_dirs_equal() {
   assert_dir_exists "${dir2}" || return 1
 
   for file in $(find "${dir1}/" -type f); do
-    assert_files_equal "${file}" "${file/${dir1}/${dir2}}" || return 1
+    assert_binary_files_equal "${file}" "${file/${dir1}/${dir2}}" || return 1
   done
 
   for file in $(find "${dir2}/" -type f); do
-    assert_files_equal "${file}" "${file/${dir2}/${dir1}}" || return 1
+    assert_binary_files_equal "${file}" "${file/${dir2}/${dir1}}" || return 1
   done
 
   return 0
