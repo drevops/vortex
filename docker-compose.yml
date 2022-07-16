@@ -74,7 +74,7 @@ services:
   cli:
     build:
       context: .
-      dockerfile: .docker/Dockerfile.cli
+      dockerfile: .docker/cli.dockerfile
     image: &cli-image ${DREVOPS_PROJECT:-example_site}-cli
     <<: *default-volumes
     user: root
@@ -95,7 +95,7 @@ services:
   nginx:
     build:
       context: .
-      dockerfile: .docker/Dockerfile.nginx-drupal
+      dockerfile: .docker/nginx-drupal.dockerfile
       args:
         CLI_IMAGE: *cli-image
     <<: *default-volumes
@@ -119,7 +119,7 @@ services:
   php:
     build:
       context: .
-      dockerfile: .docker/Dockerfile.php
+      dockerfile: .docker/php.dockerfile
       args:
         CLI_IMAGE: *cli-image
     <<: *default-volumes
@@ -139,7 +139,7 @@ services:
   mariadb:
     build:
       context: .
-      dockerfile: .docker/Dockerfile.mariadb
+      dockerfile: .docker/mariadb.dockerfile
       args:
         IMAGE: "${DREVOPS_DB_DOCKER_IMAGE:-uselagoon/mariadb-drupal:22.4.1}" # Use custom database image (if defined) or fallback to standard database image.
     environment:
@@ -164,7 +164,7 @@ services:
   solr:
     build:
       context: .
-      dockerfile: .docker/Dockerfile.solr
+      dockerfile: .docker/solr.dockerfile
       args:
         CLI_IMAGE: *cli-image
     <<: *default-user

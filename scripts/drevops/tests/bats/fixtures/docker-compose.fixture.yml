@@ -27,7 +27,7 @@ services:
   cli:
     build:
       context: FIXTURE_CUR_DIR
-      dockerfile: .docker/Dockerfile.cli
+      dockerfile: .docker/cli.dockerfile
     environment:
       CI: "true"
       DREVOPS_PROJECT: your_site
@@ -54,7 +54,7 @@ services:
       args:
         IMAGE: uselagoon/mariadb-drupal:22.4.1
       context: FIXTURE_CUR_DIR
-      dockerfile: .docker/Dockerfile.mariadb
+      dockerfile: .docker/mariadb.dockerfile
     environment:
       CI: "true"
       DREVOPS_PROJECT: your_site
@@ -74,7 +74,7 @@ services:
       args:
         CLI_IMAGE: your_site-cli
       context: FIXTURE_CUR_DIR
-      dockerfile: .docker/Dockerfile.nginx-drupal
+      dockerfile: .docker/nginx-drupal.dockerfile
     depends_on:
       cli:
         condition: service_started
@@ -105,7 +105,7 @@ services:
       args:
         CLI_IMAGE: your_site-cli
       context: FIXTURE_CUR_DIR
-      dockerfile: .docker/Dockerfile.php
+      dockerfile: .docker/php.dockerfile
     depends_on:
       cli:
         condition: service_started
@@ -137,7 +137,7 @@ services:
       args:
         CLI_IMAGE: your_site-cli
       context: FIXTURE_CUR_DIR
-      dockerfile: .docker/Dockerfile.solr
+      dockerfile: .docker/solr.dockerfile
     environment:
       CI: "true"
       DREVOPS_PROJECT: your_site
