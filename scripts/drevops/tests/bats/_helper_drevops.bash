@@ -204,11 +204,11 @@ assert_files_present_drevops() {
 
   assert_file_exists ".circleci/config.yml"
 
-  assert_file_exists ".docker/Dockerfile.cli"
-  assert_file_exists ".docker/Dockerfile.mariadb"
-  assert_file_exists ".docker/Dockerfile.nginx-drupal"
-  assert_file_exists ".docker/Dockerfile.php"
-  assert_file_exists ".docker/Dockerfile.solr"
+  assert_file_exists ".docker/cli.dockerfile"
+  assert_file_exists ".docker/mariadb.dockerfile"
+  assert_file_exists ".docker/nginx-drupal.dockerfile"
+  assert_file_exists ".docker/php.dockerfile"
+  assert_file_exists ".docker/solr.dockerfile"
   assert_file_exists ".docker/scripts/.gitkeep"
   assert_file_exists ".docker/config/mariadb/my.cnf"
   assert_file_exists ".docker/config/solr/elevate.xml"
