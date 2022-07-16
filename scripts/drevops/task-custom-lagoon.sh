@@ -18,8 +18,17 @@ DREVOPS_TASK_LAGOON_BRANCH="${DREVOPS_TASK_LAGOON_BRANCH:-}"
 # The task command to execute.
 DREVOPS_TASK_LAGOON_COMMAND="${DREVOPS_TASK_LAGOON_COMMAND:-}"
 
-# The Lagoon instance to interact with.
+# The Lagoon instance name to interact with.
 DREVOPS_TASK_LAGOON_INSTANCE="${DREVOPS_TASK_LAGOON_INSTANCE:-amazeeio}"
+
+# The Lagoon instance GraphQL endpoint to interact with.
+DREVOPS_TASK_LAGOON_INSTANCE_GRAPHQL="${DREVOPS_TASK_LAGOON_INSTANCE_GRAPHQL:-https://api.lagoon.amazeeio.cloud/graphql}"
+
+# The Lagoon instance hostname to interact with.
+DREVOPS_TASK_LAGOON_INSTANCE_HOSTNAME="${DREVOPS_TASK_LAGOON_INSTANCE_HOSTNAME:-ssh.lagoon.amazeeio.cloud}"
+
+# The Lagoon instance port to interact with.
+DREVOPS_TASK_LAGOON_INSTANCE_PORT="${DREVOPS_TASK_LAGOON_INSTANCE_PORT:-32222}"
 
 # SSH key fingerprint used to connect to remote.
 ##
@@ -39,6 +48,9 @@ DREVOPS_TASK_LAGOON_BIN_PATH="${DREVOPS_TASK_LAGOON_BIN_PATH:-/tmp}"
 
 # Flag to force the installation of Lagoon CLI.
 DREVOPS_TASK_LAGOON_INSTALL_CLI_FORCE="${DREVOPS_TASK_LAGOON_INSTALL_CLI_FORCE:-}"
+
+# Lagoon CLI version to use.
+DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION="${DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION:-latest}"
 
 # ------------------------------------------------------------------------------
 
@@ -73,7 +85,13 @@ fi
 
 if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_TASK_LAGOON_INSTALL_CLI_FORCE}" ]; then
   echo "  > Installing Lagoon CLI."
-  curl -sL https://api.github.com/repos/amazeeio/lagoon-cli/releases/latest \
+
+  lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/latest"
+  if [ "${DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION}" != "latest" ]; then
+    lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/tags/${DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION}"
+  fi
+
+  curl -sL "${lagooncli_download_url}" \
     | grep "browser_download_url" \
     | grep -i "$(uname -s)-amd64\"$" \
     | cut -d '"' -f 4 \
@@ -81,6 +99,9 @@ if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_TASK_LAGOON_INSTALL_CLI_FOR
   chmod +x "${DREVOPS_TASK_LAGOON_BIN_PATH}/lagoon"
   export PATH="${PATH}:${DREVOPS_TASK_LAGOON_BIN_PATH}"
 fi
+
+echo "==> Configuring Lagoon instance."
+lagoon config add --force -l "${DREVOPS_TASK_LAGOON_INSTANCE}" -g "${DREVOPS_TASK_LAGOON_INSTANCE_GRAPHQL}" -H "${DREVOPS_TASK_LAGOON_INSTANCE_HOSTNAME}" -P "${DREVOPS_TASK_LAGOON_INSTANCE_PORT}"
 
 echo "  > Creating $DREVOPS_TASK_LAGOON_NAME task: project ${DREVOPS_TASK_LAGOON_PROJECT}, branch: ${DREVOPS_TASK_LAGOON_BRANCH}."
 lagoon --force --skip-update-check -i "${DREVOPS_TASK_SSH_FILE}" -l "${DREVOPS_TASK_LAGOON_INSTANCE}" run custom -p "${DREVOPS_TASK_LAGOON_PROJECT}" -e "${DREVOPS_TASK_LAGOON_BRANCH}" -N "${DREVOPS_TASK_LAGOON_NAME}" -c "${DREVOPS_TASK_LAGOON_COMMAND}"
