@@ -1,39 +1,17 @@
-<!--
-Please follow these rules:
-1. SUBJECT: use format [PRJ-123] Verb in past tense with dot at the end.
-   - This subject will be used as a commit message after PR is merged.
-   - Verbs are usually one of these: Updated, Refactored, Removed, Changed, Added.
-   - If there is no ticket - do not put [NOTICKET].
+https://your-site.atlassian.net/browse/your-site-<NUMBER>
 
-2. BODY: fill-in the template below.
+## Checklist before requesting a review
 
-3. CONFLICTS: Make sure that there are no conflicts in your PR. Resolve them before submitting PR for review.
+- [ ] I have formatted the subject to include ticket number as `[YS-123] Verb in past tense with dot at the end.`
+- [ ] I have added a link to the JIRA ticket
+- [ ] I have provided information in `Changed` section about WHY something was done if this was not a normal implementation
+- [ ] I have performed a self-review of my code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] I have run new and existing relevant tests locally with my changes, and they passed
+- [ ] I have provided screenshots, where applicable
 
-4. COMMENTS: Scan through your PR yourself and comment on the lines that does not look clear enough. This will save SIGNIFICANT time for reviewer to approve the PR.
+## Changed
+1.
 
-5. LABEL: Assign 'Needs review' label as soon as you ready to have this reviewed.
-
-6. ASSIGNEE: Assign at least 2 reviewers.     
-
-7. SLACK: Post a link to this PR to #developers channel.
-
-No need to remove these lines - they are comments.
--->
-
-**Issue URL:**
-
-### Changed
-<!--
-Provide a list of what was added/changed/removed etc. 
-
-Start with a verb so that it is clear what has happened:Added/ Updated/Removed/Refactored etc.
-
-Also, explain WHY something was done if this was not a normal implementation.
--->
-1.  
-
-### Screenshots
-
-<!--
-Provide as many screenshots as required to make reviewers understand what was changed.
--->
+## Screenshots
