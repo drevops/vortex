@@ -45,8 +45,8 @@ assert_deployment_files_present() {
   # Site core module present.
   assert_dir_exists docroot/modules/custom/sw_core
   assert_file_exists docroot/modules/custom/sw_core/sw_core.info.yml
-  assert_file_exists docroot/modules/custom/sw_core/sw_core.install
   assert_file_exists docroot/modules/custom/sw_core/sw_core.module
+  assert_file_exists docroot/modules/custom/sw_core/sw_core.deploy.php
 
   # Site theme present.
   assert_dir_exists docroot/themes/custom/star_wars

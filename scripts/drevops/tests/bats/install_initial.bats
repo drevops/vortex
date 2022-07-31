@@ -237,7 +237,8 @@ load _helper_drevops
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds"
   assert_git_repo "${DST_PROJECT_DIR}"
 
-  assert_dirs_equal "${LOCAL_REPO_DIR}/scripts" "${DST_PROJECT_DIR}/scripts"
+  assert_dirs_equal "${LOCAL_REPO_DIR}/scripts/composer" "${DST_PROJECT_DIR}/scripts/composer"
+  assert_dirs_equal "${LOCAL_REPO_DIR}/scripts/drevops" "${DST_PROJECT_DIR}/scripts/drevops"
 }
 
 @test "Install into empty directory; Images are not modified" {

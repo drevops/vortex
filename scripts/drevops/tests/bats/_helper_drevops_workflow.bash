@@ -5,15 +5,13 @@
 #
 
 prepare_sut() {
-  step "Run SUT preparation"
+  step "Run SUT preparation: ${1}"
 
   DREVOPS_DRUPAL_VERSION=${DREVOPS_DRUPAL_VERSION:-9}
   DREVOPS_DEV_VOLUMES_MOUNTED=${DREVOPS_DEV_VOLUMES_MOUNTED:-1}
 
   assert_not_empty "${DREVOPS_DRUPAL_VERSION}"
   assert_not_empty "${DREVOPS_DEV_VOLUMES_MOUNTED}"
-
-  debug "${1}"
 
   assert_files_not_present_common
 
@@ -45,6 +43,11 @@ prepare_sut() {
   fi
 }
 
+docker_remove_image() {
+  docker image rm "${1}" || true
+  docker image ls | grep -q -v "${1}"
+}
+
 assert_ahoy_download_db() {
   step "Run DB download"
 
@@ -73,7 +76,7 @@ assert_ahoy_download_db() {
 }
 
 assert_ahoy_build() {
-  step "Run project build"
+  substep "Started project build"
 
   # Tests are using demo database and 'ahoy download-db' command, so we need
   # to set the CURL DB to test DB.
@@ -89,8 +92,6 @@ assert_ahoy_build() {
   [ -f ".data/db.sql" ] && db_file_exists=1
 
   run ahoy build
-  # shellcheck disable=SC2154
-  echo "${output}" >&3
   sync_to_host
 
   # Assert output messages. Note that only asserting generic messages that do
@@ -106,7 +107,7 @@ assert_ahoy_build() {
   assert_file_exists "docroot/themes/custom/star_wars/package-lock.json"
 
   # Assert that database file preserved after build if existed before.
-  if [ "$db_file_exists" == 1 ]; then
+  if [ "$db_file_exists" = "1" ]; then
     assert_file_exists .data/db.sql
   else
     assert_file_not_exists .data/db.sql
@@ -131,6 +132,8 @@ assert_ahoy_build() {
   assert_file_exists docroot/themes/custom/star_wars/build/js/star_wars.min.js
   assert_file_contains docroot/themes/custom/star_wars/build/js/star_wars.min.js "!function(Drupal){\"use strict\";Drupal.behaviors.star_wars"
   assert_file_not_exists docroot/themes/custom/star_wars/build/js/star_wars.js
+
+  substep "Finished project build"
 }
 
 assert_gitignore() {
@@ -537,12 +540,13 @@ assert_ahoy_fei() {
   step "FE dependencies install"
 
   substep "Remove existing Node modules"
-  rm -Rf "docroot/themes/custom/star_wars/node_modules"
+  rm -Rf "docroot/themes/custom/star_wars/node_modules" || true
   assert_dir_not_exists "docroot/themes/custom/star_wars/node_modules"
   sync_to_container
 
   substep "Install Node modules"
-  ahoy fei
+  run ahoy fei
+  assert_success
   sync_to_host
   assert_dir_exists "docroot/themes/custom/star_wars/node_modules"
 }
@@ -708,14 +712,14 @@ assert_reload_db_image() {
   step "Reload DB image"
 
   # Assert that used DB image has content.
-  assert_page_contains "/" "First test node"
+  assert_page_contains "/" "test database Docker image"
 
   # Change homepage content and assert that the change was applied.
   ahoy drush config-set system.site page.front /user -y
-  assert_page_not_contains "/" "First test node"
+  assert_page_not_contains "/" "test database Docker image"
 
   ahoy reload-db
-  assert_page_contains "/" "First test node"
+  assert_page_contains "/" "test database Docker image"
 }
 
 assert_ahoy_doctor_info() {

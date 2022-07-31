@@ -80,6 +80,9 @@ echo "  > Private files directory      : ${DREVOPS_DRUPAL_PRIVATE_FILES}"
 echo "  > Config path                  : ${DREVOPS_DRUPAL_CONFIG_PATH}"
 echo "  > Config directory label       : ${DREVOPS_DRUPAL_CONFIG_LABEL}"
 echo "  > DB dump file path            : ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
+if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
+  echo "  > DB dump Docker image         : ${DREVOPS_DB_DOCKER_IMAGE}"
+fi
 echo "  > Drush binary                 : ${drush}"
 echo "  > Drush version                : $($drush --version)"
 echo "  > Drupal core version          : $(drush status --field=drupal-version)"
@@ -208,7 +211,7 @@ if [ "${DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE}" = "1" ]; then
 fi
 
 echo "==> Running database updates."
-$drush updb -y
+$drush updb --no-cache-clear -y
 
 echo "==> Importing Drupal configuration if it exists."
 if [ "${site_has_config}" = "1" ]; then
@@ -219,10 +222,10 @@ if [ "${site_has_config}" = "1" ]; then
   fi
 
   echo "  > Importing configuration"
-  $drush cim "${DREVOPS_DRUPAL_CONFIG_LABEL}" -y
+  $drush config:import "${DREVOPS_DRUPAL_CONFIG_LABEL}" -y
 
   # Import config_split configuration if the module is installed.
-  if $drush pml --status=enabled | grep -q config_split; then
+  if $drush pm:list --status=enabled | grep -q config_split; then
     echo "  > Importing config_split configuration."
     # Drush command does not return correct code on failed split, so not
     # failing on import for the non-existing environment is currently
@@ -235,17 +238,16 @@ else
 fi
 
 echo "==> Rebuilding cache."
-$drush cr
+$drush cache:rebuild
 
 echo -n "==> Current Drupal environment: "
-environment="$($drush ev "print \Drupal\core\Site\Settings::get('environment');")"
+environment="$($drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
 echo "${environment}" && echo
 
-# Run post-config import updates for the cases when updates rely on imported configuration.
-# @see PostConfigImportUpdateHelper::registerPostConfigImportUpdate()
-if $drush list | grep -q pciu; then
-  echo "==> Running post config import updates."
-  $drush post-config-import-update
+# @see https://www.drush.org/latest/deploycommand/
+if $drush list | grep -q deploy; then
+  echo "==> Running post config import updates via Drush deploy."
+  $drush deploy:hook -y
 fi
 
 if [ "${DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP}" != "1" ]; then
