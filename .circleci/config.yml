@@ -79,7 +79,7 @@ aliases:
   # CI runner resource class.
   # @see https://circleci.com/docs/2.0/configuration-reference/#resource_class
   # Change to 'large' for faster builds. Requires lodging a support request
-  # with CircleCI o enable this feature.
+  # with CircleCI to enable this feature.
   - &resource_class medium
 
   # Docker Layer Caching allows to significantly speed up builds by caching

@@ -70,7 +70,7 @@ for key in "${!services[@]}"; do
   iid="${iid#sha256:}"
   echo "  > Committed Docker image with id \"${iid}\"."
 
-  echo "  > Pushing Socker image to the registry."
+  echo "  > Pushing Docker image to the registry."
   docker push "${new_image}"
 done
 
