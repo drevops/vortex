@@ -341,8 +341,8 @@ assert_files_present_drupal(){
   # Site core module created.
   assert_dir_exists "docroot/modules/custom/${suffix_abbreviated}_core"
   assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.info.yml"
-  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.install"
   assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.module"
+  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.deploy.php"
   assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreExampleUnitTest.php"
   assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreUnitTestBase.php"
   assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreExampleKernelTest.php"
@@ -1148,15 +1148,15 @@ replace_string_content() {
 
 # Print step.
 step() {
-  debug ""
+  echo "" >&3
   # Using prefix different from command prefix in SUT for easy debug.
-  debug "**> STEP: $1"
+  echo "**> STEP: ${1}" >&3
 }
 
 # Print sub-step.
 substep() {
-  debug ""
-  debug "  > $1"
+  echo "" >&3
+  echo "  > ${1}" >&3
 }
 
 # Sync files to host in case if volumes are not mounted from host.

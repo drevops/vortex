@@ -4,6 +4,8 @@
 #
 # Clone this file and modify it to your needs or simply remove it.
 #
+# Add numbered suffix to order multiple commands.
+#
 # shellcheck disable=SC2086
 
 set -e
@@ -20,10 +22,16 @@ echo "  > Started example post site install operations."
 drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 # Perform operations based on the current environment.
-if $drush ev "print \Drupal\core\Site\Settings::get('environment');" | grep -q -e dev -e test -e ci -e local; then
+if $drush php:eval "print \Drupal\core\Site\Settings::get('environment');" | grep -q -e dev -e test -e ci -e local; then
   echo "    Executing example operations in non-production environment."
-
-  # @todo: Add your custom operations here.
+  # Example operations.
+  # Set site name.
+  $drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+  # Enable custom site core module.
+  $drush pm:install ys_core -y
+  # Run deployment hooks defined in recently enabled modules (ys_core).
+  # These hooks already ran for previously enabled modules.
+  $drush deploy:hook -y
 fi
 
 echo "  > Finished example post site install operations."
