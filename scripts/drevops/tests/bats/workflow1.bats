@@ -199,11 +199,11 @@ load _helper_drevops_workflow
 
   step "Case 1: Site is built from DB file, site reloaded from image, while DB file exists."
   substep "Assert that the text is from the DB dump."
-  assert_page_contains "/" "example database dump"
+  assert_page_contains "/" "test database dump"
 
   substep "Set content to a different path."
   ahoy drush config-set system.site page.front /user -y
-  assert_page_not_contains "/" "example database dump"
+  assert_page_not_contains "/" "test database dump"
 
   substep "Reloading DB from image with DB dump file present"
   assert_file_exists .data/db.sql
@@ -211,7 +211,7 @@ load _helper_drevops_workflow
   assert_success
 
   substep "Assert that the text is from the DB dump after reload."
-  assert_page_contains "/" "example database dump"
+  assert_page_contains "/" "test database dump"
 
   # Skipped: the drupal-install-site.sh expects DB dump file to exist; this logic
   # needs to be refactored. Currently, reloading without DB dump file present
