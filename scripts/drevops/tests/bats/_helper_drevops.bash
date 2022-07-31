@@ -2,6 +2,9 @@
 #
 # Helpers related to DrevOps common testing functionality.
 #
+# In some cases, shell may report platform incorrectly. Run with forced platform:
+# DOCKER_DEFAULT_PLATFORM=linux/amd64 bats --tap tests/bats/test.bats
+#
 # shellcheck disable=SC2155
 
 load "${BASH_SOURCE[0]%/*}"/_mock.bash
@@ -57,6 +60,15 @@ setup() {
   export DREVOPS_DOCTOR_CHECK_SSH=0
   export DREVOPS_DOCTOR_CHECK_WEBSERVER=0
   export DREVOPS_DOCTOR_CHECK_BOOTSTRAP=0
+
+
+  if [ "$(uname -m)" = "arm64" ]; then
+    export DOCKER_DEFAULT_PLATFORM=linux/amd64
+  fi
+
+  if [ -n "${DOCKER_DEFAULT_PLATFORM}" ]; then
+    step "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."
+  fi
 
   prepare_fixture_dir "${BUILD_DIR}"
   prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
