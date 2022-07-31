@@ -21,10 +21,10 @@ patterns used, commands and other architectural explanation.
 
 4. Make sure that exported DB does not have data in `cache_*` and `watchdog` tables
 5. Upload DB to https://github.com/drevops/drevops/wiki as a test file (`db_d9.distN.sql`)
-6. Update refernces in code from `db_d9.dist.sql` to `db_d9.distN.sql`
+6. Update refernces in code from `db_d9.demo.sql` to `db_d9.distN.sql`
 7. Run CI build
-8. Revert updated references to `db_d9.dist.sql`
-9. Update `db_d9.dist.sql` in Wiki
+8. Revert updated references to `db_d9.demo.sql`
+9. Update `db_d9.demo.sql` in Wiki
 10. Merge branch to `9.x`.
 11. Wait for CI to pass.
 12. Remove `db_d9.distN.sql` from Wiki.
