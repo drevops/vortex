@@ -95,6 +95,7 @@ markdown_extensions:
 # IMPORTANT! Do not add any configuration below navigation section.
 nav:
   - About: index.md
+  - Quickstart: quickstart.md
   - Variables: variables.md
   - Docker: docker.md
   - Database: database.md
