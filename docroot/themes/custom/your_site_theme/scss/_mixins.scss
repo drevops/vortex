@@ -30,26 +30,3 @@
   margin: 0;
   padding: 0;
 }
-
-//
-// Create Font Awesome icon.
-//
-// Bootstrap has inclusion of compiled Font Awesome assets. This mixin allows
-// to add Font Awesome icon to a custom element using included font.
-@mixin fa-icon($icon, $bold: false) {
-  &::before {
-    -moz-osx-font-smoothing: grayscale; // sass-lint:disable-line no-vendor-prefixes
-    -webkit-font-smoothing: antialiased; // sass-lint:disable-line no-vendor-prefixes
-    content: unquote("\"#{ $icon }\""); // sass-lint:disable-line quotes
-    display: inline-block;
-    font-family: 'Font Awesome\ 5 Free';
-    font-style: normal;
-    font-variant: normal;
-    line-height: 1;
-    text-rendering: auto;
-
-    @if $bold {
-      font-weight: bold;
-    }
-  }
-}
