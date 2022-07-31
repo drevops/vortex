@@ -122,8 +122,13 @@ commands:
     usage: Reload the database container using local database image.
     cmd: |
       ahoy confirm "Running this command will replace your current database. Are you sure?" &&
-      docker-compose rm -f -s -v mariadb && ahoy up -- --build mariadb && ahoy install-site && ahoy info && ahoy login ||
-      echo "The operation was canceled."
+      docker-compose rm -f -s -v mariadb \
+        && ahoy up -- --build mariadb \
+        && ahoy up wait_dependencies \
+        && ahoy install-site \
+        && ahoy info \
+        && ahoy login \
+      || echo "The operation was canceled."
 
   install-site:
     usage: Install a site.
@@ -233,7 +238,11 @@ commands:
   # ----------------------------------------------------------------------------
   confirm:
     cmd: |
-      [ -z "$DREVOPS_AHOY_CONFIRM_RESPONSE" ] && read -r -p "$1 [y/N] " DREVOPS_AHOY_CONFIRM_RESPONSE; [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = true ]
+      if [ -z "$DREVOPS_AHOY_CONFIRM_RESPONSE" ]; then
+        read -r -p "▶ $1 [y/N] " DREVOPS_AHOY_CONFIRM_RESPONSE; [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = true ]
+      else
+        echo "▶ $1 [y/N] $DREVOPS_AHOY_CONFIRM_RESPONSE"
+      fi
     hide: true
 
 #: Override entrypoint to alter default behaviour of Ahoy.
