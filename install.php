@@ -72,18 +72,21 @@ function install(array $argv) {
 
   if (get_config('help')) {
     print_help();
+
     return INSTALLER_EXIT_SUCCESS;
   }
 
   check_requirements();
 
   print_header();
+  $is_installed = is_installed();
 
   gather_answers();
 
   $proceed = ask_should_proceed();
   if (!$proceed) {
     print_abort();
+
     return INSTALLER_EXIT_SUCCESS;
   }
   finalise_interactions();
@@ -100,7 +103,7 @@ function install(array $argv) {
 
   process_demo();
 
-  print_footer();
+  print_footer($is_installed);
 
   return INSTALLER_EXIT_SUCCESS;
 }
@@ -268,6 +271,7 @@ function copy_recursive($source, $dest, $permissions = 0755, $copy_empty_dirs = 
       $ret = symlink(readlink($source), basename($dest));
     }
     chdir($cur_dir);
+
     return $ret;
   }
 
@@ -276,6 +280,7 @@ function copy_recursive($source, $dest, $permissions = 0755, $copy_empty_dirs = 
     if ($ret) {
       chmod($dest, fileperms($source));
     }
+
     return $ret;
   }
 
@@ -292,6 +297,7 @@ function copy_recursive($source, $dest, $permissions = 0755, $copy_empty_dirs = 
   }
 
   $dir->close();
+
   return TRUE;
 }
 
@@ -301,8 +307,10 @@ function git_file_is_tracked($path, $dir) {
     chdir($dir);
     do_exec("git ls-files --error-unmatch \"{$path}\" 2>&1 >/dev/null", $output, $code);
     chdir($cwd);
+
     return $code === 0;
   }
+
   return FALSE;
 }
 
@@ -454,6 +462,7 @@ function process__string_tokens($dir) {
   dir_replace_content('YOURORG',               get_answer('org'),                        $dir);
   dir_replace_content('your-site-url.example', get_answer('url'),                        $dir);
   dir_replace_content('ys_core',               get_answer('module_prefix') . '_core',    $dir . '/docroot/modules/custom');
+  dir_replace_content('ys_core',               get_answer('module_prefix') . '_core',    $dir . '/scripts/custom');
   dir_replace_content('YsCore',                $module_prefix_capitalised . 'Core',      $dir . '/docroot/modules/custom');
   dir_replace_content('your-site',             $machine_name_hyphenated,                 $dir);
   dir_replace_content('your_site',             get_answer('machine_name'),               $dir);
@@ -776,11 +785,13 @@ function set_config($name, $value) {
 
 function get_configs() {
   global $_config;
+
   return $_config;
 }
 
 function get_answer($name, $default = NULL) {
   global $_answers;
+
   return $_answers[$name] ?? $default;
 }
 
@@ -791,6 +802,7 @@ function set_answer($name, $value) {
 
 function get_answers() {
   global $_answers;
+
   return $_answers;
 }
 
@@ -832,12 +844,14 @@ function init_cli_args_and_options($argv) {
 
   if (!empty($options['help']) || in_array('help', $pos_args)) {
     set_config('help', TRUE);
+
     return;
   }
 
   // Show help if more arguments provided than expected.
   if (count($pos_args) > 1) {
     set_config('help', TRUE);
+
     return;
   }
 
@@ -913,6 +927,7 @@ function is_install_debug() {
 function get_default_value($name) {
   // Allow to override default values from config variables.
   $config_name = strtoupper($name);
+
   return get_config($config_name, execute_callback('get_default_value', $name));
 }
 
@@ -1022,6 +1037,7 @@ function discover_value__name() {
       return $matches[1];
     }
   }
+
   return NULL;
 }
 
@@ -1032,6 +1048,7 @@ function discover_value__machine_name() {
       return $matches[2];
     }
   }
+
   return NULL;
 }
 
@@ -1042,6 +1059,7 @@ function discover_value__org() {
       return $matches[2];
     }
   }
+
   return NULL;
 }
 
@@ -1052,6 +1070,7 @@ function discover_value__org_machine_name() {
       return $matches[1];
     }
   }
+
   return NULL;
 }
 
@@ -1240,6 +1259,7 @@ function discover_value__preserve_renovatebot() {
   if (!is_installed()) {
     return NULL;
   }
+
   return is_readable(get_dst_dir() . '/renovate.json') ? ANSWER_YES : ANSWER_NO;
 }
 
@@ -1248,6 +1268,7 @@ function discover_value__preserve_doc_comments() {
   if (!is_readable($file)) {
     return NULL;
   }
+
   return file_contains('Ahoy configuration file', $file) ? ANSWER_YES : ANSWER_NO;
 }
 
@@ -1256,6 +1277,7 @@ function discover_value__preserve_drevops_info() {
   if (!is_readable($file)) {
     return NULL;
   }
+
   return file_contains('Comments starting with', $file) ? ANSWER_YES : ANSWER_NO;
 }
 
@@ -1268,6 +1290,7 @@ function get_value_from_dst_dotenv($name, $default = NULL) {
     return $default;
   }
   $parsed = parse_dotenv($file);
+
   return $parsed ? $parsed[$name] ?? $default : $default;
 }
 
@@ -1293,6 +1316,7 @@ function find_matching_path($paths, $text = NULL) {
       }
     }
   }
+
   return NULL;
 }
 
@@ -1301,6 +1325,7 @@ function find_matching_path($paths, $text = NULL) {
  */
 function is_installed() {
   $path = get_dst_dir() . DIRECTORY_SEPARATOR . 'README.md';
+
   return file_exists($path) && preg_match('/badge\/DrevOps\-/', file_get_contents($path));
 }
 
@@ -1313,6 +1338,7 @@ function is_installed() {
  */
 function normalise_answer($name, $value) {
   $normalised = execute_callback('normalise_answer', $name, $value);
+
   return $normalised ?? $value;
 }
 
@@ -1404,6 +1430,7 @@ function normalise_answer__database_store_type($value) {
 
 function normalise_answer__database_image($value) {
   $value = to_machine_name($value, ['-', '/', ':', '.']);
+
   return strpos($value, ':') !== FALSE ? $value : $value . ':latest';
 }
 
@@ -1606,9 +1633,24 @@ function print_abort() {
   print_box('Aborting project installation. No files were changed.');
 }
 
-function print_footer() {
+function print_footer($was_installed) {
   print PHP_EOL;
-  status('Finished installing DrevOps. Review changes and commit required files.', INSTALLER_STATUS_SUCCESS);
+  $output = '';
+  if ($was_installed) {
+    $output .= 'Finished updating DrevOps. Review changes and commit required files.';
+  }
+  else {
+    $output .= 'Finished installing DrevOps.' . PHP_EOL;
+    $output .= PHP_EOL;
+    $output .= 'Next steps:' . PHP_EOL;
+    $output .= '  git add -A                       # Add all files.' . PHP_EOL;
+    $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
+    $output .= '  ahoy build                       # Build site.' . PHP_EOL;
+    $output .= PHP_EOL;
+    $output .= '  See https://docs.drevops.com/quickstart';
+  }
+
+  status($output, INSTALLER_STATUS_SUCCESS);
 }
 
 function print_title($text, $fill = '-', $width = 80, $cols = '|') {
@@ -1710,6 +1752,7 @@ function format_values_list($values, $delim = '', $width = 80) {
       $output[] = sprintf($mask, $name, $value);
     }
   }
+
   return implode('', $output);
 }
 
@@ -1753,6 +1796,7 @@ function dir_contains($needle, $dir) {
       return TRUE;
     }
   }
+
   return FALSE;
 }
 
@@ -1909,6 +1953,7 @@ function glob_recursive($pattern, $flags = 0) {
   foreach (glob(dirname($pattern) . '/{,.}*[!.]', GLOB_BRACE | GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
     $files = array_merge($files, glob_recursive($dir . '/' . basename($pattern), $flags));
   }
+
   return $files;
 }
 
@@ -1935,6 +1980,7 @@ function internal_paths() {
 
 function is_internal_path($relative_path) {
   $relative_path = '/' . ltrim($relative_path, './');
+
   return in_array($relative_path, internal_paths());
 }
 
@@ -1967,6 +2013,7 @@ function do_exec($command, array &$output = NULL, &$return_var = NULL) {
     status(sprintf('  CODE  : %s', $return_var), INSTALLER_STATUS_DEBUG);
     status(sprintf('  RESULT: %s', $result), INSTALLER_STATUS_DEBUG);
   }
+
   return $result;
 }
 
@@ -2085,6 +2132,7 @@ function getenv_or_default($name, $default = NULL) {
   if (!isset($vars[$name]) || $vars[$name] == '') {
     return $default;
   }
+
   return $vars[$name];
 }
 
@@ -2129,6 +2177,7 @@ function to_human_name($value) {
   $value = preg_replace('/[^a-zA-Z0-9]/', ' ', $value);
   $value = trim($value);
   $value = preg_replace('/\s{2,}/', ' ', $value);
+
   return $value;
 }
 
@@ -2141,11 +2190,13 @@ function to_machine_name($value, $preserve_chars = []) {
 
   $value = preg_replace($pattern, '_', $value);
   $value = strtolower($value);
+
   return $value;
 }
 
 function to_camel_case($value, $capitalise_first = FALSE) {
   $value = str_replace(' ', '', ucwords(preg_replace('/[^a-zA-Z0-9]/', ' ', $value)));
+
   return $capitalise_first ? $value : lcfirst($value);
 }
 
@@ -2184,6 +2235,7 @@ function get_composer_json_value($name) {
       return $json[$name];
     }
   }
+
   return NULL;
 }
 
@@ -2193,6 +2245,7 @@ function get_stdin_handle() {
     $h = fopen('php://stdin', 'r');
     $_stdin_handle = stream_isatty($h) || getenv('DREVOPS_INSTALLER_FORCE_TTY') ? $h : fopen('/dev/tty', 'r+');
   }
+
   return $_stdin_handle;
 }
 
