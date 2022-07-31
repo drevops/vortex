@@ -1,0 +1,10 @@
+// Example to override a header component.
+.site-header {
+  &__initial {
+    background: $color-primary;
+  }
+
+  .site-branding {
+    background: $color-primary;
+  }
+}

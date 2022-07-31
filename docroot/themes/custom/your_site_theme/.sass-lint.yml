@@ -18,3 +18,4 @@ rules:
     - allow-leading-underscore: true
   nesting-depth: 0
   placeholder-in-extend: 0
+  class-name-format: 0

@@ -557,7 +557,7 @@ assert_ahoy_fe() {
   substep "Build FE assets for production"
   assert_file_not_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#7e57e2"
   echo "\$color-tester: #7e57e2;" >>docroot/themes/custom/star_wars/scss/_variables.scss
-  echo "\$body-bg: \$color-tester;" >>docroot/themes/custom/star_wars/scss/_variables.scss
+  echo "\$color-primary: \$color-tester;" >>docroot/themes/custom/star_wars/scss/_variables.scss
   sync_to_container
   ahoy fe
   sync_to_host
@@ -566,7 +566,7 @@ assert_ahoy_fe() {
   substep "Build FE assets for development"
   assert_file_not_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#91ea5e"
   echo "\$color-please: #91ea5e;" >>docroot/themes/custom/star_wars/scss/_variables.scss
-  echo "\$body-bg: \$color-please;" >>docroot/themes/custom/star_wars/scss/_variables.scss
+  echo "\$color-primary: \$color-please;" >>docroot/themes/custom/star_wars/scss/_variables.scss
   sync_to_container
   ahoy fed
   sync_to_host
