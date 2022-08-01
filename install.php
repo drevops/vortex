@@ -128,7 +128,7 @@ function prepare_destination() {
   }
 
   if (is_readable("$dst/.git")) {
-    status(sprintf('Git repository exists in "%s" - skipping initialisation.', $dst));
+    status(sprintf('Git repository exists in "%s" - skipping initialisation.', $dst), INSTALLER_STATUS_MESSAGE, FALSE);
   }
   else {
     status(sprintf('Initialising Git repository in directory "%s".', $dst), INSTALLER_STATUS_MESSAGE, FALSE);
@@ -136,9 +136,9 @@ function prepare_destination() {
     if (!is_readable("$dst/.git")) {
       throw new \RuntimeException(sprintf('Unable to init git project in directory "%s".', $dst));
     }
-    print ' ';
-    status('Done', INSTALLER_STATUS_SUCCESS);
   }
+  print ' ';
+  status('Done', INSTALLER_STATUS_SUCCESS);
 }
 
 function finalise_interactions() {
@@ -1596,7 +1596,7 @@ function print_summary() {
   $values['DrevOps commit'] = format_not_empty(get_config('DREVOPS_INSTALL_COMMIT'), 'Latest');
 
   $values[] = '';
-  $values[] = str_repeat('*', 80 - 2 - 2 * 2);
+  $values[] = str_repeat('─', 80 - 2 - 2 * 2);
   $values[] = '';
 
   $values['Name'] = get_answer('name');
@@ -1657,20 +1657,20 @@ function print_footer($was_installed) {
   }
 }
 
-function print_title($text, $fill = '-', $width = 80, $cols = '|') {
-  print_divider($fill, $width);
+function print_title($text, $fill = '-', $width = 80, $cols = '|', $has_content = FALSE) {
+  print_divider($fill, $width, 'down');
   $lines = explode(PHP_EOL, wordwrap($text, $width - 4, PHP_EOL));
   foreach ($lines as $line) {
     $line = ' ' . $line . ' ';
     print $cols . str_pad($line, $width - 2, ' ', STR_PAD_BOTH) . $cols . PHP_EOL;
   }
-  print_divider($fill, $width);
+  print_divider($fill, $width, $has_content ? 'up' : 'both');
 }
 
 function print_subtitle($text, $fill = '=', $width = 80) {
   $is_multiline = strlen($text) + 4 >= $width;
   if ($is_multiline) {
-    print_title($text, $fill, $width);
+    print_title($text, $fill, $width, 'both');
   }
   else {
     $text = ' ' . $text . ' ';
@@ -1678,11 +1678,32 @@ function print_subtitle($text, $fill = '=', $width = 80) {
   }
 }
 
-function print_divider($fill = '-', $width = 80, $corners = 'x') {
-  print $corners . str_repeat($fill, $width - 2) . $corners . PHP_EOL;
+function print_divider($fill = '-', $width = 80, $direction = 'none') {
+  $start = $fill;
+  $finish = $fill;
+  switch ($direction) {
+    case 'up':
+      $start = '╰';
+      $finish = '╯';
+      break;
+
+    case 'down':
+      $start = '╭';
+      $finish = '╮';
+      break;
+
+    case 'both':
+      $start = '├';
+      $finish = '┤';
+      break;
+  }
+
+  print $start . str_repeat($fill, $width - 2) . $finish . PHP_EOL;
 }
 
-function print_box($content, $title = '', $fill = '-', $padding = 2, $width = 80, $cols = '|', $corners = 'x') {
+function print_box($content, $title = '', $fill = '─', $padding = 2, $width = 80) {
+  $cols = '│';
+
   $max_width = $width - 2 - $padding * 2;
   $lines = explode(PHP_EOL, wordwrap(rtrim($content, PHP_EOL), $max_width, PHP_EOL));
   $pad = str_pad(' ', $padding);
@@ -1693,7 +1714,7 @@ function print_box($content, $title = '', $fill = '-', $padding = 2, $width = 80
     print_title($title, $fill, $width);
   }
   else {
-    print_divider($fill, $width, $corners);
+    print_divider($fill, $width, 'down');
   }
 
   array_unshift($lines, '');
@@ -1702,7 +1723,7 @@ function print_box($content, $title = '', $fill = '-', $padding = 2, $width = 80
     printf($mask, $line);
   }
 
-  print_divider($fill, $width);
+  print_divider($fill, $width, 'up');
   print PHP_EOL;
 }
 
@@ -1712,7 +1733,7 @@ function print_tick($text = NULL) {
     status($text, INSTALLER_STATUS_DEBUG, FALSE);
   }
   else {
-    print status('.', INSTALLER_STATUS_MESSAGE, FALSE, FALSE);
+    status('.', INSTALLER_STATUS_MESSAGE, FALSE, FALSE);
   }
 }
 
