@@ -118,11 +118,13 @@ function prepare_destination() {
   $dst = get_dst_dir();
 
   if (!is_dir($dst)) {
-    status(sprintf('Creating destination directory "%s".', $dst));
+    status(sprintf('Creating destination directory "%s".', $dst), INSTALLER_STATUS_MESSAGE, FALSE);
     mkdir($dst);
     if (!is_writable($dst)) {
       throw new \RuntimeException(sprintf('Destination directory "%s" is not writable.', $dst));
     }
+    print ' ';
+    status('Done', INSTALLER_STATUS_SUCCESS);
   }
 
   if (is_readable("$dst/.git")) {
@@ -606,7 +608,7 @@ function download_remote() {
   }
 
   $url = "https://github.com/{$org}/{$project}/archive/${ref}.tar.gz";
-  status(sprintf('Downloading DrevOps from the remote repository "%s" at ref "%s".', $url, $ref));
+  status(sprintf('Downloading DrevOps from the remote repository "%s" at ref "%s".', $url, $ref), INSTALLER_STATUS_MESSAGE, FALSE);
   do_exec("curl -sS -L \"$url\" | tar xzf - -C \"${dst}\" --strip 1", $output, $code);
 
   if ($code != 0) {
@@ -1635,22 +1637,24 @@ function print_abort() {
 
 function print_footer($was_installed) {
   print PHP_EOL;
-  $output = '';
+
   if ($was_installed) {
-    $output .= 'Finished updating DrevOps. Review changes and commit required files.';
+    print_box('Finished updating DrevOps. Review changes and commit required files.');
   }
   else {
-    $output .= 'Finished installing DrevOps.' . PHP_EOL;
+    print_box('Finished installing DrevOps.');
+
+    $output = '';
     $output .= PHP_EOL;
     $output .= 'Next steps:' . PHP_EOL;
+    $output .= '  cd ' . get_dst_dir() . PHP_EOL;
     $output .= '  git add -A                       # Add all files.' . PHP_EOL;
     $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
     $output .= '  ahoy build                       # Build site.' . PHP_EOL;
     $output .= PHP_EOL;
     $output .= '  See https://docs.drevops.com/quickstart';
+    status($output, INSTALLER_STATUS_SUCCESS, TRUE, FALSE);
   }
-
-  status($output, INSTALLER_STATUS_SUCCESS);
 }
 
 function print_title($text, $fill = '-', $width = 80, $cols = '|') {
@@ -2258,7 +2262,6 @@ function out($text, $color = NULL, $new_line = TRUE) {
   $styles = [
     'success' => "\033[0;32m%s\033[0m",
     'error' => "\033[31;31m%s\033[0m",
-    'info' => "\033[33;33m%s\033[0m",
   ];
 
   $format = '%s';
