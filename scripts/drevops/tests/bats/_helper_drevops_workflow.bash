@@ -435,6 +435,22 @@ assert_ahoy_test_bdd() {
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
+  substep "Run tagged BDD tests based on DREVOPS_TEST_BEHAT_TAGS variable"
+  assert_dir_empty tests/behat/screenshots
+  DREVOPS_TEST_BEHAT_TAGS=p0 ahoy test-bdd
+  sync_to_host
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/behat/default.xml
+  rm -rf test_reports/*
+  ahoy cli rm -rf /app/test_reports/*
+  assert_dir_not_empty tests/behat/screenshots
+  # Test tagged with p0 are non-browser tests, so there should not be any
+  # image screenshots.
+  assert_file_exists "tests/behat/screenshots/*html"
+  assert_file_not_exists "tests/behat/screenshots/*png"
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
+
   substep "Run profile BDD tests based on DREVOPS_TEST_BEHAT_PROFILE variable"
   assert_dir_empty tests/behat/screenshots
   ahoy cli mkdir -p /app/test_reports/behat
