@@ -239,9 +239,9 @@ commands:
   confirm:
     cmd: |
       if [ -z "$DREVOPS_AHOY_CONFIRM_RESPONSE" ]; then
-        read -r -p "▶ $1 [y/N] " DREVOPS_AHOY_CONFIRM_RESPONSE; [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = true ]
+        read -r -p "❗  $1 [y/N] " DREVOPS_AHOY_CONFIRM_RESPONSE; [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = true ]
       else
-        echo "▶ $1 [y/N] $DREVOPS_AHOY_CONFIRM_RESPONSE"
+        echo "❗  $1 [y/N] $DREVOPS_AHOY_CONFIRM_RESPONSE"
       fi
     hide: true
 

@@ -23,7 +23,7 @@ DREVOPS_DB_EXPORT_DOCKER_DIR="${DREVOPS_DB_EXPORT_DOCKER_DIR:-${DREVOPS_DB_DIR}}
 
 # ------------------------------------------------------------------------------
 
-echo "==> Started Docker database image export."
+echo "🤖 Started Docker database image export."
 
 [ -z "${DREVOPS_DB_EXPORT_DOCKER_IMAGE}" ] && echo "ERROR: Destination image name is not specified. Please provide docker image as a variable DREVOPS_DB_EXPORT_DOCKER_IMAGE in a format <org>/<repository>." && exit 1
 
@@ -57,4 +57,4 @@ else
   echo "ERROR: Unable to save database image archive file \"${archive_file}\"." && exit 1
 fi
 
-echo "==> Finished Docker database image export."
+echo "🤖 Finished Docker database image export."

@@ -515,7 +515,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Profile: standard."
   assert_output_contains "  > Existing site was not found."
   assert_output_contains "  > The site content will be created from the profile."
-  assert_output_contains "  > Successfully installed a site from profile."
+  assert_output_contains "  > Successfully installed a site from the profile."
   assert_output_contains "========================================"
 
   assert_equal "-q sql-drop -y" "$(mock_get_call_args "${mock_drush}" 4)"
@@ -655,7 +655,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Sanitization will be skipped for an existing database."
   assert_output_contains "========================================"
 
-  assert_output_not_contains "  > Successfully installed a site from profile."
+  assert_output_not_contains "  > Successfully installed a site from the profile."
   assert_output_not_contains "  > Existing site content will be removed and new content will be imported from the database dump file."
   assert_output_not_contains "  > Existing site was not found."
   assert_output_not_contains "  > The site content will be imported from the database dump file."
@@ -788,7 +788,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "  > Profile: standard."
   assert_output_contains "  > Existing site was found."
   assert_output_contains "  > Existing site content will be removed and new content will be created from the profile."
-  assert_output_contains "  > Successfully installed a site from profile."
+  assert_output_contains "  > Successfully installed a site from the profile."
   assert_output_contains "========================================"
 
   assert_equal "-q sql-drop -y" "$(mock_get_call_args "${mock_drush}" 4)"

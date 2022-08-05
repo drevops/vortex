@@ -73,16 +73,16 @@ fi
 
 # Discover and load a custom database dump key if fingerprint is provided.
 if [ -n "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT}" ]; then
-  echo "==> Custom database dump key is provided."
+  echo "🤖 Custom database dump key is provided."
   DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT//:}"
   DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE//\"}"
 
   [ ! -f "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}" ] && echo "ERROR: SSH key file ${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE} does not exist." && exit 1
 
   if ssh-add -l | grep -q "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}"; then
-    echo "==> SSH agent has ${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE} key loaded."
+    echo "🤖 SSH agent has ${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE} key loaded."
   else
-    echo "==> SSH agent does not have default key loaded. Trying to load."
+    echo "🤖 SSH agent does not have default key loaded. Trying to load."
     # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
     ssh-add -D > /dev/null
     ssh-add "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}"
@@ -109,7 +109,7 @@ ssh \
      echo \"   > Using existing dump ${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
    fi"
 
-echo "==> Downloading a backup."
+echo "🤖 Downloading a backup."
 ssh_opts_string="${ssh_opts[@]}"
 rsync_opts=(-e "ssh $ssh_opts_string")
 rsync "${rsync_opts[@]}" "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER}@${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST}":"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}"/"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}" "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"

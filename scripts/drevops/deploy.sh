@@ -84,19 +84,19 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*artifact*}" ]; then
-  echo "==> Started 'artifact' deployment."
+  echo "🤖 Started 'artifact' deployment."
   export DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT="${DREVOPS_DEPLOY_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT}}"
   export DREVOPS_DEPLOY_ARTIFACT_SSH_FILE="${DREVOPS_DEPLOY_SSH_FILE:-${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE}}"
   ./scripts/drevops/deploy-artifact.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*webhook*}" ]; then
-  echo "==> Started 'webhook' deployment."
+  echo "🤖 Started 'webhook' deployment."
   ./scripts/drevops/deploy-webhook.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*docker*}" ]; then
-  echo "==> Started 'docker' deployment."
+  echo "🤖 Started 'docker' deployment."
   export DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME="${DREVOPS_DOCKER_REGISTRY_USERNAME:-${DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME}}"
   export DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN:-${DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN}}"
   export DREVOPS_DEPLOY_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-${DREVOPS_DEPLOY_DOCKER_REGISTRY}}"
@@ -104,7 +104,7 @@ if [ -z "${DREVOPS_DEPLOY_TYPE##*docker*}" ]; then
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*lagoon*}" ]; then
-  echo "==> Started 'lagoon' deployment."
+  echo "🤖 Started 'lagoon' deployment."
   export DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT="${DREVOPS_DEPLOY_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT}}"
   export DREVOPS_DEPLOY_LAGOON_SSH_FILE="${DREVOPS_DEPLOY_SSH_FILE:-${DREVOPS_DEPLOY_LAGOON_SSH_FILE}}"
   export DREVOPS_DEPLOY_LAGOON_PROJECT="${LAGOON_PROJECT:-${DREVOPS_DEPLOY_LAGOON_PROJECT}}"
