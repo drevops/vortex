@@ -47,7 +47,7 @@ DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP="${DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP:-}"
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_CHANGELOG}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_NEWRELIC_CHANGELOG" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_USER}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_NEWRELIC_USER" && exit 1
 
-echo "==> Started New Relic notification"
+echo "🤖 Started New Relic notification"
 
 # Discover APP id by name if it was not provided.
 if [ -z "${DREVOPS_NOTIFY_NEWRELIC_APPID}" ] && [ -n "${DREVOPS_NOTIFY_NEWRELIC_APP_NAME}" ]; then
@@ -77,4 +77,4 @@ if ! curl -X POST "${DREVOPS_NOTIFY_NEWRELIC_ENDPOINT}/applications/${DREVOPS_NO
   exit 1
 fi
 
-echo "==> Finished New Relic notification"
+echo "🤖 Finished New Relic notification"

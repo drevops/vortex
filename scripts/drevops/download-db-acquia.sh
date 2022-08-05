@@ -42,7 +42,7 @@ DREVOPS_DB_DOWNLOAD_ACQUIA_FILE="${DREVOPS_DB_DOWNLOAD_ACQUIA_FILE:-${DREVOPS_DB
 
 #-------------------------------------------------------------------------------
 
-echo "==> Started database dump download from Acquia."
+echo "🤖 Started database dump download from Acquia."
 
 #
 # Extract last value from JSON object passed via STDIN.
@@ -120,7 +120,7 @@ else
     # shellcheck disable=SC2181
     [ $? -ne 0 ] && echo "ERROR: Unable to download database ${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}." && exit 1
   else
-    echo "==> Found existing cached gzipped DB file ${file_name_compressed} for DB ${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}."
+    echo "🤖 Found existing cached gzipped DB file ${file_name_compressed} for DB ${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}."
   fi
 
   echo "  > Expanding DB file ${file_name_compressed} into ${file_name}."
@@ -133,4 +133,4 @@ fi
 echo "  > Renaming file \"${file_name}\" to \"${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}/${DREVOPS_DB_DOWNLOAD_ACQUIA_FILE}\"."
 mv "${file_name}" "${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}/${DREVOPS_DB_DOWNLOAD_ACQUIA_FILE}"
 
-echo "==> Finished database dump download from Acquia."
+echo "🤖 Finished database dump download from Acquia."

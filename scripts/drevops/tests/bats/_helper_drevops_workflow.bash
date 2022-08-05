@@ -96,11 +96,11 @@ assert_ahoy_build() {
 
   # Assert output messages. Note that only asserting generic messages that do
   # not depend on the type of the workflow.
-  assert_output_contains "==> Building project."
-  assert_output_contains "==> Removing project containers and packages available since the previous run."
-  assert_output_contains "==> Building images, recreating and starting containers."
-  assert_output_contains "==> Installing development dependencies."
-  assert_output_contains "==> Build complete."
+  assert_output_contains "Building project."
+  assert_output_contains "Removing project containers and packages available since the previous run."
+  assert_output_contains "Building Docker images, recreating and starting containers."
+  assert_output_contains "Installing development dependencies."
+  assert_output_contains "Build complete."
 
   # Assert that lock files were created.
   assert_file_exists "composer.lock"
@@ -793,7 +793,7 @@ assert_ahoy_local() {
   cp "default.ahoy.local.yml" ".ahoy.local.yml"
   run ahoy local help
   assert_success
-  assert_output_contains "==> Custom local commands"
+  assert_output_contains "Custom local commands"
   assert_output_not_contains "[fatal]"
   assert_output_not_contains ".ahoy.local.yml does not exist. Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
 

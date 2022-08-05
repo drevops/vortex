@@ -94,20 +94,20 @@ load _helper_drevops_deployment
 
   run ahoy deploy
   assert_success
-  assert_output_contains "==> Started ARTIFACT deployment."
+  assert_output_contains "Started ARTIFACT deployment."
 
   # Assert that no other deployments ran.
-  assert_output_not_contains "==> Started WEBHOOK deployment."
-  assert_output_not_contains "==> Successfully called webhook."
+  assert_output_not_contains "Started WEBHOOK deployment."
+  assert_output_not_contains "Successfully called webhook."
   assert_output_not_contains "ERROR: Webhook deployment failed."
-  assert_output_not_contains "==> Finished WEBHOOK deployment."
+  assert_output_not_contains "Finished WEBHOOK deployment."
 
-  assert_output_not_contains "==> Started DOCKER deployment."
+  assert_output_not_contains "Started DOCKER deployment."
   assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
-  assert_output_not_contains "==> Finished DOCKER deployment."
+  assert_output_not_contains "Finished DOCKER deployment."
 
-  assert_output_not_contains "==> Started LAGOON deployment."
-  assert_output_not_contains "==> Finished LAGOON deployment."
+  assert_output_not_contains "Started LAGOON deployment."
+  assert_output_not_contains "Finished LAGOON deployment."
 
   step "Assert remote deployment files"
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
@@ -195,8 +195,8 @@ load _helper_drevops_deployment
   run ahoy deploy
   assert_success
 
-  assert_output_contains "==> Started Lagoon deployment."
-  assert_output_contains "==> Finished Lagoon deployment."
+  assert_output_contains "Started Lagoon deployment."
+  assert_output_contains "Finished Lagoon deployment."
 
   # Assert lagoon binary exists and was called.
   assert_file_exists "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
@@ -210,17 +210,17 @@ load _helper_drevops_deployment
   assert_contains "-l testlagoon deploy branch -p testproject -b testbranch" "$(mock_get_call_args "${mock_lagoon}" 3)"
 
   # Assert that no other deployments ran.
-  assert_output_not_contains "==> Started ARTIFACT deployment."
-  assert_output_not_contains "==> Finished ARTIFACT deployment."
+  assert_output_not_contains "Started ARTIFACT deployment."
+  assert_output_not_contains "Finished ARTIFACT deployment."
 
-  assert_output_not_contains "==> Started WEBHOOK deployment."
-  assert_output_not_contains "==> Successfully called webhook."
+  assert_output_not_contains "Started WEBHOOK deployment."
+  assert_output_not_contains "Successfully called webhook."
   assert_output_not_contains "ERROR: Webhook deployment failed."
-  assert_output_not_contains "==> Finished WEBHOOK deployment."
+  assert_output_not_contains "Finished WEBHOOK deployment."
 
-  assert_output_not_contains "==> Started DOCKER deployment."
+  assert_output_not_contains "Started DOCKER deployment."
   assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
-  assert_output_not_contains "==> Finished DOCKER deployment."
+  assert_output_not_contains "Finished DOCKER deployment."
 
   popd > /dev/null
 }
@@ -319,13 +319,13 @@ load _helper_drevops_deployment
   run ahoy deploy
   assert_success
 
-  assert_output_contains "==> Started Lagoon deployment."
-  assert_output_contains "  > Found already deployed environment for branch \"testbranch\"."
-  assert_output_contains "  > Add a DB import override flag for the current deployment."
-  assert_output_contains "  > Redeploying environment: project testproject, branch: testbranch."
-  assert_output_contains "  > Waiting for deployment to be queued."
-  assert_output_contains "  > Remove a DB import override flag for the current deployment."
-  assert_output_contains "==> Finished Lagoon deployment."
+  assert_output_contains "Started Lagoon deployment."
+  assert_output_contains "Found already deployed environment for branch \"testbranch\"."
+  assert_output_contains "Add a DB import override flag for the current deployment."
+  assert_output_contains "Redeploying environment: project testproject, branch: testbranch."
+  assert_output_contains "Waiting for deployment to be queued."
+  assert_output_contains "Remove a DB import override flag for the current deployment."
+  assert_output_contains "Finished Lagoon deployment."
 
   # Assert lagoon binary exists and was called.
   assert_file_exists "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
@@ -350,17 +350,17 @@ load _helper_drevops_deployment
   assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 9)"
 
   # Assert that no other deployments ran.
-  assert_output_not_contains "==> Started ARTIFACT deployment."
-  assert_output_not_contains "==> Finished ARTIFACT deployment."
+  assert_output_not_contains "Started ARTIFACT deployment."
+  assert_output_not_contains "Finished ARTIFACT deployment."
 
-  assert_output_not_contains "==> Started WEBHOOK deployment."
-  assert_output_not_contains "==> Successfully called webhook."
+  assert_output_not_contains "Started WEBHOOK deployment."
+  assert_output_not_contains "Successfully called webhook."
   assert_output_not_contains "ERROR: Webhook deployment failed."
-  assert_output_not_contains "==> Finished WEBHOOK deployment."
+  assert_output_not_contains "Finished WEBHOOK deployment."
 
-  assert_output_not_contains "==> Started DOCKER deployment."
+  assert_output_not_contains "Started DOCKER deployment."
   assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
-  assert_output_not_contains "==> Finished DOCKER deployment."
+  assert_output_not_contains "Finished DOCKER deployment."
 
   popd > /dev/null
 }

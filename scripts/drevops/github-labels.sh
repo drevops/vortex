@@ -53,7 +53,7 @@ labels=(
 # ------------------------------------------------------------------------------
 
 main(){
-  echo "==> Processing GitHub labels."
+  echo "🤖 Processing GitHub labels."
 
   echo
   if [ "${DREVOPS_GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
@@ -140,7 +140,7 @@ main(){
   done
 
   echo
-  echo "==> Label processing complete"
+  echo "🤖 Label processing complete"
   echo
 }
 

@@ -54,7 +54,7 @@ DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION="${DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION:-
 
 # ------------------------------------------------------------------------------
 
-echo "==> Started LAGOON task $DREVOPS_TASK_LAGOON_NAME."
+echo "🤖 Started LAGOON task $DREVOPS_TASK_LAGOON_NAME."
 
 ## Check all required values.
 [ -z "${DREVOPS_TASK_LAGOON_NAME}" ] && echo "Missing required value for DREVOPS_TASK_LAGOON_NAME." && exit 1
@@ -100,10 +100,10 @@ if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_TASK_LAGOON_INSTALL_CLI_FOR
   export PATH="${PATH}:${DREVOPS_TASK_LAGOON_BIN_PATH}"
 fi
 
-echo "==> Configuring Lagoon instance."
+echo "🤖 Configuring Lagoon instance."
 lagoon config add --force -l "${DREVOPS_TASK_LAGOON_INSTANCE}" -g "${DREVOPS_TASK_LAGOON_INSTANCE_GRAPHQL}" -H "${DREVOPS_TASK_LAGOON_INSTANCE_HOSTNAME}" -P "${DREVOPS_TASK_LAGOON_INSTANCE_PORT}"
 
 echo "  > Creating $DREVOPS_TASK_LAGOON_NAME task: project ${DREVOPS_TASK_LAGOON_PROJECT}, branch: ${DREVOPS_TASK_LAGOON_BRANCH}."
 lagoon --force --skip-update-check -i "${DREVOPS_TASK_SSH_FILE}" -l "${DREVOPS_TASK_LAGOON_INSTANCE}" run custom -p "${DREVOPS_TASK_LAGOON_PROJECT}" -e "${DREVOPS_TASK_LAGOON_BRANCH}" -N "${DREVOPS_TASK_LAGOON_NAME}" -c "${DREVOPS_TASK_LAGOON_COMMAND}"
 
-echo "==> Finished LAGOON task $DREVOPS_TASK_LAGOON_NAME."
+echo "🤖 Finished LAGOON task $DREVOPS_TASK_LAGOON_NAME."

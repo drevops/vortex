@@ -99,7 +99,7 @@ load _helper_drevops_deployment
   # Artifact deployment assertions.
   #
 
-  assert_output_contains "==> Started ARTIFACT deployment."
+  assert_output_contains "Started ARTIFACT deployment."
 
   substep "ARTIFACT: Assert remote deployment files."
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
@@ -107,24 +107,24 @@ load _helper_drevops_deployment
   # Assert Acquia hooks are absent.
   assert_files_present_no_integration_acquia "${REMOTE_REPO_DIR}"
 
-  assert_output_contains "==> Finished ARTIFACT deployment."
+  assert_output_contains "Finished ARTIFACT deployment."
 
   #
   # Webhook deployment assertions.
   #
-  assert_output_contains "==> Started WEBHOOK deployment."
-  assert_output_contains "  > Successfully called webhook."
+  assert_output_contains "Started WEBHOOK deployment."
+  assert_output_contains "Successfully called webhook."
   assert_output_not_contains "ERROR: Webhook deployment failed."
-  assert_output_contains "==> Finished WEBHOOK deployment."
+  assert_output_contains "Finished WEBHOOK deployment."
 
   #
   # Docker deployment assertions.
   #
   # By default, Docker deployment will not proceed if service-to-image map
   # is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable and will exit normally.
-  assert_output_contains "==> Started DOCKER deployment."
+  assert_output_contains "Started DOCKER deployment."
   assert_output_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
-  assert_output_not_contains "==> Finished DOCKER deployment."
+  assert_output_not_contains "Finished DOCKER deployment."
 
   popd > /dev/null
 }
@@ -191,7 +191,7 @@ load _helper_drevops_deployment
   run ahoy deploy
   assert_success
   assert_output_contains "Skipping deployment webhook."
-  assert_output_not_contains "==> Started WEBHOOK deployment."
+  assert_output_not_contains "Started WEBHOOK deployment."
 
   substep "Run deployment without skip flag set."
   export DREVOPS_DEPLOY_PROCEED=1
@@ -199,8 +199,8 @@ load _helper_drevops_deployment
   run ahoy deploy
   assert_success
   assert_output_not_contains "Skipping deployment webhook."
-  assert_output_contains "==> Started WEBHOOK deployment."
-  assert_output_contains "==> Finished WEBHOOK deployment."
+  assert_output_contains "Started WEBHOOK deployment."
+  assert_output_contains "Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set, but without per-branch or per-pr skip flags."
   export DREVOPS_DEPLOY_PROCEED=1
@@ -210,8 +210,8 @@ load _helper_drevops_deployment
   assert_success
   assert_output_not_contains "Skipping deployment webhook."
   assert_output_contains "Found flag to skip a deployment."
-  assert_output_contains "==> Started WEBHOOK deployment."
-  assert_output_contains "==> Finished WEBHOOK deployment."
+  assert_output_contains "Started WEBHOOK deployment."
+  assert_output_contains "Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set and with per-branch flag set."
   export DREVOPS_DEPLOY_PROCEED=1
@@ -225,8 +225,8 @@ load _helper_drevops_deployment
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Found skip variable DREVOPS_DEPLOY_SKIP_BRANCH_FEATURE_TEST for branch feature/test."
   assert_output_contains "Skipping deployment webhook."
-  assert_output_not_contains "==> Started WEBHOOK deployment."
-  assert_output_not_contains "==> Finished WEBHOOK deployment."
+  assert_output_not_contains "Started WEBHOOK deployment."
+  assert_output_not_contains "Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set and with per-pr flag set."
   export DREVOPS_DEPLOY_PROCEED=1
@@ -240,8 +240,8 @@ load _helper_drevops_deployment
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Found skip variable DREVOPS_DEPLOY_SKIP_PR_123 for PR 123."
   assert_output_contains "Skipping deployment webhook."
-  assert_output_not_contains "==> Started WEBHOOK deployment."
-  assert_output_not_contains "==> Finished WEBHOOK deployment."
+  assert_output_not_contains "Started WEBHOOK deployment."
+  assert_output_not_contains "Finished WEBHOOK deployment."
 
   step "Run deployment without skip flag set and with per-pr flag set."
   export DREVOPS_DEPLOY_PROCEED=1
@@ -255,8 +255,8 @@ load _helper_drevops_deployment
   assert_output_not_contains "Found flag to skip a deployment."
   assert_output_not_contains "Found skip variable DREVOPS_DEPLOY_SKIP_PR_123 for PR 123."
   assert_output_not_contains "Skipping deployment webhook."
-  assert_output_contains "==> Started WEBHOOK deployment."
-  assert_output_contains "==> Finished WEBHOOK deployment."
+  assert_output_contains "Started WEBHOOK deployment."
+  assert_output_contains "Finished WEBHOOK deployment."
 
   popd > /dev/null
 }

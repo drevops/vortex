@@ -14,7 +14,7 @@ DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE="${2:-}"
 
 #-------------------------------------------------------------------------------
 
-echo "==> Started Docker image restore"
+echo "🤖 Started Docker image restore"
 
 [ -z "${DREVOPS_DOCKER_RESTORE_IMAGE}" ] && echo "ERROR: image name is not specified. Provide Docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
 [ -z "${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}" ] && echo "ERROR: image archive file name is not specified. Provide Docker image archive file name as a second argument to this script." && exit 1
@@ -36,4 +36,4 @@ else
   echo "  > Not found archived database Docker image file ${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}."
 fi
 
-echo "==> Finished Docker image restore"
+echo "🤖 Finished Docker image restore"
