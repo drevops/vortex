@@ -297,6 +297,8 @@ assert_ahoy_lint() {
 
   run ahoy lint
   assert_success
+  assert_output_contains "Back-end code linted successfully"
+  assert_output_contains "Front-end code linted successfully"
   assert_output_not_contains "Containers are not running."
 
   step "Assert that lint failure bypassing works"
@@ -306,11 +308,19 @@ assert_ahoy_lint() {
 
   # Assert failure.
   run ahoy lint
-  [ "${status}" -eq 1 ]
+  assert_failure
+  assert_output_not_contains "Back-end code linted successfully"
+  assert_output_not_contains "Front-end code linted successfully"
+
   run ahoy lint-be
-  [ "${status}" -eq 1 ]
+  assert_failure
+  assert_output_not_contains "Back-end code linted successfully"
+  assert_output_not_contains "Front-end code linted successfully"
+
   run ahoy lint-fe
-  [ "${status}" -eq 1 ]
+  assert_failure
+  assert_output_not_contains "Back-end code linted successfully"
+  assert_output_not_contains "Front-end code linted successfully"
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_LINT_BE_ALLOW_FAILURE" "1"
@@ -318,11 +328,20 @@ assert_ahoy_lint() {
   ahoy up cli && sync_to_container
 
   run ahoy lint
-  [ "${status}" -eq 0 ]
+  assert_success
+  assert_output_not_contains "Back-end code linted successfully"
+  assert_output_not_contains "Front-end code linted successfully"
+
   run ahoy lint-be
-  [ "${status}" -eq 0 ]
+  assert_success
+  assert_output_not_contains "Back-end code linted successfully"
+  assert_output_not_contains "Front-end code linted successfully"
+
   run ahoy lint-fe
-  [ "${status}" -eq 0 ]
+  assert_success
+  assert_output_not_contains "Back-end code linted successfully"
+  assert_output_not_contains "Front-end code linted successfully"
+
   restore_file .env && ahoy up cli
 }
 
