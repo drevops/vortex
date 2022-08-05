@@ -41,7 +41,7 @@ DREVOPS_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL="${DREVOPS_TASK_COPY_DB_ACQUIA_STATU
 
 #-------------------------------------------------------------------------------
 
-echo "==> Started database copying from between environments in Acquia."
+echo "🤖 Started database copying from between environments in Acquia."
 
 #
 # Extract last value from JSON object passed via STDIN.
@@ -125,4 +125,4 @@ echo "  > Successfully copied DB from $DREVOPS_TASK_COPY_DB_ACQUIA_SRC to $DREVO
 self_elapsed_time=$((SECONDS))
 echo "  > Run duration: $((self_elapsed_time/60)) min $((self_elapsed_time%60)) sec."
 
-echo "==> Finished database copying from between environments in Acquia."
+echo "🤖 Finished database copying from between environments in Acquia."

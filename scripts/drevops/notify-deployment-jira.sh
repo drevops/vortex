@@ -48,7 +48,7 @@ DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP="${DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP:-}"
 [ -z "${DREVOPS_NOTIFY_DEPLOY_BRANCH}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_BRANCH" && exit 1
 [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ] && [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" ] && [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ] && echo "ERROR: At least one of the DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE, DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION or DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE is required" && exit 1
 
-echo "==> Started JIRA deployment notification"
+echo "🤖 Started JIRA deployment notification"
 
 #
 # Function to extract last value from JSON object passed via STDIN.
@@ -177,4 +177,4 @@ if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ]; then
     --data "{ \"accountId\": \"${account_id}\"}")"
 fi
 
-echo "==> Finished JIRA deployment notification"
+echo "🤖 Finished JIRA deployment notification"

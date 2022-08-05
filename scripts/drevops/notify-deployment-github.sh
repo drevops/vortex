@@ -44,7 +44,7 @@ DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP="${DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP:-}"
 [ -z "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION" && exit 1
 [ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE" && exit 1
 
-echo "==> Started GitHub deployment notification for operation ${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}"
+echo "🤖 Started GitHub deployment notification for operation ${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}"
 
 #
 # Function to extract last value from JSON object passed via STDIN.
@@ -109,4 +109,4 @@ else
   echo "  > Marked deployment as finished"
 fi
 
-echo "==> Finished GitHub deployment notification"
+echo "🤖 Finished GitHub deployment notification"

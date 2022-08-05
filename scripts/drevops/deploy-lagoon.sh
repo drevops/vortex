@@ -60,7 +60,7 @@ DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSION="${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSI
 
 # ------------------------------------------------------------------------------
 
-echo "==> Started LAGOON deployment."
+echo "🤖 Started LAGOON deployment."
 
 ## Check all required values.
 [ -z "${DREVOPS_DEPLOY_LAGOON_PROJECT}" ] && echo "Missing required value for DREVOPS_DEPLOY_LAGOON_PROJECT." && exit 1
@@ -68,7 +68,7 @@ echo "==> Started LAGOON deployment."
 
 # Use custom deploy key if fingerprint is provided.
 if [ -n "${DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT}" ]; then
-  echo "==> Custom deployment key is provided."
+  echo "🤖 Custom deployment key is provided."
   DREVOPS_DEPLOY_LAGOON_SSH_FILE="${DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT//:}"
   DREVOPS_DEPLOY_LAGOON_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_LAGOON_SSH_FILE//\"}"
 fi
@@ -76,9 +76,9 @@ fi
 [ ! -f "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" ] && echo "ERROR: SSH key file ${DREVOPS_DEPLOY_LAGOON_SSH_FILE} does not exist." && exit 1
 
 if ssh-add -l | grep -q "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}"; then
-  echo "==> SSH agent has ${DREVOPS_DEPLOY_LAGOON_SSH_FILE} key loaded."
+  echo "🤖 SSH agent has ${DREVOPS_DEPLOY_LAGOON_SSH_FILE} key loaded."
 else
-  echo "==> SSH agent does not have default key loaded. Trying to load."
+  echo "🤖 SSH agent does not have default key loaded. Trying to load."
   # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
   ssh-add -D > /dev/null
   ssh-add "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}"
@@ -88,7 +88,7 @@ fi
 [ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >> "${HOME}/.ssh/config"
 
 if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL}" ]; then
-  echo "==> Installing Lagoon CLI."
+  echo "🤖 Installing Lagoon CLI."
 
   lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/latest"
   if [ "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSION}" != "latest" ]; then
@@ -104,7 +104,7 @@ if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FOR
   export PATH="${PATH}:${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}"
 fi
 
-echo "==> Configuring Lagoon instance."
+echo "🤖 Configuring Lagoon instance."
 lagoon config add --force -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" -g "${DREVOPS_DEPLOY_LAGOON_INSTANCE_GRAPHQL}" -H "${DREVOPS_DEPLOY_LAGOON_INSTANCE_HOSTNAME}" -P "${DREVOPS_DEPLOY_LAGOON_INSTANCE_PORT}"
 
 # ACTION: 'destroy'
@@ -223,4 +223,4 @@ else
   fi
 fi
 
-echo "==> Finished LAGOON deployment."
+echo "🤖 Finished LAGOON deployment."

@@ -19,7 +19,7 @@ DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS=${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS:
 
 # ------------------------------------------------------------------------------
 
-echo "==> Started WEBHOOK deployment."
+echo "🤖 Started WEBHOOK deployment."
 
 # Check all required values.
 [ -z "${DREVOPS_DEPLOY_WEBHOOK_URL}" ] && echo "Missing required value for DREVOPS_DEPLOY_WEBHOOK_URL." && exit 1
@@ -35,4 +35,4 @@ else
   exit 1
 fi
 
-echo "==> Finished WEBHOOK deployment."
+echo "🤖 Finished WEBHOOK deployment."

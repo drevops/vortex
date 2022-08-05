@@ -47,7 +47,7 @@ DREVOPS_DEPLOY_ARTIFACT_GIT_BRANCH="${DREVOPS_DEPLOY_ARTIFACT_GIT_BRANCH:-[branc
 
 # ------------------------------------------------------------------------------
 
-echo "==> Started ARTIFACT deployment."
+echo "🤖 Started ARTIFACT deployment."
 
 # Check all required values.
 [ -z "${DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE}" ] && echo "Missing required value for DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE." && exit 1
@@ -59,8 +59,8 @@ echo "==> Started ARTIFACT deployment."
 [ -z "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL}" ] && echo "Missing required value for DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL." && exit 1
 
 # Configure global git settings, if they do not exist.
-[ "$(git config --global user.name)" = "" ] && echo "==> Configuring global git user name." && git config --global user.name "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME}"
-[ "$(git config --global user.email)" = "" ] && echo "==> Configuring global git user email." && git config --global user.email "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
+[ "$(git config --global user.name)" = "" ] && echo "🤖 Configuring global git user name." && git config --global user.name "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME}"
+[ "$(git config --global user.email)" = "" ] && echo "🤖 Configuring global git user email." && git config --global user.email "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
 
 # Use custom deploy key if fingerprint is provided.
 if [ -n "${DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT}" ]; then
@@ -103,4 +103,4 @@ echo "  > Running artifact builder."
   --report="${DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE}" \
   --push
 
-echo "==> Finished ARTIFACT deployment."
+echo "🤖 Finished ARTIFACT deployment."
