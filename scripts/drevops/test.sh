@@ -67,7 +67,7 @@ DREVOPS_TEST_TYPE="${DREVOPS_TEST_TYPE:-unit-kernel-functional-bdd}"
 [ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}"
 
 if [ -z "${DREVOPS_TEST_TYPE##*unit*}" ]; then
-  echo "🤖 Run unit tests."
+  echo "🤖 Running unit tests."
 
   phpunit_opts=(-c /app/docroot/core/phpunit.xml.dist)
   [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}"/phpunit/unit.xml)
@@ -77,7 +77,7 @@ if [ -z "${DREVOPS_TEST_TYPE##*unit*}" ]; then
 fi
 
 if [ -z "${DREVOPS_TEST_TYPE##*kernel*}" ]; then
-  echo "🤖 Run Kernel tests"
+  echo "🤖 Running Kernel tests"
 
   phpunit_opts=(-c /app/docroot/core/phpunit.xml.dist)
   [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}"/phpunit/kernel.xml)
@@ -87,7 +87,7 @@ if [ -z "${DREVOPS_TEST_TYPE##*kernel*}" ]; then
 fi
 
 if [ -z "${DREVOPS_TEST_TYPE##*functional*}" ]; then
-  echo "🤖 Run Functional tests"
+  echo "🤖 Running Functional tests"
 
   phpunit_opts=(-c /app/docroot/core/phpunit.xml.dist)
   [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}"/phpunit/functional.xml)
@@ -97,12 +97,12 @@ if [ -z "${DREVOPS_TEST_TYPE##*functional*}" ]; then
 fi
 
 if [ -z "${DREVOPS_TEST_TYPE##*bdd*}" ]; then
-  echo "🤖 Run BDD tests."
+  echo "🤖 Running BDD tests."
 
   # Use parallel Behat profile if using more than a single node to run tests.
   if [ -n "${DREVOPS_TEST_BEHAT_PARALLEL_INDEX}" ] ; then
     DREVOPS_TEST_BEHAT_PROFILE="p${DREVOPS_TEST_BEHAT_PARALLEL_INDEX}"
-    echo "🤖 Running using profile \"${DREVOPS_TEST_BEHAT_PROFILE}\"."
+    echo "  Using profile \"${DREVOPS_TEST_BEHAT_PROFILE}\"."
   fi
 
   [ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && export BEHAT_SCREENSHOT_DIR="${DREVOPS_TEST_ARTIFACT_DIR}/screenshots"

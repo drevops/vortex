@@ -803,7 +803,8 @@ assert_ahoy_local() {
   run ahoy local
   assert_success
   assert_output_not_contains "[fatal]"
-  assert_output_contains ".ahoy.local.yml does not exist. Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
+  assert_output_contains ".ahoy.local.yml does not exist."
+  assert_output_contains "Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
 
   substep "Assert calling local commands with local file path specified and file is present works correctly"
   cp "default.ahoy.local.yml" ".ahoy.local.yml"
@@ -811,7 +812,8 @@ assert_ahoy_local() {
   assert_success
   assert_output_contains "Custom local commands"
   assert_output_not_contains "[fatal]"
-  assert_output_not_contains ".ahoy.local.yml does not exist. Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
+  assert_output_not_contains ".ahoy.local.yml does not exist."
+  assert_output_not_contains "Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
 
   substep "Assert calling local commands with local file path specified and file is present and file return non-zero exit code"
 
@@ -825,5 +827,6 @@ assert_ahoy_local() {
   assert_failure
   assert_output_contains "expected failure"
   assert_output_not_contains "[fatal]"
-  assert_output_not_contains ".ahoy.local.yml does not exist. Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
+  assert_output_not_contains ".ahoy.local.yml does not exist."
+  assert_output_not_contains "Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
 }
