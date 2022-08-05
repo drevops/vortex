@@ -134,23 +134,25 @@ install_import() {
 # Install site from profile.
 #
 install_profile() {
-  opts=(
+  opts=()
+
+  [ -z "${DREVOPS_DEBUG}" ] && opts+=(-q)
+
+  opts+=(
+    -y
     "${DREVOPS_DRUPAL_PROFILE}"
     --site-name="${DREVOPS_DRUPAL_SITE_NAME}"
     --site-mail="${DREVOPS_DRUPAL_SITE_EMAIL}"
     --account-name=admin
     install_configure_form.enable_update_status_module=NULL
     install_configure_form.enable_update_status_emails=NULL
-    -y
   )
 
   [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL}" ] && opts+=(--account-mail="${DREVOPS_DRUPAL_ADMIN_EMAIL}")
   [ "${site_has_config}" = "1" ] && opts+=(--existing-config)
 
-  [ -z "${DREVOPS_DEBUG}" ] && opts+=(-q)
-
   # Database may exist in non-bootstrappable state - truncuate it.
-  $drush "${drush_opts[@]}" sql-drop -y || true
+  $drush "${drush_opts[@]}" sql-drop || true
   $drush si "${opts[@]}"
   echo "   ✅  Successfully installed a site from the profile."
 }
@@ -219,7 +221,7 @@ if [ "${DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE}" = "1" ]; then
 fi
 
 echo "🤖 Running database updates."
-$drush updb --no-cache-clear -y
+$drush -y updb --no-cache-clear
 echo "   ✅  Updates were run successfully."
 
 echo "🤖 Importing Drupal configuration if it exists."
@@ -258,7 +260,7 @@ environment="$($drush php:eval "print \Drupal\core\Site\Settings::get('environme
 # @see https://www.drush.org/latest/deploycommand/
 if $drush list | grep -q deploy; then
   echo "🤖 Running post config import updates via Drush deploy."
-  $drush deploy:hook -y
+  $drush -y deploy:hook
   echo "   ✅  Post config import updates ran successfully."
 fi
 

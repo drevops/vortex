@@ -62,8 +62,9 @@ fi
 echo "🤖 Removing project containers and packages available since the previous run."
 ahoy clean
 
-echo "🤖 Building images, recreating and starting containers."
-echo "   This will take some time. Consider 'ahoy install-site' to re-install site without rebuilding containers."
+echo "🤖 Building Docker images, recreating and starting containers."
+echo "   This will take some time."
+echo "   Consider 'ahoy install-site' to re-install site without rebuilding containers."
 
 if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
   echo "🤖 Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}."
@@ -74,13 +75,13 @@ if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
   # If the image does not exist and base image was provided - use the base
   # image which allows "clean slate" for the database.
   if [ ! -f "${DREVOPS_DB_DIR}/db.tar" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE_BASE}" ]; then
-    echo "🤖 Database image was not found. Using base image ${DREVOPS_DB_DOCKER_IMAGE_BASE}."
+    echo "🤖 Database Docker image was not found. Using base image ${DREVOPS_DB_DOCKER_IMAGE_BASE}."
     export DREVOPS_DB_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE_BASE}"
   fi
 fi
 
 ahoy up -- --build --force-recreate 1>"${docker_verbose_output}" 2>"${docker_verbose_output}"
-echo "   ✅  Built images and started containers."
+echo "   ✅  Built Docker images and started containers."
 
 # Export code built within containers before adding development dependencies.
 # Usually this is needed to create a code artifact without development
