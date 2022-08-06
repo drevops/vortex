@@ -153,7 +153,7 @@ commands:
   reset:
     usage: "Remove containers, all build, uncommitted files."
     cmd: |
-      ahoy confirm "All containers, build and uncomitted files will be removed, repository will be reset to the last commit. Proceed?" \
+      ahoy confirm "All containers, build and uncommitted files will be removed, repository will be reset to the last commit. Proceed?" \
       && ahoy clean && ./scripts/drevops/reset.sh || echo "The operation was canceled."
 
   fei:
@@ -192,19 +192,40 @@ commands:
 
   test-unit:
     usage: Run PhpUnit unit tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPE=unit DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR} ./scripts/drevops/test.sh $@"
+    cmd: |
+      ahoy cli "DREVOPS_TEST_TYPE=unit \
+      DREVOPS_TEST_UNIT_GROUP=${DREVOPS_TEST_UNIT_GROUP:-} \
+      DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR:-} \
+      ./scripts/drevops/test.sh $@"
 
   test-kernel:
     usage: Run PhpUnit kernel tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPE=kernel DREVOPS_TEST_ARTIFACT_DIR=${DREVOPS_TEST_ARTIFACT_DIR} DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR} ./scripts/drevops/test.sh $@"
+    cmd: |
+      ahoy cli "DREVOPS_TEST_TYPE=kernel \
+      DREVOPS_TEST_KERNEL_GROUP=${DREVOPS_TEST_KERNEL_GROUP:-} \
+      DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR:-} \
+      ./scripts/drevops/test.sh $@"
 
   test-functional:
     usage: Run PhpUnit functional tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPE=functional DREVOPS_TEST_ARTIFACT_DIR=${DREVOPS_TEST_ARTIFACT_DIR} DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR} ./scripts/drevops/test.sh $@"
+    cmd: |
+      ahoy cli "DREVOPS_TEST_TYPE=functional \
+      DREVOPS_TEST_FUNCTIONAL_GROUP=${DREVOPS_TEST_FUNCTIONAL_GROUP:-} \
+      DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR:-} \
+      ./scripts/drevops/test.sh $@"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPE=bdd DREVOPS_TEST_ARTIFACT_DIR=${DREVOPS_TEST_ARTIFACT_DIR} DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR} DREVOPS_TEST_BEHAT_PROFILE=${DREVOPS_TEST_BEHAT_PROFILE:-} DREVOPS_TEST_BEHAT_FORMAT=${DREVOPS_TEST_BEHAT_FORMAT:-} DREVOPS_TEST_BEHAT_PARALLEL_INDEX=${DREVOPS_TEST_BEHAT_PARALLEL_INDEX:-} BEHAT_SCREENSHOT_PURGE=${BEHAT_SCREENSHOT_PURGE-} ./scripts/drevops/test.sh $@"
+    cmd: |
+      ahoy cli "DREVOPS_TEST_TYPE=bdd \
+      DREVOPS_TEST_ARTIFACT_DIR=${DREVOPS_TEST_ARTIFACT_DIR:-} \
+      DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR:-} \
+      DREVOPS_TEST_BEHAT_PROFILE=${DREVOPS_TEST_BEHAT_PROFILE:-} \
+      DREVOPS_TEST_BEHAT_FORMAT=${DREVOPS_TEST_BEHAT_FORMAT:-} \
+      DREVOPS_TEST_BEHAT_PARALLEL_INDEX=${DREVOPS_TEST_BEHAT_PARALLEL_INDEX:-} \
+      DREVOPS_TEST_BEHAT_TAGS=${DREVOPS_TEST_BEHAT_TAGS:-} \
+      BEHAT_SCREENSHOT_PURGE=${BEHAT_SCREENSHOT_PURGE:-} \
+      ./scripts/drevops/test.sh $@"
 
   debug:
     usage: Enable PHP Xdebug.
@@ -231,7 +252,12 @@ commands:
   local:
     usage: Custom local commands. See `ahoy local help`.
     cmd: |
-      if [ -f .ahoy.local.yml ]; then ahoy -f ".ahoy.local.yml" "$@"; else echo ".ahoy.local.yml does not exist. Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."; fi
+      if [ -f .ahoy.local.yml ]; then
+        ahoy -f ".ahoy.local.yml" "$@"
+      else
+        echo ".ahoy.local.yml does not exist."
+        echo "Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command.";
+      fi
 
   # ----------------------------------------------------------------------------
   # Utilities.

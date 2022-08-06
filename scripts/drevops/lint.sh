@@ -34,18 +34,18 @@ DREVOPS_DRUPAL_THEME="${DREVOPS_DRUPAL_THEME:-}"
 # If no argument is provided, all code will be linted.
 DREVOPS_LINT_TYPE="${1:-be-fe}"
 
+echo "🤖 Linting code."
+
 if [ -z "${DREVOPS_LINT_TYPE##*be*}" ]; then
-  # Lint code for syntax errors.
-  vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${DREVOPS_LINT_PHPLINT_EXTENSIONS// /} ${DREVOPS_LINT_PHPLINT_TARGETS//,/ } && \
-  # Lint code for coding standards.
-  vendor/bin/phpcs ${DREVOPS_LINT_PHPCS_TARGETS//,/ } || \
-  # Flag to allow lint to fail.
-  [ "${DREVOPS_LINT_BE_ALLOW_FAILURE}" -eq 1 ]
+  vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${DREVOPS_LINT_PHPLINT_EXTENSIONS// /} ${DREVOPS_LINT_PHPLINT_TARGETS//,/ } \
+  && vendor/bin/phpcs ${DREVOPS_LINT_PHPCS_TARGETS//,/ } \
+  && echo "✅  Back-end code linted successfully." \
+  || [ "${DREVOPS_LINT_BE_ALLOW_FAILURE}" -eq 1 ]
 fi
 
 if [ -z "${DREVOPS_LINT_TYPE##*fe*}" ] && [ -n "${DREVOPS_DRUPAL_THEME}" ] && grep -q lint "docroot/themes/custom/${DREVOPS_DRUPAL_THEME}/package.json"; then
   # Lint code using front-end linter.
-  npm run --prefix "docroot/themes/custom/${DREVOPS_DRUPAL_THEME}" lint || \
-  # Flag to allow lint to fail.
-  [ "${DREVOPS_LINT_FE_ALLOW_FAILURE}" -eq 1 ]
+  npm run --prefix "docroot/themes/custom/${DREVOPS_DRUPAL_THEME}" lint \
+  && echo "✅  Front-end code linted successfully." \
+  || [ "${DREVOPS_LINT_FE_ALLOW_FAILURE}" -eq 1 ]
 fi
