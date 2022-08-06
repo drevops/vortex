@@ -81,7 +81,7 @@ if [ -z "${DREVOPS_TEST_TYPE##*unit*}" ]; then
   [ -n "${DREVOPS_TEST_UNIT_GROUP}" ] && phpunit_opts+=(--group="${DREVOPS_TEST_UNIT_GROUP}")
   [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/unit.xml")
 
-  vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --filter '/.*Unit.*/' "$@" \
+  vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --exclude-group=skipped --filter '/.*Unit.*/' "$@" \
   && echo "✅  Unit tests passed." \
   || [ "${DREVOPS_TEST_UNIT_ALLOW_FAILURE}" -eq 1 ]
 fi
@@ -93,7 +93,7 @@ if [ -z "${DREVOPS_TEST_TYPE##*kernel*}" ]; then
   [ -n "${DREVOPS_TEST_KERNEL_GROUP}" ] && phpunit_opts+=(--group="${DREVOPS_TEST_KERNEL_GROUP}")
   [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/kernel.xml")
 
-  vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --filter '/.*Kernel.*/' "$@" \
+  vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --exclude-group=skipped --filter '/.*Kernel.*/' "$@" \
   && echo "✅  Kernel tests passed." \
   || [ "${DREVOPS_TEST_KERNEL_ALLOW_FAILURE:-0}" -eq 1 ]
 fi
@@ -105,7 +105,7 @@ if [ -z "${DREVOPS_TEST_TYPE##*functional*}" ]; then
   [ -n "${DREVOPS_TEST_FUNCTIONAL_GROUP}" ] && phpunit_opts+=(--group="${DREVOPS_TEST_FUNCTIONAL_GROUP}")
   [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/functional.xml")
 
-  vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --filter '/.*Functional.*/' "$@" \
+  vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --exclude-group=skipped --filter '/.*Functional.*/' "$@" \
   && echo "✅  Functional tests passed." \
   || [ "${DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE:-0}" -eq 1 ]
 fi
