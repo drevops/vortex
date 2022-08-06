@@ -361,7 +361,7 @@ assert_ahoy_test_unit() {
   assert_output_contains "Unit tests passed"
 
   substep "Assert that Drupal Unit test failure bypassing works"
-  rm -R test_reports
+  rm -fR test_reports || true
   # Prepare failing test.
   sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/sw_core/tests/src/Unit/SwCoreExampleUnitTest.php
   sync_to_container
@@ -374,7 +374,7 @@ assert_ahoy_test_unit() {
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/phpunit/unit.xml
 
-  rm -R test_reports
+  rm -fR test_reports || true
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_UNIT_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
