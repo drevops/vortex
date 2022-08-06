@@ -355,10 +355,12 @@ assert_ahoy_test_unit() {
   assert_output_contains "Unit tests passed"
 
   substep "Run grouped Unit tests"
-  DREVOPS_TEST_UNIT_GROUP=subtraction run ahoy test-unit
+  export DREVOPS_TEST_UNIT_GROUP=subtraction
+  run ahoy test-unit
   assert_success
   assert_output_contains "OK (3 tests, 3 assertions)"
   assert_output_contains "Unit tests passed"
+  unset DREVOPS_TEST_UNIT_GROUP
 
   substep "Assert that Drupal Unit test failure bypassing works"
   rm -fR test_reports || true
@@ -398,10 +400,12 @@ assert_ahoy_test_kernel() {
   assert_output_contains "Kernel tests passed"
 
   substep "Run grouped Kernel tests"
-  DREVOPS_TEST_KERNEL_GROUP=subtraction run ahoy test-kernel
+  export DREVOPS_TEST_KERNEL_GROUP=subtraction
+  run ahoy test-kernel
   assert_success
   assert_output_contains "OK (3 tests, 3 assertions)"
   assert_output_contains "Kernel tests passed"
+  unset DREVOPS_TEST_KERNEL_GROUP
 
   substep "Assert that Drupal Unit test failure bypassing works"
   # Prepare failing test.
@@ -434,14 +438,16 @@ assert_ahoy_test_functional() {
   substep "Run all Functional tests"
   run ahoy test-functional
   assert_success
-  assert_output_contains "OK (5 tests, 5 assertions)"
+  assert_output_contains "OK (5 tests, 10 assertions)"
   assert_output_contains "Functional tests passed"
 
   substep "Run grouped Functional tests"
-  DREVOPS_TEST_FUNCTIONAL_GROUP=subtraction run ahoy test-functional
+  export DREVOPS_TEST_FUNCTIONAL_GROUP=subtraction
+  run ahoy test-functional
   assert_success
-  assert_output_contains "OK (3 tests, 3 assertions)"
+  assert_output_contains "OK (3 tests, 6 assertions)"
   assert_output_contains "Functional tests passed"
+  unset DREVOPS_TEST_FUNCTIONAL_GROUP
 
   substep "Assert that Drupal Functional test failure bypassing works"
   # Prepare failing test.
@@ -500,9 +506,11 @@ assert_ahoy_test_bdd() {
 
   substep "Run tagged BDD tests based on DREVOPS_TEST_BEHAT_TAGS variable"
   assert_dir_empty tests/behat/screenshots
-  run DREVOPS_TEST_BEHAT_TAGS=p0 ahoy test-bdd
+  export DREVOPS_TEST_BEHAT_TAGS=p0
+  run ahoy test-bdd
   assert_success
   assert_output_contains "Behat tests passed"
+  unset DREVOPS_TEST_BEHAT_TAGS
   sync_to_host
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/behat/default.xml
@@ -519,9 +527,11 @@ assert_ahoy_test_bdd() {
   substep "Run profile BDD tests based on DREVOPS_TEST_BEHAT_PROFILE variable"
   assert_dir_empty tests/behat/screenshots
   ahoy cli mkdir -p /app/test_reports/behat
-  run DREVOPS_TEST_BEHAT_PROFILE=p0 ahoy test-bdd
+  export DREVOPS_TEST_BEHAT_PROFILE=p0
+  run ahoy test-bdd
   assert_success
   assert_output_contains "Behat tests passed"
+  unset DREVOPS_TEST_BEHAT_PROFILE
   sync_to_host
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/behat/default.xml
