@@ -68,4 +68,34 @@ class YsCoreExampleFunctionalTest extends YsCoreFunctionalTestBase {
     ];
   }
 
+  /**
+   * Tests multiplication.
+   *
+   * @dataProvider dataProviderMultiplication
+   * @group multiplication
+   * @group skipped
+   */
+  public function testMultiplication($a, $b, $expected, $expectExceptionMessage = NULL) {
+    if ($expectExceptionMessage) {
+      $this->expectException(\Exception::class);
+      $this->expectExceptionMessage($expectExceptionMessage);
+    }
+
+    // Replace below with a call to your class method.
+    $actual = $a * $b;
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  /**
+   * Data provider for testMultiplication().
+   */
+  public function dataProviderMultiplication() {
+    return [
+      [0, 0, 0],
+      [1, 1, 1],
+      [2, 1, 2],
+    ];
+  }
+
 }
