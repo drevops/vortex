@@ -133,7 +133,7 @@ if [ -z "${DREVOPS_TEST_TYPE##*bdd*}" ]; then
 
   # Run tests once and re-run on fail, but only in CI.
   vendor/bin/behat "${behat_opts[@]}" "$@" \
-  || ( [ -n "${CI}" ] && vendor/bin/behat "${behat_opts[@]}" "$@" ) \
+  || ( [ -n "${CI}" ] && vendor/bin/behat "${behat_opts[@]}" --rerun "$@" ) \
   && echo "✅  Behat tests passed." \
   || [ "${DREVOPS_TEST_BDD_ALLOW_FAILURE}" -eq 1 ]
 fi
