@@ -674,12 +674,6 @@ Drupal admin email. May need to be reset if database was sanitized.
 
 Default value: `webmaster@your-site-url.example`
 
-### `DREVOPS_DRUPAL_CONFIG_LABEL`
-
-Config label.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_DRUPAL_CONFIG_PATH`
 
 Path to configuration directory.
