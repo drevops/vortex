@@ -788,6 +788,12 @@ Directory to store exported code.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_EXPORT_CODE_ONLY`
+
+Only build and export code.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED`
 
 Proceed with Docker image deployment after it was exported.
