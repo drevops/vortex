@@ -139,6 +139,7 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Include Acquia environment settings.
   if (file_exists('/var/www/site-php/your_site/your_site-settings.inc')) {
     require '/var/www/site-php/your_site/your_site-settings.inc';
+    $settings['config_sync_directory'] = $settings['config_vcs_directory'];
   }
   // Do not put any Acquia-specific settings in this code block. It is used
   // to explicitly map Acquia environments to $conf['environment']
