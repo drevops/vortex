@@ -82,6 +82,12 @@ Validate `composer.lock` file.
 
 Default value: `1`
 
+### `DREVOPS_COMPOSER_VERBOSE`
+
+Print debug information from Composer install.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_DB_DIR`
 
 Database dump data directory (file or Docker image archive).
@@ -908,6 +914,52 @@ Local database user (not used in production).
 
 Default value: `drupal`
 
+### `DREVOPS_MIRROR_CODE_BRANCH_DST`
+
+Destination branch name to mirror code.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_MIRROR_CODE_BRANCH_SRC`
+
+Source branch name to mirror code.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_MIRROR_CODE_GIT_USER_EMAIL`
+
+Name of the user who will be committing to a remote repository.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_MIRROR_CODE_GIT_USER_NAME`
+
+Email address of the user who will be committing to a remote repository.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_MIRROR_CODE_PUSH`
+
+Flag to push the branch.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_MIRROR_CODE_REMOTE_DST`
+
+Destination remote name.
+
+Default value: `origin`
+
+### `DREVOPS_MIRROR_CODE_SSH_FILE`
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_MIRROR_CODE_SSH_FINGERPRINT`
+
+Optional SSH key fingerprint to use for mirroring.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_NOTIFY_DEPLOYMENT_SKIP`
 
 Flag to skip deployment notification.
@@ -1047,6 +1099,12 @@ Default value: `https://api.newrelic.com/v2`
 ### `DREVOPS_NOTIFY_NEWRELIC_USER`
 
 Optional user name performing the deployment.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NPM_VERBOSE`
+
+Print debug information from NPM install.
 
 Default value: `UNDEFINED`
 
@@ -1330,15 +1388,33 @@ Behat profile name. Optional. Defaults to "default".
 
 Default value: `default`
 
+### `DREVOPS_TEST_BEHAT_TAGS`
+
+Behat tags. Optional. Default runs all tests.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE`
 
 Allow custom Functional tests failures.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_TEST_FUNCTIONAL_GROUP`
+
+Functional test group. Optional. Default runs all tests.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_TEST_KERNEL_ALLOW_FAILURE`
 
 Allow custom Kernel tests failures.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TEST_KERNEL_GROUP`
+
+Kernel test group. Optional. Default runs all tests.
 
 Default value: `UNDEFINED`
 
@@ -1363,6 +1439,12 @@ Default value: `unit-kernel-functional-bdd`
 ### `DREVOPS_TEST_UNIT_ALLOW_FAILURE`
 
 Allow custom Unit tests failures.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TEST_UNIT_GROUP`
+
+Unit test group. Optional. Default runs all tests.
 
 Default value: `UNDEFINED`
 
