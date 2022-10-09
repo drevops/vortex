@@ -138,7 +138,7 @@ function init_cli_args_and_options($argv, $argc) {
   $pos_args = array_filter($pos_args);
 
   if (count($pos_args) < 1) {
-    die('ERROR: At least one path to a file or a directory is required.');
+    die('ERROR At least one path to a file or a directory is required.');
   }
 
   $paths = $pos_args;
@@ -149,7 +149,7 @@ function init_cli_args_and_options($argv, $argc) {
     }
 
     if (!$paths[$k] || !is_readable($paths[$k])) {
-      die(sprintf('ERROR: Unable to read a "%s" path to scan.', $path));
+      die(sprintf('ERROR Unable to read a "%s" path to scan.', $path));
     }
   }
 
@@ -161,7 +161,7 @@ function init_cli_args_and_options($argv, $argc) {
       $exclude_file = getcwd() . DIRECTORY_SEPARATOR . $exclude_file;
     }
     if (!is_readable($exclude_file)) {
-      die('ERROR: Unable to read an exclude file.');
+      die('ERROR Unable to read an exclude file.');
     }
     $options['exclude-file'] = $exclude_file;
   }

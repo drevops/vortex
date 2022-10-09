@@ -40,14 +40,16 @@ DREVOPS_DEPLOY_SKIP="${DREVOPS_DEPLOY_SKIP:-}"
 
 # ------------------------------------------------------------------------------
 
-[ -z "${DREVOPS_DEPLOY_TYPE}" ] && echo "Missing required value for DREVOPS_DEPLOY_TYPE. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
+echo "INFO Started deployment."
+
+[ -z "${DREVOPS_DEPLOY_TYPE}" ] && echo "ERROR Missing required value for DREVOPS_DEPLOY_TYPE. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
 
 if [ "${DREVOPS_DEPLOY_PROCEED}" != "1" ]; then
-  echo "DREVOPS_DEPLOY_PROCEED is not set to 1." && echo "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
+  echo "DREVOPS_DEPLOY_PROCEED is not set to 1." && echo "  OK Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
 fi
 
 if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
-  echo "  > Found flag to skip a deployment."
+  echo "     > Found flag to skip a deployment."
 
   if [ -n "${DREVOPS_DEPLOY_PR}" ]; then
     # Allow skipping deployment by providing 'DREVOPS_DEPLOY_SKIP_PR_<NUMBER>'
@@ -59,8 +61,8 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
     # For 'pr-123' branch, the variable name is DREVOPS_DEPLOY_SKIP_PR_123
     pr_skip_var="DREVOPS_DEPLOY_SKIP_PR_${DREVOPS_DEPLOY_PR}"
     if [ -n "${!pr_skip_var}" ]; then
-      echo "  > Found skip variable ${pr_skip_var} for PR ${DREVOPS_DEPLOY_PR}."
-      echo "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
+      echo "     > Found skip variable ${pr_skip_var} for PR ${DREVOPS_DEPLOY_PR}."
+      echo "  OK Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
     fi
   fi
 
@@ -77,26 +79,23 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
     safe_branch_name="$(echo "${DREVOPS_DEPLOY_BRANCH}" | tr -d '\n' | tr '[:space:]' '_' | tr '-' '_' | tr '/' '_' | tr -cd '[:alnum:]_' | tr '[:lower:]' '[:upper:]')"
     branch_skip_var="DREVOPS_DEPLOY_SKIP_BRANCH_${safe_branch_name}"
     if [ -n "${!branch_skip_var}" ]; then
-      echo "  > Found skip variable ${branch_skip_var} for branch ${DREVOPS_DEPLOY_BRANCH}."
-      echo "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
+      echo "     > Found skip variable ${branch_skip_var} for branch ${DREVOPS_DEPLOY_BRANCH}."
+      echo "  OK Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
     fi
   fi
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*artifact*}" ]; then
-  echo "🤖 Started 'artifact' deployment."
   export DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT="${DREVOPS_DEPLOY_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT}}"
   export DREVOPS_DEPLOY_ARTIFACT_SSH_FILE="${DREVOPS_DEPLOY_SSH_FILE:-${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE}}"
   ./scripts/drevops/deploy-artifact.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*webhook*}" ]; then
-  echo "🤖 Started 'webhook' deployment."
   ./scripts/drevops/deploy-webhook.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*docker*}" ]; then
-  echo "🤖 Started 'docker' deployment."
   export DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME="${DREVOPS_DOCKER_REGISTRY_USERNAME:-${DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME}}"
   export DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN:-${DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN}}"
   export DREVOPS_DEPLOY_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-${DREVOPS_DEPLOY_DOCKER_REGISTRY}}"
@@ -104,7 +103,6 @@ if [ -z "${DREVOPS_DEPLOY_TYPE##*docker*}" ]; then
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*lagoon*}" ]; then
-  echo "🤖 Started 'lagoon' deployment."
   export DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT="${DREVOPS_DEPLOY_SSH_FINGERPRINT:-${DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT}}"
   export DREVOPS_DEPLOY_LAGOON_SSH_FILE="${DREVOPS_DEPLOY_SSH_FILE:-${DREVOPS_DEPLOY_LAGOON_SSH_FILE}}"
   export DREVOPS_DEPLOY_LAGOON_PROJECT="${LAGOON_PROJECT:-${DREVOPS_DEPLOY_LAGOON_PROJECT}}"
@@ -115,3 +113,5 @@ if [ -z "${DREVOPS_DEPLOY_TYPE##*lagoon*}" ]; then
   export DREVOPS_DEPLOY_LAGOON_PR_BASE_BRANCH="${DREVOPS_DEPLOY_PR_BASE_BRANCH:-${DREVOPS_DEPLOY_LAGOON_PR_BASE_BRANCH}}"
   ./scripts/drevops/deploy-lagoon.sh
 fi
+
+echo "  OK Finished deployment."

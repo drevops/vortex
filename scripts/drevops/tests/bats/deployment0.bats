@@ -114,7 +114,7 @@ load _helper_drevops_deployment
   #
   assert_output_contains "Started WEBHOOK deployment."
   assert_output_contains "Successfully called webhook."
-  assert_output_not_contains "ERROR: Webhook deployment failed."
+  assert_output_not_contains "ERROR Webhook deployment failed."
   assert_output_contains "Finished WEBHOOK deployment."
 
   #
