@@ -30,6 +30,9 @@ DREVOPS_COMPOSER_VERBOSE="${DREVOPS_COMPOSER_VERBOSE:-}"
 # Print debug information from NPM install.
 DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-}"
 
+# Only build and export code.
+DREVOPS_EXPORT_CODE_ONLY="${DREVOPS_EXPORT_CODE_ONLY:-}"
+
 echo "🤖 Building project."
 echo "   Adjust build verbosity by setting variable to '1':"
 echo "   - DREVOPS_DEBUG             Verbose DrevOps scripts."
@@ -92,12 +95,13 @@ echo "   ✅  Built Docker images and started containers."
 # Usually this is needed to create a code artifact without development
 # dependencies.
 if [ -n "${DREVOPS_EXPORT_CODE_DIR}" ] ; then
-  echo "🤖 Exporting code before adding development dependencies."
+  echo "🤖 Exporting built code."
   mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
   docker-compose exec --env DREVOPS_EXPORT_CODE_DIR="${DREVOPS_EXPORT_CODE_DIR}" -T cli ./scripts/drevops/export-code.sh
   # Copy from container to the host.
   docker cp -L $(docker-compose ps -q cli):"${DREVOPS_EXPORT_CODE_DIR}"/. "${DREVOPS_EXPORT_CODE_DIR}"
-  echo "   ✅  Exported code before adding development dependencies."
+  echo "   ✅  Exporting built code."
+  [ -n "${DREVOPS_EXPORT_CODE_ONLY}" ] && echo "   Skipping the rest of the build" && exit 0
 fi
 
 # Create data directory in the container and copy database dump file into
