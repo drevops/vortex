@@ -25,9 +25,6 @@ DREVOPS_DRUPAL_PROFILE="${DREVOPS_DRUPAL_PROFILE:-standard}"
 # Path to configuration directory.
 DREVOPS_DRUPAL_CONFIG_PATH="${DREVOPS_DRUPAL_CONFIG_PATH:-${DREVOPS_APP}/config/default}"
 
-# Config label.
-DREVOPS_DRUPAL_CONFIG_LABEL="${DREVOPS_DRUPAL_CONFIG_LABEL:-}"
-
 # Path to private files.
 DREVOPS_DRUPAL_PRIVATE_FILES="${DREVOPS_DRUPAL_PRIVATE_FILES:-${DREVOPS_APP}/docroot/sites/default/files/private}"
 
@@ -233,8 +230,8 @@ if [ "${site_has_config}" = "1" ]; then
   fi
 
   echo "🤖 Importing configuration"
-  $drush "${drush_opts[@]}" config:import "${DREVOPS_DRUPAL_CONFIG_LABEL}"
   echo "   ✅  Configuration was imported successfully."
+  $drush "${drush_opts[@]}" config:import
 
   # Import config_split configuration if the module is installed.
   if $drush pm:list --status=enabled | grep -q config_split; then
