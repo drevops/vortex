@@ -19,4 +19,4 @@ export DREVOPS_DRUPAL_CONFIG_LABEL=vcs
 # Do not unblock admin account.
 export DREVOPS_DRUPAL_LOGIN_UNBLOCK_ADMIN="${DREVOPS_DRUPAL_LOGIN_UNBLOCK_ADMIN:-0}"
 
-"/var/www/html/${site}.${target_env}/drevops/drupal-install-site.sh"
+"/var/www/html/${site}.${target_env}/scripts/drevops/drupal-install-site.sh"

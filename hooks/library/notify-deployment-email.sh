@@ -33,7 +33,7 @@ else
   url="https://${subdomain}.${DREVOPS_TASK_NOTIFY_DEPLOYMENT_EMAIL_ACQUIA_DOMAIN}";
 fi
 
-php "/var/www/html/${site}.${target_env}/drevops/notify-deployment-email.php" \
+php "/var/www/html/${site}.${target_env}/scripts/drevops/notify-deployment-email.php" \
   "${DREVOPS_TASK_NOTIFY_DEPLOYMENT_EMAIL_ACQUIA_SITE_NAME}" \
   "${DREVOPS_TASK_NOTIFY_DEPLOYMENT_EMAIL_FROM}" \
   "${DREVOPS_TASK_NOTIFY_DEPLOYMENT_EMAIL_TO}" \
