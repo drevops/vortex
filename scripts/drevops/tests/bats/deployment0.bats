@@ -190,6 +190,7 @@ load _helper_drevops_deployment
 
   run ahoy deploy
   assert_success
+  assert_output_contains "DREVOPS_DEPLOY_PROCEED is not set to 1."
   assert_output_contains "Skipping deployment webhook."
   assert_output_not_contains "Started WEBHOOK deployment."
 
@@ -198,6 +199,7 @@ load _helper_drevops_deployment
 
   run ahoy deploy
   assert_success
+  assert_output_not_contains "DREVOPS_DEPLOY_PROCEED is not set to 1."
   assert_output_not_contains "Skipping deployment webhook."
   assert_output_contains "Started WEBHOOK deployment."
   assert_output_contains "Finished WEBHOOK deployment."
@@ -208,6 +210,7 @@ load _helper_drevops_deployment
 
   run ahoy deploy
   assert_success
+  assert_output_not_contains "DREVOPS_DEPLOY_PROCEED is not set to 1."
   assert_output_not_contains "Skipping deployment webhook."
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Started WEBHOOK deployment."

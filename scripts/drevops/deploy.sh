@@ -43,7 +43,7 @@ DREVOPS_DEPLOY_SKIP="${DREVOPS_DEPLOY_SKIP:-}"
 [ -z "${DREVOPS_DEPLOY_TYPE}" ] && echo "Missing required value for DREVOPS_DEPLOY_TYPE. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
 
 if [ "${DREVOPS_DEPLOY_PROCEED}" != "1" ]; then
-  echo "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
+  echo "DREVOPS_DEPLOY_PROCEED is not set to 1." && echo "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
 fi
 
 if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
@@ -59,7 +59,7 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
     # For 'pr-123' branch, the variable name is DREVOPS_DEPLOY_SKIP_PR_123
     pr_skip_var="DREVOPS_DEPLOY_SKIP_PR_${DREVOPS_DEPLOY_PR}"
     if [ -n "${!pr_skip_var}" ]; then
-      echo "  > Found skip variable $pr_skip_var for PR ${DREVOPS_DEPLOY_PR}."
+      echo "  > Found skip variable ${pr_skip_var} for PR ${DREVOPS_DEPLOY_PR}."
       echo "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
     fi
   fi
@@ -77,7 +77,7 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
     safe_branch_name="$(echo "${DREVOPS_DEPLOY_BRANCH}" | tr -d '\n' | tr '[:space:]' '_' | tr '-' '_' | tr '/' '_' | tr -cd '[:alnum:]_' | tr '[:lower:]' '[:upper:]')"
     branch_skip_var="DREVOPS_DEPLOY_SKIP_BRANCH_${safe_branch_name}"
     if [ -n "${!branch_skip_var}" ]; then
-      echo "  > Found skip variable $branch_skip_var for branch ${DREVOPS_DEPLOY_BRANCH}."
+      echo "  > Found skip variable ${branch_skip_var} for branch ${DREVOPS_DEPLOY_BRANCH}."
       echo "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
     fi
   fi
