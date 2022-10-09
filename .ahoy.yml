@@ -126,8 +126,7 @@ commands:
         && ahoy up wait_dependencies \
         && ahoy install-site \
         && ahoy info \
-        && ahoy login \
-      || echo "The operation was canceled."
+        && ahoy login
 
   install-site:
     usage: Install a site.
@@ -152,8 +151,8 @@ commands:
   reset:
     usage: "Remove containers, all build, uncommitted files."
     cmd: |
-      ahoy confirm "All containers, build and uncommitted files will be removed, repository will be reset to the last commit. Proceed?" \
-      && ahoy clean && ./scripts/drevops/reset.sh || echo "The operation was canceled."
+      ahoy confirm "All containers, build and uncommitted files will be removed, repository will be reset to the last commit. Proceed?" &&
+      ahoy clean && ./scripts/drevops/reset.sh
 
   fei:
     usage: Install front-end assets.
@@ -233,8 +232,8 @@ commands:
   deploy:
     usage: Run remote deployment procedures.
     cmd: |
-      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as DREVOPS_DEPLOY_PROCEED=1 ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" \
-      && ./scripts/drevops/deploy.sh "$@" || echo "The operation was canceled."
+      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as DREVOPS_DEPLOY_PROCEED=1 ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" &&
+      ./scripts/drevops/deploy.sh "$@"
 
   github-labels:
     usage: Update project's GitHub labels.
@@ -246,7 +245,9 @@ commands:
 
   update:
     usage: Update development stack.
-    cmd: ahoy confirm "Some committed files may become overwritten. Proceed?" && ./scripts/drevops/update.sh || echo "The operation was canceled."
+    cmd: |
+      ahoy confirm "Some committed files may become overwritten. Proceed?" &&
+      ./scripts/drevops/update.sh
 
   local:
     usage: Custom local commands. See `ahoy local help`.
@@ -264,7 +265,8 @@ commands:
   confirm:
     cmd: |
       if [ -z "$DREVOPS_AHOY_CONFIRM_RESPONSE" ]; then
-        read -r -p "❗  $1 [y/N] " DREVOPS_AHOY_CONFIRM_RESPONSE; [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = true ]
+        read -r -p "❗  $1 [y/N] " DREVOPS_AHOY_CONFIRM_RESPONSE
+        [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = true ] || ( echo "The operation was canceled." && exit 1 )
       else
         echo "❗  $1 [y/N] $DREVOPS_AHOY_CONFIRM_RESPONSE"
       fi
