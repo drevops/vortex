@@ -31,6 +31,11 @@ DREVOPS_COMPOSER_VERBOSE="${DREVOPS_COMPOSER_VERBOSE:-}"
 DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-}"
 
 echo "🤖 Building project."
+echo "   Adjust build verbosity by setting variable to '1':"
+echo "   - DREVOPS_DEBUG             Verbose DrevOps scripts."
+echo "   - DREVOPS_DOCKER_VERBOSE    Verbose Docker build."
+echo "   - DREVOPS_COMPOSER_VERBOSE  Verbose Composer install."
+echo "   - DREVOPS_NPM_VERBOSE       Verbose NPM install."
 
 # Suppress any confirmation dialogs in descendant calls.
 export DREVOPS_AHOY_CONFIRM_RESPONSE=y
