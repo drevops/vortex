@@ -65,29 +65,29 @@ DREVOPS_DOCTOR_SSH_KEY_FILE="${DREVOPS_DOCTOR_SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}
 main() {
   [ "$1" = "info" ] && system_info && exit
 
-  cecho blue "🔎 Checking project requirements"
+  echo "INFO Checking project requirements"
 
   if [ "${DREVOPS_DOCTOR_CHECK_TOOLS}" = "1" ]; then
-    [ "$(command_exists docker)" = "1" ] && error "Please install Docker (https://www.docker.com/get-started)." && exit 1
-    [ "$(command_exists docker-compose)" = "1" ] && error "Please install docker-compose (https://docs.docker.com/compose/install/)." && exit 1
-    [ "$(command_exists pygmy)" = "1" ] && error "Please install Pygmy (https://pygmy.readthedocs.io/)." && exit 1
-    [ "$(command_exists ahoy)" = "1" ] && error "Please install Ahoy (https://ahoy-cli.readthedocs.io/)." && exit 1
-    success "All required tools are present."
+    [ "$(command_exists docker)" = "1" ] && echo "ERROR Please install Docker (https://www.docker.com/get-started)." && exit 1
+    [ "$(command_exists docker-compose)" = "1" ] && echo "ERROR Please install docker-compose (https://docs.docker.com/compose/install/)." && exit 1
+    [ "$(command_exists pygmy)" = "1" ] && echo "ERROR Please install Pygmy (https://pygmy.readthedocs.io/)." && exit 1
+    [ "$(command_exists ahoy)" = "1" ] && echo "ERROR Please install Ahoy (https://ahoy-cli.readthedocs.io/)." && exit 1
+    echo "  OK All required tools are present."
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_PORT}" = "1" ] && [ "${OSTYPE}" != "linux-gnu" ]; then
     if ! lsof -i :80 | grep LISTEN | grep -q om.docke; then
-      error "Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'."
+      echo "ERROR Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'."
     fi
-    success "Port 80 is available."
+    echo "  OK Port 80 is available."
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_PYGMY}" = "1" ]; then
     if ! pygmy status > /dev/null 2>&1; then
-      error "pygmy is not running. Run 'pygmy up' to start pygmy."
+      echo "ERROR Pygmy is not running. Run 'pygmy up' to start Pygmy."
       exit 1
     fi
-    success "Pygmy is running."
+    echo "  OK Pygmy is running."
   fi
 
   # Check that the stack is running.
@@ -96,13 +96,13 @@ main() {
     for docker_service in "${docker_services[@]}"; do
     # shellcheck disable=SC2143
       if [ -z "$(docker-compose ps -q "${docker_service}")" ] || [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q "${docker_service}")")" ]; then
-        error "${docker_service} container is not running."
-        error "$(docker-compose logs)"
-        error "Run 'ahoy up'."
+        echo "ERROR ${docker_service} container is not running."
+        echo "      $(docker-compose logs)"
+        echo "      Run 'ahoy up'."
         exit 1
       fi
     done
-    success "All containers are running"
+    echo "  OK All containers are running"
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_SSH}" = "1" ]; then
@@ -133,55 +133,56 @@ main() {
     ssh_key_added=1
     # Check that the key is injected into pygmy ssh-agent container.
     if ! pygmy status 2>&1 | grep -q "${DREVOPS_DOCTOR_SSH_KEY_FILE}"; then
-      warning "SSH key is not added to pygmy. Run 'pygmy restart' and then 'ahoy up -- --build'."
+      echo "     SSH key is not added to pygmy. Run 'pygmy restart' and then 'ahoy up -- --build'."
       ssh_key_added=0
     fi
 
     # Check that the volume is mounted into CLI container.
     if ! docker exec -i "$(docker-compose ps -q cli)" bash -c "grep \"^/dev\" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent"; then
-      warning "SSH key is added to Pygmy, but the volume is not mounted into container. Make sure that your your \"docker-compose.yml\" has the following lines:"
-      warning "volumes_from:"
-      warning "  - container:amazeeio-ssh-agent"
-      warning "After adding these lines, run 'ahoy up -- --build'."
+      echo "     SSH key is added to Pygmy, but the volume is not mounted into container. Make sure that your your \"docker-compose.yml\" has the following lines:"
+      echo "     volumes_from:"
+      echo "       - container:amazeeio-ssh-agent"
+      echo "     After adding these lines, run 'ahoy up -- --build'."
       ssh_key_added=0
     fi
 
     # Check that ssh key is available in the container.
     if [ "${ssh_key_added}" = "1" ] && ! docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L | grep -q 'ssh-rsa'" ; then
-      warning "SSH key was not added into container. Run 'pygmy restart'."
+      echo "     SSH key was not added into container. Run 'pygmy restart'."
       ssh_key_added=0
     fi
 
-    [ "${ssh_key_added}" = "1" ] && success "SSH key is available within CLI container."
+    [ "${ssh_key_added}" = "1" ] && echo "  OK SSH key is available within CLI container."
   fi
 
   if [ -n "${DREVOPS_DOCTOR_LOCALDEV_URL}" ]; then
     if [ "${DREVOPS_DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
       # Depending on the type of installation, the homepage may return 200 or 403.
       if ! curl -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_DOCTOR_LOCALDEV_URL}" | grep -q '200\|403'; then
-        error "Web server is not accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
+        echo "ERROR Web server is not accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
         exit 1
       fi
-      success "Web server is running and accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
+      echo "  OK Web server is running and accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
     fi
 
     if [ "${DREVOPS_DOCTOR_CHECK_BOOTSTRAP}" = "1" ]; then
       if ! curl -L -s -N "${DREVOPS_DOCTOR_LOCALDEV_URL}" | grep -q -i "charset="; then
-        error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
+        echo "ERROR Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
         exit 1
       fi
-      success "Successfully bootstrapped website at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
+      echo "  OK Successfully bootstrapped website at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
     fi
   fi
 
-  cecho blue "👌 All required checks have passed."
+  echo "  OK All required checks have passed."
+  echo
 }
 
 system_info() {
-  status "System information report"
+  echo "System information report"
   echo
 
-  heading "- Operating system -"
+  echo "OPERATING SYSTEM"
   if [ "$(uname)" = "Darwin" ]; then
     sw_vers
   else
@@ -189,23 +190,23 @@ system_info() {
   fi
   echo
 
-  heading "- Docker -"
+  echo  "DOCKER"
   echo "Path to binary: $(which docker)"
   docker -v
   docker info
   echo
 
-  heading "- Docker Compose -"
+  echo  "DOCKER COMPOSE"
   echo "Path to binary: $(which docker-compose)"
   docker-compose version
   echo
 
-  heading "- Pygmy -"
+  echo  "PYGMY"
   echo "Path to binary: $(which pygmy)"
   pygmy version
   echo
 
-  heading "- Ahoy -"
+  echo "AHOY"
   echo "Path to binary: $(which ahoy)"
   ahoy --version
   echo
@@ -226,72 +227,6 @@ command_exists() {
   fi
 
   echo ${res}
-}
-
-#
-# Status echo.
-#
-status() {
-  cecho blue "✚ $1";
-}
-
-#
-# Warning echo.
-#
-warning() {
-  cecho yellow "  ⚠  $1";
-}
-
-#
-# Success echo.
-#
-success() {
-  cecho green "  ✓ $1";
-}
-
-#
-# Error echo.
-#
-error() {
-  cecho red "  ✘ $1";
-  exit 1
-}
-
-#
-# Heading echo.
-#
-heading() {
-  cecho yellow "$1";
-}
-
-#
-# Colored echo.
-#
-cecho() {
-  local prefix="\033["
-  local input_color=$1
-  local message="$2"
-
-  local color=""
-  case "$input_color" in
-    black  | bk) color="${prefix}0;30m";;
-    red    |  r) color="${prefix}1;31m";;
-    green  |  g) color="${prefix}1;32m";;
-    yellow |  y) color="${prefix}1;33m";;
-    blue   |  b) color="${prefix}1;34m";;
-    purple |  p) color="${prefix}1;35m";;
-    cyan   |  c) color="${prefix}1;36m";;
-    gray   | gr) color="${prefix}0;37m";;
-    *) message="$1"
-  esac
-
-  # Format message with color codes, but only if an output supports colors and
-  # a correct color was provided.
-  if [ -t 1 ]; then
-    [ -n "$color" ] && message="${color}${message}${prefix}0m"
-  fi
-
-  echo -e "$message"
 }
 
 main "$@"

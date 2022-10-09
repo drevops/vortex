@@ -43,12 +43,12 @@ DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP="${DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP:-}"
 
 { [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP}" = "1" ]; } && echo "Skipping JIRA notification of deployment." && exit 0
 
-[ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_USER" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_BRANCH}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_BRANCH" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ] && [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" ] && [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ] && echo "ERROR: At least one of the DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE, DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION or DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE is required" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}" ] && echo "ERROR Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_USER" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" ] && echo "ERROR Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_BRANCH}" ] && echo "ERROR Missing required value for DREVOPS_NOTIFY_DEPLOY_BRANCH" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ] && [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" ] && [ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ] && echo "ERROR At least one of the DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE, DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION or DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE is required" && exit 1
 
-echo "🤖 Started JIRA deployment notification"
+echo "INFO Started JIRA deployment notification"
 
 #
 # Function to extract last value from JSON object passed via STDIN.
@@ -84,15 +84,15 @@ extract_issue() {
   echo "$1"|sed -nE "s/([^\/]+\/)?([A-Za-z0-9]+\-[0-9]+).*/\2/p"
 }
 
-echo "  > Extracting issue"
+echo "     > Extracting issue"
 issue="$(extract_issue "${DREVOPS_NOTIFY_DEPLOY_BRANCH}")"
-[ "${issue}" = "" ] && echo "ERROR: Branch ${DREVOPS_NOTIFY_DEPLOY_BRANCH} does not contain issue number." && exit 1
+[ "${issue}" = "" ] && echo "ERROR Branch ${DREVOPS_NOTIFY_DEPLOY_BRANCH} does not contain issue number." && exit 1
 echo "    Found issue ${issue}"
 
-echo "  > Creating API token"
+echo "     > Creating API token"
 token="$(echo -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}:${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" | base64 -w 0)"
 
-echo -n "  > Checking API access..."
+echo -n "     > Checking API access..."
 payload="$(curl \
  -s \
  -X GET \
@@ -104,13 +104,13 @@ account_id="$(echo "${payload}" | extract_json_value "accountId" || echo "error"
 
 { [ "${#account_id}" != "24" ] || [ "$(expr "x$account_id" : "x[0-9a-f]*$")" -eq 0 ]; } \
 && { [ "${#account_id}" != "43" ] || [ "$(expr "x$account_id" : "x[0-9]*:[0-9a-f\-]*$")" -eq 0 ]; } \
-&& echo "ERROR: Failed to authenticate" && echo "${payload}" && exit 1
+&& echo "ERROR Failed to authenticate" && echo "${payload}" && exit 1
 echo "success"
 
 if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ]; then
-  echo "  > Posting a comment"
+  echo "     > Posting a comment"
 
-  [ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL" && exit 1
+  [ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}" ] && echo "ERROR Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL" && exit 1
 
   comment="[{\"type\": \"text\",\"text\": \"${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}\"},{\"type\": \"inlineCard\",\"attrs\": {\"url\": \"${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}\"}}]"
   payload="$(curl \
@@ -122,15 +122,15 @@ if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ]; then
     --data "{\"body\": {\"type\": \"doc\", \"version\": 1, \"content\": [{\"type\": \"paragraph\", \"content\": ${comment}}]}}")"
 
   comment_id="$(echo "${payload}" | extract_json_value "id" || echo "error")"
-  [ "$(expr "x$comment_id" : "x[0-9]*$")" -eq 0 ] &&  echo "ERROR: Failed to create a comment" && exit 1
+  [ "$(expr "x$comment_id" : "x[0-9]*$")" -eq 0 ] &&  echo "ERROR Failed to create a comment" && exit 1
 
   echo "    Successfully posted comment ${comment_id}"
 fi
 
 if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" ]; then
-  echo "  > Changing issue status to ${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}"
+  echo "     > Changing issue status to ${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}"
 
-  echo -n "  > Discovering transition ID for ${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}..."
+  echo -n "     > Discovering transition ID for ${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}..."
   payload="$(curl \
     -s \
     -X GET \
@@ -139,7 +139,7 @@ if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" ]; then
     --url "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/transitions")"
 
   transition_id="$(echo "${payload}" | extract_json_value "transitions" | extract_json_value_by_value "name" "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" "id" || echo "error")"
-  { [ "${transition_id}" = "" ] || [ "$(expr "x$transition_id" : "x[0-9]*$")" -eq 0 ]; } &&  echo "ERROR: Failed to retrieve transition ID" && exit 1
+  { [ "${transition_id}" = "" ] || [ "$(expr "x$transition_id" : "x[0-9]*$")" -eq 0 ]; } &&  echo "ERROR Failed to retrieve transition ID" && exit 1
   echo -n "success"
 
   payload="$(curl \
@@ -152,9 +152,9 @@ if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" ]; then
 fi
 
 if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ]; then
-  echo "  > Assigning an issue to ${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}"
+  echo "     > Assigning an issue to ${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}"
 
-  echo -n "  > Discovering user ID for ${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}..."
+  echo -n "     > Discovering user ID for ${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}..."
   payload="$(curl \
     -s \
     -X GET \
@@ -165,7 +165,7 @@ if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ]; then
   account_id="$(echo "${payload}" | extract_json_first_value "accountId" || echo "error")"
   { [ "${#account_id}" != "24" ] || [ "$(expr "x$account_id" : "x[0-9a-f]*$")" -eq 0 ]; } \
     && { [ "${#account_id}" != "43" ] || [ "$(expr "x$account_id" : "x[0-9]*:[0-9a-f\-]*$")" -eq 0 ]; } \
-    && echo "ERROR: Failed to retrieve assignee account ID" && echo "${payload}" && exit 1
+    && echo "ERROR Failed to retrieve assignee account ID" && echo "${payload}" && exit 1
   echo -n "success"
 
   payload="$(curl \
@@ -177,4 +177,4 @@ if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ]; then
     --data "{ \"accountId\": \"${account_id}\"}")"
 fi
 
-echo "🤖 Finished JIRA deployment notification"
+echo "  OK Finished JIRA deployment notification"

@@ -44,24 +44,29 @@ DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 # ------------------------------------------------------------------------------
 
+echo "INFO Started database download."
+
 # Kill-switch to proceed with download.
-[ "${DREVOPS_DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "🤖 Skipping database download as $DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
+[ "${DREVOPS_DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "  OK Skipping database download as $DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
 # Check provided download type.
-[ -z "${DREVOPS_DB_DOWNLOAD_SOURCE}" ] && echo "ERROR: Missing required value for DREVOPS_DB_DOWNLOAD_SOURCE. Must be one of: ftp, curl, acquia, lagoon, docker_registry." && exit 1
+[ -z "${DREVOPS_DB_DOWNLOAD_SOURCE}" ] && echo "ERROR Missing required value for DREVOPS_DB_DOWNLOAD_SOURCE. Must be one of: ftp, curl, acquia, lagoon, docker_registry." && exit 1
 
 # Check if database file exists.
 # @todo: Implement better support based on $DREVOPS_DB_FILE.
 [ -d "${DREVOPS_DB_DIR}" ] && found_db=$(find "${DREVOPS_DB_DIR}" -name "db*.sql" -o -name "db*.tar")
 
 if [ -n "${found_db}" ]; then
-  echo "🤖 Found existing database dump file(s)."
+  echo "    > Found existing database dump file(s)."
   ls -Alh "${DREVOPS_DB_DIR}"
 
   if [ -z "${DREVOPS_DB_DOWNLOAD_FORCE}" ] ; then
-    echo "🤖 Using existing database dump file(s). Download will not proceed. Remove existing database file or set DREVOPS_DB_DOWNLOAD_FORCE flag to force download." && exit 0
+    echo "     > Using existing database dump file(s)."
+    echo "     > Download will not proceed."
+    echo "     > Remove existing database file or set DREVOPS_DB_DOWNLOAD_FORCE flag to force download."
+    exit 0
   else
-    echo "🤖 Forcefully downloading database."
+    echo "     > Forcefully downloading database."
   fi
 fi
 
@@ -73,12 +78,10 @@ export DREVOPS_DB_FILE
 export DREVOPS_DB_DOWNLOAD_REFRESH
 
 if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "ftp" ]; then
-  echo "🤖 Started database dump download from FTP."
   ./scripts/drevops/download-db-ftp.sh
 fi
 
 if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "curl" ]; then
-  echo "🤖 Started database dump download from CURL."
   ./scripts/drevops/download-db-curl.sh
 fi
 
@@ -87,7 +90,6 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "acquia" ]; then
 fi
 
 if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "lagoon" ]; then
-  echo "🤖 Started database dump download from Lagoon."
   export DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT="${DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT:-${LAGOON_PROJECT}}"
   export DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE:-${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}}"
   export DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT:-${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT}}"
@@ -95,7 +97,6 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "lagoon" ]; then
 fi
 
 if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "docker_registry" ]; then
-  echo "🤖 Started database dump download from Docker Registry."
   export DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE="${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE:-${DREVOPS_DB_DOCKER_IMAGE}}"
   export DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_USERNAME="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_USERNAME:-${DREVOPS_DOCKER_REGISTRY_USERNAME}}"
   export DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN:-${DREVOPS_DOCKER_REGISTRY_TOKEN}}"
@@ -103,10 +104,12 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "docker_registry" ]; then
   ./scripts/drevops/download-db-image.sh
 fi
 
-echo "🤖 Downloaded database dump file in ${DREVOPS_DB_DIR}."
+echo "  OK Downloaded database dump file in ${DREVOPS_DB_DIR}."
+
 ls -Alh "${DREVOPS_DB_DIR}"
 
 if [ -n "${DREVOPS_DB_DOWNLOAD_POST_PROCESS}" ]; then
-  echo "🤖 Running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
+  echo "INFO Started running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
   eval "${DREVOPS_DB_DOWNLOAD_POST_PROCESS}"
+  echo "  OK Finished Running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
 fi

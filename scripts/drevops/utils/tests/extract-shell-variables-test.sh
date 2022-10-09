@@ -34,7 +34,7 @@ VARENV4;<UNSET>;"Comment 2 from script without a leading space that goes on mult
 actual="$(../extract-shell-variables.php --filter-global fixtures/extract-shell-variables-test-data.sh)"
 
 diff --normal <(echo "${expected}" ) <(echo "${actual}")
-[ "$?" = "0" ] && echo "  > OK" || echo  "  > Not OK"
+[ "$?" = "0" ] && echo "     > OK" || echo  "     > Not OK"
 
 echo "==> Test: filter-out variables by exclude file"
 expected='Name;"Default value";Description
@@ -62,7 +62,7 @@ VARENV4;<UNSET>;"Comment 2 from script without a leading space that goes on mult
 actual="$(../extract-shell-variables.php -e fixtures/extract-shell-variables-test-data-excluded.txt --filter-global fixtures/extract-shell-variables-test-data.sh)"
 
 diff --normal <(echo "${expected}" ) <(echo "${actual}")
-[ "$?" = "0" ] && echo "  > OK" || echo  "  > Not OK"
+[ "$?" = "0" ] && echo "     > OK" || echo  "     > Not OK"
 
 echo "==> Test 3: filter-out variables by prefix"
 expected='Name;"Default value";Description
@@ -90,7 +90,7 @@ VARENV4;<UNSET>;"Comment 2 from script without a leading space that goes on mult
 actual="$(../extract-shell-variables.php -e fixtures/extract-shell-variables-test-data-excluded.txt --filter-prefix=VAR1 --filter-global fixtures/extract-shell-variables-test-data.sh)"
 
 diff --normal <(echo "${expected}" ) <(echo "${actual}")
-[ "$?" = "0" ] && echo "  > OK" || echo  "  > Not OK"
+[ "$?" = "0" ] && echo "     > OK" || echo  "     > Not OK"
 
 echo "==> Test: with ticks"
 expected='Name;"Default value";Description
@@ -120,7 +120,7 @@ And has a comment with no content."
 actual="$(../extract-shell-variables.php -t --filter-global fixtures/extract-shell-variables-test-data.sh)"
 
 diff --normal <(echo "${expected}" ) <(echo "${actual}")
-[ "$?" = "0" ] && echo "  > OK" || echo  "  > Not OK"
+[ "$?" = "0" ] && echo "     > OK" || echo  "     > Not OK"
 
 echo "==> Test: with ticks with slugs"
 expected='Name;"Default value";Description
@@ -150,7 +150,7 @@ And has a comment with no content."
 actual="$(../extract-shell-variables.php -t -s --filter-global fixtures/extract-shell-variables-test-data.sh)"
 
 diff --normal <(echo "${expected}" ) <(echo "${actual}")
-[ "$?" = "0" ] && echo "  > OK" || echo  "  > Not OK"
+[ "$?" = "0" ] && echo "     > OK" || echo  "     > Not OK"
 
 echo "==> Test: with ticks with additional ticks file"
 expected='Name;"Default value";Description
@@ -180,7 +180,7 @@ And has a comment with no content."
 actual="$(../extract-shell-variables.php -t -l fixtures/extract-shell-variables-test-data-ticks-included.txt -s --filter-global fixtures/extract-shell-variables-test-data.sh)"
 
 diff --normal <(echo "${expected}" ) <(echo "${actual}")
-[ "$?" = "0" ] && echo "  > OK" || echo  "  > Not OK"
+[ "$?" = "0" ] && echo "     > OK" || echo  "     > Not OK"
 
 echo "==> Test: Extract all variables from a directory"
 expected='Name;"Default value";Description
@@ -210,7 +210,7 @@ VARENV4;<UNSET>;"Comment 2 from .env without a leading space that goes on multip
 actual="$(../extract-shell-variables.php --filter-global fixtures)"
 
 diff --normal <(echo "${expected}" ) <(echo "${actual}")
-[ "$?" = "0" ] && echo "  > OK" || echo  "  > Not OK"
+[ "$?" = "0" ] && echo "     > OK" || echo  "     > Not OK"
 
 echo "==> Test: Extract all variables from multiple files"
 expected='Name;"Default value";Description
@@ -240,7 +240,7 @@ VARENV4;<UNSET>;"Comment 2 from script without a leading space that goes on mult
 actual="$(../extract-shell-variables.php --filter-global fixtures/extract-shell-variables-test-data.bash fixtures/extract-shell-variables-test-data.sh)"
 
 diff --normal <(echo "${expected}" ) <(echo "${actual}")
-[ "$?" = "0" ] && echo "  > OK" || echo  "  > Not OK"
+[ "$?" = "0" ] && echo "     > OK" || echo  "     > Not OK"
 
 echo "==> Test: extract all variables into markdown blocks"
 expected='### `VAR1`
@@ -344,4 +344,4 @@ Default value: `<UNSET>`'
 actual="$(../extract-shell-variables.php --filter-global --markdown=fixtures/extract-shell-variables-test-template.md fixtures/extract-shell-variables-test-data.sh)"
 
 diff --normal <(echo "${expected}" ) <(echo "${actual}")
-[ "$?" = "0" ] && echo "  > OK" || echo  "  > Not OK"
+[ "$?" = "0" ] && echo "     > OK" || echo  "     > Not OK"

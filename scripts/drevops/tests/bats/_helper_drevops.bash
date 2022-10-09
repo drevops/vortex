@@ -1168,7 +1168,7 @@ step() {
 # Print sub-step.
 substep() {
   echo "" >&3
-  echo "  > ${1}" >&3
+  echo "     > ${1}" >&3
 }
 
 # Sync files to host in case if volumes are not mounted from host.

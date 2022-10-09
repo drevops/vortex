@@ -21,10 +21,10 @@ DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-docker.io}"
 [ -z "${DREVOPS_DOCKER_REGISTRY}" ] && echo "Missing required value for DREVOPS_DOCKER_REGISTRY." && exit 1
 
 if [ -f "$HOME/.docker/config.json" ] && grep -q "${DREVOPS_DOCKER_REGISTRY}" "$HOME/.docker/config.json"; then
-  echo "  > Already logged in to registry \"${DREVOPS_DOCKER_REGISTRY}\"."
+  echo "     > Already logged in to registry \"${DREVOPS_DOCKER_REGISTRY}\"."
 elif [ -n "${DREVOPS_DOCKER_REGISTRY_USERNAME}" ] &&  [ -n "${DREVOPS_DOCKER_REGISTRY_TOKEN}" ]; then
-  echo "  > Logging in to registry \"${DREVOPS_DOCKER_REGISTRY}\"."
+  echo "     > Logging in to registry \"${DREVOPS_DOCKER_REGISTRY}\"."
   echo "${DREVOPS_DOCKER_REGISTRY_TOKEN}" | docker login --username "${DREVOPS_DOCKER_REGISTRY_USERNAME}" --password-stdin "${DREVOPS_DOCKER_REGISTRY}"
 else
-  echo "  > Skipping login into Docker registry as either DREVOPS_DOCKER_REGISTRY_USERNAME or DREVOPS_DOCKER_REGISTRY_TOKEN was not provided."
+  echo "     > Skipping login into Docker registry as either DREVOPS_DOCKER_REGISTRY_USERNAME or DREVOPS_DOCKER_REGISTRY_TOKEN was not provided."
 fi

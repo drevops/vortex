@@ -33,12 +33,13 @@ DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-}"
 # Only build and export code.
 DREVOPS_EXPORT_CODE_ONLY="${DREVOPS_EXPORT_CODE_ONLY:-}"
 
-echo "🤖 Building project."
-echo "   Adjust build verbosity by setting variable to '1':"
-echo "   - DREVOPS_DEBUG             Verbose DrevOps scripts."
-echo "   - DREVOPS_DOCKER_VERBOSE    Verbose Docker build."
-echo "   - DREVOPS_COMPOSER_VERBOSE  Verbose Composer install."
-echo "   - DREVOPS_NPM_VERBOSE       Verbose NPM install."
+echo "INFO Building project."
+echo "     Adjust build verbosity by setting variable to '1':"
+echo "     - DREVOPS_DEBUG             Verbose DrevOps scripts."
+echo "     - DREVOPS_DOCKER_VERBOSE    Verbose Docker build."
+echo "     - DREVOPS_COMPOSER_VERBOSE  Verbose Composer install."
+echo "     - DREVOPS_NPM_VERBOSE       Verbose NPM install."
+echo
 
 # Suppress any confirmation dialogs in descendant calls.
 export DREVOPS_AHOY_CONFIRM_RESPONSE=y
@@ -53,29 +54,31 @@ export DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 && ./scripts/drevops/doctor.sh
 # Validate Composer configuration if Composer is installed.
 if command -v composer > /dev/null; then
   if [ "$DREVOPS_COMPOSER_VALIDATE_LOCK" = "1" ]; then
-    echo "🤖 Validating composer configuration, including lock file."
+    echo "INFO Validating composer configuration, including lock file."
     composer validate --ansi --strict --no-check-all 1>"${composer_verbose_output}"
-    echo "   ✅  Validated composer.json."
+    echo "  OK Validated composer.json."
   else
-    echo "🤖 Validating composer configuration."
+    echo "INFO Validating composer configuration."
     composer validate --ansi --strict --no-check-all --no-check-lock 1>"${composer_verbose_output}"
-    echo "   ✅  Validated composer.json."
+    echo "  OK Validated composer.json."
   fi
+  echo
 fi
 
 # Create stub of local network.
 # shellcheck disable=SC2015
 docker network prune -f > /dev/null 2>&1 && docker network inspect amazeeio-network > /dev/null 2>&1 || docker network create amazeeio-network > /dev/null 2>&1 || true
 
-echo "🤖 Removing project containers and packages available since the previous run."
+echo "INFO Removing project containers and packages available since the previous run."
 ahoy clean
+echo
 
-echo "🤖 Building Docker images, recreating and starting containers."
-echo "   This will take some time."
-echo "   Consider 'ahoy install-site' to re-install site without rebuilding containers."
+echo "INFO Building Docker images, recreating and starting containers."
+echo "     This will take some time."
+echo "     Consider 'ahoy install-site' to re-install site without rebuilding containers."
 
 if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
-  echo "🤖 Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}."
+  echo "     > Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}."
   # Always login to the registry to have access to the private images.
   ./scripts/drevops/docker-login.sh
   # Try restoring the image from the archive if it exists.
@@ -83,25 +86,27 @@ if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
   # If the image does not exist and base image was provided - use the base
   # image which allows "clean slate" for the database.
   if [ ! -f "${DREVOPS_DB_DIR}/db.tar" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE_BASE}" ]; then
-    echo "🤖 Database Docker image was not found. Using base image ${DREVOPS_DB_DOCKER_IMAGE_BASE}."
+    echo "     > Database Docker image was not found. Using base image ${DREVOPS_DB_DOCKER_IMAGE_BASE}."
     export DREVOPS_DB_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE_BASE}"
   fi
 fi
 
 ahoy up -- --build --force-recreate 1>"${docker_verbose_output}" 2>"${docker_verbose_output}"
-echo "   ✅  Built Docker images and started containers."
+echo "  OK Built Docker images and started containers."
+echo
 
 # Export code built within containers before adding development dependencies.
 # Usually this is needed to create a code artifact without development
 # dependencies.
 if [ -n "${DREVOPS_EXPORT_CODE_DIR}" ] ; then
-  echo "🤖 Exporting built code."
+  echo "INFO Exporting built code."
   mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
   docker-compose exec --env DREVOPS_EXPORT_CODE_DIR="${DREVOPS_EXPORT_CODE_DIR}" -T cli ./scripts/drevops/export-code.sh
   # Copy from container to the host.
   docker cp -L $(docker-compose ps -q cli):"${DREVOPS_EXPORT_CODE_DIR}"/. "${DREVOPS_EXPORT_CODE_DIR}"
-  echo "   ✅  Exporting built code."
-  [ -n "${DREVOPS_EXPORT_CODE_ONLY}" ] && echo "   Skipping the rest of the build" && exit 0
+  echo "  OK Exported built code."
+  echo
+  [ -n "${DREVOPS_EXPORT_CODE_ONLY}" ] && echo "     Skipping the rest of the build" && exit 0
 fi
 
 # Create data directory in the container and copy database dump file into
@@ -109,13 +114,14 @@ fi
 # with absolute path. Note, that the DREVOPS_DB_DIR path is the same inside and
 # outside the container.
 if [ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ]; then
-  echo "🤖 Copying database file into container."
+  echo "INFO Copying database file into container."
   ahoy cli mkdir -p "${DREVOPS_DB_DIR}"
-  docker cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" $(docker-compose ps -q cli):"${DREVOPS_DB_DIR/.\//${DREVOPS_APP}/}"/"${DREVOPS_DB_FILE}" \
-  && echo "   ✅  Copied database file into container."
+  docker cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" $(docker-compose ps -q cli):"${DREVOPS_DB_DIR/.\//${DREVOPS_APP}/}"/"${DREVOPS_DB_FILE}"
+  echo "  OK Copied database file into container."
+  echo
 fi
 
-echo "🤖 Installing development dependencies."
+echo "INFO Installing development dependencies."
 #
 # Although we are building dependencies when Docker images are built,
 # development dependencies are not installed (as they should not be installed
@@ -128,21 +134,22 @@ docker cp -L tests $(docker-compose ps -q cli):/app/
 # Install all composer dependencies, including development ones.
 # Note that this will create composer.lock file if it does not exist.
 ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction --ansi --prefer-dist --no-progress" 1>"${composer_verbose_output}" 2>"${composer_verbose_output}"
-echo "   ✅  Installed development dependencies."
+echo "  OK Installed development dependencies."
+echo
 
 if [ -n "${DREVOPS_DRUPAL_THEME}" ]; then
-  echo "🤖 Installing front-end dependencies."
+  echo "INFO Installing front-end dependencies."
   # Install all npm dependencies and compile FE assets.
   # Note that this will create package-lock.json file if it does not exist.
   # We are not re-running compilation in CI as it is not used - these assets
   # are already compiled as a part of the Docker build.
   [ -z "${CI}" ] && ahoy fei > "${npm_verbose_output}"
-  echo "   ✅  Installed front-end dependencies."
+  echo "  OK Installed front-end dependencies."
   [ -z "${CI}" ] && ahoy fe > "${npm_verbose_output}"
-  echo "   ✅  Compiled front-end dependencies."
+  echo "  OK Compiled front-end dependencies."
+  echo
 fi
 
-# Install site (from existing DB or fresh install).
 ahoy install-site
 
 # Special handling of downloaded DB dump file in CI.
@@ -156,16 +163,16 @@ ahoy install-site
 # This also prevent us from caching both dump file and an exported image,
 # which would double the size of the CI cache.
 if [ -n "${CI}" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ] && [ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ]; then
-  echo "🤖 Removing DB dump file in CI.";
+  echo "INFO Removing DB dump file in CI.";
   rm "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" || true;
+  echo "  OK Removed DB dump file in CI."
+  echo
 fi
 
 # Check that the site is available.
 ahoy doctor
 
-echo
-echo "🤖 Build complete. 🚀🚀🚀 "
-echo
+echo "INFO Build complete."
 
 # Show project information and a one-time login link.
 DREVOPS_DRUPAL_SHOW_LOGIN_LINK=1 ahoy info

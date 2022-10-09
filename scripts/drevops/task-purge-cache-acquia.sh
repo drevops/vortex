@@ -38,7 +38,7 @@ DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL="${DREVOPS_TASK_PURGE_CACHE_ACQU
 
 #-------------------------------------------------------------------------------
 
-echo "🤖 Started cache purging in Acquia."
+echo "INFO Started cache purging in Acquia."
 
 #
 # Extract last value from JSON object passed via STDIN.
@@ -57,33 +57,33 @@ extract_json_value() {
 }
 
 # Pre-flight checks.
-command -v curl > /dev/null || ( echo "ERROR: curl command is not available." && exit 1 )
+command -v curl > /dev/null || ( echo "ERROR curl command is not available." && exit 1 )
 
 # Check that all required variables are present.
-[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY}" ] && echo "ERROR: Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY." && exit 1
-[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET}" ] && echo "ERROR: Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET." && exit 1
-[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME}" ] && echo "ERROR: Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME." && exit 1
-[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV}" ] && echo "ERROR: Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV." && exit 1
-[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}" ] && echo "ERROR: Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE." && exit 1
-[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}" ] && echo "ERROR: Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES." && exit 1
-[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL}" ] && echo "ERROR: Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL." && exit 1
+[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY}" ] && echo "ERROR Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY." && exit 1
+[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET}" ] && echo "ERROR Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET." && exit 1
+[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME}" ] && echo "ERROR Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME." && exit 1
+[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV}" ] && echo "ERROR Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV." && exit 1
+[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}" ] && echo "ERROR Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE." && exit 1
+[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}" ] && echo "ERROR Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES." && exit 1
+[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL}" ] && echo "ERROR Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL." && exit 1
 
-echo "  > Retrieving authentication token."
+echo "     > Retrieving authentication token."
 token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY}" --data-urlencode "client_secret=${DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 token=$(echo "${token_json}" | extract_json_value "access_token")
-[ -z "${token}" ] && echo "ERROR: Unable to retrieve a token." && exit 1
+[ -z "${token}" ] && echo "ERROR Unable to retrieve a token." && exit 1
 
-echo "  > Retrieving ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME} application UUID."
+echo "     > Retrieving ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME} application UUID."
 app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "https://cloud.acquia.com/api/applications?filter=name%3D${DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME/ /%20}")
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
-[ -z "${app_uuid}" ] && echo "ERROR: Unable to retrieve an environment UUID." && exit 1
+[ -z "${app_uuid}" ] && echo "ERROR Unable to retrieve an environment UUID." && exit 1
 
-echo "  > Retrieving environment ID."
+echo "     > Retrieving environment ID."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV}")
 ENV_ID=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
-[ -z "${ENV_ID}" ] && echo "ERROR: Unable to retrieve environment ID." && exit 1
+[ -z "${ENV_ID}" ] && echo "ERROR Unable to retrieve environment ID." && exit 1
 
-echo "  > Compiling a list of domains."
+echo "     > Compiling a list of domains."
 
 target_env="${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV}"
 domain_list=()
@@ -120,18 +120,18 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
   # we are clearing caches for every domain separately and not failing if
   # the domain is not found.
   for domain in "${domain_list[@]}"; do
-    echo "  > Purging cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
+    echo "     > Purging cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
     task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" -H "Content-Type: application/json" -d "{\"domains\":[\"${domain}\"]}" "https://cloud.acquia.com/api/environments/${ENV_ID}/domains/actions/clear-varnish")
     notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href") || true
 
     # If domain does not exist - notification will be empty; we are skipping
     # non-existing domains without a failure.
     if [ "${notification_url}" = "" ]; then
-      echo "  > Warning: Unable to purge cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain} as it does not exist."
+      echo "     > Warning: Unable to purge cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain} as it does not exist."
       break;
     fi
 
-    echo -n "  > Checking task status: "
+    echo -n "     > Checking task status: "
     task_completed=0
     # shellcheck disable=SC2034
     for i in $(seq 1 "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}");
@@ -141,27 +141,27 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
       task_status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "${notification_url}")
       task_state=$(echo "$task_status_json" | extract_json_value "status")
       if [ "$task_state" = "completed" ]; then
-        echo "  > Successfully purged cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
+        echo "     > Successfully purged cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
         task_completed=1;
         break 1;
       fi
 
-      echo "  > Retrieving authentication token."
+      echo "     > Retrieving authentication token."
       token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY}" --data-urlencode "client_secret=${DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
       token=$(echo "${token_json}" | extract_json_value "access_token")
-      [ -z "${token}" ] && echo "ERROR: Unable to retrieve a token." && exit 1
+      [ -z "${token}" ] && echo "ERROR Unable to retrieve a token." && exit 1
     done
     echo
 
     if [ "${task_completed}" = "0" ] ; then
-      echo "  > Warning: Unable to purge cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
+      echo "     > Warning: Unable to purge cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
     fi
   done;
 else
-  echo "  > Unable to find domains to purge cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
+  echo "     > Unable to find domains to purge cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
 fi
 
 self_elapsed_time=$((SECONDS))
-echo "  > Run duration: $((self_elapsed_time/60)) min $((self_elapsed_time%60)) sec."
+echo "     > Run duration: $((self_elapsed_time/60)) min $((self_elapsed_time%60)) sec."
 
-echo "🤖 Finished cache purging in Acquia."
+echo "  OK Finished cache purging in Acquia."

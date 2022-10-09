@@ -53,7 +53,7 @@ labels=(
 # ------------------------------------------------------------------------------
 
 main(){
-  echo "🤖 Processing GitHub labels."
+  echo "INFO Processing GitHub labels."
 
   echo
   if [ "${DREVOPS_GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
@@ -71,31 +71,31 @@ main(){
     read -r DREVOPS_GITHUB_REPO
   fi
 
-  [  "${DREVOPS_GITHUB_REPO}" = "" ] && echo "ERROR: GitHub repository name is required" && exit 1
+  [  "${DREVOPS_GITHUB_REPO}" = "" ] && echo "ERROR GitHub repository name is required" && exit 1
 
   if [  "${DREVOPS_GITHUB_TOKEN}" = "" ]; then
     echo ''
     echo -n 'GitHub Personal Access Token: '
     read -r -s DREVOPS_GITHUB_TOKEN
   fi
-  [  "${DREVOPS_GITHUB_TOKEN}" = "" ] && echo "ERROR: GitHub token name is required" && exit 1
+  [  "${DREVOPS_GITHUB_TOKEN}" = "" ] && echo "ERROR GitHub token name is required" && exit 1
 
   repo_org=$(echo "$DREVOPS_GITHUB_REPO" | cut -f1 -d /)
   repo_name=$(echo "$DREVOPS_GITHUB_REPO" | cut -f2 -d /)
 
   if ! user_has_access; then
-    echo "ERROR: User does not have access to specified repository. Please check your credentials" && exit 1
+    echo "ERROR User does not have access to specified repository. Please check your credentials" && exit 1
   fi
 
   echo
-  echo "  > Starting label processing"
+  echo "     > Starting label processing"
   echo
 
   timeout 5
   echo
 
   if [ "${DREVOPS_GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
-    echo "  > Checking existing labels"
+    echo "     > Checking existing labels"
     existing_labels_strings="$(label_all)"
     # shellcheck disable=SC2207
     IFS=$'\n' existing_labels=( $(xargs -n1 <<<"${existing_labels_strings}") )
@@ -120,7 +120,7 @@ main(){
     else
       description="${value}"
 
-      echo "  > Processing label \"${name}\""
+      echo "     > Processing label \"${name}\""
       if label_exists "${name}"; then
         if label_update "${name}" "${color}" "${description}"; then
           echo "    UPDATED label \"${name}\""
@@ -140,7 +140,7 @@ main(){
   done
 
   echo
-  echo "🤖 Label processing complete"
+  echo "  OK Label processing complete"
   echo
 }
 

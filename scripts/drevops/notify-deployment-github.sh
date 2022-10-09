@@ -38,13 +38,13 @@ DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP="${DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP:-}"
 
 { [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP}" = "1" ]; } && echo "Skipping GitHub notification of deployment." && exit 0
 
-[ -z "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_GITHUB_TOKEN" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_REPOSITORY" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_REF}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_REF" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE" && exit 1
+[ -z "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && echo "ERROR Missing required value for DREVOPS_NOTIFY_GITHUB_TOKEN" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}" ] && echo "ERROR Missing required value for DREVOPS_NOTIFY_DEPLOY_REPOSITORY" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_REF}" ] && echo "ERROR Missing required value for DREVOPS_NOTIFY_DEPLOY_REF" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" ] && echo "ERROR Missing required value for DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE}" ] && echo "ERROR Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE" && exit 1
 
-echo "🤖 Started GitHub deployment notification for operation ${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}"
+echo "INFO Started GitHub deployment notification for operation ${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}"
 
 #
 # Function to extract last value from JSON object passed via STDIN.
@@ -74,11 +74,11 @@ if [ "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" = "start" ]; then
   deployment_id="$(echo "${payload}" | extract_json_value "id")"
 
   # Check deployment ID.
-  { [ "${#deployment_id}" != "9" ] || [ "$(expr "x$deployment_id" : "x[0-9]*$")" -eq 0 ]; } && echo "ERROR: Failed to get a deployment ID." && exit 1
+  { [ "${#deployment_id}" != "9" ] || [ "$(expr "x$deployment_id" : "x[0-9]*$")" -eq 0 ]; } && echo "ERROR Failed to get a deployment ID." && exit 1
 
-  echo "  > Marked deployment as started"
+  echo "     > Marked deployment as started"
 else
-  [ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}" ] && echo "ERROR: Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL" && exit 1
+  [ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}" ] && echo "ERROR Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL" && exit 1
 
   # Returns all deployment for this SHA sorted from the latest to the oldest.
   payload="$(curl \
@@ -91,7 +91,7 @@ else
   deployment_id="$(echo "${payload}" | extract_json_first_value "id")"
 
   # Check deployment ID.
-  { [ "${#deployment_id}" != "9" ] || [ "$(expr "x$deployment_id" : "x[0-9]*$")" -eq 0 ]; } && echo "ERROR: Failed to get a deployment ID." && exit 1
+  { [ "${#deployment_id}" != "9" ] || [ "$(expr "x$deployment_id" : "x[0-9]*$")" -eq 0 ]; } && echo "ERROR Failed to get a deployment ID." && exit 1
 
   # Post status update.
   payload="$(curl \
@@ -104,9 +104,9 @@ else
 
   status="$(echo "${payload}" | extract_json_value "state")"
 
-  [ "${status}" != "success" ] && echo "ERROR: Unable to set deployment status" && exit 1
+  [ "${status}" != "success" ] && echo "ERROR Unable to set deployment status" && exit 1
 
-  echo "  > Marked deployment as finished"
+  echo "     > Marked deployment as finished"
 fi
 
-echo "🤖 Finished GitHub deployment notification"
+echo "  OK Finished GitHub deployment notification"
