@@ -47,10 +47,6 @@ export DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 && ./scripts/drevops/doctor.sh
 [ "${DREVOPS_COMPOSER_VERBOSE}" = "1" ] && composer_verbose_output="/dev/stdout" || composer_verbose_output="/dev/null"
 [ "${DREVOPS_NPM_VERBOSE}" = "1" ] && npm_verbose_output="/dev/stdout" || npm_verbose_output="/dev/null"
 
-# Create stub of local network.
-# shellcheck disable=SC2015
-docker network prune -f > /dev/null 2>&1 && docker network inspect amazeeio-network > /dev/null 2>&1 || docker network create amazeeio-network > /dev/null 2>&1 || true
-
 # Validate Composer configuration if Composer is installed.
 if command -v composer > /dev/null; then
   if [ "$DREVOPS_COMPOSER_VALIDATE_LOCK" = "1" ]; then
@@ -63,6 +59,10 @@ if command -v composer > /dev/null; then
     echo "   ✅  Validated composer.json."
   fi
 fi
+
+# Create stub of local network.
+# shellcheck disable=SC2015
+docker network prune -f > /dev/null 2>&1 && docker network inspect amazeeio-network > /dev/null 2>&1 || docker network create amazeeio-network > /dev/null 2>&1 || true
 
 echo "🤖 Removing project containers and packages available since the previous run."
 ahoy clean
