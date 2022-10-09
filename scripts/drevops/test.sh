@@ -25,6 +25,10 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
+# Flag to skip running of all tests.
+# Helpful to set in CI to skip running of tests without modifying the codebase.
+DREVOPS_TEST_SKIP="${DREVOPS_TEST_SKIP:-}"
+
 # Flag to allow Unit tests to fail.
 DREVOPS_TEST_UNIT_ALLOW_FAILURE="${DREVOPS_TEST_UNIT_ALLOW_FAILURE:-0}"
 
@@ -73,6 +77,8 @@ DREVOPS_TEST_TYPE="${DREVOPS_TEST_TYPE:-unit-kernel-functional-bdd}"
 # Create test reports and artifact directories.
 [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && mkdir -p "${DREVOPS_TEST_REPORTS_DIR}"
 [ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}"
+
+[ -n "${DREVOPS_TEST_SKIP}" ] && echo "Skipping running of tests" && exit 0
 
 if [ -z "${DREVOPS_TEST_TYPE##*unit*}" ]; then
   echo "🤖 Running unit tests."

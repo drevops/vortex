@@ -860,6 +860,12 @@ PHP Parallel Lint comma-separated list of targets.
 
 Default value: `docroot/profiles/custom/your_site_profile, docroot/modules/custom, docroot/themes/custom, docroot/sites/default/settings.php, tests`
 
+### `DREVOPS_LINT_SKIP`
+
+Flag to skip code linting. Helpful to set in CI to code linting without modifying the codebase.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_LINT_TYPE`
 
 Provide argument as 'be' or 'fe' to lint only back-end or front-end code. If no argument is provided, all code will be linted.
@@ -1339,6 +1345,12 @@ Default value: `UNDEFINED`
 ### `DREVOPS_TEST_REPORTS_DIR`
 
 Directory to store test result files.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_TEST_SKIP`
+
+Flag to skip running of all tests. Helpful to set in CI to skip running of tests without modifying the codebase.
 
 Default value: `UNDEFINED`
 
