@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2086
-# shellcheck disable=SC2015
 ##
 # Lint code.
 #
+# shellcheck disable=SC2086
+# shellcheck disable=SC2015
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
+
+# Flag to skip code linting.
+# Helpful to set in CI to code linting without modifying the codebase.
+DREVOPS_LINT_SKIP="${DREVOPS_LINT_SKIP:-}"
 
 # Flag to allow BE lint to fail.
 DREVOPS_LINT_BE_ALLOW_FAILURE="${DREVOPS_LINT_BE_ALLOW_FAILURE:-0}"
@@ -29,6 +33,8 @@ DREVOPS_LINT_PHPLINT_EXTENSIONS="${DREVOPS_LINT_PHPLINT_EXTENSIONS:-php,inc,modu
 DREVOPS_DRUPAL_THEME="${DREVOPS_DRUPAL_THEME:-}"
 
 # ------------------------------------------------------------------------------
+
+[ -n "${DREVOPS_LINT_SKIP}" ] && echo "Skipping code linting" && exit 0
 
 # Provide argument as 'be' or 'fe' to lint only back-end or front-end code.
 # If no argument is provided, all code will be linted.
