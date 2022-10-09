@@ -31,12 +31,11 @@ commands:
   info:
     usage: Show information about this project.
     cmd: |
-      docker-compose exec \
-        -e COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}} \
-        -e DREVOPS_HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2) \
-        -e DREVOPS_HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2) \
-        -e DREVOPS_DRUPAL_SHOW_LOGIN_LINK=${DREVOPS_DRUPAL_SHOW_LOGIN_LINK} \
-        cli ./scripts/drevops/info.sh "$@"
+      COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}} \
+      DREVOPS_HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2) \
+      DREVOPS_HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2) \
+      DREVOPS_DRUPAL_SHOW_LOGIN_LINK=${DREVOPS_DRUPAL_SHOW_LOGIN_LINK} \
+      ahoy cli ./scripts/drevops/info.sh "$@"
 
   db:
     usage: Open DB in Sequel Ace.
@@ -87,15 +86,15 @@ commands:
   cli:
     usage: Start a shell or run a command inside the CLI service container.
     #: The shell is started if no arguments were provided to this command.
-    cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec -T cli bash -c "$*"; else docker-compose exec cli bash; fi
+    cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec $(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_" | sed 's/^/-e /') -T cli bash -c "$*"; else docker-compose exec cli bash; fi
 
   composer:
     usage: Run Composer commands in the CLI service container.
-    cmd: docker-compose exec -T cli composer "$@"
+    cmd: ahoy cli composer "$@"
 
   drush:
     usage: Run Drush commands in the CLI service container.
-    cmd: docker-compose exec -T cli bash -c "drush -l ${DREVOPS_LOCALDEV_URL} $*"
+    cmd: ahoy cli "drush -l ${DREVOPS_LOCALDEV_URL} $*"
 
   #;< REDIS
   flush-redis:
@@ -132,12 +131,12 @@ commands:
 
   install-site:
     usage: Install a site.
-    cmd: docker-compose exec -e DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP=${DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP:-} -e DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=${DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB:-0} -T cli ./scripts/drevops/drupal-install-site.sh
+    cmd: ahoy cli ./scripts/drevops/drupal-install-site.sh
 
   export-db:
     usage: Export database dump or database image (DREVOPS_DB_DOCKER_IMAGE variable must be set).
     cmd: |
-      [ -z "${DREVOPS_DB_DOCKER_IMAGE}" ] && docker-compose exec -e DREVOPS_DB_DIR=${DREVOPS_DB_DIR:-} -T cli ./scripts/drevops/export-db-file.sh "$@" || \
+      [ -z "${DREVOPS_DB_DOCKER_IMAGE}" ] && ahoy cli ./scripts/drevops/export-db-file.sh "$@" || \
       ( DREVOPS_DB_EXPORT_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE}" ./scripts/drevops/export-db-docker.sh "$@";
       if [ "${DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED}" = "1" ]; then DREVOPS_DEPLOY_DOCKER_MAP=mariadb=${DREVOPS_DB_DOCKER_IMAGE} DREVOPS_DEPLOY_DOCKER_IMAGE_TAG=${DREVOPS_DOCKER_IMAGE_TAG} ./scripts/drevops/deploy-docker.sh; fi )
 
