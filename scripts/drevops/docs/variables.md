@@ -1470,3 +1470,9 @@ New Relic license.
 
 Default value: `UNDEFINED`
 
+### `TARGET_ENV_REMAP`
+
+Special variable to remap target env to the sub-domain prefix based on UI name.
+
+Default value: `target_env`
+

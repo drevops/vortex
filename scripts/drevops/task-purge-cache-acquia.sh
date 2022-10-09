@@ -89,7 +89,7 @@ target_env="${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV}"
 domain_list=()
 while read -r domain; do
   # Special variable to remap target env to the sub-domain prefix based on UI name.
-  target_env_remap="${target_env}"
+  TARGET_ENV_REMAP="${target_env}"
   # Strip placeholder for PROD environment.
   if [ "${target_env}" = "prod" ] ; then
     domain="${domain//\$target_env_remap./}"
@@ -98,16 +98,16 @@ while read -r domain; do
 
   # Re-map 'test' to 'stage' as seen in UI.
   if [ "${target_env}" = "test" ] ; then
-    target_env_remap=stage
+    TARGET_ENV_REMAP=stage
   fi
 
   # Disable replacement for unknown environments.
   if [ "${target_env}" != "dev" ] && [ "${target_env}" != "test" ] && [ "${target_env}" != "test2" ] && [ "${target_env}" != "prod" ]; then
-    target_env_remap=""
+    TARGET_ENV_REMAP=""
   fi
 
   # Proceed only if the environment was provided.
-  if [ "${target_env_remap}" != "" ] ; then
+  if [ "${TARGET_ENV_REMAP}" != "" ] ; then
     # Interpolate variables in domain name.
     domain="$(eval echo "${domain}")"
     # Add domain to list.
