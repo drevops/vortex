@@ -89,7 +89,7 @@ if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
 fi
 echo "     Drush binary                 : ${drush}"
 echo "     Drush version                : $($drush --version)"
-echo "     Drupal core version          : $(drush status --field=drupal-version)"
+echo "     Drupal core version          : $($drush status --field=drupal-version)"
 
 site_is_installed="$($drush status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
 echo "     Existing site found          : ${site_is_installed}"
