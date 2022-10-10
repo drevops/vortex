@@ -10,6 +10,9 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
+# Flag to skip site installation.
+DREVOPS_DRUPAL_INSTALL_SKIP="${DREVOPS_DRUPAL_INSTALL_SKIP:-}"
+
 # Path to the application.
 DREVOPS_APP="${DREVOPS_APP:-/app}"
 
@@ -59,6 +62,8 @@ drush_opts=(-y)
 [ -z "${DREVOPS_DEBUG}" ] && drush_opts+=(-q)
 
 echo "INFO Started site installation."
+
+[ -n "${DREVOPS_DRUPAL_INSTALL_SKIP}" ] && echo "  OK Skipping site installation" && exit 0
 
 # Use local or global Drush, giving priority to a local Drush.
 drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"

@@ -728,6 +728,12 @@ Flag to always overwrite existing database. Usually set to `0` in deployed envir
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_DRUPAL_INSTALL_SKIP`
+
+Flag to skip site installation.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE`
 
 Put the site into a maintenance mode during site installation phase.
