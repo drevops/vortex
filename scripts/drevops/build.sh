@@ -51,6 +51,9 @@ export DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 && ./scripts/drevops/doctor.sh
 [ "${DREVOPS_COMPOSER_VERBOSE}" = "1" ] && composer_verbose_output="/dev/stdout" || composer_verbose_output="/dev/null"
 [ "${DREVOPS_NPM_VERBOSE}" = "1" ] && npm_verbose_output="/dev/stdout" || npm_verbose_output="/dev/null"
 
+# Validate Docker Compose configuration.
+docker-compose config -q
+
 # Validate Composer configuration if Composer is installed.
 if command -v composer > /dev/null; then
   if [ "$DREVOPS_COMPOSER_VALIDATE_LOCK" = "1" ]; then
