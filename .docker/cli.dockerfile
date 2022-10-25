@@ -58,7 +58,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist -
 # stack without existing lock file (this is not advisable, but allows to build
 # using latest versions of packages). package-lock.json should be comitted to
 # the repository.
-# File Gruntfile.sj is copied into image as it is required to generate
+# File Gruntfile.js is copied into image as it is required to generate
 # front-end assets.
 COPY docroot/themes/custom/your_site_theme/Gruntfile.js docroot/themes/custom/your_site_theme/.eslintrc.json docroot/themes/custom/your_site_theme/package.json docroot/themes/custom/your_site_theme/package* /app/docroot/themes/custom/your_site_theme/
 COPY docroot/themes/custom/your_site_theme/patches /app/docroot/themes/custom/your_site_theme/patches
