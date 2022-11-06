@@ -180,7 +180,8 @@ services:
 
   # Chrome container, used for browser testing.
   chrome:
-    image: selenium/standalone-chrome
+    # Pinned to specific image version until https://github.com/drevops/drevops/issues/800 is resolved.
+    image: selenium/standalone-chrome:4.5.2-20221021
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
     <<: *default-volumes # Use default volumes to provide access to test fixtures.
     environment:
