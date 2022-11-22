@@ -59,7 +59,7 @@ commands:
     usage: Stop Docker containers and remove container, images, volumes and networks.
     cmd: |
       ahoy confirm "Running this command will remove your current database. Are you sure?" &&
-      if [ -f "docker-compose.yml" ]; then docker-compose down --volumes > /dev/null 2>&1; fi
+      if [ -f "docker-compose.yml" ]; then docker-compose down --remove-orphans --volumes > /dev/null 2>&1; fi
 
   start:
     usage: Start existing Docker containers.
