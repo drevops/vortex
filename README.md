@@ -15,10 +15,6 @@
 
 --------------------------------------------------------------------------------
 
-Visit [Documentation](https://docs.drevops.com) site for more information.
-
---------------------------------------------------------------------------------
-
 ## Why
 
 To create high-quality Drupal websites, stability, security, speed, and ease of maintenance are essential. DevOps tools can help achieve these goals, but setting them up requires a lot of time and expertise.
@@ -33,7 +29,7 @@ DrevOps offers a **tested** Drupal project template with DevOps integrations tha
 ### How does it work?
 - You run the installer script once
 - DrevOps brings the latest release into your codebase
-- You commit all new files.
+- You commit all new files
 - You may override files with changes relevant only to a specific project, if required
 
 ## Installation
@@ -47,12 +43,12 @@ DrevOps offers a **tested** Drupal project template with DevOps integrations tha
 
 ## Contributing
 
-- Progress is tracked as [GitHub project](https://github.com/drevops/drevops/projects/1).
-- Development takes place in 3 independent branches named after Drupal core
-  version: `9.x`, `8.x` and `7.x`.
+- Progress is tracked in [GitHub project](https://github.com/drevops/drevops/projects/1).
+- Development takes place in 2 independent branches named after Drupal core
+  version: `9.x` and `7.x`.
 - Create an issue and prefix title with Drupal core version: `[9.x] Updated
   readme file.`.
-- Create PRs with branches prefixed with Drupal core version: `9.x`, `8.x` or
+- Create PRs with branches prefixed with Drupal core version: `9.x` or
   `7.x`. For example, `feature/9.x-updated-readme`.
 
 --------------------------------------------------------------------------------
