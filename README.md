@@ -19,37 +19,22 @@ Visit [Documentation](https://docs.drevops.com) site for more information.
 
 --------------------------------------------------------------------------------
 
-## About DrevOps
+## Why
 
-### What is the problem that DrevOps is trying to solve?
-Produce high-quality Drupal websites with minimal setup time and expertise.
+To create high-quality Drupal websites, stability, security, speed, and ease of maintenance are essential. DevOps tools can help achieve these goals, but setting them up requires a lot of time and expertise.
 
-### Why is this problem important?
-Creating high-quality Drupal websites requires stability, security, speed, and 
-ease of maintenance.
-
-However, not all developers have the time or skills to set up the necessary tools. 
-That's why we offer a solution that simplifies the process, making it easy to 
-create and maintain high-quality Drupal sites.
-
-### How does DrevOps solve it?
-Once installed, DrevOps simplifies maintenance of a best-practices Drupal configuration 
-on a Docker stack across multiple projects. Additionally, by unifying the developer's 
-experience, DrevOps fosters collaboration and teamwork, leading to more efficient and 
-effective development.
+DrevOps offers a **tested** Drupal project template with DevOps integrations that ensures consistency across all your Drupal projects.
 
 ### Who is it for?
-- Digital agencies that want to standardise their development stack (standard
-  operating environment) across projects
+- Digital agencies that want to standardize their development stack (standard operating environment) across projects
 - Developers that are looking for best practices
-- Developers who may not have the necessary time or expertise to set up these tools themselves
+- Developers who lack the necessary time or expertise to set up DevOps tools themselves
 
 ### How does it work?
-- You run installer script once
+- You run the installer script once
 - DrevOps brings the latest release into your codebase
-- You commit all new files
-- If required, you may override files with changes relevant only to a specific
-  project.
+- You commit all new files.
+- You may override files with changes relevant only to a specific project, if required
 
 ## Installation
 
