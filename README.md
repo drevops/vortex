@@ -17,14 +17,19 @@
 
 ## Why
 
-To create high-quality Drupal websites, stability, security, speed, and ease of maintenance are essential. DevOps tools can help achieve these goals, but setting them up requires a lot of time and expertise.
+To create high-quality Drupal websites, stability, security, speed, and ease of 
+maintenance are essential. DevOps tools can help achieve these goals, but setting 
+them up requires a lot of time and expertise.
 
-DrevOps offers a **tested** Drupal project template with DevOps integrations that ensures consistency across all your Drupal projects.
+DrevOps offers a **tested** Drupal project template with DevOps integrations that 
+ensures consistency across all your Drupal projects.
 
 ### Who is it for?
-- Digital agencies that want to standardize their development stack (standard operating environment) across projects
+- Digital agencies that want to standardize their development stack (standard 
+  operating environment) across projects
 - Developers that are looking for best practices
-- Developers who lack the necessary time or expertise to set up DevOps tools themselves
+- Developers who lack the necessary time or expertise to set up DevOps tools 
+  themselves
 
 ### How does it work?
 - You run the installer script once
