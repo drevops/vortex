@@ -22,26 +22,27 @@ Visit [Documentation](https://docs.drevops.com) site for more information.
 ## About DrevOps
 
 ### What is the problem that DrevOps is trying to solve?
-Increase the quality of the produced Drupal websites with minimum setup effort
-and knowledge.
+Produce high-quality Drupal websites with minimal setup time and expertise.
 
 ### Why is this problem important?
-High quality Drupal websites are stable, secure, faster and safer to change.
+Creating high-quality Drupal websites requires stability, security, speed, and 
+ease of maintenance.
 
-But developers do not always have the time or skills to setup the tools required
-to produce and maintain high-quality Drupal websites.
+However, not all developers have the time or skills to set up the necessary tools. 
+That's why we offer a solution that simplifies the process, making it easy to 
+create and maintain high-quality Drupal sites.
 
 ### How does DrevOps solve it?
-Quick installation of best practices Drupal configuration on Docker stack using
-a single command lowers entry barrier, while unification of the developer's
-experience improves development speed across projects.
+Once installed, DrevOps simplifies maintenance of a best-practices Drupal configuration 
+on a Docker stack across multiple projects. Additionally, by unifying the developer's 
+experience, DrevOps fosters collaboration and teamwork, leading to more efficient and 
+effective development.
 
 ### Who is it for?
 - Digital agencies that want to standardise their development stack (standard
   operating environment) across projects
 - Developers that are looking for best practices
-- Developers that do not possess required time or knowledge to setup these tools
-  themselves
+- Developers who may not have the necessary time or expertise to set up these tools themselves
 
 ### How does it work?
 - You run installer script once
@@ -57,7 +58,6 @@ experience improves development speed across projects.
    curl -SsL https://install.drevops.com | php
    ```
 2. Commit added files.
-
 3. Follow instructions in the generated `README.md` files of your project.
 
 ## Contributing
@@ -86,17 +86,6 @@ We provide paid support for DrevOps:
 - DevOps consulting and custom implementations.
 
 Contact us at [support@drevops.com](mailto:support@drevops.com)
-
-## Useful projects
-
-- [Drupal module testing in CircleCI](https://github.com/integratedexperts/drupal_circleci)
-- [MariaDB Docker image with enclosed data](https://github.com/drevops/mariadb-drupal-data) - Docker image to capture database data as a Docker layer.
-- [CI Builder Docker image](https://github.com/drevops/ci-builder) - Docker image for CI builder container with many pre-installed tools.
-- [Behat Steps](https://github.com/drevops/behat-steps) - Collection of Behat step definitions.
-- [Behat Screenshot](https://github.com/drevops/behat-screenshot) - Behat extension and a step definition to create HTML and image screenshots on demand or test fail.
-- [Behat Progress Fail](https://github.com/drevops/behat-format-progress-fail) - Behat output formatter to show progress as TAP and fails inline.
-- [Behat Relativity](https://github.com/drevops/behat-relativity) - Behat context for relative elements testing.
-- [Artifact Builder](https://github.com/drevops/git-artifact) - Build code artifact and push it to remote repository.
 
 --------------------------------------------------------------------------------
 **Below is a content of the `README.md` file that will be added to your project.**
