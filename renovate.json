@@ -1,12 +1,36 @@
 {
     "extends": ["config:base"],
     "branchPrefix": "deps/",
-    "labels": ["dependencies", "Dependencies"],
+    "labels": ["dependencies"],
     "assignees": [],
     "ignorePresets": [":prHourlyLimit2"],
     "rangeStrategy": "update-lockfile",
+    "timezone": "Australia/Melbourne",
     "enabledManagers": ["composer"],
     "packageRules": [
+        {
+            "matchPackageNames": ["php"],
+            "enabled": false
+        },
+        {
+            "groupName": "Major all - skipped to update manually",
+            "matchDatasources": ["packagist"],
+            "matchUpdateTypes": ["major"],
+            "matchPackagePatterns": [".*"],
+            "enabled": false
+        },
+        {
+            "groupName": "Minor and Patch Contrib",
+            "groupSlug": "minor-patch-contrib",
+            "matchDatasources": ["packagist"],
+            "separateMinorPatch": false,
+            "matchPackagePatterns": [".*"],
+            "excludePackageNames": [
+                "drupal/core-composer-scaffold",
+                "drupal/core-project-message",
+                "drupal/core-recommended"
+            ]
+        },
         {
             "groupName": "Minor and Patch Core",
             "groupSlug": "minor-patch-core",
@@ -17,32 +41,6 @@
                 "drupal/core-composer-scaffold",
                 "drupal/core-project-message",
                 "drupal/core-recommended"
-            ]
-        },
-        {
-            "groupName": "Major Core - skipped to update manually",
-            "matchDatasources": ["packagist"],
-            "matchUpdateTypes": ["major"],
-            "matchPackageNames": [
-                "drupal/core-composer-scaffold",
-                "drupal/core-project-message",
-                "drupal/core-recommended",
-                "drush/drush"
-            ],
-            "enabled": false
-        },
-        {
-            "groupName": "All Contrib",
-            "groupSlug": "all-contrib",
-            "schedule": ["every weekend"],
-            "matchDatasources": ["packagist"],
-            "separateMajorMinor": false,
-            "matchPackagePatterns": [".*"],
-            "excludePackageNames": [
-                "drupal/core-composer-scaffold",
-                "drupal/core-project-message",
-                "drupal/core-recommended",
-                "drush/drush"
             ]
         }
     ]
