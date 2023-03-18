@@ -20,11 +20,11 @@ patterns used, commands and other architectural explanation.
         ahoy export-db
 
 4. Make sure that exported DB does not have data in `cache_*` and `watchdog` tables
-5. Upload DB to https://github.com/drevops/drevops/wiki as a test file (`db_d9.distN.sql`)
-6. Update refernces in code from `db_d9.demo.sql` to `db_d9.distN.sql`
+5. Upload DB to https://github.com/drevops/drevops/wiki as a test file (`db.distN.sql`)
+6. Update references in code from `db.demo.sql` to `db.distN.sql`
 7. Run CI build
-8. Revert updated references to `db_d9.demo.sql`
-9. Update `db_d9.demo.sql` in Wiki
-10. Merge branch to `9.x`.
+8. Revert updated references to `db.demo.sql`
+9. Update `db.demo.sql` in Wiki
+10. Merge branch to `main`.
 11. Wait for CI to pass.
-12. Remove `db_d9.distN.sql` from Wiki.
+12. Remove `db.distN.sql` from Wiki.

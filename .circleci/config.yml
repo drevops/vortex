@@ -653,7 +653,7 @@ workflows:
               # - release/123, release/123.456, release/123.456.789, release/123.456.789-rc123
               # - hotfix/123, hotfix/123.456, hotfix/123.456.789
               # - feature/description, feature/123-description, but not feature/9.x-description or feature/7.x-description
-              only: /main|master|develop|ci.*|deps\/.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|8.x-|9.x-)[a-zA-z0-9\-\.\,]+/
+              only: /main|master|develop|ci.*|deps\/.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/(?!7.x-|9.x-)[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
       - deploy_tags:
@@ -696,7 +696,7 @@ workflows:
           filters:
             branches:
               # Allowed branches: 7.x, 8.x, 9.x, feature/7.x-description, feature/8.x-description, feature/9.x-description
-              only: /(?:7|8|9)\.x|feature\/(?:7|8|9)\.x[a-zA-z0-9\-\.\,]+/
+              only: /main|7\.x|feature\/(?:7\.x)[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
       #; Run actual deployment of DrevOps code to destination codebase (integration test).

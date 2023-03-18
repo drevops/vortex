@@ -5,7 +5,7 @@
 <h3 align="center">Build, Test, Deploy scripts for Drupal using Docker and CI/CD</h3>
 <div align="center">
 
-[![CircleCI](https://circleci.com/gh/drevops/drevops/tree/9.x.svg?style=shield)](https://circleci.com/gh/drevops/drevops/tree/9.x)
+[![CircleCI](https://circleci.com/gh/drevops/drevops.svg?style=shield)](https://circleci.com/gh/drevops/drevops)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/drevops)
 ![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg)
 ![LICENSE](https://img.shields.io/github/license/drevops/drevops)
@@ -17,18 +17,18 @@
 
 ## Why
 
-To create high-quality Drupal websites, stability, security, speed, and ease of 
-maintenance are essential. DevOps tools can help achieve these goals, but setting 
+To create high-quality Drupal websites, stability, security, speed, and ease of
+maintenance are essential. DevOps tools can help achieve these goals, but setting
 them up requires a lot of time and expertise.
 
-DrevOps offers a **tested** Drupal project template with DevOps integrations that 
+DrevOps offers a **tested** Drupal project template with DevOps integrations that
 ensures consistency across all your Drupal projects.
 
 ### Who is it for?
-- Digital agencies that want to standardize their development stack (standard 
+- Digital agencies that want to standardize their development stack (standard
   operating environment) across projects
 - Developers that are looking for best practices
-- Developers who lack the necessary time or expertise to set up DevOps tools 
+- Developers who lack the necessary time or expertise to set up DevOps tools
   themselves
 
 ### How does it work?
@@ -49,12 +49,7 @@ ensures consistency across all your Drupal projects.
 ## Contributing
 
 - Progress is tracked in [GitHub project](https://github.com/drevops/drevops/projects/1).
-- Development takes place in 2 independent branches named after Drupal core
-  version: `9.x` and `7.x`.
-- Create an issue and prefix title with Drupal core version: `[9.x] Updated
-  readme file.`.
-- Create PRs with branches prefixed with Drupal core version: `9.x` or
-  `7.x`. For example, `feature/9.x-updated-readme`.
+- Development takes place in 2 independent branches: `main` and `7.x`
 
 --------------------------------------------------------------------------------
 

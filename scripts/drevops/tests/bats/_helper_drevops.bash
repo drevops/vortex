@@ -45,7 +45,7 @@ setup() {
   export DREVOPS_TEST_REPORTS_DIR="/app/test_reports"
   export DREVOPS_AHOY_CONFIRM_RESPONSE=y
 
-  export DREVOPS_INSTALL_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d9.test.sql.md
+  export DREVOPS_INSTALL_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db.test.sql.md
 
   # Unset any environment variables that may affect tests.
   # These are set in CI config to override values set in .env file for some jobs.

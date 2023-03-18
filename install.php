@@ -14,11 +14,11 @@
  * Usage:
  *
  * @code
- * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php
- * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php -- /path/to/destination/directory
- * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php -- --quiet /path/to/destination/directory
- * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php -- help
- * curl -L https://raw.githubusercontent.com/drevops/drevops/9.x/install.php | php -- --help
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/main/install.php | php
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/main/install.php | php -- /path/to/destination/directory
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/main/install.php | php -- --quiet /path/to/destination/directory
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/main/install.php | php -- help
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/main/install.php | php -- --help
  * @endcode
  *
  * Variables precedence (top values win):

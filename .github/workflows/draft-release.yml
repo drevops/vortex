@@ -3,7 +3,7 @@ name: Release Drafter
 on:
   push:
     branches:
-      - 9.x
+      - main
   pull_request:
     types: [opened, reopened, synchronize]
 

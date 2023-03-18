@@ -190,13 +190,13 @@ load _helper_drevops
 }
 
 @test "Install into empty directory; DrevOps badge version set" {
-  export DREVOPS_VERSION="9.x-1.2.3"
+  export DREVOPS_VERSION="1.2.3"
 
   run_install_quiet
 
   # Assert that DrevOps version was replaced.
-  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/9.x-1.2.3"
-  assert_file_contains "README.md" "badge/DrevOps-9.x--1.2.3-blue.svg"
+  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/1.2.3"
+  assert_file_contains "README.md" "badge/DrevOps-1.2.3-blue.svg"
 }
 
 @test "Install into empty directory; db from curl, storage is database import" {
