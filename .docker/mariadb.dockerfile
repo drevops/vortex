@@ -8,7 +8,7 @@
 # @see https://github.com/drevops/mariadb-drupal-data
 ARG IMAGE
 
-FROM ${IMAGE:-uselagoon/mariadb-drupal:22.4.1}
+FROM ${IMAGE:-uselagoon/mariadb-drupal:23.2.0}
 
 USER root
 COPY ./.docker/config/mariadb/my.cnf /etc/my.cnf.d/server.cnf

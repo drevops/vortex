@@ -141,7 +141,7 @@ services:
       context: .
       dockerfile: .docker/mariadb.dockerfile
       args:
-        IMAGE: "${DREVOPS_DB_DOCKER_IMAGE:-uselagoon/mariadb-drupal:22.4.1}" # Use custom database image (if defined) or fallback to standard database image.
+        IMAGE: "${DREVOPS_DB_DOCKER_IMAGE:-uselagoon/mariadb-drupal:23.2.0}" # Use custom database image (if defined) or fallback to standard database image.
     environment:
       <<: *default-environment
     ports:
@@ -153,7 +153,7 @@ services:
 
   #;< REDIS
   redis:
-    image: uselagoon/redis-6:22.4.1
+    image: uselagoon/redis-6:23.2.0
     #;< LAGOON
     labels:
       lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
