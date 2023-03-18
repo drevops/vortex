@@ -189,6 +189,8 @@ assert_files_present_common() {
   local suffix="${2:-star_wars}"
   local suffix_abbreviated="${3:-sw}"
   local suffix_abbreviated_camel_cased="${4:-Sw}"
+  local suffix_abbreviated_uppercase="$(string_to_upper "$suffix_abbreviated")"
+  local suffix_hyphenated="${suffix/_/-}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -197,13 +199,17 @@ assert_files_present_common() {
 
   # Assert that project name is correct.
   assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
-  assert_file_contains .env "DREVOPS_LOCALDEV_URL=${suffix/_/-}.docker.amazee.io"
+  assert_file_contains .env "DREVOPS_LOCALDEV_URL=${suffix_hyphenated}.docker.amazee.io"
 
   # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
   assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_DRUPAL_VERSION}.x"
 
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}"
+
+  # Assert that PR template was processed
+  assert_file_contains ".github/PULL_REQUEST_TEMPLATE.md" "https://${suffix_hyphenated}.atlassian.net/browse/${suffix_abbreviated_uppercase}-"
+  assert_file_contains ".github/PULL_REQUEST_TEMPLATE.md" "[${suffix_abbreviated_uppercase}-123] Verb in past tense with dot at the end."
 
   popd >/dev/null || exit 1
 }
@@ -1156,6 +1162,10 @@ replace_string_content() {
     -l "${needle}" "${dir}" |
     xargs sed "${sed_opts[@]}" "s@$needle@$replacement@g" || true
   set -e
+}
+
+string_to_upper() {
+  echo "$@" | tr '[:lower:]' '[:upper:]'
 }
 
 # Print step.
