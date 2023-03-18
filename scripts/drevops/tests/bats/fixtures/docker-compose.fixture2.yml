@@ -17,7 +17,7 @@ services:
       LAGOON_PROJECT: example_site
       LAGOON_ROUTE: example-site.docker.amazee.io
       XDEBUG_ENABLE: ''
-    image: selenium/standalone-chrome
+    image: selenium/standalone-chrome:4.5.2-20221021
     labels:
       lagoon.type: none
     shm_size: 1gb
