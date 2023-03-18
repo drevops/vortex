@@ -1,8 +1,8 @@
-https://your-site.atlassian.net/browse/your-site-<NUMBER>
+https://your-site.atlassian.net/browse/YSCODE-<NUMBER>
 
 ## Checklist before requesting a review
 
-- [ ] I have formatted the subject to include ticket number as `[YS-123] Verb in past tense with dot at the end.`
+- [ ] I have formatted the subject to include ticket number as `[YSCODE-123] Verb in past tense with dot at the end.`
 - [ ] I have added a link to the JIRA ticket
 - [ ] I have provided information in `Changed` section about WHY something was done if this was not a normal implementation
 - [ ] I have performed a self-review of my code

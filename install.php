@@ -454,6 +454,7 @@ function process__string_tokens($dir) {
   $machine_name_hyphenated = str_replace('_', '-', get_answer('machine_name'));
   $machine_name_camel_cased = to_camel_case(get_answer('machine_name'), TRUE);
   $module_prefix_capitalised = to_camel_case(get_answer('module_prefix'), TRUE);
+  $module_prefix_uppercase = strtoupper($module_prefix_capitalised);
   $drevops_version_urlencoded = str_replace('-', '--', get_config('DREVOPS_VERSION'));
 
   // @formatter:off
@@ -466,6 +467,7 @@ function process__string_tokens($dir) {
   dir_replace_content('ys_core',               get_answer('module_prefix') . '_core',    $dir . '/docroot/modules/custom');
   dir_replace_content('ys_core',               get_answer('module_prefix') . '_core',    $dir . '/scripts/custom');
   dir_replace_content('YsCore',                $module_prefix_capitalised . 'Core',      $dir . '/docroot/modules/custom');
+  dir_replace_content('YSCODE',                $module_prefix_uppercase,                 $dir);
   dir_replace_content('your-site',             $machine_name_hyphenated,                 $dir);
   dir_replace_content('your_site',             get_answer('machine_name'),               $dir);
   dir_replace_content('YOURSITE',              get_answer('name'),                       $dir);
