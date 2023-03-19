@@ -2,12 +2,14 @@
 ##
 # Check spelling.
 #
-# shellcheck disable=SC2181,SC2016,SC2002,SC2266
+# shellcheck disable=SC2181,SC2016,SC2002,SC2266,SC2015
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 CUR_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")")"
+
+dict="${CUR_DIR}/scripts/drevops/utils/.aspell.en.pws"
 
 targets=()
 while IFS=  read -r -d $'\0'; do
@@ -30,6 +32,8 @@ targets+=(FAQs.md)
 targets+=(ONBOARDING.md)
 targets+=(README.md)
 
+echo -n "==> Validating dictionary..." && cat "${dict}" | head -1 | grep -q "personal_ws-1.1 en 28" && echo "OK" || (echo "ERROR: invalid dictionary format" && exit 1)
+
 echo "==> Start checking spelling."
 for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
@@ -48,7 +52,7 @@ for file in "${targets[@]}"; do
     sed -E 's/\[.+\]\([^\)]+\)//g' | \
     # Remove links.
     sed -E 's/http(s)?:\/\/([^ ]+)//g' | \
-    aspell --lang=en --encoding=utf-8 --personal="${CUR_DIR}/scripts/drevops/utils/.aspell.en.pws" list | tee /dev/stderr | [ "$(wc -l)" -eq 0 ]
+    aspell --lang=en --encoding=utf-8 --personal="${dict}" list | tee /dev/stderr | [ "$(wc -l)" -eq 0 ]
 
     if  [ "$?" -ne 0 ]; then
       exit 1
