@@ -8,6 +8,8 @@ FROM ${CLI_IMAGE:-cli} as cli
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/nginx-drupal
 FROM uselagoon/nginx-drupal:23.2.0
 
-ENV WEBROOT=docroot
+# Webroot is used for Nginx docroot configuration.
+ARG WEBROOT=web
+ENV WEBROOT=${WEBROOT}
 
 COPY --from=cli /app /app

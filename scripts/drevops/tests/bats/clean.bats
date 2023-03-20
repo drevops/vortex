@@ -13,13 +13,13 @@ load _helper_drevops
   assert_files_present
   assert_git_repo
 
-  mktouch "docroot/core/install.php"
-  mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
-  mktouch "docroot/themes/contrib/sometheme/sometheme.info.yml"
-  mktouch "docroot/profiles/contrib/someprofile/someprofile.info.yml"
-  mktouch "docroot/sites/default/somesettingsfile.php"
-  mktouch "docroot/sites/default/settings.generated.php"
-  mktouch "docroot/sites/default/files/somepublicfile.php"
+  mktouch "web/core/install.php"
+  mktouch "web/modules/contrib/somemodule/somemodule.info.yml"
+  mktouch "web/themes/contrib/sometheme/sometheme.info.yml"
+  mktouch "web/profiles/contrib/someprofile/someprofile.info.yml"
+  mktouch "web/sites/default/somesettingsfile.php"
+  mktouch "web/sites/default/settings.generated.php"
+  mktouch "web/sites/default/files/somepublicfile.php"
 
   mktouch "vendor/somevendor/somepackage/somepackage.php"
   mktouch "vendor/somevendor/somepackage/somepackage with spaces.php"
@@ -27,12 +27,12 @@ load _helper_drevops
   # Make sure that sub-repos removed.
   mktouch "vendor/othervendor/otherpackage/.git/HEAD"
 
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage with spaces.js"
+  mktouch "web/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
+  mktouch "web/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage with spaces.js"
 
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
+  mktouch "web/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "web/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
+  mktouch "web/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch "tests/behat/screenshots/s1.jpg"
   mktouch "tests/behat/screenshots/s2.jpg"
@@ -40,8 +40,8 @@ load _helper_drevops
   mktouch ".data/db.sql"
   mktouch ".data/db_2.sql"
 
-  mktouch "docroot/sites/default/settings.local.php"
-  mktouch "docroot/sites/default/services.local.yml"
+  mktouch "web/sites/default/settings.local.php"
+  mktouch "web/sites/default/services.local.yml"
 
   echo "version: \"2.3\"" > "docker-compose.override.yml"
 
@@ -56,20 +56,20 @@ load _helper_drevops
   assert_files_present
   assert_git_repo
 
-  assert_dir_not_exists "docroot/core"
-  assert_dir_not_exists "docroot/modules/contrib"
-  assert_dir_not_exists "docroot/themes/contrib"
-  assert_dir_not_exists "docroot/profiles/contrib"
+  assert_dir_not_exists "web/core"
+  assert_dir_not_exists "web/modules/contrib"
+  assert_dir_not_exists "web/themes/contrib"
+  assert_dir_not_exists "web/profiles/contrib"
 
-  assert_file_exists "docroot/sites/default/somesettingsfile.php"
-  assert_file_not_exists "docroot/sites/default/settings.generated.php"
-  assert_file_exists "docroot/sites/default/files/somepublicfile.php"
+  assert_file_exists "web/sites/default/somesettingsfile.php"
+  assert_file_not_exists "web/sites/default/settings.generated.php"
+  assert_file_exists "web/sites/default/files/somepublicfile.php"
 
   assert_dir_not_exists "vendor"
-  assert_dir_not_exists "docroot/themes/custom/star_wars/node_modules"
+  assert_dir_not_exists "web/themes/custom/star_wars/node_modules"
 
-  assert_dir_not_exists "docroot/themes/custom/star_wars/build"
-  assert_file_not_exists "docroot/themes/custom/star_wars/scss/_components.scss"
+  assert_dir_not_exists "web/themes/custom/star_wars/build"
+  assert_file_not_exists "web/themes/custom/star_wars/scss/_components.scss"
 
   assert_file_exists "tests/behat/screenshots/s1.jpg"
   assert_file_exists "tests/behat/screenshots/s2.jpg"
@@ -77,8 +77,8 @@ load _helper_drevops
   assert_file_exists ".data/db.sql"
   assert_file_exists ".data/db_2.sql"
 
-  assert_file_exists "docroot/sites/default/settings.local.php"
-  assert_file_exists "docroot/sites/default/services.local.yml"
+  assert_file_exists "web/sites/default/settings.local.php"
+  assert_file_exists "web/sites/default/services.local.yml"
 
   assert_file_exists "docker-compose.override.yml"
 
@@ -99,13 +99,13 @@ load _helper_drevops
   git_add "first.txt"
   git_commit "first commit"
 
-  mktouch "docroot/core/install.php"
-  mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
-  mktouch "docroot/themes/contrib/sometheme/sometheme.info.yml"
-  mktouch "docroot/profiles/contrib/someprofile/someprofile.info.yml"
-  mktouch "docroot/sites/default/somesettingsfile.php"
-  mktouch "docroot/sites/default/settings.generated.php"
-  mktouch "docroot/sites/default/files/somepublicfile.php"
+  mktouch "web/core/install.php"
+  mktouch "web/modules/contrib/somemodule/somemodule.info.yml"
+  mktouch "web/themes/contrib/sometheme/sometheme.info.yml"
+  mktouch "web/profiles/contrib/someprofile/someprofile.info.yml"
+  mktouch "web/sites/default/somesettingsfile.php"
+  mktouch "web/sites/default/settings.generated.php"
+  mktouch "web/sites/default/files/somepublicfile.php"
 
   mktouch "vendor/somevendor/somepackage/somepackage.php"
   mktouch "vendor/somevendor/somepackage/somepackage with spaces.php"
@@ -113,12 +113,12 @@ load _helper_drevops
   # Make sure that sub-repos removed.
   mktouch "vendor/othervendor/otherpackage/.git/HEAD"
 
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage with spaces.js"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
+  mktouch "web/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
+  mktouch "web/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage with spaces.js"
+  mktouch "web/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
+  mktouch "web/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "web/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
 
   mktouch "tests/behat/screenshots/s1.jpg"
   mktouch "tests/behat/screenshots/s2.jpg"
@@ -126,8 +126,8 @@ load _helper_drevops
   mktouch ".data/db.sql"
   mktouch ".data/db_2.sql"
 
-  mktouch "docroot/sites/default/settings.local.php"
-  mktouch "docroot/sites/default/services.local.yml"
+  mktouch "web/sites/default/settings.local.php"
+  mktouch "web/sites/default/services.local.yml"
 
   echo "version: \"2.3\"" > "docker-compose.override.yml"
 
@@ -138,35 +138,35 @@ load _helper_drevops
   mktouch "uncommitted_file.txt"
 
   mktouch "composer.lock"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/package-lock.json"
+  mktouch "web/themes/custom/zzzsomecustomtheme/package-lock.json"
 
   ahoy reset
 
   assert_git_repo
   assert_files_not_present_common
 
-  assert_dir_not_exists "docroot/core"
-  assert_dir_not_exists "docroot/modules/contrib"
-  assert_dir_not_exists "docroot/themes/contrib"
-  assert_dir_not_exists "docroot/profiles/contrib"
+  assert_dir_not_exists "web/core"
+  assert_dir_not_exists "web/modules/contrib"
+  assert_dir_not_exists "web/themes/contrib"
+  assert_dir_not_exists "web/profiles/contrib"
 
-  assert_file_not_exists "docroot/sites/default/somesettingsfile.php"
-  assert_file_not_exists "docroot/sites/default/settings.generated.php"
-  assert_file_not_exists "docroot/sites/default/files/somepublicfile.php"
+  assert_file_not_exists "web/sites/default/somesettingsfile.php"
+  assert_file_not_exists "web/sites/default/settings.generated.php"
+  assert_file_not_exists "web/sites/default/files/somepublicfile.php"
 
   assert_dir_not_exists "vendor"
-  assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/node_modules"
+  assert_dir_not_exists "web/themes/custom/zzzsomecustomtheme/node_modules"
 
-  assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/build"
-  assert_file_not_exists "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "web/themes/custom/zzzsomecustomtheme/build"
+  assert_file_not_exists "web/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_dir_not_exists "tests/behat/screenshots"
 
   assert_file_not_exists ".data/db.sql"
   assert_file_not_exists ".data/db_2.sql"
 
-  assert_file_not_exists "docroot/sites/default/settings.local.php"
-  assert_file_not_exists "docroot/sites/default/services.local.yml"
+  assert_file_not_exists "web/sites/default/settings.local.php"
+  assert_file_not_exists "web/sites/default/services.local.yml"
 
   assert_file_not_exists "docker-compose.override.yml"
 
@@ -177,7 +177,7 @@ load _helper_drevops
   assert_file_not_exists "uncommitted_file.txt"
 
   assert_file_not_exists "composer.lock"
-  assert_file_not_exists "docroot/themes/custom/star_wars/package-lock.json"
+  assert_file_not_exists "web/themes/custom/star_wars/package-lock.json"
 }
 
 @test "Reset; committed files" {
@@ -186,13 +186,13 @@ load _helper_drevops
   assert_files_present
   assert_git_repo
 
-  mktouch "docroot/core/install.php"
-  mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
-  mktouch "docroot/themes/contrib/sometheme/sometheme.info.yml"
-  mktouch "docroot/profiles/contrib/someprofile/someprofile.info.yml"
-  mktouch "docroot/sites/default/somesettingsfile.php"
-  mktouch "docroot/sites/default/settings.generated.php"
-  mktouch "docroot/sites/default/files/somepublicfile.php"
+  mktouch "web/core/install.php"
+  mktouch "web/modules/contrib/somemodule/somemodule.info.yml"
+  mktouch "web/themes/contrib/sometheme/sometheme.info.yml"
+  mktouch "web/profiles/contrib/someprofile/someprofile.info.yml"
+  mktouch "web/sites/default/somesettingsfile.php"
+  mktouch "web/sites/default/settings.generated.php"
+  mktouch "web/sites/default/files/somepublicfile.php"
 
   mktouch "vendor/somevendor/somepackage/somepackage.php"
   mktouch "vendor/somevendor/somepackage/somepackage with spaces.php"
@@ -200,12 +200,12 @@ load _helper_drevops
   # Make sure that sub-repos removed.
   mktouch "vendor/othervendor/otherpackage/.git/HEAD"
 
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage with spaces.js"
+  mktouch "web/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
+  mktouch "web/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage with spaces.js"
 
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
+  mktouch "web/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "web/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
+  mktouch "web/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch "tests/behat/screenshots/s1.jpg"
   mktouch "tests/behat/screenshots/s2.jpg"
@@ -213,8 +213,8 @@ load _helper_drevops
   mktouch ".data/db.sql"
   mktouch ".data/db_2.sql"
 
-  mktouch "docroot/sites/default/settings.local.php"
-  mktouch "docroot/sites/default/services.local.yml"
+  mktouch "web/sites/default/settings.local.php"
+  mktouch "web/sites/default/services.local.yml"
 
   echo "version: \"2.3\"" > "docker-compose.override.yml"
 
@@ -223,7 +223,7 @@ load _helper_drevops
   mktouch "nbproject/some_ide_file"
 
   mktouch "composer.lock"
-  mktouch "docroot/themes/custom/star_wars/package-lock.json"
+  mktouch "web/themes/custom/star_wars/package-lock.json"
 
   git_add_all_commit "Added DrevOps files"
 
@@ -239,28 +239,28 @@ load _helper_drevops
   assert_files_present_common
   assert_git_repo
 
-  assert_dir_not_exists "docroot/core"
-  assert_dir_not_exists "docroot/modules/contrib"
-  assert_dir_not_exists "docroot/themes/contrib"
-  assert_dir_not_exists "docroot/profiles/contrib"
+  assert_dir_not_exists "web/core"
+  assert_dir_not_exists "web/modules/contrib"
+  assert_dir_not_exists "web/themes/contrib"
+  assert_dir_not_exists "web/profiles/contrib"
 
-  assert_file_not_exists "docroot/sites/default/somesettingsfile.php"
-  assert_file_not_exists "docroot/sites/default/settings.generated.php"
-  assert_file_not_exists "docroot/sites/default/files/somepublicfile.php"
+  assert_file_not_exists "web/sites/default/somesettingsfile.php"
+  assert_file_not_exists "web/sites/default/settings.generated.php"
+  assert_file_not_exists "web/sites/default/files/somepublicfile.php"
 
   assert_dir_not_exists "vendor"
-  assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/node_modules"
+  assert_dir_not_exists "web/themes/custom/zzzsomecustomtheme/node_modules"
 
-  assert_dir_not_exists "docroot/themes/custom/zzzsomecustomtheme/build"
-  #assert_file_not_exists "docroot/themes/custom/zzzsomecustomtheme/scss/_components.scss"
+  assert_dir_not_exists "web/themes/custom/zzzsomecustomtheme/build"
+  #assert_file_not_exists "web/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_dir_not_exists "tests/behat/screenshots"
 
   assert_file_not_exists ".data/db.sql"
   assert_file_not_exists ".data/db_2.sql"
 
-  assert_file_not_exists "docroot/sites/default/settings.local.php"
-  assert_file_not_exists "docroot/sites/default/services.local.yml"
+  assert_file_not_exists "web/sites/default/settings.local.php"
+  assert_file_not_exists "web/sites/default/services.local.yml"
 
   assert_file_not_exists "docker-compose.override.yml"
 
@@ -275,5 +275,5 @@ load _helper_drevops
 
   # The files would be committed to the consumer repo.
   assert_file_exists "composer.lock"
-  assert_file_exists "docroot/themes/custom/star_wars/package-lock.json"
+  assert_file_exists "web/themes/custom/star_wars/package-lock.json"
 }

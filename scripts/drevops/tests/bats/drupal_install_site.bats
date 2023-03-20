@@ -8,8 +8,11 @@ load _helper
 load _helper_drevops
 
 assert_drupal_install_site_info(){
+  local webroot="${8:-web}"
+
   assert_output_contains "Started site installation."
   assert_output_contains "App dir                      : ${LOCAL_REPO_DIR}"
+  assert_output_contains "Web root dir                 : ${webroot}"
   assert_output_contains "Site name                    : Example site"
   assert_output_contains "Site email                   : webmaster@example.com"
   assert_output_contains "Profile                      : standard"
@@ -18,7 +21,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Skip sanitization            : ${3:-0}"
   assert_output_contains "Use maintenance mode         : ${4:-1}"
   assert_output_contains "Skip post-install operations : ${5:-0}"
-  assert_output_contains "Private files directory      : ${LOCAL_REPO_DIR}/docroot/sites/default/files/private"
+  assert_output_contains "Private files directory      : ${LOCAL_REPO_DIR}/${webroot}/sites/default/files/private"
   assert_output_contains "Config path                  : ${LOCAL_REPO_DIR}/config/default"
   assert_output_contains "DB dump file path            : ${LOCAL_REPO_DIR}/.data/db.sql"
   assert_output_contains "Existing site found          : ${6:-0}"

@@ -168,8 +168,8 @@ load _helper_drevops
   # Releasing new version of DrevOps.
   echo "# Some change to docker-compose" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
-  echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/.eslintrc.json"
-  git_add "docroot/themes/custom/your_site_theme/.eslintrc.json" "${LOCAL_REPO_DIR}"
+  echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json"
+  git_add "web/themes/custom/your_site_theme/.eslintrc.json" "${LOCAL_REPO_DIR}"
   git_commit "New version of DrevOps" "${LOCAL_REPO_DIR}"
 
   # Run install to update to the latest DrevOps version.
@@ -182,7 +182,7 @@ load _helper_drevops
   # Assert that committed file was updated.
   assert_file_contains "docker-compose.yml" "# Some change to docker-compose"
   # Assert that excluded file was updated.
-  assert_file_contains "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/.eslintrc.json" "# Some change to non-required file"
+  assert_file_contains "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json" "# Some change to non-required file"
 
   # Assert changes to the repo are present.
   assert_git_not_clean
@@ -307,6 +307,21 @@ load _helper_drevops
 
   # Assert that .env.local has not been changed.
   assert_file_contains ".env.local" "some random content"
+}
+
+@test "Install into existing: previously installed project; custom webroot; discovery; quiet" {
+  echo "DREVOPS_WEBROOT=rootdoc" >> ".env"
+
+  # Populate current dir with a project at current version.
+  output=$(run_install_quiet)
+  assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
+  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub "" "rootdoc"
+
+  assert_files_present_common "" "" "" "" "rootdoc"
 }
 
 @test "Install into existing: previously installed project; custom theme; discovery; quiet" {

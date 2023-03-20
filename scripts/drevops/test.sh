@@ -69,6 +69,12 @@ DREVOPS_TEST_REPORTS_DIR="${DREVOPS_TEST_REPORTS_DIR:-}"
 # Directory to store test artifact files.
 DREVOPS_TEST_ARTIFACT_DIR="${DREVOPS_TEST_ARTIFACT_DIR:-}"
 
+# Path to the root of the project inside the container.
+DREVOPS_APP=/app
+
+# Name of the webroot directory with Drupal installation.
+DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
+
 # ------------------------------------------------------------------------------
 
 # Get test type or fallback to defaults.
@@ -83,11 +89,11 @@ DREVOPS_TEST_TYPE="${DREVOPS_TEST_TYPE:-unit-kernel-functional-bdd}"
 if [ -z "${DREVOPS_TEST_TYPE##*unit*}" ]; then
   echo "INFO Running unit tests."
 
-  phpunit_opts=(-c /app/docroot/core/phpunit.xml.dist)
+  phpunit_opts=(-c "${DREVOPS_APP}/${DREVOPS_WEBROOT}/core/phpunit.xml.dist")
   [ -n "${DREVOPS_TEST_UNIT_GROUP}" ] && phpunit_opts+=(--group="${DREVOPS_TEST_UNIT_GROUP}")
   [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/unit.xml")
 
-  vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --exclude-group=skipped --filter '/.*Unit.*/' "$@" \
+  vendor/bin/phpunit "${phpunit_opts[@]}" "${DREVOPS_WEBROOT}/modules/custom/" --exclude-group=skipped --filter '/.*Unit.*/' "$@" \
   && echo "  OK Unit tests passed." \
   || [ "${DREVOPS_TEST_UNIT_ALLOW_FAILURE}" -eq 1 ]
 fi
@@ -95,11 +101,11 @@ fi
 if [ -z "${DREVOPS_TEST_TYPE##*kernel*}" ]; then
   echo "INFO Running Kernel tests"
 
-  phpunit_opts=(-c /app/docroot/core/phpunit.xml.dist)
+  phpunit_opts=(-c "${DREVOPS_APP}/${DREVOPS_WEBROOT}/core/phpunit.xml.dist")
   [ -n "${DREVOPS_TEST_KERNEL_GROUP}" ] && phpunit_opts+=(--group="${DREVOPS_TEST_KERNEL_GROUP}")
   [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/kernel.xml")
 
-  vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --exclude-group=skipped --filter '/.*Kernel.*/' "$@" \
+  vendor/bin/phpunit "${phpunit_opts[@]}" "${DREVOPS_WEBROOT}/modules/custom/" --exclude-group=skipped --filter '/.*Kernel.*/' "$@" \
   && echo "  OK Kernel tests passed." \
   || [ "${DREVOPS_TEST_KERNEL_ALLOW_FAILURE:-0}" -eq 1 ]
 fi
@@ -107,11 +113,11 @@ fi
 if [ -z "${DREVOPS_TEST_TYPE##*functional*}" ]; then
   echo "INFO Running Functional tests"
 
-  phpunit_opts=(-c /app/docroot/core/phpunit.xml.dist)
+  phpunit_opts=(-c "${DREVOPS_APP}/${DREVOPS_WEBROOT}/core/phpunit.xml.dist")
   [ -n "${DREVOPS_TEST_FUNCTIONAL_GROUP}" ] && phpunit_opts+=(--group="${DREVOPS_TEST_FUNCTIONAL_GROUP}")
   [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && phpunit_opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/functional.xml")
 
-  vendor/bin/phpunit "${phpunit_opts[@]}" docroot/modules/custom/ --exclude-group=skipped --filter '/.*Functional.*/' "$@" \
+  vendor/bin/phpunit "${phpunit_opts[@]}" "${DREVOPS_WEBROOT}/modules/custom/" --exclude-group=skipped --filter '/.*Functional.*/' "$@" \
   && echo "  OK Functional tests passed." \
   || [ "${DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE:-0}" -eq 1 ]
 fi

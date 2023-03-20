@@ -32,9 +32,9 @@ default:
       api_driver: drupal
       drush_driver: drush
       drupal:
-        drupal_root: docroot
+        drupal_root: web
       drush:
-        root: docroot
+        root: web
       selectors:
         message_selector: '.messages'
         error_message_selector: '.messages.error'

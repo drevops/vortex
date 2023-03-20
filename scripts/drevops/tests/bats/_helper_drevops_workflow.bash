@@ -6,6 +6,7 @@
 
 prepare_sut() {
   step "Run SUT preparation: ${1}"
+  local webroot="${2:-web}"
 
   DREVOPS_DRUPAL_VERSION=${DREVOPS_DRUPAL_VERSION:-9}
   DREVOPS_DEV_VOLUMES_MOUNTED=${DREVOPS_DEV_VOLUMES_MOUNTED:-1}
@@ -13,18 +14,19 @@ prepare_sut() {
   assert_not_empty "${DREVOPS_DRUPAL_VERSION}"
   assert_not_empty "${DREVOPS_DEV_VOLUMES_MOUNTED}"
 
-  assert_files_not_present_common
+  assert_files_not_present_common "" "" "" "" "${webroot}"
 
   substep "Initialise the project with default settings"
 
   # Run default install
+  export DREVOPS_WEBROOT="${webroot}"
   run_install_quiet
 
-  assert_files_present_common
+  assert_files_present_common "" "" "" "" "${webroot}"
   assert_files_present_no_install_from_profile
   assert_files_present_deployment
-  assert_files_present_no_integration_acquia
-  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_acquia "" "" "${webroot}"
+  assert_files_present_no_integration_lagoon "" "" "${webroot}"
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
   assert_git_repo
@@ -76,6 +78,8 @@ assert_ahoy_download_db() {
 }
 
 assert_ahoy_build() {
+  local webroot="${1:-web}"
+
   substep "Started project build"
 
   # Tests are using demo database and 'ahoy download-db' command, so we need
@@ -91,6 +95,8 @@ assert_ahoy_build() {
   # Check that database file exists before build.
   [ -f ".data/db.sql" ] && db_file_exists=1
 
+#  export DREVOPS_DOCKER_VERBOSE="1"
+
   run ahoy build
   sync_to_host
 
@@ -104,7 +110,7 @@ assert_ahoy_build() {
 
   # Assert that lock files were created.
   assert_file_exists "composer.lock"
-  assert_file_exists "docroot/themes/custom/star_wars/package-lock.json"
+  assert_file_exists "${webroot}/themes/custom/star_wars/package-lock.json"
 
   # Assert that database file preserved after build if existed before.
   if [ "$db_file_exists" = "1" ]; then
@@ -114,34 +120,35 @@ assert_ahoy_build() {
   fi
 
   # Assert the presence of files from the default configuration.
-  assert_files_present_common
+  assert_files_present_common "" "" "" "" "${webroot}"
   assert_files_present_no_install_from_profile
   assert_files_present_deployment
-  assert_files_present_no_integration_acquia
-  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_acquia "" "" "${webroot}"
+  assert_files_present_no_integration_lagoon "" "" "${webroot}"
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
 
   # Assert generated settings file exists.
-  assert_file_exists docroot/sites/default/settings.generated.php
+  assert_file_exists "${webroot}/sites/default/settings.generated.php"
   # Assert only minified compiled CSS exists.
-  assert_file_exists docroot/themes/custom/star_wars/build/css/star_wars.min.css
-  assert_file_not_contains docroot/themes/custom/star_wars/build/css/star_wars.min.css "background: #7e57e2"
-  assert_file_not_exists docroot/themes/custom/star_wars/build/css/star_wars.css
+  assert_file_exists "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css"
+  assert_file_not_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "background: #7e57e2"
+  assert_file_not_exists "${webroot}/themes/custom/star_wars/build/css/star_wars.css"
   # Assert only minified compiled JS exists.
-  assert_file_exists docroot/themes/custom/star_wars/build/js/star_wars.min.js
-  assert_file_contains docroot/themes/custom/star_wars/build/js/star_wars.min.js "!function(Drupal){\"use strict\";Drupal.behaviors.star_wars"
-  assert_file_not_exists docroot/themes/custom/star_wars/build/js/star_wars.js
+  assert_file_exists "${webroot}/themes/custom/star_wars/build/js/star_wars.min.js"
+  assert_file_contains "${webroot}/themes/custom/star_wars/build/js/star_wars.min.js" "!function(Drupal){\"use strict\";Drupal.behaviors.star_wars"
+  assert_file_not_exists "${webroot}/themes/custom/star_wars/build/js/star_wars.js"
 
   substep "Finished project build"
 }
 
 assert_gitignore() {
   local skip_commit="${1:-0}"
+  local webroot="${2:-web}"
 
   step "Run .gitignore test"
 
-  create_development_settings
+  create_development_settings "${webroot}"
 
   if [ "${skip_commit}" -ne 1 ]; then
     substep "Commit fully configured project"
@@ -149,29 +156,29 @@ assert_gitignore() {
   fi
 
   # Assert that scaffold files were added to the git repository.
-  assert_git_file_is_tracked docroot/.editorconfig
-  assert_git_file_is_tracked docroot/.eslintignore
-  assert_git_file_is_tracked docroot/.gitattributes
-  assert_git_file_is_tracked docroot/.htaccess
-  assert_git_file_is_tracked docroot/autoload.php
-  assert_git_file_is_tracked docroot/index.php
-  assert_git_file_is_tracked docroot/robots.txt
-  assert_git_file_is_tracked docroot/update.php
+  assert_git_file_is_tracked "${webroot}/.editorconfig"
+  assert_git_file_is_tracked "${webroot}/.eslintignore"
+  assert_git_file_is_tracked "${webroot}/.gitattributes"
+  assert_git_file_is_tracked "${webroot}/.htaccess"
+  assert_git_file_is_tracked "${webroot}/autoload.php"
+  assert_git_file_is_tracked "${webroot}/index.php"
+  assert_git_file_is_tracked "${webroot}/robots.txt"
+  assert_git_file_is_tracked "${webroot}/update.php"
   # Assert that lock files were added to the git repository.
   assert_git_file_is_tracked "composer.lock"
-  assert_git_file_is_tracked "docroot/themes/custom/star_wars/package-lock.json"
+  assert_git_file_is_tracked "${webroot}/themes/custom/star_wars/package-lock.json"
   # Assert that generated files were not added to the git repository.
-  assert_git_file_is_not_tracked "docroot/sites/default/settings.generated.php"
+  assert_git_file_is_not_tracked "${webroot}/sites/default/settings.generated.php"
   assert_git_file_is_not_tracked ".data/db.sql"
   # Assert that local settings were not added to the git repository.
-  assert_git_file_is_not_tracked "docroot/sites/default/settings.local.php"
-  assert_git_file_is_not_tracked "docroot/sites/default/services.local.yml"
+  assert_git_file_is_not_tracked "${webroot}/sites/default/settings.local.php"
+  assert_git_file_is_not_tracked "${webroot}/sites/default/services.local.yml"
   assert_git_file_is_not_tracked "docker-compose.override.yml"
   # Assert that built assets were not added to the git repository.
-  assert_git_file_is_not_tracked "docroot/themes/custom/star_wars/build/css/star_wars.min.css"
-  assert_git_file_is_not_tracked "docroot/themes/custom/star_wars/build/js/star_wars.js"
+  assert_git_file_is_not_tracked "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css"
+  assert_git_file_is_not_tracked "${webroot}/themes/custom/star_wars/build/js/star_wars.js"
 
-  remove_development_settings
+  remove_development_settings "${webroot}"
 }
 
 assert_ahoy_cli() {
@@ -246,6 +253,8 @@ assert_ahoy_drush() {
 }
 
 assert_ahoy_info() {
+  local webroot="${1:-web}"
+
   step "Run site info"
 
   run ahoy info
@@ -254,7 +263,7 @@ assert_ahoy_info() {
   assert_output_contains "Docker Compose project name : star_wars"
   assert_output_contains "Site local URL              : http://star-wars.docker.amazee.io"
   assert_output_contains "Path to project             : /app"
-  assert_output_contains "Path to docroot             : /app/docroot"
+  assert_output_contains "Path to web root            : /app/${webroot}"
   assert_output_contains "DB host                     : mariadb"
   assert_output_contains "DB username                 : drupal"
   assert_output_contains "DB password                 : drupal"
@@ -293,6 +302,8 @@ assert_ahoy_export_db() {
 }
 
 assert_ahoy_lint() {
+  local webroot="${1:-web}"
+
   step "Lint code"
 
   run ahoy lint
@@ -302,8 +313,8 @@ assert_ahoy_lint() {
   assert_output_not_contains "Containers are not running."
 
   step "Assert that lint failure bypassing works"
-  echo "\$a=1;" >>docroot/modules/custom/sw_core/sw_core.module
-  echo ".abc{margin: 0px;}" >>docroot/themes/custom/star_wars/scss/components/_layout.scss
+  echo "\$a=1;" >> "${webroot}/modules/custom/sw_core/sw_core.module"
+  echo ".abc{margin: 0px;}" >> "${webroot}/themes/custom/star_wars/scss/components/_layout.scss"
   sync_to_container
 
   # Assert failure.
@@ -346,6 +357,8 @@ assert_ahoy_lint() {
 }
 
 assert_ahoy_test_unit() {
+  local webroot="${1:-web}"
+
   step "Run Drupal Unit tests"
 
   substep "Run all Unit tests"
@@ -365,7 +378,7 @@ assert_ahoy_test_unit() {
   substep "Assert that Drupal Unit test failure bypassing works"
   rm -fR test_reports || true
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/sw_core/tests/src/Unit/SwCoreExampleUnitTest.php
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Unit/SwCoreExampleUnitTest.php"
   sync_to_container
 
   # Assert without bypass.
@@ -373,8 +386,8 @@ assert_ahoy_test_unit() {
   assert_failure
   assert_output_not_contains "Unit tests passed"
   sync_to_host
-  assert_dir_not_empty test_reports
-  assert_file_exists test_reports/phpunit/unit.xml
+  assert_dir_not_empty "test_reports"
+  assert_file_exists "test_reports/phpunit/unit.xml"
 
   rm -fR test_reports || true
 
@@ -384,13 +397,15 @@ assert_ahoy_test_unit() {
   assert_success
   assert_output_not_contains "Unit tests passed"
   sync_to_host
-  assert_dir_not_empty test_reports
-  assert_file_exists test_reports/phpunit/unit.xml
+  assert_dir_not_empty "test_reports"
+  assert_file_exists "test_reports/phpunit/unit.xml"
 
   restore_file .env && ahoy up cli
 }
 
 assert_ahoy_test_kernel() {
+  local webroot="${1:-web}"
+
   step "Run Drupal Kernel tests"
 
   substep "Run all Kernel tests"
@@ -409,7 +424,7 @@ assert_ahoy_test_kernel() {
 
   substep "Assert that Drupal Unit test failure bypassing works"
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/sw_core/tests/src/Kernel/SwCoreExampleKernelTest.php
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Kernel/SwCoreExampleKernelTest.php"
   sync_to_container
 
   # Assert without bypass.
@@ -417,8 +432,8 @@ assert_ahoy_test_kernel() {
   assert_failure
   assert_output_not_contains "Kernel tests passed"
   sync_to_host
-  assert_dir_not_empty test_reports
-  assert_file_exists test_reports/phpunit/kernel.xml
+  assert_dir_not_empty "test_reports"
+  assert_file_exists "test_reports/phpunit/kernel.xml"
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_KERNEL_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
@@ -426,32 +441,34 @@ assert_ahoy_test_kernel() {
   assert_success
   assert_output_not_contains "Kernel tests passed"
   sync_to_host
-  assert_dir_not_empty test_reports
-  assert_file_exists test_reports/phpunit/kernel.xml
+  assert_dir_not_empty "test_reports"
+  assert_file_exists "test_reports/phpunit/kernel.xml"
 
   restore_file .env && ahoy up cli
 }
 
 assert_ahoy_test_functional() {
+  local webroot="${1:-web}"
+
   step "Run Drupal Functional tests"
 
   substep "Run all Functional tests"
   run ahoy test-functional
   assert_success
-  assert_output_contains "OK (5 tests, 10 assertions)"
+  assert_output_contains "OK (2 tests, 4 assertions)"
   assert_output_contains "Functional tests passed"
 
   substep "Run grouped Functional tests"
   export DREVOPS_TEST_FUNCTIONAL_GROUP=subtraction
   run ahoy test-functional
   assert_success
-  assert_output_contains "OK (3 tests, 6 assertions)"
+  assert_output_contains "OK (1 test, 2 assertions)"
   assert_output_contains "Functional tests passed"
   unset DREVOPS_TEST_FUNCTIONAL_GROUP
 
   substep "Assert that Drupal Functional test failure bypassing works"
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" docroot/modules/custom/sw_core/tests/src/Functional/SwCoreExampleFunctionalTest.php
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Functional/SwCoreExampleFunctionalTest.php"
   sync_to_container
 
   # Assert without bypass.
@@ -459,8 +476,8 @@ assert_ahoy_test_functional() {
   assert_failure
   assert_output_not_contains "Functional tests passed"
   sync_to_host
-  assert_dir_not_empty test_reports
-  assert_file_exists test_reports/phpunit/functional.xml
+  assert_dir_not_empty "test_reports"
+  assert_file_exists "test_reports/phpunit/functional.xml"
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
@@ -468,8 +485,8 @@ assert_ahoy_test_functional() {
   assert_success
   assert_output_not_contains "Functional tests passed"
   sync_to_host
-  assert_dir_not_empty test_reports
-  assert_file_exists test_reports/phpunit/functional.xml
+  assert_dir_not_empty "test_reports"
+  assert_file_exists "test_reports/phpunit/functional.xml"
 
   restore_file .env && ahoy up cli && sync_to_container
 }
@@ -637,42 +654,46 @@ assert_ahoy_test_bdd() {
 }
 
 assert_ahoy_fei() {
+  local webroot="${1:-web}"
+
   step "FE dependencies install"
 
   substep "Remove existing Node modules"
-  rm -Rf "docroot/themes/custom/star_wars/node_modules" || true
-  assert_dir_not_exists "docroot/themes/custom/star_wars/node_modules"
+  rm -Rf "${webroot}/themes/custom/star_wars/node_modules" || true
+  assert_dir_not_exists "${webroot}/themes/custom/star_wars/node_modules"
   sync_to_container
 
   substep "Install Node modules"
   run ahoy fei
   assert_success
   sync_to_host
-  assert_dir_exists "docroot/themes/custom/star_wars/node_modules"
+  assert_dir_exists "${webroot}/themes/custom/star_wars/node_modules"
 }
 
 assert_ahoy_fe() {
+  local webroot="${1:-web}"
+
   step "FE assets"
 
   substep "Build FE assets for production"
-  assert_file_not_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#7e57e2"
-  echo "\$color-tester: #7e57e2;" >>docroot/themes/custom/star_wars/scss/_variables.scss
-  echo "\$color-primary: \$color-tester;" >>docroot/themes/custom/star_wars/scss/_variables.scss
+  assert_file_not_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "#7e57e2"
+  echo "\$color-tester: #7e57e2;" >> "${webroot}/themes/custom/star_wars/scss/_variables.scss"
+  echo "\$color-primary: \$color-tester;" >> "${webroot}/themes/custom/star_wars/scss/_variables.scss"
   sync_to_container
   ahoy fe
   sync_to_host
-  assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background:#7e57e2"
+  assert_file_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "background:#7e57e2"
 
   substep "Build FE assets for development"
-  assert_file_not_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "#91ea5e"
-  echo "\$color-please: #91ea5e;" >>docroot/themes/custom/star_wars/scss/_variables.scss
-  echo "\$color-primary: \$color-please;" >>docroot/themes/custom/star_wars/scss/_variables.scss
+  assert_file_not_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "#91ea5e"
+  echo "\$color-please: #91ea5e;" >> "${webroot}/themes/custom/star_wars/scss/_variables.scss"
+  echo "\$color-primary: \$color-please;" >> "${webroot}/themes/custom/star_wars/scss/_variables.scss"
   sync_to_container
   ahoy fed
   sync_to_host
   # Note that assets compiled for development are not minified (contains spaces
   # between properties and their values).
-  assert_file_contains "docroot/themes/custom/star_wars/build/css/star_wars.min.css" "background: #91ea5e"
+  assert_file_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "background: #91ea5e"
 }
 
 assert_ahoy_debug() {
@@ -727,69 +748,73 @@ assert_ahoy_debug() {
 }
 
 assert_ahoy_clean() {
+  local webroot="${1:-web}"
+
   step "Clean"
 
   # Prepare to assert that manually created file is not removed.
   touch untracked_file.txt
 
-  create_development_settings
+  create_development_settings "${webroot}"
 
   ahoy clean
   # Assert that initial DrevOps files have not been removed.
-  assert_files_present_common
+  assert_files_present_common "" "" "" "" "${webroot}"
   assert_files_present_deployment
-  assert_files_present_no_integration_acquia
-  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_acquia "" "" "${webroot}"
+  assert_files_present_no_integration_lagoon "" "" "${webroot}"
   assert_files_present_no_integration_ftp
 
-  assert_dir_not_exists docroot/modules/contrib
-  assert_dir_not_exists docroot/themes/contrib
-  assert_dir_not_exists vendor
-  assert_dir_not_exists docroot/themes/custom/star_wars/node_modules
-  assert_dir_exists tests/behat/screenshots
+  assert_dir_not_exists "${webroot}/modules/contrib"
+  assert_dir_not_exists "${webroot}/themes/contrib"
+  assert_dir_not_exists "vendor"
+  assert_dir_not_exists "${webroot}/themes/custom/star_wars/node_modules"
+  assert_dir_exists "tests/behat/screenshots"
 
   # Assert manually created local settings file exists.
-  assert_file_exists docroot/sites/default/settings.local.php
+  assert_file_exists "${webroot}/sites/default/settings.local.php"
   # Assert manually created local services file exists.
-  assert_file_exists docroot/sites/default/services.local.yml
+  assert_file_exists "${webroot}/sites/default/services.local.yml"
   # Assert generated settings file does not exist.
-  assert_file_not_exists docroot/sites/default/settings.generated.php
+  assert_file_not_exists "${webroot}/sites/default/settings.generated.php"
   # Assert manually created file still exists.
-  assert_file_exists untracked_file.txt
+  assert_file_exists "untracked_file.txt"
   # Assert IDE config file still exists.
-  assert_file_exists .idea/idea_file.txt
+  assert_file_exists ".idea/idea_file.txt"
 
   assert_git_repo
 
-  remove_development_settings
+  remove_development_settings "${webroot}"
 }
 
 assert_ahoy_reset() {
+  local webroot="${1:-web}"
+
   step "Reset"
 
-  create_development_settings
+  create_development_settings "${webroot}"
 
   ahoy reset
 
-  assert_files_present_common
+  assert_files_present_common "" "" "" "" "${webroot}"
   assert_files_present_deployment
-  assert_files_present_no_integration_acquia
-  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_acquia "" "" "${webroot}"
+  assert_files_present_no_integration_lagoon "" "" "${webroot}"
   assert_files_present_no_integration_ftp
 
-  assert_file_not_exists "docroot/sites/default/settings.local.php"
-  assert_file_not_exists "docroot/sites/default/services.local.yml"
+  assert_file_not_exists "${webroot}/sites/default/settings.local.php"
+  assert_file_not_exists "${webroot}/sites/default/services.local.yml"
 
   # Assert manually created file still exists.
-  assert_file_not_exists untracked_file.txt
+  assert_file_not_exists "untracked_file.txt"
   # Assert IDE config file still exists.
-  assert_file_exists .idea/idea_file.txt
+  assert_file_exists ".idea/idea_file.txt"
 
-  assert_dir_not_exists tests/behat/screenshots
+  assert_dir_not_exists "tests/behat/screenshots"
 
   assert_git_repo
 
-  remove_development_settings
+  remove_development_settings "${webroot}"
 }
 
 assert_page_contains() {

@@ -32,6 +32,9 @@ DREVOPS_LINT_PHPLINT_EXTENSIONS="${DREVOPS_LINT_PHPLINT_EXTENSIONS:-php,inc,modu
 # Drupal theme name.
 DREVOPS_DRUPAL_THEME="${DREVOPS_DRUPAL_THEME:-}"
 
+# Name of the webroot directory with Drupal installation.
+DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
+
 # ------------------------------------------------------------------------------
 echo "INFO Linting code."
 
@@ -48,9 +51,9 @@ if [ -z "${DREVOPS_LINT_TYPE##*be*}" ]; then
   || [ "${DREVOPS_LINT_BE_ALLOW_FAILURE}" -eq 1 ]
 fi
 
-if [ -z "${DREVOPS_LINT_TYPE##*fe*}" ] && [ -n "${DREVOPS_DRUPAL_THEME}" ] && grep -q lint "docroot/themes/custom/${DREVOPS_DRUPAL_THEME}/package.json"; then
+if [ -z "${DREVOPS_LINT_TYPE##*fe*}" ] && [ -n "${DREVOPS_DRUPAL_THEME}" ] && grep -q lint "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}/package.json"; then
   # Lint code using front-end linter.
-  npm run --prefix "docroot/themes/custom/${DREVOPS_DRUPAL_THEME}" lint \
+  npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint \
   && echo "  OK Front-end code linted successfully." \
   || [ "${DREVOPS_LINT_FE_ALLOW_FAILURE}" -eq 1 ]
 fi

@@ -59,8 +59,8 @@ load _helper_drevops_deployment
 
   # Make sure that one of the excluded directories will be ignored in the
   # deployment artifact.
-  mkdir -p "${SRC_DIR}"/docroot/themes/custom/star_wars/node_modules
-  touch "${SRC_DIR}"/docroot/themes/custom/star_wars/node_modules/test.txt
+  mkdir -p "${SRC_DIR}"/web/themes/custom/star_wars/node_modules
+  touch "${SRC_DIR}"/web/themes/custom/star_wars/node_modules/test.txt
 
   substep "Preparing remote repo directory ${REMOTE_REPO_DIR}."
   prepare_fixture_dir "${REMOTE_REPO_DIR}"

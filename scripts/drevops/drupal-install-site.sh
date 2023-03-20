@@ -16,6 +16,9 @@ DREVOPS_DRUPAL_INSTALL_SKIP="${DREVOPS_DRUPAL_INSTALL_SKIP:-}"
 # Path to the application.
 DREVOPS_APP="${DREVOPS_APP:-/app}"
 
+# Name of the webroot directory with Drupal installation.
+DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
+
 # Drupal site name
 DREVOPS_DRUPAL_SITE_NAME="${DREVOPS_DRUPAL_SITE_NAME:-Example site}"
 
@@ -29,7 +32,7 @@ DREVOPS_DRUPAL_PROFILE="${DREVOPS_DRUPAL_PROFILE:-standard}"
 DREVOPS_DRUPAL_CONFIG_PATH="${DREVOPS_DRUPAL_CONFIG_PATH:-${DREVOPS_APP}/config/default}"
 
 # Path to private files.
-DREVOPS_DRUPAL_PRIVATE_FILES="${DREVOPS_DRUPAL_PRIVATE_FILES:-${DREVOPS_APP}/docroot/sites/default/files/private}"
+DREVOPS_DRUPAL_PRIVATE_FILES="${DREVOPS_DRUPAL_PRIVATE_FILES:-${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/private}"
 
 # Directory with database dump file.
 DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-${DREVOPS_APP}/.data}"
@@ -73,6 +76,7 @@ drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/
 # assert their values.
 echo
 echo "     App dir                      : ${DREVOPS_APP}"
+echo "     Web root dir                 : ${DREVOPS_WEBROOT}"
 echo "     Site name                    : ${DREVOPS_DRUPAL_SITE_NAME}"
 echo "     Site email                   : ${DREVOPS_DRUPAL_SITE_EMAIL}"
 echo "     Profile                      : ${DREVOPS_DRUPAL_PROFILE}"

@@ -6,8 +6,11 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-# Path to the application.
+# Path to the root of the project inside the container.
 DREVOPS_APP="${DREVOPS_APP:-/app}"
+
+# Name of the webroot directory with Drupal installation.
+DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
 # Show Drupal one-time login link.
 DREVOPS_DRUPAL_SHOW_LOGIN_LINK="${DREVOPS_DRUPAL_SHOW_LOGIN_LINK:-}"
@@ -19,7 +22,7 @@ echo "Project name                : ${DREVOPS_PROJECT}"
 echo "Docker Compose project name : ${COMPOSE_PROJECT_NAME:-}"
 echo "Site local URL              : http://${DREVOPS_LOCALDEV_URL}"
 echo "Path to project             : ${DREVOPS_APP}"
-echo "Path to docroot             : ${DREVOPS_APP}/docroot"
+echo "Path to web root            : ${DREVOPS_APP}/${DREVOPS_WEBROOT}"
 echo "DB host                     : ${DREVOPS_MARIADB_HOST}"
 echo "DB username                 : ${DREVOPS_MARIADB_USER}"
 echo "DB password                 : ${DREVOPS_MARIADB_PASSWORD}"

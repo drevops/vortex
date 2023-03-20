@@ -6,6 +6,7 @@
 assert_deployment_files_present() {
   local dir="${1:-$(pwd)}"
   local has_custom_profile="${2:-0}"
+  local webroot="${3:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -38,65 +39,65 @@ assert_deployment_files_present() {
 
   if [ "${has_custom_profile}" -eq 1 ]; then
     # Site profile present.
-    assert_dir_exists docroot/profiles/custom/star_wars_profile
-    assert_file_exists docroot/profiles/custom/star_wars_profile/star_wars_profile.info.yml
+    assert_dir_exists "${webroot}/profiles/custom/star_wars_profile"
+    assert_file_exists "${webroot}/profiles/custom/star_wars_profile/star_wars_profile.info.yml"
   fi
 
   # Site core module present.
-  assert_dir_exists docroot/modules/custom/sw_core
-  assert_file_exists docroot/modules/custom/sw_core/sw_core.info.yml
-  assert_file_exists docroot/modules/custom/sw_core/sw_core.module
-  assert_file_exists docroot/modules/custom/sw_core/sw_core.deploy.php
+  assert_dir_exists "${webroot}/modules/custom/sw_core"
+  assert_file_exists "${webroot}/modules/custom/sw_core/sw_core.info.yml"
+  assert_file_exists "${webroot}/modules/custom/sw_core/sw_core.module"
+  assert_file_exists "${webroot}/modules/custom/sw_core/sw_core.deploy.php"
 
   # Site theme present.
-  assert_dir_exists docroot/themes/custom/star_wars
-  assert_file_exists docroot/themes/custom/star_wars/.gitignore
-  assert_file_exists docroot/themes/custom/star_wars/star_wars.info.yml
-  assert_file_exists docroot/themes/custom/star_wars/star_wars.libraries.yml
-  assert_file_exists docroot/themes/custom/star_wars/star_wars.theme
-  assert_file_not_exists docroot/themes/custom/star_wars/Gruntfile.js
-  assert_file_not_exists docroot/themes/custom/star_wars/package.json
-  assert_file_not_exists docroot/themes/custom/star_wars/package-lock.json
-  assert_file_not_exists docroot/themes/custom/star_wars/.eslintrc.json
-  assert_dir_not_exists docroot/themes/custom/star_wars/node_modules
+  assert_dir_exists "${webroot}/themes/custom/star_wars"
+  assert_file_exists "${webroot}/themes/custom/star_wars/.gitignore"
+  assert_file_exists "${webroot}/themes/custom/star_wars/star_wars.info.yml"
+  assert_file_exists "${webroot}/themes/custom/star_wars/star_wars.libraries.yml"
+  assert_file_exists "${webroot}/themes/custom/star_wars/star_wars.theme"
+  assert_file_not_exists "${webroot}/themes/custom/star_wars/Gruntfile.js"
+  assert_file_not_exists "${webroot}/themes/custom/star_wars/package.json"
+  assert_file_not_exists "${webroot}/themes/custom/star_wars/package-lock.json"
+  assert_file_not_exists "${webroot}/themes/custom/star_wars/.eslintrc.json"
+  assert_dir_not_exists "${webroot}/themes/custom/star_wars/node_modules"
 
   # Scaffolding files present.
-  assert_file_exists "docroot/.editorconfig"
-  assert_file_exists "docroot/.eslintignore"
-  assert_file_exists "docroot/.gitattributes"
-  assert_file_exists "docroot/.htaccess"
-  assert_file_exists "docroot/autoload.php"
-  assert_file_exists "docroot/index.php"
-  assert_file_exists "docroot/robots.txt"
-  assert_file_exists "docroot/update.php"
+  assert_file_exists "${webroot}/.editorconfig"
+  assert_file_exists "${webroot}/.eslintignore"
+  assert_file_exists "${webroot}/.gitattributes"
+  assert_file_exists "${webroot}/.htaccess"
+  assert_file_exists "${webroot}/autoload.php"
+  assert_file_exists "${webroot}/index.php"
+  assert_file_exists "${webroot}/robots.txt"
+  assert_file_exists "${webroot}/update.php"
 
   # Settings files present.
-  assert_file_exists docroot/sites/default/settings.php
-  assert_file_exists docroot/sites/default/services.yml
-  assert_file_not_exists docroot/sites/default/default.settings.php
-  assert_file_not_exists docroot/sites/default/default.services.yml
-  assert_file_not_exists docroot/sites/default/default.settings.local.php
-  assert_file_not_exists docroot/sites/default/default.services.local.yml
-  assert_file_not_exists docroot/sites/default/settings.generated.php
+  assert_file_exists "${webroot}/sites/default/settings.php"
+  assert_file_exists "${webroot}/sites/default/services.yml"
+  assert_file_not_exists "${webroot}/sites/default/default.settings.php"
+  assert_file_not_exists "${webroot}/sites/default/default.services.yml"
+  assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
+  assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
+  assert_file_not_exists "${webroot}/sites/default/settings.generated.php"
 
   # Only minified compiled CSS present.
-  assert_file_exists docroot/themes/custom/star_wars/build/css/star_wars.min.css
-  assert_file_not_exists docroot/themes/custom/star_wars/build/css/star_wars.css
-  assert_dir_not_exists docroot/themes/custom/star_wars/scss
-  assert_dir_not_exists docroot/themes/custom/star_wars/css
+  assert_file_exists "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css"
+  assert_file_not_exists "${webroot}/themes/custom/star_wars/build/css/star_wars.css"
+  assert_dir_not_exists "${webroot}/themes/custom/star_wars/scss"
+  assert_dir_not_exists "${webroot}/themes/custom/star_wars/css"
 
   # Only minified compiled JS exists.
-  assert_file_exists docroot/themes/custom/star_wars/build/js/star_wars.min.js
-  assert_file_contains docroot/themes/custom/star_wars/build/js/star_wars.min.js "!function(Drupal){\"use strict\";Drupal.behaviors.star_wars"
-  assert_file_not_exists docroot/themes/custom/star_wars/build/js/star_wars.js
-  assert_dir_not_exists docroot/themes/custom/star_wars/js
+  assert_file_exists "${webroot}/themes/custom/star_wars/build/js/star_wars.min.js"
+  assert_file_contains "${webroot}/themes/custom/star_wars/build/js/star_wars.min.js" "!function(Drupal){\"use strict\";Drupal.behaviors.star_wars"
+  assert_file_not_exists "${webroot}/themes/custom/star_wars/build/js/star_wars.js"
+  assert_dir_not_exists "${webroot}/themes/custom/star_wars/js"
 
   # Other source asset files do not exist.
-  assert_dir_not_exists docroot/themes/custom/star_wars/fonts
-  assert_dir_not_exists docroot/themes/custom/star_wars/images
+  assert_dir_not_exists "${webroot}/themes/custom/star_wars/fonts"
+  assert_dir_not_exists "${webroot}/themes/custom/star_wars/images"
 
   # Assert configuration dir exists.
-  assert_dir_exists config/default
+  assert_dir_exists "config/default"
 
   # Assert composer.json exists to allow autoloading.
   assert_file_exists composer.json
