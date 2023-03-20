@@ -16,9 +16,8 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129
 
-load _helper
-load _helper_drevops
-load _helper_drevops_workflow
+load _helper.bash
+load _helper_workflow.bash
 
 @test "Workflow: DB-driven, custom webroot" {
   prepare_sut "Starting DB-driven WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}" "rootdoc"

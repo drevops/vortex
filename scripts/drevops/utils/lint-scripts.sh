@@ -37,7 +37,7 @@ echo "==> Linting DrevOps scripts and tests in ${CUR_DIR}."
 for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"
-    if ! LC_ALL=C.UTF-8 shellcheck -e SC2223 "${file}"; then
+    if ! LC_ALL=C.UTF-8 shellcheck -e SC1091 -e SC2223 "${file}"; then
       exit 1
     fi
   fi

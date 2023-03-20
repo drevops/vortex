@@ -5,8 +5,7 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129
 
-load _helper
-load _helper_drevops
+load _helper.bash
 
 @test "Install: empty directory; none of Deployment, Acquia, Lagoon, FTP and renovatebot integrations" {
  answers=(
