@@ -26,10 +26,10 @@ x-volumes: &default-volumes
     # All application files mounted into container.
     - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
     # Override mount for files to allow different type of syncing to optimise performance.
-    - ./docroot/sites/default/files:/app/docroot/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    - ./web/sites/default/files:/app/web/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
     # Use the same volumes in environments without host mounts support.
     ##- app:/app # Override for environment without host mounts. Automatically uncommented in CI.
-    ##- files:/app/docroot/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
+    ##- files:/app/web/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
 
 # The default user under which the containers should run.
 x-user: &default-user
@@ -75,6 +75,8 @@ services:
     build:
       context: .
       dockerfile: .docker/cli.dockerfile
+      args:
+        WEBROOT: "${DREVOPS_WEBROOT:-web}"
     image: &cli-image ${DREVOPS_PROJECT:-example_site}-cli
     <<: *default-volumes
     user: root
@@ -89,7 +91,7 @@ services:
     labels:
       lagoon.type: cli-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
       lagoon.persistent.name: &lagoon-nginx-name nginx-php # Mount the persistent storage of nginx-php pod into this container.
-      lagoon.persistent: &lagoon-drupal-files /app/docroot/sites/default/files/  # Location where the persistent storage should be mounted.
+      lagoon.persistent: &lagoon-drupal-files /app/web/sites/default/files/  # Location where the persistent storage should be mounted.
     #;> LAGOON
 
   nginx:
@@ -98,6 +100,7 @@ services:
       dockerfile: .docker/nginx-drupal.dockerfile
       args:
         CLI_IMAGE: *cli-image
+        WEBROOT: "${DREVOPS_WEBROOT:-web}"
     <<: *default-volumes
     <<: *default-user
     environment:

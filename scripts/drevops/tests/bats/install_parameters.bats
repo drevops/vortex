@@ -32,6 +32,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "nothing" # install_from_profile
     "nothing" # database_download_source
     "nothing" # database_store_type
@@ -65,6 +66,7 @@ load _helper_drevops
   assert_output_contains "                       Profile:  standard      "
   assert_output_contains "                    Theme name:  star_wars     "
   assert_output_contains "                           URL:  star-wars.com "
+  assert_output_contains "                      Web root:  web           "
   assert_output_contains "          Install from profile:  No            "
   assert_output_contains "      Database download source:  curl          "
   assert_output_contains "           Database store type:  file          "
@@ -90,6 +92,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "nothing" # install_from_profile
     "nothing" # database_download_source
     "nothing" # database_store_type
@@ -113,6 +116,7 @@ load _helper_drevops
   assert_output_contains "                       Profile:  standard      "
   assert_output_contains "                    Theme name:  star_wars     "
   assert_output_contains "                           URL:  star-wars.com "
+  assert_output_contains "                      Web root:  web           "
   assert_output_contains "          Install from profile:  No            "
   assert_output_contains "      Database download source:  curl          "
   assert_output_contains "           Database store type:  file          "
@@ -139,6 +143,7 @@ load _helper_drevops
     "S w Profile" # profile
     "light saber" # theme
     "resistance forever.com" # URL
+    "nothing" # webroot
     "nah" # install_from_profile
     "something" # download_db_type
     "other thing" # database_download_source
@@ -164,6 +169,59 @@ load _helper_drevops
   assert_output_contains "                       Profile:  s_w_profile            "
   assert_output_contains "                    Theme name:  light_saber            "
   assert_output_contains "                           URL:  resistance-forever.com "
+  assert_output_contains "                      Web root:  web                    "
+  assert_output_contains "          Install from profile:  No                     "
+  assert_output_contains "      Database download source:  curl                   "
+  assert_output_contains "           Database store type:  file                   "
+  assert_output_contains "    Override existing database:  No                     "
+  assert_output_contains "                    Deployment:  Disabled               "
+  assert_output_contains "               FTP integration:  Disabled               "
+  assert_output_contains "            Acquia integration:  Disabled               "
+  assert_output_contains "            Lagoon integration:  Disabled               "
+  assert_output_contains "       RenovateBot integration:  Disabled               "
+  assert_output_contains "     Preserve docs in comments:  No                     "
+  assert_output_contains "     Preserve DrevOps comments:  No                     "
+}
+
+@test "Install parameters: empty dir; overrides and normalisation; interactive; custom webroot" {
+  export DREVOPS_INSTALL_PROCEED=0
+
+  answers=(
+    "star Wars" # name
+    "star wars MaCHine" # machine_name
+    "The Empire" # org
+    "the new empire" # morh_machine_name
+    "s W" # module_prefix
+    "S w Profile" # profile
+    "light saber" # theme
+    "resistance forever.com" # URL
+    "rootdoc" # webroot
+    "nah" # install_from_profile
+    "something" # download_db_type
+    "other thing" # database_download_source
+    "dunno" # database_store_type
+    "nnnnnno" #override_existing_db
+    "nnnooo" # deploy_type
+    "nope" # preserve_ftp
+    "dunno" # preserve_acquia
+    "nah" # preserve_lagoon
+    "never" # preserve_renovatebot
+    "nnnooo" # preserve_doc_comments
+    "nooo" # preserve_drevops_info
+  )
+  output=$(run_install_interactive "${answers[@]}")
+  assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
+  assert_output_contains "Aborting project installation. No files were changed."
+
+  assert_output_contains "                          Name:  Star wars              "
+  assert_output_contains "                  Machine name:  star_wars_machine      "
+  assert_output_contains "                  Organisation:  The Empire             "
+  assert_output_contains "     Organisation machine name:  the_new_empire         "
+  assert_output_contains "                 Module prefix:  s_w                    "
+  assert_output_contains "                       Profile:  s_w_profile            "
+  assert_output_contains "                    Theme name:  light_saber            "
+  assert_output_contains "                           URL:  resistance-forever.com "
+  assert_output_contains "                      Web root:  rootdoc                "
   assert_output_contains "          Install from profile:  No                     "
   assert_output_contains "      Database download source:  curl                   "
   assert_output_contains "           Database store type:  file                   "
@@ -180,7 +238,7 @@ load _helper_drevops
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; quiet" {
   export DREVOPS_INSTALL_PROCEED=0
 
-  fixture_preinstalled
+  fixture_preinstalled web
 
   output=$(run_install_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
@@ -195,6 +253,7 @@ load _helper_drevops
   assert_output_contains "          Install from profile:  No                           "
   assert_output_contains "                    Theme name:  resisting                    "
   assert_output_contains "                           URL:  www.resistance-star-wars.com "
+  assert_output_contains "                      Web root:  web                          "
   assert_output_contains "      Database download source:  curl                         "
   assert_output_contains "           Database store type:  file                         "
   assert_output_contains "    Override existing database:  No                           "
@@ -210,7 +269,7 @@ load _helper_drevops
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; interactive; accepting suggested values" {
   export DREVOPS_INSTALL_PROCEED=0
 
-  fixture_preinstalled
+  fixture_preinstalled web
 
   answers=(
     "nothing" # name
@@ -221,6 +280,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "nothing" # install_from_profile
     "nothing" # database_download_source
     "nothing" # database_store_type
@@ -246,6 +306,7 @@ load _helper_drevops
   assert_output_contains "                       Profile:  standard                     "
   assert_output_contains "                    Theme name:  resisting                    "
   assert_output_contains "                           URL:  www.resistance-star-wars.com "
+  assert_output_contains "                      Web root:  web                          "
   assert_output_contains "          Install from profile:  No                           "
   assert_output_contains "      Database download source:  curl                         "
   assert_output_contains "           Database store type:  file                         "
@@ -262,7 +323,7 @@ load _helper_drevops
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; interactive; user input overrides discovery which overrides defaults" {
   export DREVOPS_INSTALL_PROCEED=0
 
-  fixture_preinstalled
+  fixture_preinstalled web
 
   # Order of values overrides for interactive installation into existing dir (bottom wins):
   # - default value
@@ -277,6 +338,7 @@ load _helper_drevops
     "S w Profile" # profile
     "light saber" # theme
     "resistance forever.com" # URL
+    "nothing" # webroot
     "nah" # install_from_profile
     "image" # database_download_source
     "image" # database_store_type
@@ -304,6 +366,7 @@ load _helper_drevops
   assert_output_contains "                       Profile:  s_w_profile            "
   assert_output_contains "                    Theme name:  light_saber            "
   assert_output_contains "                           URL:  resistance-forever.com "
+  assert_output_contains "                      Web root:  web                    "
   assert_output_contains "          Install from profile:  No                     "
   assert_output_contains "      Database download source:  docker_registry        "
   assert_output_contains "           Database store type:  docker_image           "
@@ -316,6 +379,7 @@ load _helper_drevops
   assert_output_contains "     Preserve docs in comments:  No                     "
   assert_output_contains "     Preserve DrevOps comments:  No                     "
 }
+
 #
 #
 # Helper to create fixture files to fake pre-installed state.
@@ -323,6 +387,8 @@ load _helper_drevops
 # Note that this helper provides only one state of the fixture site.
 #
 fixture_preinstalled(){
+  local webroot="${1:-web}"
+
   # Create readme file to pretend that DrevOps was installed.
   fixture_readme
 
@@ -333,17 +399,17 @@ fixture_preinstalled(){
   fixture_composerjson "Resistance new site" "resistance_site" "The Resistance" "the_next_resistance"
 
   # Sets 'module_prefix' to 'another_resist'.
-  mkdir -p docroot/modules/custom/another_resist_core
-  mkdir -p docroot/modules/custom/some_resist_notcore
-  mkdir -p docroot/modules/custom/yetanother_resist
+  mkdir -p "${webroot}/modules/custom/another_resist_core"
+  mkdir -p "${webroot}/modules/custom/some_resist_notcore"
+  mkdir -p "${webroot}/modules/custom/yetanother_resist"
 
   # Sets 'theme' to 'resisting'.
-  mktouch docroot/sites/all/themes/custom/resisting/resisting.info.yml
-  mktouch docroot/sites/all/themes/custom/yetanothertheme/yetanothertheme.info.yml
+  mktouch "${webroot}/sites/all/themes/custom/resisting/resisting.info.yml"
+  mktouch "${webroot}/sites/all/themes/custom/yetanothertheme/yetanothertheme.info.yml"
 
   # Sets 'url' to 'www.resistance-star-wars.com'.
-  mkdir -p docroot/sites/default
-  echo "  \$config['stage_file_proxy.settings']['origin'] = 'http://www.resistance-star-wars.com/';" > docroot/sites/default/settings.php
+  mkdir -p "${webroot}/sites/default"
+  echo "  \$config['stage_file_proxy.settings']['origin'] = 'http://www.resistance-star-wars.com/';" > "${webroot}/sites/default/settings.php"
 
   # Sets 'preserve_acquia' to 'Yes'.
   mkdir -p hooks
@@ -351,6 +417,8 @@ fixture_preinstalled(){
   touch .lagoon.yml
   # Sets 'preserve_dependencies' to 'Yes'.
   touch renovate.json
+
+  echo "DREVOPS_WEBROOT=${webroot}" >> .env
 
   # Sets 'fresh_install' to 'No'.
   echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=0" >> .env

@@ -96,6 +96,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "nothing" # install_from_profile
     "nothing" # download_db_source
     "nothing" # database_store_type
@@ -127,6 +128,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "nothing" # install_from_profile
     "nothing" # download_db_type
     "nothing" # download_db_source
@@ -168,6 +170,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "nothing" # install_from_profile
     "nothing" # download_db_type
     "nothing" # download_db_source

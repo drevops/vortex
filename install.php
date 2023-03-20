@@ -65,10 +65,8 @@ define('ANSWER_NO', 'n');
 /**
  * Main install functionality.
  */
-function install(array $argv) {
-  init_cli_args_and_options($argv);
-  load_dotenv(get_dst_dir() . '/.env');
-  init_config();
+function main(array $argv) {
+  init_config($argv);
 
   if (get_config('help')) {
     print_help();
@@ -79,31 +77,17 @@ function install(array $argv) {
   check_requirements();
 
   print_header();
-  $is_installed = is_installed();
 
-  gather_answers();
+  collect_answers();
 
-  $proceed = ask_should_proceed();
-  if (!$proceed) {
-    print_abort();
+  if (ask_should_proceed()) {
+    install();
 
-    return INSTALLER_EXIT_SUCCESS;
+    print_footer();
   }
-  finalise_interactions();
-
-  download();
-
-  prepare_destination();
-
-  process();
-
-  copy_files();
-
-  load_dotenv(get_dst_dir() . '/.env');
-
-  process_demo();
-
-  print_footer($is_installed);
+  else {
+    print_abort();
+  }
 
   return INSTALLER_EXIT_SUCCESS;
 }
@@ -112,6 +96,18 @@ function check_requirements() {
   command_exists('git');
   command_exists('tar');
   command_exists('composer');
+}
+
+function install() {
+  download();
+
+  prepare_destination();
+
+  replace_tokens();
+
+  copy_files();
+
+  process_demo();
 }
 
 function prepare_destination() {
@@ -141,44 +137,16 @@ function prepare_destination() {
   status('Done', INSTALLER_STATUS_SUCCESS);
 }
 
-function finalise_interactions() {
-  close_stdin_handle();
-}
-
-function process_demo() {
-  if (empty(get_config('DREVOPS_INSTALL_DEMO')) || !empty(get_config('DREVOPS_INSTALL_DEMO_SKIP'))) {
-    return;
-  }
-
-  $url = getenv_or_default('DREVOPS_DB_DOWNLOAD_CURL_URL');
-  if (empty($url)) {
-    return;
-  }
-
-  $dir = get_dst_dir() . DIRECTORY_SEPARATOR . getenv_or_default('DREVOPS_DB_DIR', './.data');
-  $file = getenv_or_default('DREVOPS_DB_FILE', 'db.sql');
-  status(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $dir, $url), INSTALLER_STATUS_MESSAGE, FALSE);
-  if (!file_exists($dir)) {
-    mkdir($dir);
-  }
-  do_exec(sprintf('curl -s -L "%s" -o "%s/%s"', $url, $dir, $file), $output, $code);
-
-  if ($code !== 0) {
-    throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
-  }
-  print ' ';
-  status('Done', INSTALLER_STATUS_SUCCESS);
-}
-
 /**
- * Handling processing for Drupal 7, Drupal 8 and Drupal 9.
+ * Replace tokens.
  */
-function process() {
+function replace_tokens() {
   $dir = get_config('DREVOPS_INSTALL_TMP_DIR');
 
   status('Replacing tokens ', INSTALLER_STATUS_MESSAGE, FALSE);
 
   $processors = [
+    'webroot',
     'profile',
     'install_from_profile',
     'database_download_source',
@@ -253,6 +221,38 @@ function copy_files() {
   if (!file_exists($dst . '/.env.local')) {
     copy_recursive($dst . '/default.env.local', $dst . '/.env.local');
   }
+}
+
+function process_demo() {
+  if (empty(get_config('DREVOPS_INSTALL_DEMO')) || !empty(get_config('DREVOPS_INSTALL_DEMO_SKIP'))) {
+    return;
+  }
+
+  // Reload variables from destination's .env.
+  load_dotenv(get_dst_dir() . '/.env');
+
+  $url = getenv_or_default('DREVOPS_DB_DOWNLOAD_CURL_URL');
+  if (empty($url)) {
+    return;
+  }
+
+  $data_dir = get_dst_dir() . DIRECTORY_SEPARATOR . getenv_or_default('DREVOPS_DB_DIR', './.data');
+  $file = getenv_or_default('DREVOPS_DB_FILE', 'db.sql');
+
+  status(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url), INSTALLER_STATUS_MESSAGE, FALSE);
+
+  if (!file_exists($data_dir)) {
+    mkdir($data_dir);
+  }
+
+  do_exec(sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file), $output, $code);
+
+  if ($code !== 0) {
+    throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
+  }
+
+  print ' ';
+  status('Done', INSTALLER_STATUS_SUCCESS);
 }
 
 function copy_recursive($source, $dest, $permissions = 0755, $copy_empty_dirs = FALSE) {
@@ -337,12 +337,13 @@ function process_answer($name, $dir) {
 }
 
 function process__profile($dir) {
+  $webroot = get_answer('webroot');
   // For core profiles - remove custom profile and direct links to it.
   if (in_array(get_answer('profile'), drupal_core_profiles())) {
-    rmdir_recursive("{$dir}/docroot/profiles/your_site_profile");
-    rmdir_recursive("{$dir}/docroot/profiles/custom/your_site_profile");
-    dir_replace_content('docroot/profiles/your_site_profile,', '', $dir);
-    dir_replace_content('docroot/profiles/custom/your_site_profile,', '', $dir);
+    rmdir_recursive("{$dir}/{$webroot}/profiles/your_site_profile");
+    rmdir_recursive("{$dir}/{$webroot}/profiles/custom/your_site_profile");
+    dir_replace_content("{$webroot}/profiles/your_site_profile,", '', $dir);
+    dir_replace_content("{$webroot}/profiles/custom/your_site_profile,", '', $dir);
   }
   dir_replace_content('your_site_profile', get_answer('profile'), $dir);
 }
@@ -457,6 +458,8 @@ function process__string_tokens($dir) {
   $module_prefix_uppercase = strtoupper($module_prefix_capitalised);
   $drevops_version_urlencoded = str_replace('-', '--', get_config('DREVOPS_VERSION'));
 
+  $webroot = get_answer('webroot');
+
   // @formatter:off
   // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
   // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
@@ -464,9 +467,9 @@ function process__string_tokens($dir) {
   dir_replace_content('your_org',              get_answer('org_machine_name'),           $dir);
   dir_replace_content('YOURORG',               get_answer('org'),                        $dir);
   dir_replace_content('your-site-url.example', get_answer('url'),                        $dir);
-  dir_replace_content('ys_core',               get_answer('module_prefix') . '_core',    $dir . '/docroot/modules/custom');
+  dir_replace_content('ys_core',               get_answer('module_prefix') . '_core',    $dir . "/{$webroot}/modules/custom");
   dir_replace_content('ys_core',               get_answer('module_prefix') . '_core',    $dir . '/scripts/custom');
-  dir_replace_content('YsCore',                $module_prefix_capitalised . 'Core',      $dir . '/docroot/modules/custom');
+  dir_replace_content('YsCore',                $module_prefix_capitalised . 'Core',      $dir . "/{$webroot}/modules/custom");
   dir_replace_content('YSCODE',                $module_prefix_uppercase,                 $dir);
   dir_replace_content('your-site',             $machine_name_hyphenated,                 $dir);
   dir_replace_content('your_site',             get_answer('machine_name'),               $dir);
@@ -478,8 +481,8 @@ function process__string_tokens($dir) {
   dir_replace_content('DREVOPS_VERSION',            get_config('DREVOPS_VERSION'),  $dir);
 
   replace_string_filename('your_site_theme',   get_answer('theme'),                   $dir);
-  replace_string_filename('ys_core',           get_answer('module_prefix') . '_core', $dir . '/docroot/modules/custom');
-  replace_string_filename('YsCore',            $module_prefix_capitalised . 'Core',   $dir . '/docroot/modules/custom');
+  replace_string_filename('ys_core',           get_answer('module_prefix') . '_core', $dir . "/{$webroot}/modules/custom");
+  replace_string_filename('YsCore',            $module_prefix_capitalised . 'Core',   $dir . "/{$webroot}/modules/custom");
   replace_string_filename('your_org',          get_answer('org_machine_name'),        $dir);
   replace_string_filename('your_site',         get_answer('machine_name'),            $dir);
   // @formatter:on
@@ -558,6 +561,20 @@ function process__drevops_internal($dir) {
 function process__enable_commented_code($dir) {
   // Enable_commented_code.
   dir_replace_content('##### ', '', $dir);
+}
+
+function process__webroot($dir) {
+  $new_name = get_answer('webroot', 'web');
+
+  if ($new_name != 'web') {
+    dir_replace_content('web/', $new_name . '/', $dir);
+    dir_replace_content('web\/', $new_name . '\/', $dir);
+    dir_replace_content(': web', ': ' . $new_name, $dir);
+    dir_replace_content('=web', '=' . $new_name, $dir);
+    dir_replace_content('!web', '!' . $new_name, $dir);
+    dir_replace_content('/web', '/' . $new_name, $dir);
+    rename($dir . DIRECTORY_SEPARATOR . 'web', $dir . DIRECTORY_SEPARATOR . $new_name);
+  }
 }
 
 // ////////////////////////////////////////////////////////////////////////// //
@@ -654,7 +671,10 @@ function find_latest_drevops_release($org, $project, $release_prefix) {
  * 4. Use answers for processing, including writing values into correct
  *    variables in .env.
  */
-function gather_answers() {
+function collect_answers() {
+  // Set answers that may be used in other answers' discoveries.
+  set_answer('webroot', discover_value('webroot'));
+
   // @formatter:off
   // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
   // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
@@ -666,6 +686,7 @@ function gather_answers() {
   ask_for_answer('profile',           'What is your custom profile machine name (leave empty to use "standard" profile)?');
   ask_for_answer('theme',             'What is your theme machine name?');
   ask_for_answer('url',               'What is your site public URL?');
+  ask_for_answer('webroot',           'Web root (web, docroot)?');
 
   ask_for_answer('install_from_profile', 'Do you want to install from profile (leave empty or "n" for using database?');
 
@@ -730,7 +751,7 @@ function ask_should_proceed() {
   $proceed = ANSWER_YES;
 
   if (!is_quiet()) {
-    $proceed = ask(sprintf('Proceed with installing DrevOps into your project\'s directory "%s"? (Y,n)', get_dst_dir()), $proceed);
+    $proceed = ask(sprintf('Proceed with installing DrevOps into your project\'s directory "%s"? (Y,n)', get_dst_dir()), $proceed, TRUE);
   }
 
   // Kill-switch to not proceed with install. If false, the install will not
@@ -743,16 +764,14 @@ function ask_should_proceed() {
 }
 
 function ask_for_answer($name, $question) {
-  $default = get_default_value($name);
   $discovered = discover_value($name);
-  $suggested = !empty($discovered) ? $discovered : $default;
-  $answer = ask($question, $suggested);
+  $answer = ask($question, $discovered);
   $answer = normalise_answer($name, $answer);
 
   set_answer($name, $answer);
 }
 
-function ask($question, $default) {
+function ask($question, $default, $close_handle = FALSE) {
   if (is_quiet()) {
     return $default;
   }
@@ -763,6 +782,10 @@ function ask($question, $default) {
   $handle = get_stdin_handle();
   $answer = trim(fgets($handle));
 
+  if ($close_handle) {
+    close_stdin_handle();
+  }
+
   return !empty($answer) ? $answer : $default;
 }
 
@@ -771,7 +794,12 @@ function ask($question, $default) {
 // ////////////////////////////////////////////////////////////////////////// //
 
 /**
- * Get configuration.
+ * Get installer configuration.
+ *
+ * Installer config is a config of this installer script. For configs of the
+ * project being installed, @see get_answer().
+ *
+ * @see init_config()
  */
 function get_config($name, $default = NULL) {
   global $_config;
@@ -779,6 +807,14 @@ function get_config($name, $default = NULL) {
   return $_config[$name] ?? $default;
 }
 
+/**
+ * Set installer configuration.
+ *
+ * Installer config is a config of this installer script. For configs of the
+ * project being installed, @see set_answer().
+ *
+ * @see init_config()
+ */
 function set_config($name, $value) {
   global $_config;
 
@@ -787,27 +823,41 @@ function set_config($name, $value) {
   }
 }
 
-function get_configs() {
-  global $_config;
-
-  return $_config;
-}
-
+/**
+ * Get a named option from discovered answers for the project bing installed.
+ */
 function get_answer($name, $default = NULL) {
   global $_answers;
 
   return $_answers[$name] ?? $default;
 }
 
+/**
+ * Set a named option for discovered answers for the project bing installed.
+ */
 function set_answer($name, $value) {
   global $_answers;
   $_answers[$name] = $value;
 }
 
+/**
+ * Get all options from discovered answers for the project bing installed.
+ */
 function get_answers() {
   global $_answers;
 
   return $_answers;
+}
+
+/**
+ * Init all config.
+ */
+function init_config($argv) {
+  init_cli_args_and_options($argv);
+
+  load_dotenv(get_dst_dir() . '/.env');
+
+  init_installer_config();
 }
 
 /**
@@ -868,17 +918,17 @@ function init_cli_args_and_options($argv) {
 }
 
 /**
- * Instantiate install configuration from environment variables.
+ * Instantiate installer configuration from environment variables.
  *
- * Install configuration is a set of internal install script variables, read
+ * Installer configuration is a set of internal installer script variables, read
  * from the environment variables. These environment variables are not read
- * directly in any operations of this installation script. Instead, these
- * environment variables are accessible with get_config().
+ * directly in any operations of this installer script. Instead, these
+ * environment variables are accessible with get_installer_config().
  *
- * For simplicity of naming, internal install config variables are matching
+ * For simplicity of naming, internal installer config variables are matching
  * environment variables names.
  */
-function init_config() {
+function init_installer_config() {
   // Internal version of DrevOps.
   set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DRUPAL_VERSION . '.x'));
   // Flag to display install debug information.
@@ -971,6 +1021,10 @@ function get_default_value__url() {
   return $value;
 }
 
+function get_default_value__webroot() {
+  return 'web';
+}
+
 function get_default_value__install_from_profile() {
   return ANSWER_NO;
 }
@@ -1026,12 +1080,15 @@ function get_default_value__preserve_drevops_info() {
 /**
  * Discover value router.
  *
- * Value discoveries must return NULL if they do not have the resources
- * available to discover a value (i.e., NULL if value is from the expected file
- * but the file is not available, rather then a FALSEy value.)
+ * Value discoveries should return NULL if they don't have the resources to
+ * discover a value. This means that if the value is expected to come from a
+ * file but the file is not available, the function should return NULL instead
+ * of a falsy value like FALSE or 0.
  */
 function discover_value($name) {
-  return execute_callback('discover_value', $name);
+  $value = execute_callback('discover_value', $name);
+
+  return !is_null($value) ? $value : get_default_value($name);
 }
 
 function discover_value__name() {
@@ -1079,13 +1136,15 @@ function discover_value__org_machine_name() {
 }
 
 function discover_value__module_prefix() {
+  $webroot = get_answer('webroot');
+
   $locations = [
-    get_dst_dir() . '/docroot/modules/custom/*_core',
-    get_dst_dir() . '/docroot/sites/all/modules/custom/*_core',
-    get_dst_dir() . '/docroot/profiles/*/modules/*_core',
-    get_dst_dir() . '/docroot/profiles/*/modules/custom/*_core',
-    get_dst_dir() . '/docroot/profiles/custom/*/modules/*_core',
-    get_dst_dir() . '/docroot/profiles/custom/*/modules/custom/*_core',
+    get_dst_dir() . "/{$webroot}/modules/custom/*_core",
+    get_dst_dir() . "/{$webroot}/sites/all/modules/custom/*_core",
+    get_dst_dir() . "/{$webroot}/profiles/*/modules/*_core",
+    get_dst_dir() . "/{$webroot}/profiles/*/modules/custom/*_core",
+    get_dst_dir() . "/{$webroot}/profiles/custom/*/modules/*_core",
+    get_dst_dir() . "/{$webroot}/profiles/custom/*/modules/custom/*_core",
   ];
 
   $name = find_matching_path($locations);
@@ -1103,6 +1162,8 @@ function discover_value__module_prefix() {
 }
 
 function discover_value__profile() {
+  $webroot = get_answer('webroot');
+
   if (is_installed()) {
     $name = get_value_from_dst_dotenv('DREVOPS_DRUPAL_PROFILE');
     if (!empty($name)) {
@@ -1111,10 +1172,10 @@ function discover_value__profile() {
   }
 
   $locations = [
-    get_dst_dir() . '/docroot/profiles/*/*.info',
-    get_dst_dir() . '/docroot/profiles/*/*.info.yml',
-    get_dst_dir() . '/docroot/profiles/custom/*/*.info',
-    get_dst_dir() . '/docroot/profiles/custom/*/*.info.yml',
+    get_dst_dir() . "/{$webroot}/profiles/*/*.info",
+    get_dst_dir() . "/{$webroot}/profiles/*/*.info.yml",
+    get_dst_dir() . "/{$webroot}/profiles/custom/*/*.info",
+    get_dst_dir() . "/{$webroot}/profiles/custom/*/*.info.yml",
   ];
 
   $name = find_matching_path($locations, 'Drupal 9 profile implementation of');
@@ -1132,6 +1193,8 @@ function discover_value__profile() {
 }
 
 function discover_value__theme() {
+  $webroot = get_answer('webroot');
+
   if (is_installed()) {
     $name = get_value_from_dst_dotenv('DREVOPS_DRUPAL_THEME');
     if (!empty($name)) {
@@ -1140,14 +1203,14 @@ function discover_value__theme() {
   }
 
   $locations = [
-    get_dst_dir() . '/docroot/themes/custom/*/*.info',
-    get_dst_dir() . '/docroot/themes/custom/*/*.info.yml',
-    get_dst_dir() . '/docroot/sites/all/themes/custom/*/*.info',
-    get_dst_dir() . '/docroot/sites/all/themes/custom/*/*.info.yml',
-    get_dst_dir() . '/docroot/profiles/*/themes/custom/*/*.info',
-    get_dst_dir() . '/docroot/profiles/*/themes/custom/*/*.info.yml',
-    get_dst_dir() . '/docroot/profiles/custom/*/themes/custom/*/*.info',
-    get_dst_dir() . '/docroot/profiles/custom/*/themes/custom/*/*.info.yml',
+    get_dst_dir() . "/{$webroot}/themes/custom/*/*.info",
+    get_dst_dir() . "/{$webroot}/themes/custom/*/*.info.yml",
+    get_dst_dir() . "/{$webroot}/sites/all/themes/custom/*/*.info",
+    get_dst_dir() . "/{$webroot}/sites/all/themes/custom/*/*.info.yml",
+    get_dst_dir() . "/{$webroot}/profiles/*/themes/custom/*/*.info",
+    get_dst_dir() . "/{$webroot}/profiles/*/themes/custom/*/*.info.yml",
+    get_dst_dir() . "/{$webroot}/profiles/custom/*/themes/custom/*/*.info",
+    get_dst_dir() . "/{$webroot}/profiles/custom/*/themes/custom/*/*.info.yml",
   ];
 
   $name = find_matching_path($locations);
@@ -1165,8 +1228,10 @@ function discover_value__theme() {
 }
 
 function discover_value__url() {
+  $webroot = get_answer('webroot');
+
   $origin = NULL;
-  $path = get_dst_dir() . '/docroot/sites/default/settings.php';
+  $path = get_dst_dir() . "/{$webroot}/sites/default/settings.php";
 
   if (!is_readable($path)) {
     return NULL;
@@ -1191,6 +1256,20 @@ function discover_value__url() {
   }
 
   return !empty($origin) ? $origin : NULL;
+}
+
+function discover_value__webroot() {
+  $webroot = get_value_from_dst_dotenv('DREVOPS_WEBROOT');
+
+  if (empty($webroot) && is_installed()) {
+    // Try from composer.json.
+    $extra = get_composer_json_value('extra');
+    if (!empty($extra)) {
+      $webroot = $extra['drupal-scaffold']['drupal-scaffold']['locations']['web-root'] ?? NULL;
+    }
+  }
+
+  return $webroot;
 }
 
 function discover_value__install_from_profile() {
@@ -1286,9 +1365,12 @@ function discover_value__preserve_drevops_info() {
 }
 
 function get_value_from_dst_dotenv($name, $default = NULL) {
-  if (!is_null(getenv($name))) {
-    return getenv($name);
+  // Environment variables always take precedence.
+  $env_value = getenv_or_default($name, NULL);
+  if (!is_null($env_value)) {
+    return $env_value;
   }
+
   $file = get_dst_dir() . '/.env';
   if (!is_readable($file)) {
     return $default;
@@ -1377,6 +1459,10 @@ function normalise_answer__theme($value) {
 
 function normalise_answer__url($url) {
   return str_replace([' ', '_'], '-', $url);
+}
+
+function normalise_answer__webroot($value) {
+  return strtolower(trim($value, '/'));
 }
 
 function normalise_answer__install_from_profile($value) {
@@ -1609,6 +1695,7 @@ function print_summary() {
   $values['Profile'] = get_answer('profile');
   $values['Theme name'] = get_answer('theme');
   $values['URL'] = get_answer('url');
+  $values['Web root'] = get_answer('webroot');
 
   $values['Install from profile'] = format_yes_no(get_answer('install_from_profile'));
 
@@ -1637,10 +1724,10 @@ function print_abort() {
   print_box('Aborting project installation. No files were changed.');
 }
 
-function print_footer($was_installed) {
+function print_footer() {
   print PHP_EOL;
 
-  if ($was_installed) {
+  if (is_installed()) {
     print_box('Finished updating DrevOps. Review changes and commit required files.');
   }
   else {
@@ -2136,7 +2223,7 @@ function load_dotenv($filename = '.env', $override_existing = FALSE) {
   }
 
   foreach ($parsed as $var => $value) {
-    if (getenv($var) === FALSE || $override_existing) {
+    if (!getenv_or_default($var) || $override_existing) {
       putenv($var . '=' . $value);
     }
   }
@@ -2154,8 +2241,12 @@ function load_dotenv($filename = '.env', $override_existing = FALSE) {
   }
 }
 
+/**
+ * Reliable wrapper to work with environment values.
+ */
 function getenv_or_default($name, $default = NULL) {
   $vars = getenv();
+
   if (!isset($vars[$name]) || $vars[$name] == '') {
     return $default;
   }
@@ -2270,7 +2361,7 @@ function get_stdin_handle() {
   global $_stdin_handle;
   if (!$_stdin_handle) {
     $h = fopen('php://stdin', 'r');
-    $_stdin_handle = stream_isatty($h) || getenv('DREVOPS_INSTALLER_FORCE_TTY') ? $h : fopen('/dev/tty', 'r+');
+    $_stdin_handle = stream_isatty($h) || getenv_or_default('DREVOPS_INSTALLER_FORCE_TTY') ? $h : fopen('/dev/tty', 'r+');
   }
 
   return $_stdin_handle;
@@ -2322,7 +2413,7 @@ if (PHP_SAPI != 'cli' || !empty($_SERVER['REMOTE_ADDR'])) {
 // this file from other scripts (e.g. for testing).
 if (!getenv('INSTALLER_SKIP_RUN')) {
   try {
-    $code = install($argv, $argc);
+    $code = main($argv, $argc);
     if (is_null($code)) {
       throw new \Exception('Installer exited without providing an exit code.');
     }

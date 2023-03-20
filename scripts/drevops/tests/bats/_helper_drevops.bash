@@ -61,7 +61,6 @@ setup() {
   export DREVOPS_DOCTOR_CHECK_WEBSERVER=0
   export DREVOPS_DOCTOR_CHECK_BOOTSTRAP=0
 
-
   if [ "$(uname -m)" = "arm64" ]; then
     export DOCKER_DEFAULT_PLATFORM=linux/amd64
   fi
@@ -189,6 +188,8 @@ assert_files_present_common() {
   local suffix="${2:-star_wars}"
   local suffix_abbreviated="${3:-sw}"
   local suffix_abbreviated_camel_cased="${4:-Sw}"
+  local webroot="${5:-web}"
+
   local suffix_abbreviated_uppercase="$(string_to_upper "$suffix_abbreviated")"
   local suffix_hyphenated="${suffix/_/-}"
 
@@ -205,7 +206,7 @@ assert_files_present_common() {
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
   assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_DRUPAL_VERSION}.x"
 
-  assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}"
+  assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${webroot}"
 
   # Assert that PR template was processed
   assert_file_contains ".github/PULL_REQUEST_TEMPLATE.md" "https://${suffix_hyphenated}.atlassian.net/browse/${suffix_abbreviated_uppercase}-"
@@ -340,80 +341,80 @@ assert_files_present_drevops() {
   popd >/dev/null || exit 1
 }
 
-assert_files_present_drupal(){
+assert_files_present_drupal() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
   local suffix_abbreviated="${3:-sw}"
   local suffix_abbreviated_camel_cased="${4:-Sw}"
+  local webroot="${5:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
-
   # Stub profile removed.
-  assert_dir_not_exists "docroot/profiles/custom/your_site_profile"
+  assert_dir_not_exists "${webroot}/profiles/custom/your_site_profile"
   # Stub code module removed.
-  assert_dir_not_exists "docroot/modules/custom/ys_core"
+  assert_dir_not_exists "${webroot}/modules/custom/ys_core"
   # Stub theme removed.
-  assert_dir_not_exists "docroot/themes/custom/your_site_theme"
+  assert_dir_not_exists "${webroot}/themes/custom/your_site_theme"
 
   # Site core module created.
-  assert_dir_exists "docroot/modules/custom/${suffix_abbreviated}_core"
-  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.info.yml"
-  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.module"
-  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.deploy.php"
-  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreExampleUnitTest.php"
-  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreUnitTestBase.php"
-  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreExampleKernelTest.php"
-  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreKernelTestBase.php"
-  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreExampleFunctionalTest.php"
-  assert_file_exists "docroot/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreFunctionalTestBase.php"
+  assert_dir_exists "${webroot}/modules/custom/${suffix_abbreviated}_core"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.info.yml"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.module"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.deploy.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreExampleUnitTest.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreUnitTestBase.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreExampleKernelTest.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreKernelTestBase.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreExampleFunctionalTest.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreFunctionalTestBase.php"
 
   # Site theme created.
-  assert_dir_exists "docroot/themes/custom/${suffix}"
-  assert_file_exists "docroot/themes/custom/${suffix}/js/${suffix}.js"
-  assert_dir_exists "docroot/themes/custom/${suffix}/scss"
-  assert_dir_exists "docroot/themes/custom/${suffix}/images"
-  assert_dir_exists "docroot/themes/custom/${suffix}/fonts"
-  assert_file_exists "docroot/themes/custom/${suffix}/.gitignore"
-  assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.info.yml"
-  assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.libraries.yml"
-  assert_file_exists "docroot/themes/custom/${suffix}/${suffix}.theme"
-  assert_file_exists "docroot/themes/custom/${suffix}/Gruntfile.js"
-  assert_file_exists "docroot/themes/custom/${suffix}/package.json"
+  assert_dir_exists "${webroot}/themes/custom/${suffix}"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/js/${suffix}.js"
+  assert_dir_exists "${webroot}/themes/custom/${suffix}/scss"
+  assert_dir_exists "${webroot}/themes/custom/${suffix}/images"
+  assert_dir_exists "${webroot}/themes/custom/${suffix}/fonts"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/.gitignore"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.info.yml"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.libraries.yml"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.theme"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/Gruntfile.js"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/package.json"
 
   # Comparing binary files.
-  assert_binary_files_equal "${LOCAL_REPO_DIR}/docroot/themes/custom/your_site_theme/screenshot.png" "docroot/themes/custom/${suffix}/screenshot.png"
+  assert_binary_files_equal "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/screenshot.png" "${webroot}/themes/custom/${suffix}/screenshot.png"
 
   # Drupal scaffolding files exist.
-  assert_file_exists "docroot/.editorconfig"
-  assert_file_exists "docroot/.eslintignore"
-  assert_file_exists "docroot/.gitattributes"
-  assert_file_exists "docroot/.htaccess"
-  assert_file_exists "docroot/autoload.php"
-  assert_file_exists "docroot/index.php"
-  assert_file_exists "docroot/robots.txt"
-  assert_file_exists "docroot/update.php"
+  assert_file_exists "${webroot}/.editorconfig"
+  assert_file_exists "${webroot}/.eslintignore"
+  assert_file_exists "${webroot}/.gitattributes"
+  assert_file_exists "${webroot}/.htaccess"
+  assert_file_exists "${webroot}/autoload.php"
+  assert_file_exists "${webroot}/index.php"
+  assert_file_exists "${webroot}/robots.txt"
+  assert_file_exists "${webroot}/update.php"
 
   # Settings files exist.
   # @note The permissions can be 644 or 664 depending on the umask of OS. Also,
   # git only track 644 or 755.
-  assert_file_exists "docroot/sites/default/settings.php"
-  assert_file_mode "docroot/sites/default/settings.php" "644"
+  assert_file_exists "${webroot}/sites/default/settings.php"
+  assert_file_mode "${webroot}/sites/default/settings.php" "644"
 
-  assert_dir_exists "docroot/sites/default/includes/"
+  assert_dir_exists "${webroot}/sites/default/includes/"
 
-  assert_file_exists "docroot/sites/default/default.settings.php"
-  assert_file_exists "docroot/sites/default/default.services.yml"
+  assert_file_exists "${webroot}/sites/default/default.settings.php"
+  assert_file_exists "${webroot}/sites/default/default.services.yml"
 
-  assert_file_exists "docroot/sites/default/default.settings.local.php"
-  assert_file_mode "docroot/sites/default/default.settings.local.php" "644"
+  assert_file_exists "${webroot}/sites/default/default.settings.local.php"
+  assert_file_mode "${webroot}/sites/default/default.settings.local.php" "644"
 
-  assert_file_exists "docroot/sites/default/default.services.local.yml"
-  assert_file_mode "docroot/sites/default/default.services.local.yml" "644"
+  assert_file_exists "${webroot}/sites/default/default.services.local.yml"
+  assert_file_mode "${webroot}/sites/default/default.services.local.yml" "644"
 
   # Special case to fix all occurrences of the stub in core files to exclude
   # false-positives from the assertions below.
-  replace_core_stubs "${dir}" "your_site"
+  replace_core_stubs "${dir}" "your_site" "${webroot}"
 
   # Assert all stub strings were replaced.
   assert_dir_not_contains_string "${dir}" "your_site"
@@ -436,23 +437,24 @@ assert_files_not_present_common() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-sw}"
   local suffix_abbreviated="${3:-sw}"
-  local has_required_files="${3:-0}"
+  local has_required_files="${4:-0}"
+  local webroot="${5:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_dir_not_exists "docroot/modules/custom/ys_core"
-  assert_dir_not_exists "docroot/themes/custom/your_site_theme"
-  assert_dir_not_exists "docroot/profiles/custom/${suffix}_profile"
-  assert_dir_not_exists "docroot/modules/custom/${suffix_abbreviated}_core"
-  assert_dir_not_exists "docroot/themes/custom/${suffix}"
-  assert_file_not_exists "docroot/sites/default/default.settings.local.php"
-  assert_file_not_exists "docroot/sites/default/default.services.local.yml"
-  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Unit/YourSiteExampleUnitTest.php"
-  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
-  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
-  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
-  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
-  assert_file_not_exists "docroot/modules/custom/ys_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
+  assert_dir_not_exists "${webroot}/modules/custom/ys_core"
+  assert_dir_not_exists "${webroot}/themes/custom/your_site_theme"
+  assert_dir_not_exists "${webroot}/profiles/custom/${suffix}_profile"
+  assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_core"
+  assert_dir_not_exists "${webroot}/themes/custom/${suffix}"
+  assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
+  assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Unit/YourSiteExampleUnitTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
 
   assert_file_not_exists "FAQs.md"
   assert_file_not_exists ".ahoy.yml"
@@ -460,22 +462,22 @@ assert_files_not_present_common() {
   if [ "${has_required_files}" -eq 1 ]; then
     assert_file_exists "README.md"
     assert_file_exists ".circleci/config.yml"
-    assert_file_exists "docroot/sites/default/settings.php"
-    assert_file_exists "docroot/sites/default/services.yml"
+    assert_file_exists "${webroot}/sites/default/settings.php"
+    assert_file_exists "${webroot}/sites/default/services.yml"
   else
     assert_file_not_exists "README.md"
     assert_file_not_exists ".circleci/config.yml"
-    assert_file_not_exists "docroot/sites/default/settings.php"
-    assert_file_not_exists "docroot/sites/default/services.yml"
+    assert_file_not_exists "${webroot}/sites/default/settings.php"
+    assert_file_not_exists "${webroot}/sites/default/services.yml"
     # Scaffolding files not exist.
-    assert_file_not_exists "docroot/.editorconfig"
-    assert_file_not_exists "docroot/.eslintignore"
-    assert_file_not_exists "docroot/.gitattributes"
-    assert_file_not_exists "docroot/.htaccess"
-    assert_file_not_exists "docroot/autoload.php"
-    assert_file_not_exists "docroot/index.php"
-    assert_file_not_exists "docroot/robots.txt"
-    assert_file_not_exists "docroot/update.php"
+    assert_file_not_exists "${webroot}/.editorconfig"
+    assert_file_not_exists "${webroot}/.eslintignore"
+    assert_file_not_exists "${webroot}/.gitattributes"
+    assert_file_not_exists "${webroot}/.htaccess"
+    assert_file_not_exists "${webroot}/autoload.php"
+    assert_file_not_exists "${webroot}/index.php"
+    assert_file_not_exists "${webroot}/robots.txt"
+    assert_file_not_exists "${webroot}/update.php"
   fi
 
   popd >/dev/null || exit 1
@@ -484,14 +486,15 @@ assert_files_not_present_common() {
 assert_files_present_profile() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
+  local webroot="${3:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
   # Site profile created.
-  assert_dir_exists "docroot/profiles/custom/${suffix}_profile"
-  assert_file_exists "docroot/profiles/custom/${suffix}_profile/${suffix}_profile.info.yml"
+  assert_dir_exists "${webroot}/profiles/custom/${suffix}_profile"
+  assert_file_exists "${webroot}/profiles/custom/${suffix}_profile/${suffix}_profile.info.yml"
   assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE="
-  assert_file_contains ".env" "docroot/profiles/custom/${suffix}_profile,"
+  assert_file_contains ".env" "${webroot}/profiles/custom/${suffix}_profile,"
 
   popd >/dev/null || exit 1
 }
@@ -499,16 +502,17 @@ assert_files_present_profile() {
 assert_files_present_no_profile() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
+  local webroot="${3:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
   # Site profile created.
-  assert_dir_not_exists "docroot/profiles/custom/${suffix}_profile"
+  assert_dir_not_exists "${webroot}/profiles/custom/${suffix}_profile"
   assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE=standard"
-  assert_file_not_contains ".env" "docroot/profiles/custom/${suffix}_profile,"
+  assert_file_not_contains ".env" "${webroot}/profiles/custom/${suffix}_profile,"
   # Assert that there is no renaming of the custom profile with core profile name.
-  assert_dir_not_exists "docroot/profiles/custom/standard"
-  assert_file_not_contains ".env" "docroot/profiles/custom/standard,"
+  assert_dir_not_exists "${webroot}/profiles/custom/standard"
+  assert_file_not_contains ".env" "${webroot}/profiles/custom/standard,"
 
   popd >/dev/null || exit 1
 }
@@ -589,7 +593,7 @@ assert_files_present_no_install_from_profile() {
   popd >/dev/null || exit 1
 }
 
-assert_files_present_override_existing_db(){
+assert_files_present_override_existing_db() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
 
@@ -600,7 +604,7 @@ assert_files_present_override_existing_db(){
   popd >/dev/null || exit 1
 }
 
-assert_files_present_no_override_existing_db(){
+assert_files_present_no_override_existing_db() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
 
@@ -652,6 +656,7 @@ assert_files_present_integration_acquia() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-sw}"
   local include_scripts="${3:-1}"
+  local webroot="${4:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -680,8 +685,8 @@ assert_files_present_integration_acquia() {
   assert_symlink_not_exists "hooks/prod/post-db-copy"
   assert_symlink_exists "hooks/prod/post-code-update/1.notify-deployment-newrelic.sh"
 
-  assert_file_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php"
-  assert_file_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
+  assert_file_contains "${webroot}/sites/default/settings.php" "if (file_exists('/var/www/site-php"
+  assert_file_contains "${webroot}/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
 
   if [ "${include_scripts}" -eq 1 ]; then
     assert_dir_exists "scripts"
@@ -696,13 +701,14 @@ assert_files_present_integration_acquia() {
 assert_files_present_no_integration_acquia() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
+  local webroot="${3:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
-  assert_file_not_contains "docroot/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
-  assert_file_not_contains "docroot/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
+  assert_file_not_contains "${webroot}/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
+  assert_file_not_contains "${webroot}/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
   assert_file_not_contains ".env" "DREVOPS_ACQUIA_APP_NAME="
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
@@ -718,6 +724,7 @@ assert_files_present_no_integration_acquia() {
 assert_files_present_integration_lagoon() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
+  local webroot="${3:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -727,7 +734,7 @@ assert_files_present_integration_lagoon() {
   assert_file_contains "docker-compose.yml" "labels"
   assert_file_contains "docker-compose.yml" "lagoon.type: cli-persistent"
   assert_file_contains "docker-compose.yml" "lagoon.persistent.name: &lagoon-nginx-name nginx-php"
-  assert_file_contains "docker-compose.yml" "lagoon.persistent: &lagoon-drupal-files /app/docroot/sites/default/files/"
+  assert_file_contains "docker-compose.yml" "lagoon.persistent: &lagoon-drupal-files /app/${webroot}/sites/default/files/"
   assert_file_contains "docker-compose.yml" "lagoon.type: nginx-php-persistent"
   assert_file_contains "docker-compose.yml" "lagoon.name: *lagoon-nginx-name"
   assert_file_contains "docker-compose.yml" "lagoon.type: mariadb"
@@ -742,6 +749,7 @@ assert_files_present_integration_lagoon() {
 assert_files_present_no_integration_lagoon() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
+  local webroot="${3:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -751,7 +759,7 @@ assert_files_present_no_integration_lagoon() {
   assert_file_not_contains "docker-compose.yml" "labels"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: cli-persistent"
   assert_file_not_contains "docker-compose.yml" "lagoon.persistent.name: &lagoon-nginx-name nginx-php"
-  assert_file_not_contains "docker-compose.yml" "lagoon.persistent: &lagoon-drupal-files /app/docroot/sites/default/files/"
+  assert_file_not_contains "docker-compose.yml" "lagoon.persistent: &lagoon-drupal-files /app/${webroot}/sites/default/files/"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: nginx-php-persistent"
   assert_file_not_contains "docker-compose.yml" "lagoon.name: *lagoon-nginx-name"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: mariadb"
@@ -931,6 +939,7 @@ run_install_quiet() {
 #   "nothing" # profile
 #   "nothing" # theme
 #   "nothing" # URL
+#   "nothing" # webroot
 #   "nothing" # install_from_profile
 #   "nothing" # download_db_source
 #   "nothing" # database_store_type
@@ -974,26 +983,27 @@ run_install_interactive() {
 #
 install_dependencies_stub() {
   local dir="${1:-$(pwd)}"
+  local webroot="${2:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
-  mktouch "docroot/core/install.php"
-  mktouch "docroot/modules/contrib/somemodule/somemodule.info.yml"
-  mktouch "docroot/themes/contrib/sometheme/sometheme.info.yml"
-  mktouch "docroot/profiles/contrib/someprofile/someprofile.info.yml"
-  mktouch "docroot/sites/default/somesettingsfile.php"
-  mktouch "docroot/sites/default/files/somepublicfile.php"
+  mktouch "${webroot}/core/install.php"
+  mktouch "${webroot}/modules/contrib/somemodule/somemodule.info.yml"
+  mktouch "${webroot}/themes/contrib/sometheme/sometheme.info.yml"
+  mktouch "${webroot}/profiles/contrib/someprofile/someprofile.info.yml"
+  mktouch "${webroot}/sites/default/somesettingsfile.php"
+  mktouch "${webroot}/sites/default/files/somepublicfile.php"
   mktouch "vendor/somevendor/somepackage/somepackage.php"
   mktouch "vendor/somevendor/somepackage/somepackage with spaces.php"
   mktouch "vendor/somevendor/somepackage/composer.json"
-  mktouch "docroot/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
+  mktouch "${webroot}/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
 
-  mktouch "docroot/modules/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
+  mktouch "${webroot}/modules/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "tests/behat/screenshots/s1.jpg"
   mktouch ".data/db.sql"
 
-  mktouch "docroot/sites/default/settings.local.php"
-  mktouch "docroot/sites/default/services.local.yml"
+  mktouch "${webroot}/sites/default/settings.local.php"
+  mktouch "${webroot}/sites/default/services.local.yml"
   echo "version: \"2.3\"" >"docker-compose.override.yml"
 
   popd >/dev/null || exit 1
@@ -1002,26 +1012,29 @@ install_dependencies_stub() {
 replace_core_stubs() {
   local dir="${1}"
   local token="${2}"
+  local webroot="${3:-web}"
 
-  replace_string_content "${token}" "some_other_site" "${dir}/docroot"
+  replace_string_content "${token}" "some_other_site" "${dir}/${webroot}"
 }
 
 create_development_settings() {
+  local webroot="${1:-web}"
   substep "Create development settings"
-  assert_file_not_exists docroot/sites/default/settings.local.php
-  assert_file_not_exists docroot/sites/default/services.local.yml
-  assert_file_exists docroot/sites/default/default.settings.local.php
-  assert_file_exists docroot/sites/default/default.services.local.yml
-  cp docroot/sites/default/default.settings.local.php docroot/sites/default/settings.local.php
-  cp docroot/sites/default/default.services.local.yml docroot/sites/default/services.local.yml
-  assert_file_exists docroot/sites/default/settings.local.php
-  assert_file_exists docroot/sites/default/services.local.yml
+  assert_file_not_exists "${webroot}/sites/default/settings.local.php"
+  assert_file_not_exists "${webroot}/sites/default/services.local.yml"
+  assert_file_exists "${webroot}/sites/default/default.settings.local.php"
+  assert_file_exists "${webroot}/sites/default/default.services.local.yml"
+  cp "${webroot}/sites/default/default.settings.local.php" "${webroot}/sites/default/settings.local.php"
+  cp "${webroot}/sites/default/default.services.local.yml" "${webroot}/sites/default/services.local.yml"
+  assert_file_exists "${webroot}/sites/default/settings.local.php"
+  assert_file_exists "${webroot}/sites/default/services.local.yml"
 }
 
 remove_development_settings() {
+  local webroot="${1:-web}"
   substep "Remove development settings"
-  rm -f docroot/sites/default/settings.local.php || true
-  rm -f docroot/sites/default/services.local.yml || true
+  rm -f "${webroot}/sites/default/settings.local.php" || true
+  rm -f "${webroot}/sites/default/services.local.yml" || true
 }
 
 # Copy source code at the latest commit to the destination directory.
@@ -1055,7 +1068,7 @@ prepare_local_repo() {
 }
 
 prepare_global_gitconfig() {
-  git config --global init.defaultBranch >/dev/null ||  git config --global init.defaultBranch "main"
+  git config --global init.defaultBranch >/dev/null || git config --global init.defaultBranch "main"
 }
 
 prepare_global_gitignore() {

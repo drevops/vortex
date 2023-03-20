@@ -72,7 +72,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_APP`
 
-Path to the root of the project inside of the container.
+Path to the root of the project inside the container.
 
 Default value: `app`
 
@@ -852,7 +852,7 @@ Default value: `UNDEFINED`
 
 PHPCS comma-separated list of targets.
 
-Default value: `docroot/profiles/custom/your_site_profile, docroot/modules/custom, docroot/themes/custom, docroot/sites/default/settings.php, tests`
+Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
 
 ### `DREVOPS_LINT_PHPLINT_EXTENSIONS`
 
@@ -864,7 +864,7 @@ Default value: `php, inc, module, theme, install`
 
 PHP Parallel Lint comma-separated list of targets.
 
-Default value: `docroot/profiles/custom/your_site_profile, docroot/modules/custom, docroot/themes/custom, docroot/sites/default/settings.php, tests`
+Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
 
 ### `DREVOPS_LINT_SKIP`
 
@@ -1447,6 +1447,12 @@ Default value: `UNDEFINED`
 Unit test group. Optional. Default runs all tests.
 
 Default value: `UNDEFINED`
+
+### `DREVOPS_WEBROOT`
+
+Name of the webroot directory with Drupal installation.
+
+Default value: `web`
 
 ### `ENV_ID`
 

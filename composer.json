@@ -98,7 +98,7 @@
         },
         "drupal-scaffold": {
             "locations": {
-                "web-root": "./docroot"
+                "web-root": "./web"
             },
             "file-mapping": {
                 "[project-root]/.editorconfig": false,
@@ -115,30 +115,30 @@
         },
         "enable-patching": true,
         "installer-paths": {
-            "docroot/core": [
+            "web/core": [
                 "type:drupal-core"
             ],
-            "docroot/libraries/{$name}": [
+            "web/libraries/{$name}": [
                 "type:drupal-library",
                 "type:bower-asset",
                 "type:npm-asset"
             ],
-            "docroot/modules/contrib/{$name}": [
+            "web/modules/contrib/{$name}": [
                 "type:drupal-module"
             ],
-            "docroot/profiles/contrib/{$name}": [
+            "web/profiles/contrib/{$name}": [
                 "type:drupal-profile"
             ],
-            "docroot/themes/contrib/{$name}": [
+            "web/themes/contrib/{$name}": [
                 "type:drupal-theme"
             ],
             "drush/Commands/contrib/{$name}": [
                 "type:drupal-drush"
             ],
-            "docroot/modules/custom/{$name}": [
+            "web/modules/custom/{$name}": [
                 "type:drupal-custom-module"
             ],
-            "docroot/themes/custom/{$name}": [
+            "web/themes/custom/{$name}": [
                 "type:drupal-custom-theme"
             ]
         },
@@ -147,18 +147,18 @@
             "npm-asset"
         ],
         "preserve-paths": [
-            "docroot/modules/custom",
-            "docroot/themes/custom",
-            "docroot/drush",
-            "docroot/sites/default/settings.php",
-            "docroot/sites/default/services.yml",
-            "docroot/sites/default/default.settings.local.php",
-            "docroot/sites/default/default.services.local.yml",
-            "docroot/sites/default/settings.local.php",
-            "docroot/sites/default/services.local.yml",
-            "docroot/sites/default/files",
-            "docroot/robots.txt",
-            "docroot/.htaccess"
+            "web/modules/custom",
+            "web/themes/custom",
+            "web/drush",
+            "web/sites/default/settings.php",
+            "web/sites/default/services.yml",
+            "web/sites/default/default.settings.local.php",
+            "web/sites/default/default.services.local.yml",
+            "web/sites/default/settings.local.php",
+            "web/sites/default/services.local.yml",
+            "web/sites/default/files",
+            "web/robots.txt",
+            "web/.htaccess"
         ]
     }
 }

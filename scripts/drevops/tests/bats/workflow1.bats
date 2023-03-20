@@ -20,6 +20,51 @@ load _helper
 load _helper_drevops
 load _helper_drevops_workflow
 
+@test "Workflow: DB-driven, custom webroot" {
+  prepare_sut "Starting DB-driven WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}" "rootdoc"
+
+  assert_ahoy_download_db
+
+  assert_ahoy_build "rootdoc"
+  assert_gitignore "" "rootdoc"
+
+  assert_ahoy_cli
+
+  assert_env_changes
+
+  assert_ahoy_composer
+
+  assert_ahoy_drush
+
+  assert_ahoy_info "rootdoc"
+
+  assert_ahoy_docker_logs
+
+  assert_ahoy_login
+
+  assert_ahoy_export_db
+
+  assert_ahoy_lint "rootdoc"
+
+  assert_ahoy_test_unit "rootdoc"
+
+  assert_ahoy_test_kernel "rootdoc"
+
+  assert_ahoy_test_functional "rootdoc"
+
+  assert_ahoy_test_bdd
+
+  assert_ahoy_fei "rootdoc"
+
+  assert_ahoy_fe "rootdoc"
+
+  assert_ahoy_debug
+
+  assert_ahoy_clean "rootdoc"
+
+  assert_ahoy_reset "rootdoc"
+}
+
 @test "Workflow: download from image, storage in docker image" {
   # Do not use demo database - testing demo database discovery is another test.
   export DREVOPS_INSTALL_DEMO_SKIP=1

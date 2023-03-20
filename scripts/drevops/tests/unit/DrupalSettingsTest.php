@@ -521,7 +521,7 @@ class DrupalSettingsTest extends DrupalTestCase {
   }
 
   protected function requireSettings() {
-    $app_root = '../../../docroot';
+    $app_root = '../../../web';
     $site_path = 'sites/default';
     $config = [];
     $settings = [];

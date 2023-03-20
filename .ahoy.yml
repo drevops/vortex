@@ -53,7 +53,7 @@ commands:
     usage: Build and start Docker containers.
     cmd: |
       docker-compose up -d "$@" && if docker-compose logs | grep -q "\[Error\]"; then exit 1; fi
-      mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
+      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > ${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
@@ -65,7 +65,7 @@ commands:
     usage: Start existing Docker containers.
     cmd: |
       docker-compose start "$@"
-      mkdir -p docroot/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/docroot/sites/default/files/livereload.sock'
+      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > ${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
 
   stop:
     usage: Stop running Docker containers.
@@ -156,21 +156,21 @@ commands:
 
   fei:
     usage: Install front-end assets.
-    cmd: ahoy cli "npm --prefix docroot/themes/custom/${DREVOPS_DRUPAL_THEME} install"
+    cmd: ahoy cli "npm --prefix ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} install"
 
   fe:
     usage: Build front-end assets.
-    cmd: ahoy cli "cd docroot/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build"
+    cmd: ahoy cli "cd ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build"
 
   fed:
     usage: Build front-end assets for development.
-    cmd: ahoy cli "cd docroot/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build-dev"
+    cmd: ahoy cli "cd ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build-dev"
 
   few:
     usage: Watch front-end assets during development.
     cmd: |
       ahoy cli "pkill -9 -f grunt" || true
-      ahoy cli "cd docroot/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run watch"
+      ahoy cli "cd ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run watch"
 
   lint:
     usage: Lint back-end and front-end code.
@@ -283,7 +283,7 @@ entrypoint:
   #: Read variables from .env file, respecting existing environment variable values.
   #:
   #: It is important to understand that variables set in .env file are already
-  #: available inside of the containers after stack is running (as a part of
+  #: available inside the containers after stack is running (as a part of
   #: docker-compose functionality), so most of the commands are using these
   #: values taken from containers.
   #:

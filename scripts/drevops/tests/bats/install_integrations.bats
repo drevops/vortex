@@ -18,6 +18,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "nothing" # install_from_profile
     "nothing" # database_download_source
     "nothing" # database_store_type
@@ -55,6 +56,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "nothing" # install_from_profile
     "curl" # database_download_source
     "file" # database_store_type
@@ -96,6 +98,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "nothing" # install_from_profile
     "curl" # database_download_source
     "file" # database_store_type
@@ -137,6 +140,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "y" # install_from_profile
     "nothing" # override_existing_db
     "artifact" # deploy_type
@@ -172,6 +176,7 @@ load _helper_drevops
     "nothing" # profile
     "nothing" # theme
     "nothing" # URL
+    "nothing" # webroot
     "y" # install_from_profile
     "nothing" # override_existing_db
     "artifact" # deploy_type

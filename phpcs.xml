@@ -19,10 +19,10 @@
     <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
 
     <!-- Exclude theme assets. -->
-    <exclude-pattern>docroot\/themes\/custom\/.*\/build\/.*</exclude-pattern>
-    <exclude-pattern>docroot\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
-    <exclude-pattern>docroot\/themes\/custom\/.*\/images\/.*</exclude-pattern>
-    <exclude-pattern>docroot\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>
+    <exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>
+    <exclude-pattern>web\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
+    <exclude-pattern>web\/themes\/custom\/.*\/images\/.*</exclude-pattern>
+    <exclude-pattern>web\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>
     <exclude-pattern>*\.min\.*</exclude-pattern>
 
     <!-- Force no empty lines after function opening brace. -->

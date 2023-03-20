@@ -22,7 +22,7 @@ class DrupalSettings {
     $drupalFinder->locateRoot(getcwd());
     $drupalRoot = $drupalFinder->getDrupalRoot();
 
-    $standard_settings_file = $drupalRoot . '/sites/' . $site . '/settings.php';
+    $standard_settings_file = $drupalRoot . DIRECTORY_SEPARATOR . 'sites' . DIRECTORY_SEPARATOR . $site . DIRECTORY_SEPARATOR . 'settings.php';
     $generated_settings_file_name = 'settings.generated.php';
 
     $defaults = [
@@ -32,7 +32,7 @@ class DrupalSettings {
       'mysql_host' => 'localhost',
       'mysql_port' => '',
       'mysql_prefix' => '',
-      'settings_path' => $drupalRoot . '/sites/' . $site . '/' . $generated_settings_file_name,
+      'settings_path' => $drupalRoot . DIRECTORY_SEPARATOR . 'sites' . DIRECTORY_SEPARATOR . $site . DIRECTORY_SEPARATOR . $generated_settings_file_name,
     ];
 
     $options = $defaultsArg
@@ -56,8 +56,8 @@ class DrupalSettings {
       if (strpos(file_get_contents($standard_settings_file), $generated_settings_file_name) === FALSE) {
         $string = <<<GENERATEDSETTINGS
 // Include generated settings file.
-if (file_exists(\$app_root . '/' . \$site_path . '/$generated_settings_file_name')) {
-  include \$app_root . '/' . \$site_path . '/$generated_settings_file_name';
+if (file_exists(\$app_root . DIRECTORY_SEPARATOR . \$site_path . DIRECTORY_SEPARATOR . '$generated_settings_file_name')) {
+  include \$app_root . DIRECTORY_SEPARATOR . \$site_path . DIRECTORY_SEPARATOR . '$generated_settings_file_name';
 }
 
 GENERATEDSETTINGS;
@@ -74,8 +74,12 @@ GENERATEDSETTINGS;
    * Delete Drupal settings file.
    */
   public static function delete(Event $event, $site = 'default') {
+    $drupalFinder = new DrupalFinder();
+    $drupalFinder->locateRoot(getcwd());
+    $drupalRoot = $drupalFinder->getDrupalRoot();
+
     $defaults = [
-      'settings_path' => 'docroot/sites/' . $site . '/settings.generated.php',
+      'settings_path' => $drupalRoot . DIRECTORY_SEPARATOR . 'sites' . DIRECTORY_SEPARATOR . $site . DIRECTORY_SEPARATOR . 'settings.generated.php',
     ];
 
     $options = self::extractEnvironmentVariables(array_keys($defaults))
@@ -101,7 +105,7 @@ GENERATEDSETTINGS;
     $drupalFinder->locateRoot(getcwd());
     $drupalRoot = $drupalFinder->getDrupalRoot();
 
-    $sitesFile = $drupalRoot . '/sites/sites.php';
+    $sitesFile = $drupalRoot . DIRECTORY_SEPARATOR . 'sites' . DIRECTORY_SEPARATOR . 'sites.php';
     if (!$fs->exists($sitesFile)) {
       $event->getIO()->writeError('<error>' . $sitesFile . ' file does not exist, but required for multi-site installations</error>');
     }

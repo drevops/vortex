@@ -77,7 +77,7 @@ ahoy clean
 echo
 
 echo "INFO Building Docker images, recreating and starting containers."
-echo "     This will take some time."
+echo "     This will take some time (use DREVOPS_DOCKER_VERBOSE=1 to see the progress)."
 echo "     Consider 'ahoy install-site' to re-install site without rebuilding containers."
 
 if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
