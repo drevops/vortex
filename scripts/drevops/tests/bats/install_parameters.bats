@@ -9,8 +9,7 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129
 
-load _helper
-load _helper_drevops
+load _helper.bash
 
 @test "Install parameters: empty dir; proceed switch; quiet" {
   export DREVOPS_INSTALL_PROCEED=0

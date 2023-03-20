@@ -4,8 +4,7 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129
 
-load _helper
-load _helper_drevops
+load _helper.bash
 
 @test "Variables" {
   assert_contains "drevops" "${BUILD_DIR}"

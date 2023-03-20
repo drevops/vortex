@@ -4,9 +4,8 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129
 
-load _helper
-load _helper_drevops
-load _helper_drevops_deployment
+load _helper.bash
+load _helper_deployment.bash
 
 @test "Deployment; no integration" {
   pushd "${BUILD_DIR}" > /dev/null || exit 1

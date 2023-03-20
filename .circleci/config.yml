@@ -408,7 +408,7 @@ jobs:
       - *step_setup_remote_docker
       - run:
           name: Run functional tests
-          command: scripts/drevops/utils/ci-drevops-test.sh
+          command: scripts/drevops/tests/test.sh
           no_output_timeout: 60m
 
   drevops_dev_test_workflow: &job_drevops_dev_test_workflow
@@ -420,7 +420,7 @@ jobs:
       - *step_setup_remote_docker
       - run:
           name: Run workflow tests (long)
-          command: scripts/drevops/utils/ci-drevops-test-workflow.sh
+          command: scripts/drevops/tests/test-workflow.sh
           no_output_timeout: 60m
 
   drevops_dev_test_deployment: &job_drevops_dev_test_deployment
@@ -437,7 +437,7 @@ jobs:
           at: /workspace
       - run:
           name: Run deployment tests (long)
-          command: scripts/drevops/utils/ci-drevops-test-deployment.sh
+          command: scripts/drevops/tests/test-deployment.sh
           no_output_timeout: 60m
 
   # Deployment of feature branches and tags for DrevOps itself.

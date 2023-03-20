@@ -4,8 +4,7 @@
 #
 #shellcheck disable=SC2030,SC2031
 
-load _helper
-load _helper_drevops
+load _helper.bash
 
 assert_drupal_install_site_info(){
   local webroot="${8:-web}"
