@@ -1,0 +1,12 @@
+{
+    "name": "drevops/docs",
+    "require": {
+        "drevops/shell-variables-extractor": "^0.1"
+    },
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com"
+        }
+    ]
+}

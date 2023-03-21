@@ -7,6 +7,7 @@ commands:
     cmd: |
       ahoy down
       (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network)
+      ahoy update
       ahoy up -- --build --force-recreate
       ahoy info
 
@@ -18,6 +19,10 @@ commands:
     usage: Deploy site
     # Make sure that your SSH config and keys have correct permissions or this will fail.
     cmd: docker-compose exec mkdocs mkdocs build
+
+  update:
+    usage: Update docs
+    cmd: ./update-docs.sh
 
   info:
     usage: Print information about this project.
