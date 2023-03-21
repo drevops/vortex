@@ -30,10 +30,10 @@ vendor/bin/phpunit unit
 popd || exit 1
 
 echo "==> Lint scripts code."
-scripts/drevops/utils/lint-scripts.sh
+"${TEST_DIR}/lint-scripts.sh"
 
 echo "==> Check spelling."
-scripts/drevops/utils/lint-spelling.sh
+"${TEST_DIR}/lint-spelling.sh"
 
 echo "==> Run common functional tests."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
