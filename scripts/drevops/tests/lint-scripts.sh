@@ -29,6 +29,7 @@ done < <(
     "${CUR_DIR}"/scripts/drevops/tests/bats \
     -type f \
     \( -name "*.sh" -or -name "*.bash" -or -name "*.bats" \) \
+    -not -path "*vendor*" -not -path "*node_modules*" \
     -print0
   )
 targets+=("${CUR_DIR}/install")
