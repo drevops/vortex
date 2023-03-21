@@ -9,7 +9,7 @@ set -e
 
 CUR_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")")"
 
-dict="${CUR_DIR}/scripts/drevops/utils/.aspell.en.pws"
+dict="${CUR_DIR}/scripts/drevops/tests/.aspell.en.pws"
 
 targets=()
 while IFS=  read -r -d $'\0'; do
@@ -20,10 +20,9 @@ done < <(
     "${CUR_DIR}"/.docker \
     "${CUR_DIR}"/scripts \
     "${CUR_DIR}"/patches \
-    "${CUR_DIR}"/docs \
     -type f \
     \( -name "*.md" \) \
-    -not -path "*vendor*" \
+    -not -path "*vendor*" -not -path "*node_modules*" \
     -print0
   )
 

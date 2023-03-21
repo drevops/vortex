@@ -19,4 +19,5 @@ echo "==> Run workflow functional tests (${index})."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
 bats="${TEST_DIR}/node_modules/.bin/bats"
 
-$bats "${TEST_DIR}/bats/workflow${index}.bats"
+# shellcheck disable=SC2086
+$bats "${TEST_DIR}"/bats/workflow${index}.bats
