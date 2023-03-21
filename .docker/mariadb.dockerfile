@@ -6,9 +6,12 @@
 # Use drevops/drevops-mariadb-drupal-data as a starting Docker image for your
 # Database-in-Docker-image database.
 # @see https://github.com/drevops/mariadb-drupal-data
-ARG IMAGE
+#
+# The ARG value will be updated with a value passed from docker-compose.yml
+ARG IMAGE=uselagoon/mariadb-drupal:23.2.0
 
-FROM ${IMAGE:-uselagoon/mariadb-drupal:23.2.0}
+# hadolint ignore=DL3006
+FROM $IMAGE
 
 USER root
 COPY ./.docker/config/mariadb/my.cnf /etc/my.cnf.d/server.cnf

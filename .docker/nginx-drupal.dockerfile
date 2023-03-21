@@ -2,6 +2,7 @@
 #
 # All web requests are sent to this container.
 ARG CLI_IMAGE
+# hadolint ignore=DL3006
 FROM ${CLI_IMAGE:-cli} as cli
 
 # @see https://hub.docker.com/r/uselagoon/nginx-drupal/tags?page=1

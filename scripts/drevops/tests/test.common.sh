@@ -35,6 +35,9 @@ echo "==> Lint scripts code."
 echo "==> Check spelling."
 "${TEST_DIR}/lint-spelling.sh"
 
+echo "==> Lint dockerfiles."
+"${TEST_DIR}/lint-dockerfiles.sh"
+
 echo "==> Run common functional tests."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
 bats="${TEST_DIR}/node_modules/.bin/bats"
