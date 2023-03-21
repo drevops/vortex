@@ -286,11 +286,11 @@ assert_files_present_drevops() {
   assert_file_exists "phpcs.xml"
 
   # Documentation information present.
-  assert_file_exists "CI.md"
-  assert_file_exists "FAQs.md"
+  assert_file_exists "docs/CI.md"
+  assert_file_exists "docs/FAQs.md"
   assert_file_exists "README.md"
-  assert_file_exists "RELEASING.md"
-  assert_file_exists "TESTING.md"
+  assert_file_exists "docs/RELEASING.md"
+  assert_file_exists "docs/TESTING.md"
 
   # Assert that DrevOps files removed.
   assert_file_not_exists "install.php"
@@ -435,7 +435,7 @@ assert_files_not_present_common() {
   assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
   assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
 
-  assert_file_not_exists "FAQs.md"
+  assert_file_not_exists "docs/FAQs.md"
   assert_file_not_exists ".ahoy.yml"
 
   if [ "${has_required_files}" -eq 1 ]; then
@@ -600,10 +600,10 @@ assert_files_present_deployment() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_exists "DEPLOYMENT.md"
+  assert_file_exists "docs/DEPLOYMENT.md"
   assert_file_contains ".circleci/config.yml" "deploy: &job_deploy"
   assert_file_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
-  assert_file_contains "README.md" "[deployment documentation](DEPLOYMENT.md)"
+  assert_file_contains "README.md" "[deployment documentation](docs/DEPLOYMENT.md)"
 
   popd >/dev/null || exit 1
 }
@@ -616,12 +616,12 @@ assert_files_present_no_deployment() {
   pushd "${dir}" >/dev/null || exit 1
 
   assert_file_not_exists ".gitignore.deployment"
-  assert_file_not_exists "DEPLOYMENT.md"
+  assert_file_not_exists "docs/DEPLOYMENT.md"
 
   # 'Required' files can be asserted for modifications only if they were not
   # committed.
   if [ "${has_committed_files}" -eq 0 ]; then
-    assert_file_not_contains "README.md" "[deployment documentation](DEPLOYMENT.md)"
+    assert_file_not_contains "README.md" "[deployment documentation](docs/DEPLOYMENT.md)"
     assert_file_not_contains ".circleci/config.yml" "deploy: &job_deploy"
     assert_file_not_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
     assert_file_not_contains ".circleci/config.yml" "- deploy:"
@@ -798,7 +798,7 @@ assert_files_present_integration_renovatebot() {
   assert_file_contains ".circleci/config.yml" "nightly_renovatebot_branch"
   assert_file_contains ".circleci/config.yml" "- *nightly_renovatebot_branch"
 
-  assert_file_contains CI.md "Automated patching"
+  assert_file_contains docs/CI.md "Automated patching"
 
   popd >/dev/null || exit 1
 }
@@ -815,7 +815,7 @@ assert_files_present_no_integration_renovatebot() {
   assert_file_not_contains ".circleci/config.yml" "nightly_renovatebot_branch"
   assert_file_not_contains ".circleci/config.yml" "- *nightly_renovatebot_branch"
 
-  assert_file_not_contains CI.md "Automated patching"
+  assert_file_not_contains docs/CI.md "Automated patching"
 
   popd >/dev/null || exit 1
 }

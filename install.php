@@ -404,7 +404,7 @@ function process__deploy_type($dir) {
     remove_token_with_content('!DEPLOYMENT', $dir);
   }
   else {
-    @unlink("$dir/DEPLOYMENT.md");
+    @unlink("$dir/docs/DEPLOYMENT.md");
     @unlink("$dir/.gitignore.deployment");
     remove_token_with_content('DEPLOYMENT', $dir);
   }
