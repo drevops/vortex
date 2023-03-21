@@ -2,7 +2,7 @@ composer.lock
 drevops/drevops-mariadb-drupal-data
 .ahoy.yml
 .ahoy.local.yml
-default.ahoy.local.yml
+.ahoy.local.example.yml
 .env
 .env.local
-default.env.local
+.env.local.example

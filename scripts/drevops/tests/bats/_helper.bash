@@ -279,9 +279,9 @@ assert_files_present_drevops() {
   assert_file_exists ".gitignore"
   assert_file_exists "behat.yml"
   assert_file_exists "composer.json"
-  assert_file_exists "default.ahoy.local.yml"
-  assert_file_exists "default.docker-compose.override.yml"
-  assert_file_exists "default.env.local"
+  assert_file_exists ".ahoy.local.example.yml"
+  assert_file_exists "docker-compose.override.example.yml"
+  assert_file_exists ".env.local.example"
   assert_file_exists "docker-compose.yml"
   assert_file_exists "phpcs.xml"
 
@@ -507,14 +507,14 @@ assert_files_present_install_from_profile() {
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT"
 
-  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FORCE"
-  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_USER"
-  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_PASS"
-  assert_file_not_contains "default.env.local" "DREVOPS_ACQUIA_KEY"
-  assert_file_not_contains "default.env.local" "DREVOPS_ACQUIA_SECRET"
-  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE"
-  assert_file_not_contains "default.env.local" "DREVOPS_DOCKER_REGISTRY_USERNAME"
-  assert_file_not_contains "default.env.local" "DREVOPS_DOCKER_REGISTRY_TOKEN"
+  assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FORCE"
+  assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FTP_USER"
+  assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FTP_PASS"
+  assert_file_not_contains ".env.local.example" "DREVOPS_ACQUIA_KEY"
+  assert_file_not_contains ".env.local.example" "DREVOPS_ACQUIA_SECRET"
+  assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE"
+  assert_file_not_contains ".env.local.example" "DREVOPS_DOCKER_REGISTRY_USERNAME"
+  assert_file_not_contains ".env.local.example" "DREVOPS_DOCKER_REGISTRY_TOKEN"
 
   assert_file_exists ".ahoy.yml"
   assert_file_not_contains ".ahoy.yml" "download-db:"
@@ -747,7 +747,7 @@ assert_files_present_no_integration_lagoon() {
 
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT="
   assert_file_not_contains ".env" "DREVOPS_LAGOON_ENABLE_DRUSH_ALIASES="
-  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
+  assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
 
   popd >/dev/null || exit 1
 }
@@ -763,8 +763,8 @@ assert_files_present_integration_ftp() {
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_FILE="
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_USER="
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
-  assert_file_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_USER="
-  assert_file_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
+  assert_file_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FTP_USER="
+  assert_file_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
 
   popd >/dev/null || exit 1
 }
@@ -780,8 +780,8 @@ assert_files_present_no_integration_ftp() {
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_FILE="
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_USER="
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
-  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_USER="
-  assert_file_not_contains "default.env.local" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
+  assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FTP_USER="
+  assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FTP_PASS="
 
   popd >/dev/null || exit 1
 }

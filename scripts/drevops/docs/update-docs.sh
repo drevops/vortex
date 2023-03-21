@@ -26,6 +26,6 @@ echo >> "${OUTPUT_FILE}"
   --markdown=./.utils/variables.template.md \
   -e ./.utils/variables.excluded.txt -u "UNDEFINED" \
   ../../../.env \
-  ../../../default.env.local \
+  ../../../.env.local.example \
   ./.utils/variables.extra.sh \
   .. >> $OUTPUT_FILE

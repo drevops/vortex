@@ -41,7 +41,7 @@ prepare_sut() {
 
   if uname -a|grep -q ARM64; then
     substep "Override local Docker Compose for ARM."
-    cp default.docker-compose.override.yml docker-compose.override.yml
+    cp docker-compose.override.example.yml docker-compose.override.yml
   fi
 }
 
@@ -913,16 +913,16 @@ assert_ahoy_local() {
   assert_success
   assert_output_not_contains "[fatal]"
   assert_output_contains ".ahoy.local.yml does not exist."
-  assert_output_contains "Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
+  assert_output_contains "Copy .ahoy.local.example.yml to .ahoy.local.yml and rerun this command."
 
   substep "Assert calling local commands with local file path specified and file is present works correctly"
-  cp "default.ahoy.local.yml" ".ahoy.local.yml"
+  cp ".ahoy.local.example.yml" ".ahoy.local.yml"
   run ahoy local help
   assert_success
   assert_output_contains "Custom local commands"
   assert_output_not_contains "[fatal]"
   assert_output_not_contains ".ahoy.local.yml does not exist."
-  assert_output_not_contains "Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
+  assert_output_not_contains "Copy .ahoy.local.example.yml to .ahoy.local.yml and rerun this command."
 
   substep "Assert calling local commands with local file path specified and file is present and file return non-zero exit code"
 
@@ -937,5 +937,5 @@ assert_ahoy_local() {
   assert_output_contains "expected failure"
   assert_output_not_contains "[fatal]"
   assert_output_not_contains ".ahoy.local.yml does not exist."
-  assert_output_not_contains "Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command."
+  assert_output_not_contains "Copy .ahoy.local.example.yml to .ahoy.local.yml and rerun this command."
 }
