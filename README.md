@@ -92,7 +92,7 @@ Drupal 9 implementation of YOURSITE for YOURORG
 
 [//]: # (Remove the section below once onboarding is finished)
 ## Onboarding
-Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progress.
+Use [Onboarding checklist](docs/ONBOARDING.md) to track the project onboarding progress.
 
 ## Local environment setup
 - Make sure that you have latest versions of all required software installed:
@@ -137,20 +137,20 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 Copy `docker-compose.override.example.yml` to `docker-compose.override.yml`.
 
 ## Testing
-Please refer to [testing documentation](TESTING.md).
+Please refer to [testing documentation](docs/TESTING.md).
 
 ## CI
-Please refer to [CI documentation](CI.md).
+Please refer to [CI documentation](docs/CI.md).
 
 [//]: # (#;< DEPLOYMENT)
 
 ## Deployment
-Please refer to [deployment documentation](DEPLOYMENT.md).
+Please refer to [deployment documentation](docs/DEPLOYMENT.md).
 
 [//]: # (#;> DEPLOYMENT)
 
 ## Releasing
-Please refer to [releasing documentation](RELEASING.md).
+Please refer to [releasing documentation](docs/RELEASING.md).
 
 ## FAQs
-Please refer to [FAQs](FAQs.md).
+Please refer to [FAQs](docs/FAQs.md).

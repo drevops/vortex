@@ -26,9 +26,9 @@ done < <(
     -print0
   )
 
-targets+=(DEPLOYMENT.md)
-targets+=(FAQs.md)
-targets+=(ONBOARDING.md)
+targets+=(docs/DEPLOYMENT.md)
+targets+=(docs/FAQs.md)
+targets+=(docs/ONBOARDING.md)
 targets+=(README.md)
 
 echo -n "==> Validating dictionary..." && cat "${dict}" | head -1 | grep -q "personal_ws-1.1 en 28" && echo "OK" || (echo "ERROR: invalid dictionary format" && exit 1)
