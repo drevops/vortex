@@ -1,5 +1,6 @@
 # Solr container.
 ARG CLI_IMAGE
+# hadolint ignore=DL3006
 FROM ${CLI_IMAGE} as cli
 
 # @see https://hub.docker.com/r/uselagoon/solr/tags?page=1&name=drupal
