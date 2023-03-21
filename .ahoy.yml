@@ -256,7 +256,7 @@ commands:
         ahoy -f ".ahoy.local.yml" "$@"
       else
         echo ".ahoy.local.yml does not exist."
-        echo "Copy default.ahoy.local.yml to .ahoy.local.yml and rerun this command.";
+        echo "Copy .ahoy.local.example.yml to .ahoy.local.yml and rerun this command.";
       fi
 
   # ----------------------------------------------------------------------------

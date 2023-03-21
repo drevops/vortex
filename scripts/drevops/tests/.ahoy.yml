@@ -4,7 +4,7 @@ ahoyapi: v2
 commands:
 
   lint:
-    cmd: ahoy lint-scripts && ahoy lint-spelling && lint-dockerfiles
+    cmd: ahoy lint-scripts && ahoy lint-spelling && ahoy lint-dockerfiles
 
   lint-spelling:
     cmd: cd ../../.. && pwd && ./scripts/drevops/tests/lint-spelling.sh

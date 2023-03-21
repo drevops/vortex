@@ -107,7 +107,7 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 - Authenticate with Acquia Cloud API
   1. Create your Acquia Cloud API token:<br/>
      Acquia Cloud UI -> Account -> API tokens -> Create Token
-  2. Copy `default.env.local` to `.env.local`.
+  2. Copy `.env.local.example` to `.env.local`.
   3. Populate `$DREVOPS_ACQUIA_KEY` and `$DREVOPS_ACQUIA_SECRET` environment
      variables in `.env.local` file with values generated in the step above.
 
@@ -117,7 +117,7 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 
 - Authenticate with Lagoon
   1. Create an SSH key and add it to your account in the [Lagoon Dashboard](https://ui-lagoon-master.ch.amazee.io/).
-  2. Copy `default.env.local` to `.env.local`.
+  2. Copy `.env.local.example` to `.env.local`.
   3. Update `$DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE` environment variable in `.env.local` file
   with the path to the SSH key.
 
@@ -134,7 +134,7 @@ Use [Onboarding checklist](ONBOARDING.md) to track the project onboarding progre
 
 ### Apple M1 adjustments
 
-Copy `default.docker-compose.override.yml` to `docker-compose.override.yml`.
+Copy `docker-compose.override.example.yml` to `docker-compose.override.yml`.
 
 ## Testing
 Please refer to [testing documentation](TESTING.md).
