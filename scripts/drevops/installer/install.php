@@ -14,11 +14,11 @@
  * Usage:
  *
  * @code
- * curl -L https://raw.githubusercontent.com/drevops/drevops/main/install.php | php
- * curl -L https://raw.githubusercontent.com/drevops/drevops/main/install.php | php -- /path/to/destination/directory
- * curl -L https://raw.githubusercontent.com/drevops/drevops/main/install.php | php -- --quiet /path/to/destination/directory
- * curl -L https://raw.githubusercontent.com/drevops/drevops/main/install.php | php -- help
- * curl -L https://raw.githubusercontent.com/drevops/drevops/main/install.php | php -- --help
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/main/scripts/drevops/installer/install.php | php
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/main/scripts/drevops/installer/install.php | php -- /path/to/destination/directory
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/main/scripts/drevops/installer/install.php | php -- --quiet /path/to/destination/directory
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/main/scripts/drevops/installer/install.php | php -- help
+ * curl -L https://raw.githubusercontent.com/drevops/drevops/main/scripts/drevops/installer/install.php | php -- --help
  * @endcode
  *
  * Variables precedence (top values win):
@@ -626,9 +626,9 @@ function download_remote() {
     $ref = find_latest_drevops_release($org, $project, $release_prefix);
   }
 
-  $url = "https://github.com/{$org}/{$project}/archive/${ref}.tar.gz";
+  $url = "https://github.com/{$org}/{$project}/archive/{$ref}.tar.gz";
   status(sprintf('Downloading DrevOps from the remote repository "%s" at ref "%s".', $url, $ref), INSTALLER_STATUS_MESSAGE, FALSE);
-  do_exec("curl -sS -L \"$url\" | tar xzf - -C \"${dst}\" --strip 1", $output, $code);
+  do_exec("curl -sS -L \"$url\" | tar xzf - -C \"{$dst}\" --strip 1", $output, $code);
 
   if ($code != 0) {
     throw new \RuntimeException(implode(PHP_EOL, $output));
@@ -2083,8 +2083,7 @@ function ignore_paths() {
 
 function internal_paths() {
   return [
-    '/install.sh',
-    '/install.php',
+    '/scripts/drevops/installer/install.php',
     '/LICENSE',
     '/scripts/drevops/docs',
     '/scripts/drevops/tests',

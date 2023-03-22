@@ -28,7 +28,7 @@ abstract class InstallerTestCase extends TestCase {
 
   protected function setUp(): void {
     putenv('INSTALLER_SKIP_RUN=1');
-    require_once getcwd() . DIRECTORY_SEPARATOR . '../../../install.php';
+    require_once getcwd() . DIRECTORY_SEPARATOR . '../../../scripts/drevops/installer/install.php';
 
     parent::setUp();
   }

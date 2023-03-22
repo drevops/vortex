@@ -587,7 +587,7 @@ jobs:
           name: Prepare installer.
           command: |
             mkdir -p /tmp/installer/docs
-            cp install.php /tmp/installer/docs/index.html
+            cp scripts/drevops/installer/install.php /tmp/installer/docs/index.html
             ( echo -n "// Published date: " && echo "$(date)" ) >> /tmp/installer/docs/index.html
             echo "install.drevops.com" > /tmp/installer/docs/CNAME
       - run:
