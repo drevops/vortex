@@ -91,7 +91,7 @@ services:
     labels:
       lagoon.type: cli-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
       lagoon.persistent.name: &lagoon-nginx-name nginx-php # Mount the persistent storage of nginx-php pod into this container.
-      lagoon.persistent: &lagoon-drupal-files /app/web/sites/default/files/  # Location where the persistent storage should be mounted.
+      lagoon.persistent: &lagoon-persistent-files /app/web/sites/default/files/  # Location where the persistent storage should be mounted.
     #;> LAGOON
 
   nginx:
@@ -114,7 +114,7 @@ services:
     labels:
       lagoon.type: nginx-php-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
       lagoon.name: *lagoon-nginx-name
-      lagoon.persistent: *lagoon-drupal-files
+      lagoon.persistent: *lagoon-persistent-files
       lagoon.persistent.class: slow
     #;> LAGOON
 
@@ -135,7 +135,7 @@ services:
     labels:
       lagoon.type: nginx-php-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
       lagoon.name: *lagoon-nginx-name
-      lagoon.persistent: *lagoon-drupal-files
+      lagoon.persistent: *lagoon-persistent-files
       lagoon.persistent.class: slow
     #;> LAGOON
 
