@@ -129,7 +129,8 @@ assert_ahoy_build() {
   assert_files_present_integration_renovatebot
 
   # Assert generated settings file exists.
-  assert_file_exists "${webroot}/sites/default/settings.generated.php"
+  assert_files_present_generated_settings "" "${webroot}"
+
   # Assert only minified compiled CSS exists.
   assert_file_exists "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css"
   assert_file_not_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "background: #7e57e2"
@@ -776,7 +777,7 @@ assert_ahoy_clean() {
   # Assert manually created local services file exists.
   assert_file_exists "${webroot}/sites/default/services.local.yml"
   # Assert generated settings file does not exist.
-  assert_file_not_exists "${webroot}/sites/default/settings.generated.php"
+  assert_files_not_present_generated_settings "" "${webroot}"
   # Assert manually created file still exists.
   assert_file_exists "untracked_file.txt"
   # Assert IDE config file still exists.

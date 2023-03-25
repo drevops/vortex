@@ -1,12 +1,25 @@
 # Replaces standard .gitignore when building a deployment artifact.
 
-# Ignore everything, but some whitelisted files.
+# Ignore all files except those specifically allowed.
 /*
 
-#; To simplify maintenance of DrevOps, we support only 'web' document root
-#; defined explicitly here.
+# Do not ignore required files.
+!/config/
+!/scripts/
+!/vendor/
+!composer.json
+
+# Do not ignore webroot (manage Drupal scaffold files using the composer.json)
 !web
-# But still ignore sources.
+# But ignore content files and test artifacts.
+web/sites/default/files
+web/sites/simpletest
+
+# Ignore non-production scaffold files.
+web/sites/default/default.services.local.yml
+web/sites/default/default.settings.local.php
+
+# Ignore custom theme asset sources.
 web/themes/custom/your_site_theme/fonts
 web/themes/custom/your_site_theme/images
 web/themes/custom/your_site_theme/js
@@ -16,15 +29,10 @@ web/themes/custom/your_site_theme/package.json
 web/themes/custom/your_site_theme/package-lock.json
 web/themes/custom/your_site_theme/.eslintrc.json
 web/themes/custom/your_site_theme/node_modules
-web/sites/default/settings.generated.php
-web/sites/default/default.settings.php
-web/sites/default/default.services.yml
-web/sites/default/default.settings.local.php
-web/sites/default/default.services.local.yml
-web/sites/default/files
 
-!composer.json
-!/config/
+#;< ACQUIA
+# Do not ignore Acquia hooks.
 !/hooks/
-!/vendor/
-!/scripts/
+# Ignore generated settings.
+web/sites/default/settings.generated.php
+#;> ACQUIA

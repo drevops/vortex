@@ -74,11 +74,8 @@ assert_deployment_files_present() {
   # Settings files present.
   assert_file_exists "${webroot}/sites/default/settings.php"
   assert_file_exists "${webroot}/sites/default/services.yml"
-  assert_file_not_exists "${webroot}/sites/default/default.settings.php"
-  assert_file_not_exists "${webroot}/sites/default/default.services.yml"
   assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
-  assert_file_not_exists "${webroot}/sites/default/settings.generated.php"
 
   # Only minified compiled CSS present.
   assert_file_exists "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css"

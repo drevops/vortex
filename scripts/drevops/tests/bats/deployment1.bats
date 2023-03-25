@@ -45,12 +45,6 @@ load _helper_deployment.bash
     # built on previous build stages.
     provision_site "${CURRENT_PROJECT_DIR}"
 
-    assert_files_present_common "${CURRENT_PROJECT_DIR}"
-    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-    assert_files_present_integration_acquia "${CURRENT_PROJECT_DIR}" "sw" 1
-    assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
-
     substep "Copying built codebase into code source directory ${SRC_DIR}"
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
   else
@@ -61,6 +55,7 @@ load _helper_deployment.bash
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
   assert_files_present_common "${SRC_DIR}"
+  assert_files_present_generated_settings "${SRC_DIR}"
   assert_files_present_deployment "${SRC_DIR}"
   assert_files_present_integration_acquia "${SRC_DIR}" "sw" 1
   assert_files_present_no_integration_lagoon "${SRC_DIR}"
@@ -111,8 +106,9 @@ load _helper_deployment.bash
   step "Assert remote deployment files"
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
 
-  # Assert Acquia hooks are present.
+  # Assert Acquia integration files are present.
   assert_files_present_integration_acquia "${REMOTE_REPO_DIR}" "sw" 0
+  assert_files_not_present_generated_settings "${REMOTE_REPO_DIR}"
 
   popd > /dev/null
 }
@@ -154,13 +150,9 @@ load _helper_deployment.bash
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
-  provision_site "${CURRENT_PROJECT_DIR}" 0 "${answers[@]}"
 
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
+  # Do not build - only structure.
+  provision_site "${CURRENT_PROJECT_DIR}" 0 "${answers[@]}"
 
   substep "Copying built codebase into code source directory ${SRC_DIR}"
   cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -168,6 +160,7 @@ load _helper_deployment.bash
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
   assert_files_present_common "${SRC_DIR}"
+  assert_files_not_present_generated_settings "${SRC_DIR}"
   assert_files_present_deployment "${SRC_DIR}"
   assert_files_present_integration_lagoon "${SRC_DIR}"
   assert_files_present_no_integration_acquia "${SRC_DIR}"
@@ -261,14 +254,8 @@ load _helper_deployment.bash
     "nothing" # preserve_drevops_info
   )
 
+  # Do not build - only structure.
   provision_site "${CURRENT_PROJECT_DIR}" 0 "${answers[@]}"
-
-  assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_install_from_profile "${CURRENT_PROJECT_DIR}"
-  assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-  assert_files_present_integration_lagoon "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-  assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 
   substep "Copying built codebase into code source directory ${SRC_DIR}"
   cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -276,6 +263,7 @@ load _helper_deployment.bash
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
   assert_files_present_common "${SRC_DIR}"
+  assert_files_not_present_generated_settings "${SRC_DIR}"
   assert_files_present_deployment "${SRC_DIR}"
   assert_files_present_integration_lagoon "${SRC_DIR}"
   assert_files_present_no_integration_acquia "${SRC_DIR}"

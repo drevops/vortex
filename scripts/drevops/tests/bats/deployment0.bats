@@ -33,12 +33,6 @@ load _helper_deployment.bash
     # built on previous build stages of the CI process.
     provision_site "${CURRENT_PROJECT_DIR}"
 
-    assert_files_present_common "${CURRENT_PROJECT_DIR}"
-    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
-
     substep "Copying built codebase into code source directory ${SRC_DIR}."
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
   else
@@ -50,6 +44,7 @@ load _helper_deployment.bash
   # the previous stage of the build.
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_present_generated_settings "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
@@ -102,8 +97,9 @@ load _helper_deployment.bash
 
   substep "ARTIFACT: Assert remote deployment files."
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
+  assert_files_present_generated_settings "${REMOTE_REPO_DIR}"
 
-  # Assert Acquia hooks are absent.
+  # Assert Acquia integration files are absent.
   assert_files_present_no_integration_acquia "${REMOTE_REPO_DIR}"
 
   assert_output_contains "Finished ARTIFACT deployment."
@@ -143,13 +139,8 @@ load _helper_deployment.bash
     substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
     prepare_fixture_dir "${SRC_DIR}"
 
+    # Do not build - only structure.
     provision_site "${CURRENT_PROJECT_DIR}" 0
-
-    assert_files_present_common "${CURRENT_PROJECT_DIR}"
-    assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
-    assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
 
     substep "Copying built codebase into code source directory ${SRC_DIR}."
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -162,6 +153,7 @@ load _helper_deployment.bash
   # the previous stage of the build.
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
+  assert_files_not_present_generated_settings "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
