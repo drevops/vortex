@@ -194,6 +194,56 @@ assert_files_present_common() {
   popd >/dev/null || exit 1
 }
 
+assert_files_not_present_common() {
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-sw}"
+  local suffix_abbreviated="${3:-sw}"
+  local has_required_files="${4:-0}"
+  local webroot="${5:-web}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_dir_not_exists "${webroot}/modules/custom/ys_core"
+  assert_dir_not_exists "${webroot}/themes/custom/your_site_theme"
+  assert_dir_not_exists "${webroot}/profiles/custom/${suffix}_profile"
+  assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_core"
+  assert_dir_not_exists "${webroot}/themes/custom/${suffix}"
+  assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
+  assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Unit/YourSiteExampleUnitTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
+
+  assert_file_not_exists "docs/FAQs.md"
+  assert_file_not_exists ".ahoy.yml"
+
+  if [ "${has_required_files}" -eq 1 ]; then
+    assert_file_exists "README.md"
+    assert_file_exists ".circleci/config.yml"
+    assert_file_exists "${webroot}/sites/default/settings.php"
+    assert_file_exists "${webroot}/sites/default/services.yml"
+  else
+    assert_file_not_exists "README.md"
+    assert_file_not_exists ".circleci/config.yml"
+    assert_file_not_exists "${webroot}/sites/default/settings.php"
+    assert_file_not_exists "${webroot}/sites/default/services.yml"
+    # Scaffolding files not exist.
+    assert_file_not_exists "${webroot}/.editorconfig"
+    assert_file_not_exists "${webroot}/.eslintignore"
+    assert_file_not_exists "${webroot}/.gitattributes"
+    assert_file_not_exists "${webroot}/.htaccess"
+    assert_file_not_exists "${webroot}/autoload.php"
+    assert_file_not_exists "${webroot}/index.php"
+    assert_file_not_exists "${webroot}/robots.txt"
+    assert_file_not_exists "${webroot}/update.php"
+  fi
+
+  popd >/dev/null || exit 1
+}
+
 # These files should exist in every project.
 assert_files_present_drevops() {
   local dir="${1:-$(pwd)}"
@@ -411,53 +461,23 @@ assert_files_present_drupal() {
   popd >/dev/null || exit 1
 }
 
-assert_files_not_present_common() {
+# Setting generated during the build.
+assert_files_present_generated_settings(){
   local dir="${1:-$(pwd)}"
-  local suffix="${2:-sw}"
-  local suffix_abbreviated="${3:-sw}"
-  local has_required_files="${4:-0}"
-  local webroot="${5:-web}"
+  local webroot="${2:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
+  assert_file_exists "${webroot}/sites/default/settings.generated.php"
+  popd >/dev/null || exit 1
+}
 
-  assert_dir_not_exists "${webroot}/modules/custom/ys_core"
-  assert_dir_not_exists "${webroot}/themes/custom/your_site_theme"
-  assert_dir_not_exists "${webroot}/profiles/custom/${suffix}_profile"
-  assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_core"
-  assert_dir_not_exists "${webroot}/themes/custom/${suffix}"
-  assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
-  assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Unit/YourSiteExampleUnitTest.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
+# Setting generated during the build.
+assert_files_not_present_generated_settings(){
+  local dir="${1:-$(pwd)}"
+  local webroot="${2:-web}"
 
-  assert_file_not_exists "docs/FAQs.md"
-  assert_file_not_exists ".ahoy.yml"
-
-  if [ "${has_required_files}" -eq 1 ]; then
-    assert_file_exists "README.md"
-    assert_file_exists ".circleci/config.yml"
-    assert_file_exists "${webroot}/sites/default/settings.php"
-    assert_file_exists "${webroot}/sites/default/services.yml"
-  else
-    assert_file_not_exists "README.md"
-    assert_file_not_exists ".circleci/config.yml"
-    assert_file_not_exists "${webroot}/sites/default/settings.php"
-    assert_file_not_exists "${webroot}/sites/default/services.yml"
-    # Scaffolding files not exist.
-    assert_file_not_exists "${webroot}/.editorconfig"
-    assert_file_not_exists "${webroot}/.eslintignore"
-    assert_file_not_exists "${webroot}/.gitattributes"
-    assert_file_not_exists "${webroot}/.htaccess"
-    assert_file_not_exists "${webroot}/autoload.php"
-    assert_file_not_exists "${webroot}/index.php"
-    assert_file_not_exists "${webroot}/robots.txt"
-    assert_file_not_exists "${webroot}/update.php"
-  fi
-
+  pushd "${dir}" >/dev/null || exit 1
+  assert_file_not_exists "${webroot}/sites/default/settings.generated.php"
   popd >/dev/null || exit 1
 }
 
