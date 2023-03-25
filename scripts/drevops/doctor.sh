@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #
-# Check DrevOps project requirements.
+# Check DrevOps project requirements or print info.
+#
+# doctor.sh - check project requirements.
+# doctor.sh info - show system information.
 #
 
 set -e
@@ -76,17 +79,28 @@ main() {
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_PORT}" = "1" ] && [ "${OSTYPE}" != "linux-gnu" ]; then
-    if ! lsof -i :80 | grep LISTEN | grep -q om.docke; then
+    if lsof -i :80 | grep -v 'CLOSED' | grep 'LISTEN' | grep -vq 'om.docke'; then
       echo "ERROR Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'."
+      exit 1
     fi
     echo "  OK Port 80 is available."
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_PYGMY}" = "1" ]; then
-    if ! pygmy status > /dev/null 2>&1; then
-      echo "ERROR Pygmy is not running. Run 'pygmy up' to start Pygmy."
-      exit 1
-    fi
+    pygmy_status="$(pygmy status | tr -d '\000')"
+
+    pygmy_services=()
+    pygmy_services+=("amazeeio-ssh-agent")
+    pygmy_services+=("amazeeio-mailhog")
+    pygmy_services+=("amazeeio-haproxy")
+    pygmy_services+=("amazeeio-dnsmasq")
+
+    for pygmy_service in "${pygmy_services[@]}"; do
+      if ! echo "$pygmy_status" | grep -q "${pygmy_service}: Running"; then
+        echo "ERROR Pygmy service ${pygmy_service} is not running. Run 'pygmy up' or 'pygmy restart' to fix."
+        exit 1
+      fi
+    done
     echo "  OK Pygmy is running."
   fi
 
@@ -94,11 +108,11 @@ main() {
   if [ "${DREVOPS_DOCTOR_CHECK_CONTAINERS}" = "1" ]; then
     docker_services=(cli php nginx mariadb)
     for docker_service in "${docker_services[@]}"; do
-    # shellcheck disable=SC2143
+      # shellcheck disable=SC2143
       if [ -z "$(docker-compose ps -q "${docker_service}")" ] || [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q "${docker_service}")")" ]; then
         echo "ERROR ${docker_service} container is not running."
-        echo "      $(docker-compose logs)"
         echo "      Run 'ahoy up'."
+        echo "      Run 'ahoy logs ${docker_service}' to see error logs."
         exit 1
       fi
     done
@@ -147,7 +161,7 @@ main() {
     fi
 
     # Check that ssh key is available in the container.
-    if [ "${ssh_key_added}" = "1" ] && ! docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L | grep -q 'ssh-rsa'" ; then
+    if [ "${ssh_key_added}" = "1" ] && ! docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L | grep -q 'ssh-rsa'"; then
       echo "     SSH key was not added into container. Run 'pygmy restart'."
       ssh_key_added=0
     fi
@@ -190,18 +204,18 @@ system_info() {
   fi
   echo
 
-  echo  "DOCKER"
+  echo "DOCKER"
   echo "Path to binary: $(which docker)"
   docker -v
   docker info
   echo
 
-  echo  "DOCKER COMPOSE"
+  echo "DOCKER COMPOSE"
   echo "Path to binary: $(which docker-compose)"
   docker-compose version
   echo
 
-  echo  "PYGMY"
+  echo "PYGMY"
   echo "Path to binary: $(which pygmy)"
   pygmy version
   echo
@@ -221,8 +235,8 @@ command_exists() {
   local res=$?
 
   # Try homebrew lookup, if brew is available.
-  if command -v "brew" | grep -ohq "brew" && [ "$res" = "1" ] ; then
-    brew --prefix "${cmd}" > /dev/null
+  if command -v "brew" | grep -ohq "brew" && [ "$res" = "1" ]; then
+    brew --prefix "${cmd}" >/dev/null
     res=$?
   fi
 
