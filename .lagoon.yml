@@ -18,7 +18,7 @@ tasks:
     - run:
         name: Show DrevOps variables.
         command: |
-          env -0  | sort -z | tr '\0' '\n' | grep ^DREVOPS_
+          env -0  | sort -z | tr '\0' '\n' | grep ^DREVOPS_ || true
         service: cli
         shell: bash
 
