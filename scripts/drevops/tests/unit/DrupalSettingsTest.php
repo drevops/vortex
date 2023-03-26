@@ -303,6 +303,44 @@ class DrupalSettingsTest extends DrupalTestCase {
         ],
         ENVIRONMENT_PROD,
       ],
+      [
+        [
+          'LAGOON' => 1,
+          'LAGOON_GIT_BRANCH' => 'main',
+          'DREVOPS_PRODUCTION_BRANCH' => 'main',
+          'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        ],
+        ENVIRONMENT_PROD,
+      ],
+
+      [
+        [
+          'LAGOON' => 1,
+          'LAGOON_GIT_BRANCH' => 'release',
+        ],
+        ENVIRONMENT_LOCAL,
+      ],
+      [
+        [
+          'LAGOON' => 1,
+          'LAGOON_GIT_BRANCH' => 'release/1.2.3',
+        ],
+        ENVIRONMENT_TEST,
+      ],
+      [
+        [
+          'LAGOON' => 1,
+          'LAGOON_GIT_BRANCH' => 'hotfix',
+        ],
+        ENVIRONMENT_LOCAL,
+      ],
+      [
+        [
+          'LAGOON' => 1,
+          'LAGOON_GIT_BRANCH' => 'hotfix/1.2.3',
+        ],
+        ENVIRONMENT_TEST,
+      ],
 
       [
         [
@@ -413,6 +451,11 @@ class DrupalSettingsTest extends DrupalTestCase {
               'database' => 'drupal',
               'username' => 'drupal',
               'password' => 'drupal',
+              // Special case: depending on how settings.generated.php was
+              // created, this value can vary.
+              // @see Utilities\composer\DrupalSettings::getDefaultDrupalSettingsContent()
+              // @todo Refactor this to make defaults decoupled from
+              // the generation method.
               'host' => 'localhost',
               'port' => '',
               'driver' => 'mysql',

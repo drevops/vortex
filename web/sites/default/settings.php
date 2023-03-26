@@ -177,6 +177,9 @@ if (getenv('LAGOON')) {
   elseif (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('DREVOPS_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') == getenv('DREVOPS_PRODUCTION_BRANCH')) {
     $settings['environment'] = ENVIRONMENT_PROD;
   }
+  elseif (!empty(getenv('LAGOON_GIT_BRANCH')) && (str_starts_with(getenv('LAGOON_GIT_BRANCH'), 'release/') || str_starts_with(getenv('LAGOON_GIT_BRANCH'), 'hotfix/'))) {
+    $settings['environment'] = ENVIRONMENT_TEST;
+  }
   elseif (getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
     $settings['environment'] = ENVIRONMENT_DEV;
   }
