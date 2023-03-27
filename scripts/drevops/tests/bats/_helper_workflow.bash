@@ -106,7 +106,7 @@ assert_ahoy_build() {
   assert_output_contains "Removing project containers and packages available since the previous run."
   assert_output_contains "Building Docker images, recreating and starting containers."
   assert_output_contains "Installing development dependencies."
-  assert_output_contains "Build complete."
+  assert_output_contains "Build complete"
 
   # Assert that lock files were created.
   assert_file_exists "composer.lock"

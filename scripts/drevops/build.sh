@@ -175,7 +175,7 @@ fi
 # Check that the site is available.
 ahoy doctor
 
-echo "INFO Build complete."
+echo "INFO Build complete ($((SECONDS/60))m $((SECONDS%60))s)."
 
 # Show project information and a one-time login link.
 DREVOPS_DRUPAL_SHOW_LOGIN_LINK=1 ahoy info
