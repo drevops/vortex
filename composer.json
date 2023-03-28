@@ -91,6 +91,8 @@
             "Utilities\\composer\\DrupalSettings::create"
         ]
     },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "extra": {
         "composer-exit-on-patch-failure": true,
         "patchLevel": {
