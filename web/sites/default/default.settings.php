@@ -765,11 +765,11 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
  *   site.
  * - migrate_file_public_path - The location of the source Drupal 6 or Drupal 7
  *   public files. This can be a local file directory containing the source
- *   Drupal 6 or Drupal 7 site (e.g /var/www/web), or the site address
+ *   Drupal 6 or Drupal 7 site (e.g /var/www/docroot), or the site address
  *   (e.g http://example.com).
  * - migrate_file_private_path - The location of the source Drupal 7 private
  *   files. This can be a local file directory containing the source Drupal 7
- *   site (e.g /var/www/web), or empty to use the same value as Public
+ *   site (e.g /var/www/docroot), or empty to use the same value as Public
  *   files directory.
  *
  * Sample configuration for a drupal 6 source site with the source files in a
