@@ -24,7 +24,7 @@ Make it easy to create high-quality Drupal websites
 
 Use **tested** Drupal project template with DevOps integrations for CI and hosting platforms.
 
-### How does it work?
+## How it works
 
 1. You run the installer script once.
 2. DrevOps integrates the latest project template release into your codebase.
