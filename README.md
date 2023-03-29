@@ -1,6 +1,7 @@
 [//]: # (#;< DREVOPS_DEV)
+<table align="center"><tr><td>
 <p align="center">
-	<img width="400" src="https://raw.githubusercontent.com/wiki/integratedexperts/drupal-dev/images/drevops_logo_text_white.png" alt="DrevOps Logo" />
+	<img width="400" src="https://user-images.githubusercontent.com/378794/228488082-814a8ddc-e749-4031-874c-ef545ac00cec.png" alt="DrevOps Logo" />
 </div>
 <h3 align="center">Build, Test, Deploy scripts for Drupal using Docker and CI/CD</h3>
 <div align="center">
@@ -13,65 +14,43 @@
 
 </div>
 
---------------------------------------------------------------------------------
+</td></tr><tr><td>
 
-## Why
+## Purpose
 
-To create high-quality Drupal websites, stability, security, speed, and ease of
-maintenance are essential. DevOps tools can help achieve these goals, but setting
-them up requires a lot of time and expertise.
+Make it easy to create high-quality Drupal websites
 
-DrevOps offers a **tested** Drupal project template with DevOps integrations that
-ensures consistency across all your Drupal projects.
+## Approach
 
-### Who is it for?
-- Digital agencies that want to standardize their development stack (standard
-  operating environment) across projects
-- Developers that are looking for best practices
-- Developers who lack the necessary time or expertise to set up DevOps tools
-  themselves
+Use **tested** Drupal project template with DevOps integrations for CI and hosting platforms.
 
 ### How does it work?
-- You run the installer script once
-- DrevOps brings the latest release into your codebase
-- You commit all new files
-- You may override files with changes relevant only to a specific project, if required
+
+1. You run the installer script once.
+2. DrevOps integrates the latest project template release into your codebase.
+3. You choose which changes to commit.
+
+</td></tr><tr><td>
 
 ## Installation
 
-1. Run [installer](https://github.com/drevops/installer/blob/master/docs/index.html):
-   ```
-   curl -SsL https://install.drevops.com | php
-   ```
-2. Commit added files.
-3. Follow instructions in the generated `README.md` files of your project.
+    curl -SsL https://install.drevops.com | php
 
-## Contributing
+## Documentation
 
-- Progress is tracked in [GitHub project](https://github.com/drevops/drevops/projects/1).
-- Development takes place in 2 independent branches: `main` and `7.x`
+https://docs.drevops.com
 
---------------------------------------------------------------------------------
+<br/>
 
-Visit [Documentation](https://docs.drevops.com) site for more information.
+</td></tr>
+<tr><td>
 
---------------------------------------------------------------------------------
+**Below is a content of the <code>README.md</code> file that will be added to your project.**
 
-## Paid support
+**This table will be removed during installation.**
 
-We provide paid support for DrevOps:
-- New and existing project onboarding.
-- Support plans with SLAs.
-- Priority feature implementation.
-- Updates to the latest version of the platform.
-- DevOps consulting and custom implementations.
-
-Contact us at [support@drevops.com](mailto:support@drevops.com)
-
---------------------------------------------------------------------------------
-**Below is a content of the `README.md` file that will be added to your project.**
-
-**All content above this line will be automatically removed during installation.**
+</td></tr></table>
+<br/>
 
 [//]: # (#;> DREVOPS_DEV)
 # YOURSITE
