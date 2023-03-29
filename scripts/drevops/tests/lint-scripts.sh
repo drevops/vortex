@@ -8,12 +8,19 @@ set -e
 
 CUR_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")")"
 
-if [ -d "${CUR_DIR}/scripts/drevops/tests" ]; then
+if [ -d "${CUR_DIR}/scripts/drevops/installer/tests" ]; then
   echo "==> Linting installer script and tests."
+  pushd "${CUR_DIR}/scripts/drevops/installer" >/dev/null || exit 1
+  [ ! -f "vendor/bin/phpcs" ] && composer install
+  composer lint
+  popd >/dev/null || exit 1
+fi
+
+if [ -d "${CUR_DIR}/scripts/drevops/tests" ]; then
+  echo "==> Linting other scripts and tests."
   pushd "${CUR_DIR}/scripts/drevops/tests" >/dev/null || exit 1
   [ ! -f "vendor/bin/phpcs" ] && composer install
-  vendor/bin/phpcs -s --standard=Drupal ../../../scripts/drevops/installer/install.php
-  vendor/bin/phpcs -s --standard=Drupal unit
+  composer lint
   popd >/dev/null || exit 1
 fi
 

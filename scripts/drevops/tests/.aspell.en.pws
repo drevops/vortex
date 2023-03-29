@@ -45,6 +45,8 @@ SCSS
 SHA
 SLAs
 SemVer
+Ssl
+SsL
 TBD
 UAT
 UI
@@ -73,8 +75,10 @@ hostname
 integrations
 io
 mariadb
+md
 npm
 onboarding
+php
 pre
 readme
 runtime

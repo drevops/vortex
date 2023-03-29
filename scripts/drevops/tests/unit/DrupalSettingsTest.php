@@ -451,11 +451,10 @@ class DrupalSettingsTest extends DrupalTestCase {
               'database' => 'drupal',
               'username' => 'drupal',
               'password' => 'drupal',
-              // Special case: depending on how settings.generated.php was
-              // created, this value can vary.
+              // Special case: this value can vary depending on how
+              // settings.generated.php was created - MYSQL_HOST variable could
+              // have been set during creation.
               // @see Utilities\composer\DrupalSettings::getDefaultDrupalSettingsContent()
-              // @todo Refactor this to make defaults decoupled from
-              // the generation method.
               'host' => 'localhost',
               'port' => '',
               'driver' => 'mysql',

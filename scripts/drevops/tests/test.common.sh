@@ -18,15 +18,24 @@ echo "==> Run unit tests."
 if [ ! -d "./vendor" ]; then
   echo "  > Install root Composer dependencies."
   composer install --ignore-platform-reqs --no-interaction --prefer-source
-  composer run post-install-cmd
 fi
+rm web/sites/default/settings.generated.php || true
+MYSQL_HOST=localhost composer run post-install-cmd
+
+pushd "${TEST_DIR}/../installer" || exit 1
+if [ ! -d "./vendor" ]; then
+  echo "  > Install Installer test Composer dependencies."
+  composer install -n --ansi
+fi
+composer test
+popd || exit 1
 
 pushd "${TEST_DIR}" || exit 1
 if [ ! -d "./vendor" ]; then
   echo "  > Install test Composer dependencies."
   composer install -n --ansi
 fi
-vendor/bin/phpunit unit
+composer test
 popd || exit 1
 
 echo "==> Lint scripts code."
