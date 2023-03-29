@@ -1,7 +1,10 @@
 {
-    "name": "drevops/drevops-tests",
-    "description": "DrevOps tests.",
+    "name": "drevops/drevops-installer",
+    "description": "DrevOps installer",
     "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8"
+    },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
         "drupal/coder": "^8.2.12",
@@ -10,7 +13,7 @@
     },
     "autoload-dev": {
         "classmap": [
-            "unit"
+            "tests/unit"
         ]
     },
     "config": {
@@ -24,7 +27,7 @@
         }
     },
     "scripts": {
-        "lint": "phpcs -s --standard=Drupal unit",
-        "test": "phpunit unit"
+        "lint": "phpcs -s --standard=Drupal install.php tests",
+        "test": "phpunit tests"
     }
 }
