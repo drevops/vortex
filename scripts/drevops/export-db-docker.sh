@@ -23,9 +23,9 @@ DREVOPS_DB_EXPORT_DOCKER_DIR="${DREVOPS_DB_EXPORT_DOCKER_DIR:-${DREVOPS_DB_DIR}}
 
 # ------------------------------------------------------------------------------
 
-echo "INFO Started Docker database image export."
+echo "[INFO] Started Docker database image export."
 
-[ -z "${DREVOPS_DB_EXPORT_DOCKER_IMAGE}" ] && echo "ERROR Destination image name is not specified. Please provide docker image as a variable DREVOPS_DB_EXPORT_DOCKER_IMAGE in a format <org>/<repository>." && exit 1
+[ -z "${DREVOPS_DB_EXPORT_DOCKER_IMAGE}" ] && echo "[ERROR] Destination image name is not specified. Please provide docker image as a variable DREVOPS_DB_EXPORT_DOCKER_IMAGE in a format <org>/<repository>." && exit 1
 
 cid="$(docker-compose ps -q "${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME}")"
 echo "     > Found \"${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME}\" service container with id \"${cid}\"."
@@ -54,7 +54,7 @@ docker save -o "${archive_file}" "${new_image}"
 if [ -f "${archive_file}" ] && [ -s "${archive_file}" ]; then
   echo "     > Exported database image archive file saved \"${archive_file}\"."
 else
-  echo "ERROR Unable to save database image archive file \"${archive_file}\"." && exit 1
+  echo "[ERROR] Unable to save database image archive file \"${archive_file}\"." && exit 1
 fi
 
-echo "  OK Finished Docker database image export."
+echo "  [OK] Finished Docker database image export."

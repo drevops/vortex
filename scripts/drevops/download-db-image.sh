@@ -19,9 +19,9 @@ DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY
 DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY:-${DREVOPS_DOCKER_REGISTRY:-docker.io}}"
 
 #-------------------------------------------------------------------------------
-echo "INFO Started Docker data image download."
+echo "[INFO] Started Docker data image download."
 
-[ -z "${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE}" ] && echo "ERROR Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
+[ -z "${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE}" ] && echo "[ERROR] Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
 
 export DREVOPS_DOCKER_REGISTRY_USERNAME="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_USERNAME}"
 export DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN}"
@@ -30,4 +30,4 @@ export DREVOPS_DOCKER_REGISTRY="${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY}"
 
 docker pull "${DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY}/${DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE}"
 
-echo "  OK Finished Docker data image download."
+echo "  [OK] Finished Docker data image download."

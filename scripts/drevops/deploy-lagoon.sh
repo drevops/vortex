@@ -60,11 +60,11 @@ DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSION="${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSI
 
 # ------------------------------------------------------------------------------
 
-echo "INFO Started LAGOON deployment."
+echo "[INFO] Started LAGOON deployment."
 
 ## Check all required values.
-[ -z "${DREVOPS_DEPLOY_LAGOON_PROJECT}" ] && echo "ERROR Missing required value for DREVOPS_DEPLOY_LAGOON_PROJECT." && exit 1
-{ [ -z "${DREVOPS_DEPLOY_LAGOON_BRANCH}" ] && [ -z "${DREVOPS_DEPLOY_LAGOON_PR}" ]; } && echo "ERROR Missing required value for DREVOPS_DEPLOY_LAGOON_BRANCH or DREVOPS_DEPLOY_LAGOON_PR." && exit 1
+[ -z "${DREVOPS_DEPLOY_LAGOON_PROJECT}" ] && echo "[ERROR] Missing required value for DREVOPS_DEPLOY_LAGOON_PROJECT." && exit 1
+{ [ -z "${DREVOPS_DEPLOY_LAGOON_BRANCH}" ] && [ -z "${DREVOPS_DEPLOY_LAGOON_PR}" ]; } && echo "[ERROR] Missing required value for DREVOPS_DEPLOY_LAGOON_BRANCH or DREVOPS_DEPLOY_LAGOON_PR." && exit 1
 
 # Use custom deploy key if fingerprint is provided.
 if [ -n "${DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT}" ]; then
@@ -73,7 +73,7 @@ if [ -n "${DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT}" ]; then
   DREVOPS_DEPLOY_LAGOON_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_LAGOON_SSH_FILE//\"}"
 fi
 
-[ ! -f "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" ] && echo "ERROR SSH key file ${DREVOPS_DEPLOY_LAGOON_SSH_FILE} does not exist." && exit 1
+[ ! -f "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_DEPLOY_LAGOON_SSH_FILE} does not exist." && exit 1
 
 if ssh-add -l | grep -q "${DREVOPS_DEPLOY_LAGOON_SSH_FILE}"; then
   echo "     > SSH agent has ${DREVOPS_DEPLOY_LAGOON_SSH_FILE} key loaded."
@@ -223,4 +223,4 @@ else
   fi
 fi
 
-echo "  OK Finished LAGOON deployment."
+echo "  [OK] Finished LAGOON deployment."

@@ -22,7 +22,7 @@ $branch = $argv[3] ?? NULL;
 $url = $argv[4] ?? NULL;
 
 if (empty($site_name) || empty($from_email) || empty($to_emails) || empty($branch) || empty($url)) {
-  print 'ERROR One of the required parameters is empty.';
+  print '[ERROR] One of the required parameters is empty.';
   exit;
 }
 

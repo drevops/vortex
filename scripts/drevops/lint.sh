@@ -36,9 +36,9 @@ DREVOPS_DRUPAL_THEME="${DREVOPS_DRUPAL_THEME:-}"
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
 # ------------------------------------------------------------------------------
-echo "INFO Linting code."
+echo "[INFO] Linting code."
 
-[ -n "${DREVOPS_LINT_SKIP}" ] && echo "  OK Skipping code linting" && exit 0
+[ -n "${DREVOPS_LINT_SKIP}" ] && echo "  [OK] Skipping code linting" && exit 0
 
 # Provide argument as 'be' or 'fe' to lint only back-end or front-end code.
 # If no argument is provided, all code will be linted.
@@ -47,13 +47,13 @@ DREVOPS_LINT_TYPE="${1:-be-fe}"
 if [ -z "${DREVOPS_LINT_TYPE##*be*}" ]; then
   vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${DREVOPS_LINT_PHPLINT_EXTENSIONS// /} ${DREVOPS_LINT_PHPLINT_TARGETS//,/ } \
   && vendor/bin/phpcs ${DREVOPS_LINT_PHPCS_TARGETS//,/ } \
-  && echo "  OK Back-end code linted successfully." \
+  && echo "  [OK] Back-end code linted successfully." \
   || [ "${DREVOPS_LINT_BE_ALLOW_FAILURE}" -eq 1 ]
 fi
 
 if [ -z "${DREVOPS_LINT_TYPE##*fe*}" ] && [ -n "${DREVOPS_DRUPAL_THEME}" ] && grep -q lint "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}/package.json"; then
   # Lint code using front-end linter.
   npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint \
-  && echo "  OK Front-end code linted successfully." \
+  && echo "  [OK] Front-end code linted successfully." \
   || [ "${DREVOPS_LINT_FE_ALLOW_FAILURE}" -eq 1 ]
 fi

@@ -54,7 +54,7 @@ DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION="${DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION:-
 
 # ------------------------------------------------------------------------------
 
-echo "INFO Started LAGOON task $DREVOPS_TASK_LAGOON_NAME."
+echo "[INFO] Started LAGOON task $DREVOPS_TASK_LAGOON_NAME."
 
 ## Check all required values.
 [ -z "${DREVOPS_TASK_LAGOON_NAME}" ] && echo "Missing required value for DREVOPS_TASK_LAGOON_NAME." && exit 1
@@ -69,7 +69,7 @@ if [ -n "${DREVOPS_TASK_SSH_FINGERPRINT}" ]; then
   DREVOPS_TASK_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_TASK_SSH_FILE//\"}"
 fi
 
-[ ! -f "${DREVOPS_TASK_SSH_FILE}" ] && echo "ERROR SSH key file ${DREVOPS_TASK_SSH_FILE} does not exist." && exit 1
+[ ! -f "${DREVOPS_TASK_SSH_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_TASK_SSH_FILE} does not exist." && exit 1
 
 if ssh-add -l | grep -q "${DREVOPS_TASK_SSH_FILE}"; then
   echo "     > SSH agent has ${DREVOPS_TASK_SSH_FILE} key loaded."
@@ -106,4 +106,4 @@ lagoon config add --force -l "${DREVOPS_TASK_LAGOON_INSTANCE}" -g "${DREVOPS_TAS
 echo "     > Creating $DREVOPS_TASK_LAGOON_NAME task: project ${DREVOPS_TASK_LAGOON_PROJECT}, branch: ${DREVOPS_TASK_LAGOON_BRANCH}."
 lagoon --force --skip-update-check -i "${DREVOPS_TASK_SSH_FILE}" -l "${DREVOPS_TASK_LAGOON_INSTANCE}" run custom -p "${DREVOPS_TASK_LAGOON_PROJECT}" -e "${DREVOPS_TASK_LAGOON_BRANCH}" -N "${DREVOPS_TASK_LAGOON_NAME}" -c "${DREVOPS_TASK_LAGOON_COMMAND}"
 
-echo "  OK Finished LAGOON task $DREVOPS_TASK_LAGOON_NAME."
+echo "  [OK] Finished LAGOON task $DREVOPS_TASK_LAGOON_NAME."
