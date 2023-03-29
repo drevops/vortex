@@ -68,22 +68,22 @@ DREVOPS_DOCTOR_SSH_KEY_FILE="${DREVOPS_DOCTOR_SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}
 main() {
   [ "$1" = "info" ] && system_info && exit
 
-  echo "INFO Checking project requirements"
+  echo "[INFO] Checking project requirements"
 
   if [ "${DREVOPS_DOCTOR_CHECK_TOOLS}" = "1" ]; then
-    [ "$(command_exists docker)" = "1" ] && echo "ERROR Please install Docker (https://www.docker.com/get-started)." && exit 1
-    [ "$(command_exists docker-compose)" = "1" ] && echo "ERROR Please install docker-compose (https://docs.docker.com/compose/install/)." && exit 1
-    [ "$(command_exists pygmy)" = "1" ] && echo "ERROR Please install Pygmy (https://pygmy.readthedocs.io/)." && exit 1
-    [ "$(command_exists ahoy)" = "1" ] && echo "ERROR Please install Ahoy (https://ahoy-cli.readthedocs.io/)." && exit 1
-    echo "  OK All required tools are present."
+    [ "$(command_exists docker)" = "1" ] && echo "[ERROR] Please install Docker (https://www.docker.com/get-started)." && exit 1
+    [ "$(command_exists docker-compose)" = "1" ] && echo "[ERROR] Please install docker-compose (https://docs.docker.com/compose/install/)." && exit 1
+    [ "$(command_exists pygmy)" = "1" ] && echo "[ERROR] Please install Pygmy (https://pygmy.readthedocs.io/)." && exit 1
+    [ "$(command_exists ahoy)" = "1" ] && echo "[ERROR] Please install Ahoy (https://ahoy-cli.readthedocs.io/)." && exit 1
+    echo "  [OK] All required tools are present."
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_PORT}" = "1" ] && [ "${OSTYPE}" != "linux-gnu" ]; then
     if lsof -i :80 | grep -v 'CLOSED' | grep 'LISTEN' | grep -vq 'om.docke'; then
-      echo "ERROR Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'."
+      echo "[ERROR] Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'."
       exit 1
     fi
-    echo "  OK Port 80 is available."
+    echo "  [OK] Port 80 is available."
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_PYGMY}" = "1" ]; then
@@ -97,11 +97,11 @@ main() {
 
     for pygmy_service in "${pygmy_services[@]}"; do
       if ! echo "$pygmy_status" | grep -q "${pygmy_service}: Running"; then
-        echo "ERROR Pygmy service ${pygmy_service} is not running. Run 'pygmy up' or 'pygmy restart' to fix."
+        echo "[ERROR] Pygmy service ${pygmy_service} is not running. Run 'pygmy up' or 'pygmy restart' to fix."
         exit 1
       fi
     done
-    echo "  OK Pygmy is running."
+    echo "  [OK] Pygmy is running."
   fi
 
   # Check that the stack is running.
@@ -110,13 +110,13 @@ main() {
     for docker_service in "${docker_services[@]}"; do
       # shellcheck disable=SC2143
       if [ -z "$(docker-compose ps -q "${docker_service}")" ] || [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q "${docker_service}")")" ]; then
-        echo "ERROR ${docker_service} container is not running."
+        echo "[ERROR] ${docker_service} container is not running."
         echo "      Run 'ahoy up'."
         echo "      Run 'ahoy logs ${docker_service}' to see error logs."
         exit 1
       fi
     done
-    echo "  OK All containers are running"
+    echo "  [OK] All containers are running"
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_SSH}" = "1" ]; then
@@ -166,29 +166,29 @@ main() {
       ssh_key_added=0
     fi
 
-    [ "${ssh_key_added}" = "1" ] && echo "  OK SSH key is available within CLI container."
+    [ "${ssh_key_added}" = "1" ] && echo "  [OK] SSH key is available within CLI container."
   fi
 
   if [ -n "${DREVOPS_DOCTOR_LOCALDEV_URL}" ]; then
     if [ "${DREVOPS_DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
       # Depending on the type of installation, the homepage may return 200 or 403.
       if ! curl -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_DOCTOR_LOCALDEV_URL}" | grep -q '200\|403'; then
-        echo "ERROR Web server is not accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
+        echo "[ERROR] Web server is not accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
         exit 1
       fi
-      echo "  OK Web server is running and accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
+      echo "  [OK] Web server is running and accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
     fi
 
     if [ "${DREVOPS_DOCTOR_CHECK_BOOTSTRAP}" = "1" ]; then
       if ! curl -L -s -N "${DREVOPS_DOCTOR_LOCALDEV_URL}" | grep -q -i "charset="; then
-        echo "ERROR Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
+        echo "[ERROR] Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
         exit 1
       fi
-      echo "  OK Successfully bootstrapped website at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
+      echo "  [OK] Successfully bootstrapped website at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
     fi
   fi
 
-  echo "  OK All required checks have passed."
+  echo "  [OK] All required checks have passed."
   echo
 }
 

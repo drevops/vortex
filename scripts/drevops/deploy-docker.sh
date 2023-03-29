@@ -27,7 +27,7 @@ DREVOPS_DEPLOY_DOCKER_IMAGE_TAG="${DREVOPS_DEPLOY_DOCKER_IMAGE_TAG:-latest}"
 
 # ------------------------------------------------------------------------------
 
-echo "INFO Started DOCKER deployment."
+echo "[INFO] Started DOCKER deployment."
 
 # Only deploy if the map was provided, but do not fail if it has not as this
 # may be called as a part of another task.
@@ -40,7 +40,7 @@ images=()
 IFS=',' read -r -a values <<< "${DREVOPS_DEPLOY_DOCKER_MAP}"
 for value in "${values[@]}"; do
   IFS='=' read -r -a parts <<< "${value}"
-  [ "${#parts[@]}" -ne 2 ] && echo "ERROR invalid key/value pair \"${value}\" provided." && exit 1
+  [ "${#parts[@]}" -ne 2 ] && echo "[ERROR] invalid key/value pair \"${value}\" provided." && exit 1
   services+=("${parts[0]}")
   images+=("${parts[1]}")
 done
@@ -59,7 +59,7 @@ for key in "${!services[@]}"; do
   # Check if the service is running.)
   cid=$(docker-compose ps -q "${service}")
 
-  [ -z "${cid}" ] && echo "ERROR Service \"${service}\" is not running." && exit 1
+  [ -z "${cid}" ] && echo "[ERROR] Service \"${service}\" is not running." && exit 1
   echo "     > Found \"${service}\" service container with id \"${cid}\"."
 
   [ -n "${image##*:*}" ] && image="${image}:${DREVOPS_DEPLOY_DOCKER_IMAGE_TAG}"
@@ -74,4 +74,4 @@ for key in "${!services[@]}"; do
   docker push "${new_image}"
 done
 
-echo "  OK Finished DOCKER deployment."
+echo "  [OK] Finished DOCKER deployment."

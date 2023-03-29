@@ -15,7 +15,7 @@ DREVOPS_DB_EXPORT_FILE_DIR="${DREVOPS_DB_DIR:-${DREVOPS_DB_DIR}}"
 
 # ------------------------------------------------------------------------------
 
-echo "INFO Started database file export."
+echo "[INFO] Started database file export."
 
 # Use local or global Drush.
 drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
@@ -36,7 +36,7 @@ $drush sql-dump --skip-tables-key=common --extra-dump=--no-tablespaces --result-
 if [ -f "${dump_file}" ] && [ -s "${dump_file}" ]; then
   echo "     > Exported database dump saved ${dump_file}."
 else
-  echo "ERROR Unable to save dump file ${dump_file}." && exit 1
+  echo "[ERROR] Unable to save dump file ${dump_file}." && exit 1
 fi
 
-echo "  OK Finished database file export."
+echo "  [OK] Finished database file export."

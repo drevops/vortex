@@ -40,12 +40,12 @@ DREVOPS_DEPLOY_SKIP="${DREVOPS_DEPLOY_SKIP:-}"
 
 # ------------------------------------------------------------------------------
 
-echo "INFO Started deployment."
+echo "[INFO] Started deployment."
 
-[ -z "${DREVOPS_DEPLOY_TYPE}" ] && echo "ERROR Missing required value for DREVOPS_DEPLOY_TYPE. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
+[ -z "${DREVOPS_DEPLOY_TYPE}" ] && echo "[ERROR] Missing required value for DREVOPS_DEPLOY_TYPE. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
 
 if [ "${DREVOPS_DEPLOY_PROCEED}" != "1" ]; then
-  echo "DREVOPS_DEPLOY_PROCEED is not set to 1." && echo "  OK Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
+  echo "DREVOPS_DEPLOY_PROCEED is not set to 1." && echo "  [OK] Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
 fi
 
 if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
@@ -62,7 +62,7 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
     pr_skip_var="DREVOPS_DEPLOY_SKIP_PR_${DREVOPS_DEPLOY_PR}"
     if [ -n "${!pr_skip_var}" ]; then
       echo "     > Found skip variable ${pr_skip_var} for PR ${DREVOPS_DEPLOY_PR}."
-      echo "  OK Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
+      echo "  [OK] Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
     fi
   fi
 
@@ -80,7 +80,7 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
     branch_skip_var="DREVOPS_DEPLOY_SKIP_BRANCH_${safe_branch_name}"
     if [ -n "${!branch_skip_var}" ]; then
       echo "     > Found skip variable ${branch_skip_var} for branch ${DREVOPS_DEPLOY_BRANCH}."
-      echo "  OK Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
+      echo "  [OK] Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
     fi
   fi
 fi
@@ -114,4 +114,4 @@ if [ -z "${DREVOPS_DEPLOY_TYPE##*lagoon*}" ]; then
   ./scripts/drevops/deploy-lagoon.sh
 fi
 
-echo "  OK Finished deployment."
+echo "  [OK] Finished deployment."

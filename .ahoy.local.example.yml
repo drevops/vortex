@@ -5,7 +5,7 @@ usage: Project specific ahoy commands.
 commands:
   help:
     cmd: |
-      echo "INFO Custom local commands"
+      echo "[INFO] Custom local commands"
       echo "You may add custom local commands to your toolchain. This local Ahoy file will not be comitted to the repository"
       echo
 

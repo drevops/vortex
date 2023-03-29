@@ -47,7 +47,7 @@ DREVOPS_DEPLOY_ARTIFACT_GIT_BRANCH="${DREVOPS_DEPLOY_ARTIFACT_GIT_BRANCH:-[branc
 
 # ------------------------------------------------------------------------------
 
-echo "INFO Started ARTIFACT deployment."
+echo "[INFO] Started ARTIFACT deployment."
 
 # Check all required values.
 [ -z "${DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE}" ] && echo "Missing required value for DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE." && exit 1
@@ -69,7 +69,7 @@ if [ -n "${DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT}" ]; then
   DREVOPS_DEPLOY_ARTIFACT_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE//\"}"
 fi
 
-[ ! -f "${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE}" ] && echo "ERROR SSH key file ${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE} does not exist." && exit 1
+[ ! -f "${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE} does not exist." && exit 1
 
 if ssh-add -l | grep -q "${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE}"; then
   echo "     > SSH agent has ${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE} key loaded."
@@ -103,4 +103,4 @@ echo "     > Running artifact builder."
   --report="${DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE}" \
   --push
 
-echo "  OK Finished ARTIFACT deployment."
+echo "  [OK] Finished ARTIFACT deployment."

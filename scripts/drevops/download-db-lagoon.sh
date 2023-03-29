@@ -71,7 +71,7 @@ DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
 #-------------------------------------------------------------------------------
 
-echo "INFO Started database dump download from Lagoon."
+echo "[INFO] Started database dump download from Lagoon."
 
 # Try to read credentials from the credentials file.
 if [ -f ".env.local" ]; then
@@ -85,7 +85,7 @@ if [ -n "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT}" ]; then
   DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT//:}"
   DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE//\"}"
 
-  [ ! -f "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}" ] && echo "ERROR SSH key file ${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE} does not exist." && exit 1
+  [ ! -f "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE} does not exist." && exit 1
 
   if ssh-add -l | grep -q "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}"; then
     echo "     > SSH agent has ${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE} key loaded."
@@ -122,4 +122,4 @@ ssh_opts_string="${ssh_opts[@]}"
 rsync_opts=(-e "ssh $ssh_opts_string")
 rsync "${rsync_opts[@]}" "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER}@${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST}":"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}"/"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}" "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 
-echo "  OK Finished database dump download from Lagoon."
+echo "  [OK] Finished database dump download from Lagoon."

@@ -44,13 +44,13 @@ DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 # ------------------------------------------------------------------------------
 
-echo "INFO Started database download."
+echo "[INFO] Started database download."
 
 # Kill-switch to proceed with download.
-[ "${DREVOPS_DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "  OK Skipping database download as $DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
+[ "${DREVOPS_DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "  [OK] Skipping database download as $DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
 # Check provided download type.
-[ -z "${DREVOPS_DB_DOWNLOAD_SOURCE}" ] && echo "ERROR Missing required value for DREVOPS_DB_DOWNLOAD_SOURCE. Must be one of: ftp, curl, acquia, lagoon, docker_registry." && exit 1
+[ -z "${DREVOPS_DB_DOWNLOAD_SOURCE}" ] && echo "[ERROR] Missing required value for DREVOPS_DB_DOWNLOAD_SOURCE. Must be one of: ftp, curl, acquia, lagoon, docker_registry." && exit 1
 
 # Check if database file exists.
 # @todo: Implement better support based on $DREVOPS_DB_FILE.
@@ -104,12 +104,12 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "docker_registry" ]; then
   ./scripts/drevops/download-db-image.sh
 fi
 
-echo "  OK Downloaded database dump file in ${DREVOPS_DB_DIR}."
+echo "  [OK] Downloaded database dump file in ${DREVOPS_DB_DIR}."
 
 ls -Alh "${DREVOPS_DB_DIR}"
 
 if [ -n "${DREVOPS_DB_DOWNLOAD_POST_PROCESS}" ]; then
-  echo "INFO Started running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
+  echo "[INFO] Started running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
   eval "${DREVOPS_DB_DOWNLOAD_POST_PROCESS}"
-  echo "  OK Finished Running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
+  echo "  [OK] Finished Running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
 fi

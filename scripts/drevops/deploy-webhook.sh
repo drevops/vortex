@@ -19,20 +19,20 @@ DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS=${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS:
 
 # ------------------------------------------------------------------------------
 
-echo "INFO Started WEBHOOK deployment."
+echo "[INFO] Started WEBHOOK deployment."
 
 # Check all required values.
-[ -z "${DREVOPS_DEPLOY_WEBHOOK_URL}" ] && echo "ERROR Missing required value for DREVOPS_DEPLOY_WEBHOOK_URL." && exit 1
-[ -z "${DREVOPS_DEPLOY_WEBHOOK_METHOD}" ] && echo "ERROR Missing required value for DREVOPS_DEPLOY_WEBHOOK_METHOD." && exit 1
-[ -z "${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS}" ] && echo "ERROR Missing required value for DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS." && exit 1
+[ -z "${DREVOPS_DEPLOY_WEBHOOK_URL}" ] && echo "[ERROR] Missing required value for DREVOPS_DEPLOY_WEBHOOK_URL." && exit 1
+[ -z "${DREVOPS_DEPLOY_WEBHOOK_METHOD}" ] && echo "[ERROR] Missing required value for DREVOPS_DEPLOY_WEBHOOK_METHOD." && exit 1
+[ -z "${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS}" ] && echo "[ERROR] Missing required value for DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS." && exit 1
 
 if curl -X "${DREVOPS_DEPLOY_WEBHOOK_METHOD}" -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_DEPLOY_WEBHOOK_URL}" | grep -q "${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS}"; then
   # Note that we do not output ${DREVOPS_DEPLOY_WEBHOOK_URL} as it may contain
   # secrets that would be printed to the terminal.
   echo "     > Successfully called webhook."
 else
-  echo "ERROR Webhook deployment failed."
+  echo "[ERROR] Webhook deployment failed."
   exit 1
 fi
 
-echo "  OK Finished WEBHOOK deployment."
+echo "  [OK] Finished WEBHOOK deployment."

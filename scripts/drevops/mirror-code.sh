@@ -31,14 +31,14 @@ DREVOPS_MIRROR_CODE_GIT_USER_EMAIL="${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL:-}"
 
 # ------------------------------------------------------------------------------
 
-echo "INFO Started code mirroring."
+echo "[INFO] Started code mirroring."
 
 # Check all required values.
-[ -z "${DREVOPS_MIRROR_CODE_BRANCH_SRC}" ] && echo "ERROR Missing required value for DREVOPS_MIRROR_CODE_BRANCH_SRC." && exit 1
-[ -z "${DREVOPS_MIRROR_CODE_BRANCH_DST}" ] && echo "ERROR Missing required value for DREVOPS_MIRROR_CODE_BRANCH_SRC_REMOTE." && exit 1
-[ -z "${DREVOPS_MIRROR_CODE_REMOTE_DST}" ] && echo "ERROR Missing required value for DREVOPS_MIRROR_CODE_REMOTE_DST." && exit 1
-[ -z "${DREVOPS_MIRROR_CODE_GIT_USER_NAME}" ] && echo "ERROR Missing required value for DREVOPS_MIRROR_CODE_USER_NAME." && exit 1
-[ -z "${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL}" ] && echo "ERROR Missing required value for DREVOPS_MIRROR_CODE_GIT_USER_EMAIL." && exit 1
+[ -z "${DREVOPS_MIRROR_CODE_BRANCH_SRC}" ] && echo "[ERROR] Missing required value for DREVOPS_MIRROR_CODE_BRANCH_SRC." && exit 1
+[ -z "${DREVOPS_MIRROR_CODE_BRANCH_DST}" ] && echo "[ERROR] Missing required value for DREVOPS_MIRROR_CODE_BRANCH_SRC_REMOTE." && exit 1
+[ -z "${DREVOPS_MIRROR_CODE_REMOTE_DST}" ] && echo "[ERROR] Missing required value for DREVOPS_MIRROR_CODE_REMOTE_DST." && exit 1
+[ -z "${DREVOPS_MIRROR_CODE_GIT_USER_NAME}" ] && echo "[ERROR] Missing required value for DREVOPS_MIRROR_CODE_USER_NAME." && exit 1
+[ -z "${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL}" ] && echo "[ERROR] Missing required value for DREVOPS_MIRROR_CODE_GIT_USER_EMAIL." && exit 1
 
 # Configure global git settings, if they do not exist.
 [ "$(git config --global user.name)" == "" ] && echo "     > Configuring global git user name." && git config --global user.name "${DREVOPS_MIRROR_CODE_GIT_USER_NAME}"
@@ -51,7 +51,7 @@ if [ -n "${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT}" ]; then
   DREVOPS_MIRROR_CODE_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_MIRROR_CODE_SSH_FILE//\"}"
 fi
 
-[ ! -f "${DREVOPS_MIRROR_CODE_SSH_FILE}" ] && echo "ERROR SSH key file ${DREVOPS_MIRROR_CODE_SSH_FILE} does not exist." && exit 1
+[ ! -f "${DREVOPS_MIRROR_CODE_SSH_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_MIRROR_CODE_SSH_FILE} does not exist." && exit 1
 
 if ssh-add -l | grep -q "${DREVOPS_MIRROR_CODE_SSH_FILE}"; then
   echo "     > SSH agent has ${DREVOPS_MIRROR_CODE_SSH_FILE} key loaded."
@@ -89,4 +89,4 @@ fi
 
 popd >/dev/null || exit 1
 
-echo "  OK Finished code mirroring."
+echo "  [OK] Finished code mirroring."
