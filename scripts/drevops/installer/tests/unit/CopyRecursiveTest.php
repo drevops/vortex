@@ -1,6 +1,6 @@
 <?php
 
-namespace Drevops\Tests;
+namespace Drevops\Installer\Tests\Unit;
 
 /**
  * Class InstallerCopyRecursiveTest.
@@ -10,7 +10,7 @@ namespace Drevops\Tests;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class InstallerCopyRecursiveTest extends InstallerTestCase {
+class CopyRecursiveTest extends UnitTestBase {
 
   public function setUp():void {
     parent::setUp();
@@ -51,7 +51,7 @@ class InstallerCopyRecursiveTest extends InstallerTestCase {
     $this->assertTrue(is_link($dir . 'dir/subdir_link'));
     $this->assertTrue(is_dir($dir . 'dir/subdir_link'));
 
-    $this->assertDirectoryNotExists($dir . 'emptydir');
+    $this->assertDirectoryDoesNotExist($dir . 'emptydir');
   }
 
 }
