@@ -1,6 +1,6 @@
 <?php
 
-namespace Drevops\Tests;
+namespace Drevops\Installer\Tests\Unit;
 
 /**
  * Class InstallerHelpersTest.
@@ -10,7 +10,7 @@ namespace Drevops\Tests;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class InstallerHelpersTest extends InstallerTestCase {
+class HelpersTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderToHumanName
@@ -20,7 +20,7 @@ class InstallerHelpersTest extends InstallerTestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public function dataProviderToHumanName() {
+  public static function dataProviderToHumanName() {
     return [
       ['', ''],
       [' ', ''],
@@ -46,7 +46,7 @@ class InstallerHelpersTest extends InstallerTestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public function dataProviderToMachineName() {
+  public static function dataProviderToMachineName() {
     return [
       ['', [], ''],
       [' ', [], '_'],
@@ -86,7 +86,7 @@ class InstallerHelpersTest extends InstallerTestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public function dataProviderToCamelCase() {
+  public static function dataProviderToCamelCase() {
     return [
       ['', FALSE, ''],
       [' ', FALSE, ''],
