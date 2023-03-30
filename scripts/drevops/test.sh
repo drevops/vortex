@@ -150,9 +150,8 @@ if [ -z "${DREVOPS_TEST_TYPE##*bdd*}" ]; then
 
   # Use parallel Behat profile if using more than a single node to run tests.
   if [ -n "${DREVOPS_TEST_BEHAT_PARALLEL_INDEX}" ] ; then
-    # Allow to have flexible profile name based on index.
-    DREVOPS_TEST_BEHAT_PROFILE="${DREVOPS_TEST_BEHAT_PROFILE:-p}${DREVOPS_TEST_BEHAT_PARALLEL_INDEX}"
-    echo "==> Running using profile \"${DREVOPS_TEST_BEHAT_PROFILE}\"."
+    DREVOPS_TEST_BEHAT_PROFILE="p${DREVOPS_TEST_BEHAT_PARALLEL_INDEX}"
+    echo "     > Using Behat profile \"${DREVOPS_TEST_BEHAT_PROFILE}\"."
   fi
 
   behat_opts=(
