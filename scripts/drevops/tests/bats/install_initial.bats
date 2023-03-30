@@ -20,7 +20,7 @@ load _helper.bash
 @test "Install into empty directory: DREVOPS_INSTALL_DST_DIR from an argument" {
   run_install_quiet "${DST_PROJECT_DIR}"
 
-  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds"
+  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
 }
 
@@ -28,7 +28,7 @@ load _helper.bash
   export DREVOPS_INSTALL_DST_DIR="${DST_PROJECT_DIR}"
   run_install_quiet
 
-  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds"
+  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
 }
 
@@ -37,7 +37,7 @@ load _helper.bash
 
   run_install_quiet
 
-  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "tm" "Tm"
+  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "tm" "Tm" "TheMatrix"
   assert_git_repo
 }
 
@@ -46,7 +46,7 @@ load _helper.bash
 
   run_install_quiet
 
-  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "tm" "Tm"
+  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "tm" "Tm" "TheMatrix"
   assert_git_repo
 }
 
@@ -236,7 +236,7 @@ load _helper.bash
 @test "Install into empty directory; DrevOps scripts are not modified" {
   run_install_quiet "${DST_PROJECT_DIR}"
 
-  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds"
+  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
 
   assert_dirs_equal "${LOCAL_REPO_DIR}/scripts/composer" "${DST_PROJECT_DIR}/scripts/composer"
@@ -246,7 +246,7 @@ load _helper.bash
 @test "Install into empty directory; Images are not modified" {
   run_install_quiet "${DST_PROJECT_DIR}"
 
-  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds"
+  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
 
   assert_binary_files_equal "${LOCAL_REPO_DIR}/tests/behat/fixtures/image.jpg" "${DST_PROJECT_DIR}/tests/behat/fixtures/image.jpg"

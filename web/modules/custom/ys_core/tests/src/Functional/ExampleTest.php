@@ -3,13 +3,16 @@
 namespace Drupal\Tests\ys_core\Functional;
 
 /**
- * Class YsCoreExampleFunctionalTest.
+ * Class ExampleTest.
  *
- * Example test case class.
+ * Example functional test case class.
  *
  * @group YsCore
+ * @group site:functional
+ *
+ * @package Drupal\ys_core\Tests
  */
-class YsCoreExampleFunctionalTest extends YsCoreFunctionalTestBase {
+class ExampleTest extends YsCoreFunctionalTestBase {
 
   /**
    * {@inheritdoc}
@@ -37,7 +40,7 @@ class YsCoreExampleFunctionalTest extends YsCoreFunctionalTestBase {
   /**
    * Temporary test stub.
    *
-   * @group subtraction
+   * @group functional:subtraction
    */
   public function testSubtraction() {
     $this->assertEquals(1, 2 - 1);

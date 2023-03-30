@@ -22,7 +22,7 @@ prepare_sut() {
   export DREVOPS_WEBROOT="${webroot}"
   run_install_quiet
 
-  assert_files_present_common "" "" "" "" "${webroot}"
+  assert_files_present_common "" "" "" "" "" "${webroot}"
   assert_files_present_no_install_from_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia "" "" "${webroot}"
@@ -120,7 +120,7 @@ assert_ahoy_build() {
   fi
 
   # Assert the presence of files from the default configuration.
-  assert_files_present_common "" "" "" "" "${webroot}"
+  assert_files_present_common "" "" "" "" "" "${webroot}"
   assert_files_present_no_install_from_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia "" "" "${webroot}"
@@ -365,41 +365,48 @@ assert_ahoy_test_unit() {
   substep "Run all Unit tests"
   run ahoy test-unit
   assert_success
+  assert_output_contains "Unit tests for scripts passed"
   assert_output_contains "OK (5 tests, 5 assertions)"
-  assert_output_contains "Unit tests passed"
+  assert_output_contains "Unit tests for modules passed"
+  assert_output_contains "OK (7 tests, 7 assertions)"
+  assert_output_contains "Unit tests for themes passed"
+  assert_dir_not_empty "test_reports"
+  assert_file_exists "test_reports/phpunit/unit.xml"
+  assert_file_exists "test_reports/phpunit/unit_modules.xml"
+  assert_file_exists "test_reports/phpunit/unit_themes.xml"
 
   substep "Run grouped Unit tests"
-  export DREVOPS_TEST_UNIT_GROUP=subtraction
+  export DREVOPS_TEST_UNIT_GROUP=unit:subtraction
   run ahoy test-unit
   assert_success
+  assert_output_contains "Unit tests for scripts passed"
   assert_output_contains "OK (3 tests, 3 assertions)"
-  assert_output_contains "Unit tests passed"
+  assert_output_contains "Unit tests for modules passed"
+  assert_output_contains "OK (4 tests, 4 assertions)"
+  assert_output_contains "Unit tests for themes passed"
   unset DREVOPS_TEST_UNIT_GROUP
 
   substep "Assert that Drupal Unit test failure bypassing works"
-  rm -fR test_reports || true
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Unit/SwCoreExampleUnitTest.php"
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Unit/ExampleTest.php"
   sync_to_container
 
   # Assert without bypass.
   run ahoy test-unit
   assert_failure
-  assert_output_not_contains "Unit tests passed"
+  assert_output_contains "Unit tests for scripts passed"
+  assert_output_not_contains "Unit tests for modules passed"
+  assert_output_not_contains "Unit tests for themes passed"
   sync_to_host
-  assert_dir_not_empty "test_reports"
-  assert_file_exists "test_reports/phpunit/unit.xml"
-
-  rm -fR test_reports || true
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_UNIT_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-unit
   assert_success
-  assert_output_not_contains "Unit tests passed"
+  assert_output_contains "Unit tests for scripts passed"
+  assert_output_not_contains "Unit tests for modules passed"
+  assert_output_contains "Unit tests for themes passed"
   sync_to_host
-  assert_dir_not_empty "test_reports"
-  assert_file_exists "test_reports/phpunit/unit.xml"
 
   restore_file .env && ahoy up cli
 }
@@ -414,9 +421,11 @@ assert_ahoy_test_kernel() {
   assert_success
   assert_output_contains "OK (5 tests, 5 assertions)"
   assert_output_contains "Kernel tests passed"
+  assert_dir_not_empty "test_reports"
+  assert_file_exists "test_reports/phpunit/kernel.xml"
 
   substep "Run grouped Kernel tests"
-  export DREVOPS_TEST_KERNEL_GROUP=subtraction
+  export DREVOPS_TEST_KERNEL_GROUP=kernel:subtraction
   run ahoy test-kernel
   assert_success
   assert_output_contains "OK (3 tests, 3 assertions)"
@@ -425,7 +434,7 @@ assert_ahoy_test_kernel() {
 
   substep "Assert that Drupal Unit test failure bypassing works"
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Kernel/SwCoreExampleKernelTest.php"
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Kernel/ExampleTest.php"
   sync_to_container
 
   # Assert without bypass.
@@ -433,8 +442,6 @@ assert_ahoy_test_kernel() {
   assert_failure
   assert_output_not_contains "Kernel tests passed"
   sync_to_host
-  assert_dir_not_empty "test_reports"
-  assert_file_exists "test_reports/phpunit/kernel.xml"
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_KERNEL_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
@@ -442,8 +449,6 @@ assert_ahoy_test_kernel() {
   assert_success
   assert_output_not_contains "Kernel tests passed"
   sync_to_host
-  assert_dir_not_empty "test_reports"
-  assert_file_exists "test_reports/phpunit/kernel.xml"
 
   restore_file .env && ahoy up cli
 }
@@ -458,9 +463,11 @@ assert_ahoy_test_functional() {
   assert_success
   assert_output_contains "OK (2 tests, 4 assertions)"
   assert_output_contains "Functional tests passed"
+  assert_dir_not_empty "test_reports"
+  assert_file_exists "test_reports/phpunit/functional.xml"
 
   substep "Run grouped Functional tests"
-  export DREVOPS_TEST_FUNCTIONAL_GROUP=subtraction
+  export DREVOPS_TEST_FUNCTIONAL_GROUP=functional:subtraction
   run ahoy test-functional
   assert_success
   assert_output_contains "OK (1 test, 2 assertions)"
@@ -469,7 +476,7 @@ assert_ahoy_test_functional() {
 
   substep "Assert that Drupal Functional test failure bypassing works"
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Functional/SwCoreExampleFunctionalTest.php"
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Functional/ExampleTest.php"
   sync_to_container
 
   # Assert without bypass.
@@ -477,8 +484,6 @@ assert_ahoy_test_functional() {
   assert_failure
   assert_output_not_contains "Functional tests passed"
   sync_to_host
-  assert_dir_not_empty "test_reports"
-  assert_file_exists "test_reports/phpunit/functional.xml"
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
@@ -486,8 +491,6 @@ assert_ahoy_test_functional() {
   assert_success
   assert_output_not_contains "Functional tests passed"
   sync_to_host
-  assert_dir_not_empty "test_reports"
-  assert_file_exists "test_reports/phpunit/functional.xml"
 
   restore_file .env && ahoy up cli && sync_to_container
 }
@@ -760,7 +763,7 @@ assert_ahoy_clean() {
 
   ahoy clean
   # Assert that initial DrevOps files have not been removed.
-  assert_files_present_common "" "" "" "" "${webroot}"
+  assert_files_present_common "" "" "" "" "" "${webroot}"
   assert_files_present_deployment
   assert_files_present_no_integration_acquia "" "" "${webroot}"
   assert_files_present_no_integration_lagoon "" "" "${webroot}"
@@ -797,7 +800,7 @@ assert_ahoy_reset() {
 
   ahoy reset
 
-  assert_files_present_common "" "" "" "" "${webroot}"
+  assert_files_present_common "" "" "" "" "" "${webroot}"
   assert_files_present_deployment
   assert_files_present_no_integration_acquia "" "" "${webroot}"
   assert_files_present_no_integration_lagoon "" "" "${webroot}"
