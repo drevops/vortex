@@ -1,6 +1,6 @@
 <?php
 
-namespace Drevops\Tests;
+namespace Drevops\Installer\Tests\Traits;
 
 /**
  * Trait DrevopsTestHelperTrait.
@@ -12,7 +12,7 @@ namespace Drevops\Tests;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-trait DrevopsTestHelperTrait {
+trait TestHelperTrait {
 
   /**
    * Call protected methods on the class.

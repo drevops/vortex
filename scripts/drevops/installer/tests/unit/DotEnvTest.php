@@ -1,6 +1,6 @@
 <?php
 
-namespace Drevops\Tests;
+namespace Drevops\Installer\Tests\Unit;
 
 /**
  * Class InstallerDotEnvTest.
@@ -10,7 +10,7 @@ namespace Drevops\Tests;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class InstallerDotEnvTest extends InstallerTestCase {
+class DotEnvTest extends UnitTestBase {
 
   /**
    * Backup value of the $GLOBALS['_SERVER'] variable.
@@ -60,7 +60,7 @@ class InstallerDotEnvTest extends InstallerTestCase {
   }
 
   /**
-   * @dataProvider providerGlobals
+   * @dataProvider dataProviderGlobals
    */
   public function testGlobals($content, $env_before, $server_before, $env_after, $server_after, $allow_override) {
     $filename = $this->createFixtureEnvFile($content);
@@ -76,7 +76,7 @@ class InstallerDotEnvTest extends InstallerTestCase {
     $this->assertTrue(TRUE);
   }
 
-  public function providerGlobals() {
+  public static function dataProviderGlobals() {
     return [
       [
         '', [], [], [], [], FALSE,

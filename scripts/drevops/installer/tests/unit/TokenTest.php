@@ -1,6 +1,6 @@
 <?php
 
-namespace Drevops\Tests;
+namespace Drevops\Installer\Tests\Unit;
 
 /**
  * Class InstallerTokenTest.
@@ -10,7 +10,7 @@ namespace Drevops\Tests;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class InstallerTokenTest extends InstallerTestCase {
+class TokenTest extends UnitTestBase {
 
   public function setUp(): void {
     parent::setUp();
@@ -50,7 +50,7 @@ class InstallerTokenTest extends InstallerTestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public function dataProviderFileContains() {
+  public static function dataProviderFileContains() {
     return [
       ['FOO', 'empty.txt', FALSE],
       ['BAR', 'foobar_b.txt', TRUE],
@@ -77,7 +77,7 @@ class InstallerTokenTest extends InstallerTestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public function dataProviderDirContains() {
+  public static function dataProviderDirContains() {
     return [
       ['FOO', ['empty.txt'], FALSE],
       ['BAR', ['foobar_b.txt'], TRUE],
@@ -112,7 +112,7 @@ class InstallerTokenTest extends InstallerTestCase {
     $this->assertFileEquals($expected_file, $created_file);
   }
 
-  public function dataProviderRemoveTokenFromFile() {
+  public static function dataProviderRemoveTokenFromFile() {
     return [
       ['empty.txt', 'FOO', 'FOO', TRUE, FALSE, 'empty.txt'],
 
@@ -169,7 +169,7 @@ class InstallerTokenTest extends InstallerTestCase {
     }
   }
 
-  public function dataProviderDirReplaceContent() {
+  public static function dataProviderDirReplaceContent() {
     return [
       [
         ['empty.txt'],
@@ -207,7 +207,7 @@ class InstallerTokenTest extends InstallerTestCase {
     }
   }
 
-  public function dataProviderReplaceStringFilename() {
+  public static function dataProviderReplaceStringFilename() {
     return [
       [
         ['empty.txt'],

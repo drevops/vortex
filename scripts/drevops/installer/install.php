@@ -45,8 +45,13 @@ define('CUR_DIR', getcwd());
 /**
  * Defines installer exist codes.
  */
-define('INSTALLER_EXIT_SUCCESS', 0);
-define('INSTALLER_EXIT_ERROR', 1);
+define('EXIT_SUCCESS', 0);
+define('EXIT_ERROR', 1);
+
+/**
+ * Defines error level to be reported as an error.
+ */
+define('ERROR_LEVEL', E_USER_WARNING);
 
 /**
  * Defines installer status message flags.
@@ -63,15 +68,15 @@ define('ANSWER_YES', 'y');
 define('ANSWER_NO', 'n');
 
 /**
- * Main install functionality.
+ * Main functionality.
  */
-function main(array $argv) {
+function main(array $argv, $argc) {
   init_config($argv);
 
   if (get_config('help')) {
     print_help();
 
-    return INSTALLER_EXIT_SUCCESS;
+    return EXIT_SUCCESS;
   }
 
   check_requirements();
@@ -89,7 +94,7 @@ function main(array $argv) {
     print_abort();
   }
 
-  return INSTALLER_EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
 
 function check_requirements() {
@@ -1608,9 +1613,11 @@ function normalise_answer__preserve_drevops_info($value) {
  * Print help.
  */
 function print_help() {
+  $script_name = basename(__FILE__);
   print <<<EOF
 DrevOps Installer
 ------------------
+
 Arguments
   destination          Destination directory. Optional. Defaults to the current
                        directory.
@@ -1618,6 +1625,12 @@ Arguments
 Options
   --help               This help.
   --quiet              Quiet installation.
+
+Examples:
+  php $script_name  destination
+
+  php $script_name  --quiet destination
+
 EOF;
   print PHP_EOL;
 }
@@ -2411,18 +2424,32 @@ if (PHP_SAPI != 'cli' || !empty($_SERVER['REMOTE_ADDR'])) {
   die('This script can be only ran from the command line.');
 }
 
-// Do not run this script if INSTALLER_SKIP_RUN is set. Useful when requiring
-// this file from other scripts (e.g. for testing).
-if (!getenv('INSTALLER_SKIP_RUN')) {
+// Allow to skip the script run.
+if (getenv('SCRIPT_RUN_SKIP') != 1) {
+  // Custom error handler to catch errors based on set ERROR_LEVEL.
+  set_error_handler(function ($severity, $message, $file, $line) {
+    if (!(error_reporting() & $severity)) {
+      // This error code is not included in error_reporting.
+      return;
+    }
+    throw new ErrorException($message, 0, $severity, $file, $line);
+  });
+
   try {
     $code = main($argv, $argc);
     if (is_null($code)) {
-      throw new \Exception('Installer exited without providing an exit code.');
+      throw new \Exception('Script exited without providing an exit code.');
     }
     exit($code);
   }
-  catch (\RuntimeException $exception) {
-    status($exception->getMessage(), INSTALLER_STATUS_ERROR);
-    exit($exception->getCode() == 0 ? INSTALLER_EXIT_ERROR : $exception->getCode());
+  catch (\ErrorException $exception) {
+    if ($exception->getSeverity() <= ERROR_LEVEL) {
+      print PHP_EOL . 'RUNTIME ERROR: ' . $exception->getMessage() . PHP_EOL;
+      exit($exception->getCode() == 0 ? EXIT_ERROR : $exception->getCode());
+    }
+  }
+  catch (\Exception $exception) {
+    print PHP_EOL . 'ERROR: ' . $exception->getMessage() . PHP_EOL;
+    exit($exception->getCode() == 0 ? EXIT_ERROR : $exception->getCode());
   }
 }

@@ -1,23 +1,24 @@
 <?php
 
-namespace Drevops\Tests;
+namespace Drevops\Installer\Tests\Unit;
 
+use Drevops\Installer\Tests\Traits\TestHelperTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class InstallerTestCase.
+ * Class UnitTestCase.
  *
- * InstallerTestCase fixture class.
+ * UnitTestCase fixture class.
  *
  * @package Drevops\Tests
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-abstract class InstallerTestCase extends TestCase {
+abstract class UnitTestBase extends TestCase {
 
-  use DrevopsTestHelperTrait;
+  use TestHelperTrait;
 
   /**
    * Fixture directory.
@@ -27,7 +28,7 @@ abstract class InstallerTestCase extends TestCase {
   protected $fixtureDir;
 
   protected function setUp(): void {
-    putenv('INSTALLER_SKIP_RUN=1');
+    putenv('SCRIPT_RUN_SKIP=1');
     require_once getcwd() . DIRECTORY_SEPARATOR . '../../../scripts/drevops/installer/install.php';
 
     parent::setUp();
@@ -39,6 +40,7 @@ abstract class InstallerTestCase extends TestCase {
   }
 
   public function cleanupFixtureDir() {
+    $this->fileExists();
     $fs = new Filesystem();
     $fs->remove($this->fixtureDir);
   }
