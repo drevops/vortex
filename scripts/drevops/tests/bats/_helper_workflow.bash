@@ -370,6 +370,7 @@ assert_ahoy_test_unit() {
   assert_output_contains "Unit tests for modules passed"
   assert_output_contains "OK (7 tests, 7 assertions)"
   assert_output_contains "Unit tests for themes passed"
+  sync_to_host
   assert_dir_not_empty "test_reports"
   assert_file_exists "test_reports/phpunit/unit.xml"
   assert_file_exists "test_reports/phpunit/unit_modules.xml"
@@ -421,6 +422,7 @@ assert_ahoy_test_kernel() {
   assert_success
   assert_output_contains "OK (5 tests, 5 assertions)"
   assert_output_contains "Kernel tests passed"
+  sync_to_host
   assert_dir_not_empty "test_reports"
   assert_file_exists "test_reports/phpunit/kernel.xml"
 
@@ -463,6 +465,7 @@ assert_ahoy_test_functional() {
   assert_success
   assert_output_contains "OK (2 tests, 4 assertions)"
   assert_output_contains "Functional tests passed"
+  sync_to_host
   assert_dir_not_empty "test_reports"
   assert_file_exists "test_reports/phpunit/functional.xml"
 
