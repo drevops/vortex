@@ -1,15 +1,18 @@
 <?php
 
-namespace Drupal\Tests\ys_core\Kernel;
+namespace Drupal\Tests\your_site_theme\Kernel;
 
 /**
- * Class YsCoreExampleKernelTest.
+ * Class ExampleTest.
  *
- * Example test case class.
+ * Example kernel test case class.
  *
- * @group YsCore
+ * @group YourSiteTheme
+ * @group site:kernel
+ *
+ * @package Drupal\your_site_theme\Tests
  */
-class YsCoreExampleKernelTest extends YsCoreKernelTestBase {
+class ExampleTest extends YourSiteThemeKernelTestBase {
 
   /**
    * Tests addition.
@@ -36,6 +39,7 @@ class YsCoreExampleKernelTest extends YsCoreKernelTestBase {
     return [
       [0, 0, 0],
       [1, 1, 2],
+      [3, 1, 4],
     ];
   }
 
@@ -43,7 +47,7 @@ class YsCoreExampleKernelTest extends YsCoreKernelTestBase {
    * Tests subtraction.
    *
    * @dataProvider dataProviderSubtract
-   * @group subtraction
+   * @group kernel:subtraction
    */
   public function testSubtract($a, $b, $expected, $expectExceptionMessage = NULL) {
     if ($expectExceptionMessage) {
@@ -65,6 +69,7 @@ class YsCoreExampleKernelTest extends YsCoreKernelTestBase {
       [0, 0, 0],
       [1, 1, 0],
       [2, 1, 1],
+      [3, 1, 2],
     ];
   }
 

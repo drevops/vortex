@@ -124,8 +124,9 @@ assert_files_present() {
   local suffix="${2:-star_wars}"
   local suffix_abbreviated="${3:-sw}"
   local suffix_abbreviated_camel_cased="${4:-Sw}"
+  local suffix_camel_cased="${5:-StarWars}"
 
-  assert_files_present_common "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}"
+  assert_files_present_common "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}"
 
   assert_files_local_present "${dir}"
 
@@ -167,7 +168,8 @@ assert_files_present_common() {
   local suffix="${2:-star_wars}"
   local suffix_abbreviated="${3:-sw}"
   local suffix_abbreviated_camel_cased="${4:-Sw}"
-  local webroot="${5:-web}"
+  local suffix_camel_cased="${5:-StarWars}"
+  local webroot="${6:-web}"
 
   local suffix_abbreviated_uppercase="$(string_to_upper "$suffix_abbreviated")"
   local suffix_hyphenated="${suffix/_/-}"
@@ -185,7 +187,7 @@ assert_files_present_common() {
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
   assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_DRUPAL_VERSION}.x"
 
-  assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${webroot}"
+  assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
 
   # Assert that PR template was processed
   assert_file_contains ".github/PULL_REQUEST_TEMPLATE.md" "https://${suffix_hyphenated}.atlassian.net/browse/${suffix_abbreviated_uppercase}-"
@@ -374,7 +376,8 @@ assert_files_present_drupal() {
   local suffix="${2:-star_wars}"
   local suffix_abbreviated="${3:-sw}"
   local suffix_abbreviated_camel_cased="${4:-Sw}"
-  local webroot="${5:-web}"
+  local suffix_camel_cased="${5:-StarWars}"
+  local webroot="${6:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -390,12 +393,12 @@ assert_files_present_drupal() {
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.info.yml"
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.module"
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.deploy.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreExampleUnitTest.php"
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreUnitTestBase.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreExampleKernelTest.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/ExampleTest.php"
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreKernelTestBase.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreExampleFunctionalTest.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/ExampleTest.php"
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreFunctionalTestBase.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/ExampleTest.php"
 
   # Site theme created.
   assert_dir_exists "${webroot}/themes/custom/${suffix}"
@@ -409,6 +412,13 @@ assert_files_present_drupal() {
   assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.theme"
   assert_file_exists "${webroot}/themes/custom/${suffix}/Gruntfile.js"
   assert_file_exists "${webroot}/themes/custom/${suffix}/package.json"
+
+  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Unit/${suffix_camel_cased}UnitTestBase.php"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Unit/ExampleTest.php"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Kernel/${suffix_camel_cased}KernelTestBase.php"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Kernel/ExampleTest.php"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Functional/${suffix_camel_cased}FunctionalTestBase.php"
+  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Functional/ExampleTest.php"
 
   # Comparing binary files.
   assert_binary_files_equal "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/screenshot.png" "${webroot}/themes/custom/${suffix}/screenshot.png"

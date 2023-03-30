@@ -1,15 +1,18 @@
 <?php
 
-namespace Drupal\Tests\ys_core\Unit;
+namespace Drupal\Tests\ys_core\Kernel;
 
 /**
- * Class YsCoreExampleUnitTest.
+ * Class ExampleTest.
  *
- * Example test case class.
+ * Example kernel test case class.
  *
  * @group YsCore
+ * @group site:kernel
+ *
+ * @package Drupal\ys_core\Tests
  */
-class YsCoreExampleUnitTest extends YsCoreUnitTestBase {
+class ExampleTest extends YsCoreKernelTestBase {
 
   /**
    * Tests addition.
@@ -43,7 +46,7 @@ class YsCoreExampleUnitTest extends YsCoreUnitTestBase {
    * Tests subtraction.
    *
    * @dataProvider dataProviderSubtract
-   * @group subtraction
+   * @group kernel:subtraction
    */
   public function testSubtract($a, $b, $expected, $expectExceptionMessage = NULL) {
     if ($expectExceptionMessage) {

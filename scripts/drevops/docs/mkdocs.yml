@@ -100,5 +100,6 @@ nav:
   - Docker: docker.md
   - Database: database.md
   - Build: build.md
+  - Test: test.md
   - Deployment: docs/DEPLOYMENT.md
   - Maintenance: maintenance.md

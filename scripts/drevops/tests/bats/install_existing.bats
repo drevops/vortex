@@ -320,7 +320,7 @@ load _helper.bash
 
   install_dependencies_stub "" "rootdoc"
 
-  assert_files_present_common "" "" "" "" "rootdoc"
+  assert_files_present_common "" "" "" "" "" "rootdoc"
 }
 
 @test "Install into existing: previously installed project; custom theme; discovery; quiet" {

@@ -7,6 +7,10 @@ use Drupal\Tests\ys_core\Traits\YsCoreTestHelperTrait;
 
 /**
  * Class YsCoreKernelTestBase.
+ *
+ * Base class for functional tests.
+ *
+ * @package Drupal\ys_core\Tests
  */
 abstract class YsCoreFunctionalTestBase extends BrowserTestBase {
 

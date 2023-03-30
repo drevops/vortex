@@ -18,7 +18,10 @@ DevOps
 DockerHub
 DrevOps
 Drupal
+DrupalExtension
+Entrypoint
 FE
+FeatureContext
 GPL
 GraphQL
 Gruntfile
@@ -45,8 +48,8 @@ SCSS
 SHA
 SLAs
 SemVer
-Ssl
 SsL
+Ssl
 TBD
 UAT
 UI
@@ -60,9 +63,11 @@ Xdebug
 YOURORG
 YOURSITE
 amazeeio
+bdd
 breakpoint
 changelog
 codebase
+contrib
 customisations
 dev
 drush
