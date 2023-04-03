@@ -253,6 +253,9 @@ if ($settings['environment'] == ENVIRONMENT_CI) {
   // Never harden permissions on sites/default/files.
   $settings['skip_permissions_hardening'] = TRUE;
 
+  // Disable built-in cron trigger.
+  $config['automated_cron.settings']['interval'] = 0;
+
   // Bypass shield.
   $config['shield.settings']['shield_enable'] = FALSE;
 
