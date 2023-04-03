@@ -140,6 +140,8 @@ class DrupalSettingsTest extends DrupalTestCase {
     unset($default_config['config_split.config_split.local']);
     unset($default_config['system.logging']);
 
+    $default_config['automated_cron.settings']['interval'] = 0;
+
     $default_settings['environment'] = ENVIRONMENT_CI;
     $default_settings['suspend_mail_send'] = TRUE;
 
