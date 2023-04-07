@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+##
+# Run tests.
+#
+# Usage:
+# ./test-bdd.sh
+#
+# shellcheck disable=SC2015
+
+set -e
+[ -n "${DREVOPS_DEBUG}" ] && set -x
+
+# Flag to allow BDD tests to fail.
+DREVOPS_TEST_BDD_ALLOW_FAILURE="${DREVOPS_TEST_BDD_ALLOW_FAILURE:-0}"
+
+# Behat profile name. Optional. Defaults to "default".
+DREVOPS_TEST_BEHAT_PROFILE="${DREVOPS_TEST_BEHAT_PROFILE:-default}"
+
+# Behat format. Optional. Defaults to "pretty".
+DREVOPS_TEST_BEHAT_FORMAT="${DREVOPS_TEST_BEHAT_FORMAT:-pretty}"
+
+# Behat tags. Optional. Default runs all tests.
+DREVOPS_TEST_BEHAT_TAGS="${DREVOPS_TEST_BEHAT_TAGS:-}"
+
+# Behat test runner index. If is set  - the value is used as a suffix for the
+# parallel Behat profile name (e.g., p0, p1).
+DREVOPS_TEST_BEHAT_PARALLEL_INDEX="${DREVOPS_TEST_BEHAT_PARALLEL_INDEX:-}"
+
+# Directory to store test result files.
+DREVOPS_TEST_REPORTS_DIR="${DREVOPS_TEST_REPORTS_DIR:-}"
+
+# Directory to store test artifact files.
+DREVOPS_TEST_ARTIFACT_DIR="${DREVOPS_TEST_ARTIFACT_DIR:-}"
+
+# ------------------------------------------------------------------------------
+
+echo "[INFO] Running BDD tests."
+
+# Create test reports and artifact directories.
+[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && mkdir -p "${DREVOPS_TEST_REPORTS_DIR}"
+[ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}"
+
+# Use parallel Behat profile if using more than a single node to run tests.
+if [ -n "${DREVOPS_TEST_BEHAT_PARALLEL_INDEX}" ]; then
+  DREVOPS_TEST_BEHAT_PROFILE="p${DREVOPS_TEST_BEHAT_PARALLEL_INDEX}"
+  echo "     > Using Behat profile \"${DREVOPS_TEST_BEHAT_PROFILE}\"."
+fi
+
+opts=(
+  --strict
+  --colors
+  --profile="${DREVOPS_TEST_BEHAT_PROFILE}"
+  --format="${DREVOPS_TEST_BEHAT_FORMAT}"
+  --out std
+)
+
+[ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && export BEHAT_SCREENSHOT_DIR="${DREVOPS_TEST_ARTIFACT_DIR}/screenshots"
+[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && opts+=(--format "junit" --out "${DREVOPS_TEST_REPORTS_DIR}/behat")
+
+[ -n "${DREVOPS_TEST_BEHAT_TAGS}" ] && opts+=(--tags="${DREVOPS_TEST_BEHAT_TAGS}")
+
+# Run tests once and re-run on fail, but only in CI.
+vendor/bin/behat "${opts[@]}" "$@" ||
+  ([ -n "${CI}" ] && vendor/bin/behat "${opts[@]}" --rerun "$@") &&
+  echo "  [OK] Behat tests passed." ||
+  [ "${DREVOPS_TEST_BDD_ALLOW_FAILURE}" -eq 1 ]
