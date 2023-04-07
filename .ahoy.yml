@@ -85,7 +85,9 @@ commands:
 
   cli:
     usage: Start a shell or run a command inside the CLI service container.
-    #: The shell is started if no arguments were provided to this command.
+    # DREVOPS_* and COMPOSE_* environment variables will be passed to the shell.
+    # This will drop into shell if no arguments are supplied to this command.
+    # Escape double quotes with \" (slash double-quote) when passing arguments with spaces.
     cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec $(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_" | sed 's/^/-e /') -T cli bash -c "$*"; else docker-compose exec cli bash; fi
 
   composer:
@@ -186,44 +188,23 @@ commands:
 
   test:
     usage: Run all tests.
-    cmd: ahoy test-unit && ahoy test-kernel && ahoy test-functional && ahoy test-bdd
+    cmd: ahoy test-unit "$@" && ahoy test-kernel "$@" && ahoy test-functional "$@" && ahoy test-bdd "$@"
 
   test-unit:
     usage: Run PhpUnit unit tests.
-    cmd: |
-      ahoy cli "DREVOPS_TEST_TYPE=unit \
-      DREVOPS_TEST_UNIT_GROUP=${DREVOPS_TEST_UNIT_GROUP:-} \
-      DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR:-} \
-      ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "DREVOPS_TEST_TYPE=unit ./scripts/drevops/test.sh $@"
 
   test-kernel:
     usage: Run PhpUnit kernel tests.
-    cmd: |
-      ahoy cli "DREVOPS_TEST_TYPE=kernel \
-      DREVOPS_TEST_KERNEL_GROUP=${DREVOPS_TEST_KERNEL_GROUP:-} \
-      DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR:-} \
-      ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "DREVOPS_TEST_TYPE=kernel ./scripts/drevops/test.sh $@"
 
   test-functional:
     usage: Run PhpUnit functional tests.
-    cmd: |
-      ahoy cli "DREVOPS_TEST_TYPE=functional \
-      DREVOPS_TEST_FUNCTIONAL_GROUP=${DREVOPS_TEST_FUNCTIONAL_GROUP:-} \
-      DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR:-} \
-      ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "DREVOPS_TEST_TYPE=functional ./scripts/drevops/test.sh $@"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: |
-      ahoy cli "DREVOPS_TEST_TYPE=bdd \
-      DREVOPS_TEST_ARTIFACT_DIR=${DREVOPS_TEST_ARTIFACT_DIR:-} \
-      DREVOPS_TEST_REPORTS_DIR=${DREVOPS_TEST_REPORTS_DIR:-} \
-      DREVOPS_TEST_BEHAT_PROFILE=${DREVOPS_TEST_BEHAT_PROFILE:-} \
-      DREVOPS_TEST_BEHAT_FORMAT=${DREVOPS_TEST_BEHAT_FORMAT:-} \
-      DREVOPS_TEST_BEHAT_PARALLEL_INDEX=${DREVOPS_TEST_BEHAT_PARALLEL_INDEX:-} \
-      DREVOPS_TEST_BEHAT_TAGS=${DREVOPS_TEST_BEHAT_TAGS:-} \
-      BEHAT_SCREENSHOT_PURGE=${BEHAT_SCREENSHOT_PURGE:-} \
-      ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "DREVOPS_TEST_TYPE=bdd ./scripts/drevops/test.sh $@"
 
   debug:
     usage: Enable PHP Xdebug.
