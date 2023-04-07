@@ -1400,11 +1400,17 @@ Allow custom Functional tests failures.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_TEST_FUNCTIONAL_CONFIG`
+
+Functional test configuration file. Optional. Defaults to core's configuration.
+
+Default value: `DREVOPS_APP`
+
 ### `DREVOPS_TEST_FUNCTIONAL_GROUP`
 
-Functional test group. Optional. Default runs all tests.
+Kernel test group. Optional. Defaults to running Functional tests tagged with `site:functional`.
 
-Default value: `UNDEFINED`
+Default value: `site:functional`
 
 ### `DREVOPS_TEST_KERNEL_ALLOW_FAILURE`
 
@@ -1412,11 +1418,17 @@ Allow custom Kernel tests failures.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_TEST_KERNEL_CONFIG`
+
+Kernel test configuration file. Optional. Defaults to core's configuration.
+
+Default value: `DREVOPS_APP`
+
 ### `DREVOPS_TEST_KERNEL_GROUP`
 
-Kernel test group. Optional. Default runs all tests.
+Kernel test group. Optional. Defaults to running Kernel tests tagged with `site:kernel`.
 
-Default value: `UNDEFINED`
+Default value: `site:kernel`
 
 ### `DREVOPS_TEST_REPORTS_DIR`
 
@@ -1442,11 +1454,17 @@ Allow custom Unit tests failures.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_TEST_UNIT_CONFIG`
+
+Unit test configuration file. Optional. Defaults to core's configuration.
+
+Default value: `DREVOPS_APP`
+
 ### `DREVOPS_TEST_UNIT_GROUP`
 
-Unit test group. Optional. Default runs all tests.
+Unit test group. Optional. Defaults to running Unit tests tagged with `site:unit`.
 
-Default value: `UNDEFINED`
+Default value: `site:unit`
 
 ### `DREVOPS_WEBROOT`
 
