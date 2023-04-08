@@ -23,6 +23,8 @@ echo "[INFO] Started database dump download from CURL."
 # Check all required values.
 [ -z "${DREVOPS_DB_DOWNLOAD_CURL_URL}" ] && echo "Missing required value for DREVOPS_DB_DOWNLOAD_CURL_URL." && exit 1
 
+mkdir -p "${DREVOPS_DB_DIR}"
+
 curl -L "${DREVOPS_DB_DOWNLOAD_CURL_URL}" -o "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 
 echo "  [OK] Started database dump download from CURL."

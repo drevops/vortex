@@ -25,7 +25,7 @@ set -e
 DREVOPS_DB_DOWNLOAD_REFRESH="${DREVOPS_DB_DOWNLOAD_REFRESH:-}"
 
 # Lagoon project name.
-DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT="${DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT:?Missing required environment variable DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT.}"
+LAGOON_PROJECT="${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}"
 
 # The source environment for the database source.
 DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT="${DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT:-main}"
@@ -42,11 +42,11 @@ DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE="${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE
 DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP="${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP:-db_*.sql}"
 
 # The SSH key used to SSH into Lagoon.
-DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE:-}"
+DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE:-}"
 
 # The SSH key fingerprint. If provided - the key will be looked-up and loaded
 # into ssh client.
-DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT:-}"
+DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT="${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT:-}"
 
 # The SSH host of the Lagoon environment.
 DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST:-ssh.lagoon.amazeeio.cloud}"
@@ -55,7 +55,7 @@ DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST:-ssh.
 DREVOPS_DB_DOWNLOAD_LAGOON_SSH_PORT="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_PORT:-32222}"
 
 # The SSH user of the Lagoon environment.
-DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER:-${DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT}-${DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT}}"
+DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER:-${LAGOON_PROJECT}-${DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT}}"
 
 # Directory where DB dumps are stored on the host.
 DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
@@ -73,6 +73,8 @@ DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
 echo "[INFO] Started database dump download from Lagoon."
 
+mkdir -p "${DREVOPS_DB_DIR}"
+
 # Try to read credentials from the credentials file.
 if [ -f ".env.local" ]; then
   # shellcheck disable=SC1090
@@ -80,20 +82,20 @@ if [ -f ".env.local" ]; then
 fi
 
 # Discover and load a custom database dump key if fingerprint is provided.
-if [ -n "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT}" ]; then
+if [ -n "${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT}" ]; then
   echo "     > Custom database dump key is provided."
-  DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT//:}"
-  DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE//\"}"
+  DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT//:}"
+  DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE//\"}"
 
-  [ ! -f "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE} does not exist." && exit 1
+  [ ! -f "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE} does not exist." && exit 1
 
-  if ssh-add -l | grep -q "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}"; then
-    echo "     > SSH agent has ${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE} key loaded."
+  if ssh-add -l | grep -q "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}"; then
+    echo "     > SSH agent has ${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE} key loaded."
   else
     echo "     > SSH agent does not have default key loaded. Trying to load."
     # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
     ssh-add -D > /dev/null
-    ssh-add "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}"
+    ssh-add "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}"
   fi
 fi
 
@@ -102,8 +104,8 @@ ssh_opts+=(-o "StrictHostKeyChecking=no")
 ssh_opts+=(-o "LogLevel=error")
 ssh_opts+=(-o "IdentitiesOnly=yes")
 ssh_opts+=(-p "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_PORT}")
-if [ "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}" != false ]; then
-  ssh_opts+=(-i "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE}")
+if [ "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}" != false ]; then
+  ssh_opts+=(-i "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}")
 fi
 
 ssh \

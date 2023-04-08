@@ -72,6 +72,8 @@ command -v curl > /dev/null || ( echo "[ERROR] curl command is not available." &
 [ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}" ] && echo "[ERROR] Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_DIR." && exit 1
 [ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_FILE}" ] && echo "[ERROR] Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_FILE." && exit 1
 
+mkdir -p "${DREVOPS_DB_DIR}"
+
 echo "     > Retrieving authentication token."
 token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${DREVOPS_DB_DOWNLOAD_ACQUIA_KEY}" --data-urlencode "client_secret=${DREVOPS_DB_DOWNLOAD_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 token=$(echo "${token_json}" | extract_json_value "access_token")
