@@ -2,6 +2,8 @@
 ##
 # Run tests.
 #
+# This is a router script to call relevant scripts based on type.
+#
 # Usage:
 # Run all tests:
 # ./test.sh

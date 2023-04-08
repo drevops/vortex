@@ -154,30 +154,6 @@ Database dump file source from CURL, with optional HTTP Basic Authentication cre
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DB_DOWNLOAD_DOCKER_IMAGE`
-
-The Docker image containing database passed in a form of `<org>/<repository>`.
-
-Default value: `DREVOPS_DB_DOCKER_IMAGE`
-
-### `DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY`
-
-The name of the Docker registry to download the database from.
-
-Default value: `DREVOPS_DOCKER_REGISTRY:-docker.io`
-
-### `DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_TOKEN`
-
-The token of the docker registry to download the database from.
-
-Default value: `DREVOPS_DOCKER_REGISTRY_TOKEN`
-
-### `DREVOPS_DB_DOWNLOAD_DOCKER_REGISTRY_USERNAME`
-
-The username of the docker registry to download the database from.
-
-Default value: `DREVOPS_DOCKER_REGISTRY_USERNAME`
-
 ### `DREVOPS_DB_DOWNLOAD_FORCE`
 
 Always override existing downloaded DB dump. Leave empty to always ask before overwriting existing DB dump.
@@ -220,12 +196,6 @@ Lagoon environment to download DB from.
 
 Default value: `main`
 
-### `DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT`
-
-Lagoon project name.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR`
 
 Remote DB dump directory location.
@@ -244,23 +214,11 @@ Wildcard file name to cleanup previously created dump files. Cleanup runs only i
 
 Default value: `db_*.sql`
 
-### `DREVOPS_DB_DOWNLOAD_LAGOON_SSH_FINGERPRINT`
-
-The SSH key fingerprint. If provided - the key will be looked-up and loaded into ssh client.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST`
 
 The SSH host of the Lagoon environment.
 
 Default value: `ssh.lagoon.amazeeio.cloud`
-
-### `DREVOPS_DB_DOWNLOAD_LAGOON_SSH_KEY_FILE`
-
-The SSH key used to SSH into Lagoon.
-
-Default value: `UNDEFINED`
 
 ### `DREVOPS_DB_DOWNLOAD_LAGOON_SSH_PORT`
 
@@ -272,7 +230,7 @@ Default value: `UNDEFINED`
 
 The SSH user of the Lagoon environment.
 
-Default value: `DREVOPS_DB_DOWNLOAD_LAGOON_PROJECT`
+Default value: `LAGOON_PROJECT`
 
 ### `DREVOPS_DB_DOWNLOAD_POST_PROCESS`
 
@@ -298,11 +256,23 @@ Database can be sourced from one of the following locations: - "url" - directly 
 
 Default value: `curl`
 
+### `DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT`
+
+The SSH key fingerprint. If provided - the key will be looked-up and loaded into ssh client.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE`
 
 SSH key file used to access Lagoon environment to download the database. Create an SSH key and add it to your account in the Lagoon Dashboard.
 
 Default value: `HOME/.ssh/id_rsa`
+
+### `DREVOPS_DB_DOWNLOAD_SOURCE`
+
+Note that "docker_registry" works only for database-in-Docker-image database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) variable has a value).
+
+Default value: `curl`
 
 ### `DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE`
 

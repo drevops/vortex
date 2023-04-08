@@ -38,6 +38,8 @@ DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 echo "[INFO] Started database dump download from FTP."
 
+mkdir -p "${DREVOPS_DB_DIR}"
+
 curl -u "${DREVOPS_DB_DOWNLOAD_FTP_USER}":"${DREVOPS_DB_DOWNLOAD_FTP_PASS}" "ftp://${DREVOPS_DB_DOWNLOAD_FTP_HOST}:${DREVOPS_DB_DOWNLOAD_FTP_PORT}/${DREVOPS_DB_DOWNLOAD_FTP_FILE}" -o "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 
 echo "  [OK] Finished database dump download from FTP."
