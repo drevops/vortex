@@ -36,7 +36,7 @@ echo "[INFO] Started database download."
 
 if [ -n "${found_db}" ]; then
   echo "    > Found existing database dump file(s)."
-  ls -Alh "${DREVOPS_DB_DIR}"
+  ls -Alh "${DREVOPS_DB_DIR}" || true
 
   if [ -z "${DREVOPS_DB_DOWNLOAD_FORCE}" ] ; then
     echo "     > Using existing database dump file(s)."
@@ -70,7 +70,7 @@ fi
 
 echo "  [OK] Downloaded database dump file in ${DREVOPS_DB_DIR}."
 
-ls -Alh "${DREVOPS_DB_DIR}"
+ls -Alh "${DREVOPS_DB_DIR}" || true
 
 if [ -n "${DREVOPS_DB_DOWNLOAD_POST_PROCESS}" ]; then
   echo "[INFO] Started running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
