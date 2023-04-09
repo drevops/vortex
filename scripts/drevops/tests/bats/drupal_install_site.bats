@@ -101,7 +101,7 @@ assert_drupal_install_site_info(){
   assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
   assert_equal "-y -q sqlc" "$(mock_get_call_args "${mock_drush}" 5)"
 
-  assert_output_not_contains "[ERROR] Unable to import database from file."
+  assert_output_not_contains "[FAIL] Unable to import database from file."
   assert_output_not_contains "       Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
   assert_output_not_contains "       Site content was not changed."
 
@@ -508,7 +508,7 @@ assert_drupal_install_site_info(){
   assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
   assert_equal "si -q -y standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL" "$(mock_get_call_args "${mock_drush}" 5)"
 
-  assert_output_not_contains "[ERROR] Unable to import database from file."
+  assert_output_not_contains "[FAIL] Unable to import database from file."
   assert_output_not_contains "       Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
   assert_output_not_contains "       Site content was not changed."
 

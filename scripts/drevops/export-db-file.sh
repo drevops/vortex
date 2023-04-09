@@ -15,7 +15,14 @@ DREVOPS_DB_EXPORT_FILE_DIR="${DREVOPS_DB_DIR:-${DREVOPS_DB_DIR}}"
 
 # ------------------------------------------------------------------------------
 
-echo "[INFO] Started database file export."
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
+info "Started database file export."
 
 # Use local or global Drush.
 drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
@@ -34,9 +41,9 @@ $drush sql-dump --skip-tables-key=common --extra-dump=--no-tablespaces --result-
 
 # Check that file was saved and output saved dump file name.
 if [ -f "${dump_file}" ] && [ -s "${dump_file}" ]; then
-  echo "     > Exported database dump saved ${dump_file}."
+  note "Exported database dump saved ${dump_file}."
 else
-  echo "[ERROR] Unable to save dump file ${dump_file}." && exit 1
+  fail "Unable to save dump file ${dump_file}." && exit 1
 fi
 
-echo "  [OK] Finished database file export."
+pass "Finished database file export."

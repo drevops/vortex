@@ -29,17 +29,24 @@ DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 #-------------------------------------------------------------------------------
 
-# Check all required values.
-[ -z "${DREVOPS_DB_DOWNLOAD_FTP_USER}" ] && echo "[ERROR] Missing required value for DREVOPS_DB_DOWNLOAD_FTP_USER." && exit 1
-[ -z "${DREVOPS_DB_DOWNLOAD_FTP_PASS}" ] && echo "[ERROR] Missing required value for DREVOPS_DB_DOWNLOAD_FTP_PASS." && exit 1
-[ -z "${DREVOPS_DB_DOWNLOAD_FTP_HOST}" ] && echo "[ERROR] Missing required value for DREVOPS_DB_DOWNLOAD_FTP_HOST." && exit 1
-[ -z "${DREVOPS_DB_DOWNLOAD_FTP_PORT}" ] && echo "[ERROR] Missing required value for DREVOPS_DB_DOWNLOAD_FTP_PORT." && exit 1
-[ -z "${DREVOPS_DB_DOWNLOAD_FTP_FILE}" ] && echo "[ERROR] Missing required value for DREVOPS_DB_DOWNLOAD_FTP_FILE." && exit 1
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
 
-echo "[INFO] Started database dump download from FTP."
+# Check all required values.
+[ -z "${DREVOPS_DB_DOWNLOAD_FTP_USER}" ] && fail "Missing required value for DREVOPS_DB_DOWNLOAD_FTP_USER." && exit 1
+[ -z "${DREVOPS_DB_DOWNLOAD_FTP_PASS}" ] && fail "Missing required value for DREVOPS_DB_DOWNLOAD_FTP_PASS." && exit 1
+[ -z "${DREVOPS_DB_DOWNLOAD_FTP_HOST}" ] && fail "Missing required value for DREVOPS_DB_DOWNLOAD_FTP_HOST." && exit 1
+[ -z "${DREVOPS_DB_DOWNLOAD_FTP_PORT}" ] && fail "Missing required value for DREVOPS_DB_DOWNLOAD_FTP_PORT." && exit 1
+[ -z "${DREVOPS_DB_DOWNLOAD_FTP_FILE}" ] && fail "Missing required value for DREVOPS_DB_DOWNLOAD_FTP_FILE." && exit 1
+
+info "Started database dump download from FTP."
 
 mkdir -p "${DREVOPS_DB_DIR}"
 
 curl -u "${DREVOPS_DB_DOWNLOAD_FTP_USER}":"${DREVOPS_DB_DOWNLOAD_FTP_PASS}" "ftp://${DREVOPS_DB_DOWNLOAD_FTP_HOST}:${DREVOPS_DB_DOWNLOAD_FTP_PORT}/${DREVOPS_DB_DOWNLOAD_FTP_FILE}" -o "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 
-echo "  [OK] Finished database dump download from FTP."
+pass "Finished database dump download from FTP."

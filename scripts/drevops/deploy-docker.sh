@@ -27,7 +27,14 @@ DREVOPS_DEPLOY_DOCKER_IMAGE_TAG="${DREVOPS_DEPLOY_DOCKER_IMAGE_TAG:-latest}"
 
 # ------------------------------------------------------------------------------
 
-echo "[INFO] Started DOCKER deployment."
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
+info "Started DOCKER deployment."
 
 # Only deploy if the map was provided, but do not fail if it has not as this
 # may be called as a part of another task.
@@ -40,7 +47,7 @@ images=()
 IFS=',' read -r -a values <<< "${DREVOPS_DEPLOY_DOCKER_MAP}"
 for value in "${values[@]}"; do
   IFS='=' read -r -a parts <<< "${value}"
-  [ "${#parts[@]}" -ne 2 ] && echo "[ERROR] invalid key/value pair \"${value}\" provided." && exit 1
+  [ "${#parts[@]}" -ne 2 ] && fail "invalid key/value pair \"${value}\" provided." && exit 1
   services+=("${parts[0]}")
   images+=("${parts[1]}")
 done
@@ -55,23 +62,23 @@ for key in "${!services[@]}"; do
   service="${services[$key]}"
   image="${images[$key]}"
 
-  echo "     > Processing service ${service}."
+  note "Processing service ${service}."
   # Check if the service is running.)
   cid=$(docker-compose ps -q "${service}")
 
-  [ -z "${cid}" ] && echo "[ERROR] Service \"${service}\" is not running." && exit 1
-  echo "     > Found \"${service}\" service container with id \"${cid}\"."
+  [ -z "${cid}" ] && fail "Service \"${service}\" is not running." && exit 1
+  note "Found \"${service}\" service container with id \"${cid}\"."
 
   [ -n "${image##*:*}" ] && image="${image}:${DREVOPS_DEPLOY_DOCKER_IMAGE_TAG}"
   new_image="${DREVOPS_DOCKER_REGISTRY}/${image}"
 
-  echo "     > Committing Docker image with name \"${new_image}\"."
+  note "Committing Docker image with name \"${new_image}\"."
   iid=$(docker commit "${cid}" "${new_image}")
   iid="${iid#sha256:}"
-  echo "     > Committed Docker image with id \"${iid}\"."
+  note "Committed Docker image with id \"${iid}\"."
 
-  echo "     > Pushing Docker image to the registry."
+  note "Pushing Docker image to the registry."
   docker push "${new_image}"
 done
 
-echo "  [OK] Finished DOCKER deployment."
+pass "Finished DOCKER deployment."

@@ -25,39 +25,46 @@ DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIO
 
 # ------------------------------------------------------------------------------
 
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
+info "Sanitizing database."
+
 # Use local or global Drush, giving priority to a local drush.
 drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 drush_opts=(-y)
 [ -z "${DREVOPS_DEBUG}" ] && drush_opts+=(-q)
 
-echo "[INFO] Sanitizing database."
-
 # Always sanitize password and email using standard methods.
 $drush "${drush_opts[@]}" sql-sanitize --sanitize-password="${DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD}" --sanitize-email="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL}"
-echo "  [OK] Sanitized database using drush sql-sanitize."
+pass "Sanitized database using drush sql-sanitize."
 
 if [ "${DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_WITH_EMAIL}" = "1" ]; then
   $drush sql-query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';"
-  echo "  [OK] Updated username with user email."
+  pass "Updated username with user email."
 fi
 
 # Sanitize using additional SQL commands provided in file.
 # To skip custom sanitization, remove the DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE file from the codebase.
 if [ -f "${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}" ]; then
   $drush "${drush_opts[@]}" sql-query --file="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}"
-  echo "  [OK] Applied custom sanitization commands."
+  pass "Applied custom sanitization commands."
 fi
 
 # User mail and name for use 0 could have been sanitized - resetting it.
 $drush "${drush_opts[@]}" sql-query "UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
 $drush "${drush_opts[@]}" sql-query "UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
-echo "  [OK] Reset user 0 username and email."
+pass "Reset user 0 username and email."
 
 # User email could have been sanitized - setting it back to a pre-defined email.
 if [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL}" ]; then
   $drush "${drush_opts[@]}" sql-query "UPDATE \`users_field_data\` SET mail = '${DREVOPS_DRUPAL_ADMIN_EMAIL}' WHERE uid = '1';"
-  echo "  [OK] Updated user 1 email."
+  pass "Updated user 1 email."
 fi
 
 echo

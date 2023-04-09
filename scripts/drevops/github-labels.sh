@@ -24,6 +24,15 @@ DREVOPS_GITHUB_REPO="${DREVOPS_GITHUB_REPO:-$1}"
 # Delete existing labels to mirror the list below.
 DREVOPS_GITHUB_DELETE_EXISTING_LABELS="${DREVOPS_GITHUB_DELETE_EXISTING_LABELS:-1}"
 
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
 # Array of labels to create. If DELETE_EXISTING_LABELS=1, the labels list will
 # be exactly as below, otherwise labels below will be added to existing ones.
 labels=(
@@ -53,7 +62,7 @@ labels=(
 # ------------------------------------------------------------------------------
 
 main(){
-  echo "[INFO] Processing GitHub labels."
+  info "Processing GitHub labels."
 
   echo
   if [ "${DREVOPS_GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
@@ -71,31 +80,31 @@ main(){
     read -r DREVOPS_GITHUB_REPO
   fi
 
-  [  "${DREVOPS_GITHUB_REPO}" = "" ] && echo "[ERROR] GitHub repository name is required" && exit 1
+  [  "${DREVOPS_GITHUB_REPO}" = "" ] && fail "GitHub repository name is required" && exit 1
 
   if [  "${DREVOPS_GITHUB_TOKEN}" = "" ]; then
     echo ''
     echo -n 'GitHub Personal Access Token: '
     read -r -s DREVOPS_GITHUB_TOKEN
   fi
-  [  "${DREVOPS_GITHUB_TOKEN}" = "" ] && echo "[ERROR] GitHub token name is required" && exit 1
+  [  "${DREVOPS_GITHUB_TOKEN}" = "" ] && fail "GitHub token name is required" && exit 1
 
   repo_org=$(echo "$DREVOPS_GITHUB_REPO" | cut -f1 -d /)
   repo_name=$(echo "$DREVOPS_GITHUB_REPO" | cut -f2 -d /)
 
   if ! user_has_access; then
-    echo "[ERROR] User does not have access to specified repository. Please check your credentials" && exit 1
+    fail "User does not have access to specified repository. Please check your credentials" && exit 1
   fi
 
   echo
-  echo "     > Starting label processing"
+  note "Starting label processing"
   echo
 
   timeout 5
   echo
 
   if [ "${DREVOPS_GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
-    echo "     > Checking existing labels"
+    note "Checking existing labels"
     existing_labels_strings="$(label_all)"
     # shellcheck disable=SC2207
     IFS=$'\n' existing_labels=( $(xargs -n1 <<<"${existing_labels_strings}") )
@@ -120,7 +129,7 @@ main(){
     else
       description="${value}"
 
-      echo "     > Processing label \"${name}\""
+      note "Processing label \"${name}\""
       if label_exists "${name}"; then
         if label_update "${name}" "${color}" "${description}"; then
           echo "    UPDATED label \"${name}\""
@@ -140,7 +149,7 @@ main(){
   done
 
   echo
-  echo "  [OK] Label processing complete"
+  pass "Label processing complete"
   echo
 }
 

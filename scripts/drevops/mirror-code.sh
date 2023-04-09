@@ -31,32 +31,39 @@ DREVOPS_MIRROR_CODE_GIT_USER_EMAIL="${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL:-}"
 
 # ------------------------------------------------------------------------------
 
-echo "[INFO] Started code mirroring."
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
+info "Started code mirroring."
 
 # Check all required values.
-[ -z "${DREVOPS_MIRROR_CODE_BRANCH_SRC}" ] && echo "[ERROR] Missing required value for DREVOPS_MIRROR_CODE_BRANCH_SRC." && exit 1
-[ -z "${DREVOPS_MIRROR_CODE_BRANCH_DST}" ] && echo "[ERROR] Missing required value for DREVOPS_MIRROR_CODE_BRANCH_SRC_REMOTE." && exit 1
-[ -z "${DREVOPS_MIRROR_CODE_REMOTE_DST}" ] && echo "[ERROR] Missing required value for DREVOPS_MIRROR_CODE_REMOTE_DST." && exit 1
-[ -z "${DREVOPS_MIRROR_CODE_GIT_USER_NAME}" ] && echo "[ERROR] Missing required value for DREVOPS_MIRROR_CODE_USER_NAME." && exit 1
-[ -z "${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL}" ] && echo "[ERROR] Missing required value for DREVOPS_MIRROR_CODE_GIT_USER_EMAIL." && exit 1
+[ -z "${DREVOPS_MIRROR_CODE_BRANCH_SRC}" ] && fail "Missing required value for DREVOPS_MIRROR_CODE_BRANCH_SRC." && exit 1
+[ -z "${DREVOPS_MIRROR_CODE_BRANCH_DST}" ] && fail "Missing required value for DREVOPS_MIRROR_CODE_BRANCH_SRC_REMOTE." && exit 1
+[ -z "${DREVOPS_MIRROR_CODE_REMOTE_DST}" ] && fail "Missing required value for DREVOPS_MIRROR_CODE_REMOTE_DST." && exit 1
+[ -z "${DREVOPS_MIRROR_CODE_GIT_USER_NAME}" ] && fail "Missing required value for DREVOPS_MIRROR_CODE_USER_NAME." && exit 1
+[ -z "${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL}" ] && fail "Missing required value for DREVOPS_MIRROR_CODE_GIT_USER_EMAIL." && exit 1
 
 # Configure global git settings, if they do not exist.
-[ "$(git config --global user.name)" == "" ] && echo "     > Configuring global git user name." && git config --global user.name "${DREVOPS_MIRROR_CODE_GIT_USER_NAME}"
-[ "$(git config --global user.email)" == "" ] && echo "     > Configuring global git user email." && git config --global user.email "${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL}"
+[ "$(git config --global user.name)" == "" ] && note "Configuring global git user name." && git config --global user.name "${DREVOPS_MIRROR_CODE_GIT_USER_NAME}"
+[ "$(git config --global user.email)" == "" ] && note "Configuring global git user email." && git config --global user.email "${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL}"
 
 # Use custom deploy key if fingerprint is provided.
 if [ -n "${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT}" ]; then
-  echo "     > Custom deployment key is provided."
+  note "Custom deployment key is provided."
   DREVOPS_MIRROR_CODE_SSH_FILE="${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT//:}"
   DREVOPS_MIRROR_CODE_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_MIRROR_CODE_SSH_FILE//\"}"
 fi
 
-[ ! -f "${DREVOPS_MIRROR_CODE_SSH_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_MIRROR_CODE_SSH_FILE} does not exist." && exit 1
+[ ! -f "${DREVOPS_MIRROR_CODE_SSH_FILE}" ] && fail "SSH key file ${DREVOPS_MIRROR_CODE_SSH_FILE} does not exist." && exit 1
 
 if ssh-add -l | grep -q "${DREVOPS_MIRROR_CODE_SSH_FILE}"; then
-  echo "     > SSH agent has ${DREVOPS_MIRROR_CODE_SSH_FILE} key loaded."
+  note "SSH agent has ${DREVOPS_MIRROR_CODE_SSH_FILE} key loaded."
 else
-  echo "     > SSH agent does not have default key loaded. Trying to load."
+  note "SSH agent does not have default key loaded. Trying to load."
   # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
   ssh-add -D > /dev/null
   ssh-add "${DREVOPS_MIRROR_CODE_SSH_FILE}"
@@ -65,7 +72,7 @@ fi
 # Create a temp directory to copy source repository into to prevent changes to source.
 SRC_TMPDIR=$(mktemp -d)
 
-echo "     > Copying files from the source repository to ${SRC_TMPDIR}."
+note "Copying files from the source repository to ${SRC_TMPDIR}."
 rsync -a --keep-dirlinks ./. "${SRC_TMPDIR}"
 [ -n "${DREVOPS_DEBUG}" ] && tree -L 4 "${SRC_TMPDIR}"
 
@@ -84,9 +91,9 @@ fi
 if [ "${DREVOPS_MIRROR_CODE_PUSH}" = "1" ]; then
   git push "${DREVOPS_MIRROR_CODE_REMOTE_DST}" "${DREVOPS_MIRROR_CODE_BRANCH_SRC}:${DREVOPS_MIRROR_CODE_BRANCH_DST}" --force
 else
-  echo "     > Would push to ${DREVOPS_MIRROR_CODE_BRANCH_SRC}"
+  note "Would push to ${DREVOPS_MIRROR_CODE_BRANCH_SRC}"
 fi
 
 popd >/dev/null || exit 1
 
-echo "  [OK] Finished code mirroring."
+pass "Finished code mirroring."
