@@ -13,9 +13,17 @@ set -e
 DREVOPS_LINT_SKIP="${DREVOPS_LINT_SKIP:-}"
 
 # ------------------------------------------------------------------------------
-echo "[INFO] Linting code."
 
-[ -n "${DREVOPS_LINT_SKIP}" ] && echo "  [OK] Skipping code linting" && exit 0
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
+info "Linting code."
+
+[ -n "${DREVOPS_LINT_SKIP}" ] && pass "Skipping code linting" && exit 0
 
 # Provide argument as 'be' or 'fe' to lint only back-end or front-end code.
 # If no argument is provided, all code will be linted.

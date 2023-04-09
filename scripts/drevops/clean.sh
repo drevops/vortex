@@ -9,6 +9,8 @@ set -e
 # Name of the webroot directory with Drupal installation.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
+# ------------------------------------------------------------------------------
+
 rm -rf \
   "./vendor" \
   "./${DREVOPS_WEBROOT}/core" \

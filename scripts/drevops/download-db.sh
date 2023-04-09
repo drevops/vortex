@@ -25,10 +25,17 @@ DREVOPS_DB_DOWNLOAD_POST_PROCESS="${DREVOPS_DB_DOWNLOAD_POST_PROCESS:-}"
 
 # ------------------------------------------------------------------------------
 
-echo "[INFO] Started database download."
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
+info "Started database download."
 
 # Kill-switch to proceed with download.
-[ "${DREVOPS_DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "  [OK] Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
+[ "${DREVOPS_DB_DOWNLOAD_PROCEED}" -ne 1 ] && pass "Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
 # Check if database file exists.
 # @todo: Implement better support based on $DREVOPS_DB_FILE instead of hardcoded 'db*' name.
@@ -39,12 +46,12 @@ if [ -n "${found_db}" ]; then
   ls -Alh "${DREVOPS_DB_DIR}" || true
 
   if [ -z "${DREVOPS_DB_DOWNLOAD_FORCE}" ] ; then
-    echo "     > Using existing database dump file(s)."
-    echo "     > Download will not proceed."
-    echo "     > Remove existing database file or set DREVOPS_DB_DOWNLOAD_FORCE flag to force download."
+    note "Using existing database dump file(s)."
+    note "Download will not proceed."
+    note "Remove existing database file or set DREVOPS_DB_DOWNLOAD_FORCE flag to force download."
     exit 0
   else
-    echo "     > Forcefully downloading database."
+    note "Forcefully downloading database."
   fi
 fi
 
@@ -68,12 +75,12 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "docker_registry" ]; then
   ./scripts/drevops/download-db-image.sh
 fi
 
-echo "  [OK] Downloaded database dump file in ${DREVOPS_DB_DIR}."
+pass "Downloaded database dump file in ${DREVOPS_DB_DIR}."
 
 ls -Alh "${DREVOPS_DB_DIR}" || true
 
 if [ -n "${DREVOPS_DB_DOWNLOAD_POST_PROCESS}" ]; then
-  echo "[INFO] Started running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
+  info "Started running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
   eval "${DREVOPS_DB_DOWNLOAD_POST_PROCESS}"
-  echo "  [OK] Finished Running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
+  pass "Finished Running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
 fi

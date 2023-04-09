@@ -36,15 +36,22 @@ DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP="${DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP:-}"
 
 # ------------------------------------------------------------------------------
 
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
 { [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP}" = "1" ]; } && echo "Skipping GitHub notification of deployment." && exit 0
 
-[ -z "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && echo "[ERROR] Missing required value for DREVOPS_NOTIFY_GITHUB_TOKEN" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}" ] && echo "[ERROR] Missing required value for DREVOPS_NOTIFY_DEPLOY_REPOSITORY" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_REF}" ] && echo "[ERROR] Missing required value for DREVOPS_NOTIFY_DEPLOY_REF" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" ] && echo "[ERROR] Missing required value for DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE}" ] && echo "[ERROR] Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE" && exit 1
+[ -z "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for DREVOPS_NOTIFY_GITHUB_TOKEN" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_REPOSITORY" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_REF}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_REF" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION" && exit 1
+[ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE" && exit 1
 
-echo "[INFO] Started GitHub deployment notification for operation ${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}"
+info "Started GitHub deployment notification for operation ${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}"
 
 #
 # Function to extract last value from JSON object passed via STDIN.
@@ -74,11 +81,11 @@ if [ "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" = "start" ]; then
   deployment_id="$(echo "${payload}" | extract_json_value "id")"
 
   # Check deployment ID.
-  { [ "${#deployment_id}" != "9" ] || [ "$(expr "x$deployment_id" : "x[0-9]*$")" -eq 0 ]; } && echo "[ERROR] Failed to get a deployment ID." && exit 1
+  { [ "${#deployment_id}" != "9" ] || [ "$(expr "x$deployment_id" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to get a deployment ID." && exit 1
 
-  echo "     > Marked deployment as started"
+  note "Marked deployment as started"
 else
-  [ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}" ] && echo "[ERROR] Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL" && exit 1
+  [ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL" && exit 1
 
   # Returns all deployment for this SHA sorted from the latest to the oldest.
   payload="$(curl \
@@ -91,7 +98,7 @@ else
   deployment_id="$(echo "${payload}" | extract_json_first_value "id")"
 
   # Check deployment ID.
-  { [ "${#deployment_id}" != "9" ] || [ "$(expr "x$deployment_id" : "x[0-9]*$")" -eq 0 ]; } && echo "[ERROR] Failed to get a deployment ID." && exit 1
+  { [ "${#deployment_id}" != "9" ] || [ "$(expr "x$deployment_id" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to get a deployment ID." && exit 1
 
   # Post status update.
   payload="$(curl \
@@ -104,9 +111,9 @@ else
 
   status="$(echo "${payload}" | extract_json_value "state")"
 
-  [ "${status}" != "success" ] && echo "[ERROR] Unable to set deployment status" && exit 1
+  [ "${status}" != "success" ] && fail "Unable to set deployment status" && exit 1
 
-  echo "     > Marked deployment as finished"
+  note "Marked deployment as finished"
 fi
 
-echo "  [OK] Finished GitHub deployment notification"
+pass "Finished GitHub deployment notification"

@@ -34,7 +34,14 @@ DREVOPS_TEST_ARTIFACT_DIR="${DREVOPS_TEST_ARTIFACT_DIR:-}"
 
 # ------------------------------------------------------------------------------
 
-echo "[INFO] Running BDD tests."
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
+info "Running BDD tests."
 
 # Create test reports and artifact directories.
 [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && mkdir -p "${DREVOPS_TEST_REPORTS_DIR}"
@@ -43,7 +50,7 @@ echo "[INFO] Running BDD tests."
 # Use parallel Behat profile if using more than a single node to run tests.
 if [ -n "${DREVOPS_TEST_BEHAT_PARALLEL_INDEX}" ]; then
   DREVOPS_TEST_BEHAT_PROFILE="p${DREVOPS_TEST_BEHAT_PARALLEL_INDEX}"
-  echo "     > Using Behat profile \"${DREVOPS_TEST_BEHAT_PROFILE}\"."
+  note "Using Behat profile \"${DREVOPS_TEST_BEHAT_PROFILE}\"."
 fi
 
 opts=(
@@ -62,5 +69,5 @@ opts=(
 # Run tests once and re-run on fail, but only in CI.
 vendor/bin/behat "${opts[@]}" "$@" ||
   ([ -n "${CI}" ] && vendor/bin/behat "${opts[@]}" --rerun "$@") &&
-  echo "  [OK] Behat tests passed." ||
+  pass "Behat tests passed." ||
   [ "${DREVOPS_TEST_BDD_ALLOW_FAILURE}" -eq 1 ]

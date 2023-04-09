@@ -71,7 +71,14 @@ DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
 #-------------------------------------------------------------------------------
 
-echo "[INFO] Started database dump download from Lagoon."
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
+info "Started database dump download from Lagoon."
 
 mkdir -p "${DREVOPS_DB_DIR}"
 
@@ -83,16 +90,16 @@ fi
 
 # Discover and load a custom database dump key if fingerprint is provided.
 if [ -n "${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT}" ]; then
-  echo "     > Custom database dump key is provided."
+  note "Custom database dump key is provided."
   DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT//:}"
   DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE//\"}"
 
-  [ ! -f "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE} does not exist." && exit 1
+  [ ! -f "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}" ] && fail "SSH key file ${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE} does not exist." && exit 1
 
   if ssh-add -l | grep -q "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}"; then
-    echo "     > SSH agent has ${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE} key loaded."
+    note "SSH agent has ${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE} key loaded."
   else
-    echo "     > SSH agent does not have default key loaded. Trying to load."
+    note "SSH agent does not have default key loaded. Trying to load."
     # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
     ssh-add -D > /dev/null
     ssh-add "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}"
@@ -119,9 +126,9 @@ ssh \
      echo \"      > Using existing dump ${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
    fi"
 
-echo "     > Downloading a backup."
+note "Downloading a backup."
 ssh_opts_string="${ssh_opts[@]}"
 rsync_opts=(-e "ssh $ssh_opts_string")
 rsync "${rsync_opts[@]}" "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER}@${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST}":"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}"/"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}" "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 
-echo "  [OK] Finished database dump download from Lagoon."
+pass "Finished database dump download from Lagoon."

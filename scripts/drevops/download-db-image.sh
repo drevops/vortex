@@ -19,9 +19,17 @@ DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN:-${DREVOPS_DOCKER
 DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-${DREVOPS_DOCKER_REGISTRY:-docker.io}}"
 
 #-------------------------------------------------------------------------------
-echo "[INFO] Started Docker data image download."
 
-[ -z "${DREVOPS_DB_DOCKER_IMAGE}" ] && echo "[ERROR] Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
+# @formatter:off
+note() { printf "       %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[32m  [OK] %s\033[0m\n" "$1" || printf "  [OK] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR}" ] && [ -t 1 ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+# @formatter:on
+
+info "Started Docker data image download."
+
+[ -z "${DREVOPS_DB_DOCKER_IMAGE}" ] && fail "Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
 
 export DREVOPS_DOCKER_REGISTRY_USERNAME="${DREVOPS_DOCKER_REGISTRY_USERNAME}"
 export DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN}"
@@ -30,4 +38,4 @@ export DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY}"
 
 docker pull "${DREVOPS_DOCKER_REGISTRY}/${DREVOPS_DB_DOCKER_IMAGE}"
 
-echo "  [OK] Finished Docker data image download."
+pass "Finished Docker data image download."
