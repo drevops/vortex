@@ -28,7 +28,7 @@ DREVOPS_DB_DOWNLOAD_POST_PROCESS="${DREVOPS_DB_DOWNLOAD_POST_PROCESS:-}"
 echo "[INFO] Started database download."
 
 # Kill-switch to proceed with download.
-[ "${DREVOPS_DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "  [OK] Skipping database download as $DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
+[ "${DREVOPS_DB_DOWNLOAD_PROCEED}" -ne 1 ] && echo "  [OK] Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
 # Check if database file exists.
 # @todo: Implement better support based on $DREVOPS_DB_FILE instead of hardcoded 'db*' name.

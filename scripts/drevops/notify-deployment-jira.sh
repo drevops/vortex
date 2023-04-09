@@ -36,7 +36,7 @@ DREVOPS_NOTIFY_JIRA_ENDPOINT="${DREVOPS_NOTIFY_JIRA_ENDPOINT:-https://jira.atlas
 # Flag to skip notification.
 DREVOPS_NOTIFY_DEPLOYMENT_SKIP="${DREVOPS_NOTIFY_DEPLOYMENT_SKIP:-}"
 
-# Flag to skip NewRelic deployment notification.
+# Flag to skip New Relic deployment notification.
 DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP="${DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP:-}"
 
 # ------------------------------------------------------------------------------

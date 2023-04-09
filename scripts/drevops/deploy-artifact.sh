@@ -33,10 +33,10 @@ DREVOPS_DEPLOY_ARTIFACT_SRC="${DREVOPS_DEPLOY_ARTIFACT_SRC:-}"
 DREVOPS_DEPLOY_ARTIFACT_ROOT="${DREVOPS_DEPLOY_ARTIFACT_ROOT:-$(pwd)}"
 
 # SSH key fingerprint used to connect to remote.
-DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT="${DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT:-}"
+DREVOPS_DEPLOY_SSH_FINGERPRINT="${DREVOPS_DEPLOY_SSH_FINGERPRINT:-}"
 
 # Default SSH file used if custom fingerprint is not provided.
-DREVOPS_DEPLOY_ARTIFACT_SSH_FILE="${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE:-${HOME}/.ssh/id_rsa}"
+DREVOPS_DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}"
 
 # Deployment report file name.
 DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE="${DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE:-${DREVOPS_DEPLOY_ARTIFACT_ROOT}/deployment_report.txt}"
@@ -63,21 +63,21 @@ echo "[INFO] Started ARTIFACT deployment."
 [ "$(git config --global user.email)" = "" ] && echo "     > Configuring global git user email." && git config --global user.email "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
 
 # Use custom deploy key if fingerprint is provided.
-if [ -n "${DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT}" ]; then
+if [ -n "${DREVOPS_DEPLOY_SSH_FINGERPRINT}" ]; then
   echo "     > Custom deployment key is provided."
-  DREVOPS_DEPLOY_ARTIFACT_SSH_FILE="${DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT//:}"
-  DREVOPS_DEPLOY_ARTIFACT_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE//\"}"
+  DREVOPS_DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FINGERPRINT//:}"
+  DREVOPS_DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_SSH_FILE//\"}"
 fi
 
-[ ! -f "${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE} does not exist." && exit 1
+[ ! -f "${DREVOPS_DEPLOY_SSH_FILE}" ] && echo "[ERROR] SSH key file ${DREVOPS_DEPLOY_SSH_FILE} does not exist." && exit 1
 
-if ssh-add -l | grep -q "${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE}"; then
-  echo "     > SSH agent has ${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE} key loaded."
+if ssh-add -l | grep -q "${DREVOPS_DEPLOY_SSH_FILE}"; then
+  echo "     > SSH agent has ${DREVOPS_DEPLOY_SSH_FILE} key loaded."
 else
   echo "     > SSH agent does not have default key loaded. Trying to load."
   # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
   ssh-add -D > /dev/null
-  ssh-add "${DREVOPS_DEPLOY_ARTIFACT_SSH_FILE}"
+  ssh-add "${DREVOPS_DEPLOY_SSH_FILE}"
 fi
 
 # Disable strict host key checking in CI.
