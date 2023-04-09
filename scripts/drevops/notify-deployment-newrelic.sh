@@ -33,12 +33,12 @@ DREVOPS_NOTIFY_NEWRELIC_ENDPOINT="${DREVOPS_NOTIFY_NEWRELIC_ENDPOINT:-https://ap
 # Flag to skip notification.
 DREVOPS_NOTIFY_DEPLOYMENT_SKIP="${DREVOPS_NOTIFY_DEPLOYMENT_SKIP:-}"
 
-# Flag to skip NewRelic deployment notification.
+# Flag to skip New Relic deployment notification.
 DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP="${DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP:-}"
 
 # ------------------------------------------------------------------------------
 
-{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP}" = "1" ]; } && echo "Skipping NewRelic notification of deployment." && exit 0
+{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP}" = "1" ]; } && echo "Skipping New Relic notification of deployment." && exit 0
 
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_APIKEY}" ] && echo "[ERROR] Missing required value for DREVOPS_NOTIFY_NEWRELIC_APIKEY" && exit 1
 [ -z "${DREVOPS_NOTIFY_DEPLOY_REF}" ] && echo "[ERROR] Missing required value for DREVOPS_NOTIFY_DEPLOY_REF" && exit 1

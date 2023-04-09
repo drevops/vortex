@@ -14,13 +14,13 @@ set -e
 DREVOPS_DEPLOY_DOCKER_MAP="${DREVOPS_DEPLOY_DOCKER_MAP:-}"
 
 # The username of the docker registry to deploy Docker image to.
-DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME="${DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME:-}}"
+DREVOPS_DOCKER_REGISTRY_USERNAME="${DREVOPS_DOCKER_REGISTRY_USERNAME:-}}"
 
 # The token of the docker registry to deploy Docker image to.
-DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN="${DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN:-}"
+DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN:-}"
 
-# The registry of the docker registry to deploy Docker image to.
-DREVOPS_DEPLOY_DOCKER_REGISTRY="${DREVOPS_DEPLOY_DOCKER_REGISTRY:-docker.io}"
+# Docker registry name. Provide port, if required as <server_name>:<port>.
+DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-docker.io}"
 
 # The tag of the image to push to. Defaults to 'latest'.
 DREVOPS_DEPLOY_DOCKER_IMAGE_TAG="${DREVOPS_DEPLOY_DOCKER_IMAGE_TAG:-latest}"
@@ -46,9 +46,9 @@ for value in "${values[@]}"; do
 done
 
 # Login to the registry.
-export DREVOPS_DOCKER_REGISTRY_USERNAME="${DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME}"
-export DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN}"
-export DREVOPS_DOCKER_REGISTRY="${DREVOPS_DEPLOY_DOCKER_REGISTRY}"
+export DREVOPS_DOCKER_REGISTRY_USERNAME="${DREVOPS_DOCKER_REGISTRY_USERNAME}"
+export DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN}"
+export DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY}"
 ./scripts/drevops/docker-login.sh
 
 for key in "${!services[@]}"; do
@@ -63,7 +63,7 @@ for key in "${!services[@]}"; do
   echo "     > Found \"${service}\" service container with id \"${cid}\"."
 
   [ -n "${image##*:*}" ] && image="${image}:${DREVOPS_DEPLOY_DOCKER_IMAGE_TAG}"
-  new_image="${DREVOPS_DEPLOY_DOCKER_REGISTRY}/${image}"
+  new_image="${DREVOPS_DOCKER_REGISTRY}/${image}"
 
   echo "     > Committing Docker image with name \"${new_image}\"."
   iid=$(docker commit "${cid}" "${new_image}")

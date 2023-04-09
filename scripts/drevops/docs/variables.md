@@ -268,12 +268,6 @@ SSH key file used to access Lagoon environment to download the database. Create 
 
 Default value: `HOME/.ssh/id_rsa`
 
-### `DREVOPS_DB_DOWNLOAD_SOURCE`
-
-Note that "docker_registry" works only for database-in-Docker-image database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) variable has a value).
-
-Default value: `curl`
-
 ### `DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE`
 
 Docker image archive file name.
@@ -324,9 +318,9 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_DEPLOY_ACTION`
 
-Deployment action. Values can be one of: deploy, deploy_override_db, destroy.
+Deploy action. Values can be one of: deploy, deploy_override_db, destroy.
 
-Default value: `deploy`
+Default value: `create`
 
 ### `DREVOPS_DEPLOY_ARTIFACT_GIT_BRANCH`
 
@@ -370,21 +364,9 @@ Source of the code to be used for artifact building.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DEPLOY_ARTIFACT_SSH_FILE`
-
-Default SSH file used if custom fingerprint is not provided.
-
-Default value: `HOME`
-
-### `DREVOPS_DEPLOY_ARTIFACT_SSH_FINGERPRINT`
-
-SSH key fingerprint used to connect to remote.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_DEPLOY_BRANCH`
 
-Deployment pull request number without "pr-" prefix.
+The Lagoon branch to deploy.
 
 Default value: `UNDEFINED`
 
@@ -397,36 +379,6 @@ Default value: `latest`
 ### `DREVOPS_DEPLOY_DOCKER_MAP`
 
 Comma-separated map of docker services and images to use for deployment in format "service1=org/image1,service2=org/image2".
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DEPLOY_DOCKER_REGISTRY`
-
-The registry of the docker registry to deploy Docker image to.
-
-Default value: `docker.io`
-
-### `DREVOPS_DEPLOY_DOCKER_REGISTRY_TOKEN`
-
-The token of the docker registry to deploy Docker image to.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DEPLOY_DOCKER_REGISTRY_USERNAME`
-
-The username of the docker registry to deploy Docker image to.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DEPLOY_LAGOON_ACTION`
-
-Deploy action. Values can be one of: deploy, deploy_override_db, destroy.
-
-Default value: `create`
-
-### `DREVOPS_DEPLOY_LAGOON_BRANCH`
-
-The Lagoon branch to deploy.
 
 Default value: `UNDEFINED`
 
@@ -472,45 +424,9 @@ Lagoon CLI version to use.
 
 Default value: `latest`
 
-### `DREVOPS_DEPLOY_LAGOON_PR`
-
-The PR number to deploy.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DEPLOY_LAGOON_PROJECT`
-
-The Lagoon project to perform deployment for.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DEPLOY_LAGOON_PR_BASE_BRANCH`
-
-The PR base branch (the branch the PR is raised against). Defaults to 'develop'.
-
-Default value: `develop`
-
-### `DREVOPS_DEPLOY_LAGOON_PR_HEAD`
-
-The PR head branch to deploy.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DEPLOY_LAGOON_SSH_FILE`
-
-Default SSH file used if custom fingerprint is not provided.
-
-Default value: `HOME`
-
-### `DREVOPS_DEPLOY_LAGOON_SSH_FINGERPRINT`
-
-SSH key fingerprint used to connect to remote. If not used, the currently loaded default SSH key (the key used for code checkout) will be used or deployment will fail with an error if the default SSH key is not loaded. In most cases, the default SSH key does not work (because it is a read-only key used by CircleCI to checkout code from git), so you should add another deployment key.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_DEPLOY_PR`
 
-Deployment pull request number without "pr-" prefix.
+The PR number to deploy.
 
 Default value: `UNDEFINED`
 
@@ -520,9 +436,33 @@ Flag to proceed with deployment. Set to `1` once the deployment configuration is
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_DEPLOY_PR_BASE_BRANCH`
+
+The PR base branch (the branch the PR is raised against). Defaults to 'develop'.
+
+Default value: `develop`
+
+### `DREVOPS_DEPLOY_PR_HEAD`
+
+The PR head branch to deploy.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_DEPLOY_SKIP`
 
 Flag to allow skipping of a deployment using additional flags. Different to [`$DREVOPS_DEPLOY_PROCEED`](#drevops_deploy_proceed) in a way that [`$DREVOPS_DEPLOY_PROCEED`](#drevops_deploy_proceed) is a failsafe to prevent any deployments, while [`$DREVOPS_DEPLOY_SKIP`](#drevops_deploy_skip) allows to selectively skip certain deployments using '[`$DREVOPS_DEPLOY_SKIP`](#drevops_deploy_skip)_PR_<NUMBER>' and '[`$DREVOPS_DEPLOY_SKIP`](#drevops_deploy_skip)_BRANCH_<SAFE_BRANCH>' variables.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_DEPLOY_SSH_FILE`
+
+Default SSH file used if custom fingerprint is not provided.
+
+Default value: `HOME`
+
+### `DREVOPS_DEPLOY_SSH_FINGERPRINT`
+
+SSH key fingerprint used to connect to remote.
 
 Default value: `UNDEFINED`
 
@@ -978,7 +918,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP`
 
-Flag to skip NewRelic deployment notification.
+Flag to skip New Relic deployment notification.
 
 Default value: `UNDEFINED`
 
@@ -1002,7 +942,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP`
 
-Flag to skip NewRelic deployment notification.
+Flag to skip New Relic deployment notification.
 
 Default value: `UNDEFINED`
 
