@@ -44,7 +44,6 @@ load _helper_deployment.bash
   # the previous stage of the build.
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_present_generated_settings "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"
@@ -97,7 +96,6 @@ load _helper_deployment.bash
 
   substep "ARTIFACT: Assert remote deployment files."
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
-  assert_files_present_generated_settings "${REMOTE_REPO_DIR}"
 
   # Assert Acquia integration files are absent.
   assert_files_present_no_integration_acquia "${REMOTE_REPO_DIR}"
@@ -153,7 +151,6 @@ load _helper_deployment.bash
   # the previous stage of the build.
 
   assert_files_present_common "${CURRENT_PROJECT_DIR}"
-  assert_files_not_present_generated_settings "${CURRENT_PROJECT_DIR}"
   assert_files_present_deployment "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_acquia "${CURRENT_PROJECT_DIR}"
   assert_files_present_no_integration_lagoon "${CURRENT_PROJECT_DIR}"

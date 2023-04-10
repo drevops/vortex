@@ -126,6 +126,23 @@ if (file_exists($app_root . '/' . $site_path . '/includes')) {
   }
 }
 
+// Default database configuration.
+$databases = [
+  'default' =>
+    [
+      'default' =>
+        [
+          'database' => getenv('MARIADB_DATABASE') ?: (getenv('DREVOPS_MARIADB_DATABASE') ?: 'drupal'),
+          'username' => getenv('MARIADB_USERNAME') ?: (getenv('DREVOPS_MARIADB_USERNAME') ?: 'drupal'),
+          'password' => getenv('MARIADB_PASSWORD') ?: (getenv('DREVOPS_MARIADB_PASSWORD') ?: 'drupal'),
+          'host' => getenv('MARIADB_HOST') ?: (getenv('DREVOPS_MARIADB_HOST') ?: 'localhost'),
+          'port' => getenv('MARIADB_PORT') ?: (getenv('DREVOPS_MARIADB_PORT') ?: ''),
+          'prefix' => '',
+          'driver' => 'mysql',
+        ],
+    ],
+];
+
 ////////////////////////////////////////////////////////////////////////////////
 ///                   END OF SITE-SPECIFIC SETTINGS                          ///
 ////////////////////////////////////////////////////////////////////////////////
@@ -280,11 +297,6 @@ if ($settings['environment'] == ENVIRONMENT_LOCAL) {
 ////////////////////////////////////////////////////////////////////////////////
 ///                    END OF PER-ENVIRONMENT SETTINGS                       ///
 ////////////////////////////////////////////////////////////////////////////////
-
-// Include generated settings file, if available.
-if (file_exists($app_root . '/' . $site_path . '/settings.generated.php')) {
-  include $app_root . '/' . $site_path . '/settings.generated.php';
-}
 
 // Load local development override configuration, if available.
 //

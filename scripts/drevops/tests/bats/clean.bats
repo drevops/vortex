@@ -17,7 +17,6 @@ load _helper.bash
   mktouch "web/themes/contrib/sometheme/sometheme.info.yml"
   mktouch "web/profiles/contrib/someprofile/someprofile.info.yml"
   mktouch "web/sites/default/somesettingsfile.php"
-  mktouch "web/sites/default/settings.generated.php"
   mktouch "web/sites/default/files/somepublicfile.php"
 
   mktouch "vendor/somevendor/somepackage/somepackage.php"
@@ -61,7 +60,6 @@ load _helper.bash
   assert_dir_not_exists "web/profiles/contrib"
 
   assert_file_exists "web/sites/default/somesettingsfile.php"
-  assert_file_not_exists "web/sites/default/settings.generated.php"
   assert_file_exists "web/sites/default/files/somepublicfile.php"
 
   assert_dir_not_exists "vendor"
@@ -103,7 +101,6 @@ load _helper.bash
   mktouch "web/themes/contrib/sometheme/sometheme.info.yml"
   mktouch "web/profiles/contrib/someprofile/someprofile.info.yml"
   mktouch "web/sites/default/somesettingsfile.php"
-  mktouch "web/sites/default/settings.generated.php"
   mktouch "web/sites/default/files/somepublicfile.php"
 
   mktouch "vendor/somevendor/somepackage/somepackage.php"
@@ -150,7 +147,6 @@ load _helper.bash
   assert_dir_not_exists "web/profiles/contrib"
 
   assert_file_not_exists "web/sites/default/somesettingsfile.php"
-  assert_file_not_exists "web/sites/default/settings.generated.php"
   assert_file_not_exists "web/sites/default/files/somepublicfile.php"
 
   assert_dir_not_exists "vendor"
@@ -190,7 +186,6 @@ load _helper.bash
   mktouch "web/themes/contrib/sometheme/sometheme.info.yml"
   mktouch "web/profiles/contrib/someprofile/someprofile.info.yml"
   mktouch "web/sites/default/somesettingsfile.php"
-  mktouch "web/sites/default/settings.generated.php"
   mktouch "web/sites/default/files/somepublicfile.php"
 
   mktouch "vendor/somevendor/somepackage/somepackage.php"
@@ -244,7 +239,6 @@ load _helper.bash
   assert_dir_not_exists "web/profiles/contrib"
 
   assert_file_not_exists "web/sites/default/somesettingsfile.php"
-  assert_file_not_exists "web/sites/default/settings.generated.php"
   assert_file_not_exists "web/sites/default/files/somepublicfile.php"
 
   assert_dir_not_exists "vendor"

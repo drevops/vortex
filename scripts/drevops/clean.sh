@@ -18,8 +18,7 @@ rm -rf \
   "./${DREVOPS_WEBROOT}/modules/contrib" \
   "./${DREVOPS_WEBROOT}/themes/contrib" \
   "./${DREVOPS_WEBROOT}/themes/custom/*/build" \
-  "./${DREVOPS_WEBROOT}/themes/custom/*/scss/_components.scss" \
-  "./${DREVOPS_WEBROOT}/sites/default/settings.generated.php"
+  "./${DREVOPS_WEBROOT}/themes/custom/*/scss/_components.scss"
 
 # shellcheck disable=SC2038
 find . -type d -name node_modules | xargs rm -Rf
