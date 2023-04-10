@@ -870,7 +870,7 @@ assert_ahoy_doctor_info() {
 assert_ahoy_github_labels() {
   step "Run ahoy github-labels"
 
-  export DREVOPS_GITHUB_TOKEN="${DREVOPS_GITHUB_TOKEN:-$TEST_GITHUB_TOKEN}"
+  export GITHUB_TOKEN="${GITHUB_TOKEN:-$TEST_GITHUB_TOKEN}"
 
   # Use "drevops/drevops-destination" as an example GitHub project.
   run ahoy github-labels drevops/drevops-destination
