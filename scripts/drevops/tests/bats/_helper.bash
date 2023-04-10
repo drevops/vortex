@@ -287,7 +287,6 @@ assert_files_present_drevops() {
 
   assert_file_exists "patches/.gitkeep"
 
-  assert_file_exists "scripts/composer/DrupalSettings.php"
   assert_file_exists "scripts/composer/ScriptHandler.php"
   assert_file_exists "scripts/custom/.gitkeep"
 
@@ -479,26 +478,6 @@ assert_files_present_drupal() {
   assert_dir_not_contains_string "${dir}" "#;<"
   assert_dir_not_contains_string "${dir}" "#;>"
 
-  popd >/dev/null || exit 1
-}
-
-# Setting generated during the build.
-assert_files_present_generated_settings(){
-  local dir="${1:-$(pwd)}"
-  local webroot="${2:-web}"
-
-  pushd "${dir}" >/dev/null || exit 1
-  assert_file_exists "${webroot}/sites/default/settings.generated.php"
-  popd >/dev/null || exit 1
-}
-
-# Setting generated during the build.
-assert_files_not_present_generated_settings(){
-  local dir="${1:-$(pwd)}"
-  local webroot="${2:-web}"
-
-  pushd "${dir}" >/dev/null || exit 1
-  assert_file_not_exists "${webroot}/sites/default/settings.generated.php"
   popd >/dev/null || exit 1
 }
 

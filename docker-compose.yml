@@ -53,8 +53,6 @@ x-environment: &default-environment
   CI: ${CI:-}
   # Uncomment below if emails are not being received by Mailhog locally.
   # SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
-  # Uncomment below if emails are not being received by Mailhog locally.
-  # SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}

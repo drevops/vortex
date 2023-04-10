@@ -128,9 +128,6 @@ assert_ahoy_build() {
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
 
-  # Assert generated settings file exists.
-  assert_files_present_generated_settings "" "${webroot}"
-
   # Assert only minified compiled CSS exists.
   assert_file_exists "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css"
   assert_file_not_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "background: #7e57e2"
@@ -168,8 +165,6 @@ assert_gitignore() {
   # Assert that lock files were added to the git repository.
   assert_git_file_is_tracked "composer.lock"
   assert_git_file_is_tracked "${webroot}/themes/custom/star_wars/package-lock.json"
-  # Assert that generated files were not added to the git repository.
-  assert_git_file_is_not_tracked "${webroot}/sites/default/settings.generated.php"
   assert_git_file_is_not_tracked ".data/db.sql"
   # Assert that local settings were not added to the git repository.
   assert_git_file_is_not_tracked "${webroot}/sites/default/settings.local.php"
@@ -782,8 +777,6 @@ assert_ahoy_clean() {
   assert_file_exists "${webroot}/sites/default/settings.local.php"
   # Assert manually created local services file exists.
   assert_file_exists "${webroot}/sites/default/services.local.yml"
-  # Assert generated settings file does not exist.
-  assert_files_not_present_generated_settings "" "${webroot}"
   # Assert manually created file still exists.
   assert_file_exists "untracked_file.txt"
   # Assert IDE config file still exists.

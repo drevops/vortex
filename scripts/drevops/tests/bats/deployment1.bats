@@ -55,7 +55,6 @@ load _helper_deployment.bash
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
   assert_files_present_common "${SRC_DIR}"
-  assert_files_present_generated_settings "${SRC_DIR}"
   assert_files_present_deployment "${SRC_DIR}"
   assert_files_present_integration_acquia "${SRC_DIR}" "sw" 1
   assert_files_present_no_integration_lagoon "${SRC_DIR}"
@@ -108,7 +107,6 @@ load _helper_deployment.bash
 
   # Assert Acquia integration files are present.
   assert_files_present_integration_acquia "${REMOTE_REPO_DIR}" "sw" 0
-  assert_files_not_present_generated_settings "${REMOTE_REPO_DIR}"
 
   popd > /dev/null
 }
@@ -160,7 +158,6 @@ load _helper_deployment.bash
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
   assert_files_present_common "${SRC_DIR}"
-  assert_files_not_present_generated_settings "${SRC_DIR}"
   assert_files_present_deployment "${SRC_DIR}"
   assert_files_present_integration_lagoon "${SRC_DIR}"
   assert_files_present_no_integration_acquia "${SRC_DIR}"
@@ -263,7 +260,6 @@ load _helper_deployment.bash
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
   assert_files_present_common "${SRC_DIR}"
-  assert_files_not_present_generated_settings "${SRC_DIR}"
   assert_files_present_deployment "${SRC_DIR}"
   assert_files_present_integration_lagoon "${SRC_DIR}"
   assert_files_present_no_integration_acquia "${SRC_DIR}"

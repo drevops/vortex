@@ -83,12 +83,10 @@
             "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
         ],
         "post-install-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-            "Utilities\\composer\\DrupalSettings::create"
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
         ],
         "post-update-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-            "Utilities\\composer\\DrupalSettings::create"
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
         ]
     },
     "minimum-stability": "stable",

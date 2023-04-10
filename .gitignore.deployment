@@ -33,6 +33,4 @@ web/themes/custom/your_site_theme/node_modules
 #;< ACQUIA
 # Do not ignore Acquia hooks.
 !/hooks/
-# Ignore generated settings.
-web/sites/default/settings.generated.php
 #;> ACQUIA
