@@ -6,9 +6,9 @@
 # Interactive prompt:
 # ./github-labels.sh
 #
-# Silent, if $DREVOPS_GITHUB_TOKEN or $GITHUB_TOKEN is set in an environment and
+# Silent, if $GITHUB_TOKEN or $GITHUB_TOKEN is set in an environment and
 # a repository provided as an argument:
-# DREVOPS_GITHUB_TOKEN=ghp_123 DREVOPS_GITHUB_REPO=myorg/myrepo ./github-labels.sh
+# GITHUB_TOKEN=ghp_123 DREVOPS_GITHUB_REPO=myorg/myrepo ./github-labels.sh
 #
 # shellcheck disable=SC2155
 
@@ -16,7 +16,7 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # GitHub token to perform operations.
-DREVOPS_GITHUB_TOKEN="${DREVOPS_GITHUB_TOKEN:-${GITHUB_TOKEN}}"
+GITHUB_TOKEN="${GITHUB_TOKEN:-${GITHUB_TOKEN}}"
 
 # GitHub repository as "org/name" to perform operations on.
 DREVOPS_GITHUB_REPO="${DREVOPS_GITHUB_REPO:-$1}"
@@ -82,12 +82,12 @@ main(){
 
   [  "${DREVOPS_GITHUB_REPO}" = "" ] && fail "GitHub repository name is required" && exit 1
 
-  if [  "${DREVOPS_GITHUB_TOKEN}" = "" ]; then
+  if [  "${GITHUB_TOKEN}" = "" ]; then
     echo ''
     echo -n 'GitHub Personal Access Token: '
-    read -r -s DREVOPS_GITHUB_TOKEN
+    read -r -s GITHUB_TOKEN
   fi
-  [  "${DREVOPS_GITHUB_TOKEN}" = "" ] && fail "GitHub token name is required" && exit 1
+  [  "${GITHUB_TOKEN}" = "" ] && fail "GitHub token name is required" && exit 1
 
   repo_org=$(echo "$DREVOPS_GITHUB_REPO" | cut -f1 -d /)
   repo_name=$(echo "$DREVOPS_GITHUB_REPO" | cut -f2 -d /)
@@ -173,7 +173,7 @@ is_provided_label(){
 user_has_access(){
   status=$( \
     curl -s -I \
-    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
+    -u "${GITHUB_TOKEN}":x-oauth-basic \
     --include -H "Accept: application/vnd.github.symmetra-preview+json" \
     -o /dev/null \
     -w "%{http_code}" \
@@ -186,7 +186,7 @@ user_has_access(){
 label_all(){
   response=$( \
     curl -s \
-    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
+    -u "${GITHUB_TOKEN}":x-oauth-basic \
     --include -H "Accept: application/vnd.github.symmetra-preview+json" \
     --request GET \
     "https://api.github.com/repos/${repo_org}/${repo_name}/labels" \
@@ -199,7 +199,7 @@ label_exists() {
   local name_encoded=$(uriencode "${name}")
   status=$( \
     curl -s -I \
-    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
+    -u "${GITHUB_TOKEN}":x-oauth-basic \
     --include -H "Accept: application/vnd.github.symmetra-preview+json" \
     -o /dev/null \
     -w "%{http_code}" \
@@ -214,7 +214,7 @@ label_create(){
   local color="${2}"
   local description="${3}"
   local status=$(curl -s \
-    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
+    -u "${GITHUB_TOKEN}":x-oauth-basic \
     -H "Accept: application/vnd.github.symmetra-preview+json" \
     -o /dev/null \
     -w "%{http_code}" \
@@ -231,7 +231,7 @@ label_update(){
   local description="${3}"
   local name_encoded=$(uriencode "${name}")
   local status=$(curl -s \
-    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
+    -u "${GITHUB_TOKEN}":x-oauth-basic \
     -H "Accept: application/vnd.github.symmetra-preview+json" \
     -o /dev/null \
     -w "%{http_code}" \
@@ -248,7 +248,7 @@ label_delete(){
   local description="${3}"
   local name_encoded=$(uriencode "${name}")
   local status=$(curl -s \
-    -u "${DREVOPS_GITHUB_TOKEN}":x-oauth-basic \
+    -u "${GITHUB_TOKEN}":x-oauth-basic \
     -H "Accept: application/vnd.github.symmetra-preview+json" \
     -o /dev/null \
     -w "%{http_code}" \

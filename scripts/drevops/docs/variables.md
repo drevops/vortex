@@ -728,7 +728,7 @@ GitHub repository as "org/name" to perform operations on.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_GITHUB_TOKEN`
+### `GITHUB_TOKEN`
 
 GitHub token to perform operations.
 
