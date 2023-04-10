@@ -51,8 +51,8 @@ x-environment: &default-environment
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   # Pass-through $CI variable used to identify the CI environment.
   CI: ${CI:-}
-  # Uncomment below if emails are not being received by Mailhog locally.
-  # SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
+  # Forward emails to Mailhog locally.
+  SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
