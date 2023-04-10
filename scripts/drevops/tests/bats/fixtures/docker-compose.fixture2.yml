@@ -16,6 +16,7 @@ services:
       LAGOON_LOCALDEV_URL: example-site.docker.amazee.io
       LAGOON_PROJECT: example_site
       LAGOON_ROUTE: example-site.docker.amazee.io
+      SSMTP_MAILHUB: host.docker.internal:1025
       XDEBUG_ENABLE: ''
     image: selenium/standalone-chrome
     labels:
@@ -40,6 +41,7 @@ services:
       LAGOON_LOCALDEV_URL: example-site.docker.amazee.io
       LAGOON_PROJECT: example_site
       LAGOON_ROUTE: example-site.docker.amazee.io
+      SSMTP_MAILHUB: host.docker.internal:1025
       XDEBUG_ENABLE: ''
     image: example_site-cli
     labels:
@@ -67,6 +69,7 @@ services:
       LAGOON_LOCALDEV_URL: example-site.docker.amazee.io
       LAGOON_PROJECT: example_site
       LAGOON_ROUTE: example-site.docker.amazee.io
+      SSMTP_MAILHUB: host.docker.internal:1025
       XDEBUG_ENABLE: ''
     labels:
       lagoon.type: mariadb
@@ -91,6 +94,7 @@ services:
       LAGOON_LOCALDEV_URL: example-site.docker.amazee.io
       LAGOON_PROJECT: example_site
       LAGOON_ROUTE: example-site.docker.amazee.io
+      SSMTP_MAILHUB: host.docker.internal:1025
       XDEBUG_ENABLE: ''
     labels:
       lagoon.name: nginx-php
@@ -122,6 +126,7 @@ services:
       LAGOON_LOCALDEV_URL: example-site.docker.amazee.io
       LAGOON_PROJECT: example_site
       LAGOON_ROUTE: example-site.docker.amazee.io
+      SSMTP_MAILHUB: host.docker.internal:1025
       XDEBUG_ENABLE: ''
     labels:
       lagoon.name: nginx-php
@@ -151,6 +156,7 @@ services:
       LAGOON_LOCALDEV_URL: example-site.docker.amazee.io
       LAGOON_PROJECT: example_site
       LAGOON_ROUTE: example-site.docker.amazee.io
+      SSMTP_MAILHUB: host.docker.internal:1025
       XDEBUG_ENABLE: ''
     labels:
       lagoon.type: solr
