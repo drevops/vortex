@@ -27,6 +27,7 @@ services:
   cli:
     build:
       args:
+        GITHUB_TOKEN: ''
         WEBROOT: web
       context: FIXTURE_CUR_DIR
       dockerfile: .docker/cli.dockerfile

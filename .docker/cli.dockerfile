@@ -16,6 +16,9 @@ ENV LAGOON_PR_HEAD_SHA=$LAGOON_PR_HEAD_SHA
 # Webroot is used for Drush aliases.
 ARG WEBROOT=web
 
+ARG GITHUB_TOKEN=""
+ENV GITHUB_TOKEN=$GITHUB_TOKEN
+
 # Set default values for environment variables.
 # These values will be overridden if set in docker-compose.yml or .env file
 # during build stage.
@@ -54,7 +57,8 @@ COPY composer.json composer.* .env* auth* /app/
 # Install PHP dependencies without including development dependencies. This is
 # crucial as it prevents potential security vulnerabilities from being exposed
 # to the production environment.
-RUN COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
+RUN if [ -n "$GITHUB_TOKEN" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"$GITHUB_TOKEN\"}}"; fi && \
+    COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
 
 # Install NodeJS dependencies.
 # Note that package-lock.json is not explicitly copied, allowing to run the
