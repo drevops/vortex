@@ -14,25 +14,9 @@ docker network create amazeeio-network 2> /dev/null || true
 [ "$(git config --global user.name)" = "" ] && echo "==> Configuring global git user name" && git config --global user.name "Test user"
 [ "$(git config --global user.email)" = "" ] && echo "==> Configuring global git user email" && git config --global user.email "someone@example.com"
 
-echo "==> Run unit tests."
-if [ ! -d "./vendor" ]; then
-  echo "  > Install root Composer dependencies."
-  composer install --ignore-platform-reqs --no-interaction --prefer-source
-fi
-rm web/sites/default/settings.generated.php || true
-MYSQL_HOST=localhost composer run post-install-cmd
-
 pushd "${TEST_DIR}/../installer" || exit 1
 if [ ! -d "./vendor" ]; then
   echo "  > Install Installer test Composer dependencies."
-  composer install -n --ansi
-fi
-composer test
-popd || exit 1
-
-pushd "${TEST_DIR}" || exit 1
-if [ ! -d "./vendor" ]; then
-  echo "  > Install test Composer dependencies."
   composer install -n --ansi
 fi
 composer test

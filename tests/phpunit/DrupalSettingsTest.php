@@ -1,20 +1,20 @@
 <?php
 
-namespace Drevops\Tests;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class DrupalSettingsTest.
  *
  * Tests for Drupal settings.
  *
- * @package Drevops\Tests
+ * @group site:unit
  *
- * phpcs:disable Drupal.Commenting.FunctionComment.Missing
- * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  * phpcs:disable Drupal.NamingConventions.ValidVariableName.LowerCamelName
  * phpcs:disable Drupal.NamingConventions.ValidGlobal.GlobalUnderScore
+ * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.Before
+ * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.After
  */
-class DrupalSettingsTest extends DrupalTestCase {
+class DrupalSettingsTest extends TestCase {
 
   /**
    * Application root.
@@ -67,33 +67,43 @@ class DrupalSettingsTest extends DrupalTestCase {
     parent::tearDown();
   }
 
-  public function testDefaults() {
+  /**
+   * Test generic settings.
+   */
+  public function testGeneric() {
     $this->setEnvVars([]);
     $this->requireSettings();
 
-    $default_config = $this->getDefaultConfig();
-    $default_settings = $this->getDefaultSettings();
+    $default_config = $this->getGenericConfig();
+    $default_settings = $this->getGenericSettings();
     $this->assertEquals($default_config, $this->config, 'Config');
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
-
-  public function testAcquiaGeneric() {
+  // phpcs:ignore #;< ACQUIA
+  /**
+   * Test Acquia-specific settings.
+   */
+  public function testAcquia() {
     $this->setEnvVars([
       'AH_SITE_ENVIRONMENT' => TRUE,
     ]);
 
     $this->requireSettings();
 
-    $default_config = $this->getDefaultConfig();
-    $default_settings = $this->getDefaultSettings();
+    $default_config = $this->getGenericConfig();
+    $default_settings = $this->getGenericSettings();
 
     $default_config['acquia_hosting_settings_autoconnect'] = FALSE;
 
     $this->assertEquals($default_config, $this->config, 'Config');
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
-
-  public function testLagoonGeneric() {
+  // phpcs:ignore #;> ACQUIA
+  // phpcs:ignore #;< LAGOON
+  /**
+   * Test Lagoon-specific settings.
+   */
+  public function testLagoon() {
     $this->setEnvVars([
       'LAGOON' => 1,
       'LAGOON_ROUTES' => 'http://example1.com,https://example2/com',
@@ -101,8 +111,8 @@ class DrupalSettingsTest extends DrupalTestCase {
 
     $this->requireSettings();
 
-    $default_config = $this->getDefaultConfig();
-    $default_settings = $this->getDefaultSettings();
+    $default_config = $this->getGenericConfig();
+    $default_settings = $this->getGenericSettings();
 
     $default_settings['hash_salt'] = hash('sha256', getenv('DREVOPS_MARIADB_HOST'));
     $default_settings['reverse_proxy'] = TRUE;
@@ -113,18 +123,24 @@ class DrupalSettingsTest extends DrupalTestCase {
 
     $this->assertEquals(1, LAGOON_VERSION);
   }
-
+  // phpcs:ignore #;> LAGOON
+  /**
+   * Test per-environment overrides for LOCAL environment.
+   */
   public function testEnvironmentLocal() {
     $this->setEnvVars([]);
 
     $this->requireSettings();
 
-    $default_config = $this->getDefaultConfig();
-    $default_settings = $this->getDefaultSettings();
+    $default_config = $this->getGenericConfig();
+    $default_settings = $this->getGenericSettings();
     $this->assertEquals($default_config, $this->config, 'Config');
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
 
+  /**
+   * Test per-environment overrides for CI environment.
+   */
   public function testEnvironmentCi() {
     $this->setEnvVars([
       'CI' => TRUE,
@@ -132,8 +148,8 @@ class DrupalSettingsTest extends DrupalTestCase {
 
     $this->requireSettings();
 
-    $default_config = $this->getDefaultConfig();
-    $default_settings = $this->getDefaultSettings();
+    $default_config = $this->getGenericConfig();
+    $default_settings = $this->getGenericSettings();
 
     $default_config['environment_indicator.indicator']['name'] = 'ci';
     $default_config['config_split.config_split.ci']['status'] = TRUE;
@@ -149,6 +165,10 @@ class DrupalSettingsTest extends DrupalTestCase {
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
 
+  // phpcs:ignore #;< ACQUIA
+  /**
+   * Test per-environment overrides for DEV environment.
+   */
   public function testEnvironmentDev() {
     // Use Acquia's settings to set the environment type.
     $this->setEnvVars([
@@ -157,9 +177,9 @@ class DrupalSettingsTest extends DrupalTestCase {
 
     $this->requireSettings();
 
-    $default_config = $this->getDefaultConfig();
+    $default_config = $this->getGenericConfig();
     $default_config['acquia_hosting_settings_autoconnect'] = FALSE;
-    $default_settings = $this->getDefaultSettings();
+    $default_settings = $this->getGenericSettings();
 
     $default_config['environment_indicator.indicator']['name'] = 'dev';
     $default_config['environment_indicator.indicator']['bg_color'] = '#4caf50';
@@ -177,7 +197,11 @@ class DrupalSettingsTest extends DrupalTestCase {
     $this->assertEquals($default_config, $this->config, 'Config');
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
-
+  // phpcs:ignore #;> ACQUIA
+  // phpcs:ignore #;< ACQUIA
+  /**
+   * Test per-environment overrides for TEST environment.
+   */
   public function testEnvironmentTest() {
     // Use Acquia's settings to set the environment type.
     $this->setEnvVars([
@@ -186,9 +210,9 @@ class DrupalSettingsTest extends DrupalTestCase {
 
     $this->requireSettings();
 
-    $default_config = $this->getDefaultConfig();
+    $default_config = $this->getGenericConfig();
     $default_config['acquia_hosting_settings_autoconnect'] = FALSE;
-    $default_settings = $this->getDefaultSettings();
+    $default_settings = $this->getGenericSettings();
 
     $default_config['environment_indicator.indicator']['name'] = 'test';
     $default_config['environment_indicator.indicator']['bg_color'] = '#fff176';
@@ -206,7 +230,11 @@ class DrupalSettingsTest extends DrupalTestCase {
     $this->assertEquals($default_config, $this->config, 'Config');
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
-
+  // phpcs:ignore #;> ACQUIA
+  // phpcs:ignore #;< ACQUIA
+  /**
+   * Test per-environment overrides for PROD environment.
+   */
   public function testEnvironmentProd() {
     // Use Acquia's settings to set the environment type.
     $this->setEnvVars([
@@ -215,9 +243,9 @@ class DrupalSettingsTest extends DrupalTestCase {
 
     $this->requireSettings();
 
-    $default_config = $this->getDefaultConfig();
+    $default_config = $this->getGenericConfig();
     $default_config['acquia_hosting_settings_autoconnect'] = FALSE;
-    $default_settings = $this->getDefaultSettings();
+    $default_settings = $this->getGenericSettings();
 
     $default_config['environment_indicator.indicator']['name'] = 'prod';
     $default_config['environment_indicator.indicator']['bg_color'] = '#ef5350';
@@ -235,8 +263,10 @@ class DrupalSettingsTest extends DrupalTestCase {
     $this->assertEquals($default_config, $this->config, 'Config');
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
-
+  // phpcs:ignore #;> ACQUIA
   /**
+   * Test the resulting environment based on the provider's configuration.
+   *
    * @dataProvider dataProviderEnvironment
    */
   public function testEnvironment($vars, $expected_env) {
@@ -247,11 +277,15 @@ class DrupalSettingsTest extends DrupalTestCase {
     $this->assertEquals($expected_env, $this->settings['environment']);
   }
 
+  /**
+   * Data provider for testing of the resulting environment.
+   */
   public function dataProviderEnvironment() {
     $this->requireSettings();
+
     return [
       [[], ENVIRONMENT_LOCAL],
-
+      // #;< ACQUIA
       // Acquia.
       [
         [
@@ -289,7 +323,8 @@ class DrupalSettingsTest extends DrupalTestCase {
         ],
         ENVIRONMENT_LOCAL,
       ],
-
+      // phpcs:ignore #;> ACQUIA
+      // phpcs:ignore #;< LAGOON
       // Lagoon.
       [
         [
@@ -413,7 +448,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         ],
         ENVIRONMENT_DEV,
       ],
-
+      // phpcs:ignore #;> LAGOON
       // CI.
       [
         [
@@ -421,6 +456,7 @@ class DrupalSettingsTest extends DrupalTestCase {
         ],
         ENVIRONMENT_CI,
       ],
+      // phpcs:ignore #;< LAGOON
       [
         [
           'CI' => 1,
@@ -429,10 +465,13 @@ class DrupalSettingsTest extends DrupalTestCase {
         ],
         ENVIRONMENT_DEV,
       ],
+      // phpcs:ignore #;> LAGOON
     ];
   }
 
   /**
+   * Test resulting database settings based on environment variables.
+   *
    * @dataProvider dataProviderDatabases
    */
   public function testDatabases($vars, $expected) {
@@ -443,6 +482,9 @@ class DrupalSettingsTest extends DrupalTestCase {
     $this->assertEquals($expected, $this->databases);
   }
 
+  /**
+   * Data provider for resulting database settings.
+   */
   public function dataProviderDatabases() {
     return [
       [
@@ -453,12 +495,8 @@ class DrupalSettingsTest extends DrupalTestCase {
               'database' => 'drupal',
               'username' => 'drupal',
               'password' => 'drupal',
-              // Special case: this value can vary depending on how
-              // settings.generated.php was created - MYSQL_HOST variable could
-              // have been set during creation.
-              // @see Utilities\composer\DrupalSettings::getDefaultDrupalSettingsContent()
-              'host' => 'localhost',
-              'port' => '',
+              'host' => 'mariadb',
+              'port' => '3306',
               'driver' => 'mysql',
               'prefix' => '',
             ],
@@ -542,30 +580,44 @@ class DrupalSettingsTest extends DrupalTestCase {
     ];
   }
 
-  protected function setEnvVars(array $vars) {
-    if (empty($vars['CI'])) {
+  /**
+   * Set environment variables.
+   *
+   * @param array $vars
+   *   Array of environment variables.
+   */
+  protected function setEnvVars(array $vars): void {
+    if (!isset($vars['CI'])) {
       $vars['CI'] = FALSE;
     }
-    if (empty($vars['LAGOON'])) {
+    if (!isset($vars['LAGOON'])) {
       $vars['LAGOON'] = FALSE;
     }
     $vars['TMP'] = '/tmp-test';
     $vars['DRUPAL_SHIELD_USER'] = 'CHANGE_ME';
     $vars['DRUPAL_SHIELD_PASS'] = 'CHANGE_ME';
+
     $this->envVars = $vars + $this->envVars;
+
     foreach ($this->envVars as $name => $value) {
       putenv("$name=$value");
     }
   }
 
-  protected function unsetEnvVars() {
+  /**
+   * Set environment variables.
+   */
+  protected function unsetEnvVars(): void {
     foreach (array_keys($this->envVars) as $name) {
       putenv("$name");
     }
   }
 
-  protected function requireSettings() {
-    $app_root = '../../../web';
+  /**
+   * Require settings file.
+   */
+  protected function requireSettings(): void {
+    $app_root = './web';
     $site_path = 'sites/default';
     $config = [];
     $settings = [];
@@ -580,7 +632,15 @@ class DrupalSettingsTest extends DrupalTestCase {
     $this->databases = $databases;
   }
 
-  protected function getDefaultConfig() {
+  /**
+   * Get generic configurations.
+   *
+   * Generic configurations are independent of environment or hosting provider.
+   *
+   * @return array
+   *   Array of configurations.
+   */
+  protected function getGenericConfig(): array {
     $config = [];
 
     $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -603,7 +663,15 @@ class DrupalSettingsTest extends DrupalTestCase {
     return $config;
   }
 
-  protected function getDefaultSettings() {
+  /**
+   * Get generic settings.
+   *
+   * Generic settings are independent of environment or hosting provider.
+   *
+   * @return array
+   *   Array of settings.
+   */
+  protected function getGenericSettings(): array {
     $settings = [];
 
     $settings['environment'] = ENVIRONMENT_LOCAL;
@@ -623,8 +691,8 @@ class DrupalSettingsTest extends DrupalTestCase {
       '^.+\.docker\.amazee\.io$',
       // URL when accessed from Behat tests.
       '^nginx$',
-      '^nginx\-php$',
       // #;< LAGOON
+      '^nginx\-php$',
       // Lagoon URL.
       '^.+\.au\.amazee\.io$',
       // #;> LAGOON

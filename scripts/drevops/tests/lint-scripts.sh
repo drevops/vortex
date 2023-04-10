@@ -16,14 +16,6 @@ if [ -d "${CUR_DIR}/scripts/drevops/installer/tests" ]; then
   popd >/dev/null || exit 1
 fi
 
-if [ -d "${CUR_DIR}/scripts/drevops/tests" ]; then
-  echo "==> Linting other scripts and tests."
-  pushd "${CUR_DIR}/scripts/drevops/tests" >/dev/null || exit 1
-  [ ! -f "vendor/bin/phpcs" ] && composer install
-  composer lint
-  popd >/dev/null || exit 1
-fi
-
 targets=()
 while IFS=  read -r -d $'\0'; do
     targets+=("$REPLY")
