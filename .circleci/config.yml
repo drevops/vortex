@@ -127,6 +127,8 @@ aliases:
         environment:
           # Set timezone to ensure that executed operations use correct timestamps.
           TZ: *timezone
+          # Set terminal capabilities.
+          TERM: xterm-256color
           # Always answer 'y' to any confirmation questions.
           DREVOPS_AHOY_CONFIRM_RESPONSE: 'y'
           #;< !INSTALL_FROM_PROFILE
