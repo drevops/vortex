@@ -21,7 +21,7 @@ drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/
 
 # Perform operations based on the current environment.
 if $drush php:eval "print \Drupal\core\Site\Settings::get('environment');" | grep -q -e dev -e test -e ci -e local; then
-  echo "       > Executing example operations in non-production environment."
+  echo "       Executing example operations in non-production environment."
   # Example operations.
   # Set site name.
   $drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -30,5 +30,5 @@ if $drush php:eval "print \Drupal\core\Site\Settings::get('environment');" | gre
   # Run deployment hooks defined in recently enabled modules (ys_core).
   # These hooks already ran for previously enabled modules.
   $drush -y deploy:hook
-  echo "       > Finished executing example operations in non-production environment."
+  echo "       Finished executing example operations in non-production environment."
 fi

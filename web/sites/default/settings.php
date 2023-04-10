@@ -221,7 +221,7 @@ if (getenv('LAGOON')) {
 
   // Hash salt.
   // MARIADB_HOST on Lagoon is a randomly generated service name.
-  $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST'));
+  $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: getenv('DREVOPS_MARIADB_HOST'));
 }
 // #;> LAGOON
 

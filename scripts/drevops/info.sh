@@ -41,7 +41,7 @@ fi
 note "Mailhog URL                 : http://mailhog.docker.amazee.io/"
 note "Xdebug                      : $(php -v | grep -q Xdebug && echo "Enabled ('ahoy up cli' to disable)" || echo "Disabled ('ahoy debug' to enable)")"
 if [ "${DREVOPS_DRUPAL_SHOW_LOGIN_LINK}" = "1" ] || [ -n "${1}" ]; then
-  echo -n "Site login link             : "
+  echo -n "       Site login link             : "
   ./scripts/drevops/drupal-login.sh
 fi
 echo
