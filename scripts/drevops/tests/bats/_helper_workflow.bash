@@ -95,7 +95,7 @@ assert_ahoy_build() {
   # Check that database file exists before build.
   [ -f ".data/db.sql" ] && db_file_exists=1
 
-#  export DREVOPS_DOCKER_VERBOSE="1"
+  # export DREVOPS_DOCKER_VERBOSE="1"
 
   run ahoy build
   sync_to_host

@@ -56,6 +56,17 @@ bats_load_library bats-helpers
 #
 # $APP_TMP_DIR - directory where the application may store it's temporary files.
 setup() {
+  # Preflight checks.
+  # @formatter:off
+  command -v curl > /dev/null           || ( echo "[ERROR] curl command is not available." && exit 1 )
+  command -v composer > /dev/null       || ( echo "[ERROR] composer command is not available." && exit 1 )
+  command -v docker > /dev/null         || ( echo "[ERROR] docker command is not available." && exit 1 )
+  command -v docker-compose > /dev/null || ( echo "[ERROR] docker-compose command is not available." && exit 1 )
+  command -v ahoy > /dev/null           || ( echo "[ERROR] ahoy command is not available." && exit 1 )
+  command -v jq > /dev/null             || ( echo "[ERROR] jq command is not available." && exit 1 )
+  [ -n "${TEST_GITHUB_TOKEN}" ]         || ( echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1 )
+  # @formatter:on
+
   export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
   export CUR_DIR="$(pwd)"
   export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR//\/\//\/}/drevops-$(random_string)"}"

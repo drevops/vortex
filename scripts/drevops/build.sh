@@ -145,7 +145,7 @@ docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
 docker cp -L tests $(docker-compose ps -q cli):/app/
 # Install all composer dependencies, including development ones.
 # Note that this will create composer.lock file if it does not exist.
-ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction --ansi --prefer-dist --no-progress" 1>"${composer_verbose_output}" 2>"${composer_verbose_output}"
+ahoy cli "if [ -n \"$GITHUB_TOKEN\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"$GITHUB_TOKEN\"}}'; fi && COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction --ansi --prefer-dist --no-progress" 1>"${composer_verbose_output}" 2>"${composer_verbose_output}"
 pass "Installed development dependencies."
 echo
 
