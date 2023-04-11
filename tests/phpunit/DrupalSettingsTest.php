@@ -79,6 +79,30 @@ class DrupalSettingsTest extends TestCase {
     $this->assertEquals($default_config, $this->config, 'Config');
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
+
+  /**
+   * Test Redis settings.
+   */
+  public function testRedis() {
+    $this->setEnvVars([
+      'DREVOPS_REDIS_ENABLED' => 1,
+      'REDIS_HOST' => 'redis_host',
+      'REDIS_SERVICE_PORT' => 1234,
+    ]);
+    $this->requireSettings();
+
+    $default_settings = $this->getGenericSettings();
+
+    $default_settings['redis.connection']['interface'] = 'PhpRedis';
+    $default_settings['redis.connection']['host'] = 'redis_host';
+    $default_settings['redis.connection']['port'] = 1234;
+    $default_settings['cache']['default'] = 'cache.backend.redis';
+
+    $this->assertArrayHasKey('bootstrap_container_definition', $this->settings);
+    unset($this->settings['bootstrap_container_definition']);
+
+    $this->assertEquals($default_settings, $this->settings, 'Settings');
+  }
   // phpcs:ignore #;< ACQUIA
   /**
    * Test Acquia-specific settings.
@@ -107,6 +131,8 @@ class DrupalSettingsTest extends TestCase {
     $this->setEnvVars([
       'LAGOON' => 1,
       'LAGOON_ROUTES' => 'http://example1.com,https://example2/com',
+      'LAGOON_PROJECT' => 'test_project',
+      'LAGOON_GIT_SAFE_BRANCH' => 'test_branch',
     ]);
 
     $this->requireSettings();
@@ -117,6 +143,7 @@ class DrupalSettingsTest extends TestCase {
     $default_settings['hash_salt'] = hash('sha256', getenv('DREVOPS_MARIADB_HOST'));
     $default_settings['reverse_proxy'] = TRUE;
     $default_settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
+    $default_settings['cache_prefix']['default'] = 'test_project_test_branch';
 
     $this->assertEquals($default_config, $this->config, 'Config');
     $this->assertEquals($default_settings, $this->settings, 'Settings');

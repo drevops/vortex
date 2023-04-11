@@ -25,6 +25,11 @@ if (file_exists($contrib_path . '/redis') && !empty(getenv('DREVOPS_REDIS_ENABLE
   if (extension_loaded('redis')) {
     $settings['cache']['default'] = 'cache.backend.redis';
 
+    if (!isset($class_loader)){
+      // Initialize the autoloader.
+      $class_loader = require_once $app_root . '/autoload.php';
+    }
+
     $class_loader->addPsr4('Drupal\\redis\\', $contrib_path . '/redis/src');
 
     $settings['bootstrap_container_definition'] = [
