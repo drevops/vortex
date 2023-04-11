@@ -10,7 +10,7 @@ services:
     environment:
       CI: "true"
       DREVOPS_PROJECT: example_site
-      DREVOPS_REDIS_ENABLED: '0'
+      DREVOPS_REDIS_ENABLED: ''
       DRUPAL_SHIELD_PASS: ''
       DRUPAL_SHIELD_USER: ''
       LAGOON_ENVIRONMENT_TYPE: local
@@ -36,7 +36,7 @@ services:
     environment:
       CI: "true"
       DREVOPS_PROJECT: example_site
-      DREVOPS_REDIS_ENABLED: '0'
+      DREVOPS_REDIS_ENABLED: ''
       DRUPAL_SHIELD_PASS: ''
       DRUPAL_SHIELD_USER: ''
       LAGOON_ENVIRONMENT_TYPE: local
@@ -65,7 +65,7 @@ services:
     environment:
       CI: "true"
       DREVOPS_PROJECT: example_site
-      DREVOPS_REDIS_ENABLED: '0'
+      DREVOPS_REDIS_ENABLED: ''
       DRUPAL_SHIELD_PASS: ''
       DRUPAL_SHIELD_USER: ''
       LAGOON_ENVIRONMENT_TYPE: local
@@ -91,7 +91,7 @@ services:
     environment:
       CI: "true"
       DREVOPS_PROJECT: example_site
-      DREVOPS_REDIS_ENABLED: '0'
+      DREVOPS_REDIS_ENABLED: ''
       DRUPAL_SHIELD_PASS: ''
       DRUPAL_SHIELD_USER: ''
       LAGOON_ENVIRONMENT_TYPE: local
@@ -124,7 +124,7 @@ services:
     environment:
       CI: "true"
       DREVOPS_PROJECT: example_site
-      DREVOPS_REDIS_ENABLED: '0'
+      DREVOPS_REDIS_ENABLED: ''
       DRUPAL_SHIELD_PASS: ''
       DRUPAL_SHIELD_USER: ''
       LAGOON_ENVIRONMENT_TYPE: local
@@ -155,7 +155,7 @@ services:
     environment:
       CI: "true"
       DREVOPS_PROJECT: example_site
-      DREVOPS_REDIS_ENABLED: '0'
+      DREVOPS_REDIS_ENABLED: ''
       DRUPAL_SHIELD_PASS: ''
       DRUPAL_SHIELD_USER: ''
       LAGOON_ENVIRONMENT_TYPE: local
