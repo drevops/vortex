@@ -758,17 +758,15 @@ assert_ahoy_redis() {
 
   substep "Redis integration is disabled"
   ahoy drush cr
-  ahoy cli curl -L -s "http://nginx:8080"
+  ahoy cli curl -L -s "http://nginx:8080" > /dev/null
   run docker-compose exec redis redis-cli --scan
   assert_output_not_contains "config"
 
   substep "Restart with environment variable"
-  ahoy db
   DREVOPS_REDIS_ENABLED=1 ahoy up cli
-  ahoy db
   sleep 10
   ahoy drush cr
-  ahoy cli curl -L -s "http://nginx:8080"
+  ahoy cli curl -L -s "http://nginx:8080" > /dev/null
   run docker-compose exec redis redis-cli --scan
   assert_output_contains "config"
 }
