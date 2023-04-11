@@ -209,6 +209,9 @@ if (getenv('LAGOON')) {
   // Lagoon reverse proxy settings.
   $settings['reverse_proxy'] = TRUE;
 
+  // Cache prefix.
+  $settings['cache_prefix']['default'] = getenv('LAGOON_PROJECT') . '_' . getenv('LAGOON_GIT_SAFE_BRANCH');
+
   // Trusted host patterns for Lagoon internal routes.
   // Do not add vanity domains here. Use the $settings['trusted_host_patterns']
   // array in a previous section.

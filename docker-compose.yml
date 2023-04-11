@@ -56,10 +56,12 @@ x-environment: &default-environment
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
+  # Redis integration flag.
+  DREVOPS_REDIS_ENABLED: ${DREVOPS_REDIS_ENABLED:-}
   #;< LAGOON
-  #: Global project name for Lagoon.
+  # Global project name for Lagoon.
   LAGOON_PROJECT: ${LAGOON_PROJECT:-example_site}
-  #: Lagoon environment type.
+  # Lagoon environment type.
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
   #;> LAGOON
 
