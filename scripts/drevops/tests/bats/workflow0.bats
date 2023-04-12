@@ -17,6 +17,8 @@ load _helper_workflow.bash
   assert_ahoy_build
   assert_gitignore
 
+  assert_solr
+
   assert_ahoy_cli
 
   assert_env_changes
@@ -49,7 +51,9 @@ load _helper_workflow.bash
 
   assert_ahoy_debug
 
-  assert_ahoy_redis
+  # Run this test as a last one to make sure that there is no concurrency issues
+  # with enabled Redis.
+  assert_redis
 
   assert_ahoy_clean
 

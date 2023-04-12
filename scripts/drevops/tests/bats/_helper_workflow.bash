@@ -265,7 +265,7 @@ assert_ahoy_info() {
   assert_output_contains "DB password                 : drupal"
   assert_output_contains "DB port                     : 3306"
   assert_output_contains "DB port on host             :"
-  assert_output_contains "Solr port on host           :"
+  assert_output_contains "Solr URL on host            :"
   assert_output_contains "Mailhog URL                 : http://mailhog.docker.amazee.io/"
   assert_output_contains "Xdebug                      : Disabled ('ahoy debug' to enable)"
   assert_output_not_contains "Containers are not running."
@@ -749,7 +749,14 @@ assert_ahoy_debug() {
   assert_output_not_contains "Enabled"
 }
 
-assert_ahoy_redis() {
+assert_solr() {
+  step "Solr"
+
+  run ahoy cli curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | jq '.response.numFound'
+  assert_output_contains 2
+}
+
+assert_redis() {
   step "Redis"
 
   substep "Redis service is running"

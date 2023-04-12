@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Install for YOURSITE Search module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function ys_search_install() {
+  \Drupal::service('module_installer')->uninstall(['search']);
+}

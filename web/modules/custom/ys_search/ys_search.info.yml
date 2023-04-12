@@ -1,11 +1,8 @@
-name: YOURSITE Core
+name: YOURSITE Search
 type: module
-description: Core feature for YOURSITE site.
+description: Search functionality for YOURSITE site.
 core_version_requirement: ^9
 package: your_site
-#;< REDIS
 dependencies:
-  - redis:redis
   - search_api:search_api
   - search_api_solr:search_api_solr
-#;> REDIS

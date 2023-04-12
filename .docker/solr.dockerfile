@@ -4,10 +4,11 @@ ARG CLI_IMAGE
 FROM ${CLI_IMAGE} as cli
 
 # @see https://hub.docker.com/r/uselagoon/solr/tags?page=1&name=drupal
-# @see https://github.com/uselagoon/lagoon-images/tree/main/images/solr-drupal
+# @see https://github.com/uselagoon/lagoon-images/blob/main/images/solr-drupal/7.Dockerfile
 FROM uselagoon/solr-7.7-drupal:22.10.0
 
 # Based off search_api_solr/solr-conf-templates/7.x as a sane default.
+# @see https://git.drupalcode.org/project/search_api_solr/-/tree/4.x/solr-conf-templates/7.x
 COPY .docker/config/solr /solr-conf/conf/
 
 USER root
