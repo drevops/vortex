@@ -5,6 +5,8 @@
  * YOURSITE Drupal context for Behat testing.
  */
 
+use DrevOps\BehatSteps\SearchApiTrait;
+use DrevOps\BehatSteps\WaitTrait;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use DrevOps\BehatSteps\ContentTrait;
 use DrevOps\BehatSteps\TaxonomyTrait;
@@ -21,6 +23,8 @@ class FeatureContext extends DrupalContext {
   use FieldTrait;
   use PathTrait;
   use TaxonomyTrait;
+  use SearchApiTrait;
+  use WaitTrait;
   use WatchdogTrait;
 
 }

@@ -168,7 +168,8 @@ services:
       lagoon.type: solr
     ports:
       - target: 8983
-    user: '1000'
+    volumes:
+      - search:/var/solr:rw
   wait_dependencies:
     command: mariadb:3306
     depends_on:
@@ -183,4 +184,4 @@ version: '2.3'
 volumes:
   app: {}
   files: {}
-
+  search: {}

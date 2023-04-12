@@ -16,12 +16,12 @@
 -->
 
 <elevate>
-    <!-- Example for ranking the node #789 first in searches for "example query": -->
-    <!--
-      <query text="example query">
-        <doc id="ab12cd34-site_index-entity:789:en" />
-     </query>
-    -->
-    <!-- Multiple <query> elements can be specified, contained in one <elevate>. -->
-    <!-- <query text="...">...</query> -->
+<!-- Example for ranking the node #789 first in searches for "example query": -->
+<!--
+  <query text="example query">
+    <doc id="ab12cd34-site_index-entity:789:en" />
+ </query>
+-->
+<!-- Multiple <query> elements can be specified, contained in one <elevate>. -->
+<!-- <query text="...">...</query> -->
 </elevate>

@@ -36,7 +36,7 @@ note "DB password                 : ${DREVOPS_MARIADB_PASSWORD}"
 note "DB port                     : ${DREVOPS_MARIADB_PORT}"
 note "DB port on host             : ${DREVOPS_HOST_DB_PORT} ('ahoy db' to start SequelAce)"
 if [ -n "${DREVOPS_HOST_SOLR_PORT}" ]; then
-  note "Solr port on host           : ${DREVOPS_HOST_SOLR_PORT}"
+  note "Solr URL on host            : http://127.0.0.1:${DREVOPS_HOST_SOLR_PORT}"
 fi
 note "Mailhog URL                 : http://mailhog.docker.amazee.io/"
 note "Xdebug                      : $(php -v | grep -q Xdebug && echo "Enabled ('ahoy up cli' to disable)" || echo "Disabled ('ahoy debug' to enable)")"

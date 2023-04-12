@@ -173,11 +173,12 @@ services:
       dockerfile: .docker/solr.dockerfile
       args:
         CLI_IMAGE: *cli-image
-    <<: *default-user
     environment:
       <<: *default-environment
     ports:
       - "8983" # Solr port in container. Find port on host with `ahoy info` or `docker-compose port solr 8983`.
+    volumes:
+      - search:/var/solr
     #;< LAGOON
     labels:
       lagoon.type: solr # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -217,3 +218,6 @@ networks:
 volumes:
   app: {}
   files: {}
+  #;< SOLR
+  search: {}
+  #;> SOLR

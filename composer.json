@@ -19,6 +19,8 @@
         "drupal/permissions_filter": "^1.2",
         "drupal/redirect": "^1.7",
         "drupal/redis": "^1.6",
+        "drupal/search_api": "^1.29",
+        "drupal/search_api_solr": "^4.2",
         "drupal/shield": "^1.6",
         "drupal/stage_file_proxy": "^1.2",
         "drupal/token": "^1.10",
