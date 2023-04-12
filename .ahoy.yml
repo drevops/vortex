@@ -89,7 +89,6 @@ commands:
     # DREVOPS_*, COMPOSE_* and TERM environment variables will be passed to the shell.
     # Escape double quotes with \" (slash double-quote) when passing arguments with spaces.
     cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec $(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_\|TERM" | sed 's/^/-e /') -T cli bash -c "$*"; else docker-compose exec cli bash; fi
-#    cmd: docker-compose exec cli "$*"
 
   composer:
     usage: Run Composer commands in the CLI service container.

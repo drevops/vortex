@@ -728,12 +728,6 @@ GitHub repository as "org/name" to perform operations on.
 
 Default value: `UNDEFINED`
 
-### `GITHUB_TOKEN`
-
-GitHub token to perform operations.
-
-Default value: `GITHUB_TOKEN`
-
 ### `DREVOPS_INSTALLER_URL`
 
 The URL of the installer script.
@@ -1029,6 +1023,12 @@ Default value: `main`
 Project name.
 
 Default value: `your_site`
+
+### `DREVOPS_REDIS_ENABLED`
+
+Enable Redis integration. See settings.redis.php for details.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_TASK_COPY_DB_ACQUIA_APP_NAME`
 
@@ -1385,6 +1385,12 @@ Default value: `web`
 ### `ENV_ID`
 
 Default value: `echo `
+
+### `GITHUB_TOKEN`
+
+GitHub token to perform operations.
+
+Default value: `GITHUB_TOKEN`
 
 ### `LAGOON_PROJECT`
 

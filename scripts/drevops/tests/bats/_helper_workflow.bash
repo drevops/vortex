@@ -749,6 +749,30 @@ assert_ahoy_debug() {
   assert_output_not_contains "Enabled"
 }
 
+assert_ahoy_redis() {
+  step "Redis"
+
+  substep "Redis service is running"
+  run docker-compose exec redis redis-cli FLUSHALL
+  assert_output_contains "OK"
+
+  substep "Redis integration is disabled"
+  ahoy drush cr
+  ahoy cli curl -L -s "http://nginx:8080" > /dev/null
+  run docker-compose exec redis redis-cli --scan
+  assert_output_not_contains "config"
+
+  substep "Restart with environment variable"
+  add_var_to_file .env "DREVOPS_REDIS_ENABLED" "1"
+  sync_to_container
+  DREVOPS_REDIS_ENABLED=1 ahoy up cli
+  sleep 10
+  ahoy drush cr
+  ahoy cli curl -L -s "http://nginx:8080" > /dev/null
+  run docker-compose exec redis redis-cli --scan
+  assert_output_contains "config"
+}
+
 assert_ahoy_clean() {
   local webroot="${1:-web}"
 

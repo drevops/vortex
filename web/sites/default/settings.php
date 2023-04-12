@@ -48,9 +48,9 @@ $settings['environment'] = !empty(getenv('CI')) ? ENVIRONMENT_CI : ENVIRONMENT_L
 ////////////////////////////////////////////////////////////////////////////////
 ///                       SITE-SPECIFIC SETTINGS                             ///
 ////////////////////////////////////////////////////////////////////////////////
-$app_root = $app_root ?? dirname(__DIR__, 2);
+$app_root = $app_root ?? DRUPAL_ROOT;
 $site_path = $site_path ?? 'sites/default';
-$contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir('modules/contrib') ? 'modules/contrib' : 'modules');
+$contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir($app_root . DIRECTORY_SEPARATOR . 'modules/contrib') ? 'modules/contrib' : 'modules');
 
 // Load services definition file.
 $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
@@ -122,7 +122,7 @@ date_default_timezone_set('Australia/Melbourne');
 // Include additional site-wide settings.
 if (file_exists($app_root . '/' . $site_path . '/includes')) {
   foreach (glob($app_root . '/' . $site_path . '/includes/settings.*.php') as $filename) {
-    require_once $filename;
+    require $filename;
   }
 }
 
@@ -208,6 +208,9 @@ if (getenv('LAGOON')) {
 
   // Lagoon reverse proxy settings.
   $settings['reverse_proxy'] = TRUE;
+
+  // Cache prefix.
+  $settings['cache_prefix']['default'] = getenv('LAGOON_PROJECT') . '_' . getenv('LAGOON_GIT_SAFE_BRANCH');
 
   // Trusted host patterns for Lagoon internal routes.
   // Do not add vanity domains here. Use the $settings['trusted_host_patterns']
@@ -310,7 +313,7 @@ if ($settings['environment'] == ENVIRONMENT_LOCAL) {
 //
 // Keep this code block at the end of this file to take full effect.
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-  include $app_root . '/' . $site_path . '/settings.local.php';
+  require $app_root . '/' . $site_path . '/settings.local.php';
 }
 if (file_exists($app_root . '/' . $site_path . '/services.local.yml')) {
   $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.local.yml';

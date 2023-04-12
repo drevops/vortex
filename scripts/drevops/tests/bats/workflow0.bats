@@ -49,6 +49,8 @@ load _helper_workflow.bash
 
   assert_ahoy_debug
 
+  assert_ahoy_redis
+
   assert_ahoy_clean
 
   assert_ahoy_reset
