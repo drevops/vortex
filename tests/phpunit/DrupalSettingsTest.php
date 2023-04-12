@@ -80,6 +80,7 @@ class DrupalSettingsTest extends TestCase {
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
 
+  // phpcs:ignore #;< REDIS
   /**
    * Test Redis settings.
    */
@@ -103,6 +104,7 @@ class DrupalSettingsTest extends TestCase {
 
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
+  // phpcs:ignore #;> REDIS
   // phpcs:ignore #;< ACQUIA
   /**
    * Test Acquia-specific settings.

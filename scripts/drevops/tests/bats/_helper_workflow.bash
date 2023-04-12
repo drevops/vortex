@@ -763,6 +763,8 @@ assert_ahoy_redis() {
   assert_output_not_contains "config"
 
   substep "Restart with environment variable"
+  add_var_to_file .env "DREVOPS_REDIS_ENABLED" "1"
+  sync_to_container
   DREVOPS_REDIS_ENABLED=1 ahoy up cli
   sleep 10
   ahoy drush cr
