@@ -5,6 +5,8 @@
  * Deploy functions called from drush deploy:hook.
  *
  * @see https://www.drush.org/latest/deploycommand/
+ *
+ * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.Before
  */
 
 use Drupal\Core\Extension\ExtensionDiscovery;
