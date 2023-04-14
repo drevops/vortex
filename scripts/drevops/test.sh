@@ -28,6 +28,10 @@ set -e
 # Helpful to set in CI to skip running of tests without modifying the codebase.
 DREVOPS_TEST_SKIP="${DREVOPS_TEST_SKIP:-}"
 
+# Test types to run. Can be a combination of comma-separated values:
+# unit,kernel,functional,bdd
+DREVOPS_TEST_TYPE="${DREVOPS_TEST_TYPE:-unit,kernel,functional,bdd}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -37,13 +41,10 @@ pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-# Get test type or fallback to defaults.
-DREVOPS_TEST_TYPE="${DREVOPS_TEST_TYPE:-unit-kernel-functional-bdd}"
-
 [ -n "${DREVOPS_TEST_SKIP}" ] && note "Skipping running of tests" && exit 0
 
 if [ -z "${DREVOPS_TEST_TYPE##*unit*}" ]; then
- ./scripts/drevops/test-unit.sh "$@"
+  ./scripts/drevops/test-unit.sh "$@"
 fi
 
 if [ -z "${DREVOPS_TEST_TYPE##*kernel*}" ]; then
