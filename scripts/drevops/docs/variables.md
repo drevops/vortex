@@ -908,11 +908,19 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE`
 
+Assign the ticket to this account.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_DEPLOY_JIRA_COMMENT_PREFIX`
+
+Deployment comment prefix.
+
 Default value: `UNDEFINED`
 
 ### `DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP`
 
-Flag to skip New Relic deployment notification.
+Flag to skip Jira deployment notification.
 
 Default value: `UNDEFINED`
 
@@ -960,7 +968,7 @@ Default value: `GITHUB_TOKEN`
 
 ### `DREVOPS_NOTIFY_JIRA_ENDPOINT`
 
-JIRA API endpoint.l
+JIRA API endpoint.
 
 Default value: `https://jira.atlassian.com`
 
