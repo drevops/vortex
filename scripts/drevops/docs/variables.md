@@ -1362,9 +1362,9 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_TEST_TYPE`
 
-Get test type or fallback to defaults.
+Test types to run. Can be a combination of comma-separated values: unit,kernel,functional,bdd
 
-Default value: `unit-kernel-functional-bdd`
+Default value: `unit,kernel,functional,bdd`
 
 ### `DREVOPS_TEST_UNIT_ALLOW_FAILURE`
 
