@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for install-site.sh
+# Unit tests for drupal-install-site.sh
 #
 #shellcheck disable=SC2030,SC2031
 

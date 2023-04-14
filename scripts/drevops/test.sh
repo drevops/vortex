@@ -41,7 +41,7 @@ pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-[ -n "${DREVOPS_TEST_SKIP}" ] && note "Skipping running of tests" && exit 0
+[ -n "${DREVOPS_TEST_SKIP}" ] && pass "Skipping running of tests" && exit 0
 
 if [ -z "${DREVOPS_TEST_TYPE##*unit*}" ]; then
   ./scripts/drevops/test-unit.sh "$@"

@@ -27,8 +27,8 @@ GraphQL
 Gruntfile
 Hotfix
 Integrations
-Jira
 JS
+Jira
 Kanban
 Lando
 Livereload
@@ -48,6 +48,7 @@ SCSS
 SHA
 SLAs
 SemVer
+Shellcheck
 SsL
 Ssl
 TBD
@@ -75,12 +76,15 @@ env
 fe
 formatter
 frontend
+github
 globbing
 hostname
 integrations
 io
+jira
 mariadb
 md
+newrelic
 npm
 onboarding
 php

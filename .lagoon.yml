@@ -23,15 +23,13 @@ tasks:
         shell: bash
 
     - run:
-        name: Set GitHub deployment status
+        name: Notify about pre-deployment.
         command: |
-          if  [ -n "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && [ -n "$LAGOON_PR_NUMBER" ]; then
-            [ -n "$LAGOON_PR_NUMBER" ] && GIT_SHA=${LAGOON_PR_HEAD_SHA#origin/} || GIT_SHA=$LAGOON_GIT_SHA
-            DREVOPS_NOTIFY_DEPLOY_REPOSITORY="your_org/your_site" \
-            DREVOPS_NOTIFY_DEPLOY_REF="$GIT_SHA" \
-            DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION="start" \
-            ./scripts/drevops/notify-deployment-github.sh || true
-          fi
+          DREVOPS_NOTIFY_EVENT=pre_deployment \
+          if [ -n "$LAGOON_PR_NUMBER" ]; then DREVOPS_NOTIFY_REF=$LAGOON_PR_NUMBER; DREVOPS_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; DREVOPS_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else DREVOPS_NOTIFY_REF=$LAGOON_GIT_BRANCH; DREVOPS_NOTIFY_SHA=$LAGOON_GIT_SHA; DREVOPS_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi \
+          DREVOPS_NOTIFY_PROJECT=$LAGOON_PROJECT \
+          DREVOPS_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
+          ./scripts/drevops/notify.sh
         service: cli
         shell: bash
 
@@ -114,40 +112,12 @@ tasks:
     - run:
         name: Send deployment notifications
         command: |
-          [ -n "$LAGOON_PR_NUMBER" ] && GIT_REF=$LAGOON_PR_NUMBER || GIT_REF=$LAGOON_GIT_BRANCH
-          php ./scripts/drevops/notify-deployment-email.php \
-            "YOURSITE" \
-            "lagoon-deploy@your-site-url.example" \
-            "your.name@your-site-url.example|Your Name" \
-            "$GIT_REF" \
-            "$LAGOON_ROUTES"
-
-          if [ -n "$NEWRELIC_ENABLED" ] && [ -n "$NEWRELIC_LICENSE" ] && [ -n "$DREVOPS_NOTIFY_NEWRELIC_APIKEY" ]; then
-            [ -n "$LAGOON_PR_NUMBER" ] && GIT_SHA=${LAGOON_PR_HEAD_SHA#origin/} || GIT_SHA=$LAGOON_GIT_SHA
-            DREVOPS_NOTIFY_NEWRELIC_APP_NAME="$LAGOON_PROJECT-$GIT_SHA" \
-            DREVOPS_NOTIFY_DEPLOY_REF="$GIT_SHA" \
-            ./scripts/drevops/notify-deployment-newrelic.sh
-          fi
-
-          if [ -n "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && [ -n "$LAGOON_PR_NUMBER" ]; then
-            [ -n "$LAGOON_PR_NUMBER" ] && GIT_SHA=${LAGOON_PR_HEAD_SHA#origin/} || GIT_SHA=$LAGOON_GIT_SHA
-            DREVOPS_NOTIFY_DEPLOY_REPOSITORY="your_org/your_site" \
-            DREVOPS_NOTIFY_DEPLOY_REF="$GIT_SHA" \
-            DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL="$LAGOON_ROUTE" \
-            DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION="finish" \
-            ./scripts/drevops/notify-deployment-github.sh || true
-          fi
-
-          if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}" ] && [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" ]; then
-            [ -n "$LAGOON_PR_NUMBER" ] && GIT_BRANCH=$LAGOON_PR_HEAD_BRANCH || GIT_BRANCH=$LAGOON_GIT_BRANCH
-            DREVOPS_NOTIFY_JIRA_ENDPOINT="${DREVOPS_NOTIFY_JIRA_ENDPOINT:-https://jira.atlassian.com}" \
-            DREVOPS_NOTIFY_DEPLOY_BRANCH="$GIT_BRANCH" \
-            DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL="$LAGOON_ROUTE" \
-            ./scripts/drevops/notify-deployment-jira.sh || true
-          fi
+          if [ -n "$LAGOON_PR_NUMBER" ]; then DREVOPS_NOTIFY_REF=$LAGOON_PR_NUMBER; DREVOPS_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; DREVOPS_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else DREVOPS_NOTIFY_REF=$LAGOON_GIT_BRANCH; DREVOPS_NOTIFY_SHA=$LAGOON_GIT_SHA; DREVOPS_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi \
+          DREVOPS_NOTIFY_PROJECT=$LAGOON_PROJECT \
+          DREVOPS_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
+          ./scripts/drevops/notify.sh
         service: cli
         shell: bash
-
 environments:
   # Branch name that represents production environment.
   master:

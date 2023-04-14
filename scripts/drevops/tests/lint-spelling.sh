@@ -18,6 +18,7 @@ done < <(
   find \
     "${CUR_DIR}"/.circleci \
     "${CUR_DIR}"/.docker \
+    "${CUR_DIR}"/hooks/library \
     "${CUR_DIR}"/scripts \
     "${CUR_DIR}"/patches \
     -type f \

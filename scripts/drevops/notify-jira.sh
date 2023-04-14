@@ -1,44 +1,41 @@
 #!/usr/bin/env bash
 ##
-# JIRA deployment notification.
+# Notification dispatch to Jira.
 #
+# Features:
 # - posts comment with a URL of a deployment environment
 # - moves an issues to a state
 # - assigns an issue to a dedicated user
+#
+# Uses user's token to perform operations.
 #
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # JIRA user.
-DREVOPS_NOTIFY_DEPLOY_JIRA_USER="${DREVOPS_NOTIFY_DEPLOY_JIRA_USER:-}"
+DREVOPS_NOTIFY_JIRA_USER="${DREVOPS_NOTIFY_JIRA_USER:-}"
 
 # JIRA token.
-DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN="${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN:-}"
+DREVOPS_NOTIFY_JIRA_TOKEN="${DREVOPS_NOTIFY_JIRA_TOKEN:-}"
 
 # Deployment reference, such as a git SHA.
-DREVOPS_NOTIFY_DEPLOY_BRANCH="${DREVOPS_NOTIFY_DEPLOY_BRANCH:-}"
+DREVOPS_NOTIFY_BRANCH="${DREVOPS_NOTIFY_BRANCH:-}"
 
 # Deployment environment URL.
-DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL="${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL:-}"
+DREVOPS_NOTIFY_ENVIRONMENT_URL="${DREVOPS_NOTIFY_ENVIRONMENT_URL:-}"
 
 # Deployment comment prefix.
-DREVOPS_NOTIFY_DEPLOY_JIRA_COMMENT_PREFIX="${DREVOPS_NOTIFY_DEPLOY_JIRA_COMMENT_PREFIX:-"Deployed to "}"
+DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX="${DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX:-"Deployed to "}"
 
 # State to move the ticket to.
-DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION="${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION:-}"
+DREVOPS_NOTIFY_JIRA_TRANSITION="${DREVOPS_NOTIFY_JIRA_TRANSITION:-}"
 
 # Assign the ticket to this account.
-DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE="${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE:-}"
+DREVOPS_NOTIFY_JIRA_ASSIGNEE="${DREVOPS_NOTIFY_JIRA_ASSIGNEE:-}"
 
 # JIRA API endpoint.
 DREVOPS_NOTIFY_JIRA_ENDPOINT="${DREVOPS_NOTIFY_JIRA_ENDPOINT:-https://jira.atlassian.com}"
-
-# Flag to skip notification.
-DREVOPS_NOTIFY_DEPLOYMENT_SKIP="${DREVOPS_NOTIFY_DEPLOYMENT_SKIP:-}"
-
-# Flag to skip Jira deployment notification.
-DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP="${DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -49,13 +46,12 @@ pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP}" = "1" ]; } && echo "Skipping JIRA notification of deployment." && exit 0
+command -v curl > /dev/null || ( fail "curl command is not available." && exit 1 )
+[ -z "${DREVOPS_NOTIFY_JIRA_USER}" ] && fail "Missing required value for DREVOPS_NOTIFY_JIRA_USER" && exit 1
+[ -z "${DREVOPS_NOTIFY_JIRA_TOKEN}" ] && fail "Missing required value for DREVOPS_NOTIFY_JIRA_TOKEN" && exit 1
+[ -z "${DREVOPS_NOTIFY_BRANCH}" ] && fail "Missing required value for DREVOPS_NOTIFY_BRANCH" && exit 1
 
-[ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_USER" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_BRANCH}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_BRANCH" && exit 1
-
-info "Started JIRA deployment notification"
+info "Started JIRA notification."
 
 #
 # Function to extract last value from JSON object passed via STDIN.
@@ -92,15 +88,15 @@ extract_issue() {
 }
 
 note "Extracting issue"
-issue="$(extract_issue "${DREVOPS_NOTIFY_DEPLOY_BRANCH}")"
-[ "${issue}" = "" ] && fail "Branch ${DREVOPS_NOTIFY_DEPLOY_BRANCH} does not contain issue number." && exit 1
-echo "    Found issue ${issue}"
+issue="$(extract_issue "${DREVOPS_NOTIFY_BRANCH}")"
+[ "${issue}" = "" ] && pass "Branch ${DREVOPS_NOTIFY_BRANCH} does not contain issue number." && exit 0
+note "Found issue ${issue}."
 
 note "Creating API token"
 base64_opts=() && [ "$(uname)" != "Darwin" ] && base64_opts=(-w 0)
-token="$(echo -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_USER}:${DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN}" | base64 "${base64_opts[@]}")"
+token="$(echo -n "${DREVOPS_NOTIFY_JIRA_USER}:${DREVOPS_NOTIFY_JIRA_TOKEN}" | base64 "${base64_opts[@]}")"
 
-echo -n "     > Checking API access..."
+echo -n "       Checking API access..."
 payload="$(curl \
  -s \
  -X GET \
@@ -110,17 +106,15 @@ payload="$(curl \
 
 account_id="$(echo "${payload}" | extract_json_value "accountId" || echo "error")"
 
-{ [ "${#account_id}" != "24" ] || [ "$(expr "x$account_id" : "x[0-9a-f]*$")" -eq 0 ]; } \
-&& { [ "${#account_id}" != "43" ] || [ "$(expr "x$account_id" : "x[0-9]*:[0-9a-f\-]*$")" -eq 0 ]; } \
-&& fail "Failed to authenticate" && echo "${payload}" && exit 1
+[ "${#account_id}" -lt 24 ] && fail "Failed to authenticate" && echo "${payload}" && exit 1
 echo "success"
 
-if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_COMMENT_PREFIX}" ]; then
-  note "Posting a comment"
+if [ -n "${DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX}" ]; then
+  note "Posting a comment."
 
-  [ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL" && exit 1
+  [ -z "${DREVOPS_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for DREVOPS_NOTIFY_ENVIRONMENT_URL." && exit 1
 
-  comment="[{\"type\": \"text\",\"text\": \"${DREVOPS_NOTIFY_DEPLOY_JIRA_COMMENT_PREFIX}\"},{\"type\": \"inlineCard\",\"attrs\": {\"url\": \"${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}\"}}]"
+  comment="[{\"type\": \"text\",\"text\": \"${DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX}\"},{\"type\": \"inlineCard\",\"attrs\": {\"url\": \"${DREVOPS_NOTIFY_ENVIRONMENT_URL}\"}}]"
   payload="$(curl \
     -s \
     -X POST \
@@ -132,13 +126,13 @@ if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_COMMENT_PREFIX}" ]; then
   comment_id="$(echo "${payload}" | extract_json_value "id" || echo "error")"
   [ "$(expr "x$comment_id" : "x[0-9]*$")" -eq 0 ] &&  fail "Failed to create a comment" && exit 1
 
-  echo "    Successfully posted comment ${comment_id}"
+  pass "Posted comment with ID ${comment_id}."
 fi
 
-if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" ]; then
-  note "Changing issue status to ${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}"
+if [ -n "${DREVOPS_NOTIFY_JIRA_TRANSITION}" ]; then
+  note "Transitioning issue to ${DREVOPS_NOTIFY_JIRA_TRANSITION}"
 
-  echo -n "     > Discovering transition ID for ${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}..."
+  echo -n "       Discovering transition ID for ${DREVOPS_NOTIFY_JIRA_TRANSITION}..."
   payload="$(curl \
     -s \
     -X GET \
@@ -146,9 +140,9 @@ if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" ]; then
     -H "Content-Type: application/json" \
     --url "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/transitions")"
 
-  transition_id="$(echo "${payload}" | extract_json_value "transitions" | extract_json_value_by_value "name" "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" "id" || echo "error")"
+  transition_id="$(echo "${payload}" | extract_json_value "transitions" | extract_json_value_by_value "name" "${DREVOPS_NOTIFY_JIRA_TRANSITION}" "id" || echo "error")"
   { [ "${transition_id}" = "" ] || [ "$(expr "x$transition_id" : "x[0-9]*$")" -eq 0 ]; } &&  fail "Failed to retrieve transition ID" && exit 1
-  echo -n "success"
+  echo "success"
 
   payload="$(curl \
     -s \
@@ -157,24 +151,24 @@ if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION}" ]; then
     -H "Content-Type: application/json" \
     --url "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/transitions" \
     --data "{ \"transition\": {\"id\": \"${transition_id}\"}}")"
+
+  pass "Transitioned issue to ${DREVOPS_NOTIFY_JIRA_TRANSITION} "
 fi
 
-if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ]; then
-  note "Assigning an issue to ${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}"
+if [ -n "${DREVOPS_NOTIFY_JIRA_ASSIGNEE}" ]; then
+  note "Assigning issue to ${DREVOPS_NOTIFY_JIRA_ASSIGNEE}"
 
-  echo -n "     > Discovering user ID for ${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}..."
+  echo -n "       Discovering user ID for ${DREVOPS_NOTIFY_JIRA_ASSIGNEE}..."
   payload="$(curl \
     -s \
     -X GET \
     -H "Authorization: Basic ${token}" \
     -H "Content-Type: application/json" \
-    --url "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/user/assignable/search?query=${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}&issueKey=${issue}")"
+    --url "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/user/assignable/search?query=${DREVOPS_NOTIFY_JIRA_ASSIGNEE}&issueKey=${issue}")"
 
   account_id="$(echo "${payload}" | extract_json_first_value "accountId" || echo "error")"
-  { [ "${#account_id}" != "24" ] || [ "$(expr "x$account_id" : "x[0-9a-f]*$")" -eq 0 ]; } \
-    && { [ "${#account_id}" != "43" ] || [ "$(expr "x$account_id" : "x[0-9]*:[0-9a-f\-]*$")" -eq 0 ]; } \
-    && fail "Failed to retrieve assignee account ID" && echo "${payload}" && exit 1
-  echo -n "success"
+  [ "${#account_id}" -lt 24 ] && fail "Failed to retrieve assignee account ID" && echo "${payload}" && exit 1
+  echo "success"
 
   payload="$(curl \
     -s \
@@ -183,6 +177,8 @@ if [ -n "${DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE}" ]; then
     -H "Content-Type: application/json" \
     --url "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/assignee" \
     --data "{ \"accountId\": \"${account_id}\"}")"
+
+  pass "Assigned issue to ${DREVOPS_NOTIFY_JIRA_ASSIGNEE}"
 fi
 
-pass "Finished JIRA deployment notification"
+pass "Finished JIRA notification."

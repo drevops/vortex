@@ -1,40 +1,37 @@
 #!/usr/bin/env bash
 ##
-# New Relic deployment notification.
+# Notification dispatch to New Relic.
 #
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
+# The project name to notify.
+DREVOPS_NOTIFY_PROJECT="${DREVOPS_NOTIFY_PROJECT:-}"
+
 # The API key. Usually of type 'USER'.
 DREVOPS_NOTIFY_NEWRELIC_APIKEY="${DREVOPS_NOTIFY_NEWRELIC_APIKEY:-}"
 
 # Deployment reference, such as a git SHA.
-DREVOPS_NOTIFY_DEPLOY_REF="${DREVOPS_NOTIFY_DEPLOY_REF:-}"
+DREVOPS_NOTIFY_SHA="${DREVOPS_NOTIFY_SHA:-}"
 
 # Application name as it appears in the dashboard.
-DREVOPS_NOTIFY_NEWRELIC_APP_NAME="${DREVOPS_NOTIFY_NEWRELIC_APP_NAME:-}"
+DREVOPS_NOTIFY_NEWRELIC_APP_NAME="${DREVOPS_NOTIFY_NEWRELIC_APP_NAME:-"${DREVOPS_NOTIFY_PROJECT}-${DREVOPS_NOTIFY_SHA}"}"
 
 # Optional Application ID. Will be discovered automatically from application name if not provided.
 DREVOPS_NOTIFY_NEWRELIC_APPID="${DREVOPS_NOTIFY_NEWRELIC_APPID:-}"
 
-# Optional deployment description.
-DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION="${DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION:-"${DREVOPS_NOTIFY_DEPLOY_REF} deployed"}"
+# Optional description.
+DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION="${DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION:-"${DREVOPS_NOTIFY_SHA} deployed"}"
 
-# Optional deployment changelog. Defaults to description.
+# Optional changelog. Defaults to description.
 DREVOPS_NOTIFY_NEWRELIC_CHANGELOG="${DREVOPS_NOTIFY_NEWRELIC_CHANGELOG:-${DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION}}"
 
-# Optional user name performing the deployment.
+# Optional name of the user performing the deployment.
 DREVOPS_NOTIFY_NEWRELIC_USER="${DREVOPS_NOTIFY_NEWRELIC_USER:-"Deployment robot"}"
 
 # Optional endpoint.
 DREVOPS_NOTIFY_NEWRELIC_ENDPOINT="${DREVOPS_NOTIFY_NEWRELIC_ENDPOINT:-https://api.newrelic.com/v2}"
-
-# Flag to skip notification.
-DREVOPS_NOTIFY_DEPLOYMENT_SKIP="${DREVOPS_NOTIFY_DEPLOYMENT_SKIP:-}"
-
-# Flag to skip New Relic deployment notification.
-DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP="${DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -45,16 +42,16 @@ pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP}" = "1" ]; } && echo "Skipping New Relic notification of deployment." && exit 0
-
+command -v curl > /dev/null || ( fail "curl command is not available." && exit 1 )
+[ -z "${DREVOPS_NOTIFY_PROJECT}" ] && fail "Missing required value for DREVOPS_NOTIFY_PROJECT" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_APIKEY}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_APIKEY" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_REF}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_REF" && exit 1
+[ -z "${DREVOPS_NOTIFY_SHA}" ] && fail "Missing required value for DREVOPS_NOTIFY_REF" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_APP_NAME}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_APP_NAME" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_CHANGELOG}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_CHANGELOG" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_USER}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_USER" && exit 1
 
-info "Started New Relic notification"
+info "Started New Relic notification."
 
 # Discover APP id by name if it was not provided.
 if [ -z "${DREVOPS_NOTIFY_NEWRELIC_APPID}" ] && [ -n "${DREVOPS_NOTIFY_NEWRELIC_APP_NAME}" ]; then
@@ -74,14 +71,14 @@ if ! curl -X POST "${DREVOPS_NOTIFY_NEWRELIC_ENDPOINT}/applications/${DREVOPS_NO
   -d \
   "{
   \"deployment\": {
-    \"revision\": \"${DREVOPS_NOTIFY_DEPLOY_REF}\",
+    \"revision\": \"${DREVOPS_NOTIFY_SHA}\",
     \"changelog\": \"${DREVOPS_NOTIFY_NEWRELIC_CHANGELOG}\",
     \"description\": \"${DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION}\",
     \"user\": \"${DREVOPS_NOTIFY_NEWRELIC_USER}\"
   }
 }" | grep -q '201'; then
-  error "[ERROR] Failed to crate a deployment notification for application ${DREVOPS_NOTIFY_NEWRELIC_APP_NAME} with ID ${DREVOPS_NOTIFY_NEWRELIC_APPID}"
+  fail "[ERROR] Failed to crate a deployment notification for application ${DREVOPS_NOTIFY_NEWRELIC_APP_NAME} with ID ${DREVOPS_NOTIFY_NEWRELIC_APPID}"
   exit 1
 fi
 
-pass "Finished New Relic notification"
+pass "Finished New Relic notification."
