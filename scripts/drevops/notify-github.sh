@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 ##
-# GitHub deployment notification.
+# Notification dispatch to GitHub.
 #
-# Note: the deployment can be scheduled only if all checks are passed. This
-# means that the deployment notification will fail if the CI has not finished
-# running and reporting checks as success.
+# Provides dispatching "deployments" notifications to GitHub.
+# @see https://docs.github.com/en/rest/deployments/deployments
+#
+# GitHub deployments can only be created if all checks pass. Thus, the
+# deployment notification dispatch will fail if CI hasn't completed and
+# reported successful checks.
 #
 
 set -e
@@ -14,25 +17,19 @@ set -e
 DREVOPS_NOTIFY_GITHUB_TOKEN="${DREVOPS_NOTIFY_GITHUB_TOKEN:-${GITHUB_TOKEN}}"
 
 # Deployment repository.
-DREVOPS_NOTIFY_DEPLOY_REPOSITORY="${DREVOPS_NOTIFY_DEPLOY_REPOSITORY:-}"
+DREVOPS_NOTIFY_REPOSITORY="${DREVOPS_NOTIFY_REPOSITORY:-}"
 
 # Deployment reference, such as a git SHA.
-DREVOPS_NOTIFY_DEPLOY_REF="${DREVOPS_NOTIFY_DEPLOY_REF:-}"
+DREVOPS_NOTIFY_REF="${DREVOPS_NOTIFY_REF:-}"
 
-# Operation type: start or finish.
-DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION="${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION:-}"
+# The event to notify about. Can be 'pre_deployment' or 'post_deployment'.
+DREVOPS_NOTIFY_EVENT="${DREVOPS_NOTIFY_EVENT:-}"
 
 # Deployment environment URL.
-DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL="${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL:-}"
+DREVOPS_NOTIFY_ENVIRONMENT_URL="${DREVOPS_NOTIFY_ENVIRONMENT_URL:-}"
 
 # Deployment environment type: production, uat, dev, pr.
-DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE="${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE:-PR}"
-
-# Flag to skip deployment notification.
-DREVOPS_NOTIFY_DEPLOYMENT_SKIP="${DREVOPS_NOTIFY_DEPLOYMENT_SKIP:-}"
-
-# Flag to skip GitHub deployment notification.
-DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP="${DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP:-}"
+DREVOPS_NOTIFY_ENVIRONMENT_TYPE="${DREVOPS_NOTIFY_ENVIRONMENT_TYPE:-PR}"
 
 # ------------------------------------------------------------------------------
 
@@ -43,15 +40,14 @@ pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-{ [ "${DREVOPS_NOTIFY_DEPLOYMENT_SKIP}" = "1" ] || [ "${DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP}" = "1" ]; } && echo "Skipping GitHub notification of deployment." && exit 0
-
+command -v curl > /dev/null || ( fail "curl command is not available." && exit 1 )
 [ -z "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for DREVOPS_NOTIFY_GITHUB_TOKEN" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_REPOSITORY" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_REF}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_REF" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION" && exit 1
-[ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE" && exit 1
+[ -z "${DREVOPS_NOTIFY_REPOSITORY}" ] && fail "Missing required value for DREVOPS_NOTIFY_REPOSITORY" && exit 1
+[ -z "${DREVOPS_NOTIFY_REF}" ] && fail "Missing required value for DREVOPS_NOTIFY_REF" && exit 1
+[ -z "${DREVOPS_NOTIFY_EVENT}" ] && fail "Missing required value for DREVOPS_NOTIFY_EVENT" && exit 1
+[ -z "${DREVOPS_NOTIFY_ENVIRONMENT_TYPE}" ] && fail "Missing required value for DREVOPS_NOTIFY_ENVIRONMENT_TYPE" && exit 1
 
-info "Started GitHub deployment notification for operation ${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}"
+info "Started GitHub notification for ${DREVOPS_NOTIFY_EVENT} event."
 
 #
 # Function to extract last value from JSON object passed via STDIN.
@@ -69,23 +65,23 @@ extract_json_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-if [ "${DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION}" = "start" ]; then
+if [ "${DREVOPS_NOTIFY_EVENT}" = "pre_deployment" ]; then
   payload="$(curl \
     -X POST \
     -H "Authorization: token ${DREVOPS_NOTIFY_GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     -s \
-    "https://api.github.com/repos/${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}/deployments" \
-    -d "{\"ref\":\"${DREVOPS_NOTIFY_DEPLOY_REF}\", \"environment\": \"${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE}\", \"auto_merge\": false}")"
+    "https://api.github.com/repos/${DREVOPS_NOTIFY_REPOSITORY}/deployments" \
+    -d "{\"ref\":\"${DREVOPS_NOTIFY_REF}\", \"environment\": \"${DREVOPS_NOTIFY_ENVIRONMENT_TYPE}\", \"auto_merge\": false}")"
 
   deployment_id="$(echo "${payload}" | extract_json_value "id")"
 
   # Check deployment ID.
   { [ "${#deployment_id}" != "9" ] || [ "$(expr "x$deployment_id" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to get a deployment ID." && exit 1
 
-  note "Marked deployment as started"
+  note "Marked deployment as started."
 else
-  [ -z "${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}" ] && fail "Missing required value for DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL" && exit 1
+  [ -z "${DREVOPS_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for DREVOPS_NOTIFY_ENVIRONMENT_URL" && exit 1
 
   # Returns all deployment for this SHA sorted from the latest to the oldest.
   payload="$(curl \
@@ -93,7 +89,7 @@ else
     -H "Authorization: token ${DREVOPS_NOTIFY_GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     -s \
-    "https://api.github.com/repos/${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}/deployments?ref=${DREVOPS_NOTIFY_DEPLOY_REF}")"
+    "https://api.github.com/repos/${DREVOPS_NOTIFY_REPOSITORY}/deployments?ref=${DREVOPS_NOTIFY_REF}")"
 
   deployment_id="$(echo "${payload}" | extract_json_first_value "id")"
 
@@ -105,15 +101,15 @@ else
     -X POST \
     -H "Accept: application/vnd.github.v3+json" \
     -H "Authorization: token ${DREVOPS_NOTIFY_GITHUB_TOKEN}" \
-    "https://api.github.com/repos/${DREVOPS_NOTIFY_DEPLOY_REPOSITORY}/deployments/${deployment_id}/statuses" \
+    "https://api.github.com/repos/${DREVOPS_NOTIFY_REPOSITORY}/deployments/${deployment_id}/statuses" \
     -s \
-    -d "{\"state\":\"success\", \"environment_url\": \"${DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL}\"}")"
+    -d "{\"state\":\"success\", \"environment_url\": \"${DREVOPS_NOTIFY_ENVIRONMENT_URL}\"}")"
 
   status="$(echo "${payload}" | extract_json_value "state")"
 
   [ "${status}" != "success" ] && fail "Unable to set deployment status" && exit 1
 
-  note "Marked deployment as finished"
+  note "Marked deployment as finished."
 fi
 
-pass "Finished GitHub deployment notification"
+pass "Finished GitHub notification for ${DREVOPS_NOTIFY_EVENT} event."

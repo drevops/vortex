@@ -96,6 +96,8 @@ markdown_extensions:
 nav:
   - About: index.md
   - Quickstart: quickstart.md
+  - Architecture: architecture.md
+  - Authoring scripts: authoring-scripts.md
   - Variables: variables.md
   - Docker: docker.md
   - Database: database.md

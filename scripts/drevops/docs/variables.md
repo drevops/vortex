@@ -864,13 +864,7 @@ Optional SSH key fingerprint to use for mirroring.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_NOTIFY_DEPLOYMENT_SKIP`
-
-Flag to skip deployment notification.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_BRANCH`
+### `DREVOPS_NOTIFY_BRANCH`
 
 Deployment reference, such as a git SHA.
 
@@ -882,81 +876,21 @@ Flag to skip Email deployment notification.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_TYPE`
+### `DREVOPS_NOTIFY_ENVIRONMENT_TYPE`
 
 Deployment environment type: production, uat, dev, pr.
 
 Default value: `PR`
 
-### `DREVOPS_NOTIFY_DEPLOY_ENVIRONMENT_URL`
+### `DREVOPS_NOTIFY_ENVIRONMENT_URL`
 
 Deployment environment URL.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_NOTIFY_DEPLOY_GITHUB_OPERATION`
+### `DREVOPS_NOTIFY_EVENT`
 
-Operation type: start or finish.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_GITHUB_SKIP`
-
-Flag to skip GitHub deployment notification.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_JIRA_ASSIGNEE`
-
-Assign the ticket to this account.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_JIRA_COMMENT_PREFIX`
-
-Deployment comment prefix.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_JIRA_SKIP`
-
-Flag to skip Jira deployment notification.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_JIRA_TOKEN`
-
-JIRA token.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_JIRA_TRANSITION`
-
-State to move the ticket to.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_JIRA_USER`
-
-JIRA user.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_NEWRELIC_SKIP`
-
-Flag to skip New Relic deployment notification.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_REF`
-
-Deployment reference, such as a git SHA.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_NOTIFY_DEPLOY_REPOSITORY`
-
-Deployment repository.
+The event to notify about. Can be 'pre_deployment' or 'post_deployment'.
 
 Default value: `UNDEFINED`
 
@@ -966,11 +900,41 @@ Deployment GitHub token.
 
 Default value: `GITHUB_TOKEN`
 
+### `DREVOPS_NOTIFY_JIRA_ASSIGNEE`
+
+Assign the ticket to this account.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX`
+
+Deployment comment prefix.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_NOTIFY_JIRA_ENDPOINT`
 
 JIRA API endpoint.
 
 Default value: `https://jira.atlassian.com`
+
+### `DREVOPS_NOTIFY_JIRA_TOKEN`
+
+JIRA token.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_JIRA_TRANSITION`
+
+State to move the ticket to.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_JIRA_USER`
+
+JIRA user.
+
+Default value: `UNDEFINED`
 
 ### `DREVOPS_NOTIFY_NEWRELIC_APIKEY`
 
@@ -992,13 +956,13 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_NOTIFY_NEWRELIC_CHANGELOG`
 
-Optional deployment changelog. Defaults to description.
+Optional changelog. Defaults to description.
 
 Default value: `DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION`
 
 ### `DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION`
 
-Optional deployment description.
+Optional description.
 
 Default value: `UNDEFINED`
 
@@ -1010,9 +974,45 @@ Default value: `https://api.newrelic.com/v2`
 
 ### `DREVOPS_NOTIFY_NEWRELIC_USER`
 
-Optional user name performing the deployment.
+Optional name of the user performing the deployment.
 
 Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_PROJECT`
+
+The project name to notify.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_REF`
+
+Deployment reference, such as a git SHA.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_REPOSITORY`
+
+Deployment repository.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_SHA`
+
+Deployment reference, such as a git SHA.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_SKIP`
+
+Flag to skip running of all notifications.
+
+Default value: `UNDEFINED`
+
+### `DREVOPS_NOTIFY_TYPE`
+
+The type of test. Can be a combination of comma-separated values: email,newrelic,github,jira Set as a constant variable.
+
+Default value: `email`
 
 ### `DREVOPS_NPM_VERBOSE`
 
