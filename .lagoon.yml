@@ -17,8 +17,7 @@ tasks:
   post-rollout:
     - run:
         name: Show DrevOps variables.
-        command: |
-          env -0  | sort -z | tr '\0' '\n' | grep ^DREVOPS_ || true
+        command: env -0  | sort -z | tr '\0' '\n' | grep ^DREVOPS_ || true
         service: cli
         shell: bash
 
@@ -43,32 +42,13 @@ tasks:
         service: cli
     #;< !INSTALL_FROM_PROFILE
     - run:
-        name: Download database
+        name: Download database in non-production environments
         command: |
-          #; If Lagoon is used as non-prod environment and the database is
-          #; located elsewhere, we need to get access to that remote
-          #; environmnent to download the database dump.
-          #;
-          #;< ACQUIA
-          #: If source DB is in Acquia, we need to be able to use Cloud API
-          #: to download the database dump. In order to do so, we need to
-          #: provide Cloud API credentials in DREVOPS_ACQUIA_KEY and
-          #: DREVOPS_ACQUIA_SECRET variables, which can be either set in your
-          #: .env file and stored in the git repository (not the best practice)
-          #: or using lagooncli as a project-wide variable.
-          #;> ACQUIA
-
-          # Store DB dump in temp location instead of '.data'.
-          export DREVOPS_DB_DIR=/tmp/data
-
-          # Do not load SSH file to access production environment to download
-          # the DB as Lagoon already has the keys loaded into the SSH agent.
-          export DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE=false
-
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
-            echo "==> Skipping DB download in the PRODUCTION environment."
-          else
-            rm -Rf $DREVOPS_DB_DIR
+          if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
+            # No need to load SSH file to access production DB as Lagoon has SSH agent keys.
+            export DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE=false
+            export DREVOPS_DB_DIR=/tmp/data
+            rm -Rf $DREVOPS_DB_DIR || true
             ./scripts/drevops/download-db.sh
           fi
         service: cli
@@ -76,18 +56,9 @@ tasks:
     - run:
         name: Install site
         command: |
-          # Read DB dump from the temp location instead of '.data'.
-          export DREVOPS_DB_DIR=/tmp/data
-
           #;< INSTALL_FROM_PROFILE
-          # Deployments from UI are not able to bypass the value of
-          # DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB set by the deploy-lagoon.sh
-          # during previous deployments (it sets value to '0' to mitigate Lagoon bug
-          # where environment variables cannot be deleted and have to be set to a value).
-          # @see https://github.com/uselagoon/lagoon/issues/1922
-          # Explicitly set DB overwrite flag to the value from .env file for
-          # deployments from the profile.
           if [ "$DREVOPS_DRUPAL_INSTALL_FROM_PROFILE" = "1" ]; then
+            # Explicitly set DB overwrite flag to the value from .env file for deployments from the profile.
             export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB="$(cat .env | grep ^DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB | cut -c45-)"
           fi
           #;> INSTALL_FROM_PROFILE
@@ -100,11 +71,11 @@ tasks:
             #;> !INSTALL_FROM_PROFILE
             # Never unblock admin user in production.
             export DREVOPS_DRUPAL_LOGIN_UNBLOCK_ADMIN=0
-            # Never sanitize DB.
+            # Never sanitize DB in production.
             export DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP=1
           fi
 
-          # Install site.
+          export DREVOPS_DB_DIR=/tmp/data
           ./scripts/drevops/drupal-install-site.sh
         service: cli
         shell: bash
@@ -118,9 +89,10 @@ tasks:
           ./scripts/drevops/notify.sh
         service: cli
         shell: bash
+
 environments:
   # Branch name that represents production environment.
-  master:
+  main:
     cronjobs:
       - name: drush cron
         schedule: '*/15 * * * *'

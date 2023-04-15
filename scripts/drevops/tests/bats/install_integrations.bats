@@ -84,7 +84,7 @@ load _helper.bash
 
   assert_file_contains ".lagoon.yml" "name: Download database"
   assert_file_contains ".lagoon.yml" "export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
-  assert_file_not_contains ".lagoon.yml" "# Deployments from UI are not able to bypass the value of"
+  assert_file_not_contains ".lagoon.yml" "# Explicitly set DB overwrite flag to the value from .env file for deployments from the profile."
 }
 
 @test "Install: empty directory; deployment - code" {
@@ -126,7 +126,7 @@ load _helper.bash
 
   assert_file_contains ".lagoon.yml" "name: Download database"
   assert_file_contains ".lagoon.yml" "export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
-  assert_file_not_contains ".lagoon.yml" "# Deployments from UI are not able to bypass the value of"
+  assert_file_not_contains ".lagoon.yml" "# Explicitly set DB overwrite flag to the value from .env file for deployments from the profile."
 }
 
 @test "Install: empty directory; install_from_profile" {
@@ -202,5 +202,5 @@ load _helper.bash
 
   assert_file_not_contains ".lagoon.yml" "name: Download database"
   assert_file_not_contains ".lagoon.yml" "export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
-  assert_file_contains ".lagoon.yml" "# Deployments from UI are not able to bypass the value of"
+  assert_file_contains ".lagoon.yml" "# Explicitly set DB overwrite flag to the value from .env file for deployments from the profile."
 }
