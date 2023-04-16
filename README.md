@@ -1,9 +1,13 @@
 [//]: # (#;< DREVOPS_DEV)
 <table align="center"><tr><td>
-<p align="center">
+
+<div align="center">
 	<img width="400" src="https://user-images.githubusercontent.com/378794/228488082-814a8ddc-e749-4031-874c-ef545ac00cec.png" alt="DrevOps Logo" />
-</div>
-<h3 align="center">Build, Test, Deploy scripts for Drupal using Docker and CI/CD</h3>
+</div>  
+
+<h3 align="center">Drupal project template</h3>
+<h4 align="center"><em>Onboarding in minutes, not hours or days!</em></h4>
+
 <div align="center">
 
 [![CircleCI](https://circleci.com/gh/drevops/drevops.svg?style=shield)](https://circleci.com/gh/drevops/drevops)
