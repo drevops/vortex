@@ -1,0 +1,16 @@
+name: "Auto-label a PR with a conflict"
+on:
+  push:
+  pull_request_target:
+    types: [synchronize]
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PRs have conflicts
+        uses: eps1lon/actions-label-merge-conflict@releases/2.x
+        with:
+          dirtyLabel: "CONFLICT"
+          removeOnDirtyLabel: "Needs review"
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"

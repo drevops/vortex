@@ -1,5 +1,9 @@
 # Architecture
 
+!!! note "Work in progress"
+
+    The documentation section is still a work in progress.
+
 ## Scripts
 
 DrevOps offers a set of scripts designed to orchestrate workflows. These scripts
