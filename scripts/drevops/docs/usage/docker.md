@@ -1,12 +1,10 @@
 # Docker
 
-## General information
+!!! note "Work in progress"
 
-TBD
+    The documentation section is still a work in progress.
 
 ## Using `docker-compose.yml`
-
-[TBD]
 
 Note that `docker-composer.yml` does not support default values evaluation in
 variables assignment. E.g.,

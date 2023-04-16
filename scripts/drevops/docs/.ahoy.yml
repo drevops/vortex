@@ -22,7 +22,7 @@ commands:
 
   update:
     usage: Update docs
-    cmd: ./update-docs.sh
+    cmd: ./.utils/update-docs.sh
 
   info:
     usage: Print information about this project.

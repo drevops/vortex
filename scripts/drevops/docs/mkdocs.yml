@@ -14,14 +14,13 @@
 
 # Project information
 site_name: DrevOps
-site_description: Documentation for DrevOps
+site_description: Documentation for DrevOps Drupal project template
 site_url: https://docs.drevops.com
 
 # Repository
 repo_name: drevops/drevops
 repo_url: https://github.com/drevops/drevops
-edit_uri: ""
-
+edit_uri: edit/main/scripts/drevops/docs/
 # Copyright
 copyright: 'Copyright &copy;2023 DrevOps'
 
@@ -36,29 +35,71 @@ theme:
     text: Roboto
     code: Roboto Mono
   palette:
-    primary: black
-    accent: indigo
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
   language: en
-  # @todo: Review and enable tabs based on content.
-  feature:
-    tabs: true
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - search.share
+    - search.highlight
+    - content.action.edit
+    - content.action.view
 
   # Don't include MkDocs' JavaScript
   include_search_page: false
   search_index_only: true
 
 plugins:
+  # Plugin for MkDocs to allow placing mkdocs.yml in the same directory as documentation
+  # https://github.com/oprypin/mkdocs-same-dir
   - same-dir
   - search
-
+  - replace_markdown:
+      patterns:
+        - rel_to_abs: # Pattern name, can be anything
+            oldvalue: "../../../../"
+            newvalue: "https://github.com/drevops/drevops/tree/main/"
 ## Customization
 extra:
   social:
-    - icon: fontawesome/brands/github-alt
+    - icon: fontawesome/brands/github
       link: https://github.com/drevops/drevops
   analytics:
     provider: google
     property: G-9T1JR2V5RL
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
 
 # Extensions
 markdown_extensions:
@@ -71,7 +112,7 @@ markdown_extensions:
   - markdown.extensions.meta
   - markdown.extensions.toc:
       permalink: true
-      toc_depth: 3
+      toc_depth: 2
   - pymdownx.arithmatex
   - pymdownx.betterem:
       smart_enable: all
@@ -94,14 +135,18 @@ markdown_extensions:
 
 # IMPORTANT! Do not add any configuration below navigation section.
 nav:
-  - About: index.md
-  - Quickstart: quickstart.md
-  - Architecture: architecture.md
-  - Authoring scripts: authoring-scripts.md
-  - Variables: variables.md
-  - Docker: docker.md
-  - Database: database.md
-  - Build: build.md
-  - Test: test.md
-  - Deployment: docs/DEPLOYMENT.md
-  - Maintenance: maintenance.md
+  - Introduction:
+    - Introduction: README.md
+    - Features: introduction/features.md
+    - Installation: introduction/installation.md
+    - Architecture: introduction/architecture.md
+  - Usage:
+    - Variables: usage/variables.md
+    - Docker: usage/docker.md
+    - Database 🚧: usage/database.md
+    - Build 🚧: usage/build.md
+    - Test: usage/test.md
+    - Deploy 🚧: usage/deploy.md
+  - Maintenance:
+    - Authoring scripts: maintenance/authoring-scripts.md
+    - Updating test assets: maintenance/updating-test-assets.md

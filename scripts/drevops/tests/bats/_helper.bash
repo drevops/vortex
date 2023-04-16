@@ -86,6 +86,7 @@ setup() {
   unset DREVOPS_DB_DOWNLOAD_SOURCE
   unset DREVOPS_DB_DOCKER_IMAGE
   unset DREVOPS_DB_DOWNLOAD_FORCE
+  unset GITHUB_TOKEN
 
   # Disable checks used on host machine.
   export DREVOPS_DOCTOR_CHECK_TOOLS=0

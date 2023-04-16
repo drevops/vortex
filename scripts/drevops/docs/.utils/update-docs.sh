@@ -14,7 +14,7 @@ set -e
 
 sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
 
-OUTPUT_FILE="variables.md"
+OUTPUT_FILE="./usage/variables.md"
 sed "${sed_opts[@]}" '/## Variables list/,$d' "${OUTPUT_FILE}"
 
 echo "## Variables list" >> "${OUTPUT_FILE}"

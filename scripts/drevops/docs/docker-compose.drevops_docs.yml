@@ -9,8 +9,6 @@ services:
     networks:
       - amazeeio-network
       - default
-    volumes: ### Removed in CI.
-      - ${PWD}:/app  ### Removed in CI.
     ports:
       - 8000:8000
   linkchecker:
