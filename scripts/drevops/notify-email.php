@@ -69,4 +69,4 @@ else {
   print '       No notification emails were sent.' . "\n";
 }
 
-echo "  [OK] Finished email notification.";
+echo "[ OK ] Finished email notification.";
