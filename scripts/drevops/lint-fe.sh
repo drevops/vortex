@@ -5,6 +5,8 @@
 # shellcheck disable=SC2086
 # shellcheck disable=SC2015
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -28,7 +30,7 @@ fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 if [ -n "${DREVOPS_DRUPAL_THEME}" ] && grep -q lint "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}/package.json"; then
   # Lint code using front-end linter.
-  npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint \
-  && pass "Front-end code linted successfully." \
-  || [ "${DREVOPS_LINT_FE_ALLOW_FAILURE}" -eq 1 ]
+  npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint &&
+    pass "Front-end code linted successfully." ||
+    [ "${DREVOPS_LINT_FE_ALLOW_FAILURE}" -eq 1 ]
 fi

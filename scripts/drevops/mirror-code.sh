@@ -5,6 +5,8 @@
 # Currently, supports only mirroring withing the same repository.
 #
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -54,8 +56,8 @@ info "Started code mirroring."
 # Use custom deploy key if fingerprint is provided.
 if [ -n "${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT}" ]; then
   note "Custom deployment key is provided."
-  DREVOPS_MIRROR_CODE_SSH_FILE="${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT//:}"
-  DREVOPS_MIRROR_CODE_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_MIRROR_CODE_SSH_FILE//\"}"
+  DREVOPS_MIRROR_CODE_SSH_FILE="${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT//:/}"
+  DREVOPS_MIRROR_CODE_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_MIRROR_CODE_SSH_FILE//\"/}"
 fi
 
 [ ! -f "${DREVOPS_MIRROR_CODE_SSH_FILE}" ] && fail "SSH key file ${DREVOPS_MIRROR_CODE_SSH_FILE} does not exist." && exit 1
@@ -65,7 +67,7 @@ if ssh-add -l | grep -q "${DREVOPS_MIRROR_CODE_SSH_FILE}"; then
 else
   note "SSH agent does not have default key loaded. Trying to load."
   # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
-  ssh-add -D > /dev/null
+  ssh-add -D >/dev/null
   ssh-add "${DREVOPS_MIRROR_CODE_SSH_FILE}"
 fi
 
@@ -84,7 +86,7 @@ git reset --hard
 
 # Checkout the branch, but only if the current branch is not the same.
 current_branch="$(git rev-parse --abbrev-ref HEAD)"
-if [ "${DREVOPS_MIRROR_CODE_BRANCH_SRC}" != "${current_branch}" ] ;then
+if [ "${DREVOPS_MIRROR_CODE_BRANCH_SRC}" != "${current_branch}" ]; then
   git checkout -b "${DREVOPS_MIRROR_CODE_BRANCH_SRC}" "${DREVOPS_MIRROR_CODE_REMOTE_DST}/${DREVOPS_MIRROR_CODE_BRANCH_SRC}"
 fi
 

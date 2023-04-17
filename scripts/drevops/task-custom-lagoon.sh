@@ -4,6 +4,8 @@
 #
 # @see https://github.com/amazeeio/lagoon-cli
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -72,8 +74,8 @@ info "Started LAGOON task $DREVOPS_TASK_LAGOON_NAME."
 # Use custom key if fingerprint is provided.
 if [ -n "${DREVOPS_TASK_SSH_FINGERPRINT}" ]; then
   note "Custom task key is provided."
-  DREVOPS_TASK_SSH_FILE="${DREVOPS_TASK_SSH_FINGERPRINT//:}"
-  DREVOPS_TASK_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_TASK_SSH_FILE//\"}"
+  DREVOPS_TASK_SSH_FILE="${DREVOPS_TASK_SSH_FINGERPRINT//:/}"
+  DREVOPS_TASK_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_TASK_SSH_FILE//\"/}"
 fi
 
 [ ! -f "${DREVOPS_TASK_SSH_FILE}" ] && fail "SSH key file ${DREVOPS_TASK_SSH_FILE} does not exist." && exit 1
@@ -83,12 +85,12 @@ if ssh-add -l | grep -q "${DREVOPS_TASK_SSH_FILE}"; then
 else
   note "SSH agent does not have default key loaded. Trying to load."
   # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
-  ssh-add -D > /dev/null
+  ssh-add -D >/dev/null
   ssh-add "${DREVOPS_TASK_SSH_FILE}"
 fi
 
 # Disable strict host key checking in CI.
-[ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >> "${HOME}/.ssh/config"
+[ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
 
 if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_TASK_LAGOON_INSTALL_CLI_FORCE}" ]; then
   note "Installing Lagoon CLI."
@@ -98,11 +100,11 @@ if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_TASK_LAGOON_INSTALL_CLI_FOR
     lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/tags/${DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION}"
   fi
 
-  curl -sL "${lagooncli_download_url}" \
-    | grep "browser_download_url" \
-    | grep -i "$(uname -s)-amd64\"$" \
-    | cut -d '"' -f 4 \
-    | xargs curl -L -o "${DREVOPS_TASK_LAGOON_BIN_PATH}/lagoon"
+  curl -sL "${lagooncli_download_url}" |
+    grep "browser_download_url" |
+    grep -i "$(uname -s)-amd64\"$" |
+    cut -d '"' -f 4 |
+    xargs curl -L -o "${DREVOPS_TASK_LAGOON_BIN_PATH}/lagoon"
   chmod +x "${DREVOPS_TASK_LAGOON_BIN_PATH}/lagoon"
   export PATH="${PATH}:${DREVOPS_TASK_LAGOON_BIN_PATH}"
 fi

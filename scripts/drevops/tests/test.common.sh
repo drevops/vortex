@@ -5,14 +5,9 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-# Allow to override the test GitHub token with an available global token.
-export TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-$GITHUB_TOKEN}"
-
 TEST_DIR="scripts/drevops/tests"
 
 # ------------------------------------------------------------------------------
-
-[ -n "${TEST_GITHUB_TOKEN}" ] || ( echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1 )
 
 # Configure git username and email if it is not set.
 [ "$(git config --global user.name)" = "" ] && echo "==> Configuring global git user name" && git config --global user.name "Test user"

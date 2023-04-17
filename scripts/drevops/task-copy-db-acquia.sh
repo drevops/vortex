@@ -11,6 +11,8 @@
 #
 # @see https://cloudapi-docs.acquia.com/#/Environments/postEnvironmentsDatabases
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -67,7 +69,7 @@ extract_json_value() {
 }
 
 # Pre-flight checks.
-command -v curl > /dev/null || ( fail "curl command is not available." && exit 1 )
+command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 
 # Check that all required variables are present.
 [ -z "${DREVOPS_TASK_COPY_DB_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_TASK_COPY_DB_ACQUIA_KEY." && exit 1
@@ -106,8 +108,7 @@ notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | ex
 echo -n "     > Checking task status: "
 task_completed=0
 # shellcheck disable=SC2034
-for i in $(seq 1 "${DREVOPS_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}");
-do
+for i in $(seq 1 "${DREVOPS_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}"); do
   echo -n "."
   sleep "${DREVOPS_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL}"
   task_status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "${notification_url}")
@@ -122,7 +123,7 @@ done
 
 echo
 
-if [ "${task_completed}" = "0" ] ; then
+if [ "${task_completed}" = "0" ]; then
   fail "Unable to copy DB from $DREVOPS_TASK_COPY_DB_ACQUIA_SRC to $DREVOPS_TASK_COPY_DB_ACQUIA_DST environment."
   exit 1
 fi
@@ -130,6 +131,6 @@ fi
 note "Successfully copied DB from $DREVOPS_TASK_COPY_DB_ACQUIA_SRC to $DREVOPS_TASK_COPY_DB_ACQUIA_DST environment."
 
 self_elapsed_time=$((SECONDS))
-note "Run duration: $((self_elapsed_time/60)) min $((self_elapsed_time%60)) sec."
+note "Run duration: $((self_elapsed_time / 60)) min $((self_elapsed_time % 60)) sec."
 
 pass "Finished database copying between environments in Acquia."

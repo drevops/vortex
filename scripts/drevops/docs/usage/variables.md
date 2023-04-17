@@ -232,15 +232,9 @@ The SSH user of the Lagoon environment.
 
 Default value: `LAGOON_PROJECT`
 
-### `DREVOPS_DB_DOWNLOAD_POST_PROCESS`
-
-Post process command or a script used for running after the database was downloaded.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_DB_DOWNLOAD_PROCEED`
 
-Kill-switch to proceed with download.
+Proceed with download.
 
 Default value: `UNDEFINED`
 
@@ -322,7 +316,7 @@ Deploy action. Values can be one of: deploy, deploy_override_db, destroy.
 
 Default value: `create`
 
-### `DREVOPS_DEPLOY_ARTIFACT_GIT_BRANCH`
+### `DREVOPS_DEPLOY_ARTIFACT_DST_BRANCH`
 
 Remote repository branch. Can be a specific branch or a token. @see https://github.com/drevops/git-artifact#token-support
 
@@ -369,12 +363,6 @@ Default value: `UNDEFINED`
 The Lagoon branch to deploy.
 
 Default value: `UNDEFINED`
-
-### `DREVOPS_DEPLOY_DOCKER_IMAGE_TAG`
-
-The tag of the image to push to. Defaults to 'latest'.
-
-Default value: `latest`
 
 ### `DREVOPS_DEPLOY_DOCKER_MAP`
 
@@ -423,6 +411,12 @@ Default value: `UNDEFINED`
 Lagoon CLI version to use.
 
 Default value: `latest`
+
+### `DREVOPS_DEPLOY_MODE`
+
+Deployment mode. Values can be one of: branch, tag.
+
+Default value: `branch`
 
 ### `DREVOPS_DEPLOY_PR`
 
@@ -489,6 +483,12 @@ Default value: `UNDEFINED`
 The URL of the webhook to call. Note that any tokens should be added to the value of this variable outside this script.
 
 Default value: `UNDEFINED`
+
+### `DREVOPS_DOCKER_IMAGE_TAG`
+
+The tag of the image to push to. Defaults to 'latest'.
+
+Default value: `latest`
 
 ### `DREVOPS_DOCKER_REGISTRY`
 
@@ -670,9 +670,9 @@ Default value: `your_site_profile`
 
 ### `DREVOPS_DRUPAL_SHOW_LOGIN_LINK`
 
-Show project information and a one-time login link.
+Show Drupal one-time login link.
 
-Default value: `ahoy info`
+Default value: `UNDEFINED`
 
 ### `DREVOPS_DRUPAL_SITE_EMAIL`
 
@@ -701,12 +701,6 @@ Default value: `9`
 ### `DREVOPS_EXPORT_CODE_DIR`
 
 Directory to store exported code.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_EXPORT_CODE_ONLY`
-
-Only build and export code.
 
 Default value: `UNDEFINED`
 
@@ -1294,12 +1288,6 @@ Behat format. Optional. Defaults to "pretty".
 
 Default value: `pretty`
 
-### `DREVOPS_TEST_BEHAT_PARALLEL_INDEX`
-
-Behat test runner index. If is set  - the value is used as a suffix for the parallel Behat profile name (e.g., p0, p1).
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_TEST_BEHAT_PROFILE`
 
 Behat profile name. Optional. Defaults to "default".
@@ -1348,6 +1336,12 @@ Kernel test group. Optional. Defaults to running Kernel tests tagged with `site:
 
 Default value: `site:kernel`
 
+### `DREVOPS_TEST_PARALLEL_INDEX`
+
+Test runner parallel index. If is set, the value is used as a suffix for the Behat profile name (e.g. p0, p1).
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_TEST_REPORTS_DIR`
 
 Directory to store test result files.
@@ -1393,12 +1387,6 @@ Default value: `web`
 ### `ENV_ID`
 
 Default value: `echo `
-
-### `GITHUB_TOKEN`
-
-GitHub token to perform operations.
-
-Default value: `GITHUB_TOKEN`
 
 ### `LAGOON_PROJECT`
 

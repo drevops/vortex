@@ -33,6 +33,9 @@ assert_drupal_install_site_info(){
 @test "Site install: DB; no site" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # Remove .env file to test in isolation.
+  rm ./.env
+
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -58,7 +61,7 @@ assert_drupal_install_site_info(){
   mock_set_status "${mock_drush}" 0 8
   # Environment name.
   mock_set_output "${mock_drush}" "ci" 9
-  # List all drush commands to check for pciu command presence.
+  # Check for 'drush deploy' command presence.
   mock_set_output "${mock_drush}" "none" 10
   # Sanitization commands.
   mock_set_status "${mock_drush}" 0 11
@@ -101,9 +104,9 @@ assert_drupal_install_site_info(){
   assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
   assert_equal "-y -q sqlc" "$(mock_get_call_args "${mock_drush}" 5)"
 
-  assert_output_not_contains "[FAIL] Unable to import database from file."
-  assert_output_not_contains "       Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
-  assert_output_not_contains "       Site content was not changed."
+  assert_output_not_contains "Unable to import database from file."
+  assert_output_not_contains "Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+  assert_output_not_contains "Site content was not changed."
 
   assert_output_not_contains "Existing site content will be removed and new content will be imported from the database dump file."
   assert_output_not_contains "Existing site was found."
@@ -177,6 +180,9 @@ assert_drupal_install_site_info(){
 @test "Site install: DB; existing site" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # Remove .env file to test in isolation.
+  rm ./.env
+
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export CI=1
 
@@ -198,7 +204,7 @@ assert_drupal_install_site_info(){
   mock_set_status "${mock_drush}" 0 6
   # Environment name.
   mock_set_output "${mock_drush}" "ci" 7
-  # List all drush commands to check for pciu command presence.
+  # Check for 'drush deploy' command presence.
   mock_set_output "${mock_drush}" "none" 8
   # Environment name from custom script.
   mock_set_output "${mock_drush}" "ci" 9
@@ -301,6 +307,9 @@ assert_drupal_install_site_info(){
 @test "Site install: DB; existing site; overwrite" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # Remove .env file to test in isolation.
+  rm ./.env
+
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
@@ -328,7 +337,7 @@ assert_drupal_install_site_info(){
   mock_set_status "${mock_drush}" 0 8
   # Environment name.
   mock_set_output "${mock_drush}" "ci" 9
-  # List all drush commands to check for pciu command presence.
+  # Check for 'drush deploy' command presence.
   mock_set_output "${mock_drush}" "none" 10
   # Sanitization commands.
   mock_set_status "${mock_drush}" 0 11
@@ -442,6 +451,9 @@ assert_drupal_install_site_info(){
 @test "Site install: profile; no site" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # Remove .env file to test in isolation.
+  rm ./.env
+
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
@@ -465,7 +477,7 @@ assert_drupal_install_site_info(){
   mock_set_status "${mock_drush}" 0 8
   # Environment name.
   mock_set_output "${mock_drush}" "ci" 9
-  # List all drush commands to check for pciu command presence.
+  # Check for 'drush deploy' command presence.
   mock_set_output "${mock_drush}" "none" 10
   # Sanitization commands.
   mock_set_status "${mock_drush}" 0 11
@@ -509,8 +521,8 @@ assert_drupal_install_site_info(){
   assert_equal "si -q -y standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_not_contains "[FAIL] Unable to import database from file."
-  assert_output_not_contains "       Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
-  assert_output_not_contains "       Site content was not changed."
+  assert_output_not_contains "Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+  assert_output_not_contains "Site content was not changed."
 
   assert_output_not_contains "Existing site content will be removed and new content will be imported from the database dump file."
   assert_output_not_contains "Existing site was found."
@@ -584,6 +596,9 @@ assert_drupal_install_site_info(){
 @test "Site install: profile; existing site" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # Remove .env file to test in isolation.
+  rm ./.env
+
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
   export CI=1
@@ -603,7 +618,7 @@ assert_drupal_install_site_info(){
   mock_set_status "${mock_drush}" 0 6
   # Environment name.
   mock_set_output "${mock_drush}" "ci" 7
-  # List all drush commands to check for pciu command presence.
+  # Check for 'drush deploy' command presence.
   mock_set_output "${mock_drush}" "none" 8
   # Environment name from custom script.
   mock_set_output "${mock_drush}" "ci" 9
@@ -706,6 +721,9 @@ assert_drupal_install_site_info(){
 @test "Site install: profile; existing site; overwrite" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # Remove .env file to test in isolation.
+  rm ./.env
+
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
   export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
@@ -730,7 +748,7 @@ assert_drupal_install_site_info(){
   mock_set_status "${mock_drush}" 0 8
   # Environment name.
   mock_set_output "${mock_drush}" "ci" 9
-  # List all drush commands to check for pciu command presence.
+  # Check for 'drush deploy' command presence.
   mock_set_output "${mock_drush}" "none" 10
   # Sanitization commands.
   mock_set_status "${mock_drush}" 0 11

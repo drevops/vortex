@@ -3,6 +3,11 @@
 # Deploy via Lagoon CLI.
 #
 # @see https://github.com/amazeeio/lagoon-cli
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -76,8 +81,8 @@ info "Started LAGOON deployment."
 # Use custom deploy key if fingerprint is provided.
 if [ -n "${DREVOPS_DEPLOY_SSH_FINGERPRINT}" ]; then
   note "Custom deployment key is provided."
-  DREVOPS_DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FINGERPRINT//:}"
-  DREVOPS_DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_SSH_FILE//\"}"
+  DREVOPS_DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FINGERPRINT//:/}"
+  DREVOPS_DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_SSH_FILE//\"/}"
 fi
 
 [ ! -f "${DREVOPS_DEPLOY_SSH_FILE}" ] && fail "SSH key file ${DREVOPS_DEPLOY_SSH_FILE} does not exist." && exit 1
@@ -87,12 +92,12 @@ if ssh-add -l | grep -q "${DREVOPS_DEPLOY_SSH_FILE}"; then
 else
   note "SSH agent does not have default key loaded. Trying to load."
   # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
-  ssh-add -D > /dev/null
+  ssh-add -D >/dev/null
   ssh-add "${DREVOPS_DEPLOY_SSH_FILE}"
 fi
 
 # Disable strict host key checking in CI.
-[ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >> "${HOME}/.ssh/config"
+[ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
 
 if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL}" ]; then
   note "Installing Lagoon CLI."
@@ -102,11 +107,11 @@ if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FOR
     lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/tags/${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSION}"
   fi
 
-  curl -sL "${lagooncli_download_url}" \
-    | grep "browser_download_url" \
-    | grep -i "$(uname -s)-amd64\"$" \
-    | cut -d '"' -f 4 \
-    | xargs curl -L -o "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
+  curl -sL "${lagooncli_download_url}" |
+    grep "browser_download_url" |
+    grep -i "$(uname -s)-amd64\"$" |
+    cut -d '"' -f 4 |
+    xargs curl -L -o "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
   chmod +x "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
   export PATH="${PATH}:${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}"
 fi
@@ -129,14 +134,14 @@ else
     # Discover all available environments to check if this is a fresh deployment
     # or a re-deployment of the existing environment.
     lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" list environments -p "${LAGOON_PROJECT}" --output-json --pretty >/tmp/lagoon-envs.json
-    names="$(jq -r '.data[] | select(.deploytype | contains("pullrequest")) | .name' /tmp/lagoon-envs.json 2>&1 /dev/null || echo '')"
+    names="$(jq -r '.data[] | select(.deploytype | contains("pullrequest")) | .name' /tmp/lagoon-envs.json /dev/null 2>&1 || echo '')"
 
     is_redeploy=0
     for name in $names; do
       if [ "${deploy_pr_full}" = "${name}" ]; then
         note "Found already deployed environment for PR \"${DREVOPS_DEPLOY_PR}\"."
-        is_redeploy=1;
-        break;
+        is_redeploy=1
+        break
       fi
     done
 
@@ -181,14 +186,14 @@ else
     # Discover all available environments to check if this is a fresh deployment
     # or a re-deployment of the existing environment.
     lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" list environments -p "${LAGOON_PROJECT}" --output-json --pretty >/tmp/lagoon-envs.json
-    names="$(jq -r '.data[] | select(.deploytype | contains("branch")) | .name' /tmp/lagoon-envs.json 2>&1 /dev/null || echo '')"
+    names="$(jq -r '.data[] | select(.deploytype | contains("branch")) | .name' /tmp/lagoon-envs.json /dev/null 2>&1 || echo '')"
 
     is_redeploy=0
     for name in $names; do
       if [ "${DREVOPS_DEPLOY_BRANCH}" = "${name}" ]; then
         note "Found already deployed environment for branch \"${DREVOPS_DEPLOY_BRANCH}\"."
-        is_redeploy=1;
-        break;
+        is_redeploy=1
+        break
       fi
     done
 

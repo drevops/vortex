@@ -56,6 +56,9 @@ bats_load_library bats-helpers
 #
 # $APP_TMP_DIR - directory where the application may store it's temporary files.
 setup() {
+  # Allow to override the test GitHub token with an available global token.
+  TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-$GITHUB_TOKEN}"
+
   # Preflight checks.
   # @formatter:off
   command -v curl > /dev/null           || ( echo "[ERROR] curl command is not available." && exit 1 )
@@ -328,7 +331,6 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/drupal-install-site.sh"
   assert_file_exists "scripts/drevops/drupal-login.sh"
   assert_file_exists "scripts/drevops/drupal-sanitize-db.sh"
-  assert_file_exists "scripts/drevops/export-code.sh"
   assert_file_exists "scripts/drevops/github-labels.sh"
   assert_file_exists "scripts/drevops/info.sh"
   assert_file_exists "scripts/drevops/lint.sh"
@@ -829,8 +831,8 @@ assert_files_present_integration_renovatebot() {
   assert_file_exists "renovate.json"
 
   assert_file_contains ".circleci/config.yml" "renovatebot_self_hosted"
-  assert_file_contains ".circleci/config.yml" "nightly_renovatebot_branch"
-  assert_file_contains ".circleci/config.yml" "- *nightly_renovatebot_branch"
+  assert_file_contains ".circleci/config.yml" "renovatebot_branch"
+  assert_file_contains ".circleci/config.yml" "- *renovatebot_branch"
 
   assert_file_contains docs/CI.md "Automated patching"
 
@@ -846,8 +848,8 @@ assert_files_present_no_integration_renovatebot() {
   assert_file_not_exists "renovate.json"
 
   assert_file_not_contains ".circleci/config.yml" "renovatebot_self_hosted"
-  assert_file_not_contains ".circleci/config.yml" "nightly_renovatebot_branch"
-  assert_file_not_contains ".circleci/config.yml" "- *nightly_renovatebot_branch"
+  assert_file_not_contains ".circleci/config.yml" "renovatebot_branch"
+  assert_file_not_contains ".circleci/config.yml" "- *renovatebot_branch"
 
   assert_file_not_contains docs/CI.md "Automated patching"
 

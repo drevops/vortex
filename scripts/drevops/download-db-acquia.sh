@@ -2,6 +2,8 @@
 ##
 # Download DB dump from the latest Acquia Cloud backup.
 #
+# IMPORTANT! This script runs outside the container on the host system.
+#
 # This script will discover the latest available backup in the specified
 # Acquia Cloud environment using Acquia Cloud API 2.0, download and decompress
 # it into specified directory.
@@ -15,6 +17,8 @@
 #
 # @see https://docs.acquia.com/acquia-cloud/develop/api/auth/#cloud-generate-api-token
 # @see https://cloudapi-docs.acquia.com/#/Environments/getEnvironmentsDatabaseDownloadBackup
+
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -68,7 +72,7 @@ extract_json_value() {
 }
 
 # Pre-flight checks.
-command -v curl > /dev/null || ( fail "curl command is not available." && exit 1 )
+command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 
 # Check that all required variables are present.
 [ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_KEY." && exit 1
@@ -109,11 +113,11 @@ file_name="${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}/${file_prefix}${backup_id}.${file_e
 file_name_discovered="${file_name}"
 file_name_compressed="${file_name}.gz"
 
-if [ -f "${file_name_discovered}" ] ; then
+if [ -f "${file_name_discovered}" ]; then
   note "Found existing cached DB file \"${file_name_discovered}\" for DB \"${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}\"."
 else
   # If the gzipped version exists, then we don't need to re-download it.
-  if [ ! -f "${file_name_compressed}" ] ; then
+  if [ ! -f "${file_name_compressed}" ]; then
     note "Using latest backup ID ${backup_id} for DB ${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}."
 
     [ ! -d "${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}" ] && note "Creating dump directory ${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}" && mkdir -p "${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}"
@@ -133,7 +137,7 @@ else
   fi
 
   note "Expanding DB file ${file_name_compressed} into ${file_name}."
-  gunzip -c "${file_name_compressed}" > "${file_name}"
+  gunzip -c "${file_name_compressed}" >"${file_name}"
   decompress_result=$?
   rm "${file_name_compressed}"
   [ ! -f "${file_name}" ] || [ "${decompress_result}" != 0 ] && fail "Unable to process DB dump file \"${file_name}\"." && rm -f "${file_name_compressed}" && rm -f "${file_name}" && exit 1

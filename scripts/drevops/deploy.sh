@@ -2,26 +2,31 @@
 ##
 # Deploy code to a remote location.
 #
+# IMPORTANT! This script runs outside the container on the host system.
+#
 # Deployment may include pushing code, pushing created docker image, notifying
 # remote hosting service via webhook call etc.
 #
-# This is a router script to call relevant deployment scripts based on type.
-#
-# For required variables based on the deployment type,
-# see ./scripts/drevops/deployment-[type].sh file.
+# This is a router script to call relevant scripts based on type.
+
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # The type of deployment. Can be a combination of comma-separated values (to
 # support multiple deployments): code, docker, webhook, lagoon.
-DREVOPS_DEPLOY_TYPE="${DREVOPS_DEPLOY_TYPE:-${1}}"
+DREVOPS_DEPLOY_TYPE="${DREVOPS_DEPLOY_TYPE:-}"
+
+# Deployment mode.
+# Values can be one of: branch, tag.
+DREVOPS_DEPLOY_MODE="${DREVOPS_DEPLOY_MODE:-branch}"
 
 # Deployment action.
 # Values can be one of: deploy, deploy_override_db, destroy.
 DREVOPS_DEPLOY_ACTION="${DREVOPS_DEPLOY_ACTION:-deploy}"
 
-# Deployment pull request number without "pr-" prefix.
+# Deployment branch name.
 DREVOPS_DEPLOY_BRANCH="${DREVOPS_DEPLOY_BRANCH:-}"
 
 # Deployment pull request number without "pr-" prefix.
@@ -93,6 +98,7 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPE##*artifact*}" ]; then
+  [ "${DREVOPS_DEPLOY_MODE}" = "tag" ] && export DREVOPS_DEPLOY_ARTIFACT_DST_BRANCH="deployment/[tags:-]"
   ./scripts/drevops/deploy-artifact.sh
 fi
 

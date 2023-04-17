@@ -2,6 +2,10 @@
 ##
 # Download DB dump via CURL.
 #
+# IMPORTANT! This script runs outside the container on the host system.
+#
+
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -34,4 +38,4 @@ mkdir -p "${DREVOPS_DB_DIR}"
 
 curl -L "${DREVOPS_DB_DOWNLOAD_CURL_URL}" -o "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 
-pass "Started database dump download from CURL."
+pass "Finished database dump download from CURL."
