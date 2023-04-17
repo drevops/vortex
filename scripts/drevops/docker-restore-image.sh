@@ -2,7 +2,11 @@
 ##
 # Restore Docker image from archive.
 #
+# IMPORTANT! This script runs outside the container on the host system.
+#
 # shellcheck disable=SC2015
+
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -27,9 +31,9 @@ info "Started Docker image restore"
 [ -z "${DREVOPS_DOCKER_RESTORE_IMAGE}" ] && fail "image name is not specified. Provide Docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
 [ -z "${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}" ] && fail "image archive file name is not specified. Provide Docker image archive file name as a second argument to this script." && exit 1
 
-docker image inspect "${DREVOPS_DOCKER_RESTORE_IMAGE}" >/dev/null 2>&1 \
-  && note "Found ${DREVOPS_DOCKER_RESTORE_IMAGE} image on host." \
-  || note "Not found ${DREVOPS_DOCKER_RESTORE_IMAGE} image on host."
+docker image inspect "${DREVOPS_DOCKER_RESTORE_IMAGE}" >/dev/null 2>&1 &&
+  note "Found ${DREVOPS_DOCKER_RESTORE_IMAGE} image on host." ||
+  note "Not found ${DREVOPS_DOCKER_RESTORE_IMAGE} image on host."
 
 if [ -f "${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}" ]; then
   note "Found archived database Docker image file ${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}. Expanding..."
@@ -37,9 +41,9 @@ if [ -f "${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}" ]; then
   docker load -q --input "${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}"
   # Check that image was expanded and now exists on the host or notify
   # that it will be downloaded from the registry.
-  docker image inspect "${DREVOPS_DOCKER_RESTORE_IMAGE}" >/dev/null 2>&1 \
-    && note "Found expanded ${DREVOPS_DOCKER_RESTORE_IMAGE} image on host." \
-    || note "Not found expanded ${DREVOPS_DOCKER_RESTORE_IMAGE} image on host. The image will be pulled from the registry."
+  docker image inspect "${DREVOPS_DOCKER_RESTORE_IMAGE}" >/dev/null 2>&1 &&
+    note "Found expanded ${DREVOPS_DOCKER_RESTORE_IMAGE} image on host." ||
+    note "Not found expanded ${DREVOPS_DOCKER_RESTORE_IMAGE} image on host. The image will be pulled from the registry."
 else
   note "Not found archived database Docker image file ${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}."
 fi

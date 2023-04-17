@@ -3,6 +3,8 @@
 # Notification dispatch to New Relic.
 #
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -42,7 +44,7 @@ pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-command -v curl > /dev/null || ( fail "curl command is not available." && exit 1 )
+command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 [ -z "${DREVOPS_NOTIFY_PROJECT}" ] && fail "Missing required value for DREVOPS_NOTIFY_PROJECT" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_APIKEY}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_APIKEY" && exit 1
 [ -z "${DREVOPS_NOTIFY_SHA}" ] && fail "Missing required value for DREVOPS_NOTIFY_REF" && exit 1

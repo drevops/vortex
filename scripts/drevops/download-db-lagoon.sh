@@ -2,6 +2,8 @@
 ##
 # Download DB dump from Lagoon environment.
 #
+# IMPORTANT! This script runs outside the container on the host system.
+#
 # This script will create a backup from in the specified environment and
 # download it into specified directory.
 #
@@ -14,12 +16,10 @@
 # SSH access.
 # shellcheck disable=SC2029,SC1091,SC2124,SC2140
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
-
-#-------------------------------------------------------------------------------
-#                             VARIABLES
-#-------------------------------------------------------------------------------
 
 # Flag to download a fresh copy of the database.
 DREVOPS_DB_DOWNLOAD_REFRESH="${DREVOPS_DB_DOWNLOAD_REFRESH:-}"
@@ -85,14 +85,14 @@ mkdir -p "${DREVOPS_DB_DIR}"
 # Try to read credentials from the credentials file.
 if [ -f ".env.local" ]; then
   # shellcheck disable=SC1090
-  t=$(mktemp) && export -p > "$t" && set -a && . ".env.local" && set +a && . "$t" && rm "$t" && unset t
+  t=$(mktemp) && export -p >"$t" && set -a && . ".env.local" && set +a && . "$t" && rm "$t" && unset t
 fi
 
 # Discover and load a custom database dump key if fingerprint is provided.
 if [ -n "${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT}" ]; then
   note "Custom database dump key is provided."
-  DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT//:}"
-  DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE//\"}"
+  DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT//:/}"
+  DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE//\"/}"
 
   [ ! -f "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}" ] && fail "SSH key file ${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE} does not exist." && exit 1
 
@@ -101,7 +101,7 @@ if [ -n "${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT}" ]; then
   else
     note "SSH agent does not have default key loaded. Trying to load."
     # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
-    ssh-add -D > /dev/null
+    ssh-add -D >/dev/null
     ssh-add "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}"
   fi
 fi
@@ -116,7 +116,7 @@ if [ "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}" != false ]; then
 fi
 
 ssh \
- "${ssh_opts[@]}" \
+  "${ssh_opts[@]}" \
   "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER}@${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST}" service=cli container=cli \
   "if [ ! -f \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\" ] || [ \"${DREVOPS_DB_DOWNLOAD_REFRESH}\" == \"1\" ] ; then \
      [ -n \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP}\" ] && rm -f \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}\"\/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \

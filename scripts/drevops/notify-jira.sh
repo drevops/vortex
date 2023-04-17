@@ -10,6 +10,8 @@
 # Uses user's token to perform operations.
 #
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -46,7 +48,7 @@ pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-command -v curl > /dev/null || ( fail "curl command is not available." && exit 1 )
+command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 [ -z "${DREVOPS_NOTIFY_JIRA_USER}" ] && fail "Missing required value for DREVOPS_NOTIFY_JIRA_USER" && exit 1
 [ -z "${DREVOPS_NOTIFY_JIRA_TOKEN}" ] && fail "Missing required value for DREVOPS_NOTIFY_JIRA_TOKEN" && exit 1
 [ -z "${DREVOPS_NOTIFY_BRANCH}" ] && fail "Missing required value for DREVOPS_NOTIFY_BRANCH" && exit 1
@@ -84,7 +86,7 @@ extract_json_value_by_value() {
 # Extract issue ID from the branch.
 #
 extract_issue() {
-  echo "$1"|sed -nE "s/([^\/]+\/)?([A-Za-z0-9]+\-[0-9]+).*/\2/p"
+  echo "$1" | sed -nE "s/([^\/]+\/)?([A-Za-z0-9]+\-[0-9]+).*/\2/p"
 }
 
 note "Extracting issue"
@@ -98,11 +100,11 @@ token="$(echo -n "${DREVOPS_NOTIFY_JIRA_USER}:${DREVOPS_NOTIFY_JIRA_TOKEN}" | ba
 
 echo -n "       Checking API access..."
 payload="$(curl \
- -s \
- -X GET \
- -H "Authorization: Basic ${token}" \
- -H "Content-Type: application/json" \
- "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/myself")"
+  -s \
+  -X GET \
+  -H "Authorization: Basic ${token}" \
+  -H "Content-Type: application/json" \
+  "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/myself")"
 
 account_id="$(echo "${payload}" | extract_json_value "accountId" || echo "error")"
 
@@ -124,7 +126,7 @@ if [ -n "${DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX}" ]; then
     --data "{\"body\": {\"type\": \"doc\", \"version\": 1, \"content\": [{\"type\": \"paragraph\", \"content\": ${comment}}]}}")"
 
   comment_id="$(echo "${payload}" | extract_json_value "id" || echo "error")"
-  [ "$(expr "x$comment_id" : "x[0-9]*$")" -eq 0 ] &&  fail "Failed to create a comment" && exit 1
+  [ "$(expr "x$comment_id" : "x[0-9]*$")" -eq 0 ] && fail "Failed to create a comment" && exit 1
 
   pass "Posted comment with ID ${comment_id}."
 fi
@@ -141,7 +143,7 @@ if [ -n "${DREVOPS_NOTIFY_JIRA_TRANSITION}" ]; then
     --url "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/transitions")"
 
   transition_id="$(echo "${payload}" | extract_json_value "transitions" | extract_json_value_by_value "name" "${DREVOPS_NOTIFY_JIRA_TRANSITION}" "id" || echo "error")"
-  { [ "${transition_id}" = "" ] || [ "$(expr "x$transition_id" : "x[0-9]*$")" -eq 0 ]; } &&  fail "Failed to retrieve transition ID" && exit 1
+  { [ "${transition_id}" = "" ] || [ "$(expr "x$transition_id" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to retrieve transition ID" && exit 1
   echo "success"
 
   payload="$(curl \

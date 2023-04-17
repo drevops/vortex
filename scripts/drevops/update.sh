@@ -3,6 +3,8 @@
 # Update DrevOps.
 #
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -21,4 +23,6 @@ DREVOPS_INSTALL_COMMIT="${DREVOPS_INSTALL_COMMIT:-}"
 export DREVOPS_INSTALLER_URL
 export DREVOPS_INSTALL_COMMIT
 
-curl -L "${DREVOPS_INSTALLER_URL}"?"$(date +%s)" > /tmp/install.php && php /tmp/install.php --quiet; rm /tmp/install.php;
+curl -L "${DREVOPS_INSTALLER_URL}"?"$(date +%s)" >/tmp/install.php
+php /tmp/install.php --quiet
+rm /tmp/install.php >/dev/null

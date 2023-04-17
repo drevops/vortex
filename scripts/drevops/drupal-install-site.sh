@@ -7,6 +7,8 @@
 #
 # shellcheck disable=SC2086,SC2002,SC2235,SC1090,SC2012
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -131,8 +133,8 @@ install_import() {
   if [ ! -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ]; then
     echo
     fail "Unable to import database from file."
-    echo "        Dump file ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} does not exist."
-    echo "        Site content was not changed."
+    note "Dump file ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} does not exist."
+    note "Site content was not changed."
     exit 1
   fi
 
@@ -180,7 +182,7 @@ if [ "${DREVOPS_DRUPAL_INSTALL_FROM_PROFILE}" != "1" ]; then
   note "Dump file: ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 
   if [ "${site_is_installed}" = "1" ]; then
-      note "Existing site was found."
+    note "Existing site was found."
 
     if [ "${DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB}" = "1" ]; then
       note "Existing site content will be removed and new content will be imported from the database dump file."
@@ -312,9 +314,8 @@ if [ "${DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE}" = "1" ]; then
   echo
 fi
 
-# Generate a one-time login link.
-echo
+info "One-time login link."
 "${DREVOPS_APP}/scripts/drevops/drupal-login.sh"
 echo
 
-info "Finished site installation."
+pass "Finished site installation."

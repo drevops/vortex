@@ -5,6 +5,8 @@
 # shellcheck disable=SC2086
 # shellcheck disable=SC2015
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -30,9 +32,9 @@ info "Linting code."
 DREVOPS_LINT_TYPE="${1:-be-fe}"
 
 if [ -z "${DREVOPS_LINT_TYPE##*be*}" ]; then
- ./scripts/drevops/lint-be.sh "$@"
+  ./scripts/drevops/lint-be.sh "$@"
 fi
 
 if [ -z "${DREVOPS_LINT_TYPE##*fe*}" ]; then
- ./scripts/drevops/lint-fe.sh "$@"
+  ./scripts/drevops/lint-fe.sh "$@"
 fi

@@ -2,9 +2,11 @@
 ##
 # Download database dump.
 #
-# Download is supported from FTP, CURL or Acquia Cloud.
+# IMPORTANT! This script runs outside the container on the host system.
 #
 # This is a router script to call relevant scripts based on type.
+
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -17,11 +19,8 @@ DREVOPS_DB_DOWNLOAD_SOURCE="${DREVOPS_DB_DOWNLOAD_SOURCE:-curl}"
 # Usually set in CircleCI UI to override per build cache.
 DREVOPS_DB_DOWNLOAD_FORCE="${DREVOPS_DB_DOWNLOAD_FORCE:-}"
 
-# Kill-switch to proceed with download.
+# Proceed with download.
 DREVOPS_DB_DOWNLOAD_PROCEED="${DREVOPS_DB_DOWNLOAD_PROCEED:-1}"
-
-# Post process command or a script used for running after the database was downloaded.
-DREVOPS_DB_DOWNLOAD_POST_PROCESS="${DREVOPS_DB_DOWNLOAD_POST_PROCESS:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -34,7 +33,6 @@ fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 info "Started database download."
 
-# Kill-switch to proceed with download.
 [ "${DREVOPS_DB_DOWNLOAD_PROCEED}" -ne 1 ] && pass "Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
 # Check if database file exists.
@@ -42,10 +40,10 @@ info "Started database download."
 [ -d "${DREVOPS_DB_DIR}" ] && found_db=$(find "${DREVOPS_DB_DIR}" -name "db*.sql" -o -name "db*.tar")
 
 if [ -n "${found_db}" ]; then
-  echo "    > Found existing database dump file(s)."
+  note "Found existing database dump file(s)."
   ls -Alh "${DREVOPS_DB_DIR}" || true
 
-  if [ -z "${DREVOPS_DB_DOWNLOAD_FORCE}" ] ; then
+  if [ -z "${DREVOPS_DB_DOWNLOAD_FORCE}" ]; then
     note "Using existing database dump file(s)."
     note "Download will not proceed."
     note "Remove existing database file or set DREVOPS_DB_DOWNLOAD_FORCE flag to force download."
@@ -75,12 +73,8 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "docker_registry" ]; then
   ./scripts/drevops/download-db-image.sh
 fi
 
-pass "Downloaded database dump file in ${DREVOPS_DB_DIR}."
-
 ls -Alh "${DREVOPS_DB_DIR}" || true
 
-if [ -n "${DREVOPS_DB_DOWNLOAD_POST_PROCESS}" ]; then
-  info "Started running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
-  eval "${DREVOPS_DB_DOWNLOAD_POST_PROCESS}"
-  pass "Finished Running database post download processing command(s) '${DREVOPS_DB_DOWNLOAD_POST_PROCESS}'."
-fi
+[ -n "${DREVOPS_DB_DOWNLOAD_SEMAPHORE}" ] && touch "${DREVOPS_DB_DOWNLOAD_SEMAPHORE}"
+
+pass "Finished database download."

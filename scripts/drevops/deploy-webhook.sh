@@ -2,6 +2,10 @@
 ##
 # Deploy by calling a webhook.
 #
+# IMPORTANT! This script runs outside the container on the host system.
+#
+
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x

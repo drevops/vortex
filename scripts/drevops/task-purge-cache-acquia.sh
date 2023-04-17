@@ -11,6 +11,8 @@
 #
 # @see https://cloudapi-docs.acquia.com/#/Environments/postEnvironmentsDomainsClearVarnish
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -64,7 +66,7 @@ extract_json_value() {
 }
 
 # Pre-flight checks.
-command -v curl > /dev/null || ( fail "curl command is not available." && exit 1 )
+command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 
 # Check that all required variables are present.
 [ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY." && exit 1
@@ -98,13 +100,13 @@ while read -r domain; do
   # Special variable to remap target env to the sub-domain prefix based on UI name.
   TARGET_ENV_REMAP="${target_env}"
   # Strip placeholder for PROD environment.
-  if [ "${target_env}" = "prod" ] ; then
+  if [ "${target_env}" = "prod" ]; then
     domain="${domain//\$target_env_remap./}"
     domain="${domain//\$target_env./}"
   fi
 
   # Re-map 'test' to 'stage' as seen in UI.
-  if [ "${target_env}" = "test" ] ; then
+  if [ "${target_env}" = "test" ]; then
     TARGET_ENV_REMAP=stage
   fi
 
@@ -114,13 +116,13 @@ while read -r domain; do
   fi
 
   # Proceed only if the environment was provided.
-  if [ "${TARGET_ENV_REMAP}" != "" ] ; then
+  if [ "${TARGET_ENV_REMAP}" != "" ]; then
     # Interpolate variables in domain name.
     domain="$(eval echo "${domain}")"
     # Add domain to list.
     domain_list+=("${domain}")
   fi
-done < "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}"
+done <"${DREVOPS_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}"
 
 if [ "${#domain_list[@]}" -gt 0 ]; then
   # Acquia API stops clearing purging caches if at least 1 domain fails, so
@@ -135,22 +137,21 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
     # non-existing domains without a failure.
     if [ "${notification_url}" = "" ]; then
       note "Warning: Unable to purge cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain} as it does not exist."
-      break;
+      break
     fi
 
     echo -n "     > Checking task status: "
     task_completed=0
     # shellcheck disable=SC2034
-    for i in $(seq 1 "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}");
-    do
+    for i in $(seq 1 "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}"); do
       echo -n "."
       sleep "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL}"
       task_status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "${notification_url}")
       task_state=$(echo "$task_status_json" | extract_json_value "status")
       if [ "$task_state" = "completed" ]; then
         note "Successfully purged cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
-        task_completed=1;
-        break 1;
+        task_completed=1
+        break 1
       fi
 
       note "Retrieving authentication token."
@@ -160,15 +161,15 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
     done
     echo
 
-    if [ "${task_completed}" = "0" ] ; then
+    if [ "${task_completed}" = "0" ]; then
       note "Warning: Unable to purge cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
     fi
-  done;
+  done
 else
   note "Unable to find domains to purge cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
 fi
 
 self_elapsed_time=$((SECONDS))
-note "Run duration: $((self_elapsed_time/60)) min $((self_elapsed_time%60)) sec."
+note "Run duration: $((self_elapsed_time / 60)) min $((self_elapsed_time % 60)) sec."
 
 pass "Finished cache purging in Acquia."

@@ -3,6 +3,8 @@
 # Login to Docker container registry.
 #
 
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
@@ -29,7 +31,7 @@ fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 if [ -f "$HOME/.docker/config.json" ] && grep -q "${DREVOPS_DOCKER_REGISTRY}" "$HOME/.docker/config.json"; then
   note "Already logged in to registry \"${DREVOPS_DOCKER_REGISTRY}\"."
-elif [ -n "${DREVOPS_DOCKER_REGISTRY_USERNAME}" ] &&  [ -n "${DREVOPS_DOCKER_REGISTRY_TOKEN}" ]; then
+elif [ -n "${DREVOPS_DOCKER_REGISTRY_USERNAME}" ] && [ -n "${DREVOPS_DOCKER_REGISTRY_TOKEN}" ]; then
   note "Logging in to registry \"${DREVOPS_DOCKER_REGISTRY}\"."
   echo "${DREVOPS_DOCKER_REGISTRY_TOKEN}" | docker login --username "${DREVOPS_DOCKER_REGISTRY_USERNAME}" --password-stdin "${DREVOPS_DOCKER_REGISTRY}"
 else

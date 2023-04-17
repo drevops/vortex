@@ -2,9 +2,13 @@
 ##
 # Deploy via pushing Docker images to Docker registry.
 #
+# IMPORTANT! This script runs outside the container on the host system.
+#
 # This will push multiple docker images by tagging provided services in the
 # DREVOPS_DEPLOY_DOCKER_MAP variable.
 #
+
+t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -23,7 +27,7 @@ DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN:-}"
 DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-docker.io}"
 
 # The tag of the image to push to. Defaults to 'latest'.
-DREVOPS_DEPLOY_DOCKER_IMAGE_TAG="${DREVOPS_DEPLOY_DOCKER_IMAGE_TAG:-latest}"
+DREVOPS_DOCKER_IMAGE_TAG="${DREVOPS_DOCKER_IMAGE_TAG:-latest}"
 
 # ------------------------------------------------------------------------------
 
@@ -44,9 +48,9 @@ info "Started DOCKER deployment."
 services=()
 images=()
 # Parse and validate map.
-IFS=',' read -r -a values <<< "${DREVOPS_DEPLOY_DOCKER_MAP}"
+IFS=',' read -r -a values <<<"${DREVOPS_DEPLOY_DOCKER_MAP}"
 for value in "${values[@]}"; do
-  IFS='=' read -r -a parts <<< "${value}"
+  IFS='=' read -r -a parts <<<"${value}"
   [ "${#parts[@]}" -ne 2 ] && fail "invalid key/value pair \"${value}\" provided." && exit 1
   services+=("${parts[0]}")
   images+=("${parts[1]}")
@@ -69,7 +73,7 @@ for key in "${!services[@]}"; do
   [ -z "${cid}" ] && fail "Service \"${service}\" is not running." && exit 1
   note "Found \"${service}\" service container with id \"${cid}\"."
 
-  [ -n "${image##*:*}" ] && image="${image}:${DREVOPS_DEPLOY_DOCKER_IMAGE_TAG}"
+  [ -n "${image##*:*}" ] && image="${image}:${DREVOPS_DOCKER_IMAGE_TAG}"
   new_image="${DREVOPS_DOCKER_REGISTRY}/${image}"
 
   note "Committing Docker image with name \"${new_image}\"."
