@@ -51,7 +51,7 @@ NEWRELIC_LICENSE=
 DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED=
 
 # Uncomment below to suppress Ahoy prompts.
-DREVOPS_AHOY_CONFIRM_RESPONSE=
+AHOY_CONFIRM_RESPONSE=
 
 # Print debug information in DrevOps scripts.
 DREVOPS_DEBUG=
