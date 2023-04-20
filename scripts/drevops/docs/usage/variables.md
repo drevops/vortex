@@ -40,6 +40,12 @@
 
 ## Variables list
 
+### `AHOY_CONFIRM_RESPONSE`
+
+Uncomment below to suppress Ahoy prompts.
+
+Default value: `UNDEFINED`
+
 ### `COMPOSE_PROJECT_NAME`
 
 Docker Compose project name (all containers will have this name). Defaults to the name of the project directory.
@@ -79,12 +85,6 @@ Default value: `UNDEFINED`
 ### `DREVOPS_ACQUIA_SECRET`
 
 Acquia Cloud API secret.
-
-Default value: `UNDEFINED`
-
-### `AHOY_CONFIRM_RESPONSE`
-
-Uncomment below to suppress Ahoy prompts.
 
 Default value: `UNDEFINED`
 

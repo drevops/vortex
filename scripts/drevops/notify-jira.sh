@@ -108,7 +108,7 @@ payload="$(curl \
 
 account_id="$(echo "${payload}" | extract_json_value "accountId" || echo "error")"
 
-[ "${#account_id}" -lt 24 ] && fail "Failed to authenticate" && echo "${payload}" && exit 1
+[ "${#account_id}" -lt 24 ] && fail "Unable to authenticate" && echo "${payload}" && exit 1
 echo "success"
 
 if [ -n "${DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX}" ]; then
@@ -126,7 +126,7 @@ if [ -n "${DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX}" ]; then
     --data "{\"body\": {\"type\": \"doc\", \"version\": 1, \"content\": [{\"type\": \"paragraph\", \"content\": ${comment}}]}}")"
 
   comment_id="$(echo "${payload}" | extract_json_value "id" || echo "error")"
-  [ "$(expr "x$comment_id" : "x[0-9]*$")" -eq 0 ] && fail "Failed to create a comment" && exit 1
+  [ "$(expr "x$comment_id" : "x[0-9]*$")" -eq 0 ] && fail "Unable to create a comment" && exit 1
 
   pass "Posted comment with ID ${comment_id}."
 fi
@@ -143,7 +143,7 @@ if [ -n "${DREVOPS_NOTIFY_JIRA_TRANSITION}" ]; then
     --url "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/transitions")"
 
   transition_id="$(echo "${payload}" | extract_json_value "transitions" | extract_json_value_by_value "name" "${DREVOPS_NOTIFY_JIRA_TRANSITION}" "id" || echo "error")"
-  { [ "${transition_id}" = "" ] || [ "$(expr "x$transition_id" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to retrieve transition ID" && exit 1
+  { [ "${transition_id}" = "" ] || [ "$(expr "x$transition_id" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to retrieve transition ID" && exit 1
   echo "success"
 
   payload="$(curl \
@@ -169,7 +169,7 @@ if [ -n "${DREVOPS_NOTIFY_JIRA_ASSIGNEE}" ]; then
     --url "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/user/assignable/search?query=${DREVOPS_NOTIFY_JIRA_ASSIGNEE}&issueKey=${issue}")"
 
   account_id="$(echo "${payload}" | extract_json_first_value "accountId" || echo "error")"
-  [ "${#account_id}" -lt 24 ] && fail "Failed to retrieve assignee account ID" && echo "${payload}" && exit 1
+  [ "${#account_id}" -lt 24 ] && fail "Unable to retrieve assignee account ID" && echo "${payload}" && exit 1
   echo "success"
 
   payload="$(curl \
