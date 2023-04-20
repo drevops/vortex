@@ -128,8 +128,8 @@ aliases:
       #; @see https://github.com/drevops/ci-builder
       - image: drevops/ci-builder
         auth:
-          username: $DREVOPS_DOCKER_REGISTRY_USERNAME
-          password: $DREVOPS_DOCKER_REGISTRY_TOKEN
+          username: $DOCKER_USERNAME
+          password: $DOCKER_PASS
         environment:
           # Set timezone to ensure that executed operations use correct timestamps.
           TZ: *timezone

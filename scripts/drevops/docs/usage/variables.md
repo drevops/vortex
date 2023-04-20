@@ -46,6 +46,24 @@ Docker Compose project name (all containers will have this name). Defaults to th
 
 Default value: `UNDEFINED`
 
+### `DOCKER_PASS`
+
+The token to log into the Docker registry.
+
+Default value: `UNDEFINED`
+
+### `DOCKER_REGISTRY`
+
+Docker registry name. Provide port, if required as <server_name>:<port>.
+
+Default value: `docker.io`
+
+### `DOCKER_USERNAME`
+
+The username to log into the Docker registry.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_ACQUIA_APP_NAME`
 
 Database dump Acquia application name.
@@ -284,7 +302,7 @@ Default value: `UNDEFINED`
 
 Docker registry name.
 
-Default value: `DREVOPS_DOCKER_REGISTRY:-docker.io`
+Default value: `DOCKER_REGISTRY:-docker.io`
 
 ### `DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME`
 
@@ -490,24 +508,6 @@ The tag of the image to push to. Defaults to 'latest'.
 
 Default value: `latest`
 
-### `DREVOPS_DOCKER_REGISTRY`
-
-Docker registry name. Provide port, if required as <server_name>:<port>.
-
-Default value: `docker.io`
-
-### `DREVOPS_DOCKER_REGISTRY_TOKEN`
-
-The token to log into the Docker registry.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DOCKER_REGISTRY_USERNAME`
-
-The username to log into the Docker registry.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE`
 
 Docker image archive file to restore passed as a second argument to this script.
@@ -541,12 +541,6 @@ Check minimal Doctor requirements.
 Default value: `UNDEFINED`
 
 ### `DREVOPS_DOCTOR_CHECK_PORT`
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_DOCTOR_CHECK_PREFLIGHT`
-
-Check pre-flight Doctor requirements.
 
 Default value: `UNDEFINED`
 

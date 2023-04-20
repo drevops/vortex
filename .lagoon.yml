@@ -7,11 +7,9 @@ environment_variables:
 # Uncomment below to login into container registries if using private images.
 # container-registries:
 #  dockerhub:
-#    username: <dockerhub username>
-#    # Environment variable $DREVOPS_DOCKER_REGISTRY_TOKEN with Docker registry
-#    # password is injected into container via LagoonCLI.
-#    # @see https://docs.lagoon.sh/using-lagoon-advanced/environment-variables/#runtime-environment-variables-lagoon-api
-#    password: DREVOPS_DOCKER_REGISTRY_TOKEN
+#    # Environment variables DOCKER_USER and DOCKER_PASS needs to be set via Lagoon CLI.
+#    username: DOCKER_USER
+#    password: DOCKER_PASS
 
 tasks:
   post-rollout:
