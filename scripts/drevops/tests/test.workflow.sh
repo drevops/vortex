@@ -27,12 +27,12 @@ case ${index} in
 
   0)
     $bats "${TEST_DIR}"/bats/workflow.smoke.bats
-    $bats "${TEST_DIR}"/bats/workflow.install.bats
+    $bats "${TEST_DIR}"/bats/workflow.storage.bats
+    $bats "${TEST_DIR}"/bats/workflow.utilities.bats
     ;;
 
   1)
-    $bats "${TEST_DIR}"/bats/workflow.storage.bats
-    $bats "${TEST_DIR}"/bats/workflow.utilities.bats
+    $bats "${TEST_DIR}"/bats/workflow.install.bats
     ;;
 
   *)
