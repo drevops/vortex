@@ -170,7 +170,7 @@ aliases:
   - &step_setup_remote_docker
     setup_remote_docker:
       docker_layer_caching: *docker_layer_caching
-      version: 19.03.13
+      version: 20.10.18
 
   # Process the codebase to be run in CI environment.
   - &step_process_codebase
@@ -305,19 +305,19 @@ jobs:
           no_output_timeout: 30m
       - run:
           name: Lint code
-          command: docker-compose exec -T cli ./scripts/drevops/lint.sh
+          command: docker compose exec -T cli ./scripts/drevops/lint.sh
       - run:
           name: Run tests
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && export DREVOPS_TEST_PARALLEL_INDEX=$CIRCLE_NODE_INDEX || true
-            docker-compose exec -T cli ./scripts/drevops/test.sh
+            docker compose exec -T cli ./scripts/drevops/test.sh
       - run:
           name: Process test logs and artifacts
           command: |
-            [ -n "$(docker-compose ps -q cli)" ] && [ -n "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q cli)")" ] && (
-              docker-compose exec -T cli mkdir -p "${DREVOPS_TEST_REPORTS_DIR}" && docker cp "$(docker-compose ps -q cli)":"${DREVOPS_TEST_REPORTS_DIR}" "${DREVOPS_TEST_REPORTS_DIR}"
-              docker-compose exec -T cli mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}" && docker cp "$(docker-compose ps -q cli)":"${DREVOPS_TEST_ARTIFACT_DIR}" "${DREVOPS_TEST_ARTIFACT_DIR}"
-            ) || true
+            if docker compose ps --services --filter "status=running" | grep -q cli; then
+              docker compose exec -T cli mkdir -p "${DREVOPS_TEST_REPORTS_DIR}" && docker compose cp cli:"${DREVOPS_TEST_REPORTS_DIR}" "${DREVOPS_TEST_REPORTS_DIR}"
+              docker compose exec -T cli mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}" && docker compose cp cli:"${DREVOPS_TEST_ARTIFACT_DIR}" "${DREVOPS_TEST_ARTIFACT_DIR}"
+            fi
           when: always
       - store_test_results:
           path: *drevops_test_reports_dir
@@ -559,7 +559,7 @@ jobs:
             ahoy test
             ahoy publish
             mkdir -p /tmp/docs
-            docker cp "$(docker-compose ps -q mkdocs)":"/app/site/." "/tmp/docs"
+            docker compose cp mkdocs:"/app/site/." "/tmp/docs"
       - run:
           name: Configure SSH.
           command: |

@@ -58,9 +58,6 @@ DREVOPS_DOCTOR_CHECK_WEBSERVER="${DREVOPS_DOCTOR_CHECK_WEBSERVER:-1}"
 # Check Doctor requirements for application bootstrap status.
 DREVOPS_DOCTOR_CHECK_BOOTSTRAP="${DREVOPS_DOCTOR_CHECK_BOOTSTRAP:-1}"
 
-# Local development URL.
-DREVOPS_DOCTOR_LOCALDEV_URL="${DREVOPS_DOCTOR_LOCALDEV_URL:-${DREVOPS_LOCALDEV_URL}}"
-
 # Default SSH key file.
 DREVOPS_DOCTOR_SSH_KEY_FILE="${DREVOPS_DOCTOR_SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}"
 
@@ -71,6 +68,7 @@ note() { printf "       %s\n" "$1"; }
 info() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
 pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+warn() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[33m[WARN] %s\033[0m\n" "$1" || printf "[WARN] %s\n" "$1"; }
 # @formatter:on
 
 #
@@ -83,7 +81,7 @@ main() {
 
   if [ "${DREVOPS_DOCTOR_CHECK_TOOLS}" = "1" ]; then
     [ "$(command_exists docker)" = "1" ] && fail "Please install Docker (https://www.docker.com/get-started)." && exit 1
-    [ "$(command_exists docker-compose)" = "1" ] && fail "Please install docker-compose (https://docs.docker.com/compose/install/)." && exit 1
+    [ "$(command_exists docker compose)" = "1" ] && fail "Please install docker compose (https://docs.docker.com/compose/install/)." && exit 1
     [ "$(command_exists pygmy)" = "1" ] && fail "Please install Pygmy (https://pygmy.readthedocs.io/)." && exit 1
     [ "$(command_exists ahoy)" = "1" ] && fail "Please install Ahoy (https://ahoy-cli.readthedocs.io/)." && exit 1
     pass "All required tools are present."
@@ -119,8 +117,7 @@ main() {
   if [ "${DREVOPS_DOCTOR_CHECK_CONTAINERS}" = "1" ]; then
     docker_services=(cli php nginx mariadb)
     for docker_service in "${docker_services[@]}"; do
-      # shellcheck disable=SC2143
-      if [ -z "$(docker-compose ps -q "${docker_service}")" ] || [ -z "$(docker ps -q --no-trunc | grep "$(docker-compose ps -q "${docker_service}")")" ]; then
+      if ! docker compose ps --status=running --services | grep -q "${docker_service}"; then
         fail "${docker_service} container is not running."
         echo "      Run 'ahoy up'."
         echo "      Run 'ahoy logs ${docker_service}' to see error logs."
@@ -155,47 +152,52 @@ main() {
     # restarted - the volume mount will retain and the key will still be
     # available in CLI container.
 
-    ssh_key_added=1
+    ssh_key_added_to_pygmy=1
     # Check that the key is injected into pygmy ssh-agent container.
     if ! pygmy status 2>&1 | grep -q "${DREVOPS_DOCTOR_SSH_KEY_FILE}"; then
-      note "SSH key is not added to pygmy. Run 'pygmy restart' and then 'ahoy up -- --build'."
-      ssh_key_added=0
+      warn "SSH key is not added to pygmy."
+      note "The SSH key will not be available in CLI container. Run 'pygmy restart' and then 'ahoy up'"
+      ssh_key_added_to_pygmy=0
     fi
 
     # Check that the volume is mounted into CLI container.
-    if ! docker exec -i "$(docker-compose ps -q cli)" bash -c "grep \"^/dev\" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent"; then
-      note "SSH key is added to Pygmy, but the volume is not mounted into container. Make sure that your your \"docker-compose.yml\" has the following lines:"
-      note "volumes_from:"
-      note "- container:amazeeio-ssh-agent"
-      note "After adding these lines, run 'ahoy up -- --build'."
-      ssh_key_added=0
+    ssh_key_volume_mounted=1
+    if ! docker compose exec -T cli bash -c "grep \"^/dev\" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent"; then
+      warn "SSH key volume is not mounted into CLI container."
+      note "Make sure that your \"docker-compose.yml\" has the following lines for CLI service:"
+      note "  volumes_from:"
+      note "    - container:amazeeio-ssh-agent"
+      note "After adding these lines, run 'ahoy up'."
+      ssh_key_volume_mounted=0
     fi
 
     # Check that ssh key is available in the container.
-    if [ "${ssh_key_added}" = "1" ] && ! docker exec -i "$(docker-compose ps -q cli)" bash -c "ssh-add -L | grep -q 'ssh-rsa'"; then
-      note "SSH key was not added into container. Run 'pygmy restart'."
-      ssh_key_added=0
+    ssh_key_available_in_container=1
+    if [ "${ssh_key_added_to_pygmy}" = "1" ] && [ "${ssh_key_volume_mounted}" = "1" ] && ! docker compose exec -T cli bash -c "ssh-add -L | grep -q 'ssh-rsa'"; then
+      fail "SSH key was not added into container. Run 'pygmy restart'."
+      ssh_key_available_in_container=0
     fi
 
-    [ "${ssh_key_added}" = "1" ] && pass "SSH key is available within CLI container."
+    [ "${ssh_key_available_in_container}" = "1" ] && pass "SSH key is available within CLI container."
   fi
 
-  if [ -n "${DREVOPS_DOCTOR_LOCALDEV_URL}" ]; then
-    if [ "${DREVOPS_DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
+  if [ "${DREVOPS_DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
+    local_dev_url="$(docker compose exec -T cli bash -c "echo \$DREVOPS_LOCALDEV_URL")"
+    if [ -n "${local_dev_url}" ]; then
       # Depending on the type of installation, the homepage may return 200 or 403.
-      if ! curl -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_DOCTOR_LOCALDEV_URL}" | grep -q '200\|403'; then
-        fail "Web server is not accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
+      if ! curl -L -s -o /dev/null -w "%{http_code}" "${local_dev_url}" | grep -q '200\|403'; then
+        fail "Web server is not accessible at http://${local_dev_url}."
         exit 1
       fi
-      pass "Web server is running and accessible at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
-    fi
+      pass "Web server is running and accessible at http://${local_dev_url}."
 
-    if [ "${DREVOPS_DOCTOR_CHECK_BOOTSTRAP}" = "1" ]; then
-      if ! curl -L -s -N "${DREVOPS_DOCTOR_LOCALDEV_URL}" | grep -q -i "charset="; then
-        fail "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
-        exit 1
+      if [ "${DREVOPS_DOCTOR_CHECK_BOOTSTRAP}" = "1" ]; then
+        if ! curl -L -s -N "${local_dev_url}" | grep -q -i "charset="; then
+          fail "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
+          exit 1
+        fi
+        pass "Successfully bootstrapped website at http://${local_dev_url}."
       fi
-      pass "Successfully bootstrapped website at http://${DREVOPS_DOCTOR_LOCALDEV_URL}."
     fi
   fi
 
@@ -221,9 +223,13 @@ system_info() {
   docker info
   echo
 
-  echo "DOCKER COMPOSE"
+  echo "DOCKER COMPOSE V2"
+  docker compose version || true
+  echo
+
+  echo "DOCKER-COMPOSE V1"
   echo "Path to binary: $(which docker-compose)"
-  docker-compose version
+  docker-compose version || true
   echo
 
   echo "PYGMY"

@@ -566,12 +566,6 @@ Default value: `UNDEFINED`
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DOCTOR_LOCALDEV_URL`
-
-Local development URL.
-
-Default value: `DREVOPS_LOCALDEV_URL`
-
 ### `DREVOPS_DOCTOR_SSH_KEY_FILE`
 
 Default SSH key file.
@@ -775,12 +769,6 @@ Default value: `UNDEFINED`
 Provide argument as 'be' or 'fe' to lint only back-end or front-end code. If no argument is provided, all code will be linted.
 
 Default value: `UNDEFINED`
-
-### `DREVOPS_LOCALDEV_URL`
-
-Local development URL (no trailing slashes).
-
-Default value: `your-site.docker.amazee.io`
 
 ### `DREVOPS_MARIADB_DATABASE`
 
@@ -1022,7 +1010,7 @@ Default value: `main`
 
 ### `DREVOPS_PROJECT`
 
-Project name.
+Project name. Drives internal naming within the codebase. Does not affect the names of containers and development URL - those depent on the project directory and can be overridden with [`$COMPOSE_PROJECT_NAME`](#compose_project_name).
 
 Default value: `your_site`
 

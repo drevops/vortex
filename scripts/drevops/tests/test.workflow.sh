@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 ##
 # Run DrevOps workflow tests.
+#
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
@@ -21,5 +22,24 @@ echo "==> Run workflow functional tests (${index})."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
 bats="${TEST_DIR}/node_modules/.bin/bats"
 
-# shellcheck disable=SC2086
-$bats "${TEST_DIR}"/bats/workflow${index}.bats
+# Run workflow based on index using switch-case.
+case ${index} in
+
+  0)
+    $bats "${TEST_DIR}"/bats/workflow.smoke.bats
+    $bats "${TEST_DIR}"/bats/workflow.install.bats
+    ;;
+
+  1)
+    $bats "${TEST_DIR}"/bats/workflow.smoke.bats
+    $bats "${TEST_DIR}"/bats/workflow.storage.bats
+    $bats "${TEST_DIR}"/bats/workflow.utilities.bats
+    ;;
+
+  *)
+    $bats "${TEST_DIR}"/bats/workflow.smoke.bats
+    $bats "${TEST_DIR}"/bats/workflow.install.bats
+    $bats "${TEST_DIR}"/bats/workflow.storage.bats
+    $bats "${TEST_DIR}"/bats/workflow.utilities.bats
+    ;;
+esac

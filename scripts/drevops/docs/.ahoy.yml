@@ -13,12 +13,12 @@ commands:
 
   test:
     usage: Test site
-    cmd: docker-compose run linkchecker http://mkdocs:8000 "$@"
+    cmd: docker compose run linkchecker http://mkdocs:8000 "$@"
 
   publish:
     usage: Deploy site
     # Make sure that your SSH config and keys have correct permissions or this will fail.
-    cmd: docker-compose exec mkdocs mkdocs build
+    cmd: docker compose exec mkdocs mkdocs build
 
   update:
     usage: Update docs
@@ -31,26 +31,26 @@ commands:
 
   version:
     usage: MkDocs version
-    cmd: docker-compose run mkdocs --version
+    cmd: docker compose run mkdocs --version
 
   up:
     usage: Build and start Docker containers.
     cmd: |
-      docker-compose up -d "$@" && \
-      docker-compose exec mkdocs sh -c "dockerize -wait tcp://mkdocs:8000 -timeout 1m"
-      if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi
+      docker compose up -d "$@" && \
+      docker compose exec mkdocs sh -c "dockerize -wait tcp://mkdocs:8000 -timeout 1m"
+      if docker compose logs | grep -q "\[Error\]"; then docker compose logs; exit 1; fi
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
-    cmd: "if [ -f \"docker-compose.yml\" ]; then docker-compose down --volumes; fi"
+    cmd: "if [ -f \"docker-compose.yml\" ]; then docker compose down --volumes; fi"
 
   start:
     usage: Start existing Docker containers.
-    cmd: docker-compose start "$@"
+    cmd: docker compose start "$@"
 
   stop:
     usage: Stop running Docker containers.
-    cmd: docker-compose stop "$@"
+    cmd: docker compose stop "$@"
 
   line:
     cmd: printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"
