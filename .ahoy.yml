@@ -26,7 +26,8 @@ commands:
     usage: Build or rebuild the project.
     cmd: |
       ahoy confirm "Running this command will remove your current database and files. Are you sure?" &&
-      ./scripts/drevops/build.sh
+      ./scripts/drevops/build.sh &&
+      ahoy info
 
   info:
     usage: Show information about this project.
