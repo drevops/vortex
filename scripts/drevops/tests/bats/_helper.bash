@@ -40,33 +40,31 @@ setup() {
   # Setup command mocking.
   setup_mock
 
-  # Allow to override the test GitHub token with an available global token.
-  # GITHUB_TOKEN is unset below to prevent it from being used in tests.
-  TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-${GITHUB_TOKEN}}"
+  # Set test secrets.
+  # For local test development, export these variables in your shell.
+  export TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-}"
+  export TEST_DREVOPS_DOCKER_REGISTRY_USERNAME="${TEST_DREVOPS_DOCKER_REGISTRY_USERNAME:-}"
+  export TEST_DREVOPS_DOCKER_REGISTRY_TOKEN="${TEST_DREVOPS_DOCKER_REGISTRY_TOKEN:-}"
 
   # Preflight checks.
   # @formatter:off
-  command -v curl > /dev/null           || ( echo "[ERROR] curl command is not available." && exit 1 )
-  command -v composer > /dev/null       || ( echo "[ERROR] composer command is not available." && exit 1 )
-  command -v docker > /dev/null         || ( echo "[ERROR] docker command is not available." && exit 1 )
-  command -v ahoy > /dev/null           || ( echo "[ERROR] ahoy command is not available." && exit 1 )
-  command -v jq > /dev/null             || ( echo "[ERROR] jq command is not available." && exit 1 )
-  [ -n "${TEST_GITHUB_TOKEN}" ]         || ( echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1 )
+  command -v curl > /dev/null                       || ( echo "[ERROR] curl command is not available." && exit 1 )
+  command -v composer > /dev/null                   || ( echo "[ERROR] composer command is not available." && exit 1 )
+  command -v docker > /dev/null                     || ( echo "[ERROR] docker command is not available." && exit 1 )
+  command -v ahoy > /dev/null                       || ( echo "[ERROR] ahoy command is not available." && exit 1 )
+  command -v jq > /dev/null                         || ( echo "[ERROR] jq command is not available." && exit 1 )
+  [ -n "${TEST_GITHUB_TOKEN}" ]                     || ( echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1 )
+  [ -n "${TEST_DREVOPS_DOCKER_REGISTRY_USERNAME}" ] || ( echo "[ERROR] The required TEST_DREVOPS_DOCKER_REGISTRY_USERNAME variable is not set. Tests will not proceed." && exit 1 )
+  [ -n "${TEST_DREVOPS_DOCKER_REGISTRY_TOKEN}" ]    || ( echo "[ERROR] The required TEST_DREVOPS_DOCKER_REGISTRY_TOKEN variable is not set. Tests will not proceed." && exit 1 )
   # @formatter:on
 
   # Allow to override debug variables from environment or hardcode them here
   # when developing tests.
-  DREVOPS_DEBUG="${DREVOPS_DEBUG:-}"
-  DREVOPS_DOCKER_VERBOSE="${DREVOPS_DOCKER_VERBOSE:-}"
-  DREVOPS_COMPOSER_VERBOSE="${DREVOPS_COMPOSER_VERBOSE:-}"
-  DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-}"
-  DREVOPS_INSTALL_DEBUG="${DREVOPS_INSTALL_DEBUG:-}"
-
-  export DREVOPS_DEBUG
-  export DREVOPS_DOCKER_VERBOSE
-  export DREVOPS_COMPOSER_VERBOSE
-  export DREVOPS_NPM_VERBOSE
-  export DREVOPS_INSTALL_DEBUG
+  export DREVOPS_DEBUG="${TEST_DREVOPS_DEBUG:-}"
+  export DREVOPS_DOCKER_VERBOSE="${TEST_DREVOPS_DOCKER_VERBOSE:-}"
+  export DREVOPS_COMPOSER_VERBOSE="${TEST_DREVOPS_COMPOSER_VERBOSE:-}"
+  export DREVOPS_NPM_VERBOSE="${TEST_DREVOPS_NPM_VERBOSE:-}"
+  export DREVOPS_INSTALL_DEBUG="${TEST_DREVOPS_INSTALL_DEBUG:-}"
 
   # To run installation tests, several fixture directories are required.
   # They are defined and created in setup() test method.
@@ -104,7 +102,10 @@ setup() {
   unset DREVOPS_DB_DOWNLOAD_SOURCE
   unset DREVOPS_DB_DOCKER_IMAGE
   unset DREVOPS_DB_DOWNLOAD_FORCE
+  # Tokens required for tests are set explicitly within each tests with a TEST_ prefix.
   unset GITHUB_TOKEN
+  unset DREVOPS_DOCKER_REGISTRY_USERNAME
+  unset DREVOPS_DOCKER_REGISTRY_TOKEN
 
   # Disable interactive prompts during tests.
   export DREVOPS_AHOY_CONFIRM_RESPONSE=y

@@ -31,7 +31,6 @@ case ${index} in
     ;;
 
   1)
-    $bats "${TEST_DIR}"/bats/workflow.smoke.bats
     $bats "${TEST_DIR}"/bats/workflow.storage.bats
     $bats "${TEST_DIR}"/bats/workflow.utilities.bats
     ;;
