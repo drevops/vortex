@@ -239,6 +239,8 @@ jobs:
       #: DB dump was downloaded - build the site (to ensure that the DB dump
       #: is valid) and export the DB using selected method (to support
       #: "file-to-Docker image" or "Docker image-to-file" conversions).
+      #: Also, for DB-in-docker-image builds, remove the DB dump file to avoid
+      #: importing it in the follow-up jobs.
       #: Note that configuration changes and the DB updates are not applied, so
       #: the database will be cached as downloaded.
       - run:
@@ -246,6 +248,7 @@ jobs:
           command: |
             if [ -f /tmp/download-db ]; then
               DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP=1 ./scripts/drevops/build.sh
+              grep -q ^DREVOPS_DB_DOCKER_IMAGE .env && rm .data/db.sql || true
               ./scripts/drevops/export-db.sh db.sql
             else
               echo "==> Database download semaphore file is missing. DB export will not proceed."
