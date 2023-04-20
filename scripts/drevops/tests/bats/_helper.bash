@@ -167,7 +167,7 @@ assert_files_present() {
 
   assert_files_present_common "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}"
 
-  assert_files_local_present "${dir}"
+  assert_files_present_local "${dir}"
 
   # Assert Drupal profile not present by default.
   assert_files_present_no_profile "${dir}" "${suffix}"
@@ -194,7 +194,7 @@ assert_files_present() {
   assert_files_present_integration_renovatebot "${dir}" "${suffix}"
 }
 
-assert_files_local_present() {
+assert_files_present_local() {
   local dir="${1:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -879,7 +879,23 @@ assert_files_present_no_integration_renovatebot() {
   popd >/dev/null || exit 1
 }
 
-fixture_readme() {
+assert_webpage_contains() {
+  path="${1}"
+  content="${2}"
+  t=$(mktemp)
+  ahoy cli curl -L -s "http://nginx:8080${path}" >"${t}"
+  assert_file_contains "${t}" "${content}"
+}
+
+assert_webpage_not_contains() {
+  path="${1}"
+  content="${2}"
+  t=$(mktemp)
+  ahoy cli curl -L -s "http://nginx:8080${path}" >"${t}"
+  assert_file_not_contains "${t}" "${content}"
+}
+
+create_fixture_readme() {
   local dir="${1:-$(pwd)}"
   local name="${2:-Star Wars}"
   local org="${3:-Star Wars Org}"
@@ -898,7 +914,7 @@ some other text
 EOT
 }
 
-fixture_composerjson() {
+create_fixture_composerjson() {
   local name="${1}"
   local machine_name="${2}"
   local org="${3}"

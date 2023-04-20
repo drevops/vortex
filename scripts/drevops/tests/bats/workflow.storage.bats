@@ -56,7 +56,17 @@ load _helper_workflow.bash
   assert_ahoy_build
 
   # Assert that DB reload would revert the content.
-  assert_reload_db_image
+    step "Reload DB image"
+
+  # Assert that used DB image has content.
+  assert_webpage_contains "/" "test database Docker image"
+
+  # Change homepage content and assert that the change was applied.
+  ahoy drush config-set system.site page.front /user -y
+  assert_webpage_not_contains "/" "test database Docker image"
+
+  ahoy reload-db
+  assert_webpage_contains "/" "test database Docker image"
 
   # Other stack assertions - these run only for this Docker image-related test.
   assert_gitignore
@@ -141,13 +151,13 @@ load _helper_workflow.bash
   # Make a change to current site, export the DB image, remove existing DB image
   # and rebuild the stack - the used image should have the expected changes.
   substep "Assert that used DB image has content."
-  assert_page_contains "/" "test database Docker image"
-  assert_page_not_contains "/" "Username"
+  assert_webpage_contains "/" "test database Docker image"
+  assert_webpage_not_contains "/" "Username"
 
   substep "Change homepage content and assert that the change was applied."
   ahoy drush config-set system.site page.front /user -y
-  assert_page_not_contains "/" "test database Docker image"
-  assert_page_contains "/" "Username"
+  assert_webpage_not_contains "/" "test database Docker image"
+  assert_webpage_contains "/" "Username"
 
   substep "Exporting DB image to a file"
   run ahoy export-db "db.tar"
@@ -175,8 +185,8 @@ load _helper_workflow.bash
   assert_output_contains "Build complete "
 
   step "Assert that the contents of the DB was loaded from the exported DB image file."
-  assert_page_not_contains "/" "test database Docker image"
-  assert_page_contains "/" "Username"
+  assert_webpage_not_contains "/" "test database Docker image"
+  assert_webpage_contains "/" "Username"
   ahoy clean
 }
 
@@ -226,11 +236,11 @@ load _helper_workflow.bash
 
   step "Case 1: Site is built from DB file, site reloaded from image, while DB file exists."
   substep "Assert that the text is from the DB dump."
-  assert_page_contains "/" "test database dump"
+  assert_webpage_contains "/" "test database dump"
 
   substep "Set content to a different path."
   ahoy drush config-set system.site page.front /user -y
-  assert_page_not_contains "/" "test database dump"
+  assert_webpage_not_contains "/" "test database dump"
 
   substep "Reloading DB from image with DB dump file present"
   assert_file_exists .data/db.sql
@@ -238,7 +248,7 @@ load _helper_workflow.bash
   assert_success
 
   substep "Assert that the text is from the DB dump after reload."
-  assert_page_contains "/" "test database dump"
+  assert_webpage_contains "/" "test database dump"
 
   # Skipped: the drupal-install-site.sh expects DB dump file to exist; this logic
   # needs to be refactored. Currently, reloading without DB dump file present

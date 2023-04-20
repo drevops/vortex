@@ -221,7 +221,7 @@ load _helper.bash
 }
 
 @test "Install into existing: custom files, including DrevOps's readme; discovery; quiet" {
-  fixture_readme
+  create_fixture_readme
 
   touch "test1.txt"
   # File resides in directory that is included in DrevOps when initialised.

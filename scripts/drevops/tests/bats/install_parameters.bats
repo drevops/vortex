@@ -389,13 +389,13 @@ fixture_preinstalled(){
   local webroot="${1:-web}"
 
   # Create readme file to pretend that DrevOps was installed.
-  fixture_readme
+  create_fixture_readme
 
   # Sets 'name' to 'Resistance new site'.
   # Sets 'machine_name' to 'resistance_site'.
   # Sets 'org' to 'The Resistance'.
   # Sets 'org_machine_name' to 'the_next_resistance'.
-  fixture_composerjson "Resistance new site" "resistance_site" "The Resistance" "the_next_resistance"
+  create_fixture_composerjson "Resistance new site" "resistance_site" "The Resistance" "the_next_resistance"
 
   # Sets 'module_prefix' to 'another_resist'.
   mkdir -p "${webroot}/modules/custom/another_resist_core"
