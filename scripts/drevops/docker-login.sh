@@ -9,13 +9,13 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # The username of the docker registry.
-DREVOPS_DOCKER_REGISTRY_USERNAME="${DREVOPS_DOCKER_REGISTRY_USERNAME:-}"
+DOCKER_USERNAME="${DOCKER_USERNAME:-}"
 
 # The token of the docker registry.
-DREVOPS_DOCKER_REGISTRY_TOKEN="${DREVOPS_DOCKER_REGISTRY_TOKEN:-}"
+DOCKER_PASS="${DOCKER_PASS:-}"
 
 # Docker registry name. Provide port, if required as <server_name>:<port>.
-DREVOPS_DOCKER_REGISTRY="${DREVOPS_DOCKER_REGISTRY:-docker.io}"
+DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 
 # ------------------------------------------------------------------------------
 
@@ -27,13 +27,13 @@ fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 # Check all required values.
-[ -z "${DREVOPS_DOCKER_REGISTRY}" ] && echo "Missing required value for DREVOPS_DOCKER_REGISTRY." && exit 1
+[ -z "${DOCKER_REGISTRY}" ] && echo "Missing required value for DOCKER_REGISTRY." && exit 1
 
-if [ -f "$HOME/.docker/config.json" ] && grep -q "${DREVOPS_DOCKER_REGISTRY}" "$HOME/.docker/config.json"; then
-  note "Already logged in to registry \"${DREVOPS_DOCKER_REGISTRY}\"."
-elif [ -n "${DREVOPS_DOCKER_REGISTRY_USERNAME}" ] && [ -n "${DREVOPS_DOCKER_REGISTRY_TOKEN}" ]; then
-  note "Logging in to registry \"${DREVOPS_DOCKER_REGISTRY}\"."
-  echo "${DREVOPS_DOCKER_REGISTRY_TOKEN}" | docker login --username "${DREVOPS_DOCKER_REGISTRY_USERNAME}" --password-stdin "${DREVOPS_DOCKER_REGISTRY}"
+if [ -f "$HOME/.docker/config.json" ] && grep -q "${DOCKER_REGISTRY}" "$HOME/.docker/config.json"; then
+  note "Already logged in to registry \"${DOCKER_REGISTRY}\"."
+elif [ -n "${DOCKER_USERNAME}" ] && [ -n "${DOCKER_PASS}" ]; then
+  note "Logging in to registry \"${DOCKER_REGISTRY}\"."
+  echo "${DOCKER_PASS}" | docker login --username "${DOCKER_USERNAME}" --password-stdin "${DOCKER_REGISTRY}"
 else
-  note "Skipping login into Docker registry as either DREVOPS_DOCKER_REGISTRY_USERNAME or DREVOPS_DOCKER_REGISTRY_TOKEN was not provided."
+  note "Skipping login into Docker registry as either DOCKER_USERNAME or DOCKER_PASS was not provided."
 fi

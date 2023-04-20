@@ -30,8 +30,8 @@ load _helper_workflow.bash
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DREVOPS_DOCKER_REGISTRY_USERNAME=
-  export DREVOPS_DOCKER_REGISTRY_TOKEN=
+  export DOCKER_USERNAME=
+  export DOCKER_PASS=
 
   substep "Make sure that demo database will not be used."
   rm -f .data/db.sql
@@ -103,8 +103,8 @@ load _helper_workflow.bash
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DREVOPS_DOCKER_REGISTRY_USERNAME=
-  export DREVOPS_DOCKER_REGISTRY_TOKEN=
+  export DOCKER_USERNAME=
+  export DOCKER_PASS=
 
   substep "Make sure that demo database will not be downloaded."
   rm -f .data/db.sql
@@ -194,8 +194,8 @@ load _helper_workflow.bash
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DREVOPS_DOCKER_REGISTRY_USERNAME=
-  export DREVOPS_DOCKER_REGISTRY_TOKEN=
+  export DOCKER_USERNAME=
+  export DOCKER_PASS=
 
   # Mimic local behavior where DB is always overridden.
   export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
