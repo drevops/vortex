@@ -40,6 +40,12 @@
 
 ## Variables list
 
+### `AHOY_CONFIRM_RESPONSE`
+
+Uncomment below to suppress Ahoy prompts.
+
+Default value: `UNDEFINED`
+
 ### `CLAMAV_MODE`
 
 ClamAV mode. Run ClamAV in either daemon mode by setting it to `0` or "daemon," or in executable mode by setting it to `1`.
@@ -85,12 +91,6 @@ Default value: `UNDEFINED`
 ### `DREVOPS_ACQUIA_SECRET`
 
 Acquia Cloud API secret.
-
-Default value: `UNDEFINED`
-
-### `AHOY_CONFIRM_RESPONSE`
-
-Uncomment below to suppress Ahoy prompts.
 
 Default value: `UNDEFINED`
 

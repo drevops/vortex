@@ -40,9 +40,9 @@ info "Started WEBHOOK deployment."
 if curl -X "${DREVOPS_DEPLOY_WEBHOOK_METHOD}" -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_DEPLOY_WEBHOOK_URL}" | grep -q "${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS}"; then
   # Note that we do not output ${DREVOPS_DEPLOY_WEBHOOK_URL} as it may contain
   # secrets that would be printed to the terminal.
-  note "Called webhook."
+  note "Webhook call completed."
 else
-  fail "Webhook deployment failed."
+  fail "Unable to complete webhook deployment."
   exit 1
 fi
 
