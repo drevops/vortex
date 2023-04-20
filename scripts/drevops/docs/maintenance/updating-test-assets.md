@@ -7,7 +7,7 @@
        echo "DREVOPS_DRUPAL_PROFILE=standard">>.env.local
        echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1">>.env.local
        rm .data/db.sql
-       DREVOPS_AHOY_CONFIRM_RESPONSE=1 ahoy build
+       AHOY_CONFIRM_RESPONSE=1 ahoy build
 
 2. Check that everything looks correctly on the site
 3. Export DB

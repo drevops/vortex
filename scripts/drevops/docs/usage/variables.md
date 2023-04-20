@@ -88,7 +88,7 @@ Acquia Cloud API secret.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_AHOY_CONFIRM_RESPONSE`
+### `AHOY_CONFIRM_RESPONSE`
 
 Uncomment below to suppress Ahoy prompts.
 

@@ -246,11 +246,11 @@ commands:
   # ----------------------------------------------------------------------------
   confirm:
     cmd: |
-      if [ -z "$DREVOPS_AHOY_CONFIRM_RESPONSE" ]; then
-        read -r -p "> $1 [y/N] " DREVOPS_AHOY_CONFIRM_RESPONSE
-        [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = true ] || ( echo "The operation was canceled." && exit 1 )
+      if [ -z "$AHOY_CONFIRM_RESPONSE" ]; then
+        read -r -p "> $1 [y/N] " AHOY_CONFIRM_RESPONSE
+        [ "$AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$AHOY_CONFIRM_RESPONSE" = true ] || ( echo "The operation was canceled." && exit 1 )
       else
-        echo "> $1 [y/N] $DREVOPS_AHOY_CONFIRM_RESPONSE"
+        echo "> $1 [y/N] $AHOY_CONFIRM_RESPONSE"
       fi
     hide: true
 

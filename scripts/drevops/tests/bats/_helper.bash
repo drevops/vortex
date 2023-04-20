@@ -108,7 +108,7 @@ setup() {
   unset DOCKER_PASS
 
   # Disable interactive prompts during tests.
-  export DREVOPS_AHOY_CONFIRM_RESPONSE=y
+  export AHOY_CONFIRM_RESPONSE=y
 
   # Disable Doctor checks used on host machine.
   export DREVOPS_DOCTOR_CHECK_TOOLS=0
