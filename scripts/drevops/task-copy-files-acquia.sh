@@ -124,7 +124,7 @@ if [ "${task_completed}" = "0" ]; then
   exit 1
 fi
 
-note "Successfully copied files from $DREVOPS_TASK_COPY_FILES_ACQUIA_SRC to $DREVOPS_TASK_COPY_FILES_ACQUIA_DST environment."
+note "Copied files from $DREVOPS_TASK_COPY_FILES_ACQUIA_SRC to $DREVOPS_TASK_COPY_FILES_ACQUIA_DST environment."
 
 self_elapsed_time=$((SECONDS))
 note "Run duration: $((self_elapsed_time / 60)) min $((self_elapsed_time % 60)) sec."

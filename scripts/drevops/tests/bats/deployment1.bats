@@ -91,7 +91,7 @@ load _helper_deployment.bash
 
   # Assert that no other deployments ran.
   assert_output_not_contains "Started WEBHOOK deployment."
-  assert_output_not_contains "Successfully called webhook."
+  assert_output_not_contains "Called webhook."
   assert_output_not_contains "[FAIL] Webhook deployment failed."
   assert_output_not_contains "Finished WEBHOOK deployment."
 
@@ -204,7 +204,7 @@ load _helper_deployment.bash
   assert_output_not_contains "Finished ARTIFACT deployment."
 
   assert_output_not_contains "Started WEBHOOK deployment."
-  assert_output_not_contains "Successfully called webhook."
+  assert_output_not_contains "Called webhook."
   assert_output_not_contains "[FAIL] Webhook deployment failed."
   assert_output_not_contains "Finished WEBHOOK deployment."
 
@@ -339,7 +339,7 @@ load _helper_deployment.bash
   assert_output_not_contains "Finished ARTIFACT deployment."
 
   assert_output_not_contains "Started WEBHOOK deployment."
-  assert_output_not_contains "Successfully called webhook."
+  assert_output_not_contains "Called webhook."
   assert_output_not_contains "[FAIL] Webhook deployment failed."
   assert_output_not_contains "Finished WEBHOOK deployment."
 

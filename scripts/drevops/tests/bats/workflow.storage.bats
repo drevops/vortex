@@ -141,7 +141,7 @@ load _helper_workflow.bash
   assert_output_contains "Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}"
   assert_output_contains "Not found ${DREVOPS_DB_DOCKER_IMAGE}"
   assert_output_contains "Not found archived database Docker image file ./.data/db.tar."
-  assert_output_contains "Build complete "
+  assert_output_contains "Finished building project"
 
   substep "Remove any existing or previously downloaded DB image dumps."
   rm -Rf .data/db.tar
@@ -182,7 +182,7 @@ load _helper_workflow.bash
   assert_output_contains "Loaded image: ${DREVOPS_DB_DOCKER_IMAGE}"
   assert_output_contains "Found expanded ${DREVOPS_DB_DOCKER_IMAGE}"
 
-  assert_output_contains "Build complete "
+  assert_output_contains "Finished building project"
 
   step "Assert that the contents of the DB was loaded from the exported DB image file."
   assert_webpage_not_contains "/" "test database Docker image"

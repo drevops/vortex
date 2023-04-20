@@ -118,7 +118,7 @@ if [ -n "${DREVOPS_DRUPAL_PRIVATE_FILES}" ]; then
   else
     mkdir -p "${DREVOPS_DRUPAL_PRIVATE_FILES}"
     if [ -d "${DREVOPS_DRUPAL_PRIVATE_FILES}" ]; then
-      pass "Successfully created private files directory."
+      pass "Created private files directory."
     else
       fail "Unable to create private files directory."
       exit 1
@@ -140,7 +140,7 @@ install_import() {
 
   $drush "${drush_opts[@]}" sql-drop
   $drush "${drush_opts[@]}" sqlc <"${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
-  pass "Successfully imported database from the dump file."
+  pass "Imported database from the dump file."
 }
 
 #
@@ -167,7 +167,7 @@ install_profile() {
   # Database may exist in non-bootstrappable state - truncuate it.
   $drush "${drush_opts[@]}" sql-drop || true
   $drush si "${opts[@]}"
-  pass "Successfully installed a site from the profile."
+  pass "Installed a site from the profile."
 }
 
 # Install site from DB dump or profile.
@@ -237,7 +237,7 @@ fi
 
 info "Running database updates."
 $drush -y updb --no-cache-clear
-pass "Updates were run successfully."
+pass "Completed running database updates."
 echo
 
 info "Importing Drupal configuration if it exists."
@@ -250,7 +250,7 @@ if [ "${site_has_config}" = "1" ]; then
 
   info "Importing configuration"
   $drush "${drush_opts[@]}" config:import
-  pass "Configuration was imported successfully."
+  pass "Completed configuration import."
 
   # Import config_split configuration if the module is installed.
   if $drush pm:list --status=enabled | grep -q config_split; then
@@ -260,7 +260,7 @@ if [ "${site_has_config}" = "1" ]; then
     # the same as not failing on failed import.
     # @see https://www.drupal.org/project/config_split/issues/3171819
     $drush "${drush_opts[@]}" config-split:import "${environment:-}" || true
-    pass "Config-split configuration was imported successfully."
+    pass "Config-split Completed configuration import."
   fi
 else
   pass "Configuration files were not found in ${DREVOPS_DRUPAL_CONFIG_PATH} path."
@@ -278,9 +278,9 @@ echo
 
 # @see https://www.drush.org/latest/deploycommand/
 if $drush list | grep -q deploy; then
-  info "Running post config import updates via Drush deploy."
+  info "Running updates after configuration import via Drush deploy."
   $drush -y deploy:hook
-  pass "Post config import updates ran successfully."
+  pass "Completed updates after configuration import via Drush deploy."
   echo
 fi
 
@@ -300,7 +300,7 @@ if [ -d "${DREVOPS_APP}/scripts/custom" ]; then
     if [ -f "${file}" ]; then
       info "Running custom post-install script ${file}."
       . "${file}"
-      pass "Custom post-install script ${file} ran successfully."
+      pass "Completed running of custom post-install script ${file}."
       echo
     fi
   done
