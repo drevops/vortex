@@ -6,7 +6,7 @@
 
 ## Using `docker-compose.yml`
 
-Note that `docker-composer.yml` does not support default values evaluation in
+Note that `docker-compose.yml` does not support default values evaluation in
 variables assignment. E.g.,
 
     environment:
@@ -17,7 +17,7 @@ is not provided (it will be a literal string `$VARIABLE3`).
 
 ### Validate `docker-compose.yml`
 
-    docker-compose -f docker-compose.yml config
+    docker compose -f docker-compose.yml config
 
 ### Host volume mounting in Docker-based projects
 

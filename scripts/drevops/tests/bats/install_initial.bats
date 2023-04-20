@@ -17,6 +17,14 @@ load _helper.bash
   assert_git_repo
 }
 
+@test "Install into empty directory: DREVOPS_INSTALL_DST_DIR is a current dir" {
+  export CURRENT_PROJECT_DIR="${DST_PROJECT_DIR}"
+  run_install_quiet
+
+  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
+  assert_git_repo "${DST_PROJECT_DIR}"
+}
+#
 @test "Install into empty directory: DREVOPS_INSTALL_DST_DIR from an argument" {
   run_install_quiet "${DST_PROJECT_DIR}"
 
@@ -32,7 +40,7 @@ load _helper.bash
   assert_git_repo "${DST_PROJECT_DIR}"
 }
 
-@test "Install into empty directory: DREVOPS_PROJECT from env variable" {
+@test "Install into empty directory: DREVOPS_PROJECT from environment variable" {
   export DREVOPS_PROJECT="the_matrix"
 
   run_install_quiet
@@ -56,11 +64,11 @@ load _helper.bash
   assert_git_repo
 
   # Releasing 2 new versions of DrevOps.
-  echo "# Some change to docker-compose at commit 1" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
+  echo "# Some change to docker-compose.yml at commit 1" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
   commit1=$(git_commit "New version 1 of DrevOps" "${LOCAL_REPO_DIR}")
 
-  echo "# Some change to docker-compose at commit 2" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
+  echo "# Some change to docker-compose.yml at commit 2" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
   git_commit "New version 2 of DrevOps" "${LOCAL_REPO_DIR}"
 
@@ -73,8 +81,8 @@ load _helper.bash
   assert_output_contains "at ref \"${commit1}\""
 
   assert_files_present
-  assert_file_contains "docker-compose.yml" "# Some change to docker-compose at commit 1"
-  assert_file_not_contains "docker-compose.yml" "# Some change to docker-compose at commit 2"
+  assert_file_contains "docker-compose.yml" "# Some change to docker-compose.yml at commit 1"
+  assert_file_not_contains "docker-compose.yml" "# Some change to docker-compose.yml at commit 2"
 }
 
 @test "Install into empty directory: empty directory; no local ignore" {

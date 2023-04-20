@@ -52,28 +52,28 @@ echo
 [ "${DREVOPS_COMPOSER_VERBOSE}" = "1" ] && composer_verbose_output="/dev/stdout" || composer_verbose_output="/dev/null"
 [ "${DREVOPS_NPM_VERBOSE}" = "1" ] && npm_verbose_output="/dev/stdout" || npm_verbose_output="/dev/null"
 
-# Create an array of Docker Compose CLI options as a shorthand
+# Create an array of Docker Compose CLI options for 'exec' command as a shorthand.
 # DREVOPS_*, COMPOSE_* and TERM variables will be passed to containers.
 dcopts=(-T) && while IFS='' read -r line; do dcopts+=("$line"); done < <(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_\|TERM" | sed 's/^/-e /')
 
 # Check all pre-requisites before starting the stack.
-export DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 && ./scripts/drevops/doctor.sh
+DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 ./scripts/drevops/doctor.sh
 
 info "Validating Docker Compose configuration."
-docker-compose config -q && pass "Docker Compose configuration is valid." || fail "Failed to validate Docker Compose configuration."
+docker compose config -q && pass "Docker Compose configuration is valid." || { fail "Failed to validate Docker Compose configuration." && exit 1; }
 echo
 
 # Validate Composer configuration if Composer is installed.
 # This is done before the containers are started to fail fast if the Composer configuration is invalid.
 if command -v composer >/dev/null; then
   if [ "${DREVOPS_COMPOSER_VALIDATE_LOCK}" = "1" ]; then
-    info "Validating composer configuration, including lock file."
+    info "Validating Composer configuration, including lock file."
     composer validate --ansi --strict --no-check-all 1>"${composer_verbose_output}"
-    pass "Validated composer.json."
+    pass "Composer configuration is valid. Lock file is up-to-date."
   else
     info "Validating composer configuration."
     composer validate --ansi --strict --no-check-all --no-check-lock 1>"${composer_verbose_output}"
-    pass "Validated composer.json."
+    pass "Composer configuration is valid."
   fi
   echo
 fi
@@ -83,7 +83,7 @@ fi
 docker network prune -f >/dev/null 2>&1 && docker network inspect amazeeio-network >/dev/null 2>&1 || docker network create amazeeio-network >/dev/null 2>&1 || true
 
 info "Removing project containers and packages available since the previous run."
-if [ -f "docker-compose.yml" ]; then docker-compose down --remove-orphans --volumes >/dev/null 2>&1; fi
+if [ -f "docker-compose.yml" ]; then docker compose down --remove-orphans --volumes >/dev/null 2>&1; fi
 ./scripts/drevops/clean.sh
 echo
 
@@ -107,8 +107,9 @@ if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
 fi
 
 info "Building Docker images and starting containers."
-docker-compose up -d --build --force-recreate 1>"${docker_verbose_output}" 2>"${docker_verbose_output}"
-if docker-compose logs | grep -q "\[Error\]"; then fail "Unable to build Docker images and start containers" && docker-compose logs && exit 1; fi
+
+docker compose up -d --build --force-recreate 1>"${docker_verbose_output}" 2>"${docker_verbose_output}"
+if docker compose logs | grep -q "\[Error\]"; then fail "Unable to build Docker images and start containers" && docker compose logs && exit 1; fi
 pass "Built Docker images and started containers."
 echo
 
@@ -117,7 +118,7 @@ echo
 if [ -n "${DREVOPS_EXPORT_CODE_DIR}" ]; then
   info "Exporting built code."
   mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
-  docker cp -L $(docker-compose ps -q cli):"${DREVOPS_APP}"/. "${DREVOPS_EXPORT_CODE_DIR}"
+  docker compose cp -L cli:"${DREVOPS_APP}"/. "${DREVOPS_EXPORT_CODE_DIR}" 2>"${composer_verbose_output}"
   pass "Exported built code."
   echo
 fi
@@ -128,8 +129,8 @@ fi
 # outside the container.
 if [ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ]; then
   info "Copying database file into container."
-  docker-compose exec ${dcopts[@]} cli bash -c "mkdir -p \${DREVOPS_DB_DIR}"
-  docker cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" $(docker-compose ps -q cli):"${DREVOPS_DB_DIR/.\//${DREVOPS_APP}/}"/"${DREVOPS_DB_FILE}"
+  docker compose exec ${dcopts[@]} cli bash -c "mkdir -p \${DREVOPS_DB_DIR}"
+  docker compose cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" cli:"${DREVOPS_DB_DIR/.\//${DREVOPS_APP}/}"/"${DREVOPS_DB_FILE}" 2>"${composer_verbose_output}"
   pass "Copied database file into container."
   echo
 fi
@@ -141,14 +142,13 @@ info "Installing development dependencies."
 # for production images), so we are installing them here.
 #
 note "Copying development configuration files into container."
-docker cp -L behat.yml $(docker-compose ps -q cli):/app/
-docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
-docker cp -L tests $(docker-compose ps -q cli):/app/
-docker cp -L .circleci $(docker-compose ps -q cli):/app/
+docker compose cp -L behat.yml cli:/app/ 2>"${composer_verbose_output}"
+docker compose cp -L phpcs.xml cli:/app/ 2>"${composer_verbose_output}"
+docker compose cp -L tests cli:/app/ 2>"${composer_verbose_output}"
+docker compose cp -L .circleci cli:/app/ 2>"${composer_verbose_output}"
 
 note "Installing all composer dependencies, including development ones."
-note "This will create composer.lock file if it does not exist."
-docker-compose exec ${dcopts[@]} cli bash -c " \
+docker compose exec ${dcopts[@]} cli bash -c " \
   if [ -n \"$GITHUB_TOKEN\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"$GITHUB_TOKEN\"}}'; fi && \
   COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction --ansi --prefer-dist --no-progress \
 " 1>"${composer_verbose_output}" 2>"${composer_verbose_output}"
@@ -162,21 +162,21 @@ echo
 # are already compiled as a part of the Docker build.
 if [ -n "${DREVOPS_DRUPAL_THEME}" ] && [ -z "${CI}" ]; then
   info "Installing front-end dependencies."
-  docker-compose exec ${dcopts[@]} cli bash -c "npm --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} install" >"${npm_verbose_output}"
+  docker compose exec ${dcopts[@]} cli bash -c "npm --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} install" >"${npm_verbose_output}"
   pass "Installed front-end dependencies."
 
-  docker-compose exec ${dcopts[@]} cli bash -c "cd \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} && npm run build" >"${npm_verbose_output}"
+  docker compose exec ${dcopts[@]} cli bash -c "cd \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} && npm run build" >"${npm_verbose_output}"
   pass "Compiled front-end dependencies."
 
   mkdir -p "${DREVOPS_WEBROOT}/sites/default/files"
-  docker-compose port cli 35729 | cut -d : -f 2 | xargs -I{} docker-compose exec ${dcopts[@]} cli bash -c "echo {} > \${DREVOPS_APP}/\${DREVOPS_WEBROOT}/sites/default/files/livereload.sock"
+  docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} docker compose exec ${dcopts[@]} cli bash -c "echo {} > \${DREVOPS_APP}/\${DREVOPS_WEBROOT}/sites/default/files/livereload.sock"
   pass "Created Livereload socket."
   echo
 fi
 
 # Install site.
 # Pass environment variables to the container from the environment.
-docker-compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/drupal-install-site.sh"
+docker compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/drupal-install-site.sh"
 echo
 
 # Special handling of downloaded DB dump file in CI.
@@ -202,9 +202,8 @@ fi
 info "Build complete ($((SECONDS / 60))m $((SECONDS % 60))s)."
 
 # Show project information and a one-time login link.
-export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}}
-export DREVOPS_HOST_DB_PORT=$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)
-export DREVOPS_HOST_SOLR_PORT=$(docker port $(docker-compose ps -q solr 2>/dev/null) 8983 2>/dev/null | cut -d : -f 2)
-export DREVOPS_DRUPAL_SHOW_LOGIN_LINK=1
-dcopts+=(-e COMPOSE_PROJECT_NAME -e DREVOPS_HOST_DB_PORT -e DREVOPS_HOST_SOLR_PORT -e DREVOPS_DRUPAL_SHOW_LOGIN_LINK)
-docker-compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/info.sh"
+dcopts+=(-e COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-${PWD##*/}}")
+dcopts+=(-e DREVOPS_HOST_DB_PORT="$(docker compose port mariadb 3306 2>/dev/null | cut -d : -f 2)")
+dcopts+=(-e DREVOPS_HOST_SOLR_PORT="$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)")
+dcopts+=(-e DREVOPS_DRUPAL_SHOW_LOGIN_LINK=1)
+docker compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/info.sh"

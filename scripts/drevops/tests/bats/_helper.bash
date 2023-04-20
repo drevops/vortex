@@ -33,65 +33,83 @@ export BATS_LIB_PATH="${BATS_TEST_DIRNAME}/../node_modules"
 bats_load_library bats-helpers
 
 ################################################################################
-#                          HOOK IMPLEMENTATIONS                                #
+#                       BATS HOOK IMPLEMENTATIONS                              #
 ################################################################################
 
-# To run installation tests, several fixture directories are required. They are
-# defined and created in setup() test method.
-#
-# $BUILD_DIR - root build directory where the rest of fixture directories located.
-# The "build" in this context is a place to store assets produce by the install
-# script during the test.
-#
-# $CURRENT_PROJECT_DIR - directory where install script is executed. May have
-# existing project files (e.g. from previous installations) or be empty (to
-# facilitate brand-new install).
-#
-# $DST_PROJECT_DIR - directory where DrevOps may be installed to. By default,
-# install uses $CURRENT_PROJECT_DIR as a destination, but we use
-# $DST_PROJECT_DIR to test a scenario where different destination is provided.
-#
-# $LOCAL_REPO_DIR - directory where install script will be sourcing the instance
-# of DrevOps.
-#
-# $APP_TMP_DIR - directory where the application may store it's temporary files.
 setup() {
+  # Setup command mocking.
+  setup_mock
+
   # Allow to override the test GitHub token with an available global token.
-  TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-$GITHUB_TOKEN}"
+  # GITHUB_TOKEN is unset below to prevent it from being used in tests.
+  TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-${GITHUB_TOKEN}}"
 
   # Preflight checks.
   # @formatter:off
   command -v curl > /dev/null           || ( echo "[ERROR] curl command is not available." && exit 1 )
   command -v composer > /dev/null       || ( echo "[ERROR] composer command is not available." && exit 1 )
   command -v docker > /dev/null         || ( echo "[ERROR] docker command is not available." && exit 1 )
-  command -v docker-compose > /dev/null || ( echo "[ERROR] docker-compose command is not available." && exit 1 )
   command -v ahoy > /dev/null           || ( echo "[ERROR] ahoy command is not available." && exit 1 )
   command -v jq > /dev/null             || ( echo "[ERROR] jq command is not available." && exit 1 )
   [ -n "${TEST_GITHUB_TOKEN}" ]         || ( echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1 )
   # @formatter:on
 
-  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
-  export CUR_DIR="$(pwd)"
-  export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR//\/\//\/}/drevops-$(random_string)"}"
+  # Allow to override debug variables from environment or hardcode them here
+  # when developing tests.
+  DREVOPS_DEBUG="${DREVOPS_DEBUG:-}"
+  DREVOPS_DOCKER_VERBOSE="${DREVOPS_DOCKER_VERBOSE:-}"
+  DREVOPS_COMPOSER_VERBOSE="${DREVOPS_COMPOSER_VERBOSE:-}"
+  DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-}"
+  DREVOPS_INSTALL_DEBUG="${DREVOPS_INSTALL_DEBUG:-}"
 
+  export DREVOPS_DEBUG
+  export DREVOPS_DOCKER_VERBOSE
+  export DREVOPS_COMPOSER_VERBOSE
+  export DREVOPS_NPM_VERBOSE
+  export DREVOPS_INSTALL_DEBUG
+
+  # To run installation tests, several fixture directories are required.
+  # They are defined and created in setup() test method.
+  #
+  # Current directory where the test is run from.
+  export CUR_DIR="$(pwd)"
+  # Root build directory where the rest of fixture directories located.
+  # The "build" in this context is a place to store assets produced by the
+  # installer script during the test.
+  export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR//\/\//\/}/drevops-$(random_string)"}"
+  # Directory where the installer script is executed.
+  # May have existing project files (e.g. from previous installations) or be
+  # empty (to facilitate brand-new install).
   export CURRENT_PROJECT_DIR="${BUILD_DIR}/star_wars"
+  # Directory where DrevOps may be installed into.
+  # By default, install uses $CURRENT_PROJECT_DIR as a destination, but we use
+  # $DST_PROJECT_DIR to test a scenario where different destination is provided.
   export DST_PROJECT_DIR="${BUILD_DIR}/dst"
+  # Directory where the installer script will be sourcing the instance of DrevOps.
+  # As a part of test setup, the local copy of DrevOps at the last commit is
+  # copied to this location. This means that during development of tests local
+  # changes need to be committed.
   export LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
+  # Directory where the application may store it's temporary files.
   export APP_TMP_DIR="${BUILD_DIR}/tmp"
+  prepare_fixture_dir "${BUILD_DIR}"
+  prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
+  prepare_fixture_dir "${DST_PROJECT_DIR}"
+  prepare_fixture_dir "${LOCAL_REPO_DIR}"
+  prepare_fixture_dir "${APP_TMP_DIR}"
+
+  # Isolate variables set in CI.
   export DREVOPS_TEST_ARTIFACT_DIR="/app/tests/behat"
   export DREVOPS_TEST_REPORTS_DIR="/app/test_reports"
-  export DREVOPS_AHOY_CONFIRM_RESPONSE=y
-
-  export DREVOPS_INSTALL_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db.test.sql.md
-
-  # Unset any environment variables that may affect tests.
-  # These are set in CI config to override values set in .env file for some jobs.
   unset DREVOPS_DB_DOWNLOAD_SOURCE
   unset DREVOPS_DB_DOCKER_IMAGE
   unset DREVOPS_DB_DOWNLOAD_FORCE
   unset GITHUB_TOKEN
 
-  # Disable checks used on host machine.
+  # Disable interactive prompts during tests.
+  export DREVOPS_AHOY_CONFIRM_RESPONSE=y
+
+  # Disable Doctor checks used on host machine.
   export DREVOPS_DOCTOR_CHECK_TOOLS=0
   export DREVOPS_DOCTOR_CHECK_PYGMY=0
   export DREVOPS_DOCTOR_CHECK_PORT=0
@@ -107,17 +125,22 @@ setup() {
     step "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."
   fi
 
-  prepare_fixture_dir "${BUILD_DIR}"
-  prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
-  prepare_fixture_dir "${DST_PROJECT_DIR}"
-  prepare_fixture_dir "${LOCAL_REPO_DIR}"
-  prepare_fixture_dir "${APP_TMP_DIR}"
+  # Switch to using test demo DB.
+  # Demo DB is what is being downloaded when the installer runs for the first
+  # time do demonstrate downloading from CURL and importing from the DB dump
+  # functionality.
+  export DREVOPS_INSTALL_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db.test.sql.md
+
+  # Copy DrevOps at the last commit.
   prepare_local_repo "${LOCAL_REPO_DIR}" >/dev/null
+
+  # Prepare global git config and ignore files required for testing cleanup scenarios.
   prepare_global_gitconfig
   prepare_global_gitignore
 
-  # Setup command mocking.
-  setup_mock
+  # Set Drupal version.
+  # @todo Review if this is required.
+  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
 
   # Change directory to the current project directory for each test. Tests
   # requiring to operate outside of CURRENT_PROJECT_DIR (like deployment tests)
@@ -196,7 +219,6 @@ assert_files_present_common() {
 
   # Assert that project name is correct.
   assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
-  assert_file_contains .env "DREVOPS_LOCALDEV_URL=${suffix_hyphenated}.docker.amazee.io"
 
   # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
@@ -749,7 +771,7 @@ assert_files_present_integration_lagoon() {
   assert_file_contains "docker-compose.yml" "labels"
   assert_file_contains "docker-compose.yml" "lagoon.type: cli-persistent"
   assert_file_contains "docker-compose.yml" "lagoon.persistent.name: &lagoon-nginx-name nginx-php"
-  assert_file_contains "docker-compose.yml" "lagoon.persistent: &lagoon-persistent-files /app/${webroot}/sites/default/files/"
+  assert_file_contains "docker-compose.yml" "lagoon.persistent: &lagoon-persistent-files \${DREVOPS_APP:-/app}/\${DREVOPS_WEBROOT:-web}/sites/default/files/"
   assert_file_contains "docker-compose.yml" "lagoon.type: nginx-php-persistent"
   assert_file_contains "docker-compose.yml" "lagoon.name: *lagoon-nginx-name"
   assert_file_contains "docker-compose.yml" "lagoon.type: mariadb"
@@ -774,7 +796,7 @@ assert_files_present_no_integration_lagoon() {
   assert_file_not_contains "docker-compose.yml" "labels"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: cli-persistent"
   assert_file_not_contains "docker-compose.yml" "lagoon.persistent.name: &lagoon-nginx-name nginx-php"
-  assert_file_not_contains "docker-compose.yml" "lagoon.persistent: &lagoon-persistent-files /app/${webroot}/sites/default/files/"
+  assert_file_not_contains "docker-compose.yml" "lagoon.persistent: &lagoon-persistent-files \${DREVOPS_APP:-/app}/\${DREVOPS_WEBROOT:-web}/sites/default/files/"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: nginx-php-persistent"
   assert_file_not_contains "docker-compose.yml" "lagoon.name: *lagoon-nginx-name"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: mariadb"
@@ -889,19 +911,21 @@ fixture_composerjson() {
 }
 EOT
 }
+
 ################################################################################
 #                               UTILITIES                                      #
 ################################################################################
 
-# Run install script.
+# Run the installer script.
 # shellcheck disable=SC2120
 run_install_quiet() {
   pushd "${CURRENT_PROJECT_DIR}" >/dev/null || exit 1
 
-  # Force install script to be downloaded from the local repo for testing.
+  # Force the installer script to be downloaded from the local repo for testing.
   export DREVOPS_INSTALL_LOCAL_REPO="${LOCAL_REPO_DIR}"
 
-  # Use unique temporary directory for each run.
+  # Use unique installer temporary directory for each run. This is where
+  # the installer script downloads the DrevOps codebase for processing.
   DREVOPS_INSTALL_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
   prepare_fixture_dir "${DREVOPS_INSTALL_TMP_DIR}"
   export DREVOPS_INSTALL_TMP_DIR
@@ -916,13 +940,6 @@ run_install_quiet() {
   # the value in .env file.
   export DREVOPS_DB_DOWNLOAD_CURL_URL="$DREVOPS_INSTALL_DEMO_DB_TEST"
 
-  # Enable the line below to show install debug information (for easy debug of
-  # install script tests).
-  # export DREVOPS_INSTALL_DEBUG=1
-
-  # Enable the line below to show DrevOps debug information (for easy debug of tests).
-  # export DREVOPS_DEBUG=1
-
   opt_quiet="--quiet"
   [ "${TEST_RUN_INSTALL_INTERACTIVE}" = "1" ] && opt_quiet=""
 
@@ -933,11 +950,13 @@ run_install_quiet() {
 
   popd >/dev/null || exit 1
 
+  # Print the output of the installer script. This, however, makes error logs
+  # harder to read.
   # shellcheck disable=SC2154
   echo "${output}"
 }
 
-# Run install in interactive mode.
+# Run the installer in the interactive mode.
 #
 # Use 'y' for yes and 'n' for 'no'.
 #
@@ -972,17 +991,17 @@ run_install_interactive() {
   local answers=("${@}")
   local input
 
-  for i in "${answers[@]}"; do
-    val="${i}"
-    [ "${i}" = "nothing" ] && val='\n' || val="${val}"'\n'
-    input="${input}""${val}"
-  done
-
   # Force installer to be interactive.
   export TEST_RUN_INSTALL_INTERACTIVE=1
 
   # Force TTY to get answers through pipe.
   export DREVOPS_INSTALLER_FORCE_TTY=1
+
+  for i in "${answers[@]}"; do
+    val="${i}"
+    [ "${i}" = "nothing" ] && val='\n' || val="${val}"'\n'
+    input="${input}""${val}"
+  done
 
   # shellcheck disable=SC2059,SC2119
   # ATTENTION! Questions change based on some answers, so using the same set of
@@ -994,7 +1013,7 @@ run_install_interactive() {
 #
 # Create a stub of installed dependencies.
 #
-# Used for fast unit testing of install functionality.
+# Used for fast unit testing of the installer functionality.
 #
 install_dependencies_stub() {
   local dir="${1:-$(pwd)}"
@@ -1213,7 +1232,7 @@ sync_to_host() {
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
   [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" = "1" ] && return
-  docker cp -L "$(docker-compose ps -q cli)":/app/. "${dst}"
+  docker compose cp -L cli:/app/. "${dst}"
 }
 
 # Sync files to container in case if volumes are not mounted from host.
@@ -1222,7 +1241,7 @@ sync_to_container() {
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
   [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" = "1" ] && return
-  docker cp -L "${src}" "$(docker-compose ps -q cli)":/app/
+  docker compose cp -L "${src}" cli:/app/
 }
 
 # Special treatment for cases where volumes are not mounted from the host.

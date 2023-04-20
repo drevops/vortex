@@ -19,8 +19,8 @@ load _helper.bash
   # Re-using existing 'log' and 'restart' commands to add our test commands.
   # This is due to complexity of modifying YAML using Bash.
   cp .ahoy.yml .ahoy.yml.bak
-  replace_string_content "cmd: docker-compose logs \"\$\@\"" "cmd: printenv" ".ahoy.yml"
-  replace_string_content "cmd: docker-compose restart \"\$\@\"" "cmd: ./test.sh" ".ahoy.yml"
+  replace_string_content "cmd: docker compose logs \"\$\@\"" "cmd: printenv" ".ahoy.yml"
+  replace_string_content "cmd: docker compose restart \"\$\@\"" "cmd: ./test.sh" ".ahoy.yml"
 
   # Assert that .env does not contain test values.
   assert_file_not_contains ".env" "MY_CUSTOM_VAR"

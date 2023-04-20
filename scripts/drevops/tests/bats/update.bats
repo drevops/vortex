@@ -37,7 +37,7 @@ load _helper.bash
 
   # Releasing new version of DrevOps (note that installing from the local tag
   # is not supported in scripts/drevops/installer/install.php; only commit is supported).
-  echo "# Some change to docker-compose" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
+  echo "# Some change to docker-compose.yml" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
   echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json"
   git_add "web/themes/custom/your_site_theme/.eslintrc.json" "${LOCAL_REPO_DIR}"
@@ -58,7 +58,7 @@ load _helper.bash
   install_dependencies_stub
 
   # Assert that committed files were updated.
-  assert_file_contains "docker-compose.yml" "# Some change to docker-compose"
+  assert_file_contains "docker-compose.yml" "# Some change to docker-compose.yml"
   assert_file_contains "web/themes/custom/star_wars/.eslintrc.json" "# Some change to non-required file"
 
   # Assert that new changes need to be manually resolved.

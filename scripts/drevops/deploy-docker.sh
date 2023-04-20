@@ -68,7 +68,7 @@ for key in "${!services[@]}"; do
 
   note "Processing service ${service}."
   # Check if the service is running.)
-  cid=$(docker-compose ps -q "${service}")
+  cid=$(docker compose ps -q "${service}")
 
   [ -z "${cid}" ] && fail "Service \"${service}\" is not running." && exit 1
   note "Found \"${service}\" service container with id \"${cid}\"."

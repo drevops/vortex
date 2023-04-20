@@ -36,15 +36,15 @@ info "Started Docker database image export."
 
 [ -z "${DREVOPS_DB_EXPORT_DOCKER_IMAGE}" ] && fail "Destination image name is not specified. Please provide docker image as a variable DREVOPS_DB_EXPORT_DOCKER_IMAGE in a format <org>/<repository>." && exit 1
 
-cid="$(docker-compose ps -q "${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME}")"
-note "Found \"${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME}\" service container with id \"${cid}\"."
+cid="$(docker compose ps -q "${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME}")"
+note "Found ${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME} service container with id ${cid}."
 
 new_image="${DREVOPS_DB_EXPORT_DOCKER_REGISTRY}/${DREVOPS_DB_EXPORT_DOCKER_IMAGE}"
 
-note "Committing exported Docker image with name \"${new_image}\"."
+note "Committing exported Docker image with name ${new_image}."
 iid=$(docker commit "${cid}" "${new_image}")
 iid="${iid#sha256:}"
-note "Committed exported Docker image with id \"${iid}\"."
+note "Committed exported Docker image with id ${iid}."
 
 # Create directory to store database dump.
 mkdir -p "${DREVOPS_DB_EXPORT_DOCKER_DIR}"
@@ -53,7 +53,7 @@ mkdir -p "${DREVOPS_DB_EXPORT_DOCKER_DIR}"
 # as a first argument. Also, make sure that the extension is correct.
 archive_file=$([ "${DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE}" ] && echo "${DREVOPS_DB_EXPORT_DOCKER_DIR}/${DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE//.sql/.tar}" || echo "${DREVOPS_DB_EXPORT_DOCKER_DIR}/export_db_$(date +%Y_%m_%d_%H_%M_%S).tar")
 
-note "Exporting database image archive to \"${archive_file}\" file."
+note "Exporting database image archive to file ${archive_file}."
 
 [ -f "${archive_file}" ] && rm -f "${archive_file}"
 mkdir -p "$(dirname "${archive_file}")"
@@ -61,9 +61,9 @@ docker save -o "${archive_file}" "${new_image}"
 
 # Check that file was saved and output saved dump file name.
 if [ -f "${archive_file}" ] && [ -s "${archive_file}" ]; then
-  note "Exported database image archive file saved \"${archive_file}\"."
+  note "Saved exported database image archive file ${archive_file}."
 else
-  fail "Unable to save database image archive file \"${archive_file}\"." && exit 1
+  fail "Unable to save database image archive file ${archive_file}." && exit 1
 fi
 
 pass "Finished Docker database image export."

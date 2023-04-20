@@ -1,8 +1,9 @@
 # Docker Compose configuration file.
 #
 # - Using a single file to work in local, CI and production environments.
-# - Local overrides are possible using docker-composer.override.yml file.
+# - Local overrides are possible using docker-compose.override.yml file.
 # - Environment variables are read from .env file.
+# - Containers will be named after the project directory.
 # - Use inline comments containing '###' to have the line removed in CI.
 # - Use inline comments starting with '##' to have the line being automatically
 #   uncommented in CI.
@@ -24,12 +25,12 @@ version: '2.3'
 x-volumes: &default-volumes
   volumes:
     # All application files mounted into container.
-    - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    - .:${DREVOPS_APP:-/app}:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
     # Override mount for files to allow different type of syncing to optimise performance.
-    - ./web/sites/default/files:/app/web/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    - ./${DREVOPS_WEBROOT:-web}/sites/default/files:${DREVOPS_APP:-/app}/${DREVOPS_WEBROOT:-web}/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
     # Use the same volumes in environments without host mounts support.
-    ##- app:/app # Override for environment without host mounts. Automatically uncommented in CI.
-    ##- files:/app/web/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
+    ##- app:${DREVOPS_APP:-/app} # Override for environment without host mounts. Automatically uncommented in CI.
+    ##- files:${DREVOPS_APP:-/app}/${DREVOPS_WEBROOT:-web}/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
 
 # The default user under which the containers should run.
 x-user: &default-user
@@ -41,15 +42,13 @@ x-user: &default-user
 # Note that these variables are not read from here in Lagoon environment.
 #;> LAGOON
 x-environment: &default-environment
-  # Project name. Defaults to Docker Compose project name (which defaults to the current directory).
-  DREVOPS_PROJECT: ${DREVOPS_PROJECT:-example_site}
-  # Local development URL used in Lagoon images.
-  LAGOON_LOCALDEV_URL: &default-url ${DREVOPS_LOCALDEV_URL:-example-site.docker.amazee.io}
-  # Local route used in Lagoon images and Pygmy to route requests.
+  # Local development URL.
+  DREVOPS_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
+  # Local development route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
-  # Enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker-compose up -d".
+  # Pass-through 'XDEBUG_ENABLE' to enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker compose up -d".
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
-  # Pass-through $CI variable used to identify the CI environment.
+  # Pass-through 'CI' variable used to identify the CI environment.
   CI: ${CI:-}
   # Forward emails to Mailhog locally.
   SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
@@ -61,8 +60,6 @@ x-environment: &default-environment
   DREVOPS_REDIS_ENABLED: ${DREVOPS_REDIS_ENABLED:-}
   #;> REDIS
   #;< LAGOON
-  # Global project name for Lagoon.
-  LAGOON_PROJECT: ${LAGOON_PROJECT:-example_site}
   # Lagoon environment type.
   LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
   #;> LAGOON
@@ -80,21 +77,18 @@ services:
       args:
         WEBROOT: "${DREVOPS_WEBROOT:-web}"
         GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
-    image: &cli-image ${DREVOPS_PROJECT:-example_site}-cli
+    image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
     <<: *default-volumes
     user: root
     environment:
       <<: *default-environment
-    # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
-    volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
-      - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
     ports:
-      - "35729" # Livereload port in container. Find port on host with `ahoy info` or `docker-compose port cli 35729`.
+      - "35729" # Livereload port in container. Find port on host with `ahoy info` or `docker compose port cli 35729`.
     #;< LAGOON
     labels:
       lagoon.type: cli-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
       lagoon.persistent.name: &lagoon-nginx-name nginx-php # Mount the persistent storage of nginx-php pod into this container.
-      lagoon.persistent: &lagoon-persistent-files /app/web/sites/default/files/  # Location where the persistent storage should be mounted.
+      lagoon.persistent: &lagoon-persistent-files ${DREVOPS_APP:-/app}/${DREVOPS_WEBROOT:-web}/sites/default/files/  # Location where the persistent storage should be mounted.
     #;> LAGOON
 
   nginx:
@@ -104,8 +98,7 @@ services:
       args:
         CLI_IMAGE: *cli-image
         WEBROOT: "${DREVOPS_WEBROOT:-web}"
-    <<: *default-volumes
-    <<: *default-user
+    <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
     depends_on:
@@ -128,8 +121,7 @@ services:
       dockerfile: .docker/php.dockerfile
       args:
         CLI_IMAGE: *cli-image
-    <<: *default-volumes
-    <<: *default-user
+    <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
     depends_on:
@@ -151,7 +143,7 @@ services:
     environment:
       <<: *default-environment
     ports:
-      - "3306" # MariaDB port in container. Find port on host with `ahoy info` or `docker-compose port mariadb 3306`.
+      - "3306" # MariaDB port in container. Find port on host with `ahoy info` or `docker compose port mariadb 3306`.
     #;< LAGOON
     labels:
       lagoon.type: mariadb # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -175,8 +167,10 @@ services:
         CLI_IMAGE: *cli-image
     environment:
       <<: *default-environment
+    depends_on:
+      - cli
     ports:
-      - "8983" # Solr port in container. Find port on host with `ahoy info` or `docker-compose port solr 8983`.
+      - "8983" # Solr port in container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
     volumes:
       - search:/var/solr
     #;< LAGOON

@@ -1,8 +1,6 @@
 #!/usr/bin/env bats
 #
-# DB-driven workflow.
-#
-# Due to test speed efficiency, all assertions ran within a single test.
+# Workflows using different types of DB storage.
 #
 # Throughout these tests, a "drevops/drevops-mariadb-drupal-data-test-9.x"
 # test image is used: it is seeded with content from the pre-built fixture
@@ -19,57 +17,17 @@
 load _helper.bash
 load _helper_workflow.bash
 
-@test "Workflow: DB-driven, custom webroot" {
-  prepare_sut "Starting DB-driven WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}" "rootdoc"
-
-  assert_ahoy_download_db
-
-  assert_ahoy_build "rootdoc"
-  assert_gitignore "" "rootdoc"
-
-  assert_ahoy_cli
-
-  assert_env_changes
-
-  assert_ahoy_composer
-
-  assert_ahoy_drush
-
-  assert_ahoy_info "rootdoc"
-
-  assert_ahoy_docker_logs
-
-  assert_ahoy_login
-
-  assert_ahoy_export_db
-
-  assert_ahoy_lint "rootdoc"
-
-  assert_ahoy_test_unit "rootdoc"
-
-  assert_ahoy_test_kernel "rootdoc"
-
-  assert_ahoy_test_functional "rootdoc"
-
-  assert_ahoy_test_bdd
-
-  assert_ahoy_fei "rootdoc"
-
-  assert_ahoy_fe "rootdoc"
-
-  assert_ahoy_debug
-
-  assert_ahoy_clean "rootdoc"
-
-  assert_ahoy_reset "rootdoc"
-}
-
+# Due to test speed efficiency, all workflow assertions ran within a single test.
 @test "Workflow: download from image, storage in docker image" {
+  # Force storage in docker image - the purpose of this test.
+  export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
+
+  # Use a test image. Image always must use a tag.
+  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x:latest
+
   # Do not use demo database - testing demo database discovery is another test.
   export DREVOPS_INSTALL_DEMO_SKIP=1
 
-  export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
-  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
   export DREVOPS_DOCKER_REGISTRY_USERNAME=
@@ -90,7 +48,7 @@ load _helper_workflow.bash
   rm .env.local > /dev/null
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry"
-  assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
+  assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=${DREVOPS_DB_DOCKER_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
   assert_file_not_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL="
@@ -131,11 +89,18 @@ load _helper_workflow.bash
 }
 
 @test "Workflow: download from image, storage in docker image, use cached image" {
+  # Note that output assertions in this test do not end with a dot on purpose
+  # as different versions of Docker may produce different messages.
+
+  # Force storage in docker image - the purpose of this test.
+  export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
+
+  # Use a test image. Image always must use a tag.
+  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x:latest
+
   # Do not use demo database - testing demo database discovery is another test.
   export DREVOPS_INSTALL_DEMO_SKIP=1
 
-  export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
-  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
   export DREVOPS_DOCKER_REGISTRY_USERNAME=
@@ -156,12 +121,17 @@ load _helper_workflow.bash
   rm .env.local > /dev/null
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry"
-  assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
+  assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=${DREVOPS_DB_DOCKER_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
   assert_file_not_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL="
 
+  step "Initial build to use data image."
   assert_ahoy_build
+  assert_output_contains "Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_output_contains "Not found ${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_output_contains "Not found archived database Docker image file ./.data/db.tar."
+  assert_output_contains "Build complete "
 
   substep "Remove any existing or previously downloaded DB image dumps."
   rm -Rf .data/db.tar
@@ -172,6 +142,7 @@ load _helper_workflow.bash
   # and rebuild the stack - the used image should have the expected changes.
   substep "Assert that used DB image has content."
   assert_page_contains "/" "test database Docker image"
+  assert_page_not_contains "/" "Username"
 
   substep "Change homepage content and assert that the change was applied."
   ahoy drush config-set system.site page.front /user -y
@@ -179,7 +150,13 @@ load _helper_workflow.bash
   assert_page_contains "/" "Username"
 
   substep "Exporting DB image to a file"
-  ahoy export-db "db.tar"
+  run ahoy export-db "db.tar"
+  assert_success
+  assert_output_contains "Found mariadb service container with id"
+  assert_output_contains "Committing exported Docker image with name docker.io/${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_output_contains "Committed exported Docker image with id"
+  assert_output_contains "Exporting database image archive to file ./.data/db.tar."
+  assert_output_contains "Saved exported database image archive file ./.data/db.tar."
   assert_file_exists .data/db.tar
 
   substep "Remove existing image and assert that exported DB image file still exists."
@@ -187,20 +164,24 @@ load _helper_workflow.bash
   docker_remove_image "${DREVOPS_DB_DOCKER_IMAGE}"
   assert_file_exists .data/db.tar
 
-  substep "Re-run build to use previously exported DB image from file."
+  step "Re-run build to use previously exported DB image from file."
   assert_ahoy_build
-  # Assert that remote image is not used.
-  # This may fail if local image is not the same architecture as what is used
-  # for Docker build.
-  assert_output_not_contains "[auth]"
+  assert_output_contains "Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_output_contains "Not found ${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_output_contains "Found archived database Docker image file ./.data/db.tar. Expanding"
+  assert_output_contains "Loaded image: ${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_output_contains "Found expanded ${DREVOPS_DB_DOCKER_IMAGE}"
 
-  substep "Assert that the contents of the DB was loaded from the exported DB image file."
+  assert_output_contains "Build complete "
+
+  step "Assert that the contents of the DB was loaded from the exported DB image file."
   assert_page_not_contains "/" "test database Docker image"
   assert_page_contains "/" "Username"
   ahoy clean
 }
 
 @test "Workflow: download from curl, storage in Docker image" {
+  # Force storage in DB dump - the purpose of this test.
   export DREVOPS_DB_DOWNLOAD_SOURCE=curl
 
   # While the DB will be loaded from the file, the DB image must exist
@@ -208,7 +189,9 @@ load _helper_workflow.bash
   # a real image.
   # @todo: build.sh may need to have a support to create a local image if
   # it does not exist.
-  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x
+  # Use a test image. Image always must use a tag.
+  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x:latest
+
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
   export DREVOPS_DOCKER_REGISTRY_USERNAME=
@@ -228,7 +211,7 @@ load _helper_workflow.bash
   assert_file_exists .data/db.sql
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=curl"
-  assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x"
+  assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=${DREVOPS_DB_DOCKER_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
   assert_file_not_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL="

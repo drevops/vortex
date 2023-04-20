@@ -257,7 +257,7 @@ assert_ahoy_info() {
   assert_success
   assert_output_contains "Project name                : star_wars"
   assert_output_contains "Docker Compose project name : star_wars"
-  assert_output_contains "Site local URL              : http://star-wars.docker.amazee.io"
+  assert_output_contains "Site local URL              : http://star_wars.docker.amazee.io"
   assert_output_contains "Path to project             : /app"
   assert_output_contains "Path to web root            : /app/${webroot}"
   assert_output_contains "DB host                     : mariadb"
@@ -716,7 +716,8 @@ assert_ahoy_debug() {
   run ahoy debug
   assert_success
   # Assert that the stack has restarted.
-  assert_output_contains "Creating"
+  # Using "reat" from "Create" or "Creating".
+  assert_output_contains "reat"
   assert_output_contains "Enabled debug"
   # Assert that Xdebug is enabled from the inside of the container.
   run ahoy cli "php -v | grep Xdebug"
@@ -729,7 +730,7 @@ assert_ahoy_debug() {
   # Assert that command when debugging is enabled does not restart the stack.
   run ahoy debug
   assert_success
-  assert_output_not_contains "Creating"
+  assert_output_not_contains "reat"
   assert_output_contains "Enabled debug"
 
   substep "Disable debug"
@@ -737,7 +738,7 @@ assert_ahoy_debug() {
   run ahoy up
   assert_success
   # Assert that the stack has restarted.
-  assert_output_contains "Creating"
+  assert_output_contains "reat"
   # Assert that Xdebug is disabled from the inside of the container.
   run ahoy cli "php -v | grep Xdebug"
   assert_failure
@@ -760,13 +761,13 @@ assert_redis() {
   step "Redis"
 
   substep "Redis service is running"
-  run docker-compose exec redis redis-cli FLUSHALL
+  run docker compose exec redis redis-cli FLUSHALL
   assert_output_contains "OK"
 
   substep "Redis integration is disabled"
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" > /dev/null
-  run docker-compose exec redis redis-cli --scan
+  run docker compose exec redis redis-cli --scan
   assert_output_not_contains "config"
 
   substep "Restart with environment variable"
@@ -776,7 +777,7 @@ assert_redis() {
   sleep 10
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" > /dev/null
-  run docker-compose exec redis redis-cli --scan
+  run docker compose exec redis redis-cli --scan
   assert_output_contains "config"
 }
 

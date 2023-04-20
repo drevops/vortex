@@ -1,10 +1,26 @@
 #!/usr/bin/env bats
 #
-# Test for docker-compose format and default variables.
+# Test for docker compose format and default variables.
 #
 # shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper.bash
+
+@test "Docker Compose: default without .env" {
+  prepare_docker_compose
+
+  substep "Validate configuration"
+  run docker compose -f docker-compose.yml config
+  assert_success
+
+  substep "Compare with fixture"
+  prepare_docker_compose_fixture
+
+  docker compose -f docker-compose.yml config --format json > docker-compose.actual.json
+  echo "" >> docker-compose.actual.json
+
+  assert_files_equal docker-compose.actual.json docker-compose.noenv.json
+}
 
 @test "Docker Compose: default with .env" {
   prepare_docker_compose
@@ -12,34 +28,51 @@ load _helper.bash
   cp "${CUR_DIR}/.env" .env
 
   substep "Validate configuration"
-  run docker-compose -f docker-compose.yml config
+  run docker compose -f docker-compose.yml config
   assert_success
 
   substep "Compare with fixture"
-  docker-compose -f docker-compose.yml config > docker-compose.actual.yml
-
   prepare_docker_compose_fixture
 
-  assert_files_equal docker-compose.actual.yml docker-compose.expected.yml 1
+  docker compose -f docker-compose.yml config --format json > docker-compose.actual.json
+  echo "" >> docker-compose.actual.json
+
+  assert_files_equal docker-compose.actual.json docker-compose.env.json
 }
 
-@test "Docker Compose: default without .env" {
+@test "Docker Compose: default with .env modified" {
   prepare_docker_compose
 
+  cp "${CUR_DIR}/.env" .env
+
+  echo "COMPOSE_PROJECT_NAME=the_matrix" >> .env
+  echo "DREVOPS_APP=/myapp" >> .env
+  echo "DREVOPS_WEBROOT=docroot" >> .env
+  echo "DREVOPS_DB_DOCKER_IMAGE=myorg/my_db_image" >> .env
+  echo "XDEBUG_ENABLE=1" >> .env
+  echo "SSMTP_MAILHUB=false" >> .env
+  echo "DRUPAL_SHIELD_USER=jane" >> .env
+  echo "DRUPAL_SHIELD_PASS=passw" >> .env
+  echo "DREVOPS_REDIS_ENABLED=1" >> .env
+  echo "LAGOON_ENVIRONMENT_TYPE=development" >> .env
+
   substep "Validate configuration"
-  run docker-compose -f docker-compose.yml config
+  run docker compose -f docker-compose.yml config
   assert_success
 
   substep "Compare with fixture"
-  docker-compose -f docker-compose.yml config > docker-compose.actual.yml
-
   prepare_docker_compose_fixture
 
-  assert_files_equal docker-compose.actual.yml docker-compose.expected2.yml 1
+  docker compose -f docker-compose.yml config --format json > docker-compose.actual.json
+  echo "" >> docker-compose.actual.json
+
+  assert_files_equal docker-compose.actual.json docker-compose.env_mod.json
 }
 
 prepare_docker_compose() {
   cp "${CUR_DIR}/docker-compose.yml" docker-compose.yml
+
+  unset GITHUB_TOKEN
 
   # In order for tests to pass locally and in CI, we need to replicate the
   # environment locally to be the same as in CI.
@@ -50,8 +83,9 @@ prepare_docker_compose() {
 }
 
 prepare_docker_compose_fixture() {
-  cp "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/docker-compose.fixture.yml" docker-compose.expected.yml
-  cp "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/docker-compose.fixture2.yml" docker-compose.expected2.yml
+  cp "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/docker-compose.env.json" docker-compose.env.json
+  cp "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/docker-compose.env_mod.json" docker-compose.env_mod.json
+  cp "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/docker-compose.noenv.json" docker-compose.noenv.json
   replace_string_content "FIXTURE_CUR_DIR" "${CURRENT_PROJECT_DIR}" "${CURRENT_PROJECT_DIR}"
 
   # Replace symlink /private paths in MacOS.

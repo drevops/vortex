@@ -165,7 +165,7 @@ load _helper.bash
   assert_git_clean
 
   # Releasing new version of DrevOps.
-  echo "# Some change to docker-compose" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
+  echo "# Some change to docker-compose.yml" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
   echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json"
   git_add "web/themes/custom/your_site_theme/.eslintrc.json" "${LOCAL_REPO_DIR}"
@@ -179,7 +179,7 @@ load _helper.bash
   install_dependencies_stub
 
   # Assert that committed file was updated.
-  assert_file_contains "docker-compose.yml" "# Some change to docker-compose"
+  assert_file_contains "docker-compose.yml" "# Some change to docker-compose.yml"
   # Assert that excluded file was updated.
   assert_file_contains "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json" "# Some change to non-required file"
 
