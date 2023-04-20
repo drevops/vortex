@@ -250,6 +250,7 @@ assert_ahoy_drush() {
 
 assert_ahoy_info() {
   local webroot="${1:-web}"
+  local db_image="${2:-}"
 
   step "Run site info"
 
@@ -265,6 +266,11 @@ assert_ahoy_info() {
   assert_output_contains "DB password                 : drupal"
   assert_output_contains "DB port                     : 3306"
   assert_output_contains "DB port on host             :"
+  if [ -n "${db_image}" ]; then
+    assert_output_contains "DB-in-docker image          : ${db_image}"
+  else
+    assert_output_not_contains "DB-in-docker image          : ${db_image}"
+  fi
   assert_output_contains "Solr URL on host            :"
   assert_output_contains "Mailhog URL                 : http://mailhog.docker.amazee.io/"
   assert_output_contains "Xdebug                      : Disabled ('ahoy debug' to enable)"

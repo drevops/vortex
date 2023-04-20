@@ -204,6 +204,7 @@ info "Build complete ($((SECONDS / 60))m $((SECONDS % 60))s)."
 # Show project information and a one-time login link.
 dcopts+=(-e COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-${PWD##*/}}")
 dcopts+=(-e DREVOPS_HOST_DB_PORT="$(docker compose port mariadb 3306 2>/dev/null | cut -d : -f 2)")
+dcopts+=(-e DREVOPS_DB_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE}")
 dcopts+=(-e DREVOPS_HOST_SOLR_PORT="$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)")
 dcopts+=(-e DREVOPS_DRUPAL_SHOW_LOGIN_LINK=1)
 docker compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/info.sh"
