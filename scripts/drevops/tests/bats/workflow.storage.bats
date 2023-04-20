@@ -75,7 +75,7 @@ load _helper_workflow.bash
 
   assert_ahoy_drush
 
-  assert_ahoy_info
+  assert_ahoy_info "web" "${DREVOPS_DB_DOCKER_IMAGE}"
 
   assert_ahoy_docker_logs
 

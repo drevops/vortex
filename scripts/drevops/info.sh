@@ -37,6 +37,9 @@ note "DB username                 : ${DREVOPS_MARIADB_USER}"
 note "DB password                 : ${DREVOPS_MARIADB_PASSWORD}"
 note "DB port                     : ${DREVOPS_MARIADB_PORT}"
 note "DB port on host             : ${DREVOPS_HOST_DB_PORT} ('ahoy db' to start SequelAce)"
+if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
+  note "DB-in-docker image          : ${DREVOPS_DB_DOCKER_IMAGE}"
+fi
 if [ -n "${DREVOPS_HOST_SOLR_PORT}" ]; then
   note "Solr URL on host            : http://127.0.0.1:${DREVOPS_HOST_SOLR_PORT}"
 fi
