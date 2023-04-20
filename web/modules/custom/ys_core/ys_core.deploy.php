@@ -46,3 +46,17 @@ function ys_core_deploy_enable_search_api_solr() {
   }
 }
 // phpcs:ignore #;> SOLR
+
+// phpcs:ignore #;< CLAMAV
+/**
+ * Enables Search API and Search API Solr modules.
+ */
+function ys_core_deploy_enable_clamav() {
+  $listing = new ExtensionDiscovery(\Drupal::root());
+  $modules = $listing->scan('module');
+  if (!empty($modules['clamav'])) {
+    \Drupal::service('module_installer')->install(['media']);
+    \Drupal::service('module_installer')->install(['clamav']);
+  }
+}
+// phpcs:ignore #;> CLAMAV

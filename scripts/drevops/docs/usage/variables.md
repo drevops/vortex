@@ -40,6 +40,12 @@
 
 ## Variables list
 
+### `CLAMAV_MODE`
+
+ClamAV mode. Run ClamAV in either daemon mode by setting it to `0` or "daemon," or in executable mode by setting it to `1`.
+
+Default value: `daemon`
+
 ### `COMPOSE_PROJECT_NAME`
 
 Docker Compose project name (all containers will have this name). Defaults to the name of the project directory.
@@ -93,6 +99,12 @@ Default value: `UNDEFINED`
 Path to the root of the project inside the container.
 
 Default value: `app`
+
+### `DREVOPS_CLAMAV_ENABLED`
+
+Enable ClamAV integration.
+
+Default value: `1`
 
 ### `DREVOPS_COMPOSER_VALIDATE_LOCK`
 

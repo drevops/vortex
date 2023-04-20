@@ -71,7 +71,9 @@ class DrupalSettingsTest extends TestCase {
    * Test generic settings.
    */
   public function testGeneric() {
-    $this->setEnvVars([]);
+    $this->setEnvVars([
+      'DREVOPS_CLAMAV_ENABLED' => FALSE,
+    ]);
     $this->requireSettings();
 
     $default_config = $this->getGenericConfig();
@@ -80,6 +82,66 @@ class DrupalSettingsTest extends TestCase {
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
 
+  // phpcs:ignore #;< CLAMAV
+  /**
+   * Test ClamAV configs in Daemon mode with defaults.
+   */
+  public function testClamavDaemonDefaults() {
+    $this->setEnvVars([
+      'DREVOPS_CLAMAV_ENABLED' => TRUE,
+      'CLAMAV_MODE' => 'daemon',
+    ]);
+    $this->requireSettings();
+
+    $default_config = $this->getGenericConfig();
+
+    $default_config['clamav.settings']['scan_mode'] = 0;
+    $default_config['clamav.settings']['mode_daemon_tcpip']['hostname'] = 'clamav';
+    $default_config['clamav.settings']['mode_daemon_tcpip']['port'] = 3310;
+
+    $this->assertEquals($default_config, $this->config, 'Config');
+  }
+
+  /**
+   * Test ClamAV configs in Daemon mode with defaults.
+   */
+  public function testClamavDaemonCustom() {
+    $this->setEnvVars([
+      'DREVOPS_CLAMAV_ENABLED' => TRUE,
+      'CLAMAV_MODE' => 'daemon',
+      'CLAMAV_HOST' => 'custom_clamav_host',
+      'CLAMAV_PORT' => 3333,
+    ]);
+    $this->requireSettings();
+
+    $default_config = $this->getGenericConfig();
+
+    $default_config['clamav.settings']['scan_mode'] = 0;
+    $default_config['clamav.settings']['mode_daemon_tcpip']['hostname'] = 'custom_clamav_host';
+    $default_config['clamav.settings']['mode_daemon_tcpip']['port'] = 3333;
+
+    $this->assertEquals($default_config, $this->config, 'Config');
+  }
+
+  /**
+   * Test ClamAV configs in Executable mode.
+   */
+  public function testClamavExecutable() {
+    $this->setEnvVars([
+      'DREVOPS_CLAMAV_ENABLED' => TRUE,
+      'CLAMAV_HOST' => 'custom_clamav_host',
+      'CLAMAV_PORT' => 3333,
+    ]);
+    $this->requireSettings();
+
+    $default_config = $this->getGenericConfig();
+
+    $default_config['clamav.settings']['scan_mode'] = 1;
+    $default_config['clamav.settings']['executable_path'] = '/usr/bin/clamscan';
+
+    $this->assertEquals($default_config, $this->config, 'Config');
+  }
+  // phpcs:ignore #;> CLAMAV
   // phpcs:ignore #;< REDIS
   /**
    * Test Redis settings.

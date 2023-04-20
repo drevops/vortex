@@ -5,6 +5,8 @@ core_version_requirement: ^9
 package: your_site
 #;< REDIS
 dependencies:
+  - drupal:media
+  - clamav:clamav
   - redis:redis
   - search_api:search_api
   - search_api_solr:search_api_solr
