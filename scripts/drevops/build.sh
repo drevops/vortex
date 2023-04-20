@@ -55,7 +55,7 @@ dcopts=(-T) && while IFS='' read -r line; do dcopts+=("$line"); done < <(env | c
 DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 ./scripts/drevops/doctor.sh
 
 info "Validating Docker Compose configuration."
-docker compose config -q && pass "Docker Compose configuration is valid." || { fail "Failed to validate Docker Compose configuration." && exit 1; }
+docker compose config -q && pass "Docker Compose configuration is valid." || { fail "Docker Compose configuration is invalid." && exit 1; }
 echo
 
 # Validate Composer configuration if Composer is installed.

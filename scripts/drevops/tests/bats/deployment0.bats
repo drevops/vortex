@@ -106,8 +106,8 @@ load _helper_deployment.bash
   # Webhook deployment assertions.
   #
   assert_output_contains "Started WEBHOOK deployment."
-  assert_output_contains "Called webhook."
-  assert_output_not_contains "[FAIL] Webhook deployment failed."
+  assert_output_contains "Webhook call completed."
+  assert_output_not_contains "[FAIL] Unable to complete webhook deployment."
   assert_output_contains "Finished WEBHOOK deployment."
 
   #
