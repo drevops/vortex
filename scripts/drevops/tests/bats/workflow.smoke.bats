@@ -11,14 +11,21 @@ load _helper_workflow.bash
 @test "Idempotence" {
   prepare_sut "Starting idempotence tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
-  # Assert that DEMO database is downloaded.
+  step "Download DEMO database"
   assert_ahoy_download_db
 
+  # Be verbose just for these smoke tests.
+  export DREVOPS_DOCKER_VERBOSE=1
+  export DREVOPS_COMPOSER_VERBOSE=1
+  export DREVOPS_NPM_VERBOSE=1
+
+  step "Build project"
   assert_ahoy_build
   assert_gitignore
   assert_ahoy_test_bdd
 
   # Running build several times should result in the same project build results.
+  step "Re-build project"
   assert_ahoy_build
   # Skip committing of the files.
   assert_gitignore 1
@@ -33,12 +40,12 @@ load _helper_workflow.bash
   composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git
   jq --indent 4 '.require += {"drevops/test-private-package": "^1"}' composer.json > composer.json.tmp && mv -f composer.json.tmp composer.json
 
-  step "Run build without a token"
+  step "Build without a GITHUB_TOKEN token"
   unset GITHUB_TOKEN
   run ahoy build
   assert_failure
 
-  step "Run build with a token"
+  step "Build with a GITHUB_TOKEN token"
   export GITHUB_TOKEN="${TEST_GITHUB_TOKEN}"
   run ahoy build
   assert_success
