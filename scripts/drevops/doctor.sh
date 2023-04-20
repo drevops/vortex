@@ -196,7 +196,7 @@ main() {
           fail "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
           exit 1
         fi
-        pass "Successfully bootstrapped website at http://${local_dev_url}."
+        pass "Bootstrapped website at http://${local_dev_url}."
       fi
     fi
   fi

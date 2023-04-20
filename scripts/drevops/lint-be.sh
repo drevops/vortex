@@ -35,5 +35,5 @@ fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${DREVOPS_LINT_PHPLINT_EXTENSIONS// /} ${DREVOPS_LINT_PHPLINT_TARGETS//,/ } &&
   vendor/bin/phpcs ${DREVOPS_LINT_PHPCS_TARGETS//,/ } &&
-  pass "Back-end code linted successfully." ||
+  pass "Back-end code has passed the linter check." ||
   [ "${DREVOPS_LINT_BE_ALLOW_FAILURE}" -eq 1 ]
