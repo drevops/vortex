@@ -128,7 +128,7 @@ if [ "${task_completed}" = "0" ]; then
   exit 1
 fi
 
-note "Successfully copied DB from $DREVOPS_TASK_COPY_DB_ACQUIA_SRC to $DREVOPS_TASK_COPY_DB_ACQUIA_DST environment."
+note "Copied DB from $DREVOPS_TASK_COPY_DB_ACQUIA_SRC to $DREVOPS_TASK_COPY_DB_ACQUIA_DST environment."
 
 self_elapsed_time=$((SECONDS))
 note "Run duration: $((self_elapsed_time / 60)) min $((self_elapsed_time % 60)) sec."

@@ -40,7 +40,7 @@ pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-info "Building project."
+info "Started building project ${DREVOPS_PROJECT}."
 echo
 
 [ "${DREVOPS_DOCKER_VERBOSE}" = "1" ] && docker_verbose_output="/dev/stdout" || docker_verbose_output="/dev/null"
@@ -177,4 +177,5 @@ echo
 # Check that the site is available.
 ./scripts/drevops/doctor.sh
 
-info "Build complete ($((SECONDS / 60))m $((SECONDS % 60))s)."
+echo
+info "Finished building project ${DREVOPS_PROJECT} ($((SECONDS / 60))m $((SECONDS % 60))s)."

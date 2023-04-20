@@ -149,7 +149,7 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
       task_status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "${notification_url}")
       task_state=$(echo "$task_status_json" | extract_json_value "status")
       if [ "$task_state" = "completed" ]; then
-        note "Successfully purged cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
+        note "Purged cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
         task_completed=1
         break 1
       fi

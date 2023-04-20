@@ -31,6 +31,6 @@ fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 if [ -n "${DREVOPS_DRUPAL_THEME}" ] && grep -q lint "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}/package.json"; then
   # Lint code using front-end linter.
   npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint &&
-    pass "Front-end code linted successfully." ||
+    pass "Front-end code has passed the linter check." ||
     [ "${DREVOPS_LINT_FE_ALLOW_FAILURE}" -eq 1 ]
 fi
