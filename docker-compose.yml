@@ -179,6 +179,21 @@ services:
     #;> LAGOON
   #;> SOLR
 
+  #;< CLAMAV
+  clamav:
+    image: clamav/clamav:1.0.1
+    ports:
+      - "3310" # Find port on host with `docker-compose port clamav 3310`.
+    environment:
+      << : *default-environment
+    networks:
+      - default
+    #;< LAGOON
+    labels:
+      lagoon.type: none
+    #;> LAGOON
+  #;> CLAMAV
+
   # Chrome container, used for browser testing.
   chrome:
     image: selenium/standalone-chrome

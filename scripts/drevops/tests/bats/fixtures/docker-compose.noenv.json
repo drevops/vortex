@@ -43,6 +43,35 @@
         }
       ]
     },
+    "clamav": {
+      "command": null,
+      "entrypoint": null,
+      "environment": {
+        "CI": "true",
+        "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
+        "DREVOPS_REDIS_ENABLED": "",
+        "DRUPAL_SHIELD_PASS": "",
+        "DRUPAL_SHIELD_USER": "",
+        "LAGOON_ENVIRONMENT_TYPE": "local",
+        "LAGOON_ROUTE": "star_wars.docker.amazee.io",
+        "SSMTP_MAILHUB": "host.docker.internal:1025",
+        "XDEBUG_ENABLE": ""
+      },
+      "image": "clamav/clamav:1.0.1",
+      "labels": {
+        "lagoon.type": "none"
+      },
+      "networks": {
+        "default": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 3310,
+          "protocol": "tcp"
+        }
+      ]
+    },
     "cli": {
       "build": {
         "context": "FIXTURE_CUR_DIR",
