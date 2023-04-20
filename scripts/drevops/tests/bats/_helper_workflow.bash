@@ -848,33 +848,3 @@ assert_ahoy_reset() {
 
   remove_development_settings "${webroot}"
 }
-
-assert_page_contains() {
-  path="${1}"
-  content="${2}"
-  t=$(mktemp)
-  ahoy cli curl -L -s "http://nginx:8080${path}" >"${t}"
-  assert_file_contains "${t}" "${content}"
-}
-
-assert_page_not_contains() {
-  path="${1}"
-  content="${2}"
-  t=$(mktemp)
-  ahoy cli curl -L -s "http://nginx:8080${path}" >"${t}"
-  assert_file_not_contains "${t}" "${content}"
-}
-
-assert_reload_db_image() {
-  step "Reload DB image"
-
-  # Assert that used DB image has content.
-  assert_page_contains "/" "test database Docker image"
-
-  # Change homepage content and assert that the change was applied.
-  ahoy drush config-set system.site page.front /user -y
-  assert_page_not_contains "/" "test database Docker image"
-
-  ahoy reload-db
-  assert_page_contains "/" "test database Docker image"
-}
