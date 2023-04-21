@@ -1,375 +1,375 @@
 {
-  "name": "star_wars",
-  "services": {
-    "chrome": {
-      "command": null,
-      "depends_on": {
-        "cli": {
-          "condition": "service_started"
-        }
-      },
-      "entrypoint": null,
-      "environment": {
-        "CI": "true",
-        "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
-        "DREVOPS_REDIS_ENABLED": "",
-        "DRUPAL_SHIELD_PASS": "",
-        "DRUPAL_SHIELD_USER": "",
-        "LAGOON_ENVIRONMENT_TYPE": "local",
-        "LAGOON_ROUTE": "star_wars.docker.amazee.io",
-        "SSMTP_MAILHUB": "host.docker.internal:1025",
-        "XDEBUG_ENABLE": ""
-      },
-      "image": "selenium/standalone-chrome",
-      "labels": {
-        "lagoon.type": "none"
-      },
-      "networks": {
-        "default": null
-      },
-      "shm_size": "1073741824",
-      "volumes": [
-        {
-          "type": "volume",
-          "source": "app",
-          "target": "/app",
-          "volume": {}
+    "name": "star_wars",
+    "networks": {
+        "amazeeio-network": {
+            "external": true,
+            "ipam": [],
+            "name": "amazeeio-network"
         },
-        {
-          "type": "volume",
-          "source": "files",
-          "target": "/app/web/sites/default/files",
-          "volume": {}
+        "default": {
+            "external": false,
+            "ipam": [],
+            "name": "star_wars_default"
         }
-      ]
     },
-    "clamav": {
-      "command": null,
-      "entrypoint": null,
-      "environment": {
-        "CI": "true",
-        "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
-        "DREVOPS_REDIS_ENABLED": "",
-        "DRUPAL_SHIELD_PASS": "",
-        "DRUPAL_SHIELD_USER": "",
-        "LAGOON_ENVIRONMENT_TYPE": "local",
-        "LAGOON_ROUTE": "star_wars.docker.amazee.io",
-        "SSMTP_MAILHUB": "host.docker.internal:1025",
-        "XDEBUG_ENABLE": ""
-      },
-      "image": "clamav/clamav:1.0.1",
-      "labels": {
-        "lagoon.type": "none"
-      },
-      "networks": {
-        "default": null
-      },
-      "ports": [
-        {
-          "mode": "ingress",
-          "target": 3310,
-          "protocol": "tcp"
-        }
-      ]
-    },
-    "cli": {
-      "build": {
-        "context": "FIXTURE_CUR_DIR",
-        "dockerfile": ".docker/cli.dockerfile",
-        "args": {
-          "GITHUB_TOKEN": "",
-          "WEBROOT": "web"
-        }
-      },
-      "command": null,
-      "entrypoint": null,
-      "environment": {
-        "CI": "true",
-        "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
-        "DREVOPS_REDIS_ENABLED": "",
-        "DRUPAL_SHIELD_PASS": "",
-        "DRUPAL_SHIELD_USER": "",
-        "LAGOON_ENVIRONMENT_TYPE": "local",
-        "LAGOON_ROUTE": "star_wars.docker.amazee.io",
-        "SSMTP_MAILHUB": "host.docker.internal:1025",
-        "XDEBUG_ENABLE": ""
-      },
-      "image": "star_wars",
-      "labels": {
-        "lagoon.persistent": "/app/web/sites/default/files/",
-        "lagoon.persistent.name": "nginx-php",
-        "lagoon.type": "cli-persistent"
-      },
-      "networks": {
-        "default": null
-      },
-      "ports": [
-        {
-          "mode": "ingress",
-          "target": 35729,
-          "protocol": "tcp"
-        }
-      ],
-      "user": "root",
-      "volumes": [
-        {
-          "type": "volume",
-          "source": "app",
-          "target": "/app",
-          "volume": {}
+    "services": {
+        "chrome": {
+            "command": null,
+            "depends_on": {
+                "cli": {
+                    "condition": "service_started"
+                }
+            },
+            "entrypoint": null,
+            "environment": {
+                "CI": "true",
+                "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "DREVOPS_REDIS_ENABLED": "",
+                "DRUPAL_SHIELD_PASS": "",
+                "DRUPAL_SHIELD_USER": "",
+                "LAGOON_ENVIRONMENT_TYPE": "local",
+                "LAGOON_ROUTE": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "host.docker.internal:1025",
+                "XDEBUG_ENABLE": ""
+            },
+            "image": "selenium/standalone-chrome",
+            "labels": {
+                "lagoon.type": "none"
+            },
+            "networks": {
+                "default": null
+            },
+            "shm_size": "1073741824",
+            "volumes": [
+                {
+                    "source": "app",
+                    "target": "/app",
+                    "type": "volume",
+                    "volume": []
+                },
+                {
+                    "source": "files",
+                    "target": "/app/web/sites/default/files",
+                    "type": "volume",
+                    "volume": []
+                }
+            ]
         },
-        {
-          "type": "volume",
-          "source": "files",
-          "target": "/app/web/sites/default/files",
-          "volume": {}
-        }
-      ]
-    },
-    "mariadb": {
-      "build": {
-        "context": "FIXTURE_CUR_DIR",
-        "dockerfile": ".docker/mariadb.dockerfile",
-        "args": {
-          "IMAGE": "uselagoon/mariadb-drupal:23.2.0"
-        }
-      },
-      "command": null,
-      "entrypoint": null,
-      "environment": {
-        "CI": "true",
-        "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
-        "DREVOPS_REDIS_ENABLED": "",
-        "DRUPAL_SHIELD_PASS": "",
-        "DRUPAL_SHIELD_USER": "",
-        "LAGOON_ENVIRONMENT_TYPE": "local",
-        "LAGOON_ROUTE": "star_wars.docker.amazee.io",
-        "SSMTP_MAILHUB": "host.docker.internal:1025",
-        "XDEBUG_ENABLE": ""
-      },
-      "labels": {
-        "lagoon.type": "mariadb"
-      },
-      "networks": {
-        "default": null
-      },
-      "ports": [
-        {
-          "mode": "ingress",
-          "target": 3306,
-          "protocol": "tcp"
-        }
-      ]
-    },
-    "nginx": {
-      "build": {
-        "context": "FIXTURE_CUR_DIR",
-        "dockerfile": ".docker/nginx-drupal.dockerfile",
-        "args": {
-          "CLI_IMAGE": "star_wars",
-          "WEBROOT": "web"
-        }
-      },
-      "command": null,
-      "depends_on": {
-        "cli": {
-          "condition": "service_started"
-        }
-      },
-      "entrypoint": null,
-      "environment": {
-        "CI": "true",
-        "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
-        "DREVOPS_REDIS_ENABLED": "",
-        "DRUPAL_SHIELD_PASS": "",
-        "DRUPAL_SHIELD_USER": "",
-        "LAGOON_ENVIRONMENT_TYPE": "local",
-        "LAGOON_ROUTE": "star_wars.docker.amazee.io",
-        "SSMTP_MAILHUB": "host.docker.internal:1025",
-        "XDEBUG_ENABLE": ""
-      },
-      "labels": {
-        "lagoon.name": "nginx-php",
-        "lagoon.persistent": "/app/web/sites/default/files/",
-        "lagoon.persistent.class": "slow",
-        "lagoon.type": "nginx-php-persistent"
-      },
-      "networks": {
-        "amazeeio-network": null,
-        "default": null
-      },
-      "user": "1000",
-      "volumes": [
-        {
-          "type": "volume",
-          "source": "app",
-          "target": "/app",
-          "volume": {}
+        "clamav": {
+            "command": null,
+            "entrypoint": null,
+            "environment": {
+                "CI": "true",
+                "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "DREVOPS_REDIS_ENABLED": "",
+                "DRUPAL_SHIELD_PASS": "",
+                "DRUPAL_SHIELD_USER": "",
+                "LAGOON_ENVIRONMENT_TYPE": "local",
+                "LAGOON_ROUTE": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "host.docker.internal:1025",
+                "XDEBUG_ENABLE": ""
+            },
+            "image": "clamav/clamav:1.0.1",
+            "labels": {
+                "lagoon.type": "none"
+            },
+            "networks": {
+                "default": null
+            },
+            "ports": [
+                {
+                    "mode": "ingress",
+                    "protocol": "tcp",
+                    "target": 3310
+                }
+            ]
         },
-        {
-          "type": "volume",
-          "source": "files",
-          "target": "/app/web/sites/default/files",
-          "volume": {}
-        }
-      ]
-    },
-    "php": {
-      "build": {
-        "context": "FIXTURE_CUR_DIR",
-        "dockerfile": ".docker/php.dockerfile",
-        "args": {
-          "CLI_IMAGE": "star_wars"
-        }
-      },
-      "command": null,
-      "depends_on": {
         "cli": {
-          "condition": "service_started"
-        }
-      },
-      "entrypoint": null,
-      "environment": {
-        "CI": "true",
-        "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
-        "DREVOPS_REDIS_ENABLED": "",
-        "DRUPAL_SHIELD_PASS": "",
-        "DRUPAL_SHIELD_USER": "",
-        "LAGOON_ENVIRONMENT_TYPE": "local",
-        "LAGOON_ROUTE": "star_wars.docker.amazee.io",
-        "SSMTP_MAILHUB": "host.docker.internal:1025",
-        "XDEBUG_ENABLE": ""
-      },
-      "labels": {
-        "lagoon.name": "nginx-php",
-        "lagoon.persistent": "/app/web/sites/default/files/",
-        "lagoon.persistent.class": "slow",
-        "lagoon.type": "nginx-php-persistent"
-      },
-      "networks": {
-        "default": null
-      },
-      "user": "1000",
-      "volumes": [
-        {
-          "type": "volume",
-          "source": "app",
-          "target": "/app",
-          "volume": {}
-        },
-        {
-          "type": "volume",
-          "source": "files",
-          "target": "/app/web/sites/default/files",
-          "volume": {}
-        }
-      ]
-    },
-    "redis": {
-      "command": null,
-      "entrypoint": null,
-      "image": "uselagoon/redis-6:23.2.0",
-      "labels": {
-        "lagoon.type": "redis"
-      },
-      "networks": {
-        "default": null
-      }
-    },
-    "solr": {
-      "build": {
-        "context": "FIXTURE_CUR_DIR",
-        "dockerfile": ".docker/solr.dockerfile",
-        "args": {
-          "CLI_IMAGE": "star_wars"
-        }
-      },
-      "command": null,
-      "depends_on": {
-        "cli": {
-          "condition": "service_started"
-        }
-      },
-      "entrypoint": null,
-      "environment": {
-        "CI": "true",
-        "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
-        "DREVOPS_REDIS_ENABLED": "",
-        "DRUPAL_SHIELD_PASS": "",
-        "DRUPAL_SHIELD_USER": "",
-        "LAGOON_ENVIRONMENT_TYPE": "local",
-        "LAGOON_ROUTE": "star_wars.docker.amazee.io",
-        "SSMTP_MAILHUB": "host.docker.internal:1025",
-        "XDEBUG_ENABLE": ""
-      },
-      "labels": {
-        "lagoon.type": "solr"
-      },
-      "networks": {
-        "default": null
-      },
-      "ports": [
-        {
-          "mode": "ingress",
-          "target": 8983,
-          "protocol": "tcp"
-        }
-      ],
-      "volumes": [
-        {
-          "type": "volume",
-          "source": "search",
-          "target": "/var/solr",
-          "volume": {}
-        }
-      ]
-    },
-    "wait_dependencies": {
-      "command": [
-        "mariadb:3306"
-      ],
-      "depends_on": {
-        "cli": {
-          "condition": "service_started"
+            "build": {
+                "args": {
+                    "GITHUB_TOKEN": "",
+                    "WEBROOT": "web"
+                },
+                "context": "FIXTURE_CUR_DIR",
+                "dockerfile": ".docker/cli.dockerfile"
+            },
+            "command": null,
+            "entrypoint": null,
+            "environment": {
+                "CI": "true",
+                "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "DREVOPS_REDIS_ENABLED": "",
+                "DRUPAL_SHIELD_PASS": "",
+                "DRUPAL_SHIELD_USER": "",
+                "LAGOON_ENVIRONMENT_TYPE": "local",
+                "LAGOON_ROUTE": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "host.docker.internal:1025",
+                "XDEBUG_ENABLE": ""
+            },
+            "image": "star_wars",
+            "labels": {
+                "lagoon.persistent": "/app/web/sites/default/files/",
+                "lagoon.persistent.name": "nginx-php",
+                "lagoon.type": "cli-persistent"
+            },
+            "networks": {
+                "default": null
+            },
+            "ports": [
+                {
+                    "mode": "ingress",
+                    "protocol": "tcp",
+                    "target": 35729
+                }
+            ],
+            "user": "root",
+            "volumes": [
+                {
+                    "source": "app",
+                    "target": "/app",
+                    "type": "volume",
+                    "volume": []
+                },
+                {
+                    "source": "files",
+                    "target": "/app/web/sites/default/files",
+                    "type": "volume",
+                    "volume": []
+                }
+            ]
         },
         "mariadb": {
-          "condition": "service_started"
+            "build": {
+                "args": {
+                    "IMAGE": "uselagoon/mariadb-drupal:23.2.0"
+                },
+                "context": "FIXTURE_CUR_DIR",
+                "dockerfile": ".docker/mariadb.dockerfile"
+            },
+            "command": null,
+            "entrypoint": null,
+            "environment": {
+                "CI": "true",
+                "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "DREVOPS_REDIS_ENABLED": "",
+                "DRUPAL_SHIELD_PASS": "",
+                "DRUPAL_SHIELD_USER": "",
+                "LAGOON_ENVIRONMENT_TYPE": "local",
+                "LAGOON_ROUTE": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "host.docker.internal:1025",
+                "XDEBUG_ENABLE": ""
+            },
+            "labels": {
+                "lagoon.type": "mariadb"
+            },
+            "networks": {
+                "default": null
+            },
+            "ports": [
+                {
+                    "mode": "ingress",
+                    "protocol": "tcp",
+                    "target": 3306
+                }
+            ]
+        },
+        "nginx": {
+            "build": {
+                "args": {
+                    "CLI_IMAGE": "star_wars",
+                    "WEBROOT": "web"
+                },
+                "context": "FIXTURE_CUR_DIR",
+                "dockerfile": ".docker/nginx-drupal.dockerfile"
+            },
+            "command": null,
+            "depends_on": {
+                "cli": {
+                    "condition": "service_started"
+                }
+            },
+            "entrypoint": null,
+            "environment": {
+                "CI": "true",
+                "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "DREVOPS_REDIS_ENABLED": "",
+                "DRUPAL_SHIELD_PASS": "",
+                "DRUPAL_SHIELD_USER": "",
+                "LAGOON_ENVIRONMENT_TYPE": "local",
+                "LAGOON_ROUTE": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "host.docker.internal:1025",
+                "XDEBUG_ENABLE": ""
+            },
+            "labels": {
+                "lagoon.name": "nginx-php",
+                "lagoon.persistent": "/app/web/sites/default/files/",
+                "lagoon.persistent.class": "slow",
+                "lagoon.type": "nginx-php-persistent"
+            },
+            "networks": {
+                "amazeeio-network": null,
+                "default": null
+            },
+            "user": "1000",
+            "volumes": [
+                {
+                    "source": "app",
+                    "target": "/app",
+                    "type": "volume",
+                    "volume": []
+                },
+                {
+                    "source": "files",
+                    "target": "/app/web/sites/default/files",
+                    "type": "volume",
+                    "volume": []
+                }
+            ]
+        },
+        "php": {
+            "build": {
+                "args": {
+                    "CLI_IMAGE": "star_wars"
+                },
+                "context": "FIXTURE_CUR_DIR",
+                "dockerfile": ".docker/php.dockerfile"
+            },
+            "command": null,
+            "depends_on": {
+                "cli": {
+                    "condition": "service_started"
+                }
+            },
+            "entrypoint": null,
+            "environment": {
+                "CI": "true",
+                "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "DREVOPS_REDIS_ENABLED": "",
+                "DRUPAL_SHIELD_PASS": "",
+                "DRUPAL_SHIELD_USER": "",
+                "LAGOON_ENVIRONMENT_TYPE": "local",
+                "LAGOON_ROUTE": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "host.docker.internal:1025",
+                "XDEBUG_ENABLE": ""
+            },
+            "labels": {
+                "lagoon.name": "nginx-php",
+                "lagoon.persistent": "/app/web/sites/default/files/",
+                "lagoon.persistent.class": "slow",
+                "lagoon.type": "nginx-php-persistent"
+            },
+            "networks": {
+                "default": null
+            },
+            "user": "1000",
+            "volumes": [
+                {
+                    "source": "app",
+                    "target": "/app",
+                    "type": "volume",
+                    "volume": []
+                },
+                {
+                    "source": "files",
+                    "target": "/app/web/sites/default/files",
+                    "type": "volume",
+                    "volume": []
+                }
+            ]
+        },
+        "redis": {
+            "command": null,
+            "entrypoint": null,
+            "image": "uselagoon/redis-6:23.2.0",
+            "labels": {
+                "lagoon.type": "redis"
+            },
+            "networks": {
+                "default": null
+            }
+        },
+        "solr": {
+            "build": {
+                "args": {
+                    "CLI_IMAGE": "star_wars"
+                },
+                "context": "FIXTURE_CUR_DIR",
+                "dockerfile": ".docker/solr.dockerfile"
+            },
+            "command": null,
+            "depends_on": {
+                "cli": {
+                    "condition": "service_started"
+                }
+            },
+            "entrypoint": null,
+            "environment": {
+                "CI": "true",
+                "DREVOPS_LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "DREVOPS_REDIS_ENABLED": "",
+                "DRUPAL_SHIELD_PASS": "",
+                "DRUPAL_SHIELD_USER": "",
+                "LAGOON_ENVIRONMENT_TYPE": "local",
+                "LAGOON_ROUTE": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "host.docker.internal:1025",
+                "XDEBUG_ENABLE": ""
+            },
+            "labels": {
+                "lagoon.type": "solr"
+            },
+            "networks": {
+                "default": null
+            },
+            "ports": [
+                {
+                    "mode": "ingress",
+                    "protocol": "tcp",
+                    "target": 8983
+                }
+            ],
+            "volumes": [
+                {
+                    "source": "search",
+                    "target": "/var/solr",
+                    "type": "volume",
+                    "volume": []
+                }
+            ]
+        },
+        "wait_dependencies": {
+            "command": [
+                "mariadb:3306"
+            ],
+            "depends_on": {
+                "cli": {
+                    "condition": "service_started"
+                },
+                "mariadb": {
+                    "condition": "service_started"
+                }
+            },
+            "entrypoint": null,
+            "image": "dadarek/wait-for-dependencies",
+            "labels": {
+                "lagoon.type": "none"
+            },
+            "networks": {
+                "default": null
+            }
         }
-      },
-      "entrypoint": null,
-      "image": "dadarek/wait-for-dependencies",
-      "labels": {
-        "lagoon.type": "none"
-      },
-      "networks": {
-        "default": null
-      }
-    }
-  },
-  "networks": {
-    "amazeeio-network": {
-      "name": "amazeeio-network",
-      "ipam": {},
-      "external": true
     },
-    "default": {
-      "name": "star_wars_default",
-      "ipam": {},
-      "external": false
+    "volumes": {
+        "app": {
+            "external": false,
+            "name": "star_wars_app"
+        },
+        "files": {
+            "external": false,
+            "name": "star_wars_files"
+        },
+        "search": {
+            "external": false,
+            "name": "star_wars_search"
+        }
     }
-  },
-  "volumes": {
-    "app": {
-      "name": "star_wars_app",
-      "external": false
-    },
-    "files": {
-      "name": "star_wars_files",
-      "external": false
-    },
-    "search": {
-      "name": "star_wars_search",
-      "external": false
-    }
-  }
 }

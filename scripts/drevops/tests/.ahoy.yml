@@ -19,10 +19,18 @@ commands:
     cmd: ahoy test-common && ahoy test-deployment && ahoy test-workflow
 
   test-common:
-    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/test.common.sh
+    cmd: cd ../../.. && ./scripts/drevops/tests/test.common.sh
 
   test-deployment:
-    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/test.deployment.sh
+    cmd: cd ../../.. && ./scripts/drevops/tests/test.deployment.sh
 
   test-workflow:
-    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/test.workflow.sh
+    cmd: cd ../../.. && ./scripts/drevops/tests/test.workflow.sh
+
+  # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
+  update-fixtures:
+    cmd: |
+      cd ../../.. \
+      && UPDATE_FIXTURES=1 bats scripts/drevops/tests/bats/docker-compose.bats \
+      || UPDATE_FIXTURES=1 bats scripts/drevops/tests/bats/docker-compose.bats
+
