@@ -124,47 +124,17 @@ Name of the database fall-back docker image to use. If the image specified in [`
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_DB_DOWNLOAD_ACQUIA_APP_NAME`
-
-Application name. Used to discover UUID.
-
-Default value: `DREVOPS_ACQUIA_APP_NAME`
-
 ### `DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME`
 
 Database dump Acquia database name.
 
 Default value: `your_site`
 
-### `DREVOPS_DB_DOWNLOAD_ACQUIA_DIR`
-
-Directory where DB dumps are stored.
-
-Default value: `DREVOPS_DB_DIR`
-
 ### `DREVOPS_DB_DOWNLOAD_ACQUIA_ENV`
 
 Database dump Acquia database environment.
 
 Default value: `prod`
-
-### `DREVOPS_DB_DOWNLOAD_ACQUIA_FILE`
-
-Database dump file name.
-
-Default value: `DREVOPS_DB_FILE`
-
-### `DREVOPS_DB_DOWNLOAD_ACQUIA_KEY`
-
-Acquia Cloud API key.
-
-Default value: `DREVOPS_ACQUIA_KEY`
-
-### `DREVOPS_DB_DOWNLOAD_ACQUIA_SECRET`
-
-Acquia Cloud API secret.
-
-Default value: `DREVOPS_ACQUIA_SECRET`
 
 ### `DREVOPS_DB_DOWNLOAD_CURL_URL`
 
@@ -1014,35 +984,17 @@ Enable Redis integration. See settings.redis.php for details.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_TASK_COPY_DB_ACQUIA_APP_NAME`
-
-Application name. Used to discover UUID.
-
-Default value: `DREVOPS_ACQUIA_APP_NAME`
-
 ### `DREVOPS_TASK_COPY_DB_ACQUIA_DST`
 
 Destination environment name to copy DB to.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_TASK_COPY_DB_ACQUIA_KEY`
-
-Acquia Cloud API key.
-
-Default value: `DREVOPS_ACQUIA_KEY`
-
 ### `DREVOPS_TASK_COPY_DB_ACQUIA_NAME`
 
 Database name to copy.
 
 Default value: `UNDEFINED`
-
-### `DREVOPS_TASK_COPY_DB_ACQUIA_SECRET`
-
-Acquia Cloud API secret.
-
-Default value: `DREVOPS_ACQUIA_SECRET`
 
 ### `DREVOPS_TASK_COPY_DB_ACQUIA_SKIP`
 
@@ -1068,29 +1020,11 @@ Number of status retrieval retries. If this limit reached and task has not yet f
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_TASK_COPY_FILES_ACQUIA_APP_NAME`
-
-Application name. Used to discover UUID.
-
-Default value: `DREVOPS_ACQUIA_APP_NAME`
-
 ### `DREVOPS_TASK_COPY_FILES_ACQUIA_DST`
 
 Destination environment name to copy to.
 
 Default value: `UNDEFINED`
-
-### `DREVOPS_TASK_COPY_FILES_ACQUIA_KEY`
-
-Acquia Cloud API key.
-
-Default value: `DREVOPS_ACQUIA_KEY`
-
-### `DREVOPS_TASK_COPY_FILES_ACQUIA_SECRET`
-
-Acquia Cloud API secret.
-
-Default value: `DREVOPS_ACQUIA_SECRET`
 
 ### `DREVOPS_TASK_COPY_FILES_ACQUIA_SKIP`
 
@@ -1186,18 +1120,6 @@ The Lagoon project to run tasks for.
 
 Default value: `UNDEFINED`
 
-### `DREVOPS_TASK_NOTIFY_DEPLOYMENT_EMAIL_ACQUIA_SKIP`
-
-Skip deployment email notification in Acquia environments.
-
-Default value: `UNDEFINED`
-
-### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME`
-
-Application name. Used to discover UUID.
-
-Default value: `UNDEFINED`
-
 ### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE`
 
 File with a list of domains that should be purged.
@@ -1209,18 +1131,6 @@ Default value: `domains.txt`
 An environment name to purge cache for.
 
 Default value: `UNDEFINED`
-
-### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY`
-
-Acquia Cloud API key.
-
-Default value: `DREVOPS_ACQUIA_KEY`
-
-### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET`
-
-Acquia Cloud API secret.
-
-Default value: `DREVOPS_ACQUIA_SECRET`
 
 ### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_SKIP`
 
