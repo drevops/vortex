@@ -38,9 +38,6 @@ DREVOPS_TASK_PURGE_CACHE_ACQUIA_SKIP=
 # Skip Drupal site installation in Acquia environments.
 DREVOPS_TASK_DRUPAL_SITE_INSTALL_ACQUIA_SKIP=
 
-# Skip deployment email notification in Acquia environments.
-DREVOPS_TASK_NOTIFY_DEPLOYMENT_EMAIL_ACQUIA_SKIP=
-
 # New Relic availability flag.
 NEWRELIC_ENABLED=
 

@@ -17,13 +17,13 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Acquia Cloud API key.
-DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY="${DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY:-${DREVOPS_ACQUIA_KEY}}"
+DREVOPS_ACQUIA_KEY="${DREVOPS_ACQUIA_KEY:-${DREVOPS_ACQUIA_KEY}}"
 
 # Acquia Cloud API secret.
-DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET="${DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET:-${DREVOPS_ACQUIA_SECRET}}"
+DREVOPS_ACQUIA_SECRET="${DREVOPS_ACQUIA_SECRET:-${DREVOPS_ACQUIA_SECRET}}"
 
 # Application name. Used to discover UUID.
-DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME="${DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME:-}"
+DREVOPS_ACQUIA_APP_NAME="${DREVOPS_ACQUIA_APP_NAME:-}"
 
 # An environment name to purge cache for.
 DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV="${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV:-}"
@@ -69,21 +69,21 @@ extract_json_value() {
 command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 
 # Check that all required variables are present.
-[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY." && exit 1
-[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET}" ] && fail "Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET." && exit 1
-[ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME}" ] && fail "Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME." && exit 1
+[ -z "${DREVOPS_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_ACQUIA_KEY." && exit 1
+[ -z "${DREVOPS_ACQUIA_SECRET}" ] && fail "Missing value for DREVOPS_ACQUIA_SECRET." && exit 1
+[ -z "${DREVOPS_ACQUIA_APP_NAME}" ] && fail "Missing value for DREVOPS_ACQUIA_APP_NAME." && exit 1
 [ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV}" ] && fail "Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV." && exit 1
 [ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}" ] && fail "Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE." && exit 1
 [ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}" ] && fail "Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES." && exit 1
 [ -z "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL}" ] && fail "Missing value for DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL." && exit 1
 
 note "Retrieving authentication token."
-token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY}" --data-urlencode "client_secret=${DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
+token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${DREVOPS_ACQUIA_KEY}" --data-urlencode "client_secret=${DREVOPS_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 token=$(echo "${token_json}" | extract_json_value "access_token")
 [ -z "${token}" ] && fail "Unable to retrieve a token." && exit 1
 
-note "Retrieving ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME} application UUID."
-app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "https://cloud.acquia.com/api/applications?filter=name%3D${DREVOPS_TASK_PURGE_CACHE_ACQUIA_APP_NAME/ /%20}")
+note "Retrieving ${DREVOPS_ACQUIA_APP_NAME} application UUID."
+app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "https://cloud.acquia.com/api/applications?filter=name%3D${DREVOPS_ACQUIA_APP_NAME/ /%20}")
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
 [ -z "${app_uuid}" ] && fail "Unable to retrieve an environment UUID." && exit 1
 
@@ -155,7 +155,7 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
       fi
 
       note "Retrieving authentication token."
-      token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${DREVOPS_TASK_PURGE_CACHE_ACQUIA_KEY}" --data-urlencode "client_secret=${DREVOPS_TASK_PURGE_CACHE_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
+      token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${DREVOPS_ACQUIA_KEY}" --data-urlencode "client_secret=${DREVOPS_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
       token=$(echo "${token_json}" | extract_json_value "access_token")
       [ -z "${token}" ] && fail "Unable to retrieve a token." && exit 1
     done
