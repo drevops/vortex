@@ -261,15 +261,13 @@ class DrupalSettingsTest extends TestCase {
    * Test per-environment overrides for DEV environment.
    */
   public function testEnvironmentDev() {
-    // Use Acquia's settings to set the environment type.
     $this->setEnvVars([
-      'AH_SITE_ENVIRONMENT' => 'dev',
+      'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_DEV,
     ]);
 
     $this->requireSettings();
 
     $default_config = $this->getGenericConfig();
-    $default_config['acquia_hosting_settings_autoconnect'] = FALSE;
     $default_settings = $this->getGenericSettings();
 
     $default_config['environment_indicator.indicator']['name'] = 'dev';
@@ -296,13 +294,12 @@ class DrupalSettingsTest extends TestCase {
   public function testEnvironmentTest() {
     // Use Acquia's settings to set the environment type.
     $this->setEnvVars([
-      'AH_SITE_ENVIRONMENT' => 'test',
+      'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_TEST,
     ]);
 
     $this->requireSettings();
 
     $default_config = $this->getGenericConfig();
-    $default_config['acquia_hosting_settings_autoconnect'] = FALSE;
     $default_settings = $this->getGenericSettings();
 
     $default_config['environment_indicator.indicator']['name'] = 'test';
@@ -327,15 +324,13 @@ class DrupalSettingsTest extends TestCase {
    * Test per-environment overrides for PROD environment.
    */
   public function testEnvironmentProd() {
-    // Use Acquia's settings to set the environment type.
     $this->setEnvVars([
-      'AH_SITE_ENVIRONMENT' => 'prod',
+      'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_PROD,
     ]);
 
     $this->requireSettings();
 
     $default_config = $this->getGenericConfig();
-    $default_config['acquia_hosting_settings_autoconnect'] = FALSE;
     $default_settings = $this->getGenericSettings();
 
     $default_config['environment_indicator.indicator']['name'] = 'prod';

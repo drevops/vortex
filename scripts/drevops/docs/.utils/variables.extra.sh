@@ -67,3 +67,6 @@ DREVOPS_EXPORT_CODE_DIR=
 
 # Flag to skip Email deployment notification.
 DREVOPS_NOTIFY_DEPLOY_EMAIL_SKIP=
+
+# Override discovered environment type.
+DREVOPS_ENVIRONMENT_TYPE=

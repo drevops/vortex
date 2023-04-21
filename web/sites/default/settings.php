@@ -228,6 +228,11 @@ if (getenv('LAGOON')) {
 }
 // #;> LAGOON
 
+// Allow to override an environment type.
+if (!empty(getenv('DREVOPS_ENVIRONMENT_TYPE'))) {
+  $settings['environment'] = getenv('DREVOPS_ENVIRONMENT_TYPE');
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-ENVIRONMENT SETTINGS                           ///
 ////////////////////////////////////////////////////////////////////////////////
