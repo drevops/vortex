@@ -66,8 +66,8 @@ if (getenv('TMP')) {
 // Private directory.
 $settings['file_private_path'] = 'sites/default/files/private';
 
-// Salt for one-time login links, cancel links, form tokens, etc.
-$settings['hash_salt'] = hash('sha256', 'CHANGE_ME');
+// Base salt on the DB host name.
+$settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: (getenv('DREVOPS_MARIADB_HOST') ?: 'localhost'));
 
 // Expiration of cached pages on Varnish to 15 min.
 $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -107,12 +107,15 @@ $settings['trusted_host_patterns'] = [
 $settings['config_exclude_modules'] = [];
 
 // Default Shield credentials.
-// Shield can be enabled and disabled in production though UI. For other
-// environments, shield is enforced to be enabled.
-// 'DRUPAL_SHIELD_USER' and 'DRUPAL_SHIELD_PASS' environment
-// variables should be added in the environment.
-$config['shield.settings']['credentials']['shield']['user'] = getenv('DRUPAL_SHIELD_USER');
-$config['shield.settings']['credentials']['shield']['pass'] = getenv('DRUPAL_SHIELD_PASS');
+// Shield can be enabled and disabled in production though UI.
+// For other environments, Shield is enforced to be enabled.
+// 'DRUPAL_SHIELD_USER' and 'DRUPAL_SHIELD_PASS' environment variables should
+// be added in the environment.
+// Check fo existence of variables to prevent locking out.
+if (!empty(getenv('DRUPAL_SHIELD_USER')) && !empty(getenv('DRUPAL_SHIELD_PASS'))) {
+  $config['shield.settings']['credentials']['shield']['user'] = getenv('DRUPAL_SHIELD_USER');
+  $config['shield.settings']['credentials']['shield']['pass'] = getenv('DRUPAL_SHIELD_PASS');
+}
 // Title of the shield pop-up.
 $config['shield.settings']['print'] = 'YOURSITE';
 
@@ -221,12 +224,13 @@ if (getenv('LAGOON')) {
     ], getenv('LAGOON_ROUTES'));
     $settings['trusted_host_patterns'][] = '^' . $patterns . '$';
   }
-
-  // Hash salt.
-  // MARIADB_HOST on Lagoon is a randomly generated service name.
-  $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: getenv('DREVOPS_MARIADB_HOST'));
 }
 // #;> LAGOON
+
+// Allow to override an environment type.
+if (!empty(getenv('DREVOPS_ENVIRONMENT_TYPE'))) {
+  $settings['environment'] = getenv('DREVOPS_ENVIRONMENT_TYPE');
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-ENVIRONMENT SETTINGS                           ///
@@ -240,7 +244,7 @@ if ($settings['environment'] == ENVIRONMENT_PROD) {
   $config['environment_indicator.settings']['favicon'] = TRUE;
 }
 else {
-  $config['stage_file_proxy.settings']['origin'] = sprintf('https://%s:%s@your-site-url.example/', getenv('DRUPAL_SHIELD_USER'), getenv('DRUPAL_SHIELD_PASS'));
+  $config['stage_file_proxy.settings']['origin'] = !empty(getenv('DRUPAL_SHIELD_USER')) && !empty(getenv('DRUPAL_SHIELD_PASS')) ? sprintf('https://%s:%s@your-site-url.example/', getenv('DRUPAL_SHIELD_USER'), getenv('DRUPAL_SHIELD_PASS')) : 'https://your-site-url.example/';
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
 
   $config['environment_indicator.indicator']['name'] = $settings['environment'];

@@ -668,6 +668,12 @@ Drupal version.
 
 Default value: `9`
 
+### `DREVOPS_ENVIRONMENT_TYPE`
+
+Override discovered environment type.
+
+Default value: `UNDEFINED`
+
 ### `DREVOPS_EXPORT_CODE_DIR`
 
 Directory to store exported code.
