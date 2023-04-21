@@ -24,13 +24,13 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # Acquia Cloud API key.
-DREVOPS_DB_DOWNLOAD_ACQUIA_KEY="${DREVOPS_DB_DOWNLOAD_ACQUIA_KEY:-${DREVOPS_ACQUIA_KEY}}"
+DREVOPS_ACQUIA_KEY="${DREVOPS_ACQUIA_KEY:-${DREVOPS_ACQUIA_KEY}}"
 
 # Acquia Cloud API secret.
-DREVOPS_DB_DOWNLOAD_ACQUIA_SECRET="${DREVOPS_DB_DOWNLOAD_ACQUIA_SECRET:-${DREVOPS_ACQUIA_SECRET}}"
+DREVOPS_ACQUIA_SECRET="${DREVOPS_ACQUIA_SECRET:-${DREVOPS_ACQUIA_SECRET}}"
 
 # Application name. Used to discover UUID.
-DREVOPS_DB_DOWNLOAD_ACQUIA_APP_NAME="${DREVOPS_DB_DOWNLOAD_ACQUIA_APP_NAME:-${DREVOPS_ACQUIA_APP_NAME}}"
+DREVOPS_ACQUIA_APP_NAME="${DREVOPS_ACQUIA_APP_NAME:-${DREVOPS_ACQUIA_APP_NAME}}"
 
 # Source environment name used to download the database dump from.
 DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="${DREVOPS_DB_DOWNLOAD_ACQUIA_ENV:-}"
@@ -39,10 +39,10 @@ DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="${DREVOPS_DB_DOWNLOAD_ACQUIA_ENV:-}"
 DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME:-}"
 
 # Directory where DB dumps are stored.
-DREVOPS_DB_DOWNLOAD_ACQUIA_DIR="${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR:-${DREVOPS_DB_DIR}}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-}"
 
 # Database dump file name.
-DREVOPS_DB_DOWNLOAD_ACQUIA_FILE="${DREVOPS_DB_DOWNLOAD_ACQUIA_FILE:-${DREVOPS_DB_FILE}}"
+DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-}"
 
 #-------------------------------------------------------------------------------
 
@@ -75,23 +75,23 @@ extract_json_value() {
 command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 
 # Check that all required variables are present.
-[ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_KEY." && exit 1
-[ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_SECRET}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_SECRET." && exit 1
-[ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_APP_NAME}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_APP_NAME." && exit 1
+[ -z "${DREVOPS_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_ACQUIA_KEY." && exit 1
+[ -z "${DREVOPS_ACQUIA_SECRET}" ] && fail "Missing value for DREVOPS_ACQUIA_SECRET." && exit 1
+[ -z "${DREVOPS_ACQUIA_APP_NAME}" ] && fail "Missing value for DREVOPS_ACQUIA_APP_NAME." && exit 1
 [ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_ENV}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_ENV." && exit 1
 [ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME." && exit 1
-[ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_DIR." && exit 1
-[ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_FILE}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_FILE." && exit 1
+[ -z "${DREVOPS_DB_DIR}" ] && fail "Missing value for DREVOPS_DB_DIR." && exit 1
+[ -z "${DREVOPS_DB_FILE}" ] && fail "Missing value for DREVOPS_DB_FILE." && exit 1
 
 mkdir -p "${DREVOPS_DB_DIR}"
 
 note "Retrieving authentication token."
-token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${DREVOPS_DB_DOWNLOAD_ACQUIA_KEY}" --data-urlencode "client_secret=${DREVOPS_DB_DOWNLOAD_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
+token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${DREVOPS_ACQUIA_KEY}" --data-urlencode "client_secret=${DREVOPS_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 token=$(echo "${token_json}" | extract_json_value "access_token")
 [ -z "${token}" ] && fail "Unable to retrieve a token." && exit 1
 
-note "Retrieving ${DREVOPS_DB_DOWNLOAD_ACQUIA_APP_NAME} application UUID."
-app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "https://cloud.acquia.com/api/applications?filter=name%3D${DREVOPS_DB_DOWNLOAD_ACQUIA_APP_NAME/ /%20}")
+note "Retrieving ${DREVOPS_ACQUIA_APP_NAME} application UUID."
+app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "https://cloud.acquia.com/api/applications?filter=name%3D${DREVOPS_ACQUIA_APP_NAME/ /%20}")
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
 [ -z "${app_uuid}" ] && fail "Unable to retrieve an environment UUID." && exit 1
 
@@ -107,9 +107,9 @@ backup_id=$(echo "${backups_json}" | extract_json_value "_embedded" | extract_js
 [ -z "${backup_id}" ] && fail "Unable to discover backup ID." && exit 1
 
 # Insert backup id as a suffix.
-file_extension="${DREVOPS_DB_DOWNLOAD_ACQUIA_FILE##*.}"
+file_extension="${DREVOPS_DB_FILE##*.}"
 file_prefix="${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}_backup_"
-file_name="${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}/${file_prefix}${backup_id}.${file_extension}"
+file_name="${DREVOPS_DB_DIR}/${file_prefix}${backup_id}.${file_extension}"
 file_name_discovered="${file_name}"
 file_name_compressed="${file_name}.gz"
 
@@ -120,7 +120,7 @@ else
   if [ ! -f "${file_name_compressed}" ]; then
     note "Using latest backup ID ${backup_id} for DB ${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}."
 
-    [ ! -d "${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}" ] && note "Creating dump directory ${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}" && mkdir -p "${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}"
+    [ ! -d "${DREVOPS_DB_DIR}" ] && note "Creating dump directory ${DREVOPS_DB_DIR}" && mkdir -p "${DREVOPS_DB_DIR}"
 
     note "Discovering backup URL."
     backup_json=$(curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "https://cloud.acquia.com/api/environments/${env_id}/databases/${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}/backups/${backup_id}/actions/download")
@@ -143,7 +143,7 @@ else
   [ ! -f "${file_name}" ] || [ "${decompress_result}" != 0 ] && fail "Unable to process DB dump file \"${file_name}\"." && rm -f "${file_name_compressed}" && rm -f "${file_name}" && exit 1
 fi
 
-note "Renaming file \"${file_name}\" to \"${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}/${DREVOPS_DB_DOWNLOAD_ACQUIA_FILE}\"."
-mv "${file_name}" "${DREVOPS_DB_DOWNLOAD_ACQUIA_DIR}/${DREVOPS_DB_DOWNLOAD_ACQUIA_FILE}"
+note "Renaming file \"${file_name}\" to \"${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}\"."
+mv "${file_name}" "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 
 pass "Finished database dump download from Acquia."
