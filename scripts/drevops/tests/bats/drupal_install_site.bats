@@ -93,13 +93,13 @@ assert_drupal_install_site_info(){
   assert_drupal_install_site_info 0 0 0 1 0 0 0
 
   assert_output_contains "Creating private files directory."
-  assert_output_contains "Successfully created private files directory."
+  assert_output_contains "Created private files directory."
 
   assert_output_contains "Installing site from the database dump file."
   assert_output_contains "Dump file: ${LOCAL_REPO_DIR}/.data/db.sql"
   assert_output_contains "Existing site was not found."
   assert_output_contains "The site content will be imported from the database dump file."
-  assert_output_contains "Successfully imported database from the dump file."
+  assert_output_contains "Imported database from the dump file."
 
   assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
   assert_equal "-y -q sqlc" "$(mock_get_call_args "${mock_drush}" 5)"
@@ -137,7 +137,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Current Drupal environment: ci"
   assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
 
-  assert_output_not_contains "Running post config import updates via Drush deploy."
+  assert_output_not_contains "Running updates after configuration import via Drush deploy."
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   # Sanitization is skipped for the existing database.
@@ -159,7 +159,7 @@ assert_drupal_install_site_info(){
   assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 17)"
   assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 18)"
   assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh ran successfully."
+  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
 
   assert_output_contains "Disabling maintenance mode."
   assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 19)"
@@ -231,7 +231,7 @@ assert_drupal_install_site_info(){
   assert_drupal_install_site_info 0 0 0 1 0 1 0
 
   assert_output_contains "Creating private files directory."
-  assert_output_contains "Successfully created private files directory."
+  assert_output_contains "Created private files directory."
 
   assert_output_contains "Installing site from the database dump file."
   assert_output_contains "Dump file: ${LOCAL_REPO_DIR}/.data/db.sql"
@@ -242,7 +242,7 @@ assert_drupal_install_site_info(){
   assert_output_not_contains "Existing site content will be removed and new content will be imported from the database dump file."
   assert_output_not_contains "Existing site was not found."
   assert_output_not_contains "The site content will be imported from the database dump file."
-  assert_output_not_contains "Successfully imported database from the dump file."
+  assert_output_not_contains "Imported database from the dump file."
   assert_output_not_contains "Installing site from the profile."
   assert_output_not_contains "Existing site content will be removed and new content will be created from the profile."
   assert_output_not_contains "The site content will be created from the profile."
@@ -268,7 +268,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Current Drupal environment: ci"
   assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 7)"
 
-  assert_output_not_contains "Running post config import updates via Drush deploy."
+  assert_output_not_contains "Running updates after configuration import via Drush deploy."
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 8)"
 
   # Sanitization is skipped for the existing database.
@@ -286,7 +286,7 @@ assert_drupal_install_site_info(){
   assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh ran successfully."
+  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
 
   assert_output_contains "Disabling maintenance mode."
   assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 13)"
@@ -369,13 +369,13 @@ assert_drupal_install_site_info(){
   assert_drupal_install_site_info 0 1 0 1 0 1 0
 
   assert_output_contains "Creating private files directory."
-  assert_output_contains "Successfully created private files directory."
+  assert_output_contains "Created private files directory."
 
   assert_output_contains "Installing site from the database dump file."
   assert_output_contains "Dump file: ${LOCAL_REPO_DIR}/.data/db.sql"
   assert_output_contains "Existing site was found."
   assert_output_contains "Existing site content will be removed and new content will be imported from the database dump file."
-  assert_output_contains "Successfully imported database from the dump file."
+  assert_output_contains "Imported database from the dump file."
 
   assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
   assert_equal "-y -q sqlc" "$(mock_get_call_args "${mock_drush}" 5)"
@@ -409,7 +409,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Current Drupal environment: ci"
   assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
 
-  assert_output_not_contains "Running post config import updates via Drush deploy."
+  assert_output_not_contains "Running updates after configuration import via Drush deploy."
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "Sanitizing database."
@@ -430,7 +430,7 @@ assert_drupal_install_site_info(){
   assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 17)"
   assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 18)"
   assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh ran successfully."
+  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
 
   assert_output_contains "Disabling maintenance mode."
   assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 19)"
@@ -509,13 +509,13 @@ assert_drupal_install_site_info(){
   assert_drupal_install_site_info 1 0 0 1 0 0 0
 
   assert_output_contains "Creating private files directory."
-  assert_output_contains "Successfully created private files directory."
+  assert_output_contains "Created private files directory."
 
   assert_output_contains "Installing site from the profile."
   assert_output_contains "Profile: standard."
   assert_output_contains "Existing site was not found."
   assert_output_contains "The site content will be created from the profile."
-  assert_output_contains "Successfully installed a site from the profile."
+  assert_output_contains "Installed a site from the profile."
 
   assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
   assert_equal "si -q -y standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL" "$(mock_get_call_args "${mock_drush}" 5)"
@@ -531,7 +531,7 @@ assert_drupal_install_site_info(){
   assert_output_not_contains "Installing site from the database dump file."
   assert_output_not_contains "Existing site content will be removed and new content will be created from the profile."
   assert_output_not_contains "The site content will be imported from the database dump file."
-  assert_output_not_contains "Successfully imported database from the dump file."
+  assert_output_not_contains "Imported database from the dump file."
 
   assert_output_not_contains "Skipped running of post-install operations."
 
@@ -554,7 +554,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Current Drupal environment: ci"
   assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
 
-  assert_output_not_contains "Running post config import updates via Drush deploy."
+  assert_output_not_contains "Running updates after configuration import via Drush deploy."
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "Sanitizing database."
@@ -575,7 +575,7 @@ assert_drupal_install_site_info(){
   assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 17)"
   assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 18)"
   assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh ran successfully."
+  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
 
   assert_output_contains "Disabling maintenance mode."
   assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 19)"
@@ -645,7 +645,7 @@ assert_drupal_install_site_info(){
   assert_drupal_install_site_info 1 0 0 1 0 1 0
 
   assert_output_contains "Creating private files directory."
-  assert_output_contains "Successfully created private files directory."
+  assert_output_contains "Created private files directory."
 
   assert_output_contains "Installing site from the profile."
   assert_output_contains "Profile: standard."
@@ -653,11 +653,11 @@ assert_drupal_install_site_info(){
   assert_output_contains "Site content will be preserved."
   assert_output_contains "Sanitization will be skipped for an existing database."
 
-  assert_output_not_contains "Successfully installed a site from the profile."
+  assert_output_not_contains "Installed a site from the profile."
   assert_output_not_contains "Existing site content will be removed and new content will be imported from the database dump file."
   assert_output_not_contains "Existing site was not found."
   assert_output_not_contains "The site content will be imported from the database dump file."
-  assert_output_not_contains "Successfully imported database from the dump file."
+  assert_output_not_contains "Imported database from the dump file."
   assert_output_not_contains "Existing site content will be removed and new content will be created from the profile."
   assert_output_not_contains "The site content will be created from the profile."
   assert_output_not_contains "Installing site from the database dump file."
@@ -682,7 +682,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Current Drupal environment: ci"
   assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 7)"
 
-  assert_output_not_contains "Running post config import updates via Drush deploy."
+  assert_output_not_contains "Running updates after configuration import via Drush deploy."
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 8)"
 
   # Sanitization is skipped for the existing database.
@@ -700,7 +700,7 @@ assert_drupal_install_site_info(){
   assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh ran successfully."
+  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
 
   assert_output_contains "Disabling maintenance mode."
   assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 13)"
@@ -780,13 +780,13 @@ assert_drupal_install_site_info(){
   assert_drupal_install_site_info 1 1 0 1 0 1 0
 
   assert_output_contains "Creating private files directory."
-  assert_output_contains "Successfully created private files directory."
+  assert_output_contains "Created private files directory."
 
   assert_output_contains "Installing site from the profile."
   assert_output_contains "Profile: standard."
   assert_output_contains "Existing site was found."
   assert_output_contains "Existing site content will be removed and new content will be created from the profile."
-  assert_output_contains "Successfully installed a site from the profile."
+  assert_output_contains "Installed a site from the profile."
 
   assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
   assert_equal "si -q -y standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL" "$(mock_get_call_args "${mock_drush}" 5)"
@@ -796,7 +796,7 @@ assert_drupal_install_site_info(){
   assert_output_not_contains "Existing site content will be removed and new content will be imported from the database dump file."
   assert_output_not_contains "Existing site was not found."
   assert_output_not_contains "The site content will be imported from the database dump file."
-  assert_output_not_contains "Successfully imported database from the dump file."
+  assert_output_not_contains "Imported database from the dump file."
   assert_output_not_contains "The site content will be created from the profile."
   assert_output_not_contains "Installing site from the database dump file."
   assert_output_not_contains "Skipped running of post-install operations."
@@ -820,7 +820,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Current Drupal environment: ci"
   assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
 
-  assert_output_not_contains "Running post config import updates via Drush deploy."
+  assert_output_not_contains "Running updates after configuration import via Drush deploy."
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "Sanitizing database."
@@ -841,7 +841,7 @@ assert_drupal_install_site_info(){
   assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 17)"
   assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 18)"
   assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh ran successfully."
+  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
 
   assert_output_contains "Disabling maintenance mode."
   assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 19)"

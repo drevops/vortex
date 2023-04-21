@@ -91,8 +91,8 @@ load _helper_deployment.bash
 
   # Assert that no other deployments ran.
   assert_output_not_contains "Started WEBHOOK deployment."
-  assert_output_not_contains "Successfully called webhook."
-  assert_output_not_contains "[FAIL] Webhook deployment failed."
+  assert_output_not_contains "Webhook call completed."
+  assert_output_not_contains "[FAIL] Unable to complete webhook deployment."
   assert_output_not_contains "Finished WEBHOOK deployment."
 
   assert_output_not_contains "Started DOCKER deployment."
@@ -204,8 +204,8 @@ load _helper_deployment.bash
   assert_output_not_contains "Finished ARTIFACT deployment."
 
   assert_output_not_contains "Started WEBHOOK deployment."
-  assert_output_not_contains "Successfully called webhook."
-  assert_output_not_contains "[FAIL] Webhook deployment failed."
+  assert_output_not_contains "Webhook call completed."
+  assert_output_not_contains "[FAIL] Unable to complete webhook deployment."
   assert_output_not_contains "Finished WEBHOOK deployment."
 
   assert_output_not_contains "Started DOCKER deployment."
@@ -339,8 +339,8 @@ load _helper_deployment.bash
   assert_output_not_contains "Finished ARTIFACT deployment."
 
   assert_output_not_contains "Started WEBHOOK deployment."
-  assert_output_not_contains "Successfully called webhook."
-  assert_output_not_contains "[FAIL] Webhook deployment failed."
+  assert_output_not_contains "Webhook call completed."
+  assert_output_not_contains "[FAIL] Unable to complete webhook deployment."
   assert_output_not_contains "Finished WEBHOOK deployment."
 
   assert_output_not_contains "Started DOCKER deployment."

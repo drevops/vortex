@@ -26,7 +26,8 @@ commands:
     usage: Build or rebuild the project.
     cmd: |
       ahoy confirm "Running this command will remove your current database and files. Are you sure?" &&
-      ./scripts/drevops/build.sh
+      ./scripts/drevops/build.sh &&
+      ahoy info
 
   info:
     usage: Show information about this project.
@@ -34,6 +35,7 @@ commands:
       COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}} \
       DREVOPS_HOST_DB_PORT=$(docker compose port mariadb 3306 2>/dev/null | cut -d : -f 2) \
       DREVOPS_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) \
+      DREVOPS_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true) \
       DREVOPS_DRUPAL_SHOW_LOGIN_LINK=${DREVOPS_DRUPAL_SHOW_LOGIN_LINK} \
       ahoy cli ./scripts/drevops/info.sh "$@"
 
@@ -245,11 +247,11 @@ commands:
   # ----------------------------------------------------------------------------
   confirm:
     cmd: |
-      if [ -z "$DREVOPS_AHOY_CONFIRM_RESPONSE" ]; then
-        read -r -p "> $1 [y/N] " DREVOPS_AHOY_CONFIRM_RESPONSE
-        [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$DREVOPS_AHOY_CONFIRM_RESPONSE" = true ] || ( echo "The operation was canceled." && exit 1 )
+      if [ -z "$AHOY_CONFIRM_RESPONSE" ]; then
+        read -r -p ">> $1 [y/N] " AHOY_CONFIRM_RESPONSE
+        [ "$AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$AHOY_CONFIRM_RESPONSE" = true ] || ( echo "The operation was canceled." && exit 1 )
       else
-        echo "> $1 [y/N] $DREVOPS_AHOY_CONFIRM_RESPONSE"
+        echo ">> $1 [y/N] $AHOY_CONFIRM_RESPONSE"
       fi
     hide: true
 

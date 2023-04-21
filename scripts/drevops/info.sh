@@ -26,6 +26,10 @@ pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
+[ -n "${DREVOPS_HOST_HAS_SEQUELACE}" ] && sequelace="('ahoy db' to start SequelAce)" || sequelace=""
+
+info "Project information"
+
 echo
 note "Project name                : ${DREVOPS_PROJECT}"
 note "Docker Compose project name : ${COMPOSE_PROJECT_NAME:-}"
@@ -36,7 +40,7 @@ note "DB host                     : ${DREVOPS_MARIADB_HOST}"
 note "DB username                 : ${DREVOPS_MARIADB_USER}"
 note "DB password                 : ${DREVOPS_MARIADB_PASSWORD}"
 note "DB port                     : ${DREVOPS_MARIADB_PORT}"
-note "DB port on host             : ${DREVOPS_HOST_DB_PORT} ('ahoy db' to start SequelAce)"
+note "DB port on host             : ${DREVOPS_HOST_DB_PORT} ${sequelace}"
 if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
   note "DB-in-docker image          : ${DREVOPS_DB_DOCKER_IMAGE}"
 fi
@@ -48,5 +52,8 @@ note "Xdebug                      : $(php -v | grep -q Xdebug && echo "Enabled (
 if [ "${DREVOPS_DRUPAL_SHOW_LOGIN_LINK}" = "1" ] || [ -n "${1}" ]; then
   echo -n "       Site login link             : "
   ./scripts/drevops/drupal-login.sh
+else
+  echo
+  note "Use 'ahoy login' to generate Drupal login link." || true
 fi
 echo

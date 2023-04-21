@@ -40,12 +40,7 @@ pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-info "Building project."
-note "Adjust build verbosity by setting variable to '1':"
-note "- DREVOPS_DEBUG             Verbose DrevOps scripts."
-note "- DREVOPS_DOCKER_VERBOSE    Verbose Docker build."
-note "- DREVOPS_COMPOSER_VERBOSE  Verbose Composer install."
-note "- DREVOPS_NPM_VERBOSE       Verbose NPM install."
+info "Started building project ${DREVOPS_PROJECT}."
 echo
 
 [ "${DREVOPS_DOCKER_VERBOSE}" = "1" ] && docker_verbose_output="/dev/stdout" || docker_verbose_output="/dev/null"
@@ -60,7 +55,7 @@ dcopts=(-T) && while IFS='' read -r line; do dcopts+=("$line"); done < <(env | c
 DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 ./scripts/drevops/doctor.sh
 
 info "Validating Docker Compose configuration."
-docker compose config -q && pass "Docker Compose configuration is valid." || { fail "Failed to validate Docker Compose configuration." && exit 1; }
+docker compose config -q && pass "Docker Compose configuration is valid." || { fail "Docker Compose configuration is invalid." && exit 1; }
 echo
 
 # Validate Composer configuration if Composer is installed.
@@ -179,32 +174,8 @@ fi
 docker compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/drupal-install-site.sh"
 echo
 
-# Special handling of downloaded DB dump file in CI.
-# We need to force importing of the database dump from the file into the
-# database image with existing site, but only for the first time this file
-# is downloaded (we do not want to import it in another stages where cached
-# database image should be used instead of dump file). So we are removing the
-# database dump file after import so that it is not imported again on the next
-# run. But this only should be applied in CI and only if we are using database
-# in image storage.
-# This also prevent us from caching both dump file and an exported image,
-# which would double the size of the CI cache.
-if [ -n "${CI}" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ] && [ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ]; then
-  info "Removing DB dump file in CI."
-  rm "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" || true
-  pass "Removed DB dump file in CI."
-  echo
-fi
-
 # Check that the site is available.
 ./scripts/drevops/doctor.sh
 
-info "Build complete ($((SECONDS / 60))m $((SECONDS % 60))s)."
-
-# Show project information and a one-time login link.
-dcopts+=(-e COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-${PWD##*/}}")
-dcopts+=(-e DREVOPS_HOST_DB_PORT="$(docker compose port mariadb 3306 2>/dev/null | cut -d : -f 2)")
-dcopts+=(-e DREVOPS_DB_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE}")
-dcopts+=(-e DREVOPS_HOST_SOLR_PORT="$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)")
-dcopts+=(-e DREVOPS_DRUPAL_SHOW_LOGIN_LINK=1)
-docker compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/info.sh"
+echo
+info "Finished building project ${DREVOPS_PROJECT} ($((SECONDS / 60))m $((SECONDS % 60))s)."
