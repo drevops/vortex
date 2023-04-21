@@ -74,12 +74,47 @@ class DrupalSettingsTest extends TestCase {
     $this->setEnvVars([
       'DREVOPS_CLAMAV_ENABLED' => FALSE,
     ]);
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
     $default_settings = $this->getGenericSettings();
     $this->assertEquals($default_config, $this->config, 'Config');
     $this->assertEquals($default_settings, $this->settings, 'Settings');
+  }
+
+  /**
+   * Test Shield config.
+   */
+  public function testShield() {
+    $this->setEnvVars([
+      'DRUPAL_SHIELD_USER' => 'test_shield_user',
+      'DRUPAL_SHIELD_PASS' => 'test_shield_pass',
+    ]);
+
+    $this->requireSettingsFile();
+
+    $default_config = $this->getGenericConfig();
+    $default_config['shield.settings']['credentials']['shield']['user'] = 'test_shield_user';
+    $default_config['shield.settings']['credentials']['shield']['pass'] = 'test_shield_pass';
+    $default_config['stage_file_proxy.settings']['origin'] = 'https://test_shield_user:test_shield_pass@your-site-url.example/';
+
+    $this->assertEquals($default_config, $this->config, 'Config');
+  }
+
+  /**
+   * Test Shield partial config.
+   */
+  public function testShieldPartial() {
+    $this->setEnvVars([
+      'DRUPAL_SHIELD_USER' => 'test_shield_user',
+      'DRUPAL_SHIELD_PASS' => '',
+    ]);
+
+    $this->requireSettingsFile();
+
+    $default_config = $this->getGenericConfig();
+
+    $this->assertEquals($default_config, $this->config, 'Config');
   }
 
   // phpcs:ignore #;< CLAMAV
@@ -91,7 +126,7 @@ class DrupalSettingsTest extends TestCase {
       'DREVOPS_CLAMAV_ENABLED' => TRUE,
       'CLAMAV_MODE' => 'daemon',
     ]);
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
 
@@ -112,7 +147,7 @@ class DrupalSettingsTest extends TestCase {
       'CLAMAV_HOST' => 'custom_clamav_host',
       'CLAMAV_PORT' => 3333,
     ]);
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
 
@@ -132,7 +167,7 @@ class DrupalSettingsTest extends TestCase {
       'CLAMAV_HOST' => 'custom_clamav_host',
       'CLAMAV_PORT' => 3333,
     ]);
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
 
@@ -152,7 +187,7 @@ class DrupalSettingsTest extends TestCase {
       'REDIS_HOST' => 'redis_host',
       'REDIS_SERVICE_PORT' => 1234,
     ]);
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_settings = $this->getGenericSettings();
 
@@ -176,7 +211,7 @@ class DrupalSettingsTest extends TestCase {
       'AH_SITE_ENVIRONMENT' => TRUE,
     ]);
 
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
     $default_settings = $this->getGenericSettings();
@@ -199,7 +234,7 @@ class DrupalSettingsTest extends TestCase {
       'LAGOON_GIT_SAFE_BRANCH' => 'test_branch',
     ]);
 
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
     $default_settings = $this->getGenericSettings();
@@ -221,7 +256,7 @@ class DrupalSettingsTest extends TestCase {
   public function testEnvironmentLocal() {
     $this->setEnvVars([]);
 
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
     $default_settings = $this->getGenericSettings();
@@ -237,7 +272,7 @@ class DrupalSettingsTest extends TestCase {
       'CI' => TRUE,
     ]);
 
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
     $default_settings = $this->getGenericSettings();
@@ -265,7 +300,7 @@ class DrupalSettingsTest extends TestCase {
       'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_DEV,
     ]);
 
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
     $default_settings = $this->getGenericSettings();
@@ -276,8 +311,6 @@ class DrupalSettingsTest extends TestCase {
     $default_config['config_split.config_split.dev']['status'] = TRUE;
     unset($default_config['config_split.config_split.local']);
     unset($default_config['system.logging']);
-    $default_config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
-    $default_config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
     $default_config['shield.settings']['shield_enable'] = TRUE;
 
     unset($default_settings['skip_permissions_hardening']);
@@ -297,7 +330,7 @@ class DrupalSettingsTest extends TestCase {
       'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_TEST,
     ]);
 
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
     $default_settings = $this->getGenericSettings();
@@ -308,8 +341,6 @@ class DrupalSettingsTest extends TestCase {
     $default_config['config_split.config_split.test']['status'] = TRUE;
     unset($default_config['config_split.config_split.local']);
     unset($default_config['system.logging']);
-    $default_config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
-    $default_config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
     $default_config['shield.settings']['shield_enable'] = TRUE;
 
     unset($default_settings['skip_permissions_hardening']);
@@ -328,7 +359,7 @@ class DrupalSettingsTest extends TestCase {
       'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_PROD,
     ]);
 
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $default_config = $this->getGenericConfig();
     $default_settings = $this->getGenericSettings();
@@ -339,8 +370,6 @@ class DrupalSettingsTest extends TestCase {
     unset($default_config['config_split.config_split.local']);
     unset($default_config['system.logging']);
     unset($default_config['stage_file_proxy.settings']);
-    $default_config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
-    $default_config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
     unset($default_config['shield.settings']['shield_enable']);
 
     unset($default_settings['skip_permissions_hardening']);
@@ -358,7 +387,7 @@ class DrupalSettingsTest extends TestCase {
   public function testEnvironment($vars, $expected_env) {
     $this->setEnvVars($vars);
 
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $this->assertEquals($expected_env, $this->settings['environment']);
   }
@@ -367,7 +396,7 @@ class DrupalSettingsTest extends TestCase {
    * Data provider for testing of the resulting environment.
    */
   public function dataProviderEnvironment() {
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     return [
       [[], ENVIRONMENT_LOCAL],
@@ -563,7 +592,7 @@ class DrupalSettingsTest extends TestCase {
   public function testDatabases($vars, $expected) {
     $this->setEnvVars($vars);
 
-    $this->requireSettings();
+    $this->requireSettingsFile();
 
     $this->assertEquals($expected, $this->databases);
   }
@@ -680,8 +709,6 @@ class DrupalSettingsTest extends TestCase {
       $vars['LAGOON'] = FALSE;
     }
     $vars['TMP'] = '/tmp-test';
-    $vars['DRUPAL_SHIELD_USER'] = 'CHANGE_ME';
-    $vars['DRUPAL_SHIELD_PASS'] = 'CHANGE_ME';
 
     $this->envVars = $vars + $this->envVars;
 
@@ -702,7 +729,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Require settings file.
    */
-  protected function requireSettings(): void {
+  protected function requireSettingsFile(): void {
     $app_root = './web';
     $site_path = 'sites/default';
     $config = [];
@@ -734,10 +761,8 @@ class DrupalSettingsTest extends TestCase {
     $config['system.performance']['js']['preprocess'] = 1;
     $config['system.logging']['error_level'] = 'all';
     $config['shield.settings']['print'] = 'YOURSITE';
-    $config['shield.settings']['credentials']['shield']['user'] = 'CHANGE_ME';
-    $config['shield.settings']['credentials']['shield']['pass'] = 'CHANGE_ME';
     $config['shield.settings']['shield_enable'] = FALSE;
-    $config['stage_file_proxy.settings']['origin'] = 'https://CHANGE_ME:CHANGE_ME@your-site-url.example/';
+    $config['stage_file_proxy.settings']['origin'] = 'https://your-site-url.example/';
     $config['stage_file_proxy.settings']['hotlink'] = FALSE;
     $config['environment_indicator.indicator']['name'] = ENVIRONMENT_LOCAL;
     $config['environment_indicator.indicator']['bg_color'] = '#006600';
@@ -762,7 +787,7 @@ class DrupalSettingsTest extends TestCase {
 
     $settings['environment'] = ENVIRONMENT_LOCAL;
     $settings['config_sync_directory'] = '../config/default';
-    $settings['hash_salt'] = hash('sha256', 'CHANGE_ME');
+    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: (getenv('DREVOPS_MARIADB_HOST') ?: 'localhost'));
     $settings['file_temp_path'] = '/tmp-test';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_scan_ignore_directories'] = [
