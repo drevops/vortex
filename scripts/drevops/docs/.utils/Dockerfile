@@ -5,7 +5,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-RUN pip install mdx_include mkdocs-same-dir mkdocs-replace-markdown
+RUN pip install mdx_include mkdocs-same-dir mkdocs-replace-markdown mike
 
 WORKDIR /app
 
