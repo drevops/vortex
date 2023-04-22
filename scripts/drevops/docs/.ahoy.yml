@@ -17,8 +17,7 @@ commands:
 
   publish:
     usage: Deploy site
-    # Make sure that your SSH config and keys have correct permissions or this will fail.
-    cmd: docker compose exec mkdocs mkdocs build
+    cmd: docker compose exec mkdocs sh -c "/app/.utils/release.sh $@"
 
   update:
     usage: Update docs
@@ -51,6 +50,10 @@ commands:
   stop:
     usage: Stop running Docker containers.
     cmd: docker compose stop "$@"
+
+  cli:
+    usage: Start a shell or run a command inside the CLI service container.
+    cmd: if \[ "${#}" -ne 0 \]; then docker compose exec -T mkdocs sh -c "$*"; else docker compose exec mkdocs sh; fi
 
   line:
     cmd: printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"

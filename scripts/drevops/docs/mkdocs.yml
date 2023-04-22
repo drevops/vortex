@@ -85,6 +85,9 @@ plugins:
         - rel_to_abs: # Pattern name, can be anything
             oldvalue: "../../../../"
             newvalue: "https://github.com/drevops/drevops/tree/main/"
+  - mike:
+      version_selector: true
+
 ## Customization
 extra:
   social:
@@ -100,6 +103,8 @@ extra:
       as to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
       make our documentation better.
+  version:
+    provider: mike
 
 # Extensions
 markdown_extensions:
@@ -150,3 +155,4 @@ nav:
   - Maintenance:
     - Authoring scripts: maintenance/authoring-scripts.md
     - Updating test assets: maintenance/updating-test-assets.md
+    - Updating documentation: maintenance/updating-documentation.md
