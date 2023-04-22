@@ -796,6 +796,8 @@ assert_ahoy_clean() {
   touch untracked_file.txt
 
   create_development_settings "${webroot}"
+  mkdir -p "tests/behat/screenshots"
+  assert_dir_exists "tests/behat/screenshots"
 
   ahoy clean
   # Assert that initial DrevOps files have not been removed.
@@ -831,6 +833,9 @@ assert_ahoy_reset() {
   step "Reset"
 
   create_development_settings "${webroot}"
+
+  mkdir -p "tests/behat/screenshots"
+  assert_dir_exists "tests/behat/screenshots"
 
   ahoy reset
 
