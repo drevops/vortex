@@ -116,6 +116,12 @@ process_docker_compose_json() {
       ksort($array);
     }
     ksort_multi($data);
+
+    # Remove YAML anchors starting with "x-".
+    $data = array_filter($data, function($key) {
+      return strpos($key, "x-") !== 0;
+    }, ARRAY_FILTER_USE_KEY);
+
     $data = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
     print $data;
