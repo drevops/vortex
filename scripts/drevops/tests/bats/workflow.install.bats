@@ -71,15 +71,9 @@ load _helper_workflow.bash
 
   assert_env_changes
 
-  assert_ahoy_composer
-
   assert_ahoy_drush
 
   assert_ahoy_info "rootdoc"
-
-  assert_ahoy_docker_logs
-
-  assert_ahoy_login
 
   assert_ahoy_export_db
 
@@ -96,8 +90,6 @@ load _helper_workflow.bash
   assert_ahoy_fei "rootdoc"
 
   assert_ahoy_fe "rootdoc"
-
-  assert_ahoy_debug
 
   assert_ahoy_clean "rootdoc"
 
@@ -118,20 +110,6 @@ load _helper_workflow.bash
   assert_ahoy_build
   assert_gitignore
 
-  assert_ahoy_cli
-
-  assert_ahoy_composer
-
-  assert_ahoy_drush
-
-  assert_ahoy_info
-
-  assert_ahoy_docker_logs
-
-  assert_ahoy_login
-
-  assert_ahoy_export_db
-
   assert_ahoy_lint
 
   assert_ahoy_test_unit
@@ -143,10 +121,4 @@ load _helper_workflow.bash
   assert_ahoy_test_bdd
 
   assert_ahoy_fe
-
-  assert_ahoy_debug
-
-  assert_ahoy_clean
-
-  assert_ahoy_reset
 }

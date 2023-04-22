@@ -27,18 +27,27 @@ case ${index} in
 
   0)
     $bats "${TEST_DIR}"/bats/workflow.smoke.bats
-    $bats "${TEST_DIR}"/bats/workflow.install.bats
+    $bats "${TEST_DIR}"/bats/workflow.storage.curl.bats
     ;;
 
   1)
-    $bats "${TEST_DIR}"/bats/workflow.storage.bats
+    $bats "${TEST_DIR}"/bats/workflow.install.bats
     $bats "${TEST_DIR}"/bats/workflow.utilities.bats
+    ;;
+
+  2)
+    # Disabled due to intermittent failures.
+    # @see https://github.com/drevops/drevops/issues/893
+    # $bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
+    $bats "${TEST_DIR}"/bats/workflow.storage.image.bats
     ;;
 
   *)
     $bats "${TEST_DIR}"/bats/workflow.smoke.bats
     $bats "${TEST_DIR}"/bats/workflow.install.bats
-    $bats "${TEST_DIR}"/bats/workflow.storage.bats
+    $bats "${TEST_DIR}"/bats/workflow.storage.image.bats
+    $bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
+    $bats "${TEST_DIR}"/bats/workflow.storage.curl.bats
     $bats "${TEST_DIR}"/bats/workflow.utilities.bats
     ;;
 esac
