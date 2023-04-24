@@ -639,11 +639,11 @@ jobs:
           command: |
             cd /tmp/installer
             git init
-            git checkout -b master
+            git checkout -b main
             git add -A
             git commit -m "Automatically pushed from drevops/drevops"
             git remote add origin git@github.com:drevops/installer.git
-            git push origin master --force
+            git push origin main --force
   #=============================================================================
   #;> DREVOPS_DEV
 
