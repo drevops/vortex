@@ -55,6 +55,8 @@ load _helper_workflow.bash
 
   assert_ahoy_build
 
+  assert_ahoy_test_bdd_fast
+
   # We need to test 2 cases:
   # 1. Site is built from DB file, site reloaded from image, while DB file exists.
   #    This will result in the site install from the file again.

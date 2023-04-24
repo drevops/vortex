@@ -85,7 +85,7 @@ load _helper_workflow.bash
 
   assert_ahoy_test_functional "rootdoc"
 
-  assert_ahoy_test_bdd
+  assert_ahoy_test_bdd_fast
 
   assert_ahoy_fei "rootdoc"
 
@@ -118,7 +118,7 @@ load _helper_workflow.bash
 
   assert_ahoy_test_functional
 
-  assert_ahoy_test_bdd
+  assert_ahoy_test_bdd_fast
 
   assert_ahoy_fe
 }

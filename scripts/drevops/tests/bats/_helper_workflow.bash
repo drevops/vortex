@@ -499,6 +499,19 @@ assert_ahoy_test_functional() {
   restore_file .env && ahoy up cli && sync_to_container
 }
 
+assert_ahoy_test_bdd_fast() {
+  step "Run BDD tests - fast"
+
+  substep "Run all BDD tests"
+  run ahoy test-bdd
+  assert_success
+  assert_output_contains "Behat tests passed"
+  sync_to_host
+  assert_dir_not_empty tests/behat/screenshots
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
+}
+
 assert_ahoy_test_bdd() {
   step "Run BDD tests"
 
@@ -522,10 +535,8 @@ assert_ahoy_test_bdd() {
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty tests/behat/screenshots
-  # Test tagged with p0 are non-browser tests, so there should not be any
-  # image screenshots.
   assert_file_exists "tests/behat/screenshots/*html"
-  assert_file_not_exists "tests/behat/screenshots/*png"
+  assert_file_exists "tests/behat/screenshots/*png"
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
@@ -542,10 +553,8 @@ assert_ahoy_test_bdd() {
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty tests/behat/screenshots
-  # Test tagged with p0 are non-browser tests, so there should not be any
-  # image screenshots.
   assert_file_exists "tests/behat/screenshots/*html"
-  assert_file_not_exists "tests/behat/screenshots/*png"
+  assert_file_exists "tests/behat/screenshots/*png"
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
@@ -563,10 +572,8 @@ assert_ahoy_test_bdd() {
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty tests/behat/screenshots
-  # Test tagged with p0 are non-browser tests, so there should not be any
-  # image screenshots.
   assert_file_exists "tests/behat/screenshots/*html"
-  assert_file_not_exists "tests/behat/screenshots/*png"
+  assert_file_exists "tests/behat/screenshots/*png"
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
