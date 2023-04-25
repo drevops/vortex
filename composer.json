@@ -7,7 +7,7 @@
         "composer/installers": "^2.1",
         "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^3.1",
-        "drupal/clamav": "^2.0",
+        "drupal/clamav": "^2.0.2@rc",
         "drupal/coffee": "^1.2",
         "drupal/config_ignore": "^2.4",
         "drupal/config_split": "^2@rc",
@@ -164,11 +164,6 @@
             "web/sites/default/files",
             "web/robots.txt",
             "web/.htaccess"
-        ],
-        "patches": {
-            "drupal/clamav": {
-                "D10: Call to undefined method Drupal\\Core\\Extension\\ModuleHandler::getImplementations()": "https://www.drupal.org/files/issues/2022-11-30/3324573-9.patch"
-            }
-        }
+        ]
     }
 }
