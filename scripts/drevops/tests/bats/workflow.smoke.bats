@@ -23,13 +23,13 @@ load _helper_workflow.bash
   assert_ahoy_build
   assert_gitignore
   assert_ahoy_test_bdd_fast
-#
-#  # Running build several times should result in the same project build results.
-#  step "Re-build project"
-#  assert_ahoy_build
-#  # Skip committing of the files.
-#  assert_gitignore 1
-#  assert_ahoy_test_bdd_fast
+
+  # Running build several times should result in the same project build results.
+  step "Re-build project"
+  assert_ahoy_build
+  # Skip committing of the files.
+  assert_gitignore 1
+  assert_ahoy_test_bdd_fast
 }
 #
 #@test "GitHub token" {
