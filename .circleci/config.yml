@@ -213,7 +213,7 @@ jobs:
             echo "$(date $DREVOPS_CI_DB_CACHE_TIMESTAMP)" | tee /tmp/db_cache_timestamp
             echo "yes" | tee /tmp/db_cache_fallback_yes
             echo
-            echo 'v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
+            echo 'v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
 
       - restore_cache:
           keys:
@@ -226,11 +226,11 @@ jobs:
             # Lookup cache based on the default branch and a timestamp. Allows
             # to use cache from the very first build on the day (sanitized
             # database dump, for example).
-            - v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             #
             # Fallback to caching by default branch name only. Allows to use
             # cache from the branch build on the previous day.
-            - v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
       - run:
           name: Download DB
           command: DREVOPS_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db ./scripts/drevops/download-db.sh
@@ -259,7 +259,7 @@ jobs:
           # The cache will not be saved if it already exists.
           # Note that the cache fallback flag is enabled for this case in order
           # to save cache even if the fallback is not used when restoring it.
-          key: v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          key: v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
           paths:
             - *db_cache_dir
 
@@ -299,8 +299,8 @@ jobs:
           keys:
             # Use cached artifacts from previous builds of this branch.
             # @see https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-            - v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !INSTALL_FROM_PROFILE
       - run:
           name: Build site
