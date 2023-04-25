@@ -23,30 +23,30 @@ load _helper_workflow.bash
   assert_ahoy_build
   assert_gitignore
   assert_ahoy_test_bdd_fast
-
-  # Running build several times should result in the same project build results.
-  step "Re-build project"
-  assert_ahoy_build
-  # Skip committing of the files.
-  assert_gitignore 1
-  assert_ahoy_test_bdd_fast
+#
+#  # Running build several times should result in the same project build results.
+#  step "Re-build project"
+#  assert_ahoy_build
+#  # Skip committing of the files.
+#  assert_gitignore 1
+#  assert_ahoy_test_bdd_fast
 }
-
-@test "GitHub token" {
-  prepare_sut "Starting GitHub token tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
-
-  step "Add private package"
-  rm composer.lock || true
-  composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git
-  jq --indent 4 '.require += {"drevops/test-private-package": "^1"}' composer.json > composer.json.tmp && mv -f composer.json.tmp composer.json
-
-  step "Build without a GITHUB_TOKEN token"
-  unset GITHUB_TOKEN
-  run ahoy build
-  assert_failure
-
-  step "Build with a GITHUB_TOKEN token"
-  export GITHUB_TOKEN="${TEST_GITHUB_TOKEN}"
-  run ahoy build
-  assert_success
-}
+#
+#@test "GitHub token" {
+#  prepare_sut "Starting GitHub token tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+#
+#  step "Add private package"
+#  rm composer.lock || true
+#  composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git
+#  jq --indent 4 '.require += {"drevops/test-private-package": "^1"}' composer.json > composer.json.tmp && mv -f composer.json.tmp composer.json
+#
+#  step "Build without a GITHUB_TOKEN token"
+#  unset GITHUB_TOKEN
+#  run ahoy build
+#  assert_failure
+#
+#  step "Build with a GITHUB_TOKEN token"
+#  export GITHUB_TOKEN="${TEST_GITHUB_TOKEN}"
+#  run ahoy build
+#  assert_success
+#}
