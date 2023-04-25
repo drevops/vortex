@@ -498,7 +498,7 @@ jobs:
       # Note that here and below we are using "destination" demo image - this
       # is to allow updating of this image from CI tests without jeopardizing
       # main demo image.
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
+      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
       # Use a separate tag to make sure that pushed image does not affect
       # other tests (pushing broken image as 'latest' would fail other tests).
       DREVOPS_DOCKER_IMAGE_TAG: drevops_dev_didi_database_fi
@@ -515,7 +515,7 @@ jobs:
     environment:
       DREVOPS_DB_DOWNLOAD_SOURCE: docker_registry
       DREVOPS_DB_DOWNLOAD_FORCE: 1
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
+      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
       DREVOPS_DOCKER_IMAGE_TAG: drevops_dev_database_ii
       # Also, use this job to test pushing of the DB image to the Docker
       # registry so mimic what database_nightly job would do.
@@ -530,14 +530,14 @@ jobs:
   drevops_dev_didi_build_fi:
     <<: *job_build
     environment:
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x:drevops_dev_didi_database_fi
+      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_didi_database_fi
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: drevops_dev_didi_fi
   drevops_dev_didi_build_ii:
     <<: *job_build
     environment:
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x:drevops_dev_database_ii
+      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_database_ii
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: drevops_dev_didi_ii
