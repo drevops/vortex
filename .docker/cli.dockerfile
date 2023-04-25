@@ -84,4 +84,9 @@ COPY . /app
 WORKDIR /app/${WEBROOT}/themes/custom/your_site_theme
 RUN npm run build
 
+RUN mkdir -p /app/web/sites/default/files && \
+    chmod 0775 /app/web/sites/default/files && \
+    mkdir -p /app/web/sites/default/files/private && \
+    chmod 0775 /app/web/sites/default/files/private
+
 WORKDIR /app
