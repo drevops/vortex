@@ -561,8 +561,15 @@ jobs:
             sed -i -e "/###/d" docker-compose.yml
             ahoy build
             ahoy test
-            if [ -n "${CIRCLE_TAG:-}" ]; then export version="${CIRCLE_TAG:-}"; elif [ -n "${CIRCLE_BRANCH}" ] && [ "${CIRCLE_BRANCH:-}" != "main" ]; then export version="${CIRCLE_BRANCH/\//-}"; fi
-            ahoy publish "${version:-}"
+            if [ -n "${CIRCLE_TAG}" ]; then
+              export version="${CIRCLE_TAG}"
+              export version_is_stable=1
+            elif [ -n "${CIRCLE_BRANCH}" ]; then
+              if [ "${CIRCLE_BRANCH}" != "main" ]; then
+                export version="${CIRCLE_BRANCH/\//-}"
+              fi
+            fi
+            ahoy publish https://github.com/drevops/drevops_docs.git "${version}" "${version_is_stable:-}"
             mkdir -p /tmp/docs
             docker compose cp mkdocs:"/app/site/." "/tmp/docs"
       - run:
@@ -586,11 +593,11 @@ jobs:
           command: |
             cd /tmp/docs
             git init
-            git checkout -b master
+            git checkout -b main
             git add -A
             git commit -m "Automatically pushed from drevops/drevops"
             git remote add origin git@github.com:drevops/docs.git
-            git push origin master --force
+            git push origin main --force
 
   #-----------------------------------------------------------------------------
   # Publish installer to install.drevops.com
@@ -632,11 +639,11 @@ jobs:
           command: |
             cd /tmp/installer
             git init
-            git checkout -b master
+            git checkout -b main
             git add -A
             git commit -m "Automatically pushed from drevops/drevops"
             git remote add origin git@github.com:drevops/installer.git
-            git push origin master --force
+            git push origin main --force
   #=============================================================================
   #;> DREVOPS_DEV
 
