@@ -221,7 +221,7 @@ load _helper.bash
 @test "Install into empty directory; db from curl; storage is Docker image" {
   export DREVOPS_DB_DOWNLOAD_SOURCE=curl
 
-  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-demo-10.x
+  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-demo-10.x"
 
   run_install_quiet
 
@@ -232,7 +232,7 @@ load _helper.bash
 
 @test "Install into empty directory; db from Docker image; storage is Docker image" {
   export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
-  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-demo-10.x
+  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-demo-10.x"
 
   run_install_quiet
 

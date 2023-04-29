@@ -23,7 +23,7 @@ load _helper_workflow.bash
   export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
 
   # Use a test image. Image always must use a tag.
-  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-10.x:latest
+  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
 
   # Do not use demo database - testing demo database discovery is another test.
   export DREVOPS_INSTALL_DEMO_SKIP=1

@@ -27,7 +27,7 @@ load _helper_workflow.bash
   # @todo: build.sh may need to have a support to create a local image if
   # it does not exist.
   # Use a test image. Image always must use a tag.
-  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-10.x:latest
+  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
