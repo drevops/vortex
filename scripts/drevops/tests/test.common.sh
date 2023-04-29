@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 ##
 # Run DrevOps tests in CI.
+#
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x

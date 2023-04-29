@@ -313,7 +313,9 @@ jobs:
           name: Run tests
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && export DREVOPS_TEST_PARALLEL_INDEX=$CIRCLE_NODE_INDEX || true
-            docker compose exec -T cli ./scripts/drevops/test.sh
+            docker compose exec -T \
+              -e DREVOPS_TEST_PARALLEL_INDEX -e DREVOPS_TEST_REPORTS_DIR -e DREVOPS_TEST_ARTIFACT_DIR -e DREVOPS_TEST_BEHAT_FORMAT \
+              cli ./scripts/drevops/test.sh
       - run:
           name: Process test logs and artifacts
           command: |
@@ -453,6 +455,18 @@ jobs:
           name: Run deployment tests (long)
           command: scripts/drevops/tests/test.deployment.sh
           no_output_timeout: 60m
+
+  # Run tests after 'build' job.
+  drevops_dev_test_postbuild:
+    <<: *container_config
+    parallelism: 1
+    steps:
+      - checkout
+      - *step_process_codebase
+      - *step_setup_remote_docker
+      - run:
+          name: Run CircleCI tests (long)
+          command: scripts/drevops/tests/test.postbuild.sh
 
   # Deployment of feature branches and tags for DrevOps itself.
   drevops_dev_deploy:
@@ -717,6 +731,13 @@ workflows:
               only: /.*/
       # Run deployment tests for DrevOps.
       - drevops_dev_test_deployment:
+          filters:
+            tags:
+              only: /.*/
+      # Run tests after 'build' job.
+      - drevops_dev_test_postbuild:
+          requires:
+            - build
           filters:
             tags:
               only: /.*/
