@@ -126,7 +126,8 @@ aliases:
       #; Using "runner" container where each job will be executed. This container
       #; has all necessary tools to run dockerized environment.
       #; @see https://github.com/drevops/ci-builder
-      - image: drevops/ci-builder:23.4.1
+      #; @see https://hub.docker.com/repository/docker/drevops/ci-builder/tags?page=1&ordering=last_updated
+      - image: drevops/ci-builder:23.5.0
         auth:
           username: $DOCKER_USERNAME
           password: $DOCKER_PASS
