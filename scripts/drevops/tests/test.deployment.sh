@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 ##
 # Run DrevOps deployment tests.
+#
 
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
