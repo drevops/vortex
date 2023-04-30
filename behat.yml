@@ -47,17 +47,17 @@ default:
     DrevOps\BehatFormatProgressFail\FormatExtension: ~
 
 # Profile for parallel testing.
-# Runs all tests not tagged with "@p1" and not tagged with "@skipped".
+# Runs all tests not tagged with "smoke" or "@p1" and not tagged with "@skipped".
 p0:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
-      tags: "~@p1&&~@skipped"
+      tags:  "@smoke,~@p1&&~@skipped"
 
 # Profile for parallel testing.
-# Runs all tests tagged with "@p1" and not tagged with "@skipped".
+# Runs all tests tagged with "@smoke" or "@p1" and not tagged with "@skipped".
 p1:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
-      tags: "@p1&&~@skipped"
+      tags:  "@smoke,@p1&&~@skipped"

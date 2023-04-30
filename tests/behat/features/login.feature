@@ -1,4 +1,4 @@
-@login @smoke @p0 @p1
+@login @smoke
 Feature: Login
 
   Ensure that user can login.
