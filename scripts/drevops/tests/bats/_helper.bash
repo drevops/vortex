@@ -43,7 +43,7 @@ setup() {
   # Set test secrets.
   # For local test development, export these variables in your shell.
   export TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-}"
-  export TEST_DOCKER_USERNAME="${TEST_DOCKER_USERNAME:-}"
+  export TEST_DOCKER_USER="${TEST_DOCKER_USER:-}"
   export TEST_DOCKER_PASS="${TEST_DOCKER_PASS:-}"
 
   # Preflight checks.
@@ -54,7 +54,7 @@ setup() {
   command -v ahoy > /dev/null                       || ( echo "[ERROR] ahoy command is not available." && exit 1 )
   command -v jq > /dev/null                         || ( echo "[ERROR] jq command is not available." && exit 1 )
   [ -n "${TEST_GITHUB_TOKEN}" ]                     || ( echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1 )
-  [ -n "${TEST_DOCKER_USERNAME}" ] || ( echo "[ERROR] The required TEST_DOCKER_USERNAME variable is not set. Tests will not proceed." && exit 1 )
+  [ -n "${TEST_DOCKER_USER}" ] || ( echo "[ERROR] The required TEST_DOCKER_USER variable is not set. Tests will not proceed." && exit 1 )
   [ -n "${TEST_DOCKER_PASS}" ]    || ( echo "[ERROR] The required TEST_DOCKER_PASS variable is not set. Tests will not proceed." && exit 1 )
   # @formatter:on
 
@@ -104,7 +104,7 @@ setup() {
   unset DREVOPS_DB_DOWNLOAD_FORCE
   # Tokens required for tests are set explicitly within each tests with a TEST_ prefix.
   unset GITHUB_TOKEN
-  unset DOCKER_USERNAME
+  unset DOCKER_USER
   unset DOCKER_PASS
 
   # Disable interactive prompts during tests.
@@ -574,7 +574,7 @@ assert_files_present_install_from_profile() {
   assert_file_not_contains ".env.local.example" "DREVOPS_ACQUIA_KEY"
   assert_file_not_contains ".env.local.example" "DREVOPS_ACQUIA_SECRET"
   assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE"
-  assert_file_not_contains ".env.local.example" "DOCKER_USERNAME"
+  assert_file_not_contains ".env.local.example" "DOCKER_USER"
   assert_file_not_contains ".env.local.example" "DOCKER_PASS"
 
   assert_file_exists ".ahoy.yml"

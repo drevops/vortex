@@ -9,7 +9,7 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 # The username of the docker registry.
-DOCKER_USERNAME="${DOCKER_USERNAME:-}"
+DOCKER_USER="${DOCKER_USER:-}"
 
 # The token of the docker registry.
 DOCKER_PASS="${DOCKER_PASS:-}"
@@ -31,9 +31,9 @@ fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 if [ -f "$HOME/.docker/config.json" ] && grep -q "${DOCKER_REGISTRY}" "$HOME/.docker/config.json"; then
   note "Already logged in to registry \"${DOCKER_REGISTRY}\"."
-elif [ -n "${DOCKER_USERNAME}" ] && [ -n "${DOCKER_PASS}" ]; then
+elif [ -n "${DOCKER_USER}" ] && [ -n "${DOCKER_PASS}" ]; then
   note "Logging in to registry \"${DOCKER_REGISTRY}\"."
-  echo "${DOCKER_PASS}" | docker login --username "${DOCKER_USERNAME}" --password-stdin "${DOCKER_REGISTRY}"
+  echo "${DOCKER_PASS}" | docker login --username "${DOCKER_USER}" --password-stdin "${DOCKER_REGISTRY}"
 else
-  note "Skipping login into Docker registry as either DOCKER_USERNAME or DOCKER_PASS was not provided."
+  note "Skipping login into Docker registry as either DOCKER_USER or DOCKER_PASS was not provided."
 fi

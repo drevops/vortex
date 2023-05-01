@@ -31,7 +31,7 @@ load _helper_workflow.bash
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DOCKER_USERNAME=
+  export DOCKER_USER=
   export DOCKER_PASS=
 
   # Mimic local behavior where DB is always overridden.
