@@ -55,7 +55,7 @@ setup() {
   command -v jq > /dev/null                         || ( echo "[ERROR] jq command is not available." && exit 1 )
   [ -n "${TEST_GITHUB_TOKEN}" ]                     || ( echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1 )
   [ -n "${TEST_DOCKER_USER}" ] || ( echo "[ERROR] The required TEST_DOCKER_USER variable is not set. Tests will not proceed." && exit 1 )
-  [ -n "${TEST_DOCKER_PASS}" ]    || ( echo "[ERROR] The required TEST_DOCKER_PASS variable is not set. Tests will not proceed." && exit 1 )
+  [ -n "${TEST_DOCKER_PASS}" ] || ( echo "[ERROR] The required TEST_DOCKER_PASS variable is not set. Tests will not proceed." && exit 1 )
   # @formatter:on
 
   # Allow to override debug variables from environment or hardcode them here
@@ -958,7 +958,7 @@ run_install_quiet() {
   export DREVOPS_DB_DOWNLOAD_CURL_URL="$DREVOPS_INSTALL_DEMO_DB_TEST"
 
   opt_quiet="--quiet"
-  [ "${TEST_RUN_INSTALL_INTERACTIVE}" = "1" ] && opt_quiet=""
+  [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_quiet=""
 
   run php "${CUR_DIR}/scripts/drevops/installer/install.php" "${opt_quiet}" "$@"
 
@@ -1225,7 +1225,7 @@ replace_string_content() {
     --exclude-dir=".data" \
     -l "${needle}" "${dir}" |
     xargs sed "${sed_opts[@]}" "s@$needle@$replacement@g" || true
-  set -e
+  set -eu
 }
 
 string_to_upper() {

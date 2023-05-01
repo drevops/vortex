@@ -3,8 +3,8 @@
 # Run DrevOps tests in CI.
 #
 
-set -e
-[ -n "${DREVOPS_DEBUG}" ] && set -x
+set -eu
+[ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 TEST_DIR="scripts/drevops/tests"
 

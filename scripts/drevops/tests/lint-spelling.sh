@@ -4,8 +4,8 @@
 #
 # shellcheck disable=SC2181,SC2016,SC2002,SC2266,SC2015
 
-set -e
-[ -n "${DREVOPS_DEBUG}" ] && set -x
+set -eu
+[ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 CUR_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")")"
 

@@ -5,8 +5,8 @@
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
-set -e
-[ -n "${DREVOPS_DEBUG}" ] && set -x
+set -eu
+[ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 # Re-export variables only from .env to ignore any local overrides in .env.local.
 # shellcheck disable=SC1091

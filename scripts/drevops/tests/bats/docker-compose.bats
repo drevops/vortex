@@ -134,7 +134,7 @@ process_docker_compose_json() {
 # file processing logic.
 # Run the tests with UPDATE_FIXTURES=1 to update the fixtures.
 update_docker_compose_fixture() {
-  if [ -n "${UPDATE_FIXTURES}" ]; then
+  if [ -n "${UPDATE_FIXTURES:-}" ]; then
     step "Updating fixtures"
     replace_string_content "${CURRENT_PROJECT_DIR}" "FIXTURE_CUR_DIR" "${CURRENT_PROJECT_DIR}"
     cp -Rf "${1}" "${CUR_DIR}/scripts/drevops/tests/bats/fixtures/${2}"
