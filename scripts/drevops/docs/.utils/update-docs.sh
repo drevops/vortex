@@ -7,8 +7,8 @@
 #
 # shellcheck disable=SC2129
 
-set -e
-[ -n "${DREVOPS_DEBUG}" ] && set -x
+set -eu
+[ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 [ ! -d "./.utils/vendor" ] && composer --working-dir="./.utils" install
 

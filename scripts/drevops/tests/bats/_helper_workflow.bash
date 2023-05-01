@@ -93,6 +93,7 @@ assert_ahoy_build() {
   export DREVOPS_DB_DOWNLOAD_CURL_URL="$DREVOPS_INSTALL_DEMO_DB_TEST"
 
   # Check that database file exists before build.
+  db_file_exists=0
   [ -f ".data/db.sql" ] && db_file_exists=1
 
   # export DREVOPS_DOCKER_VERBOSE="1"

@@ -16,8 +16,8 @@
 # shellcheck disable=SC1090,SC1091,SC2015,SC2155,SC2068
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
-set -e
-[ -n "${DREVOPS_DEBUG}" ] && set -x
+set -eu
+[ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 # Print debug information in DrevOps scripts.
 DREVOPS_DEBUG="${DREVOPS_DEBUG:-}"
@@ -35,9 +35,9 @@ DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-}"
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
 info "Started building project ${DREVOPS_PROJECT}."
@@ -86,7 +86,7 @@ info "Building Docker images, recreating and starting containers."
 note "This will take some time (use DREVOPS_DOCKER_VERBOSE=1 to see the progress)."
 note "Use 'ahoy install-site' to re-install site without rebuilding containers."
 
-if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
+if [ -n "${DREVOPS_DB_DOCKER_IMAGE:-}" ]; then
   note "Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}."
   # Always login to the registry to have access to the private images.
   ./scripts/drevops/docker-login.sh
@@ -94,7 +94,7 @@ if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
   ./scripts/drevops/docker-restore-image.sh "${DREVOPS_DB_DOCKER_IMAGE}" "${DREVOPS_DB_DIR}/db.tar"
   # If the image does not exist and base image was provided - use the base
   # image which allows "clean slate" for the database.
-  if [ ! -f "${DREVOPS_DB_DIR}/db.tar" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE_BASE}" ]; then
+  if [ ! -f "${DREVOPS_DB_DIR}/db.tar" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE_BASE:-}" ]; then
     note "Database Docker image was not found. Using base image ${DREVOPS_DB_DOCKER_IMAGE_BASE}."
     export DREVOPS_DB_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE_BASE}"
   fi
@@ -110,7 +110,7 @@ echo
 
 # Export code built within containers before adding development dependencies.
 # Usually this is needed to create a code artifact without development dependencies.
-if [ -n "${DREVOPS_EXPORT_CODE_DIR}" ]; then
+if [ -n "${DREVOPS_EXPORT_CODE_DIR:-}" ]; then
   info "Exporting built code."
   mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
   docker compose cp -L cli:"${DREVOPS_APP}"/. "${DREVOPS_EXPORT_CODE_DIR}" 2>"${composer_verbose_output}"
@@ -144,7 +144,7 @@ docker compose cp -L .circleci cli:/app/ 2>"${composer_verbose_output}"
 
 note "Installing all composer dependencies, including development ones."
 docker compose exec ${dcopts[@]} cli bash -c " \
-  if [ -n \"$GITHUB_TOKEN\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"$GITHUB_TOKEN\"}}'; fi && \
+  if [ -n \"${GITHUB_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN:-}\"}}'; fi && \
   COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction --ansi --prefer-dist --no-progress \
 " 1>"${composer_verbose_output}" 2>"${composer_verbose_output}"
 
@@ -155,7 +155,7 @@ echo
 # Note that this will create package-lock.json file if it does not exist.
 # We are not re-running compilation in CI as it is not used - these assets
 # are already compiled as a part of the Docker build.
-if [ -n "${DREVOPS_DRUPAL_THEME}" ] && [ -z "${CI}" ]; then
+if [ -n "${DREVOPS_DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
   info "Installing front-end dependencies."
   docker compose exec ${dcopts[@]} cli bash -c "npm --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} install" >"${npm_verbose_output}"
   pass "Installed front-end dependencies."
