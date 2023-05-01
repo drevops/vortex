@@ -130,7 +130,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export DREVOPS_INSTALL_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db.test.sql.md
+  export DREVOPS_INSTALL_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d10.test.sql.md
 
   # Copy DrevOps at the last commit.
   prepare_local_repo "${LOCAL_REPO_DIR}" >/dev/null

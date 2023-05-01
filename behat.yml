@@ -18,7 +18,7 @@ default:
 
   extensions:
     Drupal\MinkExtension:
-      goutte: ~
+      browserkit_http: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'
       browser_name: chrome
