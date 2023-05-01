@@ -1,4 +1,4 @@
 services:
   chrome:
     # Chrome image with Apple M1 support.
-    image: seleniarm/standalone-chromium
+    image: seleniarm/standalone-chromium:111.0
