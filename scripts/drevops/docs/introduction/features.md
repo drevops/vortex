@@ -9,7 +9,7 @@ The following list includes ✅ completed features and 📝 upcoming features.
 
 * 💧 Drupal
     * ✅ Based on [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
-    * 📝 [Drupal 10](https://www.drupal.org/project/drupal)
+    * ✅ [Drupal 10](https://www.drupal.org/project/drupal)
     * ✅ Configurable webroot
     * ✅ [Pre-configured settings](../../../../web/sites/default/settings.php)
     * ✅ [Custom module scaffold](../../../../web/modules/custom/ys_core)
@@ -17,7 +17,7 @@ The following list includes ✅ completed features and 📝 upcoming features.
     * ✅ Configuration for admin modules: [Environment indicator](https://www.drupal.org/project/environment_indicator), [Shield](https://www.drupal.org/project/shield), [Stage file proxy](https://www.drupal.org/project/stage_file_proxy)
     * ✅ [Search API](https://www.drupal.org/project/search_api) ([Solr](https://www.drupal.org/project/search_api_solr))
     * ✅ Caching ([Redis](https://www.drupal.org/project/redis))
-    * 📝 Antivirus ([ClamAV](https://www.drupal.org/project/clamav))
+    * ✅ Antivirus ([ClamAV](https://www.drupal.org/project/clamav))
 * 🐳 Services
     * ✅ Nginx
     * ✅ PHP
@@ -46,6 +46,7 @@ The following list includes ✅ completed features and 📝 upcoming features.
     * 📝 [Pa11y](https://pa11y.org/)
     * ✅ [PHP Parallel Lint](https://github.com/php-parallel-lint/PHP-Parallel-Lint)
     * ✅ [PHPCS](https://github.com/squizlabs/PHP_CodeSniffer)
+    * ✅ [PHPMD](https://phpmd.org/)
     * 📝 [PHPStan](https://github.com/phpstan/phpstan)
     * ✅ [PHPUnit](https://phpunit.de/)
     * ✅ [SASS Lint](https://github.com/sasstools/sass-lint)

@@ -8,6 +8,7 @@ namespace Drupal\Tests\ys_core\Traits;
  * Helper trait for tests.
  *
  * @package Drupal\ys_core\Tests
+ * @SuppressWarnings(PHPMD.MissingImport)
  */
 trait YsCoreTestHelperTrait {
 
@@ -84,6 +85,8 @@ trait YsCoreTestHelperTrait {
    *
    * @return object
    *   Mocked class.
+   *
+   * @SuppressWarnings(PHPMD.ElseExpression)
    */
   protected function prepareMock($class, array $methodsMap = [], array $args = []) {
     $methods = array_keys($methodsMap);

@@ -309,18 +309,18 @@ assert_ahoy_lint() {
 
   step "Lint code"
 
+  step "Assert that lint works"
   run ahoy lint
   assert_success
   assert_output_contains "Back-end code has passed the linter check"
   assert_output_contains "Front-end code has passed the linter check"
   assert_output_not_contains "Containers are not running."
 
-  step "Assert that lint failure bypassing works"
+  step "Assert that lint failure works"
   echo "\$a=1;" >> "${webroot}/modules/custom/sw_core/sw_core.module"
   echo ".abc{margin: 0px;}" >> "${webroot}/themes/custom/star_wars/scss/components/_layout.scss"
   sync_to_container
 
-  # Assert failure.
   run ahoy lint
   assert_failure
   assert_output_not_contains "Back-end code has passed the linter check"
@@ -336,7 +336,7 @@ assert_ahoy_lint() {
   assert_output_not_contains "Back-end code has passed the linter check"
   assert_output_not_contains "Front-end code has passed the linter check"
 
-  # Assert failure bypass.
+  step "Assert that lint failure bypassing works"
   add_var_to_file .env "DREVOPS_LINT_BE_ALLOW_FAILURE" "1"
   add_var_to_file .env "DREVOPS_LINT_FE_ALLOW_FAILURE" "1"
   ahoy up cli && sync_to_container
