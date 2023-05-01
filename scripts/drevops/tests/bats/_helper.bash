@@ -388,6 +388,7 @@ assert_files_present_drevops() {
   assert_file_exists ".env.local.example"
   assert_file_exists "docker-compose.yml"
   assert_file_exists "phpcs.xml"
+  assert_file_exists "phpstan.neon"
 
   # Documentation information present.
   assert_file_exists "docs/CI.md"
