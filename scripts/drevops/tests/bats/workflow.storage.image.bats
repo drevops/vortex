@@ -2,7 +2,7 @@
 #
 # Workflows using different types of DB storage.
 #
-# Throughout these tests, a "drevops/drevops-mariadb-drupal-data-test-10.x:buildx-int-test1"
+# Throughout these tests, a "drevops/drevops-mariadb-drupal-data-test-10.x:buildx-int-test2"
 # test image is used: it is seeded with content from the pre-built fixture
 # "Star wars" test site.
 #
@@ -23,7 +23,7 @@ load _helper_workflow.bash
   export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
 
   # Use a test image. Image always must use a tag.
-  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:buildx-int-test1"
+  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:buildx-int-test2"
 
   # Do not use demo database - testing demo database discovery is another test.
   export DREVOPS_INSTALL_DEMO_SKIP=1

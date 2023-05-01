@@ -2,7 +2,7 @@
 #
 # Workflows using different types of DB storage.
 #
-# Throughout these tests, a "drevops/drevops-mariadb-drupal-data-test-10.x:buildx-int-test1"
+# Throughout these tests, a "drevops/drevops-mariadb-drupal-data-test-10.x:buildx-int-test2"
 # test image is used: it is seeded with content from the pre-built fixture
 # "Star wars" test site.
 #
@@ -27,7 +27,7 @@ load _helper_workflow.bash
   # @todo: build.sh may need to have a support to create a local image if
   # it does not exist.
   # Use a test image. Image always must use a tag.
-  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:buildx-int-test1"
+  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:buildx-int-test2"
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
