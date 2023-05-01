@@ -3,11 +3,11 @@ description: 'YOURSITE profile'
 type: profile
 package: your_site
 version: 1.0.0
-core_version_requirement: ^9
+core_version_requirement: ^10
 dependencies:
   - block_content
   - block_place
-  - ckeditor
+  - ckeditor5
   - config
   - content_moderation
   - field_layout

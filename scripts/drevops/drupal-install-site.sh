@@ -9,8 +9,8 @@
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
-set -e
-[ -n "${DREVOPS_DEBUG}" ] && set -x
+set -eu
+[ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 # Flag to skip site installation.
 DREVOPS_DRUPAL_INSTALL_SKIP="${DREVOPS_DRUPAL_INSTALL_SKIP:-}"
@@ -65,12 +65,12 @@ DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP="${DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 drush_opts=(-y)
-[ -z "${DREVOPS_DEBUG}" ] && drush_opts+=(-q)
+[ -z "${DREVOPS_DEBUG:-}" ] && drush_opts+=(-q)
 
 info "Started site installation."
 
@@ -96,7 +96,7 @@ note "Skip post-install operations : ${DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP}"
 note "Private files directory      : ${DREVOPS_DRUPAL_PRIVATE_FILES}"
 note "Config path                  : ${DREVOPS_DRUPAL_CONFIG_PATH}"
 note "DB dump file path            : ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
-if [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
+if [ -n "${DREVOPS_DB_DOCKER_IMAGE:-}" ]; then
   note "DB dump Docker image         : ${DREVOPS_DB_DOCKER_IMAGE}"
 fi
 note "Drush binary                 : ${drush}"
@@ -149,7 +149,7 @@ install_import() {
 install_profile() {
   opts=()
 
-  [ -z "${DREVOPS_DEBUG}" ] && opts+=(-q)
+  [ -z "${DREVOPS_DEBUG:-}" ] && opts+=(-q)
 
   opts+=(
     -y
@@ -161,7 +161,7 @@ install_profile() {
     install_configure_form.enable_update_status_emails=NULL
   )
 
-  [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL}" ] && opts+=(--account-mail="${DREVOPS_DRUPAL_ADMIN_EMAIL}")
+  [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL:-}" ] && opts+=(--account-mail="${DREVOPS_DRUPAL_ADMIN_EMAIL:-}")
   [ "${site_has_config}" = "1" ] && opts+=(--existing-config)
 
   # Database may exist in non-bootstrappable state - truncuate it.

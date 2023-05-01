@@ -2,7 +2,7 @@
 #
 # Workflows using different types of DB storage.
 #
-# Throughout these tests, a "drevops/drevops-mariadb-drupal-data-test-9.x"
+# Throughout these tests, a "drevops/drevops-mariadb-drupal-data-test-10.x:latest"
 # test image is used: it is seeded with content from the pre-built fixture
 # "Star wars" test site.
 #
@@ -23,14 +23,14 @@ load _helper_workflow.bash
   export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
 
   # Use a test image. Image always must use a tag.
-  export DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-test-9.x:latest
+  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
 
   # Do not use demo database - testing demo database discovery is another test.
   export DREVOPS_INSTALL_DEMO_SKIP=1
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DOCKER_USERNAME=
+  export DOCKER_USER=
   export DOCKER_PASS=
 
   substep "Make sure that demo database will not be used."
@@ -50,7 +50,7 @@ load _helper_workflow.bash
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry"
   assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=${DREVOPS_DB_DOCKER_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
-  assert_file_not_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-demo-9.x"
+  assert_file_not_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-demo-10.x:latest"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL="
 
   assert_ahoy_build
@@ -80,6 +80,8 @@ load _helper_workflow.bash
   assert_ahoy_debug
 
   assert_ahoy_export_db "mydb.tar"
+
+  assert_ahoy_test_bdd_fast
 
   assert_ahoy_clean
 

@@ -126,9 +126,10 @@ aliases:
       #; Using "runner" container where each job will be executed. This container
       #; has all necessary tools to run dockerized environment.
       #; @see https://github.com/drevops/ci-builder
-      - image: drevops/ci-builder:23.4.1
+      #; @see https://hub.docker.com/repository/docker/drevops/ci-builder/tags?page=1&ordering=last_updated
+      - image: drevops/ci-builder:23.5.0
         auth:
-          username: $DOCKER_USERNAME
+          username: $DOCKER_USER
           password: $DOCKER_PASS
         environment:
           # Set timezone to ensure that executed operations use correct timestamps.
@@ -213,7 +214,7 @@ jobs:
             echo "$(date $DREVOPS_CI_DB_CACHE_TIMESTAMP)" | tee /tmp/db_cache_timestamp
             echo "yes" | tee /tmp/db_cache_fallback_yes
             echo
-            echo 'v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
+            echo 'v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
 
       - restore_cache:
           keys:
@@ -226,11 +227,11 @@ jobs:
             # Lookup cache based on the default branch and a timestamp. Allows
             # to use cache from the very first build on the day (sanitized
             # database dump, for example).
-            - v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             #
             # Fallback to caching by default branch name only. Allows to use
             # cache from the branch build on the previous day.
-            - v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
       - run:
           name: Download DB
           command: DREVOPS_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db ./scripts/drevops/download-db.sh
@@ -259,7 +260,7 @@ jobs:
           # The cache will not be saved if it already exists.
           # Note that the cache fallback flag is enabled for this case in order
           # to save cache even if the fallback is not used when restoring it.
-          key: v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          key: v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
           paths:
             - *db_cache_dir
 
@@ -299,8 +300,8 @@ jobs:
           keys:
             # Use cached artifacts from previous builds of this branch.
             # @see https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-            - v1t1-db9-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !INSTALL_FROM_PROFILE
       - run:
           name: Build site
@@ -313,7 +314,9 @@ jobs:
           name: Run tests
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && export DREVOPS_TEST_PARALLEL_INDEX=$CIRCLE_NODE_INDEX || true
-            docker compose exec -T cli ./scripts/drevops/test.sh
+            docker compose exec -T \
+              -e DREVOPS_TEST_PARALLEL_INDEX -e DREVOPS_TEST_REPORTS_DIR -e DREVOPS_TEST_ARTIFACT_DIR -e DREVOPS_TEST_BEHAT_FORMAT \
+              cli ./scripts/drevops/test.sh
       - run:
           name: Process test logs and artifacts
           command: |
@@ -454,6 +457,18 @@ jobs:
           command: scripts/drevops/tests/test.deployment.sh
           no_output_timeout: 60m
 
+  # Run tests after 'build' job.
+  drevops_dev_test_postbuild:
+    <<: *container_config
+    parallelism: 1
+    steps:
+      - checkout
+      - *step_process_codebase
+      - *step_setup_remote_docker
+      - run:
+          name: Run CircleCI tests (long)
+          command: scripts/drevops/tests/test.postbuild.sh
+
   # Deployment of feature branches and tags for DrevOps itself.
   drevops_dev_deploy:
     <<: *job_deploy
@@ -498,7 +513,7 @@ jobs:
       # Note that here and below we are using "destination" demo image - this
       # is to allow updating of this image from CI tests without jeopardizing
       # main demo image.
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
+      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
       # Use a separate tag to make sure that pushed image does not affect
       # other tests (pushing broken image as 'latest' would fail other tests).
       DREVOPS_DOCKER_IMAGE_TAG: drevops_dev_didi_database_fi
@@ -515,7 +530,7 @@ jobs:
     environment:
       DREVOPS_DB_DOWNLOAD_SOURCE: docker_registry
       DREVOPS_DB_DOWNLOAD_FORCE: 1
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x
+      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
       DREVOPS_DOCKER_IMAGE_TAG: drevops_dev_database_ii
       # Also, use this job to test pushing of the DB image to the Docker
       # registry so mimic what database_nightly job would do.
@@ -530,14 +545,14 @@ jobs:
   drevops_dev_didi_build_fi:
     <<: *job_build
     environment:
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x:drevops_dev_didi_database_fi
+      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_didi_database_fi
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: drevops_dev_didi_fi
   drevops_dev_didi_build_ii:
     <<: *job_build
     environment:
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-9.x:drevops_dev_database_ii
+      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_database_ii
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: drevops_dev_didi_ii
@@ -561,8 +576,15 @@ jobs:
             sed -i -e "/###/d" docker-compose.yml
             ahoy build
             ahoy test
-            if [ -n "${CIRCLE_TAG:-}" ]; then export version="${CIRCLE_TAG:-}"; elif [ -n "${CIRCLE_BRANCH}" ] && [ "${CIRCLE_BRANCH:-}" != "main" ]; then export version="${CIRCLE_BRANCH/\//-}"; fi
-            ahoy publish "${version:-}"
+            if [ -n "${CIRCLE_TAG}" ]; then
+              export version="${CIRCLE_TAG}"
+              export version_is_stable=1
+            elif [ -n "${CIRCLE_BRANCH}" ]; then
+              if [ "${CIRCLE_BRANCH}" != "main" ]; then
+                export version="${CIRCLE_BRANCH/\//-}"
+              fi
+            fi
+            ahoy publish https://github.com/drevops/drevops_docs.git "${version}" "${version_is_stable:-}"
             mkdir -p /tmp/docs
             docker compose cp mkdocs:"/app/site/." "/tmp/docs"
       - run:
@@ -586,11 +608,11 @@ jobs:
           command: |
             cd /tmp/docs
             git init
-            git checkout -b master
+            git checkout -b main
             git add -A
             git commit -m "Automatically pushed from drevops/drevops"
             git remote add origin git@github.com:drevops/docs.git
-            git push origin master --force
+            git push origin main --force
 
   #-----------------------------------------------------------------------------
   # Publish installer to install.drevops.com
@@ -632,11 +654,11 @@ jobs:
           command: |
             cd /tmp/installer
             git init
-            git checkout -b master
+            git checkout -b main
             git add -A
             git commit -m "Automatically pushed from drevops/drevops"
             git remote add origin git@github.com:drevops/installer.git
-            git push origin master --force
+            git push origin main --force
   #=============================================================================
   #;> DREVOPS_DEV
 
@@ -710,6 +732,13 @@ workflows:
               only: /.*/
       # Run deployment tests for DrevOps.
       - drevops_dev_test_deployment:
+          filters:
+            tags:
+              only: /.*/
+      # Run tests after 'build' job.
+      - drevops_dev_test_postbuild:
+          requires:
+            - build
           filters:
             tags:
               only: /.*/

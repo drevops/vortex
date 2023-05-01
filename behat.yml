@@ -18,7 +18,7 @@ default:
 
   extensions:
     Drupal\MinkExtension:
-      goutte: ~
+      browserkit_http: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'
       browser_name: chrome
@@ -42,21 +42,22 @@ default:
     # Capture HTML and JPG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:
       dir: '%paths.base%/tests/behat/screenshots'
+      purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
     # Show explicit fail information and continue the test run.
     DrevOps\BehatFormatProgressFail\FormatExtension: ~
 
 # Profile for parallel testing.
-# Runs all tests not tagged with "@p1" or "@skipped".
+# Runs all tests not tagged with "smoke" or "@p1" and not tagged with "@skipped".
 p0:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
-      tags: "~@p1&&~@skipped"
+      tags:  "@smoke,~@p1&&~@skipped"
 
 # Profile for parallel testing.
-# Runs all tests tagged with "@p1" and not tagged with "@skipped".
+# Runs all tests tagged with "@smoke" or "@p1" and not tagged with "@skipped".
 p1:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
-      tags: "@p1&&~@skipped"
+      tags:  "@smoke,@p1&&~@skipped"

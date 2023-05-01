@@ -17,7 +17,7 @@ commands:
 
   publish:
     usage: Deploy site
-    cmd: docker compose exec mkdocs sh -c "/app/.utils/release.sh $@"
+    cmd: docker compose exec mkdocs sh -c "/app/.utils/release.sh $*"
 
   update:
     usage: Update docs

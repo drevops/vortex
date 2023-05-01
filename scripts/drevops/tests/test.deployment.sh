@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 ##
 # Run DrevOps deployment tests.
+#
 
-set -e
-[ -n "${DREVOPS_DEBUG}" ] && set -x
+set -eu
+[ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 TEST_DIR="scripts/drevops/tests"
 

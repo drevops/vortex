@@ -10,15 +10,15 @@
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
-set -e
-[ -n "${DREVOPS_DEBUG}" ] && set -x
+set -eu
+[ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 # Comma-separated map of docker services and images to use for deployment in
 # format "service1=org/image1,service2=org/image2".
 DREVOPS_DEPLOY_DOCKER_MAP="${DREVOPS_DEPLOY_DOCKER_MAP:-}"
 
 # The username of the docker registry to deploy Docker image to.
-DOCKER_USERNAME="${DOCKER_USERNAME:-}}"
+DOCKER_USER="${DOCKER_USER:-}}"
 
 # The token of the docker registry to deploy Docker image to.
 DOCKER_PASS="${DOCKER_PASS:-}"
@@ -33,9 +33,9 @@ DREVOPS_DOCKER_IMAGE_TAG="${DREVOPS_DOCKER_IMAGE_TAG:-latest}"
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
 info "Started DOCKER deployment."
@@ -57,7 +57,7 @@ for value in "${values[@]}"; do
 done
 
 # Login to the registry.
-export DOCKER_USERNAME="${DOCKER_USERNAME}"
+export DOCKER_USER="${DOCKER_USER}"
 export DOCKER_PASS="${DOCKER_PASS}"
 export DOCKER_REGISTRY="${DOCKER_REGISTRY}"
 ./scripts/drevops/docker-login.sh

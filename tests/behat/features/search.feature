@@ -1,4 +1,4 @@
-@search
+@search @p1
 Feature: Search API
 
   As a site user, I want to search for content.
@@ -13,6 +13,7 @@ Feature: Search API
     And I index "page" "[TEST] Test page 2" for search
     And I visit "/search"
     And I wait 5 seconds
+    And save screenshot
 
     When I fill in "search_api_fulltext" with "[TEST]"
     And I press "Apply"

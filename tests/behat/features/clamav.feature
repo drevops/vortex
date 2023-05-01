@@ -1,4 +1,4 @@
-@clamav
+@clamav @p0
 Feature: ClamAV Anti-virus
 
   Ensure that ClamAV is working correctly.
@@ -23,6 +23,7 @@ Feature: ClamAV Anti-virus
     Then I should see the text "The specified file eicar_test.txt could not be uploaded."
     And I should see the text "A virus has been detected in the file. The file will be deleted."
     And I should not see the text "The anti-virus scanner could not check the file."
+    And save screenshot
 
   @api
   Scenario: Upload test file to ensure that file upload works
