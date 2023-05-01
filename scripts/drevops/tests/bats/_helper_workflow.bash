@@ -510,10 +510,14 @@ assert_ahoy_test_bdd() {
   assert_dir_not_empty tests/behat/screenshots
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/behat/default.xml
+  rm -rf test_reports/*
+  ahoy cli rm -rf /app/test_reports/*
 
   substep "Run tagged BDD tests"
   assert_dir_empty tests/behat/screenshots
-  run ahoy test-bdd -- --tags=p0
+  run ahoy test-bdd -- --tags=smoke
   assert_success
   assert_output_contains "Behat tests passed"
   sync_to_host
@@ -522,16 +526,14 @@ assert_ahoy_test_bdd() {
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty tests/behat/screenshots
-  # Test tagged with p0 are non-browser tests, so there should not be any
-  # image screenshots.
   assert_file_exists "tests/behat/screenshots/*html"
-  assert_file_not_exists "tests/behat/screenshots/*png"
+  assert_file_exists "tests/behat/screenshots/*png"
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   substep "Run tagged BDD tests based on DREVOPS_TEST_BEHAT_TAGS variable"
   assert_dir_empty tests/behat/screenshots
-  export DREVOPS_TEST_BEHAT_TAGS=p0
+  export DREVOPS_TEST_BEHAT_TAGS=smoke
   run ahoy test-bdd
   assert_success
   assert_output_contains "Behat tests passed"
@@ -542,10 +544,8 @@ assert_ahoy_test_bdd() {
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty tests/behat/screenshots
-  # Test tagged with p0 are non-browser tests, so there should not be any
-  # image screenshots.
   assert_file_exists "tests/behat/screenshots/*html"
-  assert_file_not_exists "tests/behat/screenshots/*png"
+  assert_file_exists "tests/behat/screenshots/*png"
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
@@ -563,17 +563,14 @@ assert_ahoy_test_bdd() {
   rm -rf test_reports/*
   ahoy cli rm -rf /app/test_reports/*
   assert_dir_not_empty tests/behat/screenshots
-  # Test tagged with p0 are non-browser tests, so there should not be any
-  # image screenshots.
   assert_file_exists "tests/behat/screenshots/*html"
-  assert_file_not_exists "tests/behat/screenshots/*png"
+  assert_file_exists "tests/behat/screenshots/*png"
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   substep "Assert that Behat tests failure works"
   echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
   sync_to_container
-
   assert_dir_empty tests/behat/screenshots
   run ahoy test-bdd
   assert_failure
@@ -588,7 +585,6 @@ assert_ahoy_test_bdd() {
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   substep "Assert that Behat tests failure bypassing works"
-
   add_var_to_file .env "DREVOPS_TEST_BDD_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-bdd
   assert_success
@@ -625,7 +621,6 @@ assert_ahoy_test_bdd() {
   assert_dir_empty tests/behat/screenshots
   echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
   run ahoy up cli && sync_to_container
-  # Assert failure.
   run ahoy test-bdd tests/behat/features/homepage.feature
   assert_failure
   assert_output_not_contains "Behat tests passed"
@@ -638,7 +633,6 @@ assert_ahoy_test_bdd() {
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
-  # Assert failure bypass.
   substep "Assert that single Behat test failure bypassing works"
   assert_dir_empty tests/behat/screenshots
   add_var_to_file .env "DREVOPS_TEST_BDD_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
@@ -653,10 +647,8 @@ assert_ahoy_test_bdd() {
   assert_dir_not_empty tests/behat/screenshots
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
-
   # Remove failing step from the feature.
   trim_file tests/behat/features/homepage.feature
-
   # Remove fail bypass.
   restore_file .env && ahoy up cli && sync_to_container
 }
