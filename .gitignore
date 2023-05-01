@@ -46,8 +46,9 @@ package-lock.json
 #;> DREVOPS_DEV
 
 # Ignore dependencies cache files.
-vendor
-node_modules
+/vendor
+/node_modules
+web/themes/**/node_modules
 
 # Assets.
 web/themes/**/build
