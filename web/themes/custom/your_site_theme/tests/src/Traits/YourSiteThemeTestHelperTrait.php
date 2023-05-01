@@ -8,6 +8,7 @@ namespace Drupal\Tests\your_site_theme\Traits;
  * Helper trait for tests.
  *
  * @package Drupal\your_site_theme\Tests
+ * @SuppressWarnings(PHPMD.MissingImport)
  */
 trait YourSiteThemeTestHelperTrait {
 
@@ -84,6 +85,8 @@ trait YourSiteThemeTestHelperTrait {
    *
    * @return object
    *   Mocked class.
+   *
+   * @SuppressWarnings(PHPMD.ElseExpression)
    */
   protected function prepareMock($class, array $methodsMap = [], array $args = []) {
     $methods = array_keys($methodsMap);

@@ -14,6 +14,8 @@ use Drupal\Core\Extension\ExtensionDiscovery;
 
 /**
  * Installs custom theme.
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 function ys_core_deploy_install_theme() {
   \Drupal::service('theme_installer')->install(['olivero']);
@@ -24,6 +26,8 @@ function ys_core_deploy_install_theme() {
 // phpcs:ignore #;< REDIS
 /**
  * Enables Redis module.
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 function ys_core_deploy_enable_redis() {
   $listing = new ExtensionDiscovery(\Drupal::root());
@@ -37,6 +41,8 @@ function ys_core_deploy_enable_redis() {
 // phpcs:ignore #;< SOLR
 /**
  * Enables Search API and Search API Solr modules.
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 function ys_core_deploy_enable_search_api_solr() {
   $listing = new ExtensionDiscovery(\Drupal::root());
@@ -50,6 +56,8 @@ function ys_core_deploy_enable_search_api_solr() {
 // phpcs:ignore #;< CLAMAV
 /**
  * Enables Search API and Search API Solr modules.
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 function ys_core_deploy_enable_clamav() {
   $listing = new ExtensionDiscovery(\Drupal::root());
