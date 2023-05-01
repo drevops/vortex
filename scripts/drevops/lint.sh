@@ -23,8 +23,6 @@ pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-info "Linting code."
-
 [ -n "${DREVOPS_LINT_SKIP}" ] && pass "Skipping code linting" && exit 0
 
 # Provide argument as 'be' or 'fe' to lint only back-end or front-end code.

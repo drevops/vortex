@@ -724,19 +724,19 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_LINT_PHPCS_TARGETS`
 
-PHPCS comma-separated list of targets.
+PHPCS comma-separated list of targets. Set to empty value to disable this check.
 
 Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
 
 ### `DREVOPS_LINT_PHPLINT_EXTENSIONS`
 
-PHP Parallel Lint comma-separated list of extensions (no preceding dot).
+PHP Parallel Lint comma-separated list of extensions (no preceding dot). Set to empty value to disable this check.
 
 Default value: `php, inc, module, theme, install`
 
 ### `DREVOPS_LINT_PHPLINT_TARGETS`
 
-PHP Parallel Lint comma-separated list of targets.
+PHP Parallel Lint comma-separated list of targets. Set to empty value to disable this check.
 
 Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
 
@@ -748,13 +748,13 @@ Default value: `codesize, unusedcode, cleancode`
 
 ### `DREVOPS_LINT_PHPMD_TARGETS`
 
-PHPMD comma-separated list of targets.
+PHPMD comma-separated list of targets. Set to empty value to disable this check.
 
 Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
 
 ### `DREVOPS_LINT_PHPSTAN_TARGETS`
 
-PHPStan comma-separated list of targets.
+PHPStan comma-separated list of targets. Set to empty value to disable this check.
 
 Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
 
