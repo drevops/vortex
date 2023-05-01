@@ -139,6 +139,7 @@ info "Installing development dependencies."
 note "Copying development configuration files into container."
 docker compose cp -L behat.yml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpcs.xml cli:/app/ 2>"${composer_verbose_output}"
+docker compose cp -L phpstan.neon cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L tests cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L .circleci cli:/app/ 2>"${composer_verbose_output}"
 

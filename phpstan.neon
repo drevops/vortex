@@ -1,0 +1,21 @@
+##
+# Configuration file for PHPStan static code checking, see https://phpstan.org .
+#
+# Note that drupal-specific rules are automatically included by phpstan/extension-installer
+# from vendor/mglaman/phpstan-drupal/extension.neon and vendor/mglaman/phpstan-drupal/rules.neon
+# @see https://github.com/mglaman/phpstan-drupal
+#
+# Paths are passed as CLI arguments.
+
+parameters:
+
+  drupal:
+    drupal_root: /app
+
+  level: 1
+
+  excludePaths:
+    - ../*/node_modules/*
+
+  # ignoreErrors:
+  #  - "#^Error message#"

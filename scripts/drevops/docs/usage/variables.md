@@ -740,6 +740,24 @@ PHP Parallel Lint comma-separated list of targets.
 
 Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
 
+### `DREVOPS_LINT_PHPMD_RULESETS`
+
+PHPMD comma-separated list of rules.
+
+Default value: `codesize, unusedcode, cleancode`
+
+### `DREVOPS_LINT_PHPMD_TARGETS`
+
+PHPMD comma-separated list of targets.
+
+Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
+
+### `DREVOPS_LINT_PHPSTAN_TARGETS`
+
+PHPStan comma-separated list of targets.
+
+Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
+
 ### `DREVOPS_LINT_SKIP`
 
 Flag to skip code linting. Helpful to set in CI to code linting without modifying the codebase.
@@ -1297,6 +1315,12 @@ Default value: `web`
 ### `ENV_ID`
 
 Default value: `echo `
+
+### `GITHUB_TOKEN`
+
+GitHub token to perform operations.
+
+Default value: `GITHUB_TOKEN`
 
 ### `LAGOON_PROJECT`
 

@@ -32,6 +32,7 @@ assert_deployment_files_present() {
   assert_file_not_exists docker-compose.yml
   assert_file_not_exists LICENSE
   assert_file_not_exists phpcs.xml
+  assert_file_not_exists phpstan.neon
   assert_file_not_exists README.md
 
   assert_dir_exists scripts

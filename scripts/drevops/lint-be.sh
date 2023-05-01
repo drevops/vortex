@@ -13,15 +13,13 @@ set -eu
 # Flag to allow BE lint to fail.
 DREVOPS_LINT_BE_ALLOW_FAILURE="${DREVOPS_LINT_BE_ALLOW_FAILURE:-0}"
 
-# PHP Parallel Lint targets as a comma-separated list of extensions with no
-# preceding dot or space.
+# PHP Parallel Lint comma-separated list of targets.
 DREVOPS_LINT_PHPLINT_TARGETS="${DREVOPS_LINT_PHPLINT_TARGETS:-}"
 
-# PHP Parallel Lint extensions as a comma-separated list of extensions with
-# no preceding dot or space.
+# PHP Parallel Lint comma-separated list of extensions (no preceding dot).
 DREVOPS_LINT_PHPLINT_EXTENSIONS="${DREVOPS_LINT_PHPLINT_EXTENSIONS:-php,inc,module,theme,install}"
 
-# Comma-separated list of PHPCS targets (no spaces).
+# PHPCS comma-separated list of targets.
 DREVOPS_LINT_PHPCS_TARGETS="${DREVOPS_LINT_PHPCS_TARGETS:-}"
 
 # PHPMD comma-separated list of rules.
@@ -29,6 +27,9 @@ DREVOPS_LINT_PHPMD_RULESETS="${DREVOPS_LINT_PHPMD_RULESETS:-}"
 
 # PHPMD comma-separated list of targets.
 DREVOPS_LINT_PHPMD_TARGETS="${DREVOPS_LINT_PHPMD_TARGETS:-}"
+
+# PHPStan comma-separated list of targets.
+DREVOPS_LINT_PHPSTAN_TARGETS="${DREVOPS_LINT_PHPSTAN_TARGETS:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -42,5 +43,6 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e ${DREVOPS_LINT_PHPLINT_EXTENSIONS// /} ${DREVOPS_LINT_PHPLINT_TARGETS//,/ } &&
   vendor/bin/phpcs ${DREVOPS_LINT_PHPCS_TARGETS//,/ } &&
   vendor/bin/phpmd --exclude vendor,node_modules ${DREVOPS_LINT_PHPMD_TARGETS//, /,} text "${DREVOPS_LINT_PHPMD_RULESETS//, /,}" &&
+  vendor/bin/phpstan analyse ${DREVOPS_LINT_PHPSTAN_TARGETS//, / } &&
   pass "Back-end code has passed the linter check." ||
   [ "${DREVOPS_LINT_BE_ALLOW_FAILURE}" -eq 1 ]
