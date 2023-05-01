@@ -17,7 +17,7 @@ class ExampleTest extends YsCoreFunctionalTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     // DrevOps does not support Functional tests due to permission issues.
     // Override setup until @see https://github.com/drevops/drevops/issues/820
     // resolved.
