@@ -18,7 +18,7 @@ set -e
 DREVOPS_DEPLOY_DOCKER_MAP="${DREVOPS_DEPLOY_DOCKER_MAP:-}"
 
 # The username of the docker registry to deploy Docker image to.
-DOCKER_USERNAME="${DOCKER_USERNAME:-}}"
+DOCKER_USER="${DOCKER_USER:-}}"
 
 # The token of the docker registry to deploy Docker image to.
 DOCKER_PASS="${DOCKER_PASS:-}"
@@ -57,7 +57,7 @@ for value in "${values[@]}"; do
 done
 
 # Login to the registry.
-export DOCKER_USERNAME="${DOCKER_USERNAME}"
+export DOCKER_USER="${DOCKER_USER}"
 export DOCKER_PASS="${DOCKER_PASS}"
 export DOCKER_REGISTRY="${DOCKER_REGISTRY}"
 ./scripts/drevops/docker-login.sh

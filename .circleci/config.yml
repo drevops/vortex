@@ -129,7 +129,7 @@ aliases:
       #; @see https://hub.docker.com/repository/docker/drevops/ci-builder/tags?page=1&ordering=last_updated
       - image: drevops/ci-builder:23.5.0
         auth:
-          username: $DOCKER_USERNAME
+          username: $DOCKER_USER
           password: $DOCKER_PASS
         environment:
           # Set timezone to ensure that executed operations use correct timestamps.

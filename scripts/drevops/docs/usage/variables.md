@@ -70,7 +70,7 @@ Docker registry name. Provide port, if required as <server_name>:<port>.
 
 Default value: `docker.io`
 
-### `DOCKER_USERNAME`
+### `DOCKER_USER`
 
 The username to log into the Docker registry.
 
