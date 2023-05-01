@@ -499,6 +499,23 @@ assert_ahoy_test_functional() {
   restore_file .env && ahoy up cli && sync_to_container
 }
 
+assert_ahoy_test_bdd_fast() {
+  step "Run BDD tests - fast"
+
+  substep "Run all BDD tests"
+  run ahoy test-bdd
+  assert_success
+  assert_output_contains "Behat tests passed"
+  sync_to_host
+  assert_dir_not_empty tests/behat/screenshots
+  rm -rf tests/behat/screenshots/*
+  ahoy cli rm -rf /app/tests/behat/screenshots/*
+  assert_dir_not_empty test_reports
+  assert_file_exists test_reports/behat/default.xml
+  rm -rf test_reports/*
+  ahoy cli rm -rf /app/test_reports/*
+}
+
 assert_ahoy_test_bdd() {
   step "Run BDD tests"
 

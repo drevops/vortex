@@ -81,6 +81,8 @@ load _helper_workflow.bash
 
   assert_ahoy_export_db "mydb.tar"
 
+  assert_ahoy_test_bdd_fast
+
   assert_ahoy_clean
 
   assert_ahoy_reset
