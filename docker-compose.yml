@@ -211,7 +211,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: dadarek/wait-for-dependencies
+    image: drevops/docker-wait-for-dependencies:23.5.0
     depends_on:
       - cli
       - mariadb

@@ -350,7 +350,7 @@
                 }
             },
             "entrypoint": null,
-            "image": "dadarek/wait-for-dependencies",
+            "image": "drevops/docker-wait-for-dependencies:23.5.0",
             "labels": {
                 "lagoon.type": "none"
             },
