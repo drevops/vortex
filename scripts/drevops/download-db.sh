@@ -39,7 +39,7 @@ info "Started database download."
 # @todo: Implement better support based on $DREVOPS_DB_FILE instead of hardcoded 'db*' name.
 [ -d "${DREVOPS_DB_DIR}" ] && found_db=$(find "${DREVOPS_DB_DIR}" -name "db*.sql" -o -name "db*.tar")
 
-if [ -n "${found_db}" ]; then
+if [ -n "${found_db:-}" ]; then
   note "Found existing database dump file(s)."
   ls -Alh "${DREVOPS_DB_DIR}" || true
 
