@@ -129,56 +129,59 @@ main() {
 
   if [ "${DREVOPS_DOCTOR_CHECK_SSH}" = "1" ]; then
     # SSH key injection is required to access Lagoon services from within
-    # containers. For example, to connect to production environment to run
-    # drush script.
+    # containers. For example, to connect to a production environment to run
+    # a drush script.
     # Pygmy makes this possible in the following way:
-    # 1. Pygmy starts `amazeeio/ssh-agent` container with a volume `/tmp/amazeeio_ssh-agent`
+    # 1. Pygmy starts the `amazeeio/ssh-agent` container with a volume `/tmp/amazeeio_ssh-agent`
     # 2. Pygmy adds a default SSH key from the host into this volume.
-    # 3. `docker-compose.yml` should have volume inclusion specified for CLI container:
+    # 3. `docker-compose.yml` should have volume inclusion specified for the CLI container:
     #    ```
     #    volumes_from:
     #      - container:amazeeio-ssh-agent
     #    ```
-    # 4. When CLI container starts, the volume is mounted and an entrypoint script
-    #    adds SHH key into agent.
-    #    @see https://github.com/uselagoon/lagoon-images/blob/main/images/php-cli/10-ssh-agent.sh
+    # 4. When the CLI container starts, the volume is mounted and an entrypoint
+    #    script loads the SSH key into an agent.
+    #    @see https://github.com/uselagoon/lagoon-images/blob/main/images/php-cli/entrypoints/10-ssh-agent.sh
     #
-    #  Running `ssh-add -L` within CLI container should show that the SSH key
-    #  is correctly loaded.
+    # Running `ssh-add -L` within the CLI container should show that the SSH key
+    # was correctly loaded.
     #
-    # As rule of a thumb, one must restart the CLI container after restarting
-    # Pygmy ONLY if SSH key was not loaded in pygmy before the stack starts.
-    # No need to restart CLI container if key was added, but pygmy was
-    # restarted - the volume mount will retain and the key will still be
-    # available in CLI container.
+    # As a rule of thumb, one must restart the CLI container after restarting
+    # Pygmy ONLY if the SSH key was not loaded in Pygmy before the stack starts.
+    # No need to restart the CLI container if the key was added, but Pygmy was
+    # restarted - the volume mount will be retained, and the key will still be
+    # available in the CLI container.
 
-    ssh_key_added_to_pygmy=1
+    ssh_key_added_to_pygmy=0
+    ssh_key_volume_mounted=0
+
     # Check that the key is injected into pygmy ssh-agent container.
     if ! pygmy status 2>&1 | grep -q "${DREVOPS_DOCTOR_SSH_KEY_FILE}"; then
       warn "SSH key is not added to pygmy."
       note "The SSH key will not be available in CLI container. Run 'pygmy restart' and then 'ahoy up'"
-      ssh_key_added_to_pygmy=0
+    else
+      ssh_key_added_to_pygmy=1
     fi
 
     # Check that the volume is mounted into CLI container.
-    ssh_key_volume_mounted=1
     if ! docker compose exec -T cli bash -c "grep \"^/dev\" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent"; then
       warn "SSH key volume is not mounted into CLI container."
       note "Make sure that your \"docker-compose.yml\" has the following lines for CLI service:"
       note "  volumes_from:"
       note "    - container:amazeeio-ssh-agent"
       note "After adding these lines, run 'ahoy up'."
-      ssh_key_volume_mounted=0
+    else
+      ssh_key_volume_mounted=1
     fi
 
-    # Check that ssh key is available in the container.
-    ssh_key_available_in_container=1
-    if [ "${ssh_key_added_to_pygmy}" = "1" ] && [ "${ssh_key_volume_mounted}" = "1" ] && ! docker compose exec -T cli bash -c "ssh-add -L | grep -q 'ssh-rsa'"; then
-      fail "SSH key was not added into container. Run 'pygmy restart'."
-      ssh_key_available_in_container=0
+    # Check that ssh key is available in the container, but only if the above checks passed.
+    if [ "${ssh_key_added_to_pygmy}" = "1" ] && [ "${ssh_key_volume_mounted}" = "1" ]; then
+      if ! docker compose exec -T cli bash -c "ssh-add -L | grep -q 'ssh-rsa'"; then
+        fail "SSH key was not added into container. Run 'pygmy restart'."
+      else
+        pass "SSH key is available within CLI container."
+      fi
     fi
-
-    [ "${ssh_key_available_in_container}" = "1" ] && pass "SSH key is available within CLI container."
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
