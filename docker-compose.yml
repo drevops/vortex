@@ -82,6 +82,9 @@ services:
     user: root
     environment:
       <<: *default-environment
+    # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
+    volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
+      - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
     ports:
       - "35729" # Livereload port in container. Find port on host with `ahoy info` or `docker compose port cli 35729`.
     #;< LAGOON
