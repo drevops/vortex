@@ -41,6 +41,17 @@ note "Found ${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME} service container with id $
 
 new_image="${DREVOPS_DB_EXPORT_DOCKER_REGISTRY}/${DREVOPS_DB_EXPORT_DOCKER_IMAGE}"
 
+note "Locking and unlocking tables before upgrade."
+docker compose exec -T "${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
+sleep 5
+docker compose exec -T "${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME}" mysql -e "UNLOCK TABLES;"
+
+note "Running forced service upgrade."
+docker compose exec -T "${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME}" sh -c "mysql_upgrade --force"
+
+note "Locking tables after upgrade."
+docker compose exec -T "${DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
+
 note "Committing exported Docker image with name ${new_image}."
 iid=$(docker commit "${cid}" "${new_image}")
 iid="${iid#sha256:}"
