@@ -1,4 +1,4 @@
-# Updating documentation
+# Authoring documentation
 
 !!! note "Work in progress"
 
