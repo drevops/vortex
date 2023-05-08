@@ -154,5 +154,5 @@ nav:
     - Deploy 🚧: usage/deploy.md
   - Maintenance:
     - Authoring scripts: maintenance/authoring-scripts.md
-    - Updating test assets: maintenance/updating-test-assets.md
-    - Updating documentation: maintenance/updating-documentation.md
+    - Authoring tests: maintenance/authoring-tests.md
+    - Updating documentation: maintenance/authoring-documentation.md
