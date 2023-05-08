@@ -156,7 +156,7 @@ commands:
     usage: "Remove containers, all build, uncommitted files."
     cmd: |
       ahoy confirm "All containers, build and uncommitted files will be removed, repository will be reset to the last commit. Proceed?" &&
-      ahoy clean && ./scripts/drevops/reset.sh
+      AHOY_CONFIRM_RESPONSE=y ahoy clean && ./scripts/drevops/reset.sh
 
   fei:
     usage: Install front-end assets.
