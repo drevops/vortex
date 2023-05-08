@@ -32,6 +32,7 @@ load _helper_workflow.bash
   assert_ahoy_test_bdd_fast
 }
 
+# Make sure to run with `TEST_GITHUB_TOKEN=working_test_token bats...` or this test will fail.
 @test "GitHub token" {
   prepare_sut "Starting GitHub token tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
