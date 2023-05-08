@@ -8,6 +8,10 @@ load _helper.bash
 load _helper_circleci.bash
 
 @test "CircleCI artifacts are saved" {
+  if [ -z "${CI}" ]; then
+    skip "This test is only run on CircleCI"
+  fi
+
   export TEST_CIRCLECI_TOKEN="${TEST_CIRCLECI_TOKEN?CircleCI token is not set}"
   export CIRCLE_PROJECT_REPONAME="${CIRCLE_PROJECT_REPONAME?CircleCI project repo name is not set}"
   export CIRCLE_PROJECT_USERNAME="${CIRCLE_PROJECT_USERNAME?CircleCI project username is not set}"
@@ -33,6 +37,10 @@ load _helper_circleci.bash
 }
 
 @test "CircleCI test results are saved" {
+  if [ -z "${CI}" ]; then
+    skip "This test is only run on CircleCI"
+  fi
+
   export TEST_CIRCLECI_TOKEN="${TEST_CIRCLECI_TOKEN?CircleCI token is not set}"
   export CIRCLE_PROJECT_REPONAME="${CIRCLE_PROJECT_REPONAME?CircleCI project repo name is not set}"
   export CIRCLE_PROJECT_USERNAME="${CIRCLE_PROJECT_USERNAME?CircleCI project username is not set}"
