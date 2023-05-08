@@ -6,39 +6,42 @@
 # DOCKER_DEFAULT_PLATFORM=linux/amd64 bats --tap tests/bats/test.bats
 #
 # shellcheck disable=SC2155,SC2119,SC2120,SC2044,SC2294
-
-# Guard against bats executing this twice
-if [ -z "$TEST_PATH_INITIALIZED" ]; then
-  export TEST_PATH_INITIALIZED=true
-
-  # Add BATS test directory to the PATH.
-  PATH="$(dirname "${BATS_TEST_DIRNAME}"):$PATH"
-
-  # BATS_TMPDIR - the location to a directory that may be used to store
-  # temporary files. Provided by bats. Created once for the duration of whole
-  # suite run.
-  # Do not use BATS_TMPDIR, instead use BATS_TEST_TMPDIR.
-  #
-  # BATS_TEST_TMPDIR - unique location for temp files per test.
-  # shellcheck disable=SC2002
-  random_suffix=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 4 | head -n 1)
-  BATS_TEST_TMPDIR="${BATS_RUN_TMPDIR}/bats-test-tmp-${random_suffix}"
-  [ -d "${BATS_TEST_TMPDIR}" ] && rm -Rf "${BATS_TEST_TMPDIR}" >/dev/null
-  mkdir -p "${BATS_TEST_TMPDIR}"
-
-  export BATS_TEST_TMPDIR
-fi
-
-export BATS_LIB_PATH="${BATS_TEST_DIRNAME}/../node_modules"
-bats_load_library bats-helpers
+#
 
 ################################################################################
 #                       BATS HOOK IMPLEMENTATIONS                              #
 ################################################################################
 
 setup() {
+  ##
+  ## Phase 1: Framework setup.
+  ##
+
+  echo "NOTE: if Docker tests fail, re-run with custom temporary directory (must be pre-created): TMPDIR=\$HOME/.bats-tmp bats <testfile>" >&3
+
+  # Enforce architecture if not provided for ARM. Note that this may not work
+  # if bash uses Rosetta or other emulators, in which case the test should run
+  # with the variable explicitly set.
+  if [ "$(uname -m)" = "arm64" ]; then
+    export DOCKER_DEFAULT_PLATFORM=linux/amd64
+  fi
+
+  if [ -n "${DOCKER_DEFAULT_PLATFORM}" ]; then
+    step "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."
+  fi
+
+  # Register a path to libraries.
+  export BATS_LIB_PATH="${BATS_TEST_DIRNAME}/../node_modules"
+
+  # Load 'bats-helpers' library.
+  bats_load_library bats-helpers
+
   # Setup command mocking.
   setup_mock
+
+  ##
+  ## Phase 2: Pre-flight checks.
+  ##
 
   # Set test secrets.
   # For local test development, export these variables in your shell.
@@ -58,13 +61,9 @@ setup() {
   [ -n "${TEST_DOCKER_PASS}" ] || ( echo "[ERROR] The required TEST_DOCKER_PASS variable is not set. Tests will not proceed." && exit 1 )
   # @formatter:on
 
-  # Allow to override debug variables from environment or hardcode them here
-  # when developing tests.
-  export DREVOPS_DEBUG="${TEST_DREVOPS_DEBUG:-}"
-  export DREVOPS_DOCKER_VERBOSE="${TEST_DREVOPS_DOCKER_VERBOSE:-}"
-  export DREVOPS_COMPOSER_VERBOSE="${TEST_DREVOPS_COMPOSER_VERBOSE:-}"
-  export DREVOPS_NPM_VERBOSE="${TEST_DREVOPS_NPM_VERBOSE:-}"
-  export DREVOPS_INSTALL_DEBUG="${TEST_DREVOPS_INSTALL_DEBUG:-}"
+  ##
+  ## Phase 3: Application test directories structure setup.
+  ##
 
   # To run installation tests, several fixture directories are required.
   # They are defined and created in setup() test method.
@@ -96,6 +95,10 @@ setup() {
   prepare_fixture_dir "${LOCAL_REPO_DIR}"
   prepare_fixture_dir "${APP_TMP_DIR}"
 
+  ##
+  ## Phase 4: Application variables setup.
+  ##
+
   # Isolate variables set in CI.
   export DREVOPS_TEST_ARTIFACT_DIR="/app/tests/behat"
   export DREVOPS_TEST_REPORTS_DIR="/app/test_reports"
@@ -118,13 +121,16 @@ setup() {
   export DREVOPS_DOCTOR_CHECK_WEBSERVER=0
   export DREVOPS_DOCTOR_CHECK_BOOTSTRAP=0
 
-  if [ "$(uname -m)" = "arm64" ]; then
-    export DOCKER_DEFAULT_PLATFORM=linux/amd64
-  fi
+  # Allow to override debug variables from environment when developing tests.
+  export DREVOPS_DEBUG="${TEST_DREVOPS_DEBUG:-}"
+  export DREVOPS_DOCKER_VERBOSE="${TEST_DREVOPS_DOCKER_VERBOSE:-}"
+  export DREVOPS_COMPOSER_VERBOSE="${TEST_DREVOPS_COMPOSER_VERBOSE:-}"
+  export DREVOPS_NPM_VERBOSE="${TEST_DREVOPS_NPM_VERBOSE:-}"
+  export DREVOPS_INSTALL_DEBUG="${TEST_DREVOPS_INSTALL_DEBUG:-}"
 
-  if [ -n "${DOCKER_DEFAULT_PLATFORM}" ]; then
-    step "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."
-  fi
+  # Set Drupal version.
+  # @todo Review if this is required.
+  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
 
   # Switch to using test demo DB.
   # Demo DB is what is being downloaded when the installer runs for the first
@@ -132,16 +138,16 @@ setup() {
   # functionality.
   export DREVOPS_INSTALL_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d10.test.sql.md
 
+  ##
+  ## Phase 5: SUT files setup.
+  ##
+
   # Copy DrevOps at the last commit.
   prepare_local_repo "${LOCAL_REPO_DIR}" >/dev/null
 
   # Prepare global git config and ignore files required for testing cleanup scenarios.
   prepare_global_gitconfig
   prepare_global_gitignore
-
-  # Set Drupal version.
-  # @todo Review if this is required.
-  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
 
   # Change directory to the current project directory for each test. Tests
   # requiring to operate outside of CURRENT_PROJECT_DIR (like deployment tests)
