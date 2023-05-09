@@ -33,9 +33,6 @@ DREVOPS_TEST_UNIT_CONFIG="${DREVOPS_TEST_UNIT_CONFIG:-${DREVOPS_APP}/${DREVOPS_W
 # Directory to store test result files.
 DREVOPS_TEST_REPORTS_DIR="${DREVOPS_TEST_REPORTS_DIR:-}"
 
-# Directory to store test artifact files.
-DREVOPS_TEST_ARTIFACT_DIR="${DREVOPS_TEST_ARTIFACT_DIR:-}"
-
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -45,37 +42,49 @@ pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-info "Running unit tests."
+info "Running Unit tests."
 
-# Create test reports and artifact directories.
-[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && mkdir -p "${DREVOPS_TEST_REPORTS_DIR}"
-[ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}"
-
-# Generic tests that do not require Drupal bootstrap.
 opts=()
 
-[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/unit.xml")
+[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && mkdir -p "${DREVOPS_TEST_REPORTS_DIR}" && opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/unit_scripts.xml")
 
-vendor/bin/phpunit "${opts[@]}" "tests/phpunit" --exclude-group=skipped --group "${DREVOPS_TEST_UNIT_GROUP}" "$@" &&
-  pass "Unit tests for scripts passed." ||
-  [ "${DREVOPS_TEST_UNIT_ALLOW_FAILURE}" -eq 1 ]
+# Run tests with set targets and skip after the first failure, but still assess the failure.
+set +e
+
+exit_code=0
+
+# Generic tests that do not require Drupal bootstrap.
+if [ "${exit_code}" -eq 0 ]; then
+  info "Running Unit tests for scripts."
+  vendor/bin/phpunit "${opts[@]}" "tests/phpunit" --exclude-group=skipped --group "${DREVOPS_TEST_UNIT_GROUP}" "$@"
+  exit_code=$?
+fi
 
 # Custom modules tests that require Drupal bootstrap.
 opts=(-c "${DREVOPS_TEST_UNIT_CONFIG}")
 
-[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/unit_modules.xml")
+if [ "${exit_code}" -eq 0 ]; then
+  info "Running Unit tests for modules."
+  [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/unit_modules.xml")
+  vendor/bin/phpunit "${opts[@]}" "${DREVOPS_WEBROOT}/modules/custom" --exclude-group=skipped --group "${DREVOPS_TEST_UNIT_GROUP}" "$@"
+  exit_code=$?
+fi
 
-vendor/bin/phpunit "${opts[@]}" "${DREVOPS_WEBROOT}/modules/custom" --exclude-group=skipped --group "${DREVOPS_TEST_UNIT_GROUP}" "$@" &&
-  pass "Unit tests for modules passed." ||
-  [ "${DREVOPS_TEST_UNIT_ALLOW_FAILURE}" -eq 1 ]
-
-# Custom theme tests that require Drupal bootstrap.
-if [ -n "${DREVOPS_DRUPAL_THEME}" ]; then
-  opts=(-c "${DREVOPS_TEST_UNIT_CONFIG}")
-
+# Custom themes tests that require Drupal bootstrap.
+if [ "${exit_code}" -eq 0 ] && [ -n "${DREVOPS_DRUPAL_THEME}" ]; then
+  info "Running Unit tests for themes."
   [ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/unit_themes.xml")
+  vendor/bin/phpunit "${opts[@]}" "${DREVOPS_WEBROOT}/themes/custom" --exclude-group=skipped --group "${DREVOPS_TEST_UNIT_GROUP}" "$@"
+  exit_code=$?
+fi
 
-  vendor/bin/phpunit "${opts[@]}" "${DREVOPS_WEBROOT}/themes/custom" --exclude-group=skipped --group "${DREVOPS_TEST_UNIT_GROUP}" "$@" &&
-    pass "Unit tests for themes passed." ||
-    [ "${DREVOPS_TEST_UNIT_ALLOW_FAILURE}" -eq 1 ]
+set -e
+
+echo
+if [ "${exit_code}" -eq 0 ]; then
+  pass "Unit tests passed." && exit 0
+elif [ "${DREVOPS_TEST_UNIT_ALLOW_FAILURE}" -eq 1 ]; then
+  pass "Unit tests failed, but failure is allowed." && exit 0
+else
+  fail "Unit tests failed." && exit 1
 fi

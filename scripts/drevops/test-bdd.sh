@@ -45,10 +45,6 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 
 info "Running BDD tests."
 
-# Create test reports and artifact directories.
-[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && mkdir -p "${DREVOPS_TEST_REPORTS_DIR}"
-[ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}"
-
 # Use parallel Behat profile if using more than a single node to run tests.
 if [ -n "${DREVOPS_TEST_PARALLEL_INDEX}" ]; then
   DREVOPS_TEST_BEHAT_PROFILE="p${DREVOPS_TEST_PARALLEL_INDEX}"
@@ -63,13 +59,28 @@ opts=(
   --out std
 )
 
-[ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && export BEHAT_SCREENSHOT_DIR="${DREVOPS_TEST_ARTIFACT_DIR}/screenshots"
-[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && opts+=(--format "junit" --out "${DREVOPS_TEST_REPORTS_DIR}/behat")
-
+[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && mkdir -p "${DREVOPS_TEST_REPORTS_DIR}" && opts+=(--format "junit" --out "${DREVOPS_TEST_REPORTS_DIR}/behat")
+[ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}" && export BEHAT_SCREENSHOT_DIR="${DREVOPS_TEST_ARTIFACT_DIR}/screenshots"
 [ -n "${DREVOPS_TEST_BEHAT_TAGS}" ] && opts+=(--tags="${DREVOPS_TEST_BEHAT_TAGS}")
 
-# Run tests once and re-run on fail, but only in CI.
-vendor/bin/behat "${opts[@]}" "$@" ||
-  ([ -n "${CI}" ] && vendor/bin/behat "${opts[@]}" --rerun "$@") &&
-  pass "Behat tests passed." ||
-  [ "${DREVOPS_TEST_BDD_ALLOW_FAILURE}" -eq 1 ]
+# Run tests with set targets and skip after the first failure, but still assess the failure.
+set +e
+
+exit_code=0
+
+if [ "${exit_code}" -eq 0 ]; then
+  # Run tests once and re-run on fail, but only in CI.
+  vendor/bin/behat "${opts[@]}" "$@" || ([ -n "${CI}" ] && vendor/bin/behat "${opts[@]}" --rerun "$@")
+  exit_code=$?
+fi
+
+set -e
+
+echo
+if [ "${exit_code}" -eq 0 ]; then
+  pass "BDD tests passed." && exit 0
+elif [ "${DREVOPS_TEST_BDD_ALLOW_FAILURE}" -eq 1 ]; then
+  pass "BDD tests failed, but failure is allowed." && exit 0
+else
+  fail "BDD tests failed." && exit 1
+fi

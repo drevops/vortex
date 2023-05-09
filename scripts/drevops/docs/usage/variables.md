@@ -1242,7 +1242,7 @@ Default value: `DREVOPS_APP`
 
 ### `DREVOPS_TEST_FUNCTIONAL_GROUP`
 
-Kernel test group. Optional. Defaults to running Functional tests tagged with `site:functional`.
+Functional test group. Optional. Defaults to running Functional tests tagged with `site:functional`.
 
 Default value: `site:functional`
 
@@ -1278,7 +1278,7 @@ Default value: `UNDEFINED`
 
 ### `DREVOPS_TEST_SKIP`
 
-Flag to skip running of all tests. Helpful to set in CI to skip running of tests without modifying the codebase.
+Flag to skip running of all tests.
 
 Default value: `UNDEFINED`
 

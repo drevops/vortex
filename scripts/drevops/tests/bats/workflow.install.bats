@@ -36,13 +36,7 @@ load _helper_workflow.bash
 
   assert_ahoy_lint
 
-  assert_ahoy_test_unit
-
-  assert_ahoy_test_kernel
-
-  assert_ahoy_test_functional
-
-  assert_ahoy_test_bdd
+  assert_ahoy_test
 
   assert_ahoy_fei
 
@@ -79,13 +73,7 @@ load _helper_workflow.bash
 
   assert_ahoy_lint "rootdoc"
 
-  assert_ahoy_test_unit "rootdoc"
-
-  assert_ahoy_test_kernel "rootdoc"
-
-  assert_ahoy_test_functional "rootdoc"
-
-  assert_ahoy_test_bdd_fast
+  assert_ahoy_test "rootdoc" "1"
 
   assert_ahoy_fei "rootdoc"
 
@@ -112,13 +100,7 @@ load _helper_workflow.bash
 
   assert_ahoy_lint
 
-  assert_ahoy_test_unit
-
-  assert_ahoy_test_kernel
-
-  assert_ahoy_test_functional
-
-  assert_ahoy_test_bdd_fast
+  assert_ahoy_test "web" "1"
 
   assert_ahoy_fe
 }
