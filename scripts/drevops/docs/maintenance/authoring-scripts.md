@@ -52,23 +52,24 @@ command -v curl > /dev/null || ( fail "curl command is not available." && exit 1
 ```bash
 info "Started GitHub notification for operation ${DREVOPS_NOTIFY_EVENT}"
 ```
-8. MUST contain an `pass` message about the finish of the script body, e.g.:
+10. MUST contain an `pass` message about the finish of the script body, e.g.:
 ```bash
 pass "Finished GitHub notification for operation ${DREVOPS_NOTIFY_EVENT}"
 ```
-9. MUST use uppercase global variables
-10. MUST use lowercase local variables.
-11. MUST use `DREVOPS_` prefix for variables, unless it is a known 3-rd party
+11. MUST use uppercase global variables
+12. MUST use lowercase local variables.
+13. MUST use long options instead of short options for readability. I.e., `drush cache:rebuild` instead of `drush cr`.
+14. MUST use `DREVOPS_` prefix for variables, unless it is a known 3-rd party
     variable like `GITHUB_TOKEN` or `COMPOSER`.
-12. MUST use script-specific prefix. I.e., for `notify.sh`, the variable to skip
+15. MUST use script-specific prefix. I.e., for `notify.sh`, the variable to skip
     notifications should start with `DREVOPS_NOTIFY_`.
-13. MAY rely on variables from the external scripts (not prefixed with a
+16. MAY rely on variables from the external scripts (not prefixed with a
     script-specific prefix), but MUST declare such variables in the header of
     the file.
-14. MAY call other DrevOps scripts (discouraged), but MUST source them rather
+17. MAY call other DrevOps scripts (discouraged), but MUST source them rather
     than creating a sub-process. This is to allow passing environment variables
     down the call stack.
-10. SHOULD use `note` messages for informing about the script progress.
+18. SHOULD use `note` messages for informing about the script progress.
 
 ## Scaffold script
 

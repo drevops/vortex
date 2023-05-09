@@ -6,6 +6,10 @@
 
 load _helper.bash
 
+format_yes_no() {
+  [ "${1}" == "1" ] && echo "Yes" || echo "No"
+}
+
 assert_drupal_install_site_info(){
   local webroot="${8:-web}"
 
@@ -15,19 +19,21 @@ assert_drupal_install_site_info(){
   assert_output_contains "Site name                    : Example site"
   assert_output_contains "Site email                   : webmaster@example.com"
   assert_output_contains "Profile                      : standard"
-  assert_output_contains "Install from profile         : ${1:-0}"
-  assert_output_contains "Overwrite existing DB        : ${2:-0}"
-  assert_output_contains "Skip sanitization            : ${3:-0}"
-  assert_output_contains "Use maintenance mode         : ${4:-1}"
-  assert_output_contains "Skip post-install operations : ${5:-0}"
   assert_output_contains "Private files directory      : ${LOCAL_REPO_DIR}/${webroot}/sites/default/files/private"
   assert_output_contains "Config path                  : ${LOCAL_REPO_DIR}/config/default"
   assert_output_contains "DB dump file path            : ${LOCAL_REPO_DIR}/.data/db.sql"
-  assert_output_contains "Existing site found          : ${6:-0}"
-  assert_output_contains "Configuration files present  : ${7:-0}"
+
   assert_output_contains "Drush binary                 :"
   assert_output_contains "Drush version                :"
   assert_output_contains "Drupal core version          :"
+
+  assert_output_contains "Install from profile         : $(format_yes_no "${1:-0}")"
+  assert_output_contains "Overwrite existing DB        : $(format_yes_no "${2:-0}")"
+  assert_output_contains "Skip sanitization            : $(format_yes_no "${3:-0}")"
+  assert_output_contains "Use maintenance mode         : $(format_yes_no "${4:-1}")"
+  assert_output_contains "Skip post-install operations : $(format_yes_no "${5:-0}")"
+  assert_output_contains "Configuration files present  : $(format_yes_no "${6:-0}")"
+  assert_output_contains "Existing site found          : $(format_yes_no "${7:-0}")"
 }
 
 @test "Site install: DB; no site" {
@@ -96,13 +102,13 @@ assert_drupal_install_site_info(){
   assert_output_contains "Created private files directory."
 
   assert_output_contains "Installing site from the database dump file."
-  assert_output_contains "Dump file: ${LOCAL_REPO_DIR}/.data/db.sql"
+  assert_output_contains "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
   assert_output_contains "Existing site was not found."
   assert_output_contains "The site content will be imported from the database dump file."
   assert_output_contains "Imported database from the dump file."
 
-  assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
-  assert_equal "-y -q sqlc" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "-y -q sql:drop" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "-y -q sql:cli" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_not_contains "Unable to import database from file."
   assert_output_not_contains "Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
@@ -123,7 +129,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Enabled maintenance mode."
 
   assert_output_contains "Running database updates."
-  assert_equal "-y updb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
+  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
 
   assert_output_contains "Importing Drupal configuration if it exists."
   assert_output_not_contains "Updated site UUID from the configuration with"
@@ -142,13 +148,13 @@ assert_drupal_install_site_info(){
 
   # Sanitization is skipped for the existing database.
   assert_output_contains "Sanitizing database."
-  assert_equal "-y -q sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
-  assert_output_contains "Sanitized database using drush sql-sanitize."
+  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_output_contains "Sanitized database using drush sql:sanitize."
   assert_output_not_contains "Updated username with user email."
-  assert_equal "-y -q sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
+  assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "Applied custom sanitization commands."
-  assert_equal "-y -q sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
-  assert_equal "-y -q sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
+  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
   assert_output_contains "Reset user 0 username and email."
   assert_output_not_contains "Updated user 1 email."
   assert_output_not_contains "Skipped database sanitization."
@@ -167,9 +173,9 @@ assert_drupal_install_site_info(){
 
   # One-time login link.
   assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 20)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 22)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 23)"
+  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
+  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 22)"
+  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 23)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "Finished site installation."
@@ -228,13 +234,13 @@ assert_drupal_install_site_info(){
 
   assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
 
-  assert_drupal_install_site_info 0 0 0 1 0 1 0
+  assert_drupal_install_site_info 0 0 0 1 0 0 1
 
   assert_output_contains "Creating private files directory."
   assert_output_contains "Created private files directory."
 
   assert_output_contains "Installing site from the database dump file."
-  assert_output_contains "Dump file: ${LOCAL_REPO_DIR}/.data/db.sql"
+  assert_output_contains "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
   assert_output_contains "Existing site was found."
   assert_output_contains "Site content will be preserved."
   assert_output_contains "Sanitization will be skipped for an existing database."
@@ -254,7 +260,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Enabled maintenance mode."
 
   assert_output_contains "Running database updates."
-  assert_equal "-y updb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_contains "Importing Drupal configuration if it exists."
   assert_output_not_contains "Updated site UUID from the configuration with"
@@ -274,7 +280,7 @@ assert_drupal_install_site_info(){
   # Sanitization is skipped for the existing database.
   assert_output_contains "Skipped database sanitization."
   assert_output_not_contains "Sanitizing database."
-  assert_output_not_contains "Sanitized database using drush sql-sanitize."
+  assert_output_not_contains "Sanitized database using drush sql:sanitize."
   assert_output_not_contains "Updated username with user email."
   assert_output_not_contains "Applied custom sanitization commands from file "
   assert_output_not_contains "Reset user 0 username and email."
@@ -294,9 +300,9 @@ assert_drupal_install_site_info(){
 
   # One-time login link.
   assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 14)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 15)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 17)"
+  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 15)"
+  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 16)"
+  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 17)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "Finished site installation."
@@ -366,19 +372,19 @@ assert_drupal_install_site_info(){
 
   assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
 
-  assert_drupal_install_site_info 0 1 0 1 0 1 0
+  assert_drupal_install_site_info 0 1 0 1 0 0 1
 
   assert_output_contains "Creating private files directory."
   assert_output_contains "Created private files directory."
 
   assert_output_contains "Installing site from the database dump file."
-  assert_output_contains "Dump file: ${LOCAL_REPO_DIR}/.data/db.sql"
+  assert_output_contains "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
   assert_output_contains "Existing site was found."
   assert_output_contains "Existing site content will be removed and new content will be imported from the database dump file."
   assert_output_contains "Imported database from the dump file."
 
-  assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
-  assert_equal "-y -q sqlc" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "-y -q sql:drop" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "-y -q sql:cli" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_not_contains "Site content will be preserved."
   assert_output_not_contains "Sanitization will be skipped for an existing database."
@@ -395,7 +401,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Enabled maintenance mode."
 
   assert_output_contains "Running database updates."
-  assert_equal "-y updb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
+  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
 
   assert_output_contains "Importing Drupal configuration if it exists."
   assert_output_not_contains "Updated site UUID from the configuration with"
@@ -413,14 +419,14 @@ assert_drupal_install_site_info(){
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "Sanitizing database."
-  assert_output_contains "Sanitized database using drush sql-sanitize."
-  assert_equal "-y -q sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_output_contains "Sanitized database using drush sql:sanitize."
+  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_output_not_contains "Updated username with user email."
   assert_output_contains "Applied custom sanitization commands."
-  assert_equal "-y -q sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
+  assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "Reset user 0 username and email."
-  assert_equal "-y -q sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
-  assert_equal "-y -q sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
+  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
   assert_output_not_contains "Updated user 1 email."
   assert_output_not_contains "Skipped database sanitization."
 
@@ -438,9 +444,9 @@ assert_drupal_install_site_info(){
 
   # One-time login link.
   assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 20)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 22)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 23)"
+  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
+  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 22)"
+  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 23)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "Finished site installation."
@@ -517,8 +523,8 @@ assert_drupal_install_site_info(){
   assert_output_contains "The site content will be created from the profile."
   assert_output_contains "Installed a site from the profile."
 
-  assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
-  assert_equal "si -q -y standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "-y -q sql:drop" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "site:install -q -y standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_not_contains "[FAIL] Unable to import database from file."
   assert_output_not_contains "Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
@@ -540,7 +546,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Enabled maintenance mode."
 
   assert_output_contains "Running database updates."
-  assert_equal "-y updb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
+  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
 
   assert_output_contains "Importing Drupal configuration if it exists."
   assert_output_not_contains "Updated site UUID from the configuration with"
@@ -558,14 +564,14 @@ assert_drupal_install_site_info(){
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "Sanitizing database."
-  assert_output_contains "Sanitized database using drush sql-sanitize."
-  assert_equal "-y -q sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_output_contains "Sanitized database using drush sql:sanitize."
+  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_output_not_contains "Updated username with user email."
   assert_output_contains "Applied custom sanitization commands."
-  assert_equal "-y -q sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
+  assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "Reset user 0 username and email."
-  assert_equal "-y -q sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
-  assert_equal "-y -q sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
+  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
   assert_output_not_contains "Updated user 1 email."
   assert_output_not_contains "Skipped database sanitization."
 
@@ -583,9 +589,9 @@ assert_drupal_install_site_info(){
 
   # One-time login link.
   assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 20)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 22)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 23)"
+  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
+  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 22)"
+  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 23)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "Finished site installation."
@@ -642,7 +648,7 @@ assert_drupal_install_site_info(){
 
   assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
 
-  assert_drupal_install_site_info 1 0 0 1 0 1 0
+  assert_drupal_install_site_info 1 0 0 1 0 0 1
 
   assert_output_contains "Creating private files directory."
   assert_output_contains "Created private files directory."
@@ -668,7 +674,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Enabled maintenance mode."
 
   assert_output_contains "Running database updates."
-  assert_equal "-y updb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_contains "Importing Drupal configuration if it exists."
   assert_output_not_contains "Updated site UUID from the configuration with"
@@ -688,7 +694,7 @@ assert_drupal_install_site_info(){
   # Sanitization is skipped for the existing database.
   assert_output_contains "Skipped database sanitization."
   assert_output_not_contains "Sanitizing database."
-  assert_output_not_contains "Sanitized database using drush sql-sanitize."
+  assert_output_not_contains "Sanitized database using drush sql:sanitize."
   assert_output_not_contains "Updated username with user email."
   assert_output_not_contains "Applied custom sanitization commands from file "
   assert_output_not_contains "Reset user 0 username and email."
@@ -708,9 +714,9 @@ assert_drupal_install_site_info(){
 
   # One-time login link.
   assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 14)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 15)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 17)"
+  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 15)"
+  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 16)"
+  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 17)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "Finished site installation."
@@ -777,7 +783,7 @@ assert_drupal_install_site_info(){
 
   assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
 
-  assert_drupal_install_site_info 1 1 0 1 0 1 0
+  assert_drupal_install_site_info 1 1 0 1 0 0 1
 
   assert_output_contains "Creating private files directory."
   assert_output_contains "Created private files directory."
@@ -788,8 +794,8 @@ assert_drupal_install_site_info(){
   assert_output_contains "Existing site content will be removed and new content will be created from the profile."
   assert_output_contains "Installed a site from the profile."
 
-  assert_equal "-y -q sql-drop" "$(mock_get_call_args "${mock_drush}" 4)"
-  assert_equal "si -q -y standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL" "$(mock_get_call_args "${mock_drush}" 5)"
+  assert_equal "-y -q sql:drop" "$(mock_get_call_args "${mock_drush}" 4)"
+  assert_equal "site:install -q -y standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL" "$(mock_get_call_args "${mock_drush}" 5)"
 
   assert_output_not_contains "Site content will be preserved."
   assert_output_not_contains "Sanitization will be skipped for an existing database."
@@ -806,7 +812,7 @@ assert_drupal_install_site_info(){
   assert_output_contains "Enabled maintenance mode."
 
   assert_output_contains "Running database updates."
-  assert_equal "-y updb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
+  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
 
   assert_output_contains "Importing Drupal configuration if it exists."
   assert_output_not_contains "Updated site UUID from the configuration with"
@@ -824,14 +830,14 @@ assert_drupal_install_site_info(){
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "Sanitizing database."
-  assert_output_contains "Sanitized database using drush sql-sanitize."
-  assert_equal "-y -q sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_output_contains "Sanitized database using drush sql:sanitize."
+  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_output_not_contains "Updated username with user email."
   assert_output_contains "Applied custom sanitization commands."
-  assert_equal "-y -q sql-query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
+  assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "Reset user 0 username and email."
-  assert_equal "-y -q sql-query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
-  assert_equal "-y -q sql-query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
+  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
+  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
   assert_output_not_contains "Updated user 1 email."
   assert_output_not_contains "Skipped database sanitization."
 
@@ -849,9 +855,9 @@ assert_drupal_install_site_info(){
 
   # One-time login link.
   assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 20)"
-  assert_equal "sqlq SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
-  assert_equal "-q -- uublk admin" "$(mock_get_call_args "${mock_drush}" 22)"
-  assert_equal "uli" "$(mock_get_call_args "${mock_drush}" 23)"
+  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
+  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 22)"
+  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 23)"
   assert_output_contains "MOCK_ONE_TIME_LINK"
 
   assert_output_contains "Finished site installation."
