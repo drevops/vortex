@@ -764,6 +764,12 @@ Flag to skip code linting.
 
 Default value: `UNDEFINED`
 
+### `DREVOPS_LINT_TWIGCS_TARGETS`
+
+Twigcs comma-separated list of targets. Set to empty value to disable this check.
+
+Default value: `web/modules/custom/*/templates, web/themes/custom/*/templates`
+
 ### `DREVOPS_LINT_TYPE`
 
 Provide argument as 'be' or 'fe' to lint only back-end or front-end code. If no argument is provided, all code will be linted.
