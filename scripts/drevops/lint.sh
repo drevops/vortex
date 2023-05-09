@@ -11,8 +11,8 @@ set -eu
 [ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 # Flag to skip code linting.
-# Helpful to set in CI to code linting without modifying the codebase.
-DREVOPS_LINT_SKIP="${DREVOPS_LINT_SKIP:-}"
+# Helpful to set in CI to skip code linting without modifying the codebase.
+DREVOPS_LINT_SKIP="${DREVOPS_LINT_SKIP:-0}"
 
 # ------------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-[ -n "${DREVOPS_LINT_SKIP}" ] && pass "Skipping code linting" && exit 0
+[ "${DREVOPS_LINT_SKIP}" = "1" ] && note "Skipping code lint checks." && exit 0
 
 # Provide argument as 'be' or 'fe' to lint only back-end or front-end code.
 # If no argument is provided, all code will be linted.

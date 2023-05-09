@@ -307,61 +307,72 @@ assert_ahoy_export_db() {
 assert_ahoy_lint() {
   local webroot="${1:-web}"
 
-  step "Lint code"
+  step "Run linter checks"
 
-  step "Assert that lint works"
+  substep "Assert that lint works"
   run ahoy lint
   assert_success
+  assert_output_contains "Running back-end code linter checks."
   assert_output_contains "Back-end code has passed the linter checks."
-  assert_output_contains "Front-end code has passed the linter check."
-  assert_output_not_contains "Containers are not running."
+  assert_output_contains "Running front-end code linter checks."
+  assert_output_contains "Front-end code has passed the linter checks."
 
-  step "Assert that lint failure works"
+  substep "Assert that lint failure works"
   echo "\$a=1;" >> "${webroot}/modules/custom/sw_core/sw_core.module"
   echo ".abc{margin: 0px;}" >> "${webroot}/themes/custom/star_wars/scss/components/_layout.scss"
   sync_to_container
 
   run ahoy lint
   assert_failure
+  assert_output_contains "Running back-end code linter checks."
   assert_output_contains "Back-end code has failed the linter checks."
   assert_output_not_contains "Back-end code has passed the linter checks."
-  assert_output_not_contains "Front-end code has passed the linter check."
+  # Failed BE linting will stop and FE linting will not run.
+  assert_output_not_contains "Running front-end code linter checks."
+  assert_output_not_contains "Front-end code has passed the linter checks."
+  assert_output_not_contains "Front-end code has failed the linter checks."
 
   run ahoy lint-be
   assert_failure
+  assert_output_contains "Running back-end code linter checks."
+  assert_output_not_contains "Running front-end code linter checks."
   assert_output_contains "Back-end code has failed the linter checks."
   assert_output_not_contains "Back-end code has passed the linter checks."
-  assert_output_not_contains "Front-end code has passed the linter check."
 
   run ahoy lint-fe
   assert_failure
-  assert_output_not_contains "Back-end code has failed the linter checks."
-  assert_output_not_contains "Back-end code has passed the linter checks."
-  assert_output_not_contains "Front-end code has passed the linter check."
+  assert_output_contains "Running front-end code linter checks."
+  assert_output_not_contains "Running back-end code linter checks."
+  assert_output_contains "Front-end code has failed the linter checks."
+  assert_output_not_contains "Front-end code has passed the linter checks."
 
-  step "Assert that lint failure bypassing works"
+  substep "Assert that lint failure bypassing works"
   add_var_to_file .env "DREVOPS_LINT_BE_ALLOW_FAILURE" "1"
   add_var_to_file .env "DREVOPS_LINT_FE_ALLOW_FAILURE" "1"
   ahoy up cli && sync_to_container
 
   run ahoy lint
   assert_success
+  assert_output_contains "Running back-end code linter checks."
   assert_output_contains "Back-end code has failed the linter checks, but failure is allowed."
-  assert_output_not_contains "Front-end code has passed the linter check."
+  assert_output_contains "Running front-end code linter checks."
+  assert_output_contains "Front-end code has failed the linter checks, but failure is allowed."
 
   run ahoy lint-be
   assert_success
+  assert_output_contains "Running back-end code linter checks."
   assert_output_contains "Back-end code has failed the linter checks, but failure is allowed."
-  assert_output_not_contains "Front-end code has passed the linter check."
+  assert_output_not_contains "Front-end code has passed the linter checks."
 
   run ahoy lint-fe
   assert_success
-  assert_output_not_contains "Back-end code has failed the linter checks, but failure is allowed."
-  assert_output_not_contains "Front-end code has passed the linter check."
+  assert_output_contains "Running front-end code linter checks."
+  assert_output_contains "Front-end code has failed the linter checks, but failure is allowed."
+  assert_output_not_contains "Front-end code has passed the linter checks."
 
   restore_file .env && ahoy up cli
 
-  step "Assert that lint tool disabling works"
+  substep "Assert that lint tool disabling works"
   # Only testing for PHPCS, but the same should work for other tools.
   echo "\$a=1;" >> "${webroot}/modules/custom/sw_core/sw_core.module"
   sync_to_container
@@ -369,7 +380,20 @@ assert_ahoy_lint() {
   export DREVOPS_LINT_PHPCS_TARGETS=""
   run ahoy lint-be
   assert_success
+  assert_output_contains "Running back-end code linter checks."
   assert_output_contains "Back-end code has passed the linter checks."
+
+  restore_file .env && ahoy up cli
+
+  substep "Assert that lint skipping works"
+  add_var_to_file .env "DREVOPS_LINT_SKIP" "1"
+  ahoy up cli && sync_to_container
+
+  run ahoy lint
+  assert_success
+  assert_output_contains "Skipping code lint checks."
+  assert_output_not_contains "Running back-end code linter checks."
+  assert_output_not_contains "Running front-end code linter checks."
 
   restore_file .env && ahoy up cli
 }

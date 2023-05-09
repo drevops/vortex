@@ -760,7 +760,7 @@ Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/t
 
 ### `DREVOPS_LINT_SKIP`
 
-Flag to skip code linting. Helpful to set in CI to code linting without modifying the codebase.
+Flag to skip code linting.
 
 Default value: `UNDEFINED`
 

@@ -2,8 +2,7 @@
 ##
 # Lint FE code.
 #
-# shellcheck disable=SC2086
-# shellcheck disable=SC2015
+# shellcheck disable=SC2086,SC2015,SC2317
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
@@ -28,9 +27,38 @@ pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-if [ -n "${DREVOPS_DRUPAL_THEME}" ] && grep -q lint "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}/package.json"; then
-  # Lint code using front-end linter.
-  npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint &&
-    pass "Front-end code has passed the linter check." ||
-    [ "${DREVOPS_LINT_FE_ALLOW_FAILURE}" -eq 1 ]
+# Do nto proceed further if there is no theme or 'npm lint' command.
+if [ -z "${DREVOPS_DRUPAL_THEME}" ] || ! grep -q lint "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}/package.json"; then
+  exit 0
+fi
+
+info "Running front-end code linter checks."
+
+# Run tools and skip after the first failure, but still assess the failure.
+set +e
+
+exit_code=0
+
+if [ "${exit_code}" -eq 0 ]; then
+  npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint
+  exit_code=$?
+fi
+
+set -e
+
+if [ "${exit_code}" -eq 0 ]; then
+  echo
+  pass "Front-end code has passed the linter checks."
+  echo
+  exit 0
+elif [ "${DREVOPS_LINT_FE_ALLOW_FAILURE}" -eq 1 ]; then
+  echo
+  pass "Front-end code has failed the linter checks, but failure is allowed."
+  echo
+  exit 0
+else
+  echo
+  fail "Front-end code has failed the linter checks."
+  echo
+  exit 1
 fi
