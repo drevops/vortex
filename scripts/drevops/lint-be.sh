@@ -72,19 +72,11 @@ fi
 
 set -e
 
+echo
 if [ "${exit_code}" -eq 0 ]; then
-  echo
-  pass "Back-end code has passed the linter checks."
-  echo
-  exit 0
+  pass "Back-end code passed the linter checks." && exit 0
 elif [ "${DREVOPS_LINT_BE_ALLOW_FAILURE}" -eq 1 ]; then
-  echo
-  pass "Back-end code has failed the linter checks, but failure is allowed."
-  echo
-  exit 0
+  pass "Back-end code failed the linter checks, but failure is allowed." && exit 0
 else
-  echo
-  fail "Back-end code has failed the linter checks."
-
-  exit 1
+  fail "Back-end code failed the linter checks." && exit 1
 fi

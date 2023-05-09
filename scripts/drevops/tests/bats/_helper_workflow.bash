@@ -313,9 +313,9 @@ assert_ahoy_lint() {
   run ahoy lint
   assert_success
   assert_output_contains "Running back-end code linter checks."
-  assert_output_contains "Back-end code has passed the linter checks."
+  assert_output_contains "Back-end code passed the linter checks."
   assert_output_contains "Running front-end code linter checks."
-  assert_output_contains "Front-end code has passed the linter checks."
+  assert_output_contains "Front-end code passed the linter checks."
 
   substep "Assert that lint failure works"
   echo "\$a=1;" >> "${webroot}/modules/custom/sw_core/sw_core.module"
@@ -325,26 +325,26 @@ assert_ahoy_lint() {
   run ahoy lint
   assert_failure
   assert_output_contains "Running back-end code linter checks."
-  assert_output_contains "Back-end code has failed the linter checks."
-  assert_output_not_contains "Back-end code has passed the linter checks."
+  assert_output_contains "Back-end code failed the linter checks."
+  assert_output_not_contains "Back-end code passed the linter checks."
   # Failed BE linting will stop and FE linting will not run.
   assert_output_not_contains "Running front-end code linter checks."
-  assert_output_not_contains "Front-end code has passed the linter checks."
-  assert_output_not_contains "Front-end code has failed the linter checks."
+  assert_output_not_contains "Front-end code passed the linter checks."
+  assert_output_not_contains "Front-end code failed the linter checks."
 
   run ahoy lint-be
   assert_failure
   assert_output_contains "Running back-end code linter checks."
   assert_output_not_contains "Running front-end code linter checks."
-  assert_output_contains "Back-end code has failed the linter checks."
-  assert_output_not_contains "Back-end code has passed the linter checks."
+  assert_output_contains "Back-end code failed the linter checks."
+  assert_output_not_contains "Back-end code passed the linter checks."
 
   run ahoy lint-fe
   assert_failure
   assert_output_contains "Running front-end code linter checks."
   assert_output_not_contains "Running back-end code linter checks."
-  assert_output_contains "Front-end code has failed the linter checks."
-  assert_output_not_contains "Front-end code has passed the linter checks."
+  assert_output_contains "Front-end code failed the linter checks."
+  assert_output_not_contains "Front-end code passed the linter checks."
 
   substep "Assert that lint failure bypassing works"
   add_var_to_file .env "DREVOPS_LINT_BE_ALLOW_FAILURE" "1"
@@ -354,21 +354,21 @@ assert_ahoy_lint() {
   run ahoy lint
   assert_success
   assert_output_contains "Running back-end code linter checks."
-  assert_output_contains "Back-end code has failed the linter checks, but failure is allowed."
+  assert_output_contains "Back-end code failed the linter checks, but failure is allowed."
   assert_output_contains "Running front-end code linter checks."
-  assert_output_contains "Front-end code has failed the linter checks, but failure is allowed."
+  assert_output_contains "Front-end code failed the linter checks, but failure is allowed."
 
   run ahoy lint-be
   assert_success
   assert_output_contains "Running back-end code linter checks."
-  assert_output_contains "Back-end code has failed the linter checks, but failure is allowed."
-  assert_output_not_contains "Front-end code has passed the linter checks."
+  assert_output_contains "Back-end code failed the linter checks, but failure is allowed."
+  assert_output_not_contains "Front-end code passed the linter checks."
 
   run ahoy lint-fe
   assert_success
   assert_output_contains "Running front-end code linter checks."
-  assert_output_contains "Front-end code has failed the linter checks, but failure is allowed."
-  assert_output_not_contains "Front-end code has passed the linter checks."
+  assert_output_contains "Front-end code failed the linter checks, but failure is allowed."
+  assert_output_not_contains "Front-end code passed the linter checks."
 
   restore_file .env && ahoy up cli
 
@@ -381,7 +381,7 @@ assert_ahoy_lint() {
   run ahoy lint-be
   assert_success
   assert_output_contains "Running back-end code linter checks."
-  assert_output_contains "Back-end code has passed the linter checks."
+  assert_output_contains "Back-end code passed the linter checks."
 
   restore_file .env && ahoy up cli
 
@@ -398,6 +398,39 @@ assert_ahoy_lint() {
   restore_file .env && ahoy up cli
 }
 
+assert_ahoy_test() {
+  local webroot="${1:-web}"
+  local is_fast="${2:-0}"
+
+  step "Run tests"
+
+  assert_ahoy_test_unit "${webroot}"
+
+  assert_ahoy_test_kernel "${webroot}"
+
+  assert_ahoy_test_functional "${webroot}"
+
+  if [ "${is_fast}" == "1" ]; then
+    assert_ahoy_test_bdd_fast "${webroot}"
+  else
+    assert_ahoy_test_bdd "${webroot}"
+  fi
+
+  substep "Assert that test skipping works"
+  add_var_to_file .env "DREVOPS_TEST_SKIP" "1"
+  ahoy up cli && sync_to_container
+
+  run ahoy test
+  assert_success
+  assert_output_contains "Skipping running tests."
+  assert_output_not_contains "Running Unit tests."
+  assert_output_not_contains "Running Kernel tests."
+  assert_output_not_contains "Running Functional tests."
+  assert_output_not_contains "Running BDD tests."
+
+  restore_file .env && ahoy up cli
+}
+
 assert_ahoy_test_unit() {
   local webroot="${1:-web}"
 
@@ -406,14 +439,15 @@ assert_ahoy_test_unit() {
   substep "Run all Unit tests"
   run ahoy test-unit
   assert_success
-  assert_output_contains "Unit tests for scripts passed"
+  assert_output_contains "Running Unit tests."
+  # Scripts.
   assert_output_contains "OK (5 tests, 5 assertions)"
-  assert_output_contains "Unit tests for modules passed"
+  # Modules.
   assert_output_contains "OK (7 tests, 7 assertions)"
-  assert_output_contains "Unit tests for themes passed"
+
   sync_to_host
   assert_dir_not_empty "test_reports"
-  assert_file_exists "test_reports/phpunit/unit.xml"
+  assert_file_exists "test_reports/phpunit/unit_scripts.xml"
   assert_file_exists "test_reports/phpunit/unit_modules.xml"
   assert_file_exists "test_reports/phpunit/unit_themes.xml"
 
@@ -421,11 +455,11 @@ assert_ahoy_test_unit() {
   export DREVOPS_TEST_UNIT_GROUP=unit:subtraction
   run ahoy test-unit
   assert_success
-  assert_output_contains "Unit tests for scripts passed"
+  assert_output_contains "Running Unit tests."
+  # Scripts.
   assert_output_contains "OK (3 tests, 3 assertions)"
-  assert_output_contains "Unit tests for modules passed"
+  # Modules.
   assert_output_contains "OK (4 tests, 4 assertions)"
-  assert_output_contains "Unit tests for themes passed"
   unset DREVOPS_TEST_UNIT_GROUP
 
   substep "Assert that Drupal Unit test failure bypassing works"
@@ -436,18 +470,16 @@ assert_ahoy_test_unit() {
   # Assert without bypass.
   run ahoy test-unit
   assert_failure
-  assert_output_contains "Unit tests for scripts passed"
-  assert_output_not_contains "Unit tests for modules passed"
-  assert_output_not_contains "Unit tests for themes passed"
+  assert_output_contains "Running Unit tests."
+  assert_output_contains "Unit tests failed."
   sync_to_host
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_UNIT_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-unit
   assert_success
-  assert_output_contains "Unit tests for scripts passed"
-  assert_output_not_contains "Unit tests for modules passed"
-  assert_output_contains "Unit tests for themes passed"
+  assert_output_contains "Running Unit tests."
+  assert_output_contains "Unit tests failed, but failure is allowed."
   sync_to_host
 
   restore_file .env && ahoy up cli
@@ -461,21 +493,23 @@ assert_ahoy_test_kernel() {
   substep "Run all Kernel tests"
   run ahoy test-kernel
   assert_success
+  assert_output_contains "Running Kernel tests."
   assert_output_contains "OK (5 tests, 5 assertions)"
-  assert_output_contains "Kernel tests passed"
+  assert_output_contains "Kernel tests passed."
   sync_to_host
   assert_dir_not_empty "test_reports"
-  assert_file_exists "test_reports/phpunit/kernel.xml"
+  assert_file_exists "test_reports/phpunit/kernel_modules.xml"
 
   substep "Run grouped Kernel tests"
   export DREVOPS_TEST_KERNEL_GROUP=kernel:subtraction
   run ahoy test-kernel
   assert_success
+  assert_output_contains "Running Kernel tests."
   assert_output_contains "OK (3 tests, 3 assertions)"
   assert_output_contains "Kernel tests passed"
   unset DREVOPS_TEST_KERNEL_GROUP
 
-  substep "Assert that Drupal Unit test failure bypassing works"
+  substep "Assert that Kernel test failure bypassing works"
   # Prepare failing test.
   sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Kernel/ExampleTest.php"
   sync_to_container
@@ -483,14 +517,16 @@ assert_ahoy_test_kernel() {
   # Assert without bypass.
   run ahoy test-kernel
   assert_failure
-  assert_output_not_contains "Kernel tests passed"
+  assert_output_contains "Running Kernel tests."
+  assert_output_contains "Kernel tests failed."
   sync_to_host
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_KERNEL_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-kernel
   assert_success
-  assert_output_not_contains "Kernel tests passed"
+  assert_output_contains "Running Kernel tests."
+  assert_output_contains "Kernel tests failed, but failure is allowed."
   sync_to_host
 
   restore_file .env && ahoy up cli
@@ -504,21 +540,23 @@ assert_ahoy_test_functional() {
   substep "Run all Functional tests"
   run ahoy test-functional
   assert_success
+  assert_output_contains "Running Functional tests."
   assert_output_contains "OK (2 tests, 4 assertions)"
-  assert_output_contains "Functional tests passed"
+  assert_output_contains "Functional tests passed."
   sync_to_host
   assert_dir_not_empty "test_reports"
-  assert_file_exists "test_reports/phpunit/functional.xml"
+  assert_file_exists "test_reports/phpunit/functional_modules.xml"
 
   substep "Run grouped Functional tests"
   export DREVOPS_TEST_FUNCTIONAL_GROUP=functional:subtraction
   run ahoy test-functional
   assert_success
+  assert_output_contains "Running Functional tests."
   assert_output_contains "OK (1 test, 2 assertions)"
   assert_output_contains "Functional tests passed"
   unset DREVOPS_TEST_FUNCTIONAL_GROUP
 
-  substep "Assert that Drupal Functional test failure bypassing works"
+  substep "Assert that Functional test failure bypassing works"
   # Prepare failing test.
   sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Functional/ExampleTest.php"
   sync_to_container
@@ -526,17 +564,19 @@ assert_ahoy_test_functional() {
   # Assert without bypass.
   run ahoy test-functional
   assert_failure
-  assert_output_not_contains "Functional tests passed"
+  assert_output_contains "Running Functional tests."
+  assert_output_contains "Functional tests failed."
   sync_to_host
 
   # Assert failure bypass.
   add_var_to_file .env "DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-functional
   assert_success
-  assert_output_not_contains "Functional tests passed"
+  assert_output_contains "Running Functional tests."
+  assert_output_contains "Functional tests failed, but failure is allowed."
   sync_to_host
 
-  restore_file .env && ahoy up cli && sync_to_container
+  restore_file .env && ahoy up cli
 }
 
 assert_ahoy_test_bdd_fast() {
@@ -545,7 +585,8 @@ assert_ahoy_test_bdd_fast() {
   substep "Run all BDD tests"
   run ahoy test-bdd
   assert_success
-  assert_output_contains "Behat tests passed"
+  assert_output_contains "Running BDD tests."
+  assert_output_contains "BDD tests passed."
   sync_to_host
   assert_dir_not_empty tests/behat/screenshots
   rm -rf tests/behat/screenshots/*
@@ -562,7 +603,8 @@ assert_ahoy_test_bdd() {
   substep "Run all BDD tests"
   run ahoy test-bdd
   assert_success
-  assert_output_contains "Behat tests passed"
+  assert_output_contains "Running BDD tests."
+  assert_output_contains "BDD tests passed."
   sync_to_host
   assert_dir_not_empty tests/behat/screenshots
   rm -rf tests/behat/screenshots/*
@@ -576,7 +618,8 @@ assert_ahoy_test_bdd() {
   assert_dir_empty tests/behat/screenshots
   run ahoy test-bdd -- --tags=smoke
   assert_success
-  assert_output_contains "Behat tests passed"
+  assert_output_contains "Running BDD tests."
+  assert_output_contains "BDD tests passed."
   sync_to_host
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/behat/default.xml
@@ -593,7 +636,8 @@ assert_ahoy_test_bdd() {
   export DREVOPS_TEST_BEHAT_TAGS=smoke
   run ahoy test-bdd
   assert_success
-  assert_output_contains "Behat tests passed"
+  assert_output_contains "Running BDD tests."
+  assert_output_contains "BDD tests passed."
   unset DREVOPS_TEST_BEHAT_TAGS
   sync_to_host
   assert_dir_not_empty test_reports
@@ -612,7 +656,8 @@ assert_ahoy_test_bdd() {
   export DREVOPS_TEST_BEHAT_PROFILE=p0
   run ahoy test-bdd
   assert_success
-  assert_output_contains "Behat tests passed"
+  assert_output_contains "Running BDD tests."
+  assert_output_contains "BDD tests passed."
   unset DREVOPS_TEST_BEHAT_PROFILE
   sync_to_host
   assert_dir_not_empty test_reports
@@ -631,7 +676,8 @@ assert_ahoy_test_bdd() {
   assert_dir_empty tests/behat/screenshots
   run ahoy test-bdd
   assert_failure
-  assert_output_not_contains "Behat tests passed"
+  assert_output_contains "Running BDD tests."
+  assert_output_contains "BDD tests failed."
   sync_to_host
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/behat/default.xml
@@ -645,8 +691,8 @@ assert_ahoy_test_bdd() {
   add_var_to_file .env "DREVOPS_TEST_BDD_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-bdd
   assert_success
-  assert_success
-  assert_output_not_contains "Behat tests passed"
+  assert_output_contains "Running BDD tests."
+  assert_output_contains "BDD tests failed, but failure is allowed."
   sync_to_host
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/behat/default.xml
@@ -660,11 +706,12 @@ assert_ahoy_test_bdd() {
   sync_to_container
   restore_file .env && ahoy up cli && sync_to_container
 
-  substep "Run single Behat test"
+  substep "Run a single Behat test"
   assert_dir_empty tests/behat/screenshots
   run ahoy test-bdd tests/behat/features/homepage.feature
   assert_success
-  assert_output_contains "Behat tests passed"
+  assert_output_contains "Running BDD tests."
+  assert_output_contains "BDD tests passed."
   sync_to_host
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/behat/default.xml
@@ -674,13 +721,14 @@ assert_ahoy_test_bdd() {
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
-  substep "Assert that single Behat test failure works"
+  substep "Assert that a single Behat test failure works"
   assert_dir_empty tests/behat/screenshots
   echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
   run ahoy up cli && sync_to_container
   run ahoy test-bdd tests/behat/features/homepage.feature
   assert_failure
-  assert_output_not_contains "Behat tests passed"
+  assert_output_contains "Running BDD tests."
+  assert_output_contains "BDD tests failed."
   sync_to_host
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/behat/default.xml
@@ -690,12 +738,13 @@ assert_ahoy_test_bdd() {
   rm -rf tests/behat/screenshots/*
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
-  substep "Assert that single Behat test failure bypassing works"
+  substep "Assert that a single Behat test failure bypassing works"
   assert_dir_empty tests/behat/screenshots
   add_var_to_file .env "DREVOPS_TEST_BDD_ALLOW_FAILURE" "1" && ahoy up cli && sync_to_container
   run ahoy test-bdd tests/behat/features/homepage.feature
   assert_success
-  assert_output_not_contains "Behat tests passed"
+  assert_output_contains "Running BDD tests."
+  assert_output_contains "BDD tests failed, but failure is allowed."
   sync_to_host
   assert_dir_not_empty test_reports
   assert_file_exists test_reports/behat/default.xml

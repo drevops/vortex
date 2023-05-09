@@ -28,7 +28,7 @@ set -eu
 
 # Flag to skip running of all tests.
 # Helpful to set in CI to skip running of tests without modifying the codebase.
-DREVOPS_TEST_SKIP="${DREVOPS_TEST_SKIP:-}"
+DREVOPS_TEST_SKIP="${DREVOPS_TEST_SKIP:-0}"
 
 # Test types to run. Can be a combination of comma-separated values:
 # unit,kernel,functional,bdd
@@ -43,7 +43,7 @@ pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-[ -n "${DREVOPS_TEST_SKIP}" ] && pass "Skipping running of tests" && exit 0
+[ "${DREVOPS_TEST_SKIP}" == "1" ] && note "Skipping running tests." && exit 0
 
 if [ -z "${DREVOPS_TEST_TYPE##*unit*}" ]; then
   ./scripts/drevops/test-unit.sh "$@"

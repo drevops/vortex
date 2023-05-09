@@ -30,9 +30,6 @@ DREVOPS_TEST_KERNEL_CONFIG="${DREVOPS_TEST_KERNEL_CONFIG:-${DREVOPS_APP}/${DREVO
 # Directory to store test result files.
 DREVOPS_TEST_REPORTS_DIR="${DREVOPS_TEST_REPORTS_DIR:-}"
 
-# Directory to store test artifact files.
-DREVOPS_TEST_ARTIFACT_DIR="${DREVOPS_TEST_ARTIFACT_DIR:-}"
-
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -42,16 +39,30 @@ pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-info "Running Kernel tests"
-
-# Create test reports and artifact directories.
-[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && mkdir -p "${DREVOPS_TEST_REPORTS_DIR}"
-[ -n "${DREVOPS_TEST_ARTIFACT_DIR}" ] && mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}"
+info "Running Kernel tests."
 
 opts=(-c "${DREVOPS_TEST_KERNEL_CONFIG}")
 
-[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/kernel.xml")
+[ -n "${DREVOPS_TEST_REPORTS_DIR}" ] && mkdir -p "${DREVOPS_TEST_REPORTS_DIR}" && opts+=(--log-junit "${DREVOPS_TEST_REPORTS_DIR}/phpunit/kernel_modules.xml")
 
-vendor/bin/phpunit "${opts[@]}" "${DREVOPS_WEBROOT}/modules/custom/" --exclude-group=skipped --group "${DREVOPS_TEST_KERNEL_GROUP}" "$@" &&
-  pass "Kernel tests passed." ||
-  [ "${DREVOPS_TEST_KERNEL_ALLOW_FAILURE:-0}" -eq 1 ]
+# Run tests with set targets and skip after the first failure, but still assess the failure.
+set +e
+
+exit_code=0
+
+if [ "${exit_code}" -eq 0 ]; then
+  info "Running Kernel tests for modules."
+  vendor/bin/phpunit "${opts[@]}" "${DREVOPS_WEBROOT}/modules/custom/" --exclude-group=skipped --group "${DREVOPS_TEST_KERNEL_GROUP}" "$@"
+  exit_code=$?
+fi
+
+set -e
+
+echo
+if [ "${exit_code}" -eq 0 ]; then
+  pass "Kernel tests passed." && exit 0
+elif [ "${DREVOPS_TEST_KERNEL_ALLOW_FAILURE}" -eq 1 ]; then
+  pass "Kernel tests failed, but failure is allowed." && exit 0
+else
+  fail "Kernel tests failed." && exit 1
+fi
