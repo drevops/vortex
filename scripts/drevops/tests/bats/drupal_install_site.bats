@@ -148,8 +148,8 @@ assert_drupal_install_site_info(){
 
   # Sanitization is skipped for the existing database.
   assert_output_contains "Sanitizing database."
-  assert_equal "-y -q sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
-  assert_output_contains "Sanitized database using drush sql-sanitize."
+  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_output_contains "Sanitized database using drush sql:sanitize."
   assert_output_not_contains "Updated username with user email."
   assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
   assert_output_contains "Applied custom sanitization commands."
@@ -280,7 +280,7 @@ assert_drupal_install_site_info(){
   # Sanitization is skipped for the existing database.
   assert_output_contains "Skipped database sanitization."
   assert_output_not_contains "Sanitizing database."
-  assert_output_not_contains "Sanitized database using drush sql-sanitize."
+  assert_output_not_contains "Sanitized database using drush sql:sanitize."
   assert_output_not_contains "Updated username with user email."
   assert_output_not_contains "Applied custom sanitization commands from file "
   assert_output_not_contains "Reset user 0 username and email."
@@ -419,8 +419,8 @@ assert_drupal_install_site_info(){
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "Sanitizing database."
-  assert_output_contains "Sanitized database using drush sql-sanitize."
-  assert_equal "-y -q sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_output_contains "Sanitized database using drush sql:sanitize."
+  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_output_not_contains "Updated username with user email."
   assert_output_contains "Applied custom sanitization commands."
   assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
@@ -564,8 +564,8 @@ assert_drupal_install_site_info(){
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "Sanitizing database."
-  assert_output_contains "Sanitized database using drush sql-sanitize."
-  assert_equal "-y -q sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_output_contains "Sanitized database using drush sql:sanitize."
+  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_output_not_contains "Updated username with user email."
   assert_output_contains "Applied custom sanitization commands."
   assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
@@ -694,7 +694,7 @@ assert_drupal_install_site_info(){
   # Sanitization is skipped for the existing database.
   assert_output_contains "Skipped database sanitization."
   assert_output_not_contains "Sanitizing database."
-  assert_output_not_contains "Sanitized database using drush sql-sanitize."
+  assert_output_not_contains "Sanitized database using drush sql:sanitize."
   assert_output_not_contains "Updated username with user email."
   assert_output_not_contains "Applied custom sanitization commands from file "
   assert_output_not_contains "Reset user 0 username and email."
@@ -830,8 +830,8 @@ assert_drupal_install_site_info(){
   assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
 
   assert_output_contains "Sanitizing database."
-  assert_output_contains "Sanitized database using drush sql-sanitize."
-  assert_equal "-y -q sql-sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
+  assert_output_contains "Sanitized database using drush sql:sanitize."
+  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
   assert_output_not_contains "Updated username with user email."
   assert_output_contains "Applied custom sanitization commands."
   assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"

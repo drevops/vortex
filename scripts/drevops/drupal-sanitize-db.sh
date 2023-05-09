@@ -43,8 +43,8 @@ drush_opts=(-y)
 [ -z "${DREVOPS_DEBUG:-}" ] && drush_opts+=(-q)
 
 # Always sanitize password and email using standard methods.
-$drush "${drush_opts[@]}" sql-sanitize --sanitize-password="${DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD}" --sanitize-email="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL}"
-pass "Sanitized database using drush sql-sanitize."
+$drush "${drush_opts[@]}" sql:sanitize --sanitize-password="${DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD}" --sanitize-email="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL}"
+pass "Sanitized database using drush sql:sanitize."
 
 if [ "${DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_WITH_EMAIL}" = "1" ]; then
   $drush sql:query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';"
