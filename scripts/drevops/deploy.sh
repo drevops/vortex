@@ -70,7 +70,7 @@ if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
     # capitalised.
     #
     # Example:
-    # For 'pr-123' branch, the variable name is DREVOPS_DEPLOY_SKIP_PR_123
+    # For PR named 'pr-123', the variable name is DREVOPS_DEPLOY_SKIP_PR_123
     pr_skip_var="DREVOPS_DEPLOY_SKIP_PR_${DREVOPS_DEPLOY_PR}"
     if [ -n "${!pr_skip_var}" ]; then
       note "Found skip variable ${pr_skip_var} for PR ${DREVOPS_DEPLOY_PR}."
