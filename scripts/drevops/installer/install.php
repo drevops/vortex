@@ -430,7 +430,7 @@ function process__preserve_lagoon($dir) {
     remove_token_with_content('!LAGOON', $dir);
   }
   else {
-    @unlink("$dir/drush/aliases.drushrc.php");
+    @unlink("$dir/drush/sites/lagoon.site.yml");
     @unlink("$dir/.lagoon.yml");
     @unlink("$dir/.github/workflows/dispatch-webhook-lagoon.yml");
     remove_token_with_content('LAGOON', $dir);
