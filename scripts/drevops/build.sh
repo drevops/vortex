@@ -20,6 +20,7 @@ set -eu
 [ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 # Print debug information in DrevOps scripts.
+# @docs:skip
 DREVOPS_DEBUG="${DREVOPS_DEBUG:-}"
 
 # Print debug information from Docker build.
@@ -48,7 +49,7 @@ echo
 [ "${DREVOPS_NPM_VERBOSE}" = "1" ] && npm_verbose_output="/dev/stdout" || npm_verbose_output="/dev/null"
 
 # Create an array of Docker Compose CLI options for 'exec' command as a shorthand.
-# DREVOPS_*, COMPOSE_* and TERM variables will be passed to containers.
+# $DREVOPS_*, $COMPOSE_* and $TERM variables will be passed to containers.
 dcopts=(-T) && while IFS='' read -r line; do dcopts+=("$line"); done < <(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_\|TERM" | sed 's/^/-e /')
 
 # Check all pre-requisites before starting the stack.
@@ -120,7 +121,7 @@ fi
 
 # Create data directory in the container and copy database dump file into
 # container, but only if it exists, while also replacing relative directory path
-# with absolute path. Note, that the DREVOPS_DB_DIR path is the same inside and
+# with absolute path. Note, that the $DREVOPS_DB_DIR path is the same inside and
 # outside the container.
 if [ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ]; then
   info "Copying database file into container."

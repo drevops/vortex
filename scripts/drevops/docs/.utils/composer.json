@@ -1,7 +1,7 @@
 {
     "name": "drevops/docs",
     "require": {
-        "drevops/shell-variables-extractor": "^0.1"
+        "alexskrypnyk/shell-variables-extractor": "^0.4"
     },
     "authors": [
         {

@@ -112,7 +112,7 @@ AddEncoding gzip svgz
   RewriteRule ^ http%{ENV:protossl}://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
   # Redirect to HTTPS.
-  # @todo: Uncomment below once the certificate is available.
+  # @todo: Uncomment once the certificate is available.
   # RewriteCond %{HTTPS} off
   # RewriteCond %{HTTP:X-Forwarded-Proto} !https
   # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

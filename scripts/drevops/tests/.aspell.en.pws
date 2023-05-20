@@ -7,6 +7,7 @@ Bario
 Behat
 CLI
 CircleCI
+ClamAV
 Config
 DDEV
 DIDI
@@ -39,6 +40,8 @@ NPM
 Nginx
 PHP
 PHPCS
+PHPMD
+PHPStan
 PHPUnit
 PRs
 Quickstart
@@ -49,9 +52,11 @@ SHA
 SLAs
 SemVer
 Shellcheck
+Solr
 SsL
 Ssl
 TBD
+Twigcs
 UAT
 UI
 UUID
@@ -63,6 +68,7 @@ Webhook
 Xdebug
 YOURORG
 YOURSITE
+acquia
 amazeeio
 bdd
 breakpoint
@@ -97,7 +103,6 @@ toolset
 txt
 uat
 uncommented
+url
 webhook
 webroot
-Solr
-ClamAV

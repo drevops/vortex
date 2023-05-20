@@ -37,15 +37,17 @@ DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR="/tmp"
 DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE="${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE:-db_$(date +%Y_%m_%d).sql}"
 
 # Wildcard file name to cleanup previously created dump files.
-# Cleanup runs only if the variable is set and DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE does not
-# exist.
+#
+# Cleanup runs only if the variable is set and $DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE
+# does not exist.
 DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP="${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP:-db_*.sql}"
 
 # The SSH key used to SSH into Lagoon.
 DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE:-}"
 
-# The SSH key fingerprint. If provided - the key will be looked-up and loaded
-# into ssh client.
+# The SSH key fingerprint.
+#
+# If provided - the key will be looked-up and loaded into ssh client.
 DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT="${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT:-}"
 
 # The SSH host of the Lagoon environment.
