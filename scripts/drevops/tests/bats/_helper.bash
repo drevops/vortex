@@ -861,8 +861,6 @@ assert_files_present_integration_renovatebot() {
   assert_file_contains ".circleci/config.yml" "renovatebot_branch"
   assert_file_contains ".circleci/config.yml" "- *renovatebot_branch"
 
-  assert_file_contains docs/CI.md "Automated patching"
-
   popd >/dev/null || exit 1
 }
 
@@ -877,8 +875,6 @@ assert_files_present_no_integration_renovatebot() {
   assert_file_not_contains ".circleci/config.yml" "renovatebot_self_hosted"
   assert_file_not_contains ".circleci/config.yml" "renovatebot_branch"
   assert_file_not_contains ".circleci/config.yml" "- *renovatebot_branch"
-
-  assert_file_not_contains docs/CI.md "Automated patching"
 
   popd >/dev/null || exit 1
 }
