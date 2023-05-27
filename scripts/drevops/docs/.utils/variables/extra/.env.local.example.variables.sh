@@ -4,8 +4,6 @@
 #
 # shellcheck disable=SC2034
 
-TEST_VAR_ENV_LOCAL_EXAMPLE=1
-
 # Set to `1` to override existing downloaded DB dump without asking.
 DREVOPS_DB_DOWNLOAD_FORCE=
 

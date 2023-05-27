@@ -11,7 +11,7 @@
 3. Global variables MAY be re-used as-is across scripts. For instance, the
    `DREVOPS_APP` variable is used in several scripts.
 
-4. DrevOps action-specific script variables MUST be namespaced within their own
+4. DrevOps action-specific script variables MUST be scoped within their own
    script. For instance, the `DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB`
    variable in the `drupal-install-site.sh`.
 
@@ -62,7 +62,7 @@ Defined in: `ENVIRONMENT`
 
 ### `DOCKER_PASS`
 
-The token to log into the Docker registry.
+The password (token) to log into the Docker registry.
 
 Default value: `UNDEFINED`
 
@@ -70,7 +70,9 @@ Defined in: `.env.local.example`, `scripts/drevops/deploy-docker.sh`, `scripts/d
 
 ### `DOCKER_REGISTRY`
 
-Docker registry name. Provide port, if required as <server_name>:<port>.
+Docker registry name.
+
+Provide port, if required as `<server_name>:<port>`.
 
 Default value: `docker.io`
 
@@ -1804,28 +1806,4 @@ Special variable to remap target env to the sub-domain prefix based on UI name.
 Default value: `target_env`
 
 Defined in: `scripts/drevops/task-purge-cache-acquia.sh`
-
-### `TEST_VAR_CI`
-
-Default value: `1`
-
-Defined in: `CI config`
-
-### `TEST_VAR_ENV`
-
-Default value: `1`
-
-Defined in: `.env`
-
-### `TEST_VAR_ENVIRONMENT`
-
-Default value: `1`
-
-Defined in: `ENVIRONMENT`
-
-### `TEST_VAR_ENV_LOCAL_EXAMPLE`
-
-Default value: `1`
-
-Defined in: `.env.local.example`
 

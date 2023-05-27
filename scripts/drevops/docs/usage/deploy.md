@@ -23,51 +23,23 @@ naming convention in your CI configuration.
 
 Here's an example of how this can be done:
 
-1. Skipping a specific Pull Request:
+### Skipping a specific Pull Request:
 
    Suppose you want to skip the deployment for Pull Request number 42. You would
    set the following environment variable:
 
-   ```
+   ```bash
    DREVOPS_DEPLOY_SKIP_PR_42=1
    ```
 
-   In your script, you would check for this variable and skip deployment
-   accordingly:
-
-   ```bash
-   PR_NUMBER="42" # This should be dynamically fetched from your CI/CD environment.
-
-   if [ "$DREVOPS_DEPLOY_SKIP_PR_${PR_NUMBER}" = "1" ]; then
-       echo "Skipping deployment for Pull Request ${PR_NUMBER}"
-       exit 0
-   fi
-   ```
-
-2. Skipping a specific branch:
+### Skipping a specific branch:
 
    Suppose you want to skip the deployment for a branch named `feature-x`. You
    would first create a "safe" version of the branch name by replacing any
-   special characters with underscores. In this case, it's already safe.
+   special characters with underscores.
 
    Set the following environment variable:
 
-   ```
+   ```bash
    DREVOPS_DEPLOY_SKIP_BRANCH_FEATURE_X=1
    ```
-
-   In your script, you would check for this variable and skip deployment
-   accordingly:
-
-   ```bash
-   BRANCH_NAME="feature-x" # This should be dynamically fetched from your CI/CD environment.
-   SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | tr -c '[:alnum:]' '_')
-
-   if [ "$DREVOPS_DEPLOY_SKIP_BRANCH_${SAFE_BRANCH_NAME}" = "1" ]; then
-       echo "Skipping deployment for branch ${BRANCH_NAME}"
-       exit 0
-   fi
-   ```
-
-With these examples, you can selectively skip deployments for specific Pull
-Requests or branches based on the environment variables you set.

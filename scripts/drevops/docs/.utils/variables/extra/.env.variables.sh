@@ -4,8 +4,6 @@
 #
 # shellcheck disable=SC2034
 
-TEST_VAR_ENV=1
-
 # Name of the database docker image to use.
 #
 # See https://github.com/drevops/mariadb-drupal-data to seed your DB image.
@@ -23,5 +21,7 @@ DREVOPS_DRUPAL_ADMIN_EMAIL="webmaster@your-site-url.example"
 # Password replacement used for sanitised database.
 DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="<RANDOM STRING>"
 
-# Docker registry name. Provide port, if required as <server_name>:<port>.
+# Docker registry name.
+#
+# Provide port, if required as `<server_name>:<port>`.
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"

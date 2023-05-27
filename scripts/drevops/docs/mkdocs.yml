@@ -117,7 +117,7 @@ markdown_extensions:
   - markdown.extensions.meta
   - markdown.extensions.toc:
       permalink: true
-      toc_depth: 2
+      toc_depth: 3
       slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: none}}
   - pymdownx.arithmatex
   - pymdownx.betterem:
@@ -147,13 +147,16 @@ nav:
     - Installation: introduction/installation.md
     - Architecture: introduction/architecture.md
   - Usage:
-    - Variables: usage/variables.md
-    - Docker: usage/docker.md
-    - Database 🚧: usage/database.md
     - Build 🚧: usage/build.md
     - Test: usage/test.md
     - Deploy 🚧: usage/deploy.md
+    - Release 🚧: usage/release.md
+    - CI 🚧: usage/ci.md
+    - Database 🚧: usage/database.md
+    - Variables: usage/variables.md
+    - Docker: usage/docker.md
+    - Automated updates 🚧: usage/automated-updates.md
   - Maintenance:
     - Authoring scripts: maintenance/authoring-scripts.md
     - Authoring tests: maintenance/authoring-tests.md
-    - Updating documentation: maintenance/authoring-documentation.md
+    - Authoring documentation: maintenance/authoring-documentation.md
