@@ -26,6 +26,8 @@ copyright: 'Copyright &copy;2023 DrevOps'
 
 # Configuration.
 docs_dir: .
+extra_css:
+  - assets/custom.css
 
 theme:
   name: material
@@ -137,6 +139,11 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - mdx_include
 
 # IMPORTANT! Do not add any configuration below navigation section.
