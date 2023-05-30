@@ -163,7 +163,7 @@ nav:
     - 🎛 Variables: usage/variables.md
     - 🐳 Docker: usage/docker.md
     - 🔄 Automated updates: usage/automated-updates.md
-    - 🏥 Doctor 🚧: usage/doctor.md
+    - 🏥 Doctor: usage/doctor.md
   - Maintenance:
     - 📜 Authoring scripts: maintenance/authoring-scripts.md
     - 📝 Authoring tests: maintenance/authoring-tests.md

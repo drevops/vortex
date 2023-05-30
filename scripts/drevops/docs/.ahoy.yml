@@ -13,7 +13,9 @@ commands:
 
   test:
     usage: Test site
-    cmd: docker compose run linkchecker http://mkdocs:8000 "$@"
+    cmd: |
+      cd ../../.. && ./scripts/drevops/tests/lint-spelling.sh && cd -
+      docker compose run linkchecker http://mkdocs:8000 "$@"
 
   publish:
     usage: Deploy site
@@ -22,10 +24,6 @@ commands:
   update:
     usage: Update docs
     cmd: ./.utils/update-docs.sh
-
-  lint:
-    usage: Update docs
-    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/lint-spelling.sh
 
   info:
     usage: Print information about this project.

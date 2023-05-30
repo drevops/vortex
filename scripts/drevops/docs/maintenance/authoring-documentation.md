@@ -28,14 +28,14 @@ ahoy update
 If you have the documentation site running locally, the updates will be seen
 immediately.
 
-### Check spelling
+### Check spelling and links
 
 ```bash
 cd scripts/drevops/docs
-ahoy lint
+ahoy test
 ```
 
-If the exclusion needs to be added, add it to `scripts/drevops/tests/.aspell.en.pws` file.
+If required, add spelling exclusions to `scripts/drevops/tests/.aspell.en.pws` file.
 
 ### Publishing
 
