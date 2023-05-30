@@ -5,7 +5,7 @@
 # IMPORTANT! This script runs outside the container on the host system.
 #
 # This will push multiple docker images by tagging provided services in the
-# DREVOPS_DEPLOY_DOCKER_MAP variable.
+# $DREVOPS_DEPLOY_DOCKER_MAP variable.
 #
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
@@ -17,10 +17,10 @@ set -eu
 # format "service1=org/image1,service2=org/image2".
 DREVOPS_DEPLOY_DOCKER_MAP="${DREVOPS_DEPLOY_DOCKER_MAP:-}"
 
-# The username of the docker registry to deploy Docker image to.
+# The username for the docker registry.
 DOCKER_USER="${DOCKER_USER:-}}"
 
-# The token of the docker registry to deploy Docker image to.
+# The password for the docker registry.
 DOCKER_PASS="${DOCKER_PASS:-}"
 
 # Docker registry name. Provide port, if required as <server_name>:<port>.
@@ -42,7 +42,7 @@ info "Started DOCKER deployment."
 
 # Only deploy if the map was provided, but do not fail if it has not as this
 # may be called as a part of another task.
-# @todo: Handle this better - empty DREVOPS_DEPLOY_DOCKER_MAP should use defaults.
+# @todo: Handle this better - empty $DREVOPS_DEPLOY_DOCKER_MAP should use defaults.
 [ -z "${DREVOPS_DEPLOY_DOCKER_MAP}" ] && echo "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable. Docker deployment will not continue." && exit 0
 
 services=()

@@ -4,7 +4,7 @@ docker-compose-yaml: docker-compose.yml
 environment_variables:
   git_sha: 'true'
 
-# Uncomment below to login into container registries if using private images.
+# Uncomment to login into container registries if using private images.
 # container-registries:
 #  dockerhub:
 #    # Environment variables DOCKER_USER and DOCKER_PASS needs to be set via Lagoon CLI.
@@ -96,7 +96,7 @@ environments:
         schedule: '*/15 * * * *'
         command: drush cron --root=/app
         service: cli
-    # Uncomment below to enable installing a custom SSL certificate.
+    # Uncomment to enable installing a custom SSL certificate.
     # By default, Lagoon installs Let's Encrypt certificates for all environments.
     # routes:
     #   - nginx-php:
@@ -111,7 +111,7 @@ environments:
         schedule: '*/15 * * * *'
         command: drush cron --root=/app
         service: cli
-    # Uncomment below to enable installing a custom SSL certificate.
+    # Uncomment to enable installing a custom SSL certificate.
     # By default, Lagoon installs Let's Encrypt certificates for all environments.
     # routes:
     #   - nginx-php:

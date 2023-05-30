@@ -76,6 +76,7 @@ SRC_TMPDIR=$(mktemp -d)
 
 note "Copying files from the source repository to ${SRC_TMPDIR}."
 rsync -a --keep-dirlinks ./. "${SRC_TMPDIR}"
+# @docs:skip
 [ -n "${DREVOPS_DEBUG}" ] && tree -L 4 "${SRC_TMPDIR}"
 
 # Move to the temp source repo directory.

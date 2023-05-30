@@ -23,6 +23,10 @@ commands:
     usage: Update docs
     cmd: ./.utils/update-docs.sh
 
+  lint:
+    usage: Update docs
+    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/lint-spelling.sh
+
   info:
     usage: Print information about this project.
     cmd: |

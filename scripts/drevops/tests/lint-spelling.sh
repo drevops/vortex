@@ -42,6 +42,8 @@ for file in "${targets[@]}"; do
     cat "${file}" | \
     # Remove { } attributes.
     sed -E 's/\{:([^\}]+)\}//g' | \
+    # Replace <br/> with a space.
+    sed -E 's/<br \/>|<br\/>|<br>/ /g' | \
     # Remove HTML.
     sed -E 's/<([^<]+)>//g' | \
     # Remove code blocks.

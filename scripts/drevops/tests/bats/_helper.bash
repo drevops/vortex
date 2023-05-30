@@ -786,8 +786,6 @@ assert_files_present_integration_lagoon() {
   assert_file_contains "docker-compose.yml" "lagoon.type: solr"
   assert_file_contains "docker-compose.yml" "lagoon.type: none"
 
-  assert_file_contains ".env" "DREVOPS_LAGOON_ENABLE_DRUSH_ALIASES="
-
   popd >/dev/null || exit 1
 }
 
@@ -812,7 +810,6 @@ assert_files_present_no_integration_lagoon() {
   assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
 
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT="
-  assert_file_not_contains ".env" "DREVOPS_LAGOON_ENABLE_DRUSH_ALIASES="
   assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
 
   popd >/dev/null || exit 1
@@ -864,8 +861,6 @@ assert_files_present_integration_renovatebot() {
   assert_file_contains ".circleci/config.yml" "renovatebot_branch"
   assert_file_contains ".circleci/config.yml" "- *renovatebot_branch"
 
-  assert_file_contains docs/CI.md "Automated patching"
-
   popd >/dev/null || exit 1
 }
 
@@ -880,8 +875,6 @@ assert_files_present_no_integration_renovatebot() {
   assert_file_not_contains ".circleci/config.yml" "renovatebot_self_hosted"
   assert_file_not_contains ".circleci/config.yml" "renovatebot_branch"
   assert_file_not_contains ".circleci/config.yml" "- *renovatebot_branch"
-
-  assert_file_not_contains docs/CI.md "Automated patching"
 
   popd >/dev/null || exit 1
 }

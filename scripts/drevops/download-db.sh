@@ -11,8 +11,8 @@ t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; 
 set -eu
 [ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
-# Note that "docker_registry" works only for database-in-Docker-image
-# database storage (when DREVOPS_DB_DOCKER_IMAGE variable has a value).
+# Note that `docker_registry` works only for database-in-Docker-image
+# database storage (when $DREVOPS_DB_DOCKER_IMAGE variable has a value).
 DREVOPS_DB_DOWNLOAD_SOURCE="${DREVOPS_DB_DOWNLOAD_SOURCE:-curl}"
 
 # Force DB download even if the cache exists.

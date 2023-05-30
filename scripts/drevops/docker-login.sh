@@ -14,7 +14,9 @@ DOCKER_USER="${DOCKER_USER:-}"
 # The token of the docker registry.
 DOCKER_PASS="${DOCKER_PASS:-}"
 
-# Docker registry name. Provide port, if required as <server_name>:<port>.
+# Docker registry name.
+#
+# Provide port, if required as `<server_name>:<port>`.
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 
 # ------------------------------------------------------------------------------
