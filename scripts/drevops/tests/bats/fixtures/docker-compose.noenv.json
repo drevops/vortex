@@ -141,7 +141,7 @@
         "mariadb": {
             "build": {
                 "args": {
-                    "IMAGE": "uselagoon/mariadb-drupal:23.2.0"
+                    "IMAGE": "uselagoon/mariadb-drupal:23.5.0"
                 },
                 "context": "FIXTURE_CUR_DIR",
                 "dockerfile": ".docker/mariadb.dockerfile"
@@ -281,7 +281,7 @@
         "redis": {
             "command": null,
             "entrypoint": null,
-            "image": "uselagoon/redis-6:23.2.0",
+            "image": "uselagoon/redis-6:23.5.0",
             "labels": {
                 "lagoon.type": "redis"
             },
