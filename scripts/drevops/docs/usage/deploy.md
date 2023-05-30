@@ -1,4 +1,4 @@
-# Deploy
+# 🚚 Deploy
 
 The deployment process `deploy.sh` router script designed to deploy code to a
 remote location by calling the relevant scripts based on the type of deployment

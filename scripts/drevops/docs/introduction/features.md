@@ -3,7 +3,7 @@ search:
   exclude: true
 ---
 
-# Features
+# ⭐️ Features
 
 The following list includes ✅ completed features and 💡 upcoming features.
 

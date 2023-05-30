@@ -1,6 +1,7 @@
-# Authoring documentation
+# 📖 Authoring documentation
 
 There are 2 types of the documentation that DrevOps provides:
+
 1. This Documentation of DrevOps that is then deployed to https://docs.drevops.com/
 2. Consumer site documentation that is distributed when DrevOps is installed.
 
@@ -39,8 +40,8 @@ If the exclusion needs to be added, add it to `scripts/drevops/tests/.aspell.en.
 ### Publishing
 
 An automated CI build publishes this documentation on DrevOps release
-(as a latest version) and on every commit to a branch with `docs` string in its
-name (to allow publishing documentation for feature branches).
+(as a `latest` version) and on every commit to a branch that has `docs` string
+in its name. This allowa publishing documentation for feature branches.
 
 ## Consumer site documentation
 

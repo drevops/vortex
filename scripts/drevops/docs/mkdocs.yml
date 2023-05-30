@@ -150,20 +150,21 @@ markdown_extensions:
 nav:
   - Introduction:
     - Introduction: README.md
-    - Features: introduction/features.md
-    - Installation: introduction/installation.md
-    - Architecture: introduction/architecture.md
+    - ⭐️ Features: introduction/features.md
+    - ⬇️ Installation: introduction/installation.md
+    - 📐 Architecture: introduction/architecture.md
   - Usage:
-    - Build 🚧: usage/build.md
-    - Test: usage/test.md
-    - Deploy 🚧: usage/deploy.md
-    - Release 🚧: usage/release.md
-    - CI 🚧: usage/ci.md
-    - Database 🚧: usage/database.md
-    - Variables: usage/variables.md
-    - Docker: usage/docker.md
-    - Automated updates 🚧: usage/automated-updates.md
+    - 🏗️️ Build: usage/build.md
+    - ✅ Test: usage/test.md
+    - 🚚 Deploy: usage/deploy.md
+    - 🚀 Release 🚧: usage/release.md
+    - 🚦 CI 🚧: usage/ci.md
+    - 🛢️ Database 🚧: usage/database.md
+    - 🎛 Variables: usage/variables.md
+    - 🐳 Docker: usage/docker.md
+    - 🔄 Automated updates: usage/automated-updates.md
+    - 🏥 Doctor 🚧: usage/doctor.md
   - Maintenance:
-    - Authoring scripts: maintenance/authoring-scripts.md
-    - Authoring tests: maintenance/authoring-tests.md
-    - Authoring documentation: maintenance/authoring-documentation.md
+    - 📜 Authoring scripts: maintenance/authoring-scripts.md
+    - 📝 Authoring tests: maintenance/authoring-tests.md
+    - 📖 Authoring documentation: maintenance/authoring-documentation.md

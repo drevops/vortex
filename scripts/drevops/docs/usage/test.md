@@ -1,4 +1,4 @@
-# Test
+# ✅ Test
 
 DrevOps supports running Unit (PHPUnit) and BDD (Behat) tests.
 

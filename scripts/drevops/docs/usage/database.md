@@ -1,4 +1,4 @@
-# Database
+# 🛢 Database
 
 !!! note "Work in progress"
 

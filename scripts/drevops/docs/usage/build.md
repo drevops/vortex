@@ -1,19 +1,29 @@
-# Build
+# 🏗️ Build
 
-The full site build process is scripted in the [build](../../../../scripts/drevops/build.sh) script.
-It is designed to be run locally and in CI with a single command to handle:
+The entire process of building the site is automated using the [build](../../../../scripts/drevops/build.sh)
+script.
 
-1. Docker Compose and Composer configuration validation
-2. Building Docker images and starting containers
-3. Calls site installation script
-4. Checking that the stack works correctly and the site is availble
+**It script serves as a wrapper for commands that would normally be
+executed manually and includes minimal workflow logic.**
 
-Practically, the script is a wrapper for commands that would be ran manually
-and contains minimal workflow logic.
+This script is designed to be executed both locally and in a continuous
+integration (CI) environment with a single command, and it handles the following
+tasks:
 
-The build can be invoked by `ahoy build`.
+- Validation of Docker Compose and Composer configurations
+- Building Docker images and starting containers
+- Installing the development dependencies
+- Executing [the site installation script](../../../../scripts/drevops/drupal-install-site.sh)
+- Verifying that the stack is functioning correctly and the site is
+   accessible
 
-The actual steps are described in the diagram below.
+To initiate the build process, simply run the command `ahoy build`.
+
+!!! tip
+
+    Do not forget to download your database with `ahoy download-db`.
+
+## Build steps
 
 ```mermaid
 flowchart TB
@@ -35,11 +45,76 @@ flowchart TB
   I --> K["7. Install development\ndependencies"]
 
   K --> L{"8. Is theme\navailable?"}
-  L -- Yes --> M["9. Install and compile front-end\ndependencies"]
-  L -- No --> N["10. Install site"]
-  M --> N["11. Install site"]
+  L -- Yes --> M["8.1. Install and compile front-end\ndependencies"]
+  L -- No --> N["9. Install site"]
+  M --> N["9. Install site"]
 
-  N --> P["12. Check that the site\nis available"]
+  N --> P["10. Check that the site\nis available"]
 
   P --> finish(["End"])
 ```
+
+### 1. Initialise variables from `.env`, `.env.local` and environment
+
+   Variables are read from multiple locations in [the predefined order](/usage/variables/#Override-order-bottom-values-win).
+
+### 2. Validate Docker Compose configuration
+
+   The script validates the Docker Compose configuration and exits if it is not
+   valid. This is designed to catch errors in the configuration early.
+
+### 3. Validate Composer configuration
+
+   The script validates the Composer configuration and exits if it is not valid.
+   The `composer.lock` will be validated as well if `$DREVOPS_COMPOSER_VALIDATE_LOCK`
+   is set to `1`. This is designed to catch errors in the configuration to avoid
+   using outdated dependencies.
+
+### 4. Database in Docker image?
+
+   If the database is stored in the Docker image rather than a dum-file, the
+   script will pull the image from the registry and will use it as a database.<br />
+   See more in [the Database section](/usage/database/#Database-in-Docker-image).
+
+### 5. Build images and start containers
+
+   The script will build the Docker images and start the containers.
+   Only required files will be copied into the image and only production
+   dependencies will be installed. See more in [the Docker section](/usage/docker).
+
+### 6. Code export dir set?
+
+   If the `$DREVOPS_CODE_EXPORT_DIR` variable is set, the script will export the
+   built code into the specified directory, which than can be used to build a
+   deployment artifact. This is used in CI to support hosting environments
+   that support only artifact code deployments (no build pipeline), like Acquia.
+
+### 7. Install development dependencies
+
+   The script will install the development dependencies, which are required for
+   the site development and testing. These are installed separately from the
+   step 5 dependencies to avoid adding the production image and code artifact
+   with unnecessary dependencies (which also widens the security perimeter and
+   increases the build time).
+
+### 8. Is theme available?
+
+   If the environment variable `$DREVOPS_DRUPAL_THEME` is set, the script will
+   install the front-end dependencies and compile assets. Note that this already
+   happens during the Docker build process, so this step runs **only locally**
+   to update the assets to use development versions based on the current theme
+   build configuration (e.g. during development, the theme assets may not need
+   to be minimised etc.).
+
+### 9. Install site
+
+   This step will install the site using [the site installation script](../../../../scripts/drevops/drupal-install-site.sh),
+   which contains all the workflow logic that controls which actions are taken
+   when the site is installed. It runs in all environments.
+
+### 10. Check that the site is available
+
+   This step uses [doctor script](../../../../scripts/drevops/doctor.sh) to
+   check that the stack is running correctly and that the site is available
+   (bootstrappable) and will exit with an error.<br />
+   See more in [the Doctor section](/usage/doctor).
