@@ -1,4 +1,4 @@
-# Authoring scripts
+# 📜 Authoring scripts
 
 ## Requirements
 

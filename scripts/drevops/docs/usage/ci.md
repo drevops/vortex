@@ -1,4 +1,4 @@
-# CI
+# 🚦 CI
 
 !!! note "Work in progress"
 

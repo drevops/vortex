@@ -1,4 +1,4 @@
-# Docker
+# 🐳 Docker
 
 !!! note "Work in progress"
 
@@ -25,6 +25,7 @@ To share application code between services (containers), Docker uses volumes.
 When used in non-development environments, containers have access to
 the same shared files using volumes and these volumes do not need to be
 mounted from the host.
+
 But for development environment, when the code constantly changes on the host,
 we need to have these changes synchronized into all containers. Since we are
 using single `docker-compose.yml` file for all environments, we have to

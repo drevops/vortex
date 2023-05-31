@@ -1,4 +1,4 @@
-# Release
+# 🚀 Release
 
 !!! note "Work in progress"
 

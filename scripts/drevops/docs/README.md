@@ -1,6 +1,6 @@
 # DrevOps
 
-**Onboarding in minutes, not hours or days!**
+## _**Onboarding in minutes, not hours or days!**_
 
 DrevOps is a project template for Drupal that is designed to streamline
 the development process for building high-quality Drupal websites.

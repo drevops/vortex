@@ -1,4 +1,4 @@
-# Architecture
+# 📐 Architecture
 
 ## File structure
 
