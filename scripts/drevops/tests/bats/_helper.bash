@@ -353,7 +353,7 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/download-db-acquia.sh"
   assert_file_exists "scripts/drevops/download-db-curl.sh"
   assert_file_exists "scripts/drevops/download-db-ftp.sh"
-  assert_file_exists "scripts/drevops/download-db-image.sh"
+  assert_file_exists "scripts/drevops/download-db-docker-registry.sh"
   assert_file_exists "scripts/drevops/download-db-lagoon.sh"
   assert_file_exists "scripts/drevops/export-db-file.sh"
   assert_file_exists "scripts/drevops/export-db-docker.sh"
@@ -373,7 +373,7 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/task-copy-files-acquia.sh"
   assert_file_exists "scripts/drevops/task-purge-cache-acquia.sh"
   assert_file_exists "scripts/drevops/test.sh"
-  assert_file_exists "scripts/drevops/update.sh"
+  assert_file_exists "scripts/drevops/update-drevops.sh"
 
   assert_file_exists "scripts/sanitize.sql"
 

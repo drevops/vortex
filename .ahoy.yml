@@ -226,11 +226,11 @@ commands:
     usage: Find problems with current project setup.
     cmd: ./scripts/drevops/doctor.sh "$@"
 
-  update:
-    usage: Update development stack.
+  update-drevops:
+    usage: Update DrevOps stack.
     cmd: |
       ahoy confirm "Some committed files may become overwritten. Proceed?" &&
-      ./scripts/drevops/update.sh
+      ./scripts/drevops/update-drevops.sh $@
 
   local:
     usage: Custom local commands. See `ahoy local help`.

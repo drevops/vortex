@@ -70,7 +70,7 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "lagoon" ]; then
 fi
 
 if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "docker_registry" ]; then
-  ./scripts/drevops/download-db-image.sh
+  ./scripts/drevops/download-db-docker-registry.sh
 fi
 
 ls -Alh "${DREVOPS_DB_DIR}" || true
