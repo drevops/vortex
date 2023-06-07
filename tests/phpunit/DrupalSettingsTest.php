@@ -242,6 +242,8 @@ class DrupalSettingsTest extends TestCase {
 
     $default_settings['hash_salt'] = hash('sha256', getenv('DREVOPS_MARIADB_HOST'));
     $default_settings['reverse_proxy'] = TRUE;
+    $default_settings['trusted_host_patterns'][] = '^nginx\-php$';
+    $default_settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
     $default_settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
     $default_settings['cache_prefix']['default'] = 'test_project_test_branch';
 
@@ -803,11 +805,6 @@ class DrupalSettingsTest extends TestCase {
       '^.+\.docker\.amazee\.io$',
       // URL when accessed from Behat tests.
       '^nginx$',
-      // #;< LAGOON
-      '^nginx\-php$',
-      // Lagoon URL.
-      '^.+\.au\.amazee\.io$',
-      // #;> LAGOON
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 
