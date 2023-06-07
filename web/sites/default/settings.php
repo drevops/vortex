@@ -58,7 +58,7 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 // Location of the site configuration files.
 $settings['config_sync_directory'] = '../config/default';
 
-// Temp directory.
+// Temporary directory.
 if (getenv('TMP')) {
   $settings['file_temp_path'] = getenv('TMP');
 }
@@ -69,7 +69,7 @@ $settings['file_private_path'] = 'sites/default/files/private';
 // Base salt on the DB host name.
 $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: (getenv('DREVOPS_MARIADB_HOST') ?: 'localhost'));
 
-// Expiration of cached pages on Varnish to 15 min.
+// Expiration of cached pages.
 $config['system.performance']['cache']['page']['max_age'] = 900;
 
 // Aggregate CSS and JS files.
@@ -95,39 +95,13 @@ $settings['trusted_host_patterns'] = [
   '^.+\.docker\.amazee\.io$',
   // URL when accessed from Behat tests.
   '^nginx$',
-  // #;< LAGOON
-  // URL when accessed from PHP processes in Lagoon.
-  '^nginx\-php$',
-  // Lagoon URL.
-  '^.+\.au\.amazee\.io$',
-  // #;> LAGOON
 ];
 
 // Modules excluded from config export.
 $settings['config_exclude_modules'] = [];
 
-// Default Shield credentials.
-// Shield can be enabled and disabled in production though UI.
-// For other environments, Shield is enforced to be enabled.
-// 'DRUPAL_SHIELD_USER' and 'DRUPAL_SHIELD_PASS' environment variables should
-// be added in the environment.
-// Check fo existence of variables to prevent locking out.
-if (!empty(getenv('DRUPAL_SHIELD_USER')) && !empty(getenv('DRUPAL_SHIELD_PASS'))) {
-  $config['shield.settings']['credentials']['shield']['user'] = getenv('DRUPAL_SHIELD_USER');
-  $config['shield.settings']['credentials']['shield']['pass'] = getenv('DRUPAL_SHIELD_PASS');
-}
-// Title of the shield pop-up.
-$config['shield.settings']['print'] = 'YOURSITE';
-
 ini_set('date.timezone', 'Australia/Melbourne');
 date_default_timezone_set('Australia/Melbourne');
-
-// Include additional site-wide settings.
-if (file_exists($app_root . '/' . $site_path . '/includes')) {
-  foreach (glob($app_root . '/' . $site_path . '/includes/settings.*.php') as $filename) {
-    require $filename;
-  }
-}
 
 // Default database configuration.
 $databases = [
@@ -147,7 +121,7 @@ $databases = [
 ];
 
 ////////////////////////////////////////////////////////////////////////////////
-///                   END OF SITE-SPECIFIC SETTINGS                          ///
+///                   ENVIRONMENT-SPECIFIC SETTINGS                          ///
 ////////////////////////////////////////////////////////////////////////////////
 
 // #;< ACQUIA
@@ -216,8 +190,11 @@ if (getenv('LAGOON')) {
   $settings['cache_prefix']['default'] = getenv('LAGOON_PROJECT') . '_' . getenv('LAGOON_GIT_SAFE_BRANCH');
 
   // Trusted host patterns for Lagoon internal routes.
-  // Do not add vanity domains here. Use the $settings['trusted_host_patterns']
-  // array in a previous section.
+  // URL when accessed from PHP processes in Lagoon.
+  $settings['trusted_host_patterns'][] = '^nginx\-php$';
+  // Lagoon URL.
+  $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
+  // Lagoon routes.
   if (getenv('LAGOON_ROUTES')) {
     $patterns = str_replace(['.', 'https://', 'http://', ','], [
       '\.', '', '', '|',
@@ -236,81 +213,40 @@ if (!empty(getenv('DREVOPS_ENVIRONMENT_TYPE'))) {
 ///                       PER-ENVIRONMENT SETTINGS                           ///
 ////////////////////////////////////////////////////////////////////////////////
 
-if ($settings['environment'] == ENVIRONMENT_PROD) {
-  $config['environment_indicator.indicator']['name'] = $settings['environment'];
-  $config['environment_indicator.indicator']['bg_color'] = '#ef5350';
-  $config['environment_indicator.indicator']['fg_color'] = '#000000';
-  $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-  $config['environment_indicator.settings']['favicon'] = TRUE;
-}
-else {
-  $config['stage_file_proxy.settings']['origin'] = !empty(getenv('DRUPAL_SHIELD_USER')) && !empty(getenv('DRUPAL_SHIELD_PASS')) ? sprintf('https://%s:%s@your-site-url.example/', getenv('DRUPAL_SHIELD_USER'), getenv('DRUPAL_SHIELD_PASS')) : 'https://your-site-url.example/';
-  $config['stage_file_proxy.settings']['hotlink'] = FALSE;
-
-  $config['environment_indicator.indicator']['name'] = $settings['environment'];
-  $config['environment_indicator.indicator']['bg_color'] = '#006600';
-  $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
-  $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-  $config['environment_indicator.settings']['favicon'] = TRUE;
-
-  // Enforce shield.
-  $config['shield.settings']['shield_enable'] = TRUE;
-}
-
-if ($settings['environment'] == ENVIRONMENT_TEST) {
-  $config['config_split.config_split.test']['status'] = TRUE;
-
-  $config['environment_indicator.indicator']['bg_color'] = '#fff176';
-  $config['environment_indicator.indicator']['fg_color'] = '#000000';
-}
-
-if ($settings['environment'] == ENVIRONMENT_DEV) {
-  $config['config_split.config_split.dev']['status'] = TRUE;
-
-  $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
-  $config['environment_indicator.indicator']['fg_color'] = '#000000';
-}
-
 if ($settings['environment'] == ENVIRONMENT_CI) {
-  $config['config_split.config_split.ci']['status'] = TRUE;
-
   // Never harden permissions on sites/default/files.
   $settings['skip_permissions_hardening'] = TRUE;
 
   // Disable built-in cron trigger.
   $config['automated_cron.settings']['interval'] = 0;
 
-  // Bypass shield.
-  $config['shield.settings']['shield_enable'] = FALSE;
-
   // Disable mail send out.
   $settings['suspend_mail_send'] = TRUE;
 }
 
 if ($settings['environment'] == ENVIRONMENT_LOCAL) {
-  // Show all error messages on the site.
-  $config['system.logging']['error_level'] = 'all';
-
-  // Enable local split.
-  $config['config_split.config_split.local']['status'] = TRUE;
-
   // Never harden permissions on sites/default/files during local development.
   $settings['skip_permissions_hardening'] = TRUE;
 
-  // Bypass shield.
-  $config['shield.settings']['shield_enable'] = FALSE;
+  // Show all error messages on the site.
+  $config['system.logging']['error_level'] = 'all';
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-///                    END OF PER-ENVIRONMENT SETTINGS                       ///
+///                       PER-MODULE SETTINGS                                ///
+////////////////////////////////////////////////////////////////////////////////
+
+if (file_exists($app_root . '/' . $site_path . '/includes')) {
+  foreach (glob($app_root . '/' . $site_path . '/includes/settings.*.php') as $filename) {
+    require $filename;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+///                          LOCAL SETTINGS                                  ///
 ////////////////////////////////////////////////////////////////////////////////
 
 // Load local development override configuration, if available.
-//
-// Use settings.local.php to override variables on secondary (staging,
-// development, etc.) installations of this site. Typically, used to disable
-// caching, JavaScript/CSS compression, re-routing of outgoing emails, and
-// other things that should not happen on development and testing sites.
 //
 // Copy default.settings.local.php and default.services.local.yml to
 // settings.local.php and services.local.yml respectively.
