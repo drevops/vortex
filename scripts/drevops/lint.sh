@@ -27,7 +27,7 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 
 # Provide argument as 'be' or 'fe' to lint only back-end or front-end code.
 # If no argument is provided, all code will be linted.
-DREVOPS_LINT_TYPE="${1:-be-fe}"
+DREVOPS_LINT_TYPE="${DREVOPS_LINT_TYPE:-${1:-be-fe}}"
 
 if [ -z "${DREVOPS_LINT_TYPE##*be*}" ]; then
   ./scripts/drevops/lint-be.sh "$@"
