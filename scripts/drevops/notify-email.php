@@ -27,7 +27,7 @@ $url = getenv('DREVOPS_NOTIFY_ENVIRONMENT_URL') ?: $argv[4] ?? NULL;
 
 # ------------------------------------------------------------------------------
 
-echo "[INFO] Started email notification.";
+echo "[INFO] Started email notification." . "\n";
 
 # @formatter:off
 if(empty($site_name))  { print "[FAIL] Both environment variable DREVOPS_NOTIFY_PROJECT and the first argument are empty."; exit(1); }
@@ -69,4 +69,4 @@ else {
   print '       No notification emails were sent.' . "\n";
 }
 
-echo "[ OK ] Finished email notification.";
+echo "[ OK ] Finished email notification." . "\n";
