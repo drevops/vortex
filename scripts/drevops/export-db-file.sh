@@ -34,7 +34,7 @@ mkdir -p "${DREVOPS_DB_EXPORT_FILE_DIR}"
 
 # Create dump file name with a timestamp or use the file name provided
 # as a first argument.
-dump_file=$([ "${1}" ] && echo "${DREVOPS_DB_EXPORT_FILE_DIR}/${1}" || echo "${DREVOPS_DB_EXPORT_FILE_DIR}/export_db_$(date +%Y_%m_%d_%H_%M_%S).sql")
+dump_file=$([ "${1:-}" ] && echo "${DREVOPS_DB_EXPORT_FILE_DIR}/${1}" || echo "${DREVOPS_DB_EXPORT_FILE_DIR}/export_db_$(date +%Y_%m_%d_%H_%M_%S).sql")
 
 # Dump database into a file. Also, convert relative path to an absolute one, as
 # the result file is relative to Drupal root, but provided paths are relative
