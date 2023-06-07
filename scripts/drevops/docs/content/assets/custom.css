@@ -1,0 +1,45 @@
+.mermaid {
+  text-align: center;
+}
+
+.md-nav__item--section > .md-nav > .md-nav__list > .md-nav__item {
+  padding-left: 0.9rem;
+}
+
+.md-nav__item--section > .md-nav > .md-nav__list > .md-nav__item > .md-nav > .md-nav__list > .md-nav__item {
+  padding-left: 0.9rem;
+}
+
+[data-md-color-scheme="default"] img[src$="#only-dark"] {
+  display: none !important;
+}
+
+[data-md-color-scheme="slate"] img[src$="#only-light"] {
+  display: none !important;
+}
+
+.md-typeset h1.hero-title {
+  text-align: center;
+  margin-left: 50px;
+  margin-bottom: 0.5em;
+}
+
+.hero-title img {
+  height: 50px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.hero-title span {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 10px;
+}
+
+[data-md-color-scheme="default"] .hero-title {
+  color: black;
+}
+
+[data-md-color-scheme="slate"] .hero-title {
+  color: white;
+}

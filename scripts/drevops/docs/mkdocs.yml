@@ -20,17 +20,18 @@ site_url: https://docs.drevops.com
 # Repository
 repo_name: drevops/drevops
 repo_url: https://github.com/drevops/drevops
-edit_uri: edit/main/scripts/drevops/docs/
+edit_uri: edit/main/scripts/drevops/docs/content
 # Copyright
-copyright: 'Copyright &copy;2023 DrevOps'
+copyright: 'Copyright &copy;2023 DrevOps<sup>&reg;</sup>'
 
 # Configuration.
-docs_dir: .
+docs_dir: content
 extra_css:
   - assets/custom.css
 
 theme:
   name: material
+  custom_dir: overrides
   logo: assets/logo.png
   favicon: assets/favicon.ico
   font:
@@ -72,6 +73,7 @@ theme:
     - search.highlight
     - content.action.edit
     - content.action.view
+    - content.code.copy
 
   # Don't include MkDocs' JavaScript
   include_search_page: false
@@ -80,7 +82,6 @@ theme:
 plugins:
   # Plugin for MkDocs to allow placing mkdocs.yml in the same directory as documentation
   # https://github.com/oprypin/mkdocs-same-dir
-  - same-dir
   - search
   - replace_markdown:
       patterns:
@@ -121,13 +122,14 @@ markdown_extensions:
       permalink: true
       toc_depth: 3
       slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: none}}
+  - mdx_include
   - pymdownx.arithmatex
   - pymdownx.betterem:
       smart_enable: all
   - pymdownx.caret
   - pymdownx.critic
   - pymdownx.details
-  - pymdownx.inlinehilite
+
   - pymdownx.keys
   - pymdownx.magiclink:
       repo_url_shorthand: true
@@ -135,36 +137,67 @@ markdown_extensions:
       repo: drevops
   - pymdownx.mark
   - pymdownx.smartsymbols
-  - pymdownx.superfences
+
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+
+  - pymdownx.highlight:
+      linenums: true
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      use_pygments: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-  - mdx_include
 
 # IMPORTANT! Do not add any configuration below navigation section.
 nav:
-  - Introduction:
-    - Introduction: README.md
+  - 👋 INTRODUCTION:
+    - 👋 Introduction: README.md
     - ⭐️ Features: introduction/features.md
     - ⬇️ Installation: introduction/installation.md
-    - 📐 Architecture: introduction/architecture.md
-  - Usage:
-    - 🏗️️ Build: usage/build.md
-    - ✅ Test: usage/test.md
-    - 🚚 Deploy: usage/deploy.md
-    - 🚀 Release 🚧: usage/release.md
-    - 🚦 CI 🚧: usage/ci.md
-    - 🛢️ Database 🚧: usage/database.md
-    - 🎛 Variables: usage/variables.md
-    - 🐳 Docker: usage/docker.md
-    - 🔄 Automated updates: usage/automated-updates.md
-    - 🏥 Doctor: usage/doctor.md
-  - Maintenance:
+    - 🏛 Architecture: introduction/architecture.md
+    - 🙌 Contributing: introduction/contributing.md
+
+  - 💧 Drupal 🚧:
+      - Overview 🚧: drupal/overview.md
+      - Drupal project 🚧: drupal/drupal-project.md
+      - Composer 🚧: drupal/composer.md
+      - Settings 🚧: drupal/settings.md
+      - Module scaffold 🚧: drupal/module-scaffold.md
+      - Theme scaffold 🚧: drupal/theme-scaffold.md
+
+  - ⚙️ WORKFLOW:
+      - 🏗️️ Build: workflow/build.md
+      - ✅ Test: workflow/test.md
+      - 🚚 Deploy: workflow/deploy.md
+      - 🚀 Release 🚧: workflow/release.md
+
+  - 🛠️ TOOLS:
+    - 🎛 Variables: tools/variables.md
+    - 🐳 Docker 🚧:
+      - Overview 🚧: tools/docker/overview.md
+      - Images 🚧: tools/docker/images.md
+      - Docker Compose 🚧: tools/docker/compose.md
+    - 🚦 CI 🚧:
+        - CircleCI 🚧: tools/ci/overview.md
+        - GitHub Actions 🚧: tools/ci/github-actions.md
+        - GitLab CI 🚧: tools/ci/gitlab-ci.md
+        - Azure Pipelines 🚧: tools/ci/azure-pipelines.md
+    - 🔄 Automated updates: tools/automated-updates.md
+    - 🏥 Doctor: tools/doctor.md
+    - 🛢️ Database 🚧: tools/database.md
+
+  - 🧹 MAINTENANCE:
     - 📜 Authoring scripts: maintenance/authoring-scripts.md
     - 📝 Authoring tests: maintenance/authoring-tests.md
     - 📖 Authoring documentation: maintenance/authoring-documentation.md

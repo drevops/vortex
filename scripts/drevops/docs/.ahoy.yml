@@ -14,8 +14,8 @@ commands:
   test:
     usage: Test site
     cmd: |
-      cd ../../.. && ./scripts/drevops/tests/lint-spelling.sh && cd -
-      docker compose run linkchecker http://mkdocs:8000 "$@"
+      cd ../../.. && ./scripts/drevops/tests/lint-spelling.sh && cd - \
+      && docker compose run linkchecker http://mkdocs:8000 "$@"
 
   publish:
     usage: Deploy site

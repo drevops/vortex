@@ -23,7 +23,9 @@ DrupalExtension
 Entrypoint
 FE
 FeatureContext
+GIFs
 GPL
+GitLab
 GraphQL
 Gruntfile
 Hotfix
@@ -56,6 +58,7 @@ Solr
 SsL
 Ssl
 TBD
+Terminalizer
 Twigcs
 UAT
 UI
@@ -70,7 +73,9 @@ YOURORG
 YOURSITE
 acquia
 amazeeio
+assignees
 bdd
+bootstrappable
 breakpoint
 changelog
 codebase
