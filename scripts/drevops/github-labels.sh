@@ -21,7 +21,7 @@ set -eu
 GITHUB_TOKEN="${GITHUB_TOKEN:-${GITHUB_TOKEN}}"
 
 # GitHub repository as "org/name" to perform operations on.
-DREVOPS_GITHUB_REPO="${DREVOPS_GITHUB_REPO:-$1}"
+DREVOPS_GITHUB_REPO="${DREVOPS_GITHUB_REPO:-${1:-}}"
 
 # Delete existing labels to mirror the list below.
 DREVOPS_GITHUB_DELETE_EXISTING_LABELS="${DREVOPS_GITHUB_DELETE_EXISTING_LABELS:-1}"
@@ -112,7 +112,7 @@ main() {
     IFS=$'\n' existing_labels=($(xargs -n1 <<<"${existing_labels_strings}"))
     for existing_label_name in "${existing_labels[@]}"; do
       if ! is_provided_label "${existing_label_name}"; then
-        echo "    Removing label \"${existing_label_name}\" as it is not in thr provided list"
+        echo "    Removing label \"${existing_label_name}\" as it is not in the provided list"
         if label_delete "${existing_label_name}"; then
           echo "    DELETED label \"${existing_label_name}\""
         else
@@ -247,9 +247,9 @@ label_update() {
 }
 
 label_delete() {
-  local name="${1}"
-  local color="${2}"
-  local description="${3}"
+  local name="${1:-}"
+  local color="${2:-}"
+  local description="${3:-}"
   local name_encoded=$(uriencode "${name}")
   local status=$(
     curl -s \
