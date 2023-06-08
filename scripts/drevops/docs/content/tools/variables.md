@@ -126,14 +126,6 @@ Default value: `1`
 
 Defined in: `.env`
 
-### `DREVOPS_COMPOSER_VALIDATE_LOCK`
-
-Validate `composer.lock` file.
-
-Default value: `1`
-
-Defined in: `.env`, `scripts/drevops/build.sh`
-
 ### `DREVOPS_COMPOSER_VERBOSE`
 
 Print debug information from Composer install.
