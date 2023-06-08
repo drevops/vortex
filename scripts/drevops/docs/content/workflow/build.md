@@ -68,9 +68,7 @@ flowchart TB
 ### 3. Validate Composer configuration
 
    The script validates the Composer configuration and exits if it is not valid.
-   The `composer.lock` will be validated as well if `$DREVOPS_COMPOSER_VALIDATE_LOCK`
-   is set to `1`. This is designed to catch errors in the configuration to avoid
-   using outdated dependencies.
+   The `composer.lock` will be validated as well.
 
 ### 4. Database in Docker image?
 

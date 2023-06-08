@@ -59,18 +59,10 @@ info "Validating Docker Compose configuration."
 docker compose config -q && pass "Docker Compose configuration is valid." || { fail "Docker Compose configuration is invalid." && exit 1; }
 echo
 
-# Validate Composer configuration if Composer is installed.
-# This is done before the containers are started to fail fast if the Composer configuration is invalid.
 if command -v composer >/dev/null; then
-  if [ "${DREVOPS_COMPOSER_VALIDATE_LOCK}" = "1" ]; then
-    info "Validating Composer configuration, including lock file."
-    composer validate --ansi --strict --no-check-all 1>"${composer_verbose_output}"
-    pass "Composer configuration is valid. Lock file is up-to-date."
-  else
-    info "Validating composer configuration."
-    composer validate --ansi --strict --no-check-all --no-check-lock 1>"${composer_verbose_output}"
-    pass "Composer configuration is valid."
-  fi
+  info "Validating Composer configuration, including lock file."
+  composer validate --ansi --strict --no-check-all 1>"${composer_verbose_output}"
+  pass "Composer configuration is valid. Lock file is up-to-date."
   echo
 fi
 
