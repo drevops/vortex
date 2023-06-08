@@ -22,11 +22,10 @@ tasks:
     - run:
         name: Notify about pre-deployment.
         command: |
-          DREVOPS_NOTIFY_EVENT=pre_deployment \
-          if [ -n "$LAGOON_PR_NUMBER" ]; then DREVOPS_NOTIFY_REF=$LAGOON_PR_NUMBER; DREVOPS_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; DREVOPS_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else DREVOPS_NOTIFY_REF=$LAGOON_GIT_BRANCH; DREVOPS_NOTIFY_SHA=$LAGOON_GIT_SHA; DREVOPS_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi \
+          if [ -n "$LAGOON_PR_NUMBER" ]; then export DREVOPS_NOTIFY_REF=$LAGOON_PR_NUMBER;export DREVOPS_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/};export DREVOPS_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH;else export DREVOPS_NOTIFY_REF=$LAGOON_GIT_BRANCH;export DREVOPS_NOTIFY_SHA=$LAGOON_GIT_SHA;export DREVOPS_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH;fi
           DREVOPS_NOTIFY_PROJECT=$LAGOON_PROJECT \
           DREVOPS_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
-          ./scripts/drevops/notify.sh
+          DREVOPS_NOTIFY_EVENT=pre_deployment ./scripts/drevops/notify.sh || true
         service: cli
         shell: bash
 
@@ -39,6 +38,7 @@ tasks:
           fi
         service: cli
     #;< !INSTALL_FROM_PROFILE
+
     - run:
         name: Download database in non-production environments
         command: |
@@ -51,6 +51,7 @@ tasks:
           fi
         service: cli
     #;> !INSTALL_FROM_PROFILE
+
     - run:
         name: Install site
         command: |
@@ -81,7 +82,7 @@ tasks:
     - run:
         name: Send deployment notifications
         command: |
-          if [ -n "$LAGOON_PR_NUMBER" ]; then DREVOPS_NOTIFY_REF=$LAGOON_PR_NUMBER; DREVOPS_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; DREVOPS_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else DREVOPS_NOTIFY_REF=$LAGOON_GIT_BRANCH; DREVOPS_NOTIFY_SHA=$LAGOON_GIT_SHA; DREVOPS_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi \
+          if [ -n "$LAGOON_PR_NUMBER" ]; then export DREVOPS_NOTIFY_REF=$LAGOON_PR_NUMBER; export DREVOPS_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; export DREVOPS_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else export DREVOPS_NOTIFY_REF=$LAGOON_GIT_BRANCH; export DREVOPS_NOTIFY_SHA=$LAGOON_GIT_SHA; export DREVOPS_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi
           DREVOPS_NOTIFY_PROJECT=$LAGOON_PROJECT \
           DREVOPS_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
           ./scripts/drevops/notify.sh
