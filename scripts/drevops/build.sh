@@ -66,10 +66,6 @@ if command -v composer >/dev/null; then
   echo
 fi
 
-# Create stub of local network.
-# shellcheck disable=SC2015
-docker network prune -f >/dev/null 2>&1 && docker network inspect amazeeio-network >/dev/null 2>&1 || docker network create amazeeio-network >/dev/null 2>&1 || true
-
 info "Removing project containers and packages available since the previous run."
 if [ -f "docker-compose.yml" ]; then docker compose down --remove-orphans --volumes >/dev/null 2>&1; fi
 ./scripts/drevops/clean.sh
