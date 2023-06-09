@@ -194,7 +194,7 @@ load _helper_deployment.bash
 
   step "Run deployment with skip flag set, but without per-branch or per-pr skip flags."
   export DREVOPS_DEPLOY_PROCEED=1
-  export DREVOPS_DEPLOY_SKIP=1
+  export DREVOPS_DEPLOY_ALLOW_SKIP=1
 
   run ahoy deploy
   assert_success
@@ -206,7 +206,7 @@ load _helper_deployment.bash
 
   step "Run deployment with skip flag set and with per-branch flag set."
   export DREVOPS_DEPLOY_PROCEED=1
-  export DREVOPS_DEPLOY_SKIP=1
+  export DREVOPS_DEPLOY_ALLOW_SKIP=1
 
   export DREVOPS_DEPLOY_BRANCH="feature/test"
   export DREVOPS_DEPLOY_SKIP_BRANCH_FEATURE_TEST=1
@@ -221,7 +221,7 @@ load _helper_deployment.bash
 
   step "Run deployment with skip flag set and with per-pr flag set."
   export DREVOPS_DEPLOY_PROCEED=1
-  export DREVOPS_DEPLOY_SKIP=1
+  export DREVOPS_DEPLOY_ALLOW_SKIP=1
 
   export DREVOPS_DEPLOY_PR="123"
   export DREVOPS_DEPLOY_SKIP_PR_123=1
@@ -236,7 +236,7 @@ load _helper_deployment.bash
 
   step "Run deployment without skip flag set and with per-pr flag set."
   export DREVOPS_DEPLOY_PROCEED=1
-  unset DREVOPS_DEPLOY_SKIP
+  unset DREVOPS_DEPLOY_ALLOW_SKIP
 
   export DREVOPS_DEPLOY_PR="123"
   export DREVOPS_DEPLOY_SKIP_PR_123=1
