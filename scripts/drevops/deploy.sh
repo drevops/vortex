@@ -46,7 +46,7 @@ DREVOPS_DEPLOY_PROCEED="${DREVOPS_DEPLOY_PROCEED:-}"
 # a failsafe to prevent any deployments, while $DREVOPS_DEPLOY_SKIP allows to
 # selectively skip certain deployments using `$DREVOPS_DEPLOY_SKIP_PR_<NUMBER>'
 # and `$DREVOPS_DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>` variables.
-DREVOPS_DEPLOY_SKIP="${DREVOPS_DEPLOY_SKIP:-}"
+DREVOPS_DEPLOY_ALLOW_SKIP="${DREVOPS_DEPLOY_ALLOW_SKIP:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ if [ "${DREVOPS_DEPLOY_PROCEED}" != "1" ]; then
   echo "DREVOPS_DEPLOY_PROCEED is not set to 1." && pass "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
 fi
 
-if [ "${DREVOPS_DEPLOY_SKIP}" = "1" ]; then
+if [ "${DREVOPS_DEPLOY_ALLOW_SKIP}" = "1" ]; then
   note "Found flag to skip a deployment."
 
   if [ -n "${DREVOPS_DEPLOY_PR}" ]; then
