@@ -16,10 +16,10 @@ class ExampleTest extends YsCoreFunctionalTestBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @phpstan-ignore-next-line
    */
   protected function setUp(): void {
-    // @phpcs:disable Generic.CodeAnalysis.UselessOverridingMethod.Found
-    parent::setUp();
     // DrevOps does not support Functional tests due to permission issues.
     // Override setup until @see https://github.com/drevops/drevops/issues/820
     // resolved.
