@@ -11,10 +11,11 @@ parameters:
     # @default 100
     gc_divisor: 100
     #
-    # Set session lifetime (in seconds), i.e. the time from the user's last
-    # visit to the active session may be deleted by the session garbage
-    # collector. When a session is deleted, authenticated users are logged out,
-    # and the contents of the user's $_SESSION variable is discarded.
+    # Set session lifetime (in seconds), i.e. the grace period for session
+    # data. Sessions are deleted by the session garbage collector after one
+    # session lifetime has elapsed since the user's last visit. When a session
+    # is deleted, authenticated users are logged out, and the contents of the
+    # user's session is discarded.
     # @default 200000
     gc_maxlifetime: 200000
     #
@@ -36,6 +37,29 @@ parameters:
     # @default none
     # cookie_domain: '.example.com'
     #
+    # Set the SameSite cookie attribute: 'None', 'Lax', or 'Strict'. If set,
+    # this value will override the server value. See
+    # https://www.php.net/manual/en/session.security.ini.php for more
+    # information.
+    # @default no value
+    cookie_samesite: Lax
+    #
+    # Set the session ID string length. The length can be between 22 to 256. The
+    # PHP recommended value is 48. See
+    # https://www.php.net/manual/session.security.ini.php for more information.
+    # This value should be kept in sync with
+    # \Drupal\Core\Session\SessionConfiguration::__construct()
+    # @default 48
+    sid_length: 48
+    #
+    # Set the number of bits in encoded session ID character. The possible
+    # values are '4' (0-9, a-f), '5' (0-9, a-v), and '6' (0-9, a-z, A-Z, "-",
+    # ","). The PHP recommended value is 6. See
+    # https://www.php.net/manual/session.security.ini.php for more information.
+    # This value should be kept in sync with
+    # \Drupal\Core\Session\SessionConfiguration::__construct()
+    # @default 6
+    sid_bits_per_character: 6
   twig.config:
     # Twig debugging:
     #
@@ -53,7 +77,7 @@ parameters:
     # For more information about debugging Twig templates, see
     # https://www.drupal.org/node/1906392.
     #
-    # Not recommended in production environments
+    # Enabling Twig debugging is not recommended in production environments.
     # @default false
     debug: false
     # Twig auto-reload:
@@ -62,7 +86,7 @@ parameters:
     # If you don't provide a value for auto_reload, it will be determined
     # based on the value of debug.
     #
-    # Not recommended in production environments
+    # Enabling auto-reload is not recommended in production environments.
     # @default null
     auto_reload: null
     # Twig cache:
@@ -73,9 +97,24 @@ parameters:
     # auto_reload setting above should be enabled rather than disabling the
     # Twig cache.
     #
-    # Not recommended in production environments
+    # Disabling the Twig cache is not recommended in production environments.
     # @default true
     cache: true
+    # File extensions:
+    #
+    # List of file extensions the Twig system is allowed to load via the
+    # twig.loader.filesystem service. Files with other extensions will not be
+    # loaded unless they are added here. For example, to allow a file named
+    # 'example.partial' to be loaded, add 'partial' to this list. To load files
+    # with no extension, add an empty string '' to the list.
+    #
+    # @default ['css', 'html', 'js', 'svg', 'twig']
+    allowed_file_extensions:
+      - css
+      - html
+      - js
+      - svg
+      - twig
   renderer.config:
     # Renderer required cache contexts:
     #
@@ -115,29 +154,37 @@ parameters:
       #
       # @default []
       tags: []
+    # Renderer cache debug:
+    #
+    # Allows cache debugging output for each rendered element.
+    #
+    # Enabling render cache debugging is not recommended in production
+    # environments.
+    # @default false
+    debug: false
   # Cacheability debugging:
   #
   # Responses with cacheability metadata (CacheableResponseInterface instances)
-  # get X-Drupal-Cache-Tags and X-Drupal-Cache-Contexts headers.
+  # get X-Drupal-Cache-Tags, X-Drupal-Cache-Contexts and X-Drupal-Cache-Max-Age
+  # headers.
   #
   # For more information about debugging cacheable responses, see
   # https://www.drupal.org/developing/api/8/response/cacheable-response-interface
   #
-  # Not recommended in production environments
+  # Enabling cacheability debugging is not recommended in production
+  # environments.
   # @default false
   http.response.debug_cacheability_headers: false
-  factory.keyvalue:
-    {}
-    # Default key/value storage service to use.
-    # @default keyvalue.database
-    # default: keyvalue.database
-    # Collection-specific overrides.
-    # state: keyvalue.database
-  factory.keyvalue.expirable:
-    {}
-    # Default key/value expirable storage service to use.
-    # @default keyvalue.database.expirable
-    # default: keyvalue.database.expirable
+  factory.keyvalue: {}
+  # Default key/value storage service to use.
+  # @default keyvalue.database
+  # default: keyvalue.database
+  # Collection-specific overrides.
+  # state: keyvalue.database
+  factory.keyvalue.expirable: {}
+  # Default key/value expirable storage service to use.
+  # @default keyvalue.database.expirable
+  # default: keyvalue.database.expirable
   # Allowed protocols for URL generation.
   filter_protocols:
     - http
@@ -154,17 +201,18 @@ parameters:
     - webcal
     - rtsp
 
-   # Configure Cross-Site HTTP requests (CORS).
-   # Read https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
-   # for more information about the topic in general.
-   # Note: By default the configuration is disabled.
+  # Configure Cross-Site HTTP requests (CORS).
+  # Read https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+  # for more information about the topic in general.
+  # Note: By default the configuration is disabled.
   cors.config:
     enabled: false
     # Specify allowed headers, like 'x-allowed-header'.
     allowedHeaders: []
     # Specify allowed request methods, specify ['*'] to allow all possible ones.
     allowedMethods: []
-    # Configure requests allowed from specific origins.
+    # Configure requests allowed from specific origins. Do not include trailing
+    # slashes with URLs.
     allowedOrigins: ['*']
     # Sets the Access-Control-Expose-Headers header.
     exposedHeaders: false
@@ -172,3 +220,9 @@ parameters:
     maxAge: false
     # Sets the Access-Control-Allow-Credentials header.
     supportsCredentials: false
+
+  queue.config:
+    # The maximum number of seconds to wait if a queue is temporarily suspended.
+    # This is not applicable when a queue is suspended but does not specify
+    # how long to wait before attempting to resume.
+    suspendMaximumWait: 30
