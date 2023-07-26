@@ -95,7 +95,7 @@ if [ "${DREVOPS_DEPLOY_ALLOW_SKIP}" = "1" ]; then
     # is $DREVOPS_DEPLOY_SKIP_BRANCH_MY_COMPLEX_FEATURE_123_UPDATE
     safe_branch_name="$(echo "${DREVOPS_DEPLOY_BRANCH}" | tr -d '\n' | tr '[:space:]' '_' | tr '-' '_' | tr '/' '_' | tr -cd '[:alnum:]_' | tr '[:lower:]' '[:upper:]')"
     branch_skip_var="DREVOPS_DEPLOY_SKIP_BRANCH_${safe_branch_name}"
-    if [ -n "${!branch_skip_var}" ]; then
+    if [ -n "${!branch_skip_var:-}" ]; then
       note "Found skip variable ${branch_skip_var} for branch ${DREVOPS_DEPLOY_BRANCH}."
       pass "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
     fi
