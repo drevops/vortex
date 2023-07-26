@@ -5,15 +5,15 @@
  * YOURSITE Drupal context for Behat testing.
  */
 
-use DrevOps\BehatSteps\FileTrait;
-use DrevOps\BehatSteps\SearchApiTrait;
-use DrevOps\BehatSteps\WaitTrait;
-use Drupal\DrupalExtension\Context\DrupalContext;
 use DrevOps\BehatSteps\ContentTrait;
-use DrevOps\BehatSteps\TaxonomyTrait;
-use DrevOps\BehatSteps\WatchdogTrait;
 use DrevOps\BehatSteps\FieldTrait;
+use DrevOps\BehatSteps\FileTrait;
 use DrevOps\BehatSteps\PathTrait;
+use DrevOps\BehatSteps\SearchApiTrait;
+use DrevOps\BehatSteps\TaxonomyTrait;
+use DrevOps\BehatSteps\WaitTrait;
+use DrevOps\BehatSteps\WatchdogTrait;
+use Drupal\DrupalExtension\Context\DrupalContext;
 
 /**
  * Defines application features from the specific context.
