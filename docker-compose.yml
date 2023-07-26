@@ -27,7 +27,7 @@ x-volumes: &default-volumes
     # All application files mounted into container.
     - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
     # Override mount for files to allow different type of syncing to optimise performance.
-    - ./app/web/sites/default/files:/app/web/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    - ./web/sites/default/files:/app/web/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
     # Use the same volumes in environments without host mounts support.
     ##- app:/app # Override for environment without host mounts. Automatically uncommented in CI.
     ##- files:/app/web/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
