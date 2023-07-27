@@ -127,7 +127,7 @@ aliases:
       #; has all necessary tools to run dockerized environment.
       #; @see https://github.com/drevops/ci-builder
       #; @see https://hub.docker.com/repository/docker/drevops/ci-builder/tags?page=1&ordering=last_updated
-      - image: drevops/ci-builder:23.5.0
+      - image: drevops/ci-builder:23.7.0
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
