@@ -160,11 +160,6 @@ aliases:
           DREVOPS_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE: /tmp/artifacts/deployment_report.txt
-          #;< DREVOPS_DEV
-          # Volumes mounting to host is not supported in CircleCI. This is used
-          # for DrevOps own tests and will be automatically removed upon installation.
-          DREVOPS_DEV_VOLUMES_MOUNTED: 0
-          #;> DREVOPS_DEV
     resource_class: *resource_class
 
   # Set up remote Docker.
@@ -431,7 +426,7 @@ jobs:
       - *step_setup_docker_network
       - run:
           name: Run common tests
-          command: scripts/drevops/tests/test.common.sh
+          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.common.sh
           no_output_timeout: 60m
 
   drevops_dev_test_workflow:
@@ -445,7 +440,7 @@ jobs:
       - *step_setup_docker_network
       - run:
           name: Run workflow tests (long)
-          command: scripts/drevops/tests/test.workflow.sh
+          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.workflow.sh
           no_output_timeout: 60m
 
   drevops_dev_test_deployment:
@@ -463,7 +458,7 @@ jobs:
           at: /workspace
       - run:
           name: Run deployment tests (long)
-          command: scripts/drevops/tests/test.deployment.sh
+          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.deployment.sh
           no_output_timeout: 60m
 
   # Run tests after 'build' job.
@@ -477,7 +472,7 @@ jobs:
       - *step_setup_docker_network
       - run:
           name: Run CircleCI tests (long)
-          command: scripts/drevops/tests/test.postbuild.sh
+          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.postbuild.sh
 
   # Deployment of feature branches and tags for DrevOps itself.
   drevops_dev_deploy:
