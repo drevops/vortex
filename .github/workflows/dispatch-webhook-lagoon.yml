@@ -24,4 +24,4 @@ jobs:
             --header "X-GitHub-Delivery: ${RUNNER_TRACKING_ID:7}" \
             --header "X-GitHub-Event: pull_request" \
             --data-binary @- \
-            https://hooks.lagoon.amazeeio.cloud/
+            "${LAGOON_WEBHOOK_ENDPOINT-https://hooks.lagoon.amazeeio.cloud/}"
