@@ -22,6 +22,8 @@ load _helper_workflow.bash
 
   assert_env_changes
 
+  assert_timezone
+
   assert_ahoy_composer
 
   assert_ahoy_drush

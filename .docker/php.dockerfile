@@ -10,4 +10,6 @@ FROM ${CLI_IMAGE:-cli} as cli
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-fpm
 FROM uselagoon/php-8.1-fpm:23.7.0
 
+RUN apk add --no-cache tzdata=2023c-r1
+
 COPY --from=cli /app /app

@@ -415,6 +415,16 @@ Default value: `create`
 
 Defined in: `scripts/drevops/deploy-lagoon.sh`, `scripts/drevops/deploy.sh`
 
+### `DREVOPS_DEPLOY_ALLOW_SKIP`
+
+Flag to allow skipping of a deployment using additional flags.
+
+Different to [`$DREVOPS_DEPLOY_PROCEED`](#DREVOPS_DEPLOY_PROCEED) in a way that [`$DREVOPS_DEPLOY_PROCEED`](#DREVOPS_DEPLOY_PROCEED) is<br />a failsafe to prevent any deployments, while $DREVOPS_DEPLOY_SKIP allows to<br />selectively skip certain deployments using `$DREVOPS_DEPLOY_SKIP_PR_<NUMBER>'<br />and `$DREVOPS_DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>` variables.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/deploy.sh`
+
 ### `DREVOPS_DEPLOY_ARTIFACT_DST_BRANCH`
 
 Remote repository branch. Can be a specific branch or a token.<br />@see https://github.com/drevops/git-artifact#token-support
@@ -584,16 +594,6 @@ The PR head branch to deploy.
 Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/deploy-lagoon.sh`
-
-### `DREVOPS_DEPLOY_ALLOW_SKIP`
-
-Flag to allow skipping of a deployment using additional flags.
-
-Different to [`$DREVOPS_DEPLOY_PROCEED`](#DREVOPS_DEPLOY_PROCEED) in a way that [`$DREVOPS_DEPLOY_PROCEED`](#DREVOPS_DEPLOY_PROCEED) is<br />a failsafe to prevent any deployments, while [`$DREVOPS_DEPLOY_SKIP`](#DREVOPS_DEPLOY_ALLOW_SKIP) allows to<br />selectively skip certain deployments using `$DREVOPS_DEPLOY_SKIP_PR_<NUMBER>'<br />and `$DREVOPS_DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>` variables.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/deploy.sh`
 
 ### `DREVOPS_DEPLOY_SSH_FILE`
 
@@ -1746,6 +1746,14 @@ Unit test group. Optional. Defaults to running Unit tests tagged with `site:unit
 Default value: `site:unit`
 
 Defined in: `scripts/drevops/test-unit.sh`
+
+### `DREVOPS_TZ`
+
+The timezone for the containers.
+
+Default value: `Australia/Melbourne`
+
+Defined in: `.env`
 
 ### `DREVOPS_WEBROOT`
 
