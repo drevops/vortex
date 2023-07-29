@@ -62,7 +62,7 @@ mkdir -p "${DREVOPS_DB_EXPORT_DOCKER_DIR}"
 
 # Create dump file name with a timestamp or use the file name provided
 # as a first argument. Also, make sure that the extension is correct.
-archive_file=$([ "${DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE}" ] && echo "${DREVOPS_DB_EXPORT_DOCKER_DIR}/${DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE//.sql/.tar}" || echo "${DREVOPS_DB_EXPORT_DOCKER_DIR}/export_db_$(date +%Y_%m_%d_%H_%M_%S).tar")
+archive_file=$([ "${DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE}" ] && echo "${DREVOPS_DB_EXPORT_DOCKER_DIR}/${DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE//.sql/.tar}" || echo "${DREVOPS_DB_EXPORT_DOCKER_DIR}/export_db_$(date +%Y%m%d_%H%M%S).tar")
 
 note "Exporting database image archive to file ${archive_file}."
 

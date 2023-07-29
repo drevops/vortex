@@ -34,7 +34,7 @@ DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT="${DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT
 DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR="/tmp"
 
 # Remote DB dump file name. Cached by the date suffix.
-DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE="${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE:-db_$(date +%Y_%m_%d).sql}"
+DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE="${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE:-db_$(date +%Y%m%d).sql}"
 
 # Wildcard file name to cleanup previously created dump files.
 #

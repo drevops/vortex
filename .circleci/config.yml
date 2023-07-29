@@ -89,7 +89,7 @@ aliases:
   # The granularity of the database cache age: the cache will be refreshed if
   # the current date is different from the cache timestamp.
   # Refer to `date` command for possible values.
-  - &drevops_ci_db_cache_timestamp +%Y_%m_%d
+  - &drevops_ci_db_cache_timestamp +%Y%m%d
   # Use previous database caches on this branch as a fallback if the above cache
   # does not match (for example, the cache is available only from the previous
   # day). If "no" is set, the cache will be rebuilt from scratch.
