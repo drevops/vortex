@@ -254,7 +254,7 @@ Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 Remote DB dump file name. Cached by the date suffix.
 
-Default value: `db_$(date +%Y_%m_%d).sql`
+Default value: `db_$(date +%Y%m%d).sql`
 
 Defined in: `scripts/drevops/download-db-lagoon.sh`
 
