@@ -232,6 +232,41 @@ assert_env_changes() {
   assert_output_not_contains "my_custom_var_value"
 }
 
+assert_timezone() {
+  step "Check that timezone can be applied"
+
+  # Assert that .env contains a default value.
+  assert_file_contains ".env" "DREVOPS_TZ=\"Australia/Melbourne\""
+  run docker compose exec cli date
+  assert_output_contains "AEST"
+  run docker compose exec php date
+  assert_output_contains "AEST"
+  run docker compose exec nginx date
+  assert_output_contains "AEST"
+  run docker compose exec mariadb date
+  assert_output_contains "AEST"
+
+  # Add variable to the .env file and apply the change to container.
+  add_var_to_file .env "DREVOPS_TZ" "\"Australia/Perth\""
+  sync_to_container
+  run ahoy up
+
+  run docker compose exec cli date
+  assert_output_contains "AWST"
+  run docker compose exec php date
+  assert_output_contains "AWST"
+  run docker compose exec nginx date
+  assert_output_contains "AWST"
+  run docker compose exec mariadb date
+  assert_output_contains "AWST"
+
+  # Restore file, apply changes and assert that original behaviour has been restored.
+  restore_file ".env"
+  sync_to_container
+  run ahoy up
+  sleep 10
+}
+
 assert_ahoy_composer() {
   step "Run composer command"
 
