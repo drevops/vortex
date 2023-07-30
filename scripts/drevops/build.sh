@@ -169,3 +169,4 @@ echo
 
 echo
 info "Finished building project ${DREVOPS_PROJECT} ($((SECONDS / 60))m $((SECONDS % 60))s)."
+echo
