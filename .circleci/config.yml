@@ -30,9 +30,9 @@ aliases:
   #:
   #: Example command to generate SSH key:
   #: ssh-keygen -m PEM -t rsa -C "deployer@example.com"
-  #;
-  #; This is a fingerprint of the key to test DrevOps project itself as an example.
-  #; Replace this key fingerprint with your own.
+  #:
+  #: This is a fingerprint of the key to test DrevOps project itself as an example.
+  #: Replace this key fingerprint with your own and remove this comment.
   - &db_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
   #;> !INSTALL_FROM_PROFILE
 
@@ -42,9 +42,9 @@ aliases:
   #:
   #: Example command to generate SSH key:
   #: ssh-keygen -m PEM -t rsa -C "deployer@example.com"
-  #;
-  #; This is a fingerprint of the key to push DrevOps project itself as an example.
-  #; Replace this key fingerprint with your own.
+  #:
+  #: This is a fingerprint of the key to push DrevOps project itself as an example.
+  #: Replace this key fingerprint with your own and remove this comment.
   - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
 
   # Timezone of the runner container to ensure that DB cache key uses correct date.
@@ -123,10 +123,10 @@ aliases:
       #;> !INSTALL_FROM_PROFILE
       DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
-      #; Using "runner" container where each job will be executed. This container
-      #; has all necessary tools to run dockerized environment.
-      #; @see https://github.com/drevops/ci-builder
-      #; @see https://hub.docker.com/repository/docker/drevops/ci-builder/tags?page=1&ordering=last_updated
+      #: Using "runner" container where each job will be executed.
+      #: This container has all necessary tools to run dockerized environment.
+      #: @see https://github.com/drevops/ci-builder
+      #: @see https://hub.docker.com/repository/docker/drevops/ci-builder/tags?page=1&ordering=last_updated
       - image: drevops/ci-builder:23.7.0
         auth:
           username: $DOCKER_USER
@@ -264,7 +264,7 @@ jobs:
           paths:
             - *db_cache_dir
 
-  #; Nightly database job. Same as above, but with additional variables set.
+  #: Nightly database job. Same as above, but with additional variables set.
   database_nightly:
     <<: *job_database
     environment:
@@ -278,8 +278,8 @@ jobs:
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
   #;> !INSTALL_FROM_PROFILE
 
-  #; Build and test is a second step of the build. The testing is performed
-  #; within the same job to save time on provisioning during the job.
+  #: Build and test is a second step of the build. The testing is performed
+  #: within the same job to save time on provisioning during the job.
   build: &job_build
     <<: *container_config
     parallelism: *parallelism
