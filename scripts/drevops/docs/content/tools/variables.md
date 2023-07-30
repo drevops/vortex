@@ -36,9 +36,17 @@
 
 ### `AHOY_CONFIRM_RESPONSE`
 
-Set to `y` to suppress Ahoy prompts.
+Suppress Ahoy prompts.
 
-Default value: `UNDEFINED`
+Default value: `y`
+
+Defined in: `.env.local.example`, `.env.local.example`
+
+### `AHOY_CONFIRM_WAIT_SKIP`
+
+When Ahoy prompts are suppressed (AHOY_CONFIRM_RESPONSE is `1`), the command<br />will wait for `3` seconds before proceeding.<br />Set this variable to "`1`" to skip the wait.
+
+Default value: `1`
 
 Defined in: `.env.local.example`
 

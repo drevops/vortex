@@ -112,6 +112,8 @@ setup() {
 
   # Disable interactive prompts during tests.
   export AHOY_CONFIRM_RESPONSE=y
+  # Disable waiting when interactive prompts are disabled durin tests.
+  export AHOY_CONFIRM_WAIT_SKIP=1
 
   # Disable Doctor checks used on host machine.
   export DREVOPS_DOCTOR_CHECK_TOOLS=0

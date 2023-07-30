@@ -251,7 +251,8 @@ commands:
         read -r -p ">> $1 [y/N] " AHOY_CONFIRM_RESPONSE
         [ "$AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$AHOY_CONFIRM_RESPONSE" = true ] || ( echo "The operation was canceled." && exit 1 )
       else
-        echo ">> $1 [y/N] $AHOY_CONFIRM_RESPONSE"
+        echo ">> $1 [y/N] $AHOY_CONFIRM_RESPONSE" \
+        && if [ "${AHOY_CONFIRM_WAIT_SKIP}" != "1" ]; then echo "Waiting for 3 seconds... Press Ctrl+C to cancel."; sleep 3; fi
       fi
     hide: true
 
