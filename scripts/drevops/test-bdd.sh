@@ -70,7 +70,7 @@ exit_code=0
 
 if [ "${exit_code}" -eq 0 ]; then
   # Run tests once and re-run on fail, but only in CI.
-  vendor/bin/behat "${opts[@]}" "$@" || ([ -n "${CI}" ] && vendor/bin/behat "${opts[@]}" --rerun "$@")
+  vendor/bin/behat "${opts[@]}" "$@" || ([ -n "${CI:-}" ] && vendor/bin/behat "${opts[@]}" --rerun "$@")
   exit_code=$?
 fi
 

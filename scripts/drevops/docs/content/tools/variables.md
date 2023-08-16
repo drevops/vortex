@@ -242,7 +242,7 @@ Default value: `UNDEFINED`
 
 Defined in: `.env.local.example`, `scripts/drevops/download-db-ftp.sh`
 
-### `DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT`
+### `DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH`
 
 Lagoon environment to download the database from.
 
@@ -296,7 +296,7 @@ Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 The SSH user of the Lagoon environment.
 
-Default value: `LAGOON_PROJECT-${DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT`
+Default value: `LAGOON_PROJECT-${DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH`
 
 Defined in: `scripts/drevops/download-db-lagoon.sh`
 
@@ -417,7 +417,12 @@ Defined in: `.env.local.example`
 
 ### `DREVOPS_DEPLOY_ACTION`
 
-Deploy action.<br />Values can be one of: deploy, deploy_override_db, destroy.
+Deployment action.
+
+Values can be one of: deploy, deploy_override_db, destroy.
+- deploy: Deploy code and preserve database in the environment.
+- deploy_override_db: Deploy code and override database in the environment.
+- destroy: Destroy the environment (if the provider supports it).
 
 Default value: `create`
 
@@ -581,7 +586,7 @@ Defined in: `scripts/drevops/deploy-lagoon.sh`, `scripts/drevops/deploy.sh`
 
 ### `DREVOPS_DEPLOY_PROCEED`
 
-Flag to proceed with deployment. Set to `1` once the deployment configuration<br />is configured in CI and is ready.
+Flag to proceed with deployment.<br />Usually set to `1` once the deployment configuration is configured in CI and<br />is ready for use.
 
 Default value: `UNDEFINED`
 
@@ -657,7 +662,7 @@ Defined in: `scripts/drevops/deploy-webhook.sh`
 
 ### `DREVOPS_DOCKER_IMAGE_TAG`
 
-The tag of the image to push to. Defaults to 'latest'.
+The tag of the image to push to.
 
 Default value: `latest`
 
@@ -1541,7 +1546,9 @@ Defined in: `scripts/drevops/task-custom-lagoon.sh`
 
 ### `DREVOPS_TASK_LAGOON_NAME`
 
-Default value: `UNDEFINED`
+The task name.
+
+Default value: `Automation task`
 
 Defined in: `scripts/drevops/task-custom-lagoon.sh`
 
@@ -1549,7 +1556,7 @@ Defined in: `scripts/drevops/task-custom-lagoon.sh`
 
 The Lagoon project to run tasks for.
 
-Default value: `UNDEFINED`
+Default value: `LAGOON_PROJECT`
 
 Defined in: `scripts/drevops/task-custom-lagoon.sh`
 

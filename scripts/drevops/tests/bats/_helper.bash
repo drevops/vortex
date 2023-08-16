@@ -575,7 +575,7 @@ assert_files_present_install_from_profile() {
   assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL"
-  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT"
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH"
 
   assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FORCE"
   assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FTP_USER"
@@ -811,7 +811,7 @@ assert_files_present_no_integration_lagoon() {
   assert_file_not_contains "docker-compose.yml" "lagoon.type: solr"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
 
-  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH="
   assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
 
   popd >/dev/null || exit 1

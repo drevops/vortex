@@ -2,12 +2,16 @@
 ##
 # Deploy code to a remote location.
 #
-# IMPORTANT! This script runs outside the container on the host system.
-#
 # Deployment may include pushing code, pushing created docker image, notifying
 # remote hosting service via webhook call etc.
 #
+# Multiple deployments can be configured by providing a comma-separated list of
+# deployment types in $DREVOPS_DEPLOY_TYPE variable.
+#
 # This is a router script to call relevant scripts based on type.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
@@ -28,7 +32,10 @@ DREVOPS_DEPLOY_MODE="${DREVOPS_DEPLOY_MODE:-branch}"
 # Deployment action.
 #
 # Values can be one of: deploy, deploy_override_db, destroy.
-DREVOPS_DEPLOY_ACTION="${DREVOPS_DEPLOY_ACTION:-deploy}"
+# - deploy: Deploy code and preserve database in the environment.
+# - deploy_override_db: Deploy code and override database in the environment.
+# - destroy: Destroy the environment (if the provider supports it).
+DREVOPS_DEPLOY_ACTION="${DREVOPS_DEPLOY_ACTION:-}"
 
 # Deployment branch name.
 DREVOPS_DEPLOY_BRANCH="${DREVOPS_DEPLOY_BRANCH:-}"
@@ -36,8 +43,9 @@ DREVOPS_DEPLOY_BRANCH="${DREVOPS_DEPLOY_BRANCH:-}"
 # Deployment pull request number without "pr-" prefix.
 DREVOPS_DEPLOY_PR="${DREVOPS_DEPLOY_PR:-}"
 
-# Flag to proceed with deployment. Set to 1 once the deployment configuration
-# is configured in CI and is ready.
+# Flag to proceed with deployment.
+# Usually set to 1 once the deployment configuration is configured in CI and
+# is ready for use.
 DREVOPS_DEPLOY_PROCEED="${DREVOPS_DEPLOY_PROCEED:-}"
 
 # Flag to allow skipping of a deployment using additional flags.
@@ -65,7 +73,7 @@ if [ "${DREVOPS_DEPLOY_PROCEED}" != "1" ]; then
   echo "DREVOPS_DEPLOY_PROCEED is not set to 1." && pass "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
 fi
 
-if [ "${DREVOPS_DEPLOY_ALLOW_SKIP}" = "1" ]; then
+if [ "${DREVOPS_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
   note "Found flag to skip a deployment."
 
   if [ -n "${DREVOPS_DEPLOY_PR}" ]; then
@@ -83,7 +91,7 @@ if [ "${DREVOPS_DEPLOY_ALLOW_SKIP}" = "1" ]; then
     fi
   fi
 
-  if [ -n "${DREVOPS_DEPLOY_BRANCH}" ]; then
+  if [ -n "${DREVOPS_DEPLOY_BRANCH:-}" ]; then
     # Allow skipping deployment by providing 'DREVOPS_DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>'
     # variable with value set to "1", where <SAFE_BRANCH> is a branch name with
     # spaces, hyphens and forward slashes replaced with underscores and then
