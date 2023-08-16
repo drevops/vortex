@@ -14,14 +14,13 @@ set -eu
 DREVOPS_DB_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE:-}"
 
 # The username of the docker registry to download the database from.
-DOCKER_USER="${DOCKER_USER:-}"
+DOCKER_USER="${DOCKER_USER:-${DOCKER_USER}}"
 
 # The token of the docker registry to download the database from.
-DOCKER_PASS="${DOCKER_PASS:-}"
+DOCKER_PASS="${DOCKER_PASS:-${DOCKER_PASS}}"
 
-# Docker registry name.
-# Provide port, if required as `<server_name>:<port>`.
-DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
+# The name of the Docker registry to download the database from.
+DOCKER_REGISTRY="${DOCKER_REGISTRY:-${DOCKER_REGISTRY:-docker.io}}"
 
 #-------------------------------------------------------------------------------
 
@@ -34,8 +33,6 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 
 info "Started Docker data image download."
 
-[ -z "${DOCKER_USER}" ] && fail "Missing required value for DOCKER_USER." && exit 1
-[ -z "${DOCKER_PASS}" ] && fail "Missing required value for DOCKER_PASS." && exit 1
 [ -z "${DREVOPS_DB_DOCKER_IMAGE}" ] && fail "Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
 
 export DOCKER_USER="${DOCKER_USER}"
