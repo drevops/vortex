@@ -12,11 +12,11 @@ set -eu
 # shellcheck disable=SC1091
 set -a && . ./.env && set +a
 
-# The URL of the installer script.
-DREVOPS_INSTALLER_URL="${DREVOPS_INSTALLER_URL:-https://install.drevops.com}"
-
 # Allow providing custom DrevOps commit hash to download the sources from.
 DREVOPS_INSTALL_COMMIT="${DREVOPS_INSTALL_COMMIT:-${1:-}}"
+
+# The URL of the installer script.
+DREVOPS_INSTALLER_URL="${DREVOPS_INSTALLER_URL:-https://install.drevops.com}"
 
 # ------------------------------------------------------------------------------
 

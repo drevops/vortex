@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Run tests.
-#
-# Usage:
-# ./test-functional.sh
+# Run functional tests.
 #
 # shellcheck disable=SC2015
 
@@ -13,7 +10,7 @@ set -eu
 [ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 # Path to the root of the project inside the container.
-DREVOPS_APP=/app
+DREVOPS_APP="${DREVOPS_APP:-/app}"
 
 # Name of the webroot directory with Drupal installation.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
@@ -21,13 +18,20 @@ DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 # Flag to allow Functional tests to fail.
 DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE="${DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE:-0}"
 
-# Functional test group. Optional. Defaults to running Functional tests tagged with `site:functional`.
+# Functional test group.
+#
+# Running Functional tests tagged with `site:functional`.
 DREVOPS_TEST_FUNCTIONAL_GROUP="${DREVOPS_TEST_FUNCTIONAL_GROUP:-site:functional}"
 
-# Functional test configuration file. Optional. Defaults to core's configuration.
+# Functional test configuration file.
+#
+# Defaults to core's configuration file.
 DREVOPS_TEST_FUNCTIONAL_CONFIG="${DREVOPS_TEST_FUNCTIONAL_CONFIG:-${DREVOPS_APP}/${DREVOPS_WEBROOT}/core/phpunit.xml.dist}"
 
 # Directory to store test result files.
+#
+# If set, the directory is created and the JUnit formatter is used to generate
+# test result files.
 DREVOPS_TEST_REPORTS_DIR="${DREVOPS_TEST_REPORTS_DIR:-}"
 
 # ------------------------------------------------------------------------------

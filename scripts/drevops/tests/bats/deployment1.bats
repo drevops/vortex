@@ -79,7 +79,7 @@ load _helper_deployment.bash
   export DREVOPS_DEPLOY_ARTIFACT_ROOT="${CURRENT_PROJECT_DIR}"
   export DREVOPS_DEPLOY_ARTIFACT_SRC="${SRC_DIR}"
   export DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL="${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL:-testuser@example.com}"
-  export DREVOPS_DEPLOY_TYPE="artifact"
+  export DREVOPS_DEPLOY_TYPES="artifact"
 
   # Proceed with deployment.
   # @todo: Add tests for deployment kill-switch.

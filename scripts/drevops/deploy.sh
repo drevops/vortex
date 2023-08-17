@@ -6,7 +6,7 @@
 # remote hosting service via webhook call etc.
 #
 # Multiple deployments can be configured by providing a comma-separated list of
-# deployment types in $DREVOPS_DEPLOY_TYPE variable.
+# deployment types in $DREVOPS_DEPLOY_TYPES variable.
 #
 # This is a router script to call relevant scripts based on type.
 #
@@ -18,11 +18,11 @@ t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; 
 set -eu
 [ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
-# The type of deployment.
+# The types of deployment.
 #
 # Can be a combination of comma-separated values (to support multiple
 # deployments): code, docker, webhook, lagoon.
-DREVOPS_DEPLOY_TYPE="${DREVOPS_DEPLOY_TYPE:-}"
+DREVOPS_DEPLOY_TYPES="${DREVOPS_DEPLOY_TYPES:-}"
 
 # Deployment mode.
 #
@@ -67,10 +67,10 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 
 info "Started deployment."
 
-[ -z "${DREVOPS_DEPLOY_TYPE}" ] && fail "Missing required value for DREVOPS_DEPLOY_TYPE. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
+[ -z "${DREVOPS_DEPLOY_TYPES}" ] && fail "Missing required value for DREVOPS_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
 
 if [ "${DREVOPS_DEPLOY_PROCEED}" != "1" ]; then
-  echo "DREVOPS_DEPLOY_PROCEED is not set to 1." && pass "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
+  echo "DREVOPS_DEPLOY_PROCEED is not set to 1." && pass "Skipping deployment ${DREVOPS_DEPLOY_TYPES}." && exit 0
 fi
 
 if [ "${DREVOPS_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
@@ -87,7 +87,7 @@ if [ "${DREVOPS_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
     pr_skip_var="DREVOPS_DEPLOY_SKIP_PR_${DREVOPS_DEPLOY_PR}"
     if [ -n "${!pr_skip_var}" ]; then
       note "Found skip variable ${pr_skip_var} for PR ${DREVOPS_DEPLOY_PR}."
-      pass "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
+      pass "Skipping deployment ${DREVOPS_DEPLOY_TYPES}." && exit 0
     fi
   fi
 
@@ -105,24 +105,24 @@ if [ "${DREVOPS_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
     branch_skip_var="DREVOPS_DEPLOY_SKIP_BRANCH_${safe_branch_name}"
     if [ -n "${!branch_skip_var:-}" ]; then
       note "Found skip variable ${branch_skip_var} for branch ${DREVOPS_DEPLOY_BRANCH}."
-      pass "Skipping deployment ${DREVOPS_DEPLOY_TYPE}." && exit 0
+      pass "Skipping deployment ${DREVOPS_DEPLOY_TYPES}." && exit 0
     fi
   fi
 fi
 
-if [ -z "${DREVOPS_DEPLOY_TYPE##*artifact*}" ]; then
+if [ -z "${DREVOPS_DEPLOY_TYPES##*artifact*}" ]; then
   [ "${DREVOPS_DEPLOY_MODE}" = "tag" ] && export DREVOPS_DEPLOY_ARTIFACT_DST_BRANCH="deployment/[tags:-]"
   ./scripts/drevops/deploy-artifact.sh
 fi
 
-if [ -z "${DREVOPS_DEPLOY_TYPE##*webhook*}" ]; then
+if [ -z "${DREVOPS_DEPLOY_TYPES##*webhook*}" ]; then
   ./scripts/drevops/deploy-webhook.sh
 fi
 
-if [ -z "${DREVOPS_DEPLOY_TYPE##*docker*}" ]; then
+if [ -z "${DREVOPS_DEPLOY_TYPES##*docker*}" ]; then
   ./scripts/drevops/deploy-docker.sh
 fi
 
-if [ -z "${DREVOPS_DEPLOY_TYPE##*lagoon*}" ]; then
+if [ -z "${DREVOPS_DEPLOY_TYPES##*lagoon*}" ]; then
   ./scripts/drevops/deploy-lagoon.sh
 fi

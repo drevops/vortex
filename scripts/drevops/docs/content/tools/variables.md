@@ -36,17 +36,9 @@
 
 ### `AHOY_CONFIRM_RESPONSE`
 
-Suppress Ahoy prompts.
+Set to `y` to suppress Ahoy prompts.
 
-Default value: `y`
-
-Defined in: `.env.local.example`, `.env.local.example`
-
-### `AHOY_CONFIRM_WAIT_SKIP`
-
-When Ahoy prompts are suppressed (AHOY_CONFIRM_RESPONSE is `1`), the command<br />will wait for `3` seconds before proceeding.<br />Set this variable to "`1`" to skip the wait.
-
-Default value: `1`
+Default value: `UNDEFINED`
 
 Defined in: `.env.local.example`
 
@@ -395,7 +387,7 @@ Defined in: `scripts/drevops/export-db-docker.sh`
 
 Directory with database dump file.
 
-Default value: `DREVOPS_DB_DIR`
+Default value: `./.data`
 
 Defined in: `scripts/drevops/export-db-file.sh`
 
@@ -624,7 +616,7 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/deploy-artifact.sh`, `scripts/drevops/deploy-lagoon.sh`
 
-### `DREVOPS_DEPLOY_TYPE`
+### `DREVOPS_DEPLOY_TYPES`
 
 The type of deployemt.
 
@@ -878,7 +870,7 @@ Drupal site email (used only when installing from profile).
 
 Default value: `webmaster@your-site-url.example`
 
-Defined in: `.env`, `scripts/drevops/drupal-install-site.sh`
+Defined in: `.env`, `scripts/drevops/drupal-install-site.sh`, `scripts/drevops/notify-email.sh`
 
 ### `DREVOPS_DRUPAL_SITE_NAME`
 
@@ -1042,7 +1034,9 @@ Default value: `web/modules/custom/*/templates, web/themes/custom/*/templates`
 
 Defined in: `.env`
 
-### `DREVOPS_LINT_TYPE`
+### `DREVOPS_LINT_TYPES`
+
+Linting types.
 
 Provide argument as 'be' or 'fe' to lint only back-end or front-end code.<br />If no argument is provided, all code will be linted.
 
@@ -1160,6 +1154,38 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/notify-jira.sh`
 
+### `DREVOPS_NOTIFY_CHANNELS`
+
+The channels of the notifications.<br />Can be a combination of comma-separated values: email,newrelic,github,jira
+
+Default value: `email`
+
+Defined in: `scripts/drevops/notify.sh`
+
+### `DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL`
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/notify-email.sh`
+
+### `DREVOPS_NOTIFY_EMAIL_PROJECT`
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/notify-email.sh`
+
+### `DREVOPS_NOTIFY_EMAIL_RECIPIENTS`
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/notify-email.sh`
+
+### `DREVOPS_NOTIFY_EMAIL_REF`
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/notify-email.sh`
+
 ### `DREVOPS_NOTIFY_ENVIRONMENT_TYPE`
 
 Deployment environment type: production, uat, dev, pr.
@@ -1196,6 +1222,8 @@ Defined in: `scripts/drevops/notify-github.sh`
 
 Assign the ticket to this account.
 
+If left empty - no assignment will be performed.
+
 Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/notify-jira.sh`
@@ -1228,6 +1256,8 @@ Defined in: `scripts/drevops/notify-jira.sh`
 
 State to move the ticket to.
 
+If left empty - no transition will be performed.
+
 Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/notify-jira.sh`
@@ -1242,7 +1272,7 @@ Defined in: `scripts/drevops/notify-jira.sh`
 
 ### `DREVOPS_NOTIFY_NEWRELIC_APIKEY`
 
-The API key. Usually of type 'USER'.
+NewRelic API key, usually of type 'USER'.
 
 Default value: `UNDEFINED`
 
@@ -1250,7 +1280,9 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 
 ### `DREVOPS_NOTIFY_NEWRELIC_APPID`
 
-Optional Application ID. Will be discovered automatically from application name if not provided.
+Optional NewRelic Application ID.
+
+Will be discovered automatically from application name if not provided.
 
 Default value: `UNDEFINED`
 
@@ -1258,15 +1290,17 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 
 ### `DREVOPS_NOTIFY_NEWRELIC_APP_NAME`
 
-Application name as it appears in the dashboard.
+NewRelic application name as it appears in the dashboard.
 
-Default value: `DREVOPS_NOTIFY_PROJECT-${DREVOPS_NOTIFY_SHA}`
+Default value: `DREVOPS_NOTIFY_NEWRELIC_PROJECT-${DREVOPS_NOTIFY_NEWRELIC_SHA}`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
 ### `DREVOPS_NOTIFY_NEWRELIC_CHANGELOG`
 
-Optional changelog. Defaults to description.
+Optional NewRelic notification changelog.
+
+Defaults to the description.
 
 Default value: `DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION`
 
@@ -1274,17 +1308,33 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 
 ### `DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION`
 
-Optional description.
+Optional NewRelic notification description.
 
-Default value: `DREVOPS_NOTIFY_SHA deployed`
+Default value: `DREVOPS_NOTIFY_NEWRELIC_SHA deployed`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
 ### `DREVOPS_NOTIFY_NEWRELIC_ENDPOINT`
 
-Optional endpoint.
+Optional NewRelic endpoint.
 
 Default value: `https://api.newrelic.com/v2`
+
+Defined in: `scripts/drevops/notify-newrelic.sh`
+
+### `DREVOPS_NOTIFY_NEWRELIC_PROJECT`
+
+Project name to notify.
+
+Default value: `DREVOPS_NOTIFY_PROJECT`
+
+Defined in: `scripts/drevops/notify-newrelic.sh`
+
+### `DREVOPS_NOTIFY_NEWRELIC_SHA`
+
+Deployment reference, such as a git SHA.
+
+Default value: `DREVOPS_NOTIFY_SHA`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
@@ -1293,14 +1343,6 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 Optional name of the user performing the deployment.
 
 Default value: `Deployment robot`
-
-Defined in: `scripts/drevops/notify-newrelic.sh`
-
-### `DREVOPS_NOTIFY_PROJECT`
-
-The project name to notify.
-
-Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
@@ -1320,27 +1362,11 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/notify-github.sh`
 
-### `DREVOPS_NOTIFY_SHA`
-
-Deployment reference, such as a git SHA.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/notify-newrelic.sh`
-
 ### `DREVOPS_NOTIFY_SKIP`
 
 Flag to skip running of all notifications.
 
 Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/notify.sh`
-
-### `DREVOPS_NOTIFY_TYPE`
-
-The type of test.<br />Can be a combination of comma-separated values: email,newrelic,github,jira<br />Set as a constant variable.
-
-Default value: `email`
 
 Defined in: `scripts/drevops/notify.sh`
 
@@ -1622,6 +1648,8 @@ Defined in: `scripts/drevops/task-custom-lagoon.sh`
 
 Directory to store test artifact files.
 
+If set, the directory is created and the Behat screenshot extension will<br />store screenshots in this directory.
+
 Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/test-bdd.sh`
@@ -1636,7 +1664,7 @@ Defined in: `.env`, `scripts/drevops/test-bdd.sh`
 
 ### `DREVOPS_TEST_BEHAT_FORMAT`
 
-Behat format. Optional. Defaults to "pretty".
+Behat format.
 
 Default value: `pretty`
 
@@ -1644,7 +1672,7 @@ Defined in: `scripts/drevops/test-bdd.sh`
 
 ### `DREVOPS_TEST_BEHAT_PROFILE`
 
-Behat profile name. Optional. Defaults to "default".
+Behat profile name.
 
 Default value: `default`
 
@@ -1652,7 +1680,11 @@ Defined in: `scripts/drevops/test-bdd.sh`
 
 ### `DREVOPS_TEST_BEHAT_TAGS`
 
-Behat tags. Optional. Default runs all tests.
+Behat tags.
+
+Allows to run only tests with specified tags, which will override the tags<br />set in the Behat profile.
+
+Useful for running specific tests in CI without changing the codebase.
 
 Default value: `UNDEFINED`
 
@@ -1668,7 +1700,9 @@ Defined in: `.env`, `scripts/drevops/test-functional.sh`
 
 ### `DREVOPS_TEST_FUNCTIONAL_CONFIG`
 
-Functional test configuration file. Optional. Defaults to core's configuration.
+Functional test configuration file.
+
+Defaults to core's configuration file.
 
 Default value: `DREVOPS_APP/${DREVOPS_WEBROOT}/core/phpunit.xml.dist`
 
@@ -1676,7 +1710,9 @@ Defined in: `scripts/drevops/test-functional.sh`
 
 ### `DREVOPS_TEST_FUNCTIONAL_GROUP`
 
-Functional test group. Optional. Defaults to running Functional tests tagged with `site:functional`.
+Functional test group.
+
+Running Functional tests tagged with `site:functional`.
 
 Default value: `site:functional`
 
@@ -1692,7 +1728,9 @@ Defined in: `.env`, `scripts/drevops/test-kernel.sh`
 
 ### `DREVOPS_TEST_KERNEL_CONFIG`
 
-Kernel test configuration file. Optional. Defaults to core's configuration.
+Kernel test configuration file.
+
+Defaults to core's configuration file.
 
 Default value: `DREVOPS_APP/${DREVOPS_WEBROOT}/core/phpunit.xml.dist`
 
@@ -1700,7 +1738,9 @@ Defined in: `scripts/drevops/test-kernel.sh`
 
 ### `DREVOPS_TEST_KERNEL_GROUP`
 
-Kernel test group. Optional. Defaults to running Kernel tests tagged with `site:kernel`.
+Kernel test group.
+
+Running Kernel tests tagged with `site:kernel`.
 
 Default value: `site:kernel`
 
@@ -1708,7 +1748,9 @@ Defined in: `scripts/drevops/test-kernel.sh`
 
 ### `DREVOPS_TEST_PARALLEL_INDEX`
 
-Test runner parallel index.<br />If is set, the value is used as a suffix for the Behat profile name (e.g. p0, p1).
+Test runner parallel index.
+
+If is set, the value is used as a suffix for the Behat profile name (e.g. p0, p1).
 
 Default value: `UNDEFINED`
 
@@ -1717,6 +1759,8 @@ Defined in: `scripts/drevops/test-bdd.sh`
 ### `DREVOPS_TEST_REPORTS_DIR`
 
 Directory to store test result files.
+
+If set, the directory is created and the JUnit formatter is used to generate<br />test result files.
 
 Default value: `UNDEFINED`
 
@@ -1730,9 +1774,11 @@ Default value: `UNDEFINED`
 
 Defined in: `.env`, `scripts/drevops/test.sh`
 
-### `DREVOPS_TEST_TYPE`
+### `DREVOPS_TEST_TYPES`
 
-Test types to run. Can be a combination of comma-separated values:<br />unit,kernel,functional,bdd
+Test types to run.
+
+Can be a combination of comma-separated values (no spaces): unit,kernel,functional,bdd
 
 Default value: `unit,kernel,functional,bdd`
 
@@ -1748,7 +1794,9 @@ Defined in: `.env`, `scripts/drevops/test-unit.sh`
 
 ### `DREVOPS_TEST_UNIT_CONFIG`
 
-Unit test configuration file. Optional. Defaults to core's configuration.
+Unit test configuration file.
+
+Defaults to core's configuration file.
 
 Default value: `DREVOPS_APP/${DREVOPS_WEBROOT}/core/phpunit.xml.dist`
 
@@ -1756,7 +1804,9 @@ Defined in: `scripts/drevops/test-unit.sh`
 
 ### `DREVOPS_TEST_UNIT_GROUP`
 
-Unit test group. Optional. Defaults to running Unit tests tagged with `site:unit`.
+Unit test group.
+
+Running Unit tests tagged with `site:unit`.
 
 Default value: `site:unit`
 

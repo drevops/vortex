@@ -48,13 +48,13 @@ drush_opts=(-y)
 $drush "${drush_opts[@]}" sql:sanitize --sanitize-password="${DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD}" --sanitize-email="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL}"
 pass "Sanitized database using drush sql:sanitize."
 
-if [ "${DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_WITH_EMAIL}" = "1" ]; then
+if [ "${DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_WITH_EMAIL:-}" = "1" ]; then
   $drush sql:query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';"
   pass "Updated username with user email."
 fi
 
 # Sanitize using additional SQL commands provided in file.
-if [ -f "${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}" ]; then
+if [ -f "${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE:-}" ]; then
   $drush "${drush_opts[@]}" sql:query --file="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}"
   pass "Applied custom sanitization commands."
 fi

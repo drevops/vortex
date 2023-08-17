@@ -54,6 +54,6 @@ if [ "${DREVOPS_DRUPAL_SHOW_LOGIN_LINK}" = "1" ] || [ -n "${1:-}" ]; then
   ./scripts/drevops/drupal-login.sh
 else
   echo
-  note "Use 'ahoy login' to generate Drupal login link." || true
+  note "Use 'ahoy login' to generate Drupal login link."
 fi
 echo

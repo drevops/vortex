@@ -27,7 +27,6 @@ info "Started database export."
 
 if [ -z "${DREVOPS_DB_DOCKER_IMAGE}" ]; then
   # Export database as a file.
-  # @todo Replace with 'docker compose exec'.
   docker compose exec -T cli ./scripts/drevops/export-db-file.sh "$@"
 else
   # Export database as a Docker image.

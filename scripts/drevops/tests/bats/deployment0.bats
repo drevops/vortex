@@ -65,7 +65,7 @@ load _helper_deployment.bash
 
   substep "Running deployment."
   # This deployment uses all 3 types.
-  export DREVOPS_DEPLOY_TYPE="artifact,webhook,docker"
+  export DREVOPS_DEPLOY_TYPES="artifact,webhook,docker"
 
   # Variables for ARTIFACT deployment.
   export DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
@@ -163,7 +163,7 @@ load _helper_deployment.bash
 
   substep "Running deployment."
 
-  export DREVOPS_DEPLOY_TYPE="webhook"
+  export DREVOPS_DEPLOY_TYPES="webhook"
 
   # Variables for WEBHOOK deployment.
   export DREVOPS_DEPLOY_WEBHOOK_URL=http://example.com

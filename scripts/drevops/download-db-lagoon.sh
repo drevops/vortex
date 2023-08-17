@@ -67,7 +67,7 @@ DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 # Path to the root of the project inside the container.
-DREVOPS_APP=/app
+DREVOPS_APP="${DREVOPS_APP:-/app}"
 
 # Name of the webroot directory with Drupal installation.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"

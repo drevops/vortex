@@ -2,9 +2,6 @@
 ##
 # Run unit tests.
 #
-# Usage:
-# ./test-unit.sh
-#
 # shellcheck disable=SC2015
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
@@ -13,7 +10,7 @@ set -eu
 [ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 # Path to the root of the project inside the container.
-DREVOPS_APP=/app
+DREVOPS_APP="${DREVOPS_APP:-/app}"
 
 # Name of the webroot directory with Drupal installation.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
@@ -24,13 +21,20 @@ DREVOPS_DRUPAL_THEME="${DREVOPS_DRUPAL_THEME:-}"
 # Flag to allow Unit tests to fail.
 DREVOPS_TEST_UNIT_ALLOW_FAILURE="${DREVOPS_TEST_UNIT_ALLOW_FAILURE:-0}"
 
-# Unit test group. Optional. Defaults to running Unit tests tagged with `site:unit`.
+# Unit test group.
+#
+# Running Unit tests tagged with `site:unit`.
 DREVOPS_TEST_UNIT_GROUP="${DREVOPS_TEST_UNIT_GROUP:-site:unit}"
 
-# Unit test configuration file. Optional. Defaults to core's configuration.
+# Unit test configuration file.
+#
+# Defaults to core's configuration file.
 DREVOPS_TEST_UNIT_CONFIG="${DREVOPS_TEST_UNIT_CONFIG:-${DREVOPS_APP}/${DREVOPS_WEBROOT}/core/phpunit.xml.dist}"
 
 # Directory to store test result files.
+#
+# If set, the directory is created and the JUnit formatter is used to generate
+# test result files.
 DREVOPS_TEST_REPORTS_DIR="${DREVOPS_TEST_REPORTS_DIR:-}"
 
 # ------------------------------------------------------------------------------
