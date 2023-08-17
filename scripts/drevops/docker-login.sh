@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Login to Docker container registry.
+# Login to the Docker container registry.
 #
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
