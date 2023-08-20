@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2086
 ##
 # Export database as a file.
 #
+# shellcheck disable=SC2086
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
@@ -13,7 +13,7 @@ set -eu
 DREVOPS_APP="${DREVOPS_APP:-/app}"
 
 # Directory with database dump file.
-DREVOPS_DB_EXPORT_FILE_DIR="${DREVOPS_DB_DIR:-${DREVOPS_DB_DIR}}"
+DREVOPS_DB_EXPORT_FILE_DIR="${DREVOPS_DB_DIR:-${DREVOPS_DB_DIR:-./.data}}"
 
 # ------------------------------------------------------------------------------
 

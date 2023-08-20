@@ -54,13 +54,13 @@ info "Started code mirroring."
 [ "$(git config --global user.email)" == "" ] && note "Configuring global git user email." && git config --global user.email "${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL}"
 
 # Use custom deploy key if fingerprint is provided.
-if [ -n "${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT}" ]; then
+if [ -n "${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT:-}" ]; then
   note "Custom deployment key is provided."
   DREVOPS_MIRROR_CODE_SSH_FILE="${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT//:/}"
   DREVOPS_MIRROR_CODE_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_MIRROR_CODE_SSH_FILE//\"/}"
 fi
 
-[ ! -f "${DREVOPS_MIRROR_CODE_SSH_FILE}" ] && fail "SSH key file ${DREVOPS_MIRROR_CODE_SSH_FILE} does not exist." && exit 1
+[ ! -f "${DREVOPS_MIRROR_CODE_SSH_FILE:-}" ] && fail "SSH key file ${DREVOPS_MIRROR_CODE_SSH_FILE} does not exist." && exit 1
 
 if ssh-add -l | grep -q "${DREVOPS_MIRROR_CODE_SSH_FILE}"; then
   note "SSH agent has ${DREVOPS_MIRROR_CODE_SSH_FILE} key loaded."
@@ -87,11 +87,11 @@ git reset --hard
 
 # Checkout the branch, but only if the current branch is not the same.
 current_branch="$(git rev-parse --abbrev-ref HEAD)"
-if [ "${DREVOPS_MIRROR_CODE_BRANCH_SRC}" != "${current_branch}" ]; then
+if [ "${DREVOPS_MIRROR_CODE_BRANCH_SRC:-}" != "${current_branch}" ]; then
   git checkout -b "${DREVOPS_MIRROR_CODE_BRANCH_SRC}" "${DREVOPS_MIRROR_CODE_REMOTE_DST}/${DREVOPS_MIRROR_CODE_BRANCH_SRC}"
 fi
 
-if [ "${DREVOPS_MIRROR_CODE_PUSH}" = "1" ]; then
+if [ "${DREVOPS_MIRROR_CODE_PUSH:-}" = "1" ]; then
   git push "${DREVOPS_MIRROR_CODE_REMOTE_DST}" "${DREVOPS_MIRROR_CODE_BRANCH_SRC}:${DREVOPS_MIRROR_CODE_BRANCH_DST}" --force
 else
   note "Would push to ${DREVOPS_MIRROR_CODE_BRANCH_SRC}"

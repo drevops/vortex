@@ -2,10 +2,10 @@
 #
 # Check DrevOps project requirements or print info.
 #
-# IMPORTANT! This script runs outside the container on the host system.
-#
 # doctor.sh - check project requirements.
 # doctor.sh info - show system information.
+#
+# IMPORTANT! This script runs outside the container on the host system.
 #
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t

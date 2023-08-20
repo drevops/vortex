@@ -2,9 +2,10 @@
 ##
 # Download database dump.
 #
+# This is a router script to call relevant scripts based on type.
+#
 # IMPORTANT! This script runs outside the container on the host system.
 #
-# This is a router script to call relevant scripts based on type.
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
@@ -33,20 +34,20 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 
 info "Started database download."
 
-[ "${DREVOPS_DB_DOWNLOAD_PROCEED}" -ne 1 ] && pass "Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
+[ "${DREVOPS_DB_DOWNLOAD_PROCEED}" != "1" ] && pass "Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
 # Check if database file exists.
 # @todo: Implement better support based on $DREVOPS_DB_FILE instead of hardcoded 'db*' name.
-[ -d "${DREVOPS_DB_DIR}" ] && found_db=$(find "${DREVOPS_DB_DIR}" -name "db*.sql" -o -name "db*.tar")
+[ -d "${DREVOPS_DB_DIR:-}" ] && found_db=$(find "${DREVOPS_DB_DIR}" -name "db*.sql" -o -name "db*.tar")
 
 if [ -n "${found_db:-}" ]; then
   note "Found existing database dump file(s)."
   ls -Alh "${DREVOPS_DB_DIR}" || true
 
-  if [ -z "${DREVOPS_DB_DOWNLOAD_FORCE}" ]; then
+  if [ "${DREVOPS_DB_DOWNLOAD_FORCE}" != "1" ]; then
     note "Using existing database dump file(s)."
     note "Download will not proceed."
-    note "Remove existing database file or set DREVOPS_DB_DOWNLOAD_FORCE flag to force download."
+    note "Remove existing database file or set DREVOPS_DB_DOWNLOAD_FORCE value to 1 to force download."
     exit 0
   else
     note "Forcefully downloading database."
@@ -75,6 +76,7 @@ fi
 
 ls -Alh "${DREVOPS_DB_DIR}" || true
 
+# Create a semaphore file to indicate that the database has been downloaded.
 [ -n "${DREVOPS_DB_DOWNLOAD_SEMAPHORE:-}" ] && touch "${DREVOPS_DB_DOWNLOAD_SEMAPHORE}"
 
 pass "Finished database download."

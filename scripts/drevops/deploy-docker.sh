@@ -2,10 +2,10 @@
 ##
 # Deploy via pushing Docker images to Docker registry.
 #
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# This will push multiple docker images by tagging provided services in the
+# Push multiple docker images by tagging services provided in the
 # $DREVOPS_DEPLOY_DOCKER_MAP variable.
+#
+# IMPORTANT! This script runs outside the container on the host system.
 #
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
@@ -18,7 +18,7 @@ set -eu
 DREVOPS_DEPLOY_DOCKER_MAP="${DREVOPS_DEPLOY_DOCKER_MAP:-}"
 
 # The username for the docker registry.
-DOCKER_USER="${DOCKER_USER:-}}"
+DOCKER_USER="${DOCKER_USER:-}"
 
 # The password for the docker registry.
 DOCKER_PASS="${DOCKER_PASS:-}"
@@ -26,7 +26,7 @@ DOCKER_PASS="${DOCKER_PASS:-}"
 # Docker registry name. Provide port, if required as <server_name>:<port>.
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 
-# The tag of the image to push to. Defaults to 'latest'.
+# The tag of the image to push to.
 DREVOPS_DOCKER_IMAGE_TAG="${DREVOPS_DOCKER_IMAGE_TAG:-latest}"
 
 # ------------------------------------------------------------------------------

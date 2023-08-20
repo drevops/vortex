@@ -409,7 +409,7 @@ load _helper.bash
 }
 
 @test "Install into existing: previously installed project; Deployment; discovery; quiet" {
-  echo "DREVOPS_DEPLOY_TYPE=lagoon" >> ".env"
+  echo "DREVOPS_DEPLOY_TYPES=lagoon" >> ".env"
 
   output=$(run_install_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"

@@ -5,7 +5,7 @@
 # This is a router script to call relevant scripts based on type.
 #
 # Dynamic environment variables are passed from the callers.
-# Constant environment variables are expected to be set through UI.
+# Constant environment variables are expected to be set explicitly.
 #
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
@@ -13,12 +13,12 @@ t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; 
 set -eu
 [ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
-# The type of test.
+# The channels of the notifications.
 # Can be a combination of comma-separated values: email,newrelic,github,jira
-# Set as a constant variable.
-DREVOPS_NOTIFY_TYPE="${DREVOPS_NOTIFY_TYPE:-email}"
+DREVOPS_NOTIFY_CHANNELS="${DREVOPS_NOTIFY_CHANNELS:-email}"
 
-# The event to notify about. Can be 'pre_deployment' or 'post_deployment'.
+# The event to notify about.
+# Can be only 'pre_deployment' or 'post_deployment'.
 DREVOPS_NOTIFY_EVENT="${DREVOPS_NOTIFY_EVENT:-post_deployment}"
 
 # Flag to skip running of all notifications.
@@ -35,32 +35,32 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 
 info "Started dispatching notifications."
 
-[ -n "${DREVOPS_NOTIFY_SKIP}" ] && pass "Skipping dispatching notifications." && exit 0
+[ -n "${DREVOPS_NOTIFY_SKIP:-}" ] && pass "Skipping dispatching notifications." && exit 0
 
 # Narrow-down the notification type based on the event.
 # @note This logic may be moved into notification scripts in the future.
-if [ "${DREVOPS_NOTIFY_EVENT}" == "pre_deployment" ]; then
-  DREVOPS_NOTIFY_TYPE="github"
-elif [ "${DREVOPS_NOTIFY_EVENT}" == "post_deployment" ]; then
+if [ "${DREVOPS_NOTIFY_EVENT:-}" == "pre_deployment" ]; then
+  DREVOPS_NOTIFY_CHANNELS="github"
+elif [ "${DREVOPS_NOTIFY_EVENT:-}" == "post_deployment" ]; then
   # Preserve the value.
   true
 else
   fail "Unsupported event ${DREVOPS_NOTIFY_EVENT} provided." && exit 1
 fi
 
-if [ -z "${DREVOPS_NOTIFY_TYPE##*email*}" ]; then
+if [ -z "${DREVOPS_NOTIFY_CHANNELS##*email*}" ]; then
   php ./scripts/drevops/notify-email.php "$@"
 fi
 
-if [ -z "${DREVOPS_NOTIFY_TYPE##*newrelic*}" ]; then
+if [ -z "${DREVOPS_NOTIFY_CHANNELS##*newrelic*}" ]; then
   ./scripts/drevops/notify-newrelic.sh "$@"
 fi
 
-if [ -z "${DREVOPS_NOTIFY_TYPE##*github*}" ]; then
+if [ -z "${DREVOPS_NOTIFY_CHANNELS##*github*}" ]; then
   ./scripts/drevops/notify-github.sh "$@"
 fi
 
-if [ -z "${DREVOPS_NOTIFY_TYPE##*jira*}" ]; then
+if [ -z "${DREVOPS_NOTIFY_CHANNELS##*jira*}" ]; then
   ./scripts/drevops/notify-jira.sh "$@"
 fi
 

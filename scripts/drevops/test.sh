@@ -9,16 +9,16 @@
 # ./test.sh
 #
 # Run unit tests:
-# DREVOPS_TEST_TYPE=unit ./test.sh
+# DREVOPS_TEST_TYPES=unit ./test.sh
 #
 # Run kernel tests:
-# DREVOPS_TEST_TYPE=kernel ./test.sh
+# DREVOPS_TEST_TYPES=kernel ./test.sh
 #
 # Run functional tests:
-# DREVOPS_TEST_TYPE=functional ./test.sh
+# DREVOPS_TEST_TYPES=functional ./test.sh
 #
 # Run bdd tests:
-# DREVOPS_TEST_TYPE=bdd ./test.sh
+# DREVOPS_TEST_TYPES=bdd ./test.sh
 #
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
@@ -27,12 +27,14 @@ set -eu
 [ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 # Flag to skip running of all tests.
+#
 # Helpful to set in CI to skip running of tests without modifying the codebase.
 DREVOPS_TEST_SKIP="${DREVOPS_TEST_SKIP:-0}"
 
-# Test types to run. Can be a combination of comma-separated values:
-# unit,kernel,functional,bdd
-DREVOPS_TEST_TYPE="${DREVOPS_TEST_TYPE:-unit,kernel,functional,bdd}"
+# Test types to run.
+#
+# Can be a combination of comma-separated values (no spaces): unit,kernel,functional,bdd
+DREVOPS_TEST_TYPES="${DREVOPS_TEST_TYPES:-unit,kernel,functional,bdd}"
 
 # ------------------------------------------------------------------------------
 
@@ -45,18 +47,18 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 
 [ "${DREVOPS_TEST_SKIP}" == "1" ] && note "Skipping running tests." && exit 0
 
-if [ -z "${DREVOPS_TEST_TYPE##*unit*}" ]; then
+if [ -z "${DREVOPS_TEST_TYPES##*unit*}" ]; then
   ./scripts/drevops/test-unit.sh "$@"
 fi
 
-if [ -z "${DREVOPS_TEST_TYPE##*kernel*}" ]; then
+if [ -z "${DREVOPS_TEST_TYPES##*kernel*}" ]; then
   ./scripts/drevops/test-kernel.sh "$@"
 fi
 
-if [ -z "${DREVOPS_TEST_TYPE##*functional*}" ]; then
+if [ -z "${DREVOPS_TEST_TYPES##*functional*}" ]; then
   ./scripts/drevops/test-functional.sh "$@"
 fi
 
-if [ -z "${DREVOPS_TEST_TYPE##*bdd*}" ]; then
+if [ -z "${DREVOPS_TEST_TYPES##*bdd*}" ]; then
   ./scripts/drevops/test-bdd.sh "$@"
 fi

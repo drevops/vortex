@@ -23,8 +23,8 @@ In CI, tests are run by calling the [`scripts/drevops/test.sh`](../../../../scri
 script directly.
 
 The type of tests can be overwritten by setting an environment variable
-`$DREVOPS_TEST_TYPE` to a comma-separated list of test type
-values: `$DREVOPS_TEST_TYPE=unit,kernel,functional,bdd`. This is useful when you
+`$DREVOPS_TEST_TYPES` to a comma-separated list of test type
+values: `$DREVOPS_TEST_TYPES=unit,kernel,functional,bdd`. This is useful when you
 want to limit the scope of tests to run in CI for debugging purposes - simply
 set a variable in CI UI and re-run the build.
 
