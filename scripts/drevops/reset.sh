@@ -28,7 +28,7 @@ git reset --hard
 note "Removing all untracked, files."
 git clean -f -d
 
-ntoe "Removing empty directories."
+note "Removing empty directories."
 find . -type d -not -path "./.git/*" -empty -delete
 
 pass "Finished reset."
