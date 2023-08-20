@@ -50,14 +50,23 @@ load _helper.bash
 @test "Notify: email" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  mock_mail=$(mock_command "mail")
+  mock_sendmail=$(mock_command "sendmail")
+
   export DREVOPS_NOTIFY_CHANNELS="email"
   export DREVOPS_NOTIFY_PROJECT="testproject"
   export DREVOPS_DRUPAL_SITE_EMAIL="testproject@example.com"
-  export DREVOPS_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe,jane@example.com|Jane Doe"
+  export DREVOPS_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe, jane@example.com|Jane Doe"
   export DREVOPS_NOTIFY_REF="develop"
   export DREVOPS_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/drevops/notify.sh
   assert_success
+
+  if [ "$(uname)" = "Darwin" ]; then
+    assert_equal "2" "$(mock_get_call_num "${mock_mail}")"
+  else
+    assert_equal "2" "$(mock_get_call_num "${mock_sendmail}")"
+  fi
 
   assert_output_contains "Started dispatching notifications."
 

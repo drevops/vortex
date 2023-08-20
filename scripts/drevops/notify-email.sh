@@ -22,7 +22,7 @@ set -eu
 DREVOPS_NOTIFY_EMAIL_PROJECT="${DREVOPS_NOTIFY_EMAIL_PROJECT:-${DREVOPS_NOTIFY_PROJECT:-$1}}"
 
 # Email address to send notifications from.
-DREVOPS_DRUPAL_SITE_EMAIL="${DREVOPS_DRUPAL_SITE_EMAIL:-$2}"
+DREVOPS_NOTIFY_EMAIL_FROM="${DREVOPS_NOTIFY_EMAIL_FROM:-${DREVOPS_DRUPAL_SITE_EMAIL:-$2}}"
 
 # Email address(es) to send notifications to.
 #
@@ -46,13 +46,26 @@ pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-if [ -z "$DREVOPS_NOTIFY_EMAIL_PROJECT" ]; then echo "[FAIL] Both environment variable DREVOPS_NOTIFY_EMAIL_PROJECT and the first argument are empty." && exit 1; fi
-if [ -z "$DREVOPS_DRUPAL_SITE_EMAIL" ]; then echo "[FAIL] Both environment variable DREVOPS_DRUPAL_SITE_EMAIL and the second argument are empty." && exit 1; fi
-if [ -z "$DREVOPS_NOTIFY_EMAIL_RECIPIENTS" ]; then echo "[FAIL] Both environment variable DREVOPS_NOTIFY_EMAIL_RECIPIENTS and the third argument are empty." && exit 1; fi
-if [ -z "$DREVOPS_NOTIFY_EMAIL_REF" ]; then echo "[FAIL] Both environment variable DREVOPS_NOTIFY_EMAIL_REF and the fourth argument are empty." && exit 1; fi
-if [ -z "$DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL" ]; then echo "[FAIL] Both environment variable DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL and the fifth argument are empty." && exit 1; fi
+[ -z "$DREVOPS_NOTIFY_EMAIL_PROJECT" ] && fail "Both environment variable DREVOPS_NOTIFY_EMAIL_PROJECT and the first argument are empty." && exit 1
+[ -z "$DREVOPS_NOTIFY_EMAIL_FROM" ] && fail "Both environment variable DREVOPS_NOTIFY_EMAIL_FROM and the second argument are empty." && exit 1
+[ -z "$DREVOPS_NOTIFY_EMAIL_RECIPIENTS" ] && fail "Both environment variable DREVOPS_NOTIFY_EMAIL_RECIPIENTS and the third argument are empty." && exit 1
+[ -z "$DREVOPS_NOTIFY_EMAIL_REF" ] && fail "Both environment variable DREVOPS_NOTIFY_EMAIL_REF and the fourth argument are empty." && exit 1
+[ -z "$DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL" ] && fail "Both environment variable DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL and the fifth argument are empty." && exit 1
 
 info "Started email notification."
+
+has_mail=0
+has_sendmail=0
+if command -v mail >/dev/null 2>&1; then
+  note "Using mail command to send emails."
+  has_mail=1
+elif command -v sendmail >/dev/null 2>&1; then
+  note "Using sendmail command to send emails."
+  has_sendmail=1
+else
+  fail "Neither mail nor sendmail commands are available."
+  exit 1
+fi
 
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
 subject="${DREVOPS_NOTIFY_EMAIL_PROJECT} deployment notification of \"${DREVOPS_NOTIFY_EMAIL_REF}\""
@@ -79,26 +92,30 @@ for email_with_name; do
 
   to="${name:+\"${name}\" }<${email}>"
 
-  if command -v mail >/dev/null 2>&1; then
+  if [ "${has_mail}" = "1" ]; then
     mail -s "$subject" "$to" <<-EOF
-    From: ${DREVOPS_DRUPAL_SITE_EMAIL}
+    From: ${DREVOPS_NOTIFY_EMAIL_FROM}
 
     ${content}
 EOF
-  else
+    sent="${sent} ${email}"
+  elif [ "${has_sendmail}" = "1" ]; then
     (
       echo "To: $to"
       echo "Subject: $subject"
-      echo "From: ${DREVOPS_DRUPAL_SITE_EMAIL}"
+      echo "From: ${DREVOPS_NOTIFY_EMAIL_FROM}"
       echo
       echo "${content}"
     ) | sendmail -t
+    sent="${sent} ${email}"
   fi
-  sent="${sent} ${email}"
 done
 
+sent="${sent#"${sent%%[![:space:]]*}"}"
+sent="${sent%"${sent##*[![:space:]]}"}"
+
 if [ -n "${sent}" ]; then
-  note "Notification email(s) sent to: ${sent}"
+  note "Notification email(s) sent to: ${sent// /, }"
 else
   note "No notification emails were sent."
 fi
