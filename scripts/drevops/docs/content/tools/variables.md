@@ -870,7 +870,7 @@ Drupal site email (used only when installing from profile).
 
 Default value: `webmaster@your-site-url.example`
 
-Defined in: `.env`, `scripts/drevops/drupal-install-site.sh`, `scripts/drevops/notify-email.sh`
+Defined in: `.env`, `scripts/drevops/drupal-install-site.sh`
 
 ### `DREVOPS_DRUPAL_SITE_NAME`
 
@@ -1167,6 +1167,14 @@ Defined in: `.env`, `scripts/drevops/notify.sh`
 ### `DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL`
 
 Environment URL to notify about.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/notify-email.sh`
+
+### `DREVOPS_NOTIFY_EMAIL_FROM`
+
+Email address to send notifications from.
 
 Default value: `UNDEFINED`
 
