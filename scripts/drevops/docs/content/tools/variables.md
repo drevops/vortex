@@ -1156,13 +1156,17 @@ Defined in: `scripts/drevops/notify-jira.sh`
 
 ### `DREVOPS_NOTIFY_CHANNELS`
 
-The channels of the notifications.<br />Can be a combination of comma-separated values: email,newrelic,github,jira
+The channels of the notifications.
+
+Can be a combination of comma-separated values: email,newrelic,github,jira
 
 Default value: `email`
 
-Defined in: `scripts/drevops/notify.sh`
+Defined in: `.env`, `scripts/drevops/notify.sh`
 
 ### `DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL`
+
+Environment URL to notify about.
 
 Default value: `UNDEFINED`
 
@@ -1170,17 +1174,25 @@ Defined in: `scripts/drevops/notify-email.sh`
 
 ### `DREVOPS_NOTIFY_EMAIL_PROJECT`
 
+Project name to notify.
+
 Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/notify-email.sh`
 
 ### `DREVOPS_NOTIFY_EMAIL_RECIPIENTS`
 
+Email address(es) to send notifications to.
+
+Multiple names can be specified as a comma-separated list of email addresses<br />with optional names in the format "email|name".<br />Example: "to1@example.com|Jane Doe, to2@example.com|John Doe"
+
 Default value: `UNDEFINED`
 
-Defined in: `scripts/drevops/notify-email.sh`
+Defined in: `.env`, `scripts/drevops/notify-email.sh`
 
 ### `DREVOPS_NOTIFY_EMAIL_REF`
+
+Git reference to notify about.
 
 Default value: `UNDEFINED`
 
