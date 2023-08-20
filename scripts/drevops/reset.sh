@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Reset project to a freshly cloned repo state.
+# Reset project to a freshly cloned repository state.
 #
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
@@ -19,16 +19,16 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 
 info "Started reset."
 
-# Change permissions and remove all other untracked files.
+note "Changing permissions and remove all other untracked files."
 git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -I {} -- bash -c '( chmod 777 "{}" > /dev/null || true ) && ( rm -rf "{}" > /dev/null || true )'
 
-# Reset repository files.
+note "Resetting repository files."
 git reset --hard
 
-# Remove all untracked, files.
+note "Removing all untracked, files."
 git clean -f -d
 
-# Remove empty directories.
+note "Removing empty directories."
 find . -type d -not -path "./.git/*" -empty -delete
 
 pass "Finished reset."

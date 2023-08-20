@@ -400,7 +400,7 @@ function process__override_existing_db($dir) {
 function process__deploy_type($dir) {
   $type = get_answer('deploy_type');
   if ($type != 'none') {
-    file_replace_content('/DREVOPS_DEPLOY_TYPE=.*/', "DREVOPS_DEPLOY_TYPE=$type", $dir . '/.env');
+    file_replace_content('/DREVOPS_DEPLOY_TYPES=.*/', "DREVOPS_DEPLOY_TYPES=$type", $dir . '/.env');
 
     if (strpos($type, 'artifact') === FALSE) {
       @unlink("$dir/.gitignore.deployment");
@@ -1301,7 +1301,7 @@ function discover_value__override_existing_db() {
 }
 
 function discover_value__deploy_type() {
-  return get_value_from_dst_dotenv('DREVOPS_DEPLOY_TYPE');
+  return get_value_from_dst_dotenv('DREVOPS_DEPLOY_TYPES');
 }
 
 function discover_value__preserve_acquia() {

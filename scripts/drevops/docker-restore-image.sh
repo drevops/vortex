@@ -35,7 +35,7 @@ docker image inspect "${DREVOPS_DOCKER_RESTORE_IMAGE}" >/dev/null 2>&1 &&
   note "Found ${DREVOPS_DOCKER_RESTORE_IMAGE} image on host." ||
   note "Not found ${DREVOPS_DOCKER_RESTORE_IMAGE} image on host."
 
-if [ -f "${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}" ]; then
+if [ -f "${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE:-}" ]; then
   note "Found archived database Docker image file ${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}. Expanding..."
   # Always use archived image, even if such image already exists on the host.
   docker load -q --input "${DREVOPS_DOCKER_RESTORE_ARCHIVE_FILE}"

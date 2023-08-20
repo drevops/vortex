@@ -37,7 +37,7 @@ load _helper.bash
 @test "Notify: custom type" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  export DREVOPS_NOTIFY_TYPE="customtype"
+  export DREVOPS_NOTIFY_CHANNELS="customtype"
   run ./scripts/drevops/notify.sh
   assert_success
 
@@ -50,7 +50,7 @@ load _helper.bash
 @test "Notify: email" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  export DREVOPS_NOTIFY_TYPE="email"
+  export DREVOPS_NOTIFY_CHANNELS="email"
   export DREVOPS_NOTIFY_PROJECT="testproject"
   export DREVOPS_DRUPAL_SITE_EMAIL="testproject@example.com"
   export DREVOPS_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe,jane@example.com|Jane Doe"
@@ -79,7 +79,7 @@ load _helper.bash
   mock_set_output "${mock_curl}" "12345678910-1234567890-${app_id}-12345" 1
   mock_set_output "${mock_curl}" "201" 2
 
-  export DREVOPS_NOTIFY_TYPE="newrelic"
+  export DREVOPS_NOTIFY_CHANNELS="newrelic"
   export DREVOPS_NOTIFY_PROJECT="testproject"
   export DREVOPS_NOTIFY_NEWRELIC_APIKEY="key1234"
   export DREVOPS_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe,jane@example.com|Jane Doe"
@@ -118,7 +118,7 @@ load _helper.bash
 
   mock_set_output "${mock_curl}" "{\"id\": \"${app_id}\", \"othervar\": \"54321\"}" 1
 
-  export DREVOPS_NOTIFY_TYPE="github"
+  export DREVOPS_NOTIFY_CHANNELS="github"
   export DREVOPS_NOTIFY_EVENT="pre_deployment"
   export DREVOPS_NOTIFY_GITHUB_TOKEN="token12345"
   export DREVOPS_NOTIFY_REPOSITORY="myorg/myrepo"
@@ -149,7 +149,7 @@ load _helper.bash
   mock_set_output "${mock_curl}" "[{\"id\": \"${app_id}\", \"othervar\": \"54321\"},{\"id\": \"987654321\", \"othervar\": \"12345\"}]" 1
   mock_set_output "${mock_curl}" "{\"state\": \"success\", \"othervar\": \"54321\"}" 2
 
-  export DREVOPS_NOTIFY_TYPE="github"
+  export DREVOPS_NOTIFY_CHANNELS="github"
   export DREVOPS_NOTIFY_EVENT="post_deployment"
   export DREVOPS_NOTIFY_GITHUB_TOKEN="token12345"
   export DREVOPS_NOTIFY_REPOSITORY="myorg/myrepo"
@@ -189,7 +189,7 @@ load _helper.bash
   mock_set_output "${mock_curl}" "[{\"accountId\": \"${assignee_account_id}\", \"othervar\": \"54321\"}, {\"accountId\": \"01987654321c20165700edeg\", \"othervar\": \"54321\"}]" 5
   mock_set_output "${mock_curl}" "" 6
 
-  export DREVOPS_NOTIFY_TYPE="jira"
+  export DREVOPS_NOTIFY_CHANNELS="jira"
   export DREVOPS_NOTIFY_JIRA_USER="john.doe@example.com"
   export DREVOPS_NOTIFY_JIRA_TOKEN="token12345"
   export DREVOPS_NOTIFY_BRANCH="feature/proj-1234-some-description"

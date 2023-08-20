@@ -2,9 +2,6 @@
 ##
 # Run tests.
 #
-# Usage:
-# ./test-bdd.sh
-#
 # shellcheck disable=SC2015
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
@@ -15,23 +12,35 @@ set -eu
 # Flag to allow BDD tests to fail.
 DREVOPS_TEST_BDD_ALLOW_FAILURE="${DREVOPS_TEST_BDD_ALLOW_FAILURE:-0}"
 
-# Behat profile name. Optional. Defaults to "default".
+# Behat profile name.
 DREVOPS_TEST_BEHAT_PROFILE="${DREVOPS_TEST_BEHAT_PROFILE:-default}"
 
-# Behat format. Optional. Defaults to "pretty".
+# Behat format.
 DREVOPS_TEST_BEHAT_FORMAT="${DREVOPS_TEST_BEHAT_FORMAT:-pretty}"
 
-# Behat tags. Optional. Default runs all tests.
+# Behat tags.
+#
+# Allows to run only tests with specified tags, which will override the tags
+# set in the Behat profile.
+#
+# Useful for running specific tests in CI without changing the codebase.
 DREVOPS_TEST_BEHAT_TAGS="${DREVOPS_TEST_BEHAT_TAGS:-}"
 
 # Test runner parallel index.
+#
 # If is set, the value is used as a suffix for the Behat profile name (e.g. p0, p1).
 DREVOPS_TEST_PARALLEL_INDEX="${DREVOPS_TEST_PARALLEL_INDEX:-}"
 
 # Directory to store test result files.
+#
+# If set, the directory is created and the JUnit formatter is used to generate
+# test result files.
 DREVOPS_TEST_REPORTS_DIR="${DREVOPS_TEST_REPORTS_DIR:-}"
 
 # Directory to store test artifact files.
+#
+# If set, the directory is created and the Behat screenshot extension will
+# store screenshots in this directory.
 DREVOPS_TEST_ARTIFACT_DIR="${DREVOPS_TEST_ARTIFACT_DIR:-}"
 
 # ------------------------------------------------------------------------------
@@ -70,7 +79,7 @@ exit_code=0
 
 if [ "${exit_code}" -eq 0 ]; then
   # Run tests once and re-run on fail, but only in CI.
-  vendor/bin/behat "${opts[@]}" "$@" || ([ -n "${CI}" ] && vendor/bin/behat "${opts[@]}" --rerun "$@")
+  vendor/bin/behat "${opts[@]}" "$@" || ([ -n "${CI:-}" ] && vendor/bin/behat "${opts[@]}" --rerun "$@")
   exit_code=$?
 fi
 

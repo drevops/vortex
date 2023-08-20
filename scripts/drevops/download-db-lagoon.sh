@@ -2,9 +2,7 @@
 ##
 # Download DB dump from Lagoon environment.
 #
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# This script will create a backup from in the specified environment and
+# This script will create a database dump from in the specified environment and
 # download it into specified directory.
 #
 # It will also remove previously created DB dumps.
@@ -14,6 +12,9 @@
 #
 # It does require using SSH key added to one of the users in Lagoon who has
 # SSH access.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
 # shellcheck disable=SC2029,SC1091,SC2124,SC2140
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
@@ -27,8 +28,8 @@ DREVOPS_DB_DOWNLOAD_REFRESH="${DREVOPS_DB_DOWNLOAD_REFRESH:-}"
 # Lagoon project name.
 LAGOON_PROJECT="${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}"
 
-# The source environment for the database source.
-DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT="${DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT:-main}"
+# The source environment branch for the database source.
+DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH="${DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH:-main}"
 
 # Remote DB dump directory location.
 DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR="/tmp"
@@ -57,7 +58,7 @@ DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST:-ssh.
 DREVOPS_DB_DOWNLOAD_LAGOON_SSH_PORT="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_PORT:-32222}"
 
 # The SSH user of the Lagoon environment.
-DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER:-${LAGOON_PROJECT}-${DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT}}"
+DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER="${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER:-${LAGOON_PROJECT}-${DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH}}"
 
 # Directory where DB dumps are stored on the host.
 DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
@@ -66,7 +67,7 @@ DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 # Path to the root of the project inside the container.
-DREVOPS_APP=/app
+DREVOPS_APP="${DREVOPS_APP:-/app}"
 
 # Name of the webroot directory with Drupal installation.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
@@ -91,7 +92,7 @@ if [ -f ".env.local" ]; then
 fi
 
 # Discover and load a custom database dump key if fingerprint is provided.
-if [ -n "${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT}" ]; then
+if [ -n "${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT:-}" ]; then
   note "Custom database dump key is provided."
   DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT//:/}"
   DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE//\"/}"
@@ -113,22 +114,29 @@ ssh_opts+=(-o "StrictHostKeyChecking=no")
 ssh_opts+=(-o "LogLevel=error")
 ssh_opts+=(-o "IdentitiesOnly=yes")
 ssh_opts+=(-p "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_PORT}")
-if [ "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}" != false ]; then
+if [ "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE:-}" != false ]; then
   ssh_opts+=(-i "${DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE}")
 fi
 
+# Initiates an SSH connection to a remote server using provided SSH options.
+# On the server:
+# 1. Checks for the existence of a specific database dump file.
+# 2. If the file doesn't exist or a refresh is requested:
+#    a. Optionally removes any previous database dumps.
+#    b. Uses `drush` to create a new database dump with specific table structure options.
+# 3. If the file exists and no refresh is requested, notifies of using the existing dump.
 ssh \
   "${ssh_opts[@]}" \
   "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER}@${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST}" service=cli container=cli \
   "if [ ! -f \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\" ] || [ \"${DREVOPS_DB_DOWNLOAD_REFRESH}\" == \"1\" ] ; then \
      [ -n \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP}\" ] && rm -f \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}\"\/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
-     echo \"      > Creating a backup ${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
+     echo \"      > Creating a database dump ${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
      /app/vendor/bin/drush --root=${DREVOPS_APP}/${DREVOPS_WEBROOT} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump=--no-tablespaces > \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\"; \
    else \
      echo \"      > Using existing dump ${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
    fi"
 
-note "Downloading a backup."
+note "Downloading a database dump."
 ssh_opts_string="${ssh_opts[@]}"
 rsync_opts=(-e "ssh $ssh_opts_string")
 rsync "${rsync_opts[@]}" "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER}@${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST}":"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}"/"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}" "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"

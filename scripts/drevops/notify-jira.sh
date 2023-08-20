@@ -31,9 +31,13 @@ DREVOPS_NOTIFY_ENVIRONMENT_URL="${DREVOPS_NOTIFY_ENVIRONMENT_URL:-}"
 DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX="${DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX:-"Deployed to "}"
 
 # State to move the ticket to.
+#
+# If left empty - no transition will be performed.
 DREVOPS_NOTIFY_JIRA_TRANSITION="${DREVOPS_NOTIFY_JIRA_TRANSITION:-}"
 
 # Assign the ticket to this account.
+#
+# If left empty - no assignment will be performed.
 DREVOPS_NOTIFY_JIRA_ASSIGNEE="${DREVOPS_NOTIFY_JIRA_ASSIGNEE:-}"
 
 # JIRA API endpoint.
@@ -157,7 +161,7 @@ if [ -n "${DREVOPS_NOTIFY_JIRA_TRANSITION}" ]; then
   pass "Transitioned issue to ${DREVOPS_NOTIFY_JIRA_TRANSITION} "
 fi
 
-if [ -n "${DREVOPS_NOTIFY_JIRA_ASSIGNEE}" ]; then
+if [ -n "${DREVOPS_NOTIFY_JIRA_ASSIGNEE:-}" ]; then
   note "Assigning issue to ${DREVOPS_NOTIFY_JIRA_ASSIGNEE}"
 
   echo -n "       Discovering user ID for ${DREVOPS_NOTIFY_JIRA_ASSIGNEE}..."
