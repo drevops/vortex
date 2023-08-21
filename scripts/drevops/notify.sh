@@ -14,11 +14,13 @@ set -eu
 [ -n "${DREVOPS_DEBUG:-}" ] && set -x
 
 # The channels of the notifications.
+#
 # Can be a combination of comma-separated values: email,newrelic,github,jira
 DREVOPS_NOTIFY_CHANNELS="${DREVOPS_NOTIFY_CHANNELS:-email}"
 
 # The event to notify about.
-# Can be only 'pre_deployment' or 'post_deployment'.
+#
+# Can be only 'pre_deployment' or 'post_deployment'. Used internally.
 DREVOPS_NOTIFY_EVENT="${DREVOPS_NOTIFY_EVENT:-post_deployment}"
 
 # Flag to skip running of all notifications.
@@ -49,7 +51,7 @@ else
 fi
 
 if [ -z "${DREVOPS_NOTIFY_CHANNELS##*email*}" ]; then
-  php ./scripts/drevops/notify-email.php "$@"
+  ./scripts/drevops/notify-email.sh "$@"
 fi
 
 if [ -z "${DREVOPS_NOTIFY_CHANNELS##*newrelic*}" ]; then
