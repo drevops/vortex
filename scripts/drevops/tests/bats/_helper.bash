@@ -366,7 +366,7 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/info.sh"
   assert_file_exists "scripts/drevops/lint.sh"
   assert_file_exists "scripts/drevops/notify.sh"
-  assert_file_exists "scripts/drevops/notify-email.php"
+  assert_file_exists "scripts/drevops/notify-email.sh"
   assert_file_exists "scripts/drevops/notify-github.sh"
   assert_file_exists "scripts/drevops/notify-jira.sh"
   assert_file_exists "scripts/drevops/notify-newrelic.sh"

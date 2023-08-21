@@ -19,6 +19,7 @@ tasks:
         service: cli
         shell: bash
 
+    #;< !NOTIFICATIONS
     - run:
         name: Notify about pre-deployment.
         command: |
@@ -28,6 +29,7 @@ tasks:
           DREVOPS_NOTIFY_EVENT=pre_deployment ./scripts/drevops/notify.sh || true
         service: cli
         shell: bash
+    #;> !NOTIFICATIONS
 
     - run:
         name: Backup DB before deployment in production
@@ -79,6 +81,7 @@ tasks:
         service: cli
         shell: bash
 
+    #;< !NOTIFICATIONS
     - run:
         name: Send deployment notifications
         command: |
@@ -88,7 +91,7 @@ tasks:
           ./scripts/drevops/notify.sh
         service: cli
         shell: bash
-
+    #;> !NOTIFICATIONS
 environments:
   # Branch name that represents production environment.
   main:

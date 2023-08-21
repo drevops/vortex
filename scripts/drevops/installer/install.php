@@ -725,7 +725,7 @@ function collect_answers() {
 
   ask_for_answer('override_existing_db', 'Do you want to override existing database in the environment?');
 
-  ask_for_answer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook notification, [c]ode artifact, [d]ocker image, [l]agoon, [n]one as a comma-separated list)?');
+  ask_for_answer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook call, [c]ode artifact, [d]ocker image, [l]agoon, [n]one as a comma-separated list)?');
 
   if (get_answer('database_download_source') != 'ftp') {
     ask_for_answer('preserve_ftp', 'Do you want to keep FTP integration?');
