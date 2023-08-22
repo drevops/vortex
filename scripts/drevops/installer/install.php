@@ -35,7 +35,7 @@
 /**
  * Defines Drupal version supported by this installer.
  */
-define('INSTALLER_DRUPAL_VERSION', 10);
+define('INSTALLER_DRUPAL_VERSION', 9);
 
 /**
  * Defines current working directory.
