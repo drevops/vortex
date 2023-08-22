@@ -35,7 +35,7 @@
 /**
  * Defines Drupal version supported by this installer.
  */
-define('INSTALLER_DRUPAL_VERSION', 9);
+define('INSTALLER_DRUPAL_VERSION', 10);
 
 /**
  * Defines current working directory.
@@ -659,10 +659,17 @@ function find_latest_drevops_release($org, $project, $release_prefix) {
 
   $records = json_decode($release_contents, TRUE);
   foreach ($records as $record) {
-    if (isset($record['tag_name']) && strpos($record['tag_name'], $release_prefix) === 0) {
-      return $record['tag_name'];
+    if (!empty($record['tag_name'])) {
+      if (empty($release_prefix)) {
+        return $record['tag_name'];
+      }
+      if (str_starts_with($record['tag_name'], $release_prefix)) {
+        return $record['tag_name'];
+      }
     }
   }
+
+  return 'HEAD';
 }
 
 // ////////////////////////////////////////////////////////////////////////// //
@@ -938,7 +945,7 @@ function init_cli_args_and_options($argv) {
  */
 function init_installer_config() {
   // Internal version of DrevOps.
-  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DRUPAL_VERSION . '.x'));
+  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION'));
   // Flag to display install debug information.
   set_config('DREVOPS_INSTALL_DEBUG', (bool) getenv_or_default('DREVOPS_INSTALL_DEBUG', FALSE));
   // Flag to proceed with installation. If FALSE - the installation will only
