@@ -246,6 +246,10 @@ if [ "${DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE}" = "1" ]; then
   echo
 fi
 
+echo -n "[INFO] Current Drupal environment: "
+environment="$($drush php:eval "print \Drupal\core\Site\Settings::get('environment');")" && echo "${environment}"
+echo
+
 info "Running database updates."
 $drush -y updatedb --no-cache-clear
 pass "Completed running database updates."
@@ -270,7 +274,7 @@ if [ "${site_has_config}" = "1" ]; then
     # failing on import for the non-existing environment is currently
     # the same as not failing on failed import.
     # @see https://www.drupal.org/project/config_split/issues/3171819
-    $drush "${drush_opts[@]}" config-split:import "${environment:-}" || true
+    $drush "${drush_opts[@]}" config-split:import "${environment}" || true
     pass "Config-split Completed configuration import."
   fi
 else
@@ -281,10 +285,6 @@ echo
 info "Rebuilding cache."
 $drush "${drush_opts[@]}" cache:rebuild
 pass "Cache was rebuilt."
-echo
-
-echo -n "[INFO] Current Drupal environment: "
-environment="$($drush php:eval "print \Drupal\core\Site\Settings::get('environment');")" && echo "${environment}"
 echo
 
 # @see https://www.drush.org/latest/deploycommand/
