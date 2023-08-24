@@ -50,7 +50,7 @@ load _helper.bash
 }
 
 @test "Install into empty directory: DREVOPS_PROJECT from .env file" {
-  echo "DREVOPS_PROJECT=\"the_matrix\"" > ".env"
+  echo 'DREVOPS_PROJECT="the_matrix"' >".env"
 
   run_install_quiet
 
@@ -64,16 +64,16 @@ load _helper.bash
   assert_git_repo
 
   # Releasing 2 new versions of DrevOps.
-  echo "# Some change to docker-compose.yml at commit 1" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
+  echo "# Some change to docker-compose.yml at commit 1" >>"${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
   commit1=$(git_commit "New version 1 of DrevOps" "${LOCAL_REPO_DIR}")
 
-  echo "# Some change to docker-compose.yml at commit 2" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
+  echo "# Some change to docker-compose.yml at commit 2" >>"${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
   git_commit "New version 2 of DrevOps" "${LOCAL_REPO_DIR}"
 
   # Requiring bespoke version by commit.
-  echo DREVOPS_INSTALL_COMMIT="${commit1}">>.env
+  echo DREVOPS_INSTALL_COMMIT="${commit1}" >>.env
   run_install_quiet
   assert_git_repo
   assert_output_contains "This will install DrevOps into your project at commit"
@@ -96,25 +96,25 @@ load _helper.bash
 @test "Install into empty directory: interactive" {
   answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "nothing" # install_from_profile
-    "nothing" # download_db_source
-    "nothing" # database_store_type
-    "nothing" # override_existing_db
-    "nothing" # deploy_type
-    "nothing" # preserve_ftp
-    "nothing" # preserve_acquia
-    "nothing" # preserve_lagoon
-    "nothing" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "nothing"   # install_from_profile
+    "nothing"   # download_db_source
+    "nothing"   # database_store_type
+    "nothing"   # override_existing_db
+    "nothing"   # deploy_type
+    "nothing"   # preserve_ftp
+    "nothing"   # preserve_acquia
+    "nothing"   # preserve_lagoon
+    "nothing"   # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
@@ -124,30 +124,30 @@ load _helper.bash
 }
 
 @test "Install into empty directory: interactive; override; should override changed committed file and have no changes" {
-  echo "SOMEVAR=\"someval\"" >> .env
+  echo 'SOMEVAR="someval"' >>.env
 
-    answers=(
+  answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "nothing" # install_from_profile
-    "nothing" # download_db_type
-    "nothing" # download_db_source
-    "nothing" # database_store_type
-    "nothing" # override_existing_db
-    "nothing" # deploy_type
-    "nothing" # preserve_ftp
-    "nothing" # preserve_acquia
-    "nothing" # preserve_lagoon
-    "nothing" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "nothing"   # install_from_profile
+    "nothing"   # download_db_type
+    "nothing"   # download_db_source
+    "nothing"   # database_store_type
+    "nothing"   # override_existing_db
+    "nothing"   # deploy_type
+    "nothing"   # preserve_ftp
+    "nothing"   # preserve_acquia
+    "nothing"   # preserve_lagoon
+    "nothing"   # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
@@ -168,28 +168,28 @@ load _helper.bash
 }
 
 @test "Install into empty directory: interactive; should show that DrevOps was previously installed" {
-    answers=(
+  answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "nothing" # install_from_profile
-    "nothing" # download_db_type
-    "nothing" # download_db_source
-    "nothing" # database_store_type
-    "nothing" # override_existing_db
-    "nothing" # deploy_type
-    "nothing" # preserve_ftp
-    "nothing" # preserve_acquia
-    "nothing" # preserve_lagoon
-    "nothing" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "nothing"   # install_from_profile
+    "nothing"   # download_db_type
+    "nothing"   # download_db_source
+    "nothing"   # database_store_type
+    "nothing"   # override_existing_db
+    "nothing"   # deploy_type
+    "nothing"   # preserve_ftp
+    "nothing"   # preserve_acquia
+    "nothing"   # preserve_lagoon
+    "nothing"   # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
