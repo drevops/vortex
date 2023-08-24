@@ -8,7 +8,7 @@
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Source branch name to mirror code.
 DREVOPS_MIRROR_CODE_BRANCH_SRC="${DREVOPS_MIRROR_CODE_BRANCH_SRC:-$1}"
