@@ -43,7 +43,10 @@ fi
 if [ "${exit_code}" -eq 0 ] && [ -n "${DREVOPS_LINT_TWIGCS_TARGETS:-}" ]; then
   info "Running Twigcs."
   # Twigcs expects all targets to exist, so we need to filter out non-existing ones.
-  oldifs="$IFS";  IFS=', '; set -- ${DREVOPS_LINT_TWIGCS_TARGETS}; IFS="${oldifs}"
+  oldifs="$IFS"
+  IFS=', '
+  set -- ${DREVOPS_LINT_TWIGCS_TARGETS}
+  IFS="${oldifs}"
   twigcs_valid_targets=""
   for target in "$@"; do
     for dir in $target; do

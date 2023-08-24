@@ -11,4 +11,3 @@ COMPOSE_PROJECT_NAME=
 #
 # Used in the application to override the automatically detected environment type.
 DREVOPS_ENVIRONMENT_TYPE=
-

@@ -8,27 +8,27 @@
 load _helper.bash
 
 @test "Install: empty directory; none of Deployment, Acquia, Lagoon, FTP and renovatebot integrations" {
- answers=(
+  answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "nothing" # install_from_profile
-    "nothing" # database_download_source
-    "nothing" # database_store_type
-    "nothing" # override_existing_db
-    "none" # deploy_type
-    "no" # preserve_ftp
-    "no" # preserve_acquia
-    "no" # preserve_lagoon
-    "no" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "nothing"   # install_from_profile
+    "nothing"   # database_download_source
+    "nothing"   # database_store_type
+    "nothing"   # override_existing_db
+    "none"      # deploy_type
+    "no"        # preserve_ftp
+    "no"        # preserve_acquia
+    "no"        # preserve_lagoon
+    "no"        # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
@@ -46,27 +46,27 @@ load _helper.bash
 }
 
 @test "Install: empty directory; all integrations" {
- answers=(
+  answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "nothing" # install_from_profile
-    "curl" # database_download_source
-    "file" # database_store_type
-    "nothing" # override_existing_db
-    "nothing" # deploy_type
-    "y" # preserve_ftp
-    "y" # preserve_acquia
-    "y" # preserve_lagoon
-    "y" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "nothing"   # install_from_profile
+    "curl"      # database_download_source
+    "file"      # database_store_type
+    "nothing"   # override_existing_db
+    "nothing"   # deploy_type
+    "y"         # preserve_ftp
+    "y"         # preserve_acquia
+    "y"         # preserve_lagoon
+    "y"         # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
@@ -88,27 +88,27 @@ load _helper.bash
 }
 
 @test "Install: empty directory; deployment - code" {
- answers=(
+  answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "nothing" # install_from_profile
-    "curl" # database_download_source
-    "file" # database_store_type
-    "nothing" # override_existing_db
-    "artifact" # deploy_type
-    "y" # preserve_ftp
-    "y" # preserve_acquia
-    "y" # preserve_lagoon
-    "y" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "nothing"   # install_from_profile
+    "curl"      # database_download_source
+    "file"      # database_store_type
+    "nothing"   # override_existing_db
+    "artifact"  # deploy_type
+    "y"         # preserve_ftp
+    "y"         # preserve_acquia
+    "y"         # preserve_lagoon
+    "y"         # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
@@ -130,25 +130,25 @@ load _helper.bash
 }
 
 @test "Install: empty directory; install_from_profile" {
- answers=(
+  answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "y" # install_from_profile
-    "nothing" # override_existing_db
-    "artifact" # deploy_type
-    "n" # preserve_ftp
-    "n" # preserve_acquia
-    "n" # preserve_lagoon
-    "n" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "y"         # install_from_profile
+    "nothing"   # override_existing_db
+    "artifact"  # deploy_type
+    "n"         # preserve_ftp
+    "n"         # preserve_acquia
+    "n"         # preserve_lagoon
+    "n"         # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
@@ -166,25 +166,25 @@ load _helper.bash
 }
 
 @test "Install: empty directory; install_from_profile; Lagoon" {
- answers=(
+  answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "y" # install_from_profile
-    "nothing" # override_existing_db
-    "artifact" # deploy_type
-    "n" # preserve_ftp
-    "n" # preserve_acquia
-    "y" # preserve_lagoon
-    "n" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "y"         # install_from_profile
+    "nothing"   # override_existing_db
+    "artifact"  # deploy_type
+    "n"         # preserve_ftp
+    "n"         # preserve_acquia
+    "y"         # preserve_lagoon
+    "n"         # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"

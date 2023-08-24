@@ -164,9 +164,9 @@ main() {
     fi
 
     # Check that the volume is mounted into CLI container.
-    if ! docker compose exec -T cli bash -c "grep \"^/dev\" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent"; then
+    if ! docker compose exec -T cli bash -c 'grep "^/dev" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent'; then
       warn "SSH key volume is not mounted into CLI container."
-      note "Make sure that your \"docker-compose.yml\" has the following lines for CLI service:"
+      note 'Make sure that your "docker-compose.yml" has the following lines for CLI service:'
       note "  volumes_from:"
       note "    - container:amazeeio-ssh-agent"
       note "After adding these lines, run 'ahoy up'."
@@ -185,7 +185,7 @@ main() {
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
-    local_dev_url="$(docker compose exec -T cli bash -c "echo \$DREVOPS_LOCALDEV_URL")"
+    local_dev_url="$(docker compose exec -T cli bash -c 'echo $DREVOPS_LOCALDEV_URL')"
     if [ -n "${local_dev_url}" ]; then
       # Depending on the type of installation, the homepage may return 200 or 403.
       if ! curl -L -s -o /dev/null -w "%{http_code}" "${local_dev_url}" | grep -q '200\|403'; then

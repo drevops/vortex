@@ -15,7 +15,7 @@ TEST_DIR="scripts/drevops/tests"
 [ "$(git config --global user.email)" = "" ] && echo "==> Configuring global git user email" && git config --global user.email "someone@example.com"
 
 # Create stub of local framework.
-docker network create amazeeio-network 2> /dev/null || true
+docker network create amazeeio-network 2>/dev/null || true
 
 echo "==> Lint scripts code."
 "${TEST_DIR}/lint-scripts.sh"
@@ -28,7 +28,7 @@ echo "==> Lint dockerfiles."
 
 echo "==> Lint documentation."
 pushd "${TEST_DIR}/../docs" || exit 1
-sed -e "/###/d" docker-compose.yml > docker-compose.drevops_docs.yml
+sed -e "/###/d" docker-compose.yml >docker-compose.drevops_docs.yml
 COMPOSE_FILE=docker-compose.drevops_docs.yml ahoy build
 COMPOSE_FILE=docker-compose.drevops_docs.yml ahoy test
 rm docker-compose.drevops_docs.yml >/dev/null

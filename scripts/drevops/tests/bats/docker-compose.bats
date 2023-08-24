@@ -37,7 +37,7 @@ load _helper.bash
   substep "Compare with fixture"
   prepare_docker_compose_fixtures
 
-  docker compose -f docker-compose.yml config --format json > docker-compose.actual.json
+  docker compose -f docker-compose.yml config --format json >docker-compose.actual.json
   process_docker_compose_json docker-compose.actual.json
   update_docker_compose_fixture "$PWD"/docker-compose.actual.json docker-compose.env.json
 
@@ -49,16 +49,16 @@ load _helper.bash
 
   cp "${CUR_DIR}/.env" .env
 
-  echo "COMPOSE_PROJECT_NAME=the_matrix" >> .env
-  echo "DREVOPS_APP=/myapp" >> .env
-  echo "DREVOPS_WEBROOT=docroot" >> .env
-  echo "DREVOPS_DB_DOCKER_IMAGE=myorg/my_db_image" >> .env
-  echo "XDEBUG_ENABLE=1" >> .env
-  echo "SSMTP_MAILHUB=false" >> .env
-  echo "DRUPAL_SHIELD_USER=jane" >> .env
-  echo "DRUPAL_SHIELD_PASS=passw" >> .env
-  echo "DREVOPS_REDIS_ENABLED=1" >> .env
-  echo "LAGOON_ENVIRONMENT_TYPE=development" >> .env
+  echo "COMPOSE_PROJECT_NAME=the_matrix" >>.env
+  echo "DREVOPS_APP=/myapp" >>.env
+  echo "DREVOPS_WEBROOT=docroot" >>.env
+  echo "DREVOPS_DB_DOCKER_IMAGE=myorg/my_db_image" >>.env
+  echo "XDEBUG_ENABLE=1" >>.env
+  echo "SSMTP_MAILHUB=false" >>.env
+  echo "DRUPAL_SHIELD_USER=jane" >>.env
+  echo "DRUPAL_SHIELD_PASS=passw" >>.env
+  echo "DREVOPS_REDIS_ENABLED=1" >>.env
+  echo "LAGOON_ENVIRONMENT_TYPE=development" >>.env
 
   substep "Validate configuration"
   run docker compose -f docker-compose.yml config
@@ -67,7 +67,7 @@ load _helper.bash
   substep "Compare with fixture"
   prepare_docker_compose_fixtures
 
-  docker compose -f docker-compose.yml config --format json > docker-compose.actual.json
+  docker compose -f docker-compose.yml config --format json >docker-compose.actual.json
   process_docker_compose_json docker-compose.actual.json
   update_docker_compose_fixture "$PWD"/docker-compose.actual.json docker-compose.env_mod.json
 
@@ -126,7 +126,7 @@ process_docker_compose_json() {
 
     print $data;
   ' "$(cat "${from}")" "${CURRENT_PROJECT_DIR}" >"${to}"
-  echo "" >> "${to}"
+  echo "" >>"${to}"
 }
 
 # Helper to update fixtures.

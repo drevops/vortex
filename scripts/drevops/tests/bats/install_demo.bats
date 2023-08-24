@@ -63,7 +63,7 @@ load _helper.bash
 }
 
 @test "Demo auto discovery - enabled; skip demo processing" {
-  echo "DREVOPS_INSTALL_DEMO_SKIP=1">> .env
+  echo "DREVOPS_INSTALL_DEMO_SKIP=1" >>.env
 
   assert_file_not_exists .data/db.sql
 

@@ -31,11 +31,11 @@ load _helper_workflow.bash
 
   substep "Assert calling local commands with local file path specified and file is present and file return non-zero exit code"
 
-  echo >> ".ahoy.local.yml"
-  echo "  mylocalcommand:" >> ".ahoy.local.yml"
-  echo "    cmd: |" >> ".ahoy.local.yml"
-  echo "      echo 'expected failure'" >> ".ahoy.local.yml"
-  echo "      exit 1" >> ".ahoy.local.yml"
+  echo >>".ahoy.local.yml"
+  echo "  mylocalcommand:" >>".ahoy.local.yml"
+  echo "    cmd: |" >>".ahoy.local.yml"
+  echo "      echo 'expected failure'" >>".ahoy.local.yml"
+  echo "      exit 1" >>".ahoy.local.yml"
 
   run ahoy local mylocalcommand
   assert_failure
@@ -62,7 +62,7 @@ load _helper_workflow.bash
 @test "GitHub labels" {
   prepare_sut "Starting utilities tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
-   step "Run ahoy github-labels"
+  step "Run ahoy github-labels"
 
   export GITHUB_TOKEN="${TEST_GITHUB_TOKEN}"
 

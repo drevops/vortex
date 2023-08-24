@@ -19,8 +19,8 @@ sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
 OUTPUT_FILE="./content/tools/variables.md"
 sed "${sed_opts[@]}" '/## Variables list/,$d' "${OUTPUT_FILE}"
 
-echo "## Variables list" >> "${OUTPUT_FILE}"
-echo >> "${OUTPUT_FILE}"
+echo "## Variables list" >>"${OUTPUT_FILE}"
+echo >>"${OUTPUT_FILE}"
 ./.utils/vendor/bin/shell-variables-extractor \
   --skip-text="@docs:skip" \
   --skip-description-prefix=";<" \
@@ -39,7 +39,7 @@ echo >> "${OUTPUT_FILE}"
   ../../../.env.local.example \
   ./.utils/variables/extra \
   .. \
-  >> "${OUTPUT_FILE}"
+  >>"${OUTPUT_FILE}"
 
 sed "${sed_opts[@]}" "s/scripts\/drevops\/docs\/.utils\/variables\/extra\/environment.variables.sh/ENVIRONMENT/g" "${OUTPUT_FILE}"
 sed "${sed_opts[@]}" "s/scripts\/drevops\/docs\/.utils\/variables\/extra\/acquia.variables.sh/ACQUIA ENVIRONMENT/g" "${OUTPUT_FILE}"
