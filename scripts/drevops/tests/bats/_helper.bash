@@ -17,7 +17,7 @@ setup() {
   ## Phase 1: Framework setup.
   ##
 
-  echo "NOTE: if Docker tests fail, re-run with custom temporary directory (must be pre-created): TMPDIR=\$HOME/.bats-tmp bats <testfile>" >&3
+  echo 'NOTE: if Docker tests fail, re-run with custom temporary directory (must be pre-created): TMPDIR=$HOME/.bats-tmp bats <testfile>' >&3
 
   # Enforce architecture if not provided for ARM. Note that this may not work
   # if bash uses Rosetta or other emulators, in which case the test should run
@@ -51,14 +51,14 @@ setup() {
 
   # Preflight checks.
   # @formatter:off
-  command -v curl > /dev/null                       || ( echo "[ERROR] curl command is not available." && exit 1 )
-  command -v composer > /dev/null                   || ( echo "[ERROR] composer command is not available." && exit 1 )
-  command -v docker > /dev/null                     || ( echo "[ERROR] docker command is not available." && exit 1 )
-  command -v ahoy > /dev/null                       || ( echo "[ERROR] ahoy command is not available." && exit 1 )
-  command -v jq > /dev/null                         || ( echo "[ERROR] jq command is not available." && exit 1 )
-  [ -n "${TEST_GITHUB_TOKEN}" ]                     || ( echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1 )
-  [ -n "${TEST_DOCKER_USER}" ] || ( echo "[ERROR] The required TEST_DOCKER_USER variable is not set. Tests will not proceed." && exit 1 )
-  [ -n "${TEST_DOCKER_PASS}" ] || ( echo "[ERROR] The required TEST_DOCKER_PASS variable is not set. Tests will not proceed." && exit 1 )
+  command -v curl >/dev/null || (echo "[ERROR] curl command is not available." && exit 1)
+  command -v composer >/dev/null || (echo "[ERROR] composer command is not available." && exit 1)
+  command -v docker >/dev/null || (echo "[ERROR] docker command is not available." && exit 1)
+  command -v ahoy >/dev/null || (echo "[ERROR] ahoy command is not available." && exit 1)
+  command -v jq >/dev/null || (echo "[ERROR] jq command is not available." && exit 1)
+  [ -n "${TEST_GITHUB_TOKEN}" ] || (echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1)
+  [ -n "${TEST_DOCKER_USER}" ] || (echo "[ERROR] The required TEST_DOCKER_USER variable is not set. Tests will not proceed." && exit 1)
+  [ -n "${TEST_DOCKER_PASS}" ] || (echo "[ERROR] The required TEST_DOCKER_PASS variable is not set. Tests will not proceed." && exit 1)
   # @formatter:on
 
   ##
@@ -1057,7 +1057,7 @@ install_dependencies_stub() {
 
   mktouch "${webroot}/sites/default/settings.local.php"
   mktouch "${webroot}/sites/default/services.local.yml"
-  echo "version: \"2.3\"" >"docker-compose.override.yml"
+  echo 'version: "2.3"' >"docker-compose.override.yml"
 
   popd >/dev/null || exit 1
 }

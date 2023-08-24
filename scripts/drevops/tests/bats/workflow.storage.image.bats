@@ -45,7 +45,7 @@ load _helper_workflow.bash
   # Assert that the database was not downloaded because DREVOPS_INSTALL_DEMO_SKIP was set.
   assert_file_not_exists .data/db.sql
   # Remove .env.local added by the installer script.
-  rm .env.local > /dev/null
+  rm .env.local >/dev/null
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry"
   assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=${DREVOPS_DB_DOCKER_IMAGE}"

@@ -4,7 +4,7 @@
 #
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 CUR_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")")"
 
@@ -17,8 +17,8 @@ if [ -d "${CUR_DIR}/scripts/drevops/installer/tests" ]; then
 fi
 
 targets=()
-while IFS=  read -r -d $'\0'; do
-    targets+=("$REPLY")
+while IFS= read -r -d $'\0'; do
+  targets+=("$REPLY")
 done < <(
   find \
     "${CUR_DIR}"/scripts \
@@ -28,15 +28,18 @@ done < <(
     \( -name "*.sh" -or -name "*.bash" -or -name "*.bats" \) \
     -not -path "*vendor*" -not -path "*node_modules*" \
     -print0
-  )
+)
 targets+=("${CUR_DIR}/install")
 
 echo "==> Linting DrevOps scripts and tests in ${CUR_DIR}."
 for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"
-    if ! LC_ALL=C.UTF-8 shellcheck -e SC1090,SC1091,SC2223 "${file}"; then
+    if ! LC_ALL=C.UTF-8 shellcheck -e SC1090,SC1091,SC2223,SC2016 "${file}"; then
+      exit 1
+    fi
+    if ! LC_ALL=C.UTF-8 shfmt -i 2 -ci -s -d "${file}"; then
       exit 1
     fi
   fi
-done;
+done

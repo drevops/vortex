@@ -15,7 +15,7 @@
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # GitHub repository as "org/name" to perform operations on.
 DREVOPS_GITHUB_REPO="${DREVOPS_GITHUB_REPO:-${1:-}}"
@@ -38,17 +38,17 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 # Array of labels to create. If DELETE_EXISTING_LABELS=1, the labels list will
 # be exactly as below, otherwise labels below will be added to existing ones.
 labels=(
-  "AUTOMERGE"            "934BF4"  "Pull request has been approved and set to automerge"
-  "CONFLICT"             "bc143e"  "Pull request has a conflict that needs to be resolved before it can be merged"
-  "DO NOT MERGE"         "d93f0b"  "Do not merge this pull request"
-  "Do not review"        "d93f0b"  "Do not review this pull request"
-  "Needs review"         "5319e7"  "Pull request needs a review from assigned developers"
-  "Questions"            "b5f492"  "Pull request has some questions that need to be answered before further review can progress"
-  "Ready for test"       "0e8a16"  "Pull request is ready for manual testing"
-  "Ready to be merged"   "c2e0c6"  "Pull request is ready to be merged (assigned after testing is complete)"
-  "Requires more work"   "b60205"  "Pull request was reviewed and reviver(s) asked to work further on the pull request"
-  "URGENT"               "d93f0b"  "Pull request needs to be urgently reviewed"
-  "dependencies"         "62E795"  "Pull request was raised automatically by a dependency bot"
+  "AUTOMERGE" "934BF4" "Pull request has been approved and set to automerge"
+  "CONFLICT" "bc143e" "Pull request has a conflict that needs to be resolved before it can be merged"
+  "DO NOT MERGE" "d93f0b" "Do not merge this pull request"
+  "Do not review" "d93f0b" "Do not review this pull request"
+  "Needs review" "5319e7" "Pull request needs a review from assigned developers"
+  "Questions" "b5f492" "Pull request has some questions that need to be answered before further review can progress"
+  "Ready for test" "0e8a16" "Pull request is ready for manual testing"
+  "Ready to be merged" "c2e0c6" "Pull request is ready to be merged (assigned after testing is complete)"
+  "Requires more work" "b60205" "Pull request was reviewed and reviver(s) asked to work further on the pull request"
+  "URGENT" "d93f0b" "Pull request needs to be urgently reviewed"
+  "dependencies" "62E795" "Pull request was raised automatically by a dependency bot"
 
   # Uncomment default Github labels below to preserve them.
   # "bug"                 "d73a4a"  "Something isn't working"

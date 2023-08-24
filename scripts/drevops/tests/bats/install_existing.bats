@@ -104,7 +104,7 @@ load _helper.bash
   touch ".docker/test2.txt"
 
   # Modify DrevOps files.
-  echo "SOMEVAR=\"someval\"" >> .env
+  echo 'SOMEVAR="someval"' >>.env
 
   git_add ".env"
   # Add all files to git repo.
@@ -129,7 +129,7 @@ load _helper.bash
   # existing files.
   assert_not_contains "nothing to commit, working tree clean" "$(git status)"
   assert_contains "modified:   .env" "$(git status)"
-  assert_file_not_contains ".env" "SOMEVAR=\"someval\""
+  assert_file_not_contains ".env" 'SOMEVAR="someval"'
 }
 
 @test "Install into existing: git project; no DrevOps; adding DrevOps and updating DrevOps" {
@@ -142,7 +142,7 @@ load _helper.bash
   git_init
   # Exclude one of the files that will not be excluded during installation.
   mktouch ".git/info/exclude"
-  echo ".eslintrc.json" >> ".git/info/exclude"
+  echo ".eslintrc.json" >>".git/info/exclude"
 
   # Add all files to git repo.
   git_add_all_commit "First commit"
@@ -165,9 +165,9 @@ load _helper.bash
   assert_git_clean
 
   # Releasing new version of DrevOps.
-  echo "# Some change to docker-compose.yml" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
+  echo "# Some change to docker-compose.yml" >>"${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
-  echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json"
+  echo "# Some change to non-required file" >>"${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json"
   git_add "web/themes/custom/your_site_theme/.eslintrc.json" "${LOCAL_REPO_DIR}"
   git_commit "New version of DrevOps" "${LOCAL_REPO_DIR}"
 
@@ -204,7 +204,7 @@ load _helper.bash
 }
 
 @test "Install into existing: custom files, including custom readme; discovery; quiet" {
-  echo "some random content" >> "README.md"
+  echo "some random content" >>"README.md"
   touch "test1.txt"
   # File resides in directory that is included in DrevOps when initialised.
   mkdir -p ".docker"
@@ -293,7 +293,7 @@ load _helper.bash
   assert_files_present_common
 
   # Add a change to .env.local.
-  echo "some random content" >> ".env.local"
+  echo "some random content" >>".env.local"
   assert_file_contains ".env.local" "some random content"
 
   # Run the install again.
@@ -309,7 +309,7 @@ load _helper.bash
 }
 
 @test "Install into existing: previously installed project; custom webroot; discovery; quiet" {
-  echo "DREVOPS_WEBROOT=rootdoc" >> ".env"
+  echo "DREVOPS_WEBROOT=rootdoc" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_install_quiet)
@@ -324,7 +324,7 @@ load _helper.bash
 }
 
 @test "Install into existing: previously installed project; custom theme; discovery; quiet" {
-  echo "DREVOPS_DRUPAL_THEME=star_wars" >> ".env"
+  echo "DREVOPS_DRUPAL_THEME=star_wars" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_install_quiet)
@@ -350,7 +350,7 @@ load _helper.bash
 
   install_dependencies_stub
 
-  echo "DREVOPS_DRUPAL_PROFILE=star_wars_profile" >> ".env"
+  echo "DREVOPS_DRUPAL_PROFILE=star_wars_profile" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_install_quiet)
@@ -365,7 +365,7 @@ load _helper.bash
 }
 
 @test "Install into existing: previously installed project; install_from_profile; discovery; quiet" {
-  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1" >> ".env"
+  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_install_quiet)
@@ -386,7 +386,7 @@ load _helper.bash
 }
 
 @test "Install into existing: previously installed project; override_existing_db; discovery; quiet" {
-  echo "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1" >> ".env"
+  echo "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_install_quiet)
@@ -409,7 +409,7 @@ load _helper.bash
 }
 
 @test "Install into existing: previously installed project; Deployment; discovery; quiet" {
-  echo "DREVOPS_DEPLOY_TYPES=lagoon" >> ".env"
+  echo "DREVOPS_DEPLOY_TYPES=lagoon" >>".env"
 
   output=$(run_install_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"

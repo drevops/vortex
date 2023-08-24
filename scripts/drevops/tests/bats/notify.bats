@@ -93,14 +93,14 @@ load _helper.bash
   assert_output_contains "Started New Relic notification."
 
   assert_equal "-s -X GET https://api.newrelic.com/v2/applications.json -H Api-Key:key1234 -s -G -d filter[name]=testproject-develop&exclude_links=true" "$(mock_get_call_args "${mock_curl}" 1)"
-  assert_equal "-X POST https://api.newrelic.com/v2/applications/9876543210/deployments.json -L -s -o /dev/null -w %{http_code} -H Api-Key:key1234 -H Content-Type: application/json -d {
-  \"deployment\": {
-    \"revision\": \"develop\",
-    \"changelog\": \"develop deployed\",
-    \"description\": \"develop deployed\",
-    \"user\": \"Deployment robot\"
+  assert_equal '-X POST https://api.newrelic.com/v2/applications/9876543210/deployments.json -L -s -o /dev/null -w %{http_code} -H Api-Key:key1234 -H Content-Type: application/json -d {
+  "deployment": {
+    "revision": "develop",
+    "changelog": "develop deployed",
+    "description": "develop deployed",
+    "user": "Deployment robot"
   }
-}" "$(mock_get_call_args "${mock_curl}" 2)"
+}' "$(mock_get_call_args "${mock_curl}" 2)"
 
   assert_output_contains "Finished New Relic notification."
 
@@ -108,7 +108,6 @@ load _helper.bash
 
   popd >/dev/null || exit 1
 }
-
 
 @test "Notify: github, pre_deployment" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
@@ -130,7 +129,7 @@ load _helper.bash
 
   assert_output_contains "Started GitHub notification for pre_deployment event."
 
-  assert_equal "-X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"mybranch\", \"environment\": \"PR\", \"auto_merge\": false}" "$(mock_get_call_args "${mock_curl}" 1)"
+  assert_equal '-X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {"ref":"mybranch", "environment": "PR", "auto_merge": false}' "$(mock_get_call_args "${mock_curl}" 1)"
 
   assert_output_contains "Marked deployment as started."
   assert_output_contains "Finished GitHub notification for pre_deployment event."
@@ -147,7 +146,7 @@ load _helper.bash
   mock_curl=$(mock_command "curl")
 
   mock_set_output "${mock_curl}" "[{\"id\": \"${app_id}\", \"othervar\": \"54321\"},{\"id\": \"987654321\", \"othervar\": \"12345\"}]" 1
-  mock_set_output "${mock_curl}" "{\"state\": \"success\", \"othervar\": \"54321\"}" 2
+  mock_set_output "${mock_curl}" '{"state": "success", "othervar": "54321"}' 2
 
   export DREVOPS_NOTIFY_CHANNELS="github"
   export DREVOPS_NOTIFY_EVENT="post_deployment"
@@ -163,7 +162,7 @@ load _helper.bash
   assert_output_contains "Started GitHub notification for post_deployment event."
 
   assert_equal "-X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=mybranch" "$(mock_get_call_args "${mock_curl}" 1)"
-  assert_equal "-X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/123456789/statuses -s -d {\"state\":\"success\", \"environment_url\": \"https://develop.testproject.com\"}" "$(mock_get_call_args "${mock_curl}" 2)"
+  assert_equal '-X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/123456789/statuses -s -d {"state":"success", "environment_url": "https://develop.testproject.com"}' "$(mock_get_call_args "${mock_curl}" 2)"
 
   assert_output_contains "Marked deployment as finished."
   assert_output_contains "Finished GitHub notification for post_deployment event."
@@ -184,7 +183,7 @@ load _helper.bash
 
   mock_set_output "${mock_curl}" "{\"accountId\": \"${account_id}\", \"othervar\": \"54321\"}" 1
   mock_set_output "${mock_curl}" "{\"id\": \"${comment_id}\", \"othervar\": \"54321\"}" 2
-  mock_set_output "${mock_curl}" "{\"expand\":\"transitions\",\"transitions\":[{\"id\":\"123\",\"name\":\"QA\"},{\"id\":\"456\",\"name\":\"Closed\"}]}" 3
+  mock_set_output "${mock_curl}" '{"expand":"transitions","transitions":[{"id":"123","name":"QA"},{"id":"456","name":"Closed"}]}' 3
   mock_set_output "${mock_curl}" "" 4
   mock_set_output "${mock_curl}" "[{\"accountId\": \"${assignee_account_id}\", \"othervar\": \"54321\"}, {\"accountId\": \"01987654321c20165700edeg\", \"othervar\": \"54321\"}]" 5
   mock_set_output "${mock_curl}" "" 6
@@ -210,19 +209,19 @@ load _helper.bash
   assert_equal "-s -X GET -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json https://jira.atlassian.com/rest/api/3/myself" "$(mock_get_call_args "${mock_curl}" 1)"
 
   assert_output_contains "Posting a comment."
-  assert_equal "-s -X POST -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/comment --data {\"body\": {\"type\": \"doc\", \"version\": 1, \"content\": [{\"type\": \"paragraph\", \"content\": [{\"type\": \"text\",\"text\": \"Deployed to \"},{\"type\": \"inlineCard\",\"attrs\": {\"url\": \"https://develop.testproject.com\"}}]}]}}" "$(mock_get_call_args "${mock_curl}" 2)"
+  assert_equal '-s -X POST -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/comment --data {"body": {"type": "doc", "version": 1, "content": [{"type": "paragraph", "content": [{"type": "text","text": "Deployed to "},{"type": "inlineCard","attrs": {"url": "https://develop.testproject.com"}}]}]}}' "$(mock_get_call_args "${mock_curl}" 2)"
   assert_output_contains "Posted comment with ID $comment_id."
 
   assert_output_contains "Transitioning issue to QA"
   assert_output_contains "Discovering transition ID for QA"
   assert_equal "-s -X GET -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/transitions" "$(mock_get_call_args "${mock_curl}" 3)"
-  assert_equal "-s -X POST -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/transitions --data { \"transition\": {\"id\": \"123\"}}" "$(mock_get_call_args "${mock_curl}" 4)"
+  assert_equal '-s -X POST -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/transitions --data { "transition": {"id": "123"}}' "$(mock_get_call_args "${mock_curl}" 4)"
   assert_output_contains "Transitioned issue to QA"
 
   assert_output_contains "Assigning issue to jane.doe@example.com"
   assert_output_contains "Discovering user ID for jane.doe@example.com"
   assert_equal "-s -X GET -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/user/assignable/search?query=jane.doe@example.com&issueKey=proj-1234" "$(mock_get_call_args "${mock_curl}" 5)"
-  assert_equal "-s -X PUT -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/assignee --data { \"accountId\": \"987654321c20165700ede21g\"}" "$(mock_get_call_args "${mock_curl}" 6)"
+  assert_equal '-s -X PUT -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/assignee --data { "accountId": "987654321c20165700ede21g"}' "$(mock_get_call_args "${mock_curl}" 6)"
   assert_output_contains "Assigned issue to jane.doe@example.com"
 
   assert_output_contains "Finished JIRA notification."

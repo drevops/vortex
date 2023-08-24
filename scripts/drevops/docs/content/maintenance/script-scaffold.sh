@@ -7,7 +7,7 @@
 #
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Example scaffold variable with a default value.
 DREVOPS_SCAFFOLD_EXAMPLE_URL="${DREVOPS_SCAFFOLD_EXAMPLE_URL:-http://example.com}"
@@ -24,7 +24,7 @@ fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 info "Started scaffold operations."
 
 [ -z "${DREVOPS_SCAFFOLD_EXAMPLE_URL}" ] && fail "Missing required value for DREVOPS_SCAFFOLD_EXAMPLE_URL" && exit 1
-command -v curl > /dev/null || ( fail "curl command is not available." && exit 1 )
+command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 
 # Example of the script body.
 curl -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_SCAFFOLD_EXAMPLE_URL}" | grep -q '200\|403' && note "Requested example page"

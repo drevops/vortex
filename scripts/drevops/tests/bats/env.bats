@@ -14,7 +14,7 @@ load _helper.bash
   run_install_quiet
 
   # Prepare temp test script used to print env variables from the script.
-  echo "#!/usr/bin/env bash">test.sh && echo "printenv" >> test.sh && chmod 755 test.sh
+  echo "#!/usr/bin/env bash" >test.sh && echo "printenv" >>test.sh && chmod 755 test.sh
 
   # Re-using existing 'log' and 'restart' commands to add our test commands.
   # This is due to complexity of modifying YAML using Bash.

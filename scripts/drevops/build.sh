@@ -17,7 +17,7 @@
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Print debug information in DrevOps scripts.
 # @docs:skip
@@ -113,7 +113,7 @@ fi
 # outside the container.
 if [ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ]; then
   info "Copying database file into container."
-  docker compose exec ${dcopts[@]} cli bash -c "mkdir -p \${DREVOPS_DB_DIR}"
+  docker compose exec ${dcopts[@]} cli bash -c 'mkdir -p ${DREVOPS_DB_DIR}'
   docker compose cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" cli:"${DREVOPS_DB_DIR/.\//${DREVOPS_APP}/}"/"${DREVOPS_DB_FILE}" 2>"${composer_verbose_output}"
   pass "Copied database file into container."
   echo
@@ -147,14 +147,14 @@ echo
 # are already compiled as a part of the Docker build.
 if [ -n "${DREVOPS_DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
   info "Installing front-end dependencies."
-  docker compose exec ${dcopts[@]} cli bash -c "npm --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} install" >"${npm_verbose_output}"
+  docker compose exec ${dcopts[@]} cli bash -c 'npm --prefix ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} install' >"${npm_verbose_output}"
   pass "Installed front-end dependencies."
 
-  docker compose exec ${dcopts[@]} cli bash -c "cd \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} && npm run build" >"${npm_verbose_output}"
+  docker compose exec ${dcopts[@]} cli bash -c 'cd ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build' >"${npm_verbose_output}"
   pass "Compiled front-end dependencies."
 
   mkdir -p "${DREVOPS_WEBROOT}/sites/default/files"
-  docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} docker compose exec ${dcopts[@]} cli bash -c "echo {} > \${DREVOPS_APP}/\${DREVOPS_WEBROOT}/sites/default/files/livereload.sock"
+  docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} docker compose exec ${dcopts[@]} cli bash -c 'echo {} > ${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
   pass "Created Livereload socket."
   echo
 fi

@@ -41,7 +41,7 @@ load _helper.bash
   mktouch "web/sites/default/settings.local.php"
   mktouch "web/sites/default/services.local.yml"
 
-  echo "version: \"2.3\"" > "docker-compose.override.yml"
+  echo 'version: "2.3"' >"docker-compose.override.yml"
 
   mktouch ".idea/some_ide_file"
   mktouch ".vscode/some_ide_file"
@@ -125,7 +125,7 @@ load _helper.bash
   mktouch "web/sites/default/settings.local.php"
   mktouch "web/sites/default/services.local.yml"
 
-  echo "version: \"2.3\"" > "docker-compose.override.yml"
+  echo 'version: "2.3"' >"docker-compose.override.yml"
 
   mktouch ".idea/some_ide_file"
   mktouch ".vscode/some_ide_file"
@@ -210,7 +210,7 @@ load _helper.bash
   mktouch "web/sites/default/settings.local.php"
   mktouch "web/sites/default/services.local.yml"
 
-  echo "version: \"2.3\"" > "docker-compose.override.yml"
+  echo 'version: "2.3"' >"docker-compose.override.yml"
 
   mktouch ".idea/some_ide_file"
   mktouch ".vscode/some_ide_file"
@@ -226,7 +226,7 @@ load _helper.bash
   # Commit other file file.
   mktouch "committed_file.txt"
   git add "committed_file.txt"
-  git commit -m "Added custom file" > /dev/null
+  git commit -m "Added custom file" >/dev/null
 
   ahoy reset
 

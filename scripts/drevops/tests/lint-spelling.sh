@@ -5,15 +5,15 @@
 # shellcheck disable=SC2181,SC2016,SC2002,SC2266,SC2015
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 CUR_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")")"
 
 dict="${CUR_DIR}/scripts/drevops/tests/.aspell.en.pws"
 
 targets=()
-while IFS=  read -r -d $'\0'; do
-    targets+=("$REPLY")
+while IFS= read -r -d $'\0'; do
+  targets+=("$REPLY")
 done < <(
   find \
     "${CUR_DIR}"/.circleci \
@@ -25,7 +25,7 @@ done < <(
     \( -name "*.md" \) \
     -not -path "*vendor*" -not -path "*node_modules*" \
     -print0
-  )
+)
 
 targets+=(docs/DEPLOYMENT.md)
 targets+=(docs/FAQs.md)
@@ -39,25 +39,25 @@ for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"
 
-    cat "${file}" | \
-    # Remove { } attributes.
-    sed -E 's/\{:([^\}]+)\}//g' | \
-    # Replace <br/> with a space.
-    sed -E 's/<br \/>|<br\/>|<br>/ /g' | \
-    # Remove HTML.
-    sed -E 's/<([^<]+)>//g' | \
-    # Remove code blocks.
-    sed  -n '/\`\`\`/,/\`\`\`/ !p' | \
-    # Remove inline code.
-    sed  -n '/\`/,/\`/ !p' | \
-    # Remove anchors.
-    sed -E 's/\[.+\]\([^\)]+\)//g' | \
-    # Remove links.
-    sed -E 's/http(s)?:\/\/([^ ]+)//g' | \
-    aspell --lang=en --encoding=utf-8 --personal="${dict}" list | tee /dev/stderr | [ "$(wc -l)" -eq 0 ]
+    cat "${file}" |
+      # Remove { } attributes.
+      sed -E 's/\{:([^\}]+)\}//g' |
+      # Replace <br/> with a space.
+      sed -E 's/<br \/>|<br\/>|<br>/ /g' |
+      # Remove HTML.
+      sed -E 's/<([^<]+)>//g' |
+      # Remove code blocks.
+      sed -n '/\`\`\`/,/\`\`\`/ !p' |
+      # Remove inline code.
+      sed -n '/\`/,/\`/ !p' |
+      # Remove anchors.
+      sed -E 's/\[.+\]\([^\)]+\)//g' |
+      # Remove links.
+      sed -E 's/http(s)?:\/\/([^ ]+)//g' |
+      aspell --lang=en --encoding=utf-8 --personal="${dict}" list | tee /dev/stderr | [ "$(wc -l)" -eq 0 ]
 
-    if  [ "$?" -ne 0 ]; then
+    if [ "$?" -ne 0 ]; then
       exit 1
     fi
   fi
-done;
+done

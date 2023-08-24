@@ -10,7 +10,7 @@ format_yes_no() {
   [ "${1}" == "1" ] && echo "Yes" || echo "No"
 }
 
-assert_drupal_install_site_info(){
+assert_drupal_install_site_info() {
   local webroot="${8:-web}"
 
   assert_output_contains "Started site installation."

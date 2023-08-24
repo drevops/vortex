@@ -39,7 +39,7 @@ prepare_sut() {
   touch .idea/idea_file.txt
   assert_file_exists .idea/idea_file.txt
 
-  if uname -a|grep -q ARM64; then
+  if uname -a | grep -q ARM64; then
     substep "Override local Docker Compose for ARM."
     cp docker-compose.override.example.yml docker-compose.override.yml
   fi
@@ -135,7 +135,7 @@ assert_ahoy_build() {
   assert_file_not_exists "${webroot}/themes/custom/star_wars/build/css/star_wars.css"
   # Assert only minified compiled JS exists.
   assert_file_exists "${webroot}/themes/custom/star_wars/build/js/star_wars.min.js"
-  assert_file_contains "${webroot}/themes/custom/star_wars/build/js/star_wars.min.js" "!function(Drupal){\"use strict\";Drupal.behaviors.star_wars"
+  assert_file_contains "${webroot}/themes/custom/star_wars/build/js/star_wars.min.js" '!function(Drupal){"use strict";Drupal.behaviors.star_wars'
   assert_file_not_exists "${webroot}/themes/custom/star_wars/build/js/star_wars.js"
 
   substep "Finished project build"
@@ -197,7 +197,7 @@ assert_env_changes() {
   run ahoy cli "printenv | grep -q MY_CUSTOM_VAR"
   assert_failure
   # Assert that test value is not available inside of containers.
-  run ahoy cli "echo \$MY_CUSTOM_VAR | grep -q my_custom_var_value"
+  run ahoy cli 'echo $MY_CUSTOM_VAR | grep -q my_custom_var_value'
   assert_failure
   assert_output_not_contains "my_custom_var_value"
 
@@ -214,7 +214,7 @@ assert_env_changes() {
   assert_success
   assert_output_contains "my_custom_var_value"
   # Assert that test variable and value are available inside of containers.
-  run ahoy cli "echo \$MY_CUSTOM_VAR | grep my_custom_var_value"
+  run ahoy cli 'echo $MY_CUSTOM_VAR | grep my_custom_var_value'
   assert_output_contains "my_custom_var_value"
   assert_success
 
@@ -227,7 +227,7 @@ assert_env_changes() {
   assert_file_not_contains ".env" "my_custom_var_value"
   run ahoy cli "printenv | grep -q MY_CUSTOM_VAR"
   assert_failure
-  run ahoy cli "echo \$MY_CUSTOM_VAR | grep my_custom_var_value"
+  run ahoy cli 'echo $MY_CUSTOM_VAR | grep my_custom_var_value'
   assert_failure
   assert_output_not_contains "my_custom_var_value"
 }
@@ -236,7 +236,7 @@ assert_timezone() {
   step "Check that timezone can be applied"
 
   # Assert that .env contains a default value.
-  assert_file_contains ".env" "DREVOPS_TZ=\"Australia/Melbourne\""
+  assert_file_contains ".env" 'DREVOPS_TZ="Australia/Melbourne"'
   run docker compose exec cli date
   assert_output_contains "AEST"
   run docker compose exec php date
@@ -247,7 +247,7 @@ assert_timezone() {
   assert_output_contains "AEST"
 
   # Add variable to the .env file and apply the change to container.
-  add_var_to_file .env "DREVOPS_TZ" "\"Australia/Perth\""
+  add_var_to_file .env "DREVOPS_TZ" '"Australia/Perth"'
   sync_to_container
   run ahoy up
 
@@ -374,7 +374,7 @@ assert_ahoy_lint_be() {
   step "Run BE linter checks"
 
   substep "Assert that BE lint failure works"
-  echo "\$a=1;" >> "${webroot}/modules/custom/sw_core/sw_core.module"
+  echo '$a=1;' >>"${webroot}/modules/custom/sw_core/sw_core.module"
   sync_to_container
   run ahoy lint-be
   assert_failure
@@ -393,7 +393,7 @@ assert_ahoy_lint_be() {
 
   substep "Assert that BE lint tool disabling works"
   # Only testing for PHPCS, but the same should work for other tools.
-  echo "\$a=1;" >> "${webroot}/modules/custom/sw_core/sw_core.module"
+  echo '$a=1;' >>"${webroot}/modules/custom/sw_core/sw_core.module"
   sync_to_container
   export DREVOPS_LINT_PHPCS_TARGETS=""
   run ahoy lint-be
@@ -409,7 +409,7 @@ assert_ahoy_lint_fe() {
   step "Run FE linter checks"
 
   substep "Assert that FE lint failure works for npm lint"
-  echo ".abc{margin: 0px;}" >> "${webroot}/themes/custom/star_wars/scss/components/_test.scss"
+  echo ".abc{margin: 0px;}" >>"${webroot}/themes/custom/star_wars/scss/components/_test.scss"
   sync_to_container
   run ahoy lint-fe
   assert_failure
@@ -426,8 +426,8 @@ assert_ahoy_lint_fe() {
   substep "Assert that FE lint failure works for Twigcs"
   mkdir -p "${webroot}/modules/custom/sw_core/templates/block"
   mkdir -p "${webroot}/themes/custom/star_wars/templates/block"
-  echo "{{ set a='a' }}" >> "${webroot}/modules/custom/sw_core/templates/block/test1.twig"
-  echo "{{ set b='b' }}" >> "${webroot}/themes/custom/star_wars/templates/block/test2.twig"
+  echo "{{ set a='a' }}" >>"${webroot}/modules/custom/sw_core/templates/block/test1.twig"
+  echo "{{ set b='b' }}" >>"${webroot}/themes/custom/star_wars/templates/block/test2.twig"
   sync_to_container
   run ahoy lint-fe
   assert_failure
@@ -453,8 +453,8 @@ assert_ahoy_lint_fe() {
   # Only testing for Twigcs, but the same should work for other tools.
   mkdir -p "${webroot}/modules/custom/sw_core/templates/block"
   mkdir -p "${webroot}/themes/custom/star_wars/templates/block"
-  echo "{{ set a='a' }}" >> "${webroot}/modules/custom/sw_core/templates/block/test1.twig"
-  echo "{{ set b='b' }}" >> "${webroot}/themes/custom/star_wars/templates/block/test2.twig"
+  echo "{{ set a='a' }}" >>"${webroot}/modules/custom/sw_core/templates/block/test1.twig"
+  echo "{{ set b='b' }}" >>"${webroot}/themes/custom/star_wars/templates/block/test2.twig"
   sync_to_container
   export DREVOPS_LINT_TWIGCS_TARGETS=""
   run ahoy lint-fe
@@ -737,7 +737,7 @@ assert_ahoy_test_bdd() {
   ahoy cli rm -rf /app/tests/behat/screenshots/*
 
   substep "Assert that Behat tests failure works"
-  echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
+  echo 'And I should be in the "some-non-existing-page" path' >>tests/behat/features/homepage.feature
   sync_to_container
   assert_dir_empty tests/behat/screenshots
   run ahoy test-bdd
@@ -789,7 +789,7 @@ assert_ahoy_test_bdd() {
 
   substep "Assert that a single Behat test failure works"
   assert_dir_empty tests/behat/screenshots
-  echo "And I should be in the \"some-non-existing-page\" path" >>tests/behat/features/homepage.feature
+  echo 'And I should be in the "some-non-existing-page" path' >>tests/behat/features/homepage.feature
   run ahoy up cli && sync_to_container
   run ahoy test-bdd tests/behat/features/homepage.feature
   assert_failure
@@ -849,8 +849,8 @@ assert_ahoy_fe() {
 
   substep "Build FE assets for production"
   assert_file_not_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "#7e57e2"
-  echo "\$color-tester: #7e57e2;" >> "${webroot}/themes/custom/star_wars/scss/_variables.scss"
-  echo "\$color-primary: \$color-tester;" >> "${webroot}/themes/custom/star_wars/scss/_variables.scss"
+  echo '$color-tester: #7e57e2;' >>"${webroot}/themes/custom/star_wars/scss/_variables.scss"
+  echo '$color-primary: $color-tester;' >>"${webroot}/themes/custom/star_wars/scss/_variables.scss"
   sync_to_container
   ahoy fe
   sync_to_host
@@ -858,8 +858,8 @@ assert_ahoy_fe() {
 
   substep "Build FE assets for development"
   assert_file_not_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "#91ea5e"
-  echo "\$color-please: #91ea5e;" >> "${webroot}/themes/custom/star_wars/scss/_variables.scss"
-  echo "\$color-primary: \$color-please;" >> "${webroot}/themes/custom/star_wars/scss/_variables.scss"
+  echo '$color-please: #91ea5e;' >>"${webroot}/themes/custom/star_wars/scss/_variables.scss"
+  echo '$color-primary: $color-please;' >>"${webroot}/themes/custom/star_wars/scss/_variables.scss"
   sync_to_container
   ahoy fed
   sync_to_host
@@ -936,7 +936,7 @@ assert_redis() {
 
   substep "Redis integration is disabled"
   ahoy drush cr
-  ahoy cli curl -L -s "http://nginx:8080" > /dev/null
+  ahoy cli curl -L -s "http://nginx:8080" >/dev/null
   run docker compose exec redis redis-cli --scan
   assert_output_not_contains "config"
 
@@ -946,7 +946,7 @@ assert_redis() {
   DREVOPS_REDIS_ENABLED=1 ahoy up cli
   sleep 10
   ahoy drush cr
-  ahoy cli curl -L -s "http://nginx:8080" > /dev/null
+  ahoy cli curl -L -s "http://nginx:8080" >/dev/null
   run docker compose exec redis redis-cli --scan
   assert_output_contains "config"
 }

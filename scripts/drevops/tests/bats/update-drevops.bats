@@ -37,14 +37,14 @@ load _helper.bash
 
   # Releasing new version of DrevOps (note that installing from the local tag
   # is not supported in scripts/drevops/installer/install.php; only commit is supported).
-  echo "# Some change to docker-compose.yml" >> "${LOCAL_REPO_DIR}/docker-compose.yml"
+  echo "# Some change to docker-compose.yml" >>"${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
-  echo "# Some change to non-required file" >> "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json"
+  echo "# Some change to non-required file" >>"${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json"
   git_add "web/themes/custom/your_site_theme/.eslintrc.json" "${LOCAL_REPO_DIR}"
   latest_commit=$(git_commit "New version of DrevOps" "${LOCAL_REPO_DIR}")
 
   # Override DrevOps release commit in .env file.
-  echo DREVOPS_INSTALL_COMMIT="${latest_commit}">>.env
+  echo DREVOPS_INSTALL_COMMIT="${latest_commit}" >>.env
   # Enforce debugging of the install script.
   export DREVOPS_INSTALL_DEBUG=1
   # Override install script with currently tested one to be called from ./scripts/drevops/update-drevops.sh

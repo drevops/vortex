@@ -4,7 +4,7 @@
 #
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 TEST_DIR="scripts/drevops/tests"
 
@@ -15,7 +15,7 @@ TEST_DIR="scripts/drevops/tests"
 [ "$(git config --global user.email)" = "" ] && echo "==> Configuring global git user email" && git config --global user.email "someone@example.com"
 
 # Create stub of local framework.
-docker network create amazeeio-network 2> /dev/null || true
+docker network create amazeeio-network 2>/dev/null || true
 
 index="${CIRCLE_NODE_INDEX:-*}"
 echo "==> Run deployment functional tests (${index})."
