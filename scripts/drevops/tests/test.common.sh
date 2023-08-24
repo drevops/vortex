@@ -4,7 +4,7 @@
 #
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 TEST_DIR="scripts/drevops/tests"
 

@@ -22,7 +22,7 @@
 # shellcheck disable=SC2129
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Source repository URL.
 SRC_REPO_URL="${1?:You must specify the source repository URL.}"
