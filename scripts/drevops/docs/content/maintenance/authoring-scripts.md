@@ -19,7 +19,7 @@
  #
 
  set -eu
- [ -n "${DREVOPS_DEBUG:-}" ] && set -x
+ [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 ```
 4. MUST list all variables with their default values and descriptions. i.e.:
 ```bash

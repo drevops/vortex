@@ -7,7 +7,7 @@
 #
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Example scaffold variable with a default value.
 DREVOPS_SCAFFOLD_EXAMPLE_URL="${DREVOPS_SCAFFOLD_EXAMPLE_URL:-http://example.com}"

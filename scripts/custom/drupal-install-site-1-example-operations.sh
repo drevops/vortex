@@ -9,7 +9,7 @@
 # shellcheck disable=SC2086
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Path to the application.
 DREVOPS_APP="${DREVOPS_APP:-/app}"
