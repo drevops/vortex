@@ -107,7 +107,7 @@ trait YourSiteThemeTestHelperTrait {
       else {
         $mock = $mock->disableOriginalConstructor();
       }
-      $mock = $mock->setMethods($methods)
+      $mock = $mock->addMethods($methods)
         ->getMock();
     }
 
