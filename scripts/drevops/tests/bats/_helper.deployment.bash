@@ -38,7 +38,7 @@ assert_deployment_files_present() {
   assert_dir_exists scripts
   assert_dir_exists vendor
 
-  if [ "${has_custom_profile}" -eq 1 ]; then
+  if [ "${has_custom_profile:-}" -eq 1 ]; then
     # Site profile present.
     assert_dir_exists "${webroot}/profiles/custom/star_wars_profile"
     assert_file_exists "${webroot}/profiles/custom/star_wars_profile/star_wars_profile.info.yml"
@@ -117,7 +117,7 @@ provision_site() {
   step "Initialise the project with the default settings"
 
   # shellcheck disable=SC2128
-  if [ -n "${answers}" ]; then
+  if [ -n "${answers:-}" ]; then
     run_install_interactive "${answers[@]}"
   else
     run_install_quiet
@@ -127,7 +127,7 @@ provision_site() {
   assert_git_repo
 
   # Special treatment for cases where volumes are not mounted from the host.
-  if [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" != "1" ]; then
+  if [ "${DREVOPS_DEV_VOLUMES_MOUNTED:-}" != "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml
@@ -137,7 +137,7 @@ provision_site() {
   step "Add all files to new git repo"
   git_add_all_commit "Init DrevOps config" "${dir}"
 
-  if [ "${should_build}" = "1" ]; then
+  if [ "${should_build:-}" = "1" ]; then
     step "Build project"
     export DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP=1
     ahoy build

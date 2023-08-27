@@ -114,7 +114,7 @@ assert_ahoy_build() {
   assert_file_exists "${webroot}/themes/custom/star_wars/package-lock.json"
 
   # Assert that database file preserved after build if existed before.
-  if [ "$db_file_exists" = "1" ]; then
+  if [ "${db_file_exists:-}" = "1" ]; then
     assert_file_exists .data/db.sql
   else
     assert_file_not_exists .data/db.sql
@@ -149,7 +149,7 @@ assert_gitignore() {
 
   create_development_settings "${webroot}"
 
-  if [ "${skip_commit}" -ne 1 ]; then
+  if [ "${skip_commit:-}" -ne 1 ]; then
     substep "Commit fully configured project"
     git_add_all_commit "Commit fully built project"
   fi
@@ -302,7 +302,7 @@ assert_ahoy_info() {
   assert_output_contains "DB password                 : drupal"
   assert_output_contains "DB port                     : 3306"
   assert_output_contains "DB port on host             :"
-  if [ -n "${db_image}" ]; then
+  if [ -n "${db_image:-}" ]; then
     assert_output_contains "DB-in-docker image          : ${db_image}"
   else
     assert_output_not_contains "DB-in-docker image          : ${db_image}"
@@ -476,7 +476,7 @@ assert_ahoy_test() {
 
   assert_ahoy_test_functional "${webroot}"
 
-  if [ "${is_fast}" == "1" ]; then
+  if [ "${is_fast:-}" == "1" ]; then
     assert_ahoy_test_bdd_fast "${webroot}"
   else
     assert_ahoy_test_bdd "${webroot}"

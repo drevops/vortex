@@ -15,7 +15,7 @@
 # shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper.bash
-load _helper_workflow.bash
+load _helper.workflow.bash
 
 @test "Workflow: download from image, storage in docker image, use cached image" {
   # Note that output assertions in this test do not end with a dot on purpose
