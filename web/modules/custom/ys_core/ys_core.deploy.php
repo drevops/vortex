@@ -38,21 +38,6 @@ function ys_core_deploy_enable_redis() {
 }
 // phpcs:ignore #;> REDIS
 
-// phpcs:ignore #;< SOLR
-/**
- * Enables Search API and Search API Solr modules.
- *
- * @SuppressWarnings(PHPMD.StaticAccess)
- */
-function ys_core_deploy_enable_search_api_solr() {
-  $listing = new ExtensionDiscovery(\Drupal::root());
-  $modules = $listing->scan('module');
-  if (!empty($modules['search_api']) && !empty($modules['search_api_solr']) && !empty($modules['ys_search'])) {
-    \Drupal::service('module_installer')->install(['ys_search']);
-  }
-}
-// phpcs:ignore #;> SOLR
-
 // phpcs:ignore #;< CLAMAV
 /**
  * Enables Search API and Search API Solr modules.
@@ -68,3 +53,18 @@ function ys_core_deploy_enable_clamav() {
   }
 }
 // phpcs:ignore #;> CLAMAV
+
+// phpcs:ignore #;< SOLR
+/**
+ * Enables Search API and Search API Solr modules.
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
+ */
+function ys_core_deploy_enable_search_api_solr() {
+  $listing = new ExtensionDiscovery(\Drupal::root());
+  $modules = $listing->scan('module');
+  if (!empty($modules['search_api']) && !empty($modules['search_api_solr']) && !empty($modules['ys_search'])) {
+    \Drupal::service('module_installer')->install(['ys_search']);
+  }
+}
+// phpcs:ignore #;> SOLR

@@ -792,6 +792,14 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/drupal-install-site.sh`
 
+### `DREVOPS_DRUPAL_INSTALL_ENVIRONMENT`
+
+Current environment name discovered during site installation.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/drupal-install-site.sh`
+
 ### `DREVOPS_DRUPAL_INSTALL_FROM_PROFILE`
 
 Set to `1` to install a site from profile instead of database file dump.
@@ -1032,7 +1040,7 @@ Twigcs comma-separated list of targets. Set to empty value to disable this check
 
 Default value: `web/modules/custom/*/templates, web/themes/custom/*/templates`
 
-Defined in: `.env`
+Defined in: `.env`, `scripts/drevops/lint-fe.sh`
 
 ### `DREVOPS_LINT_TYPES`
 
