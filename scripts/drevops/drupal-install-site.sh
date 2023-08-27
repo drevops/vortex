@@ -61,6 +61,9 @@ DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE="${DREVOPS_DRUPAL_INSTALL_USE_MAINTE
 # state before any updates ran (for example, DB caching in CI).
 DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP="${DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP:-0}"
 
+# Current environment name discovered during site installation.
+DREVOPS_DRUPAL_INSTALL_ENVIRONMENT="${DREVOPS_DRUPAL_INSTALL_ENVIRONMENT:-}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -70,25 +73,33 @@ pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\
 fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-drush_opts=(-y)
-[ -z "${DREVOPS_DEBUG:-}" ] && drush_opts+=(-q)
+yesno() { [ "$1" = "1" ] && echo "Yes" || echo "No"; }
 
 info "Started site installation."
 
-[ -n "${DREVOPS_DRUPAL_INSTALL_SKIP}" ] && pass "Skipping site installation" && exit 0
+[ "${DREVOPS_DRUPAL_INSTALL_SKIP}" = "1" ] && pass "Skipped site installation as DREVOPS_DRUPAL_INSTALL_SKIP is set to 1." && exit 0
 
-# Use local or global Drush, giving priority to a local Drush.
-drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
+# Wrapper around Drush to make it easier to read Drush commands.
+drush() {
+  local drush_local="${DREVOPS_APP}/vendor/bin/drush"
+  [ ! -f "${drush_local}" ] && fail "Drush not found at ${drush_local}." && exit 1
+  "${drush_local}" -y "$@"
+}
 
 # Convert DB dir starting with './' to a full path.
 [ "${DREVOPS_DB_DIR#./}" != "$DREVOPS_DB_DIR" ] && DREVOPS_DB_DIR="$(pwd)${DREVOPS_DB_DIR#.}"
 
+drush_version="$(drush --version | cut -d' ' -f4)"
+drupal_core_version="$(drush status --field=drupal-version)"
+site_has_config="$(test "$(ls -1 $DREVOPS_DRUPAL_CONFIG_PATH/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
+site_is_installed="$(drush status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
+
+################################################################################
 # Print installation information.
-# Note that "flag" variable values are printed as-is to make it easy to visually
-# assert their values.
+################################################################################
 echo
 note "App dir                      : ${DREVOPS_APP}"
-note "Web root dir                 : ${DREVOPS_WEBROOT}"
+note "Webroot dir                  : ${DREVOPS_WEBROOT}"
 note "Site name                    : ${DREVOPS_DRUPAL_SITE_NAME}"
 note "Site email                   : ${DREVOPS_DRUPAL_SITE_EMAIL}"
 note "Profile                      : ${DREVOPS_DRUPAL_PROFILE}"
@@ -99,23 +110,64 @@ if [ -n "${DREVOPS_DB_DOCKER_IMAGE:-}" ]; then
   note "DB dump Docker image         : ${DREVOPS_DB_DOCKER_IMAGE}"
 fi
 echo
-note "Drush binary                 : ${drush}"
-note "Drush version                : $($drush --version)"
-note "Drupal core version          : $($drush status --field=drupal-version)"
+note "Drush version                : ${drush_version}"
+note "Drupal core version          : ${drupal_core_version}"
 echo
-note "Install from profile         : $([ "${DREVOPS_DRUPAL_INSTALL_FROM_PROFILE}" = "1" ] && echo "Yes" || echo "No")"
-note "Overwrite existing DB        : $([ "${DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB}" = "1" ] && echo "Yes" || echo "No")"
-note "Skip sanitization            : $([ "${DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP}" = "1" ] && echo "Yes" || echo "No")"
-note "Use maintenance mode         : $([ "${DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE}" = "1" ] && echo "Yes" || echo "No")"
-note "Skip post-install operations : $([ "${DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP}" = "1" ] && echo "Yes" || echo "No")"
-
-site_has_config="$(test "$(ls -1 $DREVOPS_DRUPAL_CONFIG_PATH/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
-note "Configuration files present  : $([ "${site_has_config}" = "1" ] && echo "Yes" || echo "No")"
-
-site_is_installed="$($drush status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
-note "Existing site found          : $([ "${site_is_installed}" = "1" ] && echo "Yes" || echo "No")"
-
+note "Install from profile         : $(yesno "${DREVOPS_DRUPAL_INSTALL_FROM_PROFILE}")"
+note "Overwrite existing DB        : $(yesno "${DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB}")"
+note "Skip sanitization            : $(yesno "${DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP}")"
+note "Use maintenance mode         : $(yesno "${DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE}")"
+note "Skip post-install operations : $(yesno "${DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP}")"
+note "Configuration files present  : $(yesno "${site_has_config}")"
+note "Existing site found          : $(yesno "${site_is_installed}")"
 echo
+################################################################################
+
+#
+# Install site by importing from the database dump file.
+#
+install_import() {
+  if [ ! -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ]; then
+    echo
+    fail "Unable to import database from file."
+    note "Dump file ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} does not exist."
+    note "Site content was not changed."
+    exit 1
+  fi
+
+  drush sql:drop
+
+  drush sql:cli <"${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
+
+  pass "Imported database from the dump file."
+}
+
+#
+# Install site from profile.
+#
+install_profile() {
+  local opts=()
+
+  opts+=(
+    "${DREVOPS_DRUPAL_PROFILE}"
+    --site-name="${DREVOPS_DRUPAL_SITE_NAME}"
+    --site-mail="${DREVOPS_DRUPAL_SITE_EMAIL}"
+    --account-name=admin
+    install_configure_form.enable_update_status_module=NULL
+    install_configure_form.enable_update_status_emails=NULL
+  )
+
+  [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL:-}" ] && opts+=(--account-mail="${DREVOPS_DRUPAL_ADMIN_EMAIL:-}")
+
+  [ "${site_has_config}" = "1" ] && opts+=(--existing-config)
+
+  # Database may exist in non-bootstrappable state - truncate it.
+  drush sql:drop || true
+
+  drush site:install "${opts[@]}"
+
+  pass "Installed a site from the profile."
+}
 
 if [ -n "${DREVOPS_DRUPAL_PRIVATE_FILES}" ]; then
   info "Creating private files directory."
@@ -132,55 +184,6 @@ if [ -n "${DREVOPS_DRUPAL_PRIVATE_FILES}" ]; then
   fi
 fi
 
-#
-# Install site by importing from the database dump file.
-#
-install_import() {
-  if [ ! -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ]; then
-    echo
-    fail "Unable to import database from file."
-    note "Dump file ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} does not exist."
-    note "Site content was not changed."
-    exit 1
-  fi
-
-  $drush "${drush_opts[@]}" sql:drop
-
-  $drush "${drush_opts[@]}" sql:cli <"${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
-
-  pass "Imported database from the dump file."
-}
-
-#
-# Install site from profile.
-#
-install_profile() {
-  opts=()
-
-  [ -z "${DREVOPS_DEBUG:-}" ] && opts+=(-q)
-
-  opts+=(
-    -y
-    "${DREVOPS_DRUPAL_PROFILE}"
-    --site-name="${DREVOPS_DRUPAL_SITE_NAME}"
-    --site-mail="${DREVOPS_DRUPAL_SITE_EMAIL}"
-    --account-name=admin
-    install_configure_form.enable_update_status_module=NULL
-    install_configure_form.enable_update_status_emails=NULL
-  )
-
-  [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL:-}" ] && opts+=(--account-mail="${DREVOPS_DRUPAL_ADMIN_EMAIL:-}")
-
-  [ "${site_has_config}" = "1" ] && opts+=(--existing-config)
-
-  # Database may exist in non-bootstrappable state - truncate it.
-  $drush "${drush_opts[@]}" sql:drop || true
-
-  $drush site:install "${opts[@]}"
-
-  pass "Installed a site from the profile."
-}
-
 # Install site from DB dump or profile.
 #
 # The code block below has explicit if-else conditions and verbose output to
@@ -193,10 +196,10 @@ if [ "${DREVOPS_DRUPAL_INSTALL_FROM_PROFILE}" != "1" ]; then
   note "Dump file path: ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 
   if [ "${site_is_installed}" = "1" ]; then
-    note "Existing site was found."
+    note "Existing site was found when installing from the database dump file."
 
     if [ "${DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB}" = "1" ]; then
-      note "Existing site content will be removed and new content will be imported from the database dump file."
+      note "Existing site content will be removed and fresh content will be imported from the database dump file."
       install_import
     else
       note "Site content will be preserved."
@@ -204,36 +207,41 @@ if [ "${DREVOPS_DRUPAL_INSTALL_FROM_PROFILE}" != "1" ]; then
       export DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP=1
     fi
   else
-    note "Existing site was not found."
-    note "The site content will be imported from the database dump file."
+    note "Existing site was not found when installing from the database dump file."
+    note "Fresh site content will be imported from the database dump file."
     install_import
+    # Let the downstream scripts know that the database was imported.
+    export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
   fi
 else
   info "Installing site from the profile."
   note "Profile: ${DREVOPS_DRUPAL_PROFILE}."
 
   if [ "${site_is_installed}" = "1" ]; then
-    note "Existing site was found."
+    note "Existing site was found when installing from the profile."
 
     if [ "${DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB}" = "1" ]; then
       note "Existing site content will be removed and new content will be created from the profile."
       install_profile
+      # Let the downstream scripts know that the database was imported.
+      export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
     else
       note "Site content will be preserved."
       note "Sanitization will be skipped for an existing database."
       export DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP=1
     fi
   else
-    note "Existing site was not found."
-    note "The site content will be created from the profile."
+    note "Existing site was not found when installing from the profile."
+    note "Fresh site content will be created from the profile."
     install_profile
+    export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
   fi
 fi
 
 echo
 
 if [ "${DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP}" = "1" ]; then
-  info "Skipped running of post-install operations."
+  info "Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
   echo
   info "Finished site installation."
   exit 0
@@ -241,62 +249,56 @@ fi
 
 if [ "${DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE}" = "1" ]; then
   info "Enabling maintenance mode."
-  $drush "${drush_opts[@]}" state:set system.maintenance_mode 1 --input-format=integer
+  drush maint:set 1
   pass "Enabled maintenance mode."
   echo
 fi
 
-info "Running database updates."
-$drush -y updatedb --no-cache-clear
-pass "Completed running database updates."
+# Get the current environment and export it for the downstream scripts.
+DREVOPS_DRUPAL_INSTALL_ENVIRONMENT="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+info "Current Drupal environment: ${DREVOPS_DRUPAL_INSTALL_ENVIRONMENT}"
+export DREVOPS_DRUPAL_INSTALL_ENVIRONMENT
 echo
 
-info "Importing Drupal configuration if it exists."
+# Use 'drush deploy' if configuration files are present or use standalone commands otherwise.
 if [ "${site_has_config}" = "1" ]; then
   if [ -f "${DREVOPS_DRUPAL_CONFIG_PATH}/system.site.yml" ]; then
     config_uuid="$(cat "${DREVOPS_DRUPAL_CONFIG_PATH}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
-    $drush "${drush_opts[@]}" config-set system.site uuid "${config_uuid}"
+    drush config-set system.site uuid "${config_uuid}"
     pass "Updated site UUID from the configuration with ${config_uuid}."
   fi
 
-  info "Importing configuration"
-  $drush "${drush_opts[@]}" config:import
-  pass "Completed configuration import."
+  info "Running deployment operations via 'drush deploy'."
+  drush deploy
+  pass "Completed deployment operations via 'drush deploy'."
 
   # Import config_split configuration if the module is installed.
-  if $drush pm:list --status=enabled | grep -q config_split; then
+  # Drush deploy does not import config_split configuration on the first run.
+  # @see https://github.com/drush-ops/drush/issues/2449
+  # @see https://www.drupal.org/project/drupal/issues/3241439
+  if drush pm:list --status=enabled | grep -q config_split; then
     info "Importing config_split configuration."
-    # Drush command does not return correct code on failed split, so not
-    # failing on import for the non-existing environment is currently
-    # the same as not failing on failed import.
-    # @see https://www.drupal.org/project/config_split/issues/3171819
-    $drush "${drush_opts[@]}" config-split:import "${environment:-}" || true
-    pass "Config-split Completed configuration import."
+    drush config:import
+    pass "Completed config_split configuration import."
   fi
 else
-  pass "Configuration files were not found in ${DREVOPS_DRUPAL_CONFIG_PATH} path."
-fi
-echo
-
-info "Rebuilding cache."
-$drush "${drush_opts[@]}" cache:rebuild
-pass "Cache was rebuilt."
-echo
-
-echo -n "[INFO] Current Drupal environment: "
-environment="$($drush php:eval "print \Drupal\core\Site\Settings::get('environment');")" && echo "${environment}"
-echo
-
-# @see https://www.drush.org/latest/deploycommand/
-if $drush list | grep -q deploy; then
-  info "Running updates after configuration import via Drush deploy."
-  $drush -y deploy:hook
-  pass "Completed updates after configuration import via Drush deploy."
+  info "Running database updates."
+  drush updatedb --no-cache-clear
+  pass "Completed running database updates."
   echo
+
+  info "Rebuilding cache."
+  drush cache:rebuild
+  pass "Cache was rebuilt."
+  echo
+
+  info "Running deployment operations via 'drush deploy:hook'."
+  drush deploy:hook
+  pass "Completed deployment operations via 'drush deploy:hook'."
 fi
 
+# Sanitize database.
 if [ "${DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP}" != "1" ]; then
-  # Sanitize database.
   "${DREVOPS_APP}/scripts/drevops/drupal-sanitize-db.sh"
 else
   info "Skipped database sanitization."
@@ -304,14 +306,17 @@ else
 fi
 
 # Run custom drupal site install scripts.
-# The files should be located in ""${DREVOPS_APP}"/scripts/custom/" directory
+# The files should be located in "${DREVOPS_APP}/scripts/custom/" directory
 # and must have "drupal-install-site-" prefix and ".sh" extension.
 if [ -d "${DREVOPS_APP}/scripts/custom" ]; then
   for file in "${DREVOPS_APP}"/scripts/custom/drupal-install-site-*.sh; do
     if [ -f "${file}" ]; then
-      info "Running custom post-install script ${file}."
+      echo
+      info "Running custom post-install script '${file}'."
+      echo
       . "${file}"
-      pass "Completed running of custom post-install script ${file}."
+      echo
+      pass "Completed running of custom post-install script '${file}'."
       echo
     fi
   done
@@ -320,7 +325,7 @@ fi
 
 if [ "${DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE}" = "1" ]; then
   info "Disabling maintenance mode."
-  $drush "${drush_opts[@]}" state:set system.maintenance_mode 0 --input-format=integer
+  drush maint:set 0
   pass "Disabled maintenance mode."
   echo
 fi
@@ -329,4 +334,4 @@ info "One-time login link."
 "${DREVOPS_APP}/scripts/drevops/drupal-login.sh"
 echo
 
-pass "Finished site installation."
+info "Finished site installation."

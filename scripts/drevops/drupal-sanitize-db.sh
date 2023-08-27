@@ -42,7 +42,6 @@ info "Sanitizing database."
 drush="$(if [ -f "${DREVOPS_APP}/vendor/bin/drush" ]; then echo "${DREVOPS_APP}/vendor/bin/drush"; else command -v drush; fi)"
 
 drush_opts=(-y)
-[ -z "${DREVOPS_DEBUG:-}" ] && drush_opts+=(-q)
 
 # Always sanitize password and email using standard methods.
 $drush "${drush_opts[@]}" sql:sanitize --sanitize-password="${DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD}" --sanitize-email="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL}"
@@ -56,7 +55,7 @@ fi
 # Sanitize using additional SQL commands provided in file.
 if [ -f "${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE:-}" ]; then
   $drush "${drush_opts[@]}" sql:query --file="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}"
-  pass "Applied custom sanitization commands."
+  pass "Applied custom sanitization commands from file."
 fi
 
 # User mail and name for use 0 could have been sanitized - resetting it.
