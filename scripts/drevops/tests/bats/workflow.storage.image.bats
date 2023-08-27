@@ -15,7 +15,7 @@
 # shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper.bash
-load _helper_workflow.bash
+load _helper.workflow.bash
 
 # Due to test speed efficiency, all workflow assertions ran within a single test.
 @test "Workflow: download from image, storage in docker image" {

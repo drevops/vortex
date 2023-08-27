@@ -5,7 +5,7 @@
 # shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper.bash
-load _helper_circleci.bash
+load _helper.circleci.bash
 
 @test "CircleCI artifacts are saved" {
   if [ -z "${CI}" ]; then
