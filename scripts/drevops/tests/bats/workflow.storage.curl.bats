@@ -15,7 +15,7 @@
 # shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper.bash
-load _helper_workflow.bash
+load _helper.workflow.bash
 
 @test "Workflow: download from curl, storage in Docker image" {
   # Force storage in DB dump - the purpose of this test.

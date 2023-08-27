@@ -7,13 +7,13 @@ commands:
     cmd: ahoy lint-scripts && ahoy lint-spelling && ahoy lint-dockerfiles
 
   lint-spelling:
-    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/lint-spelling.sh
+    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/lint.spelling.sh
 
   lint-scripts:
-    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/lint-scripts.sh
+    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/lint.scripts.sh
 
   lint-dockerfiles:
-    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/lint-dockerfiles.sh
+    cmd: cd ../../.. && pwd && ./scripts/drevops/tests/lint.dockerfiles.sh
 
   test:
     cmd: ahoy test-common && ahoy test-deployment && ahoy test-workflow
