@@ -35,7 +35,7 @@ load _helper.workflow.bash
   export DOCKER_PASS=
 
   # Mimic local behavior where DB is always overridden.
-  export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
+  export DREVOPS_PROVISION_OVERRIDE_DB=1
 
   substep "Make sure that demo database will not be downloaded."
   rm -f .data/db.sql
@@ -79,7 +79,7 @@ load _helper.workflow.bash
   substep "Assert that the text is from the DB dump after reload."
   assert_webpage_contains "/" "test database dump"
 
-  # Skipped: the drupal-install-site.sh expects DB dump file to exist; this logic
+  # Skipped: the provision.sh expects DB dump file to exist; this logic
   # needs to be refactored. Currently, reloading without DB dump file present
   # will fail the build.
   #

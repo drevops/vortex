@@ -23,7 +23,7 @@ prepare_sut() {
   run_install_quiet
 
   assert_files_present_common "" "" "" "" "" "${webroot}"
-  assert_files_present_no_install_from_profile
+  assert_files_present_no_provision_use_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia "" "" "${webroot}"
   assert_files_present_no_integration_lagoon "" "" "${webroot}"
@@ -122,7 +122,7 @@ assert_ahoy_build() {
 
   # Assert the presence of files from the default configuration.
   assert_files_present_common "" "" "" "" "" "${webroot}"
-  assert_files_present_no_install_from_profile
+  assert_files_present_no_provision_use_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia "" "" "${webroot}"
   assert_files_present_no_integration_lagoon "" "" "${webroot}"

@@ -136,7 +136,7 @@ load _helper.deployment.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "nothing"   # install_from_profile
+    "nothing"   # provision_use_profile
     "nothing"   # database_download_source
     "nothing"   # database_store_type
     "nothing"   # override_existing_db
@@ -215,7 +215,7 @@ load _helper.deployment.bash
   popd >/dev/null
 }
 
-@test "Deployment; Lagoon integration; install_from_profile; redeploy" {
+@test "Deployment; Lagoon integration; provision_use_profile; redeploy" {
   pushd "${BUILD_DIR}" >/dev/null || exit 1
 
   # Source directory for initialised codebase.
@@ -240,7 +240,7 @@ load _helper.deployment.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "y"         # install_from_profile
+    "y"         # provision_use_profile
     "n"         # override_existing_db
     "lagoon"    # deploy_type
     "n"         # preserve_ftp
@@ -323,16 +323,16 @@ load _helper.deployment.bash
   # Get a list of environments.
   assert_contains "-l testlagoon list environments -p testproject --output-json --pretty" "$(mock_get_call_args "${mock_lagoon}" 2)"
   # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
-  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB" "$(mock_get_call_args "${mock_lagoon}" 3)"
-  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 4)"
+  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB" "$(mock_get_call_args "${mock_lagoon}" 3)"
+  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 4)"
   # Override DB during re-deployment.
-  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB" "$(mock_get_call_args "${mock_lagoon}" 5)"
-  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 1 -S global" "$(mock_get_call_args "${mock_lagoon}" 6)"
+  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB" "$(mock_get_call_args "${mock_lagoon}" 5)"
+  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 1 -S global" "$(mock_get_call_args "${mock_lagoon}" 6)"
   # Redeploy.
   assert_contains "-l testlagoon deploy latest -p testproject -e testbranch" "$(mock_get_call_args "${mock_lagoon}" 7)"
   # Remove a DB import override flag for the current deployment.
-  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB" "$(mock_get_call_args "${mock_lagoon}" 8)"
-  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 9)"
+  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB" "$(mock_get_call_args "${mock_lagoon}" 8)"
+  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 9)"
 
   # Assert that no other deployments ran.
   assert_output_not_contains "Started ARTIFACT deployment."

@@ -87,7 +87,7 @@ flowchart LR
 
     subgraph Scripts
         direction TB
-        D["download-db.sh"] -.-> E["drupal-install-site.sh"]
+        D["download-db.sh"] -.-> E["provision.sh"]
     end
 
     A --> Scripts

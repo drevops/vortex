@@ -41,7 +41,7 @@ info "Started Docker data image download."
 export DOCKER_USER="${DOCKER_USER}"
 export DOCKER_PASS="${DOCKER_PASS}"
 export DOCKER_REGISTRY="${DOCKER_REGISTRY}"
-./scripts/drevops/docker-login.sh
+./scripts/drevops/login-docker.sh
 
 docker pull "${DOCKER_REGISTRY}/${DREVOPS_DB_DOCKER_IMAGE}"
 

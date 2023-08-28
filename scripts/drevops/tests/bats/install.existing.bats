@@ -364,8 +364,8 @@ load _helper.bash
   assert_files_present_profile
 }
 
-@test "Install into existing: previously installed project; install_from_profile; discovery; quiet" {
-  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1" >>".env"
+@test "Install into existing: previously installed project; provision_use_profile; discovery; quiet" {
+  echo "DREVOPS_PROVISION_USE_PROFILE=1" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_install_quiet)
@@ -377,7 +377,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_install_from_profile
+  assert_files_present_provision_use_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
@@ -386,7 +386,7 @@ load _helper.bash
 }
 
 @test "Install into existing: previously installed project; override_existing_db; discovery; quiet" {
-  echo "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1" >>".env"
+  echo "DREVOPS_PROVISION_OVERRIDE_DB=1" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_install_quiet)
@@ -398,7 +398,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_install_from_profile
+  assert_files_present_no_provision_use_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
@@ -420,7 +420,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_install_from_profile
+  assert_files_present_no_provision_use_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_integration_lagoon
@@ -447,7 +447,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_install_from_profile
+  assert_files_present_no_provision_use_profile
   assert_files_present_deployment
   assert_files_present_integration_acquia
   assert_files_present_no_integration_lagoon
@@ -474,7 +474,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_install_from_profile
+  assert_files_present_no_provision_use_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_integration_lagoon
@@ -501,7 +501,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_install_from_profile
+  assert_files_present_no_provision_use_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon

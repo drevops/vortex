@@ -13,7 +13,7 @@ tasks:
 - Validation of Docker Compose and Composer configurations
 - Building Docker images and starting containers
 - Installing the development dependencies
-- Executing [the site installation script](../../../../scripts/drevops/drupal-install-site.sh)
+- Executing [the site provisioning script](../../../../scripts/drevops/provision.sh)
 - Verifying that the stack is functioning correctly and the site is
    accessible
 
@@ -48,8 +48,8 @@ flowchart TB
 
   K --> L{"8. Is theme\navailable?"}
   L -- Yes --> M["8.1. Install and compile front-end\ndependencies"]
-  L -- No --> N["9. Install site"]
-  M --> N["9. Install site"]
+  L -- No --> N["9. Provision site"]
+  M --> N["9. Provision site"]
 
   N --> P["10. Check that the site\nis available"]
 
@@ -106,11 +106,11 @@ flowchart TB
    build configuration (e.g. during development, the theme assets may not need
    to be minimised etc.).
 
-### 9. Install site
+### 9. Provision site
 
-   This step will install the site using [the site installation script](../../../../scripts/drevops/drupal-install-site.sh),
+   This step will provision the site using [the site provisioning script](../../../../scripts/drevops/provision.sh),
    which contains all the workflow logic that controls which actions are taken
-   when the site is installed. It runs in all environments.
+   when the site is provision. It runs in all environments.
 
 ### 10. Check that the site is available
 

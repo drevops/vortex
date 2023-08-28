@@ -7,9 +7,9 @@
 # For ordering multiple commands, use a two-digit suffix for clarity and consistency.
 # This approach ensures a clear sequence and avoids potential ordering issues.
 # Examples:
-# - drupal-install-site-10-example-operations.sh
-# - drupal-install-site-20-example-operations.sh
-# - drupal-install-site-30-example-operations.sh
+# - provision-10-example.sh
+# - provision-20-example.sh
+# - provision-30-example.sh
 #
 # shellcheck disable=SC2086
 
@@ -22,7 +22,7 @@ DREVOPS_APP="${DREVOPS_APP:-/app}"
 # ------------------------------------------------------------------------------
 
 # Perform operations based on the current environment.
-if echo "${DREVOPS_DRUPAL_INSTALL_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e local; then
+if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e local; then
   echo "[INFO] Executing example operations in non-production environment."
   drush="${DREVOPS_APP}/vendor/bin/drush"
 
@@ -44,7 +44,7 @@ if echo "${DREVOPS_DRUPAL_INSTALL_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci
   $drush -y deploy:hook
 
   # Conditionally perform an action if this is a "fresh" database.
-  if [ "${DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB:-0}" = "1" ]; then
+  if [ "${DREVOPS_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
     echo "  > Fresh database detected. Performing additional operations."
   else
     echo "  > Existing database detected. Skipping additional operations."

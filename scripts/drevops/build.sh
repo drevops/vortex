@@ -73,14 +73,14 @@ echo
 
 info "Building Docker images, recreating and starting containers."
 note "This will take some time (use DREVOPS_DOCKER_VERBOSE=1 to see the progress)."
-note "Use 'ahoy install-site' to re-install site without rebuilding containers."
+note "Use 'ahoy provision' to re-provision site without rebuilding containers."
 
 if [ -n "${DREVOPS_DB_DOCKER_IMAGE:-}" ]; then
   note "Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}."
   # Always login to the registry to have access to the private images.
-  ./scripts/drevops/docker-login.sh
+  ./scripts/drevops/login-docker.sh
   # Try restoring the image from the archive if it exists.
-  ./scripts/drevops/docker-restore-image.sh "${DREVOPS_DB_DOCKER_IMAGE}" "${DREVOPS_DB_DIR}/db.tar"
+  ./scripts/drevops/restore-docker-image.sh "${DREVOPS_DB_DOCKER_IMAGE}" "${DREVOPS_DB_DIR}/db.tar"
   # If the image does not exist and base image was provided - use the base
   # image which allows "clean slate" for the database.
   if [ ! -f "${DREVOPS_DB_DIR}/db.tar" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE_BASE:-}" ]; then
@@ -159,9 +159,9 @@ if [ -n "${DREVOPS_DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
   echo
 fi
 
-# Install site.
+# Provision site.
 # Pass environment variables to the container from the environment.
-docker compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/drupal-install-site.sh"
+docker compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/provision.sh"
 echo
 
 # Check that the site is available.

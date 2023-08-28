@@ -15,7 +15,7 @@ DREVOPS_LINT_FE_ALLOW_FAILURE="${DREVOPS_LINT_FE_ALLOW_FAILURE:-0}"
 # Drupal theme name.
 DREVOPS_DRUPAL_THEME="${DREVOPS_DRUPAL_THEME:-}"
 
-# Name of the webroot directory with Drupal installation.
+# Name of the webroot directory with Drupal codebase.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
 # ------------------------------------------------------------------------------
