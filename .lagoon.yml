@@ -39,7 +39,7 @@ tasks:
             DREVOPS_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./scripts/drevops/export-db-file.sh
           fi
         service: cli
-    #;< !INSTALL_FROM_PROFILE
+    #;< !PROVISION_USE_PROFILE
 
     - run:
         name: Download database in non-production environments
@@ -52,32 +52,32 @@ tasks:
             ./scripts/drevops/download-db.sh
           fi
         service: cli
-    #;> !INSTALL_FROM_PROFILE
+    #;> !PROVISION_USE_PROFILE
 
     - run:
-        name: Install site
+        name: Provision site
         command: |
-          #;< INSTALL_FROM_PROFILE
-          if [ "$DREVOPS_DRUPAL_INSTALL_FROM_PROFILE" = "1" ]; then
+          #;< PROVISION_USE_PROFILE
+          if [ "$DREVOPS_PROVISION_USE_PROFILE" = "1" ]; then
             # Explicitly set DB overwrite flag to the value from .env file for deployments from the profile.
-            export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB="$(cat .env | grep ^DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB | cut -c45-)"
+            export DREVOPS_PROVISION_OVERRIDE_DB="$(cat .env | grep ^DREVOPS_PROVISION_OVERRIDE_DB | cut -c45-)"
           fi
-          #;> INSTALL_FROM_PROFILE
+          #;> PROVISION_USE_PROFILE
 
           if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."
-            #;< !INSTALL_FROM_PROFILE
+            #;< !PROVISION_USE_PROFILE
             # Never overwrite existing DB when production site already exists.
-            export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0
-            #;> !INSTALL_FROM_PROFILE
+            export DREVOPS_PROVISION_OVERRIDE_DB=0
+            #;> !PROVISION_USE_PROFILE
             # Never unblock admin user in production.
-            export DREVOPS_DRUPAL_LOGIN_UNBLOCK_ADMIN=0
+            export DREVOPS_DRUPAL_UNBLOCK_ADMIN=0
             # Never sanitize DB in production.
-            export DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP=1
+            export DREVOPS_PROVISION_SANITIZE_DB_SKIP=1
           fi
 
           export DREVOPS_DB_DIR=/tmp/data
-          ./scripts/drevops/drupal-install-site.sh
+          ./scripts/drevops/provision.sh
         service: cli
         shell: bash
 

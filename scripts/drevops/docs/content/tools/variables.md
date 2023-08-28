@@ -12,8 +12,8 @@
    `DREVOPS_APP` variable is used in several scripts.
 
 4. DrevOps action-specific script variables MUST be scoped within their own
-   script. For instance, the `DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB`
-   variable in the `drupal-install-site.sh`.
+   script. For instance, the `DREVOPS_PROVISION_OVERRIDE_DB`
+   variable in the `provision.sh`.
 
 5. Drupal-related variables SHOULD start with `DRUPAL_` and SHOULD have a module
    name added as a second prefix. This is to separate DrevOps,  third-party
@@ -66,7 +66,7 @@ The password (token) to log into the Docker registry.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/docker-login.sh`, `scripts/drevops/download-db-docker-registry.sh`
+Defined in: `.env.local.example`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/login-docker.sh`
 
 ### `DOCKER_REGISTRY`
 
@@ -76,7 +76,7 @@ Provide port, if required as `<server_name>:<port>`.
 
 Default value: `docker.io`
 
-Defined in: `.env`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/docker-login.sh`, `scripts/drevops/download-db-docker-registry.sh`
+Defined in: `.env`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/login-docker.sh`
 
 ### `DOCKER_USER`
 
@@ -84,7 +84,7 @@ The username to log into the Docker registry.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/docker-login.sh`, `scripts/drevops/download-db-docker-registry.sh`
+Defined in: `.env.local.example`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/login-docker.sh`
 
 ### `DREVOPS_ACQUIA_APP_NAME`
 
@@ -116,7 +116,7 @@ Path to the root of the project inside the container.
 
 Default value: `/app`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/drupal-install-site.sh`, `scripts/drevops/drupal-login.sh`, `scripts/drevops/drupal-logout.sh`, `scripts/drevops/drupal-sanitize-db.sh`, `scripts/drevops/export-db-file.sh`, `scripts/drevops/info.sh`, `scripts/drevops/test-functional.sh`, `scripts/drevops/test-kernel.sh`, `scripts/drevops/test-unit.sh`
+Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/export-db-file.sh`, `scripts/drevops/info.sh`, `scripts/drevops/login.sh`, `scripts/drevops/logout.sh`, `scripts/drevops/provision.sh`, `scripts/drevops/sanitize-db.sh`, `scripts/drevops/test-functional.sh`, `scripts/drevops/test-kernel.sh`, `scripts/drevops/test-unit.sh`
 
 ### `DREVOPS_CLAMAV_ENABLED`
 
@@ -140,7 +140,7 @@ Database dump data directory (file or Docker image archive).
 
 Default value: `./.data`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/download-db.sh`, `scripts/drevops/drupal-install-site.sh`
+Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/download-db.sh`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DB_DOCKER_IMAGE`
 
@@ -150,7 +150,7 @@ See https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/drupal-install-site.sh`, `scripts/drevops/export-db.sh`, `scripts/drevops/info.sh`
+Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/export-db.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DB_DOCKER_IMAGE_BASE`
 
@@ -397,7 +397,7 @@ Database dump file name (Docker image archive will use '.tar' extension).
 
 Default value: `db.sql`
 
-Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/drupal-install-site.sh`
+Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DEBUG`
 
@@ -666,7 +666,7 @@ Docker image archive file name.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/drevops/docker-restore-image.sh`
+Defined in: `scripts/drevops/restore-docker-image.sh`
 
 ### `DREVOPS_DOCKER_VERBOSE`
 
@@ -748,7 +748,7 @@ Path to configuration directory.
 
 Default value: `DREVOPS_APP/config/default`
 
-Defined in: `scripts/drevops/drupal-install-site.sh`
+Defined in: `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE`
 
@@ -758,7 +758,7 @@ To skip custom sanitization, remove the #DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_F
 
 Default value: `DREVOPS_APP/scripts/sanitize.sql`
 
-Defined in: `scripts/drevops/drupal-sanitize-db.sh`
+Defined in: `scripts/drevops/sanitize-db.sh`
 
 ### `DREVOPS_DRUPAL_DB_SANITIZE_EMAIL`
 
@@ -766,7 +766,7 @@ Sanitization email pattern. Sanitization is enabled by default in all<br />non-p
 
 Default value: `user_%uid@your-site-url.example`
 
-Defined in: `.env`, `scripts/drevops/drupal-sanitize-db.sh`
+Defined in: `.env`, `scripts/drevops/sanitize-db.sh`
 
 ### `DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD`
 
@@ -774,7 +774,7 @@ Password replacement used for sanitised database.
 
 Default value: `<RANDOM STRING>`
 
-Defined in: `.env`, `scripts/drevops/drupal-sanitize-db.sh`
+Defined in: `.env`, `scripts/drevops/sanitize-db.sh`
 
 ### `DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_WITH_EMAIL`
 
@@ -782,71 +782,7 @@ Replace username with mail.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/drevops/drupal-sanitize-db.sh`
-
-### `DREVOPS_DRUPAL_INSTALL_DB_SANITIZE_SKIP`
-
-Skip database sanitization.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/drupal-install-site.sh`
-
-### `DREVOPS_DRUPAL_INSTALL_ENVIRONMENT`
-
-Current environment name discovered during site installation.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/drupal-install-site.sh`
-
-### `DREVOPS_DRUPAL_INSTALL_FROM_PROFILE`
-
-Set to `1` to install a site from profile instead of database file dump.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`, `scripts/drevops/drupal-install-site.sh`
-
-### `DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP`
-
-Flag to skip running post DB import commands.<br />Useful to only import the database from file (or install from profile) and not<br />perform any additional operations. For example, when need to capture database<br />state before any updates ran (for example, DB caching in CI).
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/drupal-install-site.sh`
-
-### `DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB`
-
-Flag to always overwrite existing database. Usually set to `0` in deployed<br />environments and can be temporary set to `1` for a specific deployment.<br />Set this to `1` in .env.local to override when developing localy.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`, `.env.local.example`, `scripts/drevops/drupal-install-site.sh`
-
-### `DREVOPS_DRUPAL_INSTALL_SKIP`
-
-Flag to skip site installation.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/drupal-install-site.sh`
-
-### `DREVOPS_DRUPAL_INSTALL_USE_MAINTENANCE_MODE`
-
-Put the site into a maintenance mode during site installation phase.
-
-Default value: `1`
-
-Defined in: `.env`, `scripts/drevops/drupal-install-site.sh`
-
-### `DREVOPS_DRUPAL_LOGIN_UNBLOCK_ADMIN`
-
-Unblock admin account when logging in.
-
-Default value: `1`
-
-Defined in: `.env`, `scripts/drevops/drupal-login.sh`, `scripts/drevops/drupal-logout.sh`
+Defined in: `scripts/drevops/sanitize-db.sh`
 
 ### `DREVOPS_DRUPAL_PRIVATE_FILES`
 
@@ -854,7 +790,7 @@ Path to private files.
 
 Default value: `DREVOPS_APP/${DREVOPS_WEBROOT}/sites/default/files/private`
 
-Defined in: `scripts/drevops/drupal-install-site.sh`
+Defined in: `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DRUPAL_PROFILE`
 
@@ -862,7 +798,7 @@ Drupal profile name (used only when installing from profile).
 
 Default value: `your_site_profile`
 
-Defined in: `.env`, `scripts/drevops/drupal-install-site.sh`
+Defined in: `.env`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DRUPAL_SHOW_LOGIN_LINK`
 
@@ -878,7 +814,7 @@ Drupal site email (used only when installing from profile).
 
 Default value: `webmaster@your-site-url.example`
 
-Defined in: `.env`, `scripts/drevops/drupal-install-site.sh`
+Defined in: `.env`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DRUPAL_SITE_NAME`
 
@@ -886,7 +822,7 @@ Drupal site name (used only when installing from profile).
 
 Default value: `YOURSITE`
 
-Defined in: `.env`, `scripts/drevops/drupal-install-site.sh`
+Defined in: `.env`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DRUPAL_THEME`
 
@@ -895,6 +831,14 @@ Drupal theme name.
 Default value: `your_site_theme`
 
 Defined in: `.env`, `scripts/drevops/lint-fe.sh`, `scripts/drevops/test-unit.sh`
+
+### `DREVOPS_DRUPAL_UNBLOCK_ADMIN`
+
+Unblock admin account when logging in.
+
+Default value: `1`
+
+Defined in: `.env`, `scripts/drevops/login.sh`, `scripts/drevops/logout.sh`
 
 ### `DREVOPS_DRUPAL_VERSION`
 
@@ -1422,6 +1366,78 @@ Default value: `your_site`
 
 Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/info.sh`
 
+### `DREVOPS_PROVISION_ACQUIA_SKIP`
+
+Skip Drupal site provisioning in Acquia environment.
+
+Default value: `UNDEFINED`
+
+Defined in: `ACQUIA ENVIRONMENT`
+
+### `DREVOPS_PROVISION_ENVIRONMENT`
+
+Current environment name discovered during site provisioning.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/provision.sh`
+
+### `DREVOPS_PROVISION_OVERRIDE_DB`
+
+Flag to always overwrite existing database. Usually set to `0` in deployed<br />environments and can be temporary set to `1` for a specific deployment.<br />Set this to `1` in .env.local to override when developing localy.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`, `.env.local.example`, `scripts/drevops/provision.sh`
+
+### `DREVOPS_PROVISION_POST_OPERATIONS_SKIP`
+
+Flag to skip running of operations after site provision is complete.<br />Useful to only import the database from file (or install from profile) and not<br />perform any additional operations. For example, when need to capture database<br />state before any updates ran (for example, DB caching in CI).
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/provision.sh`
+
+### `DREVOPS_PROVISION_SANITIZE_DB_SKIP`
+
+Skip database sanitization.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/provision.sh`
+
+### `DREVOPS_PROVISION_SKIP`
+
+Flag to skip site provisioning.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/provision.sh`
+
+### `DREVOPS_PROVISION_USE_MAINTENANCE_MODE`
+
+Put the site into a maintenance mode during site provisioning phase.
+
+Default value: `1`
+
+Defined in: `.env`, `scripts/drevops/provision.sh`
+
+### `DREVOPS_PROVISION_USE_PROFILE`
+
+Set to `1` to install a site from profile instead of database file dump.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`, `scripts/drevops/provision.sh`
+
+### `DREVOPS_PURGE_CACHE_ACQUIA_SKIP`
+
+Skip purging of edge cache in Acquia environment.
+
+Default value: `UNDEFINED`
+
+Defined in: `ACQUIA ENVIRONMENT`
+
 ### `DREVOPS_REDIS_ENABLED`
 
 Enable Redis integration.<br />See settings.redis.php for details.
@@ -1517,14 +1533,6 @@ Number of status retrieval retries. If this limit reached and task has not<br />
 Default value: `300`
 
 Defined in: `scripts/drevops/task-copy-files-acquia.sh`
-
-### `DREVOPS_TASK_DRUPAL_SITE_INSTALL_ACQUIA_SKIP`
-
-Skip Drupal site installation in Acquia environment.
-
-Default value: `UNDEFINED`
-
-Defined in: `ACQUIA ENVIRONMENT`
 
 ### `DREVOPS_TASK_LAGOON_BIN_PATH`
 
@@ -1629,14 +1637,6 @@ An environment name to purge cache for.
 Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/task-purge-cache-acquia.sh`
-
-### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_SKIP`
-
-Skip purging of edge cache in Acquia environment.
-
-Default value: `UNDEFINED`
-
-Defined in: `ACQUIA ENVIRONMENT`
 
 ### `DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL`
 
@@ -1850,11 +1850,11 @@ Defined in: `.env`
 
 ### `DREVOPS_WEBROOT`
 
-Name of the webroot directory with Drupal installation.
+Name of the webroot directory with Drupal codebase.
 
 Default value: `web`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/clean.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/drupal-install-site.sh`, `scripts/drevops/info.sh`, `scripts/drevops/lint-fe.sh`, `scripts/drevops/test-functional.sh`, `scripts/drevops/test-kernel.sh`, `scripts/drevops/test-unit.sh`
+Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/clean.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/info.sh`, `scripts/drevops/lint-fe.sh`, `scripts/drevops/provision.sh`, `scripts/drevops/test-functional.sh`, `scripts/drevops/test-kernel.sh`, `scripts/drevops/test-unit.sh`
 
 ### `GITHUB_TOKEN`
 

@@ -104,7 +104,7 @@ load _helper.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "nothing"   # install_from_profile
+    "nothing"   # provision_use_profile
     "nothing"   # download_db_source
     "nothing"   # database_store_type
     "nothing"   # override_existing_db
@@ -136,7 +136,7 @@ load _helper.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "nothing"   # install_from_profile
+    "nothing"   # provision_use_profile
     "nothing"   # download_db_type
     "nothing"   # download_db_source
     "nothing"   # database_store_type
@@ -178,7 +178,7 @@ load _helper.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "nothing"   # install_from_profile
+    "nothing"   # provision_use_profile
     "nothing"   # download_db_type
     "nothing"   # download_db_source
     "nothing"   # database_store_type

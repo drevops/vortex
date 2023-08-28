@@ -11,7 +11,7 @@ set -eu
 # Path to the root of the project inside the container.
 DREVOPS_APP="${DREVOPS_APP:-/app}"
 
-# Name of the webroot directory with Drupal installation.
+# Name of the webroot directory with Drupal codebase.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
 # Show Drupal one-time login link.
@@ -51,7 +51,7 @@ note "Mailhog URL                 : http://mailhog.docker.amazee.io/"
 note "Xdebug                      : $(php -v | grep -q Xdebug && echo "Enabled ('ahoy up cli' to disable)" || echo "Disabled ('ahoy debug' to enable)")"
 if [ "${DREVOPS_DRUPAL_SHOW_LOGIN_LINK}" = "1" ] || [ -n "${1:-}" ]; then
   echo -n "       Site login link             : "
-  ./scripts/drevops/drupal-login.sh
+  ./scripts/drevops/login.sh
 else
   echo
   note "Use 'ahoy login' to generate Drupal login link."

@@ -195,7 +195,7 @@ assert_files_present() {
   assert_files_present_no_profile "${dir}" "${suffix}"
 
   # Assert Drupal is not installed from the profile by default.
-  assert_files_present_no_install_from_profile "${dir}" "${suffix}"
+  assert_files_present_no_provision_use_profile "${dir}" "${suffix}"
 
   # Assert Drupal is not set to override an existing DB by default.
   assert_files_present_no_override_existing_db "${dir}" "${suffix}"
@@ -362,8 +362,8 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/deploy-docker.sh"
   assert_file_exists "scripts/drevops/deploy-lagoon.sh"
   assert_file_exists "scripts/drevops/deploy-webhook.sh"
-  assert_file_exists "scripts/drevops/docker-login.sh"
-  assert_file_exists "scripts/drevops/docker-restore-image.sh"
+  assert_file_exists "scripts/drevops/login-docker.sh"
+  assert_file_exists "scripts/drevops/restore-docker-image.sh"
   assert_file_exists "scripts/drevops/doctor.sh"
   assert_file_exists "scripts/drevops/download-db.sh"
   assert_file_exists "scripts/drevops/download-db-acquia.sh"
@@ -373,9 +373,9 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/download-db-lagoon.sh"
   assert_file_exists "scripts/drevops/export-db-file.sh"
   assert_file_exists "scripts/drevops/export-db-docker.sh"
-  assert_file_exists "scripts/drevops/drupal-install-site.sh"
-  assert_file_exists "scripts/drevops/drupal-login.sh"
-  assert_file_exists "scripts/drevops/drupal-sanitize-db.sh"
+  assert_file_exists "scripts/drevops/provision.sh"
+  assert_file_exists "scripts/drevops/login.sh"
+  assert_file_exists "scripts/drevops/sanitize-db.sh"
   assert_file_exists "scripts/drevops/github-labels.sh"
   assert_file_exists "scripts/drevops/info.sh"
   assert_file_exists "scripts/drevops/lint.sh"
@@ -580,13 +580,13 @@ assert_files_present_no_profile() {
   popd >/dev/null || exit 1
 }
 
-assert_files_present_install_from_profile() {
+assert_files_present_provision_use_profile() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1"
+  assert_file_contains ".env" "DREVOPS_PROVISION_USE_PROFILE=1"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH"
@@ -624,13 +624,13 @@ assert_files_present_install_from_profile() {
   popd >/dev/null || exit 1
 }
 
-assert_files_present_no_install_from_profile() {
+assert_files_present_no_provision_use_profile() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=0"
+  assert_file_contains ".env" "DREVOPS_PROVISION_USE_PROFILE=0"
 
   assert_file_exists ".ahoy.yml"
   assert_file_contains ".ahoy.yml" "download-db:"
@@ -662,7 +662,7 @@ assert_files_present_override_existing_db() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1"
+  assert_file_contains ".env" "DREVOPS_PROVISION_OVERRIDE_DB=1"
 
   popd >/dev/null || exit 1
 }
@@ -673,7 +673,7 @@ assert_files_present_no_override_existing_db() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
+  assert_file_contains ".env" "DREVOPS_PROVISION_OVERRIDE_DB=0"
 
   popd >/dev/null || exit 1
 }
@@ -727,17 +727,17 @@ assert_files_present_integration_acquia() {
   assert_dir_exists "hooks/library"
   assert_file_mode "hooks/library/copy-db.sh" "755"
   assert_file_mode "hooks/library/copy-files.sh" "755"
-  assert_file_mode "hooks/library/install-site.sh" "755"
+  assert_file_mode "hooks/library/provision.sh" "755"
   assert_file_mode "hooks/library/notify-deployment.sh" "755"
   assert_file_mode "hooks/library/purge-cache.sh" "755"
 
   assert_dir_exists "hooks/common"
   assert_dir_exists "hooks/common/post-code-update"
-  assert_symlink_exists "hooks/common/post-code-update/1.install-site.sh"
+  assert_symlink_exists "hooks/common/post-code-update/1.provision.sh"
   assert_symlink_exists "hooks/common/post-code-update/2.purge-cache.sh"
   assert_symlink_exists "hooks/common/post-code-update/3.notify-deployment.sh"
   assert_symlink_exists "hooks/common/post-code-deploy"
-  assert_symlink_exists "hooks/common/post-db-copy/1.install-site.sh"
+  assert_symlink_exists "hooks/common/post-db-copy/1.provision.sh"
   assert_symlink_exists "hooks/common/post-db-copy/2.purge-cache.sh"
   assert_symlink_exists "hooks/common/post-db-copy/3.notify-deployment.sh"
 
@@ -1007,7 +1007,7 @@ run_install_quiet() {
 #   "nothing" # theme
 #   "nothing" # URL
 #   "nothing" # webroot
-#   "nothing" # install_from_profile
+#   "nothing" # provision_use_profile
 #   "nothing" # download_db_source
 #   "nothing" # database_store_type
 #   "nothing" # deploy_type
@@ -1282,7 +1282,7 @@ fix_host_dependencies() {
   # Replicate behaviour of scripts/drevops/installer/install.php script to extract destination directory
   # passed as an argument.
   # shellcheck disable=SC2235
-  ([ "${1}" = "--quiet" ] || [ "${1}" = "-q" ]) && shift
+  ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift
   # Destination directory, that can be overridden with the first argument to this script.
   DREVOPS_INSTALL_DST_DIR="${DREVOPS_INSTALL_DST_DIR:-$(pwd)}"
   DREVOPS_INSTALL_DST_DIR=${1:-${DREVOPS_INSTALL_DST_DIR}}

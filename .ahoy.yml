@@ -115,13 +115,13 @@ commands:
   login:
     usage: Login to a website.
     # Unblock user 1 and generate a one time login link.
-    cmd: ahoy cli ./scripts/drevops/drupal-login.sh
+    cmd: ahoy cli ./scripts/drevops/login.sh
 
-  #;< !INSTALL_FROM_PROFILE
+  #;< !PROVISION_USE_PROFILE
   download-db:
     usage: Download database.
     cmd: ./scripts/drevops/download-db.sh
-  #;> !INSTALL_FROM_PROFILE
+  #;> !PROVISION_USE_PROFILE
 
   reload-db:
     usage: Reload the database container using local database image.
@@ -131,13 +131,13 @@ commands:
         && ahoy up -- --build mariadb \
         && ahoy up wait_dependencies \
         && sleep 15 \
-        && ahoy install-site \
+        && ahoy provision \
         && ahoy info \
         && ahoy login
 
-  install-site:
-    usage: Install a site.
-    cmd: ahoy cli ./scripts/drevops/drupal-install-site.sh
+  provision:
+    usage: Provision a site from the database dump or profile.
+    cmd: ahoy cli ./scripts/drevops/provision.sh
 
   export-db:
     usage: Export database dump or database image (if DREVOPS_DB_DOCKER_IMAGE variable is set).

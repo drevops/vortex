@@ -95,7 +95,7 @@ load _helper.workflow.bash
   # Assert that the database was not downloaded because DREVOPS_INSTALL_DEMO_SKIP was set.
   assert_file_not_exists .data/db.sql
 
-  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1" >>.env
+  echo "DREVOPS_PROVISION_USE_PROFILE=1" >>.env
 
   assert_ahoy_build
   assert_gitignore

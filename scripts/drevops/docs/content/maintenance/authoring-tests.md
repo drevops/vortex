@@ -45,7 +45,7 @@ Some tests use test fixtures such as Drupal database snapshots.
 1. Run fresh build of DrevOps locally:
 ```bash
 echo "DREVOPS_DRUPAL_PROFILE=standard">>.env.local
-echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1">>.env.local
+echo "DREVOPS_PROVISION_USE_PROFILE=1">>.env.local
 rm .data/db.sql
 AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
