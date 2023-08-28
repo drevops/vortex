@@ -23,6 +23,6 @@ DREVOPS_INSTALLER_URL="${DREVOPS_INSTALLER_URL:-https://install.drevops.com}"
 export DREVOPS_INSTALLER_URL
 export DREVOPS_INSTALL_COMMIT
 
-curl -L "${DREVOPS_INSTALLER_URL}"?"$(date +%s)" >/tmp/install.php
-php /tmp/install.php --quiet
-rm /tmp/install.php >/dev/null
+curl -L "${DREVOPS_INSTALLER_URL}"?"$(date +%s)" >/tmp/install
+php /tmp/install --quiet
+rm /tmp/install >/dev/null

@@ -29,7 +29,6 @@ done < <(
     -not -path "*vendor*" -not -path "*node_modules*" \
     -print0
 )
-targets+=("${CUR_DIR}/install")
 
 echo "==> Linting DrevOps scripts and tests in ${CUR_DIR}."
 for file in "${targets[@]}"; do

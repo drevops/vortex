@@ -636,8 +636,10 @@ jobs:
       - run:
           name: Prepare installer.
           command: |
+            composer -d scripts/drevops/installer install
+            composer -d scripts/drevops/installer build
             mkdir -p /tmp/installer/docs
-            cp scripts/drevops/installer/install.php /tmp/installer/docs/index.html
+            cp scripts/drevops/installer/.build/install /tmp/installer/docs/index.html
             ( echo -n "// Published date: " && echo "$(date)" ) >> /tmp/installer/docs/index.html
             echo "install.drevops.com" > /tmp/installer/docs/CNAME
       - run:

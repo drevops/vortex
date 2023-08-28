@@ -24,7 +24,7 @@ load _helper.bash
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
 }
-#
+
 @test "Install into empty directory: DREVOPS_INSTALL_DST_DIR from an argument" {
   run_install_quiet "${DST_PROJECT_DIR}"
 

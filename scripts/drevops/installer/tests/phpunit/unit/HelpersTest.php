@@ -2,6 +2,8 @@
 
 namespace Drevops\Installer\Tests\Unit;
 
+use DrevOps\Installer\Command\InstallCommand;
+
 /**
  * Class InstallerHelpersTest.
  *
@@ -16,7 +18,7 @@ class HelpersTest extends UnitTestBase {
    * @dataProvider dataProviderToHumanName
    */
   public function testToHumanName($value, $expected) {
-    $actual = to_human_name($value);
+    $actual = $this->callProtectedMethod(InstallCommand::class, 'toHumanName', [$value]);
     $this->assertEquals($expected, $actual);
   }
 
@@ -42,7 +44,7 @@ class HelpersTest extends UnitTestBase {
    * @dataProvider dataProviderToMachineName
    */
   public function testToMachineName($value, $preserve, $expected) {
-    $actual = to_machine_name($value, $preserve);
+    $actual = $this->callProtectedMethod(InstallCommand::class, 'toMachineName', [$value, $preserve]);
     $this->assertEquals($expected, $actual);
   }
 
@@ -82,7 +84,7 @@ class HelpersTest extends UnitTestBase {
    * @dataProvider dataProviderToCamelCase
    */
   public function testToCamelCase($value, $capitalise_first, $expected) {
-    $actual = to_camel_case($value, $capitalise_first);
+    $actual = $this->callProtectedMethod(InstallCommand::class, 'toCamelCase', [$value, $capitalise_first]);
     $this->assertEquals($expected, $actual);
   }
 

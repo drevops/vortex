@@ -418,7 +418,7 @@ assert_files_present_drevops() {
   assert_file_exists "docs/TESTING.md"
 
   # Assert that DrevOps files removed.
-  assert_file_not_exists "scripts/drevops/installer/install.php"
+  assert_file_not_exists "scripts/drevops/installer/install"
   assert_file_not_exists "LICENSE"
   assert_dir_not_exists "scripts/drevops/docs"
   assert_dir_not_exists "scripts/drevops/tests"
@@ -974,7 +974,8 @@ run_install_quiet() {
   opt_quiet="--quiet"
   [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_quiet=""
 
-  run php "${CUR_DIR}/scripts/drevops/installer/install.php" "${opt_quiet}" "$@"
+  build_installer "${CUR_DIR}"
+  run php "${CUR_DIR}/scripts/drevops/installer/.build/install" "${opt_quiet}" "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
@@ -1052,7 +1053,7 @@ install_dependencies_stub() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  mktouch "${webroot}/core/scripts/drevops/installer/install.php"
+  mktouch "${webroot}/core/scripts/drevops/installer/install"
   mktouch "${webroot}/modules/contrib/somemodule/somemodule.info.yml"
   mktouch "${webroot}/themes/contrib/sometheme/sometheme.info.yml"
   mktouch "${webroot}/profiles/contrib/someprofile/someprofile.info.yml"
@@ -1277,7 +1278,7 @@ sync_to_container() {
 
 # Special treatment for cases where volumes are not mounted from the host.
 fix_host_dependencies() {
-  # Replicate behaviour of scripts/drevops/installer/install.php script to extract destination directory
+  # Replicate behaviour of scripts/drevops/installer/install script to extract destination directory
   # passed as an argument.
   # shellcheck disable=SC2235
   ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift
@@ -1325,4 +1326,12 @@ create_global_command_wrapper() {
 $global_bin "\$@"
 EOL
   chmod +x "$path_with_bin"
+}
+
+build_installer() {
+  local curdir="${1}"
+  rm -Rf "${curdir}/scripts/drevops/installer/.build/install" >/dev/null || true
+  composer -d "${curdir}/scripts/drevops/installer" install
+  composer -d "${curdir}/scripts/drevops/installer" build
+  assert_file_exists "${curdir}/scripts/drevops/installer/.build/install"
 }
