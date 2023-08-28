@@ -6,7 +6,7 @@
 
 load _helper.bash
 
-assert_drupal_install_site_info() {
+assert_provision_info() {
   local webroot="${8:-web}"
 
   format_yes_no() {
@@ -163,7 +163,7 @@ assert_drupal_install_site_info() {
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 0 0 0 1 0 0 0
+  assert_provision_info 0 0 0 1 0 0 0
 
   popd >/dev/null || exit 1
 }
@@ -289,7 +289,7 @@ assert_drupal_install_site_info() {
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 0 0 0 1 0 0 1
+  assert_provision_info 0 0 0 1 0 0 1
 
   popd >/dev/null || exit 1
 }
@@ -424,7 +424,7 @@ assert_drupal_install_site_info() {
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 0 1 0 1 0 0 1
+  assert_provision_info 0 1 0 1 0 0 1
 
   popd >/dev/null || exit 1
 }
@@ -563,7 +563,7 @@ assert_drupal_install_site_info() {
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 0 0 0 1 0 1 0
+  assert_provision_info 0 0 0 1 0 1 0
 
   popd >/dev/null || exit 1
 }
@@ -698,7 +698,7 @@ assert_drupal_install_site_info() {
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 1 0 0 1 0 0 0
+  assert_provision_info 1 0 0 1 0 0 0
 
   popd >/dev/null || exit 1
 }
@@ -827,7 +827,7 @@ assert_drupal_install_site_info() {
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 1 0 0 1 0 0 1
+  assert_provision_info 1 0 0 1 0 0 1
 
   popd >/dev/null || exit 1
 }
@@ -963,7 +963,7 @@ assert_drupal_install_site_info() {
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 1 1 0 1 0 0 1
+  assert_provision_info 1 1 0 1 0 0 1
 
   popd >/dev/null || exit 1
 }
