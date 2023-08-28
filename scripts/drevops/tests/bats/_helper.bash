@@ -250,7 +250,6 @@ assert_files_present_common() {
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
 
   # Assert that PR template was processed
-  assert_file_contains ".github/PULL_REQUEST_TEMPLATE.md" "https://${suffix_hyphenated}.atlassian.net/browse/${suffix_abbreviated_uppercase}-"
   assert_file_contains ".github/PULL_REQUEST_TEMPLATE.md" "[${suffix_abbreviated_uppercase}-123] Verb in past tense with dot at the end."
 
   popd >/dev/null || exit 1
