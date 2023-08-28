@@ -22,7 +22,7 @@ aliases:
   # Per-project variables.
   #-----------------------------------------------------------------------------
 
-  #;< !INSTALL_FROM_PROFILE
+  #;< !PROVISION_USE_PROFILE
   # SSH key fingerprint to download the database.
   #: Generate a separate SSH key for a user who has permissions to download the
   #: database from the production environment and it under "SSH Permissions" in
@@ -34,7 +34,7 @@ aliases:
   #: This is a fingerprint of the key to test DrevOps project itself as an example.
   #: Replace this key fingerprint with your own and remove this comment.
   - &db_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
-  #;> !INSTALL_FROM_PROFILE
+  #;> !PROVISION_USE_PROFILE
 
   # SSH key fingerprint to deploy code.
   #: Generate a separate SSH key for a user who has permissions to perform a
@@ -85,7 +85,7 @@ aliases:
   # Change to 'true' (without single quotes) to enable.
   - &docker_layer_caching false
 
-  #;< !INSTALL_FROM_PROFILE
+  #;< !PROVISION_USE_PROFILE
   # The granularity of the database cache age: the cache will be refreshed if
   # the current date is different from the cache timestamp.
   # Refer to `date` command for possible values.
@@ -109,7 +109,7 @@ aliases:
 
   # The branch used for nightly builds.
   - &nightly_db_branch develop
-  #;> !INSTALL_FROM_PROFILE
+  #;> !PROVISION_USE_PROFILE
 
   #:-----------------------------------------------------------------------------
 
@@ -118,9 +118,9 @@ aliases:
     #: Location of the checked-out files within the "runner" container.
     working_directory: &working_directory /root/project
     environment:
-      #;< !INSTALL_FROM_PROFILE
+      #;< !PROVISION_USE_PROFILE
       DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
-      #;> !INSTALL_FROM_PROFILE
+      #;> !PROVISION_USE_PROFILE
       DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       #: Using "runner" container where each job will be executed.
@@ -138,14 +138,14 @@ aliases:
           TERM: xterm-256color
           # Check only minimal stack requirements.
           DREVOPS_DOCTOR_CHECK_MINIMAL: 1
-          #;< !INSTALL_FROM_PROFILE
+          #;< !PROVISION_USE_PROFILE
           # How often to refresh the cache of the DB dump. Refer to `date` command.
           DREVOPS_CI_DB_CACHE_TIMESTAMP: *drevops_ci_db_cache_timestamp
           # Use cache fallback if the above timestamp does not match.
           DREVOPS_CI_DB_CACHE_FALLBACK: *drevops_ci_db_cache_fallback
           # Which branch to use as a source of DB caches.
           DREVOPS_CI_DB_CACHE_BRANCH: *drevops_ci_db_cache_branch
-          #;> !INSTALL_FROM_PROFILE
+          #;> !PROVISION_USE_PROFILE
           # Directory to store code exported between jobs.
           DREVOPS_EXPORT_CODE_DIR: &drevops_build_export_dir /workspace/code
           # Directory to store test results.
@@ -183,7 +183,7 @@ aliases:
 #: JOBS
 #:###############################################################################
 jobs:
-  #;< !INSTALL_FROM_PROFILE
+  #;< !PROVISION_USE_PROFILE
   #: Database handling is a first step of the build.
   #:
   #: $DREVOPS_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump
@@ -248,7 +248,7 @@ jobs:
           name: Export DB after download
           command: |
             if [ -f /tmp/download-db ]; then
-              DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP=1 ./scripts/drevops/build.sh
+              DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/drevops/build.sh
               grep -q ^DREVOPS_DB_DOCKER_IMAGE .env && rm .data/db.sql || true
               ./scripts/drevops/export-db.sh db.sql
             else
@@ -276,7 +276,7 @@ jobs:
       DREVOPS_DB_DOCKER_IMAGE_BASE: drevops/mariadb-drupal-data:23.4.2
       # Deploy docker image (if DREVOPS_DB_EXPORT_DOCKER_IMAGE storage is used).
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
-  #;> !INSTALL_FROM_PROFILE
+  #;> !PROVISION_USE_PROFILE
 
   #: Build and test is a second step of the build. The testing is performed
   #: within the same job to save time on provisioning during the job.
@@ -290,7 +290,7 @@ jobs:
       - *step_process_codebase
       - *step_setup_remote_docker
       - *step_setup_docker_network
-      #;< !INSTALL_FROM_PROFILE
+      #;< !PROVISION_USE_PROFILE
       - run:
           name: Set cache keys for database caching
           command: |
@@ -303,7 +303,7 @@ jobs:
             # @see https://circleci.com/docs/2.0/caching/#restoring-cache
             - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
-      #;> !INSTALL_FROM_PROFILE
+      #;> !PROVISION_USE_PROFILE
       - run:
           name: Build site
           command: ./scripts/drevops/build.sh
@@ -677,17 +677,17 @@ workflows:
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
     jobs:
-      #;< !INSTALL_FROM_PROFILE
+      #;< !PROVISION_USE_PROFILE
       - database:
           filters:
             tags:
               only: /.*/
-      #;> !INSTALL_FROM_PROFILE
+      #;> !PROVISION_USE_PROFILE
       - build:
-          #;< !INSTALL_FROM_PROFILE
+          #;< !PROVISION_USE_PROFILE
           requires:
             - database
-          #;> !INSTALL_FROM_PROFILE
+          #;> !PROVISION_USE_PROFILE
           filters:
             tags:
               only: /.*/
@@ -816,7 +816,7 @@ workflows:
   #=============================================================================
   #;> DREVOPS_DEV
 
-  #;< !INSTALL_FROM_PROFILE
+  #;< !PROVISION_USE_PROFILE
   # Nightly database workflow runs overnight to capture fresh database and cache it.
   nightly_db:
     triggers:
@@ -828,7 +828,7 @@ workflows:
                 - *nightly_db_branch
     jobs:
       - database_nightly
-  #;> !INSTALL_FROM_PROFILE
+  #;> !PROVISION_USE_PROFILE
 
   #;< RENOVATEBOT
   # Self-hosted Renovatebot workflow.

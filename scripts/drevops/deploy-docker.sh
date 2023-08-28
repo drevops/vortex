@@ -60,7 +60,7 @@ done
 export DOCKER_USER="${DOCKER_USER}"
 export DOCKER_PASS="${DOCKER_PASS}"
 export DOCKER_REGISTRY="${DOCKER_REGISTRY}"
-./scripts/drevops/docker-login.sh
+./scripts/drevops/login-docker.sh
 
 for key in "${!services[@]}"; do
   service="${services[$key]}"

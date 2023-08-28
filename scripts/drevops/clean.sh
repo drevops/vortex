@@ -10,7 +10,7 @@ t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-# Name of the webroot directory with Drupal installation.
+# Name of the webroot directory with Drupal codebase.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
 # ------------------------------------------------------------------------------

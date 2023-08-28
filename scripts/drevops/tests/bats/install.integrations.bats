@@ -18,7 +18,7 @@ load _helper.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "nothing"   # install_from_profile
+    "nothing"   # provision_use_profile
     "nothing"   # database_download_source
     "nothing"   # database_store_type
     "nothing"   # override_existing_db
@@ -37,7 +37,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_install_from_profile
+  assert_files_present_no_provision_use_profile
   assert_files_present_no_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
@@ -56,7 +56,7 @@ load _helper.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "nothing"   # install_from_profile
+    "nothing"   # provision_use_profile
     "curl"      # database_download_source
     "file"      # database_store_type
     "nothing"   # override_existing_db
@@ -75,7 +75,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_install_from_profile
+  assert_files_present_no_provision_use_profile
   assert_files_present_deployment
   assert_files_present_integration_acquia
   assert_files_present_integration_lagoon
@@ -83,7 +83,7 @@ load _helper.bash
   assert_files_present_integration_renovatebot
 
   assert_file_contains ".lagoon.yml" "name: Download database"
-  assert_file_contains ".lagoon.yml" "export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
+  assert_file_contains ".lagoon.yml" "export DREVOPS_PROVISION_OVERRIDE_DB=0"
   assert_file_not_contains ".lagoon.yml" "# Explicitly set DB overwrite flag to the value from .env file for deployments from the profile."
 }
 
@@ -98,7 +98,7 @@ load _helper.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "nothing"   # install_from_profile
+    "nothing"   # provision_use_profile
     "curl"      # database_download_source
     "file"      # database_store_type
     "nothing"   # override_existing_db
@@ -117,7 +117,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_no_install_from_profile
+  assert_files_present_no_provision_use_profile
   assert_files_present_deployment
   assert_files_present_integration_acquia
   assert_files_present_integration_lagoon
@@ -125,11 +125,11 @@ load _helper.bash
   assert_files_present_integration_renovatebot
 
   assert_file_contains ".lagoon.yml" "name: Download database"
-  assert_file_contains ".lagoon.yml" "export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
+  assert_file_contains ".lagoon.yml" "export DREVOPS_PROVISION_OVERRIDE_DB=0"
   assert_file_not_contains ".lagoon.yml" "# Explicitly set DB overwrite flag to the value from .env file for deployments from the profile."
 }
 
-@test "Install: empty directory; install_from_profile" {
+@test "Install: empty directory; provision_use_profile" {
   answers=(
     "Star wars" # name
     "nothing"   # machine_name
@@ -140,7 +140,7 @@ load _helper.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "y"         # install_from_profile
+    "y"         # provision_use_profile
     "nothing"   # override_existing_db
     "artifact"  # deploy_type
     "n"         # preserve_ftp
@@ -157,7 +157,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_install_from_profile
+  assert_files_present_provision_use_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
@@ -165,7 +165,7 @@ load _helper.bash
   assert_files_present_no_integration_renovatebot
 }
 
-@test "Install: empty directory; install_from_profile; Lagoon" {
+@test "Install: empty directory; provision_use_profile; Lagoon" {
   answers=(
     "Star wars" # name
     "nothing"   # machine_name
@@ -176,7 +176,7 @@ load _helper.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "y"         # install_from_profile
+    "y"         # provision_use_profile
     "nothing"   # override_existing_db
     "artifact"  # deploy_type
     "n"         # preserve_ftp
@@ -193,7 +193,7 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
-  assert_files_present_install_from_profile
+  assert_files_present_provision_use_profile
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_integration_lagoon
@@ -201,6 +201,6 @@ load _helper.bash
   assert_files_present_no_integration_renovatebot
 
   assert_file_not_contains ".lagoon.yml" "name: Download database"
-  assert_file_not_contains ".lagoon.yml" "export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0"
+  assert_file_not_contains ".lagoon.yml" "export DREVOPS_PROVISION_OVERRIDE_DB=0"
   assert_file_contains ".lagoon.yml" "# Explicitly set DB overwrite flag to the value from .env file for deployments from the profile."
 }

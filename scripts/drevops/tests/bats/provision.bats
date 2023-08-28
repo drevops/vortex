@@ -1,19 +1,19 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for drupal-install-site.sh
+# Unit tests for provision.sh
 #
 #shellcheck disable=SC2030,SC2031,SC2034
 
 load _helper.bash
 
-assert_drupal_install_site_info() {
+assert_provision_info() {
   local webroot="${8:-web}"
 
   format_yes_no() {
     [ "${1}" == "1" ] && echo "Yes" || echo "No"
   }
 
-  assert_output_contains "Started site installation."
+  assert_output_contains "Started site provisioning."
   assert_output_contains "App dir                      : ${LOCAL_REPO_DIR}"
   assert_output_contains "Webroot dir                  : ${webroot}"
   assert_output_contains "Site name                    : Example site"
@@ -60,10 +60,10 @@ assert_drupal_install_site_info() {
     "Creating private files directory."
     "Created private files directory."
 
-    # Site installation information.
-    "Installing site from the database dump file."
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
     "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
-    "- Existing site was found when installing from the database dump file."
+    "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
     "- Existing site content will be removed and fresh content will be imported from the database dump file."
@@ -76,15 +76,15 @@ assert_drupal_install_site_info() {
     "- Site content was not changed."
     "Imported database from the dump file."
     # Profile.
-    "- Installing site from the profile."
-    "- Existing site was found when installing from the profile."
+    "- Provisioning site from the profile."
+    "- Existing site was found when provisioning from the profile."
     "- Existing site content will be removed and new content will be created from the profile."
     "- Installed a site from the profile."
-    "- Existing site was not found when installing from the profile."
+    "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
     # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -129,15 +129,15 @@ assert_drupal_install_site_info() {
     "- Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
     "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
-    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "Fresh database detected. Performing additional operations."
     "- Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -152,18 +152,18 @@ assert_drupal_install_site_info() {
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
-    "Finished site installation."
+    "Finished site provisioning."
   )
 
   mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
-  run ./scripts/drevops/drupal-install-site.sh
+  run ./scripts/drevops/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 0 0 0 1 0 0 0
+  assert_provision_info 0 0 0 1 0 0 0
 
   popd >/dev/null || exit 1
 }
@@ -192,10 +192,10 @@ assert_drupal_install_site_info() {
     "Creating private files directory."
     "Created private files directory."
 
-    # Site installation information.
-    "Installing site from the database dump file."
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
     "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
-    "Existing site was found when installing from the database dump file."
+    "Existing site was found when provisioning from the database dump file."
     "Site content will be preserved."
     "Sanitization will be skipped for an existing database."
     "- Existing site content will be removed and fresh content will be imported from the database dump file."
@@ -206,15 +206,15 @@ assert_drupal_install_site_info() {
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
-    "- Installing site from the profile."
-    "- Existing site was found when installing from the profile."
+    "- Provisioning site from the profile."
+    "- Existing site was found when provisioning from the profile."
     "- Existing site content will be removed and new content will be created from the profile."
     "- Installed a site from the profile."
-    "- Existing site was not found when installing from the profile."
+    "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
     # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -255,15 +255,15 @@ assert_drupal_install_site_info() {
     "Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
     "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
-    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "- Fresh database detected. Performing additional operations."
     "Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -278,18 +278,18 @@ assert_drupal_install_site_info() {
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
-    "Finished site installation."
+    "Finished site provisioning."
   )
 
   mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
-  run ./scripts/drevops/drupal-install-site.sh
+  run ./scripts/drevops/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 0 0 0 1 0 0 1
+  assert_provision_info 0 0 0 1 0 0 1
 
   popd >/dev/null || exit 1
 }
@@ -307,7 +307,7 @@ assert_drupal_install_site_info() {
   mkdir "${LOCAL_REPO_DIR}/.data"
   touch "${LOCAL_REPO_DIR}/.data/db.sql"
 
-  export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
+  export DREVOPS_PROVISION_OVERRIDE_DB=1
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -321,10 +321,10 @@ assert_drupal_install_site_info() {
     "Creating private files directory."
     "Created private files directory."
 
-    # Site installation information.
-    "Installing site from the database dump file."
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
     "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
-    "Existing site was found when installing from the database dump file."
+    "Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
     "Existing site content will be removed and fresh content will be imported from the database dump file."
@@ -337,15 +337,15 @@ assert_drupal_install_site_info() {
     "- Site content was not changed."
     "Imported database from the dump file."
     # Profile.
-    "- Installing site from the profile."
-    "- Existing site was found when installing from the profile."
+    "- Provisioning site from the profile."
+    "- Existing site was found when provisioning from the profile."
     "- Existing site content will be removed and new content will be created from the profile."
     "- Installed a site from the profile."
-    "- Existing site was not found when installing from the profile."
+    "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
     # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -390,15 +390,15 @@ assert_drupal_install_site_info() {
     "- Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
     "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
-    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "Fresh database detected. Performing additional operations."
     "- Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -413,18 +413,18 @@ assert_drupal_install_site_info() {
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
-    "Finished site installation."
+    "Finished site provisioning."
   )
 
   mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
-  run ./scripts/drevops/drupal-install-site.sh
+  run ./scripts/drevops/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 0 1 0 1 0 0 1
+  assert_provision_info 0 1 0 1 0 0 1
 
   popd >/dev/null || exit 1
 }
@@ -458,10 +458,10 @@ assert_drupal_install_site_info() {
     "Creating private files directory."
     "Created private files directory."
 
-    # Site installation information.
-    "Installing site from the database dump file."
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
     "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
-    "- Existing site was found when installing from the database dump file."
+    "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
     "- Existing site content will be removed and fresh content will be imported from the database dump file."
@@ -474,15 +474,15 @@ assert_drupal_install_site_info() {
     "- Site content was not changed."
     "Imported database from the dump file."
     # Profile.
-    "- Installing site from the profile."
-    "- Existing site was found when installing from the profile."
+    "- Provisioning site from the profile."
+    "- Existing site was found when provisioning from the profile."
     "- Existing site content will be removed and new content will be created from the profile."
     "- Installed a site from the profile."
-    "- Existing site was not found when installing from the profile."
+    "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
     # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -529,15 +529,15 @@ assert_drupal_install_site_info() {
     "- Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
     "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
-    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "Fresh database detected. Performing additional operations."
     "- Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -552,18 +552,18 @@ assert_drupal_install_site_info() {
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
-    "Finished site installation."
+    "Finished site provisioning."
   )
 
   mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
-  run ./scripts/drevops/drupal-install-site.sh
+  run ./scripts/drevops/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 0 0 0 1 0 1 0
+  assert_provision_info 0 0 0 1 0 1 0
 
   popd >/dev/null || exit 1
 }
@@ -583,7 +583,7 @@ assert_drupal_install_site_info() {
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
+  export DREVOPS_PROVISION_USE_PROFILE=1
 
   declare -a STEPS=(
     # Drush status calls.
@@ -595,10 +595,10 @@ assert_drupal_install_site_info() {
     "Creating private files directory."
     "Created private files directory."
 
-    # Site installation information.
-    "- Installing site from the database dump file."
+    # Site provisioning information.
+    "- Provisioning site from the database dump file."
     "- Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
-    "- Existing site was found when installing from the database dump file."
+    "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
     "- Existing site content will be removed and fresh content will be imported from the database dump file."
@@ -609,17 +609,17 @@ assert_drupal_install_site_info() {
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
-    "Installing site from the profile."
-    "- Existing site was found when installing from the profile."
+    "Provisioning site from the profile."
+    "- Existing site was found when provisioning from the profile."
     "- Existing site content will be removed and new content will be created from the profile."
     "@drush -y sql:drop"
     "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
     "Installed a site from the profile."
-    "Existing site was not found when installing from the profile."
+    "Existing site was not found when provisioning from the profile."
     "Fresh site content will be created from the profile."
 
     # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -664,15 +664,15 @@ assert_drupal_install_site_info() {
     "- Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
     "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
-    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "Fresh database detected. Performing additional operations."
     "- Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -687,18 +687,18 @@ assert_drupal_install_site_info() {
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
-    "Finished site installation."
+    "Finished site provisioning."
   )
 
   mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
-  run ./scripts/drevops/drupal-install-site.sh
+  run ./scripts/drevops/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 1 0 0 1 0 0 0
+  assert_provision_info 1 0 0 1 0 0 0
 
   popd >/dev/null || exit 1
 }
@@ -718,7 +718,7 @@ assert_drupal_install_site_info() {
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
+  export DREVOPS_PROVISION_USE_PROFILE=1
 
   declare -a STEPS=(
     # Drush status calls.
@@ -730,10 +730,10 @@ assert_drupal_install_site_info() {
     "Creating private files directory."
     "Created private files directory."
 
-    # Site installation information.
-    "- Installing site from the database dump file."
+    # Site provisioning information.
+    "- Provisioning site from the database dump file."
     "- Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
-    "- Existing site was found when installing from the database dump file."
+    "- Existing site was found when provisioning from the database dump file."
     "Site content will be preserved."
     "Sanitization will be skipped for an existing database."
     "- Existing site content will be removed and fresh content will be imported from the database dump file."
@@ -744,15 +744,15 @@ assert_drupal_install_site_info() {
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
-    "Installing site from the profile."
-    "Existing site was found when installing from the profile."
+    "Provisioning site from the profile."
+    "Existing site was found when provisioning from the profile."
     "- Existing site content will be removed and new content will be created from the profile."
     "- Installed a site from the profile."
-    "- Existing site was not found when installing from the profile."
+    "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
     # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -793,15 +793,15 @@ assert_drupal_install_site_info() {
     "Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
     "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
-    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "- Fresh database detected. Performing additional operations."
     "Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -816,18 +816,18 @@ assert_drupal_install_site_info() {
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
-    "Finished site installation."
+    "Finished site provisioning."
   )
 
   mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
-  run ./scripts/drevops/drupal-install-site.sh
+  run ./scripts/drevops/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 1 0 0 1 0 0 1
+  assert_provision_info 1 0 0 1 0 0 1
 
   popd >/dev/null || exit 1
 }
@@ -847,8 +847,8 @@ assert_drupal_install_site_info() {
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
-  export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
+  export DREVOPS_PROVISION_USE_PROFILE=1
+  export DREVOPS_PROVISION_OVERRIDE_DB=1
 
   declare -a STEPS=(
     # Drush status calls.
@@ -860,10 +860,10 @@ assert_drupal_install_site_info() {
     "Creating private files directory."
     "Created private files directory."
 
-    # Site installation information.
-    "- Installing site from the database dump file."
+    # Site provisioning information.
+    "- Provisioning site from the database dump file."
     "- Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
-    "- Existing site was found when installing from the database dump file."
+    "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
     "- Existing site content will be removed and fresh content will be imported from the database dump file."
@@ -874,17 +874,17 @@ assert_drupal_install_site_info() {
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
-    "Installing site from the profile."
-    "Existing site was found when installing from the profile."
+    "Provisioning site from the profile."
+    "Existing site was found when provisioning from the profile."
     "Existing site content will be removed and new content will be created from the profile."
     "@drush -y sql:drop"
     "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
     "Installed a site from the profile."
-    "- Existing site was not found when installing from the profile."
+    "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
     # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -929,15 +929,15 @@ assert_drupal_install_site_info() {
     "- Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
     "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
-    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "Fresh database detected. Performing additional operations."
     "- Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -952,18 +952,18 @@ assert_drupal_install_site_info() {
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
-    "Finished site installation."
+    "Finished site provisioning."
   )
 
   mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
-  run ./scripts/drevops/drupal-install-site.sh
+  run ./scripts/drevops/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
 
-  assert_drupal_install_site_info 1 1 0 1 0 0 1
+  assert_provision_info 1 1 0 1 0 0 1
 
   popd >/dev/null || exit 1
 }

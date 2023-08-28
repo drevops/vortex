@@ -153,7 +153,7 @@ function replace_tokens() {
   $processors = [
     'webroot',
     'profile',
-    'install_from_profile',
+    'provision_use_profile',
     'database_download_source',
     'database_image',
     'override_existing_db',
@@ -353,14 +353,14 @@ function process__profile($dir) {
   dir_replace_content('your_site_profile', get_answer('profile'), $dir);
 }
 
-function process__install_from_profile($dir) {
-  if (get_answer('install_from_profile') == ANSWER_YES) {
-    file_replace_content('/DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=.*/', "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1", $dir . '/.env');
-    remove_token_with_content('!INSTALL_FROM_PROFILE', $dir);
+function process__provision_use_profile($dir) {
+  if (get_answer('provision_use_profile') == ANSWER_YES) {
+    file_replace_content('/DREVOPS_PROVISION_USE_PROFILE=.*/', "DREVOPS_PROVISION_USE_PROFILE=1", $dir . '/.env');
+    remove_token_with_content('!PROVISION_USE_PROFILE', $dir);
   }
   else {
-    file_replace_content('/DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=.*/', "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=0", $dir . '/.env');
-    remove_token_with_content('INSTALL_FROM_PROFILE', $dir);
+    file_replace_content('/DREVOPS_PROVISION_USE_PROFILE=.*/', "DREVOPS_PROVISION_USE_PROFILE=0", $dir . '/.env');
+    remove_token_with_content('PROVISION_USE_PROFILE', $dir);
   }
 }
 
@@ -390,10 +390,10 @@ function process__database_image($dir) {
 
 function process__override_existing_db($dir) {
   if (get_answer('override_existing_db') == ANSWER_YES) {
-    file_replace_content('/DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=.*/', "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1", $dir . '/.env');
+    file_replace_content('/DREVOPS_PROVISION_OVERRIDE_DB=.*/', "DREVOPS_PROVISION_OVERRIDE_DB=1", $dir . '/.env');
   }
   else {
-    file_replace_content('/DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=.*/', "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0", $dir . '/.env');
+    file_replace_content('/DREVOPS_PROVISION_OVERRIDE_DB=.*/', "DREVOPS_PROVISION_OVERRIDE_DB=0", $dir . '/.env');
   }
 }
 
@@ -511,7 +511,7 @@ function process__preserve_doc_comments($dir) {
 function process__demo_mode($dir) {
   // Only discover demo mode if not explicitly set.
   if (is_null(get_config('DREVOPS_INSTALL_DEMO'))) {
-    if (get_answer('install_from_profile') == ANSWER_NO) {
+    if (get_answer('provision_use_profile') == ANSWER_NO) {
       $download_source = get_answer('database_download_source');
       $db_file = getenv_or_default('DREVOPS_DB_DIR', './.data') . DIRECTORY_SEPARATOR . getenv_or_default('DREVOPS_DB_FILE', 'db.sql');
       $has_comment = file_contains('to allow to demonstrate how DrevOps works without', get_dst_dir() . '/.env');
@@ -696,9 +696,9 @@ function collect_answers() {
   ask_for_answer('url',               'What is your site public URL?');
   ask_for_answer('webroot',           'Web root (web, docroot)?');
 
-  ask_for_answer('install_from_profile', 'Do you want to install from profile (leave empty or "n" for using database?');
+  ask_for_answer('provision_use_profile', 'Do you want to install from profile (leave empty or "n" for using database?');
 
-  if (get_answer('install_from_profile') == ANSWER_YES) {
+  if (get_answer('provision_use_profile') == ANSWER_YES) {
     set_answer('database_download_source', 'none');
     set_answer('database_image', '');
   }
@@ -1033,7 +1033,7 @@ function get_default_value__webroot() {
   return 'web';
 }
 
-function get_default_value__install_from_profile() {
+function get_default_value__provision_use_profile() {
   return ANSWER_NO;
 }
 
@@ -1280,8 +1280,8 @@ function discover_value__webroot() {
   return $webroot;
 }
 
-function discover_value__install_from_profile() {
-  return get_value_from_dst_dotenv('DREVOPS_DRUPAL_INSTALL_FROM_PROFILE') ? ANSWER_YES : ANSWER_NO;
+function discover_value__provision_use_profile() {
+  return get_value_from_dst_dotenv('DREVOPS_PROVISION_USE_PROFILE') ? ANSWER_YES : ANSWER_NO;
 }
 
 function discover_value__database_download_source() {
@@ -1297,7 +1297,7 @@ function discover_value__database_image() {
 }
 
 function discover_value__override_existing_db() {
-  return get_value_from_dst_dotenv('DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB') ? ANSWER_YES : ANSWER_NO;
+  return get_value_from_dst_dotenv('DREVOPS_PROVISION_OVERRIDE_DB') ? ANSWER_YES : ANSWER_NO;
 }
 
 function discover_value__deploy_type() {
@@ -1473,7 +1473,7 @@ function normalise_answer__webroot($value) {
   return strtolower(trim($value, '/'));
 }
 
-function normalise_answer__install_from_profile($value) {
+function normalise_answer__provision_use_profile($value) {
   return strtolower($value) != ANSWER_YES ? ANSWER_NO : ANSWER_YES;
 }
 
@@ -1713,7 +1713,7 @@ function print_summary() {
   $values['URL'] = get_answer('url');
   $values['Web root'] = get_answer('webroot');
 
-  $values['Install from profile'] = format_yes_no(get_answer('install_from_profile'));
+  $values['Install from profile'] = format_yes_no(get_answer('provision_use_profile'));
 
   $values['Database download source'] = get_answer('database_download_source');
   $image = get_answer('database_image');

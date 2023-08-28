@@ -32,7 +32,7 @@ load _helper.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "nothing"   # install_from_profile
+    "nothing"   # provision_use_profile
     "nothing"   # database_download_source
     "nothing"   # database_store_type
     "nothing"   # override_existing_db
@@ -92,7 +92,7 @@ load _helper.bash
     "nothing"   # theme
     "nothing"   # URL
     "nothing"   # webroot
-    "nothing"   # install_from_profile
+    "nothing"   # provision_use_profile
     "nothing"   # database_download_source
     "nothing"   # database_store_type
     "nothing"   # deploy_type
@@ -143,7 +143,7 @@ load _helper.bash
     "light saber"            # theme
     "resistance forever.com" # URL
     "nothing"                # webroot
-    "nah"                    # install_from_profile
+    "nah"                    # provision_use_profile
     "something"              # download_db_type
     "other thing"            # database_download_source
     "dunno"                  # database_store_type
@@ -195,7 +195,7 @@ load _helper.bash
     "light saber"            # theme
     "resistance forever.com" # URL
     "rootdoc"                # webroot
-    "nah"                    # install_from_profile
+    "nah"                    # provision_use_profile
     "something"              # download_db_type
     "other thing"            # database_download_source
     "dunno"                  # database_store_type
@@ -280,7 +280,7 @@ load _helper.bash
     "nothing" # theme
     "nothing" # URL
     "nothing" # webroot
-    "nothing" # install_from_profile
+    "nothing" # provision_use_profile
     "nothing" # database_download_source
     "nothing" # database_store_type
     "nothing" # override_existing_db
@@ -338,7 +338,7 @@ load _helper.bash
     "light saber"            # theme
     "resistance forever.com" # URL
     "nothing"                # webroot
-    "nah"                    # install_from_profile
+    "nah"                    # provision_use_profile
     "image"                  # database_download_source
     "image"                  # database_store_type
     "no"                     # override_existing_db
@@ -420,10 +420,10 @@ fixture_preinstalled() {
   echo "DREVOPS_WEBROOT=${webroot}" >>.env
 
   # Sets 'fresh_install' to 'No'.
-  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=0" >>.env
+  echo "DREVOPS_PROVISION_USE_PROFILE=0" >>.env
 
   # Sets 'override_existing_db' to 'No'.
-  echo "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0" >>.env
+  echo "DREVOPS_PROVISION_OVERRIDE_DB=0" >>.env
 
   # Sets 'preserve_doc_comments' to 'Yes'.
   echo "# Ahoy configuration file." >>.ahoy.yml

@@ -10,7 +10,7 @@ DREVOPS_TASK_COPY_DB_ACQUIA_SKIP=
 DREVOPS_TASK_COPY_FILES_ACQUIA_SKIP=
 
 # Skip purging of edge cache in Acquia environment.
-DREVOPS_TASK_PURGE_CACHE_ACQUIA_SKIP=
+DREVOPS_PURGE_CACHE_ACQUIA_SKIP=
 
-# Skip Drupal site installation in Acquia environment.
-DREVOPS_TASK_DRUPAL_SITE_INSTALL_ACQUIA_SKIP=
+# Skip Drupal site provisioning in Acquia environment.
+DREVOPS_PROVISION_ACQUIA_SKIP=
