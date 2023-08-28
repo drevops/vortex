@@ -233,7 +233,6 @@ assert_files_present_common() {
   local webroot="${6:-web}"
 
   local suffix_abbreviated_uppercase="$(string_to_upper "$suffix_abbreviated")"
-  local suffix_hyphenated="${suffix/_/-}"
 
   pushd "${dir}" >/dev/null || exit 1
 
