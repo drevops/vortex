@@ -2,6 +2,8 @@
 
 namespace Drevops\Installer\Tests\Unit;
 
+use DrevOps\Installer\Command\InstallCommand;
+
 /**
  * Class InstallerCopyRecursiveTest.
  *
@@ -12,12 +14,12 @@ namespace Drevops\Installer\Tests\Unit;
  */
 class CopyRecursiveTest extends UnitTestBase {
 
-  public function setUp():void {
+  public function setUp(): void {
     parent::setUp();
     $this->prepareFixtureDir();
   }
 
-  protected function tearDown():void {
+  protected function tearDown(): void {
     parent::tearDown();
     $this->cleanupFixtureDir();
   }
@@ -25,7 +27,7 @@ class CopyRecursiveTest extends UnitTestBase {
   public function testCopyRecursive() {
     $files_dir = $this->getFixtureDir('copyfiles');
 
-    copy_recursive($files_dir, $this->fixtureDir);
+    $this->callProtectedMethod(InstallCommand::class, 'copyRecursive', [$files_dir, $this->fixtureDir]);
 
     $dir = $this->fixtureDir . DIRECTORY_SEPARATOR;
 

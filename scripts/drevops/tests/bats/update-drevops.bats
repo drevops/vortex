@@ -36,7 +36,7 @@ load _helper.bash
   assert_git_clean
 
   # Releasing new version of DrevOps (note that installing from the local tag
-  # is not supported in scripts/drevops/installer/install.php; only commit is supported).
+  # is not supported in scripts/drevops/installer/install; only commit is supported).
   echo "# Some change to docker-compose.yml" >>"${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
   echo "# Some change to non-required file" >>"${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json"
@@ -48,7 +48,7 @@ load _helper.bash
   # Enforce debugging of the install script.
   export DREVOPS_INSTALL_DEBUG=1
   # Override install script with currently tested one to be called from ./scripts/drevops/update-drevops.sh
-  export DREVOPS_INSTALLER_URL="file://${CUR_DIR}/scripts/drevops/installer/install.php"
+  export DREVOPS_INSTALLER_URL="file://${CUR_DIR}/scripts/drevops/installer/.build/install"
   # shellcheck disable=SC2059
   run ahoy update-drevops
   assert_success

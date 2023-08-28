@@ -34,6 +34,7 @@ COMPOSE_FILE=docker-compose.drevops_docs.yml ahoy test
 rm docker-compose.drevops_docs.yml >/dev/null
 popd || exit 1
 
+echo "==> Run installer unit tests."
 pushd "${TEST_DIR}/../installer" || exit 1
 if [ ! -d "./vendor" ]; then
   echo "  > Install Installer test Composer dependencies."

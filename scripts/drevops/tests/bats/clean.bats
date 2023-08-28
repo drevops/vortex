@@ -12,7 +12,7 @@ load _helper.bash
   assert_files_present
   assert_git_repo
 
-  mktouch "web/core/install.php"
+  mktouch "web/core/install"
   mktouch "web/modules/contrib/somemodule/somemodule.info.yml"
   mktouch "web/themes/contrib/sometheme/sometheme.info.yml"
   mktouch "web/profiles/contrib/someprofile/someprofile.info.yml"
@@ -96,7 +96,7 @@ load _helper.bash
   git_add "first.txt"
   git_commit "first commit"
 
-  mktouch "web/core/install.php"
+  mktouch "web/core/install"
   mktouch "web/modules/contrib/somemodule/somemodule.info.yml"
   mktouch "web/themes/contrib/sometheme/sometheme.info.yml"
   mktouch "web/profiles/contrib/someprofile/someprofile.info.yml"
@@ -181,7 +181,7 @@ load _helper.bash
   assert_files_present
   assert_git_repo
 
-  mktouch "web/core/install.php"
+  mktouch "web/core/install"
   mktouch "web/modules/contrib/somemodule/somemodule.info.yml"
   mktouch "web/themes/contrib/sometheme/sometheme.info.yml"
   mktouch "web/profiles/contrib/someprofile/someprofile.info.yml"

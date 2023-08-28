@@ -1,39 +1,65 @@
 {
-    "name": "drevops/drevops-installer",
-    "description": "DrevOps installer",
+    "name": "drevops/installer",
+    "type": "library",
+    "description": "Provides installer functionality.",
     "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com",
+            "homepage": "https://www.drevops.com",
+            "role": "Maintainer"
+        }
+    ],
+    "homepage": "https://github.com/drevops/drevops",
+    "support": {
+        "issues": "https://github.com/drevops/drevops/issues",
+        "source": "https://github.com/drevops/drevops"
+    },
     "require": {
-        "php": ">=8"
+        "php": ">=8.1",
+        "symfony/console": "^6.3"
     },
     "require-dev": {
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-        "drupal/coder": "^8.2.12",
-        "phpunit/phpunit": "^10.0",
-        "symfony/filesystem": "^6.2"
+        "phpunit/phpunit": "^10",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "drupal/coder": "^8.3",
+        "phpmd/phpmd": "^2.13",
+        "phpstan/phpstan": "^1.10",
+        "bamarni/composer-bin-plugin": "^1.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "DrevOps\\Installer\\": "src/"
+        }
     },
     "autoload-dev": {
+        "psr-4": {
+            "DrevOps\\Installer\\Tests\\": "tests/phpunit"
+        },
         "classmap": [
-            "tests"
+            "tests/phpunit"
         ]
     },
     "config": {
-        "platform": {
-            "php": "8.1.0"
-        },
-        "process-timeout": 0,
-        "sort-packages": true,
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "bamarni/composer-bin-plugin": true
         }
     },
     "scripts": {
-        "lint": "phpcs -s --standard=Drupal install.php tests",
-        "lint:fix": "phpcbf -s --standard=Drupal install.php tests",
-        "test": [
-            "@test-unit",
-            "@test-functional"
+        "lint": [
+            "phpcs",
+            "phpmd --exclude vendor,node_modules . text phpmd.xml || true",
+            "phpstan"
         ],
-        "test-unit": "phpunit tests/unit",
-        "test-functional": "phpunit tests/functional"
-    }
+        "lint:fix": "phpcbf",
+        "test": "phpunit tests/phpunit/unit",
+        "build": [
+            "@composer bin box require --dev humbug/box",
+            "box validate",
+            "box compile"
+        ]
+    },
+    "bin": ["install"]
 }

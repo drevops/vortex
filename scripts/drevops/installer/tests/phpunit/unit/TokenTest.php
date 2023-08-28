@@ -2,6 +2,8 @@
 
 namespace Drevops\Installer\Tests\Unit;
 
+use DrevOps\Installer\Command\InstallCommand;
+
 /**
  * Class InstallerTokenTest.
  *
@@ -37,7 +39,7 @@ class TokenTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderFileContains
-   * @covers       \file_contains()
+   * @covers       \DrevOps\Installer\Command\InstallCommand::fileContains()
    */
   public function testFileContains($string, $file, $expected) {
     $tokens_dir = $this->getFixtureDir('tokens');
@@ -45,7 +47,7 @@ class TokenTest extends UnitTestBase {
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
     $created_file = reset($created_files);
 
-    $actual = file_contains($string, $created_file);
+    $actual = InstallCommand::fileContains($string, $created_file);
 
     $this->assertEquals($expected, $actual);
   }
@@ -65,14 +67,14 @@ class TokenTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderDirContains
-   * @covers       \dir_contains()
+   * @covers       \DrevOps\Installer\Command\InstallCommand::direContains()
    */
   public function testDirContains($string, $files, $expected) {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree($files, $tokens_dir);
     $this->createFixtureFiles($files, $tokens_dir);
 
-    $actual = dir_contains($string, $this->fixtureDir);
+    $actual = $this->callProtectedMethod(InstallCommand::class, 'dirContains', [$string, $this->fixtureDir]);
 
     $this->assertEquals($expected, $actual);
   }
@@ -107,7 +109,7 @@ class TokenTest extends UnitTestBase {
       $this->expectException(\RuntimeException::class);
     }
 
-    remove_token_from_file($created_file, $begin, $end, $with_content);
+    InstallCommand::removeTokenFromFile($created_file, $begin, $end, $with_content);
 
     $this->assertFileEquals($expected_file, $created_file);
   }
@@ -162,7 +164,7 @@ class TokenTest extends UnitTestBase {
       throw new \RuntimeException(sprintf('Provided files number is not equal to expected files number.'));
     }
 
-    dir_replace_content('BAR', 'FOO', $this->fixtureDir);
+    $this->callProtectedMethod(InstallCommand::class, 'dirReplaceContent', ['BAR', 'FOO', $this->fixtureDir]);
 
     foreach (array_keys($created_files) as $k) {
       $this->assertFileEquals($expected_files[$k], $created_files[$k]);
@@ -200,7 +202,7 @@ class TokenTest extends UnitTestBase {
       throw new \RuntimeException(sprintf('Provided files number is not equal to expected files number.'));
     }
 
-    replace_string_filename('foo', 'bar', $this->fixtureDir);
+    $this->callProtectedMethod(InstallCommand::class, 'replaceStringFilename', ['foo', 'bar', $this->fixtureDir]);
 
     foreach (array_keys($expected_files) as $k) {
       $this->assertFileExists($expected_files[$k]);

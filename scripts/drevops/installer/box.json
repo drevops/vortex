@@ -1,0 +1,23 @@
+{
+    "output": ".build/install",
+    "compression": "GZ",
+    "banner": [
+        "@file",
+        "DrevOps CLI installer.",
+        "",
+        "<!-- -->",
+        "DrevOps CLI installer.<br/>",
+        "Run in your terminal:<br/>",
+        "<code>curl -SsL http://install.drevops.com | php</code><br/>",
+        "More details: <a href=\"https://docs.drevops.com\">https://docs.drevops.com</a>",
+        "<!--"
+    ],
+    "finder": [
+        {
+            "in": "./",
+            "exclude": [
+                "tests"
+            ]
+        }
+    ]
+}

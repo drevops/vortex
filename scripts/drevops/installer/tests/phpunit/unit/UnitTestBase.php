@@ -2,6 +2,7 @@
 
 namespace Drevops\Installer\Tests\Unit;
 
+use DrevOps\Installer\Command\InstallCommand;
 use Drevops\Installer\Tests\Traits\TestHelperTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -27,16 +28,9 @@ abstract class UnitTestBase extends TestCase {
    */
   protected $fixtureDir;
 
-  protected function setUp(): void {
-    putenv('SCRIPT_RUN_SKIP=1');
-    require_once getcwd() . DIRECTORY_SEPARATOR . '../../../scripts/drevops/installer/install.php';
-
-    parent::setUp();
-  }
-
   public function prepareFixtureDir(): void {
     // Using tempdir() from the install file itself.
-    $this->fixtureDir = tempdir();
+    $this->fixtureDir = InstallCommand::tempdir();
   }
 
   public function cleanupFixtureDir() {
@@ -55,12 +49,13 @@ abstract class UnitTestBase extends TestCase {
       $fs->copy($file, $new_name);
       $created[] = $new_name;
     }
+
     return $created;
   }
 
   protected function getFixtureDir($name = NULL) {
     $parent = dirname(__FILE__);
-    $path = $parent . DIRECTORY_SEPARATOR . 'fixtures';
+    $path = $parent . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'fixtures';
     $path .= $name ? DIRECTORY_SEPARATOR . $name : '';
     if (!file_exists($path)) {
       throw new \RuntimeException(sprintf('Unable to find fixture directory at path "%s".', $path));
