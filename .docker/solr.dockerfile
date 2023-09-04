@@ -5,7 +5,7 @@ FROM ${CLI_IMAGE} as cli
 
 # @see https://hub.docker.com/r/uselagoon/solr/tags?page=1&name=drupal
 # @see https://github.com/uselagoon/lagoon-images/blob/main/images/solr-drupal/7.Dockerfile
-FROM uselagoon/solr-7-drupal:23.7.0
+FROM uselagoon/solr-7-drupal:23.8.0
 
 # Based off search_api_solr/solr-conf-templates/7.x as a sane default.
 # @see https://git.drupalcode.org/project/search_api_solr/-/tree/4.x/solr-conf-templates/7.x
