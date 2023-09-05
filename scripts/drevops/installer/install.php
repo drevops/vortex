@@ -938,7 +938,7 @@ function init_cli_args_and_options($argv) {
  */
 function init_installer_config() {
   // Internal version of DrevOps.
-  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DRUPAL_VERSION . '.x'));
+  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION'));
   // Flag to display install debug information.
   set_config('DREVOPS_INSTALL_DEBUG', (bool) getenv_or_default('DREVOPS_INSTALL_DEBUG', FALSE));
   // Flag to proceed with installation. If FALSE - the installation will only
