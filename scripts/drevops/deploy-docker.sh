@@ -2,23 +2,23 @@
 ##
 # Deploy via pushing Docker images to Docker registry.
 #
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# This will push multiple docker images by tagging provided services in the
+# Push multiple docker images by tagging services provided in the
 # $DREVOPS_DEPLOY_DOCKER_MAP variable.
+#
+# IMPORTANT! This script runs outside the container on the host system.
 #
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Comma-separated map of docker services and images to use for deployment in
 # format "service1=org/image1,service2=org/image2".
 DREVOPS_DEPLOY_DOCKER_MAP="${DREVOPS_DEPLOY_DOCKER_MAP:-}"
 
 # The username for the docker registry.
-DOCKER_USER="${DOCKER_USER:-}}"
+DOCKER_USER="${DOCKER_USER:-}"
 
 # The password for the docker registry.
 DOCKER_PASS="${DOCKER_PASS:-}"
@@ -26,16 +26,16 @@ DOCKER_PASS="${DOCKER_PASS:-}"
 # Docker registry name. Provide port, if required as <server_name>:<port>.
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 
-# The tag of the image to push to. Defaults to 'latest'.
+# The tag of the image to push to.
 DREVOPS_DOCKER_IMAGE_TAG="${DREVOPS_DOCKER_IMAGE_TAG:-latest}"
 
 # ------------------------------------------------------------------------------
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
 info "Started DOCKER deployment."

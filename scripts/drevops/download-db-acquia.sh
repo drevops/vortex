@@ -2,8 +2,6 @@
 ##
 # Download DB dump from the latest Acquia Cloud backup.
 #
-# IMPORTANT! This script runs outside the container on the host system.
-#
 # This script will discover the latest available backup in the specified
 # Acquia Cloud environment using Acquia Cloud API 2.0, download and decompress
 # it into specified directory.
@@ -17,20 +15,22 @@
 #
 # @see https://docs.acquia.com/acquia-cloud/develop/api/auth/#cloud-generate-api-token
 # @see https://cloudapi-docs.acquia.com/#/Environments/getEnvironmentsDatabaseDownloadBackup
+#
+# IMPORTANT! This script runs outside the container on the host system.
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Acquia Cloud API key.
-DREVOPS_ACQUIA_KEY="${DREVOPS_ACQUIA_KEY:-${DREVOPS_ACQUIA_KEY}}"
+DREVOPS_ACQUIA_KEY="${DREVOPS_ACQUIA_KEY:-}"
 
 # Acquia Cloud API secret.
-DREVOPS_ACQUIA_SECRET="${DREVOPS_ACQUIA_SECRET:-${DREVOPS_ACQUIA_SECRET}}"
+DREVOPS_ACQUIA_SECRET="${DREVOPS_ACQUIA_SECRET:-}"
 
 # Application name. Used to discover UUID.
-DREVOPS_ACQUIA_APP_NAME="${DREVOPS_ACQUIA_APP_NAME:-${DREVOPS_ACQUIA_APP_NAME}}"
+DREVOPS_ACQUIA_APP_NAME="${DREVOPS_ACQUIA_APP_NAME:-}"
 
 # Source environment name used to download the database dump from.
 DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="${DREVOPS_DB_DOWNLOAD_ACQUIA_ENV:-}"
@@ -39,18 +39,18 @@ DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="${DREVOPS_DB_DOWNLOAD_ACQUIA_ENV:-}"
 DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME:-}"
 
 # Directory where DB dumps are stored.
-DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 
 # Database dump file name.
-DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-}"
+DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
 #-------------------------------------------------------------------------------
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
 info "Started database dump download from Acquia."
@@ -80,8 +80,6 @@ command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 [ -z "${DREVOPS_ACQUIA_APP_NAME}" ] && fail "Missing value for DREVOPS_ACQUIA_APP_NAME." && exit 1
 [ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_ENV}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_ENV." && exit 1
 [ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME." && exit 1
-[ -z "${DREVOPS_DB_DIR}" ] && fail "Missing value for DREVOPS_DB_DIR." && exit 1
-[ -z "${DREVOPS_DB_FILE}" ] && fail "Missing value for DREVOPS_DB_FILE." && exit 1
 
 mkdir -p "${DREVOPS_DB_DIR}"
 
@@ -118,9 +116,9 @@ if [ -f "${file_name_discovered}" ]; then
 else
   # If the gzipped version exists, then we don't need to re-download it.
   if [ ! -f "${file_name_compressed}" ]; then
-    note "Using latest backup ID ${backup_id} for DB ${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}."
+    note "Using the latest backup ID ${backup_id} for DB ${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}."
 
-    [ ! -d "${DREVOPS_DB_DIR}" ] && note "Creating dump directory ${DREVOPS_DB_DIR}" && mkdir -p "${DREVOPS_DB_DIR}"
+    [ ! -d "${DREVOPS_DB_DIR:-}" ] && note "Creating dump directory ${DREVOPS_DB_DIR}" && mkdir -p "${DREVOPS_DB_DIR}"
 
     note "Discovering backup URL."
     backup_json=$(curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "https://cloud.acquia.com/api/environments/${env_id}/databases/${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}/backups/${backup_id}/actions/download")

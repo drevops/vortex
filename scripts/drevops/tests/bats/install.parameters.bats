@@ -24,25 +24,25 @@ load _helper.bash
 
   answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "nothing" # install_from_profile
-    "nothing" # database_download_source
-    "nothing" # database_store_type
-    "nothing" # override_existing_db
-    "nothing" # deploy_type
-    "nothing" # preserve_ftp
-    "nothing" # preserve_acquia
-    "nothing" # preserve_lagoon
-    "nothing" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "nothing"   # install_from_profile
+    "nothing"   # database_download_source
+    "nothing"   # database_store_type
+    "nothing"   # override_existing_db
+    "nothing"   # deploy_type
+    "nothing"   # preserve_ftp
+    "nothing"   # preserve_acquia
+    "nothing"   # preserve_lagoon
+    "nothing"   # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
@@ -84,24 +84,24 @@ load _helper.bash
 
   answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "nothing" # install_from_profile
-    "nothing" # database_download_source
-    "nothing" # database_store_type
-    "nothing" # deploy_type
-    "nothing" # preserve_ftp
-    "nothing" # preserve_acquia
-    "nothing" # preserve_lagoon
-    "nothing" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "nothing"   # install_from_profile
+    "nothing"   # database_download_source
+    "nothing"   # database_store_type
+    "nothing"   # deploy_type
+    "nothing"   # preserve_ftp
+    "nothing"   # preserve_acquia
+    "nothing"   # preserve_lagoon
+    "nothing"   # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
@@ -134,27 +134,27 @@ load _helper.bash
   export DREVOPS_INSTALL_PROCEED=0
 
   answers=(
-    "star Wars" # name
-    "star wars MaCHine" # machine_name
-    "The Empire" # org
-    "the new empire" # morh_machine_name
-    "s W" # module_prefix
-    "S w Profile" # profile
-    "light saber" # theme
+    "star Wars"              # name
+    "star wars MaCHine"      # machine_name
+    "The Empire"             # org
+    "the new empire"         # morh_machine_name
+    "s W"                    # module_prefix
+    "S w Profile"            # profile
+    "light saber"            # theme
     "resistance forever.com" # URL
-    "nothing" # webroot
-    "nah" # install_from_profile
-    "something" # download_db_type
-    "other thing" # database_download_source
-    "dunno" # database_store_type
-    "nnnnnno" #override_existing_db
-    "nnnooo" # deploy_type
-    "nope" # preserve_ftp
-    "dunno" # preserve_acquia
-    "nah" # preserve_lagoon
-    "never" # preserve_renovatebot
-    "nnnooo" # preserve_doc_comments
-    "nooo" # preserve_drevops_info
+    "nothing"                # webroot
+    "nah"                    # install_from_profile
+    "something"              # download_db_type
+    "other thing"            # database_download_source
+    "dunno"                  # database_store_type
+    "nnnnnno"                #override_existing_db
+    "nnnooo"                 # deploy_type
+    "nope"                   # preserve_ftp
+    "dunno"                  # preserve_acquia
+    "nah"                    # preserve_lagoon
+    "never"                  # preserve_renovatebot
+    "nnnooo"                 # preserve_doc_comments
+    "nooo"                   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
@@ -186,27 +186,27 @@ load _helper.bash
   export DREVOPS_INSTALL_PROCEED=0
 
   answers=(
-    "star Wars" # name
-    "star wars MaCHine" # machine_name
-    "The Empire" # org
-    "the new empire" # morh_machine_name
-    "s W" # module_prefix
-    "S w Profile" # profile
-    "light saber" # theme
+    "star Wars"              # name
+    "star wars MaCHine"      # machine_name
+    "The Empire"             # org
+    "the new empire"         # morh_machine_name
+    "s W"                    # module_prefix
+    "S w Profile"            # profile
+    "light saber"            # theme
     "resistance forever.com" # URL
-    "rootdoc" # webroot
-    "nah" # install_from_profile
-    "something" # download_db_type
-    "other thing" # database_download_source
-    "dunno" # database_store_type
-    "nnnnnno" #override_existing_db
-    "nnnooo" # deploy_type
-    "nope" # preserve_ftp
-    "dunno" # preserve_acquia
-    "nah" # preserve_lagoon
-    "never" # preserve_renovatebot
-    "nnnooo" # preserve_doc_comments
-    "nooo" # preserve_drevops_info
+    "rootdoc"                # webroot
+    "nah"                    # install_from_profile
+    "something"              # download_db_type
+    "other thing"            # database_download_source
+    "dunno"                  # database_store_type
+    "nnnnnno"                #override_existing_db
+    "nnnooo"                 # deploy_type
+    "nope"                   # preserve_ftp
+    "dunno"                  # preserve_acquia
+    "nah"                    # preserve_lagoon
+    "never"                  # preserve_renovatebot
+    "nnnooo"                 # preserve_doc_comments
+    "nooo"                   # preserve_drevops_info
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
@@ -329,26 +329,26 @@ load _helper.bash
   # - discovered value
   # - entered value (but if nothing entered, will fall back to discovered value).
   answers=(
-    "star Wars" # name
-    "star wars MaCHine" # machine_name
-    "The Empire" # org
-    "the new empire" # morh_machine_name
-    "W s" # module_prefix
-    "S w Profile" # profile
-    "light saber" # theme
+    "star Wars"              # name
+    "star wars MaCHine"      # machine_name
+    "The Empire"             # org
+    "the new empire"         # morh_machine_name
+    "W s"                    # module_prefix
+    "S w Profile"            # profile
+    "light saber"            # theme
     "resistance forever.com" # URL
-    "nothing" # webroot
-    "nah" # install_from_profile
-    "image" # database_download_source
-    "image" # database_store_type
-    "no" # override_existing_db
-    "no" # deploy_type
-    "Y" # preserve_ftp
-    "nothing" # preserve_acquia - testing NOTHING value - should be 'Enabled' as exists in fixture.
-    "nah" # preserve_lagoon
-    "nothing" # preserve_renovatebot - testing NOTHING value - should be 'Enabled as exists in fixture.
-    "n" # preserve_doc_comments
-    "n" # preserve_drevops_info
+    "nothing"                # webroot
+    "nah"                    # install_from_profile
+    "image"                  # database_download_source
+    "image"                  # database_store_type
+    "no"                     # override_existing_db
+    "no"                     # deploy_type
+    "Y"                      # preserve_ftp
+    "nothing"                # preserve_acquia - testing NOTHING value - should be 'Enabled' as exists in fixture.
+    "nah"                    # preserve_lagoon
+    "nothing"                # preserve_renovatebot - testing NOTHING value - should be 'Enabled as exists in fixture.
+    "n"                      # preserve_doc_comments
+    "n"                      # preserve_drevops_info
   )
 
   output=$(run_install_interactive "${answers[@]}")
@@ -385,7 +385,7 @@ load _helper.bash
 #
 # Note that this helper provides only one state of the fixture site.
 #
-fixture_preinstalled(){
+fixture_preinstalled() {
   local webroot="${1:-web}"
 
   # Create readme file to pretend that DrevOps was installed.
@@ -408,7 +408,7 @@ fixture_preinstalled(){
 
   # Sets 'url' to 'www.resistance-star-wars.com'.
   mkdir -p "${webroot}/sites/default"
-  echo "  \$config['stage_file_proxy.settings']['origin'] = 'http://www.resistance-star-wars.com/';" > "${webroot}/sites/default/settings.php"
+  echo "  \$config['stage_file_proxy.settings']['origin'] = 'http://www.resistance-star-wars.com/';" >"${webroot}/sites/default/settings.php"
 
   # Sets 'preserve_acquia' to 'Yes'.
   mkdir -p hooks
@@ -417,17 +417,17 @@ fixture_preinstalled(){
   # Sets 'preserve_dependencies' to 'Yes'.
   touch renovate.json
 
-  echo "DREVOPS_WEBROOT=${webroot}" >> .env
+  echo "DREVOPS_WEBROOT=${webroot}" >>.env
 
   # Sets 'fresh_install' to 'No'.
-  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=0" >> .env
+  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=0" >>.env
 
   # Sets 'override_existing_db' to 'No'.
-  echo "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0" >> .env
+  echo "DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=0" >>.env
 
   # Sets 'preserve_doc_comments' to 'Yes'.
-  echo "# Ahoy configuration file." >> .ahoy.yml
+  echo "# Ahoy configuration file." >>.ahoy.yml
 
   # Sets 'preserve_drevops_info' to 'Yes'.
-  echo "# Comments starting with '#:' provide explicit documentation and will be" >> .ahoy.yml
+  echo "# Comments starting with '#:' provide explicit documentation and will be" >>.ahoy.yml
 }

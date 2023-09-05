@@ -7,12 +7,13 @@
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-DREVOPS_TASK_LAGOON_NAME="${DREVOPS_TASK_LAGOON_NAME:-}"
+# The task name.
+DREVOPS_TASK_LAGOON_NAME="${DREVOPS_TASK_LAGOON_NAME:-Automation task}"
 
 # The Lagoon project to run tasks for.
-DREVOPS_TASK_LAGOON_PROJECT="${DREVOPS_TASK_LAGOON_PROJECT:-}"
+DREVOPS_TASK_LAGOON_PROJECT="${DREVOPS_TASK_LAGOON_PROJECT:-${LAGOON_PROJECT:-}}"
 
 # The Lagoon branch to run the task on.
 DREVOPS_TASK_LAGOON_BRANCH="${DREVOPS_TASK_LAGOON_BRANCH:-}"
@@ -58,12 +59,12 @@ DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION="${DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION:-
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
-info "Started LAGOON task $DREVOPS_TASK_LAGOON_NAME."
+info "Started Lagoon task $DREVOPS_TASK_LAGOON_NAME."
 
 ## Check all required values.
 [ -z "${DREVOPS_TASK_LAGOON_NAME}" ] && echo "Missing required value for DREVOPS_TASK_LAGOON_NAME." && exit 1
@@ -72,13 +73,13 @@ info "Started LAGOON task $DREVOPS_TASK_LAGOON_NAME."
 [ -z "${DREVOPS_TASK_LAGOON_PROJECT}" ] && echo "Missing required value for DREVOPS_TASK_LAGOON_PROJECT." && exit 1
 
 # Use custom key if fingerprint is provided.
-if [ -n "${DREVOPS_TASK_SSH_FINGERPRINT}" ]; then
+if [ -n "${DREVOPS_TASK_SSH_FINGERPRINT:-}" ]; then
   note "Custom task key is provided."
   DREVOPS_TASK_SSH_FILE="${DREVOPS_TASK_SSH_FINGERPRINT//:/}"
   DREVOPS_TASK_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_TASK_SSH_FILE//\"/}"
 fi
 
-[ ! -f "${DREVOPS_TASK_SSH_FILE}" ] && fail "SSH key file ${DREVOPS_TASK_SSH_FILE} does not exist." && exit 1
+[ ! -f "${DREVOPS_TASK_SSH_FILE:-}" ] && fail "SSH key file ${DREVOPS_TASK_SSH_FILE} does not exist." && exit 1
 
 if ssh-add -l | grep -q "${DREVOPS_TASK_SSH_FILE}"; then
   note "SSH agent has ${DREVOPS_TASK_SSH_FILE} key loaded."
@@ -90,7 +91,7 @@ else
 fi
 
 # Disable strict host key checking in CI.
-[ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
+[ -n "${CI:-}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
 
 if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_TASK_LAGOON_INSTALL_CLI_FORCE}" ]; then
   note "Installing Lagoon CLI."
@@ -115,4 +116,4 @@ lagoon config add --force -l "${DREVOPS_TASK_LAGOON_INSTANCE}" -g "${DREVOPS_TAS
 note "Creating $DREVOPS_TASK_LAGOON_NAME task: project ${DREVOPS_TASK_LAGOON_PROJECT}, branch: ${DREVOPS_TASK_LAGOON_BRANCH}."
 lagoon --force --skip-update-check -i "${DREVOPS_TASK_SSH_FILE}" -l "${DREVOPS_TASK_LAGOON_INSTANCE}" run custom -p "${DREVOPS_TASK_LAGOON_PROJECT}" -e "${DREVOPS_TASK_LAGOON_BRANCH}" -N "${DREVOPS_TASK_LAGOON_NAME}" -c "${DREVOPS_TASK_LAGOON_COMMAND}"
 
-pass "Finished LAGOON task $DREVOPS_TASK_LAGOON_NAME."
+pass "Finished Lagoon task $DREVOPS_TASK_LAGOON_NAME."

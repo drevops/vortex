@@ -7,7 +7,7 @@ script.
 The script runs in CI only after all tests pass.
 
 The script deploys the  code to a remote location by calling the
-relevant scripts based on the type of deployment defined in `$DREVOPS_DEPLOY_TYPE`
+relevant scripts based on the type of deployment defined in `$DREVOPS_DEPLOY_TYPES`
 variable as a comma-separated list of one or multiple supported deployment types:
 - `webhook` - a webhook URL is called via CURL.
 - `artifact` - a code artifact created and sent to a remote repository.

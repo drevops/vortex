@@ -140,10 +140,10 @@ The following list includes ✅ completed features and 💡 upcoming features.
 
 [//]: # (#;> DREVOPS_DEV)
 # YOURSITE
-Drupal 9 implementation of YOURSITE for YOURORG
+Drupal 10 implementation of YOURSITE for YOURORG
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
-![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg)
+![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 
 [//]: # (#;< RENOVATEBOT)
 

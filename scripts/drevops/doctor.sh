@@ -2,16 +2,16 @@
 #
 # Check DrevOps project requirements or print info.
 #
-# IMPORTANT! This script runs outside the container on the host system.
-#
 # doctor.sh - check project requirements.
 # doctor.sh info - show system information.
+#
+# IMPORTANT! This script runs outside the container on the host system.
 #
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Check minimal Doctor requirements.
 DREVOPS_DOCTOR_CHECK_MINIMAL="${DREVOPS_DOCTOR_CHECK_MINIMAL:-0}"
@@ -65,9 +65,9 @@ DREVOPS_DOCTOR_SSH_KEY_FILE="${DREVOPS_DOCTOR_SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 warn() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[33m[WARN] %s\033[0m\n" "$1" || printf "[WARN] %s\n" "$1"; }
 # @formatter:on
 
@@ -164,9 +164,9 @@ main() {
     fi
 
     # Check that the volume is mounted into CLI container.
-    if ! docker compose exec -T cli bash -c "grep \"^/dev\" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent"; then
+    if ! docker compose exec -T cli bash -c 'grep "^/dev" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent'; then
       warn "SSH key volume is not mounted into CLI container."
-      note "Make sure that your \"docker-compose.yml\" has the following lines for CLI service:"
+      note 'Make sure that your "docker-compose.yml" has the following lines for CLI service:'
       note "  volumes_from:"
       note "    - container:amazeeio-ssh-agent"
       note "After adding these lines, run 'ahoy up'."
@@ -185,7 +185,7 @@ main() {
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
-    local_dev_url="$(docker compose exec -T cli bash -c "echo \$DREVOPS_LOCALDEV_URL")"
+    local_dev_url="$(docker compose exec -T cli bash -c 'echo $DREVOPS_LOCALDEV_URL')"
     if [ -n "${local_dev_url}" ]; then
       # Depending on the type of installation, the homepage may return 200 or 403.
       if ! curl -L -s -o /dev/null -w "%{http_code}" "${local_dev_url}" | grep -q '200\|403'; then

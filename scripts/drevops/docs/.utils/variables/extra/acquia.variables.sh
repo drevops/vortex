@@ -14,4 +14,3 @@ DREVOPS_TASK_PURGE_CACHE_ACQUIA_SKIP=
 
 # Skip Drupal site installation in Acquia environment.
 DREVOPS_TASK_DRUPAL_SITE_INSTALL_ACQUIA_SKIP=
-

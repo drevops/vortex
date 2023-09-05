@@ -6,7 +6,7 @@
 # shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper.bash
-load _helper_workflow.bash
+load _helper.workflow.bash
 
 @test "Idempotence" {
   prepare_sut "Starting idempotence tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
@@ -39,7 +39,7 @@ load _helper_workflow.bash
   step "Add private package"
   rm composer.lock || true
   composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git
-  jq --indent 4 '.require += {"drevops/test-private-package": "^1"}' composer.json > composer.json.tmp && mv -f composer.json.tmp composer.json
+  jq --indent 4 '.require += {"drevops/test-private-package": "^1"}' composer.json >composer.json.tmp && mv -f composer.json.tmp composer.json
 
   step "Build without a GITHUB_TOKEN token"
   unset GITHUB_TOKEN

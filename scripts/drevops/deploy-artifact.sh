@@ -1,24 +1,25 @@
 #!/usr/bin/env bash
 ##
-# Deploy via pushing code artifact to remote git repository.
+# Deploy code via pushing an artifact to a remote git repository.
 #
 # @see https://github.com/drevops/git-artifact
-#
-# IMPORTANT! This script runs outside the container on the host system.
 #
 # Deployment to remote git repositories allows to build the project code as
 # an artifact in CI and then commit only required files to the destination
 # repository.
 #
-# The list of files to ignore during deployment is controlled by a file
-# .gitignore.deployment, which has .gitignore syntax. During artifact building
-# process preparation, this file effectively replaces existing .gitignore
-# and all files that are ignored get removed.
+# During deployment, the `.gitignore.deployment` file determines which files
+# to exclude, using the `.gitignore` syntax. When preparing the artifact build,
+# this file supersedes the existing `.gitignore`, and any specified files are
+# excluded.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Remote repository to push code to.
 DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE="${DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE:-}"
@@ -53,9 +54,9 @@ DREVOPS_DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}"
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
 info "Started ARTIFACT deployment."
@@ -74,13 +75,13 @@ info "Started ARTIFACT deployment."
 [ "$(git config --global user.email)" = "" ] && note "Configuring global git user email." && git config --global user.email "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
 
 # Use custom deploy key if fingerprint is provided.
-if [ -n "${DREVOPS_DEPLOY_SSH_FINGERPRINT}" ]; then
+if [ -n "${DREVOPS_DEPLOY_SSH_FINGERPRINT:-}" ]; then
   note "Custom deployment key is provided."
   DREVOPS_DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FINGERPRINT//:/}"
   DREVOPS_DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_SSH_FILE//\"/}"
 fi
 
-[ ! -f "${DREVOPS_DEPLOY_SSH_FILE}" ] && fail "SSH key file ${DREVOPS_DEPLOY_SSH_FILE} does not exist." && exit 1
+[ ! -f "${DREVOPS_DEPLOY_SSH_FILE:-}" ] && fail "SSH key file ${DREVOPS_DEPLOY_SSH_FILE} does not exist." && exit 1
 
 if ssh-add -l | grep -q "${DREVOPS_DEPLOY_SSH_FILE}"; then
   note "SSH agent has ${DREVOPS_DEPLOY_SSH_FILE} key loaded."
@@ -92,7 +93,7 @@ else
 fi
 
 # Disable strict host key checking in CI.
-[ -n "${CI}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
+[ -n "${CI:-}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
 
 note "Installing artifact builder."
 composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^0.5

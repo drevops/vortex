@@ -17,16 +17,17 @@ setup() {
   ## Phase 1: Framework setup.
   ##
 
-  echo "NOTE: if Docker tests fail, re-run with custom temporary directory (must be pre-created): TMPDIR=\$HOME/.bats-tmp bats <testfile>" >&3
+  # NOTE: If Docker tests fail, re-run with custom temporary directory
+  # (must be pre-created): TMPDIR=$HOME/.bats-tmp bats <testfile>'
 
   # Enforce architecture if not provided for ARM. Note that this may not work
   # if bash uses Rosetta or other emulators, in which case the test should run
   # with the variable explicitly set.
-  if [ "$(uname -m)" = "arm64" ]; then
+  if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
     export DOCKER_DEFAULT_PLATFORM=linux/amd64
   fi
 
-  if [ -n "${DOCKER_DEFAULT_PLATFORM}" ]; then
+  if [ -n "${DOCKER_DEFAULT_PLATFORM:-}" ]; then
     step "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."
   fi
 
@@ -38,6 +39,8 @@ setup() {
 
   # Setup command mocking.
   setup_mock
+
+  load _helper.run_steps.bash
 
   ##
   ## Phase 2: Pre-flight checks.
@@ -51,14 +54,14 @@ setup() {
 
   # Preflight checks.
   # @formatter:off
-  command -v curl > /dev/null                       || ( echo "[ERROR] curl command is not available." && exit 1 )
-  command -v composer > /dev/null                   || ( echo "[ERROR] composer command is not available." && exit 1 )
-  command -v docker > /dev/null                     || ( echo "[ERROR] docker command is not available." && exit 1 )
-  command -v ahoy > /dev/null                       || ( echo "[ERROR] ahoy command is not available." && exit 1 )
-  command -v jq > /dev/null                         || ( echo "[ERROR] jq command is not available." && exit 1 )
-  [ -n "${TEST_GITHUB_TOKEN}" ]                     || ( echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1 )
-  [ -n "${TEST_DOCKER_USER}" ] || ( echo "[ERROR] The required TEST_DOCKER_USER variable is not set. Tests will not proceed." && exit 1 )
-  [ -n "${TEST_DOCKER_PASS}" ] || ( echo "[ERROR] The required TEST_DOCKER_PASS variable is not set. Tests will not proceed." && exit 1 )
+  command -v curl >/dev/null || (echo "[ERROR] curl command is not available." && exit 1)
+  command -v composer >/dev/null || (echo "[ERROR] composer command is not available." && exit 1)
+  command -v docker >/dev/null || (echo "[ERROR] docker command is not available." && exit 1)
+  command -v ahoy >/dev/null || (echo "[ERROR] ahoy command is not available." && exit 1)
+  command -v jq >/dev/null || (echo "[ERROR] jq command is not available." && exit 1)
+  [ -n "${TEST_GITHUB_TOKEN}" ] || (echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1)
+  [ -n "${TEST_DOCKER_USER}" ] || (echo "[ERROR] The required TEST_DOCKER_USER variable is not set. Tests will not proceed." && exit 1)
+  [ -n "${TEST_DOCKER_PASS}" ] || (echo "[ERROR] The required TEST_DOCKER_PASS variable is not set. Tests will not proceed." && exit 1)
   # @formatter:on
 
   ##
@@ -73,7 +76,7 @@ setup() {
   # Root build directory where the rest of fixture directories located.
   # The "build" in this context is a place to store assets produced by the
   # installer script during the test.
-  export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR//\/\//\/}/drevops-$(random_string)"}"
+  export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR//\/\//\/}/drevops-$(date +%s)"}"
   # Directory where the installer script is executed.
   # May have existing project files (e.g. from previous installations) or be
   # empty (to facilitate brand-new install).
@@ -132,7 +135,7 @@ setup() {
 
   # Set Drupal version.
   # @todo Review if this is required.
-  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
+  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-10}"
 
   # Switch to using test demo DB.
   # Demo DB is what is being downloaded when the installer runs for the first
@@ -150,6 +153,17 @@ setup() {
   # Prepare global git config and ignore files required for testing cleanup scenarios.
   prepare_global_gitconfig
   prepare_global_gitignore
+
+  ##
+  ## Phase 6: Setting debug mode.
+  ##
+
+  # Print debug if "--verbose-run" is passed or TEST_DREVOPS_DEBUG is set to "1".
+  if [ "${BATS_VERBOSE_RUN:-}" = "1" ] || [ "${TEST_DREVOPS_DEBUG:-}" = "1" ]; then
+    echo "Verbose run enabled." >&3
+    echo "BUILD_DIR: ${BUILD_DIR}" >&3
+    export RUN_STEPS_DEBUG=1
+  fi
 
   # Change directory to the current project directory for each test. Tests
   # requiring to operate outside of CURRENT_PROJECT_DIR (like deployment tests)
@@ -230,8 +244,8 @@ assert_files_present_common() {
   assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
 
   # Assert that DrevOps version was replaced.
-  assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
-  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_DRUPAL_VERSION}.x"
+  assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_VERSION:-develop}-blue.svg"
+  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_VERSION:-develop}"
 
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
 
@@ -268,7 +282,7 @@ assert_files_not_present_common() {
   assert_file_not_exists "docs/FAQs.md"
   assert_file_not_exists ".ahoy.yml"
 
-  if [ "${has_required_files}" -eq 1 ]; then
+  if [ "${has_required_files:-}" -eq 1 ]; then
     assert_file_exists "README.md"
     assert_file_exists ".circleci/config.yml"
     assert_file_exists "${webroot}/sites/default/settings.php"
@@ -366,7 +380,7 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/info.sh"
   assert_file_exists "scripts/drevops/lint.sh"
   assert_file_exists "scripts/drevops/notify.sh"
-  assert_file_exists "scripts/drevops/notify-email.php"
+  assert_file_exists "scripts/drevops/notify-email.sh"
   assert_file_exists "scripts/drevops/notify-github.sh"
   assert_file_exists "scripts/drevops/notify-jira.sh"
   assert_file_exists "scripts/drevops/notify-newrelic.sh"
@@ -575,7 +589,7 @@ assert_files_present_install_from_profile() {
   assert_file_contains ".env" "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL"
-  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT"
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH"
 
   assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FORCE"
   assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_FTP_USER"
@@ -690,7 +704,7 @@ assert_files_present_no_deployment() {
 
   # 'Required' files can be asserted for modifications only if they were not
   # committed.
-  if [ "${has_committed_files}" -eq 0 ]; then
+  if [ "${has_committed_files:-}" -eq 0 ]; then
     assert_file_not_contains "README.md" "[deployment documentation](docs/DEPLOYMENT.md)"
     assert_file_not_contains ".circleci/config.yml" "deploy: &job_deploy"
     assert_file_not_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
@@ -735,7 +749,7 @@ assert_files_present_integration_acquia() {
   assert_file_contains "${webroot}/sites/default/settings.php" "if (file_exists('/var/www/site-php"
   assert_file_contains "${webroot}/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
 
-  if [ "${include_scripts}" -eq 1 ]; then
+  if [ "${include_scripts:-}" -eq 1 ]; then
     assert_dir_exists "scripts"
     assert_file_contains ".env" "DREVOPS_ACQUIA_APP_NAME="
     assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
@@ -811,7 +825,7 @@ assert_files_present_no_integration_lagoon() {
   assert_file_not_contains "docker-compose.yml" "lagoon.type: solr"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
 
-  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_ENVIRONMENT="
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH="
   assert_file_not_contains ".env.local.example" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
 
   popd >/dev/null || exit 1
@@ -904,7 +918,7 @@ create_fixture_readme() {
 
   cat <<EOT >>"${dir}"/README.md
 # ${name}
-Drupal 9 implementation of ${name} for ${org}
+Drupal 10 implementation of ${name} for ${org}
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 
@@ -926,7 +940,7 @@ create_fixture_composerjson() {
   cat <<EOT >>"${dir}"/composer.json
 {
     "name": "${org_machine_name}/${machine_name}",
-    "description": "Drupal 9 implementation of ${name} for ${org}"
+    "description": "Drupal 10 implementation of ${name} for ${org}"
 }
 EOT
 }
@@ -1019,7 +1033,7 @@ run_install_interactive() {
   for i in "${answers[@]}"; do
     val="${i}"
     [ "${i}" = "nothing" ] && val='\n' || val="${val}"'\n'
-    input="${input}""${val}"
+    input="${input:-}""${val:-}"
   done
 
   # shellcheck disable=SC2059,SC2119
@@ -1057,7 +1071,7 @@ install_dependencies_stub() {
 
   mktouch "${webroot}/sites/default/settings.local.php"
   mktouch "${webroot}/sites/default/services.local.yml"
-  echo "version: \"2.3\"" >"docker-compose.override.yml"
+  echo 'version: "2.3"' >"docker-compose.override.yml"
 
   popd >/dev/null || exit 1
 }
@@ -1107,7 +1121,7 @@ prepare_local_repo() {
   local do_copy_code="${2:-1}"
   local commit
 
-  if [ "${do_copy_code}" -eq 1 ]; then
+  if [ "${do_copy_code:-}" -eq 1 ]; then
     prepare_fixture_dir "${dir}"
     copy_code "${dir}"
   fi
@@ -1204,7 +1218,7 @@ git_init() {
   assert_not_git_repo "${dir}"
   git --work-tree="${dir}" --git-dir="${dir}/.git" init >/dev/null
 
-  if [ "${allow_receive_update}" -eq 1 ]; then
+  if [ "${allow_receive_update:-}" -eq 1 ]; then
     git --work-tree="${dir}" --git-dir="${dir}/.git" config receive.denyCurrentBranch updateInstead >/dev/null
   fi
 }
@@ -1268,7 +1282,7 @@ fix_host_dependencies() {
   # Replicate behaviour of scripts/drevops/installer/install.php script to extract destination directory
   # passed as an argument.
   # shellcheck disable=SC2235
-  ([ "${1}" = "--quiet" ] || [ "${1}" = "-q" ]) && shift
+  ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift
   # Destination directory, that can be overridden with the first argument to this script.
   DREVOPS_INSTALL_DST_DIR="${DREVOPS_INSTALL_DST_DIR:-$(pwd)}"
   DREVOPS_INSTALL_DST_DIR=${1:-${DREVOPS_INSTALL_DST_DIR}}
@@ -1283,4 +1297,34 @@ fix_host_dependencies() {
   fi
 
   popd >/dev/null || exit 1
+}
+
+##
+# Creates a wrapper script for a globally available binary.
+#
+# Creates a wrapper script for a globally available binary in a specified
+# directory and filename.
+# This allows scripts that reference binaries in the specified directory to use
+# the global command.
+#
+# Parameters:
+#   - path_with_bin
+#     The full path where the wrapper should be created
+#     (e.g., "vendor/bin/custom_drush").
+#   - global_bin (optional)
+#     The name of the global binary for which the wrapper is being created.
+#     Defaults to the bin name from path_with_bin if not provided.
+#
+# Usage:
+#   create_global_command_wrapper "vendor/bin/custom_drush"  # uses "custom_drush" as global_bin
+#   create_global_command_wrapper "vendor/bin/custom_drush" "drush"  # uses "drush" as global_bin
+create_global_command_wrapper() {
+  local path_with_bin="$1"
+  local global_bin="${2:-$(basename "$path_with_bin")}" # If $2 is unset or null, use the basename of $1
+  mkdir -p "$(dirname "$path_with_bin")"
+  cat <<EOL >"$path_with_bin"
+#!/bin/bash
+$global_bin "\$@"
+EOL
+  chmod +x "$path_with_bin"
 }

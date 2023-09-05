@@ -194,19 +194,19 @@ commands:
 
   test-unit:
     usage: Run PhpUnit unit tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPE=unit ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "DREVOPS_TEST_TYPES=unit ./scripts/drevops/test.sh $@"
 
   test-kernel:
     usage: Run PhpUnit kernel tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPE=kernel ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "DREVOPS_TEST_TYPES=kernel ./scripts/drevops/test.sh $@"
 
   test-functional:
     usage: Run PhpUnit functional tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPE=functional ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "DREVOPS_TEST_TYPES=functional ./scripts/drevops/test.sh $@"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPE=bdd ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "DREVOPS_TEST_TYPES=bdd ./scripts/drevops/test.sh $@"
 
   debug:
     usage: Enable PHP Xdebug.

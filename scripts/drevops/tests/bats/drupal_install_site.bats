@@ -2,20 +2,20 @@
 ##
 # Unit tests for drupal-install-site.sh
 #
-#shellcheck disable=SC2030,SC2031
+#shellcheck disable=SC2030,SC2031,SC2034
 
 load _helper.bash
 
-format_yes_no() {
-  [ "${1}" == "1" ] && echo "Yes" || echo "No"
-}
-
-assert_drupal_install_site_info(){
+assert_drupal_install_site_info() {
   local webroot="${8:-web}"
+
+  format_yes_no() {
+    [ "${1}" == "1" ] && echo "Yes" || echo "No"
+  }
 
   assert_output_contains "Started site installation."
   assert_output_contains "App dir                      : ${LOCAL_REPO_DIR}"
-  assert_output_contains "Web root dir                 : ${webroot}"
+  assert_output_contains "Webroot dir                  : ${webroot}"
   assert_output_contains "Site name                    : Example site"
   assert_output_contains "Site email                   : webmaster@example.com"
   assert_output_contains "Profile                      : standard"
@@ -23,9 +23,8 @@ assert_drupal_install_site_info(){
   assert_output_contains "Config path                  : ${LOCAL_REPO_DIR}/config/default"
   assert_output_contains "DB dump file path            : ${LOCAL_REPO_DIR}/.data/db.sql"
 
-  assert_output_contains "Drush binary                 :"
-  assert_output_contains "Drush version                :"
-  assert_output_contains "Drupal core version          :"
+  assert_output_contains "Drush version                : mocked_drush_version"
+  assert_output_contains "Drupal core version          : mocked_core_version"
 
   assert_output_contains "Install from profile         : $(format_yes_no "${1:-0}")"
   assert_output_contains "Overwrite existing DB        : $(format_yes_no "${2:-0}")"
@@ -40,7 +39,7 @@ assert_drupal_install_site_info(){
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
-  rm ./.env
+  rm ./.env && touch ./.env
 
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
@@ -49,136 +48,122 @@ assert_drupal_install_site_info(){
   mkdir "${LOCAL_REPO_DIR}/.data"
   touch "${LOCAL_REPO_DIR}/.data/db.sql"
 
-  mock_drush=$(mock_command "drush")
-  # Drush version.
-  mock_set_output "${mock_drush}" "Mocked drush version" 1
-  # Drupal core version.
-  mock_set_output "${mock_drush}" "Mocked core version" 2
-  # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "fail" 3
-  # 2 calls to import DB from file.
-  mock_set_status "${mock_drush}" 0 4
-  mock_set_status "${mock_drush}" 0 5
-  # Enable maintenance mode.
-  mock_set_status "${mock_drush}" 0 6
-  # Running updates.
-  mock_set_status "${mock_drush}" 0 7
-  # Rebuild cache.
-  mock_set_status "${mock_drush}" 0 8
-  # Environment name.
-  mock_set_output "${mock_drush}" "ci" 9
-  # Check for 'drush deploy' command presence.
-  mock_set_output "${mock_drush}" "none" 10
-  # Sanitization commands.
-  mock_set_status "${mock_drush}" 0 11
-  mock_set_status "${mock_drush}" 0 12
-  mock_set_status "${mock_drush}" 0 13
-  mock_set_status "${mock_drush}" 0 14
-  # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 15
-  # Example site install operations.
-  mock_set_output "${mock_drush}" "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" 16
-  mock_set_output "${mock_drush}" "pm:install ys_core -y" 17
-  mock_set_output "${mock_drush}" "deploy:hook -y" 18
-  # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 19
-  # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 20
-  mock_set_output "${mock_drush}" "admin" 21
-  mock_set_status "${mock_drush}" 0 22
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 23
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+
+    # Private files directory.
+    "Creating private files directory."
+    "Created private files directory."
+
+    # Site installation information.
+    "Installing site from the database dump file."
+    "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "- Existing site was found when installing from the database dump file."
+    "- Site content will be preserved."
+    "- Sanitization will be skipped for an existing database."
+    "- Existing site content will be removed and fresh content will be imported from the database dump file."
+    "Existing site was not found when installing from the database dump file."
+    "Fresh site content will be imported from the database dump file."
+    "@drush -y sql:drop"
+    "@drush -y sql:cli"
+    "- Unable to import database from file."
+    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Site content was not changed."
+    "Imported database from the dump file."
+    # Profile.
+    "- Installing site from the profile."
+    "- Existing site was found when installing from the profile."
+    "- Existing site content will be removed and new content will be created from the profile."
+    "- Installed a site from the profile."
+    "- Existing site was not found when installing from the profile."
+    "- Fresh site content will be created from the profile."
+
+    # Post-install operations.
+    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Deployment and configuration updates.
+    "- Updated site UUID from the configuration with"
+    "- Running deployment operations via 'drush deploy'."
+    "- Importing config_split configuration."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Post configuration import updates.
+    "Running deployment operations via 'drush deploy:hook'."
+    "@drush -y deploy:hook"
+    "Completed deployment operations via 'drush deploy:hook'."
+
+    # Database sanitization.
+    "Sanitizing database."
+    "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
+    "Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
+    "@drush -y sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql"
+    "Applied custom sanitization commands from file"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+    "Reset user 0 username and email."
+    "- Updated user 1 email."
+    "- Skipped database sanitization."
+
+    # Custom post-install script.
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y pm:install ys_core"
+    "@drush -y deploy:hook"
+    "Executing example operations in non-production environment."
+    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    "Fresh database detected. Performing additional operations."
+    "- Existing database detected. Skipping additional operations."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+
+    # One-time login link.
+    "@drush pm:list --status=enabled # none"
+    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -- user:unblock admin"
+    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "MOCK_ONE_TIME_LINK"
+
+    # Installation completion.
+    "Finished site installation."
+  )
+
+  mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
-
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
+  run_steps "assert" "${mocks[@]}"
 
   assert_drupal_install_site_info 0 0 0 1 0 0 0
-
-  assert_output_contains "Creating private files directory."
-  assert_output_contains "Created private files directory."
-
-  assert_output_contains "Installing site from the database dump file."
-  assert_output_contains "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
-  assert_output_contains "Existing site was not found."
-  assert_output_contains "The site content will be imported from the database dump file."
-  assert_output_contains "Imported database from the dump file."
-
-  assert_equal "-y -q sql:drop" "$(mock_get_call_args "${mock_drush}" 4)"
-  assert_equal "-y -q sql:cli" "$(mock_get_call_args "${mock_drush}" 5)"
-
-  assert_output_not_contains "Unable to import database from file."
-  assert_output_not_contains "Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
-  assert_output_not_contains "Site content was not changed."
-
-  assert_output_not_contains "Existing site content will be removed and new content will be imported from the database dump file."
-  assert_output_not_contains "Existing site was found."
-  assert_output_not_contains "Site content will be preserved."
-  assert_output_not_contains "Sanitization will be skipped for an existing database."
-  assert_output_not_contains "Installing site from the profile."
-  assert_output_not_contains "Existing site content will be removed and new content will be created from the profile."
-  assert_output_not_contains "The site content will be created from the profile."
-
-  assert_output_not_contains "Skipped running of post-install operations."
-
-  assert_output_contains "Enabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 6)"
-  assert_output_contains "Enabled maintenance mode."
-
-  assert_output_contains "Running database updates."
-  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
-
-  assert_output_contains "Importing Drupal configuration if it exists."
-  assert_output_not_contains "Updated site UUID from the configuration with"
-  assert_output_not_contains "Importing configuration"
-  assert_output_not_contains "Importing config_split configuration."
-  assert_output_contains "Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
-
-  assert_output_contains "Rebuilding cache."
-  assert_equal "-y -q cache:rebuild" "$(mock_get_call_args "${mock_drush}" 8)"
-
-  assert_output_contains "Current Drupal environment: ci"
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
-
-  assert_output_not_contains "Running updates after configuration import via Drush deploy."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
-
-  # Sanitization is skipped for the existing database.
-  assert_output_contains "Sanitizing database."
-  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
-  assert_output_contains "Sanitized database using drush sql:sanitize."
-  assert_output_not_contains "Updated username with user email."
-  assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_output_contains "Applied custom sanitization commands."
-  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
-  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
-  assert_output_contains "Reset user 0 username and email."
-  assert_output_not_contains "Updated user 1 email."
-  assert_output_not_contains "Skipped database sanitization."
-
-  assert_output_contains "Running custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 15)"
-  assert_equal "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 17)"
-  assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 18)"
-  assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-
-  assert_output_contains "Disabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 19)"
-  assert_output_contains "Disabled maintenance mode."
-
-  # One-time login link.
-  assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 20)"
-  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
-  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 22)"
-  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 23)"
-  assert_output_contains "MOCK_ONE_TIME_LINK"
-
-  assert_output_contains "Finished site installation."
 
   popd >/dev/null || exit 1
 }
@@ -187,7 +172,7 @@ assert_drupal_install_site_info(){
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
-  rm ./.env
+  rm ./.env && touch ./.env
 
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export CI=1
@@ -195,117 +180,116 @@ assert_drupal_install_site_info(){
   mkdir "${LOCAL_REPO_DIR}/.data"
   touch "${LOCAL_REPO_DIR}/.data/db.sql"
 
-  mock_drush=$(mock_command "drush")
-  # Drush version.
-  mock_set_output "${mock_drush}" "Mocked drush version" 1
-  # Drupal core version.
-  mock_set_output "${mock_drush}" "Mocked core version" 2
-  # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "Successful" 3
-  # Enable maintenance mode.
-  mock_set_status "${mock_drush}" 0 4
-  # Running updates.
-  mock_set_status "${mock_drush}" 0 5
-  # Rebuild cache.
-  mock_set_status "${mock_drush}" 0 6
-  # Environment name.
-  mock_set_output "${mock_drush}" "ci" 7
-  # Check for 'drush deploy' command presence.
-  mock_set_output "${mock_drush}" "none" 8
-  # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 9
-  # Example site install operations.
-  mock_set_output "${mock_drush}" "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" 10
-  mock_set_output "${mock_drush}" "pm:install ys_core -y" 11
-  mock_set_output "${mock_drush}" "deploy:hook -y" 12
-  # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 13
-  # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 14
-  mock_set_output "${mock_drush}" "admin" 15
-  mock_set_status "${mock_drush}" 0 16
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 17
+  create_global_command_wrapper "vendor/bin/drush" "drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # Successful"
+
+    # Private files directory.
+    "Creating private files directory."
+    "Created private files directory."
+
+    # Site installation information.
+    "Installing site from the database dump file."
+    "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "Existing site was found when installing from the database dump file."
+    "Site content will be preserved."
+    "Sanitization will be skipped for an existing database."
+    "- Existing site content will be removed and fresh content will be imported from the database dump file."
+    "- Existing site was not found when installing from the database dump file."
+    "- Fresh site content will be imported from the database dump file."
+    "- Unable to import database from file."
+    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Site content was not changed."
+    "- Imported database from the dump file."
+    # Profile.
+    "- Installing site from the profile."
+    "- Existing site was found when installing from the profile."
+    "- Existing site content will be removed and new content will be created from the profile."
+    "- Installed a site from the profile."
+    "- Existing site was not found when installing from the profile."
+    "- Fresh site content will be created from the profile."
+
+    # Post-install operations.
+    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Deployment and configuration updates.
+    "- Updated site UUID from the configuration with"
+    "- Running deployment operations via 'drush deploy'."
+    "- Importing config_split configuration."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Post configuration import updates.
+    "Running deployment operations via 'drush deploy:hook'."
+    "@drush -y deploy:hook"
+    "Completed deployment operations via 'drush deploy:hook'."
+
+    # Database sanitization.
+    "- Sanitizing database."
+    "- Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
+    "- Applied custom sanitization commands from file"
+    "- Reset user 0 username and email."
+    "- Updated user 1 email."
+    "Skipped database sanitization."
+
+    # Custom post-install script.
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y pm:install ys_core"
+    "@drush -y deploy:hook"
+    "Executing example operations in non-production environment."
+    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    "- Fresh database detected. Performing additional operations."
+    "Existing database detected. Skipping additional operations."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+
+    # One-time login link.
+    "@drush pm:list --status=enabled # none"
+    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -- user:unblock admin"
+    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "MOCK_ONE_TIME_LINK"
+
+    # Installation completion.
+    "Finished site installation."
+  )
+
+  mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
-
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
+  run_steps "assert" "${mocks[@]}"
 
   assert_drupal_install_site_info 0 0 0 1 0 0 1
-
-  assert_output_contains "Creating private files directory."
-  assert_output_contains "Created private files directory."
-
-  assert_output_contains "Installing site from the database dump file."
-  assert_output_contains "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
-  assert_output_contains "Existing site was found."
-  assert_output_contains "Site content will be preserved."
-  assert_output_contains "Sanitization will be skipped for an existing database."
-
-  assert_output_not_contains "Existing site content will be removed and new content will be imported from the database dump file."
-  assert_output_not_contains "Existing site was not found."
-  assert_output_not_contains "The site content will be imported from the database dump file."
-  assert_output_not_contains "Imported database from the dump file."
-  assert_output_not_contains "Installing site from the profile."
-  assert_output_not_contains "Existing site content will be removed and new content will be created from the profile."
-  assert_output_not_contains "The site content will be created from the profile."
-
-  assert_output_not_contains "Skipped running of post-install operations."
-
-  assert_output_contains "Enabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 4)"
-  assert_output_contains "Enabled maintenance mode."
-
-  assert_output_contains "Running database updates."
-  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 5)"
-
-  assert_output_contains "Importing Drupal configuration if it exists."
-  assert_output_not_contains "Updated site UUID from the configuration with"
-  assert_output_not_contains "Importing configuration"
-  assert_output_not_contains "Importing config_split configuration."
-  assert_output_contains "Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
-
-  assert_output_contains "Rebuilding cache."
-  assert_equal "-y -q cache:rebuild" "$(mock_get_call_args "${mock_drush}" 6)"
-
-  assert_output_contains "Current Drupal environment: ci"
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 7)"
-
-  assert_output_not_contains "Running updates after configuration import via Drush deploy."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 8)"
-
-  # Sanitization is skipped for the existing database.
-  assert_output_contains "Skipped database sanitization."
-  assert_output_not_contains "Sanitizing database."
-  assert_output_not_contains "Sanitized database using drush sql:sanitize."
-  assert_output_not_contains "Updated username with user email."
-  assert_output_not_contains "Applied custom sanitization commands from file "
-  assert_output_not_contains "Reset user 0 username and email."
-  assert_output_not_contains "Updated user 1 email."
-
-  assert_output_contains "Running custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
-  assert_equal "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" "$(mock_get_call_args "${mock_drush}" 10)"
-  assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 11)"
-  assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-
-  assert_output_contains "Disabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 13)"
-  assert_output_contains "Disabled maintenance mode."
-
-  # One-time login link.
-  assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 14)"
-  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 15)"
-  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 17)"
-  assert_output_contains "MOCK_ONE_TIME_LINK"
-
-  assert_output_contains "Finished site installation."
 
   popd >/dev/null || exit 1
 }
@@ -314,142 +298,272 @@ assert_drupal_install_site_info(){
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
-  rm ./.env
+  rm ./.env && touch ./.env
 
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
-  export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "${LOCAL_REPO_DIR}/.data"
   touch "${LOCAL_REPO_DIR}/.data/db.sql"
 
-  mock_drush=$(mock_command "drush")
+  export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
 
-  # Drush version.
-  mock_set_output "${mock_drush}" "Mocked drush version" 1
-  # Drupal core version.
-  mock_set_output "${mock_drush}" "Mocked core version" 2
-  # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "Successful" 3
-  # 2 calls to import DB from file.
-  mock_set_status "${mock_drush}" 0 4
-  mock_set_status "${mock_drush}" 0 5
-  # Enable maintenance mode.
-  mock_set_status "${mock_drush}" 0 6
-  # Running updates.
-  mock_set_status "${mock_drush}" 0 7
-  # Rebuild cache.
-  mock_set_status "${mock_drush}" 0 8
-  # Environment name.
-  mock_set_output "${mock_drush}" "ci" 9
-  # Check for 'drush deploy' command presence.
-  mock_set_output "${mock_drush}" "none" 10
-  # Sanitization commands.
-  mock_set_status "${mock_drush}" 0 11
-  mock_set_status "${mock_drush}" 0 12
-  mock_set_status "${mock_drush}" 0 13
-  mock_set_status "${mock_drush}" 0 14
-  # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 15
-  # Example site install operations.
-  mock_set_output "${mock_drush}" "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" 16
-  mock_set_output "${mock_drush}" "pm:install ys_core -y" 17
-  mock_set_output "${mock_drush}" "deploy:hook -y" 18
-  # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 19
-  # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 20
-  mock_set_output "${mock_drush}" "admin" 21
-  mock_set_status "${mock_drush}" 0 22
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 23
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # Successful"
+
+    # Private files directory.
+    "Creating private files directory."
+    "Created private files directory."
+
+    # Site installation information.
+    "Installing site from the database dump file."
+    "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "Existing site was found when installing from the database dump file."
+    "- Site content will be preserved."
+    "- Sanitization will be skipped for an existing database."
+    "Existing site content will be removed and fresh content will be imported from the database dump file."
+    "- Existing site was not found when installing from the database dump file."
+    "- Fresh site content will be imported from the database dump file."
+    "@drush -y sql:drop"
+    "@drush -y sql:cli"
+    "- Unable to import database from file."
+    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Site content was not changed."
+    "Imported database from the dump file."
+    # Profile.
+    "- Installing site from the profile."
+    "- Existing site was found when installing from the profile."
+    "- Existing site content will be removed and new content will be created from the profile."
+    "- Installed a site from the profile."
+    "- Existing site was not found when installing from the profile."
+    "- Fresh site content will be created from the profile."
+
+    # Post-install operations.
+    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Deployment and configuration updates.
+    "- Updated site UUID from the configuration with"
+    "- Running deployment operations via 'drush deploy'."
+    "- Importing config_split configuration."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Post configuration import updates.
+    "Running deployment operations via 'drush deploy:hook'."
+    "@drush -y deploy:hook"
+    "Completed deployment operations via 'drush deploy:hook'."
+
+    # Database sanitization.
+    "Sanitizing database."
+    "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
+    "Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
+    "@drush -y sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql"
+    "Applied custom sanitization commands from file"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+    "Reset user 0 username and email."
+    "- Updated user 1 email."
+    "- Skipped database sanitization."
+
+    # Custom post-install script.
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y pm:install ys_core"
+    "@drush -y deploy:hook"
+    "Executing example operations in non-production environment."
+    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    "Fresh database detected. Performing additional operations."
+    "- Existing database detected. Skipping additional operations."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+
+    # One-time login link.
+    "@drush pm:list --status=enabled # none"
+    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -- user:unblock admin"
+    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "MOCK_ONE_TIME_LINK"
+
+    # Installation completion.
+    "Finished site installation."
+  )
+
+  mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
-
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
+  run_steps "assert" "${mocks[@]}"
 
   assert_drupal_install_site_info 0 1 0 1 0 0 1
 
-  assert_output_contains "Creating private files directory."
-  assert_output_contains "Created private files directory."
+  popd >/dev/null || exit 1
+}
 
-  assert_output_contains "Installing site from the database dump file."
-  assert_output_contains "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
-  assert_output_contains "Existing site was found."
-  assert_output_contains "Existing site content will be removed and new content will be imported from the database dump file."
-  assert_output_contains "Imported database from the dump file."
+@test "Site install: DB; no site, configs" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  assert_equal "-y -q sql:drop" "$(mock_get_call_args "${mock_drush}" 4)"
-  assert_equal "-y -q sql:cli" "$(mock_get_call_args "${mock_drush}" 5)"
+  # Remove .env file to test in isolation.
+  rm ./.env && touch ./.env
 
-  assert_output_not_contains "Site content will be preserved."
-  assert_output_not_contains "Sanitization will be skipped for an existing database."
-  assert_output_not_contains "Existing site was not found."
-  assert_output_not_contains "The site content will be imported from the database dump file."
-  assert_output_not_contains "Installing site from the profile."
-  assert_output_not_contains "Existing site content will be removed and new content will be created from the profile."
-  assert_output_not_contains "The site content will be created from the profile."
+  export DREVOPS_APP="${LOCAL_REPO_DIR}"
+  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export CI=1
 
-  assert_output_not_contains "Skipped running of post-install operations."
+  mkdir "${LOCAL_REPO_DIR}/.data"
+  touch "${LOCAL_REPO_DIR}/.data/db.sql"
 
-  assert_output_contains "Enabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 6)"
-  assert_output_contains "Enabled maintenance mode."
+  mocked_uuid="c9360453-e1ea-4292-b074-ea375f97d72b"
+  echo "uuid: ${mocked_uuid}" >"${LOCAL_REPO_DIR}/config/default/system.site.yml"
+  echo "name: 'SUT'" >>"${LOCAL_REPO_DIR}/config/default/system.site.yml"
 
-  assert_output_contains "Running database updates."
-  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
+  create_global_command_wrapper "vendor/bin/drush"
 
-  assert_output_contains "Importing Drupal configuration if it exists."
-  assert_output_not_contains "Updated site UUID from the configuration with"
-  assert_output_not_contains "Importing configuration"
-  assert_output_not_contains "Importing config_split configuration."
-  assert_output_contains "Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
 
-  assert_output_contains "Rebuilding cache."
-  assert_equal "-y -q cache:rebuild" "$(mock_get_call_args "${mock_drush}" 8)"
+    # Private files directory.
+    "Creating private files directory."
+    "Created private files directory."
 
-  assert_output_contains "Current Drupal environment: ci"
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
+    # Site installation information.
+    "Installing site from the database dump file."
+    "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "- Existing site was found when installing from the database dump file."
+    "- Site content will be preserved."
+    "- Sanitization will be skipped for an existing database."
+    "- Existing site content will be removed and fresh content will be imported from the database dump file."
+    "Existing site was not found when installing from the database dump file."
+    "Fresh site content will be imported from the database dump file."
+    "@drush -y sql:drop"
+    "@drush -y sql:cli"
+    "- Unable to import database from file."
+    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Site content was not changed."
+    "Imported database from the dump file."
+    # Profile.
+    "- Installing site from the profile."
+    "- Existing site was found when installing from the profile."
+    "- Existing site content will be removed and new content will be created from the profile."
+    "- Installed a site from the profile."
+    "- Existing site was not found when installing from the profile."
+    "- Fresh site content will be created from the profile."
 
-  assert_output_not_contains "Running updates after configuration import via Drush deploy."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
+    # Post-install operations.
+    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
 
-  assert_output_contains "Sanitizing database."
-  assert_output_contains "Sanitized database using drush sql:sanitize."
-  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
-  assert_output_not_contains "Updated username with user email."
-  assert_output_contains "Applied custom sanitization commands."
-  assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_output_contains "Reset user 0 username and email."
-  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
-  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
-  assert_output_not_contains "Updated user 1 email."
-  assert_output_not_contains "Skipped database sanitization."
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
 
-  assert_output_contains "Running custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 15)"
-  assert_equal "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 17)"
-  assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 18)"
-  assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
 
-  assert_output_contains "Disabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 19)"
-  assert_output_contains "Disabled maintenance mode."
+    # Deployment and configuration updates.
+    "@drush -y config-set system.site uuid ${mocked_uuid}"
+    "Updated site UUID from the configuration with ${mocked_uuid}"
+    "Running deployment operations via 'drush deploy'."
+    "@drush -y deploy"
+    "@drush -y pm:list --status=enabled # config_split"
+    "Importing config_split configuration."
+    "@drush -y config:import"
+    "Completed config_split configuration import."
 
-  # One-time login link.
-  assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 20)"
-  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
-  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 22)"
-  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 23)"
-  assert_output_contains "MOCK_ONE_TIME_LINK"
+    # Database updates.
+    "- Running database updates."
+    "- Completed running database updates."
 
-  assert_output_contains "Finished site installation."
+    # Cache rebuild.
+    "- Rebuilding cache."
+    "- Cache was rebuilt."
+
+    # Post configuration import updates.
+    "- Running deployment operations via 'drush deploy:hook'."
+    "- Completed deployment operations via 'drush deploy:hook'."
+
+    # Database sanitization.
+    "Sanitizing database."
+    "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
+    "Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
+    "@drush -y sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql"
+    "Applied custom sanitization commands from file"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+    "Reset user 0 username and email."
+    "- Updated user 1 email."
+    "- Skipped database sanitization."
+
+    # Custom post-install script.
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y pm:install ys_core"
+    "@drush -y deploy:hook"
+    "Executing example operations in non-production environment."
+    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    "Fresh database detected. Performing additional operations."
+    "- Existing database detected. Skipping additional operations."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+
+    # One-time login link.
+    "@drush pm:list --status=enabled # none"
+    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -- user:unblock admin"
+    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "MOCK_ONE_TIME_LINK"
+
+    # Installation completion.
+    "Finished site installation."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  # export DREVOPS_DEBUG=1
+  run ./scripts/drevops/drupal-install-site.sh
+  assert_success
+
+  run_steps "assert" "${mocks[@]}"
+
+  assert_drupal_install_site_info 0 0 0 1 0 1 0
 
   popd >/dev/null || exit 1
 }
@@ -458,143 +572,133 @@ assert_drupal_install_site_info(){
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
-  rm ./.env
+  rm ./.env && touch ./.env
 
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
-  export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
-  mock_drush=$(mock_command "drush")
-  # Drush version.
-  mock_set_output "${mock_drush}" "Mocked drush version" 1
-  # Drupal core version.
-  mock_set_output "${mock_drush}" "Mocked core version" 2
-  # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "fail" 3
-  # 2 calls to install site from profile.
-  mock_set_status "${mock_drush}" 0 4
-  mock_set_status "${mock_drush}" 0 5
-  # Enable maintenance mode.
-  mock_set_status "${mock_drush}" 0 6
-  # Running updates.
-  mock_set_status "${mock_drush}" 0 7
-  # Rebuild cache.
-  mock_set_status "${mock_drush}" 0 8
-  # Environment name.
-  mock_set_output "${mock_drush}" "ci" 9
-  # Check for 'drush deploy' command presence.
-  mock_set_output "${mock_drush}" "none" 10
-  # Sanitization commands.
-  mock_set_status "${mock_drush}" 0 11
-  mock_set_status "${mock_drush}" 0 12
-  mock_set_status "${mock_drush}" 0 13
-  mock_set_status "${mock_drush}" 0 14
-  # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 15
-  # Example site install operations.
-  mock_set_output "${mock_drush}" "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" 16
-  mock_set_output "${mock_drush}" "pm:install ys_core -y" 17
-  mock_set_output "${mock_drush}" "deploy:hook -y" 18
-  # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 19
-  # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 20
-  mock_set_output "${mock_drush}" "admin" 21
-  mock_set_status "${mock_drush}" 0 22
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 23
+  mkdir "${LOCAL_REPO_DIR}/.data"
+  touch "${LOCAL_REPO_DIR}/.data/db.sql"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+
+    # Private files directory.
+    "Creating private files directory."
+    "Created private files directory."
+
+    # Site installation information.
+    "- Installing site from the database dump file."
+    "- Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "- Existing site was found when installing from the database dump file."
+    "- Site content will be preserved."
+    "- Sanitization will be skipped for an existing database."
+    "- Existing site content will be removed and fresh content will be imported from the database dump file."
+    "- Existing site was not found when installing from the database dump file."
+    "- Fresh site content will be imported from the database dump file."
+    "- Unable to import database from file."
+    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Site content was not changed."
+    "- Imported database from the dump file."
+    # Profile.
+    "Installing site from the profile."
+    "- Existing site was found when installing from the profile."
+    "- Existing site content will be removed and new content will be created from the profile."
+    "@drush -y sql:drop"
+    "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+    "Installed a site from the profile."
+    "Existing site was not found when installing from the profile."
+    "Fresh site content will be created from the profile."
+
+    # Post-install operations.
+    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Deployment and configuration updates.
+    "- Updated site UUID from the configuration with"
+    "- Running deployment operations via 'drush deploy'."
+    "- Importing config_split configuration."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Post configuration import updates.
+    "Running deployment operations via 'drush deploy:hook'."
+    "@drush -y deploy:hook"
+    "Completed deployment operations via 'drush deploy:hook'."
+
+    # Database sanitization.
+    "Sanitizing database."
+    "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
+    "Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
+    "@drush -y sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql"
+    "Applied custom sanitization commands from file"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+    "Reset user 0 username and email."
+    "- Updated user 1 email."
+    "- Skipped database sanitization."
+
+    # Custom post-install script.
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y pm:install ys_core"
+    "@drush -y deploy:hook"
+    "Executing example operations in non-production environment."
+    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    "Fresh database detected. Performing additional operations."
+    "- Existing database detected. Skipping additional operations."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+
+    # One-time login link.
+    "@drush pm:list --status=enabled # none"
+    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -- user:unblock admin"
+    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "MOCK_ONE_TIME_LINK"
+
+    # Installation completion.
+    "Finished site installation."
+  )
+
+  mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
-
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
+  run_steps "assert" "${mocks[@]}"
 
   assert_drupal_install_site_info 1 0 0 1 0 0 0
-
-  assert_output_contains "Creating private files directory."
-  assert_output_contains "Created private files directory."
-
-  assert_output_contains "Installing site from the profile."
-  assert_output_contains "Profile: standard."
-  assert_output_contains "Existing site was not found."
-  assert_output_contains "The site content will be created from the profile."
-  assert_output_contains "Installed a site from the profile."
-
-  assert_equal "-y -q sql:drop" "$(mock_get_call_args "${mock_drush}" 4)"
-  assert_equal "site:install -q -y standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL" "$(mock_get_call_args "${mock_drush}" 5)"
-
-  assert_output_not_contains "[FAIL] Unable to import database from file."
-  assert_output_not_contains "Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
-  assert_output_not_contains "Site content was not changed."
-
-  assert_output_not_contains "Existing site content will be removed and new content will be imported from the database dump file."
-  assert_output_not_contains "Existing site was found."
-  assert_output_not_contains "Site content will be preserved."
-  assert_output_not_contains "Sanitization will be skipped for an existing database."
-  assert_output_not_contains "Installing site from the database dump file."
-  assert_output_not_contains "Existing site content will be removed and new content will be created from the profile."
-  assert_output_not_contains "The site content will be imported from the database dump file."
-  assert_output_not_contains "Imported database from the dump file."
-
-  assert_output_not_contains "Skipped running of post-install operations."
-
-  assert_output_contains "Enabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 6)"
-  assert_output_contains "Enabled maintenance mode."
-
-  assert_output_contains "Running database updates."
-  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
-
-  assert_output_contains "Importing Drupal configuration if it exists."
-  assert_output_not_contains "Updated site UUID from the configuration with"
-  assert_output_not_contains "Importing configuration"
-  assert_output_not_contains "Importing config_split configuration."
-  assert_output_contains "Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
-
-  assert_output_contains "Rebuilding cache."
-  assert_equal "-y -q cache:rebuild" "$(mock_get_call_args "${mock_drush}" 8)"
-
-  assert_output_contains "Current Drupal environment: ci"
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
-
-  assert_output_not_contains "Running updates after configuration import via Drush deploy."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
-
-  assert_output_contains "Sanitizing database."
-  assert_output_contains "Sanitized database using drush sql:sanitize."
-  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
-  assert_output_not_contains "Updated username with user email."
-  assert_output_contains "Applied custom sanitization commands."
-  assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_output_contains "Reset user 0 username and email."
-  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
-  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
-  assert_output_not_contains "Updated user 1 email."
-  assert_output_not_contains "Skipped database sanitization."
-
-  assert_output_contains "Running custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 15)"
-  assert_equal "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 17)"
-  assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 18)"
-  assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-
-  assert_output_contains "Disabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 19)"
-  assert_output_contains "Disabled maintenance mode."
-
-  # One-time login link.
-  assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 20)"
-  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
-  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 22)"
-  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 23)"
-  assert_output_contains "MOCK_ONE_TIME_LINK"
-
-  assert_output_contains "Finished site installation."
 
   popd >/dev/null || exit 1
 }
@@ -603,123 +707,127 @@ assert_drupal_install_site_info(){
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
-  rm ./.env
+  rm ./.env && touch ./.env
 
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
-  export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
+  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
-  mock_drush=$(mock_command "drush")
-  # Drush version.
-  mock_set_output "${mock_drush}" "Mocked drush version" 1
-  # Drupal core version.
-  mock_set_output "${mock_drush}" "Mocked core version" 2
-  # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "Successful" 3
-  # Enable maintenance mode.
-  mock_set_status "${mock_drush}" 0 4
-  # Running updates.
-  mock_set_status "${mock_drush}" 0 5
-  # Rebuild cache.
-  mock_set_status "${mock_drush}" 0 6
-  # Environment name.
-  mock_set_output "${mock_drush}" "ci" 7
-  # Check for 'drush deploy' command presence.
-  mock_set_output "${mock_drush}" "none" 8
-  # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 9
-  # Example site install operations.
-  mock_set_output "${mock_drush}" "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" 10
-  mock_set_output "${mock_drush}" "pm:install ys_core -y" 11
-  mock_set_output "${mock_drush}" "deploy:hook -y" 12
-  # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 13
-  # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 14
-  mock_set_output "${mock_drush}" "admin" 15
-  mock_set_status "${mock_drush}" 0 16
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 17
+  mkdir "${LOCAL_REPO_DIR}/.data"
+  touch "${LOCAL_REPO_DIR}/.data/db.sql"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # Successful"
+
+    # Private files directory.
+    "Creating private files directory."
+    "Created private files directory."
+
+    # Site installation information.
+    "- Installing site from the database dump file."
+    "- Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "- Existing site was found when installing from the database dump file."
+    "Site content will be preserved."
+    "Sanitization will be skipped for an existing database."
+    "- Existing site content will be removed and fresh content will be imported from the database dump file."
+    "- Existing site was not found when installing from the database dump file."
+    "- Fresh site content will be imported from the database dump file."
+    "- Unable to import database from file."
+    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Site content was not changed."
+    "- Imported database from the dump file."
+    # Profile.
+    "Installing site from the profile."
+    "Existing site was found when installing from the profile."
+    "- Existing site content will be removed and new content will be created from the profile."
+    "- Installed a site from the profile."
+    "- Existing site was not found when installing from the profile."
+    "- Fresh site content will be created from the profile."
+
+    # Post-install operations.
+    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Deployment and configuration updates.
+    "- Updated site UUID from the configuration with"
+    "- Running deployment operations via 'drush deploy'."
+    "- Importing config_split configuration."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Post configuration import updates.
+    "Running deployment operations via 'drush deploy:hook'."
+    "@drush -y deploy:hook"
+    "Completed deployment operations via 'drush deploy:hook'."
+
+    # Database sanitization.
+    "- Sanitizing database."
+    "- Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
+    "- Applied custom sanitization commands from file"
+    "- Reset user 0 username and email."
+    "- Updated user 1 email."
+    "Skipped database sanitization."
+
+    # Custom post-install script.
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y pm:install ys_core"
+    "@drush -y deploy:hook"
+    "Executing example operations in non-production environment."
+    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    "- Fresh database detected. Performing additional operations."
+    "Existing database detected. Skipping additional operations."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+
+    # One-time login link.
+    "@drush pm:list --status=enabled # none"
+    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -- user:unblock admin"
+    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "MOCK_ONE_TIME_LINK"
+
+    # Installation completion.
+    "Finished site installation."
+  )
+
+  mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
-
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
+  run_steps "assert" "${mocks[@]}"
 
   assert_drupal_install_site_info 1 0 0 1 0 0 1
-
-  assert_output_contains "Creating private files directory."
-  assert_output_contains "Created private files directory."
-
-  assert_output_contains "Installing site from the profile."
-  assert_output_contains "Profile: standard."
-  assert_output_contains "Existing site was found."
-  assert_output_contains "Site content will be preserved."
-  assert_output_contains "Sanitization will be skipped for an existing database."
-
-  assert_output_not_contains "Installed a site from the profile."
-  assert_output_not_contains "Existing site content will be removed and new content will be imported from the database dump file."
-  assert_output_not_contains "Existing site was not found."
-  assert_output_not_contains "The site content will be imported from the database dump file."
-  assert_output_not_contains "Imported database from the dump file."
-  assert_output_not_contains "Existing site content will be removed and new content will be created from the profile."
-  assert_output_not_contains "The site content will be created from the profile."
-  assert_output_not_contains "Installing site from the database dump file."
-  assert_output_not_contains "Skipped running of post-install operations."
-
-  assert_output_contains "Enabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 4)"
-  assert_output_contains "Enabled maintenance mode."
-
-  assert_output_contains "Running database updates."
-  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 5)"
-
-  assert_output_contains "Importing Drupal configuration if it exists."
-  assert_output_not_contains "Updated site UUID from the configuration with"
-  assert_output_not_contains "Importing configuration"
-  assert_output_not_contains "Importing config_split configuration."
-  assert_output_contains "Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
-
-  assert_output_contains "Rebuilding cache."
-  assert_equal "-y -q cache:rebuild" "$(mock_get_call_args "${mock_drush}" 6)"
-
-  assert_output_contains "Current Drupal environment: ci"
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 7)"
-
-  assert_output_not_contains "Running updates after configuration import via Drush deploy."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 8)"
-
-  # Sanitization is skipped for the existing database.
-  assert_output_contains "Skipped database sanitization."
-  assert_output_not_contains "Sanitizing database."
-  assert_output_not_contains "Sanitized database using drush sql:sanitize."
-  assert_output_not_contains "Updated username with user email."
-  assert_output_not_contains "Applied custom sanitization commands from file "
-  assert_output_not_contains "Reset user 0 username and email."
-  assert_output_not_contains "Updated user 1 email."
-
-  assert_output_contains "Running custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
-  assert_equal "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" "$(mock_get_call_args "${mock_drush}" 10)"
-  assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 11)"
-  assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-
-  assert_output_contains "Disabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 13)"
-  assert_output_contains "Disabled maintenance mode."
-
-  # One-time login link.
-  assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 14)"
-  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 15)"
-  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 17)"
-  assert_output_contains "MOCK_ONE_TIME_LINK"
-
-  assert_output_contains "Finished site installation."
 
   popd >/dev/null || exit 1
 }
@@ -728,139 +836,134 @@ assert_drupal_install_site_info(){
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
-  rm ./.env
+  rm ./.env && touch ./.env
 
   export DREVOPS_APP="${LOCAL_REPO_DIR}"
-  export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
-  export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
-  mock_drush=$(mock_command "drush")
-  # Drush version.
-  mock_set_output "${mock_drush}" "Mocked drush version" 1
-  # Drupal core version.
-  mock_set_output "${mock_drush}" "Mocked core version" 2
-  # Bootstrap Drupal.
-  mock_set_output "${mock_drush}" "Successful" 3
-  # 2 calls to install site from profile.
-  mock_set_status "${mock_drush}" 0 4
-  mock_set_status "${mock_drush}" 0 5
-  # Enable maintenance mode.
-  mock_set_status "${mock_drush}" 0 6
-  # Running updates.
-  mock_set_status "${mock_drush}" 0 7
-  # Rebuild cache.
-  mock_set_status "${mock_drush}" 0 8
-  # Environment name.
-  mock_set_output "${mock_drush}" "ci" 9
-  # Check for 'drush deploy' command presence.
-  mock_set_output "${mock_drush}" "none" 10
-  # Sanitization commands.
-  mock_set_status "${mock_drush}" 0 11
-  mock_set_status "${mock_drush}" 0 12
-  mock_set_status "${mock_drush}" 0 13
-  mock_set_status "${mock_drush}" 0 14
-  # Environment name from custom script.
-  mock_set_output "${mock_drush}" "ci" 15
-  # Example site install operations.
-  mock_set_output "${mock_drush}" "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" 16
-  mock_set_output "${mock_drush}" "pm:install ys_core -y" 17
-  mock_set_output "${mock_drush}" "deploy:hook -y" 18
-  # Disable maintenance mode.
-  mock_set_status "${mock_drush}" 0 19
-  # 4 calls when generating login link.
-  mock_set_output "${mock_drush}" "none" 20
-  mock_set_output "${mock_drush}" "admin" 21
-  mock_set_status "${mock_drush}" 0 22
-  mock_set_output "${mock_drush}" "MOCK_ONE_TIME_LINK" 23
+  mkdir "${LOCAL_REPO_DIR}/.data"
+  touch "${LOCAL_REPO_DIR}/.data/db.sql"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  export DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1
+  export DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB=1
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # Successful"
+
+    # Private files directory.
+    "Creating private files directory."
+    "Created private files directory."
+
+    # Site installation information.
+    "- Installing site from the database dump file."
+    "- Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "- Existing site was found when installing from the database dump file."
+    "- Site content will be preserved."
+    "- Sanitization will be skipped for an existing database."
+    "- Existing site content will be removed and fresh content will be imported from the database dump file."
+    "- Existing site was not found when installing from the database dump file."
+    "- Fresh site content will be imported from the database dump file."
+    "- Unable to import database from file."
+    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Site content was not changed."
+    "- Imported database from the dump file."
+    # Profile.
+    "Installing site from the profile."
+    "Existing site was found when installing from the profile."
+    "Existing site content will be removed and new content will be created from the profile."
+    "@drush -y sql:drop"
+    "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+    "Installed a site from the profile."
+    "- Existing site was not found when installing from the profile."
+    "- Fresh site content will be created from the profile."
+
+    # Post-install operations.
+    "- Skipped running of post-install operations as DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP is set to 1."
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Deployment and configuration updates.
+    "- Updated site UUID from the configuration with"
+    "- Running deployment operations via 'drush deploy'."
+    "- Importing config_split configuration."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Post configuration import updates.
+    "Running deployment operations via 'drush deploy:hook'."
+    "@drush -y deploy:hook"
+    "Completed deployment operations via 'drush deploy:hook'."
+
+    # Database sanitization.
+    "Sanitizing database."
+    "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
+    "Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
+    "@drush -y sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql"
+    "Applied custom sanitization commands from file"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+    "Reset user 0 username and email."
+    "- Updated user 1 email."
+    "- Skipped database sanitization."
+
+    # Custom post-install script.
+    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y pm:install ys_core"
+    "@drush -y deploy:hook"
+    "Executing example operations in non-production environment."
+    # Assert that DREVOPS_DRUPAL_INSTALL_OVERRIDE_EXISTING_DB is correctly passed to the script.
+    "Fresh database detected. Performing additional operations."
+    "- Existing database detected. Skipping additional operations."
+    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-10-example-operations.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+
+    # One-time login link.
+    "@drush pm:list --status=enabled # none"
+    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -- user:unblock admin"
+    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "MOCK_ONE_TIME_LINK"
+
+    # Installation completion.
+    "Finished site installation."
+  )
+
+  mocks="$(run_steps "setup")"
 
   # export DREVOPS_DEBUG=1
   run ./scripts/drevops/drupal-install-site.sh
   assert_success
 
-  assert_equal "status --field=drupal-version" "$(mock_get_call_args "${mock_drush}" 2)"
-
-  assert_equal "status --fields=bootstrap" "$(mock_get_call_args "${mock_drush}" 3)"
+  run_steps "assert" "${mocks[@]}"
 
   assert_drupal_install_site_info 1 1 0 1 0 0 1
-
-  assert_output_contains "Creating private files directory."
-  assert_output_contains "Created private files directory."
-
-  assert_output_contains "Installing site from the profile."
-  assert_output_contains "Profile: standard."
-  assert_output_contains "Existing site was found."
-  assert_output_contains "Existing site content will be removed and new content will be created from the profile."
-  assert_output_contains "Installed a site from the profile."
-
-  assert_equal "-y -q sql:drop" "$(mock_get_call_args "${mock_drush}" 4)"
-  assert_equal "site:install -q -y standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL" "$(mock_get_call_args "${mock_drush}" 5)"
-
-  assert_output_not_contains "Site content will be preserved."
-  assert_output_not_contains "Sanitization will be skipped for an existing database."
-  assert_output_not_contains "Existing site content will be removed and new content will be imported from the database dump file."
-  assert_output_not_contains "Existing site was not found."
-  assert_output_not_contains "The site content will be imported from the database dump file."
-  assert_output_not_contains "Imported database from the dump file."
-  assert_output_not_contains "The site content will be created from the profile."
-  assert_output_not_contains "Installing site from the database dump file."
-  assert_output_not_contains "Skipped running of post-install operations."
-
-  assert_output_contains "Enabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 1 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 6)"
-  assert_output_contains "Enabled maintenance mode."
-
-  assert_output_contains "Running database updates."
-  assert_equal "-y updatedb --no-cache-clear" "$(mock_get_call_args "${mock_drush}" 7)"
-
-  assert_output_contains "Importing Drupal configuration if it exists."
-  assert_output_not_contains "Updated site UUID from the configuration with"
-  assert_output_not_contains "Importing configuration"
-  assert_output_not_contains "Importing config_split configuration."
-  assert_output_contains "Configuration files were not found in ${LOCAL_REPO_DIR}/config/default"
-
-  assert_output_contains "Rebuilding cache."
-  assert_equal "-y -q cache:rebuild" "$(mock_get_call_args "${mock_drush}" 8)"
-
-  assert_output_contains "Current Drupal environment: ci"
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 9)"
-
-  assert_output_not_contains "Running updates after configuration import via Drush deploy."
-  assert_equal "list" "$(mock_get_call_args "${mock_drush}" 10)"
-
-  assert_output_contains "Sanitizing database."
-  assert_output_contains "Sanitized database using drush sql:sanitize."
-  assert_equal "-y -q sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost" "$(mock_get_call_args "${mock_drush}" 11)"
-  assert_output_not_contains "Updated username with user email."
-  assert_output_contains "Applied custom sanitization commands."
-  assert_equal "-y -q sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql" "$(mock_get_call_args "${mock_drush}" 12)"
-  assert_output_contains "Reset user 0 username and email."
-  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 13)"
-  assert_equal "-y -q sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';" "$(mock_get_call_args "${mock_drush}" 14)"
-  assert_output_not_contains "Updated user 1 email."
-  assert_output_not_contains "Skipped database sanitization."
-
-  assert_output_contains "Running custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-  assert_equal "php:eval print \Drupal\core\Site\Settings::get('environment');" "$(mock_get_call_args "${mock_drush}" 15)"
-  assert_equal "php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();" "$(mock_get_call_args "${mock_drush}" 16)"
-  assert_equal "-y pm:install ys_core" "$(mock_get_call_args "${mock_drush}" 17)"
-  assert_equal "-y deploy:hook" "$(mock_get_call_args "${mock_drush}" 18)"
-  assert_output_contains "Executing example operations in non-production environment."
-  assert_output_contains "Completed running of custom post-install script ${LOCAL_REPO_DIR}/scripts/custom/drupal-install-site-1-example-operations.sh."
-
-  assert_output_contains "Disabling maintenance mode."
-  assert_equal "-y -q state:set system.maintenance_mode 0 --input-format=integer" "$(mock_get_call_args "${mock_drush}" 19)"
-  assert_output_contains "Disabled maintenance mode."
-
-  # One-time login link.
-  assert_equal "pm:list --status=enabled" "$(mock_get_call_args "${mock_drush}" 20)"
-  assert_equal "sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" "$(mock_get_call_args "${mock_drush}" 21)"
-  assert_equal "-q -- user:unblock admin" "$(mock_get_call_args "${mock_drush}" 22)"
-  assert_equal "user:login" "$(mock_get_call_args "${mock_drush}" 23)"
-  assert_output_contains "MOCK_ONE_TIME_LINK"
-
-  assert_output_contains "Finished site installation."
 
   popd >/dev/null || exit 1
 }

@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 ##
-# Run tests.
-#
-# Usage:
-# ./test-functional.sh
+# Run functional tests.
 #
 # shellcheck disable=SC2015
 
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Path to the root of the project inside the container.
-DREVOPS_APP=/app
+DREVOPS_APP="${DREVOPS_APP:-/app}"
 
 # Name of the webroot directory with Drupal installation.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
@@ -21,22 +18,29 @@ DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 # Flag to allow Functional tests to fail.
 DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE="${DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE:-0}"
 
-# Functional test group. Optional. Defaults to running Functional tests tagged with `site:functional`.
+# Functional test group.
+#
+# Running Functional tests tagged with `site:functional`.
 DREVOPS_TEST_FUNCTIONAL_GROUP="${DREVOPS_TEST_FUNCTIONAL_GROUP:-site:functional}"
 
-# Functional test configuration file. Optional. Defaults to core's configuration.
+# Functional test configuration file.
+#
+# Defaults to core's configuration file.
 DREVOPS_TEST_FUNCTIONAL_CONFIG="${DREVOPS_TEST_FUNCTIONAL_CONFIG:-${DREVOPS_APP}/${DREVOPS_WEBROOT}/core/phpunit.xml.dist}"
 
 # Directory to store test result files.
+#
+# If set, the directory is created and the JUnit formatter is used to generate
+# test result files.
 DREVOPS_TEST_REPORTS_DIR="${DREVOPS_TEST_REPORTS_DIR:-}"
 
 # ------------------------------------------------------------------------------
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
 info "Running Functional tests."

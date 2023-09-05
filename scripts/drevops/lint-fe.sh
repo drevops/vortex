@@ -7,7 +7,7 @@
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Flag to allow FE lint to fail.
 DREVOPS_LINT_FE_ALLOW_FAILURE="${DREVOPS_LINT_FE_ALLOW_FAILURE:-0}"
@@ -22,9 +22,9 @@ DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
 info "Running front-end code linter checks."
@@ -43,7 +43,10 @@ fi
 if [ "${exit_code}" -eq 0 ] && [ -n "${DREVOPS_LINT_TWIGCS_TARGETS:-}" ]; then
   info "Running Twigcs."
   # Twigcs expects all targets to exist, so we need to filter out non-existing ones.
-  oldifs="$IFS";  IFS=', '; set -- ${DREVOPS_LINT_TWIGCS_TARGETS}; IFS="${oldifs}"
+  oldifs="$IFS"
+  IFS=', '
+  set -- ${DREVOPS_LINT_TWIGCS_TARGETS}
+  IFS="${oldifs}"
   twigcs_valid_targets=""
   for target in "$@"; do
     for dir in $target; do

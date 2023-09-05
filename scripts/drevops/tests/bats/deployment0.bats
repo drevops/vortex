@@ -5,10 +5,10 @@
 # shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper.bash
-load _helper_deployment.bash
+load _helper.deployment.bash
 
 @test "Deployment; no integration" {
-  pushd "${BUILD_DIR}" > /dev/null || exit 1
+  pushd "${BUILD_DIR}" >/dev/null || exit 1
 
   # Source directory for initialised codebase.
   # If not provided - directory will be created and a site will be initialised.
@@ -59,13 +59,13 @@ load _helper_deployment.bash
   prepare_fixture_dir "${REMOTE_REPO_DIR}"
   git_init 1 "${REMOTE_REPO_DIR}"
 
-  popd > /dev/null
+  popd >/dev/null
 
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
+  pushd "${CURRENT_PROJECT_DIR}" >/dev/null
 
   substep "Running deployment."
   # This deployment uses all 3 types.
-  export DREVOPS_DEPLOY_TYPE="artifact,webhook,docker"
+  export DREVOPS_DEPLOY_TYPES="artifact,webhook,docker"
 
   # Variables for ARTIFACT deployment.
   export DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
@@ -119,11 +119,11 @@ load _helper_deployment.bash
   assert_output_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
   assert_output_not_contains "Finished DOCKER deployment."
 
-  popd > /dev/null
+  popd >/dev/null
 }
 
 @test "Deployment; no integration; flags" {
-  pushd "${BUILD_DIR}" > /dev/null || exit 1
+  pushd "${BUILD_DIR}" >/dev/null || exit 1
 
   # Source directory for initialised codebase.
   # If not provided - directory will be created and a site will be initialised.
@@ -157,13 +157,13 @@ load _helper_deployment.bash
   assert_files_present_no_integration_ftp "${CURRENT_PROJECT_DIR}"
   assert_git_repo "${SRC_DIR}"
 
-  popd > /dev/null
+  popd >/dev/null
 
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
+  pushd "${CURRENT_PROJECT_DIR}" >/dev/null
 
   substep "Running deployment."
 
-  export DREVOPS_DEPLOY_TYPE="webhook"
+  export DREVOPS_DEPLOY_TYPES="webhook"
 
   # Variables for WEBHOOK deployment.
   export DREVOPS_DEPLOY_WEBHOOK_URL=http://example.com
@@ -249,5 +249,5 @@ load _helper_deployment.bash
   assert_output_contains "Started WEBHOOK deployment."
   assert_output_contains "Finished WEBHOOK deployment."
 
-  popd > /dev/null
+  popd >/dev/null
 }

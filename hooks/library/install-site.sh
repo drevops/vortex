@@ -9,11 +9,15 @@ set -e
 site="${1}"
 target_env="${2}"
 
-[ "${DREVOPS_TASK_DRUPAL_SITE_INSTALL_ACQUIA_SKIP}" = "1" ] && echo "Skipping install site." && exit
-
 export DREVOPS_APP="/var/www/html/${site}.${target_env}"
+
+pushd "${DREVOPS_APP}" >/dev/null || exit 1
+
+[ "${DREVOPS_TASK_DRUPAL_SITE_INSTALL_ACQUIA_SKIP}" = "1" ] && echo "Skipping install site." && exit
 
 # Do not unblock admin account.
 export DREVOPS_DRUPAL_LOGIN_UNBLOCK_ADMIN="${DREVOPS_DRUPAL_LOGIN_UNBLOCK_ADMIN:-0}"
 
-"/var/www/html/${site}.${target_env}/scripts/drevops/drupal-install-site.sh"
+./scripts/drevops/drupal-install-site.sh
+
+popd >/dev/null || exit 1

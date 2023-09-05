@@ -15,13 +15,13 @@
 t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
 
 set -eu
-[ -n "${DREVOPS_DEBUG:-}" ] && set -x
-
-# GitHub token to perform operations.
-GITHUB_TOKEN="${GITHUB_TOKEN:-${GITHUB_TOKEN}}"
+[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # GitHub repository as "org/name" to perform operations on.
 DREVOPS_GITHUB_REPO="${DREVOPS_GITHUB_REPO:-${1:-}}"
+
+# GitHub token to perform operations.
+GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 
 # Delete existing labels to mirror the list below.
 DREVOPS_GITHUB_DELETE_EXISTING_LABELS="${DREVOPS_GITHUB_DELETE_EXISTING_LABELS:-1}"
@@ -30,9 +30,9 @@ DREVOPS_GITHUB_DELETE_EXISTING_LABELS="${DREVOPS_GITHUB_DELETE_EXISTING_LABELS:-
 
 # @formatter:off
 note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
 # @formatter:on
 
 # Array of labels to create. If DELETE_EXISTING_LABELS=1, the labels list will
@@ -56,7 +56,7 @@ labels=(
   # "enhancement"         "a2eeef"  "New feature or request"
   # "help wanted"         "008672"  "Extra attention is needed"
   # "good first issue"    "7057ff"  "Good for newcomers"
-  # "invalid"             "e4e669o" "This doesn't seem right"
+  # "invalid"             "e4e669"  "This doesn't seem right"
   # "question"            "d876e3"  "Further information is requested"
   # "wontfix"             "ffffff"  "This will not be worked on"
 )
@@ -67,7 +67,7 @@ main() {
   info "Processing GitHub labels."
 
   echo
-  if [ "${DREVOPS_GITHUB_DELETE_EXISTING_LABELS}" = "1" ]; then
+  if [ "${DREVOPS_GITHUB_DELETE_EXISTING_LABELS:-}" = "1" ]; then
     echo "  This script will remove the default GitHub labels."
   else
     echo "  This script will not remove the default GitHub labels."
@@ -89,7 +89,7 @@ main() {
     echo -n 'GitHub Personal Access Token: '
     read -r -s GITHUB_TOKEN
   fi
-  [ "${GITHUB_TOKEN}" = "" ] && fail "GitHub token name is required" && exit 1
+  [ "${GITHUB_TOKEN}" = "" ] && fail "GitHub token is required" && exit 1
 
   repo_org=$(echo "$DREVOPS_GITHUB_REPO" | cut -f1 -d /)
   repo_name=$(echo "$DREVOPS_GITHUB_REPO" | cut -f2 -d /)
@@ -248,8 +248,6 @@ label_update() {
 
 label_delete() {
   local name="${1:-}"
-  local color="${2:-}"
-  local description="${3:-}"
   local name_encoded=$(uriencode "${name}")
   local status=$(
     curl -s \

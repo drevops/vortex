@@ -6,7 +6,7 @@
 # shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper.bash
-load _helper_workflow.bash
+load _helper.workflow.bash
 
 @test "Workflow: DB-driven" {
   prepare_sut "Starting DB-driven WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
@@ -95,7 +95,7 @@ load _helper_workflow.bash
   # Assert that the database was not downloaded because DREVOPS_INSTALL_DEMO_SKIP was set.
   assert_file_not_exists .data/db.sql
 
-  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1" >> .env
+  echo "DREVOPS_DRUPAL_INSTALL_FROM_PROFILE=1" >>.env
 
   assert_ahoy_build
   assert_gitignore

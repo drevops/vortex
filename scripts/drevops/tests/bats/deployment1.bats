@@ -5,10 +5,10 @@
 # shellcheck disable=SC2030,SC2031,SC2129
 
 load _helper.bash
-load _helper_deployment.bash
+load _helper.deployment.bash
 
 @test "Deployment; Acquia integration" {
-  pushd "${BUILD_DIR}" > /dev/null || exit 1
+  pushd "${BUILD_DIR}" >/dev/null || exit 1
 
   # Source directory for initialised codebase.
   # If not provided - directory will be created and a site will be initialised.
@@ -36,7 +36,7 @@ load _helper_deployment.bash
     # attached to this test).
     # A demo test database will be used as actual database to provision site
     # during this test.
-    echo "DREVOPS_DB_DOWNLOAD_PROCEED=0" >> "${CURRENT_PROJECT_DIR}"/.env
+    echo "DREVOPS_DB_DOWNLOAD_PROCEED=0" >>"${CURRENT_PROJECT_DIR}"/.env
 
     # We need to use "current" directory as a place where the deployment script
     # is going to run from, while "SRC_DIR" is a place where files are taken
@@ -70,16 +70,16 @@ load _helper_deployment.bash
   prepare_fixture_dir "${REMOTE_REPO_DIR}"
   git_init 1 "${REMOTE_REPO_DIR}"
 
-  popd > /dev/null
+  popd >/dev/null
 
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
+  pushd "${CURRENT_PROJECT_DIR}" >/dev/null
 
   step "Running deployment"
   export DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
   export DREVOPS_DEPLOY_ARTIFACT_ROOT="${CURRENT_PROJECT_DIR}"
   export DREVOPS_DEPLOY_ARTIFACT_SRC="${SRC_DIR}"
   export DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL="${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL:-testuser@example.com}"
-  export DREVOPS_DEPLOY_TYPE="artifact"
+  export DREVOPS_DEPLOY_TYPES="artifact"
 
   # Proceed with deployment.
   # @todo: Add tests for deployment kill-switch.
@@ -108,11 +108,11 @@ load _helper_deployment.bash
   # Assert Acquia integration files are present.
   assert_files_present_integration_acquia "${REMOTE_REPO_DIR}" "sw" 0
 
-  popd > /dev/null
+  popd >/dev/null
 }
 
 @test "Deployment; Lagoon integration" {
-  pushd "${BUILD_DIR}" > /dev/null || exit 1
+  pushd "${BUILD_DIR}" >/dev/null || exit 1
 
   # Source directory for initialised codebase.
   # If not provided - directory will be created and a site will be initialised.
@@ -128,25 +128,25 @@ load _helper_deployment.bash
   # Provision the codebase with Lagoon deployment type and Lagoon integration.
   answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "nothing" # install_from_profile
-    "nothing" # database_download_source
-    "nothing" # database_store_type
-    "nothing" # override_existing_db
-    "lagoon" # deploy_type
-    "n" # preserve_ftp
-    "n" # preserve_acquia
-    "y" # preserve_lagoon
-    "n" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "nothing"   # install_from_profile
+    "nothing"   # database_download_source
+    "nothing"   # database_store_type
+    "nothing"   # override_existing_db
+    "lagoon"    # deploy_type
+    "n"         # preserve_ftp
+    "n"         # preserve_acquia
+    "y"         # preserve_lagoon
+    "n"         # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
 
   # Do not build - only structure.
@@ -164,9 +164,9 @@ load _helper_deployment.bash
   assert_files_present_no_integration_ftp "${SRC_DIR}"
   assert_git_repo "${SRC_DIR}"
 
-  popd > /dev/null
+  popd >/dev/null
 
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
+  pushd "${CURRENT_PROJECT_DIR}" >/dev/null
 
   step "Running deployment"
   # Always force installing of the Lagoon CLI binary in tests rather than using
@@ -212,11 +212,11 @@ load _helper_deployment.bash
   assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
   assert_output_not_contains "Finished DOCKER deployment."
 
-  popd > /dev/null
+  popd >/dev/null
 }
 
 @test "Deployment; Lagoon integration; install_from_profile; redeploy" {
-  pushd "${BUILD_DIR}" > /dev/null || exit 1
+  pushd "${BUILD_DIR}" >/dev/null || exit 1
 
   # Source directory for initialised codebase.
   # If not provided - directory will be created and a site will be initialised.
@@ -232,23 +232,23 @@ load _helper_deployment.bash
   # Provision the codebase with Lagoon deployment type and Lagoon integration.
   answers=(
     "Star wars" # name
-    "nothing" # machine_name
-    "nothing" # org
-    "nothing" # org_machine_name
-    "nothing" # module_prefix
-    "nothing" # profile
-    "nothing" # theme
-    "nothing" # URL
-    "nothing" # webroot
-    "y" # install_from_profile
-    "n" # override_existing_db
-    "lagoon" # deploy_type
-    "n" # preserve_ftp
-    "n" # preserve_acquia
-    "y" # preserve_lagoon
-    "n" # preserve_renovatebot
-    "nothing" # preserve_doc_comments
-    "nothing" # preserve_drevops_info
+    "nothing"   # machine_name
+    "nothing"   # org
+    "nothing"   # org_machine_name
+    "nothing"   # module_prefix
+    "nothing"   # profile
+    "nothing"   # theme
+    "nothing"   # URL
+    "nothing"   # webroot
+    "y"         # install_from_profile
+    "n"         # override_existing_db
+    "lagoon"    # deploy_type
+    "n"         # preserve_ftp
+    "n"         # preserve_acquia
+    "y"         # preserve_lagoon
+    "n"         # preserve_renovatebot
+    "nothing"   # preserve_doc_comments
+    "nothing"   # preserve_drevops_info
   )
 
   # Do not build - only structure.
@@ -266,9 +266,9 @@ load _helper_deployment.bash
   assert_files_present_no_integration_ftp "${SRC_DIR}"
   assert_git_repo "${SRC_DIR}"
 
-  popd > /dev/null
+  popd >/dev/null
 
-  pushd "${CURRENT_PROJECT_DIR}" > /dev/null
+  pushd "${CURRENT_PROJECT_DIR}" >/dev/null
 
   step "Running deployment"
   # Always force installing of the Lagoon CLI binary in tests rather than using
@@ -305,7 +305,7 @@ load _helper_deployment.bash
   assert_success
 
   assert_output_contains "Started Lagoon deployment."
-  assert_output_contains "Found already deployed environment for branch \"testbranch\"."
+  assert_output_contains 'Found already deployed environment for branch "testbranch".'
   assert_output_contains "Add a DB import override flag for the current deployment."
   assert_output_contains "Redeploying environment: project testproject, branch: testbranch."
   assert_output_contains "Waiting for deployment to be queued."
@@ -347,5 +347,5 @@ load _helper_deployment.bash
   assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
   assert_output_not_contains "Finished DOCKER deployment."
 
-  popd > /dev/null
+  popd >/dev/null
 }
