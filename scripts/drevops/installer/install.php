@@ -938,7 +938,7 @@ function init_cli_args_and_options($argv) {
  */
 function init_installer_config() {
   // Internal version of DrevOps.
-  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DRUPAL_VERSION . '.x'));
+  set_config('DREVOPS_VERSION', getenv_or_default('DREVOPS_VERSION', INSTALLER_DRUPAL_VERSION));
   // Flag to display install debug information.
   set_config('DREVOPS_INSTALL_DEBUG', (bool) getenv_or_default('DREVOPS_INSTALL_DEBUG', FALSE));
   // Flag to proceed with installation. If FALSE - the installation will only
@@ -1101,7 +1101,7 @@ function discover_value($name) {
 
 function discover_value__name() {
   $value = get_composer_json_value('description');
-  if ($value && preg_match('/Drupal [78910] .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
+  if ($value && preg_match('/Drupal [0-9]+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
     if (!empty($matches[1])) {
       return $matches[1];
     }
@@ -1123,7 +1123,7 @@ function discover_value__machine_name() {
 
 function discover_value__org() {
   $value = get_composer_json_value('description');
-  if ($value && preg_match('/Drupal [78910] .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
+  if ($value && preg_match('/Drupal [0-9]+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
     if (!empty($matches[2])) {
       return $matches[2];
     }
