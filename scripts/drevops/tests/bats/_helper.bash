@@ -244,8 +244,8 @@ assert_files_present_common() {
   assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
 
   # Assert that DrevOps version was replaced.
-  assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}-blue.svg"
-  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_DRUPAL_VERSION}.x"
+  assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_VERSION:-develop}-blue.svg"
+  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_VERSION:-develop}"
 
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
 
