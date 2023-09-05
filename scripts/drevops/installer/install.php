@@ -631,7 +631,9 @@ function download_remote() {
   $release_prefix = get_config('DREVOPS_VERSION');
 
   if ($ref == 'HEAD') {
+    $release_prefix = $release_prefix == 'develop' ? NULL : $release_prefix;
     $ref = find_latest_drevops_release($org, $project, $release_prefix);
+    set_config('DREVOPS_VERSION', $ref);
   }
 
   $url = "https://github.com/{$org}/{$project}/archive/{$ref}.tar.gz";
@@ -659,7 +661,7 @@ function find_latest_drevops_release($org, $project, $release_prefix) {
 
   $records = json_decode($release_contents, TRUE);
   foreach ($records as $record) {
-    if (isset($record['tag_name']) && strpos($record['tag_name'], $release_prefix) === 0) {
+    if (isset($record['tag_name']) && ($release_prefix && str_contains($record['tag_name'], $release_prefix) || !$release_prefix)) {
       return $record['tag_name'];
     }
   }
