@@ -35,7 +35,7 @@
 /**
  * Defines Drupal version supported by this installer.
  */
-define('INSTALLER_DRUPAL_VERSION', 9);
+define('INSTALLER_DRUPAL_VERSION', 10);
 
 /**
  * Defines current working directory.
@@ -1101,7 +1101,7 @@ function discover_value($name) {
 
 function discover_value__name() {
   $value = get_composer_json_value('description');
-  if ($value && preg_match('/Drupal [789] .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
+  if ($value && preg_match('/Drupal [78910] .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
     if (!empty($matches[1])) {
       return $matches[1];
     }
@@ -1123,7 +1123,7 @@ function discover_value__machine_name() {
 
 function discover_value__org() {
   $value = get_composer_json_value('description');
-  if ($value && preg_match('/Drupal [789] .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
+  if ($value && preg_match('/Drupal [78910] .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
     if (!empty($matches[2])) {
       return $matches[2];
     }
@@ -1186,7 +1186,7 @@ function discover_value__profile() {
     get_dst_dir() . "/{$webroot}/profiles/custom/*/*.info.yml",
   ];
 
-  $name = find_matching_path($locations, 'Drupal 9 profile implementation of');
+  $name = find_matching_path($locations, 'Drupal 10 profile implementation of');
 
   if (empty($name)) {
     return NULL;
@@ -1247,7 +1247,7 @@ function discover_value__url() {
 
   $contents = file_get_contents($path);
 
-  // Drupal 8 and 9.
+  // Drupal 8+.
   if (preg_match('/\$config\s*\[\'stage_file_proxy.settings\'\]\s*\[\'origin\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $contents, $matches)) {
     if (!empty($matches[1])) {
       $origin = $matches[1];
