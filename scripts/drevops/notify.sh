@@ -26,6 +26,9 @@ DREVOPS_NOTIFY_EVENT="${DREVOPS_NOTIFY_EVENT:-post_deployment}"
 # Flag to skip running of all notifications.
 DREVOPS_NOTIFY_SKIP="${DREVOPS_NOTIFY_SKIP:-}"
 
+# The project to notify about.
+DREVOPS_NOTIFY_PROJECT="${DREVOPS_NOTIFY_PROJECT:-${DREVOPS_PROJECT:-}}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off

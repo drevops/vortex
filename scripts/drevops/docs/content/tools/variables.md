@@ -1374,6 +1374,14 @@ Default value: `Deployment robot`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
+### `DREVOPS_NOTIFY_PROJECT`
+
+The project to notify about.
+
+Default value: `DREVOPS_PROJECT`
+
+Defined in: `scripts/drevops/notify.sh`
+
 ### `DREVOPS_NOTIFY_REF`
 
 Deployment reference, such as a git SHA.
