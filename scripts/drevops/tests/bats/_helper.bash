@@ -1281,8 +1281,10 @@ sync_to_container() {
 fix_host_dependencies() {
   # Replicate behaviour of scripts/drevops/installer/install.php script to extract destination directory
   # passed as an argument.
+  set +u
   # shellcheck disable=SC2235
-  ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift
+  ([ "${1}" = "--quiet" ] || [ "${1}" = "-q" ]) && shift
+  set -u
   # Destination directory, that can be overridden with the first argument to this script.
   DREVOPS_INSTALL_DST_DIR="${DREVOPS_INSTALL_DST_DIR:-$(pwd)}"
   DREVOPS_INSTALL_DST_DIR=${1:-${DREVOPS_INSTALL_DST_DIR}}
