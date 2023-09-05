@@ -1264,7 +1264,7 @@ sync_to_host() {
   local dst="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
-  [ "${DREVOPS_DEV_VOLUMES_MOUNTED:-}" = "1" ] && return
+  [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" = "1" ] && return
   docker compose cp -L cli:/app/. "${dst}"
 }
 
@@ -1273,7 +1273,7 @@ sync_to_container() {
   local src="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
-  [ "${DREVOPS_DEV_VOLUMES_MOUNTED:-}" = "1" ] && return
+  [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" = "1" ] && return
   docker compose cp -L "${src}" cli:/app/
 }
 
