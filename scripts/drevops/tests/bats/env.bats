@@ -13,8 +13,6 @@ load _helper.bash
 @test "Environment variables availability" {
   run_install_quiet
 
-  ls -la >&3
-
   # Prepare temp test script used to print env variables from the script.
   echo "#!/usr/bin/env bash" >test.sh && echo "printenv" >>test.sh && chmod 755 test.sh
 
