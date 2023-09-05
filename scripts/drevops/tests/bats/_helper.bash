@@ -135,7 +135,7 @@ setup() {
 
   # Set Drupal version.
   # @todo Review if this is required.
-  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
+  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-10}"
 
   # Switch to using test demo DB.
   # Demo DB is what is being downloaded when the installer runs for the first
