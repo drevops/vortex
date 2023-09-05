@@ -22,7 +22,6 @@ assert_deployment_files_present() {
   assert_file_not_exists .ahoy.yml
   assert_file_not_exists .dockerignore
   assert_file_not_exists .editorconfig
-  assert_file_not_exists .env
   assert_file_not_exists .eslintrc.json
   assert_file_not_exists .lagoon.yml
   assert_file_not_exists .sass-lint.yml
@@ -37,6 +36,9 @@ assert_deployment_files_present() {
 
   assert_dir_exists scripts
   assert_dir_exists vendor
+
+  # We are passing .env configs to allow to control the project from a single place.
+  assert_file_exists .env
 
   if [ "${has_custom_profile:-}" -eq 1 ]; then
     # Site profile present.
