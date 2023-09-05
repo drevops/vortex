@@ -8,6 +8,7 @@
 !/scripts/
 !/vendor/
 !composer.json
+!.env
 
 # Do not ignore webroot (manage Drupal scaffold files using the composer.json)
 !web

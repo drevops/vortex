@@ -9,25 +9,31 @@ set -e
 site="${1}"
 target_env="${2}"
 branch="${3}"
-ref="${4}:-${branch}"
+ref="${4:-${branch}}"
 
-# ODE environments do not support custom domains - use Acquia domains instead.
-if [ "${target_env#ode}" != "${target_env}" ]; then
-  url="https://${site}${target_env}.prod.acquia-sites.com"
-else
+# Custom domain name for the environment.
+DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN="${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN:-}"
+
+export DREVOPS_APP="/var/www/html/${site}.${target_env}"
+
+pushd "${DREVOPS_APP}" >/dev/null || exit 1
+
+# Set URL to Acquia domain by default.
+url="https://${AH_SITE_NAME}.${AH_REALM:-prod}.acquia-sites.com"
+
+# Use custom domain for non-ODE environments, if provided.
+if [ -n "${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN}" ] && [ "${target_env#ode}" = "${target_env}" ]; then
   subdomain="${target_env}"
-
-  # Re-map "test" to "stage".
-  if [ "${subdomain#test}" != "${subdomain}" ]; then
-    subdomain="stage"
-  fi
-
-  url="https://${subdomain}.${DREVOPS_TASK_NOTIFY_DEPLOYMENT_EMAIL_ACQUIA_DOMAIN}"
+  [ "${subdomain}" = "test" ] && subdomain="stage"
+  url="https://${subdomain}.${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN}"
 fi
 
-export DREVOPS_NOTIFY_PROJECT=$DREVOPS_PROJECT
-export DREVOPS_NOTIFY_BRANCH=${branch}
-export DREVOPS_NOTIFY_REF=${ref}
-export DREVOPS_NOTIFY_SHA=${target_env}
-export DREVOPS_NOTIFY_ENVIRONMENT_URL=$url
-"/var/www/html/${site}.${target_env}/scripts/scripts/drevops/notify.sh"
+export DREVOPS_NOTIFY_PROJECT="${site}"
+export DREVOPS_NOTIFY_BRANCH="${branch}"
+export DREVOPS_NOTIFY_REF="${ref}"
+export DREVOPS_NOTIFY_SHA="${target_env}"
+export DREVOPS_NOTIFY_ENVIRONMENT_URL="${url}"
+
+./scripts/drevops/notify.sh
+
+popd >/dev/null || exit 1

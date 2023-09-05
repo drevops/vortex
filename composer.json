@@ -1,6 +1,6 @@
 {
     "name": "your_org/your_site",
-    "description": "Drupal 9 implementation of YOURSITE for YOURORG",
+    "description": "Drupal 10 implementation of YOURSITE for YOURORG",
     "license": "proprietary",
     "require": {
         "php": ">=8.1",

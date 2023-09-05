@@ -10,6 +10,10 @@ set -e
 site="${1}"
 target_env="${2}"
 
+export DREVOPS_APP="/var/www/html/${site}.${target_env}"
+
+pushd "${DREVOPS_APP}" >/dev/null || exit 1
+
 [ "${DREVOPS_TASK_COPY_DB_ACQUIA_SKIP}" = "1" ] && echo "Skipping copying of database between Acquia environments." && exit 0
 
 export DREVOPS_ACQUIA_KEY="${DREVOPS_ACQUIA_KEY?not set}"
@@ -19,4 +23,6 @@ export DREVOPS_TASK_COPY_DB_ACQUIA_SRC="${DREVOPS_TASK_COPY_DB_ACQUIA_SRC:-prod}
 export DREVOPS_TASK_COPY_DB_ACQUIA_DST="${DREVOPS_TASK_COPY_DB_ACQUIA_DST:-${target_env}}"
 export DREVOPS_TASK_COPY_DB_ACQUIA_NAME="${DREVOPS_TASK_COPY_DB_ACQUIA_NAME?not set}"
 
-"/var/www/html/${site}.${target_env}/scripts/drevops/task-copy-db-acquia.sh"
+./scripts/drevops/task-copy-db-acquia.sh
+
+popd >/dev/null || exit 1

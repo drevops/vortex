@@ -135,7 +135,7 @@ setup() {
 
   # Set Drupal version.
   # @todo Review if this is required.
-  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-9}"
+  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-10}"
 
   # Switch to using test demo DB.
   # Demo DB is what is being downloaded when the installer runs for the first
@@ -243,8 +243,8 @@ assert_files_present_common() {
   assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
 
   # Assert that DrevOps version was replaced.
-  assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_DRUPAL_VERSION}.x-blue.svg"
-  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_DRUPAL_VERSION}.x"
+  assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_VERSION:-develop}-blue.svg"
+  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_VERSION:-develop}"
 
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
 
@@ -916,7 +916,7 @@ create_fixture_readme() {
 
   cat <<EOT >>"${dir}"/README.md
 # ${name}
-Drupal 9 implementation of ${name} for ${org}
+Drupal 10 implementation of ${name} for ${org}
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 
@@ -938,7 +938,7 @@ create_fixture_composerjson() {
   cat <<EOT >>"${dir}"/composer.json
 {
     "name": "${org_machine_name}/${machine_name}",
-    "description": "Drupal 9 implementation of ${name} for ${org}"
+    "description": "Drupal 10 implementation of ${name} for ${org}"
 }
 EOT
 }
