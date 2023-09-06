@@ -20,7 +20,7 @@ load _helper.bash
 
   docker compose -f docker-compose.yml config --format json >docker-compose.actual.json
   process_docker_compose_json docker-compose.actual.json
-  update_docker_compose_fixture "$PWD"/docker-compose.actual.json docker-compose.noenv.json
+  update_docker_compose_fixture "${PWD}"/docker-compose.actual.json docker-compose.noenv.json
 
   assert_files_equal docker-compose.actual.json docker-compose.noenv.json
 }
@@ -39,7 +39,7 @@ load _helper.bash
 
   docker compose -f docker-compose.yml config --format json >docker-compose.actual.json
   process_docker_compose_json docker-compose.actual.json
-  update_docker_compose_fixture "$PWD"/docker-compose.actual.json docker-compose.env.json
+  update_docker_compose_fixture "${PWD}"/docker-compose.actual.json docker-compose.env.json
 
   assert_files_equal docker-compose.actual.json docker-compose.env.json
 }
@@ -69,7 +69,7 @@ load _helper.bash
 
   docker compose -f docker-compose.yml config --format json >docker-compose.actual.json
   process_docker_compose_json docker-compose.actual.json
-  update_docker_compose_fixture "$PWD"/docker-compose.actual.json docker-compose.env_mod.json
+  update_docker_compose_fixture "${PWD}"/docker-compose.actual.json docker-compose.env_mod.json
 
   assert_files_equal docker-compose.actual.json docker-compose.env_mod.json
 }
@@ -101,31 +101,31 @@ prepare_docker_compose_fixtures() {
 
 process_docker_compose_json() {
   local from="${1}"
-  local to="${2:-$1}"
+  local to="${2:-${1}}"
 
   # Sort all values recursively by key in the alphabetical order to avoid
   # sorting issues between Docker Compose versions.
-  php -r '
-    $data = json_decode($argv[1], true);
-    function ksort_multi(&$array) {
-      foreach ($array as &$value) {
-        if (is_array($value)) {
-          ksort_multi($value);
+  php -r "
+    \$data = json_decode(\$argv[1], true);
+    function ksort_multi(&\$array) {
+      foreach (\$array as &\$value) {
+        if (is_array(\$value)) {
+          ksort_multi(\$value);
         }
       }
-      ksort($array);
+      ksort(\$array);
     }
-    ksort_multi($data);
+    ksort_multi(\$data);
 
-    # Remove YAML anchors starting with "x-".
-    $data = array_filter($data, function($key) {
-      return strpos($key, "x-") !== 0;
+    # Remove YAML anchors starting with 'x-'.
+    \$data = array_filter(\$data, function(\$key) {
+      return strpos(\$key, 'x-') !== 0;
     }, ARRAY_FILTER_USE_KEY);
 
-    $data = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    \$data = json_encode(\$data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-    print $data;
-  ' "$(cat "${from}")" "${CURRENT_PROJECT_DIR}" >"${to}"
+    print \$data;
+  " "$(cat "${from}")" "${CURRENT_PROJECT_DIR}" >"${to}"
   echo "" >>"${to}"
 }
 

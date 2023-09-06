@@ -210,7 +210,7 @@ load _helper.bash
 
   assert_output_contains "Posting a comment."
   assert_equal '-s -X POST -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/comment --data {"body": {"type": "doc", "version": 1, "content": [{"type": "paragraph", "content": [{"type": "text","text": "Deployed to "},{"type": "inlineCard","attrs": {"url": "https://develop.testproject.com"}}]}]}}' "$(mock_get_call_args "${mock_curl}" 2)"
-  assert_output_contains "Posted comment with ID $comment_id."
+  assert_output_contains "Posted comment with ID ${comment_id}."
 
   assert_output_contains "Transitioning issue to QA"
   assert_output_contains "Discovering transition ID for QA"

@@ -1120,7 +1120,7 @@ Defined in: `.env`, `scripts/drevops/notify.sh`
 
 Environment URL to notify about.
 
-Default value: `UNDEFINED`
+Default value: `DREVOPS_NOTIFY_ENVIRONMENT_URL`
 
 Defined in: `scripts/drevops/notify-email.sh`
 
@@ -1128,7 +1128,7 @@ Defined in: `scripts/drevops/notify-email.sh`
 
 Email address to send notifications from.
 
-Default value: `UNDEFINED`
+Default value: `DREVOPS_DRUPAL_SITE_EMAIL`
 
 Defined in: `scripts/drevops/notify-email.sh`
 
@@ -1136,7 +1136,7 @@ Defined in: `scripts/drevops/notify-email.sh`
 
 Project name to notify.
 
-Default value: `UNDEFINED`
+Default value: `DREVOPS_NOTIFY_PROJECT`
 
 Defined in: `scripts/drevops/notify-email.sh`
 
@@ -1154,7 +1154,7 @@ Defined in: `.env`, `scripts/drevops/notify-email.sh`
 
 Git reference to notify about.
 
-Default value: `UNDEFINED`
+Default value: `DREVOPS_NOTIFY_REF`
 
 Defined in: `scripts/drevops/notify-email.sh`
 

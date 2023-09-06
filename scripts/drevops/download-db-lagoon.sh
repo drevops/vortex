@@ -17,7 +17,7 @@
 #
 # shellcheck disable=SC2029,SC1091,SC2124,SC2140
 
-t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
@@ -75,10 +75,10 @@ DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 #-------------------------------------------------------------------------------
 
 # @formatter:off
-note() { printf "       %s\n" "$1"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+note() { printf "       %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
 info "Started database dump download from Lagoon."
@@ -88,7 +88,7 @@ mkdir -p "${DREVOPS_DB_DIR}"
 # Try to read credentials from the credentials file.
 if [ -f ".env.local" ]; then
   # shellcheck disable=SC1090
-  t=$(mktemp) && export -p >"$t" && set -a && . ".env.local" && set +a && . "$t" && rm "$t" && unset t
+  t=$(mktemp) && export -p >"${t}" && set -a && . ".env.local" && set +a && . "${t}" && rm "${t}" && unset t
 fi
 
 # Discover and load a custom database dump key if fingerprint is provided.
@@ -138,7 +138,7 @@ ssh \
 
 note "Downloading a database dump."
 ssh_opts_string="${ssh_opts[@]}"
-rsync_opts=(-e "ssh $ssh_opts_string")
+rsync_opts=(-e "ssh ${ssh_opts_string}")
 rsync "${rsync_opts[@]}" "${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_USER}@${DREVOPS_DB_DOWNLOAD_LAGOON_SSH_HOST}":"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}"/"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}" "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
 
 pass "Finished database dump download from Lagoon."

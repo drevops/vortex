@@ -8,7 +8,7 @@
 # Get numbers of previous jobs that current job depends on.
 #
 circleci_get_previous_job_numbers() {
-  local current_job_number="$1"
+  local current_job_number="${1}"
 
   workflow_id="$(circleci_get_workflow_id_from_job_number "${current_job_number}")"
 

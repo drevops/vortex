@@ -10,7 +10,7 @@ CUR_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 targets=()
 while IFS= read -r -d $'\0'; do
-  targets+=("$REPLY")
+  targets+=("${REPLY}")
 done < <(
   find \
     "${CUR_DIR}"/.docker \

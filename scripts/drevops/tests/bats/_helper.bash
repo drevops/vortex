@@ -18,7 +18,7 @@ setup() {
   ##
 
   # NOTE: If Docker tests fail, re-run with custom temporary directory
-  # (must be pre-created): TMPDIR=$HOME/.bats-tmp bats <testfile>'
+  # (must be pre-created): TMPDIR=${HOME}/.bats-tmp bats <testfile>'
 
   # Enforce architecture if not provided for ARM. Note that this may not work
   # if bash uses Rosetta or other emulators, in which case the test should run
@@ -82,8 +82,8 @@ setup() {
   # empty (to facilitate brand-new install).
   export CURRENT_PROJECT_DIR="${BUILD_DIR}/star_wars"
   # Directory where DrevOps may be installed into.
-  # By default, install uses $CURRENT_PROJECT_DIR as a destination, but we use
-  # $DST_PROJECT_DIR to test a scenario where different destination is provided.
+  # By default, install uses ${CURRENT_PROJECT_DIR} as a destination, but we use
+  # ${DST_PROJECT_DIR} to test a scenario where different destination is provided.
   export DST_PROJECT_DIR="${BUILD_DIR}/dst"
   # Directory where the installer script will be sourcing the instance of DrevOps.
   # As a part of test setup, the local copy of DrevOps at the last commit is
@@ -232,7 +232,7 @@ assert_files_present_common() {
   local suffix_camel_cased="${5:-StarWars}"
   local webroot="${6:-web}"
 
-  local suffix_abbreviated_uppercase="$(string_to_upper "$suffix_abbreviated")"
+  local suffix_abbreviated_uppercase="$(string_to_upper "${suffix_abbreviated}")"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -969,7 +969,7 @@ run_install_quiet() {
   #
   # Installer will load environment variable and it will take precedence over
   # the value in .env file.
-  export DREVOPS_DB_DOWNLOAD_CURL_URL="$DREVOPS_INSTALL_DEMO_DB_TEST"
+  export DREVOPS_DB_DOWNLOAD_CURL_URL="${DREVOPS_INSTALL_DEMO_DB_TEST}"
 
   opt_quiet="--quiet"
   [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_quiet=""
@@ -1039,7 +1039,7 @@ run_install_interactive() {
   # ATTENTION! Questions change based on some answers, so using the same set of
   # answers for all tests will not work. Make sure that correct answers
   # provided for specific tests.
-  printf "$input" | run_install_quiet
+  printf "${input}" | run_install_quiet
 }
 
 #
@@ -1138,7 +1138,7 @@ prepare_global_gitconfig() {
 }
 
 prepare_global_gitignore() {
-  filename="$HOME/.gitignore"
+  filename="${HOME}/.gitignore"
   filename_backup="${filename}".bak
 
   if git config --global --list | grep -q core.excludesfile; then
@@ -1169,7 +1169,7 @@ EOT
 }
 
 restore_global_gitignore() {
-  filename=$HOME/.gitignore
+  filename=${HOME}/.gitignore
   filename_backup="${filename}".bak
   [ -f "${filename_backup}" ] && cp "${filename_backup}" "${filename}"
   [ -f "/tmp/git_config_global_exclude" ] && git config --global core.excludesfile "$(cat /tmp/git_config_global_exclude)"
@@ -1239,7 +1239,7 @@ replace_string_content() {
     --exclude-dir="node_modules" \
     --exclude-dir=".data" \
     -l "${needle}" "${dir}" |
-    xargs sed "${sed_opts[@]}" "s@$needle@$replacement@g" || true
+    xargs sed "${sed_opts[@]}" "s@${needle}@${replacement}@g" || true
   set -eu
 }
 
@@ -1262,7 +1262,7 @@ substep() {
 sync_to_host() {
   local dst="${1:-.}"
   # shellcheck disable=SC1090,SC1091
-  [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
+  [ -f "./.env" ] && t=$(mktemp) && export -p >"${t}" && set -a && . "./.env" && set +a && . "${t}" && rm "${t}" && unset t
   [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" = "1" ] && return
   docker compose cp -L cli:/app/. "${dst}"
 }
@@ -1271,7 +1271,7 @@ sync_to_host() {
 sync_to_container() {
   local src="${1:-.}"
   # shellcheck disable=SC1090,SC1091
-  [ -f "./.env" ] && t=$(mktemp) && export -p >"$t" && set -a && . "./.env" && set +a && . "$t" && rm "$t" && unset t
+  [ -f "./.env" ] && t=$(mktemp) && export -p >"${t}" && set -a && . "./.env" && set +a && . "${t}" && rm "${t}" && unset t
   [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" = "1" ] && return
   docker compose cp -L "${src}" cli:/app/
 }
@@ -1318,14 +1318,14 @@ fix_host_dependencies() {
 #   create_global_command_wrapper "vendor/bin/custom_drush"  # uses "custom_drush" as global_bin
 #   create_global_command_wrapper "vendor/bin/custom_drush" "drush"  # uses "drush" as global_bin
 create_global_command_wrapper() {
-  local path_with_bin="$1"
-  local global_bin="${2:-$(basename "$path_with_bin")}" # If $2 is unset or null, use the basename of $1
-  mkdir -p "$(dirname "$path_with_bin")"
-  cat <<EOL >"$path_with_bin"
+  local path_with_bin="${1}"
+  local global_bin="${2:-$(basename "${path_with_bin}")}"
+  mkdir -p "$(dirname "${path_with_bin}")"
+  cat <<EOL >"${path_with_bin}"
 #!/bin/bash
-$global_bin "\$@"
+${global_bin} "\$@"
 EOL
-  chmod +x "$path_with_bin"
+  chmod +x "${path_with_bin}"
 }
 
 build_installer() {

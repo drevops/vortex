@@ -45,18 +45,21 @@ popd || exit 1
 
 echo "==> Run common functional tests."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
-bats="${TEST_DIR}/node_modules/.bin/bats"
 
-$bats "${TEST_DIR}/bats/helpers.bats"
-$bats "${TEST_DIR}/bats/helpers.run_steps.bats"
-$bats "${TEST_DIR}/bats/env.bats"
-$bats "${TEST_DIR}/bats/docker-compose.bats"
-$bats "${TEST_DIR}/bats/provision.bats"
-$bats "${TEST_DIR}/bats/notify.bats"
-$bats "${TEST_DIR}/bats/install.initial.bats"
-$bats "${TEST_DIR}/bats/install.existing.bats"
-$bats "${TEST_DIR}/bats/install.parameters.bats"
-$bats "${TEST_DIR}/bats/install.integrations.bats"
-$bats "${TEST_DIR}/bats/install.demo.bats"
-$bats "${TEST_DIR}/bats/clean.bats"
-$bats "${TEST_DIR}/bats/update-drevops.bats"
+bats() {
+  "${TEST_DIR}/node_modules/.bin/bats" "$@"
+}
+
+bats "${TEST_DIR}/bats/helpers.bats"
+bats "${TEST_DIR}/bats/helpers.run_steps.bats"
+bats "${TEST_DIR}/bats/env.bats"
+bats "${TEST_DIR}/bats/docker-compose.bats"
+bats "${TEST_DIR}/bats/provision.bats"
+bats "${TEST_DIR}/bats/notify.bats"
+bats "${TEST_DIR}/bats/install.initial.bats"
+bats "${TEST_DIR}/bats/install.existing.bats"
+bats "${TEST_DIR}/bats/install.parameters.bats"
+bats "${TEST_DIR}/bats/install.integrations.bats"
+bats "${TEST_DIR}/bats/install.demo.bats"
+bats "${TEST_DIR}/bats/clean.bats"
+bats "${TEST_DIR}/bats/update-drevops.bats"

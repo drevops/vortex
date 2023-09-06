@@ -4,7 +4,7 @@
 #
 # shellcheck disable=SC2086,SC2015,SC2317
 
-t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
@@ -21,10 +21,10 @@ DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 # ------------------------------------------------------------------------------
 
 # @formatter:off
-note() { printf "       %s\n" "$1"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+note() { printf "       %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
 info "Running front-end code linter checks."
@@ -43,14 +43,14 @@ fi
 if [ "${exit_code}" -eq 0 ] && [ -n "${DREVOPS_LINT_TWIGCS_TARGETS:-}" ]; then
   info "Running Twigcs."
   # Twigcs expects all targets to exist, so we need to filter out non-existing ones.
-  oldifs="$IFS"
+  oldifs="${IFS}"
   IFS=', '
   set -- ${DREVOPS_LINT_TWIGCS_TARGETS}
   IFS="${oldifs}"
   twigcs_valid_targets=""
   for target in "$@"; do
-    for dir in $target; do
-      [ -d "$dir" ] && twigcs_valid_targets="${twigcs_valid_targets:+$twigcs_valid_targets, }${dir}"
+    for dir in ${target}; do
+      [ -d "${dir}" ] && twigcs_valid_targets="${twigcs_valid_targets:+${twigcs_valid_targets}, }${dir}"
     done
   done
 

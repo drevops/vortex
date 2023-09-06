@@ -8,7 +8,7 @@
 # IMPORTANT! This script runs outside the container on the host system.
 #
 
-t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
@@ -64,11 +64,11 @@ DREVOPS_DOCTOR_SSH_KEY_FILE="${DREVOPS_DOCTOR_SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}
 #-------------------------------------------------------------------------------
 
 # @formatter:off
-note() { printf "       %s\n" "$1"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
-warn() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[33m[WARN] %s\033[0m\n" "$1" || printf "[WARN] %s\n" "$1"; }
+note() { printf "       %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+warn() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[33m[WARN] %s\033[0m\n" "${1}" || printf "[WARN] %s\n" "${1}"; }
 # @formatter:on
 
 #
@@ -105,7 +105,7 @@ main() {
     pygmy_services+=("amazeeio-dnsmasq")
 
     for pygmy_service in "${pygmy_services[@]}"; do
-      if ! echo "$pygmy_status" | grep -q "${pygmy_service}: Running"; then
+      if ! echo "${pygmy_status}" | grep -q "${pygmy_service}: Running"; then
         fail "Pygmy service ${pygmy_service} is not running. Run 'pygmy up' or 'pygmy restart' to fix."
         exit 1
       fi
@@ -250,12 +250,12 @@ system_info() {
 # Check that command exists.
 #
 command_exists() {
-  local cmd=$1
+  local cmd=${1}
   command -v "${cmd}" | grep -ohq "${cmd}"
   local res=$?
 
   # Try homebrew lookup, if brew is available.
-  if command -v "brew" | grep -ohq "brew" && [ "$res" = "1" ]; then
+  if command -v "brew" | grep -ohq "brew" && [ "${res}" = "1" ]; then
     brew --prefix "${cmd}" >/dev/null
     res=$?
   fi

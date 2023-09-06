@@ -11,6 +11,9 @@ TEST_DIR="scripts/drevops/tests"
 # ------------------------------------------------------------------------------
 
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
-bats="${TEST_DIR}/node_modules/.bin/bats"
 
-$bats "${TEST_DIR}/bats/circleci.bats"
+bats() {
+  "${TEST_DIR}/node_modules/.bin/bats" "$@"
+}
+
+bats "${TEST_DIR}/bats/circleci.bats"

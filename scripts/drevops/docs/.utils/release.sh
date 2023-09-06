@@ -67,7 +67,7 @@ else
   echo "    Using existing source repo in directory ${repo_dir}"
 fi
 
-curdir=$PWD
+curdir=${PWD}
 cd "${repo_dir}"
 
 echo "    Current branch:"
@@ -100,7 +100,7 @@ if [ "${VERSION_IS_STABLE}" = "1" ]; then
   mike alias --update-aliases "${VERSION}" stable
 fi
 
-cd "$curdir"
+cd "${curdir}"
 
 echo "==> Clean up."
 echo "    Prepare the clean repo directory."
