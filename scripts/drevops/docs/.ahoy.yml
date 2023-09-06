@@ -15,7 +15,7 @@ commands:
     usage: Test site
     cmd: |
       cd ../../.. && ./scripts/drevops/tests/lint.spelling.sh && cd - \
-      && docker compose run linkchecker http://mkdocs:8000 "$@"
+      && docker compose run linkchecker http://mkdocs:8080 "$@"
 
   publish:
     usage: Deploy site
@@ -38,7 +38,7 @@ commands:
     usage: Build and start Docker containers.
     cmd: |
       docker compose up -d "$@" && \
-      docker compose exec mkdocs sh -c "dockerize -wait tcp://mkdocs:8000 -timeout 1m"
+      docker compose exec mkdocs sh -c "dockerize -wait tcp://mkdocs:8080 -timeout 1m"
       if docker compose logs | grep -q "\[Error\]"; then docker compose logs; exit 1; fi
 
   down:
@@ -66,7 +66,7 @@ entrypoint:
   - "-c"
   - "-e"
   - |
-    export DREVOPS_LOCALDEV_URL=http://drevops-docs.docker.amazee.io:8000
+    export DREVOPS_LOCALDEV_URL=http://drevops-docs.docker.amazee.io:8080
     bash -e -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'
