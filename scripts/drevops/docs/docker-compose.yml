@@ -5,14 +5,14 @@ services:
       context: .
       dockerfile: ./.utils/Dockerfile
     environment:
-      LAGOON_LOCALDEV_HTTP_PORT: 8000
+      LAGOON_LOCALDEV_HTTP_PORT: 8080
     networks:
       - amazeeio-network
       - default
     volumes: ### Removed in CI.
       - ${PWD}:/app  ### Removed in CI.
     ports:
-      - 8000:8000
+      - 8080:8080
   linkchecker:
     image: jare/linkchecker
 

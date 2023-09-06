@@ -76,5 +76,5 @@ pass "Finished GitHub notification for operation ${DREVOPS_NOTIFY_EVENT}"
 Use the scaffold script below to kick-start your custom DrevOps script.
 
 ```bash
-{! maintenance/script-scaffold.sh !}
+{! content/maintenance/script-scaffold.sh !}
 ```
