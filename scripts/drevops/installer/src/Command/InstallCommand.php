@@ -19,7 +19,7 @@ class InstallCommand extends Command {
   /**
    * Defines Drupal version supported by this installer.
    */
-  const INSTALLER_DRUPAL_VERSION = 9;
+  const INSTALLER_DRUPAL_VERSION = 10;
 
   /**
    * Defines installer exit codes.
@@ -637,7 +637,9 @@ class InstallCommand extends Command {
     $release_prefix = $this->getConfig('DREVOPS_VERSION');
 
     if ($ref == 'HEAD') {
+      $release_prefix = $release_prefix == 'develop' ? NULL : $release_prefix;
       $ref = $this->findLatestDrevopsRelease($org, $project, $release_prefix);
+      $this->setConfig('DREVOPS_VERSION', $ref);
     }
 
     $url = "https://github.com/{$org}/{$project}/archive/{$ref}.tar.gz";
@@ -665,7 +667,7 @@ class InstallCommand extends Command {
 
     $records = json_decode($release_contents, TRUE);
     foreach ($records as $record) {
-      if (isset($record['tag_name']) && strpos($record['tag_name'], $release_prefix) === 0) {
+      if (isset($record['tag_name']) && ($release_prefix && str_contains($record['tag_name'], $release_prefix) || !$release_prefix)) {
         return $record['tag_name'];
       }
     }
@@ -914,7 +916,7 @@ class InstallCommand extends Command {
    */
   protected function initInstallerConfig() {
     // Internal version of DrevOps.
-    $this->setConfig('DREVOPS_VERSION', static::getenvOrDefault('DREVOPS_VERSION', self::INSTALLER_DRUPAL_VERSION . '.x'));
+    $this->setConfig('DREVOPS_VERSION', static::getenvOrDefault('DREVOPS_VERSION', 'develop'));
     // Flag to display install debug information.
     $this->setConfig('DREVOPS_INSTALL_DEBUG', (bool) static::getenvOrDefault('DREVOPS_INSTALL_DEBUG', FALSE));
     // Flag to proceed with installation. If FALSE - the installation will only
@@ -1069,7 +1071,7 @@ class InstallCommand extends Command {
 
   protected function discoverValueName() {
     $value = $this->getComposerJsonValue('description');
-    if ($value && preg_match('/Drupal [789] .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
+    if ($value && preg_match('/Drupal [0-9]+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
       if (!empty($matches[1])) {
         return $matches[1];
       }
@@ -1091,7 +1093,7 @@ class InstallCommand extends Command {
 
   protected function discoverValueOrg() {
     $value = $this->getComposerJsonValue('description');
-    if ($value && preg_match('/Drupal [789] .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
+    if ($value && preg_match('/Drupal [0-9]+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
       if (!empty($matches[2])) {
         return $matches[2];
       }
@@ -1154,7 +1156,7 @@ class InstallCommand extends Command {
       $this->getDstDir() . "/{$webroot}/profiles/custom/*/*.info.yml",
     ];
 
-    $name = $this->findMatchingPath($locations, 'Drupal 9 profile implementation of');
+    $name = $this->findMatchingPath($locations, 'Drupal 10 profile implementation of');
 
     if (empty($name)) {
       return NULL;
