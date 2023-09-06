@@ -761,7 +761,7 @@ workflows:
           filters:
             branches:
               # Allowed branches: 7.x, 8.x, 9.x, feature/7.x-description, feature/8.x-description, feature/9.x-description
-              only: /main|7\.x|feature\/(?:7\.x)[a-zA-z0-9\-\.\,]+/
+              only: /main|develop|7\.x|feature\/(?:7\.x)[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
       # Run actual deployment of DrevOps code to destination codebase (integration test).
