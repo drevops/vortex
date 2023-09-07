@@ -8,8 +8,9 @@
             "email": "alex@drevops.com"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "alpha",
+    "prefer-stable": true,
     "require-dev": {
-        "alexskrypnyk/shell-var-lint": "dev-main"
+        "alexskrypnyk/shell-var-lint": "^0.1"
     }
 }

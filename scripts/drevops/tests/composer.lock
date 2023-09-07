@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a6d577d72bcc14ee6e077e9a2d295cdf",
+    "content-hash": "5e3cb6b2f9d0d59caba3b422bc1b6a81",
     "packages": [],
     "packages-dev": [
         {
             "name": "alexskrypnyk/shell-var-lint",
-            "version": "dev-main",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/shell-var-lint.git",
-                "reference": "88c9c61f1b0fb852492d123fc6b213496e564451"
+                "reference": "01bdcbe1ba563dd7e7597b5a6ce0ca677e56c0fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/shell-var-lint/zipball/88c9c61f1b0fb852492d123fc6b213496e564451",
-                "reference": "88c9c61f1b0fb852492d123fc6b213496e564451",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/shell-var-lint/zipball/01bdcbe1ba563dd7e7597b5a6ce0ca677e56c0fd",
+                "reference": "01bdcbe1ba563dd7e7597b5a6ce0ca677e56c0fd",
                 "shasum": ""
             },
             "require": {
@@ -31,7 +31,6 @@
                 "phpstan/phpstan": "^1.10",
                 "phpunit/phpunit": "^10"
             },
-            "default-branch": true,
             "bin": [
                 "shell-var-lint"
             ],
@@ -59,13 +58,13 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2023-09-07T04:25:17+00:00"
+            "time": "2023-09-07T05:09:25+00:00"
         }
     ],
     "aliases": [],
-    "minimum-stability": "dev",
+    "minimum-stability": "alpha",
     "stability-flags": [],
-    "prefer-stable": false,
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
