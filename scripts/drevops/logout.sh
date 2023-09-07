@@ -18,12 +18,7 @@ DREVOPS_DRUPAL_UNBLOCK_ADMIN="${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-1}"
 # ------------------------------------------------------------------------------
 
 # Use local or global Drush, giving priority to a local drush.
-# Wrapper around Drush to make it easier to read Drush commands.
-drush() {
-  local drush_local="${DREVOPS_APP}/vendor/bin/drush"
-  [ ! -f "${drush_local}" ] && fail "Drush not found at ${drush_local}." && exit 1
-  "${drush_local}" -y "$@"
-}
+drush() { local d="${DREVOPS_APP}/vendor/bin/drush"; [ ! -f "${d}" ] && { echo "Drush not found at ${d}."; exit 1; }; "${d}" -y "$@"; }
 
 if [ "${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-}" = "1" ]; then
   drush sql:query "SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" | head -n 1 | xargs drush -- user:block

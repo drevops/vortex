@@ -80,12 +80,7 @@ info "Started site provisioning."
 
 [ "${DREVOPS_PROVISION_SKIP}" = "1" ] && pass "Skipped site provisioning as DREVOPS_PROVISION_SKIP is set to 1." && exit 0
 
-# Wrapper around Drush to make it easier to read Drush commands.
-drush() {
-  local drush_local="${DREVOPS_APP}/vendor/bin/drush"
-  [ ! -f "${drush_local}" ] && fail "Drush not found at ${drush_local}." && exit 1
-  "${drush_local}" -y "$@"
-}
+drush() { local d="${DREVOPS_APP}/vendor/bin/drush"; [ ! -f "${d}" ] && { echo "Drush not found at ${d}."; exit 1; }; "${d}" -y "$@"; }
 
 # Convert DB dir starting with './' to a full path.
 [ "${DREVOPS_DB_DIR#./}" != "${DREVOPS_DB_DIR}" ] && DREVOPS_DB_DIR="$(pwd)${DREVOPS_DB_DIR#.}"

@@ -39,12 +39,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 info "Sanitizing database."
 
 # Use local or global Drush, giving priority to a local drush.
-# Wrapper around Drush to make it easier to read Drush commands.
-drush() {
-  local drush_local="${DREVOPS_APP}/vendor/bin/drush"
-  [ ! -f "${drush_local}" ] && fail "Drush not found at ${drush_local}." && exit 1
-  "${drush_local}" -y "$@"
-}
+drush() { local d="${DREVOPS_APP}/vendor/bin/drush"; [ ! -f "${d}" ] && { echo "Drush not found at ${d}."; exit 1; }; "${d}" -y "$@"; }
 
 drush_opts=(-y)
 

@@ -24,12 +24,7 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-# Wrapper around Drush to make it easier to read Drush commands.
-drush() {
-  local drush_local="${DREVOPS_APP}/vendor/bin/drush"
-  [ ! -f "${drush_local}" ] && fail "Drush not found at ${drush_local}." && exit 1
-  "${drush_local}" -y "$@"
-}
+drush() { local d="${DREVOPS_APP}/vendor/bin/drush"; [ ! -f "${d}" ] && { echo "Drush not found at ${d}."; exit 1; }; "${d}" -y "$@"; }
 
 if [ "${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-}" = "1" ]; then
   if drush pm:list --status=enabled | grep -q user_expire; then

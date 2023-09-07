@@ -24,12 +24,8 @@ DREVOPS_APP="${DREVOPS_APP:-/app}"
 # Perform operations based on the current environment.
 if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e local; then
   echo "[INFO] Executing example operations in non-production environment."
-  # Wrapper around Drush to make it easier to read Drush commands.
-  drush() {
-    local drush_local="${DREVOPS_APP}/vendor/bin/drush"
-    [ ! -f "${drush_local}" ] && fail "Drush not found at ${drush_local}." && exit 1
-    "${drush_local}" -y "$@"
-  }
+
+  drush() { local d="${DREVOPS_APP}/vendor/bin/drush"; [ ! -f "${d}" ] && { echo "Drush not found at ${d}."; exit 1; }; "${d}" -y "$@"; }
 
   # Below are examples of running operations.
 
@@ -45,8 +41,8 @@ if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e l
   # - Additional Solr search configuration, if Solr is used in the project
   #
   # Note that deployment hooks for already enabled modules have run in the parent script.
-  drush -y pm:install ys_core
-  drush -y deploy:hook
+  drush pm:install ys_core
+  drush deploy:hook
 
   # Conditionally perform an action if this is a "fresh" database.
   if [ "${DREVOPS_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
