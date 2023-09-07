@@ -1,0 +1,15 @@
+{
+    "name": "drevops/drevops-tests",
+    "description": "Tests for DrevOps",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require-dev": {
+        "alexskrypnyk/shell-var-lint": "dev-main"
+    }
+}
