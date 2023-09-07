@@ -8,15 +8,15 @@ set -eu
 
 CUR_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")")"
 
-#if [ -d "${CUR_DIR}/scripts/drevops/installer/tests" ]; then
-#  echo "==> Linting installer script and tests."
-#  pushd "${CUR_DIR}/scripts/drevops/installer" >/dev/null || exit 1
-#  [ ! -f "vendor/bin/phpcs" ] && composer install
-#  composer lint
-#  popd >/dev/null || exit 1
-#fi
+if [ -d "${CUR_DIR}/scripts/drevops/installer/tests" ]; then
+  echo "==> Linting installer script and tests."
+  pushd "${CUR_DIR}/scripts/drevops/installer" >/dev/null || exit 1
+  [ ! -f "vendor/bin/phpcs" ] && composer install
+  composer lint
+  popd >/dev/null || exit 1
+fi
 
-[ ! -f "${CUR_DIR}/scripts/drevops/tests/vendor/bin/shell-var-lint" ] && composer install
+[ ! -f "${CUR_DIR}/scripts/drevops/tests/vendor/bin/shell-var-lint" ] && composer --working-dir="${CUR_DIR}/scripts/drevops/tests" install
 
 targets=()
 while IFS= read -r -d $'\0'; do
