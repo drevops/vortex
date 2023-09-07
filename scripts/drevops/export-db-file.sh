@@ -26,7 +26,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 info "Started database file export."
 
-drush() { local d="${DREVOPS_APP}/vendor/bin/drush"; [ ! -f "${d}" ] && { echo "Drush not found at ${d}."; exit 1; }; "${d}" -y "$@"; }
+drush() { ${DREVOPS_APP}/vendor/bin/drush -y "$@"; }
 
 # Create directory to store database dump.
 mkdir -p "${DREVOPS_DB_EXPORT_FILE_DIR}"

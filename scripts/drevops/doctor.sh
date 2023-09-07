@@ -185,7 +185,7 @@ main() {
   fi
 
   if [ "${DREVOPS_DOCTOR_CHECK_WEBSERVER}" = "1" ]; then
-    local_dev_url="$(docker compose exec -T cli bash -c 'echo $DREVOPS_LOCALDEV_URL')"
+    local_dev_url="$(docker compose exec -T cli bash -c 'echo ${DREVOPS_LOCALDEV_URL}')"
     if [ -n "${local_dev_url}" ]; then
       # Depending on the type of installation, the homepage may return 200 or 403.
       if ! curl -L -s -o /dev/null -w "%{http_code}" "${local_dev_url}" | grep -q '200\|403'; then

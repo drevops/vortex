@@ -25,7 +25,7 @@ DREVOPS_APP="${DREVOPS_APP:-/app}"
 if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e local; then
   echo "[INFO] Executing example operations in non-production environment."
 
-  drush() { local d="${DREVOPS_APP}/vendor/bin/drush"; [ ! -f "${d}" ] && { echo "Drush not found at ${d}."; exit 1; }; "${d}" -y "$@"; }
+  drush() { ${DREVOPS_APP}/vendor/bin/drush -y "$@"; }
 
   # Below are examples of running operations.
 

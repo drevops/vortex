@@ -40,7 +40,7 @@ for file in "${targets[@]}"; do
 
     # Temp script until shfmt implement the support for formatting variables.
     # @see https://github.com/mvdan/sh/issues/1029
-    if ! "${CUR_DIR}/scripts/drevops/tests/vendor/bin/shell-var-lint" "${file}" --fix; then
+    if ! "${CUR_DIR}/scripts/drevops/tests/vendor/bin/shell-var-lint" "${file}"; then
       exit 1
     fi
 
