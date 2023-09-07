@@ -1,0 +1,72 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "8d278a4215817061b619625e3b837bef",
+    "packages": [],
+    "packages-dev": [
+        {
+            "name": "alexskrypnyk/shell-var-lint",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AlexSkrypnyk/shell-var-lint.git",
+                "reference": "52bec49839ba9f1f5d823866e414b37152e5f0d8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/shell-var-lint/zipball/52bec49839ba9f1f5d823866e414b37152e5f0d8",
+                "reference": "52bec49839ba9f1f5d823866e414b37152e5f0d8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1",
+                "drupal/coder": "^8.3",
+                "phpmd/phpmd": "^2.13",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^10"
+            },
+            "bin": [
+                "shell-var-lint"
+            ],
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Alex Skrypnyk",
+                    "email": "alex@drevops.com",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Lint and fix shell vars to ${VAR} format.",
+            "homepage": "https://github.com/alexskrypnyk/shell-var-lint",
+            "support": {
+                "issues": "https://github.com/alexskrypnyk/shell-var-lint/issues",
+                "source": "https://github.com/alexskrypnyk/shell-var-lint"
+            },
+            "funding": [
+                {
+                    "url": "https://www.patreon.com/alexskrypnyk",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2023-09-07T10:32:47+00:00"
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "alpha",
+    "stability-flags": [],
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
+}

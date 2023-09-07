@@ -130,7 +130,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
-    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
@@ -145,10 +145,10 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # One-time login link.
-    "@drush pm:list --status=enabled # none"
-    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -y pm:list --status=enabled # none"
+    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
     "@drush -- user:unblock admin"
-    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "@drush -y user:login # MOCK_ONE_TIME_LINK"
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
@@ -256,7 +256,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
-    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
@@ -271,10 +271,10 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # One-time login link.
-    "@drush pm:list --status=enabled # none"
-    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -y pm:list --status=enabled # none"
+    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
     "@drush -- user:unblock admin"
-    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "@drush -y user:login # MOCK_ONE_TIME_LINK"
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
@@ -391,7 +391,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
-    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
@@ -406,10 +406,10 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # One-time login link.
-    "@drush pm:list --status=enabled # none"
-    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -y pm:list --status=enabled # none"
+    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
     "@drush -- user:unblock admin"
-    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "@drush -y user:login # MOCK_ONE_TIME_LINK"
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
@@ -530,7 +530,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
-    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
@@ -545,10 +545,10 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # One-time login link.
-    "@drush pm:list --status=enabled # none"
-    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -y pm:list --status=enabled # none"
+    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
     "@drush -- user:unblock admin"
-    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "@drush -y user:login # MOCK_ONE_TIME_LINK"
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
@@ -665,7 +665,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
-    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
@@ -680,10 +680,10 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # One-time login link.
-    "@drush pm:list --status=enabled # none"
-    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -y pm:list --status=enabled # none"
+    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
     "@drush -- user:unblock admin"
-    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "@drush -y user:login # MOCK_ONE_TIME_LINK"
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
@@ -794,7 +794,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
-    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
@@ -809,10 +809,10 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # One-time login link.
-    "@drush pm:list --status=enabled # none"
-    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -y pm:list --status=enabled # none"
+    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
     "@drush -- user:unblock admin"
-    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "@drush -y user:login # MOCK_ONE_TIME_LINK"
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
@@ -930,7 +930,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
-    "@drush php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
@@ -945,10 +945,10 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # One-time login link.
-    "@drush pm:list --status=enabled # none"
-    "@drush sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
+    "@drush -y pm:list --status=enabled # none"
+    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
     "@drush -- user:unblock admin"
-    "@drush user:login # MOCK_ONE_TIME_LINK"
+    "@drush -y user:login # MOCK_ONE_TIME_LINK"
     "MOCK_ONE_TIME_LINK"
 
     # Installation completion.

@@ -10,7 +10,7 @@
 # Uses user's token to perform operations.
 #
 
-t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
@@ -46,10 +46,10 @@ DREVOPS_NOTIFY_JIRA_ENDPOINT="${DREVOPS_NOTIFY_JIRA_ENDPOINT:-https://jira.atlas
 # ------------------------------------------------------------------------------
 
 # @formatter:off
-note() { printf "       %s\n" "$1"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+note() { printf "       %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
 command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
@@ -63,7 +63,7 @@ info "Started JIRA notification."
 # Function to extract last value from JSON object passed via STDIN.
 #
 extract_json_first_value() {
-  local key=$1
+  local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$first=reset(\$data); isset(\$first[\"${key}\"]) ? print trim(json_encode(\$first[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
@@ -71,7 +71,7 @@ extract_json_first_value() {
 # Function to extract keyed value from JSON object passed via STDIN.
 #
 extract_json_value() {
-  local key=$1
+  local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
@@ -79,9 +79,9 @@ extract_json_value() {
 # Function to extract keyed value from JSON object passed via STDIN.
 #
 extract_json_value_by_value() {
-  local key=$1
-  local value=$2
-  local return_key=$3
+  local key="${1}"
+  local value="${2}"
+  local return_key="${3}"
 
   php -r "\$key=\"${key}\"; \$value=\"${value}\"; \$return_key=\"${return_key}\";\$data = json_decode(file_get_contents('php://stdin'), TRUE);\$result = array_filter(\$data, function (\$object) use (\$key, \$value, \$return_key) {return !empty(\$object[\$key]) && \$object[\$key] == \$value;});\$result=reset(\$result);print trim(json_encode((\$result[\$return_key] ?? ''), JSON_UNESCAPED_SLASHES), '\"');"
 }
@@ -90,7 +90,7 @@ extract_json_value_by_value() {
 # Extract issue ID from the branch.
 #
 extract_issue() {
-  echo "$1" | sed -nE "s/([^\/]+\/)?([A-Za-z0-9]+\-[0-9]+).*/\2/p"
+  echo "${1}" | sed -nE "s/([^\/]+\/)?([A-Za-z0-9]+\-[0-9]+).*/\2/p"
 }
 
 note "Extracting issue"
@@ -130,7 +130,7 @@ if [ -n "${DREVOPS_NOTIFY_JIRA_COMMENT_PREFIX}" ]; then
     --data "{\"body\": {\"type\": \"doc\", \"version\": 1, \"content\": [{\"type\": \"paragraph\", \"content\": ${comment}}]}}")"
 
   comment_id="$(echo "${payload}" | extract_json_value "id" || echo "error")"
-  [ "$(expr "x$comment_id" : "x[0-9]*$")" -eq 0 ] && fail "Unable to create a comment" && exit 1
+  [ "$(expr "x${comment_id}" : "x[0-9]*$")" -eq 0 ] && fail "Unable to create a comment" && exit 1
 
   pass "Posted comment with ID ${comment_id}."
 fi
@@ -147,7 +147,7 @@ if [ -n "${DREVOPS_NOTIFY_JIRA_TRANSITION}" ]; then
     --url "${DREVOPS_NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/transitions")"
 
   transition_id="$(echo "${payload}" | extract_json_value "transitions" | extract_json_value_by_value "name" "${DREVOPS_NOTIFY_JIRA_TRANSITION}" "id" || echo "error")"
-  { [ "${transition_id}" = "" ] || [ "$(expr "x$transition_id" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to retrieve transition ID" && exit 1
+  { [ "${transition_id}" = "" ] || [ "$(expr "x${transition_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to retrieve transition ID" && exit 1
   echo "success"
 
   payload="$(curl \

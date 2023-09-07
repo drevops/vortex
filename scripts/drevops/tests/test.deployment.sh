@@ -20,7 +20,10 @@ docker network create amazeeio-network 2>/dev/null || true
 index="${CIRCLE_NODE_INDEX:-*}"
 echo "==> Run deployment functional tests (${index})."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
-bats="${TEST_DIR}/node_modules/.bin/bats"
+
+bats() {
+  "${TEST_DIR}/node_modules/.bin/bats" "$@"
+}
 
 # shellcheck disable=SC2086
-$bats "${TEST_DIR}"/bats/deployment${index}.bats
+bats "${TEST_DIR}"/bats/deployment${index}.bats

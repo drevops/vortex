@@ -13,7 +13,7 @@ dict="${CUR_DIR}/scripts/drevops/tests/.aspell.en.pws"
 
 targets=()
 while IFS= read -r -d $'\0'; do
-  targets+=("$REPLY")
+  targets+=("${REPLY}")
 done < <(
   find \
     "${CUR_DIR}"/.circleci \

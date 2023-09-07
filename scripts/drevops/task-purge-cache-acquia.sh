@@ -11,7 +11,7 @@
 #
 # @see https://cloudapi-docs.acquia.com/#/Environments/postEnvironmentsDomainsClearVarnish
 
-t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
@@ -41,10 +41,10 @@ DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL="${DREVOPS_TASK_PURGE_CACHE_ACQU
 #-------------------------------------------------------------------------------
 
 # @formatter:off
-note() { printf "       %s\n" "$1"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+note() { printf "       %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
 info "Started cache purging in Acquia."
@@ -53,7 +53,7 @@ info "Started cache purging in Acquia."
 # Extract last value from JSON object passed via STDIN.
 #
 extract_json_last_value() {
-  local key=$1
+  local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
@@ -61,7 +61,7 @@ extract_json_last_value() {
 # Extract keyed value from JSON object passed via STDIN.
 #
 extract_json_value() {
-  local key=$1
+  local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
@@ -83,12 +83,12 @@ token=$(echo "${token_json}" | extract_json_value "access_token")
 [ -z "${token}" ] && fail "Unable to retrieve a token." && exit 1
 
 note "Retrieving ${DREVOPS_ACQUIA_APP_NAME} application UUID."
-app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "https://cloud.acquia.com/api/applications?filter=name%3D${DREVOPS_ACQUIA_APP_NAME/ /%20}")
+app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${DREVOPS_ACQUIA_APP_NAME/ /%20}")
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
 [ -z "${app_uuid}" ] && fail "Unable to retrieve an environment UUID." && exit 1
 
 note "Retrieving environment ID."
-envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV}")
+envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV}")
 ENV_ID=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
 [ -z "${ENV_ID}" ] && fail "Unable to retrieve environment ID." && exit 1
 
@@ -130,7 +130,7 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
   # the domain is not found.
   for domain in "${domain_list[@]}"; do
     note "Purging cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
-    task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" -H "Content-Type: application/json" -d "{\"domains\":[\"${domain}\"]}" "https://cloud.acquia.com/api/environments/${ENV_ID}/domains/actions/clear-varnish")
+    task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d "{\"domains\":[\"${domain}\"]}" "https://cloud.acquia.com/api/environments/${ENV_ID}/domains/actions/clear-varnish")
     notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href") || true
 
     # If domain does not exist - notification will be empty; we are skipping
@@ -146,9 +146,9 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
     for i in $(seq 1 "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}"); do
       echo -n "."
       sleep "${DREVOPS_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL}"
-      task_status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer $token" "${notification_url}")
-      task_state=$(echo "$task_status_json" | extract_json_value "status")
-      if [ "$task_state" = "completed" ]; then
+      task_status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "${notification_url}")
+      task_state=$(echo "${task_status_json}" | extract_json_value "status")
+      if [ "${task_state}" = "completed" ]; then
         note "Purged cache for ${DREVOPS_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
         task_completed=1
         break 1

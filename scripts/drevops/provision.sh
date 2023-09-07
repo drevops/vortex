@@ -8,7 +8,7 @@
 #
 # shellcheck disable=SC2086,SC2002,SC2235,SC1090,SC2012,SC2015
 
-t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
@@ -68,31 +68,25 @@ DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 # ------------------------------------------------------------------------------
 
 # @formatter:off
-note() { printf "       %s\n" "$1"; }
-info() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ -z "${TERM_NO_COLOR:-}" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+note() { printf "       %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-yesno() { [ "$1" = "1" ] && echo "Yes" || echo "No"; }
+yesno() { [ "${1}" = "1" ] && echo "Yes" || echo "No"; }
+drush() { ${DREVOPS_APP}/vendor/bin/drush -y "$@"; }
 
 info "Started site provisioning."
 
 [ "${DREVOPS_PROVISION_SKIP}" = "1" ] && pass "Skipped site provisioning as DREVOPS_PROVISION_SKIP is set to 1." && exit 0
 
-# Wrapper around Drush to make it easier to read Drush commands.
-drush() {
-  local drush_local="${DREVOPS_APP}/vendor/bin/drush"
-  [ ! -f "${drush_local}" ] && fail "Drush not found at ${drush_local}." && exit 1
-  "${drush_local}" -y "$@"
-}
-
 # Convert DB dir starting with './' to a full path.
-[ "${DREVOPS_DB_DIR#./}" != "$DREVOPS_DB_DIR" ] && DREVOPS_DB_DIR="$(pwd)${DREVOPS_DB_DIR#.}"
+[ "${DREVOPS_DB_DIR#./}" != "${DREVOPS_DB_DIR}" ] && DREVOPS_DB_DIR="$(pwd)${DREVOPS_DB_DIR#.}"
 
 drush_version="$(drush --version | cut -d' ' -f4)"
 drupal_core_version="$(drush status --field=drupal-version)"
-site_has_config="$(test "$(ls -1 $DREVOPS_DRUPAL_CONFIG_PATH/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
+site_has_config="$(test "$(ls -1 ${DREVOPS_DRUPAL_CONFIG_PATH}/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
 site_is_installed="$(drush status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
 
 ################################################################################
