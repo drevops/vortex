@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5e3cb6b2f9d0d59caba3b422bc1b6a81",
+    "content-hash": "8d278a4215817061b619625e3b837bef",
     "packages": [],
     "packages-dev": [
         {
             "name": "alexskrypnyk/shell-var-lint",
-            "version": "0.1.1",
+            "version": "0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/shell-var-lint.git",
-                "reference": "01bdcbe1ba563dd7e7597b5a6ce0ca677e56c0fd"
+                "reference": "52bec49839ba9f1f5d823866e414b37152e5f0d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/shell-var-lint/zipball/01bdcbe1ba563dd7e7597b5a6ce0ca677e56c0fd",
-                "reference": "01bdcbe1ba563dd7e7597b5a6ce0ca677e56c0fd",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/shell-var-lint/zipball/52bec49839ba9f1f5d823866e414b37152e5f0d8",
+                "reference": "52bec49839ba9f1f5d823866e414b37152e5f0d8",
                 "shasum": ""
             },
             "require": {
@@ -58,7 +58,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2023-09-07T05:09:25+00:00"
+            "time": "2023-09-07T10:32:47+00:00"
         }
     ],
     "aliases": [],
