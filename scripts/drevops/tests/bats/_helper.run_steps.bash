@@ -101,7 +101,7 @@ run_steps() {
   for ((i = 0; i < ${#STEPS[@]}; i++)); do
     local item="${STEPS[${i}]}"
 
-    stepdebug "STEP START: '$item'"
+    stepdebug "STEP START: '${item}'"
 
     #########################################################################
     #                                COMMAND                                #
@@ -137,17 +137,17 @@ run_steps() {
       local mock_output="${command_parts[2]:-}"
 
       if ! [[ ${mock_status} =~ ^[0-9]+$ ]]; then
-        substepdebug "PARSE: Converting output to '$mock_status' output."
+        substepdebug "PARSE: Converting output to '${mock_status}' output."
         substepdebug "PARSE: Setting status to '0'."
         mock_output="${mock_status}"
         mock_status=0
       fi
 
       substepdebug "PARSE: FINISHED"
-      substepdebug "       cmd    : '$command_binary'"
-      substepdebug "       args   : '$command_args'"
-      substepdebug "       status : '$mock_status'"
-      substepdebug "       output : '$mock_output'"
+      substepdebug "       cmd    : '${command_binary}'"
+      substepdebug "       args   : '${command_args}'"
+      substepdebug "       status : '${mock_status}'"
+      substepdebug "       output : '${mock_output}'"
 
       #------------------------------------------------------------------------
       # Processing the command.
@@ -155,36 +155,36 @@ run_steps() {
 
       # Track the index of the command call per binary.
       mock_cmd_index=${command_indexes[${command_binary}]:-1}
-      substepdebug "Command index for '$command_binary' is '$mock_cmd_index'."
+      substepdebug "Command index for '${command_binary}' is '${mock_cmd_index}'."
 
       if [[ ${phase} == "${PHASE_SETUP}" ]]; then
         # Get mock from passed array or create a new one.
         if [[ -z ${mocked_commands["${command_binary}"]:-} ]]; then
           mock_cmd=$(mock_command "${command_binary}")
           mocked_commands["${command_binary}"]=${mock_cmd}
-          substepdebug "SETUP: Created new mock for '$command_binary' with value '${mocked_commands[$command_binary]}'."
+          substepdebug "SETUP: Created new mock for '${command_binary}' with value '${mocked_commands[${command_binary}]}'."
         else
           mock_cmd="${mocked_commands["${command_binary}"]}"
-          substepdebug "SETUP: Using existing mock for '$command_binary' with value '${mocked_commands[$command_binary]}'."
+          substepdebug "SETUP: Using existing mock for '${command_binary}' with value '${mocked_commands[${command_binary}]}'."
         fi
 
-        substepdebug "SETUP: Setting mock status to '$mock_status'."
+        substepdebug "SETUP: Setting mock status to '${mock_status}'."
         mock_set_status "${mock_cmd}" "${mock_status}" "${mock_cmd_index}"
 
         if [[ -n ${mock_output} ]]; then
-          substepdebug "SETUP: Setting mock output to '$mock_output'."
+          substepdebug "SETUP: Setting mock output to '${mock_output}'."
           mock_set_output "${mock_cmd}" "${mock_output}" "${mock_cmd_index}"
         fi
 
-        substepdebug "SETUP: Setup mock for binary '$command_binary' complete."
+        substepdebug "SETUP: Setup mock for binary '${command_binary}' complete."
       else
         # Check if mock for the binary exists in the assert phase
         if [[ -z ${mocked_commands["${command_binary}"]} ]]; then
-          echo "ERROR: Mock for the binary '$command_binary' does not exist."
+          echo "ERROR: Mock for the binary '${command_binary}' does not exist."
           exit 1
         fi
 
-        substepdebug "ASSERT: Found mock for '$command_binary' with value '${mocked_commands[$command_binary]}'"
+        substepdebug "ASSERT: Found mock for '${command_binary}' with value '${mocked_commands[${command_binary}]}'"
 
         local mock_args_actual
         mock_cmd="${mocked_commands[${command_binary}]}"
@@ -205,7 +205,7 @@ run_steps() {
       fi
 
       command_indexes["${command_binary}"]=$((mock_cmd_index + 1))
-      stepdebug "Updated command index for '$command_binary' to '${command_indexes[$command_binary]}'"
+      stepdebug "Updated command index for '${command_binary}' to '${command_indexes[${command_binary}]}'"
 
     #########################################################################
     #                            STRING ABSENT                              #
@@ -237,7 +237,7 @@ run_steps() {
       fi
     fi
 
-    stepdebug "STEP FINISH: '$item'"
+    stepdebug "STEP FINISH: '${item}'"
     stepdebug
   done
 
