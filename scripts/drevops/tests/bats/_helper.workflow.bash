@@ -41,7 +41,7 @@ prepare_sut() {
 
   if uname -a | grep -q ARM64; then
     substep "Override local Docker Compose for ARM."
-    cp docker-compose.override.example.yml docker-compose.override.yml
+    cp docker-compose.override.default.yml docker-compose.override.yml
   fi
 }
 

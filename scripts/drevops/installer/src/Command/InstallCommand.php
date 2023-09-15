@@ -238,7 +238,7 @@ class InstallCommand extends Command {
 
     // Special case for .env.local as it may exist.
     if (!file_exists($dst . '/.env.local')) {
-      static::copyRecursive($dst . '/.env.local.example', $dst . '/.env.local', 0755, FALSE);
+      static::copyRecursive($dst . '/.env.local.default', $dst . '/.env.local', 0755, FALSE);
     }
   }
 

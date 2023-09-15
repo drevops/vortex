@@ -40,7 +40,7 @@ Set to `y` to suppress Ahoy prompts.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`
+Defined in: `.env.local.default`
 
 ### `CLAMAV_MODE`
 
@@ -66,7 +66,7 @@ The password (token) to log into the Docker registry.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/login-docker.sh`
+Defined in: `.env.local.default`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/login-docker.sh`
 
 ### `DOCKER_REGISTRY`
 
@@ -84,7 +84,7 @@ The username to log into the Docker registry.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/login-docker.sh`
+Defined in: `.env.local.default`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/login-docker.sh`
 
 ### `DREVOPS_ACQUIA_APP_NAME`
 
@@ -100,7 +100,7 @@ Acquia Cloud API key.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/task-copy-db-acquia.sh`, `scripts/drevops/task-copy-files-acquia.sh`, `scripts/drevops/task-purge-cache-acquia.sh`
+Defined in: `.env.local.default`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/task-copy-db-acquia.sh`, `scripts/drevops/task-copy-files-acquia.sh`, `scripts/drevops/task-purge-cache-acquia.sh`
 
 ### `DREVOPS_ACQUIA_SECRET`
 
@@ -108,7 +108,7 @@ Acquia Cloud API secret.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/task-copy-db-acquia.sh`, `scripts/drevops/task-copy-files-acquia.sh`, `scripts/drevops/task-purge-cache-acquia.sh`
+Defined in: `.env.local.default`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/task-copy-db-acquia.sh`, `scripts/drevops/task-copy-files-acquia.sh`, `scripts/drevops/task-purge-cache-acquia.sh`
 
 ### `DREVOPS_APP`
 
@@ -192,7 +192,7 @@ Set to `1` to override existing downloaded DB dump without asking.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/drevops/download-db.sh`
+Defined in: `.env.local.default`, `scripts/drevops/download-db.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_FILE`
 
@@ -216,7 +216,7 @@ Database dump FTP password.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/drevops/download-db-ftp.sh`
+Defined in: `.env.local.default`, `scripts/drevops/download-db-ftp.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_PORT`
 
@@ -232,7 +232,7 @@ Database dump FTP user.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/drevops/download-db-ftp.sh`
+Defined in: `.env.local.default`, `scripts/drevops/download-db-ftp.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH`
 
@@ -341,7 +341,7 @@ SSH key file used to access Lagoon environment to download the database.<br />Cr
 
 Default value: `HOME/.ssh/id_rsa`
 
-Defined in: `.env.local.example`, `scripts/drevops/download-db-lagoon.sh`
+Defined in: `.env.local.default`, `scripts/drevops/download-db-lagoon.sh`
 
 ### `DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE`
 
@@ -405,7 +405,7 @@ Set to `1` to print debug information in DrevOps scripts.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`
+Defined in: `.env.local.default`
 
 ### `DREVOPS_DEPLOY_ACTION`
 
@@ -674,7 +674,7 @@ Set to `1` to print debug information from Docker build.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/drevops/build.sh`
+Defined in: `.env.local.default`, `scripts/drevops/build.sh`
 
 ### `DREVOPS_DOCTOR_CHECK_BOOTSTRAP`
 
@@ -1396,7 +1396,7 @@ Flag to always overwrite existing database. Usually set to `0` in deployed<br />
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `.env.local.example`, `scripts/drevops/provision.sh`
+Defined in: `.env`, `.env.local.default`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_PROVISION_POST_OPERATIONS_SKIP`
 
