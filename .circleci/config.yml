@@ -61,7 +61,7 @@ aliases:
   #;< DREVOPS_DEV
   - &renovatebot_repository 'drevops/drevops-destination'
   #;> DREVOPS_DEV
-  #####- &renovatebot_repository 'your_org/your_site'
+  ##### - &renovatebot_repository 'your_org/your_site'
   # The author details to use for commits made by RenovateBot.
   - &renovatebot_git_author 'RenovateBot Self Hosted <renovatebot@your-site-url.example>'
   # The schedule to run RenovateBot on. Defaults to running twice a day.
