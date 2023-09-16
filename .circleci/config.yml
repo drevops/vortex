@@ -438,10 +438,6 @@ jobs:
           name: Run common tests
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.common.sh
           no_output_timeout: 60m
-      - store_test_results:
-          path: *drevops_test_reports_dir
-      - store_artifacts:
-          path: *drevops_test_artifact_dir
       - codecov/upload:
           file: *drevops_test_coverage_dir
           # @see https://github.com/codecov/codecov-circleci-orb/issues/158
