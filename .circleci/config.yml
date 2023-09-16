@@ -439,9 +439,8 @@ jobs:
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.common.sh
           no_output_timeout: 60m
       - codecov/upload:
-          file: *drevops_test_coverage_dir
           # @see https://github.com/codecov/codecov-circleci-orb/issues/158
-          xtra_args: "--nonZero"
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   drevops_dev_test_workflow:
     <<: *container_config
