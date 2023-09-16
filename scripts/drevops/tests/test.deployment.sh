@@ -27,7 +27,7 @@ echo "==> Run deployment functional tests (${index})."
 bats() {
   if [ -n "${DREVOPS_TEST_COVERAGE_DIR:-}" ]; then
     mkdir -p "${DREVOPS_TEST_COVERAGE_DIR}"
-    kcov --include-pattern=.sh,.bash --include-path="${SCRIPTS_DIR}" --bash-parse-files-in-dir="${SCRIPTS_DIR}" --exclude-path=${TEST_DIR}/node_modules,${TEST_DIR}/vendor,${SCRIPTS_DIR}/installer/scripts/drevops/docs "${DREVOPS_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
+    kcov --include-pattern=.sh,.bash --include-path="${SCRIPTS_DIR}" --bash-parse-files-in-dir="${SCRIPTS_DIR}" --exclude-path=${TEST_DIR}/node_modules,${TEST_DIR}/vendor,${SCRIPTS_DIR}/installer,${SCRIPTS_DIR}/docs "${DREVOPS_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
   else
     "${TEST_DIR}/node_modules/.bin/bats" "$@"
   fi
