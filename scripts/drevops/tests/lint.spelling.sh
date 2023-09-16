@@ -3,6 +3,7 @@
 # Check spelling.
 #
 # shellcheck disable=SC2181,SC2016,SC2002,SC2266,SC2015
+# LCOV_EXCL_START
 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
