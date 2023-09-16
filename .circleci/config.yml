@@ -11,7 +11,7 @@
 #: current paragraph) are explaining DrevOps inner workings and can be safely
 #: removed for your project. They are automatically removed when installing or
 #: updating DrevOps.
-version: 2
+version: '2.1'
 
 #:###############################################################################
 #: VARIABLES
@@ -130,7 +130,7 @@ aliases:
       #: This container has all necessary tools to run dockerized environment.
       #: @see https://github.com/drevops/ci-builder
       #: @see https://hub.docker.com/repository/docker/drevops/ci-builder/tags?page=1&ordering=last_updated
-      - image: drevops/ci-builder:23.8.1
+      - image: drevops/ci-builder:canary
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -155,6 +155,8 @@ aliases:
           DREVOPS_TEST_REPORTS_DIR: &drevops_test_reports_dir /tmp/tests
           # Directory to store test artifacts.
           DREVOPS_TEST_ARTIFACT_DIR: &drevops_test_artifact_dir /tmp/artifacts
+          # Directory to store test coverage.
+          DREVOPS_TEST_COVERAGE_DIR: &drevops_test_coverage_dir /tmp/artifacts/coverage
           # Use compact error reporting format for Behat tests.
           DREVOPS_TEST_BEHAT_FORMAT: progress_fail
           # Directory to use for artifact deployments.
@@ -181,6 +183,11 @@ aliases:
       name: Process codebase to run in CI
       #: Remove lines containing '###' and uncomment comments starting with '##'.
       command: sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
+
+#;< DREVOPS_DEV
+orbs:
+  codecov: codecov/codecov@3.2.4
+#;> DREVOPS_DEV
 
 #:###############################################################################
 #: JOBS
@@ -431,6 +438,13 @@ jobs:
           name: Run common tests
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.common.sh
           no_output_timeout: 60m
+      - store_test_results:
+          path: *drevops_test_reports_dir
+      - store_artifacts:
+          path: *drevops_test_artifact_dir
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   drevops_dev_test_workflow:
     <<: *container_config
@@ -445,6 +459,13 @@ jobs:
           name: Run workflow tests (long)
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.workflow.sh
           no_output_timeout: 60m
+      - store_test_results:
+          path: *drevops_test_reports_dir
+      - store_artifacts:
+          path: *drevops_test_artifact_dir
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   drevops_dev_test_deployment:
     <<: *container_config
@@ -463,6 +484,13 @@ jobs:
           name: Run deployment tests (long)
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.deployment.sh
           no_output_timeout: 60m
+      - store_test_results:
+          path: *drevops_test_reports_dir
+      - store_artifacts:
+          path: *drevops_test_artifact_dir
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   # Run tests after 'build' job.
   drevops_dev_test_postbuild:
@@ -476,6 +504,13 @@ jobs:
       - run:
           name: Run CircleCI tests (long)
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.postbuild.sh
+      - store_test_results:
+          path: *drevops_test_reports_dir
+      - store_artifacts:
+          path: *drevops_test_artifact_dir
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   # Deployment of feature branches and tags for DrevOps itself.
   drevops_dev_deploy:
