@@ -438,6 +438,10 @@ jobs:
           name: Run common tests
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.common.sh
           no_output_timeout: 60m
+      - store_test_results:
+          path: *drevops_test_reports_dir
+      - store_artifacts:
+          path: *drevops_test_artifact_dir
       - codecov/upload:
           # @see https://github.com/codecov/codecov-circleci-orb/issues/158
           xtra_args: "--nonZero -s /tmp/artifacts/coverage"
@@ -455,6 +459,13 @@ jobs:
           name: Run workflow tests (long)
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.workflow.sh
           no_output_timeout: 60m
+      - store_test_results:
+          path: *drevops_test_reports_dir
+      - store_artifacts:
+          path: *drevops_test_artifact_dir
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   drevops_dev_test_deployment:
     <<: *container_config
@@ -473,6 +484,13 @@ jobs:
           name: Run deployment tests (long)
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.deployment.sh
           no_output_timeout: 60m
+      - store_test_results:
+          path: *drevops_test_reports_dir
+      - store_artifacts:
+          path: *drevops_test_artifact_dir
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   # Run tests after 'build' job.
   drevops_dev_test_postbuild:
@@ -486,6 +504,13 @@ jobs:
       - run:
           name: Run CircleCI tests (long)
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.postbuild.sh
+      - store_test_results:
+          path: *drevops_test_reports_dir
+      - store_artifacts:
+          path: *drevops_test_artifact_dir
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   # Deployment of feature branches and tags for DrevOps itself.
   drevops_dev_deploy:
