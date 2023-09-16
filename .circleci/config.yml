@@ -11,7 +11,10 @@
 #: current paragraph) are explaining DrevOps inner workings and can be safely
 #: removed for your project. They are automatically removed when installing or
 #: updating DrevOps.
-version: 2
+version: '2.1'
+
+orbs:
+  codecov: codecov/codecov@3.2.4
 
 #:###############################################################################
 #: VARIABLES
@@ -431,6 +434,8 @@ jobs:
           name: Run common tests
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.common.sh
           no_output_timeout: 60m
+      - codecov/upload:
+          file: /tmp/artifacts/coverage/bats/cobertura.xml
       - store_artifacts:
           path: /tmp/artifacts
 
