@@ -11,6 +11,7 @@
 <div align="center">
 
 [![CircleCI](https://circleci.com/gh/drevops/drevops.svg?style=shield)](https://circleci.com/gh/drevops/drevops)
+[![codecov](https://codecov.io/gh/drevops/drevops/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/drevops)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/drevops)
 ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 ![LICENSE](https://img.shields.io/github/license/drevops/drevops)
