@@ -61,11 +61,10 @@ bats "${TEST_DIR}/bats/env.bats"
 
 bats "${TEST_DIR}/bats/notify.bats"
 
-#bats "${TEST_DIR}/bats/notify.bats"
 #bats "${TEST_DIR}/bats/install.initial.bats"
 #bats "${TEST_DIR}/bats/install.existing.bats"
 #bats "${TEST_DIR}/bats/install.parameters.bats"
 #bats "${TEST_DIR}/bats/install.integrations.bats"
 #bats "${TEST_DIR}/bats/install.demo.bats"
-#bats "${TEST_DIR}/bats/clean.bats"
+bats "${TEST_DIR}/bats/clean.bats"
 #bats "${TEST_DIR}/bats/update-drevops.bats"
