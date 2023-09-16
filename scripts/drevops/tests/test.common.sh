@@ -53,8 +53,8 @@ bats() {
 }
 
 bats "${TEST_DIR}/bats/helpers.bats"
-#bats "${TEST_DIR}/bats/helpers.run_steps.bats"
-#bats "${TEST_DIR}/bats/env.bats"
+bats "${TEST_DIR}/bats/helpers.run_steps.bats"
+bats "${TEST_DIR}/bats/env.bats"
 #bats "${TEST_DIR}/bats/docker-compose.bats"
 #bats "${TEST_DIR}/bats/provision.bats"
 
