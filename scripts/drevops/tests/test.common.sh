@@ -46,19 +46,20 @@ TEST_DIR="scripts/drevops/tests"
 echo "==> Run common functional tests."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
 
+COVERAGE_DIR="/tmp/artifacts/coverage"
 bats() {
-  "${TEST_DIR}/node_modules/.bin/bats" "$@"
+  mkdir -p $COVERAGE_DIR
+  kcov --clean --include-path="../${TEST_DIR}" --exclude-path=${TEST_DIR}/node_modules,${TEST_DIR}/vendor "${COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
 }
 
-#bats "${TEST_DIR}/bats/helpers.bats"
+bats "${TEST_DIR}/bats/helpers.bats"
 #bats "${TEST_DIR}/bats/helpers.run_steps.bats"
 #bats "${TEST_DIR}/bats/env.bats"
 #bats "${TEST_DIR}/bats/docker-compose.bats"
 #bats "${TEST_DIR}/bats/provision.bats"
 
-mkdir -p /tmp/artifacts/coverage
 
-kcov --clean --include-path=scripts/drevops --exclude-path=${TEST_DIR}/node_modules,${TEST_DIR}/vendor /tmp/artifacts/coverage ${TEST_DIR}/node_modules/.bin/bats --no-tempdir-cleanup "${TEST_DIR}/bats/notify.bats"
+bats "${TEST_DIR}/bats/notify.bats"
 
 #bats "${TEST_DIR}/bats/notify.bats"
 #bats "${TEST_DIR}/bats/install.initial.bats"
