@@ -443,7 +443,8 @@ jobs:
       - store_artifacts:
           path: *drevops_test_artifact_dir
       - codecov/upload:
-          xtra_args: "-s $DREVOPS_TEST_COVERAGE_DIR"
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero"
 
   drevops_dev_test_workflow:
     <<: *container_config
