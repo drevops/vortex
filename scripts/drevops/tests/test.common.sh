@@ -49,7 +49,7 @@ echo "==> Run common functional tests."
 COVERAGE_DIR="/tmp/artifacts/coverage"
 bats() {
   mkdir -p $COVERAGE_DIR
-  kcov --include-path="scripts/drevops" --bash-parse-files-in-dir="scripts/drevops" --exclude-path=${TEST_DIR}/node_modules,${TEST_DIR}/vendor,scripts/drevops/installer "${COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
+  kcov --include-path="scripts/drevops" --bash-parse-files-in-dir="scripts/drevops" --exclude-path=${TEST_DIR}/node_modules,${TEST_DIR}/vendor,scripts/drevops/installer/scripts/drevops/docs "${COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
 }
 
 bats "${TEST_DIR}/bats/helpers.bats"
