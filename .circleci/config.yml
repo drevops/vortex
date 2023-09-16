@@ -431,6 +431,8 @@ jobs:
           name: Run common tests
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.common.sh
           no_output_timeout: 60m
+      - store_artifacts:
+          path: /tmp/artifacts
 
   drevops_dev_test_workflow:
     <<: *container_config
