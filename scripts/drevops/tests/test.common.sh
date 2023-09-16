@@ -6,7 +6,11 @@
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-TEST_DIR="scripts/drevops/tests"
+SCRIPTS_DIR="scripts/drevops"
+
+TEST_DIR="${SCRIPTS_DIR}/tests"
+
+DREVOPS_TEST_COVERAGE_DIR="${DREVOPS_TEST_COVERAGE_DIR:-${TEST_DIR}/.coverage}"
 
 # ------------------------------------------------------------------------------
 #
@@ -46,10 +50,9 @@ TEST_DIR="scripts/drevops/tests"
 echo "==> Run common functional tests."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
 
-COVERAGE_DIR="/tmp/artifacts/coverage"
 bats() {
-  mkdir -p $COVERAGE_DIR
-  kcov --include-path="scripts/drevops" --bash-parse-files-in-dir="scripts/drevops" --exclude-path=${TEST_DIR}/node_modules,${TEST_DIR}/vendor,scripts/drevops/installer/scripts/drevops/docs "${COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
+  mkdir -p ${DREVOPS_TEST_COVERAGE_DIR}
+  kcov --include-path="${SCRIPTS_DIR}" --bash-parse-files-in-dir="${SCRIPTS_DIR}" --exclude-path=${TEST_DIR}/node_modules,${TEST_DIR}/vendor,${SCRIPTS_DIR}/installer/scripts/drevops/docs "${DREVOPS_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
 }
 
 bats "${TEST_DIR}/bats/helpers.bats"
