@@ -717,49 +717,49 @@ workflows:
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
     jobs:
-#      #;< !PROVISION_USE_PROFILE
-#      - database:
-#          filters:
-#            tags:
-#              only: /.*/
-#      #;> !PROVISION_USE_PROFILE
-#      - build:
-#          #;< !PROVISION_USE_PROFILE
-#          requires:
-#            - database
-#          #;> !PROVISION_USE_PROFILE
-#          filters:
-#            tags:
-#              only: /.*/
-#      #;< DEPLOYMENT
-#      - deploy:
-#          requires:
-#            - build
-#          filters:
-#            branches:
-#              # Allowed branches:
-#              # - main, master, develop, ci, cisomething
-#              # - deps/*
-#              # - feature/description, feature/123-description
-#              # - release/123.456.789, release/123.456.789-rc.123 (per https://semver.org/)
-#              # - release/2023-04-17, release/2023-04-17.123 (date-based)
-#              # - hotfix/123.456.789, hotfix/123.456.789-rc.1213 (per https://semver.org/)
-#              # - hotfix/2023-04-17, hotfix/2023-04-17.123 (date-based)
-#              only: /^(main|master|develop)$|^feature\/[a-zA-z0-9\-\.\,]+|^ci.*|^deps\/.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
-#            tags:
-#              ignore: /.*/
-#      - deploy_tags:
-#          requires:
-#            - build
-#          filters:
-#            branches:
-#              ignore: /.*/
-#            tags:
-#              # Allowed tags:
-#              # - 123.456.789, 123.456.789-rc.123 (per https://semver.org/)
-#              # - 2023-04-17, 2023-04-17.123 (date-based)
-#              only: /^[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
-#      #;> DEPLOYMENT
+      #;< !PROVISION_USE_PROFILE
+      - database:
+          filters:
+            tags:
+              only: /.*/
+      #;> !PROVISION_USE_PROFILE
+      - build:
+          #;< !PROVISION_USE_PROFILE
+          requires:
+            - database
+          #;> !PROVISION_USE_PROFILE
+          filters:
+            tags:
+              only: /.*/
+      #;< DEPLOYMENT
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              # Allowed branches:
+              # - main, master, develop, ci, cisomething
+              # - deps/*
+              # - feature/description, feature/123-description
+              # - release/123.456.789, release/123.456.789-rc.123 (per https://semver.org/)
+              # - release/2023-04-17, release/2023-04-17.123 (date-based)
+              # - hotfix/123.456.789, hotfix/123.456.789-rc.1213 (per https://semver.org/)
+              # - hotfix/2023-04-17, hotfix/2023-04-17.123 (date-based)
+              only: /^(main|master|develop)$|^feature\/[a-zA-z0-9\-\.\,]+|^ci.*|^deps\/.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+            tags:
+              ignore: /.*/
+      - deploy_tags:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              # Allowed tags:
+              # - 123.456.789, 123.456.789-rc.123 (per https://semver.org/)
+              # - 2023-04-17, 2023-04-17.123 (date-based)
+              only: /^[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+      #;> DEPLOYMENT
 
   #;============================================================================
   #; DREVOPS development section. Removed during DrevOps installation/update.
@@ -773,86 +773,86 @@ workflows:
           filters:
             tags:
               only: /.*/
-#      - drevops_dev_test_workflow:
-#          filters:
-#            tags:
-#              only: /.*/
-#      # Run deployment tests for DrevOps.
-#      - drevops_dev_test_deployment:
-#          filters:
-#            tags:
-#              only: /.*/
-#      # Run tests after 'build' job.
-#      - drevops_dev_test_postbuild:
-#          requires:
-#            - build
-#          filters:
-#            tags:
-#              only: /.*/
-#      # Run actual deployment of DrevOps code to destination codebase (integration test).
-#      # @see https://github.com/drevops/drevops-destination
-#      - drevops_dev_deploy:
-#          requires:
-#            - build
-#            - drevops_dev_test
-#            - drevops_dev_test_workflow
-#          filters:
-#            branches:
-#              # Allowed branches: 7.x, 8.x, 9.x, feature/7.x-description, feature/8.x-description, feature/9.x-description
-#              only: /main|develop|7\.x|feature\/(?:7\.x)[a-zA-z0-9\-\.\,]+/
-#            tags:
-#              ignore: /.*/
-#      # Run actual deployment of DrevOps code to destination codebase (integration test).
-#      # @see https://github.com/drevops/drevops-destination
-#      - drevops_dev_deploy_tags:
-#          requires:
-#            - build
-#            - drevops_dev_test
-#            - drevops_dev_test_workflow
-#          filters:
-#            branches:
-#              ignore: /.*/
-#            tags:
-#              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
-#
-#      # Build and publish DrevOps docs.
-#      - drevops_dev_deploy_docs:
-#          requires:
-#            - build
-#            - drevops_dev_test
-#            - drevops_dev_test_workflow
-#          filters:
-#            branches:
-#              # 'main' or any branch with 'docs' in the name.
-#              only: /^main$|.*docs.*/
-#            tags:
-#              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
-#
-#      # Publish DrevOps installer.
-#      - drevops_dev_deploy_installer:
-#          requires:
-#            - drevops_dev_test
-#          filters:
-#            branches:
-#              only: /^feature\/installer-update$/
-#            tags:
-#              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
+      - drevops_dev_test_workflow:
+          filters:
+            tags:
+              only: /.*/
+      # Run deployment tests for DrevOps.
+      - drevops_dev_test_deployment:
+          filters:
+            tags:
+              only: /.*/
+      # Run tests after 'build' job.
+      - drevops_dev_test_postbuild:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /.*/
+      # Run actual deployment of DrevOps code to destination codebase (integration test).
+      # @see https://github.com/drevops/drevops-destination
+      - drevops_dev_deploy:
+          requires:
+            - build
+            - drevops_dev_test
+            - drevops_dev_test_workflow
+          filters:
+            branches:
+              # Allowed branches: 7.x, 8.x, 9.x, feature/7.x-description, feature/8.x-description, feature/9.x-description
+              only: /main|develop|7\.x|feature\/(?:7\.x)[a-zA-z0-9\-\.\,]+/
+            tags:
+              ignore: /.*/
+      # Run actual deployment of DrevOps code to destination codebase (integration test).
+      # @see https://github.com/drevops/drevops-destination
+      - drevops_dev_deploy_tags:
+          requires:
+            - build
+            - drevops_dev_test
+            - drevops_dev_test_workflow
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
 
-#  # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from file.
-#  drevops_dev_didi_fi:
-#    jobs:
-#      - drevops_dev_didi_database_fi
-#      - drevops_dev_didi_build_fi:
-#          requires:
-#            - drevops_dev_didi_database_fi
-#
-#  # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from docker registry.
-#  drevops_dev_didi_ii:
-#    jobs:
-#      - drevops_dev_database_ii
-#      - drevops_dev_didi_build_ii:
-#          requires:
-#            - drevops_dev_database_ii
+      # Build and publish DrevOps docs.
+      - drevops_dev_deploy_docs:
+          requires:
+            - build
+            - drevops_dev_test
+            - drevops_dev_test_workflow
+          filters:
+            branches:
+              # 'main' or any branch with 'docs' in the name.
+              only: /^main$|.*docs.*/
+            tags:
+              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
+
+      # Publish DrevOps installer.
+      - drevops_dev_deploy_installer:
+          requires:
+            - drevops_dev_test
+          filters:
+            branches:
+              only: /^feature\/installer-update$/
+            tags:
+              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
+
+  # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from file.
+  drevops_dev_didi_fi:
+    jobs:
+      - drevops_dev_didi_database_fi
+      - drevops_dev_didi_build_fi:
+          requires:
+            - drevops_dev_didi_database_fi
+
+  # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from docker registry.
+  drevops_dev_didi_ii:
+    jobs:
+      - drevops_dev_database_ii
+      - drevops_dev_didi_build_ii:
+          requires:
+            - drevops_dev_database_ii
   #=============================================================================
   #;> DREVOPS_DEV
 
