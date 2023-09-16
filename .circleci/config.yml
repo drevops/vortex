@@ -443,6 +443,7 @@ jobs:
       - store_artifacts:
           path: *drevops_test_artifact_dir
       - codecov/upload:
+          file: *drevops_test_coverage_dir
           # @see https://github.com/codecov/codecov-circleci-orb/issues/158
           xtra_args: "--nonZero"
 
