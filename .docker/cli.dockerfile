@@ -9,15 +9,15 @@ FROM uselagoon/php-8.1-cli-drupal:23.8.0
 # Add missing variables.
 # @todo Remove once https://github.com/uselagoon/lagoon/issues/3121 is resolved.
 ARG LAGOON_PR_HEAD_BRANCH=""
-ENV LAGOON_PR_HEAD_BRANCH=$LAGOON_PR_HEAD_BRANCH
+ENV LAGOON_PR_HEAD_BRANCH=${LAGOON_PR_HEAD_BRANCH}
 ARG LAGOON_PR_HEAD_SHA=""
-ENV LAGOON_PR_HEAD_SHA=$LAGOON_PR_HEAD_SHA
+ENV LAGOON_PR_HEAD_SHA=${LAGOON_PR_HEAD_SHA}
 
 # Webroot is used for Drush aliases.
 ARG WEBROOT=web
 
 ARG GITHUB_TOKEN=""
-ENV GITHUB_TOKEN=$GITHUB_TOKEN
+ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 
 # Set default values for environment variables.
 # These values will be overridden if set in docker-compose.yml or .env file
@@ -57,7 +57,7 @@ COPY composer.json composer.* .env* auth* /app/
 # Install PHP dependencies without including development dependencies. This is
 # crucial as it prevents potential security vulnerabilities from being exposed
 # to the production environment.
-RUN if [ -n "$GITHUB_TOKEN" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"$GITHUB_TOKEN\"}}"; fi && \
+RUN if [ -n "${GITHUB_TOKEN}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN}\"}}"; fi && \
     COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
 
 # Install NodeJS dependencies.
