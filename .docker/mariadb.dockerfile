@@ -11,7 +11,7 @@
 ARG IMAGE=uselagoon/mariadb-drupal:23.8.0
 
 # hadolint ignore=DL3006
-FROM $IMAGE
+FROM ${IMAGE}
 
 USER root
 COPY ./.docker/config/mariadb/my.cnf /etc/my.cnf.d/server.cnf
