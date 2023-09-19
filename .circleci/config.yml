@@ -182,7 +182,7 @@ aliases:
     run:
       name: Process codebase to run in CI
       #: Remove lines containing '###' and uncomment comments starting with '##'.
-      command: sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
+      command: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
 
 #;< DREVOPS_DEV
 orbs:
@@ -435,8 +435,11 @@ jobs:
       - *step_setup_remote_docker
       - *step_setup_docker_network
       - run:
+          name: Lint DrevOps project
+          command: cd .drevops && ahoy lint
+      - run:
           name: Run common tests
-          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.common.sh
+          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 ahoy test
           no_output_timeout: 60m
       - store_test_results:
           path: *drevops_test_reports_dir
@@ -457,7 +460,7 @@ jobs:
       - *step_setup_docker_network
       - run:
           name: Run workflow tests (long)
-          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.workflow.sh
+          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 ahoy test-workflow
           no_output_timeout: 60m
       - store_test_results:
           path: *drevops_test_reports_dir
@@ -482,7 +485,7 @@ jobs:
           at: /workspace
       - run:
           name: Run deployment tests (long)
-          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.deployment.sh
+          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 ahoy test-deployment
           no_output_timeout: 60m
       - store_test_results:
           path: *drevops_test_reports_dir
@@ -503,7 +506,7 @@ jobs:
       - *step_setup_docker_network
       - run:
           name: Run CircleCI tests (long)
-          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.postbuild.sh
+          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 .drevops/tests/test.postbuild.sh
       - store_test_results:
           path: *drevops_test_reports_dir
       - store_artifacts:
@@ -602,6 +605,7 @@ jobs:
 
   #-----------------------------------------------------------------------------
   # Publish docs to docs.drevops.com
+  # @todo Move this to GitHub Actions.
   #-----------------------------------------------------------------------------
   drevops_dev_deploy_docs:
     <<: *container_config
@@ -616,10 +620,12 @@ jobs:
       - run:
           name: Publish docs
           command: |
-            cd scripts/drevops/docs
-            sed -i -e "/###/d" docker-compose.yml
-            ahoy build
-            ahoy test
+            cd .drevops/docs
+            sed -e "/###/d" docker-compose.yml >docker-compose.tmp.yml
+            export COMPOSE_FILE=docker-compose.tmp.yml
+            COMPOSE_FILE=docker-compose.tmp.yml ahoy build
+            COMPOSE_FILE=docker-compose.tmp.yml ahoy lint
+            COMPOSE_FILE=docker-compose.tmp.yml ahoy test
             if [ -n "${CIRCLE_TAG}" ]; then
               export version="${CIRCLE_TAG}"
               export version_is_stable=1
@@ -660,6 +666,7 @@ jobs:
 
   #-----------------------------------------------------------------------------
   # Publish installer to install.drevops.com
+  # @todo Move this to GitHub Actions.
   #-----------------------------------------------------------------------------
   drevops_dev_deploy_installer:
     <<: *container_config
@@ -674,10 +681,11 @@ jobs:
       - run:
           name: Prepare installer.
           command: |
-            composer -d scripts/drevops/installer install
-            composer -d scripts/drevops/installer build
+            cd .drevops/installer
+            composer install
+            composer build
             mkdir -p /tmp/installer/docs
-            cp scripts/drevops/installer/.build/install /tmp/installer/docs/index.html
+            cp .build/install /tmp/installer/docs/index.html
             ( echo -n "// Published date: " && echo "$(date)" ) >> /tmp/installer/docs/index.html
             echo "install.drevops.com" > /tmp/installer/docs/CNAME
       - run:
