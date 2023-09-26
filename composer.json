@@ -7,7 +7,6 @@
         "composer/installers": "^2.1",
         "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^3.1",
-        "drupal/ckeditor": "^1.0",
         "drupal/clamav": "^2.0.2@rc",
         "drupal/coffee": "^1.2",
         "drupal/config_ignore": "^2.4",
