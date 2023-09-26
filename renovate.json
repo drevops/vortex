@@ -6,7 +6,7 @@
     "ignorePresets": [":prHourlyLimit2"],
     "rangeStrategy": "update-lockfile",
     "timezone": "Australia/Melbourne",
-    "enabledManagers": ["composer"],
+    "enabledManagers": ["composer", "dockerfile"],
     "packageRules": [
         {
             "matchPackageNames": ["php"],
@@ -42,6 +42,12 @@
                 "drupal/core-project-message",
                 "drupal/core-recommended"
             ]
+        },
+        {
+            "groupName": "Docker image updates",
+            "groupSlug": "docker-updates",
+            "schedule": ["before 3am"],
+            "matchManagers": ["dockerfile"]
         }
     ]
 }
