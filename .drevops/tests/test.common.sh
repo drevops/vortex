@@ -26,12 +26,14 @@ echo "==> Run common functional tests."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
 
 bats() {
+  pushd "${ROOT_DIR}" >/dev/null || exit 1
   if [ -n "${DREVOPS_TEST_COVERAGE_DIR:-}" ]; then
     mkdir -p "${DREVOPS_TEST_COVERAGE_DIR}"
-    kcov --include-pattern=.sh,.bash --include-path="${SCRIPTS_DIR}" --bash-parse-files-in-dir="${SCRIPTS_DIR}" --exclude-path=${TEST_DIR}/node_modules,${TEST_DIR}/vendor,${SCRIPTS_DIR}/installer,${SCRIPTS_DIR}/docs "${DREVOPS_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
+    kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir="${SCRIPTS_DIR}","${TEST_DIR}" --exclude-pattern=vendor,node_modules "${DREVOPS_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
   else
     "${TEST_DIR}/node_modules/.bin/bats" "$@"
   fi
+  popd >/dev/null || exit 1
 }
 
 bats "${TEST_DIR}/bats/helpers.bats"
