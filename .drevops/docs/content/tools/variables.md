@@ -9,7 +9,7 @@
    third-party variables.
 
 3. Global variables MAY be re-used as-is across scripts. For instance, the
-   `DREVOPS_APP` variable is used in several scripts.
+   `DREVOPS_WEBROOT` variable is used in several scripts.
 
 4. DrevOps action-specific script variables MUST be scoped within their own
    script. For instance, the `DREVOPS_PROVISION_OVERRIDE_DB`
@@ -109,14 +109,6 @@ Acquia Cloud API secret.
 Default value: `UNDEFINED`
 
 Defined in: `.env.local.default`
-
-### `DREVOPS_APP`
-
-Path to the root of the project inside the container.
-
-Default value: `/app`
-
-Defined in: `.env`
 
 ### `DREVOPS_CLAMAV_ENABLED`
 

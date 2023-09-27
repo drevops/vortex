@@ -14,14 +14,13 @@ assert_provision_info() {
   }
 
   assert_output_contains "Started site provisioning."
-  assert_output_contains "App dir                      : ${LOCAL_REPO_DIR}"
   assert_output_contains "Webroot dir                  : ${webroot}"
   assert_output_contains "Site name                    : Example site"
   assert_output_contains "Site email                   : webmaster@example.com"
   assert_output_contains "Profile                      : standard"
-  assert_output_contains "Private files directory      : ${LOCAL_REPO_DIR}/${webroot}/sites/default/files/private"
-  assert_output_contains "Config path                  : ${LOCAL_REPO_DIR}/config/default"
-  assert_output_contains "DB dump file path            : ${LOCAL_REPO_DIR}/.data/db.sql"
+  assert_output_contains "Private files directory      : ./${webroot}/sites/default/files/private"
+  assert_output_contains "Config path                  : ./config/default"
+  assert_output_contains "DB dump file path            : ./.data/db.sql"
 
   assert_output_contains "Drush version                : mocked_drush_version"
   assert_output_contains "Drupal core version          : mocked_core_version"
@@ -41,12 +40,11 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
-  mkdir "${LOCAL_REPO_DIR}/.data"
-  touch "${LOCAL_REPO_DIR}/.data/db.sql"
+  mkdir "./.data"
+  touch "./.data/db.sql"
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -62,7 +60,7 @@ assert_provision_info() {
 
     # Site provisioning information.
     "Provisioning site from the database dump file."
-    "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "Dump file path: ./.data/db.sql"
     "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
@@ -72,7 +70,7 @@ assert_provision_info() {
     "@drush -y sql:drop"
     "@drush -y sql:cli"
     "- Unable to import database from file."
-    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Dump file ./.data/db.sql does not exist."
     "- Site content was not changed."
     "Imported database from the dump file."
     # Profile.
@@ -120,7 +118,7 @@ assert_provision_info() {
     "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
     "Sanitized database using drush sql:sanitize."
     "- Updated username with user email."
-    "@drush -y sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql"
+    "@drush -y sql:query --file=../scripts/sanitize.sql"
     "Applied custom sanitization commands from file"
     "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
@@ -129,7 +127,7 @@ assert_provision_info() {
     "- Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
@@ -137,7 +135,7 @@ assert_provision_info() {
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "Fresh database detected. Performing additional operations."
     "- Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -174,11 +172,10 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export CI=1
 
-  mkdir "${LOCAL_REPO_DIR}/.data"
-  touch "${LOCAL_REPO_DIR}/.data/db.sql"
+  mkdir "./.data"
+  touch "./.data/db.sql"
 
   create_global_command_wrapper "vendor/bin/drush" "drush"
 
@@ -194,7 +191,7 @@ assert_provision_info() {
 
     # Site provisioning information.
     "Provisioning site from the database dump file."
-    "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "Dump file path: ./.data/db.sql"
     "Existing site was found when provisioning from the database dump file."
     "Site content will be preserved."
     "Sanitization will be skipped for an existing database."
@@ -202,7 +199,7 @@ assert_provision_info() {
     "- Existing site was not found when installing from the database dump file."
     "- Fresh site content will be imported from the database dump file."
     "- Unable to import database from file."
-    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Dump file ./.data/db.sql does not exist."
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
@@ -255,7 +252,7 @@ assert_provision_info() {
     "Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
@@ -263,7 +260,7 @@ assert_provision_info() {
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "- Fresh database detected. Performing additional operations."
     "Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -300,12 +297,11 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
-  mkdir "${LOCAL_REPO_DIR}/.data"
-  touch "${LOCAL_REPO_DIR}/.data/db.sql"
+  mkdir "./.data"
+  touch "./.data/db.sql"
 
   export DREVOPS_PROVISION_OVERRIDE_DB=1
 
@@ -323,7 +319,7 @@ assert_provision_info() {
 
     # Site provisioning information.
     "Provisioning site from the database dump file."
-    "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "Dump file path: ./.data/db.sql"
     "Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
@@ -333,7 +329,7 @@ assert_provision_info() {
     "@drush -y sql:drop"
     "@drush -y sql:cli"
     "- Unable to import database from file."
-    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Dump file ./.data/db.sql does not exist."
     "- Site content was not changed."
     "Imported database from the dump file."
     # Profile.
@@ -381,7 +377,7 @@ assert_provision_info() {
     "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
     "Sanitized database using drush sql:sanitize."
     "- Updated username with user email."
-    "@drush -y sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql"
+    "@drush -y sql:query --file=../scripts/sanitize.sql"
     "Applied custom sanitization commands from file"
     "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
@@ -390,7 +386,7 @@ assert_provision_info() {
     "- Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
@@ -398,7 +394,7 @@ assert_provision_info() {
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "Fresh database detected. Performing additional operations."
     "- Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -435,16 +431,15 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
-  mkdir "${LOCAL_REPO_DIR}/.data"
-  touch "${LOCAL_REPO_DIR}/.data/db.sql"
+  mkdir "./.data"
+  touch "./.data/db.sql"
 
   mocked_uuid="c9360453-e1ea-4292-b074-ea375f97d72b"
-  echo "uuid: ${mocked_uuid}" >"${LOCAL_REPO_DIR}/config/default/system.site.yml"
-  echo "name: 'SUT'" >>"${LOCAL_REPO_DIR}/config/default/system.site.yml"
+  echo "uuid: ${mocked_uuid}" >"./config/default/system.site.yml"
+  echo "name: 'SUT'" >>"./config/default/system.site.yml"
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -460,7 +455,7 @@ assert_provision_info() {
 
     # Site provisioning information.
     "Provisioning site from the database dump file."
-    "Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "Dump file path: ./.data/db.sql"
     "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
@@ -470,7 +465,7 @@ assert_provision_info() {
     "@drush -y sql:drop"
     "@drush -y sql:cli"
     "- Unable to import database from file."
-    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Dump file ./.data/db.sql does not exist."
     "- Site content was not changed."
     "Imported database from the dump file."
     # Profile.
@@ -520,7 +515,7 @@ assert_provision_info() {
     "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
     "Sanitized database using drush sql:sanitize."
     "- Updated username with user email."
-    "@drush -y sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql"
+    "@drush -y sql:query --file=../scripts/sanitize.sql"
     "Applied custom sanitization commands from file"
     "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
@@ -529,7 +524,7 @@ assert_provision_info() {
     "- Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
@@ -537,7 +532,7 @@ assert_provision_info() {
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "Fresh database detected. Performing additional operations."
     "- Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -574,12 +569,11 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
-  mkdir "${LOCAL_REPO_DIR}/.data"
-  touch "${LOCAL_REPO_DIR}/.data/db.sql"
+  mkdir "./.data"
+  touch "./.data/db.sql"
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -597,7 +591,7 @@ assert_provision_info() {
 
     # Site provisioning information.
     "- Provisioning site from the database dump file."
-    "- Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "- Dump file path: ./.data/db.sql"
     "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
@@ -605,7 +599,7 @@ assert_provision_info() {
     "- Existing site was not found when installing from the database dump file."
     "- Fresh site content will be imported from the database dump file."
     "- Unable to import database from file."
-    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Dump file ./.data/db.sql does not exist."
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
@@ -655,7 +649,7 @@ assert_provision_info() {
     "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
     "Sanitized database using drush sql:sanitize."
     "- Updated username with user email."
-    "@drush -y sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql"
+    "@drush -y sql:query --file=../scripts/sanitize.sql"
     "Applied custom sanitization commands from file"
     "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
@@ -664,7 +658,7 @@ assert_provision_info() {
     "- Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
@@ -672,7 +666,7 @@ assert_provision_info() {
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "Fresh database detected. Performing additional operations."
     "- Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -709,12 +703,11 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
-  mkdir "${LOCAL_REPO_DIR}/.data"
-  touch "${LOCAL_REPO_DIR}/.data/db.sql"
+  mkdir "./.data"
+  touch "./.data/db.sql"
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -732,7 +725,7 @@ assert_provision_info() {
 
     # Site provisioning information.
     "- Provisioning site from the database dump file."
-    "- Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "- Dump file path: ./.data/db.sql"
     "- Existing site was found when provisioning from the database dump file."
     "Site content will be preserved."
     "Sanitization will be skipped for an existing database."
@@ -740,7 +733,7 @@ assert_provision_info() {
     "- Existing site was not found when installing from the database dump file."
     "- Fresh site content will be imported from the database dump file."
     "- Unable to import database from file."
-    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Dump file ./.data/db.sql does not exist."
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
@@ -793,7 +786,7 @@ assert_provision_info() {
     "Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
@@ -801,7 +794,7 @@ assert_provision_info() {
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "- Fresh database detected. Performing additional operations."
     "Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -838,12 +831,11 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_APP="${LOCAL_REPO_DIR}"
   export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
-  mkdir "${LOCAL_REPO_DIR}/.data"
-  touch "${LOCAL_REPO_DIR}/.data/db.sql"
+  mkdir "./.data"
+  touch "./.data/db.sql"
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -862,7 +854,7 @@ assert_provision_info() {
 
     # Site provisioning information.
     "- Provisioning site from the database dump file."
-    "- Dump file path: ${LOCAL_REPO_DIR}/.data/db.sql"
+    "- Dump file path: ./.data/db.sql"
     "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
@@ -870,7 +862,7 @@ assert_provision_info() {
     "- Existing site was not found when installing from the database dump file."
     "- Fresh site content will be imported from the database dump file."
     "- Unable to import database from file."
-    "- Dump file ${LOCAL_REPO_DIR}/.data/db.sql does not exist."
+    "- Dump file ./.data/db.sql does not exist."
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
@@ -920,7 +912,7 @@ assert_provision_info() {
     "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
     "Sanitized database using drush sql:sanitize."
     "- Updated username with user email."
-    "@drush -y sql:query --file=${LOCAL_REPO_DIR}/scripts/sanitize.sql"
+    "@drush -y sql:query --file=../scripts/sanitize.sql"
     "Applied custom sanitization commands from file"
     "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
@@ -929,7 +921,7 @@ assert_provision_info() {
     "- Skipped database sanitization."
 
     # Custom post-install script.
-    "Running custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install ys_core"
     "@drush -y deploy:hook"
@@ -937,7 +929,7 @@ assert_provision_info() {
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "Fresh database detected. Performing additional operations."
     "- Existing database detected. Skipping additional operations."
-    "Completed running of custom post-install script '${LOCAL_REPO_DIR}/scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."

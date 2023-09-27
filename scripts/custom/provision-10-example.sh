@@ -16,16 +16,13 @@
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-# Path to the application.
-DREVOPS_APP="${DREVOPS_APP:-/app}"
-
 # ------------------------------------------------------------------------------
 
 # Perform operations based on the current environment.
 if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e local; then
   echo "[INFO] Executing example operations in non-production environment."
 
-  drush() { ${DREVOPS_APP}/vendor/bin/drush -y "$@"; }
+  drush() { ./vendor/bin/drush -y "$@"; }
 
   # Below are examples of running operations.
 

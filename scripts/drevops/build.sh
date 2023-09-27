@@ -102,19 +102,17 @@ echo
 if [ -n "${DREVOPS_EXPORT_CODE_DIR:-}" ]; then
   info "Exporting built code."
   mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
-  docker compose cp -L cli:"${DREVOPS_APP}"/. "${DREVOPS_EXPORT_CODE_DIR}" 2>"${composer_verbose_output}"
+  docker compose cp -L cli:"/app/." "${DREVOPS_EXPORT_CODE_DIR}" 2>"${composer_verbose_output}"
   pass "Exported built code."
   echo
 fi
 
 # Create data directory in the container and copy database dump file into
-# container, but only if it exists, while also replacing relative directory path
-# with absolute path. Note, that the $DREVOPS_DB_DIR path is the same inside and
-# outside the container.
+# container, but only if it exists.
 if [ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ]; then
   info "Copying database file into container."
   docker compose exec ${dcopts[@]} cli bash -c 'mkdir -p ${DREVOPS_DB_DIR}'
-  docker compose cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" cli:"${DREVOPS_DB_DIR/.\//${DREVOPS_APP}/}"/"${DREVOPS_DB_FILE}" 2>"${composer_verbose_output}"
+  docker compose cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" cli:"/app/${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" 2>"${composer_verbose_output}"
   pass "Copied database file into container."
   echo
 fi
@@ -154,7 +152,7 @@ if [ -n "${DREVOPS_DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
   pass "Compiled front-end dependencies."
 
   mkdir -p "${DREVOPS_WEBROOT}/sites/default/files"
-  docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} docker compose exec ${dcopts[@]} cli bash -c 'echo {} > ${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
+  docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} docker compose exec ${dcopts[@]} cli bash -c 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
   pass "Created Livereload socket."
   echo
 fi

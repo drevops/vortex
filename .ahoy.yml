@@ -55,7 +55,7 @@ commands:
     usage: Build and start Docker containers.
     cmd: |
       docker compose up -d "$@" && if docker compose logs | grep -q "\[Error\]"; then exit 1; fi
-      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > ${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
+      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
@@ -67,7 +67,7 @@ commands:
     usage: Start existing Docker containers.
     cmd: |
       docker compose start "$@"
-      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > ${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
+      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
 
   stop:
     usage: Stop running Docker containers.

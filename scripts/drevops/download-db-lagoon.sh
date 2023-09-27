@@ -66,9 +66,6 @@ DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 # Database dump file name on the host.
 DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
 
-# Path to the root of the project inside the container.
-DREVOPS_APP="${DREVOPS_APP:-/app}"
-
 # Name of the webroot directory with Drupal codebase.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
@@ -131,7 +128,7 @@ ssh \
   "if [ ! -f \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\" ] || [ \"${DREVOPS_DB_DOWNLOAD_REFRESH}\" == \"1\" ] ; then \
      [ -n \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP}\" ] && rm -f \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}\"\/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
      echo \"      > Creating a database dump ${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
-     /app/vendor/bin/drush --root=${DREVOPS_APP}/${DREVOPS_WEBROOT} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump=--no-tablespaces > \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\"; \
+     /app/vendor/bin/drush --root=./${DREVOPS_WEBROOT} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump=--no-tablespaces > \"${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\"; \
    else \
      echo \"      > Using existing dump ${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
    fi"

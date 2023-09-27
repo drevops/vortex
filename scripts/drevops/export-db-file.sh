@@ -9,9 +9,6 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-# Path to the application.
-DREVOPS_APP="${DREVOPS_APP:-/app}"
-
 # Directory with database dump file.
 DREVOPS_DB_EXPORT_FILE_DIR="${DREVOPS_DB_DIR:-${DREVOPS_DB_DIR:-./.data}}"
 
@@ -26,7 +23,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 info "Started database file export."
 
-drush() { ${DREVOPS_APP}/vendor/bin/drush -y "$@"; }
+drush() { ./vendor/bin/drush -y "$@"; }
 
 # Create directory to store database dump.
 mkdir -p "${DREVOPS_DB_EXPORT_FILE_DIR}"
@@ -35,10 +32,10 @@ mkdir -p "${DREVOPS_DB_EXPORT_FILE_DIR}"
 # as a first argument.
 dump_file=$([ "${1:-}" ] && echo "${DREVOPS_DB_EXPORT_FILE_DIR}/${1}" || echo "${DREVOPS_DB_EXPORT_FILE_DIR}/export_db_$(date +%Y%m%d_%H%M%S).sql")
 
-# Dump database into a file. Also, convert relative path to an absolute one, as
-# the result file is relative to Drupal root, but provided paths are relative
-# to the project root.
-drush sql:dump --skip-tables-key=common --extra-dump=--no-tablespaces --result-file="${dump_file/.\//${DREVOPS_APP}/}" -q
+# Dump database into a file. Also, provide a path to a parent directory if
+# relative path is provided, as the result file is relative to Drupal root,
+# but provided paths are relative to the project root.
+drush sql:dump --skip-tables-key=common --extra-dump=--no-tablespaces --result-file="${dump_file/.\//../}" -q
 
 # Check that file was saved and output saved dump file name.
 if [ -f "${dump_file}" ] && [ -s "${dump_file}" ]; then

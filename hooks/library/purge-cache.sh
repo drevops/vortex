@@ -11,9 +11,7 @@ set -e
 site="${1}"
 target_env="${2}"
 
-export DREVOPS_APP="/var/www/html/${site}.${target_env}"
-
-pushd "${DREVOPS_APP}" >/dev/null || exit 1
+pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 
 [ "${DREVOPS_PURGE_CACHE_ACQUIA_SKIP}" = "1" ] && echo "Skipping purging of cache in Acquia environment." && exit 0
 

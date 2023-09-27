@@ -15,9 +15,7 @@ ref="${4:-${branch}}"
 # Examples: "dev.example.com", "test.example.com", "www.example.com"
 DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN="${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN:-}"
 
-export DREVOPS_APP="/var/www/html/${site}.${target_env}"
-
-pushd "${DREVOPS_APP}" >/dev/null || exit 1
+pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 
 # Set URL to Acquia domain by default.
 url="https://${AH_SITE_NAME}.${AH_REALM:-prod}.acquia-sites.com"

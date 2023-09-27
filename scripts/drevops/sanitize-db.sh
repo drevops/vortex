@@ -9,9 +9,6 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-# Path to the application.
-DREVOPS_APP="${DREVOPS_APP:-/app}"
-
 # Database sanitized account email replacement.
 DREVOPS_DRUPAL_DB_SANITIZE_EMAIL="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL:-user+%uid@localhost}"
 
@@ -25,7 +22,7 @@ DREVOPS_DRUPAL_DB_SANITIZE_REPLACE_USERNAME_WITH_EMAIL="${DREVOPS_DRUPAL_DB_SANI
 #
 # To skip custom sanitization, remove the #DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE
 # file from the codebase.
-DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE:-${DREVOPS_APP}/scripts/sanitize.sql}"
+DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE:-./scripts/sanitize.sql}"
 
 # ------------------------------------------------------------------------------
 
@@ -38,7 +35,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 info "Sanitizing database."
 
-drush() { ${DREVOPS_APP}/vendor/bin/drush -y "$@"; }
+drush() { ./vendor/bin/drush -y "$@"; }
 
 # Always sanitize password and email using standard methods.
 drush sql:sanitize --sanitize-password="${DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD}" --sanitize-email="${DREVOPS_DRUPAL_DB_SANITIZE_EMAIL}"
@@ -51,7 +48,9 @@ fi
 
 # Sanitize using additional SQL commands provided in file.
 if [ -f "${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE:-}" ]; then
-  drush sql:query --file="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE}"
+  # The file path is relative to the project root, but drush expects it to be
+  # relative to the Drupal root.
+  drush sql:query --file="${DREVOPS_DRUPAL_DB_SANITIZE_ADDITIONAL_FILE/.\//../}"
   pass "Applied custom sanitization commands from file."
 fi
 
