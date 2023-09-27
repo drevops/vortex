@@ -118,6 +118,14 @@ Default value: `1`
 
 Defined in: `.env`
 
+### `DREVOPS_COMPOSER_VERBOSE`
+
+Print debug information from Composer install.
+
+Default value: `1`
+
+Defined in: `.env`
+
 ### `DREVOPS_DB_DIR`
 
 Database dump data directory (file or Docker image archive).
@@ -281,11 +289,11 @@ Defined in: `.env`
 
 ### `DREVOPS_DOCKER_VERBOSE`
 
-Set to `1` to print debug information from Docker build.
+Print debug information from Docker build.
 
-Default value: `UNDEFINED`
+Default value: `1`
 
-Defined in: `.drevops/docs/.utils/variables/extra/.env.local.example.variables.sh`
+Defined in: `.env`, `.drevops/docs/.utils/variables/extra/.env.local.example.variables.sh`
 
 ### `DREVOPS_DRUPAL_ADMIN_EMAIL`
 
@@ -520,6 +528,14 @@ Defined in: `.env`
 Email address(es) to send notifications to.
 
 Multiple names can be specified as a comma-separated list of email addresses<br />with optional names in the format "email|name".<br />Example: "to1@example.com|Jane Doe, to2@example.com|John Doe"
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`
+
+### `DREVOPS_NPM_VERBOSE`
+
+Print debug information from NPM install.
 
 Default value: `UNDEFINED`
 

@@ -72,7 +72,7 @@ if [ -f "docker-compose.yml" ]; then docker compose down --remove-orphans --volu
 echo
 
 info "Building Docker images, recreating and starting containers."
-note "This will take some time (use DREVOPS_DOCKER_VERBOSE=1 to see the progress)."
+note "This will take some time (use DREVOPS_DOCKER_VERBOSE=0 to disable the progress)."
 note "Use 'ahoy provision' to re-provision site without rebuilding containers."
 
 if [ -n "${DREVOPS_DB_DOCKER_IMAGE:-}" ]; then
