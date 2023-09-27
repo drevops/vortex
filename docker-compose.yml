@@ -154,7 +154,7 @@ services:
 
   #;< REDIS
   redis:
-    image: uselagoon/redis-6:23.8.0
+    image: uselagoon/redis-6:23.9.0
     #;< LAGOON
     labels:
       lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -184,7 +184,7 @@ services:
 
   #;< CLAMAV
   clamav:
-    image: clamav/clamav:1.0.1
+    image: clamav/clamav:1.2.0
     ports:
       - "3310" # Find port on host with `docker-compose port clamav 3310`.
     environment:
@@ -213,7 +213,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:23.7.0
+    image: drevops/docker-wait-for-dependencies:23.9.0
     depends_on:
       - cli
       - mariadb
