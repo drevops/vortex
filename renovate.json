@@ -6,7 +6,7 @@
     "ignorePresets": [":prHourlyLimit2"],
     "rangeStrategy": "update-lockfile",
     "timezone": "Australia/Melbourne",
-    "enabledManagers": ["composer", "dockerfile", "github-actions"],
+    "enabledManagers": ["composer", "dockerfile", "docker-compose", "github-actions"],
     "packageRules": [
         {
             "matchPackageNames": ["php"],
@@ -47,7 +47,7 @@
             "groupName": "Docker image updates",
             "groupSlug": "docker",
             "schedule": ["before 3am"],
-            "matchManagers": ["dockerfile"]
+            "matchManagers": ["dockerfile", "docker-compose"]
         },
         {
             "groupName": "GitHub Actions updates",
