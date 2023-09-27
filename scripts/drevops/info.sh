@@ -8,9 +8,6 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-# Path to the root of the project inside the container.
-DREVOPS_APP="${DREVOPS_APP:-/app}"
-
 # Name of the webroot directory with Drupal codebase.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
@@ -34,8 +31,7 @@ echo
 note "Project name                : ${DREVOPS_PROJECT}"
 note "Docker Compose project name : ${COMPOSE_PROJECT_NAME:-}"
 note "Site local URL              : http://${DREVOPS_LOCALDEV_URL}"
-note "Path to project             : ${DREVOPS_APP}"
-note "Path to web root            : ${DREVOPS_APP}/${DREVOPS_WEBROOT}"
+note "Path to web root            : $(pwd)/${DREVOPS_WEBROOT}"
 note "DB host                     : ${DREVOPS_MARIADB_HOST}"
 note "DB username                 : ${DREVOPS_MARIADB_USER}"
 note "DB password                 : ${DREVOPS_MARIADB_PASSWORD}"

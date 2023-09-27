@@ -38,9 +38,6 @@ DREVOPS_PROVISION_POST_OPERATIONS_SKIP="${DREVOPS_PROVISION_POST_OPERATIONS_SKIP
 # Current environment name discovered during site provisioning.
 DREVOPS_PROVISION_ENVIRONMENT="${DREVOPS_PROVISION_ENVIRONMENT:-}"
 
-# Path to the application.
-DREVOPS_APP="${DREVOPS_APP:-/app}"
-
 # Name of the webroot directory with Drupal codebase.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
@@ -54,13 +51,13 @@ DREVOPS_DRUPAL_SITE_EMAIL="${DREVOPS_DRUPAL_SITE_EMAIL:-webmaster@example.com}"
 DREVOPS_DRUPAL_PROFILE="${DREVOPS_DRUPAL_PROFILE:-standard}"
 
 # Path to configuration directory.
-DREVOPS_DRUPAL_CONFIG_PATH="${DREVOPS_DRUPAL_CONFIG_PATH:-${DREVOPS_APP}/config/default}"
+DREVOPS_DRUPAL_CONFIG_PATH="${DREVOPS_DRUPAL_CONFIG_PATH:-./config/default}"
 
 # Path to private files.
-DREVOPS_DRUPAL_PRIVATE_FILES="${DREVOPS_DRUPAL_PRIVATE_FILES:-${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/private}"
+DREVOPS_DRUPAL_PRIVATE_FILES="${DREVOPS_DRUPAL_PRIVATE_FILES:-./${DREVOPS_WEBROOT}/sites/default/files/private}"
 
 # Directory with database dump file.
-DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-${DREVOPS_APP}/.data}"
+DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 
 # Database dump file name.
 DREVOPS_DB_FILE="${DREVOPS_DB_FILE:-db.sql}"
@@ -75,14 +72,14 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 yesno() { [ "${1}" = "1" ] && echo "Yes" || echo "No"; }
-drush() { ${DREVOPS_APP}/vendor/bin/drush -y "$@"; }
+drush() { ./vendor/bin/drush -y "$@"; }
 
 info "Started site provisioning."
 
 [ "${DREVOPS_PROVISION_SKIP}" = "1" ] && pass "Skipped site provisioning as DREVOPS_PROVISION_SKIP is set to 1." && exit 0
 
-# Convert DB dir starting with './' to a full path.
-[ "${DREVOPS_DB_DIR#./}" != "${DREVOPS_DB_DIR}" ] && DREVOPS_DB_DIR="$(pwd)${DREVOPS_DB_DIR#.}"
+## Convert DB dir starting with './' to a full path.
+#[ "${DREVOPS_DB_DIR#./}" != "${DREVOPS_DB_DIR}" ] && DREVOPS_DB_DIR="$(pwd)${DREVOPS_DB_DIR#.}"
 
 drush_version="$(drush --version | cut -d' ' -f4)"
 drupal_core_version="$(drush status --field=drupal-version)"
@@ -93,7 +90,6 @@ site_is_installed="$(drush status --fields=bootstrap | grep -q "Successful" && e
 # Print provisioning information.
 ################################################################################
 echo
-note "App dir                      : ${DREVOPS_APP}"
 note "Webroot dir                  : ${DREVOPS_WEBROOT}"
 note "Site name                    : ${DREVOPS_DRUPAL_SITE_NAME}"
 note "Site email                   : ${DREVOPS_DRUPAL_SITE_EMAIL}"
@@ -294,17 +290,17 @@ fi
 
 # Sanitize database.
 if [ "${DREVOPS_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then
-  "${DREVOPS_APP}/scripts/drevops/sanitize-db.sh"
+  ./scripts/drevops/sanitize-db.sh
 else
   info "Skipped database sanitization."
   echo
 fi
 
 # Run custom provision scripts.
-# The files should be located in "${DREVOPS_APP}/scripts/custom/" directory
+# The files should be located in "./scripts/custom/" directory
 # and must have "provision-" prefix and ".sh" extension.
-if [ -d "${DREVOPS_APP}/scripts/custom" ]; then
-  for file in "${DREVOPS_APP}"/scripts/custom/provision-*.sh; do
+if [ -d "./scripts/custom" ]; then
+  for file in ./scripts/custom/provision-*.sh; do
     if [ -f "${file}" ]; then
       echo
       info "Running custom post-install script '${file}'."
@@ -326,7 +322,7 @@ if [ "${DREVOPS_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
 fi
 
 info "One-time login link."
-"${DREVOPS_APP}/scripts/drevops/login.sh"
+"./scripts/drevops/login.sh"
 echo
 
 info "Finished site provisioning."

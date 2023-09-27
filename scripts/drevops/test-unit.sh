@@ -9,9 +9,6 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-# Path to the root of the project inside the container.
-DREVOPS_APP="${DREVOPS_APP:-/app}"
-
 # Name of the webroot directory with Drupal codebase.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
@@ -29,7 +26,7 @@ DREVOPS_TEST_UNIT_GROUP="${DREVOPS_TEST_UNIT_GROUP:-site:unit}"
 # Unit test configuration file.
 #
 # Defaults to core's configuration file.
-DREVOPS_TEST_UNIT_CONFIG="${DREVOPS_TEST_UNIT_CONFIG:-${DREVOPS_APP}/${DREVOPS_WEBROOT}/core/phpunit.xml.dist}"
+DREVOPS_TEST_UNIT_CONFIG="${DREVOPS_TEST_UNIT_CONFIG:-./${DREVOPS_WEBROOT}/core/phpunit.xml.dist}"
 
 # Directory to store test result files.
 #
