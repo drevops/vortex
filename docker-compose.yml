@@ -45,6 +45,16 @@ x-environment: &default-environment
   DREVOPS_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
   # Local development route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
+  # Local database host (not used in production).
+  MARIADB_HOST: mariadb
+  # Local database name (not used in production).
+  MARIADB_DATABASE: drupal
+  # Local database user (not used in production).
+  MARIADB_USERNAME: drupal
+  # Local database password (not used in production).
+  MARIADB_PASSWORD: drupal
+  # Local database port (not used in production).
+  MARIADB_PORT: 3306
   # Pass-through 'XDEBUG_ENABLE' to enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker compose up -d".
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   # Pass-through 'CI' variable used to identify the CI environment.
