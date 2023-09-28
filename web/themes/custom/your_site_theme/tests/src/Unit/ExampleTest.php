@@ -8,7 +8,6 @@ namespace Drupal\Tests\your_site_theme\Unit;
  * Example unit test case class.
  *
  * @group YourSiteTheme
- * @group site:unit
  *
  * @package Drupal\your_site_theme\Tests
  */

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
  *
  * Tests for Drupal settings.
  *
- * @group site:unit
  * @SuppressWarnings(PHPMD)
  *
  * phpcs:disable Drupal.NamingConventions.ValidVariableName.LowerCamelName

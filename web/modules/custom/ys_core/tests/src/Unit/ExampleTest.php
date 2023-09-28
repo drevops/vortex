@@ -8,7 +8,6 @@ namespace Drupal\Tests\ys_core\Unit;
  * Example unit test case class.
  *
  * @group YsCore
- * @group site:unit
  *
  * @package Drupal\ys_core\Tests
  */

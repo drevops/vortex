@@ -15,6 +15,10 @@ default:
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
+  formatters:
+    progress_fail: true
+    junit:
+      output_path: '%paths.base%/.logs/test_results/behat'
 
   extensions:
     Drupal\MinkExtension:
@@ -41,7 +45,7 @@ default:
         warning_message_selector: '.messages.warning'
     # Capture HTML and JPG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:
-      dir: '%paths.base%/tests/behat/screenshots'
+      dir: '%paths.base%/.logs/screenshots'
       purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
     # Show explicit fail information and continue the test run.
     DrevOps\BehatFormatProgressFail\FormatExtension: ~

@@ -152,13 +152,11 @@ aliases:
           # Directory to store code exported between jobs.
           DREVOPS_EXPORT_CODE_DIR: &drevops_build_export_dir /workspace/code
           # Directory to store test results.
-          DREVOPS_TEST_REPORTS_DIR: &drevops_test_reports_dir /tmp/tests
+          TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
-          DREVOPS_TEST_ARTIFACT_DIR: &drevops_test_artifact_dir /tmp/artifacts
+          ARTIFACTS: &artifacts /tmp/artifacts
           # Directory to store test coverage.
           DREVOPS_TEST_COVERAGE_DIR: &drevops_test_coverage_dir /tmp/artifacts/coverage
-          # Use compact error reporting format for Behat tests.
-          DREVOPS_TEST_BEHAT_FORMAT: progress_fail
           # Directory to use for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_SRC: *drevops_build_export_dir
           # Source code location for artifact deployments.
@@ -184,10 +182,14 @@ aliases:
       #: Remove lines containing '###' and uncomment comments starting with '##'.
       command: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
 
-#;< DREVOPS_DEV
+
+#:###############################################################################
+#: ORBS
+#:###############################################################################
+
 orbs:
+  # Codecov.io integration.
   codecov: codecov/codecov@3.2.4
-#;> DREVOPS_DEV
 
 #:###############################################################################
 #: JOBS
@@ -322,24 +324,34 @@ jobs:
           name: Lint code
           command: docker compose exec -T cli ./scripts/drevops/lint.sh
       - run:
-          name: Run tests
+          name: Run Unit tests
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && export DREVOPS_TEST_PARALLEL_INDEX=$CIRCLE_NODE_INDEX || true
-            docker compose exec -T \
-              -e DREVOPS_TEST_PARALLEL_INDEX -e DREVOPS_TEST_REPORTS_DIR -e DREVOPS_TEST_ARTIFACT_DIR -e DREVOPS_TEST_BEHAT_FORMAT \
-              cli ./scripts/drevops/test.sh
+            XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
+            docker compose exec -T -e XDEBUG_MODE=coverage cli ./vendor/bin/phpunit || [ "${DREVOPS_CI_TEST_ALLOW_FAILURE:-0}" -eq 1 ]
+            docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
+      - run:
+          name: Run BDD tests
+          command: |
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && export DREVOPS_TEST_BEHAT_PROFILE="${DREVOPS_TEST_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}" || true
+            docker compose exec -T cli ./vendor/bin/behat --colors --strict --profile="${DREVOPS_TEST_BEHAT_PROFILE:-default}" || \
+              docker compose exec -T cli ./vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_TEST_BEHAT_PROFILE:-default}" || \
+              [ "${DREVOPS_CI_TEST_ALLOW_FAILURE:-0}" -eq 1 ]
       - run:
           name: Process test logs and artifacts
           command: |
             if docker compose ps --services --filter "status=running" | grep -q cli; then
-              docker compose exec -T cli mkdir -p "${DREVOPS_TEST_REPORTS_DIR}" && docker compose cp cli:"${DREVOPS_TEST_REPORTS_DIR}" "${DREVOPS_TEST_REPORTS_DIR}"
-              docker compose exec -T cli mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}" && docker compose cp cli:"${DREVOPS_TEST_ARTIFACT_DIR}" "${DREVOPS_TEST_ARTIFACT_DIR}"
+              mkdir -p "${TEST_RESULTS}" && docker compose cp cli:/app/.logs/test_results/. "${TEST_RESULTS}/"
+              mkdir -p "${ARTIFACTS}" && docker compose cp cli:/app/.logs/. "${ARTIFACTS}/"
             fi
           when: always
       - store_test_results:
-          path: *drevops_test_reports_dir
+          path: *test_results
       - store_artifacts:
-          path: *drevops_test_artifact_dir
+          path: *artifacts
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
+
       #:
       #: Persisting previously built application code artifact (without
       #: development dependencies) to use it in deployment job.
@@ -370,7 +382,7 @@ jobs:
             ./scripts/drevops/deploy.sh
           no_output_timeout: 30m
       - store_artifacts:
-          path: *drevops_test_artifact_dir
+          path: *artifacts
 
   # Deploy tags.
   deploy_tags: &job_deploy_tags
@@ -389,7 +401,7 @@ jobs:
           command: DREVOPS_DEPLOY_MODE="tag" ./scripts/drevops/deploy.sh
           no_output_timeout: 30m
       - store_artifacts:
-          path: *drevops_test_artifact_dir
+          path: *artifacts
   #;> DEPLOYMENT
 
   #;< RENOVATEBOT
@@ -442,9 +454,9 @@ jobs:
           command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 ahoy test
           no_output_timeout: 60m
       - store_test_results:
-          path: *drevops_test_reports_dir
+          path: *test_results
       - store_artifacts:
-          path: *drevops_test_artifact_dir
+          path: *artifacts
       - codecov/upload:
           # @see https://github.com/codecov/codecov-circleci-orb/issues/158
           xtra_args: "--nonZero -s /tmp/artifacts/coverage"
@@ -463,9 +475,9 @@ jobs:
           command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 ahoy test-workflow
           no_output_timeout: 60m
       - store_test_results:
-          path: *drevops_test_reports_dir
+          path: *test_results
       - store_artifacts:
-          path: *drevops_test_artifact_dir
+          path: *artifacts
       - codecov/upload:
           # @see https://github.com/codecov/codecov-circleci-orb/issues/158
           xtra_args: "--nonZero -s /tmp/artifacts/coverage"
@@ -488,9 +500,9 @@ jobs:
           command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 ahoy test-deployment
           no_output_timeout: 60m
       - store_test_results:
-          path: *drevops_test_reports_dir
+          path: *test_results
       - store_artifacts:
-          path: *drevops_test_artifact_dir
+          path: *artifacts
       - codecov/upload:
           # @see https://github.com/codecov/codecov-circleci-orb/issues/158
           xtra_args: "--nonZero -s /tmp/artifacts/coverage"
@@ -508,9 +520,9 @@ jobs:
           name: Run CircleCI tests (long)
           command: DREVOPS_DEV_VOLUMES_MOUNTED=0 .drevops/tests/test.postbuild.sh
       - store_test_results:
-          path: *drevops_test_reports_dir
+          path: *test_results
       - store_artifacts:
-          path: *drevops_test_artifact_dir
+          path: *artifacts
       - codecov/upload:
           # @see https://github.com/codecov/codecov-circleci-orb/issues/158
           xtra_args: "--nonZero -s /tmp/artifacts/coverage"
