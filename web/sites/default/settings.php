@@ -67,7 +67,7 @@ if (getenv('TMP')) {
 $settings['file_private_path'] = 'sites/default/files/private';
 
 // Base salt on the DB host name.
-$settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: (getenv('DREVOPS_MARIADB_HOST') ?: 'localhost'));
+$settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
 
 // Expiration of cached pages.
 $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -109,11 +109,11 @@ $databases = [
     [
       'default' =>
         [
-          'database' => getenv('MARIADB_DATABASE') ?: (getenv('DREVOPS_MARIADB_DATABASE') ?: 'drupal'),
-          'username' => getenv('MARIADB_USERNAME') ?: (getenv('DREVOPS_MARIADB_USERNAME') ?: 'drupal'),
-          'password' => getenv('MARIADB_PASSWORD') ?: (getenv('DREVOPS_MARIADB_PASSWORD') ?: 'drupal'),
-          'host' => getenv('MARIADB_HOST') ?: (getenv('DREVOPS_MARIADB_HOST') ?: 'localhost'),
-          'port' => getenv('MARIADB_PORT') ?: (getenv('DREVOPS_MARIADB_PORT') ?: ''),
+          'database' => getenv('MARIADB_DATABASE') ?: 'drupal',
+          'username' => getenv('MARIADB_USERNAME') ?: 'drupal',
+          'password' => getenv('MARIADB_PASSWORD') ?: 'drupal',
+          'host' => getenv('MARIADB_HOST') ?: 'localhost',
+          'port' => getenv('MARIADB_PORT') ?: '',
           'prefix' => '',
           'driver' => 'mysql',
         ],

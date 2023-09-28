@@ -240,7 +240,6 @@ class DrupalSettingsTest extends TestCase {
     $default_config = $this->getGenericConfig();
     $default_settings = $this->getGenericSettings();
 
-    $default_settings['hash_salt'] = hash('sha256', getenv('DREVOPS_MARIADB_HOST'));
     $default_settings['reverse_proxy'] = TRUE;
     $default_settings['trusted_host_patterns'][] = '^nginx\-php$';
     $default_settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
@@ -613,59 +612,8 @@ class DrupalSettingsTest extends TestCase {
               'database' => 'drupal',
               'username' => 'drupal',
               'password' => 'drupal',
-              'host' => 'mariadb',
-              'port' => '3306',
-              'driver' => 'mysql',
-              'prefix' => '',
-            ],
-          ],
-        ],
-      ],
-
-      [
-        [
-          'DREVOPS_MARIADB_DATABASE' => 'test_db_name',
-          'DREVOPS_MARIADB_USERNAME' => 'test_db_user',
-          'DREVOPS_MARIADB_PASSWORD' => 'test_db_pass',
-          'DREVOPS_MARIADB_HOST' => 'test_db_host',
-          'DREVOPS_MARIADB_PORT' => 'test_db_port',
-        ],
-        [
-          'default' => [
-            'default' => [
-              'database' => 'test_db_name',
-              'username' => 'test_db_user',
-              'password' => 'test_db_pass',
-              'host' => 'test_db_host',
-              'port' => 'test_db_port',
-              'driver' => 'mysql',
-              'prefix' => '',
-            ],
-          ],
-        ],
-      ],
-
-      [
-        [
-          'DREVOPS_MARIADB_DATABASE' => 'test_db_name',
-          'DREVOPS_MARIADB_USERNAME' => 'test_db_user',
-          'DREVOPS_MARIADB_PASSWORD' => 'test_db_pass',
-          'DREVOPS_MARIADB_HOST' => 'test_db_host',
-          'DREVOPS_MARIADB_PORT' => 'test_db_port',
-          'MARIADB_DATABASE' => 'test2_db_name',
-          'MARIADB_USERNAME' => 'test2_db_user',
-          'MARIADB_PASSWORD' => 'test2_db_pass',
-          'MARIADB_HOST' => 'test2_db_host',
-          'MARIADB_PORT' => 'test2_db_port',
-        ],
-        [
-          'default' => [
-            'default' => [
-              'database' => 'test2_db_name',
-              'username' => 'test2_db_user',
-              'password' => 'test2_db_pass',
-              'host' => 'test2_db_host',
-              'port' => 'test2_db_port',
+              'host' => 'localhost',
+              'port' => '',
               'driver' => 'mysql',
               'prefix' => '',
             ],
@@ -713,11 +661,39 @@ class DrupalSettingsTest extends TestCase {
     }
     $vars['TMP'] = '/tmp-test';
 
-    $this->envVars = $vars + $this->envVars;
+    $this->envVars = $vars + $this->envVars + self::realEnvVars();
 
     foreach ($this->envVars as $name => $value) {
-      putenv("$name=$value");
+      if (is_null($value)) {
+        putenv("$name");
+      }
+      else {
+        putenv("$name=$value");
+      }
     }
+  }
+
+  /**
+   * Get real environment variables.
+   *
+   * @return array
+   *   Array of environment variables.
+   */
+  protected static function realEnvVars(): array {
+    $prefixes = [
+      'DREVOPS_',
+      'MARIADB_',
+    ];
+
+    return array_fill_keys(array_filter(array_keys(getenv()), function ($key) use ($prefixes) {
+      foreach ($prefixes as $prefix) {
+        if (strpos($key, $prefix) === 0) {
+          return TRUE;
+        }
+      }
+
+      return FALSE;
+    }), NULL);
   }
 
   /**
@@ -790,7 +766,7 @@ class DrupalSettingsTest extends TestCase {
 
     $settings['environment'] = ENVIRONMENT_LOCAL;
     $settings['config_sync_directory'] = '../config/default';
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: (getenv('DREVOPS_MARIADB_HOST') ?: 'localhost'));
+    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
     $settings['file_temp_path'] = '/tmp-test';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_scan_ignore_directories'] = [

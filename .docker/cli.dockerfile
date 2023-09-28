@@ -25,7 +25,6 @@ ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 ENV WEBROOT=${WEBROOT} \
     COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
-    MYSQL_HOST=mariadb \
     SIMPLETEST_DB=mysql://drupal:drupal@mariadb/drupal \
     SIMPLETEST_BASE_URL=http://nginx:8080 \
     SYMFONY_DEPRECATIONS_HELPER=disabled

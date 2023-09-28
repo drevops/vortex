@@ -473,46 +473,6 @@ Default value: `web/modules/custom/*/templates, web/themes/custom/*/templates`
 
 Defined in: `.env`
 
-### `DREVOPS_MARIADB_DATABASE`
-
-Local database name (not used in production).
-
-Default value: `drupal`
-
-Defined in: `.env`
-
-### `DREVOPS_MARIADB_HOST`
-
-Local database host (not used in production).
-
-Default value: `mariadb`
-
-Defined in: `.env`
-
-### `DREVOPS_MARIADB_PASSWORD`
-
-Local database password (not used in production).
-
-Default value: `drupal`
-
-Defined in: `.env`
-
-### `DREVOPS_MARIADB_PORT`
-
-Local database port (not used in production).
-
-Default value: `3306`
-
-Defined in: `.env`
-
-### `DREVOPS_MARIADB_USER`
-
-Local database user (not used in production).
-
-Default value: `drupal`
-
-Defined in: `.env`
-
 ### `DREVOPS_NOTIFY_CHANNELS`
 
 The channels of the notifications.

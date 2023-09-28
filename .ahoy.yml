@@ -44,7 +44,7 @@ commands:
     cmd: |
       uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null |grep -q "Ace" \
       && DREVOPS_HOST_DB_PORT="$(docker port $(docker compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" \
-      && open "mysql://${DREVOPS_MARIADB_USER}:${DREVOPS_MARIADB_PASSWORD}@127.0.0.1:${DREVOPS_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
+      && open "mysql://${MARIADB_USERNAME:-drupal}:${MARIADB_PASSWORD:-drupal}@127.0.0.1:${DREVOPS_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
       || echo "Not a supported OS or Sequel Ace is not installed."
 
   # ----------------------------------------------------------------------------
