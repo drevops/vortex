@@ -8,7 +8,6 @@ namespace Drupal\Tests\your_site_theme\Functional;
  * Example functional test case class.
  *
  * @group YourSiteTheme
- * @group site:functional
  *
  * @package Drupal\your_site_theme\Tests
  */

@@ -145,6 +145,7 @@ Drupal 10 implementation of YOURSITE for YOURORG
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
+[![codecov](https://codecov.io/gh/your_org/your_site/graph/badge.svg)](https://codecov.io/gh/your_org/your_site)
 
 [//]: # (#;< RENOVATEBOT)
 

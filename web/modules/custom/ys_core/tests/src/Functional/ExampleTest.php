@@ -8,7 +8,6 @@ namespace Drupal\Tests\ys_core\Functional;
  * Example functional test case class.
  *
  * @group YsCore
- * @group site:functional
  *
  * @package Drupal\ys_core\Tests
  */

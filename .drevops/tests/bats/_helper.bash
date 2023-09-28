@@ -107,7 +107,7 @@ setup() {
 
   # Isolate variables set in CI.
   export DREVOPS_TEST_ARTIFACT_DIR="/app/tests/behat"
-  export DREVOPS_TEST_REPORTS_DIR="/app/test_reports"
+  export DREVOPS_TEST_RESULTS_DIR="/app/test_results"
   unset DREVOPS_DB_DOWNLOAD_SOURCE
   unset DREVOPS_DB_DOCKER_IMAGE
   unset DREVOPS_DB_DOWNLOAD_FORCE
@@ -389,7 +389,6 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/task-copy-db-acquia.sh"
   assert_file_exists "scripts/drevops/task-copy-files-acquia.sh"
   assert_file_exists "scripts/drevops/task-purge-cache-acquia.sh"
-  assert_file_exists "scripts/drevops/test.sh"
   assert_file_exists "scripts/drevops/update-drevops.sh"
 
   assert_file_exists "scripts/sanitize.sql"
@@ -412,6 +411,7 @@ assert_files_present_drevops() {
   assert_file_exists "docker-compose.yml"
   assert_file_exists "phpcs.xml"
   assert_file_exists "phpstan.neon"
+  assert_file_exists "phpunit.xml"
 
   # Documentation information present.
   assert_file_exists "docs/CI.md"
@@ -1068,7 +1068,7 @@ install_dependencies_stub() {
   mktouch "${webroot}/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
 
   mktouch "${webroot}/modules/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
-  mktouch "tests/behat/screenshots/s1.jpg"
+  mktouch ".logs/screenshots/s1.jpg"
   mktouch ".data/db.sql"
 
   mktouch "${webroot}/sites/default/settings.local.php"

@@ -110,6 +110,14 @@ Default value: `UNDEFINED`
 
 Defined in: `.env.local.default`
 
+### `DREVOPS_CI_TEST_ALLOW_FAILURE`
+
+Allow tests failures.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`
+
 ### `DREVOPS_CLAMAV_ENABLED`
 
 Enable ClamAV integration.
@@ -581,41 +589,9 @@ Default value: `UNDEFINED`
 
 Defined in: `ACQUIA ENVIRONMENT`
 
-### `DREVOPS_TEST_BDD_ALLOW_FAILURE`
-
-Allow BDD tests failures.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
-
-### `DREVOPS_TEST_FUNCTIONAL_ALLOW_FAILURE`
-
-Allow custom Functional tests failures.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
-
-### `DREVOPS_TEST_KERNEL_ALLOW_FAILURE`
-
-Allow custom Kernel tests failures.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
-
 ### `DREVOPS_TEST_SKIP`
 
 Flag to skip running of all tests.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
-
-### `DREVOPS_TEST_UNIT_ALLOW_FAILURE`
-
-Allow custom Unit tests failures.
 
 Default value: `UNDEFINED`
 

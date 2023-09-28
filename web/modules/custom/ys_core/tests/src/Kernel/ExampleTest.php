@@ -8,7 +8,6 @@ namespace Drupal\Tests\ys_core\Kernel;
  * Example kernel test case class.
  *
  * @group YsCore
- * @group site:kernel
  *
  * @package Drupal\ys_core\Tests
  */

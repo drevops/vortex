@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
  *
  * Tests for CircleCI configurations.
  *
- * @group site:unit
  * @SuppressWarnings(PHPMD)
  *
  * phpcs:disable Drupal.NamingConventions.ValidVariableName.LowerCamelName

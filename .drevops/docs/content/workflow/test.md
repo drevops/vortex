@@ -2,9 +2,6 @@
 
 DrevOps supports running Unit (PHPUnit) and BDD (Behat) tests.
 
-It uses a router script [`scripts/drevops/test.sh`](../../../../scripts/drevops/test.sh)
-to proxy calls to test type specific scripts and support custom workflows.
-
 For local development, the tests can be run using handy Ahoy commands:
 
 ```bash
@@ -19,66 +16,18 @@ ahoy test-functional # Run Functional tests
 ahoy test-bdd # Run BDD tests
 ```
 
-In CI, tests are run by calling the [`scripts/drevops/test.sh`](../../../../scripts/drevops/test.sh)
-script directly.
-
-The type of tests can be overwritten by setting an environment variable
-`$DREVOPS_TEST_TYPES` to a comma-separated list of test type
-values: `$DREVOPS_TEST_TYPES=unit,kernel,functional,bdd`. This is useful when you
-want to limit the scope of tests to run in CI for debugging purposes - simply
-set a variable in CI UI and re-run the build.
-
-And you can set `$DREVOPS_TEST_SKIP` variable to `1` to skip running of all
-tests. This is, again, useful when debugging CI builds.
+In CI, tests are run by calling the test binaries directly.
 
 ## Unit testing
 
 DrevOps uses PHPUnit as a framework for Unit testing.
 
-It is configured to use Drupal core's `core/phpunit.xml.dist` configuration by
-default. This is done to benefit from the upstream test bootstrap process. The
-configuration file for every suite is specified in `$DREVOPS_TEST_<SUITE>_CONFIG`
-variable and may be overridden.
-
-### Grouping
-
-Normally, consumer sites would not want to run Drupal core and contrib tests so
-DrevOps provides a mechanism to only run tests for the site's custom
-modules and themes code.
-
-To make the test discoverable, it has to have `@group site:<suite>`
-annotation:
-
-```php
-<?php
-
-namespace Drupal\Tests\ys_core\Unit;
-
-/**
- * Class YsCoreExampleUnitTest.
- *
- * Example test case class.
- *
- * @group site:unit
- */
-class YsCoreExampleUnitTest extends YsCoreUnitTestBase {
-...
-}
-```
-
-This approach is more flexible than filtering file by name using the suite
-suffix (`*Unit*`, `*Kernel*`, `*Functional*` etc.) or supporting a custom
-suit class discovery service.
-
-In addition, the groups are controlled via the `$DREVOPS_TEST_UNIT_GROUP`,
-`$DREVOPS_TEST_KERNEL_GROUP` and `$DREVOPS_TEST_FUNCTIONAL_GROUP`environment
-variables. This allows to override specific test group when needed without
-changing the code, for example, when need to isolate test runs in CI.
-These variables have default value of `site:<suite>`.
+It is configured to use a copy of Drupal core's `core/phpunit.xml.dist`
+configuration file. This is done to allow per-project customisations.
 
 ### Reporting
 
-Test reports are stored in `$DREVOPS_TEST_REPORTS_DIR/phpunit` directory
+Test reports are stored in `$DREVOPS_TEST_RESULTS_DIR/phpunit` directory
 separated into multiple files and named after the suite name.
 These reports are usually used in CI to track tests performance and stability.
 
@@ -166,7 +115,7 @@ Add `@skipped` tag to a feature or scenario to exclude it from the test run.
 
 ### Screenshots
 
-Test screenshots are stored into `tests/behat/screenshots` location by default,
+Test screenshots are stored into `.logs/screenshots` location by default,
 which can be overwritten using `$BEHAT_SCREENSHOT_DIR` variable (courtesy of
 [Behat Screenshot](https://github.com/drevops/behat-screenshot) package). In CI, screenshots are stored as artifacts
 and are accessible in the Artifacts tab.
@@ -177,12 +126,10 @@ Out of the box, DrevOps comes with [Behat Progress formatter](https://github.com
 Behat output formatter to show progress as TAP and fails inline. This allows to
 continue test runs after failures while maintaining a minimal output.
 
-The format can be controlled `$DREVOPS_TEST_BEHAT_FORMAT` environment variable.
-
 ### Reporting
 
-Test reports produced if `$DREVOPS_TEST_REPORTS_DIR` is set. They are stored in
-`$DREVOPS_TEST_REPORTS_DIR/behat` directory. These reports are usually used in
+Test reports produced if `$DREVOPS_TEST_RESULTS_DIR` is set. They are stored in
+`$DREVOPS_TEST_RESULTS_DIR/behat` directory. These reports are usually used in
 CI to track tests performance and stability.
 
 ### Scaffold

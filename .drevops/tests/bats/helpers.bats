@@ -52,7 +52,7 @@ load _helper.bash
   echo "     > DrevOps artifact dir: ${DREVOPS_TEST_ARTIFACT_DIR}" >&3
   assert_not_contains "//" "${DREVOPS_TEST_ARTIFACT_DIR}"
 
-  [ "${DREVOPS_TEST_REPORTS_DIR}" != "" ]
-  echo "     > DrevOps test reports dir: ${DREVOPS_TEST_REPORTS_DIR}" >&3
-  assert_not_contains "//" "${DREVOPS_TEST_REPORTS_DIR}"
+  [ "${DREVOPS_TEST_RESULTS_DIR}" != "" ]
+  echo "     > DrevOps test results dir: ${DREVOPS_TEST_RESULTS_DIR}" >&3
+  assert_not_contains "//" "${DREVOPS_TEST_RESULTS_DIR}"
 }

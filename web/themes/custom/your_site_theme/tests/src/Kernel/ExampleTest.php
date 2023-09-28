@@ -8,7 +8,6 @@ namespace Drupal\Tests\your_site_theme\Kernel;
  * Example kernel test case class.
  *
  * @group YourSiteTheme
- * @group site:kernel
  *
  * @package Drupal\your_site_theme\Tests
  */
