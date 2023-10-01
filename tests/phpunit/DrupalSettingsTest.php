@@ -70,7 +70,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test generic settings.
    */
-  public function testGeneric() {
+  public function testGeneric(): void {
     $this->setEnvVars([
       'DREVOPS_CLAMAV_ENABLED' => FALSE,
     ]);
@@ -85,7 +85,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test Shield config.
    */
-  public function testShield() {
+  public function testShield(): void {
     $this->setEnvVars([
       'DRUPAL_SHIELD_USER' => 'test_shield_user',
       'DRUPAL_SHIELD_PASS' => 'test_shield_pass',
@@ -104,7 +104,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test Shield partial config.
    */
-  public function testShieldPartial() {
+  public function testShieldPartial(): void {
     $this->setEnvVars([
       'DRUPAL_SHIELD_USER' => 'test_shield_user',
       'DRUPAL_SHIELD_PASS' => '',
@@ -118,10 +118,11 @@ class DrupalSettingsTest extends TestCase {
   }
 
   // phpcs:ignore #;< CLAMAV
+
   /**
    * Test ClamAV configs in Daemon mode with defaults.
    */
-  public function testClamavDaemonDefaults() {
+  public function testClamavDaemonDefaults(): void {
     $this->setEnvVars([
       'DREVOPS_CLAMAV_ENABLED' => TRUE,
       'CLAMAV_MODE' => 'daemon',
@@ -140,7 +141,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test ClamAV configs in Daemon mode with defaults.
    */
-  public function testClamavDaemonCustom() {
+  public function testClamavDaemonCustom(): void {
     $this->setEnvVars([
       'DREVOPS_CLAMAV_ENABLED' => TRUE,
       'CLAMAV_MODE' => 'daemon',
@@ -161,7 +162,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test ClamAV configs in Executable mode.
    */
-  public function testClamavExecutable() {
+  public function testClamavExecutable(): void {
     $this->setEnvVars([
       'DREVOPS_CLAMAV_ENABLED' => TRUE,
       'CLAMAV_HOST' => 'custom_clamav_host',
@@ -181,7 +182,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test Redis settings.
    */
-  public function testRedis() {
+  public function testRedis(): void {
     $this->setEnvVars([
       'DREVOPS_REDIS_ENABLED' => 1,
       'REDIS_HOST' => 'redis_host',
@@ -206,7 +207,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test Acquia-specific settings.
    */
-  public function testAcquia() {
+  public function testAcquia(): void {
     $this->setEnvVars([
       'AH_SITE_ENVIRONMENT' => TRUE,
     ]);
@@ -226,7 +227,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test Lagoon-specific settings.
    */
-  public function testLagoon() {
+  public function testLagoon(): void {
     $this->setEnvVars([
       'LAGOON' => 1,
       'LAGOON_ROUTES' => 'http://example1.com,https://example2/com',
@@ -251,10 +252,11 @@ class DrupalSettingsTest extends TestCase {
     $this->assertEquals(1, LAGOON_VERSION);
   }
   // phpcs:ignore #;> LAGOON
+
   /**
    * Test per-environment overrides for LOCAL environment.
    */
-  public function testEnvironmentLocal() {
+  public function testEnvironmentLocal(): void {
     $this->setEnvVars([]);
 
     $this->requireSettingsFile();
@@ -268,7 +270,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test per-environment overrides for CI environment.
    */
-  public function testEnvironmentCi() {
+  public function testEnvironmentCi(): void {
     $this->setEnvVars([
       'CI' => TRUE,
     ]);
@@ -293,10 +295,11 @@ class DrupalSettingsTest extends TestCase {
   }
 
   // phpcs:ignore #;< ACQUIA
+
   /**
    * Test per-environment overrides for DEV environment.
    */
-  public function testEnvironmentDev() {
+  public function testEnvironmentDev(): void {
     $this->setEnvVars([
       'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_DEV,
     ]);
@@ -325,7 +328,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test per-environment overrides for TEST environment.
    */
-  public function testEnvironmentTest() {
+  public function testEnvironmentTest(): void {
     // Use Acquia's settings to set the environment type.
     $this->setEnvVars([
       'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_TEST,
@@ -355,7 +358,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test per-environment overrides for PROD environment.
    */
-  public function testEnvironmentProd() {
+  public function testEnvironmentProd(): void {
     $this->setEnvVars([
       'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_PROD,
     ]);
@@ -380,12 +383,13 @@ class DrupalSettingsTest extends TestCase {
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
   // phpcs:ignore #;> ACQUIA
+
   /**
    * Test the resulting environment based on the provider's configuration.
    *
    * @dataProvider dataProviderEnvironment
    */
-  public function testEnvironment($vars, $expected_env) {
+  public function testEnvironment(array $vars, string $expected_env): void {
     $this->setEnvVars($vars);
 
     $this->requireSettingsFile();
@@ -396,7 +400,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Data provider for testing of the resulting environment.
    */
-  public function dataProviderEnvironment() {
+  public function dataProviderEnvironment(): array {
     $this->requireSettingsFile();
 
     return [
@@ -590,7 +594,7 @@ class DrupalSettingsTest extends TestCase {
    *
    * @dataProvider dataProviderDatabases
    */
-  public function testDatabases($vars, $expected) {
+  public function testDatabases(array $vars, array $expected): void {
     $this->setEnvVars($vars);
 
     $this->requireSettingsFile();
@@ -601,7 +605,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Data provider for resulting database settings.
    */
-  public function dataProviderDatabases() {
+  public function dataProviderDatabases(): array {
     return [
       [
         [],

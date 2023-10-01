@@ -237,8 +237,11 @@ if ($settings['environment'] == ENVIRONMENT_LOCAL) {
 ////////////////////////////////////////////////////////////////////////////////
 
 if (file_exists($app_root . '/' . $site_path . '/includes')) {
-  foreach (glob($app_root . '/' . $site_path . '/includes/settings.*.php') as $filename) {
-    require $filename;
+  $files = glob($app_root . '/' . $site_path . '/includes/settings.*.php');
+  if ($files) {
+    foreach ($files as $filename) {
+      require $filename;
+    }
   }
 }
 

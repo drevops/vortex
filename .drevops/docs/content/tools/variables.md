@@ -110,13 +110,21 @@ Default value: `UNDEFINED`
 
 Defined in: `.env.local.default`
 
+### `DREVOPS_CI_LINT_ALLOW_FAILURE`
+
+Allow code linting failures.
+
+Default value: `UNDEFINED`
+
+Defined in: `CI config`
+
 ### `DREVOPS_CI_TEST_ALLOW_FAILURE`
 
 Allow tests failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`
+Defined in: `CI config`
 
 ### `DREVOPS_CLAMAV_ENABLED`
 
@@ -401,86 +409,6 @@ Default value: `UNDEFINED`
 
 Defined in: `CI config`
 
-### `DREVOPS_LINT_BE_ALLOW_FAILURE`
-
-Allow BE code linting failures.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
-
-### `DREVOPS_LINT_FE_ALLOW_FAILURE`
-
-Allow FE code linting failures.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
-
-### `DREVOPS_LINT_PHPCS_TARGETS`
-
-PHPCS comma-separated list of targets. Set to empty value to disable this check.
-
-Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
-
-Defined in: `.env`
-
-### `DREVOPS_LINT_PHPLINT_EXTENSIONS`
-
-PHP Parallel Lint comma-separated list of extensions (no preceding dot). Set to empty value to disable this check.
-
-Default value: `php, inc, module, theme, install`
-
-Defined in: `.env`
-
-### `DREVOPS_LINT_PHPLINT_TARGETS`
-
-PHP Parallel Lint comma-separated list of targets. Set to empty value to disable this check.
-
-Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
-
-Defined in: `.env`
-
-### `DREVOPS_LINT_PHPMD_RULESETS`
-
-PHPMD comma-separated list of rules.
-
-Default value: `codesize, unusedcode, cleancode`
-
-Defined in: `.env`
-
-### `DREVOPS_LINT_PHPMD_TARGETS`
-
-PHPMD comma-separated list of targets. Set to empty value to disable this check.
-
-Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
-
-Defined in: `.env`
-
-### `DREVOPS_LINT_PHPSTAN_TARGETS`
-
-PHPStan comma-separated list of targets. Set to empty value to disable this check.
-
-Default value: `web/profiles/custom/your_site_profile, web/modules/custom, web/themes/custom, web/sites/default/settings.php, tests`
-
-Defined in: `.env`
-
-### `DREVOPS_LINT_SKIP`
-
-Flag to skip code linting.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
-
-### `DREVOPS_LINT_TWIGCS_TARGETS`
-
-Twigcs comma-separated list of targets. Set to empty value to disable this check.
-
-Default value: `web/modules/custom/*/templates, web/themes/custom/*/templates`
-
-Defined in: `.env`
-
 ### `DREVOPS_NOTIFY_CHANNELS`
 
 The channels of the notifications.
@@ -588,14 +516,6 @@ Skip copying of files between Acquia environment.
 Default value: `UNDEFINED`
 
 Defined in: `ACQUIA ENVIRONMENT`
-
-### `DREVOPS_TEST_SKIP`
-
-Flag to skip running of all tests.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
 
 ### `DREVOPS_TZ`
 

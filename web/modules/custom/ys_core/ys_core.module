@@ -10,7 +10,7 @@ use Drupal\Core\Site\Settings;
 /**
  * Implements hook_mail_alter().
  */
-function ys_core_mail_alter(&$message) {
+function ys_core_mail_alter(array &$message): void {
   // Allow to stop any mail send out through settings. Note if email
   // functionality needs to be tested, this code should be removed and
   // replaced with a dev mail system.

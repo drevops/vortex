@@ -22,7 +22,7 @@ class HelpersTest extends UnitTestBase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderToHumanName() {
+  public function dataProviderToHumanName() {
     return [
       ['', ''],
       [' ', ''],
@@ -48,7 +48,7 @@ class HelpersTest extends UnitTestBase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderToMachineName() {
+  public function dataProviderToMachineName() {
     return [
       ['', [], ''],
       [' ', [], '_'],
@@ -88,7 +88,7 @@ class HelpersTest extends UnitTestBase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderToCamelCase() {
+  public function dataProviderToCamelCase() {
     return [
       ['', FALSE, ''],
       [' ', FALSE, ''],

@@ -3,7 +3,10 @@
 namespace Drupal\Tests\ys_core\Unit;
 
 use Drupal\Tests\UnitTestCase;
-use Drupal\Tests\ys_core\Traits\YsCoreTestHelperTrait;
+use Drupal\Tests\ys_core\Traits\ArrayTrait;
+use Drupal\Tests\ys_core\Traits\AssertTrait;
+use Drupal\Tests\ys_core\Traits\MockTrait;
+use Drupal\Tests\ys_core\Traits\ReflectionTrait;
 
 /**
  * Class YsCoreUnitTestBase.
@@ -14,6 +17,9 @@ use Drupal\Tests\ys_core\Traits\YsCoreTestHelperTrait;
  */
 abstract class YsCoreUnitTestBase extends UnitTestCase {
 
-  use YsCoreTestHelperTrait;
+  use ArrayTrait;
+  use AssertTrait;
+  use MockTrait;
+  use ReflectionTrait;
 
 }

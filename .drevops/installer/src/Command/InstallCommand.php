@@ -485,6 +485,7 @@ class InstallCommand extends Command {
     static::dirReplaceContent('YOURORG',               $this->getAnswer('org'),                     $dir);
     static::dirReplaceContent('your-site-url.example', $this->getAnswer('url'),                     $dir);
     static::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core', $dir . "/{$webroot}/modules/custom");
+    static::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core', $dir . "/{$webroot}/themes/custom");
     static::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core', $dir . '/scripts/custom');
     static::dirReplaceContent('YsCore',                $module_prefix_camel_cased . 'Core',          $dir . "/{$webroot}/modules/custom");
     static::dirReplaceContent('YSCODE',                $module_prefix_uppercase,                     $dir);

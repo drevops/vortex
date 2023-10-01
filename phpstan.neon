@@ -9,13 +9,37 @@
 
 parameters:
 
+  level: 7
+
+  paths:
+    - web/modules/custom
+    - web/themes/custom
+    - web/sites/default/settings.php
+    - tests
+
+  excludePaths:
+    - vendor/*
+    - node_modules/*
+    - ../*/vendor/*
+    - ../*/node_modules/*
+
   drupal:
     drupal_root: /app
 
-  level: 1
-
-  excludePaths:
-    - ../*/node_modules/*
-
-  # ignoreErrors:
-  #  - "#^Error message#"
+  ignoreErrors:
+    -
+      # Since tests and data providers do not have to have parameter docblocks,
+      # it is not possible to specify the type of the parameter, so we ignore
+      # this error.
+      message: '#.*no value type specified in iterable type array.#'
+      paths:
+        - web/modules/custom/*/tests/*
+        - web/themes/custom/*/tests/*
+        - tests/phpunit/*
+    -
+      # Hook implementations do not provide docblocks for parameters, so there
+      # is no way to provide this information.
+      message: '#.* with no value type specified in iterable type array#'
+      paths:
+        - web/modules/custom/*
+        - web/themes/custom/*
