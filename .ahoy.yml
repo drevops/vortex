@@ -178,15 +178,15 @@ commands:
 
   lint:
     usage: Lint back-end and front-end code.
-    cmd: ahoy cli ./scripts/drevops/lint.sh "$@"
+    cmd: ahoy lint-be && ahoy lint-fe
 
   lint-be:
     usage: Lint back-end code.
-    cmd: ahoy cli ./scripts/drevops/lint.sh be
+    cmd: ahoy cli "./vendor/bin/phpcs && vendor/bin/phpstan analyse && ./vendor/bin/phpmd . text phpmd.xml"
 
   lint-fe:
     usage: Lint front-end code.
-    cmd: ahoy cli ./scripts/drevops/lint.sh fe
+    cmd: ahoy cli "./vendor/bin/twigcs && npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint"
 
   test:
     usage: Run all tests.

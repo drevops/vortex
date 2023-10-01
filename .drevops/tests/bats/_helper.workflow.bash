@@ -347,25 +347,9 @@ assert_ahoy_lint() {
   substep "Assert that lint works"
   run ahoy lint
   assert_success
-  assert_output_contains "Running back-end code linter checks."
-  assert_output_contains "Back-end code passed the linter checks."
-  assert_output_contains "Running front-end code linter checks."
-  assert_output_contains "Front-end code passed the linter checks."
 
   assert_ahoy_lint_be "${webroot}"
-
   assert_ahoy_lint_fe "${webroot}"
-
-  substep "Assert that lint skipping works"
-  add_var_to_file .env "DREVOPS_LINT_SKIP" "1"
-  ahoy up cli && sync_to_container
-  run ahoy lint
-  assert_success
-  assert_output_contains "Skipping code lint checks."
-  assert_output_not_contains "Running back-end code linter checks."
-  assert_output_not_contains "Running front-end code linter checks."
-
-  restore_file .env && ahoy up cli
 }
 
 assert_ahoy_lint_be() {
@@ -378,29 +362,13 @@ assert_ahoy_lint_be() {
   sync_to_container
   run ahoy lint-be
   assert_failure
-  assert_output_contains "Running back-end code linter checks."
-  assert_output_contains "Back-end code failed the linter checks."
-  assert_output_not_contains "Back-end code passed the linter checks."
-
-  substep "Assert that BE lint failure bypassing works"
-  add_var_to_file .env "DREVOPS_LINT_BE_ALLOW_FAILURE" "1"
-  ahoy up cli && sync_to_container
-  run ahoy lint-be
-  assert_success
-  assert_output_contains "Running back-end code linter checks."
-  assert_output_contains "Back-end code failed the linter checks, but failure is allowed."
-  restore_file .env && ahoy up cli
 
   substep "Assert that BE lint tool disabling works"
-  # Only testing for PHPCS, but the same should work for other tools.
-  echo '$a=1;' >>"${webroot}/modules/custom/sw_core/sw_core.module"
+  # Replace with some valid XML element to avoid XML parsing errors.
+  replace_string_content "<file>${webroot}/modules/custom</file>" "<exclude-pattern>somefile</exclude-pattern>" "$(pwd)"
   sync_to_container
-  export DREVOPS_LINT_PHPCS_TARGETS=""
   run ahoy lint-be
   assert_success
-  assert_output_contains "Running back-end code linter checks."
-  assert_output_contains "Back-end code passed the linter checks."
-  restore_file .env && ahoy up cli
 }
 
 assert_ahoy_lint_fe() {
@@ -413,12 +381,6 @@ assert_ahoy_lint_fe() {
   sync_to_container
   run ahoy lint-fe
   assert_failure
-  assert_output_contains "Running front-end code linter checks."
-  assert_output_contains "Running theme npm lint."
-  assert_output_not_contains "Running Twigcs."
-  assert_output_contains "Front-end code failed the linter checks."
-  assert_output_not_contains "Front-end code passed the linter checks."
-  restore_file .env && ahoy up cli
   rm -f "${webroot}/themes/custom/star_wars/scss/components/_test.scss"
   ahoy cli rm -f "${webroot}/themes/custom/star_wars/scss/components/_test.scss"
   sync_to_container
@@ -431,37 +393,12 @@ assert_ahoy_lint_fe() {
   sync_to_container
   run ahoy lint-fe
   assert_failure
-  assert_output_contains "Running front-end code linter checks."
-  assert_output_contains "Running theme npm lint."
-  assert_output_contains "Running Twigcs."
-  assert_output_contains "violation(s) found"
-  assert_output_contains "Front-end code failed the linter checks."
-  assert_output_not_contains "Front-end code passed the linter checks."
-  restore_file .env && ahoy up cli
-
-  substep "Assert that FE lint failure bypassing works"
-  add_var_to_file .env "DREVOPS_LINT_FE_ALLOW_FAILURE" "1"
-  ahoy up cli && sync_to_container
-  run ahoy lint-fe
-  assert_success
-  assert_output_contains "Running front-end code linter checks."
-  assert_output_contains "Front-end code failed the linter checks, but failure is allowed."
-  assert_output_not_contains "Front-end code passed the linter checks."
-  restore_file .env && ahoy up cli
 
   substep "Assert that FE lint tool disabling works"
-  # Only testing for Twigcs, but the same should work for other tools.
-  mkdir -p "${webroot}/modules/custom/sw_core/templates/block"
-  mkdir -p "${webroot}/themes/custom/star_wars/templates/block"
-  echo "{{ set a='a' }}" >>"${webroot}/modules/custom/sw_core/templates/block/test1.twig"
-  echo "{{ set b='b' }}" >>"${webroot}/themes/custom/star_wars/templates/block/test2.twig"
+  replace_string_content "setSeverity('error')" "setSeverity('ignore')" "$(pwd)"
   sync_to_container
-  export DREVOPS_LINT_TWIGCS_TARGETS=""
   run ahoy lint-fe
   assert_success
-  assert_output_contains "Running front-end code linter checks."
-  assert_output_contains "Front-end code passed the linter checks."
-  restore_file .env && ahoy up cli
 }
 
 assert_ahoy_test() {

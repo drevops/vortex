@@ -52,7 +52,7 @@ class TokenTest extends UnitTestBase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderFileContains() {
+  public function dataProviderFileContains() {
     return [
       ['FOO', 'empty.txt', FALSE],
       ['BAR', 'foobar_b.txt', TRUE],
@@ -79,7 +79,7 @@ class TokenTest extends UnitTestBase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderDirContains() {
+  public function dataProviderDirContains() {
     return [
       ['FOO', ['empty.txt'], FALSE],
       ['BAR', ['foobar_b.txt'], TRUE],
@@ -114,7 +114,7 @@ class TokenTest extends UnitTestBase {
     $this->assertFileEquals($expected_file, $created_file);
   }
 
-  public static function dataProviderRemoveTokenFromFile() {
+  public function dataProviderRemoveTokenFromFile() {
     return [
       ['empty.txt', 'FOO', 'FOO', TRUE, FALSE, 'empty.txt'],
 
@@ -171,7 +171,7 @@ class TokenTest extends UnitTestBase {
     }
   }
 
-  public static function dataProviderDirReplaceContent() {
+  public function dataProviderDirReplaceContent() {
     return [
       [
         ['empty.txt'],
@@ -209,7 +209,7 @@ class TokenTest extends UnitTestBase {
     }
   }
 
-  public static function dataProviderReplaceStringFilename() {
+  public function dataProviderReplaceStringFilename() {
     return [
       [
         ['empty.txt'],

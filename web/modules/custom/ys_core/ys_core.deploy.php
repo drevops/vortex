@@ -14,10 +14,8 @@ use Drupal\Core\Extension\ExtensionDiscovery;
 
 /**
  * Installs custom theme.
- *
- * @SuppressWarnings(PHPMD.StaticAccess)
  */
-function ys_core_deploy_install_theme() {
+function ys_core_deploy_install_theme(): void {
   \Drupal::service('theme_installer')->install(['olivero']);
   \Drupal::service('theme_installer')->install(['your_site_theme']);
   \Drupal::service('config.factory')->getEditable('system.theme')->set('default', 'your_site_theme')->save();
@@ -29,13 +27,14 @@ function ys_core_deploy_install_theme() {
  *
  * @SuppressWarnings(PHPMD.StaticAccess)
  */
-function ys_core_deploy_enable_redis() {
+function ys_core_deploy_enable_redis(): void {
   $listing = new ExtensionDiscovery(\Drupal::root());
   $modules = $listing->scan('module');
   if (!empty($modules['redis'])) {
     \Drupal::service('module_installer')->install(['redis']);
   }
 }
+
 // phpcs:ignore #;> REDIS
 
 // phpcs:ignore #;< CLAMAV
@@ -44,7 +43,7 @@ function ys_core_deploy_enable_redis() {
  *
  * @SuppressWarnings(PHPMD.StaticAccess)
  */
-function ys_core_deploy_enable_clamav() {
+function ys_core_deploy_enable_clamav(): void {
   $listing = new ExtensionDiscovery(\Drupal::root());
   $modules = $listing->scan('module');
   if (!empty($modules['clamav'])) {
@@ -52,6 +51,7 @@ function ys_core_deploy_enable_clamav() {
     \Drupal::service('module_installer')->install(['clamav']);
   }
 }
+
 // phpcs:ignore #;> CLAMAV
 
 // phpcs:ignore #;< SOLR
@@ -60,7 +60,7 @@ function ys_core_deploy_enable_clamav() {
  *
  * @SuppressWarnings(PHPMD.StaticAccess)
  */
-function ys_core_deploy_enable_search_api_solr() {
+function ys_core_deploy_enable_search_api_solr(): void {
   $listing = new ExtensionDiscovery(\Drupal::root());
   $modules = $listing->scan('module');
   if (!empty($modules['search_api']) && !empty($modules['search_api_solr']) && !empty($modules['ys_search'])) {

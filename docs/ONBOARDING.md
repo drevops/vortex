@@ -126,8 +126,8 @@ indicate that it was addressed.
 
 ## 5. Cleanup
 
-- [ ] Cleanup code or set `DREVOPS_LINT_BE_ALLOW_FAILURE=1` and
-  `DREVOPS_LINT_FE_ALLOW_FAILURE=1` in `.env` file to bypass code linting fails:
+- [ ] Cleanup code or set `DREVOPS_CI_LINT_ALLOW_FAILURE=1` in CircleCI to
+      bypass code linting fails:
   - [ ] Cleanup PHP code
   - [ ] Cleanup JS code
   - [ ] Cleanup SCSS code

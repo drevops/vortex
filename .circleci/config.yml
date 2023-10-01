@@ -322,7 +322,14 @@ jobs:
           no_output_timeout: 30m
       - run:
           name: Lint code
-          command: docker compose exec -T cli ./scripts/drevops/lint.sh
+          command: |
+            docker compose exec -T cli bash -c "\
+              ./vendor/bin/phpcs && \
+              ./vendor/bin/phpstan analyse && \
+              ./vendor/bin/phpmd . text phpmd.xml && \
+              ./vendor/bin/twigcs && \
+              npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} lint" \
+            || [ "${DREVOPS_CI_LINT_ALLOW_FAILURE:-0}" -eq 1 ]
       - run:
           name: Run Unit tests
           command: |

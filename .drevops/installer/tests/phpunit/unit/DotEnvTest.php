@@ -80,7 +80,7 @@ class DotEnvTest extends UnitTestBase {
     $this->assertTrue(TRUE);
   }
 
-  public static function dataProviderGlobals() {
+  public function dataProviderGlobals() {
     return [
       [
         '', [], [], [], [], FALSE,

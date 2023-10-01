@@ -124,8 +124,10 @@ info "Installing development dependencies."
 # for production images), so we are installing them here.
 #
 note "Copying development configuration files into container."
+docker compose cp -L .twig_cs.php cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L behat.yml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpcs.xml cli:/app/ 2>"${composer_verbose_output}"
+docker compose cp -L phpmd.xml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpstan.neon cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpunit.xml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L tests cli:/app/ 2>"${composer_verbose_output}"

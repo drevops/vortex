@@ -379,7 +379,6 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/sanitize-db.sh"
   assert_file_exists "scripts/drevops/github-labels.sh"
   assert_file_exists "scripts/drevops/info.sh"
-  assert_file_exists "scripts/drevops/lint.sh"
   assert_file_exists "scripts/drevops/notify.sh"
   assert_file_exists "scripts/drevops/notify-email.sh"
   assert_file_exists "scripts/drevops/notify-github.sh"
@@ -558,7 +557,6 @@ assert_files_present_profile() {
   assert_dir_exists "${webroot}/profiles/custom/${suffix}_profile"
   assert_file_exists "${webroot}/profiles/custom/${suffix}_profile/${suffix}_profile.info.yml"
   assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE="
-  assert_file_contains ".env" "${webroot}/profiles/custom/${suffix}_profile,"
 
   popd >/dev/null || exit 1
 }
