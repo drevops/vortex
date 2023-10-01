@@ -236,15 +236,16 @@ assert_timezone() {
   step "Check that timezone can be applied"
 
   # Assert that .env contains a default value.
+  # Note that AEDT changes to AEST during winter.
   assert_file_contains ".env" 'DREVOPS_TZ="Australia/Melbourne"'
   run docker compose exec cli date
-  assert_output_contains "AEST"
+  assert_output_contains "AE"
   run docker compose exec php date
-  assert_output_contains "AEST"
+  assert_output_contains "AE"
   run docker compose exec nginx date
-  assert_output_contains "AEST"
+  assert_output_contains "AE"
   run docker compose exec mariadb date
-  assert_output_contains "AEST"
+  assert_output_contains "AE"
 
   # Add variable to the .env file and apply the change to container.
   add_var_to_file .env "DREVOPS_TZ" '"Australia/Perth"'
