@@ -70,7 +70,7 @@ pass "Finished GitHub notification for operation ${DREVOPS_NOTIFY_EVENT}"
     than creating a sub-process. This is to allow passing environment variables
     down the call stack.
 18. SHOULD use `note` messages for informing about the script progress.
-19. MUST use variables in the for of `${VAR}`.
+19. MUST use variables in the form of `${VAR}`.
 
 ```bash
 

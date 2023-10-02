@@ -88,7 +88,7 @@ Custom steps can be added into this file.
 Behat `default` profile configured with sensible defaults to allow running Behat
 with provided extensions.
 
-The profile can be overridden using `$DREVOPS_TEST_BEHAT_PROFILE` environment
+The profile can be overridden using `$DREVOPS_CI_TEST_BEHAT_PROFILE` environment
 variable.
 
 ### Parallel runs

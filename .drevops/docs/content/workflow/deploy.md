@@ -9,6 +9,7 @@ The script runs in CI only after all tests pass.
 The script deploys the  code to a remote location by calling the
 relevant scripts based on the type of deployment defined in `$DREVOPS_DEPLOY_TYPES`
 variable as a comma-separated list of one or multiple supported deployment types:
+
 - `webhook` - a webhook URL is called via CURL.
 - `artifact` - a code artifact created and sent to a remote repository.
 - `lagoon` - a special webhook URL is called via CURL to trigger a deployment in
@@ -20,7 +21,7 @@ variable as a comma-separated list of one or multiple supported deployment types
 After setting up the deployment integration, you can begin using it by adding
 the `$DREVOPS_DEPLOY_PROCEED` variable with a value of `1` in the CircleCI user
 interface. This variable is used as a failsafe to prevent accidental
-deployments.
+deployments while setting up DrevOps.
 
 ## Using deployments
 
