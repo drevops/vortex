@@ -24,7 +24,7 @@ load _helper.deployment.bash
   if [ ! "${SRC_DIR}" ]; then
     SRC_DIR="${BUILD_DIR}/deployment_src"
     substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
-    prepare_fixture_dir "${SRC_DIR}"
+    fixture_prepare_dir "${SRC_DIR}"
 
     # We need to use "current" directory as a place where the deployment script
     # is going to run from, while "SRC_DIR" is a place where files are taken
@@ -56,7 +56,7 @@ load _helper.deployment.bash
   touch "${SRC_DIR}"/web/themes/custom/star_wars/node_modules/test.txt
 
   substep "Preparing remote repo directory ${REMOTE_REPO_DIR}."
-  prepare_fixture_dir "${REMOTE_REPO_DIR}"
+  fixture_prepare_dir "${REMOTE_REPO_DIR}"
   git_init 1 "${REMOTE_REPO_DIR}"
 
   popd >/dev/null
@@ -135,7 +135,7 @@ load _helper.deployment.bash
   if [ ! "${SRC_DIR}" ]; then
     SRC_DIR="${BUILD_DIR}/deployment_src"
     substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
-    prepare_fixture_dir "${SRC_DIR}"
+    fixture_prepare_dir "${SRC_DIR}"
 
     # Do not build - only structure.
     provision_site "${CURRENT_PROJECT_DIR}" 0

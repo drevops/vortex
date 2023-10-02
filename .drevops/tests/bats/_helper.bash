@@ -45,7 +45,8 @@ setup() {
   # Setup command mocking.
   setup_mock
 
-  load _helper.run_steps.bash
+  # Adjust assertion directories.
+  export ASSERT_DIR_EXCLUDE=("drevops" ".data")
 
   ##
   ## Phase 2: Pre-flight checks.
@@ -95,19 +96,17 @@ setup() {
   export LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
   # Directory where the application may store it's temporary files.
   export APP_TMP_DIR="${BUILD_DIR}/tmp"
-  prepare_fixture_dir "${BUILD_DIR}"
-  prepare_fixture_dir "${CURRENT_PROJECT_DIR}"
-  prepare_fixture_dir "${DST_PROJECT_DIR}"
-  prepare_fixture_dir "${LOCAL_REPO_DIR}"
-  prepare_fixture_dir "${APP_TMP_DIR}"
+  fixture_prepare_dir "${BUILD_DIR}"
+  fixture_prepare_dir "${CURRENT_PROJECT_DIR}"
+  fixture_prepare_dir "${DST_PROJECT_DIR}"
+  fixture_prepare_dir "${LOCAL_REPO_DIR}"
+  fixture_prepare_dir "${APP_TMP_DIR}"
 
   ##
   ## Phase 4: Application variables setup.
   ##
 
   # Isolate variables set in CI.
-  export DREVOPS_TEST_ARTIFACT_DIR="/app/tests/behat"
-  export DREVOPS_TEST_RESULTS_DIR="/app/test_results"
   unset DREVOPS_DB_DOWNLOAD_SOURCE
   unset DREVOPS_DB_DOCKER_IMAGE
   unset DREVOPS_DB_DOWNLOAD_FORCE
@@ -959,7 +958,7 @@ run_install_quiet() {
   # Use unique installer temporary directory for each run. This is where
   # the installer script downloads the DrevOps codebase for processing.
   DREVOPS_INSTALL_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
-  prepare_fixture_dir "${DREVOPS_INSTALL_TMP_DIR}"
+  fixture_prepare_dir "${DREVOPS_INSTALL_TMP_DIR}"
   export DREVOPS_INSTALL_TMP_DIR
 
   # Tests are using demo database and 'ahoy download-db' command, so we need
@@ -1104,17 +1103,6 @@ remove_development_settings() {
   rm -f "${webroot}/sites/default/services.local.yml" || true
 }
 
-# Copy source code at the latest commit to the destination directory.
-copy_code() {
-  local dst="${1:-${BUILD_DIR}}"
-  assert_dir_exists "${dst}"
-  assert_git_repo "${ROOT_DIR}"
-  pushd "${ROOT_DIR}" >/dev/null || exit 1
-  # Copy latest commit to the build directory.
-  git archive --format=tar HEAD | (cd "${dst}" && tar -xf -)
-  popd >/dev/null || exit 1
-}
-
 # Prepare local repository from the current codebase.
 prepare_local_repo() {
   local dir="${1:-$(pwd)}"
@@ -1122,8 +1110,9 @@ prepare_local_repo() {
   local commit
 
   if [ "${do_copy_code:-}" -eq 1 ]; then
-    prepare_fixture_dir "${dir}"
-    copy_code "${dir}"
+    fixture_prepare_dir "${dir}"
+    export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
+    fixture_export_codebase "${dir}" "${ROOT_DIR}"
   fi
 
   git_init 0 "${dir}"
