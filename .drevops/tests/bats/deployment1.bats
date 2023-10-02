@@ -24,7 +24,7 @@ load _helper.deployment.bash
   if [ ! "${SRC_DIR}" ]; then
     SRC_DIR="${BUILD_DIR}/deployment_src"
     substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
-    prepare_fixture_dir "${SRC_DIR}"
+    fixture_prepare_dir "${SRC_DIR}"
 
     # Enable Acquia integration for this test to run independent deployment
     # by using install auto-discovery.
@@ -67,7 +67,7 @@ load _helper.deployment.bash
   touch "${SRC_DIR}"/web/themes/custom/star_wars/node_modules/test.txt
 
   step "Preparing remote repo directory ${REMOTE_REPO_DIR}"
-  prepare_fixture_dir "${REMOTE_REPO_DIR}"
+  fixture_prepare_dir "${REMOTE_REPO_DIR}"
   git_init 1 "${REMOTE_REPO_DIR}"
 
   popd >/dev/null
@@ -123,7 +123,7 @@ load _helper.deployment.bash
 
   SRC_DIR="${BUILD_DIR}/deployment_src"
   substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
-  prepare_fixture_dir "${SRC_DIR}"
+  fixture_prepare_dir "${SRC_DIR}"
 
   # Provision the codebase with Lagoon deployment type and Lagoon integration.
   answers=(
@@ -227,7 +227,7 @@ load _helper.deployment.bash
 
   SRC_DIR="${BUILD_DIR}/deployment_src"
   substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
-  prepare_fixture_dir "${SRC_DIR}"
+  fixture_prepare_dir "${SRC_DIR}"
 
   # Provision the codebase with Lagoon deployment type and Lagoon integration.
   answers=(

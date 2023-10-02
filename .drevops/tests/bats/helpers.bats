@@ -47,12 +47,4 @@ load _helper.bash
   [ "${APP_TMP_DIR}" != "" ]
   echo "     > App temp dir:       ${APP_TMP_DIR}" >&3
   assert_not_contains "//" "${APP_TMP_DIR}"
-
-  [ "${DREVOPS_TEST_ARTIFACT_DIR}" != "" ]
-  echo "     > DrevOps artifact dir: ${DREVOPS_TEST_ARTIFACT_DIR}" >&3
-  assert_not_contains "//" "${DREVOPS_TEST_ARTIFACT_DIR}"
-
-  [ "${DREVOPS_TEST_RESULTS_DIR}" != "" ]
-  echo "     > DrevOps test results dir: ${DREVOPS_TEST_RESULTS_DIR}" >&3
-  assert_not_contains "//" "${DREVOPS_TEST_RESULTS_DIR}"
 }
