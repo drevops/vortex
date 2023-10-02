@@ -2,6 +2,8 @@
 
 ## Guidelines
 
+These guidelines were followed when creating the DrevOps variables.
+
 1. Local variables MUST be in lowercase, and global variables MUST be in
    uppercase.
 
@@ -110,6 +112,14 @@ Default value: `UNDEFINED`
 
 Defined in: `.env.local.default`
 
+### `DREVOPS_CI_ARTIFACTS`
+
+Directory to store test artifacts.
+
+Default value: `/tmp/artifacts`
+
+Defined in: `CI config`
+
 ### `DREVOPS_CI_LINT_ALLOW_FAILURE`
 
 Allow code linting failures.
@@ -123,6 +133,14 @@ Defined in: `CI config`
 Allow tests failures.
 
 Default value: `UNDEFINED`
+
+Defined in: `CI config`
+
+### `DREVOPS_CI_TEST_RESULTS`
+
+Directory to store test results.
+
+Default value: `/tmp/tests`
 
 Defined in: `CI config`
 
@@ -516,6 +534,14 @@ Skip copying of files between Acquia environment.
 Default value: `UNDEFINED`
 
 Defined in: `ACQUIA ENVIRONMENT`
+
+### `DREVOPS_TEST_BEHAT_PROFILE`
+
+Test Behat profile to use in CI. If not set, the default profile will be used.
+
+Default value: `UNDEFINED`
+
+Defined in: `CI config`
 
 ### `DREVOPS_TZ`
 

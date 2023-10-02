@@ -135,9 +135,9 @@ aliases:
           username: $DOCKER_USER
           password: $DOCKER_PASS
         environment:
-          # Set timezone to ensure that executed operations use correct timestamps.
+          # Set runner timezone to ensure that executed operations use correct timestamps.
           TZ: *timezone
-          # Set terminal capabilities.
+          # Set runner terminal capabilities.
           TERM: xterm-256color
           # Check only minimal stack requirements.
           DREVOPS_DOCTOR_CHECK_MINIMAL: 1
@@ -151,18 +151,16 @@ aliases:
           #;> !PROVISION_USE_PROFILE
           # Directory to store code exported between jobs.
           DREVOPS_EXPORT_CODE_DIR: &drevops_build_export_dir /workspace/code
-          # Directory to store test results.
-          TEST_RESULTS: &test_results /tmp/tests
-          # Directory to store test artifacts.
-          ARTIFACTS: &artifacts /tmp/artifacts
-          # Directory to store test coverage.
-          DREVOPS_TEST_COVERAGE_DIR: &drevops_test_coverage_dir /tmp/artifacts/coverage
           # Directory to use for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_SRC: *drevops_build_export_dir
           # Source code location for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE: /tmp/artifacts/deployment_report.txt
+          # Directory to store test results.
+          DREVOPS_CI_TEST_RESULTS: &test_results /tmp/tests
+          # Directory to store test artifacts.
+          DREVOPS_CI_ARTIFACTS: &artifacts /tmp/artifacts
     resource_class: *resource_class
 
   # Set up remote Docker.
@@ -339,16 +337,16 @@ jobs:
       - run:
           name: Run BDD tests
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && export DREVOPS_TEST_BEHAT_PROFILE="${DREVOPS_TEST_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}" || true
-            docker compose exec -T cli ./vendor/bin/behat --colors --strict --profile="${DREVOPS_TEST_BEHAT_PROFILE:-default}" || \
-              docker compose exec -T cli ./vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_TEST_BEHAT_PROFILE:-default}" || \
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && export DREVOPS_CI_TEST_BEHAT_PROFILE="${DREVOPS_CI_TEST_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}" || true
+            docker compose exec -T cli ./vendor/bin/behat --colors --strict --profile="${DREVOPS_CI_TEST_BEHAT_PROFILE:-default}" || \
+              docker compose exec -T cli ./vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_CI_TEST_BEHAT_PROFILE:-default}" || \
               [ "${DREVOPS_CI_TEST_ALLOW_FAILURE:-0}" -eq 1 ]
       - run:
           name: Process test logs and artifacts
           command: |
             if docker compose ps --services --filter "status=running" | grep -q cli; then
-              mkdir -p "${TEST_RESULTS}" && docker compose cp cli:/app/.logs/test_results/. "${TEST_RESULTS}/"
-              mkdir -p "${ARTIFACTS}" && docker compose cp cli:/app/.logs/. "${ARTIFACTS}/"
+              mkdir -p "${DREVOPS_CI_TEST_RESULTS}" && docker compose cp cli:/app/.logs/test_results/. "${DREVOPS_CI_TEST_RESULTS}/"
+              mkdir -p "${DREVOPS_CI_ARTIFACTS}" && docker compose cp cli:/app/.logs/. "${DREVOPS_CI_ARTIFACTS}/"
             fi
           when: always
       - store_test_results:
@@ -458,7 +456,7 @@ jobs:
           command: cd .drevops && ahoy lint
       - run:
           name: Run common tests
-          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 ahoy test
+          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage ahoy test
           no_output_timeout: 60m
       - store_test_results:
           path: *test_results
@@ -479,7 +477,7 @@ jobs:
       - *step_setup_docker_network
       - run:
           name: Run workflow tests (long)
-          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 ahoy test-workflow
+          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage ahoy test-workflow
           no_output_timeout: 60m
       - store_test_results:
           path: *test_results
@@ -504,7 +502,7 @@ jobs:
           at: /workspace
       - run:
           name: Run deployment tests (long)
-          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 ahoy test-deployment
+          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage ahoy test-deployment
           no_output_timeout: 60m
       - store_test_results:
           path: *test_results
@@ -525,7 +523,7 @@ jobs:
       - *step_setup_docker_network
       - run:
           name: Run CircleCI tests (long)
-          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 .drevops/tests/test.postbuild.sh
+          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage .drevops/tests/test.postbuild.sh
       - store_test_results:
           path: *test_results
       - store_artifacts:

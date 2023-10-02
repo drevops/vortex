@@ -162,11 +162,12 @@ markdown_extensions:
 # IMPORTANT! Do not add any configuration below navigation section.
 nav:
   - 👋 INTRODUCTION:
-    - 👋 Introduction: README.md
-    - ⭐️ Features: introduction/features.md
-    - ⬇️ Installation: introduction/installation.md
-    - 🏛 Architecture: introduction/architecture.md
-    - 🙌 Contributing: introduction/contributing.md
+    - Introduction: README.md
+    - Features: introduction/features.md
+    - Installation: introduction/installation.md
+    - Architecture: introduction/architecture.md
+    - Contributing: introduction/contributing.md
+    - FAQs: introduction/faqs.md
 
   - 💧 Drupal 🚧:
       - Overview 🚧: drupal/overview.md
@@ -177,27 +178,27 @@ nav:
       - Theme scaffold 🚧: drupal/theme-scaffold.md
 
   - ⚙️ WORKFLOW:
-      - 🏗️️ Build: workflow/build.md
-      - ✅ Test: workflow/test.md
-      - 🚚 Deploy: workflow/deploy.md
-      - 🚀 Release 🚧: workflow/release.md
+      - Build: workflow/build.md
+      - Test: workflow/test.md
+      - Deploy: workflow/deploy.md
+      - Release 🚧: workflow/release.md
 
   - 🛠️ TOOLS:
-    - 🎛 Variables: tools/variables.md
-    - 🐳 Docker 🚧:
+    - Variables: tools/variables.md
+    - Docker 🚧:
       - Overview 🚧: tools/docker/overview.md
       - Images 🚧: tools/docker/images.md
       - Docker Compose 🚧: tools/docker/compose.md
-    - 🚦 CI 🚧:
+    - CI 🚧:
         - CircleCI 🚧: tools/ci/overview.md
         - GitHub Actions 🚧: tools/ci/github-actions.md
         - GitLab CI 🚧: tools/ci/gitlab-ci.md
         - Azure Pipelines 🚧: tools/ci/azure-pipelines.md
-    - 🔄 Automated updates: tools/automated-updates.md
-    - 🏥 Doctor: tools/doctor.md
-    - 🛢️ Database 🚧: tools/database.md
+    - Automated updates: tools/automated-updates.md
+    - Doctor: tools/doctor.md
+    - Database 🚧: tools/database.md
 
   - 🧹 MAINTENANCE:
-    - 📜 Authoring scripts: maintenance/authoring-scripts.md
-    - 📝 Authoring tests: maintenance/authoring-tests.md
-    - 📖 Authoring documentation: maintenance/authoring-documentation.md
+    - Authoring scripts: maintenance/authoring-scripts.md
+    - Authoring tests: maintenance/authoring-tests.md
+    - Authoring documentation: maintenance/authoring-documentation.md

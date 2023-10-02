@@ -30,8 +30,8 @@ in the codebase.
 | [`hooks`](../../../../hooks)                                                             | Directory | Acquia hooks. Removed if Acquia hosting is not in use.                                                                                                                                       |
 | [`patches`](../../../../patches)                                                         | Directory | Patches for Drupal core and contrib modules.                                                                                                                                                 |
 | [`scripts`](../../../../scripts)                                                         | Directory | Composer, DrevOps and custom project-specific scripts.                                                                                                                                       |
-| [`tests`](../../../../tests)                                                             | Directory | Scripts and non-Drupal tests.                                                                                                                                                                |
-| [`web`](../../../../web)                                                                 | Directory | Drupal root directory.                                                                                                                                                                       |
+| [`tests`](../../../../tests)                                                             | Directory | Tests integration tests and test for scripts.                                                                                                                                                |
+| [`web`](../../../../web)                                                                 | Directory | Drupal web root directory.                                                                                                                                                                   |
 | [`.ahoy.yml`](../../../../.ahoy.yml)                                                     | File      | Ahoy configuration file.                                                                                                                                                                     |
 | [`.ahoy.local.example.yml`](../../../../.ahoy.local.example.yml)                         | File      | An example of local Ahoy configuration file.                                                                                                                                                 |
 | [`.dockerignore`](../../../../.dockerignore)                                             | File      | [Docker configuration file](https://docs.docker.com/engine/reference/builder/#dockerignore-file) to control the inclusion or exclusion of the files passed to Docker for the build.          |
@@ -47,6 +47,7 @@ in the codebase.
 | [`docker-compose.override.default.yml`](../../../../docker-compose.override.default.yml) | File      | Example override file for Docker Compose configuration.                                                                                                                                      |
 | [`phpcs.xml`](../../../../phpcs.xml)                                                     | File      | PHP CodeSniffer [configuration](https://github.com/squizlabs/PHP_CodeSniffer/wiki/Advanced-Usage#using-a-default-configuration-file) file.                                                   |
 | [`phpstan.neon`](../../../../phpstan.neon)                                               | File      | PHPStan [configuration](https://phpstan.org/config-reference) file.                                                                                                                          |
+| [`phpunit.xml`](../../../../phpunit.xml)                                                 | File      | PHPUnit [configuration](https://docs.phpunit.de/en/9.6/configuration.html) file.                                                                                                                          |
 | [`README.md`](../../../../README.md)                                                     | File      | Project main readme file.                                                                                                                                                                    |
 | [`renovate.json`](../../../../renovate.json)                                             | File      | Renovate [configuration](https://docs.renovatebot.com/self-hosted-configuration/) file.                                                                                                      |
 
@@ -109,6 +110,11 @@ certain operations can be enabled or disabled depending on the environment.
 In practice, this means that, for example, a script used for downloading a
 database is called from Ahoy for local development, from CI configuration, and
 from the hosting configuration file is the same script `download-db.sh`.
+
+!!! note
+
+    The tooling (linters, test runners etc.) is configured to be used as-is,
+    without any additional wrappers.
 
 ### Router scripts
 

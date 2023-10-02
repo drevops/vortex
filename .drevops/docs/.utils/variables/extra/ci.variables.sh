@@ -14,3 +14,12 @@ DREVOPS_CI_LINT_ALLOW_FAILURE=0
 
 # Allow tests failures.
 DREVOPS_CI_TEST_ALLOW_FAILURE=0
+
+# Test Behat profile to use in CI. If not set, the default profile will be used.
+DREVOPS_TEST_BEHAT_PROFILE=
+
+# Directory to store test results.
+DREVOPS_CI_TEST_RESULTS=/tmp/tests
+
+# Directory to store test artifacts.
+DREVOPS_CI_ARTIFACTS=/tmp/artifacts
