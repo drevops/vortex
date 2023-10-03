@@ -19,6 +19,7 @@ done < <(
     "${ROOT_DIR}"/scripts \
     "${ROOT_DIR}"/.circleci \
     "${ROOT_DIR}"/hooks/library \
+    "${ROOT_DIR}"/.drevops/docs \
     -type f \
     \( -name "*.sh" -or -name "*.bash" -or -name "*.bats" \) \
     -not -path "*vendor*" -not -path "*node_modules*" -not -path "*fixtures*" \

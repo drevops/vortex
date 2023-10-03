@@ -79,7 +79,7 @@ We are working on providing a more robust installer and a web-UI version.
 ## Why CircleCI? What about other CI providers?
 
 CircleCI was chosen because of its flexibility. More specifically, CircleCI
-allows to run use own runner container (the container where CI steps run) and
+allows to use your own runner container (the container where CI steps run) and
 use remote Docker, making it possible to build the project in CI **exactly** the
 same way as it would be built on the hosting (if your hosting uses Docker).
 
