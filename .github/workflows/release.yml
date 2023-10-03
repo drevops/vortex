@@ -1,17 +1,17 @@
-name: Release Drafter
+name: Release
 
 on:
   push:
+    tags:
+      - '*'
     branches:
       - main
-  pull_request:
-    types: [opened, reopened, synchronize]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  update_release_draft:
+  release-drafter:
     permissions:
       contents: write
       pull-requests: write
