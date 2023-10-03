@@ -397,7 +397,7 @@ Defined in: `.env`
 
 Drupal version.
 
-Default value: `9`
+Default value: `10`
 
 Defined in: `.env`
 

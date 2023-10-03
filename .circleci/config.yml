@@ -635,51 +635,24 @@ jobs:
           fingerprints:
             - "22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
       - run:
+          name: Build and test docs
+          command: |
+            cd .drevops/docs
+            ahoy build
+            ahoy lint
+            ahoy test
+      - run:
           name: Publish docs
           command: |
             cd .drevops/docs
-            sed -e "/###/d" docker-compose.yml >docker-compose.tmp.yml
-            export COMPOSE_FILE=docker-compose.tmp.yml
-            COMPOSE_FILE=docker-compose.tmp.yml ahoy build
-            COMPOSE_FILE=docker-compose.tmp.yml ahoy lint
-            COMPOSE_FILE=docker-compose.tmp.yml ahoy test
-            if [ -n "${CIRCLE_TAG}" ]; then
-              export version="${CIRCLE_TAG}"
-              export version_is_stable=1
-            elif [ -n "${CIRCLE_BRANCH}" ]; then
-              if [ "${CIRCLE_BRANCH}" != "main" ]; then
-                export version="${CIRCLE_BRANCH/\//-}"
-              fi
-            fi
-            ahoy publish https://github.com/drevops/drevops_docs.git "${version}" "${version_is_stable:-}"
-            mkdir -p /tmp/docs
-            docker compose cp mkdocs:"/app/site/." "/tmp/docs"
-      - run:
-          name: Configure SSH.
-          command: |
-            DEPLOY_DOCS_SSH_FINGERPRINT="22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
-            # Configure SSH to configure git and SSH to connect to remote servers for deployment.
-            [ "$(git config --global user.name)" == "" ]  && git config --global user.name "Deployment robot"
-            [ "$(git config --global user.email)" == "" ] && git config --global user.email "deploy@drevops.com"
-            mkdir -p "${HOME}/.ssh/"
-            echo -e "Host *\n\tStrictHostKeyChecking no\n" > "${HOME}/.ssh/config"
-            DEPLOY_DOCS_SSH_FILE="${DEPLOY_DOCS_SSH_FINGERPRINT//:}"
-            DEPLOY_DOCS_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_DOCS_SSH_FILE//\"}"
-            if [ -f "${DEPLOY_DOCS_SSH_FILE}" ]; then
-              echo "Found Deploy SSH key file ${DEPLOY_DOCS_SSH_FILE}"
-              ssh-add -D > /dev/null
-              ssh-add "${DEPLOY_DOCS_SSH_FILE}"
-            fi
-      - run:
-          name: Deploy docs
-          command: |
-            cd /tmp/docs
-            git init
-            git checkout -b main
-            git add -A
-            git commit -m "Automatically pushed from drevops/drevops"
-            git remote add origin git@github.com:drevops/docs.git
-            git push origin main --force
+            export DOCS_PUBLISH_REMOTE_URL=https://github.com/drevops/drevops_docs.git
+            export DOCS_PUBLISH_SRC_TAG=${CIRCLE_TAG:-}
+            export DOCS_PUBLISH_SRC_BRANCH=${CIRCLE_BRANCH:-}
+            export DOCS_PUBLISH_SSH_FINGERPRINT="22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
+            export DOCS_PUBLISH_CANARY_BRANCH="develop"
+            export DOCS_PUBLISH_COMMIT_MESSAGE="Automatically pushed from drevops/drevops"
+            export DOCS_PUBLISH_GIT_EMAIL="deployer@drevops.com"
+            ./.utils/publish.sh
 
   #-----------------------------------------------------------------------------
   # Publish installer to install.drevops.com

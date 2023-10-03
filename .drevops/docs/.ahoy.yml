@@ -42,10 +42,6 @@ commands:
     usage: Test site
     cmd: docker compose run linkchecker http://mkdocs:8080 "$@"
 
-  publish:
-    usage: Deploy site
-    cmd: docker compose exec mkdocs sh -c "/app/.utils/release.sh $*"
-
   update:
     usage: Update docs
     cmd: ./.utils/update-docs.sh

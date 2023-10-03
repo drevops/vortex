@@ -99,13 +99,6 @@ extra:
   analytics:
     provider: google
     property: G-9T1JR2V5RL
-  consent:
-    title: Cookie consent
-    description: >-
-      We use cookies to recognize your repeated visits and preferences, as well
-      as to measure the effectiveness of our documentation and whether users
-      find what they're searching for. With your consent, you're helping us to
-      make our documentation better.
   version:
     provider: mike
 
