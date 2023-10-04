@@ -1,5 +1,5 @@
 {
-    "output": ".build/install",
+    "output": ".build/install.phar",
     "compression": "GZ",
     "banner": [
         "@file",

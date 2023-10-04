@@ -675,7 +675,7 @@ jobs:
             composer install
             composer build
             mkdir -p /tmp/installer/docs
-            cp .build/install /tmp/installer/docs/index.html
+            cp .build/install.phar /tmp/installer/docs/index.html
             echo "install.drevops.com" > /tmp/installer/docs/CNAME
       - run:
           name: Configure SSH.
