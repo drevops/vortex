@@ -13,7 +13,7 @@ set -eu
 set -a && . ./.env && set +a
 
 # Allow providing custom DrevOps commit hash to download the sources from.
-DREVOPS_INSTALL_COMMIT="${DREVOPS_INSTALL_COMMIT:-${1:-}}"
+DREVOPS_INSTALLER_COMMIT="${DREVOPS_INSTALLER_COMMIT:-${1:-}}"
 
 # The URL of the installer script.
 DREVOPS_INSTALLER_URL="${DREVOPS_INSTALLER_URL:-https://install.drevops.com}"
@@ -21,7 +21,7 @@ DREVOPS_INSTALLER_URL="${DREVOPS_INSTALLER_URL:-https://install.drevops.com}"
 # ------------------------------------------------------------------------------
 
 export DREVOPS_INSTALLER_URL
-export DREVOPS_INSTALL_COMMIT
+export DREVOPS_INSTALLER_COMMIT
 
 curl -L "${DREVOPS_INSTALLER_URL}"?"$(date +%s)" >/tmp/install
 php /tmp/install --quiet

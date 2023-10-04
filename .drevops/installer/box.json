@@ -1,11 +1,12 @@
 {
-    "output": ".build/install.phar",
+    "output": ".build/installer.phar",
+    "compression": "GZ",
     "banner": [
         "@file",
-        "DrevOps CLI installer.",
+        "DrevOps CLI Installer.",
         "",
         "<!-- -->",
-        "DrevOps CLI installer.<br/>",
+        "DrevOps CLI Installer.<br/>",
         "Run in your terminal:<br/>",
         "<code>curl -SsL https://install.drevops.com | php</code><br/>",
         "More details: <a href=\"https://docs.drevops.com\">https://docs.drevops.com</a>",

@@ -12,15 +12,15 @@
 load _helper.bash
 
 @test "Install parameters: empty dir; proceed switch; quiet" {
-  export DREVOPS_INSTALL_PROCEED=0
+  export DREVOPS_INSTALLER_INSTALL_PROCEED=0
   output=$(run_install_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_contains "Aborting project installation. No files were changed"
+  assert_output_contains "Aborting DrevOps installation. No files were changed"
   assert_files_not_present_common
 }
 
 @test "Install parameters: empty dir; proceed switch; interactive" {
-  export DREVOPS_INSTALL_PROCEED=0
+  export DREVOPS_INSTALLER_INSTALL_PROCEED=0
 
   answers=(
     "Star wars" # name
@@ -46,16 +46,16 @@ load _helper.bash
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
-  assert_output_contains "Aborting project installation. No files were changed"
+  assert_output_contains "Aborting DrevOps installation. No files were changed"
   assert_files_not_present_common
 }
 
 @test "Install parameters: empty dir; defaults; quiet" {
-  export DREVOPS_INSTALL_PROCEED=0
+  export DREVOPS_INSTALLER_INSTALL_PROCEED=0
 
   output=$(run_install_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_contains "Aborting project installation. No files were changed"
+  assert_output_contains "Aborting DrevOps installation. No files were changed"
 
   assert_output_contains "                          Name:  Star wars     "
   assert_output_contains "                  Machine name:  star_wars     "
@@ -80,7 +80,7 @@ load _helper.bash
 }
 
 @test "Install parameters: empty dir; defaults; interactive" {
-  export DREVOPS_INSTALL_PROCEED=0
+  export DREVOPS_INSTALLER_INSTALL_PROCEED=0
 
   answers=(
     "Star wars" # name
@@ -105,7 +105,7 @@ load _helper.bash
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
-  assert_output_contains "Aborting project installation. No files were changed"
+  assert_output_contains "Aborting DrevOps installation. No files were changed"
 
   assert_output_contains "                          Name:  Star wars     "
   assert_output_contains "                  Machine name:  star_wars     "
@@ -131,7 +131,7 @@ load _helper.bash
 
 # Note that there is no quiet test for this scenario.
 @test "Install parameters: empty dir; overrides and normalisation; interactive" {
-  export DREVOPS_INSTALL_PROCEED=0
+  export DREVOPS_INSTALLER_INSTALL_PROCEED=0
 
   answers=(
     "star Wars"              # name
@@ -158,7 +158,7 @@ load _helper.bash
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
-  assert_output_contains "Aborting project installation. No files were changed."
+  assert_output_contains "Aborting DrevOps installation. No files were changed."
 
   assert_output_contains "                          Name:  Star wars              "
   assert_output_contains "                  Machine name:  star_wars_machine      "
@@ -183,7 +183,7 @@ load _helper.bash
 }
 
 @test "Install parameters: empty dir; overrides and normalisation; interactive; custom webroot" {
-  export DREVOPS_INSTALL_PROCEED=0
+  export DREVOPS_INSTALLER_INSTALL_PROCEED=0
 
   answers=(
     "star Wars"              # name
@@ -210,7 +210,7 @@ load _helper.bash
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
-  assert_output_contains "Aborting project installation. No files were changed."
+  assert_output_contains "Aborting DrevOps installation. No files were changed."
 
   assert_output_contains "                          Name:  Star wars              "
   assert_output_contains "                  Machine name:  star_wars_machine      "
@@ -235,13 +235,13 @@ load _helper.bash
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; quiet" {
-  export DREVOPS_INSTALL_PROCEED=0
+  export DREVOPS_INSTALLER_INSTALL_PROCEED=0
 
   fixture_preinstalled web
 
   output=$(run_install_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_contains "Aborting project installation. No files were changed"
+  assert_output_contains "Aborting DrevOps installation. No files were changed"
 
   assert_output_contains "                          Name:  Resistance new site          "
   assert_output_contains "                  Machine name:  resistance_site              "
@@ -266,7 +266,7 @@ load _helper.bash
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; interactive; accepting suggested values" {
-  export DREVOPS_INSTALL_PROCEED=0
+  export DREVOPS_INSTALLER_INSTALL_PROCEED=0
 
   fixture_preinstalled web
 
@@ -294,7 +294,7 @@ load _helper.bash
   )
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
-  assert_output_contains "Aborting project installation. No files were changed"
+  assert_output_contains "Aborting DrevOps installation. No files were changed"
 
   # Note that user input takes precedence over discovered values.
   assert_output_contains "                          Name:  Resistance new site          "
@@ -320,7 +320,7 @@ load _helper.bash
 }
 
 @test "Install parameters: pre-installed; overrides, normalisation and discovery; interactive; user input overrides discovery which overrides defaults" {
-  export DREVOPS_INSTALL_PROCEED=0
+  export DREVOPS_INSTALLER_INSTALL_PROCEED=0
 
   fixture_preinstalled web
 
@@ -354,7 +354,7 @@ load _helper.bash
   output=$(run_install_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "It looks like DrevOps is already installed into this project."
-  assert_output_contains "Aborting project installation. No files were changed"
+  assert_output_contains "Aborting DrevOps installation. No files were changed"
 
   # Note that user input takes precedence over discovered values.
   assert_output_contains "                          Name:  Star wars              "

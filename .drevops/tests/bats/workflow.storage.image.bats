@@ -26,7 +26,7 @@ load _helper.workflow.bash
   export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
 
   # Do not use demo database - testing demo database discovery is another test.
-  export DREVOPS_INSTALL_DEMO_SKIP=1
+  export DREVOPS_INSTALLER_DEMO_MODE_SKIP=1
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
@@ -42,7 +42,7 @@ load _helper.workflow.bash
 
   prepare_sut "Starting download from image, storage in docker image WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
 
-  # Assert that the database was not downloaded because DREVOPS_INSTALL_DEMO_SKIP was set.
+  # Assert that the database was not downloaded because DREVOPS_INSTALLER_DEMO_MODE_SKIP was set.
   assert_file_not_exists .data/db.sql
   # Remove .env.local added by the installer script.
   rm .env.local >/dev/null

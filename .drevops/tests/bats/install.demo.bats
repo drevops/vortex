@@ -33,7 +33,7 @@ load _helper.bash
 }
 
 @test "Demo force disabled" {
-  export DREVOPS_INSTALL_DEMO=0
+  export DREVOPS_INSTALLER_DEMO_MODE=0
 
   assert_file_not_exists .data/db.sql
 
@@ -46,7 +46,7 @@ load _helper.bash
 }
 
 @test "Demo force enabled" {
-  export DREVOPS_INSTALL_DEMO=1
+  export DREVOPS_INSTALLER_DEMO_MODE=1
 
   mktouch .data/db.sql
   assert_file_exists .data/db.sql
@@ -63,7 +63,7 @@ load _helper.bash
 }
 
 @test "Demo auto discovery - enabled; skip demo processing" {
-  echo "DREVOPS_INSTALL_DEMO_SKIP=1" >>.env
+  echo "DREVOPS_INSTALLER_DEMO_MODE_SKIP=1" >>.env
 
   assert_file_not_exists .data/db.sql
 

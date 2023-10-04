@@ -133,7 +133,7 @@ setup() {
   export DREVOPS_DOCKER_VERBOSE="${TEST_DREVOPS_DOCKER_VERBOSE:-}"
   export DREVOPS_COMPOSER_VERBOSE="${TEST_DREVOPS_COMPOSER_VERBOSE:-}"
   export DREVOPS_NPM_VERBOSE="${TEST_DREVOPS_NPM_VERBOSE:-}"
-  export DREVOPS_INSTALL_DEBUG="${TEST_DREVOPS_INSTALL_DEBUG:-}"
+  export DREVOPS_INSTALLER_DEBUG="${TEST_DREVOPS_INSTALLER_DEBUG:-}"
 
   # Set Drupal version.
   # @todo Review if this is required.
@@ -143,7 +143,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export DREVOPS_INSTALL_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d10.test.sql.md
+  export DREVOPS_INSTALLER_DEMO_MODE_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d10.test.sql.md
 
   ##
   ## Phase 5: SUT files setup.
@@ -953,13 +953,19 @@ run_install_quiet() {
   pushd "${CURRENT_PROJECT_DIR}" >/dev/null || exit 1
 
   # Force the installer script to be downloaded from the local repo for testing.
-  export DREVOPS_INSTALL_LOCAL_REPO="${LOCAL_REPO_DIR}"
+  export DREVOPS_INSTALLER_LOCAL_REPO="${LOCAL_REPO_DIR}"
 
   # Use unique installer temporary directory for each run. This is where
   # the installer script downloads the DrevOps codebase for processing.
+<<<<<<< HEAD:.drevops/tests/bats/_helper.bash
   DREVOPS_INSTALL_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
   fixture_prepare_dir "${DREVOPS_INSTALL_TMP_DIR}"
   export DREVOPS_INSTALL_TMP_DIR
+=======
+  DREVOPS_INSTALLER_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
+  prepare_fixture_dir "${DREVOPS_INSTALLER_TMP_DIR}"
+  export DREVOPS_INSTALLER_TMP_DIR
+>>>>>>> feature/refactor-installer-question-manager.bak:scripts/drevops/tests/bats/_helper.bash
 
   # Tests are using demo database and 'ahoy download-db' command, so we need
   # to set the CURL DB to test DB.
@@ -969,7 +975,7 @@ run_install_quiet() {
   #
   # Installer will load environment variable and it will take precedence over
   # the value in .env file.
-  export DREVOPS_DB_DOWNLOAD_CURL_URL="${DREVOPS_INSTALL_DEMO_DB_TEST}"
+  export DREVOPS_DB_DOWNLOAD_CURL_URL="${DREVOPS_INSTALLER_DEMO_DB_TEST}"
 
   opt_quiet="--quiet"
   [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_quiet=""
@@ -1273,10 +1279,10 @@ fix_host_dependencies() {
   # shellcheck disable=SC2235
   ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift
   # Destination directory, that can be overridden with the first argument to this script.
-  DREVOPS_INSTALL_DST_DIR="${DREVOPS_INSTALL_DST_DIR:-$(pwd)}"
-  DREVOPS_INSTALL_DST_DIR=${1:-${DREVOPS_INSTALL_DST_DIR}}
+  DREVOPS_INSTALLER_DST_DIR="${DREVOPS_INSTALLER_DST_DIR:-$(pwd)}"
+  DREVOPS_INSTALLER_DST_DIR=${1:-${DREVOPS_INSTALLER_DST_DIR}}
 
-  pushd "${DREVOPS_INSTALL_DST_DIR}" >/dev/null || exit 1
+  pushd "${DREVOPS_INSTALLER_DST_DIR}" >/dev/null || exit 1
 
   if [ -f docker-compose.yml ] && [ "${DREVOPS_DEV_VOLUMES_MOUNTED:-1}" != "1" ]; then
     sed -i -e "/###/d" docker-compose.yml

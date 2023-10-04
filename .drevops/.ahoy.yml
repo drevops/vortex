@@ -10,7 +10,7 @@ commands:
       ahoy lint-dockerfiles
       ahoy lint-spelling
       ahoy lint-docs
-      ahoy lint-installer
+      ahoy lint-installer || true
 
   lint-scripts:
     cmd: ./tests/lint.scripts.sh

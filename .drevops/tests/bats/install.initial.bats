@@ -17,7 +17,7 @@ load _helper.bash
   assert_git_repo
 }
 
-@test "Install into empty directory: DREVOPS_INSTALL_DST_DIR is a current dir" {
+@test "Install into empty directory: DREVOPS_INSTALLER_DST_DIR is a current dir" {
   export CURRENT_PROJECT_DIR="${DST_PROJECT_DIR}"
   run_install_quiet
 
@@ -25,15 +25,15 @@ load _helper.bash
   assert_git_repo "${DST_PROJECT_DIR}"
 }
 
-@test "Install into empty directory: DREVOPS_INSTALL_DST_DIR from an argument" {
+@test "Install into empty directory: DREVOPS_INSTALLER_DST_DIR from an argument" {
   run_install_quiet "${DST_PROJECT_DIR}"
 
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
 }
 
-@test "Install into empty directory: DREVOPS_INSTALL_DST_DIR from env variable" {
-  export DREVOPS_INSTALL_DST_DIR="${DST_PROJECT_DIR}"
+@test "Install into empty directory: DREVOPS_INSTALLER_DST_DIR from env variable" {
+  export DREVOPS_INSTALLER_DST_DIR="${DST_PROJECT_DIR}"
   run_install_quiet
 
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
@@ -73,7 +73,7 @@ load _helper.bash
   git_commit "New version 2 of DrevOps" "${LOCAL_REPO_DIR}"
 
   # Requiring bespoke version by commit.
-  echo DREVOPS_INSTALL_COMMIT="${commit1}" >>.env
+  echo DREVOPS_INSTALLER_COMMIT="${commit1}" >>.env
   run_install_quiet
   assert_git_repo
   assert_output_contains "This will install DrevOps into your project at commit"
