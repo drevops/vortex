@@ -975,7 +975,7 @@ run_install_quiet() {
   [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_quiet=""
 
   build_installer "${ROOT_DIR}"
-  run php "${ROOT_DIR}/.drevops/installer/.build/install" "${opt_quiet}" "$@"
+  run php "${ROOT_DIR}/.drevops/installer/.build/install.phar" "${opt_quiet}" "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
@@ -1320,8 +1320,8 @@ EOL
 
 build_installer() {
   local curdir="${1}"
-  rm -Rf "${curdir}/.drevops/installer/.build/install" >/dev/null || true
+  rm -Rf "${curdir}/.drevops/installer/.build/install.phar" >/dev/null || true
   composer -d "${curdir}/.drevops/installer" install
   composer -d "${curdir}/.drevops/installer" build
-  assert_file_exists "${curdir}/.drevops/installer/.build/install"
+  assert_file_exists "${curdir}/.drevops/installer/.build/install.phar"
 }

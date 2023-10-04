@@ -673,10 +673,10 @@ jobs:
           command: |
             cd .drevops/installer
             composer install
+            sed -i "s/\"git-tag-ci\": \"dev\"/\"git-tag-ci\": \"${CIRCLE_TAG:-${CIRCLE_SHA1}}\"/g" box.json
             composer build
             mkdir -p /tmp/installer/docs
-            cp .build/install /tmp/installer/docs/index.html
-            ( echo -n "// Published date: " && echo "$(date)" ) >> /tmp/installer/docs/index.html
+            cp .build/install.phar /tmp/installer/docs/index.html
             echo "install.drevops.com" > /tmp/installer/docs/CNAME
       - run:
           name: Configure SSH.
