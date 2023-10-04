@@ -24,7 +24,7 @@ class InstallCommandTest extends TestCase {
     $application = new Application();
     $application->add(new InstallCommand());
 
-    $command = $application->find('install');
+    $command = $application->find('DrevOps CLI installer');
     $command_tester = new CommandTester($command);
 
     $command_tester->execute(['--help' => NULL], [
@@ -35,7 +35,7 @@ class InstallCommandTest extends TestCase {
 
     // The output of the command in the console.
     $output = $command_tester->getDisplay();
-    $this->assertStringContainsString('DrevOps Installer', $output);
+    $this->assertStringContainsString('php install destination', $output);
   }
 
 }

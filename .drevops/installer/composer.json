@@ -58,7 +58,8 @@
         "build": [
             "@composer bin box require --dev humbug/box",
             "box validate",
-            "box compile"
+            "box compile",
+            "ls -al .build/install.phar"
         ]
     },
     "bin": ["install"]
