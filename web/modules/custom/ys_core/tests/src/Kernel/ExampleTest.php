@@ -8,7 +8,6 @@ namespace Drupal\Tests\ys_core\Kernel;
  * Example kernel test case class.
  *
  * @group YsCore
- * @group site:kernel
  *
  * @package Drupal\ys_core\Tests
  */
@@ -20,7 +19,7 @@ class ExampleTest extends YsCoreKernelTestBase {
    * @dataProvider dataProviderAdd
    * @group addition
    */
-  public function testAdd($a, $b, $expected, $expectExceptionMessage = NULL) {
+  public function testAdd(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage($expectExceptionMessage);
@@ -35,7 +34,7 @@ class ExampleTest extends YsCoreKernelTestBase {
   /**
    * Data provider for testAdd().
    */
-  public function dataProviderAdd() {
+  public function dataProviderAdd(): array {
     return [
       [0, 0, 0],
       [1, 1, 2],
@@ -48,7 +47,7 @@ class ExampleTest extends YsCoreKernelTestBase {
    * @dataProvider dataProviderSubtract
    * @group kernel:subtraction
    */
-  public function testSubtract($a, $b, $expected, $expectExceptionMessage = NULL) {
+  public function testSubtract(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage($expectExceptionMessage);
@@ -63,7 +62,7 @@ class ExampleTest extends YsCoreKernelTestBase {
   /**
    * Data provider for testSubtract().
    */
-  public function dataProviderSubtract() {
+  public function dataProviderSubtract(): array {
     return [
       [0, 0, 0],
       [1, 1, 0],
@@ -78,7 +77,7 @@ class ExampleTest extends YsCoreKernelTestBase {
    * @group multiplication
    * @group skipped
    */
-  public function testMultiplication($a, $b, $expected, $expectExceptionMessage = NULL) {
+  public function testMultiplication(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage($expectExceptionMessage);
@@ -93,7 +92,7 @@ class ExampleTest extends YsCoreKernelTestBase {
   /**
    * Data provider for testMultiplication().
    */
-  public function dataProviderMultiplication() {
+  public function dataProviderMultiplication(): array {
     return [
       [0, 0, 0],
       [1, 1, 1],

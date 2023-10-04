@@ -10,14 +10,14 @@ use Drupal\Core\Site\Settings;
 /**
  * Implements template_preprocess_html().
  */
-function your_site_theme_preprocess_html(&$variables) {
+function your_site_theme_preprocess_html(array &$variables): void {
   _your_site_theme_preprocess_admin_toolbar($variables);
 }
 
 /**
  * Preprocess admin toolbar.
  */
-function _your_site_theme_preprocess_admin_toolbar(&$variables) {
+function _your_site_theme_preprocess_admin_toolbar(array &$variables): void {
   // Hide admin toolbar.
   if (Settings::get('hide_admin_toolbar')) {
     if (!empty($variables['attributes']['class'])) {
@@ -32,7 +32,7 @@ function _your_site_theme_preprocess_admin_toolbar(&$variables) {
 /**
  * Implements hook_css_alter().
  */
-function your_site_theme_css_alter(&$css) {
+function your_site_theme_css_alter(array &$css): void {
   // Force disabling of CSS pre-processing if Livereload is enabled.
   if (Settings::get('livereload', FALSE)) {
     foreach ($css as $key => $value) {
@@ -44,7 +44,7 @@ function your_site_theme_css_alter(&$css) {
 /**
  * Implements hook_page_attachments_alter().
  */
-function your_site_theme_page_attachments_alter(array &$page) {
+function your_site_theme_page_attachments_alter(array &$page): void {
   // Attach Livereload if it is enabled in setting and the route is not admin
   // or the route is admin, but the current theme is admin as well.
   $route = \Drupal::routeMatch()->getRouteObject();
@@ -58,15 +58,18 @@ function your_site_theme_page_attachments_alter(array &$page) {
 /**
  * Helper to attach Livereload to the head of the page.
  */
-function _your_site_theme_attach_livereload(&$page) {
+function _your_site_theme_attach_livereload(array &$page): void {
   $livereload_url = &drupal_static(__FUNCTION__);
   if (!$livereload_url) {
     $socket_file = \Drupal::service('file_system')->realpath('public://livereload.sock');
-    if (file_exists($socket_file)) {
+    if ($socket_file && file_exists($socket_file)) {
       $url = getenv('DREVOPS_LOCALDEV_URL');
-      $port = trim(file_get_contents($socket_file));
-      if (!empty($url) && is_numeric($port)) {
-        $livereload_url = "$url:$port";
+      $contents = file_get_contents($socket_file);
+      if ($contents) {
+        $port = trim($contents);
+        if (!empty($url) && is_numeric($port)) {
+          $livereload_url = "$url:$port";
+        }
       }
     }
   }

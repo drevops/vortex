@@ -11,6 +11,7 @@
 <div align="center">
 
 [![CircleCI](https://circleci.com/gh/drevops/drevops.svg?style=shield)](https://circleci.com/gh/drevops/drevops)
+[![codecov](https://codecov.io/gh/drevops/drevops/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/drevops)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/drevops)
 ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 ![LICENSE](https://img.shields.io/github/license/drevops/drevops)
@@ -144,6 +145,7 @@ Drupal 10 implementation of YOURSITE for YOURORG
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
+[![codecov](https://codecov.io/gh/your_org/your_site/graph/badge.svg)](https://codecov.io/gh/your_org/your_site)
 
 [//]: # (#;< RENOVATEBOT)
 
@@ -172,7 +174,7 @@ Use [Onboarding checklist](docs/ONBOARDING.md) to track the project onboarding p
 - Authenticate with Acquia Cloud API
   1. Create your Acquia Cloud API token:<br/>
      Acquia Cloud UI -> Account -> API tokens -> Create Token
-  2. Copy `.env.local.example` to `.env.local`.
+  2. Copy `.env.local.default` to `.env.local`.
   3. Populate `$DREVOPS_ACQUIA_KEY` and `$DREVOPS_ACQUIA_SECRET` environment
      variables in `.env.local` file with values generated in the step above.
 
@@ -182,24 +184,24 @@ Use [Onboarding checklist](docs/ONBOARDING.md) to track the project onboarding p
 
 - Authenticate with Lagoon
   1. Create an SSH key and add it to your account in the [Lagoon Dashboard](https://ui-lagoon-master.ch.amazee.io/).
-  2. Copy `.env.local.example` to `.env.local`.
+  2. Copy `.env.local.default` to `.env.local`.
   3. Update `$DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE` environment variable in `.env.local` file
      with the path to the SSH key.
 
 [//]: # (#;> LAGOON)
 
 
-[//]: # (#;< !INSTALL_FROM_PROFILE)
+[//]: # (#;< !PROVISION_USE_PROFILE)
 
 - `ahoy download-db`
 
-[//]: # (#;> !INSTALL_FROM_PROFILE)
+[//]: # (#;> !PROVISION_USE_PROFILE)
 - `pygmy up`
 - `ahoy build`
 
 ### Apple M1 adjustments
 
-Copy `docker-compose.override.example.yml` to `docker-compose.override.yml`.
+Copy `docker-compose.override.default.yml` to `docker-compose.override.yml`.
 
 ## Testing
 Please refer to [testing documentation](docs/TESTING.md).

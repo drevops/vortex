@@ -3,7 +3,10 @@
 namespace Drupal\Tests\your_site_theme\Functional;
 
 use Drupal\Tests\BrowserTestBase;
-use Drupal\Tests\your_site_theme\Traits\YourSiteThemeTestHelperTrait;
+use Drupal\Tests\ys_core\Traits\ArrayTrait;
+use Drupal\Tests\ys_core\Traits\AssertTrait;
+use Drupal\Tests\ys_core\Traits\MockTrait;
+use Drupal\Tests\ys_core\Traits\ReflectionTrait;
 
 /**
  * Class YourSiteThemeFunctionalTestBase.
@@ -14,7 +17,10 @@ use Drupal\Tests\your_site_theme\Traits\YourSiteThemeTestHelperTrait;
  */
 abstract class YourSiteThemeFunctionalTestBase extends BrowserTestBase {
 
-  use YourSiteThemeTestHelperTrait;
+  use ArrayTrait;
+  use AssertTrait;
+  use MockTrait;
+  use ReflectionTrait;
 
   /**
    * {@inheritdoc}

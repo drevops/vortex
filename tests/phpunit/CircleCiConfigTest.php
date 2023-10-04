@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
  *
  * Tests for CircleCI configurations.
  *
- * @group site:unit
  * @SuppressWarnings(PHPMD)
  *
  * phpcs:disable Drupal.NamingConventions.ValidVariableName.LowerCamelName
@@ -21,7 +20,7 @@ class CircleCiConfigTest extends TestCase {
   /**
    * CircleCI loaded config.
    *
-   * @var array
+   * @var mixed
    */
   protected $config;
 
@@ -30,7 +29,11 @@ class CircleCiConfigTest extends TestCase {
    */
   protected function setUp(): void {
     parent::setUp();
-    $this->config = Yaml::decode(file_get_contents(__DIR__ . '/../../.circleci/config.yml'));
+    $file = file_get_contents(__DIR__ . '/../../.circleci/config.yml');
+    if (!$file) {
+      throw new \RuntimeException('Unable to read CircleCI config file.');
+    }
+    $this->config = Yaml::decode($file);
   }
 
   /**
@@ -40,14 +43,14 @@ class CircleCiConfigTest extends TestCase {
    *
    * @dataProvider dataProviderDeployBranchRegex
    */
-  public function testDeployBranchRegex($branch, $expected = TRUE) {
+  public function testDeployBranchRegex(string $branch, bool $expected = TRUE): void {
     $this->assertEquals($expected, preg_match($this->config['workflows']['commit']['jobs'][2]['deploy']['filters']['branches']['only'], $branch));
   }
 
   /**
    * Data provider for testDeployBranchRegex().
    */
-  public function dataProviderDeployBranchRegex() {
+  public function dataProviderDeployBranchRegex(): array {
     return [
       // Positive branches.
       ['main'],
@@ -176,14 +179,14 @@ class CircleCiConfigTest extends TestCase {
    *
    * @dataProvider dataProviderDeployTagRegex
    */
-  public function testDeployTagRegex($branch, $expected = TRUE) {
+  public function testDeployTagRegex(string $branch, bool $expected = TRUE): void {
     $this->assertEquals($expected, preg_match($this->config['workflows']['commit']['jobs'][3]['deploy_tags']['filters']['tags']['only'], $branch));
   }
 
   /**
    * Data provider for testDeployTagRegex().
    */
-  public function dataProviderDeployTagRegex() {
+  public function dataProviderDeployTagRegex(): array {
     return [
       // Positive tags.
       ['1.2.3'],

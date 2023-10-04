@@ -8,6 +8,6 @@
 /**
  * Implements hook_install().
  */
-function ys_search_install() {
+function ys_search_install(): void {
   \Drupal::service('module_installer')->uninstall(['search']);
 }

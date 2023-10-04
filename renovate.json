@@ -6,7 +6,7 @@
     "ignorePresets": [":prHourlyLimit2"],
     "rangeStrategy": "update-lockfile",
     "timezone": "Australia/Melbourne",
-    "enabledManagers": ["composer"],
+    "enabledManagers": ["composer", "dockerfile", "docker-compose", "github-actions"],
     "packageRules": [
         {
             "matchPackageNames": ["php"],
@@ -21,7 +21,7 @@
         },
         {
             "groupName": "Minor and Patch Contrib",
-            "groupSlug": "minor-patch-contrib",
+            "groupSlug": "drupal-minor-patch-contrib",
             "matchDatasources": ["packagist"],
             "separateMinorPatch": false,
             "matchPackagePatterns": [".*"],
@@ -33,7 +33,7 @@
         },
         {
             "groupName": "Minor and Patch Core",
-            "groupSlug": "minor-patch-core",
+            "groupSlug": "drupal-minor-patch-core",
             "schedule": ["before 2am"],
             "matchDatasources": ["packagist"],
             "matchUpdateTypes": ["patch", "minor"],
@@ -42,6 +42,18 @@
                 "drupal/core-project-message",
                 "drupal/core-recommended"
             ]
+        },
+        {
+            "groupName": "Docker image updates",
+            "groupSlug": "docker",
+            "schedule": ["before 3am"],
+            "matchManagers": ["dockerfile", "docker-compose"]
+        },
+        {
+            "groupName": "GitHub Actions updates",
+            "groupSlug": "github-actions",
+            "schedule": ["before 3am"],
+            "matchManagers": ["github-actions"]
         }
     ]
 }

@@ -8,7 +8,6 @@ namespace Drupal\Tests\your_site_theme\Functional;
  * Example functional test case class.
  *
  * @group YourSiteTheme
- * @group site:functional
  *
  * @package Drupal\your_site_theme\Tests
  */
@@ -32,7 +31,7 @@ class ExampleTest extends YourSiteThemeFunctionalTestBase {
    *
    * @group addition
    */
-  public function testAddition() {
+  public function testAddition(): void {
     $this->assertEquals(2, 1 + 1);
     // DrevOps does not support Functional tests due to permission issues.
     // @see https://github.com/drevops/drevops/issues/820
@@ -44,7 +43,7 @@ class ExampleTest extends YourSiteThemeFunctionalTestBase {
    *
    * @group functional:subtraction
    */
-  public function testSubtraction() {
+  public function testSubtraction(): void {
     $this->assertEquals(1, 2 - 1);
     // DrevOps does not support Functional tests due to permission issues.
     // @see https://github.com/drevops/drevops/issues/820

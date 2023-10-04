@@ -14,7 +14,7 @@
 # Read variables from .env and .env.local files, respecting existing environment
 # variable values.
 # shellcheck disable=SC1090,SC1091,SC2015,SC2155,SC2068
-t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
@@ -35,10 +35,10 @@ DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-}"
 # ------------------------------------------------------------------------------
 
 # @formatter:off
-note() { printf "       %s\n" "$1"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+note() { printf "       %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
 info "Started building project ${DREVOPS_PROJECT}."
@@ -50,7 +50,7 @@ echo
 
 # Create an array of Docker Compose CLI options for 'exec' command as a shorthand.
 # $DREVOPS_*, $COMPOSE_* and $TERM variables will be passed to containers.
-dcopts=(-T) && while IFS='' read -r line; do dcopts+=("$line"); done < <(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_\|TERM" | sed 's/^/-e /')
+dcopts=(-T) && while IFS='' read -r line; do dcopts+=("${line}"); done < <(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_\|TERM" | sed 's/^/-e /')
 
 # Check all pre-requisites before starting the stack.
 DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 ./scripts/drevops/doctor.sh
@@ -72,15 +72,15 @@ if [ -f "docker-compose.yml" ]; then docker compose down --remove-orphans --volu
 echo
 
 info "Building Docker images, recreating and starting containers."
-note "This will take some time (use DREVOPS_DOCKER_VERBOSE=1 to see the progress)."
-note "Use 'ahoy install-site' to re-install site without rebuilding containers."
+note "This will take some time (use DREVOPS_DOCKER_VERBOSE=0 to disable the progress)."
+note "Use 'ahoy provision' to re-provision site without rebuilding containers."
 
 if [ -n "${DREVOPS_DB_DOCKER_IMAGE:-}" ]; then
   note "Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}."
   # Always login to the registry to have access to the private images.
-  ./scripts/drevops/docker-login.sh
+  ./scripts/drevops/login-docker.sh
   # Try restoring the image from the archive if it exists.
-  ./scripts/drevops/docker-restore-image.sh "${DREVOPS_DB_DOCKER_IMAGE}" "${DREVOPS_DB_DIR}/db.tar"
+  ./scripts/drevops/restore-docker-image.sh "${DREVOPS_DB_DOCKER_IMAGE}" "${DREVOPS_DB_DIR}/db.tar"
   # If the image does not exist and base image was provided - use the base
   # image which allows "clean slate" for the database.
   if [ ! -f "${DREVOPS_DB_DIR}/db.tar" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE_BASE:-}" ]; then
@@ -102,19 +102,17 @@ echo
 if [ -n "${DREVOPS_EXPORT_CODE_DIR:-}" ]; then
   info "Exporting built code."
   mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
-  docker compose cp -L cli:"${DREVOPS_APP}"/. "${DREVOPS_EXPORT_CODE_DIR}" 2>"${composer_verbose_output}"
+  docker compose cp -L cli:"/app/." "${DREVOPS_EXPORT_CODE_DIR}" 2>"${composer_verbose_output}"
   pass "Exported built code."
   echo
 fi
 
 # Create data directory in the container and copy database dump file into
-# container, but only if it exists, while also replacing relative directory path
-# with absolute path. Note, that the $DREVOPS_DB_DIR path is the same inside and
-# outside the container.
+# container, but only if it exists.
 if [ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ]; then
   info "Copying database file into container."
   docker compose exec ${dcopts[@]} cli bash -c 'mkdir -p ${DREVOPS_DB_DIR}'
-  docker compose cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" cli:"${DREVOPS_DB_DIR/.\//${DREVOPS_APP}/}"/"${DREVOPS_DB_FILE}" 2>"${composer_verbose_output}"
+  docker compose cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" cli:"/app/${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" 2>"${composer_verbose_output}"
   pass "Copied database file into container."
   echo
 fi
@@ -126,9 +124,12 @@ info "Installing development dependencies."
 # for production images), so we are installing them here.
 #
 note "Copying development configuration files into container."
+docker compose cp -L .twig_cs.php cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L behat.yml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpcs.xml cli:/app/ 2>"${composer_verbose_output}"
+docker compose cp -L phpmd.xml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpstan.neon cli:/app/ 2>"${composer_verbose_output}"
+docker compose cp -L phpunit.xml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L tests cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L .circleci cli:/app/ 2>"${composer_verbose_output}"
 
@@ -154,14 +155,14 @@ if [ -n "${DREVOPS_DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
   pass "Compiled front-end dependencies."
 
   mkdir -p "${DREVOPS_WEBROOT}/sites/default/files"
-  docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} docker compose exec ${dcopts[@]} cli bash -c 'echo {} > ${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
+  docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} docker compose exec ${dcopts[@]} cli bash -c 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
   pass "Created Livereload socket."
   echo
 fi
 
-# Install site.
+# Provision site.
 # Pass environment variables to the container from the environment.
-docker compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/drupal-install-site.sh"
+docker compose exec ${dcopts[@]} cli bash -c "./scripts/drevops/provision.sh"
 echo
 
 # Check that the site is available.

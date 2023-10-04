@@ -1,8 +1,0 @@
-composer.lock
-drevops/drevops-mariadb-drupal-data
-.ahoy.yml
-.ahoy.local.yml
-.ahoy.local.example.yml
-.env
-.env.local
-.env.local.example

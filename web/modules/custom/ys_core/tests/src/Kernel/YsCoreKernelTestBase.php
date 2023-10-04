@@ -3,7 +3,10 @@
 namespace Drupal\Tests\ys_core\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\Tests\ys_core\Traits\YsCoreTestHelperTrait;
+use Drupal\Tests\ys_core\Traits\ArrayTrait;
+use Drupal\Tests\ys_core\Traits\AssertTrait;
+use Drupal\Tests\ys_core\Traits\MockTrait;
+use Drupal\Tests\ys_core\Traits\ReflectionTrait;
 
 /**
  * Class YsCoreKernelTestBase.
@@ -14,6 +17,9 @@ use Drupal\Tests\ys_core\Traits\YsCoreTestHelperTrait;
  */
 abstract class YsCoreKernelTestBase extends KernelTestBase {
 
-  use YsCoreTestHelperTrait;
+  use ArrayTrait;
+  use AssertTrait;
+  use MockTrait;
+  use ReflectionTrait;
 
 }

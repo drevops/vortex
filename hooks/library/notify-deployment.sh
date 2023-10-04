@@ -11,21 +11,18 @@ target_env="${2}"
 branch="${3}"
 ref="${4:-${branch}}"
 
-# Custom domain name for the environment.
+# Custom domain name for the environment, including subdomain.
+# Examples: "dev.example.com", "test.example.com", "www.example.com"
 DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN="${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN:-}"
 
-export DREVOPS_APP="/var/www/html/${site}.${target_env}"
-
-pushd "${DREVOPS_APP}" >/dev/null || exit 1
+pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 
 # Set URL to Acquia domain by default.
 url="https://${AH_SITE_NAME}.${AH_REALM:-prod}.acquia-sites.com"
 
-# Use custom domain for non-ODE environments, if provided.
-if [ -n "${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN}" ] && [ "${target_env#ode}" = "${target_env}" ]; then
-  subdomain="${target_env}"
-  [ "${subdomain}" = "test" ] && subdomain="stage"
-  url="https://${subdomain}.${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN}"
+# Use custom domain in URL, if provided.
+if [ -n "${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN}" ]; then
+  url="https://${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN}"
 fi
 
 export DREVOPS_NOTIFY_PROJECT="${site}"

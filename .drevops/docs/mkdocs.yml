@@ -1,0 +1,197 @@
+#
+# MkDocs configuration.
+#
+# @see https://squidfunk.github.io/mkdocs-material/
+#
+# To compile and serve during development, run this in the current directory:
+#
+# ahoy build
+#
+# To check spelling:
+#
+# ahoy test
+#
+
+# Project information
+site_name: DrevOps
+site_description: Documentation for DrevOps Drupal project template
+site_url: https://docs.drevops.com
+
+# Repository
+repo_name: drevops/drevops
+repo_url: https://github.com/drevops/drevops
+edit_uri: edit/main/.drevops/docs/content
+# Copyright
+copyright: 'Copyright &copy;2023 DrevOps<sup>&reg;</sup>'
+
+# Configuration.
+docs_dir: content
+extra_css:
+  - assets/custom.css
+
+theme:
+  name: material
+  custom_dir: overrides
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+  font:
+    text: Roboto
+    code: Roboto Mono
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+  language: en
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - search.share
+    - search.highlight
+    - content.action.edit
+    - content.action.view
+    - content.code.copy
+
+  # Don't include MkDocs' JavaScript
+  include_search_page: false
+  search_index_only: true
+
+plugins:
+  # Plugin for MkDocs to allow placing mkdocs.yml in the same directory as documentation
+  # https://github.com/oprypin/mkdocs-same-dir
+  - search
+  - replace_markdown:
+      patterns:
+        - rel_to_abs: # Pattern name, can be anything
+            oldvalue: "../../../../"
+            newvalue: "https://github.com/drevops/drevops/tree/main/"
+  - mike:
+      version_selector: true
+
+## Customization
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/drevops/drevops
+  analytics:
+    provider: google
+    property: G-9T1JR2V5RL
+  version:
+    provider: mike
+
+# Extensions
+markdown_extensions:
+  - markdown.extensions.admonition
+  - markdown.extensions.attr_list
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - markdown.extensions.def_list
+  - markdown.extensions.footnotes
+  - markdown.extensions.meta
+  - markdown.extensions.toc:
+      permalink: true
+      toc_depth: 3
+      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: none}}
+  - mdx_include
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: drevops
+      repo: drevops
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+  - pymdownx.highlight:
+      linenums: true
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      use_pygments: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+# IMPORTANT! Do not add any configuration below navigation section.
+nav:
+  - 👋 INTRODUCTION:
+    - Introduction: README.md
+    - Features: introduction/features.md
+    - Installation: introduction/installation.md
+    - Architecture: introduction/architecture.md
+    - Contributing: introduction/contributing.md
+    - FAQs: introduction/faqs.md
+
+  - 💧 Drupal 🚧:
+      - Overview 🚧: drupal/overview.md
+      - Drupal project 🚧: drupal/drupal-project.md
+      - Composer 🚧: drupal/composer.md
+      - Settings 🚧: drupal/settings.md
+      - Module scaffold 🚧: drupal/module-scaffold.md
+      - Theme scaffold 🚧: drupal/theme-scaffold.md
+
+  - ⚙️ WORKFLOW:
+      - Build: workflow/build.md
+      - Test: workflow/test.md
+      - Deploy: workflow/deploy.md
+      - Release 🚧: workflow/release.md
+
+  - 🛠️ TOOLS:
+    - Variables: tools/variables.md
+    - Docker 🚧:
+      - Overview 🚧: tools/docker/overview.md
+      - Images 🚧: tools/docker/images.md
+      - Docker Compose 🚧: tools/docker/compose.md
+    - CI 🚧:
+        - CircleCI 🚧: tools/ci/overview.md
+        - GitHub Actions 🚧: tools/ci/github-actions.md
+        - GitLab CI 🚧: tools/ci/gitlab-ci.md
+        - Azure Pipelines 🚧: tools/ci/azure-pipelines.md
+    - Automated updates: tools/automated-updates.md
+    - Doctor: tools/doctor.md
+    - Database 🚧: tools/database.md
+
+  - 🧹 MAINTENANCE:
+    - Authoring scripts: maintenance/authoring-scripts.md
+    - Authoring tests: maintenance/authoring-tests.md
+    - Authoring documentation: maintenance/authoring-documentation.md

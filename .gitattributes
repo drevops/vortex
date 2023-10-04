@@ -3,8 +3,6 @@
 #
 #  Drupal provides its own .gitattributes so git normalisations are handled there.
 
-/.gitattributes                         export-ignore
-/scripts/drevops/docs                   export-ignore
-/scripts/drevops/tests                  export-ignore
-/scripts/drevops/installer              export-ignore
-/.github/FUNDING.yml                    export-ignore
+/.gitattributes       export-ignore
+/.drevops             export-ignore
+/.github/FUNDING.yml  export-ignore

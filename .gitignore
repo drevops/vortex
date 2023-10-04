@@ -52,9 +52,8 @@ web/themes/**/node_modules
 
 # Assets.
 web/themes/**/build
-screenshots
-test_reports
 .data
+.logs
 
 # Ignore local override files.
 docker-compose.override.yml

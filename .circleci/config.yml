@@ -11,7 +11,7 @@
 #: current paragraph) are explaining DrevOps inner workings and can be safely
 #: removed for your project. They are automatically removed when installing or
 #: updating DrevOps.
-version: 2
+version: '2.1'
 
 #:###############################################################################
 #: VARIABLES
@@ -22,7 +22,7 @@ aliases:
   # Per-project variables.
   #-----------------------------------------------------------------------------
 
-  #;< !INSTALL_FROM_PROFILE
+  #;< !PROVISION_USE_PROFILE
   # SSH key fingerprint to download the database.
   #: Generate a separate SSH key for a user who has permissions to download the
   #: database from the production environment and it under "SSH Permissions" in
@@ -34,7 +34,7 @@ aliases:
   #: This is a fingerprint of the key to test DrevOps project itself as an example.
   #: Replace this key fingerprint with your own and remove this comment.
   - &db_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
-  #;> !INSTALL_FROM_PROFILE
+  #;> !PROVISION_USE_PROFILE
 
   # SSH key fingerprint to deploy code.
   #: Generate a separate SSH key for a user who has permissions to perform a
@@ -58,7 +58,10 @@ aliases:
   #;< RENOVATEBOT
   # Make sure that correct repository is specified or bot will go
   # through all repositories that a RENOVATE_TOKEN token has access to.
-  - &renovatebot_repository 'your_org/your_site'
+  #;< DREVOPS_DEV
+  - &renovatebot_repository 'drevops/drevops-destination'
+  #;> DREVOPS_DEV
+  ##### - &renovatebot_repository 'your_org/your_site'
   # The author details to use for commits made by RenovateBot.
   - &renovatebot_git_author 'RenovateBot Self Hosted <renovatebot@your-site-url.example>'
   # The schedule to run RenovateBot on. Defaults to running twice a day.
@@ -85,7 +88,7 @@ aliases:
   # Change to 'true' (without single quotes) to enable.
   - &docker_layer_caching false
 
-  #;< !INSTALL_FROM_PROFILE
+  #;< !PROVISION_USE_PROFILE
   # The granularity of the database cache age: the cache will be refreshed if
   # the current date is different from the cache timestamp.
   # Refer to `date` command for possible values.
@@ -109,7 +112,7 @@ aliases:
 
   # The branch used for nightly builds.
   - &nightly_db_branch develop
-  #;> !INSTALL_FROM_PROFILE
+  #;> !PROVISION_USE_PROFILE
 
   #:-----------------------------------------------------------------------------
 
@@ -118,48 +121,46 @@ aliases:
     #: Location of the checked-out files within the "runner" container.
     working_directory: &working_directory /root/project
     environment:
-      #;< !INSTALL_FROM_PROFILE
+      #;< !PROVISION_USE_PROFILE
       DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
-      #;> !INSTALL_FROM_PROFILE
+      #;> !PROVISION_USE_PROFILE
       DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       #: Using "runner" container where each job will be executed.
       #: This container has all necessary tools to run dockerized environment.
-      #: @see https://github.com/drevops/ci-builder
-      #: @see https://hub.docker.com/repository/docker/drevops/ci-builder/tags?page=1&ordering=last_updated
-      - image: drevops/ci-builder:23.8.1
+      #: @see https://github.com/drevops/ci-runner
+      #: @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags?page=1&ordering=last_updated
+      - image: drevops/ci-runner:23.10.0
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
         environment:
-          # Set timezone to ensure that executed operations use correct timestamps.
+          # Set runner timezone to ensure that executed operations use correct timestamps.
           TZ: *timezone
-          # Set terminal capabilities.
+          # Set runner terminal capabilities.
           TERM: xterm-256color
           # Check only minimal stack requirements.
           DREVOPS_DOCTOR_CHECK_MINIMAL: 1
-          #;< !INSTALL_FROM_PROFILE
+          #;< !PROVISION_USE_PROFILE
           # How often to refresh the cache of the DB dump. Refer to `date` command.
           DREVOPS_CI_DB_CACHE_TIMESTAMP: *drevops_ci_db_cache_timestamp
           # Use cache fallback if the above timestamp does not match.
           DREVOPS_CI_DB_CACHE_FALLBACK: *drevops_ci_db_cache_fallback
           # Which branch to use as a source of DB caches.
           DREVOPS_CI_DB_CACHE_BRANCH: *drevops_ci_db_cache_branch
-          #;> !INSTALL_FROM_PROFILE
+          #;> !PROVISION_USE_PROFILE
           # Directory to store code exported between jobs.
           DREVOPS_EXPORT_CODE_DIR: &drevops_build_export_dir /workspace/code
-          # Directory to store test results.
-          DREVOPS_TEST_REPORTS_DIR: &drevops_test_reports_dir /tmp/tests
-          # Directory to store test artifacts.
-          DREVOPS_TEST_ARTIFACT_DIR: &drevops_test_artifact_dir /tmp/artifacts
-          # Use compact error reporting format for Behat tests.
-          DREVOPS_TEST_BEHAT_FORMAT: progress_fail
           # Directory to use for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_SRC: *drevops_build_export_dir
           # Source code location for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE: /tmp/artifacts/deployment_report.txt
+          # Directory to store test results.
+          DREVOPS_CI_TEST_RESULTS: &test_results /tmp/tests
+          # Directory to store test artifacts.
+          DREVOPS_CI_ARTIFACTS: &artifacts /tmp/artifacts
     resource_class: *resource_class
 
   # Set up remote Docker.
@@ -177,13 +178,22 @@ aliases:
     run:
       name: Process codebase to run in CI
       #: Remove lines containing '###' and uncomment comments starting with '##'.
-      command: sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
+      command: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+
+
+#:###############################################################################
+#: ORBS
+#:###############################################################################
+
+orbs:
+  # Codecov.io integration.
+  codecov: codecov/codecov@3.2.4
 
 #:###############################################################################
 #: JOBS
 #:###############################################################################
 jobs:
-  #;< !INSTALL_FROM_PROFILE
+  #;< !PROVISION_USE_PROFILE
   #: Database handling is a first step of the build.
   #:
   #: $DREVOPS_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump
@@ -214,7 +224,7 @@ jobs:
             echo "$(date $DREVOPS_CI_DB_CACHE_TIMESTAMP)" | tee /tmp/db_cache_timestamp
             echo "yes" | tee /tmp/db_cache_fallback_yes
             echo
-            echo 'v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
+            echo 'v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
 
       - restore_cache:
           keys:
@@ -227,11 +237,11 @@ jobs:
             # Lookup cache based on the default branch and a timestamp. Allows
             # to use cache from the very first build on the day (sanitized
             # database dump, for example).
-            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             #
             # Fallback to caching by default branch name only. Allows to use
             # cache from the branch build on the previous day.
-            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+            - v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
       - run:
           name: Download DB
           command: DREVOPS_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db ./scripts/drevops/download-db.sh
@@ -248,7 +258,7 @@ jobs:
           name: Export DB after download
           command: |
             if [ -f /tmp/download-db ]; then
-              DREVOPS_DRUPAL_INSTALL_OPERATIONS_SKIP=1 ./scripts/drevops/build.sh
+              DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/drevops/build.sh
               grep -q ^DREVOPS_DB_DOCKER_IMAGE .env && rm .data/db.sql || true
               ./scripts/drevops/export-db.sh db.sql
             else
@@ -260,7 +270,7 @@ jobs:
           # The cache will not be saved if it already exists.
           # Note that the cache fallback flag is enabled for this case in order
           # to save cache even if the fallback is not used when restoring it.
-          key: v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          key: v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
           paths:
             - *db_cache_dir
 
@@ -276,7 +286,7 @@ jobs:
       DREVOPS_DB_DOCKER_IMAGE_BASE: drevops/mariadb-drupal-data:23.4.2
       # Deploy docker image (if DREVOPS_DB_EXPORT_DOCKER_IMAGE storage is used).
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
-  #;> !INSTALL_FROM_PROFILE
+  #;> !PROVISION_USE_PROFILE
 
   #: Build and test is a second step of the build. The testing is performed
   #: within the same job to save time on provisioning during the job.
@@ -290,7 +300,7 @@ jobs:
       - *step_process_codebase
       - *step_setup_remote_docker
       - *step_setup_docker_network
-      #;< !INSTALL_FROM_PROFILE
+      #;< !PROVISION_USE_PROFILE
       - run:
           name: Set cache keys for database caching
           command: |
@@ -301,35 +311,52 @@ jobs:
           keys:
             # Use cached artifacts from previous builds of this branch.
             # @see https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-            - v1-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
-      #;> !INSTALL_FROM_PROFILE
+            - v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+      #;> !PROVISION_USE_PROFILE
       - run:
           name: Build site
           command: ./scripts/drevops/build.sh
           no_output_timeout: 30m
       - run:
           name: Lint code
-          command: docker compose exec -T cli ./scripts/drevops/lint.sh
-      - run:
-          name: Run tests
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && export DREVOPS_TEST_PARALLEL_INDEX=$CIRCLE_NODE_INDEX || true
-            docker compose exec -T \
-              -e DREVOPS_TEST_PARALLEL_INDEX -e DREVOPS_TEST_REPORTS_DIR -e DREVOPS_TEST_ARTIFACT_DIR -e DREVOPS_TEST_BEHAT_FORMAT \
-              cli ./scripts/drevops/test.sh
+            docker compose exec -T cli bash -c "\
+              ./vendor/bin/phpcs && \
+              ./vendor/bin/phpstan analyse && \
+              ./vendor/bin/phpmd . text phpmd.xml && \
+              ./vendor/bin/twigcs && \
+              npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} lint" \
+            || [ "${DREVOPS_CI_LINT_ALLOW_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Run Unit tests
+          command: |
+            XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
+            docker compose exec -T -e XDEBUG_MODE=coverage cli ./vendor/bin/phpunit || [ "${DREVOPS_CI_TEST_ALLOW_FAILURE:-0}" -eq 1 ]
+            docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
+      - run:
+          name: Run BDD tests
+          command: |
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && export DREVOPS_CI_TEST_BEHAT_PROFILE="${DREVOPS_CI_TEST_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}" || true
+            docker compose exec -T cli ./vendor/bin/behat --colors --strict --profile="${DREVOPS_CI_TEST_BEHAT_PROFILE:-default}" || \
+              docker compose exec -T cli ./vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_CI_TEST_BEHAT_PROFILE:-default}" || \
+              [ "${DREVOPS_CI_TEST_ALLOW_FAILURE:-0}" -eq 1 ]
       - run:
           name: Process test logs and artifacts
           command: |
             if docker compose ps --services --filter "status=running" | grep -q cli; then
-              docker compose exec -T cli mkdir -p "${DREVOPS_TEST_REPORTS_DIR}" && docker compose cp cli:"${DREVOPS_TEST_REPORTS_DIR}" "${DREVOPS_TEST_REPORTS_DIR}"
-              docker compose exec -T cli mkdir -p "${DREVOPS_TEST_ARTIFACT_DIR}" && docker compose cp cli:"${DREVOPS_TEST_ARTIFACT_DIR}" "${DREVOPS_TEST_ARTIFACT_DIR}"
+              mkdir -p "${DREVOPS_CI_TEST_RESULTS}" && docker compose cp cli:/app/.logs/test_results/. "${DREVOPS_CI_TEST_RESULTS}/"
+              mkdir -p "${DREVOPS_CI_ARTIFACTS}" && docker compose cp cli:/app/.logs/. "${DREVOPS_CI_ARTIFACTS}/"
             fi
           when: always
       - store_test_results:
-          path: *drevops_test_reports_dir
+          path: *test_results
       - store_artifacts:
-          path: *drevops_test_artifact_dir
+          path: *artifacts
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
+
       #:
       #: Persisting previously built application code artifact (without
       #: development dependencies) to use it in deployment job.
@@ -360,7 +387,7 @@ jobs:
             ./scripts/drevops/deploy.sh
           no_output_timeout: 30m
       - store_artifacts:
-          path: *drevops_test_artifact_dir
+          path: *artifacts
 
   # Deploy tags.
   deploy_tags: &job_deploy_tags
@@ -379,7 +406,7 @@ jobs:
           command: DREVOPS_DEPLOY_MODE="tag" ./scripts/drevops/deploy.sh
           no_output_timeout: 30m
       - store_artifacts:
-          path: *drevops_test_artifact_dir
+          path: *artifacts
   #;> DEPLOYMENT
 
   #;< RENOVATEBOT
@@ -387,7 +414,7 @@ jobs:
   # Add RENOVATE_TOKEN as an environment variable with GitHub access token in UI.
   renovatebot_self_hosted:
     docker:
-      - image: renovate/renovate:latest
+      - image: renovate/renovate:36.108.0
         environment:
           RENOVATE_PLATFORM: 'github'
           RENOVATE_AUTODISCOVER: false
@@ -425,9 +452,19 @@ jobs:
       - *step_setup_remote_docker
       - *step_setup_docker_network
       - run:
+          name: Lint DrevOps project
+          command: cd .drevops && ahoy lint
+      - run:
           name: Run common tests
-          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.common.sh
+          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage ahoy test
           no_output_timeout: 60m
+      - store_test_results:
+          path: *test_results
+      - store_artifacts:
+          path: *artifacts
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   drevops_dev_test_workflow:
     <<: *container_config
@@ -440,8 +477,15 @@ jobs:
       - *step_setup_docker_network
       - run:
           name: Run workflow tests (long)
-          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.workflow.sh
+          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage ahoy test-workflow
           no_output_timeout: 60m
+      - store_test_results:
+          path: *test_results
+      - store_artifacts:
+          path: *artifacts
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   drevops_dev_test_deployment:
     <<: *container_config
@@ -458,8 +502,15 @@ jobs:
           at: /workspace
       - run:
           name: Run deployment tests (long)
-          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.deployment.sh
+          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage ahoy test-deployment
           no_output_timeout: 60m
+      - store_test_results:
+          path: *test_results
+      - store_artifacts:
+          path: *artifacts
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   # Run tests after 'build' job.
   drevops_dev_test_postbuild:
@@ -472,7 +523,14 @@ jobs:
       - *step_setup_docker_network
       - run:
           name: Run CircleCI tests (long)
-          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 scripts/drevops/tests/test.postbuild.sh
+          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage .drevops/tests/test.postbuild.sh
+      - store_test_results:
+          path: *test_results
+      - store_artifacts:
+          path: *artifacts
+      - codecov/upload:
+          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
+          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
 
   # Deployment of feature branches and tags for DrevOps itself.
   drevops_dev_deploy:
@@ -564,6 +622,7 @@ jobs:
 
   #-----------------------------------------------------------------------------
   # Publish docs to docs.drevops.com
+  # @todo Move this to GitHub Actions.
   #-----------------------------------------------------------------------------
   drevops_dev_deploy_docs:
     <<: *container_config
@@ -576,52 +635,28 @@ jobs:
           fingerprints:
             - "22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
       - run:
+          name: Build and test docs
+          command: |
+            cd .drevops/docs
+            ahoy build
+            ahoy lint
+            ahoy test
+      - run:
           name: Publish docs
           command: |
-            cd scripts/drevops/docs
-            sed -i -e "/###/d" docker-compose.yml
-            ahoy build
-            ahoy test
-            if [ -n "${CIRCLE_TAG}" ]; then
-              export version="${CIRCLE_TAG}"
-              export version_is_stable=1
-            elif [ -n "${CIRCLE_BRANCH}" ]; then
-              if [ "${CIRCLE_BRANCH}" != "main" ]; then
-                export version="${CIRCLE_BRANCH/\//-}"
-              fi
-            fi
-            ahoy publish https://github.com/drevops/drevops_docs.git "${version}" "${version_is_stable:-}"
-            mkdir -p /tmp/docs
-            docker compose cp mkdocs:"/app/site/." "/tmp/docs"
-      - run:
-          name: Configure SSH.
-          command: |
-            DEPLOY_DOCS_SSH_FINGERPRINT="22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
-            # Configure SSH to configure git and SSH to connect to remote servers for deployment.
-            [ "$(git config --global user.name)" == "" ]  && git config --global user.name "Deployment robot"
-            [ "$(git config --global user.email)" == "" ] && git config --global user.email "deploy@drevops.com"
-            mkdir -p "${HOME}/.ssh/"
-            echo -e "Host *\n\tStrictHostKeyChecking no\n" > "${HOME}/.ssh/config"
-            DEPLOY_DOCS_SSH_FILE="${DEPLOY_DOCS_SSH_FINGERPRINT//:}"
-            DEPLOY_DOCS_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_DOCS_SSH_FILE//\"}"
-            if [ -f "${DEPLOY_DOCS_SSH_FILE}" ]; then
-              echo "Found Deploy SSH key file ${DEPLOY_DOCS_SSH_FILE}"
-              ssh-add -D > /dev/null
-              ssh-add "${DEPLOY_DOCS_SSH_FILE}"
-            fi
-      - run:
-          name: Deploy docs
-          command: |
-            cd /tmp/docs
-            git init
-            git checkout -b main
-            git add -A
-            git commit -m "Automatically pushed from drevops/drevops"
-            git remote add origin git@github.com:drevops/docs.git
-            git push origin main --force
+            cd .drevops/docs
+            export DOCS_PUBLISH_REMOTE_URL=https://github.com/drevops/drevops_docs.git
+            export DOCS_PUBLISH_SRC_TAG=${CIRCLE_TAG:-}
+            export DOCS_PUBLISH_SRC_BRANCH=${CIRCLE_BRANCH:-}
+            export DOCS_PUBLISH_SSH_FINGERPRINT="22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
+            export DOCS_PUBLISH_CANARY_BRANCH="develop"
+            export DOCS_PUBLISH_COMMIT_MESSAGE="Automatically pushed from drevops/drevops"
+            export DOCS_PUBLISH_GIT_EMAIL="deployer@drevops.com"
+            ./.utils/publish.sh
 
   #-----------------------------------------------------------------------------
   # Publish installer to install.drevops.com
+  # @todo Move this to GitHub Actions.
   #-----------------------------------------------------------------------------
   drevops_dev_deploy_installer:
     <<: *container_config
@@ -636,8 +671,11 @@ jobs:
       - run:
           name: Prepare installer.
           command: |
+            cd .drevops/installer
+            composer install
+            composer build
             mkdir -p /tmp/installer/docs
-            cp scripts/drevops/installer/install.php /tmp/installer/docs/index.html
+            cp .build/install /tmp/installer/docs/index.html
             ( echo -n "// Published date: " && echo "$(date)" ) >> /tmp/installer/docs/index.html
             echo "install.drevops.com" > /tmp/installer/docs/CNAME
       - run:
@@ -677,17 +715,17 @@ workflows:
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
     jobs:
-      #;< !INSTALL_FROM_PROFILE
+      #;< !PROVISION_USE_PROFILE
       - database:
           filters:
             tags:
               only: /.*/
-      #;> !INSTALL_FROM_PROFILE
+      #;> !PROVISION_USE_PROFILE
       - build:
-          #;< !INSTALL_FROM_PROFILE
+          #;< !PROVISION_USE_PROFILE
           requires:
             - database
-          #;> !INSTALL_FROM_PROFILE
+          #;> !PROVISION_USE_PROFILE
           filters:
             tags:
               only: /.*/
@@ -759,7 +797,7 @@ workflows:
           filters:
             branches:
               # Allowed branches: 7.x, 8.x, 9.x, feature/7.x-description, feature/8.x-description, feature/9.x-description
-              only: /main|7\.x|feature\/(?:7\.x)[a-zA-z0-9\-\.\,]+/
+              only: /main|develop|7\.x|feature\/(?:7\.x)[a-zA-z0-9\-\.\,]+/
             tags:
               ignore: /.*/
       # Run actual deployment of DrevOps code to destination codebase (integration test).
@@ -816,7 +854,7 @@ workflows:
   #=============================================================================
   #;> DREVOPS_DEV
 
-  #;< !INSTALL_FROM_PROFILE
+  #;< !PROVISION_USE_PROFILE
   # Nightly database workflow runs overnight to capture fresh database and cache it.
   nightly_db:
     triggers:
@@ -828,7 +866,7 @@ workflows:
                 - *nightly_db_branch
     jobs:
       - database_nightly
-  #;> !INSTALL_FROM_PROFILE
+  #;> !PROVISION_USE_PROFILE
 
   #;< RENOVATEBOT
   # Self-hosted Renovatebot workflow.

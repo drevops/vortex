@@ -44,7 +44,7 @@ commands:
     cmd: |
       uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null |grep -q "Ace" \
       && DREVOPS_HOST_DB_PORT="$(docker port $(docker compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" \
-      && open "mysql://${DREVOPS_MARIADB_USER}:${DREVOPS_MARIADB_PASSWORD}@127.0.0.1:${DREVOPS_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
+      && open "mysql://${MARIADB_USERNAME:-drupal}:${MARIADB_PASSWORD:-drupal}@127.0.0.1:${DREVOPS_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
       || echo "Not a supported OS or Sequel Ace is not installed."
 
   # ----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ commands:
     usage: Build and start Docker containers.
     cmd: |
       docker compose up -d "$@" && if docker compose logs | grep -q "\[Error\]"; then exit 1; fi
-      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > ${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
+      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
@@ -67,7 +67,7 @@ commands:
     usage: Start existing Docker containers.
     cmd: |
       docker compose start "$@"
-      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > ${DREVOPS_APP}/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
+      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
 
   stop:
     usage: Stop running Docker containers.
@@ -115,13 +115,13 @@ commands:
   login:
     usage: Login to a website.
     # Unblock user 1 and generate a one time login link.
-    cmd: ahoy cli ./scripts/drevops/drupal-login.sh
+    cmd: ahoy cli ./scripts/drevops/login.sh
 
-  #;< !INSTALL_FROM_PROFILE
+  #;< !PROVISION_USE_PROFILE
   download-db:
     usage: Download database.
     cmd: ./scripts/drevops/download-db.sh
-  #;> !INSTALL_FROM_PROFILE
+  #;> !PROVISION_USE_PROFILE
 
   reload-db:
     usage: Reload the database container using local database image.
@@ -131,13 +131,13 @@ commands:
         && ahoy up -- --build mariadb \
         && ahoy up wait_dependencies \
         && sleep 15 \
-        && ahoy install-site \
+        && ahoy provision \
         && ahoy info \
         && ahoy login
 
-  install-site:
-    usage: Install a site.
-    cmd: ahoy cli ./scripts/drevops/drupal-install-site.sh
+  provision:
+    usage: Provision a site from the database dump or profile.
+    cmd: ahoy cli ./scripts/drevops/provision.sh
 
   export-db:
     usage: Export database dump or database image (if DREVOPS_DB_DOCKER_IMAGE variable is set).
@@ -178,35 +178,35 @@ commands:
 
   lint:
     usage: Lint back-end and front-end code.
-    cmd: ahoy cli ./scripts/drevops/lint.sh "$@"
+    cmd: ahoy lint-be && ahoy lint-fe
 
   lint-be:
     usage: Lint back-end code.
-    cmd: ahoy cli ./scripts/drevops/lint.sh be
+    cmd: ahoy cli "./vendor/bin/phpcs && vendor/bin/phpstan analyse && ./vendor/bin/phpmd . text phpmd.xml"
 
   lint-fe:
     usage: Lint front-end code.
-    cmd: ahoy cli ./scripts/drevops/lint.sh fe
+    cmd: ahoy cli "./vendor/bin/twigcs && npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint"
 
   test:
     usage: Run all tests.
-    cmd: ahoy cli "./scripts/drevops/test.sh $@"
+    cmd: ahoy test-unit && ahoy test-kernel && ahoy test-functional && ahoy test-bdd
 
   test-unit:
     usage: Run PhpUnit unit tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPES=unit ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "./vendor/bin/phpunit --testsuite=unit $@"
 
   test-kernel:
     usage: Run PhpUnit kernel tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPES=kernel ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "./vendor/bin/phpunit --testsuite=kernel $@"
 
   test-functional:
     usage: Run PhpUnit functional tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPES=functional ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "./vendor/bin/phpunit --testsuite=functional $@"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "DREVOPS_TEST_TYPES=bdd ./scripts/drevops/test.sh $@"
+    cmd: ahoy cli "./vendor/bin/behat --colors $@"
 
   debug:
     usage: Enable PHP Xdebug.

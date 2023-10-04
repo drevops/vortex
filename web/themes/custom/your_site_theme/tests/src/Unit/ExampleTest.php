@@ -8,7 +8,6 @@ namespace Drupal\Tests\your_site_theme\Unit;
  * Example unit test case class.
  *
  * @group YourSiteTheme
- * @group site:unit
  *
  * @package Drupal\your_site_theme\Tests
  */
@@ -20,7 +19,7 @@ class ExampleTest extends YourSiteThemeUnitTestBase {
    * @dataProvider dataProviderAdd
    * @group addition
    */
-  public function testAdd($a, $b, $expected, $expectExceptionMessage = NULL) {
+  public function testAdd(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage($expectExceptionMessage);
@@ -35,7 +34,7 @@ class ExampleTest extends YourSiteThemeUnitTestBase {
   /**
    * Data provider for testAdd().
    */
-  public function dataProviderAdd() {
+  public function dataProviderAdd(): array {
     return [
       [0, 0, 0],
       [1, 1, 2],
@@ -49,7 +48,7 @@ class ExampleTest extends YourSiteThemeUnitTestBase {
    * @dataProvider dataProviderSubtract
    * @group unit:subtraction
    */
-  public function testSubtract($a, $b, $expected, $expectExceptionMessage = NULL) {
+  public function testSubtract(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage($expectExceptionMessage);
@@ -64,7 +63,7 @@ class ExampleTest extends YourSiteThemeUnitTestBase {
   /**
    * Data provider for testSubtract().
    */
-  public function dataProviderSubtract() {
+  public function dataProviderSubtract(): array {
     return [
       [0, 0, 0],
       [1, 1, 0],
@@ -80,7 +79,7 @@ class ExampleTest extends YourSiteThemeUnitTestBase {
    * @group multiplication
    * @group skipped
    */
-  public function testMultiplication($a, $b, $expected, $expectExceptionMessage = NULL) {
+  public function testMultiplication(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage($expectExceptionMessage);
@@ -95,7 +94,7 @@ class ExampleTest extends YourSiteThemeUnitTestBase {
   /**
    * Data provider for testMultiplication().
    */
-  public function dataProviderMultiplication() {
+  public function dataProviderMultiplication(): array {
     return [
       [0, 0, 0],
       [1, 1, 1],

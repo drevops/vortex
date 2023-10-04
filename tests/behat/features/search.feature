@@ -18,13 +18,13 @@ Feature: Search API
     When I fill in "search_api_fulltext" with "[TEST]"
     And I press "Apply"
     Then I should see "[TEST] Test page 1" in the ".view-content" element
-    Then I should see "test content uniquestring" in the ".view-content" element
-    Then I should see "[TEST] Test page 2" in the ".view-content" element
-    Then I should see "test content otheruniquestring" in the ".view-content" element
+    And I should see "test content uniquestring" in the ".view-content" element
+    And I should see "[TEST] Test page 2" in the ".view-content" element
+    And I should see "test content otheruniquestring" in the ".view-content" element
 
     When I fill in "search_api_fulltext" with "otheruniquestring"
     And I press "Apply"
     Then I should not see "[TEST] Test page 1" in the ".view-content" element
-    Then I should not see "test content uniquestring" in the ".view-content" element
-    Then I should see "[TEST] Test page 2" in the ".view-content" element
-    Then I should see "test content otheruniquestring" in the ".view-content" element
+    And I should not see "test content uniquestring" in the ".view-content" element
+    And I should see "[TEST] Test page 2" in the ".view-content" element
+    And I should see "test content otheruniquestring" in the ".view-content" element

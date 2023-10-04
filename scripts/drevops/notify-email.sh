@@ -13,55 +13,55 @@
 # ./notify-email.sh
 #
 
-t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Project name to notify.
-DREVOPS_NOTIFY_EMAIL_PROJECT="${DREVOPS_NOTIFY_EMAIL_PROJECT:-${DREVOPS_NOTIFY_PROJECT:-$1}}"
+DREVOPS_NOTIFY_EMAIL_PROJECT="${DREVOPS_NOTIFY_EMAIL_PROJECT:-${DREVOPS_NOTIFY_PROJECT:-}}"
 
 # Email address to send notifications from.
-DREVOPS_NOTIFY_EMAIL_FROM="${DREVOPS_NOTIFY_EMAIL_FROM:-${DREVOPS_DRUPAL_SITE_EMAIL:-$2}}"
+DREVOPS_NOTIFY_EMAIL_FROM="${DREVOPS_NOTIFY_EMAIL_FROM:-${DREVOPS_DRUPAL_SITE_EMAIL:-}}"
 
 # Email address(es) to send notifications to.
 #
 # Multiple names can be specified as a comma-separated list of email addresses
 # with optional names in the format "email|name".
 # Example: "to1@example.com|Jane Doe, to2@example.com|John Doe"
-DREVOPS_NOTIFY_EMAIL_RECIPIENTS="${DREVOPS_NOTIFY_EMAIL_RECIPIENTS:-$3}"
+DREVOPS_NOTIFY_EMAIL_RECIPIENTS="${DREVOPS_NOTIFY_EMAIL_RECIPIENTS:-}"
 
 # Git reference to notify about.
-DREVOPS_NOTIFY_EMAIL_REF="${DREVOPS_NOTIFY_EMAIL_REF:-${DREVOPS_NOTIFY_REF:-$4}}"
+DREVOPS_NOTIFY_EMAIL_REF="${DREVOPS_NOTIFY_EMAIL_REF:-${DREVOPS_NOTIFY_REF:-}}"
 
 # Environment URL to notify about.
-DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL="${DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL:-${DREVOPS_NOTIFY_ENVIRONMENT_URL:-$5}}"
+DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL="${DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL:-${DREVOPS_NOTIFY_ENVIRONMENT_URL:-}}"
 
 #-------------------------------------------------------------------------------
 
 # @formatter:off
-note() { printf "       %s\n" "$1"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+note() { printf "       %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-[ -z "$DREVOPS_NOTIFY_EMAIL_PROJECT" ] && fail "Both environment variable DREVOPS_NOTIFY_EMAIL_PROJECT and the first argument are empty." && exit 1
-[ -z "$DREVOPS_NOTIFY_EMAIL_FROM" ] && fail "Both environment variable DREVOPS_NOTIFY_EMAIL_FROM and the second argument are empty." && exit 1
-[ -z "$DREVOPS_NOTIFY_EMAIL_RECIPIENTS" ] && fail "Both environment variable DREVOPS_NOTIFY_EMAIL_RECIPIENTS and the third argument are empty." && exit 1
-[ -z "$DREVOPS_NOTIFY_EMAIL_REF" ] && fail "Both environment variable DREVOPS_NOTIFY_EMAIL_REF and the fourth argument are empty." && exit 1
-[ -z "$DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL" ] && fail "Both environment variable DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL and the fifth argument are empty." && exit 1
+[ -z "${DREVOPS_NOTIFY_EMAIL_PROJECT}" ] && fail "Missing required value for DREVOPS_NOTIFY_EMAIL_PROJECT." && exit 1
+[ -z "${DREVOPS_NOTIFY_EMAIL_FROM}" ] && fail "Missing required value for DREVOPS_NOTIFY_EMAIL_FROM." && exit 1
+[ -z "${DREVOPS_NOTIFY_EMAIL_RECIPIENTS}" ] && fail "Missing required value for DREVOPS_NOTIFY_EMAIL_RECIPIENTS." && exit 1
+[ -z "${DREVOPS_NOTIFY_EMAIL_REF}" ] && fail "Missing required value for DREVOPS_NOTIFY_EMAIL_REF." && exit 1
+[ -z "${DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL}" ] && fail "Missing required value for DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL." && exit 1
 
 info "Started email notification."
 
-has_mail=0
 has_sendmail=0
-if command -v mail >/dev/null 2>&1; then
-  note "Using mail command to send emails."
-  has_mail=1
-elif command -v sendmail >/dev/null 2>&1; then
+has_mail=0
+if command -v sendmail >/dev/null 2>&1; then
   note "Using sendmail command to send emails."
   has_sendmail=1
+elif command -v mail >/dev/null 2>&1; then
+  note "Using mail command to send emails."
+  has_mail=1
 else
   fail "Neither mail nor sendmail commands are available."
   exit 1
@@ -78,35 +78,35 @@ Login at: ${DREVOPS_NOTIFY_EMAIL_ENVIRONMENT_URL}/user/login"
 sent=""
 IFS=","
 # shellcheck disable=SC2086
-set -- $DREVOPS_NOTIFY_EMAIL_RECIPIENTS
+set -- ${DREVOPS_NOTIFY_EMAIL_RECIPIENTS}
 for email_with_name; do
-  old_ifs="$IFS"
+  old_ifs="${IFS}"
   IFS="|"
   # shellcheck disable=SC2086
-  set -- $email_with_name
+  set -- ${email_with_name}
   email="${1#"${1%%[![:space:]]*}"}"
   email="${email%"${email##*[![:space:]]}"}"
   name="${2#"${2%%[![:space:]]*}"}"
   name="${name%"${name##*[![:space:]]}"}"
-  IFS="$old_ifs"
+  IFS="${old_ifs}"
 
   to="${name:+\"${name}\" }<${email}>"
 
-  if [ "${has_mail}" = "1" ]; then
-    mail -s "$subject" "$to" <<-EOF
-    From: ${DREVOPS_NOTIFY_EMAIL_FROM}
-
-    ${content}
-EOF
-    sent="${sent} ${email}"
-  elif [ "${has_sendmail}" = "1" ]; then
+  if [ "${has_sendmail}" = "1" ]; then
     (
-      echo "To: $to"
-      echo "Subject: $subject"
+      echo "To: ${to}"
+      echo "Subject: ${subject}"
       echo "From: ${DREVOPS_NOTIFY_EMAIL_FROM}"
       echo
       echo "${content}"
     ) | sendmail -t
+    sent="${sent} ${email}"
+  elif [ "${has_mail}" = "1" ]; then
+    mail -s "${subject}" "${to}" <<-EOF
+    From: ${DREVOPS_NOTIFY_EMAIL_FROM}
+
+    ${content}
+EOF
     sent="${sent} ${email}"
   fi
 done

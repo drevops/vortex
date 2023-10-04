@@ -1,0 +1,77 @@
+---
+ahoyapi: v2
+
+commands:
+
+  lint:
+    name: Lint DrevOps project.
+    cmd: |
+      ahoy lint-scripts
+      ahoy lint-dockerfiles
+      ahoy lint-spelling
+      ahoy lint-docs
+      ahoy lint-installer
+
+  lint-scripts:
+    cmd: ./tests/lint.scripts.sh
+
+  lint-dockerfiles:
+    cmd: ./tests/lint.dockerfiles.sh
+
+  lint-spelling:
+    cmd: ./tests/lint.spelling.sh
+
+  lint-docs:
+    cmd: ahoy docs lint
+
+  lint-installer:
+    cmd: ahoy installer lint
+
+  test:
+    name: Test DrevOps project.
+    cmd: |
+      ahoy test-common
+      ahoy test-docs
+      ahoy test-installer
+
+  test-common:
+    cmd: ./tests/test.common.sh
+
+  test-deployment:
+    cmd: ./tests/test.deployment.sh
+
+  test-workflow:
+    cmd: ./tests/test.workflow.sh
+
+  test-docs:
+    cmd: ahoy docs build && ahoy docs test
+
+  test-installer:
+    cmd: |
+      ahoy installer test
+      ahoy installer build
+
+  # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
+  update-fixtures:
+    cmd: |
+      cd ../ \
+      && UPDATE_FIXTURES=1 bats ./tests/bats/docker-compose.bats \
+      || UPDATE_FIXTURES=1 bats ./tests/bats/docker-compose.bats
+
+  docs:
+    usage: Custom docs commands.
+    cmd: ahoy -f "docs/.ahoy.yml" "$@"
+
+  installer:
+    usage: Custom installer commands.
+    cmd: |
+      [ ! -d "./installer/vendor" ] && composer --working-dir=installer install -n --ansi --no-progress --no-interaction --no-suggest --prefer-dist --optimize-autoloader
+      composer --working-dir=installer "$@"
+
+entrypoint:
+  - bash
+  - "-c"
+  - "-e"
+  - bash -e -c "$0" "$@"
+  - '{{cmd}}'
+  - '{{name}}'

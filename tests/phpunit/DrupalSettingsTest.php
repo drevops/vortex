@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
  *
  * Tests for Drupal settings.
  *
- * @group site:unit
  * @SuppressWarnings(PHPMD)
  *
  * phpcs:disable Drupal.NamingConventions.ValidVariableName.LowerCamelName
@@ -71,7 +70,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test generic settings.
    */
-  public function testGeneric() {
+  public function testGeneric(): void {
     $this->setEnvVars([
       'DREVOPS_CLAMAV_ENABLED' => FALSE,
     ]);
@@ -86,7 +85,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test Shield config.
    */
-  public function testShield() {
+  public function testShield(): void {
     $this->setEnvVars([
       'DRUPAL_SHIELD_USER' => 'test_shield_user',
       'DRUPAL_SHIELD_PASS' => 'test_shield_pass',
@@ -105,7 +104,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test Shield partial config.
    */
-  public function testShieldPartial() {
+  public function testShieldPartial(): void {
     $this->setEnvVars([
       'DRUPAL_SHIELD_USER' => 'test_shield_user',
       'DRUPAL_SHIELD_PASS' => '',
@@ -119,10 +118,11 @@ class DrupalSettingsTest extends TestCase {
   }
 
   // phpcs:ignore #;< CLAMAV
+
   /**
    * Test ClamAV configs in Daemon mode with defaults.
    */
-  public function testClamavDaemonDefaults() {
+  public function testClamavDaemonDefaults(): void {
     $this->setEnvVars([
       'DREVOPS_CLAMAV_ENABLED' => TRUE,
       'CLAMAV_MODE' => 'daemon',
@@ -141,7 +141,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test ClamAV configs in Daemon mode with defaults.
    */
-  public function testClamavDaemonCustom() {
+  public function testClamavDaemonCustom(): void {
     $this->setEnvVars([
       'DREVOPS_CLAMAV_ENABLED' => TRUE,
       'CLAMAV_MODE' => 'daemon',
@@ -162,7 +162,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test ClamAV configs in Executable mode.
    */
-  public function testClamavExecutable() {
+  public function testClamavExecutable(): void {
     $this->setEnvVars([
       'DREVOPS_CLAMAV_ENABLED' => TRUE,
       'CLAMAV_HOST' => 'custom_clamav_host',
@@ -182,7 +182,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test Redis settings.
    */
-  public function testRedis() {
+  public function testRedis(): void {
     $this->setEnvVars([
       'DREVOPS_REDIS_ENABLED' => 1,
       'REDIS_HOST' => 'redis_host',
@@ -207,7 +207,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test Acquia-specific settings.
    */
-  public function testAcquia() {
+  public function testAcquia(): void {
     $this->setEnvVars([
       'AH_SITE_ENVIRONMENT' => TRUE,
     ]);
@@ -227,7 +227,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test Lagoon-specific settings.
    */
-  public function testLagoon() {
+  public function testLagoon(): void {
     $this->setEnvVars([
       'LAGOON' => 1,
       'LAGOON_ROUTES' => 'http://example1.com,https://example2/com',
@@ -240,7 +240,6 @@ class DrupalSettingsTest extends TestCase {
     $default_config = $this->getGenericConfig();
     $default_settings = $this->getGenericSettings();
 
-    $default_settings['hash_salt'] = hash('sha256', getenv('DREVOPS_MARIADB_HOST'));
     $default_settings['reverse_proxy'] = TRUE;
     $default_settings['trusted_host_patterns'][] = '^nginx\-php$';
     $default_settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
@@ -253,10 +252,11 @@ class DrupalSettingsTest extends TestCase {
     $this->assertEquals(1, LAGOON_VERSION);
   }
   // phpcs:ignore #;> LAGOON
+
   /**
    * Test per-environment overrides for LOCAL environment.
    */
-  public function testEnvironmentLocal() {
+  public function testEnvironmentLocal(): void {
     $this->setEnvVars([]);
 
     $this->requireSettingsFile();
@@ -270,7 +270,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test per-environment overrides for CI environment.
    */
-  public function testEnvironmentCi() {
+  public function testEnvironmentCi(): void {
     $this->setEnvVars([
       'CI' => TRUE,
     ]);
@@ -295,10 +295,11 @@ class DrupalSettingsTest extends TestCase {
   }
 
   // phpcs:ignore #;< ACQUIA
+
   /**
    * Test per-environment overrides for DEV environment.
    */
-  public function testEnvironmentDev() {
+  public function testEnvironmentDev(): void {
     $this->setEnvVars([
       'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_DEV,
     ]);
@@ -327,7 +328,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test per-environment overrides for TEST environment.
    */
-  public function testEnvironmentTest() {
+  public function testEnvironmentTest(): void {
     // Use Acquia's settings to set the environment type.
     $this->setEnvVars([
       'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_TEST,
@@ -357,7 +358,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Test per-environment overrides for PROD environment.
    */
-  public function testEnvironmentProd() {
+  public function testEnvironmentProd(): void {
     $this->setEnvVars([
       'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_PROD,
     ]);
@@ -382,12 +383,13 @@ class DrupalSettingsTest extends TestCase {
     $this->assertEquals($default_settings, $this->settings, 'Settings');
   }
   // phpcs:ignore #;> ACQUIA
+
   /**
    * Test the resulting environment based on the provider's configuration.
    *
    * @dataProvider dataProviderEnvironment
    */
-  public function testEnvironment($vars, $expected_env) {
+  public function testEnvironment(array $vars, string $expected_env): void {
     $this->setEnvVars($vars);
 
     $this->requireSettingsFile();
@@ -398,7 +400,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Data provider for testing of the resulting environment.
    */
-  public function dataProviderEnvironment() {
+  public function dataProviderEnvironment(): array {
     $this->requireSettingsFile();
 
     return [
@@ -592,7 +594,7 @@ class DrupalSettingsTest extends TestCase {
    *
    * @dataProvider dataProviderDatabases
    */
-  public function testDatabases($vars, $expected) {
+  public function testDatabases(array $vars, array $expected): void {
     $this->setEnvVars($vars);
 
     $this->requireSettingsFile();
@@ -603,7 +605,7 @@ class DrupalSettingsTest extends TestCase {
   /**
    * Data provider for resulting database settings.
    */
-  public function dataProviderDatabases() {
+  public function dataProviderDatabases(): array {
     return [
       [
         [],
@@ -613,59 +615,8 @@ class DrupalSettingsTest extends TestCase {
               'database' => 'drupal',
               'username' => 'drupal',
               'password' => 'drupal',
-              'host' => 'mariadb',
-              'port' => '3306',
-              'driver' => 'mysql',
-              'prefix' => '',
-            ],
-          ],
-        ],
-      ],
-
-      [
-        [
-          'DREVOPS_MARIADB_DATABASE' => 'test_db_name',
-          'DREVOPS_MARIADB_USERNAME' => 'test_db_user',
-          'DREVOPS_MARIADB_PASSWORD' => 'test_db_pass',
-          'DREVOPS_MARIADB_HOST' => 'test_db_host',
-          'DREVOPS_MARIADB_PORT' => 'test_db_port',
-        ],
-        [
-          'default' => [
-            'default' => [
-              'database' => 'test_db_name',
-              'username' => 'test_db_user',
-              'password' => 'test_db_pass',
-              'host' => 'test_db_host',
-              'port' => 'test_db_port',
-              'driver' => 'mysql',
-              'prefix' => '',
-            ],
-          ],
-        ],
-      ],
-
-      [
-        [
-          'DREVOPS_MARIADB_DATABASE' => 'test_db_name',
-          'DREVOPS_MARIADB_USERNAME' => 'test_db_user',
-          'DREVOPS_MARIADB_PASSWORD' => 'test_db_pass',
-          'DREVOPS_MARIADB_HOST' => 'test_db_host',
-          'DREVOPS_MARIADB_PORT' => 'test_db_port',
-          'MARIADB_DATABASE' => 'test2_db_name',
-          'MARIADB_USERNAME' => 'test2_db_user',
-          'MARIADB_PASSWORD' => 'test2_db_pass',
-          'MARIADB_HOST' => 'test2_db_host',
-          'MARIADB_PORT' => 'test2_db_port',
-        ],
-        [
-          'default' => [
-            'default' => [
-              'database' => 'test2_db_name',
-              'username' => 'test2_db_user',
-              'password' => 'test2_db_pass',
-              'host' => 'test2_db_host',
-              'port' => 'test2_db_port',
+              'host' => 'localhost',
+              'port' => '',
               'driver' => 'mysql',
               'prefix' => '',
             ],
@@ -713,11 +664,39 @@ class DrupalSettingsTest extends TestCase {
     }
     $vars['TMP'] = '/tmp-test';
 
-    $this->envVars = $vars + $this->envVars;
+    $this->envVars = $vars + $this->envVars + self::realEnvVars();
 
     foreach ($this->envVars as $name => $value) {
-      putenv("$name=$value");
+      if (is_null($value)) {
+        putenv("$name");
+      }
+      else {
+        putenv("$name=$value");
+      }
     }
+  }
+
+  /**
+   * Get real environment variables.
+   *
+   * @return array
+   *   Array of environment variables.
+   */
+  protected static function realEnvVars(): array {
+    $prefixes = [
+      'DREVOPS_',
+      'MARIADB_',
+    ];
+
+    return array_fill_keys(array_filter(array_keys(getenv()), function ($key) use ($prefixes) {
+      foreach ($prefixes as $prefix) {
+        if (strpos($key, $prefix) === 0) {
+          return TRUE;
+        }
+      }
+
+      return FALSE;
+    }), NULL);
   }
 
   /**
@@ -790,7 +769,7 @@ class DrupalSettingsTest extends TestCase {
 
     $settings['environment'] = ENVIRONMENT_LOCAL;
     $settings['config_sync_directory'] = '../config/default';
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: (getenv('DREVOPS_MARIADB_HOST') ?: 'localhost'));
+    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
     $settings['file_temp_path'] = '/tmp-test';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_scan_ignore_directories'] = [

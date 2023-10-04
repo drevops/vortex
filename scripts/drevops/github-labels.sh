@@ -12,7 +12,7 @@
 #
 # shellcheck disable=SC2155
 
-t=$(mktemp) && export -p >"$t" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "$t" && rm "$t" && unset t
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
@@ -29,10 +29,10 @@ DREVOPS_GITHUB_DELETE_EXISTING_LABELS="${DREVOPS_GITHUB_DELETE_EXISTING_LABELS:-
 # ------------------------------------------------------------------------------
 
 # @formatter:off
-note() { printf "       %s\n" "$1"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "$1" || printf "[INFO] %s\n" "$1"; }
-pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "$1" || printf "[ OK ] %s\n" "$1"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "$1" || printf "[FAIL] %s\n" "$1"; }
+note() { printf "       %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
 # Array of labels to create. If DELETE_EXISTING_LABELS=1, the labels list will
@@ -91,8 +91,8 @@ main() {
   fi
   [ "${GITHUB_TOKEN}" = "" ] && fail "GitHub token is required" && exit 1
 
-  repo_org=$(echo "$DREVOPS_GITHUB_REPO" | cut -f1 -d /)
-  repo_name=$(echo "$DREVOPS_GITHUB_REPO" | cut -f2 -d /)
+  repo_org=$(echo "${DREVOPS_GITHUB_REPO}" | cut -f1 -d /)
+  repo_name=$(echo "${DREVOPS_GITHUB_REPO}" | cut -f2 -d /)
 
   if ! user_has_access; then
     fail "User does not have access to specified repository. Please check your credentials" && exit 1
@@ -299,13 +299,13 @@ uriencode() {
   s="${s//'@'/%40}"
   s="${s//'['/%5B}"
   s="${s//']'/%5D}"
-  printf %s "$s"
+  printf %s "${s}"
 }
 
 timeout() {
   local seconds=${1}
   while [ "${seconds}" -gt 0 ]; do
-    echo -ne "Processing will start in $seconds seconds. Press Ctrl+C to abort\033[0K\r"
+    echo -ne "Processing will start in ${seconds} seconds. Press Ctrl+C to abort\033[0K\r"
     sleep 1
     : $((seconds--))
   done

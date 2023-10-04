@@ -8,10 +8,10 @@
 # @see https://github.com/drevops/mariadb-drupal-data
 #
 # The ARG value will be updated with a value passed from docker-compose.yml
-ARG IMAGE=uselagoon/mariadb-drupal:23.8.0
+ARG IMAGE=uselagoon/mariadb-drupal:23.9.0
 
 # hadolint ignore=DL3006
-FROM $IMAGE
+FROM ${IMAGE}
 
 USER root
 COPY ./.docker/config/mariadb/my.cnf /etc/my.cnf.d/server.cnf
