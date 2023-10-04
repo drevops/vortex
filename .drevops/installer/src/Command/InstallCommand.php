@@ -68,7 +68,8 @@ class InstallCommand extends Command {
    */
   protected function configure(): void {
     $this
-      ->addArgument('path', InputArgument::OPTIONAL, 'The path to the destination directory')
+      ->setName('DrevOps CLI installer')
+      ->addArgument('path', InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.')
       ->setHelp($this->printHelp());
   }
 
@@ -1576,23 +1577,10 @@ class InstallCommand extends Command {
    * Print help.
    */
   protected function printHelp() {
-    $script_name = basename(__FILE__);
     return <<<EOF
-DrevOps Installer
-------------------
+  php install destination
 
-Arguments
-  destination          Destination directory. Optional. Defaults to the current
-                       directory.
-
-Options
-  --help               This help.
-  --quiet              Quiet installation.
-
-Examples:
-  php $script_name  destination
-
-  php $script_name  --quiet destination
+  php install --quiet destination
 
 EOF;
   }
