@@ -25,5 +25,8 @@
         "phpcs.xml",
         "phpmd.xml",
         "phpstan.neon"
-    ]
+    ],
+    "replacements": {
+        "git-tag-ci": "dev"
+    }
 }

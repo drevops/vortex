@@ -673,6 +673,7 @@ jobs:
           command: |
             cd .drevops/installer
             composer install
+            sed -i "s/\"git-tag-ci\": \"dev\"/\"git-tag-ci\": \"${CIRCLE_TAG:-${CIRCLE_SHA1}}\"/g" box.json
             composer build
             mkdir -p /tmp/installer/docs
             cp .build/install.phar /tmp/installer/docs/index.html
