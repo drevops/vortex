@@ -8,7 +8,7 @@
         "<!-- -->",
         "DrevOps CLI installer.<br/>",
         "Run in your terminal:<br/>",
-        "<code>curl -SsL http://install.drevops.com | php</code><br/>",
+        "<code>curl -SsL https://install.drevops.com | php</code><br/>",
         "More details: <a href=\"https://docs.drevops.com\">https://docs.drevops.com</a>",
         "<!--"
     ],
@@ -16,8 +16,15 @@
         {
             "in": "./",
             "exclude": [
-                "tests"
+                "tests",
+                "vendor-bin"
             ]
         }
+    ],
+    "blacklist": [
+        "box.json",
+        "phpcs.xml",
+        "phpmd.xml",
+        "phpstan.neon"
     ]
 }
