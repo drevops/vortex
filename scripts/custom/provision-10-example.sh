@@ -18,11 +18,11 @@ set -eu
 
 # ------------------------------------------------------------------------------
 
+drush() { ./vendor/bin/drush -y "$@"; }
+
 # Perform operations based on the current environment.
 if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e local; then
   echo "[INFO] Executing example operations in non-production environment."
-
-  drush() { ./vendor/bin/drush -y "$@"; }
 
   # Below are examples of running operations.
 
