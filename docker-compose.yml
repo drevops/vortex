@@ -185,7 +185,7 @@ services:
     ports:
       - "8983" # Solr port in container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
     volumes:
-      - search:/var/solr
+      - solr:/var/solr
     #;< LAGOON
     labels:
       lagoon.type: solr # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -241,5 +241,5 @@ volumes:
   app: {}
   files: {}
   #;< SOLR
-  search: {}
+  solr: {}
   #;> SOLR
