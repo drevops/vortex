@@ -24,7 +24,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 drush() { ./vendor/bin/drush -y "$@"; }
 
 if [ "${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-}" = "1" ]; then
-  if drush pm:list --status=enabled | grep -q user_expire; then
+  if drush pm:list --status=enabled | grep -q password_policy; then
     drush sql:query 'UPDATE `user__field_password_expiration` SET `field_password_expiration_value` = 0 WHERE `bundle` = "user" AND `entity_id` = 1;'
   fi
   drush sql:query "SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" | head -n 1 | xargs drush -- user:unblock
