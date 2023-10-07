@@ -48,7 +48,7 @@ Defined in: `.drevops/docs/.utils/variables/extra/.env.local.example.variables.s
 
 ClamAV mode.
 
-Run ClamAV in either daemon mode by setting it to `0` or in executable mode<br />by setting it to `1`.
+Run ClamAV in either daemon mode by setting it to `0` (or 'daemon') or in<br />executable mode by setting it to `1`.
 
 Default value: `daemon`
 
