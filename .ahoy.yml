@@ -92,7 +92,7 @@ commands:
     # environment variables will be started. This allows passing of the environment
     # variables to Ahoy commands which will then be forwarded to the container.
     # Escape double quotes with \" (slash double-quote) when passing arguments with spaces.
-    cmd: if \[ "${#}" -ne 0 \]; then docker compose exec $(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_\|TERM" | sed 's/^/-e /') -T cli bash -c "$*"; else docker compose exec cli bash; fi
+    cmd: if \[ "${#}" -ne 0 \]; then docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\DRUPAL_\|DREVOPS_" | sed 's/^/-e /') -T cli bash -c "$*"; else docker compose exec cli bash; fi
 
   composer:
     usage: Run Composer commands in the CLI service container.

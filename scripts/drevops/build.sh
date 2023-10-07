@@ -50,7 +50,7 @@ echo
 
 # Create an array of Docker Compose CLI options for 'exec' command as a shorthand.
 # $DREVOPS_*, $COMPOSE_* and $TERM variables will be passed to containers.
-dcopts=(-T) && while IFS='' read -r line; do dcopts+=("${line}"); done < <(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_\|TERM" | sed 's/^/-e /')
+dcopts=(-T) && while IFS='' read -r line; do dcopts+=("${line}"); done < <(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\DRUPAL_\|DREVOPS_" | sed 's/^/-e /')
 
 # Check all pre-requisites before starting the stack.
 DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 ./scripts/drevops/doctor.sh
