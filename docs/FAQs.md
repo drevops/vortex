@@ -77,8 +77,7 @@ Provided that your stack is already running:
 Note that you do not need to rebuild the full stack using `ahoy build` every
 time.
 However, sometimes you would want to have an absolutely clean environment - in
-that
-case, use `ahoy build`.
+that case, use `ahoy build`.
 
 ## How to just import the database?
 
