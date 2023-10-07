@@ -114,23 +114,63 @@ Defined in: `.env.local.default`
 
 ### `DREVOPS_CI_ARTIFACTS`
 
-Directory to store test artifacts.
+Directory to store test artifacts in CI.
 
 Default value: `/tmp/artifacts`
 
 Defined in: `CI config`
 
-### `DREVOPS_CI_LINT_ALLOW_FAILURE`
+### `DREVOPS_CI_BEHAT_IGNORE_FAILURE`
 
-Allow code linting failures.
+Ignore Behat test failures.
 
 Default value: `UNDEFINED`
 
 Defined in: `CI config`
 
-### `DREVOPS_CI_TEST_ALLOW_FAILURE`
+### `DREVOPS_CI_BEHAT_PROFILE`
 
-Allow tests failures.
+Test Behat profile to use in CI. If not set, the `default` profile will be used.
+
+Default value: `UNDEFINED`
+
+Defined in: `CI config`
+
+### `DREVOPS_CI_NPM_LINT_IGNORE_FAILURE`
+
+Ignore NPM linters failures.
+
+Default value: `UNDEFINED`
+
+Defined in: `CI config`
+
+### `DREVOPS_CI_PHPCS_IGNORE_FAILURE`
+
+Ignore PHPCS failures.
+
+Default value: `UNDEFINED`
+
+Defined in: `CI config`
+
+### `DREVOPS_CI_PHPMD_IGNORE_FAILURE`
+
+Ignore PHPMD failures.
+
+Default value: `UNDEFINED`
+
+Defined in: `CI config`
+
+### `DREVOPS_CI_PHPSTAN_IGNORE_FAILURE`
+
+Ignore PHPStan failures.
+
+Default value: `UNDEFINED`
+
+Defined in: `CI config`
+
+### `DREVOPS_CI_PHPUNIT_IGNORE_FAILURE`
+
+Ignore PHPUnit test failures.
 
 Default value: `UNDEFINED`
 
@@ -138,9 +178,17 @@ Defined in: `CI config`
 
 ### `DREVOPS_CI_TEST_RESULTS`
 
-Directory to store test results.
+Directory to store test results in CI.
 
 Default value: `/tmp/tests`
+
+Defined in: `CI config`
+
+### `DREVOPS_CI_TWIGCS_IGNORE_FAILURE`
+
+Ignore Twigcs failures.
+
+Default value: `UNDEFINED`
 
 Defined in: `CI config`
 
@@ -534,14 +582,6 @@ Skip copying of files between Acquia environment.
 Default value: `UNDEFINED`
 
 Defined in: `ACQUIA ENVIRONMENT`
-
-### `DREVOPS_TEST_BEHAT_PROFILE`
-
-Test Behat profile to use in CI. If not set, the default profile will be used.
-
-Default value: `UNDEFINED`
-
-Defined in: `CI config`
 
 ### `DREVOPS_TZ`
 
