@@ -9,8 +9,6 @@
  * - Site-specific settings.
  * - Environment variable initialisation.
  * - Per-environment overrides.
- * - Inclusion of generated settings. The database connection string will be
- *   injected in these generated settings.
  * - Inclusion of local settings.
  *
  * Create settings.local.php file to include local settings overrides.
@@ -204,9 +202,9 @@ if (getenv('LAGOON')) {
 }
 // #;> LAGOON
 
-// Allow to override an environment type.
-if (!empty(getenv('DREVOPS_ENVIRONMENT_TYPE'))) {
-  $settings['environment'] = getenv('DREVOPS_ENVIRONMENT_TYPE');
+// Allow overriding of an environment type.
+if (!empty(getenv('DREVOPS_ENVIRONMENT'))) {
+  $settings['environment'] = getenv('DREVOPS_ENVIRONMENT');
 }
 
 ////////////////////////////////////////////////////////////////////////////////

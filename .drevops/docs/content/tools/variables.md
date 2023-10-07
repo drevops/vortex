@@ -401,7 +401,7 @@ Default value: `10`
 
 Defined in: `.env`
 
-### `DREVOPS_ENVIRONMENT_TYPE`
+### `DREVOPS_ENVIRONMENT`
 
 Override detected environment type.
 

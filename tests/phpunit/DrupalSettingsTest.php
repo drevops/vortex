@@ -301,7 +301,7 @@ class DrupalSettingsTest extends TestCase {
    */
   public function testEnvironmentDev(): void {
     $this->setEnvVars([
-      'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_DEV,
+      'DREVOPS_ENVIRONMENT' => ENVIRONMENT_DEV,
     ]);
 
     $this->requireSettingsFile();
@@ -331,7 +331,7 @@ class DrupalSettingsTest extends TestCase {
   public function testEnvironmentTest(): void {
     // Use Acquia's settings to set the environment type.
     $this->setEnvVars([
-      'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_TEST,
+      'DREVOPS_ENVIRONMENT' => ENVIRONMENT_TEST,
     ]);
 
     $this->requireSettingsFile();
@@ -360,7 +360,7 @@ class DrupalSettingsTest extends TestCase {
    */
   public function testEnvironmentProd(): void {
     $this->setEnvVars([
-      'DREVOPS_ENVIRONMENT_TYPE' => ENVIRONMENT_PROD,
+      'DREVOPS_ENVIRONMENT' => ENVIRONMENT_PROD,
     ]);
 
     $this->requireSettingsFile();
