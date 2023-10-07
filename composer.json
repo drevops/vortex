@@ -152,7 +152,8 @@
         },
         "installer-types": [
             "bower-asset",
-            "npm-asset"
+            "npm-asset",
+            "drupal-library"
         ],
         "preserve-paths": [
             "web/modules/custom",
