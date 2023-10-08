@@ -88,10 +88,12 @@ commands:
   cli:
     usage: Start a shell or run a command inside the CLI service container.
     # This will drop into shell if no arguments are supplied to this command.
-    # If arguments supplied, a new shell with DREVOPS_*, COMPOSE_* and TERM
-    # environment variables will be started. This allows passing of the environment
-    # variables to Ahoy commands which will then be forwarded to the container.
-    # Escape double quotes with \" (slash double-quote) when passing arguments with spaces.
+    # If arguments supplied, a new shell with TERM, COMPOSE_*, GITHUB_*,
+    # DOCKER_*, DRUPAL_* and DREVOPS_* environment variables will be started.
+    # This allows passing of the environment variables to Ahoy commands which
+    # will then be forwarded to the container.
+    # Escape double quotes with \" (slash double-quote) when passing arguments
+    # with spaces.
     cmd: if \[ "${#}" -ne 0 \]; then docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\DRUPAL_\|DREVOPS_" | sed 's/^/-e /') -T cli bash -c "$*"; else docker compose exec cli bash; fi
 
   composer:
@@ -182,11 +184,16 @@ commands:
 
   lint-be:
     usage: Lint back-end code.
-    cmd: ahoy cli "./vendor/bin/phpcs && vendor/bin/phpstan analyse && ./vendor/bin/phpmd . text phpmd.xml"
+    cmd: |
+      ahoy cli vendor/bin/phpcs
+      ahoy cli vendor/bin/phpstan
+      ahoy cli vendor/bin/phpmd . text phpmd.xml
 
   lint-fe:
     usage: Lint front-end code.
-    cmd: ahoy cli "./vendor/bin/twigcs && npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint"
+    cmd: |
+      ahoy cli vendor/bin/twigcs
+      ahoy cli "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} lint"
 
   test:
     usage: Run all tests.
@@ -194,23 +201,23 @@ commands:
 
   test-unit:
     usage: Run PhpUnit unit tests.
-    cmd: ahoy cli "./vendor/bin/phpunit --testsuite=unit $@"
+    cmd: ahoy cli vendor/bin/phpunit --testsuite=unit "$@"
 
   test-kernel:
     usage: Run PhpUnit kernel tests.
-    cmd: ahoy cli "./vendor/bin/phpunit --testsuite=kernel $@"
+    cmd: ahoy cli vendor/bin/phpunit --testsuite=kernel "$@"
 
   test-functional:
     usage: Run PhpUnit functional tests.
-    cmd: ahoy cli "./vendor/bin/phpunit --testsuite=functional $@"
+    cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "./vendor/bin/behat --colors $@"
+    cmd: ahoy cli vendor/bin/behat --colors "$@"
 
   debug:
     usage: Enable PHP Xdebug.
-    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
+    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable."
 
   deploy:
     usage: Run remote deployment procedures.
