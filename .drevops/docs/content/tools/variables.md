@@ -485,6 +485,14 @@ Default value: `email`
 
 Defined in: `.env`
 
+### `DREVOPS_NOTIFY_EMAIL_FROM`
+
+Email to send notifications from.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`
+
 ### `DREVOPS_NOTIFY_EMAIL_RECIPIENTS`
 
 Email address(es) to send notifications to.
