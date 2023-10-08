@@ -83,10 +83,6 @@
         </testsuite>
         -->
     </testsuites>
-    <listeners>
-        <listener class="\Drupal\Tests\Listeners\DrupalListener">
-        </listener>
-    </listeners>
 
     <logging>
         <junit outputFile=".logs/test_results/phpunit/phpunit.xml"/>
@@ -100,6 +96,8 @@
         <include>
             <directory>web/modules/custom</directory>
             <directory>web/themes/custom</directory>
+            <directory>web/sites/default/includes</directory>
+            <directory>web/sites/default/settings.php</directory>
         </include>
 
         <report>

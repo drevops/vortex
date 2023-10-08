@@ -14,8 +14,11 @@
     <exclude-pattern>*/web/themes/contrib/*</exclude-pattern>
     <exclude-pattern>*/web/sites/*</exclude-pattern>
     <exclude-pattern>*/scripts/*</exclude-pattern>
+    <exclude-pattern>*/tests/*Test.php</exclude-pattern>
 
+    <!-- #;< DREVOPS_DEV -->
     <exclude-pattern>*/.drevops/*</exclude-pattern>
+    <!-- #;> DREVOPS_DEV -->
 
     <rule ref="rulesets/unusedcode.xml"/>
     <rule ref="rulesets/codesize.xml"/>

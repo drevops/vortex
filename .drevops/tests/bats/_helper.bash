@@ -419,11 +419,8 @@ assert_files_present_drevops() {
   assert_file_exists "docs/TESTING.md"
 
   # Assert that DrevOps files removed.
-  assert_file_not_exists ".drevops/installer/install"
+  assert_dir_not_exists ".drevops"
   assert_file_not_exists "LICENSE"
-  assert_dir_not_exists ".drevops/docs"
-  assert_dir_not_exists ".drevops/tests"
-  assert_dir_not_exists "scripts/drevops/utils"
   assert_file_not_exists ".github/FUNDING.yml"
   assert_file_not_contains ".circleci/config.yml" "drevops_dev_test"
   assert_file_not_contains ".circleci/config.yml" "drevops_dev_test_workflow"
@@ -441,6 +438,7 @@ assert_files_present_drevops() {
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# DrevOps"
+  assert_dir_not_contains_string "${dir}" "/.drevops"
 
   popd >/dev/null || exit 1
 }

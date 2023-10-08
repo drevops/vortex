@@ -599,6 +599,22 @@ Default value: `web`
 
 Defined in: `.env`
 
+### `DRUPAL_SHIELD_PRINT`
+
+Shield print message.
+
+Default value: `Restricted access.`
+
+Defined in: `.env`
+
+### `DRUPAL_STAGE_FILE_PROXY_ORIGIN`
+
+Stage file proxy origin. Note that HTTP Auth provided by Shield will be<br />automatically added to the origin URL.
+
+Default value: `https://your-site-url.example/`
+
+Defined in: `.env`
+
 ### `LAGOON_PROJECT`
 
 Lagoon project name. May be different from [`$DREVOPS_PROJECT`](#DREVOPS_PROJECT).

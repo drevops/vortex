@@ -21,8 +21,9 @@ if (file_exists($contrib_path . '/redis') && !empty(getenv('DREVOPS_REDIS_ENABLE
   $settings['redis.connection']['host'] = getenv('REDIS_HOST') ?: 'redis';
   $settings['redis.connection']['port'] = getenv('REDIS_SERVICE_PORT') ?: '6379';
 
-  // Do not set the cache during installations of Drupal.
-  if (extension_loaded('redis')) {
+  // Do not set the cache during installations of Drupal, but allow
+  // to override this by setting DREVOPS_REDIS_EXTENSION_LOADED to non-zero.
+  if ((extension_loaded('redis') && getenv('DREVOPS_REDIS_EXTENSION_LOADED') === FALSE) || !empty(getenv('DREVOPS_REDIS_EXTENSION_LOADED'))) {
     $settings['cache']['default'] = 'cache.backend.redis';
 
     if (!isset($class_loader)) {

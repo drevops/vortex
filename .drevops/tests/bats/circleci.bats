@@ -57,7 +57,9 @@ load _helper.circleci.bash
   for previous_job_number in ${previous_job_numbers}; do
     tests_data="$(circleci_get_job_test_metadata "${previous_job_number}")"
     assert_contains "tests/phpunit/CircleCiConfigTest.php" "${tests_data}"
-    assert_contains "tests/phpunit/DrupalSettingsTest.php" "${tests_data}"
+    assert_contains "tests/phpunit/Drupal/DatabaseSettingsTest.php" "${tests_data}"
+    assert_contains "tests/phpunit/Drupal/EnvironmentSettingsTest.php" "${tests_data}"
+    assert_contains "tests/phpunit/Drupal/SwitchableSettingsTest.php" "${tests_data}"
     assert_contains "web/modules/custom/ys_core/tests/src/Functional/ExampleTest.php" "${tests_data}"
     assert_contains "web/modules/custom/ys_core/tests/src/Kernel/ExampleTest.php" "${tests_data}"
     assert_contains "web/modules/custom/ys_core/tests/src/Unit/ExampleTest.php" "${tests_data}"
