@@ -52,6 +52,11 @@
             "scripts/composer/"
         ]
     },
+    "autoload-dev": {
+        "classmap": [
+            "tests/phpunit/"
+        ]
+    },
     "config": {
         "platform": {
             "php": "8.1.0"

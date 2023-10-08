@@ -6,6 +6,7 @@
  */
 
 if (file_exists($contrib_path . '/fast404/fast404.inc')) {
+  // @codeCoverageIgnoreStart
   $settings['fast404_exts'] = '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
   $settings['fast404_allow_anon_imagecache'] = TRUE;
   $settings['fast404_whitelist'] = [
@@ -21,4 +22,5 @@ if (file_exists($contrib_path . '/fast404/fast404.inc')) {
   include_once $contrib_path . '/fast404/fast404.inc';
   // @phpstan-ignore-next-line
   fast404_preboot($settings);
+  // @codeCoverageIgnoreEnd
 }
