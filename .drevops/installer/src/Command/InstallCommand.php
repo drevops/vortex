@@ -420,7 +420,7 @@ class InstallCommand extends Command {
       $this->removeTokenWithContent('!DEPLOYMENT', $dir);
     }
     else {
-      @unlink("$dir/docs/DEPLOYMENT.md");
+      @unlink("$dir/docs/deployment.md");
       @unlink("$dir/.gitignore.deployment");
       $this->removeTokenWithContent('DEPLOYMENT', $dir);
     }
