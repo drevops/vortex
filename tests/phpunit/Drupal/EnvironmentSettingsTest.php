@@ -562,5 +562,4 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   }
 
   // phpcs:ignore #;> LAGOON
-
 }
