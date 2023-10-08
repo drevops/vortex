@@ -14,6 +14,8 @@ namespace Drupal;
  *
  * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.Before
  * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.After
+ * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.AfterLast
+ * phpcs:disable Drupal.Classes.ClassDeclaration.CloseBraceAfterBody
  */
 class EnvironmentSettingsTest extends SettingsTestCase {
 
