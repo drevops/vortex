@@ -356,10 +356,12 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertSettings($settings);
   }
 
+  // phpcs:ignore #;< LAGOON
+
   /**
    * Test per-environment settings for dynamic environment.
    */
-  public function testEnvironmentDynamic(): void {
+  public function testEnvironmentLagoonDynamic(): void {
     $this->setEnvVars([
       'LAGOON' => 1,
       'LAGOON_ENVIRONMENT_TYPE' => 'development',
@@ -410,7 +412,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   /**
    * Test per-environment settings for Dev environment.
    */
-  public function testEnvironmentDev(): void {
+  public function testEnvironmentLagoonDev(): void {
     $this->setEnvVars([
       'LAGOON' => 1,
       'LAGOON_ENVIRONMENT_TYPE' => 'development',
@@ -461,7 +463,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   /**
    * Test per-environment settings for Test environment.
    */
-  public function testEnvironmentTest(): void {
+  public function testEnvironmentLagoonTest(): void {
     $this->setEnvVars([
       'LAGOON' => 1,
       'LAGOON_ENVIRONMENT_TYPE' => 'development',
@@ -512,7 +514,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   /**
    * Test per-environment settings for Prod environment.
    */
-  public function testEnvironmentProd(): void {
+  public function testEnvironmentLagoonProd(): void {
     $this->setEnvVars([
       'LAGOON' => 1,
       'LAGOON_ENVIRONMENT_TYPE' => 'production',
@@ -558,5 +560,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
     $this->assertSettings($settings);
   }
+
+  // phpcs:ignore #;> LAGOON
 
 }
