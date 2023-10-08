@@ -134,12 +134,15 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Delay the initial database connection.
   $config['acquia_hosting_settings_autoconnect'] = FALSE;
   // Include Acquia environment settings.
-  // @codeCoverageIgnoreStart
   if (file_exists('/var/www/site-php/your_site/your_site-settings.inc')) {
+    // @codeCoverageIgnoreStart
     require '/var/www/site-php/your_site/your_site-settings.inc';
     $settings['config_sync_directory'] = $settings['config_vcs_directory'];
+    // @codeCoverageIgnoreEnd
   }
-  // @codeCoverageIgnoreEnd
+  // Default all environments to 'dev', including ODE environments.
+  $settings['environment'] = ENVIRONMENT_DEV;
+
   // Do not put any Acquia-specific settings in this code block. It is used
   // to explicitly map Acquia environments to $settings['environment']
   // variable only.
@@ -152,15 +155,6 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
     case 'test':
       $settings['environment'] = ENVIRONMENT_TEST;
       break;
-
-    case 'dev':
-      $settings['environment'] = ENVIRONMENT_DEV;
-      break;
-  }
-
-  // Treat ODE environments as 'dev'.
-  if (strpos(getenv('AH_SITE_ENVIRONMENT'), 'ode') === 0) {
-    $settings['environment'] = ENVIRONMENT_DEV;
   }
 }
 // #;> ACQUIA
@@ -168,6 +162,11 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
 // #;< LAGOON
 // Initialise environment type in Lagoon environment.
 if (getenv('LAGOON') && getenv('LAGOON_ENVIRONMENT_TYPE') == 'production' || getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
+  // Do not put any Lagoon-specific settings in this code block. It is used
+  // to explicitly map Lagoon environments to $settings['environment']
+  // variable only.
+  // Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
+  //
   // Environment is marked as 'production' in Lagoon.
   if (getenv('LAGOON_ENVIRONMENT_TYPE') == 'production') {
     $settings['environment'] = ENVIRONMENT_PROD;

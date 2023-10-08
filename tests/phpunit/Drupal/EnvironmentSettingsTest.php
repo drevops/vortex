@@ -11,6 +11,9 @@ namespace Drupal;
  * appear in every environment as expected.
  *
  * @group drupal_settings
+ *
+ * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.Before
+ * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.After
  */
 class EnvironmentSettingsTest extends SettingsTestCase {
 
@@ -51,7 +54,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
         [
           'AH_SITE_ENVIRONMENT' => TRUE,
         ],
-        static::ENVIRONMENT_LOCAL,
+        static::ENVIRONMENT_DEV,
       ],
       [
         [
@@ -81,7 +84,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
         [
           'AH_SITE_ENVIRONMENT' => 'nonode1',
         ],
-        static::ENVIRONMENT_LOCAL,
+        static::ENVIRONMENT_DEV,
       ],
       // phpcs:ignore #;> ACQUIA
       // phpcs:ignore #;< LAGOON
@@ -356,8 +359,170 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertSettings($settings);
   }
 
-  // phpcs:ignore #;< LAGOON
+  // phpcs:ignore #;< ACQUIA
+  /**
+   * Test per-environment settings for dynamic environment.
+   */
+  public function testEnvironmentAcquiaDynamic(): void {
+    $this->setEnvVars([
+      'AH_SITE_ENVIRONMENT' => 1,
+    ]);
 
+    $this->requireSettingsFile();
+
+    $config['acquia_hosting_settings_autoconnect'] = FALSE;
+    $config['config_split.config_split.dev']['status'] = TRUE;
+    $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
+    $config['environment_indicator.indicator']['fg_color'] = '#000000';
+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
+    $config['environment_indicator.settings']['favicon'] = TRUE;
+    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
+    $config['maintenance_theme'] = 'your_site_theme';
+    $config['shield.settings']['shield_enable'] = TRUE;
+    $config['system.performance']['cache']['page']['max_age'] = 900;
+    $config['system.performance']['css']['preprocess'] = 1;
+    $config['system.performance']['js']['preprocess'] = 1;
+    $this->assertConfig($config);
+
+    $settings['config_exclude_modules'] = [];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = static::ENVIRONMENT_DEV;
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
+    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
+    $settings['trusted_host_patterns'][] = '^nginx$';
+    $this->assertSettings($settings);
+  }
+
+  /**
+   * Test per-environment settings for Dev environment.
+   */
+  public function testEnvironmentAcquiaDev(): void {
+    $this->setEnvVars([
+      'AH_SITE_ENVIRONMENT' => 1,
+    ]);
+
+    $this->requireSettingsFile();
+
+    $config['acquia_hosting_settings_autoconnect'] = FALSE;
+    $config['config_split.config_split.dev']['status'] = TRUE;
+    $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
+    $config['environment_indicator.indicator']['fg_color'] = '#000000';
+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
+    $config['environment_indicator.settings']['favicon'] = TRUE;
+    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
+    $config['maintenance_theme'] = 'your_site_theme';
+    $config['shield.settings']['shield_enable'] = TRUE;
+    $config['system.performance']['cache']['page']['max_age'] = 900;
+    $config['system.performance']['css']['preprocess'] = 1;
+    $config['system.performance']['js']['preprocess'] = 1;
+    $this->assertConfig($config);
+
+    $settings['config_exclude_modules'] = [];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = static::ENVIRONMENT_DEV;
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
+    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
+    $settings['trusted_host_patterns'][] = '^nginx$';
+    $this->assertSettings($settings);
+  }
+
+  /**
+   * Test per-environment settings for Test environment.
+   */
+  public function testEnvironmentAcquiaTest(): void {
+    $this->setEnvVars([
+      'AH_SITE_ENVIRONMENT' => 'test',
+    ]);
+
+    $this->requireSettingsFile();
+
+    $config['acquia_hosting_settings_autoconnect'] = FALSE;
+    $config['config_split.config_split.test']['status'] = TRUE;
+    $config['environment_indicator.indicator']['bg_color'] = '#fff176';
+    $config['environment_indicator.indicator']['fg_color'] = '#000000';
+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_TEST;
+    $config['environment_indicator.settings']['favicon'] = TRUE;
+    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
+    $config['maintenance_theme'] = 'your_site_theme';
+    $config['shield.settings']['shield_enable'] = TRUE;
+    $config['system.performance']['cache']['page']['max_age'] = 900;
+    $config['system.performance']['css']['preprocess'] = 1;
+    $config['system.performance']['js']['preprocess'] = 1;
+    $this->assertConfig($config);
+
+    $settings['config_exclude_modules'] = [];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = static::ENVIRONMENT_TEST;
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
+    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
+    $settings['trusted_host_patterns'][] = '^nginx$';
+    $this->assertSettings($settings);
+  }
+
+  /**
+   * Test per-environment settings for Prod environment.
+   */
+  public function testEnvironmentAcquiaProd(): void {
+    $this->setEnvVars([
+      'AH_SITE_ENVIRONMENT' => 'prod',
+    ]);
+
+    $this->requireSettingsFile();
+
+    $config['acquia_hosting_settings_autoconnect'] = FALSE;
+    $config['environment_indicator.indicator']['bg_color'] = '#ef5350';
+    $config['environment_indicator.indicator']['fg_color'] = '#000000';
+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_PROD;
+    $config['environment_indicator.settings']['favicon'] = TRUE;
+    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
+    $config['maintenance_theme'] = 'your_site_theme';
+    $config['system.performance']['cache']['page']['max_age'] = 900;
+    $config['system.performance']['css']['preprocess'] = 1;
+    $config['system.performance']['js']['preprocess'] = 1;
+    $this->assertConfig($config);
+
+    $settings['config_exclude_modules'] = [];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = static::ENVIRONMENT_PROD;
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
+    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
+    $settings['trusted_host_patterns'][] = '^nginx$';
+    $this->assertSettings($settings);
+  }
+  // phpcs:ignore #;> ACQUIA
+  // phpcs:ignore #;< LAGOON
   /**
    * Test per-environment settings for dynamic environment.
    */
@@ -560,6 +725,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
     $this->assertSettings($settings);
   }
-
   // phpcs:ignore #;> LAGOON
+
 }
