@@ -226,7 +226,7 @@ if (!empty(getenv('DREVOPS_ENVIRONMENT'))) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-///                       PER-ENVIRONMENT SETTINGS                           ///
+///                         ENVIRONMENT DETECTION                            ///
 ////////////////////////////////////////////////////////////////////////////////
 
 if ($settings['environment'] == ENVIRONMENT_CI) {

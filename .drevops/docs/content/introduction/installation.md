@@ -16,8 +16,6 @@ curl -SsL https://install.drevops.com | php -- --quiet
 curl -SsL https://install.drevops.com | php -- /destination/directory
 ```
 
-The source code for the installer script is published from [`install`](../../../../.drevops/installer/install) file.
-
 ## Updating
 
 ```shell title="Update to the latest version"

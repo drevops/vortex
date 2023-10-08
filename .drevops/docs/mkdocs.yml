@@ -166,9 +166,10 @@ nav:
       - Overview 🚧: drupal/overview.md
       - Drupal project 🚧: drupal/drupal-project.md
       - Composer 🚧: drupal/composer.md
-      - Settings 🚧: drupal/settings.md
+      - Settings: drupal/settings.md
       - Module scaffold 🚧: drupal/module-scaffold.md
       - Theme scaffold 🚧: drupal/theme-scaffold.md
+      - Provision 🚧: drupal/provision.md
 
   - ⚙️ WORKFLOW:
       - Build: workflow/build.md
