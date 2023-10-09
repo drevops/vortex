@@ -165,7 +165,6 @@ nav:
   - 👋 Introduction:
     - README.md
     - Features: introduction/features.md
-    - Rationale 🚧: introduction/rationale.md
     - Installation: introduction/installation.md
     - Architecture: introduction/architecture.md
     - FAQs: introduction/faqs.md
