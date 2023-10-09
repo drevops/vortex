@@ -820,7 +820,7 @@ workflows:
           filters:
             branches:
               # 'main' or any branch with 'docs' in the name.
-              only: /^main$|.*docs.*/
+              only: /^main$|^develop$|.*docs.*/
             tags:
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
 
