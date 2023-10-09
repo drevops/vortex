@@ -1,4 +1,4 @@
-# 🚚 Deploy
+# Deployment
 
 The deployment to a remote location is performed by the
 [`scripts/drevops/deploy.sh`](../../../../scripts/drevops/deploy.sh) _router_

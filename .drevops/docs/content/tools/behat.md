@@ -1,4 +1,4 @@
-# Drupal project
+# Behat
 
 !!! note "Work in progress"
 

@@ -1,4 +1,4 @@
-# Drupal project
+# Workflows
 
 !!! note "Work in progress"
 

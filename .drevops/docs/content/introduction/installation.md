@@ -1,4 +1,4 @@
-# ⬇️ Installation
+# Installation
 
 ## Installation
 
@@ -15,6 +15,11 @@ curl -SsL https://install.drevops.com | php -- --quiet
 ```shell title="Installation into a specific directory"
 curl -SsL https://install.drevops.com | php -- /destination/directory
 ```
+
+!!! note "Work in progress"
+
+    We are looking for a way to make the installation process more user-friendly
+    and support `composer create-project` command.
 
 ## Updating
 

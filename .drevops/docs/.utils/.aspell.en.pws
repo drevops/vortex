@@ -2,6 +2,7 @@ personal_ws-1.1 en 28
 Acquia
 Amazee
 AmazeeIO
+Auth
 BDD
 Bario
 Behat
@@ -50,6 +51,7 @@ PHPUnit
 PRs
 Quickstart
 RENOVATEBOT
+Roadmap
 Robo
 SCSS
 SHA
@@ -95,6 +97,7 @@ hostname
 integrations
 io
 jira
+linters
 mariadb
 md
 newrelic

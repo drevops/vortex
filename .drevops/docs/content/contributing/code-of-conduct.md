@@ -1,4 +1,4 @@
-# Drupal project
+# Code of conduct
 
 !!! note "Work in progress"
 

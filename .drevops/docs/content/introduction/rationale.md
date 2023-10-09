@@ -1,4 +1,4 @@
-# Drupal project
+# Rationale
 
 !!! note "Work in progress"
 

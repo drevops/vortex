@@ -1,4 +1,4 @@
-# 🏛 Architecture
+# Architecture
 
 DrevOps offers a pre-configured project template that is reliable, tested and
 ready-to-use. Its main goal is to streamline onboarding, making it as quick and
@@ -36,10 +36,10 @@ in the codebase.
 | [`.ahoy.local.example.yml`](../../../../.ahoy.local.example.yml)                         | File      | An example of local Ahoy configuration file.                                                                                                                                                 |
 | [`.dockerignore`](../../../../.dockerignore)                                             | File      | [Docker configuration file](https://docs.docker.com/engine/reference/builder/#dockerignore-file) to control the inclusion or exclusion of the files passed to Docker for the build.          |
 | [`.editorconfig`](../../../../.editorconfig)                                             | File      | [EditorConfig](https://editorconfig.org/) helps maintain consistent coding styles for multiple developers working on the same project across various editors and IDEs.                       |
-| [`.env`](../../../../.env)                                                               | File      | Environment variables list file. Main place to control project workflow using DrevOps variables. See [Variables](../tools/variables.md) section for more details.                            |
-| [`.env.local.default`](../../../../.env.local.default)                                   | File      | Example of the local environment file used to override environment variables to alter the workflow when developing locally. See [Variables](../tools/variables.md) section for more details. |
+| [`.env`](../../../../.env)                                                               | File      | Environment variables list file. Main place to control project workflow using DrevOps variables. See [Variables](../workflows/variables.md) section for more details.                            |
+| [`.env.local.default`](../../../../.env.local.default)                                   | File      | Example of the local environment file used to override environment variables to alter the workflow when developing locally. See [Variables](../workflows/variables.md) section for more details. |
 | [`.gitignore`](../../../../.gitignore)                                                   | File      | Specifies intentionally untracked files to ignore.                                                                                                                                           |
-| [`.gitignore.deployment`](../../../../.gitignore.deployment)                             | File      | Specifies intentionally untracked files to ignore when deploying an artifact. See [Deploy](../workflow/deploy.md) section for more details.                                                  |
+| [`.gitignore.deployment`](../../../../.gitignore.deployment)                             | File      | Specifies intentionally untracked files to ignore when deploying an artifact. See [Deploy](../workflows/deployment.md) section for more details.                                                  |
 | [`.lagoon.yml`](../../../../.lagoon.yml)                                                 | File      | Lagoon configuration file. Removed if Lagoon hosting is not in use.                                                                                                                          |
 | [`behat.yml`](../../../../behat.yml)                                                     | File      | Behat [configuration](https://docs.behat.org/en/latest/user_guide/configuration.html) file.                                                                                                  |
 | [`composer.json`](../../../../composer.json)                                             | File      | Composer [configuration](https://getcomposer.org/doc/04-schema.md) file.                                                                                                                     |
@@ -153,4 +153,4 @@ To alter the workflow for a specific environment, the variables would need to be
 set within that environment via the configuration file or other means supported
 by the environment (e.g. CircleCI and Acquia support injecting variables via UI).
 
-See [Variables](../tools/variables.md) section for more details.
+See [Variables](../workflows/variables.md) section for more details.

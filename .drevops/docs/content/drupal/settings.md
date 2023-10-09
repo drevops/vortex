@@ -53,7 +53,7 @@ environments.
 
     The `DREVOPS_PROVISION_ENVIRONMENT` shell variable can be utilized within
     post-provision custom scripts, allowing targeted code execution based on
-    specific environments. Refer to [Provision](../provision.md) for additional
+    specific environments. Refer to [Provision](provision.md) for additional
     information.
 
 ### 2. Site-specific settings

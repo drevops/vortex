@@ -1,4 +1,4 @@
-# Drupal project
+# Documentation
 
 !!! note "Work in progress"
 

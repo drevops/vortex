@@ -1,4 +1,4 @@
-# Drupal project
+# PHPCS - PHP Code Sniffer
 
 !!! note "Work in progress"
 

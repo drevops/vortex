@@ -1,4 +1,4 @@
-# 📝 Authoring tests
+# Authoring tests
 
 DrevOps uses [Bats](https://github.com/bats-core/bats-core) for testing.
 Bats is a TAP-compliant testing framework for Bash. It provides a simple way to

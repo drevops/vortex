@@ -1,4 +1,4 @@
-# ℹ️️ FAQs
+# FAQs
 
 ## Why would I use DrevOps instead of just using Drupal Composer template?
 

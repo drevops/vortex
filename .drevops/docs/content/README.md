@@ -8,7 +8,6 @@ title: Introduction
   <span>DrevOps<sup>&reg;</sup></span>
 </h1>
 
-<h2 align="center">Drupal project template</h2>
 <h3 align="center"><em>Onboarding in minutes, not hours or days! 🚀🚀🚀</em></h3>
 
 DrevOps is a project template for Drupal that is designed to streamline
@@ -17,25 +16,34 @@ the development process for building high-quality Drupal websites.
 It is a **tested** Drupal project template with DevOps integrations for CI and
 hosting platforms.
 
-## ⭐️ Main features
+## Main features
 
-- **Drupal project scaffold** based
+- [Drupal project scaffold](drupal) based
   on [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
-- **Production-grade** Docker images based
+- [Tools](tools) for code quality and automated testing
+- [Production-grade Docker images](tools/docker) based
   on [Lagoon Docker images](https://github.com/uselagoon/lagoon-images)
-- **Continuous integration** configuration
-- **Tools** for code quality and automated testing
-- **Hosting integration**
-- **Unified developer experience**
+- [Continuous integration](integrations/ci) configuration
+- [Hosting integration](integrations/hosting)
+- [Unified developer experience](workflows)
 
 Refer to [Features](introduction/features.md) for more details.
 
-## 🚀 Quick start
+## Rationale
+
+See [Rationale](introduction/rationale.md) for more details.
+
+## Quick start
 
     curl -SsL https://install.drevops.com | php
 
 Refer to [Installation](introduction/installation.md) for more details.
 
-## 🙌 Contributing
+## Contributing
 
-Refer to [Contributing](introduction/contributing.md) for more details.
+Refer to [Contributing](contributing/README.md) for more details.
+
+## License
+
+DrevOps project template is licensed under the GPL-3.0 license. See
+the [LICENSE](../../../../LICENSE) file for details.

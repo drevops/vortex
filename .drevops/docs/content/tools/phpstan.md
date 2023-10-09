@@ -1,4 +1,4 @@
-# Drupal project
+# PHPStan - PHP Static Analysis Tool
 
 !!! note "Work in progress"
 
