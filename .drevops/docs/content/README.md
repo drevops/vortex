@@ -10,11 +10,11 @@ title: Introduction
 
 <h3 align="center"><em>Onboarding in minutes, not hours or days! 🚀🚀🚀</em></h3>
 
-DrevOps is a project template for Drupal that is designed to streamline
-the development process for building high-quality Drupal websites.
+DrevOps is a project template for [Drupal](https://drupal.org) that is designed
+to streamline the development process for building high-quality Drupal websites.
 
-It is a **tested** Drupal project template with DevOps integrations for CI and
-hosting platforms.
+The template is validated through automated tests, ensuring all tooling and
+workflows work correctly together.
 
 ## Main features
 
