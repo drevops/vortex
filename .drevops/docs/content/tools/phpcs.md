@@ -78,3 +78,10 @@ To ignore only the current and the **next line**:
 // phpcs:ignore
 $a = 1;
 ```
+
+## Ignoring fail in CI
+
+This tool runs in CI by default and fails the build if there are any violations.
+
+Set `DREVOPS_CI_PHPCS_IGNORE_FAILURE` environment variable to `1` to ignore
+failures. The tool will still run and report violations, if any.
