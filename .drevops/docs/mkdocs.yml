@@ -187,9 +187,10 @@ nav:
     - Drush 🚧: tools/drush.md
     - Git artifact 🚧: tools/git-artifact.md
     - PHPCS: tools/phpcs.md
-    - PHPMD 🚧: tools/phpmd.md
+    - PHPMD: tools/phpmd.md
     - PHPStan: tools/phpstan.md
     - PHPUnit 🚧: tools/phpunit.md
+    - Twigcs 🚧: tools/twigcs.md
     - Xdebug 🚧: tools/xdebug.md
 
   - 🧩 Integrations:
