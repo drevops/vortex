@@ -54,15 +54,24 @@
 }
 
 [data-md-color-scheme="default"] .md-tabs {
-  background-image: linear-gradient(120deg, #1e1d5e, #314273);
+  background-image: linear-gradient(120deg, #232273, #4862aa);
 }
 
 [data-md-color-scheme="slate"] .md-tabs {
-  background-image: linear-gradient(120deg, #1e1d5e, #314273);
+  background-image: linear-gradient(120deg, #232273, #4862aa);
 }
 
 /* Mobile logo. */
 .md-sidebar .md-nav__button.md-logo img {
   margin-left: auto;
   margin-right: auto;
+}
+
+.md-tabs__link {
+  font-size: .8rem;
+  opacity: 1;
+}
+
+.md-tabs__item--active .md-tabs__link {
+  font-weight: bold;
 }
