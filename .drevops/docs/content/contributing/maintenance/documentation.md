@@ -44,9 +44,10 @@ file.
 
 ### Publishing
 
-An automated CI build publishes this documentation on DrevOps release
-(as a `latest` version) and on every commit to a branch that has `docs` string
-in its name. This allowa publishing documentation for feature branches.
+An automated CI build publishes this documentation to https://docs.drevops.com/:
+- on DrevOps release as a tag number
+- on every push to `main` branch as `canary`
+- on every commit to a branch that has `docs` string as a safe branch name
 
 ## Consumer site documentation
 
