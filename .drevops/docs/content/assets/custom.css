@@ -54,11 +54,11 @@
 }
 
 [data-md-color-scheme="default"] .md-tabs {
-  background-image: linear-gradient(120deg, #5350de, #485d96);
+  background-image: linear-gradient(120deg, #1e1d5e, #314273);
 }
 
 [data-md-color-scheme="slate"] .md-tabs {
-  background-image: linear-gradient(120deg, #29277b, #3c4c78);
+  background-image: linear-gradient(120deg, #1e1d5e, #314273);
 }
 
 /* Mobile logo. */

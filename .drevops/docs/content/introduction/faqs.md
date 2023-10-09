@@ -27,6 +27,8 @@ We are in the process of adding support for other popular CI providers.
 Yes, but you would need to update some of the deployment scripts to match your
 hosting provider.
 
+We are in the process of adding support for popular hosting providers.
+
 ## What about BLT?
 
 BLT uses a different approach to building Drupal projects, where your project
@@ -37,6 +39,9 @@ can override anything and everything in it. The code is all yours.
 
 Yes, you can change anything you want. DrevOps is a project template, which
 means that you can disable/remove certain features.
+
+Feel free to [open an issue](https://github.com/drevops/drevops/issues) to
+discuss any of the decisions made in DrevOps.
 
 ## I do not need all these features? It looks like an overkill.
 
@@ -61,11 +66,12 @@ as a bug and would be happy to fix it. Please provide your feedback in the
 ## How easy is it to upgrade DrevOps?
 
 We provide a command to update DrevOps to the latest version. However, any
-changes and adjustments made for your project would need to be manually resolved.
+changes and adjustments made for your project would need to be manually
+resolved.
 
-This is a trade-off between having an upgradable project template (where you
-have full control) and a dependency package (where someone else has full control
-of the code that drives your project).
+This is a trade-off between having an upgradable project template, where you
+have full control, and a dependency package, where someone else has full control
+of the code that drives your project.
 
 ## How easy is it choose the features that I need?
 
@@ -95,3 +101,5 @@ meaning that some parts of the application could be built once and then reused
 in all the subsequent builds.
 
 We are working on bringing integrations with other CI providers.
+
+Read more about [CircleCI](../integrations/ci/circleci.md).

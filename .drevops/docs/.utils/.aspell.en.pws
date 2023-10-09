@@ -9,6 +9,7 @@ Behat
 CLI
 CircleCI
 ClamAV
+CodeSniffer
 Config
 DDEV
 DIDI
