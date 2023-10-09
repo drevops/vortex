@@ -1,4 +1,4 @@
-# 📖 Authoring documentation
+# Authoring documentation
 
 There are 2 types of the documentation that DrevOps provides:
 
@@ -55,3 +55,5 @@ DrevOps provides a scaffold of the consumer site documentation in the
 
 After DrevOps is installed into the consumer site, these docs are intended to
 be used by the site maintainers and stay up-to-date with the project changes.
+
+See [Documentation](../../workflows/documentation.md) section.

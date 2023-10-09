@@ -1,4 +1,4 @@
-# Drupal project
+# Acquia
 
 !!! note "Work in progress"
 

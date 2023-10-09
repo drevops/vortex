@@ -2,12 +2,14 @@ personal_ws-1.1 en 28
 Acquia
 Amazee
 AmazeeIO
+Auth
 BDD
 Bario
 Behat
 CLI
 CircleCI
 ClamAV
+CodeSniffer
 Config
 DDEV
 DIDI
@@ -50,6 +52,7 @@ PHPUnit
 PRs
 Quickstart
 RENOVATEBOT
+Roadmap
 Robo
 SCSS
 SHA
@@ -95,6 +98,7 @@ hostname
 integrations
 io
 jira
+linters
 mariadb
 md
 newrelic

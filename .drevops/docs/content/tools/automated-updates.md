@@ -1,4 +1,4 @@
-# 🔄 Automated updates
+# Automated updates
 
 DrevOps uses [Renovate](https://renovatebot.com) for automated dependency updates.
 

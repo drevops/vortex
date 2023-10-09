@@ -1,4 +1,4 @@
-# Drupal project
+# PHPMD - PHP Mess Detector
 
 !!! note "Work in progress"
 

@@ -1,4 +1,4 @@
-# Drupal project
+# Integrations
 
 !!! note "Work in progress"
 

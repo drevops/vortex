@@ -1,10 +1,10 @@
-# 📜 Authoring scripts
+# Authoring scripts
 
 ## Requirements
 
 !!! note
 
-    Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of words MUST, SHOULD and MAY.
+    Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of words `MUST`, `SHOULD` and `MAY`.
 
 1. MUST adhere to [POSIX standard](https://en.wikipedia.org/wiki/POSIX).
 2. MUST pass Shellcheck code analysis scan
@@ -72,12 +72,37 @@ pass "Finished GitHub notification for operation ${DREVOPS_NOTIFY_EVENT}"
 18. SHOULD use `note` messages for informing about the script progress.
 19. MUST use variables in the form of `${VAR}`.
 
-```bash
+
+## Variables
+
+Follow these guidelines when creating or updating DrevOps variables.
+
+1. Local variables MUST be in lowercase, and global variables MUST be in
+   uppercase.
+
+2. All DrevOps variables MUST start with `DREVOPS_` to separate DrevOps from
+   third-party variables.
+
+3. Global variables MAY be re-used as-is across scripts. For instance, the
+   `DREVOPS_WEBROOT` variable is used in several scripts.
+
+4. DrevOps action-specific script variables MUST be scoped within their own
+   script. For instance, the `DREVOPS_PROVISION_OVERRIDE_DB`
+   variable in the `provision.sh`.
+
+5. Drupal-related variables SHOULD start with `DRUPAL_` and SHOULD have a module
+   name added as a second prefix. This is to separate DrevOps,  third-party
+   services variables, and Drupal variables. For instance, to set
+   a user for Drupal's Shield module configuration, use `DRUPAL_SHIELD_USER`.
+
+6. Variables SHOULD NOT be exported into the global scope unless absolutely
+   necessary. Thus, values in `.env` SHOULD have default values set, but SHOULD
+   be commented out to provide visibility and avoid exposure to the global scope.
 
 ## Scaffold script
 
 Use the scaffold script below to kick-start your custom DrevOps script.
 
 ```bash
-{! content/maintenance/script-scaffold.sh !}
+{! content/contributing/maintenance/script-scaffold.sh !}
 ```

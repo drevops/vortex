@@ -1,4 +1,4 @@
-# 🐳 Docker Compose
+# Docker
 
 !!! note "Work in progress"
 

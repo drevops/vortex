@@ -1,4 +1,4 @@
-# 🛢 Database
+# Workflows
 
 !!! note "Work in progress"
 

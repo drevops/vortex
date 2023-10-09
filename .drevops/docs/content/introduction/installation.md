@@ -1,4 +1,4 @@
-# ⬇️ Installation
+# Installation
 
 ## Installation
 
@@ -16,7 +16,10 @@ curl -SsL https://install.drevops.com | php -- --quiet
 curl -SsL https://install.drevops.com | php -- /destination/directory
 ```
 
-The source code for the installer script is published from [`install`](../../../../.drevops/installer/install) file.
+!!! note "Work in progress"
+
+    We are looking for a way to make the installation process more user-friendly
+    and support `composer create-project` command.
 
 ## Updating
 

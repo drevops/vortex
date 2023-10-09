@@ -1,4 +1,4 @@
-# Drupal project
+# Git artifact
 
 !!! note "Work in progress"
 

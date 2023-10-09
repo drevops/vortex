@@ -1,4 +1,4 @@
-# Drupal project
+# Xdebug - Debugger Tool for PHP
 
 !!! note "Work in progress"
 
