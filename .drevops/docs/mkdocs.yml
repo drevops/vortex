@@ -187,7 +187,7 @@ nav:
     - Docker 🚧: tools/docker.md
     - Drush 🚧: tools/drush.md
     - Git artifact 🚧: tools/git-artifact.md
-    - PHPCS 🚧: tools/phpcs.md
+    - PHPCS: tools/phpcs.md
     - PHPMD 🚧: tools/phpmd.md
     - PHPStan 🚧: tools/phpstan.md
     - PHPUnit 🚧: tools/phpunit.md
