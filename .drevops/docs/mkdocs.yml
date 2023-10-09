@@ -223,7 +223,7 @@ nav:
   - 🙌 Contributing:
     - contributing/README.md
     - Roadmap: contributing/roadmap.md
-    - Code of conduct 🚧: contributing/code-of-conduct.md
+    - Code of conduct: contributing/code-of-conduct.md
     - Maintenance:
       - contributing/maintenance/README.md
       - Scripts: contributing/maintenance/scripts.md

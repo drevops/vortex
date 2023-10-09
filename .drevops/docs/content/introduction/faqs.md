@@ -56,7 +56,7 @@ to stay in order to make it work.
 
 There could be some cases when it is unreasonably opinionated - we consider this
 as a bug and would be happy to fix it. Please provide your feedback in the
-issue queue.
+[issue queue](https://github.com/drevops/drevops/issues).
 
 ## How easy is it to upgrade DrevOps?
 
