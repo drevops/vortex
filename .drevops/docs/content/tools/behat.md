@@ -14,7 +14,7 @@ Since Behat requires a running Drupal instance, it can only be run within
 Docker environment.
 
 ```shell
-docker compose exec -T cli vendor/bin/behat
+docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat
 ```
 or
 ```shell
