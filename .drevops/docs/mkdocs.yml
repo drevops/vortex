@@ -144,11 +144,14 @@ markdown_extensions:
   - pymdownx.tilde
 
   - pymdownx.highlight:
-      linenums: true
-      anchor_linenums: true
-      line_spans: __span
       pygments_lang_class: true
       use_pygments: true
+      guess_lang: block
+      extend_pygments_lang:
+        - name: php
+          lang: php
+          options:
+            startinline: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
