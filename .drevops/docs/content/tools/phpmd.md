@@ -18,9 +18,7 @@ for Drupal projects.
 ```shell
 vendor/bin/phpmd . text phpmd.xml
 ```
-
 or
-
 ```shell
 ahoy lint-be
 ```

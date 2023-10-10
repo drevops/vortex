@@ -15,9 +15,7 @@ Drupal projects.
 ```shell
 vendor/bin/phpstan
 ```
-
 or
-
 ```shell
 ahoy lint-be
 ```

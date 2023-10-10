@@ -27,9 +27,7 @@ ahoy test-functional                        # Run Functional tests.
 ```shell
 vendor/bin/phpunit path/to/MyTest.php
 ```
-
 or
-
 ```shell
 ahoy test-unit path/to/MyTest.php
 ```
@@ -39,9 +37,7 @@ ahoy test-unit path/to/MyTest.php
 ```shell
 vendor/bin/phpunit --filter=MyTest
 ```
-
 or
-
 ```shell
 ahoy test-unit --filter=MyTest
 ```
@@ -51,9 +47,7 @@ ahoy test-unit --filter=MyTest
 ```shell
 vendor/bin/phpunit --group=group_name
 ```
-
 or
-
 ```shell
 ahoy test-unit --group=group_name
 ```
