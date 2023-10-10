@@ -184,7 +184,7 @@ nav:
     - tools/README.md
     - Ahoy 🚧: tools/ahoy.md
     - Automated updates: tools/automated-updates.md
-    - Behat 🚧: tools/behat.md
+    - Behat: tools/behat.md
     - Doctor: tools/doctor.md
     - Docker 🚧: tools/docker.md
     - Drush 🚧: tools/drush.md
