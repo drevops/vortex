@@ -182,7 +182,7 @@ nav:
 
   - 🛠 Tools:
     - tools/README.md
-    - Ahoy 🚧: tools/ahoy.md
+    - Ahoy: tools/ahoy.md
     - Behat: tools/behat.md
     - Doctor: tools/doctor.md
     - Docker 🚧: tools/docker.md
