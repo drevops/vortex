@@ -85,6 +85,7 @@ bdd
 bootstrappable
 breakpoint
 changelog
+checkstyle
 codebase
 contrib
 customisations
@@ -107,6 +108,7 @@ newrelic
 npm
 onboarding
 php
+phpcs
 pre
 readme
 runtime
