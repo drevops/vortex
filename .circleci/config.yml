@@ -343,8 +343,8 @@ jobs:
           command: |
             if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then export DREVOPS_CI_BEHAT_PROFILE="${DREVOPS_CI_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}"; fi
             echo "Running with ${DREVOPS_CI_BEHAT_PROFILE:-default} profile"
-            docker compose exec -T cli vendor/bin/behat --colors --strict --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
-              docker compose exec -T cli vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
+            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
+              docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
               [ "${DREVOPS_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
           no_output_timeout: 30m
       - run:

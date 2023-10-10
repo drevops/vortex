@@ -17,6 +17,8 @@ default:
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
   formatters:
     progress_fail: true
+    # Disable JUnit formatter if memory leaks start to occur.
+    # See @https://github.com/Behat/Behat/pull/1423
     junit:
       output_path: '%paths.base%/.logs/test_results/behat'
 
