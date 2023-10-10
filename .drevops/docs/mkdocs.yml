@@ -183,7 +183,6 @@ nav:
   - 🛠 Tools:
     - tools/README.md
     - Ahoy 🚧: tools/ahoy.md
-    - Automated updates: tools/automated-updates.md
     - Behat: tools/behat.md
     - Doctor: tools/doctor.md
     - Docker 🚧: tools/docker.md
@@ -193,6 +192,7 @@ nav:
     - PHPMD: tools/phpmd.md
     - PHPStan: tools/phpstan.md
     - PHPUnit: tools/phpunit.md
+    - Renovate: tools/renovate.md
     - Twigcs: tools/twigcs.md
     - Xdebug 🚧: tools/xdebug.md
 
