@@ -121,6 +121,12 @@ process_docker_compose_json() {
       return strpos(\$key, 'x-') !== 0;
     }, ARRAY_FILTER_USE_KEY);
 
+    array_walk_recursive(\$data, function (&\$value) {
+      if (\$value !== null && preg_match('/:\d+\.\d+(\.\d+)?/', \$value)) {
+        \$value = preg_replace('/:\d+\.\d+(?:\.\d+)?/', ':VERSION', \$value);
+      }
+    });
+
     \$data = json_encode(\$data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
     print \$data;
