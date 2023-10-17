@@ -86,6 +86,7 @@ tasks:
         name: Send deployment notifications
         command: |
           if [ -n "$LAGOON_PR_NUMBER" ]; then export DREVOPS_NOTIFY_REF=$LAGOON_PR_NUMBER; export DREVOPS_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; export DREVOPS_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else export DREVOPS_NOTIFY_REF=$LAGOON_GIT_BRANCH; export DREVOPS_NOTIFY_SHA=$LAGOON_GIT_SHA; export DREVOPS_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi
+          DREVOPS_NOTIFY_EVENT=post_deployment \
           DREVOPS_NOTIFY_PROJECT=$LAGOON_PROJECT \
           DREVOPS_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
           ./scripts/drevops/notify.sh
