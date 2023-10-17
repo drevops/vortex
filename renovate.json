@@ -47,7 +47,11 @@
             "groupName": "Docker image",
             "groupSlug": "docker",
             "schedule": ["before 3am"],
-            "matchManagers": ["dockerfile", "docker-compose"]
+            "matchManagers": ["dockerfile", "docker-compose"],
+            "excludePackageNames": [
+                "selenium/standalone-chrome",
+                "seleniarm/standalone-chromium"
+            ]
         },
         {
             "groupName": "GitHub Actions",
