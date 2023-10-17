@@ -6,7 +6,7 @@
 # This script has excessive verbose output to make it easy to debug site
 # provisions and deployments.
 #
-# shellcheck disable=SC2086,SC2002,SC2235,SC1090,SC2012,SC2015
+# shellcheck disable=SC1091,SC2086,SC2002,SC2235,SC1090,SC2012,SC2015
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 

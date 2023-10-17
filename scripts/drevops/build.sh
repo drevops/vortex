@@ -9,7 +9,7 @@
 # Acquia runs "hooks" (provided in "hooks" directory), Lagoon runs build steps
 # (specified in .lagoon.yml file) etc.
 #
-# shellcheck disable=SC2046
+# shellcheck disable=SC1090,SC1091,SC2046,SC2016
 
 # Read variables from .env and .env.local files, respecting existing environment
 # variable values.
