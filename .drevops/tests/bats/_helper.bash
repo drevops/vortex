@@ -438,7 +438,7 @@ assert_files_present_drevops() {
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# DrevOps"
-  assert_dir_not_contains_string "${dir}" "/.drevops"
+  assert_dir_not_contains_string "${dir}" "/\.drevops"
 
   popd >/dev/null || exit 1
 }
