@@ -2,8 +2,8 @@
 
 https://github.com/phpmd/phpmd
 
-What PHPMD does is: It takes a given PHP source code base and look for several
-potential problems within that source. These problems can be things like:
+> What PHPMD does is: It takes a given PHP source code base and look for several
+> potential problems within that source. These problems can be things like:
 
 - Possible bugs
 - Suboptimal code
@@ -18,9 +18,7 @@ for Drupal projects.
 ```shell
 vendor/bin/phpmd . text phpmd.xml
 ```
-
 or
-
 ```shell
 ahoy lint-be
 ```
@@ -80,9 +78,6 @@ class Bar {
     }
 }
 
-/**
- *
- */
 class Bar {
   /**
    * This will suppress UnusedLocalVariable
@@ -95,3 +90,10 @@ class Bar {
   }
 }
 ```
+
+## Ignoring fail in CI
+
+This tool runs in CI by default and fails the build if there are any violations.
+
+Set `DREVOPS_CI_PHPMD_IGNORE_FAILURE` environment variable to `1` to ignore
+failures. The tool will still run and report violations, if any.

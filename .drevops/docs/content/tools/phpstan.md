@@ -2,10 +2,10 @@
 
 https://phpstan.org/user-guide/getting-started
 
-PHPStan focuses on finding errors in your code without actually running it. It
-catches whole classes of bugs even before you write tests for the code. It moves
-PHP closer to compiled languages in the sense that the correctness of each line
-of the code can be checked before you run the actual line.
+> PHPStan focuses on finding errors in your code without actually running it. It
+> catches whole classes of bugs even before you write tests for the code. It moves
+> PHP closer to compiled languages in the sense that the correctness of each line
+> of the code can be checked before you run the actual line.
 
 DrevOps comes with [pre-configured PHPStan ruleset](../../../../phpstan.neon) for
 Drupal projects.
@@ -15,9 +15,7 @@ Drupal projects.
 ```shell
 vendor/bin/phpstan
 ```
-
 or
-
 ```shell
 ahoy lint-be
 ```
@@ -74,3 +72,10 @@ To ignore only the current and the **next line**:
 // @phpstan-ignore-next-line
 $a = 1;
 ```
+
+## Ignoring fail in CI
+
+This tool runs in CI by default and fails the build if there are any violations.
+
+Set `DREVOPS_CI_PHPSTAN_IGNORE_FAILURE` environment variable to `1` to ignore
+failures. The tool will still run and report violations, if any.

@@ -144,11 +144,14 @@ markdown_extensions:
   - pymdownx.tilde
 
   - pymdownx.highlight:
-      linenums: true
-      anchor_linenums: true
-      line_spans: __span
       pygments_lang_class: true
       use_pygments: true
+      guess_lang: block
+      extend_pygments_lang:
+        - name: php
+          lang: php
+          options:
+            startinline: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
@@ -179,18 +182,18 @@ nav:
 
   - 🛠 Tools:
     - tools/README.md
-    - Ahoy 🚧: tools/ahoy.md
-    - Automated updates: tools/automated-updates.md
-    - Behat 🚧: tools/behat.md
+    - Ahoy: tools/ahoy.md
+    - Behat: tools/behat.md
     - Doctor: tools/doctor.md
     - Docker 🚧: tools/docker.md
     - Drush 🚧: tools/drush.md
-    - Git artifact 🚧: tools/git-artifact.md
+    - Git artifact: tools/git-artifact.md
     - PHPCS: tools/phpcs.md
     - PHPMD: tools/phpmd.md
     - PHPStan: tools/phpstan.md
-    - PHPUnit 🚧: tools/phpunit.md
-    - Twigcs 🚧: tools/twigcs.md
+    - PHPUnit: tools/phpunit.md
+    - Renovate: tools/renovate.md
+    - Twigcs: tools/twigcs.md
     - Xdebug 🚧: tools/xdebug.md
 
   - 🧩 Integrations:

@@ -44,12 +44,14 @@ Mysql
 NPM
 NewRelic
 Nginx
+Overcomplicated
 PHP
 PHPCS
 PHPMD
 PHPStan
 PHPUnit
 PRs
+Profiler
 Quickstart
 RENOVATEBOT
 Roadmap
@@ -62,6 +64,7 @@ Shellcheck
 Solr
 SsL
 Ssl
+Suboptimal
 TBD
 Terminalizer
 Twigcs
@@ -79,10 +82,12 @@ YOURSITE
 acquia
 amazeeio
 assignees
+autotesting
 bdd
 bootstrappable
 breakpoint
 changelog
+checkstyle
 codebase
 contrib
 customisations
@@ -105,6 +110,7 @@ newrelic
 npm
 onboarding
 php
+phpcs
 pre
 readme
 runtime
