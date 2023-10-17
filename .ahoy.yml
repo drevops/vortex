@@ -213,7 +213,7 @@ commands:
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli vendor/bin/behat --colors "$@"
+    cmd: ahoy cli php -d memory_limit=-1 vendor/bin/behat --colors "$@"
 
   debug:
     usage: Enable PHP Xdebug.

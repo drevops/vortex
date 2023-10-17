@@ -39,7 +39,7 @@
                 "TZ": "Australia/Melbourne",
                 "XDEBUG_ENABLE": ""
             },
-            "image": "selenium/standalone-chrome:111.0",
+            "image": "selenium/standalone-chrome:VERSION",
             "labels": {
                 "lagoon.type": "none"
             },
@@ -82,7 +82,7 @@
                 "TZ": "Australia/Melbourne",
                 "XDEBUG_ENABLE": ""
             },
-            "image": "clamav/clamav:1.2.0",
+            "image": "clamav/clamav:VERSION",
             "labels": {
                 "lagoon.type": "none"
             },
@@ -160,7 +160,7 @@
         "mariadb": {
             "build": {
                 "args": {
-                    "IMAGE": "uselagoon/mariadb-drupal:23.9.0"
+                    "IMAGE": "uselagoon/mariadb-drupal:VERSION"
                 },
                 "context": "FIXTURE_CUR_DIR",
                 "dockerfile": ".docker/mariadb.dockerfile"
@@ -320,7 +320,7 @@
         "redis": {
             "command": null,
             "entrypoint": null,
-            "image": "uselagoon/redis-6:23.9.0",
+            "image": "uselagoon/redis-6:VERSION",
             "labels": {
                 "lagoon.type": "redis"
             },
@@ -398,7 +398,7 @@
                 }
             },
             "entrypoint": null,
-            "image": "drevops/docker-wait-for-dependencies:23.9.0",
+            "image": "drevops/docker-wait-for-dependencies:VERSION",
             "labels": {
                 "lagoon.type": "none"
             },
