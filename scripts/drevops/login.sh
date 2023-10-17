@@ -2,7 +2,7 @@
 ##
 # Login to a Drupal site as an admin user.
 #
-# shellcheck disable=SC2086,SC2032,SC2033
+# shellcheck disable=SC1090,SC1091,SC2086,SC2032,SC2033,SC2016
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 

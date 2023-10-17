@@ -2,6 +2,7 @@
 ##
 # Notification dispatch to New Relic.
 #
+# shellcheck disable=SC1090,SC1091
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 

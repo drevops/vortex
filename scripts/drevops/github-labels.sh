@@ -10,7 +10,7 @@
 # a repository provided as an argument:
 # GITHUB_TOKEN=ghp_123 DREVOPS_GITHUB_REPO=myorg/myrepo ./github-labels.sh
 #
-# shellcheck disable=SC2155
+# shellcheck disable=SC1090,SC1091,SC2155
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
