@@ -1,19 +1,25 @@
+---
+hide:
+  - toc
+---
 # Architecture
 
 DrevOps offers a pre-configured project template that is reliable, tested and
 ready-to-use. Its main goal is to streamline onboarding, making it as quick and
 efficient as possible.
 
-## Core principles
+## Zen of DrevOps
 
-1. Rely on the upstream dependencies as much as possible.
-2. Keep your project repository structure as close to the
-   [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project) as possible.
-3. Keep tooling configuration as minimal as possible and aligned with the
-   community standards. But provide a way to override it if needed (e.g.,
-   configuration files).
-4. Use scripts to orchestrate workflows and control them via environment variables.
-5. Automatically test (with coverage reporting) and document everything.
+Similar to [Zen of Python](https://www.python.org/dev/peps/pep-0020/), DrevOps
+has its own set of principles.
+
+* Simple is better than complex.
+* Rely as much on upstream as possible.
+* Favor standard practices over custom implementations.
+* Errors should never pass silently.
+* Explicit logging helps.
+* Readability counts.
+* If the implementation is hard to explain, it's a bad idea.
 
 ## Repository structure
 
@@ -26,44 +32,64 @@ with addition of several configuration files and directories.
     The directory structure is **exactly what you are going to get** after
     installation - there are no files being copied or moved from _magic_ places.
 
-Click on the directory or file name below to navigate to the corresponding entry
-in the codebase.
-
-| Directory                                                                                | Type      | Purpose                                                                                                                                                                                          |
-|------------------------------------------------------------------------------------------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`.circleci`](../../../../.circleci)                                                     | Directory | CircleCI configuration files.                                                                                                                                                                    |
-| `.data`                                                                                  | Directory | Directory for downloaded database dump files. Excluded from the repository.                                                                                                                      |
-| [`.docker`](../../../../.docker)                                                         | Directory | Docker configuration files.                                                                                                                                                                      |
-| [`.github`](../../../../.github)                                                         | Directory | GitHub configuration files.                                                                                                                                                                      |
-| `.logs`                                                                                  | Directory | Test logs and screenshots. Excluded from the repository.                                                                                                                                         |
-| [`config`](../../../../config)                                                           | Directory | Directory for drupal exported configuration.                                                                                                                                                     |
-| [`docs`](../../../../docs)                                                               | Directory | Your project-specific documentation.                                                                                                                                                             |
-| [`drush`](../../../../drush)                                                             | Directory | Drush configuration files.                                                                                                                                                                       |
-| [`hooks`](../../../../hooks)                                                             | Directory | Acquia hooks. Removed if Acquia hosting is not in use.                                                                                                                                           |
-| [`patches`](../../../../patches)                                                         | Directory | Patches for Drupal core and contrib modules.                                                                                                                                                     |
-| [`scripts`](../../../../scripts)                                                         | Directory | Composer, DrevOps and custom project-specific scripts.                                                                                                                                           |
-| [`tests`](../../../../tests)                                                             | Directory | Tests integration tests and test for scripts.                                                                                                                                                    |
-| [`web`](../../../../web)                                                                 | Directory | Drupal web root directory.                                                                                                                                                                       |
-| [`.ahoy.yml`](../../../../.ahoy.yml)                                                     | File      | Ahoy configuration file.                                                                                                                                                                         |
-| [`.ahoy.local.example.yml`](../../../../.ahoy.local.example.yml)                         | File      | An example of local Ahoy configuration file.                                                                                                                                                     |
-| [`.dockerignore`](../../../../.dockerignore)                                             | File      | [Docker configuration file](https://docs.docker.com/engine/reference/builder/#dockerignore-file) to control the inclusion or exclusion of the files passed to Docker for the build.              |
-| [`.editorconfig`](../../../../.editorconfig)                                             | File      | [EditorConfig](https://editorconfig.org/) helps maintain consistent coding styles for multiple developers working on the same project across various editors and IDEs.                           |
-| [`.env`](../../../../.env)                                                               | File      | Environment variables list file. Main place to control project workflow using DrevOps variables. See [Variables](../workflows/variables.md) section for more details.                            |
-| [`.env.local.default`](../../../../.env.local.default)                                   | File      | Example of the local environment file used to override environment variables to alter the workflow when developing locally. See [Variables](../workflows/variables.md) section for more details. |
-| [`.gitignore`](../../../../.gitignore)                                                   | File      | Specifies intentionally untracked files to ignore.                                                                                                                                               |
-| [`.gitignore.deployment`](../../../../.gitignore.deployment)                             | File      | Specifies intentionally untracked files to ignore when deploying an artifact. See [Deploy](../workflows/deployment.md) section for more details.                                                 |
-| [`.lagoon.yml`](../../../../.lagoon.yml)                                                 | File      | Lagoon configuration file. Removed if Lagoon hosting is not in use.                                                                                                                              |
-| [`.twig_cs.php`](../../../../.twig_cs.php)                                               | File      | Twigcs [configuration](https://github.com/friendsoftwig/twigcs#file-based-configuration) file.                                                                                                   |
-| [`behat.yml`](../../../../behat.yml)                                                     | File      | Behat [configuration](https://docs.behat.org/en/latest/user_guide/configuration.html) file.                                                                                                      |
-| [`composer.json`](../../../../composer.json)                                             | File      | Composer [configuration](https://getcomposer.org/doc/04-schema.md) file.                                                                                                                         |
-| [`docker-compose.yml`](../../../../docker-compose.yml)                                   | File      | Configuration file for [Docker Compose](https://docs.docker.com/compose/).                                                                                                                       |
-| [`docker-compose.override.default.yml`](../../../../docker-compose.override.default.yml) | File      | Example override file for Docker Compose configuration.                                                                                                                                          |
-| [`phpcs.xml`](../../../../phpcs.xml)                                                     | File      | PHP CodeSniffer [configuration](https://github.com/squizlabs/PHP_CodeSniffer/wiki/Advanced-Usage#using-a-default-configuration-file) file.                                                       |
-| [`phpmd.xml`](../../../../phpmd.xml)                                                     | File      | PHP Mess Detector [configuration](https://github.com/phpmd/phpmd) file.                                                                                                                          |
-| [`phpstan.neon`](../../../../phpstan.neon)                                               | File      | PHPStan [configuration](https://phpstan.org/config-reference) file.                                                                                                                              |
-| [`phpunit.xml`](../../../../phpunit.xml)                                                 | File      | PHPUnit [configuration](https://docs.phpunit.de/en/9.6/configuration.html) file.                                                                                                                 |
-| [`README.md`](../../../../README.md)                                                     | File      | Project main readme file.                                                                                                                                                                        |
-| [`renovate.json`](../../../../renovate.json)                                             | File      | Renovate [configuration](https://docs.renovatebot.com/self-hosted-configuration/) file.                                                                                                          |
+```
+├── .circleci                # CircleCI configuration files.
+├── .data                    # Database dump files directory. Excluded.
+├── .docker                  # Docker configuration files.
+│   ├── config               #   Additional configuration for every Docker service.
+│   └── scripts              #   Scripts to run in the Docker services during image build
+├── .github                  # GitHub configuration files.
+├── .logs                    # Test logs and screenshots. Excluded.
+├── config                   # Drupal configuration.
+│   ├── ci                   #   Config split configuration for CI environment.
+│   ├── default              #   Default configuration.
+│   ├── dev                  #   Config split configuration for DEV environment.
+│   ├── local                #   Config split configuration for local environment.
+│   └── test                 #   Config split configuration for test environment.
+├── docs                     # Your project documentation.
+├── drush                    # Drush configuration files.
+├── hooks                    # Acquia hooks. Removed if not using Acquia hosting.
+│   ├── common               #   Hook implementations that run on all environments.
+│   ├── library              #   Library of hook implementations.
+│   └── prod                 #   Hook implementations that run in prod environment.
+├── patches                  # Patches for packages.
+├── scripts                  # Composer, DrevOps and custom project scripts.
+│   ├── composer             #   Composer scripts.
+│   ├── custom               #   Custom project scripts.
+│   └── drevops              #   DrevOps workflow scripts.
+├── tests                    # Integration and configuration tests.
+│   ├── behat                #   Behat BDD tests.
+│   └── phpunit              #   Configuration unit tests
+├── web                      # Drupal web root directory.
+│   ├── modules/custom/ys_core    #  Custom module scaffold.
+│   │   ├── tests/src        #         Tests scaffold.
+│   │   │   ├── Functional   #           Functional test scaffold and example.
+│   │   │   ├── Kernel       #           Kernel test scaffold and example.
+│   │   │   ├── Traits       #           Helper traits to use in tests.
+│   │   │   └── Unit         #           Unit test scaffold and example.
+│   │   └── ys_core.deploy   #         Drush deploy example.
+│   └── modules/custom/ys_search  #  Custom search module scaffold.
+├── .ahoy.yml                # Ahoy configuration file.
+├── .ahoy.local.example.yml  # Ahoy local configuration file.
+├── .dockerignore            # Docker ignore configuration file.
+├── .editorconfig            # Helps maintain consistent coding styles.
+├── .env                     # Environment variables to control project workflow using DrevOps variables.
+├── .env.local.default       # Environment variables local overrides.
+├── .gitignore               # Intentionally untracked files to ignore in Git.
+├── .gitignore.deployment    # Intentionally untracked files to ignore in artifact deployment.
+├── .lagoon.yml              # Lagoon configuration file. Removed if not using Lagoon hosting.
+├── .twig_cs.php             # Twigcs configuration file.
+├── behat.yml                # Behat configuration file.
+├── composer.json            # Composer configuration file.
+├── docker-compose.yml       # Docker Compose configuration file.
+├── docker-compose.override.default.yml # Docker Compose local configuration file.
+├── phpcs.xml                # PHP CodeSniffer configuration file.
+├── phpmd.xml                # PHP Mess Detector configuration file.
+├── phpstan.neon             # PHPStan configuration file.
+├── phpunit.xml              # PHPUnit configuration file.
+├── README.md                # Project main readme file.
+└── renovate.json            # Renovate configuration file.
+```
 
 ## Scripts
 
@@ -79,25 +105,42 @@ During installation, the scripts are added to your project repository into
     overrides** without needing to learn an additional programming language, compile
     sources, or rely on upstream dependencies.
 
-    In the future, we will be providing `pre-` and `post-` hooks for scripts so
+    We are looking into providing `pre-` and `post-` hooks for scripts so
     that you can extend the functionality without modifying the original source
     code.
 
+    We are also looking into a more streamlined way of updating the scripts.
+
 ### Centralised workflows
+
+> A workflow is a sequence of steps or tasks to accomplish a specific goal.
+
+DrevOps comes with as set of pre-defined workflows to standardise the development
+process.
+
+For example, the `scripts/drevops/download-db.sh` script is used to download a
+database from any supported hosting provider or a custom location.
+
+Another example is a `scripts/drevops/provision.sh` script that is used to
+provision a website in a consistent way, allowing to alter the flow using
+[environment variables](../workflows/variables.md) and enhance it via custom
+scripts.
 
 The scripts aim to centralize workflows instead of adjusting them for every
 environment (local, CI, dev, prod, etc.), reducing multiple points of failure.
-
 This means that a developer updating a workflow for local environment, for
 example, will not accidentally forget to update it for the CI environment, and
 so on.
 
+In the diagram below, the `download-db.sh` and `provision.sh` scripts are
+**consistently** called from the configuration files within an environment.
+
 ```mermaid
-flowchart LR
+    flowchart LR
     subgraph Environment
-        A[Local<br/><small>.ahoy.yml</small>]
-        B[CI<br/><small>config.yml</small>]
-        C[Hosting<br/><small>.lagoon.yml</small>]
+        A[Local<br/><small><code>.ahoy.yml</code></small>]
+        B[CI<br/><small><code>config.yml</code></small>]
+        C[Hosting<br/><small><code>.lagoon.yml</code></small>]
     end
 
     subgraph Scripts
@@ -113,61 +156,57 @@ flowchart LR
     C --> Scripts
 ```
 
-[Environment variables](../workflows/variables.md) control the flow, with the same
-operations and order, but certain operations can be enabled or disabled
-depending on the environment.
-
-!!! example
-
-    A script used for downloading a database is called from Ahoy for
-    local development, from CI configuration, and from the hosting configuration
-    file is the same `scripts/drevops/download-db.sh` script.
+See [Workflows](../workflows.md) section for more details.
 
 ### Router scripts
 
 The script from the example above is a _router_ script that invokes other,
 more specific scripts (by sourcing them) based on the project configuration.
-This
-design **keeps the entry point consistent** while allowing implementation
-updates as needed without modifying the entry point everywhere.
+This design **keeps the entry point consistent** while allowing implementation
+updates as needed without modifying the entry point in multiple places.
 
-!!! example
+!!!note
 
-    ```mermaid
-    ---
-    title: Example of a router script
-    ---
-    flowchart LR
-        subgraph download-db.sh
-            F{DB source type}
-        end
-        F -- FTP --> G[download-db-ftp.sh]
-        F -- CURL --> H[download-db-curl.sh]
-        F -- Acquia --> I[download-db-acquia.sh]
-        F -- Lagoon --> J[download-db-lagoon.sh]
-        F -- Docker registry --> K[download-db-docker-registry.sh]
-        F -- Your custom source --> L[download-db-your-source.sh]
-    ```
+    The router script always starts with a verb to indicate the action it performs.
+    Specific scripts always start with a name of the router script.
 
+In the diagram below, for example, the `download-db.sh` script, being a router
+script, invokes another script specific to the database download source
+(controlled with an environment variable).
 
-    Changing the database download source from `lagoon` to `s3` would
-    not require changes to any local, CI, or hosting scripts.
+Changing the database download source from `lagoon` to `s3` would
+not require changes to any local, CI, or hosting scripts.
 
-    In addition, a developer would not need to learn how to use `s3` to
-    download a database or even know how that download process is setup.
+In addition, a developer would not need to learn how to use `s3` to
+download a database or even know how that download process is setup.
 
-    If a new database download method is introduced, the router
-    script `download-db.sh` can be easily extended to accommodate it,
-    without altering configuration files for services.
+If a new database download method is introduced, the router
+script `download-db.sh` can be easily extended to accommodate it,
+without altering configuration files for services.
 
+```mermaid
+---
+title: Example of a router script
+---
+flowchart LR
+    subgraph download-db.sh
+        F{DB source type}
+    end
+    F -- FTP --> G[download-db-ftp.sh]
+    F -- CURL --> H[download-db-curl.sh]
+    F -- Acquia --> I[download-db-acquia.sh]
+    F -- Lagoon --> J[download-db-lagoon.sh]
+    F -- Docker registry --> K[download-db-docker-registry.sh]
+    F -- Your custom source --> L[download-db-your-source.sh]
+```
 
 ### Environment variables
 
 The workflow within scripts is controlled via environment variables.
 
 To alter the workflow for a specific environment, the variables would need to be
-set within that environment via the configuration file or other means supported
-by the environment (e.g. CircleCI and Acquia support injecting variables via
-UI).
+set within that environment via the `.env` configuration file or other means
+supported by the environment (e.g. CircleCI and Acquia support injecting
+variables via UI).
 
 See [Variables](../workflows/variables.md) section for more details.
