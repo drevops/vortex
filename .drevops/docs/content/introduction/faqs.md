@@ -8,12 +8,12 @@ integrations, tool configuration, workflows, deployment scripts,
 hosting-specific configurations, documentation.
 
 Then you would have to test all of that and make sure that it works together.
-And that there are no false positives (passing CI on broken tests can go
-unnoticed up until the release and would block it).
+And that there are no false positives (for example, passing CI on broken tests
+can go unnoticed up until the release and would block it).
 
 ## Can I use DrevOps with my existing project?
 
-Yes, you can install DrevOps on top of your existing project.
+Yes, you can install DrevOps into your existing project.
 
 ## Can I use DrevOps with my existing project and keep my existing CI?
 
@@ -35,6 +35,12 @@ BLT uses a different approach to building Drupal projects, where your project
 becomes dependent on BLT. DrevOps is a project template, which means that you
 can override anything and everything in it. The code is all yours.
 
+BLT also abstracts (wraps) tooling into own commands. DrevOps encourages the use
+of tools the way it was designed.
+
+DrevOps does provide an Ahoy command file to wrap some the tools to use locally,
+but you do not have to use it.
+
 ## I do not like some of the decisions made in DrevOps. Can I change them?
 
 Yes, you can change anything you want. DrevOps is a project template, which
@@ -53,11 +59,16 @@ DrevOps is not for you. However, there were cases when people have discovered
 some new tools and approaches by using DrevOps and have decided to keep them
 in their projects. So, you may want to give it a try.
 
+!!!note
+
+    We are working on providing a more streamlined way of choosing the features
+    during the project creation process.
+
 ## I think it is too opinionated.
 
 DrevOps is opinionated to the point to make it work as a template. There are
 some changes that you can make to the project, but there are also some that have
-to stay in order to make it work.
+to stay in order to make tools talk to each other.
 
 There could be some cases when it is unreasonably opinionated - we consider this
 as a bug and would be happy to fix it. Please provide your feedback in the
@@ -72,6 +83,11 @@ resolved.
 This is a trade-off between having an upgradable project template, where you
 have full control, and a dependency package, where someone else has full control
 of the code that drives your project.
+
+!!!note
+
+    We are looking at utilising the approach from both worlds: distribution
+    through a package with an ability to override the scaffolded code.
 
 ## How easy is it choose the features that I need?
 
@@ -92,7 +108,7 @@ same way as it would be built on the hosting (if your hosting uses Docker).
 The other reason is that CircleCI supports passing the build artifacts between
 jobs via cache. This becomes really powerful on large consumer sites, where
 building the project takes a long time. DrevOps mitigates this by providing
-a CI configuration to download and cache the database overnight and use this
+a CI configuration used to download and cache the database overnight and use this
 cache for all the builds during the day, skipping the long database download
 process.
 

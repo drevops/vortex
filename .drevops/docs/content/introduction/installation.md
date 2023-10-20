@@ -1,7 +1,5 @@
 # Installation
 
-## Installation
-
 ```shell title="Install using interactive prompt"
 curl -SsL https://install.drevops.com | php
 ```
@@ -18,8 +16,8 @@ curl -SsL https://install.drevops.com | php -- /destination/directory
 
 !!! note "Work in progress"
 
-    We are looking for a way to make the installation process more user-friendly
-    and support `composer create-project` command.
+    We are currently looking at making the installation and update processes
+    more user-friendly and support `composer create-project` command.
 
 ## Updating
 

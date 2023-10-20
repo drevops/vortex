@@ -83,8 +83,6 @@ theme:
   search_index_only: true
 
 plugins:
-  # Plugin for MkDocs to allow placing mkdocs.yml in the same directory as documentation
-  # https://github.com/oprypin/mkdocs-same-dir
   - search
   - replace_markdown:
       patterns:
