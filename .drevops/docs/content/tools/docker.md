@@ -9,8 +9,8 @@ https://github.com/docker/compose
 DrevOps provides a configuration for Docker and Docker Compose to run the
 project in all environments using containers.
 
-
-Special thanks to Lagoon for providing the [Docker images](https://github.com/uselagoon/lagoon-images)
+Special thanks to Lagoon for providing
+the [Docker images](https://github.com/uselagoon/lagoon-images)
 that make this possible.
 
 !!!important
@@ -144,15 +144,21 @@ Changes this value if your user ID is different.
 ### Environment variables
 
 By default, the Docker Composer reads environment variables from the `.env`
-file.
-DrevOps provides an additional capability to read files from `.env.local` file
-as well. This allows to override the environment variables locally without
+file. DrevOps provides an additional capability to read files from `.env.local`
+file as well. This allows to override the environment variables locally without
 modifying the `.env` file.
 
-The variables read from `.env` file then can be passed into the containers.
+The variables read from `.env` and `.env.local` files then passed into the
+containers.
 
-This section defines only variables that require a default value that may not
-be provided in `.env` file.
+This section only defines 2 types of variables:
+
+1. Variables that are specific to the stack and require a default value (
+   like `LAGOON_ROUTE`).
+2. Variables that cannot be stored in `.env` file and are injected from the
+   actual environment (like secrets).
+
+Any other variables should be defined in the `.env` file.
 
 Consider the example:
 
@@ -177,12 +183,6 @@ where
 - `LAGOON_ROUTE: *default-url` - defines a variable `LAGOON_ROUTE` with a value
   of `*default-url`, which is a reference to the `default-url` YAML anchor
   defined above.
-
-!!!note
-
-    As a rule of thumb, do not define variables in the `docker-compose.yml` file
-    if they already have a default value in the `.env` file. This allows to keep
-    per-project changes only within `.env` file.
 
 See more information about environment variables in
 the [official documentation](https://docs.docker.com/compose/environment-variables/set-environment-variables/).
@@ -215,10 +215,10 @@ DrevOps:
   randomly assigned port - run `docker compose port solr 8983` to get the port
   number.
 - `clamav` - an optional container that runs a ClamAV antivirus server. This
-  container is  used to scan uploaded files for viruses.
-- `chrome` - container that runs a Chrome browser. This container is
-  used to run Behat tests. It is based on the official Selenium image which has
-  additional requried tools, like virtual desktop, installed.
+  container is used to scan uploaded files for viruses.
+  - `chrome` - container that runs a Chrome browser. This container is
+    used to run Behat tests. It is based on the official Selenium image which has
+    additional required tools, like virtual desktop, installed.
 - `wait_dependencies` - a container that runs a script to wait for applications
   within other containers to become available. Docker itself can coordinate
   startup of containers, but it does not know when the application within the
@@ -229,7 +229,8 @@ DrevOps:
 ### Networks
 
 Networks section defines the networks that are used to connect containers to
-each other. [Pygmy](../pygmy) provides the default `amazeeio-network` network that
+each other. [Pygmy](../pygmy) provides the default `amazeeio-network` network
+that
 is used to connect all containers together.
 
 ## Validate `docker-compose.yml`

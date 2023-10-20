@@ -156,7 +156,7 @@ In the diagram below, the `download-db.sh` and `provision.sh` scripts are
     C --> Scripts
 ```
 
-See [Workflows](../workflows.md) section for more details.
+See [Workflows](../../workflows) section for more details.
 
 ### Router scripts
 

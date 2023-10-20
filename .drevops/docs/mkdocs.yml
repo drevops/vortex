@@ -184,7 +184,7 @@ nav:
     - Behat: tools/behat.md
     - Doctor: tools/doctor.md
     - Docker: tools/docker.md
-    - Drush 🚧: tools/drush.md
+    - Drush: tools/drush.md
     - Git artifact: tools/git-artifact.md
     - PHPCS: tools/phpcs.md
     - PHPMD: tools/phpmd.md

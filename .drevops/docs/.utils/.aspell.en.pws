@@ -92,7 +92,9 @@ breakpoint
 changelog
 checkstyle
 codebase
+commandfiles
 contrib
+cron
 customisations
 dev
 drush
