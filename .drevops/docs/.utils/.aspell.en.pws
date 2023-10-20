@@ -51,6 +51,7 @@ PHPMD
 PHPStan
 PHPUnit
 PRs
+PhpStorm
 Profiler
 Quickstart
 RENOVATEBOT
@@ -122,6 +123,7 @@ toolset
 txt
 uat
 uncommented
+unmapped
 upgradable
 url
 webhook

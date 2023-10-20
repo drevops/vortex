@@ -192,7 +192,7 @@ nav:
     - PHPUnit: tools/phpunit.md
     - Renovate: tools/renovate.md
     - Twigcs: tools/twigcs.md
-    - Xdebug 🚧: tools/xdebug.md
+    - Xdebug: tools/xdebug.md
 
   - 🧩 Integrations:
     - integrations/README.md
