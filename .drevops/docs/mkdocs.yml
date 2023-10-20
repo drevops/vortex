@@ -183,13 +183,14 @@ nav:
     - Ahoy: tools/ahoy.md
     - Behat: tools/behat.md
     - Doctor: tools/doctor.md
-    - Docker 🚧: tools/docker.md
+    - Docker: tools/docker.md
     - Drush 🚧: tools/drush.md
     - Git artifact: tools/git-artifact.md
     - PHPCS: tools/phpcs.md
     - PHPMD: tools/phpmd.md
     - PHPStan: tools/phpstan.md
     - PHPUnit: tools/phpunit.md
+    - Pygmy: tools/pygmy.md
     - Renovate: tools/renovate.md
     - Twigcs: tools/twigcs.md
     - Xdebug: tools/xdebug.md

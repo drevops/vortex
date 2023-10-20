@@ -14,6 +14,7 @@ Config
 DDEV
 DIDI
 DIF
+DNS
 DREVOPS
 DX
 Deployer
@@ -30,6 +31,7 @@ GPL
 GitLab
 GraphQL
 Gruntfile
+HTTPS
 Hotfix
 Integrations
 JS
@@ -117,6 +119,7 @@ readme
 runtime
 sanitization
 scaffolded
+scalability
 sql
 toc
 toolset

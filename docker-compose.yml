@@ -13,6 +13,7 @@
 #;   installing or updating DrevOps.
 #;
 # See more about DrevOps Docker at https://docs.drevops.com/docker/
+# For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
 
 # ------------------------------------------------------------------------------
 # Variable aliases.
