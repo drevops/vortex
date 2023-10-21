@@ -87,10 +87,10 @@ This value is then overridden by the environment detection logic.
 #### Environment detection override
 
 It is also possible to force specific environment by setting
-`DREVOPS_ENVIRONMENT` environment variable. In this case, the environment
+`DRUPAL_ENVIRONMENT` environment variable. In this case, the environment
 detection will take place and will load any additional per-platform settings,
 but the final value of `$settings['environment']` will be set to the value of
-`DREVOPS_ENVIRONMENT` variable.
+`DRUPAL_ENVIRONMENT` variable.
 
 This is useful in cases where a certain behaviour is required for a specific
 environment, but the environment detection logic does not provide it. Or as a

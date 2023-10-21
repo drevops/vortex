@@ -109,7 +109,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_GIT_BRANCH' => 'main',
-          'DREVOPS_PRODUCTION_BRANCH' => 'main',
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'main',
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
         ],
         static::ENVIRONMENT_PROD,
@@ -160,7 +160,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
         [
           'LAGOON' => 1,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'DREVOPS_PRODUCTION_BRANCH' => FALSE,
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => FALSE,
         ],
         static::ENVIRONMENT_DEV,
       ],
@@ -169,7 +169,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON' => 1,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => FALSE,
-          'DREVOPS_PRODUCTION_BRANCH' => FALSE,
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => FALSE,
         ],
         static::ENVIRONMENT_DEV,
       ],
@@ -178,7 +178,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON' => 1,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => 'somebranch',
-          'DREVOPS_PRODUCTION_BRANCH' => FALSE,
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => FALSE,
         ],
         static::ENVIRONMENT_DEV,
       ],
@@ -187,7 +187,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON' => 1,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => FALSE,
-          'DREVOPS_PRODUCTION_BRANCH' => 'otherbranch',
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
         ],
         static::ENVIRONMENT_DEV,
       ],
@@ -196,7 +196,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON' => 1,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => 'somebranch',
-          'DREVOPS_PRODUCTION_BRANCH' => 'otherbranch',
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
         ],
         static::ENVIRONMENT_DEV,
       ],
@@ -205,7 +205,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON' => 1,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => '',
-          'DREVOPS_PRODUCTION_BRANCH' => '',
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => '',
         ],
         static::ENVIRONMENT_DEV,
       ],
@@ -214,7 +214,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON' => 1,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => 'somebranch',
-          'DREVOPS_PRODUCTION_BRANCH' => 'somebranch',
+          'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'somebranch',
         ],
         static::ENVIRONMENT_PROD,
       ],
@@ -234,7 +234,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    */
   public function testEnvironmentGeneric(): void {
     $this->setEnvVars([
-      'DREVOPS_ENVIRONMENT' => static::ENVIRONMENT_SUT,
+      'DRUPAL_ENVIRONMENT' => static::ENVIRONMENT_SUT,
     ]);
 
     $this->requireSettingsFile();
@@ -275,7 +275,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    */
   public function testEnvironmentLocal(): void {
     $this->setEnvVars([
-      'DREVOPS_ENVIRONMENT' => static::ENVIRONMENT_LOCAL,
+      'DRUPAL_ENVIRONMENT' => static::ENVIRONMENT_LOCAL,
     ]);
 
     $this->requireSettingsFile();
@@ -689,7 +689,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'LAGOON_PROJECT' => 'test_project',
       'LAGOON_GIT_BRANCH' => 'production',
       'LAGOON_GIT_SAFE_BRANCH' => 'production',
-      'DREVOPS_PRODUCTION_BRANCH' => 'production',
+      'DREVOPS_LAGOON_PRODUCTION_BRANCH' => 'production',
     ]);
 
     $this->requireSettingsFile();

@@ -18,21 +18,15 @@ Set to `y` to suppress Ahoy prompts.
 
 Default value: `UNDEFINED`
 
-Defined in: `.drevops/docs/.utils/variables/extra/.env.local.example.variables.sh`
-
-### `CLAMAV_MODE`
-
-ClamAV mode.
-
-Run ClamAV in either daemon mode by setting it to `0` (or 'daemon') or in<br />executable mode by setting it to `1`.
-
-Default value: `daemon`
-
-Defined in: `.env`
+Defined in: `.env.local.default`
 
 ### `COMPOSE_PROJECT_NAME`
 
-Docker Compose project name (all containers will have this name). Defaults<br />to the name of the project directory.
+Docker Compose project name.
+
+Sets the project name for a Docker Compose project. Influences container and<br />network names.
+
+Defaults to the name of the project directory.
 
 Default value: `UNDEFINED`
 
@@ -168,17 +162,9 @@ Default value: `UNDEFINED`
 
 Defined in: `CI config`
 
-### `DREVOPS_CLAMAV_ENABLED`
-
-Enable ClamAV integration.
-
-Default value: `1`
-
-Defined in: `.env`
-
 ### `DREVOPS_COMPOSER_VERBOSE`
 
-Print debug information from Composer install.
+Print output from Composer install.
 
 Default value: `1`
 
@@ -186,7 +172,7 @@ Defined in: `.env`
 
 ### `DREVOPS_DB_DIR`
 
-Database dump data directory (file or Docker image archive).
+Database dump directory.
 
 Default value: `./.data`
 
@@ -230,7 +216,7 @@ Defined in: `.env`
 
 ### `DREVOPS_DB_DOWNLOAD_CURL_URL`
 
-Database dump file source from CURL, with optional HTTP Basic Authentication<br />credentials embedded into the value.
+Database dump file sourced from CURL, with optional HTTP Basic Authentication<br />credentials embedded into the value.
 
 Default value: `UNDEFINED`
 
@@ -242,7 +228,7 @@ Set to `1` to override existing downloaded DB dump without asking.
 
 Default value: `UNDEFINED`
 
-Defined in: `.drevops/docs/.utils/variables/extra/.env.local.example.variables.sh`
+Defined in: `.env.local.default`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_FILE`
 
@@ -319,7 +305,7 @@ Defined in: `.env.local.default`
 
 ### `DREVOPS_DB_FILE`
 
-Database dump file name (Docker image archive will use '.tar' extension).
+Database dump file name.
 
 Default value: `db.sql`
 
@@ -331,15 +317,15 @@ Set to `1` to print debug information in DrevOps scripts.
 
 Default value: `UNDEFINED`
 
-Defined in: `.drevops/docs/.utils/variables/extra/.env.local.example.variables.sh`
+Defined in: `.env.local.default`
 
 ### `DREVOPS_DEPLOY_TYPES`
 
 The type of deployment.
 
-Combination of comma-separated values to support multiple deployments:<br />`artifact`,`docker`, `webhook`, `lagoon`.
+Combination of comma-separated values to support multiple deployment targets:<br />`artifact`,`docker`, `webhook`, `lagoon`.
 
-See https://docs.drevops.com/deploy
+See https://docs.drevops.com/workflows/deploy
 
 Default value: `artifact`
 
@@ -347,37 +333,11 @@ Defined in: `.env`
 
 ### `DREVOPS_DOCKER_VERBOSE`
 
-Print debug information from Docker build.
-
-Default value: `1`
-
-Defined in: `.env`, `.drevops/docs/.utils/variables/extra/.env.local.example.variables.sh`
-
-### `DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD`
-
-Password replacement used for sanitised database.
-
-Default value: `<RANDOM STRING>`
-
-Defined in: `.env`
-
-### `DREVOPS_DRUPAL_UNBLOCK_ADMIN`
-
-Unblock admin account when logging in.
-
-Default value: `1`
-
-Defined in: `.env`
-
-### `DREVOPS_ENVIRONMENT`
-
-Override detected environment type.
-
-Used in the application to override the automatically detected environment type.
+Set to `1` to print debug information from Docker build.
 
 Default value: `UNDEFINED`
 
-Defined in: `ENVIRONMENT`
+Defined in: `.env.local.default`, `.env`
 
 ### `DREVOPS_EXPORT_CODE_DIR`
 
@@ -395,6 +355,14 @@ Default value: `UNDEFINED`
 
 Defined in: `CI config`
 
+### `DREVOPS_LAGOON_PRODUCTION_BRANCH`
+
+Dedicated branch to identify the production environment.
+
+Default value: `main`
+
+Defined in: `.env`
+
 ### `DREVOPS_NOTIFY_CHANNELS`
 
 The channels of the notifications.
@@ -409,7 +377,7 @@ Defined in: `.env`
 
 Email to send notifications from.
 
-Default value: `UNDEFINED`
+Default value: `webmaster@your-site-url.example`
 
 Defined in: `.env`
 
@@ -419,29 +387,23 @@ Email address(es) to send notifications to.
 
 Multiple names can be specified as a comma-separated list of email addresses<br />with optional names in the format "email|name".<br />Example: "to1@example.com|Jane Doe, to2@example.com|John Doe"
 
-Default value: `UNDEFINED`
+Default value: `webmaster@your-site-url.example`
 
 Defined in: `.env`
 
 ### `DREVOPS_NPM_VERBOSE`
 
-Print debug information from NPM install.
+Print output from NPM install.
 
 Default value: `UNDEFINED`
 
 Defined in: `.env`
 
-### `DREVOPS_PRODUCTION_BRANCH`
-
-Dedicated branch to identify production environment.
-
-Default value: `main`
-
-Defined in: `.env`
-
 ### `DREVOPS_PROJECT`
 
-Project name.<br />Drives internal naming within the codebase.<br />Does not affect the names of containers and development URL - those depend on<br />the project directory and can be overridden with COMPOSE_PROJECT_NAME.
+Project name.
+
+Drives internal naming within the codebase.<br />Does not affect the names of containers and development URL - those depend on<br />the project directory and can be overridden with [`$COMPOSE_PROJECT_NAME`](#COMPOSE_PROJECT_NAME).
 
 Default value: `your_site`
 
@@ -457,15 +419,51 @@ Defined in: `ACQUIA ENVIRONMENT`
 
 ### `DREVOPS_PROVISION_OVERRIDE_DB`
 
-Flag to always overwrite existing database. Usually set to `0` in deployed<br />environments and can be temporary set to `1` for a specific deployment.<br />Set this to `1` in .env.local to override when developing localy.
+Overwrite existing database if it exists.
+
+Usually set to `0` in deployed environments and can be temporary set to `1` for<br />a specific deployment.<br />Set this to `1` in .env.local to override when developing localy.
 
 Default value: `UNDEFINED`
 
 Defined in: `.env`, `.env.local.default`
 
+### `DREVOPS_PROVISION_SANITIZE_DB_EMAIL`
+
+Sanitization email pattern. Sanitization is enabled by default in all<br />non-production environments.<br />@see https://docs.drevops.com/workflows/build#sanitization
+
+Default value: `user_%uid@your-site-url.example`
+
+Defined in: `.env`
+
+### `DREVOPS_PROVISION_SANITIZE_DB_PASSWORD`
+
+Password replacement used for sanitised database.
+
+Default value: `<RANDOM STRING>`
+
+Defined in: `.env`
+
+### `DREVOPS_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL`
+
+Replace username with email after databasse sanitization. Useful when email<br />is used as username.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`
+
+### `DREVOPS_PROVISION_SANITIZE_DB_SKIP`
+
+Skip database sanitization.
+
+Database sanitization is enabled by default in all non-production<br />environments and is always skipped in the production environment.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`
+
 ### `DREVOPS_PROVISION_USE_MAINTENANCE_MODE`
 
-Put the site into a maintenance mode during site provisioning phase.
+Put the site into a maintenance mode during site provisioning.
 
 Default value: `1`
 
@@ -473,7 +471,7 @@ Defined in: `.env`
 
 ### `DREVOPS_PROVISION_USE_PROFILE`
 
-Set to `1` to install a site from profile instead of database file dump.
+Set to `1` to install a site from profile instead of the database file dump.
 
 Default value: `UNDEFINED`
 
@@ -486,14 +484,6 @@ Skip purging of edge cache in Acquia environment.
 Default value: `UNDEFINED`
 
 Defined in: `ACQUIA ENVIRONMENT`
-
-### `DREVOPS_REDIS_ENABLED`
-
-Enable Redis integration.<br />See settings.redis.php for details.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
 
 ### `DREVOPS_TASK_COPY_DB_ACQUIA_SKIP`
 
@@ -535,19 +525,47 @@ Default value: `webmaster@your-site-url.example`
 
 Defined in: `.env`
 
-### `DRUPAL_DB_SANITIZE_EMAIL`
+### `DRUPAL_CLAMAV_ENABLED`
 
-Sanitization email pattern. Sanitization is enabled by default in all<br />non-production environments.<br />@see https://docs.drevops.com/workflows/build#sanitization
+Enable ClamAV integration.
 
-Default value: `user_%uid@your-site-url.example`
+Default value: `1`
 
 Defined in: `.env`
+
+### `DRUPAL_CLAMAV_MODE`
+
+ClamAV mode.
+
+Run ClamAV in either daemon mode by setting it to `0` (or 'daemon') or in<br />executable mode by setting it to `1`.
+
+Default value: `daemon`
+
+Defined in: `.env`
+
+### `DRUPAL_ENVIRONMENT`
+
+Override detected Drupal environment type.
+
+Used in the application to override the automatically detected environment type.
+
+Default value: `UNDEFINED`
+
+Defined in: `ENVIRONMENT`
 
 ### `DRUPAL_PROFILE`
 
 Drupal profile name (used only when installing from profile).
 
 Default value: `your_site_profile`
+
+Defined in: `.env`
+
+### `DRUPAL_REDIS_ENABLED`
+
+Enable Redis integration.<br />See settings.redis.php for details.
+
+Default value: `UNDEFINED`
 
 Defined in: `.env`
 
@@ -561,7 +579,7 @@ Defined in: `.env`
 
 ### `DRUPAL_SITE_EMAIL`
 
-Drupal site email (used only when installing from profile).
+Drupal site email.<br />Used only when installing from profile.
 
 Default value: `webmaster@your-site-url.example`
 
@@ -569,9 +587,9 @@ Defined in: `.env`
 
 ### `DRUPAL_SITE_NAME`
 
-Drupal site name (used only when installing from profile).
+Drupal site name.<br />Used only when installing from profile.
 
-Default value: `YOURSITE`
+Default value: `DREVOPS_PROJECT`
 
 Defined in: `.env`
 
@@ -588,6 +606,14 @@ Defined in: `.env`
 Drupal theme name.
 
 Default value: `your_site_theme`
+
+Defined in: `.env`
+
+### `DRUPAL_UNBLOCK_ADMIN`
+
+Unblock admin account when logging in.
+
+Default value: `1`
 
 Defined in: `.env`
 

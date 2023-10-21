@@ -41,10 +41,10 @@ DREVOPS_PROVISION_ENVIRONMENT="${DREVOPS_PROVISION_ENVIRONMENT:-}"
 # Name of the webroot directory with Drupal codebase.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
-# Drupal site name
-DRUPAL_SITE_NAME="${DRUPAL_SITE_NAME:-Example site}"
+# Drupal site name.
+DRUPAL_SITE_NAME="${DRUPAL_SITE_NAME:-${DREVOPS_PROJECT:-Example site}}"
 
-# Drupal site name
+# Drupal site email.
 DRUPAL_SITE_EMAIL="${DRUPAL_SITE_EMAIL:-webmaster@example.com}"
 
 # Profile machine name.
@@ -91,8 +91,6 @@ site_is_installed="$(drush status --fields=bootstrap | grep -q "Successful" && e
 ################################################################################
 echo
 note "Webroot dir                  : ${DREVOPS_WEBROOT}"
-note "Site name                    : ${DRUPAL_SITE_NAME}"
-note "Site email                   : ${DRUPAL_SITE_EMAIL}"
 note "Profile                      : ${DRUPAL_PROFILE}"
 note "Private files directory      : ${DREVOPS_DRUPAL_PRIVATE_FILES}"
 note "Config path                  : ${DREVOPS_DRUPAL_CONFIG_PATH}"
@@ -290,7 +288,7 @@ fi
 
 # Sanitize database.
 if [ "${DREVOPS_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then
-  ./scripts/drevops/sanitize-db.sh
+  ./scripts/drevops/provision-sanitize-db.sh
 else
   info "Skipped database sanitization."
   echo

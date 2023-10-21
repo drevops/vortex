@@ -10,12 +10,12 @@ set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Flag to block or unblock admin.
-DREVOPS_DRUPAL_UNBLOCK_ADMIN="${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-1}"
+DRUPAL_UNBLOCK_ADMIN="${DRUPAL_UNBLOCK_ADMIN:-1}"
 
 # ------------------------------------------------------------------------------
 
 drush() { ./vendor/bin/drush -y "$@"; }
 
-if [ "${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-}" = "1" ]; then
+if [ "${DRUPAL_UNBLOCK_ADMIN:-}" = "1" ]; then
   drush sql:query "SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" | head -n 1 | xargs drush -- user:block
 fi

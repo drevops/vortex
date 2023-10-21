@@ -20,8 +20,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
    */
   public function testClamavDaemonCustom(): void {
     $this->setEnvVars([
-      'DREVOPS_CLAMAV_ENABLED' => TRUE,
-      'CLAMAV_MODE' => 'daemon',
+      'DRUPAL_CLAMAV_ENABLED' => TRUE,
+      'DRUPAL_CLAMAV_MODE' => 'daemon',
       'CLAMAV_HOST' => 'custom_clamav_host',
       'CLAMAV_PORT' => 3333,
     ]);
@@ -40,7 +40,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
    */
   public function testClamavExecutable(): void {
     $this->setEnvVars([
-      'DREVOPS_CLAMAV_ENABLED' => TRUE,
+      'DRUPAL_CLAMAV_ENABLED' => TRUE,
       'CLAMAV_HOST' => 'custom_clamav_host',
       'CLAMAV_PORT' => 3333,
     ]);
@@ -58,8 +58,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
    */
   public function testClamavDaemonDefaults(): void {
     $this->setEnvVars([
-      'DREVOPS_CLAMAV_ENABLED' => TRUE,
-      'CLAMAV_MODE' => 'daemon',
+      'DRUPAL_CLAMAV_ENABLED' => TRUE,
+      'DRUPAL_CLAMAV_MODE' => 'daemon',
     ]);
 
     $this->requireSettingsFile();
@@ -78,7 +78,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
    */
   public function testConfigSplit(string $env, array $expected_present, array $expected_absent): void {
     $this->setEnvVars([
-      'DREVOPS_ENVIRONMENT' => $env,
+      'DRUPAL_ENVIRONMENT' => $env,
     ]);
 
     $this->requireSettingsFile();
@@ -166,7 +166,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
    */
   public function testEnvironmentIndicator(string $env, array $expected_present, array $expected_absent = []): void {
     $this->setEnvVars([
-      'DREVOPS_ENVIRONMENT' => $env,
+      'DRUPAL_ENVIRONMENT' => $env,
     ]);
 
     $this->requireSettingsFile();
@@ -230,7 +230,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
    */
   public function testRedis(): void {
     $this->setEnvVars([
-      'DREVOPS_REDIS_ENABLED' => 1,
+      'DRUPAL_REDIS_ENABLED' => 1,
       'REDIS_HOST' => 'redis_host',
       'REDIS_SERVICE_PORT' => 1234,
       'DREVOPS_REDIS_EXTENSION_LOADED' => 1,
@@ -254,7 +254,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
    */
   public function testRedisPartial(): void {
     $this->setEnvVars([
-      'DREVOPS_REDIS_ENABLED' => 1,
+      'DRUPAL_REDIS_ENABLED' => 1,
       'REDIS_HOST' => 'redis_host',
       'REDIS_SERVICE_PORT' => 1234,
       'DREVOPS_REDIS_EXTENSION_LOADED' => 0,
@@ -279,7 +279,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
    * @dataProvider dataProviderShield
    */
   public function testShield(string $env, array $vars, array $expected_present, array $expected_absent = []): void {
-    $this->setEnvVars($vars + ['DREVOPS_ENVIRONMENT' => $env]);
+    $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
 
     $this->requireSettingsFile();
 
@@ -397,7 +397,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
    * @dataProvider dataProviderStageFileProxy
    */
   public function testStageFileProxy(string $env, array $vars, array $expected_present, array $expected_absent = []): void {
-    $this->setEnvVars($vars + ['DREVOPS_ENVIRONMENT' => $env]);
+    $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
 
     $this->requireSettingsFile();
 

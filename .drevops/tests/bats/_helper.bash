@@ -371,7 +371,7 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/export-db-docker.sh"
   assert_file_exists "scripts/drevops/provision.sh"
   assert_file_exists "scripts/drevops/login.sh"
-  assert_file_exists "scripts/drevops/sanitize-db.sh"
+  assert_file_exists "scripts/drevops/provision-sanitize-db.sh"
   assert_file_exists "scripts/drevops/github-labels.sh"
   assert_file_exists "scripts/drevops/info.sh"
   assert_file_exists "scripts/drevops/notify.sh"

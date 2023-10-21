@@ -24,13 +24,13 @@ set -eu
 DREVOPS_DEBUG="${DREVOPS_DEBUG:-}"
 
 # Print debug information from Docker build.
-DREVOPS_DOCKER_VERBOSE="${DREVOPS_DOCKER_VERBOSE:-}"
+DREVOPS_DOCKER_VERBOSE="${DREVOPS_DOCKER_VERBOSE:-1}"
 
 # Print debug information from Composer install.
-DREVOPS_COMPOSER_VERBOSE="${DREVOPS_COMPOSER_VERBOSE:-}"
+DREVOPS_COMPOSER_VERBOSE="${DREVOPS_COMPOSER_VERBOSE:-1}"
 
 # Print debug information from NPM install.
-DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-}"
+DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-0}"
 
 # ------------------------------------------------------------------------------
 

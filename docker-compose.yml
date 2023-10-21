@@ -67,7 +67,7 @@ x-environment: &default-environment
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
   #;< REDIS
   # Redis integration flag.
-  DREVOPS_REDIS_ENABLED: ${DREVOPS_REDIS_ENABLED:-}
+  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
   #;> REDIS
   #;< LAGOON
   # Lagoon environment type.
