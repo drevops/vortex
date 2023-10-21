@@ -9,7 +9,7 @@ load _helper.bash
 load _helper.workflow.bash
 
 @test "Local Ahoy commands" {
-  prepare_sut "Starting utilities tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  prepare_sut "Starting utilities tests in build directory ${BUILD_DIR}"
 
   step "Run ahoy local commands"
 
@@ -46,7 +46,7 @@ load _helper.workflow.bash
 }
 
 @test "Doctor info" {
-  prepare_sut "Starting utilities tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  prepare_sut "Starting utilities tests in build directory ${BUILD_DIR}"
   step "Run ahoy doctor info"
 
   run ahoy doctor info
@@ -60,7 +60,7 @@ load _helper.workflow.bash
 }
 
 @test "GitHub labels" {
-  prepare_sut "Starting utilities tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  prepare_sut "Starting utilities tests in build directory ${BUILD_DIR}"
 
   step "Run ahoy github-labels"
 

@@ -8,10 +8,8 @@ prepare_sut() {
   step "Run SUT preparation: ${1}"
   local webroot="${2:-web}"
 
-  DREVOPS_DRUPAL_VERSION=${DREVOPS_DRUPAL_VERSION:-9}
   DREVOPS_DEV_VOLUMES_MOUNTED=${DREVOPS_DEV_VOLUMES_MOUNTED:-1}
 
-  assert_not_empty "${DREVOPS_DRUPAL_VERSION}"
   assert_not_empty "${DREVOPS_DEV_VOLUMES_MOUNTED}"
 
   assert_files_not_present_common "" "" "" "" "${webroot}"

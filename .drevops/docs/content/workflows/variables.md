@@ -417,14 +417,6 @@ Default value: `1`
 
 Defined in: `.env`
 
-### `DREVOPS_DRUPAL_VERSION`
-
-Drupal version.
-
-Default value: `10`
-
-Defined in: `.env`
-
 ### `DREVOPS_ENVIRONMENT`
 
 Override detected environment type.
