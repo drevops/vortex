@@ -1140,7 +1140,7 @@ class InstallCommand extends Command {
     $webroot = $this->getAnswer('webroot');
 
     if ($this->isInstalled()) {
-      $name = $this->getValueFromDstDotenv('DREVOPS_DRUPAL_PROFILE');
+      $name = $this->getValueFromDstDotenv('DRUPAL_PROFILE');
       if (!empty($name)) {
         return $name;
       }
@@ -1171,7 +1171,7 @@ class InstallCommand extends Command {
     $webroot = $this->getAnswer('webroot');
 
     if ($this->isInstalled()) {
-      $name = $this->getValueFromDstDotenv('DREVOPS_DRUPAL_THEME');
+      $name = $this->getValueFromDstDotenv('DRUPAL_THEME');
       if (!empty($name)) {
         return $name;
       }

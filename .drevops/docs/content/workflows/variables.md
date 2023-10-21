@@ -353,59 +353,11 @@ Default value: `1`
 
 Defined in: `.env`, `.drevops/docs/.utils/variables/extra/.env.local.example.variables.sh`
 
-### `DREVOPS_DRUPAL_ADMIN_EMAIL`
-
-Drupal admin email. May need to be reset if database was sanitized.
-
-Default value: `webmaster@your-site-url.example`
-
-Defined in: `.env`
-
-### `DREVOPS_DRUPAL_DB_SANITIZE_EMAIL`
-
-Sanitization email pattern. Sanitization is enabled by default in all<br />non-production environments.<br />@see https://docs.drevops.com/build#sanitization
-
-Default value: `user_%uid@your-site-url.example`
-
-Defined in: `.env`
-
 ### `DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD`
 
 Password replacement used for sanitised database.
 
 Default value: `<RANDOM STRING>`
-
-Defined in: `.env`
-
-### `DREVOPS_DRUPAL_PROFILE`
-
-Drupal profile name (used only when installing from profile).
-
-Default value: `your_site_profile`
-
-Defined in: `.env`
-
-### `DREVOPS_DRUPAL_SITE_EMAIL`
-
-Drupal site email (used only when installing from profile).
-
-Default value: `webmaster@your-site-url.example`
-
-Defined in: `.env`
-
-### `DREVOPS_DRUPAL_SITE_NAME`
-
-Drupal site name (used only when installing from profile).
-
-Default value: `YOURSITE`
-
-Defined in: `.env`
-
-### `DREVOPS_DRUPAL_THEME`
-
-Drupal theme name.
-
-Default value: `your_site_theme`
 
 Defined in: `.env`
 
@@ -575,6 +527,30 @@ Default value: `web`
 
 Defined in: `.env`
 
+### `DRUPAL_ADMIN_EMAIL`
+
+Drupal admin email. May need to be reset if database was sanitized.
+
+Default value: `webmaster@your-site-url.example`
+
+Defined in: `.env`
+
+### `DRUPAL_DB_SANITIZE_EMAIL`
+
+Sanitization email pattern. Sanitization is enabled by default in all<br />non-production environments.<br />@see https://docs.drevops.com/workflows/build#sanitization
+
+Default value: `user_%uid@your-site-url.example`
+
+Defined in: `.env`
+
+### `DRUPAL_PROFILE`
+
+Drupal profile name (used only when installing from profile).
+
+Default value: `your_site_profile`
+
+Defined in: `.env`
+
 ### `DRUPAL_SHIELD_PRINT`
 
 Shield print message.
@@ -583,11 +559,35 @@ Default value: `Restricted access.`
 
 Defined in: `.env`
 
+### `DRUPAL_SITE_EMAIL`
+
+Drupal site email (used only when installing from profile).
+
+Default value: `webmaster@your-site-url.example`
+
+Defined in: `.env`
+
+### `DRUPAL_SITE_NAME`
+
+Drupal site name (used only when installing from profile).
+
+Default value: `YOURSITE`
+
+Defined in: `.env`
+
 ### `DRUPAL_STAGE_FILE_PROXY_ORIGIN`
 
 Stage file proxy origin. Note that HTTP Auth provided by Shield will be<br />automatically added to the origin URL.
 
 Default value: `https://your-site-url.example/`
+
+Defined in: `.env`
+
+### `DRUPAL_THEME`
+
+Drupal theme name.
+
+Default value: `your_site_theme`
 
 Defined in: `.env`
 

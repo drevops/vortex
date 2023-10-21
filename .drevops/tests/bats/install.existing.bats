@@ -324,7 +324,7 @@ load _helper.bash
 }
 
 @test "Install into existing: previously installed project; custom theme; discovery; quiet" {
-  echo "DREVOPS_DRUPAL_THEME=star_wars" >>".env"
+  echo "DRUPAL_THEME=star_wars" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_install_quiet)
@@ -350,7 +350,7 @@ load _helper.bash
 
   install_dependencies_stub
 
-  echo "DREVOPS_DRUPAL_PROFILE=star_wars_profile" >>".env"
+  echo "DRUPAL_PROFILE=star_wars_profile" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_install_quiet)

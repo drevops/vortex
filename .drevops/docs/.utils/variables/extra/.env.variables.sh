@@ -16,7 +16,7 @@ DREVOPS_DB_DOCKER_IMAGE=
 DREVOPS_DB_DOCKER_IMAGE_BASE=
 
 # Drupal admin email. May need to be reset if database was sanitized.
-DREVOPS_DRUPAL_ADMIN_EMAIL="webmaster@your-site-url.example"
+DRUPAL_ADMIN_EMAIL="webmaster@your-site-url.example"
 
 # Password replacement used for sanitised database.
 DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="<RANDOM STRING>"

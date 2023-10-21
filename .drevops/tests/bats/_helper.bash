@@ -549,7 +549,7 @@ assert_files_present_profile() {
   # Site profile created.
   assert_dir_exists "${webroot}/profiles/custom/${suffix}_profile"
   assert_file_exists "${webroot}/profiles/custom/${suffix}_profile/${suffix}_profile.info.yml"
-  assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE="
+  assert_file_contains ".env" "DRUPAL_PROFILE="
 
   popd >/dev/null || exit 1
 }
@@ -563,7 +563,7 @@ assert_files_present_no_profile() {
 
   # Site profile created.
   assert_dir_not_exists "${webroot}/profiles/custom/${suffix}_profile"
-  assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE=standard"
+  assert_file_contains ".env" "DRUPAL_PROFILE=standard"
   assert_file_not_contains ".env" "${webroot}/profiles/custom/${suffix}_profile,"
   # Assert that there is no renaming of the custom profile with core profile name.
   assert_dir_not_exists "${webroot}/profiles/custom/standard"
