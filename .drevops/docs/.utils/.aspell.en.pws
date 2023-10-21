@@ -14,6 +14,7 @@ Config
 DDEV
 DIDI
 DIF
+DNS
 DREVOPS
 DX
 Deployer
@@ -30,6 +31,7 @@ GPL
 GitLab
 GraphQL
 Gruntfile
+HTTPS
 Hotfix
 Integrations
 JS
@@ -51,6 +53,7 @@ PHPMD
 PHPStan
 PHPUnit
 PRs
+PhpStorm
 Profiler
 Quickstart
 RENOVATEBOT
@@ -89,7 +92,9 @@ breakpoint
 changelog
 checkstyle
 codebase
+commandfiles
 contrib
+cron
 customisations
 dev
 drush
@@ -115,11 +120,15 @@ pre
 readme
 runtime
 sanitization
+scaffolded
+scalability
 sql
+toc
 toolset
 txt
 uat
 uncommented
+unmapped
 upgradable
 url
 webhook

@@ -22,6 +22,7 @@ Head over to the tool-specific documentation to learn more.
 | [PHPMD](phpmd.md)               | Detect code smells and possible errors                           |
 | [PHPStan](phpstan.md)           | PHP Static Analysis Tool                                         |
 | [PHPUnit](phpunit.md)           | The PHP Testing Framework                                        |
+| [Pygmy](pygmy.md)               | A local reverse-proxy and email catcher                          |
 | [Renovate](renovate.md)         | A bot for automated dependency updates                           |
 | [Twigcs](twigcs.md)             | Checkstyle for Twig                                              |
 | [Xdebug](xdebug.md)             | Debugger and Profiler Tool for PHP                               |

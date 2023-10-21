@@ -31,4 +31,4 @@ Join today!
 
 ## Roadmap
 
-See [Roadmap](roadmap.md).
+We actively maintain the project's roadmap. See [Roadmap](roadmap.md) for more details.
