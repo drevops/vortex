@@ -203,21 +203,10 @@ Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding p
 
 Copy `docker-compose.override.default.yml` to `docker-compose.override.yml`.
 
-## Testing
-Please refer to [testing documentation](docs/testing.md).
+## Project documentation
 
-## CI
-Please refer to [CI documentation](docs/ci.md).
-
-[//]: # (#;< DEPLOYMENT)
-
-## Deployment
-Please refer to [deployment documentation](docs/deployment.md).
-
-[//]: # (#;> DEPLOYMENT)
-
-## Releasing
-Please refer to [releasing documentation](docs/releasing.md).
-
-## FAQs
-Please refer to [FAQs](docs/faqs.md).
+- [FAQs](docs/faqs.md)
+- [Testing](docs/testing.md)
+- [CI](docs/ci.md)
+- [Releasing](docs/releasing.md)
+- [Deployment](docs/deployment.md)
