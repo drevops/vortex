@@ -6,7 +6,7 @@
 
 load _helper.bash
 
-@test "Clean" {
+@test "Reset" {
   run_install_quiet
 
   assert_files_present
@@ -49,7 +49,7 @@ load _helper.bash
 
   mktouch "uncommitted_file.txt"
 
-  ahoy clean
+  ahoy reset
 
   assert_files_present
   assert_git_repo
@@ -86,7 +86,7 @@ load _helper.bash
   assert_file_exists "uncommitted_file.txt"
 }
 
-@test "Reset; no commit" {
+@test "Reset; hard; no commit" {
   run_install_quiet
 
   assert_files_present
@@ -136,7 +136,7 @@ load _helper.bash
   mktouch "composer.lock"
   mktouch "web/themes/custom/zzzsomecustomtheme/package-lock.json"
 
-  ahoy reset
+  ahoy reset hard
 
   assert_git_repo
   assert_files_not_present_common
@@ -175,7 +175,7 @@ load _helper.bash
   assert_file_not_exists "web/themes/custom/star_wars/package-lock.json"
 }
 
-@test "Reset; committed files" {
+@test "Reset; hard; committed files" {
   run_install_quiet
 
   assert_files_present
@@ -228,7 +228,7 @@ load _helper.bash
   git add "committed_file.txt"
   git commit -m "Added custom file" >/dev/null
 
-  ahoy reset
+  ahoy reset hard
 
   assert_files_present_common
   assert_git_repo

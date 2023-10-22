@@ -18,18 +18,38 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
+is_hard_reset="$([ "${1:-}" == "hard" ] && echo "1" || echo "0")"
+
 info "Started reset."
 
-note "Changing permissions and remove all other untracked files."
-git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -I {} -- bash -c '( chmod 777 "{}" > /dev/null || true ) && ( rm -rf "{}" > /dev/null || true )'
+rm -rf \
+  "./vendor" \
+  "./${DREVOPS_WEBROOT}/core" \
+  "./${DREVOPS_WEBROOT}/profiles/contrib" \
+  "./${DREVOPS_WEBROOT}/modules/contrib" \
+  "./${DREVOPS_WEBROOT}/themes/contrib" \
+  "./${DREVOPS_WEBROOT}/themes/custom/*/build" \
+  "./${DREVOPS_WEBROOT}/themes/custom/*/scss/_components.scss"
 
-note "Resetting repository files."
-git reset --hard
+# shellcheck disable=SC2038
+find . -type d -name node_modules | xargs rm -Rf
 
-note "Removing all untracked, files."
-git clean -f -d
+if [ "${is_hard_reset}" = "1" ]; then
+  note "Changing permissions and remove all other untracked files."
 
-note "Removing empty directories."
-find . -type d -not -path "./.git/*" -empty -delete
+  git ls-files --others -i --exclude-from=.gitignore -z | while IFS= read -r -d '' file; do
+    chmod 777 "${file}" >/dev/null || true
+    rm -rf "${file}" >/dev/null || true
+  done
+
+  note "Resetting repository files."
+  git reset --hard
+
+  note "Removing all untracked, files."
+  git clean -f -d
+
+  note "Removing empty directories."
+  find . -type d -not -path "./.git/*" -empty -delete
+fi
 
 pass "Finished reset."

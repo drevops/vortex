@@ -68,7 +68,7 @@ fi
 
 info "Removing project containers and packages available since the previous run."
 if [ -f "docker-compose.yml" ]; then docker compose down --remove-orphans --volumes >/dev/null 2>&1; fi
-./scripts/drevops/clean.sh
+./scripts/drevops/reset.sh
 echo
 
 info "Building Docker images, recreating and starting containers."
