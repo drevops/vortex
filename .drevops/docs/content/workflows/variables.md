@@ -20,6 +20,14 @@ Default value: `UNDEFINED`
 
 Defined in: `.env.local.default`
 
+### `AHOY_CONFIRM_WAIT_SKIP`
+
+When Ahoy prompts are suppressed ([`$AHOY_CONFIRM_RESPONSE`](#AHOY_CONFIRM_RESPONSE) is `1`), the command<br />will wait for `3` seconds before proceeding.<br />Set this variable to "`1`" to skip the wait.
+
+Default value: `1`
+
+Defined in: `.env.local.default`
+
 ### `COMPOSE_PROJECT_NAME`
 
 Docker Compose project name.
