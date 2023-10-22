@@ -363,6 +363,14 @@ Default value: `main`
 
 Defined in: `.env`
 
+### `DREVOPS_LOCALDEV_URL`
+
+Local development URL.<br />Override only if you need to use a different URL than the default.
+
+Default value: `<current_dir>.docker.amazee.io`
+
+Defined in: `.env.local.default`
+
 ### `DREVOPS_NOTIFY_CHANNELS`
 
 The channels of the notifications.
