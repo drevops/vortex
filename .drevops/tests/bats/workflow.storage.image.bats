@@ -83,7 +83,7 @@ load _helper.workflow.bash
 
   assert_ahoy_test_bdd_fast
 
-  assert_ahoy_clean
-
   assert_ahoy_reset
+
+  assert_ahoy_reset_hard
 }

@@ -150,15 +150,11 @@ commands:
     cmd: |
       [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ] && docker pull $DREVOPS_DB_DOCKER_IMAGE
 
-  clean:
-    usage: Remove Docker containers and all build files.
-    cmd: ahoy down && ./scripts/drevops/clean.sh
-
   reset:
-    usage: "Remove containers, all build, uncommitted files."
+    usage: "Remove containers, all build files. Use with `hard` to reset repository to the last commit."
     cmd: |
-      ahoy confirm "All containers, build and uncommitted files will be removed, repository will be reset to the last commit. Proceed?" &&
-      AHOY_CONFIRM_RESPONSE=y ahoy clean && ./scripts/drevops/reset.sh
+      ahoy confirm "All containers and build files will be removed. Proceed?" &&
+      AHOY_CONFIRM_RESPONSE=y ahoy down && ./scripts/drevops/reset.sh "$@"
 
   fei:
     usage: Install front-end assets.

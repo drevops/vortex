@@ -50,9 +50,9 @@ load _helper.workflow.bash
   # with enabled Redis.
   assert_redis
 
-  assert_ahoy_clean
-
   assert_ahoy_reset
+
+  assert_ahoy_reset_hard
 }
 
 @test "Workflow: DB-driven, custom webroot" {
@@ -81,9 +81,9 @@ load _helper.workflow.bash
 
   assert_ahoy_fe "rootdoc"
 
-  assert_ahoy_clean "rootdoc"
-
   assert_ahoy_reset "rootdoc"
+
+  assert_ahoy_reset_hard "rootdoc"
 }
 
 @test "Workflow: profile-driven" {
