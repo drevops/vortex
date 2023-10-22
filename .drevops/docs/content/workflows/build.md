@@ -99,7 +99,7 @@ increases the build time).
 
 ### 8. Is theme available?
 
-If the environment variable `$DREVOPS_DRUPAL_THEME` is set, the script will
+If the environment variable `$DRUPAL_THEME` is set, the script will
 install the front-end dependencies and compile assets. Note that this already
 happens during the Docker build process, so this step runs **only locally**
 to update the assets to use development versions based on the current theme

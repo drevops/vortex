@@ -52,7 +52,7 @@ load _helper.bash
 
   export DREVOPS_NOTIFY_CHANNELS="email"
   export DREVOPS_NOTIFY_PROJECT="testproject"
-  export DREVOPS_DRUPAL_SITE_EMAIL="testproject@example.com"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
   export DREVOPS_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe, jane@example.com|Jane Doe"
   export DREVOPS_NOTIFY_REF="develop"
   export DREVOPS_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"

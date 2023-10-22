@@ -8,10 +8,8 @@ prepare_sut() {
   step "Run SUT preparation: ${1}"
   local webroot="${2:-web}"
 
-  DREVOPS_DRUPAL_VERSION=${DREVOPS_DRUPAL_VERSION:-9}
   DREVOPS_DEV_VOLUMES_MOUNTED=${DREVOPS_DEV_VOLUMES_MOUNTED:-1}
 
-  assert_not_empty "${DREVOPS_DRUPAL_VERSION}"
   assert_not_empty "${DREVOPS_DEV_VOLUMES_MOUNTED}"
 
   assert_files_not_present_common "" "" "" "" "${webroot}"
@@ -715,9 +713,9 @@ assert_redis() {
   assert_output_not_contains "config"
 
   substep "Restart with environment variable"
-  add_var_to_file .env "DREVOPS_REDIS_ENABLED" "1"
+  add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
   sync_to_container
-  DREVOPS_REDIS_ENABLED=1 ahoy up cli
+  DRUPAL_REDIS_ENABLED=1 ahoy up cli
   sleep 10
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null

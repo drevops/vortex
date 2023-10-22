@@ -24,13 +24,13 @@ set -eu
 DREVOPS_DEBUG="${DREVOPS_DEBUG:-}"
 
 # Print debug information from Docker build.
-DREVOPS_DOCKER_VERBOSE="${DREVOPS_DOCKER_VERBOSE:-}"
+DREVOPS_DOCKER_VERBOSE="${DREVOPS_DOCKER_VERBOSE:-1}"
 
 # Print debug information from Composer install.
-DREVOPS_COMPOSER_VERBOSE="${DREVOPS_COMPOSER_VERBOSE:-}"
+DREVOPS_COMPOSER_VERBOSE="${DREVOPS_COMPOSER_VERBOSE:-1}"
 
 # Print debug information from NPM install.
-DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-}"
+DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-0}"
 
 # ------------------------------------------------------------------------------
 
@@ -146,12 +146,12 @@ echo
 # Note that this will create package-lock.json file if it does not exist.
 # We are not re-running compilation in CI as it is not used - these assets
 # are already compiled as a part of the Docker build.
-if [ -n "${DREVOPS_DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
+if [ -n "${DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
   info "Installing front-end dependencies."
-  docker compose exec ${dcopts[@]} cli bash -c 'npm --prefix ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} install' >"${npm_verbose_output}"
+  docker compose exec ${dcopts[@]} cli bash -c 'npm --prefix ${DREVOPS_WEBROOT}/themes/custom/${DRUPAL_THEME} install' >"${npm_verbose_output}"
   pass "Installed front-end dependencies."
 
-  docker compose exec ${dcopts[@]} cli bash -c 'cd ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build' >"${npm_verbose_output}"
+  docker compose exec ${dcopts[@]} cli bash -c 'cd ${DREVOPS_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build' >"${npm_verbose_output}"
   pass "Compiled front-end dependencies."
 
   mkdir -p "${DREVOPS_WEBROOT}/sites/default/files"

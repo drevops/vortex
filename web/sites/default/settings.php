@@ -178,7 +178,7 @@ if (getenv('LAGOON') && getenv('LAGOON_ENVIRONMENT_TYPE') == 'production' || get
 
     // But try to identify production environment using a branch name for
     // the cases when 'production' Lagoon environment is not provisioned yet.
-    if (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('DREVOPS_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') == getenv('DREVOPS_PRODUCTION_BRANCH')) {
+    if (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') == getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) {
       $settings['environment'] = ENVIRONMENT_PROD;
     }
     // Dedicated test environment based on a branch name.
@@ -203,7 +203,7 @@ if (getenv('LAGOON') && getenv('LAGOON_ENVIRONMENT_TYPE') == 'production' || get
   $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
 
   // Cache prefix.
-  $settings['cache_prefix']['default'] = (getenv('LAGOON_PROJECT') ?: getenv('DREVOPS_PROJECT')) . '_' . (getenv('LAGOON_GIT_SAFE_BRANCH') ?: getenv('DREVOPS_PRODUCTION_BRANCH'));
+  $settings['cache_prefix']['default'] = (getenv('LAGOON_PROJECT') ?: getenv('DREVOPS_PROJECT')) . '_' . (getenv('LAGOON_GIT_SAFE_BRANCH') ?: getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH'));
 
   // Trusted host patterns for Lagoon internal routes.
   // URL when accessed from PHP processes in Lagoon.
@@ -221,8 +221,8 @@ if (getenv('LAGOON') && getenv('LAGOON_ENVIRONMENT_TYPE') == 'production' || get
 // #;> LAGOON
 
 // Allow overriding of an environment type.
-if (!empty(getenv('DREVOPS_ENVIRONMENT'))) {
-  $settings['environment'] = getenv('DREVOPS_ENVIRONMENT');
+if (!empty(getenv('DRUPAL_ENVIRONMENT'))) {
+  $settings['environment'] = getenv('DRUPAL_ENVIRONMENT');
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -135,10 +135,6 @@ setup() {
   export DREVOPS_NPM_VERBOSE="${TEST_DREVOPS_NPM_VERBOSE:-}"
   export DREVOPS_INSTALL_DEBUG="${TEST_DREVOPS_INSTALL_DEBUG:-}"
 
-  # Set Drupal version.
-  # @todo Review if this is required.
-  export DREVOPS_DRUPAL_VERSION="${DREVOPS_DRUPAL_VERSION:-10}"
-
   # Switch to using test demo DB.
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
@@ -375,7 +371,7 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/export-db-docker.sh"
   assert_file_exists "scripts/drevops/provision.sh"
   assert_file_exists "scripts/drevops/login.sh"
-  assert_file_exists "scripts/drevops/sanitize-db.sh"
+  assert_file_exists "scripts/drevops/provision-sanitize-db.sh"
   assert_file_exists "scripts/drevops/github-labels.sh"
   assert_file_exists "scripts/drevops/info.sh"
   assert_file_exists "scripts/drevops/notify.sh"
@@ -553,7 +549,7 @@ assert_files_present_profile() {
   # Site profile created.
   assert_dir_exists "${webroot}/profiles/custom/${suffix}_profile"
   assert_file_exists "${webroot}/profiles/custom/${suffix}_profile/${suffix}_profile.info.yml"
-  assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE="
+  assert_file_contains ".env" "DRUPAL_PROFILE="
 
   popd >/dev/null || exit 1
 }
@@ -567,7 +563,7 @@ assert_files_present_no_profile() {
 
   # Site profile created.
   assert_dir_not_exists "${webroot}/profiles/custom/${suffix}_profile"
-  assert_file_contains ".env" "DREVOPS_DRUPAL_PROFILE=standard"
+  assert_file_contains ".env" "DRUPAL_PROFILE=standard"
   assert_file_not_contains ".env" "${webroot}/profiles/custom/${suffix}_profile,"
   # Assert that there is no renaming of the custom profile with core profile name.
   assert_dir_not_exists "${webroot}/profiles/custom/standard"

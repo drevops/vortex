@@ -9,7 +9,7 @@ load _helper.bash
 load _helper.workflow.bash
 
 @test "Workflow: DB-driven" {
-  prepare_sut "Starting DB-driven WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  prepare_sut "Starting DB-driven WORKFLOW tests in build directory ${BUILD_DIR}"
 
   assert_ahoy_download_db
 
@@ -56,7 +56,7 @@ load _helper.workflow.bash
 }
 
 @test "Workflow: DB-driven, custom webroot" {
-  prepare_sut "Starting DB-driven WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}" "rootdoc"
+  prepare_sut "Starting DB-driven WORKFLOW tests in build directory ${BUILD_DIR}" "rootdoc"
 
   assert_ahoy_download_db
 
@@ -91,7 +91,7 @@ load _helper.workflow.bash
   export DREVOPS_INSTALL_DEMO_SKIP=1
   assert_file_not_exists .data/db.sql
 
-  prepare_sut "Starting fresh install WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  prepare_sut "Starting fresh install WORKFLOW tests in build directory ${BUILD_DIR}"
   # Assert that the database was not downloaded because DREVOPS_INSTALL_DEMO_SKIP was set.
   assert_file_not_exists .data/db.sql
 

@@ -10,7 +10,7 @@ set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Directory with database dump file.
-DREVOPS_DB_EXPORT_FILE_DIR="${DREVOPS_DB_DIR:-${DREVOPS_DB_DIR:-./.data}}"
+DREVOPS_DB_EXPORT_FILE_DIR="${DREVOPS_DB_EXPORT_FILE_DIR:-${DREVOPS_DB_DIR:-./.data}}"
 
 # ------------------------------------------------------------------------------
 
@@ -25,17 +25,20 @@ info "Started database file export."
 
 drush() { ./vendor/bin/drush -y "$@"; }
 
-# Create directory to store database dump.
-mkdir -p "${DREVOPS_DB_EXPORT_FILE_DIR}"
-
 # Create dump file name with a timestamp or use the file name provided
 # as a first argument.
 dump_file=$([ "${1:-}" ] && echo "${DREVOPS_DB_EXPORT_FILE_DIR}/${1}" || echo "${DREVOPS_DB_EXPORT_FILE_DIR}/export_db_$(date +%Y%m%d_%H%M%S).sql")
 
-# Dump database into a file. Also, provide a path to a parent directory if
-# relative path is provided, as the result file is relative to Drupal root,
-# but provided paths are relative to the project root.
-drush sql:dump --skip-tables-key=common --extra-dump=--no-tablespaces --result-file="${dump_file/.\//../}" -q
+# If dump file is relative - update it to the parent directory, because the
+# `drush sql:dump` command result file is relative to Drupal root, but provided
+# path is relative to the project root.
+dump_file_drush="${dump_file/#.\//../}"
+
+# Create a directory to store database dump.
+mkdir -p "$(dirname "${dump_file_drush}")"
+
+# Dump database into a file.
+drush sql:dump --skip-tables-key=common --extra-dump=--no-tablespaces --result-file="${dump_file_drush}" -q
 
 # Check that file was saved and output saved dump file name.
 if [ -f "${dump_file}" ] && [ -s "${dump_file}" ]; then

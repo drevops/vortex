@@ -5,8 +5,8 @@
  * ClamAV settings.
  */
 
-if (file_exists($contrib_path . '/clamav') && !empty(getenv('DREVOPS_CLAMAV_ENABLED'))) {
-  $clamav_mode = getenv('CLAMAV_MODE') ?: NULL;
+if (file_exists($contrib_path . '/clamav') && !empty(getenv('DRUPAL_CLAMAV_ENABLED'))) {
+  $clamav_mode = getenv('DRUPAL_CLAMAV_MODE') ?: NULL;
   if (in_array(strtolower((string) $clamav_mode), ['0', 'daemon'])) {
     // Drupal\clamav\Config::MODE_DAEMON.
     $config['clamav.settings']['scan_mode'] = 0;

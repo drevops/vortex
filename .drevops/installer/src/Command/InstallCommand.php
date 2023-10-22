@@ -17,11 +17,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class InstallCommand extends Command {
 
   /**
-   * Defines Drupal version supported by this installer.
-   */
-  const INSTALLER_DRUPAL_VERSION = 10;
-
-  /**
    * Defines installer exit codes.
    */
   const EXIT_SUCCESS = 0;
@@ -1145,7 +1140,7 @@ class InstallCommand extends Command {
     $webroot = $this->getAnswer('webroot');
 
     if ($this->isInstalled()) {
-      $name = $this->getValueFromDstDotenv('DREVOPS_DRUPAL_PROFILE');
+      $name = $this->getValueFromDstDotenv('DRUPAL_PROFILE');
       if (!empty($name)) {
         return $name;
       }
@@ -1176,7 +1171,7 @@ class InstallCommand extends Command {
     $webroot = $this->getAnswer('webroot');
 
     if ($this->isInstalled()) {
-      $name = $this->getValueFromDstDotenv('DREVOPS_DRUPAL_THEME');
+      $name = $this->getValueFromDstDotenv('DRUPAL_THEME');
       if (!empty($name)) {
         return $name;
       }
@@ -1645,7 +1640,6 @@ EOF;
   protected function printSummary() {
     $values['Current directory'] = self::$currentDir;
     $values['Destination directory'] = $this->getDstDir();
-    $values['Drupal version'] = static::getenvOrDefault('DREVOPS_DRUPAL_VERSION', self::INSTALLER_DRUPAL_VERSION);
     $values['DrevOps version'] = $this->getConfig('DREVOPS_VERSION');
     $values['DrevOps commit'] = $this->formatNotEmpty($this->getConfig('DREVOPS_INSTALL_COMMIT'), 'Latest');
 

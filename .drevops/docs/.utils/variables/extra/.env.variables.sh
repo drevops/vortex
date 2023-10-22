@@ -16,12 +16,39 @@ DREVOPS_DB_DOCKER_IMAGE=
 DREVOPS_DB_DOCKER_IMAGE_BASE=
 
 # Drupal admin email. May need to be reset if database was sanitized.
-DREVOPS_DRUPAL_ADMIN_EMAIL="webmaster@your-site-url.example"
+DRUPAL_ADMIN_EMAIL="webmaster@your-site-url.example"
 
 # Password replacement used for sanitised database.
-DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="<RANDOM STRING>"
+DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="<RANDOM STRING>"
 
 # Docker registry name.
 #
 # Provide port, if required as `<server_name>:<port>`.
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
+
+# Unblock admin account when logging in.
+DRUPAL_UNBLOCK_ADMIN=1
+
+# Drupal admin email. May need to be reset if database was sanitized.
+DRUPAL_ADMIN_EMAIL=
+
+# Replace username with email after databasse sanitization. Useful when email
+# is used as username.
+DREVOPS_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL=0
+
+# Drupal site name.
+# Used only when installing from profile.
+DRUPAL_SITE_NAME="${DREVOPS_PROJECT}"
+
+# Drupal site email.
+# Used only when installing from profile.
+DRUPAL_SITE_EMAIL="webmaster@your-site-url.example"
+
+# Print output from Docker build.
+DREVOPS_DOCKER_VERBOSE=1
+
+# Print output from Composer install.
+DREVOPS_COMPOSER_VERBOSE=1
+
+# Print output from NPM install.
+DREVOPS_NPM_VERBOSE=0
