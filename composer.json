@@ -24,7 +24,7 @@
         "drupal/search_api": "^1.29",
         "drupal/search_api_solr": "^4.2",
         "drupal/shield": "^1.6",
-        "drupal/stage_file_proxy": "^1.2",
+        "drupal/stage_file_proxy": "^2",
         "drupal/token": "^1.10",
         "drush/drush": "^12",
         "oomphinc/composer-installers-extender": "^2.0",
