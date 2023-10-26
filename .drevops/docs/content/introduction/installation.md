@@ -3,17 +3,17 @@
 ## Installation
 
 ```shell title="Install using interactive prompt"
-curl -SsL https://install.drevops.com | php
+curl -SsL https://install.drevops.com > install.php && php install.php; rm -r install.php
 ```
 
 [//]: # (@TODO Add recording of the installation process)
 
 ```shell title="Quiet installation"
-curl -SsL https://install.drevops.com | php -- --quiet
+curl -SsL https://install.drevops.com > install.php && php install.php; rm -r install.php -- --quiet
 ```
 
 ```shell title="Installation into a specific directory"
-curl -SsL https://install.drevops.com | php -- /destination/directory
+curl -SsL https://install.drevops.com > install.php && php install.php; rm -r install.php -- /destination/directory
 ```
 
 The source code for the installer script is published from [`install`](../../../../.drevops/installer/install) file.
