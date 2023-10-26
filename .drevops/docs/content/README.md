@@ -64,7 +64,7 @@ best practices and tools from the community and making them work well together.
 
 ## Quick start
 
-    curl -SsL https://install.drevops.com | php
+    curl -SsL https://install.drevops.com > install.php && php install.php; rm -r install.php
 
 Refer to [Installation](introduction/installation.md) for more details.
 
