@@ -321,8 +321,4 @@ if [ "${DREVOPS_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
   echo
 fi
 
-info "One-time login link."
-"./scripts/drevops/login.sh"
-echo
-
 info "Finished site provisioning."
