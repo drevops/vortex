@@ -142,13 +142,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
-
     # Installation completion.
     "Finished site provisioning."
   )
@@ -266,13 +259,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
     "Finished site provisioning."
@@ -400,13 +386,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
     "Finished site provisioning."
@@ -539,13 +518,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
-
     # Installation completion.
     "Finished site provisioning."
   )
@@ -673,13 +645,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
-
     # Installation completion.
     "Finished site provisioning."
   )
@@ -800,13 +765,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
     "Finished site provisioning."
@@ -935,13 +893,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
     "Finished site provisioning."
