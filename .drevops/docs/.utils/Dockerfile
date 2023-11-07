@@ -1,4 +1,4 @@
-FROM squidfunk/mkdocs-material:9.4.7
+FROM squidfunk/mkdocs-material:9.4.8
 
 ENV DOCKERIZE_VERSION v0.7.0
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
