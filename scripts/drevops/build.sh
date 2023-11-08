@@ -130,6 +130,7 @@ docker compose cp -L phpcs.xml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpmd.xml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpstan.neon cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpunit.xml cli:/app/ 2>"${composer_verbose_output}"
+docker compose cp -L rector.php cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L tests cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L .circleci cli:/app/ 2>"${composer_verbose_output}"
 

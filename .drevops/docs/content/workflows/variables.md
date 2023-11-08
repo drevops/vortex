@@ -154,6 +154,14 @@ Default value: `UNDEFINED`
 
 Defined in: `CI config`
 
+### `DREVOPS_CI_RECTOR_IGNORE_FAILURE`
+
+Ignore Rector failures.
+
+Default value: `UNDEFINED`
+
+Defined in: `CI config`
+
 ### `DREVOPS_CI_TEST_RESULTS`
 
 Directory to store test results in CI.
@@ -232,11 +240,11 @@ Defined in: `.env`
 
 ### `DREVOPS_DB_DOWNLOAD_FORCE`
 
-Set to `1` to override existing downloaded DB dump without asking.
+Always override existing downloaded DB dump.
 
-Default value: `UNDEFINED`
+Default value: `1`
 
-Defined in: `.env.local.default`
+Defined in: `.env.local.default`, `.env.local.default`
 
 ### `DREVOPS_DB_DOWNLOAD_FTP_FILE`
 
@@ -461,7 +469,7 @@ Defined in: `.env`
 
 ### `DREVOPS_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL`
 
-Replace username with email after databasse sanitization. Useful when email<br />is used as username.
+Replace username with email after database sanitization. Useful when email<br />is used as username.
 
 Default value: `UNDEFINED`
 
@@ -632,6 +640,14 @@ Unblock admin account when logging in.
 Default value: `1`
 
 Defined in: `.env`
+
+### `GITHUB_TOKEN`
+
+GitHub token used to overcome API rate limits or access private repositories.<br />@see https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+
+Default value: `UNDEFINED`
+
+Defined in: `.env.local.default`
 
 ### `LAGOON_PROJECT`
 
