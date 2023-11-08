@@ -3,11 +3,14 @@
 https://phpstan.org/user-guide/getting-started
 
 > PHPStan focuses on finding errors in your code without actually running it. It
-> catches whole classes of bugs even before you write tests for the code. It moves
-> PHP closer to compiled languages in the sense that the correctness of each line
+> catches whole classes of bugs even before you write tests for the code. It
+> moves
+> PHP closer to compiled languages in the sense that the correctness of each
+> line
 > of the code can be checked before you run the actual line.
 
-DrevOps comes with [pre-configured PHPStan ruleset](../../../../phpstan.neon) for
+DrevOps comes with [pre-configured PHPStan ruleset](../../../../phpstan.neon)
+for
 Drupal projects.
 
 ## Usage
@@ -15,16 +18,24 @@ Drupal projects.
 ```shell
 vendor/bin/phpstan
 ```
+
 or
+
 ```shell
 ahoy lint-be
 ```
+
+!!!note
+
+    PHPStan does not fix code. It only reports errors. To fix errors, use
+    Rector. See [Rector](../rector) for more information.
 
 ## Configuration
 
 See [configuration reference](https://phpstan.org/config-reference).
 
-All global configuration takes place in the [`phpstan.neon`](../../../../phpstan.neon)
+All global configuration takes place in
+the [`phpstan.neon`](../../../../phpstan.neon)
 file.
 
 By default, PHPStan will check with the Drupal context in mind thanks to
@@ -51,8 +62,7 @@ the [`phpstan.neon`](../../../../phpstan.neon) file:
 ```yaml
 parameters:
   ignoreErrors:
-    -
-      # Comment about why this rules is excluded.
+    - # Comment about why this rules is excluded.
       # 'message' is a regular expression with `#` as begin and end delimiters.
       message: '#.*no value type specified in iterable type array.#'
       paths:
@@ -64,7 +74,8 @@ PHPStan does not support ignoring of **all PHPStan rules** within a file.
 
 PHPStan does not support ignoring of **a specific rule** within a file.
 
-PHPStan [does not support](https://github.com/phpstan/phpstan/issues/4452) ignoring of the **code blocks**.
+PHPStan [does not support](https://github.com/phpstan/phpstan/issues/4452)
+ignoring of the **code blocks**.
 
 To ignore only the current and the **next line**:
 
