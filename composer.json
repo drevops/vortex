@@ -36,11 +36,13 @@
         "drupal/core-dev": "^10",
         "drupal/drupal-extension": "^5@rc",
         "friendsoftwig/twigcs": "^6.2",
-        "mglaman/phpstan-drupal": "^1.1",
+        "mglaman/phpstan-drupal": "^1.2",
+        "palantirnet/drupal-rector": "^0.15.1",
         "php-parallel-lint/php-parallel-lint": "^1.3",
         "phpcompatibility/php-compatibility": "^9.3",
         "phpmd/phpmd": "^2.13",
         "phpspec/prophecy-phpunit": "^2.0",
+        "phpstan/extension-installer": "^1.3",
         "pyrech/composer-changelogs": "^1.8"
     },
     "autoload": {

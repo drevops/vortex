@@ -12,12 +12,24 @@ DrevOps comes with [pre-configured PHPCS ruleset](../../../../phpcs.xml) for Dru
 
 ## Usage
 
+### Check for violations
+
 ```shell
 vendor/bin/phpcs
 ```
 or
 ```shell
 ahoy lint-be
+```
+
+### Fix violations
+
+```shell
+vendor/bin/phpcbf
+```
+or
+```shell
+ahoy lint-fix
 ```
 
 ## Configuration

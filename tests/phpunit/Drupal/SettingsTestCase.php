@@ -161,7 +161,7 @@ abstract class SettingsTestCase extends TestCase {
   protected static function getRealEnvVarsFilteredNoValues(array $prefixes = []): array {
     $vars = getenv();
 
-    $vars = array_filter(array_keys($vars), function ($key) use ($prefixes) {
+    $vars = array_filter(array_keys($vars), function ($key) use ($prefixes): bool {
       foreach ($prefixes as $prefix) {
         if (str_starts_with($key, $prefix)) {
           return TRUE;
