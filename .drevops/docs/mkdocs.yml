@@ -192,6 +192,7 @@ nav:
     - PHPUnit: tools/phpunit.md
     - Pygmy: tools/pygmy.md
     - Renovate: tools/renovate.md
+    - Rector: tools/rector.md
     - Twigcs: tools/twigcs.md
     - Xdebug: tools/xdebug.md
 

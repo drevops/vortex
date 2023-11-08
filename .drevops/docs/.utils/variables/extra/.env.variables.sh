@@ -32,7 +32,7 @@ DRUPAL_UNBLOCK_ADMIN=1
 # Drupal admin email. May need to be reset if database was sanitized.
 DRUPAL_ADMIN_EMAIL=
 
-# Replace username with email after databasse sanitization. Useful when email
+# Replace username with email after database sanitization. Useful when email
 # is used as username.
 DREVOPS_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL=0
 

@@ -183,6 +183,7 @@ commands:
     cmd: |
       ahoy cli vendor/bin/phpcs
       ahoy cli vendor/bin/phpstan
+      ahoy cli vendor/bin/rector process --dry-run .
       ahoy cli vendor/bin/phpmd . text phpmd.xml
 
   lint-fe:
@@ -190,6 +191,12 @@ commands:
     cmd: |
       ahoy cli vendor/bin/twigcs
       ahoy cli "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+
+  lint-fix:
+    usage: Fix lint issues of back-end and front-end code.
+    cmd: |
+      ahoy cli vendor/bin/phpcbf
+      ahoy cli vendor/bin/rector process .
 
   test:
     usage: Run all tests.
