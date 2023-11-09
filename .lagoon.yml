@@ -76,6 +76,19 @@ tasks:
             export DREVOPS_PROVISION_SANITIZE_DB_SKIP=1
           fi
 
+          #;< !PROVISION_USE_PROFILE
+          # Explicitly set DB overwrite flag to the value from .env file for
+          # deployments from the profile.
+          # Deployments from UI are not able to bypass the value of
+          # DREVOPS_PROVISION_OVERRIDE_DB set by the deploy-lagoon.sh
+          # during previous deployments (it sets value to '0' to mitigate Lagoon bug
+          # where environment variables cannot be deleted and have to be set to a value).
+          # @see https://github.com/uselagoon/lagoon/issues/1922
+          if [ "${DREVOPS_PROVISION_USE_PROFILE}" = "1" ]; then
+            export DREVOPS_PROVISION_OVERRIDE_DB="$(cat .env | grep ^DREVOPS_PROVISION_OVERRIDE_DB | cut -c31-)"
+          fi
+          #;> PROVISION_USE_PROFILE
+
           export DREVOPS_DB_DIR=/tmp/data
           ./scripts/drevops/provision.sh
         service: cli
