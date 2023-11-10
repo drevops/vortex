@@ -75,7 +75,7 @@ fi
 
 # Check if the length of the DREVOPS_NOTIFY_NEWRELIC_APPID variable is not 10 OR
 # if the variable doesn't contain only numeric values and exit.
-{ [ "${#DREVOPS_NOTIFY_NEWRELIC_APPID}" != "10" ] || [ "$(expr "x${DREVOPS_NOTIFY_NEWRELIC_APPID}" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to get an application ID from the application name ${DREVOPS_NOTIFY_NEWRELIC_APP_NAME}." && exit 1
+{ [ "${#DREVOPS_NOTIFY_NEWRELIC_APPID}" != "10" ] || [ "$(expr "x${DREVOPS_NOTIFY_NEWRELIC_APPID}" : "x[0-9]*$")" -eq 0 ]; } && note "Notification skipped: No New Relic application ID found for ${DREVOPS_NOTIFY_NEWRELIC_APP_NAME}. This is expected for non-configured environments." && exit 0
 
 if ! curl -X POST "${DREVOPS_NOTIFY_NEWRELIC_ENDPOINT}/applications/${DREVOPS_NOTIFY_NEWRELIC_APPID}/deployments.json" \
   -L -s -o /dev/null -w "%{http_code}" \
