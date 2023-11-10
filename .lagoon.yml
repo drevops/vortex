@@ -58,9 +58,10 @@ tasks:
         name: Provision site
         command: |
           #;< PROVISION_USE_PROFILE
-          if [ "$DREVOPS_PROVISION_USE_PROFILE" = "1" ]; then
+          if [ "${DREVOPS_PROVISION_USE_PROFILE}" = "1" ]; then
             # Explicitly set DB overwrite flag to the value from .env file for deployments from the profile.
-            export DREVOPS_PROVISION_OVERRIDE_DB="$(cat .env | grep ^DREVOPS_PROVISION_OVERRIDE_DB | cut -c45-)"
+            # @see https://github.com/uselagoon/lagoon/issues/1922
+            export DREVOPS_PROVISION_OVERRIDE_DB="$(cat .env | grep ^DREVOPS_PROVISION_OVERRIDE_DB | cut -c31-)"
           fi
           #;> PROVISION_USE_PROFILE
 
