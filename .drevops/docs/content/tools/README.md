@@ -14,8 +14,8 @@ Head over to the tool-specific documentation to learn more.
 |---------------------------------|------------------------------------------------------------------|
 | [Ahoy](ahoy.md)                 | CLI command wrapper                                              |
 | [Behat](behat.md)               | Testing framework for for autotesting your business expectations |
-| [Doctor](doctor.md)             | Check DrevOps project requirements or print info                 |
 | [Docker](docker.md)             | A platform for containerizing and running applications           |
+| [Doctor](doctor.md)             | Check DrevOps project requirements or print info                 |
 | [Drush](drush.md)               | Command line shell and Unix scripting interface for Drupal       |
 | [Git artifact](git-artifact.md) | Package and push files to remote repositories                    |
 | [PHPCS](phpcs.md)               | Check that code adheres to coding standards                      |
@@ -23,6 +23,7 @@ Head over to the tool-specific documentation to learn more.
 | [PHPStan](phpstan.md)           | PHP Static Analysis Tool                                         |
 | [PHPUnit](phpunit.md)           | The PHP Testing Framework                                        |
 | [Pygmy](pygmy.md)               | A local reverse-proxy and email catcher                          |
+| [Rector](rector.md)             | Instant Upgrades and Automated Refactoring                       |
 | [Renovate](renovate.md)         | A bot for automated dependency updates                           |
 | [Twigcs](twigcs.md)             | Checkstyle for Twig                                              |
 | [Xdebug](xdebug.md)             | Debugger and Profiler Tool for PHP                               |
