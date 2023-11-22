@@ -9,7 +9,7 @@
 # Acquia runs "hooks" (provided in "hooks" directory), Lagoon runs build steps
 # (specified in .lagoon.yml file) etc.
 #
-# shellcheck disable=SC2046
+# shellcheck disable=SC1090,SC1091,SC2046,SC2016
 
 # Read variables from .env and .env.local files, respecting existing environment
 # variable values.
@@ -24,13 +24,13 @@ set -eu
 DREVOPS_DEBUG="${DREVOPS_DEBUG:-}"
 
 # Print debug information from Docker build.
-DREVOPS_DOCKER_VERBOSE="${DREVOPS_DOCKER_VERBOSE:-}"
+DREVOPS_DOCKER_VERBOSE="${DREVOPS_DOCKER_VERBOSE:-1}"
 
 # Print debug information from Composer install.
-DREVOPS_COMPOSER_VERBOSE="${DREVOPS_COMPOSER_VERBOSE:-}"
+DREVOPS_COMPOSER_VERBOSE="${DREVOPS_COMPOSER_VERBOSE:-1}"
 
 # Print debug information from NPM install.
-DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-}"
+DREVOPS_NPM_VERBOSE="${DREVOPS_NPM_VERBOSE:-0}"
 
 # ------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ echo
 
 # Create an array of Docker Compose CLI options for 'exec' command as a shorthand.
 # $DREVOPS_*, $COMPOSE_* and $TERM variables will be passed to containers.
-dcopts=(-T) && while IFS='' read -r line; do dcopts+=("${line}"); done < <(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_\|TERM" | sed 's/^/-e /')
+dcopts=(-T) && while IFS='' read -r line; do dcopts+=("${line}"); done < <(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\DRUPAL_\|DREVOPS_" | sed 's/^/-e /')
 
 # Check all pre-requisites before starting the stack.
 DREVOPS_DOCTOR_CHECK_PREFLIGHT=1 ./scripts/drevops/doctor.sh
@@ -68,7 +68,7 @@ fi
 
 info "Removing project containers and packages available since the previous run."
 if [ -f "docker-compose.yml" ]; then docker compose down --remove-orphans --volumes >/dev/null 2>&1; fi
-./scripts/drevops/clean.sh
+./scripts/drevops/reset.sh
 echo
 
 info "Building Docker images, recreating and starting containers."
@@ -130,6 +130,7 @@ docker compose cp -L phpcs.xml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpmd.xml cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpstan.neon cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L phpunit.xml cli:/app/ 2>"${composer_verbose_output}"
+docker compose cp -L rector.php cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L tests cli:/app/ 2>"${composer_verbose_output}"
 docker compose cp -L .circleci cli:/app/ 2>"${composer_verbose_output}"
 
@@ -146,12 +147,12 @@ echo
 # Note that this will create package-lock.json file if it does not exist.
 # We are not re-running compilation in CI as it is not used - these assets
 # are already compiled as a part of the Docker build.
-if [ -n "${DREVOPS_DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
+if [ -n "${DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
   info "Installing front-end dependencies."
-  docker compose exec ${dcopts[@]} cli bash -c 'npm --prefix ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} install' >"${npm_verbose_output}"
+  docker compose exec ${dcopts[@]} cli bash -c 'npm --prefix ${DREVOPS_WEBROOT}/themes/custom/${DRUPAL_THEME} install' >"${npm_verbose_output}"
   pass "Installed front-end dependencies."
 
-  docker compose exec ${dcopts[@]} cli bash -c 'cd ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build' >"${npm_verbose_output}"
+  docker compose exec ${dcopts[@]} cli bash -c 'cd ${DREVOPS_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build' >"${npm_verbose_output}"
   pass "Compiled front-end dependencies."
 
   mkdir -p "${DREVOPS_WEBROOT}/sites/default/files"

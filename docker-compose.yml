@@ -13,6 +13,7 @@
 #;   installing or updating DrevOps.
 #;
 # See more about DrevOps Docker at https://docs.drevops.com/docker/
+# For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
 
 # ------------------------------------------------------------------------------
 # Variable aliases.
@@ -42,7 +43,7 @@ x-user: &default-user
 x-environment: &default-environment
   TZ: ${DREVOPS_TZ:-Australia/Melbourne}
   # Local development URL.
-  DREVOPS_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
+  DREVOPS_LOCALDEV_URL: &default-url ${DREVOPS_LOCALDEV_URL:-${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io}
   # Local development route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
   # Local database host (not used in production).
@@ -66,7 +67,7 @@ x-environment: &default-environment
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
   #;< REDIS
   # Redis integration flag.
-  DREVOPS_REDIS_ENABLED: ${DREVOPS_REDIS_ENABLED:-}
+  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
   #;> REDIS
   #;< LAGOON
   # Lagoon environment type.
@@ -164,7 +165,7 @@ services:
 
   #;< REDIS
   redis:
-    image: uselagoon/redis-6:23.10.0
+    image: uselagoon/redis-6:23.11.0
     #;< LAGOON
     labels:
       lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -185,7 +186,7 @@ services:
     ports:
       - "8983" # Solr port in container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
     volumes:
-      - search:/var/solr
+      - solr:/var/solr
     #;< LAGOON
     labels:
       lagoon.type: solr # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -194,7 +195,7 @@ services:
 
   #;< CLAMAV
   clamav:
-    image: clamav/clamav:1.2.0
+    image: clamav/clamav:1.2.1
     ports:
       - "3310" # Find port on host with `docker-compose port clamav 3310`.
     environment:
@@ -223,7 +224,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:23.9.0
+    image: drevops/docker-wait-for-dependencies:23.10.0
     depends_on:
       - cli
       - mariadb
@@ -241,5 +242,5 @@ volumes:
   app: {}
   files: {}
   #;< SOLR
-  search: {}
+  solr: {}
   #;> SOLR

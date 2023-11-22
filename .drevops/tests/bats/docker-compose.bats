@@ -56,7 +56,7 @@ load _helper.bash
   echo "SSMTP_MAILHUB=false" >>.env
   echo "DRUPAL_SHIELD_USER=jane" >>.env
   echo "DRUPAL_SHIELD_PASS=passw" >>.env
-  echo "DREVOPS_REDIS_ENABLED=1" >>.env
+  echo "DRUPAL_REDIS_ENABLED=1" >>.env
   echo "LAGOON_ENVIRONMENT_TYPE=development" >>.env
 
   substep "Validate configuration"
@@ -120,6 +120,12 @@ process_docker_compose_json() {
     \$data = array_filter(\$data, function(\$key) {
       return strpos(\$key, 'x-') !== 0;
     }, ARRAY_FILTER_USE_KEY);
+
+    array_walk_recursive(\$data, function (&\$value) {
+      if (\$value !== null && preg_match('/:\d+\.\d+(\.\d+)?/', \$value)) {
+        \$value = preg_replace('/:\d+\.\d+(?:\.\d+)?/', ':VERSION', \$value);
+      }
+    });
 
     \$data = json_encode(\$data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 

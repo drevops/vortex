@@ -40,7 +40,7 @@ load _helper.workflow.bash
   substep "Remove any existing images to download the fresh one."
   docker_remove_image "${DREVOPS_DB_DOCKER_IMAGE}"
 
-  prepare_sut "Starting download from image, storage in docker image WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  prepare_sut "Starting download from image, storage in docker image WORKFLOW tests in build directory ${BUILD_DIR}"
 
   # Assert that the database was not downloaded because DREVOPS_INSTALL_DEMO_SKIP was set.
   assert_file_not_exists .data/db.sql
@@ -83,7 +83,7 @@ load _helper.workflow.bash
 
   assert_ahoy_test_bdd_fast
 
-  assert_ahoy_clean
-
   assert_ahoy_reset
+
+  assert_ahoy_reset_hard
 }

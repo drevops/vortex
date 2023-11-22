@@ -53,7 +53,7 @@ https://docs.drevops.com
 
 ## Features
 
-The following list includes ✅ completed features and 💡 upcoming features.
+The following list includes ✅ completed and 💡 upcoming features.
 
 * 💧 Drupal
   * ✅ Based on [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
@@ -99,8 +99,8 @@ The following list includes ✅ completed features and 💡 upcoming features.
   * ✅ [PHPUnit](https://phpunit.de/)
   * ✅ [SASS Lint](https://github.com/sasstools/sass-lint)
   * ✅ [SASS](https://sass-lang.com/)
+  * ✅ [Twigcs](https://github.com/friendsoftwig/twigcs)
   * 💡 [Pa11y](https://pa11y.org/)
-  * 💡 [Twigcs](https://github.com/friendsoftwig/twigcs)
 * ⚙️ Workflow
   * ✅ Database from FTP, CURL, Docker image, hosting provider
   * ✅ [Pull request template](.github/PULL_REQUEST_TEMPLATE.md)
@@ -159,7 +159,7 @@ Drupal 10 implementation of YOURSITE for YOURORG
 
 [//]: # (Remove the section below once onboarding is finished)
 ## Onboarding
-Use [Onboarding checklist](docs/ONBOARDING.md) to track the project onboarding progress.
+Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding progress.
 
 ## Local environment setup
 - Make sure that you have latest versions of all required software installed:
@@ -203,21 +203,10 @@ Use [Onboarding checklist](docs/ONBOARDING.md) to track the project onboarding p
 
 Copy `docker-compose.override.default.yml` to `docker-compose.override.yml`.
 
-## Testing
-Please refer to [testing documentation](docs/TESTING.md).
+## Project documentation
 
-## CI
-Please refer to [CI documentation](docs/CI.md).
-
-[//]: # (#;< DEPLOYMENT)
-
-## Deployment
-Please refer to [deployment documentation](docs/DEPLOYMENT.md).
-
-[//]: # (#;> DEPLOYMENT)
-
-## Releasing
-Please refer to [releasing documentation](docs/RELEASING.md).
-
-## FAQs
-Please refer to [FAQs](docs/FAQs.md).
+- [FAQs](docs/faqs.md)
+- [Testing](docs/testing.md)
+- [CI](docs/ci.md)
+- [Releasing](docs/releasing.md)
+- [Deployment](docs/deployment.md)

@@ -8,10 +8,8 @@ prepare_sut() {
   step "Run SUT preparation: ${1}"
   local webroot="${2:-web}"
 
-  DREVOPS_DRUPAL_VERSION=${DREVOPS_DRUPAL_VERSION:-9}
   DREVOPS_DEV_VOLUMES_MOUNTED=${DREVOPS_DEV_VOLUMES_MOUNTED:-1}
 
-  assert_not_empty "${DREVOPS_DRUPAL_VERSION}"
   assert_not_empty "${DREVOPS_DEV_VOLUMES_MOUNTED}"
 
   assert_files_not_present_common "" "" "" "" "${webroot}"
@@ -715,9 +713,9 @@ assert_redis() {
   assert_output_not_contains "config"
 
   substep "Restart with environment variable"
-  add_var_to_file .env "DREVOPS_REDIS_ENABLED" "1"
+  add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
   sync_to_container
-  DREVOPS_REDIS_ENABLED=1 ahoy up cli
+  DRUPAL_REDIS_ENABLED=1 ahoy up cli
   sleep 10
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
@@ -725,10 +723,10 @@ assert_redis() {
   assert_output_contains "config"
 }
 
-assert_ahoy_clean() {
+assert_ahoy_reset() {
   local webroot="${1:-web}"
 
-  step "Clean"
+  step "Reset"
 
   # Prepare to assert that manually created file is not removed.
   touch untracked_file.txt
@@ -737,7 +735,7 @@ assert_ahoy_clean() {
   mkdir -p ".logs/screenshots"
   assert_dir_exists ".logs/screenshots"
 
-  ahoy clean
+  ahoy reset
   # Assert that initial DrevOps files have not been removed.
   assert_files_present_common "" "" "" "" "" "${webroot}"
   assert_files_present_deployment
@@ -765,17 +763,17 @@ assert_ahoy_clean() {
   remove_development_settings "${webroot}"
 }
 
-assert_ahoy_reset() {
+assert_ahoy_reset_hard() {
   local webroot="${1:-web}"
 
-  step "Reset"
+  step "Reset hard"
 
   create_development_settings "${webroot}"
 
   mkdir -p ".logs/screenshots"
   assert_dir_exists ".logs/screenshots"
 
-  ahoy reset
+  ahoy reset hard
 
   assert_files_present_common "" "" "" "" "" "${webroot}"
   assert_files_present_deployment

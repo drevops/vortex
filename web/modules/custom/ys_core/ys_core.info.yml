@@ -3,11 +3,22 @@ type: module
 description: Core feature for YOURSITE site.
 core_version_requirement: ^10
 package: your_site
-#;< REDIS
 dependencies:
-  - drupal:media
+  - admin_toolbar:admin_toolbar
+#;< CLAMAV
   - clamav:clamav
+#;> CLAMAV
+  - coffee:coffee
+  - config_split:config_split
+  - config_update:config_update
+  - drupal:media
+  - environment_indicator:environment_indicator
+  - pathauto:pathauto
+  - redirect:redirect
+#;< REDIS
   - redis:redis
   - search_api:search_api
   - search_api_solr:search_api_solr
 #;> REDIS
+  - shield:shield
+  - stage_file_proxy:stage_file_proxy

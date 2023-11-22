@@ -44,7 +44,7 @@ load _helper.workflow.bash
   substep "Remove any existing images to download the fresh one."
   docker_remove_image "${DREVOPS_DB_DOCKER_IMAGE}"
 
-  prepare_sut "Starting download from curl, storage in Docker image cached WORKFLOW tests for Drupal ${DREVOPS_DRUPAL_VERSION} in build directory ${BUILD_DIR}"
+  prepare_sut "Starting download from curl, storage in Docker image cached WORKFLOW tests in build directory ${BUILD_DIR}"
   assert_file_exists .data/db.sql
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=curl"

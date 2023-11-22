@@ -34,7 +34,7 @@ tasks:
     - run:
         name: Backup DB before deployment in production
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."
             DREVOPS_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./scripts/drevops/export-db-file.sh
           fi
@@ -44,7 +44,7 @@ tasks:
     - run:
         name: Download database in non-production environments
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${DREVOPS_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             # No need to load SSH file to access production DB as Lagoon has SSH agent keys.
             export DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE=false
             export DREVOPS_DB_DIR=/tmp/data
@@ -60,18 +60,19 @@ tasks:
           #;< PROVISION_USE_PROFILE
           if [ "$DREVOPS_PROVISION_USE_PROFILE" = "1" ]; then
             # Explicitly set DB overwrite flag to the value from .env file for deployments from the profile.
-            export DREVOPS_PROVISION_OVERRIDE_DB="$(cat .env | grep ^DREVOPS_PROVISION_OVERRIDE_DB | cut -c45-)"
+            # @see https://github.com/uselagoon/lagoon/issues/1922
+            export DREVOPS_PROVISION_OVERRIDE_DB="$(cat .env | grep ^DREVOPS_PROVISION_OVERRIDE_DB | cut -c31-)"
           fi
           #;> PROVISION_USE_PROFILE
 
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_PRODUCTION_BRANCH:-main}" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."
             #;< !PROVISION_USE_PROFILE
             # Never overwrite existing DB when production site already exists.
             export DREVOPS_PROVISION_OVERRIDE_DB=0
             #;> !PROVISION_USE_PROFILE
             # Never unblock admin user in production.
-            export DREVOPS_DRUPAL_UNBLOCK_ADMIN=0
+            export DRUPAL_UNBLOCK_ADMIN=0
             # Never sanitize DB in production.
             export DREVOPS_PROVISION_SANITIZE_DB_SKIP=1
           fi
@@ -86,6 +87,7 @@ tasks:
         name: Send deployment notifications
         command: |
           if [ -n "$LAGOON_PR_NUMBER" ]; then export DREVOPS_NOTIFY_REF=$LAGOON_PR_NUMBER; export DREVOPS_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; export DREVOPS_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else export DREVOPS_NOTIFY_REF=$LAGOON_GIT_BRANCH; export DREVOPS_NOTIFY_SHA=$LAGOON_GIT_SHA; export DREVOPS_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi
+          DREVOPS_NOTIFY_EVENT=post_deployment \
           DREVOPS_NOTIFY_PROJECT=$LAGOON_PROJECT \
           DREVOPS_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
           ./scripts/drevops/notify.sh

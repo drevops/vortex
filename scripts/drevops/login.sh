@@ -2,7 +2,7 @@
 ##
 # Login to a Drupal site as an admin user.
 #
-# shellcheck disable=SC2086,SC2032,SC2033
+# shellcheck disable=SC1090,SC1091,SC2086,SC2032,SC2033,SC2016
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
@@ -10,7 +10,7 @@ set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Flag to block or unblock admin.
-DREVOPS_DRUPAL_UNBLOCK_ADMIN="${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-1}"
+DRUPAL_UNBLOCK_ADMIN="${DRUPAL_UNBLOCK_ADMIN:-1}"
 
 # ------------------------------------------------------------------------------
 
@@ -23,8 +23,8 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 drush() { ./vendor/bin/drush -y "$@"; }
 
-if [ "${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-}" = "1" ]; then
-  if drush pm:list --status=enabled | grep -q user_expire; then
+if [ "${DRUPAL_UNBLOCK_ADMIN:-}" = "1" ]; then
+  if drush pm:list --status=enabled | grep -q password_policy; then
     drush sql:query 'UPDATE `user__field_password_expiration` SET `field_password_expiration_value` = 0 WHERE `bundle` = "user" AND `entity_id` = 1;'
   fi
   drush sql:query "SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" | head -n 1 | xargs drush -- user:unblock

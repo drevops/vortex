@@ -1,5 +1,5 @@
 default:
-  autoload: [ '%paths.base%/tests/behat/bootstrap' ]
+  autoload: ['%paths.base%/tests/behat/bootstrap']
   gherkin:
     # Disable caching during development. It is enabled for profiles below.
     cache: ~
@@ -8,7 +8,7 @@ default:
       tags: '~@skipped'
   suites:
     default:
-      paths: [ '%paths.base%/tests/behat/features' ]
+      paths: ['%paths.base%/tests/behat/features']
       contexts:
         - FeatureContext
         - Drupal\DrupalExtension\Context\MinkContext
@@ -17,6 +17,8 @@ default:
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
   formatters:
     progress_fail: true
+    # Disable JUnit formatter if memory leaks start to occur.
+    # See @https://github.com/Behat/Behat/pull/1423
     junit:
       output_path: '%paths.base%/.logs/test_results/behat'
 
@@ -56,7 +58,7 @@ p0:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
-      tags:  "@smoke,~@p1&&~@skipped"
+      tags: "@smoke,~@p1&&~@skipped"
 
 # Profile for parallel testing.
 # Runs all tests tagged with "@smoke" or "@p1" and not tagged with "@skipped".
@@ -64,4 +66,4 @@ p1:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
-      tags:  "@smoke,@p1&&~@skipped"
+      tags: "@smoke,@p1&&~@skipped"

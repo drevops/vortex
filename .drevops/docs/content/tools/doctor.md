@@ -1,4 +1,4 @@
-# 🏥 Doctor
+# Doctor
 
 The DrevOps Doctor is a standalone, self-contained script designed to
 inspect the current state of your DrevOps project. Its primary functions include

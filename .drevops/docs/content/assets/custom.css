@@ -43,3 +43,35 @@
 [data-md-color-scheme="slate"] .hero-title {
   color: white;
 }
+
+[dir=ltr] .md-header__title {
+  margin-left: 0;
+}
+
+.md-header--lifted,
+.md-header--shadow {
+  background-image: linear-gradient(120deg, #1c1f2c, #1f2535)
+}
+
+[data-md-color-scheme="default"] .md-tabs {
+  background-color: #323953;
+}
+
+[data-md-color-scheme="slate"] .md-tabs {
+  background-color: #323953;
+}
+
+/* Mobile logo. */
+.md-sidebar .md-nav__button.md-logo img {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.md-tabs__link {
+  font-size: .8rem;
+  opacity: 1;
+}
+
+.md-tabs__item--active .md-tabs__link {
+  font-weight: bold;
+}

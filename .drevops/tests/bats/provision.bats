@@ -15,8 +15,6 @@ assert_provision_info() {
 
   assert_output_contains "Started site provisioning."
   assert_output_contains "Webroot dir                  : ${webroot}"
-  assert_output_contains "Site name                    : Example site"
-  assert_output_contains "Site email                   : webmaster@example.com"
   assert_output_contains "Profile                      : standard"
   assert_output_contains "Private files directory      : ./${webroot}/sites/default/files/private"
   assert_output_contains "Config path                  : ./config/default"
@@ -40,7 +38,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -283,7 +281,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -410,7 +408,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -541,7 +539,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -668,7 +666,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -789,7 +787,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"

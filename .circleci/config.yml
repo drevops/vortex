@@ -126,10 +126,10 @@ aliases:
       #;> !PROVISION_USE_PROFILE
       DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
-      #: Using "runner" container where each job will be executed.
-      #: This container has all necessary tools to run dockerized environment.
-      #: @see https://github.com/drevops/ci-runner
-      #: @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags?page=1&ordering=last_updated
+      # Using "runner" container where each job will be executed.
+      # This container has all necessary tools to run dockerized environment.
+      # @see https://github.com/drevops/ci-runner
+      # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags?page=1&ordering=last_updated
       - image: drevops/ci-runner:23.10.0
         auth:
           username: $DOCKER_USER
@@ -139,8 +139,6 @@ aliases:
           TZ: *timezone
           # Set runner terminal capabilities.
           TERM: xterm-256color
-          # Check only minimal stack requirements.
-          DREVOPS_DOCTOR_CHECK_MINIMAL: 1
           #;< !PROVISION_USE_PROFILE
           # How often to refresh the cache of the DB dump. Refer to `date` command.
           DREVOPS_CI_DB_CACHE_TIMESTAMP: *drevops_ci_db_cache_timestamp
@@ -149,6 +147,12 @@ aliases:
           # Which branch to use as a source of DB caches.
           DREVOPS_CI_DB_CACHE_BRANCH: *drevops_ci_db_cache_branch
           #;> !PROVISION_USE_PROFILE
+          # Directory to store test results.
+          DREVOPS_CI_TEST_RESULTS: &test_results /tmp/tests
+          # Directory to store test artifacts.
+          DREVOPS_CI_ARTIFACTS: &artifacts /tmp/artifacts
+          # Check only minimal stack requirements.
+          DREVOPS_DOCTOR_CHECK_MINIMAL: 1
           # Directory to store code exported between jobs.
           DREVOPS_EXPORT_CODE_DIR: &drevops_build_export_dir /workspace/code
           # Directory to use for artifact deployments.
@@ -157,10 +161,6 @@ aliases:
           DREVOPS_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE: /tmp/artifacts/deployment_report.txt
-          # Directory to store test results.
-          DREVOPS_CI_TEST_RESULTS: &test_results /tmp/tests
-          # Directory to store test artifacts.
-          DREVOPS_CI_ARTIFACTS: &artifacts /tmp/artifacts
     resource_class: *resource_class
 
   # Set up remote Docker.
@@ -177,7 +177,6 @@ aliases:
   - &step_process_codebase
     run:
       name: Process codebase to run in CI
-      #: Remove lines containing '###' and uncomment comments starting with '##'.
       command: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
 
 
@@ -224,7 +223,7 @@ jobs:
             echo "$(date $DREVOPS_CI_DB_CACHE_TIMESTAMP)" | tee /tmp/db_cache_timestamp
             echo "yes" | tee /tmp/db_cache_fallback_yes
             echo
-            echo 'v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
+            echo 'v1.17.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
 
       - restore_cache:
           keys:
@@ -237,11 +236,11 @@ jobs:
             # Lookup cache based on the default branch and a timestamp. Allows
             # to use cache from the very first build on the day (sanitized
             # database dump, for example).
-            - v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v1.17.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             #
             # Fallback to caching by default branch name only. Allows to use
             # cache from the branch build on the previous day.
-            - v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+            - v1.17.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
       - run:
           name: Download DB
           command: DREVOPS_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db ./scripts/drevops/download-db.sh
@@ -270,11 +269,11 @@ jobs:
           # The cache will not be saved if it already exists.
           # Note that the cache fallback flag is enabled for this case in order
           # to save cache even if the fallback is not used when restoring it.
-          key: v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          key: v1.17.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
           paths:
             - *db_cache_dir
 
-  #: Nightly database job. Same as above, but with additional variables set.
+  # Nightly database job. Same as above, but with additional variables set.
   database_nightly:
     <<: *job_database
     environment:
@@ -288,8 +287,8 @@ jobs:
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
   #;> !PROVISION_USE_PROFILE
 
-  #: Build and test is a second step of the build. The testing is performed
-  #: within the same job to save time on provisioning during the job.
+  # Build and test is a second step of the build. The testing is performed
+  # within the same job to save time on provisioning during the job.
   build: &job_build
     <<: *container_config
     parallelism: *parallelism
@@ -311,36 +310,46 @@ jobs:
           keys:
             # Use cached artifacts from previous builds of this branch.
             # @see https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-            - v1.16.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+            - v1.17.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v1.17.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !PROVISION_USE_PROFILE
       - run:
           name: Build site
           command: ./scripts/drevops/build.sh
           no_output_timeout: 30m
       - run:
-          name: Lint code
-          command: |
-            docker compose exec -T cli bash -c "\
-              ./vendor/bin/phpcs && \
-              ./vendor/bin/phpstan analyse && \
-              ./vendor/bin/phpmd . text phpmd.xml && \
-              ./vendor/bin/twigcs && \
-              npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DREVOPS_DRUPAL_THEME} lint" \
-            || [ "${DREVOPS_CI_LINT_ALLOW_FAILURE:-0}" -eq 1 ]
+          name: Lint code with PHPCS
+          command: docker compose exec -T cli vendor/bin/phpcs || [ "${DREVOPS_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
       - run:
-          name: Run Unit tests
+          name: Lint code with PHPStan
+          command: docker compose exec -T cli vendor/bin/phpstan || [ "${DREVOPS_CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Lint code with Rector
+          command: docker compose exec -T cli vendor/bin/rector process --dry-run . || [ "${DREVOPS_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Lint code with PHPMD
+          command: docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml || [ "${DREVOPS_CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Lint code with Twigcs
+          command: docker compose exec -T cli vendor/bin/twigcs || [ "${DREVOPS_CI_TWIGCS_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Lint code with NPM linters
+          command: docker compose exec -T cli bash -c "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${DREVOPS_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Test with PHPUnit
           command: |
             XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
-            docker compose exec -T -e XDEBUG_MODE=coverage cli ./vendor/bin/phpunit || [ "${DREVOPS_CI_TEST_ALLOW_FAILURE:-0}" -eq 1 ]
+            docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit || [ "${DREVOPS_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
             docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
       - run:
-          name: Run BDD tests
+          name: Test with Behat
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && export DREVOPS_CI_TEST_BEHAT_PROFILE="${DREVOPS_CI_TEST_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}" || true
-            docker compose exec -T cli ./vendor/bin/behat --colors --strict --profile="${DREVOPS_CI_TEST_BEHAT_PROFILE:-default}" || \
-              docker compose exec -T cli ./vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_CI_TEST_BEHAT_PROFILE:-default}" || \
-              [ "${DREVOPS_CI_TEST_ALLOW_FAILURE:-0}" -eq 1 ]
+            if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then export DREVOPS_CI_BEHAT_PROFILE="${DREVOPS_CI_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}"; fi
+            echo "Running with ${DREVOPS_CI_BEHAT_PROFILE:-default} profile"
+            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
+              docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
+              [ "${DREVOPS_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
+          no_output_timeout: 30m
       - run:
           name: Process test logs and artifacts
           command: |
@@ -356,10 +365,6 @@ jobs:
       - codecov/upload:
           # @see https://github.com/codecov/codecov-circleci-orb/issues/158
           xtra_args: "--nonZero -s /tmp/artifacts/coverage"
-
-      #:
-      #: Persisting previously built application code artifact (without
-      #: development dependencies) to use it in deployment job.
       - persist_to_workspace:
           root: /workspace
           paths:
@@ -370,10 +375,8 @@ jobs:
   deploy: &job_deploy
     <<: *container_config
     steps:
-      #: Workspace now contains previously built application code artifact.
       - attach_workspace:
           at: /workspace
-      #: Add SSH key into "runner" container to have access to deployment repository or endpoint.
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
@@ -393,10 +396,8 @@ jobs:
   deploy_tags: &job_deploy_tags
     <<: *container_config
     steps:
-      #: Workspace now contains previously built application code artifact.
       - attach_workspace:
           at: /workspace
-      #: Add SSH key into "runner" container to have access to deployment repository or endpoint.
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
@@ -822,7 +823,7 @@ workflows:
           filters:
             branches:
               # 'main' or any branch with 'docs' in the name.
-              only: /^main$|.*docs.*/
+              only: /^main$|^develop$|.*docs.*/
             tags:
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
 

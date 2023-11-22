@@ -47,10 +47,10 @@ case ${index} in
 
   1)
     bats "${TEST_DIR}"/bats/workflow.install.bats
-    bats "${TEST_DIR}"/bats/workflow.utilities.bats
     ;;
 
   2)
+    bats "${TEST_DIR}"/bats/workflow.utilities.bats
     # Disabled due to intermittent failures.
     # @see https://github.com/drevops/drevops/issues/893
     # bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats

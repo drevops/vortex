@@ -1,7 +1,7 @@
 # Project-specific documentation.
 
-- [Onboarding checklist](ONBOARDING.md)
-- [Testing](TESTING.md)
-- [CI](CI.md)
-- [Releasing](RELEASING.md)
-- [FAQs](FAQs.md)
+- [Onboarding checklist](onboarding.md)
+- [Testing](testing.md)
+- [CI](ci.md)
+- [Releasing](releasing.md)
+- [FAQs](faqs.md)

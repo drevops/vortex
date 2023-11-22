@@ -1,6 +1,4 @@
-# ⬇️ Installation
-
-## Installation
+# Installation
 
 ```shell title="Install using interactive prompt"
 curl -SsL https://install.drevops.com > install.php && php install.php; rm -r install.php
@@ -16,7 +14,10 @@ curl -SsL https://install.drevops.com > install.php && php install.php; rm -r in
 curl -SsL https://install.drevops.com > install.php && php install.php; rm -r install.php -- /destination/directory
 ```
 
-The source code for the installer script is published from [`install`](../../../../.drevops/installer/install) file.
+!!! note "Work in progress"
+
+    We are currently looking at making the installation and update processes
+    more user-friendly and support `composer create-project` command.
 
 ## Updating
 
