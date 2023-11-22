@@ -172,44 +172,11 @@ nav:
 
   - 💧 Drupal:
     - drupal/README.md
-    - Composer 🚧: drupal/composer.md
-    - Module scaffold 🚧: drupal/module-scaffold.md
-    - Theme scaffold 🚧: drupal/theme-scaffold.md
+    - Composer: drupal/composer.md
     - Settings: drupal/settings.md
     - Provision 🚧: drupal/provision.md
-
-  - 🛠 Tools:
-    - tools/README.md
-    - Ahoy: tools/ahoy.md
-    - Behat: tools/behat.md
-    - Doctor: tools/doctor.md
-    - Docker: tools/docker.md
-    - Drush: tools/drush.md
-    - Git artifact: tools/git-artifact.md
-    - PHPCS: tools/phpcs.md
-    - PHPMD: tools/phpmd.md
-    - PHPStan: tools/phpstan.md
-    - PHPUnit: tools/phpunit.md
-    - Pygmy: tools/pygmy.md
-    - Renovate: tools/renovate.md
-    - Rector: tools/rector.md
-    - Twigcs: tools/twigcs.md
-    - Xdebug: tools/xdebug.md
-
-  - 🧩 Integrations:
-    - integrations/README.md
-    - CI:
-      - integrations/ci/README.md
-      - Azure Pipelines 🚧: integrations/ci/azure-pipelines.md
-      - GitHub Actions 🚧: integrations/ci/github-actions.md
-      - GitLab CI 🚧: integrations/ci/gitlab-ci.md
-      - CircleCI 🚧: integrations/ci/circleci.md
-    - Hosting:
-      - integrations/hosting/README.md
-      - Acquia 🚧: integrations/hosting/acquia.md
-      - Lagoon 🚧: integrations/hosting/lagoon.md
-      - Pantheon 🚧: integrations/hosting/pantheon.md
-      - Platform.sh 🚧: integrations/hosting/platformsh.md
+    - Module scaffold 🚧: drupal/module-scaffold.md
+    - Theme scaffold 🚧: drupal/theme-scaffold.md
 
   - 🔀 Workflows:
     - workflows/README.md
@@ -222,6 +189,39 @@ nav:
       - Git-flow: workflows/releasing/git-flow.md
       - GitHub-flow: workflows/releasing/github-flow.md
     - Documentation 🚧: workflows/documentation.md
+
+  - 🛠 Tools:
+      - tools/README.md
+      - Ahoy: tools/ahoy.md
+      - Behat: tools/behat.md
+      - Doctor: tools/doctor.md
+      - Docker: tools/docker.md
+      - Drush: tools/drush.md
+      - Git artifact: tools/git-artifact.md
+      - PHPCS: tools/phpcs.md
+      - PHPMD: tools/phpmd.md
+      - PHPStan: tools/phpstan.md
+      - PHPUnit: tools/phpunit.md
+      - Pygmy: tools/pygmy.md
+      - Rector: tools/rector.md
+      - Renovate: tools/renovate.md
+      - Twigcs: tools/twigcs.md
+      - Xdebug: tools/xdebug.md
+
+  - 🧩 Integrations:
+      - integrations/README.md
+      - CI:
+          - integrations/ci/README.md
+          - CircleCI 🚧: integrations/ci/circleci.md
+          - GitHub Actions 🚧: integrations/ci/github-actions.md
+          - Azure Pipelines 🚧: integrations/ci/azure-pipelines.md
+          - GitLab CI 🚧: integrations/ci/gitlab-ci.md
+      - Hosting:
+          - integrations/hosting/README.md
+          - Acquia 🚧: integrations/hosting/acquia.md
+          - Lagoon 🚧: integrations/hosting/lagoon.md
+          - Pantheon 🚧: integrations/hosting/pantheon.md
+          - Platform.sh 🚧: integrations/hosting/platformsh.md
 
   - 🌟 Contributing:
     - contributing/README.md

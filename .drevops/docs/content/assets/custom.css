@@ -50,15 +50,15 @@
 
 .md-header--lifted,
 .md-header--shadow {
-  background-image: linear-gradient(120deg, #191850, #2f3e69);
+  background-image: linear-gradient(120deg, #1c1f2c, #1f2535)
 }
 
 [data-md-color-scheme="default"] .md-tabs {
-
+  background-color: #323953;
 }
 
 [data-md-color-scheme="slate"] .md-tabs {
-  background-color: #4051b5;
+  background-color: #323953;
 }
 
 /* Mobile logo. */
