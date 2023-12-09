@@ -51,6 +51,12 @@ https://docs.drevops.com
 
 </td></tr><tr><td>
 
+## Workflow
+
+<div align="center">
+  <img width="640" alt="diagram-shortest" src="https://github.com/drevops/drevops/assets/378794/900e6e68-b2c3-4b0f-908d-833c91449f9b">
+</div>
+
 ## Features
 
 The following list includes ✅ completed and 💡 upcoming features.
