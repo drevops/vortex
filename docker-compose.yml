@@ -165,7 +165,7 @@ services:
 
   #;< REDIS
   redis:
-    image: uselagoon/redis-6:23.11.0
+    image: uselagoon/redis-6:23.12.0
     #;< LAGOON
     labels:
       lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
