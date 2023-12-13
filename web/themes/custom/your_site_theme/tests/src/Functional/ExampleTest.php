@@ -16,9 +16,10 @@ class ExampleTest extends YourSiteThemeFunctionalTestBase {
   /**
    * {@inheritdoc}
    *
-   * @phpstan-ignore-next-line
+   * @phpcs:disable Generic.CodeAnalysis.UselessOverridingMethod.Found
    */
   protected function setUp(): void {
+    parent::setUp();
     // DrevOps does not support Functional tests due to permission issues.
     // Override setup until @see https://github.com/drevops/drevops/issues/820
     // resolved.
