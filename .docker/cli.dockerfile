@@ -59,6 +59,11 @@ COPY composer.json composer.* .env* auth* /app/
 RUN if [ -n "${GITHUB_TOKEN}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN}\"}}"; fi && \
     COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
 
+# Remove Drush launcher installed by the base Lagoon PHP image.
+# @see https://github.com/uselagoon/lagoon-images/blob/main/images/php-cli-drupal/8.2.Dockerfile#L19
+RUN rm -rf /usr/local/bin/drush
+ENV PATH="/app/vendor/bin:${PATH}"
+
 # Install NodeJS dependencies.
 # Note that package-lock.json is not explicitly copied, allowing to run the
 # stack without existing lock file (this is not advisable, but allows to build
