@@ -83,6 +83,9 @@ RUN npm --prefix /app/${WEBROOT}/themes/custom/your_site_theme install --no-audi
 # overridden.
 COPY . /app
 
+# Create files directory and set correct permissions.
+RUN mkdir -p /app/${WEBROOT}/sites/default/files && chmod 0770 /app/${WEBROOT}/sites/default/files
+
 # Compile front-end assets. Running this after copying all files as we need
 # sources to compile assets.
 WORKDIR /app/${WEBROOT}/themes/custom/your_site_theme
