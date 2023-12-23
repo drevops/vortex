@@ -59,6 +59,11 @@ COPY composer.json composer.* .env* auth* /app/
 RUN if [ -n "${GITHUB_TOKEN}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN}\"}}"; fi && \
     COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
 
+# Remove Drush launcher installed by the base Lagoon PHP image.
+# @see https://github.com/uselagoon/lagoon-images/blob/main/images/php-cli-drupal/8.2.Dockerfile#L19
+RUN rm -rf /usr/local/bin/drush
+ENV PATH="/app/vendor/bin:${PATH}"
+
 # Install NodeJS dependencies.
 # Note that package-lock.json is not explicitly copied, allowing to run the
 # stack without existing lock file (this is not advisable, but allows to build
@@ -77,6 +82,9 @@ RUN npm --prefix /app/${WEBROOT}/themes/custom/your_site_theme install --no-audi
 # Copy all files into appllication source directory. Existing files are always
 # overridden.
 COPY . /app
+
+# Create files directory and set correct permissions.
+RUN mkdir -p /app/${WEBROOT}/sites/default/files && chmod 0770 /app/${WEBROOT}/sites/default/files
 
 # Compile front-end assets. Running this after copying all files as we need
 # sources to compile assets.
