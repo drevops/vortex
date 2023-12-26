@@ -1,5 +1,5 @@
 [//]: # (#;< DREVOPS_DEV)
-<table style="width: 100%; table-layout: fixed;" align="center"><tr><td>
+<table align="center"><tr><td>
 
 <div align="center">
 	<img width="400" src="https://user-images.githubusercontent.com/378794/228488082-814a8ddc-e749-4031-874c-ef545ac00cec.png" alt="DrevOps Logo" />
