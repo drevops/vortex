@@ -38,7 +38,7 @@ ENV WEBROOT=${WEBROOT} \
 # reduce build time.
 
 # Adding more tools.
-RUN apk add --no-cache ncurses=6.4_p20230506-r0 pv=1.6.20-r1 tzdata=2023c-r1
+RUN apk add --no-cache ncurses=6.4_p20230506-r0 pv=1.6.20-r1 tzdata=2023d-r0
 
 # Adding patches and scripts.
 COPY patches /app/patches
