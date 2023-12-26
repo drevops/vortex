@@ -41,7 +41,8 @@ Use **tested** Drupal project template with DevOps integrations for CI and hosti
 
 ```
 curl -SsL \
-https://install.drevops.com > install.php \
+https://install.drevops.com \
+> install.php \
 && php install.php; \
 rm -r install.php`
 ```
