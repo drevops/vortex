@@ -1,5 +1,5 @@
 [//]: # (#;< DREVOPS_DEV)
-<table align="center"><tr><td>
+<table style="width: 100%; table-layout: fixed;" align="center"><tr><td>
 
 <div align="center">
 	<img width="400" src="https://user-images.githubusercontent.com/378794/228488082-814a8ddc-e749-4031-874c-ef545ac00cec.png" alt="DrevOps Logo" />
@@ -39,7 +39,9 @@ Use **tested** Drupal project template with DevOps integrations for CI and hosti
 
 ## Installation
 
-`curl -SsL https://install.drevops.com > install.php && php install.php; rm -r install.php`
+```
+curl -SsL https://install.drevops.com > install.php && php install.php; rm -r install.php
+```
 
 </td></tr><tr><td>
 
