@@ -1,6 +1,6 @@
 [//]: # (#;< DREVOPS_DEV)
 
-<div style="border: 1px solid #ccc; padding: 10px">
+<fieldset>
 <div align="center">
   <img width="400" src="https://user-images.githubusercontent.com/378794/228488082-814a8ddc-e749-4031-874c-ef545ac00cec.png" alt="DrevOps Logo" />
 </div>
@@ -126,7 +126,7 @@ The following list includes ✅ completed and 💡 upcoming features.
 
 **This table will be removed during installation.**
 
-</div>
+</fieldset>
 
 [//]: # (#;> DREVOPS_DEV)
 # YOURSITE
