@@ -47,8 +47,8 @@ Twigcs does not support ignoring the current and the **next line**.
 Twigcs supports ignoring violations for unused variables:
 
 ```twig
-{# twigcs use-var bar #}
 {% set bar = 1 %}
+{# twigcs use-var bar #}
 ```
 
 ## Ignoring fail in CI
