@@ -130,7 +130,7 @@ aliases:
       # This container has all necessary tools to run dockerized environment.
       # @see https://github.com/drevops/ci-runner
       # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags?page=1&ordering=last_updated
-      - image: drevops/ci-runner:23.10.0
+      - image: drevops/ci-runner:23.12.0
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -178,15 +178,6 @@ aliases:
     run:
       name: Process codebase to run in CI
       command: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
-
-
-#:###############################################################################
-#: ORBS
-#:###############################################################################
-
-orbs:
-  # Codecov.io integration.
-  codecov: codecov/codecov@3.2.4
 
 #:###############################################################################
 #: JOBS
@@ -362,9 +353,9 @@ jobs:
           path: *test_results
       - store_artifacts:
           path: *artifacts
-      - codecov/upload:
-          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
-          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
+      - run:
+          name: Upload code coverage reports to Codecov
+          command: codecov -Z -s /tmp/artifacts/coverage
       - persist_to_workspace:
           root: /workspace
           paths:
@@ -463,9 +454,9 @@ jobs:
           path: *test_results
       - store_artifacts:
           path: *artifacts
-      - codecov/upload:
-          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
-          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
+      - run:
+          name: Upload code coverage reports to Codecov
+          command: codecov -Z -s /tmp/artifacts/coverage
 
   drevops_dev_test_workflow:
     <<: *container_config
@@ -484,9 +475,9 @@ jobs:
           path: *test_results
       - store_artifacts:
           path: *artifacts
-      - codecov/upload:
-          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
-          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
+      - run:
+          name: Upload code coverage reports to Codecov
+          command: codecov -Z -s /tmp/artifacts/coverage
 
   drevops_dev_test_deployment:
     <<: *container_config
@@ -509,9 +500,9 @@ jobs:
           path: *test_results
       - store_artifacts:
           path: *artifacts
-      - codecov/upload:
-          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
-          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
+      - run:
+          name: Upload code coverage reports to Codecov
+          command: codecov -Z -s /tmp/artifacts/coverage
 
   # Run tests after 'build' job.
   drevops_dev_test_postbuild:
@@ -529,9 +520,9 @@ jobs:
           path: *test_results
       - store_artifacts:
           path: *artifacts
-      - codecov/upload:
-          # @see https://github.com/codecov/codecov-circleci-orb/issues/158
-          xtra_args: "--nonZero -s /tmp/artifacts/coverage"
+      - run:
+          name: Upload code coverage reports to Codecov
+          command: codecov -Z -s /tmp/artifacts/coverage
 
   # Deployment of feature branches and tags for DrevOps itself.
   drevops_dev_deploy:
