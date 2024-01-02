@@ -711,6 +711,9 @@ assert_redis() {
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
   run docker compose exec redis redis-cli --scan
   assert_output_not_contains "config"
+  # Redis is reported in Drupal as not connected.
+  run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
+  assert_output_contains "Warning"
 
   substep "Restart with environment variable"
   add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
@@ -721,6 +724,11 @@ assert_redis() {
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
   run docker compose exec redis redis-cli --scan
   assert_output_contains "config"
+  # Redis is reported in Drupal as connected.
+  run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
+  assert_output_contains "OK"
+
+  ahoy up cli
 }
 
 assert_ahoy_reset() {
