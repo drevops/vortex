@@ -2,9 +2,9 @@
 #
 # All CLI operations performed in this container.
 #
-# @see https://hub.docker.com/r/uselagoon/php-8.1-cli-drupal/tags
+# @see https://hub.docker.com/r/uselagoon/php-8.2-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
-FROM uselagoon/php-8.1-cli-drupal:23.10.0
+FROM uselagoon/php-8.2-cli-drupal:23.10.0
 
 # Add missing variables.
 # @todo Remove once https://github.com/uselagoon/lagoon/issues/3121 is resolved.
