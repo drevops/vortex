@@ -14,7 +14,7 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "composer/installers": "^2.1",
         "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^3.1",
@@ -73,7 +73,7 @@
             "php-http/discovery": true
         },
         "platform": {
-            "php": "8.1.0"
+            "php": "8.2.13"
         }
     },
     "autoload": {

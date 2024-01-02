@@ -17,7 +17,7 @@
         "source": "https://github.com/drevops/drevops"
     },
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "symfony/console": "^6.3"
     },
     "require-dev": {

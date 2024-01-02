@@ -84,7 +84,7 @@ specifies the essential packages and libraries your project needs.
 
 - `php`: Specifies the minimum PHP version required to run this project. This
   should be specified as a range rather than an exact version number.
-  E.g. `>=8.1` and not `8.1.0`.
+  E.g. `>=8.2` and not `8.2.0`.
 - [`composer/installers`](https://github.com/composer/installers): Allows to
   install packages to the correct location based on the specified package type
   such as `drupal-module`, `drupal-theme`, `drupal-profile`, etc.
@@ -230,7 +230,7 @@ specifies key configurations for Composer's behavior in the project.
   plugins. Each plugin needs to be explicitly allowed to ensure it can execute.
 - [`platform`](https://getcomposer.org/doc/06-config.md#platform): Specifies the
   PHP version of the platform environment where the current project runs. This
-  should be specified as an exact version number (e.g. `8.1.0`). Should be kept
+  should be specified as an exact version number (e.g. `8.2.0`). Should be kept
   in sync with the `php` version in the [Docker containers](../tools/docker.md).
 
 ### `autoload`
