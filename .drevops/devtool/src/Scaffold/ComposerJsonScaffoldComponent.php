@@ -86,7 +86,7 @@ class ComposerJsonScaffoldComponent extends AbstractScaffoldComponent {
 
     $m->addProperty('minimum-stability', 'stable');
 
-    $m->addConfigSetting('platform', ['php' => $this->getPlatformPhpVersion() ?: '8.1.0']);
+    $m->addConfigSetting('platform', ['php' => $this->getPlatformPhpVersion() ?: '8.2.13']);
 
     $m->mergeProperty('config.allow-plugins', [
       'oomphinc/composer-installers-extender' => TRUE,

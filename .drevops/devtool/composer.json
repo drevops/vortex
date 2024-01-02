@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "symfony/console": "^6.3",
         "symfony/http-client": "^6.3",
         "composer/composer": "^2.6",
