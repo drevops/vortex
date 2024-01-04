@@ -10,13 +10,11 @@
 # Run `ahoy up cli` to apply environment variables changes to containers.
 #;
 #; Comments starting with '#:' provide explicit documentation and will be
-#; automatically removed during installation or update if an option is selected.
+#; automatically removed during installation or update of DrevOps if an option
+#; is selected.
 #;
-#; Comments starting with '#;<', '#;>' and '#;' are internal DrevOps comments
-#; and will be removed during installation or update.
-#;
-#; Comments starting with '#' are normal comments and will stay in the code
-#; after installation or update.
+#; Comments starting with '#;<' and '#;>' are internal DrevOps comments
+#; and will be removed during installation or update of DrevOps.
 ---
 ahoyapi: v2
 
