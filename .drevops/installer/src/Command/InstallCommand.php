@@ -587,7 +587,7 @@ class InstallCommand extends Command {
       static::dirReplaceContent(': web', ': ' . $new_name, $dir);
       static::dirReplaceContent('=web', '=' . $new_name, $dir);
       static::dirReplaceContent('!web', '!' . $new_name, $dir);
-      static::dirReplaceContent('/web', '/' . $new_name, $dir);
+      static::dirReplaceContent('/\/web\//', '/' . $new_name . '/', $dir);
       rename($dir . DIRECTORY_SEPARATOR . 'web', $dir . DIRECTORY_SEPARATOR . $new_name);
     }
   }
@@ -1868,22 +1868,11 @@ EOF;
   }
 
   protected static function isRegex($str) {
-    if (preg_match('/^(.{3,}?)[imsxuADU]*$/', $str, $m)) {
-      $start = substr($m[1], 0, 1);
-      $end = substr($m[1], -1);
-
-      if ($start === $end) {
-        return !preg_match('/[*?[:alnum:] \\\\]/', $start);
-      }
-
-      foreach ([['{', '}'], ['(', ')'], ['[', ']'], ['<', '>']] as $delimiters) {
-        if ($start === $delimiters[0] && $end === $delimiters[1]) {
-          return TRUE;
-        }
-      }
+    if ($str === '' || strlen($str) < 3) {
+      return FALSE;
     }
 
-    return FALSE;
+    return @preg_match($str, '') !== FALSE;
   }
 
   protected static function fileReplaceContent($needle, $replacement, $filename) {

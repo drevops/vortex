@@ -107,4 +107,47 @@ class HelpersTest extends UnitTestBase {
     ];
   }
 
+  /**
+   * @dataProvider dataProviderIsRegex
+   */
+  public function testIsRegex($value, $expected) {
+    $actual = $this->callProtectedMethod(InstallCommand::class, 'isRegex', [$value]);
+    $this->assertEquals($expected, $actual);
+  }
+
+  public static function dataProviderIsRegex() {
+    return [
+      ['', FALSE],
+
+      // Valid regular expressions.
+      ["/^[a-z]$/", TRUE],
+      ["#[a-z]*#i", TRUE],
+      ["{[0-9]+}", TRUE],
+      ["(\\d+)", TRUE],
+      ["<[A-Z]{3,6}>", TRUE],
+
+      // Invalid regular expressions (wrong delimiters or syntax).
+      ["^[a-z]$", FALSE],
+      ["/[a-z", FALSE],
+      ["[a-z]+/", FALSE],
+      ["{[a-z]*", FALSE],
+      ["(a-z]", FALSE],
+
+      // Edge cases.
+      // Valid, but '*' as delimiter would be invalid.
+      ["/a*/", TRUE],
+      // Empty string.
+      ["", FALSE],
+      // Just delimiters, no pattern.
+      ["//", FALSE],
+
+      ['web/', FALSE],
+      ['web\/', FALSE],
+      [': web', FALSE],
+      ['=web', FALSE],
+      ['!web', FALSE],
+      ['/web', FALSE],
+    ];
+  }
+
 }
