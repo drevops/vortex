@@ -197,7 +197,7 @@ jobs:
   #: $DREVOPS_CI_DB_CACHE_FALLBACK is used if the cache did not match $DREVOPS_CI_DB_CACHE_TIMESTAMP.
   #: This allows to rely on the cache from the previous days within the same
   #: branch.
-  database: &job_database
+  database: &job-database
     <<: *runner_config
     steps:
       - attach_workspace:
@@ -269,8 +269,8 @@ jobs:
             - *db_cache_dir
 
   # Nightly database job. Same as above, but with additional variables set.
-  database_nightly:
-    <<: *job_database
+  database-nightly:
+    <<: *job-database
     environment:
       DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
       DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
@@ -388,7 +388,7 @@ jobs:
           path: *artifacts
 
   # Deploy tags.
-  deploy_tags: &job_deploy_tags
+  deploy-tags: &job-deploy-tags
     <<: *runner_config
     steps:
       - attach_workspace:
@@ -408,7 +408,7 @@ jobs:
   #;< RENOVATEBOT
   # Self-hosted RenovateBot.
   # Add RENOVATE_TOKEN as an environment variable with GitHub access token in UI.
-  renovatebot_self_hosted:
+  renovatebot-self-hosted:
     docker:
       - image: renovate/renovate:36.108.0
         environment:
@@ -439,7 +439,7 @@ jobs:
   #-----------------------------------------------------------------------------
   # Test suite for DrevOps.
   #-----------------------------------------------------------------------------
-  drevops_dev_test:
+  drevops-dev-test:
     <<: *runner_config
     parallelism: 1
     steps:
@@ -462,7 +462,7 @@ jobs:
           name: Upload code coverage reports to Codecov
           command: codecov -Z -s /tmp/artifacts/coverage
 
-  drevops_dev_test_workflow:
+  drevops-dev-test-workflow:
     <<: *runner_config
     parallelism: 3
     resource_class: large
@@ -483,7 +483,7 @@ jobs:
           name: Upload code coverage reports to Codecov
           command: codecov -Z -s /tmp/artifacts/coverage
 
-  drevops_dev_test_deployment:
+  drevops-dev-test-deployment:
     <<: *runner_config
     parallelism: 2
     steps:
@@ -509,7 +509,7 @@ jobs:
           command: codecov -Z -s /tmp/artifacts/coverage
 
   # Run tests after 'build' job.
-  drevops_dev_test_postbuild:
+  drevops-dev-test-postbuild:
     <<: *runner_config
     parallelism: 1
     steps:
@@ -529,11 +529,11 @@ jobs:
           command: codecov -Z -s /tmp/artifacts/coverage
 
   # Deployment of feature branches and tags for DrevOps itself.
-  drevops_dev_deploy:
+  drevops-dev-deploy:
     <<: *job_deploy
 
-  drevops_dev_deploy_tags:
-    <<: *job_deploy_tags
+  drevops-dev-deploy-tags:
+    <<: *job-deploy-tags
 
   #-----------------------------------------------------------------------------
   # Launching and testing databases stored within Docker data image.
@@ -558,8 +558,8 @@ jobs:
   #
   # Job to test creation of the image from DB dump file when using
   # DREVOPS_DB_DOCKER_IMAGE workflow.
-  drevops_dev_didi_database_fi:
-    <<: *job_database
+  drevops-dev-didi-database-fi:
+    <<: *job-database
     environment:
       DREVOPS_DB_DOWNLOAD_SOURCE: curl
       DREVOPS_DB_DOWNLOAD_FORCE: 1
@@ -575,52 +575,52 @@ jobs:
       DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
       # Use a separate tag to make sure that pushed image does not affect
       # other tests (pushing broken image as 'latest' would fail other tests).
-      DREVOPS_DOCKER_IMAGE_TAG: drevops_dev_didi_database_fi
+      DREVOPS_DOCKER_IMAGE_TAG: drevops-dev-didi-database-fi
       # Also, use this job to test pushing of the DB image to the Docker
-      # registry to mimic what database_nightly job would do.
+      # registry to mimic what database-nightly job would do.
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: drevops_dev_didi_fi
+      DREVOPS_CI_DB_CACHE_BRANCH: drevops-dev-didi-fi
   # Job to test creation of the image from the previous version of the image
   # when using database-in-Docker-image workflow.
-  drevops_dev_database_ii:
-    <<: *job_database
+  drevops-dev-database-ii:
+    <<: *job-database
     environment:
       DREVOPS_DB_DOWNLOAD_SOURCE: docker_registry
       DREVOPS_DB_DOWNLOAD_FORCE: 1
       DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
-      DREVOPS_DOCKER_IMAGE_TAG: drevops_dev_database_ii
+      DREVOPS_DOCKER_IMAGE_TAG: drevops-dev-database-ii
       # Also, use this job to test pushing of the DB image to the Docker
-      # registry so mimic what database_nightly job would do.
+      # registry so mimic what database-nightly job would do.
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: drevops_dev_didi_ii
+      DREVOPS_CI_DB_CACHE_BRANCH: drevops-dev-didi-ii
   # Job to test build of the image from the previous stage of the image when
   # using database-in-Docker-image workflow. Overwriting just the DREVOPS_DB_DOCKER_IMAGE
   # variable should change the storage mechanisms, but preserve application-level
   # stack operation.
-  drevops_dev_didi_build_fi:
+  drevops-dev-didi-build-fi:
     <<: *job_build
     environment:
       DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_didi_database_fi
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: drevops_dev_didi_fi
-  drevops_dev_didi_build_ii:
+      DREVOPS_CI_DB_CACHE_BRANCH: drevops-dev-didi-fi
+  drevops-dev-didi-build-ii:
     <<: *job_build
     environment:
       DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_database_ii
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: drevops_dev_didi_ii
+      DREVOPS_CI_DB_CACHE_BRANCH: drevops-dev-didi-ii
 
   #-----------------------------------------------------------------------------
   # Publish docs to docs.drevops.com
   # @todo Move this to GitHub Actions.
   #-----------------------------------------------------------------------------
-  drevops_dev_deploy_docs:
+  drevops-dev-deploy-docs:
     <<: *runner_config
     steps:
       - checkout
@@ -654,7 +654,7 @@ jobs:
   # Publish installer to install.drevops.com
   # @todo Move this to GitHub Actions.
   #-----------------------------------------------------------------------------
-  drevops_dev_deploy_installer:
+  drevops-dev-deploy-installer:
     <<: *runner_config
     steps:
       - checkout
@@ -743,7 +743,7 @@ workflows:
               only: /^(main|master|develop)$|^feature\/[a-zA-z0-9\-\.\,]+|^ci.*|^deps\/.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
             tags:
               ignore: /.*/
-      - deploy_tags:
+      - deploy-tags:
           requires:
             - build
           filters:
@@ -764,21 +764,21 @@ workflows:
   # Run unit and functional tests for DrevOps.
   # Note that these jobs must run within the "commit" workflow, because they
   # depend on the "build" job.
-      - drevops_dev_test:
+      - drevops-dev-test:
           filters:
             tags:
               only: /.*/
-      - drevops_dev_test_workflow:
+      - drevops-dev-test-workflow:
           filters:
             tags:
               only: /.*/
       # Run deployment tests for DrevOps.
-      - drevops_dev_test_deployment:
+      - drevops-dev-test-deployment:
           filters:
             tags:
               only: /.*/
       # Run tests after 'build' job.
-      - drevops_dev_test_postbuild:
+      - drevops-dev-test-postbuild:
           requires:
             - build
           filters:
@@ -786,11 +786,11 @@ workflows:
               only: /.*/
       # Run actual deployment of DrevOps code to destination codebase (integration test).
       # @see https://github.com/drevops/drevops-destination
-      - drevops_dev_deploy:
+      - drevops-dev-deploy:
           requires:
             - build
-            - drevops_dev_test
-            - drevops_dev_test_workflow
+            - drevops-dev-test
+            - drevops-dev-test-workflow
           filters:
             branches:
               # Allowed branches: 7.x, 8.x, 9.x, feature/7.x-description, feature/8.x-description, feature/9.x-description
@@ -799,11 +799,11 @@ workflows:
               ignore: /.*/
       # Run actual deployment of DrevOps code to destination codebase (integration test).
       # @see https://github.com/drevops/drevops-destination
-      - drevops_dev_deploy_tags:
+      - drevops-dev-deploy-tags:
           requires:
             - build
-            - drevops_dev_test
-            - drevops_dev_test_workflow
+            - drevops-dev-test
+            - drevops-dev-test-workflow
           filters:
             branches:
               ignore: /.*/
@@ -811,11 +811,11 @@ workflows:
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
 
       # Build and publish DrevOps docs.
-      - drevops_dev_deploy_docs:
+      - drevops-dev-deploy-docs:
           requires:
             - build
-            - drevops_dev_test
-            - drevops_dev_test_workflow
+            - drevops-dev-test
+            - drevops-dev-test-workflow
           filters:
             branches:
               # 'main' or any branch with 'docs' in the name.
@@ -824,9 +824,9 @@ workflows:
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
 
       # Publish DrevOps installer.
-      - drevops_dev_deploy_installer:
+      - drevops-dev-deploy-installer:
           requires:
-            - drevops_dev_test
+            - drevops-dev-test
           filters:
             branches:
               only: /^feature\/installer-update$/
@@ -834,26 +834,26 @@ workflows:
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
 
   # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from file.
-  drevops_dev_didi_fi:
+  drevops-dev-didi-fi:
     jobs:
-      - drevops_dev_didi_database_fi
-      - drevops_dev_didi_build_fi:
+      - drevops-dev-didi-database-fi
+      - drevops-dev-didi-build-fi:
           requires:
-            - drevops_dev_didi_database_fi
+            - drevops-dev-didi-database-fi
 
   # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from docker registry.
-  drevops_dev_didi_ii:
+  drevops-dev-didi-ii:
     jobs:
-      - drevops_dev_database_ii
-      - drevops_dev_didi_build_ii:
+      - drevops-dev-database-ii
+      - drevops-dev-didi-build-ii:
           requires:
-            - drevops_dev_database_ii
+            - drevops-dev-database-ii
   #=============================================================================
   #;> DREVOPS_DEV
 
   #;< !PROVISION_USE_PROFILE
   # Nightly database workflow runs overnight to capture fresh database and cache it.
-  nightly_db:
+  nightly-db:
     triggers:
       - schedule:
           cron: *nightly_db_schedule
@@ -862,12 +862,12 @@ workflows:
               only:
                 - *nightly_db_branch
     jobs:
-      - database_nightly
+      - database-nightly
   #;> !PROVISION_USE_PROFILE
 
   #;< RENOVATEBOT
   # Self-hosted Renovatebot workflow.
-  renovatebot_self_hosted:
+  renovatebot-self-hosted:
     triggers:
       - schedule:
           cron: *renovatebot_schedule
@@ -876,5 +876,5 @@ workflows:
               only:
                 - *renovatebot_branch
     jobs:
-      - renovatebot_self_hosted
+      - renovatebot-self-hosted
   #;> RENOVATEBOT
