@@ -180,7 +180,7 @@ class CircleCiConfigTest extends TestCase {
    * @dataProvider dataProviderDeployTagRegex
    */
   public function testDeployTagRegex(string $branch, bool $expected = TRUE): void {
-    $this->assertEquals($expected, preg_match($this->config['workflows']['commit']['jobs'][3]['deploy_tags']['filters']['tags']['only'], $branch));
+    $this->assertEquals($expected, preg_match($this->config['workflows']['commit']['jobs'][3]['deploy-tags']['filters']['tags']['only'], $branch));
   }
 
   /**
