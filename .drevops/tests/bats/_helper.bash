@@ -417,19 +417,19 @@ assert_files_present_drevops() {
   assert_dir_not_exists ".drevops"
   assert_file_not_exists "LICENSE"
   assert_file_not_exists ".github/FUNDING.yml"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test_workflow"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_test_deployment"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_deploy"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_deploy_tags"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_database_fi"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_database_ii"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_build_fi"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_build_ii"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_docs"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_fi"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_didi_ii"
-  assert_file_not_contains ".circleci/config.yml" "drevops_dev_installer"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-test"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-test-workflow"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-test-deployment"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-deploy"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-deploy-tags"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-didi-database-fi"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-database-ii"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-didi-build-fi"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-didi-build-ii"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-docs"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-didi-fi"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-didi-ii"
+  assert_file_not_contains ".circleci/config.yml" "drevops-dev-installer"
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# DrevOps"
@@ -607,8 +607,8 @@ assert_files_present_provision_use_profile() {
   assert_file_not_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_TIMESTAMP"
   assert_file_not_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_FALLBACK"
   assert_file_not_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_BRANCH"
-  assert_file_not_contains ".circleci/config.yml" "database: &job_database"
-  assert_file_not_contains ".circleci/config.yml" "database_nightly"
+  assert_file_not_contains ".circleci/config.yml" "database: &job-database"
+  assert_file_not_contains ".circleci/config.yml" "database-nightly"
   assert_file_not_contains ".circleci/config.yml" "name: Set cache keys for database caching"
   assert_file_not_contains ".circleci/config.yml" "- database:"
 
@@ -639,8 +639,8 @@ assert_files_present_no_provision_use_profile() {
   assert_file_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_TIMESTAMP"
   assert_file_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_FALLBACK"
   assert_file_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_BRANCH"
-  assert_file_contains ".circleci/config.yml" "database: &job_database"
-  assert_file_contains ".circleci/config.yml" "database_nightly"
+  assert_file_contains ".circleci/config.yml" "database: &job-database"
+  assert_file_contains ".circleci/config.yml" "database-nightly"
   assert_file_contains ".circleci/config.yml" "name: Set cache keys for database caching"
   assert_file_contains ".circleci/config.yml" "- database:"
 
@@ -677,7 +677,7 @@ assert_files_present_deployment() {
 
   assert_file_exists "docs/deployment.md"
   assert_file_contains ".circleci/config.yml" "deploy: &job_deploy"
-  assert_file_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
+  assert_file_contains ".circleci/config.yml" "deploy-tags: &job-deploy-tags"
 
   popd >/dev/null || exit 1
 }
@@ -696,9 +696,9 @@ assert_files_present_no_deployment() {
   # committed.
   if [ "${has_committed_files:-}" -eq 0 ]; then
     assert_file_not_contains ".circleci/config.yml" "deploy: &job_deploy"
-    assert_file_not_contains ".circleci/config.yml" "deploy_tags: &job_deploy_tags"
+    assert_file_not_contains ".circleci/config.yml" "deploy-tags: &job-deploy-tags"
     assert_file_not_contains ".circleci/config.yml" "- deploy:"
-    assert_file_not_contains ".circleci/config.yml" "- deploy_tags:"
+    assert_file_not_contains ".circleci/config.yml" "- deploy-tags:"
   fi
 
   popd >/dev/null || exit 1
@@ -862,7 +862,7 @@ assert_files_present_integration_renovatebot() {
 
   assert_file_exists "renovate.json"
 
-  assert_file_contains ".circleci/config.yml" "renovatebot_self_hosted"
+  assert_file_contains ".circleci/config.yml" "renovatebot-self-hosted"
   assert_file_contains ".circleci/config.yml" "renovatebot_branch"
   assert_file_contains ".circleci/config.yml" "- *renovatebot_branch"
 
@@ -877,7 +877,7 @@ assert_files_present_no_integration_renovatebot() {
 
   assert_file_not_exists "renovate.json"
 
-  assert_file_not_contains ".circleci/config.yml" "renovatebot_self_hosted"
+  assert_file_not_contains ".circleci/config.yml" "renovatebot-self-hosted"
   assert_file_not_contains ".circleci/config.yml" "renovatebot_branch"
   assert_file_not_contains ".circleci/config.yml" "- *renovatebot_branch"
 
