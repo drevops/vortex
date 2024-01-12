@@ -21,15 +21,11 @@ class ScaffoldUpdateCommand extends DevToolCommand {
 
   /**
    * Project root.
-   *
-   * @var string
    */
   protected string $root;
 
   /**
    * Scaffold manager.
-   *
-   * @var \DrevOps\DevTool\Scaffold\ScaffoldManager
    */
   protected ScaffoldManager $scaffoldManager;
 

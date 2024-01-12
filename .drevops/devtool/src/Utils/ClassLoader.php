@@ -21,7 +21,7 @@ class ClassLoader {
   public static function load(string $path, $parent_class = NULL): array {
     if (!empty($path) && is_dir($path)) {
       foreach (self::glob($path, '*.php') as $filename) {
-        if ($filename !== __FILE__ && !str_contains(basename($filename), 'Trait')) {
+        if ($filename !== __FILE__ && !str_contains(basename((string) $filename), 'Trait')) {
           require_once $filename;
         }
       }

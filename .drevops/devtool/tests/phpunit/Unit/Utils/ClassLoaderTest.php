@@ -15,8 +15,6 @@ class ClassLoaderTest extends TestCase {
 
   /**
    * Test path.
-   *
-   * @var string
    */
   protected string $testPath;
 

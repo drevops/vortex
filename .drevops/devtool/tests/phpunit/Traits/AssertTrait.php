@@ -22,7 +22,7 @@ trait AssertTrait {
    */
   public function assertArrayContainsString(string $needle, array $haystack): void {
     foreach ($haystack as $hay) {
-      if (str_contains($hay, $needle)) {
+      if (str_contains((string) $hay, $needle)) {
         $this->addToAssertionCount(1);
 
         return;

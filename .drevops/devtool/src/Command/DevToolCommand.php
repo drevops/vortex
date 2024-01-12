@@ -17,8 +17,6 @@ abstract class DevToolCommand extends Command {
 
   /**
    * IO.
-   *
-   * @var \Symfony\Component\Console\Style\SymfonyStyle
    */
   protected SymfonyStyle $io;
 

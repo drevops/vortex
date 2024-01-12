@@ -5,6 +5,12 @@
  * Redis configuration.
  */
 
+use Drupal\Component\Serialization\PhpSerialize;
+use Drupal\redis\Cache\CacheBackendFactory;
+use Drupal\redis\Cache\PhpRedis;
+use Drupal\redis\Cache\RedisCacheTagsChecksum;
+use Drupal\redis\ClientFactory;
+
 // Using 'DRUPAL_REDIS_ENABLED' variable to resolve deployment concurrency:
 // Redis module needs to be enabled without the configuration below applied
 // while the Redis service gets provisioned (deployment #1), then the cache
@@ -40,10 +46,10 @@ if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_REDIS_ENABLED
       'parameters' => [],
       'services' => [
         'redis.factory' => [
-          'class' => 'Drupal\redis\ClientFactory',
+          'class' => ClientFactory::class,
         ],
         'cache.backend.redis' => [
-          'class' => 'Drupal\redis\Cache\CacheBackendFactory',
+          'class' => CacheBackendFactory::class,
           'arguments' => [
             '@redis.factory',
             '@cache_tags_provider.container',
@@ -51,16 +57,16 @@ if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_REDIS_ENABLED
           ],
         ],
         'cache.container' => [
-          'class' => '\Drupal\redis\Cache\PhpRedis',
+          'class' => PhpRedis::class,
           'factory' => ['@cache.backend.redis', 'get'],
           'arguments' => ['container'],
         ],
         'cache_tags_provider.container' => [
-          'class' => 'Drupal\redis\Cache\RedisCacheTagsChecksum',
+          'class' => RedisCacheTagsChecksum::class,
           'arguments' => ['@redis.factory'],
         ],
         'serialization.phpserialize' => [
-          'class' => 'Drupal\Component\Serialization\PhpSerialize',
+          'class' => PhpSerialize::class,
         ],
       ],
     ];

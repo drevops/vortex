@@ -24,16 +24,16 @@ trait ReflectionTrait {
    *   Method result.
    */
   protected static function callProtectedMethod(object|string $object, string $name, array $args = []) {
-    $object_or_class = is_object($object) ? get_class($object) : $object;
+    $object_or_class = is_object($object) ? $object::class : $object;
 
     if (!class_exists($object_or_class)) {
-      throw new \InvalidArgumentException("Class $object_or_class does not exist");
+      throw new \InvalidArgumentException(sprintf('Class %s does not exist', $object_or_class));
     }
 
     $class = new \ReflectionClass($object_or_class);
 
     if (!$class->hasMethod($name)) {
-      throw new \InvalidArgumentException("Method $name does not exist");
+      throw new \InvalidArgumentException(sprintf('Method %s does not exist', $name));
     }
 
     $method = $class->getMethod($name);
@@ -70,8 +70,8 @@ trait ReflectionTrait {
    * @param mixed $value
    *   Value to set to the property.
    */
-  protected static function setProtectedValue($object, $property, $value): void {
-    $class = new \ReflectionClass(get_class($object));
+  protected static function setProtectedValue($object, $property, mixed $value): void {
+    $class = new \ReflectionClass($object::class);
     $property = $class->getProperty($property);
     $property->setAccessible(TRUE);
 
@@ -90,7 +90,7 @@ trait ReflectionTrait {
    *   Protected property value.
    */
   protected static function getProtectedValue($object, $property) {
-    $class = new \ReflectionClass(get_class($object));
+    $class = new \ReflectionClass($object::class);
     $property = $class->getProperty($property);
     $property->setAccessible(TRUE);
 

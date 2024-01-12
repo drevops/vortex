@@ -188,11 +188,11 @@ class ComposerJsonManipulator extends JsonManipulator {
     $specialPackages = ['php', 'ext-', 'lib-'];
 
     // Check if package name matches any special package patterns.
-    $isSpecialPackage = array_reduce($specialPackages, function ($carry, $item) use ($name): bool {
-      return $carry || strpos($name, $item) === 0;
+    $isSpecialPackage = array_reduce($specialPackages, static function ($carry, $item) use ($name) : bool {
+        return $carry || str_starts_with((string) $name, $item);
     }, FALSE);
 
-    if (!$isSpecialPackage && !preg_match($standardPattern, $name)) {
+    if (!$isSpecialPackage && !preg_match($standardPattern, (string) $name)) {
       throw new \InvalidArgumentException(sprintf('Invalid package name "%s", should be in the form vendor/package or a special package (php, ext-*, lib-*)', $name));
     }
   }

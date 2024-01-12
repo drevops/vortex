@@ -22,15 +22,11 @@ abstract class CommandTestCase extends TestCase {
 
   /**
    * CommandTester instance.
-   *
-   * @var \Symfony\Component\Console\Tester\CommandTester
    */
   protected CommandTester $commandTester;
 
   /**
    * Path to fixtures directory.
-   *
-   * @var string
    */
   protected string $fixturesDir = __DIR__ . '/../../Fixtures';
 

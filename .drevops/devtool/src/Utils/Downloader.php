@@ -17,8 +17,6 @@ class Downloader {
 
   /**
    * Http client.
-   *
-   * @var \Symfony\Contracts\HttpClient\HttpClientInterface
    */
   protected HttpClientInterface $httpClient;
 

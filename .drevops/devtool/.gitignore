@@ -5,5 +5,4 @@
 /.coverage-html
 /.phpunit.cache
 /cobertura.xml
-/composer.lock
 /vendor

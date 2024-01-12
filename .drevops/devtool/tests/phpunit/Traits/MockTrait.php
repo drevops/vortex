@@ -32,7 +32,7 @@ trait MockTrait {
     $methods = array_filter(array_keys($methods_map), 'is_string');
 
     if (!class_exists($class)) {
-      throw new \InvalidArgumentException("Class $class does not exist");
+      throw new \InvalidArgumentException(sprintf('Class %s does not exist', $class));
     }
 
     $reflection_class = new \ReflectionClass($class);

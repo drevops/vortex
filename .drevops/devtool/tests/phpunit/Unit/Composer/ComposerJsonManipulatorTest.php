@@ -18,8 +18,6 @@ class ComposerJsonManipulatorTest extends TestCase {
 
   /**
    * Path to the test JSON file.
-   *
-   * @var string
    */
   protected string $testJsonFilePath;
 

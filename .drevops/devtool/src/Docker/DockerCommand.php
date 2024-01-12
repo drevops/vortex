@@ -12,7 +12,7 @@ class DockerCommand {
   /**
    * Possible command keywords to validate against.
    */
-  const KEYWORDS = [
+  final const KEYWORDS = [
     'FROM',
     'RUN',
     'CMD',
@@ -38,11 +38,6 @@ class DockerCommand {
   protected string $keyword;
 
   /**
-   * Command arguments.
-   */
-  protected string $arguments;
-
-  /**
    * DockerCommand constructor.
    *
    * @param string $keyword
@@ -53,12 +48,11 @@ class DockerCommand {
    * @throws \Exception
    *   If the keyword is invalid.
    */
-  public function __construct(string $keyword, string $arguments) {
+  public function __construct(string $keyword, protected string $arguments) {
     if (!in_array($keyword, self::KEYWORDS)) {
       throw new \Exception(sprintf('Invalid docker command keyword %s.', $keyword));
     }
     $this->keyword = $keyword;
-    $this->arguments = $arguments;
   }
 
   /**

@@ -181,7 +181,7 @@ commands:
     cmd: |
       ahoy cli vendor/bin/phpcs
       ahoy cli vendor/bin/phpstan
-      ahoy cli vendor/bin/rector process --dry-run .
+      ahoy cli vendor/bin/rector --dry-run
       ahoy cli vendor/bin/phpmd . text phpmd.xml
 
   lint-fe:
@@ -193,8 +193,8 @@ commands:
   lint-fix:
     usage: Fix lint issues of back-end and front-end code.
     cmd: |
+      ahoy cli vendor/bin/rector process
       ahoy cli vendor/bin/phpcbf
-      ahoy cli vendor/bin/rector process .
 
   test:
     usage: Run all tests.
