@@ -16,23 +16,12 @@ use Symfony\Component\Filesystem\Filesystem;
 class ScaffoldManager {
 
   /**
-   * Project root.
-   *
-   * @var string
-   */
-  protected string $root;
-
-  /**
    * Stub dir path.
-   *
-   * @var string
    */
   protected string $stubDir;
 
   /**
    * Filesystem.
-   *
-   * @var \Symfony\Component\Filesystem\Filesystem
    */
   protected Filesystem $fs;
 
@@ -42,20 +31,22 @@ class ScaffoldManager {
    * @param string $root
    *   Project root.
    */
-  public function __construct(string $root) {
+  public function __construct(/**
+                               * Project root.
+                               */
+  protected string $root) {
     $this->fs = new Filesystem();
     $this->stubDir = sys_get_temp_dir() . '/temp_' . uniqid();
     $this->fs->mkdir($this->stubDir);
-    $this->root = $root;
   }
 
   /**
    * Update root using scaffold.
    */
   public function update(): void {
-    $component_classes = ClassLoader::load(__DIR__, 'DrevOps\\DevTool\\Scaffold\\AbstractScaffoldComponent');
-    usort($component_classes, function ($a, $b): int {
-      return $a::$weight <=> $b::$weight;
+    $component_classes = ClassLoader::load(__DIR__, AbstractScaffoldComponent::class);
+    usort($component_classes, static function ($a, $b) : int {
+        return $a::$weight <=> $b::$weight;
     });
 
     $downloader = new Downloader();

@@ -19,13 +19,11 @@ function your_site_theme_preprocess_html(array &$variables): void {
  */
 function _your_site_theme_preprocess_admin_toolbar(array &$variables): void {
   // Hide admin toolbar.
-  if (Settings::get('hide_admin_toolbar')) {
-    if (!empty($variables['attributes']['class'])) {
-      unset($variables['page_top']['toolbar']);
-      $variables['attributes']['class'] = array_filter($variables['attributes']['class'], function ($value): bool {
-        return strpos($value, 'toolbar-') !== 0;
-      });
-    }
+  if (Settings::get('hide_admin_toolbar') && !empty($variables['attributes']['class'])) {
+    unset($variables['page_top']['toolbar']);
+    $variables['attributes']['class'] = array_filter($variables['attributes']['class'], static function ($value): bool {
+      return !str_starts_with($value, 'toolbar-');
+    });
   }
 }
 
@@ -35,7 +33,7 @@ function _your_site_theme_preprocess_admin_toolbar(array &$variables): void {
 function your_site_theme_css_alter(array &$css): void {
   // Force disabling of CSS pre-processing if Livereload is enabled.
   if (Settings::get('livereload', FALSE)) {
-    foreach ($css as $key => $value) {
+    foreach (array_keys($css) as $key) {
       $css[$key]['preprocess'] = FALSE;
     }
   }
@@ -68,7 +66,7 @@ function _your_site_theme_attach_livereload(array &$page): void {
       if ($contents) {
         $port = trim($contents);
         if (!empty($url) && is_numeric($port)) {
-          $livereload_url = "$url:$port";
+          $livereload_url = sprintf('%s:%s', $url, $port);
         }
       }
     }
@@ -80,7 +78,7 @@ function _your_site_theme_attach_livereload(array &$page): void {
         '#type' => 'html_tag',
         '#tag' => 'script',
         '#attributes' => [
-          'src' => "http://$livereload_url/livereload.js?snipver=1",
+          'src' => sprintf('http://%s/livereload.js?snipver=1', $livereload_url),
         ],
       ],
       'livereload',

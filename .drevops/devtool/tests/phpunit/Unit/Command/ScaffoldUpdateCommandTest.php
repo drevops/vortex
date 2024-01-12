@@ -19,15 +19,11 @@ class ScaffoldUpdateCommandTest extends CommandTestCase {
 
   /**
    * Path to root directory.
-   *
-   * @var string
    */
   protected string $rootDir;
 
   /**
    * Path to scaffold directory.
-   *
-   * @var string
    */
   protected string $scaffoldDir;
 

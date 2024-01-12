@@ -145,8 +145,8 @@ class ComposerJsonScaffoldComponent extends AbstractScaffoldComponent {
 
     // Parse the CLI Dockerfile for commands.
     $commands = DockerfileParser::parse($this->rootDir . '/.docker/cli.dockerfile');
-    $from_commands = array_filter($commands, function (DockerCommand $command): bool {
-      return $command->getKeyword() === 'FROM';
+    $from_commands = array_filter($commands, static function (DockerCommand $command) : bool {
+        return $command->getKeyword() === 'FROM';
     });
 
     if (!empty($from_commands)) {

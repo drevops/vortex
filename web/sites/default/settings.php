@@ -43,7 +43,7 @@ if (!defined('ENVIRONMENT_DEV')) {
 }
 // @codeCoverageIgnoreEnd
 
-$settings['environment'] = !empty(getenv('CI')) ? ENVIRONMENT_CI : ENVIRONMENT_LOCAL;
+$settings['environment'] = empty(getenv('CI')) ? ENVIRONMENT_LOCAL : ENVIRONMENT_CI;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       SITE-SPECIFIC SETTINGS                             ///
@@ -178,7 +178,7 @@ if (getenv('LAGOON') && getenv('LAGOON_ENVIRONMENT_TYPE') == 'production' || get
 
     // But try to identify production environment using a branch name for
     // the cases when 'production' Lagoon environment is not provisioned yet.
-    if (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') == getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) {
+    if (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') === getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) {
       $settings['environment'] = ENVIRONMENT_PROD;
     }
     // Dedicated test environment based on a branch name.

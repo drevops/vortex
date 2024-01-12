@@ -26,7 +26,7 @@
         "mikey179/vfsstream": "^1.6",
         "opis/closure": "^3.6",
         "helmich/phpunit-json-assert": "^3.5",
-        "rector/rector": "^0.18.6"
+        "rector/rector": "^0.19"
     },
     "autoload": {
         "psr-4": {
@@ -54,11 +54,11 @@
         "lint": [
             "phpcs",
             "phpstan",
-            "rector process --dry-run ."
+            "rector --dry-run"
         ],
-        "lint:fix": [
-            "phpcbf",
-            "rector process . "
+        "lint-fix": [
+            "rector",
+            "phpcbf"
         ],
         "test": "phpunit --no-coverage",
         "test:coverage": "XDEBUG_MODE=coverage phpunit"

@@ -41,7 +41,7 @@ web/sites/default/*
 
 #;< DREVOPS_DEV
 #; Ignore these files in DrevOps itself, but do not ignore in consumer site.
-composer.lock
+/composer.lock
 package-lock.json
 #;> DREVOPS_DEV
 

@@ -20,37 +20,37 @@ abstract class SettingsTestCase extends TestCase {
    * settings.php and the environment used to test configs and settings
    * in environment-less way.
    */
-  const ENVIRONMENT_SUT = 'env-testing';
+  final const ENVIRONMENT_SUT = 'env-testing';
 
   /**
    * Defines a constant for the name of the 'local' environment.
    */
-  const ENVIRONMENT_LOCAL = 'local';
+  final const ENVIRONMENT_LOCAL = 'local';
 
   /**
    * Defines a constant for the name of the 'ci' environment.
    */
-  const ENVIRONMENT_CI = 'ci';
+  final const ENVIRONMENT_CI = 'ci';
 
   /**
    * Defines a constant for the name of the 'prod' environment.
    */
-  const ENVIRONMENT_PROD = 'prod';
+  final const ENVIRONMENT_PROD = 'prod';
 
   /**
    * Defines a constant for the name of the 'test' environment.
    */
-  const ENVIRONMENT_TEST = 'test';
+  final const ENVIRONMENT_TEST = 'test';
 
   /**
    * Defines a constant for the name of the 'dev' environment.
    */
-  const ENVIRONMENT_DEV = 'dev';
+  final const ENVIRONMENT_DEV = 'dev';
 
   /**
    * Defines a constant for the temp path used in testing.
    */
-  const TMP_PATH_TESTING = '/tmp-test';
+  final const TMP_PATH_TESTING = '/tmp-test';
 
   /**
    * Application root.
@@ -141,10 +141,10 @@ abstract class SettingsTestCase extends TestCase {
     foreach ($this->envVars as $name => $value) {
       // Unset the variable if it has a value of NULL.
       if (is_null($value)) {
-        putenv("$name");
+        putenv($name);
       }
       else {
-        putenv("$name=$value");
+        putenv(sprintf('%s=%s', $name, $value));
       }
     }
   }
@@ -161,7 +161,7 @@ abstract class SettingsTestCase extends TestCase {
   protected static function getRealEnvVarsFilteredNoValues(array $prefixes = []): array {
     $vars = getenv();
 
-    $vars = array_filter(array_keys($vars), function ($key) use ($prefixes): bool {
+    $vars = array_filter(array_keys($vars), static function ($key) use ($prefixes): bool {
       foreach ($prefixes as $prefix) {
         if (str_starts_with($key, $prefix)) {
           return TRUE;
@@ -179,7 +179,7 @@ abstract class SettingsTestCase extends TestCase {
    */
   protected function unsetEnvVars(): void {
     foreach (array_keys($this->envVars) as $name) {
-      putenv("$name");
+      putenv($name);
     }
   }
 
@@ -295,7 +295,7 @@ abstract class SettingsTestCase extends TestCase {
    */
   protected function assertArraySubset(array $subset, array $haystack, string $message = ''): void {
     foreach ($subset as $key => $value) {
-      $this->assertTrue(array_key_exists($key, $haystack), $message . ": Key {$key} does not exist.");
+      $this->assertTrue(array_key_exists($key, $haystack), $message . sprintf(': Key %s does not exist.', $key));
 
       if (is_array($value)) {
         $this->assertArraySubset($value, $haystack[$key], $message);
@@ -326,7 +326,7 @@ abstract class SettingsTestCase extends TestCase {
         continue;
       }
 
-      $this->assertFalse(array_key_exists($key, $haystack), $message . ": Key {$key} exists at the deepest level.");
+      $this->assertFalse(array_key_exists($key, $haystack), $message . sprintf(': Key %s exists at the deepest level.', $key));
     }
   }
 
@@ -344,7 +344,7 @@ abstract class SettingsTestCase extends TestCase {
    *   Message to display on failure.
    */
   protected function assertArrayContainsKeysTypes(array $subset, array $haystack, string $message = ''): void {
-    $message = !empty($message) ? $message . ': ' : $message;
+    $message = empty($message) ? $message : $message . ': ';
     foreach ($subset as $key => $value) {
       $this->assertArrayHasKey($key, $haystack, $message . 'Keys of key-only values match');
       $this->assertEquals(gettype($value), gettype($haystack[$key]), $message . 'Types of key-only values match');

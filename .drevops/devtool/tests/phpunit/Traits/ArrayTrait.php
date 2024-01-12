@@ -22,12 +22,7 @@ trait ArrayTrait {
    */
   public static function arrayReplaceValue(array $array, callable $cb): array {
     foreach ($array as $k => $item) {
-      if (is_array($item)) {
-        $array[$k] = static::arrayReplaceValue($item, $cb);
-      }
-      else {
-        $array[$k] = $cb($item);
-      }
+      $array[$k] = is_array($item) ? static::arrayReplaceValue($item, $cb) : $cb($item);
     }
 
     return $array;

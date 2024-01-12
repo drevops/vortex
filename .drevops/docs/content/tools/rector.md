@@ -14,7 +14,7 @@ by [Drupal Rector](https://github.com/palantirnet/drupal-rector).
 ### Check for violations
 
 ```shell
-vendor/bin/rector process --dry-run . # Only see the diff of changes, do not save them to files.
+vendor/bin/rector --dry-run # Only see the diff of changes, do not save them to files.
 ```
 or
 ```shell
@@ -24,7 +24,7 @@ ahoy lint-be
 ### Fix violations
 
 ```shell
-vendor/bin/rector process .
+vendor/bin/rector process
 ```
 or
 ```shell
@@ -56,11 +56,18 @@ the [Rules overview](https://getrector.com/documentation/rules-overview) page.
 
 ```php
 $rectorConfig->sets([
-  // Provided by Rector.
-  SetList::TYPE_DECLARATION,
-  // Provided by Drupal Rector.
-  Drupal8SetList::DRUPAL_8,
-  Drupal9SetList::DRUPAL_9,
+    // Provided by Rector.
+    SetList::PHP_80,
+    SetList::PHP_81,
+    SetList::CODE_QUALITY,
+    SetList::CODING_STYLE,
+    SetList::DEAD_CODE,
+    SetList::INSTANCEOF,
+    SetList::TYPE_DECLARATION,
+    // Provided by Drupal Rector.
+    Drupal8SetList::DRUPAL_8,
+    Drupal9SetList::DRUPAL_9,
+    Drupal10SetList::DRUPAL_10,
 ]);
 ```
 

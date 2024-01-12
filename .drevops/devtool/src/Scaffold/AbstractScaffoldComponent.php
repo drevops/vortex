@@ -14,21 +14,6 @@ use DrevOps\DevTool\Utils\Downloader;
 abstract class AbstractScaffoldComponent {
 
   /**
-   * Project root.
-   */
-  protected string $rootDir;
-
-  /**
-   * Stub dir path.
-   */
-  protected string $stubDir;
-
-  /**
-   * Downloader.
-   */
-  protected Downloader $downloader;
-
-  /**
    * Array of resource files.
    *
    * @var array
@@ -49,17 +34,14 @@ abstract class AbstractScaffoldComponent {
   /**
    * AbstractScaffoldComponent constructor.
    *
-   * @param string $root_dir
+   * @param string $rootDir
    *   Project root.
-   * @param string $stub_dir
+   * @param string $stubDir
    *   Stub dir path.
    * @param \DrevOps\DevTool\Utils\Downloader $downloader
    *   Downloader.
    */
-  public function __construct(string $root_dir, string $stub_dir, Downloader $downloader) {
-    $this->rootDir = $root_dir;
-    $this->stubDir = $stub_dir;
-    $this->downloader = $downloader;
+  public function __construct(protected string $rootDir, protected string $stubDir, protected Downloader $downloader) {
   }
 
   /**

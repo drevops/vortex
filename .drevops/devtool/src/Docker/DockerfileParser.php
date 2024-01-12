@@ -39,7 +39,7 @@ class DockerfileParser {
         try {
           $command = new DockerCommand($matches[1], $matches[2]);
         }
-        catch (\Exception $e) {
+        catch (\Exception) {
           continue;
         }
         $commands[] = $command;
