@@ -1,8 +1,10 @@
 name: "Auto-label a PR with a conflict"
+
 on:
   push:
   pull_request_target:
-    types: [synchronize]
+    types:
+      - synchronize
 
 jobs:
   main:
