@@ -53,6 +53,7 @@ PHPMD
 PHPStan
 PHPUnit
 PRs
+Packagist
 PhpStorm
 Profiler
 Quickstart
@@ -89,6 +90,7 @@ autotesting
 bdd
 bootstrappable
 breakpoint
+centric
 changelog
 checkstyle
 codebase

@@ -21,7 +21,7 @@ sed "${sed_opts[@]}" '/## Variables list/,$d' "${OUTPUT_FILE}"
 
 echo "## Variables list" >>"${OUTPUT_FILE}"
 echo >>"${OUTPUT_FILE}"
-./.utils/vendor/bin/shell-variables-extractor \
+./.utils/vendor/bin/shellvar extract \
   --skip-text="@docs:skip" \
   --skip-description-prefix=";<" \
   --skip-description-prefix=";>" \
