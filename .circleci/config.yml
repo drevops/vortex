@@ -617,40 +617,6 @@ jobs:
       DREVOPS_CI_DB_CACHE_BRANCH: drevops-dev-didi-ii
 
   #-----------------------------------------------------------------------------
-  # Publish docs to docs.drevops.com
-  # @todo Move this to GitHub Actions.
-  #-----------------------------------------------------------------------------
-  drevops-dev-deploy-docs:
-    <<: *runner_config
-    steps:
-      - checkout
-      - *step_process_codebase
-      - *step_setup_remote_docker
-      - *step_setup_docker_network
-      - add_ssh_keys:
-          fingerprints:
-            - "22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
-      - run:
-          name: Build and test docs
-          command: |
-            cd .drevops/docs
-            ahoy build
-            ahoy lint
-            ahoy test
-      - run:
-          name: Publish docs
-          command: |
-            cd .drevops/docs
-            export DOCS_PUBLISH_REMOTE_URL=https://github.com/drevops/drevops_docs.git
-            export DOCS_PUBLISH_SRC_TAG=${CIRCLE_TAG:-}
-            export DOCS_PUBLISH_SRC_BRANCH=${CIRCLE_BRANCH:-}
-            export DOCS_PUBLISH_SSH_FINGERPRINT="22:fe:71:f4:65:8d:cb:81:9c:31:09:4e:03:0b:33:b7"
-            export DOCS_PUBLISH_CANARY_BRANCH="develop"
-            export DOCS_PUBLISH_COMMIT_MESSAGE="Automatically pushed from drevops/drevops"
-            export DOCS_PUBLISH_GIT_EMAIL="deployer@drevops.com"
-            ./.utils/publish.sh
-
-  #-----------------------------------------------------------------------------
   # Publish installer to install.drevops.com
   # @todo Move this to GitHub Actions.
   #-----------------------------------------------------------------------------
@@ -807,19 +773,6 @@ workflows:
           filters:
             branches:
               ignore: /.*/
-            tags:
-              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
-
-      # Build and publish DrevOps docs.
-      - drevops-dev-deploy-docs:
-          requires:
-            - build
-            - drevops-dev-test
-            - drevops-dev-test-workflow
-          filters:
-            branches:
-              # 'main' or any branch with 'docs' in the name.
-              only: /^main$|^develop$|.*docs.*/
             tags:
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
 
