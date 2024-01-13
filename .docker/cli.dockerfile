@@ -77,7 +77,7 @@ COPY ${WEBROOT}/themes/custom/your_site_theme/patches /app/${WEBROOT}/themes/cus
 # Install NodeJS dependencies.
 # Since Drupal does not use NodeJS for production, it does not matter if we
 # install development dependencnies here - they are not exposed in any way.
-RUN npm --prefix /app/${WEBROOT}/themes/custom/your_site_theme install --no-audit --no-progress --unsafe-perm
+RUN npm --prefix /app/${WEBROOT}/themes/custom/your_site_theme ci --no-audit --no-progress --unsafe-perm
 
 # Copy all files into appllication source directory. Existing files are always
 # overridden.

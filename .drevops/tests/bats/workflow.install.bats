@@ -56,7 +56,7 @@ load _helper.workflow.bash
 }
 
 @test "Workflow: DB-driven, custom webroot" {
-  prepare_sut "Starting DB-driven WORKFLOW tests in build directory ${BUILD_DIR}" "rootdoc"
+  prepare_sut "Starting DB-driven WORKFLOW with custom webroot tests in build directory ${BUILD_DIR}" "rootdoc"
 
   assert_ahoy_download_db
 
