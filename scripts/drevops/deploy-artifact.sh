@@ -99,6 +99,16 @@ fi
 note "Installing artifact builder."
 composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^0.5
 
+# Try resolving absolute paths.
+if command -v realpath >/dev/null 2>&1; then
+  # Expand relative paths while also handling literal tilde expansion passed in
+  # singe quotes.
+  # shellcheck disable=SC2116
+  DREVOPS_DEPLOY_ARTIFACT_ROOT="$(realpath "$(echo "${DREVOPS_DEPLOY_ARTIFACT_ROOT}")")"
+  # shellcheck disable=SC2116
+  DREVOPS_DEPLOY_ARTIFACT_SRC="$(realpath "$(echo "${DREVOPS_DEPLOY_ARTIFACT_SRC}")")"
+fi
+
 # Copying git repo files meta file to the deploy code repo as it may not exist
 # in deploy code source files.
 cp -a "${DREVOPS_DEPLOY_ARTIFACT_ROOT}"/.git "${DREVOPS_DEPLOY_ARTIFACT_SRC}" || true

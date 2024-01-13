@@ -122,7 +122,7 @@ aliases:
   #: Shared runner container configuration applied to each job.
   - &runner_config
     #: Location of the checked-out files within the "runner" container.
-    working_directory: &working_directory /root/project
+    working_directory: &working_directory ~/project
     environment:
       #;< !PROVISION_USE_PROFILE
       DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
@@ -157,7 +157,7 @@ aliases:
           # Check only minimal stack requirements.
           DREVOPS_DOCTOR_CHECK_MINIMAL: 1
           # Directory to store code exported between jobs.
-          DREVOPS_EXPORT_CODE_DIR: &drevops_build_export_dir /workspace/code
+          DREVOPS_EXPORT_CODE_DIR: &drevops_build_export_dir /tmp/workspace/code
           # Directory to use for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_SRC: *drevops_build_export_dir
           # Source code location for artifact deployments.
@@ -180,7 +180,9 @@ aliases:
   - &step_process_codebase
     run:
       name: Process codebase to run in CI
-      command: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+      command: |
+        find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+        mkdir -p /tmp/workspace/code
 
 ################################################################################
 # JOBS
@@ -201,7 +203,7 @@ jobs:
     <<: *runner_config
     steps:
       - attach_workspace:
-          at: /workspace
+          at: /tmp/workspace
       #: Add SSH key into "runner" container to have SSH access to download DB.
       - add_ssh_keys:
           fingerprints:
@@ -289,7 +291,7 @@ jobs:
     parallelism: *parallelism
     steps:
       - attach_workspace:
-          at: /workspace
+          at: /tmp/workspace
       - checkout
       - *step_process_codebase
       - *step_setup_remote_docker
@@ -361,7 +363,7 @@ jobs:
           name: Upload code coverage reports to Codecov
           command: codecov -Z -s /tmp/artifacts/coverage
       - persist_to_workspace:
-          root: /workspace
+          root: /tmp/workspace
           paths:
             - code
 
@@ -371,7 +373,7 @@ jobs:
     <<: *runner_config
     steps:
       - attach_workspace:
-          at: /workspace
+          at: /tmp/workspace
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
@@ -392,7 +394,7 @@ jobs:
     <<: *runner_config
     steps:
       - attach_workspace:
-          at: /workspace
+          at: /tmp/workspace
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
@@ -495,7 +497,7 @@ jobs:
           fingerprints:
             - *deploy_ssh_fingerprint
       - attach_workspace:
-          at: /workspace
+          at: /tmp/workspace
       - run:
           name: Run deployment tests (long)
           command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage ahoy test-deployment
