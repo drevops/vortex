@@ -414,6 +414,7 @@ assert_files_present_drevops() {
   assert_dir_not_exists ".drevops"
   assert_file_not_exists "LICENSE"
   assert_file_not_exists ".github/FUNDING.yml"
+  assert_file_not_exists ".github/drevops-publish-docs.yml"
   assert_file_not_contains ".circleci/config.yml" "drevops-dev-test"
   assert_file_not_contains ".circleci/config.yml" "drevops-dev-test-workflow"
   assert_file_not_contains ".circleci/config.yml" "drevops-dev-test-deployment"
