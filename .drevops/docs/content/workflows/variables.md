@@ -445,7 +445,7 @@ Defined in: `ACQUIA ENVIRONMENT`
 
 Overwrite existing database if it exists.
 
-Usually set to `0` in deployed environments and can be temporary set to `1` for<br />a specific deployment.<br />Set this to `1` in .env.local to override when developing localy.
+Usually set to `0` in deployed environments and can be temporary set to `1` for<br />a specific deployment.<br />Set this to `1` in .env.local to override when developing locally.
 
 Default value: `UNDEFINED`
 

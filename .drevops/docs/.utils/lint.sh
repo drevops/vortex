@@ -8,24 +8,24 @@
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-CUR_DIR="$(dirname "${BASH_SOURCE[0]}")"
+cur_dir="$(dirname "${BASH_SOURCE[0]}")"
 
-DICTIONARY="${CUR_DIR}/.aspell.en.pws"
+dictionary="${cur_dir}/.aspell.en.pws"
 
 targets=()
 while IFS= read -r -d $'\0'; do
   targets+=("${REPLY}")
 done < <(
   find \
-    "${CUR_DIR}/.." \
+    "${cur_dir}/.." \
     -type f \
     \( -name "*.md" \) \
     -not -path "*vendor*" -not -path "*node_modules*" \
     -print0
 )
 
-echo -n "==> Validating dictionary."
-if head -1 "${DICTIONARY}" | grep -q "personal_ws-1.1 en 28"; then
+echo -n "==> Validating dictionary... "
+if head -1 "${dictionary}" | grep -q "personal_ws-1.1 en 28"; then
   echo "OK"
 else
   echo "ERROR: invalid dictionary format"
@@ -45,14 +45,14 @@ for file in "${targets[@]}"; do
       # Remove HTML.
       sed -E 's/<([^<]+)>//g' |
       # Remove code blocks.
-      sed -n '/\`\`\`/,/\`\`\`/ !p' |
+      sed '/^[[:space:]]*```/,/^[[:space:]]*```/d' |
       # Remove inline code.
-      sed -n '/\`/,/\`/ !p' |
+      sed 's/`[^`]*`//g' |
       # Remove anchors.
       sed -E 's/\[.+\]\([^\)]+\)//g' |
       # Remove links.
       sed -E 's/http(s)?:\/\/([^ ]+)//g' |
-      aspell --lang=en --encoding=utf-8 --personal="${DICTIONARY}" list | tee /dev/stderr | [ "$(wc -l)" -eq 0 ]
+      aspell --lang=en --encoding=utf-8 --personal="${dictionary}" list | tee /dev/stderr | [ "$(wc -l)" -eq 0 ]
 
     if [ "$?" -ne 0 ]; then
       exit 1
