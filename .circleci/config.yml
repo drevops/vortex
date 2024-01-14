@@ -615,57 +615,6 @@ jobs:
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: drevops-dev-didi-ii
-
-  #-----------------------------------------------------------------------------
-  # Publish installer to install.drevops.com
-  # @todo Move this to GitHub Actions.
-  #-----------------------------------------------------------------------------
-  drevops-dev-deploy-installer:
-    <<: *runner_config
-    steps:
-      - checkout
-      - *step_process_codebase
-      - *step_setup_remote_docker
-      - *step_setup_docker_network
-      - add_ssh_keys:
-          fingerprints:
-            - "f6:b2:bb:a8:1d:9d:fb:03:c6:39:27:1e:71:bb:9a:9b"
-      - run:
-          name: Prepare installer.
-          command: |
-            cd .drevops/installer
-            composer install
-            sed -i "s/\"git-tag-ci\": \"dev\"/\"git-tag-ci\": \"${CIRCLE_TAG:-${CIRCLE_SHA1}}\"/g" box.json
-            composer build
-            mkdir -p /tmp/installer/docs
-            cp .build/install.phar /tmp/installer/docs/index.html
-            echo "install.drevops.com" > /tmp/installer/docs/CNAME
-      - run:
-          name: Configure SSH.
-          command: |
-            DEPLOY_DOCS_SSH_FINGERPRINT="f6:b2:bb:a8:1d:9d:fb:03:c6:39:27:1e:71:bb:9a:9b"
-            # Configure SSH to configure git and SSH to connect to remote servers for deployment.
-            [ "$(git config --global user.name)" == "" ]  && git config --global user.name "Deployment robot"
-            [ "$(git config --global user.email)" == "" ] && git config --global user.email "deploy@drevops.com"
-            mkdir -p "${HOME}/.ssh/"
-            echo -e "Host *\n\tStrictHostKeyChecking no\n" > "${HOME}/.ssh/config"
-            DEPLOY_DOCS_SSH_FILE="${DEPLOY_DOCS_SSH_FINGERPRINT//:}"
-            DEPLOY_DOCS_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_DOCS_SSH_FILE//\"}"
-            if [ -f "${DEPLOY_DOCS_SSH_FILE}" ]; then
-              echo "Found Deploy SSH key file ${DEPLOY_DOCS_SSH_FILE}"
-              ssh-add -D > /dev/null
-              ssh-add "${DEPLOY_DOCS_SSH_FILE}"
-            fi
-      - run:
-          name: Deploy installer
-          command: |
-            cd /tmp/installer
-            git init
-            git checkout -b main
-            git add -A
-            git commit -m "Automatically pushed from drevops/drevops"
-            git remote add origin git@github.com:drevops/installer.git
-            git push origin main --force
   #=============================================================================
   #;> DREVOPS_DEV
 
@@ -773,16 +722,6 @@ workflows:
           filters:
             branches:
               ignore: /.*/
-            tags:
-              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
-
-      # Publish DrevOps installer.
-      - drevops-dev-deploy-installer:
-          requires:
-            - drevops-dev-test
-          filters:
-            branches:
-              only: /^feature\/installer-update$/
             tags:
               only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
 
