@@ -56,4 +56,4 @@ jobs:
 
       - name: Test PHAR
         working-directory: .drevops/installer
-        run: ./.build/install.phar || exit 1
+        run: ./.build/install.phar --quiet || exit 1

@@ -9,12 +9,14 @@ use DrevOps\Installer\Command\InstallCommand;
  *
  * InstallerCopyRecursiveTest fixture class.
  *
+ * @coversDefaultClass \DrevOps\Installer\Command\InstallCommand
+ *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 class CopyRecursiveTest extends UnitTestBase {
 
-  public function setUp(): void {
+  protected function setUp(): void {
     parent::setUp();
     $this->prepareFixtureDir();
   }
@@ -24,7 +26,10 @@ class CopyRecursiveTest extends UnitTestBase {
     $this->cleanupFixtureDir();
   }
 
-  public function testCopyRecursive() {
+  /**
+   * @covers ::copyRecursive
+   */
+  public function testCopyRecursive(): void {
     $files_dir = $this->getFixtureDir('copyfiles');
 
     $this->callProtectedMethod(InstallCommand::class, 'copyRecursive', [$files_dir, $this->fixtureDir]);

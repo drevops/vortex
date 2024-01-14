@@ -13,14 +13,16 @@ use Symfony\Component\Console\Tester\CommandTester;
  *
  * This is a unit test for the RunCommand class.
  *
- * @package DrevOps\Installer\Tests\Command
+ * @coversDefaultClass \DrevOps\Installer\Command\InstallCommand
  */
 class InstallCommandTest extends TestCase {
 
   /**
    * Test the execute method.
+   *
+   * @covers ::execute
    */
-  public function testExecute() {
+  public function testExecute(): void {
     $application = new Application();
     $application->add(new InstallCommand());
 

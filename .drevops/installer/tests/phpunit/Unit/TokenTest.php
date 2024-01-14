@@ -9,12 +9,14 @@ use DrevOps\Installer\Command\InstallCommand;
  *
  * InstallerTokenTest fixture class.
  *
+ * @coversDefaultClass \DrevOps\Installer\Command\InstallCommand
+ *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 class TokenTest extends UnitTestBase {
 
-  public function setUp(): void {
+  protected function setUp(): void {
     parent::setUp();
     $this->prepareFixtureDir();
   }
@@ -24,7 +26,10 @@ class TokenTest extends UnitTestBase {
     $this->cleanupFixtureDir();
   }
 
-  protected function flattenFileTree($tree, $parent = '.') {
+  /**
+   * Flatten file tree.
+   */
+  protected function flattenFileTree($tree, string $parent = '.'): array {
     $flatten = [];
     foreach ($tree as $dir => $file) {
       if (is_array($file)) {
@@ -34,14 +39,15 @@ class TokenTest extends UnitTestBase {
         $flatten[] = $parent . DIRECTORY_SEPARATOR . $file;
       }
     }
+
     return $flatten;
   }
 
   /**
    * @dataProvider dataProviderFileContains
-   * @covers       \DrevOps\Installer\Command\InstallCommand::fileContains()
+   * @covers ::fileContains
    */
-  public function testFileContains($string, $file, $expected) {
+  public function testFileContains(string $string, string $file, mixed $expected): void {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree([$file], $tokens_dir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
@@ -52,7 +58,7 @@ class TokenTest extends UnitTestBase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderFileContains() {
+  public static function dataProviderFileContains(): array {
     return [
       ['FOO', 'empty.txt', FALSE],
       ['BAR', 'foobar_b.txt', TRUE],
@@ -67,9 +73,9 @@ class TokenTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderDirContains
-   * @covers       \DrevOps\Installer\Command\InstallCommand::direContains()
+   * @covers ::dirContains
    */
-  public function testDirContains($string, $files, $expected) {
+  public function testDirContains(string $string, array $files, mixed $expected): void {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree($files, $tokens_dir);
     $this->createFixtureFiles($files, $tokens_dir);
@@ -79,7 +85,7 @@ class TokenTest extends UnitTestBase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderDirContains() {
+  public static function dataProviderDirContains(): array {
     return [
       ['FOO', ['empty.txt'], FALSE],
       ['BAR', ['foobar_b.txt'], TRUE],
@@ -95,9 +101,9 @@ class TokenTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderRemoveTokenFromFile
-   * @covers       \remove_token_with_content()
+   * @covers ::removeTokenFromFile
    */
-  public function testRemoveTokenFromFile($file, $begin, $end, $with_content, $expect_exception, $expected_file) {
+  public function testRemoveTokenFromFile(string $file, string $begin, string $end, bool $with_content, bool $expect_exception, string $expected_file): void {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree([$file], $tokens_dir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
@@ -114,7 +120,7 @@ class TokenTest extends UnitTestBase {
     $this->assertFileEquals($expected_file, $created_file);
   }
 
-  public static function dataProviderRemoveTokenFromFile() {
+  public static function dataProviderRemoveTokenFromFile(): array {
     return [
       ['empty.txt', 'FOO', 'FOO', TRUE, FALSE, 'empty.txt'],
 
@@ -152,16 +158,16 @@ class TokenTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderDirReplaceContent
-   * @covers       \dir_replace_content()
+   * @covers     ::dirReplaceContent
    */
-  public function testDirReplaceContent($files, $expected_files) {
+  public function testDirReplaceContent(array $files, array $expected_files): void {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree($files, $tokens_dir);
     $expected_files = $this->flattenFileTree($expected_files, $tokens_dir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
 
-    if (count($created_files) != count($expected_files)) {
-      throw new \RuntimeException(sprintf('Provided files number is not equal to expected files number.'));
+    if (count($created_files) !== count($expected_files)) {
+      throw new \RuntimeException('Provided files number is not equal to expected files number.');
     }
 
     $this->callProtectedMethod(InstallCommand::class, 'dirReplaceContent', ['BAR', 'FOO', $this->fixtureDir]);
@@ -171,7 +177,7 @@ class TokenTest extends UnitTestBase {
     }
   }
 
-  public static function dataProviderDirReplaceContent() {
+  public static function dataProviderDirReplaceContent(): array {
     return [
       [
         ['empty.txt'],
@@ -190,16 +196,16 @@ class TokenTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderReplaceStringFilename
-   * @covers       \replace_string_filename()
+   * @covers    ::replaceStringFilename
    */
-  public function testReplaceStringFilename($files, $expected_files) {
+  public function testReplaceStringFilename(array $files, array $expected_files): void {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree($files, $tokens_dir);
     $expected_files = $this->flattenFileTree($expected_files, $this->fixtureDir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir, FALSE);
 
-    if (count($created_files) != count($expected_files)) {
-      throw new \RuntimeException(sprintf('Provided files number is not equal to expected files number.'));
+    if (count($created_files) !== count($expected_files)) {
+      throw new \RuntimeException('Provided files number is not equal to expected files number.');
     }
 
     $this->callProtectedMethod(InstallCommand::class, 'replaceStringFilename', ['foo', 'bar', $this->fixtureDir]);
@@ -209,7 +215,7 @@ class TokenTest extends UnitTestBase {
     }
   }
 
-  public static function dataProviderReplaceStringFilename() {
+  public static function dataProviderReplaceStringFilename(): array {
     return [
       [
         ['empty.txt'],
