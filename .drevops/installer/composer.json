@@ -53,7 +53,7 @@
             "phpmd --exclude vendor,node_modules . text phpmd.xml || true",
             "phpstan"
         ],
-        "lint:fix": "phpcbf",
+        "lint-fix": "phpcbf",
         "test": "phpunit tests/phpunit/unit",
         "build": [
             "@composer bin box require --dev humbug/box",
