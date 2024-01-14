@@ -9,6 +9,8 @@ use DrevOps\Installer\Command\InstallCommand;
  *
  * InstallerHelpersTest fixture class.
  *
+ * @coversDefaultClass \DrevOps\Installer\Command\InstallCommand
+ *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
@@ -16,13 +18,14 @@ class HelpersTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderToHumanName
+   * @covers ::toHumanName
    */
-  public function testToHumanName($value, $expected) {
+  public function testToHumanName(string $value, mixed $expected): void {
     $actual = $this->callProtectedMethod(InstallCommand::class, 'toHumanName', [$value]);
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderToHumanName() {
+  public static function dataProviderToHumanName(): array {
     return [
       ['', ''],
       [' ', ''],
@@ -42,13 +45,14 @@ class HelpersTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderToMachineName
+   * @covers ::toMachineName
    */
-  public function testToMachineName($value, $preserve, $expected) {
+  public function testToMachineName(string $value, array $preserve, mixed $expected): void {
     $actual = $this->callProtectedMethod(InstallCommand::class, 'toMachineName', [$value, $preserve]);
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderToMachineName() {
+  public static function dataProviderToMachineName(): array {
     return [
       ['', [], ''],
       [' ', [], '_'],
@@ -82,13 +86,14 @@ class HelpersTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderToCamelCase
+   * @covers ::toCamelCase
    */
-  public function testToCamelCase($value, $capitalise_first, $expected) {
+  public function testToCamelCase(string $value, bool $capitalise_first, mixed $expected): void {
     $actual = $this->callProtectedMethod(InstallCommand::class, 'toCamelCase', [$value, $capitalise_first]);
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderToCamelCase() {
+  public static function dataProviderToCamelCase(): array {
     return [
       ['', FALSE, ''],
       [' ', FALSE, ''],
@@ -109,13 +114,14 @@ class HelpersTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderIsRegex
+   * @covers ::isRegex
    */
-  public function testIsRegex($value, $expected) {
+  public function testIsRegex(string $value, mixed $expected): void {
     $actual = $this->callProtectedMethod(InstallCommand::class, 'isRegex', [$value]);
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderIsRegex() {
+  public static function dataProviderIsRegex(): array {
     return [
       ['', FALSE],
 
