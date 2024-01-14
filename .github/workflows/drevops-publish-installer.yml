@@ -1,5 +1,5 @@
 # This action is used for DrevOps maintenance. It will not be used in the scaffolded project.
-name: Publish DrevOps installer
+name: DrevOps - Publish installer
 
 on:
   push:
