@@ -9,7 +9,7 @@ on:
       - '**'
 
 jobs:
-  drevops-publish-installer:
+  drevops-test-installer:
     runs-on: ubuntu-latest
 
     strategy:
