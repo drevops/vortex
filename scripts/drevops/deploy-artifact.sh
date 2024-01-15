@@ -102,11 +102,12 @@ composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs d
 # Try resolving absolute paths.
 if command -v realpath >/dev/null 2>&1; then
   # Expand relative paths while also handling literal tilde expansion passed in
-  # singe quotes.
+  # singe quotes. This addresses the case where the paths are passed directly
+  # from YAML anchors as literal strings.
   # shellcheck disable=SC2116
-  DREVOPS_DEPLOY_ARTIFACT_ROOT="$(realpath "$(echo "${DREVOPS_DEPLOY_ARTIFACT_ROOT}")")"
+  DREVOPS_DEPLOY_ARTIFACT_ROOT="$(realpath "${DREVOPS_DEPLOY_ARTIFACT_ROOT/#\~/${HOME}}")"
   # shellcheck disable=SC2116
-  DREVOPS_DEPLOY_ARTIFACT_SRC="$(realpath "$(echo "${DREVOPS_DEPLOY_ARTIFACT_SRC}")")"
+  DREVOPS_DEPLOY_ARTIFACT_SRC="$(realpath "${DREVOPS_DEPLOY_ARTIFACT_SRC/#\~/${HOME}}")"
 fi
 
 # Copying git repo files meta file to the deploy code repo as it may not exist
