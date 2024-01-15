@@ -3,7 +3,7 @@
 namespace Drevops\Installer\Tests\Unit;
 
 use DrevOps\Installer\Command\InstallCommand;
-use Drevops\Installer\Tests\Traits\TestHelperTrait;
+use Drevops\Installer\Tests\Traits\ReflectionTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -12,14 +12,12 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * UnitTestCase fixture class.
  *
- * @package Drevops\Tests
- *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 abstract class UnitTestBase extends TestCase {
 
-  use TestHelperTrait;
+  use ReflectionTrait;
 
   /**
    * Fixture directory.
@@ -39,7 +37,7 @@ abstract class UnitTestBase extends TestCase {
   /**
    * Cleanup fixture directory.
    */
-  public function cleanupFixtureDir() {
+  public function cleanupFixtureDir(): void {
     $this->fileExists();
     $fs = new Filesystem();
     $fs->remove($this->fixtureDir);
@@ -52,8 +50,8 @@ abstract class UnitTestBase extends TestCase {
     $fs = new Filesystem();
     $created = [];
     foreach ($files as $file) {
-      $basedir = $basedir ?? dirname($file);
-      $relative_dst = ltrim(str_replace($basedir, '', $file), '/') . ($append_rand ? rand(1000, 9999) : '');
+      $basedir = $basedir ?? dirname((string) $file);
+      $relative_dst = ltrim(str_replace($basedir, '', (string) $file), '/') . ($append_rand ? rand(1000, 9999) : '');
       $new_name = $this->fixtureDir . DIRECTORY_SEPARATOR . $relative_dst;
       $fs->copy($file, $new_name);
       $created[] = $new_name;
@@ -73,7 +71,7 @@ abstract class UnitTestBase extends TestCase {
    */
   protected function getFixtureDir($name = NULL) {
     $parent = dirname(__FILE__);
-    $path = $parent . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'fixtures';
+    $path = $parent . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Fixtures';
     $path .= $name ? DIRECTORY_SEPARATOR . $name : '';
     if (!file_exists($path)) {
       throw new \RuntimeException(sprintf('Unable to find fixture directory at path "%s".', $path));

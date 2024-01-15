@@ -9,6 +9,9 @@ use DrevOps\Installer\Command\InstallCommand;
  *
  * InstallerDotEnvTest fixture class.
  *
+ * @coversDefaultClass \DrevOps\Installer\Command\InstallCommand
+ * @runTestsInSeparateProcesses
+ *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
@@ -28,23 +31,26 @@ class DotEnvTest extends UnitTestBase {
    */
   protected $backupEnv;
 
-  public function setUp(): void {
+  protected function setUp(): void {
     $this->backupEnv = $GLOBALS['_ENV'];
     $this->backupServer = $GLOBALS['_SERVER'];
 
     parent::setUp();
   }
 
-  public function tearDown(): void {
+  protected function tearDown(): void {
     $GLOBALS['_ENV'] = $this->backupEnv;
     $GLOBALS['_SERVER'] = $this->backupServer;
   }
 
-  public function testGetEnv() {
+  /**
+   * @covers ::loadDotenv
+   */
+  public function testGetEnv(): void {
     $content = 'var1=val1';
     $filename = $this->createFixtureEnvFile($content);
 
-    $this->assertEmpty(getenv('var1'));
+    $this->assertEmpty(getenv('var1'), getenv('var1'));
     $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
     $this->assertEquals('val1', getenv('var1'));
 
@@ -64,8 +70,9 @@ class DotEnvTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderGlobals
+   * @covers ::loadDotenv
    */
-  public function testGlobals($content, $env_before, $server_before, $env_after, $server_after, $allow_override) {
+  public function testGlobals(string $content, array $env_before, array $server_before, array $env_after, mixed $server_after, bool $allow_override): void {
     $filename = $this->createFixtureEnvFile($content);
 
     $GLOBALS['_ENV'] = $env_before;
@@ -80,7 +87,7 @@ class DotEnvTest extends UnitTestBase {
     $this->assertTrue(TRUE);
   }
 
-  public static function dataProviderGlobals() {
+  public static function dataProviderGlobals(): array {
     return [
       [
         '', [], [], [], [], FALSE,
@@ -209,7 +216,7 @@ class DotEnvTest extends UnitTestBase {
     ];
   }
 
-  protected function createFixtureEnvFile($content) {
+  protected function createFixtureEnvFile($content): string|false {
     $filename = tempnam(sys_get_temp_dir(), '.env');
     file_put_contents($filename, $content);
 
