@@ -49,3 +49,4 @@ parameters:
       message: '#Variable .* might not be defined.#'
       paths:
         - web/sites/default/includes
+      reportUnmatched: false
