@@ -315,6 +315,12 @@ jobs:
           command: ./scripts/drevops/build.sh
           no_output_timeout: 30m
       - run:
+          name: Lint Dockerfiles with Hadolint
+          command: |
+            for file in $(find . -name 'Dockerfile' -o -name '*.dockerfile'); do
+              echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${DREVOPS_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+            done
+      - run:
           name: Lint code with PHPCS
           command: docker compose exec -T cli vendor/bin/phpcs || [ "${DREVOPS_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
       - run:
