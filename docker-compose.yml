@@ -43,7 +43,7 @@ x-user: &default-user
 x-environment: &default-environment
   TZ: ${DREVOPS_TZ:-Australia/Melbourne}
   # Local development URL.
-  DREVOPS_LOCALDEV_URL: &default-url ${DREVOPS_LOCALDEV_URL:-${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io}
+  DREVOPS_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
   # Local development route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
   # Local database host (not used in production).
