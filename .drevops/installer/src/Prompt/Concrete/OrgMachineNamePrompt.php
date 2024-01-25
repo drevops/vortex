@@ -16,14 +16,14 @@ class OrgMachineNamePrompt extends AbstractPrompt {
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title():string {
     return 'Organisation machine name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question():string {
     return 'What is your organization machine name?';
   }
 

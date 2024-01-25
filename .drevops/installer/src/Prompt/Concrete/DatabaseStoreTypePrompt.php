@@ -19,14 +19,14 @@ class DatabaseStoreTypePrompt extends AbstractChoicePrompt {
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title():string {
     return 'Database store type';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question():string {
     return ' When developing locally, do you want to import the database dump from the file or store it imported in the docker image for faster builds?';
   }
 

@@ -16,14 +16,14 @@ class MachineNamePrompt extends AbstractPrompt {
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title():string {
     return 'Machine name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question():string {
     return 'What is your site machine name?';
   }
 

@@ -16,14 +16,14 @@ class OrgPrompt extends AbstractPrompt {
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title():string {
     return 'Organisation';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question():string {
     return 'What is your organization name?';
   }
 

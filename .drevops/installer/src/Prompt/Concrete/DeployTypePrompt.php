@@ -33,14 +33,14 @@ class DeployTypePrompt extends AbstractChoicePrompt {
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title():string {
     return 'Deployment';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question():string {
     return 'How do you deploy your code to the hosting?';
   }
 
