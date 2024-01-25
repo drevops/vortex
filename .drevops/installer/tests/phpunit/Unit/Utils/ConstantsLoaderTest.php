@@ -13,7 +13,7 @@ class ConstantsLoaderTest extends TestCase {
   /**
    * @covers ::load
    */
-  public function testLoadWithoutPrefix() {
+  public function testLoadWithoutPrefix(): void {
     $result = ConstantsLoader::load(ConstantsTestClass::class);
 
     $expected = [
@@ -27,7 +27,7 @@ class ConstantsLoaderTest extends TestCase {
   /**
    * @covers ::load
    */
-  public function testLoadWithPrefixKey() {
+  public function testLoadWithPrefixKey(): void {
     $result = ConstantsLoader::load(ConstantsPrefixedTestClass::class, 'PREFIX');
 
     $expected = [
@@ -41,7 +41,7 @@ class ConstantsLoaderTest extends TestCase {
   /**
    * @covers ::load
    */
-  public function testLoadWithPrefixValue() {
+  public function testLoadWithPrefixValue(): void {
     $result = ConstantsLoader::load(ConstantsPrefixedTestClass::class, 'valueWithPrefix', FALSE);
 
     $expected = [
@@ -55,7 +55,7 @@ class ConstantsLoaderTest extends TestCase {
   /**
    * @covers ::load
    */
-  public function testLoadWithEmptyClass() {
+  public function testLoadWithEmptyClass(): void {
     $result = ConstantsLoader::load(ConstantsEmptyTestClass::class);
 
     $this->assertEquals([], $result);
@@ -66,19 +66,19 @@ class ConstantsLoaderTest extends TestCase {
 // Define a mock class with constants for testing
 class ConstantsTestClass {
 
-  const TEST_CONST_1 = 'value1';
+  final const TEST_CONST_1 = 'value1';
 
-  const TEST_CONST_2 = 'value2';
+  final const TEST_CONST_2 = 'value2';
 }
 
 // Define a mock class with constants for testing
 class ConstantsPrefixedTestClass {
 
-  const PREFIX_2 = 'valueWithPrefix2';
+  final const PREFIX_2 = 'valueWithPrefix2';
 
-  const PREFIX_1 = 'valueWithPrefix1';
+  final const PREFIX_1 = 'valueWithPrefix1';
 
-  const WITHOUT_PREFIX = 'valueWithoutPrefix';
+  final const WITHOUT_PREFIX = 'valueWithoutPrefix';
 }
 
 // Define a mock empty class for testing

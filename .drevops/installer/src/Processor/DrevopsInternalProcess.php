@@ -18,12 +18,12 @@ class DrevopsInternalProcess extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     // Remove DrevOps internal files.
-    Files::rmdirRecursive("$dir/scripts/drevops/docs");
-    Files::rmdirRecursive("$dir/scripts/drevops/tests");
-    Files::rmdirRecursive("$dir/scripts/drevops/utils");
-    Files::remove("$dir/.github/FUNDING.yml");
+    Files::rmdirRecursive($dir . '/scripts/drevops/docs');
+    Files::rmdirRecursive($dir . '/scripts/drevops/tests');
+    Files::rmdirRecursive($dir . '/scripts/drevops/utils');
+    Files::remove($dir . '/.github/FUNDING.yml');
 
     // Remove other unhandled tokenized comments.
     Tokenizer::removeTokenLineFromDir(Token::COMMENT_INTERNAL_BEGIN, $dir);

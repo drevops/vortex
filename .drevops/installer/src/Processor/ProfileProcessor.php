@@ -16,21 +16,21 @@ class ProfileProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     $webroot = $config->getWebroot();
     $profile = $config->get('profile');
 
     // For core profiles - remove custom profile and direct links to it.
     if (in_array($profile, $this->drupalCoreProfiles())) {
-      Files::rmdirRecursive("$dir/$webroot/profiles/your_site_profile");
-      Files::rmdirRecursive("$dir/$webroot/profiles/custom/your_site_profile");
-      Files::dirReplaceContent("$webroot/profiles/your_site_profile,", '', $dir);
-      Files::dirReplaceContent("$webroot/profiles/custom/your_site_profile,", '', $dir);
+      Files::rmdirRecursive(sprintf('%s/%s/profiles/your_site_profile', $dir, $webroot));
+      Files::rmdirRecursive(sprintf('%s/%s/profiles/custom/your_site_profile', $dir, $webroot));
+      Files::dirReplaceContent($webroot . '/profiles/your_site_profile,', '', $dir);
+      Files::dirReplaceContent($webroot . '/profiles/custom/your_site_profile,', '', $dir);
     }
     Files::dirReplaceContent('your_site_profile', $profile, $dir);
   }
 
-  protected static function drupalCoreProfiles() {
+  protected static function drupalCoreProfiles(): array {
     return [
       'standard',
       'minimal',

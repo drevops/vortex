@@ -41,11 +41,11 @@ trait FixturesTrait {
     }
   }
 
-  protected static function fixturesCreateReadme($dir) {
+  protected static function fixturesCreateReadme(string $dir) {
     return static::createFile($dir . DIRECTORY_SEPARATOR . 'README.md', 'badge/DrevOps-');
   }
 
-  protected static function fixturesCreateComposerjson($dir, $values) {
+  protected static function fixturesCreateComposerjson(string $dir, $values) {
     // Convert the values to a JSON string with pretty print
     $json = json_encode($values, JSON_PRETTY_PRINT);
 

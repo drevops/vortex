@@ -15,7 +15,7 @@ class InstallManager {
   /**
    * Defines Drupal version supported by this installer.
    */
-  public const INSTALLER_DRUPAL_VERSION = 9;
+  final public const INSTALLER_DRUPAL_VERSION = 9;
 
   protected $downloadManager;
 
@@ -24,42 +24,27 @@ class InstallManager {
   /**
    * Check that DrevOps is installed for this project.
    *
-   * @param string $dst_dir
    *
-   * @return bool
    * @todo Move this elsewhere.
    *
    */
-  public static function isInstalled(string $dst_dir) {
+  public static function isInstalled(string $dst_dir): bool {
     $path = $dst_dir . DIRECTORY_SEPARATOR . 'README.md';
 
     return file_exists($path) && preg_match('/badge\/DrevOps\-/', file_get_contents($path));
   }
 
-  public function install($config) {
-    return;
-    $this->config = $config;
-
-    $this->checkRequirements();
-
-    $this->downloadManager->download();
-
-    $this->prepareDestination();
-
-    Tokenizer::replaceTokens();
-
-    $this->copyFiles();
-
-    ProcessorManager::processDemo();
+  public function install($config): void
+  {
   }
 
-  public function checkRequirements() {
+  public function checkRequirements(): void {
     Executor::commandExists('git');
     Executor::commandExists('tar');
     Executor::commandExists('composer');
   }
 
-  public function prepareDestination() {
+  public function prepareDestination(): void {
     $dst = Config::getDstDir();
 
     if (!is_dir($dst)) {
@@ -72,13 +57,13 @@ class InstallManager {
       Output::status('Done', Output::INSTALLER_STATUS_SUCCESS);
     }
 
-    if (is_readable("$dst/.git")) {
+    if (is_readable($dst . '/.git')) {
       Output::status(sprintf('Git repository exists in "%s" - skipping initialisation.', $dst), Output::INSTALLER_STATUS_MESSAGE, FALSE);
     }
     else {
       Output::status(sprintf('Initialising Git repository in directory "%s".', $dst), Output::INSTALLER_STATUS_MESSAGE, FALSE);
-      Executor::doExec("git --work-tree=\"$dst\" --git-dir=\"$dst/.git\" init > /dev/null");
-      if (!is_readable("$dst/.git")) {
+      Executor::doExec(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
+      if (!is_readable($dst . '/.git')) {
         throw new RuntimeException(sprintf('Unable to init git project in directory "%s".', $dst));
       }
     }
@@ -86,7 +71,7 @@ class InstallManager {
     Output::status('Done', Output::INSTALLER_STATUS_SUCCESS);
   }
 
-  public function copyFiles() {
+  public function copyFiles(): void {
     $src = Config::get(Env::INSTALLER_TMP_DIR);
     $dst = Config::getDstDir();
 
@@ -103,10 +88,10 @@ class InstallManager {
     Output::status('Copying files', Output::INSTALLER_STATUS_DEBUG);
 
     foreach ($valid_files as $filename) {
-      $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, $filename);
+      $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $filename);
 
       if (Files::isInternalPath($relative_file)) {
-        Output::status("Skipped file $relative_file as an internal DrevOps file.", Output::INSTALLER_STATUS_DEBUG);
+        Output::status(sprintf('Skipped file %s as an internal DrevOps file.', $relative_file), Output::INSTALLER_STATUS_DEBUG);
         unlink($filename);
         continue;
       }

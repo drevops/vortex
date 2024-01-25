@@ -7,35 +7,35 @@ namespace DrevOps\Installer\Utils;
  */
 class Token {
 
-  const ACQUIA = 'ACQUIA';
+  final const ACQUIA = 'ACQUIA';
 
-  const COMMENTED_CODE = '##### ';
+  final const COMMENTED_CODE = '##### ';
 
-  const COMMENT_DOC = '#:';
+  final const COMMENT_DOC = '#:';
 
-  const COMMENT_INTERNAL = '#;';
+  final const COMMENT_INTERNAL = '#;';
 
-  const COMMENT_INTERNAL_BEGIN = '#;<';
+  final const COMMENT_INTERNAL_BEGIN = '#;<';
 
-  const COMMENT_INTERNAL_END = '#;>';
+  final const COMMENT_INTERNAL_END = '#;>';
 
-  const DB_DOCKER_IMAGE = 'DB_DOCKER_IMAGE';
+  final const DB_DOCKER_IMAGE = 'DB_DOCKER_IMAGE';
 
-  const DB_DOWNLOAD_SOURCE_DOCKER_REGISTRY = 'DB_DOWNLOAD_SOURCE_DOCKER_REGISTRY';
+  final const DB_DOWNLOAD_SOURCE_DOCKER_REGISTRY = 'DB_DOWNLOAD_SOURCE_DOCKER_REGISTRY';
 
-  const DEMO = 'DEMO';
+  final const DEMO = 'DEMO';
 
-  const DEPLOYMENT = 'DEPLOYMENT';
+  final const DEPLOYMENT = 'DEPLOYMENT';
 
-  const DREVOPS_DEV = 'DREVOPS_DEV';
+  final const DREVOPS_DEV = 'DREVOPS_DEV';
 
-  const FTP = 'FTP';
+  final const FTP = 'FTP';
 
-  const LAGOON = 'LAGOON';
+  final const LAGOON = 'LAGOON';
 
-  const PROVISION_USE_PROFILE = 'PROVISION_USE_PROFILE';
+  final const PROVISION_USE_PROFILE = 'PROVISION_USE_PROFILE';
 
-  const RENOVATEBOT = 'RENOVATEBOT';
+  final const RENOVATEBOT = 'RENOVATEBOT';
 
   /**
    * Get all constants defined in this class.

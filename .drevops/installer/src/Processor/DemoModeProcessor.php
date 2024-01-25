@@ -20,7 +20,7 @@ class DemoModeProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     // Only discover demo mode if not explicitly set.
     if (is_null($config->get(Env::INSTALLER_DEMO_MODE))) {
       if (!$config->get('provision_use_profile')) {

@@ -10,22 +10,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class PrintManager {
 
-  /**
-   * @var \Symfony\Component\Console\Style\SymfonyStyle
-   */
-  protected SymfonyStyle $io;
-
-  /**
-   * @var \DrevOps\Installer\Bag\Config
-   */
-  protected Config $config;
-
-  public function __construct(SymfonyStyle $io, Config $config) {
-    $this->config = $config;
-    $this->io = $io;
+  public function __construct(protected SymfonyStyle $io, protected Config $config)
+  {
   }
 
-  public function printHeader() {
+  public function printHeader(): void {
     if ($this->config->isQuiet()) {
       $this->printHeaderQuiet();
     }
@@ -34,7 +23,7 @@ class PrintManager {
     }
   }
 
-  public function printHeaderInteractive() {
+  public function printHeaderInteractive(): void {
     $commit = $this->config->get(Env::INSTALLER_COMMIT);
 
     $content = '';
@@ -43,7 +32,7 @@ class PrintManager {
       $content .= 'This will install the latest version of DrevOps into your project.' . PHP_EOL;
     }
     else {
-      $content .= "This will install DrevOps into your project at commit \"$commit\"." . PHP_EOL;
+      $content .= sprintf('This will install DrevOps into your project at commit "%s".', $commit) . PHP_EOL;
     }
 
     $content .= PHP_EOL;
@@ -62,7 +51,7 @@ class PrintManager {
     Formatter::printBox($this->io, $content, 'WELCOME TO DREVOPS INTERACTIVE INSTALLER');
   }
 
-  public function printHeaderQuiet() {
+  public function printHeaderQuiet(): void {
     $commit = $this->config->get(Env::INSTALLER_COMMIT);
 
     $content = '';
@@ -70,7 +59,7 @@ class PrintManager {
       $content .= 'This will install the latest version of DrevOps into your project.' . PHP_EOL;
     }
     else {
-      $content .= "This will install DrevOps into your project at commit \"$commit\"." . PHP_EOL;
+      $content .= sprintf('This will install DrevOps into your project at commit "%s".', $commit) . PHP_EOL;
     }
     $content .= PHP_EOL;
     if (InstallManager::isInstalled($this->config->getDstDir())) {
@@ -87,20 +76,20 @@ class PrintManager {
     $this->io->setVerbosity($verbosity_level);
   }
 
-  public function printSummary($values, $title) {
-    $values = array_map(function ($key, $value) {
-      return [$key => $value];
+  public function printSummary($values, $title): void {
+    $values = array_map(static function ($key, $value) : array {
+        return [$key => $value];
     }, array_keys($values), $values);
 
-    $this->io->writeln("  <options=bold>$title</>");
+    $this->io->writeln(sprintf('  <options=bold>%s</>', $title));
     $this->io->definitionList(...$values);
   }
 
-  public function printAbort() {
+  public function printAbort(): void {
     Formatter::printBox($this->io, 'Aborting DrevOps installation. No files were changed.', 'INSTALLATION ABORTED');
   }
 
-  public function printFooter() {
+  public function printFooter(): void {
     $output = '';
 
     if (InstallManager::isInstalled($this->config->getDstDir())) {

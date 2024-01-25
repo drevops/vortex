@@ -20,9 +20,9 @@ class DatabaseDownloadSourceProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     $type = $config->get('database_download_source');
-    Files::fileReplaceContent('/' . Env::DB_DOWNLOAD_SOURCE . '=.*/', Env::DB_DOWNLOAD_SOURCE . "=$type", $dir . '/.env');
+    Files::fileReplaceContent('/' . Env::DB_DOWNLOAD_SOURCE . '=.*/', Env::DB_DOWNLOAD_SOURCE . ('=' . $type), $dir . '/.env');
 
     if ($type == DatabaseDownloadSourcePrompt::CHOICE_DOCKER_REGISTRY) {
       Tokenizer::removeTokenWithContentFromDir('!' . Token::DB_DOWNLOAD_SOURCE_DOCKER_REGISTRY, $dir);

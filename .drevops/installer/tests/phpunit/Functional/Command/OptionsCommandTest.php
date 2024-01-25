@@ -32,7 +32,7 @@ class OptionsCommandTest extends CommandTestCase {
    * @dataProvider  dataProviderExecuteOptions
    * @runInSeparateProcess
    */
-  public function testExecuteOptions($input, ...$expected) {
+  public function testExecuteOptions(array $input, string ...$expected): void {
     static::envFromInput($input, 'DREVOPS_INSTALLER_');
 
     $this->disableInstallRun();
@@ -42,7 +42,7 @@ class OptionsCommandTest extends CommandTestCase {
     $this->assertStringContains($output, ...$expected);
   }
 
-  public static function dataProviderExecuteOptions() {
+  public static function dataProviderExecuteOptions(): array {
     return [
       [
         [],

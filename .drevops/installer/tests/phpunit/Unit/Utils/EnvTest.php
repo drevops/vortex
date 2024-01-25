@@ -27,14 +27,14 @@ class EnvTest extends UnitTestBase {
    * @covers ::get
    * @dataProvider dataProviderTestGet
    */
-  public function testGet($name, $value, $isset, $default, $expected) {
+  public function testGet(string $name, string $value, bool $isset, ?string $default, mixed $expected): void {
     if ($isset) {
       self::envSet($name, $value);
     }
     $this->assertEquals($expected, Env::get($name, $default));
   }
 
-  public static function dataProviderTestGet() {
+  public static function dataProviderTestGet(): array {
     return [
       ['name1', 'val1', FALSE, NULL, NULL],
       ['name1', 'val1', FALSE, 'default', 'default'],
@@ -46,7 +46,7 @@ class EnvTest extends UnitTestBase {
   /**
    * @covers ::getConstants
    */
-  public function testGetConstants() {
+  public function testGetConstants(): void {
     $constants = Env::getConstants();
 
     $this->assertIsArray($constants);

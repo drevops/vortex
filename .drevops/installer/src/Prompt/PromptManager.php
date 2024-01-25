@@ -2,6 +2,7 @@
 
 namespace DrevOps\Installer\Prompt;
 
+use DrevOps\Installer\Bag\AbstractBag;
 use DrevOps\Installer\Bag\Answers;
 use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\Utils\ClassLoader;
@@ -11,23 +12,14 @@ use function Symfony\Component\String\u;
 
 class PromptManager {
 
-  protected $answers;
+  protected AbstractBag $answers;
 
-  /**
-   * @var \Symfony\Component\Console\Style\SymfonyStyle
-   */
-  protected $io;
-
-  protected $config;
-
-  public function __construct(SymfonyStyle $io, Config $config) {
-    $this->io = $io;
-    $this->config = $config;
+  public function __construct(protected SymfonyStyle $io, protected Config $config) {
     // Always get a fresh bag of answers.
     $this->answers = Answers::getInstance()->clear();
   }
 
-  public function askQuestions(mixed $callback) {
+  public function askQuestions(mixed $callback): static {
     // If the callback is set, invoke it
     if (!is_callable($callback)) {
       throw new RuntimeException('The questions callback must be set.');
@@ -61,13 +53,16 @@ class PromptManager {
     return $this->answers->get($question_id, $default);
   }
 
-  public function setAnswer($question_id, $value) {
+  public function setAnswer($question_id, $value): static {
     $this->answers->set($question_id, $value);
 
     return $this;
   }
 
-  public function getAnswersSummary() {
+  /**
+   * @return mixed[]
+   */
+  public function getAnswersSummary(): array {
     $values = [];
 
     $ids = array_keys($this->answers->getAll());
@@ -79,8 +74,8 @@ class PromptManager {
     return $values;
   }
 
-  protected function getPromptClass($id): string {
-    $classes = ClassLoader::load('Prompt', 'DrevOps\\Installer\\Prompt\\AbstractPrompt');
+  protected function getPromptClass(?string $id): string {
+    $classes = ClassLoader::load('Prompt', AbstractPrompt::class);
 
     $class = 'DrevOps\\Installer\\Prompt\\Concrete\\' . u($id)->camel()->title() . 'Prompt';
 

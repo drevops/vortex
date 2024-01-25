@@ -19,7 +19,7 @@ class ProvisionUseProfileProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     if ($config->get('provision_use_profile')) {
       Files::fileReplaceContent('/' . Env::PROVISION_USE_PROFILE . '=.*/', Env::PROVISION_USE_PROFILE . '=1', $dir . '/.env');
       Tokenizer::removeTokenWithContentFromDir('!' . Token::PROVISION_USE_PROFILE, $dir);

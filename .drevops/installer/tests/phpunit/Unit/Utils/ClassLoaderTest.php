@@ -38,7 +38,7 @@ EOD;
   /**
    * @covers ::load
    */
-  public function testLoadClassesFromPath() {
+  public function testLoadClassesFromPath(): void {
     $classes = ClassLoader::load($this->testPath);
     $this->assertContains('DrevOps\Installer\Utils\Tests\TestClass', $classes);
   }
@@ -46,7 +46,7 @@ EOD;
   /**
    * @covers ::filterByClass
    */
-  public function testFilterByClass() {
+  public function testFilterByClass(): void {
     $classes = [
       'DrevOps\Installer\Utils\Tests\TestClass',
       'DrevOps\Installer\Utils\AnotherClass'

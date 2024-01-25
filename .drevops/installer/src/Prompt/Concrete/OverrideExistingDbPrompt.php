@@ -11,19 +11,19 @@ use DrevOps\Installer\Utils\Env;
 
 class OverrideExistingDbPrompt extends AbstractConfirmationPrompt {
 
-  const ID = 'override_existing_db';
+  final const ID = 'override_existing_db';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Override existing database';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return 'Do you want to override existing database in the environment?';
   }
 

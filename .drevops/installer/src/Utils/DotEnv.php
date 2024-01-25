@@ -4,7 +4,7 @@ namespace DrevOps\Installer\Utils;
 
 class DotEnv {
 
-  public static function parseDotenv($filename = '.env') {
+  public static function parseDotenv($filename = '.env'): false|array {
     if (!is_readable($filename)) {
       return FALSE;
     }
@@ -16,7 +16,7 @@ class DotEnv {
     return parse_ini_string($contents);
   }
 
-  public static function loadDotenv($filename = '.env', $override_existing = FALSE) {
+  public static function loadDotenv($filename = '.env', $override_existing = FALSE): void {
     $parsed = DotEnv::parseDotenv($filename);
 
     if ($parsed === FALSE) {

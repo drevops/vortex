@@ -10,36 +10,36 @@ use DrevOps\Installer\Utils\Env;
 
 class DatabaseDownloadSourcePrompt extends AbstractChoicePrompt {
 
-  const CHOICE_URL = 'url';
+  final const CHOICE_URL = 'url';
 
-  const CHOICE_FTP = 'ftp';
+  final const CHOICE_FTP = 'ftp';
 
-  const CHOICE_ACQUIA_BACKUP = 'acquia_backup';
+  final const CHOICE_ACQUIA_BACKUP = 'acquia_backup';
 
-  const CHOICE_DOCKER_REGISTRY = 'docker_registry';
+  final const CHOICE_DOCKER_REGISTRY = 'docker_registry';
 
-  const CHOICE_NONE = 'none';
+  final const CHOICE_NONE = 'none';
 
-  const ID = 'database_download_source';
+  final const ID = 'database_download_source';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Database download source';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return 'Where does the database dump come from into every environment?';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function choices() {
+  public static function choices(): array {
     // @todo: Review these as the values are not the actual config keys.
     return [
       self::CHOICE_URL,

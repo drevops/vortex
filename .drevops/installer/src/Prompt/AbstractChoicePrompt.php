@@ -56,7 +56,7 @@ abstract class AbstractChoicePrompt extends AbstractPrompt {
    * {@inheritdoc}
    */
   protected function valueNormalizer(mixed $value, Config $config, Answers $answers): mixed {
-    $value = is_array($value) ? $value : array_map('trim', explode(',', $value));
+    $value = is_array($value) ? $value : array_map('trim', explode(',', (string) $value));
     $value = array_filter($value);
 
     if (empty($value)) {
@@ -79,7 +79,7 @@ abstract class AbstractChoicePrompt extends AbstractPrompt {
     }
 
     if (!$this->isMultiselect) {
-      $updated_value = !empty($updated_value) ? reset($updated_value) : NULL;
+      $updated_value = empty($updated_value) ? NULL : reset($updated_value);
     }
     elseif (is_array($updated_value)) {
       $updated_value = array_unique($updated_value);

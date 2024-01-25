@@ -15,12 +15,12 @@ class OptionsApplicationTest extends ApplicationTestCase {
    * @dataProvider  dataProviderExecuteOptions
    * @runInSeparateProcess
    */
-  public function testExecuteOptions($input, $expected) {
+  public function testExecuteOptions(array $input, string $expected): void {
     $this->disableInstallRun();
     $this->assertStringContainsString($expected, $this->execute($input));
   }
 
-  public static function dataProviderExecuteOptions() {
+  public static function dataProviderExecuteOptions(): array {
     return [
       [['--help' => TRUE], 'Destination directory. Optional. Defaults to the current directory'],
       [['--version' => TRUE], 'DrevOps CLI Installer @git-version@'],

@@ -16,7 +16,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::__construct
    */
-  public function testConstructor() {
+  public function testConstructor(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $this->assertInstanceOf(AbstractChoicePrompt::class, $prompt);
   }
@@ -24,7 +24,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::title
    */
-  public function testTitle() {
+  public function testTitle(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $this->assertEquals('Fixture title', $prompt::title());
   }
@@ -32,7 +32,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::title
    */
-  public function testTitleErroneous() {
+  public function testTitleErroneous(): never {
     $prompt = new ErroneousChoicePromptFixture($this->io());
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('The question title is not defined.');
@@ -42,7 +42,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::question
    */
-  public function testQuestion() {
+  public function testQuestion(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $this->assertEquals('Fixture question', $prompt::question());
   }
@@ -50,7 +50,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::question
    */
-  public function testQuestionErroneous() {
+  public function testQuestionErroneous(): never {
     $prompt = new ErroneousChoicePromptFixture($this->io());
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('The question text is not defined.');
@@ -60,7 +60,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::getFormattedQuestion
    */
-  public function testGetFormattedQuestion() {
+  public function testGetFormattedQuestion(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $this->assertEquals('Fixture question', $prompt::getFormattedQuestion('val1'));
   }
@@ -68,7 +68,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::getFormattedQuestion
    */
-  public function testGetFormattedQuestionErroneous() {
+  public function testGetFormattedQuestionErroneous(): void {
     $prompt = new ErroneousChoicePromptFixture($this->io());
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('The question text is not defined.');
@@ -78,7 +78,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::getFormattedValue
    */
-  public function testGetFormattedValue() {
+  public function testGetFormattedValue(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $this->assertEquals('val1', $prompt::getFormattedValue('val1'));
   }
@@ -86,7 +86,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::getFormattedValue
    */
-  public function testGetFormattedValueErroneous() {
+  public function testGetFormattedValueErroneous(): void {
     $prompt = new ErroneousChoicePromptFixture($this->io());
     $this->assertEquals('val1', $prompt::getFormattedValue('val1'));
   }
@@ -94,7 +94,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::defaultValue
    */
-  public function testDefaultValue() {
+  public function testDefaultValue(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $actual = $this->callProtectedMethod($prompt, 'defaultValue', [Config::getInstance(), Answers::getInstance()]);
     // Value defaults to the key of the first choice starting at 1.
@@ -104,7 +104,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::discoveredValue
    */
-  public function testDiscoveredValue() {
+  public function testDiscoveredValue(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $actual = $this->callProtectedMethod($prompt, 'discoveredValue', [Config::getInstance(), Answers::getInstance()]);
     $this->assertEquals(NULL, $actual);
@@ -113,7 +113,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::normalizer
    */
-  public function testNormalizer() {
+  public function testNormalizer(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $actual = $this->callProtectedMethod($prompt, 'normalizer', ['val1', Config::getInstance(), Answers::getInstance()]);
     $this->assertEquals('val1', $actual);
@@ -126,7 +126,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
    * @covers ::valueNormalizer
    * @dataProvider dataProviderValueNormalizer
    */
-  public function testValueNormalizer($value, $is_multiselect, $expected) {
+  public function testValueNormalizer(string|array|null $value, bool $is_multiselect, mixed $expected): void {
     if ($is_multiselect) {
       $prompt = new FilledMultiChoicePromptFixture($this->io());
     }
@@ -137,7 +137,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderValueNormalizer() {
+  public static function dataProviderValueNormalizer(): array {
     return [
       // Single select.
       [NULL, FALSE, NULL],
@@ -198,7 +198,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::validator
    */
-  public function testValidator() {
+  public function testValidator(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $val_before = 'choice1';
     $val_after = $val_before;
@@ -209,7 +209,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::validator
    */
-  public function testValidatorInvalidValueException() {
+  public function testValidatorInvalidValueException(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $val_before = [static::MACHINE_NAME_INVALID];
     $val_after = $val_before;
@@ -224,7 +224,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::validator
    */
-  public function testValidatorInvalidValueFromListException() {
+  public function testValidatorInvalidValueFromListException(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $val_before = ['choice4'];
     $val_after = $val_before;
@@ -239,7 +239,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::validator
    */
-  public function testValidatorSingleValueException() {
+  public function testValidatorSingleValueException(): void {
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Only one value is allowed.');
 
@@ -253,7 +253,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::processQuestion
    */
-  public function testProcessQuestion() {
+  public function testProcessQuestion(): void {
     $question_before = new Question('fixture question');
     $question_after = clone $question_before;
 
@@ -268,7 +268,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::processAnswer
    */
-  public function testProcessAnswer() {
+  public function testProcessAnswer(): void {
     $answer_before = 'val before';
     $answer_after = $answer_before;
 
@@ -280,7 +280,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::createQuestion
    */
-  public function testCreateQuestion() {
+  public function testCreateQuestion(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
 
     $actual = $this->callProtectedMethod($prompt, 'createQuestion', ['question text', 'default value']);
@@ -306,7 +306,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::makeChoicesReindex
    */
-  public function testMakeChoicesReindex() {
+  public function testMakeChoicesReindex(): void {
     $prompt = new FilledChoicePromptFixture($this->io());
     $actual = $this->callProtectedMethod($prompt, 'makeChoicesReindex', [['a', 'b', 'c']]);
     $this->assertEquals([1 => 'a', 2 => 'b', 3 => 'c'], $actual);
@@ -317,20 +317,20 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
    * @covers ::compileDefaultValue
    * @dataProvider dataProviderCompileDefaultValue
    */
-  public function testCompileDefaultValue($default_value, $discovered_value, $normalizer_value, $value_normalizer_value, $value_validator, $expected) {
+  public function testCompileDefaultValue(?string $default_value, ?string $discovered_value, ?string $normalizer_value, ?string $value_normalizer_value, ?string $value_validator, mixed $expected): void {
     $prompt = $this->prepareMock(AbstractChoicePrompt::class, [
       'defaultValue' => $default_value,
       'discoveredValue' => $discovered_value,
-      'normalizer' => function ($value) use ($normalizer_value) {
-        return $normalizer_value ?: $value;
+      'normalizer' => static function ($value) use ($normalizer_value) {
+          return $normalizer_value ?: $value;
       },
-      'valueNormalizer' => function ($value) use ($value_normalizer_value) {
-        return $value_normalizer_value ?: $value;
+      'valueNormalizer' => static function ($value) use ($value_normalizer_value) {
+          return $value_normalizer_value ?: $value;
       },
-      'validator' => function () use ($value_validator) {
-        if (str_contains($value_validator, 'Exception')) {
-          throw new \Exception($value_validator);
-        }
+      'validator' => static function () use ($value_validator) : void {
+          if (str_contains($value_validator, 'Exception')) {
+            throw new \Exception($value_validator);
+          }
       },
     ]);
 
@@ -338,7 +338,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderCompileDefaultValue() {
+  public static function dataProviderCompileDefaultValue(): array {
     return [
       // Default value is NULL.
       [NULL, NULL, NULL, NULL, NULL, NULL],
@@ -374,21 +374,21 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
    * @covers ::ask
    * @dataProvider dataProviderAsk
    */
-  public function testAsk($default_value, $normalizer_value, $value_normalizer_value, $value_validator, $expected_answer) {
+  public function testAsk(?string $default_value, ?string $normalizer_value, ?string $value_normalizer_value, ?string $value_validator, mixed $expected_answer): void {
     $expect_exception = str_contains($value_validator, 'Exception');
 
     $prompt = $this->prepareMock(FilledChoicePromptFixture::class, [
       'defaultValue' => $default_value,
-      'normalizer' => function ($value) use ($normalizer_value) {
-        return $normalizer_value ?: $value;
+      'normalizer' => static function ($value) use ($normalizer_value) {
+          return $normalizer_value ?: $value;
       },
-      'valueNormalizer' => function ($value) use ($value_normalizer_value) {
-        return $value_normalizer_value ?: $value;
+      'valueNormalizer' => static function ($value) use ($value_normalizer_value) {
+          return $value_normalizer_value ?: $value;
       },
-      'validator' => function () use ($value_validator, $expect_exception) {
-        if ($expect_exception) {
-          throw new \Exception($value_validator);
-        }
+      'validator' => static function () use ($value_validator, $expect_exception) : void {
+          if ($expect_exception) {
+            throw new \Exception($value_validator);
+          }
       },
     ],
       [$this->io($expected_answer)]
@@ -405,7 +405,7 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
     }
   }
 
-  public static function dataProviderAsk() {
+  public static function dataProviderAsk(): array {
     return [
       // Default value is NULL.
       [NULL, NULL, NULL, NULL, static::DEFAULT_ANSWER],

@@ -17,7 +17,7 @@ class EnableCommentedCodeProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     Files::dirReplaceContent(Token::COMMENTED_CODE, '', $dir);
   }
 

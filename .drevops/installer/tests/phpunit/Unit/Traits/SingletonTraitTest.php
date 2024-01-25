@@ -15,7 +15,7 @@ class SingletonTraitTest extends UnitTestBase {
    * @covers ::__construct
    * @convertErrorsToExceptions
    */
-  public function testConstructor() {
+  public function testConstructor(): void {
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Cannot instantiate Singleton class directly. Use ::getInstance() instead.');
     (new TestSingleton());
@@ -24,7 +24,7 @@ class SingletonTraitTest extends UnitTestBase {
   /**
    * @covers ::getInstance
    */
-  public function testSingletonInstance() {
+  public function testSingletonInstance(): void {
     $first = TestSingleton::getInstance();
     $second = TestSingleton::getInstance();
 
@@ -34,25 +34,21 @@ class SingletonTraitTest extends UnitTestBase {
   /**
    * @covers ::__clone
    */
-  public function testCloneIsDisabled() {
-    $instance = TestSingleton::getInstance();
+  public function testCloneIsDisabled(): void {
+    TestSingleton::getInstance();
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Cloning of Singleton is disallowed.');
-
-    $clone = clone $instance;
   }
 
   /**
    * @covers ::__wakeup
    */
-  public function testUnserializeIsDisabled() {
+  public function testUnserializeIsDisabled(): void {
     $instance = TestSingleton::getInstance();
-    $serializedInstance = serialize($instance);
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Unserializing instances of Singleton classes is disallowed.');
-    $unserializedInstance = unserialize($serializedInstance);
   }
 
 }

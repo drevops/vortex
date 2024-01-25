@@ -9,20 +9,20 @@ use Symfony\Component\Console\Question\Question;
 
 class ProceedDrevopsInstallPrompt extends AbstractPrompt {
 
-  const ID = 'proceed_drevops_install';
+  final const ID = 'proceed_drevops_install';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Proceed with installation';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
-    return sprintf('Proceed with installing DrevOps?');
+  public static function question(): string {
+    return 'Proceed with installing DrevOps?';
   }
 
   /**
@@ -41,14 +41,12 @@ class ProceedDrevopsInstallPrompt extends AbstractPrompt {
     // Set a custom validator to always require and input.
     // This is to prevent the user from accidentally skipping or running
     // the installation because there are too many questions.
-    $question->setValidator(function ($value) {
-      $value = $value ? strtolower($value) : $value;
-
-      if (!in_array($value, ['y', 'n'])) {
-        throw new \RuntimeException('Please answer with "y" or "n".');
-      }
-
-      return (bool) preg_match('/^y/i', $value);
+    $question->setValidator(static function ($value) : bool {
+        $value = $value ? strtolower($value) : $value;
+        if (!in_array($value, ['y', 'n'])) {
+          throw new \RuntimeException('Please answer with "y" or "n".');
+        }
+        return (bool) preg_match('/^y/i', $value);
     });
   }
 

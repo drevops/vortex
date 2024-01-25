@@ -18,14 +18,14 @@ class PreserveLagoonProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     if ($config->get('preserve_lagoon')) {
       Tokenizer::removeTokenWithContentFromDir('!' . Token::LAGOON, $dir);
     }
     else {
-      Files::remove("$dir/drush/sites/lagoon.site.yml");
-      Files::remove("$dir/.lagoon.yml");
-      Files::remove("$dir/.github/workflows/dispatch-webhook-lagoon.yml");
+      Files::remove($dir . '/drush/sites/lagoon.site.yml');
+      Files::remove($dir . '/.lagoon.yml');
+      Files::remove($dir . '/.github/workflows/dispatch-webhook-lagoon.yml');
 
       Tokenizer::removeTokenWithContentFromDir(Token::LAGOON, $dir);
     }

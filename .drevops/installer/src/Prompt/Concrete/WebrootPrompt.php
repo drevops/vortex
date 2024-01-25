@@ -15,19 +15,19 @@ use DrevOps\Installer\Utils\Validator;
 
 class WebrootPrompt extends AbstractPrompt {
 
-  const ID = 'webroot';
+  final const ID = 'webroot';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Web root';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return 'Web root (web, docroot)?';
   }
 
@@ -66,7 +66,7 @@ class WebrootPrompt extends AbstractPrompt {
    * {@inheritdoc}
    */
   protected function valueNormalizer($value, Config $config, Answers $answers): mixed {
-    return trim(Strings::toMachineName($value), '/');
+    return trim((string) Strings::toMachineName($value), '/');
   }
 
 }

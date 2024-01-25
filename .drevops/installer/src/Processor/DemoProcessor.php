@@ -13,7 +13,7 @@ class DemoProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     if (empty($config->get(Env::INSTALLER_DEMO_MODE)) || !empty($config->get(Env::INSTALLER_DEMO_MODE_SKIP))) {
       return;
     }

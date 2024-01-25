@@ -11,16 +11,16 @@ use DrevOps\Installer\Utils\Validator;
 
 class UrlPrompt extends AbstractPrompt {
 
-  const ID = 'url';
+  final const ID = 'url';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'URL';
   }
 
-  public static function question() {
+  public static function question(): string {
     return 'What is your site public URL?';
   }
 
@@ -31,7 +31,7 @@ class UrlPrompt extends AbstractPrompt {
     $value = $answers->get('machine_name', '');
 
     if ($value) {
-      $value = str_replace('_', '-', $value);
+      $value = str_replace('_', '-', (string) $value);
       $value .= '.com';
     }
 
@@ -45,7 +45,7 @@ class UrlPrompt extends AbstractPrompt {
     $origin = NULL;
 
     $webroot = $config->getWebroot();
-    $path = $config->getDstDir() . "/$webroot/sites/default/settings.php";
+    $path = $config->getDstDir() . sprintf('/%s/sites/default/settings.php', $webroot);
 
     if (!is_readable($path)) {
       return NULL;
@@ -70,7 +70,7 @@ class UrlPrompt extends AbstractPrompt {
       $origin = parse_url($origin, PHP_URL_HOST);
     }
 
-    return !empty($origin) ? $origin : NULL;
+    return empty($origin) ? NULL : $origin;
   }
 
   /**

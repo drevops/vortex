@@ -14,7 +14,7 @@ class AbstractBagTest extends UnitTestBase {
    * @covers ::get
    * @covers ::set
    */
-  public function testSetAndGet() {
+  public function testSetAndGet(): void {
     $bag = new TestBag();
 
     $bag->set('testKey', 'testValue');
@@ -25,7 +25,7 @@ class AbstractBagTest extends UnitTestBase {
   /**
    * @covers ::getAll
    */
-  public function testGetAll() {
+  public function testGetAll(): void {
     $bag = new TestBag();
 
     $bag->set('key1', 'value1');
@@ -40,7 +40,7 @@ class AbstractBagTest extends UnitTestBase {
   /**
    * @covers ::fromValues
    */
-  public function testFromValues() {
+  public function testFromValues(): void {
     $bag = new TestBag();
     $bag->fromValues([
       'keyA' => 'valueA',
@@ -54,7 +54,7 @@ class AbstractBagTest extends UnitTestBase {
   /**
    * @covers ::clear
    */
-  public function testClear() {
+  public function testClear(): void {
     $bag = new TestBag();
 
     $bag->set('someKey', 'someValue');

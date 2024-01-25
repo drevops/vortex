@@ -39,7 +39,7 @@ abstract class ConcretePromptUnitTestCase extends PromptUnitTestCase {
    * @covers ::title
    * @runInSeparateProcess
    */
-  public function testTitle() {
+  public function testTitle(): void {
     $prompt = static::getInstance();
     $this->assertNotEmpty($prompt::title());
   }
@@ -48,7 +48,7 @@ abstract class ConcretePromptUnitTestCase extends PromptUnitTestCase {
    * @covers ::question
    * @runInSeparateProcess
    */
-  public function testQuestion() {
+  public function testQuestion(): void {
     $prompt = static::getInstance();
     $this->assertNotEmpty($prompt::question());
   }
@@ -58,7 +58,7 @@ abstract class ConcretePromptUnitTestCase extends PromptUnitTestCase {
    * @dataProvider dataProviderDefaultValue
    * @runInSeparateProcess
    */
-  public function testDefaultValue(array $config_values, array $answers_values, mixed $expected) {
+  public function testDefaultValue(array $config_values, array $answers_values, mixed $expected): void {
     $prompt = static::getInstance();
     $actual = $this->callProtectedMethod($prompt, 'defaultValue', [Config::getInstance()->fromValues($config_values), Answers::getInstance()->fromValues($answers_values)]);
     $this->assertEquals($expected, $actual);
@@ -71,7 +71,7 @@ abstract class ConcretePromptUnitTestCase extends PromptUnitTestCase {
    * @dataProvider dataProviderDiscoveredValue
    * @runInSeparateProcess
    */
-  public function testDiscoveredValue(null|callable $prepare_callback, array $config_values, array $answers_values, mixed $expected) {
+  public function testDiscoveredValue(null|callable $prepare_callback, array $config_values, array $answers_values, mixed $expected): void {
     // Run prepare callback before instantiating a prompt so that all required
     // environment variables could be picked up by the Config.
     $prepare_callback = static::fnu($prepare_callback);
@@ -91,7 +91,7 @@ abstract class ConcretePromptUnitTestCase extends PromptUnitTestCase {
    * @dataProvider dataProviderValidator
    * @runInSeparateProcess
    */
-  public function testValidator(mixed $value, array $config_values, array $answers_values, mixed $expected_exception) {
+  public function testValidator(mixed $value, array $config_values, array $answers_values, mixed $expected_exception): void {
     if ($expected_exception) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage($expected_exception);
@@ -112,7 +112,7 @@ abstract class ConcretePromptUnitTestCase extends PromptUnitTestCase {
    * @dataProvider dataProviderValueNormalizer
    * @runInSeparateProcess
    */
-  public function testValueNormalizer(mixed $value, array $config_values, array $answers_values, mixed $expected) {
+  public function testValueNormalizer(mixed $value, array $config_values, array $answers_values, mixed $expected): void {
     $prompt = static::getInstance();
     $actual = $this->callProtectedMethod($prompt, 'valueNormalizer', [$value, Config::getInstance()->fromValues($config_values), Answers::getInstance()->fromValues($answers_values)]);
     $this->assertEquals($expected, $actual);

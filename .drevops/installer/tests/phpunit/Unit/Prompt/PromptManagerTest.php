@@ -15,7 +15,7 @@ class PromptManagerTest extends PromptUnitTestCase {
   /**
    * @covers ::__construct
    */
-  public function testConstructor() {
+  public function testConstructor(): void {
     Answers::getInstance()->fromValues(['test_question' => 'test_answer']);
     $config_before = Config::getInstance()->fromValues(['test' => 'value']);
 
@@ -29,7 +29,7 @@ class PromptManagerTest extends PromptUnitTestCase {
    * @covers ::askQuestions
    * @dataProvider dataProviderAskQuestions
    */
-  public function testAskQuestions($callback, $expectedException = NULL) {
+  public function testAskQuestions(mixed $callback, ?string $expectedException = NULL): void {
     if ($expectedException) {
       $this->expectException($expectedException);
     }
@@ -42,15 +42,17 @@ class PromptManagerTest extends PromptUnitTestCase {
     }
   }
 
-  public static function dataProviderAskQuestions() {
+  public static function dataProviderAskQuestions(): array {
     return [
       'valid callback' => [
-        function ($manager) {
+        static function ($manager) : void {
         },
         NULL,
       ],
       'invalid callback not accessible' => [
-        [PromptTestClassWithProtectedCallback::class, 'callbackExample'],
+        static function () {
+            return (new \DrevOps\Installer\Tests\Unit\Prompt\PromptTestClassWithProtectedCallback())->callbackExample();
+        },
         \RuntimeException::class,
       ],
       'invalid callback non existing' => [
@@ -69,7 +71,7 @@ class PromptManagerTest extends PromptUnitTestCase {
    * @covers ::getPromptClass
    * @covers ::getAnswersSummary
    */
-  public function testAskAnswers() {
+  public function testAskAnswers(): void {
     $manager = new PromptManager($this->io(), Config::getInstance());
     $actual = $manager->ask(TestPrompt::ID);
     $this->assertEquals('Fixture answer', $actual);
@@ -88,7 +90,7 @@ class PromptManagerTest extends PromptUnitTestCase {
   /**
    * @covers ::getPromptClass
    */
-  public function testGetPromptClassInvalid() {
+  public function testGetPromptClassInvalid(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The prompt class "DrevOps\Installer\Prompt\Concrete\InvalidIdPrompt" does not exist.');
     $manager = new PromptManager($this->io(), Config::getInstance());

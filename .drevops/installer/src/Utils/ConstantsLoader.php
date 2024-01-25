@@ -9,8 +9,8 @@ class ConstantsLoader {
     $constants = $reflection->getConstants();
 
     if ($prefix) {
-      $constants = array_filter($constants, function ($value, $key) use ($prefix, $prefix_is_key) {
-        return str_starts_with($prefix_is_key ? $key : $value, $prefix);
+      $constants = array_filter($constants, static function ($value, $key) use ($prefix, $prefix_is_key) : bool {
+          return str_starts_with($prefix_is_key ? $key : $value, $prefix);
       }, ARRAY_FILTER_USE_BOTH);
     }
 

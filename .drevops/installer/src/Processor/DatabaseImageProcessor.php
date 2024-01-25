@@ -19,9 +19,9 @@ class DatabaseImageProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     $image = $config->get('database_image');
-    Files::fileReplaceContent('/' . Env::DB_DOCKER_IMAGE . '=.*/', Env::DB_DOCKER_IMAGE . "=$image", $dir . '/.env');
+    Files::fileReplaceContent('/' . Env::DB_DOCKER_IMAGE . '=.*/', Env::DB_DOCKER_IMAGE . ('=' . $image), $dir . '/.env');
 
     if ($image) {
       Tokenizer::removeTokenWithContentFromDir('!' . Token::DB_DOCKER_IMAGE, $dir);

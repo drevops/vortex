@@ -15,9 +15,7 @@ trait VfsTrait {
   /**
    * Set up the root directory for the virtual file system.
    *
-   * @param string $name
    *
-   * @return void
    */
   public static function vfsSetRoot(string $name = 'root'): void {
     self::$vfsRootDirectory = vfsStream::setup($name);
@@ -26,7 +24,6 @@ trait VfsTrait {
   /**
    * Create a directory under the root.
    *
-   * @param string $path
    *
    * @return vfsStreamDirectory
    * @throws \Exception
@@ -54,19 +51,17 @@ trait VfsTrait {
       $file->withContent($contents);
     }
 
-    $filepath = $file->url();
-
-    return $filepath;
+    return $file->url();
   }
 
-  protected static function vfsNormalizePath($path) {
+  protected static function vfsNormalizePath($path): string {
     $prefix = 'vfs://root/';
 
-    if (!str_starts_with($path, $prefix)) {
+    if (!str_starts_with((string) $path, $prefix)) {
       throw new \Exception('Fixture path must start with ' . $prefix);
     }
 
-    return substr($path, strlen($prefix));
+    return substr((string) $path, strlen($prefix));
   }
 
 }

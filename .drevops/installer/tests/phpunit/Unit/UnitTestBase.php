@@ -42,7 +42,7 @@ abstract class UnitTestBase extends TestCase {
   /**
    * Cleanup fixture directory.
    */
-  public function cleanupFixtureDir() {
+  public function cleanupFixtureDir(): void {
     $this->fileExists();
     $fs = new Filesystem();
     $fs->remove($this->fixtureDir);
@@ -85,7 +85,7 @@ abstract class UnitTestBase extends TestCase {
     return $path;
   }
 
-  protected function flattenFileTree($tree, $parent = '.') {
+  protected function flattenFileTree($tree, string $parent = '.') {
     $flatten = [];
     foreach ($tree as $dir => $file) {
       if (is_array($file)) {

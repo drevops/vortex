@@ -19,12 +19,12 @@ class StringsTest extends UnitTestBase {
    * @covers    ::toHumanName
    * @dataProvider dataProviderToHumanName
    */
-  public function testToHumanName($value, $expected) {
+  public function testToHumanName(string $value, mixed $expected): void {
     $actual = Strings::toHumanName($value);
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderToHumanName() {
+  public static function dataProviderToHumanName(): array {
     return [
       ['', ''],
       [' ', ''],
@@ -46,12 +46,12 @@ class StringsTest extends UnitTestBase {
    * @covers      ::toMachineName
    * @dataProvider dataProviderToMachineName
    */
-  public function testToMachineName($value, $preserve, $expected) {
+  public function testToMachineName(string $value, array $preserve, mixed $expected): void {
     $actual = Strings::toMachineName($value, $preserve);
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderToMachineName() {
+  public static function dataProviderToMachineName(): array {
     return [
       ['', [], ''],
       [' ', [], ' '],
@@ -98,11 +98,11 @@ class StringsTest extends UnitTestBase {
    * @covers    ::toUrl
    * @dataProvider dataProviderToUrl
    */
-  public function testToUrl($input, $expected) {
+  public function testToUrl(string $input, mixed $expected): void {
     $this->assertEquals($expected, Strings::toUrl($input));
   }
 
-  public static function dataProviderToUrl() {
+  public static function dataProviderToUrl(): array {
     return [
       ['', ''], // empty string
       ['this is a string', 'this-is-a-string'], // spaces to dashes
@@ -116,11 +116,11 @@ class StringsTest extends UnitTestBase {
    * @covers ::listToString
    * @dataProvider dataProviderListToString
    */
-  public function testListToString($input, $multiline, $expected) {
+  public function testListToString(mixed $input, bool $multiline, mixed $expected): void {
     $this->assertEquals($expected, Strings::listToString($input, $multiline));
   }
 
-  public static function dataProviderListToString() {
+  public static function dataProviderListToString(): array {
     return [
       // Test arrays with multiline = false (default)
       [['a', 'b', 'c'], FALSE, 'a, b, c'],
@@ -142,11 +142,11 @@ class StringsTest extends UnitTestBase {
    * @covers ::toAbbreviation
    * @dataProvider dataProviderToAbbreviation
    */
-  public function testToAbbreviation($input, $length, $word_delim, $expected) {
+  public function testToAbbreviation(string $input, int $length, string $word_delim, mixed $expected): void {
     $this->assertEquals($expected, Strings::toAbbreviation($input, $length, $word_delim));
   }
 
-  public static function dataProviderToAbbreviation() {
+  public static function dataProviderToAbbreviation(): array {
     return [
       // Test abbreviation creation
       ['hello world', 2, '_', 'hw'],
@@ -167,12 +167,12 @@ class StringsTest extends UnitTestBase {
    * @covers ::isRegex
    * @dataProvider dataProviderIsRegex
    */
-  public function testIsRegex($input, $expected) {
+  public function testIsRegex(string $input, mixed $expected): void {
     $result = Strings::isRegex($input);
     $this->assertSame($expected, $result);
   }
 
-  public static function dataProviderIsRegex() {
+  public static function dataProviderIsRegex(): array {
     return [
       ['/te/st/', FALSE],
       // Positive cases

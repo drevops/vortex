@@ -2,6 +2,7 @@
 
 namespace DrevOps\Installer;
 
+use DrevOps\Installer\Processor\AbstractProcessor;
 use DrevOps\Installer\Utils\ClassLoader;
 
 class ProcessorManager {
@@ -14,30 +15,28 @@ class ProcessorManager {
   protected $config;
 
   /**
-   * Output object.
-   *
-   * @var \Symfony\Component\Console\Output\OutputInterface
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
-  protected $output;
-
-  public function __construct($config, $output) {
+  public function __construct($config, /**
+   * Output object.
+   */
+  protected $output) {
     $this->config = clone $config;
     $this->config->setReadOnly();
-    $this->output = $output;
   }
 
   /**
    * Run processing of all processors.
    */
-  public function process() {
-    $classes = ClassLoader::load('Processor', 'DrevOps\\Installer\\Processor\\AbstractProcessor');
+  public function process(): void {
+    $classes = ClassLoader::load('Processor', AbstractProcessor::class);
 
-    $classes = array_filter($classes, function ($class) {
-      return $class::$weight > 0;
+    $classes = array_filter($classes, static function ($class) : bool {
+        return $class::$weight > 0;
     });
 
-    usort($classes, function ($a, $b) {
-      return $a::$weight <=> $b::$weight;
+    usort($classes, static function ($a, $b) : int {
+        return $a::$weight <=> $b::$weight;
     });
 
     foreach ($classes as $class) {

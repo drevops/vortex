@@ -11,16 +11,16 @@ use DrevOps\Installer\Utils\Env;
 
 class ProvisionUseProfilePrompt extends AbstractConfirmationPrompt {
 
-  const ID = 'provision_use_profile';
+  final const ID = 'provision_use_profile';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Install from profile';
   }
 
-  public static function question() {
+  public static function question(): string {
     return 'Do you want to provision a site from profile (leave empty for using database)?';
   }
 

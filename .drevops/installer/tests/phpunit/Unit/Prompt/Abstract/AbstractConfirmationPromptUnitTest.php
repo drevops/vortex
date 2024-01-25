@@ -16,7 +16,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::__construct
    */
-  public function testConstructor() {
+  public function testConstructor(): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
     $this->assertInstanceOf(AbstractConfirmationPrompt::class, $prompt);
   }
@@ -24,7 +24,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::title
    */
-  public function testTitle() {
+  public function testTitle(): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
     $this->assertEquals('Fixture title', $prompt::title());
   }
@@ -32,7 +32,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::title
    */
-  public function testTitleErroneous() {
+  public function testTitleErroneous(): never {
     $prompt = new ErroneousConfirmationPromptFixture($this->io());
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('The question title is not defined.');
@@ -42,7 +42,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::question
    */
-  public function testQuestion() {
+  public function testQuestion(): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
     $this->assertEquals('Fixture question', $prompt::question());
   }
@@ -50,7 +50,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::question
    */
-  public function testQuestionErroneous() {
+  public function testQuestionErroneous(): never {
     $prompt = new ErroneousConfirmationPromptFixture($this->io());
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('The question text is not defined.');
@@ -60,7 +60,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::getFormattedQuestion
    */
-  public function testGetFormattedQuestion() {
+  public function testGetFormattedQuestion(): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
     $this->assertEquals('Fixture question', $prompt::getFormattedQuestion('val1'));
   }
@@ -68,7 +68,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::getFormattedQuestion
    */
-  public function testGetFormattedQuestionErroneous() {
+  public function testGetFormattedQuestionErroneous(): void {
     $prompt = new ErroneousConfirmationPromptFixture($this->io());
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('The question text is not defined.');
@@ -79,7 +79,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
    * @covers ::getFormattedValue
    * @dataProvider dataProviderFormattedValue
    */
-  public function testGetFormattedValue($value, $expected) {
+  public function testGetFormattedValue(mixed $value, mixed $expected): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
     $this->assertEquals($expected, $prompt::getFormattedValue($value));
   }
@@ -88,12 +88,12 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
    * @covers ::getFormattedValue
    * @dataProvider dataProviderFormattedValue
    */
-  public function testGetFormattedValueErroneous($value, $expected) {
+  public function testGetFormattedValueErroneous(mixed $value, mixed $expected): void {
     $prompt = new ErroneousConfirmationPromptFixture($this->io());
     $this->assertEquals($expected, $prompt::getFormattedValue($value));
   }
 
-  public static function dataProviderFormattedValue() {
+  public static function dataProviderFormattedValue(): array {
     return [
       [TRUE, 'Yes'],
       [FALSE, 'No'],
@@ -108,7 +108,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::defaultValue
    */
-  public function testDefaultValue() {
+  public function testDefaultValue(): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
     $actual = $this->callProtectedMethod($prompt, 'defaultValue', [Config::getInstance(), Answers::getInstance()]);
     $this->assertEquals(TRUE, $actual);
@@ -117,7 +117,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::discoveredValue
    */
-  public function testDiscoveredValue() {
+  public function testDiscoveredValue(): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
     $actual = $this->callProtectedMethod($prompt, 'discoveredValue', [Config::getInstance(), Answers::getInstance()]);
     $this->assertEquals(NULL, $actual);
@@ -126,7 +126,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::normalizer
    */
-  public function testNormalizer() {
+  public function testNormalizer(): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
     $actual = $this->callProtectedMethod($prompt, 'normalizer', ['val1', Config::getInstance(), Answers::getInstance()]);
     $this->assertEquals('val1', $actual);
@@ -139,13 +139,13 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
    * @covers ::valueNormalizer
    * @dataProvider dataProviderValueNormalizer
    */
-  public function testValueNormalizer($value, $expected) {
+  public function testValueNormalizer(bool|int|string|array|null $value, mixed $expected): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
     $actual = $this->callProtectedMethod($prompt, 'valueNormalizer', [$value, Config::getInstance(), Answers::getInstance()]);
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderValueNormalizer() {
+  public static function dataProviderValueNormalizer(): array {
     return [
       [NULL, FALSE],
       [TRUE, TRUE],
@@ -161,7 +161,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::validator
    */
-  public function testValidator() {
+  public function testValidator(): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
     $val_before = 'val1';
     $val_after = $val_before;
@@ -172,7 +172,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::processQuestion
    */
-  public function testProcessQuestion() {
+  public function testProcessQuestion(): void {
     $question_before = new Question('fixture question');
     $question_after = clone $question_before;
 
@@ -187,7 +187,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::processAnswer
    */
-  public function testProcessAnswer() {
+  public function testProcessAnswer(): void {
     $answer_before = 'val before';
     $answer_after = $answer_before;
 
@@ -199,7 +199,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
   /**
    * @covers ::createQuestion
    */
-  public function testCreateQuestion() {
+  public function testCreateQuestion(): void {
     $prompt = new FilledConfirmationPromptFixture($this->io());
 
     $actual = $this->callProtectedMethod($prompt, 'createQuestion', ['question text', 'default value']);
@@ -214,20 +214,20 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
    * @covers ::compileDefaultValue
    * @dataProvider dataProviderCompileDefaultValue
    */
-  public function testCompileDefaultValue($default_value, $discovered_value, $normalizer_value, $value_normalizer_value, $value_validator, $expected) {
+  public function testCompileDefaultValue(?string $default_value, ?string $discovered_value, ?string $normalizer_value, ?string $value_normalizer_value, ?string $value_validator, mixed $expected): void {
     $prompt = $this->prepareMock(AbstractConfirmationPrompt::class, [
       'defaultValue' => $default_value,
       'discoveredValue' => $discovered_value,
-      'normalizer' => function ($value) use ($normalizer_value) {
-        return $normalizer_value ?: $value;
+      'normalizer' => static function ($value) use ($normalizer_value) {
+          return $normalizer_value ?: $value;
       },
-      'valueNormalizer' => function ($value) use ($value_normalizer_value) {
-        return $value_normalizer_value ?: $value;
+      'valueNormalizer' => static function ($value) use ($value_normalizer_value) {
+          return $value_normalizer_value ?: $value;
       },
-      'validator' => function () use ($value_validator) {
-        if (str_contains($value_validator, 'Exception')) {
-          throw new \Exception($value_validator);
-        }
+      'validator' => static function () use ($value_validator) : void {
+          if (str_contains($value_validator, 'Exception')) {
+            throw new \Exception($value_validator);
+          }
       },
     ]);
 
@@ -235,7 +235,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderCompileDefaultValue() {
+  public static function dataProviderCompileDefaultValue(): array {
     return [
       // Default value is NULL.
       [NULL, NULL, NULL, NULL, NULL, NULL],
@@ -271,21 +271,21 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
    * @covers ::ask
    * @dataProvider dataProviderAsk
    */
-  public function testAsk($default_value, $normalizer_value, $value_normalizer_value, $value_validator, $expected_answer) {
+  public function testAsk(?string $default_value, ?string $normalizer_value, ?string $value_normalizer_value, ?string $value_validator, mixed $expected_answer): void {
     $expect_exception = str_contains($value_validator, 'Exception');
 
     $prompt = $this->prepareMock(FilledConfirmationPromptFixture::class, [
       'defaultValue' => $default_value,
-      'normalizer' => function ($value) use ($normalizer_value) {
-        return $normalizer_value ?: $value;
+      'normalizer' => static function ($value) use ($normalizer_value) {
+          return $normalizer_value ?: $value;
       },
-      'valueNormalizer' => function ($value) use ($value_normalizer_value) {
-        return $value_normalizer_value ?: $value;
+      'valueNormalizer' => static function ($value) use ($value_normalizer_value) {
+          return $value_normalizer_value ?: $value;
       },
-      'validator' => function () use ($value_validator, $expect_exception) {
-        if ($expect_exception) {
-          throw new \Exception($value_validator);
-        }
+      'validator' => static function () use ($value_validator, $expect_exception) : void {
+          if ($expect_exception) {
+            throw new \Exception($value_validator);
+          }
       },
     ],
       [$this->io($expected_answer)]
@@ -302,7 +302,7 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
     }
   }
 
-  public static function dataProviderAsk() {
+  public static function dataProviderAsk(): array {
     return [
       // Default value is NULL.
       [NULL, NULL, NULL, NULL, static::DEFAULT_ANSWER],

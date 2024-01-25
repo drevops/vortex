@@ -17,7 +17,7 @@ class OverrideExistingDbProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     if ($config->get('override_existing_db')) {
       Files::fileReplaceContent('/' . Env::PROVISION_OVERRIDE_DB . '=.*/', Env::PROVISION_OVERRIDE_DB . "=1", $dir . '/.env');
     }

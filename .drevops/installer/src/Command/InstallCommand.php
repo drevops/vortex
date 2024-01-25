@@ -118,7 +118,7 @@ class InstallCommand extends Command {
   }
 
   protected function askQuestions() {
-    $this->questionManager->askQuestions(function (PromptManager $qm) {
+    $this->questionManager->askQuestions(function (PromptManager $qm): void {
       $is_installed = InstallManager::isInstalled($this->config->getDstDir());
 
       //      // @todo: remove this.
@@ -227,7 +227,7 @@ class InstallCommand extends Command {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *   Output.
    */
-  protected function initIo(InputInterface $input, OutputInterface $output) {
+  protected function initIo(InputInterface $input, OutputInterface $output): SymfonyStyle {
     // Add support for bold.
     $boldStyle = new OutputFormatterStyle(NULL, NULL, ['bold']);
     $output->getFormatter()->setStyle('bold', $boldStyle);

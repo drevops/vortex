@@ -14,19 +14,19 @@ use DrevOps\Installer\Utils\Validator;
 
 class ThemePrompt extends AbstractPrompt {
 
-  const ID = 'theme';
+  final const ID = 'theme';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Theme name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return 'What is your theme machine name?';
   }
 
@@ -51,14 +51,14 @@ class ThemePrompt extends AbstractPrompt {
     $webroot = $config->getWebroot();
 
     $locations = [
-      $config->getDstDir() . "/$webroot/themes/custom/*/*.info",
-      $config->getDstDir() . "/$webroot/themes/custom/*/*.info.yml",
-      $config->getDstDir() . "/$webroot/sites/all/themes/custom/*/*.info",
-      $config->getDstDir() . "/$webroot/sites/all/themes/custom/*/*.info.yml",
-      $config->getDstDir() . "/$webroot/profiles/*/themes/custom/*/*.info",
-      $config->getDstDir() . "/$webroot/profiles/*/themes/custom/*/*.info.yml",
-      $config->getDstDir() . "/$webroot/profiles/custom/*/themes/custom/*/*.info",
-      $config->getDstDir() . "/$webroot/profiles/custom/*/themes/custom/*/*.info.yml",
+      $config->getDstDir() . sprintf('/%s/themes/custom/*/*.info', $webroot),
+      $config->getDstDir() . sprintf('/%s/themes/custom/*/*.info.yml', $webroot),
+      $config->getDstDir() . sprintf('/%s/sites/all/themes/custom/*/*.info', $webroot),
+      $config->getDstDir() . sprintf('/%s/sites/all/themes/custom/*/*.info.yml', $webroot),
+      $config->getDstDir() . sprintf('/%s/profiles/*/themes/custom/*/*.info', $webroot),
+      $config->getDstDir() . sprintf('/%s/profiles/*/themes/custom/*/*.info.yml', $webroot),
+      $config->getDstDir() . sprintf('/%s/profiles/custom/*/themes/custom/*/*.info', $webroot),
+      $config->getDstDir() . sprintf('/%s/profiles/custom/*/themes/custom/*/*.info.yml', $webroot),
     ];
 
     $value = Files::findMatchingPath($locations);
@@ -68,7 +68,7 @@ class ThemePrompt extends AbstractPrompt {
     }
 
     if ($value) {
-      $value = basename($value);
+      $value = basename((string) $value);
       $value = str_replace(['.info.yml', '.info'], '', $value);
     }
 

@@ -39,7 +39,7 @@ abstract class CommandTestCase extends FunctionalTestCase {
    * @return string
    *   The output.
    */
-  protected function execute($input, $options = []): string {
+  protected function execute(array $input, $options = []): string {
     $this->tester->execute($input, $options + [
         'interactive' => FALSE,
       ]);

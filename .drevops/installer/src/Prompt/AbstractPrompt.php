@@ -11,16 +11,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 abstract class AbstractPrompt {
 
-  /**
-   * The IO interface.
-   *
-   * @var \Symfony\Component\Console\Style\SymfonyStyle
-   */
-  protected $io;
-
-
-  public function __construct(SymfonyStyle $io) {
-    $this->io = $io;
+  public function __construct(
+      /**
+       * The IO interface.
+       */
+      protected SymfonyStyle $io
+  )
+  {
   }
 
   public function ask(Config $config, Answers $answers) {
@@ -59,9 +56,7 @@ abstract class AbstractPrompt {
 
     $answer = $this->io->askQuestion($question);
 
-    $answer = $this->processAnswer($answer, $config, $answers);
-
-    return $answer;
+    return $this->processAnswer($answer, $config, $answers);
   }
 
   /**
@@ -70,7 +65,7 @@ abstract class AbstractPrompt {
    * @return string
    *  The question title.
    */
-  public static function title() {
+  public static function title(): never {
     throw new Exception('The question title is not defined.');
   }
 
@@ -80,7 +75,7 @@ abstract class AbstractPrompt {
    * @return string
    *  The question text.
    */
-  public static function question() {
+  public static function question(): never {
     throw new Exception('The question text is not defined.');
   }
 
@@ -292,7 +287,7 @@ abstract class AbstractPrompt {
         $discovered = $this->valueNormalizer($discovered, $config, $answers);
         $this->validator($discovered, $config, $answers);
       }
-      catch (Exception $e) {
+      catch (Exception) {
         $discovered = NULL;
       }
     }

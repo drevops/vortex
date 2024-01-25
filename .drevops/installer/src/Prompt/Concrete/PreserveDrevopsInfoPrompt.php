@@ -9,19 +9,19 @@ use DrevOps\Installer\Utils\Files;
 
 class PreserveDrevopsInfoPrompt extends AbstractConfirmationPrompt {
 
-  const ID = 'preserve_drevops_info';
+  final const ID = 'preserve_drevops_info';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Preserve DrevOps comments';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return 'Do you want to keep all DrevOps information?';
   }
 

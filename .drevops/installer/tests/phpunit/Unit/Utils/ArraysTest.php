@@ -14,13 +14,13 @@ class ArraysTest extends TestCase {
    * @covers ::sortByKeyArray
    * @dataProvider providerSortByKeyArray
    */
-  public function testSortByKeyArray($array, $keys, $expected) {
+  public function testSortByKeyArray(mixed $array, array $keys, mixed $expected): void {
     $array_before = $array;
     $this->assertEquals($expected, Arrays::sortByKeyArray($array, $keys));
     $this->assertSame($array_before, $array, 'Array was not modified');
   }
 
-  public static function providerSortByKeyArray() {
+  public static function providerSortByKeyArray(): array {
     return [
       // Non-numeric keys.
       [
@@ -75,14 +75,14 @@ class ArraysTest extends TestCase {
    * @covers ::sortByValueArray
    * @dataProvider dataProviderSortByValueArray
    */
-  public function testSortByValueArray($array, $values, $expected) {
+  public function testSortByValueArray(mixed $array, array $values, mixed $expected): void {
     $array_before = $array;
     $result = Arrays::sortByValueArray($array, $values);
     $this->assertSame($expected, $result);
     $this->assertSame($array_before, $array, 'Array was not modified');
   }
 
-  public static function dataProviderSortByValueArray() {
+  public static function dataProviderSortByValueArray(): array {
     return [
       [['a' => 3, 'b' => 1, 'c' => 2], [1, 2, 3], ['b' => 1, 'c' => 2, 'a' => 3]],
       [['a' => 'apple', 'b' => 'banana', 'c' => 'cherry'], ['cherry', 'banana', 'apple'], ['c' => 'cherry', 'b' => 'banana', 'a' => 'apple']],
@@ -97,12 +97,12 @@ class ArraysTest extends TestCase {
    * @covers ::reindex
    * @dataProvider dataProviderReindex
    */
-  public function testReindex($values, $start, $expected) {
+  public function testReindex(array $values, int $start, mixed $expected): void {
     $result = Arrays::reindex($values, $start);
     $this->assertSame($expected, $result);
   }
 
-  public static function dataProviderReindex() {
+  public static function dataProviderReindex(): array {
     return [
       [[1, 2, 3], 0, [0 => 1, 1 => 2, 2 => 3]],
       [['a', 'b', 'c'], 5, [5 => 'a', 6 => 'b', 7 => 'c']],

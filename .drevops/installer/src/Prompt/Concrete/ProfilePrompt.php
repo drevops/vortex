@@ -13,19 +13,19 @@ use DrevOps\Installer\Utils\Validator;
 
 class ProfilePrompt extends AbstractPrompt {
 
-  const ID = 'profile';
+  final const ID = 'profile';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Profile';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return 'What is your custom profile machine name?';
   }
 

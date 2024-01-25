@@ -10,19 +10,19 @@ use DrevOps\Installer\Utils\Formatter;
 
 class PreserveRenovatebotPrompt extends AbstractConfirmationPrompt {
 
-  const ID = 'preserve_renovatebot';
+  final const ID = 'preserve_renovatebot';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Renovatebot integration';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return 'Do you want to keep RenovateBot integration?';
   }
 

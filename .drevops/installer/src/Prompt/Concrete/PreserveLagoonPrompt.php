@@ -10,19 +10,19 @@ use DrevOps\Installer\Utils\Formatter;
 
 class PreserveLagoonPrompt extends AbstractConfirmationPrompt {
 
-  const ID = 'preserve_lagoon';
+  final const ID = 'preserve_lagoon';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Lagoon integration';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return 'Do you want to keep Amazee.io Lagoon integration?';
   }
 

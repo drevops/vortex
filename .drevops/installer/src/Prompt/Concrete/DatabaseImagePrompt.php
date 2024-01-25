@@ -13,19 +13,19 @@ use DrevOps\Installer\Utils\Validator;
 
 class DatabaseImagePrompt extends AbstractPrompt {
 
-  const ID = 'database_image';
+  final const ID = 'database_image';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Database image name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return ' What is your database Docker image name and a tag (e.g. drevops/drevops-mariadb-drupal-data:latest)?';
   }
 
@@ -54,7 +54,7 @@ class DatabaseImagePrompt extends AbstractPrompt {
    * {@inheritdoc}
    */
   protected function valueNormalizer($value, Config $config, Answers $answers): mixed {
-    return strtolower($value);
+    return strtolower((string) $value);
   }
 
   /**

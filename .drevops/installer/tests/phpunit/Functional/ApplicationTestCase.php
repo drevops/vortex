@@ -35,7 +35,7 @@ abstract class ApplicationTestCase extends FunctionalTestCase {
    * @return string
    *   The output.
    */
-  protected function execute($input, $options = []): string {
+  protected function execute(array $input, $options = []): string {
     $this->tester->run($input, $options + [
       'interactive' => FALSE,
     ]);

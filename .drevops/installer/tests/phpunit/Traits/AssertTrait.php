@@ -27,7 +27,7 @@ trait AssertTrait {
    * @param string ...$expected
    *   Varied number of expected substrings.
    */
-  public function assertStringContains($actual, ...$expected) {
+  public function assertStringContains($actual, ...$expected): void {
     foreach ($expected as $expected_item) {
       if (str_starts_with($expected_item, '- ')) {
         $this->assertStringNotContainsString(substr($expected_item, 2), $actual);

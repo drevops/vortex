@@ -8,7 +8,7 @@ use DrevOps\Installer\Prompt\AbstractPrompt;
 
 class TestPrompt extends AbstractPrompt {
 
-  const ID = 'test';
+  final const ID = 'test';
 
   public static function title() {
     return 'Fixture title';
@@ -18,7 +18,7 @@ class TestPrompt extends AbstractPrompt {
     return 'Fixture question';
   }
 
-  public function ask(Config $config, Answers $answers) {
+  public function ask(Config $config, Answers $answers): string {
     return 'Fixture answer';
   }
 

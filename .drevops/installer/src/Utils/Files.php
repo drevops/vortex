@@ -6,8 +6,8 @@ use RuntimeException;
 
 class Files {
 
-  public static function copyRecursive($source, $dest, $permissions = 0755, $copy_empty_dirs = FALSE) {
-    $parent = dirname($dest);
+  public static function copyRecursive($source, $dest, $permissions = 0755, $copy_empty_dirs = FALSE): bool {
+    $parent = dirname((string) $dest);
 
     if (!is_dir($parent)) {
       mkdir($parent, $permissions, TRUE);
@@ -20,8 +20,8 @@ class Files {
       $cur_dir = getcwd();
       chdir($parent);
       $ret = TRUE;
-      if (!is_readable(basename($dest))) {
-        $ret = symlink(readlink($source), basename($dest));
+      if (!is_readable(basename((string) $dest))) {
+        $ret = symlink(readlink($source), basename((string) $dest));
       }
       chdir($cur_dir);
 
@@ -46,7 +46,7 @@ class Files {
       if ($entry == '.' || $entry == '..') {
         continue;
       }
-      self::copyRecursive("$source/$entry", "$dest/$entry", $permissions, FALSE);
+      self::copyRecursive(sprintf('%s/%s', $source, $entry), sprintf('%s/%s', $dest, $entry), $permissions, FALSE);
     }
 
     $dir && $dir->close();
@@ -54,25 +54,25 @@ class Files {
     return TRUE;
   }
 
-  public static function rmdirRecursiveEmpty($directory, $options = []) {
+  public static function rmdirRecursiveEmpty($directory, $options = []): void {
     if (self::dirIsEmpty($directory)) {
       self::rmdirRecursive($directory, $options);
-      self::rmdirRecursiveEmpty(dirname($directory), $options);
+      self::rmdirRecursiveEmpty(dirname((string) $directory), $options);
     }
   }
 
-  public static function tempdir($dir = NULL, $prefix = 'tmp_', $mode = 0700, $max_attempts = 1000) {
+  public static function tempdir($dir = NULL, $prefix = 'tmp_', $mode = 0700, $max_attempts = 1000): false|string {
     if (is_null($dir)) {
       $dir = sys_get_temp_dir();
     }
 
-    $dir = rtrim($dir, DIRECTORY_SEPARATOR);
+    $dir = rtrim((string) $dir, DIRECTORY_SEPARATOR);
 
     if (!is_dir($dir) || !is_writable($dir)) {
       return FALSE;
     }
 
-    if (strpbrk($prefix, '\\/:*?"<>|') !== FALSE) {
+    if (strpbrk((string) $prefix, '\\/:*?"<>|') !== FALSE) {
       return FALSE;
     }
     $attempts = 0;
@@ -88,10 +88,10 @@ class Files {
     return $path;
   }
 
-  public static function replaceStringFilename($search, $replace, $dir) {
+  public static function replaceStringFilename($search, $replace, $dir): void {
     $files = self::scandirRecursive($dir, self::ignorePaths());
     foreach ($files as $filename) {
-      $new_filename = str_replace($search, $replace, $filename);
+      $new_filename = str_replace($search, $replace, (string) $filename);
       if ($filename != $new_filename) {
         $new_dir = dirname($new_filename);
         if (!is_dir($new_dir)) {
@@ -102,11 +102,14 @@ class Files {
     }
   }
 
-  public static function dirIsEmpty($directory) {
+  public static function dirIsEmpty($directory): bool {
     return is_dir($directory) && count(scandir($directory)) === 2;
   }
 
-  public static function scandirRecursive($dir, $ignore_paths = [], $include_dirs = FALSE) {
+  /**
+   * @return mixed[]
+   */
+  public static function scandirRecursive(string $dir, $ignore_paths = [], $include_dirs = FALSE): array {
     $discovered = [];
 
     if (is_dir($dir)) {
@@ -115,7 +118,7 @@ class Files {
         $path = $dir . '/' . $path;
         foreach ($ignore_paths as $ignore_path) {
           // Exlude based on sub-path match.
-          if (strpos($path, $ignore_path) !== FALSE) {
+          if (str_contains($path, (string) $ignore_path)) {
             continue(2);
           }
         }
@@ -134,7 +137,7 @@ class Files {
     return $discovered;
   }
 
-  public static function fileContains($needle, $file) {
+  public static function fileContains($needle, $file): int|bool {
     if (!is_readable($file)) {
       return FALSE;
     }
@@ -145,10 +148,10 @@ class Files {
       return preg_match($needle, $content);
     }
 
-    return str_contains($content, $needle);
+    return str_contains($content, (string) $needle);
   }
 
-  public static function dirReplaceContent($needle, $replacement, $dir) {
+  public static function dirReplaceContent($needle, $replacement, $dir): void {
     $files = self::scandirRecursive($dir, self::ignorePaths());
     foreach ($files as $filename) {
       self::fileReplaceContent($needle, $replacement, $filename);
@@ -163,7 +166,7 @@ class Files {
     $content = file_get_contents($filename);
 
     if (Strings::isRegex($needle)) {
-      $replaced = preg_replace($needle, $replacement, $content);
+      $replaced = preg_replace($needle, (string) $replacement, $content);
     }
     else {
       $replaced = str_replace($needle, $replacement, $content);
@@ -173,7 +176,7 @@ class Files {
     }
   }
 
-  public static function rmdirRecursive($directory, $options = []) {
+  public static function rmdirRecursive($directory, array $options = []): void {
     if (!isset($options['traverseSymlinks'])) {
       $options['traverseSymlinks'] = FALSE;
     }
@@ -194,7 +197,7 @@ class Files {
         unlink($item);
       }
     }
-    if (is_dir($directory = rtrim($directory, '\\/'))) {
+    if (is_dir($directory = rtrim((string) $directory, '\\/'))) {
       if (is_link($directory)) {
         unlink($directory);
       }
@@ -204,7 +207,7 @@ class Files {
     }
   }
 
-  public static function dirContains($needle, $dir) {
+  public static function dirContains($needle, $dir): bool {
     $files = self::scandirRecursive($dir, self::ignorePaths());
     foreach ($files as $filename) {
       if (self::fileContains($needle, $filename)) {
@@ -215,7 +218,7 @@ class Files {
     return FALSE;
   }
 
-  public static function getComposerJsonValue($name, $dir) {
+  public static function getComposerJsonValue($name, string $dir) {
     $composer_json = $dir . DIRECTORY_SEPARATOR . 'composer.json';
     if (is_readable($composer_json)) {
       $json = json_decode(file_get_contents($composer_json), TRUE);
@@ -253,7 +256,7 @@ class Files {
     return NULL;
   }
 
-  public static function ignorePaths() {
+  public static function ignorePaths(): array {
     return array_merge([
       '/.git/',
       '/.idea/',
@@ -263,7 +266,7 @@ class Files {
     ], self::internalPaths());
   }
 
-  public static function internalPaths() {
+  public static function internalPaths(): array {
     return [
       '/scripts/drevops/installer/install',
       '/LICENSE',
@@ -273,13 +276,13 @@ class Files {
     ];
   }
 
-  public static function isInternalPath($relative_path) {
-    $relative_path = '/' . ltrim($relative_path, './');
+  public static function isInternalPath($relative_path): bool {
+    $relative_path = '/' . ltrim((string) $relative_path, './');
 
     return in_array($relative_path, Files::internalPaths());
   }
 
-  public static function fileIsExcludedFromProcessing($filename) {
+  public static function fileIsExcludedFromProcessing($filename): int|false {
     $excluded_patterns = [
       '.+\.png',
       '.+\.jpg',
@@ -288,19 +291,19 @@ class Files {
       '.+\.tiff',
     ];
 
-    return preg_match('/^(' . implode('|', $excluded_patterns) . ')$/', $filename);
+    return preg_match('/^(' . implode('|', $excluded_patterns) . ')$/', (string) $filename);
   }
 
-  public static function globRecursive($pattern, $flags = 0) {
+  public static function globRecursive($pattern, $flags = 0): array|false {
     $files = glob($pattern, $flags | GLOB_BRACE);
-    foreach (glob(dirname($pattern) . '/{,.}*[!.]', GLOB_BRACE | GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
-      $files = array_merge($files, Files::globRecursive($dir . '/' . basename($pattern), $flags));
+    foreach (glob(dirname((string) $pattern) . '/{,.}*[!.]', GLOB_BRACE | GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
+      $files = array_merge($files, Files::globRecursive($dir . '/' . basename((string) $pattern), $flags));
     }
 
     return $files;
   }
 
-  public static function remove($file) {
+  public static function remove($file): void {
     @unlink($file);
   }
 

@@ -6,7 +6,7 @@ trait ReadOnlyTrait {
 
   protected $readOnly = FALSE;
 
-  public function setReadOnly($value = TRUE) {
+  public function setReadOnly($value = TRUE): void {
     $this->readOnly = $value;
   }
 

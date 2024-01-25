@@ -18,7 +18,7 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::__construct
    */
-  public function testConstructor() {
+  public function testConstructor(): void {
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Cannot instantiate Singleton class directly. Use ::getInstance() instead.');
     (new Config());
@@ -27,7 +27,7 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::getInstance
    */
-  public function ConfigInstance() {
+  public function ConfigInstance(): void {
     $first = Config::getInstance();
     $second = Config::getInstance();
 
@@ -37,32 +37,28 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::__clone
    */
-  public function testCloneIsDisabled() {
-    $instance = Config::getInstance();
+  public function testCloneIsDisabled(): void {
+    Config::getInstance();
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Cloning of Singleton is disallowed.');
-
-    $clone = clone $instance;
   }
 
   /**
    * @covers ::__wakeup
    */
-  public function testUnserializeIsDisabled() {
+  public function testUnserializeIsDisabled(): void {
     $instance = Config::getInstance();
-    $serializedInstance = serialize($instance);
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Unserializing instances of Singleton classes is disallowed.');
-    $unserializedInstance = unserialize($serializedInstance);
   }
 
   /**
    * @covers ::get
    * @covers ::set
    */
-  public function testSetAndGet() {
+  public function testSetAndGet(): void {
     $config = Config::getInstance();
 
     $config->set('testKey', 'testValue');
@@ -73,7 +69,7 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::set
    */
-  public function testSetAndGetReadonly() {
+  public function testSetAndGetReadonly(): void {
     $config = Config::getInstance();
 
     $this->expectException(\RuntimeException::class);
@@ -87,7 +83,7 @@ class ConfigTest extends UnitTestBase {
    * @covers ::getAll
    * @covers ::__construct
    */
-  public function testGetAll() {
+  public function testGetAll(): void {
     $config = Config::getInstance();
 
     $internal_keys = self::getAllConfigKeys();
@@ -107,7 +103,7 @@ class ConfigTest extends UnitTestBase {
    * @covers ::__construct
    * @covers ::collectFromEnv
    */
-  public function testGetAllEnv() {
+  public function testGetAllEnv(): void {
     // Override internal env var.
     static::envSet(Env::INSTALLER_LOCAL_REPO, 'some/path');
     // Override non-internal env var.
@@ -132,7 +128,7 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::fromValues
    */
-  public function testFromValues() {
+  public function testFromValues(): void {
     $config = Config::getInstance();
     $config->fromValues([
       'keyA' => 'valueA',
@@ -156,7 +152,7 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::clear
    */
-  public function testClear() {
+  public function testClear(): void {
     $config = Config::getInstance();
 
     $config->set('someKey', 'someValue');
@@ -169,7 +165,7 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::isQuiet
    */
-  public function testIsQuiet() {
+  public function testIsQuiet(): void {
     $config = Config::getInstance();
     $this->assertEquals(FALSE, $config->isQuiet());
 
@@ -180,7 +176,7 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::getDstDir
    */
-  public function testGetDstDirDefault() {
+  public function testGetDstDirDefault(): void {
     $config = Config::getInstance();
     $this->assertEquals(getcwd(), $config->getDstDir());
   }
@@ -188,7 +184,7 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::getDstDir
    */
-  public function testGetDstDirEnv() {
+  public function testGetDstDirEnv(): void {
     static::envSet(Env::INSTALLER_DST_DIR, 'dst');
     $config = Config::getInstance();
     $this->assertEquals('dst', $config->getDstDir());
@@ -197,7 +193,7 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::getWebroot
    */
-  public function testGetWebrootDefault() {
+  public function testGetWebrootDefault(): void {
     $config = Config::getInstance();
     $this->assertEquals('web', $config->getWebroot());
   }
@@ -205,13 +201,13 @@ class ConfigTest extends UnitTestBase {
   /**
    * @covers ::getWebroot
    */
-  public function testGetWebrootEnv() {
+  public function testGetWebrootEnv(): void {
     static::envSet(Env::WEBROOT, 'rootdoc');
     $config = Config::getInstance();
     $this->assertEquals('rootdoc', $config->getWebroot());
   }
 
-  protected static function getAllConfigKeys() {
+  protected static function getAllConfigKeys(): array {
     return [
       Env::DB_DIR,
       Env::DB_DOCKER_IMAGE,

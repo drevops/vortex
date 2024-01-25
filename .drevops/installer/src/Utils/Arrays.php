@@ -57,11 +57,10 @@ class Arrays {
   public static function sortByValueArray(array $array, array $values): array {
     $sorted = $array;
 
-    uasort($sorted, function($a, $b) use ($values) {
-      $a_index = array_search($a, $values);
-      $b_index = array_search($b, $values);
-
-      return ($a_index === false ? PHP_INT_MAX : $a_index) <=> ($b_index === false ? PHP_INT_MAX : $b_index);
+    uasort($sorted, static function ($a, $b) use ($values) : int {
+        $a_index = array_search($a, $values, true);
+        $b_index = array_search($b, $values, true);
+        return ($a_index === false ? PHP_INT_MAX : $a_index) <=> ($b_index === false ? PHP_INT_MAX : $b_index);
     });
 
     // Preserve non-numeric keys and reset numeric ones
@@ -78,9 +77,9 @@ class Arrays {
   }
 
   public static function reindex(array $values, $start): array {
-    return !empty($values)
-      ? array_combine(range($start, count($values) + $start - 1), $values)
-      : [];
+    return empty($values)
+      ? []
+      : array_combine(range($start, count($values) + $start - 1), $values);
   }
 
 }

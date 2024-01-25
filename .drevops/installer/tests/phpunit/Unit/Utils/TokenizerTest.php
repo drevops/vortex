@@ -11,7 +11,7 @@ use DrevOps\Installer\Utils\Tokenizer;
  */
 class TokenizerTest extends UnitTestBase {
 
-  public function setUp(): void {
+  protected function setUp(): void {
     parent::setUp();
     $this->prepareFixtureDir();
   }
@@ -25,7 +25,7 @@ class TokenizerTest extends UnitTestBase {
    * @covers       ::removeTokenFromFile
    * @dataProvider dataProviderRemoveTokenFromFile
    */
-  public function testRemoveTokenFromFile($file, $begin, $end, $with_content, $expect_exception, $expected_file) {
+  public function testRemoveTokenFromFile(string $file, string $begin, string $end, bool $with_content, bool $expect_exception, string $expected_file): void {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree([$file], $tokens_dir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
@@ -42,7 +42,7 @@ class TokenizerTest extends UnitTestBase {
     $this->assertFileEquals($expected_file, $created_file);
   }
 
-  public static function dataProviderRemoveTokenFromFile() {
+  public static function dataProviderRemoveTokenFromFile(): array {
     return [
       ['empty.txt', 'FOO', 'FOO', TRUE, FALSE, 'empty.txt'],
 

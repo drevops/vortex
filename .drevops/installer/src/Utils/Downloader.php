@@ -8,7 +8,7 @@ use RuntimeException;
 class Downloader {
 
   public static function findLatestDrevopsRelease($org, $project, $release_prefix) {
-    $release_url = "https://api.github.com/repos/{$org}/{$project}/releases";
+    $release_url = sprintf('https://api.github.com/repos/%s/%s/releases', $org, $project);
     $release_contents = file_get_contents($release_url, FALSE, stream_context_create([
       'http' => ['method' => 'GET', 'header' => ['User-Agent: PHP']],
     ]));
@@ -19,13 +19,13 @@ class Downloader {
 
     $records = json_decode($release_contents, TRUE);
     foreach ($records as $record) {
-      if (isset($record['tag_name']) && strpos($record['tag_name'], $release_prefix) === 0) {
+      if (isset($record['tag_name']) && str_starts_with((string) $record['tag_name'], (string) $release_prefix)) {
         return $record['tag_name'];
       }
     }
   }
 
-  public static function downloadRemote() {
+  public static function downloadRemote(): void {
     $dst = Config::get(Env::DREVOPS_INSTALLER_TMP_DIR);
     $org = 'drevops';
     $project = 'drevops';
@@ -36,9 +36,9 @@ class Downloader {
       $ref = Downloader::findLatestDrevopsRelease($org, $project, $release_prefix);
     }
 
-    $url = "https://github.com/{$org}/{$project}/archive/{$ref}.tar.gz";
+    $url = sprintf('https://github.com/%s/%s/archive/%s.tar.gz', $org, $project, $ref);
     Output::status(sprintf('Downloading DrevOps from the remote repository "%s" at ref "%s".', $url, $ref), Output::INSTALLER_STATUS_MESSAGE, FALSE);
-    Executor::doExec("curl -sS -L \"$url\" | tar xzf - -C \"{$dst}\" --strip 1", $output, $code);
+    Executor::doExec(sprintf('curl -sS -L "%s" | tar xzf - -C "%s" --strip 1', $url, $dst), $output, $code);
 
     if ($code != 0) {
       throw new RuntimeException(implode(PHP_EOL, $output));
@@ -49,14 +49,14 @@ class Downloader {
     Output::status('Done', Output::INSTALLER_STATUS_SUCCESS);
   }
 
-  public static function downloadLocal() {
+  public static function downloadLocal(): void {
     $dst = Config::get(Env::DREVOPS_INSTALLER_TMP_DIR);
     $repo = Config::get(Env::DREVOPS_INSTALLER_LOCAL_REPO);
     $ref = Config::get(Env::DREVOPS_INSTALLER_COMMIT);
 
     Output::status(sprintf('Downloading DrevOps from the local repository "%s" at ref "%s".', $repo, $ref), Output::INSTALLER_STATUS_MESSAGE, FALSE);
 
-    $command = "git --git-dir=\"{$repo}/.git\" --work-tree=\"{$repo}\" archive --format=tar \"{$ref}\" | tar xf - -C \"{$dst}\"";
+    $command = sprintf('git --git-dir="%s/.git" --work-tree="%s" archive --format=tar "%s" | tar xf - -C "%s"', $repo, $repo, $ref, $dst);
     Executor::doExec($command, $output, $code);
 
     Output::status(implode(PHP_EOL, $output), Output::INSTALLER_STATUS_DEBUG);
@@ -74,7 +74,7 @@ class Downloader {
   /**
    * Download DrevOps source files.
    */
-  public function download() {
+  public function download(): void {
     if (Config::get(Env::DREVOPS_INSTALLER_LOCAL_REPO)) {
       Downloader::downloadLocal();
     }

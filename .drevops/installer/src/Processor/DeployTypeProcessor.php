@@ -20,20 +20,20 @@ class DeployTypeProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     $type = $config->get('deploy_type');
     if ($type && $type != DeployTypePrompt::CHOICE_NONE) {
-      Files::fileReplaceContent('/' . Env::DEPLOY_TYPES . '=.*/', Env::DEPLOY_TYPES . "=$type", $dir . '/.env');
+      Files::fileReplaceContent('/' . Env::DEPLOY_TYPES . '=.*/', Env::DEPLOY_TYPES . ('=' . $type), $dir . '/.env');
 
-      if (!str_contains($type, DeployTypePrompt::CHOICE_ARTIFACT)) {
-        Files::remove("$dir/.gitignore.deployment");
+      if (!str_contains((string) $type, DeployTypePrompt::CHOICE_ARTIFACT)) {
+        Files::remove($dir . '/.gitignore.deployment');
       }
 
       Tokenizer::removeTokenWithContentFromDir('!' . Token::DEPLOYMENT, $dir);
     }
     else {
-      Files::remove("$dir/docs/DEPLOYMENT.md");
-      Files::remove("$dir/.gitignore.deployment");
+      Files::remove($dir . '/docs/DEPLOYMENT.md');
+      Files::remove($dir . '/.gitignore.deployment');
       Tokenizer::removeTokenWithContentFromDir(Token::DEPLOYMENT, $dir);
     }
   }

@@ -16,7 +16,7 @@ class WebrootProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     $new_name = $config->get('webroot', 'web');
 
     if ($new_name != 'web') {

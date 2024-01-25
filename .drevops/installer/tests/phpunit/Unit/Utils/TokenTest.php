@@ -14,7 +14,7 @@ class TokenTest extends UnitTestBase {
   /**
    * @covers ::getConstants
    */
-  public function testGetConstants() {
+  public function testGetConstants(): void {
     $constants = Token::getConstants();
 
     $this->assertIsArray($constants);

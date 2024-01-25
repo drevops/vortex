@@ -7,15 +7,15 @@ use RuntimeException;
 
 class Tokenizer {
 
-  public static function removeTokenWithContentFromDir($token, $dir) {
+  public static function removeTokenWithContentFromDir(string $token, $dir): void {
     self::validateToken($token);
     $files = Files::scandirRecursive($dir, Files::ignorePaths());
     foreach ($files as $filename) {
-      self::removeTokenFromFile($filename, "#;< $token", "#;> $token", TRUE);
+      self::removeTokenFromFile($filename, '#;< ' . $token, '#;> ' . $token, TRUE);
     }
   }
 
-  public static function removeTokenLineFromDir($token, $dir) {
+  public static function removeTokenLineFromDir($token, $dir): void {
     if (!empty($token)) {
       self::validateToken($token);
       $files = Files::scandirRecursive($dir, Files::ignorePaths());
@@ -25,7 +25,7 @@ class Tokenizer {
     }
   }
 
-  public static function removeTokenFromFile($filename, $token_begin, $token_end = NULL, $with_content = FALSE) {
+  public static function removeTokenFromFile($filename, $token_begin, $token_end = NULL, $with_content = FALSE): void {
     if (Files::fileIsExcludedFromProcessing($filename)) {
       return;
     }
@@ -35,13 +35,13 @@ class Tokenizer {
     file_put_contents($filename, $newContent);
   }
 
-  public static function removeTokensFromString($content, $token_begin, $token_end = NULL, $with_content = FALSE) {
+  public static function removeTokensFromString($content, $token_begin, $token_end = NULL, $with_content = FALSE): string {
     $token_end = $token_end ?? $token_begin;
 
     if ($token_begin != $token_end) {
-      $token_begin_count = preg_match_all('/' . preg_quote($token_begin) . '/', $content);
-      $token_end_count = preg_match_all('/' . preg_quote($token_end) . '/', $content);
-      if ($token_begin_count != $token_end_count) {
+      $token_begin_count = preg_match_all('/' . preg_quote((string) $token_begin) . '/', (string) $content);
+      $token_end_count = preg_match_all('/' . preg_quote((string) $token_end) . '/', (string) $content);
+      if ($token_begin_count !== $token_end_count) {
         throw new RuntimeException(sprintf('Invalid begin and end token count: begin is %s(%s), end is %s(%s).', $token_begin, $token_begin_count, $token_end, $token_end_count));
       }
     }
@@ -49,15 +49,15 @@ class Tokenizer {
     $out = [];
     $within_token = FALSE;
 
-    $lines = explode(PHP_EOL, $content);
+    $lines = explode(PHP_EOL, (string) $content);
     foreach ($lines as $line) {
-      if (strpos($line, $token_begin) !== FALSE) {
+      if (str_contains($line, (string) $token_begin)) {
         if ($with_content) {
           $within_token = TRUE;
         }
         continue;
       }
-      elseif (strpos($line, $token_end) !== FALSE) {
+      elseif (str_contains($line, (string) $token_end)) {
         if ($with_content) {
           $within_token = FALSE;
         }

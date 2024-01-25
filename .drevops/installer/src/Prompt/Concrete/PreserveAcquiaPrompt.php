@@ -12,19 +12,19 @@ use DrevOps\Installer\Utils\Formatter;
 
 class PreserveAcquiaPrompt extends AbstractConfirmationPrompt {
 
-  const ID = 'preserve_acquia';
+  final const ID = 'preserve_acquia';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Acquia integration';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return 'Do you want to keep Acquia Cloud integration?';
   }
 
@@ -45,7 +45,7 @@ class PreserveAcquiaPrompt extends AbstractConfirmationPrompt {
 
     $value = DotEnv::getValueFromDstDotenv($config->getDstDir(), Env::DB_DOWNLOAD_SOURCE);
 
-    return !is_null($value) ? $value == 'acquia' : NULL;
+    return is_null($value) ? NULL : $value == 'acquia';
   }
 
   /**

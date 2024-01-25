@@ -18,12 +18,12 @@ class PreserveRenovatebotProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     if ($config->get('preserve_renovatebot')) {
       Tokenizer::removeTokenWithContentFromDir('!' . Token::RENOVATEBOT, $dir);
     }
     else {
-      Files::remove("$dir/renovate.json");
+      Files::remove($dir . '/renovate.json');
       Tokenizer::removeTokenWithContentFromDir(Token::RENOVATEBOT, $dir);
     }
   }

@@ -18,7 +18,7 @@ class PreserveDocCommentsProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     if ($config->get('preserve_doc_comments')) {
       // Replace special "#: " comments with normal "#" comments.
       Files::dirReplaceContent(Token::COMMENT_DOC, '#', $dir);

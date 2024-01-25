@@ -10,7 +10,7 @@ use DrevOps\Installer\Trait\ReadOnlyTrait;
  */
 class ReadOnlyTraitTest extends TestCase {
 
-  private $subject;
+  private object $subject;
 
   protected function setUp(): void {
     $this->subject = new class {
@@ -21,7 +21,7 @@ class ReadOnlyTraitTest extends TestCase {
   /**
    * @covers ::isReadOnly
    */
-  public function testIsInitiallyNotReadOnly() {
+  public function testIsInitiallyNotReadOnly(): void {
     $this->assertFalse($this->subject->isReadOnly());
   }
 
@@ -29,7 +29,7 @@ class ReadOnlyTraitTest extends TestCase {
    * @covers ::setReadOnly
    * @covers ::isReadOnly
    */
-  public function testCanBeMadeReadOnly() {
+  public function testCanBeMadeReadOnly(): void {
     $this->subject->setReadOnly();
 
     $this->assertTrue($this->subject->isReadOnly());

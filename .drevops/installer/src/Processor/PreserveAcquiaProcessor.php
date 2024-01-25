@@ -18,12 +18,12 @@ class PreserveAcquiaProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     if ($config->get('preserve_acquia')) {
       Tokenizer::removeTokenWithContentFromDir('!' . Token::ACQUIA, $dir);
     }
     else {
-      Files::rmdirRecursive("$dir/hooks");
+      Files::rmdirRecursive($dir . '/hooks');
       Tokenizer::removeTokenWithContentFromDir(Token::ACQUIA, $dir);
     }
   }

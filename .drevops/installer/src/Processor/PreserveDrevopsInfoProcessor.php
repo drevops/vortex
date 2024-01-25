@@ -17,7 +17,7 @@ class PreserveDrevopsInfoProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     if (!$config->get('preserve_drevops_info')) {
       // Remove code required for DrevOps maintenance.
       Tokenizer::removeTokenWithContentFromDir(Token::DREVOPS_DEV, $dir);

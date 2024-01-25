@@ -9,19 +9,19 @@ use DrevOps\Installer\Utils\Files;
 
 class PreserveDocCommentsPrompt extends AbstractConfirmationPrompt {
 
-  const ID = 'preserve_doc_comments';
+  final const ID = 'preserve_doc_comments';
 
   /**
    * {@inheritdoc}
    */
-  public static function title() {
+  public static function title(): string {
     return 'Preserve docs in comments';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question() {
+  public static function question(): string {
     return 'Do you want to keep detailed documentation in comments?';
   }
 

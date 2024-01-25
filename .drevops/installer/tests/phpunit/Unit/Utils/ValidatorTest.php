@@ -14,7 +14,7 @@ class ValidatorTest extends TestCase {
    * @dataProvider dataProviderNotEmpty
    * @covers ::notEmpty
    */
-  public function testNotEmpty($value, $expected) {
+  public function testNotEmpty(string|int|array|null $value, bool $expected): void {
     if ($expected) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('The value cannot be empty.');
@@ -27,7 +27,7 @@ class ValidatorTest extends TestCase {
     }
   }
 
-  public static function dataProviderNotEmpty() {
+  public static function dataProviderNotEmpty(): array {
     return [
       [NULL, TRUE],
       ['', TRUE],
@@ -43,7 +43,7 @@ class ValidatorTest extends TestCase {
    * @dataProvider dataProviderHumanName
    * @covers ::humanName
    */
-  public function testHumanName($value, $expected) {
+  public function testHumanName(?string $value, bool $expected): void {
     if ($expected) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('The name must contain only letters, numbers, and dashes.');
@@ -56,7 +56,7 @@ class ValidatorTest extends TestCase {
     }
   }
 
-  public static function dataProviderHumanName() {
+  public static function dataProviderHumanName(): array {
     return [
       ['John-Doe', FALSE],
       ['JohnDoe123', FALSE],
@@ -71,7 +71,7 @@ class ValidatorTest extends TestCase {
    * @dataProvider dataProviderMachineName
    * @covers ::machineName
    */
-  public function testMachineName($value, $expected) {
+  public function testMachineName(?string $value, bool $expected): void {
     if ($expected) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('The name must contain only lowercase letters, numbers, and underscores.');
@@ -84,7 +84,7 @@ class ValidatorTest extends TestCase {
     }
   }
 
-  public static function dataProviderMachineName() {
+  public static function dataProviderMachineName(): array {
     return [
       ['machine_name', FALSE],
       [NULL, TRUE],
@@ -99,7 +99,7 @@ class ValidatorTest extends TestCase {
    * @dataProvider dataProviderInList
    * @covers ::inList
    */
-  public function testInList($items, $value, $is_multiple, $expected) {
+  public function testInList(array $items, string|array $value, bool $is_multiple, bool|array $expected): void {
     if ($expected) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('The following values are not valid: ' . implode(', ', $expected));
@@ -112,7 +112,7 @@ class ValidatorTest extends TestCase {
     }
   }
 
-  public static function dataProviderInList() {
+  public static function dataProviderInList(): array {
     return [
       [[], 'apple', FALSE, ['apple']],
       [['apple', 'orange'], 'apple', FALSE, FALSE],
@@ -130,7 +130,7 @@ class ValidatorTest extends TestCase {
    * @dataProvider dataProviderDockerImageName
    * @covers ::dockerImageName
    */
-  public function testDockerImageName($value, $expected) {
+  public function testDockerImageName(?string $value, bool $expected): void {
     if ($expected) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('The name must contain only lowercase letters, numbers, dashes, and underscores.');
@@ -143,7 +143,7 @@ class ValidatorTest extends TestCase {
     }
   }
 
-  public static function dataProviderDockerImageName() {
+  public static function dataProviderDockerImageName(): array {
     return [
       ['alpine', FALSE],
       ['alpine:latest', FALSE],
@@ -185,7 +185,7 @@ class ValidatorTest extends TestCase {
    * @dataProvider dataProviderUrl
    * @covers ::url
    */
-  public function testUrl($value, $require_protocol, $expected) {
+  public function testUrl(?string $value, bool $require_protocol, bool $expected): void {
     if ($expected) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('The URL is not valid.');
@@ -198,7 +198,7 @@ class ValidatorTest extends TestCase {
     }
   }
 
-  public static function dataProviderUrl() {
+  public static function dataProviderUrl(): array {
     return [
       ['example.com', FALSE, FALSE],
       ['example.com/', FALSE, FALSE],

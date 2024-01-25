@@ -17,7 +17,7 @@ class PreserveFtpProcessor extends AbstractProcessor {
   /**
    * {@inheritdoc}
    */
-  public function run(Config $config, string $dir, OutputInterface $output) {
+  public function run(Config $config, string $dir, OutputInterface $output): void {
     if ($config->get('preserve_ftp')) {
       Tokenizer::removeTokenWithContentFromDir('!'.Token::FTP, $dir);
     }

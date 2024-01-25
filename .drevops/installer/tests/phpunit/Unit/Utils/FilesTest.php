@@ -16,7 +16,7 @@ use DrevOps\Installer\Utils\Files;
  */
 class FilesTest extends UnitTestBase {
 
-  public function setUp(): void {
+  protected function setUp(): void {
     parent::setUp();
     $this->prepareFixtureDir();
   }
@@ -29,7 +29,7 @@ class FilesTest extends UnitTestBase {
   /**
    * @covers \Drevops\Installer\Utils\Files::copyRecursive
    */
-  public function testCopyRecursive() {
+  public function testCopyRecursive(): void {
     $files_dir = $this->getFixtureDir('copyfiles');
 
     $this->callProtectedMethod(Files::class, 'copyRecursive', [$files_dir, $this->fixtureDir]);
@@ -66,7 +66,7 @@ class FilesTest extends UnitTestBase {
    * @dataProvider dataProviderFileContains
    * @covers       \DrevOps\Installer\Utils\Files::fileContains
    */
-  public function testFileContains($string, $file, $expected) {
+  public function testFileContains(string $string, string $file, mixed $expected): void {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree([$file], $tokens_dir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
@@ -77,7 +77,7 @@ class FilesTest extends UnitTestBase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderFileContains() {
+  public static function dataProviderFileContains(): array {
     return [
       ['FOO', 'empty.txt', FALSE],
       ['BAR', 'foobar_b.txt', TRUE],
@@ -94,7 +94,7 @@ class FilesTest extends UnitTestBase {
    * @dataProvider dataProviderDirContains
    * @covers       \DrevOps\Installer\Utils\Files::dirContains
    */
-  public function testDirContains($string, $files, $expected) {
+  public function testDirContains(string $string, array $files, mixed $expected): void {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree($files, $tokens_dir);
     $this->createFixtureFiles($files, $tokens_dir);
@@ -104,7 +104,7 @@ class FilesTest extends UnitTestBase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderDirContains() {
+  public static function dataProviderDirContains(): array {
     return [
       ['FOO', ['empty.txt'], FALSE],
       ['BAR', ['foobar_b.txt'], TRUE],
@@ -123,14 +123,14 @@ class FilesTest extends UnitTestBase {
    * @covers       \DrevOps\Installer\Utils\Files::dirReplaceContent
    * @dataProvider dataProviderDirReplaceContent
    */
-  public function testDirReplaceContent($files, $expected_files) {
+  public function testDirReplaceContent(array $files, array $expected_files): void {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree($files, $tokens_dir);
     $expected_files = $this->flattenFileTree($expected_files, $tokens_dir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
 
-    if (count($created_files) != count($expected_files)) {
-      throw new \RuntimeException(sprintf('Provided files number is not equal to expected files number.'));
+    if (count($created_files) !== count($expected_files)) {
+      throw new \RuntimeException('Provided files number is not equal to expected files number.');
     }
 
     $this->callProtectedMethod(Files::class, 'dirReplaceContent', ['BAR', 'FOO', $this->fixtureDir]);
@@ -140,7 +140,7 @@ class FilesTest extends UnitTestBase {
     }
   }
 
-  public static function dataProviderDirReplaceContent() {
+  public static function dataProviderDirReplaceContent(): array {
     return [
       [
         ['empty.txt'],
@@ -161,14 +161,14 @@ class FilesTest extends UnitTestBase {
    * @covers       \DrevOps\Installer\Utils\Files::replaceStringFilename
    * @dataProvider dataProviderReplaceStringFilename
    */
-  public function testReplaceStringFilename($files, $expected_files) {
+  public function testReplaceStringFilename(array $files, array $expected_files): void {
     $tokens_dir = $this->getFixtureDir('tokens');
     $files = $this->flattenFileTree($files, $tokens_dir);
     $expected_files = $this->flattenFileTree($expected_files, $this->fixtureDir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir, FALSE);
 
-    if (count($created_files) != count($expected_files)) {
-      throw new \RuntimeException(sprintf('Provided files number is not equal to expected files number.'));
+    if (count($created_files) !== count($expected_files)) {
+      throw new \RuntimeException('Provided files number is not equal to expected files number.');
     }
 
     $this->callProtectedMethod(Files::class, 'replaceStringFilename', ['foo', 'bar', $this->fixtureDir]);
@@ -178,7 +178,7 @@ class FilesTest extends UnitTestBase {
     }
   }
 
-  public static function dataProviderReplaceStringFilename() {
+  public static function dataProviderReplaceStringFilename(): array {
     return [
       [
         ['empty.txt'],

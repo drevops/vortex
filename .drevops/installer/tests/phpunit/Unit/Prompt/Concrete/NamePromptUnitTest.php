@@ -36,7 +36,7 @@ class NamePromptUnitTest extends ConcretePromptUnitTestCase {
       ],
 
       [
-        static::fnw(fn() => static::envSet(Env::PROJECT, static::PROJECT_NAME_VALID)),
+        static::fnw(static fn() => static::envSet(Env::PROJECT, static::PROJECT_NAME_VALID)),
         [],
         [],
         static::PROJECT_NAME_VALID,
@@ -44,30 +44,30 @@ class NamePromptUnitTest extends ConcretePromptUnitTestCase {
 
       // There is no validation within the value discovery.
       [
-        static::fnw(fn() => static::envSet(Env::PROJECT, static::PROJECT_NAME_INVALID)),
+        static::fnw(static fn() => static::envSet(Env::PROJECT, static::PROJECT_NAME_INVALID)),
         [],
         [],
         static::PROJECT_NAME_INVALID,
       ],
 
       [
-        static::fnw(fn() => static::fixturesCreateComposerjson(static::$fixtureDstDirs['installed'], static::COMPOSERJSON_DESCRIPTION_VALID)),
+        static::fnw(static fn() => static::fixturesCreateComposerjson(static::$fixtureDstDirs['installed'], static::COMPOSERJSON_DESCRIPTION_VALID)),
         [],
         [],
         basename(getcwd()),
       ],
 
       [
-        static::fnw(fn() => static::fixturesCreateComposerjson(static::$fixtureDstDirs['installed'], static::COMPOSERJSON_DESCRIPTION_VALID)),
+        static::fnw(static fn() => static::fixturesCreateComposerjson(static::$fixtureDstDirs['installed'], static::COMPOSERJSON_DESCRIPTION_VALID)),
         [Env::INSTALLER_DST_DIR => static::$fixtureDstDirs['installed']],
         [],
-        basename(static::$fixtureDstDirs['installed']),
+        basename((string) static::$fixtureDstDirs['installed']),
       ],
 
       [
-        static::fnw(function () {
-          static::envSet(Env::PROJECT, static::PROJECT_NAME_VALID);
-          static::fixturesCreateComposerjson(static::$fixtureDstDirs['installed'], static::COMPOSERJSON_DESCRIPTION_VALID);
+        static::fnw(static function () : void {
+            static::envSet(Env::PROJECT, static::PROJECT_NAME_VALID);
+            static::fixturesCreateComposerjson(static::$fixtureDstDirs['installed'], static::COMPOSERJSON_DESCRIPTION_VALID);
         }),
         [Env::INSTALLER_DST_DIR => static::$fixtureDstDirs['installed']],
         [],
