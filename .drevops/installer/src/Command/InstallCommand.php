@@ -2,6 +2,7 @@
 
 namespace DrevOps\Installer\Command;
 
+use DrevOps\Installer\Bag\AbstractBag;
 use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\InstallManager;
 use DrevOps\Installer\PrintManager;
@@ -117,7 +118,7 @@ class InstallCommand extends Command {
     return self::SUCCESS;
   }
 
-  protected function askQuestions() {
+  protected function askQuestions(): AbstractBag {
     $this->questionManager->askQuestions(function (PromptManager $qm): void {
       $is_installed = InstallManager::isInstalled($this->config->getDstDir());
 

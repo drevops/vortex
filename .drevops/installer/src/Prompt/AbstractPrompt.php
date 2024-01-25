@@ -12,12 +12,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 abstract class AbstractPrompt {
 
   public function __construct(
-      /**
-       * The IO interface.
-       */
-      protected SymfonyStyle $io
-  )
-  {
+    /**
+     * The IO interface.
+     */
+    protected SymfonyStyle $io
+  ) {
   }
 
   public function ask(Config $config, Answers $answers) {
@@ -65,7 +64,7 @@ abstract class AbstractPrompt {
    * @return string
    *  The question title.
    */
-  public static function title(): never {
+  public static function title(): string {
     throw new Exception('The question title is not defined.');
   }
 
@@ -75,7 +74,7 @@ abstract class AbstractPrompt {
    * @return string
    *  The question text.
    */
-  public static function question(): never {
+  public static function question(): string {
     throw new Exception('The question text is not defined.');
   }
 
