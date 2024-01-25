@@ -3,6 +3,7 @@
 namespace Drevops\Installer\Tests\Unit;
 
 use DrevOps\Installer\Tests\Traits\ClosureWrapperTrait;
+use Drevops\Installer\Tests\Traits\MockTrait;
 use DrevOps\Installer\Utils\Files;
 use Drevops\Installer\Tests\Traits\ReflectionTrait;
 use PHPUnit\Framework\TestCase;
@@ -19,6 +20,7 @@ use Symfony\Component\Filesystem\Filesystem;
 abstract class UnitTestBase extends TestCase {
 
   use ClosureWrapperTrait;
+  use MockTrait;
   use ReflectionTrait;
 
   /**
