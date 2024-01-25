@@ -45,7 +45,7 @@ class AnswersTest extends UnitTestBase {
    * @covers ::__wakeup
    */
   public function testUnserializeIsDisabled(): void {
-    $instance = Answers::getInstance();
+    Answers::getInstance();
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Unserializing instances of Singleton classes is disallowed.');

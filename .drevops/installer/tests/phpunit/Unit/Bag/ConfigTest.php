@@ -48,7 +48,7 @@ class ConfigTest extends UnitTestBase {
    * @covers ::__wakeup
    */
   public function testUnserializeIsDisabled(): void {
-    $instance = Config::getInstance();
+    Config::getInstance();
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Unserializing instances of Singleton classes is disallowed.');

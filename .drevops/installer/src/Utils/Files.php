@@ -88,7 +88,7 @@ class Files {
     return $path;
   }
 
-  public static function replaceStringFilename($search, $replace, $dir): void {
+  public static function replaceStringFilename($search, $replace, string $dir): void {
     $files = self::scandirRecursive($dir, self::ignorePaths());
     foreach ($files as $filename) {
       $new_filename = str_replace($search, $replace, (string) $filename);
@@ -151,7 +151,7 @@ class Files {
     return str_contains($content, (string) $needle);
   }
 
-  public static function dirReplaceContent($needle, $replacement, $dir): void {
+  public static function dirReplaceContent($needle, $replacement, string $dir): void {
     $files = self::scandirRecursive($dir, self::ignorePaths());
     foreach ($files as $filename) {
       self::fileReplaceContent($needle, $replacement, $filename);
@@ -207,7 +207,7 @@ class Files {
     }
   }
 
-  public static function dirContains($needle, $dir): bool {
+  public static function dirContains($needle, string $dir): bool {
     $files = self::scandirRecursive($dir, self::ignorePaths());
     foreach ($files as $filename) {
       if (self::fileContains($needle, $filename)) {

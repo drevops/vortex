@@ -7,7 +7,7 @@ use RuntimeException;
 
 class Tokenizer {
 
-  public static function removeTokenWithContentFromDir(string $token, $dir): void {
+  public static function removeTokenWithContentFromDir(string $token, string $dir): void {
     self::validateToken($token);
     $files = Files::scandirRecursive($dir, Files::ignorePaths());
     foreach ($files as $filename) {
@@ -15,7 +15,7 @@ class Tokenizer {
     }
   }
 
-  public static function removeTokenLineFromDir($token, $dir): void {
+  public static function removeTokenLineFromDir($token, string $dir): void {
     if (!empty($token)) {
       self::validateToken($token);
       $files = Files::scandirRecursive($dir, Files::ignorePaths());

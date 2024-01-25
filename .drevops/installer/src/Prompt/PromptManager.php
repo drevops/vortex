@@ -30,7 +30,7 @@ class PromptManager {
     return $this;
   }
 
-  public function ask($question_id, $is_quiet = FALSE) {
+  public function ask(string $question_id, $is_quiet = FALSE) {
     $class = $this->getPromptClass($question_id);
 
     // Allow to override asking the questions verbosely to re-use the same
@@ -45,15 +45,15 @@ class PromptManager {
     return $answer;
   }
 
-  public function getAnswers() {
+  public function getAnswers(): AbstractBag {
     return $this->answers;
   }
 
-  public function getAnswer($question_id, $default = NULL) {
+  public function getAnswer(string $question_id, $default = NULL) {
     return $this->answers->get($question_id, $default);
   }
 
-  public function setAnswer($question_id, $value): static {
+  public function setAnswer(string $question_id, mixed $value): static {
     $this->answers->set($question_id, $value);
 
     return $this;
