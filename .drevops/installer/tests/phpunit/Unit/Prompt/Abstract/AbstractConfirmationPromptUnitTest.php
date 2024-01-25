@@ -336,11 +336,11 @@ class ErroneousConfirmationPromptFixture extends AbstractConfirmationPrompt {
 
 class FilledConfirmationPromptFixture extends AbstractConfirmationPrompt {
 
-  public static function title() {
+  public static function title(): string {
     return 'Fixture title';
   }
 
-  public static function question() {
+  public static function question(): string {
     return 'Fixture question';
   }
 
