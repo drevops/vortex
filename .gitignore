@@ -41,8 +41,7 @@ web/sites/default/*
 
 #;< DREVOPS_DEV
 #; Ignore these files in DrevOps itself, but do not ignore in consumer site.
-composer.lock
-package-lock.json
+/composer.lock
 #;> DREVOPS_DEV
 
 # Ignore dependencies cache files.

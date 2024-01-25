@@ -5,13 +5,14 @@
  * Stage file proxy settings.
  */
 
-if ($settings['environment'] != ENVIRONMENT_PROD) {
-  $origin = 'https://your-site-url.example/';
-
-  if (!empty(getenv('DRUPAL_SHIELD_USER')) && !empty(getenv('DRUPAL_SHIELD_PASS'))) {
-    $origin = sprintf('https://%s:%s@your-site-url.example/', getenv('DRUPAL_SHIELD_USER'), getenv('DRUPAL_SHIELD_PASS'));
+$origin = getenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN');
+if (!empty($origin) && $settings['environment'] != ENVIRONMENT_PROD) {
+  $user = getenv('DRUPAL_SHIELD_USER');
+  $pass = getenv('DRUPAL_SHIELD_PASS');
+  if (!empty($user) && !empty($pass)) {
+    $origin = str_replace('https://', sprintf('https://%s:%s@', $user, $pass), $origin);
   }
-  $config['stage_file_proxy.settings']['origin'] = $origin;
 
+  $config['stage_file_proxy.settings']['origin'] = $origin;
   $config['stage_file_proxy.settings']['hotlink'] = FALSE;
 }

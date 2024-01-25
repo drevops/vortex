@@ -121,12 +121,12 @@ class InstallCommand extends Command {
     $this->questionManager->askQuestions(function (PromptManager $qm) {
       $is_installed = InstallManager::isInstalled($this->config->getDstDir());
 
-//      // @todo: remove this.
-////      $qm->ask(DatabaseDownloadSourceQuestion::ID);
-////      $qm->ask(DatabaseStoreTypeQuestion::ID);
-//      $qm->ask(DeployTypeQuestion::ID);
-//      print_r($qm->getAnswers()->getAll());
-//exit (1);
+      //      // @todo: remove this.
+      ////      $qm->ask(DatabaseDownloadSourceQuestion::ID);
+      ////      $qm->ask(DatabaseStoreTypeQuestion::ID);
+      //      $qm->ask(DeployTypeQuestion::ID);
+      //      print_r($qm->getAnswers()->getAll());
+      //exit (1);
 
       // For already installed projects, we do not need to ask for the webroot.
       if($is_installed) {

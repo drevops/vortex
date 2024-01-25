@@ -38,7 +38,7 @@ for file in "${targets[@]}"; do
       exit 1
     fi
 
-    if ! LC_ALL=C.UTF-8 shellcheck -e SC1090,SC1091,SC2223,SC2016 "${file}"; then
+    if ! LC_ALL=C.UTF-8 shellcheck "${file}"; then
       exit 1
     fi
 

@@ -52,7 +52,7 @@ load _helper.bash
 
   export DREVOPS_NOTIFY_CHANNELS="email"
   export DREVOPS_NOTIFY_PROJECT="testproject"
-  export DREVOPS_DRUPAL_SITE_EMAIL="testproject@example.com"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
   export DREVOPS_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe, jane@example.com|Jane Doe"
   export DREVOPS_NOTIFY_REF="develop"
   export DREVOPS_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
@@ -83,7 +83,8 @@ load _helper.bash
   export DREVOPS_NOTIFY_PROJECT="testproject"
   export DREVOPS_NOTIFY_NEWRELIC_APIKEY="key1234"
   export DREVOPS_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe,jane@example.com|Jane Doe"
-  export DREVOPS_NOTIFY_SHA="develop"
+  export DREVOPS_NOTIFY_REF="develop"
+  export DREVOPS_NOTIFY_SHA="123456"
 
   run ./scripts/drevops/notify.sh
   assert_success
@@ -95,7 +96,7 @@ load _helper.bash
   assert_equal "-s -X GET https://api.newrelic.com/v2/applications.json -H Api-Key:key1234 -s -G -d filter[name]=testproject-develop&exclude_links=true" "$(mock_get_call_args "${mock_curl}" 1)"
   assert_equal '-X POST https://api.newrelic.com/v2/applications/9876543210/deployments.json -L -s -o /dev/null -w %{http_code} -H Api-Key:key1234 -H Content-Type: application/json -d {
   "deployment": {
-    "revision": "develop",
+    "revision": "123456",
     "changelog": "develop deployed",
     "description": "develop deployed",
     "user": "Deployment robot"

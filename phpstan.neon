@@ -15,6 +15,7 @@ parameters:
     - web/modules/custom
     - web/themes/custom
     - web/sites/default/settings.php
+    - web/sites/default/includes
     - tests
 
   excludePaths:
@@ -24,7 +25,7 @@ parameters:
     - ../*/node_modules/*
 
   drupal:
-    drupal_root: /app
+    drupal_root: web
 
   ignoreErrors:
     -
@@ -43,3 +44,9 @@ parameters:
       paths:
         - web/modules/custom/*
         - web/themes/custom/*
+    -
+      # Included settings files are not aware about global variables.
+      message: '#Variable .* might not be defined.#'
+      paths:
+        - web/sites/default/includes
+      reportUnmatched: false

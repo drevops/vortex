@@ -210,6 +210,8 @@ push_to_remote() {
   # Directory with files to push to remote.
   local src_dir="${1:-}"
 
+  echo "Pushing ${src_dir} to remote."
+
   configure_ssh
 
   # Temp directory to use for the local repo.

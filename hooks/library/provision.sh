@@ -12,7 +12,7 @@ target_env="${2}"
 pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 
 # Do not unblock admin account.
-export DREVOPS_DRUPAL_UNBLOCK_ADMIN="${DREVOPS_DRUPAL_UNBLOCK_ADMIN:-0}"
+export DRUPAL_UNBLOCK_ADMIN="${DRUPAL_UNBLOCK_ADMIN:-0}"
 
 ./scripts/drevops/provision.sh
 

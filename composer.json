@@ -1,34 +1,40 @@
 {
     "name": "your_org/your_site",
     "description": "Drupal 10 implementation of YOURSITE for YOURORG",
+    "type": "project",
     "license": "proprietary",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "composer/installers": "^2.1",
         "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^3.1",
-        "drupal/clamav": "^2.0.2@rc",
+        "drupal/clamav": "^2.0.2",
         "drupal/coffee": "^1.2",
-        "drupal/config_ignore": "^2.4",
         "drupal/config_split": "^1",
         "drupal/config_update": "^2@alpha",
-        "drupal/core-composer-scaffold": "^10",
-        "drupal/core-project-message": "^10",
-        "drupal/core-recommended": "^10",
+        "drupal/core-composer-scaffold": "^10.2.0",
+        "drupal/core-recommended": "^10.2.0",
         "drupal/environment_indicator": "^4.0",
         "drupal/pathauto": "^1.10",
-        "drupal/permissions_filter": "^1.2",
-        "drupal/rdf": "^2.1",
         "drupal/redirect": "^1.7",
         "drupal/redis": "^1.6",
         "drupal/search_api": "^1.29",
         "drupal/search_api_solr": "^4.2",
         "drupal/shield": "^1.6",
-        "drupal/stage_file_proxy": "^1.2",
-        "drupal/token": "^1.10",
+        "drupal/stage_file_proxy": "^2",
         "drush/drush": "^12",
         "oomphinc/composer-installers-extender": "^2.0",
-        "vlucas/phpdotenv": "^5.4",
+        "vlucas/phpdotenv": "^5.1",
         "webflo/drupal-finder": "^1.2"
     },
     "require-dev": {
@@ -37,51 +43,48 @@
         "drevops/behat-format-progress-fail": "^1",
         "drevops/behat-screenshot": "^1",
         "drevops/behat-steps": "^2",
-        "drupal/core-dev": "^10",
+        "drupal/core-dev": "^10.2.0",
         "drupal/drupal-extension": "^5@rc",
         "friendsoftwig/twigcs": "^6.2",
-        "mglaman/phpstan-drupal": "^1.1",
-        "php-parallel-lint/php-parallel-lint": "^1.3",
+        "mglaman/phpstan-drupal": "^1.2",
+        "palantirnet/drupal-rector": "^0.19",
         "phpcompatibility/php-compatibility": "^9.3",
         "phpmd/phpmd": "^2.13",
         "phpspec/prophecy-phpunit": "^2.0",
+        "phpstan/extension-installer": "^1.3",
         "pyrech/composer-changelogs": "^1.8"
     },
-    "autoload": {
-        "classmap": [
-            "scripts/composer/"
-        ]
+    "conflict": {
+        "drupal/drupal": "*"
     },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "config": {
-        "platform": {
-            "php": "8.1.0"
-        },
-        "process-timeout": 0,
+        "discard-changes": true,
         "sort-packages": true,
         "allow-plugins": {
             "composer/installers": true,
             "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "drupal/console-extend-plugin": true,
             "drupal/core-composer-scaffold": true,
-            "drupal/core-project-message": true,
             "oomphinc/composer-installers-extender": true,
             "phpstan/extension-installer": true,
-            "pyrech/composer-changelogs": true
-        }
-    },
-    "conflict": {
-        "drupal/drupal": "*"
-    },
-    "repositories": {
-        "drupal": {
-            "type": "composer",
-            "url": "https://packages.drupal.org/8"
+            "pyrech/composer-changelogs": true,
+            "php-http/discovery": true
         },
-        "asset-packagist": {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
+        "platform": {
+            "php": "8.2.13"
         }
+    },
+    "autoload": {
+        "classmap": [
+            "scripts/composer/ScriptHandler.php"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/phpunit/"
+        ]
     },
     "scripts": {
         "pre-install-cmd": [
@@ -97,16 +100,10 @@
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
         ]
     },
-    "minimum-stability": "stable",
-    "prefer-stable": true,
     "extra": {
-        "composer-exit-on-patch-failure": true,
-        "patchLevel": {
-            "drupal/core": "-p2"
-        },
         "drupal-scaffold": {
             "locations": {
-                "web-root": "./web"
+                "web-root": "web/"
             },
             "file-mapping": {
                 "[project-root]/.editorconfig": false,
@@ -121,7 +118,6 @@
                 "[web-root]/web.config": false
             }
         },
-        "enable-patching": true,
         "installer-paths": {
             "web/core": [
                 "type:drupal-core"
@@ -152,21 +148,13 @@
         },
         "installer-types": [
             "bower-asset",
-            "npm-asset"
+            "npm-asset",
+            "drupal-library"
         ],
-        "preserve-paths": [
-            "web/modules/custom",
-            "web/themes/custom",
-            "web/drush",
-            "web/sites/default/settings.php",
-            "web/sites/default/services.yml",
-            "web/sites/default/default.settings.local.php",
-            "web/sites/default/default.services.local.yml",
-            "web/sites/default/settings.local.php",
-            "web/sites/default/services.local.yml",
-            "web/sites/default/files",
-            "web/robots.txt",
-            "web/.htaccess"
-        ]
+        "composer-exit-on-patch-failure": true,
+        "patchLevel": {
+            "drupal/core": "-p2"
+        },
+        "patches": {}
     }
 }

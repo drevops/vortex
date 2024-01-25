@@ -18,7 +18,7 @@ npm install -g terminalizer
 terminalizer record <recording-name>
 ```
 
-2. Update produced YML file with settings from `example.yml`.
+2. Update produced YAML file with settings from `example.yml`.
 
 3. Render
 ```shell

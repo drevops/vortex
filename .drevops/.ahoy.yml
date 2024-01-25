@@ -10,7 +10,8 @@ commands:
       ahoy lint-dockerfiles
       ahoy lint-spelling
       ahoy lint-docs
-      ahoy lint-installer || true
+      ahoy lint-devtool
+      ahoy lint-installer
 
   lint-scripts:
     cmd: ./tests/lint.scripts.sh
@@ -24,6 +25,9 @@ commands:
   lint-docs:
     cmd: ahoy docs lint
 
+  lint-devtool:
+    cmd: ahoy devtool lint
+
   lint-installer:
     cmd: ahoy installer lint
 
@@ -32,6 +36,7 @@ commands:
     cmd: |
       ahoy test-common
       ahoy test-docs
+      ahoy test-devtool
       ahoy test-installer
 
   test-common:
@@ -45,6 +50,9 @@ commands:
 
   test-docs:
     cmd: ahoy docs build && ahoy docs test
+
+  test-devtool:
+    cmd: ahoy devtool test
 
   test-installer:
     cmd: |
@@ -61,6 +69,12 @@ commands:
   docs:
     usage: Custom docs commands.
     cmd: ahoy -f "docs/.ahoy.yml" "$@"
+
+  devtool:
+    usage: Custom devtool commands.
+    cmd: |
+      [ ! -d "./devtool/vendor" ] && composer --working-dir=devtool install -n --ansi --no-progress --no-interaction --no-suggest --prefer-dist --optimize-autoloader
+      composer --working-dir=devtool "$@"
 
   installer:
     usage: Custom installer commands.

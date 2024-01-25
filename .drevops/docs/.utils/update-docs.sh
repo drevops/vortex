@@ -16,12 +16,12 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
 
 sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
 
-OUTPUT_FILE="./content/tools/variables.md"
+OUTPUT_FILE="./content/workflows/variables.md"
 sed "${sed_opts[@]}" '/## Variables list/,$d' "${OUTPUT_FILE}"
 
 echo "## Variables list" >>"${OUTPUT_FILE}"
 echo >>"${OUTPUT_FILE}"
-./.utils/vendor/bin/shell-variables-extractor \
+./.utils/vendor/bin/shellvar extract \
   --skip-text="@docs:skip" \
   --skip-description-prefix=";<" \
   --skip-description-prefix=";>" \

@@ -78,8 +78,8 @@
  * @code
  * $databases['default']['default'] = [
  *   'database' => 'databasename',
- *   'username' => 'sqlusername',
- *   'password' => 'sqlpassword',
+ *   'username' => 'sql_username',
+ *   'password' => 'sql_password',
  *   'host' => 'localhost',
  *   'port' => '3306',
  *   'driver' => 'mysql',
@@ -194,8 +194,8 @@ $databases = [];
  *   $databases['default']['default'] = [
  *     'driver' => 'pgsql',
  *     'database' => 'databasename',
- *     'username' => 'sqlusername',
- *     'password' => 'sqlpassword',
+ *     'username' => 'sql_username',
+ *     'password' => 'sql_password',
  *     'host' => 'localhost',
  *     'prefix' => '',
  *   ];
@@ -205,7 +205,7 @@ $databases = [];
  * @code
  *   $databases['default']['default'] = [
  *     'driver' => 'sqlite',
- *     'database' => '/path/to/databasefilename',
+ *     'database' => '/path/to/database_filename',
  *   ];
  * @endcode
  *
@@ -216,10 +216,31 @@ $databases = [];
  *     'namespace' => 'Drupal\my_module\Driver\Database\my_driver',
  *     'autoload' => 'modules/my_module/src/Driver/Database/my_driver/',
  *     'database' => 'databasename',
- *     'username' => 'sqlusername',
- *     'password' => 'sqlpassword',
+ *     'username' => 'sql_username',
+ *     'password' => 'sql_password',
  *     'host' => 'localhost',
  *     'prefix' => '',
+ *   ];
+ * @endcode
+ *
+ * Sample Database configuration format for a driver that is extending another
+ * database driver.
+ * @code
+ *   $databases['default']['default'] = [
+ *     'driver' => 'my_driver',
+ *     'namespace' => 'Drupal\my_module\Driver\Database\my_driver',
+ *     'autoload' => 'modules/my_module/src/Driver/Database/my_driver/',
+ *     'database' => 'databasename',
+ *     'username' => 'sql_username',
+ *     'password' => 'sql_password',
+ *     'host' => 'localhost',
+ *     'prefix' => '',
+ *     'dependencies' => [
+ *       'parent_module' => [
+ *         'namespace' => 'Drupal\parent_module',
+ *         'autoload' => 'core/modules/parent_module/src/',
+ *       ],
+ *     ],
  *   ];
  * @endcode
  */
@@ -567,7 +588,7 @@ $settings['update_free_access'] = FALSE;
  * the output of phpinfo(). The full output can contain sensitive information
  * so by default Drupal removes some sections.
  *
- * This behaviour can be configured by setting this variable to a different
+ * This behavior can be configured by setting this variable to a different
  * value corresponding to the flags parameter of phpinfo().
  *
  * If you need to expose more information in the report - for example to debug a

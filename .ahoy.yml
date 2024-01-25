@@ -10,13 +10,11 @@
 # Run `ahoy up cli` to apply environment variables changes to containers.
 #;
 #; Comments starting with '#:' provide explicit documentation and will be
-#; automatically removed during installation or update if an option is selected.
+#; automatically removed during installation or update of DrevOps if an option
+#; is selected.
 #;
-#; Comments starting with '#;<', '#;>' and '#;' are internal DrevOps comments
-#; and will be removed during installation or update.
-#;
-#; Comments starting with '#' are normal comments and will stay in the code
-#; after installation or update.
+#; Comments starting with '#;<' and '#;>' are internal DrevOps comments
+#; and will be removed during installation or update of DrevOps.
 ---
 ahoyapi: v2
 
@@ -55,7 +53,7 @@ commands:
     usage: Build and start Docker containers.
     cmd: |
       docker compose up -d "$@" && if docker compose logs | grep -q "\[Error\]"; then exit 1; fi
-      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
+      docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
@@ -67,7 +65,7 @@ commands:
     usage: Start existing Docker containers.
     cmd: |
       docker compose start "$@"
-      mkdir -p ${DREVOPS_WEBROOT}/sites/default/files && docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
+      docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
 
   stop:
     usage: Stop running Docker containers.
@@ -88,11 +86,13 @@ commands:
   cli:
     usage: Start a shell or run a command inside the CLI service container.
     # This will drop into shell if no arguments are supplied to this command.
-    # If arguments supplied, a new shell with DREVOPS_*, COMPOSE_* and TERM
-    # environment variables will be started. This allows passing of the environment
-    # variables to Ahoy commands which will then be forwarded to the container.
-    # Escape double quotes with \" (slash double-quote) when passing arguments with spaces.
-    cmd: if \[ "${#}" -ne 0 \]; then docker compose exec $(env | cut -f1 -d= | grep "DREVOPS_\|COMPOSE_\|TERM" | sed 's/^/-e /') -T cli bash -c "$*"; else docker compose exec cli bash; fi
+    # If arguments supplied, a new shell with TERM, COMPOSE_*, GITHUB_*,
+    # DOCKER_*, DRUPAL_* and DREVOPS_* environment variables will be started.
+    # This allows passing of the environment variables to Ahoy commands which
+    # will then be forwarded to the container.
+    # Escape double quotes with \" (slash double-quote) when passing arguments
+    # with spaces.
+    cmd: if \[ "${#}" -ne 0 \]; then docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\DRUPAL_\|DREVOPS_" | sed 's/^/-e /') -T cli bash -c "$*"; else docker compose exec cli bash; fi
 
   composer:
     usage: Run Composer commands in the CLI service container.
@@ -148,33 +148,29 @@ commands:
     cmd: |
       [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ] && docker pull $DREVOPS_DB_DOCKER_IMAGE
 
-  clean:
-    usage: Remove Docker containers and all build files.
-    cmd: ahoy down && ./scripts/drevops/clean.sh
-
   reset:
-    usage: "Remove containers, all build, uncommitted files."
+    usage: "Remove containers, all build files. Use with `hard` to reset repository to the last commit."
     cmd: |
-      ahoy confirm "All containers, build and uncommitted files will be removed, repository will be reset to the last commit. Proceed?" &&
-      AHOY_CONFIRM_RESPONSE=y ahoy clean && ./scripts/drevops/reset.sh
+      ahoy confirm "All containers and build files will be removed. Proceed?" &&
+      AHOY_CONFIRM_RESPONSE=y ahoy down && ./scripts/drevops/reset.sh "$@"
 
   fei:
     usage: Install front-end assets.
-    cmd: ahoy cli "npm --prefix ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} install"
+    cmd: ahoy cli "npm --prefix ${DREVOPS_WEBROOT}/themes/custom/${DRUPAL_THEME} install"
 
   fe:
     usage: Build front-end assets.
-    cmd: ahoy cli "cd ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build"
+    cmd: ahoy cli "cd ${DREVOPS_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build"
 
   fed:
     usage: Build front-end assets for development.
-    cmd: ahoy cli "cd ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run build-dev"
+    cmd: ahoy cli "cd ${DREVOPS_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build-dev"
 
   few:
     usage: Watch front-end assets during development.
     cmd: |
       ahoy cli "pkill -9 -f grunt" || true
-      ahoy cli "cd ${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME} && npm run watch"
+      ahoy cli "cd ${DREVOPS_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
 
   lint:
     usage: Lint back-end and front-end code.
@@ -182,11 +178,23 @@ commands:
 
   lint-be:
     usage: Lint back-end code.
-    cmd: ahoy cli "./vendor/bin/phpcs && vendor/bin/phpstan analyse && ./vendor/bin/phpmd . text phpmd.xml"
+    cmd: |
+      ahoy cli vendor/bin/phpcs
+      ahoy cli vendor/bin/phpstan
+      ahoy cli vendor/bin/rector --dry-run
+      ahoy cli vendor/bin/phpmd . text phpmd.xml
 
   lint-fe:
     usage: Lint front-end code.
-    cmd: ahoy cli "./vendor/bin/twigcs && npm run --prefix "${DREVOPS_WEBROOT}/themes/custom/${DREVOPS_DRUPAL_THEME}" lint"
+    cmd: |
+      ahoy cli vendor/bin/twigcs
+      ahoy cli "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+
+  lint-fix:
+    usage: Fix lint issues of back-end and front-end code.
+    cmd: |
+      ahoy cli vendor/bin/rector process
+      ahoy cli vendor/bin/phpcbf
 
   test:
     usage: Run all tests.
@@ -194,23 +202,23 @@ commands:
 
   test-unit:
     usage: Run PhpUnit unit tests.
-    cmd: ahoy cli "./vendor/bin/phpunit --testsuite=unit $@"
+    cmd: ahoy cli vendor/bin/phpunit --testsuite=unit "$@"
 
   test-kernel:
     usage: Run PhpUnit kernel tests.
-    cmd: ahoy cli "./vendor/bin/phpunit --testsuite=kernel $@"
+    cmd: ahoy cli vendor/bin/phpunit --testsuite=kernel "$@"
 
   test-functional:
     usage: Run PhpUnit functional tests.
-    cmd: ahoy cli "./vendor/bin/phpunit --testsuite=functional $@"
+    cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "./vendor/bin/behat --colors $@"
+    cmd: ahoy cli php -d memory_limit=-1 vendor/bin/behat --colors "$@"
 
   debug:
     usage: Enable PHP Xdebug.
-    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
+    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable."
 
   deploy:
     usage: Run remote deployment procedures.

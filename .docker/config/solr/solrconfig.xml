@@ -11,7 +11,7 @@
      For more details about configurations options that may appear in
      this file, see http://wiki.apache.org/solr/SolrConfigXml.
 -->
-<config name="drupal-SEARCH_API_SOLR_SCHEMA_VERSION-solr-SEARCH_API_SOLR_BRANCH-SEARCH_API_SOLR_JUMP_START_CONFIG_SET" >
+<config name="drupal-4.3.1-solr-8.x-0" >
   <!-- In all configuration below, a prefix of "solr." for class names
        is an alias that causes solr to search appropriate packages,
        including org.apache.solr.(search|update|request|core|analysis)
@@ -38,7 +38,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
     -->
-  <luceneMatchVersion>${solr.luceneMatchVersion:LUCENE_70}</luceneMatchVersion>
+  <luceneMatchVersion>${solr.luceneMatchVersion:LUCENE_80}</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load any Jars
        identified and use them to resolve any "plugins" specified in

@@ -6,7 +6,7 @@
 # This script has excessive verbose output to make it easy to debug site
 # provisions and deployments.
 #
-# shellcheck disable=SC2086,SC2002,SC2235,SC1090,SC2012,SC2015
+# shellcheck disable=SC1091,SC2086,SC2002,SC2235,SC1090,SC2012,SC2015
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
@@ -41,14 +41,14 @@ DREVOPS_PROVISION_ENVIRONMENT="${DREVOPS_PROVISION_ENVIRONMENT:-}"
 # Name of the webroot directory with Drupal codebase.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
-# Drupal site name
-DREVOPS_DRUPAL_SITE_NAME="${DREVOPS_DRUPAL_SITE_NAME:-Example site}"
+# Drupal site name.
+DRUPAL_SITE_NAME="${DRUPAL_SITE_NAME:-${DREVOPS_PROJECT:-Example site}}"
 
-# Drupal site name
-DREVOPS_DRUPAL_SITE_EMAIL="${DREVOPS_DRUPAL_SITE_EMAIL:-webmaster@example.com}"
+# Drupal site email.
+DRUPAL_SITE_EMAIL="${DRUPAL_SITE_EMAIL:-webmaster@example.com}"
 
 # Profile machine name.
-DREVOPS_DRUPAL_PROFILE="${DREVOPS_DRUPAL_PROFILE:-standard}"
+DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
 # Path to configuration directory.
 DREVOPS_DRUPAL_CONFIG_PATH="${DREVOPS_DRUPAL_CONFIG_PATH:-./config/default}"
@@ -91,9 +91,7 @@ site_is_installed="$(drush status --fields=bootstrap | grep -q "Successful" && e
 ################################################################################
 echo
 note "Webroot dir                  : ${DREVOPS_WEBROOT}"
-note "Site name                    : ${DREVOPS_DRUPAL_SITE_NAME}"
-note "Site email                   : ${DREVOPS_DRUPAL_SITE_EMAIL}"
-note "Profile                      : ${DREVOPS_DRUPAL_PROFILE}"
+note "Profile                      : ${DRUPAL_PROFILE}"
 note "Private files directory      : ${DREVOPS_DRUPAL_PRIVATE_FILES}"
 note "Config path                  : ${DREVOPS_DRUPAL_CONFIG_PATH}"
 note "DB dump file path            : ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} ($([ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ] && echo "present" || echo "absent"))"
@@ -140,15 +138,15 @@ provision_from_profile() {
   local opts=()
 
   opts+=(
-    "${DREVOPS_DRUPAL_PROFILE}"
-    --site-name="${DREVOPS_DRUPAL_SITE_NAME}"
-    --site-mail="${DREVOPS_DRUPAL_SITE_EMAIL}"
+    "${DRUPAL_PROFILE}"
+    --site-name="${DRUPAL_SITE_NAME}"
+    --site-mail="${DRUPAL_SITE_EMAIL}"
     --account-name=admin
     install_configure_form.enable_update_status_module=NULL
     install_configure_form.enable_update_status_emails=NULL
   )
 
-  [ -n "${DREVOPS_DRUPAL_ADMIN_EMAIL:-}" ] && opts+=(--account-mail="${DREVOPS_DRUPAL_ADMIN_EMAIL:-}")
+  [ -n "${DRUPAL_ADMIN_EMAIL:-}" ] && opts+=(--account-mail="${DRUPAL_ADMIN_EMAIL:-}")
 
   [ "${site_has_config}" = "1" ] && opts+=(--existing-config)
 
@@ -206,7 +204,7 @@ if [ "${DREVOPS_PROVISION_USE_PROFILE}" != "1" ]; then
   fi
 else
   info "Provisioning site from the profile."
-  note "Profile: ${DREVOPS_DRUPAL_PROFILE}."
+  note "Profile: ${DRUPAL_PROFILE}."
 
   if [ "${site_is_installed}" = "1" ]; then
     note "Existing site was found when provisioning from the profile."
@@ -290,7 +288,7 @@ fi
 
 # Sanitize database.
 if [ "${DREVOPS_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then
-  ./scripts/drevops/sanitize-db.sh
+  ./scripts/drevops/provision-sanitize-db.sh
 else
   info "Skipped database sanitization."
   echo
@@ -320,9 +318,5 @@ if [ "${DREVOPS_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
   pass "Disabled maintenance mode."
   echo
 fi
-
-info "One-time login link."
-"./scripts/drevops/login.sh"
-echo
 
 info "Finished site provisioning."

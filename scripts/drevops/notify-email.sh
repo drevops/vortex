@@ -6,12 +6,13 @@
 #
 # Usage:
 # DREVOPS_NOTIFY_PROJECT="Site Name" \
-# DREVOPS_DRUPAL_SITE_EMAIL="from@example.com" \
+# DRUPAL_SITE_EMAIL="from@example.com" \
 # DREVOPS_NOTIFY_EMAIL_RECIPIENTS="to1@example.com|Jane Doe, to2@example.com|John Doe" \
 # DREVOPS_NOTIFY_REF="git-branch" \
 # DREVOPS_NOTIFY_ENVIRONMENT_URL="https://environment-url-example.com" \
 # ./notify-email.sh
 #
+# shellcheck disable=SC1090,SC1091
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
@@ -22,7 +23,7 @@ set -eu
 DREVOPS_NOTIFY_EMAIL_PROJECT="${DREVOPS_NOTIFY_EMAIL_PROJECT:-${DREVOPS_NOTIFY_PROJECT:-}}"
 
 # Email address to send notifications from.
-DREVOPS_NOTIFY_EMAIL_FROM="${DREVOPS_NOTIFY_EMAIL_FROM:-${DREVOPS_DRUPAL_SITE_EMAIL:-}}"
+DREVOPS_NOTIFY_EMAIL_FROM="${DREVOPS_NOTIFY_EMAIL_FROM:-${DRUPAL_SITE_EMAIL:-}}"
 
 # Email address(es) to send notifications to.
 #

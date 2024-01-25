@@ -13,7 +13,7 @@
 #
 
 # Project information
-site_name: DrevOps
+site_name: DrevOps<sup>&reg;</sup> - Drupal project template
 site_description: Documentation for DrevOps Drupal project template
 site_url: https://docs.drevops.com
 
@@ -22,7 +22,7 @@ repo_name: drevops/drevops
 repo_url: https://github.com/drevops/drevops
 edit_uri: edit/main/.drevops/docs/content
 # Copyright
-copyright: 'Copyright &copy;2023 DrevOps<sup>&reg;</sup>'
+copyright: 'Copyright &copy;2023 DrevOps<sup>&reg;</sup><br/><strong><a href="https://drupal.org">Drupal</a></strong> is a registered trademark of <a href="http://buytaert.net/">Dries Buytaert</a>'
 
 # Configuration.
 docs_dir: content
@@ -32,7 +32,7 @@ extra_css:
 theme:
   name: material
   custom_dir: overrides
-  logo: assets/logo.png
+  logo: assets/logo-white.png
   favicon: assets/favicon.ico
   font:
     text: Roboto
@@ -40,19 +40,19 @@ theme:
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
-      primary: black
-      accent: indigo
+      primary: indigo
+      accent: blue
       toggle:
         icon: material/brightness-auto
-        name: Switch to light mode
+        name: Switch to dark mode
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: black
-      accent: indigo
+      primary: indigo
+      accent: blue
       toggle:
         icon: material/brightness-7
-        name: Switch to dark mode
+        name: Switch to system preference
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
@@ -60,12 +60,15 @@ theme:
       accent: indigo
       toggle:
         icon: material/brightness-4
-        name: Switch to system preference
+        name: Switch to light mode
 
   language: en
   features:
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.instant
     - navigation.sections
+    - navigation.path
     - navigation.top
     - navigation.tracking
     - navigation.indexes
@@ -80,14 +83,15 @@ theme:
   search_index_only: true
 
 plugins:
-  # Plugin for MkDocs to allow placing mkdocs.yml in the same directory as documentation
-  # https://github.com/oprypin/mkdocs-same-dir
   - search
   - replace_markdown:
       patterns:
         - rel_to_abs: # Pattern name, can be anything
             oldvalue: "../../../../"
             newvalue: "https://github.com/drevops/drevops/tree/main/"
+  - redirects:
+      redirect_maps:
+        'variables.md': 'workflows/variables.md'
   - mike:
       version_selector: true
 
@@ -96,6 +100,8 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/drevops/drevops
+    - icon: fontawesome/regular/envelope
+      link: mailto:support@drevops.com
   analytics:
     provider: google
     property: G-9T1JR2V5RL
@@ -136,15 +142,17 @@ markdown_extensions:
   - pymdownx.tilde
 
   - pymdownx.highlight:
-      linenums: true
-      anchor_linenums: true
-      line_spans: __span
       pygments_lang_class: true
       use_pygments: true
+      guess_lang: block
+      extend_pygments_lang:
+        - name: php
+          lang: php
+          options:
+            startinline: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
-
 
   - pymdownx.superfences:
       custom_fences:
@@ -154,44 +162,73 @@ markdown_extensions:
 
 # IMPORTANT! Do not add any configuration below navigation section.
 nav:
-  - 👋 INTRODUCTION:
-    - Introduction: README.md
+
+  - 👋 Introduction:
+    - README.md
     - Features: introduction/features.md
     - Installation: introduction/installation.md
     - Architecture: introduction/architecture.md
-    - Contributing: introduction/contributing.md
     - FAQs: introduction/faqs.md
 
-  - 💧 Drupal 🚧:
-      - Overview 🚧: drupal/overview.md
-      - Drupal project 🚧: drupal/drupal-project.md
-      - Composer 🚧: drupal/composer.md
-      - Settings 🚧: drupal/settings.md
-      - Module scaffold 🚧: drupal/module-scaffold.md
-      - Theme scaffold 🚧: drupal/theme-scaffold.md
+  - 💧 Drupal:
+    - drupal/README.md
+    - Composer: drupal/composer.md
+    - Settings: drupal/settings.md
+    - Provision 🚧: drupal/provision.md
+    - Module scaffold 🚧: drupal/module-scaffold.md
+    - Theme scaffold 🚧: drupal/theme-scaffold.md
 
-  - ⚙️ WORKFLOW:
-      - Build: workflow/build.md
-      - Test: workflow/test.md
-      - Deploy: workflow/deploy.md
-      - Release 🚧: workflow/release.md
+  - 🔀 Workflows:
+    - workflows/README.md
+    - Variables: workflows/variables.md
+    - Development 🚧: workflows/development.md
+    - Deployment: workflows/deployment.md
+    - QA 🚧: workflows/qa.md
+    - Releasing:
+      - workflows/releasing/README.md
+      - Git-flow: workflows/releasing/git-flow.md
+      - GitHub-flow: workflows/releasing/github-flow.md
+    - Documentation 🚧: workflows/documentation.md
 
-  - 🛠️ TOOLS:
-    - Variables: tools/variables.md
-    - Docker 🚧:
-      - Overview 🚧: tools/docker/overview.md
-      - Images 🚧: tools/docker/images.md
-      - Docker Compose 🚧: tools/docker/compose.md
-    - CI 🚧:
-        - CircleCI 🚧: tools/ci/overview.md
-        - GitHub Actions 🚧: tools/ci/github-actions.md
-        - GitLab CI 🚧: tools/ci/gitlab-ci.md
-        - Azure Pipelines 🚧: tools/ci/azure-pipelines.md
-    - Automated updates: tools/automated-updates.md
-    - Doctor: tools/doctor.md
-    - Database 🚧: tools/database.md
+  - 🛠 Tools:
+      - tools/README.md
+      - Ahoy: tools/ahoy.md
+      - Behat: tools/behat.md
+      - Doctor: tools/doctor.md
+      - Docker: tools/docker.md
+      - Drush: tools/drush.md
+      - Git artifact: tools/git-artifact.md
+      - PHPCS: tools/phpcs.md
+      - PHPMD: tools/phpmd.md
+      - PHPStan: tools/phpstan.md
+      - PHPUnit: tools/phpunit.md
+      - Pygmy: tools/pygmy.md
+      - Rector: tools/rector.md
+      - Renovate: tools/renovate.md
+      - Twigcs: tools/twigcs.md
+      - Xdebug: tools/xdebug.md
 
-  - 🧹 MAINTENANCE:
-    - Authoring scripts: maintenance/authoring-scripts.md
-    - Authoring tests: maintenance/authoring-tests.md
-    - Authoring documentation: maintenance/authoring-documentation.md
+  - 🧩 Integrations:
+      - integrations/README.md
+      - CI:
+          - integrations/ci/README.md
+          - CircleCI 🚧: integrations/ci/circleci.md
+          - GitHub Actions 🚧: integrations/ci/github-actions.md
+          - Azure Pipelines 🚧: integrations/ci/azure-pipelines.md
+          - GitLab CI 🚧: integrations/ci/gitlab-ci.md
+      - Hosting:
+          - integrations/hosting/README.md
+          - Acquia 🚧: integrations/hosting/acquia.md
+          - Lagoon 🚧: integrations/hosting/lagoon.md
+          - Pantheon 🚧: integrations/hosting/pantheon.md
+          - Platform.sh 🚧: integrations/hosting/platformsh.md
+
+  - 🌟 Contributing:
+    - contributing/README.md
+    - Roadmap: contributing/roadmap.md
+    - Code of conduct: contributing/code-of-conduct.md
+    - Maintenance:
+      - contributing/maintenance/README.md
+      - Scripts: contributing/maintenance/scripts.md
+      - Tests: contributing/maintenance/tests.md
+      - Documentation: contributing/maintenance/documentation.md

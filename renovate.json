@@ -44,13 +44,26 @@
             ]
         },
         {
-            "groupName": "Docker image updates",
-            "groupSlug": "docker",
-            "schedule": ["before 3am"],
-            "matchManagers": ["dockerfile", "docker-compose"]
+            "groupName": "Docker images excluded",
+            "matchManagers": ["dockerfile", "docker-compose"],
+            "matchPackageNames": [
+                "selenium/standalone-chrome",
+                "seleniarm/standalone-chromium"
+            ],
+            "enabled": false
         },
         {
-            "groupName": "GitHub Actions updates",
+            "groupName": "Docker images",
+            "groupSlug": "docker",
+            "schedule": ["before 3am"],
+            "matchManagers": ["dockerfile", "docker-compose"],
+            "excludePackageNames": [
+                "selenium/standalone-chrome",
+                "seleniarm/standalone-chromium"
+            ]
+        },
+        {
+            "groupName": "GitHub Actions",
             "groupSlug": "github-actions",
             "schedule": ["before 3am"],
             "matchManagers": ["github-actions"]

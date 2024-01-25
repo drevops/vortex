@@ -15,6 +15,7 @@
 #
 # IMPORTANT! This script runs outside the container on the host system.
 #
+# shellcheck disable=SC1090,SC1091
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
@@ -97,6 +98,17 @@ fi
 
 note "Installing artifact builder."
 composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^0.5
+
+# Try resolving absolute paths.
+if command -v realpath >/dev/null 2>&1; then
+  # Expand relative paths while also handling literal tilde expansion passed in
+  # singe quotes. This addresses the case where the paths are passed directly
+  # from YAML anchors as literal strings.
+  # shellcheck disable=SC2116
+  DREVOPS_DEPLOY_ARTIFACT_ROOT="$(realpath "${DREVOPS_DEPLOY_ARTIFACT_ROOT/#\~/${HOME}}")"
+  # shellcheck disable=SC2116
+  DREVOPS_DEPLOY_ARTIFACT_SRC="$(realpath "${DREVOPS_DEPLOY_ARTIFACT_SRC/#\~/${HOME}}")"
+fi
 
 # Copying git repo files meta file to the deploy code repo as it may not exist
 # in deploy code source files.

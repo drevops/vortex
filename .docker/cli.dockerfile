@@ -2,9 +2,9 @@
 #
 # All CLI operations performed in this container.
 #
-# @see https://hub.docker.com/r/uselagoon/php-8.1-cli-drupal/tags
+# @see https://hub.docker.com/r/uselagoon/php-8.2-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
-FROM uselagoon/php-8.1-cli-drupal:23.9.0
+FROM uselagoon/php-8.2-cli-drupal:23.12.0
 
 # Add missing variables.
 # @todo Remove once https://github.com/uselagoon/lagoon/issues/3121 is resolved.
@@ -38,7 +38,7 @@ ENV WEBROOT=${WEBROOT} \
 # reduce build time.
 
 # Adding more tools.
-RUN apk add --no-cache ncurses=6.4_p20230506-r0 pv=1.6.20-r1 tzdata=2023c-r1
+RUN apk add --no-cache ncurses=6.4_p20230506-r0 pv=1.6.20-r1 tzdata=2023d-r0
 
 # Adding patches and scripts.
 COPY patches /app/patches
@@ -59,6 +59,11 @@ COPY composer.json composer.* .env* auth* /app/
 RUN if [ -n "${GITHUB_TOKEN}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN}\"}}"; fi && \
     COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
 
+# Remove Drush launcher installed by the base Lagoon PHP image.
+# @see https://github.com/uselagoon/lagoon-images/blob/main/images/php-cli-drupal/8.2.Dockerfile#L19
+RUN rm -rf /usr/local/bin/drush
+ENV PATH="/app/vendor/bin:${PATH}"
+
 # Install NodeJS dependencies.
 # Note that package-lock.json is not explicitly copied, allowing to run the
 # stack without existing lock file (this is not advisable, but allows to build
@@ -72,11 +77,14 @@ COPY ${WEBROOT}/themes/custom/your_site_theme/patches /app/${WEBROOT}/themes/cus
 # Install NodeJS dependencies.
 # Since Drupal does not use NodeJS for production, it does not matter if we
 # install development dependencnies here - they are not exposed in any way.
-RUN npm --prefix /app/${WEBROOT}/themes/custom/your_site_theme install --no-audit --no-progress --unsafe-perm
+RUN npm --prefix /app/${WEBROOT}/themes/custom/your_site_theme ci --no-audit --no-progress --unsafe-perm
 
 # Copy all files into appllication source directory. Existing files are always
 # overridden.
 COPY . /app
+
+# Create files directory and set correct permissions.
+RUN mkdir -p /app/${WEBROOT}/sites/default/files && chmod 0770 /app/${WEBROOT}/sites/default/files
 
 # Compile front-end assets. Running this after copying all files as we need
 # sources to compile assets.

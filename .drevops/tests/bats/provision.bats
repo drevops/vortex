@@ -15,8 +15,6 @@ assert_provision_info() {
 
   assert_output_contains "Started site provisioning."
   assert_output_contains "Webroot dir                  : ${webroot}"
-  assert_output_contains "Site name                    : Example site"
-  assert_output_contains "Site email                   : webmaster@example.com"
   assert_output_contains "Profile                      : standard"
   assert_output_contains "Private files directory      : ./${webroot}/sites/default/files/private"
   assert_output_contains "Config path                  : ./config/default"
@@ -40,7 +38,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -141,13 +139,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
     "Finished site provisioning."
@@ -267,13 +258,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
-
     # Installation completion.
     "Finished site provisioning."
   )
@@ -297,7 +281,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -401,13 +385,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
-
     # Installation completion.
     "Finished site provisioning."
   )
@@ -431,7 +408,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -539,13 +516,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
-
     # Installation completion.
     "Finished site provisioning."
   )
@@ -569,7 +539,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -673,13 +643,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
-
     # Installation completion.
     "Finished site provisioning."
   )
@@ -703,7 +666,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -801,13 +764,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
-
     # Installation completion.
     "Finished site provisioning."
   )
@@ -831,7 +787,7 @@ assert_provision_info() {
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
 
-  export DREVOPS_DRUPAL_DB_SANITIZE_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export DREVOPS_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
 
   mkdir "./.data"
@@ -935,13 +891,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # One-time login link.
-    "@drush -y pm:list --status=enabled # none"
-    "@drush -y sql:query SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1'; # admin"
-    "@drush -- user:unblock admin"
-    "@drush -y user:login # MOCK_ONE_TIME_LINK"
-    "MOCK_ONE_TIME_LINK"
 
     # Installation completion.
     "Finished site provisioning."

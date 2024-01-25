@@ -2,6 +2,7 @@
 ##
 # Notification dispatch to New Relic.
 #
+# shellcheck disable=SC1090,SC1091
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
@@ -14,11 +15,14 @@ DREVOPS_NOTIFY_NEWRELIC_PROJECT="${DREVOPS_NOTIFY_NEWRELIC_PROJECT:-${DREVOPS_NO
 # NewRelic API key, usually of type 'USER'.
 DREVOPS_NOTIFY_NEWRELIC_APIKEY="${DREVOPS_NOTIFY_NEWRELIC_APIKEY:-}"
 
-# Deployment reference, such as a git SHA.
+# Deployment reference, such as a git branch or pr.
+DREVOPS_NOTIFY_NEWRELIC_REF="${DREVOPS_NOTIFY_NEWRELIC_REF:-${DREVOPS_NOTIFY_REF:-}}"
+
+# Deployment commit reference, such as a git SHA.
 DREVOPS_NOTIFY_NEWRELIC_SHA="${DREVOPS_NOTIFY_NEWRELIC_SHA:-${DREVOPS_NOTIFY_SHA:-}}"
 
 # NewRelic application name as it appears in the dashboard.
-DREVOPS_NOTIFY_NEWRELIC_APP_NAME="${DREVOPS_NOTIFY_NEWRELIC_APP_NAME:-"${DREVOPS_NOTIFY_NEWRELIC_PROJECT}-${DREVOPS_NOTIFY_NEWRELIC_SHA}"}"
+DREVOPS_NOTIFY_NEWRELIC_APP_NAME="${DREVOPS_NOTIFY_NEWRELIC_APP_NAME:-"${DREVOPS_NOTIFY_NEWRELIC_PROJECT}-${DREVOPS_NOTIFY_NEWRELIC_REF}"}"
 
 # Optional NewRelic Application ID.
 #
@@ -26,7 +30,7 @@ DREVOPS_NOTIFY_NEWRELIC_APP_NAME="${DREVOPS_NOTIFY_NEWRELIC_APP_NAME:-"${DREVOPS
 DREVOPS_NOTIFY_NEWRELIC_APPID="${DREVOPS_NOTIFY_NEWRELIC_APPID:-}"
 
 # Optional NewRelic notification description.
-DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION="${DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION:-"${DREVOPS_NOTIFY_NEWRELIC_SHA} deployed"}"
+DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION="${DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION:-"${DREVOPS_NOTIFY_NEWRELIC_REF} deployed"}"
 
 # Optional NewRelic notification changelog.
 #
@@ -51,7 +55,8 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_PROJECT}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_PROJECT" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_APIKEY}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_APIKEY" && exit 1
-[ -z "${DREVOPS_NOTIFY_NEWRELIC_SHA}" ] && fail "Missing required value for DREVOPS_NOTIFY_REF" && exit 1
+[ -z "${DREVOPS_NOTIFY_NEWRELIC_REF}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_REF" && exit 1
+[ -z "${DREVOPS_NOTIFY_NEWRELIC_SHA}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_SHA" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_APP_NAME}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_APP_NAME" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION" && exit 1
 [ -z "${DREVOPS_NOTIFY_NEWRELIC_CHANGELOG}" ] && fail "Missing required value for DREVOPS_NOTIFY_NEWRELIC_CHANGELOG" && exit 1
@@ -70,7 +75,7 @@ fi
 
 # Check if the length of the DREVOPS_NOTIFY_NEWRELIC_APPID variable is not 10 OR
 # if the variable doesn't contain only numeric values and exit.
-{ [ "${#DREVOPS_NOTIFY_NEWRELIC_APPID}" != "10" ] || [ "$(expr "x${DREVOPS_NOTIFY_NEWRELIC_APPID}" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to get an application ID from the application name ${DREVOPS_NOTIFY_NEWRELIC_APP_NAME}." && exit 1
+{ [ "${#DREVOPS_NOTIFY_NEWRELIC_APPID}" != "10" ] || [ "$(expr "x${DREVOPS_NOTIFY_NEWRELIC_APPID}" : "x[0-9]*$")" -eq 0 ]; } && note "Notification skipped: No New Relic application ID found for ${DREVOPS_NOTIFY_NEWRELIC_APP_NAME}. This is expected for non-configured environments." && exit 0
 
 if ! curl -X POST "${DREVOPS_NOTIFY_NEWRELIC_ENDPOINT}/applications/${DREVOPS_NOTIFY_NEWRELIC_APPID}/deployments.json" \
   -L -s -o /dev/null -w "%{http_code}" \

@@ -1,10 +1,8 @@
 <?php
 
-namespace Drevops\Installer\Tests\Unit\Utils;
+namespace Drevops\Installer\Tests\Unit;
 
-use DrevOps\Installer\Command\Installer;
-use Drevops\Installer\Tests\Unit\UnitTestBase;
-use DrevOps\Installer\Utils\DotEnv;
+use DrevOps\Installer\Command\InstallCommand;
 
 /**
  * Class InstallerDotEnvTest.
@@ -42,44 +40,38 @@ class DotEnvTest extends UnitTestBase {
     $GLOBALS['_SERVER'] = $this->backupServer;
   }
 
-  /**
-   * @covers \DrevOps\Installer\Utils\DotEnv::loadDotenv
-   * @runInSeparateProcess
-   */
-  public function testLoadDotEnv() {
+  public function testGetEnv() {
     $content = 'var1=val1';
     $filename = $this->createFixtureEnvFile($content);
 
     $this->assertEmpty(getenv('var1'));
-    $this->callProtectedMethod(DotEnv::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
     $this->assertEquals('val1', getenv('var1'));
 
     // Try overloading with the same value - should not allow.
     $content = 'var1=val11';
     $filename = $this->createFixtureEnvFile($content);
-    $this->callProtectedMethod(DotEnv::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
     $this->assertEquals('val1', getenv('var1'));
 
     // Force overriding of existing variables.
     $content = 'var1=val11';
     $filename = $this->createFixtureEnvFile($content);
-    $this->callProtectedMethod(DotEnv::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
     // @todo Fix this test.
     // $this->assertEquals('val11', getenv('var1'));
   }
 
   /**
-   * @covers       \DrevOps\Installer\Utils\DotEnv::loadDotenv
    * @dataProvider dataProviderGlobals
-   * @runInSeparateProcess
    */
   public function testGlobals($content, $env_before, $server_before, $env_after, $server_after, $allow_override) {
-    $filename = !empty($content) ? $this->createFixtureEnvFile($content) : 'randomfilename';
+    $filename = $this->createFixtureEnvFile($content);
 
     $GLOBALS['_ENV'] = $env_before;
     $GLOBALS['_SERVER'] = $server_before;
 
-    $this->callProtectedMethod(DotEnv::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
 
     // @todo Fix this test.
     // $this->assertEquals($GLOBALS['_ENV'], $env_after);
