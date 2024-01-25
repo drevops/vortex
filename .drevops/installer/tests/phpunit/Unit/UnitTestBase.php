@@ -3,7 +3,6 @@
 namespace Drevops\Installer\Tests\Unit;
 
 use DrevOps\Installer\Tests\Traits\ClosureWrapperTrait;
-use Drevops\Installer\Tests\Traits\TestHelperTrait;
 use DrevOps\Installer\Utils\Files;
 use Drevops\Installer\Tests\Traits\ReflectionTrait;
 use PHPUnit\Framework\TestCase;
