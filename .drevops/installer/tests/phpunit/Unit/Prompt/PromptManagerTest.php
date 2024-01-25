@@ -53,7 +53,7 @@ class PromptManagerTest extends PromptUnitTestCase {
         static function () {
             return (new \DrevOps\Installer\Tests\Unit\Prompt\PromptTestClassWithProtectedCallback())->callbackExample();
         },
-        \RuntimeException::class,
+        \Error::class,
       ],
       'invalid callback non existing' => [
         'string_callback',
