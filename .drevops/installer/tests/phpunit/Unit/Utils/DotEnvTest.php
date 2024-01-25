@@ -1,8 +1,10 @@
 <?php
 
-namespace Drevops\Installer\Tests\Unit;
+namespace Drevops\Installer\Tests\Unit\Utils;
 
-use DrevOps\Installer\Command\InstallCommand;
+use DrevOps\Installer\Command\Installer;
+use Drevops\Installer\Tests\Unit\UnitTestBase;
+use DrevOps\Installer\Utils\DotEnv;
 
 /**
  * Class InstallerDotEnvTest.
@@ -28,50 +30,56 @@ class DotEnvTest extends UnitTestBase {
    */
   protected $backupEnv;
 
-  protected function setUp(): void {
+  public function setUp(): void {
     $this->backupEnv = $GLOBALS['_ENV'];
     $this->backupServer = $GLOBALS['_SERVER'];
 
     parent::setUp();
   }
 
-  protected function tearDown(): void {
+  public function tearDown(): void {
     $GLOBALS['_ENV'] = $this->backupEnv;
     $GLOBALS['_SERVER'] = $this->backupServer;
   }
 
-  public function testGetEnv(): void {
+  /**
+   * @covers \DrevOps\Installer\Utils\DotEnv::loadDotenv
+   * @runInSeparateProcess
+   */
+  public function testLoadDotEnv() {
     $content = 'var1=val1';
     $filename = $this->createFixtureEnvFile($content);
 
     $this->assertEmpty(getenv('var1'));
-    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(DotEnv::class, 'loadDotenv', [$filename]);
     $this->assertEquals('val1', getenv('var1'));
 
     // Try overloading with the same value - should not allow.
     $content = 'var1=val11';
     $filename = $this->createFixtureEnvFile($content);
-    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(DotEnv::class, 'loadDotenv', [$filename]);
     $this->assertEquals('val1', getenv('var1'));
 
     // Force overriding of existing variables.
     $content = 'var1=val11';
     $filename = $this->createFixtureEnvFile($content);
-    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(DotEnv::class, 'loadDotenv', [$filename]);
     // @todo Fix this test.
     // $this->assertEquals('val11', getenv('var1'));
   }
 
   /**
+   * @covers       \DrevOps\Installer\Utils\DotEnv::loadDotenv
    * @dataProvider dataProviderGlobals
+   * @runInSeparateProcess
    */
-  public function testGlobals(string $content, array $env_before, array $server_before, array $env_after, mixed $server_after, bool $allow_override): void {
-    $filename = $this->createFixtureEnvFile($content);
+  public function testGlobals($content, $env_before, $server_before, $env_after, $server_after, $allow_override) {
+    $filename = !empty($content) ? $this->createFixtureEnvFile($content) : 'randomfilename';
 
     $GLOBALS['_ENV'] = $env_before;
     $GLOBALS['_SERVER'] = $server_before;
 
-    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(DotEnv::class, 'loadDotenv', [$filename]);
 
     // @todo Fix this test.
     // $this->assertEquals($GLOBALS['_ENV'], $env_after);
@@ -80,7 +88,7 @@ class DotEnvTest extends UnitTestBase {
     $this->assertTrue(TRUE);
   }
 
-  public static function dataProviderGlobals(): array {
+  public static function dataProviderGlobals() {
     return [
       [
         '', [], [], [], [], FALSE,
@@ -209,7 +217,7 @@ class DotEnvTest extends UnitTestBase {
     ];
   }
 
-  protected function createFixtureEnvFile($content): string|false {
+  protected function createFixtureEnvFile($content) {
     $filename = tempnam(sys_get_temp_dir(), '.env');
     file_put_contents($filename, $content);
 
