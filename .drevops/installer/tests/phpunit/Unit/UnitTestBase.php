@@ -20,7 +20,6 @@ use Symfony\Component\Filesystem\Filesystem;
 abstract class UnitTestBase extends TestCase {
 
   use ClosureWrapperTrait;
-  use TestHelperTrait;
   use ReflectionTrait;
 
   /**
