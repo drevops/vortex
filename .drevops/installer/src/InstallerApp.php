@@ -2,10 +2,12 @@
 
 namespace DrevOps\Installer;
 
-
 use DrevOps\Installer\Command\InstallCommand;
 use Symfony\Component\Console\Application;
 
+/**
+ *
+ */
 class InstallerApp extends Application {
 
   public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN') {
@@ -19,4 +21,3 @@ class InstallerApp extends Application {
   }
 
 }
-

@@ -12,6 +12,9 @@ use DrevOps\Installer\Utils\Files;
 use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
+/**
+ *
+ */
 class ThemePrompt extends AbstractPrompt {
 
   final const ID = 'theme';

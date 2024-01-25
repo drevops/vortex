@@ -2,9 +2,9 @@
 
 namespace DrevOps\Installer\Utils;
 
-use ReflectionClass;
-use RuntimeException;
-
+/**
+ *
+ */
 class Tokenizer {
 
   public static function removeTokenWithContentFromDir(string $token, string $dir): void {
@@ -42,7 +42,7 @@ class Tokenizer {
       $token_begin_count = preg_match_all('/' . preg_quote((string) $token_begin) . '/', (string) $content);
       $token_end_count = preg_match_all('/' . preg_quote((string) $token_end) . '/', (string) $content);
       if ($token_begin_count !== $token_end_count) {
-        throw new RuntimeException(sprintf('Invalid begin and end token count: begin is %s(%s), end is %s(%s).', $token_begin, $token_begin_count, $token_end, $token_end_count));
+        throw new \RuntimeException(sprintf('Invalid begin and end token count: begin is %s(%s), end is %s(%s).', $token_begin, $token_begin_count, $token_end, $token_end_count));
       }
     }
 
@@ -85,11 +85,11 @@ class Tokenizer {
    */
   protected static function validateToken(string $token) {
     $interface = 'DrevOps\Installer\TokenInterface';
-    $reflection = new ReflectionClass($interface);
+    $reflection = new \ReflectionClass($interface);
 
     $constants = $reflection->getConstants();
     if (!in_array($token, $constants) && (str_starts_with($token, '!') && !in_array(substr($token, 1), $constants))) {
-      throw new RuntimeException(sprintf('Token %s is not defined in %s.', $token, $interface));
+      throw new \RuntimeException(sprintf('Token %s is not defined in %s.', $token, $interface));
     }
   }
 

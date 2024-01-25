@@ -8,6 +8,9 @@ use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\Env;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ *
+ */
 class DemoProcessor extends AbstractProcessor {
 
   /**
@@ -19,7 +22,7 @@ class DemoProcessor extends AbstractProcessor {
     }
 
     // Reload variables from destination's .env.
-    // @todo: Fix this - introduce config refresh.
+    // @todo Fix this - introduce config refresh.
     DotEnv::loadDotenv($config->getDstDir() . '/.env');
 
     $url = Env::get(Env::DB_DOWNLOAD_CURL_URL);

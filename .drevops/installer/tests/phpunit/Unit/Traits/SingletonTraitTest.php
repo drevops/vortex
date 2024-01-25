@@ -53,6 +53,9 @@ class SingletonTraitTest extends UnitTestBase {
 
 }
 
+/**
+ *
+ */
 class TestSingleton {
 
   use SingletonTrait;

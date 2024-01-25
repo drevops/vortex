@@ -8,6 +8,9 @@ use DrevOps\Installer\Utils\Formatter;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 
+/**
+ *
+ */
 abstract class AbstractConfirmationPrompt extends AbstractPrompt {
 
   /**

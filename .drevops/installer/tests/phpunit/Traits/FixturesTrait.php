@@ -2,6 +2,9 @@
 
 namespace Drevops\Installer\Tests\Traits;
 
+/**
+ *
+ */
 trait FixturesTrait {
 
   use VfsTrait;
@@ -46,10 +49,10 @@ trait FixturesTrait {
   }
 
   protected static function fixturesCreateComposerjson(string $dir, $values) {
-    // Convert the values to a JSON string with pretty print
+    // Convert the values to a JSON string with pretty print.
     $json = json_encode($values, JSON_PRETTY_PRINT);
 
-    // If there was an error encoding the JSON data
+    // If there was an error encoding the JSON data.
     if ($json === FALSE) {
       throw new \RuntimeException('Error encoding values to JSON');
     }

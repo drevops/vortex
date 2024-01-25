@@ -8,6 +8,9 @@ use DrevOps\Installer\Prompt\AbstractConfirmationPrompt;
 use DrevOps\Installer\Utils\DotEnv;
 use DrevOps\Installer\Utils\Formatter;
 
+/**
+ *
+ */
 class PreserveLagoonPrompt extends AbstractConfirmationPrompt {
 
   final const ID = 'preserve_lagoon';

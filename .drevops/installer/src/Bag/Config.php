@@ -6,8 +6,10 @@ use DrevOps\Installer\Trait\ReadOnlyTrait;
 use DrevOps\Installer\Trait\SingletonTrait;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Files;
-use RuntimeException;
 
+/**
+ *
+ */
 class Config extends AbstractBag {
 
   use SingletonTrait {
@@ -50,11 +52,11 @@ class Config extends AbstractBag {
    * Set installer configuration.
    *
    * Installer config is a config of this installer script. For configs of the
-   * project being installed, @param $name
+   * project being installed, @param $name.
    *
    * @param $value
    *
-   * @see set_answer().
+   * @see set_answer()
    *
    * @see init_config()
    */
@@ -62,7 +64,7 @@ class Config extends AbstractBag {
     if ($this->isReadOnly()) {
       // You can choose to throw an exception or silently ignore.
       // Here, we're choosing to throw an exception.
-      throw new RuntimeException('Cannot modify a read-only config.');
+      throw new \RuntimeException('Cannot modify a read-only config.');
     }
     parent::set($name, $value);
   }
@@ -81,7 +83,6 @@ class Config extends AbstractBag {
 
     // @todo Review and remove. There is no reason to load dotenv here.
     // DotEnv::loadDotenv($this->getDstDir() . '/.env');
-
     return $this;
   }
 

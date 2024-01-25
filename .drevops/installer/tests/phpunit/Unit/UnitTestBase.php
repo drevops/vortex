@@ -5,7 +5,6 @@ namespace Drevops\Installer\Tests\Unit;
 use DrevOps\Installer\Tests\Traits\ClosureWrapperTrait;
 use Drevops\Installer\Tests\Traits\TestHelperTrait;
 use DrevOps\Installer\Utils\Files;
-use DrevOps\Installer\Command\InstallCommand;
 use Drevops\Installer\Tests\Traits\ReflectionTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;

@@ -9,6 +9,9 @@ use DrevOps\Installer\Utils\DotEnv;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Formatter;
 
+/**
+ *
+ */
 class PreserveFtpPrompt extends AbstractConfirmationPrompt {
 
   final const ID = 'preserve_ftp';

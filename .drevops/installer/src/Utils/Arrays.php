@@ -2,6 +2,9 @@
 
 namespace DrevOps\Installer\Utils;
 
+/**
+ *
+ */
 class Arrays {
 
   /**
@@ -58,17 +61,18 @@ class Arrays {
     $sorted = $array;
 
     uasort($sorted, static function ($a, $b) use ($values) : int {
-        $a_index = array_search($a, $values, true);
-        $b_index = array_search($b, $values, true);
-        return ($a_index === false ? PHP_INT_MAX : $a_index) <=> ($b_index === false ? PHP_INT_MAX : $b_index);
+        $a_index = array_search($a, $values, TRUE);
+        $b_index = array_search($b, $values, TRUE);
+        return ($a_index === FALSE ? PHP_INT_MAX : $a_index) <=> ($b_index === FALSE ? PHP_INT_MAX : $b_index);
     });
 
-    // Preserve non-numeric keys and reset numeric ones
+    // Preserve non-numeric keys and reset numeric ones.
     $result = [];
     foreach ($sorted as $key => $value) {
       if (is_numeric($key)) {
         $result[] = $value;
-      } else {
+      }
+      else {
         $result[$key] = $value;
       }
     }

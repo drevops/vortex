@@ -2,6 +2,9 @@
 
 namespace DrevOps\Installer\Utils;
 
+/**
+ *
+ */
 class ConstantsLoader {
 
   public static function load(object|string $class, string|null $prefix = NULL, $prefix_is_key = TRUE): array {

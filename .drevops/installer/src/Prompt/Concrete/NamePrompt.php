@@ -10,9 +10,12 @@ use DrevOps\Installer\Utils\Files;
 use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
+/**
+ *
+ */
 class NamePrompt extends AbstractPrompt {
 
-  const ID = 'name';
+  final const ID = 'name';
 
   /**
    * {@inheritdoc}
@@ -41,10 +44,8 @@ class NamePrompt extends AbstractPrompt {
     // From the destination composer.json.
     $value = Files::getComposerJsonValue('description', $config->getDstDir());
 
-    if ($value && preg_match('/Drupal [0-9]+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
-      if (!empty($matches[1])) {
-        return $matches[1];
-      }
+    if ($value && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', (string) $value, $matches) && !empty($matches[1])) {
+      return $matches[1];
     }
 
     return basename($config->getDstDir());

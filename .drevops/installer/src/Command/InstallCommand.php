@@ -108,7 +108,6 @@ class InstallCommand extends Command {
 
     if ($this->askShouldProceed()) {
       // $this->installManager->install($this->config);
-
       $this->printManager->printFooter();
     }
     else {
@@ -122,15 +121,14 @@ class InstallCommand extends Command {
     $this->questionManager->askQuestions(function (PromptManager $qm): void {
       $is_installed = InstallManager::isInstalled($this->config->getDstDir());
 
-      //      // @todo: remove this.
-      ////      $qm->ask(DatabaseDownloadSourceQuestion::ID);
-      ////      $qm->ask(DatabaseStoreTypeQuestion::ID);
+      // // @todo remove this.
+      // $qm->ask(DatabaseDownloadSourceQuestion::ID);
+      // $qm->ask(DatabaseStoreTypeQuestion::ID);
       //      $qm->ask(DeployTypeQuestion::ID);
       //      print_r($qm->getAnswers()->getAll());
-      //exit (1);
-
+      // exit (1);
       // For already installed projects, we do not need to ask for the webroot.
-      if($is_installed) {
+      if ($is_installed) {
         // @todo Implement this.
         $qm->ask(WebrootPrompt::ID, TRUE);
       }
@@ -144,7 +142,7 @@ class InstallCommand extends Command {
       $qm->ask(ThemePrompt::ID);
       $qm->ask(UrlPrompt::ID);
 
-      if($is_installed) {
+      if ($is_installed) {
         $qm->ask(WebrootPrompt::ID);
       }
 

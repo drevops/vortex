@@ -2,13 +2,10 @@
 
 namespace Drevops\Installer\Tests\Unit\Prompt;
 
-
 use DrevOps\Installer\Bag\Answers;
 use DrevOps\Installer\Bag\Config;
 use Drevops\Installer\Tests\Traits\EnvTrait;
 use Drevops\Installer\Tests\Traits\FixturesTrait;
-use DrevOps\Installer\Utils\Env;
-use Opis\Closure\SerializableClosure;
 
 /**
  * Base test class for all specific prompt unit tests.

@@ -2,10 +2,13 @@
 
 namespace DrevOps\Installer\Utils;
 
+/**
+ *
+ */
 class Strings {
 
   public static function toMachineName($value, $preserve_chars = []) {
-    if(empty($value)) {
+    if (empty($value)) {
       return $value;
     }
 
@@ -50,7 +53,7 @@ class Strings {
   }
 
   public static function toUrl(string $string): string {
-    // @todo: Add more replacements.
+    // @todo Add more replacements.
     return str_replace([' ', '_'], '-', $string);
   }
 

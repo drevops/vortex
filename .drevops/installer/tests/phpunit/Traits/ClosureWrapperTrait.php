@@ -4,8 +4,9 @@ namespace DrevOps\Installer\Tests\Traits;
 
 use Opis\Closure\SerializableClosure;
 
-/*
- * @see https://github.com/sebastianbergmann/phpunit/issues/2739
+/**
+ *
+ *@see https://github.com/sebastianbergmann/phpunit/issues/2739
  */
 trait ClosureWrapperTrait {
 

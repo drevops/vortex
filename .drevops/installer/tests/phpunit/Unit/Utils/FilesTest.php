@@ -2,7 +2,6 @@
 
 namespace Drevops\Installer\Tests\Unit\Utils;
 
-use DrevOps\Installer\Command\Installer;
 use Drevops\Installer\Tests\Unit\UnitTestBase;
 use DrevOps\Installer\Utils\Files;
 
@@ -61,7 +60,6 @@ class FilesTest extends UnitTestBase {
     $this->assertDirectoryDoesNotExist($dir . 'emptydir');
   }
 
-
   /**
    * @dataProvider dataProviderFileContains
    * @covers       \DrevOps\Installer\Utils\Files::fileContains
@@ -117,7 +115,6 @@ class FilesTest extends UnitTestBase {
       ['/BA.*/', ['dir1/foobar_b.txt'], TRUE],
     ];
   }
-
 
   /**
    * @covers       \DrevOps\Installer\Utils\Files::dirReplaceContent
@@ -198,6 +195,5 @@ class FilesTest extends UnitTestBase {
       ],
     ];
   }
-
 
 }

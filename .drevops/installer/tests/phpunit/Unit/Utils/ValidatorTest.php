@@ -191,7 +191,7 @@ class ValidatorTest extends TestCase {
       $this->expectExceptionMessage('The URL is not valid.');
     }
 
-    Validator::url($value,$require_protocol );
+    Validator::url($value, $require_protocol);
 
     if (!$expected) {
       $this->assertTrue(TRUE);
@@ -341,4 +341,5 @@ class ValidatorTest extends TestCase {
 
     ];
   }
+
 }

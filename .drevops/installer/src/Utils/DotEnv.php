@@ -2,6 +2,9 @@
 
 namespace DrevOps\Installer\Utils;
 
+/**
+ *
+ */
 class DotEnv {
 
   public static function parseDotenv($filename = '.env'): false|array {
@@ -57,4 +60,5 @@ class DotEnv {
 
     return $parsed ? $parsed[$name] ?? $default : $default;
   }
+
 }

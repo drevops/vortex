@@ -2,6 +2,9 @@
 
 namespace DrevOps\Installer\Bag;
 
+/**
+ *
+ */
 abstract class AbstractBag {
 
   /**

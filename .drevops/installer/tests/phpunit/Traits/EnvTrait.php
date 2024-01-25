@@ -2,6 +2,9 @@
 
 namespace Drevops\Installer\Tests\Traits;
 
+/**
+ *
+ */
 trait EnvTrait {
 
   protected static $env = [];

@@ -8,10 +8,12 @@ use DrevOps\Installer\Utils\Formatter;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ *
+ */
 class PrintManager {
 
-  public function __construct(protected SymfonyStyle $io, protected Config $config)
-  {
+  public function __construct(protected SymfonyStyle $io, protected Config $config) {
   }
 
   public function printHeader(): void {

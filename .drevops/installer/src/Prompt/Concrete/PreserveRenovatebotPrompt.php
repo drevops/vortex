@@ -8,6 +8,9 @@ use DrevOps\Installer\InstallManager;
 use DrevOps\Installer\Prompt\AbstractConfirmationPrompt;
 use DrevOps\Installer\Utils\Formatter;
 
+/**
+ *
+ */
 class PreserveRenovatebotPrompt extends AbstractConfirmationPrompt {
 
   final const ID = 'preserve_renovatebot';

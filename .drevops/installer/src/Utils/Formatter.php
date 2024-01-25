@@ -6,6 +6,9 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Helper\TableStyle;
 
+/**
+ *
+ */
 class Formatter {
 
   public static function formatNotEmpty($value, $default) {

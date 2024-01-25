@@ -16,20 +16,20 @@ class OptionsCommandTest extends CommandTestCase {
   /**
    * Test the execute method.
    *
-   * @covers        \DrevOps\Installer\Bag\Config::isQuiet
-   * @covers        \DrevOps\Installer\PrintManager::__construct
-   * @covers        \DrevOps\Installer\PrintManager::printHeader
-   * @covers        \DrevOps\Installer\PrintManager::printHeaderQuiet
-   * @covers        \DrevOps\Installer\PrintManager::printHeaderInteractive
-   * @covers        \DrevOps\Installer\PrintManager::printSummary
-   * @covers        \DrevOps\Installer\PrintManager::printAbort
-   * @covers        \DrevOps\Installer\Command\InstallCommand::askShouldProceed
-   * @covers        \DrevOps\Installer\Command\InstallCommand::doExecute
-   * @covers        \DrevOps\Installer\Command\InstallCommand::execute
-   * @covers        \DrevOps\Installer\Command\InstallCommand::askQuestions
-   * @covers        \DrevOps\Installer\Command\InstallCommand::initIo
+   * @covers \DrevOps\Installer\Bag\Config::isQuiet
+   * @covers \DrevOps\Installer\PrintManager::__construct
+   * @covers \DrevOps\Installer\PrintManager::printHeader
+   * @covers \DrevOps\Installer\PrintManager::printHeaderQuiet
+   * @covers \DrevOps\Installer\PrintManager::printHeaderInteractive
+   * @covers \DrevOps\Installer\PrintManager::printSummary
+   * @covers \DrevOps\Installer\PrintManager::printAbort
+   * @covers \DrevOps\Installer\Command\InstallCommand::askShouldProceed
+   * @covers \DrevOps\Installer\Command\InstallCommand::doExecute
+   * @covers \DrevOps\Installer\Command\InstallCommand::execute
+   * @covers \DrevOps\Installer\Command\InstallCommand::askQuestions
+   * @covers \DrevOps\Installer\Command\InstallCommand::initIo
    *
-   * @dataProvider  dataProviderExecuteOptions
+   * @dataProvider dataProviderExecuteOptions
    * @runInSeparateProcess
    */
   public function testExecuteOptions(array $input, string ...$expected): void {
@@ -98,7 +98,6 @@ class OptionsCommandTest extends CommandTestCase {
         'It looks like DrevOps is already installed into this project.',
         'Please answer the questions below to install configuration relevant to your site.',
       ],
-
 
       [
         ['--quiet' => TRUE],

@@ -5,6 +5,9 @@ namespace Drevops\Installer\Tests\Functional;
 use DrevOps\Installer\InstallerApp;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
+/**
+ *
+ */
 abstract class ApplicationTestCase extends FunctionalTestCase {
 
   /**

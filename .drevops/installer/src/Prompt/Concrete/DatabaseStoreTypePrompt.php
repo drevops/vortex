@@ -8,13 +8,16 @@ use DrevOps\Installer\Prompt\AbstractChoicePrompt;
 use DrevOps\Installer\Utils\DotEnv;
 use DrevOps\Installer\Utils\Env;
 
+/**
+ *
+ */
 class DatabaseStoreTypePrompt extends AbstractChoicePrompt {
 
-  const CHOICE_FILE = 'file';
+  final const CHOICE_FILE = 'file';
 
-  const CHOICE_DOCKER_IMAGE = 'docker_image';
+  final const CHOICE_DOCKER_IMAGE = 'docker_image';
 
-  const ID = 'database_store_type';
+  final const ID = 'database_store_type';
 
   /**
    * {@inheritdoc}
@@ -33,7 +36,7 @@ class DatabaseStoreTypePrompt extends AbstractChoicePrompt {
   /**
    * {@inheritdoc}
    */
-  public static function choices() {
+  public static function choices(): array {
     return [
       self::CHOICE_FILE,
       self::CHOICE_DOCKER_IMAGE,

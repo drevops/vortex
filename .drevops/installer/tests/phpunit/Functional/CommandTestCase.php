@@ -6,6 +6,9 @@ use DrevOps\Installer\Command\InstallCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ *
+ */
 abstract class CommandTestCase extends FunctionalTestCase {
 
   /**
@@ -41,8 +44,8 @@ abstract class CommandTestCase extends FunctionalTestCase {
    */
   protected function execute(array $input, $options = []): string {
     $this->tester->execute($input, $options + [
-        'interactive' => FALSE,
-      ]);
+      'interactive' => FALSE,
+    ]);
 
     return $this->tester->getDisplay();
   }

@@ -2,7 +2,6 @@
 
 namespace Drevops\Installer\Tests\Unit\Bag;
 
-use DrevOps\Installer\Bag\AbstractBag;
 use DrevOps\Installer\Bag\Answers;
 use Drevops\Installer\Tests\Unit\UnitTestBase;
 

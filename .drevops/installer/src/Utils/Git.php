@@ -2,6 +2,9 @@
 
 namespace DrevOps\Installer\Utils;
 
+/**
+ *
+ */
 class Git {
 
   public static function fileIsTracked($path, string $dir): bool {

@@ -2,6 +2,9 @@
 
 namespace DrevOps\Installer\Trait;
 
+/**
+ *
+ */
 trait ReadOnlyTrait {
 
   protected $readOnly = FALSE;

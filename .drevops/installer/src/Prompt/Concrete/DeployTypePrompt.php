@@ -11,19 +11,22 @@ use DrevOps\Installer\Utils\Formatter;
 use DrevOps\Installer\Utils\Strings;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ *
+ */
 class DeployTypePrompt extends AbstractChoicePrompt {
 
-  const CHOICE_ARTIFACT = 'artifact';
+  final const CHOICE_ARTIFACT = 'artifact';
 
-  const CHOICE_WEBHOOK = 'webhook';
+  final const CHOICE_WEBHOOK = 'webhook';
 
-  const CHOICE_DOCKER = 'docker';
+  final const CHOICE_DOCKER = 'docker';
 
-  const CHOICE_LAGOON = 'lagoon';
+  final const CHOICE_LAGOON = 'lagoon';
 
-  const CHOICE_NONE = 'none';
+  final const CHOICE_NONE = 'none';
 
-  const ID = 'deploy_type';
+  final const ID = 'deploy_type';
 
   public function __construct(SymfonyStyle $io) {
     parent::__construct($io);
@@ -47,7 +50,7 @@ class DeployTypePrompt extends AbstractChoicePrompt {
   /**
    * {@inheritdoc}
    */
-  public static function choices() {
+  public static function choices(): array {
     return [
       self::CHOICE_ARTIFACT,
       self::CHOICE_WEBHOOK,

@@ -5,6 +5,9 @@ namespace DrevOps\Installer;
 use DrevOps\Installer\Processor\AbstractProcessor;
 use DrevOps\Installer\Utils\ClassLoader;
 
+/**
+ *
+ */
 class ProcessorManager {
 
   /**
@@ -18,8 +21,8 @@ class ProcessorManager {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
   public function __construct($config, /**
-   * Output object.
-   */
+                                        * Output object.
+                                        */
   protected $output) {
     $this->config = clone $config;
     $this->config->setReadOnly();

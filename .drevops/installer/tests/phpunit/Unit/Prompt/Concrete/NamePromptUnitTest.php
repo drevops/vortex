@@ -5,7 +5,6 @@ namespace Drevops\Installer\Tests\Unit\Prompt\Concrete;
 use DrevOps\Installer\Prompt\Concrete\NamePrompt;
 use Drevops\Installer\Tests\Unit\Prompt\ConcretePromptUnitTestCase;
 use DrevOps\Installer\Utils\Env;
-use Opis\Closure\SerializableClosure;
 
 /**
  * @coversDefaultClass \DrevOps\Installer\Prompt\Concrete\NamePrompt

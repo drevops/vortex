@@ -6,6 +6,9 @@ use DrevOps\Installer\Bag\Answers;
 use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\Prompt\AbstractPrompt;
 
+/**
+ *
+ */
 class TestPrompt extends AbstractPrompt {
 
   final const ID = 'test';
@@ -23,7 +26,7 @@ class TestPrompt extends AbstractPrompt {
   }
 
   public static function getFormattedValue(mixed $value): string {
-   return 'Fixture formatted value';
+    return 'Fixture formatted value';
   }
 
 }

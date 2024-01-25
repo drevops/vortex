@@ -8,6 +8,9 @@ use DrevOps\Installer\Utils\Files;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Symfony\Component\String\u;
 
+/**
+ *
+ */
 class StringTokensProcessor extends AbstractProcessor {
 
   /**
@@ -21,7 +24,7 @@ class StringTokensProcessor extends AbstractProcessor {
   public function run(Config $config, string $dir, OutputInterface $output): void {
     $machine_name_hyphenated = str_replace('_', '-', (string) $config->get('machine_name'));
     $machine_name_camel_cased = u($config->get('machine_name'))->camel()->title();
-    $module_prefix_camel_cased =  u($config->get('module_prefix'))->camel()->title();
+    $module_prefix_camel_cased = u($config->get('module_prefix'))->camel()->title();
     $module_prefix_uppercase = u($module_prefix_camel_cased)->upper();
     $theme_camel_cased = u($config->get('theme'))->camel()->title();
     $drevops_version_urlencoded = str_replace('-', '--', (string) $config->get(Env::DREVOPS_VERSION));

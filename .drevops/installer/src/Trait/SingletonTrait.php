@@ -25,7 +25,7 @@ trait SingletonTrait {
    *
    * @var bool
    */
-  protected static $calledInternally = false;
+  protected static $calledInternally = FALSE;
 
   public function __construct() {
     if (!self::$calledInternally) {
@@ -38,12 +38,12 @@ trait SingletonTrait {
    */
   final public static function getInstance(): static {
     if (!static::$instance) {
-      // Set the flag to allow internal instantiation
-      self::$calledInternally = true;
-      // new self() will refer to the class that uses the trait
+      // Set the flag to allow internal instantiation.
+      self::$calledInternally = TRUE;
+      // New self() will refer to the class that uses the trait.
       static::$instance = new static();
-      // Reset the flag
-      self::$calledInternally = false;
+      // Reset the flag.
+      self::$calledInternally = FALSE;
     }
 
     return static::$instance;

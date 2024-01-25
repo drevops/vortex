@@ -3,7 +3,6 @@
 namespace Drevops\Installer\Tests\Unit\Utils;
 
 use Drevops\Installer\Tests\Unit\UnitTestBase;
-use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Token;
 
 /**

@@ -8,6 +8,9 @@ use Drevops\Installer\Tests\Traits\FixturesTrait;
 use DrevOps\Installer\Utils\Env;
 use PHPUnit\Framework\TestCase;
 
+/**
+ *
+ */
 abstract class FunctionalTestCase extends TestCase {
 
   use AssertTrait;

@@ -3,8 +3,10 @@
 namespace DrevOps\Installer\Utils;
 
 use DrevOps\Installer\Bag\Config;
-use RuntimeException;
 
+/**
+ *
+ */
 class Downloader {
 
   public static function findLatestDrevopsRelease($org, $project, $release_prefix) {
@@ -14,7 +16,7 @@ class Downloader {
     ]));
 
     if (!$release_contents) {
-      throw new RuntimeException(sprintf('Unable to download release information from "%s".', $release_url));
+      throw new \RuntimeException(sprintf('Unable to download release information from "%s".', $release_url));
     }
 
     $records = json_decode($release_contents, TRUE);
@@ -41,7 +43,7 @@ class Downloader {
     Executor::doExec(sprintf('curl -sS -L "%s" | tar xzf - -C "%s" --strip 1', $url, $dst), $output, $code);
 
     if ($code != 0) {
-      throw new RuntimeException(implode(PHP_EOL, $output));
+      throw new \RuntimeException(implode(PHP_EOL, $output));
     }
 
     Output::status(sprintf('Downloaded to "%s".', $dst), Output::INSTALLER_STATUS_DEBUG);
@@ -62,7 +64,7 @@ class Downloader {
     Output::status(implode(PHP_EOL, $output), Output::INSTALLER_STATUS_DEBUG);
 
     if ($code != 0) {
-      throw new RuntimeException(implode(PHP_EOL, $output));
+      throw new \RuntimeException(implode(PHP_EOL, $output));
     }
 
     Output::status(sprintf('Downloaded to "%s".', $dst), Output::INSTALLER_STATUS_DEBUG);
@@ -88,7 +90,7 @@ class Downloader {
     Executor::doExec(sprintf('curl -s -L "%s" -o "%s"', $url, $dst), $output, $code);
 
     if ($code !== 0) {
-      throw new RuntimeException(sprintf('Unable to download file from "%s".', $url));
+      throw new \RuntimeException(sprintf('Unable to download file from "%s".', $url));
     }
 
     return $dst;

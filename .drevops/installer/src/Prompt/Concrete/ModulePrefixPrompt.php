@@ -2,7 +2,6 @@
 
 namespace DrevOps\Installer\Prompt\Concrete;
 
-
 use DrevOps\Installer\Bag\Answers;
 use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\Prompt\AbstractPrompt;
@@ -10,9 +9,12 @@ use DrevOps\Installer\Utils\Files;
 use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
+/**
+ *
+ */
 class ModulePrefixPrompt extends AbstractPrompt {
 
-  const ID = 'module_prefix';
+  final const ID = 'module_prefix';
 
   /**
    * {@inheritdoc}
@@ -42,18 +44,18 @@ class ModulePrefixPrompt extends AbstractPrompt {
     $webroot = $config->getWebroot();
 
     $locations = [
-      $config->getDstDir() . "/$webroot/modules/custom/*_core",
-      $config->getDstDir() . "/$webroot/sites/all/modules/custom/*_core",
-      $config->getDstDir() . "/$webroot/profiles/*/modules/*_core",
-      $config->getDstDir() . "/$webroot/profiles/*/modules/custom/*_core",
-      $config->getDstDir() . "/$webroot/profiles/custom/*/modules/*_core",
-      $config->getDstDir() . "/$webroot/profiles/custom/*/modules/custom/*_core",
+      $config->getDstDir() . sprintf('/%s/modules/custom/*_core', $webroot),
+      $config->getDstDir() . sprintf('/%s/sites/all/modules/custom/*_core', $webroot),
+      $config->getDstDir() . sprintf('/%s/profiles/*/modules/*_core', $webroot),
+      $config->getDstDir() . sprintf('/%s/profiles/*/modules/custom/*_core', $webroot),
+      $config->getDstDir() . sprintf('/%s/profiles/custom/*/modules/*_core', $webroot),
+      $config->getDstDir() . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $webroot),
     ];
 
     $value = Files::findMatchingPath($locations);
 
     if (!empty($value)) {
-      $value = basename($value);
+      $value = basename((string) $value);
       $value = str_replace('_core', '', $value);
     }
 

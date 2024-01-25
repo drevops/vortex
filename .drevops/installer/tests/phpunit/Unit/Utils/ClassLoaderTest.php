@@ -3,7 +3,6 @@
 namespace DrevOps\Installer\Tests\Unit\Utils;
 
 use DrevOps\Installer\Utils\ClassLoader;
-use DrevOps\Installer\Utils\ConstantsLoader;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -49,7 +48,7 @@ EOD;
   public function testFilterByClass(): void {
     $classes = [
       'DrevOps\Installer\Utils\Tests\TestClass',
-      'DrevOps\Installer\Utils\AnotherClass'
+      'DrevOps\Installer\Utils\AnotherClass',
     ];
     $filtered = ClassLoader::filterByClass(TestCase::class, $classes);
     $this->assertNotContains('DrevOps\Installer\Utils\Tests\TestClass', $filtered);

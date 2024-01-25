@@ -7,9 +7,10 @@ use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Executor;
 use DrevOps\Installer\Utils\Files;
 use DrevOps\Installer\Utils\Output;
-use DrevOps\Installer\Utils\Tokenizer;
-use RuntimeException;
 
+/**
+ *
+ */
 class InstallManager {
 
   /**
@@ -24,9 +25,7 @@ class InstallManager {
   /**
    * Check that DrevOps is installed for this project.
    *
-   *
    * @todo Move this elsewhere.
-   *
    */
   public static function isInstalled(string $dst_dir): bool {
     $path = $dst_dir . DIRECTORY_SEPARATOR . 'README.md';
@@ -34,8 +33,7 @@ class InstallManager {
     return file_exists($path) && preg_match('/badge\/DrevOps\-/', file_get_contents($path));
   }
 
-  public function install($config): void
-  {
+  public function install($config): void {
   }
 
   public function checkRequirements(): void {
@@ -51,7 +49,7 @@ class InstallManager {
       Output::status(sprintf('Creating destination directory "%s".', $dst), Output::INSTALLER_STATUS_MESSAGE, FALSE);
       mkdir($dst);
       if (!is_writable($dst)) {
-        throw new RuntimeException(sprintf('Destination directory "%s" is not writable.', $dst));
+        throw new \RuntimeException(sprintf('Destination directory "%s" is not writable.', $dst));
       }
       print ' ';
       Output::status('Done', Output::INSTALLER_STATUS_SUCCESS);
@@ -64,7 +62,7 @@ class InstallManager {
       Output::status(sprintf('Initialising Git repository in directory "%s".', $dst), Output::INSTALLER_STATUS_MESSAGE, FALSE);
       Executor::doExec(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
       if (!is_readable($dst . '/.git')) {
-        throw new RuntimeException(sprintf('Unable to init git project in directory "%s".', $dst));
+        throw new \RuntimeException(sprintf('Unable to init git project in directory "%s".', $dst));
       }
     }
     print ' ';
@@ -119,4 +117,5 @@ class InstallManager {
       Files::copyRecursive($dst . '/.env.local.example', $dst . '/.env.local', 0755, FALSE);
     }
   }
+
 }

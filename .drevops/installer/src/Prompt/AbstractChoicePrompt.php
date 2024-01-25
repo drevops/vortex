@@ -5,12 +5,14 @@ namespace DrevOps\Installer\Prompt;
 use DrevOps\Installer\Bag\Answers;
 use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\Utils\Arrays;
-use DrevOps\Installer\Utils\Formatter;
 use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 
+/**
+ *
+ */
 abstract class AbstractChoicePrompt extends AbstractPrompt {
 
   protected $isMultiselect = FALSE;
@@ -129,6 +131,5 @@ abstract class AbstractChoicePrompt extends AbstractPrompt {
   public function setIsMultiselect(bool $isMultiselect): void {
     $this->isMultiselect = $isMultiselect;
   }
-
 
 }

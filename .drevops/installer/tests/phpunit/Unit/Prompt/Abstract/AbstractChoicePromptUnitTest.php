@@ -328,9 +328,9 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
           return $value_normalizer_value ?: $value;
       },
       'validator' => static function () use ($value_validator) : void {
-          if (str_contains($value_validator, 'Exception')) {
-            throw new \Exception($value_validator);
-          }
+        if (str_contains($value_validator, 'Exception')) {
+          throw new \Exception($value_validator);
+        }
       },
     ]);
 
@@ -386,9 +386,9 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
           return $value_normalizer_value ?: $value;
       },
       'validator' => static function () use ($value_validator, $expect_exception) : void {
-          if ($expect_exception) {
-            throw new \Exception($value_validator);
-          }
+        if ($expect_exception) {
+          throw new \Exception($value_validator);
+        }
       },
     ],
       [$this->io($expected_answer)]
@@ -430,10 +430,11 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
     ];
   }
 
-
 }
 
-
+/**
+ *
+ */
 class ErroneousChoicePromptFixture extends AbstractChoicePrompt {
 
   public static function choices() {
@@ -441,6 +442,9 @@ class ErroneousChoicePromptFixture extends AbstractChoicePrompt {
 
 }
 
+/**
+ *
+ */
 class FilledChoicePromptFixture extends AbstractChoicePrompt {
 
   public static function title(): string {
@@ -461,6 +465,9 @@ class FilledChoicePromptFixture extends AbstractChoicePrompt {
 
 }
 
+/**
+ *
+ */
 class FilledMultiChoicePromptFixture extends FilledChoicePromptFixture {
 
   protected $isMultiselect = TRUE;

@@ -4,11 +4,12 @@ namespace DrevOps\Installer\Prompt;
 
 use DrevOps\Installer\Bag\Answers;
 use DrevOps\Installer\Bag\Config;
-use Exception;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ *
+ */
 abstract class AbstractPrompt {
 
   public function __construct(
@@ -62,31 +63,30 @@ abstract class AbstractPrompt {
    * The question title.
    *
    * @return string
-   *  The question title.
+   *   The question title.
    */
   public static function title(): string {
-    throw new Exception('The question title is not defined.');
+    throw new \Exception('The question title is not defined.');
   }
 
   /**
    * The question text.
    *
    * @return string
-   *  The question text.
+   *   The question text.
    */
   public static function question(): string {
-    throw new Exception('The question text is not defined.');
+    throw new \Exception('The question text is not defined.');
   }
-
 
   /**
    * Get the formatted question.
    *
    * @param mixed $default
-   *  The default value.
+   *   The default value.
    *
    * @return string
-   *  The formatted question.
+   *   The formatted question.
    */
   public static function getFormattedQuestion(mixed $default): string {
     return static::question();
@@ -96,10 +96,10 @@ abstract class AbstractPrompt {
    * Formatted value printed on the screen.
    *
    * @param mixed $value
-   *  The value to be printed.
+   *   The value to be printed.
    *
    * @return string
-   *  The formatted value.
+   *   The formatted value.
    */
   public static function getFormattedValue(mixed $value): string {
     return $value;
@@ -142,7 +142,7 @@ abstract class AbstractPrompt {
    *   The answers bag.
    *
    * @return mixed
-   *  The discovered value.
+   *   The discovered value.
    */
   protected function discoveredValue(Config $config, Answers $answers): mixed {
     return NULL;
@@ -165,7 +165,7 @@ abstract class AbstractPrompt {
    *   The answers bag.
    *
    * @return mixed
-   *  The normalized value.
+   *   The normalized value.
    */
   protected function normalizer(mixed $value, Config $config, Answers $answers): mixed {
     return $value;
@@ -200,7 +200,7 @@ abstract class AbstractPrompt {
    *   The answers bag.
    *
    * @return mixed
-   *  The normalized value.
+   *   The normalized value.
    */
   protected function valueNormalizer(mixed $value, Config $config, Answers $answers): mixed {
     return $value;
@@ -242,12 +242,12 @@ abstract class AbstractPrompt {
    * Child instances can override this method to provide custom question types.
    *
    * @param string $text
-   *  The question text.
+   *   The question text.
    * @param mixed $default
-   *  The default value.
+   *   The default value.
    *
    * @return \Symfony\Component\Console\Question\Question
-   *  The question.
+   *   The question.
    */
   protected function createQuestion(string $text, mixed $default): Question {
     $default = is_array($default) ? implode(',', $default) : $default;
@@ -286,7 +286,7 @@ abstract class AbstractPrompt {
         $discovered = $this->valueNormalizer($discovered, $config, $answers);
         $this->validator($discovered, $config, $answers);
       }
-      catch (Exception) {
+      catch (\Exception) {
         $discovered = NULL;
       }
     }

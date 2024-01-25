@@ -63,15 +63,20 @@ class ConstantsLoaderTest extends TestCase {
 
 }
 
-// Define a mock class with constants for testing
+/**
+ * Define a mock class with constants for testing.
+ */
 class ConstantsTestClass {
 
   final const TEST_CONST_1 = 'value1';
 
   final const TEST_CONST_2 = 'value2';
+
 }
 
-// Define a mock class with constants for testing
+/**
+ * Define a mock class with constants for testing.
+ */
 class ConstantsPrefixedTestClass {
 
   final const PREFIX_2 = 'valueWithPrefix2';
@@ -79,9 +84,12 @@ class ConstantsPrefixedTestClass {
   final const PREFIX_1 = 'valueWithPrefix1';
 
   final const WITHOUT_PREFIX = 'valueWithoutPrefix';
+
 }
 
-// Define a mock empty class for testing
+/**
+ * Define a mock empty class for testing.
+ */
 class ConstantsEmptyTestClass {
 
 }

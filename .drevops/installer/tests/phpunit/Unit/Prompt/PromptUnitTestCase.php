@@ -9,6 +9,9 @@ use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ *
+ */
 abstract class PromptUnitTestCase extends UnitTestBase {
 
   const HUMAN_NAME_VALID = 'Human name valid';

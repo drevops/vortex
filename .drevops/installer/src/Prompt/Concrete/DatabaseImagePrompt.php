@@ -2,7 +2,6 @@
 
 namespace DrevOps\Installer\Prompt\Concrete;
 
-
 use DrevOps\Installer\Bag\Answers;
 use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\Prompt\AbstractPrompt;
@@ -11,6 +10,9 @@ use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Formatter;
 use DrevOps\Installer\Utils\Validator;
 
+/**
+ *
+ */
 class DatabaseImagePrompt extends AbstractPrompt {
 
   final const ID = 'database_image';

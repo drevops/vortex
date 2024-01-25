@@ -2,13 +2,15 @@
 
 namespace DrevOps\Installer\Prompt\Concrete;
 
-
 use DrevOps\Installer\Bag\Answers;
 use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\Prompt\AbstractConfirmationPrompt;
 use DrevOps\Installer\Utils\DotEnv;
 use DrevOps\Installer\Utils\Env;
 
+/**
+ *
+ */
 class OverrideExistingDbPrompt extends AbstractConfirmationPrompt {
 
   final const ID = 'override_existing_db';

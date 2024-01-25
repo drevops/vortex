@@ -8,6 +8,9 @@ use DrevOps\Installer\Prompt\AbstractChoicePrompt;
 use DrevOps\Installer\Utils\DotEnv;
 use DrevOps\Installer\Utils\Env;
 
+/**
+ *
+ */
 class DatabaseDownloadSourcePrompt extends AbstractChoicePrompt {
 
   final const CHOICE_URL = 'url';
@@ -40,7 +43,7 @@ class DatabaseDownloadSourcePrompt extends AbstractChoicePrompt {
    * {@inheritdoc}
    */
   public static function choices(): array {
-    // @todo: Review these as the values are not the actual config keys.
+    // @todo Review these as the values are not the actual config keys.
     return [
       self::CHOICE_URL,
       self::CHOICE_FTP,

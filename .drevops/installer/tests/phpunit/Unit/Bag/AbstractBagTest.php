@@ -66,6 +66,9 @@ class AbstractBagTest extends UnitTestBase {
 
 }
 
+/**
+ *
+ */
 class TestBag extends AbstractBag {
 
 }

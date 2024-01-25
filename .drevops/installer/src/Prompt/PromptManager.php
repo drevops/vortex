@@ -6,10 +6,12 @@ use DrevOps\Installer\Bag\AbstractBag;
 use DrevOps\Installer\Bag\Answers;
 use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\Utils\ClassLoader;
-use RuntimeException;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use function Symfony\Component\String\u;
 
+/**
+ *
+ */
 class PromptManager {
 
   protected AbstractBag $answers;
@@ -20,9 +22,9 @@ class PromptManager {
   }
 
   public function askQuestions(mixed $callback): static {
-    // If the callback is set, invoke it
+    // If the callback is set, invoke it.
     if (!is_callable($callback)) {
-      throw new RuntimeException('The questions callback must be set.');
+      throw new \RuntimeException('The questions callback must be set.');
     }
 
     call_user_func($callback, $this);
@@ -80,7 +82,7 @@ class PromptManager {
     $class = 'DrevOps\\Installer\\Prompt\\Concrete\\' . u($id)->camel()->title() . 'Prompt';
 
     if (!in_array($class, $classes) || !class_exists($class)) {
-      throw new RuntimeException(sprintf('The prompt class "%s" does not exist.', $class));
+      throw new \RuntimeException(sprintf('The prompt class "%s" does not exist.', $class));
     }
 
     return $class;

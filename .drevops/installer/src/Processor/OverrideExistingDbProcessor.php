@@ -7,6 +7,9 @@ use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Files;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ *
+ */
 class OverrideExistingDbProcessor extends AbstractProcessor {
 
   /**

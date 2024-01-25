@@ -2,7 +2,6 @@
 
 namespace Drevops\Installer\Tests\Unit\Utils;
 
-use DrevOps\Installer\Command\Installer;
 use Drevops\Installer\Tests\Unit\UnitTestBase;
 use DrevOps\Installer\Utils\Tokenizer;
 
@@ -77,4 +76,5 @@ class TokenizerTest extends UnitTestBase {
       ['foobar_e.txt', '#;< FOO', '#;> FOO', FALSE, TRUE, 'lines_123.txt'],
     ];
   }
+
 }

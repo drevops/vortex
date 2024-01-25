@@ -7,6 +7,9 @@ use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\Prompt\AbstractPrompt;
 use Symfony\Component\Console\Question\Question;
 
+/**
+ *
+ */
 class ProceedDrevopsInstallPrompt extends AbstractPrompt {
 
   final const ID = 'proceed_drevops_install';
@@ -43,9 +46,9 @@ class ProceedDrevopsInstallPrompt extends AbstractPrompt {
     // the installation because there are too many questions.
     $question->setValidator(static function ($value) : bool {
         $value = $value ? strtolower($value) : $value;
-        if (!in_array($value, ['y', 'n'])) {
-          throw new \RuntimeException('Please answer with "y" or "n".');
-        }
+      if (!in_array($value, ['y', 'n'])) {
+        throw new \RuntimeException('Please answer with "y" or "n".');
+      }
         return (bool) preg_match('/^y/i', $value);
     });
   }

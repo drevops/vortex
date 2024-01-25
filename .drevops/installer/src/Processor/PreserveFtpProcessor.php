@@ -7,6 +7,9 @@ use DrevOps\Installer\Utils\Token;
 use DrevOps\Installer\Utils\Tokenizer;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ *
+ */
 class PreserveFtpProcessor extends AbstractProcessor {
 
   /**
@@ -19,7 +22,7 @@ class PreserveFtpProcessor extends AbstractProcessor {
    */
   public function run(Config $config, string $dir, OutputInterface $output): void {
     if ($config->get('preserve_ftp')) {
-      Tokenizer::removeTokenWithContentFromDir('!'.Token::FTP, $dir);
+      Tokenizer::removeTokenWithContentFromDir('!' . Token::FTP, $dir);
     }
     else {
       Tokenizer::removeTokenWithContentFromDir(Token::FTP, $dir);

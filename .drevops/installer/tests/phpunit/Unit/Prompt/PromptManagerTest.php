@@ -86,7 +86,6 @@ class PromptManagerTest extends PromptUnitTestCase {
     $this->assertEquals(['Fixture title' => 'Fixture formatted value'], $summary);
   }
 
-
   /**
    * @covers ::getPromptClass
    */
@@ -99,10 +98,12 @@ class PromptManagerTest extends PromptUnitTestCase {
 
 }
 
+/**
+ *
+ */
 class PromptTestClassWithProtectedCallback {
 
   protected function callbackExample() {
   }
 
 }
-

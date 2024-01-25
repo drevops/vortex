@@ -65,7 +65,7 @@ class ArraysTest extends TestCase {
       [
         ['a' => 1, 'b' => 2, 3 => 3],
         [3, 'a'],
-        [3, 'a' => 1, 'b' => 2,],
+        [3, 'a' => 1, 'b' => 2],
       ],
 
     ];

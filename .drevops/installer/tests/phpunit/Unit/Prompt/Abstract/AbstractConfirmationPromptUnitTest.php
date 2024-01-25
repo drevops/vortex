@@ -225,9 +225,9 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
           return $value_normalizer_value ?: $value;
       },
       'validator' => static function () use ($value_validator) : void {
-          if (str_contains($value_validator, 'Exception')) {
-            throw new \Exception($value_validator);
-          }
+        if (str_contains($value_validator, 'Exception')) {
+          throw new \Exception($value_validator);
+        }
       },
     ]);
 
@@ -283,9 +283,9 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
           return $value_normalizer_value ?: $value;
       },
       'validator' => static function () use ($value_validator, $expect_exception) : void {
-          if ($expect_exception) {
-            throw new \Exception($value_validator);
-          }
+        if ($expect_exception) {
+          throw new \Exception($value_validator);
+        }
       },
     ],
       [$this->io($expected_answer)]
@@ -329,11 +329,16 @@ class AbstractConfirmationPromptUnitTest extends PromptUnitTestCase {
 
 }
 
-
+/**
+ *
+ */
 class ErroneousConfirmationPromptFixture extends AbstractConfirmationPrompt {
 
 }
 
+/**
+ *
+ */
 class FilledConfirmationPromptFixture extends AbstractConfirmationPrompt {
 
   public static function title(): string {

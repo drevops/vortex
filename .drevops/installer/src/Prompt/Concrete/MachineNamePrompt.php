@@ -9,9 +9,12 @@ use DrevOps\Installer\Utils\Files;
 use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
+/**
+ *
+ */
 class MachineNamePrompt extends AbstractPrompt {
 
-  const ID = 'machine_name';
+  final const ID = 'machine_name';
 
   /**
    * {@inheritdoc}
@@ -40,10 +43,8 @@ class MachineNamePrompt extends AbstractPrompt {
   protected function discoveredValue(Config $config, Answers $answers): mixed {
     $value = Files::getComposerJsonValue('name', $config->getDstDir());
 
-    if ($value && preg_match('/([^\/]+)\/(.+)/', $value, $matches)) {
-      if (!empty($matches[2])) {
-        return $matches[2];
-      }
+    if ($value && preg_match('/([^\/]+)\/(.+)/', (string) $value, $matches) && !empty($matches[2])) {
+      return $matches[2];
     }
 
     return NULL;

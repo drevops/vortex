@@ -2,6 +2,9 @@
 
 namespace DrevOps\Installer\Utils;
 
+/**
+ *
+ */
 class Validator {
 
   public static function notEmpty($value): void {
@@ -48,13 +51,13 @@ class Validator {
 
   public static function url($value, $require_protocol = FALSE): void {
     if ($require_protocol === FALSE && !str_contains((string) $value, '://')) {
-      // If the URL starts with '//' (protocol-relative), prepend with 'http:'
+      // If the URL starts with '//' (protocol-relative), prepend with 'http:'.
       $value = (str_starts_with((string) $value, '//')) ? 'http:' . $value : 'http://' . $value;
     }
 
     $parsed = parse_url((string) $value);
 
-    if ($parsed === false || !isset($parsed['host'])) {
+    if ($parsed === FALSE || !isset($parsed['host'])) {
       throw new \Exception('The URL is not valid.');
     }
 

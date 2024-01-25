@@ -2,8 +2,9 @@
 
 namespace DrevOps\Installer\Utils;
 
-use RuntimeException;
-
+/**
+ *
+ */
 class Files {
 
   public static function copyRecursive($source, $dest, $permissions = 0755, $copy_empty_dirs = FALSE): bool {
@@ -82,7 +83,7 @@ class Files {
     } while (!mkdir($path, $mode) && $attempts++ < $max_attempts);
 
     if (!is_dir($path) || !is_writable($path)) {
-      throw new RuntimeException(sprintf('Unable to create temporary directory "%s".', $path));
+      throw new \RuntimeException(sprintf('Unable to create temporary directory "%s".', $path));
     }
 
     return $path;

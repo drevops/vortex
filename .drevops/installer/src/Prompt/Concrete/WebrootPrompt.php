@@ -2,7 +2,6 @@
 
 namespace DrevOps\Installer\Prompt\Concrete;
 
-
 use DrevOps\Installer\Bag\Answers;
 use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\InstallManager;
@@ -13,6 +12,9 @@ use DrevOps\Installer\Utils\Files;
 use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
+/**
+ *
+ */
 class WebrootPrompt extends AbstractPrompt {
 
   final const ID = 'webroot';

@@ -7,6 +7,9 @@ use DrevOps\Installer\Bag\Config;
 use DrevOps\Installer\Prompt\AbstractConfirmationPrompt;
 use DrevOps\Installer\Utils\Files;
 
+/**
+ *
+ */
 class PreserveDocCommentsPrompt extends AbstractConfirmationPrompt {
 
   final const ID = 'preserve_doc_comments';

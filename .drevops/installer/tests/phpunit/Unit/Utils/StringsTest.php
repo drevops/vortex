@@ -2,7 +2,6 @@
 
 namespace Drevops\Installer\Tests\Unit\Utils;
 
-use DrevOps\Installer\Command\Installer;
 use Drevops\Installer\Tests\Unit\UnitTestBase;
 use DrevOps\Installer\Utils\Strings;
 
@@ -104,11 +103,16 @@ class StringsTest extends UnitTestBase {
 
   public static function dataProviderToUrl(): array {
     return [
-      ['', ''], // empty string
-      ['this is a string', 'this-is-a-string'], // spaces to dashes
-      ['this_is_a_string', 'this-is-a-string'], // underscores to dashes
-      ['this_is a_string', 'this-is-a-string'], // mix of spaces and underscores
-      ['thisIsAString', 'thisIsAString'], // no spaces or underscores
+    // Empty string.
+      ['', ''],
+    // Spaces to dashes.
+      ['this is a string', 'this-is-a-string'],
+    // Underscores to dashes.
+      ['this_is_a_string', 'this-is-a-string'],
+    // Mix of spaces and underscores.
+      ['this_is a_string', 'this-is-a-string'],
+    // No spaces or underscores.
+      ['thisIsAString', 'thisIsAString'],
     ];
   }
 
@@ -127,7 +131,7 @@ class StringsTest extends UnitTestBase {
       [['a'], FALSE, 'a'],
       [['a', 'b', 'c', 'd'], FALSE, 'a, b, c, d'],
 
-      // Test arrays with multiline = true
+      // Test arrays with multiline = true.
       [['a', 'b', 'c'], TRUE, "a\nb\nc"],
       [['a'], TRUE, 'a'],
       [['a', 'b', 'c', 'd'], TRUE, "a\nb\nc\nd"],
@@ -148,16 +152,16 @@ class StringsTest extends UnitTestBase {
 
   public static function dataProviderToAbbreviation(): array {
     return [
-      // Test abbreviation creation
+      // Test abbreviation creation.
       ['hello world', 2, '_', 'hw'],
       ['hello', 2, '_', 'he'],
       ['hello', 4, '_', 'hell'],
 
-      // Test different delimiters
+      // Test different delimiters.
       ['hello-world', 2, '-', 'hw'],
       ['hello world', 2, '-', 'he'],
 
-      // Test different max lengths
+      // Test different max lengths.
       ['hello world', 3, '_', 'hw'],
       ['hello', 1, '_', 'h'],
     ];
@@ -175,30 +179,41 @@ class StringsTest extends UnitTestBase {
   public static function dataProviderIsRegex(): array {
     return [
       ['/te/st/', FALSE],
-      // Positive cases
+      // Positive cases.
       ['/test/i', TRUE],
       ['|test|', TRUE],
       ['{test}', TRUE],
       ['(test)', TRUE],
       ['<test>', TRUE],
 
-      // Negative cases
+      // Negative cases.
       ['/test', FALSE],
       ['test', FALSE],
-      ['/test/iu', TRUE],  // Even though u flag might be deprecated, we still consider it valid
-      ['/te/st/', FALSE],  // Delimiters inside the pattern
-      ['<test', FALSE],    // Not matching delimiter
+    // Even though u flag might be deprecated, we still consider it valid.
+      ['/test/iu', TRUE],
+    // Delimiters inside the pattern.
+      ['/te/st/', FALSE],
+    // Not matching delimiter.
+      ['<test', FALSE],
 
-      // Test for invalid delimiters
-      ['/test/', TRUE],   // Valid: "/" is a common delimiter
-      ['*test*', FALSE],  // Invalid: "*" is in the invalid delimiter list
-      ['?test?', FALSE],  // Invalid: "?" is in the invalid delimiter list
-      ['AtestA', FALSE],  // Invalid: "A" is alphanumeric
-      [' test ', FALSE],  // Invalid: space is in the invalid delimiter list
-      ['\\test\\', FALSE], // Invalid: "\\" is in the invalid delimiter list
+      // Test for invalid delimiters.
+    // Valid: "/" is a common delimiter.
+      ['/test/', TRUE],
+    // Invalid: "*" is in the invalid delimiter list.
+      ['*test*', FALSE],
+    // Invalid: "?" is in the invalid delimiter list.
+      ['?test?', FALSE],
+    // Invalid: "A" is alphanumeric.
+      ['AtestA', FALSE],
+    // Invalid: space is in the invalid delimiter list.
+      [' test ', FALSE],
+    // Invalid: "\\" is in the invalid delimiter list.
+      ['\\test\\', FALSE],
 
-      ['/test/test/', FALSE], // Unpaired delimiter inside the pattern
-      ['/test\/test/', TRUE], // Paired delimiter inside the pattern because it's escaped
+    // Unpaired delimiter inside the pattern.
+      ['/test/test/', FALSE],
+    // Paired delimiter inside the pattern because it's escaped.
+      ['/test\/test/', TRUE],
     ];
   }
 

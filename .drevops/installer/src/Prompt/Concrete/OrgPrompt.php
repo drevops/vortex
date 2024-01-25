@@ -9,9 +9,12 @@ use DrevOps\Installer\Utils\Files;
 use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
+/**
+ *
+ */
 class OrgPrompt extends AbstractPrompt {
 
-  const ID = 'org';
+  final const ID = 'org';
 
   /**
    * {@inheritdoc}
@@ -40,10 +43,8 @@ class OrgPrompt extends AbstractPrompt {
   protected function discoveredValue(Config $config, Answers $answers): mixed {
     $value = Files::getComposerJsonValue('description', $config->getDstDir());
 
-    if ($value && preg_match('/Drupal [0-9]+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', $value, $matches)) {
-      if (!empty($matches[2])) {
-        return $matches[2];
-      }
+    if ($value && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', (string) $value, $matches) && !empty($matches[2])) {
+      return $matches[2];
     }
 
     return NULL;

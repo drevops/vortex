@@ -8,6 +8,9 @@ use DrevOps\Installer\Utils\Token;
 use DrevOps\Installer\Utils\Tokenizer;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ *
+ */
 class PreserveDocCommentsProcessor extends AbstractProcessor {
 
   /**
