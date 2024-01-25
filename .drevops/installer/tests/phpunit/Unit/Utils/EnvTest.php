@@ -3,13 +3,13 @@
 namespace Drevops\Installer\Tests\Unit\Utils;
 
 use Drevops\Installer\Tests\Traits\EnvTrait;
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 use DrevOps\Installer\Utils\Env;
 
 /**
  * @coversDefaultClass \Drevops\Installer\Utils\Env
  */
-class EnvTest extends UnitTestBase {
+class EnvTest extends UnitTestCase {
 
   use EnvTrait;
 

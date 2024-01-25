@@ -2,7 +2,7 @@
 
 namespace Drevops\Installer\Tests\Unit\Prompt;
 
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  *
  */
-abstract class PromptUnitTestCase extends UnitTestBase {
+abstract class PromptUnitTestCase extends UnitTestCase {
 
   const HUMAN_NAME_VALID = 'Human name valid';
 

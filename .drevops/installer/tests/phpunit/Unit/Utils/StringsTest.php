@@ -2,7 +2,7 @@
 
 namespace Drevops\Installer\Tests\Unit\Utils;
 
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 use DrevOps\Installer\Utils\Strings;
 
 /**
@@ -12,7 +12,7 @@ use DrevOps\Installer\Utils\Strings;
  *
  * @coversDefaultClass \DrevOps\Installer\Utils\Strings
  */
-class StringsTest extends UnitTestBase {
+class StringsTest extends UnitTestCase {
 
   /**
    * @covers    ::toHumanName

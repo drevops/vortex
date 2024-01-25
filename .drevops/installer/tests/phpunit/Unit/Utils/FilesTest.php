@@ -2,7 +2,7 @@
 
 namespace Drevops\Installer\Tests\Unit\Utils;
 
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 use DrevOps\Installer\Utils\Files;
 
 /**
@@ -13,7 +13,7 @@ use DrevOps\Installer\Utils\Files;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class FilesTest extends UnitTestBase {
+class FilesTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();

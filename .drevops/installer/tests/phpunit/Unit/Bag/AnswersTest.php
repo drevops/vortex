@@ -3,13 +3,13 @@
 namespace Drevops\Installer\Tests\Unit\Bag;
 
 use DrevOps\Installer\Bag\Answers;
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 
 /**
  * @coversDefaultClass \Drevops\Installer\Bag\Answers
  * @runTestsInSeparateProcesses
  */
-class AnswersTest extends UnitTestBase {
+class AnswersTest extends UnitTestCase {
 
   /**
    * @covers ::__construct

@@ -17,7 +17,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-abstract class UnitTestBase extends TestCase {
+abstract class UnitTestCase extends TestCase {
 
   use ClosureWrapperTrait;
   use MockTrait;

@@ -2,14 +2,14 @@
 
 namespace DrevOps\Installer\Tests\Unit\Traits;
 
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 use DrevOps\Installer\Trait\SingletonTrait;
 
 /**
  * @coversDefaultClass \DrevOps\Installer\Trait\SingletonTrait
  * @runClassInSeparateProcess
  */
-class SingletonTraitTest extends UnitTestBase {
+class SingletonTraitTest extends UnitTestCase {
 
   /**
    * @covers ::__construct

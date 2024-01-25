@@ -2,13 +2,13 @@
 
 namespace Drevops\Installer\Tests\Unit\Utils;
 
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 use DrevOps\Installer\Utils\Tokenizer;
 
 /**
  * @coversDefaultClass \DrevOps\Installer\Utils\Tokenizer
  */
-class TokenizerTest extends UnitTestBase {
+class TokenizerTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();

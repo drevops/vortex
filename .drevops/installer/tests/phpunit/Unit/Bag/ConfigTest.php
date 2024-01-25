@@ -4,14 +4,14 @@ namespace Drevops\Installer\Tests\Unit\Bag;
 
 use DrevOps\Installer\Bag\Config;
 use Drevops\Installer\Tests\Traits\EnvTrait;
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 use DrevOps\Installer\Utils\Env;
 
 /**
  * @coversDefaultClass \Drevops\Installer\Bag\Config
  * @runTestsInSeparateProcesses
  */
-class ConfigTest extends UnitTestBase {
+class ConfigTest extends UnitTestCase {
 
   use EnvTrait;
 

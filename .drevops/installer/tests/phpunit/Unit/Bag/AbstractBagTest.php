@@ -3,12 +3,12 @@
 namespace Drevops\Installer\Tests\Unit\Bag;
 
 use DrevOps\Installer\Bag\AbstractBag;
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 
 /**
  * @coversDefaultClass \Drevops\Installer\Bag\AbstractBag
  */
-class AbstractBagTest extends UnitTestBase {
+class AbstractBagTest extends UnitTestCase {
 
   /**
    * @covers ::get

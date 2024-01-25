@@ -3,7 +3,7 @@
 namespace Drevops\Installer\Tests\Unit\Utils;
 
 use DrevOps\Installer\Command\Installer;
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 use DrevOps\Installer\Utils\DotEnv;
 
 /**
@@ -14,7 +14,7 @@ use DrevOps\Installer\Utils\DotEnv;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class DotEnvTest extends UnitTestBase {
+class DotEnvTest extends UnitTestCase {
 
   /**
    * Backup value of the $GLOBALS['_SERVER'] variable.

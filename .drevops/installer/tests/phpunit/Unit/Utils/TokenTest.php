@@ -2,13 +2,13 @@
 
 namespace Drevops\Installer\Tests\Unit\Utils;
 
-use Drevops\Installer\Tests\Unit\UnitTestBase;
+use Drevops\Installer\Tests\Unit\UnitTestCase;
 use DrevOps\Installer\Utils\Token;
 
 /**
  * @coversDefaultClass \Drevops\Installer\Utils\Token
  */
-class TokenTest extends UnitTestBase {
+class TokenTest extends UnitTestCase {
 
   /**
    * @covers ::getConstants
