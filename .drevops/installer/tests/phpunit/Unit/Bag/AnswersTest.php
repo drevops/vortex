@@ -34,20 +34,24 @@ class AnswersTest extends UnitTestBase {
    * @covers ::__clone
    */
   public function testCloneIsDisabled(): void {
-    Answers::getInstance();
+    $instance = Answers::getInstance();
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Cloning of Singleton is disallowed.');
+
+    $clone = clone $instance;
   }
 
   /**
    * @covers ::__wakeup
    */
   public function testUnserializeIsDisabled(): void {
-    Answers::getInstance();
+    $instance = Answers::getInstance();
+    $serializedInstance = serialize($instance);
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Unserializing instances of Singleton classes is disallowed.');
+    $unserializedInstance = unserialize($serializedInstance);
   }
 
   /**

@@ -38,20 +38,24 @@ class ConfigTest extends UnitTestBase {
    * @covers ::__clone
    */
   public function testCloneIsDisabled(): void {
-    Config::getInstance();
+    $instance = Config::getInstance();
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Cloning of Singleton is disallowed.');
+
+    $clone = clone $instance;
   }
 
   /**
    * @covers ::__wakeup
    */
   public function testUnserializeIsDisabled(): void {
-    Config::getInstance();
+    $instance = Config::getInstance();
+    $serializedInstance = serialize($instance);
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Unserializing instances of Singleton classes is disallowed.');
+    $unserializedInstance = unserialize($serializedInstance);
   }
 
   /**
