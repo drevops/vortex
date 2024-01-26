@@ -170,7 +170,7 @@ aliases:
   - &step_setup_remote_docker
     setup_remote_docker:
       docker_layer_caching: *docker_layer_caching
-      version: 20.10.18
+      version: default
 
   # Set up Docker network.
   - &step_setup_docker_network
