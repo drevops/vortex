@@ -7,7 +7,7 @@
             "name": "amazeeio-network"
         },
         "default": {
-            "external": false,
+            "external": true,
             "ipam": [],
             "name": "star_wars_default"
         }
