@@ -2,12 +2,10 @@
     "name": "star_wars",
     "networks": {
         "amazeeio-network": {
-            "external": true,
             "ipam": [],
             "name": "amazeeio-network"
         },
         "default": {
-            "external": true,
             "ipam": [],
             "name": "star_wars_default"
         }
