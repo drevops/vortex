@@ -8,7 +8,7 @@
 # @see https://github.com/drevops/mariadb-drupal-data
 #
 # The ARG value will be updated with a value passed from docker-compose.yml
-ARG IMAGE=uselagoon/mariadb-drupal:23.12.0
+ARG IMAGE=uselagoon/mariadb-drupal:24.1.0
 
 # hadolint ignore=DL3006
 FROM ${IMAGE}
