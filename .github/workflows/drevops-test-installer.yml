@@ -46,10 +46,11 @@ jobs:
             .drevops/installer/cobertura.xml
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           files: .drevops/installer/cobertura.xml
           fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       # Smoke test for PHAR.
       - name: Build PHAR
