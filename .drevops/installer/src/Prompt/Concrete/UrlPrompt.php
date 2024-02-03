@@ -9,10 +9,13 @@ use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
 /**
- *
+ * URL prompt.
  */
 class UrlPrompt extends AbstractPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'url';
 
   /**

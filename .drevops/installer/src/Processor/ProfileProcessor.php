@@ -7,7 +7,7 @@ use DrevOps\Installer\Utils\Files;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- *
+ * Profile processor.
  */
 class ProfileProcessor extends AbstractProcessor {
 

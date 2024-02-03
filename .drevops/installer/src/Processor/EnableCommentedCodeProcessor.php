@@ -8,7 +8,7 @@ use DrevOps\Installer\Utils\Token;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- *
+ * Enable commented code processor.
  */
 class EnableCommentedCodeProcessor extends AbstractProcessor {
 

@@ -10,17 +10,37 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use function Symfony\Component\String\u;
 
 /**
- *
+ * Prompt manager.
  */
 class PromptManager {
 
+  /**
+   * A bag of answers.
+   */
   protected AbstractBag $answers;
 
+  /**
+   * Prompt manager constructor.
+   *
+   * @param \Symfony\Component\Console\Style\SymfonyStyle $io
+   *   The Symfony style.
+   * @param \DrevOps\Installer\Bag\Config $config
+   *   The config.
+   */
   public function __construct(protected SymfonyStyle $io, protected Config $config) {
     // Always get a fresh bag of answers.
     $this->answers = Answers::getInstance()->clear();
   }
 
+  /**
+   * Ask questions.
+   *
+   * @param mixed $callback
+   *   The callback to ask questions.
+   *
+   * @return $this
+   *   The prompt manager.
+   */
   public function askQuestions(mixed $callback): static {
     // If the callback is set, invoke it.
     if (!is_callable($callback)) {
@@ -32,6 +52,17 @@ class PromptManager {
     return $this;
   }
 
+  /**
+   * Ask a question.
+   *
+   * @param string $question_id
+   *   The question ID.
+   * @param bool $is_quiet
+   *   Whether to ask the question quietly.
+   *
+   * @return mixed
+   *   The answer.
+   */
   public function ask(string $question_id, $is_quiet = FALSE) {
     $class = $this->getPromptClass($question_id);
 
@@ -47,14 +78,42 @@ class PromptManager {
     return $answer;
   }
 
+  /**
+   * Get the answers.
+   *
+   * @return \DrevOps\Installer\Bag\AbstractBag
+   *   The answers bag.
+   */
   public function getAnswers(): AbstractBag {
     return $this->answers;
   }
 
-  public function getAnswer(string $question_id, $default = NULL) {
+  /**
+   * Get an answer.
+   *
+   * @param string $question_id
+   *   The question ID.
+   * @param mixed $default
+   *   The default value.
+   *
+   * @return mixed
+   *   The answer.
+   */
+  public function getAnswer(string $question_id, mixed $default = NULL) {
     return $this->answers->get($question_id, $default);
   }
 
+  /**
+   * Set an answer.
+   *
+   * @param string $question_id
+   *   The question ID.
+   * @param mixed $value
+   *   The value.
+   *
+   * @return $this
+   *   The prompt manager.
+   */
   public function setAnswer(string $question_id, mixed $value): static {
     $this->answers->set($question_id, $value);
 
@@ -62,7 +121,10 @@ class PromptManager {
   }
 
   /**
+   * Get the answers summary.
+   *
    * @return mixed[]
+   *   The answers summary.
    */
   public function getAnswersSummary(): array {
     $values = [];
@@ -76,6 +138,15 @@ class PromptManager {
     return $values;
   }
 
+  /**
+   * Get the prompt class.
+   *
+   * @param string|null $id
+   *   The prompt ID.
+   *
+   * @return string
+   *   The prompt class.
+   */
   protected function getPromptClass(?string $id): string {
     $classes = ClassLoader::load('Prompt', AbstractPrompt::class);
 

@@ -3,9 +3,10 @@
 namespace DrevOps\Installer\Utils;
 
 use DrevOps\Installer\Bag\Config;
+use Symfony\Component\Console\Output\Output;
 
 /**
- *
+ * Downloader.
  */
 class Downloader {
 
@@ -28,11 +29,11 @@ class Downloader {
   }
 
   public static function downloadRemote(): void {
-    $dst = Config::get(Env::DREVOPS_INSTALLER_TMP_DIR);
+    $dst = Config::getInstance()->get(Env::INSTALLER_TMP_DIR);
     $org = 'drevops';
     $project = 'drevops';
-    $ref = Config::get(Env::DREVOPS_INSTALLER_COMMIT);
-    $release_prefix = Config::get(Env::DREVOPS_VERSION);
+    $ref = Config::getInstance()->get(Env::INSTALLER_COMMIT);
+    $release_prefix = Config::getInstance()->get(Env::DREVOPS_VERSION);
 
     if ($ref == 'HEAD') {
       $ref = Downloader::findLatestDrevopsRelease($org, $project, $release_prefix);
@@ -52,9 +53,9 @@ class Downloader {
   }
 
   public static function downloadLocal(): void {
-    $dst = Config::get(Env::DREVOPS_INSTALLER_TMP_DIR);
-    $repo = Config::get(Env::DREVOPS_INSTALLER_LOCAL_REPO);
-    $ref = Config::get(Env::DREVOPS_INSTALLER_COMMIT);
+    $dst = Config::getInstance()->get(Env::DREVOPS_INSTALLER_TMP_DIR);
+    $repo = Config::getInstance()->get(Env::DREVOPS_INSTALLER_LOCAL_REPO);
+    $ref = Config::getInstance()->get(Env::DREVOPS_INSTALLER_COMMIT);
 
     Output::status(sprintf('Downloading DrevOps from the local repository "%s" at ref "%s".', $repo, $ref), Output::INSTALLER_STATUS_MESSAGE, FALSE);
 
@@ -77,7 +78,7 @@ class Downloader {
    * Download DrevOps source files.
    */
   public function download(): void {
-    if (Config::get(Env::DREVOPS_INSTALLER_LOCAL_REPO)) {
+    if (Config::getInstance()->get(Env::DREVOPS_INSTALLER_LOCAL_REPO)) {
       Downloader::downloadLocal();
     }
     else {

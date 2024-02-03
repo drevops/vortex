@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use function Symfony\Component\String\u;
 
 /**
- *
+ * String tokens processor.
  */
 class StringTokensProcessor extends AbstractProcessor {
 

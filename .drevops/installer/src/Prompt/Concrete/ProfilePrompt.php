@@ -11,10 +11,13 @@ use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
 /**
- *
+ * Profile prompt.
  */
 class ProfilePrompt extends AbstractPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'profile';
 
   /**

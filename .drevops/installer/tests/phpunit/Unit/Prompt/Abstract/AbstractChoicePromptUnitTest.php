@@ -433,29 +433,42 @@ class AbstractChoicePromptUnitTest extends PromptUnitTestCase {
 }
 
 /**
- *
+ * Erroneous choice prompt fixture.
  */
 class ErroneousChoicePromptFixture extends AbstractChoicePrompt {
 
-  public static function choices() {
+  /**
+   * {@inheritdoc}
+   */
+  public static function choices(): array {
+    return [];
   }
 
 }
 
 /**
- *
+ * Filled choice prompt fixture.
  */
 class FilledChoicePromptFixture extends AbstractChoicePrompt {
 
+  /**
+   * {@inheritdoc}
+   */
   public static function title(): string {
     return 'Fixture title';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function question(): string {
     return 'Fixture question';
   }
 
-  public static function choices() {
+  /**
+   * {@inheritdoc}
+   */
+  public static function choices(): array {
     return [
       'choice1',
       'choice2',
@@ -466,10 +479,13 @@ class FilledChoicePromptFixture extends AbstractChoicePrompt {
 }
 
 /**
- *
+ * Filled multi choice prompt fixture.
  */
 class FilledMultiChoicePromptFixture extends FilledChoicePromptFixture {
 
+  /**
+   * {@inheritdoc}
+   */
   protected $isMultiselect = TRUE;
 
 }

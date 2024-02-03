@@ -10,7 +10,7 @@ use DrevOps\Installer\Utils\Tokenizer;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- *
+ * Provision use profile processor.
  */
 class ProvisionUseProfileProcessor extends AbstractProcessor {
 

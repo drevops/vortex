@@ -11,10 +11,13 @@ use DrevOps\Installer\Utils\Formatter;
 use DrevOps\Installer\Utils\Validator;
 
 /**
- *
+ * Database image prompt.
  */
 class DatabaseImagePrompt extends AbstractPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'database_image';
 
   /**

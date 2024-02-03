@@ -9,10 +9,13 @@ use DrevOps\Installer\Prompt\AbstractConfirmationPrompt;
 use DrevOps\Installer\Utils\Formatter;
 
 /**
- *
+ * Preserve Renovatebot prompt.
  */
 class PreserveRenovatebotPrompt extends AbstractConfirmationPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'preserve_renovatebot';
 
   /**
@@ -51,7 +54,7 @@ class PreserveRenovatebotPrompt extends AbstractConfirmationPrompt {
    * {@inheritdoc}
    */
   public static function getFormattedValue(mixed $value): string {
-    return Formatter::formatEnabled($value);
+    return Formatter::formatEnabledDisabled($value);
   }
 
 }

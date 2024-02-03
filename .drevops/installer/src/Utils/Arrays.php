@@ -3,7 +3,7 @@
 namespace DrevOps\Installer\Utils;
 
 /**
- *
+ * Array utilities.
  */
 class Arrays {
 
@@ -60,10 +60,11 @@ class Arrays {
   public static function sortByValueArray(array $array, array $values): array {
     $sorted = $array;
 
-    uasort($sorted, static function ($a, $b) use ($values) : int {
-        $a_index = array_search($a, $values, TRUE);
-        $b_index = array_search($b, $values, TRUE);
-        return ($a_index === FALSE ? PHP_INT_MAX : $a_index) <=> ($b_index === FALSE ? PHP_INT_MAX : $b_index);
+    uasort($sorted, static function ($a, $b) use ($values): int {
+      $a_index = array_search($a, $values, TRUE);
+      $b_index = array_search($b, $values, TRUE);
+
+      return ($a_index === FALSE ? PHP_INT_MAX : $a_index) <=> ($b_index === FALSE ? PHP_INT_MAX : $b_index);
     });
 
     // Preserve non-numeric keys and reset numeric ones.
@@ -80,6 +81,17 @@ class Arrays {
     return $result;
   }
 
+  /**
+   * Reindex array.
+   *
+   * @param array $values
+   *   The array to reindex.
+   * @param int $start
+   *   The start index.
+   *
+   * @return array
+   *   The reindexed array.
+   */
   public static function reindex(array $values, $start): array {
     return empty($values)
       ? []

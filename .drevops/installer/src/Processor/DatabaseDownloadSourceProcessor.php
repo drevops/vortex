@@ -11,7 +11,7 @@ use DrevOps\Installer\Utils\Tokenizer;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- *
+ * Database download source processor.
  */
 class DatabaseDownloadSourceProcessor extends AbstractProcessor {
 

@@ -8,7 +8,7 @@ use DrevOps\Installer\Utils\Files;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- *
+ * Override existing db processor.
  */
 class OverrideExistingDbProcessor extends AbstractProcessor {
 

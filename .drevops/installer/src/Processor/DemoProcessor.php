@@ -9,7 +9,7 @@ use DrevOps\Installer\Utils\Env;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- *
+ * Demo processor.
  */
 class DemoProcessor extends AbstractProcessor {
 

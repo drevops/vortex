@@ -40,7 +40,7 @@ class Token {
   /**
    * Get all constants defined in this class.
    */
-  public static function getConstants():array {
+  public static function getConstants(): array {
     return ConstantsLoader::load(__CLASS__);
   }
 

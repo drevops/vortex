@@ -11,23 +11,26 @@ use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
 /**
- *
+ * Name prompt.
  */
 class NamePrompt extends AbstractPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'name';
 
   /**
    * {@inheritdoc}
    */
-  public static function title():string {
+  public static function title(): string {
     return 'Site name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question():string {
+  public static function question(): string {
     return 'What is your site name?';
   }
 

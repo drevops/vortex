@@ -9,7 +9,7 @@ use DrevOps\Installer\Utils\Tokenizer;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- *
+ * Preserve Acquia processor.
  */
 class PreserveAcquiaProcessor extends AbstractProcessor {
 

@@ -11,10 +11,15 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 
 /**
- *
+ * Abstract class for choice prompts.
  */
 abstract class AbstractChoicePrompt extends AbstractPrompt {
 
+  /**
+   * Whether the prompt is multiselect.
+   *
+   * @var bool
+   */
   protected $isMultiselect = FALSE;
 
   /**
@@ -23,7 +28,7 @@ abstract class AbstractChoicePrompt extends AbstractPrompt {
    * @return array
    *   The choices array with keys as shortopts and values as longopts.
    */
-  abstract public static function choices();
+  abstract public static function choices(): array;
 
   /**
    * {@inheritdoc}

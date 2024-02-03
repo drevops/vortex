@@ -9,7 +9,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 
 /**
- *
+ * Abstract confirmation prompt.
  */
 abstract class AbstractConfirmationPrompt extends AbstractPrompt {
 

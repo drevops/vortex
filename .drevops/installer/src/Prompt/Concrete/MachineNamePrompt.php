@@ -10,23 +10,26 @@ use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
 /**
- *
+ * Machine name prompt.
  */
 class MachineNamePrompt extends AbstractPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'machine_name';
 
   /**
    * {@inheritdoc}
    */
-  public static function title():string {
+  public static function title(): string {
     return 'Machine name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question():string {
+  public static function question(): string {
     return 'What is your site machine name?';
   }
 

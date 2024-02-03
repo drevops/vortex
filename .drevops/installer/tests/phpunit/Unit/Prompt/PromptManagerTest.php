@@ -45,13 +45,13 @@ class PromptManagerTest extends PromptUnitTestCase {
   public static function dataProviderAskQuestions(): array {
     return [
       'valid callback' => [
-        static function ($manager) : void {
+        static function ($manager): void {
         },
         NULL,
       ],
       'invalid callback not accessible' => [
         static function () {
-            return (new \DrevOps\Installer\Tests\Unit\Prompt\PromptTestClassWithProtectedCallback())->callbackExample();
+          return (new \DrevOps\Installer\Tests\Unit\Prompt\PromptTestClassWithProtectedCallback())->callbackExample();
         },
         \Error::class,
       ],
@@ -99,11 +99,12 @@ class PromptManagerTest extends PromptUnitTestCase {
 }
 
 /**
- *
+ * Test class with protected callback.
  */
 class PromptTestClassWithProtectedCallback {
 
-  protected function callbackExample() {
+  protected function callbackExample(): mixed {
+    return TRUE;
   }
 
 }

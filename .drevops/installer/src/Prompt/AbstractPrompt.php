@@ -8,7 +8,7 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- *
+ * Abstract prompt.
  */
 abstract class AbstractPrompt {
 

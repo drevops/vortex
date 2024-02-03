@@ -9,10 +9,13 @@ use DrevOps\Installer\Utils\DotEnv;
 use DrevOps\Installer\Utils\Env;
 
 /**
- *
+ * Override existing database prompt.
  */
 class OverrideExistingDbPrompt extends AbstractConfirmationPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'override_existing_db';
 
   /**

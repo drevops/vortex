@@ -69,7 +69,7 @@ class Env {
   /**
    * Get all constants defined in this class.
    */
-  public static function getConstants():array {
+  public static function getConstants(): array {
     return ConstantsLoader::load(__CLASS__, 'DREVOPS_', FALSE);
   }
 

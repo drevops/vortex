@@ -2,7 +2,6 @@
 
 namespace Drevops\Installer\Tests\Unit\Utils;
 
-use DrevOps\Installer\Command\Installer;
 use Drevops\Installer\Tests\Unit\UnitTestCase;
 use DrevOps\Installer\Utils\DotEnv;
 
@@ -30,14 +29,14 @@ class DotEnvTest extends UnitTestCase {
    */
   protected $backupEnv;
 
-  public function setUp(): void {
+  protected function setUp(): void {
     $this->backupEnv = $GLOBALS['_ENV'];
     $this->backupServer = $GLOBALS['_SERVER'];
 
     parent::setUp();
   }
 
-  public function tearDown(): void {
+  protected function tearDown(): void {
     $GLOBALS['_ENV'] = $this->backupEnv;
     $GLOBALS['_SERVER'] = $this->backupServer;
   }
@@ -46,7 +45,7 @@ class DotEnvTest extends UnitTestCase {
    * @covers \DrevOps\Installer\Utils\DotEnv::loadDotenv
    * @runInSeparateProcess
    */
-  public function testLoadDotEnv() {
+  public function testLoadDotEnv(): void {
     $content = 'var1=val1';
     $filename = $this->createFixtureEnvFile($content);
 
@@ -73,8 +72,8 @@ class DotEnvTest extends UnitTestCase {
    * @dataProvider dataProviderGlobals
    * @runInSeparateProcess
    */
-  public function testGlobals($content, $env_before, $server_before, $env_after, $server_after, $allow_override) {
-    $filename = !empty($content) ? $this->createFixtureEnvFile($content) : 'randomfilename';
+  public function testGlobals(string $content, array $env_before, array $server_before, array $env_after, mixed $server_after, bool $allow_override): void {
+    $filename = empty($content) ? 'randomfilename' : $this->createFixtureEnvFile($content);
 
     $GLOBALS['_ENV'] = $env_before;
     $GLOBALS['_SERVER'] = $server_before;
@@ -88,7 +87,7 @@ class DotEnvTest extends UnitTestCase {
     $this->assertTrue(TRUE);
   }
 
-  public static function dataProviderGlobals() {
+  public static function dataProviderGlobals(): array {
     return [
       [
         '', [], [], [], [], FALSE,
@@ -217,7 +216,7 @@ class DotEnvTest extends UnitTestCase {
     ];
   }
 
-  protected function createFixtureEnvFile($content) {
+  protected function createFixtureEnvFile($content): string|false {
     $filename = tempnam(sys_get_temp_dir(), '.env');
     file_put_contents($filename, $content);
 

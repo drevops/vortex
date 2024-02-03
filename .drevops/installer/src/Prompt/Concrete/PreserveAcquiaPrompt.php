@@ -10,10 +10,13 @@ use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Formatter;
 
 /**
- *
+ * Preserve Acquia prompt.
  */
 class PreserveAcquiaPrompt extends AbstractConfirmationPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'preserve_acquia';
 
   /**
@@ -54,7 +57,7 @@ class PreserveAcquiaPrompt extends AbstractConfirmationPrompt {
    * {@inheritdoc}
    */
   public static function getFormattedValue(mixed $value): string {
-    return Formatter::formatEnabled($value);
+    return Formatter::formatEnabledDisabled($value);
   }
 
 }

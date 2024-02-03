@@ -53,21 +53,29 @@ class InstallCommand extends Command {
   protected static $defaultName = 'install';
 
   /**
+   * Config.
+   *
    * @var \DrevOps\Installer\Bag\Config
    */
   protected $config;
 
   /**
+   * Prompt manager.
+   *
    * @var \DrevOps\Installer\Prompt\PromptManager
    */
-  protected $questionManager;
+  protected $promptManager;
 
   /**
+   * Install manager.
+   *
    * @var \DrevOps\Installer\InstallManager
    */
   protected $installManager;
 
   /**
+   * Print manager.
+   *
    * @var \DrevOps\Installer\PrintManager
    */
   protected $printManager;
@@ -86,7 +94,7 @@ class InstallCommand extends Command {
     $this->config = Config::getInstance()->fromValues(['cwd' => getcwd()] + $input->getArguments() + $input->getOptions());
 
     $io = $this->initIo($input, $output);
-    $this->questionManager = new PromptManager($io, $this->config);
+    $this->promptManager = new PromptManager($io, $this->config);
     $this->printManager = new PrintManager($io, $this->config);
 
     return $this->doExecute();
@@ -117,8 +125,11 @@ class InstallCommand extends Command {
     return self::SUCCESS;
   }
 
+  /**
+   * Ask questions and return a bag of answers.
+   */
   protected function askQuestions(): AbstractBag {
-    $this->questionManager->askQuestions(function (PromptManager $qm): void {
+    $this->promptManager->askQuestions(function (PromptManager $qm): void {
       $is_installed = InstallManager::isInstalled($this->config->getDstDir());
 
       // // @todo remove this.
@@ -197,18 +208,24 @@ class InstallCommand extends Command {
     });
 
     if (!$this->config->isQuiet()) {
-      $summary = $this->questionManager->getAnswersSummary();
+      $summary = $this->promptManager->getAnswersSummary();
       $this->printManager->printSummary($summary, 'INSTALLATION SUMMARY');
     }
 
-    return $this->questionManager->getAnswers();
+    return $this->promptManager->getAnswers();
   }
 
-  protected function askShouldProceed() {
+  /**
+   * Ask whether to proceed with the installation.
+   *
+   * @return bool
+   *   Whether to proceed with the installation.
+   */
+  protected function askShouldProceed(): bool {
     $proceed = TRUE;
 
     if (!$this->config->isQuiet()) {
-      $proceed = $this->questionManager->ask(ProceedDrevopsInstallPrompt::ID);
+      $proceed = $this->promptManager->ask(ProceedDrevopsInstallPrompt::ID);
     }
 
     // Kill-switch to not proceed with install. If false, the installation will
@@ -221,7 +238,7 @@ class InstallCommand extends Command {
   }
 
   /**
-   * Initialise output.
+   * Initialise the input/output.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *   Output.

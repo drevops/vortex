@@ -3,10 +3,19 @@
 namespace DrevOps\Installer\Utils;
 
 /**
- *
+ * Dotenv utilities.
  */
 class DotEnv {
 
+  /**
+   * Parse .env file.
+   *
+   * @param string $filename
+   *   The filename.
+   *
+   * @return array|false
+   *   The parsed .env file or FALSE if the file is not readable.
+   */
   public static function parseDotenv($filename = '.env'): false|array {
     if (!is_readable($filename)) {
       return FALSE;
@@ -19,6 +28,14 @@ class DotEnv {
     return parse_ini_string($contents);
   }
 
+  /**
+   * Load .env file.
+   *
+   * @param string $filename
+   *   The filename.
+   * @param bool $override_existing
+   *   Whether to override existing environment variables.
+   */
   public static function loadDotenv($filename = '.env', $override_existing = FALSE): void {
     $parsed = DotEnv::parseDotenv($filename);
 
@@ -45,7 +62,20 @@ class DotEnv {
     }
   }
 
-  public static function getValueFromDstDotenv(string $dst_dir, $name, $default = NULL) {
+  /**
+   * Get value from .env file.
+   *
+   * @param string $dst_dir
+   *   The destination directory.
+   * @param string $name
+   *   The name of the variable.
+   * @param mixed $default
+   *   The default value.
+   *
+   * @return mixed
+   *   The value.
+   */
+  public static function getValueFromDstDotenv(string $dst_dir, $name, mixed $default = NULL): mixed {
     // Environment variables always take precedence.
     $env_value = Env::get($name, NULL);
     if (!is_null($env_value)) {

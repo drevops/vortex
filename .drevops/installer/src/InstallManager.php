@@ -7,9 +7,10 @@ use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Executor;
 use DrevOps\Installer\Utils\Files;
 use DrevOps\Installer\Utils\Output;
+use DrevOps\Installer\Utils\Tokenizer;
 
 /**
- *
+ * Install manager.
  */
 class InstallManager {
 
@@ -18,8 +19,18 @@ class InstallManager {
    */
   final public const INSTALLER_DRUPAL_VERSION = 9;
 
+  /**
+   * Download manager.
+   *
+   * @var \DrevOps\Installer\Utils\Downloader
+   */
   protected $downloadManager;
 
+  /**
+   * Config.
+   *
+   * @var \DrevOps\Installer\Bag\Config
+   */
   protected $config;
 
   /**
@@ -34,16 +45,35 @@ class InstallManager {
   }
 
   public function install($config): void {
+    $this->config = $config;
+
+    $this->checkRequirements();
+
+    $this->downloadManager->download();
+
+    $this->prepareDestination();
+
+    Tokenizer::replaceTokens();
+
+    $this->copyFiles();
+
+    ProcessorManager::processDemo();
   }
 
+  /**
+   * Check requirements.
+   */
   public function checkRequirements(): void {
-    Executor::commandExists('git');
-    Executor::commandExists('tar');
-    Executor::commandExists('composer');
+    Executor::validateCommandExists('git');
+    Executor::validateCommandExists('tar');
+    Executor::validateCommandExists('composer');
   }
 
+  /**
+   * Prepare destination directory.
+   */
   public function prepareDestination(): void {
-    $dst = Config::getDstDir();
+    $dst = Config::getInstance()->getDstDir();
 
     if (!is_dir($dst)) {
       Output::status(sprintf('Creating destination directory "%s".', $dst), Output::INSTALLER_STATUS_MESSAGE, FALSE);
@@ -69,8 +99,11 @@ class InstallManager {
     Output::status('Done', Output::INSTALLER_STATUS_SUCCESS);
   }
 
+  /**
+   * Copy files.
+   */
   public function copyFiles(): void {
-    $src = Config::get(Env::INSTALLER_TMP_DIR);
+    $src = Config::getInstance()->get(Env::INSTALLER_TMP_DIR);
     $dst = Config::getDstDir();
 
     // Due to the way symlinks can be ordered, we cannot copy files one-by-one

@@ -9,10 +9,13 @@ use DrevOps\Installer\Utils\DotEnv;
 use DrevOps\Installer\Utils\Env;
 
 /**
- *
+ * Preserve FTP prompt.
  */
 class ProvisionUseProfilePrompt extends AbstractConfirmationPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'provision_use_profile';
 
   /**

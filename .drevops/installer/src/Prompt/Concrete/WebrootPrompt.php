@@ -13,10 +13,13 @@ use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
 /**
- *
+ * Web root prompt.
  */
 class WebrootPrompt extends AbstractPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'webroot';
 
   /**
@@ -68,7 +71,7 @@ class WebrootPrompt extends AbstractPrompt {
    * {@inheritdoc}
    */
   protected function valueNormalizer($value, Config $config, Answers $answers): mixed {
-    return trim((string) Strings::toMachineName($value), '/');
+    return trim(Strings::toMachineName($value), '/');
   }
 
 }

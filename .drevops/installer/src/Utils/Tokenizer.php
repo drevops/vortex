@@ -3,10 +3,18 @@
 namespace DrevOps\Installer\Utils;
 
 /**
- *
+ * Tokenizer.
  */
 class Tokenizer {
 
+  /**
+   * Remove token from directory with content.
+   *
+   * @param string $token
+   *   The token.
+   * @param string $dir
+   *   The directory.
+   */
   public static function removeTokenWithContentFromDir(string $token, string $dir): void {
     self::validateToken($token);
     $files = Files::scandirRecursive($dir, Files::ignorePaths());
@@ -15,7 +23,15 @@ class Tokenizer {
     }
   }
 
-  public static function removeTokenLineFromDir($token, string $dir): void {
+  /**
+   * Remove token line from directory.
+   *
+   * @param string $token
+   *   The token.
+   * @param string $dir
+   *   The directory.
+   */
+  public static function removeTokenLineFromDir(string $token, string $dir): void {
     if (!empty($token)) {
       self::validateToken($token);
       $files = Files::scandirRecursive($dir, Files::ignorePaths());
@@ -25,7 +41,19 @@ class Tokenizer {
     }
   }
 
-  public static function removeTokenFromFile($filename, $token_begin, $token_end = NULL, $with_content = FALSE): void {
+  /**
+   * Remove token from file.
+   *
+   * @param string $filename
+   *   The filename.
+   * @param string|null $token_begin
+   *   The token begin.
+   * @param string|null $token_end
+   *   The token end.
+   * @param bool $with_content
+   *   Whether to remove content.
+   */
+  public static function removeTokenFromFile(string $filename, ?string $token_begin, string $token_end = NULL, bool $with_content = FALSE): void {
     if (Files::fileIsExcludedFromProcessing($filename)) {
       return;
     }
@@ -35,12 +63,27 @@ class Tokenizer {
     file_put_contents($filename, $newContent);
   }
 
-  public static function removeTokensFromString($content, $token_begin, $token_end = NULL, $with_content = FALSE): string {
+  /**
+   * Remove tokens from string.
+   *
+   * @param string $content
+   *   The content.
+   * @param string $token_begin
+   *   The token begin.
+   * @param string|null $token_end
+   *   The token end.
+   * @param bool $with_content
+   *   Whether to remove content.
+   *
+   * @return string
+   *   The content.
+   */
+  public static function removeTokensFromString(string $content, string $token_begin, ?string $token_end = NULL, bool $with_content = FALSE): string {
     $token_end = $token_end ?? $token_begin;
 
-    if ($token_begin != $token_end) {
-      $token_begin_count = preg_match_all('/' . preg_quote((string) $token_begin) . '/', (string) $content);
-      $token_end_count = preg_match_all('/' . preg_quote((string) $token_end) . '/', (string) $content);
+    if ($token_begin !== $token_end) {
+      $token_begin_count = preg_match_all('/' . preg_quote($token_begin) . '/', $content);
+      $token_end_count = preg_match_all('/' . preg_quote($token_end) . '/', $content);
       if ($token_begin_count !== $token_end_count) {
         throw new \RuntimeException(sprintf('Invalid begin and end token count: begin is %s(%s), end is %s(%s).', $token_begin, $token_begin_count, $token_end, $token_end_count));
       }
@@ -49,15 +92,15 @@ class Tokenizer {
     $out = [];
     $within_token = FALSE;
 
-    $lines = explode(PHP_EOL, (string) $content);
+    $lines = explode(PHP_EOL, $content);
     foreach ($lines as $line) {
-      if (str_contains($line, (string) $token_begin)) {
+      if (str_contains($line, $token_begin)) {
         if ($with_content) {
           $within_token = TRUE;
         }
         continue;
       }
-      elseif (str_contains($line, (string) $token_end)) {
+      elseif (str_contains($line, $token_end)) {
         if ($with_content) {
           $within_token = FALSE;
         }

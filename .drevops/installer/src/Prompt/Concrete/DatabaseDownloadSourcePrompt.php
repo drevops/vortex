@@ -9,9 +9,14 @@ use DrevOps\Installer\Utils\DotEnv;
 use DrevOps\Installer\Utils\Env;
 
 /**
- *
+ * Database download source prompt.
  */
 class DatabaseDownloadSourcePrompt extends AbstractChoicePrompt {
+
+  /**
+   * The prompt ID.
+   */
+  final const ID = 'database_download_source';
 
   final const CHOICE_URL = 'url';
 
@@ -22,8 +27,6 @@ class DatabaseDownloadSourcePrompt extends AbstractChoicePrompt {
   final const CHOICE_DOCKER_REGISTRY = 'docker_registry';
 
   final const CHOICE_NONE = 'none';
-
-  final const ID = 'database_download_source';
 
   /**
    * {@inheritdoc}

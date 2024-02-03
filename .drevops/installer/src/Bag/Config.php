@@ -8,7 +8,9 @@ use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Files;
 
 /**
+ * Class Config.
  *
+ * Bag to store configuration.
  */
 class Config extends AbstractBag {
 
@@ -49,16 +51,7 @@ class Config extends AbstractBag {
   }
 
   /**
-   * Set installer configuration.
-   *
-   * Installer config is a config of this installer script. For configs of the
-   * project being installed, @param $name.
-   *
-   * @param $value
-   *
-   * @see set_answer()
-   *
-   * @see init_config()
+   * {@inheritdoc}
    */
   public function set(string $name, mixed $value): void {
     if ($this->isReadOnly()) {
@@ -89,19 +82,21 @@ class Config extends AbstractBag {
   /**
    * Shorthand to get the value of whether install should be quiet.
    *
-   * @return mixed|null
+   * @return bool
+   *   Whether install should be quiet.
    */
-  public function isQuiet() {
-    return $this->get('quiet', FALSE);
+  public function isQuiet(): bool {
+    return (bool) $this->get('quiet', FALSE);
   }
 
   /**
    * Shorthand to get the value the destination directory.
    *
-   * @return mixed|null
+   * @return string
+   *   The destination directory.
    */
   public function getDstDir(): string {
-    return $this->get(Env::INSTALLER_DST_DIR, getcwd());
+    return (string) $this->get(Env::INSTALLER_DST_DIR, getcwd());
   }
 
   /**
@@ -111,6 +106,12 @@ class Config extends AbstractBag {
     return $this->get(Env::WEBROOT, 'web');
   }
 
+  /**
+   * Collect values from environment.
+   *
+   * @param array $defaults
+   *   Default values.
+   */
   protected function collectFromEnv(array $defaults = []): void {
     $constants = Env::getConstants();
 

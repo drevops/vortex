@@ -11,7 +11,7 @@ use DrevOps\Installer\Utils\Tokenizer;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- *
+ * Deploy type processor.
  */
 class DeployTypeProcessor extends AbstractProcessor {
 

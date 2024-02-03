@@ -8,10 +8,13 @@ use DrevOps\Installer\Prompt\AbstractConfirmationPrompt;
 use DrevOps\Installer\Utils\Files;
 
 /**
- *
+ * Preserve Acquia prompt.
  */
 class PreserveDocCommentsPrompt extends AbstractConfirmationPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'preserve_doc_comments';
 
   /**

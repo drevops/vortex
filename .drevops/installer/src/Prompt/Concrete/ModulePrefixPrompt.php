@@ -10,23 +10,26 @@ use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
 /**
- *
+ * Module prefix prompt.
  */
 class ModulePrefixPrompt extends AbstractPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'module_prefix';
 
   /**
    * {@inheritdoc}
    */
-  public static function title():string {
+  public static function title(): string {
     return 'Module prefix';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question():string {
+  public static function question(): string {
     return 'What is your project-specific module prefix?';
   }
 

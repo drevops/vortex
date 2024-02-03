@@ -12,9 +12,14 @@ use DrevOps\Installer\Utils\Strings;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- *
+ * Deploy type prompt.
  */
 class DeployTypePrompt extends AbstractChoicePrompt {
+
+  /**
+   * The prompt ID.
+   */
+  final const ID = 'deploy_type';
 
   final const CHOICE_ARTIFACT = 'artifact';
 
@@ -26,8 +31,6 @@ class DeployTypePrompt extends AbstractChoicePrompt {
 
   final const CHOICE_NONE = 'none';
 
-  final const ID = 'deploy_type';
-
   public function __construct(SymfonyStyle $io) {
     parent::__construct($io);
     $this->isMultiselect = TRUE;
@@ -36,14 +39,14 @@ class DeployTypePrompt extends AbstractChoicePrompt {
   /**
    * {@inheritdoc}
    */
-  public static function title():string {
+  public static function title(): string {
     return 'Deployment';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question():string {
+  public static function question(): string {
     return 'How do you deploy your code to the hosting?';
   }
 

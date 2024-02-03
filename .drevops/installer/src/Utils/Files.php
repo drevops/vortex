@@ -3,12 +3,27 @@
 namespace DrevOps\Installer\Utils;
 
 /**
- *
+ * Files utility.
  */
 class Files {
 
-  public static function copyRecursive($source, $dest, $permissions = 0755, $copy_empty_dirs = FALSE): bool {
-    $parent = dirname((string) $dest);
+  /**
+   * Copy a file, or recursively copy a folder and its contents.
+   *
+   * @param string $source
+   *   Source path.
+   * @param string $dest
+   *   Destination path.
+   * @param int $permissions
+   *   New folder creation permissions.
+   * @param bool $copy_empty_dirs
+   *   Whether to copy empty directories.
+   *
+   * @return bool
+   *   TRUE on success, FALSE on failure.
+   */
+  public static function copyRecursive(string $source, string $dest, int $permissions = 0755, bool $copy_empty_dirs = FALSE): bool {
+    $parent = dirname($dest);
 
     if (!is_dir($parent)) {
       mkdir($parent, $permissions, TRUE);
@@ -21,8 +36,8 @@ class Files {
       $cur_dir = getcwd();
       chdir($parent);
       $ret = TRUE;
-      if (!is_readable(basename((string) $dest))) {
-        $ret = symlink(readlink($source), basename((string) $dest));
+      if (!is_readable(basename($dest))) {
+        $ret = symlink(readlink($source), basename($dest));
       }
       chdir($cur_dir);
 
@@ -55,25 +70,48 @@ class Files {
     return TRUE;
   }
 
-  public static function rmdirRecursiveEmpty($directory, $options = []): void {
+  /**
+   * Remove a directory and its contents.
+   *
+   * @param string $directory
+   *   Directory path.
+   * @param array $options
+   *   Options.
+   */
+  public static function rmdirRecursiveEmpty(string $directory, $options = []): void {
     if (self::dirIsEmpty($directory)) {
       self::rmdirRecursive($directory, $options);
-      self::rmdirRecursiveEmpty(dirname((string) $directory), $options);
+      self::rmdirRecursiveEmpty(dirname($directory), $options);
     }
   }
 
-  public static function tempdir($dir = NULL, $prefix = 'tmp_', $mode = 0700, $max_attempts = 1000): false|string {
+  /**
+   * Create a temporary directory.
+   *
+   * @param string|null $dir
+   *   The directory where the temporary directory should be created.
+   * @param string $prefix
+   *   The prefix of the directory.
+   * @param int $mode
+   *   The permissions of the directory.
+   * @param int $max_attempts
+   *   The maximum number of attempts to create the directory.
+   *
+   * @return false|string
+   *   The path of the created directory or FALSE on failure.
+   */
+  public static function tempdir(?string $dir = NULL, string $prefix = 'tmp_', int $mode = 0700, int $max_attempts = 1000): false|string {
     if (is_null($dir)) {
       $dir = sys_get_temp_dir();
     }
 
-    $dir = rtrim((string) $dir, DIRECTORY_SEPARATOR);
+    $dir = rtrim($dir, DIRECTORY_SEPARATOR);
 
     if (!is_dir($dir) || !is_writable($dir)) {
       return FALSE;
     }
 
-    if (strpbrk((string) $prefix, '\\/:*?"<>|') !== FALSE) {
+    if (strpbrk($prefix, '\\/:*?"<>|') !== FALSE) {
       return FALSE;
     }
     $attempts = 0;
@@ -89,6 +127,16 @@ class Files {
     return $path;
   }
 
+  /**
+   * Replace string in filenames.
+   *
+   * @param string $search
+   *   The value being searched for, otherwise known as the needle.
+   * @param string $replace
+   *   The replacement value that replaces found search values.
+   * @param string $dir
+   *   The directory where the replacement should be done.
+   */
   public static function replaceStringFilename($search, $replace, string $dir): void {
     $files = self::scandirRecursive($dir, self::ignorePaths());
     foreach ($files as $filename) {
@@ -103,14 +151,33 @@ class Files {
     }
   }
 
+  /**
+   * Check if a directory is empty.
+   *
+   * @param string $directory
+   *   The directory path.
+   *
+   * @return bool
+   *   Whether the directory is empty.
+   */
   public static function dirIsEmpty($directory): bool {
     return is_dir($directory) && count(scandir($directory)) === 2;
   }
 
   /**
-   * @return mixed[]
+   * Recursively scan a directory for files.
+   *
+   * @param string $dir
+   *   The directory path.
+   * @param array $ignore_paths
+   *   The paths to ignore.
+   * @param bool $should_include_dirs
+   *   Whether to include directories in the result.
+   *
+   * @return array
+   *   The discovered files.
    */
-  public static function scandirRecursive(string $dir, $ignore_paths = [], $include_dirs = FALSE): array {
+  public static function scandirRecursive(string $dir, array $ignore_paths = [], bool $should_include_dirs = FALSE): array {
     $discovered = [];
 
     if (is_dir($dir)) {
@@ -124,10 +191,10 @@ class Files {
           }
         }
         if (is_dir($path)) {
-          if ($include_dirs) {
+          if ($should_include_dirs) {
             $discovered[] = $path;
           }
-          $discovered = array_merge($discovered, self::scandirRecursive($path, $ignore_paths, $include_dirs));
+          $discovered = array_merge($discovered, self::scandirRecursive($path, $ignore_paths, $should_include_dirs));
         }
         else {
           $discovered[] = $path;
@@ -138,6 +205,17 @@ class Files {
     return $discovered;
   }
 
+  /**
+   * Check if a file contains a string.
+   *
+   * @param string $needle
+   *   The value being searched for.
+   * @param string $file
+   *   The file path.
+   *
+   * @return int|bool
+   *   The number of times the needle substring occurs in the haystack string.
+   */
   public static function fileContains($needle, $file): int|bool {
     if (!is_readable($file)) {
       return FALSE;
@@ -152,6 +230,16 @@ class Files {
     return str_contains($content, (string) $needle);
   }
 
+  /**
+   * Replace content in files.
+   *
+   * @param string $needle
+   *   The value being searched for.
+   * @param string $replacement
+   *   The replacement value that replaces found search values.
+   * @param string $dir
+   *   The directory where the replacement should be done.
+   */
   public static function dirReplaceContent($needle, $replacement, string $dir): void {
     $files = self::scandirRecursive($dir, self::ignorePaths());
     foreach ($files as $filename) {
@@ -159,6 +247,16 @@ class Files {
     }
   }
 
+  /**
+   * Replace content in a file.
+   *
+   * @param string $needle
+   *   The value being searched for.
+   * @param string $replacement
+   *   The replacement value that replaces found search values.
+   * @param string $filename
+   *   The file path.
+   */
   public static function fileReplaceContent($needle, $replacement, $filename) {
     if (!is_readable($filename) || self::fileIsExcludedFromProcessing($filename)) {
       return FALSE;
@@ -177,6 +275,14 @@ class Files {
     }
   }
 
+  /**
+   * Recursively remove a directory and its contents.
+   *
+   * @param string $directory
+   *   The directory path.
+   * @param array $options
+   *   Options.
+   */
   public static function rmdirRecursive($directory, array $options = []): void {
     if (!isset($options['traverseSymlinks'])) {
       $options['traverseSymlinks'] = FALSE;
@@ -208,6 +314,17 @@ class Files {
     }
   }
 
+  /**
+   * Check if a directory contains a string.
+   *
+   * @param string $needle
+   *   The value being searched for.
+   * @param string $dir
+   *   The directory path.
+   *
+   * @return bool
+   *   Whether the directory contains the string.
+   */
   public static function dirContains($needle, string $dir): bool {
     $files = self::scandirRecursive($dir, self::ignorePaths());
     foreach ($files as $filename) {
@@ -219,6 +336,17 @@ class Files {
     return FALSE;
   }
 
+  /**
+   * Get the value of a key from composer.json.
+   *
+   * @param string $name
+   *   The key name.
+   * @param string $dir
+   *   The directory path.
+   *
+   * @return mixed|null
+   *   The value of the key or NULL if the key does not exist.
+   */
   public static function getComposerJsonValue($name, string $dir) {
     $composer_json = $dir . DIRECTORY_SEPARATOR . 'composer.json';
     if (is_readable($composer_json)) {
@@ -231,6 +359,17 @@ class Files {
     return NULL;
   }
 
+  /**
+   * Find a matching path.
+   *
+   * @param string|array $paths
+   *   The path or paths.
+   * @param string|null $text
+   *   The text to search for.
+   *
+   * @return string|null
+   *   The matching path or NULL if no match is found.
+   */
   public static function findMatchingPath($paths, $text = NULL) {
     $paths = is_array($paths) ? $paths : [$paths];
 
@@ -257,6 +396,12 @@ class Files {
     return NULL;
   }
 
+  /**
+   * Ignore paths.
+   *
+   * @return array
+   *   The paths to ignore.
+   */
   public static function ignorePaths(): array {
     return array_merge([
       '/.git/',
@@ -267,6 +412,12 @@ class Files {
     ], self::internalPaths());
   }
 
+  /**
+   * Internal paths.
+   *
+   * @return array
+   *   The internal paths.
+   */
   public static function internalPaths(): array {
     return [
       '/scripts/drevops/installer/install',
@@ -277,12 +428,30 @@ class Files {
     ];
   }
 
-  public static function isInternalPath($relative_path): bool {
-    $relative_path = '/' . ltrim((string) $relative_path, './');
+  /**
+   * Check if a path is internal.
+   *
+   * @param string $relative_path
+   *   The relative path.
+   *
+   * @return bool
+   *   Whether the path is internal.
+   */
+  public static function isInternalPath(string $relative_path): bool {
+    $relative_path = '/' . ltrim($relative_path, './');
 
     return in_array($relative_path, Files::internalPaths());
   }
 
+  /**
+   * Check if a file is excluded from processing.
+   *
+   * @param string $filename
+   *   The filename.
+   *
+   * @return int|false
+   *   The result of the match or FALSE if the file is not excluded.
+   */
   public static function fileIsExcludedFromProcessing($filename): int|false {
     $excluded_patterns = [
       '.+\.png',
@@ -295,6 +464,17 @@ class Files {
     return preg_match('/^(' . implode('|', $excluded_patterns) . ')$/', (string) $filename);
   }
 
+  /**
+   * Glob recursively.
+   *
+   * @param string $pattern
+   *   The pattern.
+   * @param int $flags
+   *   The flags.
+   *
+   * @return array|false
+   *   The result of the glob or FALSE if no match is found.
+   */
   public static function globRecursive($pattern, $flags = 0): array|false {
     $files = glob($pattern, $flags | GLOB_BRACE);
     foreach (glob(dirname((string) $pattern) . '/{,.}*[!.]', GLOB_BRACE | GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
@@ -304,6 +484,12 @@ class Files {
     return $files;
   }
 
+  /**
+   * Remove a file.
+   *
+   * @param string $file
+   *   The file path.
+   */
   public static function remove($file): void {
     @unlink($file);
   }

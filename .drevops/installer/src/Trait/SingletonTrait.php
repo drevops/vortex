@@ -9,7 +9,6 @@ namespace DrevOps\Installer\Trait;
  * Classes extending this abstract class will inherit Singleton behavior.
  *
  * @phpstan-consistent-constructor
- * @package Merlin\Reporting\Utils
  */
 trait SingletonTrait {
 
@@ -27,6 +26,9 @@ trait SingletonTrait {
    */
   protected static $calledInternally = FALSE;
 
+  /**
+   * Constructor.
+   */
   public function __construct() {
     if (!self::$calledInternally) {
       throw new \Exception('Cannot instantiate Singleton class directly. Use ::getInstance() instead.');
@@ -49,10 +51,16 @@ trait SingletonTrait {
     return static::$instance;
   }
 
+  /**
+   * Cloning of Singleton is disallowed.
+   */
   final public function __clone() {
     throw new \Exception('Cloning of Singleton is disallowed.');
   }
 
+  /**
+   * Unserializing instances of Singleton classes is disallowed.
+   */
   final public function __wakeup() {
     throw new \Exception('Unserializing instances of Singleton classes is disallowed.');
   }

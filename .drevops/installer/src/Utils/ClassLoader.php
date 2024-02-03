@@ -3,7 +3,7 @@
 namespace DrevOps\Installer\Utils;
 
 /**
- * Utilities.
+ * Class loader.
  */
 class ClassLoader {
 
@@ -58,7 +58,7 @@ class ClassLoader {
    * @return array
    *   Array of loaded class instances.
    */
-  public static function filterByClass($parent_class, $classes = NULL) {
+  public static function filterByClass($parent_class, $classes = NULL): array {
     $classes = $classes ?? get_declared_classes();
 
     foreach ($classes as $k => $class) {

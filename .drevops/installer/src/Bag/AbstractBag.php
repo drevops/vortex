@@ -3,7 +3,9 @@
 namespace DrevOps\Installer\Bag;
 
 /**
+ * Class AbstractBag.
  *
+ * Bag to store and manipulate items.
  */
 abstract class AbstractBag {
 

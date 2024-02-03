@@ -8,10 +8,13 @@ use DrevOps\Installer\Prompt\AbstractPrompt;
 use Symfony\Component\Console\Question\Question;
 
 /**
- *
+ * Prompt to confirm the installation.
  */
 class ProceedDrevopsInstallPrompt extends AbstractPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'proceed_drevops_install';
 
   /**

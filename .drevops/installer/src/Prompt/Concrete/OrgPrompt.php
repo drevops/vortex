@@ -10,23 +10,26 @@ use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
 /**
- *
+ * Organisation prompt.
  */
 class OrgPrompt extends AbstractPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'org';
 
   /**
    * {@inheritdoc}
    */
-  public static function title():string {
+  public static function title(): string {
     return 'Organisation';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function question():string {
+  public static function question(): string {
     return 'What is your organization name?';
   }
 

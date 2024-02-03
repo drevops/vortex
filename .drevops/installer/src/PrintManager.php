@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- *
+ * Print manager.
  */
 class PrintManager {
 
@@ -25,6 +25,9 @@ class PrintManager {
     }
   }
 
+  /**
+   * Print header for interactive mode.
+   */
   public function printHeaderInteractive(): void {
     $commit = $this->config->get(Env::INSTALLER_COMMIT);
 
@@ -53,6 +56,9 @@ class PrintManager {
     Formatter::printBox($this->io, $content, 'WELCOME TO DREVOPS INTERACTIVE INSTALLER');
   }
 
+  /**
+   * Print header for quiet mode.
+   */
   public function printHeaderQuiet(): void {
     $commit = $this->config->get(Env::INSTALLER_COMMIT);
 
@@ -78,19 +84,33 @@ class PrintManager {
     $this->io->setVerbosity($verbosity_level);
   }
 
+  /**
+   * Print summary.
+   *
+   * @param array $values
+   *   The values to print.
+   * @param string $title
+   *   The title.
+   */
   public function printSummary($values, $title): void {
-    $values = array_map(static function ($key, $value) : array {
-        return [$key => $value];
+    $values = array_map(static function ($key, $value): array {
+      return [$key => $value];
     }, array_keys($values), $values);
 
     $this->io->writeln(sprintf('  <options=bold>%s</>', $title));
     $this->io->definitionList(...$values);
   }
 
+  /**
+   * Print abort message.
+   */
   public function printAbort(): void {
     Formatter::printBox($this->io, 'Aborting DrevOps installation. No files were changed.', 'INSTALLATION ABORTED');
   }
 
+  /**
+   * Print footer.
+   */
   public function printFooter(): void {
     $output = '';
 

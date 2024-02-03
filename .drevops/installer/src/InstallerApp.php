@@ -6,10 +6,13 @@ use DrevOps\Installer\Command\InstallCommand;
 use Symfony\Component\Console\Application;
 
 /**
- *
+ * Installer application.
  */
 class InstallerApp extends Application {
 
+  /**
+   * {@inheritdoc}
+   */
   public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN') {
     parent::__construct($name, $version);
 

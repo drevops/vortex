@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- *
+ * Prompt unit test case.
  */
 abstract class PromptUnitTestCase extends UnitTestCase {
 

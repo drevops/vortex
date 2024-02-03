@@ -13,10 +13,13 @@ use DrevOps\Installer\Utils\Strings;
 use DrevOps\Installer\Utils\Validator;
 
 /**
- *
+ * Theme prompt.
  */
 class ThemePrompt extends AbstractPrompt {
 
+  /**
+   * The prompt ID.
+   */
   final const ID = 'theme';
 
   /**
@@ -70,7 +73,7 @@ class ThemePrompt extends AbstractPrompt {
       return NULL;
     }
 
-    if ($value) {
+    if ($value !== '' && $value !== '0') {
       $value = basename((string) $value);
       $value = str_replace(['.info.yml', '.info'], '', $value);
     }
