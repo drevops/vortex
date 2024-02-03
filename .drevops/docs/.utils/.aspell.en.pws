@@ -20,6 +20,7 @@ DX
 Deployer
 DevOps
 DockerHub
+Dockerfile
 DrevOps
 Drupal
 DrupalExtension
@@ -32,6 +33,7 @@ GitLab
 GraphQL
 Gruntfile
 HTTPS
+Hadolint
 Hotfix
 Integrations
 JS
@@ -116,6 +118,7 @@ hostname
 integrations
 io
 jira
+linter
 linters
 mariadb
 md
