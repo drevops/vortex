@@ -4,7 +4,7 @@
 #
 # @see https://hub.docker.com/r/uselagoon/php-8.2-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
-FROM uselagoon/php-8.2-cli-drupal:23.12.0
+FROM uselagoon/php-8.2-cli-drupal:24.1.0
 
 # Add missing variables.
 # @todo Remove once https://github.com/uselagoon/lagoon/issues/3121 is resolved.
@@ -38,7 +38,7 @@ ENV WEBROOT=${WEBROOT} \
 # reduce build time.
 
 # Adding more tools.
-RUN apk add --no-cache ncurses=6.4_p20230506-r0 pv=1.6.20-r1 tzdata=2023d-r0
+RUN apk add --no-cache ncurses=6.4_p20231125-r0 pv=1.8.5-r0 tzdata=2024a-r0
 
 # Adding patches and scripts.
 COPY patches /app/patches
