@@ -13,6 +13,6 @@ FROM uselagoon/nginx-drupal:24.1.0
 ARG WEBROOT=web
 ENV WEBROOT=${WEBROOT}
 
-RUN apk add --no-cache tzdata=2023d-r0
+RUN apk add --no-cache tzdata=2024a-r0
 
 COPY --from=cli /app /app
