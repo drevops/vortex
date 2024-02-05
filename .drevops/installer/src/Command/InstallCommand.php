@@ -567,7 +567,7 @@ class InstallCommand extends Command {
     static::rmdirRecursive($dir . '/.drevops/tests');
     static::rmdirRecursive($dir . '/scripts/drevops/utils');
     @unlink($dir . '/.github/FUNDING.yml');
-    foreach (glob($dir . '/.github/drevops-*.yml') as $file) {
+    foreach (glob($dir . '/.github/workflows/drevops-*.yml') as $file) {
       @unlink($file);
     }
 
