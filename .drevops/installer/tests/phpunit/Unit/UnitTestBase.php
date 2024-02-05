@@ -45,10 +45,14 @@ abstract class UnitTestBase extends TestCase {
 
   /**
    * Create fixture files.
+   *
+   * @return string[]
+   *   Created file names.
    */
-  protected function createFixtureFiles($files, $basedir = NULL, $append_rand = TRUE) {
+  protected function createFixtureFiles($files, $basedir = NULL, $append_rand = TRUE): array {
     $fs = new Filesystem();
     $created = [];
+
     foreach ($files as $file) {
       $basedir = $basedir ?? dirname((string) $file);
       $relative_dst = ltrim(str_replace($basedir, '', (string) $file), '/') . ($append_rand ? rand(1000, 9999) : '');
@@ -69,7 +73,7 @@ abstract class UnitTestBase extends TestCase {
    * @return string
    *   Fixture directory path.
    */
-  protected function getFixtureDir($name = NULL) {
+  protected function getFixtureDir($name = NULL): string {
     $parent = dirname(__FILE__);
     $path = $parent . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Fixtures';
     $path .= $name ? DIRECTORY_SEPARATOR . $name : '';
