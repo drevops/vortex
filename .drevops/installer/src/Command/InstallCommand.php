@@ -2119,7 +2119,7 @@ EOF;
     // Replace all # not inside quotes.
     $contents = preg_replace('/#(?=(?:(?:[^"]*"){2})*[^"]*$)/', ';', $contents);
 
-    return parse_ini_string($contents);
+    return parse_ini_string((string) $contents);
   }
 
   protected static function loadDotenv($filename = '.env', $override_existing = FALSE) {
@@ -2197,7 +2197,7 @@ EOF;
 
   protected static function toHumanName($value): ?string {
     $value = preg_replace('/[^a-zA-Z0-9]/', ' ', (string) $value);
-    $value = trim($value);
+    $value = trim((string) $value);
 
     return preg_replace('/\s{2,}/', ' ', $value);
   }
@@ -2211,11 +2211,11 @@ EOF;
 
     $value = preg_replace($pattern, '_', (string) $value);
 
-    return strtolower($value);
+    return strtolower((string) $value);
   }
 
   protected static function toCamelCase($value, $capitalise_first = FALSE): string|array {
-    $value = str_replace(' ', '', ucwords(preg_replace('/[^a-zA-Z0-9]/', ' ', (string) $value)));
+    $value = str_replace(' ', '', ucwords((string) preg_replace('/[^a-zA-Z0-9]/', ' ', (string) $value)));
 
     return $capitalise_first ? $value : lcfirst($value);
   }
