@@ -47,7 +47,7 @@ jobs:
           echo "install.drevops.com" > /tmp/installer/docs/CNAME
 
       - name: Setup SSH private key
-        uses: webfactory/ssh-agent@v0.8.0
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.INSTALLER_PUBLISH_SSH_PRIVATE_KEY }}
 

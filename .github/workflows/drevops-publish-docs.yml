@@ -41,7 +41,7 @@ jobs:
         run: ahoy test
 
       - name: Setup SSH private key
-        uses: webfactory/ssh-agent@v0.8.0
+        uses: webfactory/ssh-agent@v0.9.0
         with:
             ssh-private-key: ${{ secrets.DOCS_PUBLISH_SSH_PRIVATE_KEY }}
 
