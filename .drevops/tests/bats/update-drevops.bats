@@ -48,7 +48,7 @@ load _helper.bash
   # Enforce debugging of the install script.
   export DREVOPS_INSTALL_DEBUG=1
   # Override install script with currently tested one to be called from ./scripts/drevops/update-drevops.sh
-  export DREVOPS_INSTALLER_URL="file://${ROOT_DIR}/.drevops/installer/.build/install.phar"
+  export DREVOPS_INSTALLER_URL="file://${INSTALLER_CHECKOUT_DIR}/install.php"
   # shellcheck disable=SC2059
   run ahoy update-drevops
   assert_success

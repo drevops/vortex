@@ -40,13 +40,12 @@ setup() {
   export BATS_LIB_PATH="${BATS_TEST_DIRNAME}/../node_modules"
 
   # Load 'bats-helpers' library.
+  ASSERT_DIR_EXCLUDE=("drevops" ".data")
+  export ASSERT_DIR_EXCLUDE
   bats_load_library bats-helpers
 
   # Setup command mocking.
   setup_mock
-
-  # Adjust assertion directories.
-  export ASSERT_DIR_EXCLUDE=("drevops" ".data")
 
   ##
   ## Phase 2: Pre-flight checks.
@@ -57,6 +56,9 @@ setup() {
   export TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-}"
   export TEST_DOCKER_USER="${TEST_DOCKER_USER:-}"
   export TEST_DOCKER_PASS="${TEST_DOCKER_PASS:-}"
+
+  # The installer reference to use for tests.
+  export TEST_INSTALLER_REF="${TEST_INSTALLER_REF:-main}"
 
   # Preflight checks.
   # @formatter:off
@@ -81,26 +83,36 @@ setup() {
   # The "build" in this context is a place to store assets produced by the
   # installer script during the test.
   export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR//\/\//\/}/drevops-$(date +%s)"}"
+
   # Directory where the installer script is executed.
   # May have existing project files (e.g. from previous installations) or be
   # empty (to facilitate brand-new install).
   export CURRENT_PROJECT_DIR="${BUILD_DIR}/star_wars"
+
   # Directory where DrevOps may be installed into.
   # By default, install uses ${CURRENT_PROJECT_DIR} as a destination, but we use
   # ${DST_PROJECT_DIR} to test a scenario where different destination is provided.
   export DST_PROJECT_DIR="${BUILD_DIR}/dst"
+
   # Directory where the installer script will be sourcing the instance of DrevOps.
   # As a part of test setup, the local copy of DrevOps at the last commit is
   # copied to this location. This means that during development of tests local
   # changes need to be committed.
   export LOCAL_REPO_DIR="${BUILD_DIR}/local_repo"
+
   # Directory where the application may store it's temporary files.
   export APP_TMP_DIR="${BUILD_DIR}/tmp"
+
+  # Use unique installer checkout dir to allow multiple calls of this function
+  # with a single test.
+  export INSTALLER_CHECKOUT_DIR="${BUILD_DIR}/installer_$(random_string)"
+
   fixture_prepare_dir "${BUILD_DIR}"
   fixture_prepare_dir "${CURRENT_PROJECT_DIR}"
   fixture_prepare_dir "${DST_PROJECT_DIR}"
   fixture_prepare_dir "${LOCAL_REPO_DIR}"
   fixture_prepare_dir "${APP_TMP_DIR}"
+  fixture_prepare_dir "${INSTALLER_CHECKOUT_DIR}"
 
   ##
   ## Phase 4: Application variables setup.
@@ -416,9 +428,7 @@ assert_files_present_drevops() {
   assert_file_not_exists ".github/FUNDING.yml"
 
   assert_file_not_exists ".github/drevops-publish-docs.yml"
-  assert_file_not_exists ".github/drevops-publish-installer.yml"
   assert_file_not_exists ".github/drevops-test-docs.yml"
-  assert_file_not_exists ".github/drevops-test-installer.yml"
 
   assert_file_not_contains ".circleci/config.yml" "drevops-dev-test"
   assert_file_not_contains ".circleci/config.yml" "drevops-dev-test-workflow"
@@ -968,8 +978,8 @@ run_install_quiet() {
   opt_quiet="--quiet"
   [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_quiet=""
 
-  build_installer "${ROOT_DIR}"
-  run php "${ROOT_DIR}/.drevops/installer/.build/install.phar" "${opt_quiet}" "$@"
+  download_installer "${INSTALLER_CHECKOUT_DIR}"
+  run php "${INSTALLER_CHECKOUT_DIR}/install.php" "${opt_quiet}" "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
@@ -1312,10 +1322,36 @@ EOL
   chmod +x "${path_with_bin}"
 }
 
-build_installer() {
-  local curdir="${1}"
-  rm -Rf "${curdir}/.drevops/installer/.build/install.phar" >/dev/null || true
-  composer -d "${curdir}/.drevops/installer" install
-  composer -d "${curdir}/.drevops/installer" build
-  assert_file_exists "${curdir}/.drevops/installer/.build/install.phar"
+download_installer() {
+  pushd "${1}" >/dev/null || exit 1
+
+  rm -Rf "install.php" >/dev/null || true
+
+  git init >/dev/null
+
+  if ! git remote | grep -q "installer_origin"; then
+    git remote add installer_origin "https://github.com/drevops/installer.git" >/dev/null
+  fi
+
+  git fetch installer_origin "${TEST_INSTALLER_REF}" >/dev/null
+
+  if git branch -a | grep -q "remotes/installer_origin/${TEST_INSTALLER_REF}$"; then
+    git checkout "${TEST_INSTALLER_REF}" >/dev/null
+  elif git cat-file -t "${TEST_INSTALLER_REF}" >/dev/null 2>&1; then
+    git checkout "${TEST_INSTALLER_REF}" >/dev/null
+  else
+    echo "The provided reference does not match any branch or commit."
+    exit 1
+  fi
+
+  echo "Checkout successful."
+
+  composer install --no-progress --no-suggest > /dev/null 2>&1
+  composer build > /dev/null 2>&1
+
+  cp .build/installer "install.php" > /dev/null
+
+  assert_file_exists "install.php"
+
+  popd >/dev/null || exit 1
 }

@@ -11,7 +11,6 @@ commands:
       ahoy lint-spelling
       ahoy lint-docs
       ahoy lint-devtool
-      ahoy lint-installer
 
   lint-scripts:
     cmd: ./tests/lint.scripts.sh
@@ -28,16 +27,12 @@ commands:
   lint-devtool:
     cmd: ahoy devtool lint
 
-  lint-installer:
-    cmd: ahoy installer lint
-
   test:
     name: Test DrevOps project.
     cmd: |
       ahoy test-common
       ahoy test-docs
       ahoy test-devtool
-      ahoy test-installer
 
   test-common:
     cmd: ./tests/test.common.sh
@@ -53,11 +48,6 @@ commands:
 
   test-devtool:
     cmd: ahoy devtool test
-
-  test-installer:
-    cmd: |
-      ahoy installer test
-      ahoy installer build
 
   # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
   update-fixtures:
@@ -75,12 +65,6 @@ commands:
     cmd: |
       [ ! -d "./devtool/vendor" ] && composer --working-dir=devtool install -n --ansi --no-progress --no-interaction --no-suggest --prefer-dist --optimize-autoloader
       composer --working-dir=devtool "$@"
-
-  installer:
-    usage: Custom installer commands.
-    cmd: |
-      [ ! -d "./installer/vendor" ] && composer --working-dir=installer install -n --ansi --no-progress --no-interaction --no-suggest --prefer-dist --optimize-autoloader
-      composer --working-dir=installer "$@"
 
 entrypoint:
   - bash
