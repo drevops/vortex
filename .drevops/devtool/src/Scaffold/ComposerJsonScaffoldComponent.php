@@ -52,7 +52,7 @@ class ComposerJsonScaffoldComponent extends AbstractScaffoldComponent {
       'url' => 'https://asset-packagist.org',
     ]);
 
-    $m->addDependency('php', '>=8.1');
+    $m->addDependency('php', '>=8.2');
     $m->addDependency('drupal/admin_toolbar', '^3.1');
     $m->addDependency('drupal/clamav', '^2.0.2');
     $m->addDependency('drupal/coffee', '^1.2');
@@ -77,7 +77,7 @@ class ComposerJsonScaffoldComponent extends AbstractScaffoldComponent {
     $m->addDevDependency('drupal/drupal-extension', '^5@rc');
     $m->addDevDependency('friendsoftwig/twigcs', '^6.2');
     $m->addDevDependency('mglaman/phpstan-drupal', '^1.2');
-    $m->addDevDependency('palantirnet/drupal-rector', '^0.18');
+    $m->addDevDependency('palantirnet/drupal-rector', '^0.19');
     $m->addDevDependency('phpcompatibility/php-compatibility', '^9.3');
     $m->addDevDependency('phpmd/phpmd', '^2.13');
     $m->addDevDependency('phpspec/prophecy-phpunit', '^2.0');
