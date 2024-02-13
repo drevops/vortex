@@ -68,9 +68,9 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "drupal/core-composer-scaffold": true,
             "oomphinc/composer-installers-extender": true,
+            "php-http/discovery": true,
             "phpstan/extension-installer": true,
-            "pyrech/composer-changelogs": true,
-            "php-http/discovery": true
+            "pyrech/composer-changelogs": true
         },
         "platform": {
             "php": "8.2.13"
