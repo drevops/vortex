@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b1bd6d66be47371446194c413495c524",
+    "content-hash": "93679b75b28dc496fa8827589b69dcb7",
     "packages": [
         {
             "name": "alexskrypnyk/csvtable",
@@ -63,16 +63,16 @@
         },
         {
             "name": "alexskrypnyk/shellvar",
-            "version": "0.6.0",
+            "version": "0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/shellvar.git",
-                "reference": "061ff0b07e59c98f639ba93f18c3b50a2c990f22"
+                "reference": "be44372db105b2b119cb019384a3a2719aa84acc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/shellvar/zipball/061ff0b07e59c98f639ba93f18c3b50a2c990f22",
-                "reference": "061ff0b07e59c98f639ba93f18c3b50a2c990f22",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/shellvar/zipball/be44372db105b2b119cb019384a3a2719aa84acc",
+                "reference": "be44372db105b2b119cb019384a3a2719aa84acc",
                 "shasum": ""
             },
             "require": {
@@ -127,7 +127,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2024-02-07T22:25:58+00:00"
+            "time": "2024-02-14T23:08:23+00:00"
         },
         {
             "name": "psr/container",
