@@ -9,7 +9,7 @@ set -eu
 
 ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
-[ ! -f "${ROOT_DIR}/.drevops/tests/vendor/bin/shell-var-lint" ] && composer --working-dir="${ROOT_DIR}/.drevops/tests" install
+[ ! -f "${ROOT_DIR}/.drevops/tests/vendor/bin/shellvar" ] && composer --working-dir="${ROOT_DIR}/.drevops/tests" install
 
 targets=()
 while IFS= read -r -d $'\0'; do
@@ -32,9 +32,7 @@ for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"
 
-    # Temp script until shfmt implement the support for formatting variables.
-    # @see https://github.com/mvdan/sh/issues/1029
-    if ! "${ROOT_DIR}/.drevops/tests/vendor/bin/shell-var-lint" "${file}"; then
+    if ! "${ROOT_DIR}/.drevops/tests/vendor/bin/shellvar" lint "${file}"; then
       exit 1
     fi
 
