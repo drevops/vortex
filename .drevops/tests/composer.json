@@ -11,6 +11,6 @@
     "minimum-stability": "alpha",
     "prefer-stable": true,
     "require-dev": {
-        "alexskrypnyk/shell-var-lint": "^0.2"
+        "alexskrypnyk/shellvar": "^0.7"
     }
 }
