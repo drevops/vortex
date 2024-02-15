@@ -38,7 +38,8 @@ echo >>"${OUTPUT_FILE}"
   ../../.env \
   ../../.env.local.default \
   ./.utils/variables/extra \
-  .. \
+  ../../scripts/drevops \
+  ../../scripts/custom \
   >>"${OUTPUT_FILE}"
 
 sed "${sed_opts[@]}" "s/.drevops\/docs\/.utils\/variables\/extra\/environment.variables.sh/ENVIRONMENT/g" "${OUTPUT_FILE}"

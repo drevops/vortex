@@ -44,17 +44,7 @@ DREVOPS_DEPLOY_BRANCH="${DREVOPS_DEPLOY_BRANCH:-}"
 # Deployment pull request number without "pr-" prefix.
 DREVOPS_DEPLOY_PR="${DREVOPS_DEPLOY_PR:-}"
 
-# Flag to proceed with deployment.
-# Usually set to 1 once the deployment configuration is configured in CI and
-# is ready for use.
-DREVOPS_DEPLOY_PROCEED="${DREVOPS_DEPLOY_PROCEED:-}"
-
 # Flag to allow skipping of a deployment using additional flags.
-#
-# Different to $DREVOPS_DEPLOY_PROCEED in a way that $DREVOPS_DEPLOY_PROCEED is
-# a failsafe to prevent any deployments, while $DREVOPS_DEPLOY_SKIP allows to
-# selectively skip certain deployments using `$DREVOPS_DEPLOY_SKIP_PR_<NUMBER>'
-# and `$DREVOPS_DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>` variables.
 DREVOPS_DEPLOY_ALLOW_SKIP="${DREVOPS_DEPLOY_ALLOW_SKIP:-}"
 
 # ------------------------------------------------------------------------------
@@ -69,10 +59,6 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 info "Started deployment."
 
 [ -z "${DREVOPS_DEPLOY_TYPES}" ] && fail "Missing required value for DREVOPS_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
-
-if [ "${DREVOPS_DEPLOY_PROCEED}" != "1" ]; then
-  echo "DREVOPS_DEPLOY_PROCEED is not set to 1." && pass "Skipping deployment ${DREVOPS_DEPLOY_TYPES}." && exit 0
-fi
 
 if [ "${DREVOPS_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
   note "Found flag to skip a deployment."

@@ -16,13 +16,6 @@ variable as a comma-separated list of one or multiple supported deployment types
   Lagoon.
 - `docker`- a Docker image is built and pushed to a remote registry.
 
-## Setting up deployments
-
-After setting up the deployment integration, you can begin using it by adding
-the `$DREVOPS_DEPLOY_PROCEED` variable with a value of `1` in the CircleCI user
-interface. This variable is used as a fail-safe to prevent accidental
-deployments while setting up DrevOps.
-
 ## Using deployments
 
 ### Deployment action
