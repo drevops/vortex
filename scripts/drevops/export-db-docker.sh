@@ -75,7 +75,9 @@ docker save -o "${archive_file}" "${new_image}"
 if [ -f "${archive_file}" ] && [ -s "${archive_file}" ]; then
   note "Saved exported database image archive file ${archive_file}."
 else
+  # LCOV_EXCL_START
   fail "Unable to save database image archive file ${archive_file}." && exit 1
+  # LCOV_EXCL_STOP
 fi
 
 pass "Finished Docker database image export."

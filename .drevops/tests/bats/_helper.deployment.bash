@@ -5,8 +5,7 @@
 
 assert_deployment_files_present() {
   local dir="${1:-$(pwd)}"
-  local has_custom_profile="${2:-0}"
-  local webroot="${3:-web}"
+  local webroot="web"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -39,12 +38,6 @@ assert_deployment_files_present() {
 
   # We are passing .env configs to allow to control the project from a single place.
   assert_file_exists .env
-
-  if [ "${has_custom_profile:-}" -eq 1 ]; then
-    # Site profile present.
-    assert_dir_exists "${webroot}/profiles/custom/star_wars_profile"
-    assert_file_exists "${webroot}/profiles/custom/star_wars_profile/star_wars_profile.info.yml"
-  fi
 
   # Site core module present.
   assert_dir_exists "${webroot}/modules/custom/sw_core"

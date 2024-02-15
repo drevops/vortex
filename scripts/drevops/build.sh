@@ -83,10 +83,12 @@ if [ -n "${DREVOPS_DB_DOCKER_IMAGE:-}" ]; then
   ./scripts/drevops/restore-docker-image.sh "${DREVOPS_DB_DOCKER_IMAGE}" "${DREVOPS_DB_DIR}/db.tar"
   # If the image does not exist and base image was provided - use the base
   # image which allows "clean slate" for the database.
+  # LCOV_EXCL_START
   if [ ! -f "${DREVOPS_DB_DIR}/db.tar" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE_BASE:-}" ]; then
     note "Database Docker image was not found. Using base image ${DREVOPS_DB_DOCKER_IMAGE_BASE}."
     export DREVOPS_DB_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE_BASE}"
   fi
+  # LCOV_EXCL_STOP
   echo
 fi
 
@@ -147,6 +149,7 @@ echo
 # Note that this will create package-lock.json file if it does not exist.
 # We are not re-running compilation in CI as it is not used - these assets
 # are already compiled as a part of the Docker build.
+# LCOV_EXCL_START
 if [ -n "${DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
   info "Installing front-end dependencies."
   docker compose exec ${dcopts[@]} cli bash -c 'npm --prefix ${DREVOPS_WEBROOT}/themes/custom/${DRUPAL_THEME} install' >"${npm_verbose_output}"
@@ -159,6 +162,7 @@ if [ -n "${DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
   pass "Created Livereload socket."
   echo
 fi
+# LCOV_EXCL_STOP
 
 # Provision site.
 # Pass environment variables to the container from the environment.

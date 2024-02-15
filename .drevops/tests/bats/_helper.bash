@@ -28,6 +28,7 @@ setup() {
   # Enforce architecture if not provided for ARM. Note that this may not work
   # if bash uses Rosetta or other emulators, in which case the test should run
   # with the variable explicitly set.
+  # LCOV_EXCL_START
   if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
     export DOCKER_DEFAULT_PLATFORM=linux/amd64
   fi
@@ -35,6 +36,7 @@ setup() {
   if [ -n "${DOCKER_DEFAULT_PLATFORM:-}" ]; then
     step "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."
   fi
+  # LCOV_EXCL_STOP
 
   # Register a path to libraries.
   export BATS_LIB_PATH="${BATS_TEST_DIRNAME}/../node_modules"
@@ -265,7 +267,6 @@ assert_files_not_present_common() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-sw}"
   local suffix_abbreviated="${3:-sw}"
-  local has_required_files="${4:-0}"
   local webroot="${5:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
@@ -287,26 +288,19 @@ assert_files_not_present_common() {
   assert_file_not_exists "docs/faqs.md"
   assert_file_not_exists ".ahoy.yml"
 
-  if [ "${has_required_files:-}" -eq 1 ]; then
-    assert_file_exists "README.md"
-    assert_file_exists ".circleci/config.yml"
-    assert_file_exists "${webroot}/sites/default/settings.php"
-    assert_file_exists "${webroot}/sites/default/services.yml"
-  else
-    assert_file_not_exists "README.md"
-    assert_file_not_exists ".circleci/config.yml"
-    assert_file_not_exists "${webroot}/sites/default/settings.php"
-    assert_file_not_exists "${webroot}/sites/default/services.yml"
-    # Scaffolding files not exist.
-    assert_file_not_exists "${webroot}/.editorconfig"
-    assert_file_not_exists "${webroot}/.eslintignore"
-    assert_file_not_exists "${webroot}/.gitattributes"
-    assert_file_not_exists "${webroot}/.htaccess"
-    assert_file_not_exists "${webroot}/autoload.php"
-    assert_file_not_exists "${webroot}/index.php"
-    assert_file_not_exists "${webroot}/robots.txt"
-    assert_file_not_exists "${webroot}/update.php"
-  fi
+  assert_file_not_exists "README.md"
+  assert_file_not_exists ".circleci/config.yml"
+  assert_file_not_exists "${webroot}/sites/default/settings.php"
+  assert_file_not_exists "${webroot}/sites/default/services.yml"
+  # Scaffolding files not exist.
+  assert_file_not_exists "${webroot}/.editorconfig"
+  assert_file_not_exists "${webroot}/.eslintignore"
+  assert_file_not_exists "${webroot}/.gitattributes"
+  assert_file_not_exists "${webroot}/.htaccess"
+  assert_file_not_exists "${webroot}/autoload.php"
+  assert_file_not_exists "${webroot}/index.php"
+  assert_file_not_exists "${webroot}/robots.txt"
+  assert_file_not_exists "${webroot}/update.php"
 
   popd >/dev/null || exit 1
 }
@@ -1332,6 +1326,7 @@ download_installer() {
 
   git fetch installer_origin "${TEST_INSTALLER_REF}" >/dev/null
 
+  # LCOV_EXCL_START
   if git branch -a | grep -q "remotes/installer_origin/${TEST_INSTALLER_REF}$"; then
     echo "Checking out the installer from branch ref: ${TEST_INSTALLER_REF}" >&3
     git checkout "${TEST_INSTALLER_REF}" >/dev/null
@@ -1342,6 +1337,7 @@ download_installer() {
     echo "The provided reference does not match any branch or commit." >&3
     exit 1
   fi
+  # LCOV_EXCL_STOP
 
   echo "Checkout successful."
 

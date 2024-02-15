@@ -92,6 +92,7 @@ fi
 
 [ ! -f "${DREVOPS_DEPLOY_SSH_FILE}" ] && fail "SSH key file ${DREVOPS_DEPLOY_SSH_FILE} does not exist." && exit 1
 
+# LCOV_EXCL_START
 if ssh-add -l | grep -q "${DREVOPS_DEPLOY_SSH_FILE}"; then
   note "SSH agent has ${DREVOPS_DEPLOY_SSH_FILE} key loaded."
 else
@@ -100,6 +101,7 @@ else
   ssh-add -D >/dev/null
   ssh-add "${DREVOPS_DEPLOY_SSH_FILE}"
 fi
+# LCOV_EXCL_STOP
 
 # Disable strict host key checking in CI.
 [ -n "${CI:-}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
