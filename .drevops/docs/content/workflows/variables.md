@@ -222,14 +222,6 @@ Default value: `your_site`
 
 Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`
 
-### `DREVOPS_DB_DOWNLOAD_ACQUIA_ENV`
-
-Acquia environment to download the database from.
-
-Default value: `prod`
-
-Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`
-
 ### `DREVOPS_DB_DOWNLOAD_CURL_URL`
 
 Database dump file sourced from CURL, with optional HTTP Basic Authentication<br />credentials embedded into the value.
@@ -237,6 +229,14 @@ Database dump file sourced from CURL, with optional HTTP Basic Authentication<br
 Default value: `UNDEFINED`
 
 Defined in: `.env`, `scripts/drevops/download-db-curl.sh`
+
+### `DREVOPS_DB_DOWNLOAD_ENVIRONMENT`
+
+Environment to download the database from.
+
+Default value: `prod`
+
+Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-lagoon.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_FORCE`
 
@@ -286,14 +286,6 @@ Default value: `UNDEFINED`
 
 Defined in: `.env.local.default`, `scripts/drevops/download-db-ftp.sh`
 
-### `DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH`
-
-Lagoon environment to download the database from.
-
-Default value: `main`
-
-Defined in: `.env`, `scripts/drevops/download-db-lagoon.sh`
-
 ### `DREVOPS_DB_DOWNLOAD_LAGOON_REMOTE_DIR`
 
 Remote DB dump directory location.
@@ -340,7 +332,7 @@ Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 The SSH user of the Lagoon environment.
 
-Default value: `LAGOON_PROJECT-${DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH`
+Default value: `LAGOON_PROJECT-${DREVOPS_DB_DOWNLOAD_ENVIRONMENT`
 
 Defined in: `scripts/drevops/download-db-lagoon.sh`
 
@@ -364,7 +356,7 @@ Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 Database can be sourced from one of the following locations:
 
-- `url` - directly from URL as a file using CURL.
+- `curl` - directly from URL as a file using CURL.
 - `ftp` - directly from FTP as a file using CURL.
 - `acquia` - from the latest Acquia backup via Cloud API as a file.
 - `lagoon` - from Lagoon main environment as a file.

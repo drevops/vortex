@@ -593,7 +593,7 @@ assert_files_present_provision_use_profile() {
   assert_file_contains ".env" "DREVOPS_PROVISION_USE_PROFILE=1"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL"
-  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH"
+  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_ENVIRONMENT"
 
   assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_FORCE"
   assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_FTP_USER"
@@ -754,7 +754,7 @@ assert_files_present_integration_acquia() {
   if [ "${include_scripts:-}" -eq 1 ]; then
     assert_dir_exists "scripts"
     assert_file_contains ".env" "DREVOPS_ACQUIA_APP_NAME="
-    assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
+    assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_ENVIRONMENT="
     assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
   fi
 
@@ -773,10 +773,8 @@ assert_files_present_no_integration_acquia() {
   assert_file_not_contains "${webroot}/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
   assert_file_not_contains "${webroot}/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
   assert_file_not_contains ".env" "DREVOPS_ACQUIA_APP_NAME="
-  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
   assert_file_not_contains ".ahoy.yml" "DREVOPS_ACQUIA_APP_NAME="
-  assert_file_not_contains ".ahoy.yml" "DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="
   assert_file_not_contains ".ahoy.yml" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
   assert_dir_not_contains_string "${dir}" "DREVOPS_ACQUIA_KEY"
   assert_dir_not_contains_string "${dir}" "DREVOPS_ACQUIA_SECRET"
@@ -827,7 +825,6 @@ assert_files_present_no_integration_lagoon() {
   assert_file_not_contains "docker-compose.yml" "lagoon.type: solr"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
 
-  assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_LAGOON_BRANCH="
   assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
 
   popd >/dev/null || exit 1
@@ -1336,11 +1333,13 @@ download_installer() {
   git fetch installer_origin "${TEST_INSTALLER_REF}" >/dev/null
 
   if git branch -a | grep -q "remotes/installer_origin/${TEST_INSTALLER_REF}$"; then
+    echo "Checking out the installer from branch ref: ${TEST_INSTALLER_REF}" >&3
     git checkout "${TEST_INSTALLER_REF}" >/dev/null
   elif git cat-file -t "${TEST_INSTALLER_REF}" >/dev/null 2>&1; then
+    echo "Checking out the installer from commit ref: ${TEST_INSTALLER_REF}" >&3
     git checkout "${TEST_INSTALLER_REF}" >/dev/null
   else
-    echo "The provided reference does not match any branch or commit."
+    echo "The provided reference does not match any branch or commit." >&3
     exit 1
   fi
 
