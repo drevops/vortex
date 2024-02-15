@@ -81,10 +81,6 @@ load _helper.deployment.bash
   export DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL="${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL:-testuser@example.com}"
   export DREVOPS_DEPLOY_TYPES="artifact"
 
-  # Proceed with deployment.
-  # @todo: Add tests for deployment kill-switch.
-  export DREVOPS_DEPLOY_PROCEED=1
-
   run ahoy deploy
   assert_success
   assert_output_contains "Started ARTIFACT deployment."
@@ -178,9 +174,6 @@ load _helper.deployment.bash
   export DREVOPS_DEPLOY_BRANCH="testbranch"
 
   mock_lagoon=$(mock_command "lagoon")
-
-  # Proceed with deployment.
-  export DREVOPS_DEPLOY_PROCEED=1
 
   run ahoy deploy
   assert_success
@@ -296,8 +289,6 @@ load _helper.deployment.bash
   mock_set_output "${mock_lagoon}" "success" 8
   mock_set_output "${mock_lagoon}" "success" 9
 
-  # Proceed with deployment.
-  export DREVOPS_DEPLOY_PROCEED=1
   # Deployment action to override db.
   export DREVOPS_DEPLOY_ACTION="deploy_override_db"
 

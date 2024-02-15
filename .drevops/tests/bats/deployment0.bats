@@ -80,10 +80,6 @@ load _helper.deployment.bash
   # Variables for DOCKER deployment.
   # @todo: Not implemented. Add here when implemented.
 
-  # Proceed with deployment.
-  # @todo: Add tests for deployment kill-switch.
-  export DREVOPS_DEPLOY_PROCEED=1
-
   # Run deployment.
   run ahoy deploy
   assert_success
@@ -173,39 +169,25 @@ load _helper.deployment.bash
   # Test assertions.
   #
 
-  step "Run deployment without proceed flag set."
-  export DREVOPS_DEPLOY_PROCEED=0
-
-  run ahoy deploy
-  assert_success
-  assert_output_contains "DREVOPS_DEPLOY_PROCEED is not set to 1."
-  assert_output_contains "Skipping deployment webhook."
-  assert_output_not_contains "Started WEBHOOK deployment."
-
   substep "Run deployment without skip flag set."
-  export DREVOPS_DEPLOY_PROCEED=1
 
   run ahoy deploy
   assert_success
-  assert_output_not_contains "DREVOPS_DEPLOY_PROCEED is not set to 1."
   assert_output_not_contains "Skipping deployment webhook."
   assert_output_contains "Started WEBHOOK deployment."
   assert_output_contains "Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set, but without per-branch or per-pr skip flags."
-  export DREVOPS_DEPLOY_PROCEED=1
   export DREVOPS_DEPLOY_ALLOW_SKIP=1
 
   run ahoy deploy
   assert_success
-  assert_output_not_contains "DREVOPS_DEPLOY_PROCEED is not set to 1."
   assert_output_not_contains "Skipping deployment webhook."
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Started WEBHOOK deployment."
   assert_output_contains "Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set and with per-branch flag set."
-  export DREVOPS_DEPLOY_PROCEED=1
   export DREVOPS_DEPLOY_ALLOW_SKIP=1
 
   export DREVOPS_DEPLOY_BRANCH="feature/test"
@@ -220,7 +202,6 @@ load _helper.deployment.bash
   assert_output_not_contains "Finished WEBHOOK deployment."
 
   step "Run deployment with skip flag set and with per-pr flag set."
-  export DREVOPS_DEPLOY_PROCEED=1
   export DREVOPS_DEPLOY_ALLOW_SKIP=1
 
   export DREVOPS_DEPLOY_PR="123"
@@ -235,7 +216,6 @@ load _helper.deployment.bash
   assert_output_not_contains "Finished WEBHOOK deployment."
 
   step "Run deployment without skip flag set and with per-pr flag set."
-  export DREVOPS_DEPLOY_PROCEED=1
   unset DREVOPS_DEPLOY_ALLOW_SKIP
 
   export DREVOPS_DEPLOY_PR="123"

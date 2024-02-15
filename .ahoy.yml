@@ -223,7 +223,7 @@ commands:
   deploy:
     usage: Run remote deployment procedures.
     cmd: |
-      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as DREVOPS_DEPLOY_PROCEED=1 ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" &&
+      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" &&
       ./scripts/drevops/deploy.sh "$@"
 
   github-labels:
