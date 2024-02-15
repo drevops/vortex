@@ -1,6 +1,8 @@
 # Nginx container.
 #
 # All web requests are sent to this container.
+#
+# hadolint global ignore=DL3018
 ARG CLI_IMAGE
 # hadolint ignore=DL3006
 FROM ${CLI_IMAGE:-cli} as cli
@@ -13,6 +15,6 @@ FROM uselagoon/nginx-drupal:24.1.0
 ARG WEBROOT=web
 ENV WEBROOT=${WEBROOT}
 
-RUN apk add --no-cache tzdata=2024a-r0
+RUN apk add --no-cache tzdata
 
 COPY --from=cli /app /app
