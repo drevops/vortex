@@ -12,7 +12,7 @@ prepare_sut() {
 
   assert_not_empty "${DREVOPS_DEV_VOLUMES_MOUNTED}"
 
-  assert_files_not_present_common "" "" "" "" "${webroot}"
+  assert_files_not_present_common "" "" "" "${webroot}"
 
   substep "Initialise the project with default settings"
 
@@ -37,10 +37,12 @@ prepare_sut() {
   touch .idea/idea_file.txt
   assert_file_exists .idea/idea_file.txt
 
+  # LCOV_EXCL_START
   if uname -a | grep -q ARM64; then
     substep "Override local Docker Compose for ARM."
     cp docker-compose.override.default.yml docker-compose.override.yml
   fi
+  # LCOV_EXCL_STOP
 }
 
 docker_remove_image() {
