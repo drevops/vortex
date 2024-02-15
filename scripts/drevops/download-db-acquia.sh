@@ -35,7 +35,7 @@ DREVOPS_ACQUIA_SECRET="${DREVOPS_ACQUIA_SECRET:-}"
 DREVOPS_ACQUIA_APP_NAME="${DREVOPS_ACQUIA_APP_NAME:-}"
 
 # Source environment name used to download the database dump from.
-DREVOPS_DB_DOWNLOAD_ACQUIA_ENV="${DREVOPS_DB_DOWNLOAD_ACQUIA_ENV:-}"
+DREVOPS_DB_DOWNLOAD_ENVIRONMENT="${DREVOPS_DB_DOWNLOAD_ENVIRONMENT:-}"
 
 # Database name within source environment used to download the database dump.
 DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME:-}"
@@ -80,7 +80,7 @@ command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 [ -z "${DREVOPS_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_ACQUIA_KEY." && exit 1
 [ -z "${DREVOPS_ACQUIA_SECRET}" ] && fail "Missing value for DREVOPS_ACQUIA_SECRET." && exit 1
 [ -z "${DREVOPS_ACQUIA_APP_NAME}" ] && fail "Missing value for DREVOPS_ACQUIA_APP_NAME." && exit 1
-[ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_ENV}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_ENV." && exit 1
+[ -z "${DREVOPS_DB_DOWNLOAD_ENVIRONMENT}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ENVIRONMENT." && exit 1
 [ -z "${DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME}" ] && fail "Missing value for DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME." && exit 1
 
 mkdir -p "${DREVOPS_DB_DIR}"
@@ -95,8 +95,8 @@ app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authoriz
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
 [ -z "${app_uuid}" ] && fail "Unable to retrieve an environment UUID." && exit 1
 
-note "Retrieving ${DREVOPS_DB_DOWNLOAD_ACQUIA_ENV} environment ID."
-envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${DREVOPS_DB_DOWNLOAD_ACQUIA_ENV}")
+note "Retrieving ${DREVOPS_DB_DOWNLOAD_ENVIRONMENT} environment ID."
+envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${DREVOPS_DB_DOWNLOAD_ENVIRONMENT}")
 env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
 [ -z "${env_id}" ] && fail "Unable to retrieve an environment ID." && exit 1
 
