@@ -151,7 +151,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export DREVOPS_INSTALL_DEMO_DB_TEST=https://raw.githubusercontent.com/wiki/drevops/drevops/db_d10.test.sql.md
+  export DREVOPS_INSTALL_DEMO_DB_TEST=https://github.com/drevops/drevops/releases/download/1.18.0/db_d10.test.sql
 
   ##
   ## Phase 5: SUT files setup.
