@@ -104,7 +104,7 @@ echo
 if [ -n "${DREVOPS_EXPORT_CODE_DIR:-}" ]; then
   info "Exporting built code."
   mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
-  docker compose cp -L cli:"/app/." "${DREVOPS_EXPORT_CODE_DIR}" 2>"${composer_verbose_output}"
+  docker compose cp -L cli:"/app/." "${DREVOPS_EXPORT_CODE_DIR}" 2>"${docker_verbose_output}"
   pass "Exported built code."
   echo
 fi
@@ -114,7 +114,7 @@ fi
 if [ -f "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" ]; then
   info "Copying database file into container."
   docker compose exec ${dcopts[@]} cli bash -c 'mkdir -p ${DREVOPS_DB_DIR}'
-  docker compose cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" cli:"/app/${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" 2>"${composer_verbose_output}"
+  docker compose cp -L "${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" cli:"/app/${DREVOPS_DB_DIR}"/"${DREVOPS_DB_FILE}" 2>"${docker_verbose_output}"
   pass "Copied database file into container."
   echo
 fi
@@ -126,15 +126,15 @@ info "Installing development dependencies."
 # for production images), so we are installing them here.
 #
 note "Copying development configuration files into container."
-docker compose cp -L .twig_cs.php cli:/app/ 2>"${composer_verbose_output}"
-docker compose cp -L behat.yml cli:/app/ 2>"${composer_verbose_output}"
-docker compose cp -L phpcs.xml cli:/app/ 2>"${composer_verbose_output}"
-docker compose cp -L phpmd.xml cli:/app/ 2>"${composer_verbose_output}"
-docker compose cp -L phpstan.neon cli:/app/ 2>"${composer_verbose_output}"
-docker compose cp -L phpunit.xml cli:/app/ 2>"${composer_verbose_output}"
-docker compose cp -L rector.php cli:/app/ 2>"${composer_verbose_output}"
-docker compose cp -L tests cli:/app/ 2>"${composer_verbose_output}"
-docker compose cp -L .circleci cli:/app/ 2>"${composer_verbose_output}"
+docker compose cp -L .twig_cs.php cli:/app/ 2>"${docker_verbose_output}"
+docker compose cp -L behat.yml cli:/app/ 2>"${docker_verbose_output}"
+docker compose cp -L phpcs.xml cli:/app/ 2>"${docker_verbose_output}"
+docker compose cp -L phpmd.xml cli:/app/ 2>"${docker_verbose_output}"
+docker compose cp -L phpstan.neon cli:/app/ 2>"${docker_verbose_output}"
+docker compose cp -L phpunit.xml cli:/app/ 2>"${docker_verbose_output}"
+docker compose cp -L rector.php cli:/app/ 2>"${docker_verbose_output}"
+docker compose cp -L tests cli:/app/ 2>"${docker_verbose_output}"
+docker compose cp -L .circleci cli:/app/ 2>"${docker_verbose_output}"
 
 note "Installing all composer dependencies, including development ones."
 docker compose exec ${dcopts[@]} cli bash -c " \
