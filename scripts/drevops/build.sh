@@ -158,8 +158,6 @@ if [ -n "${DRUPAL_THEME:-}" ] && [ -z "${CI:-}" ]; then
   docker compose exec ${dcopts[@]} cli bash -c 'cd ${DREVOPS_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build' >"${npm_verbose_output}"
   pass "Compiled front-end dependencies."
 
-  docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} docker compose exec ${dcopts[@]} cli bash -c 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
-  pass "Created Livereload socket."
   echo
 fi
 # LCOV_EXCL_STOP
