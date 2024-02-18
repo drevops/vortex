@@ -22,7 +22,7 @@ Defined in: `.env.local.default`
 
 ### `AHOY_CONFIRM_WAIT_SKIP`
 
-When Ahoy prompts are suppressed ([`$AHOY_CONFIRM_RESPONSE`](#AHOY_CONFIRM_RESPONSE) is `1`), the command<br />will wait for `3` seconds before proceeding.<br />Set this variable to "`1`" to skip the wait.
+When Ahoy prompts are suppressed ([`$AHOY_CONFIRM`](#AHOY_CONFIRM_RESPONSE) is `1`), the command<br />will wait for `3` seconds before proceeding.<br />Set this variable to "`1`" to skip the wait.
 
 Default value: `1`
 
@@ -184,7 +184,7 @@ Print output from Composer install.
 
 Default value: `1`
 
-Defined in: `.env`, `scripts/drevops/build.sh`
+Defined in: `.env`
 
 ### `DREVOPS_DB_DIR`
 
@@ -192,7 +192,7 @@ Database dump directory.
 
 Default value: `./.data`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/download-db.sh`, `scripts/drevops/provision.sh`
+Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/download-db.sh`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DB_DOCKER_IMAGE`
 
@@ -202,7 +202,7 @@ See https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/export-db.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`
+Defined in: `.env`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/export-db.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DB_DOCKER_IMAGE_BASE`
 
@@ -212,7 +212,7 @@ If the image specified in [`$DREVOPS_DB_DOCKER_IMAGE`](#DREVOPS_DB_DOCKER_IMAGE)
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/drevops/build.sh`
+Defined in: `.env`, `scripts/drevops/download-db-docker-registry.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME`
 
@@ -353,15 +353,6 @@ Default value: `UNDEFINED`
 Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_SOURCE`
-
-Database can be sourced from one of the following locations:
-
-- `curl` - directly from URL as a file using CURL.
-- `ftp` - directly from FTP as a file using CURL.
-- `acquia` - from the latest Acquia backup via Cloud API as a file.
-- `lagoon` - from Lagoon main environment as a file.
-- `docker_registry` - from the docker registry as a docker image.
-- `none` - not downloaded, site is freshly installed for every build.
 
 Note that "docker_registry" works only for database-in-Docker-image<br />database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#DREVOPS_DB_DOCKER_IMAGE) variable has a value).
 
@@ -694,21 +685,13 @@ Default value: `latest`
 
 Defined in: `scripts/drevops/deploy-docker.sh`
 
-### `DREVOPS_DOCKER_RESTORE_IMAGE`
-
-Docker image archive file name.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/restore-docker-image.sh`
-
 ### `DREVOPS_DOCKER_VERBOSE`
 
 Set to `1` to print debug information from Docker build.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.default`, `.env`, `scripts/drevops/build.sh`
+Defined in: `.env.local.default`, `.env`
 
 ### `DREVOPS_DOCTOR_CHECK_BOOTSTRAP`
 
@@ -784,21 +767,13 @@ Default value: `./${DREVOPS_WEBROOT/sites/default/files/private}`
 
 Defined in: `scripts/drevops/provision.sh`
 
-### `DREVOPS_DRUPAL_SHOW_LOGIN_LINK`
-
-Show Drupal one-time login link.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/info.sh`
-
 ### `DREVOPS_EXPORT_CODE_DIR`
 
 Directory to store exported code.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`, `scripts/drevops/build.sh`
+Defined in: `CI config`
 
 ### `DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED`
 
@@ -1184,7 +1159,7 @@ Print output from NPM install.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/drevops/build.sh`
+Defined in: `.env`
 
 ### `DREVOPS_PROJECT`
 
@@ -1194,7 +1169,7 @@ Drives internal naming within the codebase.<br />Does not affect the names of co
 
 Default value: `your_site`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/info.sh`
+Defined in: `.env`, `scripts/drevops/info.sh`
 
 ### `DREVOPS_PROVISION_ACQUIA_SKIP`
 
@@ -1305,6 +1280,14 @@ Skip purging of edge cache in Acquia environment.
 Default value: `UNDEFINED`
 
 Defined in: `ACQUIA ENVIRONMENT`
+
+### `DREVOPS_SHOW_LOGIN`
+
+Show one-time login link.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/info.sh`
 
 ### `DREVOPS_TASK_COPY_DB_ACQUIA_DST`
 
@@ -1546,7 +1529,7 @@ Name of the webroot directory with Drupal codebase.
 
 Default value: `web`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`, `scripts/drevops/reset.sh`
+Defined in: `.env`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`, `scripts/drevops/reset.sh`
 
 ### `DRUPAL_ADMIN_EMAIL`
 
@@ -1588,7 +1571,7 @@ Defined in: `ENVIRONMENT`
 
 Drupal profile name (used only when installing from profile).
 
-Default value: `your_site_profile`
+Default value: `standard`
 
 Defined in: `.env`, `scripts/drevops/provision.sh`
 

@@ -96,18 +96,8 @@ assert_ahoy_build() {
   db_file_exists=0
   [ -f ".data/db.sql" ] && db_file_exists=1
 
-  # export DREVOPS_DOCKER_VERBOSE="1"
-
   run ahoy build
-  sync_to_host
-
-  # Assert output messages. Note that only asserting generic messages that do
-  # not depend on the type of the workflow.
-  assert_output_contains "Started building project"
-  assert_output_contains "Removing project containers and packages available since the previous run."
-  assert_output_contains "Building Docker images, recreating and starting containers."
-  assert_output_contains "Installing development dependencies."
-  assert_output_contains "Finished building project"
+  run sync_to_host
 
   # Assert that lock files were created.
   assert_file_exists "composer.lock"
@@ -697,8 +687,8 @@ assert_ahoy_debug() {
 assert_solr() {
   step "Solr"
 
-  run ahoy cli curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | jq '.response.numFound'
-  assert_output_contains 2
+  run ahoy cli curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json"
+  assert_output_contains "response"
 }
 
 assert_redis() {

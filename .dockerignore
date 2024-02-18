@@ -24,19 +24,29 @@ web/libraries
 drush/contrib/
 
 # Do not ignore other required files.
-!.docker/scripts
+!.circleci
 !.docker/config
+!.docker/scripts
 !.env
 !.eslintrc.json
 !.sass-lint.yml
+!.twig_cs.php
+!Gruntfile.js
 !auth.json
+!behat.yml
 !composer.json
 !composer.lock
-!Gruntfile.js
-!package.json
 !package-lock.json
+!package.json
 !patches
+!phpcs.xml
+!phpmd.xml
+!phpstan.neon
+!phpunit.xml
+!rector.php
 !scripts
+!tests
+
 #;< ACQUIA
 !hooks
 #;> ACQUIA
