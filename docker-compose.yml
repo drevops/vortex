@@ -36,6 +36,13 @@ x-user: &default-user
   # Change this if you are on linux and run with another user than id `1000`
   user: '1000'
 
+x-environment-files: &default-environment-files
+  env_file:
+    - path: .env
+      required: false
+    - path: .env.local
+      required: false
+
 # Environment variables set in all containers during build and runtime.
 #;< LAGOON
 # Note that these variables are not read from here in Lagoon environment.
@@ -88,8 +95,8 @@ services:
         WEBROOT: "${DREVOPS_WEBROOT:-web}"
         GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
-    <<: *default-volumes
     user: root
+    <<: [*default-volumes, *default-environment-files]
     environment:
       <<: *default-environment
     # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
@@ -109,7 +116,7 @@ services:
       args:
         CLI_IMAGE: *cli-image
         WEBROOT: "${DREVOPS_WEBROOT:-web}"
-    <<: [*default-volumes, *default-user]
+    <<: [*default-volumes, *default-user, *default-environment-files]
     environment:
       <<: *default-environment
     depends_on:
@@ -132,7 +139,7 @@ services:
       dockerfile: .docker/php.dockerfile
       args:
         CLI_IMAGE: *cli-image
-    <<: [*default-volumes, *default-user]
+    <<: [*default-volumes, *default-user, *default-environment-files]
     environment:
       <<: *default-environment
     depends_on:
@@ -151,7 +158,7 @@ services:
       dockerfile: .docker/mariadb.dockerfile
       args:
         IMAGE: "${DREVOPS_DB_DOCKER_IMAGE:-uselagoon/mariadb-drupal:24.1.0}" # Use custom database image (if defined) or fallback to standard database image.
-    <<: *default-user
+    <<: [*default-user, *default-environment-files]
     environment:
       <<: *default-environment
     ports:
@@ -177,6 +184,7 @@ services:
       dockerfile: .docker/solr.dockerfile
       args:
         CLI_IMAGE: *cli-image
+    <<: *default-environment-files
     environment:
       <<: *default-environment
     depends_on:
@@ -196,6 +204,7 @@ services:
     image: clamav/clamav:1.3.0
     ports:
       - "3310" # Find port on host with `docker-compose port clamav 3310`.
+    <<: *default-environment-files
     environment:
       << : *default-environment
     networks:
@@ -210,7 +219,7 @@ services:
   chrome:
     image: selenium/standalone-chrome:111.0
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
-    <<: *default-volumes # Use default volumes to provide access to test fixtures.
+    <<: [*default-volumes, *default-environment-files] # Use default volumes to provide access to test fixtures.
     environment:
       <<: *default-environment
     depends_on:
