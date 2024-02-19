@@ -144,9 +144,6 @@ setup() {
 
   # Allow to override debug variables from environment when developing tests.
   export DREVOPS_DEBUG="${TEST_DREVOPS_DEBUG:-}"
-  export DREVOPS_DOCKER_VERBOSE="${TEST_DREVOPS_DOCKER_VERBOSE:-}"
-  export DREVOPS_COMPOSER_VERBOSE="${TEST_DREVOPS_COMPOSER_VERBOSE:-}"
-  export DREVOPS_NPM_VERBOSE="${TEST_DREVOPS_NPM_VERBOSE:-}"
   export DREVOPS_INSTALL_DEBUG="${TEST_DREVOPS_INSTALL_DEBUG:-}"
 
   # Switch to using test demo DB.

@@ -22,7 +22,7 @@ Defined in: `.env.local.default`
 
 ### `AHOY_CONFIRM_WAIT_SKIP`
 
-When Ahoy prompts are suppressed ([`$AHOY_CONFIRM`](#AHOY_CONFIRM_RESPONSE) is `1`), the command<br />will wait for `3` seconds before proceeding.<br />Set this variable to "`1`" to skip the wait.
+When Ahoy prompts are suppressed ([`$AHOY_CONFIRM_RESPONSE`](#AHOY_CONFIRM_RESPONSE) is `1`), the command<br />will wait for `3` seconds before proceeding.<br />Set this variable to "`1`" to skip the wait.
 
 Default value: `1`
 
@@ -684,14 +684,6 @@ The tag of the image to push to.
 Default value: `latest`
 
 Defined in: `scripts/drevops/deploy-docker.sh`
-
-### `DREVOPS_DOCKER_VERBOSE`
-
-Set to `1` to print debug information from Docker build.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env.local.default`, `.env`
 
 ### `DREVOPS_DOCTOR_CHECK_BOOTSTRAP`
 

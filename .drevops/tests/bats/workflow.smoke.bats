@@ -14,11 +14,6 @@ load _helper.workflow.bash
   step "Download DEMO database"
   assert_ahoy_download_db
 
-  # Be verbose just for these smoke tests.
-  export DREVOPS_DOCKER_VERBOSE=1
-  export DREVOPS_COMPOSER_VERBOSE=1
-  export DREVOPS_NPM_VERBOSE=1
-
   step "Build project"
   assert_ahoy_build
   assert_gitignore

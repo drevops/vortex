@@ -44,9 +44,6 @@ DRUPAL_SITE_NAME="${DREVOPS_PROJECT}"
 # Used only when installing from profile.
 DRUPAL_SITE_EMAIL="webmaster@your-site-url.example"
 
-# Print output from Docker build.
-DREVOPS_DOCKER_VERBOSE=1
-
 # Print output from Composer install.
 DREVOPS_COMPOSER_VERBOSE=1
 
