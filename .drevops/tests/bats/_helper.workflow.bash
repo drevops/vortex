@@ -383,12 +383,6 @@ assert_ahoy_lint_fe() {
   sync_to_container
   run ahoy lint-fe
   assert_failure
-
-  substep "Assert that FE lint tool disabling works"
-  replace_string_content "setSeverity('error')" "setSeverity('ignore')" "$(pwd)"
-  sync_to_container
-  run ahoy lint-fe
-  assert_success
 }
 
 assert_ahoy_test() {

@@ -14,5 +14,3 @@ $config->setRuleset($ruleset);
 $config->setFinder($finder);
 
 return $config;
-
-
