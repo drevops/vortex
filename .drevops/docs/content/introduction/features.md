@@ -51,7 +51,7 @@ The following list includes ✅ completed  and 💡 upcoming features.
     * ✅ [PHPUnit](https://phpunit.de/)
     * ✅ [SASS Lint](https://github.com/sasstools/sass-lint)
     * ✅ [SASS](https://sass-lang.com/)
-    * ✅ [Twigcs](https://github.com/friendsoftwig/twigcs)
+    * ✅ [Twigcs](https://github.com/VincentLanglet/Twig-CS-Fixer)
     * 💡 [Pa11y](https://pa11y.org/)
 * ⚙️ Workflow
     * ✅ Database from FTP, CURL, Docker image, hosting provider

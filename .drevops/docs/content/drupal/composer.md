@@ -157,7 +157,7 @@ effective development environment.
   Behat extension that provides integration with Drupal, offering step
   definitions specific to Drupal functionality. It facilitates the creation and
   management of Drupal sites for testing purposes.
-- [`friendsoftwig/twigcs`](https://github.com/friendsoftwig/twigcs): This tool
+- [`VincentLanglet/Twig-CS-Fixer`](https://github.com/VincentLanglet/Twig-CS-Fixer): This tool
   ensures that Twig templates adhere to a set coding standard, helping maintain
   consistency and readability in template files.
 - [`mglaman/phpstan-drupal`](https://github.com/mglaman/phpstan-drupal):
