@@ -1,17 +1,17 @@
 # Twigcs
 
-https://github.com/friendsoftwig/twigcs
+https://github.com/VincentLanglet/Twig-CS-Fixer
 
 > The missing checkstyle for twig!
 >
 > Twigcs aims to be what phpcs is to php. It checks your codebase for violations on coding standards.
 
-DrevOps comes with [pre-configured Twigcs ruleset](../../../../.twig_cs.php) for Drupal projects.
+DrevOps comes with [pre-configured Twigcs ruleset](../../../../.twig-cs-fixer.php) for Drupal projects.
 
 ## Usage
 
 ```shell
-vendor/bin/twigcs
+vendor/bin/twig-cs-fixer
 ```
 or
 ```shell
@@ -20,20 +20,26 @@ ahoy lint-be
 
 ## Configuration
 
-See [configuration reference](https://github.com/friendsoftwig/twigcs#file-based-configuration).
+See [configuration reference](https://github.com/VincentLanglet/Twig-CS-Fixer/blob/main/docs/configuration.md).
 
-All global configuration takes place in the [`.twig_cs.php`](../../../../.twig_cs.php) file.
+All global configuration takes place in the [`.twig-cs-fixer.php`](../../../../.twig-cs-fixer.php) file.
 
 Targets include custom modules and themes.
 
 Adding or removing targets:
-```php  hl_lines="6"
-return Twigcs\Config\Config::create()
-  ->setName('custom-config')
-  ->setSeverity('error')
-  ->setReporter('console')
-  ->setRuleSet(Twigcs\Ruleset\Official::class)
-  ->addFinder(Twigcs\Finder\TemplateFinder::create()->in(__DIR__ . '/web/themes/custom/mytheme'));
+```php  hl_lines="12"
+$ruleset = new TwigCsFixer\Ruleset\Ruleset();
+$ruleset->addStandard(new TwigCsFixer\Standard\Twig());
+
+$finder = new TwigCsFixer\File\Finder();
+$finder->in(__DIR__ . '/web/modules/custom');
+$finder->in(__DIR__ . '/web/themes/custom');
+
+$config = new TwigCsFixer\Config\Config();
+$config->setRuleset($ruleset);
+$config->setFinder($finder);
+
+return $config;
 ```
 
 ## Ignoring

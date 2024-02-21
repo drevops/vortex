@@ -30,7 +30,7 @@ drush/contrib/
 !.env
 !.eslintrc.json
 !.sass-lint.yml
-!.twig_cs.php
+!.twig-cs-fixer.php
 !Gruntfile.js
 !auth.json
 !behat.yml
