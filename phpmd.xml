@@ -16,6 +16,10 @@
     <exclude-pattern>*/scripts/*</exclude-pattern>
     <exclude-pattern>*/tests/*Test.php</exclude-pattern>
 
+    <exclude-pattern>*/web/modules/custom/*/*.deploy.php</exclude-pattern>
+    <exclude-pattern>*/web/modules/custom/*/*.post_update.php</exclude-pattern>
+    <exclude-pattern>*/web/modules/custom/*/*.install</exclude-pattern>
+
     <!-- #;< DREVOPS_DEV -->
     <exclude-pattern>*/.drevops/*</exclude-pattern>
     <!-- #;> DREVOPS_DEV -->
