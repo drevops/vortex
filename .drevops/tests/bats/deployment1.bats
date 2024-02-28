@@ -314,16 +314,13 @@ load _helper.deployment.bash
   # Get a list of environments.
   assert_contains "-l testlagoon list environments -p testproject --output-json --pretty" "$(mock_get_call_args "${mock_lagoon}" 2)"
   # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
-  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB" "$(mock_get_call_args "${mock_lagoon}" 3)"
-  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 4)"
+  assert_contains "-l testlagoon update variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 4)"
   # Override DB during re-deployment.
-  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB" "$(mock_get_call_args "${mock_lagoon}" 5)"
-  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 1 -S global" "$(mock_get_call_args "${mock_lagoon}" 6)"
+  assert_contains "-l testlagoon update variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 1 -S global" "$(mock_get_call_args "${mock_lagoon}" 6)"
   # Redeploy.
   assert_contains "-l testlagoon deploy latest -p testproject -e testbranch" "$(mock_get_call_args "${mock_lagoon}" 7)"
   # Remove a DB import override flag for the current deployment.
-  assert_contains "-l testlagoon delete variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB" "$(mock_get_call_args "${mock_lagoon}" 8)"
-  assert_contains "-l testlagoon add variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 9)"
+  assert_contains "-l testlagoon update variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 9)"
 
   # Assert that no other deployments ran.
   assert_output_not_contains "Started ARTIFACT deployment."
