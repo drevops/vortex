@@ -9,13 +9,15 @@
 <h4 align="center"><em>Onboarding in minutes, not hours or days!</em></h4>
 
 <div align="center">
-
-[![CircleCI](https://circleci.com/gh/drevops/drevops.svg?style=shield)](https://circleci.com/gh/drevops/drevops)
 [![codecov](https://codecov.io/gh/drevops/drevops/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/drevops)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/drevops)
 ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 ![LICENSE](https://img.shields.io/github/license/drevops/drevops)
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B%20%F0%9F%90%B3%20%2B%20%E2%9C%93%E2%9C%93%E2%9C%93%20%2B%20%F0%9F%A4%96%20%3D%20DrevOps%20-%20%20Build%2C%20Test%2C%20Deploy%20scripts%20for%20Drupal%20using%20Docker%20and%20CI%2FCD&amp;url=https://www.drevops.com&amp;via=drev_ops&amp;hashtags=drupal,devops,workflow,composer,template,kickstart,ci,test,build)
+
+[![Test](https://github.com/drevops/drevops/actions/workflows/drevops-test-common.yml/badge.svg)](https://github.com/drevops/drevops/actions/workflows/drevops-test-common.yml)
+[![Test docs](https://github.com/drevops/drevops/actions/workflows/drevops-test-docs.yml/badge.svg)](https://github.com/drevops/drevops/actions/workflows/drevops-test-docs.yml)
+[![CircleCI](https://circleci.com/gh/drevops/drevops.svg?style=shield)](https://circleci.com/gh/drevops/drevops)
 
 </div>
 

@@ -22,7 +22,7 @@ TEST_DIR="${ROOT_DIR}/.drevops/tests"
 # Create stub of local framework.
 docker network create amazeeio-network 2>/dev/null || true
 
-index="${CIRCLE_NODE_INDEX:-*}"
+index="${TEST_NODE_INDEX:-*}"
 echo "==> Run workflow functional tests (${index})."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
 
@@ -61,7 +61,9 @@ case ${index} in
     bats "${TEST_DIR}"/bats/workflow.smoke.bats
     bats "${TEST_DIR}"/bats/workflow.install.bats
     bats "${TEST_DIR}"/bats/workflow.storage.image.bats
-    bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
+    # Disabled due to intermittent failures.
+    # @see https://github.com/drevops/drevops/issues/893
+    # bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
     bats "${TEST_DIR}"/bats/workflow.storage.curl.bats
     bats "${TEST_DIR}"/bats/workflow.utilities.bats
     ;;

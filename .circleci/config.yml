@@ -374,93 +374,17 @@ jobs:
       - run: renovate
   #;> RENOVATEBOT
 
-
   #;============================================================================
   #; DREVOPS development section. Removed during DrevOps installation/update.
   #;============================================================================
-  #;
-  #; We are using CircleCI config file to both run the application tests (what
-  #; a consumer site would use) and DrevOps' own tests (to make sure that
-  #; this project is "buildable" at any time).
-  #;
   #;< DREVOPS_DEV
-  #
   #-----------------------------------------------------------------------------
   # Test suite for DrevOps.
   #-----------------------------------------------------------------------------
-  drevops-dev-test:
-    <<: *runner_config
-    parallelism: 1
-    steps:
-      - checkout
-      - *step_process_codebase_for_ci
-      - *step_setup_remote_docker
-      - *step_setup_docker_network
-      - run:
-          name: Lint DrevOps project
-          command: cd .drevops && ahoy lint
-      - run:
-          name: Run common tests
-          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage ahoy test
-          no_output_timeout: 60m
-      - store_test_results:
-          path: *test_results
-      - store_artifacts:
-          path: *artifacts
-      - run:
-          name: Upload code coverage reports to Codecov
-          command: codecov -Z -s /tmp/artifacts/coverage
 
-  drevops-dev-test-workflow:
+  # Run DrevOps tests after 'build' job to test CircleCI's configuration.
+  drevops-dev-test-ci-postbuild:
     <<: *runner_config
-    parallelism: 3
-    resource_class: large
-    steps:
-      - checkout
-      - *step_process_codebase_for_ci
-      - *step_setup_remote_docker
-      - *step_setup_docker_network
-      - run:
-          name: Run workflow tests (long)
-          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage ahoy test-workflow
-          no_output_timeout: 60m
-      - store_test_results:
-          path: *test_results
-      - store_artifacts:
-          path: *artifacts
-      - run:
-          name: Upload code coverage reports to Codecov
-          command: codecov -Z -s /tmp/artifacts/coverage
-
-  drevops-dev-test-deployment:
-    <<: *runner_config
-    parallelism: 2
-    steps:
-      - checkout
-      - *step_process_codebase_for_ci
-      - *step_setup_remote_docker
-      - *step_setup_docker_network
-      - add_ssh_keys:
-          fingerprints:
-            - *deploy_ssh_fingerprint
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          name: Run deployment tests (long)
-          command: cd .drevops && DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage ahoy test-deployment
-          no_output_timeout: 60m
-      - store_test_results:
-          path: *test_results
-      - store_artifacts:
-          path: *artifacts
-      - run:
-          name: Upload code coverage reports to Codecov
-          command: codecov -Z -s /tmp/artifacts/coverage
-
-  # Run tests after 'build' job.
-  drevops-dev-test-postbuild:
-    <<: *runner_config
-    parallelism: 1
     steps:
       - checkout
       - *step_process_codebase_for_ci
@@ -476,13 +400,6 @@ jobs:
       - run:
           name: Upload code coverage reports to Codecov
           command: codecov -Z -s /tmp/artifacts/coverage
-
-  # Deployment of feature branches and tags for DrevOps itself.
-  drevops-dev-deploy:
-    <<: *job_deploy
-
-  drevops-dev-deploy-tags:
-    <<: *job-deploy-tags
 
   #-----------------------------------------------------------------------------
   # Launching and testing databases stored within Docker data image.
@@ -625,54 +542,16 @@ workflows:
   #;============================================================================
   #;
   #;< DREVOPS_DEV
-  # Run unit and functional tests for DrevOps.
+  # Run functional tests for DrevOps.
   # Note that these jobs must run within the "commit" workflow, because they
   # depend on the "build" job.
-      - drevops-dev-test:
-          filters:
-            tags:
-              only: /.*/
-      - drevops-dev-test-workflow:
-          filters:
-            tags:
-              only: /.*/
-      # Run deployment tests for DrevOps.
-      - drevops-dev-test-deployment:
-          filters:
-            tags:
-              only: /.*/
       # Run tests after 'build' job.
-      - drevops-dev-test-postbuild:
+      - drevops-dev-test-ci-postbuild:
           requires:
             - build
           filters:
             tags:
               only: /.*/
-      # Run actual deployment of DrevOps code to destination codebase (integration test).
-      # @see https://github.com/drevops/drevops-destination
-      - drevops-dev-deploy:
-          requires:
-            - build
-            - drevops-dev-test
-            - drevops-dev-test-workflow
-          filters:
-            branches:
-              # Allowed branches: 7.x, 8.x, 9.x, feature/7.x-description, feature/8.x-description, feature/9.x-description
-              only: /main|develop|7\.x|feature\/(?:7\.x)[a-zA-z0-9\-\.\,]+/
-            tags:
-              ignore: /.*/
-      # Run actual deployment of DrevOps code to destination codebase (integration test).
-      # @see https://github.com/drevops/drevops-destination
-      - drevops-dev-deploy-tags:
-          requires:
-            - build
-            - drevops-dev-test
-            - drevops-dev-test-workflow
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
 
   # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from file.
   drevops-dev-didi-fi:
