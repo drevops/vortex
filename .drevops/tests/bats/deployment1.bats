@@ -279,15 +279,12 @@ load _helper.deployment.bash
   mock_set_output "${mock_lagoon}" '{"data": [{"deploytype": "branch", "environment": "development", "id": "364889", "name": "testbranch", "openshiftprojectname": "testproject-testbranch", "route": "https://nginx-php.develop.civic.au2.amazee.io"}]}' 2
   # Set variables.
   mock_set_output "${mock_lagoon}" "success" 3
-  mock_set_output "${mock_lagoon}" "success" 4
   # Set variables.
-  mock_set_output "${mock_lagoon}" "success" 5
-  mock_set_output "${mock_lagoon}" "success" 6
+  mock_set_output "${mock_lagoon}" "success" 4
   # Redeploying env.
-  mock_set_output "${mock_lagoon}" "success" 7
+  mock_set_output "${mock_lagoon}" "success" 5
   # Remove variables.
-  mock_set_output "${mock_lagoon}" "success" 8
-  mock_set_output "${mock_lagoon}" "success" 9
+  mock_set_output "${mock_lagoon}" "success" 6
 
   # Deployment action to override db.
   export DREVOPS_DEPLOY_ACTION="deploy_override_db"
@@ -307,20 +304,20 @@ load _helper.deployment.bash
   assert_file_exists "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
 
   # Deployment script calls API several times.
-  assert_equal 9 "$(mock_get_call_num "${mock_lagoon}")"
+  assert_equal 6 "$(mock_get_call_num "${mock_lagoon}")"
 
   # Configure.
   assert_contains "config add --force -l testlagoon -g https://api.lagoon.amazeeio.cloud/graphql -H ssh.lagoon.amazeeio.cloud -P 32222" "$(mock_get_call_args "${mock_lagoon}" 1)"
   # Get a list of environments.
   assert_contains "-l testlagoon list environments -p testproject --output-json --pretty" "$(mock_get_call_args "${mock_lagoon}" 2)"
   # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
-  assert_contains "-l testlagoon update variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 4)"
+  assert_contains "-l testlagoon update variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 3)"
   # Override DB during re-deployment.
-  assert_contains "-l testlagoon update variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 1 -S global" "$(mock_get_call_args "${mock_lagoon}" 6)"
+  assert_contains "-l testlagoon update variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 1 -S global" "$(mock_get_call_args "${mock_lagoon}" 4)"
   # Redeploy.
-  assert_contains "-l testlagoon deploy latest -p testproject -e testbranch" "$(mock_get_call_args "${mock_lagoon}" 7)"
+  assert_contains "-l testlagoon deploy latest -p testproject -e testbranch" "$(mock_get_call_args "${mock_lagoon}" 5)"
   # Remove a DB import override flag for the current deployment.
-  assert_contains "-l testlagoon update variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 9)"
+  assert_contains "-l testlagoon update variable -p testproject -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 6)"
 
   # Assert that no other deployments ran.
   assert_output_not_contains "Started ARTIFACT deployment."
