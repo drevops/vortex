@@ -22,7 +22,7 @@ TEST_DIR="${ROOT_DIR}/.drevops/tests"
 # Create stub of local framework.
 docker network create amazeeio-network 2>/dev/null || true
 
-index="${CIRCLE_NODE_INDEX:-*}"
+index="${TEST_NODE_INDEX:-*}"
 echo "==> Run deployment functional tests (${index})."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
 
