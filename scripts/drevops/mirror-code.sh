@@ -23,8 +23,11 @@ DREVOPS_MIRROR_CODE_REMOTE_DST="${DREVOPS_MIRROR_CODE_REMOTE_DST:-origin}"
 # Flag to push the branch.
 DREVOPS_MIRROR_CODE_PUSH="${DREVOPS_MIRROR_CODE_PUSH:-}"
 
-# Optional SSH key fingerprint to use for mirroring.
+# SSH key fingerprint used to connect to a remote.
 DREVOPS_MIRROR_CODE_SSH_FINGERPRINT="${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT:-}"
+
+# Default SSH file used if custom fingerprint is not provided.
+DREVOPS_MIRROR_CODE_SSH_FILE="${DREVOPS_MIRROR_CODE_SSH_FILE:-}"
 
 # Email address of the user who will be committing to a remote repository.
 DREVOPS_MIRROR_CODE_GIT_USER_NAME="${DREVOPS_MIRROR_CODE_GIT_USER_NAME:-"Deployment Robot"}"
@@ -54,23 +57,7 @@ info "Started code mirroring."
 [ "$(git config --global user.name)" == "" ] && note "Configuring global git user name." && git config --global user.name "${DREVOPS_MIRROR_CODE_GIT_USER_NAME}"
 [ "$(git config --global user.email)" == "" ] && note "Configuring global git user email." && git config --global user.email "${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL}"
 
-# Use custom deploy key if fingerprint is provided.
-if [ -n "${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT:-}" ]; then
-  note "Custom deployment key is provided."
-  DREVOPS_MIRROR_CODE_SSH_FILE="${DREVOPS_MIRROR_CODE_SSH_FINGERPRINT//:/}"
-  DREVOPS_MIRROR_CODE_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_MIRROR_CODE_SSH_FILE//\"/}"
-fi
-
-[ ! -f "${DREVOPS_MIRROR_CODE_SSH_FILE:-}" ] && fail "SSH key file ${DREVOPS_MIRROR_CODE_SSH_FILE} does not exist." && exit 1
-
-if ssh-add -l | grep -q "${DREVOPS_MIRROR_CODE_SSH_FILE}"; then
-  note "SSH agent has ${DREVOPS_MIRROR_CODE_SSH_FILE} key loaded."
-else
-  note "SSH agent does not have default key loaded. Trying to load."
-  # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
-  ssh-add -D >/dev/null
-  ssh-add "${DREVOPS_MIRROR_CODE_SSH_FILE}"
-fi
+DREVOPS_SSH_PREFIX="MIRROR_CODE" ./scripts/drevops/setup-ssh.sh
 
 # Create a temp directory to copy source repository into to prevent changes to source.
 SRC_TMPDIR=$(mktemp -d)

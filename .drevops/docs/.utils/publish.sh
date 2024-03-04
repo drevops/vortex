@@ -241,7 +241,7 @@ configure_ssh() {
     if ssh-add -l | grep -q "${DOCS_PUBLISH_SSH_FILE}"; then
       echo "SSH agent has ${DOCS_PUBLISH_SSH_FILE} key loaded."
     else
-      echo "SSH agent does not have default key loaded. Trying to load."
+      echo "SSH agent does not have a required key loaded. Trying to load."
       # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
       ssh-add -D >/dev/null
       ssh-add "${DOCS_PUBLISH_SSH_FILE}"
