@@ -360,23 +360,21 @@ Default value: `curl`
 
 Defined in: `.env`, `scripts/drevops/download-db.sh`
 
-### `DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT`
-
-The SSH key fingerprint.
-
-If provided - the key will be looked-up and loaded into ssh client.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/download-db-lagoon.sh`
-
-### `DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE`
+### `DREVOPS_DB_DOWNLOAD_SSH_FILE`
 
 SSH key file used to access Lagoon environment to download the database.<br />Create an SSH key and add it to your account in the Lagoon Dashboard.
 
 Default value: `HOME/.ssh/id_rsa`
 
 Defined in: `.env.local.default`, `scripts/drevops/download-db-lagoon.sh`
+
+### `DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT`
+
+SSH key fingerprint used to connect to a remote.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 ### `DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE`
 
@@ -735,14 +733,6 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/doctor.sh`
 
-### `DREVOPS_DOCTOR_SSH_KEY_FILE`
-
-Default SSH key file.
-
-Default value: `HOME/.ssh/id_rsa`
-
-Defined in: `scripts/drevops/doctor.sh`
-
 ### `DREVOPS_DRUPAL_CONFIG_PATH`
 
 Path to configuration directory.
@@ -873,13 +863,15 @@ Defined in: `scripts/drevops/mirror-code.sh`
 
 ### `DREVOPS_MIRROR_CODE_SSH_FILE`
 
-Default value: `DREVOPS_MIRROR_CODE_SSH_FINGERPRINT//:/`
+Default SSH file used if custom fingerprint is not provided.
+
+Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/mirror-code.sh`
 
 ### `DREVOPS_MIRROR_CODE_SSH_FINGERPRINT`
 
-Optional SSH key fingerprint to use for mirroring.
+SSH key fingerprint used to connect to a remote.
 
 Default value: `UNDEFINED`
 
@@ -1281,6 +1273,20 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/info.sh`
 
+### `DREVOPS_SSH_FILE`
+
+Default SSH key file.
+
+Default value: `HOME/.ssh/id_rsa`
+
+Defined in: `scripts/drevops/doctor.sh`
+
+### `DREVOPS_SSH_PREFIX`
+
+Default value: `DEPLOY" ./scripts/drevops/setup-ssh.sh`
+
+Defined in: `scripts/drevops/deploy-artifact.sh`, `scripts/drevops/deploy-lagoon.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/mirror-code.sh`, `scripts/drevops/setup-ssh.sh`, `scripts/drevops/task-custom-lagoon.sh`
+
 ### `DREVOPS_TASK_COPY_DB_ACQUIA_DST`
 
 Destination environment name to copy DB to.
@@ -1499,9 +1505,7 @@ Defined in: `scripts/drevops/task-custom-lagoon.sh`
 
 ### `DREVOPS_TASK_SSH_FINGERPRINT`
 
-SSH key fingerprint used to connect to remote.
-
-If not used, the currently loaded default SSH key (the key used for code<br />checkout) will be used or deployment will fail with an error if the default<br />SSH key is not loaded.<br />In most cases, the default SSH key does not work (because it is a read-only<br />key used by CircleCI to checkout code from git), so you should add another<br />deployment key.
+SSH key fingerprint used to connect to a remote.
 
 Default value: `UNDEFINED`
 

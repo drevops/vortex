@@ -192,7 +192,7 @@ Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding p
 - Authenticate with Lagoon
   1. Create an SSH key and add it to your account in the [Lagoon Dashboard](https://ui-lagoon-master.ch.amazee.io/).
   2. Copy `.env.local.default` to `.env.local`.
-  3. Update `$DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE` environment variable in `.env.local` file
+  3. Update `$DREVOPS_DB_DOWNLOAD_SSH_FILE` environment variable in `.env.local` file
      with the path to the SSH key.
 
 [//]: # (#;> LAGOON)

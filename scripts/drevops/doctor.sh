@@ -60,7 +60,7 @@ DREVOPS_DOCTOR_CHECK_WEBSERVER="${DREVOPS_DOCTOR_CHECK_WEBSERVER:-1}"
 DREVOPS_DOCTOR_CHECK_BOOTSTRAP="${DREVOPS_DOCTOR_CHECK_BOOTSTRAP:-1}"
 
 # Default SSH key file.
-DREVOPS_DOCTOR_SSH_KEY_FILE="${DREVOPS_DOCTOR_SSH_KEY_FILE:-${HOME}/.ssh/id_rsa}"
+DREVOPS_SSH_FILE="${DREVOPS_SSH_FILE:-${HOME}/.ssh/id_rsa}"
 
 #-------------------------------------------------------------------------------
 
@@ -157,7 +157,7 @@ main() {
     ssh_key_volume_mounted=0
 
     # Check that the key is injected into pygmy ssh-agent container.
-    if ! pygmy status 2>&1 | grep -q "${DREVOPS_DOCTOR_SSH_KEY_FILE}"; then
+    if ! pygmy status 2>&1 | grep -q "${DREVOPS_SSH_FILE}"; then
       warn "SSH key is not added to pygmy."
       note "The SSH key will not be available in CLI container. Run 'pygmy restart' and then 'ahoy up'"
     else

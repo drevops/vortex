@@ -83,28 +83,7 @@ info "Started LAGOON deployment."
 [ -z "${LAGOON_PROJECT}" ] && fail "Missing required value for LAGOON_PROJECT." && exit 1
 { [ -z "${DREVOPS_DEPLOY_BRANCH}" ] && [ -z "${DREVOPS_DEPLOY_PR}" ]; } && fail "Missing required value for DREVOPS_DEPLOY_BRANCH or DREVOPS_DEPLOY_PR." && exit 1
 
-# Use custom deploy key if fingerprint is provided.
-if [ -n "${DREVOPS_DEPLOY_SSH_FINGERPRINT}" ]; then
-  note "Custom deployment key is provided."
-  DREVOPS_DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FINGERPRINT//:/}"
-  DREVOPS_DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_SSH_FILE//\"/}"
-fi
-
-[ ! -f "${DREVOPS_DEPLOY_SSH_FILE}" ] && fail "SSH key file ${DREVOPS_DEPLOY_SSH_FILE} does not exist." && exit 1
-
-# LCOV_EXCL_START
-if ssh-add -l | grep -q "${DREVOPS_DEPLOY_SSH_FILE}"; then
-  note "SSH agent has ${DREVOPS_DEPLOY_SSH_FILE} key loaded."
-else
-  note "SSH agent does not have default key loaded. Trying to load."
-  # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
-  ssh-add -D >/dev/null
-  ssh-add "${DREVOPS_DEPLOY_SSH_FILE}"
-fi
-# LCOV_EXCL_STOP
-
-# Disable strict host key checking in CI.
-[ -n "${CI:-}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
+DREVOPS_SSH_PREFIX="DEPLOY" ./scripts/drevops/setup-ssh.sh
 
 if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL}" ]; then
   note "Installing Lagoon CLI."
