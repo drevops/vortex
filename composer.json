@@ -46,7 +46,7 @@
         "drupal/core-dev": "^10.2.0",
         "drupal/drupal-extension": "^5@rc",
         "mglaman/phpstan-drupal": "^1.2",
-        "palantirnet/drupal-rector": "^0.19",
+        "palantirnet/drupal-rector": "^0.20",
         "phpcompatibility/php-compatibility": "^9.3",
         "phpmd/phpmd": "^2.13",
         "phpspec/prophecy-phpunit": "^2.0",
