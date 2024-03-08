@@ -8,19 +8,14 @@ load _helper.bash
 
 @test "Notify: skip" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-  declare -a STEPS=(
-    "Started dispatching notifications."
-    "Skipping dispatching notifications."
-    "- Finished dispatching notifications."
-  )
-
-  mocks="$(run_steps "setup")"
 
   export DREVOPS_NOTIFY_SKIP=1
   run ./scripts/drevops/notify.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Skipping dispatching notifications."
+  assert_output_not_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1
 }
@@ -28,19 +23,13 @@ load _helper.bash
 @test "Notify: unsupported event" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  declare -a STEPS=(
-    "Started dispatching notifications."
-    "Unsupported event customevent provided."
-    "- Finished dispatching notifications."
-  )
-
-  mocks="$(run_steps "setup")"
-
   export DREVOPS_NOTIFY_EVENT="customevent"
   run ./scripts/drevops/notify.sh
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Unsupported event customevent provided."
+  assert_output_not_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1
 }
@@ -48,34 +37,18 @@ load _helper.bash
 @test "Notify: custom type" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  declare -a STEPS=(
-    "Started dispatching notifications."
-    "Finished dispatching notifications."
-  )
-
-  mocks="$(run_steps "setup")"
-
   export DREVOPS_NOTIFY_CHANNELS="customtype"
   run ./scripts/drevops/notify.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1
 }
 
 @test "Notify: email" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  declare -a STEPS=(
-    "Started dispatching notifications."
-    "Started email notification."
-    "Notification email(s) sent to: john@example.com, jane@example.com"
-    "Finished email notification."
-    "Finished dispatching notifications."
-  )
-
-  mocks="$(run_steps "setup")"
 
   export DREVOPS_NOTIFY_CHANNELS="email"
   export DREVOPS_NOTIFY_PROJECT="testproject"
@@ -86,7 +59,13 @@ load _helper.bash
   run ./scripts/drevops/notify.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  assert_output_contains "Started dispatching notifications."
+
+  assert_output_contains "Started email notification."
+  assert_output_contains "Notification email(s) sent to: john@example.com, jane@example.com"
+  assert_output_contains "Finished email notification."
+
+  assert_output_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1
 }
@@ -218,6 +197,7 @@ load _helper.bash
     "@curl -s -X GET -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/user/assignable/search?query=jane.doe@example.com&issueKey=proj-1234 # [{\"accountId\": \"${assignee_account_id}\", \"othervar\": \"54321\"}, {\"accountId\": \"01987654321c20165700edeg\", \"othervar\": \"54321\"}]"
     "@curl -s -X PUT -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/assignee --data { \"accountId\": \"987654321c20165700ede21g\"} # "
   )
+
   mocks="$(run_steps "setup")"
 
   export DREVOPS_NOTIFY_CHANNELS="jira"
