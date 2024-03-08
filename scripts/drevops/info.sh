@@ -12,8 +12,8 @@ set -eu
 # Name of the webroot directory with Drupal codebase.
 DREVOPS_WEBROOT="${DREVOPS_WEBROOT:-web}"
 
-# Show Drupal one-time login link.
-DREVOPS_DRUPAL_SHOW_LOGIN_LINK="${DREVOPS_DRUPAL_SHOW_LOGIN_LINK:-}"
+# Show one-time login link.
+DREVOPS_SHOW_LOGIN="${DREVOPS_SHOW_LOGIN:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ if [ -n "${DREVOPS_HOST_SOLR_PORT:-}" ]; then
 fi
 note "Mailhog URL                 : http://mailhog.docker.amazee.io/"
 note "Xdebug                      : $(php -v | grep -q Xdebug && echo "Enabled ('ahoy up cli' to disable)" || echo "Disabled ('ahoy debug' to enable)")"
-if [ "${DREVOPS_DRUPAL_SHOW_LOGIN_LINK}" = "1" ] || [ -n "${1:-}" ]; then
+if [ "${DREVOPS_SHOW_LOGIN}" = "1" ] || [ -n "${1:-}" ]; then
   echo -n "       Site login link             : "
   ./scripts/drevops/login.sh
 else

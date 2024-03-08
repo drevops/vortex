@@ -131,7 +131,6 @@ module.exports = function (grunt) {
         files: ['js/**/*.js'],
         tasks: ['concat'],
         options: {
-          livereload: true,
           spawn: false
         }
       },
@@ -141,7 +140,6 @@ module.exports = function (grunt) {
         ],
         tasks: ['sass_globbing', 'sass:dev', 'postcss:dev'],
         options: {
-          livereload: true,
           spawn: false
         }
       }

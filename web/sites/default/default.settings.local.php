@@ -21,8 +21,5 @@ $config['system.performance']['css']['preprocess'] = FALSE;
 // Disable JavaScript files aggregation.
 $config['system.performance']['js']['preprocess'] = FALSE;
 
-// Enable Livereload.
-$settings['livereload'] = TRUE;
-
 // Hide admin toolbar. Useful for themeing while logged in as admin.
 // $settings['hide_admin_toolbar'] = TRUE;

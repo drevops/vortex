@@ -184,7 +184,7 @@ Print output from Composer install.
 
 Default value: `1`
 
-Defined in: `.env`, `scripts/drevops/build.sh`
+Defined in: `.env`
 
 ### `DREVOPS_DB_DIR`
 
@@ -192,7 +192,7 @@ Database dump directory.
 
 Default value: `./.data`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/download-db.sh`, `scripts/drevops/provision.sh`
+Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/download-db.sh`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DB_DOCKER_IMAGE`
 
@@ -202,7 +202,7 @@ See https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/export-db.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`
+Defined in: `.env`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/export-db.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DB_DOCKER_IMAGE_BASE`
 
@@ -212,7 +212,7 @@ If the image specified in [`$DREVOPS_DB_DOCKER_IMAGE`](#DREVOPS_DB_DOCKER_IMAGE)
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/drevops/build.sh`
+Defined in: `.env`, `scripts/drevops/download-db-docker-registry.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME`
 
@@ -354,38 +354,27 @@ Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_SOURCE`
 
-Database can be sourced from one of the following locations:
-
-- `curl` - directly from URL as a file using CURL.
-- `ftp` - directly from FTP as a file using CURL.
-- `acquia` - from the latest Acquia backup via Cloud API as a file.
-- `lagoon` - from Lagoon main environment as a file.
-- `docker_registry` - from the docker registry as a docker image.
-- `none` - not downloaded, site is freshly installed for every build.
-
 Note that "docker_registry" works only for database-in-Docker-image<br />database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#DREVOPS_DB_DOCKER_IMAGE) variable has a value).
 
 Default value: `curl`
 
 Defined in: `.env`, `scripts/drevops/download-db.sh`
 
-### `DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT`
-
-The SSH key fingerprint.
-
-If provided - the key will be looked-up and loaded into ssh client.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/download-db-lagoon.sh`
-
-### `DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE`
+### `DREVOPS_DB_DOWNLOAD_SSH_FILE`
 
 SSH key file used to access Lagoon environment to download the database.<br />Create an SSH key and add it to your account in the Lagoon Dashboard.
 
 Default value: `HOME/.ssh/id_rsa`
 
 Defined in: `.env.local.default`, `scripts/drevops/download-db-lagoon.sh`
+
+### `DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT`
+
+SSH key fingerprint used to connect to a remote.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 ### `DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE`
 
@@ -694,22 +683,6 @@ Default value: `latest`
 
 Defined in: `scripts/drevops/deploy-docker.sh`
 
-### `DREVOPS_DOCKER_RESTORE_IMAGE`
-
-Docker image archive file name.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/restore-docker-image.sh`
-
-### `DREVOPS_DOCKER_VERBOSE`
-
-Set to `1` to print debug information from Docker build.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env.local.default`, `.env`, `scripts/drevops/build.sh`
-
 ### `DREVOPS_DOCTOR_CHECK_BOOTSTRAP`
 
 Default value: `UNDEFINED`
@@ -760,14 +733,6 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/doctor.sh`
 
-### `DREVOPS_DOCTOR_SSH_KEY_FILE`
-
-Default SSH key file.
-
-Default value: `HOME/.ssh/id_rsa`
-
-Defined in: `scripts/drevops/doctor.sh`
-
 ### `DREVOPS_DRUPAL_CONFIG_PATH`
 
 Path to configuration directory.
@@ -784,21 +749,13 @@ Default value: `./${DREVOPS_WEBROOT/sites/default/files/private}`
 
 Defined in: `scripts/drevops/provision.sh`
 
-### `DREVOPS_DRUPAL_SHOW_LOGIN_LINK`
-
-Show Drupal one-time login link.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/info.sh`
-
 ### `DREVOPS_EXPORT_CODE_DIR`
 
 Directory to store exported code.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`, `scripts/drevops/build.sh`
+Defined in: `CI config`
 
 ### `DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED`
 
@@ -906,13 +863,15 @@ Defined in: `scripts/drevops/mirror-code.sh`
 
 ### `DREVOPS_MIRROR_CODE_SSH_FILE`
 
-Default value: `DREVOPS_MIRROR_CODE_SSH_FINGERPRINT//:/`
+Default SSH file used if custom fingerprint is not provided.
+
+Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/mirror-code.sh`
 
 ### `DREVOPS_MIRROR_CODE_SSH_FINGERPRINT`
 
-Optional SSH key fingerprint to use for mirroring.
+SSH key fingerprint used to connect to a remote.
 
 Default value: `UNDEFINED`
 
@@ -1184,7 +1143,7 @@ Print output from NPM install.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/drevops/build.sh`
+Defined in: `.env`
 
 ### `DREVOPS_PROJECT`
 
@@ -1194,7 +1153,7 @@ Drives internal naming within the codebase.<br />Does not affect the names of co
 
 Default value: `your_site`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/info.sh`
+Defined in: `.env`, `scripts/drevops/info.sh`
 
 ### `DREVOPS_PROVISION_ACQUIA_SKIP`
 
@@ -1305,6 +1264,28 @@ Skip purging of edge cache in Acquia environment.
 Default value: `UNDEFINED`
 
 Defined in: `ACQUIA ENVIRONMENT`
+
+### `DREVOPS_SHOW_LOGIN`
+
+Show one-time login link.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/info.sh`
+
+### `DREVOPS_SSH_FILE`
+
+Default SSH key file.
+
+Default value: `HOME/.ssh/id_rsa`
+
+Defined in: `scripts/drevops/doctor.sh`
+
+### `DREVOPS_SSH_PREFIX`
+
+Default value: `DEPLOY" ./scripts/drevops/setup-ssh.sh`
+
+Defined in: `scripts/drevops/deploy-artifact.sh`, `scripts/drevops/deploy-lagoon.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/mirror-code.sh`, `scripts/drevops/setup-ssh.sh`, `scripts/drevops/task-custom-lagoon.sh`
 
 ### `DREVOPS_TASK_COPY_DB_ACQUIA_DST`
 
@@ -1524,9 +1505,7 @@ Defined in: `scripts/drevops/task-custom-lagoon.sh`
 
 ### `DREVOPS_TASK_SSH_FINGERPRINT`
 
-SSH key fingerprint used to connect to remote.
-
-If not used, the currently loaded default SSH key (the key used for code<br />checkout) will be used or deployment will fail with an error if the default<br />SSH key is not loaded.<br />In most cases, the default SSH key does not work (because it is a read-only<br />key used by CircleCI to checkout code from git), so you should add another<br />deployment key.
+SSH key fingerprint used to connect to a remote.
 
 Default value: `UNDEFINED`
 
@@ -1546,7 +1525,7 @@ Name of the webroot directory with Drupal codebase.
 
 Default value: `web`
 
-Defined in: `.env`, `scripts/drevops/build.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`, `scripts/drevops/reset.sh`
+Defined in: `.env`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`, `scripts/drevops/reset.sh`
 
 ### `DRUPAL_ADMIN_EMAIL`
 
@@ -1588,7 +1567,7 @@ Defined in: `ENVIRONMENT`
 
 Drupal profile name (used only when installing from profile).
 
-Default value: `your_site_profile`
+Default value: `standard`
 
 Defined in: `.env`, `scripts/drevops/provision.sh`
 

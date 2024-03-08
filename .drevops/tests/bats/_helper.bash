@@ -144,9 +144,6 @@ setup() {
 
   # Allow to override debug variables from environment when developing tests.
   export DREVOPS_DEBUG="${TEST_DREVOPS_DEBUG:-}"
-  export DREVOPS_DOCKER_VERBOSE="${TEST_DREVOPS_DOCKER_VERBOSE:-}"
-  export DREVOPS_COMPOSER_VERBOSE="${TEST_DREVOPS_COMPOSER_VERBOSE:-}"
-  export DREVOPS_NPM_VERBOSE="${TEST_DREVOPS_NPM_VERBOSE:-}"
   export DREVOPS_INSTALL_DEBUG="${TEST_DREVOPS_INSTALL_DEBUG:-}"
 
   # Switch to using test demo DB.
@@ -354,14 +351,12 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/custom/.gitkeep"
 
   # Core DrevOps files.
-  assert_file_exists "scripts/drevops/build.sh"
   assert_file_exists "scripts/drevops/deploy.sh"
   assert_file_exists "scripts/drevops/deploy-artifact.sh"
   assert_file_exists "scripts/drevops/deploy-docker.sh"
   assert_file_exists "scripts/drevops/deploy-lagoon.sh"
   assert_file_exists "scripts/drevops/deploy-webhook.sh"
   assert_file_exists "scripts/drevops/login-docker.sh"
-  assert_file_exists "scripts/drevops/restore-docker-image.sh"
   assert_file_exists "scripts/drevops/doctor.sh"
   assert_file_exists "scripts/drevops/download-db.sh"
   assert_file_exists "scripts/drevops/download-db-acquia.sh"
@@ -594,7 +589,7 @@ assert_files_present_provision_use_profile() {
   assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_FTP_PASS"
   assert_file_not_contains ".env.local.default" "DREVOPS_ACQUIA_KEY"
   assert_file_not_contains ".env.local.default" "DREVOPS_ACQUIA_SECRET"
-  assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE"
+  assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_SSH_FILE"
   assert_file_not_contains ".env.local.default" "DOCKER_USER"
   assert_file_not_contains ".env.local.default" "DOCKER_PASS"
 
@@ -604,12 +599,8 @@ assert_files_present_provision_use_profile() {
   assert_file_not_contains "README.md" "ahoy download-db"
 
   assert_file_not_contains ".circleci/config.yml" "db_ssh_fingerprint"
-  assert_file_not_contains ".circleci/config.yml" "drevops_ci_db_cache_timestamp"
-  assert_file_not_contains ".circleci/config.yml" "drevops_ci_db_cache_fallback"
-  assert_file_not_contains ".circleci/config.yml" "drevops_ci_db_cache_branch"
-  assert_file_not_contains ".circleci/config.yml" "db_cache_dir"
+  assert_file_not_contains ".circleci/config.yml" "/root/project/.data"
   assert_file_not_contains ".circleci/config.yml" "nightly_db_schedule"
-  assert_file_not_contains ".circleci/config.yml" "nightly_db_branch"
   assert_file_not_contains ".circleci/config.yml" "DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT"
   assert_file_not_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_TIMESTAMP"
   assert_file_not_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_FALLBACK"
@@ -636,12 +627,8 @@ assert_files_present_no_provision_use_profile() {
   assert_file_contains "README.md" "ahoy download-db"
 
   assert_file_contains ".circleci/config.yml" "db_ssh_fingerprint"
-  assert_file_contains ".circleci/config.yml" "drevops_ci_db_cache_timestamp"
-  assert_file_contains ".circleci/config.yml" "drevops_ci_db_cache_fallback"
-  assert_file_contains ".circleci/config.yml" "drevops_ci_db_cache_branch"
-  assert_file_contains ".circleci/config.yml" "db_cache_dir"
+  assert_file_contains ".circleci/config.yml" "/root/project/.data"
   assert_file_contains ".circleci/config.yml" "nightly_db_schedule"
-  assert_file_contains ".circleci/config.yml" "nightly_db_branch"
   assert_file_contains ".circleci/config.yml" "DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT"
   assert_file_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_TIMESTAMP"
   assert_file_contains ".circleci/config.yml" "DREVOPS_CI_DB_CACHE_FALLBACK"
@@ -819,7 +806,7 @@ assert_files_present_no_integration_lagoon() {
   assert_file_not_contains "docker-compose.yml" "lagoon.type: solr"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
 
-  assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE="
+  assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_SSH_FILE="
 
   popd >/dev/null || exit 1
 }
@@ -867,8 +854,7 @@ assert_files_present_integration_renovatebot() {
   assert_file_exists "renovate.json"
 
   assert_file_contains ".circleci/config.yml" "renovatebot-self-hosted"
-  assert_file_contains ".circleci/config.yml" "renovatebot_branch"
-  assert_file_contains ".circleci/config.yml" "- *renovatebot_branch"
+  assert_file_contains ".circleci/config.yml" "renovatebot_schedule"
 
   popd >/dev/null || exit 1
 }
@@ -882,8 +868,7 @@ assert_files_present_no_integration_renovatebot() {
   assert_file_not_exists "renovate.json"
 
   assert_file_not_contains ".circleci/config.yml" "renovatebot-self-hosted"
-  assert_file_not_contains ".circleci/config.yml" "renovatebot_branch"
-  assert_file_not_contains ".circleci/config.yml" "- *renovatebot_branch"
+  assert_file_not_contains ".circleci/config.yml" "renovatebot_schedule"
 
   popd >/dev/null || exit 1
 }
