@@ -42,6 +42,8 @@ $config->setFinder($finder);
 return $config;
 ```
 
+
+
 ## Ignoring
 
 All errors have an identifier with the syntax: `A.B:C:D` with
@@ -67,22 +69,23 @@ When you want to disable a rule, you can use of the following syntax:
 ```
 
 For instance:
+
 ```twig
 {# twig-cs-fixer-disable #} => Disable every rule for the whole file
 {# twig-cs-fixer-disable-line #} => Disable every rule for the current line
 {# twig-cs-fixer-disable-next-line #} => Disable every rule for the next line
 
-{# twig-cs-fixer-disable A #} => Disable the rule A for the whole file
-{# twig-cs-fixer-disable A:42 #} => Disable the rule A for the line 42 of the file
-{# twig-cs-fixer-disable-line A.B #} => Disable the error B of the rule A for the current line
-{# twig-cs-fixer-disable-next-line A::42 #} => Disable the rule A for the next line but only for the token 42
+{# twig-cs-fixer-disable DelimiterSpacing #} => Disable the rule 'DelimiterSpacing' for the whole file
+{# twig-cs-fixer-disable DelimiterSpacing:2 #} => Disable the rule 'DelimiterSpacing' for the line 2 of the file
+{# twig-cs-fixer-disable-line DelimiterSpacing.After #} => Disable the error 'After' of the rule 'DelimiterSpacing' for the current line
+{# twig-cs-fixer-disable-next-line DelimiterSpacing::1 #} => Disable the rule 'DelimiterSpacing' for the next line but only for the token 1
 ```
 
 You can also disable multiple errors with a single comment, by separating them
 with a space or a comma:
 ```twig
-{# twig-cs-fixer-disable A B C #} => Disable A and B and C for the whole file
-{# twig-cs-fixer-disable-line A.B,C.D #} => Disable A.B and C.D for the current line
+{# twig-cs-fixer-disable DelimiterSpacing OperatorNameSpacing #} => Disable OperatorNameSpacing and OperatorNameSpacing for the whole file
+{# twig-cs-fixer-disable-line DelimiterSpacing.Before,OperatorNameSpacing.After #} => Disable DelimiterSpacing.Before and OperatorNameSpacing.After for the current line
 ```
 
 If you need to know the errors identifier you have/want to ignore, you can run the
