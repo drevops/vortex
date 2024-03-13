@@ -375,7 +375,7 @@ assert_ahoy_lint_fe() {
   ahoy cli rm -f "${webroot}/themes/custom/star_wars/scss/components/_test.scss"
   sync_to_container
 
-  substep "Assert that FE lint failure works for Twigcs"
+  substep "Assert that FE lint failure works for Twig CS Fixer"
   mkdir -p "${webroot}/modules/custom/sw_core/templates/block"
   mkdir -p "${webroot}/themes/custom/star_wars/templates/block"
   echo "{{ set a='a' }}" >>"${webroot}/modules/custom/sw_core/templates/block/test1.twig"

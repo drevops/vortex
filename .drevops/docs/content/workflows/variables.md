@@ -170,9 +170,9 @@ Default value: `/tmp/tests`
 
 Defined in: `CI config`
 
-### `DREVOPS_CI_TWIGCS_IGNORE_FAILURE`
+### `DREVOPS_CI_TWIG_CS_FIXER_IGNORE_FAILURE`
 
-Ignore Twigcs failures.
+Ignore Twig CS Fixer failures.
 
 Default value: `UNDEFINED`
 

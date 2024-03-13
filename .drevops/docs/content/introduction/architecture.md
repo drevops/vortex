@@ -78,7 +78,7 @@ with addition of several configuration files and directories.
 ├── .gitignore               # Intentionally untracked files to ignore in Git.
 ├── .gitignore.deployment    # Intentionally untracked files to ignore in artifact deployment.
 ├── .lagoon.yml              # Lagoon configuration file. Removed if not using Lagoon hosting.
-├── .twig-cs-fixer.php       # Twigcs configuration file.
+├── .twig-cs-fixer.php       # Twig CS Fixer configuration file.
 ├── behat.yml                # Behat configuration file.
 ├── composer.json            # Composer configuration file.
 ├── docker-compose.yml       # Docker Compose configuration file.
