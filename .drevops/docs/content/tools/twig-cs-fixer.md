@@ -15,7 +15,7 @@ vendor/bin/twig-cs-fixer
 ```
 or
 ```shell
-ahoy lint-be
+ahoy lint-fe
 ```
 
 ## Configuration
@@ -27,7 +27,7 @@ All global configuration takes place in the [`.twig-cs-fixer.php`](../../../../.
 Targets include custom modules and themes.
 
 Adding or removing targets:
-```php  hl_lines="12"
+```php
 $ruleset = new TwigCsFixer\Ruleset\Ruleset();
 $ruleset->addStandard(new TwigCsFixer\Standard\Twig());
 
@@ -42,58 +42,56 @@ $config->setFinder($finder);
 return $config;
 ```
 
-
-
 ## Ignoring
 
+Ignoring rules **globally** takes place in the  [`.twig-cs-fixer.php`](../../../../.twig-cs-fixer.php) file:
+```php
+$finder->exclude('myCustomDirectory');
+```
+
 All errors have an identifier with the syntax: `A.B:C:D` with
-- A: The rule short name (mainly made from the class name)
-- B: The error identifier (like the error level or a specific name)
-- C: The line the error occurs
-- D: The position of the token in the line the error occurs
+- `A`: The rule short name (mainly made from the class name)
+- `B`: The error identifier (like the error level or a specific name)
+- `C`: The line the error occurs
+- `D`: The position of the token in the line the error occurs
 
-NB: The four parts are optional, all those format are working
-- A
-- A.B
-- A.B:C
-- A.B:C:D
-- A:C
-- A:C:D
-- A::D
+The four parts are optional, all those format are working
+- `A`
+- `A.B`
+- `A.B:C`
+- `A.B:C:D`
+- `A:C`
+- `A:C:D`
+- `A::D`
 
-When you want to disable a rule, you can use of the following syntax:
+If you need to know the errors identifier you have/want to ignore, you can run
+the linter command with the `--debug` option.
+
+To ignore **all Twig CS Fixer rules** within a file, place in the file header:
 ```twig
-{# twig-cs-fixer-disable A.B:C:D #} => Apply to the whole file
-{# twig-cs-fixer-disable-line A.B:C:D #} => Apply to the line of the comment
-{# twig-cs-fixer-disable-next-line A.B:C:D #} => Apply to the next line of the comment
+{# twig-cs-fixer-disable #}
 ```
 
-For instance:
-
+To ignore **a specific rule** within a file, place in the file header:
 ```twig
-{# twig-cs-fixer-disable #} => Disable every rule for the whole file
-{# twig-cs-fixer-disable-line #} => Disable every rule for the current line
-{# twig-cs-fixer-disable-next-line #} => Disable every rule for the next line
-
-{# twig-cs-fixer-disable DelimiterSpacing #} => Disable the rule 'DelimiterSpacing' for the whole file
-{# twig-cs-fixer-disable DelimiterSpacing:2 #} => Disable the rule 'DelimiterSpacing' for the line 2 of the file
-{# twig-cs-fixer-disable-line DelimiterSpacing.After #} => Disable the error 'After' of the rule 'DelimiterSpacing' for the current line
-{# twig-cs-fixer-disable-next-line DelimiterSpacing::1 #} => Disable the rule 'DelimiterSpacing' for the next line but only for the token 1
+{# twig-cs-fixer-disable A.B:C:D #}
 ```
 
-You can also disable multiple errors with a single comment, by separating them
-with a space or a comma:
+Twig CS Fixer does not support ignoring of the **code blocks**.
+
+To ignore only the **current line**:
 ```twig
-{# twig-cs-fixer-disable DelimiterSpacing OperatorNameSpacing #} => Disable OperatorNameSpacing and OperatorNameSpacing for the whole file
-{# twig-cs-fixer-disable-line DelimiterSpacing.Before,OperatorNameSpacing.After #} => Disable DelimiterSpacing.Before and OperatorNameSpacing.After for the current line
+{# twig-cs-fixer-disable-next-line A.B:C:D #}
 ```
 
-If you need to know the errors identifier you have/want to ignore, you can run the
-linter command with the `--debug` options.
+To ignore only the **next line**:
+```twig
+{# twig-cs-fixer-disable-line A.B:C:D #}
+```
 
 ## Ignoring fail in CI
 
 This tool runs in CI by default and fails the build if there are any violations.
 
-Set `DREVOPS_CI_TWIG_CS_FIXER_IGNORE_FAILURE` environment variable to `1` to ignore
-failures. The tool will still run and report violations, if any.
+Set `DREVOPS_CI_TWIG_CS_FIXER_IGNORE_FAILURE` environment variable to `1` to
+ignore failures. The tool will still run and report violations, if any.
