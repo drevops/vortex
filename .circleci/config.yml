@@ -307,7 +307,7 @@ jobs:
           path: *artifacts
       - run:
           name: Upload code coverage reports to Codecov
-          command: if [ -f /tmp/artifacts/coverage ]; then codecov -Z -s /tmp/artifacts/coverage; fi
+          command: if [ -d /tmp/artifacts/coverage ]; then codecov -Z -s /tmp/artifacts/coverage; fi
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
