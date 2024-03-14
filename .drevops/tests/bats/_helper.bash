@@ -416,6 +416,7 @@ assert_files_present_drevops() {
   # Assert that DrevOps files removed.
   assert_dir_not_exists ".drevops"
   assert_file_not_exists "LICENSE"
+  assert_file_not_exists "CODE_OF_CONDUCT.md"
   assert_file_not_exists ".github/FUNDING.yml"
 
   assert_file_not_exists ".github/drevops-publish-docs.yml"
