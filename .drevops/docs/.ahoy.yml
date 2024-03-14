@@ -39,6 +39,16 @@ commands:
     cmd: ./.utils/lint.sh
 
   test:
+    usage: Test
+    cmd: |
+      ahoy test-scripts
+      ahoy test-site
+
+  test-scripts:
+    usage: Test scripts
+    cmd: ./.utils/test.sh
+
+  test-site:
     usage: Test site
     cmd: docker compose run linkchecker http://mkdocs:8080 "$@"
 
