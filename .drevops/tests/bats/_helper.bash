@@ -254,6 +254,8 @@ assert_files_present_common() {
   # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_VERSION:-develop}-blue.svg"
   assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_VERSION:-develop}"
+  assert_file_not_contains "README.md" "The following list includes"
+  assert_file_not_exists "README.dist.md"
 
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
 
