@@ -1,5 +1,8 @@
 <div align="center">
-	<img width="400" src="https://user-images.githubusercontent.com/378794/228488082-814a8ddc-e749-4031-874c-ef545ac00cec.png" alt="DrevOps Logo" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".drevops/docs/content/assets/logo-horiz-dark.png">
+    <img width="400" src=".drevops/docs/content/assets/logo-horiz-light.png" alt="DrevOps Logo">
+  </picture>
 </div>
 
 <h3 align="center">Drupal project template</h3>
@@ -11,12 +14,8 @@
 [![Test docs](https://github.com/drevops/drevops/actions/workflows/drevops-test-docs.yml/badge.svg)](https://github.com/drevops/drevops/actions/workflows/drevops-test-docs.yml)
 [![CircleCI](https://circleci.com/gh/drevops/drevops.svg?style=shield)](https://circleci.com/gh/drevops/drevops)
 [![codecov](https://codecov.io/gh/drevops/drevops/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/drevops)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/drevops)
+![GitHub release](https://img.shields.io/github/v/release/drevops/drevops?logo=github)
 ![LICENSE](https://img.shields.io/github/license/drevops/drevops)
-
-![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
-
-[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B%20%F0%9F%90%B3%20%2B%20%E2%9C%93%E2%9C%93%E2%9C%93%20%2B%20%F0%9F%A4%96%20%3D%20DrevOps%20-%20%20Build%2C%20Test%2C%20Deploy%20scripts%20for%20Drupal%20using%20Docker%20and%20CI%2FCD&amp;url=https://www.drevops.com&amp;via=drev_ops&amp;hashtags=drupal,devops,workflow,composer,template,kickstart,ci,test,build)
 
 </div>
 
@@ -26,13 +25,15 @@ Make it easy to set up, develop and support high-quality Drupal websites
 
 ## Approach
 
-Use **tested** Drupal project template with DevOps integrations for CI and hosting platforms.
+Use **tested** Drupal project template with DevOps integrations for CI and hosting platforms
 
 ## How it works
 
-1. You run the installer script once.
-2. DrevOps integrates the latest project template release into your codebase.
-3. You choose which changes to commit.
+1. You run the installer script once
+2. DrevOps integrates the latest project template release into your codebase
+3. You choose which changes to commit
+
+[Read more about architecture](https://docs.drevops.com/latest/introduction/architecture/)
 
 ## Installation
 
