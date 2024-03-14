@@ -1,5 +1,5 @@
 # This action is used for DrevOps maintenance. It will not be used in the scaffolded project.
-name: DrevOps - Test documentation
+name: DrevOps - Test docs
 
 on:
   push:
