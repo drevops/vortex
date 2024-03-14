@@ -260,8 +260,8 @@ jobs:
           name: Lint code with PHPMD
           command: docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml || [ "${DREVOPS_CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
       - run:
-          name: Lint code with Twigcs
-          command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${DREVOPS_CI_TWIGCS_IGNORE_FAILURE:-0}" -eq 1 ]
+          name: Lint code with Twig CS Fixer
+          command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${DREVOPS_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
       - run:
           name: Lint code with NPM linters
           command: docker compose exec -T cli bash -c "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${DREVOPS_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
