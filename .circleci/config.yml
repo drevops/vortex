@@ -275,15 +275,6 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/drevops/provision.sh
           no_output_timeout: 30m
       - run:
-          name: Provision site
-          command: |
-            if [ -f .data/db.sql ]; then
-              docker compose exec cli mkdir -p .data
-              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
-            fi
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/drevops/provision.sh
-          no_output_timeout: 30m
-      - run:
           name: Restart server with Xdebug enabled for coverage
           command: XDEBUG_ENABLE=true docker compose up -d cli php nginx
       - run:
