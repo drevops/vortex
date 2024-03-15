@@ -37,15 +37,15 @@ Use **tested** Drupal project template with DevOps integrations for CI and hosti
 
 ## Installation
 
+Our [installer](https://github.com/drevops/installer) simplifies setup, letting you choose only the features you need:
+
 ```bash
 curl -SsL https://install.drevops.com > install.php
 php install.php
 rm -r install.php
 ```
 
-## Documentation
-
-https://docs.drevops.com
+Alternatively, clone the repository and adjust the configuration by manually editing or deleting the sections that aren't necessary for your setup.
 
 ## Features
 
@@ -126,3 +126,19 @@ The following list includes ✅ completed and 🚧 upcoming features.
   * 🚧 Advances installer Web UI
   * 🚧 Automated project setup
   * 🚧 Project dashboard
+
+## Documentation
+
+For more detailed documentation and guides, check out our dedicated site at https://docs.drevops.com
+
+## Support
+
+We provide paid support for DrevOps:
+
+- New and existing project onboarding
+- Support plans with SLAs
+- Priority feature implementation
+- Updates to the latest version of the platform
+- DevOps consulting and custom implementations
+
+Contact us at support@drevops.com
