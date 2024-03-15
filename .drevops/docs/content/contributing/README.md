@@ -13,11 +13,11 @@ your willingness to assist!
 
 We're constantly eager to address any issues, so your reports are always
 appreciated. However, we kindly ask you to first check if your problem has
-already been reported in the [issue queue](https://github.com/drevops/drevops/issues).
+already been reported in the [issue queue](https://github.com/drevops/scaffold/issues).
 
 ## I want to suggest a feature or an idea
 
-Fantastic! Please [submit your idea](https://github.com/drevops/drevops/issues)
+Fantastic! Please [submit your idea](https://github.com/drevops/scaffold/issues)
 and we'll gladly review it. While we can't promise every suggestion will be
 implemented, we are always keen to hear innovative ideas for enhancing DrevOps.
 

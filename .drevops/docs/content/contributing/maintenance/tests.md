@@ -55,7 +55,7 @@ AHOY_CONFIRM_RESPONSE=1 ahoy build
 ahoy export-db
 ```
 4. Make sure that exported DB does not have data in `cache_*` and `watchdog` tables.
-5. Upload DB to https://github.com/drevops/drevops/wiki as a test file (`db.distN.sql`).
+5. Upload DB to https://github.com/drevops/scaffold/wiki as a test file (`db.distN.sql`).
 6. Update references in code from `db.demo.sql` to `db.distN.sql`.
 7. Run CI build.
 8. Revert updated references to `db.demo.sql`.
