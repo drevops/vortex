@@ -290,7 +290,6 @@ jobs:
           name: Test with PHPUnit
           command: |
             docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit || [ "${DREVOPS_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
-            docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
       - run:
           name: Test with Behat
           command: |
