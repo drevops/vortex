@@ -75,28 +75,7 @@ info "Started ARTIFACT deployment."
 [ "$(git config --global user.name)" = "" ] && note "Configuring global git user name." && git config --global user.name "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME}"
 [ "$(git config --global user.email)" = "" ] && note "Configuring global git user email." && git config --global user.email "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
 
-# Use custom deploy key if fingerprint is provided.
-if [ -n "${DREVOPS_DEPLOY_SSH_FINGERPRINT:-}" ]; then
-  note "Custom deployment key is provided."
-  DREVOPS_DEPLOY_SSH_FILE="${DREVOPS_DEPLOY_SSH_FINGERPRINT//:/}"
-  DREVOPS_DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_DEPLOY_SSH_FILE//\"/}"
-fi
-
-[ ! -f "${DREVOPS_DEPLOY_SSH_FILE:-}" ] && fail "SSH key file ${DREVOPS_DEPLOY_SSH_FILE} does not exist." && exit 1
-
-# LCOV_EXCL_START
-if ssh-add -l | grep -q "${DREVOPS_DEPLOY_SSH_FILE}"; then
-  note "SSH agent has ${DREVOPS_DEPLOY_SSH_FILE} key loaded."
-else
-  note "SSH agent does not have default key loaded. Trying to load."
-  # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
-  ssh-add -D >/dev/null
-  ssh-add "${DREVOPS_DEPLOY_SSH_FILE}"
-fi
-# LCOV_EXCL_STOP
-
-# Disable strict host key checking in CI.
-[ -n "${CI:-}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
+DREVOPS_SSH_PREFIX="DEPLOY" ./scripts/drevops/setup-ssh.sh
 
 note "Installing artifact builder."
 composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^0.5
@@ -127,6 +106,7 @@ note "Running artifact builder."
   --branch="${DREVOPS_DEPLOY_ARTIFACT_DST_BRANCH}" \
   --gitignore="${DREVOPS_DEPLOY_ARTIFACT_SRC}"/.gitignore.deployment \
   --report="${DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE}" \
+  --debug \
   --push
 
 pass "Finished ARTIFACT deployment."

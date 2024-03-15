@@ -8,7 +8,7 @@ load _helper.bash
 load _helper.circleci.bash
 
 @test "CircleCI artifacts are saved" {
-  if [ -z "${CI}" ]; then
+  if [ -z "${CIRCLECI}" ]; then
     skip "This test is only run on CircleCI"
   fi
 

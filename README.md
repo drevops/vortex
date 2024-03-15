@@ -1,8 +1,8 @@
-[//]: # (#;< DREVOPS_DEV)
-<table align="center"><tr><td>
-
 <div align="center">
-	<img width="400" src="https://user-images.githubusercontent.com/378794/228488082-814a8ddc-e749-4031-874c-ef545ac00cec.png" alt="DrevOps Logo" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".drevops/docs/content/assets/logo-horiz-dark.png">
+    <img width="400" src=".drevops/docs/content/assets/logo-horiz-light.png" alt="DrevOps Logo">
+  </picture>
 </div>
 
 <h3 align="center">Drupal project template</h3>
@@ -10,16 +10,14 @@
 
 <div align="center">
 
+[![Test](https://github.com/drevops/drevops/actions/workflows/drevops-test-common.yml/badge.svg)](https://github.com/drevops/drevops/actions/workflows/drevops-test-common.yml)
+[![Test docs](https://github.com/drevops/drevops/actions/workflows/drevops-test-docs.yml/badge.svg)](https://github.com/drevops/drevops/actions/workflows/drevops-test-docs.yml)
 [![CircleCI](https://circleci.com/gh/drevops/drevops.svg?style=shield)](https://circleci.com/gh/drevops/drevops)
 [![codecov](https://codecov.io/gh/drevops/drevops/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/drevops)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/drevops)
-![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
+![GitHub release](https://img.shields.io/github/v/release/drevops/drevops?logo=github)
 ![LICENSE](https://img.shields.io/github/license/drevops/drevops)
-[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=%F0%9F%92%A7%2B%20%F0%9F%90%B3%20%2B%20%E2%9C%93%E2%9C%93%E2%9C%93%20%2B%20%F0%9F%A4%96%20%3D%20DrevOps%20-%20%20Build%2C%20Test%2C%20Deploy%20scripts%20for%20Drupal%20using%20Docker%20and%20CI%2FCD&amp;url=https://www.drevops.com&amp;via=drev_ops&amp;hashtags=drupal,devops,workflow,composer,template,kickstart,ci,test,build)
 
 </div>
-
-</td></tr><tr><td>
 
 ## Purpose
 
@@ -27,39 +25,35 @@ Make it easy to set up, develop and support high-quality Drupal websites
 
 ## Approach
 
-Use **tested** Drupal project template with DevOps integrations for CI and hosting platforms.
+Use **tested** Drupal project template with DevOps integrations for CI and hosting platforms
 
 ## How it works
 
-1. You run the installer script once.
-2. DrevOps integrates the latest project template release into your codebase.
-3. You choose which changes to commit.
+1. You run the installer script once
+2. DrevOps integrates the latest project template release into your codebase
+3. You choose which changes to commit
 
-</td></tr><tr><td>
+[Read more about architecture](https://docs.drevops.com/latest/introduction/architecture/)
 
 ## Installation
 
-`curl -SsL https://install.drevops.com > install.php && php install.php; rm -r install.php`
-
-</td></tr><tr><td>
+```bash
+curl -SsL https://install.drevops.com > install.php
+php install.php
+rm -r install.php
+```
 
 ## Documentation
 
 https://docs.drevops.com
 
-<br/>
-
-</td></tr><tr><td>
-
-## Workflow
-
-<div align="center">
-  <img width="640" alt="diagram-shortest" src="https://github.com/drevops/drevops/assets/378794/900e6e68-b2c3-4b0f-908d-833c91449f9b">
-</div>
-
 ## Features
 
-The following list includes ✅ completed and 💡 upcoming features.
+<div align="center">
+  <img  alt="diagram-shortest" src="https://github.com/drevops/drevops/assets/378794/68e7553b-6c29-437a-8a30-45e9d746180a">
+</div>
+
+The following list includes ✅ completed and 🚧 upcoming features.
 
 * 💧 Drupal
   * ✅ Based on [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
@@ -84,17 +78,17 @@ The following list includes ✅ completed and 💡 upcoming features.
 * 🏨 Hosting
   * ✅ [Acquia](https://www.acquia.com/)
   * ✅ [Lagoon](https://github.com/uselagoon/lagoon)
-  * 💡 [Pantheon](https://pantheon.io/)
-  * 💡 [Platform.sh](https://platform.sh/)
+  * 🚧 [Pantheon](https://pantheon.io/)
+  * 🚧 [Platform.sh](https://platform.sh/)
 * 💻 Local development
   * ✅ [Docker Compose](https://docs.docker.com/compose/) + [Ahoy](https://github.com/ahoy-cli/ahoy)
-  * 💡 [Lando](https://lando.dev/)
-  * 💡 [DDEV](https://ddev.readthedocs.io/)
+  * 🚧 [Lando](https://lando.dev/)
+  * 🚧 [DDEV](https://ddev.readthedocs.io/)
 * 🏗️ CI/CD
   * ✅ [Circle CI](https://circleci.com/)
-  * 💡 [GitHub Actions](https://github.com/features/actions)
-  * 💡 [GitLab CI](https://docs.gitlab.com/ee/ci/)
-  * 💡 [Azure Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/)
+  * 🚧 [GitHub Actions](https://github.com/features/actions)
+  * 🚧 [GitLab CI](https://docs.gitlab.com/ee/ci/)
+  * 🚧 [Azure Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/)
 * 🛠️ Tooling
   * ✅ [Behat](https://docs.behat.org/en/latest/) + [Drupal extension](https://github.com/jhedstrom/drupalextension) + [Behat Screenshot](https://github.com/drevops/behat-screenshot) + [Behat steps](https://github.com/drevops/behat-steps)
   * ✅ [ESLint](https://eslint.org/)
@@ -105,8 +99,8 @@ The following list includes ✅ completed and 💡 upcoming features.
   * ✅ [PHPUnit](https://phpunit.de/)
   * ✅ [SASS Lint](https://github.com/sasstools/sass-lint)
   * ✅ [SASS](https://sass-lang.com/)
-  * ✅ [Twigcs](https://github.com/friendsoftwig/twigcs)
-  * 💡 [Pa11y](https://pa11y.org/)
+  * ✅ [Twig-CS-Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer)
+  * 🚧 [Pa11y](https://pa11y.org/)
 * ⚙️ Workflow
   * ✅ Database from FTP, CURL, Docker image, hosting provider
   * ✅ [Pull request template](.github/PULL_REQUEST_TEMPLATE.md)
@@ -119,7 +113,7 @@ The following list includes ✅ completed and 💡 upcoming features.
   * ✅ Deployment notification to New Relic
   * ✅ Automated dependencies updates ([Renovate](https://www.mend.io/renovate/))
 * 📖 Documentation
-  * ✅ Your project [README.md](README.md)
+  * ✅ Your project [README.md](README.dist.md)
   * ✅ Your [project documentation](docs)
   * ✅ [DrevOps documentation](https://docs.drevops.com/)
 * 🧪 DrevOps
@@ -128,91 +122,7 @@ The following list includes ✅ completed and 💡 upcoming features.
   * ✅ Integration test coverage for deployments
   * ✅ DrevOps updates
   * ✅ [Basic installer](https://install.drevops.com/)
-  * 💡 Advanced installer CLI UI
-  * 💡 Advances installer Web UI
-  * 💡 Automated project setup
-  * 💡 Project dashboard
-
-<br/>
-
-</td></tr>
-<tr><td>
-
-**Below is a content of the <code>README.md</code> file that will be added to your project.**
-
-**This table will be removed during installation.**
-
-</td></tr></table>
-<br/>
-
-[//]: # (#;> DREVOPS_DEV)
-# YOURSITE
-Drupal 10 implementation of YOURSITE for YOURORG
-
-[![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
-![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
-[![codecov](https://codecov.io/gh/your_org/your_site/graph/badge.svg)](https://codecov.io/gh/your_org/your_site)
-
-[//]: # (#;< RENOVATEBOT)
-
-[![RenovateBot](https://img.shields.io/badge/RenovateBot-enabled-brightgreen.svg?logo=renovatebot)](https://renovatebot.com)
-
-[//]: # (#;> RENOVATEBOT)
-
-[//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DREVOPS TO TRACK INTEGRATION)
-
-[![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/drevops/tree/DREVOPS_VERSION)
-
-[//]: # (Remove the section below once onboarding is finished)
-## Onboarding
-Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding progress.
-
-## Local environment setup
-- Make sure that you have latest versions of all required software installed:
-  - [Docker](https://www.docker.com/)
-  - [Pygmy](https://github.com/pygmystack/pygmy)
-  - [Ahoy](https://github.com/ahoy-cli/ahoy)
-- Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
-- Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).
-
-[//]: # (#;< ACQUIA)
-
-- Authenticate with Acquia Cloud API
-  1. Create your Acquia Cloud API token:<br/>
-     Acquia Cloud UI -> Account -> API tokens -> Create Token
-  2. Copy `.env.local.default` to `.env.local`.
-  3. Populate `$DREVOPS_ACQUIA_KEY` and `$DREVOPS_ACQUIA_SECRET` environment
-     variables in `.env.local` file with values generated in the step above.
-
-[//]: # (#;> ACQUIA)
-
-[//]: # (#;< LAGOON)
-
-- Authenticate with Lagoon
-  1. Create an SSH key and add it to your account in the [Lagoon Dashboard](https://ui-lagoon-master.ch.amazee.io/).
-  2. Copy `.env.local.default` to `.env.local`.
-  3. Update `$DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE` environment variable in `.env.local` file
-     with the path to the SSH key.
-
-[//]: # (#;> LAGOON)
-
-
-[//]: # (#;< !PROVISION_USE_PROFILE)
-
-- `ahoy download-db`
-
-[//]: # (#;> !PROVISION_USE_PROFILE)
-- `pygmy up`
-- `ahoy build`
-
-### Apple M1 adjustments
-
-Copy `docker-compose.override.default.yml` to `docker-compose.override.yml`.
-
-## Project documentation
-
-- [FAQs](docs/faqs.md)
-- [Testing](docs/testing.md)
-- [CI](docs/ci.md)
-- [Releasing](docs/releasing.md)
-- [Deployment](docs/deployment.md)
+  * 🚧 Advanced installer CLI UI
+  * 🚧 Advances installer Web UI
+  * 🚧 Automated project setup
+  * 🚧 Project dashboard

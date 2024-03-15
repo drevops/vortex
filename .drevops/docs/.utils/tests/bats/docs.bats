@@ -2,9 +2,11 @@
 #
 # Test for docs publishing functionality.
 #
-# shellcheck disable=SC2030,SC2031,SC2129
+# shellcheck disable=SC2030,SC2031,SC2129,SC2002
 
 load _helper.bash
+
+export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
 @test "Docs release" {
   update_local_repo
@@ -23,7 +25,7 @@ load _helper.bash
   # The very first version is set as latest.
   assert_version "feature-test-branch-first" 1
 
-  substep "Test 2: Followup publish from \"feature-test-branch-second\" branch."
+  substep 'Test 2: Followup publish from "feature-test-branch-second" branch.'
   export DOCS_PUBLISH_SRC_BRANCH="feature/test-branch-second"
   run ./.utils/publish.sh
   assert_success
@@ -32,7 +34,7 @@ load _helper.bash
   assert_version "feature-test-branch-first" 1
   assert_version "feature-test-branch-second"
 
-  substep "Test 3: Followup publish from \"1.0.0\" tag."
+  substep 'Test 3: Followup publish from "1.0.0" tag.'
   export DOCS_PUBLISH_SRC_BRANCH="main"
   export DOCS_PUBLISH_SRC_TAG="1.0.0"
   run ./.utils/publish.sh
@@ -41,7 +43,7 @@ load _helper.bash
   assert_version "feature-test-branch-second"
   assert_version "1.0.0" 1
 
-  substep "Test 4: Followup publish from \"1.1.0\" tag."
+  substep 'Test 4: Followup publish from "1.1.0" tag.'
   export DOCS_PUBLISH_SRC_BRANCH="main"
   export DOCS_PUBLISH_SRC_TAG="1.1.0"
   run ./.utils/publish.sh
@@ -51,7 +53,7 @@ load _helper.bash
   assert_version "1.0.0"
   assert_version "1.1.0" 1
 
-  substep "Test 5: Followup publish from \"main\" branch."
+  substep 'Test 5: Followup publish from "main" branch.'
   export DOCS_PUBLISH_SRC_BRANCH="main"
   export DOCS_PUBLISH_CANARY_BRANCH="main"
   export DOCS_PUBLISH_SRC_TAG=""
@@ -75,10 +77,10 @@ assert_version() {
   assert_file_exists "${REMOTE_REPO_DIR}/CNAME"
   assert_file_exists "${REMOTE_REPO_DIR}/versions.json"
 
-  actual_has_version="$(cat "${REMOTE_REPO_DIR}/versions.json" | jq 'any(.[]; .version == "'${expected_version}'")')"
+  actual_has_version="$(cat "${REMOTE_REPO_DIR}/versions.json" | jq 'any(.[]; .version == "'"${expected_version}"'")')"
   assert_equal "true" "${actual_has_version}"
 
-  actual_has_alias="$(cat "${REMOTE_REPO_DIR}/versions.json" | jq 'any(.[]; .version == "'${expected_version}'" and any(.aliases[]?; . == "latest"))')"
+  actual_has_alias="$(cat "${REMOTE_REPO_DIR}/versions.json" | jq 'any(.[]; .version == "'"${expected_version}"'" and any(.aliases[]?; . == "latest"))')"
   if [ "${expected_has_alias}" -eq 1 ]; then
     assert_equal "true" "${actual_has_alias}"
   else

@@ -24,8 +24,6 @@ function ys_core_deploy_install_theme(): void {
 // phpcs:ignore #;< REDIS
 /**
  * Enables Redis module.
- *
- * @SuppressWarnings(PHPMD.StaticAccess)
  */
 function ys_core_deploy_enable_redis(): void {
   $listing = new ExtensionDiscovery(\Drupal::root());
@@ -40,8 +38,6 @@ function ys_core_deploy_enable_redis(): void {
 // phpcs:ignore #;< CLAMAV
 /**
  * Enables Search API and Search API Solr modules.
- *
- * @SuppressWarnings(PHPMD.StaticAccess)
  */
 function ys_core_deploy_enable_clamav(): void {
   $listing = new ExtensionDiscovery(\Drupal::root());
@@ -57,8 +53,6 @@ function ys_core_deploy_enable_clamav(): void {
 // phpcs:ignore #;< SOLR
 /**
  * Enables Search API and Search API Solr modules.
- *
- * @SuppressWarnings(PHPMD.StaticAccess)
  */
 function ys_core_deploy_enable_search_api_solr(): void {
   $listing = new ExtensionDiscovery(\Drupal::root());

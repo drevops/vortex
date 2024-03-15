@@ -73,6 +73,26 @@ load _helper.bash
   assert_files_equal docker-compose.actual.json docker-compose.env_mod.json
 }
 
+@test "Docker Compose: default with .env and .env.local" {
+  prepare_docker_compose
+
+  cp "${ROOT_DIR}/.env" .env
+  cp "${ROOT_DIR}/.env.local.default" .env.local
+
+  substep "Validate configuration"
+  run docker compose -f docker-compose.yml config
+  assert_success
+
+  substep "Compare with fixture"
+  prepare_docker_compose_fixtures
+
+  docker compose -f docker-compose.yml config --format json >docker-compose.actual.json
+  process_docker_compose_json docker-compose.actual.json
+  update_docker_compose_fixture "${PWD}"/docker-compose.actual.json docker-compose.env_local.json
+
+  assert_files_equal docker-compose.actual.json docker-compose.env_local.json
+}
+
 # Prepare current docker compose file for testing.
 prepare_docker_compose() {
   cp "${ROOT_DIR}/docker-compose.yml" docker-compose.yml
@@ -92,6 +112,7 @@ prepare_docker_compose_fixtures() {
   cp "${ROOT_DIR}/.drevops/tests/bats/fixtures/docker-compose.env.json" docker-compose.env.json
   cp "${ROOT_DIR}/.drevops/tests/bats/fixtures/docker-compose.env_mod.json" docker-compose.env_mod.json
   cp "${ROOT_DIR}/.drevops/tests/bats/fixtures/docker-compose.noenv.json" docker-compose.noenv.json
+  cp "${ROOT_DIR}/.drevops/tests/bats/fixtures/docker-compose.env_local.json" docker-compose.env_local.json
   replace_string_content "FIXTURE_CUR_DIR" "${CURRENT_PROJECT_DIR}" "${CURRENT_PROJECT_DIR}"
 
   # Replace symlink /private paths in MacOS.
@@ -124,6 +145,12 @@ process_docker_compose_json() {
     array_walk_recursive(\$data, function (&\$value) {
       if (\$value !== null && preg_match('/:\d+\.\d+(\.\d+)?/', \$value)) {
         \$value = preg_replace('/:\d+\.\d+(?:\.\d+)?/', ':VERSION', \$value);
+      }
+    });
+
+    array_walk_recursive(\$data, function (&\$value) {
+      if (\$value !== null && str_contains(\$value, \"$HOME\")) {
+        \$value = str_replace(\"$HOME\", 'HOME', \$value);
       }
     });
 

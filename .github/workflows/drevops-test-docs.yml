@@ -1,5 +1,5 @@
 # This action is used for DrevOps maintenance. It will not be used in the scaffolded project.
-name: DrevOps - Test documentation
+name: DrevOps - Test docs
 
 on:
   push:
@@ -12,17 +12,26 @@ jobs:
   drevops-test-docs:
     runs-on: ubuntu-latest
 
+    env:
+      DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.drevops-coverage-html
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
+      - name: Adjust git config to allow running git-related tests
+        run: git config --global safe.directory '*'
+
       - name: Install Ahoy
         run: os=$(uname -s | tr [:upper:] [:lower:]) && architecture=$(case $(uname -m) in x86_64 | amd64) echo "amd64" ;; aarch64 | arm64 | armv8) echo "arm64" ;; *) echo "amd64" ;; esac) && sudo wget -q https://github.com/ahoy-cli/ahoy/releases/latest/download/ahoy-bin-$os-$architecture -O /usr/local/bin/ahoy && sudo chown $USER /usr/local/bin/ahoy && chmod +x /usr/local/bin/ahoy
 
       - name: Install Aspell
         run: sudo apt-get update -y && sudo apt-get install -y aspell
+
+      - name: Install Kcov
+        run: wget https://github.com/SimonKagstrom/kcov/releases/download/v42/kcov-amd64.tar.gz && tar -xf kcov-amd64.tar.gz && sudo mv ./usr/local/bin/kcov /usr/local/bin/kcov && kcov --version
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -37,4 +46,21 @@ jobs:
 
       - name: Run tests
         working-directory: .drevops/docs
-        run: ahoy test
+        run: ahoy test-site
+
+      - name: Run tests
+        run: ./docs/.utils/test.sh
+        working-directory: .drevops
+
+      - name: Upload coverage report as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{github.job}}-code-coverage-report
+          path: /tmp/.drevops-coverage-html
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          directory: /tmp/.drevops-coverage-html
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}

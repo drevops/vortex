@@ -63,7 +63,7 @@ default:
         html:
           target: '%paths.base%/.logs/coverage/behat/.coverage-html'
         cobertura:
-          target: 'paths.base%/.logs/coverage/behat/cobertura.xml'
+          target: '%paths.base%/.logs/coverage/behat/cobertura.xml'
 # Profile for parallel testing.
 # Runs all tests not tagged with "smoke" or "@p1" and not tagged with "@skipped".
 p0:

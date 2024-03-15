@@ -35,14 +35,7 @@ DREVOPS_TASK_LAGOON_INSTANCE_HOSTNAME="${DREVOPS_TASK_LAGOON_INSTANCE_HOSTNAME:-
 # The Lagoon instance port to interact with.
 DREVOPS_TASK_LAGOON_INSTANCE_PORT="${DREVOPS_TASK_LAGOON_INSTANCE_PORT:-32222}"
 
-# SSH key fingerprint used to connect to remote.
-##
-# If not used, the currently loaded default SSH key (the key used for code
-# checkout) will be used or deployment will fail with an error if the default
-# SSH key is not loaded.
-# In most cases, the default SSH key does not work (because it is a read-only
-# key used by CircleCI to checkout code from git), so you should add another
-# deployment key.
+# SSH key fingerprint used to connect to a remote.
 DREVOPS_TASK_SSH_FINGERPRINT="${DREVOPS_TASK_SSH_FINGERPRINT:-}"
 
 # Default SSH file used if custom fingerprint is not provided.
@@ -74,26 +67,7 @@ info "Started Lagoon task ${DREVOPS_TASK_LAGOON_NAME}."
 [ -z "${DREVOPS_TASK_LAGOON_COMMAND}" ] && echo "Missing required value for DREVOPS_TASK_LAGOON_COMMAND." && exit 1
 [ -z "${DREVOPS_TASK_LAGOON_PROJECT}" ] && echo "Missing required value for DREVOPS_TASK_LAGOON_PROJECT." && exit 1
 
-# Use custom key if fingerprint is provided.
-if [ -n "${DREVOPS_TASK_SSH_FINGERPRINT:-}" ]; then
-  note "Custom task key is provided."
-  DREVOPS_TASK_SSH_FILE="${DREVOPS_TASK_SSH_FINGERPRINT//:/}"
-  DREVOPS_TASK_SSH_FILE="${HOME}/.ssh/id_rsa_${DREVOPS_TASK_SSH_FILE//\"/}"
-fi
-
-[ ! -f "${DREVOPS_TASK_SSH_FILE:-}" ] && fail "SSH key file ${DREVOPS_TASK_SSH_FILE} does not exist." && exit 1
-
-if ssh-add -l | grep -q "${DREVOPS_TASK_SSH_FILE}"; then
-  note "SSH agent has ${DREVOPS_TASK_SSH_FILE} key loaded."
-else
-  note "SSH agent does not have default key loaded. Trying to load."
-  # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
-  ssh-add -D >/dev/null
-  ssh-add "${DREVOPS_TASK_SSH_FILE}"
-fi
-
-# Disable strict host key checking in CI.
-[ -n "${CI:-}" ] && mkdir -p "${HOME}/.ssh/" && echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
+DREVOPS_SSH_PREFIX="TASK" ./scripts/drevops/setup-ssh.sh
 
 if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_TASK_LAGOON_INSTALL_CLI_FORCE}" ]; then
   note "Installing Lagoon CLI."

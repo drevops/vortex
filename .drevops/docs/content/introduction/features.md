@@ -5,7 +5,7 @@ search:
 
 # Features
 
-The following list includes ✅ completed  and 💡 upcoming features.
+The following list includes ✅ completed  and 🚧 upcoming features.
 
 * 💧 Drupal
     * ✅ Based on [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
@@ -30,17 +30,17 @@ The following list includes ✅ completed  and 💡 upcoming features.
 * 🏨 Hosting
     * ✅ [Acquia](https://www.acquia.com/)
     * ✅ [Lagoon](https://github.com/uselagoon/lagoon)
-    * 💡 [Pantheon](https://pantheon.io/)
-    * 💡 [Platform.sh](https://platform.sh/)
+    * 🚧 [Pantheon](https://pantheon.io/)
+    * 🚧 [Platform.sh](https://platform.sh/)
 * 💻 Local development
     * ✅ [Docker Compose](https://docs.docker.com/compose/) + [Ahoy](https://github.com/ahoy-cli/ahoy)
-    * 💡 [Lando](https://lando.dev/)
-    * 💡 [DDEV](https://ddev.readthedocs.io/)
+    * 🚧 [Lando](https://lando.dev/)
+    * 🚧 [DDEV](https://ddev.readthedocs.io/)
 * 🏗️ CI/CD
     * ✅ [Circle CI](https://circleci.com/)
-    * 💡 [GitHub Actions](https://github.com/features/actions)
-    * 💡 [GitLab CI](https://docs.gitlab.com/ee/ci/)
-    * 💡 [Azure Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/)
+    * 🚧 [GitHub Actions](https://github.com/features/actions)
+    * 🚧 [GitLab CI](https://docs.gitlab.com/ee/ci/)
+    * 🚧 [Azure Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/)
 * 🛠️ Tooling
     * ✅ [Behat](https://docs.behat.org/en/latest/) + [Drupal extension](https://github.com/jhedstrom/drupalextension) + [Behat Screenshot](https://github.com/drevops/behat-screenshot) + [Behat steps](https://github.com/drevops/behat-steps)
     * ✅ [ESLint](https://eslint.org/)
@@ -51,8 +51,8 @@ The following list includes ✅ completed  and 💡 upcoming features.
     * ✅ [PHPUnit](https://phpunit.de/)
     * ✅ [SASS Lint](https://github.com/sasstools/sass-lint)
     * ✅ [SASS](https://sass-lang.com/)
-    * ✅ [Twigcs](https://github.com/friendsoftwig/twigcs)
-    * 💡 [Pa11y](https://pa11y.org/)
+    * ✅ [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer)
+    * 🚧 [Pa11y](https://pa11y.org/)
 * ⚙️ Workflow
     * ✅ Database from FTP, CURL, Docker image, hosting provider
     * ✅ [Pull request template](../../../../.github/PULL_REQUEST_TEMPLATE.md)
@@ -74,7 +74,7 @@ The following list includes ✅ completed  and 💡 upcoming features.
     * ✅ Integration test coverage for deployments
     * ✅ DrevOps updates
     * ✅ [Basic installer](https://install.drevops.com/)
-    * 💡 Advanced installer CLI UI
-    * 💡 Advances installer Web UI
-    * 💡 Automated project setup
-    * 💡 Project dashboard
+    * 🚧 Advanced installer CLI UI
+    * 🚧 Advances installer Web UI
+    * 🚧 Automated project setup
+    * 🚧 Project dashboard

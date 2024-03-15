@@ -206,7 +206,7 @@ nav:
       - Pygmy: tools/pygmy.md
       - Rector: tools/rector.md
       - Renovate: tools/renovate.md
-      - Twigcs: tools/twigcs.md
+      - Twig CS Fixer: tools/twig-cs-fixer.md
       - Xdebug: tools/xdebug.md
 
   - 🧩 Integrations:

@@ -136,7 +136,7 @@ build() {
   echo "Copy combined dir into the container."
   docker compose cp "${combined_repo_dir}/." mkdocs:"/tmp/build"
   docker compose exec mkdocs git config --global --add safe.directory "/tmp/build"
-  # The credentials below are only used to produce some entermediate commits
+  # The credentials below are only used to produce some intermediate commits
   # while building the docs. They are not used to push the code.
   docker compose exec mkdocs git config --global user.name "Deployment robot"
   docker compose exec mkdocs git config --global user.email "robot@example.com"
@@ -241,7 +241,7 @@ configure_ssh() {
     if ssh-add -l | grep -q "${DOCS_PUBLISH_SSH_FILE}"; then
       echo "SSH agent has ${DOCS_PUBLISH_SSH_FILE} key loaded."
     else
-      echo "SSH agent does not have default key loaded. Trying to load."
+      echo "SSH agent does not have a required key loaded. Trying to load."
       # Remove all other keys and add SSH key from provided fingerprint into SSH agent.
       ssh-add -D >/dev/null
       ssh-add "${DOCS_PUBLISH_SSH_FILE}"
