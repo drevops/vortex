@@ -32,7 +32,7 @@ aliases:
   # Specify the correct repository to prevent the bot from accessing all
   # repositories available via $RENOVATE_TOKEN.
   #;< DREVOPS_DEV
-  - &renovatebot_repository 'drevops/drevops-destination'
+  - &renovatebot_repository 'drevops/scaffold-destination'
   #;> DREVOPS_DEV
   ##### - &renovatebot_repository 'your_org/your_site'
   # The schedule to run RenovateBot on. Defaults to running twice a day.

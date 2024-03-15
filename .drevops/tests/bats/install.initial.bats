@@ -205,7 +205,7 @@ load _helper.bash
   run_install_quiet
 
   # Assert that DrevOps version was replaced.
-  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/1.2.3"
+  assert_file_contains "README.md" "https://github.com/drevops/scaffold/tree/1.2.3"
   assert_file_contains "README.md" "badge/DrevOps-1.2.3-blue.svg"
 }
 

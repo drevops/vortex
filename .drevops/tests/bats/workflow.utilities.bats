@@ -66,12 +66,12 @@ load _helper.workflow.bash
 
   export GITHUB_TOKEN="${TEST_GITHUB_TOKEN}"
 
-  # Use "drevops/drevops-destination" as an example GitHub project.
-  run ahoy github-labels drevops/drevops-destination
+  # Use "drevops/scaffold-destination" as an example GitHub project.
+  run ahoy github-labels drevops/scaffold-destination
   assert_success
   assert_output_not_contains "ERROR"
 
-  run curl https://github.com/drevops/drevops-destination/labels
+  run curl https://github.com/drevops/scaffold-destination/labels
 
   assert_output_contains ">AUTOMERGE<"
   assert_output_contains "Pull request has been approved and set to automerge"

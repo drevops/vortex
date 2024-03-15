@@ -48,10 +48,10 @@ jobs:
       - name: Publish docs
         run: |
           cd .drevops/docs
-          export DOCS_PUBLISH_REMOTE_URL=git@github.com:drevops/drevops_docs.git
+          export DOCS_PUBLISH_REMOTE_URL=git@github.com:drevops/docs.git
           export DOCS_PUBLISH_SRC_TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
           export DOCS_PUBLISH_SRC_BRANCH=${{ github.ref_type == 'branch' && github.ref_name || '' }}
           export DOCS_PUBLISH_CANARY_BRANCH="develop"
-          export DOCS_PUBLISH_COMMIT_MESSAGE="Automatically pushed from drevops/drevops"
+          export DOCS_PUBLISH_COMMIT_MESSAGE="Automatically pushed from drevops/scaffold"
           export DOCS_PUBLISH_GIT_EMAIL="deployer@drevops.com"
           ./.utils/publish.sh

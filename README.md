@@ -10,12 +10,12 @@
 
 <div align="center">
 
-[![Test](https://github.com/drevops/drevops/actions/workflows/drevops-test-common.yml/badge.svg)](https://github.com/drevops/drevops/actions/workflows/drevops-test-common.yml)
-[![Test docs](https://github.com/drevops/drevops/actions/workflows/drevops-test-docs.yml/badge.svg)](https://github.com/drevops/drevops/actions/workflows/drevops-test-docs.yml)
-[![CircleCI](https://circleci.com/gh/drevops/drevops.svg?style=shield)](https://circleci.com/gh/drevops/drevops)
-[![codecov](https://codecov.io/gh/drevops/drevops/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/drevops)
-![GitHub release](https://img.shields.io/github/v/release/drevops/drevops?logo=github)
-![LICENSE](https://img.shields.io/github/license/drevops/drevops)
+[![Test](https://github.com/drevops/scaffold/actions/workflows/drevops-test-common.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/drevops-test-common.yml)
+[![Test docs](https://github.com/drevops/scaffold/actions/workflows/drevops-test-docs.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/drevops-test-docs.yml)
+[![CircleCI](https://circleci.com/gh/drevops/scaffold.svg?style=shield)](https://circleci.com/gh/drevops/scaffold)
+[![codecov](https://codecov.io/gh/drevops/scaffold/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/scaffold)
+![GitHub release](https://img.shields.io/github/v/release/drevops/scaffold?logo=github)
+![LICENSE](https://img.shields.io/github/license/drevops/scaffold)
 
 </div>
 
@@ -50,7 +50,7 @@ https://docs.drevops.com
 ## Features
 
 <div align="center">
-  <img  alt="diagram-shortest" src="https://github.com/drevops/drevops/assets/378794/68e7553b-6c29-437a-8a30-45e9d746180a">
+  <img  alt="diagram-shortest" src="https://github.com/drevops/scaffold/assets/378794/68e7553b-6c29-437a-8a30-45e9d746180a">
 </div>
 
 The following list includes ✅ completed and 🚧 upcoming features.

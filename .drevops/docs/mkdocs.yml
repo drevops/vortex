@@ -18,8 +18,8 @@ site_description: Documentation for DrevOps Drupal project template
 site_url: https://docs.drevops.com
 
 # Repository
-repo_name: drevops/drevops
-repo_url: https://github.com/drevops/drevops
+repo_name: drevops/scaffold
+repo_url: https://github.com/drevops/scaffold
 edit_uri: edit/main/.drevops/docs/content
 # Copyright
 copyright: 'Copyright &copy;2023 DrevOps<sup>&reg;</sup><br/><strong><a href="https://drupal.org">Drupal</a></strong> is a registered trademark of <a href="http://buytaert.net/">Dries Buytaert</a>'
@@ -88,7 +88,7 @@ plugins:
       patterns:
         - rel_to_abs: # Pattern name, can be anything
             oldvalue: "../../../../"
-            newvalue: "https://github.com/drevops/drevops/tree/main/"
+            newvalue: "https://github.com/drevops/scaffold/tree/main/"
   - redirects:
       redirect_maps:
         'variables.md': 'workflows/variables.md'
@@ -99,7 +99,7 @@ plugins:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/drevops/drevops
+      link: https://github.com/drevops/scaffold
     - icon: fontawesome/regular/envelope
       link: mailto:support@drevops.com
   analytics:

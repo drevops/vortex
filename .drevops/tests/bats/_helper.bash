@@ -150,7 +150,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export DREVOPS_INSTALL_DEMO_DB_TEST=https://github.com/drevops/drevops/releases/download/1.18.0/db_d10.test.sql
+  export DREVOPS_INSTALL_DEMO_DB_TEST=https://github.com/drevops/scaffold/releases/download/1.18.0/db_d10.test.sql
 
   ##
   ## Phase 5: SUT files setup.
@@ -253,7 +253,7 @@ assert_files_present_common() {
 
   # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_VERSION:-develop}-blue.svg"
-  assert_file_contains "README.md" "https://github.com/drevops/drevops/tree/${DREVOPS_VERSION:-develop}"
+  assert_file_contains "README.md" "https://github.com/drevops/scaffold/tree/${DREVOPS_VERSION:-develop}"
   assert_file_not_contains "README.md" "The following list includes"
   assert_file_not_exists "README.dist.md"
 
@@ -905,7 +905,7 @@ Drupal 10 implementation of ${name} for ${org}
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY DREVOPS TO TRACK INTEGRATION)
 
-[![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/drevops/tree/DREVOPS_VERSION)
+[![DrevOps](https://img.shields.io/badge/DrevOps-DREVOPS_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/scaffold/tree/DREVOPS_VERSION)
 
 some other text
 EOT

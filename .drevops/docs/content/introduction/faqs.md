@@ -46,7 +46,7 @@ but you do not have to use it.
 Yes, you can change anything you want. DrevOps is a project template, which
 means that you can disable/remove certain features.
 
-Feel free to [open an issue](https://github.com/drevops/drevops/issues) to
+Feel free to [open an issue](https://github.com/drevops/scaffold/issues) to
 discuss any of the decisions made in DrevOps.
 
 ## I do not need all these features? It looks like an overkill.
@@ -72,7 +72,7 @@ to stay in order to make tools talk to each other.
 
 There could be some cases when it is unreasonably opinionated - we consider this
 as a bug and would be happy to fix it. Please provide your feedback in the
-[issue queue](https://github.com/drevops/drevops/issues).
+[issue queue](https://github.com/drevops/scaffold/issues).
 
 ## How easy is it to upgrade DrevOps?
 
