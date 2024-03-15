@@ -20,7 +20,6 @@ done < <(
   find \
     "${ROOT_DIR}"/.circleci \
     "${ROOT_DIR}"/.docker \
-    "${ROOT_DIR}"/docs \
     "${ROOT_DIR}"/hooks/library \
     "${ROOT_DIR}"/scripts \
     "${ROOT_DIR}"/patches \
@@ -53,7 +52,7 @@ for file in "${targets[@]}"; do
       # Remove HTML.
       sed -E 's/<([^<]+)>//g' |
       # Remove code blocks.
-      sed -n '/\`\`\`/,/\`\`\`/ !p' |
+      sed '/^[[:space:]]*```/,/^[[:space:]]*```/d' |
       # Remove inline code.
       sed -n '/\`/,/\`/ !p' |
       # Remove anchors.

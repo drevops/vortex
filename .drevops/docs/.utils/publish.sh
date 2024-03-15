@@ -136,7 +136,7 @@ build() {
   echo "Copy combined dir into the container."
   docker compose cp "${combined_repo_dir}/." mkdocs:"/tmp/build"
   docker compose exec mkdocs git config --global --add safe.directory "/tmp/build"
-  # The credentials below are only used to produce some entermediate commits
+  # The credentials below are only used to produce some intermediate commits
   # while building the docs. They are not used to push the code.
   docker compose exec mkdocs git config --global user.name "Deployment robot"
   docker compose exec mkdocs git config --global user.email "robot@example.com"
