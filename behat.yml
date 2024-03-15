@@ -62,6 +62,7 @@ default:
             'web/modules/custom': ~
             'web/themes/custom': ~
             'web/sites/default/includes': ~
+            'tests/behat/bootstrap': ~
           files:
             - 'web/sites/default/settings.php'
         exclude:
