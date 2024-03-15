@@ -63,7 +63,7 @@ default:
             'web/themes/custom': ~
             'web/sites/default/includes': ~
           files:
-            - '/web/sites/default/settings.php'
+            - 'web/sites/default/settings.php'
         exclude:
           directories:
             'web/modules/custom':
