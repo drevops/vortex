@@ -134,7 +134,12 @@ provision_site() {
 
   if [ "${should_build:-}" = "1" ]; then
     step "Build project"
+
+    export DOCKER_USER="${TEST_DOCKER_USER?Test Docker user is not set}"
+    export DOCKER_PASS="${TEST_DOCKER_PASS?Test Docker pass is not set}"
+
     export DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1
+
     ahoy build
     sync_to_host
   fi
