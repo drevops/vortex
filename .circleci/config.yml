@@ -339,8 +339,6 @@ jobs:
           name: Lint code with NPM linters
           command: docker compose exec -T cli bash -c "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${DREVOPS_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
       - run:
-<<<<<<< Updated upstream
-=======
           name: Provision site
           command: |
             if [ -f .data/db.sql ]; then
@@ -350,12 +348,11 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/drevops/provision.sh
           no_output_timeout: 30m
       - run:
-          name: Restart server with Xdebug enabled
+          name: Restart server with Xdebug enabled for coverage
+          command: XDEBUG_ENABLE=true docker compose up -d cli php nginx
       - run:
->>>>>>> Stashed changes
           name: Test with PHPUnit
           command: |
-            XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
             docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit || [ "${DREVOPS_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
             docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
       - run:
