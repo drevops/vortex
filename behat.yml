@@ -52,10 +52,23 @@ default:
     # Show explicit fail information and continue the test run.
     DrevOps\BehatFormatProgressFail\FormatExtension: ~
     DVDoug\Behat\CodeCoverage\Extension:
+      branchAndPathCoverage: false
+      # The processUncoveredFiles setting has been removed in php-code-coverage v10.0.0.
+      includeUncoveredFiles: true
       filter:
         include:
           directories:
-            'src': ~
+            'web/modules/custom': ~
+            'web/themes/custom': ~
+            'web/sites/default/includes': ~
+          files:
+            - '/web/sites/default/settings.php'
+        exclude:
+          directories:
+            'web/modules/custom':
+              suffix: 'Test.php'
+            'web/themes/custom':
+              suffix: 'Test.php'
       reports:
         text:
           showColors: true
