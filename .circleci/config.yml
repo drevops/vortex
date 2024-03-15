@@ -339,6 +339,20 @@ jobs:
           name: Lint code with NPM linters
           command: docker compose exec -T cli bash -c "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${DREVOPS_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
       - run:
+<<<<<<< Updated upstream
+=======
+          name: Provision site
+          command: |
+            if [ -f .data/db.sql ]; then
+              docker compose exec cli mkdir -p .data
+              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            fi
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/drevops/provision.sh
+          no_output_timeout: 30m
+      - run:
+          name: Restart server with Xdebug enabled
+      - run:
+>>>>>>> Stashed changes
           name: Test with PHPUnit
           command: |
             XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
@@ -349,7 +363,7 @@ jobs:
           command: |
             if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then export DREVOPS_CI_BEHAT_PROFILE="${DREVOPS_CI_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}"; fi
             echo "Running with ${DREVOPS_CI_BEHAT_PROFILE:-default} profile"
-            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
+            docker compose exec -T -e XDEBUG_MODE=coverage cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
               docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
               [ "${DREVOPS_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
           no_output_timeout: 30m

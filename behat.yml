@@ -51,7 +51,19 @@ default:
       purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
     # Show explicit fail information and continue the test run.
     DrevOps\BehatFormatProgressFail\FormatExtension: ~
-
+    DVDoug\Behat\CodeCoverage\Extension:
+      filter:
+        include:
+          directories:
+            'src': ~
+      reports:
+        text:
+          showColors: true
+          showOnlySummary: true
+        html:
+          target: '%paths.base%/.logs/coverage/behat/.coverage-html'
+        cobertura:
+          target: 'paths.base%/.logs/coverage/behat/cobertura.xml'
 # Profile for parallel testing.
 # Runs all tests not tagged with "smoke" or "@p1" and not tagged with "@skipped".
 p0:

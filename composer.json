@@ -45,6 +45,7 @@
         "drevops/behat-steps": "^2",
         "drupal/core-dev": "^10.2.0",
         "drupal/drupal-extension": "^5@rc",
+        "dvdoug/behat-code-coverage": "^5.3",
         "friendsoftwig/twigcs": "^6.2",
         "mglaman/phpstan-drupal": "^1.2",
         "palantirnet/drupal-rector": "^0.19",
