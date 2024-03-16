@@ -7,12 +7,12 @@ https://www.drush.org/
 > update.php, executes SQL queries, runs content migrations, and misc utilities
 > like cron or cache rebuild. Drush can be extended by 3rd party commandfiles.
 
-Drush is used throughout DrevOps to interact with Drupal from the workflow
+Drush is used throughout Scaffold to interact with Drupal from the workflow
 scripts and Behat tests.
 
 It also allows a developer to interact with the site via CLI during development.
 
-While all the standard Drush commands supported, DrevOps also provides some
+While all the standard Drush commands supported, Scaffold also provides some
 shorthand commands to abstract some of the common tasks:
 
 - downloading the database dump from the remote environment

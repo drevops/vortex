@@ -4,7 +4,7 @@ hide:
 ---
 # Architecture
 
-DrevOps offers a pre-configured project template that is reliable, tested and
+Scaffold offers a pre-configured project template that is reliable, tested and
 ready-to-use. Its main goal is to streamline onboarding, making it as quick and
 efficient as possible.
 
@@ -93,7 +93,7 @@ with addition of several configuration files and directories.
 
 ## Scripts
 
-DrevOps provides a set of [POSIX](https://en.wikipedia.org/wiki/POSIX)-compliant
+Scaffold provides a set of [POSIX](https://en.wikipedia.org/wiki/POSIX)-compliant
 scripts designed to orchestrate workflows.
 
 During installation, the scripts are added to your project repository into
@@ -115,7 +115,7 @@ During installation, the scripts are added to your project repository into
 
 > A workflow is a sequence of steps or tasks to accomplish a specific goal.
 
-DrevOps comes with as set of pre-defined workflows to standardise the development
+Scaffold comes with as set of pre-defined workflows to standardise the development
 process.
 
 For example, the `scripts/drevops/download-db.sh` script is used to download a

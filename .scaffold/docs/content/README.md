@@ -8,7 +8,7 @@ title: Introduction
   <span>DrevOps<sup>&reg;</sup></span>
 </h1>
 
-DrevOps is a project template for [Drupal](https://drupal.org) that is designed
+DrevOps is a project scaffold for [Drupal](https://drupal.org) that is designed
 to streamline the development process for building high-quality Drupal websites.
 
 The template is validated through automated tests, ensuring all tooling and
@@ -79,5 +79,5 @@ Refer to [Contributing](contributing) for more details.
 
 ## License
 
-DrevOps project template is licensed under the GPL-3.0 license. See
+DrevOps project scaffold is licensed under the GPL-3.0 license. See
 the [LICENSE](../../../../LICENSE) file for more details.

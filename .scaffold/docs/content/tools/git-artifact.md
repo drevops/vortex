@@ -10,7 +10,7 @@ tool streamlines that process: it uses a `.gitignore.deployment` file to control
 which files get transferred, and overwrites the destination repository's history
 with each push, while preserving the source history.
 
-DrevOps comes
+Scaffold comes
 with [pre-configured `.gitignore.deployment`](../../../../.gitignore.deployment)
 file and [deployment script](../../../../scripts/drevops/deploy-artifact.sh)
 to build the artifact in CI and push it to the remote repository in Acquia.

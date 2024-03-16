@@ -10,7 +10,7 @@ with zero code and dependencies.
 Usually, Ahoy is used to wrap the commands to make the development workflow
 consistent and easy to use.
 
-DrevOps comes with [pre-configured Ahoy file](../../../../.ahoy.yml) that has
+Scaffold comes with [pre-configured Ahoy file](../../../../.ahoy.yml) that has
 commands wrapped around the most common tasks:
 
 - Working with Docker

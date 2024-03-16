@@ -113,16 +113,16 @@ install_and_build_site() {
 
   # shellcheck disable=SC2128
   if [ -n "${answers:-}" ]; then
-    run_install_interactive "${answers[@]}"
+    run_installer_interactive "${answers[@]}"
   else
-    run_install_quiet
+    run_installer_quiet
   fi
 
   assert_files_present_common
   assert_git_repo
 
   # Special treatment for cases where volumes are not mounted from the host.
-  if [ "${DREVOPS_DEV_VOLUMES_MOUNTED:-}" != "1" ]; then
+  if [ "${SCAFFOLD_DEV_VOLUMES_MOUNTED:-}" != "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml

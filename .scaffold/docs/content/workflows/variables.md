@@ -787,7 +787,7 @@ The URL of the installer script.
 
 Default value: `https://install.drevops.com`
 
-Defined in: `scripts/drevops/update-drevops.sh`
+Defined in: `scripts/drevops/update-scaffold.sh`
 
 ### `DREVOPS_INSTALL_COMMIT`
 
@@ -795,7 +795,7 @@ Allow providing custom DrevOps commit hash to download the sources from.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/drevops/update-drevops.sh`
+Defined in: `scripts/drevops/update-scaffold.sh`
 
 ### `DREVOPS_LAGOON_PRODUCTION_BRANCH`
 

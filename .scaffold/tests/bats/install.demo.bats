@@ -9,7 +9,7 @@ load _helper.bash
 @test "Demo auto discovery - enabled" {
   assert_file_not_exists .data/db.sql
 
-  run_install_quiet
+  run_installer_quiet
   assert_files_present
   assert_git_repo
 
@@ -21,7 +21,7 @@ load _helper.bash
   mktouch .data/db.sql
   assert_file_exists .data/db.sql
 
-  run_install_quiet
+  run_installer_quiet
   assert_files_present
   assert_git_repo
 
@@ -37,7 +37,7 @@ load _helper.bash
 
   assert_file_not_exists .data/db.sql
 
-  run_install_quiet
+  run_installer_quiet
   assert_files_present
   assert_git_repo
 
@@ -51,7 +51,7 @@ load _helper.bash
   mktouch .data/db.sql
   assert_file_exists .data/db.sql
 
-  run_install_quiet
+  run_installer_quiet
   assert_files_present
   assert_git_repo
 
@@ -67,7 +67,7 @@ load _helper.bash
 
   assert_file_not_exists .data/db.sql
 
-  run_install_quiet
+  run_installer_quiet
   assert_files_present
   assert_git_repo
 

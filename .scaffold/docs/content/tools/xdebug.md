@@ -5,7 +5,7 @@ https://xdebug.org/
 > Xdebug is an extension for PHP, and provides a range of features to improve
 > the PHP development experience.
 
-DrevOps comes with Xdebug pre-installed and configured for local development
+Scaffold comes with Xdebug pre-installed and configured for local development
 thanks to [Lagoon images](https://github.com/uselagoon/lagoon-images).
 
 Xdebug is also configured to work in coverage mode, allowing to run tests with

@@ -13,7 +13,7 @@ load _helper.bash
 
 @test "Install parameters: empty dir; proceed switch; quiet" {
   export DREVOPS_INSTALL_PROCEED=0
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
   assert_files_not_present_common
@@ -44,7 +44,7 @@ load _helper.bash
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
   assert_files_not_present_common
@@ -53,7 +53,7 @@ load _helper.bash
 @test "Install parameters: empty dir; defaults; quiet" {
   export DREVOPS_INSTALL_PROCEED=0
 
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
@@ -103,7 +103,7 @@ load _helper.bash
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
@@ -156,7 +156,7 @@ load _helper.bash
     "nnnooo"                 # preserve_doc_comments
     "nooo"                   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed."
 
@@ -208,7 +208,7 @@ load _helper.bash
     "nnnooo"                 # preserve_doc_comments
     "nooo"                   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed."
 
@@ -239,7 +239,7 @@ load _helper.bash
 
   fixture_preinstalled web
 
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
@@ -292,7 +292,7 @@ load _helper.bash
     "nothing" # preserve_doc_comments
     "nothing" # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
@@ -351,9 +351,9 @@ load _helper.bash
     "n"                      # preserve_drevops_info
   )
 
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
-  assert_output_contains "It looks like DrevOps is already installed into this project."
+  assert_output_contains "It looks like DrevOps scaffold is already installed into this project."
   assert_output_contains "Aborting project installation. No files were changed"
 
   # Note that user input takes precedence over discovered values.

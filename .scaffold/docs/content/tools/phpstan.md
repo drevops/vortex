@@ -9,7 +9,7 @@ https://phpstan.org/user-guide/getting-started
 > line
 > of the code can be checked before you run the actual line.
 
-DrevOps comes with [pre-configured PHPStan ruleset](../../../../phpstan.neon)
+Scaffold comes with [pre-configured PHPStan ruleset](../../../../phpstan.neon)
 for
 Drupal projects.
 

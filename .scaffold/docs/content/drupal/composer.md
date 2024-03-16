@@ -4,7 +4,7 @@ Composer is a dependency manager for PHP projects, including Drupal. It allows
 you to declare the libraries your project depends on and manages (
 install/update) them for you.
 
-DrevOps comes with a pre-configured `composer.json` file based on
+Scaffold comes with a pre-configured `composer.json` file based on
 the [Drupal Composer project](https://github.com/drupal-composer/drupal-project),
 extended to support additional features and tools.
 
@@ -18,7 +18,7 @@ extended to support additional features and tools.
 [Drupal Composer project](https://github.com/drupal-composer/drupal-project)
 provides a starter kit for managing your site dependencies with Composer.
 
-DrevOps extends the Drupal Composer project's `composer.json` to support
+Scaffold extends the Drupal Composer project's `composer.json` to support
 additional features and tools.
 
 DrevOps team will keep the `composer.json` file up-to-date with the latest
@@ -53,7 +53,7 @@ package. The type key can influence how the package is installed and used.
 ### `license`
 
 [license](https://getcomposer.org/doc/04-schema.md#license) indicates the
-licence of the project. Since DrevOps is a template for your consumer sites that
+licence of the project. Since Scaffold is a template for your consumer sites that
 are usually proprietary, we use `proprietary` as the default value. More license
 identifiers are listed at
 the [SPDX Open Source License Registry](https://spdx.org/licenses/).
@@ -96,7 +96,7 @@ specifies the essential packages and libraries your project needs.
 - `drupal/admin_toolbar`, `drupal/clamav`, `drupal/coffee`, etc. - Drupal
   modules that provide various site administration and development helping
   functionalities that is usually installed across all of your Drupal sites.
-  DrevOps comes with [pre-configured settings](../settings) for some of the
+  Scaffold comes with [pre-configured settings](../settings) for some of the
   modules to make them work out of the box.
 - [`drupal/core-recommended`](https://github.com/drupal/core-recommended): A
   package that provides a carefully selected set of dependencies, including
@@ -286,7 +286,7 @@ needs and structure of your Drupal project.
   - `locations`: Specifies the location of the web root (the directory
     containing the `index.php` file).
   - `file-mapping`: Determines which files are managed by the scaffold process.
-    DrevOps comes with sensible defaults, but you can customize this section to
+    Scaffold comes with sensible defaults, but you can customize this section to
     suit your needs.
 - [`installer-paths`](https://getcomposer.org/doc/faqs/how-do-i-install-a-package-to-a-custom-path-for-my-framework.md):
   Defines custom installation paths for various types of packages like Drupal

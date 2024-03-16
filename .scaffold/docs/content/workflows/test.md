@@ -1,6 +1,6 @@
 # ✅ Test
 
-DrevOps supports running Unit (PHPUnit) and BDD (Behat) tests.
+Scaffold supports running Unit (PHPUnit) and BDD (Behat) tests.
 
 For local development, the tests can be run using handy Ahoy commands:
 

@@ -39,7 +39,7 @@ else
   exit 1
 fi
 
-echo "==> Linting DrevOps scaffold spelling."
+echo "==> Linting Scaffold spelling."
 for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"

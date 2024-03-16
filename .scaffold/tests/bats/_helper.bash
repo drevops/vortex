@@ -379,7 +379,7 @@ assert_files_present_drevops() {
   assert_file_exists "scripts/drevops/task-copy-db-acquia.sh"
   assert_file_exists "scripts/drevops/task-copy-files-acquia.sh"
   assert_file_exists "scripts/drevops/task-purge-cache-acquia.sh"
-  assert_file_exists "scripts/drevops/update-drevops.sh"
+  assert_file_exists "scripts/drevops/update-scaffold.sh"
 
   assert_file_exists "scripts/sanitize.sql"
 
@@ -416,22 +416,22 @@ assert_files_present_drevops() {
   assert_file_not_exists "CODE_OF_CONDUCT.md"
   assert_file_not_exists ".github/FUNDING.yml"
 
-  assert_file_not_exists ".github/drevops-publish-docs.yml"
-  assert_file_not_exists ".github/drevops-test-docs.yml"
+  assert_file_not_exists ".github/scaffold-publish-docs.yml"
+  assert_file_not_exists ".github/scaffold-test-docs.yml"
 
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-test"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-test-workflow"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-test-deployment"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-deploy"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-deploy-tags"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-didi-database-fi"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-database-ii"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-didi-build-fi"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-didi-build-ii"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-docs"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-didi-fi"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-didi-ii"
-  assert_file_not_contains ".circleci/config.yml" "drevops-dev-installer"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-test"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-test-workflow"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-test-deployment"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-deploy"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-deploy-tags"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-didi-database-fi"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-database-ii"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-didi-build-fi"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-didi-build-ii"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-docs"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-didi-fi"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-didi-ii"
+  assert_file_not_contains ".circleci/config.yml" "scaffold-dev-installer"
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# DrevOps"
@@ -929,7 +929,7 @@ EOT
 
 # Run the installer script.
 # shellcheck disable=SC2120
-run_install_quiet() {
+run_installer_quiet() {
   pushd "${CURRENT_PROJECT_DIR}" >/dev/null || exit 1
 
   # Force the installer script to be downloaded from the local repo for testing.
@@ -999,7 +999,7 @@ run_install_quiet() {
 # )
 # output=$(run_install_interactive "${answers[@]}")
 # @endcode
-run_install_interactive() {
+run_installer_interactive() {
   local answers=("${@}")
   local input
 
@@ -1019,7 +1019,7 @@ run_install_interactive() {
   # ATTENTION! Questions change based on some answers, so using the same set of
   # answers for all tests will not work. Make sure that correct answers
   # provided for specific tests.
-  printf "${input}" | run_install_quiet
+  printf "${input}" | run_installer_quiet
 }
 
 #
@@ -1233,7 +1233,7 @@ sync_to_host() {
   local dst="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"${t}" && set -a && . "./.env" && set +a && . "${t}" && rm "${t}" && unset t
-  [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" = "1" ] && return
+  [ "${SCAFFOLD_DEV_VOLUMES_MOUNTED}" = "1" ] && return
   docker compose cp -L cli:/app/. "${dst}"
 }
 
@@ -1242,7 +1242,7 @@ sync_to_container() {
   local src="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"${t}" && set -a && . "./.env" && set +a && . "${t}" && rm "${t}" && unset t
-  [ "${DREVOPS_DEV_VOLUMES_MOUNTED}" = "1" ] && return
+  [ "${SCAFFOLD_DEV_VOLUMES_MOUNTED}" = "1" ] && return
   docker compose cp -L "${src}" cli:/app/
 }
 
@@ -1258,7 +1258,7 @@ fix_host_dependencies() {
 
   pushd "${DREVOPS_INSTALL_DST_DIR}" >/dev/null || exit 1
 
-  if [ -f docker-compose.yml ] && [ "${DREVOPS_DEV_VOLUMES_MOUNTED:-1}" != "1" ]; then
+  if [ -f docker-compose.yml ] && [ "${SCAFFOLD_DEV_VOLUMES_MOUNTED:-1}" != "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml

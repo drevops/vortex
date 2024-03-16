@@ -2,7 +2,7 @@ Onboarding checklist
 ====================
 
 Use this checklist to track the process of migration of the existing site
-to DrevOps. This file is intended to be committed into repository until
+to Scaffold. This file is intended to be committed into repository until
 onboarding process is finished.
 
 Put a `x` into `[ ]` if this step was executed OR not required - this will
@@ -30,16 +30,16 @@ indicate that it was addressed.
   ckeditor@4.3.2, https://www.ckeditor.com/archive/ckeditor_4.3.2.zip
   ```
 
-## 2. Adding DrevOps
+## 2. Adding Scaffold
 
 - [ ] Create a new GitHub repository, if required:
   - [ ] Commit generic `README.md` file and push to `master` branch.
   - [ ] Create new branch `ci`, copy all files from existing repository and
     push to remote.
-- [ ] Add DrevOps configuration using installer script and follow
+- [ ] Add Scaffold configuration using installer script and follow
   instructions in `README.md` file added to your project. You will need to
   commit some files and push them to remote. Note: try to rely on the
-  default configuration provided by DrevOps as much as possible
+  default configuration provided by Scaffold as much as possible
   (otherwise you are assuming maintenance responsibility for this custom
   code).
 - [ ] Using list of **modules** from "Assessing current site" step, update

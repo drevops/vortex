@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Run DrevOps tests in CI.
+# Run Scaffold tests in CI.
 #
 # LCOV_EXCL_START
 
@@ -27,9 +27,9 @@ echo "==> Run common functional tests."
 
 bats() {
   pushd "${ROOT_DIR}" >/dev/null || exit 1
-  if [ -n "${DREVOPS_DEV_TEST_COVERAGE_DIR:-}" ]; then
-    mkdir -p "${DREVOPS_DEV_TEST_COVERAGE_DIR}"
-    kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir="${SCRIPTS_DIR}","${TEST_DIR}" --exclude-pattern=vendor,node_modules "${DREVOPS_DEV_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
+  if [ -n "${SCAFFOLD_DEV_TEST_COVERAGE_DIR:-}" ]; then
+    mkdir -p "${SCAFFOLD_DEV_TEST_COVERAGE_DIR}"
+    kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir="${SCRIPTS_DIR}","${TEST_DIR}" --exclude-pattern=vendor,node_modules "${SCAFFOLD_DEV_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
   else
     "${TEST_DIR}/node_modules/.bin/bats" "$@"
   fi
@@ -47,4 +47,4 @@ bats "${TEST_DIR}/bats/install.parameters.bats"
 bats "${TEST_DIR}/bats/install.integrations.bats"
 bats "${TEST_DIR}/bats/install.demo.bats"
 bats "${TEST_DIR}/bats/reset.bats"
-bats "${TEST_DIR}/bats/update-drevops.bats"
+bats "${TEST_DIR}/bats/update-scaffold.bats"

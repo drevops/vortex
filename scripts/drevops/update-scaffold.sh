@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Update DrevOps.
+# Update DrevOps Scaffold.
 #
 # shellcheck disable=SC1090,SC1091
 
@@ -13,7 +13,7 @@ set -eu
 # shellcheck disable=SC1091
 set -a && . ./.env && set +a
 
-# Allow providing custom DrevOps commit hash to download the sources from.
+# Allow providing custom Scaffold commit hash to download the sources from.
 DREVOPS_INSTALL_COMMIT="${DREVOPS_INSTALL_COMMIT:-${1:-}}"
 
 # The URL of the installer script.

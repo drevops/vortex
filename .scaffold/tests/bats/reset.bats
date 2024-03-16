@@ -7,7 +7,7 @@
 load _helper.bash
 
 @test "Reset" {
-  run_install_quiet
+  run_installer_quiet
 
   assert_files_present
   assert_git_repo
@@ -87,7 +87,7 @@ load _helper.bash
 }
 
 @test "Reset; hard; no commit" {
-  run_install_quiet
+  run_installer_quiet
 
   assert_files_present
   assert_git_repo
@@ -176,7 +176,7 @@ load _helper.bash
 }
 
 @test "Reset; hard; committed files" {
-  run_install_quiet
+  run_installer_quiet
 
   assert_files_present
   assert_git_repo

@@ -10,8 +10,8 @@
 
 <div align="center">
 
-[![Test](https://github.com/drevops/scaffold/actions/workflows/drevops-test-common.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/drevops-test-common.yml)
-[![Test docs](https://github.com/drevops/scaffold/actions/workflows/drevops-test-docs.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/drevops-test-docs.yml)
+[![Test](https://github.com/drevops/scaffold/actions/workflows/scaffold-test-common.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/scaffold-test-common.yml)
+[![Test docs](https://github.com/drevops/scaffold/actions/workflows/scaffold-test-docs.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/scaffold-test-docs.yml)
 [![CircleCI](https://circleci.com/gh/drevops/scaffold.svg?style=shield)](https://circleci.com/gh/drevops/scaffold)
 [![codecov](https://codecov.io/gh/drevops/scaffold/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/scaffold)
 ![GitHub release](https://img.shields.io/github/v/release/drevops/scaffold?logo=github)
@@ -119,12 +119,12 @@ The following list includes ✅ completed and 🚧 upcoming features.
 * 📖 Documentation
   * ✅ Your project [README.md](README.dist.md)
   * ✅ Your [project documentation](docs)
-  * ✅ [DrevOps documentation](https://docs.drevops.com/)
+  * ✅ [Scaffold documentation](https://docs.drevops.com/)
 * 🧪 DrevOps
   * ✅ Unit test coverage for scripts
   * ✅ Functional test coverage for workflows
   * ✅ Integration test coverage for deployments
-  * ✅ DrevOps updates
+  * ✅ Scaffold updates
   * ✅ [Basic installer](https://install.drevops.com/)
   * 🚧 Advanced installer CLI UI
   * 🚧 Advances installer Web UI
@@ -137,7 +137,7 @@ For more detailed documentation and guides, check out our dedicated site at http
 
 ## Support
 
-We provide paid support for DrevOps:
+We provide paid support for DrevOps scaffold:
 
 - New and existing project onboarding
 - Support plans with SLAs

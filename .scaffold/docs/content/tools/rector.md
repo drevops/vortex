@@ -4,7 +4,7 @@ https://github.com/rectorphp/rector
 
 > Rector instantly upgrades and refactors the PHP code of your application.
 
-DrevOps comes with [pre-configured Rector configuration](../../../../rector.php)
+Scaffold comes with [pre-configured Rector configuration](../../../../rector.php)
 for Drupal projects. The configuration is based on
 the configuration provided
 by [Drupal Rector](https://github.com/palantirnet/drupal-rector).
@@ -46,7 +46,7 @@ Targets include custom modules and themes, settings and tests.
 Rector provides [config sets](https://getrector.com/documentation/set-lists)
 functionality that allows to enable/disable rules in bulk.
 
-DrevOps provides the config sets for Drupal 8 and Drupal 9 deprecated code and
+Scaffold provides the config sets for Drupal 8 and Drupal 9 deprecated code and
 code style fixes.
 
 The config sets are meant to be adjusted per-project as needed.

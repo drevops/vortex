@@ -30,7 +30,7 @@ load _helper.bash
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_git_repo
 
@@ -68,7 +68,7 @@ load _helper.bash
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_git_repo
 
@@ -110,7 +110,7 @@ load _helper.bash
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_git_repo
 
@@ -150,7 +150,7 @@ load _helper.bash
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_git_repo
 
@@ -186,7 +186,7 @@ load _helper.bash
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
   assert_git_repo
 

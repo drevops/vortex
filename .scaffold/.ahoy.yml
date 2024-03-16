@@ -4,7 +4,7 @@ ahoyapi: v2
 commands:
 
   lint:
-    name: Lint DrevOps project.
+    name: Lint Scaffold project.
     cmd: |
       ahoy lint-scripts
       ahoy lint-dockerfiles
@@ -24,7 +24,7 @@ commands:
     cmd: ahoy docs lint
 
   test:
-    name: Test DrevOps project.
+    name: Test Scaffold project.
     cmd: |
       ahoy test-common
       ahoy test-docs

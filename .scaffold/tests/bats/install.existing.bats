@@ -12,7 +12,7 @@ load _helper.bash
   mkdir -p ".docker"
   touch ".docker/test2.txt"
 
-  run_install_quiet
+  run_installer_quiet
 
   assert_files_present
 
@@ -23,7 +23,7 @@ load _helper.bash
 }
 
 @test "Install into existing: non-git project; has current version; git repo created and custom files preserved" {
-  run_install_quiet
+  run_installer_quiet
   rm -Rf .git >/dev/null
   assert_not_git_repo
 
@@ -39,7 +39,7 @@ load _helper.bash
   touch ".docker/test2.txt"
 
   unset DREVOPS_INIT_REPO
-  run_install_quiet
+  run_installer_quiet
 
   # Assert that a directory became a git repository.
   assert_git_repo
@@ -55,7 +55,7 @@ load _helper.bash
 
 @test "Install into existing: git project; has current version; no changes should be introduced and custom files preserved" {
   # Populate current dir with a project at current version.
-  run_install_quiet
+  run_installer_quiet
 
   # Assert files at current version.
   assert_files_present
@@ -72,7 +72,7 @@ load _helper.bash
   # Add all files to git repo.
   git_add_all_commit "Second commit"
 
-  run_install_quiet
+  run_installer_quiet
 
   # Assert no changes were made.
   assert_files_present
@@ -89,7 +89,7 @@ load _helper.bash
 
 @test "Install into existing: git project; has modified version; use override flag; should have changes to committed files" {
   # Populate current dir with a project at current version.
-  run_install_quiet
+  run_installer_quiet
 
   # Assert files at current version.
   assert_files_present
@@ -110,7 +110,7 @@ load _helper.bash
   # Add all files to git repo.
   git_add_all_commit "Second commit"
 
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
   assert_output_contains "Existing committed files will be modified."
 
@@ -148,7 +148,7 @@ load _helper.bash
   git_add_all_commit "First commit"
   assert_git_repo
 
-  run_install_quiet
+  run_installer_quiet
   assert_files_present
   assert_git_repo
 
@@ -172,7 +172,7 @@ load _helper.bash
   git_commit "New version of DrevOps" "${LOCAL_REPO_DIR}"
 
   # Run install to update to the latest DrevOps version.
-  run_install_quiet
+  run_installer_quiet
   assert_files_present
   assert_git_repo
 
@@ -193,9 +193,9 @@ load _helper.bash
   mkdir -p ".docker"
   touch ".docker/test2.txt"
 
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   install_dependencies_stub
 
@@ -210,9 +210,9 @@ load _helper.bash
   mkdir -p ".docker"
   touch ".docker/test2.txt"
 
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   install_dependencies_stub
 
@@ -228,9 +228,9 @@ load _helper.bash
   mkdir -p ".docker"
   touch ".docker/test2.txt"
 
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_contains "It looks like DrevOps is already installed into this project"
+  assert_output_contains "It looks like DrevOps scaffold is already installed into this project"
 
   install_dependencies_stub
 
@@ -242,9 +242,9 @@ load _helper.bash
 
 @test "Install into existing: previously installed project, including correct readme; discovery; quiet" {
   # Populate current dir with a project at current version.
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   # Assert files at current version.
   assert_files_present
@@ -261,10 +261,10 @@ load _helper.bash
   assert_git_clean
   assert_files_present_common
 
-  # Run the install again.
-  output=$(run_install_quiet)
+  # Run the installer again.
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_contains "It looks like DrevOps is already installed into this project"
+  assert_output_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_files_present_common
   assert_git_repo
@@ -275,9 +275,9 @@ load _helper.bash
 
 @test "Install into existing: previously installed project, including updated .env.local; discovery; quiet" {
   # Populate current dir with a project at current version.
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   # Assert files at current version.
   assert_files_present
@@ -296,10 +296,10 @@ load _helper.bash
   echo "some random content" >>".env.local"
   assert_file_contains ".env.local" "some random content"
 
-  # Run the install again.
-  output=$(run_install_quiet)
+  # Run the installer again.
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_contains "It looks like DrevOps is already installed into this project"
+  assert_output_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_files_present_common
   assert_git_repo
@@ -312,9 +312,9 @@ load _helper.bash
   echo "DREVOPS_WEBROOT=rootdoc" >>".env"
 
   # Populate current dir with a project at current version.
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_git_repo
 
@@ -327,9 +327,9 @@ load _helper.bash
   echo "DRUPAL_THEME=star_wars" >>".env"
 
   # Populate current dir with a project at current version.
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_git_repo
 
@@ -340,9 +340,9 @@ load _helper.bash
 
 @test "Install into existing: previously installed project; custom profile; discovery; quiet" {
   # Populate current dir with a project at current version.
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   # Assert files at current version.
   assert_files_present
@@ -353,9 +353,9 @@ load _helper.bash
   echo "DRUPAL_PROFILE=star_wars_profile" >>".env"
 
   # Populate current dir with a project at current version.
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_contains "It looks like DrevOps is already installed into this project"
+  assert_output_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_git_repo
 
@@ -368,9 +368,9 @@ load _helper.bash
   echo "DREVOPS_PROVISION_USE_PROFILE=1" >>".env"
 
   # Populate current dir with a project at current version.
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_git_repo
 
@@ -389,9 +389,9 @@ load _helper.bash
   echo "DREVOPS_PROVISION_OVERRIDE_DB=1" >>".env"
 
   # Populate current dir with a project at current version.
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_git_repo
 
@@ -411,9 +411,9 @@ load _helper.bash
 @test "Install into existing: previously installed project; Deployment; discovery; quiet" {
   echo "DREVOPS_DEPLOY_TYPES=lagoon" >>".env"
 
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_git_repo
 
@@ -430,7 +430,7 @@ load _helper.bash
 
 @test "Install into existing: previously installed project; Acquia; discovery; quiet" {
   # Populate current dir with a project at current version.
-  run_install_quiet
+  run_installer_quiet
 
   # Assert files at current version.
   assert_files_present
@@ -438,9 +438,9 @@ load _helper.bash
 
   mkdir hooks
 
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_contains "It looks like DrevOps is already installed into this project"
+  assert_output_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_git_repo
 
@@ -457,7 +457,7 @@ load _helper.bash
 
 @test "Install into existing: previously installed project; Lagoon; discovery; quiet" {
   # Populate current dir with a project at current version.
-  run_install_quiet
+  run_installer_quiet
 
   # Assert files at current version.
   assert_files_present
@@ -465,9 +465,9 @@ load _helper.bash
 
   touch .lagoon.yml
 
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_contains "It looks like DrevOps is already installed into this project"
+  assert_output_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_git_repo
 
@@ -484,7 +484,7 @@ load _helper.bash
 
 @test "Install into existing: previously installed project; Renovate; discovery; quiet" {
   # Populate current dir with a project at current version.
-  run_install_quiet
+  run_installer_quiet
 
   # Assert files at current version.
   assert_files_present
@@ -492,9 +492,9 @@ load _helper.bash
 
   rm -Rf renovate.json
 
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_contains "It looks like DrevOps is already installed into this project"
+  assert_output_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_git_repo
 

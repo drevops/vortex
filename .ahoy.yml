@@ -10,11 +10,11 @@
 # Run `ahoy up cli` to apply environment variables changes to containers.
 #;
 #; Comments starting with '#:' provide explicit documentation and will be
-#; automatically removed during installation or update of DrevOps if an option
+#; automatically removed during installation or update of Scaffold if an option
 #; is selected.
 #;
-#; Comments starting with '#;<' and '#;>' are internal DrevOps comments
-#; and will be removed during installation or update of DrevOps.
+#; Comments starting with '#;<' and '#;>' are internal Scaffold comments
+#; and will be removed during installation or update of Scaffold.
 ---
 ahoyapi: v2
 
@@ -244,11 +244,11 @@ commands:
     usage: Find problems with current project setup.
     cmd: ./scripts/drevops/doctor.sh "$@"
 
-  update-drevops:
+  update-scaffold:
     usage: Update DrevOps stack.
     cmd: |
       ahoy confirm "Some committed files may become overwritten. Proceed?" &&
-      ./scripts/drevops/update-drevops.sh $@
+      ./scripts/drevops/update-scaffold.sh $@
 
   local:
     usage: Custom local commands. See `ahoy local help`.

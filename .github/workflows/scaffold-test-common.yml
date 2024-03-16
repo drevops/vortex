@@ -1,5 +1,5 @@
-# This action is used for DrevOps maintenance. It will not be used in the scaffolded project.
-name: DrevOps - Test
+# This action is used for Scaffold maintenance. It will not be used in the scaffolded project.
+name: Scaffold - Test
 
 on:
   push:
@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  drevops-test-common:
+  scaffold-test-common:
     runs-on: ubuntu-latest
 
     container:
@@ -27,8 +27,8 @@ jobs:
         TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
         TEST_DOCKER_USER: ${{ secrets.TEST_DOCKER_USER }}
         TEST_DOCKER_PASS: ${{ secrets.TEST_DOCKER_PASS }}
-        DREVOPS_DEV_VOLUMES_MOUNTED: 0
-        DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
+        SCAFFOLD_DEV_VOLUMES_MOUNTED: 0
+        SCAFFOLD_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
 
     steps:
       - name: Checkout code
@@ -96,8 +96,8 @@ jobs:
         TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
         TEST_DOCKER_USER: ${{ secrets.TEST_DOCKER_USER }}
         TEST_DOCKER_PASS: ${{ secrets.TEST_DOCKER_PASS }}
-        DREVOPS_DEV_VOLUMES_MOUNTED: 0
-        DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
+        SCAFFOLD_DEV_VOLUMES_MOUNTED: 0
+        SCAFFOLD_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
         TEST_NODE_INDEX: ${{ matrix.batch }}
 
     steps:
@@ -147,8 +147,8 @@ jobs:
         TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
         TEST_DOCKER_USER: ${{ secrets.TEST_DOCKER_USER }}
         TEST_DOCKER_PASS: ${{ secrets.TEST_DOCKER_PASS }}
-        DREVOPS_DEV_VOLUMES_MOUNTED: 0
-        DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
+        SCAFFOLD_DEV_VOLUMES_MOUNTED: 0
+        SCAFFOLD_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
         TEST_NODE_INDEX: ${{ matrix.batch }}
 
     steps:

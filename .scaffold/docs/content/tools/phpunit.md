@@ -4,7 +4,7 @@ https://github.com/sebastianbergmann/phpunit/
 
 > PHPUnit is a programmer-oriented testing framework for PHP.
 
-DrevOps comes with [pre-configured PHPCS ruleset](../../../../phpunit.xml) for Drupal projects.
+Scaffold comes with [pre-configured PHPCS ruleset](../../../../phpunit.xml) for Drupal projects.
 
 ## Usage
 

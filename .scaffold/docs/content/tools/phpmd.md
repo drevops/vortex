@@ -10,7 +10,7 @@ https://github.com/phpmd/phpmd
 > - Overcomplicated expressions
 > - Unused parameters, methods, properties
 
-DrevOps comes with [pre-configured PHPMD ruleset](../../../../phpmd.xml)
+Scaffold comes with [pre-configured PHPMD ruleset](../../../../phpmd.xml)
 for Drupal projects.
 
 ## Usage
