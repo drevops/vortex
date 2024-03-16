@@ -43,7 +43,7 @@ load _helper.circleci.bash
 }
 
 @test "CircleCI test results are saved" {
-  if [ -z "${CI}" ]; then
+  if [ -z "${CIRCLECI}" ]; then
     skip "This test is only run on CircleCI"
   fi
 

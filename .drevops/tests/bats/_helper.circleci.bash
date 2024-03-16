@@ -29,7 +29,7 @@ circleci_get_previous_job_numbers() {
 circleci_get_workflow_id_from_job_number() {
   curl -sSL --request GET \
     -H "Authorization: Basic $(echo -n "${TEST_CIRCLECI_TOKEN}" | base64)" \
-    "https:/circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_PROJECT_USERNAME}/job/${1}" |
+    "https:/circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${1}" |
     jq -r '.latest_workflow.id'
 }
 
@@ -39,7 +39,7 @@ circleci_get_workflow_id_from_job_number() {
 circleci_get_job_artifacts() {
   curl -sSL --request GET \
     -H "Authorization: Basic $(echo -n "${TEST_CIRCLECI_TOKEN}" | base64)" \
-    "https:/circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_PROJECT_USERNAME}/${1}/artifacts"
+    "https:/circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${1}/artifacts"
 }
 
 #
@@ -48,5 +48,5 @@ circleci_get_job_artifacts() {
 circleci_get_job_test_metadata() {
   curl -sSL --request GET \
     -H "Authorization: Basic $(echo -n "${TEST_CIRCLECI_TOKEN}" | base64)" \
-    "https:/circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_PROJECT_USERNAME}/${1}/tests"
+    "https:/circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${1}/tests"
 }

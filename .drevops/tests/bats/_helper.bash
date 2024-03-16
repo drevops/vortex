@@ -69,9 +69,6 @@ setup() {
   command -v docker >/dev/null || (echo "[ERROR] docker command is not available." && exit 1)
   command -v ahoy >/dev/null || (echo "[ERROR] ahoy command is not available." && exit 1)
   command -v jq >/dev/null || (echo "[ERROR] jq command is not available." && exit 1)
-  [ -n "${TEST_GITHUB_TOKEN}" ] || (echo "[ERROR] The required TEST_GITHUB_TOKEN variable is not set. Tests will not proceed." && exit 1)
-  [ -n "${TEST_DOCKER_USER}" ] || (echo "[ERROR] The required TEST_DOCKER_USER variable is not set. Tests will not proceed." && exit 1)
-  [ -n "${TEST_DOCKER_PASS}" ] || (echo "[ERROR] The required TEST_DOCKER_PASS variable is not set. Tests will not proceed." && exit 1)
   # @formatter:on
 
   ##

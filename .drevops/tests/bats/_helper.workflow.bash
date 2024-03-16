@@ -96,6 +96,9 @@ assert_ahoy_build() {
   db_file_exists=0
   [ -f ".data/db.sql" ] && db_file_exists=1
 
+  export DOCKER_USER="${TEST_DOCKER_USER?Test Docker user is not set}"
+  export DOCKER_PASS="${TEST_DOCKER_PASS?Test Docker pass is not set}"
+
   run ahoy build
   run sync_to_host
 

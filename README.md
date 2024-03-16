@@ -5,7 +5,7 @@
   </picture>
 </div>
 
-<h3 align="center">Drupal project template</h3>
+<h3 align="center">Drupal project scaffold</h3>
 <h4 align="center"><em>Onboarding in minutes, not hours or days!</em></h4>
 
 <div align="center">
@@ -21,23 +21,27 @@
 
 ## Purpose
 
-Make it easy to set up, develop and support high-quality Drupal websites
+Make it easy to set up, develop and maintain Drupal websites
 
 ## Approach
 
-Use **tested** Drupal project template with DevOps integrations for CI and hosting platforms
+Use **tested** Drupal project scaffold with DevOps integrations for CI and hosting platforms
 
-## How it works
+Similar to [Zen of Python](https://www.python.org/dev/peps/pep-0020/), we use our own set of principles:
 
-1. You run the installer script once
-2. DrevOps integrates the latest project template release into your codebase
-3. You choose which changes to commit
+* Simple is better than complex.
+* Rely on upstream sources as much as possible.
+* Favor standard practices over custom implementations.
+* Errors should never pass silently.
+* Explicit logging helps.
+* Readability counts.
+* If the implementation is hard to explain, it's a bad idea.
 
 [Read more about architecture](https://docs.drevops.com/latest/introduction/architecture/)
 
 ## Installation
 
-Our [installer](https://github.com/drevops/installer) simplifies setup, letting you choose only the features you need:
+Our [installer](https://github.com/drevops/installer) simplifies setup, letting you choose only the features you need. It will integrate the latest scaffold release into your codebase and you will choose which changes to commit.
 
 ```bash
 curl -SsL https://install.drevops.com > install.php
@@ -45,7 +49,7 @@ php install.php
 rm -r install.php
 ```
 
-Alternatively, clone the repository and adjust the configuration by manually editing or deleting the sections that aren't necessary for your setup.
+Alternatively, clone this repository and adjust the configuration by manually editing or deleting the sections that aren't necessary for your setup.
 
 ## Features
 
