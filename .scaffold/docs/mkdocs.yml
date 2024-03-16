@@ -13,8 +13,8 @@
 #
 
 # Project information
-site_name: DrevOps<sup>&reg;</sup> - Drupal project template
-site_description: Documentation for DrevOps Drupal project template
+site_name: DrevOps<sup>&reg;</sup> - Drupal project scaffold
+site_description: Documentation for DrevOps Drupal project scaffold
 site_url: https://docs.drevops.com
 
 # Repository

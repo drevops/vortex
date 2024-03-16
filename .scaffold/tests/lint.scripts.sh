@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Lint DrevOps scripts.
+# Lint Scaffold scripts.
 #
 # LCOV_EXCL_START
 
@@ -26,7 +26,7 @@ done < <(
     -print0
 )
 
-echo "==> Linting DrevOps scripts and tests in ${ROOT_DIR}."
+echo "==> Linting Scaffold scripts and tests in ${ROOT_DIR}."
 for file in "${targets[@]}"; do
 
   if [ -f "${file}" ]; then

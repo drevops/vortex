@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Check DrevOps project requirements or print info.
+# Check project requirements or print info.
 #
 # doctor.sh - check project requirements.
 # doctor.sh info - show system information.

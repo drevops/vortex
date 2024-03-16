@@ -20,9 +20,9 @@
     <exclude-pattern>*/web/modules/custom/*/*.post_update.php</exclude-pattern>
     <exclude-pattern>*/web/modules/custom/*/*.install</exclude-pattern>
 
-    <!-- #;< DREVOPS_DEV -->
+    <!-- #;< SCAFFOLD_DEV -->
     <exclude-pattern>*/.scaffold/*</exclude-pattern>
-    <!-- #;> DREVOPS_DEV -->
+    <!-- #;> SCAFFOLD_DEV -->
 
     <rule ref="rulesets/unusedcode.xml"/>
     <rule ref="rulesets/codesize.xml"/>

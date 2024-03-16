@@ -11,7 +11,7 @@ load _helper.bash
 }
 
 @test "Install into empty directory only" {
-  run_install_quiet
+  run_installer_quiet
 
   assert_files_present
   assert_git_repo
@@ -19,14 +19,14 @@ load _helper.bash
 
 @test "Install into empty directory: DREVOPS_INSTALL_DST_DIR is a current dir" {
   export CURRENT_PROJECT_DIR="${DST_PROJECT_DIR}"
-  run_install_quiet
+  run_installer_quiet
 
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
 }
 
 @test "Install into empty directory: DREVOPS_INSTALL_DST_DIR from an argument" {
-  run_install_quiet "${DST_PROJECT_DIR}"
+  run_installer_quiet "${DST_PROJECT_DIR}"
 
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
@@ -34,7 +34,7 @@ load _helper.bash
 
 @test "Install into empty directory: DREVOPS_INSTALL_DST_DIR from env variable" {
   export DREVOPS_INSTALL_DST_DIR="${DST_PROJECT_DIR}"
-  run_install_quiet
+  run_installer_quiet
 
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
@@ -43,7 +43,7 @@ load _helper.bash
 @test "Install into empty directory: DREVOPS_PROJECT from environment variable" {
   export DREVOPS_PROJECT="the_matrix"
 
-  run_install_quiet
+  run_installer_quiet
 
   assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "tm" "Tm" "TheMatrix"
   assert_git_repo
@@ -52,14 +52,14 @@ load _helper.bash
 @test "Install into empty directory: DREVOPS_PROJECT from .env file" {
   echo 'DREVOPS_PROJECT="the_matrix"' >".env"
 
-  run_install_quiet
+  run_installer_quiet
 
   assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "tm" "Tm" "TheMatrix"
   assert_git_repo
 }
 
 @test "Install into empty directory: install from specific commit" {
-  run_install_quiet
+  run_installer_quiet
   assert_files_present
   assert_git_repo
 
@@ -74,9 +74,9 @@ load _helper.bash
 
   # Requiring bespoke version by commit.
   echo DREVOPS_INSTALL_COMMIT="${commit1}" >>.env
-  run_install_quiet
+  run_installer_quiet
   assert_git_repo
-  assert_output_contains "This will install DrevOps into your project at commit"
+  assert_output_contains "This will install DrevOps scaffold into your project at commit"
   assert_output_contains "Downloading DrevOps"
   assert_output_contains "at ref \"${commit1}\""
 
@@ -86,7 +86,7 @@ load _helper.bash
 }
 
 @test "Install into empty directory: empty directory; no local ignore" {
-  run_install_quiet
+  run_installer_quiet
   assert_files_present
   assert_git_repo
 
@@ -116,7 +116,7 @@ load _helper.bash
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
 
   assert_files_present
@@ -149,7 +149,7 @@ load _helper.bash
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
 
   assert_files_present
@@ -159,9 +159,9 @@ load _helper.bash
 }
 
 @test "Install into empty directory: quiet; should NOT show that DrevOps was previously installed" {
-  output=$(run_install_quiet)
+  output=$(run_installer_quiet)
   assert_output_contains "WELCOME TO DREVOPS QUIET INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_files_present
   assert_git_repo
@@ -191,9 +191,9 @@ load _helper.bash
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_drevops_info
   )
-  output=$(run_install_interactive "${answers[@]}")
+  output=$(run_installer_interactive "${answers[@]}")
   assert_output_contains "WELCOME TO DREVOPS INTERACTIVE INSTALLER"
-  assert_output_not_contains "It looks like DrevOps is already installed into this project"
+  assert_output_not_contains "It looks like DrevOps scaffold is already installed into this project"
 
   assert_files_present
   assert_git_repo
@@ -202,7 +202,7 @@ load _helper.bash
 @test "Install into empty directory; DrevOps badge version set" {
   export DREVOPS_VERSION="1.2.3"
 
-  run_install_quiet
+  run_installer_quiet
 
   # Assert that DrevOps version was replaced.
   assert_file_contains "README.md" "https://github.com/drevops/scaffold/tree/1.2.3"
@@ -212,7 +212,7 @@ load _helper.bash
 @test "Install into empty directory; db from curl, storage is database import" {
   export DREVOPS_DB_DOWNLOAD_SOURCE=curl
 
-  run_install_quiet
+  run_installer_quiet
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=curl"
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL="
@@ -223,7 +223,7 @@ load _helper.bash
 
   export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-demo-10.x:latest"
 
-  run_install_quiet
+  run_installer_quiet
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=curl"
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL="
@@ -234,7 +234,7 @@ load _helper.bash
   export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
   export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-demo-10.x:latest"
 
-  run_install_quiet
+  run_installer_quiet
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL="
@@ -242,7 +242,7 @@ load _helper.bash
 }
 
 @test "Install into empty directory; DrevOps scripts are not modified" {
-  run_install_quiet "${DST_PROJECT_DIR}"
+  run_installer_quiet "${DST_PROJECT_DIR}"
 
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"
@@ -252,7 +252,7 @@ load _helper.bash
 }
 
 @test "Install into empty directory; Images are not modified" {
-  run_install_quiet "${DST_PROJECT_DIR}"
+  run_installer_quiet "${DST_PROJECT_DIR}"
 
   assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
   assert_git_repo "${DST_PROJECT_DIR}"

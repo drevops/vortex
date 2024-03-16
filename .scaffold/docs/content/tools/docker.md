@@ -6,7 +6,7 @@ https://github.com/docker/compose
 > Docker is a platform for developing, shipping, and running applications in
 > containers.
 
-DrevOps provides a configuration for Docker and Docker Compose to run the
+Scaffold provides a configuration for Docker and Docker Compose to run the
 project in all environments using containers.
 
 Special thanks to Lagoon for providing
@@ -70,7 +70,7 @@ configuration and services.
 
 ## Using Docker
 
-DrevOps uses Docker to run the project in a containerized environment locally
+Scaffold uses Docker to run the project in a containerized environment locally
 and in CI.
 
 Some of the commands are wrapped in the Ahoy script as a shorthand. But all
@@ -87,7 +87,7 @@ YAML,
 which [support anchors and references](http://blog.daemonl.com/2016/02/yaml.html)
 that help to reduce duplication.
 
-The file provided by DrevOps contains the following sections:
+The file provided by Scaffold contains the following sections:
 
 - [Volumes definitions](#Volumes-definitions)
 - [Default user](#Default-user)
@@ -144,7 +144,7 @@ Changes this value if your user ID is different.
 ### Environment variables
 
 By default, the Docker Composer reads environment variables from the `.env`
-file. DrevOps provides an additional capability to read files from `.env.local`
+file. Scaffold provides an additional capability to read files from `.env.local`
 file as well. This allows to override the environment variables locally without
 modifying the `.env` file.
 
@@ -192,7 +192,7 @@ the [official documentation](https://docs.docker.com/compose/environment-variabl
 Services section describes the configuration for each container.
 
 The following services are defined in the `docker-compose.yml` file provided by
-DrevOps:
+Scaffold:
 
 - `cli` - a container that runs a shell. This container is used to run commands
   in the context of the project, such as `composer` or `drush`. This is also a

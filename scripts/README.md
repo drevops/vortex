@@ -1,4 +1,4 @@
-This directory contains DrevOps and your custom scripts.
+This directory contains Scaffold and your custom scripts.
 
 Add your custom per-project scripts into `./scripts/custom` directory.
 

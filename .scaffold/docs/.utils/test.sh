@@ -28,9 +28,9 @@ echo "==> Run docs tests."
 
 bats() {
   pushd "${ROOT_DIR}" >/dev/null || exit 1
-  if [ -n "${DREVOPS_DEV_TEST_COVERAGE_DIR:-}" ]; then
-    mkdir -p "${DREVOPS_DEV_TEST_COVERAGE_DIR}"
-    kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir="${SCRIPTS_DIR}","${TEST_DIR}" --exclude-pattern=vendor,node_modules "${DREVOPS_DEV_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
+  if [ -n "${SCAFFOLD_DEV_TEST_COVERAGE_DIR:-}" ]; then
+    mkdir -p "${SCAFFOLD_DEV_TEST_COVERAGE_DIR}"
+    kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir="${SCRIPTS_DIR}","${TEST_DIR}" --exclude-pattern=vendor,node_modules "${SCAFFOLD_DEV_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
   else
     "${TEST_DIR}/node_modules/.bin/bats" "$@"
   fi

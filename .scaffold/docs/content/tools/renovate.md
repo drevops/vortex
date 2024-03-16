@@ -1,6 +1,6 @@
 # Automated updates
 
-DrevOps uses [Renovate](https://renovatebot.com) for automated dependency updates.
+Scaffold uses [Renovate](https://renovatebot.com) for automated dependency updates.
 
 The configuration is stored in [`renovate.json`](../../../../renovate.json). It is
 based on [Renovate configuration for automated Drupal dependency updates](https://github.com/drevops/renovate-drupal)

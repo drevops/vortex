@@ -22,11 +22,11 @@ curl -SsL https://install.drevops.com > install.php && php install.php; rm -r in
 ## Updating
 
 ```shell title="Update to the latest version"
-ahoy update-drevops
+ahoy update-scaffold
 ```
 
 ```shell title="Update to the specific commit"
-ahoy update-drevops cb9979b2c10c59d52874be4661e9331b01d9b7c5
+ahoy update-scaffold cb9979b2c10c59d52874be4661e9331b01d9b7c5
 ```
 
 If you have modified any of the files that are managed by DrevOps, the update

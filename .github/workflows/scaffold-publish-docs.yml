@@ -1,5 +1,5 @@
-# This action is used for DrevOps maintenance. It will not be used in the scaffolded project.
-name: DrevOps - Publish documentation
+# This action is used for Scaffold maintenance. It will not be used in the scaffolded project.
+name: Scaffold - Publish documentation
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - '**docs**'
 
 jobs:
-  drevops-publish-docs:
+  scaffold-publish-docs:
     runs-on: ubuntu-latest
 
     steps:

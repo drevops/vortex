@@ -1,6 +1,6 @@
 # Tools
 
-DrevOps comes with a set of tools to help you develop and maintain your Drupal
+Scaffold comes with a set of tools to help you develop and maintain your Drupal
 project.
 
 The tools their own configuration files with sensible defaults to make them work

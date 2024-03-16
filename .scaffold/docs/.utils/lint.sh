@@ -32,7 +32,7 @@ else
   exit 1
 fi
 
-echo "==> Linting DrevOps documentation spelling."
+echo "==> Linting Scaffold documentation spelling."
 for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"

@@ -1,6 +1,6 @@
-# DrevOps documentation
+# Scaffold documentation
 
-Documentation for the DrevOps project.
+Documentation for the Scaffold project.
 
 ## Local build
 

@@ -8,7 +8,7 @@ https://github.com/squizlabs/PHP_CodeSniffer
 > violations. PHP_CodeSniffer is an essential development tool that ensures your
 > code remains clean and consistent.
 
-DrevOps comes with [pre-configured PHPCS ruleset](../../../../phpcs.xml) for Drupal projects.
+Scaffold comes with [pre-configured PHPCS ruleset](../../../../phpcs.xml) for Drupal projects.
 
 ## Usage
 

@@ -8,8 +8,8 @@
 # controlled by CircleCI.
 # The "runner" container uses Docker client to control the remote Docker server.
 #;
-#; Comments starting with '#;<' and '#;>' are internal DrevOps comments
-#; and will be removed during installation or update of DrevOps.
+#; Comments starting with '#;<' and '#;>' are internal Scaffold comments
+#; and will be removed during installation or update of Scaffold.
 version: '2.1'
 
 aliases:
@@ -31,9 +31,9 @@ aliases:
   #;< RENOVATEBOT
   # Specify the correct repository to prevent the bot from accessing all
   # repositories available via $RENOVATE_TOKEN.
-  #;< DREVOPS_DEV
+  #;< SCAFFOLD_DEV
   - &renovatebot_repository 'drevops/scaffold-destination'
-  #;> DREVOPS_DEV
+  #;> SCAFFOLD_DEV
   ##### - &renovatebot_repository 'your_org/your_site'
   # The schedule to run RenovateBot on. Defaults to running twice a day.
   - &renovatebot_schedule "5 11,23 * * *"
@@ -375,15 +375,15 @@ jobs:
   #;> RENOVATEBOT
 
   #;============================================================================
-  #; DREVOPS development section. Removed during DrevOps installation/update.
+  #; Scaffold development section. Removed during Scaffold installation/update.
   #;============================================================================
-  #;< DREVOPS_DEV
+  #;< SCAFFOLD_DEV
   #-----------------------------------------------------------------------------
-  # Test suite for DrevOps.
+  # Test suite for Scaffold.
   #-----------------------------------------------------------------------------
 
-  # Run DrevOps tests after 'build' job to test CircleCI's configuration.
-  drevops-dev-test-ci-postbuild:
+  # Run Scaffold tests after 'build' job to test CircleCI's configuration.
+  scaffold-dev-test-ci-postbuild:
     <<: *runner_config
     steps:
       - checkout
@@ -392,7 +392,7 @@ jobs:
       - *step_setup_docker_network
       - run:
           name: Run CircleCI tests (long)
-          command: DREVOPS_DEV_VOLUMES_MOUNTED=0 DREVOPS_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage .scaffold/tests/test.postbuild.sh
+          command: SCAFFOLD_DEV_VOLUMES_MOUNTED=0 SCAFFOLD_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage .scaffold/tests/test.postbuild.sh
       - store_test_results:
           path: *test_results
       - store_artifacts:
@@ -413,18 +413,18 @@ jobs:
   # Also, the source of the database can be either file (downloaded from
   # remote location) or a previous version of the data image.
   #
-  # This means that there should be the following tests for DrevOps
+  # This means that there should be the following tests for Scaffold
   # database-in-Docker-image workflow functionality:
   # 1. DB is file -> create data image -> cache data image and push it to registry -> build and test site
   # 2. DB is image -> create data image -> cache data image and push it to registry -> build and test site
   #
   # Since we need to have "database" job generic for consumer sites and any
   # logic is controlled within DrevOps scripts, we have to create additional
-  # test jobs below and run them as a part of the CI system for DrevOps itself.
+  # test jobs below and run them as a part of the CI system for Scaffold itself.
   #
   # Job to test creation of the image from DB dump file when using
   # DREVOPS_DB_DOCKER_IMAGE workflow.
-  drevops-dev-didi-database-fi:
+  scaffold-dev-didi-database-fi:
     <<: *job-database
     environment:
       DREVOPS_DB_DOWNLOAD_SOURCE: curl
@@ -441,48 +441,48 @@ jobs:
       DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
       # Use a separate tag to make sure that pushed image does not affect
       # other tests (pushing broken image as 'latest' would fail other tests).
-      DREVOPS_DOCKER_IMAGE_TAG: drevops-dev-didi-database-fi
+      DREVOPS_DOCKER_IMAGE_TAG: scaffold-dev-didi-database-fi
       # Also, use this job to test pushing of the DB image to the Docker
       # registry to replicate what database-nightly job would do.
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: drevops-dev-didi-fi
+      DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-fi
   # Job to test creation of the image from the previous version of the image
   # when using database-in-Docker-image workflow.
-  drevops-dev-database-ii:
+  scaffold-dev-database-ii:
     <<: *job-database
     environment:
       DREVOPS_DB_DOWNLOAD_SOURCE: docker_registry
       DREVOPS_DB_DOWNLOAD_FORCE: 1
       DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
-      DREVOPS_DOCKER_IMAGE_TAG: drevops-dev-database-ii
+      DREVOPS_DOCKER_IMAGE_TAG: scaffold-dev-database-ii
       # Also, use this job to test pushing of the DB image to the Docker
       # registry so replicate what database-nightly job would do.
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: drevops-dev-didi-ii
+      DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-ii
   # Job to test build of the image from the previous stage of the image when
   # using database-in-Docker-image workflow. Overwriting just the DREVOPS_DB_DOCKER_IMAGE
   # variable should change the storage mechanisms, but preserve application-level
   # stack operation.
-  drevops-dev-didi-build-fi:
+  scaffold-dev-didi-build-fi:
     <<: *job_build
     environment:
       DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_didi_database_fi
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: drevops-dev-didi-fi
-  drevops-dev-didi-build-ii:
+      DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-fi
+  scaffold-dev-didi-build-ii:
     <<: *job_build
     environment:
       DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_database_ii
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: drevops-dev-didi-ii
+      DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-ii
   #=============================================================================
-  #;> DREVOPS_DEV
+  #;> SCAFFOLD_DEV
 
 ################################################################################
 # WORKFLOWS
@@ -538,15 +538,15 @@ workflows:
       #;> DEPLOYMENT
 
   #;============================================================================
-  #; DREVOPS development section. Removed during DrevOps installation/update.
+  #; Scaffold development section. Removed during Scaffold installation/update.
   #;============================================================================
   #;
-  #;< DREVOPS_DEV
-  # Run functional tests for DrevOps.
+  #;< SCAFFOLD_DEV
+  # Run functional tests for Scaffold.
   # Note that these jobs must run within the "commit" workflow, because they
   # depend on the "build" job.
       # Run tests after 'build' job.
-      - drevops-dev-test-ci-postbuild:
+      - scaffold-dev-test-ci-postbuild:
           requires:
             - build
           filters:
@@ -554,22 +554,22 @@ workflows:
               only: /.*/
 
   # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from file.
-  drevops-dev-didi-fi:
+  scaffold-dev-didi-fi:
     jobs:
-      - drevops-dev-didi-database-fi
-      - drevops-dev-didi-build-fi:
+      - scaffold-dev-didi-database-fi
+      - scaffold-dev-didi-build-fi:
           requires:
-            - drevops-dev-didi-database-fi
+            - scaffold-dev-didi-database-fi
 
   # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from docker registry.
-  drevops-dev-didi-ii:
+  scaffold-dev-didi-ii:
     jobs:
-      - drevops-dev-database-ii
-      - drevops-dev-didi-build-ii:
+      - scaffold-dev-database-ii
+      - scaffold-dev-didi-build-ii:
           requires:
-            - drevops-dev-database-ii
+            - scaffold-dev-database-ii
   #=============================================================================
-  #;> DREVOPS_DEV
+  #;> SCAFFOLD_DEV
 
   #;< !PROVISION_USE_PROFILE
   # Nightly database workflow runs overnight to capture fresh database and cache it.

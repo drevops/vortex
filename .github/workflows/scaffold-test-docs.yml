@@ -1,5 +1,5 @@
-# This action is used for DrevOps maintenance. It will not be used in the scaffolded project.
-name: DrevOps - Test docs
+# This action is used for Scaffold maintenance. It will not be used in the scaffolded project.
+name: Scaffold - Test docs
 
 on:
   push:
@@ -9,11 +9,11 @@ on:
       - '**'
 
 jobs:
-  drevops-test-docs:
+  scaffold-test-docs:
     runs-on: ubuntu-latest
 
     env:
-      DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
+      SCAFFOLD_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
 
     steps:
       - name: Checkout code

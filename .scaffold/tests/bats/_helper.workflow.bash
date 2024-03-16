@@ -8,9 +8,9 @@ prepare_sut() {
   step "Run SUT preparation: ${1}"
   local webroot="${2:-web}"
 
-  DREVOPS_DEV_VOLUMES_MOUNTED=${DREVOPS_DEV_VOLUMES_MOUNTED:-1}
+  SCAFFOLD_DEV_VOLUMES_MOUNTED=${SCAFFOLD_DEV_VOLUMES_MOUNTED:-1}
 
-  assert_not_empty "${DREVOPS_DEV_VOLUMES_MOUNTED}"
+  assert_not_empty "${SCAFFOLD_DEV_VOLUMES_MOUNTED}"
 
   assert_files_not_present_common "" "" "" "${webroot}"
 
@@ -18,7 +18,7 @@ prepare_sut() {
 
   # Run default install
   export DREVOPS_WEBROOT="${webroot}"
-  run_install_quiet
+  run_installer_quiet
 
   assert_files_present_common "" "" "" "" "" "${webroot}"
   assert_files_present_no_provision_use_profile

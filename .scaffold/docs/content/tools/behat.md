@@ -6,7 +6,7 @@ https://docs.behat.org/en/latest/user_guide.html
 
 > A php framework for autotesting your business expectations.
 
-DrevOps comes with [pre-configured Behat profiles](../../../../behat.yml) for Drupal projects.
+Scaffold comes with [pre-configured Behat profiles](../../../../behat.yml) for Drupal projects.
 
 ## Usage
 

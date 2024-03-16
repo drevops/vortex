@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Lint DrevOps Dockerfiles.
+# Lint Scaffold Dockerfiles.
 #
 # LCOV_EXCL_START
 
@@ -23,7 +23,7 @@ done < <(
     -print0
 )
 
-echo "==> Linting DrevOps Dockerfiles in ${ROOT_DIR}."
+echo "==> Linting Scaffold Dockerfiles in ${ROOT_DIR}."
 for file in "${targets[@]}"; do
   # Temp script until shfmt implement the support for formatting variables.
   # @see https://github.com/mvdan/sh/issues/1029

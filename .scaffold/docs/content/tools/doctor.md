@@ -1,7 +1,7 @@
 # Doctor
 
-The DrevOps Doctor is a standalone, self-contained script designed to
-inspect the current state of your DrevOps project. Its primary functions include
+Doctor is a standalone, self-contained script designed to
+inspect the current state of your project. Its primary functions include
 checking project requirements and displaying system information.
 
 Also, it runs before and after you build the project with `ahoy build` to make
@@ -9,7 +9,7 @@ sure that all the requirements are met.
 
 ## Features
 
-The DrevOps Doctor script performs a series of checks to ensure the project
+Doctor script performs a series of checks to ensure the project
 environment is correctly set up:
 
 - Availability of the necessary tools (Docker, Docker Compose, Pygmy, Ahoy etc.)

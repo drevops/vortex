@@ -3,7 +3,7 @@
 The `settings.php` file provides the primary configuration for a Drupal site,
 including its database connection, file paths, and various other settings.
 
-DrevOps ships with own streamlined version of
+Scaffold ships with own streamlined version of
 the [`settings.php`](../../../../web/sites/default/settings.php) and
 [`services.yml`](../../../../web/sites/default/services.yml) files. There are
 also [Settings unit tests](#Testing-settings-with-unit-tests) that ensure that
@@ -99,7 +99,7 @@ temporary override during testing.
 ### 4. Per-environment overrides
 
 Configurations in this section alter the site's behavior based on the
-environment. Out-of-the-box, DrevOps provides overrides for CI and Local
+environment. Out-of-the-box, Scaffold provides overrides for CI and Local
 environments.
 
 You can add additional overrides for other environments as needed.
@@ -109,7 +109,7 @@ You can add additional overrides for other environments as needed.
 This section includes any additional module-specific settings from the
 `/includes` directory.
 
-DrevOps ships with settings overrides for several popular contributed modules
+Scaffold ships with settings overrides for several popular contributed modules
 used in almost every project.
 
 The per environment overrides for modules should be also placed into files
