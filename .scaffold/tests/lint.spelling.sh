@@ -11,7 +11,7 @@ set -eu
 ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
 # Using dictionary from docs to manage it centrally.
-DICTIONARY="${ROOT_DIR}/.drevops/docs/.utils/.aspell.en.pws"
+DICTIONARY="${ROOT_DIR}/.scaffold/docs/.utils/.aspell.en.pws"
 
 targets=()
 while IFS= read -r -d $'\0'; do

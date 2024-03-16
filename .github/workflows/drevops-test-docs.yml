@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.drevops-coverage-html
+      DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
 
     steps:
       - name: Checkout code
@@ -37,30 +37,30 @@ jobs:
         uses: shivammathur/setup-php@v2
 
       - name: Build site
-        working-directory: .drevops/docs
+        working-directory: .scaffold/docs
         run: ahoy build
 
       - name: Check spelling
-        working-directory: .drevops/docs
+        working-directory: .scaffold/docs
         run: ahoy lint
 
       - name: Run tests
-        working-directory: .drevops/docs
+        working-directory: .scaffold/docs
         run: ahoy test-site
 
       - name: Run tests
         run: ./docs/.utils/test.sh
-        working-directory: .drevops
+        working-directory: .scaffold
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{github.job}}-code-coverage-report
-          path: /tmp/.drevops-coverage-html
+          path: /tmp/.scaffold-coverage-html
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v4
         with:
-          directory: /tmp/.drevops-coverage-html
+          directory: /tmp/.scaffold-coverage-html
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}

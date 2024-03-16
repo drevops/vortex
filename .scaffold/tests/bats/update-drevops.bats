@@ -36,7 +36,7 @@ load _helper.bash
   assert_git_clean
 
   # Releasing new version of DrevOps (note that installing from the local tag
-  # is not supported in .drevops/installer/install; only commit is supported).
+  # is not supported in .scaffold/installer/install; only commit is supported).
   echo "# Some change to docker-compose.yml" >>"${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
   echo "# Some change to non-required file" >>"${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/.eslintrc.json"

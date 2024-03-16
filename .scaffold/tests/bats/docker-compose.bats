@@ -109,10 +109,10 @@ prepare_docker_compose() {
 
 # Prepare fixtures docker-compose for testing.
 prepare_docker_compose_fixtures() {
-  cp "${ROOT_DIR}/.drevops/tests/bats/fixtures/docker-compose.env.json" docker-compose.env.json
-  cp "${ROOT_DIR}/.drevops/tests/bats/fixtures/docker-compose.env_mod.json" docker-compose.env_mod.json
-  cp "${ROOT_DIR}/.drevops/tests/bats/fixtures/docker-compose.noenv.json" docker-compose.noenv.json
-  cp "${ROOT_DIR}/.drevops/tests/bats/fixtures/docker-compose.env_local.json" docker-compose.env_local.json
+  cp "${ROOT_DIR}/.scaffold/tests/bats/fixtures/docker-compose.env.json" docker-compose.env.json
+  cp "${ROOT_DIR}/.scaffold/tests/bats/fixtures/docker-compose.env_mod.json" docker-compose.env_mod.json
+  cp "${ROOT_DIR}/.scaffold/tests/bats/fixtures/docker-compose.noenv.json" docker-compose.noenv.json
+  cp "${ROOT_DIR}/.scaffold/tests/bats/fixtures/docker-compose.env_local.json" docker-compose.env_local.json
   replace_string_content "FIXTURE_CUR_DIR" "${CURRENT_PROJECT_DIR}" "${CURRENT_PROJECT_DIR}"
 
   # Replace symlink /private paths in MacOS.
@@ -169,6 +169,6 @@ update_docker_compose_fixture() {
   if [ -n "${UPDATE_FIXTURES:-}" ]; then
     step "Updating fixtures"
     replace_string_content "${CURRENT_PROJECT_DIR}" "FIXTURE_CUR_DIR" "${CURRENT_PROJECT_DIR}"
-    cp -Rf "${1}" "${ROOT_DIR}/.drevops/tests/bats/fixtures/${2}"
+    cp -Rf "${1}" "${ROOT_DIR}/.scaffold/tests/bats/fixtures/${2}"
   fi
 }

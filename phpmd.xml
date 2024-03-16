@@ -21,7 +21,7 @@
     <exclude-pattern>*/web/modules/custom/*/*.install</exclude-pattern>
 
     <!-- #;< DREVOPS_DEV -->
-    <exclude-pattern>*/.drevops/*</exclude-pattern>
+    <exclude-pattern>*/.scaffold/*</exclude-pattern>
     <!-- #;> DREVOPS_DEV -->
 
     <rule ref="rulesets/unusedcode.xml"/>

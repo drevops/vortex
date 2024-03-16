@@ -1,7 +1,7 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".drevops/docs/content/assets/logo-horiz-dark.png">
-    <img width="400" src=".drevops/docs/content/assets/logo-horiz-light.png" alt="DrevOps Logo">
+    <source media="(prefers-color-scheme: dark)" srcset=".scaffold/docs/content/assets/logo-horiz-dark.png">
+    <img width="400" src=".scaffold/docs/content/assets/logo-horiz-light.png" alt="DrevOps Logo">
   </picture>
 </div>
 

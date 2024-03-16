@@ -9,14 +9,14 @@ There are 2 types of the documentation that DrevOps provides:
 ## docs.drevops.com
 
 The Documentation (this site) is written in Markdown and located in
-[`.drevops/docs`](../../../../.drevops/docs) directory. This is
+[`.scaffold/docs`](../../../../.scaffold/docs) directory. This is
 removed when you install DrevOps for a
 consumer site.
 
 ### Local build
 
 ```bash
-cd .drevops/docs
+cd .scaffold/docs
 ahoy build
 ```
 
@@ -24,8 +24,8 @@ Parts of the documentation is generated automatically from the codebase.
 To update it, run:
 
 ```bash
-composer -d .drevops/docs/.utils install
-cd .drevops/docs
+composer -d .scaffold/docs/.utils install
+cd .scaffold/docs
 ahoy update
 ```
 
@@ -35,11 +35,11 @@ immediately.
 ### Check spelling and links
 
 ```bash
-cd .drevops/docs
+cd .scaffold/docs
 ahoy test
 ```
 
-If required, add spelling exclusions to `.drevops/tests/.aspell.en.pws`
+If required, add spelling exclusions to `.scaffold/tests/.aspell.en.pws`
 file.
 
 ### Publishing

@@ -29,15 +29,15 @@ jobs:
         uses: shivammathur/setup-php@v2
 
       - name: Build site
-        working-directory: .drevops/docs
+        working-directory: .scaffold/docs
         run: ahoy build
 
       - name: Check spelling
-        working-directory: .drevops/docs
+        working-directory: .scaffold/docs
         run: ahoy lint
 
       - name: Run tests
-        working-directory: .drevops/docs
+        working-directory: .scaffold/docs
         run: ahoy test
 
       - name: Setup SSH private key
@@ -47,7 +47,7 @@ jobs:
 
       - name: Publish docs
         run: |
-          cd .drevops/docs
+          cd .scaffold/docs
           export DOCS_PUBLISH_REMOTE_URL=git@github.com:drevops/docs.git
           export DOCS_PUBLISH_SRC_TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
           export DOCS_PUBLISH_SRC_BRANCH=${{ github.ref_type == 'branch' && github.ref_name || '' }}
