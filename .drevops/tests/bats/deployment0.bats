@@ -31,7 +31,7 @@ load _helper.deployment.bash
     # from for deployment. They may be the same place, but we are testing them
     # if they are separate, because most likely SRC_DIR will contain code
     # built on previous build stages of the CI process.
-    provision_site "${CURRENT_PROJECT_DIR}"
+    install_and_build_site "${CURRENT_PROJECT_DIR}"
 
     substep "Copying built codebase into code source directory ${SRC_DIR}."
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -134,7 +134,7 @@ load _helper.deployment.bash
     fixture_prepare_dir "${SRC_DIR}"
 
     # Do not build - only structure.
-    provision_site "${CURRENT_PROJECT_DIR}" 0
+    install_and_build_site "${CURRENT_PROJECT_DIR}" 0
 
     substep "Copying built codebase into code source directory ${SRC_DIR}."
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
