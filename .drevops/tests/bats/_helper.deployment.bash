@@ -98,7 +98,7 @@ assert_deployment_files_present() {
   popd >/dev/null || exit 1
 }
 
-provision_site() {
+install_and_build_site() {
   local dir="${1:-$(pwd)}"
   local should_build="${2:-1}"
   shift || true
