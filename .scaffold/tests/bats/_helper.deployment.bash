@@ -146,3 +146,10 @@ install_and_build_site() {
 
   popd >/dev/null || exit 1
 }
+
+setup_ssh_key_fixture() {
+  # Create a fixture directory for ssh keys
+  export HOME="${BUILD_DIR}"
+  export SSH_KEY_FIXTURE_DIR="${BUILD_DIR}/.ssh"
+  fixture_prepare_dir "${SSH_KEY_FIXTURE_DIR}"
+}
