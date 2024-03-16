@@ -96,26 +96,20 @@ if [ "${DREVOPS_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
     fi
   fi
 fi
-deployments_run=""
+
 if [ -z "${DREVOPS_DEPLOY_TYPES##*artifact*}" ]; then
   [ "${DREVOPS_DEPLOY_MODE}" = "tag" ] && export DREVOPS_DEPLOY_ARTIFACT_DST_BRANCH="deployment/[tags:-]"
   ./scripts/drevops/deploy-artifact.sh
-  deployments_run="${deployments_run} artifact"
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPES##*webhook*}" ]; then
   ./scripts/drevops/deploy-webhook.sh
-  deployments_run="${deployments_run} webhook"
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPES##*docker*}" ]; then
   ./scripts/drevops/deploy-docker.sh
-  deployments_run="${deployments_run} docker"
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPES##*lagoon*}" ]; then
   ./scripts/drevops/deploy-lagoon.sh
-  deployments_run="${deployments_run} lagoon"
 fi
-
-[ -z "${deployments_run}" ] && fail "No deployments found for: ${DREVOPS_DEPLOY_TYPES}." && exit 1

@@ -18,12 +18,6 @@ load _helper.deployment.bash
 
   assert_output_contains "Missing required value for DREVOPS_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon."
 
-  export DREVOPS_DEPLOY_ALLOW_SKIP=0
-  export DREVOPS_DEPLOY_TYPES="invalid"
-  run ahoy deploy
-  assert_failure
-  assert_output_contains "No deployments found for: ${DREVOPS_DEPLOY_TYPES}."
-
   popd >/dev/null
 }
 
@@ -44,17 +38,42 @@ load _helper.deployment.bash
   assert_output_contains "Using default SSH file ${file}."
   assert_output_contains "SSH key file ${file} does not exist."
 
+  # Generate fixture keys.
   ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa"
+  # Generate SSH key with TEST suffix.
+  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_TEST"
+
   export DREVOPS_SSH_PREFIX="test"
   local file=${HOME}/.ssh/id_rsa
+
+  declare -a STEPS=(
+    "Using default SSH file ${file}."
+    "Using SSH key file ${file}."
+    "@ssh-add -l # ${file}"
+    "SSH agent has ${file} key loaded."
+  )
+  mocks="$(run_steps "setup")"
   run scripts/drevops/setup-ssh.sh
   assert_success
-  assert_output_contains "Using default SSH file ${file}."
-  assert_output_contains "Using SSH key file ${file}."
+  run_steps "assert" "${mocks[@]}"
+
+  # Assert using SSH key with TEST suffix
+  export DREVOPS_SSH_PREFIX="test"
+  export DREVOPS_test_SSH_FILE="${SSH_KEY_FIXTURE_DIR}/id_rsa_TEST"
+  declare -a STEPS=(
+    "Found variable DREVOPS_test_SSH_FILE with value ${DREVOPS_test_SSH_FILE}."
+    "Using SSH key file ${DREVOPS_test_SSH_FILE}."
+    "@ssh-add -l # ${DREVOPS_test_SSH_FILE}"
+    "SSH agent has ${DREVOPS_test_SSH_FILE} key loaded."
+  )
+  mocks="$(run_steps "setup")"
+    run scripts/drevops/setup-ssh.sh
+  assert_success
+  run_steps "assert" "${mocks[@]}"
 
   # Assert using fingerprint no ssh key
   export DREVOPS_SSH_PREFIX="test"
-  export DREVOPS_test_SSH_FINGERPRINT="TEST"
+  export DREVOPS_test_SSH_FINGERPRINT="DOES_NOT_EXIST"
   run scripts/drevops/setup-ssh.sh
   assert_failure
   assert_output_contains "Found variable DREVOPS_test_SSH_FINGERPRINT with value ${DREVOPS_test_SSH_FINGERPRINT}."
@@ -64,7 +83,6 @@ load _helper.deployment.bash
   # Assert using fingerprint with ssh key
   export DREVOPS_SSH_PREFIX="test"
   export DREVOPS_test_SSH_FINGERPRINT="TEST"
-  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${DREVOPS_test_SSH_FINGERPRINT}"
   local file="${SSH_KEY_FIXTURE_DIR}/id_rsa_${DREVOPS_test_SSH_FINGERPRINT}"
   declare -a STEPS=(
     "Found variable DREVOPS_test_SSH_FINGERPRINT with value ${DREVOPS_test_SSH_FINGERPRINT}."
@@ -81,6 +99,7 @@ load _helper.deployment.bash
   # Assert does not have key loaded
   export DREVOPS_SSH_PREFIX="test"
   export DREVOPS_test_SSH_FINGERPRINT="TEST"
+  export CI="1"
   local file="${SSH_KEY_FIXTURE_DIR}/id_rsa_${DREVOPS_test_SSH_FINGERPRINT}"
   declare -a STEPS=(
     "Found variable DREVOPS_test_SSH_FINGERPRINT with value ${DREVOPS_test_SSH_FINGERPRINT}."
@@ -92,6 +111,7 @@ load _helper.deployment.bash
     "@ssh-add -D"
     "@ssh-add ${file}"
     "@ssh-add -l # ${file}"
+    "Disabling strict host key checking in CI."
     "Finished SSH setup."
   )
   mocks="$(run_steps "setup")"
