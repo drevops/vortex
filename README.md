@@ -5,7 +5,7 @@
   </picture>
 </div>
 
-<h3 align="center">Drupal project template</h3>
+<h3 align="center">Drupal project scaffold</h3>
 <h4 align="center"><em>Onboarding in minutes, not hours or days!</em></h4>
 
 <div align="center">
@@ -25,12 +25,12 @@ Make it easy to set up, develop and support high-quality Drupal websites
 
 ## Approach
 
-Use **tested** Drupal project template with DevOps integrations for CI and hosting platforms
+Use **tested** Drupal project scaffold with DevOps integrations for CI and hosting platforms
 
 ## How it works
 
 1. You run the installer script once
-2. DrevOps integrates the latest project template release into your codebase
+2. DrevOps integrates the latest project scaffold release into your codebase
 3. You choose which changes to commit
 
 [Read more about architecture](https://docs.drevops.com/latest/introduction/architecture/)
