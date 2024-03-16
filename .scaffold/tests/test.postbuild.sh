@@ -11,7 +11,7 @@ ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
 SCRIPTS_DIR="${ROOT_DIR}/scripts/drevops"
 
-TEST_DIR="${ROOT_DIR}/.drevops/tests"
+TEST_DIR="${ROOT_DIR}/.scaffold/tests"
 
 # ------------------------------------------------------------------------------
 

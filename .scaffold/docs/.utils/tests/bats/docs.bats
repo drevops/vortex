@@ -16,7 +16,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   prepare_remote_docs_repo
 
   # The test itself.
-  pushd "${LOCAL_REPO_DIR}/.drevops/docs" >/dev/null || exit 1
+  pushd "${LOCAL_REPO_DIR}/.scaffold/docs" >/dev/null || exit 1
 
   substep "Test 1: Publish from branch."
   export DOCS_PUBLISH_SRC_BRANCH="feature/test-branch-first"
@@ -89,10 +89,10 @@ assert_version() {
 }
 
 update_local_repo() {
-  # Need to do this as '.drevops' dir is excluded in .gitattributes.
+  # Need to do this as '.scaffold' dir is excluded in .gitattributes.
   substep "Copying docs to ${LOCAL_REPO_DIR}."
-  mkdir -p "${LOCAL_REPO_DIR}/.drevops/docs"
-  cp -r "${ROOT_DIR}/.drevops/docs/." "${LOCAL_REPO_DIR}/.drevops/docs"
+  mkdir -p "${LOCAL_REPO_DIR}/.scaffold/docs"
+  cp -r "${ROOT_DIR}/.scaffold/docs/." "${LOCAL_REPO_DIR}/.scaffold/docs"
 }
 
 prepare_remote_docs_repo() {

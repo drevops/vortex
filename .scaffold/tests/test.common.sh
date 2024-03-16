@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Run DrevOps deployment tests.
+# Run DrevOps tests in CI.
 #
 # LCOV_EXCL_START
 
@@ -11,7 +11,7 @@ ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
 SCRIPTS_DIR="${ROOT_DIR}/scripts/drevops"
 
-TEST_DIR="${ROOT_DIR}/.drevops/tests"
+TEST_DIR="${ROOT_DIR}/.scaffold/tests"
 
 # ------------------------------------------------------------------------------
 
@@ -22,8 +22,7 @@ TEST_DIR="${ROOT_DIR}/.drevops/tests"
 # Create stub of local framework.
 docker network create amazeeio-network 2>/dev/null || true
 
-index="${TEST_NODE_INDEX:-*}"
-echo "==> Run deployment functional tests (${index})."
+echo "==> Run common functional tests."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
 
 bats() {
@@ -37,5 +36,15 @@ bats() {
   popd >/dev/null || exit 1
 }
 
-# shellcheck disable=SC2086
-bats "${TEST_DIR}"/bats/deployment${index}.bats
+bats "${TEST_DIR}/bats/helpers.bats"
+bats "${TEST_DIR}/bats/env.bats"
+bats "${TEST_DIR}/bats/docker-compose.bats"
+bats "${TEST_DIR}/bats/provision.bats"
+bats "${TEST_DIR}/bats/notify.bats"
+bats "${TEST_DIR}/bats/install.initial.bats"
+bats "${TEST_DIR}/bats/install.existing.bats"
+bats "${TEST_DIR}/bats/install.parameters.bats"
+bats "${TEST_DIR}/bats/install.integrations.bats"
+bats "${TEST_DIR}/bats/install.demo.bats"
+bats "${TEST_DIR}/bats/reset.bats"
+bats "${TEST_DIR}/bats/update-drevops.bats"

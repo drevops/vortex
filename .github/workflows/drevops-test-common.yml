@@ -28,7 +28,7 @@ jobs:
         TEST_DOCKER_USER: ${{ secrets.TEST_DOCKER_USER }}
         TEST_DOCKER_PASS: ${{ secrets.TEST_DOCKER_PASS }}
         DREVOPS_DEV_VOLUMES_MOUNTED: 0
-        DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.drevops-coverage-html
+        DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
 
     steps:
       - name: Checkout code
@@ -54,29 +54,29 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: .drevops/tests
+        working-directory: .scaffold/tests
 
       - name: Lint code
         run: |
           ./tests/lint.scripts.sh
           ./tests/lint.dockerfiles.sh
           ./tests/lint.spelling.sh
-        working-directory: .drevops
+        working-directory: .scaffold
 
       - name: Run tests
         run: ./tests/test.common.sh
-        working-directory: .drevops
+        working-directory: .scaffold
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{github.job}}-code-coverage-report
-          path: /tmp/.drevops-coverage-html
+          path: /tmp/.scaffold-coverage-html
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v4
         with:
-          directory: /tmp/.drevops-coverage-html
+          directory: /tmp/.scaffold-coverage-html
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -97,7 +97,7 @@ jobs:
         TEST_DOCKER_USER: ${{ secrets.TEST_DOCKER_USER }}
         TEST_DOCKER_PASS: ${{ secrets.TEST_DOCKER_PASS }}
         DREVOPS_DEV_VOLUMES_MOUNTED: 0
-        DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.drevops-coverage-html
+        DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
         TEST_NODE_INDEX: ${{ matrix.batch }}
 
     steps:
@@ -112,22 +112,22 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: .drevops/tests
+        working-directory: .scaffold/tests
 
       - name: Run tests
         run: ./tests/test.workflow.sh
-        working-directory: .drevops
+        working-directory: .scaffold
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{github.job}}-${{ matrix.batch }}-code-coverage-report
-          path: /tmp/.drevops-coverage-html
+          path: /tmp/.scaffold-coverage-html
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v4
         with:
-          directory: /tmp/.drevops-coverage-html
+          directory: /tmp/.scaffold-coverage-html
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -148,7 +148,7 @@ jobs:
         TEST_DOCKER_USER: ${{ secrets.TEST_DOCKER_USER }}
         TEST_DOCKER_PASS: ${{ secrets.TEST_DOCKER_PASS }}
         DREVOPS_DEV_VOLUMES_MOUNTED: 0
-        DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.drevops-coverage-html
+        DREVOPS_DEV_TEST_COVERAGE_DIR: /tmp/.scaffold-coverage-html
         TEST_NODE_INDEX: ${{ matrix.batch }}
 
     steps:
@@ -172,21 +172,21 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: .drevops/tests
+        working-directory: .scaffold/tests
 
       - name: Run tests
         run: ./tests/test.deployment.sh
-        working-directory: .drevops
+        working-directory: .scaffold
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{github.job}}-${{ matrix.batch }}-code-coverage-report
-          path: /tmp/.drevops-coverage-html
+          path: /tmp/.scaffold-coverage-html
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v4
         with:
-          directory: /tmp/.drevops-coverage-html
+          directory: /tmp/.scaffold-coverage-html
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}

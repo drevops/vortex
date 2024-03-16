@@ -9,31 +9,31 @@ See [Bats documentation](https://bats-core.readthedocs.io/) for more information
 ## Installation
 
 ```bash
-npm install --prefix .drevops/tests
+npm install --prefix .scaffold/tests
 ```
 
 ## Usage
 
 ```bash
 # Run a single test.
-bats .drevops/tests/bats/helpers.bats
+bats .scaffold/tests/bats/helpers.bats
 
 # Some tests require Composer and Docker Hub tokens.
-TEST_GITHUB_TOKEN=<yourtoken> TEST_DOCKER_USER=<youruser> TEST_DOCKER_PASS=<yourpass> bats .drevops/tests/bats/workflow.smoke.bats
+TEST_GITHUB_TOKEN=<yourtoken> TEST_DOCKER_USER=<youruser> TEST_DOCKER_PASS=<yourpass> bats .scaffold/tests/bats/workflow.smoke.bats
 
 # To preserve test run directory.
-bats --no-tempdir-cleanup .drevops/tests/bats/helpers.bats
+bats --no-tempdir-cleanup .scaffold/tests/bats/helpers.bats
 
 # To override Bats temporary directory where tests are ran (required for Docker tests).
 mkdir -p $HOME/.bats-tmp # run once
-TMPDIR=$HOME/.bats-tmp bats .drevops/tests/bats/helpers.bats
+TMPDIR=$HOME/.bats-tmp bats .scaffold/tests/bats/helpers.bats
 
 # Run all tests, preserving the temporary directory.
 TEST_GITHUB_TOKEN=<yourtoken> \
 TEST_DOCKER_USER=<youruser> \
 TEST_DOCKER_PASS=<yourpass> \
 TMPDIR=$HOME/.bats-tmp \
-bats --no-tempdir-cleanup .drevops/tests/bats/*.bats
+bats --no-tempdir-cleanup .scaffold/tests/bats/*.bats
 ```
 
 ## Updating test assets

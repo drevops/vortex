@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Run DrevOps workflow tests.
+# Run DrevOps deployment tests.
 #
 # LCOV_EXCL_START
 
@@ -11,7 +11,7 @@ ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
 SCRIPTS_DIR="${ROOT_DIR}/scripts/drevops"
 
-TEST_DIR="${ROOT_DIR}/.drevops/tests"
+TEST_DIR="${ROOT_DIR}/.scaffold/tests"
 
 # ------------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ TEST_DIR="${ROOT_DIR}/.drevops/tests"
 docker network create amazeeio-network 2>/dev/null || true
 
 index="${TEST_NODE_INDEX:-*}"
-echo "==> Run workflow functional tests (${index})."
+echo "==> Run deployment functional tests (${index})."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
 
 bats() {
@@ -37,34 +37,5 @@ bats() {
   popd >/dev/null || exit 1
 }
 
-# Run workflow based on index using switch-case.
-case ${index} in
-
-  0)
-    bats "${TEST_DIR}"/bats/workflow.smoke.bats
-    bats "${TEST_DIR}"/bats/workflow.storage.curl.bats
-    ;;
-
-  1)
-    bats "${TEST_DIR}"/bats/workflow.install.bats
-    ;;
-
-  2)
-    bats "${TEST_DIR}"/bats/workflow.utilities.bats
-    # Disabled due to intermittent failures.
-    # @see https://github.com/drevops/scaffold/issues/893
-    # bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
-    bats "${TEST_DIR}"/bats/workflow.storage.image.bats
-    ;;
-
-  *)
-    bats "${TEST_DIR}"/bats/workflow.smoke.bats
-    bats "${TEST_DIR}"/bats/workflow.install.bats
-    bats "${TEST_DIR}"/bats/workflow.storage.image.bats
-    # Disabled due to intermittent failures.
-    # @see https://github.com/drevops/scaffold/issues/893
-    # bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
-    bats "${TEST_DIR}"/bats/workflow.storage.curl.bats
-    bats "${TEST_DIR}"/bats/workflow.utilities.bats
-    ;;
-esac
+# shellcheck disable=SC2086
+bats "${TEST_DIR}"/bats/deployment${index}.bats

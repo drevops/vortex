@@ -9,7 +9,7 @@ set -eu
 
 ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
-[ ! -f "${ROOT_DIR}/.drevops/tests/vendor/bin/shellvar" ] && composer --working-dir="${ROOT_DIR}/.drevops/tests" install
+[ ! -f "${ROOT_DIR}/.scaffold/tests/vendor/bin/shellvar" ] && composer --working-dir="${ROOT_DIR}/.scaffold/tests" install
 
 targets=()
 while IFS= read -r -d $'\0'; do
@@ -19,7 +19,7 @@ done < <(
     "${ROOT_DIR}"/scripts \
     "${ROOT_DIR}"/.circleci \
     "${ROOT_DIR}"/hooks/library \
-    "${ROOT_DIR}"/.drevops/docs \
+    "${ROOT_DIR}"/.scaffold/docs \
     -type f \
     \( -name "*.sh" -or -name "*.bash" -or -name "*.bats" \) \
     -not -path "*vendor*" -not -path "*node_modules*" -not -path "*fixtures*" \
@@ -32,7 +32,7 @@ for file in "${targets[@]}"; do
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"
 
-    if ! "${ROOT_DIR}/.drevops/tests/vendor/bin/shellvar" lint "${file}"; then
+    if ! "${ROOT_DIR}/.scaffold/tests/vendor/bin/shellvar" lint "${file}"; then
       exit 1
     fi
 

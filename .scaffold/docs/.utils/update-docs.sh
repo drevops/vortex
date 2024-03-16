@@ -3,7 +3,7 @@
 # Update docs.
 #
 # @usage
-# cd .drevops/docs && ./update-docs.sh
+# cd .scaffold/docs && ./update-docs.sh
 #
 # shellcheck disable=SC2129
 
@@ -42,9 +42,9 @@ echo >>"${OUTPUT_FILE}"
   ../../scripts/custom \
   >>"${OUTPUT_FILE}"
 
-sed "${sed_opts[@]}" "s/.drevops\/docs\/.utils\/variables\/extra\/environment.variables.sh/ENVIRONMENT/g" "${OUTPUT_FILE}"
-sed "${sed_opts[@]}" "s/.drevops\/docs\/.utils\/variables\/extra\/acquia.variables.sh/ACQUIA ENVIRONMENT/g" "${OUTPUT_FILE}"
-sed "${sed_opts[@]}" "s/.drevops\/docs\/.utils\/variables\/extra\/lagoon.variables.sh/LAGOON ENVIRONMENT/g" "${OUTPUT_FILE}"
-sed "${sed_opts[@]}" "s/.drevops\/docs\/.utils\/variables\/extra\/.env.local.default.variables.sh/.env.local.default/g" "${OUTPUT_FILE}"
-sed "${sed_opts[@]}" "s/.drevops\/docs\/.utils\/variables\/extra\/.env.variables.sh/.env/g" "${OUTPUT_FILE}"
-sed "${sed_opts[@]}" "s/.drevops\/docs\/.utils\/variables\/extra\/ci.variables.sh/CI config/g" "${OUTPUT_FILE}"
+sed "${sed_opts[@]}" "s/.scaffold\/docs\/.utils\/variables\/extra\/environment.variables.sh/ENVIRONMENT/g" "${OUTPUT_FILE}"
+sed "${sed_opts[@]}" "s/.scaffold\/docs\/.utils\/variables\/extra\/acquia.variables.sh/ACQUIA ENVIRONMENT/g" "${OUTPUT_FILE}"
+sed "${sed_opts[@]}" "s/.scaffold\/docs\/.utils\/variables\/extra\/lagoon.variables.sh/LAGOON ENVIRONMENT/g" "${OUTPUT_FILE}"
+sed "${sed_opts[@]}" "s/.scaffold\/docs\/.utils\/variables\/extra\/.env.local.default.variables.sh/.env.local.default/g" "${OUTPUT_FILE}"
+sed "${sed_opts[@]}" "s/.scaffold\/docs\/.utils\/variables\/extra\/.env.variables.sh/.env/g" "${OUTPUT_FILE}"
+sed "${sed_opts[@]}" "s/.scaffold\/docs\/.utils\/variables\/extra\/ci.variables.sh/CI config/g" "${OUTPUT_FILE}"

@@ -16,7 +16,7 @@ setup() {
   # The root directory of the project.
   export ROOT_DIR="$(dirname "$(cd "$(dirname "${BATS_TEST_DIRNAME}")/.." && pwd)")"
 
-  [ ! -d "${ROOT_DIR}/.drevops" ] && echo 'ERROR: The test should be run from the ".drevops" directory.' && exit 1
+  [ ! -d "${ROOT_DIR}/.scaffold" ] && echo 'ERROR: The test should be run from the ".scaffold" directory.' && exit 1
 
   ##
   ## Phase 1: Framework setup.
@@ -411,7 +411,7 @@ assert_files_present_drevops() {
   assert_file_exists "docs/testing.md"
 
   # Assert that DrevOps files removed.
-  assert_dir_not_exists ".drevops"
+  assert_dir_not_exists ".scaffold"
   assert_file_not_exists "LICENSE"
   assert_file_not_exists "CODE_OF_CONDUCT.md"
   assert_file_not_exists ".github/FUNDING.yml"
@@ -435,7 +435,7 @@ assert_files_present_drevops() {
 
   # Assert that documentation was processed correctly.
   assert_file_not_contains README.md "# DrevOps"
-  assert_dir_not_contains_string "${dir}" "/\.drevops"
+  assert_dir_not_contains_string "${dir}" "/\.scaffold"
 
   popd >/dev/null || exit 1
 }
@@ -1033,7 +1033,7 @@ install_dependencies_stub() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  mktouch "${webroot}/core/.drevops/installer/install"
+  mktouch "${webroot}/core/.scaffold/installer/install"
   mktouch "${webroot}/modules/contrib/somemodule/somemodule.info.yml"
   mktouch "${webroot}/themes/contrib/sometheme/sometheme.info.yml"
   mktouch "${webroot}/profiles/contrib/someprofile/someprofile.info.yml"
@@ -1248,7 +1248,7 @@ sync_to_container() {
 
 # Special treatment for cases where volumes are not mounted from the host.
 fix_host_dependencies() {
-  # Replicate behaviour of .drevops/installer/install script to extract destination directory
+  # Replicate behaviour of .scaffold/installer/install script to extract destination directory
   # passed as an argument.
   # shellcheck disable=SC2235
   ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift
