@@ -54,7 +54,7 @@ Alternatively, clone this repository and adjust the configuration by manually ed
 ## Features
 
 <div align="center">
-  <img  alt="diagram-shortest" src="https://github.com/drevops/scaffold/assets/378794/68e7553b-6c29-437a-8a30-45e9d746180a">
+  <img alt="DrevOps diagram" src=".scaffold/docs/content/assets/diagram.png">
 </div>
 
 The following list includes ✅ completed and 🚧 upcoming features.
