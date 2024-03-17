@@ -54,7 +54,10 @@ Alternatively, clone this repository and adjust the configuration by manually ed
 ## Features
 
 <div align="center">
-  <img alt="DrevOps diagram" src=".scaffold/docs/content/assets/diagram.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".scaffold/docs/content/assets/diagram-dark.png">
+    <img src=".scaffold/docs/content/assets/diagram-light.png" alt="DrevOps diagram">
+  </picture>
 </div>
 
 The following list includes ✅ completed and 🚧 upcoming features.
