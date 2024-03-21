@@ -142,13 +142,38 @@ load _helper.deployment.bash
   popd >/dev/null
 }
 
-@test "Fingerprint-based deploy key, Key not found, Not CI environment" {
+@test "Key provided, MD5 Fingerprint, Key not found" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
   setup_ssh_key_fixture
   local suffix="TEST"
   provision_ssh_key_with_suffix ${suffix}
   export DREVOPS_SSH_PREFIX="test"
-  export DREVOPS_test_SSH_FINGERPRINT="$(ssh-keygen -l -E sha256 -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" | awk '{print $2}')"
+  export DREVOPS_test_SSH_FINGERPRINT="$(ssh-keygen -l -E md5 -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" | awk '{print $2}')"
+  export DREVOPS_test_SSH_FILE="${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}"
+  export CI=""
+  local ssh_key_file="${DREVOPS_test_SSH_FINGERPRINT//:/}"
+  ssh_key_file="${HOME}/.ssh/id_rsa_${ssh_key_file//\"/}"
+  declare -a STEPS=(
+    "Found variable DREVOPS_test_SSH_FINGERPRINT with value ${DREVOPS_test_SSH_FINGERPRINT}."
+    "Found variable DREVOPS_test_SSH_FILE with value ${DREVOPS_test_SSH_FILE}."
+    "Using fingerprint-based deploy key because fingerprint was provided."
+    "SSH key file ${ssh_key_file} does not exist."
+  )
+  mocks="$(run_steps "setup")"
+  run scripts/drevops/setup-ssh.sh
+  assert_failure
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
+@test "Key found, SHA256 fingerprint, Not CI environment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+  setup_ssh_key_fixture
+  local suffix="TEST"
+  provision_ssh_key_with_suffix ${suffix}
+  export DREVOPS_SSH_PREFIX="TEST"
+  export DREVOPS_TEST_SSH_FINGERPRINT="$(ssh-keygen -l -E sha256 -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" | awk '{print $2}')"
   export CI=""
   local md5_fingerprint="$(ssh-keygen -l -E md5 -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" | awk '{print $2}')"
   md5_fingerprint="${md5_fingerprint#MD5:}"
@@ -156,7 +181,7 @@ load _helper.deployment.bash
   ssh_key_file="${HOME}/.ssh/id_rsa_${ssh_key_file//\"/}"
   local file="${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}"
   declare -a STEPS=(
-    "Found variable DREVOPS_test_SSH_FINGERPRINT with value ${DREVOPS_test_SSH_FINGERPRINT}."
+    "Found variable DREVOPS_TEST_SSH_FINGERPRINT with value ${DREVOPS_TEST_SSH_FINGERPRINT}."
     "Using fingerprint-based deploy key because fingerprint was provided."
     "Searching for MD5 hash as fingerprint starts with SHA256."
     "Found matching existing key file ${file}."
