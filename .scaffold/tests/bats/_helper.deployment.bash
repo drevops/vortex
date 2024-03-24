@@ -154,6 +154,13 @@ setup_ssh_key_fixture() {
   fixture_prepare_dir "${SSH_KEY_FIXTURE_DIR}"
 }
 
+setup_robo_fixture() {
+  export HOME="${BUILD_DIR}"
+  fixture_prepare_dir "${HOME}/.composer/vendor/bin"
+  touch "${HOME}/.composer/vendor/bin/robo"
+  chmod +x "${HOME}/.composer/vendor/bin/robo"
+}
+
 provision_default_ssh_key() {
     # Generate fixture keys.
   ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa"
