@@ -6,7 +6,6 @@
 </div>
 
 <h3 align="center">Drupal project scaffold</h3>
-<h4 align="center"><em>Onboarding in minutes, not hours or days!</em></h4>
 
 <div align="center">
 
