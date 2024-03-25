@@ -105,7 +105,7 @@ fi
 note "Configuring Lagoon instance."
 #shellcheck disable=SC2218
 lagoon config add --force -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" -g "${DREVOPS_DEPLOY_LAGOON_INSTANCE_GRAPHQL}" -H "${DREVOPS_DEPLOY_LAGOON_INSTANCE_HOSTNAME}" -P "${DREVOPS_DEPLOY_LAGOON_INSTANCE_PORT}"
-lagoon() { command lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" -p "${LAGOON_PROJECT}" "$@";}
+lagoon() { command lagoon --force --skip-update-check -i "${DREVOPS_DEPLOY_SSH_FILE}" -l "${DREVOPS_DEPLOY_LAGOON_INSTANCE}" -p "${LAGOON_PROJECT}" "$@"; }
 
 # ACTION: 'destroy'
 # Explicitly specifying "destroy" action as a failsafe.

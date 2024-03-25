@@ -89,7 +89,7 @@ fi
 note "Configuring Lagoon instance."
 #shellcheck disable=SC2218
 lagoon config add --force -l "${DREVOPS_TASK_LAGOON_INSTANCE}" -g "${DREVOPS_TASK_LAGOON_INSTANCE_GRAPHQL}" -H "${DREVOPS_TASK_LAGOON_INSTANCE_HOSTNAME}" -P "${DREVOPS_TASK_LAGOON_INSTANCE_PORT}"
-lagoon() { command lagoon --force --skip-update-check -i "${DREVOPS_TASK_SSH_FILE}" -l "${DREVOPS_TASK_LAGOON_INSTANCE}" -p "${DREVOPS_TASK_LAGOON_PROJECT}" "$@";}
+lagoon() { command lagoon --force --skip-update-check -i "${DREVOPS_TASK_SSH_FILE}" -l "${DREVOPS_TASK_LAGOON_INSTANCE}" -p "${DREVOPS_TASK_LAGOON_PROJECT}" "$@"; }
 
 note "Creating ${DREVOPS_TASK_LAGOON_NAME} task: project ${DREVOPS_TASK_LAGOON_PROJECT}, branch: ${DREVOPS_TASK_LAGOON_BRANCH}."
 lagoon run custom -e "${DREVOPS_TASK_LAGOON_BRANCH}" -N "${DREVOPS_TASK_LAGOON_NAME}" -c "${DREVOPS_TASK_LAGOON_COMMAND}"
