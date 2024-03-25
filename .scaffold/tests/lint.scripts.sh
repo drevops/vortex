@@ -33,7 +33,11 @@ for file in "${targets[@]}"; do
     echo "Checking file ${file}"
 
     if ! "${ROOT_DIR}/.scaffold/tests/vendor/bin/shellvar" lint "${file}"; then
-      exit 1
+      # Skip the file with a false positive.
+      # @see https://github.com/AlexSkrypnyk/shellvar/issues/65
+      if [[ ! "${file}" =~ github-labels ]]; then
+        exit 1
+      fi
     fi
 
     if ! LC_ALL=C.UTF-8 shellcheck "${file}"; then
