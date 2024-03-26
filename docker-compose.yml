@@ -157,7 +157,7 @@ services:
       context: .
       dockerfile: .docker/mariadb.dockerfile
       args:
-        IMAGE: "${DREVOPS_DB_DOCKER_IMAGE:-uselagoon/mariadb-drupal:24.1.0}" # Use custom database image (if defined) or fallback to standard database image.
+        IMAGE: "${DREVOPS_DB_DOCKER_IMAGE:-uselagoon/mariadb-drupal:24.3.1}" # Use custom database image (if defined) or fallback to standard database image.
     <<: [*default-user, *default-environment-files]
     environment:
       <<: *default-environment
@@ -170,7 +170,7 @@ services:
 
   #;< REDIS
   redis:
-    image: uselagoon/redis-6:24.3.0
+    image: uselagoon/redis-6:24.3.1
     #;< LAGOON
     labels:
       lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -233,7 +233,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:24.1.0
+    image: drevops/docker-wait-for-dependencies:24.3.0
     depends_on:
       - cli
       - mariadb
