@@ -38,6 +38,8 @@ Similar to [Zen of Python](https://www.python.org/dev/peps/pep-0020/), we use ou
 
 [Read more about architecture](https://docs.drevops.com/latest/introduction/architecture/)
 
+Track our current progress and view planned updates on [the GitHub project board](https://github.com/orgs/drevops/projects/2/views/1).
+
 ## Installation
 
 Our [installer](https://github.com/drevops/installer) simplifies setup, letting you choose only the features you need. It will integrate the latest scaffold release into your codebase and you will choose which changes to commit.
