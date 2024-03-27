@@ -315,7 +315,7 @@ load _helper.deployment.bash
   # Override DB during re-deployment.
   assert_contains "-l testlagoon -p testproject update variable -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 1 -S global" "$(mock_get_call_args "${mock_lagoon}" 4)"
   # Redeploy.
-  assert_contains "-l testlagoon -p testproject  deploy latest-e testbranch" "$(mock_get_call_args "${mock_lagoon}" 5)"
+  assert_contains "-l testlagoon -p testproject  deploy latest -e testbranch" "$(mock_get_call_args "${mock_lagoon}" 5)"
   # Remove a DB import override flag for the current deployment.
   assert_contains "-l testlagoon -p testproject update variable -e testbranch -N DREVOPS_PROVISION_OVERRIDE_DB -V 0 -S global" "$(mock_get_call_args "${mock_lagoon}" 6)"
 
