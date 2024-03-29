@@ -1,8 +1,0 @@
-# GitHub-flow
-
-
-!!! note "Work in progress"
-
-    The documentation section is still a work in progress.
-
-This section will describe using GitHub-Flow to manage releases in your projects.

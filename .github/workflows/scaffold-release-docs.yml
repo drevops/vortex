@@ -1,0 +1,50 @@
+# This action is used for Scaffold maintenance. It will not be used in the scaffolded project.
+name: Scaffold - Release docs
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  release-docs:
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: docs
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: '${{ github.workspace }}/.scaffold/docs'
+
+      - name: Build documentation site
+        run: npm run build
+        working-directory: '${{ github.workspace }}/.scaffold/docs'
+
+      - name: Upload documentation site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ".scaffold/docs/build"

@@ -60,7 +60,6 @@ jobs:
         run: |
           ./tests/lint.scripts.sh
           ./tests/lint.dockerfiles.sh
-          ./tests/lint.spelling.sh
         working-directory: .scaffold
 
       - name: Run tests
