@@ -1,7 +1,7 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".scaffold/docs/static/img/logo-dark.svg" />
-    <img width="400" src=".scaffold/docs/static/img/logo-light.svg" alt="DrevOps Logo" />
+    <source media="(prefers-color-scheme: dark)" srcset=".scaffold/docs/static/img/logo-light.svg" />
+    <img width="400" src=".scaffold/docs/static/img/logo-dark.svg" alt="DrevOps Logo" />
   </picture>
 </div>
 
@@ -56,8 +56,8 @@ Alternatively, clone this repository and adjust the configuration by manually ed
 
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".scaffold/docs/content/assets/diagram-dark.png">
-    <img src=".scaffold/docs/content/assets/diagram-light.png" alt="DrevOps diagram">
+    <source media="(prefers-color-scheme: dark)" srcset=".scaffold/docs/static/img/diagram-dark.png">
+    <img src=".scaffold/docs/static/img/diagram-light.png" alt="DrevOps diagram">
   </picture>
 </div>
 
