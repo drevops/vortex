@@ -60,7 +60,7 @@ setup() {
   export TEST_DOCKER_PASS="${TEST_DOCKER_PASS:-}"
 
   # The installer reference to use for tests.
-  export TEST_INSTALLER_REF="${TEST_INSTALLER_REF:-'feature/remove-www-on-url'}"
+  export TEST_INSTALLER_REF="${TEST_INSTALLER_REF:-feature/remove-www-on-url}"
 
   # Preflight checks.
   # @formatter:off
