@@ -1,31 +1,25 @@
 # Scaffold documentation
 
-Documentation for the Scaffold project.
+This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 
-## Local build
+### Installation
 
-```bash
-ahoy build
+```
+$ npm install
 ```
 
-Parts of the documentation is generated automatically from the codebase.
-To update it, run:
+### Local Development
 
-```bash
-ahoy update
+```
+$ npm start
 ```
 
-If you have the documentation site running locally, the updates to the content
-will be seen immediately.
+This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
-## Check spelling
+### Build
 
-```bash
-ahoy lint
+```
+$ npm run build
 ```
 
-## Check links
-
-```bash
-ahoy test
-```
+This command generates static content into the `build` directory and can be served using any static contents hosting service.

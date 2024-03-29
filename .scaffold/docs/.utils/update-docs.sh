@@ -16,7 +16,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
 
 sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
 
-OUTPUT_FILE="./content/workflows/variables.md"
+OUTPUT_FILE="./content/workflows/variables.mdx"
 sed "${sed_opts[@]}" '/## Variables list/,$d' "${OUTPUT_FILE}"
 
 echo "## Variables list" >>"${OUTPUT_FILE}"
@@ -32,7 +32,7 @@ echo >>"${OUTPUT_FILE}"
   --format=md-blocks \
   --md-inline-code-extra-file=./.utils/variables/variables.inline-code-extra.txt \
   --md-link-vars \
-  --md-link-vars-anchor-case=upper \
+  --md-link-vars-anchor-case=lower \
   --md-block-template-file=./.utils/variables/variables.template.md \
   --path-strip-prefix="${ROOT_DIR}/" \
   ../../.env \

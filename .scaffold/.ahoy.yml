@@ -8,7 +8,6 @@ commands:
     cmd: |
       ahoy lint-scripts
       ahoy lint-dockerfiles
-      ahoy lint-spelling
       ahoy lint-docs
 
   lint-scripts:
@@ -17,11 +16,10 @@ commands:
   lint-dockerfiles:
     cmd: ./tests/lint.dockerfiles.sh
 
-  lint-spelling:
-    cmd: ./tests/lint.spelling.sh
-
   lint-docs:
-    cmd: ahoy docs lint
+    cmd: |
+      npm --prefix=./docs ci
+      npm --prefix=./docs run test
 
   test:
     name: Test Scaffold project.
@@ -48,9 +46,11 @@ commands:
       && UPDATE_FIXTURES=1 bats ./tests/bats/docker-compose.bats \
       || UPDATE_FIXTURES=1 bats ./tests/bats/docker-compose.bats
 
-  docs:
-    usage: Custom docs commands.
-    cmd: ahoy -f "docs/.ahoy.yml" "$@"
+  update-docs:
+    usage: Update the documentation.
+    cmd: |
+      composer --working-dir=./docs/.utils install
+      npm --prefix=./docs run update-variables
 
 entrypoint:
   - bash

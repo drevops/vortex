@@ -1,0 +1,73 @@
+{
+    "dictionaries": [
+        "bash",
+        "misc",
+        "node",
+        "php",
+        "softwareTerms"
+    ],
+    "words": [
+        "acquia",
+        "amazee",
+        "amazeeio",
+        "apikey",
+        "behat",
+        "bootstrappable",
+        "centralised",
+        "checkstyle",
+        "clamav",
+        "cobertura",
+        "commandfiles",
+        "containerisation",
+        "customisations",
+        "cweagans",
+        "ddev",
+        "dealerdirect",
+        "drevops",
+        "drush",
+        "hadolint",
+        "initialise",
+        "lagooncli",
+        "lando",
+        "langlet",
+        "licence",
+        "localdev",
+        "mglaman",
+        "minimised",
+        "oomphinc",
+        "optimise",
+        "optimised",
+        "palantirnet",
+        "phpcbf",
+        "phpcodesniffer",
+        "phpcompatibility",
+        "phpdotenv",
+        "phpspec",
+        "phpstorm",
+        "pyrech",
+        "ruleset",
+        "sanitised",
+        "standardise",
+        "utilising",
+        "vlucas",
+        "webflo",
+        "webroot"
+    ],
+    "overrides": [
+        {
+            "filename": "**/*.mdx",
+            "languageId": [
+                "mdx",
+                "markdown"
+            ]
+        }
+    ],
+    "languageSettings": [
+        {
+            "languageId": "markdown",
+            "ignoreRegExpList": [
+                "/^\\s*```(.|\\n)+?^\\s*```/gm"
+            ]
+        }
+    ]
+}
