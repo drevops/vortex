@@ -137,7 +137,11 @@ The following list includes ✅ completed and 🚧 upcoming features.
 
 ## Documentation
 
-For more detailed documentation and guides, check out our dedicated site at https://docs.drevops.com
+The documentation is authored within this repository in the `.scaffold/docs` directory.
+
+It is published to [https://docs.drevops.com](https://docs.drevops.com) on Scaffold release.
+
+Development version of the documentation is available at [https://drevops-scaffold-docs.netlify.app/](https://drevops-scaffold-docs.netlify.app/).
 
 ## Support
 
