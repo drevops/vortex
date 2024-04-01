@@ -85,7 +85,7 @@ aliases:
           # Source code location for artifact deployments.
           DREVOPS_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
-          DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE: /tmp/artifacts/deployment_report.txt
+          DREVOPS_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
           # Check only minimal stack requirements.
           DREVOPS_DOCTOR_CHECK_MINIMAL: 1
     # CI runner resource class.

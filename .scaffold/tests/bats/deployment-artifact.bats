@@ -27,13 +27,13 @@ load _helper.deployment.bash
   # so the check for empty string is redundant:
   #  - DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME
   #  - DREVOPS_DEPLOY_ARTIFACT_ROOT
-  #  - DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE
+  #  - DREVOPS_DEPLOY_ARTIFACT_LOG
 
   unset DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE
   unset DREVOPS_DEPLOY_ARTIFACT_DST_BRANCH
   unset DREVOPS_DEPLOY_ARTIFACT_SRC
   unset DREVOPS_DEPLOY_ARTIFACT_ROOT
-  unset DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE
+  unset DREVOPS_DEPLOY_ARTIFACT_LOG
   run scripts/drevops/deploy-artifact.sh
   assert_failure
   assert_output_contains "Missing required value for DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE."
@@ -57,7 +57,7 @@ load _helper.deployment.bash
   export DREVOPS_DEPLOY_ARTIFACT_DST_BRANCH="main"
   export DREVOPS_DEPLOY_ARTIFACT_SRC="dist"
   export DREVOPS_DEPLOY_ARTIFACT_ROOT="."
-  export DREVOPS_DEPLOY_ARTIFACT_REPORT_FILE="deploy-report.txt"
+  export DREVOPS_DEPLOY_ARTIFACT_LOG="deploy-report.txt"
   export DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME="test_user"
   export DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL="test_user@example.com"
   local file=${HOME}/.ssh/id_rsa
@@ -78,7 +78,7 @@ load _helper.deployment.bash
     "@ssh-add -l # ${file}"
     "SSH agent has ${file} key loaded."
     "Installing artifact builder."
-    "@composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^0.5"
+    "@composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^0.7"
     "Running artifact builder."
     "Finished ARTIFACT deployment."
   )
