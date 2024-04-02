@@ -565,30 +565,6 @@ Default value: `32222`
 
 Defined in: `scripts/drevops/deploy-lagoon.sh`
 
-### `DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH`
-
-Location of the Lagoon CLI binary.
-
-Default value: `/tmp`
-
-Defined in: `scripts/drevops/deploy-lagoon.sh`
-
-### `DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL`
-
-Flag to force the installation of Lagoon CLI.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/deploy-lagoon.sh`
-
-### `DREVOPS_DEPLOY_LAGOON_LAGOONCLI_VERSION`
-
-Lagoon CLI version to use.
-
-Default value: `latest`
-
-Defined in: `scripts/drevops/deploy-lagoon.sh`
-
 ### `DREVOPS_DEPLOY_MODE`
 
 Deployment mode.
@@ -796,6 +772,30 @@ Allow providing custom Scaffold commit hash to download the sources from.
 Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/update-scaffold.sh`
+
+### `DREVOPS_LAGOONCLI_FORCE_INSTALL`
+
+Flag to force the installation of Lagoon CLI.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/deploy-lagoon.sh`, `scripts/drevops/task-custom-lagoon.sh`
+
+### `DREVOPS_LAGOONCLI_PATH`
+
+Location of the Lagoon CLI binary.
+
+Default value: `/tmp`
+
+Defined in: `scripts/drevops/deploy-lagoon.sh`, `scripts/drevops/task-custom-lagoon.sh`
+
+### `DREVOPS_LAGOONCLI_VERSION`
+
+Lagoon CLI version to use.
+
+Default value: `latest`
+
+Defined in: `scripts/drevops/deploy-lagoon.sh`, `scripts/drevops/task-custom-lagoon.sh`
 
 ### `DREVOPS_LAGOON_PRODUCTION_BRANCH`
 
@@ -1375,14 +1375,6 @@ Default value: `300`
 
 Defined in: `scripts/drevops/task-copy-files-acquia.sh`
 
-### `DREVOPS_TASK_LAGOON_BIN_PATH`
-
-Location of the Lagoon CLI binary.
-
-Default value: `/tmp`
-
-Defined in: `scripts/drevops/task-custom-lagoon.sh`
-
 ### `DREVOPS_TASK_LAGOON_BRANCH`
 
 The Lagoon branch to run the task on.
@@ -1394,14 +1386,6 @@ Defined in: `scripts/drevops/task-custom-lagoon.sh`
 ### `DREVOPS_TASK_LAGOON_COMMAND`
 
 The task command to execute.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/task-custom-lagoon.sh`
-
-### `DREVOPS_TASK_LAGOON_INSTALL_CLI_FORCE`
-
-Flag to force the installation of Lagoon CLI.
 
 Default value: `UNDEFINED`
 
@@ -1436,14 +1420,6 @@ Defined in: `scripts/drevops/task-custom-lagoon.sh`
 The Lagoon instance port to interact with.
 
 Default value: `32222`
-
-Defined in: `scripts/drevops/task-custom-lagoon.sh`
-
-### `DREVOPS_TASK_LAGOON_LAGOONCLI_VERSION`
-
-Lagoon CLI version to use.
-
-Default value: `latest`
 
 Defined in: `scripts/drevops/task-custom-lagoon.sh`
 
