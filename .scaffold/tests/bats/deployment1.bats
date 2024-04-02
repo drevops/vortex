@@ -167,8 +167,8 @@ load _helper.deployment.bash
   step "Running deployment"
   # Always force installing of the Lagoon CLI binary in tests rather than using
   # a local version.
-  export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL=1
-  export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH="${APP_TMP_DIR}"
+  export DREVOPS_LAGOONCLI_FORCE_INSTALL=1
+  export DREVOPS_LAGOONCLI_PATH="${APP_TMP_DIR}"
   export DREVOPS_DEPLOY_LAGOON_INSTANCE="testlagoon"
   export LAGOON_PROJECT="testproject"
   export DREVOPS_DEPLOY_BRANCH="testbranch"
@@ -182,7 +182,7 @@ load _helper.deployment.bash
   assert_output_contains "Finished Lagoon deployment."
 
   # Assert lagoon binary exists and was called.
-  assert_file_exists "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
+  assert_file_exists "${DREVOPS_LAGOONCLI_PATH}/lagoon"
 
   assert_equal 3 "$(mock_get_call_num "${mock_lagoon}")"
   # Configure.
@@ -266,8 +266,8 @@ load _helper.deployment.bash
   step "Running deployment"
   # Always force installing of the Lagoon CLI binary in tests rather than using
   # a local version.
-  export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL=1
-  export DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH="${APP_TMP_DIR}"
+  export DREVOPS_LAGOONCLI_FORCE_INSTALL=1
+  export DREVOPS_LAGOONCLI_PATH="${APP_TMP_DIR}"
   export DREVOPS_DEPLOY_LAGOON_INSTANCE="testlagoon"
   export LAGOON_PROJECT="testproject"
   export DREVOPS_DEPLOY_BRANCH="testbranch"
@@ -301,7 +301,7 @@ load _helper.deployment.bash
   assert_output_contains "Finished Lagoon deployment."
 
   # Assert lagoon binary exists and was called.
-  assert_file_exists "${DREVOPS_DEPLOY_LAGOON_LAGOONCLI_BIN_PATH}/lagoon"
+  assert_file_exists "${DREVOPS_LAGOONCLI_PATH}/lagoon"
 
   # Deployment script calls API several times.
   assert_equal 6 "$(mock_get_call_num "${mock_lagoon}")"
