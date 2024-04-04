@@ -12,10 +12,10 @@ parameters:
   level: 7
 
   paths:
-    - web/modules/custom
-    - web/themes/custom
-    - web/sites/default/settings.php
-    - web/sites/default/includes
+    - [your-webroot]/modules/custom
+    - [your-webroot]/themes/custom
+    - [your-webroot]/sites/default/settings.php
+    - [your-webroot]/sites/default/includes
     - tests
 
   excludePaths:
@@ -25,7 +25,7 @@ parameters:
     - ../*/node_modules/*
 
   drupal:
-    drupal_root: web
+    drupal_root: [your-webroot]
 
   ignoreErrors:
     -
@@ -34,19 +34,19 @@ parameters:
       # this error.
       message: '#.*no value type specified in iterable type array.#'
       paths:
-        - web/modules/custom/*/tests/*
-        - web/themes/custom/*/tests/*
+        - [your-webroot]/modules/custom/*/tests/*
+        - [your-webroot]/themes/custom/*/tests/*
         - tests/phpunit/*
     -
       # Hook implementations do not provide docblocks for parameters, so there
       # is no way to provide this information.
       message: '#.* with no value type specified in iterable type array#'
       paths:
-        - web/modules/custom/*
-        - web/themes/custom/*
+        - [your-webroot]/modules/custom/*
+        - [your-webroot]/themes/custom/*
     -
       # Included settings files are not aware about global variables.
       message: '#Variable .* might not be defined.#'
       paths:
-        - web/sites/default/includes
+        - [your-webroot]/sites/default/includes
       reportUnmatched: false

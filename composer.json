@@ -103,7 +103,7 @@
     "extra": {
         "drupal-scaffold": {
             "locations": {
-                "web-root": "web/"
+                "web-root": "[your-webroot]/"
             },
             "file-mapping": {
                 "[project-root]/.editorconfig": false,

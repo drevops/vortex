@@ -11,25 +11,25 @@
 !.env
 
 # Do not ignore webroot (manage Drupal scaffold files using the composer.json)
-!web
+![your-webroot]
 # But ignore content files and test artifacts.
-web/sites/default/files
-web/sites/simpletest
+[your-webroot]/sites/default/files
+[your-webroot]/sites/simpletest
 
 # Ignore non-production scaffold files.
-web/sites/default/default.services.local.yml
-web/sites/default/default.settings.local.php
+[your-webroot]/sites/default/default.services.local.yml
+[your-webroot]/sites/default/default.settings.local.php
 
 # Ignore custom theme asset sources.
-web/themes/custom/your_site_theme/fonts
-web/themes/custom/your_site_theme/images
-web/themes/custom/your_site_theme/js
-web/themes/custom/your_site_theme/scss
-web/themes/custom/your_site_theme/Gruntfile.js
-web/themes/custom/your_site_theme/package.json
-web/themes/custom/your_site_theme/package-lock.json
-web/themes/custom/your_site_theme/.eslintrc.json
-web/themes/custom/your_site_theme/node_modules
+[your-webroot]/themes/custom/your_site_theme/fonts
+[your-webroot]/themes/custom/your_site_theme/images
+[your-webroot]/themes/custom/your_site_theme/js
+[your-webroot]/themes/custom/your_site_theme/scss
+[your-webroot]/themes/custom/your_site_theme/Gruntfile.js
+[your-webroot]/themes/custom/your_site_theme/package.json
+[your-webroot]/themes/custom/your_site_theme/package-lock.json
+[your-webroot]/themes/custom/your_site_theme/.eslintrc.json
+[your-webroot]/themes/custom/your_site_theme/node_modules
 
 #;< ACQUIA
 # Do not ignore Acquia hooks.

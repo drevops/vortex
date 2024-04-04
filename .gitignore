@@ -1,22 +1,22 @@
 # To ignore OS temporary files use global .gitignore
 # https://help.github.com/articles/ignoring-files/#create-a-global-gitignore
 
-# Ignore Drupal web, but preserve custom modules, themes and settings.
+# Ignore Drupal [your-webroot], but preserve custom modules, themes and settings.
 # To add an override file, explicitly un-ignore it below and add to the
 # repository (useful for robots.txt and .htaccess file overrides).
 
-#; To simplify maintenance of Scaffold, we support only 'web' document root
+#; To simplify maintenance of Scaffold, we support only '[your-webroot]' document root
 #; defined explicitly here.
-web/*
-!web/sites/
-web/sites/*
-!web/modules/
-web/modules/*
-!web/modules/custom/
-!web/themes/
-web/themes/*
-!web/themes/custom/
-!web/profiles/
+[your-webroot]/*
+![your-webroot]/sites/
+[your-webroot]/sites/*
+![your-webroot]/modules/
+[your-webroot]/modules/*
+![your-webroot]/modules/custom/
+![your-webroot]/themes/
+[your-webroot]/themes/*
+![your-webroot]/themes/custom/
+![your-webroot]/profiles/
 web/profiles/*
 !web/profiles/custom/
 !web/sites/default/

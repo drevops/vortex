@@ -2,10 +2,10 @@
 <ruleset name="custom">
     <description>Custom PHPCS Standard, based on Drupal standards.</description>
 
-    <file>web/modules/custom</file>
-    <file>web/themes/custom</file>
-    <file>web/sites/default/settings.php</file>
-    <file>web/sites/default/includes</file>
+    <file>[your-webroot]/modules/custom</file>
+    <file>[your-webroot]/themes/custom</file>
+    <file>[your-webroot]/sites/default/settings.php</file>
+    <file>[your-webroot]/sites/default/includes</file>
     <file>tests</file>
 
     <rule ref="Drupal"/>
@@ -25,10 +25,10 @@
     <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
 
     <!-- Exclude theme assets. -->
-    <exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>
-    <exclude-pattern>web\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
-    <exclude-pattern>web\/themes\/custom\/.*\/images\/.*</exclude-pattern>
-    <exclude-pattern>web\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>
+    <exclude-pattern>[your-webroot]\/themes\/custom\/.*\/build\/.*</exclude-pattern>
+    <exclude-pattern>[your-webroot]\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
+    <exclude-pattern>[your-webroot]\/themes\/custom\/.*\/images\/.*</exclude-pattern>
+    <exclude-pattern>[your-webroot]\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>
     <exclude-pattern>*\.min\.*</exclude-pattern>
 
     <!-- Force no empty lines after function opening brace. -->

@@ -8,17 +8,17 @@
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/node_modules/*</exclude-pattern>
 
-    <exclude-pattern>*/web/core/*</exclude-pattern>
-    <exclude-pattern>*/web/profiles/contrib/*</exclude-pattern>
-    <exclude-pattern>*/web/modules/contrib/*</exclude-pattern>
-    <exclude-pattern>*/web/themes/contrib/*</exclude-pattern>
-    <exclude-pattern>*/web/sites/*</exclude-pattern>
+    <exclude-pattern>*/[your-webroot]/core/*</exclude-pattern>
+    <exclude-pattern>*/[your-webroot]/profiles/contrib/*</exclude-pattern>
+    <exclude-pattern>*/[your-webroot]/modules/contrib/*</exclude-pattern>
+    <exclude-pattern>*/[your-webroot]/themes/contrib/*</exclude-pattern>
+    <exclude-pattern>*/[your-webroot]/sites/*</exclude-pattern>
     <exclude-pattern>*/scripts/*</exclude-pattern>
     <exclude-pattern>*/tests/*Test.php</exclude-pattern>
 
-    <exclude-pattern>*/web/modules/custom/*/*.deploy.php</exclude-pattern>
-    <exclude-pattern>*/web/modules/custom/*/*.post_update.php</exclude-pattern>
-    <exclude-pattern>*/web/modules/custom/*/*.install</exclude-pattern>
+    <exclude-pattern>*/[your-webroot]/modules/custom/*/*.deploy.php</exclude-pattern>
+    <exclude-pattern>*/[your-webroot]/modules/custom/*/*.post_update.php</exclude-pattern>
+    <exclude-pattern>*/[your-webroot]/modules/custom/*/*.install</exclude-pattern>
 
     <!-- #;< SCAFFOLD_DEV -->
     <exclude-pattern>*/.scaffold/*</exclude-pattern>
