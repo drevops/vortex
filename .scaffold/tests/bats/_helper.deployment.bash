@@ -172,3 +172,10 @@ provision_ssh_key_with_suffix() {
   local suffix="${1:-TEST}"
   ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}"
 }
+
+provision_docker_config_file() {
+  export HOME="${BUILD_DIR}"
+  fixture_prepare_dir "${HOME}/.docker"
+  touch "${HOME}/.docker/config.json"
+  echo "{$1:-docker.io}" > "${HOME}/.docker/config.json"
+}
