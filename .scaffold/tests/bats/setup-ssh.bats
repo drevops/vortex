@@ -78,12 +78,12 @@ load _helper.deployment.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
   setup_ssh_key_fixture
   export DREVOPS_SSH_PREFIX="test"
-  export DREVOPS_test_SSH_FINGERPRINT="DOES_NOT_EXIST"
+  export DREVOPS_TEST_SSH_FINGERPRINT="DOES_NOT_EXIST"
   run scripts/drevops/setup-ssh.sh
   assert_failure
-  assert_output_contains "Found variable DREVOPS_test_SSH_FINGERPRINT with value ${DREVOPS_test_SSH_FINGERPRINT}."
+  assert_output_contains "Found variable DREVOPS_TEST_SSH_FINGERPRINT with value ${DREVOPS_TEST_SSH_FINGERPRINT}."
   assert_output_contains "Using fingerprint-based deploy key because fingerprint was provided."
-  assert_output_contains "SSH key file ${HOME}/.ssh/id_rsa_${DREVOPS_test_SSH_FINGERPRINT} does not exist."
+  assert_output_contains "SSH key file ${HOME}/.ssh/id_rsa_${DREVOPS_TEST_SSH_FINGERPRINT} does not exist."
 
   popd >/dev/null
 }
@@ -92,12 +92,12 @@ load _helper.deployment.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
   setup_ssh_key_fixture
   # Assert using fingerprint with ssh key
-  export DREVOPS_test_SSH_FINGERPRINT="TEST"
-  provision_ssh_key_with_suffix ${DREVOPS_test_SSH_FINGERPRINT}
+  export DREVOPS_TEST_SSH_FINGERPRINT="TEST"
+  provision_ssh_key_with_suffix ${DREVOPS_TEST_SSH_FINGERPRINT}
   export DREVOPS_SSH_PREFIX="test"
-  local file="${SSH_KEY_FIXTURE_DIR}/id_rsa_${DREVOPS_test_SSH_FINGERPRINT}"
+  local file="${SSH_KEY_FIXTURE_DIR}/id_rsa_${DREVOPS_TEST_SSH_FINGERPRINT}"
   declare -a STEPS=(
-    "Found variable DREVOPS_test_SSH_FINGERPRINT with value ${DREVOPS_test_SSH_FINGERPRINT}."
+    "Found variable DREVOPS_TEST_SSH_FINGERPRINT with value ${DREVOPS_TEST_SSH_FINGERPRINT}."
     "Using fingerprint-based deploy key because fingerprint was provided."
     "Using SSH key file ${file}."
     "@ssh-add -l # ${file}"
@@ -148,14 +148,14 @@ load _helper.deployment.bash
   local suffix="TEST"
   provision_ssh_key_with_suffix ${suffix}
   export DREVOPS_SSH_PREFIX="test"
-  export DREVOPS_test_SSH_FINGERPRINT="$(ssh-keygen -l -E md5 -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" | awk '{print $2}')"
-  export DREVOPS_test_SSH_FILE="${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}"
+  export DREVOPS_TEST_SSH_FINGERPRINT="$(ssh-keygen -l -E md5 -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" | awk '{print $2}')"
+  export DREVOPS_TEST_SSH_FILE="${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}"
   export CI=""
-  local ssh_key_file="${DREVOPS_test_SSH_FINGERPRINT//:/}"
+  local ssh_key_file="${DREVOPS_TEST_SSH_FINGERPRINT//:/}"
   ssh_key_file="${HOME}/.ssh/id_rsa_${ssh_key_file//\"/}"
   declare -a STEPS=(
-    "Found variable DREVOPS_test_SSH_FINGERPRINT with value ${DREVOPS_test_SSH_FINGERPRINT}."
-    "Found variable DREVOPS_test_SSH_FILE with value ${DREVOPS_test_SSH_FILE}."
+    "Found variable DREVOPS_TEST_SSH_FINGERPRINT with value ${DREVOPS_TEST_SSH_FINGERPRINT}."
+    "Found variable DREVOPS_TEST_SSH_FILE with value ${DREVOPS_TEST_SSH_FILE}."
     "Using fingerprint-based deploy key because fingerprint was provided."
     "SSH key file ${ssh_key_file} does not exist."
   )
