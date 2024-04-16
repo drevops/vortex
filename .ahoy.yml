@@ -10,11 +10,11 @@
 # Run `ahoy up cli` to apply environment variables changes to containers.
 #;
 #; Comments starting with '#:' provide explicit documentation and will be
-#; automatically removed during installation or update of DrevOps if an option
+#; automatically removed during installation or update of Scaffold if an option
 #; is selected.
 #;
-#; Comments starting with '#;<' and '#;>' are internal DrevOps comments
-#; and will be removed during installation or update of DrevOps.
+#; Comments starting with '#;<' and '#;>' are internal Scaffold comments
+#; and will be removed during installation or update of Scaffold.
 ---
 ahoyapi: v2
 
@@ -23,9 +23,12 @@ commands:
   build:
     usage: Build or rebuild the project.
     cmd: |
-      ahoy confirm "Running this command will remove your current database and files. Are you sure?" &&
-      ./scripts/drevops/build.sh &&
-      ahoy info
+      ahoy reset
+      ahoy up --build --force-recreate
+      ahoy composer install --prefer-dist
+      ahoy fei
+      ahoy provision
+      DREVOPS_SHOW_LOGIN=1 ahoy info
 
   info:
     usage: Show information about this project.
@@ -34,7 +37,6 @@ commands:
       DREVOPS_HOST_DB_PORT=$(docker compose port mariadb 3306 2>/dev/null | cut -d : -f 2) \
       DREVOPS_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) \
       DREVOPS_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true) \
-      DREVOPS_DRUPAL_SHOW_LOGIN_LINK=${DREVOPS_DRUPAL_SHOW_LOGIN_LINK} \
       ahoy cli ./scripts/drevops/info.sh "$@"
 
   db:
@@ -52,8 +54,8 @@ commands:
   up:
     usage: Build and start Docker containers.
     cmd: |
-      docker compose up -d "$@" && if docker compose logs | grep -q "\[Error\]"; then exit 1; fi
-      docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
+      docker compose up -d "$@"
+      if docker compose logs | grep -q "\[Error\]"; then exit 1; fi
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
@@ -63,9 +65,7 @@ commands:
 
   start:
     usage: Start existing Docker containers.
-    cmd: |
-      docker compose start "$@"
-      docker compose port cli 35729 | cut -d : -f 2 | xargs -I{} ahoy cli 'echo {} > /app/${DREVOPS_WEBROOT}/sites/default/files/livereload.sock'
+    cmd: docker compose start "$@"
 
   stop:
     usage: Stop running Docker containers.
@@ -85,18 +85,26 @@ commands:
 
   cli:
     usage: Start a shell or run a command inside the CLI service container.
-    # This will drop into shell if no arguments are supplied to this command.
-    # If arguments supplied, a new shell with TERM, COMPOSE_*, GITHUB_*,
-    # DOCKER_*, DRUPAL_* and DREVOPS_* environment variables will be started.
-    # This allows passing of the environment variables to Ahoy commands which
-    # will then be forwarded to the container.
+    # Drop into shell if no arguments were supplied.
+    # If arguments were supplied - a new shell will be started with environment
+    # variables passed from the host environment and filtered by prefix.
+    # This allows passing the host environment variables to a container without
+    # the need to restart it.
     # Escape double quotes with \" (slash double-quote) when passing arguments
-    # with spaces.
-    cmd: if \[ "${#}" -ne 0 \]; then docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\DRUPAL_\|DREVOPS_" | sed 's/^/-e /') -T cli bash -c "$*"; else docker compose exec cli bash; fi
+    # containing spaces.
+    cmd: |
+      if [ "${#}" -ne 0 ]; then
+        docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\DRUPAL_\|DREVOPS_" | sed 's/^/-e /') -T cli bash -c "$*"
+      else
+        docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\DRUPAL_\|DREVOPS_" | sed 's/^/-e /') cli bash
+      fi
 
   composer:
     usage: Run Composer commands in the CLI service container.
-    cmd: ahoy cli composer "$@"
+    cmd: |
+      ahoy cli " \
+        if [ -n \"${GITHUB_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN-}\"}}'; fi && \
+        COMPOSER_MEMORY_LIMIT=-1 composer --ansi $@"
 
   drush:
     usage: Run Drush commands in the CLI service container.
@@ -127,17 +135,21 @@ commands:
     usage: Reload the database container using local database image.
     cmd: |
       ahoy confirm "Running this command will replace your current database. Are you sure?" &&
-      docker compose rm -f -s -v mariadb \
-        && ahoy up -- --build mariadb \
-        && ahoy up wait_dependencies \
-        && sleep 15 \
-        && ahoy provision \
-        && ahoy info \
-        && ahoy login
+      docker compose rm --force --stop --volumes mariadb && \
+        ahoy up -- --build mariadb && \
+        ahoy up wait_dependencies && \
+        sleep 15 && \
+        ahoy provision && \
+        DREVOPS_SHOW_LOGIN=1 ahoy info
 
   provision:
     usage: Provision a site from the database dump or profile.
-    cmd: ahoy cli ./scripts/drevops/provision.sh
+    cmd: |
+      if [ -f .data/db.sql ]; then
+        docker compose exec cli mkdir -p .data
+        docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+      fi
+      ahoy cli ./scripts/drevops/provision.sh
 
   export-db:
     usage: Export database dump or database image (if DREVOPS_DB_DOCKER_IMAGE variable is set).
@@ -145,8 +157,7 @@ commands:
 
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
-    cmd: |
-      [ -n "${DREVOPS_DB_DOCKER_IMAGE}" ] && docker pull $DREVOPS_DB_DOCKER_IMAGE
+    cmd: \[ -n "${DREVOPS_DB_DOCKER_IMAGE}" \] && docker pull ${DREVOPS_DB_DOCKER_IMAGE} || true
 
   reset:
     usage: "Remove containers, all build files. Use with `hard` to reset repository to the last commit."
@@ -181,19 +192,19 @@ commands:
     cmd: |
       ahoy cli vendor/bin/phpcs
       ahoy cli vendor/bin/phpstan
-      ahoy cli vendor/bin/rector --dry-run
+      ahoy cli vendor/bin/rector --clear-cache --dry-run
       ahoy cli vendor/bin/phpmd . text phpmd.xml
 
   lint-fe:
     usage: Lint front-end code.
     cmd: |
-      ahoy cli vendor/bin/twigcs
+      ahoy cli vendor/bin/twig-cs-fixer
       ahoy cli "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
 
   lint-fix:
     usage: Fix lint issues of back-end and front-end code.
     cmd: |
-      ahoy cli vendor/bin/rector process
+      ahoy cli vendor/bin/rector --clear-cache
       ahoy cli vendor/bin/phpcbf
 
   test:
@@ -234,11 +245,11 @@ commands:
     usage: Find problems with current project setup.
     cmd: ./scripts/drevops/doctor.sh "$@"
 
-  update-drevops:
+  update-scaffold:
     usage: Update DrevOps stack.
     cmd: |
       ahoy confirm "Some committed files may become overwritten. Proceed?" &&
-      ./scripts/drevops/update-drevops.sh $@
+      ./scripts/drevops/update-scaffold.sh $@
 
   local:
     usage: Custom local commands. See `ahoy local help`.
@@ -255,36 +266,25 @@ commands:
   # ----------------------------------------------------------------------------
   confirm:
     cmd: |
-      if [ -z "$AHOY_CONFIRM_RESPONSE" ]; then
+      if [ -z "${AHOY_CONFIRM_RESPONSE}" ]; then
         read -r -p ">> $1 [y/N] " AHOY_CONFIRM_RESPONSE
-        [ "$AHOY_CONFIRM_RESPONSE" = "y" ] || [ "$AHOY_CONFIRM_RESPONSE" = true ] || ( echo "The operation was canceled." && exit 1 )
+        [ "${AHOY_CONFIRM_RESPONSE}" = "y" ] || [ "${AHOY_CONFIRM_RESPONSE}" = true ] || ( echo "The operation was canceled." && exit 1 )
       else
-        echo ">> $1 [y/N] $AHOY_CONFIRM_RESPONSE" \
+        echo ">> $1 [y/N] ${AHOY_CONFIRM_RESPONSE}" \
         && if [ "${AHOY_CONFIRM_WAIT_SKIP}" != "1" ]; then echo "Waiting for 3 seconds... Press Ctrl+C to cancel."; sleep 3; fi
       fi
     hide: true
 
-#: Override entrypoint to alter default behaviour of Ahoy.
+# Override entrypoint to alter default behaviour of Ahoy.
 entrypoint:
-  #: Run all commands in Bash.
   - bash
-  #: Read the commands from the string.
   - -c
-  #: Exit the script if any statement returns a non-true return value.
+  # Exit the script if any statement returns a non-true return value.
   - -e
-  #: Read variables from .env file, respecting existing environment variable values.
-  #:
-  #: It is important to understand that variables set in .env file are already
-  #: available inside the containers after stack is running (as a part of
-  #: docker compose functionality), so most of the commands are using these
-  #: values taken from containers.
-  #:
-  #: However, since Docker does not support changes to environment variables in
-  #: running containers without restarting containers, we are adding this
-  #: mechanism of reading variables here to allow adjustments of some variables
-  #: (like PHPCS scan targets) without the need to restart containers.
-  #:
-  #: As a rule of thumb, use `ahoy up cli` to apply changes to variables.
+  # Read variables from .env file, respecting existing values.
+  # - Used to load and pass updated environment variables' values into already
+  #   running containers.
+  # - Use `ahoy up cli` in cases when changes require container restart.
   - |
     t=$(mktemp) && export -p > "$t" && set -a && . ./.env && if [ -f ./.env.local ];then . ./.env.local;fi && set +a && . "$t" && rm "$t" && unset t
     bash -e -c "$0" "$@"

@@ -5,7 +5,7 @@
 # To add an override file, explicitly un-ignore it below and add to the
 # repository (useful for robots.txt and .htaccess file overrides).
 
-#; To simplify maintenance of DrevOps, we support only 'web' document root
+#; To simplify maintenance of Scaffold, we support only 'web' document root
 #; defined explicitly here.
 web/*
 !web/sites/
@@ -39,10 +39,10 @@ web/sites/default/*
 !web/robots.txt
 !web/update.php
 
-#;< DREVOPS_DEV
-#; Ignore these files in DrevOps itself, but do not ignore in consumer site.
+#;< SCAFFOLD_DEV
+#; Ignore these files in Scaffold itself, but do not ignore in consumer site.
 /composer.lock
-#;> DREVOPS_DEV
+#;> SCAFFOLD_DEV
 
 # Ignore dependencies cache files.
 /vendor

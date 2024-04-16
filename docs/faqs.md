@@ -114,11 +114,3 @@ composer require drupal/module_name
 ```bash
 composer update --lock`
 ```
-
-## How to run Livereload?
-
-1. If `settings.local.php` does not exist, copy `default.settings.local.php`
-   to `settings.local.php`
-2. Set `$settings['livereload'] = TRUE;` in `settings.local.php` file
-3. Clear drupal cache: `ahoy drush cr`
-4. Run: `ahoy few`

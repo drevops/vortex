@@ -38,17 +38,29 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # Array of labels to create. If DELETE_EXISTING_LABELS=1, the labels list will
 # be exactly as below, otherwise labels below will be added to existing ones.
 labels=(
-  "AUTOMERGE" "934BF4" "Pull request has been approved and set to automerge"
-  "CONFLICT" "bc143e" "Pull request has a conflict that needs to be resolved before it can be merged"
-  "DO NOT MERGE" "d93f0b" "Do not merge this pull request"
-  "Do not review" "d93f0b" "Do not review this pull request"
-  "Needs review" "5319e7" "Pull request needs a review from assigned developers"
-  "Questions" "b5f492" "Pull request has some questions that need to be answered before further review can progress"
-  "Ready for test" "0e8a16" "Pull request is ready for manual testing"
-  "Ready to be merged" "c2e0c6" "Pull request is ready to be merged (assigned after testing is complete)"
-  "Requires more work" "b60205" "Pull request was reviewed and reviver(s) asked to work further on the pull request"
-  "URGENT" "d93f0b" "Pull request needs to be urgently reviewed"
-  "dependencies" "62E795" "Pull request was raised automatically by a dependency bot"
+  "BLOCKED" "D93F0B" "Issue or pull request is blocked"
+  "PR: AUTOMERGE" "934BF4" "Pull request has been approved and set to automerge"
+  "PR: CONFLICT" "bc143e" "Pull request has a conflict that needs to be resolved before it can be merged"
+  "PR: Dependencies" "62E795" "Pull request was raised automatically by a dependency bot"
+  "PR: DO NOT MERGE" "d93f0b" "Do not merge this pull request"
+  "PR: Do not review" "d93f0b" "Do not review this pull request"
+  "PR: Needs review" "5319e7" "Pull request needs a review from assigned developers"
+  "PR: Ready for test" "0e8a16" "Pull request is ready for manual testing"
+  "PR: Ready to be merged" "c2e0c6" "Pull request is ready to be merged (assigned after testing is complete)"
+  "PR: Requires more work" "b60205" "Pull request was reviewed and reviver(s) asked to work further on the pull request"
+  "PR: URGENT" "d93f0b" "Pull request needs to be urgently reviewed"
+  "State: Confirmed" "1183aa" "The issue was triaged and confirmed for development"
+  "State: Done" "0e8a16" "The issue is complete and waiting for a release"
+  "State: In progress" "f2f626" "The issue is being worked on"
+  "State: Needs more info" "adf2cd" "The issue requires more information"
+  "State: Needs more work" "ecaf2d" "The issue requires more work"
+  "State: Needs triage" "cccccc" "An issue or PR has not been assessed and requires a triage"
+  "State: QA" "dbad90" "The issue is in QA"
+  "Type: Chore" "006b75" "Issue is a related to a maintenance"
+  "Type: Defect" "d93f0b" "Issue is a defect"
+  "Type: Feature" "1d76db" "Issue is a new feature request"
+  "Type: Question" "b5f492" "Issue is a question"
+  "UPSTREAM" "fbca04" "Issue or pull request is related to an upstream project"
 
   # Uncomment default Github labels below to preserve them.
   # "bug"                 "d73a4a"  "Something isn't working"
@@ -265,17 +277,12 @@ jsonval() {
   local json="${1}"
   local prop="${2}"
 
-  temp=$(
-    echo "${json}" |
-      sed 's/\\\\\//\//g' |
-      sed 's/[{}]//g' |
-      awk -v k="text" '{n=split($0,a,","); for (i=1; i<=n; i++) print a[i]}' |
-      sed 's/\"\:\"/\|/g' |
-      sed 's/[\,]/ /g' |
-      grep -w "${prop}" |
-      cut -d":" -f2 |
-      sed -e 's/^ *//g' -e 's/ *$//g'
-  )
+  temp=$(echo "${json}" |
+    sed 's/\\\\\//\//g' |
+    sed 's/[{}]//g' |
+    awk -v k="text" -F ',"' '{ for (i=1; i<=NF; i++) if ($i ~ /^'"${prop}"'":/) print $i }' |
+    sed 's/.*:"//g' |
+    sed 's/"$//g')
   temp="${temp//${prop}|/}"
   temp="$(echo "${temp}" | tr '\r\n' ' ')"
 

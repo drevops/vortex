@@ -47,7 +47,7 @@ tasks:
         command: |
           if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${DREVOPS_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             # No need to load SSH file to access production DB as Lagoon has SSH agent keys.
-            export DREVOPS_DB_DOWNLOAD_SSH_KEY_FILE=false
+            export DREVOPS_DB_DOWNLOAD_SSH_FILE=false
             export DREVOPS_DB_DIR=/tmp/data
             rm -Rf $DREVOPS_DB_DIR || true
             ./scripts/drevops/download-db.sh

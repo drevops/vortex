@@ -1,7 +1,7 @@
 {
     "extends": ["config:base"],
     "branchPrefix": "deps/",
-    "labels": ["dependencies"],
+    "labels": ["PR: Dependencies"],
     "assignees": [],
     "ignorePresets": [":prHourlyLimit2"],
     "rangeStrategy": "update-lockfile",

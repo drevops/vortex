@@ -1,8 +1,8 @@
 ##
-# DrevOps git settings.
+# Scaffold git settings.
 #
-#  Drupal provides its own .gitattributes so git normalisations are handled there.
+# Drupal provides its own .gitattributes so git normalisations are handled there.
 
 /.gitattributes       export-ignore
-/.drevops             export-ignore
 /.github/FUNDING.yml  export-ignore
+/.scaffold            export-ignore

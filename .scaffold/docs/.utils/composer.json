@@ -1,0 +1,13 @@
+{
+    "name": "drevops/docs-utils",
+    "require": {
+        "php": ">=8.1",
+        "alexskrypnyk/shellvar": "^0.7"
+    },
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com"
+        }
+    ]
+}
