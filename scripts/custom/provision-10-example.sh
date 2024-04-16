@@ -37,7 +37,8 @@ if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e l
   # - ClamAV, if it is used in the project
   # - Additional Solr search configuration, if Solr is used in the project
   #
-  # Note that deployment hooks for already enabled modules have run in the parent script.
+  # Note that deployment hooks for already enabled modules have run in the
+  # parent "provision.sh" script.
   drush pm:install ys_core
   drush deploy:hook
 
