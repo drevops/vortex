@@ -1,19 +1,16 @@
 ##
-# GitHub Actions workflow to dispatch a PR webhook for a Pull Request.
+# GitHub Actions workflow to action on Pull Request closure.
 #
-# This is used to allow more granular control over the operations that trigger
-# webhooks.
-#
-# Note that Lagoon's webhook should be disabled in GitHub.
 
-name: Dispatch a webhook to Lagoon when Pull Request is closed
+name: Close Pull Request
 
 on:
   pull_request:
-    types: [closed]
+    types:
+      - closed
 
 jobs:
-  dispatch_webhook_lagoon_remove_environment_pr_closed:
+  remove_lagoon_environment:
     runs-on: ubuntu-latest
     steps:
       - name: Remove environment after a PR is closed
