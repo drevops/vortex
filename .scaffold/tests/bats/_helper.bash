@@ -589,7 +589,6 @@ assert_files_present_provision_use_profile() {
   assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_FTP_PASS"
   assert_file_not_contains ".env.local.default" "DREVOPS_ACQUIA_KEY"
   assert_file_not_contains ".env.local.default" "DREVOPS_ACQUIA_SECRET"
-  assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_SSH_FILE"
   assert_file_not_contains ".env.local.default" "DOCKER_USER"
   assert_file_not_contains ".env.local.default" "DOCKER_PASS"
 
@@ -805,8 +804,6 @@ assert_files_present_no_integration_lagoon() {
   assert_file_not_contains "docker-compose.yml" "lagoon.type: mariadb"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: solr"
   assert_file_not_contains "docker-compose.yml" "lagoon.type: none"
-
-  assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_SSH_FILE="
 
   popd >/dev/null || exit 1
 }
