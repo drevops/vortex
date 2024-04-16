@@ -26,6 +26,7 @@ commands:
       ahoy reset
       ahoy up --build --force-recreate
       ahoy composer install --prefer-dist
+      ahoy fei
       ahoy provision
       DREVOPS_SHOW_LOGIN=1 ahoy info
 
