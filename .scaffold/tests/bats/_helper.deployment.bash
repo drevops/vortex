@@ -13,7 +13,7 @@ assert_deployment_files_present() {
   assert_dir_not_exists .data
   assert_dir_not_exists .docker
   assert_dir_not_exists .github
-  assert_dir_not_exists .gitignore.deployment
+  assert_dir_not_exists .gitignore.artifact
   assert_dir_not_exists node_modules
   assert_dir_not_exists patches
   assert_dir_not_exists .logs/screenshots
