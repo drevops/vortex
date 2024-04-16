@@ -46,17 +46,14 @@ exclusion patterns to exclude files and directories.
 ## Ignoring
 
 Ignoring rules **globally** takes place in
-the [`phpstan.neon`](https://github.com/drevops/scaffold/blob/develop/phpstan.neon) file:
+the [`phpmd.xml`](https://github.com/drevops/scaffold/blob/develop/phpmd.xml) file:
 
-```yaml
-parameters:
-  ignoreErrors:
-    - # Comment about why this rules is excluded.
-      # 'message' is a regular expression with `#` as begin and end delimiters.
-      message: '#.*no value type specified in iterable type array.#'
-      paths:
-        - path/to/exclude/all_dir_files/*
-        - path/to/exclude/a_file.php
+```xml
+<rule ref="rulesets/cleancode.xml/MissingImport">
+    <properties>
+        <property name="ignore-global" value="true"/>
+    </properties>
+</rule>
 ```
 
 PHPMD does not support ignoring of **all PHPMD rules** within a file.
