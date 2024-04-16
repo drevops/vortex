@@ -728,7 +728,7 @@ assert_files_present_integration_acquia() {
   assert_symlink_exists "hooks/prod/post-code-update"
   assert_symlink_not_exists "hooks/prod/post-db-copy"
 
-  assert_file_contains "${webroot}/sites/default/settings.php" "if (file_exists('/var/www/site-php"
+  assert_file_exists "${webroot}/sites/default/includes/providers/settings.acquia.php"
   assert_file_contains "${webroot}/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
 
   if [ "${include_scripts:-}" -eq 1 ]; then
@@ -750,7 +750,7 @@ assert_files_present_no_integration_acquia() {
 
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
-  assert_file_not_contains "${webroot}/sites/default/settings.php" "if (file_exists('/var/www/site-php')) {"
+  assert_file_not_exists "${webroot}sites/default/includes/providers/settings.acquia.php"
   assert_file_not_contains "${webroot}/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
   assert_file_not_contains ".env" "DREVOPS_ACQUIA_APP_NAME="
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME="
@@ -769,6 +769,7 @@ assert_files_present_integration_lagoon() {
 
   pushd "${dir}" >/dev/null || exit 1
 
+  assert_file_exists "${webroot}/sites/default/includes/providers/settings.lagoon.php"
   assert_file_exists ".lagoon.yml"
   assert_file_exists "drush/sites/lagoon.site.yml"
   assert_file_exists ".github/workflows/close-pull-request.yml"
@@ -792,6 +793,7 @@ assert_files_present_no_integration_lagoon() {
 
   pushd "${dir}" >/dev/null || exit 1
 
+  assert_file_not_exists "${webroot}/sites/default/includes/providers/settings.lagoon.php"
   assert_file_not_exists ".lagoon.yml"
   assert_file_not_exists "drush/sites/lagoon.site.yml"
   assert_file_not_exists ".github/workflows/close-pull-request.yml"

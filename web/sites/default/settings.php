@@ -7,7 +7,7 @@
  * The structure of this file:
  * - Environment constants definitions.
  * - Site-specific settings.
- * - Environment variable initialisation.
+ * - Inclusion of hosting providers settings.
  * - Per-environment overrides.
  * - Inclusion of local settings.
  *
@@ -124,101 +124,18 @@ $databases = [
 ];
 
 ////////////////////////////////////////////////////////////////////////////////
-///                   ENVIRONMENT-SPECIFIC SETTINGS                          ///
+///                         ENVIRONMENT DETECTION                            ///
 ////////////////////////////////////////////////////////////////////////////////
 
-// #;< ACQUIA
-// Initialise environment type in Acquia environment.
-// @see https://docs.acquia.com/acquia-cloud/develop/env-variable
-if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
-  // Delay the initial database connection.
-  $config['acquia_hosting_settings_autoconnect'] = FALSE;
-  // Include Acquia environment settings.
-  if (file_exists('/var/www/site-php/your_site/your_site-settings.inc')) {
-    // @codeCoverageIgnoreStart
-    require '/var/www/site-php/your_site/your_site-settings.inc';
-    $settings['config_sync_directory'] = $settings['config_vcs_directory'];
-    // @codeCoverageIgnoreEnd
-  }
-  // Default all environments to 'dev', including ODE environments.
-  $settings['environment'] = ENVIRONMENT_DEV;
-
-  // Do not put any Acquia-specific settings in this code block. It is used
-  // to explicitly map Acquia environments to $settings['environment']
-  // variable only.
-  // Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
-  switch (getenv('AH_SITE_ENVIRONMENT')) {
-    case 'prod':
-      $settings['environment'] = ENVIRONMENT_PROD;
-      break;
-
-    case 'test':
-      $settings['environment'] = ENVIRONMENT_TEST;
-      break;
+// Load environment-specific settings.
+if (file_exists($app_root . '/' . $site_path . '/includes/providers')) {
+  $files = glob($app_root . '/' . $site_path . '/includes/providers/settings.*.php');
+  if ($files) {
+    foreach ($files as $filename) {
+      require $filename;
+    }
   }
 }
-// #;> ACQUIA
-
-// #;< LAGOON
-// Initialise environment type in Lagoon environment.
-if (getenv('LAGOON') && getenv('LAGOON_ENVIRONMENT_TYPE') == 'production' || getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
-  // Do not put any Lagoon-specific settings in this code block. It is used
-  // to explicitly map Lagoon environments to $settings['environment']
-  // variable only.
-  // Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
-  //
-  // Environment is marked as 'production' in Lagoon.
-  if (getenv('LAGOON_ENVIRONMENT_TYPE') == 'production') {
-    $settings['environment'] = ENVIRONMENT_PROD;
-  }
-  // All other environments running in Lagoon are considered 'development'.
-  else {
-    // Any other environment is considered 'development' in Lagoon.
-    $settings['environment'] = ENVIRONMENT_DEV;
-
-    // But try to identify production environment using a branch name for
-    // the cases when 'production' Lagoon environment is not provisioned yet.
-    if (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') === getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) {
-      $settings['environment'] = ENVIRONMENT_PROD;
-    }
-    // Dedicated test environment based on a branch name.
-    elseif (getenv('LAGOON_GIT_BRANCH') == 'master') {
-      $settings['environment'] = ENVIRONMENT_TEST;
-    }
-    // Test environment based on a branch prefix for release and
-    // hotfix branches.
-    elseif (!empty(getenv('LAGOON_GIT_BRANCH')) && (str_starts_with(getenv('LAGOON_GIT_BRANCH'), 'release/') || str_starts_with(getenv('LAGOON_GIT_BRANCH'), 'hotfix/'))) {
-      $settings['environment'] = ENVIRONMENT_TEST;
-    }
-  }
-
-  // Lagoon version.
-  if (!defined('LAGOON_VERSION')) {
-    define('LAGOON_VERSION', '1');
-  }
-
-  // Lagoon reverse proxy settings.
-  $settings['reverse_proxy'] = TRUE;
-  // Reverse proxy settings.
-  $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
-
-  // Cache prefix.
-  $settings['cache_prefix']['default'] = (getenv('LAGOON_PROJECT') ?: getenv('DREVOPS_PROJECT')) . '_' . (getenv('LAGOON_GIT_SAFE_BRANCH') ?: getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH'));
-
-  // Trusted host patterns for Lagoon internal routes.
-  // URL when accessed from PHP processes in Lagoon.
-  $settings['trusted_host_patterns'][] = '^nginx\-php$';
-  // Lagoon URL.
-  $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
-  // Lagoon routes.
-  if (getenv('LAGOON_ROUTES')) {
-    $patterns = str_replace(['.', 'https://', 'http://', ','], [
-      '\.', '', '', '|',
-    ], getenv('LAGOON_ROUTES'));
-    $settings['trusted_host_patterns'][] = '^' . $patterns . '$';
-  }
-}
-// #;> LAGOON
 
 // Allow overriding of an environment type.
 if (!empty(getenv('DRUPAL_ENVIRONMENT'))) {
@@ -226,7 +143,7 @@ if (!empty(getenv('DRUPAL_ENVIRONMENT'))) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-///                         ENVIRONMENT DETECTION                            ///
+///                   ENVIRONMENT-SPECIFIC SETTINGS                          ///
 ////////////////////////////////////////////////////////////////////////////////
 
 if ($settings['environment'] == ENVIRONMENT_CI) {
@@ -255,8 +172,8 @@ if ($settings['environment'] == ENVIRONMENT_LOCAL) {
 ///                       PER-MODULE SETTINGS                                ///
 ////////////////////////////////////////////////////////////////////////////////
 
-if (file_exists($app_root . '/' . $site_path . '/includes')) {
-  $files = glob($app_root . '/' . $site_path . '/includes/settings.*.php');
+if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
+  $files = glob($app_root . '/' . $site_path . '/includes/modules/settings.*.php');
   if ($files) {
     foreach ($files as $filename) {
       require $filename;
