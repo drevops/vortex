@@ -8,7 +8,7 @@
 # an artifact in CI and then commit only required files to the destination
 # repository.
 #
-# During deployment, the `.gitignore.deployment` file determines which files
+# During deployment, the `.gitignore.artifact` file determines which files
 # to exclude, using the `.gitignore` syntax. When preparing the artifact build,
 # this file supersedes the existing `.gitignore`, and any specified files are
 # excluded.
@@ -95,7 +95,7 @@ fi
 # in deploy code source files.
 cp -a "${DREVOPS_DEPLOY_ARTIFACT_ROOT}"/.git "${DREVOPS_DEPLOY_ARTIFACT_SRC}" || true
 # Copying deployment .gitignore as it may not exist in deploy code source files.
-cp -a "${DREVOPS_DEPLOY_ARTIFACT_ROOT}"/.gitignore.deployment "${DREVOPS_DEPLOY_ARTIFACT_SRC}" || true
+cp -a "${DREVOPS_DEPLOY_ARTIFACT_ROOT}"/.gitignore.artifact "${DREVOPS_DEPLOY_ARTIFACT_SRC}" || true
 
 note "Running artifact builder."
 # Add --debug to debug any deployment issues.
@@ -103,7 +103,7 @@ note "Running artifact builder."
   --root="${DREVOPS_DEPLOY_ARTIFACT_ROOT}" \
   --src="${DREVOPS_DEPLOY_ARTIFACT_SRC}" \
   --branch="${DREVOPS_DEPLOY_ARTIFACT_DST_BRANCH}" \
-  --gitignore="${DREVOPS_DEPLOY_ARTIFACT_SRC}"/.gitignore.deployment \
+  --gitignore="${DREVOPS_DEPLOY_ARTIFACT_SRC}"/.gitignore.artifact \
   --log="${DREVOPS_DEPLOY_ARTIFACT_LOG}" \
   -vvv
 

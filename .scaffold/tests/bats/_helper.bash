@@ -683,7 +683,7 @@ assert_files_present_no_deployment() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_not_exists ".gitignore.deployment"
+  assert_file_not_exists ".gitignore.artifact"
   assert_file_not_exists "docs/deployment.md"
 
   # 'Required' files can be asserted for modifications only if they were not
