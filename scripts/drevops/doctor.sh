@@ -72,9 +72,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 warn() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[33m[WARN] %s\033[0m\n" "${1}" || printf "[WARN] %s\n" "${1}"; }
 # @formatter:on
 
-for cmd in docker "docker compose" pygmy ahoy; do
-  command -v ${cmd} >/dev/null || { fail "Command ${cmd} is not available"; exit 1; };
-done
+for cmd in docker pygmy ahoy; do command -v ${cmd} >/dev/null || { fail "Command ${cmd} is not available"; exit 1; }; done
 
 #
 # Main entry point.
