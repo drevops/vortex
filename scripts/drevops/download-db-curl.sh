@@ -30,6 +30,8 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
+command -v curl >/dev/null || (fail "Command curl is not available." && exit 1)
+
 info "Started database dump download from CURL."
 
 # Check all required values.

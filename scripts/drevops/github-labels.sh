@@ -35,6 +35,10 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
+for cmd in curl sed awk; do
+  command -v ${cmd} >/dev/null || { fail "Command ${cmd} is not available"; exit 1; };
+done
+
 # Array of labels to create. If DELETE_EXISTING_LABELS=1, the labels list will
 # be exactly as below, otherwise labels below will be added to existing ones.
 labels=(

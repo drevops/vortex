@@ -53,7 +53,10 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
+for cmd in curl php; do
+  command -v ${cmd} >/dev/null || { fail "Command ${cmd} is not available"; exit 1; };
+done
+
 [ -z "${DREVOPS_NOTIFY_JIRA_USER}" ] && fail "Missing required value for DREVOPS_NOTIFY_JIRA_USER" && exit 1
 [ -z "${DREVOPS_NOTIFY_JIRA_TOKEN}" ] && fail "Missing required value for DREVOPS_NOTIFY_JIRA_TOKEN" && exit 1
 [ -z "${DREVOPS_NOTIFY_BRANCH}" ] && fail "Missing required value for DREVOPS_NOTIFY_BRANCH" && exit 1

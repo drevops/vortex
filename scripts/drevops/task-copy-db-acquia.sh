@@ -71,7 +71,7 @@ extract_json_value() {
 }
 
 # Pre-flight checks.
-command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
+command -v curl >/dev/null || (fail "Command curl is not available." && exit 1)
 
 # Check that all required variables are present.
 [ -z "${DREVOPS_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_ACQUIA_KEY." && exit 1

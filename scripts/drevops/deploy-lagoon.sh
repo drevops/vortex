@@ -101,6 +101,7 @@ if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_LAGOONCLI_FORCE_INSTALL}" ]
   chmod +x "${DREVOPS_LAGOONCLI_PATH}/lagoon"
   export PATH="${PATH}:${DREVOPS_LAGOONCLI_PATH}"
 fi
+command -v lagoon >/dev/null || (fail "Command lagoon is not available." && exit 1)
 
 note "Configuring Lagoon instance."
 #shellcheck disable=SC2218

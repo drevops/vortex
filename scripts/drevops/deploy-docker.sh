@@ -39,6 +39,8 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
+command -v docker >/dev/null || (fail "docker command is not available." && exit 1)
+
 info "Started DOCKER deployment."
 
 # Only deploy if the map was provided, but do not fail if it has not as this
