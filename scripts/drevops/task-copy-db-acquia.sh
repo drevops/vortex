@@ -71,7 +71,11 @@ extract_json_value() {
 }
 
 # Pre-flight checks.
-for cmd in curl; do command -v ${cmd} >/dev/null || { fail "Command ${cmd} is not available"; exit 1; }; done
+#shellcheck disable=SC2043
+for cmd in curl; do command -v ${cmd} >/dev/null || {
+  fail "Command ${cmd} is not available"
+  exit 1
+}; done
 
 # Check that all required variables are present.
 [ -z "${DREVOPS_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_ACQUIA_KEY." && exit 1
