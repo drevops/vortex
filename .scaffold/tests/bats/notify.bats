@@ -214,3 +214,31 @@ load _helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: webhook" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+
+  mock_set_output "${mock_curl}" "200" 1
+
+  export DREVOPS_NOTIFY_ENVIRONMENT_URL="https://example-environment-notifcation.com"
+  export DREVOPS_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
+  export DREVOPS_NOTIFY_WEBHOOK_METHOD="POST"
+  export DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS='[{"name": "Content-type", "value": "application/json"},{"name": "Authorization", "value": "Bearer API_KEY"}]'
+  export DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY='{"channel": "XXX", "message": "Hello there"}'
+  export DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS='[{"name": "API_KEY", "value": "this-is-api-key"},{"name": "PASSWORD", "value": "this-is-password"}]'
+
+  run ./scripts/drevops/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+
+  assert_output_contains "Started Webhook notification."
+
+  assert_output_contains "Finished Webhook notification."
+
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}

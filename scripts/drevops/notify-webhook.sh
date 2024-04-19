@@ -101,4 +101,7 @@ if [[ ${response_http_code} == "200" ]]; then
   pass "Notified to webhook ${DREVOPS_NOTIFY_WEBHOOK_URL}."
 else
   fail "Unable to notify to webhook ${DREVOPS_NOTIFY_WEBHOOK_URL}."
+  exit 1
 fi
+
+pass "Finished Webhook notification."
