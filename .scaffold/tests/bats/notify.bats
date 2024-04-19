@@ -222,6 +222,7 @@ load _helper.bash
 
   mock_set_output "${mock_curl}" "200" 1
 
+  export DREVOPS_NOTIFY_CHANNELS="webhook"
   export DREVOPS_NOTIFY_ENVIRONMENT_URL="https://example-environment-notifcation.com"
   export DREVOPS_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
   export DREVOPS_NOTIFY_WEBHOOK_METHOD="POST"
