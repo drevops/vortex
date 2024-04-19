@@ -11,11 +11,9 @@ set -eu
 
 # Deployment environment URL.
 DREVOPS_NOTIFY_ENVIRONMENT_URL="${DREVOPS_NOTIFY_ENVIRONMENT_URL:-}"
-DREVOPS_NOTIFY_ENVIRONMENT_URL="https://environment-example.com"
 
 # Webhook URL.
 DREVOPS_NOTIFY_WEBHOOK_URL="${DREVOPS_NOTIFY_WEBHOOK_URL:-}"
-DREVOPS_NOTIFY_WEBHOOK_URL="https://webhook.site/20094c7c-da9f-49a3-9a5f-88fef7b3f760"
 
 # Webhook method like POST, GET, PUT.
 DREVOPS_NOTIFY_WEBHOOK_METHOD="${DREVOPS_NOTIFY_WEBHOOK_METHOD:-POST}"
@@ -23,18 +21,15 @@ DREVOPS_NOTIFY_WEBHOOK_METHOD="${DREVOPS_NOTIFY_WEBHOOK_METHOD:-POST}"
 # Webhook custom header as json format.
 # Ex: [{"name": "Content-type", "value": "application/json"},{"name": "Authorization", "value": "Bearer API_KEY"}].
 DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS="${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS:-}"
-DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS='[{"name": "Content-type", "value": "application/json"},{"name": "Authorization", "value": "Bearer API_KEY"}]'
 
 # Webhook message body as json format.
 # This is data sent to webhook.
 # Ex: {"channel": "XXX", "message": "Hello there"}.
 DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY="${DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY:-}"
-DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY='{"API-KEY": "API_KEY"}'
 
 # Custom parameters and secrets to use in custom header and message body.
 # Ex: [{"name": "API_KEY", "value": "XXX"},{"name": "PASSWORD", "value": "XXX"}]
 DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS="${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS:-}"
-DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS='[{"name": "API_KEY", "value": "hehe"}]'
 
 # ------------------------------------------------------------------------------
 
