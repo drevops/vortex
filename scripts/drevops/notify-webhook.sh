@@ -51,6 +51,7 @@ for cmd in php curl jq; do command -v ${cmd} >/dev/null || {
 }; done
 
 # Find custom parameters and secrets in string and replace it by value.
+# shellcheck disable=SC2001
 replace_parameters_and_secrets_in_string() {
   string="$1"
   while read -r name value; do
@@ -68,37 +69,40 @@ note "Webhook url                           : ${DREVOPS_NOTIFY_WEBHOOK_URL}"
 note "Webhook method                        : ${DREVOPS_NOTIFY_WEBHOOK_METHOD}"
 note "Webhook custom header                 :"
 echo "${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS}" | jq -c '.[]' | while read -r item; do
-    name=$(echo "${item}" | jq -r '.name')
-    value=$(echo "${item}" | jq -r '.value')
-    note "  ${name}: ${value}"
+  name=$(echo "${item}" | jq -r '.name')
+  value=$(echo "${item}" | jq -r '.value')
+  note "  ${name}: ${value}"
 done
 note "Webhook custom parameters and secrets :"
 echo "${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS}" | jq -c '.[]' | while read -r item; do
-    name=$(echo "${item}" | jq -r '.name')
-    value=$(echo "${item}" | jq -r '.value')
-    note "  ${name}: ${value}"
+  name=$(echo "${item}" | jq -r '.name')
+  value=$(echo "${item}" | jq -r '.value')
+  note "  ${name}: ${value}"
 done
 
 # Build header.
+headers_replaced=$(replace_parameters_and_secrets_in_string "${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS}")
 declare -a headers
-while IFS=: read -r name value; do
-    # Add header to the curl_headers array
-    headers+=(-H "$name: $value")
-done < <(echo "$(replace_parameters_and_secrets_in_string "${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS}")" | jq -r '.[] | "\(.name): \(.value)"')
+while read -r item; do
+  name=$(echo "${item}" | jq -r '.name')
+  value=$(echo "${item}" | jq -r '.value')
+  headers+=("-H" "${name}: ${value}")
+done < <(echo "${headers_replaced}" | jq -c '.[]')
 
 # Build message body.
 message_body="$(replace_parameters_and_secrets_in_string "${DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY}")"
 
 # Make curl request.
-response_http_code="$(curl -s \
-                           -o /dev/null \
-                           -w '%{http_code}' \
-                           -X "${DREVOPS_NOTIFY_WEBHOOK_METHOD}" \
-                           "${headers[@]}" \
-                           --data "${message_body}" \
-                           "${DREVOPS_NOTIFY_WEBHOOK_URL}"
-                     )"
-if [[ "${response_http_code}" = "200" ]]; then
+response_http_code="$(
+  curl -s \
+    -o /dev/null \
+    -w '%{http_code}' \
+    -X "${DREVOPS_NOTIFY_WEBHOOK_METHOD}" \
+    "${headers[@]}" \
+    --data "${message_body}" \
+    "${DREVOPS_NOTIFY_WEBHOOK_URL}"
+)"
+if [[ ${response_http_code} == "200" ]]; then
   pass "Notified to webhook ${DREVOPS_NOTIFY_WEBHOOK_URL}."
 else
   fail "Unable to notify to webhook ${DREVOPS_NOTIFY_WEBHOOK_URL}."
