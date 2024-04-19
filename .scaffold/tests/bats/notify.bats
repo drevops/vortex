@@ -221,6 +221,7 @@ load _helper.bash
   mock_curl=$(mock_command "curl")
 
   mock_set_output "${mock_curl}" "200" 1
+  mock_set_output "${mock_curl}" "400" 2
 
   export DREVOPS_NOTIFY_CHANNELS="webhook"
   export DREVOPS_NOTIFY_ENVIRONMENT_URL="https://example-environment-notifcation.com"
@@ -240,6 +241,9 @@ load _helper.bash
   assert_output_contains "Finished Webhook notification."
 
   assert_output_contains "Finished dispatching notifications."
+
+  run ./scripts/drevops/notify.sh
+  assert_failure
 
   popd >/dev/null || exit 1
 }

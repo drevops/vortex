@@ -27,6 +27,9 @@ DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS="${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS:-
 # Ex: {"channel": "XXX", "message": "Hello there"}.
 DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY="${DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY:-}"
 
+# The pattern of response code return by curl.
+# Default is match 200.
+DREVOPS_NOTIFY_WEBHOOK_RESPONSE_CODE_PATTERN="${DREVOPS_NOTIFY_WEBHOOK_RESPONSE_CODE_PATTERN:-^200$}"
 # Custom parameters and secrets to use in custom header and message body.
 # Ex: [{"name": "API_KEY", "value": "XXX"},{"name": "PASSWORD", "value": "XXX"}]
 DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS="${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS:-}"
@@ -44,6 +47,12 @@ for cmd in php curl jq; do command -v ${cmd} >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done
+
+[ -z "${DREVOPS_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for DREVOPS_NOTIFY_ENVIRONMENT_URL" && exit 1
+[ -z "${DREVOPS_NOTIFY_WEBHOOK_URL}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_URL" && exit 1
+[ -z "${DREVOPS_NOTIFY_WEBHOOK_METHOD}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_METHOD" && exit 1
+[ -z "${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS" && exit 1
+[ -z "${DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY" && exit 1
 
 # Find custom parameters and secrets in string and replace it by value.
 # shellcheck disable=SC2001
@@ -88,18 +97,11 @@ done < <(echo "${headers_replaced}" | jq -c '.[]')
 message_body="$(replace_parameters_and_secrets_in_string "${DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY}")"
 
 # Make curl request.
-response_http_code="$(
-  curl -s \
-    -o /dev/null \
-    -w '%{http_code}' \
-    -X "${DREVOPS_NOTIFY_WEBHOOK_METHOD}" \
-    "${headers[@]}" \
-    --data "${message_body}" \
-    "${DREVOPS_NOTIFY_WEBHOOK_URL}"
-)"
-if [[ ${response_http_code} == "200" ]]; then
-  pass "Notified to webhook ${DREVOPS_NOTIFY_WEBHOOK_URL}."
-else
+
+if ! curl -L -s -o /dev/null -w '%{http_code}' \
+  -X "${DREVOPS_NOTIFY_WEBHOOK_METHOD}" \
+  "${headers[@]}" \
+  -d "${message_body}" "${DREVOPS_NOTIFY_WEBHOOK_URL}" | grep -q "${DREVOPS_NOTIFY_WEBHOOK_RESPONSE_CODE_PATTERN}"; then
   fail "Unable to notify to webhook ${DREVOPS_NOTIFY_WEBHOOK_URL}."
   exit 1
 fi
