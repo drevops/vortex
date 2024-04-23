@@ -1,3 +1,8 @@
+# Local docker services override.
+#
+# Copy this file to docker-compose.override.yml and set relevant values.
+# docker-compose.override.yml is excluded from the repository,
+
 services:
   chrome:
     # Chrome image with Apple M1 support.
