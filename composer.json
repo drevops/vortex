@@ -44,7 +44,7 @@
         "drevops/behat-screenshot": "^1",
         "drevops/behat-steps": "^2.2",
         "drupal/core-dev": "^10.2.0",
-        "drupal/drupal-extension": "^5@rc",
+        "drupal/drupal-extension": "^5",
         "mglaman/phpstan-drupal": "^1.2",
         "palantirnet/drupal-rector": "^0.20",
         "phpcompatibility/php-compatibility": "^9.3",
@@ -73,7 +73,7 @@
             "pyrech/composer-changelogs": true
         },
         "platform": {
-            "php": "8.2.13"
+            "php": "8.2.17"
         }
     },
     "autoload": {

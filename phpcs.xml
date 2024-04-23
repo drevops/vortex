@@ -17,8 +17,6 @@
     <arg name="colors"/>
     <arg value="sp"/>
     <arg name="parallel" value="75"/>
-    <!-- Lint code against platform version specified in composer.json key "config.platform.php". -->
-    <config name="testVersion" value="8.1"/>
 
     <!-- Exclude CircleCI config files. -->
     <exclude-pattern>circle\.yml</exclude-pattern>
