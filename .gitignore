@@ -53,6 +53,7 @@ web/themes/**/node_modules
 web/themes/**/build
 .data
 .logs
+.twig-cs-fixer.cache
 
 # Ignore local override files.
 docker-compose.override.yml
