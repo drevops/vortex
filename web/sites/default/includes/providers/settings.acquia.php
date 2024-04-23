@@ -7,6 +7,8 @@
  * @see https://docs.acquia.com/acquia-cloud/develop/env-variable
  */
 
+declare(strict_types=1);
+
 if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Delay the initial database connection.
   $config['acquia_hosting_settings_autoconnect'] = FALSE;

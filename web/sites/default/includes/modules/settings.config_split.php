@@ -5,6 +5,8 @@
  * Config split settings.
  */
 
+declare(strict_types=1);
+
 switch ($settings['environment']) {
   case ENVIRONMENT_TEST:
     $config['config_split.config_split.test']['status'] = TRUE;

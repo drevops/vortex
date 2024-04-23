@@ -5,6 +5,8 @@
  * Lagoon hosting provider settings.
  */
 
+declare(strict_types=1);
+
 if (getenv('LAGOON') && getenv('LAGOON_ENVIRONMENT_TYPE') == 'production' || getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
   // Do not put any Lagoon-specific settings in this code block. It is used
   // to explicitly map Lagoon environments to $settings['environment']

@@ -10,6 +10,8 @@
  * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.After
  */
 
+declare(strict_types=1);
+
 use Drupal\Core\Extension\ExtensionDiscovery;
 
 /**

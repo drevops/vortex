@@ -5,6 +5,8 @@
  * Environment indicator settings.
  */
 
+declare(strict_types=1);
+
 $config['environment_indicator.indicator']['name'] = $settings['environment'];
 $config['environment_indicator.indicator']['bg_color'] = '#006600';
 $config['environment_indicator.indicator']['fg_color'] = '#ffffff';

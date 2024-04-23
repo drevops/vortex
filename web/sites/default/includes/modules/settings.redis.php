@@ -5,6 +5,8 @@
  * Redis configuration.
  */
 
+declare(strict_types=1);
+
 use Drupal\Component\Serialization\PhpSerialize;
 use Drupal\redis\Cache\CacheBackendFactory;
 use Drupal\redis\Cache\PhpRedis;

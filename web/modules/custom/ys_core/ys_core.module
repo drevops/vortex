@@ -5,6 +5,8 @@
  * Core module for YOURSITE.
  */
 
+declare(strict_types=1);
+
 use Drupal\Core\Site\Settings;
 
 /**
