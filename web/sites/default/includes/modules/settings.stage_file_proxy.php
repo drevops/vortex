@@ -5,6 +5,8 @@
  * Stage file proxy settings.
  */
 
+declare(strict_types=1);
+
 $origin = getenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN');
 if (!empty($origin) && $settings['environment'] != ENVIRONMENT_PROD) {
   $user = getenv('DRUPAL_SHIELD_USER');
