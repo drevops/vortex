@@ -171,8 +171,8 @@ jobs:
           name: Export DB after download
           command: |
             [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-            docker compose up -d
-            sleep 15
+            ./scripts/drevops/login-docker.sh
+            docker compose up -d && sleep 15
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/drevops/provision.sh"
             grep -q ^DREVOPS_DB_DOCKER_IMAGE .env && rm .data/db.sql || true
@@ -227,6 +227,9 @@ jobs:
             - v1.19.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             - v1.19.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !PROVISION_USE_PROFILE
+      - run:
+          name: Login to Docker registry
+          command: ./scripts/drevops/login-docker.sh
       - run:
           name: Build stack
           command: docker compose up -d
