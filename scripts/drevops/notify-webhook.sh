@@ -23,7 +23,7 @@ DREVOPS_NOTIFY_ENVIRONMENT_URL="https://example.com"
 
 # Webhook URL.
 DREVOPS_NOTIFY_WEBHOOK_URL="${DREVOPS_NOTIFY_WEBHOOK_URL:-}"
-DREVOPS_NOTIFY_WEBHOOK_URL="https://typedwebhook.tools/webhook/1e383759-8019-4c10-8c3a-030a5edda715"
+DREVOPS_NOTIFY_WEBHOOK_URL="https://typedwebhook.tools/webhook/16627646-ca0e-4d9f-8bf9-d6f7a69476bc"
 
 # Webhook method like POST, GET, PUT.
 DREVOPS_NOTIFY_WEBHOOK_METHOD="${DREVOPS_NOTIFY_WEBHOOK_METHOD:-POST}"
@@ -66,14 +66,14 @@ for cmd in php curl; do command -v ${cmd} >/dev/null || {
 [ -z "${DREVOPS_NOTIFY_WEBHOOK_PAYLOAD}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_PAYLOAD" && exit 1
 
 # Build and replace some variables (%variable_name%) for webhook payload.
-# timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
-# message="## This is an automated message ##\n${DREVOPS_NOTIFY_PROJECT} deployment notification of \"${DREVOPS_NOTIFY_REF}\"\nSite ${DREVOPS_NOTIFY_PROJECT} \"${DREVOPS_NOTIFY_REF}\" branch has been deployed at ${timestamp} and is available at ${DREVOPS_NOTIFY_ENVIRONMENT_URL}.\nLogin at: ${DREVOPS_NOTIFY_ENVIRONMENT_URL}/user/login"
-#
-# DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%message%', '$message', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
-# DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%timestamp%', '$timestamp', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
-# DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%ref%', '$DREVOPS_NOTIFY_REF', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
-# DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%project%', '$DREVOPS_NOTIFY_PROJECT', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
-# DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%environment_url%', '$DREVOPS_NOTIFY_ENVIRONMENT_URL', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
+timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
+message='## This is an automated message ##\nSite %project% \"%ref%\" branch has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %environment_url%/user/login'
+
+DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%message%', '$message', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
+DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%timestamp%', '$timestamp', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
+DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%ref%', '$DREVOPS_NOTIFY_REF', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
+DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%project%', '$DREVOPS_NOTIFY_PROJECT', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
+DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%environment_url%', '$DREVOPS_NOTIFY_ENVIRONMENT_URL', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
 
 info "Started Webhook notification."
 
@@ -89,7 +89,7 @@ note "Webhook response status               : ${DREVOPS_NOTIFY_WEBHOOK_RESPONSE_
 
 # Build headers.
 headers=()
-IFS=\| read -ra webhook_headers <<< "${DREVOPS_NOTIFY_WEBHOOK_HEADERS}"
+IFS=\| read -ra webhook_headers <<<"${DREVOPS_NOTIFY_WEBHOOK_HEADERS}"
 for item in "${webhook_headers[@]}"; do
   headers+=('-H' "${item}")
 done
