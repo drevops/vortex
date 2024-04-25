@@ -244,3 +244,25 @@ load _helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: webhook failure" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" "400" 1
+
+  export DREVOPS_NOTIFY_CHANNELS="webhook"
+  export DREVOPS_NOTIFY_PROJECT="testproject"
+  export DREVOPS_NOTIFY_REF="develop"
+  export DREVOPS_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+
+  export DREVOPS_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
+  export DREVOPS_NOTIFY_WEBHOOK_METHOD="POST"
+  export DREVOPS_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json|Authorization: Bearer API_KEY"
+  export DREVOPS_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Test channel 1", "message": "Test channel 1 message"}'
+
+  run ./scripts/drevops/notify.sh
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
