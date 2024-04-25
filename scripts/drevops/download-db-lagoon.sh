@@ -91,7 +91,7 @@ if [ -f ".env.local" ]; then
   t=$(mktemp) && export -p >"${t}" && set -a && . ".env.local" && set +a && . "${t}" && rm "${t}" && unset t
 fi
 
-DREVOPS_SSH_PREFIX="DB_DOWNLOAD" ./scripts/drevops/setup-ssh.sh
+export DREVOPS_SSH_PREFIX="DB_DOWNLOAD" && . ./scripts/drevops/setup-ssh.sh
 
 ssh_opts=(-o "UserKnownHostsFile=/dev/null")
 ssh_opts+=(-o "StrictHostKeyChecking=no")

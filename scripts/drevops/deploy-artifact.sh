@@ -75,7 +75,7 @@ info "Started ARTIFACT deployment."
 [ "$(git config --global user.name)" = "" ] && note "Configuring global git user name." && git config --global user.name "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME}"
 [ "$(git config --global user.email)" = "" ] && note "Configuring global git user email." && git config --global user.email "${DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
 
-DREVOPS_SSH_PREFIX="DEPLOY" ./scripts/drevops/setup-ssh.sh
+export DREVOPS_SSH_PREFIX="DEPLOY" && . ./scripts/drevops/setup-ssh.sh
 
 note "Installing artifact builder."
 composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^0.7

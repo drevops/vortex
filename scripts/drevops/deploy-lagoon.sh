@@ -83,7 +83,7 @@ info "Started LAGOON deployment."
 [ -z "${LAGOON_PROJECT}" ] && fail "Missing required value for LAGOON_PROJECT." && exit 1
 { [ -z "${DREVOPS_DEPLOY_BRANCH}" ] && [ -z "${DREVOPS_DEPLOY_PR}" ]; } && fail "Missing required value for DREVOPS_DEPLOY_BRANCH or DREVOPS_DEPLOY_PR." && exit 1
 
-DREVOPS_SSH_PREFIX="DEPLOY" ./scripts/drevops/setup-ssh.sh
+export DREVOPS_SSH_PREFIX="DEPLOY" && . ./scripts/drevops/setup-ssh.sh
 
 if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_LAGOONCLI_FORCE_INSTALL}" ]; then
   note "Installing Lagoon CLI."
