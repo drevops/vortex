@@ -295,8 +295,7 @@ jobs:
       - run:
           name: Process test logs and artifacts
           command: |
-            mkdir -p "${DREVOPS_CI_TEST_RESULTS}"
-            mkdir -p "${DREVOPS_CI_ARTIFACTS}"
+            mkdir -p "${DREVOPS_CI_TEST_RESULTS}" "${DREVOPS_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
                docker compose cp cli:/app/.logs/. "${DREVOPS_CI_ARTIFACTS}/"
               if docker compose exec -T cli sh -c '[ -d /app/.logs/test_results/ ]'; then
