@@ -1345,4 +1345,6 @@ process_ahoyyml() {
   local sed_opts
   sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
   sed "${sed_opts[@]}" 's|cmd: ahoy cli ./scripts/drevops/provision.sh|cmd: if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli \.\/scripts\/drevops\/provision\.sh|g' .ahoy.yml
+
+  cat .ahoy.yml >&3
 }
