@@ -62,7 +62,7 @@ info "Started code mirroring."
 [ "$(git config --global user.name)" == "" ] && note "Configuring global git user name." && git config --global user.name "${DREVOPS_MIRROR_CODE_GIT_USER_NAME}"
 [ "$(git config --global user.email)" == "" ] && note "Configuring global git user email." && git config --global user.email "${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL}"
 
-DREVOPS_SSH_PREFIX="MIRROR_CODE" ./scripts/drevops/setup-ssh.sh
+export DREVOPS_SSH_PREFIX="MIRROR_CODE" && . ./scripts/drevops/setup-ssh.sh
 
 # Create a temp directory to copy source repository into to prevent changes to source.
 SRC_TMPDIR=$(mktemp -d)

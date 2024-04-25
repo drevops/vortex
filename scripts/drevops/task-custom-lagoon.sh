@@ -67,7 +67,7 @@ info "Started Lagoon task ${DREVOPS_TASK_LAGOON_NAME}."
 [ -z "${DREVOPS_TASK_LAGOON_COMMAND}" ] && echo "Missing required value for DREVOPS_TASK_LAGOON_COMMAND." && exit 1
 [ -z "${DREVOPS_TASK_LAGOON_PROJECT}" ] && echo "Missing required value for DREVOPS_TASK_LAGOON_PROJECT." && exit 1
 
-DREVOPS_SSH_PREFIX="TASK" ./scripts/drevops/setup-ssh.sh
+export DREVOPS_SSH_PREFIX="TASK" && . ./scripts/drevops/setup-ssh.sh
 
 if ! command -v lagoon >/dev/null || [ -n "${DREVOPS_LAGOONCLI_FORCE_INSTALL}" ]; then
   note "Installing Lagoon CLI."
