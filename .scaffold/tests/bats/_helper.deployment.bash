@@ -140,6 +140,7 @@ install_and_build_site() {
 
     export DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1
 
+    process_ahoyyml
     ahoy build
     sync_to_host
   fi

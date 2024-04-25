@@ -1334,3 +1334,15 @@ download_installer() {
 
   popd >/dev/null || exit 1
 }
+
+process_ahoyyml() {
+  [ "${SCAFFOLD_DEV_VOLUMES_MOUNTED}" = "1" ] && return
+
+  # Override the provision command in .ahoy.yml to copy the database file to
+  # the container for when the volumes are not mounted.
+  # We are doing this only to replicate developer's workflow and experience
+  # when they run `ahoy build` locally.
+  local sed_opts
+  sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
+  sed "${sed_opts[@]}" 's|cmd: ahoy cli ./scripts/drevops/provision.sh|cmd: if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli \.\/scripts\/drevops\/provision\.sh|g' .ahoy.yml
+}
