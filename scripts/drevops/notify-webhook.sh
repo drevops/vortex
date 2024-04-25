@@ -9,30 +9,39 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
+# Project name to notify.
+DREVOPS_NOTIFY_PROJECT="${DREVOPS_NOTIFY_PROJECT:-}"
+DREVOPS_NOTIFY_PROJECT="Project Name"
+
+# Git reference to notify about.
+DREVOPS_NOTIFY_REF="${DREVOPS_NOTIFY_REF:-}"
+DREVOPS_NOTIFY_REF="Branch Name"
+
 # Deployment environment URL.
 DREVOPS_NOTIFY_ENVIRONMENT_URL="${DREVOPS_NOTIFY_ENVIRONMENT_URL:-}"
+DREVOPS_NOTIFY_ENVIRONMENT_URL="https://example.com"
 
 # Webhook URL.
 DREVOPS_NOTIFY_WEBHOOK_URL="${DREVOPS_NOTIFY_WEBHOOK_URL:-}"
+DREVOPS_NOTIFY_WEBHOOK_URL="https://typedwebhook.tools/webhook/1e383759-8019-4c10-8c3a-030a5edda715"
 
 # Webhook method like POST, GET, PUT.
 DREVOPS_NOTIFY_WEBHOOK_METHOD="${DREVOPS_NOTIFY_WEBHOOK_METHOD:-POST}"
 
-# Webhook custom header as json format.
-# Ex: [{"name": "Content-type", "value": "application/json"},{"name": "Authorization", "value": "Bearer API_KEY"}].
-DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS="${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS:-}"
+# Webhook headers.
+# Ex: "Content-type: application/json;Authorization: Bearer API_KEY".
+DREVOPS_NOTIFY_WEBHOOK_HEADERS="${DREVOPS_NOTIFY_WEBHOOK_HEADERS:-Content-type: application/json}"
 
 # Webhook message body as json format.
 # This is data sent to webhook.
-# Ex: {"channel": "XXX", "message": "Hello there"}.
-DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY="${DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY:-}"
+# Some built-in variables like: %message%, %environment_url%, %project%, %ref%, %timestamp%.
+# Ex: {"channel": "Channel 1", "message": "%message%"}.
+DREVOPS_NOTIFY_WEBHOOK_PAYLOAD="${DREVOPS_NOTIFY_WEBHOOK_PAYLOAD:-}"
+DREVOPS_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Channel 1", "message": "%message%", "project": "%project%", "ref": "%ref%", "timestamp": "%timestamp%", "environment_url": "%environment_url%"}'
 
 # The pattern of response code return by curl.
 # Default is match 200.
-DREVOPS_NOTIFY_WEBHOOK_RESPONSE_CODE_PATTERN="${DREVOPS_NOTIFY_WEBHOOK_RESPONSE_CODE_PATTERN:-^200$}"
-# Custom parameters and secrets to use in custom header and message body.
-# Ex: [{"name": "API_KEY", "value": "XXX"},{"name": "PASSWORD", "value": "XXX"}]
-DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS="${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS:-}"
+DREVOPS_NOTIFY_WEBHOOK_RESPONSE_STATUS="${DREVOPS_NOTIFY_WEBHOOK_RESPONSE_STATUS:-200}"
 
 # ------------------------------------------------------------------------------
 
@@ -43,66 +52,55 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-for cmd in php curl jq; do command -v ${cmd} >/dev/null || {
+for cmd in php curl; do command -v ${cmd} >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done
 
+[ -z "${DREVOPS_NOTIFY_PROJECT}" ] && fail "Missing required value for DREVOPS_NOTIFY_PROJECT" && exit 1
+[ -z "${DREVOPS_NOTIFY_REF}" ] && fail "Missing required value for DREVOPS_NOTIFY_REF" && exit 1
 [ -z "${DREVOPS_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for DREVOPS_NOTIFY_ENVIRONMENT_URL" && exit 1
 [ -z "${DREVOPS_NOTIFY_WEBHOOK_URL}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_URL" && exit 1
 [ -z "${DREVOPS_NOTIFY_WEBHOOK_METHOD}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_METHOD" && exit 1
-[ -z "${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS" && exit 1
-[ -z "${DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY" && exit 1
+[ -z "${DREVOPS_NOTIFY_WEBHOOK_HEADERS}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_HEADERS" && exit 1
+[ -z "${DREVOPS_NOTIFY_WEBHOOK_PAYLOAD}" ] && fail "Missing required value for DREVOPS_NOTIFY_WEBHOOK_PAYLOAD" && exit 1
 
-# Find custom parameters and secrets in string and replace it by value.
-# shellcheck disable=SC2001
-replace_parameters_and_secrets_in_string() {
-  string="$1"
-  while read -r name value; do
-    string=$(echo "${string}" | sed "s/${name}/${value}/g")
-  done < <(echo "${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS}" | jq -r '.[] | "\(.name) \(.value)"')
-
-  echo "${string}"
-}
+# Build and replace some variables (%variable_name%) for webhook payload.
+# timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
+# message="## This is an automated message ##\n${DREVOPS_NOTIFY_PROJECT} deployment notification of \"${DREVOPS_NOTIFY_REF}\"\nSite ${DREVOPS_NOTIFY_PROJECT} \"${DREVOPS_NOTIFY_REF}\" branch has been deployed at ${timestamp} and is available at ${DREVOPS_NOTIFY_ENVIRONMENT_URL}.\nLogin at: ${DREVOPS_NOTIFY_ENVIRONMENT_URL}/user/login"
+#
+# DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%message%', '$message', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
+# DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%timestamp%', '$timestamp', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
+# DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%ref%', '$DREVOPS_NOTIFY_REF', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
+# DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%project%', '$DREVOPS_NOTIFY_PROJECT', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
+# DREVOPS_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%environment_url%', '$DREVOPS_NOTIFY_ENVIRONMENT_URL', '$DREVOPS_NOTIFY_WEBHOOK_PAYLOAD');")
 
 info "Started Webhook notification."
 
 info "Webhook config:"
+note "Project                               : ${DREVOPS_NOTIFY_PROJECT}"
+note "Ref                                   : ${DREVOPS_NOTIFY_REF}"
 note "Environment url                       : ${DREVOPS_NOTIFY_ENVIRONMENT_URL}"
 note "Webhook url                           : ${DREVOPS_NOTIFY_WEBHOOK_URL}"
 note "Webhook method                        : ${DREVOPS_NOTIFY_WEBHOOK_METHOD}"
-note "Webhook custom header                 :"
-echo "${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS}" | jq -c '.[]' | while read -r item; do
-  name=$(echo "${item}" | jq -r '.name')
-  value=$(echo "${item}" | jq -r '.value')
-  note "  ${name}: ${value}"
-done
-note "Webhook custom parameters and secrets :"
-echo "${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_PARAMETERS_AND_SECRETS}" | jq -c '.[]' | while read -r item; do
-  name=$(echo "${item}" | jq -r '.name')
-  value=$(echo "${item}" | jq -r '.value')
-  note "  ${name}: ${value}"
-done
+note "Webhook headers                       : ${DREVOPS_NOTIFY_WEBHOOK_HEADERS}"
+note "Webhook payload                       : ${DREVOPS_NOTIFY_WEBHOOK_PAYLOAD}"
+note "Webhook response status               : ${DREVOPS_NOTIFY_WEBHOOK_RESPONSE_STATUS}"
 
-# Build header.
-headers_replaced=$(replace_parameters_and_secrets_in_string "${DREVOPS_NOTIFY_WEBHOOK_CUSTOM_HEADERS}")
-declare -a headers
-while read -r item; do
-  name=$(echo "${item}" | jq -r '.name')
-  value=$(echo "${item}" | jq -r '.value')
-  headers+=("-H" "${name}: ${value}")
-done < <(echo "${headers_replaced}" | jq -c '.[]')
-
-# Build message body.
-message_body="$(replace_parameters_and_secrets_in_string "${DREVOPS_NOTIFY_WEBHOOK_MESSAGE_BODY}")"
+# Build headers.
+headers=()
+IFS=\| read -ra webhook_headers <<< "${DREVOPS_NOTIFY_WEBHOOK_HEADERS}"
+for item in "${webhook_headers[@]}"; do
+  headers+=('-H' "${item}")
+done
 
 # Make curl request.
-
 if ! curl -L -s -o /dev/null -w '%{http_code}' \
   -X "${DREVOPS_NOTIFY_WEBHOOK_METHOD}" \
   "${headers[@]}" \
-  -d "${message_body}" "${DREVOPS_NOTIFY_WEBHOOK_URL}" | grep -q "${DREVOPS_NOTIFY_WEBHOOK_RESPONSE_CODE_PATTERN}"; then
-  fail "Unable to notify to webhook ${DREVOPS_NOTIFY_WEBHOOK_URL}."
+  -d "${DREVOPS_NOTIFY_WEBHOOK_PAYLOAD}" \
+  "${DREVOPS_NOTIFY_WEBHOOK_URL}" | grep -q "${DREVOPS_NOTIFY_WEBHOOK_RESPONSE_STATUS}"; then
+  fail "Unable to send notification to webhook ${DREVOPS_NOTIFY_WEBHOOK_URL}."
   exit 1
 fi
 
