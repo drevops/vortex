@@ -12,15 +12,13 @@ set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # The URL of the webhook to call.
-# Note that any tokens should be added to the value of this variable outside
-# this script.
 DREVOPS_DEPLOY_WEBHOOK_URL="${DREVOPS_DEPLOY_WEBHOOK_URL:-}"
 
 # Webhook call method.
 DREVOPS_DEPLOY_WEBHOOK_METHOD="${DREVOPS_DEPLOY_WEBHOOK_METHOD:-GET}"
 
 # The status code of the expected response.
-DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS=${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS:-200}
+DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS="${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS:-200}"
 
 # ------------------------------------------------------------------------------
 
@@ -38,9 +36,7 @@ info "Started WEBHOOK deployment."
 [ -z "${DREVOPS_DEPLOY_WEBHOOK_METHOD}" ] && fail "Missing required value for DREVOPS_DEPLOY_WEBHOOK_METHOD." && exit 1
 [ -z "${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS}" ] && fail "Missing required value for DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS." && exit 1
 
-if curl -X "${DREVOPS_DEPLOY_WEBHOOK_METHOD}" -L -s -o /dev/null -w "%{http_code}" "${DREVOPS_DEPLOY_WEBHOOK_URL}" | grep -q "${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS}"; then
-  # Note that we do not output ${DREVOPS_DEPLOY_WEBHOOK_URL} as it may contain
-  # secrets that would be printed to the terminal.
+if curl --request "${DREVOPS_DEPLOY_WEBHOOK_METHOD}" --location --silent --output /dev/null --write-out "%{http_code}" "${DREVOPS_DEPLOY_WEBHOOK_URL}" | grep --quiet "${DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS}"; then
   note "Webhook call completed."
 else
   fail "Unable to complete webhook deployment."
