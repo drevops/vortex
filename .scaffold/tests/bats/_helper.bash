@@ -1346,3 +1346,19 @@ process_ahoyyml() {
   sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
   sed "${sed_opts[@]}" 's|cmd: ahoy cli ./scripts/drevops/provision.sh|cmd: if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli \.\/scripts\/drevops\/provision\.sh|g' .ahoy.yml
 }
+
+setup_ssh_key_fixture() {
+  export HOME="${BUILD_DIR}"
+  export SSH_KEY_FIXTURE_DIR="${BUILD_DIR}/.ssh"
+  fixture_prepare_dir "${SSH_KEY_FIXTURE_DIR}"
+}
+
+provision_default_ssh_key() {
+  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa" >/dev/null
+  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_TEST" >/dev/null
+}
+
+provision_ssh_key_with_suffix() {
+  local suffix="${1:-TEST}"
+  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" >/dev/null
+}

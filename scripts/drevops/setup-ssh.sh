@@ -33,17 +33,14 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-for cmd in ssh-keygen ssh-add; do command -v ${cmd} >/dev/null || {
-  fail "Command ${cmd} is not available"
-  exit 1
-}; done
-
 info "Started SSH setup."
 
 fingerprint_var="DREVOPS_${DREVOPS_SSH_PREFIX}_SSH_FINGERPRINT"
 if [ -n "${!fingerprint_var-}" ]; then
   fingerprint="${!fingerprint_var}"
-  note "Found variable ${fingerprint_var} with value ${fingerprint}."
+  note "Found fingerprint variable ${fingerprint_var} with value ${fingerprint}."
+else
+  note "Did not find fingerprint variable ${fingerprint_var}."
 fi
 
 file_var="DREVOPS_${DREVOPS_SSH_PREFIX}_SSH_FILE"
@@ -52,7 +49,13 @@ if [ -n "${!file_var-}" ]; then
   note "Found variable ${file_var} with value ${file}."
 else
   file="${HOME}/.ssh/id_rsa"
-  note "Using default SSH file ${file}."
+  note "Did not find a variable ${file_var}. Using default value ${file}."
+fi
+
+if [ "${file}" = false ]; then
+  pass "SSH key is set to false meaning that it is not required. Skipping setup."
+  export "${file_var}=${file}"
+  [ "${BASH_SOURCE[0]}" != "$0" ] && return 0 || exit 0
 fi
 
 if [ -n "${fingerprint-}" ]; then

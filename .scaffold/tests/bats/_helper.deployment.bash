@@ -148,30 +148,11 @@ install_and_build_site() {
   popd >/dev/null || exit 1
 }
 
-setup_ssh_key_fixture() {
-  # Create a fixture directory for ssh keys
-  export HOME="${BUILD_DIR}"
-  export SSH_KEY_FIXTURE_DIR="${BUILD_DIR}/.ssh"
-  fixture_prepare_dir "${SSH_KEY_FIXTURE_DIR}"
-}
-
 setup_robo_fixture() {
   export HOME="${BUILD_DIR}"
   fixture_prepare_dir "${HOME}/.composer/vendor/bin"
   touch "${HOME}/.composer/vendor/bin/robo"
   chmod +x "${HOME}/.composer/vendor/bin/robo"
-}
-
-provision_default_ssh_key() {
-    # Generate fixture keys.
-  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa"
-  # Generate SSH key with TEST suffix.
-  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_TEST"
-}
-
-provision_ssh_key_with_suffix() {
-  local suffix="${1:-TEST}"
-  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}"
 }
 
 provision_docker_config_file() {
