@@ -27,6 +27,7 @@ use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\Set\ValueObject\SetList;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
+use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return static function (RectorConfig $rectorConfig): void {
   $rectorConfig->paths([
@@ -37,6 +38,7 @@ return static function (RectorConfig $rectorConfig): void {
     // Provided by Rector.
     SetList::PHP_80,
     SetList::PHP_81,
+    SetList::PHP_82,
     SetList::CODE_QUALITY,
     SetList::CODING_STYLE,
     SetList::DEAD_CODE,
@@ -47,6 +49,8 @@ return static function (RectorConfig $rectorConfig): void {
     Drupal9SetList::DRUPAL_9,
     Drupal10SetList::DRUPAL_10,
   ]);
+
+  $rectorConfig->rule(DeclareStrictTypesRector::class);
 
   $drupalFinder = new DrupalFinder();
   $drupalFinder->locateRoot(__DIR__);
@@ -78,6 +82,7 @@ return static function (RectorConfig $rectorConfig): void {
     '*/modules/contrib/*',
     '*/themes/contrib/*',
     '*/profiles/contrib/*',
+    '*/sites/default/default.settings.php',
     // Files.
     '*/sites/default/files/*',
     '*/sites/simpletest/*',

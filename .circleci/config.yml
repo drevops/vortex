@@ -54,7 +54,7 @@ aliases:
       # This container has all the necessary tools to run a dockerized environment.
       # @see https://github.com/drevops/ci-runner
       # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags?page=1&ordering=last_updated
-      - image: drevops/ci-runner:24.3.0
+      - image: drevops/ci-runner:24.4.0
         auth:
           username: ${DOCKER_USER}
           password: ${DOCKER_PASS}
@@ -171,8 +171,8 @@ jobs:
           name: Export DB after download
           command: |
             [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-            docker compose up -d
-            sleep 15
+            ./scripts/drevops/login-docker.sh
+            docker compose up -d && sleep 15
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/drevops/provision.sh"
             grep -q ^DREVOPS_DB_DOCKER_IMAGE .env && rm .data/db.sql || true
@@ -227,6 +227,9 @@ jobs:
             - v1.19.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             - v1.19.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !PROVISION_USE_PROFILE
+      - run:
+          name: Login to Docker registry
+          command: ./scripts/drevops/login-docker.sh
       - run:
           name: Build stack
           command: docker compose up -d
@@ -292,8 +295,7 @@ jobs:
       - run:
           name: Process test logs and artifacts
           command: |
-            mkdir -p "${DREVOPS_CI_TEST_RESULTS}"
-            mkdir -p "${DREVOPS_CI_ARTIFACTS}"
+            mkdir -p "${DREVOPS_CI_TEST_RESULTS}" "${DREVOPS_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
                docker compose cp cli:/app/.logs/. "${DREVOPS_CI_ARTIFACTS}/"
               if docker compose exec -T cli sh -c '[ -d /app/.logs/test_results/ ]'; then
@@ -307,7 +309,7 @@ jobs:
           path: *artifacts
       - run:
           name: Upload code coverage reports to Codecov
-          command: if [ -d /tmp/artifacts/coverage ]; then codecov -Z -s /tmp/artifacts/coverage; fi
+          command: if [ -n "${CODECOV_TOKEN}" ] && [ -d /tmp/artifacts/coverage ]; then codecov -Z -s /tmp/artifacts/coverage; fi
       - persist_to_workspace:
           root: /tmp/workspace
           paths:

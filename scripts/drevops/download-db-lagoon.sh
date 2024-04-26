@@ -76,6 +76,11 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
+for cmd in ssh rsync; do command -v ${cmd} >/dev/null || {
+  fail "Command ${cmd} is not available"
+  exit 1
+}; done
+
 info "Started database dump download from Lagoon."
 
 mkdir -p "${DREVOPS_DB_DIR}"
@@ -86,7 +91,7 @@ if [ -f ".env.local" ]; then
   t=$(mktemp) && export -p >"${t}" && set -a && . ".env.local" && set +a && . "${t}" && rm "${t}" && unset t
 fi
 
-DREVOPS_SSH_PREFIX="DB_DOWNLOAD" ./scripts/drevops/setup-ssh.sh
+export DREVOPS_SSH_PREFIX="DB_DOWNLOAD" && . ./scripts/drevops/setup-ssh.sh
 
 ssh_opts=(-o "UserKnownHostsFile=/dev/null")
 ssh_opts+=(-o "StrictHostKeyChecking=no")

@@ -99,6 +99,7 @@ assert_ahoy_build() {
   export DOCKER_USER="${TEST_DOCKER_USER?Test Docker user is not set}"
   export DOCKER_PASS="${TEST_DOCKER_PASS?Test Docker pass is not set}"
 
+  process_ahoyyml
   run ahoy build
   run sync_to_host
 

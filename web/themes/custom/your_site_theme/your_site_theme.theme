@@ -5,6 +5,8 @@
  * Template for YOURSITE theme.
  */
 
+declare(strict_types=1);
+
 use Drupal\Core\Site\Settings;
 
 /**

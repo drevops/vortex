@@ -45,7 +45,7 @@ const config = {
           path: 'content',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/drevops/scaffold/tree/main/.scaffold/docs/content/',
+          editUrl: 'https://github.com/drevops/scaffold/tree/develop/.scaffold/docs/',
         },
         blog: false,
         theme: {

@@ -5,6 +5,8 @@
  * Fast404 settings.
  */
 
+declare(strict_types=1);
+
 if (file_exists($contrib_path . '/fast404/fast404.inc')) {
   // @codeCoverageIgnoreStart
   $settings['fast404_exts'] = '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';

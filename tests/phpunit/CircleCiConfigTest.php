@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Drupal\Core\Serialization\Yaml;
 use PHPUnit\Framework\TestCase;
 

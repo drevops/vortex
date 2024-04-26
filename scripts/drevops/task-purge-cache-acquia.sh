@@ -49,6 +49,12 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
+# Pre-flight checks.
+for cmd in php curl; do command -v ${cmd} >/dev/null || {
+  fail "Command ${cmd} is not available"
+  exit 1
+}; done
+
 info "Started cache purging in Acquia."
 
 #
@@ -66,9 +72,6 @@ extract_json_value() {
   local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
-
-# Pre-flight checks.
-command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 
 # Check that all required variables are present.
 [ -z "${DREVOPS_ACQUIA_KEY}" ] && fail "Missing value for DREVOPS_ACQUIA_KEY." && exit 1

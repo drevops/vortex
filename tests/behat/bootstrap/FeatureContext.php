@@ -5,6 +5,8 @@
  * YOURSITE Drupal context for Behat testing.
  */
 
+declare(strict_types=1);
+
 use DrevOps\BehatSteps\ContentTrait;
 use DrevOps\BehatSteps\FieldTrait;
 use DrevOps\BehatSteps\FileTrait;

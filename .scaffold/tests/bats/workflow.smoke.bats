@@ -41,11 +41,13 @@ load _helper.workflow.bash
 
   step "Build without a GITHUB_TOKEN token"
   unset GITHUB_TOKEN
+  process_ahoyyml
   run ahoy build
   assert_failure
 
   step "Build with a GITHUB_TOKEN token"
   export GITHUB_TOKEN="${TEST_GITHUB_TOKEN}"
+  process_ahoyyml
   run ahoy build
   assert_success
 }
@@ -66,10 +68,16 @@ load _helper.workflow.bash
   docker compose exec -T cli composer install --prefer-dist >&3
 
   substep "Provisioning"
-  if [ -f .data/db.sql ]; then
-    docker compose exec cli mkdir -p .data
-    docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+
+  # Copy DB into container for the cases when the volumes are not mounted.
+  # This will not be a case locally.
+  if [ "${SCAFFOLD_DEV_VOLUMES_MOUNTED}" != "1" ]; then
+    if [ -f .data/db.sql ]; then
+      docker compose exec cli mkdir -p .data
+      docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+    fi
   fi
+
   docker compose exec -T cli ./scripts/drevops/provision.sh >&3
 
   sync_to_host

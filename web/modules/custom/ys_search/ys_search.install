@@ -5,6 +5,8 @@
  * Install for YOURSITE Search module.
  */
 
+declare(strict_types=1);
+
 /**
  * Implements hook_install().
  */

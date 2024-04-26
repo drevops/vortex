@@ -38,7 +38,9 @@ info "Started SSH setup."
 fingerprint_var="DREVOPS_${DREVOPS_SSH_PREFIX}_SSH_FINGERPRINT"
 if [ -n "${!fingerprint_var-}" ]; then
   fingerprint="${!fingerprint_var}"
-  note "Found variable ${fingerprint_var} with value ${fingerprint}."
+  note "Found fingerprint variable ${fingerprint_var} with value ${fingerprint}."
+else
+  note "Did not find fingerprint variable ${fingerprint_var}."
 fi
 
 file_var="DREVOPS_${DREVOPS_SSH_PREFIX}_SSH_FILE"
@@ -47,7 +49,13 @@ if [ -n "${!file_var-}" ]; then
   note "Found variable ${file_var} with value ${file}."
 else
   file="${HOME}/.ssh/id_rsa"
-  note "Using default SSH file ${file}."
+  note "Did not find a variable ${file_var}. Using default value ${file}."
+fi
+
+if [ "${file}" = false ]; then
+  pass "SSH key is set to false meaning that it is not required. Skipping setup."
+  export "${file_var}=${file}"
+  [ "${BASH_SOURCE[0]}" != "$0" ] && return 0 || exit 0
 fi
 
 if [ -n "${fingerprint-}" ]; then

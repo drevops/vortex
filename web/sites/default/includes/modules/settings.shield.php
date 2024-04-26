@@ -5,6 +5,8 @@
  * Shield settings.
  */
 
+declare(strict_types=1);
+
 // Default Shield credentials.
 //
 // Shield can be enabled and disabled in production through UI.

@@ -44,6 +44,11 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
+for cmd in git rsync; do command -v ${cmd} >/dev/null || {
+  fail "Command ${cmd} is not available"
+  exit 1
+}; done
+
 info "Started code mirroring."
 
 # Check all required values.
@@ -57,7 +62,7 @@ info "Started code mirroring."
 [ "$(git config --global user.name)" == "" ] && note "Configuring global git user name." && git config --global user.name "${DREVOPS_MIRROR_CODE_GIT_USER_NAME}"
 [ "$(git config --global user.email)" == "" ] && note "Configuring global git user email." && git config --global user.email "${DREVOPS_MIRROR_CODE_GIT_USER_EMAIL}"
 
-DREVOPS_SSH_PREFIX="MIRROR_CODE" ./scripts/drevops/setup-ssh.sh
+export DREVOPS_SSH_PREFIX="MIRROR_CODE" && . ./scripts/drevops/setup-ssh.sh
 
 # Create a temp directory to copy source repository into to prevent changes to source.
 SRC_TMPDIR=$(mktemp -d)

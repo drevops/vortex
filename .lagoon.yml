@@ -6,10 +6,10 @@ environment_variables:
 
 # Uncomment to login into container registries if using private images.
 # container-registries:
-#  dockerhub:
-#    # Environment variables DOCKER_USER and DOCKER_PASS needs to be set via Lagoon CLI.
-#    username: DOCKER_USER
-#    password: DOCKER_PASS
+#   dockerhub:
+#     # Environment variables DOCKER_USER and DOCKER_PASS needs to be set via Lagoon CLI.
+#     username: DOCKER_USER
+#     password: DOCKER_PASS
 
 tasks:
   post-rollout:
