@@ -50,6 +50,7 @@ load _helper.deployment.bash
 
 @test "Artifact deployment, global git username and email configured, default SSH Key" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
   setup_ssh_key_fixture
   setup_robo_fixture
   provision_default_ssh_key
