@@ -100,6 +100,11 @@
             <directory>web/sites/default/settings.php</directory>
         </include>
 
+        <exclude>
+            <directory>web/modules/custom/*/tests</directory>
+            <directory>web/themes/custom/*/tests</directory>
+        </exclude>
+
         <report>
             <html outputDirectory=".logs/coverage/phpunit/.coverage-html" lowUpperBound="50" highLowerBound="90"/>
             <cobertura outputFile=".logs/coverage/phpunit/cobertura.xml"/>
