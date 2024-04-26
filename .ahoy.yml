@@ -85,18 +85,15 @@ commands:
 
   cli:
     usage: Start a shell or run a command inside the CLI service container.
-    # Drop into shell if no arguments were supplied.
-    # If arguments were supplied - a new shell will be started with environment
-    # variables passed from the host environment and filtered by prefix.
-    # This allows passing the host environment variables to a container without
-    # the need to restart it.
-    # Escape double quotes with \" (slash double-quote) when passing arguments
-    # containing spaces.
+    # Drop into a shell if no arguments are supplied, otherwise run the command.
+    # Environment variables are passed from the host and filtered by prefix.
+    # Use \" (slash followed by a double quote) to escape double quotes in
+    # arguments that contain spaces.
     cmd: |
       if [ "${#}" -ne 0 ]; then
-        docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\DRUPAL_\|DREVOPS_" | sed 's/^/-e /') -T cli bash -c "$*"
+        docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\|DRUPAL_\|DREVOPS_" | sed 's/^/-e /') -T cli bash -c "$*"
       else
-        docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\DRUPAL_\|DREVOPS_" | sed 's/^/-e /') cli bash
+        docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|DOCKER_\|DRUPAL_\|DREVOPS_" | sed 's/^/-e /') cli bash
       fi
 
   composer:
