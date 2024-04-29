@@ -645,7 +645,7 @@ Defined in: `scripts/drevops/deploy-webhook.sh`
 
 ### `DREVOPS_DEPLOY_WEBHOOK_URL`
 
-The URL of the webhook to call.<br />Note that any tokens should be added to the value of this variable outside<br />this script.
+The URL of the webhook to call.
 
 Default value: `UNDEFINED`
 
@@ -951,7 +951,7 @@ Deployment environment URL.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/drevops/notify-github.sh`, `scripts/drevops/notify-jira.sh`
+Defined in: `scripts/drevops/notify-github.sh`, `scripts/drevops/notify-jira.sh`, `scripts/drevops/notify-webhook.sh`
 
 ### `DREVOPS_NOTIFY_EVENT`
 
@@ -1107,11 +1107,11 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 
 ### `DREVOPS_NOTIFY_PROJECT`
 
-The project to notify about.
+Project name to notify.
 
-Default value: `${DREVOPS_PROJECT}`
+Default value: `UNDEFINED`
 
-Defined in: `scripts/drevops/notify.sh`
+Defined in: `scripts/drevops/notify-webhook.sh`, `scripts/drevops/notify.sh`
 
 ### `DREVOPS_NOTIFY_REF`
 
@@ -1119,7 +1119,7 @@ Deployment reference, such as a git SHA.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/drevops/notify-github.sh`
+Defined in: `scripts/drevops/notify-github.sh`, `scripts/drevops/notify-webhook.sh`
 
 ### `DREVOPS_NOTIFY_REPOSITORY`
 
@@ -1136,6 +1136,46 @@ Flag to skip running of all notifications.
 Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/notify.sh`
+
+### `DREVOPS_NOTIFY_WEBHOOK_HEADERS`
+
+Webhook headers.<br />Ex: "Content-type: application/json;Authorization: Bearer API_KEY".
+
+Default value: `Content-type: application/json`
+
+Defined in: `scripts/drevops/notify-webhook.sh`
+
+### `DREVOPS_NOTIFY_WEBHOOK_METHOD`
+
+Webhook method like POST, GET, PUT.
+
+Default value: `POST`
+
+Defined in: `scripts/drevops/notify-webhook.sh`
+
+### `DREVOPS_NOTIFY_WEBHOOK_PAYLOAD`
+
+Webhook message body as json format.
+
+Default value: `${DREVOPS_NOTIFY_WEBHOOK_PAYLOAD:-{\"channel\": \"Channel 1\", \"message\": \"%message%\", \"project\": \"%project%\", \"ref\": \"%ref%\", \"timestamp\": \"%timestamp%\", \"environment_url\": \"%environment_url%\"}}`
+
+Defined in: `scripts/drevops/notify-webhook.sh`
+
+### `DREVOPS_NOTIFY_WEBHOOK_RESPONSE_STATUS`
+
+The pattern of response code return by curl.
+
+Default value: `200`
+
+Defined in: `scripts/drevops/notify-webhook.sh`
+
+### `DREVOPS_NOTIFY_WEBHOOK_URL`
+
+Webhook URL.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/notify-webhook.sh`
 
 ### `DREVOPS_NPM_VERBOSE`
 

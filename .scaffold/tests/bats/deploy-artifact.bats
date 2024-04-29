@@ -34,17 +34,23 @@ load _helper.deployment.bash
   unset DREVOPS_DEPLOY_ARTIFACT_SRC
   unset DREVOPS_DEPLOY_ARTIFACT_ROOT
   unset DREVOPS_DEPLOY_ARTIFACT_LOG
+
   run scripts/drevops/deploy-artifact.sh
   assert_failure
   assert_output_contains "Missing required value for DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE."
+
   export DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE="git@github.com:yourorg/your-repo-destination.git"
+
   run scripts/drevops/deploy-artifact.sh
   assert_failure
   assert_output_contains "Missing required value for DREVOPS_DEPLOY_ARTIFACT_SRC."
+
   export DREVOPS_DEPLOY_ARTIFACT_SRC="dist"
+
   run scripts/drevops/deploy-artifact.sh
   assert_failure
   assert_output_contains "Missing required value for DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL."
+
   popd >/dev/null
 }
 
@@ -62,6 +68,7 @@ load _helper.deployment.bash
   export DREVOPS_DEPLOY_ARTIFACT_GIT_USER_NAME="test_user"
   export DREVOPS_DEPLOY_ARTIFACT_GIT_USER_EMAIL="test_user@example.com"
   local file=${HOME}/.ssh/id_rsa
+
   mock_realpath=$(mock_command "realpath")
 
   declare -a STEPS=(
@@ -84,8 +91,10 @@ load _helper.deployment.bash
     "Finished ARTIFACT deployment."
   )
   mocks="$(run_steps "setup")"
+
   run scripts/drevops/deploy-artifact.sh
   assert_success
+
   run_steps "assert" "${mocks[@]}"
   assert_equal "2" "$(mock_get_call_num "${mock_realpath}" 1)"
 

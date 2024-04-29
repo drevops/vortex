@@ -70,4 +70,8 @@ if [ -z "${DREVOPS_NOTIFY_CHANNELS##*jira*}" ]; then
   ./scripts/drevops/notify-jira.sh "$@"
 fi
 
+if [ -z "${DREVOPS_NOTIFY_CHANNELS##*webhook*}" ]; then
+  ./scripts/drevops/notify-webhook.sh "$@"
+fi
+
 pass "Finished dispatching notifications."
