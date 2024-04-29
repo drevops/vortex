@@ -196,7 +196,7 @@ jobs:
       # Enforce fresh DB build (do not rely on fallback caches).
       DREVOPS_CI_DB_CACHE_FALLBACK: 'no'
       # Always use fresh base image for the database.
-      DREVOPS_DB_IMAGE_BASE: drevops/mariadb-drupal-data:24.3.0
+      DREVOPS_DB_IMAGE_BASE: drevops/mariadb-drupal-data:24.4.0
       # Deploy docker image (if DREVOPS_DB_EXPORT_DOCKER_IMAGE storage is used).
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
   #;> !PROVISION_USE_PROFILE
