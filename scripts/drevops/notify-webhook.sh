@@ -29,13 +29,9 @@ DREVOPS_NOTIFY_WEBHOOK_METHOD="${DREVOPS_NOTIFY_WEBHOOK_METHOD:-POST}"
 DREVOPS_NOTIFY_WEBHOOK_HEADERS="${DREVOPS_NOTIFY_WEBHOOK_HEADERS:-Content-type: application/json}"
 
 # Webhook message body as json format.
-# This is data sent to webhook.
-# Some built-in variables like: %message%, %environment_url%, %project%, %ref%, %timestamp%.
-# Ex: {"channel": "Channel 1", "message": "%message%"}.
 DREVOPS_NOTIFY_WEBHOOK_PAYLOAD="${DREVOPS_NOTIFY_WEBHOOK_PAYLOAD:-{\"channel\": \"Channel 1\", \"message\": \"%message%\", \"project\": \"%project%\", \"ref\": \"%ref%\", \"timestamp\": \"%timestamp%\", \"environment_url\": \"%environment_url%\"}}"
 
 # The pattern of response code return by curl.
-# Default is match 200.
 DREVOPS_NOTIFY_WEBHOOK_RESPONSE_STATUS="${DREVOPS_NOTIFY_WEBHOOK_RESPONSE_STATUS:-200}"
 
 # ------------------------------------------------------------------------------
