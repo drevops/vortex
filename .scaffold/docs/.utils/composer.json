@@ -2,7 +2,7 @@
     "name": "drevops/docs-utils",
     "require": {
         "php": ">=8.1",
-        "alexskrypnyk/shellvar": "^0.7"
+        "alexskrypnyk/shellvar": "^1"
     },
     "authors": [
         {

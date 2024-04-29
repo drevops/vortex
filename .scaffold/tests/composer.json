@@ -11,6 +11,6 @@
     "minimum-stability": "alpha",
     "prefer-stable": true,
     "require-dev": {
-        "alexskrypnyk/shellvar": "^0.7"
+        "alexskrypnyk/shellvar": "^1"
     }
 }

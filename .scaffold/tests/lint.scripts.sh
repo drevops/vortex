@@ -37,6 +37,8 @@ for file in "${targets[@]}"; do
       # @see https://github.com/AlexSkrypnyk/shellvar/issues/65
       if [[ ! "${file}" =~ github-labels ]]; then
         exit 1
+      else
+        echo "  > Skipping the file ${file} due to a false positive."
       fi
     fi
 
