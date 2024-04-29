@@ -332,7 +332,7 @@ Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 The SSH user of the Lagoon environment.
 
-Default value: `LAGOON_PROJECT-${DREVOPS_DB_DOWNLOAD_ENVIRONMENT`
+Default value: `${LAGOON_PROJECT}-${DREVOPS_DB_DOWNLOAD_ENVIRONMENT}`
 
 Defined in: `scripts/drevops/download-db-lagoon.sh`
 
@@ -364,7 +364,7 @@ Defined in: `.env`, `scripts/drevops/download-db.sh`
 
 Default SSH file used if custom fingerprint is not provided.
 
-Default value: `HOME/.ssh/id_rsa`
+Default value: `${HOME}/.ssh/id_rsa`
 
 Defined in: `scripts/drevops/download-db-lagoon.sh`
 
@@ -388,7 +388,7 @@ Defined in: `scripts/drevops/export-db-docker.sh`
 
 Directory with database image archive file.
 
-Default value: `DREVOPS_DB_DIR`
+Default value: `${DREVOPS_DB_DIR}`
 
 Defined in: `scripts/drevops/export-db-docker.sh`
 
@@ -497,7 +497,7 @@ Defined in: `scripts/drevops/deploy-artifact.sh`
 
 Deployment log file name.
 
-Default value: `DREVOPS_DEPLOY_ARTIFACT_ROOT/deployment_log.txt`
+Default value: `${DREVOPS_DEPLOY_ARTIFACT_ROOT}/deployment_log.txt`
 
 Defined in: `scripts/drevops/deploy-artifact.sh`
 
@@ -505,7 +505,7 @@ Defined in: `scripts/drevops/deploy-artifact.sh`
 
 The root directory where the deployment script should run from. Defaults to<br />the current directory.
 
-Default value: `(pwd)`
+Default value: `$(pwd)`
 
 Defined in: `scripts/drevops/deploy-artifact.sh`
 
@@ -603,7 +603,7 @@ Defined in: `scripts/drevops/deploy-lagoon.sh`
 
 Default SSH file used if custom fingerprint is not provided.
 
-Default value: `HOME/.ssh/id_rsa`
+Default value: `${HOME}/.ssh/id_rsa`
 
 Defined in: `scripts/drevops/deploy-artifact.sh`, `scripts/drevops/deploy-lagoon.sh`
 
@@ -667,7 +667,7 @@ Defined in: `scripts/drevops/doctor.sh`
 
 ### `DREVOPS_DOCTOR_CHECK_CONTAINERS`
 
-Default value: `UNDEFINED`
+Default value: `0`
 
 Defined in: `scripts/drevops/doctor.sh`
 
@@ -675,7 +675,7 @@ Defined in: `scripts/drevops/doctor.sh`
 
 Check minimal Doctor requirements.
 
-Default value: `UNDEFINED`
+Default value: `0`
 
 Defined in: `scripts/drevops/doctor.sh`
 
@@ -721,7 +721,7 @@ Defined in: `scripts/drevops/provision.sh`
 
 Path to private files.
 
-Default value: `./${DREVOPS_WEBROOT/sites/default/files/private}`
+Default value: `./${DREVOPS_WEBROOT}/sites/default/files/private`
 
 Defined in: `scripts/drevops/provision.sh`
 
@@ -899,7 +899,7 @@ Defined in: `.env`, `scripts/drevops/notify.sh`
 
 Environment URL to notify about.
 
-Default value: `DREVOPS_NOTIFY_ENVIRONMENT_URL`
+Default value: `${DREVOPS_NOTIFY_ENVIRONMENT_URL}`
 
 Defined in: `scripts/drevops/notify-email.sh`
 
@@ -915,7 +915,7 @@ Defined in: `.env`, `scripts/drevops/notify-email.sh`
 
 Project name to notify.
 
-Default value: `DREVOPS_NOTIFY_PROJECT`
+Default value: `${DREVOPS_NOTIFY_PROJECT}`
 
 Defined in: `scripts/drevops/notify-email.sh`
 
@@ -933,7 +933,7 @@ Defined in: `.env`, `scripts/drevops/notify-email.sh`
 
 Git reference to notify about.
 
-Default value: `DREVOPS_NOTIFY_REF`
+Default value: `${DREVOPS_NOTIFY_REF}`
 
 Defined in: `scripts/drevops/notify-email.sh`
 
@@ -965,7 +965,7 @@ Defined in: `scripts/drevops/notify-github.sh`, `scripts/drevops/notify.sh`
 
 Deployment GitHub token.
 
-Default value: `GITHUB_TOKEN`
+Default value: `${GITHUB_TOKEN}`
 
 Defined in: `scripts/drevops/notify-github.sh`
 
@@ -1043,7 +1043,7 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 
 NewRelic application name as it appears in the dashboard.
 
-Default value: `DREVOPS_NOTIFY_NEWRELIC_PROJECT-${DREVOPS_NOTIFY_NEWRELIC_REF}`
+Default value: `${DREVOPS_NOTIFY_NEWRELIC_PROJECT}-${DREVOPS_NOTIFY_NEWRELIC_REF}`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
@@ -1053,7 +1053,7 @@ Optional NewRelic notification changelog.
 
 Defaults to the description.
 
-Default value: `DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION`
+Default value: `${DREVOPS_NOTIFY_NEWRELIC_DESCRIPTION}`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
@@ -1061,7 +1061,7 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 
 Optional NewRelic notification description.
 
-Default value: `DREVOPS_NOTIFY_NEWRELIC_REF deployed`
+Default value: `${DREVOPS_NOTIFY_NEWRELIC_REF} deployed`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
@@ -1077,7 +1077,7 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 
 Project name to notify.
 
-Default value: `DREVOPS_NOTIFY_PROJECT`
+Default value: `${DREVOPS_NOTIFY_PROJECT}`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
@@ -1085,7 +1085,7 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 
 Deployment reference, such as a git branch or pr.
 
-Default value: `DREVOPS_NOTIFY_REF`
+Default value: `${DREVOPS_NOTIFY_REF}`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
@@ -1093,7 +1093,7 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 
 Deployment commit reference, such as a git SHA.
 
-Default value: `DREVOPS_NOTIFY_SHA`
+Default value: `${DREVOPS_NOTIFY_SHA}`
 
 Defined in: `scripts/drevops/notify-newrelic.sh`
 
@@ -1109,7 +1109,7 @@ Defined in: `scripts/drevops/notify-newrelic.sh`
 
 The project to notify about.
 
-Default value: `DREVOPS_PROJECT`
+Default value: `${DREVOPS_PROJECT}`
 
 Defined in: `scripts/drevops/notify.sh`
 
@@ -1185,7 +1185,7 @@ Defined in: `.env`, `.env.local.default`, `scripts/drevops/provision.sh`
 
 Flag to skip running of operations after site provision is complete.<br />Useful to only import the database from file (or install from profile) and not<br />perform any additional operations. For example, when need to capture database<br />state before any updates ran (for example, DB caching in CI).
 
-Default value: `UNDEFINED`
+Default value: `0`
 
 Defined in: `scripts/drevops/provision.sh`
 
@@ -1277,15 +1277,20 @@ Defined in: `scripts/drevops/info.sh`
 
 Default SSH key file.
 
-Default value: `HOME/.ssh/id_rsa`
+Default value: `${HOME}/.ssh/id_rsa`
 
 Defined in: `scripts/drevops/doctor.sh`
 
 ### `DREVOPS_SSH_PREFIX`
 
-Default value: `DEPLOY" ./scripts/drevops/setup-ssh.sh`
+Prefix used to load SSH key from prefixes environment variables:
+- DREVOPS_[`${DREVOPS_SSH_PREFIX}`](#drevops_ssh_prefix)_SSH_FINGERPRINT - the variable name with the<br />SSH key fingerprint value.
+- DREVOPS_[`${DREVOPS_SSH_PREFIX}`](#drevops_ssh_prefix)_SSH_FILE - the variable name with the SSH
+key file path.
 
-Defined in: `scripts/drevops/deploy-artifact.sh`, `scripts/drevops/deploy-lagoon.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/mirror-code.sh`, `scripts/drevops/setup-ssh.sh`, `scripts/drevops/task-custom-lagoon.sh`
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/setup-ssh.sh`
 
 ### `DREVOPS_TASK_COPY_DB_ACQUIA_DST`
 
@@ -1435,7 +1440,7 @@ Defined in: `scripts/drevops/task-custom-lagoon.sh`
 
 The Lagoon project to run tasks for.
 
-Default value: `LAGOON_PROJECT`
+Default value: `${LAGOON_PROJECT}`
 
 Defined in: `scripts/drevops/task-custom-lagoon.sh`
 
@@ -1475,7 +1480,7 @@ Defined in: `scripts/drevops/task-purge-cache-acquia.sh`
 
 Default SSH file used if custom fingerprint is not provided.
 
-Default value: `HOME/.ssh/id_rsa`
+Default value: `${HOME}/.ssh/id_rsa`
 
 Defined in: `scripts/drevops/task-custom-lagoon.sh`
 
@@ -1575,7 +1580,7 @@ Defined in: `.env`, `scripts/drevops/provision.sh`
 
 Drupal site name.<br />Used only when installing from profile.
 
-Default value: `DREVOPS_PROJECT`
+Default value: `${DREVOPS_PROJECT}`
 
 Defined in: `.env`, `scripts/drevops/provision.sh`
 
@@ -1643,7 +1648,7 @@ Defined in: `LAGOON ENVIRONMENT`
 
 Special variable to remap target env to the sub-domain prefix based on UI name.
 
-Default value: `target_env`
+Default value: `${target_env}`
 
 Defined in: `scripts/drevops/task-purge-cache-acquia.sh`
 
