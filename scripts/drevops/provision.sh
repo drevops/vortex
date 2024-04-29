@@ -95,8 +95,8 @@ note "Profile                      : ${DRUPAL_PROFILE}"
 note "Private files directory      : ${DREVOPS_DRUPAL_PRIVATE_FILES}"
 note "Config path                  : ${DREVOPS_DRUPAL_CONFIG_PATH}"
 note "DB dump file path            : ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} ($([ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ] && echo "present" || echo "absent"))"
-if [ -n "${DREVOPS_DB_DOCKER_IMAGE:-}" ]; then
-  note "DB dump Docker image         : ${DREVOPS_DB_DOCKER_IMAGE}"
+if [ -n "${DREVOPS_DB_IMAGE:-}" ]; then
+  note "DB dump Docker image         : ${DREVOPS_DB_IMAGE}"
 fi
 echo
 note "Drush version                : ${drush_version}"

@@ -14,7 +14,7 @@ set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # Note that `docker_registry` works only for database-in-Docker-image
-# database storage (when $DREVOPS_DB_DOCKER_IMAGE variable has a value).
+# database storage (when $DREVOPS_DB_IMAGE variable has a value).
 DREVOPS_DB_DOWNLOAD_SOURCE="${DREVOPS_DB_DOWNLOAD_SOURCE:-curl}"
 
 # Force DB download even if the cache exists.

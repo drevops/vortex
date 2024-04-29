@@ -12,7 +12,7 @@ set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
 # The Docker image containing database passed in a form of `<org>/<repository>`.
-DREVOPS_DB_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE:-}"
+DREVOPS_DB_IMAGE="${DREVOPS_DB_IMAGE:-}"
 
 # The username of the docker registry to download the database from.
 DOCKER_USER="${DOCKER_USER:-}"
@@ -43,11 +43,11 @@ info "Started Docker data image download."
 
 [ -z "${DOCKER_USER}" ] && fail "Missing required value for DOCKER_USER." && exit 1
 [ -z "${DOCKER_PASS}" ] && fail "Missing required value for DOCKER_PASS." && exit 1
-[ -z "${DREVOPS_DB_DOCKER_IMAGE}" ] && fail "Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
+[ -z "${DREVOPS_DB_IMAGE}" ] && fail "Destination image name is not specified. Please provide docker image name as a first argument to this script in a format <org>/<repository>." && exit 1
 
-docker image inspect "${DREVOPS_DB_DOCKER_IMAGE}" >/dev/null 2>&1 &&
-  note "Found ${DREVOPS_DB_DOCKER_IMAGE} image on host." ||
-  note "Not found ${DREVOPS_DB_DOCKER_IMAGE} image on host."
+docker image inspect "${DREVOPS_DB_IMAGE}" >/dev/null 2>&1 &&
+  note "Found ${DREVOPS_DB_IMAGE} image on host." ||
+  note "Not found ${DREVOPS_DB_IMAGE} image on host."
 
 image_expanded_successfully=0
 if [ -f "${DREVOPS_DB_DIR}/db.tar" ]; then
@@ -57,30 +57,30 @@ if [ -f "${DREVOPS_DB_DIR}/db.tar" ]; then
 
   # Check that image was expanded and now exists on the host or notify
   # that it will be downloaded from the registry.
-  if docker image inspect "${DREVOPS_DB_DOCKER_IMAGE}" >/dev/null 2>&1; then
-    note "Found expanded ${DREVOPS_DB_DOCKER_IMAGE} image on host."
+  if docker image inspect "${DREVOPS_DB_IMAGE}" >/dev/null 2>&1; then
+    note "Found expanded ${DREVOPS_DB_IMAGE} image on host."
     image_expanded_successfully=1
   else
-    note "Not found expanded ${DREVOPS_DB_DOCKER_IMAGE} image on host."
+    note "Not found expanded ${DREVOPS_DB_IMAGE} image on host."
   fi
 fi
 
-if [ ! -f "${DREVOPS_DB_DIR}/db.tar" ] && [ -n "${DREVOPS_DB_DOCKER_IMAGE_BASE:-}" ]; then
+if [ ! -f "${DREVOPS_DB_DIR}/db.tar" ] && [ -n "${DREVOPS_DB_IMAGE_BASE:-}" ]; then
   # If the image archive does not exist and base image was provided - use the
   # base image which allows "clean slate" for the database.
-  note "Database Docker image was not found. Using base image ${DREVOPS_DB_DOCKER_IMAGE_BASE}."
-  export DREVOPS_DB_DOCKER_IMAGE="${DREVOPS_DB_DOCKER_IMAGE_BASE}"
+  note "Database Docker image was not found. Using base image ${DREVOPS_DB_IMAGE_BASE}."
+  export DREVOPS_DB_IMAGE="${DREVOPS_DB_IMAGE_BASE}"
 fi
 
 if [ "${image_expanded_successfully}" -eq 0 ]; then
-  note "Downloading ${DREVOPS_DB_DOCKER_IMAGE} image from the registry."
+  note "Downloading ${DREVOPS_DB_IMAGE} image from the registry."
 
   export DOCKER_USER="${DOCKER_USER}"
   export DOCKER_PASS="${DOCKER_PASS}"
   export DOCKER_REGISTRY="${DOCKER_REGISTRY}"
   ./scripts/drevops/login-docker.sh
 
-  docker pull "${DOCKER_REGISTRY}/${DREVOPS_DB_DOCKER_IMAGE}"
+  docker pull "${DOCKER_REGISTRY}/${DREVOPS_DB_IMAGE}"
 fi
 
 pass "Finished Docker data image download."
