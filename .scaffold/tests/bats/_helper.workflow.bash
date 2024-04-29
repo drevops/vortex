@@ -179,6 +179,14 @@ assert_ahoy_cli() {
   assert_success
   assert_output_not_contains "Containers are not running."
   assert_output_contains "Test from inside of the container"
+
+  # Assert that only allowed filtered variables are passed from the environment.
+  export DRUPAL_UNFILTERED_VAR="drupalvar"
+  export OTHER_FILTERED_VAR="othervar"
+
+  run ahoy cli "echo \$DRUPAL_UNFILTERED_VAR"
+  assert_output_contains "drupalvar"
+  assert_output_not_contains "othervar"
 }
 
 assert_env_changes() {
