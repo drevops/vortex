@@ -25,7 +25,8 @@ DREVOPS_NOTIFY_WEBHOOK_URL="${DREVOPS_NOTIFY_WEBHOOK_URL:-}"
 DREVOPS_NOTIFY_WEBHOOK_METHOD="${DREVOPS_NOTIFY_WEBHOOK_METHOD:-POST}"
 
 # Webhook headers.
-# Ex: "Content-type: application/json;Authorization: Bearer API_KEY".
+# Separate multiple headers with a pipe `|`.
+# Example: `Content-type: application/json|Authorization: Bearer API_KEY`.
 DREVOPS_NOTIFY_WEBHOOK_HEADERS="${DREVOPS_NOTIFY_WEBHOOK_HEADERS:-Content-type: application/json}"
 
 # Webhook message body as json format.
