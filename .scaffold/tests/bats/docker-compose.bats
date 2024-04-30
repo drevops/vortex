@@ -51,7 +51,7 @@ load _helper.bash
 
   echo "COMPOSE_PROJECT_NAME=the_matrix" >>.env
   echo "DREVOPS_WEBROOT=docroot" >>.env
-  echo "DREVOPS_DB_DOCKER_IMAGE=myorg/my_db_image" >>.env
+  echo "DREVOPS_DB_IMAGE=myorg/my_db_image" >>.env
   echo "XDEBUG_ENABLE=1" >>.env
   echo "SSMTP_MAILHUB=false" >>.env
   echo "DRUPAL_SHIELD_USER=jane" >>.env

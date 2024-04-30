@@ -27,7 +27,7 @@ load _helper.workflow.bash
   # @todo: build.sh may need to have a support to create a local image if
   # it does not exist.
   # Use a test image. Image always must use a tag.
-  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
+  export DREVOPS_DB_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
@@ -42,15 +42,15 @@ load _helper.workflow.bash
   assert_file_not_exists .data/db.sql
 
   substep "Remove any existing images to download the fresh one."
-  docker_remove_image "${DREVOPS_DB_DOCKER_IMAGE}"
+  docker_remove_image "${DREVOPS_DB_IMAGE}"
 
   prepare_sut "Starting download from curl, storage in Docker image cached WORKFLOW tests in build directory ${BUILD_DIR}"
   assert_file_exists .data/db.sql
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=curl"
-  assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_file_contains ".env" "DREVOPS_DB_IMAGE=${DREVOPS_DB_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
-  assert_file_not_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-demo-10.x:latest"
+  assert_file_not_contains ".env" "DREVOPS_DB_IMAGE=drevops/drevops-mariadb-drupal-data-demo-10.x:latest"
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL="
 
   assert_ahoy_build

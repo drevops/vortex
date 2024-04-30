@@ -144,12 +144,12 @@ commands:
     cmd: ahoy cli ./scripts/drevops/provision.sh
 
   export-db:
-    usage: Export database dump or database image (if DREVOPS_DB_DOCKER_IMAGE variable is set).
+    usage: Export database dump or database image (if DREVOPS_DB_IMAGE variable is set).
     cmd: ./scripts/drevops/export-db.sh "$@"
 
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
-    cmd: \[ -n "${DREVOPS_DB_DOCKER_IMAGE}" \] && docker pull ${DREVOPS_DB_DOCKER_IMAGE} || true
+    cmd: \[ -n "${DREVOPS_DB_IMAGE}" \] && docker pull ${DREVOPS_DB_IMAGE} || true
 
   reset:
     usage: "Remove containers, all build files. Use with `hard` to reset repository to the last commit."

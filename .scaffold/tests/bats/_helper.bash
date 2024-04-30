@@ -119,7 +119,7 @@ setup() {
 
   # Isolate variables set in CI.
   unset DREVOPS_DB_DOWNLOAD_SOURCE
-  unset DREVOPS_DB_DOCKER_IMAGE
+  unset DREVOPS_DB_IMAGE
   unset DREVOPS_DB_DOWNLOAD_FORCE
   # Tokens required for tests are set explicitly within each tests with a TEST_ prefix.
   unset GITHUB_TOKEN

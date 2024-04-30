@@ -150,7 +150,7 @@ services:
       context: .
       dockerfile: .docker/mariadb.dockerfile
       args:
-        IMAGE: "${DREVOPS_DB_DOCKER_IMAGE:-uselagoon/mariadb-drupal:24.4.0}" # Use custom database image (if defined) or fallback to standard database image.
+        IMAGE: "${DREVOPS_DB_IMAGE:-uselagoon/mariadb-drupal:24.4.0}" # Use custom database image (if defined) or fallback to standard database image.
     <<: *default-user
     environment:
       <<: *default-environment

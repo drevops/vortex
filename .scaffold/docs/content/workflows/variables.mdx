@@ -194,26 +194,6 @@ Default value: `./.data`
 
 Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/download-db.sh`, `scripts/drevops/provision.sh`
 
-### `DREVOPS_DB_DOCKER_IMAGE`
-
-Name of the database docker image to use.
-
-See https://github.com/drevops/mariadb-drupal-data to seed your DB image.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/export-db.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`
-
-### `DREVOPS_DB_DOCKER_IMAGE_BASE`
-
-Name of the database fall-back docker image to use.
-
-If the image specified in [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) does not exist and base<br />image was provided - it will be used as a "clean slate" for the database.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`, `scripts/drevops/download-db-docker-registry.sh`
-
 ### `DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME`
 
 Acquia database name to download the database from.
@@ -354,7 +334,7 @@ Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_SOURCE`
 
-Note that "docker_registry" works only for database-in-Docker-image<br />database storage (when [`$DREVOPS_DB_DOCKER_IMAGE`](#drevops_db_docker_image) variable has a value).
+Note that "docker_registry" works only for database-in-Docker-image<br />database storage (when [`$DREVOPS_DB_IMAGE`](#drevops_db_image) variable has a value).
 
 Default value: `curl`
 
@@ -431,6 +411,26 @@ Database dump file name.
 Default value: `db.sql`
 
 Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/provision.sh`
+
+### `DREVOPS_DB_IMAGE`
+
+Name of the database docker image to use.
+
+See https://github.com/drevops/mariadb-drupal-data to seed your DB image.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/export-db.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`
+
+### `DREVOPS_DB_IMAGE_BASE`
+
+Name of the database fall-back docker image to use.
+
+If the image specified in [`$DREVOPS_DB_IMAGE`](#drevops_db_image) does not exist and base<br />image was provided - it will be used as a "clean slate" for the database.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`, `scripts/drevops/download-db-docker-registry.sh`
 
 ### `DREVOPS_DEBUG`
 
