@@ -25,7 +25,7 @@ load _helper.workflow.bash
   export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
 
   # Use a test image. Image always must use a tag.
-  export DREVOPS_DB_DOCKER_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
+  export DREVOPS_DB_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
 
   # Do not use demo database - testing demo database discovery is another test.
   export DREVOPS_INSTALL_DEMO_SKIP=1
@@ -40,7 +40,7 @@ load _helper.workflow.bash
   assert_file_not_exists .data/db.sql
 
   substep "Remove any existing images to download the fresh one."
-  docker_remove_image "${DREVOPS_DB_DOCKER_IMAGE}"
+  docker_remove_image "${DREVOPS_DB_IMAGE}"
 
   prepare_sut "Starting download from image, storage in Docker image, use cached image WORKFLOW tests in build directory ${BUILD_DIR}"
 
@@ -50,15 +50,15 @@ load _helper.workflow.bash
   rm .env.local >/dev/null
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry"
-  assert_file_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_file_contains ".env" "DREVOPS_DB_IMAGE=${DREVOPS_DB_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
-  assert_file_not_contains ".env" "DREVOPS_DB_DOCKER_IMAGE=drevops/drevops-mariadb-drupal-data-demo-10.x:latest"
+  assert_file_not_contains ".env" "DREVOPS_DB_IMAGE=drevops/drevops-mariadb-drupal-data-demo-10.x:latest"
   assert_file_not_contains ".env" "DREVOPS_DB_DOWNLOAD_CURL_URL="
 
   step "Initial build to use data image."
   assert_ahoy_build
-  assert_output_contains "Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}"
-  assert_output_contains "Not found ${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_output_contains "Using Docker data image ${DREVOPS_DB_IMAGE}"
+  assert_output_contains "Not found ${DREVOPS_DB_IMAGE}"
   assert_output_contains "Not found archived database Docker image file ./.data/db.tar."
   assert_output_contains "Finished building project"
 
@@ -82,7 +82,7 @@ load _helper.workflow.bash
   run ahoy export-db "db.tar"
   assert_success
   assert_output_contains "Found mariadb service container with id"
-  assert_output_contains "Committing exported Docker image with name docker.io/${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_output_contains "Committing exported Docker image with name docker.io/${DREVOPS_DB_IMAGE}"
   assert_output_contains "Committed exported Docker image with id"
   assert_output_contains "Exporting database image archive to file ./.data/db.tar."
   assert_output_contains "Saved exported database image archive file ./.data/db.tar."
@@ -90,16 +90,16 @@ load _helper.workflow.bash
 
   substep "Remove existing image and assert that exported DB image file still exists."
   ahoy clean
-  docker_remove_image "${DREVOPS_DB_DOCKER_IMAGE}"
+  docker_remove_image "${DREVOPS_DB_IMAGE}"
   assert_file_exists .data/db.tar
 
   step "Re-run build to use previously exported DB image from file."
   assert_ahoy_build
-  assert_output_contains "Using Docker data image ${DREVOPS_DB_DOCKER_IMAGE}"
-  assert_output_contains "Not found ${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_output_contains "Using Docker data image ${DREVOPS_DB_IMAGE}"
+  assert_output_contains "Not found ${DREVOPS_DB_IMAGE}"
   assert_output_contains "Found archived database Docker image file ./.data/db.tar. Expanding"
-  assert_output_contains "Loaded image: ${DREVOPS_DB_DOCKER_IMAGE}"
-  assert_output_contains "Found expanded ${DREVOPS_DB_DOCKER_IMAGE}"
+  assert_output_contains "Loaded image: ${DREVOPS_DB_IMAGE}"
+  assert_output_contains "Found expanded ${DREVOPS_DB_IMAGE}"
 
   assert_output_contains "Finished building project"
 

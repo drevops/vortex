@@ -175,7 +175,7 @@ jobs:
             docker compose up -d && sleep 15
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/drevops/provision.sh"
-            grep -q ^DREVOPS_DB_DOCKER_IMAGE .env && rm .data/db.sql || true
+            grep -q ^DREVOPS_DB_IMAGE .env && rm .data/db.sql || true
             ./scripts/drevops/export-db.sh db.sql
           no_output_timeout: 30m
       - save_cache:
@@ -196,7 +196,7 @@ jobs:
       # Enforce fresh DB build (do not rely on fallback caches).
       DREVOPS_CI_DB_CACHE_FALLBACK: 'no'
       # Always use fresh base image for the database.
-      DREVOPS_DB_DOCKER_IMAGE_BASE: drevops/mariadb-drupal-data:24.4.0
+      DREVOPS_DB_IMAGE_BASE: drevops/mariadb-drupal-data:24.4.0
       # Deploy docker image (if DREVOPS_DB_EXPORT_DOCKER_IMAGE storage is used).
       DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED: 1
   #;> !PROVISION_USE_PROFILE
@@ -409,7 +409,7 @@ jobs:
   #
   # Switching between "database in file" (DIF, mounted data volume) and
   # "database-in-Docker-image" (DIDI, data volume is a part of the image) is
-  # done by providing the value of DREVOPS_DB_DOCKER_IMAGE environment variable,
+  # done by providing the value of DREVOPS_DB_IMAGE environment variable,
   # which would be set in .env file for consumer projects.
   #
   # Also, the source of the database can be either file (downloaded from
@@ -425,7 +425,7 @@ jobs:
   # test jobs below and run them as a part of the CI system for Scaffold itself.
   #
   # Job to test creation of the image from DB dump file when using
-  # DREVOPS_DB_DOCKER_IMAGE workflow.
+  # DREVOPS_DB_IMAGE workflow.
   scaffold-dev-didi-database-fi:
     <<: *job-database
     environment:
@@ -434,13 +434,13 @@ jobs:
       # Use Docker database storage despite that the file is coming
       # from CURL - this is to make sure that image is exported into cache
       # to be used between jobs. Note that in consumer project .env file would
-      # have DREVOPS_DB_DOCKER_IMAGE variable set and this environment variable
+      # have DREVOPS_DB_IMAGE variable set and this environment variable
       # would not be required.
       #
       # Note that here and below we are using "destination" demo image - this
       # is to allow updating of this image from CI tests without jeopardizing
       # main demo image.
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
+      DREVOPS_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
       # Use a separate tag to make sure that pushed image does not affect
       # other tests (pushing broken image as 'latest' would fail other tests).
       DREVOPS_DOCKER_IMAGE_TAG: scaffold-dev-didi-database-fi
@@ -457,7 +457,7 @@ jobs:
     environment:
       DREVOPS_DB_DOWNLOAD_SOURCE: docker_registry
       DREVOPS_DB_DOWNLOAD_FORCE: 1
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
+      DREVOPS_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
       DREVOPS_DOCKER_IMAGE_TAG: scaffold-dev-database-ii
       # Also, use this job to test pushing of the DB image to the Docker
       # registry so replicate what database-nightly job would do.
@@ -466,20 +466,20 @@ jobs:
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-ii
   # Job to test build of the image from the previous stage of the image when
-  # using database-in-Docker-image workflow. Overwriting just the DREVOPS_DB_DOCKER_IMAGE
+  # using database-in-Docker-image workflow. Overwriting just the DREVOPS_DB_IMAGE
   # variable should change the storage mechanisms, but preserve application-level
   # stack operation.
   scaffold-dev-didi-build-fi:
     <<: *job_build
     environment:
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_didi_database_fi
+      DREVOPS_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_didi_database_fi
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-fi
   scaffold-dev-didi-build-ii:
     <<: *job_build
     environment:
-      DREVOPS_DB_DOCKER_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_database_ii
+      DREVOPS_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_database_ii
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-ii
@@ -555,7 +555,7 @@ workflows:
             tags:
               only: /.*/
 
-  # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from file.
+  # Test workflow to test DREVOPS_DB_IMAGE workflow for DB from file.
   scaffold-dev-didi-fi:
     jobs:
       - scaffold-dev-didi-database-fi
@@ -563,7 +563,7 @@ workflows:
           requires:
             - scaffold-dev-didi-database-fi
 
-  # Test workflow to test DREVOPS_DB_DOCKER_IMAGE workflow for DB from docker registry.
+  # Test workflow to test DREVOPS_DB_IMAGE workflow for DB from docker registry.
   scaffold-dev-didi-ii:
     jobs:
       - scaffold-dev-database-ii

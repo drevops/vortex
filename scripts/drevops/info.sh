@@ -38,8 +38,8 @@ note "DB username                 : ${MARIADB_USERNAME}"
 note "DB password                 : ${MARIADB_PASSWORD}"
 note "DB port                     : ${MARIADB_PORT}"
 note "DB port on host             : ${DREVOPS_HOST_DB_PORT} ${sequelace}"
-if [ -n "${DREVOPS_DB_DOCKER_IMAGE:-}" ]; then
-  note "DB-in-docker image          : ${DREVOPS_DB_DOCKER_IMAGE}"
+if [ -n "${DREVOPS_DB_IMAGE:-}" ]; then
+  note "DB-in-docker image          : ${DREVOPS_DB_IMAGE}"
 fi
 if [ -n "${DREVOPS_HOST_SOLR_PORT:-}" ]; then
   note "Solr URL on host            : http://127.0.0.1:${DREVOPS_HOST_SOLR_PORT}"
