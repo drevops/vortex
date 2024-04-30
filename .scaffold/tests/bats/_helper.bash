@@ -60,7 +60,7 @@ setup() {
   export TEST_DOCKER_PASS="${TEST_DOCKER_PASS:-}"
 
   # The installer reference to use for tests.
-  export TEST_INSTALLER_REF="${TEST_INSTALLER_REF:-feature/support-DREVOPS_DB_IMAGE}"
+  export TEST_INSTALLER_REF="${TEST_INSTALLER_REF:-main}"
 
   # Preflight checks.
   # @formatter:off
