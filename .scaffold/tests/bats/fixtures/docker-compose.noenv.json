@@ -154,7 +154,7 @@
         "mariadb": {
             "build": {
                 "args": {
-                    "IMAGE": "uselagoon/mariadb-drupal:VERSION"
+                    "IMAGE": "uselagoon/mariadb-10.11-drupal:VERSION"
                 },
                 "context": "FIXTURE_CUR_DIR",
                 "dockerfile": ".docker/mariadb.dockerfile"

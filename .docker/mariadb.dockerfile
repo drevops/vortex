@@ -1,6 +1,6 @@
 # MariaDB container.
 #
-# @see https://hub.docker.com/r/uselagoon/mariadb-drupal/tags?page=1
+# @see https://hub.docker.com/r/uselagoon/mariadb-10.11-drupal/tags?page=1
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/mariadb-drupal
 #
 # Use drevops/drevops-mariadb-drupal-data as a starting Docker image for your
@@ -8,7 +8,7 @@
 # @see https://github.com/drevops/mariadb-drupal-data
 #
 # The ARG value will be updated with a value passed from docker-compose.yml
-ARG IMAGE=uselagoon/mariadb-drupal:24.4.0
+ARG IMAGE=uselagoon/mariadb-10.11-drupal:24.4.0
 
 # hadolint ignore=DL3006
 FROM ${IMAGE}
