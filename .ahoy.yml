@@ -48,39 +48,39 @@ commands:
       || echo "Not a supported OS or Sequel Ace is not installed."
 
   # ----------------------------------------------------------------------------
-  # Docker commands.
+  # Container commands.
   # ----------------------------------------------------------------------------
 
   up:
-    usage: Build and start Docker containers.
+    usage: Build and start containers.
     cmd: |
       docker compose up -d "$@"
       if docker compose logs | grep -q "\[Error\]"; then exit 1; fi
 
   down:
-    usage: Stop Docker containers and remove container, images, volumes and networks.
+    usage: Stop and remove containers, images, volumes and networks.
     cmd: |
       ahoy confirm "Running this command will remove your current database. Are you sure?" &&
       if [ -f "docker-compose.yml" ]; then docker compose down --remove-orphans --volumes > /dev/null 2>&1; fi
 
   start:
-    usage: Start existing Docker containers.
+    usage: Start existing containers.
     cmd: docker compose start "$@"
 
   stop:
-    usage: Stop running Docker containers.
+    usage: Stop running containers.
     cmd: docker compose stop "$@"
 
   restart:
-    usage: Restart stopped or running Docker containers.
+    usage: Restart stopped or running containers.
     cmd: docker compose restart "$@"
 
   logs:
-    usage: Show Docker logs for services.
+    usage: Show container logs for services.
     cmd: docker compose logs "$@"
 
   pull:
-    usage: Pull latest Docker images.
+    usage: Pull latest container images.
     cmd: if [ ! -z "$(docker image ls -q)" ]; then docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep uselagoon/ | grep -v none | xargs -n1 docker pull -q | cat; fi
 
   cli:
@@ -226,7 +226,7 @@ commands:
   deploy:
     usage: Run remote deployment procedures.
     cmd: |
-      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as ahoy deploy [type1,[type2..]], where [type] is 'code', 'docker', 'webhook')" &&
+      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as ahoy deploy [type1,[type2..]], where [type] is 'code', 'container_registry', 'webhook')" &&
       ./scripts/drevops/deploy.sh "$@"
 
   github-labels:

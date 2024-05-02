@@ -18,9 +18,9 @@ load _helper.bash
 load _helper.workflow.bash
 
 # Due to test speed efficiency, all workflow assertions ran within a single test.
-@test "Workflow: download from image, storage in docker image" {
-  # Force storage in docker image - the purpose of this test.
-  export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
+@test "Workflow: download from image, storage in container image" {
+  # Force storage in container image - the purpose of this test.
+  export DREVOPS_DB_DOWNLOAD_SOURCE=container_registry
 
   # Use a test image. Image always must use a tag.
   export DREVOPS_DB_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
@@ -30,8 +30,8 @@ load _helper.workflow.bash
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DOCKER_USER=
-  export DOCKER_PASS=
+  export DREVOPS_CONTAINER_REGISTRY_USER=
+  export DREVOPS_CONTAINER_REGISTRY_PASS=
 
   substep "Make sure that demo database will not be used."
   rm -f .data/db.sql
@@ -40,14 +40,14 @@ load _helper.workflow.bash
   substep "Remove any existing images to download the fresh one."
   docker_remove_image "${DREVOPS_DB_IMAGE}"
 
-  prepare_sut "Starting download from image, storage in docker image WORKFLOW tests in build directory ${BUILD_DIR}"
+  prepare_sut "Starting download from image, storage in container image WORKFLOW tests in build directory ${BUILD_DIR}"
 
   # Assert that the database was not downloaded because DREVOPS_INSTALL_DEMO_SKIP was set.
   assert_file_not_exists .data/db.sql
   # Remove .env.local added by the installer script.
   rm .env.local >/dev/null
 
-  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry"
+  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=container_registry"
   assert_file_contains ".env" "DREVOPS_DB_IMAGE=${DREVOPS_DB_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
   assert_file_not_contains ".env" "DREVOPS_DB_IMAGE=drevops/drevops-mariadb-drupal-data-demo-10.x:latest"
@@ -68,12 +68,12 @@ load _helper.workflow.bash
   ahoy reload-db
   assert_webpage_contains "/" "test database Docker image"
 
-  # Other stack assertions - these run only for this Docker image-related test.
+  # Other stack assertions - these run only for this container image-related test.
   assert_gitignore
 
   assert_ahoy_info "web" "${DREVOPS_DB_IMAGE}"
 
-  assert_ahoy_docker_logs
+  assert_ahoy_container_logs
 
   assert_ahoy_login
 

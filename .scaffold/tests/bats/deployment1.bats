@@ -91,9 +91,9 @@ load _helper.deployment.bash
   assert_output_not_contains "[FAIL] Unable to complete webhook deployment."
   assert_output_not_contains "Finished WEBHOOK deployment."
 
-  assert_output_not_contains "Started DOCKER deployment."
-  assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
-  assert_output_not_contains "Finished DOCKER deployment."
+  assert_output_not_contains "Started container registry deployment."
+  assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_CONTAINER_REGISTRY_MAP variable."
+  assert_output_not_contains "Finished container registry deployment."
 
   assert_output_not_contains "Started LAGOON deployment."
   assert_output_not_contains "Finished LAGOON deployment."
@@ -201,9 +201,9 @@ load _helper.deployment.bash
   assert_output_not_contains "[FAIL] Unable to complete webhook deployment."
   assert_output_not_contains "Finished WEBHOOK deployment."
 
-  assert_output_not_contains "Started DOCKER deployment."
-  assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
-  assert_output_not_contains "Finished DOCKER deployment."
+  assert_output_not_contains "Started container registry deployment."
+  assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_CONTAINER_REGISTRY_MAP variable."
+  assert_output_not_contains "Finished container registry deployment."
 
   popd >/dev/null
 }
@@ -328,9 +328,9 @@ load _helper.deployment.bash
   assert_output_not_contains "[FAIL] Unable to complete webhook deployment."
   assert_output_not_contains "Finished WEBHOOK deployment."
 
-  assert_output_not_contains "Started DOCKER deployment."
-  assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
-  assert_output_not_contains "Finished DOCKER deployment."
+  assert_output_not_contains "Started container registry deployment."
+  assert_output_not_contains "Services map is not specified in DREVOPS_DEPLOY_CONTAINER_REGISTRY_MAP variable."
+  assert_output_not_contains "Finished container registry deployment."
 
   popd >/dev/null
 }

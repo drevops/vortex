@@ -36,8 +36,8 @@ load _helper.workflow.bash
   composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git
   jq --indent 4 '.require += {"drevops/test-private-package": "^1"}' composer.json >composer.json.tmp && mv -f composer.json.tmp composer.json
 
-  export DOCKER_USER="${TEST_DOCKER_USER?Test Docker user is not set}"
-  export DOCKER_PASS="${TEST_DOCKER_PASS?Test Docker pass is not set}"
+  export DREVOPS_CONTAINER_REGISTRY_USER="${TEST_DREVOPS_CONTAINER_REGISTRY_USER?Test Docker user is not set}"
+  export DREVOPS_CONTAINER_REGISTRY_PASS="${TEST_DREVOPS_CONTAINER_REGISTRY_PASS?Test Docker pass is not set}"
 
   step "Build without a GITHUB_TOKEN token"
   unset GITHUB_TOKEN

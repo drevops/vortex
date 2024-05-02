@@ -121,12 +121,12 @@ main() {
 
   # Check that the stack is running.
   if [ "${DREVOPS_DOCTOR_CHECK_CONTAINERS}" = "1" ]; then
-    docker_services=(cli php nginx mariadb)
-    for docker_service in "${docker_services[@]}"; do
-      if ! docker compose ps --status=running --services | grep -q "${docker_service}"; then
-        fail "${docker_service} container is not running."
+    container_services=(cli php nginx mariadb)
+    for container_service in "${container_services[@]}"; do
+      if ! docker compose ps --status=running --services | grep -q "${container_service}"; then
+        fail "${container_service} container is not running."
         echo "      Run 'ahoy up'."
-        echo "      Run 'ahoy logs ${docker_service}' to see error logs."
+        echo "      Run 'ahoy logs ${container_service}' to see error logs."
         exit 1
       fi
     done

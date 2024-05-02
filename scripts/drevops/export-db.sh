@@ -11,7 +11,7 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-# Name of the database docker image to use. Uncomment to use an image with
+# Name of the database container image to use. Uncomment to use an image with
 # a DB data loaded into it.
 # @see https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 DREVOPS_DB_IMAGE="${DREVOPS_DB_IMAGE:-}"
@@ -37,14 +37,14 @@ if [ -z "${DREVOPS_DB_IMAGE}" ]; then
   # Export database as a file.
   docker compose exec -T cli ./scripts/drevops/export-db-file.sh "$@"
 else
-  # Export database as a Docker image.
-  DREVOPS_DB_EXPORT_DOCKER_IMAGE="${DREVOPS_DB_IMAGE}" ./scripts/drevops/export-db-docker.sh "$@"
+  # Export database as a container image.
+  DREVOPS_DB_EXPORT_IMAGE="${DREVOPS_DB_IMAGE}" ./scripts/drevops/export-db-image.sh "$@"
 
-  # Deploy docker image.
+  # Deploy container image.
   # @todo Move deployment into a separate script.
-  if [ "${DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED:-}" = "1" ]; then
-    DREVOPS_DEPLOY_DOCKER_MAP=mariadb=${DREVOPS_DB_IMAGE} \
-      ./scripts/drevops/deploy-docker.sh
+  if [ "${DREVOPS_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED:-}" = "1" ]; then
+    DREVOPS_DEPLOY_CONTAINER_REGISTRY_MAP=mariadb=${DREVOPS_DB_IMAGE} \
+      ./scripts/drevops/deploy-container-registry.sh
   fi
 fi
 

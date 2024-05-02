@@ -2,7 +2,7 @@
 ##
 # Deploy code to a remote location.
 #
-# Deployment may include pushing code, pushing created docker image, notifying
+# Deployment may include pushing code, pushing created container image, notifying
 # remote hosting service via webhook call etc.
 #
 # Multiple deployments can be configured by providing a comma-separated list of
@@ -22,7 +22,7 @@ set -eu
 # The types of deployment.
 #
 # Can be a combination of comma-separated values (to support multiple
-# deployments): code, docker, webhook, lagoon.
+# deployments): code, container_registry, webhook, lagoon.
 DREVOPS_DEPLOY_TYPES="${DREVOPS_DEPLOY_TYPES:-}"
 
 # Deployment mode.
@@ -58,7 +58,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 info "Started deployment."
 
-[ -z "${DREVOPS_DEPLOY_TYPES}" ] && fail "Missing required value for DREVOPS_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon." && exit 1
+[ -z "${DREVOPS_DEPLOY_TYPES}" ] && fail "Missing required value for DREVOPS_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, container_registry, webhook, lagoon." && exit 1
 
 if [ "${DREVOPS_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
   note "Found flag to skip a deployment."
@@ -106,8 +106,8 @@ if [ -z "${DREVOPS_DEPLOY_TYPES##*webhook*}" ]; then
   ./scripts/drevops/deploy-webhook.sh
 fi
 
-if [ -z "${DREVOPS_DEPLOY_TYPES##*docker*}" ]; then
-  ./scripts/drevops/deploy-docker.sh
+if [ -z "${DREVOPS_DEPLOY_TYPES##*container_registry*}" ]; then
+  ./scripts/drevops/deploy-container-registry.sh
 fi
 
 if [ -z "${DREVOPS_DEPLOY_TYPES##*lagoon*}" ]; then

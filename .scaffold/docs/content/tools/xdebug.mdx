@@ -59,7 +59,7 @@ these steps (assuming you already have a fully working site):
 5. Refresh the page in your browser.
 6. PhpStorm will stop on your breakpoint and will ask you to map the incoming
    connection to directory in your project. This is because the code runs in the
-   Docker container, which qualifies as a remote server. You need to "tell"
+   container, which qualifies as a remote server. You need to "tell"
    Xdebug where to find the code on your local machine that corresponds to the
    code running in the container. You would need to do it once and PhpStorm will
    remember the mapping.
@@ -85,4 +85,4 @@ configurations in the PhpStorm IDE to make your life easier:
 
 Running PHP from the command line with Xdebug works the same way as
 debugging a web page, except that you need to run it from within the
-Docker container.
+container.

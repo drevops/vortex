@@ -96,8 +96,8 @@ assert_ahoy_build() {
   db_file_exists=0
   [ -f ".data/db.sql" ] && db_file_exists=1
 
-  export DOCKER_USER="${TEST_DOCKER_USER?Test Docker user is not set}"
-  export DOCKER_PASS="${TEST_DOCKER_PASS?Test Docker pass is not set}"
+  export DREVOPS_CONTAINER_REGISTRY_USER="${TEST_DREVOPS_CONTAINER_REGISTRY_USER?Test container registry user is not set}"
+  export DREVOPS_CONTAINER_REGISTRY_PASS="${TEST_DREVOPS_CONTAINER_REGISTRY_PASS?Test container registry pass is not set}"
 
   process_ahoyyml
   run ahoy build
@@ -305,9 +305,9 @@ assert_ahoy_info() {
   assert_output_contains "DB port                     : 3306"
   assert_output_contains "DB port on host             :"
   if [ -n "${db_image:-}" ]; then
-    assert_output_contains "DB-in-docker image          : ${db_image}"
+    assert_output_contains "DB-in-image                 : ${db_image}"
   else
-    assert_output_not_contains "DB-in-docker image          : ${db_image}"
+    assert_output_not_contains "DB-in-image             : ${db_image}"
   fi
   assert_output_contains "Solr URL on host            :"
   assert_output_contains "Mailhog URL                 : http://mailhog.docker.amazee.io/"
@@ -315,8 +315,8 @@ assert_ahoy_info() {
   assert_output_not_contains "Containers are not running."
 }
 
-assert_ahoy_docker_logs() {
-  step "Show Docker logs"
+assert_ahoy_container_logs() {
+  step "Show container logs"
 
   run ahoy logs
   assert_success

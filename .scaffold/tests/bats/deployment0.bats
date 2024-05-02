@@ -65,7 +65,7 @@ load _helper.deployment.bash
 
   substep "Running deployment."
   # This deployment uses all 3 types.
-  export DREVOPS_DEPLOY_TYPES="artifact,webhook,docker"
+  export DREVOPS_DEPLOY_TYPES="artifact,webhook,container_registry"
 
   # Variables for ARTIFACT deployment.
   export DREVOPS_DEPLOY_ARTIFACT_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
@@ -77,7 +77,7 @@ load _helper.deployment.bash
   export DREVOPS_DEPLOY_WEBHOOK_URL=http://example.com
   export DREVOPS_DEPLOY_WEBHOOK_RESPONSE_STATUS=200
 
-  # Variables for DOCKER deployment.
+  # Variables for container registry deployment.
   # @todo: Not implemented. Add here when implemented.
 
   # Run deployment.
@@ -107,13 +107,14 @@ load _helper.deployment.bash
   assert_output_contains "Finished WEBHOOK deployment."
 
   #
-  # Docker deployment assertions.
+  # Container registry deployment assertions.
   #
-  # By default, Docker deployment will not proceed if service-to-image map
-  # is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable and will exit normally.
-  assert_output_contains "Started DOCKER deployment."
-  assert_output_contains "Services map is not specified in DREVOPS_DEPLOY_DOCKER_MAP variable."
-  assert_output_not_contains "Finished DOCKER deployment."
+  # By default, container registry deployment will not proceed if
+  # service-to-image map is not specified in DREVOPS_DEPLOY_CONTAINER_REGISTRY_MAP
+  # variable and will exit normally.
+  assert_output_contains "Started container registry deployment."
+  assert_output_contains "Services map is not specified in DREVOPS_DEPLOY_CONTAINER_REGISTRY_MAP variable."
+  assert_output_not_contains "Finished container registry deployment."
 
   popd >/dev/null
 }

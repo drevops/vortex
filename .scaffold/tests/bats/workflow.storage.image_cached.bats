@@ -17,12 +17,12 @@
 load _helper.bash
 load _helper.workflow.bash
 
-@test "Workflow: download from image, storage in docker image, use cached image" {
+@test "Workflow: download from image, storage in container image, use cached image" {
   # Note that output assertions in this test do not end with a dot on purpose
   # as different versions of Docker may produce different messages.
 
-  # Force storage in docker image - the purpose of this test.
-  export DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry
+  # Force storage in container image - the purpose of this test.
+  export DREVOPS_DB_DOWNLOAD_SOURCE=container_registry
 
   # Use a test image. Image always must use a tag.
   export DREVOPS_DB_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
@@ -32,8 +32,8 @@ load _helper.workflow.bash
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DOCKER_USER=
-  export DOCKER_PASS=
+  export DREVOPS_CONTAINER_REGISTRY_USER=
+  export DREVOPS_CONTAINER_REGISTRY_PASS=
 
   substep "Make sure that demo database will not be downloaded."
   rm -f .data/db.sql
@@ -42,14 +42,14 @@ load _helper.workflow.bash
   substep "Remove any existing images to download the fresh one."
   docker_remove_image "${DREVOPS_DB_IMAGE}"
 
-  prepare_sut "Starting download from image, storage in Docker image, use cached image WORKFLOW tests in build directory ${BUILD_DIR}"
+  prepare_sut "Starting download from image, storage in container image, use cached image WORKFLOW tests in build directory ${BUILD_DIR}"
 
   # Assert that the database was not downloaded because DREVOPS_INSTALL_DEMO_SKIP was set.
   assert_file_not_exists .data/db.sql
   # Remove .env.local added by the installer script.
   rm .env.local >/dev/null
 
-  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=docker_registry"
+  assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=container_registry"
   assert_file_contains ".env" "DREVOPS_DB_IMAGE=${DREVOPS_DB_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
   assert_file_not_contains ".env" "DREVOPS_DB_IMAGE=drevops/drevops-mariadb-drupal-data-demo-10.x:latest"
@@ -57,9 +57,9 @@ load _helper.workflow.bash
 
   step "Initial build to use data image."
   assert_ahoy_build
-  assert_output_contains "Using Docker data image ${DREVOPS_DB_IMAGE}"
+  assert_output_contains "Using database data image ${DREVOPS_DB_IMAGE}"
   assert_output_contains "Not found ${DREVOPS_DB_IMAGE}"
-  assert_output_contains "Not found archived database Docker image file ./.data/db.tar."
+  assert_output_contains "Not found archived database container image file ./.data/db.tar."
   assert_output_contains "Finished building project"
 
   substep "Remove any existing or previously downloaded DB image dumps."
@@ -82,8 +82,8 @@ load _helper.workflow.bash
   run ahoy export-db "db.tar"
   assert_success
   assert_output_contains "Found mariadb service container with id"
-  assert_output_contains "Committing exported Docker image with name docker.io/${DREVOPS_DB_IMAGE}"
-  assert_output_contains "Committed exported Docker image with id"
+  assert_output_contains "Committing exported container image with name docker.io/${DREVOPS_DB_IMAGE}"
+  assert_output_contains "Committed exported container image with id"
   assert_output_contains "Exporting database image archive to file ./.data/db.tar."
   assert_output_contains "Saved exported database image archive file ./.data/db.tar."
   assert_file_exists .data/db.tar
@@ -95,11 +95,14 @@ load _helper.workflow.bash
 
   step "Re-run build to use previously exported DB image from file."
   assert_ahoy_build
-  assert_output_contains "Using Docker data image ${DREVOPS_DB_IMAGE}"
-  assert_output_contains "Not found ${DREVOPS_DB_IMAGE}"
-  assert_output_contains "Found archived database Docker image file ./.data/db.tar. Expanding"
+
+  assert_output_contains "Started database data container image download."
+  assert_output_contains "Using data image ${DREVOPS_DB_IMAGE}"
+  assert_output_contains "Not found ${DREVOPS_DB_IMAGE} on host"
+  assert_output_contains "Found archived database container image file ./.data/db.tar. Expanding"
   assert_output_contains "Loaded image: ${DREVOPS_DB_IMAGE}"
   assert_output_contains "Found expanded ${DREVOPS_DB_IMAGE}"
+  assert_output_contains "Finished database data container image download."
 
   assert_output_contains "Finished building project"
 

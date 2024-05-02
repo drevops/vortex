@@ -18,6 +18,6 @@ RUN sed -i -e "s#<dataDir>\${solr.data.dir:}#<dataDir>/var/solr/\${solr.core.nam
     && sed -i -e "s#solr.autoSoftCommit.MaxTime=5000#solr.autoSoftCommit.MaxTime=-1#g" /solr-conf/conf/solrcore.properties
 
 USER solr
-# Solr-precreate is provided by the base solr docker image and is responsible
+# Solr-precreate is provided by the base solr container image and is responsible
 # for precreating the core and then starting solr in the foreground.
 CMD ["solr-precreate", "drupal", "/solr-conf"]
