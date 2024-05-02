@@ -68,5 +68,15 @@
             "schedule": ["before 3am"],
             "matchManagers": ["github-actions"]
         }
+    ],
+    "regexManagers": [
+        {
+            "fileMatch": ["^docker-compose\\.yml$"],
+            "matchStrings": [
+                "[^:]+:\\s*\"?\\${(?:.*):-(?<depName>.*?):(?<currentValue>.*?)(?:\\@sha256:.*)?}\"?"
+            ],
+            "datasourceTemplate": "docker",
+            "versioningTemplate": "docker"
+        }
     ]
 }
