@@ -9,7 +9,7 @@
     "enabledManagers": ["composer", "dockerfile", "docker-compose", "github-actions"],
     "packageRules": [
         {
-            "matchPackageNames": ["php"],
+            "matchDepNames": ["php"],
             "enabled": false
         },
         {
@@ -37,7 +37,7 @@
             "schedule": ["before 2am"],
             "matchDatasources": ["packagist"],
             "matchUpdateTypes": ["patch", "minor"],
-            "matchPackageNames": [
+            "matchDepNames": [
                 "drupal/core-composer-scaffold",
                 "drupal/core-project-message",
                 "drupal/core-recommended"
@@ -46,7 +46,7 @@
         {
             "groupName": "Container images excluded",
             "matchManagers": ["dockerfile", "docker-compose"],
-            "matchPackageNames": [
+            "matchDepNames": [
                 "selenium/standalone-chrome",
                 "seleniarm/standalone-chromium"
             ],
