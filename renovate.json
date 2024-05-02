@@ -6,7 +6,7 @@
     "ignorePresets": [":prHourlyLimit2"],
     "rangeStrategy": "update-lockfile",
     "timezone": "Australia/Melbourne",
-    "enabledManagers": ["composer", "dockerfile", "docker-compose", "github-actions"],
+    "enabledManagers": ["composer", "dockerfile", "docker-compose", "github-actions", "custom.regex"],
     "packageRules": [
         {
             "matchDepNames": ["php"],
@@ -56,7 +56,7 @@
             "groupName": "Container images",
             "groupSlug": "docker",
             "schedule": ["before 3am"],
-            "matchManagers": ["dockerfile", "docker-compose"],
+            "matchManagers": ["dockerfile", "docker-compose", "custom.regex"],
             "excludePackageNames": [
                 "selenium/standalone-chrome",
                 "seleniarm/standalone-chromium"
@@ -74,7 +74,7 @@
             "customType": "regex",
             "fileMatch": ["^docker-compose\\.yml$"],
             "matchStrings": [
-                "[^:]+:\\s*\"?\\${(?:.*):-(?<depName>.*?):(?<currentValue>.*?)(?:\\@sha256:.*)?}\"?"
+                "IMAGE:\\s*\"?\\${(?:.*):-(?<depName>.*?):(?<currentValue>.*?)(?:\\@sha256:.*)?}\"?"
             ],
             "datasourceTemplate": "docker",
             "versioningTemplate": "docker"
