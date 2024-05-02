@@ -17,7 +17,7 @@
 load _helper.bash
 load _helper.workflow.bash
 
-@test "Workflow: download from curl, storage in Docker image" {
+@test "Workflow: download from curl, storage in container image" {
   # Force storage in DB dump - the purpose of this test.
   export DREVOPS_DB_DOWNLOAD_SOURCE=curl
 
@@ -31,8 +31,8 @@ load _helper.workflow.bash
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
-  export DOCKER_USER=
-  export DOCKER_PASS=
+  export DREVOPS_CONTAINER_REGISTRY_USER=
+  export DREVOPS_CONTAINER_REGISTRY_PASS=
 
   # Mimic local behavior where DB is always overridden.
   export DREVOPS_PROVISION_OVERRIDE_DB=1
@@ -44,7 +44,7 @@ load _helper.workflow.bash
   substep "Remove any existing images to download the fresh one."
   docker_remove_image "${DREVOPS_DB_IMAGE}"
 
-  prepare_sut "Starting download from curl, storage in Docker image cached WORKFLOW tests in build directory ${BUILD_DIR}"
+  prepare_sut "Starting download from curl, storage in container image cached WORKFLOW tests in build directory ${BUILD_DIR}"
   assert_file_exists .data/db.sql
 
   assert_file_contains ".env" "DREVOPS_DB_DOWNLOAD_SOURCE=curl"
@@ -89,7 +89,7 @@ load _helper.workflow.bash
   # run ahoy reload-db
   # assert_success
   #
-  # substep "Assert that the text is from the Docker image."
+  # substep "Assert that the text is from the container image."
   # assert_page_contains "/" "test database Docker image"
 
   assert_ahoy_export_db "mydb.tar"

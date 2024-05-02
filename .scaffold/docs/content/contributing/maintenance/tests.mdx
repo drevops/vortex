@@ -18,20 +18,20 @@ npm install --prefix .scaffold/tests
 # Run a single test.
 bats .scaffold/tests/bats/helpers.bats
 
-# Some tests require Composer and Docker Hub tokens.
-TEST_GITHUB_TOKEN=<yourtoken> TEST_DOCKER_USER=<youruser> TEST_DOCKER_PASS=<yourpass> bats .scaffold/tests/bats/workflow.smoke.bats
+# Some tests require Composer and container registry tokens.
+TEST_GITHUB_TOKEN=<yourtoken> TEST_DREVOPS_CONTAINER_REGISTRY_USER=<youruser> TEST_DREVOPS_CONTAINER_REGISTRY_PASS=<yourpass> bats .scaffold/tests/bats/workflow.smoke.bats
 
 # To preserve test run directory.
 bats --no-tempdir-cleanup .scaffold/tests/bats/helpers.bats
 
-# To override Bats temporary directory where tests are ran (required for Docker tests).
+# To override Bats temporary directory where tests are ran (required for container tests).
 mkdir -p $HOME/.bats-tmp # run once
 TMPDIR=$HOME/.bats-tmp bats .scaffold/tests/bats/helpers.bats
 
 # Run all tests, preserving the temporary directory.
 TEST_GITHUB_TOKEN=<yourtoken> \
-TEST_DOCKER_USER=<youruser> \
-TEST_DOCKER_PASS=<yourpass> \
+TEST_DREVOPS_CONTAINER_REGISTRY_USER=<youruser> \
+TEST_DREVOPS_CONTAINER_REGISTRY_PASS=<yourpass> \
 TMPDIR=$HOME/.bats-tmp \
 bats --no-tempdir-cleanup .scaffold/tests/bats/*.bats
 ```
@@ -64,7 +64,7 @@ ahoy export-db
 11. Wait for CI to pass.
 12. Remove `db.distN.sql` from Wiki.
 
-### Updating demo database Docker image
+### Updating demo database container image
 
 :::note "Work in progress"
 

@@ -15,7 +15,7 @@ load _helper.deployment.bash
   run ahoy deploy
   assert_failure
 
-  assert_output_contains "Missing required value for DREVOPS_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, docker, webhook, lagoon."
+  assert_output_contains "Missing required value for DREVOPS_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, container_registry, webhook, lagoon."
 
   popd >/dev/null
 }

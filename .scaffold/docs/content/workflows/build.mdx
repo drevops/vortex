@@ -11,7 +11,7 @@ integration (CI) environment with a single command, and it handles the following
 tasks:
 
 - Validation of Docker Compose and Composer configurations
-- Building Docker images and starting containers
+- Building container images and starting containers
 - Installing the development dependencies
 - Executing [the site provisioning script](https://github.com/drevops/scaffold/blob/develop/scripts/drevops/provision.sh)
 - Verifying that the stack is functioning correctly and the site is
@@ -37,7 +37,7 @@ flowchart TB
   B --> C["3. Validate Composer configuration"]
 
   C --> F{"4. Database\nin Docker\nimage?"}
-  F -- Yes --> G["4.1 Pull the provided\nDocker image from registry"]
+  F -- Yes --> G["4.1 Pull the provided\ncontainer image from registry"]
   F -- No --> H
 
   G --> H["5. Build images and start containers"]
@@ -72,14 +72,14 @@ valid. This is designed to catch errors in the configuration early.
 The script validates the Composer configuration and exits if it is not valid.
 The `composer.lock` will be validated as well.
 
-### 4. Database in Docker image?
+### 4. Database in container image?
 
-If the database is stored in the Docker image rather than a dump file, the
+If the database is stored in the container image rather than a dump file, the
 script will pull the image from the registry and will use it as a database.<br />
 
 ### 5. Build images and start containers
 
-The script will build the Docker images and start the containers.
+The script will build the container images and start the containers.
 Only required files will be copied into the image and only production
 dependencies will be installed. See more in [the Docker section](../tools/docker.mdx).
 

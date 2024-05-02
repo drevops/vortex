@@ -44,7 +44,7 @@
             ]
         },
         {
-            "groupName": "Docker images excluded",
+            "groupName": "container images excluded",
             "matchManagers": ["dockerfile", "docker-compose"],
             "matchPackageNames": [
                 "selenium/standalone-chrome",
@@ -53,7 +53,7 @@
             "enabled": false
         },
         {
-            "groupName": "Docker images",
+            "groupName": "container images",
             "groupSlug": "docker",
             "schedule": ["before 3am"],
             "matchManagers": ["dockerfile", "docker-compose"],

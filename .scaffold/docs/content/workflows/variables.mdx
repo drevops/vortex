@@ -40,32 +40,6 @@ Default value: `UNDEFINED`
 
 Defined in: `ENVIRONMENT`
 
-### `DOCKER_PASS`
-
-The password (token) to log into the Docker registry.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env.local.default`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/login-docker.sh`
-
-### `DOCKER_REGISTRY`
-
-Docker registry name.
-
-Provide port, if required as `<server_name>:<port>`.
-
-Default value: `docker.io`
-
-Defined in: `.env`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/login-docker.sh`
-
-### `DOCKER_USER`
-
-The username to log into the Docker registry.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env.local.default`, `scripts/drevops/deploy-docker.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/login-docker.sh`
-
 ### `DREVOPS_ACQUIA_APP_NAME`
 
 Acquia application name to download the database from.
@@ -186,13 +160,39 @@ Default value: `1`
 
 Defined in: `.env`
 
+### `DREVOPS_CONTAINER_REGISTRY`
+
+Container registry name.
+
+Provide port, if required as `<server_name>:<port>`.
+
+Default value: `docker.io`
+
+Defined in: `.env`, `scripts/drevops/login-container-registry.sh`
+
+### `DREVOPS_CONTAINER_REGISTRY_PASS`
+
+The password (token) to log into the container registry.
+
+Default value: `${DOCKER_PASS}`
+
+Defined in: `.env.local.default`, `scripts/drevops/login-container-registry.sh`
+
+### `DREVOPS_CONTAINER_REGISTRY_USER`
+
+The username to log into the container registry.
+
+Default value: `${DOCKER_USER}`
+
+Defined in: `.env.local.default`, `scripts/drevops/login-container-registry.sh`
+
 ### `DREVOPS_DB_DIR`
 
 Database dump directory.
 
 Default value: `./.data`
 
-Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/download-db.sh`, `scripts/drevops/provision.sh`
+Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/download-db-container-registry.sh`, `scripts/drevops/download-db-curl.sh`, `scripts/drevops/download-db-ftp.sh`, `scripts/drevops/download-db-lagoon.sh`, `scripts/drevops/download-db.sh`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_ACQUIA_DB_NAME`
 
@@ -334,7 +334,7 @@ Defined in: `scripts/drevops/download-db-lagoon.sh`
 
 ### `DREVOPS_DB_DOWNLOAD_SOURCE`
 
-Note that "docker_registry" works only for database-in-Docker-image<br />database storage (when [`$DREVOPS_DB_IMAGE`](#drevops_db_image) variable has a value).
+Note that "container_registry" works only for database-in-image<br />database storage (when [`$DREVOPS_DB_IMAGE`](#drevops_db_image) variable has a value).
 
 Default value: `curl`
 
@@ -356,45 +356,13 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/download-db-lagoon.sh`
 
-### `DREVOPS_DB_EXPORT_DOCKER_ARCHIVE_FILE`
+### `DREVOPS_DB_EXPORT_CONTAINER_REGISTRY`
 
-Docker image archive file name.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/export-db-docker.sh`
-
-### `DREVOPS_DB_EXPORT_DOCKER_DIR`
-
-Directory with database image archive file.
-
-Default value: `${DREVOPS_DB_DIR}`
-
-Defined in: `scripts/drevops/export-db-docker.sh`
-
-### `DREVOPS_DB_EXPORT_DOCKER_IMAGE`
-
-Docker image to store in a form of `<org>/<repository>`.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/drevops/export-db-docker.sh`, `scripts/drevops/export-db.sh`
-
-### `DREVOPS_DB_EXPORT_DOCKER_REGISTRY`
-
-Docker registry name.
+Container registry name.
 
 Default value: `docker.io`
 
-Defined in: `scripts/drevops/export-db-docker.sh`
-
-### `DREVOPS_DB_EXPORT_DOCKER_SERVICE_NAME`
-
-The service name to capture.
-
-Default value: `mariadb`
-
-Defined in: `scripts/drevops/export-db-docker.sh`
+Defined in: `scripts/drevops/export-db-image.sh`
 
 ### `DREVOPS_DB_EXPORT_FILE_DIR`
 
@@ -403,6 +371,38 @@ Directory with database dump file.
 Default value: `./.data`
 
 Defined in: `scripts/drevops/export-db-file.sh`
+
+### `DREVOPS_DB_EXPORT_IMAGE`
+
+Container image to store in a form of `<org>/<repository>`.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/export-db-image.sh`, `scripts/drevops/export-db.sh`
+
+### `DREVOPS_DB_EXPORT_IMAGE_ARCHIVE_FILE`
+
+Container image archive file name.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/export-db-image.sh`
+
+### `DREVOPS_DB_EXPORT_IMAGE_DIR`
+
+Directory with database image archive file.
+
+Default value: `${DREVOPS_DB_DIR}`
+
+Defined in: `scripts/drevops/export-db-image.sh`
+
+### `DREVOPS_DB_EXPORT_SERVICE_NAME`
+
+The service name to capture.
+
+Default value: `mariadb`
+
+Defined in: `scripts/drevops/export-db-image.sh`
 
 ### `DREVOPS_DB_FILE`
 
@@ -414,23 +414,23 @@ Defined in: `.env`, `scripts/drevops/download-db-acquia.sh`, `scripts/drevops/do
 
 ### `DREVOPS_DB_IMAGE`
 
-Name of the database docker image to use.
+Name of the database container image to use.
 
 See https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/drevops/download-db-docker-registry.sh`, `scripts/drevops/export-db.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`
+Defined in: `.env`, `scripts/drevops/download-db-container-registry.sh`, `scripts/drevops/export-db.sh`, `scripts/drevops/info.sh`, `scripts/drevops/provision.sh`
 
 ### `DREVOPS_DB_IMAGE_BASE`
 
-Name of the database fall-back docker image to use.
+Name of the database fall-back container image to use.
 
 If the image specified in [`$DREVOPS_DB_IMAGE`](#drevops_db_image) does not exist and base<br />image was provided - it will be used as a "clean slate" for the database.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/drevops/download-db-docker-registry.sh`
+Defined in: `.env`, `scripts/drevops/download-db-container-registry.sh`
 
 ### `DREVOPS_DEBUG`
 
@@ -525,13 +525,47 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/deploy-lagoon.sh`, `scripts/drevops/deploy.sh`
 
-### `DREVOPS_DEPLOY_DOCKER_MAP`
+### `DREVOPS_DEPLOY_CONTAINER_REGISTRY`
 
-Comma-separated map of docker services and images to use for deployment in<br />format "service1=org/image1,service2=org/image2".
+Container registry name.
+
+Provide port, if required as `<server_name>:<port>`.
+
+Default value: `docker.io`
+
+Defined in: `scripts/drevops/deploy-container-registry.sh`
+
+### `DREVOPS_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG`
+
+The tag of the container image.
+
+Default value: `latest`
+
+Defined in: `scripts/drevops/deploy-container-registry.sh`
+
+### `DREVOPS_DEPLOY_CONTAINER_REGISTRY_MAP`
+
+Comma-separated map of container services and images to use for deployment in<br />format "service1=org/image1,service2=org/image2".
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/drevops/deploy-docker.sh`, `scripts/drevops/export-db.sh`
+Defined in: `scripts/drevops/deploy-container-registry.sh`, `scripts/drevops/export-db.sh`
+
+### `DREVOPS_DEPLOY_CONTAINER_REGISTRY_PASS`
+
+The password to login into the container registry.
+
+Default value: `${DREVOPS_CONTAINER_REGISTRY_PASS}`
+
+Defined in: `scripts/drevops/deploy-container-registry.sh`
+
+### `DREVOPS_DEPLOY_CONTAINER_REGISTRY_USER`
+
+The username to login into the container registry.
+
+Default value: `${DREVOPS_CONTAINER_REGISTRY_USER}`
+
+Defined in: `scripts/drevops/deploy-container-registry.sh`
 
 ### `DREVOPS_DEPLOY_LAGOON_INSTANCE`
 
@@ -619,7 +653,7 @@ Defined in: `scripts/drevops/deploy-artifact.sh`, `scripts/drevops/deploy-lagoon
 
 The type of deployment.
 
-Combination of comma-separated values to support multiple deployment targets:<br />`artifact`,`docker`, `webhook`, `lagoon`.
+Combination of comma-separated values to support multiple deployment targets:<br />`artifact`,`container_registry`, `webhook`, `lagoon`.
 
 See https://docs.drevops.com/workflows/deploy
 
@@ -650,14 +684,6 @@ The URL of the webhook to call.
 Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/deploy-webhook.sh`
-
-### `DREVOPS_DOCKER_IMAGE_TAG`
-
-The tag of the image to push to.
-
-Default value: `latest`
-
-Defined in: `scripts/drevops/deploy-docker.sh`
 
 ### `DREVOPS_DOCTOR_CHECK_BOOTSTRAP`
 
@@ -709,6 +735,32 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/drevops/doctor.sh`
 
+### `DREVOPS_DOWNLOAD_DB_CONTAINER_REGISTRY`
+
+Container registry name.
+
+Provide port, if required as `<server_name>:<port>`.
+
+Default value: `docker.io`
+
+Defined in: `scripts/drevops/download-db-container-registry.sh`
+
+### `DREVOPS_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS`
+
+The password to login into the container registry.
+
+Default value: `${DREVOPS_CONTAINER_REGISTRY_PASS}`
+
+Defined in: `scripts/drevops/download-db-container-registry.sh`
+
+### `DREVOPS_DOWNLOAD_DB_CONTAINER_REGISTRY_USER`
+
+The username to login into the container registry.
+
+Default value: `${DREVOPS_CONTAINER_REGISTRY_USER}`
+
+Defined in: `scripts/drevops/download-db-container-registry.sh`
+
 ### `DREVOPS_DRUPAL_CONFIG_PATH`
 
 Path to configuration directory.
@@ -733,9 +785,9 @@ Default value: `UNDEFINED`
 
 Defined in: `CI config`
 
-### `DREVOPS_EXPORT_DB_DOCKER_DEPLOY_PROCEED`
+### `DREVOPS_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED`
 
-Proceed with Docker image deployment after it was exported.
+Proceed with container image deployment after it was exported.
 
 Default value: `UNDEFINED`
 

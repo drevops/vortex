@@ -13,7 +13,7 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${DREVOPS_DEBUG-}" = "1" ] && set -x
 
-# Note that `docker_registry` works only for database-in-Docker-image
+# Note that `container_registry` works only for database-in-image
 # database storage (when $DREVOPS_DB_IMAGE variable has a value).
 DREVOPS_DB_DOWNLOAD_SOURCE="${DREVOPS_DB_DOWNLOAD_SOURCE:-curl}"
 
@@ -71,8 +71,8 @@ if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "lagoon" ]; then
   ./scripts/drevops/download-db-lagoon.sh
 fi
 
-if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "docker_registry" ]; then
-  ./scripts/drevops/download-db-docker-registry.sh
+if [ "${DREVOPS_DB_DOWNLOAD_SOURCE}" = "container_registry" ]; then
+  ./scripts/drevops/download-db-container-registry.sh
 fi
 
 ls -Alh "${DREVOPS_DB_DIR}" || true

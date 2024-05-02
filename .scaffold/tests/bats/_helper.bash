@@ -56,8 +56,8 @@ setup() {
   # Set test secrets.
   # For local test development, export these variables in your shell.
   export TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-}"
-  export TEST_DOCKER_USER="${TEST_DOCKER_USER:-}"
-  export TEST_DOCKER_PASS="${TEST_DOCKER_PASS:-}"
+  export TEST_DREVOPS_CONTAINER_REGISTRY_USER="${TEST_DREVOPS_CONTAINER_REGISTRY_USER:-}"
+  export TEST_DREVOPS_CONTAINER_REGISTRY_PASS="${TEST_DREVOPS_CONTAINER_REGISTRY_PASS:-}"
 
   # The installer reference to use for tests.
   export TEST_INSTALLER_REF="${TEST_INSTALLER_REF:-main}"
@@ -123,8 +123,8 @@ setup() {
   unset DREVOPS_DB_DOWNLOAD_FORCE
   # Tokens required for tests are set explicitly within each tests with a TEST_ prefix.
   unset GITHUB_TOKEN
-  unset DOCKER_USER
-  unset DOCKER_PASS
+  unset DREVOPS_CONTAINER_REGISTRY_USER
+  unset DREVOPS_CONTAINER_REGISTRY_PASS
 
   # Disable interactive prompts during tests.
   export AHOY_CONFIRM_RESPONSE=y
@@ -352,21 +352,22 @@ assert_files_present_drevops() {
   # Core DrevOps files.
   assert_file_exists "scripts/drevops/deploy.sh"
   assert_file_exists "scripts/drevops/deploy-artifact.sh"
-  assert_file_exists "scripts/drevops/deploy-docker.sh"
+  assert_file_exists "scripts/drevops/deploy-container-registry.sh"
   assert_file_exists "scripts/drevops/deploy-lagoon.sh"
   assert_file_exists "scripts/drevops/deploy-webhook.sh"
-  assert_file_exists "scripts/drevops/login-docker.sh"
+  assert_file_exists "scripts/drevops/login-container-registry.sh"
   assert_file_exists "scripts/drevops/doctor.sh"
   assert_file_exists "scripts/drevops/download-db.sh"
   assert_file_exists "scripts/drevops/download-db-acquia.sh"
   assert_file_exists "scripts/drevops/download-db-curl.sh"
   assert_file_exists "scripts/drevops/download-db-ftp.sh"
-  assert_file_exists "scripts/drevops/download-db-docker-registry.sh"
+  assert_file_exists "scripts/drevops/download-db-container-registry.sh"
   assert_file_exists "scripts/drevops/download-db-lagoon.sh"
   assert_file_exists "scripts/drevops/export-db-file.sh"
-  assert_file_exists "scripts/drevops/export-db-docker.sh"
+  assert_file_exists "scripts/drevops/export-db-image.sh"
   assert_file_exists "scripts/drevops/provision.sh"
   assert_file_exists "scripts/drevops/login.sh"
+  assert_file_exists "scripts/drevops/login-container-registry.sh"
   assert_file_exists "scripts/drevops/provision-sanitize-db.sh"
   assert_file_exists "scripts/drevops/github-labels.sh"
   assert_file_exists "scripts/drevops/info.sh"
@@ -589,8 +590,8 @@ assert_files_present_provision_use_profile() {
   assert_file_not_contains ".env.local.default" "DREVOPS_DB_DOWNLOAD_FTP_PASS"
   assert_file_not_contains ".env.local.default" "DREVOPS_ACQUIA_KEY"
   assert_file_not_contains ".env.local.default" "DREVOPS_ACQUIA_SECRET"
-  assert_file_not_contains ".env.local.default" "DOCKER_USER"
-  assert_file_not_contains ".env.local.default" "DOCKER_PASS"
+  assert_file_not_contains ".env.local.default" "DREVOPS_CONTAINER_REGISTRY_USER"
+  assert_file_not_contains ".env.local.default" "DREVOPS_CONTAINER_REGISTRY_PASS"
 
   assert_file_exists ".ahoy.yml"
   assert_file_not_contains ".ahoy.yml" "download-db:"

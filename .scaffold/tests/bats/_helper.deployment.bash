@@ -135,8 +135,8 @@ install_and_build_site() {
   if [ "${should_build:-}" = "1" ]; then
     step "Build project"
 
-    export DOCKER_USER="${TEST_DOCKER_USER?Test Docker user is not set}"
-    export DOCKER_PASS="${TEST_DOCKER_PASS?Test Docker pass is not set}"
+    export DREVOPS_CONTAINER_REGISTRY_USER="${TEST_DREVOPS_CONTAINER_REGISTRY_USER?Test Docker user is not set}"
+    export DREVOPS_CONTAINER_REGISTRY_PASS="${TEST_DREVOPS_CONTAINER_REGISTRY_PASS?Test Docker pass is not set}"
 
     export DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1
 

@@ -30,7 +30,7 @@ load _helper.workflow.bash
 
   assert_ahoy_info
 
-  assert_ahoy_docker_logs
+  assert_ahoy_container_logs
 
   assert_ahoy_login
 
