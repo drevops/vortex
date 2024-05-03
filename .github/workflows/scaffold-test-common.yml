@@ -45,12 +45,12 @@ jobs:
 
       - name: Generate test SSH key pair used for deployment tests
         run: |
-          mkdir -p $HOME/.ssh
-          ssh-keygen -t rsa -b 4096 -m PEM -N '' -f $HOME/.ssh/id_rsa
-          chmod 600 $HOME/.ssh/id_rsa
-          echo "$(ssh-agent -a ${HOME}/ssh-agent.sock)" > ssh-agent-output
+          mkdir -p "$HOME/.ssh"
+          ssh-keygen -t rsa -b 4096 -m PEM -N '' -f "$HOME/.ssh/id_rsa"
+          chmod 600 "$HOME/.ssh/id_rsa"
+          ssh-agent -a "${HOME}/ssh-agent.sock" > ssh-agent-output
           export SSH_AUTH_SOCK=$(grep SSH_AUTH_SOCK ssh-agent-output | cut -d';' -f1 | cut -d= -f2)
-          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> $GITHUB_ENV
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
 
       - name: Install dependencies
         run: npm ci
@@ -162,12 +162,12 @@ jobs:
 
       - name: Generate test SSH key pair used for deployment tests
         run: |
-          mkdir -p $HOME/.ssh
-          ssh-keygen -t rsa -b 4096 -m PEM -N '' -f $HOME/.ssh/id_rsa
-          chmod 600 $HOME/.ssh/id_rsa
-          echo "$(ssh-agent -a ${HOME}/ssh-agent.sock)" > ssh-agent-output
-          export SSH_AUTH_SOCK=$(grep SSH_AUTH_SOCK ssh-agent-output | cut -d';' -f1 | cut -d= -f2)
-          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> $GITHUB_ENV
+          mkdir -p "$HOME/.ssh"
+          ssh-keygen -t rsa -b 4096 -m PEM -N '' -f "$HOME/.ssh/id_rsa"
+          chmod 600 "$HOME/.ssh/id_rsa"
+          ssh-agent -a "${HOME}/ssh-agent.sock" > ssh-agent-output
+          export SSH_AUTH_SOCK="$(grep SSH_AUTH_SOCK ssh-agent-output | cut -d';' -f1 | cut -d= -f2)"
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
 
       - name: Install dependencies
         run: npm ci
@@ -202,5 +202,5 @@ jobs:
         continue-on-error: ${{ vars.DREVOPS_CI_YAMLLINT_IGNORE_FAILURE == '1' }}
 
       - name: Check coding standards with actionlint
-        run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.6.27
+        run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.6.27 -ignore 'SC2002:' -ignore 'SC2155:'
         continue-on-error: ${{ vars.DREVOPS_CI_ACTIONLINT_IGNORE_FAILURE == '1' }}

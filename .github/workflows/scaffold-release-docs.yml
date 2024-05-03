@@ -21,7 +21,6 @@ jobs:
   release-docs:
     environment:
       name: github-pages
-      url: ${{ steps.pages.outputs.page_url }}
 
     runs-on: ubuntu-latest
 
