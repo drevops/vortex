@@ -189,3 +189,18 @@ jobs:
           directory: /tmp/.scaffold-coverage-html
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  scaffold-test-actions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check coding standards with yamllint
+        run: yamllint --config-file .scaffold/tests/.yamllint-for-gha.yml .github/workflows
+        continue-on-error: ${{ vars.DREVOPS_CI_YAMLLINT_IGNORE_FAILURE == '1' }}
+
+      - name: Check coding standards with actionlint
+        run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.6.27
+        continue-on-error: ${{ vars.DREVOPS_CI_ACTIONLINT_IGNORE_FAILURE == '1' }}
