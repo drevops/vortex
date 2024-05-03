@@ -79,7 +79,7 @@ jobs:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  drevops-test-workflow:
+  scaffold-test-workflow:
     runs-on: ubuntu-latest
 
     strategy:
@@ -130,7 +130,7 @@ jobs:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  drevops-test-deployment:
+  scaffold-test-deployment:
     runs-on: ubuntu-latest
 
     strategy:
