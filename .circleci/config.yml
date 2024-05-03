@@ -131,13 +131,16 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
+
       - add_ssh_keys:
           fingerprints:
             - *db_ssh_fingerprint
+
       - checkout
       - *step_process_codebase_for_ci
       - *step_setup_remote_docker
       - *step_setup_container_network
+
       - run:
           name: Create cache keys for database caching as files
           command: |
@@ -146,6 +149,7 @@ jobs:
             echo "$(date ${DREVOPS_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
             echo "yes" | tee /tmp/db_cache_fallback_yes
             echo 'v1.19.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
+
       - restore_cache:
           keys:
             # Restore DB cache based on the cache strategy set by the cache keys below.
@@ -157,10 +161,12 @@ jobs:
             # Fallback to caching by default branch name only. Allows to use
             # cache from the branch build on the previous day.
             - v1.19.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+
       - run:
           name: Download DB
           command: DREVOPS_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/drevops/download-db.sh
           no_output_timeout: 30m
+
       # Execute commands after database download script finished: if the
       # DB dump was downloaded - build the site (to ensure that the DB dump
       # is valid) and export the DB using selected method (to support
@@ -178,6 +184,7 @@ jobs:
             grep -q ^DREVOPS_DB_IMAGE .env && rm .data/db.sql || true
             ./scripts/drevops/export-db.sh db.sql
           no_output_timeout: 30m
+
       - save_cache:
           # Save cache per default branch and the timestamp.
           # The cache will not be saved if it already exists.
@@ -195,7 +202,7 @@ jobs:
       DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
       DREVOPS_CI_DB_CACHE_FALLBACK: 'no'
-      # Always use fresh base image for the database.
+      # Always use fresh base image for the database (if database-in-image storage is used).
       DREVOPS_DB_IMAGE_BASE: drevops/mariadb-drupal-data:24.4.0
       # Deploy container image (if database-in-image storage is used).
       DREVOPS_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
@@ -209,10 +216,12 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
+
       - checkout
       - *step_process_codebase_for_ci
       - *step_setup_remote_docker
       - *step_setup_container_network
+
       #;< !PROVISION_USE_PROFILE
       - run:
           name: Set cache keys for database caching
@@ -220,6 +229,7 @@ jobs:
             echo "${DREVOPS_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
             echo "yes" | tee /tmp/db_cache_fallback_yes
             echo "$(date ${DREVOPS_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
+
       - restore_cache:
           keys:
             # Use cached artifacts from previous builds of this branch.
@@ -227,47 +237,59 @@ jobs:
             - v1.19.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             - v1.19.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !PROVISION_USE_PROFILE
+
       - run:
           name: Login to container registry
           command: ./scripts/drevops/login-container-registry.sh
+
       - run:
           name: Build stack
           command: docker compose up -d
+
       - run:
           name: Export built codebase
           command: |
             mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
             docker compose cp -L cli:"/app/." "${DREVOPS_EXPORT_CODE_DIR}"
+
       - run:
           name: Install development dependencies
           command: |
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
               if [ -n \"${GITHUB_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN-}\"}}'; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+
       - run:
           name: Lint Dockerfiles with Hadolint
           command: |
             for file in $(find . -name 'Dockerfile' -o -name '*.dockerfile'); do
               echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${DREVOPS_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
             done
+
       - run:
           name: Lint code with PHPCS
           command: docker compose exec -T cli vendor/bin/phpcs || [ "${DREVOPS_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+
       - run:
           name: Lint code with PHPStan
           command: docker compose exec -T cli vendor/bin/phpstan || [ "${DREVOPS_CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+
       - run:
           name: Lint code with Rector
           command: docker compose exec -T cli vendor/bin/rector --clear-cache --dry-run || [ "${DREVOPS_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+
       - run:
           name: Lint code with PHPMD
           command: docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml || [ "${DREVOPS_CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
+
       - run:
           name: Lint code with Twig CS Fixer
           command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${DREVOPS_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+
       - run:
           name: Lint code with NPM linters
           command: docker compose exec -T cli bash -c "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${DREVOPS_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
       - run:
           name: Provision site
           command: |
@@ -277,12 +299,14 @@ jobs:
             fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/drevops/provision.sh
           no_output_timeout: 30m
+
       - run:
           name: Test with PHPUnit
           command: |
             XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
             docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit || [ "${DREVOPS_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
             docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
+
       - run:
           name: Test with Behat
           command: |
@@ -292,6 +316,7 @@ jobs:
               docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
               [ "${DREVOPS_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
           no_output_timeout: 30m
+
       - run:
           name: Process test logs and artifacts
           command: |
@@ -303,13 +328,17 @@ jobs:
               fi
             fi
           when: always
+
       - store_test_results:
           path: *test_results
+
       - store_artifacts:
           path: *artifacts
+
       - run:
           name: Upload code coverage reports to Codecov
           command: if [ -n "${CODECOV_TOKEN}" ] && [ -d /tmp/artifacts/coverage ]; then codecov -Z -s /tmp/artifacts/coverage; fi
+
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
@@ -322,11 +351,14 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
+
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
+
       - checkout
       - *step_process_codebase_for_ci
+
       - run:
           command: |
             DREVOPS_DEPLOY_BRANCH="${CIRCLE_BRANCH}" \
@@ -334,6 +366,7 @@ jobs:
             DREVOPS_DEPLOY_PR_HEAD=${CIRCLE_SHA1} \
             ./scripts/drevops/deploy.sh
           no_output_timeout: 30m
+
       - store_artifacts:
           path: *artifacts
 
@@ -343,14 +376,18 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
+
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
+
       - checkout
       - *step_process_codebase_for_ci
+
       - run:
           command: DREVOPS_DEPLOY_MODE="tag" ./scripts/drevops/deploy.sh
           no_output_timeout: 30m
+
       - store_artifacts:
           path: *artifacts
   #;> DEPLOYMENT
@@ -392,13 +429,17 @@ jobs:
       - *step_process_codebase_for_ci
       - *step_setup_remote_docker
       - *step_setup_container_network
+
       - run:
           name: Run CircleCI tests (long)
           command: SCAFFOLD_DEV_VOLUMES_MOUNTED=0 SCAFFOLD_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage .scaffold/tests/test.postbuild.sh
+
       - store_test_results:
           path: *test_results
+
       - store_artifacts:
           path: *artifacts
+
       - run:
           name: Upload code coverage reports to Codecov
           command: codecov -Z -s /tmp/artifacts/coverage
@@ -450,6 +491,7 @@ jobs:
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-fi
+
   # Job to test creation of the image from the previous version of the image
   # when using database-in-image workflow.
   scaffold-dev-database-ii:
@@ -465,6 +507,7 @@ jobs:
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-ii
+
   # Job to test build of the image from the previous stage of the image when
   # using database-in-image workflow. Overwriting just the DREVOPS_DB_IMAGE
   # variable should change the storage mechanisms, but preserve application-level
@@ -476,6 +519,7 @@ jobs:
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-fi
+
   scaffold-dev-didi-build-ii:
     <<: *job_build
     environment:
