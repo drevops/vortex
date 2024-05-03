@@ -130,3 +130,10 @@ load _helper.workflow.bash
   assert_output_not_contains ">question<"
   assert_output_not_contains ">wontfix<"
 }
+
+@test "Renovate - Check config" {
+  prepare_sut "Starting utilities tests in build directory ${BUILD_DIR}"
+
+  run npx --yes --package renovate -- renovate-config-validator --strict
+  assert_success
+}
