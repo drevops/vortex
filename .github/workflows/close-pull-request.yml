@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Remove environment after a PR is closed
         run: |
-          cat $GITHUB_EVENT_PATH | curl \
+          cat "$GITHUB_EVENT_PATH" | curl \
             -X POST \
             --header "Content-Type: application/json" \
             --header "X-GitHub-Delivery: ${RUNNER_TRACKING_ID:7}" \
