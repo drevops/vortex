@@ -397,7 +397,7 @@ jobs:
   # Add RENOVATE_TOKEN as an environment variable with GitHub access token in UI.
   renovatebot-self-hosted:
     docker:
-      - image: renovate/renovate:36.108.0
+      - image: renovate/renovate:37.342.1
         environment:
           RENOVATE_PLATFORM: 'github'
           RENOVATE_AUTODISCOVER: false
