@@ -6,7 +6,8 @@
 #
 # For ordering multiple commands, use a two-digit suffix for clarity and consistency.
 # This approach ensures a clear sequence and avoids potential ordering issues.
-# Examples:
+#
+# Example:
 # - provision-10-example.sh
 # - provision-20-example.sh
 # - provision-30-example.sh
@@ -22,7 +23,7 @@ drush() { ./vendor/bin/drush -y "$@"; }
 
 # Perform operations based on the current environment.
 if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e local; then
-  echo "[INFO] Executing example operations in non-production environment."
+  echo "==> Executing example operations in non-production environment."
 
   # Below are examples of running operations.
 
@@ -44,10 +45,10 @@ if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e l
 
   # Conditionally perform an action if this is a "fresh" database.
   if [ "${DREVOPS_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
-    echo "  > Fresh database detected. Performing additional operations."
+    echo "  > Fresh database detected. Performing additional example operations."
   else
-    echo "  > Existing database detected. Skipping additional operations."
+    echo "  > Existing database detected. Performing additional example operations."
   fi
 
-  echo "[ OK ] Finished executing example operations in non-production environment."
+  echo "==> Finished executing example operations in non-production environment."
 fi

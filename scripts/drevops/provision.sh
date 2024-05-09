@@ -69,8 +69,10 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-yesno() { [ "${1}" = "1" ] && echo "Yes" || echo "No"; }
 drush() { ./vendor/bin/drush -y "$@"; }
+yesno() { [ "${1}" = "1" ] && echo "Yes" || echo "No"; }
+
+# ------------------------------------------------------------------------------
 
 info "Started site provisioning."
 
@@ -80,9 +82,10 @@ info "Started site provisioning."
 [ "${DREVOPS_DB_DIR#./}" != "${DREVOPS_DB_DIR}" ] && DREVOPS_DB_DIR="$(pwd)${DREVOPS_DB_DIR#.}"
 
 drush_version="$(drush --version | cut -d' ' -f4)"
-drupal_core_version="$(drush status --field=drupal-version)"
+drupal_version="$(drush status --field=drupal-version)"
 site_is_installed="$(drush status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
 
+# Discover the configuration directory path if not set.
 if [ -z "${DRUPAL_CONFIG_PATH}" ]; then
   DRUPAL_CONFIG_PATH="$(drush php:eval 'print realpath(\Drupal\Core\Site\Settings::get("config_sync_directory"));')"
   [ ! -d "${DRUPAL_CONFIG_PATH}" ] && fail "Config directory \"${DRUPAL_CONFIG_PATH:-<empty>}\" does not exist." && exit 1
@@ -94,27 +97,28 @@ site_has_config="$(test "$(ls -1 ${DRUPAL_CONFIG_PATH}/*.yml 2>/dev/null | wc -l
 # Print provisioning information.
 ################################################################################
 echo
-note "Webroot dir                  : ${DREVOPS_WEBROOT}"
-note "Profile                      : ${DRUPAL_PROFILE}"
-note "Public files path            : ${DRUPAL_PUBLIC_FILES-<empty>}"
-note "Private files path           : ${DRUPAL_PRIVATE_FILES-<empty>}"
-note "Temporary files path         : ${DRUPAL_TEMPORARY_FILES-<empty>}"
-note "Config path                  : ${DRUPAL_CONFIG_PATH}"
-note "DB dump file path            : ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} ($([ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ] && echo "present" || echo "absent"))"
+note "Drupal core version            : ${drupal_version}"
+note "Drush version                  : ${drush_version}"
+echo
+note "Webroot path                   : $(pwd)/${DREVOPS_WEBROOT}"
+note "Public files path              : ${DRUPAL_PUBLIC_FILES-<empty>}"
+note "Private files path             : ${DRUPAL_PRIVATE_FILES-<empty>}"
+note "Temporary files path           : ${DRUPAL_TEMPORARY_FILES-<empty>}"
+note "Config files path              : ${DRUPAL_CONFIG_PATH}"
+note "DB dump file path              : ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} ($([ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ] && echo "present" || echo "absent"))"
 if [ -n "${DREVOPS_DB_IMAGE:-}" ]; then
-  note "DB dump container image      : ${DREVOPS_DB_IMAGE}"
+  note "DB dump container image        : ${DREVOPS_DB_IMAGE}"
 fi
 echo
-note "Drush version                : ${drush_version}"
-note "Drupal core version          : ${drupal_core_version}"
+note "Profile                        : ${DRUPAL_PROFILE}"
+note "Configuration files present    : $(yesno "${site_has_config}")"
+note "Existing site found            : $(yesno "${site_is_installed}")"
 echo
-note "Install from profile         : $(yesno "${DREVOPS_PROVISION_USE_PROFILE}")"
-note "Overwrite existing DB        : $(yesno "${DREVOPS_PROVISION_OVERRIDE_DB}")"
-note "Skip sanitization            : $(yesno "${DREVOPS_PROVISION_SANITIZE_DB_SKIP}")"
-note "Use maintenance mode         : $(yesno "${DREVOPS_PROVISION_USE_MAINTENANCE_MODE}")"
-note "Skip post-install operations : $(yesno "${DREVOPS_PROVISION_POST_OPERATIONS_SKIP}")"
-note "Configuration files present  : $(yesno "${site_has_config}")"
-note "Existing site found          : $(yesno "${site_is_installed}")"
+note "Install from profile           : $(yesno "${DREVOPS_PROVISION_USE_PROFILE}")"
+note "Overwrite existing DB          : $(yesno "${DREVOPS_PROVISION_OVERRIDE_DB}")"
+note "Skip DB sanitization           : $(yesno "${DREVOPS_PROVISION_SANITIZE_DB_SKIP}")"
+note "Skip post-provision operations : $(yesno "${DREVOPS_PROVISION_POST_OPERATIONS_SKIP}")"
+note "Use maintenance mode           : $(yesno "${DREVOPS_PROVISION_USE_MAINTENANCE_MODE}")"
 echo
 ################################################################################
 
@@ -169,8 +173,6 @@ provision_from_profile() {
 # The code block below has explicit if-else conditions and verbose output to
 # ensure that this significant operation is executed correctly and has
 # sufficient output for debugging.
-echo
-
 if [ "${DREVOPS_PROVISION_USE_PROFILE}" != "1" ]; then
   info "Provisioning site from the database dump file."
   note "Dump file path: ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}"
@@ -221,7 +223,7 @@ fi
 echo
 
 if [ "${DREVOPS_PROVISION_POST_OPERATIONS_SKIP}" = "1" ]; then
-  info "Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+  info "Skipped running of post-provision operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
   echo
   info "Finished site provisioning."
   exit 0
@@ -237,8 +239,8 @@ fi
 # Get the current environment and export it for the downstream scripts.
 DREVOPS_PROVISION_ENVIRONMENT="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
 info "Current Drupal environment: ${DREVOPS_PROVISION_ENVIRONMENT}"
-export DREVOPS_PROVISION_ENVIRONMENT
 echo
+export DREVOPS_PROVISION_ENVIRONMENT
 
 # Use 'drush deploy' if configuration files are present or use standalone commands otherwise.
 if [ "${site_has_config}" = "1" ]; then
@@ -246,11 +248,13 @@ if [ "${site_has_config}" = "1" ]; then
     config_uuid="$(cat "${DRUPAL_CONFIG_PATH}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
     drush config-set system.site uuid "${config_uuid}"
     pass "Updated site UUID from the configuration with ${config_uuid}."
+    echo
   fi
 
   info "Running deployment operations via 'drush deploy'."
   drush deploy
   pass "Completed deployment operations via 'drush deploy'."
+  echo
 
   # Import config_split configuration if the module is installed.
   # Drush deploy does not import config_split configuration on the first run.
@@ -260,6 +264,7 @@ if [ "${site_has_config}" = "1" ]; then
     info "Importing config_split configuration."
     drush config:import
     pass "Completed config_split configuration import."
+    echo
   fi
 else
   info "Running database updates."
@@ -275,6 +280,7 @@ else
   info "Running deployment operations via 'drush deploy:hook'."
   drush deploy:hook
   pass "Completed deployment operations via 'drush deploy:hook'."
+  echo
 fi
 
 # Sanitize database.
@@ -291,7 +297,6 @@ fi
 if [ -d "./scripts/custom" ]; then
   for file in ./scripts/custom/provision-*.sh; do
     if [ -f "${file}" ]; then
-      echo
       info "Running custom post-install script '${file}'."
       echo
       . "${file}"

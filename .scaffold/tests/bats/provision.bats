@@ -17,25 +17,26 @@ assert_provision_info() {
     [ "${1}" == "1" ] && echo "Yes" || echo "No"
   }
 
+  assert_output_contains "Drupal core version            : mocked_core_version"
+  assert_output_contains "Drush version                  : mocked_drush_version"
+
   assert_output_contains "Started site provisioning."
-  assert_output_contains "Webroot dir                  : ${webroot}"
-  assert_output_contains "Profile                      : standard"
-  assert_output_contains "Public files path            : /app/${webroot}/sites/default/files"
-  assert_output_contains "Private files path           : /app/${webroot}/sites/default/files/private"
-  assert_output_contains "Temporary files path         : /tmp"
-  assert_output_contains "Config path                  : $(pwd)/config/default"
-  assert_output_contains "DB dump file path            : $(pwd)/.data/db.sql"
+  assert_output_contains "Webroot path                   : $(pwd)/${webroot}"
+  assert_output_contains "Public files path              : /app/${webroot}/sites/default/files"
+  assert_output_contains "Private files path             : /app/${webroot}/sites/default/files/private"
+  assert_output_contains "Temporary files path           : /tmp"
+  assert_output_contains "Config files path              : $(pwd)/config/default"
+  assert_output_contains "DB dump file path              : $(pwd)/.data/db.sql"
 
-  assert_output_contains "Drush version                : mocked_drush_version"
-  assert_output_contains "Drupal core version          : mocked_core_version"
+  assert_output_contains "Profile                        : standard"
+  assert_output_contains "Configuration files present    : $(format_yes_no "${6:-0}")"
+  assert_output_contains "Existing site found            : $(format_yes_no "${7:-0}")"
 
-  assert_output_contains "Install from profile         : $(format_yes_no "${1:-0}")"
-  assert_output_contains "Overwrite existing DB        : $(format_yes_no "${2:-0}")"
-  assert_output_contains "Skip sanitization            : $(format_yes_no "${3:-0}")"
-  assert_output_contains "Use maintenance mode         : $(format_yes_no "${4:-1}")"
-  assert_output_contains "Skip post-install operations : $(format_yes_no "${5:-0}")"
-  assert_output_contains "Configuration files present  : $(format_yes_no "${6:-0}")"
-  assert_output_contains "Existing site found          : $(format_yes_no "${7:-0}")"
+  assert_output_contains "Install from profile           : $(format_yes_no "${1:-0}")"
+  assert_output_contains "Overwrite existing DB          : $(format_yes_no "${2:-0}")"
+  assert_output_contains "Skip DB sanitization           : $(format_yes_no "${3:-0}")"
+  assert_output_contains "Skip post-provision operations : $(format_yes_no "${5:-0}")"
+  assert_output_contains "Use maintenance mode           : $(format_yes_no "${4:-1}")"
 }
 
 @test "Provision: DB; no site" {
@@ -82,8 +83,8 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
-    # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -134,8 +135,8 @@ assert_provision_info() {
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "Fresh database detected. Performing additional operations."
-    "- Existing database detected. Skipping additional operations."
+    "Fresh database detected. Performing additional example operations."
+    "- Existing database detected. Performing additional example operations."
     "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
@@ -201,8 +202,8 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
-    # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -249,8 +250,8 @@ assert_provision_info() {
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "- Fresh database detected. Performing additional operations."
-    "Existing database detected. Skipping additional operations."
+    "- Fresh database detected. Performing additional example operations."
+    "Existing database detected. Performing additional example operations."
     "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
@@ -321,8 +322,8 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
-    # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -373,8 +374,8 @@ assert_provision_info() {
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "Fresh database detected. Performing additional operations."
-    "- Existing database detected. Skipping additional operations."
+    "Fresh database detected. Performing additional example operations."
+    "- Existing database detected. Performing additional example operations."
     "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
@@ -447,8 +448,8 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
-    # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -501,8 +502,8 @@ assert_provision_info() {
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "Fresh database detected. Performing additional operations."
-    "- Existing database detected. Skipping additional operations."
+    "Fresh database detected. Performing additional example operations."
+    "- Existing database detected. Performing additional example operations."
     "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
@@ -573,8 +574,8 @@ assert_provision_info() {
     "Existing site was not found when provisioning from the profile."
     "Fresh site content will be created from the profile."
 
-    # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -625,8 +626,8 @@ assert_provision_info() {
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "Fresh database detected. Performing additional operations."
-    "- Existing database detected. Skipping additional operations."
+    "Fresh database detected. Performing additional example operations."
+    "- Existing database detected. Performing additional example operations."
     "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
@@ -695,8 +696,8 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
-    # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -743,8 +744,8 @@ assert_provision_info() {
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "- Fresh database detected. Performing additional operations."
-    "Existing database detected. Skipping additional operations."
+    "- Fresh database detected. Performing additional example operations."
+    "Existing database detected. Performing additional example operations."
     "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
@@ -816,8 +817,8 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
-    # Post-install operations.
-    "- Skipped running of post-install operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as DREVOPS_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -868,8 +869,8 @@ assert_provision_info() {
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "Fresh database detected. Performing additional operations."
-    "- Existing database detected. Skipping additional operations."
+    "Fresh database detected. Performing additional example operations."
+    "- Existing database detected. Performing additional example operations."
     "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
