@@ -5,7 +5,7 @@
   </picture>
 </div>
 
-<h3 align="center">Drupal project scaffold</h3>
+<h3 align="center">Drupal project scaffold - CONFLICT TEST</h3>
 
 <div align="center">
 
