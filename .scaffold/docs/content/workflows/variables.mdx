@@ -769,14 +769,6 @@ Default value: `./config/default`
 
 Defined in: `scripts/drevops/provision.sh`
 
-### `DREVOPS_DRUPAL_PRIVATE_FILES`
-
-Path to private files.
-
-Default value: `./${DREVOPS_WEBROOT}/sites/default/files/private`
-
-Defined in: `scripts/drevops/provision.sh`
-
 ### `DREVOPS_EXPORT_CODE_DIR`
 
 Directory to store exported code.
@@ -1636,6 +1628,14 @@ Default value: `UNDEFINED`
 
 Defined in: `ENVIRONMENT`
 
+### `DRUPAL_PRIVATE_FILES`
+
+Path to private files.
+
+Default value: `${DRUPAL_PUBLIC_FILES}/private`
+
+Defined in: `.env`
+
 ### `DRUPAL_PROFILE`
 
 Drupal profile name (used only when installing from profile).
@@ -1643,6 +1643,14 @@ Drupal profile name (used only when installing from profile).
 Default value: `standard`
 
 Defined in: `.env`, `scripts/drevops/provision.sh`
+
+### `DRUPAL_PUBLIC_FILES`
+
+Path to public files.
+
+Default value: `./${DREVOPS_WEBROOT}/sites/default/files`
+
+Defined in: `.env`
 
 ### `DRUPAL_REDIS_ENABLED`
 
@@ -1681,6 +1689,14 @@ Defined in: `.env`, `scripts/drevops/provision.sh`
 Stage file proxy origin. Note that HTTP Auth provided by Shield will be<br />automatically added to the origin URL.
 
 Default value: `https://www.your-site-url.example/`
+
+Defined in: `.env`
+
+### `DRUPAL_TEMPORARY_FILES`
+
+Path to temporary files.
+
+Default value: `${DRUPAL_PRIVATE_FILES}/tmp`
 
 Defined in: `.env`
 

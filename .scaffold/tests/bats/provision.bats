@@ -6,6 +6,10 @@
 
 load _helper.bash
 
+export DRUPAL_PUBLIC_FILES="./web/sites/default/files"
+export DRUPAL_PRIVATE_FILES="./web/sites/default/files/private"
+export DRUPAL_TEMPORARY_FILES="/tmp"
+
 assert_provision_info() {
   local webroot="${8:-web}"
 
@@ -16,7 +20,9 @@ assert_provision_info() {
   assert_output_contains "Started site provisioning."
   assert_output_contains "Webroot dir                  : ${webroot}"
   assert_output_contains "Profile                      : standard"
+  assert_output_contains "Public files directory       : ./${webroot}/sites/default/files"
   assert_output_contains "Private files directory      : ./${webroot}/sites/default/files/private"
+  assert_output_contains "Temporary files directory    : /tmp"
   assert_output_contains "Config path                  : ./config/default"
   assert_output_contains "DB dump file path            : ./.data/db.sql"
 
@@ -51,10 +57,6 @@ assert_provision_info() {
     "@drush -y --version # Drush Commandline Tool mocked_drush_version"
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # fail"
-
-    # Private files directory.
-    "Creating private files directory."
-    "Created private files directory."
 
     # Site provisioning information.
     "Provisioning site from the database dump file."
@@ -176,10 +178,6 @@ assert_provision_info() {
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # Successful"
 
-    # Private files directory.
-    "Creating private files directory."
-    "Created private files directory."
-
     # Site provisioning information.
     "Provisioning site from the database dump file."
     "Dump file path: ./.data/db.sql"
@@ -296,10 +294,6 @@ assert_provision_info() {
     "@drush -y --version # Drush Commandline Tool mocked_drush_version"
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # Successful"
-
-    # Private files directory.
-    "Creating private files directory."
-    "Created private files directory."
 
     # Site provisioning information.
     "Provisioning site from the database dump file."
@@ -426,10 +420,6 @@ assert_provision_info() {
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # fail"
 
-    # Private files directory.
-    "Creating private files directory."
-    "Created private files directory."
-
     # Site provisioning information.
     "Provisioning site from the database dump file."
     "Dump file path: ./.data/db.sql"
@@ -555,10 +545,6 @@ assert_provision_info() {
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # fail"
 
-    # Private files directory.
-    "Creating private files directory."
-    "Created private files directory."
-
     # Site provisioning information.
     "- Provisioning site from the database dump file."
     "- Dump file path: ./.data/db.sql"
@@ -682,10 +668,6 @@ assert_provision_info() {
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # Successful"
 
-    # Private files directory.
-    "Creating private files directory."
-    "Created private files directory."
-
     # Site provisioning information.
     "- Provisioning site from the database dump file."
     "- Dump file path: ./.data/db.sql"
@@ -803,10 +785,6 @@ assert_provision_info() {
     "@drush -y --version # Drush Commandline Tool mocked_drush_version"
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # Successful"
-
-    # Private files directory.
-    "Creating private files directory."
-    "Created private files directory."
 
     # Site provisioning information.
     "- Provisioning site from the database dump file."

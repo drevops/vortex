@@ -60,13 +60,11 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 // Location of the site configuration files.
 $settings['config_sync_directory'] = '../config/default';
 
-// Temporary directory.
-if (getenv('TMP')) {
-  $settings['file_temp_path'] = getenv('TMP');
-}
-
 // Private directory.
-$settings['file_private_path'] = 'sites/default/files/private';
+$settings['file_private_path'] = getenv('DRUPAL_PRIVATE_FILES') ?: 'sites/default/files/private';
+
+// Temporary directory.
+$settings['file_temp_path'] = getenv('DRUPAL_TEMPORARY_FILES') ?: '/tmp';
 
 // Base salt on the DB host name.
 $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');

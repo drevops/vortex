@@ -258,7 +258,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_SUT;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -302,7 +302,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_LOCAL;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -346,7 +346,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_CI;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -393,7 +393,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_DEV;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -434,7 +434,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_DEV;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -475,7 +475,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_TEST;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -514,7 +514,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_PROD;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -561,7 +561,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_DEV;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -612,7 +612,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_DEV;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -663,7 +663,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_TEST;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -713,7 +713,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_PROD;
-    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',

@@ -25,7 +25,7 @@ x-volumes: &default-volumes
   volumes:
     # All application files mounted into container.
     - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
-    # Override mount for files to allow different type of syncing to optimise performance.
+    # Override mount for files to allow different type of syncing for optimised performance.
     - ./web/sites/default/files:/app/web/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
     # Use the same volumes in environments without host mounts support.
     ##- app:/app # Override for environment without host mounts. Automatically uncommented in CI.
@@ -62,6 +62,10 @@ x-environment: &default-environment
   CI: ${CI:-}
   # Forward emails to Mailhog locally.
   SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
+  # Drupal file paths.
+  DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
+  DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
+  DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
@@ -87,6 +91,7 @@ services:
       args:
         WEBROOT: "${DREVOPS_WEBROOT:-web}"
         GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
+
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
     user: root
     <<: *default-volumes
@@ -109,6 +114,9 @@ services:
       args:
         CLI_IMAGE: *cli-image
         WEBROOT: "${DREVOPS_WEBROOT:-web}"
+        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/${DREVOPS_WEBROOT:-web}/sites/default/files}
+        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/${DREVOPS_WEBROOT:-web}/sites/default/files/private}
+        DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
