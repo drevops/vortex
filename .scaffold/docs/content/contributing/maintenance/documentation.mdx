@@ -1,16 +1,17 @@
 # Authoring documentation
 
-There are 2 types of the documentation that DrevOps provides:
+There are 2 types of the documentation that DrevOps Scaffold provides:
 
-1. This Documentation of DrevOps that is then deployed
+1. This Documentation of DrevOps Scaffold that is then deployed
    to https://docs.drevops.com/
-2. Consumer site documentation that is distributed when DrevOps is installed.
+2. Consumer site documentation that is distributed when DrevOps Scaffold is
+   installed.
 
 ## docs.drevops.com
 
 The Documentation (this site) is written in Markdown and located in
 [`.scaffold/docs`](https://github.com/drevops/scaffold/blob/develop/.scaffold/docs) directory. This is
-removed when you install DrevOps for a
+removed when you install DrevOps Scaffold for a
 consumer site.
 
 ### Local build
@@ -24,19 +25,18 @@ Parts of the documentation is generated automatically from the codebase.
 To update it, run:
 
 ```bash
-composer -d .scaffold/docs/.utils install
-cd .scaffold/docs
-ahoy update
+cd .scaffold
+ahoy update-docs
 ```
 
-If you have the documentation site running locally, the updates will be seen
-immediately.
+If you have the documentation site running locally, the content changes will
+be available immediately.
 
 ### Check spelling and links
 
 ```bash
-cd .scaffold/docs
-ahoy test
+cd .scaffold
+ahoy test-docs
 ```
 
 If required, add spelling exclusions to `.scaffold/docs/cspell.json`
@@ -53,10 +53,11 @@ An automated CI build publishes this documentation.
 
 ## Consumer site documentation
 
-DrevOps provides a scaffold of the consumer site documentation in the
+DrevOps Scaffold provides a scaffold of the consumer site documentation in the
 [`docs`](https://github.com/drevops/scaffold/blob/develop/docs) directory.
 
-After DrevOps is installed into the consumer site, these docs are intended to
-be used by the site maintainers and stay up-to-date with the project changes.
+After DrevOps Scaffold is installed into the consumer site, these docs are
+intended to be used by the site maintainers and stay up-to-date with the
+project changes.
 
 See [Documentation](../../workflows/documentation.mdx) section.

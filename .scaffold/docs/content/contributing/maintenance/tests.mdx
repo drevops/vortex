@@ -1,6 +1,6 @@
 # Authoring tests
 
-DrevOps uses [Bats](https://github.com/bats-core/bats-core) for testing.
+DrevOps Scaffold uses [Bats](https://github.com/bats-core/bats-core) for testing.
 Bats is a TAP-compliant testing framework for Bash. It provides a simple way to
 verify that the UNIX programs you write behave as expected.
 
@@ -42,7 +42,7 @@ Some tests use test fixtures such as Drupal database snapshots.
 
 ### Updating demo database file dump
 
-1. Run fresh build of DrevOps locally:
+1. Run fresh build of DrevOps Scaffold locally:
 ```bash
 echo "DRUPAL_PROFILE=standard">>.env.local
 echo "DREVOPS_PROVISION_USE_PROFILE=1">>.env.local
