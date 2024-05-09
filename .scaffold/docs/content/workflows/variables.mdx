@@ -761,14 +761,6 @@ Default value: `${DREVOPS_CONTAINER_REGISTRY_USER}`
 
 Defined in: `scripts/drevops/download-db-container-registry.sh`
 
-### `DREVOPS_DRUPAL_CONFIG_PATH`
-
-Path to configuration directory.
-
-Default value: `./config/default`
-
-Defined in: `scripts/drevops/provision.sh`
-
 ### `DREVOPS_EXPORT_CODE_DIR`
 
 Directory to store exported code.
@@ -1617,6 +1609,14 @@ Run ClamAV in either daemon mode by setting it to `0` (or 'daemon') or in<br />e
 Default value: `daemon`
 
 Defined in: `.env`
+
+### `DRUPAL_CONFIG_PATH`
+
+Path to configuration directory relative to the project root.<br />Auto-discovered from site's `settings.php` file if not set.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/drevops/provision.sh`
 
 ### `DRUPAL_ENVIRONMENT`
 
