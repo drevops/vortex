@@ -50,8 +50,9 @@ DRUPAL_SITE_EMAIL="${DRUPAL_SITE_EMAIL:-webmaster@example.com}"
 # Profile machine name.
 DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
-# Path to configuration directory.
-DREVOPS_DRUPAL_CONFIG_PATH="${DREVOPS_DRUPAL_CONFIG_PATH:-./config/default}"
+# Path to configuration directory relative to the project root.
+# Auto-discovered from site's `settings.php` file if not set.
+DRUPAL_CONFIG_PATH="${DRUPAL_CONFIG_PATH:-}"
 
 # Directory with database dump file.
 DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
@@ -76,12 +77,18 @@ info "Started site provisioning."
 [ "${DREVOPS_PROVISION_SKIP}" = "1" ] && pass "Skipped site provisioning as DREVOPS_PROVISION_SKIP is set to 1." && exit 0
 
 ## Convert DB dir starting with './' to a full path.
-#[ "${DREVOPS_DB_DIR#./}" != "${DREVOPS_DB_DIR}" ] && DREVOPS_DB_DIR="$(pwd)${DREVOPS_DB_DIR#.}"
+[ "${DREVOPS_DB_DIR#./}" != "${DREVOPS_DB_DIR}" ] && DREVOPS_DB_DIR="$(pwd)${DREVOPS_DB_DIR#.}"
 
 drush_version="$(drush --version | cut -d' ' -f4)"
 drupal_core_version="$(drush status --field=drupal-version)"
-site_has_config="$(test "$(ls -1 ${DREVOPS_DRUPAL_CONFIG_PATH}/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
 site_is_installed="$(drush status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
+
+if [ -z "${DRUPAL_CONFIG_PATH}" ]; then
+  DRUPAL_CONFIG_PATH="$(drush php:eval 'print realpath(\Drupal\Core\Site\Settings::get("config_sync_directory"));')"
+  [ ! -d "${DRUPAL_CONFIG_PATH}" ] && fail "Config directory \"${DRUPAL_CONFIG_PATH:-<empty>}\" does not exist." && exit 1
+fi
+
+site_has_config="$(test "$(ls -1 ${DRUPAL_CONFIG_PATH}/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
 
 ################################################################################
 # Print provisioning information.
@@ -89,10 +96,10 @@ site_is_installed="$(drush status --fields=bootstrap | grep -q "Successful" && e
 echo
 note "Webroot dir                  : ${DREVOPS_WEBROOT}"
 note "Profile                      : ${DRUPAL_PROFILE}"
-note "Public files directory       : ${DRUPAL_PUBLIC_FILES-}"
-note "Private files directory      : ${DRUPAL_PRIVATE_FILES-}"
-note "Temporary files directory    : ${DRUPAL_TEMPORARY_FILES-}"
-note "Config path                  : ${DREVOPS_DRUPAL_CONFIG_PATH}"
+note "Public files path            : ${DRUPAL_PUBLIC_FILES-<empty>}"
+note "Private files path           : ${DRUPAL_PRIVATE_FILES-<empty>}"
+note "Temporary files path         : ${DRUPAL_TEMPORARY_FILES-<empty>}"
+note "Config path                  : ${DRUPAL_CONFIG_PATH}"
 note "DB dump file path            : ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} ($([ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ] && echo "present" || echo "absent"))"
 if [ -n "${DREVOPS_DB_IMAGE:-}" ]; then
   note "DB dump container image      : ${DREVOPS_DB_IMAGE}"
@@ -235,8 +242,8 @@ echo
 
 # Use 'drush deploy' if configuration files are present or use standalone commands otherwise.
 if [ "${site_has_config}" = "1" ]; then
-  if [ -f "${DREVOPS_DRUPAL_CONFIG_PATH}/system.site.yml" ]; then
-    config_uuid="$(cat "${DREVOPS_DRUPAL_CONFIG_PATH}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
+  if [ -f "${DRUPAL_CONFIG_PATH}/system.site.yml" ]; then
+    config_uuid="$(cat "${DRUPAL_CONFIG_PATH}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
     drush config-set system.site uuid "${config_uuid}"
     pass "Updated site UUID from the configuration with ${config_uuid}."
   fi

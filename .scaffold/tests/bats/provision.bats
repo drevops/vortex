@@ -6,8 +6,8 @@
 
 load _helper.bash
 
-export DRUPAL_PUBLIC_FILES="./web/sites/default/files"
-export DRUPAL_PRIVATE_FILES="./web/sites/default/files/private"
+export DRUPAL_PUBLIC_FILES="/app/web/sites/default/files"
+export DRUPAL_PRIVATE_FILES="/app/web/sites/default/files/private"
 export DRUPAL_TEMPORARY_FILES="/tmp"
 
 assert_provision_info() {
@@ -20,11 +20,11 @@ assert_provision_info() {
   assert_output_contains "Started site provisioning."
   assert_output_contains "Webroot dir                  : ${webroot}"
   assert_output_contains "Profile                      : standard"
-  assert_output_contains "Public files directory       : ./${webroot}/sites/default/files"
-  assert_output_contains "Private files directory      : ./${webroot}/sites/default/files/private"
-  assert_output_contains "Temporary files directory    : /tmp"
-  assert_output_contains "Config path                  : ./config/default"
-  assert_output_contains "DB dump file path            : ./.data/db.sql"
+  assert_output_contains "Public files path            : /app/${webroot}/sites/default/files"
+  assert_output_contains "Private files path           : /app/${webroot}/sites/default/files/private"
+  assert_output_contains "Temporary files path         : /tmp"
+  assert_output_contains "Config path                  : $(pwd)/config/default"
+  assert_output_contains "DB dump file path            : $(pwd)/.data/db.sql"
 
   assert_output_contains "Drush version                : mocked_drush_version"
   assert_output_contains "Drupal core version          : mocked_core_version"
@@ -38,7 +38,7 @@ assert_provision_info() {
   assert_output_contains "Existing site found          : $(format_yes_no "${7:-0}")"
 }
 
-@test "Site install: DB; no site" {
+@test "Provision: DB; no site" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
@@ -57,10 +57,11 @@ assert_provision_info() {
     "@drush -y --version # Drush Commandline Tool mocked_drush_version"
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
 
     # Site provisioning information.
     "Provisioning site from the database dump file."
-    "Dump file path: ./.data/db.sql"
+    "Dump file path: $(pwd)/.data/db.sql"
     "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
@@ -70,7 +71,7 @@ assert_provision_info() {
     "@drush -y sql:drop"
     "@drush -y sql:cli"
     "- Unable to import database from file."
-    "- Dump file ./.data/db.sql does not exist."
+    "- Dump file $(pwd)/.data/db.sql does not exist."
     "- Site content was not changed."
     "Imported database from the dump file."
     # Profile.
@@ -159,7 +160,7 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
-@test "Site install: DB; existing site" {
+@test "Provision: DB; existing site" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
@@ -177,10 +178,11 @@ assert_provision_info() {
     "@drush -y --version # Drush Commandline Tool mocked_drush_version"
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # Successful"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
 
     # Site provisioning information.
     "Provisioning site from the database dump file."
-    "Dump file path: ./.data/db.sql"
+    "Dump file path: $(pwd)/.data/db.sql"
     "Existing site was found when provisioning from the database dump file."
     "Site content will be preserved."
     "Sanitization will be skipped for an existing database."
@@ -188,7 +190,7 @@ assert_provision_info() {
     "- Existing site was not found when installing from the database dump file."
     "- Fresh site content will be imported from the database dump file."
     "- Unable to import database from file."
-    "- Dump file ./.data/db.sql does not exist."
+    "- Dump file $(pwd)/.data/db.sql does not exist."
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
@@ -273,7 +275,7 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
-@test "Site install: DB; existing site; overwrite" {
+@test "Provision: DB; existing site; overwrite" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
@@ -294,10 +296,11 @@ assert_provision_info() {
     "@drush -y --version # Drush Commandline Tool mocked_drush_version"
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # Successful"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
 
     # Site provisioning information.
     "Provisioning site from the database dump file."
-    "Dump file path: ./.data/db.sql"
+    "Dump file path: $(pwd)/.data/db.sql"
     "Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
@@ -307,7 +310,7 @@ assert_provision_info() {
     "@drush -y sql:drop"
     "@drush -y sql:cli"
     "- Unable to import database from file."
-    "- Dump file ./.data/db.sql does not exist."
+    "- Dump file $(pwd)/.data/db.sql does not exist."
     "- Site content was not changed."
     "Imported database from the dump file."
     # Profile.
@@ -396,7 +399,7 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
-@test "Site install: DB; no site, configs" {
+@test "Provision: DB; no site, configs" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
@@ -419,10 +422,11 @@ assert_provision_info() {
     "@drush -y --version # Drush Commandline Tool mocked_drush_version"
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
 
     # Site provisioning information.
     "Provisioning site from the database dump file."
-    "Dump file path: ./.data/db.sql"
+    "Dump file path: $(pwd)/.data/db.sql"
     "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
@@ -432,7 +436,7 @@ assert_provision_info() {
     "@drush -y sql:drop"
     "@drush -y sql:cli"
     "- Unable to import database from file."
-    "- Dump file ./.data/db.sql does not exist."
+    "- Dump file $(pwd)/.data/db.sql does not exist."
     "- Site content was not changed."
     "Imported database from the dump file."
     # Profile.
@@ -523,7 +527,7 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
-@test "Site install: profile; no site" {
+@test "Provision: profile; no site" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
@@ -544,10 +548,11 @@ assert_provision_info() {
     "@drush -y --version # Drush Commandline Tool mocked_drush_version"
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
 
     # Site provisioning information.
     "- Provisioning site from the database dump file."
-    "- Dump file path: ./.data/db.sql"
+    "- Dump file path: $(pwd)/.data/db.sql"
     "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
@@ -555,7 +560,7 @@ assert_provision_info() {
     "- Existing site was not found when installing from the database dump file."
     "- Fresh site content will be imported from the database dump file."
     "- Unable to import database from file."
-    "- Dump file ./.data/db.sql does not exist."
+    "- Dump file $(pwd)/.data/db.sql does not exist."
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
@@ -646,7 +651,7 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
-@test "Site install: profile; existing site" {
+@test "Provision: profile; existing site" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
@@ -667,10 +672,11 @@ assert_provision_info() {
     "@drush -y --version # Drush Commandline Tool mocked_drush_version"
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # Successful"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
 
     # Site provisioning information.
     "- Provisioning site from the database dump file."
-    "- Dump file path: ./.data/db.sql"
+    "- Dump file path: $(pwd)/.data/db.sql"
     "- Existing site was found when provisioning from the database dump file."
     "Site content will be preserved."
     "Sanitization will be skipped for an existing database."
@@ -678,7 +684,7 @@ assert_provision_info() {
     "- Existing site was not found when installing from the database dump file."
     "- Fresh site content will be imported from the database dump file."
     "- Unable to import database from file."
-    "- Dump file ./.data/db.sql does not exist."
+    "- Dump file $(pwd)/.data/db.sql does not exist."
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
@@ -763,7 +769,7 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
-@test "Site install: profile; existing site; overwrite" {
+@test "Provision: profile; existing site; overwrite" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
@@ -785,10 +791,11 @@ assert_provision_info() {
     "@drush -y --version # Drush Commandline Tool mocked_drush_version"
     "@drush -y status --field=drupal-version # mocked_core_version"
     "@drush -y status --fields=bootstrap # Successful"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
 
     # Site provisioning information.
     "- Provisioning site from the database dump file."
-    "- Dump file path: ./.data/db.sql"
+    "- Dump file path: $(pwd)/.data/db.sql"
     "- Existing site was found when provisioning from the database dump file."
     "- Site content will be preserved."
     "- Sanitization will be skipped for an existing database."
@@ -796,7 +803,7 @@ assert_provision_info() {
     "- Existing site was not found when installing from the database dump file."
     "- Fresh site content will be imported from the database dump file."
     "- Unable to import database from file."
-    "- Dump file ./.data/db.sql does not exist."
+    "- Dump file $(pwd)/.data/db.sql does not exist."
     "- Site content was not changed."
     "- Imported database from the dump file."
     # Profile.
