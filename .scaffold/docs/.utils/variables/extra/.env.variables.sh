@@ -49,3 +49,12 @@ DREVOPS_COMPOSER_VERBOSE=1
 
 # Print output from NPM install.
 DREVOPS_NPM_VERBOSE=0
+
+# Path to public files.
+DRUPAL_PUBLIC_FILES="${DRUPAL_PUBLIC_FILES:-./${DREVOPS_WEBROOT}/sites/default/files}"
+
+# Path to private files.
+DRUPAL_PRIVATE_FILES="${DRUPAL_PRIVATE_FILES:-${DRUPAL_PUBLIC_FILES}/private}"
+
+# Path to temporary files.
+DRUPAL_TEMPORARY_FILES="${DRUPAL_TEMPORARY_FILES:-${DRUPAL_PRIVATE_FILES}/tmp}"

@@ -55,6 +55,11 @@ abstract class SettingsTestCase extends TestCase {
   final const TMP_PATH_TESTING = '/tmp-test';
 
   /**
+   * Defines a constant for the private path used in testing.
+   */
+  final const PRIVATE_PATH_TESTING = '/private-test';
+
+  /**
    * Application root.
    *
    * @var string
@@ -122,7 +127,8 @@ abstract class SettingsTestCase extends TestCase {
       $vars['LAGOON'] = FALSE;
     }
 
-    $vars['TMP'] = static::TMP_PATH_TESTING;
+    $vars['DRUPAL_TEMPORARY_FILES'] = static::TMP_PATH_TESTING;
+    $vars['DRUPAL_PRIVATE_FILES'] = static::PRIVATE_PATH_TESTING;
 
     // Filtered real vars without a value to unset them in the lines below.
     $vars_real = self::getRealEnvVarsFilteredNoValues([

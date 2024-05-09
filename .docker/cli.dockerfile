@@ -21,6 +21,15 @@ ARG WEBROOT=web
 ARG GITHUB_TOKEN=""
 ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 
+ARG DRUPAL_PUBLIC_FILES="/app/${WEBROOT}/sites/default/files"
+ENV DRUPAL_PUBLIC_FILES=${DRUPAL_PUBLIC_FILES}
+
+ARG DRUPAL_PRIVATE_FILES="/app/${WEBROOT}/sites/default/files/private"
+ENV DRUPAL_PRIVATE_FILES=${DRUPAL_PRIVATE_FILES}
+
+ARG DRUPAL_TEMPORARY_FILES="${TMP:-/tmp}"
+ENV DRUPAL_TEMPORARY_FILES=${DRUPAL_TEMPORARY_FILES}
+
 # Set default values for environment variables.
 # These values will be overridden if set in docker-compose.yml or .env file
 # during build stage.
@@ -85,8 +94,9 @@ RUN npm --prefix /app/${WEBROOT}/themes/custom/your_site_theme ci --no-audit --n
 # overridden.
 COPY . /app
 
-# Create files directory and set correct permissions.
-RUN mkdir -p /app/${WEBROOT}/sites/default/files && chmod 0770 /app/${WEBROOT}/sites/default/files
+# Create files directories and set correct permissions.
+RUN mkdir -p "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" && \
+ chmod 0770 "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
 
 # Compile front-end assets. Running this after copying all files as we need
 # sources to compile assets.

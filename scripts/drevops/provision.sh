@@ -53,9 +53,6 @@ DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 # Path to configuration directory.
 DREVOPS_DRUPAL_CONFIG_PATH="${DREVOPS_DRUPAL_CONFIG_PATH:-./config/default}"
 
-# Path to private files.
-DREVOPS_DRUPAL_PRIVATE_FILES="${DREVOPS_DRUPAL_PRIVATE_FILES:-./${DREVOPS_WEBROOT}/sites/default/files/private}"
-
 # Directory with database dump file.
 DREVOPS_DB_DIR="${DREVOPS_DB_DIR:-./.data}"
 
@@ -92,7 +89,9 @@ site_is_installed="$(drush status --fields=bootstrap | grep -q "Successful" && e
 echo
 note "Webroot dir                  : ${DREVOPS_WEBROOT}"
 note "Profile                      : ${DRUPAL_PROFILE}"
-note "Private files directory      : ${DREVOPS_DRUPAL_PRIVATE_FILES}"
+note "Public files directory       : ${DRUPAL_PUBLIC_FILES-}"
+note "Private files directory      : ${DRUPAL_PRIVATE_FILES-}"
+note "Temporary files directory    : ${DRUPAL_TEMPORARY_FILES-}"
 note "Config path                  : ${DREVOPS_DRUPAL_CONFIG_PATH}"
 note "DB dump file path            : ${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE} ($([ -f "${DREVOPS_DB_DIR}/${DREVOPS_DB_FILE}" ] && echo "present" || echo "absent"))"
 if [ -n "${DREVOPS_DB_IMAGE:-}" ]; then
@@ -157,21 +156,6 @@ provision_from_profile() {
 
   pass "Installed a site from the profile."
 }
-
-if [ -n "${DREVOPS_DRUPAL_PRIVATE_FILES}" ]; then
-  info "Creating private files directory."
-  if [ -d "${DREVOPS_DRUPAL_PRIVATE_FILES}" ]; then
-    pass "Private files directory already exists."
-  else
-    mkdir -p "${DREVOPS_DRUPAL_PRIVATE_FILES}"
-    if [ -d "${DREVOPS_DRUPAL_PRIVATE_FILES}" ]; then
-      pass "Created private files directory."
-    else
-      fail "Unable to create private files directory."
-      exit 1
-    fi
-  fi
-fi
 
 # Provision site from DB dump or profile.
 #
