@@ -48,3 +48,6 @@ sed "${sed_opts[@]}" "s/.scaffold\/docs\/.utils\/variables\/extra\/lagoon.variab
 sed "${sed_opts[@]}" "s/.scaffold\/docs\/.utils\/variables\/extra\/.env.local.default.variables.sh/.env.local.default/g" "${OUTPUT_FILE}"
 sed "${sed_opts[@]}" "s/.scaffold\/docs\/.utils\/variables\/extra\/.env.variables.sh/.env/g" "${OUTPUT_FILE}"
 sed "${sed_opts[@]}" "s/.scaffold\/docs\/.utils\/variables\/extra\/ci.variables.sh/CI config/g" "${OUTPUT_FILE}"
+
+echo "---" >>"${OUTPUT_FILE}"
+echo "Variable list generated with [Shellvar - Utility to work with shell variables](https://github.com/AlexSkrypnyk/shellvar)" >>"${OUTPUT_FILE}"
