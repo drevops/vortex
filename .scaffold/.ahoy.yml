@@ -16,11 +16,6 @@ commands:
   lint-dockerfiles:
     cmd: ./tests/lint.dockerfiles.sh
 
-  lint-docs:
-    cmd: |
-      npm --prefix=./docs ci
-      npm --prefix=./docs run test
-
   test:
     name: Test Scaffold project.
     cmd: |
@@ -37,7 +32,9 @@ commands:
     cmd: ./tests/test.workflow.sh
 
   test-docs:
-    cmd: ahoy docs build && ahoy docs test
+    cmd: |
+      npm --prefix=./docs ci
+      npm --prefix=./docs run test
 
   # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
   update-fixtures:
