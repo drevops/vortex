@@ -30,8 +30,23 @@ use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return static function (RectorConfig $rectorConfig): void {
+  $drupalFinder = new DrupalFinder();
+  $drupalFinder->locateRoot(__DIR__);
+  $drupalRoot = $drupalFinder->getDrupalRoot();
+
+  $rectorConfig->autoloadPaths([
+    $drupalRoot . '/core',
+    $drupalRoot . '/modules',
+    $drupalRoot . '/themes',
+    $drupalRoot . '/profiles',
+  ]);
+
   $rectorConfig->paths([
-    __DIR__,
+    $drupalRoot . '/modules/custom',
+    $drupalRoot . '/themes/custom',
+    $drupalRoot . '/sites/default/settings.php',
+    $drupalRoot . '/sites/default/includes',
+    __DIR__ . '/tests',
   ]);
 
   $rectorConfig->sets([
@@ -52,17 +67,6 @@ return static function (RectorConfig $rectorConfig): void {
 
   $rectorConfig->rule(DeclareStrictTypesRector::class);
 
-  $drupalFinder = new DrupalFinder();
-  $drupalFinder->locateRoot(__DIR__);
-
-  $drupalRoot = $drupalFinder->getDrupalRoot();
-  $rectorConfig->autoloadPaths([
-    $drupalRoot . '/core',
-    $drupalRoot . '/modules',
-    $drupalRoot . '/themes',
-    $drupalRoot . '/profiles',
-  ]);
-
   $rectorConfig->skip([
     // Rules added by Rector's rule sets.
     ArraySpreadInsteadOfArrayMergeRector::class,
@@ -77,21 +81,6 @@ return static function (RectorConfig $rectorConfig): void {
     // Dependencies.
     '*/vendor/*',
     '*/node_modules/*',
-    // Core and contribs.
-    '*/core/*',
-    '*/modules/contrib/*',
-    '*/themes/contrib/*',
-    '*/profiles/contrib/*',
-    '*/sites/default/default.settings.php',
-    // Files.
-    '*/sites/default/files/*',
-    '*/sites/simpletest/*',
-    // Scaffold files.
-    '*/autoload.php',
-    '*/index.php',
-    '*/update.php',
-    // Composer scripts.
-    '*/scripts/composer/*',
   ]);
 
   $rectorConfig->fileExtensions([
