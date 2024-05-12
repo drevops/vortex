@@ -239,6 +239,13 @@ jobs:
       #;> !PROVISION_USE_PROFILE
 
       - run:
+          name: Lint Dockerfiles with Hadolint
+          command: |
+            for file in $(find . -name 'Dockerfile' -o -name '*.dockerfile'); do
+              echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${DREVOPS_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+            done
+
+      - run:
           name: Login to container registry
           command: ./scripts/drevops/login-container-registry.sh
 
@@ -258,13 +265,6 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
               if [ -n \"${GITHUB_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN-}\"}}'; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-
-      - run:
-          name: Lint Dockerfiles with Hadolint
-          command: |
-            for file in $(find . -name 'Dockerfile' -o -name '*.dockerfile'); do
-              echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${DREVOPS_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
-            done
 
       - run:
           name: Lint code with PHPCS
