@@ -114,8 +114,8 @@ services:
       args:
         CLI_IMAGE: *cli-image
         WEBROOT: "${DREVOPS_WEBROOT:-web}"
-        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/${DREVOPS_WEBROOT:-web}/sites/default/files}
-        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/${DREVOPS_WEBROOT:-web}/sites/default/files/private}
+        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
+        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
         DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
     <<: [*default-volumes, *default-user]
     environment:
