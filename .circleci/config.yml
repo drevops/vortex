@@ -260,6 +260,10 @@ jobs:
             docker compose cp -L cli:"/app/." "${DREVOPS_EXPORT_CODE_DIR}"
 
       - run:
+          name: Validate Composer configuration
+          command: docker compose exec cli composer validate --strict || [ "${DREVOPS_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
           name: Install development dependencies
           command: |
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \

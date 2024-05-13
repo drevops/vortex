@@ -9,6 +9,12 @@ DREVOPS_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=
 # Directory to store exported code.
 DREVOPS_EXPORT_CODE_DIR=
 
+# Ignore Hadolint failures.
+DREVOPS_CI_HADOLINT_IGNORE_FAILURE=0
+
+# Ignore `composer validate` failures.
+DREVOPS_CI_COMPOSER_VALIDATE_IGNORE_FAILURE=0
+
 # Ignore PHPCS failures.
 DREVOPS_CI_PHPCS_IGNORE_FAILURE=0
 
