@@ -58,7 +58,7 @@ $contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir($app_root . DIRECTORY_
 $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 
 // Location of the site configuration files.
-$settings['config_sync_directory'] = '../config/default';
+$settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_DIRECTORY') ?: '../config/default';
 
 // Private directory.
 $settings['file_private_path'] = getenv('DRUPAL_PRIVATE_FILES') ?: 'sites/default/files/private';
