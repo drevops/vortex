@@ -62,6 +62,8 @@ x-environment: &default-environment
   CI: ${CI:-}
   # Forward emails to Mailhog locally.
   SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
+  # Path to configuration files.
+  DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
   # Drupal file paths.
   DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
   DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
@@ -114,6 +116,7 @@ services:
       args:
         CLI_IMAGE: *cli-image
         WEBROOT: "${DREVOPS_WEBROOT:-web}"
+        DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
         DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
         DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
         DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
