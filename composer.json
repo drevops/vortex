@@ -1,18 +1,8 @@
 {
     "name": "your_org/your_site",
     "description": "Drupal 10 implementation of YOURSITE for YOURORG",
-    "type": "project",
     "license": "proprietary",
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://packages.drupal.org/8"
-        },
-        {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
-        }
-    ],
+    "type": "project",
     "require": {
         "php": ">=8.2",
         "composer/installers": "^2.2",
@@ -45,6 +35,7 @@
         "drevops/behat-steps": "^2.3",
         "drupal/core-dev": "^10.2",
         "drupal/drupal-extension": "^5",
+        "ergebnis/composer-normalize": "^2.42",
         "mglaman/phpstan-drupal": "^1.2",
         "palantirnet/drupal-rector": "^0.20",
         "phpcompatibility/php-compatibility": "^9.3",
@@ -57,25 +48,18 @@
     "conflict": {
         "drupal/drupal": "*"
     },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "config": {
-        "discard-changes": true,
-        "sort-packages": true,
-        "allow-plugins": {
-            "composer/installers": true,
-            "cweagans/composer-patches": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "drupal/core-composer-scaffold": true,
-            "oomphinc/composer-installers-extender": true,
-            "php-http/discovery": true,
-            "phpstan/extension-installer": true,
-            "pyrech/composer-changelogs": true
-        },
-        "platform": {
-            "php": "8.2.18"
-        }
-    },
     "autoload": {
         "classmap": [
             "scripts/composer/ScriptHandler.php"
@@ -86,36 +70,41 @@
             "tests/phpunit/"
         ]
     },
-    "scripts": {
-        "pre-install-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
-        ],
-        "pre-update-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
-        ],
-        "post-install-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
-        ],
-        "post-update-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
-        ]
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "cweagans/composer-patches": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "drupal/core-composer-scaffold": true,
+            "ergebnis/composer-normalize": true,
+            "oomphinc/composer-installers-extender": true,
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true,
+            "pyrech/composer-changelogs": true
+        },
+        "discard-changes": true,
+        "platform": {
+            "php": "8.2.18"
+        },
+        "sort-packages": true
     },
     "extra": {
+        "composer-exit-on-patch-failure": true,
         "drupal-scaffold": {
-            "locations": {
-                "web-root": "web/"
-            },
             "file-mapping": {
                 "[project-root]/.editorconfig": false,
                 "[project-root]/.gitattributes": false,
-                "[web-root]/.htaccess": false,
                 "[web-root]/.ht.router.php": false,
-                "[web-root]/example.gitignore": false,
+                "[web-root]/.htaccess": false,
                 "[web-root]/INSTALL.txt": false,
                 "[web-root]/README.txt": false,
+                "[web-root]/example.gitignore": false,
                 "[web-root]/sites/example.settings.local.php": false,
                 "[web-root]/sites/example.sites.php": false,
                 "[web-root]/web.config": false
+            },
+            "locations": {
+                "web-root": "web/"
             }
         },
         "installer-paths": {
@@ -151,10 +140,23 @@
             "npm-asset",
             "drupal-library"
         ],
-        "composer-exit-on-patch-failure": true,
         "patchLevel": {
             "drupal/core": "-p2"
         },
         "patches": {}
+    },
+    "scripts": {
+        "pre-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "post-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "pre-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "post-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ]
     }
 }
