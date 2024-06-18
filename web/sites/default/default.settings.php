@@ -77,7 +77,7 @@
  *
  * @code
  * $databases['default']['default'] = [
- *   'database' => 'databasename',
+ *   'database' => 'database_name',
  *   'username' => 'sql_username',
  *   'password' => 'sql_password',
  *   'host' => 'localhost',
@@ -193,7 +193,7 @@ $databases = [];
  * @code
  *   $databases['default']['default'] = [
  *     'driver' => 'pgsql',
- *     'database' => 'databasename',
+ *     'database' => 'database_name',
  *     'username' => 'sql_username',
  *     'password' => 'sql_password',
  *     'host' => 'localhost',
@@ -215,7 +215,7 @@ $databases = [];
  *     'driver' => 'my_driver',
  *     'namespace' => 'Drupal\my_module\Driver\Database\my_driver',
  *     'autoload' => 'modules/my_module/src/Driver/Database/my_driver/',
- *     'database' => 'databasename',
+ *     'database' => 'database_name',
  *     'username' => 'sql_username',
  *     'password' => 'sql_password',
  *     'host' => 'localhost',
@@ -230,7 +230,7 @@ $databases = [];
  *     'driver' => 'my_driver',
  *     'namespace' => 'Drupal\my_module\Driver\Database\my_driver',
  *     'autoload' => 'modules/my_module/src/Driver/Database/my_driver/',
- *     'database' => 'databasename',
+ *     'database' => 'database_name',
  *     'username' => 'sql_username',
  *     'password' => 'sql_password',
  *     'host' => 'localhost',
@@ -355,14 +355,13 @@ $settings['update_free_access'] = FALSE;
  * security, or encryption benefits. In an environment where Drupal
  * is behind a reverse proxy, the real IP address of the client should
  * be determined such that the correct client IP address is available
- * to Drupal's logging, statistics, and access management systems. In
- * the most simple scenario, the proxy server will add an
- * X-Forwarded-For header to the request that contains the client IP
- * address. However, HTTP headers are vulnerable to spoofing, where a
- * malicious client could bypass restrictions by setting the
- * X-Forwarded-For header directly. Therefore, Drupal's proxy
- * configuration requires the IP addresses of all remote proxies to be
- * specified in $settings['reverse_proxy_addresses'] to work correctly.
+ * to Drupal's logging and access management systems. In the most simple
+ * scenario, the proxy server will add an X-Forwarded-For header to the request
+ * that contains the client IP address. However, HTTP headers are vulnerable to
+ * spoofing, where a malicious client could bypass restrictions by setting the
+ * X-Forwarded-For header directly. Therefore, Drupal's proxy configuration
+ * requires the IP addresses of all remote proxies to be specified in
+ * $settings['reverse_proxy_addresses'] to work correctly.
  *
  * Enable this setting to get Drupal to determine the client IP from the
  * X-Forwarded-For header. If you are unsure about this setting, do not have a
@@ -807,6 +806,16 @@ $settings['entity_update_batch_size'] = 50;
  * retained after a successful entity update process.
  */
 $settings['entity_update_backup'] = TRUE;
+
+/**
+ * State caching.
+ *
+ * State caching uses the cache collector pattern to cache all requested keys
+ * from the state API in a single cache entry, which can greatly reduce the
+ * amount of database queries. However, some sites may use state with a
+ * lot of dynamic keys which could result in a very large cache.
+ */
+$settings['state_cache'] = TRUE;
 
 /**
  * Node migration type.
