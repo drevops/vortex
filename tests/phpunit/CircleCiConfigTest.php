@@ -52,7 +52,7 @@ class CircleCiConfigTest extends TestCase {
   /**
    * Data provider for testDeployBranchRegex().
    */
-  public function dataProviderDeployBranchRegex(): array {
+  public static function dataProviderDeployBranchRegex(): array {
     return [
       // Positive branches.
       ['main'],
@@ -191,7 +191,7 @@ class CircleCiConfigTest extends TestCase {
   /**
    * Data provider for testDeployTagRegex().
    */
-  public function dataProviderDeployTagRegex(): array {
+  public static function dataProviderDeployTagRegex(): array {
     return [
       // Positive tags.
       ['1.2.3'],
