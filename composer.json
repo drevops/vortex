@@ -18,7 +18,7 @@
         "drupal/pathauto": "^1.12",
         "drupal/redirect": "^1.9",
         "drupal/redis": "^1.7",
-        "drupal/search_api": "<=1.34",
+        "drupal/search_api": "^1.35",
         "drupal/search_api_solr": "^4.3",
         "drupal/shield": "^1.7",
         "drupal/stage_file_proxy": "^2.1",
@@ -151,6 +151,9 @@
         "patches": {
           "drupal/search_api_solr": {
             "Fatal error Declaration of Drupal\\search_api_solr\\Plugin\\search_api\\backend\\SearchApiSolrBackend::__sleep()": "https://www.drupal.org/files/issues/2024-06-17/search-api-solr-fatal-error-declaration-of-sleep-3449292-12.patch"
+          },
+          "drupal/search_api": {
+            "Declaration of Drupal\\search_api_solr\\Plugin\\search_api\\backend\\SearchApiSolrBackend::__sleep() must be compatible": "https://git.drupalcode.org/project/search_api/-/merge_requests/148.patch"
           }
         }
     },
