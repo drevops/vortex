@@ -12,8 +12,8 @@
         "drupal/coffee": "^1.4",
         "drupal/config_split": "^1.9",
         "drupal/config_update": "^2@alpha",
-        "drupal/core-composer-scaffold": "^10.3",
-        "drupal/core-recommended": "^10.3",
+        "drupal/core-composer-scaffold": "^10.2",
+        "drupal/core-recommended": "^10.2",
         "drupal/environment_indicator": "^4.0",
         "drupal/pathauto": "^1.12",
         "drupal/redirect": "^1.9",
@@ -33,7 +33,7 @@
         "drevops/behat-format-progress-fail": "^1.2",
         "drevops/behat-screenshot": "^1.5",
         "drevops/behat-steps": "^2.3",
-        "drupal/core-dev": "^10.3",
+        "drupal/core-dev": "^10.2",
         "drupal/drupal-extension": "^5",
         "ergebnis/composer-normalize": "^2.42",
         "mglaman/phpstan-drupal": "^1.2",
@@ -58,7 +58,7 @@
             "url": "https://asset-packagist.org"
         }
     ],
-    "minimum-stability": "beta",
+    "minimum-stability": "stable",
     "prefer-stable": true,
     "autoload": {
         "classmap": [
