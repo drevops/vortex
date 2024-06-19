@@ -18,7 +18,7 @@
         "drupal/pathauto": "^1.12",
         "drupal/redirect": "^1.9",
         "drupal/redis": "^1.7",
-        "drupal/search_api": "<=1.34",
+        "drupal/search_api": "^1.35",
         "drupal/search_api_solr": "^4.3",
         "drupal/shield": "^1.7",
         "drupal/stage_file_proxy": "^2.1",
