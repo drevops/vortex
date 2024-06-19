@@ -36,7 +36,7 @@ class ExampleTest extends YourSiteThemeUnitTestBase {
   /**
    * Data provider for testAdd().
    */
-  public static function dataProviderAdd(): array {
+  public function dataProviderAdd(): array {
     return [
       [0, 0, 0],
       [1, 1, 2],
@@ -65,7 +65,7 @@ class ExampleTest extends YourSiteThemeUnitTestBase {
   /**
    * Data provider for testSubtract().
    */
-  public static function dataProviderSubtract(): array {
+  public function dataProviderSubtract(): array {
     return [
       [0, 0, 0],
       [1, 1, 0],
@@ -96,7 +96,7 @@ class ExampleTest extends YourSiteThemeUnitTestBase {
   /**
    * Data provider for testMultiplication().
    */
-  public static function dataProviderMultiplication(): array {
+  public function dataProviderMultiplication(): array {
     return [
       [0, 0, 0],
       [1, 1, 1],

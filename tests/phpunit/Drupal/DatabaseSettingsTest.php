@@ -29,7 +29,7 @@ class DatabaseSettingsTest extends SettingsTestCase {
   /**
    * Data provider for resulting database settings.
    */
-  public static function dataProviderDatabases(): array {
+  public function dataProviderDatabases(): array {
     return [
       [
         [],

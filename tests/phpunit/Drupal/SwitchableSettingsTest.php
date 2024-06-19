@@ -92,7 +92,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   /**
    * Data provider for testConfigSplit().
    */
-  public static function dataProviderConfigSplit(): array {
+  public function dataProviderConfigSplit(): array {
     return [
       [
         static::ENVIRONMENT_LOCAL,
@@ -180,7 +180,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   /**
    * Data provider for testEntityPrint().
    */
-  public static function dataProviderEnvironmentIndicator(): array {
+  public function dataProviderEnvironmentIndicator(): array {
     return [
       [
         static::ENVIRONMENT_LOCAL,
@@ -292,7 +292,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   /**
    * Data provider for testShield().
    */
-  public static function dataProviderShield(): array {
+  public function dataProviderShield(): array {
     return [
       [
         static::ENVIRONMENT_LOCAL,
@@ -410,7 +410,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   /**
    * Data provider for testStageFileProxy().
    */
-  public static function dataProviderStageFileProxy(): array {
+  public function dataProviderStageFileProxy(): array {
     return [
       [
         static::ENVIRONMENT_LOCAL,
