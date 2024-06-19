@@ -153,8 +153,7 @@
             "Fatal error Declaration of Drupal\\search_api_solr\\Plugin\\search_api\\backend\\SearchApiSolrBackend::__sleep()": "https://www.drupal.org/files/issues/2024-06-17/search-api-solr-fatal-error-declaration-of-sleep-3449292-12.patch"
           },
           "drupal/search_api": {
-            "Declaration of Drupal\\search_api_solr\\Plugin\\search_api\\backend\\SearchApiSolrBackend::__sleep() must be compatible": "https://git.drupalcode.org/project/search_api/-/merge_requests/148.patch",
-            "Declaration of Drupal\\Core\\DependencyInjection\\DependencySerializationTrait::__wakeup() must be compatible": "https://www.drupal.org/files/issues/2024-06-18/type_declaration.patch"
+            "Declaration of Drupal\\search_api_solr\\Plugin\\search_api\\backend\\SearchApiSolrBackend::__sleep() must be compatible": "https://git.drupalcode.org/project/search_api/-/merge_requests/148.patch"
           }
         }
     },
