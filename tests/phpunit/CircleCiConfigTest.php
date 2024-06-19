@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use PHPUnit\Framework\TestCase;
 
 /**
