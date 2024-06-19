@@ -148,11 +148,7 @@
         "patchLevel": {
             "drupal/core": "-p2"
         },
-        "patches": {
-          "drupal/search_api_solr": {
-            "Fatal error Declaration of Drupal\\search_api_solr\\Plugin\\search_api\\backend\\SearchApiSolrBackend::__sleep()": "https://www.drupal.org/files/issues/2024-06-17/search-api-solr-fatal-error-declaration-of-sleep-3449292-12.patch"
-          }
-        }
+        "patches": {}
     },
     "scripts": {
         "pre-install-cmd": [
