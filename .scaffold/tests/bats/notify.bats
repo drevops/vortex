@@ -148,7 +148,7 @@ load _helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for post_deployment event."
-    "@curl -X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=mybranch # [{\"id\": \"${app_id}\", \"othervar\": \"54321\"},{\"id\": \"987654321\", \"othervar\": \"12345\"}]"
+    "@curl -X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=mybranch # [{\"id\": \"${app_id}\", \"othervar\": \"54321\"},{\"id\": \"98765432101\", \"othervar\": \"12345\"}]"
     "@curl -X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/123456789/statuses -s -d {\"state\":\"success\", \"environment_url\": \"https://develop.testproject.com\"} # {\"state\": \"success\", \"othervar\": \"54321\"}"
     "Marked deployment as finished."
     "Finished GitHub notification for post_deployment event."
