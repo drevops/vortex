@@ -20,7 +20,7 @@
     <arg name="parallel" value="75"/>
 
     <!-- Lint code against platform version specified in composer.json key "config.platform.php". -->
-    <config name="testVersion" value="8.2"/>
+    <config name="testVersion" value="8.3"/>
 
     <!-- Exclude CircleCI config files. -->
     <exclude-pattern>circle\.yml</exclude-pattern>

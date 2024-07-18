@@ -4,7 +4,7 @@
     "license": "proprietary",
     "type": "project",
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.3",
         "composer/installers": "^2.2",
         "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^3.4",
@@ -84,7 +84,7 @@
         },
         "discard-changes": true,
         "platform": {
-            "php": "8.2.18"
+            "php": "8.3.9"
         },
         "sort-packages": true
     },
