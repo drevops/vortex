@@ -84,7 +84,7 @@ if [ "${DREVOPS_NOTIFY_EVENT}" = "pre_deployment" ]; then
   deployment_id="$(echo "${payload}" | extract_json_value "id")"
 
   # Check deployment ID.
-  { [ "${#deployment_id}" != "9" ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to get a deployment ID." && exit 1
+  { [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to get a deployment ID for a started operation. Payload: ${payload}" && exit 1
 
   note "Marked deployment as started."
 else
@@ -101,7 +101,7 @@ else
   deployment_id="$(echo "${payload}" | extract_json_first_value "id")"
 
   # Check deployment ID.
-  { [ "${#deployment_id}" != "9" ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to get a deployment ID." && exit 1
+  { [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to get a deployment ID for a finished operation. Payload: ${payload}" && exit 1
 
   # Post status update.
   payload="$(curl \
