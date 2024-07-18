@@ -25,3 +25,6 @@ $config['system.performance']['js']['preprocess'] = FALSE;
 
 // Hide admin toolbar. Useful for themeing while logged in as admin.
 // $settings['hide_admin_toolbar'] = TRUE;
+
+// Disable state cache.
+$settings['state_cache'] = FALSE;
