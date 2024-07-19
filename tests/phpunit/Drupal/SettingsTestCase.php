@@ -60,6 +60,11 @@ abstract class SettingsTestCase extends TestCase {
   final const PRIVATE_PATH_TESTING = '/private-test';
 
   /**
+   * Defines a constant for the config directory used in testing.
+   */
+  final const CONFIG_PATH_TESTING = '/config-test';
+
+  /**
    * Application root.
    *
    * @var string
@@ -127,6 +132,7 @@ abstract class SettingsTestCase extends TestCase {
       $vars['LAGOON'] = FALSE;
     }
 
+    $vars['DRUPAL_CONFIG_PATH'] = static::CONFIG_PATH_TESTING;
     $vars['DRUPAL_TEMPORARY_FILES'] = static::TMP_PATH_TESTING;
     $vars['DRUPAL_PRIVATE_FILES'] = static::PRIVATE_PATH_TESTING;
 

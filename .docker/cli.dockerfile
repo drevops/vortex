@@ -4,9 +4,9 @@
 #
 # hadolint global ignore=DL3018
 #
-# @see https://hub.docker.com/r/uselagoon/php-8.2-cli-drupal/tags
+# @see https://hub.docker.com/r/uselagoon/php-8.3-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
-FROM uselagoon/php-8.2-cli-drupal:24.5.0
+FROM uselagoon/php-8.3-cli-drupal:24.7.0
 
 # Add missing variables.
 # @todo Remove once https://github.com/uselagoon/lagoon/issues/3121 is resolved.
@@ -29,6 +29,9 @@ ENV DRUPAL_PRIVATE_FILES=${DRUPAL_PRIVATE_FILES}
 
 ARG DRUPAL_TEMPORARY_FILES="${TMP:-/tmp}"
 ENV DRUPAL_TEMPORARY_FILES=${DRUPAL_TEMPORARY_FILES}
+
+ARG DRUPAL_CONFIG_PATH="/app/config/default"
+ENV DRUPAL_CONFIG_PATH=${DRUPAL_CONFIG_PATH}
 
 # Set default values for environment variables.
 # These values will be overridden if set in docker-compose.yml or .env file
@@ -95,8 +98,8 @@ RUN npm --prefix /app/${WEBROOT}/themes/custom/your_site_theme ci --no-audit --n
 COPY . /app
 
 # Create files directories and set correct permissions.
-RUN mkdir -p "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" && \
- chmod 0770 "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
+RUN mkdir -p "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" "${DRUPAL_CONFIG_PATH}" && \
+ chmod 0770 "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" "${DRUPAL_CONFIG_PATH}"
 
 # Compile front-end assets. Running this after copying all files as we need
 # sources to compile assets.

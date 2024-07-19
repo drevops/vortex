@@ -62,6 +62,8 @@ x-environment: &default-environment
   CI: ${CI:-}
   # Forward emails to Mailhog locally.
   SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
+  # Path to configuration files.
+  DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
   # Drupal file paths.
   DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
   DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
@@ -114,8 +116,9 @@ services:
       args:
         CLI_IMAGE: *cli-image
         WEBROOT: "${DREVOPS_WEBROOT:-web}"
-        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/${DREVOPS_WEBROOT:-web}/sites/default/files}
-        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/${DREVOPS_WEBROOT:-web}/sites/default/files/private}
+        DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
+        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
+        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
         DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
     <<: [*default-volumes, *default-user]
     environment:
@@ -158,7 +161,7 @@ services:
       context: .
       dockerfile: .docker/mariadb.dockerfile
       args:
-        IMAGE: "${DREVOPS_DB_IMAGE:-uselagoon/mariadb-10.11-drupal:24.5.0}" # Use custom database image (if defined) or fallback to standard database image.
+        IMAGE: "${DREVOPS_DB_IMAGE:-uselagoon/mariadb-10.11-drupal:24.7.0}" # Use custom database image (if defined) or fallback to standard database image.
     <<: *default-user
     environment:
       <<: *default-environment
@@ -171,7 +174,7 @@ services:
 
   #;< REDIS
   redis:
-    image: uselagoon/redis-6:24.5.0
+    image: uselagoon/redis-6:24.7.0
     #;< LAGOON
     labels:
       lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -232,7 +235,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:24.3.0
+    image: drevops/docker-wait-for-dependencies:24.7.0
     depends_on:
       - cli
       - mariadb

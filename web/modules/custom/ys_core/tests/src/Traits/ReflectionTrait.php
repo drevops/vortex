@@ -64,15 +64,8 @@ trait ReflectionTrait {
 
   /**
    * Set protected property value.
-   *
-   * @param object $object
-   *   Object to set the value on.
-   * @param string $property
-   *   Property name to set the value. Property should exists in the object.
-   * @param mixed $value
-   *   Value to set to the property.
    */
-  protected static function setProtectedValue($object, $property, mixed $value): void {
+  protected static function setProtectedValue(object $object, string $property, mixed $value): void {
     $class = new \ReflectionClass($object::class);
     $property = $class->getProperty($property);
     $property->setAccessible(TRUE);

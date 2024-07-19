@@ -254,7 +254,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_SUT;
@@ -269,6 +269,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^.+\.docker\.amazee\.io$',
       '^nginx$',
     ];
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -298,7 +299,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_LOCAL;
@@ -314,6 +315,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^.+\.docker\.amazee\.io$',
       '^nginx$',
     ];
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -342,7 +344,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_CI;
@@ -359,7 +361,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^.+\.docker\.amazee\.io$',
       '^nginx$',
     ];
-
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -389,7 +391,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_DEV;
@@ -402,6 +404,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -430,7 +433,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_DEV;
@@ -443,6 +446,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -471,7 +475,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_TEST;
@@ -484,6 +488,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -510,7 +515,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_PROD;
@@ -523,6 +528,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
   // phpcs:ignore #;> ACQUIA
@@ -557,7 +563,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['cache_prefix']['default'] = 'test_project_test_branch';
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_DEV;
@@ -575,6 +581,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^nginx\-php$';
     $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -608,7 +615,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['cache_prefix']['default'] = 'test_project_develop';
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_DEV;
@@ -626,6 +633,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^nginx\-php$';
     $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -659,7 +667,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['cache_prefix']['default'] = 'test_project_master';
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_TEST;
@@ -677,6 +685,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^nginx\-php$';
     $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -709,7 +718,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['cache_prefix']['default'] = 'test_project_production';
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = '../config/default';
+    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_PROD;
@@ -727,6 +736,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^nginx\-php$';
     $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
+    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
   // phpcs:ignore #;> LAGOON
