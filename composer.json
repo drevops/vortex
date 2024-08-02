@@ -36,7 +36,6 @@
         "drupal/core-dev": "~10.3.0",
         "drupal/drupal-extension": "^5",
         "ergebnis/composer-normalize": "^2.42",
-        "lullabot/mink-selenium2-driver": "^1.7",
         "mglaman/phpstan-drupal": "^1.2",
         "palantirnet/drupal-rector": "^0.20",
         "phpcompatibility/php-compatibility": "^9.3",
