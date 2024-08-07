@@ -36,13 +36,6 @@ prepare_sut() {
   mkdir -p .idea
   touch .idea/idea_file.txt
   assert_file_exists .idea/idea_file.txt
-
-  # LCOV_EXCL_START
-  if uname -a | grep -q ARM64; then
-    substep "Override local Docker Compose for ARM."
-    cp docker-compose.override.default.yml docker-compose.override.yml
-  fi
-  # LCOV_EXCL_STOP
 }
 
 docker_remove_image() {
