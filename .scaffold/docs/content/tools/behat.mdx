@@ -169,3 +169,32 @@ There are also example tests in the [`tests/behat/features`](https://github.com/
 directory that can be used as a starting point for writing tests. These tests
 define `@smoke` tests for the homepage and login page as well as tests for
 contributed modules.
+
+## Connecting to the browser
+
+For `@javascript` tests, Behat uses Selenium to connect to the browser. The
+browser runs within a container and can be observed from the host machine by
+using a browser thanks to the VNC server running in the container and [noVNC](https://novnc.com/).
+
+Run
+
+```shell
+ahoy info
+```
+and click on the link next to `Selenium VNC URL on host` to open the browser.
+
+Or use the following command to get the port number:
+```shell
+docker compose port chrome 7900
+```
+and open `http://localhost:<port>/?autoconnect=1&password=secret` in the browser.
+
+:::tip
+
+    When running tests, you can add `And I wait for 60 seconds` step to suspend
+    the test execution for a minute and interact with the headless browser in a
+    container through a browser on your host machine.
+
+:::
+
+![behat-novnc.gif](/img/behat-novnc.gif)
