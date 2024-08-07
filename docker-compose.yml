@@ -202,7 +202,7 @@ services:
       context: .
       dockerfile: .docker/clamav.dockerfile
     ports:
-      - "3310" # Find port on host with `docker-compose port clamav 3310`.
+      - "3310" # Find port on host with `docker compose port clamav 3310`.
     environment:
       << : *default-environment
     networks:
@@ -219,7 +219,7 @@ services:
   chrome:
     image: selenium/standalone-chromium:128.0
     ports:
-      - "7900" # Find port on host with `docker-compose port chrome 7900`.
+      - "7900" # Find port on host with `docker compose port chrome 7900`.
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
     <<: *default-volumes # Use default volumes to provide access to test fixtures.
     environment:

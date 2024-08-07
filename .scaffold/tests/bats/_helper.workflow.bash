@@ -303,6 +303,7 @@ assert_ahoy_info() {
     assert_output_not_contains "DB-in-image             : ${db_image}"
   fi
   assert_output_contains "Solr URL on host            :"
+  assert_output_contains "Selenium VNC URL on host    :"
   assert_output_contains "Mailhog URL                 : http://mailhog.docker.amazee.io/"
   assert_output_contains "Xdebug                      : Disabled ('ahoy debug' to enable)"
   assert_output_not_contains "Containers are not running."

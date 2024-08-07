@@ -9,6 +9,12 @@ commands:
       npm --prefix tests ci
       npm --prefix docs ci
 
+  docs:
+    name: Build Scaffold docs.
+    cmd: |
+      npm --prefix docs ci
+      npm --prefix docs run start
+
   lint:
     name: Lint Scaffold project.
     cmd: |
