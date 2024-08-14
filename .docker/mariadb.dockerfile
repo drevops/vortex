@@ -1,6 +1,6 @@
 # MariaDB container.
 #
-# @see https://hub.docker.com/r/uselagoon/mariadb-10.11-drupal/tags?page=1
+# @see https://hub.docker.com/r/uselagoon/mariadb-10.11-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/mariadb-drupal
 #
 # Use drevops/drevops-mariadb-drupal-data as a starting container image for your
