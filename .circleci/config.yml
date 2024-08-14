@@ -53,7 +53,7 @@ aliases:
       # Using the 'runner' container where each job will be executed.
       # This container has all the necessary tools to run a dockerized environment.
       # @see https://github.com/drevops/ci-runner
-      # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags?page=1&ordering=last_updated
+      # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags
       - image: drevops/ci-runner:24.7.0
         auth:
           username: ${DREVOPS_CONTAINER_REGISTRY_USER}
