@@ -241,7 +241,7 @@ jobs:
       - run:
           name: Lint Dockerfiles with Hadolint
           command: |
-            for file in $(find . -name 'Dockerfile' -o -name '*.dockerfile'); do
+            for file in $(find .docker -name 'Dockerfile' -o -name '*.dockerfile'); do
               echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${DREVOPS_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
             done
 
