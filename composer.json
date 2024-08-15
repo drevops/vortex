@@ -32,7 +32,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
         "drevops/behat-format-progress-fail": "^1.2",
         "drevops/behat-screenshot": "^1.5",
-        "drevops/behat-steps": "^2.3",
+        "drevops/behat-steps": "^2.4",
         "drupal/core-dev": "~10.3.0",
         "drupal/drupal-extension": "^5",
         "ergebnis/composer-normalize": "^2.42",
