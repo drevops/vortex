@@ -93,8 +93,8 @@ RUN npm --prefix /app/${WEBROOT}/themes/custom/your_site_theme ci --no-audit --n
 COPY . /app
 
 # Create files directories and set correct permissions.
-RUN mkdir -p "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" "${DRUPAL_CONFIG_PATH}" && \
- chmod 0770 "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" "${DRUPAL_CONFIG_PATH}"
+RUN mkdir -p "${DRUPAL_PUBLIC_FILES:-/app/${WEBROOT}/sites/default/files}" "${DRUPAL_PRIVATE_FILES:-/app/${WEBROOT}/sites/default/files/private}" "${DRUPAL_TEMPORARY_FILES:-/tmp}" "${DRUPAL_CONFIG_PATH:-/app/config/default}" && \
+ chmod 0770 "${DRUPAL_PUBLIC_FILES:-/app/${WEBROOT}/sites/default/files}" "${DRUPAL_PRIVATE_FILES:-/app/${WEBROOT}/sites/default/files/private}" "${DRUPAL_TEMPORARY_FILES:-/tmp}" "${DRUPAL_CONFIG_PATH:-/app/config/default}"
 
 # Compile front-end assets. Running this after copying all files as we need
 # sources to compile assets.
