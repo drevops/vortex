@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
  *
  * Tests for CircleCI configurations.
  *
+ * @group ci
+ *
  * @SuppressWarnings(PHPMD)
  *
  * phpcs:disable Drupal.NamingConventions.ValidVariableName.LowerCamelName
@@ -55,6 +57,7 @@ class CircleCiConfigTest extends TestCase {
   public static function dataProviderDeployBranchRegex(): array {
     return [
       // Positive branches.
+      ['production'],
       ['main'],
       ['master'],
       ['develop'],
@@ -90,6 +93,20 @@ class CircleCiConfigTest extends TestCase {
       ['feature/0.x-description'],
       ['feature/0.1.x-description'],
       ['feature/0.1.2.x-description'],
+
+      ['project/description'],
+      ['project/Description'],
+      ['project/Description-With-Hyphens'],
+      ['project/123-description'],
+      ['project/123-Description'],
+      ['project/1.x'],
+      ['project/0.x'],
+      ['project/0.1.x'],
+      ['project/0.1.2.x'],
+      ['project/1.x-description'],
+      ['project/0.x-description'],
+      ['project/0.1.x-description'],
+      ['project/0.1.2.x-description'],
 
       // Negative branches.
       ['something', FALSE],
@@ -174,6 +191,8 @@ class CircleCiConfigTest extends TestCase {
       ['prefeaturepost/something', FALSE],
       ['prereleasepost/something', FALSE],
       ['prehotfixpost/something', FALSE],
+      ['preproject/something', FALSE],
+      ['projectpost/something', FALSE],
     ];
   }
 
