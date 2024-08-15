@@ -11,6 +11,8 @@ parameters:
 
   level: 7
 
+  phpVersion: 80300
+
   paths:
     - web/modules/custom
     - web/themes/custom
