@@ -190,7 +190,7 @@ commands:
   lint-fe:
     usage: Lint front-end code.
     cmd: |
-      ahoy cli vendor/bin/twig-cs-fixer
+      ahoy cli vendor/bin/twig-cs-fixer lint
       ahoy cli "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
 
   lint-fix:
@@ -198,6 +198,7 @@ commands:
     cmd: |
       ahoy cli vendor/bin/rector --clear-cache
       ahoy cli vendor/bin/phpcbf
+      ahoy cli vendor/bin/twig-cs-fixer lint --fix
 
   test:
     usage: Run all tests.
