@@ -105,7 +105,7 @@ commands:
 
   drush:
     usage: Run Drush commands in the CLI service container.
-    cmd: ahoy cli "drush -l \${DREVOPS_LOCALDEV_URL} $*"
+    cmd: ahoy cli "vendor/bin/drush -l \${DREVOPS_LOCALDEV_URL} $*"
 
   #;< REDIS
   flush-redis:
