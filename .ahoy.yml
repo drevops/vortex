@@ -196,10 +196,19 @@ commands:
 
   lint-fix:
     usage: Fix lint issues of back-end and front-end code.
+    cmd: ahoy lint-be-fix && ahoy lint-fe-fix
+
+  lint-be-fix:
+    usage: Fix lint issues of back-end code.
     cmd: |
       ahoy cli vendor/bin/rector --clear-cache
       ahoy cli vendor/bin/phpcbf
+
+  lint-fe-fix:
+    usage: Fix lint issues of front-end code.
+    cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint --fix
+      ahoy cli "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
 
   test:
     usage: Run all tests.
