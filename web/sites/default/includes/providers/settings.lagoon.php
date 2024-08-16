@@ -3,32 +3,31 @@
 /**
  * @file
  * Lagoon hosting provider settings.
+ *
+ * Do not place any custom settings in this file.
+ * It is used to explicitly map Lagoon environments to $settings['environment']
+ * and set platform-specific settings only.
+ * Instead, use per-module settings files.
  */
 
 declare(strict_types=1);
 
-if (getenv('LAGOON') && getenv('LAGOON_ENVIRONMENT_TYPE') == 'production' || getenv('LAGOON_ENVIRONMENT_TYPE') == 'development') {
-  // Do not put any Lagoon-specific settings in this code block. It is used
-  // to explicitly map Lagoon environments to $settings['environment']
-  // variable only.
-  // Instead, use 'PER-ENVIRONMENT SETTINGS' section below.
-  //
+if (!empty(getenv('LAGOON_KUBERNETES'))) {
   // Environment is marked as 'production' in Lagoon.
   if (getenv('LAGOON_ENVIRONMENT_TYPE') == 'production') {
     $settings['environment'] = ENVIRONMENT_PROD;
   }
-  // All other environments running in Lagoon are considered 'development'.
   else {
-    // Any other environment is considered 'development' in Lagoon.
+    // All other environments running in Lagoon are considered 'development'.
     $settings['environment'] = ENVIRONMENT_DEV;
 
-    // But try to identify production environment using a branch name for
-    // the cases when 'production' Lagoon environment is not provisioned yet.
+    // Try to identify production environment using a branch name for
+    // the cases when the Lagoon environment is not marked as 'production' yet.
     if (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') === getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) {
       $settings['environment'] = ENVIRONMENT_PROD;
     }
     // Dedicated test environment based on a branch name.
-    elseif (getenv('LAGOON_GIT_BRANCH') == 'master') {
+    elseif (getenv('LAGOON_GIT_BRANCH') == 'main' || getenv('LAGOON_GIT_BRANCH') == 'master') {
       $settings['environment'] = ENVIRONMENT_TEST;
     }
     // Test environment based on a branch prefix for release and
@@ -52,6 +51,8 @@ if (getenv('LAGOON') && getenv('LAGOON_ENVIRONMENT_TYPE') == 'production' || get
   $settings['cache_prefix']['default'] = (getenv('LAGOON_PROJECT') ?: getenv('DREVOPS_PROJECT')) . '_' . (getenv('LAGOON_GIT_SAFE_BRANCH') ?: getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH'));
 
   // Trusted host patterns for Lagoon internal routes.
+  // Do not modify this section. Instead, add your custom patterns to the
+  // settings.php file.
   // URL when accessed from PHP processes in Lagoon.
   $settings['trusted_host_patterns'][] = '^nginx\-php$';
   // Lagoon URL.
