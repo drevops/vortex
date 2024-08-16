@@ -23,7 +23,7 @@ assert_deployment_files_present() {
   assert_file_not_exists .editorconfig
   assert_file_not_exists .eslintrc.json
   assert_file_not_exists .lagoon.yml
-  assert_file_not_exists .sass-lint.yml
+  assert_file_not_exists .stylelintrc.json
   assert_file_not_exists behat.yml
   assert_file_not_exists composer.lock
   assert_file_not_exists renovate.json
