@@ -23,12 +23,13 @@ commands:
   build:
     usage: Build or rebuild the project.
     cmd: |
-      ahoy reset
-      ahoy up --build --force-recreate
-      ahoy composer install --prefer-dist
-      ahoy fei
-      ahoy provision
-      DREVOPS_SHOW_LOGIN=1 ahoy info
+      ahoy reset                          # Reset the project.
+      ahoy up --build --force-recreate    # Start the stack.
+      ahoy composer install               # Install Composer dependencies.
+      ahoy fei                            # Install front-end dependencies.
+      ahoy fe                             # Build front-end assets.
+      ahoy provision                      # Provision the site.
+      DREVOPS_SHOW_LOGIN=1 ahoy info      # Show information and a login link.
 
   info:
     usage: Show information about this project.
