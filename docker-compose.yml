@@ -75,10 +75,6 @@ x-environment: &default-environment
   # Redis integration flag.
   DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
   #;> REDIS
-  #;< LAGOON
-  # Lagoon environment type.
-  LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-local}
-  #;> LAGOON
 
 # ------------------------------------------------------------------------------
 # Services.
