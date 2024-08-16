@@ -77,7 +77,8 @@ jobs:
         with:
           directory: /tmp/.scaffold-coverage-html
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   scaffold-test-workflow:
     runs-on: ubuntu-latest
@@ -128,7 +129,8 @@ jobs:
         with:
           directory: /tmp/.scaffold-coverage-html
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   scaffold-test-deployment:
     runs-on: ubuntu-latest
@@ -188,7 +190,8 @@ jobs:
         with:
           directory: /tmp/.scaffold-coverage-html
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   scaffold-test-actions:
     runs-on: ubuntu-latest
