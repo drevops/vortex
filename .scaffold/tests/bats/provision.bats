@@ -131,7 +131,11 @@ assert_provision_info() {
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "@drush -y pm:install ys_core"
+    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
+    "@drush -y pm:install redis"
+    "@drush -y pm:install clamav"
+    "@drush -y pm:install search_api search_api_solr"
+    "@drush -y pm:install ys_core ys_search"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
@@ -246,7 +250,11 @@ assert_provision_info() {
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "@drush -y pm:install ys_core"
+    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
+    "@drush -y pm:install redis"
+    "@drush -y pm:install clamav"
+    "@drush -y pm:install search_api search_api_solr"
+    "@drush -y pm:install ys_core ys_search"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
@@ -370,7 +378,11 @@ assert_provision_info() {
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "@drush -y pm:install ys_core"
+    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
+    "@drush -y pm:install redis"
+    "@drush -y pm:install clamav"
+    "@drush -y pm:install search_api search_api_solr"
+    "@drush -y pm:install ys_core ys_search"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
@@ -498,7 +510,11 @@ assert_provision_info() {
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "@drush -y pm:install ys_core"
+    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
+    "@drush -y pm:install redis"
+    "@drush -y pm:install clamav"
+    "@drush -y pm:install search_api search_api_solr"
+    "@drush -y pm:install ys_core ys_search"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
@@ -622,7 +638,11 @@ assert_provision_info() {
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "@drush -y pm:install ys_core"
+    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
+    "@drush -y pm:install redis"
+    "@drush -y pm:install clamav"
+    "@drush -y pm:install search_api search_api_solr"
+    "@drush -y pm:install ys_core ys_search"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
@@ -740,7 +760,11 @@ assert_provision_info() {
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "@drush -y pm:install ys_core"
+    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
+    "@drush -y pm:install redis"
+    "@drush -y pm:install clamav"
+    "@drush -y pm:install search_api search_api_solr"
+    "@drush -y pm:install ys_core ys_search"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
@@ -865,7 +889,11 @@ assert_provision_info() {
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "@drush -y pm:install ys_core"
+    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
+    "@drush -y pm:install redis"
+    "@drush -y pm:install clamav"
+    "@drush -y pm:install search_api search_api_solr"
+    "@drush -y pm:install ys_core ys_search"
     "@drush -y deploy:hook"
     "Executing example operations in non-production environment."
     # Assert that DREVOPS_PROVISION_OVERRIDE_DB is correctly passed to the script.
