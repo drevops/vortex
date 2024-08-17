@@ -28,6 +28,11 @@ commands:
       ahoy test-common
       ahoy test-docs
 
+  test-bats:
+    cmd: |
+      [ ! -d tests/node_modules ] && ahoy install
+      tests/node_modules/.bin/bats "$@"
+
   test-common:
     cmd: ./tests/test.common.sh
 

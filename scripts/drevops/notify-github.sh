@@ -22,8 +22,8 @@ DREVOPS_NOTIFY_GITHUB_TOKEN="${DREVOPS_NOTIFY_GITHUB_TOKEN:-${GITHUB_TOKEN}}"
 # Deployment repository.
 DREVOPS_NOTIFY_REPOSITORY="${DREVOPS_NOTIFY_REPOSITORY:-}"
 
-# Deployment reference, such as a git SHA.
-DREVOPS_NOTIFY_REF="${DREVOPS_NOTIFY_REF:-}"
+# Deployment reference branch.
+DREVOPS_NOTIFY_BRANCH="${DREVOPS_NOTIFY_BRANCH:-}"
 
 # The event to notify about. Can be 'pre_deployment' or 'post_deployment'.
 DREVOPS_NOTIFY_EVENT="${DREVOPS_NOTIFY_EVENT:-}"
@@ -50,7 +50,7 @@ for cmd in php curl; do command -v ${cmd} >/dev/null || {
 
 [ -z "${DREVOPS_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for DREVOPS_NOTIFY_GITHUB_TOKEN" && exit 1
 [ -z "${DREVOPS_NOTIFY_REPOSITORY}" ] && fail "Missing required value for DREVOPS_NOTIFY_REPOSITORY" && exit 1
-[ -z "${DREVOPS_NOTIFY_REF}" ] && fail "Missing required value for DREVOPS_NOTIFY_REF" && exit 1
+[ -z "${DREVOPS_NOTIFY_BRANCH}" ] && fail "Missing required value for DREVOPS_NOTIFY_BRANCH" && exit 1
 [ -z "${DREVOPS_NOTIFY_EVENT}" ] && fail "Missing required value for DREVOPS_NOTIFY_EVENT" && exit 1
 [ -z "${DREVOPS_NOTIFY_ENVIRONMENT_TYPE}" ] && fail "Missing required value for DREVOPS_NOTIFY_ENVIRONMENT_TYPE" && exit 1
 
@@ -79,12 +79,16 @@ if [ "${DREVOPS_NOTIFY_EVENT}" = "pre_deployment" ]; then
     -H "Accept: application/vnd.github.v3+json" \
     -s \
     "https://api.github.com/repos/${DREVOPS_NOTIFY_REPOSITORY}/deployments" \
-    -d "{\"ref\":\"${DREVOPS_NOTIFY_REF}\", \"environment\": \"${DREVOPS_NOTIFY_ENVIRONMENT_TYPE}\", \"auto_merge\": false}")"
+    -d "{\"ref\":\"${DREVOPS_NOTIFY_BRANCH}\", \"environment\": \"${DREVOPS_NOTIFY_ENVIRONMENT_TYPE}\", \"auto_merge\": false}")"
 
-  deployment_id="$(echo "${payload}" | extract_json_value "id")"
+  deployment_id="$(echo "${payload}" | extract_json_value "id" || true)"
 
   # Check deployment ID.
-  { [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to get a deployment ID for a started operation. Payload: ${payload}" && exit 1
+  if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
+    fail "Failed to get a deployment ID for a ${DREVOPS_NOTIFY_EVENT} operation. Payload: ${payload}"
+    fail "Wait for GitHub checks to finish and try again."
+    exit 1
+  fi
 
   note "Marked deployment as started."
 else
@@ -96,12 +100,16 @@ else
     -H "Authorization: token ${DREVOPS_NOTIFY_GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     -s \
-    "https://api.github.com/repos/${DREVOPS_NOTIFY_REPOSITORY}/deployments?ref=${DREVOPS_NOTIFY_REF}")"
+    "https://api.github.com/repos/${DREVOPS_NOTIFY_REPOSITORY}/deployments?ref=${DREVOPS_NOTIFY_BRANCH}")"
 
-  deployment_id="$(echo "${payload}" | extract_json_first_value "id")"
+  deployment_id="$(echo "${payload}" | extract_json_first_value "id" || true)"
 
   # Check deployment ID.
-  { [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Failed to get a deployment ID for a finished operation. Payload: ${payload}" && exit 1
+  if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
+    fail "Failed to get a deployment ID for a ${DREVOPS_NOTIFY_EVENT} operation. Payload: ${payload}"
+    fail "Check that a pre_deployment notification was dispatched."
+    exit 1
+  fi
 
   # Post status update.
   payload="$(curl \
@@ -114,7 +122,10 @@ else
 
   status="$(echo "${payload}" | extract_json_value "state")"
 
-  [ "${status}" != "success" ] && fail "Unable to set deployment status" && exit 1
+  if [ "${status}" != "success" ]; then
+    fail "Previous deployment was found, but was unable to update the deployment status. Payload: ${payload}"
+    exit 1
+  fi
 
   note "Marked deployment as finished."
 fi
