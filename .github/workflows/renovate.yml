@@ -14,7 +14,7 @@ jobs:
       - uses: suzuki-shunsuke/github-action-renovate-config-validator@v1.0.1
 
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v40.2.6
+        uses: renovatebot/github-action@v40.2.7
         env:
           # Update the value of RENOVATE_GIT_AUTHOR with your own.
           RENOVATE_GIT_AUTHOR: 'Renovate Self Hosted <renovatebot@your-site-url.example>'
