@@ -118,7 +118,7 @@ composer require drupal/module_name
 2. Run
 
 ```bash
-composer update --lock`
+composer update --lock
 ```
 
 ## Behat tests with `@javascript` tag sometimes get stuck
