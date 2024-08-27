@@ -60,8 +60,6 @@ x-environment: &default-environment
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   # Pass-through 'CI' variable used to identify the CI environment.
   CI: ${CI:-}
-  # Forward emails to Mailhog locally.
-  SSMTP_MAILHUB: ${SSMTP_MAILHUB:-host.docker.internal:1025}
   # Path to configuration files.
   DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
   # Drupal file paths.
