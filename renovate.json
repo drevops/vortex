@@ -6,6 +6,7 @@
     "ignorePresets": [":prHourlyLimit2"],
     "rangeStrategy": "update-lockfile",
     "timezone": "Australia/Melbourne",
+    "configMigration": true,
     "enabledManagers": ["composer", "dockerfile", "docker-compose", "github-actions", "custom.regex"],
     "packageRules": [
         {
