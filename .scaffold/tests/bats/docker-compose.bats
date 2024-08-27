@@ -53,7 +53,6 @@ load _helper.bash
   echo "DREVOPS_WEBROOT=docroot" >>.env
   echo "DREVOPS_DB_IMAGE=myorg/my_db_image" >>.env
   echo "XDEBUG_ENABLE=1" >>.env
-  echo "SSMTP_MAILHUB=false" >>.env
   echo "DRUPAL_SHIELD_USER=jane" >>.env
   echo "DRUPAL_SHIELD_PASS=passw" >>.env
   echo "DRUPAL_REDIS_ENABLED=1" >>.env
