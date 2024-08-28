@@ -54,7 +54,7 @@ aliases:
       # This container has all the necessary tools to run a dockerized environment.
       # @see https://github.com/drevops/ci-runner
       # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags
-      - image: drevops/ci-runner:24.7.0
+      - image: drevops/ci-runner:24.8.0
         auth:
           username: ${DREVOPS_CONTAINER_REGISTRY_USER}
           password: ${DREVOPS_CONTAINER_REGISTRY_PASS}
