@@ -19,7 +19,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Generate CalVer version
+        if: vars.DREVOPS_RELEASE_VERSION_SCHEME == 'calver'
+        id: calver
+        run: |
+          export VERSION="$(date "+%y.%-m").0"
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "Version set to ${VERSION}"
+
       - name: Draft release notes
         uses: release-drafter/release-drafter@v6
+        with:
+          tag: ${{ steps.calver.outputs.version }}
+          name: ${{ steps.calver.outputs.version }}
+          version: ${{ steps.calver.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
