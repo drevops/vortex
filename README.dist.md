@@ -69,3 +69,6 @@ Copy `docker-compose.override.default.yml` to `docker-compose.override.yml`.
 - [CI](docs/ci.md)
 - [Releasing](docs/releasing.md)
 - [Deployment](docs/deployment.md)
+
+---
+_This repository was created using the [DrevOps Scaffold](https://github.com/drevops/scaffold) project template_
