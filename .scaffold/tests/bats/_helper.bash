@@ -248,11 +248,14 @@ assert_files_present_common() {
   # Assert that project name is correct.
   assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
 
-  # Assert that DrevOps version was replaced.
+  # Assert that Scaffold version was replaced.
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_VERSION:-develop}-blue.svg"
   assert_file_contains "README.md" "https://github.com/drevops/scaffold/tree/${DREVOPS_VERSION:-develop}"
   assert_file_not_contains "README.md" "The following list includes"
   assert_file_not_exists "README.dist.md"
+
+  # Assert that Scaffold footnote remains.
+  assert_file_contains "README.md" "This repository was created using the [DrevOps Scaffold](https://github.com/drevops/scaffold) project template"
 
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
 
