@@ -568,11 +568,12 @@ workflows:
               # - project/description
               # - deps/*
               # - feature/description, feature/123-description
+              # - bugfix/description, bugfix/123-description
               # - release/123.456.789, release/123.456.789-rc.123 (per https://semver.org/)
               # - release/2023-04-17, release/2023-04-17.123 (date-based)
               # - hotfix/123.456.789, hotfix/123.456.789-rc.1213 (per https://semver.org/)
               # - hotfix/2023-04-17, hotfix/2023-04-17.123 (date-based)
-              only: /^(production|main|master|develop)$|^project\/[a-zA-z0-9\-\.]+|^feature\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^deps\/.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+              only: /^(production|main|master|develop)$|^project\/[a-zA-z0-9\-\.]+|^(feature|bugfix)\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^deps\/.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
             tags:
               ignore: /.*/
       - deploy-tags:

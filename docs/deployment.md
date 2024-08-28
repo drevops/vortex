@@ -60,8 +60,8 @@ below).
   3. Creates a deployment artifact (project files to be pushed to Acquia Cloud
      repository).
   4. Pushes created artifact to the Acquia Cloud repository:
-    - for feature-based branches (i.e. `feature/ABC-123`) the code is pushed to
-      the branch with exactly the same name.
+    - for feature-based branches (i.e. `feature/ABC-123` or `bugfix/ABC-123`)
+      the code is pushed to the branch with exactly the same name.
     - for release deployments, which are tag-based (i.e. `0.1.4`), the code is
       pushed to the branch `deployment/[tag]` (i.e. `deployment/0.1.4`).
 4. Acquia Cloud picks up recent push to the repository and
@@ -96,8 +96,8 @@ followed by all developers:
    for project Technical Lead and Deployer user.
 2. There should be no pushes to Acquia Cloud repository.
 3. There may be `main` or `develop` branch in Acquia Cloud repository.
-4. Technical Lead is expected to regularly cleanup `feature/*` branches in
-   Acquia Cloud repository.
+4. Technical Lead is expected to regularly cleanup `feature/*` and `bugfix/*`
+   branches in Acquia Cloud repository.
 
 [//]: # (#;> ACQUIA)
 
