@@ -10,31 +10,42 @@
 
 /* global module */
 
-var librariesPaths = [
-  '../../../../../../../vendor/twbs/bootstrap/dist/js/bootstrap.js'
-];
+var librariesPaths = [];
 var themeName = 'your_site_theme';
 module.exports = function (grunt) {
   'use strict';
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     eslint: {
-      src: [
-        'js/**/*.js',
-        '!js/**/*.min.js',
-      ],
+      scan: {
+        src: [
+          'js/**/*.js',
+          '!js/**/*.min.js',
+        ],
+      },
+      fix: {
+        options: {
+          fix: true
+        },
+        src: [
+          'js/**/*.js',
+          '!js/**/*.min.js',
+        ],
+      },
       options: {
         config: '.eslintrc.json'
       }
     },
-    sasslint: {
-      options: {
-        configFile: '.sass-lint.yml',
-        warningsAreErrors: true
+    stylelint: {
+      scan: {
+        src: ['scss/**/*.scss']
       },
-      target: [
-        'scss/**/*.scss',
-      ]
+      fix: {
+        options: {
+          fix: true
+        },
+        src: ['scss/**/*.scss']
+      }
     },
     sass_globbing: {
       dev: {
@@ -67,7 +78,8 @@ module.exports = function (grunt) {
             reserved: ['jQuery', 'Drupal']
           },
           compress: {
-            drop_console: true
+            drop_console: true,
+            module: false
           }
         },
         files: {
@@ -146,7 +158,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-postcss');
+  grunt.loadNpmTasks('@lodder/grunt-postcss');
   grunt.loadNpmTasks('grunt-sass-globbing');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -155,10 +167,11 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-sass');
-  grunt.loadNpmTasks('grunt-sass-lint');
+  grunt.loadNpmTasks('grunt-stylelint');
   grunt.loadNpmTasks('grunt-exec');
 
-  grunt.registerTask('lint', ['eslint', 'sasslint']);
+  grunt.registerTask('lint', ['eslint', 'stylelint:scan']);
+  grunt.registerTask('lint-fix', ['eslint:fix', 'stylelint:fix']);
   grunt.registerTask('prod', ['sass_globbing', 'clean', 'concat', 'uglify:prod', 'sass:prod', 'postcss:prod', 'copy']);
   grunt.registerTask('dev', ['sass_globbing', 'clean', 'concat', 'sass:dev', 'postcss:dev', 'copy']);
   grunt.registerTask('watch_message', function() {

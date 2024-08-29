@@ -92,10 +92,11 @@ tasks:
           DREVOPS_NOTIFY_EVENT=post_deployment \
           DREVOPS_NOTIFY_PROJECT=$LAGOON_PROJECT \
           DREVOPS_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
-          ./scripts/drevops/notify.sh
+          ./scripts/drevops/notify.sh || true
         service: cli
         shell: bash
     #;> !NOTIFICATIONS
+
 environments:
   # Branch name that represents production environment.
   main:

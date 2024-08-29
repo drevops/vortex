@@ -21,7 +21,7 @@ Refer to https://docs.drevops.com/latest/usage/release for more information.
 6. The hash of the `HEAD` of the `production` branch matches the hash of
    the `HEAD` of `master` branch.
 
-## Version Number
+## Version Number - Semantic Versioning
 
 Release versions are numbered according to [Semantic Versioning](https://semver.org/).
 
@@ -35,3 +35,18 @@ Examples:
 
 * Correct: `0.1.0`, `1.0.0` , `1.0.1` , `1.0.10`
 * Incorrect: `0.1` , `1` , `1.0` , `1.0.01` , `1.0.010`
+
+## Version Number - CalVer
+
+Release versions are numbered according to [CalVer Versioning](https://calver.org/).
+
+Given a version number `YY.M.Z`:
+
+* `YY` = Short year. No leading zeroes.
+* `M` = Short month. No leading zeroes.
+* `Z` = Hotfix/patch version. No leading zeroes.
+
+Examples:
+
+* Correct: `24.1.0`, `24.11.1` , `24.1.10`, `24.0.1`, `9.12.0`
+* Incorrect: `24.0.0`, `2024.1.1` , `24` , `24.1.00` , `24.01.0` , `01.1.0`

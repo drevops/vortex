@@ -23,12 +23,13 @@ commands:
   build:
     usage: Build or rebuild the project.
     cmd: |
-      ahoy reset
-      ahoy up --build --force-recreate
-      ahoy composer install --prefer-dist
-      ahoy fei
-      ahoy provision
-      DREVOPS_SHOW_LOGIN=1 ahoy info
+      ahoy reset                          # Reset the project.
+      ahoy up --build --force-recreate    # Start the stack.
+      ahoy composer install               # Install Composer dependencies.
+      ahoy fei                            # Install front-end dependencies.
+      ahoy fe                             # Build front-end assets.
+      ahoy provision                      # Provision the site.
+      DREVOPS_SHOW_LOGIN=1 ahoy info      # Show information and a login link.
 
   info:
     usage: Show information about this project.
@@ -105,7 +106,7 @@ commands:
 
   drush:
     usage: Run Drush commands in the CLI service container.
-    cmd: ahoy cli "drush -l \${DREVOPS_LOCALDEV_URL} $*"
+    cmd: ahoy cli "vendor/bin/drush -l \${DREVOPS_LOCALDEV_URL} $*"
 
   #;< REDIS
   flush-redis:
@@ -190,14 +191,24 @@ commands:
   lint-fe:
     usage: Lint front-end code.
     cmd: |
-      ahoy cli vendor/bin/twig-cs-fixer
+      ahoy cli vendor/bin/twig-cs-fixer lint
       ahoy cli "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
 
   lint-fix:
     usage: Fix lint issues of back-end and front-end code.
+    cmd: ahoy lint-be-fix && ahoy lint-fe-fix
+
+  lint-be-fix:
+    usage: Fix lint issues of back-end code.
     cmd: |
       ahoy cli vendor/bin/rector --clear-cache
       ahoy cli vendor/bin/phpcbf
+
+  lint-fe-fix:
+    usage: Fix lint issues of front-end code.
+    cmd: |
+      ahoy cli vendor/bin/twig-cs-fixer lint --fix
+      ahoy cli "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
 
   test:
     usage: Run all tests.

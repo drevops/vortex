@@ -53,8 +53,8 @@ aliases:
       # Using the 'runner' container where each job will be executed.
       # This container has all the necessary tools to run a dockerized environment.
       # @see https://github.com/drevops/ci-runner
-      # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags?page=1&ordering=last_updated
-      - image: drevops/ci-runner:24.7.0
+      # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags
+      - image: drevops/ci-runner:24.8.0
         auth:
           username: ${DREVOPS_CONTAINER_REGISTRY_USER}
           password: ${DREVOPS_CONTAINER_REGISTRY_PASS}
@@ -148,7 +148,7 @@ jobs:
             echo "${DREVOPS_CI_DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" | tee /tmp/db_cache_fallback
             echo "$(date ${DREVOPS_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
             echo "yes" | tee /tmp/db_cache_fallback_yes
-            echo 'v1.21.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
+            echo 'v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
 
       - restore_cache:
           keys:
@@ -157,10 +157,10 @@ jobs:
             # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
             # Lookup cache based on the default branch and a timestamp. Allows
             # to use cache from the very first build on the day (sanitized database dump, for example).
-            - v1.21.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             # Fallback to caching by default branch name only. Allows to use
             # cache from the branch build on the previous day.
-            - v1.21.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+            - v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
 
       - run:
           name: Download DB
@@ -190,7 +190,7 @@ jobs:
           # The cache will not be saved if it already exists.
           # Note that the cache fallback flag is enabled for this case in order
           # to save cache even if the fallback is not used when restoring it.
-          key: v1.21.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          key: v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
           paths:
             - /root/project/.data
 
@@ -234,14 +234,14 @@ jobs:
           keys:
             # Use cached artifacts from previous builds of this branch.
             # @see https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v1.21.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-            - v1.21.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+            - v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !PROVISION_USE_PROFILE
 
       - run:
           name: Lint Dockerfiles with Hadolint
           command: |
-            for file in $(find . -name 'Dockerfile' -o -name '*.dockerfile'); do
+            for file in $(find .docker -name 'Dockerfile' -o -name '*.dockerfile'); do
               echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${DREVOPS_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
             done
 
@@ -401,7 +401,7 @@ jobs:
   # Add RENOVATE_TOKEN as an environment variable with GitHub access token in UI.
   renovatebot-self-hosted:
     docker:
-      - image: renovate/renovate:37.342.1
+      - image: renovate/renovate:38.55.2
         environment:
           RENOVATE_PLATFORM: 'github'
           RENOVATE_AUTODISCOVER: false
@@ -564,14 +564,16 @@ workflows:
           filters:
             branches:
               # Allowed branches:
-              # - main, master, develop, ci, cisomething
+              # - production, main, master, develop, ci, cisomething
+              # - project/description
               # - deps/*
               # - feature/description, feature/123-description
+              # - bugfix/description, bugfix/123-description
               # - release/123.456.789, release/123.456.789-rc.123 (per https://semver.org/)
               # - release/2023-04-17, release/2023-04-17.123 (date-based)
               # - hotfix/123.456.789, hotfix/123.456.789-rc.1213 (per https://semver.org/)
               # - hotfix/2023-04-17, hotfix/2023-04-17.123 (date-based)
-              only: /^(main|master|develop)$|^feature\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^deps\/.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+              only: /^(production|main|master|develop)$|^project\/[a-zA-z0-9\-\.]+|^(feature|bugfix)\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^deps\/.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
             tags:
               ignore: /.*/
       - deploy-tags:

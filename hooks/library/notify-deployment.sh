@@ -31,6 +31,6 @@ export DREVOPS_NOTIFY_REF="${ref}"
 export DREVOPS_NOTIFY_SHA="${target_env}"
 export DREVOPS_NOTIFY_ENVIRONMENT_URL="${url}"
 
-./scripts/drevops/notify.sh
+./scripts/drevops/notify.sh || true
 
 popd >/dev/null || exit 1

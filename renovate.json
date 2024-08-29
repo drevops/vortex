@@ -1,42 +1,72 @@
 {
-    "extends": ["config:recommended"],
+    "extends": [
+        "config:recommended"
+    ],
     "branchPrefix": "deps/",
-    "labels": ["PR: Dependencies"],
+    "labels": [
+        "PR: Dependencies"
+    ],
     "assignees": [],
-    "ignorePresets": [":prHourlyLimit2"],
+    "ignorePresets": [
+        ":prHourlyLimit2"
+    ],
     "rangeStrategy": "update-lockfile",
     "timezone": "Australia/Melbourne",
-    "enabledManagers": ["composer", "dockerfile", "docker-compose", "github-actions", "custom.regex"],
+    "configMigration": true,
+    "enabledManagers": [
+        "composer",
+        "dockerfile",
+        "docker-compose",
+        "github-actions",
+        "custom.regex"
+    ],
     "packageRules": [
         {
-            "matchDepNames": ["php"],
+            "matchDepNames": [
+                "php"
+            ],
             "enabled": false
         },
         {
             "groupName": "Major all - skipped to update manually",
-            "matchDatasources": ["packagist"],
-            "matchUpdateTypes": ["major"],
-            "matchPackagePatterns": [".*"],
-            "enabled": false
+            "matchDatasources": [
+                "packagist"
+            ],
+            "matchUpdateTypes": [
+                "major"
+            ],
+            "enabled": false,
+            "matchPackageNames": [
+                "/.*/"
+            ]
         },
         {
             "groupName": "Minor and Patch Contrib",
             "groupSlug": "drupal-minor-patch-contrib",
-            "matchDatasources": ["packagist"],
+            "matchDatasources": [
+                "packagist"
+            ],
             "separateMinorPatch": false,
-            "matchPackagePatterns": [".*"],
-            "excludePackageNames": [
-                "drupal/core-composer-scaffold",
-                "drupal/core-project-message",
-                "drupal/core-recommended"
+            "matchPackageNames": [
+                "/.*/",
+                "!drupal/core-composer-scaffold",
+                "!drupal/core-project-message",
+                "!drupal/core-recommended"
             ]
         },
         {
             "groupName": "Minor and Patch Core",
             "groupSlug": "drupal-minor-patch-core",
-            "schedule": ["before 2am"],
-            "matchDatasources": ["packagist"],
-            "matchUpdateTypes": ["patch", "minor"],
+            "schedule": [
+                "before 2am"
+            ],
+            "matchDatasources": [
+                "packagist"
+            ],
+            "matchUpdateTypes": [
+                "patch",
+                "minor"
+            ],
             "matchDepNames": [
                 "drupal/core-composer-scaffold",
                 "drupal/core-project-message",
@@ -45,7 +75,10 @@
         },
         {
             "groupName": "Container images excluded",
-            "matchManagers": ["dockerfile", "docker-compose"],
+            "matchManagers": [
+                "dockerfile",
+                "docker-compose"
+            ],
             "matchDepNames": [
                 "selenium/standalone-chrome",
                 "seleniarm/standalone-chromium"
@@ -55,24 +88,36 @@
         {
             "groupName": "Container images",
             "groupSlug": "docker",
-            "schedule": ["before 3am"],
-            "matchManagers": ["dockerfile", "docker-compose", "custom.regex"],
-            "excludePackageNames": [
-                "selenium/standalone-chrome",
-                "seleniarm/standalone-chromium"
+            "schedule": [
+                "before 3am"
+            ],
+            "matchManagers": [
+                "dockerfile",
+                "docker-compose",
+                "custom.regex"
+            ],
+            "matchPackageNames": [
+                "!selenium/standalone-chrome",
+                "!seleniarm/standalone-chromium"
             ]
         },
         {
             "groupName": "GitHub Actions",
             "groupSlug": "github-actions",
-            "schedule": ["before 3am"],
-            "matchManagers": ["github-actions"]
+            "schedule": [
+                "before 3am"
+            ],
+            "matchManagers": [
+                "github-actions"
+            ]
         }
     ],
     "customManagers": [
         {
             "customType": "regex",
-            "fileMatch": ["^docker-compose\\.yml$"],
+            "fileMatch": [
+                "^docker-compose\\.yml$"
+            ],
             "matchStrings": [
                 "IMAGE:\\s*\"?\\${(?:.*):-(?<depName>.*?):(?<currentValue>.*?)(?:\\@sha256:.*)?}\"?"
             ],

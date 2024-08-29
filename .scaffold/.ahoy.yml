@@ -3,6 +3,12 @@ ahoyapi: v2
 
 commands:
 
+  install:
+    name: Install test dependencies.
+    cmd: |
+      npm --prefix tests ci
+      npm --prefix docs ci
+
   lint:
     name: Lint Scaffold project.
     cmd: |
@@ -22,6 +28,11 @@ commands:
       ahoy test-common
       ahoy test-docs
 
+  test-bats:
+    cmd: |
+      [ ! -d tests/node_modules ] && ahoy install
+      tests/node_modules/.bin/bats "$@"
+
   test-common:
     cmd: ./tests/test.common.sh
 
@@ -39,9 +50,8 @@ commands:
   # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
   update-fixtures:
     cmd: |
-      cd ../ \
-      && UPDATE_FIXTURES=1 bats ./tests/bats/docker-compose.bats \
-      || UPDATE_FIXTURES=1 bats ./tests/bats/docker-compose.bats
+      UPDATE_FIXTURES=1 tests/node_modules/.bin/bats tests/bats/docker-compose.bats \
+      || UPDATE_FIXTURES=1 tests/node_modules/.bin/bats tests/bats/docker-compose.bats
 
   update-docs:
     usage: Update the documentation.

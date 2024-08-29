@@ -3,14 +3,3 @@ type: module
 description: Core feature for YOURSITE site.
 core_version_requirement: ^10
 package: your_site
-dependencies:
-  - admin_toolbar:admin_toolbar
-  - coffee:coffee
-  - config_split:config_split
-  - config_update:config_update
-  - drupal:media
-  - environment_indicator:environment_indicator
-  - pathauto:pathauto
-  - redirect:redirect
-  - shield:shield
-  - stage_file_proxy:stage_file_proxy

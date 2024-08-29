@@ -28,7 +28,7 @@
         <env name="BROWSERTEST_OUTPUT_DIRECTORY" value=""/>
         <!-- By default, browser tests will output links that use the base URL set
          in SIMPLETEST_BASE_URL. However, if your SIMPLETEST_BASE_URL is an internal
-         path (such as may be the case in a virtual or Container-based environment),
+         path (such as may be the case in a virtual or container-based environment),
          you can set the base URL used in the browser test output links to something
          reachable from your host machine here. This will allow you to follow them
          directly and view the output. -->

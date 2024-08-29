@@ -248,11 +248,14 @@ assert_files_present_common() {
   # Assert that project name is correct.
   assert_file_contains .env "DREVOPS_PROJECT=${suffix}"
 
-  # Assert that DrevOps version was replaced.
+  # Assert that Scaffold version was replaced.
   assert_file_contains "README.md" "badge/DrevOps-${DREVOPS_VERSION:-develop}-blue.svg"
   assert_file_contains "README.md" "https://github.com/drevops/scaffold/tree/${DREVOPS_VERSION:-develop}"
   assert_file_not_contains "README.md" "The following list includes"
   assert_file_not_exists "README.dist.md"
+
+  # Assert that Scaffold footnote remains.
+  assert_file_contains "README.md" "This repository was created using the [DrevOps Scaffold](https://github.com/drevops/scaffold) project template"
 
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
 
@@ -317,24 +320,24 @@ assert_files_present_drevops() {
   assert_file_exists ".docker/scripts/.gitkeep"
   assert_file_exists ".docker/config/mariadb/my.cnf"
 
-  assert_file_exists ".docker/config/solr/accents_en.txt"
-  assert_file_exists ".docker/config/solr/accents_und.txt"
-  assert_file_exists ".docker/config/solr/elevate.xml"
-  assert_file_exists ".docker/config/solr/protwords_en.txt"
-  assert_file_exists ".docker/config/solr/protwords_und.txt"
-  assert_file_exists ".docker/config/solr/schema.xml"
-  assert_file_exists ".docker/config/solr/schema_extra_fields.xml"
-  assert_file_exists ".docker/config/solr/schema_extra_types.xml"
-  assert_file_exists ".docker/config/solr/solrconfig.xml"
-  assert_file_exists ".docker/config/solr/solrconfig_extra.xml"
-  assert_file_exists ".docker/config/solr/solrconfig_index.xml"
-  assert_file_exists ".docker/config/solr/solrconfig_query.xml"
-  assert_file_exists ".docker/config/solr/solrconfig_requestdispatcher.xml"
-  assert_file_exists ".docker/config/solr/solrcore.properties"
-  assert_file_exists ".docker/config/solr/stopwords_en.txt"
-  assert_file_exists ".docker/config/solr/stopwords_und.txt"
-  assert_file_exists ".docker/config/solr/synonyms_en.txt"
-  assert_file_exists ".docker/config/solr/synonyms_und.txt"
+  assert_file_exists ".docker/config/solr/config-set/accents_en.txt"
+  assert_file_exists ".docker/config/solr/config-set/accents_und.txt"
+  assert_file_exists ".docker/config/solr/config-set/elevate.xml"
+  assert_file_exists ".docker/config/solr/config-set/protwords_en.txt"
+  assert_file_exists ".docker/config/solr/config-set/protwords_und.txt"
+  assert_file_exists ".docker/config/solr/config-set/schema.xml"
+  assert_file_exists ".docker/config/solr/config-set/schema_extra_fields.xml"
+  assert_file_exists ".docker/config/solr/config-set/schema_extra_types.xml"
+  assert_file_exists ".docker/config/solr/config-set/solrconfig.xml"
+  assert_file_exists ".docker/config/solr/config-set/solrconfig_extra.xml"
+  assert_file_exists ".docker/config/solr/config-set/solrconfig_index.xml"
+  assert_file_exists ".docker/config/solr/config-set/solrconfig_query.xml"
+  assert_file_exists ".docker/config/solr/config-set/solrconfig_requestdispatcher.xml"
+  assert_file_exists ".docker/config/solr/config-set/solrcore.properties"
+  assert_file_exists ".docker/config/solr/config-set/stopwords_en.txt"
+  assert_file_exists ".docker/config/solr/config-set/stopwords_und.txt"
+  assert_file_exists ".docker/config/solr/config-set/synonyms_en.txt"
+  assert_file_exists ".docker/config/solr/config-set/synonyms_und.txt"
 
   assert_file_exists ".github/PULL_REQUEST_TEMPLATE.md"
 

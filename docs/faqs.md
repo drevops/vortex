@@ -72,7 +72,7 @@ Provided that your stack is already running:
 
 1. Switch to your branch
 2. `composer install`
-3. `ahoy site-install`
+3. `ahoy provision`
 
 Note that you do not need to rebuild the full stack using `ahoy build` every
 time.
@@ -86,6 +86,12 @@ Provided that your stack is already running:
 ```bash
 ahoy drush sql-drop -y;
 ahoy drush sql-cli < .data/db.sql
+```
+
+But better:
+
+```bash
+DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1 ahoy provision
 ```
 
 ## How to add Drupal modules
@@ -112,5 +118,12 @@ composer require drupal/module_name
 2. Run
 
 ```bash
-composer update --lock`
+composer update --lock
 ```
+
+## Behat tests with `@javascript` tag sometimes get stuck
+
+Behat tests with `@javascript` tag sometimes get stuck for about 10min then fail.
+The Chrome container randomly get stuck for an unknown reason.
+
+Restart the Chrome container: `docker compose restart chrome`

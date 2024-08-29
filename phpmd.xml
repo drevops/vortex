@@ -9,6 +9,7 @@
     <exclude-pattern>*/node_modules/*</exclude-pattern>
 
     <exclude-pattern>*/web/core/*</exclude-pattern>
+    <exclude-pattern>*/web/libraries/*</exclude-pattern>
     <exclude-pattern>*/web/profiles/contrib/*</exclude-pattern>
     <exclude-pattern>*/web/modules/contrib/*</exclude-pattern>
     <exclude-pattern>*/web/themes/contrib/*</exclude-pattern>

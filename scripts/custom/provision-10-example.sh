@@ -30,17 +30,27 @@ if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e l
   # Set site name.
   drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
 
+  # Enable contrib modules.
+  drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy
+
+  #;< REDIS
+  drush pm:install redis
+  #;> REDIS
+
+  #;< CLAMAV
+  drush pm:install clamav
+  drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
+  #;> CLAMAV
+
+  #;< SOLR
+  drush pm:install search_api search_api_solr
+  #;> SOLR
+
   # Enable custom site module and run its deployment hooks.
-  #
-  # In this example, the deployment hook implementation conditionally enables
-  # other custom modules:
-  # - Redis cache backend, if it is used in the project
-  # - ClamAV, if it is used in the project
-  # - Additional Solr search configuration, if Solr is used in the project
   #
   # Note that deployment hooks for already enabled modules have run in the
   # parent "provision.sh" script.
-  drush pm:install ys_core
+  drush pm:install ys_core ys_search
   drush deploy:hook
 
   # Conditionally perform an action if this is a "fresh" database.

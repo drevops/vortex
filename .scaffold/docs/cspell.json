@@ -41,7 +41,6 @@
         "phpcbf",
         "phpcodesniffer",
         "phpcompatibility",
-        "phpdotenv",
         "phpspec",
         "phpstorm",
         "pyrech",
