@@ -1,31 +1,32 @@
 # FAQs
 
-## Why would I use DrevOps Scaffold instead of just using Drupal Composer template?
+## Why would I use **Scaffold** instead of just using Drupal Composer template?
 
 You can use Drupal Composer template, but that will be your step 1. Your next
-step would be to add all the missing pieces that DrevOps Scaffold provides,
+step would be to add all the missing pieces that **Scaffold** provides,
 such as CI integrations, tooling configuration, workflows, deployment scripts,
 hosting-specific configurations, documentation.
 
-Then you would have to test all of that and make sure that it works together.
-And that there are no false positives (for example, passing CI on broken tests
-can go unnoticed up until the release and would block it).
+Then you would have to test all of that and make sure that it works correctly
+together. You would also need to make sure that  there are no false positives
+(for example, passing CI on broken tests can go unnoticed up until the release
+and would block it).
 
 And you would have to maintain all of that and apply the updates to all the
 projects that you have (if you like things to be consistent, of course).
 
-DrevOps Scaffold provides all of that out of the box: you can override anything
+**Scaffold** covers this out of the box: you can override anything
 you want in your project, but still receive updates and improvements from
-DrevOps Scaffold in the future. Your team will also have a central place to
+**Scaffold** in the future. Your team will also have a central place to
 look for the documentation and the tools that they need to use.
 
-## Can I use DrevOps Scaffold with my existing project?
+## Can I use **Scaffold** with my existing project?
 
-Yes, you can install DrevOps Scaffold into your existing project.
+Yes, you can install **Scaffold** into your existing project.
 
-## Can I use DrevOps Scaffold with my existing project and keep my existing CI?
+## Can I use **Scaffold** with my existing project and keep my existing CI?
 
-Yes, but you would need to update your CI configuration to use DrevOps Scaffold's
+Yes, but you would need to update your CI configuration to use **Scaffold**'s
 workflow scripts.
 
 :::note
@@ -34,7 +35,7 @@ workflow scripts.
 
 :::
 
-## Can I use DrevOps Scaffold with my existing project and keep my existing hosting?
+## Can I use **Scaffold** with my existing project and keep my existing hosting?
 
 Yes, but you would need to update some of the deployment scripts to match your
 hosting provider.
@@ -45,23 +46,23 @@ hosting provider.
 
 :::
 
-## I do not like some of the decisions made in DrevOps Scaffold. Can I make changes?
+## I do not like some of the decisions made in **Scaffold**. Can I make changes?
 
-Yes, you can change anything you want. DrevOps Scaffold is a project template,
+Yes, you can change anything you want. **Scaffold** is a project template,
 which means that you can disable/remove certain features. But it also means that
 you may need to maintain these changes in the future yourself.
 
 Feel free to [open an issue](https://github.com/drevops/scaffold/issues) to
-discuss any of the decisions made in DrevOps Scaffold.
+discuss any of the decisions made in **Scaffold**.
 
 ## I do not need all these features? It looks like an overkill.
 
-One of the core principles of DrevOps Scaffold is to provide
+One of the core principles of **Scaffold** is to provide
 rich features to all projects, regardless of their size.
 
 If you think that some of the features are not required for your project, then
-DrevOps Scaffold is not for you. However, there were cases when people have
-discovered some new tools and approaches by using DrevOps Scaffold and have
+**Scaffold** is not for you. However, there were cases when people have
+discovered some new tools and approaches by using **Scaffold** and have
 decided to keep them in their projects. So, you may want to give it a try.
 
 :::note
@@ -74,7 +75,7 @@ decided to keep them in their projects. So, you may want to give it a try.
 
 ## I think it is too opinionated.
 
-DrevOps Scaffold is opinionated to the point to make it work as a project
+**Scaffold** is opinionated to the point to make it work as a project
 template. There are some changes that you can make to the project, but there
 are also some that have to stay in order to make tools "talk" to each other.
 
@@ -82,9 +83,9 @@ There could be some cases when it is unreasonably opinionated - we consider this
 as a defect and would be happy to fix it. Please provide your feedback in the
 [issue queue](https://github.com/drevops/scaffold/issues).
 
-## How easy is it to upgrade DrevOps Scaffold in my project?
+## How easy is it to upgrade **Scaffold** in my project?
 
-We provide a command to update DrevOps Scaffold to the latest version. When it
+We provide a command to update **Scaffold** to the latest version. When it
 runs, it will update the scaffolded code to the latest version. You would then
 need to manually resolve any conflicts that may arise. This process is similar
 to how developers manually copying the changes from one project to another, but
@@ -104,7 +105,7 @@ someone else has full control of the code that drives your project.
 
 ## How easy is it choose the features that I need?
 
-DrevOps Scaffold provides an installer that allows you to choose the features
+**Scaffold** provides an installer that allows you to choose the features
 that you need interactively.
 
 It is usually used as a part of the project creation process.
@@ -124,17 +125,17 @@ same way as it would be built in your hosting (if your hosting uses Docker).
 
 The other reason is that CircleCI supports passing the build artifacts between
 jobs via cache. This becomes really powerful on large consumer sites, where
-building the project takes a long time. DrevOps Scaffold mitigates this by
+building the project takes a long time. **Scaffold** mitigates this by
 providing a [CI configuration](https://github.com/drevops/scaffold/blob/develop/.circleci/config.yml)
 used to download and cache the database overnight and use this cache for all
 the builds during the day, skipping the long database download and import
 process.
 
-And for the really large projects, CircleCI supports container image caching,
-meaning that some parts of the application could be built once and then reused
-in all the subsequent builds.
+And for the really large projects, CircleCI supports container image layer
+caching, meaning that some parts of the application could be built once and then
+reused in all the subsequent builds.
 
-Read more about [CircleCI](../integrations/ci/circleci.mdx).
+Read more about [CircleCI](../ci/circleci.mdx).
 
 :::note
 

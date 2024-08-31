@@ -8,7 +8,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Scaffold for Drupal',
+  title: 'Scaffold - Drupal project template',
   tagline: 'Scaffold documentation',
   favicon: 'img/favicon.ico',
 
@@ -86,10 +86,11 @@ const config = {
     ({
       image: 'img/drevops_services_dark.png',
       navbar: {
+        title: 'Scaffold',
         logo: {
           alt: 'Scaffold Logo',
-          src: 'img/logo-dark.svg',
-          srcDark: 'img/logo-light.svg',
+          src: 'img/logo-scaffold-dark.svg',
+          srcDark: 'img/logo-scaffold-light.svg',
         },
         items: [
           {
@@ -97,20 +98,20 @@ const config = {
             href: '/drupal',
           },
           {
-            label: 'Workflows',
-            href: '/workflows',
-          },
-          {
             label: 'Tools',
             href: '/tools',
           },
           {
-            label: 'Integrations',
-            href: '/integrations',
+            label: 'CI',
+            href: '/ci',
           },
           {
-            label: 'Contributing',
-            href: '/contributing',
+            label: 'Hosting',
+            href: '/hosting',
+          },
+          {
+            label: 'Workflows',
+            href: '/workflows',
           },
           {
             href: 'https://github.com/drevops/scaffold',
@@ -132,12 +133,12 @@ const config = {
             href: 'https://github.com/drevops/scaffold',
           },
         ],
-        copyright: `Copyright ©${new Date().getFullYear()} DrevOps. Built with Docusaurus.`,
+        copyright: `Copyright ©${new Date().getFullYear()} DrevOps&reg;. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
         darkTheme: prismThemes.dracula,
-        additionalLanguages: ['php', 'bash'],
+        additionalLanguages: ['bash', 'json', 'php'],
       },
       colorMode: {
         defaultMode: 'light',

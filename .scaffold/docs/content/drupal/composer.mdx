@@ -4,9 +4,8 @@ sidebar_position: 1
 
 # Composer
 
-Composer is a dependency manager for PHP projects, including Drupal. It allows
-you to declare the libraries your project depends on and manages (
-install/update) them for you.
+[Composer](https://getcomposer.org/) is a dependency manager for PHP projects, including Drupal. It allows
+you to declare the libraries your project depends on and manages them for you.
 
 Scaffold comes with a pre-configured `composer.json` file based on
 the [Drupal Composer project](https://github.com/drupal-composer/drupal-project),
@@ -14,7 +13,7 @@ extended to support additional features and tools.
 
 :::note
 
-    See [Working with packages](../workflows/packages.mdx) for more information
+    See [Working with packages](../workflows/development#packages) for more information
     on how to add and manage dependencies in your project.
 
 :::
@@ -24,10 +23,10 @@ extended to support additional features and tools.
 [Drupal Composer project](https://github.com/drupal-composer/drupal-project)
 provides a starter kit for managing your site dependencies with Composer.
 
-Scaffold extends the Drupal Composer project's `composer.json` to support
+**Scaffold** extends the Drupal Composer project's `composer.json` to support
 additional features and tools.
 
-DrevOps Scaffold team will keep the `composer.json` file up-to-date with the
+**Scaffold** team will keep the `composer.json` file up-to-date with the
 latest version of the `composer.json` in the [Drupal Composer project](https://github.com/drupal-composer/drupal-project),
 so you can always make sure you are using the best community practices.
 
@@ -39,6 +38,16 @@ your project's dependencies, scripts, and settings.
 This section provides an overview of each part of the `composer.json` file,
 explaining its role and how it contributes to your project's setup and
 management.
+
+import CodeBlock from '@theme/CodeBlock';
+import MyComponentSource from '!!raw-loader!./../../../../composer.json';
+
+<details>
+  <summary>Click here to see the contents of the `composer.json` file</summary>
+
+  <CodeBlock language="json">{MyComponentSource}</CodeBlock>
+
+</details>
 
 ### `name`
 
@@ -59,9 +68,9 @@ package. The type key can influence how the package is installed and used.
 ### `license`
 
 [license](https://getcomposer.org/doc/04-schema.md#license) indicates the
-licence of the project. Since Scaffold is a template for your consumer sites that
-are usually proprietary, we use `proprietary` as the default value. More license
-identifiers are listed at
+licence of the project. Since **Scaffold** is a template for your consumer sites
+that are usually proprietary, we use `proprietary` as the default value. More
+license identifiers are listed at
 the [SPDX Open Source License Registry](https://spdx.org/licenses/).
 
 ### `repositories`
@@ -70,7 +79,7 @@ The [`repositories`](https://getcomposer.org/doc/04-schema.md#repositories)
 section defines custom package repositories, essential for accessing packages
 outside the default Packagist repository.
 
-See [Working with packages](../workflows/packages.mdx) for more information on
+See [Working with packages](../workflows/development#packages) for more information on
 how to provide custom and override existing packages in your project.
 
 - [`drupal`](https://www.drupal.org/docs/develop/using-composer/using-packagesdrupalorg):
@@ -97,12 +106,12 @@ specifies the essential packages and libraries your project needs.
 - [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches):
   Allows applying patches to Composer packages, useful for incorporating fixes
   not yet in official releases.
-  See [Working with packages](../workflows/packages.mdx#patching) for more
+  See [Working with packages](../workflows/development#patching) for more
   information on how to work with patches.
 - `drupal/admin_toolbar`, `drupal/clamav`, `drupal/coffee`, etc. - Drupal
   modules that provide various site administration and development helping
   functionalities that is usually installed across all of your Drupal sites.
-  Scaffold comes with [pre-configured settings](settings.mdx) for some of the
+  **Scaffold** comes with [pre-configured settings](settings.mdx) for some of the
   modules to make them work out of the box.
 - [`drupal/core-recommended`](https://github.com/drupal/core-recommended): A
   package that provides a carefully selected set of dependencies, including
@@ -111,9 +120,9 @@ specifies the essential packages and libraries your project needs.
   and stability, as these dependencies are maintained and curated by the Drupal
   community.
 - [`drupal/core-composer-scaffold`](https://www.drupal.org/docs/develop/using-composer/using-drupals-composer-scaffold):
-  Allows downloading and placing scaffold files (like `index.php`, `update.php`,
-  etc.) from the `drupal/core` project into their desired location inside the
-  web root.
+  Allows downloading and placing **Drupal scaffold** files (like `index.php`,
+  `update.php`, etc.) from the `drupal/core` project into their desired location
+  inside the web root.
 - [`drush/drush`](https://github.com/drush-ops/drush): A command-line shell and
   scripting interface for Drupal, providing a wide range of utilities to manage
   and interact with your Drupal sites.
@@ -159,9 +168,8 @@ effective development environment.
   Behat extension that provides integration with Drupal, offering step
   definitions specific to Drupal functionality. It facilitates the creation and
   management of Drupal sites for testing purposes.
-- [`VincentLanglet/Twig-CS-Fixer`](https://github.com/VincentLanglet/Twig-CS-Fixer): This tool
-  ensures that Twig templates adhere to a set coding standard, helping maintain
-  consistency and readability in template files.
+- [`ergebnis/composer-normalize`](https://github.com/ergebnis/composer-normalize): A
+  composer plugin for normalizing `composer.json`.
 - [`mglaman/phpstan-drupal`](https://github.com/mglaman/phpstan-drupal):
   Integrates PHPStan static analysis with Drupal-specific code, helping identify
   potential issues and bugs in Drupal modules and themes.
@@ -186,6 +194,9 @@ effective development environment.
   Provides a summary of package changes (like updates, removals, and additions)
   after running `composer update`, improving the visibility of package changes
   and updates in your project.
+- [`vincentLanglet/Twig-CS-Fixer`](https://github.com/VincentLanglet/Twig-CS-Fixer): This tool
+  ensures that Twig templates adhere to a set coding standard, helping maintain
+  consistency and readability in template files.
 
 ### `conflict`
 
@@ -199,7 +210,7 @@ The [`minimum-stability`](https://getcomposer.org/doc/04-schema.md#minimum-stabi
 setting controls the minimum stability level of the packages that Composer is
 allowed to install. By setting it to `"stable"`, you are instructing Composer to
 prefer stable versions of packages over their unstable (like `beta` or `alpha`)
-versions.\
+versions.
 
 ### `prefer-stable`
 
@@ -217,23 +228,23 @@ package version.
 The [`config`](https://getcomposer.org/doc/04-schema.md#config) section
 specifies key configurations for Composer's behavior in the project.
 
+- [`allow-plugins`](https://getcomposer.org/doc/06-config.md#allow-plugins):
+  This setting specifies which Composer plugins are allowed to run. It's a
+  security measure to prevent the execution of untrusted code from third-party
+  plugins. Each plugin needs to be explicitly allowed to ensure it can execute.
 - [`discard-changes`](https://getcomposer.org/doc/06-config.md#discard-changes):
   When set to `true`, any local changes made to the dependencies (packages under
   version control like Git) are discarded without prompting when you run
   composer install or composer update. Composer will overwrite the local changes
   with the data from the source repository.
-- [`sort-packages`](https://getcomposer.org/doc/06-config.md#sort-packages):
-  When set to `true`, this configuration ensures that packages are sorted
-  in `composer.json` and `composer.lock`. It makes these files more readable and
-  helps reduce merge conflicts in version control.
-- [`allow-plugins`](https://getcomposer.org/doc/06-config.md#allow-plugins):
-  This setting specifies which Composer plugins are allowed to run. It's a
-  security measure to prevent the execution of untrusted code from third-party
-  plugins. Each plugin needs to be explicitly allowed to ensure it can execute.
 - [`platform`](https://getcomposer.org/doc/06-config.md#platform): Specifies the
   PHP version of the platform environment where the current project runs. This
   should be specified as an exact version number (e.g. `8.2.0`). Should be kept
   in sync with the `php` version in the [Docker containers](../tools/docker.mdx).
+- [`sort-packages`](https://getcomposer.org/doc/06-config.md#sort-packages):
+  When set to `true`, this configuration ensures that packages are sorted
+  in `composer.json` and `composer.lock`. It makes these files more readable and
+  helps reduce merge conflicts in version control.
 
 ### `autoload`
 
@@ -247,6 +258,39 @@ The [`autoload-dev`](https://getcomposer.org/doc/04-schema.md#autoload-dev)
 section is essential for defining how Composer automatically loads PHP
 development-specific classes within the project, without needing to manually
 include or require each class file.
+
+### `extra`
+
+The [`extra`](https://getcomposer.org/doc/04-schema.md#extra) section serves as
+a source of custom configuration for various packages. These packages read
+settings from this section to tailor their behavior according to the specific
+needs and structure of your Drupal project.
+
+- [`composer-exit-on-patch-failure`](https://github.com/cweagans/composer-patches):
+  This setting, when enabled, causes Composer to exit if a patch from
+  the `cweagans/composer-patches` plugin fails to apply.
+- [`drupal-scaffold`](https://www.drupal.org/docs/develop/using-composer/using-drupals-composer-scaffold):
+  This setting controls which files should be scaffolded:
+  - `locations`: Specifies the location of the web root (the directory
+    containing the `index.php` file).
+  - `file-mapping`: Determines which files are managed by the scaffold process.
+    Scaffold comes with sensible defaults, but you can customize this section to
+    suit your needs.
+- [`installer-paths`](https://getcomposer.org/doc/faqs/how-do-i-install-a-package-to-a-custom-path-for-my-framework.md):
+  Defines custom installation paths for various types of packages like Drupal
+  modules, themes, and libraries.
+- `installer-types`: Specifies additional installer types, such as `bower-asset`
+  and `npm-asset`, that are handled by
+  the `oomphinc/composer-installers-extender` plugin.
+- `patchLevel`: Defines the patch level for specific packages, in this
+  case, `drupal/core`. The `-p` option followed by a number (e.g., `-p1`, `-p2`)
+  in patch commands specifies the number of leading directories to strip from
+  the file paths found in the patch file. This determines how the paths in the
+  patch file are interpreted relative to the current directory where the patch
+  is being applied.
+- `patches`: Specifies the patches to be applied to specific packages.
+  See [Working with packages](../workflows/development#patching) for more
+  information on how to work with patches.
 
 ### `scripts`
 
@@ -275,36 +319,3 @@ enhancing the automation and maintenance of your Drupal project.
   same `createRequiredFiles` method as in `post-install-cmd`, ensuring that
   necessary files and configurations are updated or re-established following an
   update of dependencies.
-
-### `extra`
-
-The [`extra`](https://getcomposer.org/doc/04-schema.md#extra) section serves as
-a source of custom configuration for various packages. These packages read
-settings from this section to tailor their behavior according to the specific
-needs and structure of your Drupal project.
-
-- [`drupal-scaffold`](https://www.drupal.org/docs/develop/using-composer/using-drupals-composer-scaffold):
-  This setting controls which files should be scaffolded:
-  - `locations`: Specifies the location of the web root (the directory
-    containing the `index.php` file).
-  - `file-mapping`: Determines which files are managed by the scaffold process.
-    Scaffold comes with sensible defaults, but you can customize this section to
-    suit your needs.
-- [`installer-paths`](https://getcomposer.org/doc/faqs/how-do-i-install-a-package-to-a-custom-path-for-my-framework.md):
-  Defines custom installation paths for various types of packages like Drupal
-  modules, themes, and libraries.
-- `installer-types`: Specifies additional installer types, such as `bower-asset`
-  and `npm-asset`, that are handled by
-  the `oomphinc/composer-installers-extender` plugin.
-- [`composer-exit-on-patch-failure`](https://github.com/cweagans/composer-patches):
-  This setting, when enabled, causes Composer to exit if a patch from
-  the `cweagans/composer-patches` plugin fails to apply.
-- `patchLevel`: Defines the patch level for specific packages, in this
-  case, `drupal/core`. The `-p` option followed by a number (e.g., `-p1`, `-p2`)
-  in patch commands specifies the number of leading directories to strip from
-  the file paths found in the patch file. This determines how the paths in the
-  patch file are interpreted relative to the current directory where the patch
-  is being applied.
-- `patches`: Specifies the patches to be applied to specific packages.
-  See [Working with packages](../workflows/packages.mdx#patching) for more
-  information on how to work with patches.

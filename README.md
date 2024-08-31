@@ -1,11 +1,13 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".scaffold/docs/static/img/logo-light.svg" />
-    <img width="400" src=".scaffold/docs/static/img/logo-dark.svg" alt="DrevOps Logo" />
+    <source media="(prefers-color-scheme: dark)" srcset=".scaffold/docs/static/img/logo-scaffold-light.svg" />
+    <img width="200" src=".scaffold/docs/static/img/logo-scaffold-dark.svg" alt="Scaffold Logo" />
   </picture>
 </div>
 
-<h3 align="center">Drupal project scaffold</h3>
+<h3 align="center">
+  <big>Scaffold</big><br/><small>Drupal project template</small>
+</h3>
 
 <div align="center">
 
@@ -18,25 +20,14 @@
 
 </div>
 
-## Purpose
+Welcome to <strong>Scaffold</strong> &mdash; a project template for Drupal designed to simplify onboarding and website maintenance.
 
-Make it easy to set up, develop and maintain Drupal websites
+At [DrevOps&reg;](https://www.drevops.com/), we carefully maintain this
+template, keeping it aligned with the latest tools and validating it through
+automated tests to ensure everything works together seamlessly.
 
-## Approach
-
-Use **tested** Drupal project scaffold with DevOps integrations for CI and hosting platforms
-
-Similar to [Zen of Python](https://www.python.org/dev/peps/pep-0020/), we use our own set of principles:
-
-* Simple is better than complex.
-* Rely on upstream sources as much as possible.
-* Favor standard practices over custom implementations.
-* Errors should never pass silently.
-* Explicit logging helps.
-* Readability counts.
-* If the implementation is hard to explain, it's a bad idea.
-
-[Read more about architecture](https://docs.drevops.com/latest/introduction/architecture/)
+Our goal is to provide a consistent developer experience across projects, making
+it easier to switch between them and get up to speed quickly.
 
 Track our current progress and view planned updates on [the GitHub project board](https://github.com/orgs/drevops/projects/2/views/1).
 
@@ -50,7 +41,12 @@ php install.php
 rm -r install.php
 ```
 
-Alternatively, clone this repository and adjust the configuration by manually editing or deleting the sections that aren't necessary for your setup.
+Alternatively, clone this repository and adjust the configuration by manually
+editing or deleting the sections that aren't necessary for your setup.
+
+Read
+the [installation guide](https://docs.drevops.com/getting-started/installation)
+for more details.
 
 ## Features
 
@@ -145,7 +141,7 @@ Development version of the documentation is available at [https://drevops-scaffo
 
 ## Support
 
-We provide paid support for DrevOps scaffold:
+We provide paid support for **Scaffold**:
 
 - New and existing project onboarding
 - Support plans with SLAs
