@@ -50,3 +50,16 @@ DREVOPS_CI_TEST_RESULTS=/tmp/tests
 
 # Directory to store test artifacts in CI.
 DREVOPS_CI_ARTIFACTS=/tmp/artifacts
+
+# Self-hosted Renovate bot token.
+# Create a GitHub token with a permission to write to a repository.
+RENOVATE_TOKEN=
+
+# Whether to enable self-hosted Renovate bot dashboard.
+RENOVATE_DEPENDENCY_DASHBOARD=false
+
+# Whether to allow self-hosted Renovate bot make changes to the repository.
+RENOVATE_DRY_RUN=false
+
+# Commit author for self-hosted Renovate bot.
+RENOVATE_GIT_AUTHOR='Renovate Self Hosted <renovatebot@your-site-url.example>'
