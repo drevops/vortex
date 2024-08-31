@@ -5,9 +5,8 @@
   </picture>
 </div>
 
-<h3 align="center">
-  <big>Vortex</big><br/><small>Drupal project template</small>
-</h3>
+<h1 align="center">Vortex</h1>
+<h3 align="center">Drupal project template</h3>
 
 <div align="center">
 
