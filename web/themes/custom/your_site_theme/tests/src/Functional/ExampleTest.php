@@ -22,8 +22,8 @@ class ExampleTest extends YourSiteThemeFunctionalTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
-    // DrevOps does not support Functional tests due to permission issues.
-    // Override setup until @see https://github.com/drevops/scaffold/issues/820
+    // Vortex does not support Functional tests due to permission issues.
+    // Override setup until @see https://github.com/drevops/vortex/issues/820
     // resolved.
     // This test is left here to make sure that all DrevOps tooling works as
     // expected.
@@ -37,7 +37,7 @@ class ExampleTest extends YourSiteThemeFunctionalTestBase {
   public function testAddition(): void {
     $this->assertEquals(2, 1 + 1);
     // DrevOps does not support Functional tests due to permission issues.
-    // @see https://github.com/drevops/scaffold/issues/820
+    // @see https://github.com/drevops/vortex/issues/820
     $this->addToAssertionCount(1);
   }
 
@@ -49,7 +49,7 @@ class ExampleTest extends YourSiteThemeFunctionalTestBase {
   public function testSubtraction(): void {
     $this->assertEquals(1, 2 - 1);
     // DrevOps does not support Functional tests due to permission issues.
-    // @see https://github.com/drevops/scaffold/issues/820
+    // @see https://github.com/drevops/vortex/issues/820
     $this->addToAssertionCount(1);
   }
 

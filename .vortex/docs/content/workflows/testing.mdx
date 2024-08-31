@@ -37,16 +37,16 @@ These reports are usually used in CI to track tests performance and stability.
 
 ### Vortex
 
-**Vortex** provides a Unit test scaffold for custom [modules](https://github.com/drevops/scaffold/blob/develop/web/modules/custom/ys_core/tests/src),
-[themes](https://github.com/drevops/scaffold/blob/develop/web/themes/custom/your_site_theme/tests/src) and
-[scripts](https://github.com/drevops/scaffold/blob/develop/tests/phpunit).
+**Vortex** provides a Unit test scaffold for custom [modules](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_core/tests/src),
+[themes](https://github.com/drevops/vortex/blob/develop/web/themes/custom/your_site_theme/tests/src) and
+[scripts](https://github.com/drevops/vortex/blob/develop/tests/phpunit).
 
 These tests already run in CI when you install **Vortex** and can be used as a
 starting point for writing your own.
 
 #### Drupal settings tests
 
-**Vortex** provides a [Drupal settings tests](https://github.com/drevops/scaffold/blob/develop/tests/phpunit/DrupalSettingsTest.php)
+**Vortex** provides a [Drupal settings tests](https://github.com/drevops/vortex/blob/develop/tests/phpunit/DrupalSettingsTest.php)
 to test that Drupal settings are correct based on the environment type the site
 is running: with the number of custom modules multiplied by the number of
 environment types, it is easy to miss certain settings which may lead to
@@ -57,7 +57,7 @@ changes to the `settings.php` file.
 
 #### CI configuration tests
 
-**Vortex** provides a [CI configuration tests](https://github.com/drevops/scaffold/blob/develop/tests/phpunit/CircleCiConfigTest.php)
+**Vortex** provides a [CI configuration tests](https://github.com/drevops/vortex/blob/develop/tests/phpunit/CircleCiConfigTest.php)
 to assert that CI configuration is correct. It is intended to be used in a consumer
 site and kept up-to-date with the CI configurations.
 
@@ -69,8 +69,8 @@ unexpected surprises during the consumer site release to production.
 
 **Vortex** uses Behat for Behavior-Driven Development (BDD) testing.
 
-It provides full Behat support, including configuration in [behat.yml](https://github.com/drevops/scaffold/blob/develop/behat.yml)
-and a [browser container](https://github.com/drevops/scaffold/blob/develop/docker-compose.yml) to run interactive tests.
+It provides full Behat support, including configuration in [behat.yml](https://github.com/drevops/vortex/blob/develop/behat.yml)
+and a [browser container](https://github.com/drevops/vortex/blob/develop/docker-compose.yml) to run interactive tests.
 
 It also provides additional features:
 
@@ -82,7 +82,7 @@ It also provides additional features:
 
 ### FeatureContext
 
-The [FeatureContext.php](https://github.com/drevops/scaffold/blob/develop/tests/behat/bootstrap/FeatureContext.php) file comes with
+The [FeatureContext.php](https://github.com/drevops/vortex/blob/develop/tests/behat/bootstrap/FeatureContext.php) file comes with
 included steps from [Behat steps](https://github.com/drevops/behat-steps) package.
 
 Custom steps can be added into this file.
@@ -139,8 +139,8 @@ CI to track tests performance and stability.
 
 ### Examples
 
-**Vortex** provides BDD test examples for custom [modules](https://github.com/drevops/scaffold/blob/develop/web/modules/custom/ys_core/tests/src)
-and [themes](https://github.com/drevops/scaffold/blob/develop/web/themes/custom/your_site_theme/tests/src).
+**Vortex** provides BDD test examples for custom [modules](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_core/tests/src)
+and [themes](https://github.com/drevops/vortex/blob/develop/web/themes/custom/your_site_theme/tests/src).
 
 These tests already run in CI when you install **Vortex** and can be used
 as a starting point for writing your own.

@@ -13,14 +13,14 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://docs.drevops.com/',
+  url: 'https://vortex.drevops.com/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   organizationName: 'DrevOps',
-  projectName: 'scaffold',
+  projectName: 'Vortex',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
@@ -45,7 +45,7 @@ const config = {
           path: 'content',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/drevops/scaffold/tree/develop/.vortex/docs/',
+          editUrl: 'https://github.com/drevops/vortex/tree/develop/.vortex/docs/',
         },
         blog: false,
         theme: {
@@ -114,7 +114,7 @@ const config = {
             href: '/workflows',
           },
           {
-            href: 'https://github.com/drevops/scaffold',
+            href: 'https://github.com/drevops/vortex',
             label: 'GitHub',
             position: 'right',
             title: 'View source on GitHub',
@@ -130,7 +130,7 @@ const config = {
         links: [
           {
             label: 'GitHub',
-            href: 'https://github.com/drevops/scaffold',
+            href: 'https://github.com/drevops/vortex',
           },
         ],
         copyright: `Copyright ©${new Date().getFullYear()} DrevOps&reg;. Built with Docusaurus.`,

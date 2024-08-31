@@ -6,7 +6,7 @@ https://github.com/VincentLanglet/Twig-CS-Fixer
 >
 > Twig CS Fixer aims to be what phpcs is to php. It checks your codebase for violations on coding standards.
 
-**Vortex** comes with [pre-configured Twig-cs-fixer ruleset](https://github.com/drevops/scaffold/blob/develop/.twig-cs-fixer.php) for Drupal projects.
+**Vortex** comes with [pre-configured Twig-cs-fixer ruleset](https://github.com/drevops/vortex/blob/develop/.twig-cs-fixer.php) for Drupal projects.
 
 ## Usage
 
@@ -22,7 +22,7 @@ ahoy lint-fe
 
 See [configuration reference](https://github.com/VincentLanglet/Twig-CS-Fixer/blob/main/docs/configuration.md).
 
-All global configuration takes place in the [`.twig-cs-fixer.php`](https://github.com/drevops/scaffold/blob/develop/.twig-cs-fixer.php) file.
+All global configuration takes place in the [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/develop/.twig-cs-fixer.php) file.
 
 Targets include custom modules and themes.
 
@@ -44,7 +44,7 @@ return $config;
 
 ## Ignoring
 
-Ignoring rules **globally** takes place in the  [`.twig-cs-fixer.php`](https://github.com/drevops/scaffold/blob/develop/.twig-cs-fixer.php) file:
+Ignoring rules **globally** takes place in the  [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/develop/.twig-cs-fixer.php) file:
 ```php
 $finder->exclude('myCustomDirectory');
 ```

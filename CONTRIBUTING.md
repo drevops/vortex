@@ -15,11 +15,11 @@ glad for your willingness to assist!
 
 We're constantly eager to address any issues, so your reports are always
 appreciated. However, we kindly ask you to first check if your problem has
-already been reported in the [issue queue](https://github.com/drevops/scaffold/issues).
+already been reported in the [issue queue](https://github.com/drevops/vortex/issues).
 
 ## I want to suggest a feature or an idea
 
-Fantastic! Please [submit your idea](https://github.com/drevops/scaffold/issues)
+Fantastic! Please [submit your idea](https://github.com/drevops/vortex/issues)
 and we'll gladly review it. While we can't promise every suggestion will be
 implemented, we are always keen to hear innovative ideas for enhancing
 the Vortex.
@@ -34,4 +34,4 @@ Join today!
 
 ## Roadmap
 
-We actively maintain the project's roadmap. See [Roadmap](https://github.com/drevops/scaffold/blob/develop/.vortex/docs/content/contributing/roadmap.mdx) for more details.
+We actively maintain the project's roadmap. See [Roadmap](https://github.com/drevops/vortex/blob/develop/.vortex/docs/content/contributing/roadmap.mdx) for more details.

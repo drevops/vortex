@@ -69,7 +69,7 @@ jobs:
         run: |
           cd "${GITHUB_WORKSPACE}/.vortex/docs"
           export DOCS_PUBLISH_SRC_DIR="${GITHUB_WORKSPACE}/.vortex/docs/build"
-          export DOCS_PUBLISH_REMOTE_URL=git@github.com:drevops/docs.git
-          export DOCS_PUBLISH_COMMIT_MESSAGE="Automatically pushed from drevops/scaffold"
-          export DOCS_PUBLISH_GIT_EMAIL="deployer@drevops.com"
+          export DOCS_PUBLISH_REMOTE_URL=git@github.com:drevops/vortex-docs.git
+          export DOCS_PUBLISH_COMMIT_MESSAGE="Automatically pushed from drevops/vortex"
+          export DOCS_PUBLISH_GIT_EMAIL="deployer+vortex@drevops.com"
           ./.utils/publish.sh

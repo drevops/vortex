@@ -11,12 +11,12 @@
 
 <div align="center">
 
-[![Test](https://github.com/drevops/scaffold/actions/workflows/vortex-test-common.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/vortex-test-common.yml)
-[![Test docs](https://github.com/drevops/scaffold/actions/workflows/vortex-test-docs.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/vortex-test-docs.yml)
-[![CircleCI](https://circleci.com/gh/drevops/scaffold.svg?style=shield)](https://circleci.com/gh/drevops/scaffold)
-[![codecov](https://codecov.io/gh/drevops/scaffold/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/scaffold)
-![GitHub release](https://img.shields.io/github/v/release/drevops/scaffold?logo=github)
-![LICENSE](https://img.shields.io/github/license/drevops/scaffold)
+[![Test](https://github.com/drevops/vortex/actions/workflows/vortex-test-common.yml/badge.svg)](https://github.com/drevops/vortex/actions/workflows/vortex-test-common.yml)
+[![Test docs](https://github.com/drevops/vortex/actions/workflows/vortex-test-docs.yml/badge.svg)](https://github.com/drevops/vortex/actions/workflows/vortex-test-docs.yml)
+[![CircleCI](https://circleci.com/gh/drevops/vortex.svg?style=shield)](https://circleci.com/gh/drevops/vortex)
+[![codecov](https://codecov.io/gh/drevops/vortex/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/vortex)
+![GitHub release](https://img.shields.io/github/v/release/drevops/vortex?logo=github)
+![LICENSE](https://img.shields.io/github/license/drevops/vortex)
 
 </div>
 
@@ -33,7 +33,7 @@ Track our current progress and view planned updates on [the GitHub project board
 
 ## Installation
 
-Our [installer](https://github.com/drevops/vortex-installer) simplifies setup, letting you choose only the features you need. It will integrate the latest scaffold release into your codebase and you will choose which changes to commit.
+Our [installer](https://github.com/drevops/vortex-installer) simplifies setup, letting you choose only the features you need. It will integrate the latest Vortex release into your codebase and you will choose which changes to commit.
 
 ```bash
 curl -SsL https://install.drevops.com > install.php
@@ -45,7 +45,7 @@ Alternatively, clone this repository and adjust the configuration by manually
 editing or deleting the sections that aren't necessary for your setup.
 
 Read
-the [installation guide](https://docs.drevops.com/getting-started/installation)
+the [installation guide](https://vortex.drevops.com/getting-started/installation)
 for more details.
 
 ## Features
@@ -53,7 +53,7 @@ for more details.
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".vortex/docs/static/img/diagram-dark.png">
-    <img src=".vortex/docs/static/img/diagram-light.png" alt="DrevOps diagram">
+    <img src=".vortex/docs/static/img/diagram-light.png" alt="Vortex diagram">
   </picture>
 </div>
 
@@ -119,8 +119,8 @@ The following list includes ✅ completed and 🚧 upcoming features.
 * 📖 Documentation
   * ✅ Your project [README.md](README.dist.md)
   * ✅ Your [project documentation](docs)
-  * ✅ [Vortex documentation](https://docs.drevops.com/)
-* 🧪 DrevOps
+  * ✅ [Vortex documentation](https://vortex.drevops.com/)
+* 🧪 Vortex
   * ✅ Unit test coverage for scripts
   * ✅ Functional test coverage for workflows
   * ✅ Integration test coverage for deployments
@@ -135,7 +135,7 @@ The following list includes ✅ completed and 🚧 upcoming features.
 
 The documentation is authored within this repository in the `.vortex/docs` directory.
 
-It is published to [https://docs.drevops.com](https://docs.drevops.com) on Vortex release.
+It is published to [https://vortex.drevops.com](https://vortex.drevops.com) on Vortex release.
 
 Development version of the documentation is available at [https://vortex-docs.netlify.app/](https://vortex-docs.netlify.app/).
 

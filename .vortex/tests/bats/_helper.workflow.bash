@@ -141,7 +141,7 @@ assert_gitignore() {
     git_add_all_commit "Commit fully built project"
   fi
 
-  # Assert that Drupal scaffold files were added to the git repository.
+  # Assert that Drupal Scaffold files were added to the git repository.
   assert_git_file_is_tracked "${webroot}/.editorconfig"
   assert_git_file_is_tracked "${webroot}/.eslintignore"
   assert_git_file_is_tracked "${webroot}/.gitattributes"

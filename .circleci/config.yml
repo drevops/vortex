@@ -71,9 +71,9 @@ aliases:
           # Directory to store test artifacts.
           VORTEX_CI_ARTIFACTS: &artifacts /tmp/artifacts
           # Directory to store code exported between jobs.
-          VORTEX_EXPORT_CODE_DIR: &drevops_build_export_dir /tmp/workspace/code
+          VORTEX_EXPORT_CODE_DIR: &vortex_build_export_dir /tmp/workspace/code
           # Directory to use for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_SRC: *drevops_build_export_dir
+          VORTEX_DEPLOY_ARTIFACT_SRC: *vortex_build_export_dir
           # Source code location for artifact deployments.
           VORTEX_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
@@ -461,7 +461,7 @@ jobs:
   # 2. DB is image -> create data image -> cache data image and push it to registry -> build and test site
   #
   # Since we need to have "database" job generic for consumer sites and any
-  # logic is controlled within DrevOps scripts, we have to create additional
+  # logic is controlled within Vortex scripts, we have to create additional
   # test jobs below and run them as a part of the CI system for Vortex itself.
   #
   # Job to test creation of the image from DB dump file when using
