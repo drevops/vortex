@@ -145,7 +145,7 @@ abstract class SettingsTestCase extends TestCase {
       'GITHUB_',
       'DOCKER_',
       // DrevOps and Drupal variables.
-      'DREVOPS_',
+      'VORTEX_',
       'DRUPAL_',
     ]);
 

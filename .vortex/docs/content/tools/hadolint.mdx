@@ -1,0 +1,38 @@
+# Hadolint
+
+https://github.com/hadolint/hadolint
+
+> A smarter Dockerfile linter that helps you build best practice container images.
+
+**Vortex** does not install Hadolint. Please follow the [
+instructions(https://github.com/hadolint/hadolint#install) to install it on your
+system.
+
+## Usage
+
+```shell
+hadolint .docker/*.dockerfile
+```
+
+## Ignoring
+
+To ignore **all Hadolint rules** within a file, place in the file header:
+```Dockerfile
+# hadolint global ignore=DL3003,DL3006,SC1035
+FROM ubuntu
+```
+
+To ignore only the current and the **next line**:
+```Dockerfile
+FROM ubuntu
+
+# hadolint ignore=DL3003,SC1035
+RUN cd /tmp && echo "hello!"
+```
+
+## Ignoring fail in CI
+
+This tool runs in CI by default and fails the build if there are any violations.
+
+Set `VORTEX_CI_HADOLINT_IGNORE_FAILURE` environment variable to `1` to ignore
+failures. The tool will still run and report violations, if any.

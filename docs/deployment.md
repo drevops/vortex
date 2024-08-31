@@ -109,7 +109,7 @@ To fresh the database in the existing Lagoon environment with the database from
 production environment, run:
 
 ```
-DREVOPS_DEPLOY_BRANCH=<YOUR/BRANCH-NAME> DREVOPS_DEPLOY_ACTION=deploy_override_db ahoy deploy
+VORTEX_DEPLOY_BRANCH=<YOUR/BRANCH-NAME> VORTEX_DEPLOY_ACTION=deploy_override_db ahoy deploy
 ```
 
 [//]: # (#;> LAGOON)

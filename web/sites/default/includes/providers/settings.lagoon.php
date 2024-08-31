@@ -23,7 +23,7 @@ if (!empty(getenv('LAGOON_KUBERNETES'))) {
 
     // Try to identify production environment using a branch name for
     // the cases when the Lagoon environment is not marked as 'production' yet.
-    if (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') === getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH')) {
+    if (!empty(getenv('LAGOON_GIT_BRANCH')) && !empty(getenv('VORTEX_LAGOON_PRODUCTION_BRANCH')) && getenv('LAGOON_GIT_BRANCH') === getenv('VORTEX_LAGOON_PRODUCTION_BRANCH')) {
       $settings['environment'] = ENVIRONMENT_PROD;
     }
     // Dedicated test environment based on a branch name.
@@ -48,7 +48,7 @@ if (!empty(getenv('LAGOON_KUBERNETES'))) {
   $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
 
   // Cache prefix.
-  $settings['cache_prefix']['default'] = (getenv('LAGOON_PROJECT') ?: getenv('DREVOPS_PROJECT')) . '_' . (getenv('LAGOON_GIT_SAFE_BRANCH') ?: getenv('DREVOPS_LAGOON_PRODUCTION_BRANCH'));
+  $settings['cache_prefix']['default'] = (getenv('LAGOON_PROJECT') ?: getenv('VORTEX_PROJECT')) . '_' . (getenv('LAGOON_GIT_SAFE_BRANCH') ?: getenv('VORTEX_LAGOON_PRODUCTION_BRANCH'));
 
   // Trusted host patterns for Lagoon internal routes.
   // Do not modify this section. Instead, add your custom patterns to the

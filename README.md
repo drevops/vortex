@@ -1,18 +1,18 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".scaffold/docs/static/img/logo-scaffold-light.svg" />
-    <img width="200" src=".scaffold/docs/static/img/logo-scaffold-dark.svg" alt="Scaffold Logo" />
+    <source media="(prefers-color-scheme: dark)" srcset=".vortex/docs/static/img/logo-vortex-light.svg" />
+    <img width="200" src=".vortex/docs/static/img/logo-vortex-dark.svg" alt="Vortex Logo" />
   </picture>
 </div>
 
 <h3 align="center">
-  <big>Scaffold</big><br/><small>Drupal project template</small>
+  <big>Vortex</big><br/><small>Drupal project template</small>
 </h3>
 
 <div align="center">
 
-[![Test](https://github.com/drevops/scaffold/actions/workflows/scaffold-test-common.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/scaffold-test-common.yml)
-[![Test docs](https://github.com/drevops/scaffold/actions/workflows/scaffold-test-docs.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/scaffold-test-docs.yml)
+[![Test](https://github.com/drevops/scaffold/actions/workflows/vortex-test-common.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/vortex-test-common.yml)
+[![Test docs](https://github.com/drevops/scaffold/actions/workflows/vortex-test-docs.yml/badge.svg)](https://github.com/drevops/scaffold/actions/workflows/vortex-test-docs.yml)
 [![CircleCI](https://circleci.com/gh/drevops/scaffold.svg?style=shield)](https://circleci.com/gh/drevops/scaffold)
 [![codecov](https://codecov.io/gh/drevops/scaffold/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/scaffold)
 ![GitHub release](https://img.shields.io/github/v/release/drevops/scaffold?logo=github)
@@ -20,7 +20,7 @@
 
 </div>
 
-Welcome to <strong>Scaffold</strong> &mdash; a project template for Drupal designed to simplify onboarding and website maintenance.
+Welcome to <strong>Vortex</strong> &mdash; a project template for Drupal designed to simplify onboarding and website maintenance.
 
 At [DrevOps&reg;](https://www.drevops.com/), we carefully maintain this
 template, keeping it aligned with the latest tools and validating it through
@@ -33,7 +33,7 @@ Track our current progress and view planned updates on [the GitHub project board
 
 ## Installation
 
-Our [installer](https://github.com/drevops/installer) simplifies setup, letting you choose only the features you need. It will integrate the latest scaffold release into your codebase and you will choose which changes to commit.
+Our [installer](https://github.com/drevops/vortex-installer) simplifies setup, letting you choose only the features you need. It will integrate the latest scaffold release into your codebase and you will choose which changes to commit.
 
 ```bash
 curl -SsL https://install.drevops.com > install.php
@@ -52,8 +52,8 @@ for more details.
 
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".scaffold/docs/static/img/diagram-dark.png">
-    <img src=".scaffold/docs/static/img/diagram-light.png" alt="DrevOps diagram">
+    <source media="(prefers-color-scheme: dark)" srcset=".vortex/docs/static/img/diagram-dark.png">
+    <img src=".vortex/docs/static/img/diagram-light.png" alt="DrevOps diagram">
   </picture>
 </div>
 
@@ -119,12 +119,12 @@ The following list includes ✅ completed and 🚧 upcoming features.
 * 📖 Documentation
   * ✅ Your project [README.md](README.dist.md)
   * ✅ Your [project documentation](docs)
-  * ✅ [Scaffold documentation](https://docs.drevops.com/)
+  * ✅ [Vortex documentation](https://docs.drevops.com/)
 * 🧪 DrevOps
   * ✅ Unit test coverage for scripts
   * ✅ Functional test coverage for workflows
   * ✅ Integration test coverage for deployments
-  * ✅ Scaffold updates
+  * ✅ Vortex updates
   * ✅ [Basic installer](https://install.drevops.com/)
   * 🚧 Advanced installer CLI UI
   * 🚧 Advances installer Web UI
@@ -133,15 +133,15 @@ The following list includes ✅ completed and 🚧 upcoming features.
 
 ## Documentation
 
-The documentation is authored within this repository in the `.scaffold/docs` directory.
+The documentation is authored within this repository in the `.vortex/docs` directory.
 
-It is published to [https://docs.drevops.com](https://docs.drevops.com) on Scaffold release.
+It is published to [https://docs.drevops.com](https://docs.drevops.com) on Vortex release.
 
-Development version of the documentation is available at [https://drevops-scaffold-docs.netlify.app/](https://drevops-scaffold-docs.netlify.app/).
+Development version of the documentation is available at [https://vortex-docs.netlify.app/](https://vortex-docs.netlify.app/).
 
 ## Support
 
-We provide paid support for **Scaffold**:
+We provide paid support for **Vortex**:
 
 - New and existing project onboarding
 - Support plans with SLAs

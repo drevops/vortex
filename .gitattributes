@@ -1,8 +1,8 @@
 ##
-# Scaffold git settings.
+# Vortex git settings.
 #
 # Drupal provides its own .gitattributes so git normalisations are handled there.
 
 /.gitattributes       export-ignore
 /.github/FUNDING.yml  export-ignore
-/.scaffold            export-ignore
+/.vortex            export-ignore

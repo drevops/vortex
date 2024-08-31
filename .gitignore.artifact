@@ -10,7 +10,7 @@
 !composer.json
 !.env
 
-# Do not ignore webroot (manage Drupal scaffold files using the composer.json)
+# Do not ignore webroot (manage Drupal Scaffold files using the composer.json)
 !web
 # But ignore content files and test artifacts.
 web/sites/default/files

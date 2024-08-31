@@ -91,7 +91,7 @@ ahoy drush sql-cli < .data/db.sql
 But better:
 
 ```bash
-DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1 ahoy provision
+VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ahoy provision
 ```
 
 ## How to add Drupal modules

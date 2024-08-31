@@ -2,7 +2,7 @@ Onboarding checklist
 ====================
 
 Use this checklist to track the process of migration of the existing site
-to Scaffold. This file is intended to be committed into repository until
+to Vortex. This file is intended to be committed into repository until
 onboarding process is finished.
 
 Put a `x` into `[ ]` if this step was executed OR not required - this will
@@ -30,16 +30,16 @@ indicate that it was addressed.
   ckeditor@4.3.2, https://www.ckeditor.com/archive/ckeditor_4.3.2.zip
   ```
 
-## 2. Adding Scaffold
+## 2. Adding Vortex
 
 - [ ] Create a new GitHub repository, if required:
   - [ ] Commit generic `README.md` file and push to `master` branch.
   - [ ] Create new branch `ci`, copy all files from existing repository and
     push to remote.
-- [ ] Add Scaffold configuration using installer script and follow
+- [ ] Add Vortex configuration using installer script and follow
   instructions in `README.md` file added to your project. You will need to
   commit some files and push them to remote. Note: try to rely on the
-  default configuration provided by Scaffold as much as possible
+  default configuration provided by Vortex as much as possible
   (otherwise you are assuming maintenance responsibility for this custom
   code).
 - [ ] Using list of **modules** from "Assessing current site" step, update
@@ -126,7 +126,7 @@ indicate that it was addressed.
 
 ## 5. Cleanup
 
-- [ ] Cleanup code or set `DREVOPS_CI_LINT_ALLOW_FAILURE=1` in CircleCI to
+- [ ] Cleanup code or set `VORTEX_CI_LINT_ALLOW_FAILURE=1` in CircleCI to
       bypass code linting fails:
   - [ ] Cleanup PHP code
   - [ ] Cleanup JS code

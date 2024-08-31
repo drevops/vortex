@@ -1,13 +1,13 @@
 
 # Contributing
 
-DrevOps Scaffold is an open source project. There are numerous ways to
-contribute to DrevOps Scaffold whether you’re a developer or a non-technical
+Vortex is an open source project. There are numerous ways to
+contribute to Vortex whether you’re a developer or a non-technical
 user.
 
 ## What forms of contribution are we looking for?
 
-Any form of contribution to DrevOps Scaffold, be it rectifying a bug, proposing
+Any form of contribution to Vortex, be it rectifying a bug, proposing
 a new feature, or enhancing our documentation, is highly appreciated. We are
 glad for your willingness to assist!
 
@@ -22,7 +22,7 @@ already been reported in the [issue queue](https://github.com/drevops/scaffold/i
 Fantastic! Please [submit your idea](https://github.com/drevops/scaffold/issues)
 and we'll gladly review it. While we can't promise every suggestion will be
 implemented, we are always keen to hear innovative ideas for enhancing
-the DrevOps Scaffold.
+the Vortex.
 
 ## Talk to us on Slack
 
@@ -34,4 +34,4 @@ Join today!
 
 ## Roadmap
 
-We actively maintain the project's roadmap. See [Roadmap](https://github.com/drevops/scaffold/blob/develop/.scaffold/docs/content/contributing/roadmap.mdx) for more details.
+We actively maintain the project's roadmap. See [Roadmap](https://github.com/drevops/scaffold/blob/develop/.vortex/docs/content/contributing/roadmap.mdx) for more details.
