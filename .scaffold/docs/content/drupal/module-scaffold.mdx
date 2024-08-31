@@ -4,8 +4,26 @@ sidebar_position: 4
 
 # Module scaffold
 
-:::note "Work in progress"
+[Module scaffold](https://github.com/drevops/scaffold/tree/develop/web/modules/custom/ys_core)
+is an example of a Drupal module.
 
-    The documentation section is still a work in progress.
+We recommend creating a custom `ys_core` module for your project to place
+custom functionality that is not specific to a feature that can be placed in
+a dedicated self-contained module.
 
-:::
+The `ys` prefix is abbreviated from your project name (`your_site` in this case).
+We recommend using this technique to prefix all modules, and use the site full
+name for a theme name (`yoursite` in this case).
+
+## Deploy file
+
+The `ys_core.deploy` file is an example of a Drush deploy file that can be used
+to run deployment commands during the site [provisioning](provision) process.
+
+## Tests scaffold
+
+The `tests` directory contains working examples of tests that can be used as a
+starting point in your project.
+
+It also has a set of helper `Traits` that you may find useful when writing your
+tests. Or simply remove them if you do not find them useful.

@@ -6,14 +6,20 @@ commands:
   install:
     name: Install test dependencies.
     cmd: |
-      npm --prefix tests ci
-      npm --prefix docs ci
+      [ ! -d ./docs/node_modules ] && npm --prefix tests ci
+      [ ! -d ./docs/node_modules ] && npm --prefix docs ci
 
   docs:
-    name: Build Scaffold docs.
+    name: Start documentation server.
     cmd: |
-      npm --prefix docs ci
+      [ ! -d ./docs/node_modules ] && npm --prefix docs ci
       npm --prefix docs run start
+
+  build-docs:
+    name: Build documentation.
+    cmd: |
+      [ ! -d ./docs/node_modules ] && npm --prefix docs ci
+      npm --prefix docs run build
 
   lint:
     name: Lint Scaffold project.
@@ -50,7 +56,7 @@ commands:
 
   test-docs:
     cmd: |
-      npm --prefix=./docs ci
+      [ ! -d ./docs/node_modules ] && npm --prefix=./docs ci
       npm --prefix=./docs run test
 
   # If there are changes to the fixtures - this command will re-run twice reporting error the first time.

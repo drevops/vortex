@@ -1,6 +1,10 @@
-# Test
+---
+sidebar_position: 2
+---
 
-Scaffold supports running Unit (PHPUnit) and BDD (Behat) tests.
+# Testing
+
+**Scaffold** supports running Unit (PHPUnit) and BDD (Behat) tests.
 
 For local development, the tests can be run using handy Ahoy commands:
 
@@ -20,7 +24,7 @@ In CI, tests are run by calling the test binaries directly.
 
 ## Unit testing
 
-DrevOps Scaffold uses PHPUnit as a framework for Unit testing.
+**Scaffold** uses PHPUnit as a framework for Unit testing.
 
 It is configured to use a copy of Drupal core's `core/phpunit.xml.dist`
 configuration file. This is done to allow per-project customisations.
@@ -33,16 +37,16 @@ These reports are usually used in CI to track tests performance and stability.
 
 ### Scaffold
 
-DrevOps Scaffold provides a Unit test scaffold for custom [modules](https://github.com/drevops/scaffold/blob/develop/web/modules/custom/ys_core/tests/src),
+**Scaffold** provides a Unit test scaffold for custom [modules](https://github.com/drevops/scaffold/blob/develop/web/modules/custom/ys_core/tests/src),
 [themes](https://github.com/drevops/scaffold/blob/develop/web/themes/custom/your_site_theme/tests/src) and
 [scripts](https://github.com/drevops/scaffold/blob/develop/tests/phpunit).
 
-These tests already run in CI when you install DrevOps Scaffold and can be used as a
+These tests already run in CI when you install **Scaffold** and can be used as a
 starting point for writing your own.
 
 #### Drupal settings tests
 
-DrevOps Scaffold provides a [Drupal settings tests](https://github.com/drevops/scaffold/blob/develop/tests/phpunit/DrupalSettingsTest.php)
+**Scaffold** provides a [Drupal settings tests](https://github.com/drevops/scaffold/blob/develop/tests/phpunit/DrupalSettingsTest.php)
 to test that Drupal settings are correct based on the environment type the site
 is running: with the number of custom modules multiplied by the number of
 environment types, it is easy to miss certain settings which may lead to
@@ -53,7 +57,7 @@ changes to the `settings.php` file.
 
 #### CI configuration tests
 
-DrevOps Scaffold provides a [CI configuration tests](https://github.com/drevops/scaffold/blob/develop/tests/phpunit/CircleCiConfigTest.php)
+**Scaffold** provides a [CI configuration tests](https://github.com/drevops/scaffold/blob/develop/tests/phpunit/CircleCiConfigTest.php)
 to assert that CI configuration is correct. It is intended to be used in a consumer
 site and kept up-to-date with the CI configurations.
 
@@ -63,7 +67,7 @@ unexpected surprises during the consumer site release to production.
 
 ## BDD testing
 
-DrevOps Scaffold uses Behat for Behavior-Driven Development (BDD) testing.
+**Scaffold** uses Behat for Behavior-Driven Development (BDD) testing.
 
 It provides full Behat support, including configuration in [behat.yml](https://github.com/drevops/scaffold/blob/develop/behat.yml)
 and a [browser container](https://github.com/drevops/scaffold/blob/develop/docker-compose.yml) to run interactive tests.
@@ -88,7 +92,7 @@ Custom steps can be added into this file.
 Behat `default` profile configured with sensible defaults to allow running Behat
 with provided extensions.
 
-The profile can be overridden using `$DREVOPS_CI_BEHAT_PROFILE` environment
+In CI, the profile can be overridden using `$DREVOPS_CI_BEHAT_PROFILE` environment
 variable.
 
 ### Parallel runs
@@ -96,13 +100,13 @@ variable.
 In CI, Behat tests can be tagged to be split between multiple runners. The tags
 are then used by profiles with the identical names to run them.
 
-Out of the box, DrevOps Scaffold provides support for unlimited parallel
+Out of the box, **Scaffold** provides support for unlimited parallel
 runners, but only 2 parallel profiles `p0` and `p1`: a feature can be tagged by
-either `@p0` or `@p1`to run in a dedicated runner, or with both tags to run in
+either `@p0` or `@p1` to run in a dedicated runner, or with both tags to run in
 both runners.
 
 Note that you can easily add more `p*` profiles in your `behat.yml` by copying
-existing `p1`profile and changing several lines.
+existing `p1` profile and changing several lines of configuration.
 
 Features without `@p*` tags will always run in the first CI runner, so even
 if you forget to tag the feature, it will still be allocated to a runner.
@@ -123,7 +127,7 @@ and are accessible in the Artifacts tab.
 
 ### Format
 
-Out of the box, DrevOps Scaffold comes with [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail)
+Out of the box, **Scaffold** comes with [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail)
 Behat output formatter to show progress as TAP and fails inline. This allows to
 continue test runs after failures while maintaining a minimal output.
 
@@ -133,10 +137,10 @@ Test reports produced if `$DREVOPS_TEST_RESULTS_DIR` is set. They are stored in
 `$DREVOPS_TEST_RESULTS_DIR/behat` directory. These reports are usually used in
 CI to track tests performance and stability.
 
-### Scaffold
+### Examples
 
-DrevOps Scaffold provides a BDD test scaffold for custom [modules](https://github.com/drevops/scaffold/blob/develop/web/modules/custom/ys_core/tests/src)
+**Scaffold** provides BDD test examples for custom [modules](https://github.com/drevops/scaffold/blob/develop/web/modules/custom/ys_core/tests/src)
 and [themes](https://github.com/drevops/scaffold/blob/develop/web/themes/custom/your_site_theme/tests/src).
 
-These tests already run in CI when you install DrevOps Scaffold and can be used
+These tests already run in CI when you install **Scaffold** and can be used
 as a starting point for writing your own.

@@ -11,7 +11,7 @@ DREVOPS_LOCALDEV_URL="<current_dir>.docker.amazee.io"
 # Set to `1` to override existing downloaded DB dump without asking.
 DREVOPS_DB_DOWNLOAD_FORCE=
 
-# Set to `1` to print debug information in DrevOps Scaffold scripts.
+# Set to `1` to print debug information in Scaffold scripts.
 DREVOPS_DEBUG=
 
 # Set to `y` to suppress Ahoy prompts.

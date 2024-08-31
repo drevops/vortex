@@ -25,6 +25,7 @@
         "dealerdirect",
         "drevops",
         "drush",
+        "ergebnis",
         "gherkinlint",
         "hadolint",
         "initialise",
@@ -40,6 +41,7 @@
         "optimise",
         "optimised",
         "palantirnet",
+        "pathauto",
         "phpcbf",
         "phpcodesniffer",
         "phpcompatibility",
@@ -54,7 +56,8 @@
         "utilising",
         "vlucas",
         "webflo",
-        "webroot"
+        "webroot",
+        "yoursite"
     ],
     "overrides": [
         {

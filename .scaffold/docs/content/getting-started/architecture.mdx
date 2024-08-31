@@ -4,22 +4,20 @@ hide:
 ---
 # Architecture
 
-Scaffold offers a pre-configured project template that is reliable, tested and
+**Scaffold** offers a pre-configured project template that is reliable, tested and
 ready-to-use. Its main goal is to streamline onboarding, making it as quick and
 efficient as possible.
 
-## Zen of DrevOps Scaffold
+## Zen of **Scaffold**
 
-Similar to [Zen of Python](https://www.python.org/dev/peps/pep-0020/), DrevOps Scaffold
-has its own set of principles.
+Similar to [Zen of Python](https://www.python.org/dev/peps/pep-0020/), **Scaffold**
+is built on its own set of principles:
 
 * Simple is better than complex.
-* Rely as much on upstream as possible.
-* Favor standard practices over custom implementations.
+* Favor upstream and standard practices over custom implementations.
 * Errors should never pass silently.
-* Explicit logging helps.
 * Readability counts.
-* If the implementation is hard to explain, it's a bad idea.
+* Explicit logging helps.
 
 ## Repository structure
 
@@ -55,10 +53,10 @@ with addition of several configuration files and directories.
 │   ├── library              #   Library of hook implementations.
 │   └── prod                 #   Hook implementations that run in prod environment.
 ├── patches                  # Patches for packages.
-├── scripts                  # Composer, DrevOps Scaffold and custom project scripts.
+├── scripts                  # Composer, Scaffold and custom project scripts.
 │   ├── composer             #   Composer scripts.
 │   ├── custom               #   Custom project scripts.
-│   └── drevops              #   DrevOps Scaffold workflow scripts.
+│   └── drevops              #   Scaffold workflow scripts.
 ├── tests                    # Integration and configuration tests.
 │   ├── behat                #   Behat BDD tests.
 │   └── phpunit              #   Configuration unit tests
@@ -94,23 +92,21 @@ with addition of several configuration files and directories.
 
 ## Scripts
 
-Scaffold provides a set of [POSIX](https://en.wikipedia.org/wiki/POSIX)-compliant
-scripts designed to orchestrate workflows.
+**Scaffold** provides a set of [POSIX](https://en.wikipedia.org/wiki/POSIX)-compliant
+shell scripts designed to orchestrate workflows.
 
 During installation, the scripts are added to your project repository into
 `scripts/drevops` directory.
 
+Using shell scripts instead of compiled binaries allows you to modify files to
+fit your needs without requiring to learn an additional programming language,
+compile sources, or waiting for someone upstream to update the code.
+
 :::note
 
-    Using scripts instead of compiled binaries allows for **in-place per-project
-    overrides** without needing to learn an additional programming language, compile
-    sources, or rely on upstream dependencies.
-
-    We are looking into providing `pre-` and `post-` hooks for scripts so
+    We are [looking into providing](https://github.com/drevops/scaffold/issues/1198) `pre-` and `post-` hooks for scripts so
     that you can extend the functionality without modifying the original source
     code.
-
-    We are also looking into a more streamlined way of updating scripts.
 
 :::
 
@@ -118,8 +114,8 @@ During installation, the scripts are added to your project repository into
 
 > A workflow is a sequence of steps or tasks to accomplish a specific goal.
 
-Scaffold comes with as set of pre-defined workflows to standardise the development
-process.
+**Scaffold** comes with as set of pre-defined workflow scripts used to
+standardise the development process.
 
 For example, the `scripts/drevops/download-db.sh` script is used to download a
 database from any supported hosting provider or a custom location.
@@ -179,11 +175,11 @@ In the diagram below, for example, the `download-db.sh` script, being a router
 script, invokes another script specific to the database download source
 (controlled with an environment variable).
 
-Changing the database download source from `lagoon` to `s3` would
-not require changes to any local, CI, or hosting scripts.
+In this example, changing the database download source from `lagoon` to `s3`
+would not require changes to any local, CI, or hosting scripts.
 
 In addition, a developer would not need to learn how to use `s3` to
-download a database or even know how that download process is setup.
+download a database or even know how that download process was setup.
 
 If a new database download method is introduced, the router
 script `download-db.sh` can be easily extended to accommodate it,
