@@ -45,6 +45,7 @@
         "phpspec",
         "phpstorm",
         "pyrech",
+        "renovatebot",
         "ruleset",
         "shellvar",
         "sanitised",
