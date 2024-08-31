@@ -346,6 +346,7 @@ assert_ahoy_lint() {
 
   assert_ahoy_lint_be "${webroot}"
   assert_ahoy_lint_fe "${webroot}"
+  assert_ahoy_lint_test
 }
 
 assert_ahoy_lint_be() {
@@ -389,6 +390,23 @@ assert_ahoy_lint_fe() {
   sync_to_container
   run ahoy lint-fe
   assert_failure
+}
+
+assert_ahoy_lint_test() {
+  step "Run Test linter checks"
+
+  substep "Assert that Test lint works for Gherkin Lint"
+  run ahoy lint-tests
+  assert_success
+
+  substep "Assert that Test lint failure works for Gherkin Lint"
+  echo "Feature:" >> "tests/behat/features/test.feature"
+  sync_to_container
+  run ahoy lint-tests
+  assert_failure
+  rm -f "tests/behat/features/test.feature"
+  ahoy cli rm -f "tests/behat/features/test.feature"
+  sync_to_container
 }
 
 assert_ahoy_test() {

@@ -179,7 +179,7 @@ commands:
 
   lint:
     usage: Lint back-end and front-end code.
-    cmd: ahoy lint-be && ahoy lint-fe
+    cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests
 
   lint-be:
     usage: Lint back-end code.
@@ -194,6 +194,11 @@ commands:
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint
       ahoy cli "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+
+  lint-tests:
+    usage: Lint tests code.
+    cmd: |
+      ahoy cli vendor/bin/gherkinlint lint tests/behat/features
 
   lint-fix:
     usage: Fix lint issues of back-end and front-end code.

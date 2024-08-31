@@ -28,6 +28,7 @@
     },
     "require-dev": {
         "behat/behat": "^3.14",
+        "dantleech/gherkin-lint": "^0.2.3",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
         "drevops/behat-format-progress-fail": "^1.2",
         "drevops/behat-screenshot": "^1.5",

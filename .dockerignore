@@ -31,6 +31,7 @@ drush/contrib/
 !.eslintrc.json
 !.sass-lint.yml
 !.twig-cs-fixer.php
+!gherkinlint.json
 !Gruntfile.js
 !auth.json
 !behat.yml

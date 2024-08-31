@@ -291,6 +291,10 @@ jobs:
           command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${DREVOPS_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
+          name: Lint code with Gherkin Lint
+          command: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${DREVOPS_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
           name: Lint code with NPM linters
           command: docker compose exec -T cli bash -c "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${DREVOPS_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
