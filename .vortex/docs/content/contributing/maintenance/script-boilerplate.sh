@@ -9,7 +9,7 @@
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Example scaffold variable with a default value.
+# Example Vortex variable with a default value.
 VORTEX_EXAMPLE_URL="${VORTEX_EXAMPLE_URL:-http://example.com}"
 
 # ------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-info "Started scaffold operations."
+info "Started Vortex operations."
 
 [ -z "${VORTEX_EXAMPLE_URL}" ] && fail "Missing required value for VORTEX_EXAMPLE_URL" && exit 1
 command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
@@ -29,4 +29,4 @@ command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
 # Example of the script body.
 curl -L -s -o /dev/null -w "%{http_code}" "${VORTEX_EXAMPLE_URL}" | grep -q '200\|403' && note "Requested example page"
 
-pass "Finished scaffold operations."
+pass "Finished Vortex operations."

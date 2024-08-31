@@ -255,7 +255,7 @@ commands:
     cmd: ./scripts/vortex/doctor.sh "$@"
 
   update-vortex:
-    usage: Update DrevOps stack.
+    usage: Update Vortex stack.
     cmd: |
       ahoy confirm "Some committed files may become overwritten. Proceed?" &&
       ./scripts/vortex/update-vortex.sh $@

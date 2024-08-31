@@ -10,7 +10,7 @@ production backups into fully built codebase and runs code linting and tests.
 When tests pass, a deployment process is triggered for nominated branches
 (usually, `master` and `develop`).
 
-Refer to https://docs.drevops.com/latest/usage/ci for more information.
+Refer to https://vortex.drevops.com/latest/usage/ci for more information.
 
 ## Skipping CI build
 

@@ -14,7 +14,7 @@ https://github.com/phpmd/phpmd
 > - Overcomplicated expressions
 > - Unused parameters, methods, properties
 
-**Vortex** comes with [pre-configured PHPMD ruleset](https://github.com/drevops/scaffold/blob/develop/phpmd.xml)
+**Vortex** comes with [pre-configured PHPMD ruleset](https://github.com/drevops/vortex/blob/develop/phpmd.xml)
 for Drupal projects.
 
 ## Usage
@@ -31,7 +31,7 @@ ahoy lint-be
 
 See [configuration reference](https://phpmd.org/documentation/index.html).
 
-All global configuration takes place in the [`phpmd.xml`](https://github.com/drevops/scaffold/blob/develop/phpmd.xml)
+All global configuration takes place in the [`phpmd.xml`](https://github.com/drevops/vortex/blob/develop/phpmd.xml)
 file.
 
 Targets include custom modules and themes, settings and tests.
@@ -46,7 +46,7 @@ exclusion patterns to exclude files and directories.
 ## Ignoring
 
 Ignoring rules **globally** takes place in
-the [`phpmd.xml`](https://github.com/drevops/scaffold/blob/develop/phpmd.xml) file:
+the [`phpmd.xml`](https://github.com/drevops/vortex/blob/develop/phpmd.xml) file:
 
 ```xml
 <rule ref="rulesets/cleancode.xml/MissingImport">

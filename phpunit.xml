@@ -76,7 +76,7 @@
         </testsuite>
 
         <!-- Not implemented. -->
-        <!-- See https://github.com/drevops/scaffold/issues/820 -->
+        <!-- See https://github.com/drevops/vortex/issues/820 -->
         <!--
         <testsuite name="functional-javascript">
           <file>./tests/TestSuites/FunctionalJavascriptTestSuite.php</file>

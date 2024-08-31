@@ -1,3 +1,3 @@
 # Testing
 
-Refer to https://docs.drevops.com/latest/workflow/test/ for more information.
+Refer to https://vortex.drevops.com/latest/workflow/test/ for more information.

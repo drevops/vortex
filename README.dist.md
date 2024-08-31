@@ -13,7 +13,7 @@ Drupal 10 implementation of YOURSITE for YOURORG
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY VORTEX TO TRACK INTEGRATION)
 
-[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/scaffold/tree/VORTEX_VERSION)
+[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
 
 ## Onboarding to Vortex
 Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding
@@ -67,4 +67,4 @@ to Vortex progress. Remove this section once onboarding is finished.
 - [Deployment](docs/deployment.md)
 
 ---
-_This repository was created using the [Vortex](https://github.com/drevops/scaffold) project template_
+_This repository was created using the [Vortex](https://github.com/drevops/vortex) project template_

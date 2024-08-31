@@ -12,7 +12,7 @@ https://github.com/squizlabs/PHP_CodeSniffer
 > violations. PHP_CodeSniffer is an essential development tool that ensures your
 > code remains clean and consistent.
 
-**Vortex** comes with [pre-configured PHPCS ruleset](https://github.com/drevops/scaffold/blob/develop/phpcs.xml) for Drupal projects.
+**Vortex** comes with [pre-configured PHPCS ruleset](https://github.com/drevops/vortex/blob/develop/phpcs.xml) for Drupal projects.
 
 ## Usage
 
@@ -40,7 +40,7 @@ ahoy lint-fix
 
 See [configuration reference](https://github.com/squizlabs/PHP_CodeSniffer/wiki/Configuration-Options).
 
-All global configuration takes place in the [`phpcs.xml`](https://github.com/drevops/scaffold/blob/develop/phpcs.xml) file.
+All global configuration takes place in the [`phpcs.xml`](https://github.com/drevops/vortex/blob/develop/phpcs.xml) file.
 
 By default, PHPCS will check against the following rules:
 
@@ -63,7 +63,7 @@ Run checks against platform version specified in `composer.json` key `config.pla
 
 ## Ignoring
 
-Ignoring rules **globally** takes place in the [`phpcs.xml`](https://github.com/drevops/scaffold/blob/develop/phpcs.xml) file:
+Ignoring rules **globally** takes place in the [`phpcs.xml`](https://github.com/drevops/vortex/blob/develop/phpcs.xml) file:
 ```xml
 <!-- Comment about why this rules is excluded. -->
 <rule ref="DrupalPractice.General.ClassName.ClassPrefix">

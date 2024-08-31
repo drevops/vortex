@@ -4,7 +4,7 @@ Follow the steps below to release a new version of the Vortex:
 
 1. Run renovate bot locally to update all dependencies outside of the schedule:
 ```
-renovate --schedule= --force-cli=true drevops/scaffold
+renovate --schedule= --force-cli=true drevops/vortex
 ```
 2. Update container images to the latest versions and check that `@see` links are working.
 3. Update PHP version in `composer.json` for `config.platform`.

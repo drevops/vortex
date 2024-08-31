@@ -16,7 +16,7 @@
 web/sites/default/files
 web/sites/simpletest
 
-# Ignore non-production scaffold files.
+# Ignore non-production Drupal Scaffold files.
 web/sites/default/default.services.local.yml
 web/sites/default/default.settings.local.php
 

@@ -58,7 +58,7 @@ assert_deployment_files_present() {
   assert_file_not_exists "${webroot}/themes/custom/star_wars/.eslintrc.json"
   assert_dir_not_exists "${webroot}/themes/custom/star_wars/node_modules"
 
-  # Scaffolding files present.
+  # Drupal Scaffold files present.
   assert_file_exists "${webroot}/.editorconfig"
   assert_file_exists "${webroot}/.eslintignore"
   assert_file_exists "${webroot}/.gitattributes"

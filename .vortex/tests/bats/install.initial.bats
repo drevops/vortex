@@ -205,7 +205,7 @@ load _helper.bash
   run_installer_quiet
 
   # Assert that Vortex version was replaced.
-  assert_file_contains "README.md" "https://github.com/drevops/scaffold/tree/1.2.3"
+  assert_file_contains "README.md" "https://github.com/drevops/vortex/tree/1.2.3"
   assert_file_contains "README.md" "badge/Vortex-1.2.3-blue.svg"
 }
 

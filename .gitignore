@@ -29,7 +29,7 @@ web/sites/default/*
 # Preserve default settings files to use them in Functional test.
 !web/sites/default/default.settings.php
 !web/sites/default/default.services.yml
-# Whitelist scaffold files. @see https://github.com/drupal-composer/drupal-scaffold#limitation
+# Whitelist Drupal Scaffold files. @see https://github.com/drupal-composer/drupal-scaffold#limitation
 !web/.editorconfig
 !web/.eslintignore
 !web/.gitattributes

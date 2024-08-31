@@ -6,7 +6,7 @@ https://docs.behat.org/en/latest/user_guide.html
 
 > A php framework for auto-testing your business expectations.
 
-**Vortex** comes with [pre-configured Behat profiles](https://github.com/drevops/scaffold/blob/develop/behat.yml) for Drupal projects.
+**Vortex** comes with [pre-configured Behat profiles](https://github.com/drevops/vortex/blob/develop/behat.yml) for Drupal projects.
 
 ## Usage
 
@@ -45,7 +45,7 @@ ahoy test-bdd --tags=group_name
 
 See [configuration reference](https://docs.behat.org/en/latest/user_guide/configuration.html).
 
-All global configuration takes place in the [`behat.yml`](https://github.com/drevops/scaffold/blob/develop/behat.yml) file.
+All global configuration takes place in the [`behat.yml`](https://github.com/drevops/vortex/blob/develop/behat.yml) file.
 
 By default, Behat will run all tests defined in `tests/behat/features` directory.
 
@@ -159,7 +159,7 @@ for tests that require JavaScript.
 
 ### `FeatureContext.php` and example tests
 
-The [`FeatureContext.php`](https://github.com/drevops/scaffold/blob/develop/tests/behat/bootstrap/FeatureContext.php)
+The [`FeatureContext.php`](https://github.com/drevops/vortex/blob/develop/tests/behat/bootstrap/FeatureContext.php)
 file is a Behat custom context file that is loaded by default. This is where
 custom step definitions and hooks should be placed.
 
@@ -168,7 +168,7 @@ include those traits in the `FeatureContext.php` file. There are already
 several traits included from the [Behat Steps](https://github.com/drevops/behat-steps)
 package (only basic ones are included; there are more available in the package).
 
-There are also example tests in the [`tests/behat/features`](https://github.com/drevops/scaffold/blob/develop/tests/behat/features)
+There are also example tests in the [`tests/behat/features`](https://github.com/drevops/vortex/blob/develop/tests/behat/features)
 directory that can be used as a starting point for writing tests. These tests
 define `@smoke` tests for the homepage and login page as well as tests for
 contributed modules.

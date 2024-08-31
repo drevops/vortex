@@ -12,7 +12,7 @@
 #;   safely removed for your project. They are automatically removed when
 #;   installing or updating Vortex.
 #;
-# See more about Docker at https://docs.drevops.com/docker/
+# See more about Docker at https://vortex.drevops.com/docker/
 # For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
 
 # ------------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 # ------------------------------------------------------------------------------
 
 # Volumes available in each container to share application data.
-# See more about Docker host volume mounting at https://docs.drevops.com/docker#host-volume-mounting-in-docker-based-projects
+# See more about Docker host volume mounting at https://vortex.drevops.com/docker#host-volume-mounting-in-docker-based-projects
 x-volumes: &default-volumes
   volumes:
     # All application files mounted into container.

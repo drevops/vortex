@@ -147,7 +147,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/scaffold/releases/download/1.18.0/db_d10.test.sql
+  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/1.18.0/db_d10.test.sql
 
   ##
   ## Phase 5: SUT files setup.
@@ -250,12 +250,12 @@ assert_files_present_common() {
 
   # Assert that Vortex version was replaced.
   assert_file_contains "README.md" "badge/Vortex-${VORTEX_VERSION:-develop}-blue.svg"
-  assert_file_contains "README.md" "https://github.com/drevops/scaffold/tree/${VORTEX_VERSION:-develop}"
+  assert_file_contains "README.md" "https://github.com/drevops/vortex/tree/${VORTEX_VERSION:-develop}"
   assert_file_not_contains "README.md" "The following list includes"
   assert_file_not_exists "README.dist.md"
 
   # Assert that Vortex footnote remains.
-  assert_file_contains "README.md" "This repository was created using the [Vortex](https://github.com/drevops/scaffold) project template"
+  assert_file_contains "README.md" "This repository was created using the [Vortex](https://github.com/drevops/vortex) project template"
 
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
 
@@ -291,7 +291,7 @@ assert_files_not_present_common() {
   assert_file_not_exists ".circleci/config.yml"
   assert_file_not_exists "${webroot}/sites/default/settings.php"
   assert_file_not_exists "${webroot}/sites/default/services.yml"
-  # Drupal scaffold files not exist.
+  # Drupal Scaffold files not exist.
   assert_file_not_exists "${webroot}/.editorconfig"
   assert_file_not_exists "${webroot}/.eslintignore"
   assert_file_not_exists "${webroot}/.gitattributes"
@@ -496,7 +496,7 @@ assert_files_present_drupal() {
   # Comparing binary files.
   assert_binary_files_equal "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/screenshot.png" "${webroot}/themes/custom/${suffix}/screenshot.png"
 
-  # Drupal scaffold files exist.
+  # Drupal Scaffold files exist.
   assert_file_exists "${webroot}/.editorconfig"
   assert_file_exists "${webroot}/.eslintignore"
   assert_file_exists "${webroot}/.gitattributes"
@@ -905,7 +905,7 @@ Drupal 10 implementation of ${name} for ${org}
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY VORTEX TO TRACK INTEGRATION)
 
-[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/scaffold/tree/VORTEX_VERSION)
+[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
 
 some other text
 EOT

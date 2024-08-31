@@ -52,7 +52,7 @@ case ${index} in
   2)
     bats "${TEST_DIR}"/bats/workflow.utilities.bats
     # Disabled due to intermittent failures.
-    # @see https://github.com/drevops/scaffold/issues/893
+    # @see https://github.com/drevops/vortex/issues/893
     # bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
     bats "${TEST_DIR}"/bats/workflow.storage.image.bats
     ;;
@@ -62,7 +62,7 @@ case ${index} in
     bats "${TEST_DIR}"/bats/workflow.install.bats
     bats "${TEST_DIR}"/bats/workflow.storage.image.bats
     # Disabled due to intermittent failures.
-    # @see https://github.com/drevops/scaffold/issues/893
+    # @see https://github.com/drevops/vortex/issues/893
     # bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
     bats "${TEST_DIR}"/bats/workflow.storage.curl.bats
     bats "${TEST_DIR}"/bats/workflow.utilities.bats
