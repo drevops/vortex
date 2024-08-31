@@ -84,7 +84,7 @@ const config = {
   themeConfig:
   /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: 'img/drevops_services_dark.png',
+      image: 'img/diagram-dark.png',
       navbar: {
         title: 'Vortex',
         logo: {
