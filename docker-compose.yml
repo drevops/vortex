@@ -8,9 +8,9 @@
 # - Use inline comments starting with '##' to have the line being automatically
 #   uncommented in CI.
 #; - Comments starting with '#;', '#;<' or '#;>' (like the ones used for the
-#;   current paragraph) are explaining Scaffold inner workings and can be
+#;   current paragraph) are explaining Vortex inner workings and can be
 #;   safely removed for your project. They are automatically removed when
-#;   installing or updating Scaffold.
+#;   installing or updating Vortex.
 #;
 # See more about Docker at https://docs.drevops.com/docker/
 # For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
@@ -41,9 +41,9 @@ x-user: &default-user
 # Note that these variables are not read from here in Lagoon environment.
 #;> LAGOON
 x-environment: &default-environment
-  TZ: ${DREVOPS_TZ:-Australia/Melbourne}
+  TZ: ${VORTEX_TZ:-Australia/Melbourne}
   # Local development URL.
-  DREVOPS_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
+  VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
   # Local development route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
   # Local database host (not used in production).
@@ -85,7 +85,7 @@ services:
       context: .
       dockerfile: .docker/cli.dockerfile
       args:
-        WEBROOT: "${DREVOPS_WEBROOT:-web}"
+        WEBROOT: "${VORTEX_WEBROOT:-web}"
         GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
 
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
@@ -109,7 +109,7 @@ services:
       dockerfile: .docker/nginx-drupal.dockerfile
       args:
         CLI_IMAGE: *cli-image
-        WEBROOT: "${DREVOPS_WEBROOT:-web}"
+        WEBROOT: "${VORTEX_WEBROOT:-web}"
         DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
         DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
         DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
@@ -155,7 +155,7 @@ services:
       context: .
       dockerfile: .docker/mariadb.dockerfile
       args:
-        IMAGE: "${DREVOPS_DB_IMAGE:-uselagoon/mariadb-10.11-drupal:24.8.0}" # Use custom database image (if defined) or fallback to standard database image.
+        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mariadb-10.11-drupal:24.8.0}" # Use custom database image (if defined) or fallback to standard database image.
     <<: *default-user
     environment:
       <<: *default-environment

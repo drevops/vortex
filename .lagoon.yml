@@ -8,16 +8,16 @@ environment_variables:
 # container-registries:
 #   dockerhub:
 #     # The `username` field must be set as a scalar value.
-#     # Environment variable DREVOPS_CONTAINER_REGISTRY_PASS needs to be set via Lagoon CLI.
+#     # Environment variable VORTEX_CONTAINER_REGISTRY_PASS needs to be set via Lagoon CLI.
 #     username: your_registry_username
-#     password: DREVOPS_CONTAINER_REGISTRY_PASS
+#     password: VORTEX_CONTAINER_REGISTRY_PASS
 
 tasks:
   post-rollout:
     - run:
         name: Show DrevOps variables.
         command: |
-          [ "${DREVOPS_DEBUG-}" = "1" ] && env -0  | sort -z | tr '\0' '\n' | grep ^DREVOPS_ || true
+          [ "${VORTEX_DEBUG-}" = "1" ] && env -0  | sort -z | tr '\0' '\n' | grep ^VORTEX_ || true
         service: cli
         shell: bash
 
@@ -25,10 +25,10 @@ tasks:
     - run:
         name: Notify about pre-deployment.
         command: |
-          if [ -n "$LAGOON_PR_NUMBER" ]; then export DREVOPS_NOTIFY_REF=$LAGOON_PR_NUMBER;export DREVOPS_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/};export DREVOPS_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH;else export DREVOPS_NOTIFY_REF=$LAGOON_GIT_BRANCH;export DREVOPS_NOTIFY_SHA=$LAGOON_GIT_SHA;export DREVOPS_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH;fi
-          DREVOPS_NOTIFY_PROJECT=$LAGOON_PROJECT \
-          DREVOPS_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
-          DREVOPS_NOTIFY_EVENT=pre_deployment ./scripts/drevops/notify.sh || true
+          if [ -n "$LAGOON_PR_NUMBER" ]; then export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER;export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/};export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH;else export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH;export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA;export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH;fi
+          VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT \
+          VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
+          VORTEX_NOTIFY_EVENT=pre_deployment ./scripts/vortex/notify.sh || true
         service: cli
         shell: bash
     #;> !NOTIFICATIONS
@@ -36,9 +36,9 @@ tasks:
     - run:
         name: Backup DB before deployment in production
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."
-            DREVOPS_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./scripts/drevops/export-db-file.sh
+            VORTEX_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./scripts/vortex/export-db-file.sh
           fi
         service: cli
     #;< !PROVISION_USE_PROFILE
@@ -46,12 +46,12 @@ tasks:
     - run:
         name: Download database in non-production environments
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${DREVOPS_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             # No need to load SSH file to access production DB as Lagoon has SSH agent keys.
-            export DREVOPS_DB_DOWNLOAD_SSH_FILE=false
-            export DREVOPS_DB_DIR=/tmp/data
-            rm -Rf $DREVOPS_DB_DIR || true
-            ./scripts/drevops/download-db.sh
+            export VORTEX_DB_DOWNLOAD_SSH_FILE=false
+            export VORTEX_DB_DIR=/tmp/data
+            rm -Rf $VORTEX_DB_DIR || true
+            ./scripts/vortex/download-db.sh
           fi
         service: cli
     #;> !PROVISION_USE_PROFILE
@@ -60,27 +60,27 @@ tasks:
         name: Provision site
         command: |
           #;< PROVISION_USE_PROFILE
-          if [ "$DREVOPS_PROVISION_USE_PROFILE" = "1" ]; then
+          if [ "$VORTEX_PROVISION_USE_PROFILE" = "1" ]; then
             # Explicitly set DB overwrite flag to the value from .env file for deployments from the profile.
             # @see https://github.com/uselagoon/lagoon/issues/1922
-            export DREVOPS_PROVISION_OVERRIDE_DB="$(cat .env | grep ^DREVOPS_PROVISION_OVERRIDE_DB | cut -c31-)"
+            export VORTEX_PROVISION_OVERRIDE_DB="$(cat .env | grep ^VORTEX_PROVISION_OVERRIDE_DB | cut -c31-)"
           fi
           #;> PROVISION_USE_PROFILE
 
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${DREVOPS_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."
             #;< !PROVISION_USE_PROFILE
             # Never overwrite existing DB when production site already exists.
-            export DREVOPS_PROVISION_OVERRIDE_DB=0
+            export VORTEX_PROVISION_OVERRIDE_DB=0
             #;> !PROVISION_USE_PROFILE
             # Never unblock admin user in production.
             export DRUPAL_UNBLOCK_ADMIN=0
             # Never sanitize DB in production.
-            export DREVOPS_PROVISION_SANITIZE_DB_SKIP=1
+            export VORTEX_PROVISION_SANITIZE_DB_SKIP=1
           fi
 
-          export DREVOPS_DB_DIR=/tmp/data
-          ./scripts/drevops/provision.sh
+          export VORTEX_DB_DIR=/tmp/data
+          ./scripts/vortex/provision.sh
         service: cli
         shell: bash
 
@@ -88,11 +88,11 @@ tasks:
     - run:
         name: Send deployment notifications
         command: |
-          if [ -n "$LAGOON_PR_NUMBER" ]; then export DREVOPS_NOTIFY_REF=$LAGOON_PR_NUMBER; export DREVOPS_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; export DREVOPS_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else export DREVOPS_NOTIFY_REF=$LAGOON_GIT_BRANCH; export DREVOPS_NOTIFY_SHA=$LAGOON_GIT_SHA; export DREVOPS_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi
-          DREVOPS_NOTIFY_EVENT=post_deployment \
-          DREVOPS_NOTIFY_PROJECT=$LAGOON_PROJECT \
-          DREVOPS_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
-          ./scripts/drevops/notify.sh || true
+          if [ -n "$LAGOON_PR_NUMBER" ]; then export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER; export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH; export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA; export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi
+          VORTEX_NOTIFY_EVENT=post_deployment \
+          VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT \
+          VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
+          ./scripts/vortex/notify.sh || true
         service: cli
         shell: bash
     #;> !NOTIFICATIONS

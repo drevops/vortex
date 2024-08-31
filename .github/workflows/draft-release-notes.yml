@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Generate CalVer version
-        if: vars.DREVOPS_RELEASE_VERSION_SCHEME == 'calver'
+        if: vars.VORTEX_RELEASE_VERSION_SCHEME == 'calver'
         id: calver
         run: |
           export VERSION="$(date "+%y.%-m").0"

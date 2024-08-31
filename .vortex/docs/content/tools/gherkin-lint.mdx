@@ -1,0 +1,63 @@
+# Gherkin Lint
+
+https://github.com/dantleech/gherkin-lint-php
+
+> Provides a Gherkin linter for PHP.
+
+**Vortex** comes with [Gherkin Lint configuration](https://github.com/drevops/scaffold/blob/develop/gherkinlint.json) for Behat tests.
+
+## Usage
+
+```shell
+vendor/bin/gherkinlint lint tests/behat/features
+```
+or
+```shell
+ahoy lint-tests
+```
+
+## Configuration
+
+See [configuration reference](https://github.com/dantleech/gherkin-lint-php?tab=readme-ov-file#configuration) and [rules](https://github.com/dantleech/gherkin-lint-php/blob/master/docs/rules.md).
+
+All global configuration takes place in the [`gherkinlint.json`](https://github.com/drevops/scaffold/blob/develop/gherkinlint.json) file.
+The values are merged with the default configuration.
+
+To check enabled rules, run
+
+```shell
+vendor/bin/gherkinlint rules
+```
+
+## Ignoring
+
+Ignoring rules **globally** takes place in the  [`gherkinlint.json`](https://github.com/drevops/scaffold/blob/develop/gherkinlint.json) file.
+```json
+{
+    "rules": {
+        "filename": {
+            "enabled": false
+        }
+    }
+}
+```
+
+Gherkin Lint does not support ignoring of all rules in the file.
+
+To ignore **a specific rule** within a file, place in the file header:
+```yaml
+# @gherkinlint-disable-rule keyword-order, someother-rule
+```
+
+Gherkin Lint does not support ignoring of the **code blocks**.
+
+Gherkin Lint does not support ignoring rules on the **current line**.
+
+Gherkin Lint does not support ignoring rules on the **next line**.
+
+## Ignoring fail in CI
+
+This tool runs in CI by default and fails the build if there are any violations.
+
+Set `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` environment variable to `1` to
+ignore failures. The tool will still run and report violations, if any.

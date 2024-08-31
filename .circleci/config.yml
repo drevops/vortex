@@ -8,8 +8,8 @@
 # controlled by CircleCI.
 # The "runner" container uses Docker client to control the remote Docker server.
 #;
-#; Comments starting with '#;<' and '#;>' are internal Scaffold comments
-#; and will be removed during installation or update of Scaffold.
+#; Comments starting with '#;<' and '#;>' are internal Vortex comments
+#; and will be removed during installation or update of Vortex.
 version: '2.1'
 
 aliases:
@@ -38,9 +38,9 @@ aliases:
     working_directory: &working_directory ~/project
     environment:
       #;< !PROVISION_USE_PROFILE
-      DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
+      VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
       #;> !PROVISION_USE_PROFILE
-      DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
+      VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       # Using the 'runner' container where each job will be executed.
       # This container has all the necessary tools to run a dockerized environment.
@@ -48,8 +48,8 @@ aliases:
       # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags
       - image: drevops/ci-runner:24.8.0
         auth:
-          username: ${DREVOPS_CONTAINER_REGISTRY_USER}
-          password: ${DREVOPS_CONTAINER_REGISTRY_PASS}
+          username: ${VORTEX_CONTAINER_REGISTRY_USER}
+          password: ${VORTEX_CONTAINER_REGISTRY_PASS}
         environment:
           # Set runner timezone to ensure that executed operations use correct timestamps.
           # @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
@@ -58,28 +58,28 @@ aliases:
           TERM: xterm-256color
           #;< !PROVISION_USE_PROFILE
           # How often to refresh the cache of the DB dump. Refer to `date` command.
-          DREVOPS_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
+          VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
           # Use previous database caches on this branch as a fallback if the above cache
           # does not match (for example, the cache is available only from the previous
           # day). If "no" is set, the cache will be rebuilt from scratch.
-          DREVOPS_CI_DB_CACHE_FALLBACK: "yes"
+          VORTEX_CI_DB_CACHE_FALLBACK: "yes"
           # Which branch to use as a source of DB caches.
-          DREVOPS_CI_DB_CACHE_BRANCH: "develop"
+          VORTEX_CI_DB_CACHE_BRANCH: "develop"
           #;> !PROVISION_USE_PROFILE
           # Directory to store test results.
-          DREVOPS_CI_TEST_RESULTS: &test_results /tmp/tests
+          VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
-          DREVOPS_CI_ARTIFACTS: &artifacts /tmp/artifacts
+          VORTEX_CI_ARTIFACTS: &artifacts /tmp/artifacts
           # Directory to store code exported between jobs.
-          DREVOPS_EXPORT_CODE_DIR: &drevops_build_export_dir /tmp/workspace/code
+          VORTEX_EXPORT_CODE_DIR: &drevops_build_export_dir /tmp/workspace/code
           # Directory to use for artifact deployments.
-          DREVOPS_DEPLOY_ARTIFACT_SRC: *drevops_build_export_dir
+          VORTEX_DEPLOY_ARTIFACT_SRC: *drevops_build_export_dir
           # Source code location for artifact deployments.
-          DREVOPS_DEPLOY_ARTIFACT_ROOT: *working_directory
+          VORTEX_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
-          DREVOPS_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
+          VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
           # Check only minimal stack requirements.
-          DREVOPS_DOCTOR_CHECK_MINIMAL: 1
+          VORTEX_DOCTOR_CHECK_MINIMAL: 1
     # CI runner resource class.
     # @see https://circleci.com/docs/2.0/configuration-reference/#resource_class
     # Change to 'large' for faster builds.
@@ -113,10 +113,10 @@ aliases:
 jobs:
   #;< !PROVISION_USE_PROFILE
   # Database handling is a first step of the build.
-  # - $DREVOPS_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump
+  # - $VORTEX_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump
   #   should be downloaded for the current build. Usually, a daily database dump
   #   is sufficient for development activities.
-  # - $DREVOPS_CI_DB_CACHE_FALLBACK is used if the cache did not match $DREVOPS_CI_DB_CACHE_TIMESTAMP.
+  # - $VORTEX_CI_DB_CACHE_FALLBACK is used if the cache did not match $VORTEX_CI_DB_CACHE_TIMESTAMP.
   #   This allows to rely on the cache from the previous days within the same branch.
   database: &job-database
     <<: *runner_config
@@ -136,9 +136,9 @@ jobs:
       - run:
           name: Create cache keys for database caching as files
           command: |
-            echo "${DREVOPS_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
-            echo "${DREVOPS_CI_DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" | tee /tmp/db_cache_fallback
-            echo "$(date ${DREVOPS_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
+            echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
+            echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" | tee /tmp/db_cache_fallback
+            echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
             echo "yes" | tee /tmp/db_cache_fallback_yes
             echo 'v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
 
@@ -156,7 +156,7 @@ jobs:
 
       - run:
           name: Download DB
-          command: DREVOPS_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/drevops/download-db.sh
+          command: VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
           no_output_timeout: 30m
 
       # Execute commands after database download script finished: if the
@@ -169,12 +169,12 @@ jobs:
           name: Export DB after download
           command: |
             [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-            ./scripts/drevops/login-container-registry.sh
+            ./scripts/vortex/login-container-registry.sh
             docker compose up -d && sleep 15
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "DREVOPS_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/drevops/provision.sh"
-            grep -q ^DREVOPS_DB_IMAGE .env && rm .data/db.sql || true
-            ./scripts/drevops/export-db.sh db.sql
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
+            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
+            ./scripts/vortex/export-db.sh db.sql
           no_output_timeout: 30m
 
       - save_cache:
@@ -190,14 +190,14 @@ jobs:
   database-nightly:
     <<: *job-database
     environment:
-      DREVOPS_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
-      DREVOPS_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
+      VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
+      VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
-      DREVOPS_CI_DB_CACHE_FALLBACK: 'no'
+      VORTEX_CI_DB_CACHE_FALLBACK: 'no'
       # Always use fresh base image for the database (if database-in-image storage is used).
-      DREVOPS_DB_IMAGE_BASE: drevops/mariadb-drupal-data:24.4.0
+      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:24.4.0
       # Deploy container image (if database-in-image storage is used).
-      DREVOPS_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
+      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
   #;> !PROVISION_USE_PROFILE
 
   # Build and test is a second step of the build. The testing is performed
@@ -218,9 +218,9 @@ jobs:
       - run:
           name: Set cache keys for database caching
           command: |
-            echo "${DREVOPS_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
+            echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
             echo "yes" | tee /tmp/db_cache_fallback_yes
-            echo "$(date ${DREVOPS_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
+            echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
 
       - restore_cache:
           keys:
@@ -234,12 +234,12 @@ jobs:
           name: Lint Dockerfiles with Hadolint
           command: |
             for file in $(find .docker -name 'Dockerfile' -o -name '*.dockerfile'); do
-              echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${DREVOPS_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+              echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${VORTEX_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
             done
 
       - run:
           name: Login to container registry
-          command: ./scripts/drevops/login-container-registry.sh
+          command: ./scripts/vortex/login-container-registry.sh
 
       - run:
           name: Build stack
@@ -248,12 +248,12 @@ jobs:
       - run:
           name: Export built codebase
           command: |
-            mkdir -p "${DREVOPS_EXPORT_CODE_DIR}"
-            docker compose cp -L cli:"/app/." "${DREVOPS_EXPORT_CODE_DIR}"
+            mkdir -p "${VORTEX_EXPORT_CODE_DIR}"
+            docker compose cp -L cli:"/app/." "${VORTEX_EXPORT_CODE_DIR}"
 
       - run:
           name: Validate Composer configuration
-          command: docker compose exec cli composer validate --strict || [ "${DREVOPS_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec cli composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Install development dependencies
@@ -264,31 +264,31 @@ jobs:
 
       - run:
           name: Lint code with PHPCS
-          command: docker compose exec -T cli vendor/bin/phpcs || [ "${DREVOPS_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli vendor/bin/phpcs || [ "${VORTEX_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with PHPStan
-          command: docker compose exec -T cli vendor/bin/phpstan || [ "${DREVOPS_CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli vendor/bin/phpstan || [ "${VORTEX_CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with Rector
-          command: docker compose exec -T cli vendor/bin/rector --clear-cache --dry-run || [ "${DREVOPS_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli vendor/bin/rector --clear-cache --dry-run || [ "${VORTEX_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with PHPMD
-          command: docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml || [ "${DREVOPS_CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml || [ "${VORTEX_CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with Twig CS Fixer
-          command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${DREVOPS_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with Gherkin Lint
-          command: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${DREVOPS_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with NPM linters
-          command: docker compose exec -T cli bash -c "npm run --prefix \${DREVOPS_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${DREVOPS_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli bash -c "npm run --prefix \${VORTEX_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${VORTEX_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Provision site
@@ -297,34 +297,34 @@ jobs:
               docker compose exec cli mkdir -p .data
               docker compose cp -L .data/db.sql cli:/app/.data/db.sql
             fi
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/drevops/provision.sh
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
           no_output_timeout: 30m
 
       - run:
           name: Test with PHPUnit
           command: |
             XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
-            docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit || [ "${DREVOPS_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
+            docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
             docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
 
       - run:
           name: Test with Behat
           command: |
-            if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then export DREVOPS_CI_BEHAT_PROFILE="${DREVOPS_CI_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}"; fi
-            echo "Running with ${DREVOPS_CI_BEHAT_PROFILE:-default} profile"
-            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
-              docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${DREVOPS_CI_BEHAT_PROFILE:-default}" || \
-              [ "${DREVOPS_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
+            if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}"; fi
+            echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
+            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+              docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+              [ "${VORTEX_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
           no_output_timeout: 30m
 
       - run:
           name: Process test logs and artifacts
           command: |
-            mkdir -p "${DREVOPS_CI_TEST_RESULTS}" "${DREVOPS_CI_ARTIFACTS}"
+            mkdir -p "${VORTEX_CI_TEST_RESULTS}" "${VORTEX_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-               docker compose cp cli:/app/.logs/. "${DREVOPS_CI_ARTIFACTS}/"
+               docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
               if docker compose exec -T cli sh -c '[ -d /app/.logs/test_results/ ]'; then
-                 docker compose cp cli:/app/.logs/test_results/. "${DREVOPS_CI_TEST_RESULTS}/"
+                 docker compose cp cli:/app/.logs/test_results/. "${VORTEX_CI_TEST_RESULTS}/"
               fi
             fi
           when: always
@@ -361,10 +361,10 @@ jobs:
 
       - run:
           command: |
-            DREVOPS_DEPLOY_BRANCH="${CIRCLE_BRANCH}" \
-            DREVOPS_DEPLOY_PR="$(echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f 7)" \
-            DREVOPS_DEPLOY_PR_HEAD=${CIRCLE_SHA1} \
-            ./scripts/drevops/deploy.sh
+            VORTEX_DEPLOY_BRANCH="${CIRCLE_BRANCH}" \
+            VORTEX_DEPLOY_PR="$(echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f 7)" \
+            VORTEX_DEPLOY_PR_HEAD=${CIRCLE_SHA1} \
+            ./scripts/vortex/deploy.sh
           no_output_timeout: 30m
 
       - store_artifacts:
@@ -385,7 +385,7 @@ jobs:
       - *step_process_codebase_for_ci
 
       - run:
-          command: DREVOPS_DEPLOY_MODE="tag" ./scripts/drevops/deploy.sh
+          command: VORTEX_DEPLOY_MODE="tag" ./scripts/vortex/deploy.sh
           no_output_timeout: 30m
 
       - store_artifacts:
@@ -413,15 +413,15 @@ jobs:
   #;> RENOVATEBOT
 
   #;============================================================================
-  #; Scaffold development section. Removed during Scaffold installation/update.
+  #; Vortex development section. Removed during Vortex installation/update.
   #;============================================================================
-  #;< SCAFFOLD_DEV
+  #;< VORTEX_DEV
   #-----------------------------------------------------------------------------
-  # Test suite for Scaffold.
+  # Test suite for Vortex.
   #-----------------------------------------------------------------------------
 
-  # Run Scaffold tests after 'build' job to test CircleCI's configuration.
-  scaffold-dev-test-ci-postbuild:
+  # Run Vortex tests after 'build' job to test CircleCI's configuration.
+  vortex-dev-test-ci-postbuild:
     <<: *runner_config
     steps:
       - checkout
@@ -431,7 +431,7 @@ jobs:
 
       - run:
           name: Run CircleCI tests (long)
-          command: SCAFFOLD_DEV_VOLUMES_MOUNTED=0 SCAFFOLD_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage .scaffold/tests/test.postbuild.sh
+          command: VORTEX_DEV_VOLUMES_MOUNTED=0 VORTEX_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage .vortex/tests/test.postbuild.sh
 
       - store_test_results:
           path: *test_results
@@ -449,85 +449,85 @@ jobs:
   #
   # Switching between "database in file" (DIF, mounted data volume) and
   # "database-in-image" (DIDI, data volume is a part of the image) is
-  # done by providing the value of DREVOPS_DB_IMAGE environment variable,
+  # done by providing the value of VORTEX_DB_IMAGE environment variable,
   # which would be set in .env file for consumer projects.
   #
   # Also, the source of the database can be either file (downloaded from
   # remote location) or a previous version of the data image.
   #
-  # This means that there should be the following tests for Scaffold
+  # This means that there should be the following tests for Vortex
   # database-in-image workflow functionality:
   # 1. DB is file -> create data image -> cache data image and push it to registry -> build and test site
   # 2. DB is image -> create data image -> cache data image and push it to registry -> build and test site
   #
   # Since we need to have "database" job generic for consumer sites and any
   # logic is controlled within DrevOps scripts, we have to create additional
-  # test jobs below and run them as a part of the CI system for Scaffold itself.
+  # test jobs below and run them as a part of the CI system for Vortex itself.
   #
   # Job to test creation of the image from DB dump file when using
-  # DREVOPS_DB_IMAGE workflow.
-  scaffold-dev-didi-database-fi:
+  # VORTEX_DB_IMAGE workflow.
+  vortex-dev-didi-database-fi:
     <<: *job-database
     environment:
-      DREVOPS_DB_DOWNLOAD_SOURCE: curl
-      DREVOPS_DB_DOWNLOAD_FORCE: 1
+      VORTEX_DB_DOWNLOAD_SOURCE: curl
+      VORTEX_DB_DOWNLOAD_FORCE: 1
       # Use container image database storage despite that the file is coming
       # from CURL - this is to make sure that image is exported into cache
       # to be used between jobs. Note that in consumer project .env file would
-      # have DREVOPS_DB_IMAGE variable set and this environment variable
+      # have VORTEX_DB_IMAGE variable set and this environment variable
       # would not be required.
       #
       # Note that here and below we are using "destination" demo image - this
       # is to allow updating of this image from CI tests without jeopardizing
       # main demo image.
-      DREVOPS_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
+      VORTEX_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
       # Use a separate tag to make sure that pushed image does not affect
       # other tests (pushing broken image as 'latest' would fail other tests).
-      DREVOPS_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: scaffold-dev-didi-database-fi
+      VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-didi-database-fi
       # Also, use this job to test pushing of the DB image to the container
       # registry to replicate what database-nightly job would do.
-      DREVOPS_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
+      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-fi
+      VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
 
   # Job to test creation of the image from the previous version of the image
   # when using database-in-image workflow.
-  scaffold-dev-database-ii:
+  vortex-dev-database-ii:
     <<: *job-database
     environment:
-      DREVOPS_DB_DOWNLOAD_SOURCE: DREVOPS_CONTAINER_REGISTRY
-      DREVOPS_DB_DOWNLOAD_FORCE: 1
-      DREVOPS_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
-      DREVOPS_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: scaffold-dev-database-ii
+      VORTEX_DB_DOWNLOAD_SOURCE: VORTEX_CONTAINER_REGISTRY
+      VORTEX_DB_DOWNLOAD_FORCE: 1
+      VORTEX_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x
+      VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-database-ii
       # Also, use this job to test pushing of the DB image to the container
       # registry so replicate what database-nightly job would do.
-      DREVOPS_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
+      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-ii
+      VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
 
   # Job to test build of the image from the previous stage of the image when
-  # using database-in-image workflow. Overwriting just the DREVOPS_DB_IMAGE
+  # using database-in-image workflow. Overwriting just the VORTEX_DB_IMAGE
   # variable should change the storage mechanisms, but preserve application-level
   # stack operation.
-  scaffold-dev-didi-build-fi:
+  vortex-dev-didi-build-fi:
     <<: *job_build
     environment:
-      DREVOPS_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_didi_database_fi
+      VORTEX_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_didi_database_fi
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-fi
+      VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
 
-  scaffold-dev-didi-build-ii:
+  vortex-dev-didi-build-ii:
     <<: *job_build
     environment:
-      DREVOPS_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_database_ii
+      VORTEX_DB_IMAGE: drevops/drevops-mariadb-drupal-data-demo-destination-10.x:drevops_dev_database_ii
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
-      DREVOPS_CI_DB_CACHE_BRANCH: scaffold-dev-didi-ii
+      VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
   #=============================================================================
-  #;> SCAFFOLD_DEV
+  #;> VORTEX_DEV
 
 ################################################################################
 # WORKFLOWS
@@ -585,38 +585,38 @@ workflows:
       #;> DEPLOYMENT
 
   #;============================================================================
-  #; Scaffold development section. Removed during Scaffold installation/update.
+  #; Vortex development section. Removed during Vortex installation/update.
   #;============================================================================
   #;
-  #;< SCAFFOLD_DEV
-  # Run functional tests for Scaffold.
+  #;< VORTEX_DEV
+  # Run functional tests for Vortex.
   # Note that these jobs must run within the "commit" workflow, because they
   # depend on the "build" job.
       # Run tests after 'build' job.
-      - scaffold-dev-test-ci-postbuild:
+      - vortex-dev-test-ci-postbuild:
           requires:
             - build
           filters:
             tags:
               only: /.*/
 
-  # Test workflow to test DREVOPS_DB_IMAGE workflow for DB from file.
-  scaffold-dev-didi-fi:
+  # Test workflow to test VORTEX_DB_IMAGE workflow for DB from file.
+  vortex-dev-didi-fi:
     jobs:
-      - scaffold-dev-didi-database-fi
-      - scaffold-dev-didi-build-fi:
+      - vortex-dev-didi-database-fi
+      - vortex-dev-didi-build-fi:
           requires:
-            - scaffold-dev-didi-database-fi
+            - vortex-dev-didi-database-fi
 
-  # Test workflow to test DREVOPS_DB_IMAGE workflow for DB from the container registry.
-  scaffold-dev-didi-ii:
+  # Test workflow to test VORTEX_DB_IMAGE workflow for DB from the container registry.
+  vortex-dev-didi-ii:
     jobs:
-      - scaffold-dev-database-ii
-      - scaffold-dev-didi-build-ii:
+      - vortex-dev-database-ii
+      - vortex-dev-didi-build-ii:
           requires:
-            - scaffold-dev-database-ii
+            - vortex-dev-database-ii
   #=============================================================================
-  #;> SCAFFOLD_DEV
+  #;> VORTEX_DEV
 
   #;< !PROVISION_USE_PROFILE
   # Nightly database workflow runs overnight to capture fresh database and cache it.

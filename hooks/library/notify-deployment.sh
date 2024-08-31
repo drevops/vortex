@@ -4,7 +4,7 @@
 #
 
 set -e
-[ -n "${DREVOPS_DEBUG}" ] && set -x
+[ -n "${VORTEX_DEBUG}" ] && set -x
 
 site="${1}"
 target_env="${2}"
@@ -13,7 +13,7 @@ ref="${4:-${branch}}"
 
 # Custom domain name for the environment, including subdomain.
 # Examples: "dev.example.com", "test.example.com", "www.example.com"
-DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN="${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN:-}"
+VORTEX_NOTIFY_ENVIRONMENT_DOMAIN="${VORTEX_NOTIFY_ENVIRONMENT_DOMAIN:-}"
 
 pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 
@@ -21,16 +21,16 @@ pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 url="https://${AH_SITE_NAME}.${AH_REALM:-prod}.acquia-sites.com"
 
 # Use custom domain in URL, if provided.
-if [ -n "${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN}" ]; then
-  url="https://${DREVOPS_NOTIFY_ENVIRONMENT_DOMAIN}"
+if [ -n "${VORTEX_NOTIFY_ENVIRONMENT_DOMAIN}" ]; then
+  url="https://${VORTEX_NOTIFY_ENVIRONMENT_DOMAIN}"
 fi
 
-export DREVOPS_NOTIFY_PROJECT="${site}"
-export DREVOPS_NOTIFY_BRANCH="${branch}"
-export DREVOPS_NOTIFY_REF="${ref}"
-export DREVOPS_NOTIFY_SHA="${target_env}"
-export DREVOPS_NOTIFY_ENVIRONMENT_URL="${url}"
+export VORTEX_NOTIFY_PROJECT="${site}"
+export VORTEX_NOTIFY_BRANCH="${branch}"
+export VORTEX_NOTIFY_REF="${ref}"
+export VORTEX_NOTIFY_SHA="${target_env}"
+export VORTEX_NOTIFY_ENVIRONMENT_URL="${url}"
 
-./scripts/drevops/notify.sh || true
+./scripts/vortex/notify.sh || true
 
 popd >/dev/null || exit 1

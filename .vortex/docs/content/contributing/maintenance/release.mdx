@@ -1,0 +1,16 @@
+# Release
+
+Follow the steps below to release a new version of the Vortex:
+
+1. Run renovate bot locally to update all dependencies outside of the schedule:
+```
+renovate --schedule= --force-cli=true drevops/scaffold
+```
+2. Update container images to the latest versions and check that `@see` links are working.
+3. Update PHP version in `composer.json` for `config.platform`.
+4. Update PHP version in `phpcs.xml` for `testVersion`.
+5. Update PHP version in `phpstan.neon` for `phpVersion`. Run `php -r "echo PHP_VERSION_ID . PHP_EOL;"` in the container to get the current PHP version.
+6. Increment minor version of all packages in `composer.json`.
+7. Update minor version of dependencies in theme's `package.json`.
+8. Increment the cache version in `.circleci/config.yml`.
+9. Updated documentation with `cd .vortex && ahoy update-docs`.

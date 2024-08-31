@@ -235,7 +235,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       'DRUPAL_REDIS_ENABLED' => 1,
       'REDIS_HOST' => 'redis_host',
       'REDIS_SERVICE_PORT' => 1234,
-      'DREVOPS_REDIS_EXTENSION_LOADED' => 1,
+      'VORTEX_REDIS_EXTENSION_LOADED' => 1,
     ]);
 
     $this->requireSettingsFile();
@@ -259,7 +259,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       'DRUPAL_REDIS_ENABLED' => 1,
       'REDIS_HOST' => 'redis_host',
       'REDIS_SERVICE_PORT' => 1234,
-      'DREVOPS_REDIS_EXTENSION_LOADED' => 0,
+      'VORTEX_REDIS_EXTENSION_LOADED' => 0,
     ]);
 
     $this->requireSettingsFile();

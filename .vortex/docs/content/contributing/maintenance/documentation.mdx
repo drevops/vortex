@@ -1,0 +1,62 @@
+# Authoring documentation
+
+There are 2 types of the documentation that **Vortex** provides:
+
+1. This Documentation of **Vortex** that is then deployed
+   to https://docs.drevops.com/
+2. Consumer site documentation that is distributed when **Vortex** is
+   installed.
+
+## docs.drevops.com
+
+The Documentation (this site) is written in Markdown and located in
+[`.vortex/docs`](https://github.com/drevops/scaffold/blob/develop/.vortex/docs) directory. This is
+removed when you install **Vortex** for a
+consumer site.
+
+### Local build
+
+```bash
+cd .vortex/docs
+ahoy build
+```
+
+Parts of the documentation is generated automatically from the codebase.
+To update it, run:
+
+```bash
+cd .vortex
+ahoy update-docs
+```
+
+If you have the documentation site running locally, the content changes will
+be available immediately.
+
+### Check spelling and links
+
+```bash
+cd .vortex
+ahoy test-docs
+```
+
+If required, add spelling exclusions to `.vortex/docs/cspell.json`
+file.
+
+### Publishing
+
+An automated CI build publishes this documentation.
+
+- on tag, publishes to https://docs.drevops.com/
+- on every commit to a branch that contains `release-docs` string publishes to https://docs.drevops.com/
+- on every push to `develop`, publishes to development version of documentation https://vortex-docs.netlify.app
+- on every push or tag, publishes to the temporary version of documentation with a link added to the PR as a comment.
+
+## Consumer site documentation
+
+**Vortex** provides a scaffold of the consumer site documentation in the
+[`docs`](https://github.com/drevops/scaffold/blob/develop/docs) directory.
+
+After **Vortex** is installed into the consumer site, these docs are
+intended to be used by the site maintainers and stay up-to-date with the
+project changes.
+

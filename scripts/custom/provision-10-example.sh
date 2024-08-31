@@ -15,14 +15,14 @@
 # shellcheck disable=SC2086
 
 set -eu
-[ "${DREVOPS_DEBUG-}" = "1" ] && set -x
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # ------------------------------------------------------------------------------
 
 drush() { ./vendor/bin/drush -y "$@"; }
 
 # Perform operations based on the current environment.
-if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e local; then
+if echo "${VORTEX_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e local; then
   echo "==> Executing example operations in non-production environment."
 
   # Below are examples of running operations.
@@ -54,7 +54,7 @@ if echo "${DREVOPS_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e l
   drush deploy:hook
 
   # Conditionally perform an action if this is a "fresh" database.
-  if [ "${DREVOPS_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
+  if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
     echo "  > Fresh database detected. Performing additional example operations."
   else
     echo "  > Existing database detected. Performing additional example operations."

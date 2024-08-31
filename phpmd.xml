@@ -21,9 +21,9 @@
     <exclude-pattern>*/web/modules/custom/*/*.post_update.php</exclude-pattern>
     <exclude-pattern>*/web/modules/custom/*/*.install</exclude-pattern>
 
-    <!-- #;< SCAFFOLD_DEV -->
-    <exclude-pattern>*/.scaffold/*</exclude-pattern>
-    <!-- #;> SCAFFOLD_DEV -->
+    <!-- #;< VORTEX_DEV -->
+    <exclude-pattern>*/.vortex/*</exclude-pattern>
+    <!-- #;> VORTEX_DEV -->
 
     <rule ref="rulesets/unusedcode.xml"/>
     <rule ref="rulesets/codesize.xml"/>
