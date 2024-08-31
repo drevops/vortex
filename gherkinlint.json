@@ -1,0 +1,16 @@
+{
+    "rules": {
+        "indentation": {
+            "width": 2
+        },
+        "keyword-order": {
+            "enabled": false
+        },
+        "no-homogenous-tags": {
+            "enabled": false
+        },
+        "scenario-size": {
+            "enabled": false
+        }
+    }
+}
