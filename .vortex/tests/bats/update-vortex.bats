@@ -47,8 +47,14 @@ load _helper.bash
   echo VORTEX_INSTALL_COMMIT="${latest_commit}" >>.env
   # Enforce debugging of the install script.
   export VORTEX_INSTALL_DEBUG=1
+
+  # Build installer.
+  [ ! -d "${ROOT_DIR}/.vortex/installer/vendor" ] && composer --working-dir="${ROOT_DIR}/.vortex/installer" install
+  [ ! -d "${ROOT_DIR}/.vortex/installer/build" ] && composer --working-dir="${ROOT_DIR}/.vortex/installer" build
+  assert_file_exists "${ROOT_DIR}/.vortex/installer/build/installer"
+
   # Override install script with currently tested one to be called from ./scripts/vortex/update-vortex.sh
-  export VORTEX_INSTALLER_URL="file://${INSTALLER_CHECKOUT_DIR}/install.php"
+  export VORTEX_INSTALLER_URL="file://${ROOT_DIR}/.vortex/installer/build/installer"
   # shellcheck disable=SC2059
   run ahoy update-vortex
   assert_success

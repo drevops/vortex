@@ -102,16 +102,11 @@ setup() {
   # Directory where the application may store it's temporary files.
   export APP_TMP_DIR="${BUILD_DIR}/tmp"
 
-  # Use unique installer checkout dir to allow multiple calls of this function
-  # with a single test.
-  export INSTALLER_CHECKOUT_DIR="${BUILD_DIR}/installer_$(random_string)"
-
   fixture_prepare_dir "${BUILD_DIR}"
   fixture_prepare_dir "${CURRENT_PROJECT_DIR}"
   fixture_prepare_dir "${DST_PROJECT_DIR}"
   fixture_prepare_dir "${LOCAL_REPO_DIR}"
   fixture_prepare_dir "${APP_TMP_DIR}"
-  fixture_prepare_dir "${INSTALLER_CHECKOUT_DIR}"
 
   ##
   ## Phase 4: Application variables setup.
@@ -957,8 +952,10 @@ run_installer_quiet() {
   opt_quiet="--quiet"
   [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_quiet=""
 
-  download_installer "${INSTALLER_CHECKOUT_DIR}"
-  run php "${INSTALLER_CHECKOUT_DIR}/install.php" "${opt_quiet}" "$@"
+  [ ! -d "${ROOT_DIR}/.vortex/installer/vendor" ] && composer --working-dir="${ROOT_DIR}/.vortex/installer" install
+
+  # Run the installer script from the local repository to allow debugging.
+  run php "${ROOT_DIR}/.vortex/installer/install" "${opt_quiet}" "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
@@ -1306,28 +1303,7 @@ download_installer() {
 
   rm -Rf "install.php" >/dev/null || true
 
-  git init >/dev/null
 
-  if ! git remote | grep -q "installer_origin"; then
-    git remote add installer_origin "https://github.com/drevops/vortex-installer.git" >/dev/null
-  fi
-
-  git fetch installer_origin "${TEST_INSTALLER_REF}" >/dev/null
-
-  # LCOV_EXCL_START
-  if git branch -a | grep -q "remotes/installer_origin/${TEST_INSTALLER_REF}$"; then
-    echo "Checking out the installer from branch ref: ${TEST_INSTALLER_REF}" >&3
-    git checkout "${TEST_INSTALLER_REF}" >/dev/null
-  elif git cat-file -t "${TEST_INSTALLER_REF}" >/dev/null 2>&1; then
-    echo "Checking out the installer from commit ref: ${TEST_INSTALLER_REF}" >&3
-    git checkout "${TEST_INSTALLER_REF}" >/dev/null
-  else
-    echo "The provided reference does not match any branch or commit." >&3
-    exit 1
-  fi
-  # LCOV_EXCL_STOP
-
-  echo "Checkout successful."
 
   composer install --no-progress --no-suggest > /dev/null 2>&1
   composer build > /dev/null 2>&1
