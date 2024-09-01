@@ -6,8 +6,9 @@ commands:
   install:
     name: Install test dependencies.
     cmd: |
-      [ ! -d ./docs/node_modules ] && npm --prefix tests ci
+      [ ! -d ./tests/node_modules ] && npm --prefix tests ci
       [ ! -d ./docs/node_modules ] && npm --prefix docs ci
+      [ ! -d ./installer/node_modules ] && composer --working-dir installer install
 
   docs:
     name: Start documentation server.
@@ -48,7 +49,7 @@ commands:
 
   test-bats:
     cmd: |
-      [ ! -d tests/node_modules ] && ahoy install
+      [ ! -d tests/node_modules ] && npm --prefix tests ci
       tests/node_modules/.bin/bats "$@"
 
   test-common:

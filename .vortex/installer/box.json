@@ -1,0 +1,32 @@
+{
+    "output": "build/installer",
+    "banner": [
+        "@file",
+        "Vortex CLI installer.",
+        "",
+        "<!-- -->",
+        "CLI installer for <a href=\"https://github.com/drevops/vortex\">Vortex</a> project.<br/>",
+        "Run in your terminal:<br/>",
+        "<code>curl -SsL https://vortex.drevops.com/install > install.php && php install.php</code><br/>",
+        "More details: <a href=\"https://vortex.drevops.com\">https://vortex.drevops.com</a>",
+        "<!--"
+    ],
+    "finder": [
+        {
+            "in": "./",
+            "exclude": [
+                "tests",
+                "vendor-bin"
+            ]
+        }
+    ],
+    "blacklist": [
+        "box.json",
+        "phpcs.xml",
+        "phpmd.xml",
+        "phpstan.neon"
+    ],
+    "replacements": {
+        "git-tag-ci": "dev"
+    }
+}

@@ -1,0 +1,7 @@
+/build
+/.coverage-html
+/.phpunit.cache
+/cobertura.xml
+/composer.lock
+/vendor
+/vendor-bin
