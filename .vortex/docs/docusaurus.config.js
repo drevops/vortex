@@ -151,6 +151,20 @@ const config = {
         },
       },
     }),
+
+  plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          {
+            from: '/quickstart',
+            to: '/getting-started/installation',
+          },
+        ],
+      },
+    ],
+  ],
 };
 
 export default config;
