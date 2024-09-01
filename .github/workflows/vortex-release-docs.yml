@@ -60,7 +60,7 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: vortex-installer
           path: .vortex/installer/build/installer
@@ -90,7 +90,7 @@ jobs:
         uses: shivammathur/setup-php@v2
 
       - name: Download installer
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: vortex-installer
 
@@ -117,18 +117,7 @@ jobs:
       - name: Upload documentation site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ".vortex/docs/build"
+          path: .vortex/docs/build
 
-      - name: Setup SSH private key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.DOCS_PUBLISH_SSH_PRIVATE_KEY }}
-
-      - name: Publish docs
-        run: |
-          cd "${GITHUB_WORKSPACE}/.vortex/docs"
-          export DOCS_PUBLISH_SRC_DIR="${GITHUB_WORKSPACE}/.vortex/docs/build"
-          export DOCS_PUBLISH_REMOTE_URL=git@github.com:drevops/vortex-docs.git
-          export DOCS_PUBLISH_COMMIT_MESSAGE="Automatically pushed from drevops/vortex"
-          export DOCS_PUBLISH_GIT_EMAIL="deployer+vortex@drevops.com"
-          ./.utils/publish.sh
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
