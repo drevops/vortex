@@ -15,6 +15,12 @@ commands:
       [ ! -d ./docs/node_modules ] && npm --prefix docs ci
       npm --prefix docs run start
 
+  docs-serve:
+    name: Serve built documentation.
+    cmd: |
+      [ ! -d ./docs/node_modules ] && npm --prefix docs ci
+      npm --prefix docs run serve
+
   build-docs:
     name: Build documentation.
     cmd: |
