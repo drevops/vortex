@@ -29,6 +29,17 @@ aliases:
   #;> !PROVISION_USE_PROFILE
 
   #;< RENOVATEBOT
+  # Specify the correct repository to prevent the bot from accessing all
+  # repositories available via $RENOVATE_TOKEN.
+  #;< SCAFFOLD_DEV
+  - &renovatebot_repository 'drevops/vortex-destination'
+  #;> SCAFFOLD_DEV
+  ##### - &renovatebot_repository 'your_org/your_site'
+  # The author details to use for commits made by RenovateBot.
+  #;< SCAFFOLD_DEV
+  - &renovatebot_git_author 'Renovate Self Hosted <deployer+renovatebot@drevops.com>'
+  #;> SCAFFOLD_DEV
+  ##### - &renovatebot_git_author 'RenovateBot Self Hosted <renovatebot@your-site-url.example>'
   # The schedule to run RenovateBot on. Defaults to running twice a day.
   - &renovatebot_schedule "5 11,23 * * *"
   #;> RENOVATEBOT
@@ -401,11 +412,11 @@ jobs:
         environment:
           RENOVATE_PLATFORM: 'github'
           RENOVATE_AUTODISCOVER: false
-          RENOVATE_REPOSITORIES: "${RENOVATE_REPOSITORIES:-${CIRCLE_PROJECT_REPONAME}/${CIRCLE_PROJECT_USERNAME}}"
-          RENOVATE_DEPENDENCY_DASHBOARD_TITLE: "${RENOVATE_DEPENDENCY_DASHBOARD_TITLE:-'RenovateBot Dependency Dashboard (self-hosted)'}"
-          RENOVATE_DEPENDENCY_DASHBOARD: "${RENOVATE_DEPENDENCY_DASHBOARD:-false}"
-          RENOVATE_DRY_RUN: "${RENOVATE_DRY_RUN:-false}"
-          RENOVATE_GIT_AUTHOR: "${RENOVATE_GIT_AUTHOR:-'Renovate Self Hosted <renovatebot@your-site-url.example>'}"
+          RENOVATE_DEPENDENCY_DASHBOARD_TITLE: 'RenovateBot Dependency Dashboard (self-hosted)'
+          RENOVATE_DEPENDENCY_DASHBOARD: false
+          RENOVATE_DRY_RUN: false
+          RENOVATE_REPOSITORIES: *renovatebot_repository
+          RENOVATE_GIT_AUTHOR: *renovatebot_git_author
     steps:
       - checkout
       - run: renovate-config-validator
