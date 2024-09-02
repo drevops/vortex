@@ -244,7 +244,7 @@ assert_files_present_common() {
   assert_file_contains .env "VORTEX_PROJECT=${suffix}"
 
   # Assert that Vortex version was replaced.
-  assert_file_contains "README.md" "badge/Vortex-${VORTEX_VERSION:-develop}-blue.svg"
+  assert_file_contains "README.md" "badge/Vortex-${VORTEX_VERSION:-develop}-5909A1.svg"
   assert_file_contains "README.md" "https://github.com/drevops/vortex/tree/${VORTEX_VERSION:-develop}"
   assert_file_not_contains "README.md" "The following list includes"
   assert_file_not_exists "README.dist.md"
@@ -849,6 +849,8 @@ assert_files_present_integration_renovatebot() {
 
   pushd "${dir}" >/dev/null || exit 1
 
+  assert_file_contains "README.md" "Automated updates"
+
   assert_file_exists "renovate.json"
 
   assert_file_contains ".circleci/config.yml" "renovatebot-self-hosted"
@@ -863,10 +865,13 @@ assert_files_present_no_integration_renovatebot() {
 
   pushd "${dir}" >/dev/null || exit 1
 
+  assert_file_not_contains "README.md" "Automated updates"
+
   assert_file_not_exists "renovate.json"
 
   assert_file_not_contains ".circleci/config.yml" "renovatebot-self-hosted"
   assert_file_not_contains ".circleci/config.yml" "renovatebot_schedule"
+
 
   popd >/dev/null || exit 1
 }
@@ -900,7 +905,7 @@ Drupal 10 implementation of ${name} for ${org}
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY VORTEX TO TRACK INTEGRATION)
 
-[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
+[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-5909A1.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
 
 some other text
 EOT

@@ -7,13 +7,13 @@ Drupal 10 implementation of YOURSITE for YOURORG
 
 [//]: # (#;< RENOVATEBOT)
 
-[![RenovateBot](https://img.shields.io/badge/RenovateBot-enabled-brightgreen.svg?logo=renovatebot)](https://renovatebot.com)
+![Automated updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
 
 [//]: # (#;> RENOVATEBOT)
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY VORTEX TO TRACK INTEGRATION)
 
-[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-blue.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
+[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-5909A1.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
 
 ## Onboarding to Vortex
 Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding
@@ -21,10 +21,7 @@ to Vortex progress. Remove this section once onboarding is finished.
 
 ## Local environment setup
 
-- Make sure that you have latest versions of all required software installed:
-  - [Docker](https://www.docker.com/)
-  - [Pygmy](https://github.com/pygmystack/pygmy)
-  - [Ahoy](https://github.com/ahoy-cli/ahoy)
+- Make sure that you have latest versions of all required software installed: [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy)
 - Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 - Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).
 
