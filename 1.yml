@@ -1,0 +1,426 @@
+version: 2
+jobs:
+
+  database:
+    working_directory: ~/project
+    environment:
+      - VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+      - VORTEX_DEPLOY_SSH_FINGERPRINT: 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+    docker:
+      - image: drevops/ci-runner:24.8.0
+        auth:
+          username: ${VORTEX_CONTAINER_REGISTRY_USER}
+          password: ${VORTEX_CONTAINER_REGISTRY_PASS}
+        environment:
+          TZ: Australia/Melbourne
+          TERM: xterm-256color
+          VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
+          VORTEX_CI_DB_CACHE_FALLBACK: 'yes'
+          VORTEX_CI_DB_CACHE_BRANCH: develop
+          VORTEX_CI_TEST_RESULTS: /tmp/tests
+          VORTEX_CI_ARTIFACTS: /tmp/artifacts
+          VORTEX_EXPORT_CODE_DIR: /tmp/workspace/code
+          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
+          VORTEX_DEPLOY_ARTIFACT_ROOT: ~/project
+          VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
+          VORTEX_DOCTOR_CHECK_MINIMAL: 1
+    resource_class: medium
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - add_ssh_keys:
+          fingerprints:
+            - 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+      - checkout
+      - run:
+          name: Process codebase to run in CI
+          command: |
+            find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+            mkdir -p /tmp/workspace/code
+      - setup_remote_docker:
+          docker_layer_caching: false
+          version: default
+      - run:
+          command: docker network prune -f >/dev/null 2>&1 && docker network inspect amazeeio-network >/dev/null 2>&1 || docker network create amazeeio-network >/dev/null 2>&1 || true
+      - run:
+          name: Create cache keys for database caching as files
+          command: |
+            echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
+            echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" | tee /tmp/db_cache_fallback
+            echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
+            echo "yes" | tee /tmp/db_cache_fallback_yes
+            echo 'v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
+      - restore_cache:
+          keys:
+            - v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+      - run:
+          name: Download DB
+          command: VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
+          no_output_timeout: 30m
+      - run:
+          name: Export DB after download
+          command: |
+            [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+            ./scripts/vortex/login-container-registry.sh
+            docker compose up -d && sleep 15
+            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
+            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
+            ./scripts/vortex/export-db.sh db.sql
+          no_output_timeout: 30m
+      - save_cache:
+          key: v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          paths:
+            - /root/project/.data
+
+  database-nightly:
+    working_directory: ~/project
+    environment:
+      - VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+      - VORTEX_DEPLOY_SSH_FINGERPRINT: 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+      - VORTEX_CI_DB_CACHE_FALLBACK: 'no'
+      - VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:24.4.0
+      - VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
+    docker:
+      - image: drevops/ci-runner:24.8.0
+        auth:
+          username: ${VORTEX_CONTAINER_REGISTRY_USER}
+          password: ${VORTEX_CONTAINER_REGISTRY_PASS}
+        environment:
+          TZ: Australia/Melbourne
+          TERM: xterm-256color
+          VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
+          VORTEX_CI_DB_CACHE_FALLBACK: 'yes'
+          VORTEX_CI_DB_CACHE_BRANCH: develop
+          VORTEX_CI_TEST_RESULTS: /tmp/tests
+          VORTEX_CI_ARTIFACTS: /tmp/artifacts
+          VORTEX_EXPORT_CODE_DIR: /tmp/workspace/code
+          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
+          VORTEX_DEPLOY_ARTIFACT_ROOT: ~/project
+          VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
+          VORTEX_DOCTOR_CHECK_MINIMAL: 1
+    resource_class: medium
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - add_ssh_keys:
+          fingerprints:
+            - 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+      - checkout
+      - run:
+          name: Process codebase to run in CI
+          command: |
+            find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+            mkdir -p /tmp/workspace/code
+      - setup_remote_docker:
+          docker_layer_caching: false
+          version: default
+      - run:
+          command: docker network prune -f >/dev/null 2>&1 && docker network inspect amazeeio-network >/dev/null 2>&1 || docker network create amazeeio-network >/dev/null 2>&1 || true
+      - run:
+          name: Create cache keys for database caching as files
+          command: |
+            echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
+            echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" | tee /tmp/db_cache_fallback
+            echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
+            echo "yes" | tee /tmp/db_cache_fallback_yes
+            echo 'v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
+      - restore_cache:
+          keys:
+            - v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+      - run:
+          name: Download DB
+          command: VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
+          no_output_timeout: 30m
+      - run:
+          name: Export DB after download
+          command: |
+            [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+            ./scripts/vortex/login-container-registry.sh
+            docker compose up -d && sleep 15
+            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
+            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
+            ./scripts/vortex/export-db.sh db.sql
+          no_output_timeout: 30m
+      - save_cache:
+          key: v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          paths:
+            - /root/project/.data
+
+  build:
+    working_directory: ~/project
+    environment:
+      - VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+      - VORTEX_DEPLOY_SSH_FINGERPRINT: 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+    docker:
+      - image: drevops/ci-runner:24.8.0
+        auth:
+          username: ${VORTEX_CONTAINER_REGISTRY_USER}
+          password: ${VORTEX_CONTAINER_REGISTRY_PASS}
+        environment:
+          TZ: Australia/Melbourne
+          TERM: xterm-256color
+          VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
+          VORTEX_CI_DB_CACHE_FALLBACK: 'yes'
+          VORTEX_CI_DB_CACHE_BRANCH: develop
+          VORTEX_CI_TEST_RESULTS: /tmp/tests
+          VORTEX_CI_ARTIFACTS: /tmp/artifacts
+          VORTEX_EXPORT_CODE_DIR: /tmp/workspace/code
+          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
+          VORTEX_DEPLOY_ARTIFACT_ROOT: ~/project
+          VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
+          VORTEX_DOCTOR_CHECK_MINIMAL: 1
+    resource_class: medium
+    parallelism: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run:
+          name: Process codebase to run in CI
+          command: |
+            find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+            mkdir -p /tmp/workspace/code
+      - setup_remote_docker:
+          docker_layer_caching: false
+          version: default
+      - run:
+          command: docker network prune -f >/dev/null 2>&1 && docker network inspect amazeeio-network >/dev/null 2>&1 || docker network create amazeeio-network >/dev/null 2>&1 || true
+      - run:
+          name: Set cache keys for database caching
+          command: |
+            echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
+            echo "yes" | tee /tmp/db_cache_fallback_yes
+            echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
+      - restore_cache:
+          keys:
+            - v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+      - run:
+          name: Lint Dockerfiles with Hadolint
+          command: |
+            for file in $(find .docker -name 'Dockerfile' -o -name '*.dockerfile'); do
+              echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${VORTEX_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+            done
+      - run:
+          name: Login to container registry
+          command: ./scripts/vortex/login-container-registry.sh
+      - run:
+          name: Build stack
+          command: docker compose up -d
+      - run:
+          name: Export built codebase
+          command: |
+            mkdir -p "${VORTEX_EXPORT_CODE_DIR}"
+            docker compose cp -L cli:"/app/." "${VORTEX_EXPORT_CODE_DIR}"
+      - run:
+          name: Validate Composer configuration
+          command: docker compose exec cli composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Install development dependencies
+          command: |
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
+              if [ -n \"${GITHUB_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN-}\"}}'; fi && \
+              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+      - run:
+          name: Lint code with PHPCS
+          command: docker compose exec -T cli vendor/bin/phpcs || [ "${VORTEX_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Lint code with PHPStan
+          command: docker compose exec -T cli vendor/bin/phpstan || [ "${VORTEX_CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Lint code with Rector
+          command: docker compose exec -T cli vendor/bin/rector --clear-cache --dry-run || [ "${VORTEX_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Lint code with PHPMD
+          command: docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml || [ "${VORTEX_CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Lint code with Twig CS Fixer
+          command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Lint code with Gherkin Lint
+          command: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Lint code with NPM linters
+          command: docker compose exec -T cli bash -c "npm run --prefix \${VORTEX_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${VORTEX_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+      - run:
+          name: Provision site
+          command: |
+            if [ -f .data/db.sql ]; then
+              docker compose exec cli mkdir -p .data
+              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            fi
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
+          no_output_timeout: 30m
+      - run:
+          name: Test with PHPUnit
+          command: |
+            XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
+            docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
+            docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
+      - run:
+          name: Test with Behat
+          command: |
+            if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}"; fi
+            echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
+            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+              docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+              [ "${VORTEX_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
+          no_output_timeout: 30m
+      - run:
+          name: Process test logs and artifacts
+          command: |
+            mkdir -p "${VORTEX_CI_TEST_RESULTS}" "${VORTEX_CI_ARTIFACTS}"
+            if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
+               docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
+              if docker compose exec -T cli sh -c '[ -d /app/.logs/test_results/ ]'; then
+                 docker compose cp cli:/app/.logs/test_results/. "${VORTEX_CI_TEST_RESULTS}/"
+              fi
+            fi
+          when: always
+      - store_test_results:
+          path: /tmp/tests
+      - store_artifacts:
+          path: /tmp/artifacts
+      - run:
+          name: Upload code coverage reports to Codecov
+          command: if [ -n "${CODECOV_TOKEN}" ] && [ -d /tmp/artifacts/coverage ]; then codecov -Z -s /tmp/artifacts/coverage; fi
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - code
+
+
+  deploy:
+    working_directory: ~/project
+    environment:
+      - VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+      - VORTEX_DEPLOY_SSH_FINGERPRINT: 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+    docker:
+      - image: drevops/ci-runner:24.8.0
+        auth:
+          username: ${VORTEX_CONTAINER_REGISTRY_USER}
+          password: ${VORTEX_CONTAINER_REGISTRY_PASS}
+        environment:
+          TZ: Australia/Melbourne
+          TERM: xterm-256color
+          VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
+          VORTEX_CI_DB_CACHE_FALLBACK: 'yes'
+          VORTEX_CI_DB_CACHE_BRANCH: develop
+          VORTEX_CI_TEST_RESULTS: /tmp/tests
+          VORTEX_CI_ARTIFACTS: /tmp/artifacts
+          VORTEX_EXPORT_CODE_DIR: /tmp/workspace/code
+          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
+          VORTEX_DEPLOY_ARTIFACT_ROOT: ~/project
+          VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
+          VORTEX_DOCTOR_CHECK_MINIMAL: 1
+    resource_class: medium
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - add_ssh_keys:
+          fingerprints:
+            - 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+      - checkout
+      - run:
+          name: Process codebase to run in CI
+          command: |
+            find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+            mkdir -p /tmp/workspace/code
+      - run:
+          command: |
+            VORTEX_DEPLOY_BRANCH="${CIRCLE_BRANCH}" \
+            VORTEX_DEPLOY_PR="$(echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f 7)" \
+            VORTEX_DEPLOY_PR_HEAD=${CIRCLE_SHA1} \
+            ./scripts/vortex/deploy.sh
+          no_output_timeout: 30m
+      - store_artifacts:
+          path: /tmp/artifacts
+
+  deploy-tags:
+    working_directory: ~/project
+    environment:
+    - VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+    - VORTEX_DEPLOY_SSH_FINGERPRINT: 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+    docker:
+    - image: drevops/ci-runner:24.8.0
+      auth:
+        username: ${VORTEX_CONTAINER_REGISTRY_USER}
+        password: ${VORTEX_CONTAINER_REGISTRY_PASS}
+      environment:
+        TZ: Australia/Melbourne
+        TERM: xterm-256color
+        VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
+        VORTEX_CI_DB_CACHE_FALLBACK: 'yes'
+        VORTEX_CI_DB_CACHE_BRANCH: develop
+        VORTEX_CI_TEST_RESULTS: /tmp/tests
+        VORTEX_CI_ARTIFACTS: /tmp/artifacts
+        VORTEX_EXPORT_CODE_DIR: /tmp/workspace/code
+        VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
+        VORTEX_DEPLOY_ARTIFACT_ROOT: ~/project
+        VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
+        VORTEX_DOCTOR_CHECK_MINIMAL: 1
+    resource_class: medium
+    steps:
+    - attach_workspace:
+        at: /tmp/workspace
+    - add_ssh_keys:
+        fingerprints:
+        - 56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1
+    - checkout
+    - run:
+        name: Process codebase to run in CI
+        command: |
+          find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+          mkdir -p /tmp/workspace/code
+    - run:
+        command: VORTEX_DEPLOY_MODE="tag" ./scripts/vortex/deploy.sh
+        no_output_timeout: 30m
+    - store_artifacts:
+        path: /tmp/artifacts
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+    - database:
+        filters:
+          tags:
+            only: /.*/
+    - build:
+        filters:
+          tags:
+            only: /.*/
+        requires:
+        - database
+    - deploy:
+        filters:
+          branches:
+            only: /^(production|main|master|develop)$|^project\/[a-zA-z0-9\-\.]+|^(feature|bugfix)\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^deps\/.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+          tags:
+            ignore: /.*/
+        requires:
+        - build
+    - deploy-tags:
+        filters:
+          branches:
+            ignore: /.*/
+          tags:
+            only: /^[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+        requires:
+        - build
+
+  nightly-db:
+    triggers:
+    - schedule:
+        cron: 0 18 * * *
+        filters:
+          branches:
+            only:
+            - develop
+    jobs:
+    - database-nightly
+
