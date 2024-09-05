@@ -61,7 +61,7 @@ jobs:
           [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
           ./scripts/vortex/login-container-registry.sh
           echo "==> Starting stack"
-          docker compose up -d
+          docker compose up --detach
           sleep 15
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
