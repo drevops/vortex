@@ -52,6 +52,9 @@ jobs:
           VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
         timeout-minutes: 30
 
+      - run: docker --version
+
+
       - name: Export DB
         run: |
           [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
