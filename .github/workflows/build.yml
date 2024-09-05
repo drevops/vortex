@@ -53,19 +53,22 @@ jobs:
           VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
         timeout-minutes: 30
 
-      - run: docker --version
+      - run: |
+          docker --version
+          pwd
+          ls -al
 
 
       - name: Export DB
         run: |
           [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-          ./scripts/vortex/login-container-registry.sh
-          echo "==> Starting stack"
+          # ./scripts/vortex/login-container-registry.sh
+          # echo "==> Starting stack"
           docker compose up --detach
           sleep 15
-          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
-          ./scripts/vortex/export-db.sh db.sql
+          # docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+          # docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
+          # ./scripts/vortex/export-db.sh db.sql
         timeout-minutes: 30
 
       - name: Upload Database as an artifact
