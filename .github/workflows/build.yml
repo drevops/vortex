@@ -58,30 +58,33 @@ jobs:
           pwd
           ls -al
           apt update
-          apt install sudo
+          apt install sudo ssh -y
+
+      - run: |
+          ssh-keygen -t ed25519 -f ${HOME}/.ssh/id_ed255191 -N ""
 
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
         with:
           wait-timeout-minutes: 5
 
-      - name: Export DB
-        run: |
-          [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-          # ./scripts/vortex/login-container-registry.sh
-          # echo "==> Starting stack"
-          docker compose up --detach
-          sleep 15
-          # docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-          # docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
-          # ./scripts/vortex/export-db.sh db.sql
-        timeout-minutes: 30
-
-      - name: Upload Database as an artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: database
-          path: .data/db.sql
+#      - name: Export DB
+#        run: |
+#          [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+#          # ./scripts/vortex/login-container-registry.sh
+#          # echo "==> Starting stack"
+#          docker compose up --detach
+#          sleep 15
+#          # docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+#          # docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
+#          # ./scripts/vortex/export-db.sh db.sql
+#        timeout-minutes: 30
+#
+#      - name: Upload Database as an artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: database
+#          path: .data/db.sql
 
 
 #      - name: Save DB Cache
