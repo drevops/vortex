@@ -57,6 +57,7 @@ jobs:
           docker --version
           pwd
           ls -al
+          apt update
           apt install sudo
 
       - name: Setup upterm session
