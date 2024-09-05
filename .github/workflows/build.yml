@@ -3,98 +3,140 @@ name: Database, Build and Deploy
 on:
   push:
     branches:
-      - develop
-    tags:
-      - 'v*'
+      # @todo Add properregex.
+      - 'feature/**'
   pull_request:
     branches:
-      - develop
-  schedule:
-    - cron: '0 18 * * *'
+      # @todo Add properregex.
+      - 'feature/**'
+  workflow_dispatch:
+#  schedule:
+#    - cron: '0 18 * * *'
 
 jobs:
   database:
-    name: Database Job
     runs-on: ubuntu-latest
 
+    container:
+      image: drevops/ci-runner:24.8.0
+      env:
+        TZ: Australia/Melbourne
+        TERM: xterm-256color
+
     steps:
-      - name: Checkout code
+      - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      - name: Create cache keys for database
-        id: db_cache_keys
+      - name: Process codebase to run in CI
         run: |
-          echo "db_cache_branch=$(echo develop)" >> $GITHUB_ENV
-          echo "db_cache_fallback=yes" >> $GITHUB_ENV
-          echo "db_cache_timestamp=$(date +%Y%m%d)" >> $GITHUB_ENV
+          find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
+          mkdir -p /tmp/workspace/code
 
-      - name: Restore database cache
-        uses: actions/cache@v3
-        with:
-          path: /root/project/.data
-          key: ${{ runner.os }}-db-${{ steps.db_cache_keys.outputs.db_cache_branch }}-${{ steps.db_cache_keys.outputs.db_cache_fallback }}-${{ steps.db_cache_keys.outputs.db_cache_timestamp }}
+#      - name: Create cache keys for database caching as files
+#        run: |
+#          echo "${{ github.ref }}" | tee /tmp/db_cache_branch
+#          echo "yes" | tee /tmp/db_cache_fallback_yes
+#          echo "$(date +%Y%m%d)" | tee /tmp/db_cache_timestamp
+#          echo "v24.8.0-db10-${{ steps.cache_branch.outputs.checksum }}-${{ steps.cache_fallback.outputs.checksum }}-${{ steps.cache_timestamp.outputs.checksum }}"
 
-      - name: Download and Export DB
+#      - name: Restore DB cache
+#        uses: actions/cache@v3
+#        with:
+#          path: /root/project/.data
+##          key: ${{ steps.cache_branch.outputs.checksum }}-${{ steps.cache_fallback.outputs.checksum }}-${{ steps.cache_timestamp.outputs.checksum }}
+
+      - name: Download DB
         run: |
-          ./scripts/vortex/download-db.sh
+          VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
+        timeout-minutes: 30
+
+      - name: Export DB
+        run: |
+          [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+          ./scripts/vortex/login-container-registry.sh
           docker compose up -d
-          docker compose exec cli mkdir -p .data
-          docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+          sleep 15
+          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
           ./scripts/vortex/export-db.sh db.sql
+        timeout-minutes: 30
 
-      - name: Save database cache
-        uses: actions/cache@v3
+      - name: Upload Database as an artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: /root/project/.data
-          key: ${{ runner.os }}-db-${{ steps.db_cache_keys.outputs.db_cache_branch }}-${{ steps.db_cache_keys.outputs.db_cache_fallback }}-${{ steps.db_cache_keys.outputs.db_cache_timestamp }}
+          name: database
+          path: .data/db.sql
 
-  build:
-    name: Build Job
-    runs-on: ubuntu-latest
-    needs: database
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      - name: Lint Dockerfiles
-        run: |
-          for file in $(find .docker -name 'Dockerfile' -o -name '*.dockerfile'); do
-            docker run --rm -i hadolint/hadolint < $file
-          done
-
-      - name: Build stack
-        run: docker compose up -d
-
-      - name: Test with PHPUnit
-        run: |
-          XDEBUG_ENABLE=true docker compose up -d cli php nginx
-          docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit
-
-  deploy:
-    name: Deploy Job
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/develop'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Deploy application
-        run: ./scripts/vortex/deploy.sh
-
-  renovatebot:
-    name: RenovateBot Job
-    runs-on: ubuntu-latest
-    if: github.event_name == 'schedule'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Run Renovate
-        run: renovate
+#      - name: Save DB Cache
+#        uses: actions/cache@v3
+#        with:
+#          path: /root/project/.data
+#          key: ${{ steps.cache_branch.outputs.checksum }}-${{ steps.cache_fallback_yes.outputs.checksum }}-${{ steps.cache_timestamp.outputs.checksum }}
+#
+#
+#
+#  build:
+#    runs-on: ubuntu-latest
+#    needs: database
+#
+#    container:
+#      image: drevops/ci-runner:24.8.0
+#      env:
+#        TZ: Australia/Melbourne
+#        TERM: xterm-256color
+#
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v3
+#
+#      - name: Process codebase to run in CI
+#        run: |
+#          find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
+#          mkdir -p /tmp/workspace/code
+#
+#      - name: Build Stack
+#        run: docker compose up -d
+#
+#      - name: Download Database as an artifact
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: database
+#          path: .data/db.sql
+#
+#      - run: ls -al .data
+#
+#      - name: Run Tests
+#        run: |
+#          docker compose exec -T cli vendor/bin/phpunit
+#          docker compose exec -T cli vendor/bin/behat --profile=default
+#
+#      - name: Store Artifacts
+#        run: |
+#          mkdir -p /tmp/artifacts
+#          docker compose cp cli:/app/.logs/. /tmp/artifacts/
+#
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: build
+#
+#    container:
+#      image: drevops/ci-runner:24.8.0
+#      env:
+#        TZ: Australia/Melbourne
+#        TERM: xterm-256color
+#
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v3
+#
+#      - name: Process codebase
+#        run: |
+#          find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
+#          mkdir -p /tmp/workspace/code
+#
+#      - name: Deploy
+#        run: |
+#          VORTEX_DEPLOY_BRANCH="${{ github.ref }}"
+#          ./scripts/vortex/deploy.sh
+#        timeout-minutes: 30
