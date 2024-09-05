@@ -127,6 +127,7 @@ commands:
   #;< !PROVISION_USE_PROFILE
   download-db:
     usage: Download database.
+    aliases: ['fetch-db']
     cmd: ./scripts/vortex/download-db.sh
   #;> !PROVISION_USE_PROFILE
 
