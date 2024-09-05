@@ -58,6 +58,10 @@ jobs:
           pwd
           ls -al
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          wait-timeout-minutes: 5
 
       - name: Export DB
         run: |
