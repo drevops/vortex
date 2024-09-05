@@ -22,6 +22,8 @@ jobs:
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color
+        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
 
     steps:
       - name: Check out code
