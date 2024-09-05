@@ -19,6 +19,7 @@ jobs:
 
     container:
       image: drevops/ci-runner:24.8.0
+      options: --privileged
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color
