@@ -9,17 +9,24 @@ on:
     branches:
       # @todo Add properregex.
       - 'feature/**'
-  workflow_dispatch:
 #  schedule:
 #    - cron: '0 18 * * *'
+
+  workflow_dispatch:
+    inputs:
+      enable_terminal:
+        type: boolean
+        description: 'Enable terminal session.'
+        required: false
+        default: false
 
 jobs:
   database:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:24.8.0
-      options: --privileged
+      image: drevops/ci-runner:canary
+      # options: --privileged
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color
@@ -61,44 +68,22 @@ jobs:
           apt update
           apt install sudo ssh -y
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-#
-#      - run: |
-#          ssh-keygen -t ed25519 -f /root/.ssh/id_ed255191 -N ""
-#
-#      - run: |
-#          echo ${HOME}
-#          echo ${USER}
-#
-#      - run: |
-#          mkdir -p /github/home/.upterm
-#          chmod 777 /github/home/.upterm
-#          sudo touch /continue
-#
-#      - name: Setup upterm session
-#        uses: lhotari/action-upterm@v1
-#        with:
-#          wait-timeout-minutes: 5
-#
-#
-#      - run: |
-#          tmux send-keys -t upterm-wrapper q C-m || true
-#
-#      - run: |
-#          cat ~/.upterm/upterm.log
+      - name: Export DB
+        run: |
+          [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+          ./scripts/vortex/login-container-registry.sh
+          docker compose up --detach
+          sleep 15
+          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
+          ./scripts/vortex/export-db.sh db.sql
+        timeout-minutes: 30
 
-#      - name: Export DB
-#        run: |
-#          [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-#          # ./scripts/vortex/login-container-registry.sh
-#          # echo "==> Starting stack"
-#          docker compose up --detach
-#          sleep 15
-#          # docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-#          # docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
-#          # ./scripts/vortex/export-db.sh db.sql
-#        timeout-minutes: 30
+      - name: Setup tmate session
+        if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 5
+
 #
 #      - name: Upload Database as an artifact
 #        uses: actions/upload-artifact@v4
