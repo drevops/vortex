@@ -149,8 +149,8 @@ jobs:
           command: |
             echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
             echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" | tee /tmp/db_cache_fallback
-            echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
             echo "yes" | tee /tmp/db_cache_fallback_yes
+            echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
             echo 'v24.8.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
 
       - restore_cache:

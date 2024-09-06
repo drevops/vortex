@@ -33,6 +33,16 @@ jobs:
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
         VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+        #;< !PROVISION_USE_PROFILE
+        # How often to refresh the cache of the DB dump. Refer to `date` command.
+        VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
+        # Use previous database caches on this branch as a fallback if the above cache
+        # does not match (for example, the cache is available only from the previous
+        # day). If "no" is set, the cache will be rebuilt from scratch.
+        VORTEX_CI_DB_CACHE_FALLBACK: "yes"
+        # Which branch to use as a source of DB caches.
+        VORTEX_CI_DB_CACHE_BRANCH: "develop"
+        #;> !PROVISION_USE_PROFILE
 
     steps:
 
@@ -49,13 +59,13 @@ jobs:
 
       - name: Create cache keys for database caching as files
         run: |
-          echo "${{ github.ref }}" | tee /tmp/db_cache_branch
-          echo "yes" | tee /tmp/db_cache_fallback_yes
-          echo "$(date +%Y%m%d)" | tee /tmp/db_cache_timestamp
-          echo 'v24.8.0-db10-${{ hashFiles('/tmp/db_cache_branch') }}-${{ hashFiles('/tmp/db_cache_fallback') }}-${{ hashFiles('/tmp/db_cache_timestamp') }}'
+          echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee db_cache_branch
+          echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${GITHUB_RUN_NUMBER}}" | tee db_cache_fallback
+          echo "yes" | tee db_cache_fallback_yes
+          echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee db_cache_timestamp
+          echo 'v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}'
 
       # Restore DB cache based on the cache strategy set by the cache keys below.
-      # @see https://circleci.com/docs/2.0/caching/#restoring-cache
       # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
@@ -63,11 +73,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /root/project/.data
-          key: v24.8.0-db10-${{ hashFiles('/tmp/db_cache_branch') }}-${{ hashFiles('/tmp/db_cache_fallback') }}-${{ hashFiles('/tmp/db_cache_timestamp') }}
+          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
           # Fallback to caching by default branch name only. Allows to use
           # cache from the branch build on the previous day.
           restore-keys: |
-            v24.8.0-db10-${{ hashFiles('/tmp/db_cache_branch') }}-${{ hashFiles('/tmp/db_cache_fallback') }}-
+            v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
 
       - name: Download DB
         run: |
@@ -94,7 +104,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: /root/project/.data
-          key: v24.8.0-db10-${{ hashFiles('/tmp/db_cache_branch') }}-${{ hashFiles('/tmp/db_cache_fallback_yes') }}-${{ hashFiles('/tmp/db_cache_timestamp') }}
+          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 
       - name: Upload Database as an artifact
         uses: actions/upload-artifact@v4
