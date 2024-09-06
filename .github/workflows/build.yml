@@ -76,7 +76,7 @@ jobs:
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache@v3
+        uses: actions/cache/restore@v4
         with:
           path: /root/project/.data
           key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
@@ -165,7 +165,7 @@ jobs:
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache@v3
+        uses: actions/cache/restore@v4
         with:
           path: /root/project/.data
           fail-on-cache-miss: true
