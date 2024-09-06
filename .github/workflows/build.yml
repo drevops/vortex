@@ -170,9 +170,10 @@ jobs:
           path: /root/project/.data
           fail-on-cache-miss: true
           # Use cached artifacts from previous builds of this branch.
-          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
-          restore-keys: |
-            v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+#          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v24.8.0-db10-3f95decab521a32a4d476ea86052d97199f84089001637d37c5bdffa85c92374-91a41257c14a054eebaee666930905f71aa6074e2450ed8b82e2ff4d7ac77228-dbc7bb14173d7cb34d11f878b1d20add7e450140b5728333633639a62af47f74
+#          restore-keys: |
+#            v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
 
       - run: ls -al /root/project/.data || true
 #
