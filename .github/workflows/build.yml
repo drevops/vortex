@@ -48,89 +48,93 @@ jobs:
 
       - name: Preserve $HOME set in the container
         run: echo HOME=/root >> $GITHUB_ENV
-
-      - name: $GITHUB_WORKSPACE
-        run: echo $GITHUB_WORKSPACE
+#
+#      - name: $GITHUB_WORKSPACE
+#        run: |
+#          echo $GITHUB_WORKSPACE
+#          mkdir -p /__w/vortex/vortex
 
       - name: Check out code
         uses: actions/checkout@v3
-
-      - name: Process codebase to run in CI
-        run: |
-          find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
-          mkdir -p /tmp/workspace/code
+#
+#      - name: Process codebase to run in CI
+#        run: |
+#          find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
+#          mkdir -p /tmp/workspace/code
 
       - name: Create cache keys for database caching as files
+        shell: bash
+
         run: |
-          echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /__w/vortex/vortex/db_cache_branch
-          echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${GITHUB_RUN_NUMBER}}" | tee /__w/vortex/vortex/db_cache_fallback
-          echo "yes" | tee /__w/vortex/vortex/db_cache_fallback_yes
-          echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /__w/vortex/vortex/db_cache_timestamp
-          echo "##db_cache_branch##"
-          cat /__w/vortex/vortex/db_cache_branch
-          echo "##db_cache_fallback##"
-          cat /__w/vortex/vortex/db_cache_fallback
-          echo "##db_cache_fallback_yes##"
-          cat /__w/vortex/vortex/db_cache_fallback_yes
-          echo "##db_cache_timestamp##"
-          cat /__w/vortex/vortex/db_cache_timestamp
-          echo 'v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}'
+          echo "##WORKSPACE##"
+          echo $GITHUB_WORKSPACE
 
-      # Restore DB cache based on the cache strategy set by the cache keys below.
-      # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
-      # Lookup cache based on the default branch and a timestamp. Allows
-      # to use cache from the very first build on the day (sanitized database dump, for example).
-      - name: Restore DB cache
-        uses: actions/cache@v3
-        with:
-          path: /root/project/.data
-          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
-          # Fallback to caching by default branch name only. Allows to use
-          # cache from the branch build on the previous day.
-          restore-keys: |
-            v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
-
-      - name: Download DB
-        run: |
-          VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
-        timeout-minutes: 30
-
-      - name: Export DB
-        run: |
-          [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-          ./scripts/vortex/login-container-registry.sh
-          docker compose up --detach
-          sleep 15
-          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
-          ./scripts/vortex/export-db.sh db.sql
-        timeout-minutes: 30
-        continue-on-error: true
-
-      # Save cache per default branch and the timestamp.
-      # The cache will not be saved if it already exists.
-      # Note that the cache fallback flag is enabled for this case in order
-      # to save cache even if the fallback is not used when restoring it.
-      - name: Save DB cache
-        uses: actions/cache/save@v4
-        with:
-          path: /root/project/.data
-          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
-
-      - name: Upload Database as an artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: database
-          path: .data/db.sql
-
-      - name: Setup tmate session
-        if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 5
-        with:
-          detached: true
-
+          echo "##BRANCH##"
+          echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee db_cache_branch.txt
+          echo "develop" > db_cache_branch2.txt
+          echo "##PART##"
+          echo "v24.8.0-db10--branch-${{ hashFiles('**/db_cache_branch.txt') }}-end"
+          echo "v24.8.0-db10--branch-${{ hashFiles('**/db_cache_branch2.txt') }}-end"
+          echo "v24.8.0-db10--branch-${{ hashFiles('README.md') }}-end"
+          echo "##README##"
+          echo "pre-${{ hashFiles('README.md') }}-post"
+          echo "pre-${{ hashFiles('phpstan.neon') }}-post"
 #
+#      # Restore DB cache based on the cache strategy set by the cache keys below.
+#      # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
+#      # Lookup cache based on the default branch and a timestamp. Allows
+#      # to use cache from the very first build on the day (sanitized database dump, for example).
+#      - name: Restore DB cache
+#        uses: actions/cache@v3
+#        with:
+#          path: /root/project/.data
+#          key: v24.8.0-db10--branch-${{ hashFiles('db_cache_fallback') }}--${{ hashFiles('db_cache_timestamp') }}
+#          # Fallback to caching by default branch name only. Allows to use
+#          # cache from the branch build on the previous day.
+#          restore-keys: |
+#            v24.8.0-db10--branch-${{ hashFiles('db_cache_fallback') }}-
+#
+#      - name: Download DB
+#        run: |
+#          VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
+#        timeout-minutes: 30
+#
+#      - name: Export DB
+#        run: |
+#          [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+#          ./scripts/vortex/login-container-registry.sh
+#          docker compose up --detach
+#          sleep 15
+#          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+#          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
+#          ./scripts/vortex/export-db.sh db.sql
+#        timeout-minutes: 30
+#        continue-on-error: true
+#
+#      # Save cache per default branch and the timestamp.
+#      # The cache will not be saved if it already exists.
+#      # Note that the cache fallback flag is enabled for this case in order
+#      # to save cache even if the fallback is not used when restoring it.
+#      - name: Save DB cache
+#        uses: actions/cache/save@v4
+#        with:
+#          path: /root/project/.data
+#          key: v24.8.0-db10--branch-${{ hashFiles('db_cache_fallback_yes') }}--${{ hashFiles('db_cache_timestamp') }}
+#
+#      - name: Upload Database as an artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: database
+#          path: .data/db.sql
+#
+#      - name: Setup tmate session
+#        if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
+#        uses: mxschmitt/action-tmate@v3
+#        timeout-minutes: 5
+#        with:
+#          detached: true
+#
+##
 #  build:
 #    runs-on: ubuntu-latest
 #    needs: database
