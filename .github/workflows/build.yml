@@ -35,8 +35,24 @@ jobs:
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 
     steps:
+
+      - run: |
+          apt update
+          apt install sudo ssh -y
+
+      - shell: bash
+        run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
+
+      - run: |
+          echo $HOME
+          ls -al $HOME/.
+          ls -al /root/.
+          ls -al /github/home/.
+
       - name: Check out code
         uses: actions/checkout@v3
+
+
 
       - name: Process codebase to run in CI
         run: |
@@ -60,18 +76,6 @@ jobs:
         run: |
           VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
         timeout-minutes: 30
-
-      - run: |
-          apt update
-          apt install sudo ssh -y
-
-
-      - shell: bash
-        run: 'echo HOME=/home/sf | sudo tee -a $GITHUB_ENV'
-
-      - run: |
-          ls -al /github/home/.
-
 
       - name: Export DB
         run: |
