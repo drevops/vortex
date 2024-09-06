@@ -71,11 +71,22 @@ jobs:
       - run: |
           mkdir -p /github/home/.upterm
           chmod 777 /github/home/.upterm
+          sudo touch /continue
 
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
         with:
           wait-timeout-minutes: 5
+
+
+      - run: |
+          tmux send-keys -t upterm-wrapper q C-m || true
+
+      - run: |
+          ls -al ~/.upterm/ || true
+
+      - run: |
+          ls -al /root/.upterm/ || true
 
 #      - name: Export DB
 #        run: |
