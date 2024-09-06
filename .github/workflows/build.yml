@@ -49,7 +49,7 @@ jobs:
       - name: Preserve $HOME set in the container
         run: echo HOME=/root >> $GITHUB_ENV
 
-      - name: $GITHUB_WORKSPACE/
+      - name: $GITHUB_WORKSPACE
         run: echo $GITHUB_WORKSPACE
 
       - name: Check out code
@@ -62,10 +62,10 @@ jobs:
 
       - name: Create cache keys for database caching as files
         run: |
-          echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee $GITHUB_WORKSPACE/db_cache_branch
-          echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${GITHUB_RUN_NUMBER}}" | tee $GITHUB_WORKSPACE/db_cache_fallback
-          echo "yes" | tee $GITHUB_WORKSPACE/db_cache_fallback_yes
-          echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee $GITHUB_WORKSPACE/db_cache_timestamp
+          echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /__w/vortex/vortex/db_cache_branch
+          echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${GITHUB_RUN_NUMBER}}" | tee /__w/vortex/vortex/db_cache_fallback
+          echo "yes" | tee /__w/vortex/vortex/db_cache_fallback_yes
+          echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /__w/vortex/vortex/db_cache_timestamp
           echo 'v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}'
 
       # Restore DB cache based on the cache strategy set by the cache keys below.
