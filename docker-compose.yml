@@ -120,8 +120,8 @@ services:
     depends_on:
       - cli
     networks:
-      - amazeeio-network # This network is supported by Pygmy and used to route all requests to host machine.
       - default # This is a standard network and is used for all other environments, where requests routing is not required and/or not supported.
+      - amazeeio-network ### This network is supported by Pygmy and used to route all requests to host machine locally. Removed in CI.
     #;< LAGOON
     labels:
       lagoon.type: nginx-php-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -244,9 +244,9 @@ services:
       lagoon.type: none # Do not deploy in Lagoon.
     #;> LAGOON
 
-networks:
-  amazeeio-network:
-    external: true
+networks:           ### Use networks locally. Automatically removed in CI.
+  amazeeio-network: ### Automatically removed in CI.
+    external: true  ### Automatically removed in CI.
 
 volumes:
   app: {}

@@ -9,8 +9,8 @@ on:
     branches:
       # @todo Add properregex.
       - 'feature/**'
-#  schedule:
-#    - cron: '0 18 * * *'
+  #  schedule:
+  #    - cron: '0 18 * * *'
 
   workflow_dispatch:
     inputs:
@@ -26,7 +26,7 @@ jobs:
 
     container:
       image: drevops/ci-runner:24.8.0
-      # options: --privileged
+
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color
@@ -36,43 +36,38 @@ jobs:
 
     steps:
 
-#      - run: |
-#          apt update
-#          apt install sudo ssh -y
-
-      - shell: bash
+      - name: Preserve $HOME set in the container
         run: echo HOME=/root >> $GITHUB_ENV
-#        run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
-
-      - run: |
-          echo $HOME
-          ls -al $HOME/.
-          ls -al /root/.
-          ls -al /github/home/.
 
       - name: Check out code
         uses: actions/checkout@v3
-
-
 
       - name: Process codebase to run in CI
         run: |
           find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
           mkdir -p /tmp/workspace/code
-          docker network prune -f >/dev/null 2>&1 && docker network inspect amazeeio-network >/dev/null 2>&1 || docker network create amazeeio-network >/dev/null 2>&1 || true
 
-#      - name: Create cache keys for database caching as files
-#        run: |
-#          echo "${{ github.ref }}" | tee /tmp/db_cache_branch
-#          echo "yes" | tee /tmp/db_cache_fallback_yes
-#          echo "$(date +%Y%m%d)" | tee /tmp/db_cache_timestamp
-#          echo "v24.8.0-db10-${{ steps.cache_branch.outputs.checksum }}-${{ steps.cache_fallback.outputs.checksum }}-${{ steps.cache_timestamp.outputs.checksum }}"
+      - name: Create cache keys for database caching as files
+        run: |
+          echo "${{ github.ref }}" | tee /tmp/db_cache_branch
+          echo "yes" | tee /tmp/db_cache_fallback_yes
+          echo "$(date +%Y%m%d)" | tee /tmp/db_cache_timestamp
+          echo 'v24.8.0-db10-${{ hashFiles('/tmp/db_cache_branch') }}-${{ hashFiles('/tmp/db_cache_fallback') }}-${{ hashFiles('/tmp/db_cache_timestamp') }}'
 
-#      - name: Restore DB cache
-#        uses: actions/cache@v3
-#        with:
-#          path: /root/project/.data
-##          key: ${{ steps.cache_branch.outputs.checksum }}-${{ steps.cache_fallback.outputs.checksum }}-${{ steps.cache_timestamp.outputs.checksum }}
+      # Restore DB cache based on the cache strategy set by the cache keys below.
+      # @see https://circleci.com/docs/2.0/caching/#restoring-cache
+      # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
+      # Lookup cache based on the default branch and a timestamp. Allows
+      # to use cache from the very first build on the day (sanitized database dump, for example).
+      - name: Restore DB cache
+        uses: actions/cache@v3
+        with:
+          path: /root/project/.data
+          key: v24.8.0-db10-${{ hashFiles('/tmp/db_cache_branch') }}-${{ hashFiles('/tmp/db_cache_fallback') }}-${{ hashFiles('/tmp/db_cache_timestamp') }}
+          # Fallback to caching by default branch name only. Allows to use
+          # cache from the branch build on the previous day.
+          restore-keys: |
+            v24.8.0-db10-${{ hashFiles('/tmp/db_cache_branch') }}-${{ hashFiles('/tmp/db_cache_fallback') }}-
 
       - name: Download DB
         run: |
@@ -91,29 +86,29 @@ jobs:
         timeout-minutes: 30
         continue-on-error: true
 
+      # Save cache per default branch and the timestamp.
+      # The cache will not be saved if it already exists.
+      # Note that the cache fallback flag is enabled for this case in order
+      # to save cache even if the fallback is not used when restoring it.
+      - name: Save DB cache
+        uses: actions/cache/save@v4
+        with:
+          path: /root/project/.data
+          key: v24.8.0-db10-${{ hashFiles('/tmp/db_cache_branch') }}-${{ hashFiles('/tmp/db_cache_fallback_yes') }}-${{ hashFiles('/tmp/db_cache_timestamp') }}
+
+      - name: Upload Database as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: database
+          path: .data/db.sql
+
       - name: Setup tmate session
-#        if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
+        if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
         uses: mxschmitt/action-tmate@v3
         timeout-minutes: 5
+        with:
+          detached: true
 
-#        with:
-#          detached: true
-
-#
-#      - name: Upload Database as an artifact
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: database
-#          path: .data/db.sql
-
-
-#      - name: Save DB Cache
-#        uses: actions/cache@v3
-#        with:
-#          path: /root/project/.data
-#          key: ${{ steps.cache_branch.outputs.checksum }}-${{ steps.cache_fallback_yes.outputs.checksum }}-${{ steps.cache_timestamp.outputs.checksum }}
-#
-#
 #
 #  build:
 #    runs-on: ubuntu-latest
