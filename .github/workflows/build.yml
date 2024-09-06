@@ -61,6 +61,11 @@ jobs:
           VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
         timeout-minutes: 30
 
+      - run: |
+          apt update
+          apt install sudo ssh -y
+
+
       - shell: bash
         run: 'echo HOME=/home/sf | sudo tee -a $GITHUB_ENV'
 
