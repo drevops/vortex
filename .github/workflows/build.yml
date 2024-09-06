@@ -36,12 +36,13 @@ jobs:
 
     steps:
 
-      - run: |
-          apt update
-          apt install sudo ssh -y
+#      - run: |
+#          apt update
+#          apt install sudo ssh -y
 
       - shell: bash
-        run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
+        run: echo HOME=/root >> $GITHUB_ENV
+#        run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
 
       - run: |
           echo $HOME
@@ -58,6 +59,7 @@ jobs:
         run: |
           find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
           mkdir -p /tmp/workspace/code
+          docker network prune -f >/dev/null 2>&1 && docker network inspect amazeeio-network >/dev/null 2>&1 || docker network create amazeeio-network >/dev/null 2>&1 || true
 
 #      - name: Create cache keys for database caching as files
 #        run: |
