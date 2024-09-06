@@ -20,6 +20,10 @@ on:
         required: false
         default: false
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   database:
     runs-on: ubuntu-latest
@@ -57,13 +61,15 @@ jobs:
           find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
           mkdir -p /tmp/workspace/code
 
-      - name: Create cache keys for database caching as files
+      - name: Create cache keys files for database caching
         run: |
           echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee db_cache_branch
           echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${GITHUB_RUN_NUMBER}}" | tee db_cache_fallback
           echo "yes" | tee db_cache_fallback_yes
           echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee db_cache_timestamp
-          echo 'v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}'
+
+      - name: Show cache key for database caching
+        run: echo 'v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}'
 
       # Restore DB cache based on the cache strategy set by the cache keys below.
       # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
@@ -105,12 +111,6 @@ jobs:
         with:
           path: /root/project/.data
           key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
-
-      - name: Upload Database as an artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: database
-          path: .data/db.sql
 
       - name: Setup tmate session
         if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
