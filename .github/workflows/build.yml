@@ -78,11 +78,15 @@ jobs:
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
           ./scripts/vortex/export-db.sh db.sql
         timeout-minutes: 30
+        continue-on-error: true
 
       - name: Setup tmate session
-        if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
+#        if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
         uses: mxschmitt/action-tmate@v3
         timeout-minutes: 5
+
+#        with:
+#          detached: true
 
 #
 #      - name: Upload Database as an artifact
