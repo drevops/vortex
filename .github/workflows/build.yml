@@ -61,12 +61,12 @@ jobs:
           VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
         timeout-minutes: 30
 
+      - shell: bash
+        run: 'echo HOME=/home/sf | sudo tee -a $GITHUB_ENV'
+
       - run: |
-          docker --version
-          pwd
-          ls -al
-          apt update
-          apt install sudo ssh -y
+          ls -al /github/home/.
+
 
       - name: Export DB
         run: |
