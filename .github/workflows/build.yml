@@ -62,6 +62,9 @@ jobs:
 
       - name: Create cache keys for database caching as files
         run: |
+          env|grep VORTEX_CI
+
+
           echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /__w/vortex/vortex/db_cache_branch
           echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${GITHUB_RUN_NUMBER}}" | tee /__w/vortex/vortex/db_cache_fallback
           echo "yes" | tee /__w/vortex/vortex/db_cache_fallback_yes
