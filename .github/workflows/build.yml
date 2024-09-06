@@ -83,10 +83,7 @@ jobs:
           tmux send-keys -t upterm-wrapper q C-m || true
 
       - run: |
-          ls -al ~/.upterm/ || true
-
-      - run: |
-          ls -al /root/.upterm/ || true
+          cat ~/.upterm/upterm.log
 
 #      - name: Export DB
 #        run: |
