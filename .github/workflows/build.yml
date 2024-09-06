@@ -90,17 +90,17 @@ jobs:
           VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
         timeout-minutes: 30
 
-      - name: Export DB
-        run: |
-          [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-          ./scripts/vortex/login-container-registry.sh
-          docker compose up --detach
-          sleep 15
-          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
-          ./scripts/vortex/export-db.sh db.sql
-        timeout-minutes: 30
-        continue-on-error: true
+#      - name: Export DB
+#        run: |
+#          [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+#          ./scripts/vortex/login-container-registry.sh
+#          docker compose up --detach
+#          sleep 15
+#          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+#          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
+#          ./scripts/vortex/export-db.sh db.sql
+#        timeout-minutes: 30
+#        continue-on-error: true
 
       # Save cache per default branch and the timestamp.
       # The cache will not be saved if it already exists.
@@ -168,9 +168,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /root/project/.data
+          fail-on-cache-miss: true
           # Use cached artifacts from previous builds of this branch.
+          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
           restore-keys: |
-            v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
             v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
 
       - run: ls -al /root/project/.data || true
