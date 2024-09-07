@@ -109,7 +109,7 @@ jobs:
       - name: Save DB cache
         uses: actions/cache/save@v4
         with:
-          path: /root/project/.data
+          path: .data
           key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 
       - name: Setup tmate session
@@ -167,7 +167,7 @@ jobs:
       - name: Restore DB cache
         uses: actions/cache/restore@v4
         with:
-          path: /root/project/.data
+          path: .data
           fail-on-cache-miss: true
           # Use cached artifacts from previous builds of this branch.
 #          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
