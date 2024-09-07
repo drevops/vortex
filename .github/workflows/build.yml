@@ -334,19 +334,19 @@ jobs:
       - name: Debug vars
         run: |
           echo VORTEX_DEPLOY_BRANCH
-          echo "${{ github.ref }}"
+          echo "${{ github.ref_name }}"
           echo ---
           echo VORTEX_DEPLOY_PR
-          echo "$(echo ${{ github.ref }} | cut -d'/' -f 7)" \
+          echo "${{ github.event.number }}"
           echo ---
           echo VORTEX_DEPLOY_PR_HEAD
-          echo ${{ github.head_ref || github.ref_name }}
+          echo "${{ github.sha }}"
 
       - name: Deploy
         run: |
-          VORTEX_DEPLOY_BRANCH="${{ github.ref }}"
-          VORTEX_DEPLOY_PR="$(echo ${{ github.ref }} | cut -d'/' -f 7)" \
-          VORTEX_DEPLOY_PR_HEAD=${{ github.head_ref || github.ref_name }} \
+          VORTEX_DEPLOY_BRANCH="${{ github.ref_name }}"
+          VORTEX_DEPLOY_PR="${{ github.event.number }}" \
+          VORTEX_DEPLOY_PR_HEAD="${{ github.sha }}" \
           ./scripts/vortex/deploy.sh
         env:
           VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE }}
@@ -354,3 +354,10 @@ jobs:
           VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME }}
 
         timeout-minutes: 30
+
+      - name: Setup tmate session
+        if: always()
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 5
+        with:
+          detached: true
