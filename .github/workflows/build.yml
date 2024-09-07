@@ -116,7 +116,7 @@ jobs:
       # to save cache even if the fallback is not used when restoring it.
       - name: Save DB cache
         uses: actions/cache/save@v4
-        if: steps.db-hash.outputs.before != steps.db-hash2.outputs.after
+        if: env.before != env.after
         with:
           path: .data
           key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
