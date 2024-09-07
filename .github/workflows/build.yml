@@ -5,10 +5,10 @@ on:
     branches:
       # @todo Add properregex.
       - 'feature/**'
-  pull_request:
-    branches:
-      # @todo Add properregex.
-      - 'feature/**'
+#  pull_request:
+#    branches:
+#      # @todo Add properregex.
+#      - 'feature/**'
   #  schedule:
   #    - cron: '0 18 * * *'
 
