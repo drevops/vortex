@@ -93,6 +93,7 @@ if [ -z "${SSH_AGENT_PID:-}" ]; then
     note "Starting SSH agent."
     eval "$(ssh-agent)"
   fi
+    eval "$(ssh-agent)"
 fi
 
 if ssh-add -l | grep -q "${file}"; then
