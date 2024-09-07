@@ -51,7 +51,7 @@ jobs:
     steps:
 
       - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> $GITHUB_ENV
+        run: echo HOME=/root >> "$GITHUB_ENV"
 
       - name: Check out code
         uses: actions/checkout@v4
@@ -64,9 +64,9 @@ jobs:
       - name: Create cache keys files for database caching
         run: |
           echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee db_cache_branch
-          echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${GITHUB_RUN_NUMBER}}" | tee db_cache_fallback
+          echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/"${GITHUB_RUN_NUMBER}"}" | tee db_cache_fallback
           echo "yes" | tee db_cache_fallback_yes
-          echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee db_cache_timestamp
+          echo "$(date "${VORTEX_CI_DB_CACHE_TIMESTAMP}")" | tee db_cache_timestamp
 
       - name: Show cache key for database caching
         run: echo 'v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}'
@@ -89,6 +89,10 @@ jobs:
         run: |
           VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
         timeout-minutes: 30
+
+      - name: Calculate the database file hash
+        id: db-hash
+        run: echo "before=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
 
 #      - name: Export DB
 #        run: |
