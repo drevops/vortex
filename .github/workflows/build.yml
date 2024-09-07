@@ -299,39 +299,53 @@ jobs:
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color
+        # Directory to use for artifact deployments.
+        VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
+        # Source code location for artifact deployments.
+        VORTEX_DEPLOY_ARTIFACT_ROOT: $GITHUB_WORKSPACE
 
     steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#        with:
-#          # Fetch all history for git repository.
-#          fetch-depth: 0
-#          # Do not persist credentials after checkout
-#          # to allow using the custom credentials to push to a remote repo.
-#          persist-credentials: false
-#          ref: ${{ github.head_ref || github.ref_name }}
 
-#      - name: Setup SSH private key
-#        uses: shimataro/ssh-key-action@v2
-#        with:
-#          key: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
-#          known_hosts: ${{ secrets.VORTEX_DEPLOY_SSH_KNOWN_HOSTS }}
+      - name: Preserve $HOME set in the container
+        run: echo HOME=/root >> "$GITHUB_ENV"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history for git repository.
+          fetch-depth: 0
+          # Do not persist credentials after checkout
+          # to allow using the custom credentials to push to a remote repo.
+          persist-credentials: false
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Setup SSH private key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.VORTEX_DEPLOY_SSH_KNOWN_HOSTS }}
 
       - name: Download exported codebase as artifact
         uses: actions/download-artifact@v4
         with:
           name: code-artifact
-          # path: "/tmp/workspace/code"
+          path: "/tmp/workspace/code"
 
-      - run: |
-          pwd
-          ls -la  || true
-          ls -la vendor || true
+      - name: Debug vars
+        run: |
+          echo VORTEX_DEPLOY_BRANCH
+          echo "${{ github.ref }}"
+          echo ---
+          echo VORTEX_DEPLOY_PR
+          echo "$(echo ${{ github.ref }} | cut -d'/' -f 7)" \
+          echo ---
+          echo VORTEX_DEPLOY_PR_HEAD
+          echo ${{ github.head_ref || github.ref_name }}
 
-#      - name: Deploy
-#        run: |
-#          VORTEX_DEPLOY_BRANCH="${{ github.ref }}"
-#          VORTEX_DEPLOY_PR="$(echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f 7)" \
-#          VORTEX_DEPLOY_PR_HEAD=${CIRCLE_SHA1} \
-#          ./scripts/vortex/deploy.sh
-#        timeout-minutes: 30
+      - name: Deploy
+        run: |
+          VORTEX_DEPLOY_BRANCH="${{ github.ref }}"
+          VORTEX_DEPLOY_PR="$(echo ${{ github.ref }} | cut -d'/' -f 7)" \
+          VORTEX_DEPLOY_PR_HEAD=${{ github.head_ref || github.ref_name }} \
+          ./scripts/vortex/deploy.sh
+        timeout-minutes: 30
