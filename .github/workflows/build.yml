@@ -299,10 +299,6 @@ jobs:
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color
-        # Directory to use for artifact deployments.
-        VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
-        # Source code location for artifact deployments.
-        VORTEX_DEPLOY_ARTIFACT_ROOT: $GITHUB_WORKSPACE
 
     steps:
 
@@ -352,6 +348,8 @@ jobs:
           VORTEX_DEPLOY_BRANCH="${{ github.ref_name }}"
           VORTEX_DEPLOY_PR="${{ github.event.number }}" \
           VORTEX_DEPLOY_PR_HEAD="${{ github.sha }}" \
+          VORTEX_DEPLOY_ARTIFACT_SRC=/tmp/workspace/code \
+          VORTEX_DEPLOY_ARTIFACT_ROOT=${GITHUB_WORKSPACE} \
           ./scripts/vortex/deploy.sh
         env:
           VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE }}
