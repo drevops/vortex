@@ -146,6 +146,10 @@ jobs:
         #;> !PROVISION_USE_PROFILE
 
     steps:
+
+      - name: Preserve $HOME set in the container
+        run: echo HOME=/root >> "$GITHUB_ENV"
+
       - name: Check out code
         uses: actions/checkout@v4
 
