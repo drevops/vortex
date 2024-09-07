@@ -88,6 +88,7 @@ note "Using SSH key file ${file}."
 export "${file_var}=${file}"
 
 if [ -z "${SSH_AGENT_PID:-}" ]; then
+  note "SSH_AGENT_PID is not set. Checking if SSH agent is running."
   if ! ps aux | grep "[s]sh-agent" | awk '{print $2}' >/dev/null; then
     note "Starting SSH agent."
     eval "$(ssh-agent)"
