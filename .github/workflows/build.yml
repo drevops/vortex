@@ -54,7 +54,7 @@ jobs:
         run: echo HOME=/root >> $GITHUB_ENV
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Process codebase to run in CI
         run: |
@@ -78,7 +78,7 @@ jobs:
       - name: Restore DB cache
         uses: actions/cache/restore@v4
         with:
-          path: /root/project/.data
+          path: .data
           key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
           # Fallback to caching by default branch name only. Allows to use
           # cache from the branch build on the previous day.
@@ -110,7 +110,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .data
-          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}-${{ hashFiles('.data/db.sql') }}
 
       - name: Setup tmate session
         if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
@@ -149,7 +149,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create cache keys files for database caching
         run: |
@@ -169,11 +169,10 @@ jobs:
         with:
           path: .data
           fail-on-cache-miss: true
-          # Use cached artifacts from previous builds of this branch.
-#          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
-          key: v24.8.0-db10-3f95decab521a32a4d476ea86052d97199f84089001637d37c5bdffa85c92374-91a41257c14a054eebaee666930905f71aa6074e2450ed8b82e2ff4d7ac77228-dbc7bb14173d7cb34d11f878b1d20add7e450140b5728333633639a62af47f74
-#          restore-keys: |
-#            v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+          # Use cached database from previous builds of this branch.
+          key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          restore-keys: |
+            v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
 
       - run: ls -al .data || true
 #
@@ -214,7 +213,7 @@ jobs:
 #
 #    steps:
 #      - name: Check out code
-#        uses: actions/checkout@v3
+#        uses: actions/checkout@v4
 #
 #      - name: Process codebase
 #        run: |
