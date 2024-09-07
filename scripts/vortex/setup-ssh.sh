@@ -87,11 +87,9 @@ fi
 note "Using SSH key file ${file}."
 export "${file_var}=${file}"
 
-if [ -z "${SSH_AGENT_PID:-}" ]; then
-  if ! ps aux | grep "[s]sh-agent" | awk '{print $2}' >/dev/null; then
-    note "Starting SSH agent."
-    eval "$(ssh-agent)"
-  fi
+if [ "$(ps ax | grep -c "[s]sh-agent")" -eq 0 ]; then
+  note "Starting SSH agent."
+  eval "$(ssh-agent)"
 fi
 
 if ssh-add -l | grep -q "${file}"; then

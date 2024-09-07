@@ -167,6 +167,7 @@ class InstallCommand extends Command {
       'database_download_source',
       'database_image',
       'override_existing_db',
+      'ci_provider',
       'deploy_type',
       'preserve_acquia',
       'preserve_lagoon',
@@ -412,6 +413,46 @@ class InstallCommand extends Command {
     }
     else {
       static::fileReplaceContent('/VORTEX_PROVISION_OVERRIDE_DB=.*/', "VORTEX_PROVISION_OVERRIDE_DB=0", $dir . '/.env');
+    }
+  }
+
+  protected function processCiProvider(string $dir) {
+    $type = $this->getAnswer('ci_provider');
+
+    $remove_gha = FALSE;
+    $remove_circleci = FALSE;
+
+    switch ($type) {
+      case 'CircleCI':
+        $remove_gha = TRUE;
+        break;
+
+      case 'GitHub Actions':
+        $remove_circleci = TRUE;
+        break;
+
+      default:
+        $remove_circleci = TRUE;
+        $remove_gha = TRUE;
+    }
+
+    if ($remove_gha) {
+      @unlink($dir . '/.github/workflows/build-test-deploy.yml');
+      $this->removeTokenWithContent('CI_PROVIDER_GHA', $dir);
+    }
+
+    if ($remove_circleci) {
+      static::rmdirRecursive($dir . '/.circleci');
+      @unlink($dir . '/tests/phpunit/CircleCiConfigTest.php');
+      $this->removeTokenWithContent('CI_PROVIDER_CIRCLECI', $dir);
+    }
+
+    if ($remove_gha && $remove_circleci) {
+      @unlink($dir . '/docs/ci.md');
+      $this->removeTokenWithContent('CI_PROVIDER_ANY', $dir);
+    }
+    else {
+      $this->removeTokenWithContent('!CI_PROVIDER_ANY', $dir);
     }
   }
 
@@ -762,6 +803,8 @@ class InstallCommand extends Command {
 
     $this->askForAnswer('override_existing_db', 'Do you want to override existing database in the environment?');
 
+    $this->askForAnswer('ci_provider', 'Which provider do you want to use for CI ([c]ircleci, [g]ithub actions, [n]one)?');
+
     $this->askForAnswer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook call, [c]ode artifact, [d]ocker image, [l]agoon, [n]one as a comma-separated list)?');
 
     if ($this->getAnswer('database_download_source') != 'ftp') {
@@ -1059,6 +1102,10 @@ class InstallCommand extends Command {
     return self::ANSWER_NO;
   }
 
+  protected function getDefaultValueCiProvider(): string {
+    return 'GitHub Actions';
+  }
+
   protected function getDefaultValueDeployType(): string {
     return 'artifact';
   }
@@ -1294,6 +1341,18 @@ class InstallCommand extends Command {
     return $this->getValueFromDstDotenv('VORTEX_PROVISION_OVERRIDE_DB') ? self::ANSWER_YES : self::ANSWER_NO;
   }
 
+  protected function discoverValueCiProvider() {
+    if (is_readable($this->getDstDir() . '/.github/workflows/build-test-deploy.yml')) {
+      return 'GitHub Actions';
+    }
+
+    if (is_readable($this->getDstDir() . '/.circleci/config.yml')) {
+      return 'CircleCI';
+    }
+
+    return $this->isInstalled() ? 'none' : NULL;
+  }
+
   protected function discoverValueDeployType() {
     return $this->getValueFromDstDotenv('VORTEX_DEPLOY_TYPES');
   }
@@ -1501,6 +1560,23 @@ class InstallCommand extends Command {
     return strtolower((string) $value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
   }
 
+  protected function normaliseAnswerCiProvider($value): string {
+    $value = trim(strtolower((string) $value));
+
+    switch ($value) {
+      case 'c':
+      case 'circleci':
+        return 'CircleCI';
+
+      case 'g':
+      case 'gha':
+      case 'github actions':
+        return 'GitHub Actions';
+    }
+
+    return 'none';
+  }
+
   protected function normaliseAnswerDeployType($value): ?string {
     $types = explode(',', (string) $value);
 
@@ -1669,6 +1745,7 @@ EOF;
     }
 
     $values['Override existing database'] = $this->formatYesNo($this->getAnswer('override_existing_db'));
+    $values['CI provider'] = $this->formatNotEmpty($this->getAnswer('ci_provider'), 'None');
     $values['Deployment'] = $this->formatNotEmpty($this->getAnswer('deploy_type'), 'Disabled');
     $values['FTP integration'] = $this->formatEnabled($this->getAnswer('preserve_ftp'));
     $values['Acquia integration'] = $this->formatEnabled($this->getAnswer('preserve_acquia'));

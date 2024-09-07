@@ -16,8 +16,8 @@ TEST_DIR="${ROOT_DIR}/.vortex/tests"
 # ------------------------------------------------------------------------------
 
 # Configure git username and email if it is not set.
-[ "$(git config --global user.name)" = "" ] && echo "==> Configuring global git user name" && git config --global user.name "Test user"
-[ "$(git config --global user.email)" = "" ] && echo "==> Configuring global git user email" && git config --global user.email "someone@example.com"
+[ "$(git config --global user.name)" = "" ] && echo "==> Configuring global test git user name" && git config --global user.name "Test user"
+[ "$(git config --global user.email)" = "" ] && echo "==> Configuring global test git user email" && git config --global user.email "someone@example.com"
 
 # Create stub of local framework.
 docker network create amazeeio-network 2>/dev/null || true

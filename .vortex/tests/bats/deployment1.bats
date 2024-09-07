@@ -136,6 +136,7 @@ load _helper.deployment.bash
     "nothing"   # database_download_source
     "nothing"   # database_store_type
     "nothing"   # override_existing_db
+    "nothing"   # ci_provider
     "lagoon"    # deploy_type
     "n"         # preserve_ftp
     "n"         # preserve_acquia
@@ -235,6 +236,7 @@ load _helper.deployment.bash
     "nothing"   # webroot
     "y"         # provision_use_profile
     "n"         # override_existing_db
+    "nothing"   # ci_provider
     "lagoon"    # deploy_type
     "n"         # preserve_ftp
     "n"         # preserve_acquia

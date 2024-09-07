@@ -1,7 +1,18 @@
 # YOURSITE
 Drupal 10 implementation of YOURSITE for YOURORG
 
+[//]: # (#;< CI_PROVIDER_CIRCLECI)
+
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
+
+[//]: # (#;> CI_PROVIDER_CIRCLECI)
+
+[//]: # (#;< CI_PROVIDER_GHA)
+
+[![Database, Build, Test and Deploy](https://github.com/your_org/your_site/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/your_org/your_site/actions/workflows/build-test-deploy.yml)
+
+[//]: # (#;> CI_PROVIDER_GHA)
+
 ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 [![codecov](https://codecov.io/gh/your_org/your_site/graph/badge.svg)](https://codecov.io/gh/your_org/your_site)
 
@@ -59,7 +70,13 @@ to Vortex progress. Remove this section once onboarding is finished.
 
 - [FAQs](docs/faqs.md)
 - [Testing](docs/testing.md)
+
+[//]: # (#;< CI_PROVIDER_ANY)
+
 - [CI](docs/ci.md)
+
+[//]: # (#;> CI_PROVIDER_ANY)
+
 - [Releasing](docs/releasing.md)
 - [Deployment](docs/deployment.md)
 
