@@ -7,6 +7,10 @@ on:
       - main
       - develop
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
     branches:
       # @todo Add properregex.
       - 'feature/**'
