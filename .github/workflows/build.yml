@@ -266,7 +266,7 @@ jobs:
         uses: codecov/codecov-action@v4
         if: ${{ env.CODECOV_TOKEN != '' }}
         with:
-          files: .logs/coverage
+          directory: .logs/coverage
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
