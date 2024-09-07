@@ -106,17 +106,13 @@ jobs:
 #        timeout-minutes: 30
 #        continue-on-error: true
 
-      - name: Calculate the database file hash
-        id: db-hash2
-        run: echo "after=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
-
       # Save cache per default branch and the timestamp.
       # The cache will not be saved if it already exists.
       # Note that the cache fallback flag is enabled for this case in order
       # to save cache even if the fallback is not used when restoring it.
       - name: Save DB cache
         uses: actions/cache/save@v4
-        if: env.before != env.after
+        if: env.before != hashFiles('.data')
         with:
           path: .data
           key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
