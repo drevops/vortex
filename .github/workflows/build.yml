@@ -348,4 +348,9 @@ jobs:
           VORTEX_DEPLOY_PR="$(echo ${{ github.ref }} | cut -d'/' -f 7)" \
           VORTEX_DEPLOY_PR_HEAD=${{ github.head_ref || github.ref_name }} \
           ./scripts/vortex/deploy.sh
+        env:
+          VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE }}
+          VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL }}
+          VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME }}
+
         timeout-minutes: 30
