@@ -7,13 +7,13 @@ on:
       - main
       - develop
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-    branches:
+#    types:
+#      - opened
+#      - synchronize
+#      - reopened
+#    branches:
       # @todo Add properregex.
-      - feature/**
+#      - feature/**
   #  schedule:
   #    - cron: '0 18 * * *'
 
