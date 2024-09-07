@@ -175,7 +175,7 @@ jobs:
 #          restore-keys: |
 #            v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
 
-      - run: ls -al /root/project/.data || true
+      - run: ls -al .data || true
 #
 #      - name: Process codebase to run in CI
 #        run: |
