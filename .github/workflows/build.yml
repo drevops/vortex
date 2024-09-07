@@ -192,9 +192,10 @@ jobs:
         run: docker compose up -d
 
       - name: Export built codebase
+        if: matrix.instance == 0
         run: |
           mkdir -p "/tmp/workspace/code"
-          docker compose cp -L cli:"/app/." "${{ vars.VORTEX_EXPORT_CODE_DIR }}"
+          docker compose cp -L cli:"/app/." "/tmp/workspace/code"
 
       - name: Validate Composer configuration
         run: docker compose exec cli composer validate --strict || [ "${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE }}" -eq 1 ]
