@@ -87,7 +87,7 @@ fi
 note "Using SSH key file ${file}."
 export "${file_var}=${file}"
 
-if [ -z "${SSH_AGENT_PID:-}" ]; then
+if [ -z "${SSH_AGENT_PID:-}" ] || ! ps -p "$SSH_AGENT_PID"; then
   note "Starting SSH agent."
   eval "$(ssh-agent)"
 fi

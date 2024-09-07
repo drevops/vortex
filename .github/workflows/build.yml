@@ -358,9 +358,9 @@ jobs:
 
         timeout-minutes: 30
 
-      - name: Setup tmate session
-        if: always()
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 5
-        with:
-          detached: true
+#      - name: Setup tmate session
+#        if: always()
+#        uses: mxschmitt/action-tmate@v3
+#        timeout-minutes: 5
+#        with:
+#          detached: true
