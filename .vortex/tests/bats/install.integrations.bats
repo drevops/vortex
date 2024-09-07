@@ -22,6 +22,7 @@ load _helper.bash
     "nothing"   # database_download_source
     "nothing"   # database_store_type
     "nothing"   # override_existing_db
+    "nothing"   # ci_provider
     "none"      # deploy_type
     "no"        # preserve_ftp
     "no"        # preserve_acquia
@@ -60,6 +61,7 @@ load _helper.bash
     "curl"      # database_download_source
     "file"      # database_store_type
     "nothing"   # override_existing_db
+    "nothing"   # ci_provider
     "nothing"   # deploy_type
     "y"         # preserve_ftp
     "y"         # preserve_acquia
@@ -102,6 +104,7 @@ load _helper.bash
     "curl"      # database_download_source
     "file"      # database_store_type
     "nothing"   # override_existing_db
+    "nothing"   # ci_provider
     "artifact"  # deploy_type
     "y"         # preserve_ftp
     "y"         # preserve_acquia
@@ -142,6 +145,7 @@ load _helper.bash
     "nothing"   # webroot
     "y"         # provision_use_profile
     "nothing"   # override_existing_db
+    "nothing"   # ci_provider
     "artifact"  # deploy_type
     "n"         # preserve_ftp
     "n"         # preserve_acquia
@@ -178,6 +182,7 @@ load _helper.bash
     "nothing"   # webroot
     "y"         # provision_use_profile
     "nothing"   # override_existing_db
+    "nothing"   # ci_provider
     "artifact"  # deploy_type
     "n"         # preserve_ftp
     "n"         # preserve_acquia

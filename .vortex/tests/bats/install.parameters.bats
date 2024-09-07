@@ -57,26 +57,27 @@ load _helper.bash
   assert_output_contains "WELCOME TO VORTEX QUIET INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
-  assert_output_contains "                          Name:  Star wars     "
-  assert_output_contains "                  Machine name:  star_wars     "
-  assert_output_contains "                  Organisation:  Star wars Org "
-  assert_output_contains "     Organisation machine name:  star_wars_org "
-  assert_output_contains "                 Module prefix:  sw            "
-  assert_output_contains "                       Profile:  standard      "
-  assert_output_contains "                    Theme name:  star_wars     "
-  assert_output_contains "                           URL:  star-wars.com "
-  assert_output_contains "                      Web root:  web           "
-  assert_output_contains "          Install from profile:  No            "
-  assert_output_contains "      Database download source:  curl          "
-  assert_output_contains "           Database store type:  file          "
-  assert_output_contains "    Override existing database:  No            "
-  assert_output_contains "                    Deployment:  artifact      "
-  assert_output_contains "               FTP integration:  Disabled      "
-  assert_output_contains "            Acquia integration:  Disabled      "
-  assert_output_contains "            Lagoon integration:  Disabled      "
-  assert_output_contains "       RenovateBot integration:  Enabled       "
-  assert_output_contains "     Preserve docs in comments:  Yes           "
-  assert_output_contains "      Preserve Vortex comments:  No            "
+  assert_output_contains "                          Name:  Star wars      "
+  assert_output_contains "                  Machine name:  star_wars      "
+  assert_output_contains "                  Organisation:  Star wars Org  "
+  assert_output_contains "     Organisation machine name:  star_wars_org  "
+  assert_output_contains "                 Module prefix:  sw             "
+  assert_output_contains "                       Profile:  standard       "
+  assert_output_contains "                    Theme name:  star_wars      "
+  assert_output_contains "                           URL:  star-wars.com  "
+  assert_output_contains "                      Web root:  web            "
+  assert_output_contains "          Install from profile:  No             "
+  assert_output_contains "      Database download source:  curl           "
+  assert_output_contains "           Database store type:  file           "
+  assert_output_contains "    Override existing database:  No             "
+  assert_output_contains "                   CI provider:  GitHub Actions "
+  assert_output_contains "                    Deployment:  artifact       "
+  assert_output_contains "               FTP integration:  Disabled       "
+  assert_output_contains "            Acquia integration:  Disabled       "
+  assert_output_contains "            Lagoon integration:  Disabled       "
+  assert_output_contains "       RenovateBot integration:  Enabled        "
+  assert_output_contains "     Preserve docs in comments:  Yes            "
+  assert_output_contains "      Preserve Vortex comments:  No             "
 }
 
 @test "Install parameters: empty dir; defaults; interactive" {
@@ -95,6 +96,7 @@ load _helper.bash
     "nothing"   # provision_use_profile
     "nothing"   # database_download_source
     "nothing"   # database_store_type
+    "nothing"   # ci_provider
     "nothing"   # deploy_type
     "nothing"   # preserve_ftp
     "nothing"   # preserve_acquia
@@ -107,26 +109,27 @@ load _helper.bash
   assert_output_contains "WELCOME TO VORTEX INTERACTIVE INSTALLER"
   assert_output_contains "Aborting project installation. No files were changed"
 
-  assert_output_contains "                          Name:  Star wars     "
-  assert_output_contains "                  Machine name:  star_wars     "
-  assert_output_contains "                  Organisation:  Star wars Org "
-  assert_output_contains "     Organisation machine name:  star_wars_org "
-  assert_output_contains "                 Module prefix:  sw            "
-  assert_output_contains "                       Profile:  standard      "
-  assert_output_contains "                    Theme name:  star_wars     "
-  assert_output_contains "                           URL:  star-wars.com "
-  assert_output_contains "                      Web root:  web           "
-  assert_output_contains "          Install from profile:  No            "
-  assert_output_contains "      Database download source:  curl          "
-  assert_output_contains "           Database store type:  file          "
-  assert_output_contains "    Override existing database:  No            "
-  assert_output_contains "                    Deployment:  artifact      "
-  assert_output_contains "               FTP integration:  Disabled      "
-  assert_output_contains "            Acquia integration:  Disabled      "
-  assert_output_contains "            Lagoon integration:  Disabled      "
-  assert_output_contains "       RenovateBot integration:  Enabled       "
-  assert_output_contains "     Preserve docs in comments:  Yes           "
-  assert_output_contains "      Preserve Vortex comments:  No            "
+  assert_output_contains "                          Name:  Star wars      "
+  assert_output_contains "                  Machine name:  star_wars      "
+  assert_output_contains "                  Organisation:  Star wars Org  "
+  assert_output_contains "     Organisation machine name:  star_wars_org  "
+  assert_output_contains "                 Module prefix:  sw             "
+  assert_output_contains "                       Profile:  standard       "
+  assert_output_contains "                    Theme name:  star_wars      "
+  assert_output_contains "                           URL:  star-wars.com  "
+  assert_output_contains "                      Web root:  web            "
+  assert_output_contains "          Install from profile:  No             "
+  assert_output_contains "      Database download source:  curl           "
+  assert_output_contains "           Database store type:  file           "
+  assert_output_contains "    Override existing database:  No             "
+  assert_output_contains "                   CI provider:  GitHub Actions "
+  assert_output_contains "                    Deployment:  artifact       "
+  assert_output_contains "               FTP integration:  Disabled       "
+  assert_output_contains "            Acquia integration:  Disabled       "
+  assert_output_contains "            Lagoon integration:  Disabled       "
+  assert_output_contains "       RenovateBot integration:  Enabled        "
+  assert_output_contains "     Preserve docs in comments:  Yes            "
+  assert_output_contains "      Preserve Vortex comments:  No             "
 }
 
 # Note that there is no quiet test for this scenario.
@@ -137,17 +140,17 @@ load _helper.bash
     "star Wars"              # name
     "star wars MaCHine"      # machine_name
     "The Empire"             # org
-    "the new empire"         # morh_machine_name
+    "the new empire"         # org_machine_name
     "s W"                    # module_prefix
     "S w Profile"            # profile
     "light saber"            # theme
     "resistance forever.com" # URL
     "nothing"                # webroot
     "nah"                    # provision_use_profile
-    "something"              # download_db_type
     "other thing"            # database_download_source
     "dunno"                  # database_store_type
-    "nnnnnno"                #override_existing_db
+    "nnnnnno"                # override_existing_db
+    "nah"                    # ci_provider
     "nnnooo"                 # deploy_type
     "nope"                   # preserve_ftp
     "dunno"                  # preserve_acquia
@@ -173,6 +176,7 @@ load _helper.bash
   assert_output_contains "      Database download source:  curl                   "
   assert_output_contains "           Database store type:  file                   "
   assert_output_contains "    Override existing database:  No                     "
+  assert_output_contains "                   CI provider:  None                   "
   assert_output_contains "                    Deployment:  Disabled               "
   assert_output_contains "               FTP integration:  Disabled               "
   assert_output_contains "            Acquia integration:  Disabled               "
@@ -189,17 +193,17 @@ load _helper.bash
     "star Wars"              # name
     "star wars MaCHine"      # machine_name
     "The Empire"             # org
-    "the new empire"         # morh_machine_name
+    "the new empire"         # org_machine_name
     "s W"                    # module_prefix
     "S w Profile"            # profile
     "light saber"            # theme
     "resistance forever.com" # URL
     "rootdoc"                # webroot
     "nah"                    # provision_use_profile
-    "something"              # download_db_type
     "other thing"            # database_download_source
     "dunno"                  # database_store_type
-    "nnnnnno"                #override_existing_db
+    "nnnnnno"                # override_existing_db
+    "nah"                    # ci_provider
     "nnnooo"                 # deploy_type
     "nope"                   # preserve_ftp
     "dunno"                  # preserve_acquia
@@ -225,6 +229,7 @@ load _helper.bash
   assert_output_contains "      Database download source:  curl                   "
   assert_output_contains "           Database store type:  file                   "
   assert_output_contains "    Override existing database:  No                     "
+  assert_output_contains "                   CI provider:  None                   "
   assert_output_contains "                    Deployment:  Disabled               "
   assert_output_contains "               FTP integration:  Disabled               "
   assert_output_contains "            Acquia integration:  Disabled               "
@@ -256,6 +261,7 @@ load _helper.bash
   assert_output_contains "      Database download source:  curl                         "
   assert_output_contains "           Database store type:  file                         "
   assert_output_contains "    Override existing database:  No                           "
+  assert_output_contains "                   CI provider:  GitHub Actions               "
   assert_output_contains "                    Deployment:  artifact                     "
   assert_output_contains "               FTP integration:  Disabled                     "
   assert_output_contains "            Acquia integration:  Enabled                      "
@@ -284,6 +290,7 @@ load _helper.bash
     "nothing" # database_download_source
     "nothing" # database_store_type
     "nothing" # override_existing_db
+    "nothing" # ci_provider
     "nothing" # deploy_type
     "nothing" # preserve_ftp
     "nothing" # preserve_acquia
@@ -310,6 +317,7 @@ load _helper.bash
   assert_output_contains "      Database download source:  curl                         "
   assert_output_contains "           Database store type:  file                         "
   assert_output_contains "    Override existing database:  No                           "
+  assert_output_contains "                   CI provider:  GitHub Actions               "
   assert_output_contains "                    Deployment:  artifact                     "
   assert_output_contains "               FTP integration:  Disabled                     "
   assert_output_contains "            Acquia integration:  Enabled                      "
@@ -332,7 +340,7 @@ load _helper.bash
     "star Wars"              # name
     "star wars MaCHine"      # machine_name
     "The Empire"             # org
-    "the new empire"         # morh_machine_name
+    "the new empire"         # org_machine_name
     "W s"                    # module_prefix
     "S w Profile"            # profile
     "light saber"            # theme
@@ -342,6 +350,7 @@ load _helper.bash
     "image"                  # database_download_source
     "image"                  # database_store_type
     "no"                     # override_existing_db
+    "circleci"               # ci_provider
     "no"                     # deploy_type
     "Y"                      # preserve_ftp
     "nothing"                # preserve_acquia - testing NOTHING value - should be 'Enabled' as exists in fixture.
@@ -370,6 +379,7 @@ load _helper.bash
   assert_output_contains "      Database download source:  container_registry     "
   assert_output_contains "           Database store type:  container_image        "
   assert_output_contains "    Override existing database:  No                     "
+  assert_output_contains "                   CI provider:  CircleCI               "
   assert_output_contains "                    Deployment:  Disabled               "
   assert_output_contains "               FTP integration:  Enabled                "
   assert_output_contains "            Acquia integration:  Enabled                "
@@ -379,7 +389,6 @@ load _helper.bash
   assert_output_contains "      Preserve Vortex comments:  No                     "
 }
 
-#
 #
 # Helper to create fixture files to fake pre-installed state.
 #
@@ -409,6 +418,9 @@ fixture_preinstalled() {
   # Sets 'url' to 'www.resistance-star-wars.com'.
   mkdir -p "${webroot}/sites/default"
   echo "  \$config['stage_file_proxy.settings']['origin'] = 'http://www.resistance-star-wars.com/';" >"${webroot}/sites/default/settings.php"
+
+  # Sets 'ci_provider' to 'GitHub Actions'.
+  mktouch ".github/workflows/build-test-deploy.yml"
 
   # Sets 'preserve_acquia' to 'Yes'.
   mkdir -p hooks

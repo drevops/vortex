@@ -34,7 +34,9 @@ setup() {
   fi
 
   if [ -n "${DOCKER_DEFAULT_PLATFORM:-}" ]; then
-    step "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."
+    if [ "${BATS_VERBOSE_RUN:-}" = "1" ] || [ "${TEST_VORTEX_DEBUG:-}" = "1" ]; then
+      step "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."
+    fi
   fi
   # LCOV_EXCL_STOP
 
@@ -283,6 +285,7 @@ assert_files_not_present_common() {
   assert_file_not_exists ".ahoy.yml"
 
   assert_file_not_exists "README.md"
+  assert_file_not_exists ".github/workflows/build-test-deploy.yml"
   assert_file_not_exists ".circleci/config.yml"
   assert_file_not_exists "${webroot}/sites/default/settings.php"
   assert_file_not_exists "${webroot}/sites/default/services.yml"
@@ -304,8 +307,6 @@ assert_files_present_vortex() {
   local dir="${1:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
-
-  assert_file_exists ".circleci/config.yml"
 
   assert_file_exists ".docker/cli.dockerfile"
   assert_file_exists ".docker/mariadb.dockerfile"
@@ -403,7 +404,6 @@ assert_files_present_vortex() {
   assert_file_exists "phpunit.xml"
 
   # Documentation information present.
-  assert_file_exists "docs/ci.md"
   assert_file_exists "docs/faqs.md"
   assert_file_exists "README.md"
   assert_file_exists "docs/releasing.md"
@@ -415,8 +415,14 @@ assert_files_present_vortex() {
   assert_file_not_exists "CODE_OF_CONDUCT.md"
   assert_file_not_exists ".github/FUNDING.yml"
 
-  assert_file_not_exists ".github/vortex-publish-docs.yml"
-  assert_file_not_exists ".github/vortex-test-docs.yml"
+  assert_file_exists ".github/workflows/assign-author.yml"
+  assert_file_exists ".github/workflows/label-merge-conflict.yml"
+  assert_file_exists ".github/workflows/draft-release-notes.yml"
+
+  assert_file_not_exists ".github/workflows/vortex-release-docs.yml"
+  assert_file_not_exists ".github/workflows/vortex-test-docs.yml"
+  assert_file_not_exists ".github/workflows/vortex-test-common.yml"
+  assert_file_not_exists ".github/workflows/vortex-test-installer.yml"
 
   assert_file_not_contains ".circleci/config.yml" "vortex-dev-test"
   assert_file_not_contains ".circleci/config.yml" "vortex-dev-test-workflow"
@@ -596,6 +602,16 @@ assert_files_present_provision_use_profile() {
 
   assert_file_not_contains "README.md" "ahoy download-db"
 
+  assert_file_not_contains ".github/workflows/build-test-deploy.yml" "database:"
+  assert_file_not_contains ".github/workflows/build-test-deploy.yml" "schedule:"
+  assert_file_not_contains ".github/workflows/build-test-deploy.yml" "VORTEX_CI_DB_CACHE_TIMESTAMP"
+  assert_file_not_contains ".github/workflows/build-test-deploy.yml" "VORTEX_CI_DB_CACHE_FALLBACK"
+  assert_file_not_contains ".github/workflows/build-test-deploy.yml" "VORTEX_CI_DB_CACHE_BRANCH"
+  assert_file_not_contains ".github/workflows/build-test-deploy.yml" "Save DB cache"
+  assert_file_not_contains ".github/workflows/build-test-deploy.yml" "Restore DB cache"
+  assert_file_not_contains ".github/workflows/build-test-deploy.yml" "Create cache keys files for database caching"
+  assert_file_not_contains ".github/workflows/build-test-deploy.yml" "Show cache key for database caching"
+
   assert_file_not_contains ".circleci/config.yml" "db_ssh_fingerprint"
   assert_file_not_contains ".circleci/config.yml" "/root/project/.data"
   assert_file_not_contains ".circleci/config.yml" "nightly_db_schedule"
@@ -624,17 +640,31 @@ assert_files_present_no_provision_use_profile() {
 
   assert_file_contains "README.md" "ahoy download-db"
 
-  assert_file_contains ".circleci/config.yml" "db_ssh_fingerprint"
-  assert_file_contains ".circleci/config.yml" "/root/project/.data"
-  assert_file_contains ".circleci/config.yml" "nightly_db_schedule"
-  assert_file_contains ".circleci/config.yml" "VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT"
-  assert_file_contains ".circleci/config.yml" "VORTEX_CI_DB_CACHE_TIMESTAMP"
-  assert_file_contains ".circleci/config.yml" "VORTEX_CI_DB_CACHE_FALLBACK"
-  assert_file_contains ".circleci/config.yml" "VORTEX_CI_DB_CACHE_BRANCH"
-  assert_file_contains ".circleci/config.yml" "database: &job-database"
-  assert_file_contains ".circleci/config.yml" "database-nightly"
-  assert_file_contains ".circleci/config.yml" "name: Set cache keys for database caching"
-  assert_file_contains ".circleci/config.yml" "- database:"
+  if [ -f ".github/workflows/build-test-deploy.yml"  ]; then
+    assert_file_contains ".github/workflows/build-test-deploy.yml" "database:"
+    assert_file_contains ".github/workflows/build-test-deploy.yml" "schedule:"
+    assert_file_contains ".github/workflows/build-test-deploy.yml" "VORTEX_CI_DB_CACHE_TIMESTAMP"
+    assert_file_contains ".github/workflows/build-test-deploy.yml" "VORTEX_CI_DB_CACHE_FALLBACK"
+    assert_file_contains ".github/workflows/build-test-deploy.yml" "VORTEX_CI_DB_CACHE_BRANCH"
+    assert_file_contains ".github/workflows/build-test-deploy.yml" "Save DB cache"
+    assert_file_contains ".github/workflows/build-test-deploy.yml" "Restore DB cache"
+    assert_file_contains ".github/workflows/build-test-deploy.yml" "Create cache keys files for database caching"
+    assert_file_contains ".github/workflows/build-test-deploy.yml" "Show cache key for database caching"
+  fi
+
+  if [ -f ".circleci/config.yml" ]; then
+    assert_file_contains ".circleci/config.yml" "db_ssh_fingerprint"
+    assert_file_contains ".circleci/config.yml" "/root/project/.data"
+    assert_file_contains ".circleci/config.yml" "nightly_db_schedule"
+    assert_file_contains ".circleci/config.yml" "VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT"
+    assert_file_contains ".circleci/config.yml" "VORTEX_CI_DB_CACHE_TIMESTAMP"
+    assert_file_contains ".circleci/config.yml" "VORTEX_CI_DB_CACHE_FALLBACK"
+    assert_file_contains ".circleci/config.yml" "VORTEX_CI_DB_CACHE_BRANCH"
+    assert_file_contains ".circleci/config.yml" "database: &job-database"
+    assert_file_contains ".circleci/config.yml" "database-nightly"
+    assert_file_contains ".circleci/config.yml" "name: Set cache keys for database caching"
+    assert_file_contains ".circleci/config.yml" "- database:"
+  fi
 
   popd >/dev/null || exit 1
 }
@@ -661,6 +691,79 @@ assert_files_present_no_override_existing_db() {
   popd >/dev/null || exit 1
 }
 
+assert_files_present_ci_provider_gha() {
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_exists ".github/workflows/build-test-deploy.yml"
+  assert_file_contains "README.md" "[![Database, Build, Test and Deploy"
+  assert_file_contains "README.md" "docs/ci.md"
+  assert_file_contains "docs/ci.md" "GitHub Actions"
+
+  assert_files_present_no_ci_provider_circleci "$dir" "$suffix"
+
+  popd >/dev/null || exit 1
+}
+
+assert_files_present_no_ci_provider_gha() {
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_not_exists ".github/workflows/build-test-deploy.yml"
+  assert_file_not_contains "README.md" "[![Database, Build, Test and Deploy"
+  assert_file_not_contains "docs/ci.md" "GitHub Actions"
+
+  popd >/dev/null || exit 1
+}
+
+assert_files_present_ci_provider_circleci() {
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_exists ".circleci/config.yml"
+  assert_file_contains "README.md" "[![CircleCI"
+  assert_file_contains "README.md" "docs/ci.md"
+  assert_file_contains "docs/ci.md" "CircleCI"
+
+  assert_files_present_no_ci_provider_gha "$dir" "$suffix"
+
+  popd >/dev/null || exit 1
+}
+
+assert_files_present_no_ci_provider_circleci() {
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_not_exists ".circleci/config.yml"
+  assert_file_not_contains "README.md" "[![CircleCI"
+  assert_file_not_contains "docs/ci.md" "CircleCI"
+
+  popd >/dev/null || exit 1
+}
+
+assert_files_present_ci_provider_none() {
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_files_present_no_ci_provider_gha "$dir" "$suffix"
+  assert_files_present_no_ci_provider_circleci "$dir" "$suffix"
+
+  assert_file_not_exists "docs/ci.md"
+  assert_file_not_contains "README.md" "docs/ci.md"
+
+  popd >/dev/null || exit 1
+}
+
 assert_files_present_deployment() {
   local dir="${1:-$(pwd)}"
   local suffix="${2:-star_wars}"
@@ -668,8 +771,15 @@ assert_files_present_deployment() {
   pushd "${dir}" >/dev/null || exit 1
 
   assert_file_exists "docs/deployment.md"
-  assert_file_contains ".circleci/config.yml" "deploy: &job_deploy"
-  assert_file_contains ".circleci/config.yml" "deploy-tags: &job-deploy-tags"
+
+  if [ -f ".github/workflows/build-test-deploy.yml" ]; then
+    assert_file_contains ".github/workflows/build-test-deploy.yml" "deploy:"
+  fi
+
+  if [ -f ".circleci/config.yml" ]; then
+    assert_file_contains ".circleci/config.yml" "deploy: &job_deploy"
+    assert_file_contains ".circleci/config.yml" "deploy-tags: &job-deploy-tags"
+  fi
 
   popd >/dev/null || exit 1
 }
@@ -687,6 +797,8 @@ assert_files_present_no_deployment() {
   # 'Required' files can be asserted for modifications only if they were not
   # committed.
   if [ "${has_committed_files:-}" -eq 0 ]; then
+    assert_file_not_contains ".github/workflows/build-test-deploy.yml" "deploy:"
+
     assert_file_not_contains ".circleci/config.yml" "deploy: &job_deploy"
     assert_file_not_contains ".circleci/config.yml" "deploy-tags: &job-deploy-tags"
     assert_file_not_contains ".circleci/config.yml" "- deploy:"
@@ -853,8 +965,12 @@ assert_files_present_integration_renovatebot() {
 
   assert_file_exists "renovate.json"
 
-  assert_file_contains ".circleci/config.yml" "renovatebot-self-hosted"
-  assert_file_contains ".circleci/config.yml" "renovatebot_schedule"
+  if [ -f ".circleci/config.yml" ]; then
+    assert_file_contains ".circleci/config.yml" "renovatebot-self-hosted"
+    assert_file_contains ".circleci/config.yml" "renovatebot_schedule"
+  fi
+
+  # @todo Add assertions for self-hosted Renovatebot in GitHub Actions.
 
   popd >/dev/null || exit 1
 }
@@ -872,6 +988,7 @@ assert_files_present_no_integration_renovatebot() {
   assert_file_not_contains ".circleci/config.yml" "renovatebot-self-hosted"
   assert_file_not_contains ".circleci/config.yml" "renovatebot_schedule"
 
+  # @todo Add assertions for self-hosted Renovatebot in GitHub Actions.
 
   popd >/dev/null || exit 1
 }
@@ -1101,8 +1218,8 @@ prepare_local_repo() {
   fi
 
   git_init 0 "${dir}"
-  [ "$(git config --global user.name)" = "" ] && echo "Configuring global git user name." && git config --global user.name "Some User"
-  [ "$(git config --global user.email)" = "" ] && echo "Configuring global git user email." && git config --global user.email "some.user@example.com"
+  [ "$(git config --global user.name)" = "" ] && echo "Configuring global test git user name." && git config --global user.name "Some User"
+  [ "$(git config --global user.email)" = "" ] && echo "Configuring global test git user email." && git config --global user.email "some.user@example.com"
   commit=$(git_add_all_commit "Initial commit" "${dir}")
 
   echo "${commit}"

@@ -378,6 +378,7 @@ load _helper.bash
 
   assert_files_present_common
   assert_files_present_provision_use_profile
+  assert_files_present_ci_provider_gha
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
@@ -399,6 +400,7 @@ load _helper.bash
 
   assert_files_present_common
   assert_files_present_no_provision_use_profile
+  assert_files_present_ci_provider_gha
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
@@ -406,6 +408,94 @@ load _helper.bash
   assert_files_present_integration_renovatebot
 
   assert_files_present_override_existing_db
+}
+
+@test "Install into existing: previously installed project; CI Provider - GHA; discovery; quiet" {
+  # Populate current dir with a project at current version.
+  run_installer_quiet
+
+  # Assert files at current version.
+  assert_files_present
+  assert_git_repo
+
+  mktouch "${CURRENT_PROJECT_DIR}/.github/workflows/build-test-deploy.yml"
+  rm -Rf "${CURRENT_PROJECT_DIR}/.circleci/config.yml"
+
+  output=$(run_installer_quiet)
+  assert_output_contains "WELCOME TO VORTEX QUIET INSTALLER"
+  assert_output_contains "It looks like Vortex is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_common
+  assert_files_present_no_provision_use_profile
+  assert_files_present_ci_provider_gha
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_integration_renovatebot
+}
+
+@test "Install into existing: previously installed project; CI Provider - CircleCI; discovery; quiet" {
+  # Populate current dir with a project at current version.
+  run_installer_quiet
+
+  # Assert files at current version.
+  assert_files_present
+  assert_git_repo
+
+  rm -Rf "${CURRENT_PROJECT_DIR}/.github/workflows/build-test-deploy.yml"
+  mktouch "${CURRENT_PROJECT_DIR}/.circleci/config.yml"
+
+  output=$(run_installer_quiet)
+  assert_output_contains "WELCOME TO VORTEX QUIET INSTALLER"
+  assert_output_contains "It looks like Vortex is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_common
+  assert_files_present_no_provision_use_profile
+  assert_files_present_ci_provider_circleci
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_integration_renovatebot
+}
+
+@test "Install into existing: previously installed project; CI Provider - None; discovery; quiet" {
+  # Populate current dir with a project at current version.
+  run_installer_quiet
+
+  # Assert files at current version.
+  assert_files_present
+  assert_git_repo
+
+  rm -Rf "${CURRENT_PROJECT_DIR}/.github/workflows/build-test-deploy.yml"
+  rm -Rf "${CURRENT_PROJECT_DIR}/.circleci/config.yml"
+  rm -Rf "${CURRENT_PROJECT_DIR}/docs/ci.md"
+
+  output=$(run_installer_quiet)
+  assert_output_contains "WELCOME TO VORTEX QUIET INSTALLER"
+  assert_output_contains "It looks like Vortex is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_common
+  assert_files_present_no_provision_use_profile
+  assert_files_present_ci_provider_none
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_integration_renovatebot
 }
 
 @test "Install into existing: previously installed project; Deployment; discovery; quiet" {
@@ -421,6 +511,7 @@ load _helper.bash
 
   assert_files_present_common
   assert_files_present_no_provision_use_profile
+  assert_files_present_ci_provider_gha
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_integration_lagoon
@@ -448,6 +539,7 @@ load _helper.bash
 
   assert_files_present_common
   assert_files_present_no_provision_use_profile
+  assert_files_present_ci_provider_gha
   assert_files_present_deployment
   assert_files_present_integration_acquia
   assert_files_present_no_integration_lagoon
@@ -475,6 +567,7 @@ load _helper.bash
 
   assert_files_present_common
   assert_files_present_no_provision_use_profile
+  assert_files_present_ci_provider_gha
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_integration_lagoon
@@ -502,6 +595,7 @@ load _helper.bash
 
   assert_files_present_common
   assert_files_present_no_provision_use_profile
+  assert_files_present_ci_provider_gha
   assert_files_present_deployment
   assert_files_present_no_integration_acquia
   assert_files_present_no_integration_lagoon
