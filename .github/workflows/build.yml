@@ -110,13 +110,6 @@ jobs:
           path: .data
           key: v24.8.0-db10-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 
-      - name: Setup tmate session
-        if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 5
-        with:
-          detached: true
-
   build:
     runs-on: ubuntu-latest
     needs: database
@@ -253,25 +246,38 @@ jobs:
           VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
         timeout-minutes: 30
 
-#      - name: Process test logs and artifacts
-#        run: |
-#          # mkdir -p "${{ vars.VORTEX_CI_TEST_RESULTS }}" "${{ vars.VORTEX_CI_ARTIFACTS }}"
-#          if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-#             docker compose cp cli:/app/.logs/. "${{ vars.VORTEX_CI_ARTIFACTS }}/"
-#            if docker compose exec -T cli sh -c '[ -d /app/.logs/test_results/ ]'; then
-#               docker compose cp cli:/app/.logs/test_results/. "${{ vars.VORTEX_CI_TEST_RESULTS }}/"
-#            fi
-#          fi
-#        if: always()
+      - name: Process test logs and artifacts
+        if: always()
+        run: |
+          mkdir -p ".logs"
+          if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
+             docker compose cp cli:/app/.logs/. ".logs/"
+          fi
 
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts-${{ matrix.instance }}
+          path: .logs
+          include-hidden-files: true
+          if-no-files-found: error
 
-#
-#      - name: Store Artifacts
-#        run: |
-#          mkdir -p /tmp/artifacts
-#          docker compose cp cli:/app/.logs/. /tmp/artifacts/
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        with:
+          files: .logs/coverage
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-        #@todo Store code for deployment
+      - name: Setup tmate session
+        if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 5
+        with:
+          detached: true
 
 #  deploy:
 #    runs-on: ubuntu-latest
