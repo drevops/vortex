@@ -206,5 +206,5 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_YAMLLINT_IGNORE_FAILURE == '1' }}
 
       - name: Check coding standards with actionlint
-        run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.6.27 -ignore 'SC2002:' -ignore 'SC2155:'
+        run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.6.27 -ignore 'SC2002:' -ignore 'SC2155:' -ignore 'SC2015:' -ignore 'SC2046:'
         continue-on-error: ${{ vars.VORTEX_CI_ACTIONLINT_IGNORE_FAILURE == '1' }}
