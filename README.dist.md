@@ -41,7 +41,7 @@ to Vortex progress. Remove this section once onboarding is finished.
 - Authenticate with Acquia Cloud API
   1. Create your Acquia Cloud API token:<br/>
      Acquia Cloud UI -> Account -> API tokens -> Create Token
-  2. Copy `.env.local.default` to `.env.local`.
+  2. Copy `.env.local.example` to `.env.local`.
   3. Populate `$VORTEX_ACQUIA_KEY` and `$VORTEX_ACQUIA_SECRET` environment
      variables in `.env.local` file with values generated in the step above.
 
@@ -51,7 +51,7 @@ to Vortex progress. Remove this section once onboarding is finished.
 
 - Authenticate with Lagoon
   1. Create an SSH key and add it to your account in the [Lagoon Dashboard](https://ui-lagoon-master.ch.amazee.io/).
-  2. Copy `.env.local.default` to `.env.local`.
+  2. Copy `.env.local.example` to `.env.local`.
   3. Update `$VORTEX_DB_DOWNLOAD_SSH_FILE` environment variable in `.env.local` file
      with the path to the SSH key.
 

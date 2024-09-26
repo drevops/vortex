@@ -393,7 +393,7 @@ assert_files_present_vortex() {
   assert_file_exists ".env"
   assert_file_not_exists ".gitattributes"
   assert_file_exists ".ahoy.local.example.yml"
-  assert_file_exists ".env.local.default"
+  assert_file_exists ".env.local.example"
   assert_file_exists ".gitignore"
   assert_file_exists "behat.yml"
   assert_file_exists "composer.json"
@@ -589,13 +589,13 @@ assert_files_present_provision_use_profile() {
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_CURL_URL"
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_ENVIRONMENT"
 
-  assert_file_not_contains ".env.local.default" "VORTEX_DB_DOWNLOAD_FORCE"
-  assert_file_not_contains ".env.local.default" "VORTEX_DB_DOWNLOAD_FTP_USER"
-  assert_file_not_contains ".env.local.default" "VORTEX_DB_DOWNLOAD_FTP_PASS"
-  assert_file_not_contains ".env.local.default" "VORTEX_ACQUIA_KEY"
-  assert_file_not_contains ".env.local.default" "VORTEX_ACQUIA_SECRET"
-  assert_file_not_contains ".env.local.default" "VORTEX_CONTAINER_REGISTRY_USER"
-  assert_file_not_contains ".env.local.default" "VORTEX_CONTAINER_REGISTRY_PASS"
+  assert_file_not_contains ".env.local.example" "VORTEX_DB_DOWNLOAD_FORCE"
+  assert_file_not_contains ".env.local.example" "VORTEX_DB_DOWNLOAD_FTP_USER"
+  assert_file_not_contains ".env.local.example" "VORTEX_DB_DOWNLOAD_FTP_PASS"
+  assert_file_not_contains ".env.local.example" "VORTEX_ACQUIA_KEY"
+  assert_file_not_contains ".env.local.example" "VORTEX_ACQUIA_SECRET"
+  assert_file_not_contains ".env.local.example" "VORTEX_CONTAINER_REGISTRY_USER"
+  assert_file_not_contains ".env.local.example" "VORTEX_CONTAINER_REGISTRY_PASS"
 
   assert_file_exists ".ahoy.yml"
   assert_file_not_contains ".ahoy.yml" "download-db:"
@@ -932,8 +932,8 @@ assert_files_present_integration_ftp() {
   assert_file_contains ".env" "VORTEX_DB_DOWNLOAD_FTP_FILE="
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_FTP_USER="
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_FTP_PASS="
-  assert_file_contains ".env.local.default" "VORTEX_DB_DOWNLOAD_FTP_USER="
-  assert_file_contains ".env.local.default" "VORTEX_DB_DOWNLOAD_FTP_PASS="
+  assert_file_contains ".env.local.example" "VORTEX_DB_DOWNLOAD_FTP_USER="
+  assert_file_contains ".env.local.example" "VORTEX_DB_DOWNLOAD_FTP_PASS="
 
   popd >/dev/null || exit 1
 }
@@ -949,8 +949,8 @@ assert_files_present_no_integration_ftp() {
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_FTP_FILE="
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_FTP_USER="
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_FTP_PASS="
-  assert_file_not_contains ".env.local.default" "VORTEX_DB_DOWNLOAD_FTP_USER="
-  assert_file_not_contains ".env.local.default" "VORTEX_DB_DOWNLOAD_FTP_PASS="
+  assert_file_not_contains ".env.local.example" "VORTEX_DB_DOWNLOAD_FTP_USER="
+  assert_file_not_contains ".env.local.example" "VORTEX_DB_DOWNLOAD_FTP_PASS="
 
   popd >/dev/null || exit 1
 }
