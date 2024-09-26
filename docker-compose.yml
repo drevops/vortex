@@ -233,7 +233,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:24.7.0
+    image: drevops/docker-wait-for-dependencies:24.9.0
     depends_on:
       - cli
       - mariadb
