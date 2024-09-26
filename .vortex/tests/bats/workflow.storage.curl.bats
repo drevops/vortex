@@ -2,12 +2,12 @@
 #
 # Workflows using different types of DB storage.
 #
-# Throughout these tests, a "drevops/drevops-mariadb-drupal-data-test-10.x:latest"
+# Throughout these tests, a "drevops/vortex-dev-mariadb-drupal-data-test-10.x:latest"
 # test image is used: it is seeded with content from the pre-built fixture
 # "Star wars" test site.
 #
 # When debugging failed tests locally, make sure that there are no untagged
-# "drevops/drevops-mariadb-drupal-data-*" images.
+# "drevops/vortex-dev-mariadb-drupal-data-*" images.
 #
 # In some cases, shell may report platform incorrectly. Run with forced platform:
 # DOCKER_DEFAULT_PLATFORM=linux/amd64 bats --tap tests/bats/workflow1.bats
@@ -27,7 +27,7 @@ load _helper.workflow.bash
   # @todo: build.sh may need to have a support to create a local image if
   # it does not exist.
   # Use a test image. Image always must use a tag.
-  export VORTEX_DB_IMAGE="drevops/drevops-mariadb-drupal-data-test-10.x:latest"
+  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-10.x:latest"
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
@@ -50,7 +50,7 @@ load _helper.workflow.bash
   assert_file_contains ".env" "VORTEX_DB_DOWNLOAD_SOURCE=curl"
   assert_file_contains ".env" "VORTEX_DB_IMAGE=${VORTEX_DB_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
-  assert_file_not_contains ".env" "VORTEX_DB_IMAGE=drevops/drevops-mariadb-drupal-data-demo-10.x:latest"
+  assert_file_not_contains ".env" "VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-10.x:latest"
   assert_file_contains ".env" "VORTEX_DB_DOWNLOAD_CURL_URL="
 
   assert_ahoy_build
