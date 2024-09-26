@@ -58,7 +58,7 @@ See [Features](https://vortex.drevops.com/getting-started/features) for more det
 
 ## Documentation
 
-The documentation is authored within this repository in the `.vortex/docs` directory and published to [https://vortex.drevops.com](https://vortex.drevops.com) on Vortex release.
+The documentation is authored within this repository in the [`.vortex/docs`](.vortex/docs) directory and published to [https://vortex.drevops.com](https://vortex.drevops.com) on Vortex release.
 
 Development version of the documentation is available at [https://vortex-docs.netlify.app/](https://vortex-docs.netlify.app/).
 
