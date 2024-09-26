@@ -794,7 +794,7 @@ class InstallCommand extends Command {
         $this->setAnswer('database_image', '');
       }
       else {
-        $this->askForAnswer('database_image',         '  What is your database image name and a tag (e.g. drevops/drevops-mariadb-drupal-data:latest)?');
+        $this->askForAnswer('database_image',         '  What is your database image name and a tag (e.g. drevops/mariadb-drupal-data:latest)?');
       }
     }
     // @formatter:on
