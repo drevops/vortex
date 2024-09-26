@@ -76,7 +76,7 @@ load _helper.bash
   prepare_docker_compose
 
   cp "${ROOT_DIR}/.env" .env
-  cp "${ROOT_DIR}/.env.local.default" .env.local
+  cp "${ROOT_DIR}/.env.local.example" .env.local
 
   substep "Validate configuration"
   run docker compose -f docker-compose.yml config
