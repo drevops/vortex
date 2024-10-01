@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:24.9.0
+      image: drevops/ci-runner:24.10.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -89,7 +89,7 @@ jobs:
         batch: [0, 1, 2]
 
     container:
-      image: drevops/ci-runner:24.9.0
+      image: drevops/ci-runner:24.10.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -141,7 +141,7 @@ jobs:
         batch: [0, 1]
 
     container:
-      image: drevops/ci-runner:24.9.0
+      image: drevops/ci-runner:24.10.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
