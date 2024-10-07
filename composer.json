@@ -80,7 +80,8 @@
             "oomphinc/composer-installers-extender": true,
             "php-http/discovery": true,
             "phpstan/extension-installer": true,
-            "pyrech/composer-changelogs": true
+            "pyrech/composer-changelogs": true,
+            "tbachert/spi": true
         },
         "discard-changes": true,
         "platform": {
