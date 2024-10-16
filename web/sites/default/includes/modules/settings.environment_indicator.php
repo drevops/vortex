@@ -19,7 +19,7 @@ switch ($settings['environment']) {
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
     break;
 
-  case ENVIRONMENT_TEST:
+  case ENVIRONMENT_STAGE:
     $config['environment_indicator.indicator']['bg_color'] = '#fff176';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
     break;

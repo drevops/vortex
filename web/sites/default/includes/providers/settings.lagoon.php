@@ -28,12 +28,12 @@ if (!empty(getenv('LAGOON_KUBERNETES'))) {
     }
     // Dedicated test environment based on a branch name.
     elseif (getenv('LAGOON_GIT_BRANCH') == 'main' || getenv('LAGOON_GIT_BRANCH') == 'master') {
-      $settings['environment'] = ENVIRONMENT_TEST;
+      $settings['environment'] = ENVIRONMENT_STAGE;
     }
     // Test environment based on a branch prefix for release and
     // hotfix branches.
     elseif (!empty(getenv('LAGOON_GIT_BRANCH')) && (str_starts_with(getenv('LAGOON_GIT_BRANCH'), 'release/') || str_starts_with(getenv('LAGOON_GIT_BRANCH'), 'hotfix/'))) {
-      $settings['environment'] = ENVIRONMENT_TEST;
+      $settings['environment'] = ENVIRONMENT_STAGE;
     }
   }
 

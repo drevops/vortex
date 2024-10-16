@@ -37,8 +37,8 @@ if (!defined('ENVIRONMENT_CI')) {
 if (!defined('ENVIRONMENT_PROD')) {
   define('ENVIRONMENT_PROD', 'prod');
 }
-if (!defined('ENVIRONMENT_TEST')) {
-  define('ENVIRONMENT_TEST', 'test');
+if (!defined('ENVIRONMENT_STAGE')) {
+  define('ENVIRONMENT_STAGE', 'stage');
 }
 if (!defined('ENVIRONMENT_DEV')) {
   define('ENVIRONMENT_DEV', 'dev');

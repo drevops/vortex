@@ -40,9 +40,9 @@ abstract class SettingsTestCase extends TestCase {
   final const ENVIRONMENT_PROD = 'prod';
 
   /**
-   * Defines a constant for the name of the 'test' environment.
+   * Defines a constant for the name of the 'stage' environment.
    */
-  final const ENVIRONMENT_TEST = 'test';
+  final const ENVIRONMENT_STAGE = 'stage';
 
   /**
    * Defines a constant for the name of the 'dev' environment.

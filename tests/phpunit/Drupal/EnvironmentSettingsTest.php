@@ -68,9 +68,15 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       ],
       [
         [
+          'AH_SITE_ENVIRONMENT' => 'stage',
+        ],
+        static::ENVIRONMENT_STAGE,
+      ],
+      [
+        [
           'AH_SITE_ENVIRONMENT' => 'test',
         ],
-        static::ENVIRONMENT_TEST,
+        static::ENVIRONMENT_STAGE,
       ],
       [
         [
@@ -123,7 +129,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'master',
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
         ],
-        static::ENVIRONMENT_TEST,
+        static::ENVIRONMENT_STAGE,
       ],
       [
         [
@@ -132,7 +138,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
         ],
-        static::ENVIRONMENT_TEST,
+        static::ENVIRONMENT_STAGE,
       ],
       [
         [
@@ -150,7 +156,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
         ],
-        static::ENVIRONMENT_TEST,
+        static::ENVIRONMENT_STAGE,
       ],
       [
         [
@@ -176,7 +182,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => 'release/1.2.3',
         ],
-        static::ENVIRONMENT_TEST,
+        static::ENVIRONMENT_STAGE,
       ],
       [
         [
@@ -192,7 +198,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => 'hotfix/1.2.3',
         ],
-        static::ENVIRONMENT_TEST,
+        static::ENVIRONMENT_STAGE,
       ],
 
       [
@@ -498,9 +504,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   /**
    * Test per-environment settings for Test environment.
    */
-  public function testEnvironmentAcquiaTest(): void {
+  public function testEnvironmentAcquiaStage(): void {
     $this->setEnvVars([
-      'AH_SITE_ENVIRONMENT' => 'test',
+      'AH_SITE_ENVIRONMENT' => 'stage',
     ]);
 
     $this->requireSettingsFile();
@@ -509,7 +515,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.test']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#fff176';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_TEST;
+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['maintenance_theme'] = 'your_site_theme';
@@ -523,7 +529,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_TEST;
+    $settings['environment'] = static::ENVIRONMENT_STAGE;
     $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
@@ -700,7 +706,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.test']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#fff176';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_TEST;
+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['maintenance_theme'] = 'your_site_theme';
@@ -715,7 +721,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_TEST;
+    $settings['environment'] = static::ENVIRONMENT_STAGE;
     $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
