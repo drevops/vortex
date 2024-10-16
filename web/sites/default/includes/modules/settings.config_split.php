@@ -8,7 +8,7 @@
 declare(strict_types=1);
 
 switch ($settings['environment']) {
-  case ENVIRONMENT_TEST:
+  case ENVIRONMENT_STAGE:
     $config['config_split.config_split.test']['status'] = TRUE;
     break;
 
