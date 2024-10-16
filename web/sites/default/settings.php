@@ -192,13 +192,11 @@ if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
 //
 // Copy default.settings.local.php and default.services.local.yml to
 // settings.local.php and services.local.yml respectively.
+// services.local.yml is loaded in in settings.local.php.
 //
 // Keep this code block at the end of this file to take full effect.
 // @codeCoverageIgnoreStart
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   require $app_root . '/' . $site_path . '/settings.local.php';
-}
-if (file_exists($app_root . '/' . $site_path . '/services.local.yml')) {
-  $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.local.yml';
 }
 // @codeCoverageIgnoreEnd
