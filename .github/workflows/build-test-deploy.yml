@@ -239,6 +239,10 @@ jobs:
             if [ -n \"${GITHUB_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN-}\"}}'; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
+      - name: Validate Composer configuration normalised
+        run: docker compose exec -T cli composer normalize --dry-run
+        continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
+
       - name: Lint code with PHPCS
         run: docker compose exec -T cli vendor/bin/phpcs
         continue-on-error: ${{ vars.VORTEX_CI_PHPCS_IGNORE_FAILURE == '1' }}

@@ -268,6 +268,10 @@ jobs:
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
       - run:
+          name: Validate Composer configuration normalised
+          command: docker compose exec -T cli composer normalize --dry-run || [ "${VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
           name: Lint code with PHPCS
           command: docker compose exec -T cli vendor/bin/phpcs || [ "${VORTEX_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
 
