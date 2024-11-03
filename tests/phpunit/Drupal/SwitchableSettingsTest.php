@@ -128,7 +128,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_TEST,
+        static::ENVIRONMENT_STAGE,
         [
           'config_split.config_split.test' => ['status' => TRUE],
         ],
@@ -204,9 +204,9 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_TEST,
+        static::ENVIRONMENT_STAGE,
         [
-          'environment_indicator.indicator' => ['name' => static::ENVIRONMENT_TEST, 'bg_color' => '#fff176', 'fg_color' => '#000000'],
+          'environment_indicator.indicator' => ['name' => static::ENVIRONMENT_STAGE, 'bg_color' => '#fff176', 'fg_color' => '#000000'],
           'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
         ],
       ],
@@ -353,7 +353,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_TEST,
+        static::ENVIRONMENT_STAGE,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -481,7 +481,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_TEST,
+        static::ENVIRONMENT_STAGE,
         [
           'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',

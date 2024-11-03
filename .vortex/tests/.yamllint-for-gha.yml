@@ -1,9 +1,12 @@
-# Yamllint configuration file used to check GitHub Actions configuration files. 
+# Yamllint configuration file used to check GitHub Actions configuration files.
 extends: default
 
 rules:
+  comments-indentation: false
   comments:
     min-spaces-from-content: 1
+    # Disable to support Vortex's internal comments like `#;<` and `#;>`.
+    require-starting-space: false
   document-start:
     present: false
   empty-lines:

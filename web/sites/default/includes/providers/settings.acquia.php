@@ -38,8 +38,9 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
       $settings['environment'] = ENVIRONMENT_PROD;
       break;
 
+    case 'stage':
     case 'test':
-      $settings['environment'] = ENVIRONMENT_TEST;
+      $settings['environment'] = ENVIRONMENT_STAGE;
       break;
   }
 }

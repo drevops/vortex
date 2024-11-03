@@ -1,7 +1,8 @@
 {
     "rules": {
         "indentation": {
-            "width": 2
+            "width": 2,
+            "literalBlock": 3
         },
         "keyword-order": {
             "enabled": false
