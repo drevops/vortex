@@ -201,6 +201,7 @@ services:
     build:
       context: .
       dockerfile: .docker/clamav.dockerfile
+    platform: linux/amd64
     ports:
       - "3310" # Find port on host with `docker compose port clamav 3310`.
     environment:
