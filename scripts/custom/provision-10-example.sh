@@ -34,7 +34,7 @@ if echo "${VORTEX_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e lo
   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy
 
   #;< REDIS
-  drush pm:install redis
+  drush pm:install redis || true
   #;> REDIS
 
   #;< CLAMAV
