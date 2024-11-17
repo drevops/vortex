@@ -74,7 +74,7 @@ jobs:
           path: /tmp/.vortex-coverage-html
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           directory: /tmp/.vortex-coverage-html
           fail_ci_if_error: false
@@ -126,7 +126,7 @@ jobs:
           path: /tmp/.vortex-coverage-html
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           directory: /tmp/.vortex-coverage-html
           fail_ci_if_error: false
@@ -188,7 +188,7 @@ jobs:
           path: /tmp/.vortex-coverage-html
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           directory: /tmp/.vortex-coverage-html
           fail_ci_if_error: false
