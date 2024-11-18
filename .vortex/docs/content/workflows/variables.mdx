@@ -26,7 +26,7 @@ Defined in: `.env.local.example`
 
 ### `AHOY_CONFIRM_WAIT_SKIP`
 
-When Ahoy prompts are suppressed ([`$AHOY_CONFIRM_RESPONSE`](#ahoy_confirm_response) is `1`), the command<br />will wait for `3` seconds before proceeding.<br />Set this variable to "`1`" to skip the wait.
+When Ahoy prompts are suppressed ([`$AHOY_CONFIRM_RESPONSE`](#ahoy_confirm_response) is `1`), the command<br/>will wait for `3` seconds before proceeding.<br/>Set this variable to "`1`" to skip the wait.
 
 Default value: `1`
 
@@ -36,7 +36,7 @@ Defined in: `.env.local.example`
 
 Docker Compose project name.
 
-Sets the project name for a Docker Compose project. Influences container and<br />network names.
+Sets the project name for a Docker Compose project. Influences container and<br/>network names.
 
 Defaults to the name of the project directory.
 
@@ -64,7 +64,7 @@ Defined in: `.env`
 
 ClamAV mode.
 
-Run ClamAV in either daemon mode by setting it to `0` (or 'daemon') or in<br />executable mode by setting it to `1`.
+Run ClamAV in either daemon mode by setting it to `0` (or 'daemon') or in<br/>executable mode by setting it to `1`.
 
 Default value: `daemon`
 
@@ -72,7 +72,7 @@ Defined in: `.env`
 
 ### `DRUPAL_CONFIG_PATH`
 
-Path to configuration directory relative to the project root.<br />Auto-discovered from site's `settings.php` file if not set.
+Path to configuration directory relative to the project root.<br/>Auto-discovered from site's `settings.php` file if not set.
 
 Default value: `UNDEFINED`
 
@@ -114,7 +114,7 @@ Defined in: `.env`
 
 ### `DRUPAL_REDIS_ENABLED`
 
-Enable Redis integration.<br />See settings.redis.php for details.
+Enable Redis integration.<br/>See settings.redis.php for details.
 
 Default value: `UNDEFINED`
 
@@ -130,7 +130,7 @@ Defined in: `.env`
 
 ### `DRUPAL_SITE_EMAIL`
 
-Drupal site email.<br />Used only when installing from profile.
+Drupal site email.<br/>Used only when installing from profile.
 
 Default value: `webmaster@your-site-url.example`
 
@@ -138,7 +138,7 @@ Defined in: `.env`, `scripts/vortex/provision.sh`
 
 ### `DRUPAL_SITE_NAME`
 
-Drupal site name.<br />Used only when installing from profile.
+Drupal site name.<br/>Used only when installing from profile.
 
 Default value: `${VORTEX_PROJECT}`
 
@@ -146,7 +146,7 @@ Defined in: `.env`, `scripts/vortex/provision.sh`
 
 ### `DRUPAL_STAGE_FILE_PROXY_ORIGIN`
 
-Stage file proxy origin. Note that HTTP Auth provided by Shield will be<br />automatically added to the origin URL.
+Stage file proxy origin. Note that HTTP Auth provided by Shield will be<br/>automatically added to the origin URL.
 
 Default value: `https://www.your-site-url.example/`
 
@@ -178,7 +178,7 @@ Defined in: `.env`, `scripts/vortex/login.sh`, `scripts/vortex/logout.sh`
 
 ### `GITHUB_TOKEN`
 
-GitHub token used to overcome API rate limits or access private repositories.<br />@see https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+GitHub token used to overcome API rate limits or access private repositories.<br/>@see https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 
 Default value: `UNDEFINED`
 
@@ -238,7 +238,7 @@ Defined in: `CI config`
 
 ### `RENOVATE_TOKEN`
 
-Self-hosted Renovate bot token.<br />Create a GitHub token with a permission to write to a repository.
+Self-hosted Renovate bot token.<br/>Create a GitHub token with a permission to write to a repository.
 
 Default value: `UNDEFINED`
 
@@ -448,7 +448,7 @@ Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`
 
 ### `VORTEX_DB_DOWNLOAD_CURL_URL`
 
-Database dump file sourced from CURL, with optional HTTP Basic Authentication<br />credentials embedded into the value.
+Database dump file sourced from CURL, with optional HTTP Basic Authentication<br/>credentials embedded into the value.
 
 Default value: `UNDEFINED`
 
@@ -530,7 +530,7 @@ Defined in: `scripts/vortex/download-db-lagoon.sh`
 
 Wildcard file name to cleanup previously created dump files.
 
-Cleanup runs only if the variable is set and [`$VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE`](#vortex_db_download_lagoon_remote_file)<br />does not exist.
+Cleanup runs only if the variable is set and [`$VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE`](#vortex_db_download_lagoon_remote_file)<br/>does not exist.
 
 Default value: `db_*.sql`
 
@@ -578,7 +578,7 @@ Defined in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_SOURCE`
 
-Note that "container_registry" works only for database-in-image<br />database storage (when [`$VORTEX_DB_IMAGE`](#vortex_db_image) variable has a value).
+Note that "container_registry" works only for database-in-image<br/>database storage (when [`$VORTEX_DB_IMAGE`](#vortex_db_image) variable has a value).
 
 Default value: `curl`
 
@@ -670,7 +670,7 @@ Defined in: `.env`, `scripts/vortex/download-db-container-registry.sh`, `scripts
 
 Name of the database fall-back container image to use.
 
-If the image specified in [`$VORTEX_DB_IMAGE`](#vortex_db_image) does not exist and base<br />image was provided - it will be used as a "clean slate" for the database.
+If the image specified in [`$VORTEX_DB_IMAGE`](#vortex_db_image) does not exist and base<br/>image was provided - it will be used as a "clean slate" for the database.
 
 Default value: `UNDEFINED`
 
@@ -707,7 +707,7 @@ Defined in: `scripts/vortex/deploy.sh`
 
 ### `VORTEX_DEPLOY_ARTIFACT_DST_BRANCH`
 
-Remote repository branch. Can be a specific branch or a token.<br />@see https://github.com/drevops/git-artifact#token-support
+Remote repository branch. Can be a specific branch or a token.<br/>@see https://github.com/drevops/git-artifact#token-support
 
 Default value: `[branch]`
 
@@ -747,7 +747,7 @@ Defined in: `scripts/vortex/deploy-artifact.sh`
 
 ### `VORTEX_DEPLOY_ARTIFACT_ROOT`
 
-The root directory where the deployment script should run from. Defaults to<br />the current directory.
+The root directory where the deployment script should run from. Defaults to<br/>the current directory.
 
 Default value: `$(pwd)`
 
@@ -789,7 +789,7 @@ Defined in: `scripts/vortex/deploy-container-registry.sh`
 
 ### `VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP`
 
-Comma-separated map of container services and images to use for deployment in<br />format "service1=org/image1,service2=org/image2".
+Comma-separated map of container services and images to use for deployment in<br/>format "service1=org/image1,service2=org/image2".
 
 Default value: `UNDEFINED`
 
@@ -897,7 +897,7 @@ Defined in: `scripts/vortex/deploy-artifact.sh`, `scripts/vortex/deploy-lagoon.s
 
 The type of deployment.
 
-Combination of comma-separated values to support multiple deployment targets:<br />`artifact`,`container_registry`, `webhook`, `lagoon`.
+Combination of comma-separated values to support multiple deployment targets:<br/>`artifact`,`container_registry`, `webhook`, `lagoon`.
 
 See https://vortex.drevops.com/workflows/deploy
 
@@ -1087,7 +1087,7 @@ Defined in: `.env`
 
 ### `VORTEX_LOCALDEV_URL`
 
-Local development URL.<br />Override only if you need to use a different URL than the default.
+Local development URL.<br/>Override only if you need to use a different URL than the default.
 
 Default value: `<current_dir>.docker.amazee.io`
 
@@ -1203,7 +1203,7 @@ Defined in: `scripts/vortex/notify-email.sh`
 
 Email address(es) to send notifications to.
 
-Multiple names can be specified as a comma-separated list of email addresses<br />with optional names in the format "email|name".<br />Example: "to1@example.com|Jane Doe, to2@example.com|John Doe"
+Multiple names can be specified as a comma-separated list of email addresses<br/>with optional names in the format "email|name".<br/>Example: "to1@example.com|Jane Doe, to2@example.com|John Doe"
 
 Default value: `webmaster@your-site-url.example`
 
@@ -1419,7 +1419,7 @@ Defined in: `scripts/vortex/notify.sh`
 
 ### `VORTEX_NOTIFY_WEBHOOK_HEADERS`
 
-Webhook headers.<br />Separate multiple headers with a pipe `|`.<br />Example: `Content-type: application/json|Authorization: Bearer API_KEY`.
+Webhook headers.<br/>Separate multiple headers with a pipe `|`.<br/>Example: `Content-type: application/json|Authorization: Bearer API_KEY`.
 
 Default value: `Content-type: application/json`
 
@@ -1469,7 +1469,7 @@ Defined in: `.env`
 
 Project name.
 
-Drives internal naming within the codebase.<br />Does not affect the names of containers and development URL - those depend on<br />the project directory and can be overridden with [`$COMPOSE_PROJECT_NAME`](#compose_project_name).
+Drives internal naming within the codebase.<br/>Does not affect the names of containers and development URL - those depend on<br/>the project directory and can be overridden with [`$COMPOSE_PROJECT_NAME`](#compose_project_name).
 
 Default value: `your_site`
 
@@ -1495,7 +1495,7 @@ Defined in: `scripts/vortex/provision.sh`
 
 Overwrite existing database if it exists.
 
-Usually set to `0` in deployed environments and can be temporary set to `1` for<br />a specific deployment.<br />Set this to `1` in .env.local to override when developing locally.
+Usually set to `0` in deployed environments and can be temporary set to `1` for<br/>a specific deployment.<br/>Set this to `1` in .env.local to override when developing locally.
 
 Default value: `UNDEFINED`
 
@@ -1503,7 +1503,7 @@ Defined in: `.env`, `.env.local.example`, `scripts/vortex/provision.sh`
 
 ### `VORTEX_PROVISION_POST_OPERATIONS_SKIP`
 
-Flag to skip running of operations after site provision is complete.<br />Useful to only import the database from file (or install from profile) and not<br />perform any additional operations. For example, when need to capture database<br />state before any updates ran (for example, DB caching in CI).
+Flag to skip running of operations after site provision is complete.<br/>Useful to only import the database from file (or install from profile) and not<br/>perform any additional operations. For example, when need to capture database<br/>state before any updates ran (for example, DB caching in CI).
 
 Default value: `0`
 
@@ -1513,7 +1513,7 @@ Defined in: `scripts/vortex/provision.sh`
 
 Path to file with custom sanitization SQL queries.
 
-To skip custom sanitization, remove the file defined in<br />VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE variable from the codebase.
+To skip custom sanitization, remove the file defined in<br/>VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE variable from the codebase.
 
 Default value: `./scripts/sanitize.sql`
 
@@ -1521,7 +1521,7 @@ Defined in: `scripts/vortex/provision-sanitize-db.sh`
 
 ### `VORTEX_PROVISION_SANITIZE_DB_EMAIL`
 
-Sanitization email pattern. Sanitization is enabled by default in all<br />non-production environments.<br />@see https://vortex.drevops.com/workflows/build#sanitization
+Sanitization email pattern. Sanitization is enabled by default in all<br/>non-production environments.<br/>@see https://vortex.drevops.com/workflows/build#sanitization
 
 Default value: `user_%uid@your-site-url.example`
 
@@ -1537,7 +1537,7 @@ Defined in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
 
 ### `VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL`
 
-Replace username with email after database sanitization. Useful when email<br />is used as username.
+Replace username with email after database sanitization. Useful when email<br/>is used as username.
 
 Default value: `UNDEFINED`
 
@@ -1547,7 +1547,7 @@ Defined in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
 
 Skip database sanitization.
 
-Database sanitization is enabled by default in all non-production<br />environments and is always skipped in the production environment.
+Database sanitization is enabled by default in all non-production<br/>environments and is always skipped in the production environment.
 
 Default value: `UNDEFINED`
 
@@ -1604,7 +1604,7 @@ Defined in: `scripts/vortex/doctor.sh`
 ### `VORTEX_SSH_PREFIX`
 
 Prefix used to load SSH key from prefixes environment variables:
-- VORTEX_[`${VORTEX_SSH_PREFIX}`](#vortex_ssh_prefix)_SSH_FINGERPRINT - the variable name with the<br />SSH key fingerprint value.
+- VORTEX_[`${VORTEX_SSH_PREFIX}`](#vortex_ssh_prefix)_SSH_FINGERPRINT - the variable name with the<br/>SSH key fingerprint value.
 - VORTEX_[`${VORTEX_SSH_PREFIX}`](#vortex_ssh_prefix)_SSH_FILE - the variable name with the SSH
 key file path.
 
@@ -1654,7 +1654,7 @@ Defined in: `scripts/vortex/task-copy-db-acquia.sh`
 
 ### `VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES`
 
-Number of status retrieval retries. If this limit reached and task has not<br />yet finished, the task is considered failed.
+Number of status retrieval retries. If this limit reached and task has not<br/>yet finished, the task is considered failed.
 
 Default value: `600`
 
@@ -1694,7 +1694,7 @@ Defined in: `scripts/vortex/task-copy-files-acquia.sh`
 
 ### `VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES`
 
-Number of status retrieval retries. If this limit reached and task has not<br />yet finished, the task is considered failed.
+Number of status retrieval retries. If this limit reached and task has not<br/>yet finished, the task is considered failed.
 
 Default value: `300`
 
@@ -1790,7 +1790,7 @@ Defined in: `scripts/vortex/task-purge-cache-acquia.sh`
 
 ### `VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES`
 
-Number of status retrieval retries. If this limit reached and task has not<br />yet finished, the task is considered failed.
+Number of status retrieval retries. If this limit reached and task has not<br/>yet finished, the task is considered failed.
 
 Default value: `300`
 
