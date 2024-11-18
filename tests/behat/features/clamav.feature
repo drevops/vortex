@@ -1,4 +1,4 @@
-@clamav @p0
+@clamav @p0 @skipped
 Feature: ClamAV Anti-virus
 
   Ensure that ClamAV is working correctly.

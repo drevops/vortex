@@ -144,7 +144,7 @@ $databases = [];
  * in deadlocks, the other two options are 'READ UNCOMMITTED' and 'SERIALIZABLE'.
  * They are available but not supported; use them at your own risk. For more
  * info:
- * https://dev.mysql.com/doc/refman/5.7/en/innodb-transaction-isolation-levels.html
+ * https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html
  *
  * On your settings.php, change the isolation level:
  * @code
@@ -725,17 +725,6 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 # $settings['container_base_class'] = '\Drupal\Core\DependencyInjection\Container';
 
 /**
- * Override the default yaml parser class.
- *
- * Provide a fully qualified class name here if you would like to provide an
- * alternate implementation YAML parser. The class must implement the
- * \Drupal\Component\Serialization\SerializationInterface interface.
- *
- * This setting is deprecated in Drupal 10.3 and removed in Drupal 11.
- */
-# $settings['yaml_parser_class'] = NULL;
-
-/**
  * Trusted host configuration.
  *
  * Drupal core can use the Symfony trusted host mechanism to prevent HTTP Host
@@ -808,16 +797,6 @@ $settings['entity_update_batch_size'] = 50;
  * retained after a successful entity update process.
  */
 $settings['entity_update_backup'] = TRUE;
-
-/**
- * State caching.
- *
- * State caching uses the cache collector pattern to cache all requested keys
- * from the state API in a single cache entry, which can greatly reduce the
- * amount of database queries. However, some sites may use state with a
- * lot of dynamic keys which could result in a very large cache.
- */
-$settings['state_cache'] = TRUE;
 
 /**
  * Node migration type.
