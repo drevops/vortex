@@ -76,9 +76,6 @@ $config['system.performance']['cache']['page']['max_age'] = 900;
 $config['system.performance']['css']['preprocess'] = TRUE;
 $config['system.performance']['js']['preprocess'] = TRUE;
 
-// Enable state cache.
-$settings['state_cache'] = TRUE;
-
 // The default list of directories that will be ignored by Drupal's file API.
 $settings['file_scan_ignore_directories'] = [
   'node_modules',

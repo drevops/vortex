@@ -320,7 +320,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^.+\.docker\.amazee\.io$',
       '^nginx$',
     ];
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -367,7 +366,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^.+\.docker\.amazee\.io$',
       '^nginx$',
     ];
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -414,7 +412,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^.+\.docker\.amazee\.io$',
       '^nginx$',
     ];
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -457,7 +454,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -499,7 +495,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -541,7 +536,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -581,7 +575,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
   // phpcs:ignore #;> ACQUIA
@@ -634,7 +627,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^nginx\-php$';
     $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -686,7 +678,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^nginx\-php$';
     $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -738,7 +729,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^nginx\-php$';
     $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
 
@@ -789,7 +779,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^nginx\-php$';
     $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
-    $settings['state_cache'] = TRUE;
     $this->assertSettings($settings);
   }
   // phpcs:ignore #;> LAGOON
