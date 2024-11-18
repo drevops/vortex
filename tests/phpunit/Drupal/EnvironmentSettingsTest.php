@@ -37,9 +37,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   /**
    * Data provider for testing of the resulting environment.
    */
-  public function dataProviderEnvironmentTypeResolution(): array {
-    $this->requireSettingsFile();
-
+  public static function dataProviderEnvironmentTypeResolution(): array {
     return [
       // By default, the default environment type is local.
       [[], static::ENVIRONMENT_LOCAL],
