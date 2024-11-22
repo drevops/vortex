@@ -30,6 +30,9 @@ it easier to switch between them and get up to speed quickly.
 
 Track our current progress and view planned updates on [the GitHub project board](https://github.com/orgs/drevops/projects/2/views/1).
 
+> [!IMPORTANT]
+> Vortex 2.0 is coming soon! Planned changes are captured in [this issue](https://github.com/drevops/vortex/issues/698).
+
 ## Installation
 
 Our [installer](https://github.com/drevops/vortex-installer) simplifies setup, letting you choose only the features you need. It will integrate the latest Vortex release into your codebase and you will choose which changes to commit.
