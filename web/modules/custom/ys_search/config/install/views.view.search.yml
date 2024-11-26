@@ -80,6 +80,7 @@ display:
         type: mini
         options:
           offset: 0
+          pagination_heading_level: h4
           items_per_page: 10
           total_pages: null
           id: 0
@@ -110,7 +111,7 @@ display:
         type: none
         options: {  }
       cache:
-        type: none
+        type: search_api_none
         options: {  }
       empty: {  }
       sorts: {  }
@@ -148,6 +149,7 @@ display:
             expose_fields: false
             placeholder: ''
             searched_fields_id: search_api_fulltext_searched_fields
+            value_maxlength: 128
           is_grouped: false
           group_info:
             label: ''
@@ -167,6 +169,12 @@ display:
         type: default
       row:
         type: search_api
+        options:
+          view_modes:
+            'entity:node':
+              ':default': default
+              article: ':default'
+              page: ':default'
       query:
         type: search_api_query
         options:
