@@ -11,10 +11,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - uses: suzuki-shunsuke/github-action-renovate-config-validator@v1.1.0
+      - uses: suzuki-shunsuke/github-action-renovate-config-validator@v1.1.1
 
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v41.0.3
+        uses: renovatebot/github-action@v41.0.4
         with:
           configurationFile: renovate.json
           token: ${{ secrets.RENOVATE_TOKEN }}
