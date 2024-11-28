@@ -1,5 +1,5 @@
 name: YOURSITE Core
 type: module
 description: Core feature for YOURSITE site.
-core_version_requirement: ^10
+core_version_requirement: ^11
 package: your_site
