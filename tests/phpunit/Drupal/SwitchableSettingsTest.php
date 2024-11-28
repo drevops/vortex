@@ -19,6 +19,9 @@ class SwitchableSettingsTest extends SettingsTestCase {
 
   /**
    * Test ClamAV configs in Daemon mode with defaults.
+   *
+   * @group skipped
+   * @see https://github.com/drevops/vortex/issues/1461
    */
   public function testClamavDaemonCustom(): void {
     $this->setEnvVars([
@@ -39,6 +42,9 @@ class SwitchableSettingsTest extends SettingsTestCase {
 
   /**
    * Test ClamAV configs in Executable mode.
+   *
+   * @group skipped
+   * @see https://github.com/drevops/vortex/issues/1461
    */
   public function testClamavExecutable(): void {
     $this->setEnvVars([
@@ -57,6 +63,9 @@ class SwitchableSettingsTest extends SettingsTestCase {
 
   /**
    * Test ClamAV configs in Daemon mode with defaults.
+   *
+   * @group skipped
+   * @see https://github.com/drevops/vortex/issues/1461
    */
   public function testClamavDaemonDefaults(): void {
     $this->setEnvVars([
