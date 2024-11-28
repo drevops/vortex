@@ -49,20 +49,19 @@ echo "VORTEX_PROVISION_USE_PROFILE=1">>.env.local
 rm .data/db.sql
 AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
-2. Check that everything looks correctly on the site.
-3. Export DB
-```bash
-ahoy export-db
+2. Add a new `Basic page` node with title `Welcome to the demo site!` and content
 ```
-4. Make sure that exported DB does not have data in `cache_*` and `watchdog` tables.
-5. Upload DB to https://github.com/drevops/vortex/wiki as a test file (`db.distN.sql`).
-6. Update references in code from `db.demo.sql` to `db.distN.sql`.
-7. Run CI build.
-8. Revert updated references to `db.demo.sql`.
-9. Update `db.demo.sql` in Wiki.
-10. Merge branch to `main`.
-11. Wait for CI to pass.
-12. Remove `db.distN.sql` from Wiki.
+Welcome to the demo site!
+
+This example page is sourced from the Vortex example database dump file to demonstrate database importing capabilities.
+```
+3. Truncate `cache_*` and `watchdog` tables.
+4. Export DB `ahoy export-db` and rename it to `db.sql`.
+5. Run `ahoy provision` and check if there are no errors or warnings in the output.
+6. Run `ahoy test` and check if all tests pass.
+7. Rename `db.sql` to `db_dX.demo.sql`, where `X` is the next Drupal version number.
+5. Update references in code from the current version `db_dY.demo.sql` to `db_dX.demo.sql`.
+6. Upload the DB dump file to the latest release as an asset (`db_dX.demo.sql`).
 
 ### Updating demo database container image
 
