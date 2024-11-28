@@ -67,10 +67,6 @@ COPY scripts /app/scripts
 # required by composer scripts to get some additions variables.
 COPY composer.json composer.* .env* auth* /app/
 
-# @see https://github.com/mglaman/composer-drupal-lenient/pull/18
-RUN composer global config --no-plugins allow-plugins.mglaman/composer-drupal-lenient true && \
-    composer global require mglaman/composer-drupal-lenient
-
 # Install PHP dependencies without including development dependencies. This is
 # crucial as it prevents potential security vulnerabilities from being exposed
 # to the production environment.
