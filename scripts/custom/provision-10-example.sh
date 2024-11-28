@@ -38,8 +38,9 @@ if echo "${VORTEX_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e lo
   #;> REDIS
 
   #;< CLAMAV
-  drush pm:install clamav
-  drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
+  # @see https://github.com/drevops/vortex/issues/1461
+  # drush pm:install clamav
+  # drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
   #;> CLAMAV
 
   #;< SOLR
