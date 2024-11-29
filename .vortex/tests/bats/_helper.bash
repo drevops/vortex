@@ -144,7 +144,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/1.18.0/db_d10.test.sql
+  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/24.11.0/db_d11.test.sql
 
   ##
   ## Phase 5: SUT files setup.
