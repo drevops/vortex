@@ -70,12 +70,12 @@ load _helper.workflow.bash
   # Make a change to current site, export the DB image, remove existing DB image
   # and rebuild the stack - the used image should have the expected changes.
   substep "Assert that used DB image has content."
-  assert_webpage_contains "/" "test database Docker image"
+  assert_webpage_contains "/" "This test page is sourced from the Vortex database container image"
   assert_webpage_not_contains "/" "Username"
 
   substep "Change homepage content and assert that the change was applied."
   ahoy drush config-set system.site page.front /user -y
-  assert_webpage_not_contains "/" "test database Docker image"
+  assert_webpage_not_contains "/" "This test page is sourced from the Vortex database container image"
   assert_webpage_contains "/" "Username"
 
   substep "Exporting DB image to a file"
@@ -107,7 +107,7 @@ load _helper.workflow.bash
   assert_output_contains "Finished building project"
 
   step "Assert that the contents of the DB was loaded from the exported DB image file."
-  assert_webpage_not_contains "/" "test database Docker image"
+  assert_webpage_not_contains "/" "This test page is sourced from the Vortex database container image"
   assert_webpage_contains "/" "Username"
   ahoy clean
 }

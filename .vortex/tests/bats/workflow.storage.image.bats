@@ -59,14 +59,14 @@ load _helper.workflow.bash
   step "Reload DB image"
 
   # Assert that used DB image has content.
-  assert_webpage_contains "/" "test database Docker image"
+  assert_webpage_contains "/" "This test page is sourced from the Vortex database container image"
 
   # Change homepage content and assert that the change was applied.
   ahoy drush config-set system.site page.front /user -y
-  assert_webpage_not_contains "/" "test database Docker image"
+  assert_webpage_not_contains "/" "This test page is sourced from the Vortex database container image"
 
   ahoy reload-db
-  assert_webpage_contains "/" "test database Docker image"
+  assert_webpage_contains "/" "This test page is sourced from the Vortex database container image"
 
   # Other stack assertions - these run only for this container image-related test.
   assert_gitignore
