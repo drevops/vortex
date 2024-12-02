@@ -435,7 +435,8 @@ assert_ahoy_test_unit() {
   step "Run Drupal Unit tests"
 
   substep "Run all Unit tests"
-  run ahoy test-unit
+  # @todo: Add coverage check.
+  run ahoy test-unit --no-coverage
   assert_success
   assert_output_contains "OK ("
   sync_to_host
@@ -460,7 +461,8 @@ assert_ahoy_test_kernel() {
   step "Run Drupal Kernel tests"
 
   substep "Run all Kernel tests"
-  run ahoy test-kernel
+  # @todo: Add coverage check.
+  run ahoy test-kernel --no-coverage
   assert_success
   assert_output_contains "OK ("
   sync_to_host
@@ -485,7 +487,8 @@ assert_ahoy_test_functional() {
   step "Run Drupal Functional tests"
 
   substep "Run all Functional tests"
-  run ahoy test-functional
+  # @todo: Add coverage check.
+  run ahoy test-functional --no-coverage
   assert_success
   assert_output_contains "OK ("
   sync_to_host
