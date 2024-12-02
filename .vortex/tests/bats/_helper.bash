@@ -271,6 +271,7 @@ assert_files_not_present_common() {
   assert_dir_not_exists "${webroot}/themes/custom/your_site_theme"
   assert_dir_not_exists "${webroot}/profiles/custom/${suffix}_profile"
   assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_core"
+  assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_search"
   assert_dir_not_exists "${webroot}/themes/custom/${suffix}"
   assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
@@ -473,6 +474,10 @@ assert_files_present_drupal() {
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/ExampleTest.php"
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreFunctionalTestBase.php"
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/ExampleTest.php"
+
+  # Site search module created.
+  assert_dir_exists "${webroot}/modules/custom/${suffix_abbreviated}_search"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_search/${suffix_abbreviated}_search.info.yml"
 
   # Site theme created.
   assert_dir_exists "${webroot}/themes/custom/${suffix}"

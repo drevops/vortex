@@ -94,6 +94,7 @@ assert_ahoy_build() {
 
   process_ahoyyml
   run ahoy build
+  assert_success
   run sync_to_host
 
   # Assert that lock files were created.

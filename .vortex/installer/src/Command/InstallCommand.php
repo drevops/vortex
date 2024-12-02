@@ -537,32 +537,37 @@ class InstallCommand extends Command {
     // @formatter:off
     // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
-    static::dirReplaceContent('your_site_theme',       $this->getAnswer('theme'),                   $dir);
-    static::dirReplaceContent('YourSiteTheme',         $theme_camel_cased,                           $dir);
-    static::dirReplaceContent('your_org',              $this->getAnswer('org_machine_name'),        $dir);
-    static::dirReplaceContent('YOURORG',               $this->getAnswer('org'),                     $dir);
-    static::dirReplaceContent('www.your-site-url.example',  $domain,                    $dir);
-    static::dirReplaceContent('your-site-url.example',      $domain_non_www,            $dir);
-    static::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core', $dir . sprintf('/%s/modules/custom', $webroot));
-    static::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core', $dir . sprintf('/%s/themes/custom', $webroot));
-    static::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core', $dir . '/scripts/custom');
-    static::dirReplaceContent('YsCore',                $module_prefix_camel_cased . 'Core',          $dir . sprintf('/%s/modules/custom', $webroot));
-    static::dirReplaceContent('YSCODE',                $module_prefix_uppercase,                     $dir);
-    static::dirReplaceContent('your-site',             $machine_name_hyphenated,                     $dir);
-    static::dirReplaceContent('your_site',             $this->getAnswer('machine_name'),            $dir);
-    static::dirReplaceContent('YOURSITE',              $this->getAnswer('name'),                    $dir);
-    static::dirReplaceContent('YourSite',              $machine_name_camel_cased,                    $dir);
+    static::dirReplaceContent('your_site_theme',       $this->getAnswer('theme'),                     $dir);
+    static::dirReplaceContent('YourSiteTheme',         $theme_camel_cased,                            $dir);
+    static::dirReplaceContent('your_org',              $this->getAnswer('org_machine_name'),          $dir);
+    static::dirReplaceContent('YOURORG',               $this->getAnswer('org'),                       $dir);
+    static::dirReplaceContent('www.your-site-url.example',  $domain,                                  $dir);
+    static::dirReplaceContent('your-site-url.example',      $domain_non_www,                          $dir);
+    static::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
+    static::dirReplaceContent('ys_search',             $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
+    static::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/themes/custom',  $webroot));
+    static::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . '/scripts/custom');
+    static::dirReplaceContent('ys_search',             $this->getAnswer('module_prefix') . '_search', $dir . '/scripts/custom');
+    static::dirReplaceContent('YsCore',                $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
+    static::dirReplaceContent('YsSearch',              $module_prefix_camel_cased . 'Search',         $dir . sprintf('/%s/modules/custom', $webroot));
+    static::dirReplaceContent('YSCODE',                $module_prefix_uppercase,                      $dir);
+    static::dirReplaceContent('YSSEARCH',              $module_prefix_uppercase,                      $dir);
+    static::dirReplaceContent('your-site',             $machine_name_hyphenated,                      $dir);
+    static::dirReplaceContent('your_site',             $this->getAnswer('machine_name'),              $dir);
+    static::dirReplaceContent('YOURSITE',              $this->getAnswer('name'),                      $dir);
+    static::dirReplaceContent('YourSite',              $machine_name_camel_cased,                     $dir);
 
-    static::replaceStringFilename('YourSiteTheme',     $theme_camel_cased,                           $dir);
-    static::replaceStringFilename('your_site_theme',   $this->getAnswer('theme'),                   $dir);
-    static::replaceStringFilename('YourSite',          $machine_name_camel_cased,                    $dir);
-    static::replaceStringFilename('ys_core',           $this->getAnswer('module_prefix') . '_core', $dir . sprintf('/%s/modules/custom', $webroot));
-    static::replaceStringFilename('YsCore',            $module_prefix_camel_cased . 'Core',          $dir . sprintf('/%s/modules/custom', $webroot));
-    static::replaceStringFilename('your_org',          $this->getAnswer('org_machine_name'),        $dir);
-    static::replaceStringFilename('your_site',         $this->getAnswer('machine_name'),            $dir);
+    static::replaceStringFilename('YourSiteTheme',     $theme_camel_cased,                            $dir);
+    static::replaceStringFilename('your_site_theme',   $this->getAnswer('theme'),                     $dir);
+    static::replaceStringFilename('YourSite',          $machine_name_camel_cased,                     $dir);
+    static::replaceStringFilename('ys_core',           $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
+    static::replaceStringFilename('ys_search',         $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
+    static::replaceStringFilename('YsCore',            $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
+    static::replaceStringFilename('your_org',          $this->getAnswer('org_machine_name'),          $dir);
+    static::replaceStringFilename('your_site',         $this->getAnswer('machine_name'),              $dir);
 
-    static::dirReplaceContent('VORTEX_VERSION_URLENCODED', $vortex_version_urlencoded,             $dir);
-    static::dirReplaceContent('VORTEX_VERSION',            $this->getConfig('VORTEX_VERSION'),   $dir);
+    static::dirReplaceContent('VORTEX_VERSION_URLENCODED', $vortex_version_urlencoded,                $dir);
+    static::dirReplaceContent('VORTEX_VERSION',            $this->getConfig('VORTEX_VERSION'),        $dir);
     // @formatter:on
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
