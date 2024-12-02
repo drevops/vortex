@@ -65,11 +65,11 @@ load _helper.workflow.bash
 
   step "Case 1: Site is built from DB file, site reloaded from image, while DB file exists."
   substep "Assert that the text is from the DB dump."
-  assert_webpage_contains "/" "test database dump"
+  assert_webpage_contains "/" "This test page is sourced from the Vortex database dump file"
 
   substep "Set content to a different path."
   ahoy drush config-set system.site page.front /user -y
-  assert_webpage_not_contains "/" "test database dump"
+  assert_webpage_not_contains "/" "This test page is sourced from the Vortex database dump file"
 
   substep "Reloading DB from image with DB dump file present"
   assert_file_exists .data/db.sql
@@ -77,7 +77,7 @@ load _helper.workflow.bash
   assert_success
 
   substep "Assert that the text is from the DB dump after reload."
-  assert_webpage_contains "/" "test database dump"
+  assert_webpage_contains "/" "This test page is sourced from the Vortex database dump file"
 
   # Skipped: the provision.sh expects DB dump file to exist; this logic
   # needs to be refactored. Currently, reloading without DB dump file present
@@ -90,7 +90,7 @@ load _helper.workflow.bash
   # assert_success
   #
   # substep "Assert that the text is from the container image."
-  # assert_page_contains "/" "test database Docker image"
+  # assert_page_contains "/" "This test page is sourced from the Vortex database container image"
 
   assert_ahoy_export_db "mydb.tar"
 }
