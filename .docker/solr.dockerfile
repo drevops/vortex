@@ -1,7 +1,7 @@
 # Solr container.
 ARG CLI_IMAGE
 # hadolint ignore=DL3006
-FROM ${CLI_IMAGE} as cli
+FROM ${CLI_IMAGE:-cli} AS cli
 
 # @see https://hub.docker.com/r/uselagoon/solr-8/tags
 # @see https://github.com/uselagoon/lagoon-images/blob/main/images/solr/8.Dockerfile
