@@ -54,7 +54,7 @@ sleep 5
 docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" mysql -e "UNLOCK TABLES;"
 
 note "Running forced service upgrade."
-docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" sh -c "mysql_upgrade --force"
+docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" sh -c "mariadb-upgrade --force || mariadb-upgrade --force"
 
 note "Locking tables after upgrade."
 docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
