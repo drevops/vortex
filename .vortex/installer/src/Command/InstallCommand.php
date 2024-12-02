@@ -668,6 +668,7 @@ class InstallCommand extends Command {
       static::dirReplaceContent('=web', '=' . $new_name, $dir);
       static::dirReplaceContent('!web', '!' . $new_name, $dir);
       static::dirReplaceContent('/\/web\//', '/' . $new_name . '/', $dir);
+      static::dirReplaceContent('/\'\/web\'/', "'/" . $new_name . "'", $dir);
       rename($dir . DIRECTORY_SEPARATOR . 'web', $dir . DIRECTORY_SEPARATOR . $new_name);
     }
   }
@@ -1346,7 +1347,7 @@ class InstallCommand extends Command {
     return $this->getValueFromDstDotenv('VORTEX_PROVISION_OVERRIDE_DB') ? self::ANSWER_YES : self::ANSWER_NO;
   }
 
-  protected function discoverValueCiProvider() {
+  protected function discoverValueCiProvider(): ?string {
     if (is_readable($this->getDstDir() . '/.github/workflows/build-test-deploy.yml')) {
       return 'GitHub Actions';
     }
@@ -1568,18 +1569,11 @@ class InstallCommand extends Command {
   protected function normaliseAnswerCiProvider($value): string {
     $value = trim(strtolower((string) $value));
 
-    switch ($value) {
-      case 'c':
-      case 'circleci':
-        return 'CircleCI';
-
-      case 'g':
-      case 'gha':
-      case 'github actions':
-        return 'GitHub Actions';
-    }
-
-    return 'none';
+    return match ($value) {
+      'c', 'circleci' => 'CircleCI',
+      'g', 'gha', 'github actions' => 'GitHub Actions',
+      default => 'none',
+    };
   }
 
   protected function normaliseAnswerDeployType($value): ?string {
@@ -2145,7 +2139,7 @@ EOF;
   /**
    * Execute command wrapper.
    */
-  protected function doExec($command, array &$output = NULL, &$return_var = NULL): string|false {
+  protected function doExec($command, ?array &$output = NULL, &$return_var = NULL): string|false {
     if ($this->isInstallDebug()) {
       $this->status(sprintf('COMMAND: %s', $command), self::INSTALLER_STATUS_DEBUG);
     }
