@@ -50,7 +50,7 @@ commands:
   test-bats:
     cmd: |
       [ ! -d tests/node_modules ] && npm --prefix tests ci
-      tests/node_modules/.bin/bats "$@"
+      tests/node_modules/.bin/bats --no-tempdir-cleanup --tap "$@"
 
   test-common:
     cmd: ./tests/test.common.sh
