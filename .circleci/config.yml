@@ -16,12 +16,12 @@ aliases:
   #;< !PROVISION_USE_PROFILE
   # SSH key fingerprint to download the database.
   # Replace this key fingerprint with your own and remove this comment.
-  - &db_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+  - &db_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
   #;> !PROVISION_USE_PROFILE
 
   # SSH key fingerprint to deploy code.
   # Replace this key fingerprint with your own and remove this comment.
-  - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+  - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
 
   #;< !PROVISION_USE_PROFILE
   # Schedule to run nightly database build (to cache the database for the next day).
