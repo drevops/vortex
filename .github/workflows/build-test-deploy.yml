@@ -281,10 +281,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Test with PHPUnit
-        run: |
-          XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
-          docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit
-          docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
+        run: docker compose exec -T cli vendor/bin/phpunit
         continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
 
       - name: Test with Behat

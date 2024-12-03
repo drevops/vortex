@@ -26,6 +26,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
+          coverage: pcov
+          ini-values: pcov.directory=.
 
       - name: Install dependencies
         run: composer install
@@ -36,7 +38,7 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Run tests
-        run: XDEBUG_MODE=coverage composer test
+        run: composer test
         working-directory: .vortex/installer
 
       - name: Upload coverage report as an artifact

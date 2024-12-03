@@ -52,7 +52,10 @@ ENV WEBROOT=${WEBROOT} \
 # reduce build time.
 
 # Adding more tools.
-RUN apk add --no-cache ncurses pv tzdata
+RUN apk add --no-cache ncurses pv tzdata autoconf g++ make \
+  && pecl install pcov \
+  && docker-php-ext-enable pcov \
+  && apk del g++ make autoconf
 
 # Adding patches and scripts.
 COPY patches /app/patches
