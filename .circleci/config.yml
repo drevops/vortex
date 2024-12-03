@@ -311,10 +311,7 @@ jobs:
 
       - run:
           name: Test with PHPUnit
-          command: |
-            XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
-            docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
-            docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
+          command: docker compose exec -T cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Test with Behat
