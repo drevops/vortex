@@ -22,7 +22,6 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   if (file_exists('/var/www/site-php/your_site/your_site-settings.inc')) {
     // @codeCoverageIgnoreStart
     require '/var/www/site-php/your_site/your_site-settings.inc';
-    $settings['config_sync_directory'] = $settings['config_vcs_directory'];
     // @codeCoverageIgnoreEnd
   }
 
