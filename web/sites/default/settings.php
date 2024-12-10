@@ -5,7 +5,7 @@
  * Drupal site-specific configuration file.
  *
  * The structure of this file:
- * - Environment constants definitions.
+ * - Environment type constants definitions.
  * - Site-specific settings.
  * - Inclusion of hosting providers settings.
  * - Per-environment overrides.
@@ -22,7 +22,7 @@
 declare(strict_types=1);
 
 ////////////////////////////////////////////////////////////////////////////////
-///                       ENVIRONMENT CONSTANTS                              ///
+///                       ENVIRONMENT TYPE CONSTANTS                         ///
 ////////////////////////////////////////////////////////////////////////////////
 
 // Use these constants anywhere in code to alter behaviour for a specific
@@ -50,6 +50,7 @@ $settings['environment'] = empty(getenv('CI')) ? ENVIRONMENT_LOCAL : ENVIRONMENT
 ////////////////////////////////////////////////////////////////////////////////
 ///                       SITE-SPECIFIC SETTINGS                             ///
 ////////////////////////////////////////////////////////////////////////////////
+
 $app_root = $app_root ?? DRUPAL_ROOT;
 $site_path = $site_path ?? 'sites/default';
 $contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir($app_root . DIRECTORY_SEPARATOR . 'modules/contrib') ? 'modules/contrib' : 'modules');
@@ -124,10 +125,10 @@ $databases = [
 ];
 
 ////////////////////////////////////////////////////////////////////////////////
-///                         ENVIRONMENT DETECTION                            ///
+///                       ENVIRONMENT TYPE DETECTION                         ///
 ////////////////////////////////////////////////////////////////////////////////
 
-// Load environment-specific settings.
+// Load provider-specific settings.
 if (file_exists($app_root . '/' . $site_path . '/includes/providers')) {
   $files = glob($app_root . '/' . $site_path . '/includes/providers/settings.*.php');
   if ($files) {

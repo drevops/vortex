@@ -4,21 +4,42 @@ sidebar_position: 2
 
 # Testing
 
-**Vortex** supports running Unit (PHPUnit) and BDD (Behat) tests.
+**Vortex** supports running Unit, Kernel, Functional, and BDD tests.
 
-For local development, the tests can be run using handy Ahoy commands:
+For local development, the tests can be run directly or using handy Ahoy
+commands:
 
-```bash
-ahoy test # Run all tests
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-ahoy test-unit # Run Unit tests
+<Tabs>
+  <TabItem value="apple" label="Direct" default>
+    ```shell
+    vendor/bin/phpunit                           # Run Unit, Kernel and Functional tests
 
-ahoy test-kernel # Run Kernel tests
+    vendor/bin/phpunit --testsuite=unit          # Run Unit tests
 
-ahoy test-functional # Run Functional tests
+    vendor/bin/phpunit --testsuite=kernel        # Run Kernel tests
 
-ahoy test-bdd # Run BDD tests
-```
+    vendor/bin/phpunit --testsuite=functional    # Run Functional tests
+
+    vendor/bin/behat                             # Run BDD tests
+    ```
+  </TabItem>
+  <TabItem value="orange" label="Ahoy">
+    ```shell
+    ahoy test               # Run Unit, Kernel and Functional tests
+
+    ahoy test-unit          # Run Unit tests
+
+    ahoy test-kernel        # Run Kernel tests
+
+    ahoy test-functional    # Run Functional tests
+
+    ahoy test-bdd           # Run BDD tests
+    ```
+  </TabItem>
+</Tabs>
 
 In CI, tests are run by calling the test binaries directly.
 
@@ -27,78 +48,82 @@ In CI, tests are run by calling the test binaries directly.
 **Vortex** uses PHPUnit as a framework for Unit testing.
 
 It is configured to use a copy of Drupal core's `core/phpunit.xml.dist`
-configuration file. This is done to allow per-project customisations.
+configuration file to allow customizing the test suite per project.
 
 ### Reporting
 
-Test reports are stored in `$VORTEX_TEST_RESULTS_DIR/phpunit` directory
+Test reports are stored in `.logs/phpunit` directory
 separated into multiple files and named after the suite name.
 These reports are usually used in CI to track tests performance and stability.
 
-### Vortex
+### Boilerplate
 
-**Vortex** provides a Unit test scaffold for custom [modules](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_core/tests/src),
+**Vortex** provides Unit, Kernel and Functional tests boilerplate for custom [modules](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_core/tests/src),
 [themes](https://github.com/drevops/vortex/blob/develop/web/themes/custom/your_site_theme/tests/src) and
 [scripts](https://github.com/drevops/vortex/blob/develop/tests/phpunit).
 
-These tests already run in CI when you install **Vortex** and can be used as a
-starting point for writing your own.
+These boilerplate tests run in CI when you install **Vortex** and can be used as
+a starting point for writing your own.
 
 #### Drupal settings tests
 
-**Vortex** provides a [Drupal settings tests](https://github.com/drevops/vortex/blob/develop/tests/phpunit/DrupalSettingsTest.php)
-to test that Drupal settings are correct based on the environment type the site
+**Vortex** provides [Drupal settings tests](https://github.com/drevops/vortex/blob/develop/tests/phpunit/Drupal/DrupalSettingsTest.php)
+to check that Drupal settings are correct based on the environment type the site
 is running: with the number of custom modules multiplied by the number of
 environment types, it is easy to miss certain settings which may lead to
-unexpected issues with deployments.
+unexpected issues when deploying a project to a different environment.
 
-It is intended to be used in a consumer site and kept up-to-date with the
-changes to the `settings.php` file.
+It is intended to be used in your site and kept up-to-date with the
+changes made to the `settings.php` file.
 
 #### CI configuration tests
 
 **Vortex** provides a [CI configuration tests](https://github.com/drevops/vortex/blob/develop/tests/phpunit/CircleCiConfigTest.php)
-to assert that CI configuration is correct. It is intended to be used in a consumer
+to check that the CI configuration is correct. It is intended to be used in your
 site and kept up-to-date with the CI configurations.
 
-For example, there are tests for the regular expressions that control for which
-branches the deployment job runs. Such test makes sure that there are no
-unexpected surprises during the consumer site release to production.
+For example, there are tests for regular expressions used to filter the branches
+and tags before they are deployed to the hosting environment.
 
 ## BDD testing
 
-**Vortex** uses Behat for Behavior-Driven Development (BDD) testing.
+**Vortex** uses [Behat](https://behat.org) for Behavior-Driven Development (BDD)
+testing. Behat allows to write human-readable stories that describe the behavior
+of the application. Behat tests primarily focus on critical user journeys,
+serving as comprehensive end-to-end validations.
 
-It provides full Behat support, including configuration in [behat.yml](https://github.com/drevops/vortex/blob/develop/behat.yml)
-and a [browser container](https://github.com/drevops/vortex/blob/develop/docker-compose.yml) to run interactive tests.
+**Vortex** provides full Behat support, including configuration in [`behat.yml`](https://github.com/drevops/vortex/blob/develop/behat.yml)
+and a [browser container](https://github.com/drevops/vortex/blob/develop/docker-compose.yml) to run tests interactively in a real browser with
+a VNC viewer.
 
-It also provides additional features:
+Additional features include:
 
 1. [Behat Drupal Extension](https://github.com/drupalprojects/drupalextension) - an extension to work with Drupal.
 2. [Behat steps](https://github.com/drevops/behat-steps) - a library of re-usable Behat steps.
 2. [Behat Screenshot](https://github.com/drevops/behat-screenshot) - extension to capture screenshots on-demand and on failure.
-3. [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail) - extension to show progress as TAP and fails inline.
+3. [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail) - extension to show progress as TAP and failures inline.
 4. Parallel profiles - configuration to allow running tests in parallel.
 
 ### FeatureContext
 
-The [FeatureContext.php](https://github.com/drevops/vortex/blob/develop/tests/behat/bootstrap/FeatureContext.php) file comes with
+The [`FeatureContext.php`](https://github.com/drevops/vortex/blob/develop/tests/behat/bootstrap/FeatureContext.php) file comes with
 included steps from [Behat steps](https://github.com/drevops/behat-steps) package.
 
-Custom steps can be added into this file.
+You can add your custom steps into this file.
 
 ### Profiles
 
-Behat `default` profile configured with sensible defaults to allow running Behat
+Behat's `default` profile configured with sensible defaults to allow running it
 with provided extensions.
 
-In CI, the profile can be overridden using `$VORTEX_CI_BEHAT_PROFILE` environment
-variable.
+In CI, the profile can be overridden using `$VORTEX_CI_BEHAT_PROFILE`
+environment variable.
 
 ### Parallel runs
 
-In CI, Behat tests can be tagged to be split between multiple runners. The tags
-are then used by profiles with the identical names to run them.
+In CI, Behat tests can run within multiple runners to increase the speed of the
+test suite. To achieve this, Behat tags are used to mark features and scenarios
+with `@p*` tags.
 
 Out of the box, **Vortex** provides support for unlimited parallel
 runners, but only 2 parallel profiles `p0` and `p1`: a feature can be tagged by
@@ -122,25 +147,29 @@ Add `@skipped` tag to a feature or scenario to exclude it from the test run.
 
 Test screenshots are stored into `.logs/screenshots` location by default,
 which can be overwritten using `$BEHAT_SCREENSHOT_DIR` variable (courtesy of
-[Behat Screenshot](https://github.com/drevops/behat-screenshot) package). In CI, screenshots are stored as artifacts
-and are accessible in the Artifacts tab.
+[Behat Screenshot](https://github.com/drevops/behat-screenshot) package).
+
+In CI, screenshots are stored as build artifacts. In GitHub Actions, they can be
+downloaded from the `Summary` tab. In CircleCI they are accessible in
+the `Artifacts` tab.
 
 ### Format
 
 Out of the box, **Vortex** comes with [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail)
-Behat output formatter to show progress as TAP and fails inline. This allows to
-continue test runs after failures while maintaining a minimal output.
+output formatter to show progress as TAP and failures inline. This allows to
+continue test runs after a failure while maintaining a minimal output.
 
 ### Reporting
 
-Test reports produced if `$VORTEX_TEST_RESULTS_DIR` is set. They are stored in
-`$VORTEX_TEST_RESULTS_DIR/behat` directory. These reports are usually used in
-CI to track tests performance and stability.
+Test reports are stored in `.logs/behat` directory.
 
-### Examples
+CI usually uses them to to track test performance and stability.
 
-**Vortex** provides BDD test examples for custom [modules](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_core/tests/src)
-and [themes](https://github.com/drevops/vortex/blob/develop/web/themes/custom/your_site_theme/tests/src).
+### Boilerplate
 
-These tests already run in CI when you install **Vortex** and can be used
-as a starting point for writing your own.
+**Vortex** provides BDD tests boilerplate for [homepage](https://github.com/drevops/vortex/blob/develop/tests/behat/features/homepage.feature)
+and [login](https://github.com/drevops/vortex/blob/develop/tests/behat/features/login.feature)
+user journeys.
+
+These boilerplate tests run in CI when you install **Vortex** and can be used as
+a starting point for writing your own.
