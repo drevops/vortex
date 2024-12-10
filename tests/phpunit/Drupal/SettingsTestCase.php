@@ -139,7 +139,7 @@ abstract class SettingsTestCase extends TestCase {
     // Filtered real vars without a value to unset them in the lines below.
     $vars_real = self::getRealEnvVarsFilteredNoValues([
       // Service variables.
-      'MARIADB_',
+      'DATABASE_',
       'REDIS_',
       'COMPOSE_',
       'GITHUB_',

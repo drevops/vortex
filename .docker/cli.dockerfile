@@ -39,7 +39,7 @@ ENV DRUPAL_CONFIG_PATH=${DRUPAL_CONFIG_PATH}
 ENV WEBROOT=${WEBROOT} \
     COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
-    SIMPLETEST_DB=mysql://drupal:drupal@mariadb/drupal \
+    SIMPLETEST_DB=mysql://drupal:drupal@database/drupal \
     SIMPLETEST_BASE_URL=http://nginx:8080 \
     SYMFONY_DEPRECATIONS_HELPER=disabled
 

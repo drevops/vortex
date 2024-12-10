@@ -43,7 +43,7 @@ else
   # Deploy container image.
   # @todo Move deployment into a separate script.
   if [ "${VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED:-}" = "1" ]; then
-    VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP=mariadb=${VORTEX_DB_IMAGE} \
+    VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP=database=${VORTEX_DB_IMAGE} \
       ./scripts/vortex/deploy-container-registry.sh
   fi
 fi

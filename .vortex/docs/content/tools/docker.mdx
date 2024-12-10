@@ -208,9 +208,9 @@ Vortex:
   different from the `cli` container in that it does not have certain
   development dependencies installed, has a smaller size and is optimised for
   scalability.
-- `mariadb` - a container that runs a database server. This container is used to
+- `database` - a container that runs a database server. This container is used to
   store the application data. It can be accessed from the host via a randomly
-  assigned port - run `docker compose port mariadb 3306` to get the port number.
+  assigned port - run `docker compose port database 3306` to get the port number.
 - `redis` - an optional container that runs a Redis server. This container is
   used to store the application cache.
 - `solr` - an optional container that runs a Solr server. This container is used

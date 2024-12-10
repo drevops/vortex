@@ -313,7 +313,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'] = [
       '^.+\.docker\.amazee\.io$',
       '^nginx$',
@@ -358,7 +358,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['skip_permissions_hardening'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^.+\.docker\.amazee\.io$',
@@ -403,7 +403,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['skip_permissions_hardening'] = TRUE;
     $settings['suspend_mail_send'] = TRUE;
     $settings['trusted_host_patterns'] = [
@@ -449,7 +449,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
     $this->assertSettings($settings);
@@ -490,7 +490,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
     $this->assertSettings($settings);
@@ -531,7 +531,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
     $this->assertSettings($settings);
@@ -570,7 +570,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
     $settings['trusted_host_patterns'][] = '^nginx$';
     $this->assertSettings($settings);
@@ -617,7 +617,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['reverse_proxy'] = TRUE;
     $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
@@ -668,7 +668,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['reverse_proxy'] = TRUE;
     $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
@@ -719,7 +719,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['reverse_proxy'] = TRUE;
     $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
@@ -769,7 +769,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'bower_components',
     ];
     $settings['file_temp_path'] = static::TMP_PATH_TESTING;
-    $settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['reverse_proxy'] = TRUE;
     $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
     $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';

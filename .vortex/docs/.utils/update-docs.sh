@@ -47,6 +47,7 @@ sed "${sed_opts[@]}" "s/.vortex\/docs\/.utils\/variables\/extra\/acquia.variable
 sed "${sed_opts[@]}" "s/.vortex\/docs\/.utils\/variables\/extra\/lagoon.variables.sh/LAGOON ENVIRONMENT/g" "${OUTPUT_FILE}"
 sed "${sed_opts[@]}" "s/.vortex\/docs\/.utils\/variables\/extra\/.env.local.example.variables.sh/.env.local.example/g" "${OUTPUT_FILE}"
 sed "${sed_opts[@]}" "s/.vortex\/docs\/.utils\/variables\/extra\/.env.variables.sh/.env/g" "${OUTPUT_FILE}"
+sed "${sed_opts[@]}" "s/.vortex\/docs\/.utils\/variables\/extra\/docker-compose.variables.sh/docker-compose.yml/g" "${OUTPUT_FILE}"
 sed "${sed_opts[@]}" "s/.vortex\/docs\/.utils\/variables\/extra\/ci.variables.sh/CI config/g" "${OUTPUT_FILE}"
 
 echo "---" >>"${OUTPUT_FILE}"

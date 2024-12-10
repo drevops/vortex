@@ -44,6 +44,46 @@ Default value: `UNDEFINED`
 
 Defined in: `ENVIRONMENT`
 
+### `DATABASE_HOST`
+
+Local database host.
+
+Default value: `database`
+
+Defined in: `docker-compose.yml`, `scripts/vortex/info.sh`
+
+### `DATABASE_NAME`
+
+Local database name.
+
+Default value: `drupal`
+
+Defined in: `docker-compose.yml`
+
+### `DATABASE_PASSWORD`
+
+Local database password.
+
+Default value: `drupal`
+
+Defined in: `docker-compose.yml`, `scripts/vortex/info.sh`
+
+### `DATABASE_PORT`
+
+Local database port.
+
+Default value: `3306`
+
+Defined in: `docker-compose.yml`, `scripts/vortex/info.sh`
+
+### `DATABASE_USERNAME`
+
+Local database user.
+
+Default value: `drupal`
+
+Defined in: `docker-compose.yml`, `scripts/vortex/info.sh`
+
 ### `DRUPAL_ADMIN_EMAIL`
 
 Drupal admin email. May need to be reset if database was sanitized.
@@ -94,7 +134,7 @@ Path to private files.
 
 Default value: `${DRUPAL_PUBLIC_FILES}/private`
 
-Defined in: `.env`
+Defined in: `docker-compose.yml`
 
 ### `DRUPAL_PROFILE`
 
@@ -110,7 +150,7 @@ Path to public files.
 
 Default value: `./${VORTEX_WEBROOT}/sites/default/files`
 
-Defined in: `.env`
+Defined in: `docker-compose.yml`
 
 ### `DRUPAL_REDIS_ENABLED`
 
@@ -158,7 +198,7 @@ Path to temporary files.
 
 Default value: `${DRUPAL_PRIVATE_FILES}/tmp`
 
-Defined in: `.env`
+Defined in: `docker-compose.yml`
 
 ### `DRUPAL_THEME`
 
@@ -644,7 +684,7 @@ Defined in: `scripts/vortex/export-db-image.sh`
 
 The service name to capture.
 
-Default value: `mariadb`
+Default value: `database`
 
 Defined in: `scripts/vortex/export-db-image.sh`
 
