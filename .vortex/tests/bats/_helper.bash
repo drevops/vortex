@@ -310,7 +310,7 @@ assert_files_present_vortex() {
   pushd "${dir}" >/dev/null || exit 1
 
   assert_file_exists ".docker/cli.dockerfile"
-  assert_file_exists ".docker/mariadb.dockerfile"
+  assert_file_exists ".docker/database.dockerfile"
   assert_file_exists ".docker/nginx-drupal.dockerfile"
   assert_file_exists ".docker/php.dockerfile"
   assert_file_exists ".docker/solr.dockerfile"

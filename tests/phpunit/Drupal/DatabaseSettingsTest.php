@@ -50,11 +50,11 @@ class DatabaseSettingsTest extends SettingsTestCase {
 
       [
         [
-          'MARIADB_DATABASE' => 'test_db_name',
-          'MARIADB_USERNAME' => 'test_db_user',
-          'MARIADB_PASSWORD' => 'test_db_pass',
-          'MARIADB_HOST' => 'test_db_host',
-          'MARIADB_PORT' => 'test_db_port',
+          'DATABASE_NAME' => 'test_db_name',
+          'DATABASE_USERNAME' => 'test_db_user',
+          'DATABASE_PASSWORD' => 'test_db_pass',
+          'DATABASE_HOST' => 'test_db_host',
+          'DATABASE_PORT' => 'test_db_port',
         ],
         [
           'default' => [

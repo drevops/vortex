@@ -1,4 +1,4 @@
-# MariaDB container.
+# Database container.
 #
 # @see https://hub.docker.com/r/uselagoon/mariadb-10.11-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/mariadb-drupal

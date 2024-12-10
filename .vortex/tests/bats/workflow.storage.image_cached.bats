@@ -81,7 +81,7 @@ load _helper.workflow.bash
   substep "Exporting DB image to a file"
   run ahoy export-db "db.tar"
   assert_success
-  assert_output_contains "Found mariadb service container with id"
+  assert_output_contains "Found database service container with id"
   assert_output_contains "Committing exported container image with name docker.io/${VORTEX_DB_IMAGE}"
   assert_output_contains "Committed exported container image with id"
   assert_output_contains "Exporting database image archive to file ./.data/db.tar."
