@@ -1,8 +1,8 @@
 {
     "name": "drevops/vortex-installer",
-    "type": "library",
     "description": "Installer for Vortex.",
     "license": "GPL-2.0-or-later",
+    "type": "library",
     "authors": [
         {
             "name": "Alex Skrypnyk",
@@ -24,6 +24,7 @@
         "bamarni/composer-bin-plugin": "^1.8",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
         "drupal/coder": "^8.3",
+        "ergebnis/composer-normalize": "^2.45",
         "mikey179/vfsstream": "^1.6",
         "opis/closure": "^3.6",
         "phpmd/phpmd": "^2.13",
@@ -44,31 +45,33 @@
             "tests/phpunit"
         ]
     },
+    "bin": [
+        "install"
+    ],
     "config": {
-        "sort-packages": true,
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true
+        },
+        "sort-packages": true
     },
     "scripts": {
+        "build": [
+            "@composer bin box require --dev humbug/box",
+            "box validate",
+            "box compile"
+        ],
         "lint": [
             "phpcs",
             "phpstan",
+            "phpmd --exclude vendor,vendor-bin,node_modules . text phpmd.xml",
             "rector --clear-cache --dry-run"
         ],
         "lint-fix": [
             "rector --clear-cache",
             "phpcbf"
         ],
-        "test": "phpunit",
-        "build": [
-            "@composer bin box require --dev humbug/box",
-            "box validate",
-            "box compile"
-        ]
-    },
-    "bin": [
-        "install"
-    ]
+        "test": "phpunit"
+    }
 }

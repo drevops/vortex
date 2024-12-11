@@ -21,6 +21,7 @@ use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\Set\ValueObject\SetList;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
+use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return static function (RectorConfig $rectorConfig): void {
   $rectorConfig->paths([
@@ -28,14 +29,15 @@ return static function (RectorConfig $rectorConfig): void {
   ]);
 
   $rectorConfig->sets([
-    SetList::PHP_80,
-    SetList::PHP_81,
+    SetList::PHP_82,
     SetList::CODE_QUALITY,
     SetList::CODING_STYLE,
     SetList::DEAD_CODE,
     SetList::INSTANCEOF,
     SetList::TYPE_DECLARATION,
   ]);
+
+  $rectorConfig->rule(DeclareStrictTypesRector::class);
 
   $rectorConfig->skip([
     // Rules added by Rector's rule sets.
