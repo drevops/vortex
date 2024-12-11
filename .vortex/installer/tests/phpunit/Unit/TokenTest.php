@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drevops\Installer\Tests\Unit;
 
 use DrevOps\Installer\Command\InstallCommand;
@@ -28,9 +30,18 @@ class TokenTest extends UnitTestBase {
 
   /**
    * Flatten file tree.
+   *
+   * @param array<string|int, string|array> $tree
+   *   File tree.
+   * @param string $parent
+   *   Parent directory.
+   *
+   * @return array
+   *   Flattened file tree.
    */
-  protected function flattenFileTree($tree, string $parent = '.'): array {
+  protected function flattenFileTree(array $tree, string $parent = '.'): array {
     $flatten = [];
+
     foreach ($tree as $dir => $file) {
       if (is_array($file)) {
         $flatten = array_merge($flatten, $this->flattenFileTree($file, $parent . DIRECTORY_SEPARATOR . $dir));
@@ -52,6 +63,10 @@ class TokenTest extends UnitTestBase {
     $files = $this->flattenFileTree([$file], $tokens_dir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
     $created_file = reset($created_files);
+
+    if (empty($created_file) || !file_exists($created_file)) {
+      throw new \RuntimeException('File does not exist.');
+    }
 
     $actual = InstallCommand::fileContains($string, $created_file);
 
@@ -110,6 +125,10 @@ class TokenTest extends UnitTestBase {
     $created_file = reset($created_files);
     $expected_files = $this->flattenFileTree([$expected_file], $tokens_dir);
     $expected_file = reset($expected_files);
+
+    if (empty($created_file) || !file_exists($created_file)) {
+      throw new \RuntimeException('File does not exist.');
+    }
 
     if ($expect_exception) {
       $this->expectException(\RuntimeException::class);

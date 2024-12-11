@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\Installer\Command;
 
 use Symfony\Component\Console\Command\Command;
@@ -48,15 +50,13 @@ class InstallCommand extends Command {
 
   /**
    * Defines current working directory.
-   *
-   * @var string
    */
-  protected static $currentDir;
+  protected static string $currentDir;
 
   /**
    * {@inheritdoc}
    */
-  protected static $defaultName = 'install';
+  protected static string $defaultName = 'install';
 
   /**
    * Configures the current command.
@@ -65,7 +65,7 @@ class InstallCommand extends Command {
     $this
       ->setName('Vortex CLI installer')
       ->addArgument('path', InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.')
-      ->setHelp($this->printHelp());
+      ->setHelp($this->getHelpText());
   }
 
   /**
@@ -79,12 +79,16 @@ class InstallCommand extends Command {
    * Main functionality.
    */
   protected function main(InputInterface $input, OutputInterface $output): int {
-    self::$currentDir = getcwd();
+    $cwd = getcwd();
+    if (!$cwd) {
+      throw new \RuntimeException('Unable to determine current working directory.');
+    }
+    self::$currentDir = $cwd;
 
     $this->initConfig($input);
 
     if ($this->getConfig('help')) {
-      $output->write($this->printHelp());
+      $output->write($this->getHelpText());
 
       return self::EXIT_SUCCESS;
     }
@@ -107,13 +111,13 @@ class InstallCommand extends Command {
     return self::EXIT_SUCCESS;
   }
 
-  protected function checkRequirements() {
+  protected function checkRequirements(): void {
     $this->commandExists('git');
     $this->commandExists('tar');
     $this->commandExists('composer');
   }
 
-  protected function install() {
+  protected function install(): void {
     $this->download();
 
     $this->prepareDestination();
@@ -125,16 +129,17 @@ class InstallCommand extends Command {
     $this->processDemo();
   }
 
-  protected function prepareDestination() {
+  protected function prepareDestination(): void {
     $dst = $this->getDstDir();
 
     if (!is_dir($dst)) {
       $this->status(sprintf('Creating destination directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
       mkdir($dst);
+
       if (!is_writable($dst)) {
         throw new \RuntimeException(sprintf('Destination directory "%s" is not writable.', $dst));
       }
-      print ' ';
+
       $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
     }
 
@@ -144,10 +149,12 @@ class InstallCommand extends Command {
     else {
       $this->status(sprintf('Initialising Git repository in directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
       $this->doExec(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
-      if (!is_readable($dst . '/.git')) {
+
+      if (!file_exists($dst . '/.git')) {
         throw new \RuntimeException(sprintf('Unable to init git project in directory "%s".', $dst));
       }
     }
+
     print ' ';
     $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
@@ -155,7 +162,7 @@ class InstallCommand extends Command {
   /**
    * Replace tokens.
    */
-  protected function replaceTokens() {
+  protected function replaceTokens(): void {
     $dir = $this->getConfig('VORTEX_INSTALL_TMP_DIR');
 
     $this->status('Replacing tokens ', self::INSTALLER_STATUS_MESSAGE, FALSE);
@@ -190,7 +197,7 @@ class InstallCommand extends Command {
     $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
 
-  protected function copyFiles() {
+  protected function copyFiles(): void {
     $src = $this->getConfig('VORTEX_INSTALL_TMP_DIR');
     $dst = $this->getDstDir();
 
@@ -212,7 +219,6 @@ class InstallCommand extends Command {
       if (static::isInternalPath($relative_file)) {
         $this->status(sprintf('Skipped file %s as an internal Vortex file.', $relative_file), self::INSTALLER_STATUS_DEBUG);
         unlink($filename);
-        continue;
       }
     }
 
@@ -239,7 +245,7 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processDemo() {
+  protected function processDemo(): void {
     if (empty($this->getConfig('VORTEX_INSTALL_DEMO')) || !empty($this->getConfig('VORTEX_INSTALL_DEMO_SKIP'))) {
       return;
     }
@@ -271,8 +277,8 @@ class InstallCommand extends Command {
     $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
 
-  protected static function copyRecursive($source, $dest, $permissions = 0755, $copy_empty_dirs = FALSE): bool {
-    $parent = dirname((string) $dest);
+  protected static function copyRecursive(string $source, string $dest, int $permissions = 0755, bool $copy_empty_dirs = FALSE): bool {
+    $parent = dirname($dest);
 
     if (!is_dir($parent)) {
       mkdir($parent, $permissions, TRUE);
@@ -283,11 +289,21 @@ class InstallCommand extends Command {
       // Changing dir symlink will be relevant to the current destination's file
       // directory.
       $cur_dir = getcwd();
+
+      if (!$cur_dir) {
+        throw new \RuntimeException('Unable to determine current working directory.');
+      }
+
       chdir($parent);
       $ret = TRUE;
-      if (!is_readable(basename((string) $dest))) {
-        $ret = symlink(readlink($source), basename((string) $dest));
+
+      if (!is_readable(basename($dest))) {
+        $link = readlink($source);
+        if ($link) {
+          $ret = symlink($link, basename($dest));
+        }
       }
+
       chdir($cur_dir);
 
       return $ret;
@@ -296,7 +312,10 @@ class InstallCommand extends Command {
     if (is_file($source)) {
       $ret = copy($source, $dest);
       if ($ret) {
-        chmod($dest, fileperms($source));
+        $perms = fileperms($source);
+        if ($perms !== FALSE) {
+          chmod($dest, $perms);
+        }
       }
 
       return $ret;
@@ -319,9 +338,13 @@ class InstallCommand extends Command {
     return TRUE;
   }
 
-  protected function gitFileIsTracked($path, string $dir): bool {
+  protected function gitFileIsTracked(string $path, string $dir): bool {
     if (is_dir($dir . DIRECTORY_SEPARATOR . '.git')) {
       $cwd = getcwd();
+      if (!$cwd) {
+        throw new \RuntimeException('Unable to determine current working directory.');
+      }
+
       chdir($dir);
       $this->doExec(sprintf('git ls-files --error-unmatch "%s" 2>&1 >/dev/null', $path), $output, $code);
       chdir($cwd);
@@ -332,6 +355,12 @@ class InstallCommand extends Command {
     return FALSE;
   }
 
+  /**
+   * Get core profiles names.
+   *
+   * @return array<int, string>
+   *   Array of core profiles names.
+   */
   protected function drupalCoreProfiles(): array {
     return [
       'standard',
@@ -344,11 +373,11 @@ class InstallCommand extends Command {
   /**
    * Process answers.
    */
-  protected function processAnswer($name, $dir) {
+  protected function processAnswer(string $name, string $dir): mixed {
     return $this->executeCallback('process', $name, $dir);
   }
 
-  protected function processProfile(string $dir) {
+  protected function processProfile(string $dir): void {
     $webroot = $this->getAnswer('webroot');
     // For core profiles - remove custom profile and direct links to it.
     if (in_array($this->getAnswer('profile'), $this->drupalCoreProfiles())) {
@@ -360,8 +389,8 @@ class InstallCommand extends Command {
     static::dirReplaceContent('your_site_profile', $this->getAnswer('profile'), $dir);
   }
 
-  protected function processProvisionUseProfile(string $dir) {
-    if ($this->getAnswer('provision_use_profile') == self::ANSWER_YES) {
+  protected function processProvisionUseProfile(string $dir): void {
+    if ($this->getAnswer('provision_use_profile') === self::ANSWER_YES) {
       static::fileReplaceContent('/VORTEX_PROVISION_USE_PROFILE=.*/', "VORTEX_PROVISION_USE_PROFILE=1", $dir . '/.env');
       $this->removeTokenWithContent('!PROVISION_USE_PROFILE', $dir);
     }
@@ -371,7 +400,7 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processDatabaseDownloadSource(string $dir) {
+  protected function processDatabaseDownloadSource(string $dir): void {
     $type = $this->getAnswer('database_download_source');
     static::fileReplaceContent('/VORTEX_DB_DOWNLOAD_SOURCE=.*/', 'VORTEX_DB_DOWNLOAD_SOURCE=' . $type, $dir . '/.env');
 
@@ -386,7 +415,7 @@ class InstallCommand extends Command {
 
     foreach ($types as $t) {
       $token = 'VORTEX_DB_DOWNLOAD_SOURCE_' . strtoupper($t);
-      if ($t == $type) {
+      if ($t === $type) {
         $this->removeTokenWithContent('!' . $token, $dir);
       }
       else {
@@ -395,11 +424,11 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processDatabaseImage(string $dir) {
+  protected function processDatabaseImage(string $dir): void {
     $image = $this->getAnswer('database_image');
     static::fileReplaceContent('/VORTEX_DB_IMAGE=.*/', 'VORTEX_DB_IMAGE=' . $image, $dir . '/.env');
 
-    if ($image) {
+    if ($image !== '' && $image !== '0') {
       $this->removeTokenWithContent('!VORTEX_DB_IMAGE', $dir);
     }
     else {
@@ -407,8 +436,8 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processOverrideExistingDb(string $dir) {
-    if ($this->getAnswer('override_existing_db') == self::ANSWER_YES) {
+  protected function processOverrideExistingDb(string $dir): void {
+    if ($this->getAnswer('override_existing_db') === self::ANSWER_YES) {
       static::fileReplaceContent('/VORTEX_PROVISION_OVERRIDE_DB=.*/', "VORTEX_PROVISION_OVERRIDE_DB=1", $dir . '/.env');
     }
     else {
@@ -416,7 +445,7 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processCiProvider(string $dir) {
+  protected function processCiProvider(string $dir): void {
     $type = $this->getAnswer('ci_provider');
 
     $remove_gha = FALSE;
@@ -456,12 +485,12 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processDeployType(string $dir) {
+  protected function processDeployType(string $dir): void {
     $type = $this->getAnswer('deploy_type');
-    if ($type != 'none') {
+    if ($type !== 'none') {
       static::fileReplaceContent('/VORTEX_DEPLOY_TYPES=.*/', 'VORTEX_DEPLOY_TYPES=' . $type, $dir . '/.env');
 
-      if (!str_contains((string) $type, 'artifact')) {
+      if (!str_contains($type, 'artifact')) {
         @unlink($dir . '/.gitignore.deployment');
         @unlink($dir . '/.gitignore.artifact');
       }
@@ -476,8 +505,8 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processPreserveAcquia(string $dir) {
-    if ($this->getAnswer('preserve_acquia') == self::ANSWER_YES) {
+  protected function processPreserveAcquia(string $dir): void {
+    if ($this->getAnswer('preserve_acquia') === self::ANSWER_YES) {
       $this->removeTokenWithContent('!ACQUIA', $dir);
     }
     else {
@@ -488,8 +517,8 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processPreserveLagoon(string $dir) {
-    if ($this->getAnswer('preserve_lagoon') == self::ANSWER_YES) {
+  protected function processPreserveLagoon(string $dir): void {
+    if ($this->getAnswer('preserve_lagoon') === self::ANSWER_YES) {
       $this->removeTokenWithContent('!LAGOON', $dir);
     }
     else {
@@ -502,8 +531,8 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processPreserveFtp(string $dir) {
-    if ($this->getAnswer('preserve_ftp') == self::ANSWER_YES) {
+  protected function processPreserveFtp(string $dir): void {
+    if ($this->getAnswer('preserve_ftp') === self::ANSWER_YES) {
       $this->removeTokenWithContent('!FTP', $dir);
     }
     else {
@@ -511,8 +540,8 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processPreserveRenovatebot(string $dir) {
-    if ($this->getAnswer('preserve_renovatebot') == self::ANSWER_YES) {
+  protected function processPreserveRenovatebot(string $dir): void {
+    if ($this->getAnswer('preserve_renovatebot') === self::ANSWER_YES) {
       $this->removeTokenWithContent('!RENOVATEBOT', $dir);
     }
     else {
@@ -521,16 +550,16 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processStringTokens(string $dir) {
-    $machine_name_hyphenated = str_replace('_', '-', (string) $this->getAnswer('machine_name'));
+  protected function processStringTokens(string $dir): void {
+    $machine_name_hyphenated = str_replace('_', '-', $this->getAnswer('machine_name'));
     $machine_name_camel_cased = static::toCamelCase($this->getAnswer('machine_name'), TRUE);
     $module_prefix_camel_cased = static::toCamelCase($this->getAnswer('module_prefix'), TRUE);
-    $module_prefix_uppercase = strtoupper((string) $module_prefix_camel_cased);
+    $module_prefix_uppercase = strtoupper($module_prefix_camel_cased);
     $theme_camel_cased = static::toCamelCase($this->getAnswer('theme'), TRUE);
     $vortex_version_urlencoded = str_replace('-', '--', (string) $this->getConfig('VORTEX_VERSION'));
     $url = $this->getAnswer('url');
-    $host = parse_url((string) $url, PHP_URL_HOST);
-    $domain = ($host) ? $host : $url;
+    $host = parse_url($url, PHP_URL_HOST);
+    $domain = $host ?: $url;
     $domain_non_www = str_starts_with((string) $domain, "www.") ? substr((string) $domain, 4) : $domain;
     $webroot = $this->getAnswer('webroot');
 
@@ -573,8 +602,8 @@ class InstallCommand extends Command {
     // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
   }
 
-  protected function processPreserveDocComments(string $dir) {
-    if ($this->getAnswer('preserve_doc_comments') == self::ANSWER_YES) {
+  protected function processPreserveDocComments(string $dir): void {
+    if ($this->getAnswer('preserve_doc_comments') === self::ANSWER_YES) {
       // Replace special "#: " comments with normal "#" comments.
       static::dirReplaceContent('#:', '#', $dir);
     }
@@ -583,10 +612,10 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processDemoMode(string $dir) {
+  protected function processDemoMode(string $dir): void {
     // Only discover demo mode if not explicitly set.
     if (is_null($this->getConfig('VORTEX_INSTALL_DEMO'))) {
-      if ($this->getAnswer('provision_use_profile') == self::ANSWER_NO) {
+      if ($this->getAnswer('provision_use_profile') === self::ANSWER_NO) {
         $download_source = $this->getAnswer('database_download_source');
         $db_file = static::getenvOrDefault('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . static::getenvOrDefault('VORTEX_DB_FILE', 'db.sql');
         $has_comment = static::fileContains('to allow to demonstrate how Vortex works without', $this->getDstDir() . '/.env');
@@ -594,7 +623,7 @@ class InstallCommand extends Command {
         // Enable Vortex demo mode if download source is file AND
         // there is no downloaded file present OR if there is a demo comment in
         // destination .env file.
-        if ($download_source != 'container_registry') {
+        if ($download_source !== 'container_registry') {
           if ($has_comment || !file_exists($db_file)) {
             $this->setConfig('VORTEX_INSTALL_DEMO', TRUE);
           }
@@ -602,7 +631,7 @@ class InstallCommand extends Command {
             $this->setConfig('VORTEX_INSTALL_DEMO', FALSE);
           }
         }
-        elseif ($has_comment || $download_source == 'container_registry') {
+        elseif ($has_comment) {
           $this->setConfig('VORTEX_INSTALL_DEMO', TRUE);
         }
         else {
@@ -619,8 +648,8 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processPreserveVortexInfo(string $dir) {
-    if ($this->getAnswer('preserve_vortex_info') == self::ANSWER_NO) {
+  protected function processPreserveVortexInfo(string $dir): void {
+    if ($this->getAnswer('preserve_vortex_info') === self::ANSWER_NO) {
       // Remove code required for Vortex maintenance.
       $this->removeTokenWithContent('VORTEX_DEV', $dir);
 
@@ -629,7 +658,7 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function processVortexInternal(string $dir) {
+  protected function processVortexInternal(string $dir): void {
     if (file_exists($dir . DIRECTORY_SEPARATOR . 'README.dist.md')) {
       rename($dir . DIRECTORY_SEPARATOR . 'README.dist.md', $dir . DIRECTORY_SEPARATOR . 'README.md');
     }
@@ -644,8 +673,11 @@ class InstallCommand extends Command {
     @unlink($dir . 'SECURITY.md');
 
     // Remove Vortex internal GHAs.
-    foreach (glob($dir . '/.github/workflows/vortex-*.yml') as $file) {
-      @unlink($file);
+    $files = glob($dir . '/.github/workflows/vortex-*.yml');
+    if ($files) {
+      foreach ($files as $file) {
+        @unlink($file);
+      }
     }
 
     // Remove other unhandled tokenized comments.
@@ -653,15 +685,15 @@ class InstallCommand extends Command {
     $this->removeTokenLine('#;>', $dir);
   }
 
-  protected function processEnableCommentedCode(string $dir) {
+  protected function processEnableCommentedCode(string $dir): void {
     // Enable_commented_code.
     static::dirReplaceContent('##### ', '', $dir);
   }
 
-  protected function processWebroot(string $dir) {
+  protected function processWebroot(string $dir): void {
     $new_name = $this->getAnswer('webroot', 'web');
 
-    if ($new_name != 'web') {
+    if ($new_name !== 'web') {
       static::dirReplaceContent('web/', $new_name . '/', $dir);
       static::dirReplaceContent('web\/', $new_name . '\/', $dir);
       static::dirReplaceContent(': web', ': ' . $new_name, $dir);
@@ -676,7 +708,7 @@ class InstallCommand extends Command {
   /**
    * Download Vortex source files.
    */
-  protected function download() {
+  protected function download(): void {
     if ($this->getConfig('VORTEX_INSTALL_LOCAL_REPO')) {
       $this->downloadLocal();
     }
@@ -685,7 +717,7 @@ class InstallCommand extends Command {
     }
   }
 
-  protected function downloadLocal() {
+  protected function downloadLocal(): void {
     $dst = $this->getConfig('VORTEX_INSTALL_TMP_DIR');
     $repo = $this->getConfig('VORTEX_INSTALL_LOCAL_REPO');
     $ref = $this->getConfig('VORTEX_INSTALL_COMMIT');
@@ -707,7 +739,7 @@ class InstallCommand extends Command {
     $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
 
-  protected function downloadRemote() {
+  protected function downloadRemote(): void {
     $dst = $this->getConfig('VORTEX_INSTALL_TMP_DIR');
     $org = 'drevops';
     $project = 'vortex';
@@ -733,7 +765,7 @@ class InstallCommand extends Command {
     $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
 
-  protected function findLatestVortexRelease($org, $project, $release_prefix) {
+  protected function findLatestVortexRelease(string $org, string $project, string $release_prefix): ?string {
     $release_url = sprintf('https://api.github.com/repos/%s/%s/releases', $org, $project);
     $release_contents = file_get_contents($release_url, FALSE, stream_context_create([
       'http' => ['method' => 'GET', 'header' => ['User-Agent: PHP']],
@@ -745,7 +777,7 @@ class InstallCommand extends Command {
 
     $records = json_decode($release_contents, TRUE);
     foreach ($records as $record) {
-      if (isset($record['tag_name']) && ($release_prefix && str_contains((string) $record['tag_name'], (string) $release_prefix) || !$release_prefix)) {
+      if (isset($record['tag_name']) && ($release_prefix && str_contains((string) $record['tag_name'], $release_prefix) || !$release_prefix)) {
         return $record['tag_name'];
       }
     }
@@ -763,7 +795,7 @@ class InstallCommand extends Command {
    * 4. Use answers for processing, including writing values into correct
    *    variables in .env.
    */
-  protected function collectAnswers() {
+  protected function collectAnswers(): void {
     // Set answers that may be used in other answers' discoveries.
     $this->setAnswer('webroot', $this->discoverValue('webroot'));
 
@@ -782,21 +814,21 @@ class InstallCommand extends Command {
 
     $this->askForAnswer('provision_use_profile', 'Do you want to install from profile (leave empty or "n" for using database?');
 
-    if ($this->getAnswer('provision_use_profile') == self::ANSWER_YES) {
+    if ($this->getAnswer('provision_use_profile') === self::ANSWER_YES) {
       $this->setAnswer('database_download_source', 'none');
       $this->setAnswer('database_image', '');
     }
     else {
       $this->askForAnswer('database_download_source', "Where does the database dump come from into every environment:\n  - [u]rl\n  - [f]tp\n  - [a]cquia backup\n  - [d]ocker registry?");
 
-      if ($this->getAnswer('database_download_source') != 'container_registry') {
+      if ($this->getAnswer('database_download_source') !== 'container_registry') {
         // Note that "database_store_type" is a pseudo-answer - it is only used
         // to improve UX and is not exposed as a variable (although has default,
         // discovery and normalisation callbacks).
         $this->askForAnswer('database_store_type',    '  When developing locally, do you want to import the database dump from the [f]ile or store it imported in the [d]ocker image for faster builds?');
       }
 
-      if ($this->getAnswer('database_store_type') == 'file') {
+      if ($this->getAnswer('database_store_type') === 'file') {
         $this->setAnswer('database_image', '');
       }
       else {
@@ -813,14 +845,14 @@ class InstallCommand extends Command {
 
     $this->askForAnswer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook call, [c]ode artifact, [d]ocker image, [l]agoon, [n]one as a comma-separated list)?');
 
-    if ($this->getAnswer('database_download_source') != 'ftp') {
+    if ($this->getAnswer('database_download_source') !== 'ftp') {
       $this->askForAnswer('preserve_ftp', 'Do you want to keep FTP integration?');
     }
     else {
       $this->setAnswer('preserve_ftp', self::ANSWER_YES);
     }
 
-    if ($this->getAnswer('database_download_source') != 'acquia') {
+    if ($this->getAnswer('database_download_source') !== 'acquia') {
       $this->askForAnswer('preserve_acquia', 'Do you want to keep Acquia Cloud integration?');
     }
     else {
@@ -857,7 +889,7 @@ class InstallCommand extends Command {
     return strtolower((string) $proceed) === self::ANSWER_YES;
   }
 
-  protected function askForAnswer($name, $question) {
+  protected function askForAnswer(string $name, string $question): void {
     $discovered = $this->discoverValue($name);
     $answer = $this->ask($question, $discovered);
     $answer = $this->normaliseAnswer($name, $answer);
@@ -865,7 +897,7 @@ class InstallCommand extends Command {
     $this->setAnswer($name, $answer);
   }
 
-  protected function ask($question, $default, $close_handle = FALSE) {
+  protected function ask(string $question, ?string $default, bool $close_handle = FALSE): ?string {
     if ($this->isQuiet()) {
       return $default;
     }
@@ -874,7 +906,10 @@ class InstallCommand extends Command {
 
     $this->out($question, 'question', FALSE);
     $handle = $this->getStdinHandle();
-    $answer = trim(fgets($handle));
+    $answer = fgets($handle);
+    if ($answer !== FALSE) {
+      $answer = trim($answer);
+    }
 
     if ($close_handle) {
       $this->closeStdinHandle();
@@ -891,7 +926,7 @@ class InstallCommand extends Command {
    *
    * @see init_config()
    */
-  protected function getConfig($name, $default = NULL) {
+  protected function getConfig(string $name, mixed $default = NULL): mixed {
     global $_config;
 
     return $_config[$name] ?? $default;
@@ -905,7 +940,7 @@ class InstallCommand extends Command {
    *
    * @see init_config()
    */
-  protected function setConfig($name, $value) {
+  protected function setConfig(string $name, mixed $value): void {
     global $_config;
 
     if (!is_null($value)) {
@@ -916,7 +951,7 @@ class InstallCommand extends Command {
   /**
    * Get a named option from discovered answers for the project bing installed.
    */
-  protected function getAnswer($name, $default = NULL) {
+  protected function getAnswer(string $name, mixed $default = NULL): ?string {
     global $_answers;
 
     return $_answers[$name] ?? $default;
@@ -925,15 +960,18 @@ class InstallCommand extends Command {
   /**
    * Set a named option for discovered answers for the project bing installed.
    */
-  protected function setAnswer($name, $value) {
+  protected function setAnswer(string $name, mixed $value): void {
     global $_answers;
     $_answers[$name] = $value;
   }
 
   /**
    * Get all options from discovered answers for the project bing installed.
+   *
+   * @return array<string, mixed>
+   *   Array of all discovered answers.
    */
-  protected function getAnswers() {
+  protected function getAnswers(): array {
     global $_answers;
 
     return $_answers;
@@ -942,7 +980,7 @@ class InstallCommand extends Command {
   /**
    * Init all config.
    */
-  protected function initConfig($input) {
+  protected function initConfig(InputInterface $input): void {
     $this->initCliArgsAndOptions($input);
 
     static::loadDotenv($this->getDstDir() . '/.env');
@@ -953,7 +991,7 @@ class InstallCommand extends Command {
   /**
    * Initialise CLI options.
    */
-  protected function initCliArgsAndOptions($input) {
+  protected function initCliArgsAndOptions(InputInterface $input): void {
     $arg = $input->getArguments();
     $options = $input->getOptions();
 
@@ -996,7 +1034,7 @@ class InstallCommand extends Command {
    * For simplicity of naming, internal installer config variables are matching
    * environment variables names.
    */
-  protected function initInstallerConfig() {
+  protected function initInstallerConfig(): void {
     // Internal version of Vortex.
     $this->setConfig('VORTEX_VERSION', static::getenvOrDefault('VORTEX_VERSION', 'develop'));
     // Flag to display install debug information.
@@ -1021,30 +1059,30 @@ class InstallCommand extends Command {
     $this->setConfig('VORTEX_INSTALL_DEMO_SKIP', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEMO_SKIP', FALSE));
   }
 
-  protected function getDstDir() {
+  protected function getDstDir(): ?string {
     return $this->getConfig('VORTEX_INSTALL_DST_DIR');
   }
 
   /**
    * Shorthand to get the value of whether install should be quiet.
    */
-  protected function isQuiet() {
-    return $this->getConfig('quiet');
+  protected function isQuiet(): bool {
+    return (bool) $this->getConfig('quiet', FALSE);
   }
 
   /**
    * Shorthand to get the value of VORTEX_INSTALL_DEBUG.
    */
-  protected function isInstallDebug() {
-    return $this->getConfig('VORTEX_INSTALL_DEBUG');
+  protected function isInstallDebug(): bool {
+    return (bool) $this->getConfig('VORTEX_INSTALL_DEBUG', FALSE);
   }
 
   /**
    * Get default value router.
    */
-  protected function getDefaultValue($name) {
+  protected function getDefaultValue(string $name): mixed {
     // Allow to override default values from config variables.
-    $config_name = strtoupper((string) $name);
+    $config_name = strtoupper($name);
 
     return $this->getConfig($config_name, $this->executeCallback('getDefaultValue', $name));
   }
@@ -1053,19 +1091,19 @@ class InstallCommand extends Command {
     return static::toHumanName(static::getenvOrDefault('VORTEX_PROJECT', basename((string) $this->getDstDir())));
   }
 
-  protected function getDefaultValueMachineName(): string {
-    return static::toMachineName($this->getAnswer('name'));
+  protected function getDefaultValueMachineName(): ?string {
+    return static::toMachineName($this->getAnswer('name', 'your_site'));
   }
 
   protected function getDefaultValueOrg(): string {
-    return $this->getAnswer('name') . ' Org';
+    return $this->getAnswer('name', 'Your Site') . ' Org';
   }
 
   protected function getDefaultValueOrgMachineName(): string {
     return static::toMachineName($this->getAnswer('org'));
   }
 
-  protected function getDefaultValueModulePrefix(): string|array {
+  protected function getDefaultValueModulePrefix(): string {
     return $this->toAbbreviation($this->getAnswer('machine_name'));
   }
 
@@ -1073,13 +1111,13 @@ class InstallCommand extends Command {
     return self::ANSWER_NO;
   }
 
-  protected function getDefaultValueTheme() {
+  protected function getDefaultValueTheme(): mixed {
     return $this->getAnswer('machine_name');
   }
 
   protected function getDefaultValueUrl(): string {
     $value = $this->getAnswer('machine_name');
-    $value = str_replace('_', '-', (string) $value);
+    $value = str_replace('_', '-', $value);
 
     return $value . '.com';
   }
@@ -1148,7 +1186,7 @@ class InstallCommand extends Command {
    * file but the file is not available, the function should return NULL instead
    * of a falsy value like FALSE or 0.
    */
-  protected function discoverValue($name) {
+  protected function discoverValue(string $name): mixed {
     $value = $this->executeCallback('discoverValue', $name);
 
     return is_null($value) ? $this->getDefaultValue($name) : $value;
@@ -1190,7 +1228,7 @@ class InstallCommand extends Command {
     return NULL;
   }
 
-  protected function discoverValueModulePrefix(): null|string|array {
+  protected function discoverValueModulePrefix(): ?string {
     $webroot = $this->getAnswer('webroot');
 
     $locations = [
@@ -1202,21 +1240,18 @@ class InstallCommand extends Command {
       $this->getDstDir() . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $webroot),
     ];
 
-    $name = $this->findMatchingPath($locations);
+    $path = $this->findMatchingPath($locations);
 
-    if (empty($name)) {
+    if (empty($path)) {
       return NULL;
     }
 
-    if ($name) {
-      $name = basename((string) $name);
-      $name = str_replace('_core', '', $name);
-    }
+    $path = basename($path);
 
-    return $name;
+    return str_replace('_core', '', $path);
   }
 
-  protected function discoverValueProfile() {
+  protected function discoverValueProfile(): ?string {
     $webroot = $this->getAnswer('webroot');
 
     if ($this->isInstalled()) {
@@ -1239,15 +1274,12 @@ class InstallCommand extends Command {
       return NULL;
     }
 
-    if ($name) {
-      $name = basename((string) $name);
-      $name = str_replace(['.info.yml', '.info'], '', $name);
-    }
+    $name = basename($name);
 
-    return $name;
+    return str_replace(['.info.yml', '.info'], '', $name);
   }
 
-  protected function discoverValueTheme() {
+  protected function discoverValueTheme(): ?string {
     $webroot = $this->getAnswer('webroot');
 
     if ($this->isInstalled()) {
@@ -1274,15 +1306,12 @@ class InstallCommand extends Command {
       return NULL;
     }
 
-    if ($name) {
-      $name = basename((string) $name);
-      $name = str_replace(['.info.yml', '.info'], '', $name);
-    }
+    $name = basename($name);
 
-    return $name;
+    return str_replace(['.info.yml', '.info'], '', $name);
   }
 
-  protected function discoverValueUrl() {
+  protected function discoverValueUrl(): ?string {
     $webroot = $this->getAnswer('webroot');
 
     $origin = NULL;
@@ -1293,19 +1322,19 @@ class InstallCommand extends Command {
     }
 
     $contents = file_get_contents($path);
+    if (!$contents) {
+      return NULL;
+    }
 
     // Drupal 8 and 9.
     if (preg_match('/\$config\s*\[\'stage_file_proxy.settings\'\]\s*\[\'origin\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $contents, $matches)) {
-      if (!empty($matches[1])) {
-        $origin = $matches[1];
-      }
+      $origin = $matches[1];
     }
     // Drupal 7.
     elseif (preg_match('/\$conf\s*\[\'stage_file_proxy_origin\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $contents, $matches)) {
-      if (!empty($matches[1])) {
-        $origin = $matches[1];
-      }
+      $origin = $matches[1];
     }
+
     if ($origin) {
       $origin = parse_url($origin, PHP_URL_HOST);
     }
@@ -1313,7 +1342,7 @@ class InstallCommand extends Command {
     return empty($origin) ? NULL : $origin;
   }
 
-  protected function discoverValueWebroot() {
+  protected function discoverValueWebroot(): ?string {
     $webroot = $this->getValueFromDstDotenv('VORTEX_WEBROOT');
 
     if (empty($webroot) && $this->isInstalled()) {
@@ -1331,7 +1360,7 @@ class InstallCommand extends Command {
     return $this->getValueFromDstDotenv('VORTEX_PROVISION_USE_PROFILE') ? self::ANSWER_YES : self::ANSWER_NO;
   }
 
-  protected function discoverValueDatabaseDownloadSource() {
+  protected function discoverValueDatabaseDownloadSource(): ?string {
     return $this->getValueFromDstDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
   }
 
@@ -1339,7 +1368,7 @@ class InstallCommand extends Command {
     return $this->discoverValueDatabaseImage() ? 'container_image' : 'file';
   }
 
-  protected function discoverValueDatabaseImage() {
+  protected function discoverValueDatabaseImage(): ?string {
     return $this->getValueFromDstDotenv('VORTEX_DB_IMAGE');
   }
 
@@ -1359,7 +1388,7 @@ class InstallCommand extends Command {
     return $this->isInstalled() ? 'none' : NULL;
   }
 
-  protected function discoverValueDeployType() {
+  protected function discoverValueDeployType(): ?string {
     return $this->getValueFromDstDotenv('VORTEX_DEPLOY_TYPES');
   }
 
@@ -1367,6 +1396,7 @@ class InstallCommand extends Command {
     if (is_readable($this->getDstDir() . '/hooks')) {
       return self::ANSWER_YES;
     }
+
     $value = $this->getValueFromDstDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
 
     if (is_null($value)) {
@@ -1381,7 +1411,7 @@ class InstallCommand extends Command {
       return self::ANSWER_YES;
     }
 
-    if ($this->getAnswer('deploy_type') == 'lagoon') {
+    if ($this->getAnswer('deploy_type') === 'lagoon') {
       return self::ANSWER_YES;
     }
 
@@ -1415,6 +1445,7 @@ class InstallCommand extends Command {
 
   protected function discoverValuePreserveDocComments(): ?string {
     $file = $this->getDstDir() . '/.ahoy.yml';
+
     if (!is_readable($file)) {
       return NULL;
     }
@@ -1431,7 +1462,7 @@ class InstallCommand extends Command {
     return static::fileContains('Comments starting with', $file) ? self::ANSWER_YES : self::ANSWER_NO;
   }
 
-  protected function getValueFromDstDotenv($name, $default = NULL) {
+  protected function getValueFromDstDotenv(string $name, mixed $default = NULL): mixed {
     // Environment variables always take precedence.
     $env_value = static::getenvOrDefault($name, NULL);
     if (!is_null($env_value)) {
@@ -1442,31 +1473,42 @@ class InstallCommand extends Command {
     if (!is_readable($file)) {
       return $default;
     }
+
     $parsed = static::parseDotenv($file);
 
-    return $parsed ? $parsed[$name] ?? $default : $default;
+    return $parsed !== [] ? $parsed[$name] ?? $default : $default;
   }
 
-  protected function findMatchingPath($paths, $text = NULL) {
+  /**
+   * Find a matching path using glob.
+   *
+   * @param array<int, string>|string $paths
+   *   Array of paths wildcards to search.
+   * @param string|null $text
+   *   Optional text to search in the files.
+   *
+   * @return string|null
+   *   Path to the file or NULL if not found.
+   */
+  protected function findMatchingPath(array|string $paths, ?string $text = NULL): ?string {
     $paths = is_array($paths) ? $paths : [$paths];
 
     foreach ($paths as $path) {
       $files = glob($path);
+
       if (empty($files)) {
         continue;
       }
 
-      if (count($files)) {
-        if (!empty($text)) {
-          foreach ($files as $file) {
-            if (static::fileContains($text, $file)) {
-              return $file;
-            }
+      if (!empty($text)) {
+        foreach ($files as $file) {
+          if (static::fileContains($text, $file)) {
+            return $file;
           }
         }
-        else {
-          return reset($files);
-        }
+      }
+      else {
+        return reset($files);
       }
     }
 
@@ -1479,36 +1521,46 @@ class InstallCommand extends Command {
   protected function isInstalled(): bool {
     $path = $this->getDstDir() . DIRECTORY_SEPARATOR . 'README.md';
 
-    return file_exists($path) && preg_match('/badge\/Vortex\-/', file_get_contents($path));
+    if (!file_exists($path)) {
+      return FALSE;
+    }
+
+    $content = file_get_contents($path);
+    if (!$content) {
+      return FALSE;
+    }
+
+    return (bool) preg_match('/badge\/Vortex\-/', $content);
   }
 
   /**
    * Normalisation router.
    */
-  protected function normaliseAnswer($name, $value) {
-    $normalised = $this->executeCallback('normaliseAnswer', $name, $value);
+  protected function normaliseAnswer(string $name, mixed $value): mixed {
+    $normalised = $this->executeCallback('normaliseAnswer', $name, strval($value));
 
     return $normalised ?? $value;
   }
 
-  protected function normaliseAnswerName($value): string {
+  protected function normaliseAnswerName(string $value): string {
     return ucfirst((string) static::toHumanName($value));
   }
 
-  protected function normaliseAnswerMachineName($value): string {
+  protected function normaliseAnswerMachineName(string $value): string {
     return static::toMachineName($value);
   }
 
-  protected function normaliseAnswerOrgMachineName($value): string {
+  protected function normaliseAnswerOrgMachineName(string $value): string {
     return static::toMachineName($value);
   }
 
-  protected function normaliseAnswerModulePrefix($value): string {
+  protected function normaliseAnswerModulePrefix(string $value): string {
     return static::toMachineName($value);
   }
 
-  protected function normaliseAnswerProfile($value): string {
+  protected function normaliseAnswerProfile(string $value): string {
     $profile = static::toMachineName($value);
+
     if (empty($profile) || strtolower($profile) === self::ANSWER_NO) {
       $profile = 'standard';
     }
@@ -1516,26 +1568,26 @@ class InstallCommand extends Command {
     return $profile;
   }
 
-  protected function normaliseAnswerTheme($value): string {
+  protected function normaliseAnswerTheme(string $value): string {
     return static::toMachineName($value);
   }
 
-  protected function normaliseAnswerUrl($url): string|array {
-    $url = trim((string) $url);
+  protected function normaliseAnswerUrl(string $url): string {
+    $url = trim($url);
 
     return str_replace([' ', '_'], '-', $url);
   }
 
-  protected function normaliseAnswerWebroot($value): string {
-    return strtolower(trim((string) $value, '/'));
+  protected function normaliseAnswerWebroot(string $value): string {
+    return strtolower(trim($value, '/'));
   }
 
-  protected function normaliseAnswerProvisionUseProfile($value): string {
-    return strtolower((string) $value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
+  protected function normaliseAnswerProvisionUseProfile(string $value): string {
+    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
   }
 
-  protected function normaliseAnswerDatabaseDownloadSource($value): string {
-    $value = strtolower((string) $value);
+  protected function normaliseAnswerDatabaseDownloadSource(string $value): string {
+    $value = strtolower($value);
 
     return match ($value) {
       'f', 'ftp' => 'ftp',
@@ -1546,8 +1598,8 @@ class InstallCommand extends Command {
     };
   }
 
-  protected function normaliseAnswerDatabaseStoreType($value): string {
-    $value = strtolower((string) $value);
+  protected function normaliseAnswerDatabaseStoreType(string $value): string {
+    $value = strtolower($value);
 
     return match ($value) {
       'i', 'image', 'container_image', => 'container_image',
@@ -1556,18 +1608,18 @@ class InstallCommand extends Command {
     };
   }
 
-  protected function normaliseAnswerDatabaseImage($value): string {
+  protected function normaliseAnswerDatabaseImage(string $value): string {
     $value = static::toMachineName($value, ['-', '/', ':', '.']);
 
     return str_contains($value, ':') ? $value : $value . ':latest';
   }
 
-  protected function normaliseAnswerOverrideExistingDb($value): string {
-    return strtolower((string) $value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
+  protected function normaliseAnswerOverrideExistingDb(string $value): string {
+    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
   }
 
-  protected function normaliseAnswerCiProvider($value): string {
-    $value = trim(strtolower((string) $value));
+  protected function normaliseAnswerCiProvider(string $value): string {
+    $value = trim(strtolower($value));
 
     return match ($value) {
       'c', 'circleci' => 'CircleCI',
@@ -1576,8 +1628,8 @@ class InstallCommand extends Command {
     };
   }
 
-  protected function normaliseAnswerDeployType($value): ?string {
-    $types = explode(',', (string) $value);
+  protected function normaliseAnswerDeployType(string $value): ?string {
+    $types = explode(',', $value);
 
     $normalised = [];
     foreach ($types as $type) {
@@ -1612,6 +1664,7 @@ class InstallCommand extends Command {
       }
     }
 
+    // @todo Should we return `none` instead of `NULL`?
     if (in_array('none', $normalised)) {
       return NULL;
     }
@@ -1621,34 +1674,34 @@ class InstallCommand extends Command {
     return implode(',', $normalised);
   }
 
-  protected function normaliseAnswerPreserveAcquia($value): string {
-    return strtolower((string) $value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
+  protected function normaliseAnswerPreserveAcquia(string $value): string {
+    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
   }
 
-  protected function normaliseAnswerPreserveLagoon($value): string {
-    return strtolower((string) $value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
+  protected function normaliseAnswerPreserveLagoon(string $value): string {
+    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
   }
 
-  protected function normaliseAnswerPreserveFtp($value): string {
-    return strtolower((string) $value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
+  protected function normaliseAnswerPreserveFtp(string $value): string {
+    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
   }
 
-  protected function normaliseAnswerPreserveRenovatebot($value): string {
-    return strtolower((string) $value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
+  protected function normaliseAnswerPreserveRenovatebot(string $value): string {
+    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
   }
 
-  protected function normaliseAnswerPreserveDocComments($value): string {
-    return strtolower((string) $value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
+  protected function normaliseAnswerPreserveDocComments(string $value): string {
+    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
   }
 
-  protected function normaliseAnswerPreserveVortexInfo($value): string {
-    return strtolower((string) $value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
+  protected function normaliseAnswerPreserveVortexInfo(string $value): string {
+    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
   }
 
   /**
    * Print help.
    */
-  protected function printHelp(): string {
+  protected function getHelpText(): string {
     return <<<EOF
   php install destination
 
@@ -1657,7 +1710,7 @@ class InstallCommand extends Command {
 EOF;
   }
 
-  protected function printHeader() {
+  protected function printHeader(): void {
     if ($this->isQuiet()) {
       $this->printHeaderQuiet();
     }
@@ -1667,7 +1720,7 @@ EOF;
     print PHP_EOL;
   }
 
-  protected function printHeaderInteractive() {
+  protected function printHeaderInteractive(): void {
     $commit = $this->getConfig('VORTEX_INSTALL_COMMIT');
 
     $content = '';
@@ -1692,7 +1745,7 @@ EOF;
     $this->printBox($content, 'WELCOME TO VORTEX INTERACTIVE INSTALLER');
   }
 
-  protected function printHeaderQuiet() {
+  protected function printHeaderQuiet(): void {
     $commit = $this->getConfig('VORTEX_INSTALL_COMMIT');
 
     $content = '';
@@ -1702,11 +1755,13 @@ EOF;
     else {
       $content .= sprintf('This will install Vortex into your project at commit "%s".', $commit) . PHP_EOL;
     }
+
     $content .= PHP_EOL;
     if ($this->isInstalled()) {
       $content .= 'It looks like Vortex is already installed into this project.' . PHP_EOL;
       $content .= PHP_EOL;
     }
+
     $content .= 'Vortex installer will try to discover the settings from the environment and will install configuration relevant to your site.' . PHP_EOL;
     $content .= PHP_EOL;
     $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
@@ -1714,7 +1769,7 @@ EOF;
     $this->printBox($content, 'WELCOME TO VORTEX QUIET INSTALLER');
   }
 
-  protected function printSummary() {
+  protected function printSummary(): void {
     $values['Current directory'] = self::$currentDir;
     $values['Destination directory'] = $this->getDstDir();
     $values['Vortex version'] = $this->getConfig('VORTEX_VERSION');
@@ -1739,7 +1794,8 @@ EOF;
     $values['Database download source'] = $this->getAnswer('database_download_source');
     $image = $this->getAnswer('database_image');
     $values['Database store type'] = empty($image) ? 'file' : 'container_image';
-    if ($image) {
+
+    if ($image !== '' && $image !== '0') {
       $values['Database image name'] = $image;
     }
 
@@ -1758,11 +1814,11 @@ EOF;
     $this->printBox($content, 'INSTALLATION SUMMARY');
   }
 
-  protected function printAbort() {
+  protected function printAbort(): void {
     $this->printBox('Aborting project installation. No files were changed.');
   }
 
-  protected function printFooter() {
+  protected function printFooter(): void {
     print PHP_EOL;
 
     if ($this->isInstalled()) {
@@ -1784,18 +1840,18 @@ EOF;
     }
   }
 
-  protected function printTitle($text, $fill = '-', $width = 80, string $cols = '|', $has_content = FALSE) {
+  protected function printTitle(string $text, string $fill = '-', int $width = 80, string $cols_delim = '|', bool $has_content = FALSE): void {
     $this->printDivider($fill, $width, 'down');
-    $lines = explode(PHP_EOL, wordwrap((string) $text, $width - 4, PHP_EOL));
+    $lines = explode(PHP_EOL, wordwrap($text, $width - 4, PHP_EOL));
     foreach ($lines as $line) {
       $line = ' ' . $line . ' ';
-      print $cols . str_pad($line, $width - 2, ' ', STR_PAD_BOTH) . $cols . PHP_EOL;
+      print $cols_delim . str_pad($line, $width - 2, ' ', STR_PAD_BOTH) . $cols_delim . PHP_EOL;
     }
     $this->printDivider($fill, $width, $has_content ? 'up' : 'both');
   }
 
-  protected function printSubtitle($text, $fill = '=', $width = 80) {
-    $is_multiline = strlen((string) $text) + 4 >= $width;
+  protected function printSubtitle(string $text, string $fill = '=', int $width = 80): void {
+    $is_multiline = strlen($text) + 4 >= $width;
     if ($is_multiline) {
       $this->printTitle($text, $fill, $width, 'both');
     }
@@ -1805,7 +1861,7 @@ EOF;
     }
   }
 
-  protected function printDivider($fill = '-', $width = 80, $direction = 'none') {
+  protected function printDivider(string $fill = '-', int $width = 80, string $direction = 'none'): void {
     $start = $fill;
     $finish = $fill;
     switch ($direction) {
@@ -1825,14 +1881,14 @@ EOF;
         break;
     }
 
-    print $start . str_repeat((string) $fill, $width - 2) . $finish . PHP_EOL;
+    print $start . str_repeat($fill, $width - 2) . $finish . PHP_EOL;
   }
 
-  protected function printBox($content, $title = '', $fill = '─', $padding = 2, $width = 80) {
+  protected function printBox(string $content, string $title = '', string $fill = '─', int $padding = 2, int $width = 80): void {
     $cols = '│';
 
     $max_width = $width - 2 - $padding * 2;
-    $lines = explode(PHP_EOL, wordwrap(rtrim((string) $content, PHP_EOL), $max_width, PHP_EOL));
+    $lines = explode(PHP_EOL, wordwrap(rtrim($content, PHP_EOL), $max_width, PHP_EOL));
     $pad = str_pad(' ', $padding);
     $mask = sprintf('%s%s%%-%ss%s%s', $cols, $pad, $max_width, $pad, $cols) . PHP_EOL;
 
@@ -1854,7 +1910,7 @@ EOF;
     print PHP_EOL;
   }
 
-  protected function printTick($text = NULL) {
+  protected function printTick(?string $text = NULL): void {
     if (!empty($text) && $this->isInstallDebug()) {
       print PHP_EOL;
       $this->status($text, self::INSTALLER_STATUS_DEBUG, FALSE);
@@ -1864,16 +1920,32 @@ EOF;
     }
   }
 
-  protected function formatValuesList($values, $delim = '', $width = 80): string {
+  /**
+   * Format values list.
+   *
+   * @param array<int|string, mixed> $values
+   *   Array of values to format.
+   * @param string $delim
+   *   Delimiter to use.
+   * @param int $width
+   *   Width of the line.
+   *
+   * @return string
+   *   Formatted values list.
+   */
+  protected function formatValuesList(array $values, string $delim = '', int $width = 80): string {
+    // Only keep the keys that are not numeric.
+    $keys = array_filter(array_keys($values), static fn($key): bool => !is_numeric($key));
+
     // Line width - length of delimiters * 2 - 2 spacers.
-    $line_width = $width - strlen((string) $delim) * 2 - 2;
+    $line_width = $width - strlen($delim) * 2 - 2;
 
     // Max name length + spaced on the sides + colon.
-    $max_name_width = max(array_map('strlen', array_keys($values))) + 2 + 1;
+    $max_name_width = max(array_map(static fn(string $key): int => strlen($key), $keys)) + 2 + 1;
 
     // Whole width - (name width + 2 delimiters on the sides + 1 delimiter in
-    // the middle + 2 spaces on the sides  + 2 spaces for the center delimiter).
-    $value_width = $width - ($max_name_width + strlen((string) $delim) * 2 + strlen((string) $delim) + 2 + 2);
+    // the middle + 2 spaces on the sides + 2 spaces for the center delimiter).
+    $value_width = max($width - ($max_name_width + strlen($delim) * 2 + strlen($delim) + 2 + 2), 1);
 
     $mask1 = sprintf('%s %%%ds %s %%-%s.%ss %s', $delim, $max_name_width, $delim, $value_width, $value_width, $delim) . PHP_EOL;
     $mask2 = sprintf('%s%%2$%ss%s', $delim, $line_width, $delim) . PHP_EOL;
@@ -1893,7 +1965,7 @@ EOF;
       }
 
       if ($is_multiline_value) {
-        $lines = array_filter(explode(PHP_EOL, chunk_split((string) $value, $value_width, PHP_EOL)));
+        $lines = array_filter(explode(PHP_EOL, chunk_split(strval($value), $value_width, PHP_EOL)));
         $first_line = array_shift($lines);
         $output[] = sprintf($mask, $name, $first_line);
         foreach ($lines as $line) {
@@ -1908,33 +1980,36 @@ EOF;
     return implode('', $output);
   }
 
-  protected function formatEnabled($value): string {
+  protected function formatEnabled(mixed $value): string {
     return $value && strtolower((string) $value) !== 'n' ? 'Enabled' : 'Disabled';
   }
 
-  protected function formatYesNo($value): string {
-    return $value == self::ANSWER_YES ? 'Yes' : 'No';
+  protected function formatYesNo(string $value): string {
+    return $value === self::ANSWER_YES ? 'Yes' : 'No';
   }
 
-  protected function formatNotEmpty($value, $default) {
+  protected function formatNotEmpty(mixed $value, mixed $default): mixed {
     return empty($value) ? $default : $value;
   }
 
-  public static function fileContains($needle, $file): int|bool {
-    if (!is_readable($file)) {
+  public static function fileContains(string $needle, string $filename): bool {
+    if (!is_readable($filename)) {
       return FALSE;
     }
 
-    $content = file_get_contents($file);
-
-    if (static::isRegex($needle)) {
-      return preg_match($needle, $content);
+    $content = file_get_contents($filename);
+    if (!$content) {
+      return FALSE;
     }
 
-    return str_contains($content, (string) $needle);
+    if (static::isRegex($needle)) {
+      return (bool) preg_match($needle, $content);
+    }
+
+    return str_contains($content, $needle);
   }
 
-  protected static function dirContains($needle, string $dir): bool {
+  protected static function dirContains(string $needle, string $dir): bool {
     $files = static::scandirRecursive($dir, static::ignorePaths());
     foreach ($files as $filename) {
       if (static::fileContains($needle, $filename)) {
@@ -1945,23 +2020,26 @@ EOF;
     return FALSE;
   }
 
-  protected static function isRegex($str): bool {
-    if ($str === '' || strlen((string) $str) < 3) {
+  protected static function isRegex(string $str): bool {
+    if ($str === '' || strlen($str) < 3) {
       return FALSE;
     }
 
     return @preg_match($str, '') !== FALSE;
   }
 
-  protected static function fileReplaceContent($needle, $replacement, $filename): ?bool {
+  protected static function fileReplaceContent(string $needle, string $replacement, string $filename): void {
     if (!is_readable($filename) || static::fileIsExcludedFromProcessing($filename)) {
-      return FALSE;
+      return;
     }
 
     $content = file_get_contents($filename);
+    if (!$content) {
+      return;
+    }
 
     if (static::isRegex($needle)) {
-      $replaced = preg_replace($needle, (string) $replacement, $content);
+      $replaced = preg_replace($needle, $replacement, $content);
     }
     else {
       $replaced = str_replace($needle, $replacement, $content);
@@ -1969,25 +2047,23 @@ EOF;
     if ($replaced != $content) {
       file_put_contents($filename, $replaced);
     }
-
-    return NULL;
   }
 
-  protected static function dirReplaceContent($needle, $replacement, string $dir) {
+  protected static function dirReplaceContent(string $needle, string $replacement, string $dir): void {
     $files = static::scandirRecursive($dir, static::ignorePaths());
     foreach ($files as $filename) {
       static::fileReplaceContent($needle, $replacement, $filename);
     }
   }
 
-  protected function removeTokenWithContent(string $token, string $dir) {
+  protected function removeTokenWithContent(string $token, string $dir): void {
     $files = static::scandirRecursive($dir, static::ignorePaths());
     foreach ($files as $filename) {
       static::removeTokenFromFile($filename, '#;< ' . $token, '#;> ' . $token, TRUE);
     }
   }
 
-  protected function removeTokenLine($token, string $dir) {
+  protected function removeTokenLine(string $token, string $dir): void {
     if (!empty($token)) {
       $files = static::scandirRecursive($dir, static::ignorePaths());
       foreach ($files as $filename) {
@@ -1996,7 +2072,7 @@ EOF;
     }
   }
 
-  public static function removeTokenFromFile($filename, $token_begin, $token_end = NULL, $with_content = FALSE): void {
+  public static function removeTokenFromFile(string $filename, string $token_begin, ?string $token_end = NULL, bool $with_content = FALSE): void {
     if (self::fileIsExcludedFromProcessing($filename)) {
       return;
     }
@@ -2004,10 +2080,13 @@ EOF;
     $token_end = $token_end ?? $token_begin;
 
     $content = file_get_contents($filename);
+    if (!$content) {
+      return;
+    }
 
-    if ($token_begin != $token_end) {
-      $token_begin_count = preg_match_all('/' . preg_quote((string) $token_begin) . '/', $content);
-      $token_end_count = preg_match_all('/' . preg_quote((string) $token_end) . '/', $content);
+    if ($token_begin !== $token_end) {
+      $token_begin_count = preg_match_all('/' . preg_quote($token_begin) . '/', $content);
+      $token_end_count = preg_match_all('/' . preg_quote($token_end) . '/', $content);
       if ($token_begin_count !== $token_end_count) {
         throw new \RuntimeException(sprintf('Invalid begin and end token count in file %s: begin is %s(%s), end is %s(%s).', $filename, $token_begin, $token_begin_count, $token_end, $token_end_count));
       }
@@ -2017,14 +2096,18 @@ EOF;
     $within_token = FALSE;
 
     $lines = file($filename);
+    if (!$lines) {
+      return;
+    }
+
     foreach ($lines as $line) {
-      if (str_contains($line, (string) $token_begin)) {
+      if (str_contains($line, $token_begin)) {
         if ($with_content) {
           $within_token = TRUE;
         }
         continue;
       }
-      elseif (str_contains($line, (string) $token_end)) {
+      elseif (str_contains($line, $token_end)) {
         if ($with_content) {
           $within_token = FALSE;
         }
@@ -2042,15 +2125,19 @@ EOF;
     file_put_contents($filename, implode('', $out));
   }
 
-  protected static function replaceStringFilename($search, $replace, string $dir) {
+  protected static function replaceStringFilename(string $search, string $replace, string $dir): void {
     $files = static::scandirRecursive($dir, static::ignorePaths());
+
     foreach ($files as $filename) {
       $new_filename = str_replace($search, $replace, (string) $filename);
+
       if ($filename != $new_filename) {
         $new_dir = dirname($new_filename);
+
         if (!is_dir($new_dir)) {
           mkdir($new_dir, 0777, TRUE);
         }
+
         rename($filename, $new_filename);
       }
     }
@@ -2058,20 +2145,38 @@ EOF;
 
   /**
    * Recursively scan directory for files.
+   *
+   * @param string $dir
+   *   Directory to scan.
+   * @param array<int, string> $ignore_paths
+   *   Array of paths to ignore.
+   * @param bool $include_dirs
+   *   Include directories in the result.
+   *
+   * @return array<int, string>
+   *   Array of discovered files.
    */
-  protected static function scandirRecursive(string $dir, $ignore_paths = [], $include_dirs = FALSE): array {
+  protected static function scandirRecursive(string $dir, array $ignore_paths = [], bool $include_dirs = FALSE): array {
     $discovered = [];
 
     if (is_dir($dir)) {
-      $paths = array_diff(scandir($dir), ['.', '..']);
+      $files = scandir($dir);
+      if (empty($files)) {
+        return [];
+      }
+
+      $paths = array_diff($files, ['.', '..']);
+
       foreach ($paths as $path) {
         $path = $dir . '/' . $path;
+
         foreach ($ignore_paths as $ignore_path) {
           // Exlude based on sub-path match.
           if (str_contains($path, (string) $ignore_path)) {
             continue(2);
           }
         }
+
         if (is_dir($path)) {
           if ($include_dirs) {
             $discovered[] = $path;
@@ -2087,15 +2192,38 @@ EOF;
     return $discovered;
   }
 
-  protected function globRecursive($pattern, $flags = 0): array|false {
+  /**
+   * Recursively scan directory for files.
+   *
+   * @param string $pattern
+   *   Pattern to search.
+   * @param int $flags
+   *   Flags to pass to glob.
+   *
+   * @return array<int, string>
+   *   Array of discovered files.
+   */
+  protected function globRecursive(string $pattern, int $flags = 0): array {
     $files = glob($pattern, $flags | GLOB_BRACE);
-    foreach (glob(dirname((string) $pattern) . '/{,.}*[!.]', GLOB_BRACE | GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
-      $files = array_merge($files, $this->globRecursive($dir . '/' . basename((string) $pattern), $flags));
+
+    if ($files) {
+      $dirs = glob(dirname($pattern) . '/{,.}*[!.]', GLOB_BRACE | GLOB_ONLYDIR | GLOB_NOSORT);
+      if ($dirs) {
+        foreach ($dirs as $dir) {
+          $files = array_merge($files, $this->globRecursive($dir . '/' . basename($pattern), $flags));
+        }
+      }
     }
 
-    return $files;
+    return $files ?: [];
   }
 
+  /**
+   * Get list of paths to ignore.
+   *
+   * @return array<int, string>
+   *   Array of paths to ignore.
+   */
   protected static function ignorePaths(): array {
     return array_merge([
       '/.git/',
@@ -2106,6 +2234,12 @@ EOF;
     ], static::internalPaths());
   }
 
+  /**
+   * Get list of internal paths.
+   *
+   * @return array<int, string>
+   *   Array of internal paths.
+   */
   protected static function internalPaths(): array {
     return [
       '/LICENSE',
@@ -2118,13 +2252,31 @@ EOF;
     ];
   }
 
-  protected static function isInternalPath($relative_path): bool {
-    $relative_path = '/' . ltrim((string) $relative_path, './');
+  /**
+   * Check if path is internal.
+   *
+   * @param string $path
+   *   Path to check.
+   *
+   * @return bool
+   *   TRUE if path is internal, FALSE otherwise.
+   */
+  protected static function isInternalPath(string $path): bool {
+    $path = '/' . ltrim($path, './');
 
-    return in_array($relative_path, static::internalPaths());
+    return in_array($path, static::internalPaths());
   }
 
-  protected static function fileIsExcludedFromProcessing($filename): int|false {
+  /**
+   * Check if file is excluded from processing.
+   *
+   * @param string $filename
+   *   Filename to check.
+   *
+   * @return bool
+   *   TRUE if file is excluded, FALSE otherwise.
+   */
+  protected static function fileIsExcludedFromProcessing(string $filename): bool {
     $excluded_patterns = [
       '.+\.png',
       '.+\.jpg',
@@ -2133,17 +2285,29 @@ EOF;
       '.+\.tiff',
     ];
 
-    return preg_match('/^(' . implode('|', $excluded_patterns) . ')$/', (string) $filename);
+    return (bool) preg_match('/^(' . implode('|', $excluded_patterns) . ')$/', $filename);
   }
 
   /**
-   * Execute command wrapper.
+   * Execute command.
+   *
+   * @param string $command
+   *   Command to execute.
+   * @param array<int, string>|null $output
+   *   Output of the command.
+   * @param int $return_var
+   *   Return code of the command.
+   *
+   * @return string|false
+   *   Result of the command.
    */
-  protected function doExec($command, ?array &$output = NULL, &$return_var = NULL): string|false {
+  protected function doExec(string $command, ?array &$output = NULL, ?int &$return_var = NULL): string|false {
     if ($this->isInstallDebug()) {
       $this->status(sprintf('COMMAND: %s', $command), self::INSTALLER_STATUS_DEBUG);
     }
+
     $result = exec($command, $output, $return_var);
+
     if ($this->isInstallDebug()) {
       $this->status(sprintf('  OUTPUT: %s', implode('', $output)), self::INSTALLER_STATUS_DEBUG);
       $this->status(sprintf('  CODE  : %s', $return_var), self::INSTALLER_STATUS_DEBUG);
@@ -2153,28 +2317,42 @@ EOF;
     return $result;
   }
 
-  protected static function rmdirRecursive($directory, array $options = []) {
+  /**
+   * Remove directory recursively.
+   *
+   * @param string $directory
+   *   Directory to remove.
+   * @param array<string,mixed> $options
+   *   Options to pass.
+   */
+  protected static function rmdirRecursive(string $directory, array $options = []): void {
     if (!isset($options['traverseSymlinks'])) {
       $options['traverseSymlinks'] = FALSE;
     }
-    $items = glob($directory . DIRECTORY_SEPARATOR . '{,.}*', GLOB_MARK | GLOB_BRACE);
-    foreach ($items as $item) {
-      if (basename($item) === '.' || basename($item) === '..') {
-        continue;
-      }
-      if (substr($item, -1) === DIRECTORY_SEPARATOR) {
-        if (!$options['traverseSymlinks'] && is_link(rtrim($item, DIRECTORY_SEPARATOR))) {
-          unlink(rtrim($item, DIRECTORY_SEPARATOR));
+
+    $files = glob($directory . DIRECTORY_SEPARATOR . '{,.}*', GLOB_MARK | GLOB_BRACE);
+    if (!empty($files)) {
+
+      foreach ($files as $file) {
+        if (basename($file) === '.' || basename($file) === '..') {
+          continue;
+        }
+
+        if (substr($file, -1) === DIRECTORY_SEPARATOR) {
+          if (!$options['traverseSymlinks'] && is_link(rtrim($file, DIRECTORY_SEPARATOR))) {
+            unlink(rtrim($file, DIRECTORY_SEPARATOR));
+          }
+          else {
+            static::rmdirRecursive($file, $options);
+          }
         }
         else {
-          static::rmdirRecursive($item, $options);
+          unlink($file);
         }
       }
-      else {
-        unlink($item);
-      }
     }
-    if (is_dir($directory = rtrim((string) $directory, '\\/'))) {
+
+    if (is_dir($directory = rtrim($directory, '\\/'))) {
       if (is_link($directory)) {
         unlink($directory);
       }
@@ -2184,18 +2362,35 @@ EOF;
     }
   }
 
-  protected static function rmdirRecursiveEmpty($directory, $options = []) {
+  /**
+   * Remove directory recursively if empty.
+   *
+   * @param string $directory
+   *   Directory to remove.
+   * @param array<string,mixed> $options
+   *   Options to pass.
+   */
+  protected static function rmdirRecursiveEmpty(string $directory, array $options = []): void {
     if (static::dirIsEmpty($directory)) {
       static::rmdirRecursive($directory, $options);
-      static::rmdirRecursiveEmpty(dirname((string) $directory), $options);
+      static::rmdirRecursiveEmpty(dirname($directory), $options);
     }
   }
 
-  protected static function dirIsEmpty($directory): bool {
-    return is_dir($directory) && count(scandir($directory)) === 2;
+  /**
+   * Check if directory is empty.
+   *
+   * @param string $directory
+   *   Directory to check.
+   *
+   * @return bool
+   *   TRUE if directory is empty, FALSE otherwise.
+   */
+  protected static function dirIsEmpty(string $directory): bool {
+    return is_dir($directory) && count(scandir($directory) ?: []) === 2;
   }
 
-  protected function status(string $message, $level = self::INSTALLER_STATUS_MESSAGE, $eol = TRUE, $use_prefix = TRUE) {
+  protected function status(string $message, int $level = self::INSTALLER_STATUS_MESSAGE, bool $use_eol = TRUE, bool $use_prefix = TRUE): void {
     $prefix = '';
     $color = NULL;
 
@@ -2221,30 +2416,47 @@ EOF;
     }
 
     if ($level != self::INSTALLER_STATUS_DEBUG || $this->isInstallDebug()) {
-      $this->out(($use_prefix ? $prefix . ' ' : '') . $message, $color, $eol);
+      $this->out(($use_prefix ? $prefix . ' ' : '') . $message, $color, $use_eol);
     }
   }
 
-  protected static function parseDotenv($filename = '.env'): false|array {
+  /**
+   * Parse .env file.
+   *
+   * @param string $filename
+   *   Filename to parse.
+   *
+   * @return array<string,string>
+   *   Array of parsed values, key is the variable name.
+   */
+  protected static function parseDotenv(string $filename = '.env'): array {
     if (!is_readable($filename)) {
-      return FALSE;
+      return [];
     }
 
     $contents = file_get_contents($filename);
+    if ($contents === FALSE) {
+      return [];
+    }
+
     // Replace all # not inside quotes.
     $contents = preg_replace('/#(?=(?:(?:[^"]*"){2})*[^"]*$)/', ';', $contents);
 
-    return parse_ini_string((string) $contents);
+    return parse_ini_string($contents) ?: [];
   }
 
-  protected static function loadDotenv($filename = '.env', $override_existing = FALSE) {
-    $parsed = static::parseDotenv($filename);
+  /**
+   * Load .env file.
+   *
+   * @param string $filename
+   *   Filename to load.
+   * @param bool $override_existing
+   *   Override existing values.
+   */
+  protected static function loadDotenv(string $filename = '.env', bool $override_existing = FALSE): void {
+    $values = static::parseDotenv($filename);
 
-    if ($parsed === FALSE) {
-      return;
-    }
-
-    foreach ($parsed as $var => $value) {
+    foreach ($values as $var => $value) {
       if (!static::getenvOrDefault($var) || $override_existing) {
         putenv($var . '=' . $value);
       }
@@ -2254,19 +2466,19 @@ EOF;
     $GLOBALS['_SERVER'] = $GLOBALS['_SERVER'] ?? [];
 
     if ($override_existing) {
-      $GLOBALS['_ENV'] = $parsed + $GLOBALS['_ENV'];
-      $GLOBALS['_SERVER'] = $parsed + $GLOBALS['_SERVER'];
+      $GLOBALS['_ENV'] = $values + $GLOBALS['_ENV'];
+      $GLOBALS['_SERVER'] = $values + $GLOBALS['_SERVER'];
     }
     else {
-      $GLOBALS['_ENV'] += $parsed;
-      $GLOBALS['_SERVER'] += $parsed;
+      $GLOBALS['_ENV'] += $values;
+      $GLOBALS['_SERVER'] += $values;
     }
   }
 
   /**
    * Reliable wrapper to work with environment values.
    */
-  protected static function getenvOrDefault($name, $default = NULL) {
+  protected static function getenvOrDefault(string $name, mixed $default = NULL): mixed {
     $vars = getenv();
 
     if (!isset($vars[$name]) || $vars[$name] === '') {
@@ -2276,19 +2488,19 @@ EOF;
     return $vars[$name];
   }
 
-  public static function tempdir($dir = NULL, $prefix = 'tmp_', $mode = 0700, $max_attempts = 1000): false|string {
+  public static function tempdir(?string $dir = NULL, string $prefix = 'tmp_', int $mode = 0700, int $max_attempts = 1000): string {
     if (is_null($dir)) {
       $dir = sys_get_temp_dir();
     }
 
-    $dir = rtrim((string) $dir, DIRECTORY_SEPARATOR);
+    $dir = rtrim($dir, DIRECTORY_SEPARATOR);
 
     if (!is_dir($dir) || !is_writable($dir)) {
-      return FALSE;
+      throw new \RuntimeException(sprintf('Temporary directory "%s" does not exist or is not writable.', $dir));
     }
 
-    if (strpbrk((string) $prefix, '\\/:*?"<>|') !== FALSE) {
-      return FALSE;
+    if (strpbrk($prefix, '\\/:*?"<>|') !== FALSE) {
+      throw new \InvalidArgumentException('Invalid prefix.');
     }
     $attempts = 0;
 
@@ -2303,75 +2515,112 @@ EOF;
     return $path;
   }
 
-  protected function commandExists(string $command) {
+  protected function commandExists(string $command): void {
     $this->doExec('command -v ' . $command, $lines, $ret);
     if ($ret === 1) {
       throw new \RuntimeException(sprintf('Command "%s" does not exist in the current environment.', $command));
     }
   }
 
-  protected static function toHumanName($value): ?string {
-    $value = preg_replace('/[^a-zA-Z0-9]/', ' ', (string) $value);
+  protected static function toHumanName(string $value): ?string {
+    $value = preg_replace('/[^a-zA-Z0-9]/', ' ', $value);
     $value = trim((string) $value);
 
     return preg_replace('/\s{2,}/', ' ', $value);
   }
 
-  protected static function toMachineName($value, $preserve_chars = []): string {
+  /**
+   * Convert string to machine name.
+   *
+   * @param string $value
+   *   Value to convert.
+   * @param array<int|string> $preserve_chars
+   *   Array of characters to preserve.
+   *
+   * @return string
+   *   Converted value.
+   */
+  protected static function toMachineName(string $value, array $preserve_chars = []): string {
     $preserve = '';
     foreach ($preserve_chars as $char) {
-      $preserve .= preg_quote((string) $char, '/');
+      $preserve .= preg_quote(strval($char), '/');
     }
     $pattern = '/[^a-zA-Z0-9' . $preserve . ']/';
 
-    $value = preg_replace($pattern, '_', (string) $value);
+    $value = preg_replace($pattern, '_', $value);
 
-    return strtolower((string) $value);
+    return strtolower($value);
   }
 
-  protected static function toCamelCase($value, $capitalise_first = FALSE): string|array {
-    $value = str_replace(' ', '', ucwords((string) preg_replace('/[^a-zA-Z0-9]/', ' ', (string) $value)));
+  protected static function toCamelCase(string $value, bool $capitalise_first = FALSE): string {
+    $value = str_replace(' ', '', ucwords((string) preg_replace('/[^a-zA-Z0-9]/', ' ', $value)));
 
     return $capitalise_first ? $value : lcfirst($value);
   }
 
-  protected function toAbbreviation($value, $length = 2, $word_delim = '_'): string|array {
-    $value = trim((string) $value);
+  protected function toAbbreviation(string $value, int $length = 2, string $word_delim = '_'): string {
+    $value = trim($value);
     $value = str_replace(' ', '_', $value);
-    $parts = explode($word_delim, $value);
+    $parts = empty($word_delim) ? [$value] : explode($word_delim, $value);
+
     if (count($parts) == 1) {
       return strlen($parts[0]) > $length ? substr($parts[0], 0, $length) : $value;
     }
 
-    $value = implode('', array_map(static function ($word): string {
+    $value = implode('', array_map(static function (string $word): string {
       return substr($word, 0, 1);
     }, $parts));
 
     return substr($value, 0, $length);
   }
 
-  protected function executeCallback(string $prefix, $name) {
+  /**
+   * Execute this class's callback.
+   *
+   * @param string $prefix
+   *   Prefix of the callback.
+   * @param string $name
+   *   Name of the callback.
+   *
+   * @return mixed
+   *   Result of the callback.
+   */
+  protected function executeCallback(string $prefix, string $name): mixed {
     $args = func_get_args();
     $args = array_slice($args, 2);
 
     $name = $this->snakeToPascal($name);
 
     $callback = [static::class, $prefix . $name];
-    if (method_exists($callback[0], $callback[1])) {
+    if (method_exists($callback[0], $callback[1]) && is_callable($callback)) {
       return call_user_func_array($callback, $args);
     }
 
     return NULL;
   }
 
-  protected function snakeToPascal($string): string {
-    return str_replace(' ', '', ucwords(str_replace('_', ' ', (string) $string)));
+  protected function snakeToPascal(string $string): string {
+    return str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
   }
 
-  protected function getComposerJsonValue($name) {
+  /**
+   * Get the value of a composer.json key.
+   *
+   * @param string $name
+   *   Name of the key.
+   *
+   * @return mixed|null
+   *   Value of the key or NULL if not found.
+   */
+  protected function getComposerJsonValue(string $name): mixed {
     $composer_json = $this->getDstDir() . DIRECTORY_SEPARATOR . 'composer.json';
     if (is_readable($composer_json)) {
-      $json = json_decode(file_get_contents($composer_json), TRUE);
+      $contents = file_get_contents($composer_json);
+      if ($contents === FALSE) {
+        return NULL;
+      }
+
+      $json = json_decode($contents, TRUE);
       if (isset($json[$name])) {
         return $json[$name];
       }
@@ -2380,22 +2629,26 @@ EOF;
     return NULL;
   }
 
-  protected function getStdinHandle() {
+  protected function getStdinHandle(): mixed {
     global $_stdin_handle;
+
     if (!$_stdin_handle) {
       $h = fopen('php://stdin', 'r');
+      if (!$h) {
+        throw new \RuntimeException('Unable to open stdin handle.');
+      }
       $_stdin_handle = stream_isatty($h) || static::getenvOrDefault('VORTEX_INSTALLER_FORCE_TTY') ? $h : fopen('/dev/tty', 'r+');
     }
 
     return $_stdin_handle;
   }
 
-  protected function closeStdinHandle() {
+  protected function closeStdinHandle(): void {
     $_stdin_handle = $this->getStdinHandle();
     fclose($_stdin_handle);
   }
 
-  protected function out($text, $color = NULL, $new_line = TRUE) {
+  protected function out(string $text, ?string $color = NULL, bool $new_line = TRUE): void {
     $styles = [
       'success' => "\033[0;32m%s\033[0m",
       'error' => "\033[31;31m%s\033[0m",
@@ -2414,7 +2667,7 @@ EOF;
     printf($format, $text);
   }
 
-  protected function debug($value, string $name = '') {
+  protected function debug(mixed $value, string $name = ''): void {
     print PHP_EOL;
     print trim($name . ' DEBUG START') . PHP_EOL;
     print print_r($value, TRUE) . PHP_EOL;

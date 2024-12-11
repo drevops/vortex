@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drevops\Installer\Tests\Unit;
 
 use DrevOps\Installer\Command\InstallCommand;
