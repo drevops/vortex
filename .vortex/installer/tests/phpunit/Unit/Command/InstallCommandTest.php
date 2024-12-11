@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\Installer\Tests\Command;
 
 use DrevOps\Installer\Command\InstallCommand;

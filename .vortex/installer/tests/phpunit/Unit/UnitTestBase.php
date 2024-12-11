@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drevops\Installer\Tests\Unit;
 
 use DrevOps\Installer\Command\InstallCommand;
@@ -46,10 +48,17 @@ abstract class UnitTestBase extends TestCase {
   /**
    * Create fixture files.
    *
+   * @param array $files
+   *   Files to create.
+   * @param string|null $basedir
+   *   Base directory.
+   * @param bool $append_rand
+   *   Append random number to the file name.
+   *
    * @return string[]
    *   Created file names.
    */
-  protected function createFixtureFiles($files, $basedir = NULL, $append_rand = TRUE): array {
+  protected function createFixtureFiles(array $files, ?string $basedir = NULL, bool $append_rand = TRUE): array {
     $fs = new Filesystem();
     $created = [];
 
