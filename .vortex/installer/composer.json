@@ -61,7 +61,7 @@
             "rector --clear-cache",
             "phpcbf"
         ],
-        "test": "if [ \"${XDEBUG_MODE}\" = 'coverage' ]; then phpunit; else phpunit --no-coverage; fi",
+        "test": "phpunit",
         "build": [
             "@composer bin box require --dev humbug/box",
             "box validate",
