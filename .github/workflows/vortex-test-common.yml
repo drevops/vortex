@@ -87,7 +87,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        batch: [0, 1, 2]
+        batch: [0, 1, 2, 3]
 
     container:
       image: drevops/ci-runner:24.11.0
