@@ -33,7 +33,7 @@
         "drevops/behat-format-progress-fail": "^1.2",
         "drevops/behat-screenshot": "^1.5",
         "drevops/behat-steps": "^2.4",
-        "drupal/core-dev": "~11.0.7",
+        "drupal/core-dev": "~11.1.0",
         "drupal/drupal-extension": "^5",
         "ergebnis/composer-normalize": "^2.43",
         "mglaman/phpstan-drupal": "^1.3",
