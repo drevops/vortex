@@ -17,7 +17,7 @@
         "drupal/pathauto": "^1.13",
         "drupal/redirect": "^1.10",
         "drupal/redis": "^1.8",
-        "drupal/search_api": "^1.36",
+        "drupal/search_api": "^1.37",
         "drupal/search_api_solr": "^4.3",
         "drupal/seckit": "^2.0",
         "drupal/shield": "^1.8",
@@ -27,23 +27,23 @@
         "webflo/drupal-finder": "^1.3"
     },
     "require-dev": {
-        "behat/behat": "^3.14",
+        "behat/behat": "^3.17",
         "dantleech/gherkin-lint": "^0.2.3",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
         "drevops/behat-format-progress-fail": "^1.2",
-        "drevops/behat-screenshot": "^1.5",
-        "drevops/behat-steps": "^2.4",
+        "drevops/behat-screenshot": "^1.6",
+        "drevops/behat-steps": "^2.6",
         "drupal/core-dev": "~11.1.0",
         "drupal/drupal-extension": "^5",
-        "ergebnis/composer-normalize": "^2.43",
+        "ergebnis/composer-normalize": "^2.45",
         "mglaman/phpstan-drupal": "^1.3",
         "palantirnet/drupal-rector": "^0.20",
         "phpcompatibility/php-compatibility": "^9.3",
         "phpmd/phpmd": "^2.15",
-        "phpspec/prophecy-phpunit": "^2.2",
+        "phpspec/prophecy-phpunit": "^2.3",
         "phpstan/extension-installer": "^1.4",
         "pyrech/composer-changelogs": "^1.8",
-        "vincentlanglet/twig-cs-fixer": "^3"
+        "vincentlanglet/twig-cs-fixer": "^3.5"
     },
     "conflict": {
         "drupal/drupal": "*"
