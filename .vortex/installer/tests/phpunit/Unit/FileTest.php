@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Drevops\Installer\Tests\Unit;
 
-use DrevOps\Installer\Command\InstallCommand;
+use DrevOps\Installer\File;
 
 /**
- * Class InstallerTokenTest.
+ * Class InstallerCopyRecursiveTest.
  *
- * InstallerTokenTest fixture class.
+ * InstallerCopyRecursiveTest fixture class.
  *
- * @coversDefaultClass \DrevOps\Installer\Command\InstallCommand
+ * @coversDefaultClass \DrevOps\Installer\File
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class TokenTest extends UnitTestBase {
+class FileTest extends UnitTestBase {
 
   protected function setUp(): void {
     parent::setUp();
@@ -26,6 +26,84 @@ class TokenTest extends UnitTestBase {
   protected function tearDown(): void {
     parent::tearDown();
     $this->cleanupFixtureDir();
+  }
+
+  /**
+   * @covers ::copyRecursive
+   */
+  public function testCopyRecursive(): void {
+    $files_dir = $this->getFixtureDir('copyfiles');
+
+    File::copyRecursive($files_dir, $this->fixtureDir);
+
+    $dir = $this->fixtureDir . DIRECTORY_SEPARATOR;
+
+    $this->assertTrue(is_file($dir . 'file.txt'));
+    $this->assertTrue((fileperms($dir . 'file.txt') & 0777) === 0755);
+    $this->assertTrue(is_dir($dir . 'dir'));
+    $this->assertTrue(is_file($dir . 'dir/file_in_dir.txt'));
+    $this->assertTrue(is_dir($dir . 'dir/subdir'));
+    $this->assertTrue(is_file($dir . 'dir/subdir/file_in_subdir.txt'));
+
+    $this->assertTrue(is_link($dir . 'file_link.txt'));
+
+    $this->assertTrue(is_link($dir . 'dir_link'));
+    $this->assertTrue(is_dir($dir . 'dir_link/subdir'));
+    $this->assertTrue(is_file($dir . 'dir_link/subdir/file_in_subdir.txt'));
+    $this->assertTrue(is_link($dir . 'dir_link/subdir/file_link_from_subdir.txt'));
+
+    $this->assertTrue(is_link($dir . 'subdir_link_root'));
+    $this->assertTrue(is_link($dir . 'subdir_link_root/file_link_from_subdir.txt'));
+    $this->assertTrue((fileperms($dir . 'subdir_link_root/file_link_from_subdir.txt') & 0777) === 0755);
+    $this->assertTrue(is_file($dir . 'subdir_link_root/file_in_subdir.txt'));
+
+    $this->assertTrue(is_link($dir . 'dir/subdir_link'));
+    $this->assertTrue(is_dir($dir . 'dir/subdir_link'));
+
+    $this->assertDirectoryDoesNotExist($dir . 'emptydir');
+  }
+
+  /**
+   * @dataProvider dataProviderIsRegex
+   * @covers ::isRegex
+   */
+  public function testIsRegex(string $value, mixed $expected): void {
+    $this->assertEquals($expected, File::isRegex($value));
+  }
+
+  public static function dataProviderIsRegex(): array {
+    return [
+      ['', FALSE],
+
+      // Valid regular expressions.
+      ["/^[a-z]$/", TRUE],
+      ["#[a-z]*#i", TRUE],
+      ["{\\d+}", TRUE],
+      ["(\\d+)", TRUE],
+      ["<[A-Z]{3,6}>", TRUE],
+
+      // Invalid regular expressions (wrong delimiters or syntax).
+      ["^[a-z]$", FALSE],
+      ["/[a-z", FALSE],
+      ["[a-z]+/", FALSE],
+      ["{[a-z]*", FALSE],
+      ["(a-z]", FALSE],
+
+      // Edge cases.
+      // Valid, but '*' as delimiter would be invalid.
+      ["/a*/", TRUE],
+      // Empty string.
+      ["", FALSE],
+      // Just delimiters, no pattern.
+      ["//", FALSE],
+
+      ['web/', FALSE],
+      ['web\/', FALSE],
+      [': web', FALSE],
+      ['=web', FALSE],
+      ['!web', FALSE],
+      ['/web', FALSE],
+    ];
   }
 
   /**
@@ -68,7 +146,7 @@ class TokenTest extends UnitTestBase {
       throw new \RuntimeException('File does not exist.');
     }
 
-    $actual = InstallCommand::fileContains($string, $created_file);
+    $actual = File::fileContains($string, $created_file);
 
     $this->assertEquals($expected, $actual);
   }
@@ -95,7 +173,7 @@ class TokenTest extends UnitTestBase {
     $files = $this->flattenFileTree($files, $tokens_dir);
     $this->createFixtureFiles($files, $tokens_dir);
 
-    $actual = $this->callProtectedMethod(InstallCommand::class, 'dirContains', [$string, $this->fixtureDir]);
+    $actual = File::dirContains($string, $this->fixtureDir);
 
     $this->assertEquals($expected, $actual);
   }
@@ -134,7 +212,7 @@ class TokenTest extends UnitTestBase {
       $this->expectException(\RuntimeException::class);
     }
 
-    InstallCommand::removeTokenFromFile($created_file, $begin, $end, $with_content);
+    File::removeTokenFromFile($created_file, $begin, $end, $with_content);
 
     $this->assertFileEquals($expected_file, $created_file);
   }
@@ -189,7 +267,7 @@ class TokenTest extends UnitTestBase {
       throw new \RuntimeException('Provided files number is not equal to expected files number.');
     }
 
-    $this->callProtectedMethod(InstallCommand::class, 'dirReplaceContent', ['BAR', 'FOO', $this->fixtureDir]);
+    File::dirReplaceContent('BAR', 'FOO', $this->fixtureDir);
 
     foreach (array_keys($created_files) as $k) {
       $this->assertFileEquals($expected_files[$k], $created_files[$k]);
@@ -227,7 +305,7 @@ class TokenTest extends UnitTestBase {
       throw new \RuntimeException('Provided files number is not equal to expected files number.');
     }
 
-    $this->callProtectedMethod(InstallCommand::class, 'replaceStringFilename', ['foo', 'bar', $this->fixtureDir]);
+    File::replaceStringFilename('foo', 'bar', $this->fixtureDir);
 
     foreach (array_keys($expected_files) as $k) {
       $this->assertFileExists($expected_files[$k]);
