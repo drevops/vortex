@@ -23,7 +23,7 @@ trait PromptsTrait {
   }
 
   protected function getDefaultValueName(): ?string {
-    return Converter::toHumanName(static::getenvOrDefault('VORTEX_PROJECT', basename((string) $this->getDstDir())));
+    return Converter::toHumanName(static::getenvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir())));
   }
 
   protected function getDefaultValueMachineName(): ?string {
@@ -307,7 +307,7 @@ trait PromptsTrait {
       if ($this->getAnswer('provision_use_profile') === self::ANSWER_NO) {
         $download_source = $this->getAnswer('database_download_source');
         $db_file = static::getenvOrDefault('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . static::getenvOrDefault('VORTEX_DB_FILE', 'db.sql');
-        $has_comment = File::fileContains('to allow to demonstrate how Vortex works without', $this->getDstDir() . '/.env');
+        $has_comment = File::fileContains('to allow to demonstrate how Vortex works without', $this->config->getDstDir() . '/.env');
 
         // Enable Vortex demo mode if download source is file AND
         // there is no downloaded file present OR if there is a demo comment in
@@ -394,38 +394,6 @@ trait PromptsTrait {
     }
   }
 
-  protected function processDemo(): void {
-    if (empty($this->config->get('VORTEX_INSTALL_DEMO')) || !empty($this->config->get('VORTEX_INSTALL_DEMO_SKIP'))) {
-      return;
-    }
-
-    // Reload variables from destination's .env.
-    static::loadDotenv($this->getDstDir() . '/.env');
-
-    $url = static::getenvOrDefault('VORTEX_DB_DOWNLOAD_CURL_URL');
-    if (empty($url)) {
-      return;
-    }
-
-    $data_dir = $this->getDstDir() . DIRECTORY_SEPARATOR . static::getenvOrDefault('VORTEX_DB_DIR', './.data');
-    $file = static::getenvOrDefault('VORTEX_DB_FILE', 'db.sql');
-
-    $this->status(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url), self::INSTALLER_STATUS_MESSAGE, FALSE);
-
-    if (!file_exists($data_dir)) {
-      mkdir($data_dir);
-    }
-
-    $this->doExec(sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file), $output, $code);
-
-    if ($code !== 0) {
-      throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
-    }
-
-    print ' ';
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
-  }
-
   protected function processPreserveDocComments(string $dir): void {
     if ($this->getAnswer('preserve_doc_comments') === self::ANSWER_YES) {
       // Replace special "#: " comments with normal "#" comments.
@@ -490,12 +458,12 @@ trait PromptsTrait {
     $webroot = $this->getAnswer('webroot');
 
     $locations = [
-      $this->getDstDir() . sprintf('/%s/modules/custom/*_core', $webroot),
-      $this->getDstDir() . sprintf('/%s/sites/all/modules/custom/*_core', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/*/modules/*_core', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/*/modules/custom/*_core', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/custom/*/modules/*_core', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/modules/custom/*_core', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/sites/all/modules/custom/*_core', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/*/modules/*_core', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/*/modules/custom/*_core', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/modules/*_core', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $webroot),
     ];
 
     $path = File::findMatchingPath($locations);
@@ -520,10 +488,10 @@ trait PromptsTrait {
     }
 
     $locations = [
-      $this->getDstDir() . sprintf('/%s/profiles/*/*.info', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/*/*.info.yml', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/custom/*/*.info', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/custom/*/*.info.yml', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/*/*.info', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/*/*.info.yml', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/*.info', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/*.info.yml', $webroot),
     ];
 
     $name = File::findMatchingPath($locations, 'Drupal 10 profile implementation of');
@@ -548,14 +516,14 @@ trait PromptsTrait {
     }
 
     $locations = [
-      $this->getDstDir() . sprintf('/%s/themes/custom/*/*.info', $webroot),
-      $this->getDstDir() . sprintf('/%s/themes/custom/*/*.info.yml', $webroot),
-      $this->getDstDir() . sprintf('/%s/sites/all/themes/custom/*/*.info', $webroot),
-      $this->getDstDir() . sprintf('/%s/sites/all/themes/custom/*/*.info.yml', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/*/themes/custom/*/*.info', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/*/themes/custom/*/*.info.yml', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/custom/*/themes/custom/*/*.info', $webroot),
-      $this->getDstDir() . sprintf('/%s/profiles/custom/*/themes/custom/*/*.info.yml', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/themes/custom/*/*.info', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/themes/custom/*/*.info.yml', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/sites/all/themes/custom/*/*.info', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/sites/all/themes/custom/*/*.info.yml', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/*/themes/custom/*/*.info', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/*/themes/custom/*/*.info.yml', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/themes/custom/*/*.info', $webroot),
+      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/themes/custom/*/*.info.yml', $webroot),
     ];
 
     $name = File::findMatchingPath($locations);
@@ -573,7 +541,7 @@ trait PromptsTrait {
     $webroot = $this->getAnswer('webroot');
 
     $origin = NULL;
-    $path = $this->getDstDir() . sprintf('/%s/sites/default/settings.php', $webroot);
+    $path = $this->config->getDstDir() . sprintf('/%s/sites/default/settings.php', $webroot);
 
     if (!is_readable($path)) {
       return NULL;
@@ -635,11 +603,11 @@ trait PromptsTrait {
   }
 
   protected function discoverValueCiProvider(): ?string {
-    if (is_readable($this->getDstDir() . '/.github/workflows/build-test-deploy.yml')) {
+    if (is_readable($this->config->getDstDir() . '/.github/workflows/build-test-deploy.yml')) {
       return 'GitHub Actions';
     }
 
-    if (is_readable($this->getDstDir() . '/.circleci/config.yml')) {
+    if (is_readable($this->config->getDstDir() . '/.circleci/config.yml')) {
       return 'CircleCI';
     }
 
@@ -651,7 +619,7 @@ trait PromptsTrait {
   }
 
   protected function discoverValuePreserveAcquia(): ?string {
-    if (is_readable($this->getDstDir() . '/hooks')) {
+    if (is_readable($this->config->getDstDir() . '/hooks')) {
       return self::ANSWER_YES;
     }
 
@@ -665,7 +633,7 @@ trait PromptsTrait {
   }
 
   protected function discoverValuePreserveLagoon(): ?string {
-    if (is_readable($this->getDstDir() . '/.lagoon.yml')) {
+    if (is_readable($this->config->getDstDir() . '/.lagoon.yml')) {
       return self::ANSWER_YES;
     }
 
@@ -698,11 +666,11 @@ trait PromptsTrait {
       return NULL;
     }
 
-    return is_readable($this->getDstDir() . '/renovate.json') ? self::ANSWER_YES : self::ANSWER_NO;
+    return is_readable($this->config->getDstDir() . '/renovate.json') ? self::ANSWER_YES : self::ANSWER_NO;
   }
 
   protected function discoverValuePreserveDocComments(): ?string {
-    $file = $this->getDstDir() . '/.ahoy.yml';
+    $file = $this->config->getDstDir() . '/.ahoy.yml';
 
     if (!is_readable($file)) {
       return NULL;
@@ -712,7 +680,7 @@ trait PromptsTrait {
   }
 
   protected function discoverValuePreserveVortexInfo(): ?string {
-    $file = $this->getDstDir() . '/.ahoy.yml';
+    $file = $this->config->getDstDir() . '/.ahoy.yml';
     if (!is_readable($file)) {
       return NULL;
     }
@@ -889,7 +857,7 @@ trait PromptsTrait {
    * Check that Vortex is installed for this project.
    */
   protected function isInstalled(): bool {
-    $path = $this->getDstDir() . DIRECTORY_SEPARATOR . 'README.md';
+    $path = $this->config->getDstDir() . DIRECTORY_SEPARATOR . 'README.md';
 
     if (!file_exists($path)) {
       return FALSE;
@@ -913,7 +881,7 @@ trait PromptsTrait {
    *   Value of the key or NULL if not found.
    */
   protected function getComposerJsonValue(string $name): mixed {
-    $composer_json = $this->getDstDir() . DIRECTORY_SEPARATOR . 'composer.json';
+    $composer_json = $this->config->getDstDir() . DIRECTORY_SEPARATOR . 'composer.json';
     if (is_readable($composer_json)) {
       $contents = file_get_contents($composer_json);
       if ($contents === FALSE) {
@@ -924,6 +892,83 @@ trait PromptsTrait {
       if (isset($json[$name])) {
         return $json[$name];
       }
+    }
+
+    return NULL;
+  }
+
+  protected function processStringTokens(string $dir): void {
+    $machine_name_hyphenated = str_replace('_', '-', $this->getAnswer('machine_name'));
+    $machine_name_camel_cased = Converter::toCamelCase($this->getAnswer('machine_name'), TRUE);
+    $module_prefix_camel_cased = Converter::toCamelCase($this->getAnswer('module_prefix'), TRUE);
+    $module_prefix_uppercase = strtoupper($module_prefix_camel_cased);
+    $theme_camel_cased = Converter::toCamelCase($this->getAnswer('theme'), TRUE);
+    $vortex_version_urlencoded = str_replace('-', '--', (string) $this->config->get('VORTEX_VERSION'));
+    $url = $this->getAnswer('url');
+    $host = parse_url($url, PHP_URL_HOST);
+    $domain = $host ?: $url;
+    $domain_non_www = str_starts_with((string) $domain, "www.") ? substr((string) $domain, 4) : $domain;
+    $webroot = $this->getAnswer('webroot');
+
+    // @formatter:off
+    // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
+    // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
+    File::dirReplaceContent('your_site_theme',       $this->getAnswer('theme'),                     $dir);
+    File::dirReplaceContent('YourSiteTheme',         $theme_camel_cased,                            $dir);
+    File::dirReplaceContent('your_org',              $this->getAnswer('org_machine_name'),          $dir);
+    File::dirReplaceContent('YOURORG',               $this->getAnswer('org'),                       $dir);
+    File::dirReplaceContent('www.your-site-url.example',  $domain,                                  $dir);
+    File::dirReplaceContent('your-site-url.example',      $domain_non_www,                          $dir);
+    File::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
+    File::dirReplaceContent('ys_search',             $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
+    File::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/themes/custom',  $webroot));
+    File::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . '/scripts/custom');
+    File::dirReplaceContent('ys_search',             $this->getAnswer('module_prefix') . '_search', $dir . '/scripts/custom');
+    File::dirReplaceContent('YsCore',                $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
+    File::dirReplaceContent('YsSearch',              $module_prefix_camel_cased . 'Search',         $dir . sprintf('/%s/modules/custom', $webroot));
+    File::dirReplaceContent('YSCODE',                $module_prefix_uppercase,                      $dir);
+    File::dirReplaceContent('YSSEARCH',              $module_prefix_uppercase,                      $dir);
+    File::dirReplaceContent('your-site',             $machine_name_hyphenated,                      $dir);
+    File::dirReplaceContent('your_site',             $this->getAnswer('machine_name'),              $dir);
+    File::dirReplaceContent('YOURSITE',              $this->getAnswer('name'),                      $dir);
+    File::dirReplaceContent('YourSite',              $machine_name_camel_cased,                     $dir);
+
+    File::replaceStringFilename('YourSiteTheme',     $theme_camel_cased,                            $dir);
+    File::replaceStringFilename('your_site_theme',   $this->getAnswer('theme'),                     $dir);
+    File::replaceStringFilename('YourSite',          $machine_name_camel_cased,                     $dir);
+    File::replaceStringFilename('ys_core',           $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
+    File::replaceStringFilename('ys_search',         $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
+    File::replaceStringFilename('YsCore',            $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
+    File::replaceStringFilename('your_org',          $this->getAnswer('org_machine_name'),          $dir);
+    File::replaceStringFilename('your_site',         $this->getAnswer('machine_name'),              $dir);
+
+    File::dirReplaceContent('VORTEX_VERSION_URLENCODED', $vortex_version_urlencoded,                $dir);
+    File::dirReplaceContent('VORTEX_VERSION',            $this->config->get('VORTEX_VERSION'),        $dir);
+    // @formatter:on
+    // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
+    // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
+  }
+
+  /**
+   * Execute this class's callback.
+   *
+   * @param string $prefix
+   *   Prefix of the callback.
+   * @param string $name
+   *   Name of the callback.
+   *
+   * @return mixed
+   *   Result of the callback.
+   */
+  protected function executeCallback(string $prefix, string $name): mixed {
+    $args = func_get_args();
+    $args = array_slice($args, 2);
+
+    $name = Converter::snakeToPascal($name);
+
+    $callback = [static::class, $prefix . $name];
+    if (method_exists($callback[0], $callback[1]) && is_callable($callback)) {
+      return call_user_func_array($callback, $args);
     }
 
     return NULL;

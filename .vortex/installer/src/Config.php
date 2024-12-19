@@ -37,4 +37,22 @@ class Config {
     }
   }
 
+  public function getDstDir(): ?string {
+    return $this->get('VORTEX_INSTALL_DST_DIR');
+  }
+
+  /**
+   * Shorthand to get the value of whether install should be quiet.
+   */
+  public function isQuiet(): bool {
+    return (bool) $this->get('quiet', FALSE);
+  }
+
+  /**
+   * Shorthand to get the value of VORTEX_INSTALL_DEBUG.
+   */
+  public function isInstallDebug(): bool {
+    return (bool) $this->get('VORTEX_INSTALL_DEBUG', FALSE);
+  }
+
 }

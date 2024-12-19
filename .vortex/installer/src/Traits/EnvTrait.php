@@ -16,7 +16,7 @@ trait EnvTrait {
       return $env_value;
     }
 
-    $file = $this->getDstDir() . '/.env';
+    $file = $this->config->getDstDir() . '/.env';
     if (!is_readable($file)) {
       return $default;
     }

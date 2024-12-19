@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Command;
 
 use DrevOps\Installer\Config;
-use DrevOps\Installer\Converter;
 use DrevOps\Installer\File;
+use DrevOps\Installer\Traits\DownloadTrait;
 use DrevOps\Installer\Traits\EnvTrait;
 use DrevOps\Installer\Traits\FilesystemTrait;
 use DrevOps\Installer\Traits\GitTrait;
@@ -29,30 +29,13 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class InstallCommand extends Command {
 
+  use DownloadTrait;
   use EnvTrait;
+  use FilesystemTrait;
   use GitTrait;
   use PrinterTrait;
   use PromptsTrait;
   use TuiTrait;
-  use FilesystemTrait;
-
-  /**
-   * Defines installer status message flags.
-   */
-  final const INSTALLER_STATUS_SUCCESS = 0;
-
-  final const INSTALLER_STATUS_ERROR = 1;
-
-  final const INSTALLER_STATUS_MESSAGE = 2;
-
-  final const INSTALLER_STATUS_DEBUG = 3;
-
-  /**
-   * Defines "yes" and "no" answer strings.
-   */
-  final const ANSWER_YES = 'y';
-
-  final const ANSWER_NO = 'n';
 
   /**
    * Defines default command name.
@@ -88,7 +71,7 @@ class InstallCommand extends Command {
   }
 
   /**
-   * Configures the current command.
+   * {@inheritdoc}
    */
   protected function configure(): void {
     $this->setName('Vortex CLI installer');
@@ -116,14 +99,13 @@ EOF
     try {
       $this->checkRequirements();
 
-      $path = $input->getArgument('path');
-      $this->resolveOptions($input->getOptions(), $path);
+      $this->resolveOptions($input->getOptions(), $input->getArgument('path'));
 
       $this->doExecute();
     }
     catch (\Exception $exception) {
       $this->output->writeln([
-        '<error>Processing failed with an error:</error>',
+        '<error>Installation failed with an error:</error>',
         '<error>' . $exception->getMessage() . '</error>',
       ]);
 
@@ -135,13 +117,18 @@ EOF
     return Command::SUCCESS;
   }
 
+  protected function checkRequirements(): void {
+    $this->commandExists('git');
+    $this->commandExists('tar');
+    $this->commandExists('composer');
+  }
+
   /**
    * Instantiate configuration from CLI option and environment variables.
    *
-   * Installer configuration is a set of internal installer script variables,
-   * read from the environment variables. These environment variables are not
-   * read directly in any operations of this installer script. Instead, these
-   * environment variables are accessible with $this->config->get().
+   * Installer configuration is a set of internal installer script variables
+   * prefixed with "VORTEX_INSTALL_" and used to control the installation. They
+   * are read from the environment variables with $this->config->get().
    *
    * For simplicity of naming, internal installer config variables used in
    * $this->config->get() are matching environment variables names.
@@ -181,8 +168,8 @@ EOF
     $this->config->set('VORTEX_INSTALL_DST_DIR', $path ?: static::getenvOrDefault('VORTEX_INSTALL_DST_DIR', $this->fsGetRootDir()));
 
     // Load .env file from the destination directory, if it exists.
-    if ($this->fs->exists($this->getDstDir() . '/.env')) {
-      static::loadDotenv($this->getDstDir() . '/.env');
+    if ($this->fs->exists($this->config->getDstDir() . '/.env')) {
+      static::loadDotenv($this->config->getDstDir() . '/.env');
     }
 
     // Internal version of Vortex.
@@ -215,9 +202,6 @@ EOF
     $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEMO_SKIP', FALSE));
   }
 
-  /**
-   * Execute the command.
-   */
   protected function doExecute(): void {
     $this->printHeader();
 
@@ -229,7 +213,7 @@ EOF
       return;
     }
 
-    $this->download();
+    $this->downloadScaffold();
 
     $this->prepareDestination();
 
@@ -237,276 +221,11 @@ EOF
 
     $this->copyFiles();
 
-    $this->processDemo();
+    $this->handleDemo();
 
     $this->printFooter();
   }
 
-  protected function prepareDestination(): void {
-    $dst = $this->getDstDir();
-
-    if (!is_dir($dst)) {
-      $this->status(sprintf('Creating destination directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
-      mkdir($dst);
-
-      if (!is_writable($dst)) {
-        throw new \RuntimeException(sprintf('Destination directory "%s" is not writable.', $dst));
-      }
-
-      $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
-    }
-
-    if (is_readable($dst . '/.git')) {
-      $this->status(sprintf('Git repository exists in "%s" - skipping initialisation.', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
-    }
-    else {
-      $this->status(sprintf('Initialising Git repository in directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
-      $this->doExec(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
-
-      if (!file_exists($dst . '/.git')) {
-        throw new \RuntimeException(sprintf('Unable to init git project in directory "%s".', $dst));
-      }
-    }
-
-    print ' ';
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
-  }
-
-  /**
-   * Replace tokens.
-   */
-  protected function replaceTokens(): void {
-    $dir = $this->config->get('VORTEX_INSTALL_TMP_DIR');
-
-    $this->status('Replacing tokens ', self::INSTALLER_STATUS_MESSAGE, FALSE);
-
-    $processors = [
-      'webroot',
-      'profile',
-      'provision_use_profile',
-      'database_download_source',
-      'database_image',
-      'override_existing_db',
-      'ci_provider',
-      'deploy_type',
-      'preserve_acquia',
-      'preserve_lagoon',
-      'preserve_ftp',
-      'preserve_renovatebot',
-      'string_tokens',
-      'preserve_doc_comments',
-      'demo_mode',
-      'preserve_vortex_info',
-      'vortex_internal',
-      'enable_commented_code',
-    ];
-
-    foreach ($processors as $name) {
-      $this->processAnswer($name, $dir);
-      $this->printTick($name);
-    }
-
-    print ' ';
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
-  }
-
-  protected function copyFiles(): void {
-    $src = $this->config->get('VORTEX_INSTALL_TMP_DIR');
-    $dst = $this->getDstDir();
-
-    // Due to the way symlinks can be ordered, we cannot copy files one-by-one
-    // into destination directory. Instead, we are removing all ignored files
-    // and empty directories, making the src directory "clean", and then
-    // recursively copying the whole directory.
-    $all = File::scandirRecursive($src, File::ignorePaths(), TRUE);
-    $files = File::scandirRecursive($src);
-    $valid_files = File::scandirRecursive($src, File::ignorePaths());
-    $dirs = array_diff($all, $valid_files);
-    $ignored_files = array_diff($files, $valid_files);
-
-    $this->status('Copying files', self::INSTALLER_STATUS_DEBUG);
-
-    foreach ($valid_files as $filename) {
-      $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $filename);
-
-      if (File::isInternalPath($relative_file)) {
-        $this->status(sprintf('Skipped file %s as an internal Vortex file.', $relative_file), self::INSTALLER_STATUS_DEBUG);
-        unlink($filename);
-      }
-    }
-
-    // Remove skipped files.
-    foreach ($ignored_files as $skipped_file) {
-      if (is_readable($skipped_file)) {
-        unlink($skipped_file);
-      }
-    }
-
-    // Remove empty directories.
-    foreach ($dirs as $dir) {
-      File::rmdirRecursiveEmpty($dir);
-    }
-
-    // Src directory is now "clean" - copy it to dst directory.
-    if (is_dir($src) && !File::dirIsEmpty($src)) {
-      File::copyRecursive($src, $dst, 0755, FALSE);
-    }
-
-    // Special case for .env.local as it may exist.
-    if (!file_exists($dst . '/.env.local')) {
-      File::copyRecursive($dst . '/.env.local.example', $dst . '/.env.local', 0755, FALSE);
-    }
-  }
-
-  /**
-   * Process answers.
-   */
-  protected function processAnswer(string $name, string $dir): mixed {
-    return $this->executeCallback('process', $name, $dir);
-  }
-
-  protected function processStringTokens(string $dir): void {
-    $machine_name_hyphenated = str_replace('_', '-', $this->getAnswer('machine_name'));
-    $machine_name_camel_cased = Converter::toCamelCase($this->getAnswer('machine_name'), TRUE);
-    $module_prefix_camel_cased = Converter::toCamelCase($this->getAnswer('module_prefix'), TRUE);
-    $module_prefix_uppercase = strtoupper($module_prefix_camel_cased);
-    $theme_camel_cased = Converter::toCamelCase($this->getAnswer('theme'), TRUE);
-    $vortex_version_urlencoded = str_replace('-', '--', (string) $this->config->get('VORTEX_VERSION'));
-    $url = $this->getAnswer('url');
-    $host = parse_url($url, PHP_URL_HOST);
-    $domain = $host ?: $url;
-    $domain_non_www = str_starts_with((string) $domain, "www.") ? substr((string) $domain, 4) : $domain;
-    $webroot = $this->getAnswer('webroot');
-
-    // @formatter:off
-    // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
-    // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
-    File::dirReplaceContent('your_site_theme',       $this->getAnswer('theme'),                     $dir);
-    File::dirReplaceContent('YourSiteTheme',         $theme_camel_cased,                            $dir);
-    File::dirReplaceContent('your_org',              $this->getAnswer('org_machine_name'),          $dir);
-    File::dirReplaceContent('YOURORG',               $this->getAnswer('org'),                       $dir);
-    File::dirReplaceContent('www.your-site-url.example',  $domain,                                  $dir);
-    File::dirReplaceContent('your-site-url.example',      $domain_non_www,                          $dir);
-    File::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
-    File::dirReplaceContent('ys_search',             $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
-    File::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/themes/custom',  $webroot));
-    File::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . '/scripts/custom');
-    File::dirReplaceContent('ys_search',             $this->getAnswer('module_prefix') . '_search', $dir . '/scripts/custom');
-    File::dirReplaceContent('YsCore',                $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
-    File::dirReplaceContent('YsSearch',              $module_prefix_camel_cased . 'Search',         $dir . sprintf('/%s/modules/custom', $webroot));
-    File::dirReplaceContent('YSCODE',                $module_prefix_uppercase,                      $dir);
-    File::dirReplaceContent('YSSEARCH',              $module_prefix_uppercase,                      $dir);
-    File::dirReplaceContent('your-site',             $machine_name_hyphenated,                      $dir);
-    File::dirReplaceContent('your_site',             $this->getAnswer('machine_name'),              $dir);
-    File::dirReplaceContent('YOURSITE',              $this->getAnswer('name'),                      $dir);
-    File::dirReplaceContent('YourSite',              $machine_name_camel_cased,                     $dir);
-
-    File::replaceStringFilename('YourSiteTheme',     $theme_camel_cased,                            $dir);
-    File::replaceStringFilename('your_site_theme',   $this->getAnswer('theme'),                     $dir);
-    File::replaceStringFilename('YourSite',          $machine_name_camel_cased,                     $dir);
-    File::replaceStringFilename('ys_core',           $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
-    File::replaceStringFilename('ys_search',         $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
-    File::replaceStringFilename('YsCore',            $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
-    File::replaceStringFilename('your_org',          $this->getAnswer('org_machine_name'),          $dir);
-    File::replaceStringFilename('your_site',         $this->getAnswer('machine_name'),              $dir);
-
-    File::dirReplaceContent('VORTEX_VERSION_URLENCODED', $vortex_version_urlencoded,                $dir);
-    File::dirReplaceContent('VORTEX_VERSION',            $this->config->get('VORTEX_VERSION'),        $dir);
-    // @formatter:on
-    // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
-    // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
-  }
-
-  /**
-   * Download Vortex source files.
-   */
-  protected function download(): void {
-    if ($this->config->get('VORTEX_INSTALL_LOCAL_REPO')) {
-      $this->downloadLocal();
-    }
-    else {
-      $this->downloadRemote();
-    }
-  }
-
-  protected function downloadLocal(): void {
-    $dst = $this->config->get('VORTEX_INSTALL_TMP_DIR');
-    $repo = $this->config->get('VORTEX_INSTALL_LOCAL_REPO');
-    $ref = $this->config->get('VORTEX_INSTALL_COMMIT');
-
-    $this->status(sprintf('Downloading Vortex from the local repository "%s" at ref "%s".', $repo, $ref), self::INSTALLER_STATUS_MESSAGE, FALSE);
-
-    $command = sprintf('git --git-dir="%s/.git" --work-tree="%s" archive --format=tar "%s" | tar xf - -C "%s"', $repo, $repo, $ref, $dst);
-    $this->doExec($command, $output, $code);
-
-    $this->status(implode(PHP_EOL, $output), self::INSTALLER_STATUS_DEBUG);
-
-    if ($code != 0) {
-      throw new \RuntimeException(implode(PHP_EOL, $output));
-    }
-
-    $this->status(sprintf('Downloaded to "%s".', $dst), self::INSTALLER_STATUS_DEBUG);
-
-    print ' ';
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
-  }
-
-  protected function downloadRemote(): void {
-    $dst = $this->config->get('VORTEX_INSTALL_TMP_DIR');
-    $org = 'drevops';
-    $project = 'vortex';
-    $ref = $this->config->get('VORTEX_INSTALL_COMMIT');
-    $release_prefix = $this->config->get('VORTEX_VERSION');
-
-    if ($ref == 'HEAD') {
-      $release_prefix = $release_prefix == 'develop' ? NULL : $release_prefix;
-      $ref = $this->findLatestVortexRelease($org, $project, $release_prefix);
-      $this->config->set('VORTEX_VERSION', $ref);
-    }
-
-    $url = sprintf('https://github.com/%s/%s/archive/%s.tar.gz', $org, $project, $ref);
-    $this->status(sprintf('Downloading Vortex from the remote repository "%s" at ref "%s".', $url, $ref), self::INSTALLER_STATUS_MESSAGE, FALSE);
-    $this->doExec(sprintf('curl -sS -L "%s" | tar xzf - -C "%s" --strip 1', $url, $dst), $output, $code);
-
-    if ($code != 0) {
-      throw new \RuntimeException(implode(PHP_EOL, $output));
-    }
-
-    $this->status(sprintf('Downloaded to "%s".', $dst), self::INSTALLER_STATUS_DEBUG);
-
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
-  }
-
-  protected function findLatestVortexRelease(string $org, string $project, string $release_prefix): ?string {
-    $release_url = sprintf('https://api.github.com/repos/%s/%s/releases', $org, $project);
-    $release_contents = file_get_contents($release_url, FALSE, stream_context_create([
-      'http' => ['method' => 'GET', 'header' => ['User-Agent: PHP']],
-    ]));
-
-    if (!$release_contents) {
-      throw new \RuntimeException(sprintf('Unable to download release information from "%s".', $release_url));
-    }
-
-    $records = json_decode($release_contents, TRUE);
-    foreach ($records as $record) {
-      if (isset($record['tag_name']) && ($release_prefix && str_contains((string) $record['tag_name'], $release_prefix) || !$release_prefix)) {
-        return $record['tag_name'];
-      }
-    }
-
-    return NULL;
-  }
-
-  /**
-   * Gather answers.
-   *
-   * This is how the values pipeline works for a variable:
-   * 1. Read from .env
-   * 2. Read from environment
-   * 3. Read from user: default->discovered->answer->normalisation->save answer
-   * 4. Use answers for processing, including writing values into correct
-   *    variables in .env.
-   */
   protected function collectAnswers(): void {
     // Set answers that may be used in other answers' discoveries.
     $this->setAnswer('webroot', $this->discoverValue('webroot'));
@@ -580,52 +299,163 @@ EOF
 
     $this->printSummary();
 
-    if ($this->isInstallDebug()) {
+    if ($this->config->isInstallDebug()) {
       $this->printBox($this->formatValuesList($this->getAnswers(), '', 80 - 6), 'DEBUG RESOLVED ANSWERS');
     }
   }
 
-  protected function getDstDir(): ?string {
-    return $this->config->get('VORTEX_INSTALL_DST_DIR');
+  protected function downloadScaffold(): void {
+    if ($this->config->get('VORTEX_INSTALL_LOCAL_REPO')) {
+      $this->downloadScaffoldLocal();
+    }
+    else {
+      $this->downloadScaffoldRemote();
+    }
   }
 
-  /**
-   * Shorthand to get the value of whether install should be quiet.
-   */
-  protected function isQuiet(): bool {
-    return (bool) $this->config->get('quiet', FALSE);
-  }
+  protected function prepareDestination(): void {
+    $dst = $this->config->getDstDir();
 
-  /**
-   * Shorthand to get the value of VORTEX_INSTALL_DEBUG.
-   */
-  protected function isInstallDebug(): bool {
-    return (bool) $this->config->get('VORTEX_INSTALL_DEBUG', FALSE);
-  }
+    if (!is_dir($dst)) {
+      $this->status(sprintf('Creating destination directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
+      mkdir($dst);
 
-  /**
-   * Execute this class's callback.
-   *
-   * @param string $prefix
-   *   Prefix of the callback.
-   * @param string $name
-   *   Name of the callback.
-   *
-   * @return mixed
-   *   Result of the callback.
-   */
-  protected function executeCallback(string $prefix, string $name): mixed {
-    $args = func_get_args();
-    $args = array_slice($args, 2);
+      if (!is_writable($dst)) {
+        throw new \RuntimeException(sprintf('Destination directory "%s" is not writable.', $dst));
+      }
 
-    $name = Converter::snakeToPascal($name);
-
-    $callback = [static::class, $prefix . $name];
-    if (method_exists($callback[0], $callback[1]) && is_callable($callback)) {
-      return call_user_func_array($callback, $args);
+      $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
     }
 
-    return NULL;
+    if (is_readable($dst . '/.git')) {
+      $this->status(sprintf('Git repository exists in "%s" - skipping initialisation.', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
+    }
+    else {
+      $this->status(sprintf('Initialising Git repository in directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
+      $this->doExec(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
+
+      if (!file_exists($dst . '/.git')) {
+        throw new \RuntimeException(sprintf('Unable to init git project in directory "%s".', $dst));
+      }
+    }
+
+    print ' ';
+    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
+  }
+
+  protected function replaceTokens(): void {
+    $dir = $this->config->get('VORTEX_INSTALL_TMP_DIR');
+
+    $this->status('Replacing tokens ', self::INSTALLER_STATUS_MESSAGE, FALSE);
+
+    $processors = [
+      'webroot',
+      'profile',
+      'provision_use_profile',
+      'database_download_source',
+      'database_image',
+      'override_existing_db',
+      'ci_provider',
+      'deploy_type',
+      'preserve_acquia',
+      'preserve_lagoon',
+      'preserve_ftp',
+      'preserve_renovatebot',
+      'string_tokens',
+      'preserve_doc_comments',
+      'demo_mode',
+      'preserve_vortex_info',
+      'vortex_internal',
+      'enable_commented_code',
+    ];
+
+    foreach ($processors as $name) {
+      $this->processAnswer($name, $dir);
+      $this->printTick($name);
+    }
+
+    print ' ';
+    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
+  }
+
+  protected function copyFiles(): void {
+    $src = $this->config->get('VORTEX_INSTALL_TMP_DIR');
+    $dst = $this->config->getDstDir();
+
+    // Due to the way symlinks can be ordered, we cannot copy files one-by-one
+    // into destination directory. Instead, we are removing all ignored files
+    // and empty directories, making the src directory "clean", and then
+    // recursively copying the whole directory.
+    $all = File::scandirRecursive($src, File::ignorePaths(), TRUE);
+    $files = File::scandirRecursive($src);
+    $valid_files = File::scandirRecursive($src, File::ignorePaths());
+    $dirs = array_diff($all, $valid_files);
+    $ignored_files = array_diff($files, $valid_files);
+
+    $this->status('Copying files', self::INSTALLER_STATUS_DEBUG);
+
+    foreach ($valid_files as $filename) {
+      $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $filename);
+
+      if (File::isInternalPath($relative_file)) {
+        $this->status(sprintf('Skipped file %s as an internal Vortex file.', $relative_file), self::INSTALLER_STATUS_DEBUG);
+        unlink($filename);
+      }
+    }
+
+    // Remove skipped files.
+    foreach ($ignored_files as $skipped_file) {
+      if (is_readable($skipped_file)) {
+        unlink($skipped_file);
+      }
+    }
+
+    // Remove empty directories.
+    foreach ($dirs as $dir) {
+      File::rmdirRecursiveEmpty($dir);
+    }
+
+    // Src directory is now "clean" - copy it to dst directory.
+    if (is_dir($src) && !File::dirIsEmpty($src)) {
+      File::copyRecursive($src, $dst, 0755, FALSE);
+    }
+
+    // Special case for .env.local as it may exist.
+    if (!file_exists($dst . '/.env.local')) {
+      File::copyRecursive($dst . '/.env.local.example', $dst . '/.env.local', 0755, FALSE);
+    }
+  }
+
+  protected function handleDemo(): void {
+    if (empty($this->config->get('VORTEX_INSTALL_DEMO')) || !empty($this->config->get('VORTEX_INSTALL_DEMO_SKIP'))) {
+      return;
+    }
+
+    // Reload variables from destination's .env.
+    static::loadDotenv($this->config->getDstDir() . '/.env');
+
+    $url = static::getenvOrDefault('VORTEX_DB_DOWNLOAD_CURL_URL');
+    if (empty($url)) {
+      return;
+    }
+
+    $data_dir = $this->config->getDstDir() . DIRECTORY_SEPARATOR . static::getenvOrDefault('VORTEX_DB_DIR', './.data');
+    $file = static::getenvOrDefault('VORTEX_DB_FILE', 'db.sql');
+
+    $this->status(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url), self::INSTALLER_STATUS_MESSAGE, FALSE);
+
+    if (!file_exists($data_dir)) {
+      mkdir($data_dir);
+    }
+
+    $this->doExec(sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file), $output, $code);
+
+    if ($code !== 0) {
+      throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
+    }
+
+    print ' ';
+    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
 
 }

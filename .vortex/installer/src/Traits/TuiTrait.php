@@ -9,8 +9,26 @@ namespace DrevOps\Installer\Traits;
  */
 trait TuiTrait {
 
+  /**
+   * Defines "yes" and "no" answer strings.
+   */
+  final const ANSWER_YES = 'y';
+
+  final const ANSWER_NO = 'n';
+
+  /**
+   * Defines installer status message flags.
+   */
+  final const INSTALLER_STATUS_SUCCESS = 0;
+
+  final const INSTALLER_STATUS_ERROR = 1;
+
+  final const INSTALLER_STATUS_MESSAGE = 2;
+
+  final const INSTALLER_STATUS_DEBUG = 3;
+
   protected function ask(string $question, ?string $default, bool $close_handle = FALSE): ?string {
-    if ($this->isQuiet()) {
+    if ($this->config->isQuiet()) {
       return $default;
     }
 
@@ -50,7 +68,7 @@ trait TuiTrait {
   }
 
   protected function printHeader(): void {
-    if ($this->isQuiet()) {
+    if ($this->config->isQuiet()) {
       $this->printHeaderQuiet();
     }
     else {
@@ -110,7 +128,7 @@ trait TuiTrait {
 
   protected function printSummary(): void {
     $values['Current directory'] = $this->fsGetRootDir();
-    $values['Destination directory'] = $this->getDstDir();
+    $values['Destination directory'] = $this->config->getDstDir();
     $values['Vortex version'] = $this->config->get('VORTEX_VERSION');
     $values['Vortex commit'] = $this->formatNotEmpty($this->config->get('VORTEX_INSTALL_COMMIT'), 'Latest');
 
@@ -169,7 +187,7 @@ trait TuiTrait {
       $output = '';
       $output .= PHP_EOL;
       $output .= 'Next steps:' . PHP_EOL;
-      $output .= '  cd ' . $this->getDstDir() . PHP_EOL;
+      $output .= '  cd ' . $this->config->getDstDir() . PHP_EOL;
       $output .= '  git add -A                       # Add all files.' . PHP_EOL;
       $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
       $output .= '  ahoy build                       # Build site.' . PHP_EOL;
@@ -186,12 +204,6 @@ trait TuiTrait {
     }
   }
 
-  protected function checkRequirements(): void {
-    $this->commandExists('git');
-    $this->commandExists('tar');
-    $this->commandExists('composer');
-  }
-
   /**
    * Execute command.
    *
@@ -206,13 +218,13 @@ trait TuiTrait {
    *   Result of the command.
    */
   protected function doExec(string $command, ?array &$output = NULL, ?int &$return_var = NULL): string|false {
-    if ($this->isInstallDebug()) {
+    if ($this->config->isInstallDebug()) {
       $this->status(sprintf('COMMAND: %s', $command), self::INSTALLER_STATUS_DEBUG);
     }
 
     $result = exec($command, $output, $return_var);
 
-    if ($this->isInstallDebug()) {
+    if ($this->config->isInstallDebug()) {
       $this->status(sprintf('  OUTPUT: %s', implode('', $output)), self::INSTALLER_STATUS_DEBUG);
       $this->status(sprintf('  CODE  : %s', $return_var), self::INSTALLER_STATUS_DEBUG);
       $this->status(sprintf('  RESULT: %s', $result), self::INSTALLER_STATUS_DEBUG);
@@ -253,8 +265,8 @@ trait TuiTrait {
   protected function askShouldProceed(): bool {
     $proceed = self::ANSWER_YES;
 
-    if (!$this->isQuiet()) {
-      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"? (Y,n)', $this->getDstDir()), $proceed, TRUE);
+    if (!$this->config->isQuiet()) {
+      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"? (Y,n)', $this->config->getDstDir()), $proceed, TRUE);
     }
 
     // Kill-switch to not proceed with install. If false, the install will not
@@ -272,6 +284,13 @@ trait TuiTrait {
     $answer = $this->normaliseAnswer($name, $answer);
 
     $this->setAnswer($name, $answer);
+  }
+
+  /**
+   * Process answers.
+   */
+  protected function processAnswer(string $name, string $dir): mixed {
+    return $this->executeCallback('process', $name, $dir);
   }
 
 }

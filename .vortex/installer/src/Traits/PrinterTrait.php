@@ -107,7 +107,7 @@ trait PrinterTrait {
   }
 
   protected function printTick(?string $text = NULL): void {
-    if (!empty($text) && $this->isInstallDebug()) {
+    if (!empty($text) && $this->config->isInstallDebug()) {
       print PHP_EOL;
       $this->status($text, self::INSTALLER_STATUS_DEBUG, FALSE);
     }
@@ -141,7 +141,7 @@ trait PrinterTrait {
         break;
     }
 
-    if ($level != self::INSTALLER_STATUS_DEBUG || $this->isInstallDebug()) {
+    if ($level != self::INSTALLER_STATUS_DEBUG || $this->config->isInstallDebug()) {
       $this->out(($use_prefix ? $prefix . ' ' : '') . $message, $color, $use_eol);
     }
   }
