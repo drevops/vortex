@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drevops\Installer\Tests\Unit;
 
-use DrevOps\Installer\Command\InstallCommand;
+use DrevOps\Installer\File;
 use Drevops\Installer\Tests\Traits\ReflectionTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -32,8 +32,8 @@ abstract class UnitTestBase extends TestCase {
    * Prepare fixture directory.
    */
   public function prepareFixtureDir(): void {
-    // Using tempdir() from the install file itself.
-    $this->fixtureDir = InstallCommand::tempdir();
+    // Using createTempdir() from the install file itself.
+    $this->fixtureDir = File::createTempdir();
   }
 
   /**
