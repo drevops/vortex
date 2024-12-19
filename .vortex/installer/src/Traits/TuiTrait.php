@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Traits;
 
-use Symfony\Component\Console\Input\InputInterface;
-
 /**
  * TUI trait.
  */
@@ -49,18 +47,6 @@ trait TuiTrait {
   protected function closeStdinHandle(): void {
     $_stdin_handle = $this->getStdinHandle();
     fclose($_stdin_handle);
-  }
-
-  /**
-   * Print help.
-   */
-  protected function getHelpText(): string {
-    return <<<EOF
-  php install destination
-
-  php install --quiet destination
-
-EOF;
   }
 
   protected function printHeader(): void {
@@ -123,7 +109,7 @@ EOF;
   }
 
   protected function printSummary(): void {
-    $values['Current directory'] = self::$currentDir;
+    $values['Current directory'] = $this->fsGetRootDir();
     $values['Destination directory'] = $this->getDstDir();
     $values['Vortex version'] = $this->config->get('VORTEX_VERSION');
     $values['Vortex commit'] = $this->formatNotEmpty($this->config->get('VORTEX_INSTALL_COMMIT'), 'Latest');
@@ -262,41 +248,6 @@ EOF;
     global $_answers;
 
     return $_answers;
-  }
-
-  /**
-   * Initialise CLI options.
-   */
-  protected function initCliArgsAndOptions(InputInterface $input): void {
-    $arg = $input->getArguments();
-    $options = $input->getOptions();
-
-    if (!empty($options['help'])) {
-      $this->config->set('help', TRUE);
-    }
-
-    if (!empty($options['quiet'])) {
-      $this->config->set('quiet', TRUE);
-    }
-
-    if (!empty($options['no-ansi'])) {
-      $this->config->set('ANSI', FALSE);
-    }
-    else {
-      // On Windows, default to no ANSI, except in ANSICON and ConEmu.
-      // Everywhere else, default to ANSI if stdout is a terminal.
-      $is_ansi = (DIRECTORY_SEPARATOR === '\\')
-        ? (FALSE !== getenv('ANSICON') || 'ON' === getenv('ConEmuANSI'))
-        : (function_exists('posix_isatty') && posix_isatty(1));
-      $this->config->set('ANSI', $is_ansi);
-    }
-
-    if (!empty($arg['path'])) {
-      $this->config->set('VORTEX_INSTALL_DST_DIR', $arg['path']);
-    }
-    else {
-      $this->config->set('VORTEX_INSTALL_DST_DIR', static::getenvOrDefault('VORTEX_INSTALL_DST_DIR', self::$currentDir));
-    }
   }
 
   protected function askShouldProceed(): bool {

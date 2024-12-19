@@ -8,6 +8,7 @@ use DrevOps\Installer\Config;
 use DrevOps\Installer\Converter;
 use DrevOps\Installer\File;
 use DrevOps\Installer\Traits\EnvTrait;
+use DrevOps\Installer\Traits\FilesystemTrait;
 use DrevOps\Installer\Traits\GitTrait;
 use DrevOps\Installer\Traits\PrinterTrait;
 use DrevOps\Installer\Traits\PromptsTrait;
@@ -15,7 +16,9 @@ use DrevOps\Installer\Traits\TuiTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Run command.
@@ -31,6 +34,7 @@ class InstallCommand extends Command {
   use PrinterTrait;
   use PromptsTrait;
   use TuiTrait;
+  use FilesystemTrait;
 
   /**
    * Defines installer status message flags.
@@ -51,11 +55,6 @@ class InstallCommand extends Command {
   final const ANSWER_NO = 'n';
 
   /**
-   * Defines current working directory.
-   */
-  protected static string $currentDir;
-
-  /**
    * Defines default command name.
    *
    * @var string
@@ -68,13 +67,42 @@ class InstallCommand extends Command {
   protected Config $config;
 
   /**
+   * Output interface.
+   */
+  protected OutputInterface $output;
+
+  /**
+   * Constructor.
+   *
+   * @param string|null $name
+   *   File system.
+   * @param \Symfony\Component\Filesystem\Filesystem $fs
+   *   Command name.
+   */
+  public function __construct(
+    ?string $name = NULL,
+    ?Filesystem $fs = NULL,
+  ) {
+    parent::__construct($name);
+    $this->fs = is_null($fs) ? new Filesystem() : $fs;
+  }
+
+  /**
    * Configures the current command.
    */
   protected function configure(): void {
-    $this
-      ->setName('Vortex CLI installer')
-      ->addArgument('path', InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.')
-      ->setHelp($this->getHelpText());
+    $this->setName('Vortex CLI installer');
+    $this->setDescription('Install Vortex CLI from remote or local repository.');
+    $this->setHelp(<<<EOF
+  php install destination
+
+  php install --quiet destination
+
+EOF
+    );
+    $this->addArgument('path', InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
+
+    $this->addOption('root', NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
 
     $this->config = new Config();
   }
@@ -83,44 +111,135 @@ class InstallCommand extends Command {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $cwd = getcwd();
-    if (!$cwd) {
-      throw new \RuntimeException('Unable to determine current working directory.');
+    $this->output = $output;
+
+    try {
+      $this->checkRequirements();
+
+      $path = $input->getArgument('path');
+      $this->resolveOptions($input->getOptions(), $path);
+
+      $this->doExecute();
     }
-    self::$currentDir = $cwd;
+    catch (\Exception $exception) {
+      $this->output->writeln([
+        '<error>Processing failed with an error:</error>',
+        '<error>' . $exception->getMessage() . '</error>',
+      ]);
 
-    static::initConfig($input);
-
-    if ($this->config->get('help')) {
-      $output->write($this->getHelpText());
-
-      return 0;
+      return Command::FAILURE;
     }
 
-    $this->checkRequirements();
+    $this->printFooter();
 
+    return Command::SUCCESS;
+  }
+
+  /**
+   * Instantiate configuration from CLI option and environment variables.
+   *
+   * Installer configuration is a set of internal installer script variables,
+   * read from the environment variables. These environment variables are not
+   * read directly in any operations of this installer script. Instead, these
+   * environment variables are accessible with $this->config->get().
+   *
+   * For simplicity of naming, internal installer config variables used in
+   * $this->config->get() are matching environment variables names.
+   *
+   * @param array<mixed> $options
+   *   Array of CLI options.
+   * @param string|null $path
+   *   Destination directory. Optional. Defaults to the current directory.
+   */
+  protected function resolveOptions(array $options, ?string $path): void {
+    if (!empty($options['quiet'])) {
+      $this->config->set('quiet', TRUE);
+    }
+
+    if (!empty($options['no-ansi'])) {
+      $this->config->set('ANSI', FALSE);
+    }
+    else {
+      // On Windows, default to no ANSI, except in ANSICON and ConEmu.
+      // Everywhere else, default to ANSI if stdout is a terminal.
+      $is_ansi = (DIRECTORY_SEPARATOR === '\\')
+        ? (FALSE !== getenv('ANSICON') || 'ON' === getenv('ConEmuANSI'))
+        : (function_exists('posix_isatty') && posix_isatty(1));
+      $this->config->set('ANSI', $is_ansi);
+    }
+
+    // Set root directory to use it for path resolution.
+    $this->fsSetRootDir(!empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : NULL);
+
+    // Set destination directory.
+    if (!empty($path)) {
+      $path = $this->fsGetAbsolutePath($path);
+      if (!is_readable($path) || !is_dir($path)) {
+        throw new \RuntimeException(sprintf('Destination directory "%s" is not readable or does not exist.', $path));
+      }
+    }
+    $this->config->set('VORTEX_INSTALL_DST_DIR', $path ?: static::getenvOrDefault('VORTEX_INSTALL_DST_DIR', $this->fsGetRootDir()));
+
+    // Load .env file from the destination directory, if it exists.
+    if ($this->fs->exists($this->getDstDir() . '/.env')) {
+      static::loadDotenv($this->getDstDir() . '/.env');
+    }
+
+    // Internal version of Vortex.
+    // @todo Convert to option and remove from the environment variables.
+    $this->config->set('VORTEX_VERSION', static::getenvOrDefault('VORTEX_VERSION', 'develop'));
+    // Flag to display install debug information.
+    // @todo Convert to option and remove from the environment variables.
+    $this->config->set('VORTEX_INSTALL_DEBUG', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEBUG', FALSE));
+    // Flag to proceed with installation. If FALSE - the installation will only
+    // print resolved values and will not proceed.
+    // @todo Convert to option and remove from the environment variables.
+    $this->config->set('VORTEX_INSTALL_PROCEED', (bool) static::getenvOrDefault('VORTEX_INSTALL_PROCEED', TRUE));
+    // Temporary directory to download and expand files to.
+    // @todo Convert to option and remove from the environment variables.
+    $this->config->set('VORTEX_INSTALL_TMP_DIR', static::getenvOrDefault('VORTEX_INSTALL_TMP_DIR', File::createTempdir()));
+    // Path to local Vortex repository. If not provided - remote will be used.
+    // @todo Convert to option and remove from the environment variables.
+    $this->config->set('VORTEX_INSTALL_LOCAL_REPO', static::getenvOrDefault('VORTEX_INSTALL_LOCAL_REPO'));
+    // Optional commit to download. If not provided, latest release will be
+    // downloaded.
+    // @todo Convert to option and remove from the environment variables.
+    $this->config->set('VORTEX_INSTALL_COMMIT', static::getenvOrDefault('VORTEX_INSTALL_COMMIT', 'HEAD'));
+
+    // Internal flag to enforce DEMO mode. If not set, the demo mode will be
+    // discovered automatically.
+    if (!is_null(static::getenvOrDefault('VORTEX_INSTALL_DEMO'))) {
+      $this->config->set('VORTEX_INSTALL_DEMO', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEMO'));
+    }
+    // Internal flag to skip processing of the demo mode.
+    $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEMO_SKIP', FALSE));
+  }
+
+  /**
+   * Execute the command.
+   */
+  protected function doExecute(): void {
     $this->printHeader();
 
     $this->collectAnswers();
 
-    if ($this->askShouldProceed()) {
-      $this->download();
-
-      $this->prepareDestination();
-
-      $this->replaceTokens();
-
-      $this->copyFiles();
-
-      $this->processDemo();
-
-      $this->printFooter();
-    }
-    else {
+    if (!$this->askShouldProceed()) {
       $this->printAbort();
+
+      return;
     }
 
-    return 0;
+    $this->download();
+
+    $this->prepareDestination();
+
+    $this->replaceTokens();
+
+    $this->copyFiles();
+
+    $this->processDemo();
+
+    $this->printFooter();
   }
 
   protected function prepareDestination(): void {
@@ -466,42 +585,6 @@ class InstallCommand extends Command {
     }
   }
 
-  /**
-   * Instantiate installer configuration from environment variables.
-   *
-   * Installer configuration is a set of internal installer script variables,
-   * read from the environment variables. These environment variables are not
-   * read directly in any operations of this installer script. Instead, these
-   * environment variables are accessible with get_installer_config().
-   *
-   * For simplicity of naming, internal installer config variables are matching
-   * environment variables names.
-   */
-  protected function initInstallerConfig(): void {
-    // Internal version of Vortex.
-    $this->config->set('VORTEX_VERSION', static::getenvOrDefault('VORTEX_VERSION', 'develop'));
-    // Flag to display install debug information.
-    $this->config->set('VORTEX_INSTALL_DEBUG', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEBUG', FALSE));
-    // Flag to proceed with installation. If FALSE - the installation will only
-    // print resolved values and will not proceed.
-    $this->config->set('VORTEX_INSTALL_PROCEED', (bool) static::getenvOrDefault('VORTEX_INSTALL_PROCEED', TRUE));
-    // Temporary directory to download and expand files to.
-    $this->config->set('VORTEX_INSTALL_TMP_DIR', static::getenvOrDefault('VORTEX_INSTALL_TMP_DIR', File::createTempdir()));
-    // Path to local Vortex repository. If not provided - remote will be used.
-    $this->config->set('VORTEX_INSTALL_LOCAL_REPO', static::getenvOrDefault('VORTEX_INSTALL_LOCAL_REPO'));
-    // Optional commit to download. If not provided, latest release will be
-    // downloaded.
-    $this->config->set('VORTEX_INSTALL_COMMIT', static::getenvOrDefault('VORTEX_INSTALL_COMMIT', 'HEAD'));
-
-    // Internal flag to enforce DEMO mode. If not set, the demo mode will be
-    // discovered automatically.
-    if (!is_null(static::getenvOrDefault('VORTEX_INSTALL_DEMO'))) {
-      $this->config->set('VORTEX_INSTALL_DEMO', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEMO'));
-    }
-    // Internal flag to skip processing of the demo mode.
-    $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEMO_SKIP', FALSE));
-  }
-
   protected function getDstDir(): ?string {
     return $this->config->get('VORTEX_INSTALL_DST_DIR');
   }
@@ -543,17 +626,6 @@ class InstallCommand extends Command {
     }
 
     return NULL;
-  }
-
-  /**
-   * Init all config.
-   */
-  public function initConfig(InputInterface $input): void {
-    $this->initCliArgsAndOptions($input);
-
-    static::loadDotenv($this->getDstDir() . '/.env');
-
-    $this->initInstallerConfig();
   }
 
 }
