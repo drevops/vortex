@@ -845,7 +845,7 @@ assert_files_present_integration_acquia() {
   assert_symlink_not_exists "hooks/prod/post-db-copy"
 
   assert_file_exists "${webroot}/sites/default/includes/providers/settings.acquia.php"
-  assert_file_contains "${webroot}/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
+  assert_file_contains "${webroot}/.htaccess" "RewriteCond %{HTTP_HOST} !\.acquia-sites\.com [NC]"
 
   if [ "${include_scripts:-}" -eq 1 ]; then
     assert_dir_exists "scripts"
@@ -867,7 +867,7 @@ assert_files_present_no_integration_acquia() {
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
   assert_file_not_exists "${webroot}sites/default/includes/providers/settings.acquia.php"
-  assert_file_not_contains "${webroot}/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
+  assert_file_not_contains "${webroot}/.htaccess" "RewriteCond %{HTTP_HOST} !\.acquia-sites\.com [NC]"
   assert_file_not_contains ".env" "VORTEX_ACQUIA_APP_NAME="
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="
   assert_file_not_contains ".ahoy.yml" "VORTEX_ACQUIA_APP_NAME="

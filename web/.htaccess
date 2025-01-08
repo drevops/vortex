@@ -106,7 +106,7 @@ AddEncoding gzip svgz
   # Redirect all non-ww requests to www.
   RewriteCond %{HTTP_HOST} .
   #;< ACQUIA
-  RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC] # only Production environment.
+  RewriteCond %{HTTP_HOST} !\.acquia-sites\.com [NC]
   #;> ACQUIA
   RewriteCond %{HTTP_HOST} !^www\. [NC]
   RewriteRule ^ http%{ENV:protossl}://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
