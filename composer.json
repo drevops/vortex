@@ -27,10 +27,10 @@
         "webflo/drupal-finder": "^1.3"
     },
     "require-dev": {
-        "behat/behat": "^3.17",
+        "behat/behat": "^3.18",
         "dantleech/gherkin-lint": "^0.2.3",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-        "drevops/behat-format-progress-fail": "^1.2",
+        "drevops/behat-format-progress-fail": "^1.3",
         "drevops/behat-screenshot": "^1.6",
         "drevops/behat-steps": "^2.6",
         "drupal/core-dev": "~11.1.0",
