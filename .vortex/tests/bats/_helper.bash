@@ -1021,7 +1021,7 @@ create_fixture_readme() {
 
   cat <<EOT >>"${dir}"/README.md
 # ${name}
-Drupal 10 implementation of ${name} for ${org}
+Drupal 11 implementation of ${name} for ${org}
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 
@@ -1043,7 +1043,7 @@ create_fixture_composerjson() {
   cat <<EOT >>"${dir}"/composer.json
 {
     "name": "${org_machine_name}/${machine_name}",
-    "description": "Drupal 10 implementation of ${name} for ${org}"
+    "description": "Drupal 11 implementation of ${name} for ${org}"
 }
 EOT
 }
