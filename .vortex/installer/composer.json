@@ -27,7 +27,7 @@
         "drupal/coder": "^8.3",
         "ergebnis/composer-normalize": "^2.45",
         "mikey179/vfsstream": "^1.6",
-        "opis/closure": "^3.6",
+        "opis/closure": "^4",
         "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^10",
         "rector/rector": "^1.0.0"
