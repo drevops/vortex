@@ -32,12 +32,17 @@ trait TuiTrait {
    */
   protected int $tuiWidth;
 
+  /**
+   * Is Vortex initially installed.
+   */
+  protected bool $isInitiallyInstalled = FALSE;
+
   protected function ask(string $question, ?string $default, bool $close_handle = FALSE): ?string {
     if ($this->config->isQuiet()) {
       return $default;
     }
 
-    $this->out(sprintf('%s [%s] ', $this->formatColor('> ' .$question, 'green'), $this->formatColor($default, 'yellow')), NULL, FALSE);
+    $this->out(sprintf('%s [%s] ', $this->formatColor('> ' . $question, 'green'), $this->formatColor($default, 'yellow')), NULL, FALSE);
 
     $handle = $this->getStdinHandle();
     $answer = fgets($handle);
@@ -96,6 +101,8 @@ EOT;
       $this->out($logo, 'green');
     }
 
+    $this->isInitiallyInstalled = $this->isInstalled();
+
     if ($this->config->isQuiet()) {
       $this->printHeaderQuiet();
     }
@@ -116,7 +123,7 @@ EOT;
       $content .= sprintf('This will install Vortex into your project at commit "%s".', $commit) . PHP_EOL;
     }
     $content .= PHP_EOL;
-    if ($this->isInstalled()) {
+    if ($this->isInitiallyInstalled) {
       $content .= 'It looks like Vortex is already installed into this project.' . PHP_EOL;
       $content .= PHP_EOL;
     }
@@ -142,7 +149,7 @@ EOT;
     }
 
     $content .= PHP_EOL;
-    if ($this->isInstalled()) {
+    if ($this->isInitiallyInstalled) {
       $content .= 'It looks like Vortex is already installed into this project.' . PHP_EOL;
       $content .= PHP_EOL;
     }
@@ -206,7 +213,7 @@ EOT;
   protected function printFooter(): void {
     print PHP_EOL;
 
-    if ($this->isInstalled()) {
+    if ($this->isInitiallyInstalled) {
       $this->printBox('Finished updating Vortex. Review changes and commit required files.');
     }
     else {
