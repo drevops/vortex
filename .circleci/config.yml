@@ -16,12 +16,12 @@ aliases:
   #;< !PROVISION_USE_PROFILE
   # SSH key fingerprint to download the database.
   # Replace this key fingerprint with your own and remove this comment.
-  - &db_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+  - &db_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
   #;> !PROVISION_USE_PROFILE
 
   # SSH key fingerprint to deploy code.
   # Replace this key fingerprint with your own and remove this comment.
-  - &deploy_ssh_fingerprint "56:f3:3f:51:c3:8f:b3:75:01:90:6e:26:48:e7:48:e1"
+  - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
 
   #;< !PROVISION_USE_PROFILE
   # Schedule to run nightly database build (to cache the database for the next day).
@@ -57,7 +57,7 @@ aliases:
       # This container has all the necessary tools to run a dockerized environment.
       # @see https://github.com/drevops/ci-runner
       # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags
-      - image: drevops/ci-runner:24.11.0
+      - image: drevops/ci-runner:25.1.0
         auth:
           username: ${VORTEX_CONTAINER_REGISTRY_USER}
           password: ${VORTEX_CONTAINER_REGISTRY_PASS}
@@ -146,7 +146,7 @@ jobs:
             echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" | tee /tmp/db_cache_fallback
             echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
             echo "yes" | tee /tmp/db_cache_fallback_yes
-            echo 'v24.10.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
+            echo 'v24.11.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
 
       - restore_cache:
           keys:
@@ -155,10 +155,10 @@ jobs:
             # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
             # Lookup cache based on the default branch and a timestamp. Allows
             # to use cache from the very first build on the day (sanitized database dump, for example).
-            - v24.10.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v24.11.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             # Fallback to caching by default branch name only. Allows to use
             # cache from the branch build on the previous day.
-            - v24.10.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+            - v24.11.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
 
       - run:
           name: Download DB
@@ -188,7 +188,7 @@ jobs:
           # The cache will not be saved if it already exists.
           # Note that the cache fallback flag is enabled for this case in order
           # to save cache even if the fallback is not used when restoring it.
-          key: v24.10.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          key: v24.11.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
           paths:
             - /root/project/.data
 
@@ -231,8 +231,8 @@ jobs:
           keys:
             # Use cached artifacts from previous builds of this branch.
             # @see https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v24.10.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-            - v24.10.0-db10-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+            - v24.11.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v24.11.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !PROVISION_USE_PROFILE
 
       - run:
@@ -311,10 +311,7 @@ jobs:
 
       - run:
           name: Test with PHPUnit
-          command: |
-            XDEBUG_ENABLE=true docker compose up -d cli php nginx # Restart stack with XDEBUG enabled for coverage.
-            docker compose exec -T -e XDEBUG_MODE=coverage cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
-            docker compose up -d cli php nginx # Restart stack without XDEBUG enabled for coverage.
+          command: docker compose exec -T cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Test with Behat
@@ -488,7 +485,7 @@ jobs:
       # Note that here and below we are using "destination" demo image - this
       # is to allow updating of this image from CI tests without jeopardizing
       # main demo image.
-      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-10.x
+      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
       # Use a separate tag to make sure that pushed image does not affect
       # other tests (pushing broken image as 'latest' would fail other tests).
       VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-didi-database-fi
@@ -506,7 +503,7 @@ jobs:
     environment:
       VORTEX_DB_DOWNLOAD_SOURCE: VORTEX_CONTAINER_REGISTRY
       VORTEX_DB_DOWNLOAD_FORCE: 1
-      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-10.x
+      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
       VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-database-ii
       # Also, use this job to test pushing of the DB image to the container
       # registry so replicate what database-nightly job would do.
@@ -522,7 +519,7 @@ jobs:
   vortex-dev-didi-build-fi:
     <<: *job_build
     environment:
-      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-10.x:vortex-dev-didi-database-fi
+      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
@@ -530,7 +527,7 @@ jobs:
   vortex-dev-didi-build-ii:
     <<: *job_build
     environment:
-      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-10.x:vortex-dev-database-ii
+      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii

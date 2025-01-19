@@ -5,7 +5,7 @@
  * Drupal site-specific configuration file.
  *
  * The structure of this file:
- * - Environment constants definitions.
+ * - Environment type constants definitions.
  * - Site-specific settings.
  * - Inclusion of hosting providers settings.
  * - Per-environment overrides.
@@ -22,7 +22,7 @@
 declare(strict_types=1);
 
 ////////////////////////////////////////////////////////////////////////////////
-///                       ENVIRONMENT CONSTANTS                              ///
+///                       ENVIRONMENT TYPE CONSTANTS                         ///
 ////////////////////////////////////////////////////////////////////////////////
 
 // Use these constants anywhere in code to alter behaviour for a specific
@@ -50,6 +50,7 @@ $settings['environment'] = empty(getenv('CI')) ? ENVIRONMENT_LOCAL : ENVIRONMENT
 ////////////////////////////////////////////////////////////////////////////////
 ///                       SITE-SPECIFIC SETTINGS                             ///
 ////////////////////////////////////////////////////////////////////////////////
+
 $app_root = $app_root ?? DRUPAL_ROOT;
 $site_path = $site_path ?? 'sites/default';
 $contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir($app_root . DIRECTORY_SEPARATOR . 'modules/contrib') ? 'modules/contrib' : 'modules');
@@ -67,7 +68,7 @@ $settings['file_private_path'] = getenv('DRUPAL_PRIVATE_FILES') ?: 'sites/defaul
 $settings['file_temp_path'] = getenv('DRUPAL_TEMPORARY_FILES') ?: '/tmp';
 
 // Base salt on the DB host name.
-$settings['hash_salt'] = hash('sha256', getenv('MARIADB_HOST') ?: 'localhost');
+$settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
 
 // Expiration of cached pages.
 $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -75,9 +76,6 @@ $config['system.performance']['cache']['page']['max_age'] = 900;
 // Aggregate CSS and JS files.
 $config['system.performance']['css']['preprocess'] = TRUE;
 $config['system.performance']['js']['preprocess'] = TRUE;
-
-// Enable state cache.
-$settings['state_cache'] = TRUE;
 
 // The default list of directories that will be ignored by Drupal's file API.
 $settings['file_scan_ignore_directories'] = [
@@ -115,11 +113,11 @@ $databases = [
     [
       'default' =>
         [
-          'database' => getenv('MARIADB_DATABASE') ?: 'drupal',
-          'username' => getenv('MARIADB_USERNAME') ?: 'drupal',
-          'password' => getenv('MARIADB_PASSWORD') ?: 'drupal',
-          'host' => getenv('MARIADB_HOST') ?: 'localhost',
-          'port' => getenv('MARIADB_PORT') ?: '',
+          'database' => getenv('DATABASE_NAME') ?: getenv('MARIADB_DATABASE') ?: 'drupal',
+          'username' => getenv('DATABASE_USERNAME') ?: getenv('MARIADB_USERNAME') ?: 'drupal',
+          'password' => getenv('DATABASE_PASSWORD') ?: getenv('MARIADB_PASSWORD') ?: 'drupal',
+          'host' => getenv('DATABASE_HOST') ?: getenv('MARIADB_HOST') ?: 'localhost',
+          'port' => getenv('DATABASE_PORT') ?: getenv('MARIADB_PORT') ?: '',
           'prefix' => '',
           'driver' => 'mysql',
         ],
@@ -127,10 +125,10 @@ $databases = [
 ];
 
 ////////////////////////////////////////////////////////////////////////////////
-///                         ENVIRONMENT DETECTION                            ///
+///                       ENVIRONMENT TYPE DETECTION                         ///
 ////////////////////////////////////////////////////////////////////////////////
 
-// Load environment-specific settings.
+// Load provider-specific settings.
 if (file_exists($app_root . '/' . $site_path . '/includes/providers')) {
   $files = glob($app_root . '/' . $site_path . '/includes/providers/settings.*.php');
   if ($files) {

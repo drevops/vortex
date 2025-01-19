@@ -5,6 +5,8 @@
  * Main entry point for the application.
  */
 
+declare(strict_types=1);
+
 use DrevOps\Installer\Command\InstallCommand;
 use Symfony\Component\Console\Application;
 

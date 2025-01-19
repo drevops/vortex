@@ -35,7 +35,7 @@ dump_file=$([ "${1:-}" ] && echo "${VORTEX_DB_EXPORT_FILE_DIR}/${1}" || echo "${
 dump_file_drush="${dump_file/#.\//../}"
 
 # Create a directory to store database dump.
-mkdir -p "$(dirname "${dump_file_drush}")"
+mkdir -p "${VORTEX_DB_EXPORT_FILE_DIR}"
 
 # Dump database into a file.
 drush sql:dump --skip-tables-key=common --extra-dump=--no-tablespaces --result-file="${dump_file_drush}" -q

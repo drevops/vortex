@@ -88,12 +88,6 @@ automated coverage assessment, and in `.logs/coverage/phpunit/.coverage-html` as
 HTML coverage report, useful for visual report assessment during test
 development.
 
-The tests need to run with `XDEBUG_MODE=coverage` environment variable set.
-
-```shell
-XDEBUG_MODE=coverage cli vendor/bin/phpunit
-```
-
 CI runs tests with coverage by default and stores the reports as artifacts.
 
 ### Ignoring lines from coverage

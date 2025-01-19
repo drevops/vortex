@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:24.11.0
+      image: drevops/ci-runner:25.1.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -74,7 +74,7 @@ jobs:
           path: /tmp/.vortex-coverage-html
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           directory: /tmp/.vortex-coverage-html
           fail_ci_if_error: false
@@ -85,11 +85,12 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        batch: [0, 1, 2]
+        batch: [0, 1, 2, 3]
 
     container:
-      image: drevops/ci-runner:24.11.0
+      image: drevops/ci-runner:25.1.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -126,7 +127,7 @@ jobs:
           path: /tmp/.vortex-coverage-html
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           directory: /tmp/.vortex-coverage-html
           fail_ci_if_error: false
@@ -137,11 +138,12 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         batch: [0, 1]
 
     container:
-      image: drevops/ci-runner:24.11.0
+      image: drevops/ci-runner:25.1.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -188,7 +190,7 @@ jobs:
           path: /tmp/.vortex-coverage-html
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           directory: /tmp/.vortex-coverage-html
           fail_ci_if_error: false

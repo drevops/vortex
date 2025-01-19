@@ -121,7 +121,7 @@ main() {
 
   # Check that the stack is running.
   if [ "${VORTEX_DOCTOR_CHECK_CONTAINERS}" = "1" ]; then
-    container_services=(cli php nginx mariadb)
+    container_services=(cli php nginx database)
     for container_service in "${container_services[@]}"; do
       if ! docker compose ps --status=running --services | grep -q "${container_service}"; then
         fail "${container_service} container is not running."

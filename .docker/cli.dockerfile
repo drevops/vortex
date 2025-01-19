@@ -6,7 +6,7 @@
 #
 # @see https://hub.docker.com/r/uselagoon/php-8.3-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
-FROM uselagoon/php-8.3-cli-drupal:24.10.0
+FROM uselagoon/php-8.3-cli-drupal:24.12.0
 
 # Add missing variables.
 # @todo Remove once https://github.com/uselagoon/lagoon/issues/3121 is resolved.
@@ -39,7 +39,7 @@ ENV DRUPAL_CONFIG_PATH=${DRUPAL_CONFIG_PATH}
 ENV WEBROOT=${WEBROOT} \
     COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
-    SIMPLETEST_DB=mysql://drupal:drupal@mariadb/drupal \
+    SIMPLETEST_DB=mysql://drupal:drupal@database/drupal \
     SIMPLETEST_BASE_URL=http://nginx:8080 \
     SYMFONY_DEPRECATIONS_HELPER=disabled
 
@@ -52,7 +52,10 @@ ENV WEBROOT=${WEBROOT} \
 # reduce build time.
 
 # Adding more tools.
-RUN apk add --no-cache ncurses pv tzdata
+RUN apk add --no-cache ncurses pv tzdata autoconf g++ make \
+  && pecl install pcov \
+  && docker-php-ext-enable pcov \
+  && apk del g++ make autoconf
 
 # Adding patches and scripts.
 COPY patches /app/patches

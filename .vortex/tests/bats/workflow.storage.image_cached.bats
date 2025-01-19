@@ -2,7 +2,7 @@
 #
 # Workflows using different types of DB storage.
 #
-# Throughout these tests, a "drevops/vortex-dev-mariadb-drupal-data-test-10.x:latest"
+# Throughout these tests, a "drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
 # test image is used: it is seeded with content from the pre-built fixture
 # "Star wars" test site.
 #
@@ -25,7 +25,7 @@ load _helper.workflow.bash
   export VORTEX_DB_DOWNLOAD_SOURCE=container_registry
 
   # Use a test image. Image always must use a tag.
-  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-10.x:latest"
+  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
 
   # Do not use demo database - testing demo database discovery is another test.
   export VORTEX_INSTALL_DEMO_SKIP=1
@@ -52,7 +52,7 @@ load _helper.workflow.bash
   assert_file_contains ".env" "VORTEX_DB_DOWNLOAD_SOURCE=container_registry"
   assert_file_contains ".env" "VORTEX_DB_IMAGE=${VORTEX_DB_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
-  assert_file_not_contains ".env" "VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-10.x:latest"
+  assert_file_not_contains ".env" "VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest"
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_CURL_URL="
 
   step "Initial build to use data image."
@@ -70,18 +70,18 @@ load _helper.workflow.bash
   # Make a change to current site, export the DB image, remove existing DB image
   # and rebuild the stack - the used image should have the expected changes.
   substep "Assert that used DB image has content."
-  assert_webpage_contains "/" "test database Docker image"
+  assert_webpage_contains "/" "This test page is sourced from the Vortex database container image"
   assert_webpage_not_contains "/" "Username"
 
   substep "Change homepage content and assert that the change was applied."
   ahoy drush config-set system.site page.front /user -y
-  assert_webpage_not_contains "/" "test database Docker image"
+  assert_webpage_not_contains "/" "This test page is sourced from the Vortex database container image"
   assert_webpage_contains "/" "Username"
 
   substep "Exporting DB image to a file"
   run ahoy export-db "db.tar"
   assert_success
-  assert_output_contains "Found mariadb service container with id"
+  assert_output_contains "Found database service container with id"
   assert_output_contains "Committing exported container image with name docker.io/${VORTEX_DB_IMAGE}"
   assert_output_contains "Committed exported container image with id"
   assert_output_contains "Exporting database image archive to file ./.data/db.tar."
@@ -107,7 +107,7 @@ load _helper.workflow.bash
   assert_output_contains "Finished building project"
 
   step "Assert that the contents of the DB was loaded from the exported DB image file."
-  assert_webpage_not_contains "/" "test database Docker image"
+  assert_webpage_not_contains "/" "This test page is sourced from the Vortex database container image"
   assert_webpage_contains "/" "Username"
   ahoy clean
 }

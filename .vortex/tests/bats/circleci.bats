@@ -28,7 +28,8 @@ load _helper.circleci.bash
 
     assert_contains "homepage.feature" "${artifact_path_runner_0}"
     assert_contains "login.feature" "${artifact_path_runner_0}"
-    assert_contains "clamav.feature" "${artifact_path_runner_0}"
+    # @see https://github.com/drevops/vortex/issues/1461
+    # assert_contains "clamav.feature" "${artifact_path_runner_0}"
     assert_not_contains "search.feature" "${artifact_path_runner_0}"
 
     artifact_path_runner_1="$(echo "${artifacts_data}" | jq -r '.items | map(select(.node_index == 1).path) | join("\n")')"
@@ -37,7 +38,8 @@ load _helper.circleci.bash
 
     assert_contains "homepage.feature" "${artifact_path_runner_1}"
     assert_contains "login.feature" "${artifact_path_runner_1}"
-    assert_not_contains "clamav.feature" "${artifact_path_runner_1}"
+    # @see https://github.com/drevops/vortex/issues/1461
+    # assert_not_contains "clamav.feature" "${artifact_path_runner_1}"
     assert_contains "search.feature" "${artifact_path_runner_1}"
   done
 }
@@ -66,7 +68,8 @@ load _helper.circleci.bash
 
     assert_contains "homepage.feature" "${tests_data}"
     assert_contains "login.feature" "${tests_data}"
-    assert_contains "clamav.feature" "${tests_data}"
+    # @see https://github.com/drevops/vortex/issues/1461
+    # assert_contains "clamav.feature" "${tests_data}"
     assert_contains "search.feature" "${tests_data}"
   done
 }

@@ -35,7 +35,7 @@ commands:
     usage: Show information about this project.
     cmd: |
       COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}} \
-      VORTEX_HOST_DB_PORT=$(docker compose port mariadb 3306 2>/dev/null | cut -d : -f 2) \
+      VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2) \
       VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) \
       VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2) \
       VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true) \
@@ -45,8 +45,8 @@ commands:
     usage: Open DB in Sequel Ace.
     cmd: |
       uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null |grep -q "Ace" \
-      && VORTEX_HOST_DB_PORT="$(docker port $(docker compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" \
-      && open "mysql://${MARIADB_USERNAME:-drupal}:${MARIADB_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
+      && VORTEX_HOST_DB_PORT="$(docker port $(docker compose ps -q database 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" \
+      && open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
       || echo "Not a supported OS or Sequel Ace is not installed."
 
   # ----------------------------------------------------------------------------
@@ -135,8 +135,8 @@ commands:
     usage: Reload the database container using local database image.
     cmd: |
       ahoy confirm "Running this command will replace your current database. Are you sure?" &&
-      docker compose rm --force --stop --volumes mariadb && \
-        ahoy up -- --build mariadb && \
+      docker compose rm --force --stop --volumes database && \
+        ahoy up -- --build database && \
         ahoy up wait_dependencies && \
         sleep 15 && \
         ahoy provision && \

@@ -94,6 +94,7 @@ assert_ahoy_build() {
 
   process_ahoyyml
   run ahoy build
+  assert_success
   run sync_to_host
 
   # Assert that lock files were created.
@@ -239,7 +240,7 @@ assert_timezone() {
   assert_output_contains "AE"
   run docker compose exec nginx date
   assert_output_contains "AE"
-  run docker compose exec mariadb date
+  run docker compose exec database date
   assert_output_contains "AE"
 
   # Add variable to the .env file and apply the change to container.
@@ -253,7 +254,7 @@ assert_timezone() {
   assert_output_contains "AWST"
   run docker compose exec nginx date
   assert_output_contains "AWST"
-  run docker compose exec mariadb date
+  run docker compose exec database date
   assert_output_contains "AWST"
 
   # Restore file, apply changes and assert that original behaviour has been restored.
@@ -292,7 +293,7 @@ assert_ahoy_info() {
   assert_output_contains "Docker Compose project name : star_wars"
   assert_output_contains "Site local URL              : http://star_wars.docker.amazee.io"
   assert_output_contains "Path to web root            : /app/${webroot}"
-  assert_output_contains "DB host                     : mariadb"
+  assert_output_contains "DB host                     : database"
   assert_output_contains "DB username                 : drupal"
   assert_output_contains "DB password                 : drupal"
   assert_output_contains "DB port                     : 3306"
@@ -434,7 +435,8 @@ assert_ahoy_test_unit() {
   step "Run Drupal Unit tests"
 
   substep "Run all Unit tests"
-  run ahoy test-unit
+  # @todo: Add coverage check.
+  run ahoy test-unit --no-coverage
   assert_success
   assert_output_contains "OK ("
   sync_to_host
@@ -459,7 +461,8 @@ assert_ahoy_test_kernel() {
   step "Run Drupal Kernel tests"
 
   substep "Run all Kernel tests"
-  run ahoy test-kernel
+  # @todo: Add coverage check.
+  run ahoy test-kernel --no-coverage
   assert_success
   assert_output_contains "OK ("
   sync_to_host
@@ -484,7 +487,8 @@ assert_ahoy_test_functional() {
   step "Run Drupal Functional tests"
 
   substep "Run all Functional tests"
-  run ahoy test-functional
+  # @todo: Add coverage check.
+  run ahoy test-functional --no-coverage
   assert_success
   assert_output_contains "OK ("
   sync_to_host

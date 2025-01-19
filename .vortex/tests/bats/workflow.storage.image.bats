@@ -2,7 +2,7 @@
 #
 # Workflows using different types of DB storage.
 #
-# Throughout these tests, a "drevops/vortex-dev-mariadb-drupal-data-test-10.x:latest"
+# Throughout these tests, a "drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
 # test image is used: it is seeded with content from the pre-built fixture
 # "Star wars" test site.
 #
@@ -23,7 +23,7 @@ load _helper.workflow.bash
   export VORTEX_DB_DOWNLOAD_SOURCE=container_registry
 
   # Use a test image. Image always must use a tag.
-  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-10.x:latest"
+  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
 
   # Do not use demo database - testing demo database discovery is another test.
   export VORTEX_INSTALL_DEMO_SKIP=1
@@ -50,7 +50,7 @@ load _helper.workflow.bash
   assert_file_contains ".env" "VORTEX_DB_DOWNLOAD_SOURCE=container_registry"
   assert_file_contains ".env" "VORTEX_DB_IMAGE=${VORTEX_DB_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
-  assert_file_not_contains ".env" "VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-10.x:latest"
+  assert_file_not_contains ".env" "VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest"
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_CURL_URL="
 
   assert_ahoy_build
@@ -59,14 +59,14 @@ load _helper.workflow.bash
   step "Reload DB image"
 
   # Assert that used DB image has content.
-  assert_webpage_contains "/" "test database Docker image"
+  assert_webpage_contains "/" "This test page is sourced from the Vortex database container image"
 
   # Change homepage content and assert that the change was applied.
   ahoy drush config-set system.site page.front /user -y
-  assert_webpage_not_contains "/" "test database Docker image"
+  assert_webpage_not_contains "/" "This test page is sourced from the Vortex database container image"
 
   ahoy reload-db
-  assert_webpage_contains "/" "test database Docker image"
+  assert_webpage_contains "/" "This test page is sourced from the Vortex database container image"
 
   # Other stack assertions - these run only for this container image-related test.
   assert_gitignore

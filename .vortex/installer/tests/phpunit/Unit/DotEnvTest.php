@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drevops\Installer\Tests\Unit;
 
 use DrevOps\Installer\Command\InstallCommand;
@@ -50,7 +52,7 @@ class DotEnvTest extends UnitTestBase {
     $content = 'var1=val1';
     $filename = $this->createFixtureEnvFile($content);
 
-    $this->assertEmpty(getenv('var1'), getenv('var1'));
+    $this->assertEmpty(getenv('var1'));
     $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
     $this->assertEquals('val1', getenv('var1'));
 
@@ -216,7 +218,7 @@ class DotEnvTest extends UnitTestBase {
     ];
   }
 
-  protected function createFixtureEnvFile($content): string|false {
+  protected function createFixtureEnvFile(string $content): string|false {
     $filename = tempnam(sys_get_temp_dir(), '.env');
     file_put_contents($filename, $content);
 

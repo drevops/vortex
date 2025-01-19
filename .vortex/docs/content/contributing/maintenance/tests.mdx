@@ -38,36 +38,159 @@ bats --no-tempdir-cleanup .vortex/tests/bats/*.bats
 
 ## Updating test assets
 
-Some tests use test fixtures such as Drupal database snapshots.
+There are *demo* and *test* database dumps captured as *files* and *container images*.
 
-### Updating demo database file dump
+- Demo database dump file - *demonstration* of the database import capabilities from a *file* during a normal workflow.
+- Demo database container image - *demonstration* of the database import capabilities from a *container image* during a normal workflow.
+- Test database dump file - *test* of the database import capabilities from a *file* during the normal workflow.
+- Test database container image - *test* of the database import capabilities from a *container image* during the normal workflow.
+
+### Updating *demo* database dump *file*
 
 1. Run fresh build of **Vortex** locally:
 ```bash
-echo "DRUPAL_PROFILE=standard">>.env.local
-echo "VORTEX_PROVISION_USE_PROFILE=1">>.env.local
-rm .data/db.sql
-AHOY_CONFIRM_RESPONSE=1 ahoy build
+rm .data/db.sql || true
+VORTEX_PROVISION_USE_PROFILE=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
-2. Check that everything looks correctly on the site.
-3. Export DB
+2. Update content and config:
 ```bash
-ahoy export-db
+ahoy cli
+
+drush eval "Drupal::entityTypeManager()->getStorage('node')->create([
+  'type' => 'page',
+  'title' => 'Welcome to the demo site!',
+  'body' => [
+    'value' => '<p>This demo page is sourced from the Vortex database dump file to demonstrate database importing capabilities.</p>',
+    'format' => 'basic_html',
+  ],
+])->save();"
+
+drush config:set system.site page.front "/node/1" -y
+drush sql:query "SHOW TABLES LIKE 'cache_%'" | xargs -I{} drush sql:query "TRUNCATE TABLE {}" && drush sql:query "TRUNCATE TABLE watchdog"
+
+exit
+
 ```
-4. Make sure that exported DB does not have data in `cache_*` and `watchdog` tables.
-5. Upload DB to https://github.com/drevops/vortex/wiki as a test file (`db.distN.sql`).
-6. Update references in code from `db.demo.sql` to `db.distN.sql`.
-7. Run CI build.
-8. Revert updated references to `db.demo.sql`.
-9. Update `db.demo.sql` in Wiki.
-10. Merge branch to `main`.
-11. Wait for CI to pass.
-12. Remove `db.distN.sql` from Wiki.
+3. Export DB:
+```bash
+ahoy export-db db.demo.sql
+```
+4. Upload `db.demo.sql` to the latest release as an asset and name it `db_d11.demo.sql`.
 
-### Updating demo database container image
+### Updating *demo* database *container image*
 
-:::note "Work in progress"
+1. Run fresh build of **Vortex** locally:
+```bash
+rm .data/db.sql || true
+VORTEX_PROVISION_USE_PROFILE=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
+```
+2. Update content and config:
+```bash
+ahoy cli
 
-    The documentation section is still a work in progress.
+drush eval "Drupal::entityTypeManager()->getStorage('node')->create([
+  'type' => 'page',
+  'title' => 'Welcome to the demo site!',
+  'body' => [
+    'value' => '<p>This demo page is sourced from the Vortex database container image to demonstrate database importing capabilities.</p>',
+    'format' => 'basic_html',
+  ],
+])->save();"
 
-:::
+drush config:set system.site page.front "/node/1" -y
+drush sql:query "SHOW TABLES LIKE 'cache_%'" | xargs -I{} drush sql:query "TRUNCATE TABLE {}" && drush sql:query "TRUNCATE TABLE watchdog"
+
+exit
+
+```
+3. Export DB:
+```bash
+ahoy export-db db.demo_image.sql
+```
+4. Seed the database container image:
+```bash
+curl -LO https://github.com/drevops/mariadb-drupal-data/releases/latest/download/seed.sh
+chmod +x seed.sh
+./seed.sh .data/db.demo_image.sql drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest
+```
+
+### Updating *test* database dump *file*
+
+1. Run a fresh install of **Vortex** into a new directory and name the project `Star Wars`:
+```bash
+mkdir /tmp/star-wars
+VORTEX_INSTALL_LOCAL_REPO="$(pwd)" .vortex/installer/install /tmp/star-wars --quiet
+cd /tmp/star-wars
+```
+2. Run fresh build of **Vortex** locally:
+```bash
+rm .data/db.sql || true
+VORTEX_PROVISION_USE_PROFILE=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
+```
+3. Update content and config:
+```bash
+ahoy cli
+
+drush eval "Drupal::entityTypeManager()->getStorage('node')->create([
+  'type' => 'page',
+  'title' => 'Welcome to the test site!',
+  'body' => [
+    'value' => '<p>This test page is sourced from the Vortex database dump file to demonstrate database importing capabilities.</p>',
+    'format' => 'basic_html',
+  ],
+])->save();"
+
+drush config:set system.site page.front "/node/1" -y
+drush sql:query "SHOW TABLES LIKE 'cache_%'" | xargs -I{} drush sql:query "TRUNCATE TABLE {}" && drush sql:query "TRUNCATE TABLE watchdog"
+
+exit
+
+```
+4. Export DB:
+```bash
+ahoy export-db db.test.sql
+```
+5. Upload `db.test.sql` to the latest release as an asset and name it `db_d11.test.sql`.
+
+### Updating *test* database *container image*
+
+1. Run a fresh install of **Vortex** into a new directory and name the project `Star Wars`:
+```bash
+mkdir /tmp/star-wars
+VORTEX_INSTALL_LOCAL_REPO="$(pwd)" .vortex/installer/install /tmp/star-wars --quiet
+cd /tmp/star-wars
+```
+2. Run fresh build of **Vortex** locally:
+```bash
+rm .data/db.sql || true
+VORTEX_PROVISION_USE_PROFILE=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
+```
+3. Update content and config:
+```bash
+ahoy cli
+
+drush eval "Drupal::entityTypeManager()->getStorage('node')->create([
+  'type' => 'page',
+  'title' => 'Welcome to the test site!',
+  'body' => [
+    'value' => '<p>This test page is sourced from the Vortex database container image to demonstrate database importing capabilities.</p>',
+    'format' => 'basic_html',
+  ],
+])->save();"
+
+drush config:set system.site page.front "/node/1" -y
+drush sql:query "SHOW TABLES LIKE 'cache_%'" | xargs -I{} drush sql:query "TRUNCATE TABLE {}" && drush sql:query "TRUNCATE TABLE watchdog"
+
+exit
+
+```
+4. Export DB:
+```bash
+ahoy export-db db.test_image.sql
+```
+5. Seed the database container image:
+```bash
+curl -LO https://github.com/drevops/mariadb-drupal-data/releases/latest/download/seed.sh
+chmod +x seed.sh
+./seed.sh .data/db.test_image.sql drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest
+```

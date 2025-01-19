@@ -1,11 +1,11 @@
 # Solr container.
 ARG CLI_IMAGE
 # hadolint ignore=DL3006
-FROM ${CLI_IMAGE} as cli
+FROM ${CLI_IMAGE:-cli} AS cli
 
 # @see https://hub.docker.com/r/uselagoon/solr-8/tags
 # @see https://github.com/uselagoon/lagoon-images/blob/main/images/solr/8.Dockerfile
-FROM uselagoon/solr-8:24.10.0
+FROM uselagoon/solr-8:24.12.0
 
 # Solr Jump-start config needs to be manually copied from search_api_solr module
 # /app/docroot/modules/contrib/search_api_solr/jump-start/solr8/config-set.

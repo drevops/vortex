@@ -59,9 +59,10 @@ default:
         error_message_selector: '.messages.error'
         success_message_selector: '.messages.status'
         warning_message_selector: '.messages.warning'
-    # Capture HTML and JPG screenshots on demand and on failure.
+    # Capture HTML and PNG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:
       dir: '%paths.base%/.logs/screenshots'
+      on_failed: true # Change to 'false' (no quotes) to disable screenshots on failure.
       purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
     # Show explicit fail information and continue the test run.
     DrevOps\BehatFormatProgressFail\FormatExtension: ~

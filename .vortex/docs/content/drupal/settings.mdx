@@ -12,9 +12,10 @@ the [`settings.php`](https://github.com/drevops/vortex/blob/develop/web/sites/de
 [`services.yml`](https://github.com/drevops/vortex/blob/develop/web/sites/default/services.yml) files.
 
 It also provides [Settings unit tests](#testing-settings-with-unit-tests) to ensure that
-the settings apply correctly per environment. These tests are supposed to be
-maintained within your project, ensuring that settings activated by specific
-environments and environment variables are applied accurately.
+the settings apply correctly per environment. These tests are intended to be
+maintained within your project, ensuring that the settings activated within a
+specific _environment type_ and with specific _environment variables_ are
+applied correctly.
 
 The default **Drupal Scaffold**'s [`default.settings.php`](https://github.com/drevops/vortex/blob/develop/web/sites/default/default.settings.php)
 and [`default.services.yml`](https://github.com/drevops/vortex/blob/develop/web/sites/default/default.services.yml)
@@ -24,28 +25,28 @@ The [`settings.php`](https://github.com/drevops/vortex/blob/develop/web/sites/de
 into several sections:
 
 import CodeBlock from '@theme/CodeBlock';
-import MyComponentSource from '!!raw-loader!./../../../../web/sites/default/settings.php';
+import SettingsExample from '!!raw-loader!./../../../../web/sites/default/settings.php';
 
 <details>
   <summary>Click here to see the contents of the `settings.php` file</summary>
 
-  <CodeBlock language="php">{MyComponentSource}</CodeBlock>
+  <CodeBlock language="php">{SettingsExample}</CodeBlock>
 
 </details>
 
-1. [Environment constants definitions](#1-environment-constants-definitions)
+1. [Environment type constants definitions](#1-environment-type-constants-definitions)
 2. [Site-specific settings](#2-site-specific-settings)
-3. [Environment detection](#3-environment-detection)
+3. [Environment detection](#3-environment-type-detection)
 4. [Per-environment overrides](#4-per-environment-overrides)
 5. [Inclusion of generated Settings](#5-inclusion-of-per-module-settings)
 6. [Inclusion of local settings](#6-inclusion-of-local-settings)
 
-### 1. Environment constants definitions
+### 1. Environment type constants definitions
 
-Constants for various environments are defined here. These can be used to alter
-site behavior based on the active environment.
+Constants for various _environment types_  are defined here. These can be used to
+alter site behavior based on the active _environment type_.
 
-Available constants include:
+Available _environment type_ constants are:
 
 - `ENVIRONMENT_LOCAL`
 - `ENVIRONMENT_CI`
@@ -53,16 +54,16 @@ Available constants include:
 - `ENVIRONMENT_STAGE`
 - `ENVIRONMENT_DEV`
 
-These are later used to set `$settings['environment']` variable, which can be
-used in the modules and outside scripts to target code execution to specific
-environments.
+These are later used to set `$settings['environment']`, which can be
+used in the modules and shell scripts to target code execution to specific
+_environments types_.
 
 :::info[EXAMPLE]
 
     ```shell
     environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
     if echo "${environment}" | grep -q -e ci -e local; then
-      # Do something only in ci, or local environments.
+      # Do something only in ci or local environments.
     fi
     ```
 
@@ -70,10 +71,10 @@ environments.
 
 :::info
 
-    The `$VORTEX_PROVISION_ENVIRONMENT` environment variable can be utilized
-    within post-provision custom scripts, allowing targeted code execution based
-    on specific environments. Refer to [Provision](provision.mdx) for additional
-    information.
+    The `$VORTEX_PROVISION_ENVIRONMENT` _environment variable_ can be utilized
+    within post-provision custom scripts instead of Drush command evaluation,
+    allowing targeted code execution based on a specific _environment type_.
+    Refer to [Provision](provision.mdx) for additional information.
 
 :::
 
@@ -84,58 +85,80 @@ ensuring security with trusted host patterns, setting performance optimizations
 like aggregating CSS and JS files, and specifying essential directories for
 Drupal's functionality.
 
-These settings are identical for all environments.
+These settings are identical for all _environment types_ .
 
-Use per-module settings files in the `web/site/default/includes` directory to
-override per-module settings, including per-environment overrides.
+Use per-module settings files in the [`web/site/default/includes/modules`](https://github.com/drevops/vortex/tree/develop/web/sites/default/includes/modules)
+directory to override per-module settings.
 
-### 3. Environment detection
+### 3. Environment type detection
 
-This section uses known hosting platform mechanisms to determine in which
-environment the site currently runs. The result is stored in the
-`$settings['environment']` variable.
+This section uses known hosting providers mechanisms to determine the
+_environment type_ where the site currently runs.
 
-By default, `$settings['environment']` is set to `ENVIRONMENT_LOCAL`.
-This value is then overridden by the environment detection logic.
+Settings for the supported hosting providers are stored in the
+[`web/site/default/includes/providers`](https://github.com/drevops/vortex/tree/develop/web/sites/default/includes/providers)
+directory. You can add your own custom provider _environment type_ detection logic
+by creating a new file `settings.[provider].php` in this directory.
+
+Once a hosting provider is detected, the _environment type_
+`$settings['environment']` is set to
+`ENVIRONMENT_DEV` for all environments as a default.
+
+Higher-level environments types (`PROD`, `STAGE` etc.) are then set based on
+the **additional** detected provider-specific settings.
+
+When the hosting provider is not detected, the default value is set to
+`ENVIRONMENT_LOCAL`.
 
 :::note
 
-    In any hosting environment, the default value of `$settings['environment']`
-    changes to `ENVIRONMENT_DEV`, while further refinements designate more
-    advanced environments.
+    Environment type detection settings are only used for _environment type_
+    detection and not for environment-specific settings. Those are defined in
+    the [Per-environment overrides](#4-per-environment-overrides) section.
+    This approach allows for a more flexible and maintainable configuration
+    independent of a specific hosting provider.
 
 :::
 
-#### Environment detection override
+#### Overriding environment type
 
-It is also possible to force specific environment by setting
-`DRUPAL_ENVIRONMENT` environment variable. In this case, the environment
-detection will take place and will load any additional hosting platform settings,
-but the final value of `$settings['environment']` will be set to the value of
-`DRUPAL_ENVIRONMENT` variable.
+It is also possible to force specific _environment type_ by setting
+`DRUPAL_ENVIRONMENT` _environment variable_.
 
 This is useful in cases where a certain behavior is required for a specific
-environment, but the environment detection logic does not provide it. Or as a
-temporary override during testing.
+environment, but the _environment type_ detection logic does not provide it.
+
+It is also useful when debugging _environment type_-specific issues locally.
 
 ### 4. Per-environment overrides
 
-Configurations in this section alter the site's behavior based on the
-environment. Out-of-the-box, **Vortex** provides overrides for CI and Local
+Configurations in this section alter the site's behavior based on the detected
+_environment type_ (see [Environment type detection](#3-environment-type-detection)
+above). Out-of-the-box, **Vortex** provides overrides for CI and Local
 environments.
 
-You can add additional overrides for other environments as needed.
+You can add additional overrides for other _environment types_  as needed.
 
 ### 5. Inclusion of per-module settings
 
 This section includes any additional module-specific settings from the
-`/includes` directory.
+[`web/site/default/includes/modules`](https://github.com/drevops/vortex/tree/develop/web/sites/default/includes/modules) directory.
 
-**Vortex** ships with settings overrides for several popular contributed modules
-used in almost every project.
+**Vortex** ships with settings overrides for several popular contributed
+modules.
 
-The per environment overrides for modules should be also placed into files
-in the `/includes` directory.
+The per _environment type_ overrides for each module should be placed into the
+module-specific settings file.
+
+import ModuleSettingsExample from '!!raw-loader!./../../../../web/sites/default/includes/modules/settings.environment_indicator.php';
+
+<details>
+  <summary>Example of the `Environment indicator` module settings file</summary>
+
+  <CodeBlock language="json">{ModuleSettingsExample}</CodeBlock>
+
+</details>
+
 
 ### 6. Inclusion of local settings
 
@@ -146,12 +169,32 @@ copy `default.settings.local.php` and `default.services.local.yml`
 to `settings.local.php` and `services.local.yml`, respectively, to utilize this
 functionality.
 
+import LocalSettingsExample from '!!raw-loader!./../../../../web/sites/default/default.settings.local.php';
+
+<details>
+  <summary>Click here to see the contents of the `default.settings.local.php` file</summary>
+
+  <CodeBlock language="php">{LocalSettingsExample}</CodeBlock>
+
+</details>
+
+
+import LocalServicesExample from '!!raw-loader!./../../../../web/sites/default/default.services.local.yml';
+
+<details>
+  <summary>Click here to see the contents of the `default.services.local.yml` file</summary>
+
+  <CodeBlock language="php">{LocalServicesExample}</CodeBlock>
+
+</details>
+
+
 ## Testing settings with unit tests
 
 **Vortex** provides a [set of unit tests](https://github.com/drevops/vortex/blob/develop/tests/phpunit/Drupal) that
-ensure that the settings apply correctly per environment. These tests are
-supposed to be maintained within your project, ensuring that settings activated
-by specific environments and environment variables are applied accurately.
+ensure that the settings apply correctly per environment type. These tests are
+expected to be maintained within your project, ensuring that settings activated
+by a specific _environment type_ and _environment variables_ are applied correctly.
 
 After installing **Vortex**, run `vendor/bin/phpunit --group=drupal_settings` to
 run the tests for the settings provided by **Vortex**.

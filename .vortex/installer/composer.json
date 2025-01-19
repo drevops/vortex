@@ -1,8 +1,8 @@
 {
     "name": "drevops/vortex-installer",
-    "type": "library",
     "description": "Installer for Vortex.",
     "license": "GPL-2.0-or-later",
+    "type": "library",
     "authors": [
         {
             "name": "Alex Skrypnyk",
@@ -17,16 +17,17 @@
         "source": "https://github.com/drevops/vortex-installer"
     },
     "require": {
-        "php": ">=8.1",
-        "symfony/console": "^6.3 || ^7"
+        "php": ">=8.2",
+        "symfony/console": "^7.2",
+        "symfony/filesystem": "^7.2"
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.8",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
         "drupal/coder": "^8.3",
+        "ergebnis/composer-normalize": "^2.45",
         "mikey179/vfsstream": "^1.6",
         "opis/closure": "^3.6",
-        "phpmd/phpmd": "^2.13",
         "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^10",
         "rector/rector": "^1.0.0"
@@ -44,14 +45,23 @@
             "tests/phpunit"
         ]
     },
+    "bin": [
+        "install"
+    ],
     "config": {
-        "sort-packages": true,
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true
+        },
+        "sort-packages": true
     },
     "scripts": {
+        "build": [
+            "@composer bin box require --dev humbug/box",
+            "box validate",
+            "box compile"
+        ],
         "lint": [
             "phpcs",
             "phpstan",
@@ -61,14 +71,7 @@
             "rector --clear-cache",
             "phpcbf"
         ],
-        "test": "if [ \"${XDEBUG_MODE}\" = 'coverage' ]; then phpunit; else phpunit --no-coverage; fi",
-        "build": [
-            "@composer bin box require --dev humbug/box",
-            "box validate",
-            "box compile"
-        ]
-    },
-    "bin": [
-        "install"
-    ]
+        "reset": "rm -Rf vendor vendor-bin composer.lock",
+        "test": "phpunit"
+    }
 }

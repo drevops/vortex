@@ -4,7 +4,7 @@
 
 parameters:
 
-  level: 1
+  level: 7
 
   paths:
     - src

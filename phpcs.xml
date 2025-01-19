@@ -22,10 +22,6 @@
     <!-- Lint code against platform version specified in composer.json key "config.platform.php". -->
     <config name="testVersion" value="8.3"/>
 
-    <!-- Exclude CircleCI config files. -->
-    <exclude-pattern>circle\.yml</exclude-pattern>
-    <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
-
     <!-- Exclude theme assets. -->
     <exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>
     <exclude-pattern>web\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
@@ -48,13 +44,6 @@
         <type>warning</type>
     </rule>
 
-    <!-- Allow incorrectly sorted namespaces in tests. -->
-    <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses.IncorrectlyOrderedUses">
-        <exclude-pattern>*.Test\.php</exclude-pattern>
-        <exclude-pattern>*.TestCase\.php</exclude-pattern>
-        <exclude-pattern>*.test</exclude-pattern>
-    </rule>
-
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
         <exclude-pattern>*.Test\.php</exclude-pattern>
@@ -62,7 +51,7 @@
         <exclude-pattern>*.test</exclude-pattern>
     </rule>
 
-    <!-- Ignore Prefixing class names with project name in module behat tests. -->
+    <!-- Ignore prefixing of class names with project name in Behat tests. -->
     <rule ref="DrupalPractice.General.ClassName.ClassPrefix">
         <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
     </rule>

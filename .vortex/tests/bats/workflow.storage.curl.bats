@@ -2,7 +2,7 @@
 #
 # Workflows using different types of DB storage.
 #
-# Throughout these tests, a "drevops/vortex-dev-mariadb-drupal-data-test-10.x:latest"
+# Throughout these tests, a "drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
 # test image is used: it is seeded with content from the pre-built fixture
 # "Star wars" test site.
 #
@@ -27,7 +27,7 @@ load _helper.workflow.bash
   # @todo: build.sh may need to have a support to create a local image if
   # it does not exist.
   # Use a test image. Image always must use a tag.
-  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-10.x:latest"
+  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
@@ -50,7 +50,7 @@ load _helper.workflow.bash
   assert_file_contains ".env" "VORTEX_DB_DOWNLOAD_SOURCE=curl"
   assert_file_contains ".env" "VORTEX_DB_IMAGE=${VORTEX_DB_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
-  assert_file_not_contains ".env" "VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-10.x:latest"
+  assert_file_not_contains ".env" "VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest"
   assert_file_contains ".env" "VORTEX_DB_DOWNLOAD_CURL_URL="
 
   assert_ahoy_build
@@ -65,11 +65,11 @@ load _helper.workflow.bash
 
   step "Case 1: Site is built from DB file, site reloaded from image, while DB file exists."
   substep "Assert that the text is from the DB dump."
-  assert_webpage_contains "/" "test database dump"
+  assert_webpage_contains "/" "This test page is sourced from the Vortex database dump file"
 
   substep "Set content to a different path."
   ahoy drush config-set system.site page.front /user -y
-  assert_webpage_not_contains "/" "test database dump"
+  assert_webpage_not_contains "/" "This test page is sourced from the Vortex database dump file"
 
   substep "Reloading DB from image with DB dump file present"
   assert_file_exists .data/db.sql
@@ -77,7 +77,7 @@ load _helper.workflow.bash
   assert_success
 
   substep "Assert that the text is from the DB dump after reload."
-  assert_webpage_contains "/" "test database dump"
+  assert_webpage_contains "/" "This test page is sourced from the Vortex database dump file"
 
   # Skipped: the provision.sh expects DB dump file to exist; this logic
   # needs to be refactored. Currently, reloading without DB dump file present
@@ -90,7 +90,7 @@ load _helper.workflow.bash
   # assert_success
   #
   # substep "Assert that the text is from the container image."
-  # assert_page_contains "/" "test database Docker image"
+  # assert_page_contains "/" "This test page is sourced from the Vortex database container image"
 
   assert_ahoy_export_db "mydb.tar"
 }

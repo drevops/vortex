@@ -1,28 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drevops\Installer\Tests\Unit;
 
-use DrevOps\Installer\Command\InstallCommand;
+use DrevOps\Installer\Converter;
 
 /**
  * Class InstallerHelpersTest.
  *
- * InstallerHelpersTest fixture class.
- *
- * @coversDefaultClass \DrevOps\Installer\Command\InstallCommand
+ * @coversDefaultClass \DrevOps\Installer\Converter
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-class HelpersTest extends UnitTestBase {
+class ConverterTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderToHumanName
    * @covers ::toHumanName
    */
   public function testToHumanName(string $value, mixed $expected): void {
-    $actual = $this->callProtectedMethod(InstallCommand::class, 'toHumanName', [$value]);
-    $this->assertEquals($expected, $actual);
+    $this->assertEquals($expected, Converter::toHumanName($value));
   }
 
   public static function dataProviderToHumanName(): array {
@@ -48,8 +47,7 @@ class HelpersTest extends UnitTestBase {
    * @covers ::toMachineName
    */
   public function testToMachineName(string $value, array $preserve, mixed $expected): void {
-    $actual = $this->callProtectedMethod(InstallCommand::class, 'toMachineName', [$value, $preserve]);
-    $this->assertEquals($expected, $actual);
+    $this->assertEquals($expected, Converter::toMachineName($value, $preserve));
   }
 
   public static function dataProviderToMachineName(): array {
@@ -89,8 +87,7 @@ class HelpersTest extends UnitTestBase {
    * @covers ::toCamelCase
    */
   public function testToCamelCase(string $value, bool $capitalise_first, mixed $expected): void {
-    $actual = $this->callProtectedMethod(InstallCommand::class, 'toCamelCase', [$value, $capitalise_first]);
-    $this->assertEquals($expected, $actual);
+    $this->assertEquals($expected, Converter::toCamelCase($value, $capitalise_first));
   }
 
   public static function dataProviderToCamelCase(): array {
@@ -109,50 +106,6 @@ class HelpersTest extends UnitTestBase {
       ['%word- * other', TRUE, 'WordOther'],
       [' _%word_$ -# Other -@ Third!,', FALSE, 'wordOtherThird'],
       [' _%word_$ -# Other -@ Third!,', TRUE, 'WordOtherThird'],
-    ];
-  }
-
-  /**
-   * @dataProvider dataProviderIsRegex
-   * @covers ::isRegex
-   */
-  public function testIsRegex(string $value, mixed $expected): void {
-    $actual = $this->callProtectedMethod(InstallCommand::class, 'isRegex', [$value]);
-    $this->assertEquals($expected, $actual);
-  }
-
-  public static function dataProviderIsRegex(): array {
-    return [
-      ['', FALSE],
-
-      // Valid regular expressions.
-      ["/^[a-z]$/", TRUE],
-      ["#[a-z]*#i", TRUE],
-      ["{\\d+}", TRUE],
-      ["(\\d+)", TRUE],
-      ["<[A-Z]{3,6}>", TRUE],
-
-      // Invalid regular expressions (wrong delimiters or syntax).
-      ["^[a-z]$", FALSE],
-      ["/[a-z", FALSE],
-      ["[a-z]+/", FALSE],
-      ["{[a-z]*", FALSE],
-      ["(a-z]", FALSE],
-
-      // Edge cases.
-      // Valid, but '*' as delimiter would be invalid.
-      ["/a*/", TRUE],
-      // Empty string.
-      ["", FALSE],
-      // Just delimiters, no pattern.
-      ["//", FALSE],
-
-      ['web/', FALSE],
-      ['web\/', FALSE],
-      [': web', FALSE],
-      ['=web', FALSE],
-      ['!web', FALSE],
-      ['/web', FALSE],
     ];
   }
 

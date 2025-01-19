@@ -144,7 +144,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/1.18.0/db_d10.test.sql
+  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/24.11.0/db_d11.test.sql
 
   ##
   ## Phase 5: SUT files setup.
@@ -271,6 +271,7 @@ assert_files_not_present_common() {
   assert_dir_not_exists "${webroot}/themes/custom/your_site_theme"
   assert_dir_not_exists "${webroot}/profiles/custom/${suffix}_profile"
   assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_core"
+  assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_search"
   assert_dir_not_exists "${webroot}/themes/custom/${suffix}"
   assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
@@ -309,7 +310,7 @@ assert_files_present_vortex() {
   pushd "${dir}" >/dev/null || exit 1
 
   assert_file_exists ".docker/cli.dockerfile"
-  assert_file_exists ".docker/mariadb.dockerfile"
+  assert_file_exists ".docker/database.dockerfile"
   assert_file_exists ".docker/nginx-drupal.dockerfile"
   assert_file_exists ".docker/php.dockerfile"
   assert_file_exists ".docker/solr.dockerfile"
@@ -473,6 +474,10 @@ assert_files_present_drupal() {
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/ExampleTest.php"
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreFunctionalTestBase.php"
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/ExampleTest.php"
+
+  # Site search module created.
+  assert_dir_exists "${webroot}/modules/custom/${suffix_abbreviated}_search"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_search/${suffix_abbreviated}_search.info.yml"
 
   # Site theme created.
   assert_dir_exists "${webroot}/themes/custom/${suffix}"
@@ -840,7 +845,7 @@ assert_files_present_integration_acquia() {
   assert_symlink_not_exists "hooks/prod/post-db-copy"
 
   assert_file_exists "${webroot}/sites/default/includes/providers/settings.acquia.php"
-  assert_file_contains "${webroot}/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
+  assert_file_contains "${webroot}/.htaccess" "RewriteCond %{HTTP_HOST} !\.acquia-sites\.com [NC]"
 
   if [ "${include_scripts:-}" -eq 1 ]; then
     assert_dir_exists "scripts"
@@ -862,7 +867,7 @@ assert_files_present_no_integration_acquia() {
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
   assert_file_not_exists "${webroot}sites/default/includes/providers/settings.acquia.php"
-  assert_file_not_contains "${webroot}/.htaccess" "RewriteCond %{ENV:AH_SITE_ENVIRONMENT} prod [NC]"
+  assert_file_not_contains "${webroot}/.htaccess" "RewriteCond %{HTTP_HOST} !\.acquia-sites\.com [NC]"
   assert_file_not_contains ".env" "VORTEX_ACQUIA_APP_NAME="
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="
   assert_file_not_contains ".ahoy.yml" "VORTEX_ACQUIA_APP_NAME="
