@@ -222,8 +222,6 @@ EOF
     $this->copyFiles();
 
     $this->handleDemo();
-
-    $this->printFooter();
   }
 
   protected function collectAnswers(): void {
