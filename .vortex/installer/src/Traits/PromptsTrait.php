@@ -307,7 +307,7 @@ trait PromptsTrait {
       if ($this->getAnswer('provision_use_profile') === self::ANSWER_NO) {
         $download_source = $this->getAnswer('database_download_source');
         $db_file = static::getenvOrDefault('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . static::getenvOrDefault('VORTEX_DB_FILE', 'db.sql');
-        $has_comment = File::fileContains('to allow to demonstrate how Vortex works without', $this->config->getDstDir() . '/.env');
+        $has_comment = File::fileContains('Override project-specific values for demonstration purposes', $this->config->getDstDir() . '/.env');
 
         // Enable Vortex demo mode if download source is file AND
         // there is no downloaded file present OR if there is a demo comment in

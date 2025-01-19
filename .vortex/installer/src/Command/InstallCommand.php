@@ -96,6 +96,13 @@ EOF
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output = $output;
 
+    // @see https://github.com/drevops/vortex/issues/1502
+    if ($input->getOption('help') || $input->getArgument('path') == 'help') {
+      $output->write($this->getHelp());
+
+      return Command::SUCCESS;
+    }
+
     try {
       $this->checkRequirements();
 
