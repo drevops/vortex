@@ -494,7 +494,7 @@ trait PromptsTrait {
       $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/*.info.yml', $webroot),
     ];
 
-    $name = File::findMatchingPath($locations, 'Drupal 10 profile implementation of');
+    $name = File::findMatchingPath($locations, 'Drupal 11 profile implementation of');
 
     if (empty($name)) {
       return NULL;
