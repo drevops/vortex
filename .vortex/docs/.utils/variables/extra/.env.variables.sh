@@ -16,7 +16,7 @@ VORTEX_DB_IMAGE=
 VORTEX_DB_IMAGE_BASE=
 
 # Drupal admin email. May need to be reset if database was sanitized.
-DRUPAL_ADMIN_EMAIL="webmaster@your-site-url.example"
+DRUPAL_ADMIN_EMAIL="webmaster@your-site-domain.example"
 
 # Password replacement used for sanitised database.
 VORTEX_PROVISION_SANITIZE_DB_PASSWORD="<RANDOM STRING>"
@@ -42,7 +42,7 @@ DRUPAL_SITE_NAME="${VORTEX_PROJECT}"
 
 # Drupal site email.
 # Used only when installing from profile.
-DRUPAL_SITE_EMAIL="webmaster@your-site-url.example"
+DRUPAL_SITE_EMAIL="webmaster@your-site-domain.example"
 
 # Print output from Composer install.
 VORTEX_COMPOSER_VERBOSE=1

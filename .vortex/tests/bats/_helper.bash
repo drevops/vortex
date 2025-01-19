@@ -541,7 +541,7 @@ assert_files_present_drupal() {
   assert_dir_not_contains_string "${dir}" "your_site_theme"
   assert_dir_not_contains_string "${dir}" "your_org"
   assert_dir_not_contains_string "${dir}" "YOURORG"
-  assert_dir_not_contains_string "${dir}" "www.your-site-url.example"
+  assert_dir_not_contains_string "${dir}" "www.your-site-domain.example"
   # Assert all special comments were removed.
   assert_dir_not_contains_string "${dir}" "#;"
   assert_dir_not_contains_string "${dir}" "#;<"

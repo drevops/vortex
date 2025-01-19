@@ -109,10 +109,10 @@ environments:
     # By default, Lagoon installs Let's Encrypt certificates for all environments.
     # routes:
     #   - nginx-php:
-    #       - www.your-site-url.example:
+    #       - www.your-site-domain.example:
     #           tls-acme: 'false'
     monitoring_urls:
-      - www.your-site-url.example
+      - www.your-site-domain.example
   # Branch name that represents development environment.
   develop:
     cronjobs:
@@ -124,10 +124,10 @@ environments:
     # By default, Lagoon installs Let's Encrypt certificates for all environments.
     # routes:
     #   - nginx-php:
-    #       - dev.your-site-url.example:
+    #       - dev.your-site-domain.example:
     #           tls-acme: 'false'
     monitoring_urls:
-      - dev.your-site-url.example
+      - dev.your-site-domain.example
 
 routes:
   insecure: Redirect

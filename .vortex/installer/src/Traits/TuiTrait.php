@@ -178,7 +178,7 @@ EOT;
     $values['Module prefix'] = $this->getAnswer('module_prefix');
     $values['Profile'] = $this->getAnswer('profile');
     $values['Theme name'] = $this->getAnswer('theme');
-    $values['URL'] = $this->getAnswer('url');
+    $values['Domain'] = $this->getAnswer('domain');
     $values['Web root'] = $this->getAnswer('webroot');
 
     $values['Install from profile'] = $this->formatYesNo($this->getAnswer('provision_use_profile'));

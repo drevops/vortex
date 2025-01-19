@@ -65,4 +65,4 @@ RENOVATE_DEPENDENCY_DASHBOARD=false
 RENOVATE_DRY_RUN=false
 
 # Commit author for self-hosted Renovate bot.
-RENOVATE_GIT_AUTHOR='Renovate Self Hosted <renovatebot@your-site-url.example>'
+RENOVATE_GIT_AUTHOR='Renovate Self Hosted <renovatebot@your-site-domain.example>'
