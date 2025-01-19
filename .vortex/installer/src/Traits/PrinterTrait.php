@@ -10,23 +10,32 @@ namespace DrevOps\Installer\Traits;
 trait PrinterTrait {
 
   protected function out(string $text, ?string $color = NULL, bool $new_line = TRUE): void {
-    $styles = [
+    $text = $this->config->get('ANSI') ? $this->formatColor($text, $color) : $text;
+
+    if ($new_line) {
+      $text .= PHP_EOL;
+    }
+
+    print $text;
+  }
+
+  protected function formatColor(string $text, string $color): string {
+    $colors = [
+      'green' => "\033[0;32m%s\033[0m",
+      'red' => "\033[0;31m%s\033[0m",
+      'blue' => "\033[0;34m%s\033[0m",
+      'yellow' => "\033[0;33m%s\033[0m",
+      'cyan' => "\033[0;36m%s\033[0m",
+      'magenta' => "\033[0;35m%s\033[0m",
+      'white' => "\033[0;37m%s\033[0m",
       'success' => "\033[0;32m%s\033[0m",
       'error' => "\033[31;31m%s\033[0m",
       'info' => "\033[0;34m%s\033[0m",
     ];
 
-    $format = '%s';
+    $format = $colors[$color] ?: '%s';
 
-    if (isset($styles[$color]) && $this->config->get('ANSI')) {
-      $format = $styles[$color];
-    }
-
-    if ($new_line) {
-      $format .= PHP_EOL;
-    }
-
-    printf($format, $text);
+    return sprintf($format, $text);
   }
 
   protected function debug(mixed $value, string $name = ''): void {
@@ -43,8 +52,8 @@ trait PrinterTrait {
     $this->printDivider($fill, $width, 'down');
     $lines = explode(PHP_EOL, wordwrap($text, $width - 4, PHP_EOL));
     foreach ($lines as $line) {
-      $line = ' ' . $line . ' ';
-      print $cols_delim . str_pad($line, $width - 2, ' ', STR_PAD_BOTH) . $cols_delim . PHP_EOL;
+      $line = ' ' . $this->formatBold($line) . ' ';
+      print $cols_delim . str_pad($line, $width - 2 + (strlen($line) - $this->getVisibleLength($line)), ' ', STR_PAD_BOTH) . $cols_delim . PHP_EOL;
     }
     $this->printDivider($fill, $width, $has_content ? 'up' : 'both');
   }
@@ -90,12 +99,10 @@ trait PrinterTrait {
   protected function printBox(string $content, string $title = '', string $fill = '─', int $padding = 2, int $width = 80): void {
     $width = $this->getTuiWidth($width);
 
-    $cols = '│';
-
     $max_width = $width - 2 - $padding * 2;
     $lines = explode(PHP_EOL, wordwrap(rtrim($content, PHP_EOL), $max_width, PHP_EOL));
     $pad = str_pad(' ', $padding);
-    $mask = sprintf('%s%s%%-%ss%s%s', $cols, $pad, $max_width, $pad, $cols) . PHP_EOL;
+    $mask = sprintf('│%s%%-%ss%s│', $pad, $max_width, $pad) . PHP_EOL;
 
     print PHP_EOL;
     if (!empty($title)) {
@@ -227,6 +234,17 @@ trait PrinterTrait {
 
   protected function formatNotEmpty(mixed $value, mixed $default): mixed {
     return empty($value) ? $default : $value;
+  }
+
+  protected function formatBold(string $text): string {
+    return "\033[1m" . $text . "\033[0m";
+  }
+
+  protected function getVisibleLength(string $text): int {
+    // Remove ANSI escape sequences using a regex.
+    $plain_text = preg_replace('/\033\[[0-9;]*m/', '', $text);
+
+    return mb_strlen($plain_text);
   }
 
 }
