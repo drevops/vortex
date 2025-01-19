@@ -161,8 +161,17 @@ EOF
     // Set destination directory.
     if (!empty($path)) {
       $path = $this->fsGetAbsolutePath($path);
-      if (!is_readable($path) || !is_dir($path)) {
-        throw new \RuntimeException(sprintf('Destination directory "%s" is not readable or does not exist.', $path));
+
+      if (file_exists($path)) {
+        if (is_file($path)) {
+          throw new \RuntimeException(sprintf('Destination directory "%s" is a file.', $path));
+        }
+      }
+      else {
+        $this->fs->mkdir($path);
+        if (!is_readable($path) || !is_dir($path)) {
+          throw new \RuntimeException(sprintf('Destination directory "%s" is not readable or does not exist.', $path));
+        }
       }
     }
     $this->config->set('VORTEX_INSTALL_DST_DIR', $path ?: static::getenvOrDefault('VORTEX_INSTALL_DST_DIR', $this->fsGetRootDir()));
