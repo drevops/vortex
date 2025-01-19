@@ -300,7 +300,7 @@ EOF
     $this->printSummary();
 
     if ($this->config->isInstallDebug()) {
-      $this->printBox($this->formatValuesList($this->getAnswers(), '', 80 - 6), 'DEBUG RESOLVED ANSWERS');
+      $this->printBox($this->formatValuesList($this->getAnswers(), '', $this->getTuiWidth() - 2 - 2 * 2), 'DEBUG RESOLVED ANSWERS');
     }
   }
 

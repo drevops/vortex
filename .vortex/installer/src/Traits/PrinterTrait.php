@@ -13,6 +13,7 @@ trait PrinterTrait {
     $styles = [
       'success' => "\033[0;32m%s\033[0m",
       'error' => "\033[31;31m%s\033[0m",
+      'info' => "\033[0;34m%s\033[0m",
     ];
 
     $format = '%s';
@@ -37,6 +38,8 @@ trait PrinterTrait {
   }
 
   protected function printTitle(string $text, string $fill = '-', int $width = 80, string $cols_delim = '|', bool $has_content = FALSE): void {
+    $width = $this->getTuiWidth($width);
+
     $this->printDivider($fill, $width, 'down');
     $lines = explode(PHP_EOL, wordwrap($text, $width - 4, PHP_EOL));
     foreach ($lines as $line) {
@@ -47,6 +50,8 @@ trait PrinterTrait {
   }
 
   protected function printSubtitle(string $text, string $fill = '=', int $width = 80): void {
+    $width = $this->getTuiWidth($width);
+
     $is_multiline = strlen($text) + 4 >= $width;
     if ($is_multiline) {
       $this->printTitle($text, $fill, $width, 'both');
@@ -58,6 +63,8 @@ trait PrinterTrait {
   }
 
   protected function printDivider(string $fill = '-', int $width = 80, string $direction = 'none'): void {
+    $width = $this->getTuiWidth($width);
+
     $start = $fill;
     $finish = $fill;
     switch ($direction) {
@@ -81,6 +88,8 @@ trait PrinterTrait {
   }
 
   protected function printBox(string $content, string $title = '', string $fill = '─', int $padding = 2, int $width = 80): void {
+    $width = $this->getTuiWidth($width);
+
     $cols = '│';
 
     $max_width = $width - 2 - $padding * 2;
@@ -132,7 +141,7 @@ trait PrinterTrait {
         break;
 
       case self::INSTALLER_STATUS_MESSAGE:
-        $prefix = 'i️';
+        $prefix = 'ⓘ ';
         $color = 'info';
         break;
 
@@ -160,6 +169,8 @@ trait PrinterTrait {
    *   Formatted values list.
    */
   protected function formatValuesList(array $values, string $delim = '', int $width = 80): string {
+    $width = $this->getTuiWidth($width);
+
     // Only keep the keys that are not numeric.
     $keys = array_filter(array_keys($values), static fn($key): bool => !is_numeric($key));
 
