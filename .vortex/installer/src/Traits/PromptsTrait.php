@@ -50,7 +50,7 @@ trait PromptsTrait {
     return $this->getAnswer('machine_name');
   }
 
-  protected function getDefaultValueUrl(): string {
+  protected function getDefaultValueDomain(): string {
     $value = $this->getAnswer('machine_name');
     $value = str_replace('_', '-', $value);
 
@@ -537,35 +537,8 @@ trait PromptsTrait {
     return str_replace(['.info.yml', '.info'], '', $name);
   }
 
-  protected function discoverValueUrl(): ?string {
-    $webroot = $this->getAnswer('webroot');
-
-    $origin = NULL;
-    $path = $this->config->getDstDir() . sprintf('/%s/sites/default/settings.php', $webroot);
-
-    if (!is_readable($path)) {
-      return NULL;
-    }
-
-    $contents = file_get_contents($path);
-    if (!$contents) {
-      return NULL;
-    }
-
-    // Drupal 8 and 9.
-    if (preg_match('/\$config\s*\[\'stage_file_proxy.settings\'\]\s*\[\'origin\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $contents, $matches)) {
-      $origin = $matches[1];
-    }
-    // Drupal 7.
-    elseif (preg_match('/\$conf\s*\[\'stage_file_proxy_origin\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $contents, $matches)) {
-      $origin = $matches[1];
-    }
-
-    if ($origin) {
-      $origin = parse_url($origin, PHP_URL_HOST);
-    }
-
-    return empty($origin) ? NULL : $origin;
+  protected function discoverValueDomain(): ?string {
+    return $this->getValueFromDstDotenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN');
   }
 
   protected function discoverValueWebroot(): ?string {
@@ -718,10 +691,13 @@ trait PromptsTrait {
     return Converter::toMachineName($value);
   }
 
-  protected function normaliseAnswerUrl(string $url): string {
-    $url = trim($url);
+  protected function normaliseAnswerDomain(string $value): string {
+    $value = trim($value);
+    $value = rtrim($value, '/');
+    $value = str_replace([' ', '_'], '-', $value);
+    $value = preg_replace('/^https?:\/\//', '', $value);
 
-    return str_replace([' ', '_'], '-', $url);
+    return preg_replace('/^www\./', '', $value);
   }
 
   protected function normaliseAnswerWebroot(string $value): string {
@@ -904,43 +880,38 @@ trait PromptsTrait {
     $module_prefix_uppercase = strtoupper($module_prefix_camel_cased);
     $theme_camel_cased = Converter::toCamelCase($this->getAnswer('theme'), TRUE);
     $vortex_version_urlencoded = str_replace('-', '--', (string) $this->config->get('VORTEX_VERSION'));
-    $url = $this->getAnswer('url');
-    $host = parse_url($url, PHP_URL_HOST);
-    $domain = $host ?: $url;
-    $domain_non_www = str_starts_with((string) $domain, "www.") ? substr((string) $domain, 4) : $domain;
     $webroot = $this->getAnswer('webroot');
 
     // @formatter:off
     // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
-    File::dirReplaceContent('your_site_theme',       $this->getAnswer('theme'),                     $dir);
-    File::dirReplaceContent('YourSiteTheme',         $theme_camel_cased,                            $dir);
-    File::dirReplaceContent('your_org',              $this->getAnswer('org_machine_name'),          $dir);
-    File::dirReplaceContent('YOURORG',               $this->getAnswer('org'),                       $dir);
-    File::dirReplaceContent('www.your-site-url.example',  $domain,                                  $dir);
-    File::dirReplaceContent('your-site-url.example',      $domain_non_www,                          $dir);
-    File::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
-    File::dirReplaceContent('ys_search',             $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
-    File::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/themes/custom',  $webroot));
-    File::dirReplaceContent('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . '/scripts/custom');
-    File::dirReplaceContent('ys_search',             $this->getAnswer('module_prefix') . '_search', $dir . '/scripts/custom');
-    File::dirReplaceContent('YsCore',                $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
-    File::dirReplaceContent('YsSearch',              $module_prefix_camel_cased . 'Search',         $dir . sprintf('/%s/modules/custom', $webroot));
-    File::dirReplaceContent('YSCODE',                $module_prefix_uppercase,                      $dir);
-    File::dirReplaceContent('YSSEARCH',              $module_prefix_uppercase,                      $dir);
-    File::dirReplaceContent('your-site',             $machine_name_hyphenated,                      $dir);
-    File::dirReplaceContent('your_site',             $this->getAnswer('machine_name'),              $dir);
-    File::dirReplaceContent('YOURSITE',              $this->getAnswer('name'),                      $dir);
-    File::dirReplaceContent('YourSite',              $machine_name_camel_cased,                     $dir);
+    File::dirReplaceContent('your_site_theme',          $this->getAnswer('theme'),                     $dir);
+    File::dirReplaceContent('YourSiteTheme',            $theme_camel_cased,                            $dir);
+    File::dirReplaceContent('your_org',                 $this->getAnswer('org_machine_name'),          $dir);
+    File::dirReplaceContent('YOURORG',                  $this->getAnswer('org'),                       $dir);
+    File::dirReplaceContent('your-site-domain.example', $this->getAnswer('domain'),                    $dir);
+    File::dirReplaceContent('ys_core',                  $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
+    File::dirReplaceContent('ys_search',                $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
+    File::dirReplaceContent('ys_core',                  $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/themes/custom',  $webroot));
+    File::dirReplaceContent('ys_core',                  $this->getAnswer('module_prefix') . '_core',   $dir . '/scripts/custom');
+    File::dirReplaceContent('ys_search',                $this->getAnswer('module_prefix') . '_search', $dir . '/scripts/custom');
+    File::dirReplaceContent('YsCore',                   $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
+    File::dirReplaceContent('YsSearch',                 $module_prefix_camel_cased . 'Search',         $dir . sprintf('/%s/modules/custom', $webroot));
+    File::dirReplaceContent('YSCODE',                   $module_prefix_uppercase,                      $dir);
+    File::dirReplaceContent('YSSEARCH',                 $module_prefix_uppercase,                      $dir);
+    File::dirReplaceContent('your-site',                $machine_name_hyphenated,                      $dir);
+    File::dirReplaceContent('your_site',                $this->getAnswer('machine_name'),              $dir);
+    File::dirReplaceContent('YOURSITE',                 $this->getAnswer('name'),                      $dir);
+    File::dirReplaceContent('YourSite',                 $machine_name_camel_cased,                     $dir);
 
-    File::replaceStringFilename('YourSiteTheme',     $theme_camel_cased,                            $dir);
-    File::replaceStringFilename('your_site_theme',   $this->getAnswer('theme'),                     $dir);
-    File::replaceStringFilename('YourSite',          $machine_name_camel_cased,                     $dir);
-    File::replaceStringFilename('ys_core',           $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
-    File::replaceStringFilename('ys_search',         $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
-    File::replaceStringFilename('YsCore',            $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
-    File::replaceStringFilename('your_org',          $this->getAnswer('org_machine_name'),          $dir);
-    File::replaceStringFilename('your_site',         $this->getAnswer('machine_name'),              $dir);
+    File::replaceStringFilename('YourSiteTheme',        $theme_camel_cased,                            $dir);
+    File::replaceStringFilename('your_site_theme',      $this->getAnswer('theme'),                     $dir);
+    File::replaceStringFilename('YourSite',             $machine_name_camel_cased,                     $dir);
+    File::replaceStringFilename('ys_core',              $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
+    File::replaceStringFilename('ys_search',            $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
+    File::replaceStringFilename('YsCore',               $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
+    File::replaceStringFilename('your_org',             $this->getAnswer('org_machine_name'),          $dir);
+    File::replaceStringFilename('your_site',            $this->getAnswer('machine_name'),              $dir);
 
     File::dirReplaceContent('VORTEX_VERSION_URLENCODED', $vortex_version_urlencoded,                $dir);
     File::dirReplaceContent('VORTEX_VERSION',            $this->config->get('VORTEX_VERSION'),        $dir);

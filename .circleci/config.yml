@@ -39,7 +39,7 @@ aliases:
   #;< SCAFFOLD_DEV
   - &renovatebot_git_author 'Renovate Self Hosted <deployer+renovatebot@drevops.com>'
   #;> SCAFFOLD_DEV
-  ##### - &renovatebot_git_author 'RenovateBot Self Hosted <renovatebot@your-site-url.example>'
+  ##### - &renovatebot_git_author 'RenovateBot Self Hosted <renovatebot@your-site-domain.example>'
   # The schedule to run RenovateBot on. Defaults to running twice a day.
   - &renovatebot_schedule "5 11,23 * * *"
   #;> RENOVATEBOT

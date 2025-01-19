@@ -64,7 +64,7 @@ load _helper.bash
   assert_output_contains "                 Module prefix:  sw             "
   assert_output_contains "                       Profile:  standard       "
   assert_output_contains "                    Theme name:  star_wars      "
-  assert_output_contains "                           URL:  star-wars.com  "
+  assert_output_contains "                        Domain:  star-wars.com  "
   assert_output_contains "                      Web root:  web            "
   assert_output_contains "          Install from profile:  No             "
   assert_output_contains "      Database download source:  curl           "
@@ -116,7 +116,7 @@ load _helper.bash
   assert_output_contains "                 Module prefix:  sw             "
   assert_output_contains "                       Profile:  standard       "
   assert_output_contains "                    Theme name:  star_wars      "
-  assert_output_contains "                           URL:  star-wars.com  "
+  assert_output_contains "                        Domain:  star-wars.com  "
   assert_output_contains "                      Web root:  web            "
   assert_output_contains "          Install from profile:  No             "
   assert_output_contains "      Database download source:  curl           "
@@ -170,7 +170,7 @@ load _helper.bash
   assert_output_contains "                 Module prefix:  s_w                    "
   assert_output_contains "                       Profile:  s_w_profile            "
   assert_output_contains "                    Theme name:  light_saber            "
-  assert_output_contains "                           URL:  resistance-forever.com "
+  assert_output_contains "                        Domain:  resistance-forever.com "
   assert_output_contains "                      Web root:  web                    "
   assert_output_contains "          Install from profile:  No                     "
   assert_output_contains "      Database download source:  curl                   "
@@ -223,7 +223,7 @@ load _helper.bash
   assert_output_contains "                 Module prefix:  s_w                    "
   assert_output_contains "                       Profile:  s_w_profile            "
   assert_output_contains "                    Theme name:  light_saber            "
-  assert_output_contains "                           URL:  resistance-forever.com "
+  assert_output_contains "                        Domain:  resistance-forever.com "
   assert_output_contains "                      Web root:  rootdoc                "
   assert_output_contains "          Install from profile:  No                     "
   assert_output_contains "      Database download source:  curl                   "
@@ -256,7 +256,7 @@ load _helper.bash
   assert_output_contains "                       Profile:  standard                     "
   assert_output_contains "          Install from profile:  No                           "
   assert_output_contains "                    Theme name:  resisting                    "
-  assert_output_contains "                           URL:  www.resistance-star-wars.com "
+  assert_output_contains "                        Domain:  resistance-star-wars.com     "
   assert_output_contains "                      Web root:  web                          "
   assert_output_contains "      Database download source:  curl                         "
   assert_output_contains "           Database store type:  file                         "
@@ -311,7 +311,7 @@ load _helper.bash
   assert_output_contains "                 Module prefix:  another_resist               "
   assert_output_contains "                       Profile:  standard                     "
   assert_output_contains "                    Theme name:  resisting                    "
-  assert_output_contains "                           URL:  www.resistance-star-wars.com "
+  assert_output_contains "                        Domain:  resistance-star-wars.com     "
   assert_output_contains "                      Web root:  web                          "
   assert_output_contains "          Install from profile:  No                           "
   assert_output_contains "      Database download source:  curl                         "
@@ -373,7 +373,7 @@ load _helper.bash
   assert_output_contains "                 Module prefix:  w_s                    "
   assert_output_contains "                       Profile:  s_w_profile            "
   assert_output_contains "                    Theme name:  light_saber            "
-  assert_output_contains "                           URL:  resistance-forever.com "
+  assert_output_contains "                        Domain:  resistance-forever.com "
   assert_output_contains "                      Web root:  web                    "
   assert_output_contains "          Install from profile:  No                     "
   assert_output_contains "      Database download source:  container_registry     "
@@ -415,10 +415,6 @@ fixture_preinstalled() {
   mktouch "${webroot}/sites/all/themes/custom/resisting/resisting.info.yml"
   mktouch "${webroot}/sites/all/themes/custom/yetanothertheme/yetanothertheme.info.yml"
 
-  # Sets 'url' to 'www.resistance-star-wars.com'.
-  mkdir -p "${webroot}/sites/default"
-  echo "  \$config['stage_file_proxy.settings']['origin'] = 'http://www.resistance-star-wars.com/';" >"${webroot}/sites/default/settings.php"
-
   # Sets 'ci_provider' to 'GitHub Actions'.
   mktouch ".github/workflows/build-test-deploy.yml"
 
@@ -430,6 +426,9 @@ fixture_preinstalled() {
   touch renovate.json
 
   echo "VORTEX_WEBROOT=${webroot}" >>.env
+
+  # Sets 'domain' to 'www.resistance-star-wars.com'.
+  echo "DRUPAL_STAGE_FILE_PROXY_ORIGIN=http://www.resistance-star-wars.com/" >>.env
 
   # Sets 'fresh_install' to 'No'.
   echo "VORTEX_PROVISION_USE_PROFILE=0" >>.env
