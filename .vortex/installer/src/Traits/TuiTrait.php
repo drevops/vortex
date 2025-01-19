@@ -27,6 +27,11 @@ trait TuiTrait {
 
   final const INSTALLER_STATUS_DEBUG = 3;
 
+  /**
+   * Width of the TUI.
+   */
+  protected int $tuiWidth;
+
   protected function ask(string $question, ?string $default, bool $close_handle = FALSE): ?string {
     if ($this->config->isQuiet()) {
       return $default;
@@ -133,7 +138,7 @@ trait TuiTrait {
     $values['Vortex commit'] = $this->formatNotEmpty($this->config->get('VORTEX_INSTALL_COMMIT'), 'Latest');
 
     $values[] = '';
-    $values[] = str_repeat('─', 80 - 2 - 2 * 2);
+    $values[] = str_repeat('─', $this->getTuiWidth() - 2 - 2 * 2);
     $values[] = '';
 
     $values['Name'] = $this->getAnswer('name');
@@ -166,7 +171,7 @@ trait TuiTrait {
     $values['Preserve docs in comments'] = $this->formatYesNo($this->getAnswer('preserve_doc_comments'));
     $values['Preserve Vortex comments'] = $this->formatYesNo($this->getAnswer('preserve_vortex_info'));
 
-    $content = $this->formatValuesList($values, '', 80 - 2 - 2 * 2);
+    $content = $this->formatValuesList($values, '', $this->getTuiWidth() - 2 - 2 * 2);
 
     $this->printBox($content, 'INSTALLATION SUMMARY');
   }
@@ -202,6 +207,15 @@ trait TuiTrait {
     if ($ret === 1) {
       throw new \RuntimeException(sprintf('Command "%s" does not exist in the current environment.', $command));
     }
+  }
+
+  protected function getTuiWidth(int $max = 80): int {
+    if (!isset($this->tuiWidth)) {
+      $width = intval($this->doExec('tput cols'));
+      $this->tuiWidth = $width > 0 ? $width : $max;
+    }
+
+    return min($this->tuiWidth, $max);
   }
 
   /**
