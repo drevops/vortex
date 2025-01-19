@@ -381,6 +381,7 @@ EOF
       'preserve_vortex_info',
       'vortex_internal',
       'enable_commented_code',
+      'empty_lines',
     ];
 
     foreach ($processors as $name) {

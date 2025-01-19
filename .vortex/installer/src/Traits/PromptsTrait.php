@@ -375,8 +375,14 @@ trait PromptsTrait {
   }
 
   protected function processEnableCommentedCode(string $dir): void {
-    // Enable_commented_code.
     File::dirReplaceContent('##### ', '', $dir);
+  }
+
+  protected function processEmptyLines(string $dir): void {
+    $files = File::scandirRecursive($dir, File::ignorePaths());
+    foreach ($files as $filename) {
+      File::fileReplaceContent('/(\n\s*\n)+/', "\n\n", $filename);
+    }
   }
 
   protected function processWebroot(string $dir): void {
