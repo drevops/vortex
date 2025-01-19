@@ -37,20 +37,23 @@ trait TuiTrait {
       return $default;
     }
 
-    $question = sprintf('> %s [%s] ', $question, $default);
+    $this->out(sprintf('%s [%s] ', $this->formatColor('> ' .$question, 'green'), $this->formatColor($default, 'yellow')), NULL, FALSE);
 
-    $this->out($question, 'question', FALSE);
     $handle = $this->getStdinHandle();
     $answer = fgets($handle);
     if ($answer !== FALSE) {
       $answer = trim($answer);
     }
 
+    $answer = empty($answer) ? $default : $answer;
+
+    $this->out($answer, 'cyan');
+
     if ($close_handle) {
       $this->closeStdinHandle();
     }
 
-    return empty($answer) ? $default : $answer;
+    return $answer;
   }
 
   protected function getStdinHandle(): mixed {
@@ -300,7 +303,7 @@ EOT;
     $proceed = self::ANSWER_YES;
 
     if (!$this->config->isQuiet()) {
-      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"? (Y,n)', $this->config->getDstDir()), $proceed, TRUE);
+      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"?', $this->config->getDstDir()), $proceed, TRUE);
     }
 
     // Kill-switch to not proceed with install. If false, the install will not
