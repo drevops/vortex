@@ -143,8 +143,8 @@ EOF
       $this->config->set('quiet', TRUE);
     }
 
-    if (!empty($options['no-ansi'])) {
-      $this->config->set('ANSI', FALSE);
+    if (isset($options['ansi']) && !is_null($options['ansi'])) {
+      $this->config->set('ANSI', $options['ansi']);
     }
     else {
       // On Windows, default to no ANSI, except in ANSICON and ConEmu.

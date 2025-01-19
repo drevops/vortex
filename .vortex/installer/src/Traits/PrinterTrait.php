@@ -10,7 +10,7 @@ namespace DrevOps\Installer\Traits;
 trait PrinterTrait {
 
   protected function out(string $text, ?string $color = NULL, bool $new_line = TRUE): void {
-    $text = $this->config->get('ANSI') ? $this->formatColor($text, $color) : $text;
+    $text = $color ? $this->formatColor($text, $color) : $text;
 
     if ($new_line) {
       $text .= PHP_EOL;
@@ -20,6 +20,10 @@ trait PrinterTrait {
   }
 
   protected function formatColor(string $text, string $color): string {
+    if (!$this->config->get('ANSI')) {
+      return $text;
+    }
+
     $colors = [
       'green' => "\033[0;32m%s\033[0m",
       'red' => "\033[0;31m%s\033[0m",
@@ -33,7 +37,7 @@ trait PrinterTrait {
       'info' => "\033[0;34m%s\033[0m",
     ];
 
-    $format = $colors[$color] ?: '%s';
+    $format = $colors[$color] ?? '%s';
 
     return sprintf($format, $text);
   }
