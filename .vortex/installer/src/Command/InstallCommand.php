@@ -143,7 +143,7 @@ EOF
       $this->config->set('quiet', TRUE);
     }
 
-    if (isset($options['ansi']) && !is_null($options['ansi'])) {
+    if (!is_null($options['ansi'])) {
       $this->config->set('ANSI', $options['ansi']);
     }
     else {
