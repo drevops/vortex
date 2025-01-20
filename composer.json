@@ -1,6 +1,6 @@
 {
     "name": "your_org/your_site",
-    "description": "Drupal 10 implementation of YOURSITE for YOURORG",
+    "description": "Drupal 11 implementation of YOURSITE for YOURORG",
     "license": "proprietary",
     "type": "project",
     "require": {

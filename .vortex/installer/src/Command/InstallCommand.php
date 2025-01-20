@@ -96,6 +96,13 @@ EOF
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output = $output;
 
+    // @see https://github.com/drevops/vortex/issues/1502
+    if ($input->getOption('help') || $input->getArgument('path') == 'help') {
+      $output->write($this->getHelp());
+
+      return Command::SUCCESS;
+    }
+
     try {
       $this->checkRequirements();
 
@@ -143,8 +150,8 @@ EOF
       $this->config->set('quiet', TRUE);
     }
 
-    if (!empty($options['no-ansi'])) {
-      $this->config->set('ANSI', FALSE);
+    if (!is_null($options['ansi'])) {
+      $this->config->set('ANSI', $options['ansi']);
     }
     else {
       // On Windows, default to no ANSI, except in ANSICON and ConEmu.
@@ -161,8 +168,17 @@ EOF
     // Set destination directory.
     if (!empty($path)) {
       $path = $this->fsGetAbsolutePath($path);
-      if (!is_readable($path) || !is_dir($path)) {
-        throw new \RuntimeException(sprintf('Destination directory "%s" is not readable or does not exist.', $path));
+
+      if (file_exists($path)) {
+        if (is_file($path)) {
+          throw new \RuntimeException(sprintf('Destination directory "%s" is a file.', $path));
+        }
+      }
+      else {
+        $this->fs->mkdir($path);
+        if (!is_readable($path) || !is_dir($path)) {
+          throw new \RuntimeException(sprintf('Destination directory "%s" is not readable or does not exist.', $path));
+        }
       }
     }
     $this->config->set('VORTEX_INSTALL_DST_DIR', $path ?: static::getenvOrDefault('VORTEX_INSTALL_DST_DIR', $this->fsGetRootDir()));
@@ -222,8 +238,6 @@ EOF
     $this->copyFiles();
 
     $this->handleDemo();
-
-    $this->printFooter();
   }
 
   protected function collectAnswers(): void {
@@ -240,7 +254,7 @@ EOF
     $this->askForAnswer('module_prefix',     'What is your project-specific module prefix?');
     $this->askForAnswer('profile',           'What is your custom profile machine name (leave empty to use "standard" profile)?');
     $this->askForAnswer('theme',             'What is your theme machine name?');
-    $this->askForAnswer('url',               'What is your site public URL?');
+    $this->askForAnswer('domain',            'What is your site public domain?');
     $this->askForAnswer('webroot',           'Web root (web, docroot)?');
 
     $this->askForAnswer('provision_use_profile', 'Do you want to install from profile (leave empty or "n" for using database?');
@@ -300,7 +314,7 @@ EOF
     $this->printSummary();
 
     if ($this->config->isInstallDebug()) {
-      $this->printBox($this->formatValuesList($this->getAnswers(), '', 80 - 6), 'DEBUG RESOLVED ANSWERS');
+      $this->printBox($this->formatValuesList($this->getAnswers(), '', $this->getTuiWidth() - 2 - 2 * 2), 'DEBUG RESOLVED ANSWERS');
     }
   }
 
@@ -367,6 +381,7 @@ EOF
       'preserve_vortex_info',
       'vortex_internal',
       'enable_commented_code',
+      'empty_lines',
     ];
 
     foreach ($processors as $name) {

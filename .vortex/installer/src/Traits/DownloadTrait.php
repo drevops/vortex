@@ -57,7 +57,7 @@ trait DownloadTrait {
     $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
 
-  protected function findLatestVortexRelease(string $org, string $project, string $release_prefix): ?string {
+  protected function findLatestVortexRelease(string $org, string $project, ?string $release_prefix): ?string {
     $release_url = sprintf('https://api.github.com/repos/%s/%s/releases', $org, $project);
     $release_contents = file_get_contents($release_url, FALSE, stream_context_create([
       'http' => ['method' => 'GET', 'header' => ['User-Agent: PHP']],
@@ -68,9 +68,15 @@ trait DownloadTrait {
     }
 
     $records = json_decode($release_contents, TRUE);
+
+    if (!$release_prefix) {
+      return is_scalar($records[0]['tag_name']) ? strval($records[0]['tag_name']) : NULL;
+    }
+
     foreach ($records as $record) {
-      if (isset($record['tag_name']) && ($release_prefix && str_contains((string) $record['tag_name'], $release_prefix) || !$release_prefix)) {
-        return $record['tag_name'];
+      $tag_name = is_scalar($record['tag_name']) ? strval($record['tag_name']) : '';
+      if (str_contains($tag_name, $release_prefix)) {
+        return $tag_name;
       }
     }
 

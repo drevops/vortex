@@ -8,7 +8,7 @@ commands:
     cmd: |
       [ ! -d ./tests/node_modules ] && npm --prefix tests ci
       [ ! -d ./docs/node_modules ] && npm --prefix docs ci
-      [ ! -d ./installer/node_modules ] && composer --working-dir installer install
+      [ ! -d ./installer/vendor ] && composer --working-dir installer install
 
   docs:
     name: Start documentation server.
@@ -27,6 +27,12 @@ commands:
     cmd: |
       [ ! -d ./docs/node_modules ] && npm --prefix docs ci
       npm --prefix docs run build
+
+  build-installer:
+    name: Build documentation.
+    cmd: |
+      [ ! -d ./installer/vendor ] && composer --working-dir installer install
+      composer --working-dir installer build
 
   lint:
     name: Lint Vortex project.

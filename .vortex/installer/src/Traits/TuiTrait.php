@@ -27,25 +27,38 @@ trait TuiTrait {
 
   final const INSTALLER_STATUS_DEBUG = 3;
 
+  /**
+   * Width of the TUI.
+   */
+  protected int $tuiWidth;
+
+  /**
+   * Is Vortex initially installed.
+   */
+  protected bool $isInitiallyInstalled = FALSE;
+
   protected function ask(string $question, ?string $default, bool $close_handle = FALSE): ?string {
     if ($this->config->isQuiet()) {
       return $default;
     }
 
-    $question = sprintf('> %s [%s] ', $question, $default);
+    $this->out(sprintf('%s [%s] ', $this->formatColor('> ' . $question, 'green'), $this->formatColor($default, 'yellow')), NULL, FALSE);
 
-    $this->out($question, 'question', FALSE);
     $handle = $this->getStdinHandle();
     $answer = fgets($handle);
     if ($answer !== FALSE) {
       $answer = trim($answer);
     }
 
+    $answer = empty($answer) ? $default : $answer;
+
+    $this->out($answer, 'cyan');
+
     if ($close_handle) {
       $this->closeStdinHandle();
     }
 
-    return empty($answer) ? $default : $answer;
+    return $answer;
   }
 
   protected function getStdinHandle(): mixed {
@@ -68,6 +81,28 @@ trait TuiTrait {
   }
 
   protected function printHeader(): void {
+    $logo = <<<EOT
+-------------------------------------------------------------------------------
+
+              ██╗   ██╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗
+              ██║   ██║██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝
+              ██║   ██║██║   ██║██████╔╝   ██║   █████╗   ╚███╔╝
+              ╚██╗ ██╔╝██║   ██║██╔══██╗   ██║   ██╔══╝   ██╔██╗
+               ╚████╔╝ ╚██████╔╝██║  ██║   ██║   ███████╗██╔╝ ██╗
+                ╚═══╝   ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+
+                           Drupal project template
+
+                                                                   by DrevOps
+-------------------------------------------------------------------------------
+EOT;
+
+    if ($this->getTuiWidth() >= 80) {
+      $this->out($logo, 'green');
+    }
+
+    $this->isInitiallyInstalled = $this->isInstalled();
+
     if ($this->config->isQuiet()) {
       $this->printHeaderQuiet();
     }
@@ -88,7 +123,7 @@ trait TuiTrait {
       $content .= sprintf('This will install Vortex into your project at commit "%s".', $commit) . PHP_EOL;
     }
     $content .= PHP_EOL;
-    if ($this->isInstalled()) {
+    if ($this->isInitiallyInstalled) {
       $content .= 'It looks like Vortex is already installed into this project.' . PHP_EOL;
       $content .= PHP_EOL;
     }
@@ -114,7 +149,7 @@ trait TuiTrait {
     }
 
     $content .= PHP_EOL;
-    if ($this->isInstalled()) {
+    if ($this->isInitiallyInstalled) {
       $content .= 'It looks like Vortex is already installed into this project.' . PHP_EOL;
       $content .= PHP_EOL;
     }
@@ -133,7 +168,7 @@ trait TuiTrait {
     $values['Vortex commit'] = $this->formatNotEmpty($this->config->get('VORTEX_INSTALL_COMMIT'), 'Latest');
 
     $values[] = '';
-    $values[] = str_repeat('─', 80 - 2 - 2 * 2);
+    $values[] = str_repeat('─', $this->getTuiWidth() - 2 - 2 * 2);
     $values[] = '';
 
     $values['Name'] = $this->getAnswer('name');
@@ -143,7 +178,7 @@ trait TuiTrait {
     $values['Module prefix'] = $this->getAnswer('module_prefix');
     $values['Profile'] = $this->getAnswer('profile');
     $values['Theme name'] = $this->getAnswer('theme');
-    $values['URL'] = $this->getAnswer('url');
+    $values['Domain'] = $this->getAnswer('domain');
     $values['Web root'] = $this->getAnswer('webroot');
 
     $values['Install from profile'] = $this->formatYesNo($this->getAnswer('provision_use_profile'));
@@ -166,7 +201,7 @@ trait TuiTrait {
     $values['Preserve docs in comments'] = $this->formatYesNo($this->getAnswer('preserve_doc_comments'));
     $values['Preserve Vortex comments'] = $this->formatYesNo($this->getAnswer('preserve_vortex_info'));
 
-    $content = $this->formatValuesList($values, '', 80 - 2 - 2 * 2);
+    $content = $this->formatValuesList($values, '', $this->getTuiWidth() - 2 - 2 * 2);
 
     $this->printBox($content, 'INSTALLATION SUMMARY');
   }
@@ -178,7 +213,7 @@ trait TuiTrait {
   protected function printFooter(): void {
     print PHP_EOL;
 
-    if ($this->isInstalled()) {
+    if ($this->isInitiallyInstalled) {
       $this->printBox('Finished updating Vortex. Review changes and commit required files.');
     }
     else {
@@ -202,6 +237,15 @@ trait TuiTrait {
     if ($ret === 1) {
       throw new \RuntimeException(sprintf('Command "%s" does not exist in the current environment.', $command));
     }
+  }
+
+  protected function getTuiWidth(int $max = 80): int {
+    if (!isset($this->tuiWidth)) {
+      $width = intval($this->doExec('tput cols'));
+      $this->tuiWidth = $width > 0 ? $width : $max;
+    }
+
+    return min($this->tuiWidth, $max);
   }
 
   /**
@@ -266,7 +310,7 @@ trait TuiTrait {
     $proceed = self::ANSWER_YES;
 
     if (!$this->config->isQuiet()) {
-      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"? (Y,n)', $this->config->getDstDir()), $proceed, TRUE);
+      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"?', $this->config->getDstDir()), $proceed, TRUE);
     }
 
     // Kill-switch to not proceed with install. If false, the install will not

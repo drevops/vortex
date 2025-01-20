@@ -541,7 +541,7 @@ assert_files_present_drupal() {
   assert_dir_not_contains_string "${dir}" "your_site_theme"
   assert_dir_not_contains_string "${dir}" "your_org"
   assert_dir_not_contains_string "${dir}" "YOURORG"
-  assert_dir_not_contains_string "${dir}" "www.your-site-url.example"
+  assert_dir_not_contains_string "${dir}" "www.your-site-domain.example"
   # Assert all special comments were removed.
   assert_dir_not_contains_string "${dir}" "#;"
   assert_dir_not_contains_string "${dir}" "#;<"
@@ -1021,7 +1021,7 @@ create_fixture_readme() {
 
   cat <<EOT >>"${dir}"/README.md
 # ${name}
-Drupal 10 implementation of ${name} for ${org}
+Drupal 11 implementation of ${name} for ${org}
 
 [![CircleCI](https://circleci.com/gh/your_org/your_site.svg?style=shield)](https://circleci.com/gh/your_org/your_site)
 
@@ -1043,7 +1043,7 @@ create_fixture_composerjson() {
   cat <<EOT >>"${dir}"/composer.json
 {
     "name": "${org_machine_name}/${machine_name}",
-    "description": "Drupal 10 implementation of ${name} for ${org}"
+    "description": "Drupal 11 implementation of ${name} for ${org}"
 }
 EOT
 }

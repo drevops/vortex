@@ -10,22 +10,36 @@ namespace DrevOps\Installer\Traits;
 trait PrinterTrait {
 
   protected function out(string $text, ?string $color = NULL, bool $new_line = TRUE): void {
-    $styles = [
-      'success' => "\033[0;32m%s\033[0m",
-      'error' => "\033[31;31m%s\033[0m",
-    ];
-
-    $format = '%s';
-
-    if (isset($styles[$color]) && $this->config->get('ANSI')) {
-      $format = $styles[$color];
-    }
+    $text = $color ? $this->formatColor($text, $color) : $text;
 
     if ($new_line) {
-      $format .= PHP_EOL;
+      $text .= PHP_EOL;
     }
 
-    printf($format, $text);
+    print $text;
+  }
+
+  protected function formatColor(string $text, string $color): string {
+    if (!$this->config->get('ANSI')) {
+      return $text;
+    }
+
+    $colors = [
+      'green' => "\033[0;32m%s\033[0m",
+      'red' => "\033[0;31m%s\033[0m",
+      'blue' => "\033[0;34m%s\033[0m",
+      'yellow' => "\033[0;33m%s\033[0m",
+      'cyan' => "\033[0;36m%s\033[0m",
+      'magenta' => "\033[0;35m%s\033[0m",
+      'white' => "\033[0;37m%s\033[0m",
+      'success' => "\033[0;32m%s\033[0m",
+      'error' => "\033[31;31m%s\033[0m",
+      'info' => "\033[0;34m%s\033[0m",
+    ];
+
+    $format = $colors[$color] ?? '%s';
+
+    return sprintf($format, $text);
   }
 
   protected function debug(mixed $value, string $name = ''): void {
@@ -37,16 +51,20 @@ trait PrinterTrait {
   }
 
   protected function printTitle(string $text, string $fill = '-', int $width = 80, string $cols_delim = '|', bool $has_content = FALSE): void {
+    $width = $this->getTuiWidth($width);
+
     $this->printDivider($fill, $width, 'down');
     $lines = explode(PHP_EOL, wordwrap($text, $width - 4, PHP_EOL));
     foreach ($lines as $line) {
-      $line = ' ' . $line . ' ';
-      print $cols_delim . str_pad($line, $width - 2, ' ', STR_PAD_BOTH) . $cols_delim . PHP_EOL;
+      $line = ' ' . $this->formatBold($line) . ' ';
+      print $cols_delim . str_pad($line, $width - 2 + (strlen($line) - $this->getVisibleLength($line)), ' ', STR_PAD_BOTH) . $cols_delim . PHP_EOL;
     }
     $this->printDivider($fill, $width, $has_content ? 'up' : 'both');
   }
 
   protected function printSubtitle(string $text, string $fill = '=', int $width = 80): void {
+    $width = $this->getTuiWidth($width);
+
     $is_multiline = strlen($text) + 4 >= $width;
     if ($is_multiline) {
       $this->printTitle($text, $fill, $width, 'both');
@@ -58,6 +76,8 @@ trait PrinterTrait {
   }
 
   protected function printDivider(string $fill = '-', int $width = 80, string $direction = 'none'): void {
+    $width = $this->getTuiWidth($width);
+
     $start = $fill;
     $finish = $fill;
     switch ($direction) {
@@ -81,12 +101,12 @@ trait PrinterTrait {
   }
 
   protected function printBox(string $content, string $title = '', string $fill = '─', int $padding = 2, int $width = 80): void {
-    $cols = '│';
+    $width = $this->getTuiWidth($width);
 
     $max_width = $width - 2 - $padding * 2;
     $lines = explode(PHP_EOL, wordwrap(rtrim($content, PHP_EOL), $max_width, PHP_EOL));
     $pad = str_pad(' ', $padding);
-    $mask = sprintf('%s%s%%-%ss%s%s', $cols, $pad, $max_width, $pad, $cols) . PHP_EOL;
+    $mask = sprintf('│%s%%-%ss%s│', $pad, $max_width, $pad) . PHP_EOL;
 
     print PHP_EOL;
     if (!empty($title)) {
@@ -132,7 +152,7 @@ trait PrinterTrait {
         break;
 
       case self::INSTALLER_STATUS_MESSAGE:
-        $prefix = 'i️';
+        $prefix = 'ⓘ ';
         $color = 'info';
         break;
 
@@ -160,6 +180,8 @@ trait PrinterTrait {
    *   Formatted values list.
    */
   protected function formatValuesList(array $values, string $delim = '', int $width = 80): string {
+    $width = $this->getTuiWidth($width);
+
     // Only keep the keys that are not numeric.
     $keys = array_filter(array_keys($values), static fn($key): bool => !is_numeric($key));
 
@@ -216,6 +238,17 @@ trait PrinterTrait {
 
   protected function formatNotEmpty(mixed $value, mixed $default): mixed {
     return empty($value) ? $default : $value;
+  }
+
+  protected function formatBold(string $text): string {
+    return "\033[1m" . $text . "\033[0m";
+  }
+
+  protected function getVisibleLength(string $text): int {
+    // Remove ANSI escape sequences using a regex.
+    $plain_text = preg_replace('/\033\[[0-9;]*m/', '', $text);
+
+    return mb_strlen($plain_text);
   }
 
 }
