@@ -88,7 +88,7 @@ Defined in: `docker-compose.yml`, `scripts/vortex/info.sh`
 
 Drupal admin email. May need to be reset if database was sanitized.
 
-Default value: `webmaster@your-site-url.example`
+Default value: `webmaster@your-site-domain.example`
 
 Defined in: `.env`
 
@@ -172,7 +172,7 @@ Defined in: `.env`
 
 Drupal site email.<br/>Used only when installing from profile.
 
-Default value: `webmaster@your-site-url.example`
+Default value: `webmaster@your-site-domain.example`
 
 Defined in: `.env`, `scripts/vortex/provision.sh`
 
@@ -190,7 +190,7 @@ Stage file proxy origin.
 
 If using Shield, the HTTP authentication credentials will be automatically<br/>added to the origin URL.
 
-Default value: `https://www.your-site-url.example/`
+Default value: `https://www.your-site-domain.example/`
 
 Defined in: `.env`
 
@@ -274,7 +274,7 @@ Defined in: `CI config`
 
 Commit author for self-hosted Renovate bot.
 
-Default value: `'Renovate Self Hosted <renovatebot@your-site-url.example>'`
+Default value: `'Renovate Self Hosted <renovatebot@your-site-domain.example>'`
 
 Defined in: `CI config`
 
@@ -1242,7 +1242,7 @@ Defined in: `scripts/vortex/notify-email.sh`
 
 Email to send notifications from.
 
-Default value: `webmaster@your-site-url.example`
+Default value: `webmaster@your-site-domain.example`
 
 Defined in: `.env`, `scripts/vortex/notify-email.sh`
 
@@ -1260,7 +1260,7 @@ Email address(es) to send notifications to.
 
 Multiple names can be specified as a comma-separated list of email addresses<br/>with optional names in the format "email|name".<br/>Example: "to1@example.com|Jane Doe, to2@example.com|John Doe"
 
-Default value: `webmaster@your-site-url.example`
+Default value: `webmaster@your-site-domain.example`
 
 Defined in: `.env`, `scripts/vortex/notify-email.sh`
 
@@ -1580,7 +1580,7 @@ Sanitization email pattern.
 
 Applied if database sanitization is enabled.<br/>@see https://vortex.drevops.com/workflows/build#sanitization
 
-Default value: `user_%uid@your-site-url.example`
+Default value: `user_%uid@your-site-domain.example`
 
 Defined in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
 

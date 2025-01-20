@@ -254,7 +254,7 @@ EOF
     $this->askForAnswer('module_prefix',     'What is your project-specific module prefix?');
     $this->askForAnswer('profile',           'What is your custom profile machine name (leave empty to use "standard" profile)?');
     $this->askForAnswer('theme',             'What is your theme machine name?');
-    $this->askForAnswer('url',               'What is your site public URL?');
+    $this->askForAnswer('domain',            'What is your site public domain?');
     $this->askForAnswer('webroot',           'Web root (web, docroot)?');
 
     $this->askForAnswer('provision_use_profile', 'Do you want to install from profile (leave empty or "n" for using database?');
