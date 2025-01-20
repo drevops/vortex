@@ -228,6 +228,7 @@ jobs:
           path: "/tmp/workspace/code"
           include-hidden-files: true
           if-no-files-found: error
+          retention-days: 1
 
       - name: Validate Composer configuration
         run: docker compose exec cli composer validate --strict
