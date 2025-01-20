@@ -176,6 +176,10 @@ jobs:
       - name: Process the codebase to run in CI
         run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
 
+      - name: Validate Composer configuration
+        run: composer validate --strict
+        continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
+
       #;< !PROVISION_USE_PROFILE
       - name: Create cache keys files for database caching
         run: |
@@ -230,17 +234,13 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      - name: Validate Composer configuration
-        run: docker compose exec cli composer validate --strict
-        continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
-
       - name: Install development dependencies
         run: |
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
             if [ -n \"${GITHUB_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN-}\"}}'; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
-      - name: Validate Composer configuration normalised
+      - name: Validate Composer configuration normalized
         run: docker compose exec -T cli composer normalize --dry-run
         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
 
