@@ -217,7 +217,10 @@ jobs:
 
       - checkout
       - *step_process_codebase_for_ci
-      - *step_setup_remote_docker
+
+      - run:
+          name: Validate Composer configuration
+          command: composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
 
       #;< !PROVISION_USE_PROFILE
       - run:
@@ -242,6 +245,8 @@ jobs:
               echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${VORTEX_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
             done
 
+      - *step_setup_remote_docker
+
       - run:
           name: Login to container registry
           command: ./scripts/vortex/login-container-registry.sh
@@ -257,10 +262,6 @@ jobs:
             docker compose cp -L cli:"/app/." "${VORTEX_EXPORT_CODE_DIR}"
 
       - run:
-          name: Validate Composer configuration
-          command: docker compose exec cli composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
           name: Install development dependencies
           command: |
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
@@ -268,7 +269,7 @@ jobs:
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
       - run:
-          name: Validate Composer configuration normalised
+          name: Validate Composer configuration normalized
           command: docker compose exec -T cli composer normalize --dry-run || [ "${VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
