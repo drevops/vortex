@@ -144,9 +144,8 @@ jobs:
           command: |
             echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
             echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" | tee /tmp/db_cache_fallback
-            echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
+            date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee /tmp/db_cache_timestamp
             echo "yes" | tee /tmp/db_cache_fallback_yes
-            echo 'v24.11.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}'
 
       - restore_cache:
           keys:
@@ -176,7 +175,7 @@ jobs:
           command: |
             [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
             ./scripts/vortex/login-container-registry.sh
-            docker compose up -d && sleep 15
+            docker compose up --detach && sleep 15
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
