@@ -383,7 +383,13 @@ trait PromptsTrait {
   }
 
   protected function processEmptyLines(string $dir): void {
-    $files = File::scandirRecursive($dir, File::ignorePaths());
+    $ignore = array_merge(File::ignorePaths(), [
+      '/web/sites/default/default.settings.php',
+      '/web/sites/default/default.services.yml',
+      '/.docker/config/solr/config-set/',
+    ]);
+
+    $files = File::scandirRecursive($dir, $ignore);
     foreach ($files as $filename) {
       File::fileReplaceContent('/(\n\s*\n)+/', "\n\n", $filename);
     }
