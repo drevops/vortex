@@ -264,7 +264,7 @@ EOF
       $this->setAnswer('database_image', '');
     }
     else {
-      $this->askForAnswer('database_download_source', "Where does the database dump come from into every environment:\n  - [u]rl\n  - [f]tp\n  - [a]cquia backup\n  - [d]ocker registry?");
+      $this->askForAnswer('database_download_source', "Where does the database dump come from into every environment:\n  - [u]rl\n  - [f]tp\n  - [a]cquia backup\n  - [l]lagoon environment\n  - [d]ocker registry?");
 
       if ($this->getAnswer('database_download_source') !== 'container_registry') {
         // Note that "database_store_type" is a pseudo-answer - it is only used
