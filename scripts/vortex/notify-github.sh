@@ -25,6 +25,11 @@ VORTEX_NOTIFY_REPOSITORY="${VORTEX_NOTIFY_REPOSITORY:-}"
 # Deployment reference branch.
 VORTEX_NOTIFY_BRANCH="${VORTEX_NOTIFY_BRANCH:-}"
 
+# Deployment PR number.
+#
+# If set, the environment type will be set to 'pr-${VORTEX_NOTIFY_PR_NUMBER}'.
+VORTEX_NOTIFY_PR_NUMBER="${VORTEX_NOTIFY_PR_NUMBER:-}"
+
 # The event to notify about. Can be 'pre_deployment' or 'post_deployment'.
 VORTEX_NOTIFY_EVENT="${VORTEX_NOTIFY_EVENT:-}"
 
@@ -71,6 +76,10 @@ extract_json_value() {
   local key=${1}
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
+
+if [ "${VORTEX_NOTIFY_ENVIRONMENT_TYPE}" = "PR" ] && [ -n "${VORTEX_NOTIFY_PR_NUMBER}" ]; then
+  VORTEX_NOTIFY_ENVIRONMENT_TYPE="PR-${VORTEX_NOTIFY_PR_NUMBER}"
+fi
 
 if [ "${VORTEX_NOTIFY_EVENT}" = "pre_deployment" ]; then
   payload="$(curl \

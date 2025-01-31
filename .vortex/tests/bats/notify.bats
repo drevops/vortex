@@ -139,6 +139,36 @@ load _helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Notify: github, pre_deployment, PR" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  app_id="123456789"
+
+  declare -a STEPS=(
+    "Started dispatching notifications."
+    "Started GitHub notification for pre_deployment event."
+    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\", \"environment\": \"PR-123\", \"auto_merge\": false} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
+    "Marked deployment as started."
+    "Finished GitHub notification for pre_deployment event."
+    "Finished dispatching notifications."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  export VORTEX_NOTIFY_CHANNELS="github"
+  export VORTEX_NOTIFY_EVENT="pre_deployment"
+  export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
+  export VORTEX_NOTIFY_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="existingbranch"
+  export VORTEX_NOTIFY_PR_NUMBER="123"
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: github, pre_deployment, longer ID" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
