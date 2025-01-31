@@ -1448,6 +1448,16 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/notify-webhook.sh`, `scripts/vortex/notify.sh`
 
+### `VORTEX_NOTIFY_PR_NUMBER`
+
+Deployment PR number.
+
+If set, the environment type will be set to 'pr-[`${VORTEX_NOTIFY_PR_NUMBER}`](#vortex_notify_pr_number)'.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/vortex/notify-github.sh`
+
 ### `VORTEX_NOTIFY_REF`
 
 Git reference to notify about.

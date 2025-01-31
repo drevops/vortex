@@ -25,7 +25,16 @@ tasks:
     - run:
         name: Notify about pre-deployment.
         command: |
-          if [ -n "$LAGOON_PR_NUMBER" ]; then export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER;export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/};export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH;else export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH;export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA;export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH;fi
+          if [ -n "$LAGOON_PR_NUMBER" ]; then
+            export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER
+            export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH
+            export VORTEX_NOTIFY_PR_NUMBER="${LAGOON_PR_NUMBER:-}"
+          else
+            export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH
+            export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH
+          fi
           VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT \
           VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
           VORTEX_NOTIFY_EVENT=pre_deployment ./scripts/vortex/notify.sh || true
@@ -88,7 +97,16 @@ tasks:
     - run:
         name: Send deployment notifications
         command: |
-          if [ -n "$LAGOON_PR_NUMBER" ]; then export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER; export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH; export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA; export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi
+          if [ -n "$LAGOON_PR_NUMBER" ]; then
+            export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER
+            export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH
+            export VORTEX_NOTIFY_PR_NUMBER="${LAGOON_PR_NUMBER:-}"
+          else
+            export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH
+            export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH
+          fi
           VORTEX_NOTIFY_EVENT=post_deployment \
           VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT \
           VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
