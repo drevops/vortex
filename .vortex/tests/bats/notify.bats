@@ -65,9 +65,9 @@ load _helper.bash
   assert_output_contains "Notification email(s) sent to: john@example.com, jane@example.com, jim@example.com"
   assert_output_contains "Finished email notification."
 
+  assert_output_contains "testproject deployment notification of \"develop\" branch"
   assert_output_contains "Site testproject \"develop\" branch has been deployed"
   assert_output_contains "and is available at https://develop.testproject.com."
-  echo "${output}" >&3
 
   assert_output_contains "Finished dispatching notifications."
 
@@ -93,9 +93,9 @@ load _helper.bash
   assert_output_contains "Notification email(s) sent to: john@example.com, jane@example.com"
   assert_output_contains "Finished email notification."
 
+  assert_output_contains "testproject deployment notification of \"PR-123\""
   assert_output_contains "Site testproject \"PR-123\" has been deployed"
   assert_output_contains "and is available at https://develop.testproject.com."
-  echo "${output}" >&3
 
   assert_output_contains "Finished dispatching notifications."
 
