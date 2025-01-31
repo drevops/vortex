@@ -85,13 +85,24 @@ for email_with_name; do
   IFS="|"
   # shellcheck disable=SC2086
   set -- ${email_with_name}
+
   email="${1#"${1%%[![:space:]]*}"}"
   email="${email%"${email##*[![:space:]]}"}"
-  name="${2#"${2%%[![:space:]]*}"}"
-  name="${name%"${name##*[![:space:]]}"}"
+
+  if [ $# -gt 1 ]; then
+    name="${2#"${2%%[![:space:]]*}"}"
+    name="${name%"${name##*[![:space:]]}"}"
+  else
+    name=""
+  fi
+
   IFS="${old_ifs}"
 
-  to="${name:+\"${name}\" }<${email}>"
+  if [ -n "${name}" ]; then
+    to="${name:+\"${name}\" }<${email}>"
+  else
+    to="${email}"
+  fi
 
   if [ "${has_sendmail}" = "1" ]; then
     (
