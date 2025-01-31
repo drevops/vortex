@@ -77,7 +77,7 @@ if [ -n "${VORTEX_NOTIFY_EMAIL_PR_NUMBER}" ]; then
 fi
 
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
-subject="${VORTEX_NOTIFY_EMAIL_PROJECT} deployment notification of \"${VORTEX_NOTIFY_EMAIL_REF}\""
+subject="${VORTEX_NOTIFY_EMAIL_PROJECT} deployment notification of ${ref_info}"
 content="## This is an automated message ##
 
 Site ${VORTEX_NOTIFY_EMAIL_PROJECT} ${ref_info} has been deployed at ${timestamp} and is available at ${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}.

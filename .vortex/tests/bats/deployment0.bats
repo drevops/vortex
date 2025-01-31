@@ -74,7 +74,7 @@ load _helper.deployment.bash
   export VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL="${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL:-testuser@example.com}"
 
   # Variables for WEBHOOK deployment.
-  export VORTEX_DEPLOY_WEBHOOK_URL=http://example.com
+  export VORTEX_DEPLOY_WEBHOOK_URL=https://www.example.com
   export VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS=200
 
   # Variables for container registry deployment.
@@ -163,7 +163,7 @@ load _helper.deployment.bash
   export VORTEX_DEPLOY_TYPES="webhook"
 
   # Variables for WEBHOOK deployment.
-  export VORTEX_DEPLOY_WEBHOOK_URL=http://example.com
+  export VORTEX_DEPLOY_WEBHOOK_URL=https://www.example.com
   export VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS=200
 
   #
