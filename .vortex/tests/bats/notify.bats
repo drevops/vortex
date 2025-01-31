@@ -53,7 +53,7 @@ load _helper.bash
   export VORTEX_NOTIFY_CHANNELS="email"
   export VORTEX_NOTIFY_PROJECT="testproject"
   export DRUPAL_SITE_EMAIL="testproject@example.com"
-  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe, jane@example.com|Jane Doe"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe, jane@example.com|Jane Doe, jim@example.com"
   export VORTEX_NOTIFY_REF="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
@@ -62,7 +62,7 @@ load _helper.bash
   assert_output_contains "Started dispatching notifications."
 
   assert_output_contains "Started email notification."
-  assert_output_contains "Notification email(s) sent to: john@example.com, jane@example.com"
+  assert_output_contains "Notification email(s) sent to: john@example.com, jane@example.com, jim@example.com"
   assert_output_contains "Finished email notification."
 
   assert_output_contains "Finished dispatching notifications."
