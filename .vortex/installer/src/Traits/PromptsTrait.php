@@ -741,6 +741,7 @@ trait PromptsTrait {
     return match ($value) {
       'f', 'ftp' => 'ftp',
       'a', 'acquia' => 'acquia',
+      'l', 'lagoon' => 'lagoon',
       'i', 'image', 'container_image', 'container_registry' => 'container_registry',
       'c', 'curl' => 'curl',
       default => $this->getDefaultValueDatabaseDownloadSource(),

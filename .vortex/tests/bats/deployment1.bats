@@ -133,7 +133,7 @@ load _helper.deployment.bash
     "nothing"   # URL
     "nothing"   # webroot
     "nothing"   # provision_use_profile
-    "nothing"   # database_download_source
+    "lagoon"    # database_download_source
     "nothing"   # database_store_type
     "nothing"   # override_existing_db
     "nothing"   # ci_provider
