@@ -229,16 +229,6 @@ jobs:
           docker compose cp -L cli:"/app/." "/tmp/workspace/code"
           du -sh "/tmp/workspace/code"
 
-      - name: Upload exported codebase as artifact
-        uses: actions/upload-artifact@v4
-        if: matrix.instance == 0
-        with:
-          name: code-artifact
-          path: "/tmp/workspace/code"
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 1
-
       - name: Install development dependencies
         run: |
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
@@ -327,6 +317,16 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload exported codebase as artifact
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.instance == 0 && !startsWith(github.ref, 'refs/heads/deps/') }}
+        with:
+          name: code-artifact
+          path: "/tmp/workspace/code"
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Setup tmate session
         if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
