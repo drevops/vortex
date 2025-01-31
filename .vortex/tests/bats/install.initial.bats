@@ -114,6 +114,7 @@ load _helper.bash
     "nothing"   # preserve_acquia
     "nothing"   # preserve_lagoon
     "nothing"   # preserve_renovatebot
+    "nothing"   # preserve_onboarding
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_vortex_info
   )
@@ -147,6 +148,7 @@ load _helper.bash
     "nothing"   # preserve_acquia
     "nothing"   # preserve_lagoon
     "nothing"   # preserve_renovatebot
+    "nothing"   # preserve_onboarding
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_vortex_info
   )
@@ -189,6 +191,7 @@ load _helper.bash
     "nothing"   # preserve_acquia
     "nothing"   # preserve_lagoon
     "nothing"   # preserve_renovatebot
+    "nothing"   # preserve_onboarding
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_vortex_info
   )
