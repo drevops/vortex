@@ -338,11 +338,10 @@ jobs:
 
   #;< DEPLOYMENT
   deploy:
-
     runs-on: ubuntu-latest
     needs: build
     #;< !PROVISION_USE_PROFILE
-    if: github.event_name != 'schedule'
+    if: ${{ github.event_name != 'schedule' && !startsWith(github.ref, 'refs/heads/deps/') }}
     #;> !PROVISION_USE_PROFILE
 
     container:
