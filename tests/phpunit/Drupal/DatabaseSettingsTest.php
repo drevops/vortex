@@ -70,6 +70,29 @@ class DatabaseSettingsTest extends SettingsTestCase {
           ],
         ],
       ],
+
+      [
+        [
+          'DATABASE_DATABASE' => 'test_db_name',
+          'DATABASE_USERNAME' => 'test_db_user',
+          'DATABASE_PASSWORD' => 'test_db_pass',
+          'DATABASE_HOST' => 'test_db_host',
+          'DATABASE_PORT' => 'test_db_port',
+        ],
+        [
+          'default' => [
+            'default' => [
+              'database' => 'test_db_name',
+              'username' => 'test_db_user',
+              'password' => 'test_db_pass',
+              'host' => 'test_db_host',
+              'port' => 'test_db_port',
+              'driver' => 'mysql',
+              'prefix' => '',
+            ],
+          ],
+        ],
+      ],
     ];
   }
 

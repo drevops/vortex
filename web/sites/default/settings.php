@@ -113,7 +113,7 @@ $databases = [
     [
       'default' =>
         [
-          'database' => getenv('DATABASE_NAME') ?: getenv('MARIADB_DATABASE') ?: 'drupal',
+          'database' => getenv('DATABASE_NAME') ?: getenv('DATABASE_DATABASE') ?: getenv('MARIADB_DATABASE') ?: 'drupal',
           'username' => getenv('DATABASE_USERNAME') ?: getenv('MARIADB_USERNAME') ?: 'drupal',
           'password' => getenv('DATABASE_PASSWORD') ?: getenv('MARIADB_PASSWORD') ?: 'drupal',
           'host' => getenv('DATABASE_HOST') ?: getenv('MARIADB_HOST') ?: 'localhost',
