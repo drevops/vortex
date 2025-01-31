@@ -105,6 +105,10 @@ trait PromptsTrait {
     return self::ANSWER_YES;
   }
 
+  protected function getDefaultValuePreserveOnboarding(): string {
+    return self::ANSWER_YES;
+  }
+
   protected function getDefaultValuePreserveDocComments(): string {
     return self::ANSWER_YES;
   }
@@ -400,6 +404,13 @@ trait PromptsTrait {
     }
   }
 
+  protected function processPreserveOnboarding(string $dir): void {
+    if ($this->getAnswer('preserve_onboarding') !== self::ANSWER_YES) {
+      @unlink($dir . '/docs/onboarding.md');
+      File::removeTokenWithContent('ONBOARDING', $dir);
+    }
+  }
+
   protected function processPreserveDocComments(string $dir): void {
     if ($this->getAnswer('preserve_doc_comments') === self::ANSWER_YES) {
       // Replace special "#: " comments with normal "#" comments.
@@ -648,6 +659,16 @@ trait PromptsTrait {
     return is_readable($this->config->getDstDir() . '/renovate.json') ? self::ANSWER_YES : self::ANSWER_NO;
   }
 
+  protected function discoverValuePreserveOnboarding(): ?string {
+    if ($this->isInstalled()) {
+      $file = $this->config->getDstDir() . '/docs/onboarding.md';
+
+      return is_readable($file) ? self::ANSWER_YES : self::ANSWER_NO;
+    }
+
+    return NULL;
+  }
+
   protected function discoverValuePreserveDocComments(): ?string {
     $file = $this->config->getDstDir() . '/.ahoy.yml';
 
@@ -815,6 +836,10 @@ trait PromptsTrait {
   }
 
   protected function normaliseAnswerPreserveRenovatebot(string $value): string {
+    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
+  }
+
+  protected function normaliseAnswerPreserveOnboarding(string $value): string {
     return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
   }
 

@@ -41,6 +41,7 @@ load _helper.bash
     "nothing"   # preserve_acquia
     "nothing"   # preserve_lagoon
     "nothing"   # preserve_renovatebot
+    "nothing"   # preserve_onboarding
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_vortex_info
   )
@@ -76,6 +77,7 @@ load _helper.bash
   assert_output_contains "            Acquia integration:  Disabled       "
   assert_output_contains "            Lagoon integration:  Disabled       "
   assert_output_contains "       RenovateBot integration:  Enabled        "
+  assert_output_contains " Preserve onboarding checklist:  Yes            "
   assert_output_contains "     Preserve docs in comments:  Yes            "
   assert_output_contains "      Preserve Vortex comments:  No             "
 }
@@ -102,6 +104,7 @@ load _helper.bash
     "nothing"   # preserve_acquia
     "nothing"   # preserve_lagoon
     "nothing"   # preserve_renovatebot
+    "nothing"   # preserve_onboarding
     "nothing"   # preserve_doc_comments
     "nothing"   # preserve_vortex_info
   )
@@ -128,6 +131,7 @@ load _helper.bash
   assert_output_contains "            Acquia integration:  Disabled       "
   assert_output_contains "            Lagoon integration:  Disabled       "
   assert_output_contains "       RenovateBot integration:  Enabled        "
+  assert_output_contains " Preserve onboarding checklist:  Yes            "
   assert_output_contains "     Preserve docs in comments:  Yes            "
   assert_output_contains "      Preserve Vortex comments:  No             "
 }
@@ -156,6 +160,7 @@ load _helper.bash
     "dunno"                  # preserve_acquia
     "nah"                    # preserve_lagoon
     "never"                  # preserve_renovatebot
+    "nyet"                   # preserve_onboarding
     "nnnooo"                 # preserve_doc_comments
     "nooo"                   # preserve_vortex_info
   )
@@ -182,6 +187,7 @@ load _helper.bash
   assert_output_contains "            Acquia integration:  Disabled               "
   assert_output_contains "            Lagoon integration:  Disabled               "
   assert_output_contains "       RenovateBot integration:  Disabled               "
+  assert_output_contains " Preserve onboarding checklist:  No                     "
   assert_output_contains "     Preserve docs in comments:  No                     "
   assert_output_contains "      Preserve Vortex comments:  No                     "
 }
@@ -209,6 +215,7 @@ load _helper.bash
     "dunno"                  # preserve_acquia
     "nah"                    # preserve_lagoon
     "never"                  # preserve_renovatebot
+    "nyet"                   # preserve_onboarding
     "nnnooo"                 # preserve_doc_comments
     "nooo"                   # preserve_vortex_info
   )
@@ -235,6 +242,7 @@ load _helper.bash
   assert_output_contains "            Acquia integration:  Disabled               "
   assert_output_contains "            Lagoon integration:  Disabled               "
   assert_output_contains "       RenovateBot integration:  Disabled               "
+  assert_output_contains " Preserve onboarding checklist:  No                     "
   assert_output_contains "     Preserve docs in comments:  No                     "
   assert_output_contains "      Preserve Vortex comments:  No                     "
 }
@@ -267,6 +275,7 @@ load _helper.bash
   assert_output_contains "            Acquia integration:  Enabled                      "
   assert_output_contains "            Lagoon integration:  Enabled                      "
   assert_output_contains "       RenovateBot integration:  Enabled                      "
+  assert_output_contains " Preserve onboarding checklist:  Yes                          "
   assert_output_contains "     Preserve docs in comments:  Yes                          "
   assert_output_contains "      Preserve Vortex comments:  Yes                          "
 }
@@ -296,6 +305,7 @@ load _helper.bash
     "nothing" # preserve_acquia
     "nothing" # preserve_lagoon
     "nothing" # preserve_renovatebot
+    "nothing" # preserve_onboarding
     "nothing" # preserve_doc_comments
     "nothing" # preserve_vortex_info
   )
@@ -323,6 +333,7 @@ load _helper.bash
   assert_output_contains "            Acquia integration:  Enabled                      "
   assert_output_contains "            Lagoon integration:  Enabled                      "
   assert_output_contains "       RenovateBot integration:  Enabled                      "
+  assert_output_contains " Preserve onboarding checklist:  Yes                          "
   assert_output_contains "     Preserve docs in comments:  Yes                          "
   assert_output_contains "      Preserve Vortex comments:  Yes                          "
 }
@@ -356,6 +367,7 @@ load _helper.bash
     "nothing"                # preserve_acquia - testing NOTHING value - should be 'Enabled' as exists in fixture.
     "nah"                    # preserve_lagoon
     "nothing"                # preserve_renovatebot - testing NOTHING value - should be 'Enabled as exists in fixture.
+    "nyet"                   # preserve_onboarding
     "n"                      # preserve_doc_comments
     "n"                      # preserve_vortex_info
   )
@@ -385,6 +397,7 @@ load _helper.bash
   assert_output_contains "            Acquia integration:  Enabled                "
   assert_output_contains "            Lagoon integration:  Disabled               "
   assert_output_contains "       RenovateBot integration:  Enabled                "
+  assert_output_contains " Preserve onboarding checklist:  No                     "
   assert_output_contains "     Preserve docs in comments:  No                     "
   assert_output_contains "      Preserve Vortex comments:  No                     "
 }
@@ -424,6 +437,8 @@ fixture_preinstalled() {
   touch .lagoon.yml
   # Sets 'preserve_dependencies' to 'Yes'.
   touch renovate.json
+  # Sets 'preserve_onboarding' to 'Yes'.
+  mktouch docs/onboarding.md
 
   echo "VORTEX_WEBROOT=${webroot}" >>.env
 

@@ -384,6 +384,7 @@ load _helper.bash
   assert_files_present_no_integration_lagoon
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
+  assert_files_present_onboarding
 }
 
 @test "Install into existing: previously installed project; override_existing_db; discovery; quiet" {
@@ -406,6 +407,7 @@ load _helper.bash
   assert_files_present_no_integration_lagoon
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
+  assert_files_present_onboarding
 
   assert_files_present_override_existing_db
 }
@@ -437,6 +439,7 @@ load _helper.bash
   assert_files_present_no_integration_lagoon
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
+  assert_files_present_onboarding
 }
 
 @test "Install into existing: previously installed project; CI Provider - CircleCI; discovery; quiet" {
@@ -466,6 +469,7 @@ load _helper.bash
   assert_files_present_no_integration_lagoon
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
+  assert_files_present_onboarding
 }
 
 @test "Install into existing: previously installed project; CI Provider - None; discovery; quiet" {
@@ -496,6 +500,7 @@ load _helper.bash
   assert_files_present_no_integration_lagoon
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
+  assert_files_present_onboarding
 }
 
 @test "Install into existing: previously installed project; Deployment; discovery; quiet" {
@@ -517,6 +522,7 @@ load _helper.bash
   assert_files_present_integration_lagoon
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
+  assert_files_present_onboarding
 }
 
 @test "Install into existing: previously installed project; Acquia; discovery; quiet" {
@@ -545,6 +551,7 @@ load _helper.bash
   assert_files_present_no_integration_lagoon
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
+  assert_files_present_onboarding
 }
 
 @test "Install into existing: previously installed project; Lagoon; discovery; quiet" {
@@ -573,6 +580,7 @@ load _helper.bash
   assert_files_present_integration_lagoon
   assert_files_present_no_integration_ftp
   assert_files_present_integration_renovatebot
+  assert_files_present_onboarding
 }
 
 @test "Install into existing: previously installed project; Renovate; discovery; quiet" {
@@ -601,4 +609,34 @@ load _helper.bash
   assert_files_present_no_integration_lagoon
   assert_files_present_no_integration_ftp
   assert_files_present_no_integration_renovatebot
+  assert_files_present_onboarding
+}
+
+@test "Install into existing: previously installed project; Onboarding; discovery; quiet" {
+  # Populate current dir with a project at current version.
+  run_installer_quiet
+
+  # Assert files at current version.
+  assert_files_present
+  assert_git_repo
+
+  rm -Rf docs/onboarding.md
+
+  output=$(run_installer_quiet)
+  assert_output_contains "WELCOME TO VORTEX QUIET INSTALLER"
+  assert_output_contains "It looks like Vortex is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  assert_files_present_common
+  assert_files_present_no_provision_use_profile
+  assert_files_present_ci_provider_gha
+  assert_files_present_deployment
+  assert_files_present_no_integration_acquia
+  assert_files_present_no_integration_lagoon
+  assert_files_present_no_integration_ftp
+  assert_files_present_integration_renovatebot
+  assert_files_present_no_onboarding
 }

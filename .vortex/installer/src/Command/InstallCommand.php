@@ -308,6 +308,8 @@ EOF
 
     $this->askForAnswer('preserve_renovatebot', 'Do you want to keep RenovateBot integration?');
 
+    $this->askForAnswer('preserve_onboarding', 'Do you want to keep onboarding checklist?');
+
     $this->askForAnswer('preserve_doc_comments', 'Do you want to keep detailed documentation in comments?');
     $this->askForAnswer('preserve_vortex_info', 'Do you want to keep all Vortex information?');
 
@@ -375,6 +377,7 @@ EOF
       'preserve_lagoon',
       'preserve_ftp',
       'preserve_renovatebot',
+      'preserve_onboarding',
       'string_tokens',
       'preserve_doc_comments',
       'demo_mode',

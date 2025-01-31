@@ -998,6 +998,34 @@ assert_files_present_no_integration_renovatebot() {
   popd >/dev/null || exit 1
 }
 
+assert_files_present_onboarding() {
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_contains "docs/README.md" "Onboarding"
+  assert_file_contains "README.md" "Onboarding"
+
+  assert_file_exists "docs/onboarding.md"
+
+  popd >/dev/null || exit 1
+}
+
+assert_files_present_no_onboarding() {
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_not_contains "docs/README.md" "Onboarding"
+  assert_file_not_contains "README.md" "Onboarding"
+
+  assert_file_not_exists "docs/onboarding.md"
+
+  popd >/dev/null || exit 1
+}
+
 assert_webpage_contains() {
   path="${1}"
   content="${2}"
@@ -1121,6 +1149,7 @@ run_installer_quiet() {
 #   "nothing" # preserve_acquia
 #   "nothing" # preserve_lagoon
 #   "nothing" # preserve_renovatebot
+#   "nothing" # preserve_onboarding
 #   "nothing" # preserve_doc_comments
 #   "nothing" # preserve_vortex_info
 # )
@@ -1143,7 +1172,7 @@ run_installer_interactive() {
   done
 
   # shellcheck disable=SC2059,SC2119
-  # ATTENTION! Questions change based on some answers, so using the same set of
+  # ATTENTION! Some questions change based on answers, so using the same set of
   # answers for all tests will not work. Make sure that correct answers
   # provided for specific tests.
   printf "${input}" | run_installer_quiet

@@ -42,7 +42,7 @@ trait TuiTrait {
       return $default;
     }
 
-    $this->out(sprintf('%s [%s] ', $this->formatColor('> ' . $question, 'green'), $this->formatColor($default, 'yellow')), NULL, FALSE);
+    $this->out(sprintf(PHP_EOL . '%s [%s] ', $this->formatColor('> ' . $question, 'green'), $this->formatColor($default, 'yellow')), NULL, FALSE);
 
     $handle = $this->getStdinHandle();
     $answer = fgets($handle);
@@ -198,6 +198,7 @@ EOT;
     $values['Acquia integration'] = $this->formatEnabled($this->getAnswer('preserve_acquia'));
     $values['Lagoon integration'] = $this->formatEnabled($this->getAnswer('preserve_lagoon'));
     $values['RenovateBot integration'] = $this->formatEnabled($this->getAnswer('preserve_renovatebot'));
+    $values['Preserve onboarding checklist'] = $this->formatYesNo($this->getAnswer('preserve_onboarding'));
     $values['Preserve docs in comments'] = $this->formatYesNo($this->getAnswer('preserve_doc_comments'));
     $values['Preserve Vortex comments'] = $this->formatYesNo($this->getAnswer('preserve_vortex_info'));
 
