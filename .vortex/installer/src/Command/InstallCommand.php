@@ -368,6 +368,7 @@ EOF
       'webroot',
       'profile',
       'provision_use_profile',
+      'theme',
       'database_download_source',
       'database_image',
       'override_existing_db',

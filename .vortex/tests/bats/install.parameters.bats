@@ -403,7 +403,7 @@ load _helper.bash
 }
 
 #
-# Helper to create fixture files to fake pre-installed state.
+# Helper to create fixture files to fake pre-installed state from Vortex.
 #
 # Note that this helper provides only one state of the fixture site.
 #
@@ -426,7 +426,12 @@ fixture_preinstalled() {
 
   # Sets 'theme' to 'resisting'.
   mktouch "${webroot}/sites/all/themes/custom/resisting/resisting.info.yml"
+  mktouch "${webroot}/sites/all/themes/custom/resisting/Gruntfile.js"
+  mktouch "${webroot}/sites/all/themes/custom/resisting/scss/_variables.scss"
+  mktouch "${webroot}/sites/all/themes/custom/resisting/package.json"
+  echo "build-dev" >>"${webroot}/sites/all/themes/custom/resisting/package.json"
   mktouch "${webroot}/sites/all/themes/custom/yetanothertheme/yetanothertheme.info.yml"
+  echo "DRUPAL_THEME=resisting" >>.env
 
   # Sets 'ci_provider' to 'GitHub Actions'.
   mktouch ".github/workflows/build-test-deploy.yml"

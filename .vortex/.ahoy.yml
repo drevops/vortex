@@ -37,9 +37,13 @@ commands:
   lint:
     name: Lint Vortex project.
     cmd: |
+      ahoy lint-installer
       ahoy lint-scripts
       ahoy lint-dockerfiles
       ahoy test-docs
+
+  lint-installer:
+    cmd: composer --working-dir installer lint
 
   lint-scripts:
     cmd: ./tests/lint.scripts.sh
