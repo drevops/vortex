@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Command;
 
+use AlexSkrypnyk\Str2Name\Str2Name;
 use DrevOps\Installer\Config;
+use DrevOps\Installer\Converter;
 use DrevOps\Installer\File;
+use DrevOps\Installer\Prompt\Name;
 use DrevOps\Installer\Traits\DownloadTrait;
 use DrevOps\Installer\Traits\EnvTrait;
 use DrevOps\Installer\Traits\FilesystemTrait;
@@ -13,12 +16,21 @@ use DrevOps\Installer\Traits\GitTrait;
 use DrevOps\Installer\Traits\PrinterTrait;
 use DrevOps\Installer\Traits\PromptsTrait;
 use DrevOps\Installer\Traits\TuiTrait;
+use Psy\Util\Str;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\form;
+use function Laravel\Prompts\info;
+use function Laravel\Prompts\multiselect;
+use function Laravel\Prompts\note;
+use function Laravel\Prompts\select;
+use function Laravel\Prompts\table;
+use function Laravel\Prompts\text;
 
 /**
  * Run command.
@@ -181,7 +193,7 @@ EOF
         }
       }
     }
-    $this->config->set('VORTEX_INSTALL_DST_DIR', $path ?: static::getenvOrDefault('VORTEX_INSTALL_DST_DIR', $this->fsGetRootDir()));
+    $this->config->set('VORTEX_INSTALL_DST_DIR', $path ?: static::getEnvOrDefault('VORTEX_INSTALL_DST_DIR', $this->fsGetRootDir()));
 
     // Load .env file from the destination directory, if it exists.
     if ($this->fs->exists($this->config->getDstDir() . '/.env')) {
@@ -190,32 +202,32 @@ EOF
 
     // Internal version of Vortex.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_VERSION', static::getenvOrDefault('VORTEX_VERSION', 'develop'));
+    $this->config->set('VORTEX_VERSION', static::getEnvOrDefault('VORTEX_VERSION', 'develop'));
     // Flag to display install debug information.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_DEBUG', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEBUG', FALSE));
+    $this->config->set('VORTEX_INSTALL_DEBUG', (bool) static::getEnvOrDefault('VORTEX_INSTALL_DEBUG', FALSE));
     // Flag to proceed with installation. If FALSE - the installation will only
     // print resolved values and will not proceed.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_PROCEED', (bool) static::getenvOrDefault('VORTEX_INSTALL_PROCEED', TRUE));
+    $this->config->set('VORTEX_INSTALL_PROCEED', (bool) static::getEnvOrDefault('VORTEX_INSTALL_PROCEED', TRUE));
     // Temporary directory to download and expand files to.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_TMP_DIR', static::getenvOrDefault('VORTEX_INSTALL_TMP_DIR', File::createTempdir()));
+    $this->config->set('VORTEX_INSTALL_TMP_DIR', static::getEnvOrDefault('VORTEX_INSTALL_TMP_DIR', File::createTempdir()));
     // Path to local Vortex repository. If not provided - remote will be used.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_LOCAL_REPO', static::getenvOrDefault('VORTEX_INSTALL_LOCAL_REPO'));
+    $this->config->set('VORTEX_INSTALL_LOCAL_REPO', static::getEnvOrDefault('VORTEX_INSTALL_LOCAL_REPO'));
     // Optional commit to download. If not provided, latest release will be
     // downloaded.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_COMMIT', static::getenvOrDefault('VORTEX_INSTALL_COMMIT', 'HEAD'));
+    $this->config->set('VORTEX_INSTALL_COMMIT', static::getEnvOrDefault('VORTEX_INSTALL_COMMIT', 'HEAD'));
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
-    if (!is_null(static::getenvOrDefault('VORTEX_INSTALL_DEMO'))) {
-      $this->config->set('VORTEX_INSTALL_DEMO', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEMO'));
+    if (!is_null(static::getEnvOrDefault('VORTEX_INSTALL_DEMO'))) {
+      $this->config->set('VORTEX_INSTALL_DEMO', (bool) static::getEnvOrDefault('VORTEX_INSTALL_DEMO'));
     }
     // Internal flag to skip processing of the demo mode.
-    $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEMO_SKIP', FALSE));
+    $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) static::getEnvOrDefault('VORTEX_INSTALL_DEMO_SKIP', FALSE));
   }
 
   protected function doExecute(): void {
@@ -244,80 +256,291 @@ EOF
     // Set answers that may be used in other answers' discoveries.
     $this->setAnswer('webroot', $this->discoverValue('webroot'));
 
-    // @formatter:off
+    // @formatter1:off
     // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
-    $this->askForAnswer('name',              'What is your site name?');
-    $this->askForAnswer('machine_name',      'What is your site machine name?');
-    $this->askForAnswer('org',               'What is your organization name');
-    $this->askForAnswer('org_machine_name',  'What is your organization machine name?');
-    $this->askForAnswer('module_prefix',     'What is your project-specific module prefix?');
-    $this->askForAnswer('profile',           'What is your custom profile machine name (leave empty to use "standard" profile)?');
-    $this->askForAnswer('theme',             'What is your theme machine name?');
-    $this->askForAnswer('domain',            'What is your site public domain?');
-    $this->askForAnswer('webroot',           'Web root (web, docroot)?');
 
-    $this->askForAnswer('provision_use_profile', 'Do you want to install from profile (leave empty or "n" for using database?');
+    $responses = form()
 
-    if ($this->getAnswer('provision_use_profile') === self::ANSWER_YES) {
-      $this->setAnswer('database_download_source', 'none');
-      $this->setAnswer('database_image', '');
-    }
-    else {
-      $this->askForAnswer('database_download_source', "Where does the database dump come from into every environment:\n  - [u]rl\n  - [f]tp\n  - [a]cquia backup\n  - [l]lagoon environment\n  - [d]ocker registry?");
+      ->intro('General information')
 
-      if ($this->getAnswer('database_download_source') !== 'container_registry') {
-        // Note that "database_store_type" is a pseudo-answer - it is only used
-        // to improve UX and is not exposed as a variable (although has default,
-        // discovery and normalisation callbacks).
-        $this->askForAnswer('database_store_type',    '  When developing locally, do you want to import the database dump from the [f]ile or store it imported in the [d]ocker image for faster builds?');
-      }
+      ->add(fn($r) => text(
+        label: '🔖 Site name',
+        hint: 'We will use this name in the project and in the documentation.',
+        placeholder: 'E.g. My Site',
+        required: TRUE,
+        default: Str2Name::label(static::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir()))),
+        transform: fn(string $v) => trim($v),
+        validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid name' : NULL,
+      ), 'name')
 
-      if ($this->getAnswer('database_store_type') === 'file') {
-        $this->setAnswer('database_image', '');
-      }
-      else {
-        $this->askForAnswer('database_image',         '  What is your database image name and a tag (e.g. drevops/mariadb-drupal-data:latest)?');
-      }
-    }
+      ->add(fn($r) => text(
+        label: '🔖 Site machine name',
+        hint: 'We will use this name for the project directory and in the code.',
+        placeholder: 'E.g. my_site',
+        required: TRUE,
+        default: Str2Name::machine($r['name']),
+        transform: fn(string $v) => trim($v),
+        validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+      ), 'machine_name')
+
+      ->add(fn($r) => text(
+        label: '🏢 Organization name',
+        hint: 'We will use this name in the project and in the documentation.',
+        placeholder: 'E.g. My Org',
+        required: TRUE,
+        default: Str2Name::label($r['name']) . ' Org',
+        transform: fn(string $v) => trim($v),
+        validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid organization name' : NULL,
+      ), 'org')
+
+      ->add(fn($r) => text(
+        label: '🏢 Organization machine name',
+        hint: 'We will use this name for the project directory and in the code.',
+        placeholder: 'E.g. my_org',
+        required: TRUE,
+        default: Str2Name::machine($r['org']),
+        transform: fn(string $v) => trim($v),
+        validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+      ), 'org_machine_name')
+
+      ->add(fn($r) => text(
+        label: '🌐 Public domain',
+        hint: 'Domain name without protocol and trailing slash.',
+        placeholder: 'E.g. example.com',
+        required: TRUE,
+        default: 'http://'.Str2Name::kebab($r['machine_name']) . '.com',
+        transform: fn(string $v) => Converter::toDomain($v),
+        validate: fn($v) => filter_var($v, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === FALSE ? 'Please enter a valid domain name' : NULL,
+      ), 'domain')
+
+    ->intro('Drupal')
+
+      ->add(fn($r) => confirm(
+        label: 'Use a custom profile?',
+        hint: 'Select "yes" to use a custom profile, or "no" to use the "standard" profile.',
+        default: FALSE,
+      ), 'use_custom_profile')
+
+        ->addIf(
+          fn($r) => $r['use_custom_profile'],
+          fn($r) => text(
+            label: 'Custom profile machine name',
+            hint: 'Leave empty to use "standard" profile.',
+            placeholder: 'E.g. my_profile',
+            required: TRUE,
+            default: 'standard',
+            transform: fn(string $v) => trim($v),
+            validate: fn($v) => match (TRUE) {
+              !empty($v) && Converter::toAbbreviation($v) !== $v => 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
+              default => 'standard',
+            },
+          ), 'profile')
+
+      ->add(fn($r) => text(
+        label: '🧩 Module prefix',
+        hint: 'We will use this name for custom modules.',
+        placeholder: 'E.g. ms (for My Site)',
+        required: TRUE,
+        default: Converter::toAbbreviation($r['machine_name']),
+        transform: fn(string $v) => trim($v),
+        validate: fn($v) => Converter::toAbbreviation($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+      ), 'module_prefix')
+
+      ->add(fn($r) => text(
+          label: '🎨 Theme machine name',
+          hint: 'We will use this name for the theme directory.',
+          placeholder: 'E.g. mytheme',
+          required: TRUE,
+          default: $r['machine_name'],
+          transform: fn(string $v) => trim($v),
+          validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        ), 'theme')
+
+      ->intro('Hosting')
+
+      ->add(fn($r) => select(
+        label: '🏠 Where is your project hosted?',
+        hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
+        options: [
+          'acquia' => '💧 Acquia Cloud',
+          'lagoon' => '🌊 Lagoon',
+          'other' => '🧩 Other',
+        ],
+        default: NULL,
+      ), 'hosting_provider')
+
+      ->addIf(
+        fn($r) => $r['hosting_provider'] !== 'other',
+        fn($r) => info(sprintf('Web root will be set to "%s".', match ($r['hosting_provider']) {
+          'acquia' => 'docroot',
+          'lagoon' => 'web',
+          default => 'web',
+        })), 'webroot_note')
+
+      ->addIf(
+        fn($r) => $r['hosting_provider'] === 'other',
+        fn($r) => text(
+          label: 'Custom web root directory',
+          hint: 'Custom directory where the web server serves the site.',
+          placeholder: 'E.g. public',
+          required: TRUE,
+          transform: fn(string $v) => !empty(trim($v)) ? Converter::toPath($v) : trim($v),
+          validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
+        ), 'webroot_custom')
+
+      ->intro('Deployment')
+
+      ->add(function ($r) {
+        $defaults = [];
+
+        $options = [
+          'artifact' => '📦 Code artifact',
+          'lagoon' => '🌊 Lagoon webhook',
+          'container_image' => '🐳 Container image',
+          'webhook' => '🌐 Custom webhook',
+        ];
+
+        if ($r['hosting_provider'] === 'lagoon') {
+          $defaults[] = 'lagoon';
+        }
+        if ($r['hosting_provider'] === 'acquia') {
+          $defaults[] = 'artifact';
+          unset($options['lagoon']);
+        }
+
+        if (empty($defaults)) {
+          $defaults[] = 'webhook';
+        }
+
+        multiselect(
+          label: '🚚 Deployment types',
+          hint: 'You can deploy code using one or more methods.',
+          options: $options,
+          default: $defaults,
+          required: FALSE,
+        );
+      }, 'deploy_type')
+
+      ->intro('Workflow')
+
+      ->add(fn($r) => note('<info>Provisioning</info> is the process of setting up the site in the environment.'), 'provision_note')
+
+      ->add(fn($r) => select(
+        label: 'Provision source',
+        hint: 'Selecting "Profile" will install site from a profile rather than a database dump.',
+        options: [
+          'database' => 'Database dump',
+          'profile' => 'Install from profile',
+        ],
+        default: 'database',
+      ), 'provision_source')
+
+        ->addIf(
+          fn($r) => $r['provision_source'] === 'database',
+          fn($r) => select(
+            label: 'Database dump source',
+            hint: 'Database can be downloaded as a dump file or stored in a container image.',
+            options: [
+              'url' => 'URL download',
+              'ftp' => 'FTP download',
+              'acquia' => 'Acquia backup',
+              'lagoon' => 'Lagoon environment',
+              'container_registry' => 'Container registry',
+            ],
+            default: 'url',
+          ), 'database_download_source')
+
+          ->addIf(
+            fn($r) => $r['database_download_source'] === 'container_registry',
+            fn($r) => select(
+              label: 'Database store type for local development',
+              hint: 'Importing databases larger than 1GB from a file takes longer, so you can store the database in a container image for faster builds.',
+              options: [
+                'file' => 'File',
+                'container_image' => 'Container image',
+              ],
+              default: 'file',
+            ), 'database_store_type')
+
+              ->addIf(
+                fn($r) => $r['database_store_type'] === 'container_image',
+                fn($r) => text(
+                  label: 'What is your database container image name and a tag?',
+                  hint: 'Use "latest" for the latest version. CI will be building this image overnight.',
+                  placeholder: 'E.g. drevops/mariadb-drupal-data:latest',
+                  default: 'drevops/mariadb-drupal-data:latest',
+                  transform: fn($v) => !empty(trim($v)) ? Converter::toContainerImage(trim($v)) : trim($v),
+                  validate: fn($v) => empty(trim($v)) || substr_count($v, ':') > 1 ? 'Please enter a valid image name and a tag' : NULL,
+                ), 'database_store_type')
+
+      ->add(fn($r) => confirm(
+        label: 'Override existing database in the environment on each provision?',
+        hint: 'If selected, the database will be overridden on each provision rather then on-demand.',
+        default: FALSE,
+      ), 'override_existing_db')
+
+
+      ->intro('Continuous Integration')
+
+      ->add(fn($r) => select(
+        label: '🔁 Continuous Integration provider',
+        hint: 'Both providers support equivalent workflow.',
+        options: [
+          'gha' => 'GitHub Actions',
+          'circleci' => 'CircleCI',
+          'none' => 'None',
+        ],
+        default: 'gha',
+      ), 'ci_provider')
+
+      ->intro('Automations')
+
+    ->add(fn($r) => multiselect(
+      label: '🤖 Automations',
+      options: [
+        'dependency_updates' => '🔄 Dependency updates',
+        'assign_author_pr' => '👤 Assign author to PR',
+        'label_merge_conflicts_pr' => '🎫 Label merge conflicts for PR',
+      ],
+      default: [
+        'dependency_updates',
+        'assign_author_pr',
+        'label_merge_conflicts_pr',
+      ],
+    ), 'automations')
+
+      ->intro('Documentation')
+
+      ->add(fn($r) => multiselect(
+        label: '📖 Documentation',
+        options: [
+          'preserve_project_docs' => '📚 Project documentation',
+          'preserve_onboarding' => '📋 Onboarding checklist',
+        ],
+        default: [
+          'preserve_project_docs',
+          'preserve_onboarding',
+        ],
+      ), 'documentation')
+
+
+      ->add(function ($responses) {
+        print_r($responses);
+      })
+
+      ->submit();
+
+
     // @formatter:on
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
 
-    $this->askForAnswer('override_existing_db', 'Do you want to override existing database in the environment?');
+    //    if ($this->config->isInstallDebug()) {
+//      $this->printBox($this->formatValuesList($this->getAnswers(), '', $this->getTuiWidth() - 2 - 2 * 2), 'DEBUG RESOLVED ANSWERS');
+//    }
 
-    $this->askForAnswer('ci_provider', 'Which provider do you want to use for CI ([c]ircleci, [g]ithub actions, [n]one)?');
-
-    $this->askForAnswer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook call, [c]ode artifact, [d]ocker image, [l]agoon, [n]one as a comma-separated list)?');
-
-    if ($this->getAnswer('database_download_source') !== 'ftp') {
-      $this->askForAnswer('preserve_ftp', 'Do you want to keep FTP integration?');
-    }
-    else {
-      $this->setAnswer('preserve_ftp', self::ANSWER_YES);
-    }
-
-    if ($this->getAnswer('database_download_source') !== 'acquia') {
-      $this->askForAnswer('preserve_acquia', 'Do you want to keep Acquia Cloud integration?');
-    }
-    else {
-      $this->setAnswer('preserve_acquia', self::ANSWER_YES);
-    }
-
-    $this->askForAnswer('preserve_lagoon', 'Do you want to keep Amazee.io Lagoon integration?');
-
-    $this->askForAnswer('preserve_renovatebot', 'Do you want to keep RenovateBot integration?');
-
-    $this->askForAnswer('preserve_onboarding', 'Do you want to keep onboarding checklist?');
-
-    $this->askForAnswer('preserve_doc_comments', 'Do you want to keep detailed documentation in comments?');
-    $this->askForAnswer('preserve_vortex_info', 'Do you want to keep all Vortex information?');
-
-    $this->printSummary();
-
-    if ($this->config->isInstallDebug()) {
-      $this->printBox($this->formatValuesList($this->getAnswers(), '', $this->getTuiWidth() - 2 - 2 * 2), 'DEBUG RESOLVED ANSWERS');
-    }
+    die();
   }
 
   protected function downloadScaffold(): void {
@@ -453,13 +676,13 @@ EOF
     // Reload variables from destination's .env.
     static::loadDotenv($this->config->getDstDir() . '/.env');
 
-    $url = static::getenvOrDefault('VORTEX_DB_DOWNLOAD_CURL_URL');
+    $url = static::getEnvOrDefault('VORTEX_DB_DOWNLOAD_CURL_URL');
     if (empty($url)) {
       return;
     }
 
-    $data_dir = $this->config->getDstDir() . DIRECTORY_SEPARATOR . static::getenvOrDefault('VORTEX_DB_DIR', './.data');
-    $file = static::getenvOrDefault('VORTEX_DB_FILE', 'db.sql');
+    $data_dir = $this->config->getDstDir() . DIRECTORY_SEPARATOR . static::getEnvOrDefault('VORTEX_DB_DIR', './.data');
+    $file = static::getEnvOrDefault('VORTEX_DB_FILE', 'db.sql');
 
     $this->status(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url), self::INSTALLER_STATUS_MESSAGE, FALSE);
 

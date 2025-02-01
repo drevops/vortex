@@ -22,60 +22,60 @@ trait PromptsTrait {
     return $this->config->get($config_name, $this->executeCallback('getDefaultValue', $name));
   }
 
-  protected function getDefaultValueName(): ?string {
-    return Converter::toHumanName(static::getenvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir())));
-  }
+//  protected function getDefaultValueName(): ?string {
+//    return Converter::toHumanName(static::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir())));
+//  }
+//
+//  protected function getDefaultValueMachineName(): ?string {
+//    return Converter::toMachineName($this->getAnswer('name', 'your_site'));
+//  }
 
-  protected function getDefaultValueMachineName(): ?string {
-    return Converter::toMachineName($this->getAnswer('name', 'your_site'));
-  }
+//  protected function getDefaultValueOrg(): string {
+//    return $this->getAnswer('name', 'Your Site') . ' Org';
+//  }
 
-  protected function getDefaultValueOrg(): string {
-    return $this->getAnswer('name', 'Your Site') . ' Org';
-  }
+//  protected function getDefaultValueOrgMachineName(): string {
+//    return Converter::toMachineName($this->getAnswer('org'));
+//  }
 
-  protected function getDefaultValueOrgMachineName(): string {
-    return Converter::toMachineName($this->getAnswer('org'));
-  }
+//  protected function getDefaultValueModulePrefix(): string {
+//    return Converter::toAbbreviation($this->getAnswer('machine_name'));
+//  }
 
-  protected function getDefaultValueModulePrefix(): string {
-    return Converter::toAbbreviation($this->getAnswer('machine_name'));
-  }
+//  protected function getDefaultValueProfile(): string {
+//    return self::ANSWER_NO;
+//  }
+//
+//  protected function getDefaultValueTheme(): mixed {
+//    return $this->getAnswer('machine_name');
+//  }
+//
+//  protected function getDefaultValueDomain(): string {
+//    $value = $this->getAnswer('machine_name');
+//    $value = str_replace('_', '-', $value);
+//
+//    return $value . '.com';
+//  }
+//
+//  protected function getDefaultValueWebroot(): string {
+//    return 'web';
+//  }
+//
+//  protected function getDefaultValueProvisionUseProfile(): string {
+//    return self::ANSWER_NO;
+//  }
+//
+//  protected function getDefaultValueDatabaseDownloadSource(): string {
+//    return 'curl';
+//  }
+//
+//  protected function getDefaultValueDatabaseStoreType(): string {
+//    return 'file';
+//  }
 
-  protected function getDefaultValueProfile(): string {
-    return self::ANSWER_NO;
-  }
-
-  protected function getDefaultValueTheme(): mixed {
-    return $this->getAnswer('machine_name');
-  }
-
-  protected function getDefaultValueDomain(): string {
-    $value = $this->getAnswer('machine_name');
-    $value = str_replace('_', '-', $value);
-
-    return $value . '.com';
-  }
-
-  protected function getDefaultValueWebroot(): string {
-    return 'web';
-  }
-
-  protected function getDefaultValueProvisionUseProfile(): string {
-    return self::ANSWER_NO;
-  }
-
-  protected function getDefaultValueDatabaseDownloadSource(): string {
-    return 'curl';
-  }
-
-  protected function getDefaultValueDatabaseStoreType(): string {
-    return 'file';
-  }
-
-  protected function getDefaultValueDatabaseImage(): string {
-    return 'drevops/mariadb-drupal-data:latest';
-  }
+//  protected function getDefaultValueDatabaseImage(): string {
+//    return 'drevops/mariadb-drupal-data:latest';
+//  }
 
   protected function getDefaultValueOverrideExistingDb(): string {
     return self::ANSWER_NO;
@@ -327,7 +327,7 @@ trait PromptsTrait {
     if (is_null($this->config->get('VORTEX_INSTALL_DEMO'))) {
       if ($this->getAnswer('provision_use_profile') === self::ANSWER_NO) {
         $download_source = $this->getAnswer('database_download_source');
-        $db_file = static::getenvOrDefault('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . static::getenvOrDefault('VORTEX_DB_FILE', 'db.sql');
+        $db_file = static::getEnvOrDefault('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . static::getEnvOrDefault('VORTEX_DB_FILE', 'db.sql');
         $has_comment = File::fileContains('Override project-specific values for demonstration purposes', $this->config->getDstDir() . '/.env');
 
         // Enable Vortex demo mode if download source is file AND
@@ -769,56 +769,56 @@ trait PromptsTrait {
 
     return $profile;
   }
-
-  protected function normaliseAnswerTheme(string $value): string {
-    return Converter::toMachineName($value);
-  }
-
-  protected function normaliseAnswerDomain(string $value): string {
-    $value = trim($value);
-    $value = rtrim($value, '/');
-    $value = str_replace([' ', '_'], '-', $value);
-    $value = preg_replace('/^https?:\/\//', '', $value);
-
-    return preg_replace('/^www\./', '', $value);
-  }
-
-  protected function normaliseAnswerWebroot(string $value): string {
-    return strtolower(trim($value, '/'));
-  }
-
-  protected function normaliseAnswerProvisionUseProfile(string $value): string {
-    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
-  }
-
-  protected function normaliseAnswerDatabaseDownloadSource(string $value): string {
-    $value = strtolower($value);
-
-    return match ($value) {
-      'f', 'ftp' => 'ftp',
-      'a', 'acquia' => 'acquia',
-      'l', 'lagoon' => 'lagoon',
-      'i', 'image', 'container_image', 'container_registry' => 'container_registry',
-      'c', 'curl' => 'curl',
-      default => $this->getDefaultValueDatabaseDownloadSource(),
-    };
-  }
-
-  protected function normaliseAnswerDatabaseStoreType(string $value): string {
-    $value = strtolower($value);
-
-    return match ($value) {
-      'i', 'image', 'container_image', => 'container_image',
-      'f', 'file' => 'file',
-      default => $this->getDefaultValueDatabaseStoreType(),
-    };
-  }
-
-  protected function normaliseAnswerDatabaseImage(string $value): string {
-    $value = Converter::toMachineName($value, ['-', '/', ':', '.']);
-
-    return str_contains($value, ':') ? $value : $value . ':latest';
-  }
+//
+//  protected function normaliseAnswerTheme(string $value): string {
+//    return Converter::toMachineName($value);
+//  }
+//
+//  protected function normaliseAnswerDomain(string $value): string {
+//    $value = trim($value);
+//    $value = rtrim($value, '/');
+//    $value = str_replace([' ', '_'], '-', $value);
+//    $value = preg_replace('/^https?:\/\//', '', $value);
+//
+//    return preg_replace('/^www\./', '', $value);
+//  }
+//
+//  protected function normaliseAnswerWebroot(string $value): string {
+//    return strtolower(trim($value, '/'));
+//  }
+//
+//  protected function normaliseAnswerProvisionUseProfile(string $value): string {
+//    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
+//  }
+//
+//  protected function normaliseAnswerDatabaseDownloadSource(string $value): string {
+//    $value = strtolower($value);
+//
+//    return match ($value) {
+//      'f', 'ftp' => 'ftp',
+//      'a', 'acquia' => 'acquia',
+//      'l', 'lagoon' => 'lagoon',
+//      'i', 'image', 'container_image', 'container_registry' => 'container_registry',
+//      'c', 'curl' => 'curl',
+//      default => $this->getDefaultValueDatabaseDownloadSource(),
+//    };
+//  }
+//
+//  protected function normaliseAnswerDatabaseStoreType(string $value): string {
+//    $value = strtolower($value);
+//
+//    return match ($value) {
+//      'i', 'image', 'container_image', => 'container_image',
+//      'f', 'file' => 'file',
+//      default => $this->getDefaultValueDatabaseStoreType(),
+//    };
+//  }
+//
+//  protected function normaliseAnswerDatabaseImage(string $value): string {
+//    $value = Converter::toMachineName($value, ['-', '/', ':', '.']);
+//
+//    return str_contains($value, ':') ? $value : $value . ':latest';
+//  }
 
   protected function normaliseAnswerOverrideExistingDb(string $value): string {
     return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;

@@ -11,7 +11,7 @@ trait EnvTrait {
 
   protected function getValueFromDstDotenv(string $name, mixed $default = NULL): mixed {
     // Environment variables always take precedence.
-    $env_value = static::getenvOrDefault($name, NULL);
+    $env_value = static::getEnvOrDefault($name, NULL);
     if (!is_null($env_value)) {
       return $env_value;
     }
@@ -63,7 +63,7 @@ trait EnvTrait {
     $values = static::parseDotenv($filename);
 
     foreach ($values as $var => $value) {
-      if (!static::getenvOrDefault($var) || $override_existing) {
+      if (!static::getEnvOrDefault($var) || $override_existing) {
         putenv($var . '=' . $value);
       }
     }
@@ -84,7 +84,7 @@ trait EnvTrait {
   /**
    * Reliable wrapper to work with environment values.
    */
-  protected static function getenvOrDefault(string $name, mixed $default = NULL): mixed {
+  protected static function getEnvOrDefault(string $name, mixed $default = NULL): mixed {
     $vars = getenv();
 
     if (!isset($vars[$name]) || $vars[$name] === '') {

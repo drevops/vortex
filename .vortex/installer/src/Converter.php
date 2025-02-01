@@ -69,4 +69,23 @@ class Converter {
     return str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
   }
 
+  public static function toDomain(string $string): string {
+    $string = trim($string);
+    $string = rtrim($string, '/');
+    $string = str_replace([' ', '_'], '-', $string);
+    $string = preg_replace('/^https?:\/\//', '', $string);
+
+    return (string) preg_replace('/^www\./', '', $string);
+  }
+
+  public static function toPath(string $string): string {
+    return str_replace([' '], '-', trim($string, '/'));
+  }
+
+  public static function toContainerImage(string $string): string {
+    $string = self::toMachineName($string, ['-', '/', ':', '.']);
+
+    return str_contains($string, ':') ? $string : $string . ':latest';
+  }
+
 }

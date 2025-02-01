@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Traits;
 
+use Laravel\Prompts\Prompt;
+use function Laravel\Prompts\text;
+
 /**
  * TUI trait.
  */
@@ -42,21 +45,23 @@ trait TuiTrait {
       return $default;
     }
 
-    $this->out(sprintf(PHP_EOL . '%s [%s] ', $this->formatColor('> ' . $question, 'green'), $this->formatColor($default, 'yellow')), NULL, FALSE);
-
-    $handle = $this->getStdinHandle();
-    $answer = fgets($handle);
-    if ($answer !== FALSE) {
-      $answer = trim($answer);
-    }
-
-    $answer = empty($answer) ? $default : $answer;
-
-    $this->out($answer, 'cyan');
-
-    if ($close_handle) {
-      $this->closeStdinHandle();
-    }
+    $answer = text(label: $question, default: $default);
+//
+//    $this->out(sprintf(PHP_EOL . '%s [%s] ', $this->formatColor('> ' . $question, 'green'), $this->formatColor($default, 'yellow')), NULL, FALSE);
+//
+//    $handle = $this->getStdinHandle();
+//    $answer = fgets($handle);
+//    if ($answer !== FALSE) {
+//      $answer = trim($answer);
+//    }
+//
+//    $answer = empty($answer) ? $default : $answer;
+//
+//    $this->out($answer, 'cyan');
+//
+//    if ($close_handle) {
+//      $this->closeStdinHandle();
+//    }
 
     return $answer;
   }
@@ -69,7 +74,7 @@ trait TuiTrait {
       if (!$h) {
         throw new \RuntimeException('Unable to open stdin handle.');
       }
-      $_stdin_handle = stream_isatty($h) || static::getenvOrDefault('VORTEX_INSTALLER_FORCE_TTY') ? $h : fopen('/dev/tty', 'r+');
+      $_stdin_handle = stream_isatty($h) || static::getEnvOrDefault('VORTEX_INSTALLER_FORCE_TTY') ? $h : fopen('/dev/tty', 'r+');
     }
 
     return $_stdin_handle;
