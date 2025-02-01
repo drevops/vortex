@@ -8,7 +8,7 @@ FROM ${CLI_IMAGE:-cli} AS cli
 FROM uselagoon/solr-8:25.1.0
 
 # Solr Jump-start config needs to be manually copied from search_api_solr module
-# /app/docroot/modules/contrib/search_api_solr/jump-start/solr8/config-set.
+# to .docker/config/solr/config-set.
 COPY .docker/config/solr/config-set /solr-conf/conf/
 
 USER root
