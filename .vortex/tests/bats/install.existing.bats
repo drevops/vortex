@@ -308,7 +308,7 @@ load _helper.bash
   assert_file_contains ".env.local" "some random content"
 }
 
-@test "Install into existing: previously installed project; custom webroot; discovery; quiet" {
+@test "Install into existing: previously installed bespoke project; custom webroot; discovery; quiet" {
   echo "VORTEX_WEBROOT=rootdoc" >>".env"
 
   # Populate current dir with a project at current version.
@@ -323,8 +323,8 @@ load _helper.bash
   assert_files_present_common "" "" "" "" "" "rootdoc"
 }
 
-@test "Install into existing: previously installed project; custom theme; discovery; quiet" {
-  echo "DRUPAL_THEME=star_wars" >>".env"
+@test "Install into existing: previously installed bespoke project; custom named theme; discovery; quiet" {
+  echo "DRUPAL_THEME=star_wars" >> ".env"
 
   # Populate current dir with a project at current version.
   output=$(run_installer_quiet)
@@ -336,6 +336,28 @@ load _helper.bash
   install_dependencies_stub
 
   assert_files_present_common
+}
+
+@test "Install into existing: previously installed project; bespoke theme; discovery; quiet" {
+  # Populate current dir with a project at current version.
+  output=$(run_installer_quiet)
+  assert_output_contains "WELCOME TO VORTEX QUIET INSTALLER"
+  assert_output_not_contains "It looks like Vortex is already installed into this project"
+
+  assert_git_repo
+
+  install_dependencies_stub
+
+  # Replace the theme with a custom one.
+  rm -Rf "web/themes/custom/star_wars"
+  mktouch "web/themes/custom/star_wars/star_wars.info.yml"
+
+  output=$(run_installer_quiet)
+  assert_output_contains "WELCOME TO VORTEX QUIET INSTALLER"
+  assert_output_contains "It looks like Vortex is already installed into this project"
+
+  assert_files_present_common "" "" "" "" "" "" 0
+  assert_file_not_exists "web/themes/custom/star_wars/Gruntfile.js"
 }
 
 @test "Install into existing: previously installed project; custom profile; discovery; quiet" {

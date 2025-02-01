@@ -333,6 +333,14 @@ EOT;
 
   /**
    * Process answers.
+   *
+   * @param string $name
+   *   Name of the answer.
+   * @param string $dir
+   *   Temporary directory where processing takes place.
+   *
+   * @return mixed
+   *   Processed answer.
    */
   protected function processAnswer(string $name, string $dir): mixed {
     return $this->executeCallback('process', $name, $dir);

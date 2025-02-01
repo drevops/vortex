@@ -234,6 +234,7 @@ assert_files_present_common() {
   local suffix_abbreviated_camel_cased="${4:-Sw}"
   local suffix_camel_cased="${5:-StarWars}"
   local webroot="${6:-web}"
+  local assert_theme="${7:-1}"
 
   local suffix_abbreviated_uppercase="$(string_to_upper "${suffix_abbreviated}")"
 
@@ -254,7 +255,7 @@ assert_files_present_common() {
   # Assert that Vortex footnote remains.
   assert_file_contains "README.md" "This repository was created using the [Vortex](https://github.com/drevops/vortex) project template"
 
-  assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
+  assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}" "${assert_theme}"
 
   popd >/dev/null || exit 1
 }
@@ -453,6 +454,7 @@ assert_files_present_drupal() {
   local suffix_abbreviated_camel_cased="${4:-Sw}"
   local suffix_camel_cased="${5:-StarWars}"
   local webroot="${6:-web}"
+  local assert_theme="${7:-1}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -480,27 +482,29 @@ assert_files_present_drupal() {
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_search/${suffix_abbreviated}_search.info.yml"
 
   # Site theme created.
-  assert_dir_exists "${webroot}/themes/custom/${suffix}"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/js/${suffix}.js"
-  assert_dir_exists "${webroot}/themes/custom/${suffix}/scss"
-  assert_dir_exists "${webroot}/themes/custom/${suffix}/images"
-  assert_dir_exists "${webroot}/themes/custom/${suffix}/fonts"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/.gitignore"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.info.yml"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.libraries.yml"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.theme"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/Gruntfile.js"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/package.json"
+  if [ "${assert_theme}" = 1 ]; then
+    assert_dir_exists "${webroot}/themes/custom/${suffix}"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/js/${suffix}.js"
+    assert_dir_exists "${webroot}/themes/custom/${suffix}/scss"
+    assert_dir_exists "${webroot}/themes/custom/${suffix}/images"
+    assert_dir_exists "${webroot}/themes/custom/${suffix}/fonts"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/.gitignore"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.info.yml"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.libraries.yml"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.theme"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/Gruntfile.js"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/package.json"
 
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Unit/${suffix_camel_cased}UnitTestBase.php"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Unit/ExampleTest.php"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Kernel/${suffix_camel_cased}KernelTestBase.php"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Kernel/ExampleTest.php"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Functional/${suffix_camel_cased}FunctionalTestBase.php"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Functional/ExampleTest.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Unit/${suffix_camel_cased}UnitTestBase.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Unit/ExampleTest.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Kernel/${suffix_camel_cased}KernelTestBase.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Kernel/ExampleTest.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Functional/${suffix_camel_cased}FunctionalTestBase.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Functional/ExampleTest.php"
 
-  # Comparing binary files.
-  assert_binary_files_equal "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/screenshot.png" "${webroot}/themes/custom/${suffix}/screenshot.png"
+    # Comparing binary files.
+    assert_binary_files_equal "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/screenshot.png" "${webroot}/themes/custom/${suffix}/screenshot.png"
+  fi
 
   # Drupal Scaffold files exist.
   assert_file_exists "${webroot}/.editorconfig"
