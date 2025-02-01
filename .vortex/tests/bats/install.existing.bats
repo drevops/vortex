@@ -309,7 +309,7 @@ load _helper.bash
 }
 
 @test "Install into existing: previously installed bespoke project; custom webroot; discovery; quiet" {
-  echo "VORTEX_WEBROOT=rootdoc" >>".env"
+  echo "WEBROOT=rootdoc" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_installer_quiet)

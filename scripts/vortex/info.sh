@@ -10,7 +10,7 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Name of the webroot directory with Drupal codebase.
-VORTEX_WEBROOT="${VORTEX_WEBROOT:-web}"
+WEBROOT="${WEBROOT:-web}"
 
 # Show one-time login link.
 VORTEX_SHOW_LOGIN="${VORTEX_SHOW_LOGIN:-}"
@@ -32,7 +32,7 @@ echo
 note "Project name                : ${VORTEX_PROJECT}"
 note "Docker Compose project name : ${COMPOSE_PROJECT_NAME:-}"
 note "Site local URL              : http://${VORTEX_LOCALDEV_URL}"
-note "Path to web root            : $(pwd)/${VORTEX_WEBROOT}"
+note "Path to web root            : $(pwd)/${WEBROOT}"
 note "DB host                     : ${DATABASE_HOST}"
 note "DB username                 : ${DATABASE_USERNAME}"
 note "DB password                 : ${DATABASE_PASSWORD}"

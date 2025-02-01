@@ -39,7 +39,7 @@ VORTEX_PROVISION_POST_OPERATIONS_SKIP="${VORTEX_PROVISION_POST_OPERATIONS_SKIP:-
 VORTEX_PROVISION_ENVIRONMENT="${VORTEX_PROVISION_ENVIRONMENT:-}"
 
 # Name of the webroot directory with Drupal codebase.
-VORTEX_WEBROOT="${VORTEX_WEBROOT:-web}"
+WEBROOT="${WEBROOT:-web}"
 
 # Drupal site name.
 DRUPAL_SITE_NAME="${DRUPAL_SITE_NAME:-${VORTEX_PROJECT:-Example site}}"
@@ -100,7 +100,7 @@ echo
 note "Drupal core version            : ${drupal_version}"
 note "Drush version                  : ${drush_version}"
 echo
-note "Webroot path                   : $(pwd)/${VORTEX_WEBROOT}"
+note "Webroot path                   : $(pwd)/${WEBROOT}"
 note "Public files path              : ${DRUPAL_PUBLIC_FILES-<empty>}"
 note "Private files path             : ${DRUPAL_PRIVATE_FILES-<empty>}"
 note "Temporary files path           : ${DRUPAL_TEMPORARY_FILES-<empty>}"

@@ -156,7 +156,7 @@ Defined in: `.env`, `scripts/vortex/provision.sh`
 
 Path to public files.
 
-Default value: `./${VORTEX_WEBROOT}/sites/default/files`
+Default value: `./${WEBROOT}/sites/default/files`
 
 Defined in: `docker-compose.yml`
 
@@ -301,6 +301,14 @@ Special variable to remap target env to the sub-domain prefix based on UI name.
 Default value: `${target_env}`
 
 Defined in: `scripts/vortex/task-purge-cache-acquia.sh`
+
+### `TZ`
+
+The timezone used in the containers.
+
+Default value: `Australia/Melbourne`
+
+Defined in: `.env`
 
 ### `VORTEX_ACQUIA_APP_NAME`
 
@@ -1895,15 +1903,7 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/task-custom-lagoon.sh`
 
-### `VORTEX_TZ`
-
-The timezone for the containers.
-
-Default value: `Australia/Melbourne`
-
-Defined in: `.env`
-
-### `VORTEX_WEBROOT`
+### `WEBROOT`
 
 Name of the web root directory containing a Drupal codebase.
 

@@ -162,21 +162,21 @@ commands:
 
   fei:
     usage: Install front-end assets.
-    cmd: ahoy cli "npm --prefix ${VORTEX_WEBROOT}/themes/custom/${DRUPAL_THEME} install"
+    cmd: ahoy cli "npm --prefix ${WEBROOT}/themes/custom/${DRUPAL_THEME} install"
 
   fe:
     usage: Build front-end assets.
-    cmd: ahoy cli "cd ${VORTEX_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build"
+    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build"
 
   fed:
     usage: Build front-end assets for development.
-    cmd: ahoy cli "cd ${VORTEX_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build-dev"
+    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build-dev"
 
   few:
     usage: Watch front-end assets during development.
     cmd: |
       ahoy cli "pkill -9 -f grunt" || true
-      ahoy cli "cd ${VORTEX_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
+      ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
 
   lint:
     usage: Lint back-end and front-end code.
@@ -194,7 +194,7 @@ commands:
     usage: Lint front-end code.
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint
-      ahoy cli "npm run --prefix \${VORTEX_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+      ahoy cli "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
 
   lint-tests:
     usage: Lint tests code.
@@ -215,7 +215,7 @@ commands:
     usage: Fix lint issues of front-end code.
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint --fix
-      ahoy cli "npm run --prefix \${VORTEX_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+      ahoy cli "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
 
   test:
     usage: Run all tests.
