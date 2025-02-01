@@ -41,7 +41,7 @@ x-user: &default-user
 # Note that these variables are not read from here in Lagoon environment.
 #;> LAGOON
 x-environment: &default-environment
-  TZ: ${VORTEX_TZ:-Australia/Melbourne}
+  TZ: ${TZ:-Australia/Melbourne}
   # Local development URL.
   VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
   # Local development route used in Lagoon images and Pygmy to route requests.
@@ -85,7 +85,7 @@ services:
       context: .
       dockerfile: .docker/cli.dockerfile
       args:
-        WEBROOT: "${VORTEX_WEBROOT:-web}"
+        WEBROOT: "${WEBROOT:-web}"
         GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
 
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
@@ -109,7 +109,7 @@ services:
       dockerfile: .docker/nginx-drupal.dockerfile
       args:
         CLI_IMAGE: *cli-image
-        WEBROOT: "${VORTEX_WEBROOT:-web}"
+        WEBROOT: "${WEBROOT:-web}"
         DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
         DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
         DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}

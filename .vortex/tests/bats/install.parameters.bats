@@ -445,7 +445,7 @@ fixture_preinstalled() {
   # Sets 'preserve_onboarding' to 'Yes'.
   mktouch docs/onboarding.md
 
-  echo "VORTEX_WEBROOT=${webroot}" >>.env
+  echo "WEBROOT=${webroot}" >>.env
 
   # Sets 'domain' to 'www.resistance-star-wars.com'.
   echo "DRUPAL_STAGE_FILE_PROXY_ORIGIN=http://www.resistance-star-wars.com/" >>.env

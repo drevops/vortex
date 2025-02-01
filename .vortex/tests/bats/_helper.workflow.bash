@@ -17,7 +17,7 @@ prepare_sut() {
   substep "Initialise the project with default settings"
 
   # Run default install
-  export VORTEX_WEBROOT="${webroot}"
+  export WEBROOT="${webroot}"
   run_installer_quiet
 
   assert_files_present_common "" "" "" "" "" "${webroot}"
@@ -233,7 +233,7 @@ assert_timezone() {
 
   # Assert that .env contains a default value.
   # Note that AEDT changes to AEST during winter.
-  assert_file_contains ".env" 'VORTEX_TZ="Australia/Melbourne"'
+  assert_file_contains ".env" 'TZ="Australia/Melbourne"'
   run docker compose exec cli date
   assert_output_contains "AE"
   run docker compose exec php date
@@ -244,7 +244,7 @@ assert_timezone() {
   assert_output_contains "AE"
 
   # Add variable to the .env file and apply the change to container.
-  add_var_to_file .env "VORTEX_TZ" '"Australia/Perth"'
+  add_var_to_file .env "TZ" '"Australia/Perth"'
   sync_to_container
   run ahoy up
 

@@ -615,7 +615,7 @@ trait PromptsTrait {
   }
 
   protected function discoverValueWebroot(): ?string {
-    $webroot = $this->getValueFromDstDotenv('VORTEX_WEBROOT');
+    $webroot = $this->getValueFromDstDotenv('WEBROOT');
 
     if (empty($webroot) && $this->isInstalled()) {
       // Try from composer.json.

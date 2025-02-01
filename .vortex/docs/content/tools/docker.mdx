@@ -166,7 +166,7 @@ Any other variables should be defined in the `.env` file.
 Consider the example:
 
 ```
-  TZ: ${VORTEX_TZ:-Australia/Melbourne}
+  TZ: ${TZ:-Australia/Melbourne}
   # Local development URL.
   VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
   # Local development route used in Lagoon images and Pygmy to route requests.
@@ -175,8 +175,8 @@ Consider the example:
 
 where
 
-- `TZ: ${VORTEX_TZ:-Australia/Melbourne}` - defines a variable `TZ` with a
-  default value of `Australia/Melbourne`, but only if `VORTEX_TZ` variable is
+- `TZ: ${TZ:-Australia/Melbourne}` - defines a variable `TZ` with a
+  default value of `Australia/Melbourne`, but only if `TZ` variable is
   not defined.
 - `VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io`
   - defines a variable `VORTEX_LOCALDEV_URL` with a default value of

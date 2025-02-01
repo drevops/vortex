@@ -65,7 +65,7 @@ VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
 VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
 
 # Name of the webroot directory with Drupal codebase.
-VORTEX_WEBROOT="${VORTEX_WEBROOT:-web}"
+WEBROOT="${WEBROOT:-web}"
 
 #-------------------------------------------------------------------------------
 
@@ -115,7 +115,7 @@ ssh \
   "if [ ! -f \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\" ] || [ \"${VORTEX_DB_DOWNLOAD_REFRESH}\" == \"1\" ] ; then \
      [ -n \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP}\" ] && rm -f \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}\"\/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
      echo \"      > Creating a database dump ${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
-     /app/vendor/bin/drush --root=./${VORTEX_WEBROOT} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump=--no-tablespaces > \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\"; \
+     /app/vendor/bin/drush --root=./${WEBROOT} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump=--no-tablespaces > \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\"; \
    else \
      echo \"      > Using existing dump ${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
    fi"

@@ -5,7 +5,7 @@
 # shellcheck disable=SC2034
 
 # Path to public files.
-DRUPAL_PUBLIC_FILES="${DRUPAL_PUBLIC_FILES:-./${VORTEX_WEBROOT}/sites/default/files}"
+DRUPAL_PUBLIC_FILES="${DRUPAL_PUBLIC_FILES:-./${WEBROOT}/sites/default/files}"
 
 # Path to private files.
 DRUPAL_PRIVATE_FILES="${DRUPAL_PRIVATE_FILES:-${DRUPAL_PUBLIC_FILES}/private}"

@@ -30,12 +30,12 @@ info "Started reset."
 
 rm -rf \
   "./vendor" \
-  "./${VORTEX_WEBROOT}/core" \
-  "./${VORTEX_WEBROOT}/profiles/contrib" \
-  "./${VORTEX_WEBROOT}/modules/contrib" \
-  "./${VORTEX_WEBROOT}/themes/contrib" \
-  "./${VORTEX_WEBROOT}/themes/custom/*/build" \
-  "./${VORTEX_WEBROOT}/themes/custom/*/scss/_components.scss"
+  "./${WEBROOT}/core" \
+  "./${WEBROOT}/profiles/contrib" \
+  "./${WEBROOT}/modules/contrib" \
+  "./${WEBROOT}/themes/contrib" \
+  "./${WEBROOT}/themes/custom/*/build" \
+  "./${WEBROOT}/themes/custom/*/scss/_components.scss"
 
 # shellcheck disable=SC2038
 find . -type d -name node_modules | xargs rm -Rf
