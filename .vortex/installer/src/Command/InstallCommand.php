@@ -16,7 +16,6 @@ use DrevOps\Installer\Traits\GitTrait;
 use DrevOps\Installer\Traits\PrinterTrait;
 use DrevOps\Installer\Traits\PromptsTrait;
 use DrevOps\Installer\Traits\TuiTrait;
-use Psy\Util\Str;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,7 +28,6 @@ use function Laravel\Prompts\info;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\select;
-use function Laravel\Prompts\table;
 use function Laravel\Prompts\text;
 
 /**
@@ -262,283 +260,341 @@ EOF
 
     $responses = form()
 
-      ->intro('General information')
+            ->intro('General information')
 
-      ->add(fn($r) => text(
-        label: '🔖 Site name',
-        hint: 'We will use this name in the project and in the documentation.',
-        placeholder: 'E.g. My Site',
-        required: TRUE,
-        default: Str2Name::label(static::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir()))),
-        transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid name' : NULL,
-      ), 'name')
+            ->add(fn($r) => text(
+              label: '🔖 Site name',
+              hint: 'We will use this name in the project and in the documentation.',
+              placeholder: 'E.g. My Site',
+              required: TRUE,
+              default: Str2Name::label(static::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir()))),
+              transform: fn(string $v) => trim($v),
+              validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid name' : NULL,
+            ), 'name')
 
-      ->add(fn($r) => text(
-        label: '🔖 Site machine name',
-        hint: 'We will use this name for the project directory and in the code.',
-        placeholder: 'E.g. my_site',
-        required: TRUE,
-        default: Str2Name::machine($r['name']),
-        transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), 'machine_name')
+            ->add(fn($r) => text(
+              label: '🔖 Site machine name',
+              hint: 'We will use this name for the project directory and in the code.',
+              placeholder: 'E.g. my_site',
+              required: TRUE,
+              default: Str2Name::machine($r['name']),
+              transform: fn(string $v) => trim($v),
+              validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+            ), 'machine_name')
 
-      ->add(fn($r) => text(
-        label: '🏢 Organization name',
-        hint: 'We will use this name in the project and in the documentation.',
-        placeholder: 'E.g. My Org',
-        required: TRUE,
-        default: Str2Name::label($r['name']) . ' Org',
-        transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid organization name' : NULL,
-      ), 'org')
+            ->add(fn($r) => text(
+              label: '🏢 Organization name',
+              hint: 'We will use this name in the project and in the documentation.',
+              placeholder: 'E.g. My Org',
+              required: TRUE,
+              default: Str2Name::label($r['name']) . ' Org',
+              transform: fn(string $v) => trim($v),
+              validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid organization name' : NULL,
+            ), 'org')
 
-      ->add(fn($r) => text(
-        label: '🏢 Organization machine name',
-        hint: 'We will use this name for the project directory and in the code.',
-        placeholder: 'E.g. my_org',
-        required: TRUE,
-        default: Str2Name::machine($r['org']),
-        transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), 'org_machine_name')
+            ->add(fn($r) => text(
+              label: '🏢 Organization machine name',
+              hint: 'We will use this name for the project directory and in the code.',
+              placeholder: 'E.g. my_org',
+              required: TRUE,
+              default: Str2Name::machine($r['org']),
+              transform: fn(string $v) => trim($v),
+              validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+            ), 'org_machine_name')
 
-      ->add(fn($r) => text(
-        label: '🌐 Public domain',
-        hint: 'Domain name without protocol and trailing slash.',
-        placeholder: 'E.g. example.com',
-        required: TRUE,
-        default: 'http://'.Str2Name::kebab($r['machine_name']) . '.com',
-        transform: fn(string $v) => Converter::toDomain($v),
-        validate: fn($v) => filter_var($v, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === FALSE ? 'Please enter a valid domain name' : NULL,
-      ), 'domain')
+            ->add(fn($r) => text(
+              label: '🌐 Public domain',
+              hint: 'Domain name without protocol and trailing slash.',
+              placeholder: 'E.g. example.com',
+              required: TRUE,
+              default: 'http://'.Str2Name::kebab($r['machine_name']) . '.com',
+              transform: fn(string $v) => Converter::toDomain($v),
+              validate: fn($v) => filter_var($v, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === FALSE ? 'Please enter a valid domain name' : NULL,
+            ), 'domain')
 
-    ->intro('Drupal')
-
-      ->add(fn($r) => confirm(
-        label: 'Use a custom profile?',
-        hint: 'Select "yes" to use a custom profile, or "no" to use the "standard" profile.',
-        default: FALSE,
-      ), 'use_custom_profile')
-
-        ->addIf(
-          fn($r) => $r['use_custom_profile'],
-          fn($r) => text(
-            label: 'Custom profile machine name',
-            hint: 'Leave empty to use "standard" profile.',
-            placeholder: 'E.g. my_profile',
-            required: TRUE,
-            default: 'standard',
-            transform: fn(string $v) => trim($v),
-            validate: fn($v) => match (TRUE) {
-              !empty($v) && Converter::toAbbreviation($v) !== $v => 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
-              default => 'standard',
-            },
-          ), 'profile')
-
-      ->add(fn($r) => text(
-        label: '🧩 Module prefix',
-        hint: 'We will use this name for custom modules.',
-        placeholder: 'E.g. ms (for My Site)',
-        required: TRUE,
-        default: Converter::toAbbreviation($r['machine_name']),
-        transform: fn(string $v) => trim($v),
-        validate: fn($v) => Converter::toAbbreviation($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), 'module_prefix')
-
-      ->add(fn($r) => text(
-          label: '🎨 Theme machine name',
-          hint: 'We will use this name for the theme directory.',
-          placeholder: 'E.g. mytheme',
-          required: TRUE,
-          default: $r['machine_name'],
-          transform: fn(string $v) => trim($v),
-          validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-        ), 'theme')
-
-      ->intro('Hosting')
-
-      ->add(fn($r) => select(
-        label: '🏠 Where is your project hosted?',
-        hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
-        options: [
-          'acquia' => '💧 Acquia Cloud',
-          'lagoon' => '🌊 Lagoon',
-          'other' => '🧩 Other',
-        ],
-        default: NULL,
-      ), 'hosting_provider')
-
-      ->addIf(
-        fn($r) => $r['hosting_provider'] !== 'other',
-        fn($r) => info(sprintf('Web root will be set to "%s".', match ($r['hosting_provider']) {
-          'acquia' => 'docroot',
-          'lagoon' => 'web',
-          default => 'web',
-        })), 'webroot_note')
-
-      ->addIf(
-        fn($r) => $r['hosting_provider'] === 'other',
-        fn($r) => text(
-          label: 'Custom web root directory',
-          hint: 'Custom directory where the web server serves the site.',
-          placeholder: 'E.g. public',
-          required: TRUE,
-          transform: fn(string $v) => !empty(trim($v)) ? Converter::toPath($v) : trim($v),
-          validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
-        ), 'webroot_custom')
-
-      ->intro('Deployment')
-
-      ->add(function ($r) {
-        $defaults = [];
-
-        $options = [
-          'artifact' => '📦 Code artifact',
-          'lagoon' => '🌊 Lagoon webhook',
-          'container_image' => '🐳 Container image',
-          'webhook' => '🌐 Custom webhook',
-        ];
-
-        if ($r['hosting_provider'] === 'lagoon') {
-          $defaults[] = 'lagoon';
-        }
-        if ($r['hosting_provider'] === 'acquia') {
-          $defaults[] = 'artifact';
-          unset($options['lagoon']);
-        }
-
-        if (empty($defaults)) {
-          $defaults[] = 'webhook';
-        }
-
-        multiselect(
-          label: '🚚 Deployment types',
-          hint: 'You can deploy code using one or more methods.',
-          options: $options,
-          default: $defaults,
-          required: FALSE,
-        );
-      }, 'deploy_type')
-
-      ->intro('Workflow')
-
-      ->add(fn($r) => note('<info>Provisioning</info> is the process of setting up the site in the environment.'), 'provision_note')
-
-      ->add(fn($r) => select(
-        label: 'Provision source',
-        hint: 'Selecting "Profile" will install site from a profile rather than a database dump.',
-        options: [
-          'database' => 'Database dump',
-          'profile' => 'Install from profile',
-        ],
-        default: 'database',
-      ), 'provision_source')
-
-        ->addIf(
-          fn($r) => $r['provision_source'] === 'database',
-          fn($r) => select(
-            label: 'Database dump source',
-            hint: 'Database can be downloaded as a dump file or stored in a container image.',
-            options: [
-              'url' => 'URL download',
-              'ftp' => 'FTP download',
-              'acquia' => 'Acquia backup',
-              'lagoon' => 'Lagoon environment',
-              'container_registry' => 'Container registry',
-            ],
-            default: 'url',
-          ), 'database_download_source')
-
-          ->addIf(
-            fn($r) => $r['database_download_source'] === 'container_registry',
-            fn($r) => select(
-              label: 'Database store type for local development',
-              hint: 'Importing databases larger than 1GB from a file takes longer, so you can store the database in a container image for faster builds.',
+            ->intro('Code repository')
+            ->add(fn($r) => select(
+              label: '⚙️ Repository provider',
+              hint: 'Vortex offers full automation with GitHub, while support for other providers is limited.',
               options: [
-                'file' => 'File',
-                'container_image' => 'Container image',
+                'github' => 'GitHub',
+                'other' => 'Other',
               ],
-              default: 'file',
-            ), 'database_store_type')
+              default: 'github',
+            ), 'code_provider')
+
+            ->addIf(
+              fn($r) => $r['code_provider'] === 'github',
+              fn($r) => note("<info>We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.</info>"),
+              'github_token_note'
+            )
+
+            ->addIf(
+              fn($r) => $r['code_provider'] === 'github',
+              fn($r) => text(
+                label: '🔑 GitHub personal access token (optional)',
+                hint: static::getEnvOrDefault('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new',
+                placeholder: 'E.g. ghp_1234567890',
+                transform: fn(string $v) => trim($v),
+                validate: fn($v) => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL,
+                default: static::getEnvOrDefault('GITHUB_TOKEN'),
+              ), 'github_token')
 
               ->addIf(
-                fn($r) => $r['database_store_type'] === 'container_image',
+                fn($r) => !empty($r['github_token']),
                 fn($r) => text(
-                  label: 'What is your database container image name and a tag?',
-                  hint: 'Use "latest" for the latest version. CI will be building this image overnight.',
-                  placeholder: 'E.g. drevops/mariadb-drupal-data:latest',
-                  default: 'drevops/mariadb-drupal-data:latest',
-                  transform: fn($v) => !empty(trim($v)) ? Converter::toContainerImage(trim($v)) : trim($v),
-                  validate: fn($v) => empty(trim($v)) || substr_count($v, ':') > 1 ? 'Please enter a valid image name and a tag' : NULL,
-                ), 'database_store_type')
+                  label: 'What is your GitHub project name?',
+                  hint: 'We will use this name to create new or find an existing repository.',
+                  placeholder: 'E.g. myorg/myproject',
+                  transform: fn(string $v) => trim($v),
+                  validate: fn(string $v) => match (TRUE) {
+                    empty($v) => 'Please enter a project name',
+                    !str_contains($v, '/') || (count(explode('/', $v)) !== 2 || empty(explode('/', $v)[0]) || empty(explode('/', $v)[1])) => 'Please enter a valid project name in the format "myorg/myproject"',
+                    default => NULL,
+                  },
+                  default: $r['org_machine_name'] . '/' . $r['machine_name'],
+                ), 'github_repo')
 
-      ->add(fn($r) => confirm(
-        label: 'Override existing database in the environment on each provision?',
-        hint: 'If selected, the database will be overridden on each provision rather then on-demand.',
-        default: FALSE,
-      ), 'override_existing_db')
+      ->intro('Drupal')
 
+            ->add(fn($r) => confirm(
+              label: 'Use a custom profile?',
+              hint: 'Select "yes" to use a custom profile, or "no" to use the "standard" profile.',
+              default: FALSE,
+            ), 'use_custom_profile')
 
-      ->intro('Continuous Integration')
+              ->addIf(
+                fn($r) => $r['use_custom_profile'],
+                fn($r) => text(
+                  label: 'Custom profile machine name',
+                  hint: 'Leave empty to use "standard" profile.',
+                  placeholder: 'E.g. my_profile',
+                  required: TRUE,
+                  default: 'standard',
+                  transform: fn(string $v) => trim($v),
+                  validate: fn($v) => match (TRUE) {
+                    !empty($v) && Converter::toAbbreviation($v) !== $v => 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
+                    default => 'standard',
+                  },
+                ), 'profile')
 
-      ->add(fn($r) => select(
-        label: '🔁 Continuous Integration provider',
-        hint: 'Both providers support equivalent workflow.',
-        options: [
-          'gha' => 'GitHub Actions',
-          'circleci' => 'CircleCI',
-          'none' => 'None',
-        ],
-        default: 'gha',
-      ), 'ci_provider')
+            ->add(fn($r) => text(
+              label: '🧩 Module prefix',
+              hint: 'We will use this name for custom modules.',
+              placeholder: 'E.g. ms (for My Site)',
+              required: TRUE,
+              default: Converter::toAbbreviation($r['machine_name']),
+              transform: fn(string $v) => trim($v),
+              validate: fn($v) => Converter::toAbbreviation($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+            ), 'module_prefix')
+
+            ->add(fn($r) => text(
+                label: '🎨 Theme machine name',
+                hint: 'We will use this name for the theme directory.',
+                placeholder: 'E.g. mytheme',
+                required: TRUE,
+                default: $r['machine_name'],
+                transform: fn(string $v) => trim($v),
+                validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+              ), 'theme')
+
+            ->intro('Hosting')
+
+            ->add(fn($r) => select(
+              label: '🏠 Hosting',
+              hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
+              options: [
+                'acquia' => '💧 Acquia Cloud',
+                'lagoon' => '🌊 Lagoon',
+                'other' => '🧩 Other',
+              ],
+              default: NULL,
+            ), 'hosting_provider')
+
+            ->addIf(
+              fn($r) => $r['hosting_provider'] !== 'other',
+              fn($r) => info(sprintf('Web root will be set to "%s".', match ($r['hosting_provider']) {
+                'acquia' => 'docroot',
+                'lagoon' => 'web',
+                default => 'web',
+              })), 'webroot_note')
+
+            ->addIf(
+              fn($r) => $r['hosting_provider'] === 'other',
+              fn($r) => text(
+                label: 'Custom web root directory',
+                hint: 'Custom directory where the web server serves the site.',
+                placeholder: 'E.g. public',
+                required: TRUE,
+                transform: fn(string $v) => !empty(trim($v)) ? Converter::toPath($v) : trim($v),
+                validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
+              ), 'webroot_custom')
+
+            ->intro('Deployment')
+
+            ->add(function ($r) {
+              $defaults = [];
+
+              $options = [
+                'artifact' => '📦 Code artifact',
+                'lagoon' => '🌊 Lagoon webhook',
+                'container_image' => '🐳 Container image',
+                'webhook' => '🌐 Custom webhook',
+              ];
+
+              if ($r['hosting_provider'] === 'lagoon') {
+                $defaults[] = 'lagoon';
+              }
+              if ($r['hosting_provider'] === 'acquia') {
+                $defaults[] = 'artifact';
+                unset($options['lagoon']);
+              }
+
+              if (empty($defaults)) {
+                $defaults[] = 'webhook';
+              }
+
+              multiselect(
+                label: '🚚 Deployment types',
+                hint: 'You can deploy code using one or more methods.',
+                options: $options,
+                default: $defaults,
+                required: FALSE,
+              );
+            }, 'deploy_type')
+
+            ->intro('Workflow')
+
+            ->add(fn($r) => note('<info>Provisioning</info> is the process of setting up the site in the environment with an already built codebase.'), 'provision_note')
+
+            ->add(fn($r) => select(
+              label: 'Provision type',
+              hint: 'Selecting "Profile" will install site from a profile rather than a database dump.',
+              options: [
+                'database' => 'Database dump',
+                'profile' => 'Install from profile',
+              ],
+              default: 'database',
+            ), 'provision_type')
+
+              ->addIf(
+                fn($r) => $r['provision_type'] === 'database',
+                function ($r) {
+                  $options = [
+                    'url' => '🌍 URL download',
+                    'ftp' => '📂 FTP download',
+                    'acquia' => '💧 Acquia backup',
+                    'lagoon' => '🌊 Lagoon environment',
+                    'container_registry' => '🐳 Container registry',
+                  ];
+
+                  if ($r['hosting_provider'] === 'acquia') {
+                    unset($options['lagoon']);
+                  }
+
+                  if ($r['hosting_provider'] === 'lagoon') {
+                    unset($options['acquia']);
+                  }
+
+                  select(
+                    label: 'Database dump source',
+                    hint: 'Database can be downloaded as a dump file or stored in a container image.',
+                    options: $options,
+                    default: match ($r['hosting_provider']) {
+                      'acquia' => 'acquia',
+                      'lagoon' => 'lagoon',
+                      default => 'url',
+                    },
+                  );
+                }, 'database_download_source')
+
+                ->addIf(
+                  fn($r) => $r['database_download_source'] === 'container_registry',
+                  fn($r) => select(
+                    label: 'Database store type for local development',
+                    hint: 'Importing databases larger than 1GB from a file takes longer, so you can store the database in a container image for faster builds.',
+                    options: [
+                      'file' => 'File',
+                      'container_image' => 'Container image',
+                    ],
+                    default: 'file',
+                  ), 'database_store_type')
+
+                    ->addIf(
+                      fn($r) => $r['database_store_type'] === 'container_image',
+                      fn($r) => text(
+                        label: 'What is your database container image name and a tag?',
+                        hint: 'Use "latest" for the latest version. CI will be building this image overnight.',
+                        placeholder: 'E.g. drevops/mariadb-drupal-data:latest',
+                        default: 'drevops/mariadb-drupal-data:latest',
+                        transform: fn($v) => !empty(trim($v)) ? Converter::toContainerImage(trim($v)) : trim($v),
+                        validate: fn($v) => empty(trim($v)) || substr_count($v, ':') > 1 ? 'Please enter a valid image name and a tag' : NULL,
+                      ), 'database_store_type')
+
+            ->intro('Continuous Integration')
+            ->add(function ($r) {
+              $options = [
+                'gha' => 'GitHub Actions',
+                'circleci' => 'CircleCI',
+                'none' => 'None',
+              ];
+
+              if ($r['code_provider'] !== 'github') {
+                unset($options['gha']);
+              }
+
+              select(
+                label: '🔁 Continuous Integration provider',
+                hint: 'Both providers support equivalent workflow.',
+                options: $options,
+                default: 'gha',
+              );
+            }, 'ci_provider')
 
       ->intro('Automations')
-
-    ->add(fn($r) => multiselect(
-      label: '🤖 Automations',
-      options: [
-        'dependency_updates' => '🔄 Dependency updates',
-        'assign_author_pr' => '👤 Assign author to PR',
-        'label_merge_conflicts_pr' => '🎫 Label merge conflicts for PR',
-      ],
-      default: [
-        'dependency_updates',
-        'assign_author_pr',
-        'label_merge_conflicts_pr',
-      ],
-    ), 'automations')
-
-      ->intro('Documentation')
-
-      ->add(fn($r) => multiselect(
-        label: '📖 Documentation',
+      ->add(fn($r) => select(
+        label: '🔄 Dependency updates',
+        hint: 'Use a self-hosted service if you can’t install a GitHub app.',
         options: [
-          'preserve_project_docs' => '📚 Project documentation',
-          'preserve_onboarding' => '📋 Onboarding checklist',
+          'renovatebot_ci' => '🤖 + 🔁 Renovate self-hosted in CI',
+          'renovatebot_app' => '🤖 Renovate GitHub app',
+          'none' => 'None',
         ],
-        default: [
-          'preserve_project_docs',
-          'preserve_onboarding',
-        ],
-      ), 'documentation')
-
-
+        default: 'renovatebot_ci',
+      ), 'dependency_updates')
+      ->add(fn($r) => confirm(
+        label: '👤 Auto-assign the author to their PR?',
+        hint: 'Helps to keep the PRs organized.',
+        default: TRUE
+      ), 'assign_author_pr')
+      ->add(fn($r) => confirm(
+        label: '🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur?',
+        hint: 'Helps to keep quickly identify PRs that need attention.',
+        default: TRUE
+      ), 'label_merge_conflicts_pr')
+      ->intro('Documentation')
+      ->add(fn($r) => confirm(
+        label: '📚 Preserve project documentation?',
+        hint: 'Helps to maintain the project documentation within the repository.',
+        default: TRUE
+      ), 'preserve_project_docs')
+      ->add(fn($r) => confirm(
+        label: '📋 Preserve onboarding checklist?',
+        hint: 'Helps to track onboarding to Vortex within the repository.',
+        default: TRUE
+      ), 'preserve_onboarding')
       ->add(function ($responses) {
         print_r($responses);
       })
-
       ->submit();
-
 
     // @formatter:on
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
 
     //    if ($this->config->isInstallDebug()) {
-//      $this->printBox($this->formatValuesList($this->getAnswers(), '', $this->getTuiWidth() - 2 - 2 * 2), 'DEBUG RESOLVED ANSWERS');
-//    }
+    //      $this->printBox($this->formatValuesList($this->getAnswers(), '', $this->getTuiWidth() - 2 - 2 * 2), 'DEBUG RESOLVED ANSWERS');
+    //    }
 
     die();
   }
