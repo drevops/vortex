@@ -316,7 +316,7 @@ assert_files_present_vortex() {
   assert_file_exists ".docker/php.dockerfile"
   assert_file_exists ".docker/solr.dockerfile"
   assert_file_exists ".docker/scripts/.gitkeep"
-  assert_file_exists ".docker/config/mariadb/my.cnf"
+  assert_file_exists ".docker/config/database/my.cnf"
 
   assert_file_exists ".docker/config/solr/config-set/accents_en.txt"
   assert_file_exists ".docker/config/solr/config-set/accents_und.txt"
