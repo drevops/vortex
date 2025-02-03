@@ -267,7 +267,7 @@ EOF
               hint: 'We will use this name in the project and in the documentation.',
               placeholder: 'E.g. My Site',
               required: TRUE,
-              default: Str2Name::label(static::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir()))),
+              default: $this->envOrDefault('name', Str2Name::label(static::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir())))),
               transform: fn(string $v) => trim($v),
               validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid name' : NULL,
             ), 'name')
@@ -277,7 +277,7 @@ EOF
               hint: 'We will use this name for the project directory and in the code.',
               placeholder: 'E.g. my_site',
               required: TRUE,
-              default: Str2Name::machine($r['name']),
+              default: $this->envOrDefault('machine_name', Str2Name::machine($r['name'])),
               transform: fn(string $v) => trim($v),
               validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
             ), 'machine_name')
@@ -287,7 +287,7 @@ EOF
               hint: 'We will use this name in the project and in the documentation.',
               placeholder: 'E.g. My Org',
               required: TRUE,
-              default: Str2Name::label($r['name']) . ' Org',
+              default: $this->envOrDefault('org', Str2Name::label($r['name']) . ' Org'),
               transform: fn(string $v) => trim($v),
               validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid organization name' : NULL,
             ), 'org')
@@ -297,7 +297,7 @@ EOF
               hint: 'We will use this name for the project directory and in the code.',
               placeholder: 'E.g. my_org',
               required: TRUE,
-              default: Str2Name::machine($r['org']),
+              default: $this->envOrDefault('org_machine_name', Str2Name::machine($r['org'])),
               transform: fn(string $v) => trim($v),
               validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
             ), 'org_machine_name')
@@ -307,7 +307,7 @@ EOF
               hint: 'Domain name without protocol and trailing slash.',
               placeholder: 'E.g. example.com',
               required: TRUE,
-              default: 'http://'.Str2Name::kebab($r['machine_name']) . '.com',
+              default: $this->envOrDefault('domain', 'http://'.Str2Name::kebab($r['machine_name']) . '.com'),
               transform: fn(string $v) => Converter::toDomain($v),
               validate: fn($v) => filter_var($v, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === FALSE ? 'Please enter a valid domain name' : NULL,
             ), 'domain')
@@ -320,7 +320,7 @@ EOF
                 'github' => 'GitHub',
                 'other' => 'Other',
               ],
-              default: 'github',
+              default: $this->envOrDefault('code_provider', 'github'),
             ), 'code_provider')
 
             ->addIf(
@@ -337,7 +337,7 @@ EOF
                 placeholder: 'E.g. ghp_1234567890',
                 transform: fn(string $v) => trim($v),
                 validate: fn($v) => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL,
-                default: static::getEnvOrDefault('GITHUB_TOKEN'),
+                default: $this->envOrDefault('github_token', static::getEnvOrDefault('GITHUB_TOKEN')),
               ), 'github_token')
 
               ->addIf(
@@ -352,7 +352,7 @@ EOF
                     !str_contains($v, '/') || (count(explode('/', $v)) !== 2 || empty(explode('/', $v)[0]) || empty(explode('/', $v)[1])) => 'Please enter a valid project name in the format "myorg/myproject"',
                     default => NULL,
                   },
-                  default: $r['org_machine_name'] . '/' . $r['machine_name'],
+                  default: $this->envOrDefault('github_repo', $r['org_machine_name'] . '/' . $r['machine_name']),
                 ), 'github_repo')
 
       ->intro('Drupal')
@@ -360,7 +360,7 @@ EOF
             ->add(fn($r) => confirm(
               label: 'Use a custom profile?',
               hint: 'Select "yes" to use a custom profile, or "no" to use the "standard" profile.',
-              default: FALSE,
+              default: $this->envOrDefault('use_custom_profile', FALSE),
             ), 'use_custom_profile')
 
               ->addIf(
@@ -370,7 +370,7 @@ EOF
                   hint: 'Leave empty to use "standard" profile.',
                   placeholder: 'E.g. my_profile',
                   required: TRUE,
-                  default: 'standard',
+                  default: $this->envOrDefault('profile', 'standard'),
                   transform: fn(string $v) => trim($v),
                   validate: fn($v) => match (TRUE) {
                     !empty($v) && Converter::toAbbreviation($v) !== $v => 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
@@ -383,7 +383,7 @@ EOF
               hint: 'We will use this name for custom modules.',
               placeholder: 'E.g. ms (for My Site)',
               required: TRUE,
-              default: Converter::toAbbreviation($r['machine_name']),
+              default: $this->envOrDefault('module_prefix', Converter::toAbbreviation($r['machine_name'])),
               transform: fn(string $v) => trim($v),
               validate: fn($v) => Converter::toAbbreviation($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
             ), 'module_prefix')
@@ -393,7 +393,7 @@ EOF
                 hint: 'We will use this name for the theme directory.',
                 placeholder: 'E.g. mytheme',
                 required: TRUE,
-                default: $r['machine_name'],
+                default: $this->envOrDefault('theme', $r['machine_name']),
                 transform: fn(string $v) => trim($v),
                 validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
               ), 'theme')
@@ -408,7 +408,8 @@ EOF
                 'lagoon' => '🌊 Lagoon',
                 'other' => '🧩 Other',
               ],
-              default: NULL,
+              required: TRUE,
+              default: $this->envOrDefault('hosting_provider', NULL),
             ), 'hosting_provider')
 
             ->addIf(
@@ -416,7 +417,7 @@ EOF
               fn($r) => info(sprintf('Web root will be set to "%s".', match ($r['hosting_provider']) {
                 'acquia' => 'docroot',
                 'lagoon' => 'web',
-                default => 'web',
+                default => $this->envOrDefault('webroot_note', 'web'),
               })), 'webroot_note')
 
             ->addIf(
@@ -445,6 +446,7 @@ EOF
               if ($r['hosting_provider'] === 'lagoon') {
                 $defaults[] = 'lagoon';
               }
+
               if ($r['hosting_provider'] === 'acquia') {
                 $defaults[] = 'artifact';
                 unset($options['lagoon']);
@@ -458,7 +460,7 @@ EOF
                 label: '🚚 Deployment types',
                 hint: 'You can deploy code using one or more methods.',
                 options: $options,
-                default: $defaults,
+                default: $this->envOrDefault('deploy_type', $defaults),
                 required: FALSE,
               );
             }, 'deploy_type')
@@ -474,7 +476,7 @@ EOF
                 'database' => 'Database dump',
                 'profile' => 'Install from profile',
               ],
-              default: 'database',
+              default: $this->envOrDefault('provision_type', 'database'),
             ), 'provision_type')
 
               ->addIf(
@@ -500,11 +502,11 @@ EOF
                     label: 'Database dump source',
                     hint: 'Database can be downloaded as a dump file or stored in a container image.',
                     options: $options,
-                    default: match ($r['hosting_provider']) {
+                    default: $this->envOrDefault('database_download_source', match ($r['hosting_provider']) {
                       'acquia' => 'acquia',
                       'lagoon' => 'lagoon',
                       default => 'url',
-                    },
+                    }),
                   );
                 }, 'database_download_source')
 
@@ -517,7 +519,7 @@ EOF
                       'file' => 'File',
                       'container_image' => 'Container image',
                     ],
-                    default: 'file',
+                    default: $this->envOrDefault('database_store_type', 'file'),
                   ), 'database_store_type')
 
                     ->addIf(
@@ -526,7 +528,7 @@ EOF
                         label: 'What is your database container image name and a tag?',
                         hint: 'Use "latest" for the latest version. CI will be building this image overnight.',
                         placeholder: 'E.g. drevops/mariadb-drupal-data:latest',
-                        default: 'drevops/mariadb-drupal-data:latest',
+                        default: $this->envOrDefault('database_store_type', 'drevops/mariadb-drupal-data:latest'),
                         transform: fn($v) => !empty(trim($v)) ? Converter::toContainerImage(trim($v)) : trim($v),
                         validate: fn($v) => empty(trim($v)) || substr_count($v, ':') > 1 ? 'Please enter a valid image name and a tag' : NULL,
                       ), 'database_store_type')
@@ -547,41 +549,41 @@ EOF
                 label: '🔁 Continuous Integration provider',
                 hint: 'Both providers support equivalent workflow.',
                 options: $options,
-                default: 'gha',
+                default: $this->envOrDefault('ci_provider', 'gha'),
               );
             }, 'ci_provider')
 
       ->intro('Automations')
       ->add(fn($r) => select(
-        label: '🔄 Dependency updates',
+        label: '🔄 Dependency updates provider',
         hint: 'Use a self-hosted service if you can’t install a GitHub app.',
         options: [
           'renovatebot_ci' => '🤖 + 🔁 Renovate self-hosted in CI',
           'renovatebot_app' => '🤖 Renovate GitHub app',
           'none' => 'None',
         ],
-        default: 'renovatebot_ci',
-      ), 'dependency_updates')
+        default: $this->envOrDefault('dependency_updates_provider', 'renovatebot_ci'),
+      ), 'dependency_updates_provider')
       ->add(fn($r) => confirm(
         label: '👤 Auto-assign the author to their PR?',
         hint: 'Helps to keep the PRs organized.',
-        default: TRUE
+        default: $this->envOrDefault('assign_author_pr', TRUE),
       ), 'assign_author_pr')
       ->add(fn($r) => confirm(
         label: '🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur?',
         hint: 'Helps to keep quickly identify PRs that need attention.',
-        default: TRUE
+        default: $this->envOrDefault('label_merge_conflicts_pr', TRUE),
       ), 'label_merge_conflicts_pr')
       ->intro('Documentation')
       ->add(fn($r) => confirm(
         label: '📚 Preserve project documentation?',
         hint: 'Helps to maintain the project documentation within the repository.',
-        default: TRUE
+        default: $this->envOrDefault('preserve_project_docs', TRUE),
       ), 'preserve_project_docs')
       ->add(fn($r) => confirm(
         label: '📋 Preserve onboarding checklist?',
         hint: 'Helps to track onboarding to Vortex within the repository.',
-        default: TRUE
+        default: $this->envOrDefault('preserve_onboarding', TRUE),
       ), 'preserve_onboarding')
       ->add(function ($responses) {
         print_r($responses);
@@ -597,6 +599,11 @@ EOF
     //    }
 
     die();
+  }
+
+  protected function envOrDefault($name, $default = NULL) {
+    // @todo Implement this.
+    return $default;
   }
 
   protected function downloadScaffold(): void {
