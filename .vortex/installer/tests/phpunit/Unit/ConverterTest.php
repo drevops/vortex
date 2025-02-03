@@ -82,31 +82,4 @@ class ConverterTest extends UnitTestBase {
     ];
   }
 
-  /**
-   * @dataProvider dataProviderToCamelCase
-   * @covers ::toCamelCase
-   */
-  public function testToCamelCase(string $value, bool $capitalise_first, mixed $expected): void {
-    $this->assertEquals($expected, Converter::toCamelCase($value, $capitalise_first));
-  }
-
-  public static function dataProviderToCamelCase(): array {
-    return [
-      ['', FALSE, ''],
-      [' ', FALSE, ''],
-      [' word ', FALSE, 'word'],
-      [' word ', TRUE, 'Word'],
-      ['word other', FALSE, 'wordOther'],
-      ['word other', TRUE, 'WordOther'],
-      ['word  other', FALSE, 'wordOther'],
-      ['word  other', TRUE, 'WordOther'],
-      ['word-  other', FALSE, 'wordOther'],
-      ['word-  other', TRUE, 'WordOther'],
-      ['%word- * other', FALSE, 'wordOther'],
-      ['%word- * other', TRUE, 'WordOther'],
-      [' _%word_$ -# Other -@ Third!,', FALSE, 'wordOtherThird'],
-      [' _%word_$ -# Other -@ Third!,', TRUE, 'WordOtherThird'],
-    ];
-  }
-
 }

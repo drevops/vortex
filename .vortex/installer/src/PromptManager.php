@@ -9,7 +9,6 @@ use DrevOps\Installer\Prompts\InstallerFormBuilder;
 use Laravel\Prompts\Prompt;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
-use function Laravel\Prompts\form;
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\note;

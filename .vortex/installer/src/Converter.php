@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer;
 
+use AlexSkrypnyk\Str2Name\Str2Name;
+
 /**
  * Converter.
  *
@@ -11,13 +13,7 @@ namespace DrevOps\Installer;
  *
  * @package DrevOps\Installer
  */
-class Converter {
-
-  public static function toCamelCase(string $value, bool $capitalise_first = FALSE): string {
-    $value = str_replace(' ', '', ucwords((string) preg_replace('/[^a-zA-Z0-9]/', ' ', $value)));
-
-    return $capitalise_first ? $value : lcfirst($value);
-  }
+class Converter extends Str2Name {
 
   public static function toHumanName(string $value): ?string {
     $value = preg_replace('/[^a-zA-Z0-9]/', ' ', $value);

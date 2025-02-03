@@ -12,111 +12,6 @@ use DrevOps\Installer\File;
  */
 trait PromptsTrait {
 
-  /**
-   * Get default value router.
-   */
-  protected function getDefaultValue(string $name): mixed {
-    // Allow to override default values from config variables.
-    $config_name = strtoupper($name);
-
-    return $this->config->get($config_name, $this->executeCallback('getDefaultValue', $name));
-  }
-
-//  protected function getDefaultValueName(): ?string {
-//    return Converter::toHumanName(static::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir())));
-//  }
-//
-//  protected function getDefaultValueMachineName(): ?string {
-//    return Converter::toMachineName($this->getAnswer('name', 'your_site'));
-//  }
-
-//  protected function getDefaultValueOrg(): string {
-//    return $this->getAnswer('name', 'Your Site') . ' Org';
-//  }
-
-//  protected function getDefaultValueOrgMachineName(): string {
-//    return Converter::toMachineName($this->getAnswer('org'));
-//  }
-
-//  protected function getDefaultValueModulePrefix(): string {
-//    return Converter::toAbbreviation($this->getAnswer('machine_name'));
-//  }
-
-//  protected function getDefaultValueProfile(): string {
-//    return self::ANSWER_NO;
-//  }
-//
-//  protected function getDefaultValueTheme(): mixed {
-//    return $this->getAnswer('machine_name');
-//  }
-//
-//  protected function getDefaultValueDomain(): string {
-//    $value = $this->getAnswer('machine_name');
-//    $value = str_replace('_', '-', $value);
-//
-//    return $value . '.com';
-//  }
-//
-//  protected function getDefaultValueWebroot(): string {
-//    return 'web';
-//  }
-//
-//  protected function getDefaultValueProvisionUseProfile(): string {
-//    return self::ANSWER_NO;
-//  }
-//
-//  protected function getDefaultValueDatabaseDownloadSource(): string {
-//    return 'curl';
-//  }
-//
-//  protected function getDefaultValueDatabaseStoreType(): string {
-//    return 'file';
-//  }
-
-//  protected function getDefaultValueDatabaseImage(): string {
-//    return 'drevops/mariadb-drupal-data:latest';
-//  }
-
-  protected function getDefaultValueOverrideExistingDb(): string {
-    return self::ANSWER_NO;
-  }
-
-  protected function getDefaultValueCiProvider(): string {
-    return 'GitHub Actions';
-  }
-
-  protected function getDefaultValueDeployType(): string {
-    return 'artifact';
-  }
-
-  protected function getDefaultValuePreserveAcquia(): string {
-    return self::ANSWER_NO;
-  }
-
-  protected function getDefaultValuePreserveLagoon(): string {
-    return self::ANSWER_NO;
-  }
-
-  protected function getDefaultValuePreserveFtp(): string {
-    return self::ANSWER_NO;
-  }
-
-  protected function getDefaultValuePreserveRenovatebot(): string {
-    return self::ANSWER_YES;
-  }
-
-  protected function getDefaultValuePreserveOnboarding(): string {
-    return self::ANSWER_YES;
-  }
-
-  protected function getDefaultValuePreserveDocComments(): string {
-    return self::ANSWER_YES;
-  }
-
-  protected function getDefaultValuePreserveVortexInfo(): string {
-    return self::ANSWER_NO;
-  }
-
   protected function processProfile(string $dir): void {
     $webroot = $this->getAnswer('webroot');
     // For core profiles - remove custom profile and direct links to it.
@@ -744,179 +639,6 @@ trait PromptsTrait {
     return File::fileContains('Comments starting with', $file) ? self::ANSWER_YES : self::ANSWER_NO;
   }
 
-  protected function normaliseAnswerName(string $value): string {
-    return ucfirst((string) Converter::toHumanName($value));
-  }
-
-  protected function normaliseAnswerMachineName(string $value): string {
-    return Converter::toMachineName($value);
-  }
-
-  protected function normaliseAnswerOrgMachineName(string $value): string {
-    return Converter::toMachineName($value);
-  }
-
-  protected function normaliseAnswerModulePrefix(string $value): string {
-    return Converter::toMachineName($value);
-  }
-
-  protected function normaliseAnswerProfile(string $value): string {
-    $profile = Converter::toMachineName($value);
-
-    if (empty($profile) || strtolower($profile) === self::ANSWER_NO) {
-      $profile = 'standard';
-    }
-
-    return $profile;
-  }
-//
-//  protected function normaliseAnswerTheme(string $value): string {
-//    return Converter::toMachineName($value);
-//  }
-//
-//  protected function normaliseAnswerDomain(string $value): string {
-//    $value = trim($value);
-//    $value = rtrim($value, '/');
-//    $value = str_replace([' ', '_'], '-', $value);
-//    $value = preg_replace('/^https?:\/\//', '', $value);
-//
-//    return preg_replace('/^www\./', '', $value);
-//  }
-//
-//  protected function normaliseAnswerWebroot(string $value): string {
-//    return strtolower(trim($value, '/'));
-//  }
-//
-//  protected function normaliseAnswerProvisionUseProfile(string $value): string {
-//    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
-//  }
-//
-//  protected function normaliseAnswerDatabaseDownloadSource(string $value): string {
-//    $value = strtolower($value);
-//
-//    return match ($value) {
-//      'f', 'ftp' => 'ftp',
-//      'a', 'acquia' => 'acquia',
-//      'l', 'lagoon' => 'lagoon',
-//      'i', 'image', 'container_image', 'container_registry' => 'container_registry',
-//      'c', 'curl' => 'curl',
-//      default => $this->getDefaultValueDatabaseDownloadSource(),
-//    };
-//  }
-//
-//  protected function normaliseAnswerDatabaseStoreType(string $value): string {
-//    $value = strtolower($value);
-//
-//    return match ($value) {
-//      'i', 'image', 'container_image', => 'container_image',
-//      'f', 'file' => 'file',
-//      default => $this->getDefaultValueDatabaseStoreType(),
-//    };
-//  }
-//
-//  protected function normaliseAnswerDatabaseImage(string $value): string {
-//    $value = Converter::toMachineName($value, ['-', '/', ':', '.']);
-//
-//    return str_contains($value, ':') ? $value : $value . ':latest';
-//  }
-
-  protected function normaliseAnswerOverrideExistingDb(string $value): string {
-    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
-  }
-
-  protected function normaliseAnswerCiProvider(string $value): string {
-    $value = trim(strtolower($value));
-
-    return match ($value) {
-      'c', 'circleci' => 'CircleCI',
-      'g', 'gha', 'github actions' => 'GitHub Actions',
-      default => 'none',
-    };
-  }
-
-  protected function normaliseAnswerDeployType(string $value): ?string {
-    $types = explode(',', $value);
-
-    $normalised = [];
-    foreach ($types as $type) {
-      $type = trim($type);
-      switch ($type) {
-        case 'w':
-        case 'webhook':
-          $normalised[] = 'webhook';
-          break;
-
-        case 'c':
-        case 'code':
-        case 'a':
-        case 'artifact':
-          $normalised[] = 'artifact';
-          break;
-
-        case 'r':
-        case 'container_registry':
-          $normalised[] = 'container_registry';
-          break;
-
-        case 'l':
-        case 'lagoon':
-          $normalised[] = 'lagoon';
-          break;
-
-        case 'n':
-        case 'none':
-          $normalised[] = 'none';
-          break;
-      }
-    }
-
-    // @todo Should we return `none` instead of `NULL`?
-    if (in_array('none', $normalised)) {
-      return NULL;
-    }
-
-    $normalised = array_unique($normalised);
-
-    return implode(',', $normalised);
-  }
-
-  protected function normaliseAnswerPreserveAcquia(string $value): string {
-    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
-  }
-
-  protected function normaliseAnswerPreserveLagoon(string $value): string {
-    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
-  }
-
-  protected function normaliseAnswerPreserveFtp(string $value): string {
-    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
-  }
-
-  protected function normaliseAnswerPreserveRenovatebot(string $value): string {
-    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
-  }
-
-  protected function normaliseAnswerPreserveOnboarding(string $value): string {
-    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
-  }
-
-  protected function normaliseAnswerPreserveDocComments(string $value): string {
-    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
-  }
-
-  protected function normaliseAnswerPreserveVortexInfo(string $value): string {
-    return strtolower($value) !== self::ANSWER_YES ? self::ANSWER_NO : self::ANSWER_YES;
-  }
-
-  /**
-   * Normalisation router.
-   */
-  protected function normaliseAnswer(string $name, mixed $value): mixed {
-    $normalised = $this->executeCallback('normaliseAnswer', $name, strval($value));
-
-    return $normalised ?? $value;
-  }
-
   /**
    * Check that Vortex is installed for this project.
    */
@@ -962,11 +684,11 @@ trait PromptsTrait {
   }
 
   protected function processStringTokens(string $dir): void {
-    $machine_name_hyphenated = str_replace('_', '-', $this->getAnswer('machine_name'));
-    $machine_name_camel_cased = Converter::toCamelCase($this->getAnswer('machine_name'), TRUE);
-    $module_prefix_camel_cased = Converter::toCamelCase($this->getAnswer('module_prefix'), TRUE);
-    $module_prefix_uppercase = strtoupper($module_prefix_camel_cased);
-    $theme_camel_cased = Converter::toCamelCase($this->getAnswer('theme'), TRUE);
+    $machine_name_kebab = Converter::kebab($this->getAnswer('machine_name'));
+    $machine_name_pascal = Converter::pascal($this->getAnswer('machine_name'));
+    $module_prefix_pascal = Converter::pascal($this->getAnswer('module_prefix'));
+    $module_prefix_cobol = Converter::cobol($module_prefix_pascal);
+    $theme_pascal = Converter::pascal($this->getAnswer('theme'));
     $vortex_version_urlencoded = str_replace('-', '--', (string) $this->config->get('VORTEX_VERSION'));
     $webroot = $this->getAnswer('webroot');
 
@@ -974,7 +696,7 @@ trait PromptsTrait {
     // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
     File::dirReplaceContent('your_site_theme',          $this->getAnswer('theme'),                     $dir);
-    File::dirReplaceContent('YourSiteTheme',            $theme_camel_cased,                            $dir);
+    File::dirReplaceContent('YourSiteTheme',            $theme_pascal,                            $dir);
     File::dirReplaceContent('your_org',                 $this->getAnswer('org_machine_name'),          $dir);
     File::dirReplaceContent('YOURORG',                  $this->getAnswer('org'),                       $dir);
     File::dirReplaceContent('your-site-domain.example', $this->getAnswer('domain'),                    $dir);
@@ -983,21 +705,21 @@ trait PromptsTrait {
     File::dirReplaceContent('ys_core',                  $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/themes/custom',  $webroot));
     File::dirReplaceContent('ys_core',                  $this->getAnswer('module_prefix') . '_core',   $dir . '/scripts/custom');
     File::dirReplaceContent('ys_search',                $this->getAnswer('module_prefix') . '_search', $dir . '/scripts/custom');
-    File::dirReplaceContent('YsCore',                   $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
-    File::dirReplaceContent('YsSearch',                 $module_prefix_camel_cased . 'Search',         $dir . sprintf('/%s/modules/custom', $webroot));
-    File::dirReplaceContent('YSCODE',                   $module_prefix_uppercase,                      $dir);
-    File::dirReplaceContent('YSSEARCH',                 $module_prefix_uppercase,                      $dir);
-    File::dirReplaceContent('your-site',                $machine_name_hyphenated,                      $dir);
+    File::dirReplaceContent('YsCore',                   $module_prefix_pascal . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
+    File::dirReplaceContent('YsSearch',                 $module_prefix_pascal . 'Search',         $dir . sprintf('/%s/modules/custom', $webroot));
+    File::dirReplaceContent('YSCODE',                   $module_prefix_cobol,                      $dir);
+    File::dirReplaceContent('YSSEARCH',                 $module_prefix_cobol,                      $dir);
+    File::dirReplaceContent('your-site',                $machine_name_kebab,                      $dir);
     File::dirReplaceContent('your_site',                $this->getAnswer('machine_name'),              $dir);
     File::dirReplaceContent('YOURSITE',                 $this->getAnswer('name'),                      $dir);
-    File::dirReplaceContent('YourSite',                 $machine_name_camel_cased,                     $dir);
+    File::dirReplaceContent('YourSite',                 $machine_name_pascal,                     $dir);
 
-    File::replaceStringFilename('YourSiteTheme',        $theme_camel_cased,                            $dir);
+    File::replaceStringFilename('YourSiteTheme',        $theme_pascal,                            $dir);
     File::replaceStringFilename('your_site_theme',      $this->getAnswer('theme'),                     $dir);
-    File::replaceStringFilename('YourSite',             $machine_name_camel_cased,                     $dir);
+    File::replaceStringFilename('YourSite',             $machine_name_pascal,                     $dir);
     File::replaceStringFilename('ys_core',              $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
     File::replaceStringFilename('ys_search',            $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
-    File::replaceStringFilename('YsCore',               $module_prefix_camel_cased . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
+    File::replaceStringFilename('YsCore',               $module_prefix_pascal . 'Core',           $dir . sprintf('/%s/modules/custom', $webroot));
     File::replaceStringFilename('your_org',             $this->getAnswer('org_machine_name'),          $dir);
     File::replaceStringFilename('your_site',            $this->getAnswer('machine_name'),              $dir);
 
