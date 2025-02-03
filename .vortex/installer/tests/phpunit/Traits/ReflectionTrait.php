@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drevops\Installer\Tests\Traits;
+namespace DrevOps\Installer\Tests\Traits;
 
 /**
  * Trait ReflectionTrait.

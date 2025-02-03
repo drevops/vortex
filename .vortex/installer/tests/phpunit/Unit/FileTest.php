@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drevops\Installer\Tests\Unit;
+namespace DrevOps\Installer\Tests\Unit;
 
 use DrevOps\Installer\File;
 

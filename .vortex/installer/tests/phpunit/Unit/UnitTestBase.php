@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Drevops\Installer\Tests\Unit;
+namespace DrevOps\Installer\Tests\Unit;
 
 use DrevOps\Installer\File;
-use Drevops\Installer\Tests\Traits\ReflectionTrait;
+use DrevOps\Installer\Tests\Traits\ReflectionTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
