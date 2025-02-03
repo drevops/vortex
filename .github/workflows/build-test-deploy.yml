@@ -80,6 +80,18 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          # Do not keep SSH credentials after checkout to allow custom.
+          persist-credentials: false
+
+      - name: Add SSH private key to the runner
+        if: ${{ env.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY != '' }}
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_KNOWN_HOSTS }}
+        env:
+          VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
 
       - name: Process the codebase to run in CI
         run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
