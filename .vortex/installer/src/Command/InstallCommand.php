@@ -100,6 +100,8 @@ EOF
 
     $this->addOption('root', NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
 
+    $this->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
+
     $this->config = new InstallerConfig();
   }
 
