@@ -42,7 +42,7 @@ class PromptManager {
         default: $this->default($n, Str2Name::label(static::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir())))),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid name' : NULL,
-      ), 'name')
+      ), PromptFields::NAME)
 
       ->add(fn($r, $pr, $n) => text(
         label: '🔖 Site machine name',
@@ -52,7 +52,7 @@ class PromptManager {
         default: $this->default($n, Str2Name::machine($r['name'])),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), 'machine_name')
+      ),  PromptFields::MACHINE_NAME)
 
       ->add(fn($r, $pr, $n) => text(
         label: '🏢 Organization name',
@@ -62,7 +62,7 @@ class PromptManager {
         default: $this->default('org', Str2Name::label($r['name']) . ' Org'),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid organization name' : NULL,
-      ), 'org')
+      ), PromptFields::ORG)
 
       ->add(fn($r, $pr, $n) => text(
         label: '🏢 Organization machine name',
@@ -72,7 +72,7 @@ class PromptManager {
         default: $this->default($n, Str2Name::machine($r['org'])),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), 'org_machine_name')
+      ), PromptFields::ORG_MACHINE_NAME)
 
       ->add(fn($r, $pr, $n) => text(
         label: '🌐 Public domain',
@@ -82,7 +82,7 @@ class PromptManager {
         default: $this->default($n, 'http://' . Str2Name::kebab($r['machine_name']) . '.com'),
         transform: fn(string $v) => Converter::domain($v),
         validate: fn($v) => filter_var($v, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === FALSE ? 'Please enter a valid domain name' : NULL,
-      ), 'domain')
+      ), PromptFields::DOMAIN)
 
       ->intro('Code repository')
 
@@ -94,7 +94,7 @@ class PromptManager {
           'other' => 'Other',
         ],
         default: $this->default($n, 'github'),
-      ), 'code_provider')
+      ), PromptFields::CODE_PROVIDER)
 
         ->addIf(
           fn($r) => $r['code_provider'] === 'github',
@@ -110,7 +110,7 @@ class PromptManager {
             default: $this->default($n, static::getEnvOrDefault('GITHUB_TOKEN')),
             transform: fn(string $v) => trim($v),
             validate: fn($v) => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL,
-          ), 'github_token')
+          ), PromptFields::GITHUB_TOKEN)
 
             ->addIf(
               fn($r) => !empty($r['github_token']),
@@ -125,7 +125,7 @@ class PromptManager {
                   !str_contains($v, '/') || (count(explode('/', $v)) !== 2 || empty(explode('/', $v)[0]) || empty(explode('/', $v)[1])) => 'Please enter a valid project name in the format "myorg/myproject"',
                   default => NULL,
                 },
-              ), 'github_repo')
+              ), PromptFields::GITHUB_REPO)
 
       ->intro('Drupal')
 
@@ -133,7 +133,7 @@ class PromptManager {
         label: 'Use a custom profile?',
         hint: 'Select "yes" to use a custom profile, or "no" to use the "standard" profile.',
         default: $this->default($n, FALSE),
-      ), 'use_custom_profile')
+      ), PromptFields::USE_CUSTOM_PROFILE)
 
         ->addIf(
           fn($r) => $r['use_custom_profile'],
@@ -148,7 +148,7 @@ class PromptManager {
               !empty($v) && Converter::abbreviation($v) !== $v => 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
               default => 'standard',
             },
-          ), 'profile')
+          ), PromptFields::PROFILE)
 
       ->add(fn($r, $pr, $n) => text(
         label: '🧩 Module prefix',
@@ -158,7 +158,7 @@ class PromptManager {
         default: $this->default($n, Converter::abbreviation($r['machine_name'], 4, ['_'])),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Converter::abbreviation($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), 'module_prefix')
+      ), PromptFields::MODULE_PREFIX)
 
       ->add(fn($r, $pr, $n) => text(
         label: '🎨 Theme machine name',
@@ -168,7 +168,7 @@ class PromptManager {
         default: $this->default($n, $r['machine_name']),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), 'theme')
+      ), PromptFields::THEME)
 
       ->intro('Hosting')
 
@@ -182,7 +182,7 @@ class PromptManager {
         ],
         required: TRUE,
         default: $this->default($n, NULL),
-      ), 'hosting_provider')
+      ), PromptFields::HOSTING_PROVIDER)
 
         ->addIf(
           fn($r) => $r['hosting_provider'] !== 'other',
@@ -190,7 +190,7 @@ class PromptManager {
             'acquia' => 'docroot',
             'lagoon' => 'web',
             default => $this->default($n, 'web'),
-          })), 'webroot_note')
+          })))
 
         ->addIf(
           fn($r) => $r['hosting_provider'] === 'other',
@@ -201,7 +201,7 @@ class PromptManager {
             required: TRUE,
             transform: fn(string $v) => !empty(trim($v)) ? Converter::path($v) : trim($v),
             validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
-          ), 'webroot_custom')
+          ), PromptFields::WEBROOT_CUSTOM)
 
       ->intro('Deployment')
 
@@ -235,11 +235,11 @@ class PromptManager {
           default: $this->default($n, $defaults),
           required: FALSE,
         );
-      }, 'deploy_type')
+      }, PromptFields::DEPLOY_TYPE)
 
       ->intro('Workflow')
 
-      ->add(fn($r, $pr, $n) => note('<info>Provisioning</info> is the process of setting up the site in the environment with an already built codebase.'), 'provision_note')
+      ->add(fn($r, $pr, $n) => note('<info>Provisioning</info> is the process of setting up the site in the environment with an already built codebase.'))
 
       ->add(fn($r, $pr, $n) => select(
         label: 'Provision type',
@@ -249,7 +249,7 @@ class PromptManager {
           'profile' => 'Install from profile',
         ],
         default: $this->default($n, 'database'),
-      ), 'provision_type')
+      ), PromptFields::PROVISION_TYPE)
 
         ->addIf(
           fn($r) => $r['provision_type'] === 'database',
@@ -280,7 +280,7 @@ class PromptManager {
                 default => 'url',
               }),
             );
-          }, 'database_download_source')
+          }, PromptFields::DATABASE_DOWNLOAD_SOURCE)
 
             ->addIf(
               fn($r) => $r['database_download_source'] === 'container_registry',
@@ -292,7 +292,7 @@ class PromptManager {
                   'container_image' => 'Container image',
                 ],
                 default: $this->default($n, 'file'),
-              ), 'database_store_type')
+              ), PromptFields::DATABASE_STORE_TYPE)
 
               ->addIf(
                 fn($r) => $r['database_store_type'] === 'container_image',
@@ -303,7 +303,7 @@ class PromptManager {
                   default: $this->default($n, 'drevops/mariadb-drupal-data:latest'),
                   transform: fn($v) => strtolower(trim($v)),
                   validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid image name and a tag' : NULL,
-                ), 'database_store_type')
+                ), PromptFields::DATABASE_STORE_TYPE)
 
       ->intro('Continuous Integration')
 
@@ -324,7 +324,7 @@ class PromptManager {
           options: $options,
           default: $this->default($n, 'gha'),
         );
-      }, 'ci_provider')
+      }, PromptFields::CI_PROVIDER)
 
       ->intro('Automations')
 
@@ -337,7 +337,7 @@ class PromptManager {
           'none' => 'None',
         ],
         default: $this->default($n, 'renovatebot_ci'),
-      ), 'dependency_updates_provider')
+      ), PromptFields::DEPENDENCY_UPDATES_PROVIDER)
 
       ->add(fn($r, $pr, $n) => confirm(
         label: '👤 Auto-assign the author to their PR?',
@@ -349,7 +349,7 @@ class PromptManager {
         label: '🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur?',
         hint: 'Helps to keep quickly identify PRs that need attention.',
         default: $this->default($n, TRUE),
-      ), 'label_merge_conflicts_pr')
+      ), PromptFields::LABEL_MERGE_CONFLICTS_PR)
 
       ->intro('Documentation')
 
@@ -357,13 +357,13 @@ class PromptManager {
         label: '📚 Preserve project documentation?',
         hint: 'Helps to maintain the project documentation within the repository.',
         default: $this->default($n, TRUE),
-      ), 'preserve_project_docs')
+      ), PromptFields::PRESERVE_PROJECT_DOCS)
 
       ->add(fn($r, $pr, $n) => confirm(
         label: '📋 Preserve onboarding checklist?',
         hint: 'Helps to track onboarding to Vortex within the repository.',
         default: $this->default($n, TRUE),
-      ), 'preserve_onboarding')
+      ), PromptFields::PRESERVE_ONBOARDING)
 
       ->submit();
 
