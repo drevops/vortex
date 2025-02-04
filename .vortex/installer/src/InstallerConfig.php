@@ -12,7 +12,7 @@ namespace DrevOps\Installer;
  *
  * @package DrevOps\Installer
  */
-class Config {
+class InstallerConfig {
 
   /**
    * Installer configuration.

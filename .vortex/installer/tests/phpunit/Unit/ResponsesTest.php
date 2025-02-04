@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Tests\Unit;
 
-use DrevOps\Installer\Config;
+use DrevOps\Installer\InstallerConfig;
 use DrevOps\Installer\PromptManager;
 use Laravel\Prompts\Key;
 use Laravel\Prompts\Output\BufferedConsoleOutput;
@@ -19,7 +19,7 @@ class ResponsesTest extends UnitTestBase {
     ));
 
     $pm = new PromptManager($output);
-    $responses = $pm->getResponses(new Config());
+    $responses = $pm->getResponses(new InstallerConfig());
 
 
 

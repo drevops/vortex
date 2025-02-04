@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Command;
 
 use AlexSkrypnyk\Str2Name\Str2Name;
-use DrevOps\Installer\Config;
+use DrevOps\Installer\InstallerConfig;
 use DrevOps\Installer\Converter;
 use DrevOps\Installer\File;
 use DrevOps\Installer\Prompt\Name;
@@ -58,7 +58,7 @@ class InstallCommand extends Command {
   /**
    * Defines the configuration object.
    */
-  protected Config $config;
+  protected InstallerConfig $config;
 
   /**
    * Output interface.
@@ -100,7 +100,7 @@ EOF
 
     $this->addOption('root', NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
 
-    $this->config = new Config();
+    $this->config = new InstallerConfig();
   }
 
   /**
