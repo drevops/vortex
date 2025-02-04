@@ -80,7 +80,7 @@ class PromptManager {
         placeholder: 'E.g. example.com',
         required: TRUE,
         default: $this->default($n, 'http://' . Str2Name::kebab($r['machine_name']) . '.com'),
-        transform: fn(string $v) => Converter::toDomain($v),
+        transform: fn(string $v) => Converter::domain($v),
         validate: fn($v) => filter_var($v, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === FALSE ? 'Please enter a valid domain name' : NULL,
       ), 'domain')
 
@@ -145,7 +145,7 @@ class PromptManager {
             default: $this->default($n, 'standard'),
             transform: fn(string $v) => trim($v),
             validate: fn($v) => match (TRUE) {
-              !empty($v) && Converter::toAbbreviation($v) !== $v => 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
+              !empty($v) && Converter::abbreviation($v) !== $v => 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
               default => 'standard',
             },
           ), 'profile')
@@ -155,9 +155,9 @@ class PromptManager {
         hint: 'We will use this name for custom modules.',
         placeholder: 'E.g. ms (for My Site)',
         required: TRUE,
-        default: $this->default($n, Converter::toAbbreviation($r['machine_name'])),
+        default: $this->default($n, Converter::abbreviation($r['machine_name'], 4, ['_'])),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Converter::toAbbreviation($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v) => Converter::abbreviation($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), 'module_prefix')
 
       ->add(fn($r, $pr, $n) => text(
@@ -199,7 +199,7 @@ class PromptManager {
             hint: 'Custom directory where the web server serves the site.',
             placeholder: 'E.g. public',
             required: TRUE,
-            transform: fn(string $v) => !empty(trim($v)) ? Converter::toPath($v) : trim($v),
+            transform: fn(string $v) => !empty(trim($v)) ? Converter::path($v) : trim($v),
             validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
           ), 'webroot_custom')
 
@@ -298,11 +298,11 @@ class PromptManager {
                 fn($r) => $r['database_store_type'] === 'container_image',
                 fn($r, $pr, $n) => text(
                   label: 'What is your database container image name and a tag?',
-                  hint: 'Use "latest" for the latest version. CI will be building this image overnight.',
+                  hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
                   placeholder: 'E.g. drevops/mariadb-drupal-data:latest',
                   default: $this->default($n, 'drevops/mariadb-drupal-data:latest'),
-                  transform: fn($v) => !empty(trim($v)) ? Converter::toContainerImage(trim($v)) : trim($v),
-                  validate: fn($v) => empty(trim($v)) || substr_count($v, ':') > 1 ? 'Please enter a valid image name and a tag' : NULL,
+                  transform: fn($v) => strtolower(trim($v)),
+                  validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid image name and a tag' : NULL,
                 ), 'database_store_type')
 
       ->intro('Continuous Integration')

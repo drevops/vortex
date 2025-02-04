@@ -745,7 +745,7 @@ trait PromptsTrait {
     $args = func_get_args();
     $args = array_slice($args, 2);
 
-    $name = Converter::snakeToPascal($name);
+    $name = Converter::snake2pascal($name);
 
     $callback = [static::class, $prefix . $name];
     if (method_exists($callback[0], $callback[1]) && is_callable($callback)) {
