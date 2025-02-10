@@ -6,6 +6,7 @@ namespace DrevOps\Installer\Traits;
 
 use DrevOps\Installer\Converter;
 use DrevOps\Installer\File;
+use DrevOps\Installer\Util;
 
 /**
  * Prompts trait.
@@ -348,216 +349,11 @@ trait PromptsTrait {
    * of a falsy value like FALSE or 0.
    */
   protected function discoverValue(string $name): mixed {
-    $value = $this->executeCallback('discoverValue', $name);
+    $value = Util::executeCallback('discoverValue', $name);
 
     return is_null($value) ? $this->getDefaultValue($name) : $value;
   }
 
-  protected function discoverValueName(): ?string {
-    $value = $this->getComposerJsonValue('description');
-    if ($value && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', (string) $value, $matches) && !empty($matches[1])) {
-      return $matches[1];
-    }
-
-    return NULL;
-  }
-
-  protected function discoverValueMachineName(): ?string {
-    $value = $this->getComposerJsonValue('name');
-    if ($value && preg_match('/([^\/]+)\/(.+)/', (string) $value, $matches) && !empty($matches[2])) {
-      return $matches[2];
-    }
-
-    return NULL;
-  }
-
-  protected function discoverValueOrg(): ?string {
-    $value = $this->getComposerJsonValue('description');
-    if ($value && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', (string) $value, $matches) && !empty($matches[2])) {
-      return $matches[2];
-    }
-
-    return NULL;
-  }
-
-  protected function discoverValueOrgMachineName(): ?string {
-    $value = $this->getComposerJsonValue('name');
-    if ($value && preg_match('/([^\/]+)\/(.+)/', (string) $value, $matches) && !empty($matches[1])) {
-      return $matches[1];
-    }
-
-    return NULL;
-  }
-
-  protected function discoverValueModulePrefix(): ?string {
-    $webroot = $this->getAnswer('webroot');
-
-    $locations = [
-      $this->config->getDstDir() . sprintf('/%s/modules/custom/*_core', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/sites/all/modules/custom/*_core', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/*/modules/*_core', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/*/modules/custom/*_core', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/modules/*_core', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $webroot),
-    ];
-
-    $path = File::findMatchingPath($locations);
-
-    if (empty($path)) {
-      return NULL;
-    }
-
-    $path = basename($path);
-
-    return str_replace('_core', '', $path);
-  }
-
-  protected function discoverValueProfile(): ?string {
-    $webroot = $this->getAnswer('webroot');
-
-    if ($this->isInstalled()) {
-      $name = $this->getValueFromDstDotenv('DRUPAL_PROFILE');
-      if (!empty($name)) {
-        return $name;
-      }
-    }
-
-    $locations = [
-      $this->config->getDstDir() . sprintf('/%s/profiles/*/*.info', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/*/*.info.yml', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/*.info', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/*.info.yml', $webroot),
-    ];
-
-    $name = File::findMatchingPath($locations, 'Drupal 11 profile implementation of');
-
-    if (empty($name)) {
-      return NULL;
-    }
-
-    $name = basename($name);
-
-    return str_replace(['.info.yml', '.info'], '', $name);
-  }
-
-  protected function discoverValueTheme(): ?string {
-    $webroot = $this->getAnswer('webroot');
-
-    $name_from_env = NULL;
-    if ($this->isInstalled()) {
-      $name_from_env = $this->getValueFromDstDotenv('DRUPAL_THEME');
-    }
-
-    $file = $this->findThemeFile($this->config->getDstDir(), $webroot);
-
-    if (empty($file)) {
-      // If theme file was not found, but the theme is set in the .env file -
-      // return the theme name from the .env file.
-      return $name_from_env ?: NULL;
-    }
-
-    $name_from_info = str_replace(['.info.yml', '.info'], '', basename($file));
-
-    // Check that this is a theme coming originally from the Vortex template.
-    $dir = dirname($file);
-
-    if (!$this->isVortexTheme($dir)) {
-      // If the theme is not coming from the Vortex template - return the theme
-      // name from the .env file.
-      return $name_from_env ?: NULL;
-    }
-
-    if ($name_from_env) {
-      if ($name_from_info !== $name_from_env) {
-        // If the theme name from the .env file does not match the theme name
-        // from the theme file - return the theme name from the info file
-        // to update the .env file.
-        return $name_from_info;
-      }
-
-      return $name_from_env;
-    }
-
-    return NULL;
-  }
-
-  protected function findThemeFile(string $dir, string $webroot): ?string {
-    $locations = [
-      sprintf('%s/%s/themes/custom/*/*.info', $dir, $webroot),
-      sprintf('%s/%s/themes/custom/*/*.info.yml', $dir, $webroot),
-      sprintf('%s/%s/sites/all/themes/custom/*/*.info', $dir, $webroot),
-      sprintf('%s/%s/sites/all/themes/custom/*/*.info.yml', $dir, $webroot),
-      sprintf('%s/%s/profiles/*/themes/custom/*/*.info', $dir, $webroot),
-      sprintf('%s/%s/profiles/*/themes/custom/*/*.info.yml', $dir, $webroot),
-      sprintf('%s/%s/profiles/custom/*/themes/custom/*/*.info', $dir, $webroot),
-      sprintf('%s/%s/profiles/custom/*/themes/custom/*/*.info.yml', $dir, $webroot),
-    ];
-
-    return File::findMatchingPath($locations);
-  }
-
-  protected function isVortexTheme(string $dir): bool {
-    $c1 = file_exists($dir . '/scss/_variables.scss');
-    $c2 = file_exists($dir . '/Gruntfile.js');
-    $c3 = file_exists($dir . '/package.json');
-    $c4 = File::fileContains('build-dev', $dir . '/package.json');
-
-    return $c1 && $c2 && $c3 && $c4;
-  }
-
-  protected function discoverValueDomain(): ?string {
-    return $this->getValueFromDstDotenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN');
-  }
-
-  protected function discoverValueWebroot(): ?string {
-    $webroot = $this->getValueFromDstDotenv('WEBROOT');
-
-    if (empty($webroot) && $this->isInstalled()) {
-      // Try from composer.json.
-      $extra = $this->getComposerJsonValue('extra');
-      if (!empty($extra)) {
-        $webroot = $extra['drupal-scaffold']['drupal-scaffold']['locations']['web-root'] ?? NULL;
-      }
-    }
-
-    return $webroot;
-  }
-
-  protected function discoverValueProvisionUseProfile(): string {
-    return $this->getValueFromDstDotenv('VORTEX_PROVISION_USE_PROFILE') ? self::ANSWER_YES : self::ANSWER_NO;
-  }
-
-  protected function discoverValueDatabaseDownloadSource(): ?string {
-    return $this->getValueFromDstDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
-  }
-
-  protected function discoverValueDatabaseStoreType(): string {
-    return $this->discoverValueDatabaseImage() ? 'container_image' : 'file';
-  }
-
-  protected function discoverValueDatabaseImage(): ?string {
-    return $this->getValueFromDstDotenv('VORTEX_DB_IMAGE');
-  }
-
-  protected function discoverValueOverrideExistingDb(): string {
-    return $this->getValueFromDstDotenv('VORTEX_PROVISION_OVERRIDE_DB') ? self::ANSWER_YES : self::ANSWER_NO;
-  }
-
-  protected function discoverValueCiProvider(): ?string {
-    if (is_readable($this->config->getDstDir() . '/.github/workflows/build-test-deploy.yml')) {
-      return 'GitHub Actions';
-    }
-
-    if (is_readable($this->config->getDstDir() . '/.circleci/config.yml')) {
-      return 'CircleCI';
-    }
-
-    return $this->isInstalled() ? 'none' : NULL;
-  }
-
-  protected function discoverValueDeployType(): ?string {
-    return $this->getValueFromDstDotenv('VORTEX_DEPLOY_TYPES');
-  }
 
   protected function discoverValuePreserveAcquia(): ?string {
     if (is_readable($this->config->getDstDir() . '/hooks')) {
@@ -657,32 +453,6 @@ trait PromptsTrait {
     return (bool) preg_match('/badge\/Vortex\-/', $content);
   }
 
-  /**
-   * Get the value of a composer.json key.
-   *
-   * @param string $name
-   *   Name of the key.
-   *
-   * @return mixed|null
-   *   Value of the key or NULL if not found.
-   */
-  protected function getComposerJsonValue(string $name): mixed {
-    $composer_json = $this->config->getDstDir() . DIRECTORY_SEPARATOR . 'composer.json';
-    if (is_readable($composer_json)) {
-      $contents = file_get_contents($composer_json);
-      if ($contents === FALSE) {
-        return NULL;
-      }
-
-      $json = json_decode($contents, TRUE);
-      if (isset($json[$name])) {
-        return $json[$name];
-      }
-    }
-
-    return NULL;
-  }
-
   protected function processStringTokens(string $dir): void {
     $machine_name_kebab = Converter::kebab($this->getAnswer('machine_name'));
     $machine_name_pascal = Converter::pascal($this->getAnswer('machine_name'));
@@ -728,31 +498,6 @@ trait PromptsTrait {
     // @formatter:on
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
-  }
-
-  /**
-   * Execute this class's callback.
-   *
-   * @param string $prefix
-   *   Prefix of the callback.
-   * @param string $name
-   *   Name of the callback.
-   *
-   * @return mixed
-   *   Result of the callback.
-   */
-  protected function executeCallback(string $prefix, string $name): mixed {
-    $args = func_get_args();
-    $args = array_slice($args, 2);
-
-    $name = Converter::snake2pascal($name);
-
-    $callback = [static::class, $prefix . $name];
-    if (method_exists($callback[0], $callback[1]) && is_callable($callback)) {
-      return call_user_func_array($callback, $args);
-    }
-
-    return NULL;
   }
 
 }
