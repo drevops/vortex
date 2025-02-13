@@ -397,7 +397,7 @@ jobs:
           # Get branch for PR from 'head_ref' or for branch from 'ref_name'.
           VORTEX_DEPLOY_BRANCH: ${{ github.head_ref || github.ref_name }}
           VORTEX_DEPLOY_PR: ${{ github.event.number }}
-          VORTEX_DEPLOY_PR_HEAD: ${{ github.sha }}
+          VORTEX_DEPLOY_PR_HEAD: ${{ github.event.pull_request.head.sha }}
           VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
           VORTEX_DEPLOY_ARTIFACT_ROOT: ${{ github.workspace }}
           VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE }}
