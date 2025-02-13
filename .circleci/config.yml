@@ -343,7 +343,10 @@ jobs:
 
       - run:
           name: Upload code coverage reports to Codecov
-          command: if [ -n "${CODECOV_TOKEN}" ] && [ -d /tmp/artifacts/coverage ]; then codecov -Z -s /tmp/artifacts/coverage; fi
+          command: |
+            if [ -n "${CODECOV_TOKEN}" ] && [ -d /tmp/artifacts/coverage ] && ! echo "${CIRCLE_BRANCH}" | grep -q '^deps/'; then
+              codecov -Z -s /tmp/artifacts/coverage;
+            fi
 
       - persist_to_workspace:
           root: /tmp/workspace
@@ -573,7 +576,7 @@ workflows:
               # - release/2023-04-17, release/2023-04-17.123 (date-based)
               # - hotfix/123.456.789, hotfix/123.456.789-rc.1213 (per https://semver.org/)
               # - hotfix/2023-04-17, hotfix/2023-04-17.123 (date-based)
-              only: /^(production|main|master|develop)$|^project\/[a-zA-z0-9\-\.]+|^(feature|bugfix)\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^deps\/.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+              only: /^(production|main|master|develop)$|^project\/[a-zA-z0-9\-\.]+|^(feature|bugfix)\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
             tags:
               ignore: /.*/
       - deploy-tags:
