@@ -65,8 +65,6 @@ class CircleCiConfigTest extends TestCase {
       ['ci'],
       ['cisomething'],
 
-      ['deps/something'],
-
       ['release/123.456.789'],
       ['release/123.456.789-rc.123'],
       ['hotfix/123.456.789'],
@@ -140,6 +138,7 @@ class CircleCiConfigTest extends TestCase {
       ['preci', FALSE],
       ['precipost', FALSE],
 
+      ['deps/something', FALSE],
       ['deps', FALSE],
       ['predeps', FALSE],
       ['depspost', FALSE],
