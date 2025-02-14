@@ -12,7 +12,7 @@ class ThemeDiscovery extends AbstractDiscovery {
 
     $name_from_env = NULL;
     if ($this->isInstalled()) {
-      $name_from_env = $this->getValueFromDstDotenv('DRUPAL_THEME');
+      $name_from_env = Env::getValueFromDstDotenv('DRUPAL_THEME');
     }
 
     $file = $this->findThemeFile($this->config->getDstDir(), $webroot);

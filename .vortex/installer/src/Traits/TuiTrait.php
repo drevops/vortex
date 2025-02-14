@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Traits;
 
 use DrevOps\Installer\Utils\Callback;
+use DrevOps\Installer\Utils\Env;
 use function Laravel\Prompts\text;
 
 /**
@@ -74,7 +75,7 @@ trait TuiTrait {
       if (!$h) {
         throw new \RuntimeException('Unable to open stdin handle.');
       }
-      $_stdin_handle = stream_isatty($h) || static::getEnvOrDefault('VORTEX_INSTALLER_FORCE_TTY') ? $h : fopen('/dev/tty', 'r+');
+      $_stdin_handle = stream_isatty($h) || Env::get('VORTEX_INSTALLER_FORCE_TTY') ? $h : fopen('/dev/tty', 'r+');
     }
 
     return $_stdin_handle;

@@ -6,6 +6,7 @@ namespace DrevOps\Installer\Traits;
 
 use DrevOps\Installer\Utils\Callback;
 use DrevOps\Installer\Utils\Converter;
+use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
 /**
@@ -223,7 +224,7 @@ trait PromptsTrait {
     if (is_null($this->config->get('VORTEX_INSTALL_DEMO'))) {
       if ($this->getAnswer('provision_use_profile') === self::ANSWER_NO) {
         $download_source = $this->getAnswer('database_download_source');
-        $db_file = static::getEnvOrDefault('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . static::getEnvOrDefault('VORTEX_DB_FILE', 'db.sql');
+        $db_file = Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql');
         $has_comment = File::fileContains('Override project-specific values for demonstration purposes', $this->config->getDstDir() . '/.env');
 
         // Enable Vortex demo mode if download source is file AND
@@ -360,7 +361,7 @@ trait PromptsTrait {
       return self::ANSWER_YES;
     }
 
-    $value = $this->getValueFromDstDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
+    $value = Env::getFromDstDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
 
     if (is_null($value)) {
       return NULL;
@@ -378,7 +379,7 @@ trait PromptsTrait {
       return self::ANSWER_YES;
     }
 
-    $value = $this->getValueFromDstDotenv('LAGOON_PROJECT');
+    $value = Env::getFromDstDotenv('LAGOON_PROJECT');
 
     // Special case - only work with non-empty value as 'LAGOON_PROJECT'
     // may not exist in installed site's .env file.
@@ -390,7 +391,7 @@ trait PromptsTrait {
   }
 
   protected function discoverValuePreserveFtp(): ?string {
-    $value = $this->getValueFromDstDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
+    $value = Env::getFromDstDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
     if (is_null($value)) {
       return NULL;
     }

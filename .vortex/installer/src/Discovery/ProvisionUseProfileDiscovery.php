@@ -7,7 +7,7 @@ use DrevOps\Installer\Util;
 class ProvisionUseProfileDiscovery extends AbstractDiscovery {
 
   public function discover() {
-    return (bool) $this->getValueFromDstDotenv('VORTEX_PROVISION_USE_PROFILE');
+    return (bool) Env::getValueFromDstDotenv('VORTEX_PROVISION_USE_PROFILE');
   }
 
 }

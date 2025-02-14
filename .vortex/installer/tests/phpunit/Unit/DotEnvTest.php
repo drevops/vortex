@@ -46,33 +46,33 @@ class DotEnvTest extends UnitTestBase {
   }
 
   /**
-   * @covers ::loadDotenv
+   * @covers ::loadAllValuesFromDotenv
    */
   public function testGetEnv(): void {
     $content = 'var1=val1';
     $filename = $this->createFixtureEnvFile($content);
 
     $this->assertEmpty(getenv('var1'));
-    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(InstallCommand::class, 'loadAllValuesFromDotenv', [$filename]);
     $this->assertEquals('val1', getenv('var1'));
 
     // Try overloading with the same value - should not allow.
     $content = 'var1=val11';
     $filename = $this->createFixtureEnvFile($content);
-    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(InstallCommand::class, 'loadAllValuesFromDotenv', [$filename]);
     $this->assertEquals('val1', getenv('var1'));
 
     // Force overriding of existing variables.
     $content = 'var1=val11';
     $filename = $this->createFixtureEnvFile($content);
-    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(InstallCommand::class, 'loadAllValuesFromDotenv', [$filename]);
     // @todo Fix this test.
     // $this->assertEquals('val11', getenv('var1'));
   }
 
   /**
    * @dataProvider dataProviderGlobals
-   * @covers ::loadDotenv
+   * @covers ::loadAllValuesFromDotenv
    */
   public function testGlobals(string $content, array $env_before, array $server_before, array $env_after, mixed $server_after, bool $allow_override): void {
     $filename = $this->createFixtureEnvFile($content);
@@ -80,7 +80,7 @@ class DotEnvTest extends UnitTestBase {
     $GLOBALS['_ENV'] = $env_before;
     $GLOBALS['_SERVER'] = $server_before;
 
-    $this->callProtectedMethod(InstallCommand::class, 'loadDotenv', [$filename]);
+    $this->callProtectedMethod(InstallCommand::class, 'loadAllValuesFromDotenv', [$filename]);
 
     // @todo Fix this test.
     // $this->assertEquals($GLOBALS['_ENV'], $env_after);

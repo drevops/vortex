@@ -11,7 +11,7 @@ class ProfileDiscovery extends AbstractDiscovery {
     $webroot = $this->getAnswer(PromptFields::WEBROOT_CUSTOM);
 
     if ($this->isInstalled()) {
-      $name = $this->getValueFromDstDotenv('DRUPAL_PROFILE');
+      $name = Env::getValueFromDstDotenv('DRUPAL_PROFILE');
       if (!empty($name)) {
         return $name;
       }

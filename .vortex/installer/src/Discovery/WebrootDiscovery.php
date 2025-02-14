@@ -3,11 +3,12 @@
 namespace DrevOps\Installer\Discovery;
 
 use DrevOps\Installer\Utils\Composer;
+use DrevOps\Installer\Utils\Env;
 
 class WebrootDiscovery extends AbstractDiscovery {
 
   public function discover() {
-    $webroot = $this->getValueFromDstDotenv('WEBROOT');
+    $webroot = Env::getFromDstDotenv('WEBROOT');
 
     if (empty($webroot) && $this->isInstalled()) {
       // Try from composer.json.

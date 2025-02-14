@@ -14,6 +14,7 @@ use DrevOps\Installer\Traits\GitTrait;
 use DrevOps\Installer\Traits\PrinterTrait;
 use DrevOps\Installer\Traits\PromptsTrait;
 use DrevOps\Installer\Traits\TuiTrait;
+use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -189,41 +190,41 @@ EOF
         }
       }
     }
-    $this->config->set('VORTEX_INSTALL_DST_DIR', $path ?: static::getEnvOrDefault('VORTEX_INSTALL_DST_DIR', $this->fsGetRootDir()));
+    $this->config->set('VORTEX_INSTALL_DST_DIR', $path ?: Env::get('VORTEX_INSTALL_DST_DIR', $this->fsGetRootDir()));
 
     // Load .env file from the destination directory, if it exists.
     if ($this->fs->exists($this->config->getDstDir() . '/.env')) {
-      static::loadDotenv($this->config->getDstDir() . '/.env');
+      Env::loadAllValuesFromDotenv($this->config->getDstDir() . '/.env');
     }
 
     // Internal version of Vortex.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_VERSION', static::getEnvOrDefault('VORTEX_VERSION', 'develop'));
+    $this->config->set('VORTEX_VERSION', Env::get('VORTEX_VERSION', 'develop'));
     // Flag to display install debug information.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_DEBUG', (bool) static::getEnvOrDefault('VORTEX_INSTALL_DEBUG', FALSE));
+    $this->config->set('VORTEX_INSTALL_DEBUG', (bool) Env::get('VORTEX_INSTALL_DEBUG', FALSE));
     // Flag to proceed with installation. If FALSE - the installation will only
     // print resolved values and will not proceed.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_PROCEED', (bool) static::getEnvOrDefault('VORTEX_INSTALL_PROCEED', TRUE));
+    $this->config->set('VORTEX_INSTALL_PROCEED', (bool) Env::get('VORTEX_INSTALL_PROCEED', TRUE));
     // Temporary directory to download and expand files to.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_TMP_DIR', static::getEnvOrDefault('VORTEX_INSTALL_TMP_DIR', File::createTempdir()));
+    $this->config->set('VORTEX_INSTALL_TMP_DIR', Env::get('VORTEX_INSTALL_TMP_DIR', File::createTempdir()));
     // Path to local Vortex repository. If not provided - remote will be used.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_LOCAL_REPO', static::getEnvOrDefault('VORTEX_INSTALL_LOCAL_REPO'));
+    $this->config->set('VORTEX_INSTALL_LOCAL_REPO', Env::get('VORTEX_INSTALL_LOCAL_REPO'));
     // Optional commit to download. If not provided, latest release will be
     // downloaded.
     // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_COMMIT', static::getEnvOrDefault('VORTEX_INSTALL_COMMIT', 'HEAD'));
+    $this->config->set('VORTEX_INSTALL_COMMIT', Env::get('VORTEX_INSTALL_COMMIT', 'HEAD'));
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
-    if (!is_null(static::getEnvOrDefault('VORTEX_INSTALL_DEMO'))) {
-      $this->config->set('VORTEX_INSTALL_DEMO', (bool) static::getEnvOrDefault('VORTEX_INSTALL_DEMO'));
+    if (!is_null(Env::get('VORTEX_INSTALL_DEMO'))) {
+      $this->config->set('VORTEX_INSTALL_DEMO', (bool) Env::get('VORTEX_INSTALL_DEMO'));
     }
     // Internal flag to skip processing of the demo mode.
-    $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) static::getEnvOrDefault('VORTEX_INSTALL_DEMO_SKIP', FALSE));
+    $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) Env::get('VORTEX_INSTALL_DEMO_SKIP', FALSE));
   }
 
   protected function doExecute(): void {
@@ -393,15 +394,15 @@ EOF
     }
 
     // Reload variables from destination's .env.
-    static::loadDotenv($this->config->getDstDir() . '/.env');
+    Env::loadAllValuesFromDotenv($this->config->getDstDir() . '/.env');
 
-    $url = static::getEnvOrDefault('VORTEX_DB_DOWNLOAD_CURL_URL');
+    $url = Env::get('VORTEX_DB_DOWNLOAD_CURL_URL');
     if (empty($url)) {
       return;
     }
 
-    $data_dir = $this->config->getDstDir() . DIRECTORY_SEPARATOR . static::getEnvOrDefault('VORTEX_DB_DIR', './.data');
-    $file = static::getEnvOrDefault('VORTEX_DB_FILE', 'db.sql');
+    $data_dir = $this->config->getDstDir() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
+    $file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
     $this->status(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url), self::INSTALLER_STATUS_MESSAGE, FALSE);
 
