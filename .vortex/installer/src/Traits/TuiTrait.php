@@ -240,7 +240,7 @@ EOT;
   }
 
   protected function commandExists(string $command): void {
-    $this->doExec('command -v ' . $command, $lines, $ret);
+    Callback::doExec('command -v ' . $command, $lines, $ret);
     if ($ret === 1) {
       throw new \RuntimeException(sprintf('Command "%s" does not exist in the current environment.', $command));
     }
@@ -248,40 +248,11 @@ EOT;
 
   protected function getTuiWidth(int $max = 80): int {
     if (!isset($this->tuiWidth)) {
-      $width = intval($this->doExec('tput cols'));
+      $width = intval(Callback::doExec('tput cols'));
       $this->tuiWidth = $width > 0 ? $width : $max;
     }
 
     return min($this->tuiWidth, $max);
-  }
-
-  /**
-   * Execute command.
-   *
-   * @param string $command
-   *   Command to execute.
-   * @param array<int, string>|null $output
-   *   Output of the command.
-   * @param int $return_var
-   *   Return code of the command.
-   *
-   * @return string|false
-   *   Result of the command.
-   */
-  protected function doExec(string $command, ?array &$output = NULL, ?int &$return_var = NULL): string|false {
-    if ($this->config->isInstallDebug()) {
-      $this->status(sprintf('COMMAND: %s', $command), self::INSTALLER_STATUS_DEBUG);
-    }
-
-    $result = exec($command, $output, $return_var);
-
-    if ($this->config->isInstallDebug()) {
-      $this->status(sprintf('  OUTPUT: %s', implode('', $output)), self::INSTALLER_STATUS_DEBUG);
-      $this->status(sprintf('  CODE  : %s', $return_var), self::INSTALLER_STATUS_DEBUG);
-      $this->status(sprintf('  RESULT: %s', $result), self::INSTALLER_STATUS_DEBUG);
-    }
-
-    return $result;
   }
 
   /**

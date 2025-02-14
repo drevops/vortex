@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Traits;
 
+use DrevOps\Installer\Utils\Callback;
+
 /**
  * Environment trait.
  */
@@ -17,7 +19,7 @@ trait DownloadTrait {
     $this->status(sprintf('Downloading Vortex from the local repository "%s" at ref "%s".', $repo, $ref), self::INSTALLER_STATUS_MESSAGE, FALSE);
 
     $command = sprintf('git --git-dir="%s/.git" --work-tree="%s" archive --format=tar "%s" | tar xf - -C "%s"', $repo, $repo, $ref, $dst);
-    $this->doExec($command, $output, $code);
+    Callback::doExec($command, $output, $code);
 
     $this->status(implode(PHP_EOL, $output), self::INSTALLER_STATUS_DEBUG);
 
@@ -46,7 +48,7 @@ trait DownloadTrait {
 
     $url = sprintf('https://github.com/%s/%s/archive/%s.tar.gz', $org, $project, $ref);
     $this->status(sprintf('Downloading Vortex from the remote repository "%s" at ref "%s".', $url, $ref), self::INSTALLER_STATUS_MESSAGE, FALSE);
-    $this->doExec(sprintf('curl -sS -L "%s" | tar xzf - -C "%s" --strip 1', $url, $dst), $output, $code);
+    Callback::doExec(sprintf('curl -sS -L "%s" | tar xzf - -C "%s" --strip 1', $url, $dst), $output, $code);
 
     if ($code != 0) {
       throw new \RuntimeException(implode(PHP_EOL, $output));

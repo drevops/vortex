@@ -14,6 +14,7 @@ use DrevOps\Installer\Traits\GitTrait;
 use DrevOps\Installer\Traits\PrinterTrait;
 use DrevOps\Installer\Traits\PromptsTrait;
 use DrevOps\Installer\Traits\TuiTrait;
+use DrevOps\Installer\Utils\Callback;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 use Symfony\Component\Console\Command\Command;
@@ -291,7 +292,7 @@ EOF
     }
     else {
       $this->status(sprintf('Initialising Git repository in directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
-      $this->doExec(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
+      Callback::doExec(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
 
       if (!file_exists($dst . '/.git')) {
         throw new \RuntimeException(sprintf('Unable to init git project in directory "%s".', $dst));
@@ -410,7 +411,7 @@ EOF
       mkdir($data_dir);
     }
 
-    $this->doExec(sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file), $output, $code);
+    Callback::doExec(sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file), $output, $code);
 
     if ($code !== 0) {
       throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));

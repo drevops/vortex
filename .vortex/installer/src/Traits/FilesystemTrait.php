@@ -125,7 +125,7 @@ trait FilesystemTrait {
       return $this->fsRealpath($file);
     }
 
-    $root = $root ? $root : $this->fsGetRootDir();
+    $root = $root ?: $this->fsGetRootDir();
     $root = $this->fsRealpath($root);
     $file = $root . DIRECTORY_SEPARATOR . $file;
 

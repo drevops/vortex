@@ -1,15 +1,10 @@
 <?php
 
-declare(strict_types=1);
+namespace DrevOps\Installer\Utils;
 
-namespace DrevOps\Installer\Traits;
+class Git {
 
-/**
- * Git trait.
- */
-trait GitTrait {
-
-  protected function gitFileIsTracked(string $path, string $dir): bool {
+  public static function fileIsTracked(string $path, string $dir): bool {
     if (is_dir($dir . DIRECTORY_SEPARATOR . '.git')) {
       $cwd = getcwd();
       if (!$cwd) {
@@ -17,7 +12,7 @@ trait GitTrait {
       }
 
       chdir($dir);
-      $this->doExec(sprintf('git ls-files --error-unmatch "%s" 2>&1 >/dev/null', $path), $output, $code);
+      Callback::doExec(sprintf('git ls-files --error-unmatch "%s" 2>&1 >/dev/null', $path), $output, $code);
       chdir($cwd);
 
       return $code === 0;
