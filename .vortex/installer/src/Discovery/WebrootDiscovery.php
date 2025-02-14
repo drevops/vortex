@@ -2,7 +2,7 @@
 
 namespace DrevOps\Installer\Discovery;
 
-use DrevOps\Installer\Util;
+use DrevOps\Installer\Utils\Composer;
 
 class WebrootDiscovery extends AbstractDiscovery {
 
@@ -11,7 +11,7 @@ class WebrootDiscovery extends AbstractDiscovery {
 
     if (empty($webroot) && $this->isInstalled()) {
       // Try from composer.json.
-      $extra = Util::getComposerJsonValue('extra', $this->config->getDstDir() . DIRECTORY_SEPARATOR . 'composer.json');
+      $extra = Composer::getJsonValue('extra', $this->config->getDstDir() . DIRECTORY_SEPARATOR . 'composer.json');
       if (!empty($extra)) {
         $webroot = $extra['drupal-scaffold']['drupal-scaffold']['locations']['web-root'] ?? NULL;
       }

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Tests\Unit;
 
-use DrevOps\Installer\Converter;
+use DrevOps\Installer\Utils\Converter;
 
 /**
  * Class InstallerHelpersTest.
  *
- * @coversDefaultClass \DrevOps\Installer\Converter
+ * @coversDefaultClass \DrevOps\Installer\Utils\Converter
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort

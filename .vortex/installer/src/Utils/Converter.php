@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer;
+namespace DrevOps\Installer\Utils;
 
 use AlexSkrypnyk\Str2Name\Str2Name;
 

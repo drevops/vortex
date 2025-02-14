@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Tests\Unit;
 
-use DrevOps\Installer\File;
+use DrevOps\Installer\Utils\File;
 
 /**
  * Class InstallerCopyRecursiveTest.
  *
  * InstallerCopyRecursiveTest fixture class.
  *
- * @coversDefaultClass \DrevOps\Installer\File
+ * @coversDefaultClass \DrevOps\Installer\Utils\File
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort

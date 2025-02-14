@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Traits;
 
-use DrevOps\Installer\Util;
+use DrevOps\Installer\Utils\Callback;
 use function Laravel\Prompts\text;
 
 /**
@@ -348,7 +348,7 @@ EOT;
    *   Processed answer.
    */
   protected function processAnswer(string $name, string $dir): mixed {
-    return Util::executeCallback('process', $name, $dir);
+    return Callback::execute('process', $name, $dir);
   }
 
 }

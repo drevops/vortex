@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Tests\Unit;
 
-use DrevOps\Installer\File;
 use DrevOps\Installer\Tests\Traits\ReflectionTrait;
+use DrevOps\Installer\Utils\File;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 

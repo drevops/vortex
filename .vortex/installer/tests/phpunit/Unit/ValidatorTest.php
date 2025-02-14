@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Tests\Unit;
 
-use DrevOps\Installer\Validator;
+use DrevOps\Installer\Utils\Validator;
 
 /**
  * Class InstallerHelpersTest.
  *
- * @coversDefaultClass \DrevOps\Installer\Validator
+ * @coversDefaultClass \DrevOps\Installer\Utils\Validator
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort

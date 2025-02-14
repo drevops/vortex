@@ -2,9 +2,8 @@
 
 namespace DrevOps\Installer\Discovery;
 
-use DrevOps\Installer\File;
-use DrevOps\Installer\PromptFields;
-use DrevOps\Installer\Util;
+use DrevOps\Installer\Prompts\PromptFields;
+use DrevOps\Installer\Utils\File;
 
 class ModulePrefixDiscovery extends AbstractDiscovery {
 

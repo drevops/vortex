@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Traits;
 
-use DrevOps\Installer\Converter;
-use DrevOps\Installer\File;
-use DrevOps\Installer\Util;
+use DrevOps\Installer\Utils\Callback;
+use DrevOps\Installer\Utils\Converter;
+use DrevOps\Installer\Utils\File;
 
 /**
  * Prompts trait.
@@ -349,7 +349,7 @@ trait PromptsTrait {
    * of a falsy value like FALSE or 0.
    */
   protected function discoverValue(string $name): mixed {
-    $value = Util::executeCallback('discoverValue', $name);
+    $value = Callback::execute('discoverValue', $name);
 
     return is_null($value) ? $this->getDefaultValue($name) : $value;
   }

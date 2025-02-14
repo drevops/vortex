@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Command;
 
-use AlexSkrypnyk\Str2Name\Str2Name;
 use DrevOps\Installer\InstallerConfig;
-use DrevOps\Installer\Converter;
-use DrevOps\Installer\File;
 use DrevOps\Installer\Prompt\Name;
-use DrevOps\Installer\PromptManager;
+use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Traits\DownloadTrait;
 use DrevOps\Installer\Traits\EnvTrait;
 use DrevOps\Installer\Traits\FilesystemTrait;
@@ -17,19 +14,13 @@ use DrevOps\Installer\Traits\GitTrait;
 use DrevOps\Installer\Traits\PrinterTrait;
 use DrevOps\Installer\Traits\PromptsTrait;
 use DrevOps\Installer\Traits\TuiTrait;
+use DrevOps\Installer\Utils\File;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use function Laravel\Prompts\confirm;
-use function Laravel\Prompts\form;
-use function Laravel\Prompts\info;
-use function Laravel\Prompts\multiselect;
-use function Laravel\Prompts\note;
-use function Laravel\Prompts\select;
-use function Laravel\Prompts\text;
 
 /**
  * Run command.
