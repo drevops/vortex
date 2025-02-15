@@ -1,18 +1,19 @@
 <?php
 
-namespace DrevOps\Installer\Discovery;
+namespace DrevOps\Installer\Prompts\Handlers;
 
+use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Utils\File;
 
-class ThemeDiscovery extends AbstractDiscovery {
+class ThemeHandler extends AbstractHandler {
 
   public function discover() {
     $webroot = $this->getAnswer(PromptFields::WEBROOT_CUSTOM);
 
     $name_from_env = NULL;
     if ($this->isInstalled()) {
-      $name_from_env = Env::getValueFromDstDotenv('DRUPAL_THEME');
+      $name_from_env = Env::getFromDstDotenv('DRUPAL_THEME');
     }
 
     $file = $this->findThemeFile($this->config->getDstDir(), $webroot);
@@ -70,5 +71,22 @@ class ThemeDiscovery extends AbstractDiscovery {
     $c4 = File::fileContains('build-dev', $dir . '/package.json');
 
     return $c1 && $c2 && $c3 && $c4;
+  }
+
+  public function process(array $responses, string $dir): void {
+    $webroot = $this->getAnswer('webroot');
+    $name = $this->getAnswer('theme');
+
+    File::fileReplaceContent('/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $name, $dir . '/.env');
+
+    $file_dst = $this->findThemeFile($this->config->getDstDir(), $webroot);
+    // Do not update the theme files if it is not a theme from the Vortex
+    // template.
+    if (!empty($file_dst) && !$this->isVortexTheme(dirname($file_dst))) {
+      $file_tmpl = $this->findThemeFile($dir, $webroot);
+      if (!empty($file_tmpl)) {
+        File::rmdirRecursive(dirname($file_tmpl));
+      }
+    }
   }
 }

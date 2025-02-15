@@ -14,165 +14,14 @@ use DrevOps\Installer\Utils\File;
  */
 trait PromptsTrait {
 
-  protected function processProfile(string $dir): void {
-    $webroot = $this->getAnswer('webroot');
-    // For core profiles - remove custom profile and direct links to it.
-    if (in_array($this->getAnswer('profile'), $this->drupalCoreProfiles())) {
-      File::rmdirRecursive(sprintf('%s/%s/profiles/your_site_profile', $dir, $webroot));
-      File::rmdirRecursive(sprintf('%s/%s/profiles/custom/your_site_profile', $dir, $webroot));
-      File::dirReplaceContent($webroot . '/profiles/your_site_profile,', '', $dir);
-      File::dirReplaceContent($webroot . '/profiles/custom/your_site_profile,', '', $dir);
-    }
-    File::dirReplaceContent('your_site_profile', $this->getAnswer('profile'), $dir);
-  }
 
-  /**
-   * Get core profiles names.
-   *
-   * @return array<int, string>
-   *   Array of core profiles names.
-   */
-  protected function drupalCoreProfiles(): array {
-    return [
-      'standard',
-      'minimal',
-      'testing',
-      'demo_umami',
-    ];
-  }
 
-  protected function processProvisionUseProfile(string $dir): void {
-    if ($this->getAnswer('provision_use_profile') === self::ANSWER_YES) {
-      File::fileReplaceContent('/VORTEX_PROVISION_USE_PROFILE=.*/', "VORTEX_PROVISION_USE_PROFILE=1", $dir . '/.env');
-      File::removeTokenWithContent('!PROVISION_USE_PROFILE', $dir);
-    }
-    else {
-      File::fileReplaceContent('/VORTEX_PROVISION_USE_PROFILE=.*/', "VORTEX_PROVISION_USE_PROFILE=0", $dir . '/.env');
-      File::removeTokenWithContent('PROVISION_USE_PROFILE', $dir);
-    }
-  }
 
-  protected function processDatabaseDownloadSource(string $dir): void {
-    $type = $this->getAnswer('database_download_source');
-    File::fileReplaceContent('/VORTEX_DB_DOWNLOAD_SOURCE=.*/', 'VORTEX_DB_DOWNLOAD_SOURCE=' . $type, $dir . '/.env');
 
-    $types = [
-      'curl',
-      'ftp',
-      'acquia',
-      'lagoon',
-      'container_registry',
-      'none',
-    ];
 
-    foreach ($types as $t) {
-      $token = 'VORTEX_DB_DOWNLOAD_SOURCE_' . strtoupper($t);
-      if ($t === $type) {
-        File::removeTokenWithContent('!' . $token, $dir);
-      }
-      else {
-        File::removeTokenWithContent($token, $dir);
-      }
-    }
-  }
 
-  protected function processTheme(string $dir): void {
-    $webroot = $this->getAnswer('webroot');
-    $name = $this->getAnswer('theme');
 
-    File::fileReplaceContent('/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $name, $dir . '/.env');
 
-    $file_dst = $this->findThemeFile($this->config->getDstDir(), $webroot);
-    // Do not update the theme files if it is not a theme from the Vortex
-    // template.
-    if (!empty($file_dst) && !$this->isVortexTheme(dirname($file_dst))) {
-      $file_tmpl = $this->findThemeFile($dir, $webroot);
-      if (!empty($file_tmpl)) {
-        File::rmdirRecursive(dirname($file_tmpl));
-      }
-    }
-  }
-
-  protected function processDatabaseImage(string $dir): void {
-    $image = $this->getAnswer('database_image');
-    File::fileReplaceContent('/VORTEX_DB_IMAGE=.*/', 'VORTEX_DB_IMAGE=' . $image, $dir . '/.env');
-
-    if ($image !== '' && $image !== '0') {
-      File::removeTokenWithContent('!VORTEX_DB_IMAGE', $dir);
-    }
-    else {
-      File::removeTokenWithContent('VORTEX_DB_IMAGE', $dir);
-    }
-  }
-
-  protected function processOverrideExistingDb(string $dir): void {
-    if ($this->getAnswer('override_existing_db') === self::ANSWER_YES) {
-      File::fileReplaceContent('/VORTEX_PROVISION_OVERRIDE_DB=.*/', "VORTEX_PROVISION_OVERRIDE_DB=1", $dir . '/.env');
-    }
-    else {
-      File::fileReplaceContent('/VORTEX_PROVISION_OVERRIDE_DB=.*/', "VORTEX_PROVISION_OVERRIDE_DB=0", $dir . '/.env');
-    }
-  }
-
-  protected function processCiProvider(string $dir): void {
-    $type = $this->getAnswer('ci_provider');
-
-    $remove_gha = FALSE;
-    $remove_circleci = FALSE;
-
-    switch ($type) {
-      case 'CircleCI':
-        $remove_gha = TRUE;
-        break;
-
-      case 'GitHub Actions':
-        $remove_circleci = TRUE;
-        break;
-
-      default:
-        $remove_circleci = TRUE;
-        $remove_gha = TRUE;
-    }
-
-    if ($remove_gha) {
-      @unlink($dir . '/.github/workflows/build-test-deploy.yml');
-      File::removeTokenWithContent('CI_PROVIDER_GHA', $dir);
-    }
-
-    if ($remove_circleci) {
-      File::rmdirRecursive($dir . '/.circleci');
-      @unlink($dir . '/tests/phpunit/CircleCiConfigTest.php');
-      File::removeTokenWithContent('CI_PROVIDER_CIRCLECI', $dir);
-    }
-
-    if ($remove_gha && $remove_circleci) {
-      @unlink($dir . '/docs/ci.md');
-      File::removeTokenWithContent('CI_PROVIDER_ANY', $dir);
-    }
-    else {
-      File::removeTokenWithContent('!CI_PROVIDER_ANY', $dir);
-    }
-  }
-
-  protected function processDeployType(string $dir): void {
-    $type = $this->getAnswer('deploy_type');
-    if ($type !== 'none') {
-      File::fileReplaceContent('/VORTEX_DEPLOY_TYPES=.*/', 'VORTEX_DEPLOY_TYPES=' . $type, $dir . '/.env');
-
-      if (!str_contains($type, 'artifact')) {
-        @unlink($dir . '/.gitignore.deployment');
-        @unlink($dir . '/.gitignore.artifact');
-      }
-
-      File::removeTokenWithContent('!DEPLOYMENT', $dir);
-    }
-    else {
-      @unlink($dir . '/docs/deployment.md');
-      @unlink($dir . '/.gitignore.deployment');
-      @unlink($dir . '/.gitignore.artifact');
-      File::removeTokenWithContent('DEPLOYMENT', $dir);
-    }
-  }
 
   protected function processPreserveAcquia(string $dir): void {
     if ($this->getAnswer('preserve_acquia') === self::ANSWER_YES) {
@@ -309,20 +158,7 @@ trait PromptsTrait {
     }
   }
 
-  protected function processWebroot(string $dir): void {
-    $new_name = $this->getAnswer('webroot', 'web');
 
-    if ($new_name !== 'web') {
-      File::dirReplaceContent('web/', $new_name . '/', $dir);
-      File::dirReplaceContent('web\/', $new_name . '\/', $dir);
-      File::dirReplaceContent(': web', ': ' . $new_name, $dir);
-      File::dirReplaceContent('=web', '=' . $new_name, $dir);
-      File::dirReplaceContent('!web', '!' . $new_name, $dir);
-      File::dirReplaceContent('/\/web\//', '/' . $new_name . '/', $dir);
-      File::dirReplaceContent('/\'\/web\'/', "'/" . $new_name . "'", $dir);
-      rename($dir . DIRECTORY_SEPARATOR . 'web', $dir . DIRECTORY_SEPARATOR . $new_name);
-    }
-  }
 
   protected function processPreserveOnboarding(string $dir): void {
     if ($this->getAnswer('preserve_onboarding') !== self::ANSWER_YES) {

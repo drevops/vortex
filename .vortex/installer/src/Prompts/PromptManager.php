@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Prompts;
 
 use AlexSkrypnyk\Str2Name\Str2Name;
+use DrevOps\Installer\InstallerConfig;
+use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
+use DrevOps\Installer\Utils\Callback;
+use DrevOps\Installer\Utils\Converter;
 use Laravel\Prompts\Prompt;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
@@ -16,12 +20,21 @@ use function Laravel\Prompts\text;
 
 class PromptManager {
 
-  protected $config;
+  protected InstallerConfig $config;
+
+  protected array $responses = [];
+
+  /**
+   * @var array<string, \DrevOps\Installer\Prompts\Handlers\HandlerInterface>
+   */
+  protected array $handlers = [];
 
   public function __construct(
     protected OutputInterface $output,
   ) {
     Prompt::setOutput($output);
+
+    $this->initHandlers();
   }
 
   public function getResponses($config) {
@@ -376,12 +389,73 @@ class PromptManager {
       return !is_numeric($key);
     }, ARRAY_FILTER_USE_KEY);
 
-    return $responses;
+    $this->responses = $responses;
+
+    return $this->responses;
   }
 
   protected function default($name, $default = NULL) {
     // @todo Implement this.
     return $default;
+  }
+
+  public function process($dir, ?callable $cb = NULL) {
+    // @todo: All processors should be based on handlers defined by PromptFields.
+    $processors = [
+      'webroot',
+      'profile',
+      'provision_use_profile',
+      'theme',
+      'database_download_source',
+      'database_image',
+      'override_existing_db',
+      PromptFields::CI_PROVIDER,
+      'deploy_type',
+      'preserve_acquia',
+      'preserve_lagoon',
+      'preserve_ftp',
+      'preserve_renovatebot',
+      'preserve_onboarding',
+      'string_tokens',
+      'preserve_doc_comments',
+      'demo_mode',
+      // @todo: Convert below to 'general' Handler.
+      'preserve_vortex_info',
+      'vortex_internal',
+      'enable_commented_code',
+      'empty_lines',
+    ];
+
+    foreach ($processors as $name) {
+      // @todo: Make the args internal.
+      $this->handlers[$name]->process($this->responses, $dir);
+
+      if (is_callable($cb)) {
+        $cb($name, $processors);
+      }
+    }
+  }
+
+  protected function initHandlers() {
+    // collect handlers from the directory.
+
+    $dir = __DIR__.'/Handlers';
+
+    $handler_files = array_filter(scandir($dir), function ($file) {
+      return !in_array($file, ['.', '..']);
+    });
+
+    foreach ($handler_files as $file) {
+//      require_once $dir . DIRECTORY_SEPARATOR . $file;
+      $class = 'DrevOps\\Installer\\Prompts\\Handler\\' . basename($file);
+
+      if (!class_exists($class) || !is_subclass_of($class, HandlerInterface::class)) {
+        continue;
+      }
+
+      $key = Converter::constant(Converter::pascal2snake(basename($file)));
+      $this->handlers[$key] = new $class($this->config, $this->responses);
+    }
   }
 
 }

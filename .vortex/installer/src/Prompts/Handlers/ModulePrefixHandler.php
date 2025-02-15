@@ -1,11 +1,11 @@
 <?php
 
-namespace DrevOps\Installer\Discovery;
+namespace DrevOps\Installer\Prompts\Handlers;
 
 use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Utils\File;
 
-class ModulePrefixDiscovery extends AbstractDiscovery {
+class ModulePrefixHandler extends AbstractHandler {
 
   public function discover() {
     $webroot = $this->getAnswer(PromptFields::WEBROOT_CUSTOM);

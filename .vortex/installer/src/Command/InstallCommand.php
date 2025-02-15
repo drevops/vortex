@@ -23,6 +23,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use function Laravel\Prompts\progress;
 
 /**
  * Run command.
@@ -304,40 +305,14 @@ EOF
   }
 
   protected function replaceTokens(): void {
-    $dir = $this->config->get('VORTEX_INSTALL_TMP_DIR');
-
     $this->status('Replacing tokens ', self::INSTALLER_STATUS_MESSAGE, FALSE);
 
-    $processors = [
-      'webroot',
-      'profile',
-      'provision_use_profile',
-      'theme',
-      'database_download_source',
-      'database_image',
-      'override_existing_db',
-      'ci_provider',
-      'deploy_type',
-      'preserve_acquia',
-      'preserve_lagoon',
-      'preserve_ftp',
-      'preserve_renovatebot',
-      'preserve_onboarding',
-      'string_tokens',
-      'preserve_doc_comments',
-      'demo_mode',
-      'preserve_vortex_info',
-      'vortex_internal',
-      'enable_commented_code',
-      'empty_lines',
-    ];
+    $dir = $this->config->get('VORTEX_INSTALL_TMP_DIR');
+    $this->promptManager->process($dir, fn(string $name, array $processors) => progress(
+      label: 'Replacing tokens',
+      steps: $processors,
+    ));
 
-    foreach ($processors as $name) {
-      $this->processAnswer($name, $dir);
-      $this->printTick($name);
-    }
-
-    print ' ';
     $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
 

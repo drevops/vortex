@@ -1,10 +1,10 @@
 <?php
 
-namespace DrevOps\Installer\Discovery;
+namespace DrevOps\Installer\Prompts\Handlers;
 
 use DrevOps\Installer\Utils\Composer;
 
-class MachineNameDiscovery extends AbstractDiscovery {
+class MachineNameHandler extends AbstractHandler {
 
   public function discover() {
     $value = Composer::getJsonValue('name', $this->config->getDstDir() . DIRECTORY_SEPARATOR . 'composer.json');
