@@ -28,7 +28,7 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 [![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-5909A1.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
 
-[//]: # (#;< ONBOARDING)
+[//]: # (#;< DOCS_ONBOARDING)
 
 </div>
 
@@ -37,7 +37,7 @@ Drupal 11 implementation of YOURSITE for YOURORG
 Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding
 to Vortex progress. Remove this section once onboarding is finished.
 
-[//]: # (#;> ONBOARDING)
+[//]: # (#;> DOCS_ONBOARDING)
 
 ## Local environment setup
 

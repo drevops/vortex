@@ -50,8 +50,8 @@ interface PromptFields {
 
   public const LABEL_MERGE_CONFLICTS_PR = 'label_merge_conflicts_pr';
 
-  public const PRESERVE_PROJECT_DOCS = 'preserve_project_docs';
+  public const DOCS_PROJECT = 'preserve_project_docs';
 
-  public const PRESERVE_ONBOARDING = 'preserve_onboarding';
+  public const DOCS_ONBOARDING = 'preserve_onboarding';
 
 }

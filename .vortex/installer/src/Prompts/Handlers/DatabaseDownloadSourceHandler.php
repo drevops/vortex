@@ -2,6 +2,7 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
+use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
@@ -12,7 +13,7 @@ class DatabaseDownloadSourceHandler extends AbstractHandler {
   }
 
   public function process(array $responses, string $dir): void {
-    $type = $this->getAnswer('database_download_source');
+    $type = $responses[PromptFields::DATABASE_DOWNLOAD_SOURCE];
     File::fileReplaceContent('/VORTEX_DB_DOWNLOAD_SOURCE=.*/', 'VORTEX_DB_DOWNLOAD_SOURCE=' . $type, $dir . '/.env');
 
     $types = [

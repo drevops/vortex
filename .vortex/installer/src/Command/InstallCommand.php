@@ -35,11 +35,8 @@ use function Laravel\Prompts\progress;
 class InstallCommand extends Command {
 
   use DownloadTrait;
-  use EnvTrait;
   use FilesystemTrait;
-  use GitTrait;
   use PrinterTrait;
-  use PromptsTrait;
   use TuiTrait;
 
   /**

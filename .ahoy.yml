@@ -9,10 +9,6 @@
 # Do not add values directly into this file. Use .env file instead.
 # Run `ahoy up cli` to apply environment variables changes to containers.
 #;
-#; Comments starting with '#:' provide explicit documentation and will be
-#; automatically removed during installation or update of Vortex if an option
-#; is selected.
-#;
 #; Comments starting with '#;<' and '#;>' are internal Vortex comments
 #; and will be removed during installation or update of Vortex.
 ---

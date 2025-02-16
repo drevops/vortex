@@ -261,11 +261,11 @@ class PromptManager {
           'database' => 'Database dump',
           'profile' => 'Install from profile',
         ],
-        default: $this->default($n, 'database'),
+        default: $this->default($n, PromptFields::PROVISION_TYPE_DATABASE),
       ), PromptFields::PROVISION_TYPE)
 
         ->addIf(
-          fn($r) => $r['provision_type'] === 'database',
+          fn($r) => $r[PromptFields::PROVISION_TYPE] === 'database',
           function ($r, $pr, $n) {
             $options = [
               'url' => '🌍 URL download',
@@ -370,13 +370,13 @@ class PromptManager {
         label: '📚 Preserve project documentation?',
         hint: 'Helps to maintain the project documentation within the repository.',
         default: $this->default($n, TRUE),
-      ), PromptFields::PRESERVE_PROJECT_DOCS)
+      ), PromptFields::DOCS_PROJECT)
 
       ->add(fn($r, $pr, $n) => confirm(
         label: '📋 Preserve onboarding checklist?',
         hint: 'Helps to track onboarding to Vortex within the repository.',
         default: $this->default($n, TRUE),
-      ), PromptFields::PRESERVE_ONBOARDING)
+      ), PromptFields::DOCS_ONBOARDING)
 
       ->submit();
 
@@ -416,14 +416,7 @@ class PromptManager {
       'preserve_ftp',
       'preserve_renovatebot',
       'preserve_onboarding',
-      'string_tokens',
-      'preserve_doc_comments',
-      'demo_mode',
-      // @todo: Convert below to 'general' Handler.
-      'preserve_vortex_info',
-      'vortex_internal',
-      'enable_commented_code',
-      'empty_lines',
+      'internal',
     ];
 
     foreach ($processors as $name) {

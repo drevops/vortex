@@ -28,7 +28,7 @@ aliases:
   - &nightly_db_schedule "0 18 * * *"
   #;> !PROVISION_USE_PROFILE
 
-  #;< RENOVATEBOT
+  #;< RENOVATEBOT_CI
   # Specify the correct repository to prevent the bot from accessing all
   # repositories available via $RENOVATE_TOKEN.
   #;< SCAFFOLD_DEV
@@ -42,7 +42,7 @@ aliases:
   ##### - &renovatebot_git_author 'RenovateBot Self Hosted <renovatebot@your-site-domain.example>'
   # The schedule to run RenovateBot on. Defaults to running twice a day.
   - &renovatebot_schedule "5 11,23 * * *"
-  #;> RENOVATEBOT
+  #;> RENOVATEBOT_CI
 
   # Shared runner container configuration applied to each job.
   - &runner_config
@@ -398,7 +398,7 @@ jobs:
           path: *artifacts
   #;> DEPLOYMENT
 
-  #;< RENOVATEBOT
+  #;< RENOVATEBOT_CI
   # Self-hosted RenovateBot.
   # Add RENOVATE_TOKEN as an environment variable with GitHub access token in UI.
   renovatebot-self-hosted:
@@ -416,7 +416,7 @@ jobs:
       - checkout
       - run: renovate-config-validator
       - run: renovate
-  #;> RENOVATEBOT
+  #;> RENOVATEBOT_CI
 
   #;============================================================================
   #; Vortex development section. Removed during Vortex installation/update.
@@ -637,7 +637,7 @@ workflows:
       - database-nightly
   #;> !PROVISION_USE_PROFILE
 
-  #;< RENOVATEBOT
+  #;< RENOVATEBOT_CI
   # Self-hosted Renovatebot workflow.
   renovatebot-self-hosted:
     triggers:
@@ -649,4 +649,4 @@ workflows:
                 - develop
     jobs:
       - renovatebot-self-hosted
-  #;> RENOVATEBOT
+  #;> RENOVATEBOT_CI

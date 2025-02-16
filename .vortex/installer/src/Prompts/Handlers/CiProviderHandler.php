@@ -5,7 +5,7 @@ namespace DrevOps\Installer\Prompts\Handlers;
 use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\File;
 
-class CiProvoderHandler extends AbstractHandler {
+class CiProviderHandler extends AbstractHandler {
 
   public function discover() {
     if (is_readable($this->config->getDstDir() . '/.github/workflows/build-test-deploy.yml')) {
