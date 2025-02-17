@@ -2,8 +2,8 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Util;
+use DrevOps\Installer\Utils\Env;
 
 class DomainHandler extends AbstractHandler {
 

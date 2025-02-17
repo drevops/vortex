@@ -2,8 +2,8 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Prompts\PromptFields;
+use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
 class ThemeHandler extends AbstractHandler {

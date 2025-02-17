@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Traits;
 
 use DrevOps\Installer\Utils\Callback;
-use DrevOps\Installer\Utils\Env;
-use function Laravel\Prompts\text;
 
 /**
  * TUI trait.
