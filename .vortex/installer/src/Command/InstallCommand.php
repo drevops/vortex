@@ -7,7 +7,6 @@ namespace DrevOps\Installer\Command;
 use DrevOps\Installer\InstallerConfig;
 use DrevOps\Installer\Prompt\Name;
 use DrevOps\Installer\Prompts\PromptManager;
-use DrevOps\Installer\Traits\DownloadTrait;
 use DrevOps\Installer\Traits\EnvTrait;
 use DrevOps\Installer\Traits\FilesystemTrait;
 use DrevOps\Installer\Traits\GitTrait;
@@ -15,6 +14,8 @@ use DrevOps\Installer\Traits\PrinterTrait;
 use DrevOps\Installer\Traits\PromptsTrait;
 use DrevOps\Installer\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Callback;
+use DrevOps\Installer\Utils\Downloader;
+use DrevOps\Installer\Utils\DownloadTrait;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 use Symfony\Component\Console\Command\Command;
@@ -24,6 +25,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use function Laravel\Prompts\error;
+use function Laravel\Prompts\note;
 use function Laravel\Prompts\progress;
 
 /**
@@ -125,7 +127,7 @@ EOF
       $this->promptManager->getResponses($this->config);
 
       if (!$this->promptManager->shouldProceed()) {
-        return;
+        return Command::SUCCESS;
       }
 
       $this->downloadScaffold();
@@ -249,54 +251,50 @@ EOF
   }
 
   protected function downloadScaffold(): void {
-    if ($this->config->get('VORTEX_INSTALL_LOCAL_REPO')) {
-      $this->downloadScaffoldLocal();
-    }
-    else {
-      $this->downloadScaffoldRemote();
-    }
+    $repo = $this->config->get('VORTEX_INSTALL_LOCAL_REPO');
+    $ref = $this->config->get('VORTEX_INSTALL_COMMIT', $this->config->get('VORTEX_VERSION'));
+    $src = sprintf('%s@%s', $repo, $ref);
+    $dst = $this->config->get('VORTEX_INSTALL_TMP_DIR');
+
+    note(sprintf('Downloading from "%s" repository at commit "%s".', $repo, $ref));
+    $dst = (new Downloader())->download($src, $dst);
+    $this->config->set('VORTEX_INSTALL_TMP_DIR', $dst);
+    note(sprintf('Downloaded to "%s".', $dst));
   }
 
   protected function prepareDestination(): void {
     $dst = $this->config->getDstDir();
 
     if (!is_dir($dst)) {
-      $this->status(sprintf('Creating destination directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
+      note(sprintf('Creating destination directory "%s".', $dst));
       mkdir($dst);
 
       if (!is_writable($dst)) {
         throw new \RuntimeException(sprintf('Destination directory "%s" is not writable.', $dst));
       }
-
-      $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
     }
 
     if (is_readable($dst . '/.git')) {
-      $this->status(sprintf('Git repository exists in "%s" - skipping initialisation.', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
+      note(sprintf('Git repository exists in "%s" - skipping initialisation.', $dst));
     }
     else {
-      $this->status(sprintf('Initialising Git repository in directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
-      Callback::doExec(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
+      note(sprintf('Initialising new Git repository in directory "%s".', $dst));
+      passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
 
       if (!file_exists($dst . '/.git')) {
-        throw new \RuntimeException(sprintf('Unable to init git project in directory "%s".', $dst));
+        throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $dst));
       }
     }
-
-    print ' ';
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
 
   protected function replaceTokens(): void {
-    $this->status('Replacing tokens ', self::INSTALLER_STATUS_MESSAGE, FALSE);
+    note('Replacing tokens');
 
     $dir = $this->config->get('VORTEX_INSTALL_TMP_DIR');
     $this->promptManager->process($dir, fn(string $name, array $processors) => progress(
       label: 'Replacing tokens',
       steps: $processors,
     ));
-
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
 
   protected function copyFiles(): void {
@@ -313,13 +311,14 @@ EOF
     $dirs = array_diff($all, $valid_files);
     $ignored_files = array_diff($files, $valid_files);
 
-    $this->status('Copying files', self::INSTALLER_STATUS_DEBUG);
+    // @todo Implement as a progress.
+    note('Copying files');
 
     foreach ($valid_files as $filename) {
       $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $filename);
 
       if (File::isInternalPath($relative_file)) {
-        $this->status(sprintf('Skipped file %s as an internal Vortex file.', $relative_file), self::INSTALLER_STATUS_DEBUG);
+        note(sprintf('Skipped file %s as an internal Vortex file.', $relative_file), self::INSTALLER_STATUS_DEBUG);
         unlink($filename);
       }
     }
@@ -363,21 +362,17 @@ EOF
     $data_dir = $this->config->getDstDir() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
     $file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
-    $this->status(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url), self::INSTALLER_STATUS_MESSAGE, FALSE);
+    note(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url));
 
     if (!file_exists($data_dir)) {
       mkdir($data_dir);
     }
 
-    Callback::doExec(sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file), $output, $code);
+    $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file);
 
-    if ($code !== 0) {
+    if (!passthru($command)) {
       throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
     }
-
-    print ' ';
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
-
 
 }

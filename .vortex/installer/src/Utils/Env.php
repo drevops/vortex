@@ -101,7 +101,7 @@ class Env {
   }
 
   public static function commandExists(string $command): void {
-    Callback::doExec('command -v ' . $command, $lines, $ret);
+    Callback::command('command -v ' . $command, $lines, $ret);
     if ($ret === 1) {
       throw new \RuntimeException(sprintf('Command "%s" does not exist in the current environment.', $command));
     }

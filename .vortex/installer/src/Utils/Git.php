@@ -12,7 +12,7 @@ class Git {
       }
 
       chdir($dir);
-      Callback::doExec(sprintf('git ls-files --error-unmatch "%s" 2>&1 >/dev/null', $path), $output, $code);
+      Callback::command(sprintf('git ls-files --error-unmatch "%s" 2>&1 >/dev/null', $path), $output, $code);
       chdir($cwd);
 
       return $code === 0;
