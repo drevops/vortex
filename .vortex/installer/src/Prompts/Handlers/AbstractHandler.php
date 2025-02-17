@@ -2,7 +2,7 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\InstallerConfig;
+use DrevOps\Installer\Utils\InstallerConfig;
 
 abstract class AbstractHandler implements HandlerInterface {
 

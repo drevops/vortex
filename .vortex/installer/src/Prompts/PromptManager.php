@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Prompts;
 
 use AlexSkrypnyk\Str2Name\Str2Name;
-use DrevOps\Installer\InstallerConfig;
 use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
 use DrevOps\Installer\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Callback;
 use DrevOps\Installer\Utils\Converter;
+use DrevOps\Installer\Utils\InstallerConfig;
 use Laravel\Prompts\Prompt;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;

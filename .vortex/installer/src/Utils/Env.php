@@ -2,8 +2,6 @@
 
 namespace DrevOps\Installer\Utils;
 
-use DrevOps\Installer\InstallerConfig;
-
 class Env {
 
   private static ?self $instance = null;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Command;
 
-use DrevOps\Installer\InstallerConfig;
 use DrevOps\Installer\Prompt\Name;
 use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Traits\EnvTrait;
@@ -18,6 +17,7 @@ use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\DownloadTrait;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
+use DrevOps\Installer\Utils\InstallerConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

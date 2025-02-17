@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Tests\Unit;
 
-use DrevOps\Installer\InstallerConfig;
 use DrevOps\Installer\Prompts\PromptManager;
+use DrevOps\Installer\Utils\InstallerConfig;
 use Laravel\Prompts\Key;
 use Laravel\Prompts\Output\BufferedConsoleOutput;
 use Laravel\Prompts\Prompt;

@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer;
+namespace DrevOps\Installer\Utils;
 
 /**
  * Installer configuration.
  *
- * Installer config is a config of this installer script. For configs of the
- * project being installed, @see get_answer().
+ * Installer config is a config of this installer script.
  *
  * @package DrevOps\Installer
  */
