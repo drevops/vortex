@@ -100,11 +100,4 @@ class Env {
     return parse_ini_string($contents) ?: [];
   }
 
-  public static function commandExists(string $command): void {
-    Callback::command('command -v ' . $command, $lines, $ret);
-    if ($ret === 1) {
-      throw new \RuntimeException(sprintf('Command "%s" does not exist in the current environment.', $command));
-    }
-  }
-
 }

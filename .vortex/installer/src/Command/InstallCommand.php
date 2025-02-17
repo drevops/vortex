@@ -152,9 +152,9 @@ EOF
   }
 
   protected function checkRequirements(): void {
-    Env::commandExists('git');
-    Env::commandExists('tar');
-    Env::commandExists('composer');
+    if (!passthru('command -v git') || !passthru('command -v curl') || !passthru('command -v tar') || !passthru('command -v composer')) {
+      throw new \RuntimeException('Missing one or mote required commands: git, curl, tar, composer.');
+    }
   }
 
   /**
