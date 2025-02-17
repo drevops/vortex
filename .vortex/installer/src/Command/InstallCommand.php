@@ -23,6 +23,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use function Laravel\Prompts\error;
 use function Laravel\Prompts\progress;
 
 /**
@@ -116,26 +117,42 @@ EOF
 
       $this->resolveOptions($input->getOptions(), $input->getArgument('path'));
 
-      $this->doExecute();
+      $this->printHeader();
+
+      // Set answers that may be used in other answers' discoveries.
+      $this->setAnswer('webroot', $this->discoverValue('webroot'));
+
+      $this->promptManager->getResponses($this->config);
+
+      if (!$this->promptManager->shouldProceed()) {
+        return;
+      }
+
+      $this->downloadScaffold();
+
+      $this->prepareDestination();
+
+      $this->replaceTokens();
+
+      $this->copyFiles();
+
+      $this->handleDemo();
     }
     catch (\Exception $exception) {
-      $this->output->writeln([
-        '<error>Installation failed with an error:</error>',
-        '<error>' . $exception->getMessage() . '</error>',
-      ]);
+      error('Installation failed with an error:' . PHP_EOL . $exception->getMessage());
 
       return Command::FAILURE;
     }
 
-    $this->printFooter();
+    $this->promptManager->printFooter();
 
     return Command::SUCCESS;
   }
 
   protected function checkRequirements(): void {
-    $this->commandExists('git');
-    $this->commandExists('tar');
-    $this->commandExists('composer');
+    Env::commandExists('git');
+    Env::commandExists('tar');
+    Env::commandExists('composer');
   }
 
   /**
@@ -224,37 +241,6 @@ EOF
     }
     // Internal flag to skip processing of the demo mode.
     $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) Env::get('VORTEX_INSTALL_DEMO_SKIP', FALSE));
-  }
-
-  protected function doExecute(): void {
-    $this->printHeader();
-
-    $this->collectAnswers();
-
-    if (!$this->askShouldProceed()) {
-      $this->printAbort();
-
-      return;
-    }
-
-    $this->downloadScaffold();
-
-    $this->prepareDestination();
-
-    $this->replaceTokens();
-
-    $this->copyFiles();
-
-    $this->handleDemo();
-  }
-
-  protected function collectAnswers(): void {
-    // Set answers that may be used in other answers' discoveries.
-    $this->setAnswer('webroot', $this->discoverValue('webroot'));
-
-    $responses = $this->promptManager->getResponses($this->config);
-
-    die();
   }
 
   protected function envOrDefault($name, $default = NULL) {
@@ -392,5 +378,6 @@ EOF
     print ' ';
     $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
   }
+
 
 }

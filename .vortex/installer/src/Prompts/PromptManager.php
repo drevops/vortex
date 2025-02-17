@@ -7,6 +7,7 @@ namespace DrevOps\Installer\Prompts;
 use AlexSkrypnyk\Str2Name\Str2Name;
 use DrevOps\Installer\InstallerConfig;
 use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
+use DrevOps\Installer\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Callback;
 use DrevOps\Installer\Utils\Converter;
 use Laravel\Prompts\Prompt;
@@ -19,6 +20,8 @@ use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
 class PromptManager {
+
+  use TuiTrait;
 
   protected InstallerConfig $config;
 
@@ -432,14 +435,14 @@ class PromptManager {
   protected function initHandlers() {
     // collect handlers from the directory.
 
-    $dir = __DIR__.'/Handlers';
+    $dir = __DIR__ . '/Handlers';
 
     $handler_files = array_filter(scandir($dir), function ($file) {
       return !in_array($file, ['.', '..']);
     });
 
     foreach ($handler_files as $file) {
-//      require_once $dir . DIRECTORY_SEPARATOR . $file;
+      //      require_once $dir . DIRECTORY_SEPARATOR . $file;
       $class = 'DrevOps\\Installer\\Prompts\\Handler\\' . basename($file);
 
       if (!class_exists($class) || !is_subclass_of($class, HandlerInterface::class)) {
@@ -449,6 +452,93 @@ class PromptManager {
       $key = Converter::constant(Converter::pascal2snake(basename($file)));
       $this->handlers[$key] = new $class($this->config, $this->responses);
     }
+  }
+
+  public function printFooter(): void {
+    print PHP_EOL;
+
+    if ($this->isInitiallyInstalled) {
+      $this->printBox('Finished updating Vortex. Review changes and commit required files.');
+    }
+    else {
+      $this->printBox('Finished installing Vortex.');
+
+      $output = '';
+      $output .= PHP_EOL;
+      $output .= 'Next steps:' . PHP_EOL;
+      $output .= '  cd ' . $this->config->getDstDir() . PHP_EOL;
+      $output .= '  git add -A                       # Add all files.' . PHP_EOL;
+      $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
+      $output .= '  ahoy build                       # Build site.' . PHP_EOL;
+      $output .= PHP_EOL;
+      $output .= '  See https://vortex.drevops.com/quickstart';
+      $this->status($output, self::INSTALLER_STATUS_SUCCESS, TRUE, FALSE);
+    }
+  }
+
+  protected function printSummary(): void {
+    $values['Current directory'] = $this->fsGetRootDir();
+    $values['Destination directory'] = $this->config->getDstDir();
+    $values['Vortex version'] = $this->config->get('VORTEX_VERSION');
+    $values['Vortex commit'] = $this->formatNotEmpty($this->config->get('VORTEX_INSTALL_COMMIT'), 'Latest');
+
+    $values[] = '';
+    $values[] = str_repeat('─', $this->getTuiWidth() - 2 - 2 * 2);
+    $values[] = '';
+
+    $values['Name'] = $this->getAnswer('name');
+    $values['Machine name'] = $this->getAnswer('machine_name');
+    $values['Organisation'] = $this->getAnswer('org');
+    $values['Organisation machine name'] = $this->getAnswer('org_machine_name');
+    $values['Module prefix'] = $this->getAnswer('module_prefix');
+    $values['Profile'] = $this->getAnswer('profile');
+    $values['Theme name'] = $this->getAnswer('theme');
+    $values['Domain'] = $this->getAnswer('domain');
+    $values['Web root'] = $this->getAnswer('webroot');
+
+    $values['Install from profile'] = $this->formatYesNo($this->getAnswer('provision_use_profile'));
+
+    $values['Database download source'] = $this->getAnswer('database_download_source');
+    $image = $this->getAnswer('database_image');
+    $values['Database store type'] = empty($image) ? 'file' : 'container_image';
+
+    if ($image !== '' && $image !== '0') {
+      $values['Database image name'] = $image;
+    }
+
+    $values['Override existing database'] = $this->formatYesNo($this->getAnswer('override_existing_db'));
+    $values['CI provider'] = $this->formatNotEmpty($this->getAnswer('ci_provider'), 'None');
+    $values['Deployment'] = $this->formatNotEmpty($this->getAnswer('deploy_type'), 'Disabled');
+    $values['FTP integration'] = $this->formatEnabled($this->getAnswer('preserve_ftp'));
+    $values['Acquia integration'] = $this->formatEnabled($this->getAnswer('preserve_acquia'));
+    $values['Lagoon integration'] = $this->formatEnabled($this->getAnswer('preserve_lagoon'));
+    $values['RenovateBot integration'] = $this->formatEnabled($this->getAnswer('preserve_renovatebot'));
+    $values['Preserve onboarding checklist'] = $this->formatYesNo($this->getAnswer('preserve_onboarding'));
+    $values['Preserve docs in comments'] = $this->formatYesNo($this->getAnswer('preserve_doc_comments'));
+    $values['Preserve Vortex comments'] = $this->formatYesNo($this->getAnswer('preserve_vortex_info'));
+
+    $content = $this->formatValuesList($values, '', $this->getTuiWidth() - 2 - 2 * 2);
+
+    $this->printBox($content, 'INSTALLATION SUMMARY');
+  }
+
+  // @todo Refactor this.
+  public function shouldProceed(): bool {
+    $proceed = self::ANSWER_YES;
+
+    if (!$this->config->isQuiet()) {
+      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"?', $this->config->getDstDir()), $proceed, TRUE);
+    }
+
+    // Kill-switch to not proceed with install. If false, the install will not
+    // proceed despite the answer received above.
+    if (!$this->config->get('VORTEX_INSTALL_PROCEED')) {
+      $proceed = self::ANSWER_NO;
+    }
+
+    info('Aborting project installation. No files were changed.');
+
+    return strtolower((string) $proceed) === self::ANSWER_YES;
   }
 
 }

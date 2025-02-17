@@ -14,13 +14,6 @@ use function Laravel\Prompts\text;
 trait TuiTrait {
 
   /**
-   * Defines "yes" and "no" answer strings.
-   */
-  final const ANSWER_YES = 'y';
-
-  final const ANSWER_NO = 'n';
-
-  /**
    * Defines installer status message flags.
    */
   final const INSTALLER_STATUS_SUCCESS = 0;
@@ -40,51 +33,6 @@ trait TuiTrait {
    * Is Vortex initially installed.
    */
   protected bool $isInitiallyInstalled = FALSE;
-
-  protected function ask(string $question, ?string $default, bool $close_handle = FALSE): ?string {
-    if ($this->config->isQuiet()) {
-      return $default;
-    }
-
-    $answer = text(label: $question, default: $default);
-//
-//    $this->out(sprintf(PHP_EOL . '%s [%s] ', $this->formatColor('> ' . $question, 'green'), $this->formatColor($default, 'yellow')), NULL, FALSE);
-//
-//    $handle = $this->getStdinHandle();
-//    $answer = fgets($handle);
-//    if ($answer !== FALSE) {
-//      $answer = trim($answer);
-//    }
-//
-//    $answer = empty($answer) ? $default : $answer;
-//
-//    $this->out($answer, 'cyan');
-//
-//    if ($close_handle) {
-//      $this->closeStdinHandle();
-//    }
-
-    return $answer;
-  }
-
-  protected function getStdinHandle(): mixed {
-    global $_stdin_handle;
-
-    if (!$_stdin_handle) {
-      $h = fopen('php://stdin', 'r');
-      if (!$h) {
-        throw new \RuntimeException('Unable to open stdin handle.');
-      }
-      $_stdin_handle = stream_isatty($h) || Env::get('VORTEX_INSTALLER_FORCE_TTY') ? $h : fopen('/dev/tty', 'r+');
-    }
-
-    return $_stdin_handle;
-  }
-
-  protected function closeStdinHandle(): void {
-    $_stdin_handle = $this->getStdinHandle();
-    fclose($_stdin_handle);
-  }
 
   protected function printHeader(): void {
     $logo = <<<EOT
@@ -213,77 +161,6 @@ EOT;
     $this->printBox($content, 'INSTALLATION SUMMARY');
   }
 
-  protected function printAbort(): void {
-    $this->printBox('Aborting project installation. No files were changed.');
-  }
-
-  protected function printFooter(): void {
-    print PHP_EOL;
-
-    if ($this->isInitiallyInstalled) {
-      $this->printBox('Finished updating Vortex. Review changes and commit required files.');
-    }
-    else {
-      $this->printBox('Finished installing Vortex.');
-
-      $output = '';
-      $output .= PHP_EOL;
-      $output .= 'Next steps:' . PHP_EOL;
-      $output .= '  cd ' . $this->config->getDstDir() . PHP_EOL;
-      $output .= '  git add -A                       # Add all files.' . PHP_EOL;
-      $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
-      $output .= '  ahoy build                       # Build site.' . PHP_EOL;
-      $output .= PHP_EOL;
-      $output .= '  See https://vortex.drevops.com/quickstart';
-      $this->status($output, self::INSTALLER_STATUS_SUCCESS, TRUE, FALSE);
-    }
-  }
-
-  protected function commandExists(string $command): void {
-    Callback::doExec('command -v ' . $command, $lines, $ret);
-    if ($ret === 1) {
-      throw new \RuntimeException(sprintf('Command "%s" does not exist in the current environment.', $command));
-    }
-  }
-
-  protected function getTuiWidth(int $max = 80): int {
-    if (!isset($this->tuiWidth)) {
-      $width = intval(Callback::doExec('tput cols'));
-      $this->tuiWidth = $width > 0 ? $width : $max;
-    }
-
-    return min($this->tuiWidth, $max);
-  }
-
-  /**
-   * Get a named option from discovered answers for the project bing installed.
-   */
-  protected function getAnswer(string $name, mixed $default = NULL): ?string {
-    global $_answers;
-
-    return $_answers[$name] ?? $default;
-  }
-
-  /**
-   * Set a named option for discovered answers for the project bing installed.
-   */
-  protected function setAnswer(string $name, mixed $value): void {
-    global $_answers;
-    $_answers[$name] = $value;
-  }
-
-  /**
-   * Get all options from discovered answers for the project bing installed.
-   *
-   * @return array<string, mixed>
-   *   Array of all discovered answers.
-   */
-  protected function getAnswers(): array {
-    global $_answers;
-
-    return $_answers;
-  }
-
   protected function askShouldProceed(): bool {
     $proceed = self::ANSWER_YES;
 
@@ -306,6 +183,93 @@ EOT;
     $answer = $this->normaliseAnswer($name, $answer);
 
     $this->setAnswer($name, $answer);
+  }
+
+
+  /**
+   * Format values list.
+   *
+   * @param array<int|string, mixed> $values
+   *   Array of values to format.
+   * @param string $delim
+   *   Delimiter to use.
+   * @param int $width
+   *   Width of the line.
+   *
+   * @return string
+   *   Formatted values list.
+   */
+  protected function formatValuesList(array $values, string $delim = '', int $width = 80): string {
+    $width = $this->getTuiWidth($width);
+
+    // Only keep the keys that are not numeric.
+    $keys = array_filter(array_keys($values), static fn($key): bool => !is_numeric($key));
+
+    // Line width - length of delimiters * 2 - 2 spacers.
+    $line_width = $width - strlen($delim) * 2 - 2;
+
+    // Max name length + spaced on the sides + colon.
+    $max_name_width = max(array_map(static fn(string $key): int => strlen($key), $keys)) + 2 + 1;
+
+    // Whole width - (name width + 2 delimiters on the sides + 1 delimiter in
+    // the middle + 2 spaces on the sides + 2 spaces for the center delimiter).
+    $value_width = max($width - ($max_name_width + strlen($delim) * 2 + strlen($delim) + 2 + 2), 1);
+
+    $mask1 = sprintf('%s %%%ds %s %%-%s.%ss %s', $delim, $max_name_width, $delim, $value_width, $value_width, $delim) . PHP_EOL;
+    $mask2 = sprintf('%s%%2$%ss%s', $delim, $line_width, $delim) . PHP_EOL;
+
+    $output = [];
+    foreach ($values as $name => $value) {
+      $is_multiline_value = strlen((string) $value) > $value_width;
+
+      if (is_numeric($name)) {
+        $name = '';
+        $mask = $mask2;
+        $is_multiline_value = FALSE;
+      }
+      else {
+        $name .= ':';
+        $mask = $mask1;
+      }
+
+      if ($is_multiline_value) {
+        $lines = array_filter(explode(PHP_EOL, chunk_split(strval($value), $value_width, PHP_EOL)));
+        $first_line = array_shift($lines);
+        $output[] = sprintf($mask, $name, $first_line);
+        foreach ($lines as $line) {
+          $output[] = sprintf($mask, '', $line);
+        }
+      }
+      else {
+        $output[] = sprintf($mask, $name, $value);
+      }
+    }
+
+    return implode('', $output);
+  }
+
+  protected function formatEnabled(mixed $value): string {
+    return $value && strtolower((string) $value) !== 'n' ? 'Enabled' : 'Disabled';
+  }
+
+  protected function formatYesNo(string $value): string {
+    return $value === self::ANSWER_YES ? 'Yes' : 'No';
+  }
+
+  protected function formatNotEmpty(mixed $value, mixed $default): mixed {
+    return empty($value) ? $default : $value;
+  }
+
+  protected function formatBold(string $text): string {
+    return "\033[1m" . $text . "\033[0m";
+  }
+
+  protected function debug(mixed $value, string $name = ''): void {
+    print PHP_EOL;
+    print trim($name . ' DEBUG START') . PHP_EOL;
+    print print_r($value, TRUE) . PHP_EOL;
+    print trim($name . ' DEBUG FINISH') . PHP_EOL;
+    print PHP_EOL;
   }
 
 
