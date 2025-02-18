@@ -13,25 +13,48 @@ namespace DrevOps\Installer\Utils;
  */
 class Config {
 
+  const ROOT = 'VORTEX_INSTALL_ROOT_DIR';
+
+  const DST = 'VORTEX_INSTALL_DST_DIR';
+
+  const TMP = 'VORTEX_INSTALL_TMP_DIR';
+
+  const REPO = 'VORTEX_INSTALL_REPO';
+
+  const COMMIT = 'VORTEX_INSTALL_COMMIT';
+
+  const PROCEED = 'VORTEX_INSTALL_PROCEED';
+
+  const IS_DEMO_MODE = 'VORTEX_INSTALL_IS_DEMO_MODE';
+
+  const DEMO_MODE_SKIP = 'VORTEX_INSTALL_DEMO_SKIP';
+
+  const IS_VORTEX_PROJECT = 'VORTEX_INSTALL_IS_VORTEX_PROJECT';
+
+  const VORTEX_VERSION = 'VORTEX_VERSION';
+
   /**
-   * Installer configuration.
+   * Store of configuration values.
    *
    * @var array<string,mixed>
    */
-  protected array $config = [];
+  protected array $store = [];
 
-  public static function fromString(string $config): static {
-    $config = json_decode($config, TRUE);
+  /**
+   * Create a new instance of the config from a JSON string.
+   */
+  public static function fromString(string $json): static {
+    $config = json_decode($json, TRUE);
 
     if (!is_array($config)) {
-      throw new \RuntimeException('Invalid JSON string provided in --config option.');
+      throw new \RuntimeException('Invalid configuration JSON string provided.');
     }
 
     $instance = new self();
 
     foreach ($config as $key => $value) {
       if (!is_string($key)) {
-        throw new \RuntimeException(sprintf('Invalid key "%s" in JSON string provided in --config option.', $key));
+        throw new \RuntimeException(sprintf('Invalid key "%s" in JSON string provided.', $key));
       }
 
       $instance->set(strtoupper($key), $value);
@@ -41,27 +64,29 @@ class Config {
   }
 
   /**
-   * Get a configuration value or default.
+   * {@inheritdoc}
    */
   public function get(string $name, mixed $default = NULL): mixed {
-    return $this->config[$name] ?? $default;
+    return $this->store[$name] ?? $default;
   }
 
   /**
-   * Set a configuration value.
+   * {@inheritdoc}
    */
-  public function set(string $name, mixed $value): void {
+  public function set(string $name, mixed $value): static {
     if (!is_null($value)) {
-      $this->config[$name] = $value;
+      $this->store[$name] = $value;
     }
+
+    return $this;
   }
 
   public function getRoot(): ?string {
-    return $this->get('VORTEX_INSTALL_ROOT_DIR');
+    return $this->get(Config::ROOT);
   }
 
   public function getDst(): ?string {
-    return $this->get('VORTEX_INSTALL_DST_DIR');
+    return $this->get(Config::DST);
   }
 
   /**
@@ -76,7 +101,7 @@ class Config {
   }
 
   public function isVortexProject(): bool {
-    return (bool) $this->get('VORTEX_INSTALL_IS_VORTEX_PROJECT', FALSE);
+    return (bool) $this->get(Config::IS_VORTEX_PROJECT, FALSE);
   }
 
 }

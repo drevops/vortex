@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Utils;
 
+use DrevOps\Installer\Config\ConfigInterface;
 use DrevOps\Installer\Prompts\PromptFields;
 use Laravel\Prompts\Terminal;
 use function Laravel\Prompts\note;
@@ -57,7 +58,7 @@ EOT;
   protected function headerQuiet(Config $config): void {
     $content = '';
 
-    $commit = $config->get('VORTEX_INSTALL_COMMIT');
+    $commit = $config->get(Config::COMMIT);
     if ($commit == 'HEAD') {
       $content .= 'This will install the latest version of Vortex into your project.' . PHP_EOL;
     }
@@ -81,7 +82,7 @@ EOT;
   protected function headerInteractive(Config $config): void {
     $content = '';
 
-    $commit = $config->get('VORTEX_INSTALL_COMMIT');
+    $commit = $config->get(Config::COMMIT);
     if ($commit == 'HEAD') {
       $content .= 'This will install the latest version of Vortex into your project.' . PHP_EOL;
     }
@@ -109,8 +110,10 @@ EOT;
     $values['General information'] = '';
     $values['Current directory'] = $config->getRoot();
     $values['Destination directory'] = $config->getDst();
-    $values['Vortex version'] = $config->get('VORTEX_VERSION');
-    $values['Vortex commit'] = $config->get('VORTEX_INSTALL_COMMIT', 'Latest');
+    // @todo Review below - it should show the version of Vortex that will be
+    // installed and a commit to be installed from.
+    $values['Vortex version'] = $config->get(Config::VORTEX_VERSION);
+    $values['Vortex commit'] = $config->get(Config::COMMIT, 'Latest');
 
     $values[] = self::EMPTY_LINE;
 

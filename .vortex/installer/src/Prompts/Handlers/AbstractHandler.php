@@ -3,7 +3,6 @@
 namespace DrevOps\Installer\Prompts\Handlers;
 
 use DrevOps\Installer\Utils\Config;
-use DrevOps\Installer\Utils\File;
 
 abstract class AbstractHandler implements HandlerInterface {
 

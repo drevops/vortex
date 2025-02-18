@@ -2,6 +2,7 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
+use DrevOps\Installer\Config\ConfigInterface;
 use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\Converter;
@@ -72,7 +73,7 @@ class InternalHandler extends AbstractHandler {
     $module_prefix_pascal = Converter::pascal($responses[PromptFields::MODULE_PREFIX]);
     $module_prefix_cobol = Converter::cobol($module_prefix_pascal);
     $theme_pascal = Converter::pascal($responses[PromptFields::THEME]);
-    $vortex_version_urlencoded = str_replace('-', '--', (string) $this->config->get('VORTEX_VERSION'));
+    $vortex_version_urlencoded = str_replace('-', '--', (string) $this->config->get(Config::VORTEX_VERSION));
     $webroot = $responses[PromptFields::WEBROOT_CUSTOM];
 
     // @formatter:off
@@ -107,7 +108,7 @@ class InternalHandler extends AbstractHandler {
     File::replaceStringFilename('your_site',             $this->getAnswer('machine_name'),              $dir);
 
     File::dirReplaceContent('VORTEX_VERSION_URLENCODED', $vortex_version_urlencoded,                    $dir);
-    File::dirReplaceContent('VORTEX_VERSION',            $this->config->get('VORTEX_VERSION'),          $dir);
+    File::dirReplaceContent('VORTEX_VERSION',            $this->config->get(Config::VORTEX_VERSION), $dir);
     // @formatter:on
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
@@ -116,7 +117,7 @@ class InternalHandler extends AbstractHandler {
 
   protected function processDemoMode(array $responses, string $dir): void {
     // @todo Review and refactor this logic.
-    if (is_null($this->config->get('VORTEX_INSTALL_DEMO'))) {
+    if (is_null($this->config->get(Config::IS_DEMO_MODE))) {
       if ($responses[PromptFields::PROVISION_TYPE] === 'database') {
         $download_source = $responses[PromptFields::DATABASE_DOWNLOAD_SOURCE];
         $db_file = Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql');
@@ -127,25 +128,25 @@ class InternalHandler extends AbstractHandler {
         // destination .env file.
         if ($download_source !== 'container_registry') {
           if ($has_comment || !file_exists($db_file)) {
-            $this->config->set('VORTEX_INSTALL_DEMO', TRUE);
+            $this->config->set(Config::IS_DEMO_MODE, TRUE);
           }
           else {
-            $this->config->set('VORTEX_INSTALL_DEMO', FALSE);
+            $this->config->set(Config::IS_DEMO_MODE, FALSE);
           }
         }
         elseif ($has_comment) {
-          $this->config->set('VORTEX_INSTALL_DEMO', TRUE);
+          $this->config->set(Config::IS_DEMO_MODE, TRUE);
         }
         else {
-          $this->config->set('VORTEX_INSTALL_DEMO', FALSE);
+          $this->config->set(Config::IS_DEMO_MODE, FALSE);
         }
       }
       else {
-        $this->config->set('VORTEX_INSTALL_DEMO', FALSE);
+        $this->config->set(Config::IS_DEMO_MODE, FALSE);
       }
     }
 
-    if (!$this->config->get('VORTEX_INSTALL_DEMO')) {
+    if (!$this->config->get(Config::IS_DEMO_MODE)) {
       File::removeTokenWithContent('DEMO', $dir);
     }
   }

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Command;
 
+use DrevOps\Installer\Config\ConfigInterface;
 use DrevOps\Installer\Prompts\PromptManager;
+use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
-use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Printer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -151,13 +152,13 @@ EOF
 
     // Set root directory to resolve relative paths.
     $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : File::cwd();
-    $this->config->set('VORTEX_INSTALL_ROOT_DIR', Env::get('VORTEX_INSTALL_ROOT_DIR', $this->config->get('VORTEX_INSTALL_ROOT_DIR', $root)));
+    $this->config->set(Config::ROOT, Env::get(Config::ROOT, $this->config->get(Config::ROOT, $root)));
 
     // Set destination directory.
     $dst = !empty($arguments['destination']) && is_scalar($arguments['destination']) ? strval($arguments['destination']) : NULL;
-    $dst = $dst ?: Env::get('VORTEX_INSTALL_DST_DIR', $this->config->get('VORTEX_INSTALL_DST_DIR', $this->config->get('VORTEX_INSTALL_ROOT_DIR')));
+    $dst = $dst ?: Env::get(Config::DST, $this->config->get(Config::DST, $this->config->get(Config::ROOT)));
     $dst = File::mkdir($dst);
-    $this->config->set('VORTEX_INSTALL_DST_DIR', $dst);
+    $this->config->set(Config::DST, $dst);
 
     // Load values from the destination .env file, if it exists.
     if (File::exists($this->config->getDst() . '/.env')) {
@@ -165,47 +166,47 @@ EOF
     }
 
     // Internal version of Vortex.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_VERSION', Env::get('VORTEX_VERSION', 'develop'));
+    // @todo Convert to option.
+    $this->config->set(Config::VORTEX_VERSION, Env::get(Config::VORTEX_VERSION, 'develop'));
 
     // Optional commit to download. If not provided, latest release will be
     // downloaded.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_COMMIT', Env::get('VORTEX_INSTALL_COMMIT', 'HEAD'));
+    // @todo Convert to option.
+    $this->config->set(Config::COMMIT, Env::get(Config::COMMIT, $this->config->get(Config::VORTEX_VERSION)));
 
     // Flag to proceed with installation. If FALSE - the installation will only
     // print resolved values and will not proceed.
-    $this->config->set('VORTEX_INSTALL_PROCEED', (bool) Env::get('VORTEX_INSTALL_PROCEED', TRUE));
+    $this->config->set(Config::PROCEED, (bool) Env::get(Config::PROCEED, TRUE));
 
     // Temporary directory to download and expand files to.
-    $this->config->set('VORTEX_INSTALL_TMP_DIR', Env::get('VORTEX_INSTALL_TMP_DIR', File::tmpdir()));
+    $this->config->set(Config::TMP, Env::get(Config::TMP, File::tmpdir()));
 
     // Path to local Vortex repository. If not provided - remote will be used.
-    $this->config->set('VORTEX_INSTALL_REPO', Env::get('VORTEX_INSTALL_REPO'));
+    $this->config->set(Config::REPO, Env::get(Config::REPO));
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
-    if (!is_null(Env::get('VORTEX_INSTALL_DEMO'))) {
-      $this->config->set('VORTEX_INSTALL_DEMO', (bool) Env::get('VORTEX_INSTALL_DEMO'));
+    if (!is_null(Env::get(Config::IS_DEMO_MODE))) {
+      $this->config->set(Config::IS_DEMO_MODE, (bool) Env::get(Config::IS_DEMO_MODE));
     }
 
     // Internal flag to skip processing of the demo mode.
-    $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) Env::get('VORTEX_INSTALL_DEMO_SKIP', FALSE));
+    $this->config->set(Config::DEMO_MODE_SKIP, (bool) Env::get(Config::DEMO_MODE_SKIP, FALSE));
 
     if (File::contains('/badge\/Vortex-/', $this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md')) {
-      $this->config->set('VORTEX_INSTALL_IS_VORTEX_PROJECT', TRUE);
+      $this->config->set(Config::IS_VORTEX_PROJECT, TRUE);
     }
   }
 
   protected function downloadScaffold(): void {
-    $repo = $this->config->get('VORTEX_INSTALL_REPO', 'https://github.com/drevops/vortex.git');
-    $ref = $this->config->get('VORTEX_INSTALL_COMMIT', $this->config->get('VORTEX_VERSION'));
+    $repo = $this->config->get(Config::REPO, 'https://github.com/drevops/vortex.git');
+    $ref = $this->config->get(Config::COMMIT);
     $src = sprintf('%s@%s', $repo, $ref);
-    $dst = $this->config->get('VORTEX_INSTALL_TMP_DIR');
+    $dst = $this->config->get(Config::TMP);
 
     note(sprintf('Downloading from "%s" repository at commit "%s".', $repo, $ref));
     $dst = (new Downloader())->download($src, $dst);
-    $this->config->set('VORTEX_INSTALL_TMP_DIR', $dst);
+    $this->config->set(Config::TMP, $dst);
     note(sprintf('Downloaded to "%s".', $dst));
   }
 
@@ -226,7 +227,7 @@ EOF
   protected function replaceTokens(): void {
     note('Replacing tokens');
 
-    $dir = $this->config->get('VORTEX_INSTALL_TMP_DIR');
+    $dir = $this->config->get(Config::TMP);
     $this->promptManager->process($dir, fn(string $name, array $processors) => progress(
       label: 'Replacing tokens',
       steps: $processors,
@@ -234,7 +235,7 @@ EOF
   }
 
   protected function copyFiles(): void {
-    $src = $this->config->get('VORTEX_INSTALL_TMP_DIR');
+    $src = $this->config->get(Config::TMP);
     $dst = $this->config->getDst();
 
     // Due to the way symlinks can be ordered, we cannot copy files one-by-one
@@ -283,7 +284,7 @@ EOF
   }
 
   protected function handleDemo(): void {
-    if (empty($this->config->get('VORTEX_INSTALL_DEMO')) || !empty($this->config->get('VORTEX_INSTALL_DEMO_SKIP'))) {
+    if (empty($this->config->get(Config::IS_DEMO_MODE)) || !empty($this->config->get(Config::DEMO_MODE_SKIP))) {
       return;
     }
 

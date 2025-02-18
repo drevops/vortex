@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Prompts;
 
 use AlexSkrypnyk\Str2Name\Str2Name;
+use DrevOps\Installer\Config\ConfigInterface;
 use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
@@ -473,7 +474,7 @@ class PromptManager {
 
     // Kill-switch to not proceed with install. If false, the install will not
     // proceed despite the answer received above.
-    if (!$this->config->get('VORTEX_INSTALL_PROCEED')) {
+    if (!$this->config->get(Config::PROCEED)) {
       $proceed = FALSE;
     }
 
