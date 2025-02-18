@@ -9,7 +9,7 @@ use DrevOps\Installer\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
-use DrevOps\Installer\Utils\InstallerConfig;
+use DrevOps\Installer\Utils\Config;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,7 +40,7 @@ class InstallCommand extends Command {
   /**
    * Defines the configuration object.
    */
-  protected InstallerConfig $config;
+  protected Config $config;
 
   /**
    * Output interface.
@@ -125,7 +125,7 @@ EOF
   }
 
   /**
-   * Instantiate configuration from CLI option and environment variables.
+   * Instantiate configuration from CLI options and environment variables.
    *
    * Installer configuration is a set of internal installer script variables
    * prefixed with "VORTEX_INSTALL_" and used to control the installation. They
@@ -139,7 +139,7 @@ EOF
    */
   protected function resolveOptions(array $options, array $arguments): void {
     $config = isset($options['config']) && is_scalar($options['config']) ? strval($options['config']) : '{}';
-    $this->config = InstallerConfig::fromString($config);
+    $this->config = Config::fromString($config);
 
     if (!is_null($options['quiet'])) {
       $this->config->setQuiet();
@@ -156,8 +156,8 @@ EOF
     $this->config->set('VORTEX_INSTALL_DST_DIR', $dst);
 
     // Load values from the destination .env file, if it exists.
-    if (File::exists($this->config->getDstDir() . '/.env')) {
-      Env::loadAllValuesFromDotenv($this->config->getDstDir() . '/.env');
+    if (File::exists($this->config->getDst() . '/.env')) {
+      Env::loadAllValuesFromDotenv($this->config->getDst() . '/.env');
     }
 
     // Internal version of Vortex.
@@ -168,9 +168,6 @@ EOF
     // downloaded.
     // @todo Convert to option and remove from the environment variables.
     $this->config->set('VORTEX_INSTALL_COMMIT', Env::get('VORTEX_INSTALL_COMMIT', 'HEAD'));
-
-    // Flag to display install debug information.
-    $this->config->set('VORTEX_INSTALL_DEBUG', (bool) Env::get('VORTEX_INSTALL_DEBUG', FALSE));
 
     // Flag to proceed with installation. If FALSE - the installation will only
     // print resolved values and will not proceed.
@@ -193,37 +190,17 @@ EOF
   }
 
   protected function downloadScaffold(): void {
-    $repo = $this->config->get('VORTEX_INSTALL_REPO', 'https://github.com/drevops/vortex.git');
-    $ref = $this->config->get('VORTEX_INSTALL_COMMIT', $this->config->get('VORTEX_VERSION'));
-    $src = sprintf('%s@%s', $repo, $ref);
-    $dst = $this->config->get('VORTEX_INSTALL_TMP_DIR');
-
-    note(sprintf('Downloading from "%s" repository at commit "%s".', $repo, $ref));
-    $dst = (new Downloader())->download($src, $dst);
-    $this->config->set('VORTEX_INSTALL_TMP_DIR', $dst);
-    note(sprintf('Downloaded to "%s".', $dst));
   }
 
   protected function prepareDestination(): void {
-    $dst = $this->config->getDstDir();
+    $dst = $this->config->getDst();
+    File::mkdir($dst);
 
-    if (!is_dir($dst)) {
-      note(sprintf('Creating destination directory "%s".', $dst));
-      mkdir($dst);
-
-      if (!is_writable($dst)) {
-        throw new \RuntimeException(sprintf('Destination directory "%s" is not writable.', $dst));
-      }
-    }
-
-    if (is_readable($dst . '/.git')) {
-      note(sprintf('Git repository exists in "%s" - skipping initialisation.', $dst));
-    }
-    else {
-      note(sprintf('Initialising new Git repository in directory "%s".', $dst));
+    if (!is_readable($dst . '/.git')) {
+      note(sprintf('Initialising a new Git repository in directory "%s".', $dst));
       passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
 
-      if (!file_exists($dst . '/.git')) {
+      if (!File::exists($dst . '/.git')) {
         throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $dst));
       }
     }
@@ -241,7 +218,7 @@ EOF
 
   protected function copyFiles(): void {
     $src = $this->config->get('VORTEX_INSTALL_TMP_DIR');
-    $dst = $this->config->getDstDir();
+    $dst = $this->config->getDst();
 
     // Due to the way symlinks can be ordered, we cannot copy files one-by-one
     // into destination directory. Instead, we are removing all ignored files
@@ -294,14 +271,14 @@ EOF
     }
 
     // Reload variables from destination's .env.
-    Env::loadAllValuesFromDotenv($this->config->getDstDir() . '/.env');
+    Env::loadAllValuesFromDotenv($this->config->getDst() . '/.env');
 
     $url = Env::get('VORTEX_DB_DOWNLOAD_CURL_URL');
     if (empty($url)) {
       return;
     }
 
-    $data_dir = $this->config->getDstDir() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
+    $data_dir = $this->config->getDst() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
     $file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
     note(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url));

@@ -11,7 +11,7 @@ namespace DrevOps\Installer\Utils;
  *
  * @package DrevOps\Installer
  */
-class InstallerConfig {
+class Config {
 
   /**
    * Installer configuration.
@@ -36,7 +36,7 @@ class InstallerConfig {
     }
   }
 
-  public function getDstDir(): ?string {
+  public function getDst(): ?string {
     return $this->get('VORTEX_INSTALL_DST_DIR');
   }
 

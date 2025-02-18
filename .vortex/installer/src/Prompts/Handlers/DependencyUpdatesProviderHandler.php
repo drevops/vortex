@@ -13,7 +13,7 @@ class DependencyUpdatesProviderHandler extends AbstractHandler {
       return NULL;
     }
 
-    return is_readable($this->config->getDstDir() . '/renovate.json') ? self::ANSWER_YES : self::ANSWER_NO;
+    return is_readable($this->config->getDst() . '/renovate.json') ? self::ANSWER_YES : self::ANSWER_NO;
   }
 
   public function process(array $responses, string $dir): void {

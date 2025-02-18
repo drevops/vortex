@@ -9,7 +9,7 @@ use DrevOps\Installer\Utils\File;
 class DocsProjectHandler extends AbstractHandler {
 
   public function discover() {
-    return $this->isInstalled() && is_dir($this->config->getDstDir() . '/docs');
+    return $this->isInstalled() && is_dir($this->config->getDst() . '/docs');
   }
 
   public function process(array $responses, string $dir): void {

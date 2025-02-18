@@ -10,7 +10,7 @@ class DocsOnboardingHandler extends AbstractHandler {
 
   public function discover() {
     if ($this->isInstalled()) {
-      $file = $this->config->getDstDir() . '/docs/onboarding.md';
+      $file = $this->config->getDst() . '/docs/onboarding.md';
 
       return is_readable($file);
     }

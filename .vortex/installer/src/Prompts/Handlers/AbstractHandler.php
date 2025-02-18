@@ -2,11 +2,11 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\InstallerConfig;
+use DrevOps\Installer\Utils\Config;
 
 abstract class AbstractHandler implements HandlerInterface {
 
-  public function __construct(protected InstallerConfig $config, protected array $responses) {
+  public function __construct(protected Config $config, protected array $responses) {
   }
 
   abstract public function discover();
@@ -25,7 +25,7 @@ abstract class AbstractHandler implements HandlerInterface {
    * @todo Move to another place.
    */
   protected function isInstalled(): bool {
-    $path = $this->config->getDstDir() . DIRECTORY_SEPARATOR . 'README.md';
+    $path = $this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md';
 
     if (!file_exists($path)) {
       return FALSE;

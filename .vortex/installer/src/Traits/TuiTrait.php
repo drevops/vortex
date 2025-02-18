@@ -115,7 +115,7 @@ EOT;
 
   protected function printSummary(): void {
     $values['Current directory'] = $this->fsGetRootDir();
-    $values['Destination directory'] = $this->config->getDstDir();
+    $values['Destination directory'] = $this->config->getDst();
     $values['Vortex version'] = $this->config->get('VORTEX_VERSION');
     $values['Vortex commit'] = $this->formatNotEmpty($this->config->get('VORTEX_INSTALL_COMMIT'), 'Latest');
 
@@ -163,7 +163,7 @@ EOT;
     $proceed = self::ANSWER_YES;
 
     if (!$this->config->isQuiet()) {
-      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"?', $this->config->getDstDir()), $proceed, TRUE);
+      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"?', $this->config->getDst()), $proceed, TRUE);
     }
 
     // Kill-switch to not proceed with install. If false, the install will not

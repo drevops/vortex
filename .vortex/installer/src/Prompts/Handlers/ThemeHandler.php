@@ -16,7 +16,7 @@ class ThemeHandler extends AbstractHandler {
       $name_from_env = Env::getFromDstDotenv('DRUPAL_THEME');
     }
 
-    $file = $this->findThemeFile($this->config->getDstDir(), $webroot);
+    $file = $this->findThemeFile($this->config->getDst(), $webroot);
 
     if (empty($file)) {
       // If theme file was not found, but the theme is set in the .env file -
@@ -79,7 +79,7 @@ class ThemeHandler extends AbstractHandler {
 
     File::fileReplaceContent('/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $name, $dir . '/.env');
 
-    $file_dst = $this->findThemeFile($this->config->getDstDir(), $webroot);
+    $file_dst = $this->findThemeFile($this->config->getDst(), $webroot);
     // Do not update the theme files if it is not a theme from the Vortex
     // template.
     if (!empty($file_dst) && !$this->isVortexTheme(dirname($file_dst))) {

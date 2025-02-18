@@ -11,12 +11,12 @@ class ModulePrefixHandler extends AbstractHandler {
     $webroot = $this->getAnswer(PromptFields::WEBROOT_CUSTOM);
 
     $locations = [
-      $this->config->getDstDir() . sprintf('/%s/modules/custom/*_core', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/sites/all/modules/custom/*_core', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/*/modules/*_core', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/*/modules/custom/*_core', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/modules/*_core', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $webroot),
+      $this->config->getDst() . sprintf('/%s/modules/custom/*_core', $webroot),
+      $this->config->getDst() . sprintf('/%s/sites/all/modules/custom/*_core', $webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/*/modules/*_core', $webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/*/modules/custom/*_core', $webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/custom/*/modules/*_core', $webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $webroot),
     ];
 
     $path = File::findMatchingPath($locations);

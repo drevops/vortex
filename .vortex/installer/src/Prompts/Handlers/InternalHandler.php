@@ -120,7 +120,7 @@ class InternalHandler extends AbstractHandler {
       if ($responses[PromptFields::PROVISION_TYPE] === 'database') {
         $download_source = $responses[PromptFields::DATABASE_DOWNLOAD_SOURCE];
         $db_file = Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql');
-        $has_comment = File::fileContains('Override project-specific values for demonstration purposes', $this->config->getDstDir() . '/.env');
+        $has_comment = File::fileContains('Override project-specific values for demonstration purposes', $this->config->getDst() . '/.env');
 
         // Enable Vortex demo mode if download source is file AND
         // there is no downloaded file present OR if there is a demo comment in

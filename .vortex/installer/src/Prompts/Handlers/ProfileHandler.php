@@ -19,10 +19,10 @@ class ProfileHandler extends AbstractHandler {
     }
 
     $locations = [
-      $this->config->getDstDir() . sprintf('/%s/profiles/*/*.info', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/*/*.info.yml', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/*.info', $webroot),
-      $this->config->getDstDir() . sprintf('/%s/profiles/custom/*/*.info.yml', $webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/*/*.info', $webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/*/*.info.yml', $webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/custom/*/*.info', $webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/custom/*/*.info.yml', $webroot),
     ];
 
     $name = File::findMatchingPath($locations, 'Drupal 11 profile implementation of');

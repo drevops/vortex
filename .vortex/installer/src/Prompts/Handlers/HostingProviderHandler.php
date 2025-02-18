@@ -39,7 +39,7 @@ class HostingProviderHandler extends AbstractHandler {
   }
 
   protected function discoverIsAcquia() {
-    if (is_readable($this->config->getDstDir() . '/hooks')) {
+    if (is_readable($this->config->getDst() . '/hooks')) {
       return TRUE;
     }
 
@@ -53,7 +53,7 @@ class HostingProviderHandler extends AbstractHandler {
   }
 
   protected function discoverIsLagoon() {
-    if (is_readable($this->config->getDstDir() . '/.lagoon.yml')) {
+    if (is_readable($this->config->getDst() . '/.lagoon.yml')) {
       return TRUE;
     }
 

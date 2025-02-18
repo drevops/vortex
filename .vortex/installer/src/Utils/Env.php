@@ -5,13 +5,13 @@ namespace DrevOps\Installer\Utils;
 class Env {
 
   private static ?self $instance = null;
-  private InstallerConfig $config;
+  private Config $config;
 
-  private function __construct(InstallerConfig $config) {
+  private function __construct(Config $config) {
     $this->config = $config;
   }
 
-  public static function init(InstallerConfig $config): void {
+  public static function init(Config $config): void {
     if (is_null(self::$instance)) {
       self::$instance = new self($config);
     }
@@ -33,7 +33,7 @@ class Env {
       return $env_value;
     }
 
-    $file = self::$instance->config->getDstDir() . '/.env';
+    $file = self::$instance->config->getDst() . '/.env';
     if (!is_readable($file)) {
       return $default;
     }

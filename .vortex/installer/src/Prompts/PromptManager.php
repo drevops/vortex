@@ -9,7 +9,7 @@ use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
 use DrevOps\Installer\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Callback;
 use DrevOps\Installer\Utils\Converter;
-use DrevOps\Installer\Utils\InstallerConfig;
+use DrevOps\Installer\Utils\Config;
 use Laravel\Prompts\Prompt;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
@@ -23,7 +23,7 @@ class PromptManager {
 
   use TuiTrait;
 
-  protected InstallerConfig $config;
+  protected Config $config;
 
   protected array $responses = [];
 
@@ -54,7 +54,7 @@ class PromptManager {
         hint: 'We will use this name in the project and in the documentation.',
         placeholder: 'E.g. My Site',
         required: TRUE,
-        default: $this->default($n, Str2Name::label(Util::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDstDir())))),
+        default: $this->default($n, Str2Name::label(Util::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid name' : NULL,
       ), PromptFields::NAME)
@@ -466,7 +466,7 @@ class PromptManager {
       $output = '';
       $output .= PHP_EOL;
       $output .= 'Next steps:' . PHP_EOL;
-      $output .= '  cd ' . $this->config->getDstDir() . PHP_EOL;
+      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
       $output .= '  git add -A                       # Add all files.' . PHP_EOL;
       $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
       $output .= '  ahoy build                       # Build site.' . PHP_EOL;
@@ -478,7 +478,7 @@ class PromptManager {
 
   protected function printSummary(): void {
     $values['Current directory'] = $this->fsGetRootDir();
-    $values['Destination directory'] = $this->config->getDstDir();
+    $values['Destination directory'] = $this->config->getDst();
     $values['Vortex version'] = $this->config->get('VORTEX_VERSION');
     $values['Vortex commit'] = $this->formatNotEmpty($this->config->get('VORTEX_INSTALL_COMMIT'), 'Latest');
 
@@ -527,7 +527,7 @@ class PromptManager {
     $proceed = self::ANSWER_YES;
 
     if (!$this->config->isQuiet()) {
-      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"?', $this->config->getDstDir()), $proceed, TRUE);
+      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"?', $this->config->getDst()), $proceed, TRUE);
     }
 
     // Kill-switch to not proceed with install. If false, the install will not

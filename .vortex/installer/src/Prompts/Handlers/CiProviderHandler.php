@@ -8,11 +8,11 @@ use DrevOps\Installer\Utils\File;
 class CiProviderHandler extends AbstractHandler {
 
   public function discover() {
-    if (is_readable($this->config->getDstDir() . '/.github/workflows/build-test-deploy.yml')) {
+    if (is_readable($this->config->getDst() . '/.github/workflows/build-test-deploy.yml')) {
       return 'GitHub Actions';
     }
 
-    if (is_readable($this->config->getDstDir() . '/.circleci/config.yml')) {
+    if (is_readable($this->config->getDst() . '/.circleci/config.yml')) {
       return 'CircleCI';
     }
 
