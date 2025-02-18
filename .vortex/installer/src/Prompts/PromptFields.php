@@ -40,7 +40,7 @@ interface PromptFields {
 
   public const DATABASE_DOWNLOAD_SOURCE = 'database_download_source';
 
-  public const DATABASE_STORE_TYPE = 'database_store_type';
+  public const DATABASE_STORE_TYPE_CONTAINER_IMAGE = 'database_store_type_container_image';
 
   public const CI_PROVIDER = 'ci_provider';
 

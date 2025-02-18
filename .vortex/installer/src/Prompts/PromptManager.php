@@ -6,13 +6,13 @@ namespace DrevOps\Installer\Prompts;
 
 use AlexSkrypnyk\Str2Name\Str2Name;
 use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
-use DrevOps\Installer\Traits\TuiTrait;
-use DrevOps\Installer\Utils\Callback;
-use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Config;
+use DrevOps\Installer\Utils\Converter;
+use DrevOps\Installer\Utils\Validator;
 use Laravel\Prompts\Prompt;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\form;
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\note;
@@ -20,10 +20,6 @@ use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
 class PromptManager {
-
-  use TuiTrait;
-
-  protected Config $config;
 
   protected array $responses = [];
 
@@ -34,19 +30,22 @@ class PromptManager {
 
   public function __construct(
     protected OutputInterface $output,
+    protected Config $config,
   ) {
     Prompt::setOutput($output);
 
     $this->initHandlers();
   }
 
-  public function getResponses($config) {
-    $this->config = $config;
+  public function getResponses(): array {
+    return $this->responses;
+  }
 
+  public function prompt() {
     // @formatter:off
     // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
-    $responses = (new InstallerFormBuilder())
+    $responses = form()
       ->intro('General information')
 
       ->add(fn($r, $pr, $n) => text(
@@ -120,7 +119,7 @@ class PromptManager {
         ->addIf(
           fn($r) => $r['code_provider'] === 'github',
           fn($r, $pr, $n) => text(
-            label: '🔑 GitHub personal access token (optional)',
+            label: '🔑 GitHub access token (optional)',
             hint: Util::getEnvOrDefault('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new',
             placeholder: 'E.g. ghp_1234567890',
             default: $this->default($n, Util::getEnvOrDefault('GITHUB_TOKEN')),
@@ -189,7 +188,7 @@ class PromptManager {
       ->intro('Hosting')
 
       ->add(fn($r, $pr, $n) => select(
-        label: '🏠 Hosting',
+        label: '🏠 Hosting provider',
         hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
         options: [
           'acquia' => '💧 Acquia Cloud',
@@ -211,7 +210,7 @@ class PromptManager {
         ->addIf(
           fn($r) => $r['hosting_provider'] === 'other',
           fn($r, $pr, $n) => text(
-            label: 'Custom web root directory',
+            label: '📁 Custom web root directory',
             hint: 'Custom directory where the web server serves the site.',
             placeholder: 'E.g. public',
             required: TRUE,
@@ -264,7 +263,7 @@ class PromptManager {
           'database' => 'Database dump',
           'profile' => 'Install from profile',
         ],
-        default: $this->default($n, PromptFields::PROVISION_TYPE_DATABASE),
+        default: $this->default($n, 'database'),
       ), PromptFields::PROVISION_TYPE)
 
         ->addIf(
@@ -288,7 +287,7 @@ class PromptManager {
 
             select(
               label: 'Database dump source',
-              hint: 'Database can be downloaded as a dump file or stored in a container image.',
+              hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
               options: $options,
               default: $this->default($n, match ($r['hosting_provider']) {
                 'acquia' => 'acquia',
@@ -299,27 +298,15 @@ class PromptManager {
           }, PromptFields::DATABASE_DOWNLOAD_SOURCE)
 
             ->addIf(
-              fn($r) => $r['database_download_source'] === 'container_registry',
-              fn($r, $pr, $n) => select(
-                label: 'Database store type for local development',
-                hint: 'Importing databases larger than 1GB from a file takes longer, so you can store the database in a container image for faster builds.',
-                options: [
-                  'file' => 'File',
-                  'container_image' => 'Container image',
-                ],
-                default: $this->default($n, 'file'),
-              ), PromptFields::DATABASE_STORE_TYPE)
-
-              ->addIf(
-                fn($r) => $r['database_store_type'] === 'container_image',
-                fn($r, $pr, $n) => text(
-                  label: 'What is your database container image name and a tag?',
-                  hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
-                  placeholder: 'E.g. drevops/mariadb-drupal-data:latest',
-                  default: $this->default($n, 'drevops/mariadb-drupal-data:latest'),
-                  transform: fn($v) => strtolower(trim($v)),
-                  validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid image name and a tag' : NULL,
-                ), PromptFields::DATABASE_STORE_TYPE)
+              fn($r) => $r[PromptFields::DATABASE_DOWNLOAD_SOURCE] === 'container_registry',
+              fn($r, $pr, $n) => text(
+                label: 'What is your database container image name and a tag?',
+                hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
+                placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[PromptFields::ORG_MACHINE_NAME]), Converter::phpNamespace($r[PromptFields::MACHINE_NAME])),
+                default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[PromptFields::ORG_MACHINE_NAME]), Converter::phpNamespace($r[PromptFields::MACHINE_NAME]))),
+                transform: fn($v) => strtolower(trim($v)),
+                validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid image name and a tag' : NULL,
+              ), PromptFields::DATABASE_STORE_TYPE_CONTAINER_IMAGE)
 
       ->intro('Continuous Integration')
 
@@ -359,7 +346,7 @@ class PromptManager {
         label: '👤 Auto-assign the author to their PR?',
         hint: 'Helps to keep the PRs organized.',
         default: $this->default($n, TRUE),
-      ), 'assign_author_pr')
+      ), PromptFields::ASSIGN_AUTHOR_PR)
 
       ->add(fn($r, $pr, $n) => confirm(
         label: '🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur?',
@@ -476,69 +463,21 @@ class PromptManager {
     }
   }
 
-  protected function printSummary(): void {
-    $values['Current directory'] = $this->fsGetRootDir();
-    $values['Destination directory'] = $this->config->getDst();
-    $values['Vortex version'] = $this->config->get('VORTEX_VERSION');
-    $values['Vortex commit'] = $this->formatNotEmpty($this->config->get('VORTEX_INSTALL_COMMIT'), 'Latest');
-
-    $values[] = '';
-    $values[] = str_repeat('─', $this->getTuiWidth() - 2 - 2 * 2);
-    $values[] = '';
-
-    $values['Name'] = $this->getAnswer('name');
-    $values['Machine name'] = $this->getAnswer('machine_name');
-    $values['Organisation'] = $this->getAnswer('org');
-    $values['Organisation machine name'] = $this->getAnswer('org_machine_name');
-    $values['Module prefix'] = $this->getAnswer('module_prefix');
-    $values['Profile'] = $this->getAnswer('profile');
-    $values['Theme name'] = $this->getAnswer('theme');
-    $values['Domain'] = $this->getAnswer('domain');
-    $values['Web root'] = $this->getAnswer('webroot');
-
-    $values['Install from profile'] = $this->formatYesNo($this->getAnswer('provision_use_profile'));
-
-    $values['Database download source'] = $this->getAnswer('database_download_source');
-    $image = $this->getAnswer('database_image');
-    $values['Database store type'] = empty($image) ? 'file' : 'container_image';
-
-    if ($image !== '' && $image !== '0') {
-      $values['Database image name'] = $image;
-    }
-
-    $values['Override existing database'] = $this->formatYesNo($this->getAnswer('override_existing_db'));
-    $values['CI provider'] = $this->formatNotEmpty($this->getAnswer('ci_provider'), 'None');
-    $values['Deployment'] = $this->formatNotEmpty($this->getAnswer('deploy_type'), 'Disabled');
-    $values['FTP integration'] = $this->formatEnabled($this->getAnswer('preserve_ftp'));
-    $values['Acquia integration'] = $this->formatEnabled($this->getAnswer('preserve_acquia'));
-    $values['Lagoon integration'] = $this->formatEnabled($this->getAnswer('preserve_lagoon'));
-    $values['RenovateBot integration'] = $this->formatEnabled($this->getAnswer('preserve_renovatebot'));
-    $values['Preserve onboarding checklist'] = $this->formatYesNo($this->getAnswer('preserve_onboarding'));
-    $values['Preserve docs in comments'] = $this->formatYesNo($this->getAnswer('preserve_doc_comments'));
-    $values['Preserve Vortex comments'] = $this->formatYesNo($this->getAnswer('preserve_vortex_info'));
-
-    $content = $this->formatValuesList($values, '', $this->getTuiWidth() - 2 - 2 * 2);
-
-    $this->printBox($content, 'INSTALLATION SUMMARY');
-  }
-
   // @todo Refactor this.
   public function shouldProceed(): bool {
-    $proceed = self::ANSWER_YES;
+    $proceed = TRUE;
 
     if (!$this->config->isQuiet()) {
-      $proceed = $this->ask(sprintf('Proceed with installing Vortex into your project\'s directory "%s"?', $this->config->getDst()), $proceed, TRUE);
+      $proceed = confirm(sprintf('Proceed with installing Vortex into your project\'s directory "%s"?', $this->config->getDst()));
     }
 
     // Kill-switch to not proceed with install. If false, the install will not
     // proceed despite the answer received above.
     if (!$this->config->get('VORTEX_INSTALL_PROCEED')) {
-      $proceed = self::ANSWER_NO;
+      $proceed = FALSE;
     }
 
-    info('Aborting project installation. No files were changed.');
-
-    return strtolower((string) $proceed) === self::ANSWER_YES;
+    return $proceed;
   }
 
 }

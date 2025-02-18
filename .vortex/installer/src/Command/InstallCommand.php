@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Command;
 
 use DrevOps\Installer\Prompts\PromptManager;
-use DrevOps\Installer\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 use DrevOps\Installer\Utils\Config;
+use DrevOps\Installer\Utils\Printer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\error;
+use function Laravel\Prompts\info;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\progress;
 
@@ -27,8 +28,6 @@ use function Laravel\Prompts\progress;
  * @package DrevOps\Installer\Command
  */
 class InstallCommand extends Command {
-
-  use TuiTrait;
 
   /**
    * Defines default command name.
@@ -48,6 +47,8 @@ class InstallCommand extends Command {
   protected OutputInterface $output;
 
   protected PromptManager $promptManager;
+
+  protected Printer $printer;
 
   /**
    * {@inheritdoc}
@@ -82,18 +83,21 @@ EOF
       return Command::SUCCESS;
     }
 
-    $this->promptManager = new PromptManager($output);
-
     try {
       $this->checkRequirements();
-
       $this->resolveOptions($input->getOptions(), $input->getArguments());
 
-      $this->printHeader();
+      $this->printer = new Printer();
+      $this->printer->header($this->config);
 
-      $this->promptManager->getResponses($this->config);
+      $this->promptManager = new PromptManager($output, $this->config);
+      $this->promptManager->prompt();
+
+      $this->printer->summary($this->config, $this->promptManager->getResponses());
 
       if (!$this->promptManager->shouldProceed()) {
+        info('Aborting project installation. No files were changed.');
+
         return Command::SUCCESS;
       }
 
@@ -187,9 +191,22 @@ EOF
 
     // Internal flag to skip processing of the demo mode.
     $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) Env::get('VORTEX_INSTALL_DEMO_SKIP', FALSE));
+
+    if (File::contains('/badge\/Vortex-/', $this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md')) {
+      $this->config->set('VORTEX_INSTALL_IS_VORTEX_PROJECT', TRUE);
+    }
   }
 
   protected function downloadScaffold(): void {
+    $repo = $this->config->get('VORTEX_INSTALL_REPO', 'https://github.com/drevops/vortex.git');
+    $ref = $this->config->get('VORTEX_INSTALL_COMMIT', $this->config->get('VORTEX_VERSION'));
+    $src = sprintf('%s@%s', $repo, $ref);
+    $dst = $this->config->get('VORTEX_INSTALL_TMP_DIR');
+
+    note(sprintf('Downloading from "%s" repository at commit "%s".', $repo, $ref));
+    $dst = (new Downloader())->download($src, $dst);
+    $this->config->set('VORTEX_INSTALL_TMP_DIR', $dst);
+    note(sprintf('Downloaded to "%s".', $dst));
   }
 
   protected function prepareDestination(): void {

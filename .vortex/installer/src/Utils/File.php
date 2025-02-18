@@ -297,7 +297,7 @@ class File {
   public static function dirContains(string $needle, string $dir): bool {
     $files = File::scandirRecursive($dir, File::ignorePaths());
     foreach ($files as $filename) {
-      if (File::fileContains($needle, $filename)) {
+      if (File::contains($needle, $filename)) {
         return TRUE;
       }
     }
@@ -305,7 +305,7 @@ class File {
     return FALSE;
   }
 
-  public static function fileContains(string $needle, string $filename): bool {
+  public static function contains(string $needle, string $filename): bool {
     if (!is_readable($filename)) {
       return FALSE;
     }
@@ -473,7 +473,7 @@ class File {
 
       if (!empty($text)) {
         foreach ($files as $file) {
-          if (File::fileContains($text, $file)) {
+          if (File::contains($text, $file)) {
             return $file;
           }
         }

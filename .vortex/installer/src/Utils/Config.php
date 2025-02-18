@@ -56,6 +56,10 @@ class Config {
     }
   }
 
+  public function getRoot(): ?string {
+    return $this->get('VORTEX_INSTALL_ROOT_DIR');
+  }
+
   public function getDst(): ?string {
     return $this->get('VORTEX_INSTALL_DST_DIR');
   }
@@ -69,6 +73,10 @@ class Config {
 
   public function setQuiet(bool $value = TRUE): void {
     $this->set('QUIET', $value);
+  }
+
+  public function isVortexProject(): bool {
+    return (bool) $this->get('VORTEX_INSTALL_IS_VORTEX_PROJECT', FALSE);
   }
 
 }

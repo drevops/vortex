@@ -68,7 +68,7 @@ class ThemeHandler extends AbstractHandler {
     $c1 = file_exists($dir . '/scss/_variables.scss');
     $c2 = file_exists($dir . '/Gruntfile.js');
     $c3 = file_exists($dir . '/package.json');
-    $c4 = File::fileContains('build-dev', $dir . '/package.json');
+    $c4 = File::contains('build-dev', $dir . '/package.json');
 
     return $c1 && $c2 && $c3 && $c4;
   }

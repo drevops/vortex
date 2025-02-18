@@ -19,7 +19,7 @@ class ResponsesTest extends UnitTestBase {
     ));
 
     $pm = new PromptManager($output);
-    $responses = $pm->getResponses(new Config());
+    $responses = $pm->prompt(new Config());
 
 
 

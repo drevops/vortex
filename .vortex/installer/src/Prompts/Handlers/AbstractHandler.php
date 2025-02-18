@@ -3,6 +3,7 @@
 namespace DrevOps\Installer\Prompts\Handlers;
 
 use DrevOps\Installer\Utils\Config;
+use DrevOps\Installer\Utils\File;
 
 abstract class AbstractHandler implements HandlerInterface {
 
@@ -25,18 +26,7 @@ abstract class AbstractHandler implements HandlerInterface {
    * @todo Move to another place.
    */
   protected function isInstalled(): bool {
-    $path = $this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md';
-
-    if (!file_exists($path)) {
-      return FALSE;
-    }
-
-    $content = file_get_contents($path);
-    if (!$content) {
-      return FALSE;
-    }
-
-    return (bool) preg_match('/badge\/Vortex\-/', $content);
+    return $this->config->isVortexProject();
   }
 
 }

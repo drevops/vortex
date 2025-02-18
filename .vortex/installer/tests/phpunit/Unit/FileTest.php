@@ -134,7 +134,7 @@ class FileTest extends UnitTestBase {
 
   /**
    * @dataProvider dataProviderFileContains
-   * @covers ::fileContains
+   * @covers ::contains
    */
   public function testFileContains(string $string, string $file, mixed $expected): void {
     $tokens_dir = $this->getFixtureDir('tokens');
@@ -146,7 +146,7 @@ class FileTest extends UnitTestBase {
       throw new \RuntimeException('File does not exist.');
     }
 
-    $actual = File::fileContains($string, $created_file);
+    $actual = File::contains($string, $created_file);
 
     $this->assertEquals($expected, $actual);
   }
