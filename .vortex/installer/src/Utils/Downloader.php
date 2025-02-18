@@ -14,7 +14,7 @@ class Downloader {
   protected string $tmpDir;
 
   public function __construct() {
-    $this->tmpDir = File::createTempdir();
+    $this->tmpDir = File::tmpdir();
   }
 
   public function download(string $src, ?string $dst = NULL): string {

@@ -54,4 +54,12 @@ class InstallerConfig {
     return (bool) $this->get('VORTEX_INSTALL_DEBUG', FALSE);
   }
 
+  public function setQuiet(bool $value = TRUE): void {
+    $this->set('quiet', $value);
+  }
+
+  public function setAnsi(bool $value = TRUE): void {
+    $this->set('ansi', $value);
+  }
+
 }

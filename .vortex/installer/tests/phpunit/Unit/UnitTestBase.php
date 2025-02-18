@@ -32,8 +32,8 @@ abstract class UnitTestBase extends TestCase {
    * Prepare fixture directory.
    */
   public function prepareFixtureDir(): void {
-    // Using createTempdir() from the install file itself.
-    $this->fixtureDir = File::createTempdir();
+    // Using tmpdir() from the install file itself.
+    $this->fixtureDir = File::tmpdir();
   }
 
   /**

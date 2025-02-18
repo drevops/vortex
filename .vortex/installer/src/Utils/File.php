@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Utils;
 
+use Symfony\Component\Filesystem\Filesystem;
+
 /**
  * File utility.
  *
@@ -348,7 +350,27 @@ class File {
     return is_dir($directory) && count(scandir($directory) ?: []) === 2;
   }
 
-  public static function createTempdir(?string $dir = NULL, string $prefix = 'tmp_', int $mode = 0700, int $max_attempts = 1000): string {
+  public static function mkdir(string $path): string {
+    $fs = new Filesystem();
+
+    $path = static::absolutePath($path);
+
+    if ($fs->exists($path)) {
+      if (is_file($path)) {
+        throw new \RuntimeException(sprintf('Directory "%s" is a file.', $path));
+      }
+    }
+    else {
+      $fs->mkdir($path);
+      if (!is_readable($path) || !is_dir($path)) {
+        throw new \RuntimeException(sprintf('Directory "%s" is not readable or does not exist.', $path));
+      }
+    }
+
+    return $path;
+  }
+
+  public static function tmpdir(?string $dir = NULL, string $prefix = 'tmp_', int $mode = 0700, int $max_attempts = 1000): string {
     if (is_null($dir)) {
       $dir = sys_get_temp_dir();
     }
@@ -504,6 +526,117 @@ class File {
         File::removeTokenFromFile($filename, $token, NULL);
       }
     }
+  }
+
+  /**
+   * Replacement for PHP's `realpath` resolves non-existing paths.
+   *
+   * The main deference is that it does not return FALSE on non-existing
+   * paths.
+   *
+   * @param string $path
+   *   Path that needs to be resolved.
+   *
+   * @return string
+   *   Resolved path.
+   *
+   * @see https://stackoverflow.com/a/29372360/712666
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+   * @SuppressWarnings(PHPMD.NPathComplexity)
+   */
+  public static function realpath(string $path): string {
+    // Whether $path is unix or not.
+    $unipath = $path === '' || $path[0] !== '/';
+    $unc = str_starts_with($path, '\\\\');
+
+    // Attempt to detect if path is relative in which case, add cwd.
+    if (!str_contains($path, ':') && $unipath && !$unc) {
+      $path = getcwd() . DIRECTORY_SEPARATOR . $path;
+      if ($path[0] === '/') {
+        $unipath = FALSE;
+      }
+    }
+
+    // Resolve path parts (single dot, double dot and double delimiters).
+    $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+    $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), static function ($part): bool {
+      return strlen($part) > 0;
+    });
+
+    $absolutes = [];
+    foreach ($parts as $part) {
+      if ('.' === $part) {
+        continue;
+      }
+      if ('..' === $part) {
+        array_pop($absolutes);
+      }
+      else {
+        $absolutes[] = $part;
+      }
+    }
+
+    $path = implode(DIRECTORY_SEPARATOR, $absolutes);
+
+    // Resolve any symlinks.
+    if (function_exists('readlink') && file_exists($path) && linkinfo($path) > 0) {
+      $path = readlink($path);
+
+      if (!$path) {
+        throw new \Exception(sprintf('Could not resolve symlink for path: %s', $path));
+      }
+    }
+
+    // Put initial separator that could have been lost.
+    $path = $unipath ? $path : '/' . $path;
+
+    $path = $unc ? '\\\\' . $path : $path;
+
+    if (str_starts_with($path, sys_get_temp_dir())) {
+      $tmp_realpath = realpath(sys_get_temp_dir());
+      if ($tmp_realpath) {
+        $path = str_replace(sys_get_temp_dir(), $tmp_realpath, $path);
+      }
+    }
+
+    return $path;
+  }
+
+  /**
+   * Get absolute path for provided absolute or relative file.
+   *
+   * @param string $file
+   *   File to resolve. If absolute, no resolution will be performed.
+   * @param string|null $root
+   *   Optional path to root dir. If not provided, internal root path is used.
+   *
+   * @return string
+   *   Absolute path for provided file.
+   */
+  public static function absolutePath(string $file, ?string $root = NULL): string {
+    if ((new Filesystem())->isAbsolutePath($file)) {
+      return File::realpath($file);
+    }
+
+    $root = $root ?: File::cwd();
+    $root = File::realpath($root);
+    $file = $root . DIRECTORY_SEPARATOR . $file;
+
+    return File::realpath($file);
+  }
+
+  public static function cwd() {
+    if (isset($_SERVER['PWD'])) {
+      return $_SERVER['PWD'];
+    }
+
+    return (string) getcwd();
+  }
+
+  public static function exists(string|iterable $files): bool {
+    $fs = new Filesystem();
+    return $fs->exists($files);
   }
 
 }
