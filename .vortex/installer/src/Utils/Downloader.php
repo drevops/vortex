@@ -67,7 +67,15 @@ class Downloader {
     return [$repo, $ref];
   }
 
+  public static function makeUri(string $repo, string $ref): string {
+    return sprintf('%s@%s', $repo, $ref);
+  }
+
   protected function downloadFromRemote(string $repo, string $ref, string $destination): void {
+    if ($ref == 'stable') {
+      $ref = $this->discoverLatestRelease($repo);
+    }
+
     $url = sprintf('%s/archive/%s.tar.gz', $repo, $ref);
     $command = sprintf(
       'curl -sS -L "%s" | tar xzf - -C "%s" --strip 1',
@@ -94,7 +102,33 @@ class Downloader {
     }
   }
 
-  public static function makeUri(string $repo, string $ref): string {
-    return sprintf('%s@%s', $repo, $ref);
+  protected function discoverLatestRelease(string $repo, ?string $release_prefix = NULL): ?string {
+    $path = parse_url($repo, PHP_URL_PATH);
+    $path = str_ends_with($path, '.git') ? substr($path, 0, -4) : $path;
+
+    $release_url = sprintf('https://api.github.com/repos/%s/releases', $path);
+    $release_contents = file_get_contents($release_url, FALSE, stream_context_create([
+      'http' => ['method' => 'GET', 'header' => ['User-Agent: PHP']],
+    ]));
+
+    if (!$release_contents) {
+      throw new \RuntimeException(sprintf('Unable to download release information from "%s".', $release_url));
+    }
+
+    $records = json_decode($release_contents, TRUE);
+
+    if (!$release_prefix) {
+      return is_scalar($records[0]['tag_name']) ? strval($records[0]['tag_name']) : NULL;
+    }
+
+    foreach ($records as $record) {
+      $tag_name = is_scalar($record['tag_name']) ? strval($record['tag_name']) : '';
+      if (str_contains($tag_name, $release_prefix)) {
+        return $tag_name;
+      }
+    }
+
+    return NULL;
   }
+
 }
