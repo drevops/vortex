@@ -95,12 +95,12 @@ EOF
       $this->promptManager->prompt();
 
       $this->printer->summary($this->config, $this->promptManager->getResponses());
-
       if (!$this->promptManager->shouldProceed()) {
         info('Aborting project installation. No files were changed.');
 
         return Command::SUCCESS;
       }
+    die('RESTORE FROM HERE');
 
       $this->downloadVortex();
 

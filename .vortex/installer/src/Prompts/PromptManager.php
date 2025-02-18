@@ -174,7 +174,7 @@ class PromptManager {
         default: $this->default($n, Converter::abbreviation($r['machine_name'], 4, ['_'])),
         transform: fn(string $v) => trim($v),
         // @todo Fix validation  here.
-        validate: fn($v) => Converter::abbreviation($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v) => Converter::machine(strtolower($v)) !== strtolower($v) ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), PromptFields::MODULE_PREFIX)
 
       ->add(fn($r, $pr, $n) => text(
@@ -201,24 +201,29 @@ class PromptManager {
         default: $this->default($n, NULL),
       ), PromptFields::HOSTING_PROVIDER)
 
-        ->addIf(
-          fn($r) => $r['hosting_provider'] !== 'other',
-          fn($r, $pr, $n) => info(sprintf('Web root will be set to "%s".', match ($r['hosting_provider']) {
-            'acquia' => 'docroot',
-            'lagoon' => 'web',
-            default => $this->default($n, 'web'),
-          })))
+        ->add(
+          function ($r, $pr, $n) {
+            if ($r['hosting_provider'] !== 'other'){
+              $webroot = match ($r['hosting_provider']) {
+                'acquia' => 'docroot',
+                'lagoon' => 'web',
+                default => $this->default($n, 'web')
+              };
 
-        ->addIf(
-          fn($r) => $r['hosting_provider'] === 'other',
-          fn($r, $pr, $n) => text(
-            label: '📁 Custom web root directory',
-            hint: 'Custom directory where the web server serves the site.',
-            placeholder: 'E.g. public',
-            required: TRUE,
-            transform: fn(string $v) => !empty(trim($v)) ? Converter::path($v) : trim($v),
-            validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
-          ), PromptFields::WEBROOT_CUSTOM)
+              info(sprintf('Web root will be set to "%s".',$webroot));
+            }
+            else {
+              $webroot = text(
+                label: '📁 Custom web root directory',
+                hint: 'Custom directory where the web server serves the site.',
+                placeholder: 'E.g. public',
+                required: TRUE,
+                transform: fn(string $v) => !empty(trim($v)) ? Converter::path($v) : trim($v),
+                validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
+              );
+            }
+            return $webroot;
+          }, PromptFields::WEBROOT_CUSTOM)
 
       ->intro('Deployment')
 
@@ -245,7 +250,7 @@ class PromptManager {
           $defaults[] = 'webhook';
         }
 
-        multiselect(
+        return multiselect(
           label: '🚚 Deployment types',
           hint: 'You can deploy code using one or more methods.',
           options: $options,
@@ -287,7 +292,7 @@ class PromptManager {
               unset($options['acquia']);
             }
 
-            select(
+            return select(
               label: 'Database dump source',
               hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
               options: $options,
@@ -323,7 +328,7 @@ class PromptManager {
           unset($options['gha']);
         }
 
-        select(
+        return select(
           label: '🔁 Continuous Integration provider',
           hint: 'Both providers support equivalent workflow.',
           options: $options,
@@ -470,7 +475,10 @@ class PromptManager {
     $proceed = TRUE;
 
     if (!$this->config->isQuiet()) {
-      $proceed = confirm(sprintf('Proceed with installing Vortex into your project\'s directory "%s"?', $this->config->getDst()));
+      $proceed = confirm(
+        label: 'Proceed with installing Vortex?',
+        hint: sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDst())
+      );
     }
 
     // Kill-switch to not proceed with install. If false, the install will not

@@ -6,12 +6,14 @@ namespace DrevOps\Installer\Utils;
 
 use DrevOps\Installer\Prompts\PromptFields;
 use Laravel\Prompts\Terminal;
+use Symfony\Component\Console\Helper\TableSeparator;
+use function Laravel\Prompts\info;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\table;
 
 class Printer {
 
-  const EMPTY_LINE = '---EMPTY---';
+  const SECTION_TITLE = '---SECTION_TITLE---';
 
   protected $output;
 
@@ -106,24 +108,14 @@ EOT;
   }
 
   public function summary(Config $config, array $responses): void {
-    $values['General information'] = '';
-    $values['Current directory'] = $config->getRoot();
-    $values['Destination directory'] = $config->getDst();
-    // @todo Review below - it should show the version of Vortex that will be
-    // installed and a commit to be installed from.
-    $values['Vortex version'] = $config->get(Config::VORTEX_VERSION);
-    [$repo, $ref] = Downloader::parseUri($config->get(Config::REPO_URI));
-    $values['Vortex commit'] = $ref;
-
-    $values[] = self::EMPTY_LINE;
-
+    $values['General information'] = static::SECTION_TITLE;
     $values['🔖 Site name'] = $responses[PromptFields::NAME];
     $values['🔖 Site machine name'] = $responses[PromptFields::MACHINE_NAME];
     $values['🏢 Organization name'] = $responses[PromptFields::ORG];
     $values['🏢 Organization machine name'] = $responses[PromptFields::ORG_MACHINE_NAME];
     $values['🌐 Public domain'] = $responses[PromptFields::DOMAIN];
 
-    $values['Code repository'] = '';
+    $values['Code repository'] = static::SECTION_TITLE;
     $values['Code provider'] = $responses[PromptFields::CODE_PROVIDER];
     if (PromptFields::GITHUB_TOKEN) {
       $values['🔑 GitHub access token'] = 'valid';
@@ -132,7 +124,7 @@ EOT;
       $values['GitHub repository'] = $responses[PromptFields::GITHUB_REPO];
     }
 
-    $values['Drupal'] = '';
+    $values['Drupal'] = static::SECTION_TITLE;
     $values['📁 Webroot'] = $responses[PromptFields::WEBROOT_CUSTOM];
     $values['Use a custom profile'] = static::formatYesNo($responses[PromptFields::USE_CUSTOM_PROFILE]);
     if ($responses[PromptFields::USE_CUSTOM_PROFILE]) {
@@ -141,13 +133,13 @@ EOT;
     $values['🧩 Module prefix'] = $responses[PromptFields::MODULE_PREFIX];
     $values['🎨 Theme machine name'] = $responses[PromptFields::THEME];
 
-    $values['Hosting'] = '';
+    $values['Hosting'] = static::SECTION_TITLE;
     $values['🏠 Hosting provider'] = $responses[PromptFields::HOSTING_PROVIDER];
 
-    $values['Deployment'] = '';
+    $values['Deployment'] = static::SECTION_TITLE;
     $values['🚚 Deployment types'] = $responses[PromptFields::DEPLOY_TYPE];
 
-    $values['Workflow'] = '';
+    $values['Workflow'] = static::SECTION_TITLE;
     $values['Provision type'] = $responses[PromptFields::PROVISION_TYPE];
 
     if ($responses[PromptFields::PROVISION_TYPE] == 'database') {
@@ -158,19 +150,24 @@ EOT;
       }
     }
 
-    $values['Continuous Integration'] = '';
-    $values['CI provider'] = $responses[PromptFields::CI_PROVIDER];
+    $values['Continuous Integration'] = static::SECTION_TITLE;
+    $values['🔁 CI provider'] = $responses[PromptFields::CI_PROVIDER];
 
-    $values['Automations'] = '';
+    $values['Automations'] = static::SECTION_TITLE;
     $values['🔄 Dependency updates provider'] = $responses[PromptFields::DEPENDENCY_UPDATES_PROVIDER];
-    $values['👤 Auto-assign the author to their PR'] = static::formatYesNo($responses[PromptFields::ASSIGN_AUTHOR_PR]);
-    $values['🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur'] = static::formatYesNo($responses[PromptFields::LABEL_MERGE_CONFLICTS_PR]);
+    $values['👤 Auto-assign PR author'] = static::formatYesNo($responses[PromptFields::ASSIGN_AUTHOR_PR]);
+    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = static::formatYesNo($responses[PromptFields::LABEL_MERGE_CONFLICTS_PR]);
 
-    $values['Documentation'] = '';
+    $values['Documentation'] = static::SECTION_TITLE;
     $values['📚 Preserve project documentation'] = static::formatYesNo($responses[PromptFields::DOCS_PROJECT]);
     $values['📋 Preserve onboarding checklist'] = static::formatYesNo($responses[PromptFields::DOCS_ONBOARDING]);
 
-    static::printList($values);
+    $values['Locations'] = static::SECTION_TITLE;
+    $values['Current directory'] = $config->getRoot();
+    $values['Destination directory'] = $config->getDst();
+    $values['Vortex repository'] = $config->get(Config::REPO_URI);
+
+    $this->printList($values, 'Summary');
   }
 
   protected function printBox(string $content, ?string $title = NULL, int $width = 80): void {
@@ -188,10 +185,26 @@ EOT;
     table([], $rows);
   }
 
-  protected static function printList(array $values): void {
-    $rows = array_map(function ($key, $value) {
-      return $value == Printer::EMPTY_LINE ? [] : [$key, $value];
-    }, array_keys($values), array_values($values));
+  protected function printList(array $values, ?string $title): void {
+    foreach ($values as $key => $value) {
+      if (is_array($value)) {
+        $values[$key] = implode(', ', $value);
+      }
+    }
+
+    $rows = [];
+    foreach ($values as $key => $value) {
+      if ($value === self::SECTION_TITLE) {
+        $rows[] = [static::green(static::bold($key))];
+        continue;
+      }
+
+      $rows[] = ['  ' . $key, $value];
+    }
+
+    if ($title) {
+      info($title);
+    }
 
     table([], $rows);
   }
