@@ -57,12 +57,12 @@ EOT;
   protected function headerQuiet(Config $config): void {
     $content = '';
 
-    $commit = $config->get(Config::COMMIT);
-    if ($commit == 'HEAD') {
+    [$repo, $ref] = Downloader::parseUri($config->get(Config::REPO_URI));
+    if ($ref == 'stable') {
       $content .= 'This will install the latest version of Vortex into your project.' . PHP_EOL;
     }
     else {
-      $content .= sprintf('This will install Vortex into your project at commit "%s".', $commit) . PHP_EOL;
+      $content .= sprintf('This will install Vortex into your project at commit "%s".', $ref) . PHP_EOL;
     }
 
     $content .= PHP_EOL;
@@ -81,12 +81,12 @@ EOT;
   protected function headerInteractive(Config $config): void {
     $content = '';
 
-    $commit = $config->get(Config::COMMIT);
-    if ($commit == 'HEAD') {
+    [$repo, $ref] = Downloader::parseUri($config->get(Config::REPO_URI));
+    if ($ref == 'stable') {
       $content .= 'This will install the latest version of Vortex into your project.' . PHP_EOL;
     }
     else {
-      $content .= sprintf('This will install Vortex into your project at commit "%s".', $commit) . PHP_EOL;
+      $content .= sprintf('This will install Vortex into your project at commit "%s".', $ref) . PHP_EOL;
     }
     $content .= PHP_EOL;
 
