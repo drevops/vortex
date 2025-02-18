@@ -47,13 +47,6 @@ class Config {
     return (bool) $this->get('QUIET', FALSE);
   }
 
-  /**
-   * Shorthand to get the value of VORTEX_INSTALL_DEBUG.
-   */
-  public function isInstallDebug(): bool {
-    return (bool) $this->get('VORTEX_INSTALL_DEBUG', FALSE);
-  }
-
   public function setQuiet(bool $value = TRUE): void {
     $this->set('QUIET', $value);
   }

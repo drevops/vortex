@@ -138,7 +138,6 @@ setup() {
 
   # Allow to override debug variables from environment when developing tests.
   export VORTEX_DEBUG="${TEST_VORTEX_DEBUG:-}"
-  export VORTEX_INSTALL_DEBUG="${TEST_VORTEX_INSTALL_DEBUG:-}"
 
   # Switch to using test demo DB.
   # Demo DB is what is being downloaded when the installer runs for the first

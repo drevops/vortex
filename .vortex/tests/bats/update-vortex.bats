@@ -45,8 +45,6 @@ load _helper.bash
 
   # Override Vortex release commit in .env file.
   echo VORTEX_INSTALL_COMMIT="${latest_commit}" >>.env
-  # Enforce debugging of the install script.
-  export VORTEX_INSTALL_DEBUG=1
 
   # Build installer.
   [ ! -d "${ROOT_DIR}/.vortex/installer/vendor" ] && composer --working-dir="${ROOT_DIR}/.vortex/installer" install
