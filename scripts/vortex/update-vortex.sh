@@ -13,8 +13,14 @@ set -eu
 # shellcheck disable=SC1091
 set -a && . ./.env && set +a
 
-# Allow providing custom Vortex commit hash to download the sources from.
-VORTEX_INSTALL_COMMIT="${VORTEX_INSTALL_COMMIT:-${1:-}}"
+# Vortex remote or local repo URI, optionally including reference.
+#
+# Examples:
+# https://github.com/drevops/vortex.git
+# https://github.com/drevops/vortex.git@ref
+# /path/to/vortex
+# /path/to/vortex@ref
+VORTEX_INSTALL_REPO_URI="${VORTEX_INSTALL_REPO_URI:-${1:-}}"
 
 # The URL of the installer script.
 VORTEX_INSTALLER_URL="${VORTEX_INSTALLER_URL:-https://vortex.drevops.com/install}"

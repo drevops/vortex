@@ -102,7 +102,7 @@ EOF
         return Command::SUCCESS;
       }
 
-      $this->downloadScaffold();
+      $this->downloadVortex();
 
       $this->prepareDestination();
 
@@ -162,37 +162,38 @@ EOF
 
     // Set root directory to resolve relative paths.
     $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : File::cwd();
-    $this->config->set(Config::ROOT, Env::get(Config::ROOT, $this->config->get(Config::ROOT, $root)));
+    $this->config->set(Config::ROOT, $root);
 
     // Set destination directory.
     $dst = !empty($arguments['destination']) && is_scalar($arguments['destination']) ? strval($arguments['destination']) : NULL;
     $dst = $dst ?: Env::get(Config::DST, $this->config->get(Config::DST, $this->config->get(Config::ROOT)));
     $dst = File::mkdir($dst);
-    $this->config->set(Config::DST, $dst);
+    $this->config->set(Config::DST, $dst, TRUE);
+
+    // Temporary directory to download and expand files to.
+    $this->config->set(Config::TMP, File::tmpdir());
 
     // Load values from the destination .env file, if it exists.
     if (File::exists($this->config->getDst() . '/.env')) {
       Env::loadAllValuesFromDotenv($this->config->getDst() . '/.env');
     }
 
-    // Internal version of Vortex.
+    // Check if the project is a Vortex project.
+    $this->config->set(Config::IS_VORTEX_PROJECT, File::contains('/badge\/Vortex-/', $this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md'));
+
+    // Version of Vortex to download. If not provided, the latest stable
+    // release will be downloaded.
     // @todo Convert to option.
-    $this->config->set(Config::VORTEX_VERSION, Env::get(Config::VORTEX_VERSION, 'develop'));
+    $this->config->set(Config::VORTEX_VERSION, 'stable');
 
     // Optional commit to download. If not provided, latest release will be
     // downloaded.
     // @todo Convert to option.
-    $this->config->set(Config::COMMIT, Env::get(Config::COMMIT, $this->config->get(Config::VORTEX_VERSION)));
+    $this->config->set(Config::REPO_URI, Downloader::makeUri('https://github.com/drevops/vortex.git', $this->config->get(Config::VORTEX_VERSION)));
 
     // Flag to proceed with installation. If FALSE - the installation will only
     // print resolved values and will not proceed.
-    $this->config->set(Config::PROCEED, (bool) Env::get(Config::PROCEED, TRUE));
-
-    // Temporary directory to download and expand files to.
-    $this->config->set(Config::TMP, Env::get(Config::TMP, File::tmpdir()));
-
-    // Path to local Vortex repository. If not provided - remote will be used.
-    $this->config->set(Config::REPO, Env::get(Config::REPO));
+    $this->config->set(Config::PROCEED, TRUE);
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
@@ -202,20 +203,15 @@ EOF
 
     // Internal flag to skip processing of the demo mode.
     $this->config->set(Config::DEMO_MODE_SKIP, (bool) Env::get(Config::DEMO_MODE_SKIP, FALSE));
-
-    $this->config->set(Config::IS_VORTEX_PROJECT, File::contains('/badge\/Vortex-/', $this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md'));
   }
 
-  protected function downloadScaffold(): void {
-    $repo = $this->config->get(Config::REPO, 'https://github.com/drevops/vortex.git');
-    $ref = $this->config->get(Config::COMMIT);
-    $src = sprintf('%s@%s', $repo, $ref);
+  protected function downloadVortex(): void {
+    $src = $this->config->get(Config::REPO_URI);
     $dst = $this->config->get(Config::TMP);
 
-    note(sprintf('Downloading from "%s" repository at commit "%s".', $repo, $ref));
-    $dst = (new Downloader())->download($src, $dst);
-    $this->config->set(Config::TMP, $dst);
-    note(sprintf('Downloaded to "%s".', $dst));
+    [$repo, $ref] = Downloader::parseUri($src);
+    note(sprintf('Downloading from "%s" repository at commit "%s" to "%s".', $repo, $ref, $dst));
+    (new Downloader())->download($src, $dst);
   }
 
   protected function prepareDestination(): void {

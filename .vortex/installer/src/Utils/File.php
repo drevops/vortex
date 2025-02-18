@@ -627,15 +627,12 @@ class File {
   }
 
   public static function cwd() {
-    if (isset($_SERVER['PWD'])) {
-      return $_SERVER['PWD'];
-    }
-
-    return (string) getcwd();
+    return static::absolutePath($_SERVER['PWD'] ?? (string) getcwd());
   }
 
   public static function exists(string|iterable $files): bool {
     $fs = new Filesystem();
+
     return $fs->exists($files);
   }
 

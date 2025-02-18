@@ -20,38 +20,64 @@ class Downloader {
   public function download(string $src, ?string $dst = NULL): string {
     $dst = $dst ?? $this->tmpDir;
 
-    if ($this->isRemoteRepo($src)) {
-      [$org, $repo, $ref] = $this->parseRemoteRepo($src);
-      $this->downloadFromRemote($org, $repo, $ref, $dst);
+    [$repo, $ref] = $this->parseUri($src);
+
+    if (str_starts_with($src, 'https://') || str_starts_with($src, 'git@')) {
+      $this->downloadFromRemote($repo, $ref, $dst);
     }
     else {
-      [$repo, $ref] = $this->parseLocalRepo($src);
       $this->downloadFromLocal($repo, $ref, $dst);
     }
 
-    return $this->tmpDir;
+    return $dst;
   }
 
-  protected function isRemoteRepo(string $src): bool {
-    return str_starts_with($src, 'https://') || str_starts_with($src, 'git@');
-  }
-
-  protected function parseRemoteRepo(string $src): array {
-    if (!preg_match('#^https://github.com/([^/]+)/([^@]+)@(.+)$#', $src, $matches)) {
-      throw new RuntimeException(sprintf('Invalid remote repository format: "%s".', $src));
+  public static function parseUri(string $src) {
+    if (str_starts_with($src, 'https://')) {
+      if (!preg_match('#^(https://[^/]+/[^/]+/[^@]+)(?:@(.+))?$#', $src, $matches)) {
+        throw new RuntimeException(sprintf('Invalid remote repository format: "%s".', $src));
+      }
+      $repo = $matches[1];
+      $ref = $matches[2] ?? 'HEAD';
     }
-
-    return [$matches[1], $matches[2], $matches[3]];
-  }
-
-  protected function parseLocalRepo(string $src): array {
-    if (!preg_match('#^(.+?)(?:@(.+))?$#', $src, $matches)) {
-      throw new RuntimeException(sprintf('Invalid local repository format: "%s".', $src));
+    elseif (str_starts_with($src, 'git@')) {
+      if (!preg_match('#^(git@[^:]+:[^/]+/[^@]+)(?:@(.+))?$#', $src, $matches)) {
+        throw new RuntimeException(sprintf('Invalid remote repository format: "%s".', $src));
+      }
+      $repo = $matches[1];
+      $ref = $matches[2] ?? 'HEAD';
     }
-    $repo = rtrim($matches[1], '/');
-    $ref = $matches[2] ?? 'HEAD';
+    elseif (str_starts_with($src, 'file://')) {
+      if (!preg_match('#^file://(.+?)(?:@(.+))?$#', $src, $matches)) {
+        throw new RuntimeException(sprintf('Invalid remote repository format: "%s".', $src));
+      }
+      $repo = $matches[1];
+      $ref = $matches[2] ?? 'HEAD';
+    }
+    else {
+      if (!preg_match('#^(.+?)(?:@(.+))?$#', $src, $matches)) {
+        throw new RuntimeException(sprintf('Invalid local repository format: "%s".', $src));
+      }
+      $repo = rtrim($matches[1], '/');
+      $ref = $matches[2] ?? 'HEAD';
+
+      return [$repo, $ref];
+    }
 
     return [$repo, $ref];
+  }
+
+  protected function downloadFromRemote(string $repo, string $ref, string $destination): void {
+    $url = sprintf('%s/archive/%s.tar.gz', $repo, $ref);
+    $command = sprintf(
+      'curl -sS -L "%s" | tar xzf - -C "%s" --strip 1',
+      $url,
+      $destination
+    );
+
+    if (!passthru($command)) {
+      throw new RuntimeException(sprintf('Failed to download the remote archive: %s', $command));
+    }
   }
 
   protected function downloadFromLocal(string $repo, string $ref, string $destination): void {
@@ -68,17 +94,7 @@ class Downloader {
     }
   }
 
-  protected function downloadFromRemote(string $org, string $repo, string $ref, string $destination): void {
-    $url = sprintf('https://github.com/%s/%s/archive/%s.tar.gz', $org, $repo, $ref);
-    $command = sprintf(
-      'curl -sS -L "%s" | tar xzf - -C "%s" --strip 1',
-      $url,
-      $destination
-    );
-
-    if (!passthru($command)) {
-      throw new RuntimeException(sprintf('Failed to download the remote archive: %s', $command));
-    }
+  public static function makeUri(string $repo, string $ref): string {
+    return sprintf('%s@%s', $repo, $ref);
   }
-
 }

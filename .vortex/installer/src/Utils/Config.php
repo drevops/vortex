@@ -19,9 +19,7 @@ class Config {
 
   const TMP = 'VORTEX_INSTALL_TMP_DIR';
 
-  const REPO = 'VORTEX_INSTALL_REPO';
-
-  const COMMIT = 'VORTEX_INSTALL_COMMIT';
+  const REPO_URI = 'VORTEX_INSTALL_REPO_URI';
 
   const PROCEED = 'VORTEX_INSTALL_PROCEED';
 
@@ -63,17 +61,16 @@ class Config {
     return $instance;
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function get(string $name, mixed $default = NULL): mixed {
     return $this->store[$name] ?? $default;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function set(string $name, mixed $value): static {
+  public function set(string $name, mixed $value, bool $skip_env = FALSE): static {
+    if (!$skip_env) {
+      // Environment variables always take precedence.
+      $value = Env::get($name, $value);
+    }
+
     if (!is_null($value)) {
       $this->store[$name] = $value;
     }
