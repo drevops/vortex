@@ -45,21 +45,21 @@ class Downloader {
         throw new RuntimeException(sprintf('Invalid remote repository format: "%s".', $src));
       }
       $repo = $matches[1];
-      $ref = $matches[2] ?? 'HEAD';
+      $ref = $matches[2] ?? 'stable';
     }
     elseif (str_starts_with($src, 'file://')) {
       if (!preg_match('#^file://(.+?)(?:@(.+))?$#', $src, $matches)) {
         throw new RuntimeException(sprintf('Invalid remote repository format: "%s".', $src));
       }
       $repo = $matches[1];
-      $ref = $matches[2] ?? 'HEAD';
+      $ref = $matches[2] ?? 'stable';
     }
     else {
       if (!preg_match('#^(.+?)(?:@(.+))?$#', $src, $matches)) {
         throw new RuntimeException(sprintf('Invalid local repository format: "%s".', $src));
       }
       $repo = rtrim($matches[1], '/');
-      $ref = $matches[2] ?? 'HEAD';
+      $ref = $matches[2] ?? 'stable';
 
       return [$repo, $ref];
     }

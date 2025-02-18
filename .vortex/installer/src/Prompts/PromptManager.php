@@ -8,6 +8,7 @@ use AlexSkrypnyk\Str2Name\Str2Name;
 use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
+use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Validator;
 use Laravel\Prompts\Prompt;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -53,7 +54,7 @@ class PromptManager {
         hint: 'We will use this name in the project and in the documentation.',
         placeholder: 'E.g. My Site',
         required: TRUE,
-        default: $this->default($n, Str2Name::label(Utils::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
+        default: $this->default($n, Str2Name::label(Env::get('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid name' : NULL,
       ), PromptFields::NAME)
@@ -120,9 +121,9 @@ class PromptManager {
           fn($r) => $r['code_provider'] === 'github',
           fn($r, $pr, $n) => text(
             label: '🔑 GitHub access token (optional)',
-            hint: Utils::getEnvOrDefault('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new',
+            hint: Env::get('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new',
             placeholder: 'E.g. ghp_1234567890',
-            default: $this->default($n, Utils::getEnvOrDefault('GITHUB_TOKEN')),
+            default: $this->default($n, Env::get('GITHUB_TOKEN')),
             transform: fn(string $v) => trim($v),
             validate: fn($v) => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL,
           ), PromptFields::GITHUB_TOKEN)
@@ -172,6 +173,7 @@ class PromptManager {
         required: TRUE,
         default: $this->default($n, Converter::abbreviation($r['machine_name'], 4, ['_'])),
         transform: fn(string $v) => trim($v),
+        // @todo Fix validation  here.
         validate: fn($v) => Converter::abbreviation($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), PromptFields::MODULE_PREFIX)
 
@@ -260,7 +262,7 @@ class PromptManager {
         label: 'Provision type',
         hint: 'Selecting "Profile" will install site from a profile rather than a database dump.',
         options: [
-          'database' => 'Database dump',
+          'database' => 'Import from database dump',
           'profile' => 'Install from profile',
         ],
         default: $this->default($n, 'database'),

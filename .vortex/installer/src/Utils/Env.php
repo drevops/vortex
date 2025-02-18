@@ -40,7 +40,7 @@ class Env {
 
     $parsed = static::parseDotenv($file);
 
-    return $parsed !== [] ? $parsed[$name] ?? $default : $default;
+    return $parsed !== [] ? ($parsed[$name] ?? $default) : $default;
   }
 
   /**

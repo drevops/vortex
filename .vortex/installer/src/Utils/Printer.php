@@ -112,7 +112,8 @@ EOT;
     // @todo Review below - it should show the version of Vortex that will be
     // installed and a commit to be installed from.
     $values['Vortex version'] = $config->get(Config::VORTEX_VERSION);
-    $values['Vortex commit'] = $config->get(Config::COMMIT, 'Latest');
+    [$repo, $ref] = Downloader::parseUri($config->get(Config::REPO_URI));
+    $values['Vortex commit'] = $ref;
 
     $values[] = self::EMPTY_LINE;
 
@@ -195,7 +196,7 @@ EOT;
     table([], $rows);
   }
 
-  protected static function formatYesNo(string $value): string {
+  protected static function formatYesNo(string|bool|int $value): string {
     return $value === '1' || $value === 1 || $value === TRUE ? 'Yes' : 'No';
   }
 
