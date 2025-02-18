@@ -4,16 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Command;
 
-use DrevOps\Installer\Prompt\Name;
 use DrevOps\Installer\Prompts\PromptManager;
-use DrevOps\Installer\Traits\EnvTrait;
-use DrevOps\Installer\Traits\GitTrait;
-use DrevOps\Installer\Traits\PrinterTrait;
-use DrevOps\Installer\Traits\PromptsTrait;
 use DrevOps\Installer\Traits\TuiTrait;
-use DrevOps\Installer\Utils\Callback;
 use DrevOps\Installer\Utils\Downloader;
-use DrevOps\Installer\Utils\DownloadTrait;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 use DrevOps\Installer\Utils\InstallerConfig;
@@ -22,7 +15,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\progress;
@@ -70,13 +62,11 @@ class InstallCommand extends Command {
 
 EOF
     );
-    $this->addArgument('path', InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
+    $this->addArgument('destination', InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
 
     $this->addOption('root', NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
 
     $this->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
-
-    $this->config = new InstallerConfig();
   }
 
   /**
@@ -85,8 +75,6 @@ EOF
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output = $output;
 
-    $this->promptManager = new PromptManager($output);
-
     // @see https://github.com/drevops/vortex/issues/1502
     if ($input->getOption('help') || $input->getArgument('path') == 'help') {
       $output->write($this->getHelp());
@@ -94,15 +82,14 @@ EOF
       return Command::SUCCESS;
     }
 
+    $this->promptManager = new PromptManager($output);
+
     try {
       $this->checkRequirements();
 
-      $this->resolveOptions($input->getOptions(), $input->getArgument('path'));
+      $this->resolveOptions($input->getOptions(), $input->getArguments());
 
       $this->printHeader();
-
-      // Set answers that may be used in other answers' discoveries.
-      $this->setAnswer('webroot', $this->discoverValue('webroot'));
 
       $this->promptManager->getResponses($this->config);
 
@@ -149,32 +136,24 @@ EOF
    *
    * @param array<mixed> $options
    *   Array of CLI options.
-   * @param string|null $path
-   *   Destination directory. Optional. Defaults to the current directory.
    */
-  protected function resolveOptions(array $options, ?string $path): void {
+  protected function resolveOptions(array $options, array $arguments): void {
+    $config = isset($options['config']) && is_scalar($options['config']) ? strval($options['config']) : '{}';
+    $this->config = InstallerConfig::fromString($config);
+
     if (!is_null($options['quiet'])) {
       $this->config->setQuiet();
     }
 
-    $is_ansi = !is_null($options['ansi']) ? $options['ansi'] : NULL;
-    if (is_null($is_ansi)) {
-      // On Windows, default to no ANSI, except in ANSICON and ConEmu.
-      // Everywhere else, default to ANSI if stdout is a terminal.
-      $is_ansi = (DIRECTORY_SEPARATOR === '\\')
-        ? (FALSE !== getenv('ANSICON') || 'ON' === getenv('ConEmuANSI'))
-        : (function_exists('posix_isatty') && posix_isatty(1));
-    }
-    $this->config->setAnsi($is_ansi);
-
     // Set root directory to resolve relative paths.
     $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : File::cwd();
-    $this->config->set('VORTEX_INSTALL_ROOT_DIR', Env::get('VORTEX_INSTALL_ROOT_DIR', $root));
+    $this->config->set('VORTEX_INSTALL_ROOT_DIR', Env::get('VORTEX_INSTALL_ROOT_DIR', $this->config->get('VORTEX_INSTALL_ROOT_DIR', $root)));
 
     // Set destination directory.
-    $path = $path ?: Env::get('VORTEX_INSTALL_DST_DIR', $this->config->get('VORTEX_INSTALL_ROOT_DIR'));
-    $path = File::mkdir($path);
-    $this->config->set('VORTEX_INSTALL_DST_DIR', $path);
+    $dst = !empty($arguments['destination']) && is_scalar($arguments['destination']) ? strval($arguments['destination']) : NULL;
+    $dst = $dst ?: Env::get('VORTEX_INSTALL_DST_DIR', $this->config->get('VORTEX_INSTALL_DST_DIR', $this->config->get('VORTEX_INSTALL_ROOT_DIR')));
+    $dst = File::mkdir($dst);
+    $this->config->set('VORTEX_INSTALL_DST_DIR', $dst);
 
     // Load values from the destination .env file, if it exists.
     if (File::exists($this->config->getDstDir() . '/.env')) {
@@ -185,27 +164,23 @@ EOF
     // @todo Convert to option and remove from the environment variables.
     $this->config->set('VORTEX_VERSION', Env::get('VORTEX_VERSION', 'develop'));
 
-    // Flag to display install debug information.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_DEBUG', (bool) Env::get('VORTEX_INSTALL_DEBUG', FALSE));
-
-    // Flag to proceed with installation. If FALSE - the installation will only
-    // print resolved values and will not proceed.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_PROCEED', (bool) Env::get('VORTEX_INSTALL_PROCEED', TRUE));
-
-    // Temporary directory to download and expand files to.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_TMP_DIR', Env::get('VORTEX_INSTALL_TMP_DIR', File::tmpdir()));
-
-    // Path to local Vortex repository. If not provided - remote will be used.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_LOCAL_REPO', Env::get('VORTEX_INSTALL_LOCAL_REPO'));
-
     // Optional commit to download. If not provided, latest release will be
     // downloaded.
     // @todo Convert to option and remove from the environment variables.
     $this->config->set('VORTEX_INSTALL_COMMIT', Env::get('VORTEX_INSTALL_COMMIT', 'HEAD'));
+
+    // Flag to display install debug information.
+    $this->config->set('VORTEX_INSTALL_DEBUG', (bool) Env::get('VORTEX_INSTALL_DEBUG', FALSE));
+
+    // Flag to proceed with installation. If FALSE - the installation will only
+    // print resolved values and will not proceed.
+    $this->config->set('VORTEX_INSTALL_PROCEED', (bool) Env::get('VORTEX_INSTALL_PROCEED', TRUE));
+
+    // Temporary directory to download and expand files to.
+    $this->config->set('VORTEX_INSTALL_TMP_DIR', Env::get('VORTEX_INSTALL_TMP_DIR', File::tmpdir()));
+
+    // Path to local Vortex repository. If not provided - remote will be used.
+    $this->config->set('VORTEX_INSTALL_REPO', Env::get('VORTEX_INSTALL_REPO'));
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
@@ -217,13 +192,8 @@ EOF
     $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) Env::get('VORTEX_INSTALL_DEMO_SKIP', FALSE));
   }
 
-  protected function envOrDefault($name, $default = NULL) {
-    // @todo Implement this.
-    return $default;
-  }
-
   protected function downloadScaffold(): void {
-    $repo = $this->config->get('VORTEX_INSTALL_LOCAL_REPO');
+    $repo = $this->config->get('VORTEX_INSTALL_REPO', 'https://github.com/drevops/vortex.git');
     $ref = $this->config->get('VORTEX_INSTALL_COMMIT', $this->config->get('VORTEX_VERSION'));
     $src = sprintf('%s@%s', $repo, $ref);
     $dst = $this->config->get('VORTEX_INSTALL_TMP_DIR');

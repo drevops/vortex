@@ -44,7 +44,7 @@ class InstallerConfig {
    * Shorthand to get the value of whether install should be quiet.
    */
   public function isQuiet(): bool {
-    return (bool) $this->get('quiet', FALSE);
+    return (bool) $this->get('QUIET', FALSE);
   }
 
   /**
@@ -55,11 +55,27 @@ class InstallerConfig {
   }
 
   public function setQuiet(bool $value = TRUE): void {
-    $this->set('quiet', $value);
+    $this->set('QUIET', $value);
   }
 
-  public function setAnsi(bool $value = TRUE): void {
-    $this->set('ansi', $value);
+  public static function fromString(string $config): static {
+    $config = json_decode($config, TRUE);
+
+    if (!is_array($config)) {
+      throw new \RuntimeException('Invalid JSON string provided in --config option.');
+    }
+
+    $instance = new self();
+
+    foreach ($config as $key => $value) {
+      if (!is_string($key)) {
+        throw new \RuntimeException(sprintf('Invalid key "%s" in JSON string provided in --config option.', $key));
+      }
+
+      $instance->set(strtoupper($key), $value);
+    }
+
+    return $instance;
   }
 
 }

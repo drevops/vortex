@@ -1090,7 +1090,7 @@ run_installer_quiet() {
   pushd "${CURRENT_PROJECT_DIR}" >/dev/null || exit 1
 
   # Force the installer script to be downloaded from the local repo for testing.
-  export VORTEX_INSTALL_LOCAL_REPO="${LOCAL_REPO_DIR}"
+  export VORTEX_INSTALL_REPO="${LOCAL_REPO_DIR}"
 
   # Use unique installer temporary directory for each run. This is where
   # the installer script downloads the Vortex codebase for processing.
