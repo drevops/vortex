@@ -20,6 +20,26 @@ class Config {
    */
   protected array $config = [];
 
+  public static function fromString(string $config): static {
+    $config = json_decode($config, TRUE);
+
+    if (!is_array($config)) {
+      throw new \RuntimeException('Invalid JSON string provided in --config option.');
+    }
+
+    $instance = new self();
+
+    foreach ($config as $key => $value) {
+      if (!is_string($key)) {
+        throw new \RuntimeException(sprintf('Invalid key "%s" in JSON string provided in --config option.', $key));
+      }
+
+      $instance->set(strtoupper($key), $value);
+    }
+
+    return $instance;
+  }
+
   /**
    * Get a configuration value or default.
    */
@@ -49,26 +69,6 @@ class Config {
 
   public function setQuiet(bool $value = TRUE): void {
     $this->set('QUIET', $value);
-  }
-
-  public static function fromString(string $config): static {
-    $config = json_decode($config, TRUE);
-
-    if (!is_array($config)) {
-      throw new \RuntimeException('Invalid JSON string provided in --config option.');
-    }
-
-    $instance = new self();
-
-    foreach ($config as $key => $value) {
-      if (!is_string($key)) {
-        throw new \RuntimeException(sprintf('Invalid key "%s" in JSON string provided in --config option.', $key));
-      }
-
-      $instance->set(strtoupper($key), $value);
-    }
-
-    return $instance;
   }
 
 }
