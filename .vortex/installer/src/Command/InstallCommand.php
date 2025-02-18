@@ -78,7 +78,7 @@ EOF
     $this->output = $output;
 
     // @see https://github.com/drevops/vortex/issues/1502
-    if ($input->getOption('help') || $input->getArgument('path') == 'help') {
+    if ($input->getOption('help') || $input->getArgument('destination') == 'help') {
       $output->write($this->getHelp());
 
       return Command::SUCCESS;
@@ -124,8 +124,20 @@ EOF
   }
 
   protected function checkRequirements(): void {
-    if (!passthru('command -v git') || !passthru('command -v curl') || !passthru('command -v tar') || !passthru('command -v composer')) {
-      throw new \RuntimeException('Missing one or mote required commands: git, curl, tar, composer.');
+    if (passthru('command -v git >/dev/null') === FALSE) {
+      throw new \RuntimeException('Missing git.');
+    }
+
+    if (passthru('command -v curl >/dev/null') === FALSE) {
+      throw new \RuntimeException('Missing curl.');
+    }
+
+    if (passthru('command -v tar >/dev/null') === FALSE) {
+      throw new \RuntimeException('Missing tar.');
+    }
+
+    if (passthru('command -v composer >/dev/null') === FALSE) {
+      throw new \RuntimeException('Missing composer.');
     }
   }
 
@@ -146,9 +158,7 @@ EOF
     $config = isset($options['config']) && is_scalar($options['config']) ? strval($options['config']) : '{}';
     $this->config = Config::fromString($config);
 
-    if (!is_null($options['quiet'])) {
-      $this->config->setQuiet();
-    }
+    $this->config->setQuiet($options['quiet']);
 
     // Set root directory to resolve relative paths.
     $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : File::cwd();
@@ -193,9 +203,7 @@ EOF
     // Internal flag to skip processing of the demo mode.
     $this->config->set(Config::DEMO_MODE_SKIP, (bool) Env::get(Config::DEMO_MODE_SKIP, FALSE));
 
-    if (File::contains('/badge\/Vortex-/', $this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md')) {
-      $this->config->set(Config::IS_VORTEX_PROJECT, TRUE);
-    }
+    $this->config->set(Config::IS_VORTEX_PROJECT, File::contains('/badge\/Vortex-/', $this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md'));
   }
 
   protected function downloadScaffold(): void {

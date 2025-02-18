@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Prompts;
 
 use AlexSkrypnyk\Str2Name\Str2Name;
-use DrevOps\Installer\Config\ConfigInterface;
 use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
@@ -54,7 +53,7 @@ class PromptManager {
         hint: 'We will use this name in the project and in the documentation.',
         placeholder: 'E.g. My Site',
         required: TRUE,
-        default: $this->default($n, Str2Name::label(Util::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
+        default: $this->default($n, Str2Name::label(Utils::getEnvOrDefault('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid name' : NULL,
       ), PromptFields::NAME)
@@ -121,9 +120,9 @@ class PromptManager {
           fn($r) => $r['code_provider'] === 'github',
           fn($r, $pr, $n) => text(
             label: '🔑 GitHub access token (optional)',
-            hint: Util::getEnvOrDefault('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new',
+            hint: Utils::getEnvOrDefault('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new',
             placeholder: 'E.g. ghp_1234567890',
-            default: $this->default($n, Util::getEnvOrDefault('GITHUB_TOKEN')),
+            default: $this->default($n, Utils::getEnvOrDefault('GITHUB_TOKEN')),
             transform: fn(string $v) => trim($v),
             validate: fn($v) => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL,
           ), PromptFields::GITHUB_TOKEN)

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Utils;
 
-use DrevOps\Installer\Config\ConfigInterface;
 use DrevOps\Installer\Prompts\PromptFields;
 use Laravel\Prompts\Terminal;
 use function Laravel\Prompts\note;
@@ -76,7 +75,7 @@ EOT;
     $content .= PHP_EOL;
     $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
 
-    table(['Welcome to Vortex quiet installer'], [$content]);
+    $this->printBox($content, 'Welcome to Vortex ' . static::bold('quiet') . ' installer');
   }
 
   protected function headerInteractive(Config $config): void {
@@ -103,7 +102,7 @@ EOT;
     $content .= PHP_EOL;
     $content .= 'Press Ctrl+C at any time to exit this installer.' . PHP_EOL;
 
-    table(['Welcome to Vortex interactive installer'], [$content]);
+    $this->printBox($content, 'Welcome to Vortex ' . static::bold('interactive') . ' installer');
   }
 
   public function summary(Config $config, array $responses): void {
@@ -173,6 +172,21 @@ EOT;
     static::printList($values);
   }
 
+  protected function printBox(string $content, ?string $title = NULL, int $width = 80): void {
+    $rows = [];
+
+    $width = min($width, $this->terminalWidth);
+    $content = wordwrap($content, $width - 4, PHP_EOL, TRUE);
+
+    if ($title) {
+      $rows[] = [static::green($title)];
+      $rows[] = [static::green(str_repeat('-', static::strlenPlain($title))) . PHP_EOL];
+    }
+    $rows[] = [$content];
+
+    table([], $rows);
+  }
+
   protected static function printList(array $values): void {
     $rows = array_map(function ($key, $value) {
       return $value == Printer::EMPTY_LINE ? [] : [$key, $value];
@@ -187,10 +201,21 @@ EOT;
 
   /**
    * Set the text color to green.
+   *
+   * @param string $text
+   *
+   * @return string
    */
-  public function green(string $text): string
-  {
+  public static function green(string $text): string {
     return "\e[32m{$text}\e[39m";
+  }
+
+  public static function bold(string $text): string {
+    return "\e[1m{$text}\e[22m";
+  }
+
+  protected static function strlenPlain(string $text): int {
+    return strlen(preg_replace('/\e\[\d+m/', '', $text));
   }
 
 }
