@@ -184,12 +184,12 @@ EOF
     // Version of Vortex to download. If not provided, the latest stable
     // release will be downloaded.
     // @todo Convert to option.
-    $this->config->set(Config::VORTEX_VERSION, 'stable');
+    $this->config->set(Config::VERSION, 'stable');
 
     // Optional commit to download. If not provided, latest release will be
     // downloaded.
     // @todo Convert to option.
-    $this->config->set(Config::REPO_URI, Downloader::makeUri('https://github.com/drevops/vortex.git', $this->config->get(Config::VORTEX_VERSION)));
+    $this->config->set(Config::REPO_URI, Downloader::makeUri('https://github.com/drevops/vortex.git', $this->config->get(Config::VERSION)));
 
     // Flag to proceed with installation. If FALSE - the installation will only
     // print resolved values and will not proceed.

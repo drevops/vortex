@@ -204,7 +204,7 @@ load _helper.bash
 }
 
 @test "Install into empty directory; Vortex badge version set" {
-  export VORTEX_VERSION="1.2.3"
+  export VORTEX_INSTALL_VERSION="1.2.3"
 
   run_installer_quiet
 

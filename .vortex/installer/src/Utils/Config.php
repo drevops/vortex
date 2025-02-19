@@ -29,7 +29,7 @@ class Config {
 
   const IS_VORTEX_PROJECT = 'VORTEX_INSTALL_IS_VORTEX_PROJECT';
 
-  const VORTEX_VERSION = 'VORTEX_VERSION';
+  const VERSION = 'VORTEX_INSTALL_VERSION';
 
   /**
    * Store of configuration values.
