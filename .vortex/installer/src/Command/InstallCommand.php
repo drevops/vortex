@@ -100,10 +100,10 @@ EOF
 
         return Command::SUCCESS;
       }
-    die('RESTORE FROM HERE');
 
       $this->downloadVortex();
 
+    die('RESTORE FROM HERE');
       $this->prepareDestination();
 
       $this->replaceTokens();
@@ -311,7 +311,7 @@ EOF
 
     $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file);
 
-    if (!passthru($command)) {
+    if (passthru($command) === FALSE) {
       throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
     }
   }

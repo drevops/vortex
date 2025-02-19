@@ -11,15 +11,7 @@ use RuntimeException;
  */
 class Downloader {
 
-  protected string $tmpDir;
-
-  public function __construct() {
-    $this->tmpDir = File::tmpdir();
-  }
-
-  public function download(string $src, ?string $dst = NULL): string {
-    $dst = $dst ?? $this->tmpDir;
-
+  public function download(string $src, string $dst = NULL): string {
     [$repo, $ref] = $this->parseUri($src);
 
     if (str_starts_with($src, 'https://') || str_starts_with($src, 'git@')) {
@@ -72,18 +64,20 @@ class Downloader {
   }
 
   protected function downloadFromRemote(string $repo, string $ref, string $destination): void {
+    $repo_url = str_ends_with($repo, '.git') ? substr($repo, 0, -4) : $repo;
+
     if ($ref == 'stable') {
-      $ref = $this->discoverLatestRelease($repo);
+      $ref = $this->discoverLatestRelease($repo_url);
     }
 
-    $url = sprintf('%s/archive/%s.tar.gz', $repo, $ref);
+    $url = sprintf('%s/archive/%s.tar.gz', $repo_url, $ref);
     $command = sprintf(
       'curl -sS -L "%s" | tar xzf - -C "%s" --strip 1',
       $url,
       $destination
     );
 
-    if (!passthru($command)) {
+    if (passthru($command) === FALSE) {
       throw new RuntimeException(sprintf('Failed to download the remote archive: %s', $command));
     }
   }
@@ -97,14 +91,14 @@ class Downloader {
       $destination
     );
 
-    if (!passthru($command)) {
+    if (passthru($command)=== FALSE) {
       throw new RuntimeException(sprintf('Failed to download the local archive: %s', $command));
     }
   }
 
-  protected function discoverLatestRelease(string $repo, ?string $release_prefix = NULL): ?string {
-    $path = parse_url($repo, PHP_URL_PATH);
-    $path = str_ends_with($path, '.git') ? substr($path, 0, -4) : $path;
+  protected function discoverLatestRelease(string $repo_url, ?string $release_prefix = NULL): ?string {
+    $path = parse_url($repo_url, PHP_URL_PATH);
+    $path = ltrim($path, '/');
 
     $release_url = sprintf('https://api.github.com/repos/%s/releases', $path);
     $release_contents = file_get_contents($release_url, FALSE, stream_context_create([
