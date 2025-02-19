@@ -167,7 +167,7 @@ EOT;
     $values['Destination directory'] = $config->getDst();
     $values['Vortex repository'] = $config->get(Config::REPO_URI);
 
-    $this->printList($values, 'Summary');
+    $this->printList($values, 'Installation summary');
   }
 
   protected function printBox(string $content, ?string $title = NULL, int $width = 80): void {
@@ -192,10 +192,11 @@ EOT;
       }
     }
 
+    $header = [];
     $rows = [];
     foreach ($values as $key => $value) {
       if ($value === self::SECTION_TITLE) {
-        $rows[] = [static::green(static::bold($key))];
+        $rows[] = [static::cyan(static::bold($key))];
         continue;
       }
 
@@ -203,10 +204,11 @@ EOT;
     }
 
     if ($title) {
-      info($title);
+      //      $header[] = static::undim(static::bgGreen($title));
     }
 
-    table([], $rows);
+    note(PHP_EOL . $title . PHP_EOL, 'intro');
+    table($header, $rows);
   }
 
   protected static function formatYesNo(string|bool|int $value): string {
@@ -224,8 +226,27 @@ EOT;
     return "\e[32m{$text}\e[39m";
   }
 
+  public static function bgGreen(string $text): string {
+    return "\e[42m{$text}\e[49m";
+  }
+
+  public static function cyan(string $text): string {
+    return "\e[36m{$text}\e[39m";
+  }
+
+  public static function bgCyan(string $text): string {
+    return "\e[46m{$text}\e[49m";
+  }
+
   public static function bold(string $text): string {
     return "\e[1m{$text}\e[22m";
+  }
+
+  /**
+   * Undim the text by resetting intensity.
+   */
+  protected static function undim(string $text): string {
+    return "\e[22m{$text}\e[22m";
   }
 
   protected static function strlenPlain(string $text): int {
