@@ -9,7 +9,7 @@ FROM ${CLI_IMAGE:-cli} AS cli
 
 # @see https://hub.docker.com/r/uselagoon/nginx-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/nginx-drupal
-FROM uselagoon/nginx-drupal:25.1.0
+FROM uselagoon/nginx-drupal:25.2.0
 
 # Webroot is used for Nginx docroot configuration.
 ARG WEBROOT=web
