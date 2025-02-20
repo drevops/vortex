@@ -5,7 +5,7 @@ FROM ${CLI_IMAGE:-cli} AS cli
 
 # @see https://hub.docker.com/r/uselagoon/solr-8/tags
 # @see https://github.com/uselagoon/lagoon-images/blob/main/images/solr/8.Dockerfile
-FROM uselagoon/solr-8:25.1.0
+FROM uselagoon/solr-8:25.2.0
 
 # Solr Jump-start config needs to be manually copied from search_api_solr module
 # to .docker/config/solr/config-set.
