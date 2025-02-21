@@ -22,7 +22,7 @@ set -eu
 drush() { ./vendor/bin/drush -y "$@"; }
 
 # Perform operations based on the current environment.
-if echo "${VORTEX_PROVISION_ENVIRONMENT:-}" | grep -q -e dev -e test -e ci -e local; then
+if drush php:eval "print \Drupal\core\Site\Settings::get('environment');" | grep -q -e dev -e test -e ci -e local; then
   echo "==> Executing example operations in non-production environment."
 
   # Below are examples of running operations.
