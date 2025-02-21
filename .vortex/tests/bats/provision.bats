@@ -130,6 +130,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -250,6 +251,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -379,6 +381,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -512,6 +515,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -641,6 +645,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -764,6 +769,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -894,6 +900,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
