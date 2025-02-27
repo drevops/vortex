@@ -103,8 +103,9 @@ EOF
 
       $this->downloadVortex();
 
-    die('RESTORE FROM HERE');
       $this->prepareDestination();
+
+    die('RESTORE FROM HERE');
 
       $this->replaceTokens();
 
