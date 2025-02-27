@@ -35,6 +35,10 @@ class PromptManager {
   ) {
     Prompt::setOutput($output);
 
+    if($this->config->getNoInteraction()){
+      Prompt::interactive(false);
+    }
+
     $this->initHandlers();
   }
 
@@ -96,7 +100,7 @@ class PromptManager {
         required: TRUE,
         default: $this->default($n, 'http://' . Str2Name::kebab($r['machine_name']) . '.com'),
         transform: fn(string $v) => Converter::domain($v),
-        validate: fn($v) => filter_var($v, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === FALSE ? 'Please enter a valid domain name' : NULL,
+        validate: fn($v) => filter_var($v, FILTER_VALIDATE_URL) === FALSE ? 'Please enter a valid domain name' : NULL,
       ), PromptFields::DOMAIN)
 
       ->intro('Code repository')
@@ -193,12 +197,13 @@ class PromptManager {
         label: '🏠 Hosting provider',
         hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
         options: [
+          'none' => '⭕ None',
           'acquia' => '💧 Acquia Cloud',
           'lagoon' => '🌊 Lagoon',
           'other' => '🧩 Other',
         ],
         required: TRUE,
-        default: $this->default($n, NULL),
+        default: $this->default($n, 'none'),
       ), PromptFields::HOSTING_PROVIDER)
 
         ->add(
@@ -474,14 +479,14 @@ class PromptManager {
   public function shouldProceed(): bool {
     $proceed = TRUE;
 
-    if (!$this->config->isQuiet()) {
+    if (!$this->config->getNoInteraction()) {
       $proceed = confirm(
         label: 'Proceed with installing Vortex?',
         hint: sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDst())
       );
     }
 
-    // Kill-switch to not proceed with install. If false, the install will not
+    // Kill-switch to not proceed with install. If false, the installer will not
     // proceed despite the answer received above.
     if (!$this->config->get(Config::PROCEED)) {
       $proceed = FALSE;

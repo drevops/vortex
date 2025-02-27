@@ -60,14 +60,14 @@ class InstallCommand extends Command {
     $this->setHelp(<<<EOF
   php install destination
 
-  php install --quiet destination
+  php install --no-interaction destination
 
 EOF
     );
     $this->addArgument('destination', InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
 
     $this->addOption('root', NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
-
+    $this->addOption('no-interaction', 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
     $this->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
   }
 
@@ -159,6 +159,7 @@ EOF
     $this->config = Config::fromString($config);
 
     $this->config->setQuiet($options['quiet']);
+    $this->config->setNoInteraction($options['no-interaction']);
 
     // Set root directory to resolve relative paths.
     $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : File::cwd();

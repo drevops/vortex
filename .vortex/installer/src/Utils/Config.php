@@ -97,6 +97,14 @@ class Config {
     $this->set('QUIET', $value);
   }
 
+  public function getNoInteraction(): bool {
+    return (bool) $this->get('NO_INTERACTION', FALSE);
+  }
+
+  public function setNoInteraction(bool $value = TRUE): void {
+    $this->set('NO_INTERACTION', $value);
+  }
+
   public function isVortexProject(): bool {
     return (bool) $this->get(Config::IS_VORTEX_PROJECT, FALSE);
   }
