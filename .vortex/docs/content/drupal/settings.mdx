@@ -24,6 +24,13 @@ files are also provided if you choose to use them instead.
 The [`settings.php`](https://github.com/drevops/vortex/blob/develop/web/sites/default/settings.php) file is divided
 into several sections:
 
+1. [Environment type constants definitions](#1-environment-type-constants-definitions)
+2. [Site-specific settings](#2-site-specific-settings)
+3. [Environment detection](#3-environment-type-detection)
+4. [Per-environment overrides](#4-per-environment-overrides)
+5. [Inclusion of generated Settings](#5-inclusion-of-per-module-settings)
+6. [Inclusion of local settings](#6-inclusion-of-local-settings)
+
 import CodeBlock from '@theme/CodeBlock';
 import SettingsExample from '!!raw-loader!./../../../../web/sites/default/settings.php';
 
@@ -33,13 +40,6 @@ import SettingsExample from '!!raw-loader!./../../../../web/sites/default/settin
   <CodeBlock language="php">{SettingsExample}</CodeBlock>
 
 </details>
-
-1. [Environment type constants definitions](#1-environment-type-constants-definitions)
-2. [Site-specific settings](#2-site-specific-settings)
-3. [Environment detection](#3-environment-type-detection)
-4. [Per-environment overrides](#4-per-environment-overrides)
-5. [Inclusion of generated Settings](#5-inclusion-of-per-module-settings)
-6. [Inclusion of local settings](#6-inclusion-of-local-settings)
 
 ### 1. Environment type constants definitions
 
@@ -61,20 +61,10 @@ _environments types_.
 :::info[EXAMPLE]
 
     ```shell
-    environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
-    if echo "${environment}" | grep -q -e ci -e local; then
+    if drush php:eval "print \Drupal\core\Site\Settings::get('environment');" | grep -q -e ci -e local; then
       # Do something only in ci or local environments.
     fi
     ```
-
-:::
-
-:::info
-
-    The `$VORTEX_PROVISION_ENVIRONMENT` _environment variable_ can be utilized
-    within post-provision custom scripts instead of Drush command evaluation,
-    allowing targeted code execution based on a specific _environment type_.
-    Refer to [Provision](provision.mdx) for additional information.
 
 :::
 

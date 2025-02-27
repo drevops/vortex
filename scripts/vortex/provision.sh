@@ -35,9 +35,6 @@ VORTEX_PROVISION_USE_MAINTENANCE_MODE="${VORTEX_PROVISION_USE_MAINTENANCE_MODE:-
 # state before any updates ran (for example, DB caching in CI).
 VORTEX_PROVISION_POST_OPERATIONS_SKIP="${VORTEX_PROVISION_POST_OPERATIONS_SKIP:-0}"
 
-# Current environment name discovered during site provisioning.
-VORTEX_PROVISION_ENVIRONMENT="${VORTEX_PROVISION_ENVIRONMENT:-}"
-
 # Name of the webroot directory with Drupal codebase.
 WEBROOT="${WEBROOT:-web}"
 
@@ -236,11 +233,9 @@ if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
   echo
 fi
 
-# Get the current environment and export it for the downstream scripts.
-VORTEX_PROVISION_ENVIRONMENT="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
-info "Current Drupal environment: ${VORTEX_PROVISION_ENVIRONMENT}"
+# Show the current environment.
+info "Current Drupal environment: $(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
 echo
-export VORTEX_PROVISION_ENVIRONMENT
 
 # Use 'drush deploy' if configuration files are present or use standalone commands otherwise.
 if [ "${site_has_config}" = "1" ]; then
