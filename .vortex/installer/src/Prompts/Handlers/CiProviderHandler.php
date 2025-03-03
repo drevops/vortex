@@ -7,7 +7,7 @@ use DrevOps\Installer\Utils\File;
 
 class CiProviderHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     if (is_readable($this->config->getDst() . '/.github/workflows/build-test-deploy.yml')) {
       return 'GitHub Actions';
     }
@@ -19,7 +19,7 @@ class CiProviderHandler extends AbstractHandler {
     return $this->isInstalled() ? 'none' : NULL;
   }
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     $type = $this->getAnswer('ci_provider');
 
     $remove_gha = FALSE;

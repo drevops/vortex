@@ -398,7 +398,7 @@ class PromptManager {
   }
 
   protected function default($name, $default = NULL) {
-    // @todo Implement this.
+    // @todo Implement this from discover().
     return $default;
   }
 
@@ -421,8 +421,11 @@ class PromptManager {
     ];
 
     foreach ($processors as $name) {
-      // @todo: Make the args internal.
-      $this->handlers[$name]->process($this->responses, $dir);
+      // @todo Do not run process if there is no value in the responses (the \question was not asked).
+      $this->handlers[$name]
+        ->setDir($dir)
+        ->setResponses($this->responses)
+        ->process();
 
       if (is_callable($cb)) {
         $cb($name, $processors);
@@ -431,8 +434,6 @@ class PromptManager {
   }
 
   protected function initHandlers() {
-    // collect handlers from the directory.
-
     $dir = __DIR__ . '/Handlers';
 
     $handler_files = array_filter(scandir($dir), function ($file) {
@@ -440,15 +441,15 @@ class PromptManager {
     });
 
     foreach ($handler_files as $file) {
-      //      require_once $dir . DIRECTORY_SEPARATOR . $file;
       $class = 'DrevOps\\Installer\\Prompts\\Handlers\\' . basename($file, '.php');
 
       if (!class_exists($class) || !is_subclass_of($class, HandlerInterface::class) || $class == AbstractHandler::class) {
         continue;
       }
 
-      $key = Converter::constant(Converter::pascal2snake(str_replace('Handler', '', basename($file, '.php'))));
-      $this->handlers[$key] = new $class($this->config, $this->responses);
+      $handler = new $class($this->config);
+
+      $this->handlers[$handler->getKey()] = $handler;
     }
   }
 

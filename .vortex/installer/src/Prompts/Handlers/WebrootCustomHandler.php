@@ -1,0 +1,39 @@
+<?php
+
+namespace DrevOps\Installer\Prompts\Handlers;
+
+use DrevOps\Installer\Utils\Composer;
+use DrevOps\Installer\Utils\Env;
+use DrevOps\Installer\Utils\File;
+
+class WebrootCustomHandler extends AbstractHandler {
+
+  public function discover(): ?string {
+    $webroot = Env::getFromDstDotenv('WEBROOT');
+
+    if (empty($webroot) && $this->isInstalled()) {
+      // Try from composer.json.
+      $extra = Composer::getJsonValue('extra', $this->config->getDst() . DIRECTORY_SEPARATOR . 'composer.json');
+      if (!empty($extra)) {
+        $webroot = $extra['drupal-scaffold']['drupal-scaffold']['locations']['web-root'] ?? NULL;
+      }
+    }
+
+    return $webroot;
+  }
+
+  public function process(): void {
+    $new_name = $this->response ?? 'web';
+
+    if ($new_name !== 'web') {
+      File::dirReplaceContent('web/', $new_name . '/', $this->dir);
+      File::dirReplaceContent('web\/', $new_name . '\/', $this->dir);
+      File::dirReplaceContent(': web', ': ' . $new_name, $this->dir);
+      File::dirReplaceContent('=web', '=' . $new_name, $this->dir);
+      File::dirReplaceContent('!web', '!' . $new_name, $this->dir);
+      File::dirReplaceContent('/\/web\//', '/' . $new_name . '/', $this->dir);
+      File::dirReplaceContent('/\'\/web\'/', "'/" . $new_name . "'", $this->dir);
+      rename($this->dir . DIRECTORY_SEPARATOR . 'web', $this->dir . DIRECTORY_SEPARATOR . $new_name);
+    }
+  }
+}

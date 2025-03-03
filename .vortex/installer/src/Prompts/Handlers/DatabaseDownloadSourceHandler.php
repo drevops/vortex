@@ -8,11 +8,11 @@ use DrevOps\Installer\Utils\File;
 
 class DatabaseDownloadSourceHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     return Env::getFromDstDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
   }
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     $type = $responses[PromptFields::DATABASE_DOWNLOAD_SOURCE];
     File::fileReplaceContent('/VORTEX_DB_DOWNLOAD_SOURCE=.*/', 'VORTEX_DB_DOWNLOAD_SOURCE=' . $type, $dir . '/.env');
 

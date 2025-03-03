@@ -9,7 +9,7 @@ use DrevOps\Installer\Utils\File;
 
 class HostingProviderHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     if ($this->discoverIsAcquia()) {
       return 'acquia';
     }
@@ -21,7 +21,7 @@ class HostingProviderHandler extends AbstractHandler {
     return NULL;
   }
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     $provider = $responses[PromptFields::HOSTING_PROVIDER];
 
     if ($provider === 'acquia') {

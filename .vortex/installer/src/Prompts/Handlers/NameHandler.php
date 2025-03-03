@@ -6,7 +6,7 @@ use DrevOps\Installer\Utils\Composer;
 
 class NameHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     $value = Composer::getJsonValue('description', $this->config->getDst() . DIRECTORY_SEPARATOR . 'composer.json');
 
     if ($value && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', (string) $value, $matches) && !empty($matches[1])) {
@@ -16,7 +16,7 @@ class NameHandler extends AbstractHandler {
     return NULL;
   }
 
-  public function process(array $responses, string $dir):void  {
+  public function process():void  {
     // @todo Implement this.
   }
 

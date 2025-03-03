@@ -8,11 +8,11 @@ use DrevOps\Installer\Utils\File;
 
 class DeployTypeHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     return Env::getFromDstDotenv('VORTEX_DEPLOY_TYPES');
   }
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     $type = $this->getAnswer('deploy_type');
     if ($type !== 'none') {
       File::fileReplaceContent('/VORTEX_DEPLOY_TYPES=.*/', 'VORTEX_DEPLOY_TYPES=' . $type, $dir . '/.env');

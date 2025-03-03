@@ -4,8 +4,10 @@ namespace DrevOps\Installer\Prompts\Handlers;
 
 interface HandlerInterface {
 
-  public function discover();
+  // Discover is called from default() when the question is asked.
+  public function discover(): ?string;
 
-  public function process(array $responses, string $dir):void;
+  // Process is called when all answers were collected.
+  public function process():void;
 
 }

@@ -8,7 +8,7 @@ use DrevOps\Installer\Utils\File;
 
 class DocsOnboardingHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     if ($this->isInstalled()) {
       $file = $this->config->getDst() . '/docs/onboarding.md';
 
@@ -18,7 +18,7 @@ class DocsOnboardingHandler extends AbstractHandler {
     return FALSE;
   }
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     if ($responses[PromptFields::DOCS_ONBOARDING]) {
       File::removeTokenWithContent('!DOCS_ONBOARDING', $dir);
     }

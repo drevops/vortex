@@ -8,7 +8,7 @@ use DrevOps\Installer\Utils\File;
 
 class ProfileHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     $webroot = $this->getAnswer(PromptFields::WEBROOT_CUSTOM);
 
     if ($this->isInstalled()) {
@@ -36,7 +36,7 @@ class ProfileHandler extends AbstractHandler {
     return str_replace(['.info.yml', '.info'], '', $name);
   }
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     $webroot = $this->getAnswer('webroot');
     // For core profiles - remove custom profile and direct links to it.
     if (in_array($this->getAnswer('profile'), $this->drupalCoreProfiles())) {

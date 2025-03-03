@@ -6,11 +6,11 @@ use DrevOps\Installer\Utils\Env;
 
 class DatabaseImageHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     return Env::getFromDstDotenv('VORTEX_DB_IMAGE');
   }
 
-  public function process(array $responses, string $dir):void  {
+  public function process():void  {
     // @todo Implement this.
   }
 

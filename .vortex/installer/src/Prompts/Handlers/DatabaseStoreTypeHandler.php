@@ -6,12 +6,12 @@ use DrevOps\Installer\Utils\File;
 
 class DatabaseStoreTypeHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     return $this->discoverValueDatabaseImage() ? 'container_image' : 'file';
   }
 
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     $image = $this->getAnswer('database_image');
     File::fileReplaceContent('/VORTEX_DB_IMAGE=.*/', 'VORTEX_DB_IMAGE=' . $image, $dir . '/.env');
 

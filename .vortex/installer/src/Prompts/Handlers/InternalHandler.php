@@ -11,11 +11,11 @@ use DrevOps\Installer\Utils\File;
 
 class InternalHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     // Noop.
   }
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     $this->processStringTokens($responses, $dir);
 
     $this->processDemoMode($responses, $dir);

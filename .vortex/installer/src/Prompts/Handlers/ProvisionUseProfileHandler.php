@@ -7,11 +7,11 @@ use DrevOps\Installer\Utils\File;
 
 class ProvisionUseProfileHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     return (bool) Env::getFromDstDotenv('VORTEX_PROVISION_USE_PROFILE');
   }
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     if ($this->getAnswer('provision_use_profile')) {
       File::fileReplaceContent('/VORTEX_PROVISION_USE_PROFILE=.*/', "VORTEX_PROVISION_USE_PROFILE=1", $dir . '/.env');
       File::removeTokenWithContent('!PROVISION_USE_PROFILE', $dir);

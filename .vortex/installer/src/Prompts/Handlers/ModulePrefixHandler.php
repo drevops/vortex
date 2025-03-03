@@ -7,7 +7,7 @@ use DrevOps\Installer\Utils\File;
 
 class ModulePrefixHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     $webroot = $this->getAnswer(PromptFields::WEBROOT_CUSTOM);
 
     $locations = [
@@ -30,7 +30,7 @@ class ModulePrefixHandler extends AbstractHandler {
     return str_replace('_core', '', $path);
   }
 
-  public function process(array $responses, string $dir):void  {
+  public function process():void  {
     // @todo Implement this.
   }
 

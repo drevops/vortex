@@ -8,11 +8,11 @@ use DrevOps\Installer\Utils\File;
 
 class DocsProjectHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     return $this->isInstalled() && is_dir($this->config->getDst() . '/docs');
   }
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     if ($responses[PromptFields::DOCS_ONBOARDING]) {
       File::removeTokenWithContent('!DOCS_PROJECT', $dir);
     }

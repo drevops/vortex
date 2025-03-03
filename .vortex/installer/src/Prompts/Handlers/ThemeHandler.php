@@ -8,7 +8,7 @@ use DrevOps\Installer\Utils\File;
 
 class ThemeHandler extends AbstractHandler {
 
-  public function discover() {
+  public function discover(): ?string {
     $webroot = $this->getAnswer(PromptFields::WEBROOT_CUSTOM);
 
     $name_from_env = NULL;
@@ -73,7 +73,7 @@ class ThemeHandler extends AbstractHandler {
     return $c1 && $c2 && $c3 && $c4;
   }
 
-  public function process(array $responses, string $dir): void {
+  public function process(): void {
     $webroot = $this->getAnswer('webroot');
     $name = $this->getAnswer('theme');
 
