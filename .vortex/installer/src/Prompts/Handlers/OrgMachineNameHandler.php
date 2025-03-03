@@ -16,4 +16,9 @@ class OrgMachineNameHandler extends AbstractHandler {
     return NULL;
   }
 
+  public function process(array $responses, string $dir):void  {
+    // @todo Implement this.
+  }
+
+
 }

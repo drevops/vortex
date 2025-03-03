@@ -10,4 +10,8 @@ class DatabaseImageHandler extends AbstractHandler {
     return Env::getFromDstDotenv('VORTEX_DB_IMAGE');
   }
 
+  public function process(array $responses, string $dir):void  {
+    // @todo Implement this.
+  }
+
 }

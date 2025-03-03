@@ -11,4 +11,9 @@ class DomainHandler extends AbstractHandler {
     return Env::getFromDstDotenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN');
   }
 
+  public function process(array $responses, string $dir):void  {
+    // @todo Implement this.
+  }
+
+
 }

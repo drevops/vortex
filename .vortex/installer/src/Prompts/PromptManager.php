@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Prompts;
 
 use AlexSkrypnyk\Str2Name\Str2Name;
+use DrevOps\Installer\Prompts\Handlers\AbstractHandler;
 use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
@@ -35,8 +36,8 @@ class PromptManager {
   ) {
     Prompt::setOutput($output);
 
-    if($this->config->getNoInteraction()){
-      Prompt::interactive(false);
+    if ($this->config->getNoInteraction()) {
+      Prompt::interactive(FALSE);
     }
 
     $this->initHandlers();
@@ -403,21 +404,19 @@ class PromptManager {
 
   public function process($dir, ?callable $cb = NULL) {
     // @todo: All processors should be based on handlers defined by PromptFields.
+    // @todo: Re-order processors based on questions.
     $processors = [
-      'webroot',
-      'profile',
-      'provision_use_profile',
-      'theme',
-      'database_download_source',
-      'database_image',
-      'override_existing_db',
+      PromptFields::WEBROOT_CUSTOM,
+      PromptFields::PROFILE,
+      PromptFields::PROVISION_TYPE,
+      PromptFields::THEME,
+      PromptFields::DATABASE_DOWNLOAD_SOURCE,
+      //      PromptFields::DATABASE_STORE_TYPE_CONTAINER_IMAGE,
       PromptFields::CI_PROVIDER,
-      'deploy_type',
-      'preserve_acquia',
-      'preserve_lagoon',
-      'preserve_ftp',
-      'preserve_renovatebot',
-      'preserve_onboarding',
+      PromptFields::DEPLOY_TYPE,
+      PromptFields::HOSTING_PROVIDER,
+      PromptFields::DOCS_ONBOARDING,
+      PromptFields::DOCS_PROJECT,
       'internal',
     ];
 
@@ -442,13 +441,13 @@ class PromptManager {
 
     foreach ($handler_files as $file) {
       //      require_once $dir . DIRECTORY_SEPARATOR . $file;
-      $class = 'DrevOps\\Installer\\Prompts\\Handler\\' . basename($file);
+      $class = 'DrevOps\\Installer\\Prompts\\Handlers\\' . basename($file, '.php');
 
-      if (!class_exists($class) || !is_subclass_of($class, HandlerInterface::class)) {
+      if (!class_exists($class) || !is_subclass_of($class, HandlerInterface::class) || $class == AbstractHandler::class) {
         continue;
       }
 
-      $key = Converter::constant(Converter::pascal2snake(basename($file)));
+      $key = Converter::constant(Converter::pascal2snake(str_replace('Handler', '', basename($file, '.php'))));
       $this->handlers[$key] = new $class($this->config, $this->responses);
     }
   }

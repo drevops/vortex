@@ -30,4 +30,9 @@ class ModulePrefixHandler extends AbstractHandler {
     return str_replace('_core', '', $path);
   }
 
+  public function process(array $responses, string $dir):void  {
+    // @todo Implement this.
+  }
+
+
 }
