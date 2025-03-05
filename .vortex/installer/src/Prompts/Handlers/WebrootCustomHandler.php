@@ -8,32 +8,36 @@ use DrevOps\Installer\Utils\File;
 
 class WebrootCustomHandler extends AbstractHandler {
 
-  public function discover(): ?string {
-    $webroot = Env::getFromDstDotenv('WEBROOT');
+  const DEFAULT_WEBROOT = 'web';
 
-    if (empty($webroot) && $this->isInstalled()) {
+  public function discover(): ?string {
+    $value = Env::getFromDstDotenv('WEBROOT');
+
+    if (empty($value) && $this->isInstalled()) {
       // Try from composer.json.
       $extra = Composer::getJsonValue('extra', $this->config->getDst() . DIRECTORY_SEPARATOR . 'composer.json');
       if (!empty($extra)) {
-        $webroot = $extra['drupal-scaffold']['drupal-scaffold']['locations']['web-root'] ?? NULL;
+        $value = $extra['drupal-scaffold']['drupal-scaffold']['locations']['web-root'] ?? NULL;
       }
     }
 
-    return $webroot;
+    return $value;
   }
 
   public function process(): void {
-    $new_name = $this->response ?? 'web';
+    $value = $this->response ?? self::DEFAULT_WEBROOT;
 
-    if ($new_name !== 'web') {
-      File::dirReplaceContent('web/', $new_name . '/', $this->dir);
-      File::dirReplaceContent('web\/', $new_name . '\/', $this->dir);
-      File::dirReplaceContent(': web', ': ' . $new_name, $this->dir);
-      File::dirReplaceContent('=web', '=' . $new_name, $this->dir);
-      File::dirReplaceContent('!web', '!' . $new_name, $this->dir);
-      File::dirReplaceContent('/\/web\//', '/' . $new_name . '/', $this->dir);
-      File::dirReplaceContent('/\'\/web\'/', "'/" . $new_name . "'", $this->dir);
-      rename($this->dir . DIRECTORY_SEPARATOR . 'web', $this->dir . DIRECTORY_SEPARATOR . $new_name);
+    if ($value === self::DEFAULT_WEBROOT) {
+      return;
     }
+
+    File::dirReplaceContent(sprintf('%s/', self::DEFAULT_WEBROOT), $value . '/', $this->dir);
+    File::dirReplaceContent(sprintf('%s\/', self::DEFAULT_WEBROOT), $value . '\/', $this->dir);
+    File::dirReplaceContent(sprintf(': %s', self::DEFAULT_WEBROOT), ': ' . $value, $this->dir);
+    File::dirReplaceContent(sprintf('=%s', self::DEFAULT_WEBROOT), '=' . $value, $this->dir);
+    File::dirReplaceContent(sprintf('!%s', self::DEFAULT_WEBROOT), '!' . $value, $this->dir);
+    File::dirReplaceContent(sprintf('/\/%s\//', self::DEFAULT_WEBROOT), '/' . $value . '/', $this->dir);
+    File::dirReplaceContent(sprintf('/\'\/%s\'/', self::DEFAULT_WEBROOT), "'/" . $value . "'", $this->dir);
+    rename($this->dir . DIRECTORY_SEPARATOR . self::DEFAULT_WEBROOT, $this->dir . DIRECTORY_SEPARATOR . $value);
   }
 }

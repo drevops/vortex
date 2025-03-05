@@ -421,6 +421,10 @@ class PromptManager {
     ];
 
     foreach ($processors as $name) {
+      if (!array_key_exists($name, $this->handlers)) {
+        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $name));
+      }
+
       // @todo Do not run process if there is no value in the responses (the \question was not asked).
       $this->handlers[$name]
         ->setDir($dir)
