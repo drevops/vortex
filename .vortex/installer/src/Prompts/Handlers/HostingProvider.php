@@ -19,53 +19,26 @@ class HostingProvider extends AbstractHandler {
 
   public function discover(): null|string|bool|iterable {
     if ($this->discoverIsAcquia()) {
-      return 'acquia';
+      return static::ACQUIA;
     }
 
     if ($this->discoverIsLagoon()) {
-      return 'lagoon';
+      return static::LAGOON;
     }
 
     return NULL;
   }
 
-  public function process(): void {
-    $provider = $responses[PromptFields::HOSTING_PROVIDER];
-
-    if ($provider === 'acquia') {
-      $this->preserveAcquia($dir);
-      $this->removeLagoon($dir);
-    }
-    elseif ($provider === 'lagoon') {
-      $this->preserveLagoon($dir);
-      $this->removeAcquia($dir);
-    }
-    else {
-      $this->removeAcquia($dir);
-      $this->removeLagoon($dir);
-    }
-  }
-
   protected function discoverIsAcquia() {
-    if (is_readable($this->config->getDst() . '/hooks')) {
+    if (is_readable($this->dstDir . '/hooks')) {
       return TRUE;
     }
 
-    $value = Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir);
-
-    if (is_null($value)) {
-      return FALSE;
-    }
-
-    return $value == 'acquia';
+    return Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir) == static::ACQUIA;
   }
 
   protected function discoverIsLagoon() {
-    if (is_readable($this->config->getDst() . '/.lagoon.yml')) {
-      return TRUE;
-    }
-
-    if ($this->getAnswer('deploy_type') === 'lagoon') {
+    if (is_readable($this->dstDir . '/.lagoon.yml')) {
       return TRUE;
     }
 
@@ -80,27 +53,41 @@ class HostingProvider extends AbstractHandler {
     return TRUE;
   }
 
-  protected function preserveAcquia(string $dir): void {
-    File::removeTokenWithContent('!ACQUIA', $dir);
+  public function process(): void {
+    if ($this->response === static::ACQUIA) {
+      $this->preserveAcquia();
+      $this->removeLagoon();
+    }
+    elseif ($this->response === static::LAGOON) {
+      $this->preserveLagoon();
+      $this->removeAcquia();
+    }
+    else {
+      $this->removeAcquia();
+      $this->removeLagoon();
+    }
   }
 
-  protected function removeAcquia(string $dir): void {
-    File::rmdirRecursive($dir . '/hooks');
-    $webroot = $this->getAnswer('webroot');
-    @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.acquia.php', $dir, $webroot));
-    File::removeTokenWithContent('ACQUIA', $dir);
+  protected function preserveAcquia(): void {
+    File::removeTokenWithContent('!ACQUIA', $this->tmpDir);
   }
 
-  protected function preserveLagoon(string $dir): void {
-    File::removeTokenWithContent('!ACQUIA', $dir);
+  protected function removeAcquia(): void {
+    File::rmdirRecursive($this->tmpDir . '/hooks');
+    @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.acquia.php', $this->tmpDir, $this->webroot));
+    File::removeTokenWithContent('ACQUIA', $this->tmpDir);
   }
 
-  protected function removeLagoon(string $dir): void {
-    @unlink($dir . '/drush/sites/lagoon.site.yml');
-    @unlink($dir . '/.lagoon.yml');
-    @unlink($dir . '/.github/workflows/close-pull-request.yml');
-    $webroot = $this->getAnswer('webroot');
-    @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.lagoon.php', $dir, $webroot));
-    File::removeTokenWithContent('LAGOON', $dir);
+  protected function preserveLagoon(): void {
+    File::removeTokenWithContent('!ACQUIA', $this->tmpDir);
   }
+
+  protected function removeLagoon(): void {
+    @unlink($this->tmpDir . '/drush/sites/lagoon.site.yml');
+    @unlink($this->tmpDir . '/.lagoon.yml');
+    @unlink($this->tmpDir . '/.github/workflows/close-pull-request.yml');
+    @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.lagoon.php', $this->tmpDir, $this->webroot));
+    File::removeTokenWithContent('LAGOON', $this->tmpDir);
+  }
+
 }
