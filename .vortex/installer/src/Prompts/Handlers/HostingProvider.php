@@ -15,49 +15,31 @@ class HostingProvider extends AbstractHandler {
 
   const OTHER = 'other';
 
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
-    if ($this->discoverIsAcquia()) {
-      return static::ACQUIA;
+    if (is_readable($this->dstDir . '/hooks') || Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir) === DatabaseDownloadSource::ACQUIA) {
+      return self::ACQUIA;
     }
 
-    if ($this->discoverIsLagoon()) {
-      return static::LAGOON;
+    if (is_readable($this->dstDir . '/.lagoon.yml')) {
+      return self::LAGOON;
     }
 
     return NULL;
   }
 
-  protected function discoverIsAcquia() {
-    if (is_readable($this->dstDir . '/hooks')) {
-      return TRUE;
-    }
-
-    return Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir) == static::ACQUIA;
-  }
-
-  protected function discoverIsLagoon() {
-    if (is_readable($this->dstDir . '/.lagoon.yml')) {
-      return TRUE;
-    }
-
-    $value = Env::getFromDotenv('LAGOON_PROJECT', $this->dstDir);
-
-    // Special case - only work with non-empty value as 'LAGOON_PROJECT'
-    // may not exist in installed site's .env file.
-    if (empty($value)) {
-      return FALSE;
-    }
-
-    return TRUE;
-  }
-
+  /**
+   * {@inheritdoc}
+   */
   public function process(): void {
     if ($this->response === static::ACQUIA) {
-      $this->preserveAcquia();
+      File::removeTokenWithContent('!ACQUIA', $this->tmpDir);
       $this->removeLagoon();
     }
     elseif ($this->response === static::LAGOON) {
-      $this->preserveLagoon();
+      File::removeTokenWithContent('!LAGOON', $this->tmpDir);
       $this->removeAcquia();
     }
     else {
@@ -66,18 +48,10 @@ class HostingProvider extends AbstractHandler {
     }
   }
 
-  protected function preserveAcquia(): void {
-    File::removeTokenWithContent('!ACQUIA', $this->tmpDir);
-  }
-
   protected function removeAcquia(): void {
     File::rmdirRecursive($this->tmpDir . '/hooks');
     @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.acquia.php', $this->tmpDir, $this->webroot));
     File::removeTokenWithContent('ACQUIA', $this->tmpDir);
-  }
-
-  protected function preserveLagoon(): void {
-    File::removeTokenWithContent('!ACQUIA', $this->tmpDir);
   }
 
   protected function removeLagoon(): void {
