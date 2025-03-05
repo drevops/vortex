@@ -6,17 +6,16 @@ use DrevOps\Installer\Utils\File;
 
 class PreserveDocsOnboarding extends AbstractHandler {
 
-
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
-    if ($this->isInstalled()) {
-      $file = $this->dstDir . '/docs/onboarding.md';
-
-      return is_readable($file);
-    }
-
-    return FALSE;
+    return $this->isInstalled() ? is_readable($this->dstDir . '/docs/onboarding.md') : NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function process(): void {
     if ($this->response) {
       File::removeTokenWithContent('!DOCS_ONBOARDING', $this->tmpDir);
