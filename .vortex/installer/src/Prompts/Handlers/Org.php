@@ -6,6 +6,9 @@ use DrevOps\Installer\Utils\Composer;
 
 class Org extends AbstractHandler {
 
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     $value = Composer::getJsonValue('description', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');
 
@@ -16,8 +19,10 @@ class Org extends AbstractHandler {
     return NULL;
   }
 
-
-  public function process():void  {
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
     // @todo Implement this.
   }
 

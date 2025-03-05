@@ -2,11 +2,13 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Utils\File;
 
 class ModulePrefix extends AbstractHandler {
 
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     $locations = [
       $this->dstDir . sprintf('/%s/modules/custom/*_core', $this->webroot),
@@ -19,16 +21,13 @@ class ModulePrefix extends AbstractHandler {
 
     $path = File::findMatchingPath($locations);
 
-    if (empty($path)) {
-      return NULL;
-    }
-
-    $path = basename($path);
-
-    return str_replace('_core', '', $path);
+    return !empty($path) ? str_replace('_core', '', basename($path)) : NULL;
   }
 
-  public function process():void  {
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
     // @todo Implement this.
   }
 
