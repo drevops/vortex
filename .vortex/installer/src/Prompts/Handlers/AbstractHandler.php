@@ -8,23 +8,18 @@ use DrevOps\Installer\Utils\Converter;
 abstract class AbstractHandler implements HandlerInterface {
 
   protected string|bool $response;
+  protected string $key;
 
   protected array $responses;
 
-  protected string $key;
-
-  // workdir
-  protected string $dir;
+  protected string $dstDir;
+  protected string $tmpDir;
 
   public function __construct(protected Config $config) {
+    $this->dstDir = $this->config->getDst();
+    $this->tmpDir = $this->config->get(Config::TMP);
     $reflector = new \ReflectionClass(static::class);
     $this->key = static::toKey($reflector->getFileName());
-  }
-
-  public function setDir(string $dir): static {
-    $this->dir = $dir;
-
-    return $this;
   }
 
   public function setResponses(array $responses): static {

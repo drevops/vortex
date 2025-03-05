@@ -8,7 +8,7 @@ use DrevOps\Installer\Utils\File;
 class ProvisionUseProfileHandler extends AbstractHandler {
 
   public function discover(): ?string {
-    return (bool) Env::getFromDstDotenv('VORTEX_PROVISION_USE_PROFILE');
+    return (bool) Env::getFromDotenv('VORTEX_PROVISION_USE_PROFILE');
   }
 
   public function process(): void {

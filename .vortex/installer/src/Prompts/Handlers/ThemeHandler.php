@@ -13,7 +13,7 @@ class ThemeHandler extends AbstractHandler {
 
     $name_from_env = NULL;
     if ($this->isInstalled()) {
-      $name_from_env = Env::getFromDstDotenv('DRUPAL_THEME');
+      $name_from_env = Env::getFromDotenv('DRUPAL_THEME');
     }
 
     $file = $this->findThemeFile($this->config->getDst(), $webroot);

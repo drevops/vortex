@@ -12,7 +12,7 @@ class ProfileHandler extends AbstractHandler {
     $webroot = $this->getAnswer(PromptFields::WEBROOT_CUSTOM);
 
     if ($this->isInstalled()) {
-      $name = Env::getFromDstDotenv('DRUPAL_PROFILE');
+      $name = Env::getFromDotenv('DRUPAL_PROFILE');
       if (!empty($name)) {
         return $name;
       }

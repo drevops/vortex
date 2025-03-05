@@ -9,7 +9,7 @@ use DrevOps\Installer\Utils\File;
 class DeployTypeHandler extends AbstractHandler {
 
   public function discover(): ?string {
-    return Env::getFromDstDotenv('VORTEX_DEPLOY_TYPES');
+    return Env::getFromDotenv('VORTEX_DEPLOY_TYPES');
   }
 
   public function process(): void {

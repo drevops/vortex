@@ -4,19 +4,6 @@ namespace DrevOps\Installer\Utils;
 
 class Env {
 
-  private static ?self $instance = null;
-  private Config $config;
-
-  private function __construct(Config $config) {
-    $this->config = $config;
-  }
-
-  public static function init(Config $config): void {
-    if (is_null(self::$instance)) {
-      self::$instance = new self($config);
-    }
-  }
-
   /**
    * Reliable wrapper to work with environment values.
    */
@@ -26,21 +13,21 @@ class Env {
     return !isset($vars[$name]) || $vars[$name] === '' ? $default : $vars[$name];
   }
 
-  public static function getFromDstDotenv(string $name, mixed $default = NULL): mixed {
+  public static function getFromDotenv(string $name, string $dir): ?string {
     // Environment variables always take precedence.
     $env_value = static::get($name);
     if (!is_null($env_value)) {
       return $env_value;
     }
 
-    $file = self::$instance->config->getDst() . '/.env';
+    $file = $dir . DIRECTORY_SEPARATOR . '.env';
     if (!is_readable($file)) {
-      return $default;
+      return NULL;
     }
 
     $parsed = static::parseDotenv($file);
 
-    return $parsed !== [] ? ($parsed[$name] ?? $default) : $default;
+    return $parsed !== [] ? ($parsed[$name] ?? NULL) : NULL;
   }
 
   /**
@@ -51,7 +38,7 @@ class Env {
    * @param bool $override_existing
    *   Override existing values.
    */
-  public static function loadAllValuesFromDotenv(string $filename = '.env', bool $override_existing = FALSE): void {
+  public static function putFromDotenv(string $filename = '.env', bool $override_existing = FALSE): void {
     $values = static::parseDotenv($filename);
 
     foreach ($values as $var => $value) {

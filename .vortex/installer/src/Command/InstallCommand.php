@@ -176,7 +176,7 @@ EOF
 
     // Load values from the destination .env file, if it exists.
     if (File::exists($this->config->getDst() . '/.env')) {
-      Env::loadAllValuesFromDotenv($this->config->getDst() . '/.env');
+      Env::putFromDotenv($this->config->getDst() . '/.env');
     }
 
     // Check if the project is a Vortex project.
@@ -232,8 +232,8 @@ EOF
   protected function replaceTokens(): void {
     note('Replacing tokens');
 
-    $dir = $this->config->get(Config::TMP);
-    $this->promptManager->process($dir, fn(string $name, array $processors) => progress(
+
+    $this->promptManager->process(fn(string $name, array $processors) => progress(
       label: 'Replacing tokens',
       steps: $processors,
     ));
@@ -294,7 +294,7 @@ EOF
     }
 
     // Reload variables from destination's .env.
-    Env::loadAllValuesFromDotenv($this->config->getDst() . '/.env');
+    Env::putFromDotenv($this->config->getDst() . '/.env');
 
     $url = Env::get('VORTEX_DB_DOWNLOAD_CURL_URL');
     if (empty($url)) {

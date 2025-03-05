@@ -398,11 +398,14 @@ class PromptManager {
   }
 
   protected function default($name, $default = NULL) {
-    // @todo Implement this from discover().
-    return $default;
+    if (!array_key_exists($name, $this->handlers)) {
+      throw new \RuntimeException(sprintf('Handler for "%s" not found.', $name));
+    }
+
+    return $this->handlers[$name]->discover() ?: $default;
   }
 
-  public function process($dir, ?callable $cb = NULL) {
+  public function process(?callable $cb = NULL) {
     // @todo: All processors should be based on handlers defined by PromptFields.
     // @todo: Re-order processors based on questions.
     $processors = [
@@ -426,10 +429,7 @@ class PromptManager {
       }
 
       // @todo Do not run process if there is no value in the responses (the \question was not asked).
-      $this->handlers[$name]
-        ->setDir($dir)
-        ->setResponses($this->responses)
-        ->process();
+      $this->handlers[$name]->setResponses($this->responses)->process();
 
       if (is_callable($cb)) {
         $cb($name, $processors);
@@ -460,7 +460,7 @@ class PromptManager {
   public function printFooter(): void {
     print PHP_EOL;
 
-    if ($this->isInitiallyInstalled) {
+    if ($this->isInstalled()) {
       $this->printBox('Finished updating Vortex. Review changes and commit required files.');
     }
     else {

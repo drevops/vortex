@@ -43,7 +43,7 @@ class HostingProviderHandler extends AbstractHandler {
       return TRUE;
     }
 
-    $value = Env::getFromDstDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
+    $value = Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
 
     if (is_null($value)) {
       return FALSE;
@@ -61,7 +61,7 @@ class HostingProviderHandler extends AbstractHandler {
       return TRUE;
     }
 
-    $value = Env::getFromDstDotenv('LAGOON_PROJECT');
+    $value = Env::getFromDotenv('LAGOON_PROJECT');
 
     // Special case - only work with non-empty value as 'LAGOON_PROJECT'
     // may not exist in installed site's .env file.
