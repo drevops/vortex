@@ -30,6 +30,9 @@ class DeployType extends AbstractHandler {
     return NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function process(): void {
     $types = $this->response;
 
