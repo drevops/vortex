@@ -9,20 +9,18 @@ use DrevOps\Installer\Utils\File;
 class ProfileHandler extends AbstractHandler {
 
   public function discover(): ?string {
-    $webroot = $this->getAnswer(PromptFields::WEBROOT_CUSTOM);
-
     if ($this->isInstalled()) {
-      $name = Env::getFromDotenv('DRUPAL_PROFILE');
+      $name = Env::getFromDotenv('DRUPAL_PROFILE', $this->dstDir);
       if (!empty($name)) {
         return $name;
       }
     }
 
     $locations = [
-      $this->config->getDst() . sprintf('/%s/profiles/*/*.info', $webroot),
-      $this->config->getDst() . sprintf('/%s/profiles/*/*.info.yml', $webroot),
-      $this->config->getDst() . sprintf('/%s/profiles/custom/*/*.info', $webroot),
-      $this->config->getDst() . sprintf('/%s/profiles/custom/*/*.info.yml', $webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/*/*.info', $this->webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/*/*.info.yml', $this->webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/custom/*/*.info', $this->webroot),
+      $this->config->getDst() . sprintf('/%s/profiles/custom/*/*.info.yml', $this->webroot),
     ];
 
     $name = File::findMatchingPath($locations, 'Drupal 11 profile implementation of');
@@ -37,30 +35,24 @@ class ProfileHandler extends AbstractHandler {
   }
 
   public function process(): void {
-    $webroot = $this->getAnswer('webroot');
-    // For core profiles - remove custom profile and direct links to it.
-    if (in_array($this->getAnswer('profile'), $this->drupalCoreProfiles())) {
-      File::rmdirRecursive(sprintf('%s/%s/profiles/your_site_profile', $dir, $webroot));
-      File::rmdirRecursive(sprintf('%s/%s/profiles/custom/your_site_profile', $dir, $webroot));
-      File::dirReplaceContent($webroot . '/profiles/your_site_profile,', '', $dir);
-      File::dirReplaceContent($webroot . '/profiles/custom/your_site_profile,', '', $dir);
-    }
-    File::dirReplaceContent('your_site_profile', $this->getAnswer('profile'), $dir);
-  }
+    $webroot = $this->responses[PromptFields::WEBROOT_CUSTOM];
 
-  /**
-   * Get core profiles names.
-   *
-   * @return array<int, string>
-   *   Array of core profiles names.
-   */
-  protected function drupalCoreProfiles(): array {
-    return [
+    $core_profiles = [
       'standard',
       'minimal',
       'testing',
       'demo_umami',
     ];
+
+    // For core profiles - remove custom profile and direct links to it.
+    if (in_array($this->response, $core_profiles)) {
+      File::rmdirRecursive(sprintf('%s/%s/profiles/your_site_profile', $this->tmpDir, $webroot));
+      File::rmdirRecursive(sprintf('%s/%s/profiles/custom/your_site_profile', $this->tmpDir, $webroot));
+      File::dirReplaceContent($webroot . '/profiles/your_site_profile,', '', $this->tmpDir);
+      File::dirReplaceContent($webroot . '/profiles/custom/your_site_profile,', '', $this->tmpDir);
+    }
+
+    File::dirReplaceContent('your_site_profile', $this->response, $this->tmpDir);
   }
 
 }

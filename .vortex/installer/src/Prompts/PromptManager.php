@@ -7,6 +7,7 @@ namespace DrevOps\Installer\Prompts;
 use AlexSkrypnyk\Str2Name\Str2Name;
 use DrevOps\Installer\Prompts\Handlers\AbstractHandler;
 use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
+use DrevOps\Installer\Prompts\Handlers\WebrootCustomHandler;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Env;
@@ -41,10 +42,6 @@ class PromptManager {
     }
 
     $this->initHandlers();
-  }
-
-  public function getResponses(): array {
-    return $this->responses;
   }
 
   public function prompt() {
@@ -128,7 +125,7 @@ class PromptManager {
             label: '🔑 GitHub access token (optional)',
             hint: Env::get('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new',
             placeholder: 'E.g. ghp_1234567890',
-            default: $this->default($n, Env::get('GITHUB_TOKEN')),
+            default: $this->default($n),
             transform: fn(string $v) => trim($v),
             validate: fn($v) => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL,
           ), PromptFields::GITHUB_TOKEN)
@@ -211,9 +208,9 @@ class PromptManager {
           function ($r, $pr, $n) {
             if ($r['hosting_provider'] !== 'other'){
               $webroot = match ($r['hosting_provider']) {
-                'acquia' => 'docroot',
-                'lagoon' => 'web',
-                default => $this->default($n, 'web')
+                'acquia' => WebrootCustomHandler::WEBROOT_DOCROOT,
+                'lagoon' => WebrootCustomHandler::WEBROOT_WEB,
+                default => $this->default($n, WebrootCustomHandler::DEFAULT_WEBROOT)
               };
 
               info(sprintf('Web root will be set to "%s".',$webroot));
@@ -222,8 +219,9 @@ class PromptManager {
               $webroot = text(
                 label: '📁 Custom web root directory',
                 hint: 'Custom directory where the web server serves the site.',
-                placeholder: 'E.g. public',
+                placeholder: 'E.g. '. implode(', ',[WebrootCustomHandler::WEBROOT_WEB, WebrootCustomHandler::WEBROOT_DOCROOT]),
                 required: TRUE,
+                default: $this->default($n, WebrootCustomHandler::DEFAULT_WEBROOT),
                 transform: fn(string $v) => !empty(trim($v)) ? Converter::path($v) : trim($v),
                 validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
               );
@@ -397,9 +395,13 @@ class PromptManager {
     return $this->responses;
   }
 
-  protected function default($name, $default = NULL) {
+  public function getResponses(): array {
+    return $this->responses;
+  }
+
+  protected function default($name, $default = '') {
     if (!array_key_exists($name, $this->handlers)) {
-      throw new \RuntimeException(sprintf('Handler for "%s" not found.', $name));
+      return $default;
     }
 
     return $this->handlers[$name]->discover() ?: $default;
@@ -444,6 +446,7 @@ class PromptManager {
       return !in_array($file, ['.', '..']);
     });
 
+    $classes = [];
     foreach ($handler_files as $file) {
       $class = 'DrevOps\\Installer\\Prompts\\Handlers\\' . basename($file, '.php');
 
@@ -451,8 +454,15 @@ class PromptManager {
         continue;
       }
 
-      $handler = new $class($this->config);
+      $classes[] = $class;
+    }
 
+    // Discover webroot and set for all handlers to help with paths resolution.
+    $webroot = (new WebrootCustomHandler($this->config))->discover() ?: WebrootCustomHandler::DEFAULT_WEBROOT;
+
+    foreach ($classes as $class) {
+      $handler = new $class($this->config);
+      $handler->setWebroot($webroot);
       $this->handlers[$handler->getKey()] = $handler;
     }
   }
@@ -460,23 +470,26 @@ class PromptManager {
   public function printFooter(): void {
     print PHP_EOL;
 
-    if ($this->isInstalled()) {
-      $this->printBox('Finished updating Vortex. Review changes and commit required files.');
-    }
-    else {
-      $this->printBox('Finished installing Vortex.');
-
-      $output = '';
-      $output .= PHP_EOL;
-      $output .= 'Next steps:' . PHP_EOL;
-      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
-      $output .= '  git add -A                       # Add all files.' . PHP_EOL;
-      $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
-      $output .= '  ahoy build                       # Build site.' . PHP_EOL;
-      $output .= PHP_EOL;
-      $output .= '  See https://vortex.drevops.com/quickstart';
-      $this->status($output, self::INSTALLER_STATUS_SUCCESS, TRUE, FALSE);
-    }
+    // @todo Fix the footer.
+    print 'Would print footer';
+    //
+    //    if ($this->isInstalled()) {
+    //      $this->printBox('Finished updating Vortex. Review changes and commit required files.');
+    //    }
+    //    else {
+    //      $this->printBox('Finished installing Vortex.');
+    //
+    //      $output = '';
+    //      $output .= PHP_EOL;
+    //      $output .= 'Next steps:' . PHP_EOL;
+    //      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
+    //      $output .= '  git add -A                       # Add all files.' . PHP_EOL;
+    //      $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
+    //      $output .= '  ahoy build                       # Build site.' . PHP_EOL;
+    //      $output .= PHP_EOL;
+    //      $output .= '  See https://vortex.drevops.com/quickstart';
+    //      $this->status($output, self::INSTALLER_STATUS_SUCCESS, TRUE, FALSE);
+    //    }
   }
 
   // @todo Refactor this.

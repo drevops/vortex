@@ -8,6 +8,10 @@ use DrevOps\Installer\Utils\File;
 
 class WebrootCustomHandler extends AbstractHandler {
 
+  const WEBROOT_WEB = 'web';
+
+  const WEBROOT_DOCROOT = 'docroot';
+
   const DEFAULT_WEBROOT = 'web';
 
   /**

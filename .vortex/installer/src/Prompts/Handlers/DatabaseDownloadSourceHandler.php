@@ -9,7 +9,7 @@ use DrevOps\Installer\Utils\File;
 class DatabaseDownloadSourceHandler extends AbstractHandler {
 
   public function discover(): ?string {
-    return Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE');
+    return Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir);
   }
 
   public function process(): void {

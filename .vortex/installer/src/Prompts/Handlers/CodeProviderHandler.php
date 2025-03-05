@@ -2,13 +2,14 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Env;
+use DrevOps\Installer\Utils\Composer;
 
-class DatabaseImageHandler extends AbstractHandler {
+class CodeProviderHandler extends AbstractHandler {
 
   public function discover(): ?string {
-    return Env::getFromDotenv('VORTEX_DB_IMAGE', $this->dstDir);
+    return NULL;
   }
+
 
   public function process():void  {
     // @todo Implement this.

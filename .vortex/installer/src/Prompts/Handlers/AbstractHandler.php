@@ -15,11 +15,18 @@ abstract class AbstractHandler implements HandlerInterface {
   protected string $dstDir;
   protected string $tmpDir;
 
+  protected string $webroot;
+
   public function __construct(protected Config $config) {
     $this->dstDir = $this->config->getDst();
     $this->tmpDir = $this->config->get(Config::TMP);
     $reflector = new \ReflectionClass(static::class);
     $this->key = static::toKey($reflector->getFileName());
+  }
+
+  public function setWebroot(string $webroot): static {
+    $this->webroot = $webroot;
+    return $this;
   }
 
   public function setResponses(array $responses): static {

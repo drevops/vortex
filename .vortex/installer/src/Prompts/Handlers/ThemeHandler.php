@@ -2,21 +2,18 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
 class ThemeHandler extends AbstractHandler {
 
   public function discover(): ?string {
-    $webroot = $this->getAnswer(PromptFields::WEBROOT_CUSTOM);
-
     $name_from_env = NULL;
     if ($this->isInstalled()) {
-      $name_from_env = Env::getFromDotenv('DRUPAL_THEME');
+      $name_from_env = Env::getFromDotenv('DRUPAL_THEME', $this->dstDir);
     }
 
-    $file = $this->findThemeFile($this->config->getDst(), $webroot);
+    $file = static::findThemeFile($this->config->getDst(), $this->webroot);
 
     if (empty($file)) {
       // If theme file was not found, but the theme is set in the .env file -
@@ -29,7 +26,7 @@ class ThemeHandler extends AbstractHandler {
     // Check that this is a theme coming originally from the Vortex template.
     $dir = dirname($file);
 
-    if (!$this->isVortexTheme($dir)) {
+    if (!static::isVortexTheme($dir)) {
       // If the theme is not coming from the Vortex template - return the theme
       // name from the .env file.
       return $name_from_env ?: NULL;
@@ -49,7 +46,7 @@ class ThemeHandler extends AbstractHandler {
     return NULL;
   }
 
-  protected function findThemeFile(string $dir, string $webroot): ?string {
+  protected static function findThemeFile(string $dir, string $webroot): ?string {
     $locations = [
       sprintf('%s/%s/themes/custom/*/*.info', $dir, $webroot),
       sprintf('%s/%s/themes/custom/*/*.info.yml', $dir, $webroot),
@@ -64,7 +61,7 @@ class ThemeHandler extends AbstractHandler {
     return File::findMatchingPath($locations);
   }
 
-  protected function isVortexTheme(string $dir): bool {
+  protected static function isVortexTheme(string $dir): bool {
     $c1 = file_exists($dir . '/scss/_variables.scss');
     $c2 = file_exists($dir . '/Gruntfile.js');
     $c3 = file_exists($dir . '/package.json');
@@ -79,11 +76,11 @@ class ThemeHandler extends AbstractHandler {
 
     File::fileReplaceContent('/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $name, $dir . '/.env');
 
-    $file_dst = $this->findThemeFile($this->config->getDst(), $webroot);
+    $file_dst = static::findThemeFile($this->config->getDst(), $webroot);
     // Do not update the theme files if it is not a theme from the Vortex
     // template.
-    if (!empty($file_dst) && !$this->isVortexTheme(dirname($file_dst))) {
-      $file_tmpl = $this->findThemeFile($dir, $webroot);
+    if (!empty($file_dst) && !static::isVortexTheme(dirname($file_dst))) {
+      $file_tmpl = static::findThemeFile($dir, $webroot);
       if (!empty($file_tmpl)) {
         File::rmdirRecursive(dirname($file_tmpl));
       }
