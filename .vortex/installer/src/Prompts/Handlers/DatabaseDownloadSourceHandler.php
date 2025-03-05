@@ -13,8 +13,8 @@ class DatabaseDownloadSourceHandler extends AbstractHandler {
   }
 
   public function process(): void {
-    $type = $responses[PromptFields::DATABASE_DOWNLOAD_SOURCE];
-    File::fileReplaceContent('/VORTEX_DB_DOWNLOAD_SOURCE=.*/', 'VORTEX_DB_DOWNLOAD_SOURCE=' . $type, $dir . '/.env');
+    $type = $this->response;
+    File::fileReplaceContent('/VORTEX_DB_DOWNLOAD_SOURCE=.*/', 'VORTEX_DB_DOWNLOAD_SOURCE=' . $type, $this->dstDir . '/.env');
 
     $types = [
       'curl',
@@ -28,10 +28,10 @@ class DatabaseDownloadSourceHandler extends AbstractHandler {
     foreach ($types as $t) {
       $token = 'VORTEX_DB_DOWNLOAD_SOURCE_' . strtoupper($t);
       if ($t === $type) {
-        File::removeTokenWithContent('!' . $token, $dir);
+        File::removeTokenWithContent('!' . $token, $this->tmpDir);
       }
       else {
-        File::removeTokenWithContent($token, $dir);
+        File::removeTokenWithContent($token, $this->tmpDir);
       }
     }
   }
