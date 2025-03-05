@@ -15,7 +15,7 @@ class CiProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function discover(): null|string|bool|iterable {
+  public function discover(): null|string|bool|array {
     if (is_readable($this->dstDir . '/.github/workflows/build-test-deploy.yml')) {
       return self::GHA;
     }

@@ -10,7 +10,7 @@ use DrevOps\Installer\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\Installer\Prompts\Handlers\CiProvider;
 use DrevOps\Installer\Prompts\Handlers\CodeProvider;
 use DrevOps\Installer\Prompts\Handlers\DatabaseDownloadSource;
-use DrevOps\Installer\Prompts\Handlers\DatabaseStoreType;
+use DrevOps\Installer\Prompts\Handlers\DatabaseImage;
 use DrevOps\Installer\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\Installer\Prompts\Handlers\DeployType;
 use DrevOps\Installer\Prompts\Handlers\Domain;
@@ -258,7 +258,6 @@ class PromptManager {
         $defaults = [];
 
         $options = [
-          DeployType::NONE => '⭕ None',
           DeployType::ARTIFACT => '📦 Code artifact',
           DeployType::LAGOON => '🌊 Lagoon webhook',
           DeployType::CONTAINER_IMAGE => '🐳 Container image',
@@ -341,7 +340,7 @@ class PromptManager {
                 default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
                 transform: fn($v) => strtolower(trim($v)),
                 validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid image name and a tag' : NULL,
-              ), DatabaseStoreType::id())
+              ), DatabaseImage::id())
 
       ->intro('Continuous Integration')
 

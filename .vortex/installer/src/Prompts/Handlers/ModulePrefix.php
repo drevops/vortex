@@ -7,7 +7,7 @@ use DrevOps\Installer\Utils\File;
 
 class ModulePrefix extends AbstractHandler {
 
-  public function discover(): null|string|bool|iterable {
+  public function discover(): null|string|bool|array {
     $locations = [
       $this->dstDir . sprintf('/%s/modules/custom/*_core', $this->webroot),
       $this->dstDir . sprintf('/%s/sites/all/modules/custom/*_core', $this->webroot),

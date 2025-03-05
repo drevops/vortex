@@ -6,7 +6,7 @@ use DrevOps\Installer\Prompts\PromptFields;
 
 class UseCustomProfile extends AbstractHandler {
 
-  public function discover(): null|string|bool|iterable {
+  public function discover(): null|string|bool|array {
     return NULL;
   }
 

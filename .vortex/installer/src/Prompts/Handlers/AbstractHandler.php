@@ -7,7 +7,7 @@ use DrevOps\Installer\Utils\Converter;
 
 abstract class AbstractHandler implements HandlerInterface {
 
-  protected string|bool|iterable $response;
+  protected string|bool|array $response;
 
   protected array $responses;
 
@@ -46,7 +46,7 @@ abstract class AbstractHandler implements HandlerInterface {
   /**
    * {@inheritdoc}
    */
-  abstract public function discover(): null|string|bool|iterable;
+  abstract public function discover(): null|string|bool|array;
 
   /**
    * {@inheritdoc}

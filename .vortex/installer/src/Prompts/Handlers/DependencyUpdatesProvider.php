@@ -2,8 +2,6 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Prompts\PromptFields;
-use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\File;
 
 class DependencyUpdatesProvider extends AbstractHandler {
@@ -14,21 +12,38 @@ class DependencyUpdatesProvider extends AbstractHandler {
 
   const RENOVATEBOT_APP = 'renovatebot_app';
 
-
-  public function discover(): null|string|bool|iterable {
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
     if (!$this->isInstalled()) {
       return NULL;
     }
 
-    return is_readable($this->dstDir . '/renovate.json');
+    if (!is_readable($this->dstDir . '/renovate.json')) {
+      return self::NONE;
+    }
+
+    if (file_exists($this->dstDir . '.github/workflows/renovate.yml')) {
+      return self::RENOVATEBOT_CI;
+    }
+
+    if (File::contains('renovatebot_schedule', $this->dstDir . '.circleci/config.yml')) {
+      return self::RENOVATEBOT_CI;
+    }
+
+    return self::RENOVATEBOT_APP;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function process(): void {
-    if ($this->response === 'renovatebot_ci') {
+    if ($this->response === self::RENOVATEBOT_CI) {
       File::removeTokenWithContent('!RENOVATEBOT_CI', $this->tmpDir);
       File::removeTokenWithContent('RENOVATEBOT_APP', $this->tmpDir);
     }
-    elseif ($this->response === 'renovatebot_app') {
+    elseif ($this->response === self::RENOVATEBOT_APP) {
       File::removeTokenWithContent('!RENOVATEBOT_APP', $this->tmpDir);
       File::removeTokenWithContent('RENOVATEBOT_CI', $this->tmpDir);
     }

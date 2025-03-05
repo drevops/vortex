@@ -8,7 +8,7 @@ use DrevOps\Installer\Utils\File;
 
 class Profile extends AbstractHandler {
 
-  public function discover(): null|string|bool|iterable {
+  public function discover(): null|string|bool|array {
     if ($this->isInstalled()) {
       $name = Env::getFromDotenv('DRUPAL_PROFILE', $this->dstDir);
       if (!empty($name)) {

@@ -8,7 +8,7 @@ use DrevOps\Installer\Utils\File;
 
 class Theme extends AbstractHandler {
 
-  public function discover(): null|string|bool|iterable {
+  public function discover(): null|string|bool|array {
     $name_from_env = NULL;
     if ($this->isInstalled()) {
       $name_from_env = Env::getFromDotenv('DRUPAL_THEME', $this->dstDir);

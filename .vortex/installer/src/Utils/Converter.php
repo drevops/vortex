@@ -44,7 +44,12 @@ class Converter extends Str2Name {
     return str_replace([' '], '-', trim($string, '/'));
   }
 
+  public static function fromList(string $value, string $delimiter = ','): array {
+    return array_map('trim', explode($delimiter, $value));
+  }
 
-
+  public static function toList(array $value, string $delimiter = ','): string {
+    return implode($delimiter, $value);
+  }
 
 }

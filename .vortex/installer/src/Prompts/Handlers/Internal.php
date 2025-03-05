@@ -9,7 +9,7 @@ use DrevOps\Installer\Utils\File;
 
 class Internal extends AbstractHandler {
 
-  public function discover(): null|string|bool|iterable {
+  public function discover(): null|string|bool|array {
     // Noop.
     return NULL;
   }

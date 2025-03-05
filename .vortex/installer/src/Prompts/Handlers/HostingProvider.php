@@ -15,7 +15,7 @@ class HostingProvider extends AbstractHandler {
 
   const OTHER = 'other';
 
-  public function discover(): null|string|bool|iterable {
+  public function discover(): null|string|bool|array {
     if ($this->discoverIsAcquia()) {
       return static::ACQUIA;
     }

@@ -4,7 +4,7 @@ namespace DrevOps\Installer\Prompts\Handlers;
 
 class GithubRepo extends AbstractHandler {
 
-  public function discover(): null|string|bool|iterable {
+  public function discover(): null|string|bool|array {
     // @todo Implement this.
     return NULL;
   }

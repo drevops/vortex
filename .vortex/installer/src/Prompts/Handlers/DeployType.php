@@ -3,12 +3,11 @@
 namespace DrevOps\Installer\Prompts\Handlers;
 
 use DrevOps\Installer\Util;
+use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
 class DeployType extends AbstractHandler {
-
-  const NONE = 'none';
 
   const ARTIFACT = 'artifact';
 
@@ -18,21 +17,30 @@ class DeployType extends AbstractHandler {
 
   const WEBHOOK = 'webhook';
 
-  public static function id(): string {
-    return 'deploy_type';
-  }
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    $types = Env::getFromDotenv('VORTEX_DEPLOY_TYPES', $this->dstDir);
 
-  public function discover(): null|string|bool|iterable {
-    return Env::getFromDotenv('VORTEX_DEPLOY_TYPES', $this->dstDir);
+    if (!empty($types)) {
+      return Converter::fromList($types);
+    }
+
+    return NULL;
   }
 
   public function process(): void {
-    $type = $this->getAnswer('deploy_type');
+    $types = $this->response;
 
-    if ($type !== 'none') {
-      File::fileReplaceContent('/VORTEX_DEPLOY_TYPES=.*/', 'VORTEX_DEPLOY_TYPES=' . $type, $this->tmpDir . '/.env');
+    if (!is_array($types)) {
+      throw new \InvalidArgumentException('Invalid deploy types.');
+    }
 
-      if (!str_contains($type, 'artifact')) {
+    if (!empty($types)) {
+      File::fileReplaceContent('/VORTEX_DEPLOY_TYPES=.*/', 'VORTEX_DEPLOY_TYPES=' . Converter::toList($types), $this->tmpDir . '/.env');
+
+      if (!in_array(self::ARTIFACT, $types)) {
         @unlink($this->tmpDir . '/.gitignore.deployment');
         @unlink($this->tmpDir . '/.gitignore.artifact');
       }
