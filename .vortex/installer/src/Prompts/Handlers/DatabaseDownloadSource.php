@@ -2,7 +2,6 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
@@ -16,27 +15,28 @@ class DatabaseDownloadSource extends AbstractHandler {
 
   const LAGOON = 'lagoon';
 
-  const CONTAINER_REGISTRY= 'container_registry';
+  const CONTAINER_REGISTRY = 'container_registry';
 
-  public static function id(): string {
-    return 'database_download_source';
-  }
-
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|iterable {
     return Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function process(): void {
     $type = $this->response;
     File::fileReplaceContent('/VORTEX_DB_DOWNLOAD_SOURCE=.*/', 'VORTEX_DB_DOWNLOAD_SOURCE=' . $type, $this->dstDir . '/.env');
 
     $types = [
-      'curl',
-      'ftp',
-      'acquia',
-      'lagoon',
-      'container_registry',
-      'none',
+      DatabaseDownloadSource::URL,
+      DatabaseDownloadSource::FTP,
+      DatabaseDownloadSource::ACQUIA,
+      DatabaseDownloadSource::LAGOON,
+      DatabaseDownloadSource::CONTAINER_REGISTRY,
     ];
 
     foreach ($types as $t) {
