@@ -9,7 +9,7 @@ class PreserveDocsOnboarding extends AbstractHandler {
 
   public function discover(): null|string|bool|iterable {
     if ($this->isInstalled()) {
-      $file = $this->config->getDst() . '/docs/onboarding.md';
+      $file = $this->dstDir . '/docs/onboarding.md';
 
       return is_readable($file);
     }

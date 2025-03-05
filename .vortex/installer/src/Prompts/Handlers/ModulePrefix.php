@@ -9,12 +9,12 @@ class ModulePrefix extends AbstractHandler {
 
   public function discover(): null|string|bool|iterable {
     $locations = [
-      $this->config->getDst() . sprintf('/%s/modules/custom/*_core', $this->webroot),
-      $this->config->getDst() . sprintf('/%s/sites/all/modules/custom/*_core', $this->webroot),
-      $this->config->getDst() . sprintf('/%s/profiles/*/modules/*_core', $this->webroot),
-      $this->config->getDst() . sprintf('/%s/profiles/*/modules/custom/*_core', $this->webroot),
-      $this->config->getDst() . sprintf('/%s/profiles/custom/*/modules/*_core', $this->webroot),
-      $this->config->getDst() . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/modules/custom/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/sites/all/modules/custom/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/*/modules/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/*/modules/custom/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/custom/*/modules/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $this->webroot),
     ];
 
     $path = File::findMatchingPath($locations);

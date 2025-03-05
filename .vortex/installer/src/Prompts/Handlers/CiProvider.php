@@ -2,7 +2,6 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\File;
 
 class CiProvider extends AbstractHandler {
@@ -13,36 +12,35 @@ class CiProvider extends AbstractHandler {
 
   const CIRCLECI = 'circleci';
 
-
-  public static function id(): string {
-    return 'ci_provider';
-  }
-
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|iterable {
-    if (is_readable($this->config->getDst() . '/.github/workflows/build-test-deploy.yml')) {
-      return 'GitHub Actions';
+    if (is_readable($this->dstDir . '/.github/workflows/build-test-deploy.yml')) {
+      return self::GHA;
     }
 
-    if (is_readable($this->config->getDst() . '/.circleci/config.yml')) {
-      return 'CircleCI';
+    if (is_readable($this->dstDir . '/.circleci/config.yml')) {
+      return self::CIRCLECI;
     }
 
-    return $this->isInstalled() ? 'none' : NULL;
+    return $this->isInstalled() ? self::NONE : NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function process(): void {
-    $type = $this->getAnswer('ci_provider');
-
     $remove_gha = FALSE;
     $remove_circleci = FALSE;
 
-    switch ($type) {
-      case 'CircleCI':
-        $remove_gha = TRUE;
+    switch ($this->response) {
+      case self::GHA:
+        $remove_circleci = TRUE;
         break;
 
-      case 'GitHub Actions':
-        $remove_circleci = TRUE;
+      case self::CIRCLECI:
+        $remove_gha = TRUE;
         break;
 
       default:

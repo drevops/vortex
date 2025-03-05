@@ -20,7 +20,7 @@ class DependencyUpdatesProvider extends AbstractHandler {
       return NULL;
     }
 
-    return is_readable($this->config->getDst() . '/renovate.json');
+    return is_readable($this->dstDir . '/renovate.json');
   }
 
   public function process(): void {
