@@ -57,7 +57,9 @@ class ThemeHandler extends AbstractHandler {
     // the theme is not from Vortex.
     if (empty($file_dst) || (!empty($file_dst) && !static::isVortexTheme(dirname($file_dst)))) {
       $file_tmpl = static::findThemeFile($this->tmpDir, $webroot);
-      File::rmdirRecursive(dirname($file_tmpl));
+      if (!empty($file_tmpl) && is_readable($file_tmpl)) {
+         File::rmdirRecursive(dirname($file_tmpl));
+      }
     }
   }
 

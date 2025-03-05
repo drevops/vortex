@@ -21,6 +21,10 @@ class Downloader {
       $this->downloadFromLocal($repo, $ref, $dst);
     }
 
+    if (!is_readable($dst . DIRECTORY_SEPARATOR . 'composer.json')) {
+      throw new \RuntimeException(sprintf('The downloaded repository does not contain a composer.json file: %s', $src));
+    }
+
     return $dst;
   }
 
@@ -83,6 +87,10 @@ class Downloader {
   }
 
   protected function downloadFromLocal(string $repo, string $ref, string $destination): void {
+    if ($ref == 'stable') {
+      $ref = 'HEAD';
+    }
+
     $command = sprintf(
       'git --git-dir="%s/.git" --work-tree="%s" archive --format=tar "%s" | tar xf - -C "%s"',
       $repo,
@@ -91,7 +99,7 @@ class Downloader {
       $destination
     );
 
-    if (passthru($command)=== FALSE) {
+    if (passthru($command) === FALSE) {
       throw new RuntimeException(sprintf('Failed to download the local archive: %s', $command));
     }
   }

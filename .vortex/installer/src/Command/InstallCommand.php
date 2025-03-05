@@ -211,6 +211,7 @@ EOF
     $dst = $this->config->get(Config::TMP);
 
     [$repo, $ref] = Downloader::parseUri($src);
+    // @todo Fix the note to acommodate for the dowbloading from dir rather than a repo.
     note(sprintf('Downloading from "%s" repository at commit "%s" to "%s".', $repo, $ref, $dst));
     (new Downloader())->download($src, $dst);
   }
