@@ -4,7 +4,7 @@ namespace DrevOps\Installer\Prompts\Handlers;
 
 use DrevOps\Installer\Utils\Composer;
 
-class OrgHandler extends AbstractHandler {
+class Org extends AbstractHandler {
 
   public function discover(): ?string {
     $value = Composer::getJsonValue('description', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');

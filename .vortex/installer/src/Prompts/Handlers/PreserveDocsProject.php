@@ -2,11 +2,9 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Prompts\PromptFields;
-use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\File;
 
-class DocsProjectHandler extends AbstractHandler {
+class PreserveDocsProject extends AbstractHandler {
 
   public function discover(): ?string {
     return $this->isInstalled() && is_dir($this->config->getDst() . '/docs');

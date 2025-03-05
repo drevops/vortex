@@ -6,13 +6,38 @@ namespace DrevOps\Installer\Prompts;
 
 use AlexSkrypnyk\Str2Name\Str2Name;
 use DrevOps\Installer\Prompts\Handlers\AbstractHandler;
+use DrevOps\Installer\Prompts\Handlers\AssignAuthorPr;
+use DrevOps\Installer\Prompts\Handlers\CiProvider;
+use DrevOps\Installer\Prompts\Handlers\CodeProvider;
+use DrevOps\Installer\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\Installer\Prompts\Handlers\DatabaseStoreType;
+use DrevOps\Installer\Prompts\Handlers\DependencyUpdatesProvider;
+use DrevOps\Installer\Prompts\Handlers\DeployType;
+use DrevOps\Installer\Prompts\Handlers\Domain;
+use DrevOps\Installer\Prompts\Handlers\GithubRepo;
+use DrevOps\Installer\Prompts\Handlers\GithubToken;
 use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
-use DrevOps\Installer\Prompts\Handlers\WebrootCustomHandler;
+use DrevOps\Installer\Prompts\Handlers\HostingProvider;
+use DrevOps\Installer\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\Installer\Prompts\Handlers\MachineName;
+use DrevOps\Installer\Prompts\Handlers\ModulePrefix;
+use DrevOps\Installer\Prompts\Handlers\Name;
+use DrevOps\Installer\Prompts\Handlers\Org;
+use DrevOps\Installer\Prompts\Handlers\OrgMachineName;
+use DrevOps\Installer\Prompts\Handlers\PreserveDocsOnboarding;
+use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
+use DrevOps\Installer\Prompts\Handlers\Profile;
+use DrevOps\Installer\Prompts\Handlers\ProvisionType;
+use DrevOps\Installer\Prompts\Handlers\Theme;
+use DrevOps\Installer\Prompts\Handlers\UseCustomProfile;
+use DrevOps\Installer\Prompts\Handlers\WebrootCustom;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Validator;
+use Drupal\Core\Database\Database;
 use Laravel\Prompts\Prompt;
+use OpenTelemetry\SDK\Resource\Detectors\Host;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\form;
@@ -59,7 +84,7 @@ class PromptManager {
         default: $this->default($n, Str2Name::label(Env::get('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid name' : NULL,
-      ), PromptFields::NAME)
+      ), Name::id())
 
       ->add(fn($r, $pr, $n) => text(
         label: '🔖 Site machine name',
@@ -69,7 +94,7 @@ class PromptManager {
         default: $this->default($n, Str2Name::machine($r['name'])),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ),  PromptFields::MACHINE_NAME)
+      ), MachineName::id())
 
       ->add(fn($r, $pr, $n) => text(
         label: '🏢 Organization name',
@@ -79,7 +104,7 @@ class PromptManager {
         default: $this->default('org', Str2Name::label($r['name']) . ' Org'),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid organization name' : NULL,
-      ), PromptFields::ORG)
+      ), Org::id())
 
       ->add(fn($r, $pr, $n) => text(
         label: '🏢 Organization machine name',
@@ -89,7 +114,7 @@ class PromptManager {
         default: $this->default($n, Str2Name::machine($r['org'])),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), PromptFields::ORG_MACHINE_NAME)
+      ), OrgMachineName::id())
 
       ->add(fn($r, $pr, $n) => text(
         label: '🌐 Public domain',
@@ -99,7 +124,7 @@ class PromptManager {
         default: $this->default($n, 'http://' . Str2Name::kebab($r['machine_name']) . '.com'),
         transform: fn(string $v) => Converter::domain($v),
         validate: fn($v) => filter_var($v, FILTER_VALIDATE_URL) === FALSE ? 'Please enter a valid domain name' : NULL,
-      ), PromptFields::DOMAIN)
+      ), Domain::id())
 
       ->intro('Code repository')
 
@@ -111,7 +136,7 @@ class PromptManager {
           'other' => 'Other',
         ],
         default: $this->default($n, 'github'),
-      ), PromptFields::CODE_PROVIDER)
+      ), CodeProvider::id())
 
         ->addIf(
           fn($r) => $r['code_provider'] === 'github',
@@ -128,7 +153,7 @@ class PromptManager {
             default: $this->default($n),
             transform: fn(string $v) => trim($v),
             validate: fn($v) => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL,
-          ), PromptFields::GITHUB_TOKEN)
+          ), GithubToken::id())
 
             ->addIf(
               fn($r) => !empty($r['github_token']),
@@ -143,7 +168,7 @@ class PromptManager {
                   !str_contains($v, '/') || (count(explode('/', $v)) !== 2 || empty(explode('/', $v)[0]) || empty(explode('/', $v)[1])) => 'Please enter a valid project name in the format "myorg/myproject"',
                   default => NULL,
                 },
-              ), PromptFields::GITHUB_REPO)
+              ), GithubRepo::id())
 
       ->intro('Drupal')
 
@@ -151,10 +176,10 @@ class PromptManager {
         label: 'Use a custom profile?',
         hint: 'Select "yes" to use a custom profile, or "no" to use the "standard" profile.',
         default: $this->default($n, FALSE),
-      ), PromptFields::USE_CUSTOM_PROFILE)
+      ), UseCustomProfile::id())
 
         ->addIf(
-          fn($r) => $r['use_custom_profile'],
+          fn($r) => $r[UseCustomProfile::id()],
           fn($r, $pr, $n) => text(
             label: 'Custom profile machine name',
             hint: 'Leave empty to use "standard" profile.',
@@ -166,7 +191,7 @@ class PromptManager {
               !empty($v) && Converter::abbreviation($v) !== $v => 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
               default => 'standard',
             },
-          ), PromptFields::PROFILE)
+          ), Profile::id())
 
       ->add(fn($r, $pr, $n) => text(
         label: '🧩 Module prefix',
@@ -177,7 +202,7 @@ class PromptManager {
         transform: fn(string $v) => trim($v),
         // @todo Fix validation  here.
         validate: fn($v) => Converter::machine(strtolower($v)) !== strtolower($v) ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), PromptFields::MODULE_PREFIX)
+      ), ModulePrefix::id())
 
       ->add(fn($r, $pr, $n) => text(
         label: '🎨 Theme machine name',
@@ -187,7 +212,7 @@ class PromptManager {
         default: $this->default($n, $r['machine_name']),
         transform: fn(string $v) => trim($v),
         validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), PromptFields::THEME)
+      ), Theme::id())
 
       ->intro('Hosting')
 
@@ -202,15 +227,15 @@ class PromptManager {
         ],
         required: TRUE,
         default: $this->default($n, 'none'),
-      ), PromptFields::HOSTING_PROVIDER)
+      ), HostingProvider::id())
 
         ->add(
           function ($r, $pr, $n) {
-            if ($r['hosting_provider'] !== 'other'){
-              $webroot = match ($r['hosting_provider']) {
-                'acquia' => WebrootCustomHandler::WEBROOT_DOCROOT,
-                'lagoon' => WebrootCustomHandler::WEBROOT_WEB,
-                default => $this->default($n, WebrootCustomHandler::DEFAULT_WEBROOT)
+            if ($r[HostingProvider::id()] !== HostingProvider::OTHER){
+              $webroot = match ($r[HostingProvider::id()]) {
+                HostingProvider::ACQUIA => WebrootCustom::DOCROOT,
+                HostingProvider::LAGOON => WebrootCustom::WEB,
+                default => $this->default($n, WebrootCustom::DEFAULT)
               };
 
               info(sprintf('Web root will be set to "%s".',$webroot));
@@ -219,15 +244,15 @@ class PromptManager {
               $webroot = text(
                 label: '📁 Custom web root directory',
                 hint: 'Custom directory where the web server serves the site.',
-                placeholder: 'E.g. '. implode(', ',[WebrootCustomHandler::WEBROOT_WEB, WebrootCustomHandler::WEBROOT_DOCROOT]),
+                placeholder: 'E.g. '. implode(', ',[WebrootCustom::WEB, WebrootCustom::DOCROOT]),
                 required: TRUE,
-                default: $this->default($n, WebrootCustomHandler::DEFAULT_WEBROOT),
+                default: $this->default($n, WebrootCustom::DEFAULT),
                 transform: fn(string $v) => !empty(trim($v)) ? Converter::path($v) : trim($v),
                 validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
               );
             }
             return $webroot;
-          }, PromptFields::WEBROOT_CUSTOM)
+          }, WebrootCustom::id())
 
       ->intro('Deployment')
 
@@ -235,23 +260,24 @@ class PromptManager {
         $defaults = [];
 
         $options = [
-          'artifact' => '📦 Code artifact',
-          'lagoon' => '🌊 Lagoon webhook',
-          'container_image' => '🐳 Container image',
-          'webhook' => '🌐 Custom webhook',
+          DeployType::NONE => '⭕ None',
+          DeployType::ARTIFACT => '📦 Code artifact',
+          DeployType::LAGOON => '🌊 Lagoon webhook',
+          DeployType::CONTAINER_IMAGE => '🐳 Container image',
+          DeployType::WEBHOOK => '🌐 Custom webhook',
         ];
 
-        if ($r['hosting_provider'] === 'lagoon') {
-          $defaults[] = 'lagoon';
+        if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
+          $defaults[] = DeployType::LAGOON;
         }
 
-        if ($r['hosting_provider'] === 'acquia') {
-          $defaults[] = 'artifact';
-          unset($options['lagoon']);
+        if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
+          $defaults[] = DeployType::ARTIFACT;
+          unset($options[DeployType::LAGOON]);
         }
 
         if (empty($defaults)) {
-          $defaults[] = 'webhook';
+          $defaults[] = DeployType::WEBHOOK;
         }
 
         return multiselect(
@@ -261,7 +287,7 @@ class PromptManager {
           default: $this->default($n, $defaults),
           required: FALSE,
         );
-      }, PromptFields::DEPLOY_TYPE)
+      }, DeployType::id())
 
       ->intro('Workflow')
 
@@ -271,74 +297,74 @@ class PromptManager {
         label: 'Provision type',
         hint: 'Selecting "Profile" will install site from a profile rather than a database dump.',
         options: [
-          'database' => 'Import from database dump',
-          'profile' => 'Install from profile',
+          ProvisionType::DATABASE => 'Import from database dump',
+          ProvisionType::PROFILE => 'Install from profile',
         ],
-        default: $this->default($n, 'database'),
-      ), PromptFields::PROVISION_TYPE)
+        default: $this->default($n, ProvisionType::DATABASE),
+      ), ProvisionType::id())
 
         ->addIf(
-          fn($r) => $r[PromptFields::PROVISION_TYPE] === 'database',
+          fn($r) => $r[ProvisionType::id()] === ProvisionType::DATABASE,
           function ($r, $pr, $n) {
             $options = [
-              'url' => '🌍 URL download',
-              'ftp' => '📂 FTP download',
-              'acquia' => '💧 Acquia backup',
-              'lagoon' => '🌊 Lagoon environment',
-              'container_registry' => '🐳 Container registry',
+              DatabaseDownloadSource::URL => '🌍 URL download',
+              DatabaseDownloadSource::FTP => '📂 FTP download',
+              DatabaseDownloadSource::ACQUIA => '💧 Acquia backup',
+              DatabaseDownloadSource::LAGOON => '🌊 Lagoon environment',
+              DatabaseDownloadSource::CONTAINER_REGISTRY => '🐳 Container registry',
             ];
 
-            if ($r['hosting_provider'] === 'acquia') {
-              unset($options['lagoon']);
+            if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
+              unset($options[DatabaseDownloadSource::LAGOON]);
             }
 
-            if ($r['hosting_provider'] === 'lagoon') {
-              unset($options['acquia']);
+            if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
+              unset($options[DatabaseDownloadSource::ACQUIA]);
             }
 
             return select(
               label: 'Database dump source',
               hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
               options: $options,
-              default: $this->default($n, match ($r['hosting_provider']) {
-                'acquia' => 'acquia',
-                'lagoon' => 'lagoon',
-                default => 'url',
+              default: $this->default($n, match ($r[HostingProvider::id()]) {
+                HostingProvider::ACQUIA => DatabaseDownloadSource::ACQUIA,
+                HostingProvider::LAGOON => DatabaseDownloadSource::LAGOON,
+                default => DatabaseDownloadSource::URL,
               }),
             );
-          }, PromptFields::DATABASE_DOWNLOAD_SOURCE)
+          }, DatabaseDownloadSource::id())
 
             ->addIf(
-              fn($r) => $r[PromptFields::DATABASE_DOWNLOAD_SOURCE] === 'container_registry',
+              fn($r) => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
               fn($r, $pr, $n) => text(
                 label: 'What is your database container image name and a tag?',
                 hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
-                placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[PromptFields::ORG_MACHINE_NAME]), Converter::phpNamespace($r[PromptFields::MACHINE_NAME])),
-                default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[PromptFields::ORG_MACHINE_NAME]), Converter::phpNamespace($r[PromptFields::MACHINE_NAME]))),
+                placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
+                default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
                 transform: fn($v) => strtolower(trim($v)),
                 validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid image name and a tag' : NULL,
-              ), PromptFields::DATABASE_STORE_TYPE_CONTAINER_IMAGE)
+              ), DatabaseStoreType::id())
 
       ->intro('Continuous Integration')
 
       ->add(function ($r, $pr, $n) {
         $options = [
-          'gha' => 'GitHub Actions',
-          'circleci' => 'CircleCI',
-          'none' => 'None',
+          CiProvider::NONE => '⭕ None',
+          CiProvider::GHA => 'GitHub Actions',
+          CiProvider::CIRCLECI => 'CircleCI',
         ];
 
-        if ($r['code_provider'] !== 'github') {
-          unset($options['gha']);
+        if ($r[CodeProvider::id()] !== CodeProvider::GITHUB) {
+          unset($options[CiProvider::GHA]);
         }
 
         return select(
           label: '🔁 Continuous Integration provider',
           hint: 'Both providers support equivalent workflow.',
           options: $options,
-          default: $this->default($n, 'gha'),
+          default: $this->default($n, CiProvider::GHA),
         );
-      }, PromptFields::CI_PROVIDER)
+      }, CiProvider::id())
 
       ->intro('Automations')
 
@@ -346,24 +372,24 @@ class PromptManager {
         label: '🔄 Dependency updates provider',
         hint: 'Use a self-hosted service if you can’t install a GitHub app.',
         options: [
-          'renovatebot_ci' => '🤖 + 🔁 Renovate self-hosted in CI',
-          'renovatebot_app' => '🤖 Renovate GitHub app',
-          'none' => 'None',
+          DependencyUpdatesProvider::RENOVATEBOT_CI  => '🤖 + 🔁 Renovate self-hosted in CI',
+          DependencyUpdatesProvider::RENOVATEBOT_APP => '🤖 Renovate GitHub app',
+          DependencyUpdatesProvider::NONE => '⭕ None',
         ],
-        default: $this->default($n, 'renovatebot_ci'),
-      ), PromptFields::DEPENDENCY_UPDATES_PROVIDER)
+        default: $this->default($n, DependencyUpdatesProvider::RENOVATEBOT_CI),
+      ), DependencyUpdatesProvider::id())
 
       ->add(fn($r, $pr, $n) => confirm(
         label: '👤 Auto-assign the author to their PR?',
         hint: 'Helps to keep the PRs organized.',
         default: $this->default($n, TRUE),
-      ), PromptFields::ASSIGN_AUTHOR_PR)
+      ), AssignAuthorPr::id())
 
       ->add(fn($r, $pr, $n) => confirm(
         label: '🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur?',
         hint: 'Helps to keep quickly identify PRs that need attention.',
         default: $this->default($n, TRUE),
-      ), PromptFields::LABEL_MERGE_CONFLICTS_PR)
+      ), LabelMergeConflictsPr::id())
 
       ->intro('Documentation')
 
@@ -371,13 +397,13 @@ class PromptManager {
         label: '📚 Preserve project documentation?',
         hint: 'Helps to maintain the project documentation within the repository.',
         default: $this->default($n, TRUE),
-      ), PromptFields::DOCS_PROJECT)
+      ), PreserveDocsProject::id())
 
       ->add(fn($r, $pr, $n) => confirm(
         label: '📋 Preserve onboarding checklist?',
         hint: 'Helps to track onboarding to Vortex within the repository.',
         default: $this->default($n, TRUE),
-      ), PromptFields::DOCS_ONBOARDING)
+      ), PreserveDocsOnboarding::id())
 
       ->submit();
 
@@ -385,7 +411,7 @@ class PromptManager {
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
 
-    // filter out elements with numeric keys
+    // Filter out elements with numeric keys returned from intro()'s.
     $responses = array_filter($responses, function ($key) {
       return !is_numeric($key);
     }, ARRAY_FILTER_USE_KEY);
@@ -418,7 +444,7 @@ class PromptManager {
       PromptFields::DATABASE_DOWNLOAD_SOURCE,
       //      PromptFields::DATABASE_STORE_TYPE_CONTAINER_IMAGE,
       PromptFields::CI_PROVIDER,
-      PromptFields::DEPLOY_TYPE,
+      DeployType::class,
       PromptFields::HOSTING_PROVIDER,
       PromptFields::DOCS_ONBOARDING,
       PromptFields::DOCS_PROJECT,
@@ -458,7 +484,7 @@ class PromptManager {
     }
 
     // Discover webroot and set for all handlers to help with paths resolution.
-    $webroot = (new WebrootCustomHandler($this->config))->discover() ?: WebrootCustomHandler::DEFAULT_WEBROOT;
+    $webroot = (new WebrootCustom($this->config))->discover() ?: WebrootCustom::DEFAULT;
 
     foreach ($classes as $class) {
       $handler = new $class($this->config);

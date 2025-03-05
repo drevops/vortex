@@ -7,7 +7,15 @@ use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
-class HostingProviderHandler extends AbstractHandler {
+class HostingProvider extends AbstractHandler {
+
+  const NONE = 'none';
+
+  const LAGOON = 'lagoon';
+
+  const ACQUIA = 'acquia';
+
+  const OTHER = 'other';
 
   public function discover(): ?string {
     if ($this->discoverIsAcquia()) {

@@ -6,7 +6,14 @@ use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\File;
 
-class DependencyUpdatesProviderHandler extends AbstractHandler {
+class DependencyUpdatesProvider extends AbstractHandler {
+
+  const NONE = 'none';
+
+  const RENOVATEBOT_CI = 'renovatebot_ci';
+
+  const RENOVATEBOT_APP = 'renovatebot_app';
+
 
   public function discover(): ?string {
     if (!$this->isInstalled()) {

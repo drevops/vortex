@@ -5,7 +5,7 @@ namespace DrevOps\Installer\Prompts\Handlers;
 use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Utils\File;
 
-class ModulePrefixHandler extends AbstractHandler {
+class ModulePrefix extends AbstractHandler {
 
   public function discover(): ?string {
     $locations = [

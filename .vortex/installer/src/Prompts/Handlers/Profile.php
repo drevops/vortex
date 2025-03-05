@@ -6,7 +6,7 @@ use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
-class ProfileHandler extends AbstractHandler {
+class Profile extends AbstractHandler {
 
   public function discover(): ?string {
     if ($this->isInstalled()) {
@@ -35,7 +35,7 @@ class ProfileHandler extends AbstractHandler {
   }
 
   public function process(): void {
-    $webroot = $this->responses[PromptFields::WEBROOT_CUSTOM];
+    $webroot = $this->responses[WebrootCustom::id()];
 
     $core_profiles = [
       'standard',

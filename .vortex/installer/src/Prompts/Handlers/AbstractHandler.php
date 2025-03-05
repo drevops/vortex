@@ -7,8 +7,7 @@ use DrevOps\Installer\Utils\Converter;
 
 abstract class AbstractHandler implements HandlerInterface {
 
-  protected string|bool $response;
-  protected string $key;
+  protected string|bool|iterable $response;
 
   protected array $responses;
 
@@ -20,8 +19,6 @@ abstract class AbstractHandler implements HandlerInterface {
   public function __construct(protected Config $config) {
     $this->dstDir = $this->config->getDst();
     $this->tmpDir = $this->config->get(Config::TMP);
-    $reflector = new \ReflectionClass(static::class);
-    $this->key = static::toKey($reflector->getFileName());
   }
 
   public function setWebroot(string $webroot): static {
@@ -33,21 +30,27 @@ abstract class AbstractHandler implements HandlerInterface {
     $this->responses = $responses;
     // @todo $this->response should always have a value  - otherwise there is
     // nothing to process. need to review this correctly.
-    $this->response = $this->responses[$this->key]?? FALSE;
+    $this->response = $this->responses[static::id()]?? FALSE;
 
     return $this;
   }
 
-  public function getKey() {
-    return $this->key;
+  /**
+   * {@inheritdoc}
+   */
+  public static function id(): string {
+    $reflector = new \ReflectionClass(static::class);
+    return Converter::machine(Converter::pascal2snake(str_replace('Handler', '', basename($reflector->getFileName(), '.php'))));
   }
 
-  protected static function toKey($file = __FILE__) {
-    return Converter::machine(Converter::pascal2snake(str_replace('Handler', '', basename($file, '.php'))));
-  }
-
+  /**
+   * {@inheritdoc}
+   */
   abstract public function discover(): ?string;
 
+  /**
+   * {@inheritdoc}
+   */
   abstract public function process(): void;
 
   // @todo: Rename to getResponse().

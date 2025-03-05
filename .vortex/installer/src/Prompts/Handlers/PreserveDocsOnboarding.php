@@ -2,11 +2,10 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Prompts\PromptFields;
-use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\File;
 
-class DocsOnboardingHandler extends AbstractHandler {
+class PreserveDocsOnboarding extends AbstractHandler {
+
 
   public function discover(): ?string {
     if ($this->isInstalled()) {
@@ -19,12 +18,12 @@ class DocsOnboardingHandler extends AbstractHandler {
   }
 
   public function process(): void {
-    if ($responses[PromptFields::DOCS_ONBOARDING]) {
-      File::removeTokenWithContent('!DOCS_ONBOARDING', $dir);
+    if ($this->response) {
+      File::removeTokenWithContent('!DOCS_ONBOARDING', $this->tmpDir);
     }
     else {
-      @unlink($dir . '/docs/onboarding.md');
-      File::removeTokenWithContent('DOCS_ONBOARDING', $dir);
+      @unlink($this->tmpDir . '/docs/onboarding.md');
+      File::removeTokenWithContent('DOCS_ONBOARDING', $this->tmpDir);
     }
   }
 

@@ -6,7 +6,21 @@ use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
-class DatabaseDownloadSourceHandler extends AbstractHandler {
+class DatabaseDownloadSource extends AbstractHandler {
+
+  const URL = 'url';
+
+  const FTP = 'ftp';
+
+  const ACQUIA = 'acquia';
+
+  const LAGOON = 'lagoon';
+
+  const CONTAINER_REGISTRY= 'container_registry';
+
+  public static function id(): string {
+    return 'database_download_source';
+  }
 
   public function discover(): ?string {
     return Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir);

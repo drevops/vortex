@@ -6,7 +6,7 @@ use DrevOps\Installer\Prompts\PromptFields;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
-class ThemeHandler extends AbstractHandler {
+class Theme extends AbstractHandler {
 
   public function discover(): ?string {
     $name_from_env = NULL;
@@ -48,7 +48,7 @@ class ThemeHandler extends AbstractHandler {
   }
 
   public function process(): void {
-    $webroot = $this->responses[PromptFields::WEBROOT_CUSTOM];
+    $webroot = $this->responses[WebrootCustom::id()];
     File::fileReplaceContent('/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $this->response, $this->dstDir . '/.env');
 
     // Find the theme file in the destination directory.

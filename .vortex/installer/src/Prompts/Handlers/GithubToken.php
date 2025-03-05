@@ -2,9 +2,7 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Composer;
-
-class ProvisionTypeHandler extends AbstractHandler {
+class GithubToken extends AbstractHandler {
 
   public function discover(): ?string {
     // @todo Implement this.

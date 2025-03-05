@@ -2,9 +2,13 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Composer;
+class CodeProvider extends AbstractHandler {
+  const GITHUB = 'github';
 
-class CodeProviderHandler extends AbstractHandler {
+  public static function id(): string {
+    return 'code_provider';
+  }
+
 
   public function discover(): ?string {
     return NULL;

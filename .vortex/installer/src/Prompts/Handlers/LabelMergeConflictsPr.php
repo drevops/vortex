@@ -2,13 +2,13 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Env;
-
-class DatabaseImageHandler extends AbstractHandler {
+class LabelMergeConflictsPr extends AbstractHandler {
 
   public function discover(): ?string {
-    return Env::getFromDotenv('VORTEX_DB_IMAGE', $this->dstDir);
+    // @todo Implement this.
+    return NULL;
   }
+
 
   public function process():void  {
     // @todo Implement this.

@@ -4,7 +4,7 @@ namespace DrevOps\Installer\Prompts\Handlers;
 
 use DrevOps\Installer\Utils\File;
 
-class DatabaseStoreTypeHandler extends AbstractHandler {
+class DatabaseStoreType extends AbstractHandler {
 
   public function discover(): ?string {
     return $this->discoverValueDatabaseImage() ? 'container_image' : 'file';

@@ -6,7 +6,21 @@ use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
-class DeployTypeHandler extends AbstractHandler {
+class DeployType extends AbstractHandler {
+
+  const NONE = 'none';
+
+  const ARTIFACT = 'artifact';
+
+  const LAGOON = 'lagoon';
+
+  const CONTAINER_IMAGE = 'container_image';
+
+  const WEBHOOK = 'webhook';
+
+  public static function id(): string {
+    return 'deploy_type';
+  }
 
   public function discover(): ?string {
     return Env::getFromDotenv('VORTEX_DEPLOY_TYPES', $this->dstDir);
@@ -14,6 +28,7 @@ class DeployTypeHandler extends AbstractHandler {
 
   public function process(): void {
     $type = $this->getAnswer('deploy_type');
+
     if ($type !== 'none') {
       File::fileReplaceContent('/VORTEX_DEPLOY_TYPES=.*/', 'VORTEX_DEPLOY_TYPES=' . $type, $dir . '/.env');
 

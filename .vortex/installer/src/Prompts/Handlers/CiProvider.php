@@ -5,7 +5,18 @@ namespace DrevOps\Installer\Prompts\Handlers;
 use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\File;
 
-class CiProviderHandler extends AbstractHandler {
+class CiProvider extends AbstractHandler {
+
+  const NONE = 'none';
+
+  const GHA = 'gha';
+
+  const CIRCLECI = 'circleci';
+
+
+  public static function id(): string {
+    return 'ci_provider';
+  }
 
   public function discover(): ?string {
     if (is_readable($this->config->getDst() . '/.github/workflows/build-test-deploy.yml')) {
@@ -40,22 +51,22 @@ class CiProviderHandler extends AbstractHandler {
     }
 
     if ($remove_gha) {
-      @unlink($dir . '/.github/workflows/build-test-deploy.yml');
-      File::removeTokenWithContent('CI_PROVIDER_GHA', $dir);
+      @unlink($this->tmpDir . '/.github/workflows/build-test-deploy.yml');
+      File::removeTokenWithContent('CI_PROVIDER_GHA', $this->tmpDir);
     }
 
     if ($remove_circleci) {
-      File::rmdirRecursive($dir . '/.circleci');
-      @unlink($dir . '/tests/phpunit/CircleCiConfigTest.php');
-      File::removeTokenWithContent('CI_PROVIDER_CIRCLECI', $dir);
+      File::rmdirRecursive($this->tmpDir . '/.circleci');
+      @unlink($this->tmpDir . '/tests/phpunit/CircleCiConfigTest.php');
+      File::removeTokenWithContent('CI_PROVIDER_CIRCLECI', $this->tmpDir);
     }
 
     if ($remove_gha && $remove_circleci) {
-      @unlink($dir . '/docs/ci.md');
-      File::removeTokenWithContent('CI_PROVIDER_ANY', $dir);
+      @unlink($this->tmpDir . '/docs/ci.md');
+      File::removeTokenWithContent('CI_PROVIDER_ANY', $this->tmpDir);
     }
     else {
-      File::removeTokenWithContent('!CI_PROVIDER_ANY', $dir);
+      File::removeTokenWithContent('!CI_PROVIDER_ANY', $this->tmpDir);
     }
   }
 

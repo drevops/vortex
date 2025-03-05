@@ -2,18 +2,20 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Util;
 use DrevOps\Installer\Utils\Env;
 
-class DomainHandler extends AbstractHandler {
+class DatabaseImage extends AbstractHandler {
+
+  public static function id(): string {
+    return 'database_image';
+  }
 
   public function discover(): ?string {
-    return Env::getFromDotenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN', $this->dstDir);
+    return Env::getFromDotenv('VORTEX_DB_IMAGE', $this->dstDir);
   }
 
   public function process():void  {
     // @todo Implement this.
   }
-
 
 }

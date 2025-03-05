@@ -9,10 +9,11 @@ use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 
-class InternalHandler extends AbstractHandler {
+class Internal extends AbstractHandler {
 
   public function discover(): ?string {
     // Noop.
+    return NULL;
   }
 
   public function process(): void {
@@ -74,7 +75,7 @@ class InternalHandler extends AbstractHandler {
     $module_prefix_cobol = Converter::cobol($module_prefix_pascal);
     $theme_pascal = Converter::pascal($responses[PromptFields::THEME]);
     $vortex_version_urlencoded = str_replace('-', '--', (string) $this->config->get(Config::VORTEX_VERSION));
-    $webroot = $responses[PromptFields::WEBROOT_CUSTOM];
+    $webroot = $responses[WebrootCustom::id()];
 
     // @formatter:off
     // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
