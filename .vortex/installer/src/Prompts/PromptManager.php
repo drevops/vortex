@@ -35,9 +35,7 @@ use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Validator;
-use Drupal\Core\Database\Database;
 use Laravel\Prompts\Prompt;
-use OpenTelemetry\SDK\Resource\Detectors\Host;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\form;
@@ -132,8 +130,8 @@ class PromptManager {
         label: '⚙️ Repository provider',
         hint: 'Vortex offers full automation with GitHub, while support for other providers is limited.',
         options: [
-          'github' => 'GitHub',
-          'other' => 'Other',
+          CodeProvider::GITHUB => 'GitHub',
+          CodeProvider::OTHER => 'Other',
         ],
         default: $this->default($n, 'github'),
       ), CodeProvider::id())

@@ -9,7 +9,6 @@ class AssignAuthorPr extends AbstractHandler {
     return NULL;
   }
 
-
   public function process():void  {
     // @todo Implement this.
   }

@@ -3,20 +3,33 @@
 namespace DrevOps\Installer\Prompts\Handlers;
 
 class CodeProvider extends AbstractHandler {
+
   const GITHUB = 'github';
 
-  public static function id(): string {
-    return 'code_provider';
-  }
+  const OTHER = 'other';
 
-
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|iterable {
-    return NULL;
+    if (!file_exists($this->dstDir . '/.git')) {
+      return NULL;
+    }
+
+    if (!file_exists($this->dstDir . '/.github')) {
+      return self::GITHUB;
+    }
+
+    return $this->isInstalled() ? self::OTHER : NULL;
   }
 
-
-  public function process():void  {
-    // @todo Implement this.
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    if ($this->response !== self::GITHUB) {
+      @unlink($this->tmpDir . '/.github');
+    }
   }
 
 }
