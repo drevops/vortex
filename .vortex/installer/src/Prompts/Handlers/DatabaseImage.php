@@ -10,7 +10,7 @@ class DatabaseImage extends AbstractHandler {
     return 'database_image';
   }
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     return Env::getFromDotenv('VORTEX_DB_IMAGE', $this->dstDir);
   }
 

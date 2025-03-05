@@ -22,7 +22,7 @@ class DeployType extends AbstractHandler {
     return 'deploy_type';
   }
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     return Env::getFromDotenv('VORTEX_DEPLOY_TYPES', $this->dstDir);
   }
 
@@ -30,20 +30,20 @@ class DeployType extends AbstractHandler {
     $type = $this->getAnswer('deploy_type');
 
     if ($type !== 'none') {
-      File::fileReplaceContent('/VORTEX_DEPLOY_TYPES=.*/', 'VORTEX_DEPLOY_TYPES=' . $type, $dir . '/.env');
+      File::fileReplaceContent('/VORTEX_DEPLOY_TYPES=.*/', 'VORTEX_DEPLOY_TYPES=' . $type, $this->tmpDir . '/.env');
 
       if (!str_contains($type, 'artifact')) {
-        @unlink($dir . '/.gitignore.deployment');
-        @unlink($dir . '/.gitignore.artifact');
+        @unlink($this->tmpDir . '/.gitignore.deployment');
+        @unlink($this->tmpDir . '/.gitignore.artifact');
       }
 
-      File::removeTokenWithContent('!DEPLOYMENT', $dir);
+      File::removeTokenWithContent('!DEPLOYMENT', $this->tmpDir);
     }
     else {
-      @unlink($dir . '/docs/deployment.md');
-      @unlink($dir . '/.gitignore.deployment');
-      @unlink($dir . '/.gitignore.artifact');
-      File::removeTokenWithContent('DEPLOYMENT', $dir);
+      @unlink($this->tmpDir . '/docs/deployment.md');
+      @unlink($this->tmpDir . '/.gitignore.deployment');
+      @unlink($this->tmpDir . '/.gitignore.artifact');
+      File::removeTokenWithContent('DEPLOYMENT', $this->tmpDir);
     }
   }
 

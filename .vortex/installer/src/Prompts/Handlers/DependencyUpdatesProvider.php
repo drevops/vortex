@@ -15,28 +15,28 @@ class DependencyUpdatesProvider extends AbstractHandler {
   const RENOVATEBOT_APP = 'renovatebot_app';
 
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     if (!$this->isInstalled()) {
       return NULL;
     }
 
-    return is_readable($this->config->getDst() . '/renovate.json') ? self::ANSWER_YES : self::ANSWER_NO;
+    return is_readable($this->config->getDst() . '/renovate.json');
   }
 
   public function process(): void {
-    if ($responses[PromptFields::DEPENDENCY_UPDATES_PROVIDER] === 'renovatebot_ci') {
-      File::removeTokenWithContent('!RENOVATEBOT_CI', $dir);
-      File::removeTokenWithContent('RENOVATEBOT_APP', $dir);
+    if ($this->response === 'renovatebot_ci') {
+      File::removeTokenWithContent('!RENOVATEBOT_CI', $this->tmpDir);
+      File::removeTokenWithContent('RENOVATEBOT_APP', $this->tmpDir);
     }
-    elseif ($responses[PromptFields::DEPENDENCY_UPDATES_PROVIDER] === 'renovatebot_app') {
-      File::removeTokenWithContent('!RENOVATEBOT_APP', $dir);
-      File::removeTokenWithContent('RENOVATEBOT_CI', $dir);
+    elseif ($this->response === 'renovatebot_app') {
+      File::removeTokenWithContent('!RENOVATEBOT_APP', $this->tmpDir);
+      File::removeTokenWithContent('RENOVATEBOT_CI', $this->tmpDir);
     }
     else {
-      File::removeTokenWithContent('RENOVATEBOT_APP', $dir);
-      File::removeTokenWithContent('RENOVATEBOT_CI', $dir);
-      File::removeTokenWithContent('RENOVATEBOT', $dir);
-      @unlink($dir . '/renovate.json');
+      File::removeTokenWithContent('RENOVATEBOT_APP', $this->tmpDir);
+      File::removeTokenWithContent('RENOVATEBOT_CI', $this->tmpDir);
+      File::removeTokenWithContent('RENOVATEBOT', $this->tmpDir);
+      @unlink($this->tmpDir . '/renovate.json');
     }
   }
 

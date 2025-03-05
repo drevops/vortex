@@ -6,7 +6,7 @@ use DrevOps\Installer\Utils\File;
 
 class PreserveDocsProject extends AbstractHandler {
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     return $this->isInstalled() && is_dir($this->config->getDst() . '/docs');
   }
 

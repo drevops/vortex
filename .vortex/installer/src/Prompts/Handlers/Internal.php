@@ -11,7 +11,7 @@ use DrevOps\Installer\Utils\File;
 
 class Internal extends AbstractHandler {
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     // Noop.
     return NULL;
   }

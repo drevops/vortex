@@ -6,7 +6,7 @@ use DrevOps\Installer\Utils\Composer;
 
 class OrgMachineName extends AbstractHandler {
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     $value = Composer::getJsonValue('name', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');
 
     if ($value && preg_match('/([^\/]+)\/(.+)/', (string) $value, $matches) && !empty($matches[1])) {

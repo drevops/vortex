@@ -17,7 +17,7 @@ class WebrootCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     $value = Env::getFromDotenv('WEBROOT', $this->dstDir);
 
     if (empty($value)) {

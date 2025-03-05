@@ -18,7 +18,7 @@ class CiProvider extends AbstractHandler {
     return 'ci_provider';
   }
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     if (is_readable($this->config->getDst() . '/.github/workflows/build-test-deploy.yml')) {
       return 'GitHub Actions';
     }

@@ -11,7 +11,7 @@ class ProvisionType extends AbstractHandler {
 
   const PROFILE = 'profile';
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     // @todo: Rename to VORTEX_PROVISION_TYPE
     return Env::getFromDotenv('VORTEX_PROVISION_USE_PROFILE', $this->dstDir) ? static::PROFILE : static::DATABASE;
   }

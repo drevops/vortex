@@ -10,7 +10,7 @@ class CodeProvider extends AbstractHandler {
   }
 
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     return NULL;
   }
 

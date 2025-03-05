@@ -46,7 +46,7 @@ abstract class AbstractHandler implements HandlerInterface {
   /**
    * {@inheritdoc}
    */
-  abstract public function discover(): ?string;
+  abstract public function discover(): null|string|bool|iterable;
 
   /**
    * {@inheritdoc}

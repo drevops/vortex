@@ -22,7 +22,7 @@ class DatabaseDownloadSource extends AbstractHandler {
     return 'database_download_source';
   }
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     return Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir);
   }
 

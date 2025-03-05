@@ -7,7 +7,7 @@ use DrevOps\Installer\Utils\File;
 class PreserveDocsOnboarding extends AbstractHandler {
 
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     if ($this->isInstalled()) {
       $file = $this->config->getDst() . '/docs/onboarding.md';
 

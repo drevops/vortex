@@ -7,7 +7,7 @@ use DrevOps\Installer\Utils\Env;
 
 class Domain extends AbstractHandler {
 
-  public function discover(): ?string {
+  public function discover(): null|string|bool|iterable {
     return Env::getFromDotenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN', $this->dstDir);
   }
 
