@@ -46,15 +46,37 @@ use function Laravel\Prompts\note;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
+/**
+ * PromptManager.
+ *
+ * Centralised place for providing prompts and their processing.
+ *
+ * @package DrevOps\Installer
+ */
 class PromptManager {
 
+  /**
+   * Array of responses.
+   *
+   * @var array
+   */
   protected array $responses = [];
 
   /**
+   * Array of handlers.
+   *
    * @var array<string, \DrevOps\Installer\Prompts\Handlers\HandlerInterface>
    */
   protected array $handlers = [];
 
+  /**
+   * PromptManager constructor.
+   *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *   The output.
+   * @param \DrevOps\Installer\Utils\Config $config
+   *   The installer config.
+   */
   public function __construct(
     protected OutputInterface $output,
     protected Config $config,
@@ -68,7 +90,13 @@ class PromptManager {
     $this->initHandlers();
   }
 
-  public function prompt() {
+  /**
+   * Prompt for responses.
+   *
+   * If non-interactive mode is used, the values provided by $this->default()
+   * method, including discovery from the existing codebase, will be used.
+   */
+  public function prompt(): void {
     // @formatter:off
     // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
@@ -418,20 +446,13 @@ class PromptManager {
     }, ARRAY_FILTER_USE_KEY);
 
     $this->responses = $responses;
-
-    return $this->responses;
   }
 
+  /**
+   * Get all received responses.
+   */
   public function getResponses(): array {
     return $this->responses;
-  }
-
-  protected function default($name, $default = '') {
-    if (!array_key_exists($name, $this->handlers)) {
-      return $default;
-    }
-
-    return $this->handlers[$name]->discover() ?: $default;
   }
 
   /**
@@ -462,7 +483,6 @@ class PromptManager {
         throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
       }
 
-      // @todo Do not run process if there is no value in the responses (the question was not asked).
       $this->handlers[$id]->setResponses($this->responses)->process();
 
       if (is_callable($cb)) {
@@ -472,9 +492,27 @@ class PromptManager {
   }
 
   /**
+   * Get a default value for a response.
+   *
+   * @param string $name
+   *   The response name.
+   * @param string $default
+   *   The default value to return.
+   *
+   * @return array|bool|string
+   */
+  protected function default(string $name, string|bool|array $default = ''): string|bool|array {
+    if (!array_key_exists($name, $this->handlers)) {
+      return $default;
+    }
+
+    return $this->handlers[$name]->discover() ?: $default;
+  }
+
+  /**
    * Collect and initialise handlers.
    */
-  protected function initHandlers() {
+  protected function initHandlers(): void {
     $dir = __DIR__ . '/Handlers';
 
     $handler_files = array_filter(scandir($dir), function ($file) {
@@ -502,6 +540,9 @@ class PromptManager {
     }
   }
 
+  //----------------------
+
+  // @todo Refactor this.
   public function printFooter(): void {
     print PHP_EOL;
 
@@ -546,5 +587,4 @@ class PromptManager {
 
     return $proceed;
   }
-
 }

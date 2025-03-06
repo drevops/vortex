@@ -74,9 +74,11 @@ abstract class AbstractHandler implements HandlerInterface {
    */
   public function setResponses(array $responses): static {
     $this->responses = $responses;
-    // @todo $this->response should always have a value  - otherwise there is
-    // nothing to process. need to review this correctly.
-    $this->response = $this->responses[static::id()] ?? FALSE;
+    // Set the response for current handler as a shorthand.
+    // Some handlers may want to perform an action on the empty responses, so
+    // it is up to the handler's processor to check for the presence of the
+    // value in a set response.
+    $this->response = $this->responses[static::id()] ?? NULL;
 
     return $this;
   }

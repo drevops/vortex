@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Command;
 
-use DrevOps\Installer\Config\ConfigInterface;
 use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Downloader;
@@ -111,7 +110,7 @@ EOF
       ));
 
       $this->prepareDestination();
-    die('RESTORE FROM HERE');
+      die('RESTORE FROM HERE');
 
       $this->copyFiles();
 
@@ -256,7 +255,7 @@ EOF
       $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $filename);
 
       if (File::isInternalPath($relative_file)) {
-        note(sprintf('Skipped file %s as an internal Vortex file.', $relative_file), self::INSTALLER_STATUS_DEBUG);
+        note(sprintf('Skipped file %s as an internal Vortex file.', $relative_file));
         unlink($filename);
       }
     }
