@@ -11,18 +11,25 @@ class ProvisionType extends AbstractHandler {
 
   const PROFILE = 'profile';
 
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
-    // @todo: Rename to VORTEX_PROVISION_TYPE
-    return Env::getFromDotenv('VORTEX_PROVISION_USE_PROFILE', $this->dstDir) ? static::PROFILE : static::DATABASE;
+    $type = Env::getFromDotenv('VORTEX_PROVISION_TYPE', $this->dstDir);
+
+    return $type && in_array($type, [self::DATABASE, self::PROFILE]) ? $type : NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function process(): void {
     if ($this->response === static::PROFILE) {
-      File::fileReplaceContent('/VORTEX_PROVISION_USE_PROFILE=.*/', "VORTEX_PROVISION_USE_PROFILE=1", $this->tmpDir . '/.env');
+      File::fileReplaceContent('/VORTEX_PROVISION_TYPE=.*/', "VORTEX_PROVISION_TYPE=" . static::PROFILE, $this->tmpDir . '/.env');
       File::removeTokenWithContent('!PROVISION_USE_PROFILE', $this->tmpDir);
     }
     else {
-      File::fileReplaceContent('/VORTEX_PROVISION_USE_PROFILE=.*/', "VORTEX_PROVISION_USE_PROFILE=0", $this->tmpDir . '/.env');
+      File::fileReplaceContent('/VORTEX_PROVISION_TYPE=.*/', "VORTEX_PROVISION_TYPE=" . static::DATABASE, $this->tmpDir . '/.env');
       File::removeTokenWithContent('PROVISION_USE_PROFILE', $this->tmpDir);
     }
   }

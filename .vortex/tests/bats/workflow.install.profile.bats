@@ -17,7 +17,7 @@ load _helper.workflow.bash
   # Assert that the database was not downloaded because VORTEX_INSTALL_DEMO_SKIP was set.
   assert_file_not_exists .data/db.sql
 
-  echo "VORTEX_PROVISION_USE_PROFILE=1" >>.env
+  echo "VORTEX_PROVISION_TYPE=profile" >>.env
 
   assert_ahoy_build
   assert_gitignore

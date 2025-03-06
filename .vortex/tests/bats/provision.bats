@@ -562,7 +562,7 @@ assert_provision_info() {
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export VORTEX_PROVISION_USE_PROFILE=1
+  export VORTEX_PROVISION_TYPE=profile
 
   declare -a STEPS=(
     # Drush status calls.
@@ -691,7 +691,7 @@ assert_provision_info() {
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export VORTEX_PROVISION_USE_PROFILE=1
+  export VORTEX_PROVISION_TYPE=profile
 
   declare -a STEPS=(
     # Drush status calls.
@@ -814,7 +814,7 @@ assert_provision_info() {
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export VORTEX_PROVISION_USE_PROFILE=1
+  export VORTEX_PROVISION_TYPE=profile
   export VORTEX_PROVISION_OVERRIDE_DB=1
 
   declare -a STEPS=(

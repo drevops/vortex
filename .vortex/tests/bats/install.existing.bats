@@ -387,7 +387,7 @@ load _helper.bash
 }
 
 @test "Install into existing: previously installed project; provision_use_profile; discovery; quiet" {
-  echo "VORTEX_PROVISION_USE_PROFILE=1" >>".env"
+  echo "VORTEX_PROVISION_TYPE=profile" >>".env"
 
   # Populate current dir with a project at current version.
   output=$(run_installer_quiet)

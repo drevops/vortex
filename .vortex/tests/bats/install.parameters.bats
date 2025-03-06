@@ -451,7 +451,7 @@ fixture_preinstalled() {
   echo "DRUPAL_STAGE_FILE_PROXY_ORIGIN=http://www.resistance-star-wars.com/" >>.env
 
   # Sets 'fresh_install' to 'No'.
-  echo "VORTEX_PROVISION_USE_PROFILE=0" >>.env
+  echo "VORTEX_PROVISION_TYPE=database" >>.env
 
   # Sets 'override_existing_db' to 'No'.
   echo "VORTEX_PROVISION_OVERRIDE_DB=0" >>.env

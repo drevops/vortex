@@ -592,7 +592,7 @@ assert_files_present_provision_use_profile() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_contains ".env" "VORTEX_PROVISION_USE_PROFILE=1"
+  assert_file_contains ".env" "VORTEX_PROVISION_TYPE=profile"
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_SOURCE"
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_CURL_URL"
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_ENVIRONMENT"
@@ -641,7 +641,7 @@ assert_files_present_no_provision_use_profile() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_contains ".env" "VORTEX_PROVISION_USE_PROFILE=0"
+  assert_file_contains ".env" "VORTEX_PROVISION_TYPE=profile"
 
   assert_file_exists ".ahoy.yml"
   assert_file_contains ".ahoy.yml" "download-db:"
