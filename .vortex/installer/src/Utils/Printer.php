@@ -4,10 +4,31 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Utils;
 
-use DrevOps\Installer\Prompts\PromptFields;
+use DrevOps\Installer\Prompts\Handlers\AssignAuthorPr;
+use DrevOps\Installer\Prompts\Handlers\CiProvider;
+use DrevOps\Installer\Prompts\Handlers\CodeProvider;
+use DrevOps\Installer\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\Installer\Prompts\Handlers\DatabaseImage;
+use DrevOps\Installer\Prompts\Handlers\DependencyUpdatesProvider;
+use DrevOps\Installer\Prompts\Handlers\DeployType;
+use DrevOps\Installer\Prompts\Handlers\Domain;
+use DrevOps\Installer\Prompts\Handlers\GithubRepo;
+use DrevOps\Installer\Prompts\Handlers\GithubToken;
+use DrevOps\Installer\Prompts\Handlers\HostingProvider;
+use DrevOps\Installer\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\Installer\Prompts\Handlers\MachineName;
+use DrevOps\Installer\Prompts\Handlers\ModulePrefix;
+use DrevOps\Installer\Prompts\Handlers\Name;
+use DrevOps\Installer\Prompts\Handlers\Org;
+use DrevOps\Installer\Prompts\Handlers\OrgMachineName;
+use DrevOps\Installer\Prompts\Handlers\PreserveDocsOnboarding;
+use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
+use DrevOps\Installer\Prompts\Handlers\Profile;
+use DrevOps\Installer\Prompts\Handlers\ProfileCustom;
+use DrevOps\Installer\Prompts\Handlers\ProvisionType;
+use DrevOps\Installer\Prompts\Handlers\Theme;
+use DrevOps\Installer\Prompts\Handlers\Webroot;
 use Laravel\Prompts\Terminal;
-use Symfony\Component\Console\Helper\TableSeparator;
-use function Laravel\Prompts\info;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\table;
 
@@ -109,58 +130,55 @@ EOT;
 
   public function summary(Config $config, array $responses): void {
     $values['General information'] = static::SECTION_TITLE;
-    $values['🔖 Site name'] = $responses[PromptFields::NAME];
-    $values['🔖 Site machine name'] = $responses[PromptFields::MACHINE_NAME];
-    $values['🏢 Organization name'] = $responses[PromptFields::ORG];
-    $values['🏢 Organization machine name'] = $responses[PromptFields::ORG_MACHINE_NAME];
-    $values['🌐 Public domain'] = $responses[PromptFields::DOMAIN];
+    $values['🔖 Site name'] = $responses[Name::id()];
+    $values['🔖 Site machine name'] = $responses[MachineName::id()];
+    $values['🏢 Organization name'] = $responses[Org::id()];
+    $values['🏢 Organization machine name'] = $responses[OrgMachineName::id()];
+    $values['🌐 Public domain'] = $responses[Domain::id()];
 
     $values['Code repository'] = static::SECTION_TITLE;
-    $values['Code provider'] = $responses[PromptFields::CODE_PROVIDER];
-    if (PromptFields::GITHUB_TOKEN) {
+    $values['Code provider'] = $responses[CodeProvider::id()];
+
+    if (!empty($responses[GithubToken::id()])) {
       $values['🔑 GitHub access token'] = 'valid';
     }
-    if (PromptFields::GITHUB_REPO) {
-      $values['GitHub repository'] = $responses[PromptFields::GITHUB_REPO];
-    }
+    $values['GitHub repository'] = $responses[GithubRepo::id()] ?? '<empty>';
 
     $values['Drupal'] = static::SECTION_TITLE;
-    $values['📁 Webroot'] = $responses[PromptFields::WEBROOT_CUSTOM];
-    $values['Use a custom profile'] = static::formatYesNo($responses[PromptFields::USE_CUSTOM_PROFILE]);
-    if ($responses[PromptFields::USE_CUSTOM_PROFILE]) {
-      $values['Profile'] = $responses[PromptFields::PROFILE];
-    }
-    $values['🧩 Module prefix'] = $responses[PromptFields::MODULE_PREFIX];
-    $values['🎨 Theme machine name'] = $responses[PromptFields::THEME];
+    $values['📁 Webroot'] = $responses[Webroot::id()];
+    $values['Profile'] = $responses[Profile::id()] == Profile::CUSTOM ? $responses[ProfileCustom::id()] : $responses[Profile::id()];
+
+    $values['🧩 Module prefix'] = $responses[ModulePrefix::id()];
+    $values['🎨 Theme machine name'] = $responses[Theme::id()];
 
     $values['Hosting'] = static::SECTION_TITLE;
-    $values['🏠 Hosting provider'] = $responses[PromptFields::HOSTING_PROVIDER];
+    $values['🏠 Hosting provider'] = $responses[HostingProvider::id()];
 
     $values['Deployment'] = static::SECTION_TITLE;
-    $values['🚚 Deployment types'] = $responses[PromptFields::DEPLOY_TYPE];
+    $values['🚚 Deployment types'] = Converter::toList($responses[DeployType::id()]);
 
     $values['Workflow'] = static::SECTION_TITLE;
-    $values['Provision type'] = $responses[PromptFields::PROVISION_TYPE];
+    $values['Provision type'] = $responses[ProvisionType::id()];
 
-    if ($responses[PromptFields::PROVISION_TYPE] == 'database') {
-      $values['Database dump source'] = $responses[PromptFields::DATABASE_DOWNLOAD_SOURCE];
+    if ($responses[ProvisionType::id()] == ProvisionType::DATABASE) {
+      $values['Database dump source'] = $responses[DatabaseDownloadSource::id()];
 
-      if ($responses[PromptFields::DATABASE_DOWNLOAD_SOURCE] == 'container_registry') {
-        $values['Database container image'] = $responses[PromptFields::DATABASE_STORE_TYPE_CONTAINER_IMAGE];
+      if ($responses[DatabaseDownloadSource::id()] == DatabaseDownloadSource::CONTAINER_REGISTRY) {
+        $values['Database container image'] = $responses[DatabaseImage::id()];
       }
     }
 
     $values['Continuous Integration'] = static::SECTION_TITLE;
-    $values['🔁 CI provider'] = $responses[PromptFields::CI_PROVIDER];
+    $values['♻️️CI provider'] = $responses[CiProvider::id()];
 
     $values['Automations'] = static::SECTION_TITLE;
-    $values['🔄 Dependency updates provider'] = $responses[PromptFields::DEPENDENCY_UPDATES_PROVIDER];
-    $values['👤 Auto-assign PR author'] = static::formatYesNo($responses[PromptFields::ASSIGN_AUTHOR_PR]);
-    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = static::formatYesNo($responses[PromptFields::LABEL_MERGE_CONFLICTS_PR]);
+    $values['⬆️ Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
+    $values['👤 Auto-assign PR author'] = static::formatYesNo($responses[AssignAuthorPr::id()]);
+    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = static::formatYesNo($responses[LabelMergeConflictsPr::id()]);
 
     $values['Documentation'] = static::SECTION_TITLE;
-    $values['📚 Preserve project documentation'] = static::formatYesNo($responses[PromptFields::DOCS_PROJECT]);
-    $values['📋 Preserve onboarding checklist'] = static::formatYesNo($responses[PromptFields::DOCS_ONBOARDING]);
+    $values['📚 Preserve project documentation'] = static::formatYesNo($responses[PreserveDocsProject::id()]);
+    $values['📋 Preserve onboarding checklist'] = static::formatYesNo($responses[PreserveDocsOnboarding::id()]);
 
     $values['Locations'] = static::SECTION_TITLE;
     $values['Current directory'] = $config->getRoot();

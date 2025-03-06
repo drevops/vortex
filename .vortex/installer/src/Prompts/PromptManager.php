@@ -360,7 +360,7 @@ class PromptManager {
         }
 
         return select(
-          label: '🔁 Continuous Integration provider',
+          label: '♻️Continuous Integration provider',
           hint: 'Both providers support equivalent workflow.',
           options: $options,
           default: $this->default($n, CiProvider::GHA),
@@ -370,7 +370,7 @@ class PromptManager {
       ->intro('Automations')
 
       ->add(fn($r, $pr, $n) => select(
-        label: '🔄 Dependency updates provider',
+        label: '⬆️ Dependency updates provider',
         hint: 'Use a self-hosted service if you can’t install a GitHub app.',
         options: [
           DependencyUpdatesProvider::RENOVATEBOT_CI  => '🤖 + 🔁 Renovate self-hosted in CI',
@@ -471,6 +471,9 @@ class PromptManager {
     }
   }
 
+  /**
+   * Collect and initialise handlers.
+   */
   protected function initHandlers() {
     $dir = __DIR__ . '/Handlers';
 
@@ -495,7 +498,7 @@ class PromptManager {
     foreach ($classes as $class) {
       $handler = new $class($this->config);
       $handler->setWebroot($webroot);
-      $this->handlers[$handler->getKey()] = $handler;
+      $this->handlers[$handler::id()] = $handler;
     }
   }
 
