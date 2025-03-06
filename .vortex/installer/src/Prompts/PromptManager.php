@@ -29,8 +29,8 @@ use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\Installer\Prompts\Handlers\Profile;
 use DrevOps\Installer\Prompts\Handlers\ProvisionType;
 use DrevOps\Installer\Prompts\Handlers\Theme;
-use DrevOps\Installer\Prompts\Handlers\UseCustomProfile;
-use DrevOps\Installer\Prompts\Handlers\WebrootCustom;
+use DrevOps\Installer\Prompts\Handlers\ProfileCustom;
+use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Env;
@@ -170,26 +170,29 @@ class PromptManager {
 
       ->intro('Drupal')
 
-      ->add(fn($r, $pr, $n) => confirm(
-        label: 'Use a custom profile?',
-        hint: 'Select "yes" to use a custom profile, or "no" to use the "standard" profile.',
-        default: $this->default($n, FALSE),
-      ), UseCustomProfile::id())
+      ->add(fn($r, $pr, $n) => select(
+        label: 'Profile',
+        hint: 'Select which profile to use',
+        options: [
+          Profile::STANDARD => 'Standard',
+          Profile::MINIMAL => 'Minimal',
+          Profile::DEMO_UMAMI => 'Demo Umami',
+          Profile::CUSTOM => 'Custom',
+        ],
+        required: TRUE,
+        default: $this->default($n, Profile::STANDARD),
+      ), Profile::id())
 
         ->addIf(
-          fn($r) => $r[UseCustomProfile::id()],
+          fn($r) => $r[Profile::id()] === Profile::CUSTOM,
           fn($r, $pr, $n) => text(
             label: 'Custom profile machine name',
-            hint: 'Leave empty to use "standard" profile.',
             placeholder: 'E.g. my_profile',
             required: TRUE,
-            default: $this->default($n, 'standard'),
+            default: $this->default($n, NULL),
             transform: fn(string $v) => trim($v),
-            validate: fn($v) => match (TRUE) {
-              !empty($v) && Converter::abbreviation($v) !== $v => 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
-              default => 'standard',
-            },
-          ), Profile::id())
+            validate: fn(string $v) =>( !empty($v) && Converter::machine($v) !== $v) ? 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.': TRUE,
+          ), ProfileCustom::id())
 
       ->add(fn($r, $pr, $n) => text(
         label: '🧩 Module prefix',
@@ -231,9 +234,9 @@ class PromptManager {
           function ($r, $pr, $n) {
             if ($r[HostingProvider::id()] !== HostingProvider::OTHER){
               $webroot = match ($r[HostingProvider::id()]) {
-                HostingProvider::ACQUIA => WebrootCustom::DOCROOT,
-                HostingProvider::LAGOON => WebrootCustom::WEB,
-                default => $this->default($n, WebrootCustom::DEFAULT)
+                HostingProvider::ACQUIA => Webroot::DOCROOT,
+                HostingProvider::LAGOON => Webroot::WEB,
+                default => $this->default($n, Webroot::WEB)
               };
 
               info(sprintf('Web root will be set to "%s".',$webroot));
@@ -242,15 +245,15 @@ class PromptManager {
               $webroot = text(
                 label: '📁 Custom web root directory',
                 hint: 'Custom directory where the web server serves the site.',
-                placeholder: 'E.g. '. implode(', ',[WebrootCustom::WEB, WebrootCustom::DOCROOT]),
+                placeholder: 'E.g. '. implode(', ',[Webroot::WEB, Webroot::DOCROOT]),
                 required: TRUE,
-                default: $this->default($n, WebrootCustom::DEFAULT),
+                default: $this->default($n, Webroot::WEB),
                 transform: fn(string $v) => !empty(trim($v)) ? Converter::path($v) : trim($v),
                 validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
               );
             }
             return $webroot;
-          }, WebrootCustom::id())
+          }, Webroot::id())
 
       ->intro('Deployment')
 
@@ -481,7 +484,7 @@ class PromptManager {
     }
 
     // Discover webroot and set for all handlers to help with paths resolution.
-    $webroot = (new WebrootCustom($this->config))->discover() ?: WebrootCustom::DEFAULT;
+    $webroot = (new Webroot($this->config))->discover() ?: Webroot::WEB;
 
     foreach ($classes as $class) {
       $handler = new $class($this->config);

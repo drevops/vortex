@@ -7,14 +7,22 @@ use DrevOps\Installer\Utils\File;
 
 class Profile extends AbstractHandler {
 
+  const STANDARD = 'standard';
+
+  const MINIMAL = 'minimal';
+
+  const DEMO_UMAMI = 'demo_umami';
+
+  const CUSTOM = 'custom';
+
   /**
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
     if ($this->isInstalled()) {
-      $path = Env::getFromDotenv('DRUPAL_PROFILE', $this->dstDir);
-      if (!empty($path)) {
-        return $path;
+      $name = Env::getFromDotenv('DRUPAL_PROFILE', $this->dstDir);
+      if (!empty($name)) {
+        return $name;
       }
     }
 
@@ -38,22 +46,12 @@ class Profile extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    $core_profiles = [
-      'standard',
-      'minimal',
-      'testing',
-      'demo_umami',
-    ];
-
-    // For core profiles - remove custom profile and direct links to it.
-    if (in_array($this->response, $core_profiles)) {
+    if ($this->response !== static::CUSTOM) {
       File::rmdirRecursive(sprintf('%s/%s/profiles/your_site_profile', $this->tmpDir, $this->webroot));
       File::rmdirRecursive(sprintf('%s/%s/profiles/custom/your_site_profile', $this->tmpDir, $this->webroot));
       File::dirReplaceContent($this->webroot . '/profiles/your_site_profile,', '', $this->tmpDir);
       File::dirReplaceContent($this->webroot . '/profiles/custom/your_site_profile,', '', $this->tmpDir);
     }
-
-    File::dirReplaceContent('your_site_profile', $this->response, $this->tmpDir);
   }
 
 }

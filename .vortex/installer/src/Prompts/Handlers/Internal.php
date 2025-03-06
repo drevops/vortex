@@ -74,7 +74,7 @@ class Internal extends AbstractHandler {
     $theme_pascal = Converter::pascal($responses[Theme::id()]);
     // @todo Fix this: the version is not currently set from the discovered and downloaded version.
     $vortex_version_urlencoded = str_replace('-', '--', (string) $this->config->get($this->config->get(Config::VERSION)));
-    $webroot = $responses[WebrootCustom::id()];
+    $webroot = $responses[Webroot::id()];
 
     // @formatter:off
     // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
@@ -99,7 +99,6 @@ class Internal extends AbstractHandler {
     File::dirReplaceContent('YourSite',                  $machine_name_pascal,                          $dir);
 
     File::replaceStringFilename('YourSiteTheme',         $theme_pascal,                                 $dir);
-    File::replaceStringFilename('your_site_theme',       $this->getAnswer('theme'),                     $dir);
     File::replaceStringFilename('YourSite',              $machine_name_pascal,                          $dir);
     File::replaceStringFilename('ys_core',               $this->getAnswer('module_prefix') . '_core',   $dir . sprintf('/%s/modules/custom', $webroot));
     File::replaceStringFilename('ys_search',             $this->getAnswer('module_prefix') . '_search', $dir . sprintf('/%s/modules/custom', $webroot));
