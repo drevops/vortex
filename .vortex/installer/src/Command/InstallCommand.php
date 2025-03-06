@@ -103,7 +103,12 @@ EOF
 
       $this->downloadVortex();
 
-      $this->replaceTokens();
+      note('Replacing tokens');
+      // @todo Fix progress.
+      $this->promptManager->process(fn(string $id, array $ids) => progress(
+        label: 'Replacing tokens',
+        steps: $ids,
+      ));
 
       $this->prepareDestination();
     die('RESTORE FROM HERE');
@@ -228,16 +233,6 @@ EOF
         throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $dst));
       }
     }
-  }
-
-  protected function replaceTokens(): void {
-    note('Replacing tokens');
-
-
-    $this->promptManager->process(fn(string $name, array $processors) => progress(
-      label: 'Replacing tokens',
-      steps: $processors,
-    ));
   }
 
   protected function copyFiles(): void {

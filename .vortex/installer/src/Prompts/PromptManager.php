@@ -18,6 +18,7 @@ use DrevOps\Installer\Prompts\Handlers\GithubRepo;
 use DrevOps\Installer\Prompts\Handlers\GithubToken;
 use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
 use DrevOps\Installer\Prompts\Handlers\HostingProvider;
+use DrevOps\Installer\Prompts\Handlers\Internal;
 use DrevOps\Installer\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\Installer\Prompts\Handlers\MachineName;
 use DrevOps\Installer\Prompts\Handlers\ModulePrefix;
@@ -433,34 +434,39 @@ class PromptManager {
     return $this->handlers[$name]->discover() ?: $default;
   }
 
-  public function process(?callable $cb = NULL) {
-    // @todo: All processors should be based on handlers defined by PromptFields.
+  /**
+   * Run all processors.
+   *
+   * @param callable|null $cb
+   *   Optional callback to run after each processor.
+   */
+  public function process(?callable $cb = NULL): void {
     // @todo: Re-order processors based on questions.
-    $processors = [
-      PromptFields::WEBROOT_CUSTOM,
-      PromptFields::PROFILE,
-      PromptFields::PROVISION_TYPE,
-      PromptFields::THEME,
-      PromptFields::DATABASE_DOWNLOAD_SOURCE,
-      //      PromptFields::DATABASE_STORE_TYPE_CONTAINER_IMAGE,
-      PromptFields::CI_PROVIDER,
-      DeployType::class,
-      PromptFields::HOSTING_PROVIDER,
-      PromptFields::DOCS_ONBOARDING,
-      PromptFields::DOCS_PROJECT,
-      'internal',
+    $ids = [
+      Webroot::id(),
+      Profile::id(),
+      ProvisionType::id(),
+      Theme::id(),
+      DatabaseDownloadSource::id(),
+      CiProvider::id(),
+      DeployType::id(),
+      HostingProvider::id(),
+      PreserveDocsProject::id(),
+      PreserveDocsOnboarding::id(),
+      // @todo Remove this processor.
+      Internal::id(),
     ];
 
-    foreach ($processors as $name) {
-      if (!array_key_exists($name, $this->handlers)) {
-        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $name));
+    foreach ($ids as $id) {
+      if (!array_key_exists($id, $this->handlers)) {
+        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
       }
 
-      // @todo Do not run process if there is no value in the responses (the \question was not asked).
-      $this->handlers[$name]->setResponses($this->responses)->process();
+      // @todo Do not run process if there is no value in the responses (the question was not asked).
+      $this->handlers[$id]->setResponses($this->responses)->process();
 
       if (is_callable($cb)) {
-        $cb($name, $processors);
+        $cb($id, $ids);
       }
     }
   }
