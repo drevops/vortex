@@ -7,7 +7,7 @@ namespace DrevOps\Installer\Utils;
 use RuntimeException;
 
 /**
- * Downloader class to download files from a local or remote Git repository using archive functionality.
+ * Download files from a local or remote Git repository using archive.
  */
 class Downloader {
 
