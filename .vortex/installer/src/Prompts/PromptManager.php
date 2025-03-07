@@ -43,6 +43,7 @@ use function Laravel\Prompts\form;
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\note;
+use function Laravel\Prompts\progress;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
@@ -478,6 +479,7 @@ class PromptManager {
       Internal::id(),
     ];
 
+    $progress = progress('Customizing Vortex', $ids);
     foreach ($ids as $id) {
       if (!array_key_exists($id, $this->handlers)) {
         throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
@@ -485,10 +487,10 @@ class PromptManager {
 
       $this->handlers[$id]->setResponses($this->responses)->process();
 
-      if (is_callable($cb)) {
-        $cb($id, $ids);
-      }
+      $progress->advance();
     }
+
+    $progress->finish();
   }
 
   /**

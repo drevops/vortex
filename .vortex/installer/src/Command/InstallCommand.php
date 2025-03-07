@@ -102,14 +102,7 @@ EOF
 
       $this->downloadVortex();
 
-      $progress = NULL;
-      $this->promptManager->process(function (string $id, array $ids) use (&$progress) {
-        if (array_search($id, $ids) === 0) {
-          $progress = progress('Replacing tokens', $ids);
-        }
-        $progress->hint($id)->advance();
-      });
-      $progress->finish();
+      $this->promptManager->process();
 
       $this->prepareDestination();
       die('RESTORE FROM HERE');
