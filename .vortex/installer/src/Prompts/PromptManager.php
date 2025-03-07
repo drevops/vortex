@@ -98,6 +98,11 @@ class PromptManager {
    * method, including discovery from the existing codebase, will be used.
    */
   public function prompt(): void {
+    $original_verbosity = $this->output->getVerbosity();
+    if ($this->config->getNoInteraction()) {
+      $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+    }
+
     // @formatter:off
     // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
@@ -447,6 +452,10 @@ class PromptManager {
     }, ARRAY_FILTER_USE_KEY);
 
     $this->responses = $responses;
+
+    if ($this->config->getNoInteraction()) {
+      $this->output->setVerbosity($original_verbosity);
+    }
   }
 
   /**
