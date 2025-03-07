@@ -102,12 +102,14 @@ EOF
 
       $this->downloadVortex();
 
-      note('Replacing tokens');
-      // @todo Fix progress.
-      $this->promptManager->process(fn(string $id, array $ids) => progress(
-        label: 'Replacing tokens',
-        steps: $ids,
-      ));
+      $progress = NULL;
+      $this->promptManager->process(function (string $id, array $ids) use (&$progress) {
+        if (array_search($id, $ids) === 0) {
+          $progress = progress('Replacing tokens', $ids);
+        }
+        $progress->hint($id)->advance();
+      });
+      $progress->finish();
 
       $this->prepareDestination();
       die('RESTORE FROM HERE');
