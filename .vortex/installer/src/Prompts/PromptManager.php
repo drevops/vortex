@@ -154,9 +154,9 @@ class PromptManager {
         hint: 'Domain name without protocol and trailing slash.',
         placeholder: 'E.g. example.com',
         required: TRUE,
-        default: $this->default($n, 'http://' . Str2Name::kebab($r['machine_name']) . '.com'),
+        default: $this->default($n, Str2Name::kebab($r['machine_name']) . '.com'),
         transform: fn(string $v) => Converter::domain($v),
-        validate: fn($v) => filter_var($v, FILTER_VALIDATE_URL) === FALSE ? 'Please enter a valid domain name' : NULL,
+        validate: fn($v) => filter_var($v, FILTER_VALIDATE_DOMAIN) === FALSE ? 'Please enter a valid domain name' : NULL,
       ), Domain::id())
 
       ->intro('Code repository')
@@ -256,7 +256,7 @@ class PromptManager {
         label: '🏠 Hosting provider',
         hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
         options: [
-          'none' => '⭕ None',
+          'none' => '⭕  None',
           'acquia' => '💧 Acquia Cloud',
           'lagoon' => '🌊 Lagoon',
           'other' => '🧩 Other',
@@ -384,7 +384,7 @@ class PromptManager {
 
       ->add(function ($r, $pr, $n) {
         $options = [
-          CiProvider::NONE => '⭕ None',
+          CiProvider::NONE => 'None',
           CiProvider::GHA => 'GitHub Actions',
           CiProvider::CIRCLECI => 'CircleCI',
         ];
@@ -394,7 +394,7 @@ class PromptManager {
         }
 
         return select(
-          label: '♻️Continuous Integration provider',
+          label: '♻️ Continuous Integration provider',
           hint: 'Both providers support equivalent workflow.',
           options: $options,
           default: $this->default($n, CiProvider::GHA),
@@ -407,9 +407,9 @@ class PromptManager {
         label: '⬆️ Dependency updates provider',
         hint: 'Use a self-hosted service if you can’t install a GitHub app.',
         options: [
-          DependencyUpdatesProvider::RENOVATEBOT_CI  => '🤖 + 🔁 Renovate self-hosted in CI',
+          DependencyUpdatesProvider::RENOVATEBOT_CI  => '🤖 + ♻️ Renovate self-hosted in CI',
           DependencyUpdatesProvider::RENOVATEBOT_APP => '🤖 Renovate GitHub app',
-          DependencyUpdatesProvider::NONE => '⭕ None',
+          DependencyUpdatesProvider::NONE => '⭕  None',
         ],
         default: $this->default($n, DependencyUpdatesProvider::RENOVATEBOT_CI),
       ), DependencyUpdatesProvider::id())
