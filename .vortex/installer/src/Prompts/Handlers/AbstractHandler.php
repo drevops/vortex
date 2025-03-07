@@ -33,7 +33,7 @@ abstract class AbstractHandler implements HandlerInterface {
    *
    * @var string|bool|array
    */
-  protected string|bool|array $response;
+  protected null|string|bool|array $response = NULL;
 
   /**
    * Array of all responses.
