@@ -205,6 +205,19 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
+      'theme' => [
+        self::fill(10, 'mytheme'),
+        [Theme::id() => 'mytheme'] + $defaults,
+      ],
+      'theme - invalid' => [
+        self::fill(10, 'my theme'),
+        'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+      'theme - invalid - capitalization' => [
+        self::fill(10, 'MyTheme'),
+        'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+
     ];
   }
 

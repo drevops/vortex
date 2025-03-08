@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Prompts;
 
-use AlexSkrypnyk\Str2Name\Str2Name;
 use DrevOps\Installer\Prompts\Handlers\AbstractHandler;
 use DrevOps\Installer\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\Installer\Prompts\Handlers\CiProvider;
@@ -114,9 +113,9 @@ class PromptManager {
         hint: 'We will use this name in the project and in the documentation.',
         placeholder: 'E.g. My Site',
         required: TRUE,
-        default: $this->default($n, Str2Name::label(Env::get('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
+        default: $this->default($n, Converter::label(Env::get('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid project name.' : NULL,
+        validate: fn($v) => Converter::label($v) !== $v ? 'Please enter a valid project name.' : NULL,
       ), Name::id())
 
       ->add(fn($r, $pr, $n) => text(
@@ -124,9 +123,9 @@ class PromptManager {
         hint: 'We will use this name for the project directory and in the code.',
         placeholder: 'E.g. my_site',
         required: TRUE,
-        default: $this->default($n, Str2Name::machine($r['name'])),
+        default: $this->default($n, Converter::machine($r['name'])),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v) => Converter::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), MachineName::id())
 
       ->add(fn($r, $pr, $n) => text(
@@ -134,9 +133,9 @@ class PromptManager {
         hint: 'We will use this name in the project and in the documentation.',
         placeholder: 'E.g. My Org',
         required: TRUE,
-        default: $this->default('org', Str2Name::label($r['name']) . ' Org'),
+        default: $this->default('org', Converter::label($r['name']) . ' Org'),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid organization name.' : NULL,
+        validate: fn($v) => Converter::label($v) !== $v ? 'Please enter a valid organization name.' : NULL,
       ), Org::id())
 
       ->add(fn($r, $pr, $n) => text(
@@ -144,9 +143,9 @@ class PromptManager {
         hint: 'We will use this name for the project directory and in the code.',
         placeholder: 'E.g. my_org',
         required: TRUE,
-        default: $this->default($n, Str2Name::machine($r['org'])),
+        default: $this->default($n, Converter::machine($r['org'])),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v) => Converter::machine($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), OrgMachineName::id())
 
       ->add(fn($r, $pr, $n) => text(
@@ -154,7 +153,7 @@ class PromptManager {
         hint: 'Domain name without protocol and trailing slash.',
         placeholder: 'E.g. example.com',
         required: TRUE,
-        default: $this->default($n, Str2Name::kebab($r['machine_name']) . '.com'),
+        default: $this->default($n, Converter::kebab($r['machine_name']) . '.com'),
         transform: fn(string $v) => Converter::domain($v),
         validate: fn($v) => !Validator::domain($v) ? 'Please enter a valid domain name.' : NULL,
       ), Domain::id())
@@ -231,7 +230,7 @@ class PromptManager {
         required: TRUE,
         default: $this->default($n, Converter::abbreviation($r['machine_name'], 4, ['_'])),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Converter::machine(strtolower($v)) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v) => Converter::machine($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), ModulePrefix::id())
 
       ->add(fn($r, $pr, $n) => text(
@@ -241,7 +240,7 @@ class PromptManager {
         required: TRUE,
         default: $this->default($n, $r['machine_name']),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v) => Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), Theme::id())
 
       ->intro('Hosting')
@@ -370,7 +369,7 @@ class PromptManager {
                 hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
                 placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
                 default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
-                transform: fn($v) => strtolower(trim($v)),
+                transform: fn($v) => trim($v),
                 validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid image name and a tag' : NULL,
               ), DatabaseImage::id())
 
