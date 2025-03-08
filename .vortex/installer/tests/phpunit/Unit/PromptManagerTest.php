@@ -33,6 +33,7 @@ use DrevOps\Installer\Tests\Traits\PromptsTrait;
 use DrevOps\Installer\Utils\Config;
 use Laravel\Prompts\Key;
 use Laravel\Prompts\Output\BufferedConsoleOutput;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \DrevOps\Installer\Prompts\PromptManager
@@ -66,7 +67,7 @@ class PromptManagerTest extends UnitTestBase {
    * @covers ::getResponses
    * @dataProvider dataProviderPrompt
    */
-  public function testPrompt(array $responses, array|string $expected) {
+  public function testPrompt(array $responses, array|string $expected, ?callable $before_callback = NULL) {
     // Re-use the expected value as an exception message if it is a string.
     $exception = is_string($expected) ? $expected : NULL;
     if ($exception) {
@@ -77,6 +78,10 @@ class PromptManagerTest extends UnitTestBase {
     $output = new BufferedConsoleOutput();
     $config = new Config($this->prepareFixtureDir('myproject'));
     putenv('GITHUB_TOKEN=' . self::FIXTURE_GITHUB_TOKEN);
+
+    if ($before_callback) {
+      $before_callback($this);
+    }
 
     $pm = new PromptManager($output, $config);
     // Enter responses and fill in the missing ones if an exception is expected
@@ -118,50 +123,107 @@ class PromptManagerTest extends UnitTestBase {
       PreserveDocsOnboarding::id() => TRUE,
     ];
 
+    $discovered = [
+        Name::id() => 'Discovered project',
+        MachineName::id() => 'discovered_project',
+        Org::id() => 'Discovered project Org',
+        OrgMachineName::id() => 'discovered_project_org',
+        Domain::id() => 'discovered-project.com',
+        GithubRepo::id() => 'discovered_project_org/discovered_project',
+        ModulePrefix::id() => 'dp',
+        Theme::id() => 'discovered_project',
+      ] + $defaults;
+
     return [
       'defaults' => [
         self::fill(),
         $defaults,
       ],
 
+      'project name - discovery' => [
+        self::fill(),
+        $discovered,
+        function (TestCase $test) {
+          $test->setComposerJsonValue('description', 'Drupal 10 Standard installation of Discovered project for Discovered project Org');
+        },
+      ],
       'invalid project name' => [
         self::fill(0, 'a_word'),
         'Please enter a valid project name.',
       ],
-      'invalid project machine name' => [
+
+      'project machine name - discovery' => [
+        self::fill(),
+        [
+          Name::id() => 'myproject',
+          MachineName::id() => 'discovered_project',
+          Org::id() => 'myproject Org',
+        ] + $discovered,
+        function (TestCase $test) {
+          $test->setComposerJsonValue('name', 'discovered_project_org/discovered_project');
+        },
+      ],
+      'project machine name - invalid' => [
         self::fill(1, 'a word'),
         'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
-      'invalid org name' => [
+
+      'org name - discovery' => [
+        self::fill(),
+        $discovered,
+        function (TestCase $test) {
+          $test->setComposerJsonValue('description', 'Drupal 10 Standard installation of Discovered project for Discovered project Org');
+        },
+      ],
+      'org name - invalid' => [
         self::fill(2, 'a_word'),
         'Please enter a valid organization name.',
       ],
-      'invalid org machine name' => [
+
+      'org machine name - discovery' => [
+        self::fill(),
+        [
+          Name::id() => 'myproject',
+          MachineName::id() => 'discovered_project',
+          Org::id() => 'myproject Org',
+        ] + $discovered,
+        function (TestCase $test) {
+          $test->setComposerJsonValue('name', 'discovered_project_org/discovered_project');
+        },
+      ],
+      'org machine name - invalid ' => [
         self::fill(3, 'a word'),
         'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
-      'valid domain - no protocol' => [
+      'domain - discovery' => [
+        self::fill(),
+        [Domain::id() => 'discovered-project-dotenv.com'] + $defaults,
+        function (TestCase $test) {
+          $test->setDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'discovered-project-dotenv.com');
+        },
+      ],
+      'domain - no protocol' => [
         self::fill(4, 'myproject.com'),
         [Domain::id() => 'myproject.com'] + $defaults,
       ],
-      'valid domain - www prefix' => [
+      'domain - www prefix' => [
         self::fill(4, 'www.myproject.com'),
         [Domain::id() => 'myproject.com'] + $defaults,
       ],
-      'valid domain - secure protocol' => [
+      'domain - secure protocol' => [
         self::fill(4, 'https://www.myproject.com'),
         [Domain::id() => 'myproject.com'] + $defaults,
       ],
-      'valid domain - unsecure protocol' => [
+      'domain - unsecure protocol' => [
         self::fill(4, 'http://www.myproject.com'),
         [Domain::id() => 'myproject.com'] + $defaults,
       ],
-      'invalid domain - missing TLD' => [
+      'domain - invalid - missing TLD' => [
         self::fill(4, 'myproject'),
         'Please enter a valid domain name.',
       ],
-      'invalid domain - incorrect protocol' => [
+      'domain - invalid - incorrect protocol' => [
         self::fill(4, 'htt://myproject.com'),
         'Please enter a valid domain name.',
       ],
@@ -252,4 +314,18 @@ class PromptManagerTest extends UnitTestBase {
     return array_merge(array_fill(0, $skip, NULL), $values, array_fill(0, $suffix_length, NULL));
   }
 
+  protected function setComposerJsonValue(string $name, mixed $value): string {
+    $composer_json = $this->fixtureDir . DIRECTORY_SEPARATOR . 'composer.json';
+    file_put_contents($composer_json, json_encode([$name => $value], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+    return $composer_json;
+  }
+
+  protected function setDotenvValue(string $name, mixed $value, string $filename = '.env'): string {
+    $dotenv = $this->fixtureDir . DIRECTORY_SEPARATOR . $filename;
+
+    file_put_contents($dotenv, "$name=$value" . PHP_EOL, FILE_APPEND);
+
+    return $dotenv;
+  }
 }
