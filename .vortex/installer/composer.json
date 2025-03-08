@@ -19,6 +19,7 @@
     "require": {
         "php": ">=8.2",
         "alexskrypnyk/str2name": "^1.3",
+        "cweagans/composer-patches": "^1.7",
         "laravel/prompts": "^0.3.5",
         "symfony/console": "^7.2.1",
         "symfony/filesystem": "^7.2"
@@ -54,10 +55,19 @@
     "config": {
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true,
+            "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true
         },
         "sort-packages": true
+    },
+    "extra": {
+        "composer-exit-on-patch-failure": true,
+        "patches": {
+            "laravel/prompts": {
+                "Allow static validator to run before prompt's validator": "patches/laravel-prompts-186.patch"
+            }
+        }
     },
     "scripts": {
         "build": [
