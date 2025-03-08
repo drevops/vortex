@@ -100,4 +100,33 @@ class ValidatorTest extends UnitTestBase {
       'invalid special characters' => ['user!@#/repo$', FALSE],
     ];
   }
+
+  /**
+   * @dataProvider dataProviderDirname
+   * @covers ::dirname
+   */
+  public function testDirname(string $input, bool $expected) {
+    $this->assertSame($expected, Validator::dirname($input));
+  }
+
+  public static function dataProviderDirname(): array {
+    return [
+      'valid folder name' => ['valid_folder', TRUE],
+      'valid with hyphen' => ['my-folder', TRUE],
+      'valid with dot' => ['another.folder', TRUE],
+      'valid with space' => ['folder name', FALSE],
+      'valid with leading dot' => ['.hidden_folder', TRUE],
+      'valid with numbers' => ['folder123', TRUE],
+      'invalid Windows reserved name CON' => ['CON', FALSE],
+      'invalid Windows reserved name NUL' => ['NUL', FALSE],
+      'invalid Windows reserved name COM1' => ['COM1', FALSE],
+      'invalid with forward slash' => ['folder/name', FALSE],
+      'invalid with backslash' => ['folder\name', FALSE],
+      'invalid with pipe' => ['folder|name', FALSE],
+      'invalid with angle brackets' => ['folder<>name', FALSE],
+      'invalid single dot' => ['.', FALSE],
+      'invalid double dot' => ['..', FALSE],
+    ];
+  }
+
 }

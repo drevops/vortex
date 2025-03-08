@@ -30,4 +30,8 @@ class Validator {
     return (bool) preg_match('/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/', $value);
   }
 
+  public static function dirname(string $value): bool {
+    return (bool) preg_match('/^(?!^(?:\.{1,2}|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$)[\w\-.]+$/i', $value);
+  }
+
 }

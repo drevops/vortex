@@ -276,8 +276,8 @@ class PromptManager {
                 placeholder: 'E.g. '. implode(', ',[Webroot::WEB, Webroot::DOCROOT]),
                 required: TRUE,
                 default: $this->default($n, Webroot::WEB),
-                transform: fn(string $v) => !empty(trim($v)) ? Converter::path($v) : trim($v),
-                validate: fn($v) => empty($v) ? 'Please enter a valid directory name' : NULL,
+                transform: fn(string $v) => rtrim($v, DIRECTORY_SEPARATOR),
+                validate: fn($v) => !Validator::dirname($v) ? 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
               );
             }
             return $webroot;
