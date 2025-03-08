@@ -67,8 +67,8 @@ class PromptManagerTest extends UnitTestBase {
    * @dataProvider dataProviderPrompt
    */
   public function testPrompt(array $responses, array|string $expected) {
+    // Re-use the expected value as an exception message if it is a string.
     $exception = is_string($expected) ? $expected : NULL;
-
     if ($exception) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage($exception);
@@ -80,7 +80,7 @@ class PromptManagerTest extends UnitTestBase {
 
     $pm = new PromptManager($output, $config);
     // Enter responses and fill in the missing ones if an exception is expected
-    // so that in case of exception not being throws, the test does not hang
+    // so that in case of exception not being thrown, the test does not hang
     // waiting for more input.
     self::promptsInput($responses, $exception ? 25 : 0);
     $pm->prompt();
@@ -243,7 +243,6 @@ class PromptManagerTest extends UnitTestBase {
         self::fill(14, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyRegistry/MyImage:mytag'),
         'Please enter a valid container image name with an optional tag.',
       ],
-
     ];
   }
 
