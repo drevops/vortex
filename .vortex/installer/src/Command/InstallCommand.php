@@ -161,17 +161,16 @@ EOF
     $this->config->setNoInteraction($options['no-interaction']);
 
     // Set root directory to resolve relative paths.
-    $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : File::cwd();
-    $this->config->set(Config::ROOT, $root);
+    $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : NULL;
+    if ($root) {
+      $this->config->set(Config::ROOT, $root);
+    }
 
     // Set destination directory.
     $dst = !empty($arguments['destination']) && is_scalar($arguments['destination']) ? strval($arguments['destination']) : NULL;
     $dst = $dst ?: Env::get(Config::DST, $this->config->get(Config::DST, $this->config->get(Config::ROOT)));
     $dst = File::mkdir($dst);
     $this->config->set(Config::DST, $dst, TRUE);
-
-    // Temporary directory to download and expand files to.
-    $this->config->set(Config::TMP, File::tmpdir());
 
     // Load values from the destination .env file, if it exists.
     if (File::exists($this->config->getDst() . '/.env')) {

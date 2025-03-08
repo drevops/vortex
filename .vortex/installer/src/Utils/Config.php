@@ -38,6 +38,12 @@ class Config {
    */
   protected array $store = [];
 
+  public function __construct() {
+    $this->set(self::ROOT, File::cwd());
+    $this->set(self::DST, $this->get(self::ROOT), TRUE);
+    $this->set(self::TMP, File::tmpdir());
+  }
+
   /**
    * Create a new instance of the config from a JSON string.
    */
