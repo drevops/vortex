@@ -313,7 +313,6 @@ class PromptManager {
           hint: 'You can deploy code using one or more methods.',
           options: $options,
           default: $this->default($n, $defaults),
-          required: FALSE,
         );
       }, DeployType::id())
 
@@ -370,7 +369,7 @@ class PromptManager {
                 placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
                 default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
                 transform: fn($v) => trim($v),
-                validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid image name and a tag' : NULL,
+                validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid container image name with an optional tag.' : NULL,
               ), DatabaseImage::id())
 
       ->intro('Continuous Integration')

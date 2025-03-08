@@ -231,6 +231,19 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
+      'database image' => [
+        self::fill(14, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry/myimage:mytag'),
+        [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'myregistry/myimage:mytag'] + $defaults,
+      ],
+      'database image - invalid' => [
+        self::fill(14, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry:myimage:mytag'),
+        'Please enter a valid container image name with an optional tag.',
+      ],
+      'database image - invalid - capitalization' => [
+        self::fill(14, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyRegistry/MyImage:mytag'),
+        'Please enter a valid container image name with an optional tag.',
+      ],
+
     ];
   }
 
