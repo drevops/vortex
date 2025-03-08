@@ -20,9 +20,9 @@ class Profile extends AbstractHandler {
    */
   public function discover(): null|string|bool|array {
     if ($this->isInstalled()) {
-      $name = Env::getFromDotenv('DRUPAL_PROFILE', $this->dstDir);
-      if (!empty($name)) {
-        return $name;
+      $value = Env::getFromDotenv('DRUPAL_PROFILE', $this->dstDir);
+      if (!empty($value)) {
+        return $value;
       }
     }
 

@@ -29,6 +29,7 @@ use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\Installer\Prompts\Handlers\Profile;
 use DrevOps\Installer\Prompts\Handlers\ProvisionType;
 use DrevOps\Installer\Prompts\Handlers\Theme;
+use DrevOps\Installer\Prompts\Handlers\ThemeRunner;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
@@ -239,13 +240,27 @@ class PromptManager {
 
       ->add(fn($r, $pr, $n) => text(
         label: '🎨 Theme machine name',
-        hint: 'We will use this name for the theme directory.',
+        hint: 'We will use this name for the theme directory. Leave empty to skip the theme scaffold.',
         placeholder: 'E.g. mytheme',
-        required: TRUE,
         default: $this->default($n, $r['machine_name']),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v) => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), Theme::id())
+
+      ->addIf(
+        fn($r) => !empty($r[Theme::id()]),
+        fn($r, $pr, $n) => select(
+          label: 'Compile theme assest during build using a task runner?',
+          hint: 'Useful to avoid committing compiled theme assets to the repository.',
+          options: [
+            ThemeRunner::GRUNT => '🐗 Grunt',
+            ThemeRunner::GULP => '🥤 Gulp',
+            ThemeRunner::WEBPACK => '📦 Webpack',
+            ThemeRunner::NONE => '⭕  None',
+          ],
+          required: TRUE,
+          default: $this->default($n, ThemeRunner::GRUNT),
+        ), ThemeRunner::id())
 
       ->intro('Hosting')
 

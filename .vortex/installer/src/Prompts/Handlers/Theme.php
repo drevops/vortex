@@ -11,43 +11,27 @@ class Theme extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $name_from_env = $this->isInstalled() ? Env::getFromDotenv('DRUPAL_THEME', $this->dstDir) : NULL;
-
-    $file = static::findThemeFile($this->dstDir, $this->webroot);
-
-    if (empty($file)) {
-      // If theme file was not found, but the theme is set in the .env file -
-      // return the theme name from the .env file.
-      return $name_from_env ?: NULL;
-    }
-
-    $name_from_info = str_replace(['.info.yml', '.info'], '', basename($file));
-
-    // Check that this is a theme coming originally from the Vortex template.
-    if (!static::isVortexTheme(dirname($file))) {
-      // If the theme is not coming from the Vortex template - return the theme
-      // name from the .env file.
-      return $name_from_env ?: NULL;
-    }
-
-    if ($name_from_env) {
-      if ($name_from_info !== $name_from_env) {
-        // If the theme name from the .env file does not match the theme name
-        // from the theme file - return the theme name from the info file
-        // to update the .env file.
-        return $name_from_info;
+    if ($this->isInstalled()) {
+      $value = Env::getFromDotenv('DRUPAL_THEME', $this->dstDir);
+      if (!empty($value)) {
+        return $value;
       }
-
-      return $name_from_env;
     }
 
-    return NULL;
+    $path = static::findThemeFile($this->dstDir, $this->webroot);
+
+    if (empty($path)) {
+      return NULL;
+    }
+
+    return str_replace(['.info.yml', '.info'], '', basename($path));
   }
 
   /**
    * {@inheritdoc}
    */
   public function process(): void {
+    // @todo Refactor to allow removing the theme from the template.
     File::fileReplaceContent('/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $this->response, $this->dstDir . '/.env');
 
     // Find the theme file in the destination directory.

@@ -148,7 +148,7 @@ EOT;
     $values['Profile'] = $responses[Profile::id()];
 
     $values['🧩 Module prefix'] = $responses[ModulePrefix::id()];
-    $values['🎨 Theme machine name'] = $responses[Theme::id()];
+    $values['🎨 Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
 
     $values['Hosting'] = static::SECTION_TITLE;
     $values['🏠 Hosting provider'] = $responses[HostingProvider::id()];

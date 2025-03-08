@@ -26,6 +26,7 @@ use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\Installer\Prompts\Handlers\Profile;
 use DrevOps\Installer\Prompts\Handlers\ProvisionType;
 use DrevOps\Installer\Prompts\Handlers\Theme;
+use DrevOps\Installer\Prompts\Handlers\ThemeRunner;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Tests\Traits\PromptsTrait;
@@ -42,6 +43,8 @@ use PHPUnit\Framework\TestCase;
 class PromptManagerTest extends UnitTestBase {
 
   use PromptsTrait;
+
+  const MAX_QUESTIONS = 25;
 
   const FIXTURE_GITHUB_TOKEN = 'ghp_1234567890';
 
@@ -114,6 +117,7 @@ class PromptManagerTest extends UnitTestBase {
       Profile::id() => Profile::STANDARD,
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
+      ThemeRunner::id() => ThemeRunner::GRUNT,
       HostingProvider::id() => HostingProvider::NONE,
       Webroot::id() => Webroot::WEB,
       DeployType::id() => [DeployType::WEBHOOK],
@@ -320,6 +324,21 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
+      'theme - discovery' => [
+        self::fill(),
+        [Theme::id() => 'discovered_project'] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          $test->setDotenvValue('DRUPAL_THEME', 'discovered_project');
+        },
+      ],
+      'theme - discovery - non-Vortex project' => [
+        self::fill(),
+        [Theme::id() => 'discovered_project'] + $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/web/themes/custom/discovered_project/discovered_project.info');
+        },
+      ],
       'theme' => [
         self::fill(10, 'mytheme'),
         [Theme::id() => 'mytheme'] + $defaults,
@@ -334,35 +353,35 @@ class PromptManagerTest extends UnitTestBase {
       ],
 
       'webroot - custom' => [
-        self::fill(11, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my_webroot'),
+        self::fill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my_webroot'),
         [HostingProvider::id() => HostingProvider::OTHER, Webroot::id() => 'my_webroot'] + $defaults,
       ],
       'webroot - custom - capitalization' => [
-        self::fill(11, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyWebroot'),
+        self::fill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyWebroot'),
         [HostingProvider::id() => HostingProvider::OTHER, Webroot::id() => 'MyWebroot'] + $defaults,
       ],
       'webroot - custom - invalid' => [
-        self::fill(11, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my webroot'),
+        self::fill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my webroot'),
         'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
       'database image' => [
-        self::fill(14, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry/myimage:mytag'),
+        self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry/myimage:mytag'),
         [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'myregistry/myimage:mytag'] + $defaults,
       ],
       'database image - invalid' => [
-        self::fill(14, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry:myimage:mytag'),
+        self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry:myimage:mytag'),
         'Please enter a valid container image name with an optional tag.',
       ],
       'database image - invalid - capitalization' => [
-        self::fill(14, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyRegistry/MyImage:mytag'),
+        self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyRegistry/MyImage:mytag'),
         'Please enter a valid container image name with an optional tag.',
       ],
     ];
   }
 
-  protected static function fill(int $skip = 25, ...$values): array {
-    $suffix_length = max(25 - $skip - count($values), 0);
+  protected static function fill(int $skip = self::MAX_QUESTIONS, ...$values): array {
+    $suffix_length = max(self::MAX_QUESTIONS - $skip - count($values), 0);
 
     return array_merge(array_fill(0, $skip, NULL), $values, array_fill(0, $suffix_length, NULL));
   }
@@ -388,6 +407,12 @@ class PromptManagerTest extends UnitTestBase {
     file_put_contents($readme, '[![Vortex](https://img.shields.io/badge/Vortex-1.2.3-5909A1.svg)](https://github.com/drevops/vortex/tree/1.2.3)' . PHP_EOL, FILE_APPEND);
 
     $config->set(Config::IS_VORTEX_PROJECT, TRUE);
+  }
+
+  protected function setTheme(string $dir): void {
+    File::dump($dir . '/scss/_variables.scss');
+    File::dump($dir . '/Gruntfile.js');
+    File::dump($dir . '/package.json', json_encode(['build-dev' => ''], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
   }
 
 }
