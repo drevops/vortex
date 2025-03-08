@@ -17,6 +17,8 @@ class DatabaseDownloadSource extends AbstractHandler {
 
   const CONTAINER_REGISTRY = 'container_registry';
 
+  const NONE = 'none';
+
   /**
    * {@inheritdoc}
    */

@@ -441,6 +441,21 @@ class PromptManagerTest extends UnitTestBase {
         },
       ],
 
+      'provision type - discovery - database' => [
+        self::fill(),
+        [ProvisionType::id() => ProvisionType::DATABASE] + $defaults,
+        function (TestCase $test, Config $config) {
+          $test->setDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::DATABASE);
+        },
+      ],
+      'provision type - discovery - profile' => [
+        self::fill(),
+        [ProvisionType::id() => ProvisionType::PROFILE, DatabaseDownloadSource::id() => DatabaseDownloadSource::NONE] + $defaults,
+        function (TestCase $test, Config $config) {
+          $test->setDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::PROFILE);
+        },
+      ],
+
       'database image - discovery' => [
         self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER),
         [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'discovered_owner/discovered_image:tag'] + $defaults,

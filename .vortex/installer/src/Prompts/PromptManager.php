@@ -349,38 +349,41 @@ class PromptManager {
         default: $this->default($n, ProvisionType::DATABASE),
       ), ProvisionType::id())
 
-        ->addIf(
-          fn($r) => $r[ProvisionType::id()] === ProvisionType::DATABASE,
-          function ($r, $pr, $n) {
-            $options = [
-              DatabaseDownloadSource::URL => '🌍 URL download',
-              DatabaseDownloadSource::FTP => '📂 FTP download',
-              DatabaseDownloadSource::ACQUIA => '💧 Acquia backup',
-              DatabaseDownloadSource::LAGOON => '🌊 Lagoon environment',
-              DatabaseDownloadSource::CONTAINER_REGISTRY => '🐳 Container registry',
-            ];
+        ->add(function ($r, $pr, $n) {
+          if ($r[ProvisionType::id()] === ProvisionType::PROFILE){
+            return DatabaseDownloadSource::NONE;
+          }
 
-            if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
-              unset($options[DatabaseDownloadSource::LAGOON]);
-            }
+          $options = [
+            DatabaseDownloadSource::URL => '🌍 URL download',
+            DatabaseDownloadSource::FTP => '📂 FTP download',
+            DatabaseDownloadSource::ACQUIA => '💧 Acquia backup',
+            DatabaseDownloadSource::LAGOON => '🌊 Lagoon environment',
+            DatabaseDownloadSource::CONTAINER_REGISTRY => '🐳 Container registry',
+            DatabaseDownloadSource::NONE => '⭕  None',
+          ];
 
-            if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
-              unset($options[DatabaseDownloadSource::ACQUIA]);
-            }
+          if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
+            unset($options[DatabaseDownloadSource::LAGOON]);
+          }
 
-            return select(
-              label: 'Database dump source',
-              hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
-              options: $options,
-              default: $this->default($n, match ($r[HostingProvider::id()]) {
-                HostingProvider::ACQUIA => DatabaseDownloadSource::ACQUIA,
-                HostingProvider::LAGOON => DatabaseDownloadSource::LAGOON,
-                default => DatabaseDownloadSource::URL,
-              }),
-            );
-          }, DatabaseDownloadSource::id())
+          if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
+            unset($options[DatabaseDownloadSource::ACQUIA]);
+          }
 
-            ->addIf(
+          return select(
+            label: 'Database dump source',
+            hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
+            options: $options,
+            default: $this->default($n, match ($r[HostingProvider::id()]) {
+              HostingProvider::ACQUIA => DatabaseDownloadSource::ACQUIA,
+              HostingProvider::LAGOON => DatabaseDownloadSource::LAGOON,
+              default => DatabaseDownloadSource::URL,
+            }),
+          );
+        }, DatabaseDownloadSource::id())
+
+          ->addIf(
               fn($r) => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
               fn($r, $pr, $n) => text(
                 label: 'What is your database container image name and a tag?',
