@@ -67,6 +67,11 @@ class PromptManagerTest extends UnitTestBase {
    * @covers ::prompt()
    * @covers ::getResponses
    * @dataProvider dataProviderPrompt
+   *
+   * Run a specific test:
+   * @code
+   * composer test -- --filter=testPrompt@"name of the data provider"
+   * @endcode
    */
   public function testPrompt(array $responses, array|string $expected, ?callable $before_callback = NULL) {
     // Re-use the expected value as an exception message if it is a string.
@@ -138,7 +143,6 @@ class PromptManagerTest extends UnitTestBase {
         ModulePrefix::id() => 'dp',
         Theme::id() => 'discovered_project',
       ] + $defaults;
-
 
     return [
       'defaults' => [
@@ -289,6 +293,20 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
+      'module prefix - discovery' => [
+        self::fill(),
+        [ModulePrefix::id() => 'dp'] + $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/web/modules/custom/dp_core/dp_core.info');
+        },
+      ],
+      'module prefix - discovery - within profile' => [
+        self::fill(),
+        [ModulePrefix::id() => 'dp'] + $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/web/profiles/custom/discovered_profile/modules/custom/dp_core/dp_core.info');
+        },
+      ],
       'module prefix' => [
         self::fill(9, 'myprefix'),
         [ModulePrefix::id() => 'myprefix'] + $defaults,
