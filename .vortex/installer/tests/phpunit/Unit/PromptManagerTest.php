@@ -379,6 +379,13 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
+      'database image - discovery' => [
+        self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER),
+        [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'discovered_owner/discovered_image:tag'] + $defaults,
+        function (TestCase $test, Config $config) {
+          $test->setDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
+        },
+      ],
       'database image' => [
         self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry/myimage:mytag'),
         [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'myregistry/myimage:mytag'] + $defaults,
