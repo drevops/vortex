@@ -242,6 +242,23 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid domain name.',
       ],
 
+      'code repo - discovery' => [
+        self::fill(),
+        [CodeProvider::id() => CodeProvider::GITHUB] + $defaults,
+        function (TestCase $test) {
+          File::dump($test->fixtureDir . '/.github/workflows/ci.yml');
+        },
+      ],
+
+      'code repo - discovery - other' => [
+        self::fill(),
+        [CodeProvider::id() => CodeProvider::GITHUB] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          Git::init($test->fixtureDir);
+        },
+      ],
+
       'github repo - discovery' => [
         self::fill(),
         [GithubRepo::id() => 'discovered-project-org/discovered-project'] + $defaults,
