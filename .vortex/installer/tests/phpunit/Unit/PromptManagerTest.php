@@ -352,6 +352,20 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
+      'webroot - custom - discovery' => [
+        self::fill(),
+        [Webroot::id() => 'discovered_webroot'] + $defaults,
+        function (TestCase $test, Config $config) {
+          $test->setDotenvValue('WEBROOT', 'discovered_webroot');
+        },
+      ],
+      'webroot - custom - discovery no dotenv' => [
+        self::fill(),
+        [Webroot::id() => 'discovered_webroot'] + $defaults,
+        function (TestCase $test, Config $config) {
+          $test->setComposerJsonValue('extra', ['drupal-scaffold' => ['drupal-scaffold' => ['locations' => ['web-root' => 'discovered_webroot']]]]);
+        },
+      ],
       'webroot - custom' => [
         self::fill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my_webroot'),
         [HostingProvider::id() => HostingProvider::OTHER, Webroot::id() => 'my_webroot'] + $defaults,
