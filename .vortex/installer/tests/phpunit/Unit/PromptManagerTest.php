@@ -31,6 +31,7 @@ use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Tests\Traits\PromptsTrait;
 use DrevOps\Installer\Utils\Config;
+use DrevOps\Installer\Utils\Git;
 use Laravel\Prompts\Key;
 use Laravel\Prompts\Output\BufferedConsoleOutput;
 use PHPUnit\Framework\TestCase;
@@ -228,6 +229,20 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid domain name.',
       ],
 
+      'github repo - discovery' => [
+        self::fill(),
+        [GithubRepo::id() => 'discovered-project-org/discovered-project'] + $defaults,
+        function (TestCase $test) {
+          Git::init($test->fixtureDir)->addRemote('origin', 'git@github.com:discovered-project-org/discovered-project.git');
+        },
+      ],
+      'github repo - discovery - missing remote' => [
+        self::fill(),
+        $defaults,
+        function (TestCase $test) {
+          Git::init($test->fixtureDir);
+        },
+      ],
       'github repo - valid name' => [
         self::fill(7, 'custom_org/custom_project'),
         [GithubRepo::id() => 'custom_org/custom_project'] + $defaults,
