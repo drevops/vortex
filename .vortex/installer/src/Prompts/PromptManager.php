@@ -219,9 +219,9 @@ class PromptManager {
             label: 'Custom profile machine name',
             placeholder: 'E.g. my_profile',
             required: TRUE,
-            default: $this->default($n, NULL),
+            default: $this->default($n),
             transform: fn(string $v) => trim($v),
-            validate: fn(string $v) =>( !empty($v) && Converter::machine($v) !== $v) ? 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.': TRUE,
+            validate: fn(string $v) => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.': NULL,
           ), ProfileCustom::id())
 
       ->add(fn($r, $pr, $n) => text(

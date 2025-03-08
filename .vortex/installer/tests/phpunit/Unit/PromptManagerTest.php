@@ -31,6 +31,7 @@ use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Tests\Traits\PromptsTrait;
 use DrevOps\Installer\Utils\Config;
+use Laravel\Prompts\Key;
 use Laravel\Prompts\Output\BufferedConsoleOutput;
 
 /**
@@ -182,11 +183,22 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid project name in the format "myorg/myproject"',
       ],
 
+      'profile - custom' => [
+        self::fill(8, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myprofile'),
+        [Profile::id() => Profile::CUSTOM, ProfileCustom::id() => 'myprofile'] + $defaults,
+      ],
+      'profile - custom - invalid' => [
+        self::fill(8, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my profile'),
+        'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+
     ];
   }
 
   protected static function fill(int $skip = 25, ...$values): array {
-    return array_merge(array_fill(0, $skip, NULL), $values);
+    $suffix_length = max(25 - $skip - count($values), 0);
+
+    return array_merge(array_fill(0, $skip, NULL), $values, array_fill(0, $suffix_length, NULL));
   }
 
 }
