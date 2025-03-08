@@ -32,7 +32,7 @@ class FileTest extends UnitTestBase {
    * @covers ::copyRecursive
    */
   public function testCopyRecursive(): void {
-    $files_dir = $this->getFixtureDir('copyfiles');
+    $files_dir = $this->getStaticFixtureDir('copyfiles');
 
     File::copyRecursive($files_dir, $this->fixtureDir);
 
@@ -137,7 +137,7 @@ class FileTest extends UnitTestBase {
    * @covers ::contains
    */
   public function testFileContains(string $string, string $file, mixed $expected): void {
-    $tokens_dir = $this->getFixtureDir('tokens');
+    $tokens_dir = $this->getStaticFixtureDir('tokens');
     $files = $this->flattenFileTree([$file], $tokens_dir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
     $created_file = reset($created_files);
@@ -169,7 +169,7 @@ class FileTest extends UnitTestBase {
    * @covers ::dirContains
    */
   public function testDirContains(string $string, array $files, mixed $expected): void {
-    $tokens_dir = $this->getFixtureDir('tokens');
+    $tokens_dir = $this->getStaticFixtureDir('tokens');
     $files = $this->flattenFileTree($files, $tokens_dir);
     $this->createFixtureFiles($files, $tokens_dir);
 
@@ -197,7 +197,7 @@ class FileTest extends UnitTestBase {
    * @covers ::removeTokenFromFile
    */
   public function testRemoveTokenFromFile(string $file, string $begin, string $end, bool $with_content, bool $expect_exception, string $expected_file): void {
-    $tokens_dir = $this->getFixtureDir('tokens');
+    $tokens_dir = $this->getStaticFixtureDir('tokens');
     $files = $this->flattenFileTree([$file], $tokens_dir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
     $created_file = reset($created_files);
@@ -258,7 +258,7 @@ class FileTest extends UnitTestBase {
    * @covers     ::dirReplaceContent
    */
   public function testDirReplaceContent(array $files, array $expected_files): void {
-    $tokens_dir = $this->getFixtureDir('tokens');
+    $tokens_dir = $this->getStaticFixtureDir('tokens');
     $files = $this->flattenFileTree($files, $tokens_dir);
     $expected_files = $this->flattenFileTree($expected_files, $tokens_dir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir);
@@ -296,7 +296,7 @@ class FileTest extends UnitTestBase {
    * @covers    ::replaceStringFilename
    */
   public function testReplaceStringFilename(array $files, array $expected_files): void {
-    $tokens_dir = $this->getFixtureDir('tokens');
+    $tokens_dir = $this->getStaticFixtureDir('tokens');
     $files = $this->flattenFileTree($files, $tokens_dir);
     $expected_files = $this->flattenFileTree($expected_files, $this->fixtureDir);
     $created_files = $this->createFixtureFiles($files, $tokens_dir, FALSE);

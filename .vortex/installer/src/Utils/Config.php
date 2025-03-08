@@ -38,10 +38,10 @@ class Config {
    */
   protected array $store = [];
 
-  public function __construct() {
-    $this->set(self::ROOT, File::cwd());
-    $this->set(self::DST, $this->get(self::ROOT), TRUE);
-    $this->set(self::TMP, File::tmpdir());
+  public function __construct(string $root = NULL, string $dst = NULL, string $tmp = NULL) {
+    $this->set(self::ROOT, $root ?: File::cwd());
+    $this->set(self::DST, $dst ?: $this->get(self::ROOT), TRUE);
+    $this->set(self::TMP, $tmp ?: File::tmpdir());
   }
 
   /**

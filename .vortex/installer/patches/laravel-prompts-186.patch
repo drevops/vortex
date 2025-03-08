@@ -2,6 +2,15 @@ diff --git a/src/Prompt.php b/src/Prompt.php
 index 324d789..924ed02 100644
 --- a/src/Prompt.php
 +++ b/src/Prompt.php
+@@ -249,7 +249,7 @@ public static function terminal(): Terminal
+     /**
+      * Set the custom validation callback.
+      */
+-    public static function validateUsing(Closure $callback): void
++    public static function validateUsing(?Closure $callback): void
+     {
+         static::$validateUsing = $callback;
+     }
 @@ -403,8 +403,8 @@ private function validate(mixed $value): void
          }
 

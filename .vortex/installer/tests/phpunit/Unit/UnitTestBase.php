@@ -31,9 +31,15 @@ abstract class UnitTestBase extends TestCase {
   /**
    * Prepare fixture directory.
    */
-  public function prepareFixtureDir(): void {
+  public function prepareFixtureDir($suffix = NULL): string {
     // Using tmpdir() from the install file itself.
     $this->fixtureDir = File::tmpdir();
+
+    if ($suffix) {
+      $this->fixtureDir = File::mkdir($this->fixtureDir . DIRECTORY_SEPARATOR . $suffix);
+    }
+
+    return $this->fixtureDir;
   }
 
   /**
@@ -74,7 +80,7 @@ abstract class UnitTestBase extends TestCase {
   }
 
   /**
-   * Get fixture directory.
+   * Get static fixture directory.
    *
    * @param string|null $name
    *   Fixture directory name.
@@ -82,10 +88,11 @@ abstract class UnitTestBase extends TestCase {
    * @return string
    *   Fixture directory path.
    */
-  protected function getFixtureDir($name = NULL): string {
+  protected function getStaticFixtureDir($name = NULL): string {
     $parent = dirname(__FILE__);
     $path = $parent . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Fixtures';
     $path .= $name ? DIRECTORY_SEPARATOR . $name : '';
+
     if (!file_exists($path)) {
       throw new \RuntimeException(sprintf('Unable to find fixture directory at path "%s".', $path));
     }

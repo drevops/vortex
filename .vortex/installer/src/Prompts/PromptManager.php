@@ -174,7 +174,6 @@ class PromptManager {
         ->addIf(
           fn($r) => $r['code_provider'] === 'github',
           fn($r, $pr, $n) => note("<info>We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.</info>"),
-          'github_token_note'
         )
 
         ->addIf(
