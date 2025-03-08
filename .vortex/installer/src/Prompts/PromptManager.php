@@ -116,7 +116,7 @@ class PromptManager {
         required: TRUE,
         default: $this->default($n, Str2Name::label(Env::get('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid name' : NULL,
+        validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid project name.' : NULL,
       ), Name::id())
 
       ->add(fn($r, $pr, $n) => text(
@@ -136,7 +136,7 @@ class PromptManager {
         required: TRUE,
         default: $this->default('org', Str2Name::label($r['name']) . ' Org'),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid organization name' : NULL,
+        validate: fn($v) => Str2Name::label($v) !== $v ? 'Please enter a valid organization name.' : NULL,
       ), Org::id())
 
       ->add(fn($r, $pr, $n) => text(
@@ -146,7 +146,7 @@ class PromptManager {
         required: TRUE,
         default: $this->default($n, Str2Name::machine($r['org'])),
         transform: fn(string $v) => trim($v),
-        validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v) => Str2Name::machine($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), OrgMachineName::id())
 
       ->add(fn($r, $pr, $n) => text(

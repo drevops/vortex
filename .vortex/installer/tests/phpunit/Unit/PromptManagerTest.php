@@ -66,23 +66,34 @@ class PromptManagerTest extends UnitTestBase {
    * @covers ::getResponses
    * @dataProvider dataProviderPrompt
    */
-  public function testPrompt(array $responses, array $expected) {
+  public function testPrompt(array $responses, array|string $expected) {
+    $exception = is_string($expected) ? $expected : NULL;
+
+    if ($exception) {
+      $this->expectException(\Exception::class);
+      $this->expectExceptionMessage($exception);
+    }
+
     $output = new BufferedConsoleOutput();
     $config = new Config($this->prepareFixtureDir('myproject'));
     putenv('GITHUB_TOKEN=' . self::FIXTURE_GITHUB_TOKEN);
 
     $pm = new PromptManager($output, $config);
-    self::promptsInput($responses);
-
+    // Enter responses and fill in the missing ones if an exception is expected
+    // so that in case of exception not being throws, the test does not hang
+    // waiting for more input.
+    self::promptsInput($responses, $exception ? 25 : 0);
     $pm->prompt();
 
-    $this->assertEquals($expected, $pm->getResponses(), $this->dataName());
+    if (!$exception) {
+      $this->assertEquals($expected, $pm->getResponses(), $this->dataName());
+    }
   }
 
   public static function dataProviderPrompt() {
     return [
       'defaults' => [
-        array_fill(0, 20, NULL),
+        self::fill(),
         [
           Name::id() => 'myproject',
           MachineName::id() => 'myproject',
@@ -110,7 +121,28 @@ class PromptManagerTest extends UnitTestBase {
           PreserveDocsOnboarding::id() => TRUE,
         ],
       ],
+
+      'invalid project name' => [
+        self::fill(0, 'a_word'),
+        'Please enter a valid project name.',
+      ],
+      'invalid project machine name' => [
+        self::fill(1, 'a word'),
+        'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+      'invalid org name' => [
+        self::fill(2, 'a_word'),
+        'Please enter a valid organization name.',
+      ],
+      'invalid org machine name' => [
+        self::fill(3, 'a word'),
+        'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
     ];
+  }
+
+  protected static function fill(int $skip = 25, ...$values): array {
+    return array_merge(array_fill(0, $skip, NULL), $values);
   }
 
 }

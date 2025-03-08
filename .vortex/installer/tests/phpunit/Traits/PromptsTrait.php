@@ -29,8 +29,12 @@ trait PromptsTrait {
     Prompt::validateUsing(NULL);
   }
 
-  protected static function promptsInput(array $responses): void {
+  protected static function promptsInput(array $responses, int $max = 0): void {
     $inputs = [];
+
+    // Fill the responses array to max elements to make sure that, in case of an
+    // unexpected failure, the execution does not hang waiting for more input.
+    $responses = $max > 0 && count($responses) < $max ? array_merge($responses, array_fill(0, $max - count($responses), NULL)) : $responses;
 
     foreach ($responses as $response) {
       // NULL response means to use the default value.
