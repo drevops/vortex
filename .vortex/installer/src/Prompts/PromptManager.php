@@ -195,11 +195,7 @@ class PromptManager {
                 placeholder: 'E.g. myorg/myproject',
                 default: $this->default($n, $r['org_machine_name'] . '/' . $r['machine_name']),
                 transform: fn(string $v) => trim($v),
-                validate: fn(string $v) => match (TRUE) {
-                  empty($v) => 'Please enter a project name',
-                  !str_contains($v, '/') || (count(explode('/', $v)) !== 2 || empty(explode('/', $v)[0]) || empty(explode('/', $v)[1])) => 'Please enter a valid project name in the format "myorg/myproject"',
-                  default => NULL,
-                },
+                validate: fn(string $v) => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : NULL,
               ), GithubRepo::id())
 
       ->intro('Drupal')

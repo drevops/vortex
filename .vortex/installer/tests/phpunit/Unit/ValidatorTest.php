@@ -72,4 +72,32 @@ class ValidatorTest extends UnitTestBase {
     ];
   }
 
+  /**
+   * @dataProvider dataProviderGithubProject
+   * @covers ::githubProject
+   */
+  public function testGithubProject(string $value, bool $expected): void {
+    $this->assertSame($expected, Validator::githubProject($value));
+  }
+
+  /**
+   * Data provider for testGithubProject.
+   *
+   * @return array[]
+   */
+  public static function dataProviderGithubProject(): array {
+    return [
+      'valid project' => ['user/repo', TRUE],
+      'valid project with numbers' => ['user123/repo456', TRUE],
+      'valid project with hyphens and underscores' => ['user-name/repo_name', TRUE],
+      'valid project with mixed case' => ['UserName/RepoName', TRUE],
+      'invalid missing slash' => ['userrepo', FALSE],
+      'invalid leading slash' => ['/repo', FALSE],
+      'invalid trailing slash' => ['user/', FALSE],
+      'invalid empty string' => ['', FALSE],
+      'invalid extra slash' => ['user/repo/extra', FALSE],
+      'invalid spaces' => ['user /repo', FALSE],
+      'invalid special characters' => ['user!@#/repo$', FALSE],
+    ];
+  }
 }

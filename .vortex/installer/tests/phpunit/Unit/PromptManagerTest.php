@@ -165,6 +165,23 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid domain name.',
       ],
 
+      'github repo - valid name' => [
+        self::fill(7, 'custom_org/custom_project'),
+        [GithubRepo::id() => 'custom_org/custom_project'] + $defaults,
+      ],
+      'github repo - valid name - hyphenated' => [
+        self::fill(7, 'custom-org/custom-project'),
+        [GithubRepo::id() => 'custom-org/custom-project'] + $defaults,
+      ],
+      'github repo - empty' => [
+        self::fill(7, ''),
+        [GithubRepo::id() => ''] + $defaults,
+      ],
+      'github repo - invalid name' => [
+        self::fill(7, 'custom_org-custom_project'),
+        'Please enter a valid project name in the format "myorg/myproject"',
+      ],
+
     ];
   }
 

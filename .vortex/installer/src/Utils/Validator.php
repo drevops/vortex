@@ -20,7 +20,14 @@ class Validator {
   }
 
   public static function domain(string $value): bool {
-    return !filter_var($value, FILTER_VALIDATE_IP) && filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) && strpos($value, '.') !== FALSE;
+    return
+      !filter_var($value, FILTER_VALIDATE_IP)
+      && filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+      && strpos($value, '.') !== FALSE;
+  }
+
+  public static function githubProject(string $value): bool {
+    return (bool) preg_match('/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/', $value);
   }
 
 }
