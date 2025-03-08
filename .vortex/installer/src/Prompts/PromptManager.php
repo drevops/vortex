@@ -231,8 +231,7 @@ class PromptManager {
         required: TRUE,
         default: $this->default($n, Converter::abbreviation($r['machine_name'], 4, ['_'])),
         transform: fn(string $v) => trim($v),
-        // @todo Fix validation  here.
-        validate: fn($v) => Converter::machine(strtolower($v)) !== strtolower($v) ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v) => Converter::machine(strtolower($v)) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), ModulePrefix::id())
 
       ->add(fn($r, $pr, $n) => text(

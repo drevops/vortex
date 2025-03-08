@@ -192,6 +192,19 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
+      'module prefix' => [
+        self::fill(9, 'myprefix'),
+        [ModulePrefix::id() => 'myprefix'] + $defaults,
+      ],
+      'module prefix - invalid' => [
+        self::fill(9, 'my prefix'),
+        'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+      'module prefix - invalid - capitalization' => [
+        self::fill(9, 'MyPrefix'),
+        'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+
     ];
   }
 
