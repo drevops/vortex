@@ -24,7 +24,6 @@ use DrevOps\Installer\Prompts\Handlers\OrgMachineName;
 use DrevOps\Installer\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\Installer\Prompts\Handlers\Profile;
-use DrevOps\Installer\Prompts\Handlers\ProfileCustom;
 use DrevOps\Installer\Prompts\Handlers\ProvisionType;
 use DrevOps\Installer\Prompts\Handlers\Theme;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
@@ -146,7 +145,7 @@ EOT;
 
     $values['Drupal'] = static::SECTION_TITLE;
     $values['📁 Webroot'] = $responses[Webroot::id()];
-    $values['Profile'] = $responses[Profile::id()] == Profile::CUSTOM ? $responses[ProfileCustom::id()] : $responses[Profile::id()];
+    $values['Profile'] = $responses[Profile::id()];
 
     $values['🧩 Module prefix'] = $responses[ModulePrefix::id()];
     $values['🎨 Theme machine name'] = $responses[Theme::id()];

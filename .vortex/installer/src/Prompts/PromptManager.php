@@ -29,7 +29,6 @@ use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\Installer\Prompts\Handlers\Profile;
 use DrevOps\Installer\Prompts\Handlers\ProvisionType;
 use DrevOps\Installer\Prompts\Handlers\Theme;
-use DrevOps\Installer\Prompts\Handlers\ProfileCustom;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
@@ -199,29 +198,34 @@ class PromptManager {
 
       ->intro('Drupal')
 
-      ->add(fn($r, $pr, $n) => select(
-        label: 'Profile',
-        hint: 'Select which profile to use',
-        options: [
-          Profile::STANDARD => 'Standard',
-          Profile::MINIMAL => 'Minimal',
-          Profile::DEMO_UMAMI => 'Demo Umami',
-          Profile::CUSTOM => 'Custom',
-        ],
-        required: TRUE,
-        default: $this->default($n, Profile::STANDARD),
-      ), Profile::id())
-
-        ->addIf(
-          fn($r) => $r[Profile::id()] === Profile::CUSTOM,
-          fn($r, $pr, $n) => text(
-            label: 'Custom profile machine name',
-            placeholder: 'E.g. my_profile',
+      ->add(
+        function($r, $pr, $n) {
+          $profile = select(
+            label: 'Profile',
+            hint: 'Select which profile to use',
+            options: [
+              Profile::STANDARD => 'Standard',
+              Profile::MINIMAL => 'Minimal',
+              Profile::DEMO_UMAMI => 'Demo Umami',
+              Profile::CUSTOM => 'Custom',
+            ],
             required: TRUE,
-            default: $this->default($n),
-            transform: fn(string $v) => trim($v),
-            validate: fn(string $v) => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.': NULL,
-          ), ProfileCustom::id())
+            default: empty($this->default($n)) ? Profile::STANDARD : Profile::CUSTOM,
+          );
+
+          if ($profile === Profile::CUSTOM) {
+            $profile = text(
+              label: 'Custom profile machine name',
+              placeholder: 'E.g. my_profile',
+              required: TRUE,
+              default: $this->default($n),
+              transform: fn(string $v) => trim($v),
+              validate: fn(string $v) => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.': NULL,
+            );
+          }
+
+          return $profile;
+        }, Profile::id())
 
       ->add(fn($r, $pr, $n) => text(
         label: '🧩 Module prefix',

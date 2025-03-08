@@ -24,13 +24,13 @@ use DrevOps\Installer\Prompts\Handlers\OrgMachineName;
 use DrevOps\Installer\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\Installer\Prompts\Handlers\Profile;
-use DrevOps\Installer\Prompts\Handlers\ProfileCustom;
 use DrevOps\Installer\Prompts\Handlers\ProvisionType;
 use DrevOps\Installer\Prompts\Handlers\Theme;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Tests\Traits\PromptsTrait;
 use DrevOps\Installer\Utils\Config;
+use DrevOps\Installer\Utils\File;
 use DrevOps\Installer\Utils\Git;
 use Laravel\Prompts\Key;
 use Laravel\Prompts\Output\BufferedConsoleOutput;
@@ -81,7 +81,7 @@ class PromptManagerTest extends UnitTestBase {
     putenv('GITHUB_TOKEN=' . self::FIXTURE_GITHUB_TOKEN);
 
     if ($before_callback) {
-      $before_callback($this);
+      $before_callback($this, $config);
     }
 
     $pm = new PromptManager($output, $config);
@@ -107,7 +107,6 @@ class PromptManagerTest extends UnitTestBase {
       GithubToken::id() => self::FIXTURE_GITHUB_TOKEN,
       GithubRepo::id() => 'myproject_org/myproject',
       Profile::id() => Profile::STANDARD,
-      ProfileCustom::id() => NULL,
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
       HostingProvider::id() => HostingProvider::NONE,
@@ -124,6 +123,11 @@ class PromptManagerTest extends UnitTestBase {
       PreserveDocsOnboarding::id() => TRUE,
     ];
 
+    $defaults_installed = [
+      CiProvider::id() => CiProvider::NONE,
+      DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
+    ] + $defaults;
+
     $discovered = [
         Name::id() => 'Discovered project',
         MachineName::id() => 'discovered_project',
@@ -134,6 +138,7 @@ class PromptManagerTest extends UnitTestBase {
         ModulePrefix::id() => 'dp',
         Theme::id() => 'discovered_project',
       ] + $defaults;
+
 
     return [
       'defaults' => [
@@ -260,9 +265,24 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid project name in the format "myorg/myproject"',
       ],
 
+      'profile - discovery' => [
+        self::fill(),
+        [Profile::id() => Profile::MINIMAL] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          $test->setDotenvValue('DRUPAL_PROFILE', Profile::MINIMAL);
+        },
+      ],
+      'profile - discovery - non-Vortex project' => [
+        self::fill(),
+        [Profile::id() => 'discovered_profile'] + $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/web/profiles/discovered_profile/discovered_profile.info');
+        },
+      ],
       'profile - custom' => [
         self::fill(8, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myprofile'),
-        [Profile::id() => Profile::CUSTOM, ProfileCustom::id() => 'myprofile'] + $defaults,
+        [Profile::id() => 'myprofile'] + $defaults,
       ],
       'profile - custom - invalid' => [
         self::fill(8, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my profile'),
@@ -343,4 +363,13 @@ class PromptManagerTest extends UnitTestBase {
 
     return $dotenv;
   }
+
+  protected function setVortexProject(Config $config): void {
+    // Add a README.md file with a Vortex badge.
+    $readme = $this->fixtureDir . DIRECTORY_SEPARATOR . 'README.md';
+    file_put_contents($readme, '[![Vortex](https://img.shields.io/badge/Vortex-1.2.3-5909A1.svg)](https://github.com/drevops/vortex/tree/1.2.3)' . PHP_EOL, FILE_APPEND);
+
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE);
+  }
+
 }

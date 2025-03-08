@@ -33,7 +33,7 @@ class Profile extends AbstractHandler {
       $this->dstDir . sprintf('/%s/profiles/custom/*/*.info.yml', $this->webroot),
     ];
 
-    $path = File::findMatchingPath($locations, 'Drupal 11 profile implementation of');
+    $path = File::findMatchingPath($locations);
 
     if (empty($path)) {
       return NULL;
@@ -52,6 +52,8 @@ class Profile extends AbstractHandler {
       File::dirReplaceContent($this->webroot . '/profiles/your_site_profile,', '', $this->tmpDir);
       File::dirReplaceContent($this->webroot . '/profiles/custom/your_site_profile,', '', $this->tmpDir);
     }
+
+//    File::dirReplaceContent('your_site_profile', $this->response, $this->tmpDir);
   }
 
 }

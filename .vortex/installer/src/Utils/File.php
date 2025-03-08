@@ -636,4 +636,8 @@ class File {
     return $fs->exists($files);
   }
 
+  public static function dump(string $filename, string $content = ''): void {
+    $fs = new Filesystem();
+    $fs->dumpFile($filename, $content);
+  }
 }

@@ -16,6 +16,10 @@ class CiProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
+    if (!$this->isInstalled()) {
+      return NULL;
+    }
+
     if (is_readable($this->dstDir . '/.github/workflows/build-test-deploy.yml')) {
       return self::GHA;
     }
@@ -24,7 +28,7 @@ class CiProvider extends AbstractHandler {
       return self::CIRCLECI;
     }
 
-    return $this->isInstalled() ? self::NONE : NULL;
+    return self::NONE;
   }
 
   /**
