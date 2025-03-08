@@ -13,9 +13,11 @@ trait PromptsTrait {
     // Override how validation is handled (it expects a user input on incorrect
     // validation) to throw an exception instead so that we can assert on it
     // in the tests.
-    Prompt::validateUsing(function (Prompt $prompt) {
+    // @note Prompts do not pass the transformed $value as an argument to the
+    // static method, so this was added in a patch.
+    Prompt::validateUsing(function (Prompt $prompt, mixed $value) {
       if (is_callable($prompt->validate)) {
-        $error = ($prompt->validate)($prompt->value());
+        $error = ($prompt->validate)($value);
         if ($error) {
           throw new \RuntimeException(sprintf('Validation for "%s" failed with error "%s".', $prompt->label, $error));
         }

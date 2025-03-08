@@ -156,7 +156,7 @@ class PromptManager {
         required: TRUE,
         default: $this->default($n, Str2Name::kebab($r['machine_name']) . '.com'),
         transform: fn(string $v) => Converter::domain($v),
-        validate: fn($v) => filter_var($v, FILTER_VALIDATE_DOMAIN) === FALSE ? 'Please enter a valid domain name' : NULL,
+        validate: fn($v) => !Validator::domain($v) ? 'Please enter a valid domain name.' : NULL,
       ), Domain::id())
 
       ->intro('Code repository')

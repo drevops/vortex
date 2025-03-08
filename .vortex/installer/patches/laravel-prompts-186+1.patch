@@ -15,8 +15,8 @@ index 324d789..924ed02 100644
          }
 
          $error = match (true) {
--            is_callable($this->validate) => ($this->validate)($value),
-             isset(static::$validateUsing) => (static::$validateUsing)($this),
-+            is_callable($this->validate) => ($this->validate)($value),
++            isset(static::$validateUsing) => (static::$validateUsing)($this, $value),
+             is_callable($this->validate) => ($this->validate)($value),
+-            isset(static::$validateUsing) => (static::$validateUsing)($this),
              default => throw new RuntimeException('The validation logic is missing.'),
          };

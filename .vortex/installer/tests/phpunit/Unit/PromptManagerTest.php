@@ -32,7 +32,6 @@ use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Tests\Traits\PromptsTrait;
 use DrevOps\Installer\Utils\Config;
 use Laravel\Prompts\Output\BufferedConsoleOutput;
-use Laravel\Prompts\Prompt;
 
 /**
  * @coversDefaultClass \DrevOps\Installer\Prompts\PromptManager
@@ -91,35 +90,37 @@ class PromptManagerTest extends UnitTestBase {
   }
 
   public static function dataProviderPrompt() {
+    $defaults = [
+      Name::id() => 'myproject',
+      MachineName::id() => 'myproject',
+      Org::id() => 'myproject Org',
+      OrgMachineName::id() => 'myproject_org',
+      Domain::id() => 'myproject.com',
+      CodeProvider::id() => CodeProvider::GITHUB,
+      GithubToken::id() => self::FIXTURE_GITHUB_TOKEN,
+      GithubRepo::id() => 'myproject_org/myproject',
+      Profile::id() => Profile::STANDARD,
+      ProfileCustom::id() => NULL,
+      ModulePrefix::id() => 'mypr',
+      Theme::id() => 'myproject',
+      HostingProvider::id() => HostingProvider::NONE,
+      Webroot::id() => Webroot::WEB,
+      DeployType::id() => [DeployType::WEBHOOK],
+      ProvisionType::id() => ProvisionType::DATABASE,
+      DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
+      DatabaseImage::id() => NULL,
+      CiProvider::id() => CiProvider::GHA,
+      DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI,
+      AssignAuthorPr::id() => TRUE,
+      LabelMergeConflictsPr::id() => TRUE,
+      PreserveDocsProject::id() => TRUE,
+      PreserveDocsOnboarding::id() => TRUE,
+    ];
+
     return [
       'defaults' => [
         self::fill(),
-        [
-          Name::id() => 'myproject',
-          MachineName::id() => 'myproject',
-          Org::id() => 'myproject Org',
-          OrgMachineName::id() => 'myproject_org',
-          Domain::id() => 'myproject.com',
-          CodeProvider::id() => CodeProvider::GITHUB,
-          GithubToken::id() => self::FIXTURE_GITHUB_TOKEN,
-          GithubRepo::id() => 'myproject_org/myproject',
-          Profile::id() => Profile::STANDARD,
-          ProfileCustom::id() => NULL,
-          ModulePrefix::id() => 'mypr',
-          Theme::id() => 'myproject',
-          HostingProvider::id() => HostingProvider::NONE,
-          Webroot::id() => Webroot::WEB,
-          DeployType::id() => [DeployType::WEBHOOK],
-          ProvisionType::id() => ProvisionType::DATABASE,
-          DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
-          DatabaseImage::id() => NULL,
-          CiProvider::id() => CiProvider::GHA,
-          DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI,
-          AssignAuthorPr::id() => TRUE,
-          LabelMergeConflictsPr::id() => TRUE,
-          PreserveDocsProject::id() => TRUE,
-          PreserveDocsOnboarding::id() => TRUE,
-        ],
+        $defaults,
       ],
 
       'invalid project name' => [
@@ -138,6 +139,32 @@ class PromptManagerTest extends UnitTestBase {
         self::fill(3, 'a word'),
         'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
+
+      'valid domain - no protocol' => [
+        self::fill(4, 'myproject.com'),
+        [Domain::id() => 'myproject.com'] + $defaults,
+      ],
+      'valid domain - www prefix' => [
+        self::fill(4, 'www.myproject.com'),
+        [Domain::id() => 'myproject.com'] + $defaults,
+      ],
+      'valid domain - secure protocol' => [
+        self::fill(4, 'https://www.myproject.com'),
+        [Domain::id() => 'myproject.com'] + $defaults,
+      ],
+      'valid domain - unsecure protocol' => [
+        self::fill(4, 'http://www.myproject.com'),
+        [Domain::id() => 'myproject.com'] + $defaults,
+      ],
+      'invalid domain - missing TLD' => [
+        self::fill(4, 'myproject'),
+        'Please enter a valid domain name.',
+      ],
+      'invalid domain - incorrect protocol' => [
+        self::fill(4, 'htt://myproject.com'),
+        'Please enter a valid domain name.',
+      ],
+
     ];
   }
 

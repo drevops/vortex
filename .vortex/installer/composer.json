@@ -65,7 +65,7 @@
         "composer-exit-on-patch-failure": true,
         "patches": {
             "laravel/prompts": {
-                "Allow static validator to run before prompt's validator": "patches/laravel-prompts-186.patch"
+                "Allow static validator to run before prompt's validator": "patches/laravel-prompts-186+1.patch"
             }
         }
     },

@@ -13,10 +13,14 @@ namespace DrevOps\Installer\Utils;
  */
 class Validator {
 
-  public static function containerImage(string $string): bool {
+  public static function containerImage(string $value): bool {
     $regex = '/^(?:[a-z0-9.\-]+(?::\d+)?\/)?[a-z0-9]+(?:[._\-][a-z0-9]+)*(?:\/[a-z0-9]+(?:[._\-][a-z0-9]+)*)*(?::[a-zA-Z0-9][a-zA-Z0-9._\-]{0,127})?$/x';
 
-    return (bool) preg_match($regex, $string);
+    return (bool) preg_match($regex, $value);
+  }
+
+  public static function domain(string $value): bool {
+    return !filter_var($value, FILTER_VALIDATE_IP) && filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) && strpos($value, '.') !== FALSE;
   }
 
 }

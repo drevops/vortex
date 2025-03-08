@@ -44,4 +44,32 @@ class ValidatorTest extends UnitTestBase {
     ];
   }
 
+  /**
+   * @dataProvider dataProviderDomain
+   * @covers ::domain
+   */
+  public function testDomain(string $domain, bool $expected): void {
+    $this->assertSame($expected, Validator::domain($domain));
+  }
+
+  /**
+   * Data provider for testDomain.
+   *
+   * @return array[]
+   */
+  public static function dataProviderDomain(): array {
+    return [
+      'valid domain with TLD' => ['example.com', TRUE],
+      'valid subdomain' => ['sub.example.com', TRUE],
+      'valid domain with multiple dots' => ['example.co.uk', TRUE],
+      'invalid domain without TLD' => ['myproject', FALSE],
+      'invalid domain with only dot' => ['.', FALSE],
+      'invalid domain with special characters' => ['invalid_domain.com', FALSE],
+      'invalid empty string' => ['', FALSE],
+      'invalid numeric domain' => ['123456', FALSE],
+      'invalid IP address' => ['192.168.1.1', FALSE],
+      'invalid domain with spaces' => ['example .com', FALSE],
+    ];
+  }
+
 }

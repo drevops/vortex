@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e81b85bbadd182216914057d47fae449",
+    "content-hash": "f345570f0e64b44d7242a2a6dfb2bea1",
     "packages": [
         {
             "name": "alexskrypnyk/str2name",
