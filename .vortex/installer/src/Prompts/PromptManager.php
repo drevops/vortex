@@ -384,15 +384,15 @@ class PromptManager {
         }, DatabaseDownloadSource::id())
 
           ->addIf(
-              fn($r) => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
-              fn($r, $pr, $n) => text(
-                label: 'What is your database container image name and a tag?',
-                hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
-                placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
-                default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
-                transform: fn($v) => trim($v),
-                validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid container image name with an optional tag.' : NULL,
-              ), DatabaseImage::id())
+            fn($r) => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
+            fn($r, $pr, $n) => text(
+              label: 'What is your database container image name and a tag?',
+              hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
+              placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
+              default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
+              transform: fn($v) => trim($v),
+              validate: fn($v) => !Validator::containerImage($v) ? 'Please enter a valid container image name with an optional tag.' : NULL,
+          ), DatabaseImage::id())
 
       ->intro('Continuous Integration')
 

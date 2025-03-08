@@ -475,6 +475,31 @@ class PromptManagerTest extends UnitTestBase {
         self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyRegistry/MyImage:mytag'),
         'Please enter a valid container image name with an optional tag.',
       ],
+
+      'ci provider - discovery - gha' => [
+        self::fill(),
+        [CiProvider::id() => CiProvider::GHA] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/.github/workflows/build-test-deploy.yml');
+        },
+      ],
+      'ci provider - discovery - circleci' => [
+        self::fill(),
+        [CiProvider::id() => CiProvider::CIRCLECI] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/.circleci/config.yml');
+        },
+      ],
+      'ci provider - discovery - none' => [
+        self::fill(),
+        [CiProvider::id() => CiProvider::NONE] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+        },
+      ],
+
     ];
   }
 
