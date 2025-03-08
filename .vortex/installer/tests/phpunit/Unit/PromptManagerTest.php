@@ -369,6 +369,42 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
+      'hosting provider - discovery - Acquia' => [
+        self::fill(),
+        [
+          HostingProvider::id() => HostingProvider::ACQUIA,
+          Webroot::id() =>Webroot::DOCROOT,
+          DeployType::id() => [DeployType::ARTIFACT],
+          DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
+        ] + $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/hooks/somehook');
+        },
+      ],
+      'hosting provider - discovery - Acquia from env' => [
+        self::fill(),
+        [
+          HostingProvider::id() => HostingProvider::ACQUIA,
+          Webroot::id() =>Webroot::DOCROOT,
+          DeployType::id() => [DeployType::ARTIFACT],
+          DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
+        ] + $defaults,
+        function (TestCase $test, Config $config) {
+          $test->setDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', DatabaseDownloadSource::ACQUIA);
+        },
+      ],
+      'hosting provider - discovery - Lagoon' => [
+        self::fill(),
+        [
+          HostingProvider::id() => HostingProvider::LAGOON,
+          DeployType::id() => [DeployType::LAGOON],
+          DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
+        ] + $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/.lagoon.yml');
+        },
+      ],
+
       'webroot - custom - discovery' => [
         self::fill(),
         [Webroot::id() => 'discovered_webroot'] + $defaults,
