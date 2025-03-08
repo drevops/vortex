@@ -136,6 +136,10 @@ class PromptManagerTest extends UnitTestBase {
     $defaults_installed = [
         CiProvider::id() => CiProvider::NONE,
         DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
+        AssignAuthorPr::id() => FALSE,
+        LabelMergeConflictsPr::id() => FALSE,
+        PreserveDocsProject::id() => FALSE,
+        PreserveDocsOnboarding::id() => FALSE,
       ] + $defaults;
 
     $discovered = [
@@ -537,6 +541,97 @@ class PromptManagerTest extends UnitTestBase {
         },
       ],
 
+      'auto assign pr - discovery' => [
+        self::fill(),
+        [AssignAuthorPr::id() => TRUE] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/.github/workflows/assign-author.yml');
+        },
+      ],
+      'auto assign pr - discovery - removed' => [
+        self::fill(),
+        [AssignAuthorPr::id() => FALSE] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+        },
+      ],
+      'auto assign pr - discovery - non-Vortex' => [
+        self::fill(),
+        [AssignAuthorPr::id() => TRUE] + $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/.github/workflows/assign-author.yml');
+        },
+      ],
+
+      'label merge conflicts - discovery' => [
+        self::fill(),
+        [LabelMergeConflictsPr::id() => TRUE] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/.github/workflows/label-merge-conflict.yml');
+        },
+      ],
+      'label merge conflicts - discovery - removed' => [
+        self::fill(),
+        [LabelMergeConflictsPr::id() => FALSE] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+        },
+      ],
+      'label merge conflicts - discovery - non-Vortex' => [
+        self::fill(),
+        [LabelMergeConflictsPr::id() => TRUE] + $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/.github/workflows/label-merge-conflict.yml');
+        },
+      ],
+
+      'preserve project documentation - discovery' => [
+        self::fill(),
+        [PreserveDocsProject::id() => TRUE] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/docs/README.md');
+        },
+      ],
+      'preserve project documentation - discovery - removed' => [
+        self::fill(),
+        [PreserveDocsProject::id() => FALSE] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+        },
+      ],
+      'preserve project documentation - discovery - non-Vortex' => [
+        self::fill(),
+        [PreserveDocsProject::id() => TRUE] + $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/docs/README.md');
+        },
+      ],
+
+      'preserve onboarding checklist - discovery' => [
+        self::fill(),
+        [PreserveDocsOnboarding::id() => TRUE] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/docs/onboarding.md');
+        },
+      ],
+      'preserve onboarding checklist - discovery - removed' => [
+        self::fill(),
+        [PreserveDocsOnboarding::id() => FALSE] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+        },
+      ],
+      'preserve onboarding checklist - discovery - non-Vortex' => [
+        self::fill(),
+        [PreserveDocsOnboarding::id() => TRUE] + $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/docs/onboarding.md');
+        },
+      ],
     ];
   }
 

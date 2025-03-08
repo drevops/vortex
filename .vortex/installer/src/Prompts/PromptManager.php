@@ -531,7 +531,9 @@ class PromptManager {
       return $default;
     }
 
-    return $this->handlers[$name]->discover() ?: $default;
+    $discovered = $this->handlers[$name]->discover();
+
+    return !is_null($discovered) ? $discovered : $default;
   }
 
   /**

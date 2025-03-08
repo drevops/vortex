@@ -8,8 +8,7 @@ class LabelMergeConflictsPr extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    // @todo Implement this.
-    return NULL;
+    return $this->isInstalled() ? file_exists($this->dstDir . '/.github/workflows/label-merge-conflict.yml') : NULL;
   }
 
   /**

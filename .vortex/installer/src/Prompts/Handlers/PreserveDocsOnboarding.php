@@ -10,7 +10,7 @@ class PreserveDocsOnboarding extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    return $this->isInstalled() ? is_readable($this->dstDir . '/docs/onboarding.md') : NULL;
+    return $this->isInstalled() ? file_exists($this->dstDir . '/docs/onboarding.md') : NULL;
   }
 
   /**
