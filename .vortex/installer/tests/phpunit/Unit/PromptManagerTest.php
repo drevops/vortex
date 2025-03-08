@@ -31,6 +31,7 @@ use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Tests\Traits\PromptsTrait;
 use DrevOps\Installer\Utils\Config;
+use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\File;
 use DrevOps\Installer\Utils\Git;
 use Laravel\Prompts\Key;
@@ -133,9 +134,9 @@ class PromptManagerTest extends UnitTestBase {
     ];
 
     $defaults_installed = [
-      CiProvider::id() => CiProvider::NONE,
-      DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
-    ] + $defaults;
+        CiProvider::id() => CiProvider::NONE,
+        DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
+      ] + $defaults;
 
     $discovered = [
         Name::id() => 'Discovered project',
@@ -373,7 +374,7 @@ class PromptManagerTest extends UnitTestBase {
         self::fill(),
         [
           HostingProvider::id() => HostingProvider::ACQUIA,
-          Webroot::id() =>Webroot::DOCROOT,
+          Webroot::id() => Webroot::DOCROOT,
           DeployType::id() => [DeployType::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
         ] + $defaults,
@@ -385,7 +386,7 @@ class PromptManagerTest extends UnitTestBase {
         self::fill(),
         [
           HostingProvider::id() => HostingProvider::ACQUIA,
-          Webroot::id() =>Webroot::DOCROOT,
+          Webroot::id() => Webroot::DOCROOT,
           DeployType::id() => [DeployType::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
         ] + $defaults,
@@ -430,6 +431,14 @@ class PromptManagerTest extends UnitTestBase {
       'webroot - custom - invalid' => [
         self::fill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my webroot'),
         'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+
+      'deploy type - discovery' => [
+        self::fill(),
+        [DeployType::id() => [DeployType::ARTIFACT, DeployType::WEBHOOK]] + $defaults,
+        function (TestCase $test, Config $config) {
+          $test->setDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployType::ARTIFACT, DeployType::WEBHOOK]));
+        },
       ],
 
       'database image - discovery' => [
