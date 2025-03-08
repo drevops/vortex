@@ -500,6 +500,43 @@ class PromptManagerTest extends UnitTestBase {
         },
       ],
 
+      'dependency updates provider - discovery - renovate self-hosted - gha' => [
+        self::fill(),
+        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/renovate.json');
+          File::dump($test->fixtureDir .  '/.github/workflows/renovate.yml');
+        },
+      ],
+      'dependency updates provider - discovery - renovate self-hosted - circleci' => [
+        self::fill(),
+        [
+          CiProvider::id() => CiProvider::CIRCLECI,
+          DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI
+        ] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/renovate.json');
+          File::dump($test->fixtureDir . '/.circleci/config.yml', 'renovatebot_schedule');
+        },
+      ],
+      'dependency updates provider - discovery - renovate app' => [
+        self::fill(),
+        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/renovate.json');
+        },
+      ],
+      'dependency updates provider - discovery - none' => [
+        self::fill(),
+        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+        },
+      ],
+
     ];
   }
 

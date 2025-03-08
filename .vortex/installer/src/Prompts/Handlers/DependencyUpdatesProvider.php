@@ -24,11 +24,11 @@ class DependencyUpdatesProvider extends AbstractHandler {
       return self::NONE;
     }
 
-    if (file_exists($this->dstDir . '.github/workflows/renovate.yml')) {
+    if (file_exists($this->dstDir . '/.github/workflows/renovate.yml')) {
       return self::RENOVATEBOT_CI;
     }
 
-    if (File::contains('renovatebot_schedule', $this->dstDir . '.circleci/config.yml')) {
+    if (File::contains('renovatebot_schedule', $this->dstDir . '/.circleci/config.yml')) {
       return self::RENOVATEBOT_CI;
     }
 
