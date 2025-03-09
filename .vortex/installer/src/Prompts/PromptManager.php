@@ -516,7 +516,7 @@ class PromptManager {
       Internal::id(),
     ];
 
-    $progress = progress('Customizing Vortex', $ids);
+    $progress = progress('Customizing Vortex for your project', $ids);
     foreach ($ids as $id) {
       if (!array_key_exists($id, $this->handlers)) {
         throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));

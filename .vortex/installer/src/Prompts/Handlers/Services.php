@@ -2,7 +2,6 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Composer;
 use Symfony\Component\Yaml\Yaml;
 
 class Services extends AbstractHandler {
