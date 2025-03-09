@@ -28,6 +28,7 @@ use DrevOps\Installer\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\Installer\Prompts\Handlers\Profile;
 use DrevOps\Installer\Prompts\Handlers\ProvisionType;
+use DrevOps\Installer\Prompts\Handlers\Services;
 use DrevOps\Installer\Prompts\Handlers\Theme;
 use DrevOps\Installer\Prompts\Handlers\ThemeRunner;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
@@ -262,16 +263,29 @@ class PromptManager {
           default: $this->default($n, ThemeRunner::GRUNT),
         ), ThemeRunner::id())
 
+      ->intro('Services')
+
+      ->add(fn($r, $pr, $n) => multiselect(
+        label: '🔌 Services',
+        hint: 'Select the services you want to use in the project.',
+        options: [
+          Services::CLAMAV => '🦠 ClamAV',
+          Services::SOLR => '🔍 Solr',
+          Services::REDIS => '🔴 Redis',
+        ],
+        default: $this->default($n, [Services::CLAMAV, Services::SOLR, Services::REDIS]),
+      ), Services::id())
+
       ->intro('Hosting')
 
       ->add(fn($r, $pr, $n) => select(
         label: '🏠 Hosting provider',
         hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
         options: [
-          'none' => '⭕  None',
-          'acquia' => '💧 Acquia Cloud',
-          'lagoon' => '🌊 Lagoon',
-          'other' => '🧩 Other',
+          HostingProvider::NONE => '⭕  None',
+          HostingProvider::ACQUIA => '💧 Acquia Cloud',
+          HostingProvider::LAGOON => '🌊 Lagoon',
+          HostingProvider::OTHER => '🧩 Other',
         ],
         required: TRUE,
         default: $this->default($n, 'none'),

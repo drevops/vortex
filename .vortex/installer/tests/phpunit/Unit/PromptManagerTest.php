@@ -25,6 +25,7 @@ use DrevOps\Installer\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\Installer\Prompts\Handlers\Profile;
 use DrevOps\Installer\Prompts\Handlers\ProvisionType;
+use DrevOps\Installer\Prompts\Handlers\Services;
 use DrevOps\Installer\Prompts\Handlers\Theme;
 use DrevOps\Installer\Prompts\Handlers\ThemeRunner;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
@@ -37,6 +38,7 @@ use DrevOps\Installer\Utils\Git;
 use Laravel\Prompts\Key;
 use Laravel\Prompts\Output\BufferedConsoleOutput;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * @coversDefaultClass \DrevOps\Installer\Prompts\PromptManager
@@ -119,6 +121,7 @@ class PromptManagerTest extends UnitTestBase {
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
       ThemeRunner::id() => ThemeRunner::GRUNT,
+      Services::id() => [Services::CLAMAV, Services::SOLR, Services::REDIS],
       HostingProvider::id() => HostingProvider::NONE,
       Webroot::id() => Webroot::WEB,
       DeployType::id() => [DeployType::WEBHOOK],
@@ -374,6 +377,64 @@ class PromptManagerTest extends UnitTestBase {
         'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
+      'services - discovery - solr' => [
+        self::fill(),
+        [
+          Services::id() => [Services::SOLR],
+        ] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/docker-compose.yml', Yaml::dump([Services::SOLR => []]));
+        },
+      ],
+      'services - discovery - redis' => [
+        self::fill(),
+        [
+          Services::id() => [Services::REDIS],
+        ] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/docker-compose.yml', Yaml::dump([Services::REDIS => []]));
+        },
+      ],
+      'services - discovery - clamav' => [
+        self::fill(),
+        [
+          Services::id() => [Services::CLAMAV],
+        ] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => []]));
+        },
+      ],
+      'services - discovery - all' => [
+        self::fill(),
+        [
+          Services::id() => [Services::CLAMAV, Services::SOLR, Services::REDIS],
+        ] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::SOLR => [], Services::REDIS => [], ]));
+        },
+      ],
+      'services - discovery - none' => [
+        self::fill(),
+        [
+          Services::id() => [],
+        ] + $defaults_installed,
+        function (TestCase $test, Config $config) {
+          $test->setVortexProject($config);
+          File::dump($test->fixtureDir . '/docker-compose.yml', Yaml::dump(['other_service' => []]));
+        },
+      ],
+      'services - discovery - non-Vortex project' => [
+        self::fill(),
+        $defaults,
+        function (TestCase $test, Config $config) {
+          File::dump($test->fixtureDir . '/docker-compose.yml', Yaml::dump([Services::REDIS => [], Services::CLAMAV => [], Services::SOLR => []]));
+        },
+      ],
+
       'hosting provider - discovery - Acquia' => [
         self::fill(),
         [
@@ -425,15 +486,15 @@ class PromptManagerTest extends UnitTestBase {
         },
       ],
       'webroot - custom' => [
-        self::fill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my_webroot'),
+        self::fill(13, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my_webroot'),
         [HostingProvider::id() => HostingProvider::OTHER, Webroot::id() => 'my_webroot'] + $defaults,
       ],
       'webroot - custom - capitalization' => [
-        self::fill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyWebroot'),
+        self::fill(13, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyWebroot'),
         [HostingProvider::id() => HostingProvider::OTHER, Webroot::id() => 'MyWebroot'] + $defaults,
       ],
       'webroot - custom - invalid' => [
-        self::fill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my webroot'),
+        self::fill(13, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my webroot'),
         'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
@@ -461,22 +522,22 @@ class PromptManagerTest extends UnitTestBase {
       ],
 
       'database image - discovery' => [
-        self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER),
+        self::fill(16, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER),
         [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'discovered_owner/discovered_image:tag'] + $defaults,
         function (TestCase $test, Config $config) {
           $test->setDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
         },
       ],
       'database image' => [
-        self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry/myimage:mytag'),
+        self::fill(16, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry/myimage:mytag'),
         [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'myregistry/myimage:mytag'] + $defaults,
       ],
       'database image - invalid' => [
-        self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry:myimage:mytag'),
+        self::fill(16, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry:myimage:mytag'),
         'Please enter a valid container image name with an optional tag.',
       ],
       'database image - invalid - capitalization' => [
-        self::fill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyRegistry/MyImage:mytag'),
+        self::fill(16, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyRegistry/MyImage:mytag'),
         'Please enter a valid container image name with an optional tag.',
       ],
 
@@ -510,14 +571,14 @@ class PromptManagerTest extends UnitTestBase {
         function (TestCase $test, Config $config) {
           $test->setVortexProject($config);
           File::dump($test->fixtureDir . '/renovate.json');
-          File::dump($test->fixtureDir .  '/.github/workflows/renovate.yml');
+          File::dump($test->fixtureDir . '/.github/workflows/renovate.yml');
         },
       ],
       'dependency updates provider - discovery - renovate self-hosted - circleci' => [
         self::fill(),
         [
           CiProvider::id() => CiProvider::CIRCLECI,
-          DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI
+          DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI,
         ] + $defaults_installed,
         function (TestCase $test, Config $config) {
           $test->setVortexProject($config);
