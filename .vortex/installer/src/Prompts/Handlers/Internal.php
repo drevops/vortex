@@ -54,7 +54,7 @@ class Internal extends AbstractHandler {
     File::dirReplaceContent('##### ', '', $this->tmpDir);
 
     // Process empty lines.
-    $ignore = array_merge(File::ignorePaths(), [
+    $ignore = array_merge(File::ignoredPaths(), [
       '/web/sites/default/default.settings.php',
       '/web/sites/default/default.services.yml',
       '/.docker/config/solr/config-set/',

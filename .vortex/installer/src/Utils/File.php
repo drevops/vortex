@@ -70,7 +70,7 @@ class File {
    * @return array<int, string>
    *   Array of paths to ignore.
    */
-  public static function ignorePaths(): array {
+  public static function ignoredPaths(): array {
     return array_merge([
       '/.git/',
       '/.idea/',
@@ -126,7 +126,7 @@ class File {
   }
 
   public static function replaceStringFilename(string $search, string $replace, string $dir): void {
-    $files = File::scandirRecursive($dir, File::ignorePaths());
+    $files = File::scandirRecursive($dir, File::ignoredPaths());
 
     foreach ($files as $filename) {
       $new_filename = str_replace($search, $replace, (string) $filename);
@@ -144,7 +144,7 @@ class File {
   }
 
   public static function dirReplaceContent(string $needle, string $replacement, string $dir): void {
-    $files = File::scandirRecursive($dir, File::ignorePaths());
+    $files = File::scandirRecursive($dir, File::ignoredPaths());
     foreach ($files as $filename) {
       File::fileReplaceContent($needle, $replacement, $filename);
     }
@@ -295,7 +295,7 @@ class File {
   }
 
   public static function dirContains(string $needle, string $dir): bool {
-    $files = File::scandirRecursive($dir, File::ignorePaths());
+    $files = File::scandirRecursive($dir, File::ignoredPaths());
     foreach ($files as $filename) {
       if (File::contains($needle, $filename)) {
         return TRUE;
@@ -513,7 +513,7 @@ class File {
   }
 
   public static function removeTokenWithContent(string $token, string $dir): void {
-    $files = File::scandirRecursive($dir, File::ignorePaths());
+    $files = File::scandirRecursive($dir, File::ignoredPaths());
     foreach ($files as $filename) {
       File::removeTokenFromFile($filename, '#;< ' . $token, '#;> ' . $token, TRUE);
     }
@@ -521,7 +521,7 @@ class File {
 
   public static function removeTokenLine(string $token, string $dir): void {
     if (!empty($token)) {
-      $files = File::scandirRecursive($dir, File::ignorePaths());
+      $files = File::scandirRecursive($dir, File::ignoredPaths());
       foreach ($files as $filename) {
         File::removeTokenFromFile($filename, $token, NULL);
       }

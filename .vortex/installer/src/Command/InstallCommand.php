@@ -105,8 +105,8 @@ EOF
       $this->promptManager->process();
 
       $this->prepareDestination();
-      die('RESTORE FROM HERE');
 
+      die('RESTORE FROM HERE');
       $this->copyFiles();
 
       $this->handleDemo();
@@ -236,14 +236,16 @@ EOF
     // into destination directory. Instead, we are removing all ignored files
     // and empty directories, making the src directory "clean", and then
     // recursively copying the whole directory.
-    $all = File::scandirRecursive($src, File::ignorePaths(), TRUE);
+    $all = File::scandirRecursive($src, File::ignoredPaths(), TRUE);
     $files = File::scandirRecursive($src);
-    $valid_files = File::scandirRecursive($src, File::ignorePaths());
+    $valid_files = File::scandirRecursive($src, File::ignoredPaths());
     $dirs = array_diff($all, $valid_files);
     $ignored_files = array_diff($files, $valid_files);
 
     // @todo Implement as a progress.
     note('Copying files');
+
+//    $progress = progress('Customizing Vortex for your project', $ids);
 
     foreach ($valid_files as $filename) {
       $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $filename);
