@@ -39,7 +39,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Laravel\Prompts\note;
 
 /**
  * Run command.
@@ -355,7 +354,7 @@ EOT;
 
     // Print the logo only if the terminal is wide enough.
     if (Tui::terminalWidth() >= 80) {
-      note(Tui::green($logo));
+      Tui::note(Tui::green($logo));
     }
 
     $title = 'Welcome to Vortex interactive installer';
