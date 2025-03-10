@@ -35,6 +35,7 @@ use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\File;
 use DrevOps\Installer\Utils\Git;
+use DrevOps\Installer\Utils\Tui;
 use Laravel\Prompts\Key;
 use Laravel\Prompts\Output\BufferedConsoleOutput;
 use PHPUnit\Framework\TestCase;
@@ -95,7 +96,8 @@ class PromptManagerTest extends UnitTestBase {
       $before_callback($this, $config);
     }
 
-    $pm = new PromptManager($output, $config);
+    Tui::init($output, FALSE);
+    $pm = new PromptManager($config);
     // Enter responses and fill in the missing ones if an exception is expected
     // so that in case of exception not being thrown, the test does not hang
     // waiting for more input.
