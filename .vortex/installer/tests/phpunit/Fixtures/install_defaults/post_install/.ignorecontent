@@ -10,6 +10,8 @@
 ^rector.php
 ^renovate.json
 
+.git/
+
 ^.ahoy.local.example.yml
 ^.ahoy.yml
 ^.dockerignore
@@ -25,10 +27,11 @@
 ^.docker/nginx-drupal.dockerfile
 ^.docker/php.dockerfile
 ^.docker/solr.dockerfile
-^.docker/scripts/*
-^.docker/config/clamav/clamd.conf
+^.docker/scripts/
+^.docker/config/clamav/clamav.conf
 ^.docker/config/mariadb/my.cnf
-^.docker/config/solr/config-set/*
+.docker/config/solr/config-set
+^.docker/config/README.md
 
 ^.github/workflows/assign-author.yml
 ^.github/workflows/build-test-deploy.yml
@@ -38,11 +41,10 @@
 ^.github/PULL_REQUEST_TEMPLATE.md
 ^.github/release-drafter.yml
 
-^config/ci
-^config/default
-^config/dev
-^config/local
-^config/test
+^config/default/.htaccess
+^config/dev/.htaccess
+^config/local/.htaccess
+^config/test/.htaccess
 
 ^patches
 ^recipes
@@ -67,7 +69,12 @@
 ^web/modules/custom/sut_core/tests/src/Unit/ExampleTest.php
 ^web/modules/custom/sut_core/tests/src/Unit/SutCoreUnitTestBase.php
 
-^web/modules/custom/sut_search/config/install/*
+^web/modules/custom/sut_core/sut_core.deploy.php
+^web/modules/custom/sut_core/sut_core.info.yml
+^web/modules/custom/sut_core/sut_core.module
+
+
+^web/modules/custom/sut_search/config/install/
 ^web/modules/custom/sut_search/sut_search.info.yml
 ^web/modules/custom/sut_search/sut_search.install
 
