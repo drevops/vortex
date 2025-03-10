@@ -205,7 +205,7 @@ EOF
     // Set destination directory.
     $dst = !empty($arguments['destination']) && is_scalar($arguments['destination']) ? strval($arguments['destination']) : NULL;
     $dst = $dst ?: Env::get(Config::DST, $this->config->get(Config::DST, $this->config->get(Config::ROOT)));
-    $dst = File::mkdir($dst);
+    $dst = File::realpath($dst);
     $this->config->set(Config::DST, $dst, TRUE);
 
     // Load values from the destination .env file, if it exists.
