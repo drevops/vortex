@@ -19,7 +19,7 @@ class InstallTest extends FunctionalTestBase {
    *
    * @covers ::execute
    */
-  public function testInitial(): void {
+  public function testInstallDefaults(): void {
     $this->runInstall(static::fill());
 
     //    // Custom welcome message.
