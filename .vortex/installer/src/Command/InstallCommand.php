@@ -70,8 +70,6 @@ class InstallCommand extends Command {
    */
   protected OutputInterface $output;
 
-  protected PromptManager $promptManager;
-
   /**
    * {@inheritdoc}
    */
@@ -110,14 +108,14 @@ EOF
       $this->resolveOptions($input->getOptions(), $input->getArguments());
 
       Tui::init($output, !$this->config->getNoInteraction());
-      $this->promptManager = new PromptManager($this->config);
+      $pm = new PromptManager($this->config);
 
       static::header();
 
-      $this->promptManager->prompt();
+      $pm->prompt();
 
-      static::summary($this->promptManager->getResponses());
-      if (!$this->promptManager->shouldProceed()) {
+      static::summary($pm->getResponses());
+      if (!$pm->shouldProceed()) {
         info('Aborting project installation. No files were changed.');
 
         return Command::SUCCESS;
@@ -133,7 +131,7 @@ EOF
       Tui::action(
         label: '⚙️ Customizing Vortex for your project',
         success: 'Vortex was customized for your project',
-        action: fn() => $this->promptManager->process(),
+        action: fn() => $pm->process(),
       );
 
       Tui::action(
@@ -145,7 +143,7 @@ EOF
       Tui::action(
         label: '➡️ Copying files to destination directory',
         success: 'Files copied to destination directory',
-        action: fn() => sleep(2)
+        action: fn() => sleep(1)
       //        action: fn() => $this->copyFiles(),
       );
 
@@ -158,7 +156,7 @@ EOF
       return Command::FAILURE;
     }
 
-    $this->promptManager->printFooter();
+    static::footer();
 
     return Command::SUCCESS;
   }
@@ -343,7 +341,7 @@ EOF
     }
   }
 
-  public function header(): void {
+  protected function header(): void {
     $logo = <<<EOT
 -------------------------------------------------------------------------------
 
@@ -402,7 +400,7 @@ EOT;
     Tui::box($content, $title);
   }
 
-  public function summary(array $responses): void {
+  protected function summary(array $responses): void {
     $values['General information'] = Tui::LIST_SECTION_TITLE;
     $values['🔖 Site name'] = $responses[Name::id()];
     $values['🔖 Site machine name'] = $responses[MachineName::id()];
@@ -460,6 +458,31 @@ EOT;
     $values['Vortex repository'] = $this->config->get(Config::REPO_URI);
 
     Tui::list($values, 'Installation summary');
+  }
+
+  public function footer(): void {
+    print PHP_EOL;
+
+    // @todo Fix the footer.
+    print 'Would print footer';
+    //
+    //    if ($this->isInstalled()) {
+    //      $this->printBox('Finished updating Vortex. Review changes and commit required files.');
+    //    }
+    //    else {
+    //      $this->printBox('Finished installing Vortex.');
+    //
+    //      $output = '';
+    //      $output .= PHP_EOL;
+    //      $output .= 'Next steps:' . PHP_EOL;
+    //      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
+    //      $output .= '  git add -A                       # Add all files.' . PHP_EOL;
+    //      $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
+    //      $output .= '  ahoy build                       # Build site.' . PHP_EOL;
+    //      $output .= PHP_EOL;
+    //      $output .= '  See https://vortex.drevops.com/quickstart';
+    //      $this->status($output, self::INSTALLER_STATUS_SUCCESS, TRUE, FALSE);
+    //    }
   }
 
 }

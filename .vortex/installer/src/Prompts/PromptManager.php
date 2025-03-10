@@ -569,32 +569,6 @@ class PromptManager {
   //----------------------
 
   // @todo Refactor this.
-  public function printFooter(): void {
-    print PHP_EOL;
-
-    // @todo Fix the footer.
-    print 'Would print footer';
-    //
-    //    if ($this->isInstalled()) {
-    //      $this->printBox('Finished updating Vortex. Review changes and commit required files.');
-    //    }
-    //    else {
-    //      $this->printBox('Finished installing Vortex.');
-    //
-    //      $output = '';
-    //      $output .= PHP_EOL;
-    //      $output .= 'Next steps:' . PHP_EOL;
-    //      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
-    //      $output .= '  git add -A                       # Add all files.' . PHP_EOL;
-    //      $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
-    //      $output .= '  ahoy build                       # Build site.' . PHP_EOL;
-    //      $output .= PHP_EOL;
-    //      $output .= '  See https://vortex.drevops.com/quickstart';
-    //      $this->status($output, self::INSTALLER_STATUS_SUCCESS, TRUE, FALSE);
-    //    }
-  }
-
-  // @todo Refactor this.
   public function shouldProceed(): bool {
     $proceed = TRUE;
 
