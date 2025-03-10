@@ -111,6 +111,8 @@ EOF
         return Command::SUCCESS;
       }
 
+      Tui::info('Starting project installation');
+
       Tui::action(
         label: '⬇️ Downloading Vortex',
         hint: fn() => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO_URI))),

@@ -6,7 +6,6 @@ use Laravel\Prompts\Prompt;
 use Laravel\Prompts\Terminal;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\error;
-use function Laravel\Prompts\info;
 use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\spin;
@@ -66,7 +65,7 @@ class Tui {
   }
 
   public static function info(string $message): void {
-    info($message);
+    intro($message);
   }
 
   public static function note(string $message): void {
