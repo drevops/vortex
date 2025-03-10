@@ -9,6 +9,17 @@
 ^README.md
 ^rector.php
 ^renovate.json
+
+^.ahoy.local.example.yml
+^.ahoy.yml
+^.dockerignore
+^.editorconfig
+^.env.local
+^.env.local.example
+^.gitignore
+^.twig-cs-fixer.php
+
+
 ^web/autoload.php
 ^web/index.php
 ^web/robots.txt
