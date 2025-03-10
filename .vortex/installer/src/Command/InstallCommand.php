@@ -146,8 +146,8 @@ EOF
       Tui::action(
         label: '➡️ Copying files to destination directory',
         success: 'Files copied to destination directory',
-        action: fn() => NULL,
-      //        action: fn() => $this->copyFiles(),
+//        action: fn() => NULL,
+              action: fn() => $this->copyFiles(),
       );
 
       // @todo Remove here.
