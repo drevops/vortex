@@ -8,6 +8,9 @@ use Composer\Console\Application;
 use DrevOps\Installer\Command\InstallCommand;
 use DrevOps\Installer\Tests\Traits\ConsoleTrait;
 use DrevOps\Installer\Tests\Traits\TuiTrait;
+use DrevOps\Installer\Utils\Config;
+use DrevOps\Installer\Utils\Env;
+use DrevOps\Installer\Utils\File;
 use Laravel\Prompts\Prompt;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
@@ -34,7 +37,7 @@ abstract class FunctionalTestBase extends TestCase {
   /**
    * Path to the fixtures directory from the repository root.
    */
-  const FIXTURES_DIR = 'tests/phpunit/Fixtures';
+  const FIXTURES_DIR = '.vortex/installer/tests/phpunit/Fixtures';
 
   /**
    * Path to the root directory of this project.
@@ -82,7 +85,7 @@ abstract class FunctionalTestBase extends TestCase {
     $this->consoleInitApplicationTester(InstallCommand::class);
     //    $this->initTester();
 
-    $this->initLocations((string) getcwd());
+    $this->initLocations((string) getcwd() . '/../../');
 
     // Change the current working directory to the 'system under test'.
     chdir(static::$sut);
@@ -276,7 +279,8 @@ abstract class FunctionalTestBase extends TestCase {
     $tracked_files = [];
     $output = [];
     $code = 0;
-    exec(sprintf('git --git-dir=%s --work-tree=%s ls-files', escapeshellarg($dir . '/.git'), escapeshellarg($dir)), $output, $code);
+    $command = sprintf("cd %s && git ls-files", escapeshellarg($dir));
+    exec($command, $output, $code);
     if ($code !== 0) {
       throw new \RuntimeException("Failed to retrieve tracked files using git ls-files.");
     }
@@ -417,34 +421,6 @@ abstract class FunctionalTestBase extends TestCase {
    */
   protected function assertFixtureDirectoryEqualsSut(string $expected): void {
     $this->assertDirectoriesEqual(static::$fixtures . DIRECTORY_SEPARATOR . $expected, static::$sut, static function (string $content, \SplFileInfo $file): string {
-      // Remove compose.json overrides added by the static::setUp().
-      if ($file->getBasename() === 'composer.json') {
-        $data = json_decode($content, TRUE);
-        if (!is_array($data)) {
-          return $content;
-        }
-        unset($data['minimum-stability']);
-        if (isset($data['repositories'])) {
-          if (!is_array($data['repositories'])) {
-            return $content;
-          }
-
-          foreach ($data['repositories'] as $key => $repository) {
-            if (!is_array($repository)) {
-              return $content;
-            }
-
-            if (array_key_exists('type', $repository) && $repository['type'] === 'path' && array_key_exists('url', $repository) && $repository['url'] === static::$root) {
-              unset($data['repositories'][$key]);
-              if (empty($data['repositories'])) {
-                unset($data['repositories']);
-              }
-            }
-          }
-        }
-        $content = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
-      }
-
       return $content;
     });
   }
@@ -618,7 +594,7 @@ abstract class FunctionalTestBase extends TestCase {
     if (getenv('UPDATE_TEST_FIXTURES')) {
       $allowed_files = array_keys($dir2_files);
       $finder = new Finder();
-      $finder->files()->in($dir2)->filter(static function (\SplFileInfo $file) use ($allowed_files, $dir2): bool {
+      $finder->files()->in($dir2)->ignoreDotFiles(FALSE)->filter(static function (\SplFileInfo $file) use ($allowed_files, $dir2): bool {
         $relative_path = str_replace(realpath($dir2) . DIRECTORY_SEPARATOR, '', $file->getRealPath());
 
         return in_array($relative_path, $allowed_files);
@@ -677,6 +653,7 @@ abstract class FunctionalTestBase extends TestCase {
   }
 
   protected function runInstall(array $answers = [], ?string $dst = NULL): void {
+    putenv(Config::REPO_URI . '=' . static::$root);
     static::tuiInput($answers);
 
     $dst = $dst ?? static::$sut;
