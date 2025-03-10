@@ -29,6 +29,6 @@ interface HandlerInterface {
   /**
    * Process the discovered value once all the responses are collected.
    */
-  public function process():void;
+  public function process(): void;
 
 }

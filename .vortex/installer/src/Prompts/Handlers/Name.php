@@ -22,7 +22,7 @@ class Name extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function process():void  {
+  public function process(): void {
     // @todo Implement this.
   }
 
