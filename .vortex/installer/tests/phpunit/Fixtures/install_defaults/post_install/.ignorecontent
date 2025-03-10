@@ -20,6 +20,7 @@
 ^.env.local.example
 ^.gitignore
 ^.twig-cs-fixer.php
+^.htaccess
 
 ^.docker/clamav.dockerfile
 ^.docker/cli.dockerfile
@@ -30,7 +31,7 @@
 ^.docker/scripts/
 ^.docker/config/clamav/clamav.conf
 ^.docker/config/mariadb/my.cnf
-.docker/config/solr/config-set
+.docker/config/solr/config-set/
 ^.docker/config/README.md
 
 ^.github/workflows/assign-author.yml
@@ -54,6 +55,7 @@
 ^web/index.php
 ^web/robots.txt
 ^web/update.php
+^web/.htaccess
 
 ^web/modules/sut_core.deploy.php
 ^web/modules/sut_core.info.yml
