@@ -419,10 +419,8 @@ abstract class FunctionalTestBase extends TestCase {
   /**
    * Assert that fixtures directories are equal.
    */
-  protected function assertFixtureDirectoryEqualsSut(string $expected): void {
-    $this->assertDirectoriesEqual(static::$fixtures . DIRECTORY_SEPARATOR . $expected, static::$sut, static function (string $content, \SplFileInfo $file): string {
-      return $content;
-    });
+  protected function assertFixtureDirectoryEqualsSut(string $expected, ?string $message = NULL): void {
+    $this->assertDirectoriesEqual(static::$fixtures . DIRECTORY_SEPARATOR . $expected, static::$sut, $message);
   }
 
   /**
@@ -468,7 +466,7 @@ abstract class FunctionalTestBase extends TestCase {
    * @param callable|null $match_content
    *   A callback to modify the content of the files before comparison.
    */
-  protected function assertDirectoriesEqual(string $dir1, string $dir2, ?callable $match_content = NULL): void {
+  protected function assertDirectoriesEqual(string $dir1, string $dir2, ?string $message = NULL, ?callable $match_content = NULL): void {
     $rules_file = $dir1 . DIRECTORY_SEPARATOR . '.ignorecontent';
 
     // Initialize the rules arrays: skip, presence, include, and global.
@@ -630,34 +628,34 @@ abstract class FunctionalTestBase extends TestCase {
 
     // If differences exist, throw assertion error.
     if (!empty($diffs['only_in_dir1']) || !empty($diffs['only_in_dir2']) || !empty($diffs['different_files'])) {
-      $message = sprintf("Differences between directories %s and %s:%s", $dir1, $dir2, PHP_EOL);
+      $error = sprintf("Differences between directories %s and %s:%s", $dir1, $dir2, PHP_EOL);
 
       if (!empty($diffs['only_in_dir1'])) {
-        $message .= "Files only in dir1:\n";
+        $error .= "Files only in dir1:\n";
         foreach (array_keys($diffs['only_in_dir1']) as $file) {
-          $message .= sprintf('  %s%s', $file, PHP_EOL);
+          $error .= sprintf('  %s%s', $file, PHP_EOL);
         }
       }
 
       if (!empty($diffs['only_in_dir2'])) {
-        $message .= "Files only in dir2:\n";
+        $error .= "Files only in dir2:\n";
         foreach (array_keys($diffs['only_in_dir2']) as $file) {
-          $message .= sprintf('  %s%s', $file, PHP_EOL);
+          $error .= sprintf('  %s%s', $file, PHP_EOL);
         }
       }
 
       if (!empty($diffs['different_files'])) {
-        $message .= "Files that differ in content:\n";
+        $error .= "Files that differ in content:\n";
         foreach ($diffs['different_files'] as $file) {
-          $message .= sprintf('  %s%s', $file, PHP_EOL);
+          $error .= sprintf('  %s%s', $file, PHP_EOL);
         }
       }
 
-      throw new AssertionFailedError($message);
+      throw new AssertionFailedError($error);
     }
 
     // @phpstan-ignore-next-line
-    $this->assertTrue(TRUE);
+    $this->assertTrue(TRUE, $message ?: '');
   }
 
   protected function runInstall(array $answers = [], ?string $dst = NULL): void {

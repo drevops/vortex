@@ -245,21 +245,21 @@ load _helper.bash
   assert_file_contains ".env" "VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest"
 }
 
-@test "Install into empty directory; Vortex scripts are not modified" {
-  run_installer_quiet "${DST_PROJECT_DIR}"
+#@test "Install into empty directory; Vortex scripts are not modified" {
+#  run_installer_quiet "${DST_PROJECT_DIR}"
+#
+#  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
+#  assert_git_repo "${DST_PROJECT_DIR}"
+#
+#  assert_dirs_equal "${LOCAL_REPO_DIR}/scripts/composer" "${DST_PROJECT_DIR}/scripts/composer"
+#  assert_dirs_equal "${LOCAL_REPO_DIR}/scripts/vortex" "${DST_PROJECT_DIR}/scripts/vortex"
+#}
 
-  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
-  assert_git_repo "${DST_PROJECT_DIR}"
-
-  assert_dirs_equal "${LOCAL_REPO_DIR}/scripts/composer" "${DST_PROJECT_DIR}/scripts/composer"
-  assert_dirs_equal "${LOCAL_REPO_DIR}/scripts/vortex" "${DST_PROJECT_DIR}/scripts/vortex"
-}
-
-@test "Install into empty directory; Images are not modified" {
-  run_installer_quiet "${DST_PROJECT_DIR}"
-
-  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
-  assert_git_repo "${DST_PROJECT_DIR}"
-
-  assert_binary_files_equal "${LOCAL_REPO_DIR}/tests/behat/fixtures/image.jpg" "${DST_PROJECT_DIR}/tests/behat/fixtures/image.jpg"
-}
+#@test "Install into empty directory; Images are not modified" {
+#  run_installer_quiet "${DST_PROJECT_DIR}"
+#
+#  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
+#  assert_git_repo "${DST_PROJECT_DIR}"
+#
+#  assert_binary_files_equal "${LOCAL_REPO_DIR}/tests/behat/fixtures/image.jpg" "${DST_PROJECT_DIR}/tests/behat/fixtures/image.jpg"
+#}

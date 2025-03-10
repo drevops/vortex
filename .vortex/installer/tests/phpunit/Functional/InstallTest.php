@@ -25,6 +25,9 @@ class InstallTest extends FunctionalTestBase {
     $this->assertTesterSuccessOutputContains('Welcome to Vortex interactive installer');
 
     $this->assertFixtureDirectoryEqualsSut('post_install');
+
+    $this->assertDirectoriesEqual(static::$root . '/scripts/vortex', static::$sut . '/scripts/vortex', 'Vortex scripts were not modified.');
+    $this->assertFileEquals(static::$root . '/tests/behat/fixtures/image.jpg', static::$sut . '/tests/behat/fixtures/image.jpg', 'Binary files were not modified.');
   }
 
 }
