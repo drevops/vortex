@@ -37,6 +37,13 @@ trait TuiTrait {
   }
 
   protected static function tuiInput(array $responses, int $max = 100): void {
+    $inputs = static::tuiNormalizeInput($responses, $max);
+
+    // Pass inputs to the prompt's fake method.
+    Prompt::fake($inputs);
+  }
+
+  protected static function tuiNormalizeInput(array $responses, int $max = 100): array {
     $inputs = [];
 
     foreach ($responses as $response) {
@@ -57,8 +64,7 @@ trait TuiTrait {
       $inputs[] = Key::ENTER;
     }
 
-    // Pass inputs to the prompt's fake method.
-    Prompt::fake($inputs);
+    return $inputs;
   }
 
   protected static function tuiIsKey(string $value): bool {

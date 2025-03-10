@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Tests\Functional;
 
 use Composer\Console\Application;
+use DrevOps\Installer\Command\InstallCommand;
+use DrevOps\Installer\Tests\Traits\ConsoleTrait;
+use DrevOps\Installer\Tests\Traits\TuiTrait;
+use Laravel\Prompts\Prompt;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestStatus\Error;
@@ -18,6 +22,9 @@ use Symfony\Component\Process\Process;
  * Base class for functional tests.
  */
 abstract class FunctionalTestBase extends TestCase {
+
+  use TuiTrait;
+  use ConsoleTrait;
 
   /**
    * TUI answer to indicate that the user did not provide any input.
@@ -61,16 +68,6 @@ abstract class FunctionalTestBase extends TestCase {
   protected static string $sut;
 
   /**
-   * The source package name used in tests.
-   */
-  protected string $packageName;
-
-  /**
-   * The application tester.
-   */
-  protected ApplicationTester $tester;
-
-  /**
    * The file system.
    */
   protected Filesystem $fs;
@@ -81,26 +78,11 @@ abstract class FunctionalTestBase extends TestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->initComposerTester();
+    $this->tuiSetUp();
+    $this->consoleInitApplicationTester(InstallCommand::class);
+    //    $this->initTester();
 
     $this->initLocations((string) getcwd());
-
-    // Template project using the Customizer through a plugin must have this
-    // repository added to their `composer.json` during the test to be able to
-    // download it.
-    $json = CustomizeCommand::readComposerJson(static::$repo . '/composer.json');
-    $json['minimum-stability'] = 'dev';
-    $json['repositories'] = [
-      [
-        'type' => 'path',
-        'url' => static::$root,
-        'options' => ['symlink' => TRUE],
-      ],
-    ];
-    CustomizeCommand::writeComposerJson(static::$repo . '/composer.json', $json);
-
-    // Save the package name for later use in tests.
-    $this->packageName = is_string($json['name']) ? $json['name'] : '';
 
     // Change the current working directory to the 'system under test'.
     chdir(static::$sut);
@@ -109,7 +91,7 @@ abstract class FunctionalTestBase extends TestCase {
   /**
    * Initialize the Composer command tester.
    */
-  protected function initComposerTester(): void {
+  protected function initTester(): void {
     // @see https://github.com/composer/composer/issues/12107
     if (!defined('STDIN')) {
       define('STDIN', fopen('php://stdin', 'r'));
@@ -164,7 +146,7 @@ abstract class FunctionalTestBase extends TestCase {
       throw new \RuntimeException('The fixtures directory does not exist: ' . static::$fixtures);
     }
 
-    static::$build = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'customizer-' . microtime(TRUE);
+    static::$build = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vortex-' . microtime(TRUE);
     static::$sut = static::$build . '/sut';
     static::$repo = static::$build . '/local_repo';
 
@@ -219,6 +201,8 @@ abstract class FunctionalTestBase extends TestCase {
    * {@inheritdoc}
    */
   protected function tearDown(): void {
+    $this->tuiTearDown();
+
     // Clean up the directories if the test passed.
     if (!$this->status() instanceof Failure && !$this->status() instanceof Error && isset($this->fs)) {
       $this->fs->remove(static::$build);
@@ -270,47 +254,6 @@ abstract class FunctionalTestBase extends TestCase {
     }
 
     return $process->getOutput();
-  }
-
-  /**
-   * Set the answers for the Customizer TUI.
-   *
-   * @param array $answers
-   *   The answers to set.
-   */
-  protected static function customizerSetAnswers(array $answers): void {
-    foreach ($answers as $key => $answer) {
-      if ($answer === static::TUI_ANSWER_NOTHING) {
-        $answers[$key] = "\n";
-      }
-    }
-
-    putenv('CUSTOMIZER_ANSWERS=' . json_encode($answers));
-  }
-
-  /**
-   * Run the `composer create-project` command with the given options.
-   *
-   * @param array<string,string|bool|array<mixed,mixed>> $options
-   *   The command options.
-   */
-  protected function runComposerCreateProject(array $options = []): void {
-    $defaults = [
-      'command' => 'create-project',
-      'directory' => static::$sut,
-      'package' => $this->packageName,
-      'version' => '@dev',
-      // Use a fixture of the template repository as a source for the project.
-      '--repository' => [
-        json_encode([
-          'type' => 'path',
-          'url' => static::$repo,
-          'options' => ['symlink' => FALSE],
-        ]),
-      ],
-    ];
-
-    $this->tester->run($options + $defaults);
   }
 
   /**
@@ -455,7 +398,7 @@ abstract class FunctionalTestBase extends TestCase {
    * @param string|array $strings
    *   The expected strings.
    */
-  protected function assertComposerCommandSuccessOutputContains(string|array $strings): void {
+  protected function assertTesterSuccessOutputContains(string|array $strings): void {
     $strings = is_array($strings) ? $strings : [$strings];
 
     if ($this->tester->getStatusCode() !== 0) {
@@ -731,6 +674,25 @@ abstract class FunctionalTestBase extends TestCase {
 
     // @phpstan-ignore-next-line
     $this->assertTrue(TRUE);
+  }
+
+  protected function runInstall(array $answers = [], ?string $dst = NULL): void {
+    static::tuiInput($answers);
+
+    $dst = $dst ?? static::$sut;
+    $args[] = InstallCommand::$defaultName;
+    if ($dst) {
+      $args[InstallCommand::ARG_DESTINATION] = $dst;
+    }
+    $this->consoleApplicationRun($args);
+  }
+
+  const MAX_QUESTIONS = 25;
+
+  protected static function fill(int $skip = self::MAX_QUESTIONS, ...$values): array {
+    $suffix_length = max(self::MAX_QUESTIONS - $skip - count($values), 0);
+
+    return array_merge(array_fill(0, $skip, NULL), $values, array_fill(0, $suffix_length, NULL));
   }
 
 }

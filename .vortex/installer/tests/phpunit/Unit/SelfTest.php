@@ -6,7 +6,6 @@ namespace DrevOps\Installer\Tests\Unit;
 
 use DrevOps\Installer\Tests\Functional\FunctionalTestBase;
 use PHPUnit\Framework\AssertionFailedError;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**

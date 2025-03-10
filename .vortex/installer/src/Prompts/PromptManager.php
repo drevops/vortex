@@ -469,11 +469,11 @@ class PromptManager {
       return !is_numeric($key);
     }, ARRAY_FILTER_USE_KEY);
 
-    $this->responses = $responses;
-
     if ($this->config->getNoInteraction()) {
       Tui::output()->setVerbosity($original_verbosity);
     }
+
+    $this->responses = $responses;
   }
 
   /**
@@ -485,11 +485,8 @@ class PromptManager {
 
   /**
    * Run all processors.
-   *
-   * @param callable|null $cb
-   *   Optional callback to run after each processor.
    */
-  public function process(?callable $cb = NULL): void {
+  public function process(): void {
     // @todo: Re-order processors based on questions.
     $ids = [
       Webroot::id(),

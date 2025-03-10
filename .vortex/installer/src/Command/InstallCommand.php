@@ -65,7 +65,7 @@ class InstallCommand extends Command {
    *
    * @var string
    */
-  protected static $defaultName = 'install';
+  public static $defaultName = 'install';
 
   /**
    * Defines the configuration object.
@@ -146,11 +146,12 @@ EOF
       Tui::action(
         label: '➡️ Copying files to destination directory',
         success: 'Files copied to destination directory',
-        action: fn() => sleep(1)
+        action: fn() => NULL,
       //        action: fn() => $this->copyFiles(),
       );
 
-      die('RESTORE FROM HERE');
+      // @todo Remove here.
+      return Command::SUCCESS;
       $this->handleDemo();
     }
     catch (\Exception $exception) {
