@@ -38,6 +38,14 @@
 ^.github/PULL_REQUEST_TEMPLATE.md
 ^.github/release-drafter.yml
 
+^config/ci
+^config/default
+^config/dev
+^config/local
+^config/test
+
+^patches
+
 ^web/autoload.php
 ^web/index.php
 ^web/robots.txt
