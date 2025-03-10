@@ -33,15 +33,12 @@ use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
-use DrevOps\Installer\Utils\Printer;
 use DrevOps\Installer\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Laravel\Prompts\error;
-use function Laravel\Prompts\info;
 use function Laravel\Prompts\note;
 
 /**
@@ -115,8 +112,9 @@ EOF
       $pm->prompt();
 
       static::summary($pm->getResponses());
+
       if (!$pm->shouldProceed()) {
-        info('Aborting project installation. No files were changed.');
+        Tui::info('Aborting project installation. No files were changed.');
 
         return Command::SUCCESS;
       }
@@ -151,7 +149,7 @@ EOF
       $this->handleDemo();
     }
     catch (\Exception $exception) {
-      error('Installation failed with an error:' . PHP_EOL . $exception->getMessage());
+      Tui::error('Installation failed with an error:' . PHP_EOL . $exception->getMessage());
 
       return Command::FAILURE;
     }
@@ -278,13 +276,10 @@ EOF
     $dirs = array_diff($all, $valid_files);
     $ignored_files = array_diff($files, $valid_files);
 
-    info('Copying files to your project directory.');
-
     foreach ($valid_files as $filename) {
       $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $filename);
 
       if (File::isInternalPath($relative_file)) {
-        note(sprintf('Skipped file %s as an internal Vortex file.', $relative_file));
         unlink($filename);
       }
     }
@@ -328,7 +323,7 @@ EOF
     $data_dir = $this->config->getDst() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
     $file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
-    note(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url));
+    Tui::note(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url));
 
     if (!file_exists($data_dir)) {
       mkdir($data_dir);

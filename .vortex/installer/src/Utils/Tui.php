@@ -6,6 +6,7 @@ use Laravel\Prompts\Prompt;
 use Laravel\Prompts\Terminal;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\error;
+use function Laravel\Prompts\info;
 use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\spin;
@@ -59,7 +60,15 @@ class Tui {
     }
   }
 
-  public static function error($message) {
+  public static function info(string $message): void {
+    info($message);
+  }
+
+  public static function note(string $message): void {
+    note($message);
+  }
+
+  public static function error(string $message): void {
     error($message);
   }
 
@@ -80,8 +89,8 @@ class Tui {
 
   public static function ok($text = 'OK') {
     $ok = static::green("✅  " . $text);
-    note($ok);
-    note(str_repeat(static::caretUp(), 4));
+    static::note($ok);
+    static::note(str_repeat(static::caretUp(), 4));
   }
 
   public static function label(string $message, $hint = NULL, ?array $sublist = NULL, int $sublist_indent = 2) {
@@ -91,19 +100,18 @@ class Tui {
     static::$message = static::yellow(wordwrap($message, $width - $right_offset, PHP_EOL));
     static::$hint = $hint ? wordwrap($hint, $width - $right_offset, PHP_EOL) : NULL;
 
-    note(static::$message);
-    note(str_repeat(static::caretUp(), 5));
+    static::note(static::$message);
+    static::note(str_repeat(static::caretUp(), 5));
 
     if (static::$hint) {
-      note(static::dim(static::$hint));
-      note(str_repeat(static::caretUp(), 5));
+      static::note(static::dim(static::$hint));
+      static::note(str_repeat(static::caretUp(), 5));
     }
 
     if (is_array($sublist)) {
       foreach ($sublist as $key => $value) {
-        note(static::yellow(str_repeat(' ', $sublist_indent) . '- ' . $value));
-        //        Check if is last
-        note(str_repeat(static::caretUp(), $key === array_key_last($sublist) ? 4 : 5));
+        static::note(static::yellow(str_repeat(' ', $sublist_indent) . '- ' . $value));
+        static::note(str_repeat(static::caretUp(), $key === array_key_last($sublist) ? 4 : 5));
       }
     }
   }
