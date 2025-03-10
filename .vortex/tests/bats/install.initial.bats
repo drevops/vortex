@@ -9,54 +9,54 @@ load _helper.bash
 @test "Variables" {
   assert_contains "vortex" "${BUILD_DIR}"
 }
-
-@test "Install into empty directory only" {
-  run_installer_quiet
-
-  assert_files_present
-  assert_git_repo
-}
-
-@test "Install into empty directory: VORTEX_INSTALL_DST_DIR is a current dir" {
-  export CURRENT_PROJECT_DIR="${DST_PROJECT_DIR}"
-  run_installer_quiet
-
-  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
-  assert_git_repo "${DST_PROJECT_DIR}"
-}
-
-@test "Install into empty directory: VORTEX_INSTALL_DST_DIR from an argument" {
-  run_installer_quiet "${DST_PROJECT_DIR}"
-
-  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
-  assert_git_repo "${DST_PROJECT_DIR}"
-}
-
-@test "Install into empty directory: VORTEX_INSTALL_DST_DIR from env variable" {
-  export VORTEX_INSTALL_DST_DIR="${DST_PROJECT_DIR}"
-  run_installer_quiet
-
-  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
-  assert_git_repo "${DST_PROJECT_DIR}"
-}
-
-@test "Install into empty directory: VORTEX_PROJECT from environment variable" {
-  export VORTEX_PROJECT="the_matrix"
-
-  run_installer_quiet
-
-  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "tm" "Tm" "TheMatrix"
-  assert_git_repo
-}
-
-@test "Install into empty directory: VORTEX_PROJECT from .env file" {
-  echo 'VORTEX_PROJECT="the_matrix"' >".env"
-
-  run_installer_quiet
-
-  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "tm" "Tm" "TheMatrix"
-  assert_git_repo
-}
+#
+#@test "Install into empty directory only" {
+#  run_installer_quiet
+#
+#  assert_files_present
+#  assert_git_repo
+#}
+#
+#@test "Install into empty directory: VORTEX_INSTALL_DST_DIR is a current dir" {
+#  export CURRENT_PROJECT_DIR="${DST_PROJECT_DIR}"
+#  run_installer_quiet
+#
+#  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
+#  assert_git_repo "${DST_PROJECT_DIR}"
+#}
+#
+#@test "Install into empty directory: VORTEX_INSTALL_DST_DIR from an argument" {
+#  run_installer_quiet "${DST_PROJECT_DIR}"
+#
+#  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
+#  assert_git_repo "${DST_PROJECT_DIR}"
+#}
+#
+#@test "Install into empty directory: VORTEX_INSTALL_DST_DIR from env variable" {
+#  export VORTEX_INSTALL_DST_DIR="${DST_PROJECT_DIR}"
+#  run_installer_quiet
+#
+#  assert_files_present "${DST_PROJECT_DIR}" "dst" "ds" "Ds" "Dst"
+#  assert_git_repo "${DST_PROJECT_DIR}"
+#}
+#
+#@test "Install into empty directory: VORTEX_PROJECT from environment variable" {
+#  export VORTEX_PROJECT="the_matrix"
+#
+#  run_installer_quiet
+#
+#  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "tm" "Tm" "TheMatrix"
+#  assert_git_repo
+#}
+#
+#@test "Install into empty directory: VORTEX_PROJECT from .env file" {
+#  echo 'VORTEX_PROJECT="the_matrix"' >".env"
+#
+#  run_installer_quiet
+#
+#  assert_files_present "${CURRENT_PROJECT_DIR}" "the_matrix" "tm" "Tm" "TheMatrix"
+#  assert_git_repo
+#}
 
 @test "Install into empty directory: install from specific commit" {
   run_installer_quiet

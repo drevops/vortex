@@ -22,12 +22,9 @@ class InstallTest extends FunctionalTestBase {
   public function testInstallDefaults(): void {
     $this->runInstall(static::fill());
 
-    //    // Custom welcome message.
     $this->assertTesterSuccessOutputContains('Welcome to Vortex interactive installer');
 
     $this->assertFixtureDirectoryEqualsSut('post_install');
-    //    $this->assertFixtureDirectoryEqualsSut('post_install');
-    //    $this->assertComposerLockUpToDate();
   }
 
 }
