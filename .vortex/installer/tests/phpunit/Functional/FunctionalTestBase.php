@@ -9,6 +9,7 @@ use DrevOps\Installer\Command\InstallCommand;
 use DrevOps\Installer\Tests\Traits\ConsoleTrait;
 use DrevOps\Installer\Tests\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Config;
+use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 use Laravel\Prompts\Prompt;
@@ -167,7 +168,7 @@ abstract class FunctionalTestBase extends TestCase {
     // Further adjust the fixtures directory name if the test uses a
     // data provider with named data sets.
     if ($this->usesDataProvider() && !empty($this->dataName())) {
-      static::$fixtures .= DIRECTORY_SEPARATOR . $this->dataName();
+      static::$fixtures .= DIRECTORY_SEPARATOR . Converter::machine($this->dataName());
     }
 
     // Copy the 'base' fixture to the 'local' fixture.
@@ -352,48 +353,6 @@ abstract class FunctionalTestBase extends TestCase {
     $this->assertFileExists('composer.lock');
 
     static::runCmd('composer validate', static::$sut);
-  }
-
-  /**
-   * Assert that the Composer JSON files match.
-   *
-   * @param string $expected
-   *   The expected file.
-   * @param string $actual
-   *   The actual file.
-   */
-  protected function assertComposerJsonFilesEqual(string $expected, string $actual): void {
-    $this->assertFileExists($expected);
-    $this->assertFileExists($actual);
-
-    $expected = json_decode((string) file_get_contents($expected), TRUE);
-
-    // Remove test data.
-    $data = json_decode((string) file_get_contents($actual), TRUE);
-    if (!is_array($data)) {
-      $this->fail('The actual file is not a valid JSON file.');
-    }
-
-    unset($data['minimum-stability']);
-
-    if (!is_array($data['repositories'])) {
-      $this->fail('The actual file does not contain the repositories section.');
-    }
-    foreach ($data['repositories'] as $key => $repository) {
-      if (!is_array($repository)) {
-        $this->fail('The actual file contains an invalid repository entry.');
-      }
-      if (array_key_exists('type', $repository) && $repository['type'] === 'path' && array_key_exists('url', $repository) && $repository['url'] === static::$root) {
-        unset($data['repositories'][$key]);
-      }
-    }
-
-    if (empty($data['repositories'])) {
-      unset($data['repositories']);
-    }
-    file_put_contents($actual, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
-
-    $this->assertSame($expected, $actual);
   }
 
   /**
