@@ -24,6 +24,9 @@
 ^docs/releasing.md
 ^docs/testing.md
 
+^scripts/README.md
+^scripts/sanitize.sql
+
 ^scripts/composer/ScriptHandler.php
 ^scripts/custom/provision-10-example.sh
 ^scripts/vortex/deploy.sh
