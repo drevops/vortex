@@ -45,12 +45,32 @@
 ^config/test
 
 ^patches
+^recipes
 
 ^web/autoload.php
 ^web/index.php
 ^web/robots.txt
 ^web/update.php
-^web/modules/
+
+^web/modules/sut_core.deploy.php
+^web/modules/sut_core.info.yml
+^web/modules/sut_core.module
+
+^web/modules/custom/sut_core/tests/src/Functional/ExampleTest.php
+^web/modules/custom/sut_core/tests/src/Functional/SutCoreFunctionalTestBase.php
+^web/modules/custom/sut_core/tests/src/Kernel/ExampleTest.php
+^web/modules/custom/sut_core/tests/src/Kernel/SutCoreKernelTestBase.php
+^web/modules/custom/sut_core/tests/src/Traits/ArrayTrait.php
+^web/modules/custom/sut_core/tests/src/Traits/AssertTrait.php
+^web/modules/custom/sut_core/tests/src/Traits/MockTrait.php
+^web/modules/custom/sut_core/tests/src/Traits/ReflectionTrait.php
+^web/modules/custom/sut_core/tests/src/Unit/ExampleTest.php
+^web/modules/custom/sut_core/tests/src/Unit/SutCoreUnitTestBase.php
+
+^web/modules/custom/sut_search/config/install/*
+^web/modules/custom/sut_search/sut_search.info.yml
+^web/modules/custom/sut_search/sut_search.install
+
 ^web/themes/
 
 ^docs/ci.md
