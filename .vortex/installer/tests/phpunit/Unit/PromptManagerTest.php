@@ -30,14 +30,12 @@ use DrevOps\Installer\Prompts\Handlers\Theme;
 use DrevOps\Installer\Prompts\Handlers\ThemeRunner;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Prompts\PromptManager;
-use DrevOps\Installer\Tests\Traits\PromptsTrait;
+use DrevOps\Installer\Tests\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\File;
 use DrevOps\Installer\Utils\Git;
-use DrevOps\Installer\Utils\Tui;
 use Laravel\Prompts\Key;
-use Laravel\Prompts\Output\BufferedConsoleOutput;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Yaml\Yaml;
 
@@ -46,7 +44,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class PromptManagerTest extends UnitTestBase {
 
-  use PromptsTrait;
+  use TuiTrait;
 
   const MAX_QUESTIONS = 25;
 
@@ -57,7 +55,7 @@ class PromptManagerTest extends UnitTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
-    self::promptsSetUp();
+    self::tuiSetUp();
   }
 
   /**
@@ -65,7 +63,7 @@ class PromptManagerTest extends UnitTestBase {
    */
   protected function tearDown(): void {
     parent::tearDown();
-    self::promptsTeardown();
+    self::tuiTeardown();
   }
 
   /**
@@ -95,12 +93,11 @@ class PromptManagerTest extends UnitTestBase {
       $before_callback($this, $config);
     }
 
-    Tui::init((new BufferedConsoleOutput()), FALSE);
     $pm = new PromptManager($config);
     // Enter responses and fill in the missing ones if an exception is expected
     // so that in case of exception not being thrown, the test does not hang
     // waiting for more input.
-    self::promptsInput($responses, $exception ? 25 : 0);
+    self::tuiInput($responses, $exception ? 25 : 0);
     $pm->prompt();
 
     if (!$exception) {
@@ -415,7 +412,7 @@ class PromptManagerTest extends UnitTestBase {
         ] + $defaults_installed,
         function (TestCase $test, Config $config) {
           $test->setVortexProject($config);
-          File::dump($test->fixtureDir . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::SOLR => [], Services::REDIS => [], ]));
+          File::dump($test->fixtureDir . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::SOLR => [], Services::REDIS => [],]));
         },
       ],
       'services - discovery - none' => [

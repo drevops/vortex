@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Tests\Traits;
 
+use DrevOps\Installer\Utils\Tui;
 use Laravel\Prompts\Key;
+use Laravel\Prompts\Output\BufferedConsoleOutput;
 use Laravel\Prompts\Prompt;
 use ReflectionClass;
 
-trait PromptsTrait {
+trait TuiTrait {
 
-  protected static function promptsSetUp(): void {
+  protected static function tuiSetUp(): void {
+    Tui::init((new BufferedConsoleOutput()), FALSE);
+
     // Override how validation is handled (it expects a user input on incorrect
     // validation) to throw an exception instead so that we can assert on it
     // in the tests.
@@ -28,19 +32,18 @@ trait PromptsTrait {
     });
   }
 
-  protected static function promptsTeardown(): void {
+  protected static function tuiTeardown(): void {
     Prompt::validateUsing(NULL);
   }
 
-  protected static function promptsInput(array $responses, int $max = 0): void {
+  protected static function tuiInput(array $responses, int $max = 0): void {
     $inputs = [];
-
 
     foreach ($responses as $response) {
       // NULL response means to use the default value.
       if (!is_null($response)) {
         // Do not process the response if it is a special key.
-        if (self::promptsIsKey($response)) {
+        if (self::tuiIsKey($response)) {
           $inputs[] = $response;
           continue;
         }
@@ -58,7 +61,7 @@ trait PromptsTrait {
     Prompt::fake($inputs);
   }
 
-  protected static function promptsIsKey(string $value): bool {
+  protected static function tuiIsKey(string $value): bool {
     return in_array($value, (new ReflectionClass(Key::class))->getConstants());
   }
 
