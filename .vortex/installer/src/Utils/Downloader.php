@@ -11,7 +11,7 @@ use RuntimeException;
  */
 class Downloader {
 
-  public function download(string $src, string $dst = NULL):string {
+  public function download(string $src, string $dst = NULL): string {
     [$repo, $ref] = $this->parseUri($src);
 
     if (str_starts_with($src, 'https://') || str_starts_with($src, 'git@')) {
@@ -63,7 +63,7 @@ class Downloader {
     return [$repo, $ref];
   }
 
-  public static function makeUri(string $repo, string $ref):string {
+  public static function makeUri(string $repo, string $ref): string {
     return sprintf('%s@%s', $repo, $ref);
   }
 
