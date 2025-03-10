@@ -41,7 +41,7 @@ class Tui {
 
   public static function action(
     \Closure|string $label,
-    ?\Closure $action = NULL,
+    \Closure $action = NULL,
     \Closure|string|null $hint = NULL,
     \Closure|string|null $success = NULL,
     \Closure|string|null $failure = NULL,
@@ -53,10 +53,15 @@ class Tui {
     static::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::utfPos($label) === 0 ? 3 : 2);
 
     if ($return === FALSE) {
-      static::error($failure ? is_callable($failure) ? $failure() : $failure : 'Failed');
+      static::error(
+        $failure
+          ? (is_callable($failure) ? $failure() : $failure)
+          : 'Failed'
+      );
     }
     else {
-      static::ok($success ? is_callable($success) ? $success($return) : $success : $return);
+      $success = $success && is_callable($success) ? $success($return) : $success;
+      static::ok($success ?: 'OK');
     }
   }
 
@@ -87,14 +92,14 @@ class Tui {
     table([], $rows);
   }
 
-  public static function ok($text = 'OK') {
+  public static function ok(string $text = 'OK') {
     $ok = static::green("✅  " . $text);
     static::note($ok);
     static::note(str_repeat(static::caretUp(), 4));
   }
 
   public static function label(string $message, $hint = NULL, ?array $sublist = NULL, int $sublist_indent = 2) {
-    $width = (new Terminal())->cols();
+    $width = static::terminalWidth();
     $right_offset = 10;
 
     static::$message = static::yellow(wordwrap($message, $width - $right_offset, PHP_EOL));
