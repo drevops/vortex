@@ -97,7 +97,7 @@ class PromptManagerTest extends UnitTestBase {
     // Enter responses and fill in the missing ones if an exception is expected
     // so that in case of exception not being thrown, the test does not hang
     // waiting for more input.
-    self::tuiInput($responses, $exception ? 25 : 0);
+    self::tuiInput($responses);
     $pm->prompt();
 
     if (!$exception) {

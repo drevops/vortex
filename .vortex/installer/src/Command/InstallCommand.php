@@ -49,6 +49,17 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class InstallCommand extends Command {
 
+  const ARG_DESTINATION = 'destination';
+
+  const OPTION_ROOT = 'root';
+
+  const OPTION_NO_ITERACTION = 'no-interaction';
+
+  const OPTION_CONFIG = 'config';
+
+  const OPTION_QUIET = 'quiet';
+
+
   /**
    * Defines default command name.
    *
@@ -74,11 +85,11 @@ class InstallCommand extends Command {
 
 EOF
     );
-    $this->addArgument('destination', InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
+    $this->addArgument(static::ARG_DESTINATION, InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
 
-    $this->addOption('root', NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
-    $this->addOption('no-interaction', 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
-    $this->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
+    $this->addOption(static::OPTION_ROOT, NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
+    $this->addOption(static::OPTION_NO_ITERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
+    $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
   }
 
   /**
@@ -185,20 +196,20 @@ EOF
    *   Array of CLI options.
    */
   protected function resolveOptions(array $options, array $arguments): void {
-    $config = isset($options['config']) && is_scalar($options['config']) ? strval($options['config']) : '{}';
+    $config = isset($options[static::OPTION_CONFIG]) && is_scalar($options[static::OPTION_CONFIG]) ? strval($options[static::OPTION_CONFIG]) : '{}';
     $this->config = Config::fromString($config);
 
-    $this->config->setQuiet($options['quiet']);
-    $this->config->setNoInteraction($options['no-interaction']);
+    $this->config->setQuiet($options[static::OPTION_QUIET]);
+    $this->config->setNoInteraction($options[static::OPTION_NO_ITERACTION]);
 
     // Set root directory to resolve relative paths.
-    $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : NULL;
+    $root = !empty($options[static::OPTION_ROOT]) && is_scalar($options[static::OPTION_ROOT]) ? strval($options[static::OPTION_ROOT]) : NULL;
     if ($root) {
       $this->config->set(Config::ROOT, $root);
     }
 
     // Set destination directory.
-    $dst = !empty($arguments['destination']) && is_scalar($arguments['destination']) ? strval($arguments['destination']) : NULL;
+    $dst = !empty($arguments['destination']) && is_scalar($arguments[static::ARG_DESTINATION]) ? strval($arguments[static::ARG_DESTINATION]) : NULL;
     $dst = $dst ?: Env::get(Config::DST, $this->config->get(Config::DST, $this->config->get(Config::ROOT)));
     $dst = File::realpath($dst);
     $this->config->set(Config::DST, $dst, TRUE);
