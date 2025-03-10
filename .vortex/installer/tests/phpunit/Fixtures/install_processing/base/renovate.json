@@ -1,0 +1,114 @@
+{
+    "extends": [
+        "config:recommended"
+    ],
+    "branchPrefix": "deps/",
+    "labels": [
+        "PR: Dependencies"
+    ],
+    "assignees": [],
+    "ignorePresets": [
+        ":prHourlyLimit2"
+    ],
+    "rangeStrategy": "update-lockfile",
+    "timezone": "Australia/Melbourne",
+    "configMigration": true,
+    "enabledManagers": [
+        "composer",
+        "dockerfile",
+        "docker-compose",
+        "github-actions",
+        "custom.regex"
+    ],
+    "packageRules": [
+        {
+            "matchDepNames": [
+                "php"
+            ],
+            "enabled": false
+        },
+        {
+            "groupName": "Major all - skipped to update manually",
+            "matchDatasources": [
+                "packagist"
+            ],
+            "matchUpdateTypes": [
+                "major"
+            ],
+            "enabled": false,
+            "matchPackageNames": [
+                "/.*/"
+            ]
+        },
+        {
+            "groupName": "Minor and Patch Contrib",
+            "groupSlug": "drupal-minor-patch-contrib",
+            "matchDatasources": [
+                "packagist"
+            ],
+            "separateMinorPatch": false,
+            "matchPackageNames": [
+                "/.*/",
+                "!drupal/core-composer-scaffold",
+                "!drupal/core-project-message",
+                "!drupal/core-recommended",
+                "!drupal/core-dev"
+            ]
+        },
+        {
+            "groupName": "Minor and Patch Core",
+            "groupSlug": "drupal-minor-patch-core",
+            "schedule": [
+                "before 2am"
+            ],
+            "matchDatasources": [
+                "packagist"
+            ],
+            "matchUpdateTypes": [
+                "patch",
+                "minor"
+            ],
+            "matchDepNames": [
+                "drupal/core-composer-scaffold",
+                "drupal/core-project-message",
+                "drupal/core-recommended",
+                "drupal/core-dev"
+            ]
+        },
+        {
+            "groupName": "Container images",
+            "groupSlug": "docker",
+            "schedule": [
+                "before 3am"
+            ],
+            "matchManagers": [
+                "dockerfile",
+                "docker-compose",
+                "custom.regex"
+            ]
+        },
+        {
+            "groupName": "GitHub Actions",
+            "groupSlug": "github-actions",
+            "schedule": [
+                "before 3am"
+            ],
+            "matchManagers": [
+                "github-actions"
+            ]
+        }
+    ],
+    "customManagers": [
+        {
+            "customType": "regex",
+            "fileMatch": [
+                "^docker-compose\\.yml$"
+            ],
+            "matchStrings": [
+                "IMAGE:\\s*\"?\\${(?:.*):-(?<depName>.*?):(?<currentValue>.*?)(?:\\@sha256:.*)?}\"?"
+            ],
+            "datasourceTemplate": "docker",
+            "versioningTemplate": "docker"
+        }
+    ]
+}

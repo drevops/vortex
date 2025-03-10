@@ -428,8 +428,15 @@ abstract class FunctionalTestBase extends TestCase {
   protected function assertDirectoriesEqual(string $dir1, string $dir2, ?string $message = NULL, ?callable $match_content = NULL): void {
     $rules_file = $dir1 . DIRECTORY_SEPARATOR . '.ignorecontent';
 
-    // Initialize the rules arrays: skip, presence, include, and global.
-    $rules = ['skip' => ['.ignorecontent'], 'ignore_content' => [], 'include' => [], 'global' => []];
+    $rules = [
+      'skip' => [
+        '.ignorecontent',
+        '.git/',
+      ],
+      'include' => [],
+      'ignore_content' => [],
+      'global' => [],
+    ];
 
     // Parse the .ignorecontent file.
     if (file_exists($rules_file)) {
@@ -466,7 +473,7 @@ abstract class FunctionalTestBase extends TestCase {
       $path .= $is_directory ? DIRECTORY_SEPARATOR : '';
       // Match directory pattern (e.g., "dir/").
       if (str_ends_with($pattern, DIRECTORY_SEPARATOR)) {
-        return str_starts_with($path, rtrim($pattern, DIRECTORY_SEPARATOR));
+        return str_starts_with($path, $pattern);
       }
 
       // Match direct children (e.g., "dir/*").

@@ -40,8 +40,11 @@ class SelfTest extends FunctionalTestBase {
    * @covers ::assertDirectoriesEqual
    */
   public function testAssertDirectoriesEqual(array $diffs = []): void {
-    $base = getcwd() . DIRECTORY_SEPARATOR . static::FIXTURES_DIR . DIRECTORY_SEPARATOR . 'assert_fixture_files' . DIRECTORY_SEPARATOR . $this->dataName() . DIRECTORY_SEPARATOR . 'dir1';
-    $expected = getcwd() . DIRECTORY_SEPARATOR . static::FIXTURES_DIR . DIRECTORY_SEPARATOR . 'assert_fixture_files' . DIRECTORY_SEPARATOR . $this->dataName() . DIRECTORY_SEPARATOR . 'dir2';
+    $base = getcwd() . '/../..' . DIRECTORY_SEPARATOR . static::FIXTURES_DIR . DIRECTORY_SEPARATOR . 'assert_fixture_files' . DIRECTORY_SEPARATOR . $this->dataName() . DIRECTORY_SEPARATOR . 'dir1';
+    $expected = getcwd() . '/../..' . DIRECTORY_SEPARATOR . static::FIXTURES_DIR . DIRECTORY_SEPARATOR . 'assert_fixture_files' . DIRECTORY_SEPARATOR . $this->dataName() . DIRECTORY_SEPARATOR . 'dir2';
+
+    $base = realpath($base);
+    $expected = realpath($expected);
 
     try {
       $this->assertDirectoriesEqual($base, $expected);

@@ -9,6 +9,7 @@ use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Test the initial installation.
@@ -58,6 +59,7 @@ class InstallTest extends FunctionalTestBase {
 
   /**
    * @dataProvider dataProviderInstallProcessing
+   * @covers ::execute
    */
   public function testInstallProcessing(callable $before_callback) {
     $before_callback($this);
@@ -66,8 +68,31 @@ class InstallTest extends FunctionalTestBase {
     $this->assertFixtureDiffDirectoryEqualsSut();
   }
 
-  protected function assertFixtureDiffDirectoryEqualsSut(string $base) {
+  // Allows to use base and diff directories for fixtures.
+  // Supports files with negative markers to show absence.
+  protected function assertFixtureDiffDirectoryEqualsSut() {
+    $base = dirname(static::$fixtures) . '/base';
+    $tmp = File::tmpdir();
+    File::copyRecursive($base, $tmp);
+    File::copyRecursive(static::$fixtures, $tmp);
 
+    foreach ((new Finder())->in($tmp)->files()->name('-*') as $file) {
+      if ($file->isFile()) {
+        $relative = str_replace($tmp . DIRECTORY_SEPARATOR, '', $file->getRealPath());
+        $path = $tmp . DIRECTORY_SEPARATOR . substr($relative, 1);
+        // Remove negative file or directory.
+        if (is_file($path)) {
+          @unlink($path);
+        }
+        else {
+          File::rmdirRecursive($path);
+        }
+        // Remove negative marker file.
+        @unlink($file->getRealPath());
+      }
+    }
+
+    $this->assertDirectoriesEqual($tmp, static::$sut);
   }
 
   public static function dataProviderInstallProcessing() {

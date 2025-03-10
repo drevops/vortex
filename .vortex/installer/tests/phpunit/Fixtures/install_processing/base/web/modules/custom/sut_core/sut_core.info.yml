@@ -1,0 +1,5 @@
+name: sut Core
+type: module
+description: Core feature for sut site.
+core_version_requirement: ^11
+package: sut
