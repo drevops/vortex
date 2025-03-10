@@ -88,7 +88,6 @@ class PromptManagerTest extends UnitTestBase {
       $this->expectExceptionMessage($exception);
     }
 
-    $output = new BufferedConsoleOutput();
     $config = new Config($this->prepareFixtureDir('myproject'));
     putenv('GITHUB_TOKEN=' . self::FIXTURE_GITHUB_TOKEN);
 
@@ -96,7 +95,7 @@ class PromptManagerTest extends UnitTestBase {
       $before_callback($this, $config);
     }
 
-    Tui::init($output, FALSE);
+    Tui::init((new BufferedConsoleOutput()), FALSE);
     $pm = new PromptManager($config);
     // Enter responses and fill in the missing ones if an exception is expected
     // so that in case of exception not being thrown, the test does not hang
