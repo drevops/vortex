@@ -18,9 +18,9 @@ class Tui {
 
   protected static OutputInterface $output;
 
-  protected static ?string $hint;
-
   protected static string $message;
+
+  protected static ?string $hint;
 
   public static function init(OutputInterface $output, bool $is_interactive = TRUE) {
     static::$output = $output;
