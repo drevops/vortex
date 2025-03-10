@@ -515,19 +515,26 @@ class PromptManager {
   /**
    * Get a default value for a response.
    *
-   * @param string $name
+   * @param string $id
    *   The response name.
    * @param string $default
    *   The default value to return.
    *
    * @return array|bool|string
    */
-  protected function default(string $name, string|bool|array $default = ''): string|bool|array {
-    if (!array_key_exists($name, $this->handlers)) {
+  protected function default(string $id, string|bool|array $default = ''): string|bool|array {
+    // Allow to set the value from the environment variable.
+    $env_var = static::makeEnvName($id);
+    $env_val = getenv($env_var);
+    if ($env_val) {
+      return str_contains($env_val, ',') ? Converter::fromList($env_val) : $env_val;
+    }
+
+    if (!array_key_exists($id, $this->handlers)) {
       return $default;
     }
 
-    $discovered = $this->handlers[$name]->discover();
+    $discovered = $this->handlers[$id]->discover();
 
     return !is_null($discovered) ? $discovered : $default;
   }
@@ -584,4 +591,9 @@ class PromptManager {
 
     return $proceed;
   }
+
+  public static function makeEnvName(string $id) {
+    return Converter::constant('VORTEX_INSTALL_PROMPT_' . $id);
+  }
+
 }
