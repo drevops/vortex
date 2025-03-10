@@ -1,0 +1,1 @@
+d5f1l1 new file in content-ignored directory - considered as present and should fail
