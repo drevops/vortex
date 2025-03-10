@@ -6,11 +6,14 @@ use Laravel\Prompts\Prompt;
 use Laravel\Prompts\Terminal;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\error;
+use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\spin;
 use function Laravel\Prompts\table;
 
 class Tui {
+
+  public const string LIST_SECTION_TITLE = '---SECTION_TITLE---';
 
   protected static OutputInterface $output;
 
@@ -18,12 +21,12 @@ class Tui {
 
   protected static string $message;
 
-  public static function init(OutputInterface $output, Config $config) {
+  public static function init(OutputInterface $output, bool $is_interactive = TRUE) {
     static::$output = $output;
 
     Prompt::setOutput($output);
 
-    if ($config->getNoInteraction()) {
+    if (!$is_interactive) {
       Prompt::interactive(FALSE);
     }
   }
@@ -60,7 +63,7 @@ class Tui {
     error($message);
   }
 
-  public static function printBox(string $content, ?string $title = NULL, int $width = 80): void {
+  public static function box(string $content, ?string $title = NULL, int $width = 80): void {
     $rows = [];
 
     $width = min($width, static::terminalWidth());
@@ -150,6 +153,28 @@ class Tui {
     $longest = max(array_map('strlen', $lines));
 
     return "\033[" . $longest . "C";
+  }
+
+  public static function list(array $values, ?string $title): void {
+    foreach ($values as $key => $value) {
+      if (is_array($value)) {
+        $values[$key] = implode(', ', $value);
+      }
+    }
+
+    $header = [];
+    $rows = [];
+    foreach ($values as $key => $value) {
+      if ($value === self::LIST_SECTION_TITLE) {
+        $rows[] = [Tui::cyan(Tui::bold($key))];
+        continue;
+      }
+
+      $rows[] = ['  ' . $key, $value];
+    }
+
+    intro(PHP_EOL . $title . PHP_EOL);
+    table($header, $rows);
   }
 
 }

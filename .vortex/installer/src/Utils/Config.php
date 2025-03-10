@@ -31,6 +31,10 @@ class Config {
 
   const VERSION = 'VORTEX_INSTALL_VERSION';
 
+  const NO_INTERACTION = 'VORTEX_NO_INTERACTION';
+
+  const QUIET = 'VORTEX_QUIET';
+
   /**
    * Store of configuration values.
    *
@@ -85,34 +89,34 @@ class Config {
   }
 
   public function getRoot(): ?string {
-    return $this->get(Config::ROOT);
+    return $this->get(static::ROOT);
   }
 
   public function getDst(): ?string {
-    return $this->get(Config::DST);
+    return $this->get(static::DST);
   }
 
   /**
    * Shorthand to get the value of whether install should be quiet.
    */
   public function isQuiet(): bool {
-    return (bool) $this->get('QUIET', FALSE);
+    return (bool) $this->get(static::QUIET, FALSE);
   }
 
   public function setQuiet(bool $value = TRUE): void {
-    $this->set('QUIET', $value);
+    $this->set(static::QUIET, $value);
   }
 
   public function getNoInteraction(): bool {
-    return (bool) $this->get('NO_INTERACTION', FALSE);
+    return (bool) $this->get(static::NO_INTERACTION, FALSE);
   }
 
   public function setNoInteraction(bool $value = TRUE): void {
-    $this->set('NO_INTERACTION', $value);
+    $this->set(static::NO_INTERACTION, $value);
   }
 
   public function isVortexProject(): bool {
-    return (bool) $this->get(Config::IS_VORTEX_PROJECT, FALSE);
+    return (bool) $this->get(static::IS_VORTEX_PROJECT, FALSE);
   }
 
 }

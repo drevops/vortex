@@ -4,8 +4,32 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Command;
 
+use DrevOps\Installer\Prompts\Handlers\AssignAuthorPr;
+use DrevOps\Installer\Prompts\Handlers\CiProvider;
+use DrevOps\Installer\Prompts\Handlers\CodeProvider;
+use DrevOps\Installer\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\Installer\Prompts\Handlers\DatabaseImage;
+use DrevOps\Installer\Prompts\Handlers\DependencyUpdatesProvider;
+use DrevOps\Installer\Prompts\Handlers\DeployType;
+use DrevOps\Installer\Prompts\Handlers\Domain;
+use DrevOps\Installer\Prompts\Handlers\GithubRepo;
+use DrevOps\Installer\Prompts\Handlers\GithubToken;
+use DrevOps\Installer\Prompts\Handlers\HostingProvider;
+use DrevOps\Installer\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\Installer\Prompts\Handlers\MachineName;
+use DrevOps\Installer\Prompts\Handlers\ModulePrefix;
+use DrevOps\Installer\Prompts\Handlers\Name;
+use DrevOps\Installer\Prompts\Handlers\Org;
+use DrevOps\Installer\Prompts\Handlers\OrgMachineName;
+use DrevOps\Installer\Prompts\Handlers\PreserveDocsOnboarding;
+use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
+use DrevOps\Installer\Prompts\Handlers\Profile;
+use DrevOps\Installer\Prompts\Handlers\ProvisionType;
+use DrevOps\Installer\Prompts\Handlers\Theme;
+use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Prompts\PromptManager;
 use DrevOps\Installer\Utils\Config;
+use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
@@ -85,14 +109,14 @@ EOF
       $this->checkRequirements();
       $this->resolveOptions($input->getOptions(), $input->getArguments());
 
-      Tui::init($output, $this->config);
+      Tui::init($output, !$this->config->getNoInteraction());
       $this->promptManager = new PromptManager($this->config);
 
-      Printer::header($this->config);
+      static::header();
 
       $this->promptManager->prompt();
 
-      Printer::summary($this->config, $this->promptManager->getResponses());
+      static::summary($this->promptManager->getResponses());
       if (!$this->promptManager->shouldProceed()) {
         info('Aborting project installation. No files were changed.');
 
@@ -317,6 +341,125 @@ EOF
     if (passthru($command) === FALSE) {
       throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
     }
+  }
+
+  public function header(): void {
+    $logo = <<<EOT
+-------------------------------------------------------------------------------
+
+              ██╗   ██╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗
+              ██║   ██║██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝
+              ██║   ██║██║   ██║██████╔╝   ██║   █████╗   ╚███╔╝
+              ╚██╗ ██╔╝██║   ██║██╔══██╗   ██║   ██╔══╝   ██╔██╗
+               ╚████╔╝ ╚██████╔╝██║  ██║   ██║   ███████╗██╔╝ ██╗
+                ╚═══╝   ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+
+                           Drupal project template
+
+                                                                   by DrevOps
+-------------------------------------------------------------------------------
+EOT;
+
+    // Print the logo only if the terminal is wide enough.
+    if (Tui::terminalWidth() >= 80) {
+      note(Tui::green($logo));
+    }
+
+    $title = 'Welcome to Vortex interactive installer';
+    $content = '';
+
+    [$repo, $ref] = Downloader::parseUri($this->config->get(Config::REPO_URI));
+    if ($ref == 'stable') {
+      $content .= 'This will install the latest version of Vortex into your project.' . PHP_EOL;
+    }
+    else {
+      $content .= sprintf('This will install Vortex into your project at commit "%s".', $ref) . PHP_EOL;
+    }
+
+    $content .= PHP_EOL;
+
+    if ($this->config->isVortexProject()) {
+      $content .= 'It looks like Vortex is already installed into this project.' . PHP_EOL;
+      $content .= PHP_EOL;
+    }
+
+    if ($this->config->getNoInteraction()) {
+      $content .= 'Vortex installer will try to discover the settings from the environment and will install configuration relevant to your site.' . PHP_EOL;
+      $content .= PHP_EOL;
+      $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
+
+      $title = 'Welcome to Vortex non-interactive installer';
+    }
+    else {
+      $content .= 'Please answer the questions below to install configuration relevant to your site.' . PHP_EOL;
+      $content .= 'No changes will be applied until the last confirmation step.' . PHP_EOL;
+      $content .= PHP_EOL;
+      $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
+      $content .= PHP_EOL;
+      $content .= 'Press Ctrl+C at any time to exit this installer.' . PHP_EOL;
+    }
+
+    Tui::box($content, $title);
+  }
+
+  public function summary(array $responses): void {
+    $values['General information'] = Tui::LIST_SECTION_TITLE;
+    $values['🔖 Site name'] = $responses[Name::id()];
+    $values['🔖 Site machine name'] = $responses[MachineName::id()];
+    $values['🏢 Organization name'] = $responses[Org::id()];
+    $values['🏢 Organization machine name'] = $responses[OrgMachineName::id()];
+    $values['🌐 Public domain'] = $responses[Domain::id()];
+
+    $values['Code repository'] = Tui::LIST_SECTION_TITLE;
+    $values['Code provider'] = $responses[CodeProvider::id()];
+
+    if (!empty($responses[GithubToken::id()])) {
+      $values['🔑 GitHub access token'] = 'valid';
+    }
+    $values['GitHub repository'] = $responses[GithubRepo::id()] ?? '<empty>';
+
+    $values['Drupal'] = Tui::LIST_SECTION_TITLE;
+    $values['📁 Webroot'] = $responses[Webroot::id()];
+    $values['Profile'] = $responses[Profile::id()];
+
+    $values['🧩 Module prefix'] = $responses[ModulePrefix::id()];
+    $values['🎨 Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
+
+    $values['Hosting'] = Tui::LIST_SECTION_TITLE;
+    $values['🏠 Hosting provider'] = $responses[HostingProvider::id()];
+
+    $values['Deployment'] = Tui::LIST_SECTION_TITLE;
+    $values['🚚 Deployment types'] = Converter::toList($responses[DeployType::id()]);
+
+    $values['Workflow'] = Tui::LIST_SECTION_TITLE;
+    $values['Provision type'] = $responses[ProvisionType::id()];
+
+    if ($responses[ProvisionType::id()] == ProvisionType::DATABASE) {
+      $values['Database dump source'] = $responses[DatabaseDownloadSource::id()];
+
+      if ($responses[DatabaseDownloadSource::id()] == DatabaseDownloadSource::CONTAINER_REGISTRY) {
+        $values['Database container image'] = $responses[DatabaseImage::id()];
+      }
+    }
+
+    $values['Continuous Integration'] = Tui::LIST_SECTION_TITLE;
+    $values['♻️️CI provider'] = $responses[CiProvider::id()];
+
+    $values['Automations'] = Tui::LIST_SECTION_TITLE;
+    $values['⬆️ Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
+    $values['👤 Auto-assign PR author'] = Converter::yesNo($responses[AssignAuthorPr::id()]);
+    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = Converter::yesNo($responses[LabelMergeConflictsPr::id()]);
+
+    $values['Documentation'] = Tui::LIST_SECTION_TITLE;
+    $values['📚 Preserve project documentation'] = Converter::yesNo($responses[PreserveDocsProject::id()]);
+    $values['📋 Preserve onboarding checklist'] = Converter::yesNo($responses[PreserveDocsOnboarding::id()]);
+
+    $values['Locations'] = Tui::LIST_SECTION_TITLE;
+    $values['Current directory'] = $this->config->getRoot();
+    $values['Destination directory'] = $this->config->getDst();
+    $values['Vortex repository'] = $this->config->get(Config::REPO_URI);
+
+    Tui::list($values, 'Installation summary');
   }
 
 }

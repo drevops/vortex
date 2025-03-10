@@ -11,4 +11,5 @@ class Strings {
   public static function strlenPlain(string $text): int {
     return strlen(preg_replace('/\e\[\d+m/', '', $text));
   }
+
 }
