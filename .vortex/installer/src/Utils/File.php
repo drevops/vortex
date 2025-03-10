@@ -350,7 +350,7 @@ class File {
     return is_dir($directory) && count(scandir($directory) ?: []) === 2;
   }
 
-  public static function mkdir(string $path): string {
+  public static function mkdir(string $path):string {
     $fs = new Filesystem();
 
     $path = static::absolutePath($path);
@@ -370,7 +370,7 @@ class File {
     return $path;
   }
 
-  public static function tmpdir(?string $dir = NULL, string $prefix = 'tmp_', int $mode = 0700, int $max_attempts = 1000): string {
+  public static function tmpdir(?string $dir = NULL, string $prefix = 'tmp_', int $mode = 0700, int $max_attempts = 1000):string {
     if (is_null($dir)) {
       $dir = sys_get_temp_dir();
     }
@@ -545,7 +545,7 @@ class File {
    * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    * @SuppressWarnings(PHPMD.NPathComplexity)
    */
-  public static function realpath(string $path): string {
+  public static function realpath(string $path):string {
     // Whether $path is unix or not.
     $unipath = $path === '' || $path[0] !== '/';
     $unc = str_starts_with($path, '\\\\');
@@ -614,7 +614,7 @@ class File {
    * @return string
    *   Absolute path for provided file.
    */
-  public static function absolutePath(string $file, ?string $root = NULL): string {
+  public static function absolutePath(string $file, ?string $root = NULL):string {
     if ((new Filesystem())->isAbsolutePath($file)) {
       return File::realpath($file);
     }

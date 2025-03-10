@@ -10,6 +10,7 @@ use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 use DrevOps\Installer\Utils\Printer;
+use DrevOps\Installer\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -84,7 +85,8 @@ EOF
       $this->checkRequirements();
       $this->resolveOptions($input->getOptions(), $input->getArguments());
 
-      $this->promptManager = new PromptManager($output, $this->config);
+      Tui::init($output, $this->config);
+      $this->promptManager = new PromptManager($this->config);
 
       Printer::header($this->config);
 
@@ -97,26 +99,26 @@ EOF
         return Command::SUCCESS;
       }
 
-      Printer::action(
+      Tui::action(
         label: '⬇️ Downloading Vortex',
         hint: fn() => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO_URI))),
         success: fn($r) => sprintf('Vortex downloaded to "%s" directory', $r),
         action: fn() => (new Downloader())->download($this->config->get(Config::REPO_URI), $this->config->get(Config::TMP)),
       );
 
-      Printer::action(
+      Tui::action(
         label: '⚙️ Customizing Vortex for your project',
         success: 'Vortex was customized for your project',
         action: fn() => $this->promptManager->process(),
       );
 
-      Printer::action(
+      Tui::action(
         label: '🥣️Preparing destination directory',
         success: 'Destination directory is ready',
         action: fn() => $this->prepareDestination(),
       );
 
-      Printer::action(
+      Tui::action(
         label: '➡️ Copying files to destination directory',
         success: 'Files copied to destination directory',
         action: fn() => sleep(2)

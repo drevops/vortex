@@ -35,18 +35,15 @@ use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\Printer;
+use DrevOps\Installer\Utils\Tui;
 use DrevOps\Installer\Utils\Validator;
-use Laravel\Prompts\Prompt;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\form;
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\note;
-use function Laravel\Prompts\progress;
 use function Laravel\Prompts\select;
-use function Laravel\Prompts\spin;
 use function Laravel\Prompts\text;
 
 /**
@@ -75,21 +72,12 @@ class PromptManager {
   /**
    * PromptManager constructor.
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *   The output.
    * @param \DrevOps\Installer\Utils\Config $config
    *   The installer config.
    */
   public function __construct(
-    protected OutputInterface $output,
     protected Config $config,
   ) {
-    Prompt::setOutput($output);
-
-    if ($this->config->getNoInteraction()) {
-      Prompt::interactive(FALSE);
-    }
-
     $this->initHandlers();
   }
 
@@ -100,9 +88,9 @@ class PromptManager {
    * method, including discovery from the existing codebase, will be used.
    */
   public function prompt(): void {
-    $original_verbosity = $this->output->getVerbosity();
+    $original_verbosity = Tui::output()->getVerbosity();
     if ($this->config->getNoInteraction()) {
-      $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+      Tui::output()->setVerbosity(OutputInterface::VERBOSITY_QUIET);
     }
 
     // @formatter:off
@@ -484,7 +472,7 @@ class PromptManager {
     $this->responses = $responses;
 
     if ($this->config->getNoInteraction()) {
-      $this->output->setVerbosity($original_verbosity);
+      Tui::output()->setVerbosity($original_verbosity);
     }
   }
 

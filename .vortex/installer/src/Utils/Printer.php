@@ -28,10 +28,7 @@ use DrevOps\Installer\Prompts\Handlers\ProvisionType;
 use DrevOps\Installer\Prompts\Handlers\Theme;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
 use Laravel\Prompts\Concerns\Truncation;
-use Laravel\Prompts\Terminal;
-use function Laravel\Prompts\error;
 use function Laravel\Prompts\note;
-use function Laravel\Prompts\spin;
 use function Laravel\Prompts\table;
 
 class Printer {
@@ -41,10 +38,6 @@ class Printer {
   const SECTION_TITLE = '---SECTION_TITLE---';
 
   protected $output;
-
-  public static function terminalWidth(): int {
-    return (new Terminal())->cols();
-  }
 
   public static function header(Config $config): void {
     $logo = <<<EOT
@@ -64,8 +57,8 @@ class Printer {
 EOT;
 
     // Print the logo only if the terminal is wide enough.
-    if (static::terminalWidth() >= 80) {
-      note(static::green($logo));
+    if (Tui::terminalWidth() >= 80) {
+      note(Tui::green($logo));
     }
 
     if ($config->getNoInteraction()) {
@@ -97,7 +90,7 @@ EOT;
     $content .= PHP_EOL;
     $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
 
-    static::printBox($content, 'Welcome to Vortex non-interactive installer');
+    Tui::printBox($content, 'Welcome to Vortex non-interactive installer');
   }
 
   protected static function headerInteractive(Config $config): void {
@@ -124,7 +117,7 @@ EOT;
     $content .= PHP_EOL;
     $content .= 'Press Ctrl+C at any time to exit this installer.' . PHP_EOL;
 
-    static::printBox($content, 'Welcome to Vortex interactive installer');
+    Tui::printBox($content, 'Welcome to Vortex interactive installer');
   }
 
   public static function summary(Config $config, array $responses): void {
@@ -172,12 +165,12 @@ EOT;
 
     $values['Automations'] = static::SECTION_TITLE;
     $values['⬆️ Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
-    $values['👤 Auto-assign PR author'] = static::formatYesNo($responses[AssignAuthorPr::id()]);
-    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = static::formatYesNo($responses[LabelMergeConflictsPr::id()]);
+    $values['👤 Auto-assign PR author'] = Tui::formatYesNo($responses[AssignAuthorPr::id()]);
+    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = Tui::formatYesNo($responses[LabelMergeConflictsPr::id()]);
 
     $values['Documentation'] = static::SECTION_TITLE;
-    $values['📚 Preserve project documentation'] = static::formatYesNo($responses[PreserveDocsProject::id()]);
-    $values['📋 Preserve onboarding checklist'] = static::formatYesNo($responses[PreserveDocsOnboarding::id()]);
+    $values['📚 Preserve project documentation'] = Tui::formatYesNo($responses[PreserveDocsProject::id()]);
+    $values['📋 Preserve onboarding checklist'] = Tui::formatYesNo($responses[PreserveDocsOnboarding::id()]);
 
     $values['Locations'] = static::SECTION_TITLE;
     $values['Current directory'] = $config->getRoot();
@@ -185,21 +178,6 @@ EOT;
     $values['Vortex repository'] = $config->get(Config::REPO_URI);
 
     static::printList($values, 'Installation summary');
-  }
-
-  public static function printBox(string $content, ?string $title = NULL, int $width = 80): void {
-    $rows = [];
-
-    $width = min($width, static::terminalWidth());
-    $content = wordwrap($content, $width - 4, PHP_EOL, TRUE);
-
-    if ($title) {
-      $rows[] = [static::green($title)];
-      $rows[] = [static::green(str_repeat('-', static::strlenPlain($title))) . PHP_EOL];
-    }
-    $rows[] = [$content];
-
-    table([], $rows);
   }
 
   public static function printList(array $values, ?string $title): void {
@@ -213,7 +191,7 @@ EOT;
     $rows = [];
     foreach ($values as $key => $value) {
       if ($value === self::SECTION_TITLE) {
-        $rows[] = [static::cyan(static::bold($key))];
+        $rows[] = [Tui::cyan(Tui::bold($key))];
         continue;
       }
 
@@ -226,147 +204,6 @@ EOT;
 
     note(PHP_EOL . $title . PHP_EOL, 'intro');
     table($header, $rows);
-  }
-
-  protected static function formatYesNo(string|bool|int $value): string {
-    return $value === '1' || $value === 1 || $value === TRUE ? 'Yes' : 'No';
-  }
-
-  /**
-   * Set the text color to green.
-   *
-   * @param string $text
-   *
-   * @return string
-   */
-  public static function green(string $text): string {
-    return "\e[32m{$text}\e[39m";
-  }
-
-  public static function bgGreen(string $text): string {
-    return "\e[42m{$text}\e[49m";
-  }
-
-  public static function cyan(string $text): string {
-    return "\e[36m{$text}\e[39m";
-  }
-
-  public static function bgCyan(string $text): string {
-    return "\e[46m{$text}\e[49m";
-  }
-
-  public static function bold(string $text): string {
-    return "\e[1m{$text}\e[22m";
-  }
-
-  /**
-   * Undim the text by resetting intensity.
-   */
-  protected static function undim(string $text): string {
-    return "\e[22m{$text}\e[22m";
-  }
-
-  protected static function strlenPlain(string $text): int {
-    return strlen(preg_replace('/\e\[\d+m/', '', $text));
-  }
-
-  protected static string $message;
-
-  protected static ?string $hint;
-
-  public static function br(string $text, int $width): string {
-    //    return static::mbWordwrap($text, $width, '|', TRUE);
-    return wordwrap($text, $width, PHP_EOL);
-  }
-
-  public static function caretUp() {
-    return "\033[A";
-  }
-
-  public static function caretDown() {
-    return "\033[B";
-  }
-
-  public static function caretEol(string $text): string {
-    $lines = explode(PHP_EOL, $text);
-    $longest = max(array_map('strlen', $lines));
-
-    return "\033[" . $longest . "C";
-  }
-
-  public static function label(string $message, $hint = NULL, ?array $sublist = NULL, int $sublist_indent = 2) {
-    $width = (new Terminal())->cols();
-    $right_offset = 10;
-
-    static::$message = static::yellow(static::br($message, $width - $right_offset));
-    static::$hint = $hint ? static::br($hint, $width - $right_offset) : NULL;
-
-    note(static::$message);
-    note(str_repeat(static::caretUp(), 5));
-
-    if (static::$hint) {
-      note(static::dim(static::$hint));
-      note(str_repeat(static::caretUp(), 5));
-    }
-
-    if (is_array($sublist)) {
-      foreach ($sublist as $key => $value) {
-        note(static::yellow(str_repeat(' ', $sublist_indent) . '- ' . $value));
-        //        Check if is last
-        note(str_repeat(static::caretUp(), $key === array_key_last($sublist) ? 4 : 5));
-      }
-    }
-  }
-
-  public static function purple(string $text): string {
-    //    return "\e[33m{$text}\e[95m";
-    return "\e[35m{$text}\e[39m";
-    //    return "\e[95m{$text}\e[0m";
-  }
-
-  public static function yellow(string $text): string {
-    //    return "\e[33m{$text}\e[95m";
-    return "\e[33m{$text}\e[39m";
-    //    return "\e[95m{$text}\e[0m";
-  }
-
-  public static function ok($text = 'OK') {
-    $ok = static::green("✅  " . $text);
-    note($ok);
-    note(str_repeat(static::caretUp(), 4));
-  }
-
-  public static function dim(string $text): string {
-    return "\e[2m{$text}\e[22m";
-  }
-
-  public static function action(
-    \Closure|string $label,
-    ?\Closure $action = NULL,
-    \Closure|string|null $hint = NULL,
-    \Closure|string|null $success = NULL,
-    \Closure|string|null $failure = NULL,
-  ) {
-    $label = is_callable($label) ? $label() : $label;
-
-    $return = spin($action, static::yellow($label));
-
-    Printer::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Printer::utfPos($label) ? 3 : 2);
-
-    if ($return === FALSE) {
-      Printer::error($failure ? is_callable($failure) ? $failure() : $failure : 'Failed');
-    }
-    else {
-      Printer::ok($success ? is_callable($success) ? $success($return) : $success : $return);
-    }
-  }
-
-  public static function error($message) {
-    error($message);
-  }
-
-  public static function utfPos(string $string) {
-    return preg_match('/^[\x00-\x7F]/', $string);
   }
 
 }
