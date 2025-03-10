@@ -84,7 +84,6 @@ abstract class FunctionalTestBase extends TestCase {
 
     $this->tuiSetUp();
     $this->consoleInitApplicationTester(InstallCommand::class);
-    //    $this->initTester();
 
     $this->initLocations((string) getcwd() . '/../../');
 
@@ -171,30 +170,31 @@ abstract class FunctionalTestBase extends TestCase {
       static::$fixtures .= DIRECTORY_SEPARATOR . Converter::machine($this->dataName());
     }
 
-    // Copy the 'base' fixture to the 'local' fixture.
-    if (is_dir(static::$fixtures)) {
-      $base_dir = static::$fixtures . DIRECTORY_SEPARATOR . 'base';
-
-      // Use this project's root directory as a base directory if the 'base'
-      // fixture was not provided. This allows to use the current project's
-      // files as a 'base' for the test.
-      //
-      // @note Composer uses .gitattributes to determine which files to include
-      // in the package when running `create-project`, so add the files that are
-      // not intended to be used in the consumer to the .gitattributes file
-      // of this project.
-      $allowed_files = [];
-      if (!is_dir($base_dir)) {
-        $base_dir = static::$root;
-        // Only use the git-tracked files to replicate a "clean" project as it
-        // would be seen by Composer at the code repository.
-        // Make sure to commit the changes locally before running
-        // the tests (even as a temporary commit).
-        $allowed_files = $this->getTrackedFiles($base_dir);
-      }
-
-      $this->mirrorFiltered($base_dir, static::$repo, $allowed_files);
-    }
+    // NOT USED IN VORTEX
+    //    // Copy the 'base' fixture to the 'local' fixture.
+    //    if (is_dir(static::$fixtures)) {
+    //      $base_dir = static::$fixtures . DIRECTORY_SEPARATOR . 'base';
+    //
+    //      // Use this project's root directory as a base directory if the 'base'
+    //      // fixture was not provided. This allows to use the current project's
+    //      // files as a 'base' for the test.
+    //      //
+    //      // @note Composer uses .gitattributes to determine which files to include
+    //      // in the package when running `create-project`, so add the files that are
+    //      // not intended to be used in the consumer to the .gitattributes file
+    //      // of this project.
+    //      $allowed_files = [];
+    //      if (!is_dir($base_dir)) {
+    //        $base_dir = static::$root;
+    //        // Only use the git-tracked files to replicate a "clean" project as it
+    //        // would be seen by Composer at the code repository.
+    //        // Make sure to commit the changes locally before running
+    //        // the tests (even as a temporary commit).
+    //        $allowed_files = $this->getTrackedFiles($base_dir);
+    //      }
+    //
+    //      $this->mirrorFiltered($base_dir, static::$repo, $allowed_files);
+    //    }
 
     if ($cb !== NULL && $cb instanceof \Closure) {
       \Closure::bind($cb, $this, self::class)();
