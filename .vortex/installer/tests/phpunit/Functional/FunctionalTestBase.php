@@ -671,7 +671,14 @@ abstract class FunctionalTestBase extends TestCase {
     if ($dst) {
       $args[InstallCommand::ARG_DESTINATION] = $dst;
     }
-    $this->consoleApplicationRun($args, $options + [InstallCommand::OPTION_NO_ITERACTION => TRUE], $expect_fail);
+
+    $options = $options + [InstallCommand::OPTION_NO_ITERACTION => TRUE];
+
+    foreach ($options as $option => $value) {
+      $args['--' . $option] = $value;
+    }
+
+    $this->consoleApplicationRun($args, [], $expect_fail);
   }
 
   const MAX_QUESTIONS = 25;
