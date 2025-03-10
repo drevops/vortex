@@ -11,6 +11,8 @@ use RuntimeException;
  */
 class Downloader {
 
+  const VERSION_STABLE = 'stable';
+
   public function download(string $src, string $dst = NULL): string {
     [$repo, $ref] = $this->parseUri($src);
 
@@ -41,21 +43,21 @@ class Downloader {
         throw new RuntimeException(sprintf('Invalid remote repository format: "%s".', $src));
       }
       $repo = $matches[1];
-      $ref = $matches[2] ?? 'stable';
+      $ref = $matches[2] ?? Downloader::VERSION_STABLE;
     }
     elseif (str_starts_with($src, 'file://')) {
       if (!preg_match('#^file://(.+?)(?:@(.+))?$#', $src, $matches)) {
         throw new RuntimeException(sprintf('Invalid remote repository format: "%s".', $src));
       }
       $repo = $matches[1];
-      $ref = $matches[2] ?? 'stable';
+      $ref = $matches[2] ?? Downloader::VERSION_STABLE;
     }
     else {
       if (!preg_match('#^(.+?)(?:@(.+))?$#', $src, $matches)) {
         throw new RuntimeException(sprintf('Invalid local repository format: "%s".', $src));
       }
       $repo = rtrim($matches[1], '/');
-      $ref = $matches[2] ?? 'stable';
+      $ref = $matches[2] ?? Downloader::VERSION_STABLE;
 
       return [$repo, $ref];
     }
@@ -70,7 +72,7 @@ class Downloader {
   protected function downloadFromRemote(string $repo, string $ref, string $destination): void {
     $repo_url = str_ends_with($repo, '.git') ? substr($repo, 0, -4) : $repo;
 
-    if ($ref == 'stable') {
+    if ($ref == Downloader::VERSION_STABLE) {
       $ref = $this->discoverLatestRelease($repo_url);
     }
 
@@ -87,7 +89,7 @@ class Downloader {
   }
 
   protected function downloadFromLocal(string $repo, string $ref, string $destination): void {
-    if ($ref == 'stable') {
+    if ($ref == Downloader::VERSION_STABLE) {
       $ref = 'HEAD';
     }
 

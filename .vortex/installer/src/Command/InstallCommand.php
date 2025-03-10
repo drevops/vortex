@@ -219,7 +219,7 @@ EOF
     // Version of Vortex to download. If not provided, the latest stable
     // release will be downloaded.
     // @todo Convert to option.
-    $this->config->set(Config::VERSION, 'stable');
+    $this->config->set(Config::VERSION, Downloader::VERSION_STABLE);
 
     // Optional commit to download. If not provided, latest release will be
     // downloaded.
@@ -361,7 +361,7 @@ EOT;
     $content = '';
 
     [$repo, $ref] = Downloader::parseUri($this->config->get(Config::REPO_URI));
-    if ($ref == 'stable') {
+    if ($ref == Downloader::VERSION_STABLE) {
       $content .= 'This will install the latest version of Vortex into your project.' . PHP_EOL;
     }
     else {
