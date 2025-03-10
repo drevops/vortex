@@ -165,12 +165,12 @@ EOT;
 
     $values['Automations'] = static::SECTION_TITLE;
     $values['⬆️ Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
-    $values['👤 Auto-assign PR author'] = Tui::formatYesNo($responses[AssignAuthorPr::id()]);
-    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = Tui::formatYesNo($responses[LabelMergeConflictsPr::id()]);
+    $values['👤 Auto-assign PR author'] = Converter::yesNo($responses[AssignAuthorPr::id()]);
+    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = Converter::yesNo($responses[LabelMergeConflictsPr::id()]);
 
     $values['Documentation'] = static::SECTION_TITLE;
-    $values['📚 Preserve project documentation'] = Tui::formatYesNo($responses[PreserveDocsProject::id()]);
-    $values['📋 Preserve onboarding checklist'] = Tui::formatYesNo($responses[PreserveDocsOnboarding::id()]);
+    $values['📚 Preserve project documentation'] = Converter::yesNo($responses[PreserveDocsProject::id()]);
+    $values['📋 Preserve onboarding checklist'] = Converter::yesNo($responses[PreserveDocsOnboarding::id()]);
 
     $values['Locations'] = static::SECTION_TITLE;
     $values['Current directory'] = $config->getRoot();

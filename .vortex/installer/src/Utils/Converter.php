@@ -52,4 +52,8 @@ class Converter extends Str2Name {
     return implode($delimiter, $value);
   }
 
+  public static function yesNo(string|bool|int $value): string {
+    return $value === '1' || $value === 1 || $value === TRUE ? 'Yes' : 'No';
+  }
+
 }
