@@ -10,6 +10,7 @@ use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 use DrevOps\Installer\Utils\Printer;
+use Laravel\Prompts\Prompt;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,6 +18,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
+use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\progress;
 
@@ -47,8 +49,6 @@ class InstallCommand extends Command {
   protected OutputInterface $output;
 
   protected PromptManager $promptManager;
-
-  protected Printer $printer;
 
   /**
    * {@inheritdoc}
@@ -87,22 +87,37 @@ EOF
       $this->checkRequirements();
       $this->resolveOptions($input->getOptions(), $input->getArguments());
 
-      $this->printer = new Printer();
-      $this->printer->header($this->config);
-
       $this->promptManager = new PromptManager($output, $this->config);
+
+      Printer::header($this->config);
+
       $this->promptManager->prompt();
 
-      $this->printer->summary($this->config, $this->promptManager->getResponses());
+      Printer::summary($this->config, $this->promptManager->getResponses());
       if (!$this->promptManager->shouldProceed()) {
         info('Aborting project installation. No files were changed.');
 
         return Command::SUCCESS;
       }
 
-      $this->downloadVortex();
+      Printer::spin(
+        function () {
+        $dst = (new Downloader())->download($this->config->get(Config::REPO_URI), $this->config->get(Config::TMP));
 
-      $this->promptManager->process();
+        return sprintf('Vortex downloaded to "%s" directory', $dst);
+      },
+        '⬇️ Downloading Vortex',
+        function() {
+          [$repo, $ref] = Downloader::parseUri($this->config->get(Config::REPO_URI));
+          return sprintf('Downloading from "%s" repository at commit "%s"', $repo, $ref);
+        }
+      );
+
+      Printer::spin(function () {
+        $this->promptManager->process();
+
+        return 'Vortex was customized for your project';
+      }, '⚙️ Customizing Vortex for your project');
 
       $this->prepareDestination();
 
@@ -204,22 +219,12 @@ EOF
     $this->config->set(Config::DEMO_MODE_SKIP, (bool) Env::get(Config::DEMO_MODE_SKIP, FALSE));
   }
 
-  protected function downloadVortex(): void {
-    $src = $this->config->get(Config::REPO_URI);
-    $dst = $this->config->get(Config::TMP);
-
-    [$repo, $ref] = Downloader::parseUri($src);
-    // @todo Fix the note to acommodate for the dowbloading from dir rather than a repo.
-    note(sprintf('Downloading from "%s" repository at commit "%s" to "%s".', $repo, $ref, $dst));
-    (new Downloader())->download($src, $dst);
-  }
-
   protected function prepareDestination(): void {
     $dst = $this->config->getDst();
     File::mkdir($dst);
 
     if (!is_readable($dst . '/.git')) {
-      note(sprintf('Initialising a new Git repository in directory "%s".', $dst));
+      info(sprintf('Initialising a new Git repository in directory "%s".', $dst));
       passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
 
       if (!File::exists($dst . '/.git')) {
@@ -242,10 +247,7 @@ EOF
     $dirs = array_diff($all, $valid_files);
     $ignored_files = array_diff($files, $valid_files);
 
-    // @todo Implement as a progress.
-    note('Copying files');
-
-//    $progress = progress('Customizing Vortex for your project', $ids);
+    info('Copying files to your project directory.');
 
     foreach ($valid_files as $filename) {
       $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $filename);

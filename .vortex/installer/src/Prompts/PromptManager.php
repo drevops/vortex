@@ -35,6 +35,7 @@ use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\Env;
+use DrevOps\Installer\Utils\Printer;
 use DrevOps\Installer\Utils\Validator;
 use Laravel\Prompts\Prompt;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -45,6 +46,7 @@ use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\progress;
 use function Laravel\Prompts\select;
+use function Laravel\Prompts\spin;
 use function Laravel\Prompts\text;
 
 /**
@@ -516,18 +518,13 @@ class PromptManager {
       Internal::id(),
     ];
 
-    $progress = progress('Customizing Vortex for your project', $ids);
     foreach ($ids as $id) {
       if (!array_key_exists($id, $this->handlers)) {
         throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
       }
 
       $this->handlers[$id]->setResponses($this->responses)->process();
-
-      $progress->advance();
     }
-
-    $progress->finish();
   }
 
   /**

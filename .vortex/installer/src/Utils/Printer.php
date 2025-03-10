@@ -27,26 +27,25 @@ use DrevOps\Installer\Prompts\Handlers\Profile;
 use DrevOps\Installer\Prompts\Handlers\ProvisionType;
 use DrevOps\Installer\Prompts\Handlers\Theme;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
+use Laravel\Prompts\Concerns\Truncation;
 use Laravel\Prompts\Terminal;
 use function Laravel\Prompts\note;
+use function Laravel\Prompts\spin;
 use function Laravel\Prompts\table;
 
 class Printer {
+
+  use Truncation;
 
   const SECTION_TITLE = '---SECTION_TITLE---';
 
   protected $output;
 
-  /**
-   * Width of the TUI.
-   */
-  protected int $terminalWidth;
-
-  public function __construct() {
-    $this->terminalWidth = (new Terminal())->cols();
+  public static function terminalWidth():int {
+    return (new Terminal())->cols();
   }
 
-  public function header(Config $config): void {
+  public static function header(Config $config): void {
     $logo = <<<EOT
 -------------------------------------------------------------------------------
 
@@ -64,19 +63,19 @@ class Printer {
 EOT;
 
     // Print the logo only if the terminal is wide enough.
-    if ($this->terminalWidth >= 80) {
+    if (static::terminalWidth() >= 80) {
       note(static::green($logo));
     }
 
-    if ($config->isQuiet()) {
-      $this->headerQuiet($config);
+    if ($config->getNoInteraction()) {
+      static::headerNoninteractive($config);
     }
     else {
-      $this->headerInteractive($config);
+      static::headerInteractive($config);
     }
   }
 
-  protected function headerQuiet(Config $config): void {
+  protected static function headerNoninteractive(Config $config): void {
     $content = '';
 
     [$repo, $ref] = Downloader::parseUri($config->get(Config::REPO_URI));
@@ -97,10 +96,10 @@ EOT;
     $content .= PHP_EOL;
     $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
 
-    $this->printBox($content, 'Welcome to Vortex ' . static::bold('quiet') . ' installer');
+    static::printBox($content, 'Welcome to Vortex non-interactive installer');
   }
 
-  protected function headerInteractive(Config $config): void {
+  protected static function headerInteractive(Config $config): void {
     $content = '';
 
     [$repo, $ref] = Downloader::parseUri($config->get(Config::REPO_URI));
@@ -124,10 +123,10 @@ EOT;
     $content .= PHP_EOL;
     $content .= 'Press Ctrl+C at any time to exit this installer.' . PHP_EOL;
 
-    $this->printBox($content, 'Welcome to Vortex ' . static::bold('interactive') . ' installer');
+    static::printBox($content, 'Welcome to Vortex interactive installer');
   }
 
-  public function summary(Config $config, array $responses): void {
+  public static function summary(Config $config, array $responses): void {
     $values['General information'] = static::SECTION_TITLE;
     $values['🔖 Site name'] = $responses[Name::id()];
     $values['🔖 Site machine name'] = $responses[MachineName::id()];
@@ -184,13 +183,13 @@ EOT;
     $values['Destination directory'] = $config->getDst();
     $values['Vortex repository'] = $config->get(Config::REPO_URI);
 
-    $this->printList($values, 'Installation summary');
+    static::printList($values, 'Installation summary');
   }
 
-  protected function printBox(string $content, ?string $title = NULL, int $width = 80): void {
+  public static function printBox(string $content, ?string $title = NULL, int $width = 80): void {
     $rows = [];
 
-    $width = min($width, $this->terminalWidth);
+    $width = min($width, static::terminalWidth());
     $content = wordwrap($content, $width - 4, PHP_EOL, TRUE);
 
     if ($title) {
@@ -202,7 +201,7 @@ EOT;
     table([], $rows);
   }
 
-  protected function printList(array $values, ?string $title): void {
+  public static function printList(array $values, ?string $title): void {
     foreach ($values as $key => $value) {
       if (is_array($value)) {
         $values[$key] = implode(', ', $value);
@@ -268,6 +267,75 @@ EOT;
 
   protected static function strlenPlain(string $text): int {
     return strlen(preg_replace('/\e\[\d+m/', '', $text));
+  }
+
+  protected static string $message;
+
+  protected static ?string $hint;
+
+  public static function br(string $text, int $width): string {
+    //    return static::mbWordwrap($text, $width, '|', TRUE);
+    return wordwrap($text, $width, PHP_EOL);
+  }
+
+  public static function caretUp() {
+    return "\033[A";
+  }
+
+  public static function caretDown() {
+    return "\033[B";
+  }
+
+  public static function caretEol(string $text): string {
+    $lines = explode(PHP_EOL, $text);
+    $longest = max(array_map('strlen', $lines));
+
+    return "\033[" . $longest . "C";
+  }
+
+  public static function status($message, $hint = NULL) {
+    $width = (new Terminal())->cols();
+    $right_offset = 10;
+
+    static::$message = static::yellow(static::br($message, $width - $right_offset));
+    static::$hint = $hint ? static::br($hint, $width - $right_offset) : NULL;
+
+    note(static::$message);
+    note(str_repeat(static::caretUp(),5));
+
+    if (static::$hint) {
+      note(static::dim(static::$hint));
+      note(str_repeat(static::caretUp(),5));
+    }
+  }
+
+  public static function purple(string $text): string {
+//    return "\e[33m{$text}\e[95m";
+    return "\e[35m{$text}\e[39m";
+//    return "\e[95m{$text}\e[0m";
+  }
+
+  public static function yellow(string $text): string {
+//    return "\e[33m{$text}\e[95m";
+    return "\e[33m{$text}\e[39m";
+//    return "\e[95m{$text}\e[0m";
+  }
+
+  public static function ok($text = 'OK') {
+    $ok = static::green("✅  " . $text) ;
+    note($ok);
+    note(str_repeat(static::caretUp(),4));
+  }
+
+  public static function dim(string $text): string {
+    return "\e[2m{$text}\e[22m";
+  }
+
+  public static function spin(\Closure $callback, string $message = '', \Closure|string|null $hint = NULL) {
+//    Printer::status($message, $hint);
+    $return = spin($callback, static::yellow($message));
+    Printer::status($message, $hint && is_callable($hint) ? $hint() : $hint);
+    Printer::ok($return);
   }
 
 }
