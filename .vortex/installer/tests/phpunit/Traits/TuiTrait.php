@@ -36,7 +36,7 @@ trait TuiTrait {
     Prompt::validateUsing(NULL);
   }
 
-  protected static function tuiInput(array $responses, int $max = 0): void {
+  protected static function tuiInput(array $responses, int $max = 100): void {
     $inputs = [];
 
     foreach ($responses as $response) {
@@ -49,7 +49,7 @@ trait TuiTrait {
         }
 
         // Clear the input field default value.
-        $inputs = array_merge($inputs, array_fill(0, 100, Key::BACKSPACE));
+        $inputs = array_merge($inputs, array_fill(0, $max, Key::BACKSPACE));
         // Enter the response, one character at a time.
         $inputs = array_merge($inputs, mb_str_split($response));
       }
