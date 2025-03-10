@@ -98,10 +98,10 @@ class PromptManagerTest extends UnitTestBase {
     // so that in case of exception not being thrown, the test does not hang
     // waiting for more input.
     self::tuiInput($responses);
-    $responses = $pm->prompt();
+    $pm->prompt();
 
     if (!$exception) {
-      $this->assertEquals($expected, $responses, $this->dataName());
+      $this->assertEquals($expected, $pm->getResponses(), $this->dataName());
     }
   }
 
