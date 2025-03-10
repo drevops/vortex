@@ -13,6 +13,10 @@ class Env {
     return !isset($vars[$name]) || $vars[$name] === '' ? $default : $vars[$name];
   }
 
+  public static function put(string $name, string $value): void {
+    putenv($name . '=' . $value);
+  }
+
   public static function getFromDotenv(string $name, string $dir): ?string {
     // Environment variables always take precedence.
     $env_value = static::get($name);
