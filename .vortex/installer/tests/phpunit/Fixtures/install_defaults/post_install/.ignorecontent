@@ -19,6 +19,24 @@
 ^.gitignore
 ^.twig-cs-fixer.php
 
+^.docker/clamav.dockerfile
+^.docker/cli.dockerfile
+^.docker/database.dockerfile
+^.docker/nginx-drupal.dockerfile
+^.docker/php.dockerfile
+^.docker/solr.dockerfile
+^.docker/scripts/*
+^.docker/config/clamav/clamd.conf
+^.docker/config/mariadb/my.cnf
+^.docker/config/solr/config-set/*
+
+^.github/workflows/assign-author.yml
+^.github/workflows/build-test-deploy.yml
+^.github/workflows/draft-release-notes.yml
+^.github/workflows/label-merge-conflict.yml
+^.github/workflows/renovate.yml
+^.github/PULL_REQUEST_TEMPLATE.md
+^.github/release-drafter.yml
 
 ^web/autoload.php
 ^web/index.php
