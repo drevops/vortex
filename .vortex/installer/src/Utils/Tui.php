@@ -52,11 +52,8 @@ class Tui {
     static::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::utfPos($label) === 0 ? 3 : 2);
 
     if ($return === FALSE) {
-      static::error(
-        $failure
-          ? (is_callable($failure) ? $failure() : $failure)
-          : 'Failed'
-      );
+      $failure = $failure && is_callable($failure) ? $failure() : $failure;
+      static::error($failure ?: 'FAILED');
     }
     else {
       $success = $success && is_callable($success) ? $success($return) : $success;
