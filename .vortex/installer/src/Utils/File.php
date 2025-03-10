@@ -191,7 +191,25 @@ class File {
       return FALSE;
     }
 
-    return @preg_match($str, '') !== FALSE;
+    // Extract the first character as the delimiter.
+    $delimiter = $str[0];
+
+    if (!in_array($delimiter, ['/', '#', '~'])) {
+      return FALSE;
+    }
+
+    $last_char = substr($str, -1);
+    $before_last_char = substr($str, -2, 1);
+    if (
+      ($last_char !== $delimiter && !in_array($last_char, ['i', 'm', 's']))
+      || ($before_last_char !== $delimiter && in_array($before_last_char, ['i', 'm', 's']))
+    ) {
+      return FALSE;
+    }
+
+    // Test the regex.
+    $result = preg_match($str, '');
+    return $result !== FALSE && preg_last_error() === PREG_NO_ERROR;
   }
 
   /**
@@ -545,7 +563,7 @@ class File {
    * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    * @SuppressWarnings(PHPMD.NPathComplexity)
    */
-  public static function realpath(string $path):string {
+  public static function realpath(string $path): string {
     // Whether $path is unix or not.
     $unipath = $path === '' || $path[0] !== '/';
     $unc = str_starts_with($path, '\\\\');

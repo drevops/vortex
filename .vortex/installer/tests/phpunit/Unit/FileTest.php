@@ -78,11 +78,11 @@ class FileTest extends UnitTestBase {
       // Valid regular expressions.
       ["/^[a-z]$/", TRUE],
       ["#[a-z]*#i", TRUE],
-      ["{\\d+}", TRUE],
-      ["(\\d+)", TRUE],
-      ["<[A-Z]{3,6}>", TRUE],
 
       // Invalid regular expressions (wrong delimiters or syntax).
+      ["{\\d+}", FALSE],
+      ["(\\d+)", FALSE],
+      ["<[A-Z]{3,6}>", FALSE],
       ["^[a-z]$", FALSE],
       ["/[a-z", FALSE],
       ["[a-z]+/", FALSE],

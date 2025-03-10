@@ -6,6 +6,7 @@ namespace DrevOps\Installer\Tests\Functional;
 
 use Composer\Console\Application;
 use DrevOps\Installer\Command\InstallCommand;
+use DrevOps\Installer\Tests\Traits\ClosureWrapperTrait;
 use DrevOps\Installer\Tests\Traits\ConsoleTrait;
 use DrevOps\Installer\Tests\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Config;
@@ -29,6 +30,7 @@ abstract class FunctionalTestBase extends TestCase {
 
   use TuiTrait;
   use ConsoleTrait;
+  use ClosureWrapperTrait;
 
   /**
    * TUI answer to indicate that the user did not provide any input.

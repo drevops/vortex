@@ -58,11 +58,13 @@ class InstallTest extends FunctionalTestBase {
   }
 
   /**
+   * @runInSeparateProcess
    * @dataProvider dataProviderInstallProcessing
    * @covers ::execute
    */
   public function testInstallProcessing(callable $before_callback) {
-    $before_callback($this);
+    $before_callback = static::fnu($before_callback);
+    $before_callback();
     $this->runNonInteractiveInstall();
 
     $this->assertFixtureDiffDirectoryEqualsSut();
@@ -71,10 +73,10 @@ class InstallTest extends FunctionalTestBase {
   public static function dataProviderInstallProcessing() {
     return [
       'code provider, github' => [
-        fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::GITHUB),
+        static::fnw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::GITHUB)),
       ],
       'code provider, other' => [
-        fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::OTHER),
+        static::fnw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::OTHER)),
       ],
     ];
   }
