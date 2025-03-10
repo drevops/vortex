@@ -62,11 +62,6 @@ class InstallCommand extends Command {
   protected Config $config;
 
   /**
-   * Output interface.
-   */
-  protected OutputInterface $output;
-
-  /**
    * {@inheritdoc}
    */
   protected function configure(): void {
@@ -90,8 +85,6 @@ EOF
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->output = $output;
-
     // @see https://github.com/drevops/vortex/issues/1502
     if ($input->getOption('help') || $input->getArgument('destination') == 'help') {
       $output->write($this->getHelp());

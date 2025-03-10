@@ -109,9 +109,9 @@ class Tui {
     }
 
     if (is_array($sublist)) {
-      foreach ($sublist as $key => $value) {
+      foreach ($sublist as $value) {
         static::note(static::yellow(str_repeat(' ', $sublist_indent) . '- ' . $value));
-        static::note(str_repeat(static::caretUp(), $key === array_key_last($sublist) ? 4 : 5));
+        static::note(str_repeat(static::caretUp(), 5));
       }
     }
   }
