@@ -10,7 +10,6 @@ use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 use DrevOps\Installer\Utils\Printer;
-use Laravel\Prompts\Prompt;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,9 +17,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
-use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
-use function Laravel\Prompts\progress;
 
 /**
  * Run command.
@@ -119,12 +116,11 @@ EOF
         action: fn() => $this->prepareDestination(),
       );
 
-
       Printer::action(
         label: '➡️ Copying files to destination directory',
         success: 'Files copied to destination directory',
         action: fn() => sleep(2)
-//        action: fn() => $this->copyFiles(),
+      //        action: fn() => $this->copyFiles(),
       );
 
       die('RESTORE FROM HERE');
