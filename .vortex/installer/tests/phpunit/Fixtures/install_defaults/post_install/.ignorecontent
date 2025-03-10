@@ -41,6 +41,7 @@
 ^.github/PULL_REQUEST_TEMPLATE.md
 ^.github/release-drafter.yml
 
+^config/ci/.htaccess
 ^config/default/.htaccess
 ^config/dev/.htaccess
 ^config/local/.htaccess
