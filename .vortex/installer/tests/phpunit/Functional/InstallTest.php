@@ -68,33 +68,6 @@ class InstallTest extends FunctionalTestBase {
     $this->assertFixtureDiffDirectoryEqualsSut();
   }
 
-  // Allows to use base and diff directories for fixtures.
-  // Supports files with negative markers to show absence.
-  protected function assertFixtureDiffDirectoryEqualsSut() {
-    $base = dirname(static::$fixtures) . '/base';
-    $tmp = File::tmpdir();
-    File::copyRecursive($base, $tmp);
-    File::copyRecursive(static::$fixtures, $tmp);
-
-    foreach ((new Finder())->in($tmp)->files()->name('-*') as $file) {
-      if ($file->isFile()) {
-        $relative = str_replace($tmp . DIRECTORY_SEPARATOR, '', $file->getRealPath());
-        $path = $tmp . DIRECTORY_SEPARATOR . substr($relative, 1);
-        // Remove negative file or directory.
-        if (is_file($path)) {
-          @unlink($path);
-        }
-        else {
-          File::rmdirRecursive($path);
-        }
-        // Remove negative marker file.
-        @unlink($file->getRealPath());
-      }
-    }
-
-    $this->assertDirectoriesEqual($tmp, static::$sut);
-  }
-
   public static function dataProviderInstallProcessing() {
     return [
       'code provider, github' => [

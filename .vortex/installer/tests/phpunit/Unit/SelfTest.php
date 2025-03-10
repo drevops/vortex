@@ -131,4 +131,57 @@ class SelfTest extends FunctionalTestBase {
     }
   }
 
+  /**
+   * @dataProvider dataProviderAssertDirectoriesDiffEqual
+   * @covers ::assertFixtureDiffDirectoryEqualsSut
+   */
+  public function testAssertDirectoriesDiffEqual(array $diffs = []): void {
+    $base = getcwd() . '/../..' . DIRECTORY_SEPARATOR . static::FIXTURES_DIR . DIRECTORY_SEPARATOR . 'assert_fixture_diff_files' . DIRECTORY_SEPARATOR . $this->dataName() . DIRECTORY_SEPARATOR . 'dir1';
+    $expected = getcwd() . '/../..' . DIRECTORY_SEPARATOR . static::FIXTURES_DIR . DIRECTORY_SEPARATOR . 'assert_fixture_diff_files' . DIRECTORY_SEPARATOR . $this->dataName() . DIRECTORY_SEPARATOR . 'dir2';
+
+    $base = realpath($base);
+    $expected = realpath($expected);
+
+    try {
+      static::$fixtures = $base;
+      static::$sut = $expected;
+      $this->assertFixtureDiffDirectoryEqualsSut();
+    }
+    catch (AssertionFailedError $assertionFailedError) {
+      $this->assertExceptionMessage($assertionFailedError->getMessage(), $diffs);
+    }
+  }
+
+  /**
+   * Data provider for testAssertDirectoriesEqual().
+   *
+   * @return array
+   *   The data provider.
+   */
+  public static function dataProviderAssertDirectoriesDiffEqual(): array {
+    return [
+//      'files_equal' => [],
+      'files_not_equal' => [
+        [
+          'dir1' => [
+            'd32f2_symlink_deep.txt',
+            'dir1_flat/d1f1_symlink.txt',
+            'dir1_flat/d1f3-only-src.txt',
+            'f2_symlink.txt',
+          ],
+          'dir2' => [
+            'dir2_flat-present-dst/d2f1.txt',
+            'dir2_flat-present-dst/d2f2.txt',
+            'dir5_content_ignore/dir51/d51f1-changed-content.txt',
+            'dir5_content_ignore/dir51/d51f2-new-file.txt',
+            'f1.txt',
+            'f4-new-file-notignore-everywhere.txt',
+          ],
+          'content' => [],
+        ],
+      ],
+    ];
+  }
+
+
 }

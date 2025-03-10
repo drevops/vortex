@@ -543,7 +543,9 @@ abstract class FunctionalTestBase extends TestCase {
           if (is_callable($match_content)) {
             $content = $match_content($content, $file);
           }
-          $files[$path] = md5($content);
+          if ($content) {
+            $files[$path] = md5($content);
+          }
         }
       }
       ksort($files);
@@ -622,6 +624,39 @@ abstract class FunctionalTestBase extends TestCase {
 
     // @phpstan-ignore-next-line
     $this->assertTrue(TRUE, $message ?: '');
+  }
+
+  /**
+   * Allows to use base and diff directories for fixtures.
+   *
+   * Supports files with negative markers to show file or dir absence.
+   */
+  protected function assertFixtureDiffDirectoryEqualsSut() {
+    $base = dirname(static::$fixtures) . '/base';
+    $tmp = File::tmpdir();
+
+    File::copyRecursive($base, $tmp);
+    File::copyRecursive(static::$fixtures, $tmp);
+
+    // Find all negative markers and remove corresponding files or directories.
+    foreach ((new Finder())->in($tmp)->files()->name('-*') as $file) {
+      if ($file->isFile()) {
+        $relative = str_replace($tmp . DIRECTORY_SEPARATOR, '', $file->getRealPath());
+        $path = $tmp . DIRECTORY_SEPARATOR . (str_starts_with($relative, '-') ? substr($relative, 1) : $relative);
+        $path = str_replace('/-', '/', $path);
+        // Remove negative file or directory.
+        if (is_file($path)) {
+          @unlink($path);
+        }
+        else {
+          File::rmdirRecursive($path);
+        }
+        // Remove negative marker file.
+        @unlink($file->getRealPath());
+      }
+    }
+
+    $this->assertDirectoriesEqual($tmp, static::$sut);
   }
 
   protected function runInteractiveInstall(array $answers = [], ?string $dst = NULL, array $options = [], bool $expect_fail = FALSE): void {
