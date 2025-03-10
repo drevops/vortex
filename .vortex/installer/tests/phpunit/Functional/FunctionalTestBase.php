@@ -594,7 +594,7 @@ abstract class FunctionalTestBase extends TestCase {
     if (getenv('UPDATE_TEST_FIXTURES')) {
       $allowed_files = array_keys($dir2_files);
       $finder = new Finder();
-      $finder->files()->in($dir2)->ignoreDotFiles(FALSE)->filter(static function (\SplFileInfo $file) use ($allowed_files, $dir2): bool {
+      $finder->files()->in($dir2)->ignoreDotFiles(FALSE)->filter(static function (\SplFileInfo $file) use ($allowed_files, $dir2, $dir1, $dir1_files, $dir2_files): bool {
         $relative_path = str_replace(realpath($dir2) . DIRECTORY_SEPARATOR, '', $file->getRealPath());
 
         return in_array($relative_path, $allowed_files);
@@ -603,6 +603,14 @@ abstract class FunctionalTestBase extends TestCase {
       $this->fs->mirror($dir2, $dir1, $finder->getIterator(), [
         'override' => TRUE,
       ]);
+
+      $finder->getIterator()->rewind();
+      foreach ($finder->getIterator() as $file) {
+        $relative_path = str_replace(realpath($dir2) . DIRECTORY_SEPARATOR, '', $file->getRealPath());
+        if ($dir1_files[$relative_path] === 'ignore_content') {
+          file_put_contents($dir1 . DIRECTORY_SEPARATOR . $relative_path, '');
+        }
+      }
 
       return;
     }

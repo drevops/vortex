@@ -1,12 +1,10 @@
 ^behat.yml
 ^composer.json
-^docker-compose.yml
 ^gherkinlint.json
 ^phpcs.xml
 ^phpmd.xml
 ^phpstan.neon
 ^phpunit.xml
-^README.md
 ^rector.php
 ^renovate.json
 
