@@ -184,7 +184,7 @@ EOF
    * are read from the environment variables with $this->config->get().
    *
    * For simplicity of naming, internal installer config variables used in
-   * $this->config->get() are matching environment variables names.
+   * $this->config->get() match environment variables names.
    *
    * @param array<mixed> $options
    *   Array of CLI options.
