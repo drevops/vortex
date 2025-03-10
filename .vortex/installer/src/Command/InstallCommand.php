@@ -100,30 +100,34 @@ EOF
         return Command::SUCCESS;
       }
 
-      Printer::spin(
-        function () {
-        $dst = (new Downloader())->download($this->config->get(Config::REPO_URI), $this->config->get(Config::TMP));
-
-        return sprintf('Vortex downloaded to "%s" directory', $dst);
-      },
-        '⬇️ Downloading Vortex',
-        function() {
-          [$repo, $ref] = Downloader::parseUri($this->config->get(Config::REPO_URI));
-          return sprintf('Downloading from "%s" repository at commit "%s"', $repo, $ref);
-        }
+      Printer::action(
+        label: '⬇️ Downloading Vortex',
+        hint: fn() => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO_URI))),
+        success: fn($r) => sprintf('Vortex downloaded to "%s" directory', $r),
+        action: fn() => (new Downloader())->download($this->config->get(Config::REPO_URI), $this->config->get(Config::TMP)),
       );
 
-      Printer::spin(function () {
-        $this->promptManager->process();
+      Printer::action(
+        label: '⚙️ Customizing Vortex for your project',
+        success: 'Vortex was customized for your project',
+        action: fn() => $this->promptManager->process(),
+      );
 
-        return 'Vortex was customized for your project';
-      }, '⚙️ Customizing Vortex for your project');
+      Printer::action(
+        label: '🥣️Preparing destination directory',
+        success: 'Destination directory is ready',
+        action: fn() => $this->prepareDestination(),
+      );
 
-      $this->prepareDestination();
+
+      Printer::action(
+        label: '➡️ Copying files to destination directory',
+        success: 'Files copied to destination directory',
+        action: fn() => sleep(2)
+//        action: fn() => $this->copyFiles(),
+      );
 
       die('RESTORE FROM HERE');
-      $this->copyFiles();
-
       $this->handleDemo();
     }
     catch (\Exception $exception) {
@@ -219,18 +223,25 @@ EOF
     $this->config->set(Config::DEMO_MODE_SKIP, (bool) Env::get(Config::DEMO_MODE_SKIP, FALSE));
   }
 
-  protected function prepareDestination(): void {
+  protected function prepareDestination(): array {
+    $messages = [];
+
     $dst = $this->config->getDst();
-    File::mkdir($dst);
+    if (!is_dir($dst)) {
+      $messages[] = sprintf('Creating directory "%s".', $dst);
+      File::mkdir($dst);
+    }
 
     if (!is_readable($dst . '/.git')) {
-      info(sprintf('Initialising a new Git repository in directory "%s".', $dst));
+      $messages[] = sprintf('Initialising a new Git repository in directory "%s".', $dst);
       passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
 
       if (!File::exists($dst . '/.git')) {
         throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $dst));
       }
     }
+
+    return $messages;
   }
 
   protected function copyFiles(): void {

@@ -29,6 +29,7 @@ use DrevOps\Installer\Prompts\Handlers\Theme;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
 use Laravel\Prompts\Concerns\Truncation;
 use Laravel\Prompts\Terminal;
+use function Laravel\Prompts\error;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\spin;
 use function Laravel\Prompts\table;
@@ -41,7 +42,7 @@ class Printer {
 
   protected $output;
 
-  public static function terminalWidth():int {
+  public static function terminalWidth(): int {
     return (new Terminal())->cols();
   }
 
@@ -293,7 +294,7 @@ EOT;
     return "\033[" . $longest . "C";
   }
 
-  public static function status($message, $hint = NULL) {
+  public static function label(string $message, $hint = NULL, ?array $sublist = NULL, int $sublist_indent = 2) {
     $width = (new Terminal())->cols();
     $right_offset = 10;
 
@@ -301,41 +302,71 @@ EOT;
     static::$hint = $hint ? static::br($hint, $width - $right_offset) : NULL;
 
     note(static::$message);
-    note(str_repeat(static::caretUp(),5));
+    note(str_repeat(static::caretUp(), 5));
 
     if (static::$hint) {
       note(static::dim(static::$hint));
-      note(str_repeat(static::caretUp(),5));
+      note(str_repeat(static::caretUp(), 5));
+    }
+
+    if (is_array($sublist)) {
+      foreach ($sublist as $key => $value) {
+        note(static::yellow(str_repeat(' ', $sublist_indent) . '- ' . $value));
+        //        Check if is last
+        note(str_repeat(static::caretUp(), $key === array_key_last($sublist) ? 4 : 5));
+      }
     }
   }
 
   public static function purple(string $text): string {
-//    return "\e[33m{$text}\e[95m";
+    //    return "\e[33m{$text}\e[95m";
     return "\e[35m{$text}\e[39m";
-//    return "\e[95m{$text}\e[0m";
+    //    return "\e[95m{$text}\e[0m";
   }
 
   public static function yellow(string $text): string {
-//    return "\e[33m{$text}\e[95m";
+    //    return "\e[33m{$text}\e[95m";
     return "\e[33m{$text}\e[39m";
-//    return "\e[95m{$text}\e[0m";
+    //    return "\e[95m{$text}\e[0m";
   }
 
   public static function ok($text = 'OK') {
-    $ok = static::green("✅  " . $text) ;
+    $ok = static::green("✅  " . $text);
     note($ok);
-    note(str_repeat(static::caretUp(),4));
+    note(str_repeat(static::caretUp(), 4));
   }
 
   public static function dim(string $text): string {
     return "\e[2m{$text}\e[22m";
   }
 
-  public static function spin(\Closure $callback, string $message = '', \Closure|string|null $hint = NULL) {
-//    Printer::status($message, $hint);
-    $return = spin($callback, static::yellow($message));
-    Printer::status($message, $hint && is_callable($hint) ? $hint() : $hint);
-    Printer::ok($return);
+  public static function action(
+    \Closure|string $label,
+    ?\Closure $action = NULL,
+    \Closure|string|null $hint = NULL,
+    \Closure|string|null $success = NULL,
+    \Closure|string|null $failure = NULL,
+  ) {
+    $label = is_callable($label) ? $label() : $label;
+
+    $return = spin($action, static::yellow($label));
+
+    Printer::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Printer::utfPos($label) ? 3 : 2);
+
+    if ($return === FALSE) {
+      Printer::error($failure ? is_callable($failure) ? $failure() : $failure : 'Failed');
+    }
+    else {
+      Printer::ok($success ? is_callable($success) ? $success($return) : $success : $return);
+    }
+  }
+
+  public static function error($message) {
+    error($message);
+  }
+
+  public static function utfPos(string $string) {
+    return preg_match('/^[\x00-\x7F]/', $string);
   }
 
 }
