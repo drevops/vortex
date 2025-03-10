@@ -160,7 +160,7 @@ class SelfTest extends FunctionalTestBase {
    */
   public static function dataProviderAssertDirectoriesDiffEqual(): array {
     return [
-//      'files_equal' => [],
+      'files_equal' => [],
       'files_not_equal' => [
         [
           'dir1' => [
