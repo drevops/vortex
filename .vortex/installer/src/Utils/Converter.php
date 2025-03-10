@@ -56,4 +56,11 @@ class Converter extends Str2Name {
     return $value === '1' || $value === 1 || $value === TRUE ? 'Yes' : 'No';
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected static function mbRemove(string $string): string {
+    return preg_replace('/[^\x00-\x7F]+/', '', $string);
+  }
+
 }

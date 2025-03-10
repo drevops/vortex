@@ -394,7 +394,7 @@ class File {
       throw new \RuntimeException(sprintf('Unable to create temporary directory "%s".', $path));
     }
 
-    return $path;
+    return static::realpath($path);
   }
 
   public static function removeTokenFromFile(string $filename, string $token_begin, ?string $token_end = NULL, bool $with_content = FALSE): void {

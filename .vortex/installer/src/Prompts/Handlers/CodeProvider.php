@@ -2,6 +2,8 @@
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
+use DrevOps\Installer\Utils\File;
+
 class CodeProvider extends AbstractHandler {
 
   const GITHUB = 'github';
@@ -24,7 +26,7 @@ class CodeProvider extends AbstractHandler {
    */
   public function process(): void {
     if ($this->response !== self::GITHUB) {
-      @unlink($this->tmpDir . '/.github');
+      File::rmdirRecursive($this->tmpDir . '/.github');
     }
   }
 

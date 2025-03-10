@@ -497,6 +497,7 @@ class PromptManager {
       CiProvider::id(),
       DeployType::id(),
       HostingProvider::id(),
+      CodeProvider::id(),
       PreserveDocsProject::id(),
       PreserveDocsOnboarding::id(),
       // @todo Remove this processor.
@@ -526,7 +527,7 @@ class PromptManager {
     // Allow to set the value from the environment variable.
     $env_var = static::makeEnvName($id);
     $env_val = getenv($env_var);
-    if ($env_val) {
+    if (is_string($env_val)) {
       return str_contains($env_val, ',') ? Converter::fromList($env_val) : $env_val;
     }
 
