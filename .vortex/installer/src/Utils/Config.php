@@ -31,9 +31,9 @@ class Config {
 
   const VERSION = 'VORTEX_INSTALL_VERSION';
 
-  const NO_INTERACTION = 'VORTEX_NO_INTERACTION';
+  const NO_INTERACTION = 'VORTEX_INSTALL_NO_INTERACTION';
 
-  const QUIET = 'VORTEX_QUIET';
+  const QUIET = 'VORTEX_INSTALL_QUIET';
 
   /**
    * Store of configuration values.

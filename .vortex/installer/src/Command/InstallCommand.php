@@ -172,14 +172,14 @@ EOF
     }
 
     if (passthru('command -v composer >/dev/null') === FALSE) {
-      throw new \RuntimeException('Missing composer.');
+      throw new \RuntimeException('Missing Composer.');
     }
   }
 
   /**
    * Instantiate configuration from CLI options and environment variables.
    *
-   * Installer configuration is a set of internal installer script variables
+   * Installer configuration is a set of internal installer variables
    * prefixed with "VORTEX_INSTALL_" and used to control the installation. They
    * are read from the environment variables with $this->config->get().
    *
