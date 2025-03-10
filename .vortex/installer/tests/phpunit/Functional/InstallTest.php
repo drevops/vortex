@@ -20,7 +20,7 @@ class InstallTest extends FunctionalTestBase {
    * @covers ::execute
    */
   public function testInstallDefaults(): void {
-    $this->runInstall(static::fill());
+    $this->runInteractiveInstall(static::fill());
 
     $this->assertTesterSuccessOutputContains('Welcome to Vortex interactive installer');
 

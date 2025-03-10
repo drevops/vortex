@@ -658,16 +658,20 @@ abstract class FunctionalTestBase extends TestCase {
     $this->assertTrue(TRUE, $message ?: '');
   }
 
-  protected function runInstall(array $answers = [], ?string $dst = NULL): void {
-    putenv(Config::REPO_URI . '=' . static::$root);
+  protected function runInteractiveInstall(array $answers = [], ?string $dst = NULL, array $options = [], bool $expect_fail = FALSE): void {
     static::tuiInput($answers);
+    static::runNonInteractiveInstall($dst, $options + [InstallCommand::OPTION_NO_ITERACTION => FALSE], $expect_fail);
+  }
+
+  protected function runNonInteractiveInstall(?string $dst = NULL, array $options = [], bool $expect_fail = FALSE): void {
+    putenv(Config::REPO_URI . '=' . static::$root);
 
     $dst = $dst ?? static::$sut;
     $args[] = InstallCommand::$defaultName;
     if ($dst) {
       $args[InstallCommand::ARG_DESTINATION] = $dst;
     }
-    $this->consoleApplicationRun($args);
+    $this->consoleApplicationRun($args, $options + [InstallCommand::OPTION_NO_ITERACTION => TRUE], $expect_fail);
   }
 
   const MAX_QUESTIONS = 25;
