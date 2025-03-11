@@ -51,7 +51,7 @@ load _helper.workflow.bash
   assert_file_contains ".env" "VORTEX_DB_IMAGE=${VORTEX_DB_IMAGE}"
   # Assert that demo config was removed as a part of the installation.
   assert_file_not_contains ".env" "VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest"
-  assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_CURL_URL="
+  assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_URL="
 
   assert_ahoy_build
 

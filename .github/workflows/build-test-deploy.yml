@@ -41,17 +41,17 @@ on:
         description: 'Enable terminal session.'
         required: false
         default: false
-  #;< !PROVISION_USE_PROFILE
+  #;< !PROVISION_TYPE_PROFILE
   schedule:
     - cron: '0 18 * * *'
-  #;> !PROVISION_USE_PROFILE
+  #;> !PROVISION_TYPE_PROFILE
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  #;< !PROVISION_USE_PROFILE
+  #;< !PROVISION_TYPE_PROFILE
   database:
     runs-on: ubuntu-latest
 
@@ -148,14 +148,14 @@ jobs:
         with:
           path: .data
           key: v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
-  #;> !PROVISION_USE_PROFILE
+  #;> !PROVISION_TYPE_PROFILE
 
   build:
     runs-on: ubuntu-latest
     needs: database
-    #;< !PROVISION_USE_PROFILE
+    #;< !PROVISION_TYPE_PROFILE
     if: github.event_name != 'schedule'
-    #;> !PROVISION_USE_PROFILE
+    #;> !PROVISION_TYPE_PROFILE
 
     strategy:
       matrix:
@@ -171,7 +171,7 @@ jobs:
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
         VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
-        #;< !PROVISION_USE_PROFILE
+        #;< !PROVISION_TYPE_PROFILE
         # How often to refresh the cache of the DB dump. Refer to `date` command.
         VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
         # Use previous database caches on this branch as a fallback if the above cache
@@ -180,7 +180,7 @@ jobs:
         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
         # Which branch to use as a source of DB caches.
         VORTEX_CI_DB_CACHE_BRANCH: "develop"
-        #;> !PROVISION_USE_PROFILE
+        #;> !PROVISION_TYPE_PROFILE
 
     steps:
       - name: Preserve $HOME set in the container
@@ -196,7 +196,7 @@ jobs:
         run: composer validate --strict
         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
 
-      #;< !PROVISION_USE_PROFILE
+      #;< !PROVISION_TYPE_PROFILE
       - name: Create cache keys files for database caching
         run: |
           echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee db_cache_branch
@@ -219,7 +219,7 @@ jobs:
           key: v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
           restore-keys: |
             v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
-      #;> !PROVISION_USE_PROFILE
+      #;> !PROVISION_TYPE_PROFILE
 
       - name: Lint Dockerfiles with Hadolint
         run: |
@@ -351,9 +351,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    #;< !PROVISION_USE_PROFILE
-    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
-    #;> !PROVISION_USE_PROFILE
+    #;< !PROVISION_TYPE_PROFILE
+    if: ${{ github.event_name != 'schedule' && !startsWith(github.ref, 'refs/heads/deps/') }}
+    #;> !PROVISION_TYPE_PROFILE
 
     container:
       image: drevops/ci-runner:25.1.0

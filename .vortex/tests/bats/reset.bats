@@ -9,9 +9,6 @@ load _helper.bash
 @test "Reset" {
   run_installer_quiet
 
-  assert_files_present
-  assert_git_repo
-
   mktouch "web/core/install"
   mktouch "web/modules/contrib/somemodule/somemodule.info.yml"
   mktouch "web/themes/contrib/sometheme/sometheme.info.yml"
@@ -88,9 +85,6 @@ load _helper.bash
 
 @test "Reset; hard; no commit" {
   run_installer_quiet
-
-  assert_files_present
-  assert_git_repo
 
   mktouch "first.txt"
   git_add "first.txt"
@@ -177,9 +171,6 @@ load _helper.bash
 
 @test "Reset; hard; committed files" {
   run_installer_quiet
-
-  assert_files_present
-  assert_git_repo
 
   mktouch "web/core/install"
   mktouch "web/modules/contrib/somemodule/somemodule.info.yml"

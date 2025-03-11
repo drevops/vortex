@@ -16,8 +16,8 @@ set -eu
 # Flag to skip site provisioning.
 VORTEX_PROVISION_SKIP="${VORTEX_PROVISION_SKIP:-}"
 
-# Provision a site from profile instead of database file dump.
-VORTEX_PROVISION_USE_PROFILE="${VORTEX_PROVISION_USE_PROFILE:-0}"
+# Provision type: database or profile.
+VORTEX_PROVISION_TYPE="${VORTEX_PROVISION_TYPE:-database}"
 
 # Flag to always overwrite existing database. Usually set to 0 in deployed
 # environments.
@@ -75,6 +75,10 @@ info "Started site provisioning."
 
 [ "${VORTEX_PROVISION_SKIP}" = "1" ] && pass "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1." && exit 0
 
+# Normalize the provision type.
+VORTEX_PROVISION_TYPE=${VORTEX_PROVISION_TYPE:-'database'}
+case ${VORTEX_PROVISION_TYPE} in database | profile) ;; *) VORTEX_PROVISION_TYPE='database' ;; esac
+
 ## Convert DB dir starting with './' to a full path.
 [ "${VORTEX_DB_DIR#./}" != "${VORTEX_DB_DIR}" ] && VORTEX_DB_DIR="$(pwd)${VORTEX_DB_DIR#.}"
 
@@ -111,7 +115,7 @@ note "Profile                        : ${DRUPAL_PROFILE}"
 note "Configuration files present    : $(yesno "${site_has_config}")"
 note "Existing site found            : $(yesno "${site_is_installed}")"
 echo
-note "Install from profile           : $(yesno "${VORTEX_PROVISION_USE_PROFILE}")"
+note "Provision type                 : ${VORTEX_PROVISION_TYPE}"
 note "Overwrite existing DB          : $(yesno "${VORTEX_PROVISION_OVERRIDE_DB}")"
 note "Skip DB sanitization           : $(yesno "${VORTEX_PROVISION_SANITIZE_DB_SKIP}")"
 note "Skip post-provision operations : $(yesno "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}")"
@@ -170,7 +174,7 @@ provision_from_profile() {
 # The code block below has explicit if-else conditions and verbose output to
 # ensure that this significant operation is executed correctly and has
 # sufficient output for debugging.
-if [ "${VORTEX_PROVISION_USE_PROFILE}" != "1" ]; then
+if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
   info "Provisioning site from the database dump file."
   note "Dump file path: ${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
 

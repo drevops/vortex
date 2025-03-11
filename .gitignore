@@ -57,6 +57,6 @@ web/themes/**/build
 .twig-cs-fixer.cache
 
 # Ignore local override files.
-docker-compose.override.yml
-.env.local
-.ahoy.local.yml
+/docker-compose.override.yml
+/.env.local
+/.ahoy.local.yml

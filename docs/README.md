@@ -1,10 +1,10 @@
 # Project-specific documentation.
 
-[//]: # (#;< ONBOARDING)
+[//]: # (#;< DOCS_ONBOARDING)
 
 - [Onboarding checklist](onboarding.md)
 
-[//]: # (#;> ONBOARDING)
+[//]: # (#;> DOCS_ONBOARDING)
 
 - [Testing](testing.md)
 - [CI](ci.md)

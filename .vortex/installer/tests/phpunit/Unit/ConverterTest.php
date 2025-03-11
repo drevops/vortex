@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Drevops\Installer\Tests\Unit;
+namespace DrevOps\Installer\Tests\Unit;
 
-use DrevOps\Installer\Converter;
+use DrevOps\Installer\Utils\Converter;
 
 /**
  * Class InstallerHelpersTest.
  *
- * @coversDefaultClass \DrevOps\Installer\Converter
+ * @coversDefaultClass \DrevOps\Installer\Utils\Converter
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
@@ -17,95 +17,80 @@ use DrevOps\Installer\Converter;
 class ConverterTest extends UnitTestBase {
 
   /**
-   * @dataProvider dataProviderToHumanName
-   * @covers ::toHumanName
+   * @covers ::abbreviation
+   * @dataProvider dataProviderAbbreviation
    */
-  public function testToHumanName(string $value, mixed $expected): void {
-    $this->assertEquals($expected, Converter::toHumanName($value));
+  public function testAbbreviation(string $value, int $length, array $word_delims, string $expected): void {
+    $this->assertSame($expected, Converter::abbreviation($value, $length, $word_delims));
   }
 
-  public static function dataProviderToHumanName(): array {
+  public static function dataProviderAbbreviation(): array {
     return [
-      ['', ''],
-      [' ', ''],
-      [' word ', 'word'],
-      ['word other', 'word other'],
-      ['word  other', 'word other'],
-      ['word   other', 'word other'],
-      ['word-other', 'word other'],
-      ['word_other', 'word other'],
-      ['word_-other', 'word other'],
-      ['word_ - other', 'word other'],
-      [' _word_ - other - ', 'word other'],
-      [' _word_ - other - third', 'word other third'],
-      [' _%word_$ -# other -@ third!,', 'word other third'],
+      ['Hello World', 2, [' '], 'HW'],
+      ['singleword', 2, ['_'], 'si'],
+      ['singleword', 2, [' '], 'si'],
+      ['multiple_words_here', 3, ['_'], 'mwh'],
+      ['multiple_words_here', 3, [' '], 'mul'],
+      ['Mixed-Case Words', 2, ['-'], 'MC'],
+      ['Mixed-Case Words', 3, ['-'], 'MC'],
+      ['Mixed-Case Words', 3, [' ', '-'], 'MCW'],
+      [' spaced words ', 3, [' '], 'sw'],
+      [' spaced words ', 3, ['_'], 'spa'],
+      ['longword', 10, [' '], 'longword'],
+      ['longword', 10, ['_'], 'longword'],
+      ['abc def', 2, [' '], 'ad'],
+      ['abc def', 2, ['_'], 'ab'],
+      ['a_b_c', 3, [' '], 'a_b'],
+      ['a_b_c', 3, ['_'], 'abc'],
     ];
   }
 
   /**
-   * @dataProvider dataProviderToMachineName
-   * @covers ::toMachineName
+   * @covers ::domain
+   * @dataProvider dataProviderDomain
    */
-  public function testToMachineName(string $value, array $preserve, mixed $expected): void {
-    $this->assertEquals($expected, Converter::toMachineName($value, $preserve));
+  public function testDomain(string $string, string $expected): void {
+    $this->assertSame($expected, Converter::domain($string));
   }
 
-  public static function dataProviderToMachineName(): array {
+  public static function dataProviderDomain(): array {
     return [
-      ['', [], ''],
-      [' ', [], '_'],
-      [' word ', [], '_word_'],
-      ['word other', [], 'word_other'],
-      ['word  other', [], 'word__other'],
-      ['word   other', [], 'word___other'],
-      ['word-other', [], 'word_other'],
-      ['word_other', [], 'word_other'],
-      ['word_-other', [], 'word__other'],
-      ['word_ - other', [], 'word____other'],
-      [' _word_ - other - ', [], '__word____other___'],
-      [' _word_ - other - third', [], '__word____other___third'],
-      [' _%word_$ -# Other -@ Third!,', [], '___word______other____third__'],
-
-      ['', ['-'], ''],
-      [' ', ['-'], '_'],
-      [' word ', ['-'], '_word_'],
-      ['word other', ['-'], 'word_other'],
-      ['word  other', ['-'], 'word__other'],
-      ['word   other', ['-'], 'word___other'],
-      ['word-other', ['-'], 'word-other'],
-      ['word_other', ['-'], 'word_other'],
-      ['word_-other', ['-'], 'word_-other'],
-      ['word_ - other', ['-'], 'word__-_other'],
-      [' _word_ - other - ', ['-'], '__word__-_other_-_'],
-      [' _word_ - other - third', ['-'], '__word__-_other_-_third'],
-      [' _%word_$ -# Other -@ Third!,', ['-'], '___word___-__other_-__third__'],
+      ['https://example.com', 'example.com'],
+      ['http://example.com', 'example.com'],
+      ['www.example.com', 'example.com'],
+      ['https://www.example.com', 'example.com'],
+      ['http://www.example.com', 'example.com'],
+      ['example.com/', 'example.com'],
+      ['https://example.com/', 'example.com'],
+      ['http://example.com/', 'example.com'],
+      ['www.example.com/', 'example.com'],
+      ['example.com/path', 'example.com/path'],
+      ['https://www.example.com/path', 'example.com/path'],
+      ['example com', 'example-com'],
+      ['example_com', 'example-com'],
+      ['www.example_com', 'example-com'],
+      ['http://www.example_com', 'example-com'],
     ];
   }
 
   /**
-   * @dataProvider dataProviderToCamelCase
-   * @covers ::toCamelCase
+   * @covers ::path
+   * @dataProvider dataProviderPath
    */
-  public function testToCamelCase(string $value, bool $capitalise_first, mixed $expected): void {
-    $this->assertEquals($expected, Converter::toCamelCase($value, $capitalise_first));
+  public function testPath(string $string, string $expected): void {
+    $this->assertSame($expected, Converter::path($string));
   }
 
-  public static function dataProviderToCamelCase(): array {
+  public static function dataProviderPath(): array {
     return [
-      ['', FALSE, ''],
-      [' ', FALSE, ''],
-      [' word ', FALSE, 'word'],
-      [' word ', TRUE, 'Word'],
-      ['word other', FALSE, 'wordOther'],
-      ['word other', TRUE, 'WordOther'],
-      ['word  other', FALSE, 'wordOther'],
-      ['word  other', TRUE, 'WordOther'],
-      ['word-  other', FALSE, 'wordOther'],
-      ['word-  other', TRUE, 'WordOther'],
-      ['%word- * other', FALSE, 'wordOther'],
-      ['%word- * other', TRUE, 'WordOther'],
-      [' _%word_$ -# Other -@ Third!,', FALSE, 'wordOtherThird'],
-      [' _%word_$ -# Other -@ Third!,', TRUE, 'WordOtherThird'],
+      ['simple-path', 'simple-path'],
+      [' leading-space', '-leading-space'],
+      ['trailing-space ', 'trailing-space-'],
+      [' /slashes/ ', '-/slashes/-'],
+      [' multiple spaces here ', '-multiple-spaces-here-'],
+      ['path/with/slashes', 'path/with/slashes'],
+      ['  spaces  ', '--spaces--'],
+      ['mixed Spaces_and_underscores', 'mixed-Spaces_and_underscores'],
     ];
   }
 

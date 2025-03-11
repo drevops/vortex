@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Drevops\Installer\Tests\Unit;
+namespace DrevOps\Installer\Tests\Unit;
 
-use DrevOps\Installer\File;
-use Drevops\Installer\Tests\Traits\ReflectionTrait;
+use DrevOps\Installer\Tests\Traits\ClosureWrapperTrait;
+use DrevOps\Installer\Tests\Traits\LocationsTrait;
+use DrevOps\Installer\Tests\Traits\ReflectionTrait;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Filesystem\Filesystem;
+use PHPUnit\Framework\TestStatus\Error;
+use PHPUnit\Framework\TestStatus\Failure;
 
 /**
  * Class UnitTestCase.
@@ -20,77 +22,28 @@ use Symfony\Component\Filesystem\Filesystem;
 abstract class UnitTestBase extends TestCase {
 
   use ReflectionTrait;
+  use LocationsTrait;
+  use ClosureWrapperTrait;
 
-  /**
-   * Fixture directory.
-   *
-   * @var string
-   */
-  protected $fixtureDir;
-
-  /**
-   * Prepare fixture directory.
-   */
-  public function prepareFixtureDir(): void {
-    // Using createTempdir() from the install file itself.
-    $this->fixtureDir = File::createTempdir();
+  protected function setUp(): void {
+    self::locationsInit(getcwd() . '/../../');
   }
 
-  /**
-   * Cleanup fixture directory.
-   */
-  public function cleanupFixtureDir(): void {
-    $this->fileExists();
-    $fs = new Filesystem();
-    $fs->remove($this->fixtureDir);
-  }
-
-  /**
-   * Create fixture files.
-   *
-   * @param array $files
-   *   Files to create.
-   * @param string|null $basedir
-   *   Base directory.
-   * @param bool $append_rand
-   *   Append random number to the file name.
-   *
-   * @return string[]
-   *   Created file names.
-   */
-  protected function createFixtureFiles(array $files, ?string $basedir = NULL, bool $append_rand = TRUE): array {
-    $fs = new Filesystem();
-    $created = [];
-
-    foreach ($files as $file) {
-      $basedir = $basedir ?? dirname((string) $file);
-      $relative_dst = ltrim(str_replace($basedir, '', (string) $file), '/') . ($append_rand ? rand(1000, 9999) : '');
-      $new_name = $this->fixtureDir . DIRECTORY_SEPARATOR . $relative_dst;
-      $fs->copy($file, $new_name);
-      $created[] = $new_name;
+  protected function tearDown(): void {
+    // Clean up the directories if the test passed.
+    if (!$this->status() instanceof Failure && !$this->status() instanceof Error) {
+      self::locationsTearDown();
     }
-
-    return $created;
   }
 
   /**
-   * Get fixture directory.
-   *
-   * @param string|null $name
-   *   Fixture directory name.
-   *
-   * @return string
-   *   Fixture directory path.
+   * {@inheritdoc}
    */
-  protected function getFixtureDir($name = NULL): string {
-    $parent = dirname(__FILE__);
-    $path = $parent . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Fixtures';
-    $path .= $name ? DIRECTORY_SEPARATOR . $name : '';
-    if (!file_exists($path)) {
-      throw new \RuntimeException(sprintf('Unable to find fixture directory at path "%s".', $path));
-    }
+  protected function onNotSuccessfulTest(\Throwable $t): never {
+    // Print the locations information and the exception message.
+    fwrite(STDERR, PHP_EOL . 'See below:' . PHP_EOL . PHP_EOL . static::locationsInfo() . PHP_EOL . $t->getMessage() . PHP_EOL);
 
-    return $path;
+    parent::onNotSuccessfulTest($t);
   }
 
 }

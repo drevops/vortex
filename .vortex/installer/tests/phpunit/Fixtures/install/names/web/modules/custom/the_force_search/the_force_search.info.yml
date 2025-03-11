@@ -1,0 +1,8 @@
+name: New hope Search
+type: module
+description: Search functionality for New hope site.
+core_version_requirement: ^11
+package: the_new_hope
+dependencies:
+  - search_api:search_api
+  - search_api_solr:search_api_solr

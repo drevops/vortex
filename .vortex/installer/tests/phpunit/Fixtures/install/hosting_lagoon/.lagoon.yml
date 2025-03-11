@@ -1,0 +1,136 @@
+docker-compose-yaml: docker-compose.yml
+
+# Inject the deployed Git SHA.
+environment_variables:
+  git_sha: 'true'
+
+# Uncomment to login into container registries if using private images.
+# container-registries:
+#   dockerhub:
+#     # The `username` field must be set as a scalar value.
+#     # Environment variable VORTEX_CONTAINER_REGISTRY_PASS needs to be set via Lagoon CLI.
+#     username: your_registry_username
+#     password: VORTEX_CONTAINER_REGISTRY_PASS
+
+tasks:
+  post-rollout:
+    - run:
+        name: Show Vortex variables.
+        command: |
+          [ "${VORTEX_DEBUG-}" = "1" ] && env -0  | sort -z | tr '\0' '\n' | grep ^VORTEX_ || true
+        service: cli
+        shell: bash
+
+    - run:
+        name: Notify about pre-deployment.
+        command: |
+          if [ -n "$LAGOON_PR_NUMBER" ]; then
+            export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER
+            export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH
+            export VORTEX_NOTIFY_PR_NUMBER="${LAGOON_PR_NUMBER:-}"
+          else
+            export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH
+            export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH
+          fi
+          VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT \
+          VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
+          VORTEX_NOTIFY_EVENT=pre_deployment ./scripts/vortex/notify.sh || true
+        service: cli
+        shell: bash
+
+    - run:
+        name: Backup DB before deployment in production
+        command: |
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
+            echo "==> Running in PRODUCTION environment."
+            VORTEX_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./scripts/vortex/export-db-file.sh
+          fi
+        service: cli
+
+    - run:
+        name: Download database in non-production environments
+        command: |
+          if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
+            # No need to load SSH file to access production DB as Lagoon has SSH agent keys.
+            export VORTEX_DB_DOWNLOAD_SSH_FILE=false
+            export VORTEX_DB_DIR=/tmp/data
+            rm -Rf $VORTEX_DB_DIR || true
+            ./scripts/vortex/download-db.sh
+          fi
+        service: cli
+
+    - run:
+        name: Provision site
+        command: |
+
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
+            echo "==> Running in PRODUCTION environment."
+            # Never overwrite existing DB when production site already exists.
+            export VORTEX_PROVISION_OVERRIDE_DB=0
+            # Never unblock admin user in production.
+            export DRUPAL_UNBLOCK_ADMIN=0
+            # Never sanitize DB in production.
+            export VORTEX_PROVISION_SANITIZE_DB_SKIP=1
+          fi
+
+          export VORTEX_DB_DIR=/tmp/data
+          ./scripts/vortex/provision.sh
+        service: cli
+        shell: bash
+
+    - run:
+        name: Send deployment notifications
+        command: |
+          if [ -n "$LAGOON_PR_NUMBER" ]; then
+            export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER
+            export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH
+            export VORTEX_NOTIFY_PR_NUMBER="${LAGOON_PR_NUMBER:-}"
+          else
+            export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH
+            export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH
+          fi
+          VORTEX_NOTIFY_EVENT=post_deployment \
+          VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT \
+          VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
+          ./scripts/vortex/notify.sh || true
+        service: cli
+        shell: bash
+
+environments:
+  # Branch name that represents production environment.
+  main:
+    cronjobs:
+      - name: drush cron
+        schedule: '*/15 * * * *'
+        command: drush cron --root=/app
+        service: cli
+    # Uncomment to enable installing a custom SSL certificate.
+    # By default, Lagoon installs Let's Encrypt certificates for all environments.
+    # routes:
+    #   - nginx-php:
+    #       - www.star-wars-domain.example:
+    #           tls-acme: 'false'
+    monitoring_urls:
+      - www.star-wars-domain.example
+  # Branch name that represents development environment.
+  develop:
+    cronjobs:
+      - name: drush cron
+        schedule: '*/15 * * * *'
+        command: drush cron --root=/app
+        service: cli
+    # Uncomment to enable installing a custom SSL certificate.
+    # By default, Lagoon installs Let's Encrypt certificates for all environments.
+    # routes:
+    #   - nginx-php:
+    #       - dev.star-wars-domain.example:
+    #           tls-acme: 'false'
+    monitoring_urls:
+      - dev.star-wars-domain.example
+
+routes:
+  insecure: Redirect

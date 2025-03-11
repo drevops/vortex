@@ -64,6 +64,7 @@ jobs:
         with:
           name: vortex-installer
           path: .vortex/installer/build/installer
+          if-no-files-found: error
 
   vortex-release-docs:
     needs: vortex-release-installer

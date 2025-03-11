@@ -18,17 +18,17 @@ Drupal 11 implementation of YOURSITE for YOURORG
 ![Drupal 11](https://img.shields.io/badge/Drupal-10-blue.svg)
 [![codecov](https://codecov.io/gh/your_org/your_site/graph/badge.svg)](https://codecov.io/gh/your_org/your_site)
 
-[//]: # (#;< RENOVATEBOT)
+[//]: # (#;< DEPS_UPDATE_PROVIDER)
 
 ![Automated updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
 
-[//]: # (#;> RENOVATEBOT)
+[//]: # (#;> DEPS_UPDATE_PROVIDER)
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY VORTEX TO TRACK INTEGRATION)
 
 [![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-5909A1.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
 
-[//]: # (#;< ONBOARDING)
+[//]: # (#;< DOCS_ONBOARDING)
 
 </div>
 
@@ -37,7 +37,7 @@ Drupal 11 implementation of YOURSITE for YOURORG
 Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding
 to Vortex progress. Remove this section once onboarding is finished.
 
-[//]: # (#;> ONBOARDING)
+[//]: # (#;> DOCS_ONBOARDING)
 
 ## Local environment setup
 
@@ -45,7 +45,7 @@ to Vortex progress. Remove this section once onboarding is finished.
 - Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 - Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).
 
-[//]: # (#;< ACQUIA)
+[//]: # (#;< HOSTING_ACQUIA)
 
 - Authenticate with Acquia Cloud API
   1. Create your Acquia Cloud API token:<br/>
@@ -54,9 +54,9 @@ to Vortex progress. Remove this section once onboarding is finished.
   3. Populate `$VORTEX_ACQUIA_KEY` and `$VORTEX_ACQUIA_SECRET` environment
      variables in `.env.local` file with values generated in the step above.
 
-[//]: # (#;> ACQUIA)
+[//]: # (#;> HOSTING_ACQUIA)
 
-[//]: # (#;< LAGOON)
+[//]: # (#;< HOSTING_LAGOON)
 
 - Authenticate with Lagoon
   1. Create an SSH key and add it to your account in the [Lagoon Dashboard](https://ui-lagoon-master.ch.amazee.io/).
@@ -64,14 +64,14 @@ to Vortex progress. Remove this section once onboarding is finished.
   3. Update `$VORTEX_DB_DOWNLOAD_SSH_FILE` environment variable in `.env.local` file
      with the path to the SSH key.
 
-[//]: # (#;> LAGOON)
+[//]: # (#;> HOSTING_LAGOON)
 
 
-[//]: # (#;< !PROVISION_USE_PROFILE)
+[//]: # (#;< !PROVISION_TYPE_PROFILE)
 
 - `ahoy download-db`
 
-[//]: # (#;> !PROVISION_USE_PROFILE)
+[//]: # (#;> !PROVISION_TYPE_PROFILE)
 - `pygmy up`
 - `ahoy build`
 

@@ -4,7 +4,9 @@
 
     <!-- Coding standard. -->
     <rule ref="Drupal">
-        <exclude name="Drupal.Commenting.ClassComment.Short" />
+        <exclude name="Drupal.Commenting.ClassComment" />
+        <exclude name="Drupal.Commenting.FunctionComment.Missing" />
+        <exclude name="Drupal.Commenting.VariableComment.Missing" />
     </rule>
 
     <!-- Show sniff codes in all reports -->
@@ -14,11 +16,9 @@
     <arg name="colors"/>
 
     <file>src</file>
-    <file>tests/phpunit</file>
-
-    <rule ref="Drupal.Commenting.FunctionComment.Missing">
-        <exclude-pattern>*</exclude-pattern>
-    </rule>
+    <file>tests/phpunit/Unit</file>
+    <file>tests/phpunit/Functional</file>
+    <file>tests/phpunit/Traits</file>
 
     <!-- Allow incorrectly sorted namespaces in tests. -->
     <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses.IncorrectlyOrderedUses">
@@ -29,6 +29,12 @@
 
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
+        <exclude-pattern>*.Test\.php</exclude-pattern>
+        <exclude-pattern>*.TestCase\.php</exclude-pattern>
+        <exclude-pattern>*.test</exclude-pattern>
+    </rule>
+    <!-- Allow avoiding short doc comments in tests. -->
+    <rule ref="Drupal.Commenting.DocComment.MissingShort">
         <exclude-pattern>*.Test\.php</exclude-pattern>
         <exclude-pattern>*.TestCase\.php</exclude-pattern>
         <exclude-pattern>*.test</exclude-pattern>

@@ -5,7 +5,7 @@
 
 assert_deployment_files_present() {
   local dir="${1:-$(pwd)}"
-  local webroot="web"
+  local webroot="${2:-web}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -59,9 +59,6 @@ assert_deployment_files_present() {
   assert_dir_not_exists "${webroot}/themes/custom/star_wars/node_modules"
 
   # Drupal Scaffold files present.
-  assert_file_exists "${webroot}/.editorconfig"
-  assert_file_exists "${webroot}/.eslintignore"
-  assert_file_exists "${webroot}/.gitattributes"
   assert_file_exists "${webroot}/.htaccess"
   assert_file_exists "${webroot}/autoload.php"
   assert_file_exists "${webroot}/index.php"
@@ -102,13 +99,15 @@ assert_deployment_files_present() {
 install_and_build_site() {
   local dir="${1:-$(pwd)}"
   local should_build="${2:-1}"
+  local webroot="${3:-web}"
+  shift || true
   shift || true
   shift || true
   local answers=("$@")
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_files_not_present_common
+  assert_files_not_present_common "" "" "" "" "${webroot}"
 
   step "Initialise the project with the default settings"
 
@@ -119,7 +118,7 @@ install_and_build_site() {
     run_installer_quiet
   fi
 
-  assert_files_present_common
+  assert_files_present_common "" "" "" "" "" "${webroot}"
   assert_git_repo
 
   # Special treatment for cases where volumes are not mounted from the host.

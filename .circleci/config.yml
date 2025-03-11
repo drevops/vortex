@@ -13,44 +13,44 @@
 version: '2.1'
 
 aliases:
-  #;< !PROVISION_USE_PROFILE
+  #;< !PROVISION_TYPE_PROFILE
   # SSH key fingerprint to download the database.
   # Replace this key fingerprint with your own and remove this comment.
   - &db_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
-  #;> !PROVISION_USE_PROFILE
+  #;> !PROVISION_TYPE_PROFILE
 
   # SSH key fingerprint to deploy code.
   # Replace this key fingerprint with your own and remove this comment.
   - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
 
-  #;< !PROVISION_USE_PROFILE
+  #;< !PROVISION_TYPE_PROFILE
   # Schedule to run nightly database build (to cache the database for the next day).
   - &nightly_db_schedule "0 18 * * *"
-  #;> !PROVISION_USE_PROFILE
+  #;> !PROVISION_TYPE_PROFILE
 
-  #;< RENOVATEBOT
+  #;< DEPS_UPDATE_PROVIDER_CI
   # Specify the correct repository to prevent the bot from accessing all
   # repositories available via $RENOVATE_TOKEN.
-  #;< SCAFFOLD_DEV
+  #;< VORTEX_DEV
   - &renovatebot_repository 'drevops/vortex-destination'
-  #;> SCAFFOLD_DEV
+  #;> VORTEX_DEV
   ##### - &renovatebot_repository 'your_org/your_site'
   # The author details to use for commits made by RenovateBot.
-  #;< SCAFFOLD_DEV
+  #;< VORTEX_DEV
   - &renovatebot_git_author 'Renovate Self Hosted <deployer+renovatebot@drevops.com>'
-  #;> SCAFFOLD_DEV
+  #;> VORTEX_DEV
   ##### - &renovatebot_git_author 'RenovateBot Self Hosted <renovatebot@your-site-domain.example>'
   # The schedule to run RenovateBot on. Defaults to running twice a day.
   - &renovatebot_schedule "5 11,23 * * *"
-  #;> RENOVATEBOT
+  #;> DEPS_UPDATE_PROVIDER_CI
 
   # Shared runner container configuration applied to each job.
   - &runner_config
     working_directory: &working_directory ~/project
     environment:
-      #;< !PROVISION_USE_PROFILE
+      #;< !PROVISION_TYPE_PROFILE
       VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
-      #;> !PROVISION_USE_PROFILE
+      #;> !PROVISION_TYPE_PROFILE
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       # Using the 'runner' container where each job will be executed.
@@ -67,7 +67,7 @@ aliases:
           TZ: "Australia/Melbourne"
           # Set runner terminal capabilities.
           TERM: xterm-256color
-          #;< !PROVISION_USE_PROFILE
+          #;< !PROVISION_TYPE_PROFILE
           # How often to refresh the cache of the DB dump. Refer to `date` command.
           VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
           # Use previous database caches on this branch as a fallback if the above cache
@@ -76,7 +76,7 @@ aliases:
           VORTEX_CI_DB_CACHE_FALLBACK: "yes"
           # Which branch to use as a source of DB caches.
           VORTEX_CI_DB_CACHE_BRANCH: "develop"
-          #;> !PROVISION_USE_PROFILE
+          #;> !PROVISION_TYPE_PROFILE
           # Directory to store test results.
           VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
@@ -118,7 +118,7 @@ aliases:
 ################################################################################
 
 jobs:
-  #;< !PROVISION_USE_PROFILE
+  #;< !PROVISION_TYPE_PROFILE
   # Database handling is a first step of the build.
   # - $VORTEX_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump
   #   should be downloaded for the current build. Usually, a daily database dump
@@ -203,7 +203,7 @@ jobs:
       VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:24.4.0
       # Deploy container image (if database-in-image storage is used).
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
-  #;> !PROVISION_USE_PROFILE
+  #;> !PROVISION_TYPE_PROFILE
 
   # Build and test is a second step of the build. The testing is performed
   # within the same job to save time on provisioning during the job.
@@ -221,7 +221,7 @@ jobs:
           name: Validate Composer configuration
           command: composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      #;< !PROVISION_USE_PROFILE
+      #;< !PROVISION_TYPE_PROFILE
       - run:
           name: Set cache keys for database caching
           command: |
@@ -235,7 +235,7 @@ jobs:
             # @see https://circleci.com/docs/2.0/caching/#restoring-cache
             - v25.3.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             - v25.3.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
-      #;> !PROVISION_USE_PROFILE
+      #;> !PROVISION_TYPE_PROFILE
 
       - run:
           name: Lint Dockerfiles with Hadolint
@@ -401,10 +401,10 @@ jobs:
           path: *artifacts
   #;> DEPLOYMENT
 
-  #;< RENOVATEBOT
-  # Self-hosted RenovateBot.
+  #;< DEPS_UPDATE_PROVIDER_CI
+  # Self-hosted dependency updates.
   # Add RENOVATE_TOKEN as an environment variable with GitHub access token in UI.
-  renovatebot-self-hosted:
+  deps-updates:
     docker:
       - image: renovate/renovate:38.55.2
         environment:
@@ -419,7 +419,7 @@ jobs:
       - checkout
       - run: renovate-config-validator
       - run: renovate
-  #;> RENOVATEBOT
+  #;> DEPS_UPDATE_PROVIDER_CI
 
   #;============================================================================
   #; Vortex development section. Removed during Vortex installation/update.
@@ -477,7 +477,7 @@ jobs:
   vortex-dev-didi-database-fi:
     <<: *job-database
     environment:
-      VORTEX_DB_DOWNLOAD_SOURCE: curl
+      VORTEX_DB_DOWNLOAD_SOURCE: url
       VORTEX_DB_DOWNLOAD_FORCE: 1
       # Use container image database storage despite that the file is coming
       # from CURL - this is to make sure that image is exported into cache
@@ -546,17 +546,17 @@ workflows:
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
     jobs:
-      #;< !PROVISION_USE_PROFILE
+      #;< !PROVISION_TYPE_PROFILE
       - database:
           filters:
             tags:
               only: /.*/
-      #;> !PROVISION_USE_PROFILE
+      #;> !PROVISION_TYPE_PROFILE
       - build:
-          #;< !PROVISION_USE_PROFILE
+          #;< !PROVISION_TYPE_PROFILE
           requires:
             - database
-          #;> !PROVISION_USE_PROFILE
+          #;> !PROVISION_TYPE_PROFILE
           filters:
             tags:
               only: /.*/
@@ -626,7 +626,7 @@ workflows:
   #=============================================================================
   #;> VORTEX_DEV
 
-  #;< !PROVISION_USE_PROFILE
+  #;< !PROVISION_TYPE_PROFILE
   # Nightly database workflow runs overnight to capture fresh database and cache it.
   nightly-db:
     triggers:
@@ -638,11 +638,11 @@ workflows:
                 - develop
     jobs:
       - database-nightly
-  #;> !PROVISION_USE_PROFILE
+  #;> !PROVISION_TYPE_PROFILE
 
-  #;< RENOVATEBOT
+  #;< DEPS_UPDATE_PROVIDER_CI
   # Self-hosted Renovatebot workflow.
-  renovatebot-self-hosted:
+  deps-updates:
     triggers:
       - schedule:
           cron: *renovatebot_schedule
@@ -651,5 +651,5 @@ workflows:
               only:
                 - develop
     jobs:
-      - renovatebot-self-hosted
-  #;> RENOVATEBOT
+      - deps-updates
+  #;> DEPS_UPDATE_PROVIDER_CI
