@@ -17,7 +17,7 @@ Refer to https://vortex.drevops.com/workflows/deployment for more information.
 
 Once PR is closed, the environment will be automatically removed.
 
-[//]: # (#;< ACQUIA)
+[//]: # (#;< HOSTING_ACQUIA)
 
 GitHub is a primary code repository for this project (aka "source repository").
 Acquia Cloud is a hosting provider for this project and it also has a git
@@ -99,9 +99,9 @@ followed by all developers:
 4. Technical Lead is expected to regularly cleanup `feature/*` and `bugfix/*`
    branches in Acquia Cloud repository.
 
-[//]: # (#;> ACQUIA)
+[//]: # (#;> HOSTING_ACQUIA)
 
-[//]: # (#;< LAGOON)
+[//]: # (#;< HOSTING_LAGOON)
 
 ## Database refresh in Lagoon environments
 
@@ -112,4 +112,4 @@ production environment, run:
 VORTEX_DEPLOY_BRANCH=<YOUR/BRANCH-NAME> VORTEX_DEPLOY_ACTION=deploy_override_db ahoy deploy
 ```
 
-[//]: # (#;> LAGOON)
+[//]: # (#;> HOSTING_LAGOON)

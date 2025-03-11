@@ -50,7 +50,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
         static::ENVIRONMENT_CI,
       ],
 
-      // #;< ACQUIA
+      // #;< HOSTING_ACQUIA
       // Acquia.
       [
         [
@@ -94,8 +94,8 @@ class EnvironmentSettingsTest extends SettingsTestCase {
         ],
         static::ENVIRONMENT_DEV,
       ],
-      // phpcs:ignore #;> ACQUIA
-      // phpcs:ignore #;< LAGOON
+      // phpcs:ignore #;> HOSTING_ACQUIA
+      // phpcs:ignore #;< HOSTING_LAGOON
       // Lagoon.
       [
         [
@@ -276,7 +276,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
         ],
         static::ENVIRONMENT_DEV,
       ],
-      // phpcs:ignore #;> LAGOON
+      // phpcs:ignore #;> HOSTING_LAGOON
     ];
   }
 
@@ -295,7 +295,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_SUT;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['shield.settings']['shield_enable'] = TRUE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = 1;
@@ -338,7 +337,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_LOCAL;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['shield.settings']['shield_enable'] = FALSE;
     $config['system.logging']['error_level'] = 'all';
     $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -384,7 +382,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_CI;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['shield.settings']['shield_enable'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = 1;
@@ -413,7 +410,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertSettings($settings);
   }
 
-  // phpcs:ignore #;< ACQUIA
+  // phpcs:ignore #;< HOSTING_ACQUIA
   /**
    * Test per-environment settings for dynamic environment.
    */
@@ -431,7 +428,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['shield.settings']['shield_enable'] = TRUE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = 1;
@@ -472,7 +468,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['shield.settings']['shield_enable'] = TRUE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = 1;
@@ -513,7 +508,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['shield.settings']['shield_enable'] = TRUE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = 1;
@@ -553,7 +547,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_PROD;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = 1;
     $config['system.performance']['js']['preprocess'] = 1;
@@ -575,8 +568,8 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^nginx$';
     $this->assertSettings($settings);
   }
-  // phpcs:ignore #;> ACQUIA
-  // phpcs:ignore #;< LAGOON
+  // phpcs:ignore #;> HOSTING_ACQUIA
+  // phpcs:ignore #;< HOSTING_LAGOON
   /**
    * Test per-environment settings for dynamic environment.
    */
@@ -598,7 +591,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['shield.settings']['shield_enable'] = TRUE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = 1;
@@ -649,7 +641,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['shield.settings']['shield_enable'] = TRUE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = 1;
@@ -700,7 +691,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['shield.settings']['shield_enable'] = TRUE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = 1;
@@ -751,7 +741,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_PROD;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['maintenance_theme'] = 'your_site_theme';
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = 1;
     $config['system.performance']['js']['preprocess'] = 1;
@@ -779,6 +768,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'][] = '^example1\.com|example2/com$';
     $this->assertSettings($settings);
   }
-  // phpcs:ignore #;> LAGOON
+  // phpcs:ignore #;> HOSTING_LAGOON
 
 }

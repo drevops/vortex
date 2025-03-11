@@ -48,9 +48,9 @@ drush/contrib/
 !scripts
 !tests
 
-#;< ACQUIA
+#;< HOSTING_ACQUIA
 !hooks
-#;> ACQUIA
-#;< LAGOON
+#;> HOSTING_ACQUIA
+#;< HOSTING_LAGOON
 !.lagoon.env.*
-#;> LAGOON
+#;> HOSTING_LAGOON

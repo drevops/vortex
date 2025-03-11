@@ -13,16 +13,24 @@ set -eu
 # shellcheck disable=SC1091
 set -a && . ./.env && set +a
 
-# Allow providing custom Vortex commit hash to download the sources from.
-VORTEX_INSTALL_COMMIT="${VORTEX_INSTALL_COMMIT:-${1:-}}"
+# Vortex remote or local repo URI, optionally including reference.
+#
+# Examples:
+# https://github.com/drevops/vortex.git         # Will auto-discover the latest stable tag.
+# https://github.com/drevops/vortex.git@stable  # Will auto-discover the latest stable tag.
+# https://github.com/drevops/vortex.git@1234567 # Will use the commit hash.
+# /local/path/to/vortex
+# /local/path/to/vortex@stable
+# /local/path/to/vortex@ref
+VORTEX_INSTALL_REPO="${VORTEX_INSTALL_REPO:-${1:-}}"
 
 # The URL of the installer script.
 VORTEX_INSTALLER_URL="${VORTEX_INSTALLER_URL:-https://vortex.drevops.com/install}"
 
 # ------------------------------------------------------------------------------
 
+export VORTEX_INSTALL_REPO
 export VORTEX_INSTALLER_URL
-export VORTEX_INSTALL_COMMIT
 
 for cmd in php curl; do command -v ${cmd} >/dev/null || {
   fail "Command ${cmd} is not available"
@@ -30,5 +38,5 @@ for cmd in php curl; do command -v ${cmd} >/dev/null || {
 }; done
 
 curl -L "${VORTEX_INSTALLER_URL}"?"$(date +%s)" >/tmp/install
-php /tmp/install --quiet
+php /tmp/install --no-interaction
 rm /tmp/install >/dev/null

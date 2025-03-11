@@ -1,0 +1,34 @@
+name: 'star wars Profile'
+description: 'star wars profile'
+type: profile
+package: star_wars
+version: 1.0.0
+core_version_requirement: ^10
+dependencies:
+  - block_content
+  - block_place
+  - ckeditor5
+  - config
+  - content_moderation
+  - field_layout
+  - field_ui
+  - help
+  - history
+  - image
+  - inline_form_errors
+  - layout_discovery
+  - media_library
+  - menu_ui
+  - node
+  - options
+  - rdf
+  - responsive_image
+  - shortcut
+  - syslog
+  - taxonomy
+  - toolbar
+  - views_ui
+  - ys_core
+
+themes:
+  - seven

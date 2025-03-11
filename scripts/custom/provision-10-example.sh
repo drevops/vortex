@@ -33,18 +33,18 @@ if drush php:eval "print \Drupal\core\Site\Settings::get('environment');" | grep
   # Enable contrib modules.
   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy
 
-  #;< REDIS
+  #;< SERVICE_REDIS
   drush pm:install redis || true
-  #;> REDIS
+  #;> SERVICE_REDIS
 
-  #;< CLAMAV
+  #;< SERVICE_CLAMAV
   drush pm:install clamav
   drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
-  #;> CLAMAV
+  #;> SERVICE_CLAMAV
 
-  #;< SOLR
+  #;< SERVICE_SOLR
   drush pm:install search_api search_api_solr
-  #;> SOLR
+  #;> SERVICE_SOLR
 
   # Enable custom site module and run its deployment hooks.
   #

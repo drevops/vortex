@@ -196,7 +196,7 @@ flowchart LR
         F{DB source type}
     end
     F -- FTP --> G[download-db-ftp.sh]
-    F -- CURL --> H[download-db-curl.sh]
+    F -- CURL --> H[download-db-url.sh]
     F -- Acquia --> I[download-db-acquia.sh]
     F -- Lagoon --> J[download-db-lagoon.sh]
     F -- Docker registry --> K[download-db-container-registry.sh]

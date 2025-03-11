@@ -21,6 +21,8 @@ load _helper.deployment.bash
 
   step "Starting DEPLOYMENT tests."
 
+  export VORTEX_INSTALL_PROMPT_DEPLOY_TYPES="artifact"
+
   if [ ! "${SRC_DIR}" ]; then
     SRC_DIR="${BUILD_DIR}/deployment_src"
     substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
@@ -43,7 +45,7 @@ load _helper.deployment.bash
     # from for deployment. They may be the same place, but we are testing them
     # if they are separate, because most likely SRC_DIR will contain code
     # built on previous build stages.
-    install_and_build_site "${CURRENT_PROJECT_DIR}"
+    install_and_build_site "${CURRENT_PROJECT_DIR}" 1 "docroot"
 
     substep "Copying built codebase into code source directory ${SRC_DIR}"
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -54,10 +56,10 @@ load _helper.deployment.bash
 
   # Make sure that all files were copied out from the container or passed from
   # the previous stage of the build.
-  assert_files_present_common "${SRC_DIR}"
+  assert_files_present_common "${SRC_DIR}" "" "" "" "" "docroot"
   assert_files_present_deployment "${SRC_DIR}"
-  assert_files_present_integration_acquia "${SRC_DIR}" "sw" 1
-  assert_files_present_no_integration_lagoon "${SRC_DIR}"
+  assert_files_present_integration_acquia "${SRC_DIR}" "sw" 1 "docroot"
+  assert_files_present_no_integration_lagoon "${SRC_DIR}" "" "docroot"
   assert_files_present_no_integration_ftp "${SRC_DIR}"
   assert_git_repo "${SRC_DIR}"
 
@@ -79,7 +81,6 @@ load _helper.deployment.bash
   export VORTEX_DEPLOY_ARTIFACT_ROOT="${CURRENT_PROJECT_DIR}"
   export VORTEX_DEPLOY_ARTIFACT_SRC="${SRC_DIR}"
   export VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL="${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL:-testuser@example.com}"
-  export VORTEX_DEPLOY_TYPES="artifact"
 
   run ahoy deploy
   assert_success
@@ -99,10 +100,10 @@ load _helper.deployment.bash
   assert_output_not_contains "Finished LAGOON deployment."
 
   step "Assert remote deployment files"
-  assert_deployment_files_present "${REMOTE_REPO_DIR}"
+  assert_deployment_files_present "${REMOTE_REPO_DIR}" "docroot"
 
   # Assert Acquia integration files are present.
-  assert_files_present_integration_acquia "${REMOTE_REPO_DIR}" "sw" 0
+  assert_files_present_integration_acquia "${REMOTE_REPO_DIR}" "sw" 0 "docroot"
 
   popd >/dev/null
 }
@@ -117,34 +118,14 @@ load _helper.deployment.bash
 
   step "Starting DEPLOYMENT tests."
 
+  export VORTEX_INSTALL_PROMPT_DEPLOY_TYPES="lagoon"
+  export VORTEX_INSTALL_PROMPT_HOSTING_PROVIDER="lagoon"
+  export VORTEX_INSTALL_PROMPT_DEPLOY_TYPES="lagoon"
+  export VORTEX_INSTALL_PROMPT_DATABASE_DOWNLOAD_SOURCE="lagoon"
+
   SRC_DIR="${BUILD_DIR}/deployment_src"
   substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
   fixture_prepare_dir "${SRC_DIR}"
-
-  # Provision the codebase with Lagoon deployment type and Lagoon integration.
-  answers=(
-    "Star wars" # name
-    "nothing"   # machine_name
-    "nothing"   # org
-    "nothing"   # org_machine_name
-    "nothing"   # module_prefix
-    "nothing"   # profile
-    "nothing"   # theme
-    "nothing"   # URL
-    "nothing"   # webroot
-    "nothing"   # provision_use_profile
-    "lagoon"    # database_download_source
-    "nothing"   # database_store_type
-    "nothing"   # override_existing_db
-    "nothing"   # ci_provider
-    "lagoon"    # deploy_type
-    "n"         # preserve_ftp
-    "n"         # preserve_acquia
-    "y"         # preserve_lagoon
-    "n"         # preserve_renovatebot
-    "nothing"   # preserve_doc_comments
-    "nothing"   # preserve_vortex_info
-  )
 
   # Do not build - only structure.
   install_and_build_site "${CURRENT_PROJECT_DIR}" 0 "${answers[@]}"
@@ -209,7 +190,7 @@ load _helper.deployment.bash
   popd >/dev/null
 }
 
-@test "Deployment; Lagoon integration; provision_use_profile; redeploy" {
+@test "Deployment; Lagoon integration; PROVISION_TYPE_PROFILE; redeploy" {
   pushd "${BUILD_DIR}" >/dev/null || exit 1
 
   # Source directory for initialised codebase.
@@ -223,31 +204,14 @@ load _helper.deployment.bash
   substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
   fixture_prepare_dir "${SRC_DIR}"
 
-  # Provision the codebase with Lagoon deployment type and Lagoon integration.
-  answers=(
-    "Star wars" # name
-    "nothing"   # machine_name
-    "nothing"   # org
-    "nothing"   # org_machine_name
-    "nothing"   # module_prefix
-    "nothing"   # profile
-    "nothing"   # theme
-    "nothing"   # URL
-    "nothing"   # webroot
-    "y"         # provision_use_profile
-    "n"         # override_existing_db
-    "nothing"   # ci_provider
-    "lagoon"    # deploy_type
-    "n"         # preserve_ftp
-    "n"         # preserve_acquia
-    "y"         # preserve_lagoon
-    "n"         # preserve_renovatebot
-    "nothing"   # preserve_doc_comments
-    "nothing"   # preserve_vortex_info
-  )
+  export VORTEX_INSTALL_PROMPT_DEPLOY_TYPES="lagoon"
+  export VORTEX_INSTALL_PROMPT_HOSTING_PROVIDER="lagoon"
+  export VORTEX_INSTALL_PROMPT_DEPLOY_TYPES="lagoon"
+  export VORTEX_INSTALL_PROMPT_DATABASE_DOWNLOAD_SOURCE="lagoon"
+  export VORTEX_INSTALL_PROMPT_PROVISION_TYPE="profile"
 
   # Do not build - only structure.
-  install_and_build_site "${CURRENT_PROJECT_DIR}" 0 "${answers[@]}"
+  install_and_build_site "${CURRENT_PROJECT_DIR}" 0
 
   substep "Copying built codebase into code source directory ${SRC_DIR}"
   cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"

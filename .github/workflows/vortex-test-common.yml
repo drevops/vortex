@@ -72,6 +72,8 @@ jobs:
         with:
           name: ${{github.job}}-code-coverage-report
           path: /tmp/.vortex-coverage-html
+          include-hidden-files: true
+          if-no-files-found: error
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v5
@@ -125,6 +127,8 @@ jobs:
         with:
           name: ${{github.job}}-${{ matrix.batch }}-code-coverage-report
           path: /tmp/.vortex-coverage-html
+          include-hidden-files: true
+          if-no-files-found: error
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v5
@@ -188,6 +192,8 @@ jobs:
         with:
           name: ${{github.job}}-${{ matrix.batch }}-code-coverage-report
           path: /tmp/.vortex-coverage-html
+          include-hidden-files: true
+          if-no-files-found: error
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v5

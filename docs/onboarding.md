@@ -80,7 +80,7 @@ indicate that it was addressed.
 
 ## 4. Setting up integrations
 
-[//]: # (#;< ACQUIA)
+[//]: # (#;< HOSTING_ACQUIA)
 
 - [ ] Configure Acquia integration:
   - [ ] Create a `deployer` user in Acquia.
@@ -98,9 +98,9 @@ indicate that it was addressed.
     write access (only write access!). For example, add it to CI if
     it has to push code to Acquia.
 
-[//]: # (#;> ACQUIA)
+[//]: # (#;> HOSTING_ACQUIA)
 
-[//]: # (#;< LAGOON)
+[//]: # (#;< HOSTING_LAGOON)
 
 - [ ] Configure Lagoon integration:
   - [ ] Submit a request to AmazeeIO to create a project.
@@ -113,14 +113,14 @@ indicate that it was addressed.
     Setup [Slack notifications](https://docs.lagoon.sh/administering-lagoon/graphql-queries/#adding-notifications-to-the-project)
   - [ ] Push to remote and ensure that Lagoon was successfully deployed.
 
-[//]: # (#;> LAGOON)
+[//]: # (#;> HOSTING_LAGOON)
 
-[//]: # (#;< RENOVATEBOT)
+[//]: # (#;< DEPS_UPDATE_PROVIDER)
 
 - [ ] Configure Renovate by [logging in](https://developer.mend.io/) with your GitHub account and
   adding a project through UI.
 
-[//]: # (#;> RENOVATEBOT)
+[//]: # (#;> DEPS_UPDATE_PROVIDER)
 
 ## 5. Cleanup
 

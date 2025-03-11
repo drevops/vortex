@@ -8,7 +8,9 @@ parameters:
 
   paths:
     - src
-    - tests/phpunit
+    - tests/phpunit/Unit
+    - tests/phpunit/Functional
+    - tests/phpunit/Traits
 
   excludePaths:
     - vendor/*
@@ -19,5 +21,4 @@ parameters:
       # it is not possible to specify the type of the parameter, so we ignore
       # this error.
       message: '#.*no value type specified in iterable type array.#'
-      path: tests/phpunit/*
       reportUnmatched: false

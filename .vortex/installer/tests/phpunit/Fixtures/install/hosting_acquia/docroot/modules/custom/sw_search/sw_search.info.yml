@@ -1,0 +1,8 @@
+name: star wars Search
+type: module
+description: Search functionality for star wars site.
+core_version_requirement: ^11
+package: star_wars
+dependencies:
+  - search_api:search_api
+  - search_api_solr:search_api_solr
