@@ -4,9 +4,9 @@ sidebar_position: 3
 
 # Provision
 
-## Overview
-
-The provisioning process (handled by the `provision.sh` script) sets up a
+The provisioning process, handled by the
+[`provision.sh`](https://github.com/drevops/vortex/blob/develop/scripts/vortex/provision.sh)
+script, sets up a
 Drupal site by either restoring an existing database or installing a fresh
 instance using a profile, followed by running the necessary configuration
 import and database updates.
@@ -66,16 +66,16 @@ graph TD;
 
 ### Customizing flow
 
-Control the provisioning flow with the following environment variables:
+You can control the provisioning flow using the following environment variables:
 
-| Variable                                  | Description                                                                               |
-|-------------------------------------------|-------------------------------------------------------------------------------------------|
-| `VORTEX_PROVISION_SKIP=1`                 | Kill-switch to skip provisioning entirely.                                                |
-| `VORTEX_PROVISION_USE_PROFILE=1`          | Install from a Drupal profile instead of importing from a database dump.                  |
-| `VORTEX_PROVISION_OVERRIDE_DB=1`          | Drop an existing database before importing from dump/installing from profile.             |
-| `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1` | Skip configuration imports, database updates, and other post-provisioning steps.          |
-| `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1` | Enable maintenance mode right after the site is bootstrappable and disable it at the end. |
-| `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`     | Disable database sanitization.                                                            |
+| Variable                                  | Description                                                                                                        |
+|-------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `VORTEX_PROVISION_SKIP=1`                 | Kill-switch to skip provisioning entirely. Useful in emergencies when any kind of automation needs to be disabled. |
+| `VORTEX_PROVISION_USE_PROFILE=1`          | Install from a Drupal profile instead of importing from a database dump.                                           |
+| `VORTEX_PROVISION_OVERRIDE_DB=1`          | Drop an existing database before importing from dump/installing from profile.                                      |
+| `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1` | Skip configuration imports, database updates, and other post-provisioning steps.                                   |
+| `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1` | Enable maintenance mode right after the site is bootstrappable and disable it at the end.                          |
+| `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`     | Disable database sanitization.                                                                                     |
 
 ## Maintenance mode
 
