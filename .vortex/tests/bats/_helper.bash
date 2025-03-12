@@ -408,7 +408,6 @@ assert_files_present_vortex() {
   # Documentation information present.
   assert_file_exists "docs/faqs.md"
   assert_file_exists "README.md"
-  assert_file_exists "docs/releasing.md"
   assert_file_exists "docs/testing.md"
 
   # Assert that Vortex files removed.

@@ -86,7 +86,6 @@ to Vortex progress. Remove this section once onboarding is finished.
 
 [//]: # (#;> CI_PROVIDER_ANY)
 
-- [Releasing](docs/releasing.md)
 - [Deployment](docs/deployment.md)
 
 ---
