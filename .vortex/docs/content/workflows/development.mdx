@@ -4,19 +4,127 @@ sidebar_position: 1
 
 # Development
 
-:::note "Work in progress"
+## Typical development workflow
 
-    The documentation section is still a work in progress.
+1. Pull the latest changes from the remote repository.
+2. Build the project with `ahoy build`.
+3. Start a new feature or bugfix:
+    - Create a new branch from `develop`.
+    - Implement the feature or fix the bug.
+4. Run tests:
+    - Run automated tests locally.
+    - Fix any failing tests.
+5. Run code quality checks:
+    - Run static code analysis locally.
+    - Fix any issues reported.
+6. Commit changes to the branch and push it to the remote repository.
+7. Create a pull request:
+    - Create a pull request from the branch to `develop`.
+    - Assign reviewers.
+    - Wait for the CI pipeline to pass.
 
-:::
+## Refreshing database
 
+To refresh the database with the latest data from the production environment,
+use the `ahoy fetch-db` command, which will download the latest database
+dump from the production environment into a `.data` directory.
 
-## Packages
+Use `ahoy provision` to import the database dump into the local environment
+and run all the necessary updates. Run this command any time you need to
+reset the local environment to the database dump stored in `.data`.
+
+**Vortex** deliberately stores the database dump in the `.data` directory
+to locally cache the database dump and avoid downloading it every time a new
+database import is needed.
+
+## Working with Composer packages
 
 ### Installing
 
+To install packages, use `composer require` to include the package and resolve dependencies.
+
+```bash
+composer require drupal/devel
+```
+
+By default, stable releases are installed. If you need a non-stable version (e.g., `alpha`, `beta`, `RC`), specify the version constraint explicitly:
+
+```bash
+composer require drupal/devel:^1.0.0@beta
+```
+
+Make sure that the `minimum-stability` setting in `composer.json` is set to
+the version constraint you need. For example, to allow `alpha`, `beta`, and `RC` versions:
+
+```json
+{
+    "minimum-stability": "beta"
+}
+```
+
 ### Updating
 
-### Overriding
+To update all dependencies:
+
+```bash
+composer update
+```
+
+To update a specific package and its dependencies:
+
+```bash
+composer update vendor/package-name --with-dependencies
+```
+
+For updating Drupal core, use:
+
+```bash
+composer update "drupal/core-*" --with-dependencies
+```
+
+After updating core, review changes with `git diff`, especially modified scaffolding files like `.htaccess`, and commit them in a single commit.
+
+### Overriding paths
+
+To override package installation paths, modify `composer.json`:
+
+```json
+{
+    "extra": {
+        "installer-paths": {
+            "web/libraries/chosen": [
+                "npm-asset/chosen-js"
+            ],
+            "web/libraries/{$name}": [
+                "type:drupal-library",
+                "type:npm-asset",
+                "type:bower-asset"
+            ]
+        }
+    }
+}
+```
 
 ### Patching
+
+If you need to apply patches to included dependencies, use the `composer-patches` plugin. Add the patch definition in `composer.json` under the `extra.patches` section:
+
+```json
+"extra": {
+    "patches": {
+        "drupal/foobar": {
+            "Patch description": "URL or local path to patch"
+        }
+    }
+}
+```
+
+Run `composer update drupal/foobar` after adding patches to apply them.
+
+## Resetting the codebase
+
+To reset the local environment, use the `ahoy reset` command. This command will
+remove all downloaded dependencies packages.
+
+To fully reset the repository to a state as if it was just cloned,
+use the `ahoy reset hard` command.

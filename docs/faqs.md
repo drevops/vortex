@@ -79,7 +79,7 @@ time.
 However, sometimes you would want to have an absolutely clean environment - in
 that case, use `ahoy build`.
 
-## How to just import the database?
+## How to just import a database?
 
 Provided that your stack is already running:
 
@@ -108,8 +108,8 @@ composer require drupal/module_name
 ```json
 "extra": {
     "patches": {
-        "drupal/core": {
-            "Contextual links should not be added inside another link": "https://www.drupal.org/files/issues/contextual_links_should-2898875-3.patch"
+        "drupal/somepackage": {
+            "Patch description": "https://www.drupal.org/files/issues/issue.patch"
         }
     }
 }
@@ -118,8 +118,10 @@ composer require drupal/module_name
 2. Run
 
 ```bash
-composer update --lock
+composer require drupal/somepackage
 ```
+
+See https://vortex.drevops.com/workflows/development#working-with-composer-packages
 
 ## Behat tests with `@javascript` tag sometimes get stuck
 

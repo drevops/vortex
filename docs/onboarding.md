@@ -1,7 +1,7 @@
 Onboarding checklist
 ====================
 
-Use this checklist to track the process of migration of the existing site
+Use this checklist to track the process of migration of the **existing site**
 to Vortex. This file is intended to be committed into repository until
 onboarding process is finished.
 
@@ -12,7 +12,7 @@ indicate that it was addressed.
 
 ## 1. Assessing current site
 
-- [ ] Setup site on local machine using MAMP to bootstrap the project.
+- [ ] Setup site on local machine using MAMP or DDEV to bootstrap the project.
 - [ ] Install [hacked](https://www.drupal.org/project/hacked) module and extract
   a list of all modules with their versions. Add them below:
   ```
@@ -50,11 +50,9 @@ indicate that it was addressed.
   sure that `composer.lock` is updated and committed.
 - [ ] Copy values from existing `settings.php` to provided `settings.php` file.
   Do not simply copy this file over! Transfer values one-by-one instead.
-- [ ] Update values in `settings.php`:
-  - [ ] Site salt.
+- [ ] Update values in `.env`:
   - [ ] Origin URL for [stage_file_proxy](https://www.drupal.org/project/stage_file_proxy)
     module.
-  - [ ] Username and password for [shield](https://www.drupal.org/project/shield) module.
 - [ ] Copy values from existing `services.yml` to provided `services.yml` file.
   Do not simply copy this file over! Transfer values one-by-one instead.
 - [ ] Assess existing `robots.txt` file and compare it with provided one. If
@@ -63,14 +61,14 @@ indicate that it was addressed.
   they are different - commit existing `.htaccess` file.
 - [ ] Update values in `.env` to reflect your project requirements. Note that
   in most cases no modification is required.
-- [ ] Refactor front-end asset generation to use provided `Gruntfile.js`.
+- [ ] Refactor front-end asset generation to use provided `Gruntfile.js`, if needed.
 - [ ] Setup database download method depending on your requirements.
 - [ ] Run `ahoy build` locally and ensure that the site can be bootstrapped
   and accessed in the browser.
 
 ## 3. Setting up CI
 
-- [ ] Login to CircleCI using your GitHub account and add this project.
+- [ ] If using CircleCI, login using your GitHub account and add this project.
 - [ ] Depending on your database download method, add required private keys
   through UI. You will need to update key fingerprint in
   [CI configuration file](.circleci/config.yml).
@@ -119,15 +117,15 @@ indicate that it was addressed.
 
 [//]: # (#;< RENOVATEBOT)
 
-- [ ] Configure Renovate by logging in with your GitHub account and
+- [ ] Configure Renovate by [logging in](https://developer.mend.io/) with your GitHub account and
   adding a project through UI.
 
 [//]: # (#;> RENOVATEBOT)
 
 ## 5. Cleanup
 
-- [ ] Cleanup code or set `VORTEX_CI_LINT_ALLOW_FAILURE=1` in CircleCI to
-      bypass code linting fails:
+- [ ] Cleanup code or set one or more `VORTEX_CI_*_IGNORE_FAILURE` variables to
+      `1` in your CI provider to temporary bypass code linting fails:
   - [ ] Cleanup PHP code
   - [ ] Cleanup JS code
   - [ ] Cleanup SCSS code
@@ -180,5 +178,5 @@ indicate that it was addressed.
 
 --------------------------------------------------------------------------------
 
-Only if all boxes above are checked, remove this file from the repository.
-
+Once all boxes above are checked, remove this file from the repository
+and remove the reference to it from the `README.md` file.
