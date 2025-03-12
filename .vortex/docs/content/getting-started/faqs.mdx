@@ -85,34 +85,7 @@ someone else has full control of the code that drives your project.
 
 ## How easy is it choose the features that I need?
 
-**Vortex** provides an installer that allows you to choose the features
+**Vortex** provides an [installer](https://vortex.drevops.com/getting-started/installation) that allows you to choose the features
 that you need interactively.
 
 It is usually used as a part of the project creation process.
-
-## Why CircleCI? What about other CI providers?
-
-CircleCI was chosen because of its flexibility. More specifically, CircleCI
-allows to use your own runner container (the container where CI steps run) and
-use remote Docker, making it possible to build the project in CI **exactly** the
-same way as it would be built in your hosting (if your hosting uses Docker).
-
-The other reason is that CircleCI supports passing the build artifacts between
-jobs via cache. This becomes really powerful on large consumer sites, where
-building the project takes a long time. **Vortex** mitigates this by
-providing a [CI configuration](https://github.com/drevops/vortex/blob/develop/.circleci/config.yml)
-used to download and cache the database overnight and use this cache for all
-the builds during the day, skipping the long database download and import
-process.
-
-And for the really large projects, CircleCI supports container image layer
-caching, meaning that some parts of the application could be built once and then
-reused in all the subsequent builds.
-
-Read more about [CircleCI](../ci/circleci.mdx).
-
-:::note
-
-    We are working on bringing integrations with other CI providers.
-
-:::
