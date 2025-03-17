@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drevops\Installer\Tests\Traits;
+namespace DrevOps\Installer\Tests\Traits;
 
 /**
  * Trait ReflectionTrait.
@@ -26,13 +26,13 @@ trait ReflectionTrait {
    *   Method result.
    */
   protected static function callProtectedMethod(object|string $object, string $name, array $args = []) {
-    $object_or_class = is_object($object) ? $object::class : $object;
+    $objectOrClass = is_object($object) ? $object::class : $object;
 
-    if (!class_exists($object_or_class)) {
-      throw new \InvalidArgumentException(sprintf('Class %s does not exist', $object_or_class));
+    if (!class_exists($objectOrClass)) {
+      throw new \InvalidArgumentException(sprintf('Class %s does not exist', $objectOrClass));
     }
 
-    $class = new \ReflectionClass($object_or_class);
+    $class = new \ReflectionClass($objectOrClass);
 
     if (!$class->hasMethod($name)) {
       throw new \InvalidArgumentException(sprintf('Method %s does not exist', $name));
@@ -40,24 +40,24 @@ trait ReflectionTrait {
 
     $method = $class->getMethod($name);
 
-    $original_accessibility = $method->isPublic();
+    $originalAccessibility = $method->isPublic();
 
     // Set method accessibility to true, so it can be invoked.
     $method->setAccessible(TRUE);
 
     // If the method is static, we won't pass an object instance to invokeArgs()
     // Otherwise, we ensure to pass the object instance.
-    $invoke_object = $method->isStatic() ? NULL : (is_object($object) ? $object : NULL);
+    $invokeObject = $method->isStatic() ? NULL : (is_object($object) ? $object : NULL);
 
     // Ensure we have an object for non-static methods.
-    if (!$method->isStatic() && $invoke_object === NULL) {
+    if (!$method->isStatic() && $invokeObject === NULL) {
       throw new \InvalidArgumentException("An object instance is required for non-static methods");
     }
 
-    $result = $method->invokeArgs($invoke_object, $args);
+    $result = $method->invokeArgs($invokeObject, $args);
 
     // Reset the method's accessibility to its original state.
-    $method->setAccessible($original_accessibility);
+    $method->setAccessible($originalAccessibility);
 
     return $result;
   }

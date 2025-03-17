@@ -44,6 +44,14 @@ Default value: `UNDEFINED`
 
 Defined in: `ENVIRONMENT`
 
+### `DATABASE_DATABASE`
+
+Database name.
+
+Default value: `UNDEFINED`
+
+Defined in: `LAGOON ENVIRONMENT`
+
 ### `DATABASE_HOST`
 
 Local database host.
@@ -148,7 +156,7 @@ Defined in: `.env`, `scripts/vortex/provision.sh`
 
 Path to public files.
 
-Default value: `./${VORTEX_WEBROOT}/sites/default/files`
+Default value: `./${WEBROOT}/sites/default/files`
 
 Defined in: `docker-compose.yml`
 
@@ -293,6 +301,14 @@ Special variable to remap target env to the sub-domain prefix based on UI name.
 Default value: `${target_env}`
 
 Defined in: `scripts/vortex/task-purge-cache-acquia.sh`
+
+### `TZ`
+
+The timezone used in the containers.
+
+Default value: `Australia/Melbourne`
+
+Defined in: `.env`
 
 ### `VORTEX_ACQUIA_APP_NAME`
 
@@ -478,7 +494,7 @@ Database dump directory.
 
 Default value: `./.data`
 
-Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-container-registry.sh`, `scripts/vortex/download-db-curl.sh`, `scripts/vortex/download-db-ftp.sh`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/download-db.sh`, `scripts/vortex/provision.sh`
+Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-container-registry.sh`, `scripts/vortex/download-db-ftp.sh`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/download-db-url.sh`, `scripts/vortex/download-db.sh`, `scripts/vortex/provision.sh`
 
 ### `VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME`
 
@@ -488,21 +504,11 @@ Default value: `your_site`
 
 Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`
 
-### `VORTEX_DB_DOWNLOAD_CURL_URL`
-
-Database dump file sourced from CURL.
-
-HTTP Basic Authentication credentials should be embedded into the value.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`, `scripts/vortex/download-db-curl.sh`
-
 ### `VORTEX_DB_DOWNLOAD_ENVIRONMENT`
 
 Environment to download the database from.
 
-Applies to Acquia and Lagoon environments.
+Applies to hosting environments.
 
 Default value: `prod`
 
@@ -624,18 +630,9 @@ Defined in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_SOURCE`
 
-Database can be sourced from one of the following locations:
+Database download source.
 
-- `curl` - directly from a URL as a file using CURL.
-- `ftp` - directly from an FTP as a file using CURL.
-- `acquia` - from the latest Acquia backup via Cloud API as a file.
-- `lagoon` - from Lagoon main environment as a file.
-- `container_registry` - from the container registry as a container image.
-- `none` - not downloaded, site is freshly installed for every build.
-
-Note that "container_registry" works only for database-in-image<br/>database storage (when [`$VORTEX_DB_IMAGE`](#vortex_db_image) variable has a value).
-
-Default value: `curl`
+Default value: `url`
 
 Defined in: `.env`, `scripts/vortex/download-db.sh`
 
@@ -654,6 +651,16 @@ SSH key fingerprint used to connect to a remote.
 Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/download-db-lagoon.sh`
+
+### `VORTEX_DB_DOWNLOAD_URL`
+
+Database dump file sourced from CURL.
+
+HTTP Basic Authentication credentials should be embedded into the value.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`, `scripts/vortex/download-db-url.sh`
 
 ### `VORTEX_DB_EXPORT_CONTAINER_REGISTRY`
 
@@ -709,7 +716,7 @@ Database dump file name.
 
 Default value: `db.sql`
 
-Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-curl.sh`, `scripts/vortex/download-db-ftp.sh`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/provision.sh`
+Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-ftp.sh`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/download-db-url.sh`, `scripts/vortex/provision.sh`
 
 ### `VORTEX_DB_IMAGE`
 
@@ -950,11 +957,7 @@ Defined in: `scripts/vortex/deploy-artifact.sh`, `scripts/vortex/deploy-lagoon.s
 
 ### `VORTEX_DEPLOY_TYPES`
 
-The type of deployment.
-
-Combination of comma-separated values to support multiple deployment targets:<br/>`artifact`,`container_registry`, `webhook`, `lagoon`.
-
-See https://vortex.drevops.com/workflows/deploy
+Deployment occurs when tests pass in the CI environment.<br/>@see https://vortex.drevops.com/workflows/deployment
 
 Default value: `artifact`
 
@@ -1100,9 +1103,11 @@ Default value: `https://vortex.drevops.com/install`
 
 Defined in: `scripts/vortex/update-vortex.sh`
 
-### `VORTEX_INSTALL_COMMIT`
+### `VORTEX_INSTALL_REPO`
 
-Allow providing custom Vortex commit hash to download the sources from.
+Vortex remote or local repo URI, optionally including reference.
+
+Examples:<br/>https://github.com/drevops/vortex.git         # Will auto-discover the latest stable tag.<br/>https://github.com/drevops/vortex.git@stable  # Will auto-discover the latest stable tag.<br/>https://github.com/drevops/vortex.git@`1234567` # Will use the commit hash.<br/>/local/path/to/vortex<br/>/local/path/to/vortex@stable<br/>/local/path/to/vortex@ref
 
 Default value: `UNDEFINED`
 
@@ -1251,6 +1256,14 @@ Defined in: `.env`, `scripts/vortex/notify-email.sh`
 Project name to notify.
 
 Default value: `${VORTEX_NOTIFY_PROJECT}`
+
+Defined in: `scripts/vortex/notify-email.sh`
+
+### `VORTEX_NOTIFY_EMAIL_PR_NUMBER`
+
+Git reference to notify about.
+
+Default value: `${VORTEX_NOTIFY_PR_NUMBER}`
 
 Defined in: `scripts/vortex/notify-email.sh`
 
@@ -1448,6 +1461,16 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/notify-webhook.sh`, `scripts/vortex/notify.sh`
 
+### `VORTEX_NOTIFY_PR_NUMBER`
+
+Deployment PR number.
+
+If set, the environment type will be set to 'pr-[`${VORTEX_NOTIFY_PR_NUMBER}`](#vortex_notify_pr_number)'.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/vortex/notify-github.sh`
+
 ### `VORTEX_NOTIFY_REF`
 
 Git reference to notify about.
@@ -1538,14 +1561,6 @@ Default value: `UNDEFINED`
 
 Defined in: `ACQUIA ENVIRONMENT`
 
-### `VORTEX_PROVISION_ENVIRONMENT`
-
-Current environment name discovered during site provisioning.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/vortex/provision.sh`
-
 ### `VORTEX_PROVISION_OVERRIDE_DB`
 
 Overwrite a database if it exists.
@@ -1618,19 +1633,19 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/provision.sh`
 
+### `VORTEX_PROVISION_TYPE`
+
+Set to 'profile' to install a site from profile instead of the database dump.
+
+Default value: `database`
+
+Defined in: `.env`, `scripts/vortex/provision.sh`
+
 ### `VORTEX_PROVISION_USE_MAINTENANCE_MODE`
 
 Put the site into a maintenance mode during site provisioning.
 
 Default value: `1`
-
-Defined in: `.env`, `scripts/vortex/provision.sh`
-
-### `VORTEX_PROVISION_USE_PROFILE`
-
-Set to `1` to install a site from profile instead of the database file dump.
-
-Default value: `UNDEFINED`
 
 Defined in: `.env`, `scripts/vortex/provision.sh`
 
@@ -1869,15 +1884,7 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/task-custom-lagoon.sh`
 
-### `VORTEX_TZ`
-
-The timezone for the containers.
-
-Default value: `Australia/Melbourne`
-
-Defined in: `.env`
-
-### `VORTEX_WEBROOT`
+### `WEBROOT`
 
 Name of the web root directory containing a Drupal codebase.
 

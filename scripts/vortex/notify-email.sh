@@ -35,6 +35,9 @@ VORTEX_NOTIFY_EMAIL_RECIPIENTS="${VORTEX_NOTIFY_EMAIL_RECIPIENTS:-}"
 # Git reference to notify about.
 VORTEX_NOTIFY_EMAIL_REF="${VORTEX_NOTIFY_EMAIL_REF:-${VORTEX_NOTIFY_REF:-}}"
 
+# Git reference to notify about.
+VORTEX_NOTIFY_EMAIL_PR_NUMBER="${VORTEX_NOTIFY_EMAIL_PR_NUMBER:-${VORTEX_NOTIFY_PR_NUMBER:-}}"
+
 # Environment URL to notify about.
 VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL="${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL:-${VORTEX_NOTIFY_ENVIRONMENT_URL:-}}"
 
@@ -68,11 +71,16 @@ else
   exit 1
 fi
 
+ref_info="\"${VORTEX_NOTIFY_EMAIL_REF}\" branch"
+if [ -n "${VORTEX_NOTIFY_EMAIL_PR_NUMBER}" ]; then
+  ref_info="\"PR-${VORTEX_NOTIFY_EMAIL_PR_NUMBER}\""
+fi
+
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
-subject="${VORTEX_NOTIFY_EMAIL_PROJECT} deployment notification of \"${VORTEX_NOTIFY_EMAIL_REF}\""
+subject="${VORTEX_NOTIFY_EMAIL_PROJECT} deployment notification of ${ref_info}"
 content="## This is an automated message ##
 
-Site ${VORTEX_NOTIFY_EMAIL_PROJECT} \"${VORTEX_NOTIFY_EMAIL_REF}\" branch has been deployed at ${timestamp} and is available at ${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}.
+Site ${VORTEX_NOTIFY_EMAIL_PROJECT} ${ref_info} has been deployed at ${timestamp} and is available at ${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}.
 
 Login at: ${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}/user/login"
 
@@ -85,13 +93,24 @@ for email_with_name; do
   IFS="|"
   # shellcheck disable=SC2086
   set -- ${email_with_name}
+
   email="${1#"${1%%[![:space:]]*}"}"
   email="${email%"${email##*[![:space:]]}"}"
-  name="${2#"${2%%[![:space:]]*}"}"
-  name="${name%"${name##*[![:space:]]}"}"
+
+  if [ $# -gt 1 ]; then
+    name="${2#"${2%%[![:space:]]*}"}"
+    name="${name%"${name##*[![:space:]]}"}"
+  else
+    name=""
+  fi
+
   IFS="${old_ifs}"
 
-  to="${name:+\"${name}\" }<${email}>"
+  if [ -n "${name}" ]; then
+    to="${name:+\"${name}\" }<${email}>"
+  else
+    to="${email}"
+  fi
 
   if [ "${has_sendmail}" = "1" ]; then
     (
@@ -117,6 +136,8 @@ sent="${sent%"${sent##*[![:space:]]}"}"
 
 if [ -n "${sent}" ]; then
   note "Notification email(s) sent to: ${sent// /, }"
+  note "Subject: ${subject}"
+  note "Content: ${content}"
 else
   note "No notification emails were sent."
 fi

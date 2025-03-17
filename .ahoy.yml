@@ -9,10 +9,6 @@
 # Do not add values directly into this file. Use .env file instead.
 # Run `ahoy up cli` to apply environment variables changes to containers.
 #;
-#; Comments starting with '#:' provide explicit documentation and will be
-#; automatically removed during installation or update of Vortex if an option
-#; is selected.
-#;
 #; Comments starting with '#;<' and '#;>' are internal Vortex comments
 #; and will be removed during installation or update of Vortex.
 ---
@@ -109,11 +105,11 @@ commands:
     usage: Run Drush commands in the CLI service container.
     cmd: ahoy cli "vendor/bin/drush -l \${VORTEX_LOCALDEV_URL} $*"
 
-  #;< REDIS
+  #;< SERVICE_REDIS
   flush-redis:
     usage: Flush Redis cache.
     cmd: docker compose exec redis redis-cli flushall
-  #;> REDIS
+  #;> SERVICE_REDIS
 
   # ----------------------------------------------------------------------------
   # Application commands.
@@ -124,12 +120,12 @@ commands:
     # Unblock user 1 and generate a one time login link.
     cmd: ahoy cli ./scripts/vortex/login.sh
 
-  #;< !PROVISION_USE_PROFILE
+  #;< !PROVISION_TYPE_PROFILE
   download-db:
     usage: Download database.
     aliases: ['fetch-db']
     cmd: ./scripts/vortex/download-db.sh
-  #;> !PROVISION_USE_PROFILE
+  #;> !PROVISION_TYPE_PROFILE
 
   reload-db:
     usage: Reload the database container using local database image.
@@ -162,21 +158,21 @@ commands:
 
   fei:
     usage: Install front-end assets.
-    cmd: ahoy cli "npm --prefix ${VORTEX_WEBROOT}/themes/custom/${DRUPAL_THEME} install"
+    cmd: ahoy cli "npm --prefix ${WEBROOT}/themes/custom/${DRUPAL_THEME} install"
 
   fe:
     usage: Build front-end assets.
-    cmd: ahoy cli "cd ${VORTEX_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build"
+    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build"
 
   fed:
     usage: Build front-end assets for development.
-    cmd: ahoy cli "cd ${VORTEX_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build-dev"
+    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build-dev"
 
   few:
     usage: Watch front-end assets during development.
     cmd: |
       ahoy cli "pkill -9 -f grunt" || true
-      ahoy cli "cd ${VORTEX_WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
+      ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
 
   lint:
     usage: Lint back-end and front-end code.
@@ -194,7 +190,7 @@ commands:
     usage: Lint front-end code.
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint
-      ahoy cli "npm run --prefix \${VORTEX_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+      ahoy cli "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
 
   lint-tests:
     usage: Lint tests code.
@@ -215,7 +211,7 @@ commands:
     usage: Fix lint issues of front-end code.
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint --fix
-      ahoy cli "npm run --prefix \${VORTEX_WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+      ahoy cli "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
 
   test:
     usage: Run all tests.

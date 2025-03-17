@@ -21,6 +21,9 @@ load _helper.deployment.bash
 
   step "Starting DEPLOYMENT tests."
 
+  # This deployment uses all 3 types.
+  export VORTEX_DEPLOY_TYPES="artifact,webhook,container_registry"
+
   if [ ! "${SRC_DIR}" ]; then
     SRC_DIR="${BUILD_DIR}/deployment_src"
     substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
@@ -64,8 +67,6 @@ load _helper.deployment.bash
   pushd "${CURRENT_PROJECT_DIR}" >/dev/null
 
   substep "Running deployment."
-  # This deployment uses all 3 types.
-  export VORTEX_DEPLOY_TYPES="artifact,webhook,container_registry"
 
   # Variables for ARTIFACT deployment.
   export VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE="${REMOTE_REPO_DIR}"/.git
@@ -74,7 +75,7 @@ load _helper.deployment.bash
   export VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL="${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL:-testuser@example.com}"
 
   # Variables for WEBHOOK deployment.
-  export VORTEX_DEPLOY_WEBHOOK_URL=http://example.com
+  export VORTEX_DEPLOY_WEBHOOK_URL=https://www.example.com
   export VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS=200
 
   # Variables for container registry deployment.
@@ -163,7 +164,7 @@ load _helper.deployment.bash
   export VORTEX_DEPLOY_TYPES="webhook"
 
   # Variables for WEBHOOK deployment.
-  export VORTEX_DEPLOY_WEBHOOK_URL=http://example.com
+  export VORTEX_DEPLOY_WEBHOOK_URL=https://www.example.com
   export VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS=200
 
   #

@@ -43,10 +43,8 @@ load _helper.bash
   git_add "web/themes/custom/your_site_theme/.eslintrc.json" "${LOCAL_REPO_DIR}"
   latest_commit=$(git_commit "New version of Vortex" "${LOCAL_REPO_DIR}")
 
-  # Override Vortex release commit in .env file.
-  echo VORTEX_INSTALL_COMMIT="${latest_commit}" >>.env
-  # Enforce debugging of the install script.
-  export VORTEX_INSTALL_DEBUG=1
+  export VORTEX_INSTALL_REF="${latest_commit}"
+  export TEST_VORTEX_VERSION="${latest_commit}"
 
   # Build installer.
   [ ! -d "${ROOT_DIR}/.vortex/installer/vendor" ] && composer --working-dir="${ROOT_DIR}/.vortex/installer" install

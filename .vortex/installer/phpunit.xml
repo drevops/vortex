@@ -15,7 +15,8 @@
 >
     <testsuites>
         <testsuite name="default">
-            <directory>tests/phpunit</directory>
+            <directory>tests/phpunit/Unit</directory>
+            <directory>tests/phpunit/Functional</directory>
         </testsuite>
     </testsuites>
 
@@ -30,8 +31,8 @@
               ignoreDeprecatedCodeUnits="true"
               disableCodeCoverageIgnore="false">
         <report>
-            <html outputDirectory=".coverage-html" lowUpperBound="50" highLowerBound="90"/>
-            <cobertura outputFile="cobertura.xml"/>
+            <html outputDirectory=".logs/.coverage-html" lowUpperBound="50" highLowerBound="90"/>
+            <cobertura outputFile=".logs/cobertura.xml"/>
         </report>
     </coverage>
 </phpunit>

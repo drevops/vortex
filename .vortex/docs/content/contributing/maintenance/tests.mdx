@@ -50,7 +50,7 @@ There are *demo* and *test* database dumps captured as *files* and *container im
 1. Run fresh build of **Vortex** locally:
 ```bash
 rm .data/db.sql || true
-VORTEX_PROVISION_USE_PROFILE=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
+VORTEX_PROVISION_TYPE=profile VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
 2. Update content and config:
 ```bash
@@ -82,7 +82,7 @@ ahoy export-db db.demo.sql
 1. Run fresh build of **Vortex** locally:
 ```bash
 rm .data/db.sql || true
-VORTEX_PROVISION_USE_PROFILE=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
+VORTEX_PROVISION_TYPE=profile VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
 2. Update content and config:
 ```bash
@@ -119,13 +119,13 @@ chmod +x seed.sh
 1. Run a fresh install of **Vortex** into a new directory and name the project `Star Wars`:
 ```bash
 mkdir /tmp/star-wars
-VORTEX_INSTALL_LOCAL_REPO="$(pwd)" .vortex/installer/install /tmp/star-wars --quiet
+VORTEX_INSTALL_REPO="$(pwd)" .vortex/installer/install /tmp/star-wars --no-interaction
 cd /tmp/star-wars
 ```
 2. Run fresh build of **Vortex** locally:
 ```bash
 rm .data/db.sql || true
-VORTEX_PROVISION_USE_PROFILE=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
+VORTEX_PROVISION_TYPE=profile AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
 3. Update content and config:
 ```bash
@@ -157,13 +157,13 @@ ahoy export-db db.test.sql
 1. Run a fresh install of **Vortex** into a new directory and name the project `Star Wars`:
 ```bash
 mkdir /tmp/star-wars
-VORTEX_INSTALL_LOCAL_REPO="$(pwd)" .vortex/installer/install /tmp/star-wars --quiet
+VORTEX_INSTALL_REPO="$(pwd)" .vortex/installer/install /tmp/star-wars --no-interaction
 cd /tmp/star-wars
 ```
 2. Run fresh build of **Vortex** locally:
 ```bash
 rm .data/db.sql || true
-VORTEX_PROVISION_USE_PROFILE=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
+VORTEX_PROVISION_TYPE=profile AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
 3. Update content and config:
 ```bash

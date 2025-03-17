@@ -138,7 +138,6 @@ setup() {
 
   # Allow to override debug variables from environment when developing tests.
   export VORTEX_DEBUG="${TEST_VORTEX_DEBUG:-}"
-  export VORTEX_INSTALL_DEBUG="${TEST_VORTEX_INSTALL_DEBUG:-}"
 
   # Switch to using test demo DB.
   # Demo DB is what is being downloaded when the installer runs for the first
@@ -234,6 +233,7 @@ assert_files_present_common() {
   local suffix_abbreviated_camel_cased="${4:-Sw}"
   local suffix_camel_cased="${5:-StarWars}"
   local webroot="${6:-web}"
+  local assert_theme="${7:-1}"
 
   local suffix_abbreviated_uppercase="$(string_to_upper "${suffix_abbreviated}")"
 
@@ -246,15 +246,15 @@ assert_files_present_common() {
   assert_file_contains .env "VORTEX_PROJECT=${suffix}"
 
   # Assert that Vortex version was replaced.
-  assert_file_contains "README.md" "badge/Vortex-${VORTEX_VERSION:-develop}-5909A1.svg"
-  assert_file_contains "README.md" "https://github.com/drevops/vortex/tree/${VORTEX_VERSION:-develop}"
+  assert_file_contains "README.md" "badge/Vortex-${TEST_VORTEX_VERSION:-develop}-5909A1.svg"
+  assert_file_contains "README.md" "https://github.com/drevops/vortex/tree/${TEST_VORTEX_VERSION:-develop}"
   assert_file_not_contains "README.md" "The following list includes"
   assert_file_not_exists "README.dist.md"
 
   # Assert that Vortex footnote remains.
   assert_file_contains "README.md" "This repository was created using the [Vortex](https://github.com/drevops/vortex) project template"
 
-  assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}"
+  assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}" "${assert_theme}"
 
   popd >/dev/null || exit 1
 }
@@ -315,7 +315,7 @@ assert_files_present_vortex() {
   assert_file_exists ".docker/php.dockerfile"
   assert_file_exists ".docker/solr.dockerfile"
   assert_file_exists ".docker/scripts/.gitkeep"
-  assert_file_exists ".docker/config/mariadb/my.cnf"
+  assert_file_exists ".docker/config/database/my.cnf"
 
   assert_file_exists ".docker/config/solr/config-set/accents_en.txt"
   assert_file_exists ".docker/config/solr/config-set/accents_und.txt"
@@ -359,7 +359,7 @@ assert_files_present_vortex() {
   assert_file_exists "scripts/vortex/doctor.sh"
   assert_file_exists "scripts/vortex/download-db.sh"
   assert_file_exists "scripts/vortex/download-db-acquia.sh"
-  assert_file_exists "scripts/vortex/download-db-curl.sh"
+  assert_file_exists "scripts/vortex/download-db-url.sh"
   assert_file_exists "scripts/vortex/download-db-ftp.sh"
   assert_file_exists "scripts/vortex/download-db-container-registry.sh"
   assert_file_exists "scripts/vortex/download-db-lagoon.sh"
@@ -386,7 +386,6 @@ assert_files_present_vortex() {
 
   assert_file_exists "tests/behat/bootstrap/FeatureContext.php"
   assert_dir_exists "tests/behat/features"
-  assert_file_exists "tests/behat/fixtures/.gitkeep"
 
   assert_file_exists ".ahoy.yml"
   assert_file_exists ".dockerignore"
@@ -453,6 +452,7 @@ assert_files_present_drupal() {
   local suffix_abbreviated_camel_cased="${4:-Sw}"
   local suffix_camel_cased="${5:-StarWars}"
   local webroot="${6:-web}"
+  local assert_theme="${7:-1}"
 
   pushd "${dir}" >/dev/null || exit 1
 
@@ -480,32 +480,35 @@ assert_files_present_drupal() {
   assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_search/${suffix_abbreviated}_search.info.yml"
 
   # Site theme created.
-  assert_dir_exists "${webroot}/themes/custom/${suffix}"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/js/${suffix}.js"
-  assert_dir_exists "${webroot}/themes/custom/${suffix}/scss"
-  assert_dir_exists "${webroot}/themes/custom/${suffix}/images"
-  assert_dir_exists "${webroot}/themes/custom/${suffix}/fonts"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/.gitignore"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.info.yml"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.libraries.yml"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.theme"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/Gruntfile.js"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/package.json"
+  if [ "${assert_theme}" = 1 ]; then
+    assert_dir_exists "${webroot}/themes/custom/${suffix}"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/js/${suffix}.js"
+    assert_dir_exists "${webroot}/themes/custom/${suffix}/scss"
+    assert_dir_exists "${webroot}/themes/custom/${suffix}/images"
+    assert_dir_exists "${webroot}/themes/custom/${suffix}/fonts"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/.gitignore"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.info.yml"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.libraries.yml"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/${suffix}.theme"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/Gruntfile.js"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/package.json"
 
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Unit/${suffix_camel_cased}UnitTestBase.php"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Unit/ExampleTest.php"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Kernel/${suffix_camel_cased}KernelTestBase.php"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Kernel/ExampleTest.php"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Functional/${suffix_camel_cased}FunctionalTestBase.php"
-  assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Functional/ExampleTest.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Unit/${suffix_camel_cased}UnitTestBase.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Unit/ExampleTest.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Kernel/${suffix_camel_cased}KernelTestBase.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Kernel/ExampleTest.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Functional/${suffix_camel_cased}FunctionalTestBase.php"
+    assert_file_exists "${webroot}/themes/custom/${suffix}/tests/src/Functional/ExampleTest.php"
 
-  # Comparing binary files.
-  assert_binary_files_equal "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/screenshot.png" "${webroot}/themes/custom/${suffix}/screenshot.png"
+    # Comparing binary files.
+    assert_binary_files_equal "${LOCAL_REPO_DIR}/web/themes/custom/your_site_theme/screenshot.png" "${webroot}/themes/custom/${suffix}/screenshot.png"
+  fi
 
   # Drupal Scaffold files exist.
-  assert_file_exists "${webroot}/.editorconfig"
-  assert_file_exists "${webroot}/.eslintignore"
-  assert_file_exists "${webroot}/.gitattributes"
+  assert_file_not_exists "${webroot}/.editorconfig"
+  assert_file_not_exists "${webroot}/.eslintignore"
+  assert_file_not_exists "${webroot}/.eslintrc.json"
+  assert_file_not_exists "${webroot}/.gitattributes"
   assert_file_exists "${webroot}/.htaccess"
   assert_file_exists "${webroot}/autoload.php"
   assert_file_exists "${webroot}/index.php"
@@ -589,7 +592,7 @@ assert_files_present_provision_use_profile() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_contains ".env" "VORTEX_PROVISION_USE_PROFILE=1"
+  assert_file_contains ".env" "VORTEX_PROVISION_TYPE=profile"
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_SOURCE"
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_CURL_URL"
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_ENVIRONMENT"
@@ -638,7 +641,7 @@ assert_files_present_no_provision_use_profile() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_file_contains ".env" "VORTEX_PROVISION_USE_PROFILE=0"
+  assert_file_contains ".env" "VORTEX_PROVISION_TYPE=database"
 
   assert_file_exists ".ahoy.yml"
   assert_file_contains ".ahoy.yml" "download-db:"
@@ -998,6 +1001,34 @@ assert_files_present_no_integration_renovatebot() {
   popd >/dev/null || exit 1
 }
 
+assert_files_present_onboarding() {
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_contains "docs/README.md" "Onboarding"
+  assert_file_contains "README.md" "Onboarding"
+
+  assert_file_exists "docs/onboarding.md"
+
+  popd >/dev/null || exit 1
+}
+
+assert_files_present_no_onboarding() {
+  local dir="${1:-$(pwd)}"
+  local suffix="${2:-star_wars}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_not_contains "docs/README.md" "Onboarding"
+  assert_file_not_contains "README.md" "Onboarding"
+
+  assert_file_not_exists "docs/onboarding.md"
+
+  popd >/dev/null || exit 1
+}
+
 assert_webpage_contains() {
   path="${1}"
   content="${2}"
@@ -1058,7 +1089,7 @@ run_installer_quiet() {
   pushd "${CURRENT_PROJECT_DIR}" >/dev/null || exit 1
 
   # Force the installer script to be downloaded from the local repo for testing.
-  export VORTEX_INSTALL_LOCAL_REPO="${LOCAL_REPO_DIR}"
+  export VORTEX_INSTALL_REPO="${VORTEX_INSTALL_REPO:-${LOCAL_REPO_DIR}}"
 
   # Use unique installer temporary directory for each run. This is where
   # the installer script downloads the Vortex codebase for processing.
@@ -1074,15 +1105,15 @@ run_installer_quiet() {
   #
   # Installer will load environment variable and it will take precedence over
   # the value in .env file.
-  export VORTEX_DB_DOWNLOAD_CURL_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
+  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
 
-  opt_quiet="--quiet"
-  [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_quiet=""
+  opt_no_interaction="--no-interaction"
+  [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_no_interaction=""
 
   [ ! -d "${ROOT_DIR}/.vortex/installer/vendor" ] && composer --working-dir="${ROOT_DIR}/.vortex/installer" install
 
   # Run the installer script from the local repository to allow debugging.
-  run php "${ROOT_DIR}/.vortex/installer/install" "${opt_quiet}" "$@"
+  run php "${ROOT_DIR}/.vortex/installer/install" "${opt_no_interaction}" "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
@@ -1093,60 +1124,6 @@ run_installer_quiet() {
   # harder to read.
   # shellcheck disable=SC2154
   echo "${output}"
-}
-
-# Run the installer in the interactive mode.
-#
-# Use 'y' for yes and 'n' for 'no'.
-#
-# 'nothing' stands for user not providing an input and accepting suggested
-# default values.
-#
-# @code
-# answers=(
-#   "Star wars" # name
-#   "nothing" # machine_name
-#   "nothing" # org
-#   "nothing" # org_machine_name
-#   "nothing" # module_prefix
-#   "nothing" # profile
-#   "nothing" # theme
-#   "nothing" # URL
-#   "nothing" # webroot
-#   "nothing" # provision_use_profile
-#   "nothing" # download_db_source
-#   "nothing" # database_store_type
-#   "nothing" # deploy_type
-#   "nothing" # preserve_ftp
-#   "nothing" # preserve_acquia
-#   "nothing" # preserve_lagoon
-#   "nothing" # preserve_renovatebot
-#   "nothing" # preserve_doc_comments
-#   "nothing" # preserve_vortex_info
-# )
-# output=$(run_install_interactive "${answers[@]}")
-# @endcode
-run_installer_interactive() {
-  local answers=("${@}")
-  local input
-
-  # Force installer to be interactive.
-  export TEST_RUN_INSTALL_INTERACTIVE=1
-
-  # Force TTY to get answers through pipe.
-  export VORTEX_INSTALLER_FORCE_TTY=1
-
-  for i in "${answers[@]}"; do
-    val="${i}"
-    [ "${i}" = "nothing" ] && val='\n' || val="${val}"'\n'
-    input="${input:-}""${val:-}"
-  done
-
-  # shellcheck disable=SC2059,SC2119
-  # ATTENTION! Questions change based on some answers, so using the same set of
-  # answers for all tests will not work. Make sure that correct answers
-  # provided for specific tests.
-  printf "${input}" | run_installer_quiet
 }
 
 #
@@ -1443,7 +1420,7 @@ download_installer() {
 }
 
 process_ahoyyml() {
-  [ "${VORTEX_DEV_VOLUMES_MOUNTED}" = "1" ] && return
+  [ "${VORTEX_DEV_VOLUMES_MOUNTED:-0}" = "1" ] && return
 
   # Override the provision command in .ahoy.yml to copy the database file to
   # the container for when the volumes are not mounted.

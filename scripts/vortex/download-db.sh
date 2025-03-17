@@ -43,7 +43,7 @@ info "Started database download."
 
 if [ -n "${found_db:-}" ]; then
   note "Found existing database dump file(s)."
-  ls -Alh "${VORTEX_DB_DIR}" || true
+  ls -Alh "${VORTEX_DB_DIR}"/db* 2>/dev/null || true
 
   if [ "${VORTEX_DB_DOWNLOAD_FORCE}" != "1" ]; then
     note "Using existing database dump file(s)."
@@ -59,8 +59,8 @@ if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "ftp" ]; then
   ./scripts/vortex/download-db-ftp.sh
 fi
 
-if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "curl" ]; then
-  ./scripts/vortex/download-db-curl.sh
+if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "url" ]; then
+  ./scripts/vortex/download-db-url.sh
 fi
 
 if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "acquia" ]; then
@@ -75,7 +75,7 @@ if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "container_registry" ]; then
   ./scripts/vortex/download-db-container-registry.sh
 fi
 
-ls -Alh "${VORTEX_DB_DIR}" || true
+ls -Alh "${VORTEX_DB_DIR}"/db* || true
 
 # Create a semaphore file to indicate that the database has been downloaded.
 [ -n "${VORTEX_DB_DOWNLOAD_SEMAPHORE:-}" ] && touch "${VORTEX_DB_DOWNLOAD_SEMAPHORE}"

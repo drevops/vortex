@@ -1,0 +1,41 @@
+# Syntax of this file is similar to .gitignore with addition of content changes
+# ignoring using ^ prefix:
+# Comments start with #.
+# file - ignore file
+# dir/ - ignore directory and all subdirectories
+# dir/* - ignore all files in directory, but not subdirectories
+# ^file - ignore content changes in file, but not the file itself
+# ^dir/ - ignore content changes in all files and subdirectories, but check that the directory itself exists
+# ^dir/* - ignore content changes in all files, but not subdirectories and check that the directory itself exists
+# !file - do not ignore file
+# !dir/ - do not ignore directory, including all subdirectories
+# !dir/* - do not ignore all files in directory, but not subdirectories
+# !^file - do not ignore content changes in file
+# !^dir/ - do not ignore content changes in all files and subdirectories
+# !^dir/* - do not ignore content changes in all files, but not subdirectories
+
+# Ignore all files by extension.
+*.log
+
+# Ignore file in root and all directories.
+f3-new-file-ignore-everywhere.txt
+
+# Ignore dir with all files, but not subdirectories.
+dir2_flat/*
+
+# Ignore all files and subdirectories in the directory.
+dir3_subdirs/*
+# But include sub-sub-directory.
+!dir3_subdirs/dir32-unignored/
+!dir3_subdirs_symlink/dir32-unignored/
+
+# Ignore a symlink to a directory. Note that it should be ignored as a file.
+dir3_subdirs_symlink_ignored
+
+# Ignore directory and all subdirectories.
+dir4_full_ignore/
+
+# Ignore content in the directory.
+^dir5_content_ignore/
+# But include this file content changes for comparison.
+!^dir5_content_ignore/d5f2-unignored-content.txt

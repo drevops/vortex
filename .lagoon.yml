@@ -25,7 +25,16 @@ tasks:
     - run:
         name: Notify about pre-deployment.
         command: |
-          if [ -n "$LAGOON_PR_NUMBER" ]; then export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER;export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/};export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH;else export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH;export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA;export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH;fi
+          if [ -n "$LAGOON_PR_NUMBER" ]; then
+            export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER
+            export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH
+            export VORTEX_NOTIFY_PR_NUMBER="${LAGOON_PR_NUMBER:-}"
+          else
+            export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH
+            export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH
+          fi
           VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT \
           VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
           VORTEX_NOTIFY_EVENT=pre_deployment ./scripts/vortex/notify.sh || true
@@ -41,7 +50,7 @@ tasks:
             VORTEX_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./scripts/vortex/export-db-file.sh
           fi
         service: cli
-    #;< !PROVISION_USE_PROFILE
+    #;< !PROVISION_TYPE_PROFILE
 
     - run:
         name: Download database in non-production environments
@@ -54,25 +63,25 @@ tasks:
             ./scripts/vortex/download-db.sh
           fi
         service: cli
-    #;> !PROVISION_USE_PROFILE
+    #;> !PROVISION_TYPE_PROFILE
 
     - run:
         name: Provision site
         command: |
-          #;< PROVISION_USE_PROFILE
-          if [ "$VORTEX_PROVISION_USE_PROFILE" = "1" ]; then
+          #;< PROVISION_TYPE_PROFILE
+          if [ "VORTEX_PROVISION_TYPE" = "profile" ]; then
             # Explicitly set DB overwrite flag to the value from .env file for deployments from the profile.
             # @see https://github.com/uselagoon/lagoon/issues/1922
             export VORTEX_PROVISION_OVERRIDE_DB="$(cat .env | grep ^VORTEX_PROVISION_OVERRIDE_DB | cut -c31-)"
           fi
-          #;> PROVISION_USE_PROFILE
+          #;> PROVISION_TYPE_PROFILE
 
           if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."
-            #;< !PROVISION_USE_PROFILE
+            #;< !PROVISION_TYPE_PROFILE
             # Never overwrite existing DB when production site already exists.
             export VORTEX_PROVISION_OVERRIDE_DB=0
-            #;> !PROVISION_USE_PROFILE
+            #;> !PROVISION_TYPE_PROFILE
             # Never unblock admin user in production.
             export DRUPAL_UNBLOCK_ADMIN=0
             # Never sanitize DB in production.
@@ -88,7 +97,16 @@ tasks:
     - run:
         name: Send deployment notifications
         command: |
-          if [ -n "$LAGOON_PR_NUMBER" ]; then export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER; export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}; export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH; else export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH; export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA; export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH; fi
+          if [ -n "$LAGOON_PR_NUMBER" ]; then
+            export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER
+            export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH
+            export VORTEX_NOTIFY_PR_NUMBER="${LAGOON_PR_NUMBER:-}"
+          else
+            export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH
+            export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA
+            export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH
+          fi
           VORTEX_NOTIFY_EVENT=post_deployment \
           VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT \
           VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \

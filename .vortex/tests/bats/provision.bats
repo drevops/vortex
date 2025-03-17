@@ -16,6 +16,8 @@ assert_provision_info() {
   format_yes_no() {
     [ "${1}" == "1" ] && echo "Yes" || echo "No"
   }
+  provision_type="database"
+  [ "${1}" == "1" ] && provision_type="profile"
 
   assert_output_contains "Drupal core version            : mocked_core_version"
   assert_output_contains "Drush version                  : mocked_drush_version"
@@ -32,7 +34,7 @@ assert_provision_info() {
   assert_output_contains "Configuration files present    : $(format_yes_no "${6:-0}")"
   assert_output_contains "Existing site found            : $(format_yes_no "${7:-0}")"
 
-  assert_output_contains "Install from profile           : $(format_yes_no "${1:-0}")"
+  assert_output_contains "Provision type                 : ${provision_type}"
   assert_output_contains "Overwrite existing DB          : $(format_yes_no "${2:-0}")"
   assert_output_contains "Skip DB sanitization           : $(format_yes_no "${3:-0}")"
   assert_output_contains "Skip post-provision operations : $(format_yes_no "${5:-0}")"
@@ -130,6 +132,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -250,6 +253,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -379,6 +383,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -512,6 +517,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -562,7 +568,7 @@ assert_provision_info() {
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export VORTEX_PROVISION_USE_PROFILE=1
+  export VORTEX_PROVISION_TYPE=profile
 
   declare -a STEPS=(
     # Drush status calls.
@@ -641,6 +647,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -691,7 +698,7 @@ assert_provision_info() {
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export VORTEX_PROVISION_USE_PROFILE=1
+  export VORTEX_PROVISION_TYPE=profile
 
   declare -a STEPS=(
     # Drush status calls.
@@ -764,6 +771,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"
@@ -814,7 +822,7 @@ assert_provision_info() {
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export VORTEX_PROVISION_USE_PROFILE=1
+  export VORTEX_PROVISION_TYPE=profile
   export VORTEX_PROVISION_OVERRIDE_DB=1
 
   declare -a STEPS=(
@@ -894,6 +902,7 @@ assert_provision_info() {
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy"
     "@drush -y pm:install redis"

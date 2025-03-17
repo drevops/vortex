@@ -47,7 +47,34 @@ load _helper.bash
   popd >/dev/null || exit 1
 }
 
-@test "Notify: email" {
+@test "Notify: email, branch" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe, jane@example.com|Jane Doe, jim@example.com"
+  export VORTEX_NOTIFY_REF="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+
+  assert_output_contains "Started email notification."
+  assert_output_contains "Notification email(s) sent to: john@example.com, jane@example.com, jim@example.com"
+  assert_output_contains "Finished email notification."
+
+  assert_output_contains "testproject deployment notification of \"develop\" branch"
+  assert_output_contains "Site testproject \"develop\" branch has been deployed"
+  assert_output_contains "and is available at https://develop.testproject.com."
+
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, PR" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_NOTIFY_CHANNELS="email"
@@ -55,6 +82,7 @@ load _helper.bash
   export DRUPAL_SITE_EMAIL="testproject@example.com"
   export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe, jane@example.com|Jane Doe"
   export VORTEX_NOTIFY_REF="develop"
+  export VORTEX_NOTIFY_PR_NUMBER="123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
   assert_success
@@ -64,6 +92,10 @@ load _helper.bash
   assert_output_contains "Started email notification."
   assert_output_contains "Notification email(s) sent to: john@example.com, jane@example.com"
   assert_output_contains "Finished email notification."
+
+  assert_output_contains "testproject deployment notification of \"PR-123\""
+  assert_output_contains "Site testproject \"PR-123\" has been deployed"
+  assert_output_contains "and is available at https://develop.testproject.com."
 
   assert_output_contains "Finished dispatching notifications."
 
@@ -131,6 +163,36 @@ load _helper.bash
   export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
   export VORTEX_NOTIFY_REPOSITORY="myorg/myrepo"
   export VORTEX_NOTIFY_BRANCH="existingbranch"
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: github, pre_deployment, PR" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  app_id="123456789"
+
+  declare -a STEPS=(
+    "Started dispatching notifications."
+    "Started GitHub notification for pre_deployment event."
+    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\", \"environment\": \"PR-123\", \"auto_merge\": false} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
+    "Marked deployment as started."
+    "Finished GitHub notification for pre_deployment event."
+    "Finished dispatching notifications."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  export VORTEX_NOTIFY_CHANNELS="github"
+  export VORTEX_NOTIFY_EVENT="pre_deployment"
+  export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
+  export VORTEX_NOTIFY_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="existingbranch"
+  export VORTEX_NOTIFY_PR_NUMBER="123"
   run ./scripts/vortex/notify.sh
   assert_success
 

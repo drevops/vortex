@@ -17,7 +17,7 @@ prepare_sut() {
   substep "Initialise the project with default settings"
 
   # Run default install
-  export VORTEX_WEBROOT="${webroot}"
+  export WEBROOT="${webroot}"
   run_installer_quiet
 
   assert_files_present_common "" "" "" "" "" "${webroot}"
@@ -56,13 +56,13 @@ assert_ahoy_download_db() {
   #
   # Ahoy will load environment variable and it will take precedence over
   # the value in .env file.
-  export VORTEX_DB_DOWNLOAD_CURL_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
+  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
 
   # Remove any previously downloaded DB dumps.
   rm -Rf .data/db.sql
 
   # In this test, the database is downloaded from the public URL specified in
-  # VORTEX_DB_DOWNLOAD_CURL_URL variable.
+  # VORTEX_DB_DOWNLOAD_URL variable.
   assert_file_not_exists .data/db.sql
   ahoy download-db
   assert_file_exists .data/db.sql
@@ -83,7 +83,7 @@ assert_ahoy_build() {
   #
   # Ahoy will load environment variable and it will take precedence over
   # the value in .env file.
-  export VORTEX_DB_DOWNLOAD_CURL_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
+  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
 
   # Check that database file exists before build.
   db_file_exists=0
@@ -143,9 +143,6 @@ assert_gitignore() {
   fi
 
   # Assert that Drupal Scaffold files were added to the git repository.
-  assert_git_file_is_tracked "${webroot}/.editorconfig"
-  assert_git_file_is_tracked "${webroot}/.eslintignore"
-  assert_git_file_is_tracked "${webroot}/.gitattributes"
   assert_git_file_is_tracked "${webroot}/.htaccess"
   assert_git_file_is_tracked "${webroot}/autoload.php"
   assert_git_file_is_tracked "${webroot}/index.php"
@@ -233,7 +230,7 @@ assert_timezone() {
 
   # Assert that .env contains a default value.
   # Note that AEDT changes to AEST during winter.
-  assert_file_contains ".env" 'VORTEX_TZ="Australia/Melbourne"'
+  assert_file_contains ".env" 'TZ="Australia/Melbourne"'
   run docker compose exec cli date
   assert_output_contains "AE"
   run docker compose exec php date
@@ -244,7 +241,7 @@ assert_timezone() {
   assert_output_contains "AE"
 
   # Add variable to the .env file and apply the change to container.
-  add_var_to_file .env "VORTEX_TZ" '"Australia/Perth"'
+  add_var_to_file .env "TZ" '"Australia/Perth"'
   sync_to_container
   run ahoy up
 

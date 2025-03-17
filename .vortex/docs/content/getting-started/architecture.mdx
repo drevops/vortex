@@ -108,6 +108,8 @@ compile sources, or waiting for someone upstream to update the code.
     that you can extend the functionality without modifying the original source
     code.
 
+    This will also alow us to extract the scripts into a separate repository
+    that can be included in your project as a Composer package.
 :::
 
 ### Centralised workflows
@@ -166,7 +168,7 @@ updates as needed without modifying the entry point in multiple places.
 
 :::note
 
-    The router script always starts with a verb to indicate the action it performs.
+    The router script always starts with a **verb** to indicate the action it performs.
     Specific scripts always start with a name of the router script.
 
 :::
@@ -194,7 +196,7 @@ flowchart LR
         F{DB source type}
     end
     F -- FTP --> G[download-db-ftp.sh]
-    F -- CURL --> H[download-db-curl.sh]
+    F -- CURL --> H[download-db-url.sh]
     F -- Acquia --> I[download-db-acquia.sh]
     F -- Lagoon --> J[download-db-lagoon.sh]
     F -- Docker registry --> K[download-db-container-registry.sh]
@@ -207,7 +209,7 @@ The workflow within scripts is controlled via environment variables.
 
 To alter the workflow for a specific environment, the variables would need to be
 set within that environment via the `.env` configuration file or other means
-supported by the environment (e.g. CircleCI and Acquia support injecting
+supported by the environment (e.g. CI  and Hosting providers support injecting
 variables via UI).
 
 See [Variables](../workflows/variables.mdx) section for more details.

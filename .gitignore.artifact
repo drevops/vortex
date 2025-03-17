@@ -31,7 +31,7 @@ web/themes/custom/your_site_theme/package-lock.json
 web/themes/custom/your_site_theme/.eslintrc.json
 web/themes/custom/your_site_theme/node_modules
 
-#;< ACQUIA
+#;< HOSTING_ACQUIA
 # Do not ignore Acquia hooks.
 !/hooks/
-#;> ACQUIA
+#;> HOSTING_ACQUIA

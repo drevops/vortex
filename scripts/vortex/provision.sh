@@ -16,8 +16,8 @@ set -eu
 # Flag to skip site provisioning.
 VORTEX_PROVISION_SKIP="${VORTEX_PROVISION_SKIP:-}"
 
-# Provision a site from profile instead of database file dump.
-VORTEX_PROVISION_USE_PROFILE="${VORTEX_PROVISION_USE_PROFILE:-0}"
+# Provision type: database or profile.
+VORTEX_PROVISION_TYPE="${VORTEX_PROVISION_TYPE:-database}"
 
 # Flag to always overwrite existing database. Usually set to 0 in deployed
 # environments.
@@ -35,11 +35,8 @@ VORTEX_PROVISION_USE_MAINTENANCE_MODE="${VORTEX_PROVISION_USE_MAINTENANCE_MODE:-
 # state before any updates ran (for example, DB caching in CI).
 VORTEX_PROVISION_POST_OPERATIONS_SKIP="${VORTEX_PROVISION_POST_OPERATIONS_SKIP:-0}"
 
-# Current environment name discovered during site provisioning.
-VORTEX_PROVISION_ENVIRONMENT="${VORTEX_PROVISION_ENVIRONMENT:-}"
-
 # Name of the webroot directory with Drupal codebase.
-VORTEX_WEBROOT="${VORTEX_WEBROOT:-web}"
+WEBROOT="${WEBROOT:-web}"
 
 # Drupal site name.
 DRUPAL_SITE_NAME="${DRUPAL_SITE_NAME:-${VORTEX_PROJECT:-Example site}}"
@@ -78,6 +75,10 @@ info "Started site provisioning."
 
 [ "${VORTEX_PROVISION_SKIP}" = "1" ] && pass "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1." && exit 0
 
+# Normalize the provision type.
+VORTEX_PROVISION_TYPE=${VORTEX_PROVISION_TYPE:-'database'}
+case ${VORTEX_PROVISION_TYPE} in database | profile) ;; *) VORTEX_PROVISION_TYPE='database' ;; esac
+
 ## Convert DB dir starting with './' to a full path.
 [ "${VORTEX_DB_DIR#./}" != "${VORTEX_DB_DIR}" ] && VORTEX_DB_DIR="$(pwd)${VORTEX_DB_DIR#.}"
 
@@ -100,7 +101,7 @@ echo
 note "Drupal core version            : ${drupal_version}"
 note "Drush version                  : ${drush_version}"
 echo
-note "Webroot path                   : $(pwd)/${VORTEX_WEBROOT}"
+note "Webroot path                   : $(pwd)/${WEBROOT}"
 note "Public files path              : ${DRUPAL_PUBLIC_FILES-<empty>}"
 note "Private files path             : ${DRUPAL_PRIVATE_FILES-<empty>}"
 note "Temporary files path           : ${DRUPAL_TEMPORARY_FILES-<empty>}"
@@ -114,7 +115,7 @@ note "Profile                        : ${DRUPAL_PROFILE}"
 note "Configuration files present    : $(yesno "${site_has_config}")"
 note "Existing site found            : $(yesno "${site_is_installed}")"
 echo
-note "Install from profile           : $(yesno "${VORTEX_PROVISION_USE_PROFILE}")"
+note "Provision type                 : ${VORTEX_PROVISION_TYPE}"
 note "Overwrite existing DB          : $(yesno "${VORTEX_PROVISION_OVERRIDE_DB}")"
 note "Skip DB sanitization           : $(yesno "${VORTEX_PROVISION_SANITIZE_DB_SKIP}")"
 note "Skip post-provision operations : $(yesno "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}")"
@@ -173,7 +174,7 @@ provision_from_profile() {
 # The code block below has explicit if-else conditions and verbose output to
 # ensure that this significant operation is executed correctly and has
 # sufficient output for debugging.
-if [ "${VORTEX_PROVISION_USE_PROFILE}" != "1" ]; then
+if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
   info "Provisioning site from the database dump file."
   note "Dump file path: ${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
 
@@ -236,11 +237,9 @@ if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
   echo
 fi
 
-# Get the current environment and export it for the downstream scripts.
-VORTEX_PROVISION_ENVIRONMENT="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
-info "Current Drupal environment: ${VORTEX_PROVISION_ENVIRONMENT}"
+# Show the current environment.
+info "Current Drupal environment: $(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
 echo
-export VORTEX_PROVISION_ENVIRONMENT
 
 # Use 'drush deploy' if configuration files are present or use standalone commands otherwise.
 if [ "${site_has_config}" = "1" ]; then

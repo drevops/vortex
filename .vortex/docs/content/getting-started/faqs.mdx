@@ -8,7 +8,7 @@ such as CI integrations, tooling configuration, workflows, deployment scripts,
 hosting-specific configurations, documentation.
 
 Then you would have to test all of that and make sure that it works correctly
-together. You would also need to make sure that  there are no false positives
+together. You would also need to make sure that  there are no _false negatives_
 (for example, passing CI on broken tests can go unnoticed up until the release
 and would block it).
 
@@ -26,25 +26,13 @@ Yes, you can install **Vortex** into your existing project.
 
 ## Can I use **Vortex** with my existing project and keep my existing CI?
 
-Yes, but you would need to update your CI configuration to use **Vortex**'s
+Yes, but you would have to update your CI configuration to use **Vortex**'s
 workflow scripts.
-
-:::note
-
-    We are in the process of adding support for other popular CI providers.
-
-:::
 
 ## Can I use **Vortex** with my existing project and keep my existing hosting?
 
-Yes, but you would need to update some of the deployment scripts to match your
+Yes, but you would have to update some of the deployment scripts to match your
 hosting provider.
-
-:::note
-
-    We are in the process of adding support for popular hosting providers.
-
-:::
 
 ## I do not like some of the decisions made in **Vortex**. Can I make changes?
 
@@ -55,7 +43,7 @@ you may need to maintain these changes in the future yourself.
 Feel free to [open an issue](https://github.com/drevops/vortex/issues) to
 discuss any of the decisions made in **Vortex**.
 
-## I do not need all these features? It looks like an overkill.
+## I do not need all these features? It looks like an overkill
 
 One of the core principles of **Vortex** is to provide
 rich features to all projects, regardless of their size.
@@ -65,15 +53,7 @@ If you think that some of the features are not required for your project, then
 discovered some new tools and approaches by using **Vortex** and have
 decided to keep them in their projects. So, you may want to give it a try.
 
-:::note
-
-    We are working on providing a more streamlined way of choosing the features
-    during the project creation process, so you could reduce the number of
-    features to the minimum required for your project.
-
-:::
-
-## I think it is too opinionated.
+## I think it is too opinionated
 
 **Vortex** is opinionated to the point to make it work as a project
 template. There are some changes that you can make to the project, but there
@@ -105,40 +85,7 @@ someone else has full control of the code that drives your project.
 
 ## How easy is it choose the features that I need?
 
-**Vortex** provides an installer that allows you to choose the features
+**Vortex** provides an [installer](https://vortex.drevops.com/getting-started/installation) that allows you to choose the features
 that you need interactively.
 
 It is usually used as a part of the project creation process.
-
-:::note
-
-    We are working on providing a more robust installer and a web-UI version.
-
-:::
-
-## Why CircleCI? What about other CI providers?
-
-CircleCI was chosen because of its flexibility. More specifically, CircleCI
-allows to use your own runner container (the container where CI steps run) and
-use remote Docker, making it possible to build the project in CI **exactly** the
-same way as it would be built in your hosting (if your hosting uses Docker).
-
-The other reason is that CircleCI supports passing the build artifacts between
-jobs via cache. This becomes really powerful on large consumer sites, where
-building the project takes a long time. **Vortex** mitigates this by
-providing a [CI configuration](https://github.com/drevops/vortex/blob/develop/.circleci/config.yml)
-used to download and cache the database overnight and use this cache for all
-the builds during the day, skipping the long database download and import
-process.
-
-And for the really large projects, CircleCI supports container image layer
-caching, meaning that some parts of the application could be built once and then
-reused in all the subsequent builds.
-
-Read more about [CircleCI](../ci/circleci.mdx).
-
-:::note
-
-    We are working on bringing integrations with other CI providers.
-
-:::

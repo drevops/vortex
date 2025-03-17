@@ -50,7 +50,7 @@ load _helper.bash
   cp "${ROOT_DIR}/.env" .env
 
   echo "COMPOSE_PROJECT_NAME=the_matrix" >>.env
-  echo "VORTEX_WEBROOT=docroot" >>.env
+  echo "WEBROOT=docroot" >>.env
   echo "VORTEX_DB_IMAGE=myorg/my_db_image" >>.env
   echo "XDEBUG_ENABLE=1" >>.env
   echo "DRUPAL_SHIELD_USER=jane" >>.env

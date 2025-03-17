@@ -30,6 +30,9 @@ jobs:
           coverage: pcov
           ini-values: pcov.directory=.
 
+      - name: Set default branch name
+        run: git config --global init.defaultBranch >/dev/null || git config --global init.defaultBranch "main"
+
       - name: Install dependencies
         run: composer install
         working-directory: .vortex/installer
@@ -42,16 +45,18 @@ jobs:
         run: composer test
         working-directory: .vortex/installer
 
-      - name: Upload coverage report as an artifact
+      - name: Upload coverage reports as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.php-versions }}
-          path: .vortex/installer/.coverage-html
+          path: .vortex/installer/.logs
+          include-hidden-files: true
+          if-no-files-found: error
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: .vortex/installer/cobertura.xml
+          files: .vortex/installer/.logs/cobertura.xml
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
 

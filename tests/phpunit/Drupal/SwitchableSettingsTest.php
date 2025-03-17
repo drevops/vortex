@@ -17,6 +17,8 @@ namespace Drupal;
  */
 class SwitchableSettingsTest extends SettingsTestCase {
 
+  // phpcs:ignore #;< SERVICE_CLAMAV
+
   /**
    * Test ClamAV configs in Daemon mode with defaults.
    */
@@ -72,6 +74,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
 
     $this->assertConfigContains($config);
   }
+
+  // phpcs:ignore #;> SERVICE_CLAMAV
 
   /**
    * Test Config Split config.
@@ -227,6 +231,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
     ];
   }
 
+  // phpcs:ignore #;< SERVICE_REDIS
+
   /**
    * Test Redis settings.
    */
@@ -274,6 +280,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
     $this->assertSettingsContains($settings);
     $this->assertSettingsNotContains($no_settings);
   }
+
+  // phpcs:ignore #;> SERVICE_REDIS
 
   /**
    * Test Shield config.

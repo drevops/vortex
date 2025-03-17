@@ -25,7 +25,10 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return static function (RectorConfig $rectorConfig): void {
   $rectorConfig->paths([
-    __DIR__ . '/**',
+    __DIR__ . '/src',
+    __DIR__ . '/tests/phpunit/Functional',
+    __DIR__ . '/tests/phpunit/Unit',
+    __DIR__ . '/tests/phpunit/Traits',
   ]);
 
   $rectorConfig->sets([

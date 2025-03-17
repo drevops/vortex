@@ -4,21 +4,17 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Command;
 
-use DrevOps\Installer\Config;
-use DrevOps\Installer\File;
-use DrevOps\Installer\Traits\DownloadTrait;
-use DrevOps\Installer\Traits\EnvTrait;
-use DrevOps\Installer\Traits\FilesystemTrait;
-use DrevOps\Installer\Traits\GitTrait;
-use DrevOps\Installer\Traits\PrinterTrait;
-use DrevOps\Installer\Traits\PromptsTrait;
-use DrevOps\Installer\Traits\TuiTrait;
+use DrevOps\Installer\Prompts\PromptManager;
+use DrevOps\Installer\Utils\Config;
+use DrevOps\Installer\Utils\Downloader;
+use DrevOps\Installer\Utils\Env;
+use DrevOps\Installer\Utils\File;
+use DrevOps\Installer\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Run command.
@@ -29,46 +25,29 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class InstallCommand extends Command {
 
-  use DownloadTrait;
-  use EnvTrait;
-  use FilesystemTrait;
-  use GitTrait;
-  use PrinterTrait;
-  use PromptsTrait;
-  use TuiTrait;
+  const ARG_DESTINATION = 'destination';
+
+  const OPTION_ROOT = 'root';
+
+  const OPTION_NO_ITERACTION = 'no-interaction';
+
+  const OPTION_CONFIG = 'config';
+
+  const OPTION_QUIET = 'quiet';
+
+  const OPTION_URI = 'uri';
 
   /**
    * Defines default command name.
    *
    * @var string
    */
-  protected static $defaultName = 'install';
+  public static $defaultName = 'install';
 
   /**
    * Defines the configuration object.
    */
   protected Config $config;
-
-  /**
-   * Output interface.
-   */
-  protected OutputInterface $output;
-
-  /**
-   * Constructor.
-   *
-   * @param string|null $name
-   *   File system.
-   * @param \Symfony\Component\Filesystem\Filesystem $fs
-   *   Command name.
-   */
-  public function __construct(
-    ?string $name = NULL,
-    ?Filesystem $fs = NULL,
-  ) {
-    parent::__construct($name);
-    $this->fs = is_null($fs) ? new Filesystem() : $fs;
-  }
 
   /**
    * {@inheritdoc}
@@ -77,343 +56,230 @@ class InstallCommand extends Command {
     $this->setName('Vortex CLI installer');
     $this->setDescription('Install Vortex CLI from remote or local repository.');
     $this->setHelp(<<<EOF
+  Interactively install Vortex from the latest stable release into the current directory:
   php install destination
 
-  php install --quiet destination
+  Non-interactively install Vortex from the latest stable release into the specified directory:
+  php install --no-interaction destination
 
+  Install Vortex from a stable release into the specified directory:
+  php install --uri=https://github.com/drevops/vortex.git@stable destination
+
+  Install Vortex from a specific release into the specified directory:
+  php install --uri=https://github.com/drevops/vortex.git@1.2.3 destination
+
+  Install Vortex from a specific commit into the specified directory:
+  php install --uri=https://github.com/drevops/vortex.git@abcd123 destination
 EOF
     );
-    $this->addArgument('path', InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
+    $this->addArgument(static::ARG_DESTINATION, InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
 
-    $this->addOption('root', NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
-
-    $this->config = new Config();
+    $this->addOption(static::OPTION_ROOT, NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
+    $this->addOption(static::OPTION_NO_ITERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
+    $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
+    $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
   }
 
   /**
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->output = $output;
-
     // @see https://github.com/drevops/vortex/issues/1502
-    if ($input->getOption('help') || $input->getArgument('path') == 'help') {
+    if ($input->getOption('help') || $input->getArgument('destination') == 'help') {
       $output->write($this->getHelp());
 
       return Command::SUCCESS;
     }
 
+    Tui::init($output);
+
     try {
       $this->checkRequirements();
+      $this->resolveOptions($input->getArguments(), $input->getOptions());
 
-      $this->resolveOptions($input->getOptions(), $input->getArgument('path'));
+      Tui::init($output, !$this->config->getNoInteraction());
+      $pm = new PromptManager($this->config);
 
-      $this->doExecute();
+      static::header();
+
+      $pm->prompt();
+
+      Tui::list($pm->getResponsesSummary(), 'Installation summary');
+
+      if (!$pm->shouldProceed()) {
+        Tui::info('Aborting project installation. No files were changed.');
+
+        return Command::SUCCESS;
+      }
+
+      Tui::info('Starting project installation');
+
+      Tui::action(
+        label: '⬇️ Downloading Vortex',
+        hint: fn(): string => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO))),
+        success: 'Vortex downloaded',
+        action: function (): void {
+          $version = (new Downloader())->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
+          $this->config->set(Config::VERSION, $version);
+        },
+      );
+
+      Tui::action(
+        label: '⚙️ Customizing Vortex for your project',
+        success: 'Vortex was customized for your project',
+        action: fn() => $pm->process(),
+      );
+
+      Tui::action(
+        label: '🥣️Preparing destination directory',
+        success: 'Destination directory is ready',
+        action: fn(): array => $this->prepareDestination(),
+      );
+
+      Tui::action(
+        label: '➡️ Copying files to the destination directory',
+        success: 'Files copied to destination directory',
+        action: fn() => $this->copyFiles(),
+      );
+
+      Tui::action(
+        label: '🎬 Preparing demo content',
+        success: 'Demo content prepared',
+        action: fn(): string|array => $this->handleDemo(),
+      );
+
+      // @todo Implement the demo mode.
+      // $this->handleDemo();
     }
     catch (\Exception $exception) {
-      $this->output->writeln([
-        '<error>Installation failed with an error:</error>',
-        '<error>' . $exception->getMessage() . '</error>',
-      ]);
+      Tui::output()->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
+      Tui::error('Installation failed with an error: ' . $exception->getMessage());
 
       return Command::FAILURE;
     }
 
-    $this->printFooter();
+    static::footer();
 
     return Command::SUCCESS;
   }
 
   protected function checkRequirements(): void {
-    $this->commandExists('git');
-    $this->commandExists('tar');
-    $this->commandExists('composer');
+    if (passthru('command -v git >/dev/null') === FALSE) {
+      throw new \RuntimeException('Missing git.');
+    }
+
+    if (passthru('command -v curl >/dev/null') === FALSE) {
+      throw new \RuntimeException('Missing curl.');
+    }
+
+    if (passthru('command -v tar >/dev/null') === FALSE) {
+      throw new \RuntimeException('Missing tar.');
+    }
+
+    if (passthru('command -v composer >/dev/null') === FALSE) {
+      throw new \RuntimeException('Missing Composer.');
+    }
   }
 
   /**
-   * Instantiate configuration from CLI option and environment variables.
+   * Instantiate configuration from CLI options and environment variables.
    *
-   * Installer configuration is a set of internal installer script variables
+   * Installer configuration is a set of internal installer variables
    * prefixed with "VORTEX_INSTALL_" and used to control the installation. They
    * are read from the environment variables with $this->config->get().
    *
    * For simplicity of naming, internal installer config variables used in
-   * $this->config->get() are matching environment variables names.
+   * $this->config->get() match environment variables names.
    *
+   * @param array<mixed> $arguments
+   *   Array of CLI arguments.
    * @param array<mixed> $options
    *   Array of CLI options.
-   * @param string|null $path
-   *   Destination directory. Optional. Defaults to the current directory.
    */
-  protected function resolveOptions(array $options, ?string $path): void {
-    if (!empty($options['quiet'])) {
-      $this->config->set('quiet', TRUE);
-    }
+  protected function resolveOptions(array $arguments, array $options): void {
+    $config = isset($options[static::OPTION_CONFIG]) && is_scalar($options[static::OPTION_CONFIG]) ? strval($options[static::OPTION_CONFIG]) : '{}';
+    $this->config = Config::fromString($config);
 
-    if (!is_null($options['ansi'])) {
-      $this->config->set('ANSI', $options['ansi']);
-    }
-    else {
-      // On Windows, default to no ANSI, except in ANSICON and ConEmu.
-      // Everywhere else, default to ANSI if stdout is a terminal.
-      $is_ansi = (DIRECTORY_SEPARATOR === '\\')
-        ? (FALSE !== getenv('ANSICON') || 'ON' === getenv('ConEmuANSI'))
-        : (function_exists('posix_isatty') && posix_isatty(1));
-      $this->config->set('ANSI', $is_ansi);
-    }
+    $this->config->setQuiet($options[static::OPTION_QUIET]);
+    $this->config->setNoInteraction($options[static::OPTION_NO_ITERACTION]);
 
-    // Set root directory to use it for path resolution.
-    $this->fsSetRootDir(!empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : NULL);
+    // Set root directory to resolve relative paths.
+    $root = !empty($options[static::OPTION_ROOT]) && is_scalar($options[static::OPTION_ROOT]) ? strval($options[static::OPTION_ROOT]) : NULL;
+    if ($root) {
+      $this->config->set(Config::ROOT, $root);
+    }
 
     // Set destination directory.
-    if (!empty($path)) {
-      $path = $this->fsGetAbsolutePath($path);
+    $dst = !empty($arguments['destination']) && is_scalar($arguments[static::ARG_DESTINATION]) ? strval($arguments[static::ARG_DESTINATION]) : NULL;
+    $dst = $dst ?: Env::get(Config::DST, $this->config->get(Config::DST, $this->config->get(Config::ROOT)));
+    $dst = File::realpath($dst);
+    $this->config->set(Config::DST, $dst, TRUE);
 
-      if (file_exists($path)) {
-        if (is_file($path)) {
-          throw new \RuntimeException(sprintf('Destination directory "%s" is a file.', $path));
-        }
-      }
-      else {
-        $this->fs->mkdir($path);
-        if (!is_readable($path) || !is_dir($path)) {
-          throw new \RuntimeException(sprintf('Destination directory "%s" is not readable or does not exist.', $path));
-        }
-      }
-    }
-    $this->config->set('VORTEX_INSTALL_DST_DIR', $path ?: static::getenvOrDefault('VORTEX_INSTALL_DST_DIR', $this->fsGetRootDir()));
-
-    // Load .env file from the destination directory, if it exists.
-    if ($this->fs->exists($this->config->getDstDir() . '/.env')) {
-      static::loadDotenv($this->config->getDstDir() . '/.env');
+    // Load values from the destination .env file, if it exists.
+    if (File::exists($this->config->getDst() . '/.env')) {
+      Env::putFromDotenv($this->config->getDst() . '/.env');
     }
 
-    // Internal version of Vortex.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_VERSION', static::getenvOrDefault('VORTEX_VERSION', 'develop'));
-    // Flag to display install debug information.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_DEBUG', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEBUG', FALSE));
+    [$repo, $ref] = Downloader::parseUri($options[static::OPTION_URI] ?: 'https://github.com/drevops/vortex.git@stable');
+    $this->config->set(Config::REPO, $repo);
+    $this->config->set(Config::REF, $ref);
+
+    // Check if the project is a Vortex project.
+    $this->config->set(Config::IS_VORTEX_PROJECT, File::contains($this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md', '/badge\/Vortex-/'));
+
     // Flag to proceed with installation. If FALSE - the installation will only
     // print resolved values and will not proceed.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_PROCEED', (bool) static::getenvOrDefault('VORTEX_INSTALL_PROCEED', TRUE));
-    // Temporary directory to download and expand files to.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_TMP_DIR', static::getenvOrDefault('VORTEX_INSTALL_TMP_DIR', File::createTempdir()));
-    // Path to local Vortex repository. If not provided - remote will be used.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_LOCAL_REPO', static::getenvOrDefault('VORTEX_INSTALL_LOCAL_REPO'));
-    // Optional commit to download. If not provided, latest release will be
-    // downloaded.
-    // @todo Convert to option and remove from the environment variables.
-    $this->config->set('VORTEX_INSTALL_COMMIT', static::getenvOrDefault('VORTEX_INSTALL_COMMIT', 'HEAD'));
+    $this->config->set(Config::PROCEED, TRUE);
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
-    if (!is_null(static::getenvOrDefault('VORTEX_INSTALL_DEMO'))) {
-      $this->config->set('VORTEX_INSTALL_DEMO', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEMO'));
+    if (!is_null(Env::get(Config::IS_DEMO_MODE))) {
+      $this->config->set(Config::IS_DEMO_MODE, (bool) Env::get(Config::IS_DEMO_MODE));
     }
+
     // Internal flag to skip processing of the demo mode.
-    $this->config->set('VORTEX_INSTALL_DEMO_SKIP', (bool) static::getenvOrDefault('VORTEX_INSTALL_DEMO_SKIP', FALSE));
+    $this->config->set(Config::DEMO_MODE_SKIP, (bool) Env::get(Config::DEMO_MODE_SKIP, FALSE));
   }
 
-  protected function doExecute(): void {
-    $this->printHeader();
+  protected function prepareDestination(): array {
+    $messages = [];
 
-    $this->collectAnswers();
-
-    if (!$this->askShouldProceed()) {
-      $this->printAbort();
-
-      return;
-    }
-
-    $this->downloadScaffold();
-
-    $this->prepareDestination();
-
-    $this->replaceTokens();
-
-    $this->copyFiles();
-
-    $this->handleDemo();
-  }
-
-  protected function collectAnswers(): void {
-    // Set answers that may be used in other answers' discoveries.
-    $this->setAnswer('webroot', $this->discoverValue('webroot'));
-
-    // @formatter:off
-    // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
-    // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
-    $this->askForAnswer('name',              'What is your site name?');
-    $this->askForAnswer('machine_name',      'What is your site machine name?');
-    $this->askForAnswer('org',               'What is your organization name');
-    $this->askForAnswer('org_machine_name',  'What is your organization machine name?');
-    $this->askForAnswer('module_prefix',     'What is your project-specific module prefix?');
-    $this->askForAnswer('profile',           'What is your custom profile machine name (leave empty to use "standard" profile)?');
-    $this->askForAnswer('theme',             'What is your theme machine name?');
-    $this->askForAnswer('domain',            'What is your site public domain?');
-    $this->askForAnswer('webroot',           'Web root (web, docroot)?');
-
-    $this->askForAnswer('provision_use_profile', 'Do you want to install from profile (leave empty or "n" for using database?');
-
-    if ($this->getAnswer('provision_use_profile') === self::ANSWER_YES) {
-      $this->setAnswer('database_download_source', 'none');
-      $this->setAnswer('database_image', '');
-    }
-    else {
-      $this->askForAnswer('database_download_source', "Where does the database dump come from into every environment:\n  - [u]rl\n  - [f]tp\n  - [a]cquia backup\n  - [d]ocker registry?");
-
-      if ($this->getAnswer('database_download_source') !== 'container_registry') {
-        // Note that "database_store_type" is a pseudo-answer - it is only used
-        // to improve UX and is not exposed as a variable (although has default,
-        // discovery and normalisation callbacks).
-        $this->askForAnswer('database_store_type',    '  When developing locally, do you want to import the database dump from the [f]ile or store it imported in the [d]ocker image for faster builds?');
-      }
-
-      if ($this->getAnswer('database_store_type') === 'file') {
-        $this->setAnswer('database_image', '');
-      }
-      else {
-        $this->askForAnswer('database_image',         '  What is your database image name and a tag (e.g. drevops/mariadb-drupal-data:latest)?');
-      }
-    }
-    // @formatter:on
-    // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
-    // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
-
-    $this->askForAnswer('override_existing_db', 'Do you want to override existing database in the environment?');
-
-    $this->askForAnswer('ci_provider', 'Which provider do you want to use for CI ([c]ircleci, [g]ithub actions, [n]one)?');
-
-    $this->askForAnswer('deploy_type', 'How do you deploy your code to the hosting ([w]ebhook call, [c]ode artifact, [d]ocker image, [l]agoon, [n]one as a comma-separated list)?');
-
-    if ($this->getAnswer('database_download_source') !== 'ftp') {
-      $this->askForAnswer('preserve_ftp', 'Do you want to keep FTP integration?');
-    }
-    else {
-      $this->setAnswer('preserve_ftp', self::ANSWER_YES);
-    }
-
-    if ($this->getAnswer('database_download_source') !== 'acquia') {
-      $this->askForAnswer('preserve_acquia', 'Do you want to keep Acquia Cloud integration?');
-    }
-    else {
-      $this->setAnswer('preserve_acquia', self::ANSWER_YES);
-    }
-
-    $this->askForAnswer('preserve_lagoon', 'Do you want to keep Amazee.io Lagoon integration?');
-
-    $this->askForAnswer('preserve_renovatebot', 'Do you want to keep RenovateBot integration?');
-
-    $this->askForAnswer('preserve_doc_comments', 'Do you want to keep detailed documentation in comments?');
-    $this->askForAnswer('preserve_vortex_info', 'Do you want to keep all Vortex information?');
-
-    $this->printSummary();
-
-    if ($this->config->isInstallDebug()) {
-      $this->printBox($this->formatValuesList($this->getAnswers(), '', $this->getTuiWidth() - 2 - 2 * 2), 'DEBUG RESOLVED ANSWERS');
-    }
-  }
-
-  protected function downloadScaffold(): void {
-    if ($this->config->get('VORTEX_INSTALL_LOCAL_REPO')) {
-      $this->downloadScaffoldLocal();
-    }
-    else {
-      $this->downloadScaffoldRemote();
-    }
-  }
-
-  protected function prepareDestination(): void {
-    $dst = $this->config->getDstDir();
-
+    $dst = $this->config->getDst();
     if (!is_dir($dst)) {
-      $this->status(sprintf('Creating destination directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
-      mkdir($dst);
-
-      if (!is_writable($dst)) {
-        throw new \RuntimeException(sprintf('Destination directory "%s" is not writable.', $dst));
-      }
-
-      $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
+      File::dir($dst, TRUE);
+      $messages[] = sprintf('Created directory "%s".', $dst);
     }
 
-    if (is_readable($dst . '/.git')) {
-      $this->status(sprintf('Git repository exists in "%s" - skipping initialisation.', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
-    }
-    else {
-      $this->status(sprintf('Initialising Git repository in directory "%s".', $dst), self::INSTALLER_STATUS_MESSAGE, FALSE);
-      $this->doExec(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
+    if (!is_readable($dst . '/.git')) {
+      $messages[] = sprintf('Initialising a new Git repository in directory "%s".', $dst);
+      passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
 
-      if (!file_exists($dst . '/.git')) {
-        throw new \RuntimeException(sprintf('Unable to init git project in directory "%s".', $dst));
+      if (!File::exists($dst . '/.git')) {
+        throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $dst));
       }
     }
 
-    print ' ';
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
-  }
-
-  protected function replaceTokens(): void {
-    $dir = $this->config->get('VORTEX_INSTALL_TMP_DIR');
-
-    $this->status('Replacing tokens ', self::INSTALLER_STATUS_MESSAGE, FALSE);
-
-    $processors = [
-      'webroot',
-      'profile',
-      'provision_use_profile',
-      'database_download_source',
-      'database_image',
-      'override_existing_db',
-      'ci_provider',
-      'deploy_type',
-      'preserve_acquia',
-      'preserve_lagoon',
-      'preserve_ftp',
-      'preserve_renovatebot',
-      'string_tokens',
-      'preserve_doc_comments',
-      'demo_mode',
-      'preserve_vortex_info',
-      'vortex_internal',
-      'enable_commented_code',
-      'empty_lines',
-    ];
-
-    foreach ($processors as $name) {
-      $this->processAnswer($name, $dir);
-      $this->printTick($name);
-    }
-
-    print ' ';
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
+    return $messages;
   }
 
   protected function copyFiles(): void {
-    $src = $this->config->get('VORTEX_INSTALL_TMP_DIR');
-    $dst = $this->config->getDstDir();
+    $src = $this->config->get(Config::TMP);
+    $dst = $this->config->getDst();
 
     // Due to the way symlinks can be ordered, we cannot copy files one-by-one
     // into destination directory. Instead, we are removing all ignored files
     // and empty directories, making the src directory "clean", and then
     // recursively copying the whole directory.
-    $all = File::scandirRecursive($src, File::ignorePaths(), TRUE);
+    $all = File::scandirRecursive($src, File::ignoredPaths(), TRUE);
     $files = File::scandirRecursive($src);
-    $valid_files = File::scandirRecursive($src, File::ignorePaths());
+    $valid_files = File::scandirRecursive($src, File::ignoredPaths());
     $dirs = array_diff($all, $valid_files);
     $ignored_files = array_diff($files, $valid_files);
-
-    $this->status('Copying files', self::INSTALLER_STATUS_DEBUG);
 
     foreach ($valid_files as $filename) {
       $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $filename);
 
-      if (File::isInternalPath($relative_file)) {
-        $this->status(sprintf('Skipped file %s as an internal Vortex file.', $relative_file), self::INSTALLER_STATUS_DEBUG);
+      if (File::isInternal($relative_file)) {
         unlink($filename);
       }
     }
@@ -427,50 +293,135 @@ EOF
 
     // Remove empty directories.
     foreach ($dirs as $dir) {
-      File::rmdirRecursiveEmpty($dir);
+      File::rmdirEmpty($dir);
     }
 
     // Src directory is now "clean" - copy it to dst directory.
     if (is_dir($src) && !File::dirIsEmpty($src)) {
-      File::copyRecursive($src, $dst, 0755, FALSE);
+      File::sync($src, $dst);
     }
 
     // Special case for .env.local as it may exist.
-    if (!file_exists($dst . '/.env.local')) {
-      File::copyRecursive($dst . '/.env.local.example', $dst . '/.env.local', 0755, FALSE);
+    if (!file_exists($dst . '/.env.local') && file_exists($dst . '/.env.local.example')) {
+      File::copy($dst . '/.env.local.example', $dst . '/.env.local');
     }
   }
 
-  protected function handleDemo(): void {
-    if (empty($this->config->get('VORTEX_INSTALL_DEMO')) || !empty($this->config->get('VORTEX_INSTALL_DEMO_SKIP'))) {
-      return;
+  protected function handleDemo(): array|string {
+    if (empty($this->config->get(Config::IS_DEMO_MODE)) || !empty($this->config->get(Config::DEMO_MODE_SKIP))) {
+      return ['Skipping demo database download.'];
     }
 
     // Reload variables from destination's .env.
-    static::loadDotenv($this->config->getDstDir() . '/.env');
+    Env::putFromDotenv($this->config->getDst() . '/.env');
 
-    $url = static::getenvOrDefault('VORTEX_DB_DOWNLOAD_CURL_URL');
+    $url = Env::get('VORTEX_DB_DOWNLOAD_URL');
     if (empty($url)) {
-      return;
+      return ['No database download URL provided. Skipping demo database download.'];
     }
 
-    $data_dir = $this->config->getDstDir() . DIRECTORY_SEPARATOR . static::getenvOrDefault('VORTEX_DB_DIR', './.data');
-    $file = static::getenvOrDefault('VORTEX_DB_FILE', 'db.sql');
+    $data_dir = $this->config->getDst() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
+    $file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
-    $this->status(sprintf('No database dump file found in "%s" directory. Downloading DEMO database from %s.', $data_dir, $url), self::INSTALLER_STATUS_MESSAGE, FALSE);
+    if (file_exists($data_dir . DIRECTORY_SEPARATOR . $file)) {
+      return ['Database dump file already exists. Skipping download.'];
+    }
 
+    $messages = [];
     if (!file_exists($data_dir)) {
-      mkdir($data_dir);
+      File::dir($data_dir, TRUE);
+      $messages[] = sprintf('Created directory "%s".', $data_dir);
     }
+    $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file);
 
-    $this->doExec(sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file), $output, $code);
-
-    if ($code !== 0) {
+    if (passthru($command) === FALSE) {
       throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
     }
+    $messages[] = sprintf('No database dump file was found in "%s" directory. Downloaded DEMO database from %s.', $data_dir, $url);
 
-    print ' ';
-    $this->status('Done', self::INSTALLER_STATUS_SUCCESS);
+    return $messages;
+  }
+
+  protected function header(): void {
+    $logo = <<<EOT
+-------------------------------------------------------------------------------
+
+              ██╗   ██╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗
+              ██║   ██║██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝
+              ██║   ██║██║   ██║██████╔╝   ██║   █████╗   ╚███╔╝
+              ╚██╗ ██╔╝██║   ██║██╔══██╗   ██║   ██╔══╝   ██╔██╗
+               ╚████╔╝ ╚██████╔╝██║  ██║   ██║   ███████╗██╔╝ ██╗
+                ╚═══╝   ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+
+                           Drupal project template
+
+                                                                   by DrevOps
+-------------------------------------------------------------------------------
+EOT;
+
+    // Print the logo only if the terminal is wide enough.
+    if (Tui::terminalWidth() >= 80) {
+      Tui::note(Tui::green($logo));
+    }
+
+    $title = 'Welcome to Vortex interactive installer';
+    $content = '';
+
+    $ref = $this->config->get(Config::REF);
+    if ($ref == Downloader::REF_STABLE) {
+      $content .= 'This will install the latest version of Vortex into your project.' . PHP_EOL;
+    }
+    elseif ($ref == Downloader::REF_HEAD) {
+      $content .= 'This will install the latest development version of Vortex into your project.' . PHP_EOL;
+    }
+    else {
+      $content .= sprintf('This will install Vortex into your project at commit "%s".', $ref) . PHP_EOL;
+    }
+
+    $content .= PHP_EOL;
+
+    if ($this->config->isVortexProject()) {
+      $content .= 'It looks like Vortex is already installed into this project.' . PHP_EOL;
+      $content .= PHP_EOL;
+    }
+
+    if ($this->config->getNoInteraction()) {
+      $content .= 'Vortex installer will try to discover the settings from the environment and will install configuration relevant to your site.' . PHP_EOL;
+      $content .= PHP_EOL;
+      $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
+
+      $title = 'Welcome to Vortex non-interactive installer';
+    }
+    else {
+      $content .= 'Please answer the questions below to install configuration relevant to your site.' . PHP_EOL;
+      $content .= 'No changes will be applied until the last confirmation step.' . PHP_EOL;
+      $content .= PHP_EOL;
+      $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
+      $content .= PHP_EOL;
+      $content .= 'Press Ctrl+C at any time to exit this installer.' . PHP_EOL;
+    }
+
+    Tui::box($content, $title);
+  }
+
+  public function footer(): void {
+    $output = '';
+    if ($this->config->isVortexProject()) {
+      $title = 'Finished updating Vortex 🚀🚀🚀';
+      $output .= 'Please review changes and commit required files.';
+    }
+    else {
+      $title = 'Finished installing Vortex 🚀🚀🚀';
+      $output .= 'Next steps:' . PHP_EOL;
+      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
+      $output .= '  git add -A                       # Add all files.' . PHP_EOL;
+      $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
+      $output .= '  ahoy build                       # Build site.' . PHP_EOL;
+      $output .= PHP_EOL;
+      $output .= '  See https://vortex.drevops.com/quickstart';
+    }
+
+    Tui::box($output, $title);
   }
 
 }
