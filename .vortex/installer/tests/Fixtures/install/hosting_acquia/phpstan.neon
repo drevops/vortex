@@ -1,0 +1,41 @@
+@@ -14,10 +14,10 @@
+   phpVersion: 80312
+ 
+   paths:
+-    - web/modules/custom
+-    - web/themes/custom
+-    - web/sites/default/settings.php
+-    - web/sites/default/includes
++    - docroot/modules/custom
++    - docroot/themes/custom
++    - docroot/sites/default/settings.php
++    - docroot/sites/default/includes
+     - tests
+ 
+   excludePaths:
+@@ -33,8 +33,8 @@
+       # this error.
+       message: '#.*no value type specified in iterable type array.#'
+       paths:
+-        - web/modules/custom/*/tests/*
+-        - web/themes/custom/*/tests/*
++        - docroot/modules/custom/*/tests/*
++        - docroot/themes/custom/*/tests/*
+         - tests/phpunit/*
+     -
+       # Hook implementations do not provide docblocks for parameters, so there
+@@ -41,11 +41,11 @@
+       # is no way to provide this information.
+       message: '#.* with no value type specified in iterable type array#'
+       paths:
+-        - web/modules/custom/*
+-        - web/themes/custom/*
++        - docroot/modules/custom/*
++        - docroot/themes/custom/*
+     -
+       # Included settings files are not aware about global variables.
+       message: '#Variable .* might not be defined.#'
+       paths:
+-        - web/sites/default/includes
++        - docroot/sites/default/includes
+       reportUnmatched: false

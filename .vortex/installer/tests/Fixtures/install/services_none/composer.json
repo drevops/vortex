@@ -1,0 +1,18 @@
+@@ -8,7 +8,6 @@
+         "composer/installers": "^2.3",
+         "cweagans/composer-patches": "^1.7",
+         "drupal/admin_toolbar": "^3.5",
+-        "drupal/clamav": "^2.1",
+         "drupal/coffee": "^2",
+         "drupal/config_split": "^2",
+         "drupal/config_update": "^2@alpha",
+@@ -17,9 +16,7 @@
+         "drupal/environment_indicator": "^4.0",
+         "drupal/pathauto": "^1.13",
+         "drupal/redirect": "^1.10",
+-        "drupal/redis": "^1.8",
+         "drupal/search_api": "^1.37",
+-        "drupal/search_api_solr": "^4.3",
+         "drupal/seckit": "^2.0",
+         "drupal/shield": "^1.8",
+         "drupal/stage_file_proxy": "^3.1",

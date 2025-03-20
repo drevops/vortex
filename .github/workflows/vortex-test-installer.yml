@@ -42,7 +42,7 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Run tests
-        run: composer test
+        run: composer test-coverage
         working-directory: .vortex/installer
 
       - name: Upload coverage reports as an artifact
@@ -66,5 +66,5 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Test PHAR
-        run: ./build/installer --no-interaction test || exit 1
+        run: ./build/installer --no-interaction example || exit 1
         working-directory: .vortex/installer

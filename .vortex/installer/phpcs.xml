@@ -16,9 +16,9 @@
     <arg name="colors"/>
 
     <file>src</file>
-    <file>tests/phpunit/Unit</file>
-    <file>tests/phpunit/Functional</file>
-    <file>tests/phpunit/Traits</file>
+    <file>tests/Unit</file>
+    <file>tests/Functional</file>
+    <file>tests/Traits</file>
 
     <!-- Allow incorrectly sorted namespaces in tests. -->
     <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses.IncorrectlyOrderedUses">
