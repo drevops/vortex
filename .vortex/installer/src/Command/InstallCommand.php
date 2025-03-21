@@ -361,7 +361,7 @@ EOT;
 
     // Print the logo only if the terminal is wide enough.
     if (Tui::terminalWidth() >= 80) {
-      Tui::note(Tui::green($logo));
+      Tui::note($logo);
     }
 
     $title = 'Welcome to Vortex interactive installer';
@@ -388,7 +388,7 @@ EOT;
     if ($this->config->getNoInteraction()) {
       $content .= 'Vortex installer will try to discover the settings from the environment and will install configuration relevant to your site.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
+      $content .= 'Existing committed files may be modified. You will need to resolve any changes manually.' . PHP_EOL;
 
       $title = 'Welcome to Vortex non-interactive installer';
     }
@@ -396,7 +396,7 @@ EOT;
       $content .= 'Please answer the questions below to install configuration relevant to your site.' . PHP_EOL;
       $content .= 'No changes will be applied until the last confirmation step.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
+      $content .= 'Existing committed files may be modified. You will need to resolve any changes manually.' . PHP_EOL;
       $content .= PHP_EOL;
       $content .= 'Press Ctrl+C at any time to exit this installer.' . PHP_EOL;
     }
