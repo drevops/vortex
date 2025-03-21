@@ -8,6 +8,8 @@ namespace Drupal\Tests\ys_core\Traits;
  * Trait AssertTrait.
  *
  * Provides custom assertions.
+ *
+ * @codeCoverageIgnore
  */
 trait AssertTrait {
 
