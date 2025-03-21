@@ -8,6 +8,8 @@ namespace Drupal\Tests\sw_core\Traits;
  * Trait ReflectionTrait.
  *
  * Provides methods to work with class reflection.
+ *
+ * @codeCoverageIgnore
  */
 trait ReflectionTrait {
 

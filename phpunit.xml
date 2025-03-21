@@ -102,6 +102,13 @@
             <directory>web/sites/default/includes</directory>
             <directory>web/sites/default/settings.php</directory>
         </include>
+        <exclude>
+            <directory suffix="Test.php">web/modules/custom</directory>
+            <directory>web/modules/custom/*/node_modules</directory>
+            <directory suffix="Test.php">web/themes/custom</directory>
+            <directory>web/themes/custom/*/node_modules</directory>
+            <directory>tests</directory>
+        </exclude>
     </source>
     <!-- Allow skipping tests by tagging them with "@group skipped". -->
     <groups>

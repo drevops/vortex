@@ -1,0 +1,33 @@
+@@ -61,15 +61,12 @@
+         <testsuite name="unit">
+             <directory>tests/phpunit</directory>
+             <directory>web/modules/custom/*/tests/src/Unit</directory>
+-            <directory>web/themes/custom/*/tests/src/Unit</directory>
+         </testsuite>
+         <testsuite name="kernel">
+             <directory>web/modules/custom/*/tests/src/Kernel</directory>
+-            <directory>web/themes/custom/*/tests/src/Kernel</directory>
+         </testsuite>
+         <testsuite name="functional">
+             <directory>web/modules/custom/*/tests/src/Functional</directory>
+-            <directory>web/themes/custom/*/tests/src/Functional</directory>
+         </testsuite>
+ 
+         <!-- Not implemented. -->
+@@ -98,7 +95,6 @@
+     <source>
+         <include>
+             <directory>web/modules/custom</directory>
+-            <directory>web/themes/custom</directory>
+             <directory>web/sites/default/includes</directory>
+             <directory>web/sites/default/settings.php</directory>
+         </include>
+@@ -105,8 +101,6 @@
+         <exclude>
+             <directory suffix="Test.php">web/modules/custom</directory>
+             <directory>web/modules/custom/*/node_modules</directory>
+-            <directory suffix="Test.php">web/themes/custom</directory>
+-            <directory>web/themes/custom/*/node_modules</directory>
+             <directory>tests</directory>
+         </exclude>
+     </source>

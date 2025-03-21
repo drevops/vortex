@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Tests\Unit;
 
+use DrevOps\Installer\Utils\Composer;
+use DrevOps\Installer\Utils\Env;
+use DrevOps\Installer\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use DrevOps\Installer\Prompts\Handlers\AssignAuthorPr;
@@ -41,6 +44,10 @@ use Laravel\Prompts\Key;
 use Symfony\Component\Yaml\Yaml;
 
 #[CoversClass(PromptManager::class)]
+#[CoversClass(Tui::class)]
+#[CoversClass(Env::class)]
+#[CoversClass(Converter::class)]
+#[CoversClass(Composer::class)]
 class PromptManagerTest extends UnitTestBase {
 
   use TuiTrait;

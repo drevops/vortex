@@ -76,6 +76,7 @@ COPY composer.json composer.* .env* auth* /app/
 RUN if [ -n "${GITHUB_TOKEN}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN}\"}}"; fi && \
     COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
 
+#;< DRUPAL_THEME
 # Install NodeJS dependencies.
 # Note that package-lock.json is not explicitly copied, allowing to run the
 # stack without existing lock file (this is not advisable, but allows to build
@@ -90,6 +91,7 @@ COPY ${WEBROOT}/themes/custom/your_site_theme/patches /app/${WEBROOT}/themes/cus
 # Since Drupal does not use NodeJS for production, it does not matter if we
 # install development dependencnies here - they are not exposed in any way.
 RUN npm --prefix /app/${WEBROOT}/themes/custom/your_site_theme ci --no-audit --no-progress --unsafe-perm
+#;> DRUPAL_THEME
 
 # Copy all files into appllication source directory. Existing files are always
 # overridden.
@@ -99,9 +101,11 @@ COPY . /app
 RUN mkdir -p "${DRUPAL_PUBLIC_FILES:-/app/${WEBROOT}/sites/default/files}" "${DRUPAL_PRIVATE_FILES:-/app/${WEBROOT}/sites/default/files/private}" "${DRUPAL_TEMPORARY_FILES:-/tmp}" "${DRUPAL_CONFIG_PATH:-/app/config/default}" && \
  chmod 0770 "${DRUPAL_PUBLIC_FILES:-/app/${WEBROOT}/sites/default/files}" "${DRUPAL_PRIVATE_FILES:-/app/${WEBROOT}/sites/default/files/private}" "${DRUPAL_TEMPORARY_FILES:-/tmp}" "${DRUPAL_CONFIG_PATH:-/app/config/default}"
 
+#;< DRUPAL_THEME
 # Compile front-end assets. Running this after copying all files as we need
 # sources to compile assets.
 WORKDIR /app/${WEBROOT}/themes/custom/your_site_theme
 RUN npm run build
+#;> DRUPAL_THEME
 
 WORKDIR /app

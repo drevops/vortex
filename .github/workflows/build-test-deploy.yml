@@ -275,9 +275,11 @@ jobs:
         run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
         continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
 
+      #;< DRUPAL_THEME
       - name: Lint code with NPM linters
         run: docker compose exec -T cli bash -c "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
         continue-on-error: ${{ vars.VORTEX_CI_NPM_LINT_IGNORE_FAILURE == '1' }}
+      #;> DRUPAL_THEME
 
       - name: Provision site
         run: |

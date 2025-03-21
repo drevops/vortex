@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 /**
  * Installs custom theme.
+ *
+ * @codeCoverageIgnore
  */
 function sw_core_deploy_install_theme(): void {
   \Drupal::service('theme_installer')->install(['olivero']);

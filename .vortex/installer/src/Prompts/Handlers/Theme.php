@@ -42,6 +42,42 @@ class Theme extends AbstractHandler {
     $t = $this->tmpDir;
     $w = $this->webroot;
 
+    if (empty($v)) {
+      $file_tmpl = static::findThemeFile($t, $w);
+      if (!empty($file_tmpl) && is_readable($file_tmpl)) {
+        File::rmdir(dirname($file_tmpl));
+        File::rmdirEmpty(dirname($file_tmpl));
+
+        File::removeLine($t . '/phpcs.xml', '<file>web/themes/custom</file>');
+        File::removeLine($t . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>');
+        File::removeLine($t . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>');
+        File::removeLine($t . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/images\/.*</exclude-pattern>');
+        File::removeLine($t . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>');
+
+        File::removeLine($t . '/phpstan.neon', '- web/themes/custom');
+
+        File::removeLine($t . '/phpmd.xml', '<exclude-pattern>*/web/themes/contrib/*</exclude-pattern>');
+
+        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Unit</directory>');
+        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Kernel</directory>');
+        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Functional</directory>');
+        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom</directory>');
+        File::removeLine($t . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
+        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
+
+        File::removeLine($t . '/rector.php', "\$drupalRoot . '/themes/custom',");
+
+        File::removeLine($t . '/.twig-cs-fixer.php', "\$finder->in(__DIR__ . '/web/themes/custom');");
+
+        File::replaceContent($t . '/.ahoy.yml', 'cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests', 'cmd: ahoy lint-be && ahoy lint-tests');
+        File::replaceContent($t . '/.ahoy.yml', 'cmd: ahoy lint-be-fix && ahoy lint-fe-fix', 'cmd: ahoy lint-be-fix');
+      }
+
+      File::removeTokenInDir($this->tmpDir, 'DRUPAL_THEME');
+
+      return;
+    }
+
     File::replaceContent($this->dstDir . '/.env', '/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $v);
 
     // Find the theme file in the destination directory.
@@ -61,6 +97,10 @@ class Theme extends AbstractHandler {
       $file_tmpl = static::findThemeFile($t, $w);
       if (!empty($file_tmpl) && is_readable($file_tmpl)) {
         File::rmdir(dirname($file_tmpl));
+
+        File::removeLine($t . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
+        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
+
         return;
       }
     }
