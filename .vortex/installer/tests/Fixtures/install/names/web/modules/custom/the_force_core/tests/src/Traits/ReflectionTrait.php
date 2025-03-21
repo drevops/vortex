@@ -8,6 +8,8 @@ namespace Drupal\Tests\the_force_core\Traits;
  * Trait ReflectionTrait.
  *
  * Provides methods to work with class reflection.
+ *
+ * @codeCoverageIgnore
  */
 trait ReflectionTrait {
 

@@ -27,6 +27,7 @@
         </include>
         <exclude>
             <directory>tests</directory>
+            <file>src/app.php</file>
         </exclude>
     </source>
     <coverage pathCoverage="false"

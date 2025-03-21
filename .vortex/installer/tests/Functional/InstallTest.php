@@ -13,7 +13,10 @@ use DrevOps\Installer\Prompts\Handlers\DatabaseImage;
 use DrevOps\Installer\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\Installer\Prompts\Handlers\DeployType;
 use DrevOps\Installer\Prompts\Handlers\Domain;
+use DrevOps\Installer\Prompts\Handlers\GithubRepo;
+use DrevOps\Installer\Prompts\Handlers\GithubToken;
 use DrevOps\Installer\Prompts\Handlers\HostingProvider;
+use DrevOps\Installer\Prompts\Handlers\Internal;
 use DrevOps\Installer\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\Installer\Prompts\Handlers\MachineName;
 use DrevOps\Installer\Prompts\Handlers\ModulePrefix;
@@ -26,10 +29,16 @@ use DrevOps\Installer\Prompts\Handlers\Profile;
 use DrevOps\Installer\Prompts\Handlers\ProvisionType;
 use DrevOps\Installer\Prompts\Handlers\Services;
 use DrevOps\Installer\Prompts\Handlers\Theme;
+use DrevOps\Installer\Prompts\Handlers\ThemeRunner;
+use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Prompts\PromptManager;
+use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
+use DrevOps\Installer\Utils\Downloader;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
+use DrevOps\Installer\Utils\Git;
+use DrevOps\Installer\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -42,6 +51,37 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
  * Run with `UPDATE_FIXTURES=1` to update all the test fixtures.
  */
 #[CoversClass(InstallCommand::class)]
+#[CoversClass(AssignAuthorPr::class)]
+#[CoversClass(CiProvider::class)]
+#[CoversClass(CodeProvider::class)]
+#[CoversClass(DatabaseDownloadSource::class)]
+#[CoversClass(DatabaseImage::class)]
+#[CoversClass(DependencyUpdatesProvider::class)]
+#[CoversClass(DeployType::class)]
+#[CoversClass(Domain::class)]
+#[CoversClass(GithubRepo::class)]
+#[CoversClass(GithubToken::class)]
+#[CoversClass(HostingProvider::class)]
+#[CoversClass(Internal::class)]
+#[CoversClass(LabelMergeConflictsPr::class)]
+#[CoversClass(MachineName::class)]
+#[CoversClass(ModulePrefix::class)]
+#[CoversClass(Name::class)]
+#[CoversClass(Org::class)]
+#[CoversClass(OrgMachineName::class)]
+#[CoversClass(PreserveDocsOnboarding::class)]
+#[CoversClass(PreserveDocsProject::class)]
+#[CoversClass(Profile::class)]
+#[CoversClass(ProvisionType::class)]
+#[CoversClass(Services::class)]
+#[CoversClass(Theme::class)]
+#[CoversClass(ThemeRunner::class)]
+#[CoversClass(Webroot::class)]
+#[CoversClass(PromptManager::class)]
+#[CoversClass(Downloader::class)]
+#[CoversClass(Config::class)]
+#[CoversClass(Git::class)]
+#[CoversClass(Tui::class)]
 class InstallTest extends FunctionalTestBase {
 
   public function testHelp(): void {
@@ -119,6 +159,20 @@ class InstallTest extends FunctionalTestBase {
       ],
       'profile, the_empire' => [
         static::fnw(fn() => Env::put(PromptManager::makeEnvName(Profile::id()), 'the_empire')),
+      ],
+
+      'theme, absent' => [
+        static::fnw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), '')),
+        static::fnw(fn(FunctionalTestBase $test) => $test->assertDirectoryNotContainsString('themes/custom', static::$sut, [
+          '.gitignore',
+          'scripts/vortex',
+          'composer.json',
+        ])),
+      ],
+
+      'theme, custom' => [
+        static::fnw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), 'light_saber')),
+        static::fnw(fn(FunctionalTestBase $test) => $test->assertDirectoryNotContainsString('your_site_theme', static::$sut)),
       ],
 
       'services, no clamav' => [

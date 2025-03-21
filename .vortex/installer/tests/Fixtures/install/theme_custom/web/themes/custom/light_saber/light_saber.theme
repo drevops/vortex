@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @file
+ * Template for star wars theme.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Site\Settings;
+
+/**
+ * Implements template_preprocess_html().
+ */
+function light_saber_preprocess_html(array &$variables): void {
+  _light_saber_preprocess_admin_toolbar($variables);
+}
+
+/**
+ * Preprocess admin toolbar.
+ */
+function _light_saber_preprocess_admin_toolbar(array &$variables): void {
+  // Hide admin toolbar.
+  if (Settings::get('hide_admin_toolbar') && !empty($variables['attributes']['class'])) {
+    unset($variables['page_top']['toolbar']);
+    $variables['attributes']['class'] = array_filter($variables['attributes']['class'], static function ($value): bool {
+      return !str_starts_with($value, 'toolbar-');
+    });
+  }
+}

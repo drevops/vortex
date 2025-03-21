@@ -11,6 +11,8 @@ use PHPUnit\Framework\MockObject\Stub\Stub;
  * Trait MockTrait.
  *
  * This trait provides a method to prepare class mock.
+ *
+ * @codeCoverageIgnore
  */
 trait MockTrait {
 
