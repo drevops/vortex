@@ -44,10 +44,6 @@ class DeployType extends AbstractHandler {
     $types = $this->response;
     $t = $this->tmpDir;
 
-    if (!is_array($types)) {
-      throw new \InvalidArgumentException('Invalid deploy types.');
-    }
-
     if (!empty($types)) {
       File::replaceContent($t . '/.env', '/VORTEX_DEPLOY_TYPES=.*/', 'VORTEX_DEPLOY_TYPES=' . Converter::toList($types));
 

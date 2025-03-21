@@ -1,3 +1,0 @@
-first line
-token content line 1
-token content line 2

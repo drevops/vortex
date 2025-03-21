@@ -1,0 +1,47 @@
+@@ -6,7 +6,7 @@
+  https://www.drupal.org/node/2116263 for details.
+ -->
+ <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         bootstrap="web/core/tests/bootstrap.php"
++         bootstrap="docroot/core/tests/bootstrap.php"
+          colors="true"
+          beStrictAboutTestsThatDoNotTestAnything="true"
+          beStrictAboutOutputDuringTests="true"
+@@ -60,16 +60,16 @@
+     <testsuites>
+         <testsuite name="unit">
+             <directory>tests/phpunit</directory>
+-            <directory>web/modules/custom/*/tests/src/Unit</directory>
+-            <directory>web/themes/custom/*/tests/src/Unit</directory>
++            <directory>docroot/modules/custom/*/tests/src/Unit</directory>
++            <directory>docroot/themes/custom/*/tests/src/Unit</directory>
+         </testsuite>
+         <testsuite name="kernel">
+-            <directory>web/modules/custom/*/tests/src/Kernel</directory>
+-            <directory>web/themes/custom/*/tests/src/Kernel</directory>
++            <directory>docroot/modules/custom/*/tests/src/Kernel</directory>
++            <directory>docroot/themes/custom/*/tests/src/Kernel</directory>
+         </testsuite>
+         <testsuite name="functional">
+-            <directory>web/modules/custom/*/tests/src/Functional</directory>
+-            <directory>web/themes/custom/*/tests/src/Functional</directory>
++            <directory>docroot/modules/custom/*/tests/src/Functional</directory>
++            <directory>docroot/themes/custom/*/tests/src/Functional</directory>
+         </testsuite>
+ 
+         <!-- Not implemented. -->
+@@ -97,10 +97,10 @@
+     </coverage>
+     <source>
+         <include>
+-            <directory>web/modules/custom</directory>
+-            <directory>web/themes/custom</directory>
+-            <directory>web/sites/default/includes</directory>
+-            <directory>web/sites/default/settings.php</directory>
++            <directory>docroot/modules/custom</directory>
++            <directory>docroot/themes/custom</directory>
++            <directory>docroot/sites/default/includes</directory>
++            <directory>docroot/sites/default/settings.php</directory>
+         </include>
+     </source>
+     <!-- Allow skipping tests by tagging them with "@group skipped". -->

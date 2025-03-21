@@ -1,0 +1,12 @@
+@@ -51,9 +51,9 @@
+       api_driver: drupal
+       drush_driver: drush
+       drupal:
+-        drupal_root: web
++        drupal_root: docroot
+       drush:
+-        root: web
++        root: docroot
+       selectors:
+         message_selector: '.messages'
+         error_message_selector: '.messages.error'

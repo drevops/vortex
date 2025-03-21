@@ -8,9 +8,9 @@ parameters:
 
   paths:
     - src
-    - tests/phpunit/Unit
-    - tests/phpunit/Functional
-    - tests/phpunit/Traits
+    - tests/Unit
+    - tests/Functional
+    - tests/Traits
 
   excludePaths:
     - vendor/*

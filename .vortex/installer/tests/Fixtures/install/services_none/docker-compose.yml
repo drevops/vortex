@@ -1,0 +1,61 @@
+@@ -61,8 +61,6 @@
+   # Drupal Shield credentials.
+   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
+   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
+-  # Redis integration flag.
+-  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
+ 
+ # ------------------------------------------------------------------------------
+ # Services.
+@@ -132,36 +130,6 @@
+     ports:
+       - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
+ 
+-  redis:
+-    image: uselagoon/redis-6:25.2.0
+-
+-  solr:
+-    build:
+-      context: .
+-      dockerfile: .docker/solr.dockerfile
+-      args:
+-        CLI_IMAGE: *cli-image
+-    environment:
+-      <<: *default-environment
+-    depends_on:
+-      - cli
+-    ports:
+-      - "8983" # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
+-    volumes:
+-      - solr:/var/solr
+-
+-  clamav:
+-    build:
+-      context: .
+-      dockerfile: .docker/clamav.dockerfile
+-    platform: linux/amd64
+-    ports:
+-      - "3310" # Find port on host with `docker compose port clamav 3310`.
+-    environment:
+-      << : *default-environment
+-    networks:
+-      - default
+-
+   # Chrome container, used for browser testing.
+   chrome:
+     image: selenium/standalone-chromium:133.0
+@@ -180,8 +148,7 @@
+     depends_on:
+       - cli
+       - database
+-      - clamav
+-    command: database:3306 clamav:3310
++    command: database:3306
+ 
+ networks:           ### Use external networks locally. Automatically removed in CI.
+   amazeeio-network: ### Automatically removed in CI.
+@@ -190,4 +157,3 @@
+ volumes:
+   app: {}
+   files: {}
+-  solr: {}

@@ -1,0 +1,19 @@
+@@ -61,8 +61,6 @@
+   # Drupal Shield credentials.
+   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
+   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
+-  # Redis integration flag.
+-  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
+ 
+ # ------------------------------------------------------------------------------
+ # Services.
+@@ -131,9 +129,6 @@
+       <<: *default-environment
+     ports:
+       - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
+-
+-  redis:
+-    image: uselagoon/redis-6:25.2.0
+ 
+   solr:
+     build:

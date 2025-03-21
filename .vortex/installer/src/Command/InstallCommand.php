@@ -298,7 +298,7 @@ EOF
 
     // Src directory is now "clean" - copy it to dst directory.
     if (is_dir($src) && !File::dirIsEmpty($src)) {
-      File::sync($src, $dst);
+      File::copy($src, $dst);
     }
 
     // Special case for .env.local as it may exist.
