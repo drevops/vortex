@@ -354,7 +354,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     #;< !PROVISION_TYPE_PROFILE
-    if: ${{ github.event_name != 'schedule' && !startsWith(github.ref, 'refs/heads/deps/') }}
+    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
     #;> !PROVISION_TYPE_PROFILE
 
     container:
