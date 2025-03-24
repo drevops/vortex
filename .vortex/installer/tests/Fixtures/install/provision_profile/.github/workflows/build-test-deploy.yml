@@ -164,7 +164,7 @@
    deploy:
      runs-on: ubuntu-latest
      needs: build
--    if: ${{ github.event_name != 'schedule' && !startsWith(github.ref, 'refs/heads/deps/') }}
+-    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
  
      container:
        image: drevops/ci-runner:25.1.0
