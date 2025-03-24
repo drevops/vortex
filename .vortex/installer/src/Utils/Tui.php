@@ -52,6 +52,9 @@ class Tui {
     if (!is_callable($action)) {
       throw new \InvalidArgumentException('Action must be callable.');
     }
+
+    $label = static::normalizeText($label);
+
     // @phpstan-ignore-next-line
     $return = spin($action, static::yellow($label));
 
@@ -59,11 +62,11 @@ class Tui {
 
     if ($return === FALSE) {
       $failure = $failure && is_callable($failure) ? $failure() : $failure;
-      static::error($failure ?: 'FAILED');
+      static::error($failure ? static::normalizeText($failure) : 'FAILED');
     }
     else {
       $success = $success && is_callable($success) ? $success($return) : $success;
-      static::ok($success ?: 'OK');
+      static::ok($success ? static::normalizeText($success) : 'OK');
     }
   }
 
@@ -95,7 +98,7 @@ class Tui {
   }
 
   public static function ok(string $text = 'OK'): void {
-    $ok = static::green("✅  " . $text);
+    $ok = static::green(static::normalizeText("✅ " . $text));
     static::note($ok);
     static::note(str_repeat(static::caretUp(), 4));
   }
@@ -104,20 +107,22 @@ class Tui {
     $width = static::terminalWidth();
     $right_offset = 10;
 
-    static::$message = static::yellow(wordwrap($message, $width - $right_offset, PHP_EOL));
-    static::$hint = $hint ? wordwrap($hint, $width - $right_offset, PHP_EOL) : NULL;
+    $message = static::normalizeText($message);
+
+    static::$message = static::blue(wordwrap($message, $width - $right_offset, PHP_EOL));
+    static::$hint = $hint ? wordwrap(static::normalizeText($hint), $width - $right_offset, PHP_EOL) : NULL;
 
     static::note(static::$message);
     static::note(str_repeat(static::caretUp(), 5));
 
     if (static::$hint) {
-      static::note(static::dim(static::$hint));
+      static::note(str_repeat(' ', $sublist_indent) . static::dim(static::$hint));
       static::note(str_repeat(static::caretUp(), 5));
     }
 
     if (is_array($sublist)) {
       foreach ($sublist as $value) {
-        static::note(static::yellow(str_repeat(' ', $sublist_indent) . '- ' . $value));
+        static::note(str_repeat(' ', $sublist_indent) . static::dim($value));
         static::note(str_repeat(static::caretUp(), 5));
       }
     }
@@ -129,6 +134,10 @@ class Tui {
 
   public static function green(string $text): string {
     return sprintf('[32m%s[39m', $text);
+  }
+
+  public static function blue(string $text): string {
+    return sprintf('[34m%s[39m', $text);
   }
 
   public static function purple(string $text): string {
@@ -181,15 +190,49 @@ class Tui {
     $rows = [];
     foreach ($values as $key => $value) {
       if ($value === self::LIST_SECTION_TITLE) {
-        $rows[] = [Tui::cyan(Tui::bold($key))];
+        $rows[] = [Tui::cyan(Tui::bold(static::normalizeText($key)))];
         continue;
       }
 
-      $rows[] = ['  ' . $key, $value];
+      $rows[] = ['  ' . static::normalizeText($key), static::normalizeText($value)];
     }
 
-    intro(PHP_EOL . $title . PHP_EOL);
+    intro(PHP_EOL . static::normalizeText($title) . PHP_EOL);
     table($header, $rows);
+  }
+
+  public static function normalizeText(string $text): string {
+    if (is_null(Strings::utfPos($text))) {
+      return $text;
+    }
+
+    $text = preg_replace('/\s{2,}/', ' ', $text);
+
+    preg_match_all('/\X/u', $text, $matches);
+
+    $utf8_chars = $matches[0];
+    $utf8_chars = array_map(fn($char): string => Strings::utfPos($char) === 0 ? $char . static::utfPadding($char) : $char, $utf8_chars);
+
+    return implode('', $utf8_chars);
+  }
+
+  public static function utfPadding(string $char): string {
+    $padding = '';
+
+    $len = strlen($char);
+    $mblen = mb_strlen($char);
+
+    // @see https://youtrack.jetbrains.com/issue/IJPL-101568/Terminal-display-Python-icon-in-wrong-width
+    if (str_contains((string) getenv('TERMINAL_EMULATOR'), 'JetBrains') && ($mblen == 1 && $len < 4)) {
+      $padding = ' ';
+    }
+
+    if (str_contains((string) getenv('TERM_PROGRAM'), 'Apple_Terminal') && ($mblen > 1 && $len < 8)) {
+      $padding = ' ';
+
+    }
+
+    return $padding;
   }
 
 }
