@@ -1,6 +1,6 @@
 @@ -135,21 +135,6 @@
    redis:
-     image: uselagoon/redis-6:25.2.0
+     image: uselagoon/redis-6:__VERSION__
  
 -  solr:
 -    build:

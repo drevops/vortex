@@ -18,7 +18,6 @@ set -a && . ./.env && set +a
 # Examples:
 # https://github.com/drevops/vortex.git         # Will auto-discover the latest stable tag.
 # https://github.com/drevops/vortex.git@stable  # Will auto-discover the latest stable tag.
-# https://github.com/drevops/vortex.git@1234567 # Will use the commit hash.
 # /local/path/to/vortex
 # /local/path/to/vortex@stable
 # /local/path/to/vortex@ref

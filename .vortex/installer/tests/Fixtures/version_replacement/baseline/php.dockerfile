@@ -10,7 +10,7 @@ FROM ${CLI_IMAGE:-cli} AS cli
 
 # @see https://hub.docker.com/r/uselagoon/php-8.3-fpm/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-fpm
-FROM uselagoon/php-8.3-fpm:__VERSION__
+FROM uselagoon/php-8.3-fpm:25.2.0
 
 RUN apk add --no-cache tzdata
 

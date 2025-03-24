@@ -4,7 +4,7 @@
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/mysql
 #
 # The ARG value will be updated with a value passed from docker-compose.yml
-ARG IMAGE=uselagoon/mysql-8.4:25.2.0
+ARG IMAGE=uselagoon/mysql-8.4:__VERSION__
 
 # hadolint ignore=DL3006
 FROM ${IMAGE}

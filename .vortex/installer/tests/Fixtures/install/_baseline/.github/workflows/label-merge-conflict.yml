@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check if PRs have conflicts
-        uses: eps1lon/actions-label-merge-conflict@v3
+        uses: eps1lon/actions-label-merge-conflict@__VERSION__
         with:
           dirtyLabel: "PR: CONFLICT"
           removeOnDirtyLabel: "Needs review"

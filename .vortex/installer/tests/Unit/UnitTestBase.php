@@ -45,6 +45,7 @@ abstract class UnitTestBase extends UpstreamUnitTestBase {
         File::copyIfExists($baseline . DIRECTORY_SEPARATOR . Index::IGNORECONTENT, self::$tmp . DIRECTORY_SEPARATOR . Index::IGNORECONTENT);
         File::rmdir($baseline);
         File::sync(self::$sut, $baseline);
+        static::replaceVersions($baseline);
         File::copyIfExists(static::$tmp . DIRECTORY_SEPARATOR . Index::IGNORECONTENT, $baseline . DIRECTORY_SEPARATOR . Index::IGNORECONTENT);
       }
       File::copyIfExists(self::$fixtures . DIRECTORY_SEPARATOR . Index::IGNORECONTENT, self::$tmp . DIRECTORY_SEPARATOR . Index::IGNORECONTENT);
@@ -61,6 +62,21 @@ abstract class UnitTestBase extends UpstreamUnitTestBase {
    */
   protected static function locationsFixtures(): string {
     return '.vortex/installer/tests/Fixtures';
+  }
+
+  protected static function replaceVersions(string $directory): void {
+    $regexes = [
+      // composer.json and package.json.
+      '/":\s*"(?:\^|~|>=?|<=?)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?"/' => '": "__VERSION__"',
+      // docker-compose.yml.
+      '/([\w.-]+\/[\w.-]+:)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}__VERSION__',
+      // GHAs.
+      '/([\w.-]+\/[\w.-]+)@(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}@__VERSION__',
+    ];
+
+    foreach ($regexes as $regex => $replace) {
+      File::replaceContentInDir($directory, $regex, $replace);
+    }
   }
 
 }

@@ -16,7 +16,7 @@
 -
    # Chrome container, used for browser testing.
    chrome:
-     image: selenium/standalone-chromium:133.0
+     image: selenium/standalone-chromium:__VERSION__
 @@ -180,8 +168,7 @@
      depends_on:
        - cli

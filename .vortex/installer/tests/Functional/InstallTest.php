@@ -110,6 +110,7 @@ class InstallTest extends FunctionalTestBase {
     $this->assertApplicationSuccessOutputContains($expected_output);
 
     $baseline = File::dir(static::$fixtures . '/../_baseline');
+    static::replaceVersions(static::$sut);
     $this->assertBaselineDiffs($baseline, static::$fixtures, static::$sut);
 
     $this->assertCommon();
