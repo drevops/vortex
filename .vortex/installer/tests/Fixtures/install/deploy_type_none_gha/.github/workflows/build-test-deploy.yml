@@ -8,7 +8,7 @@
 -    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
 -
 -    container:
--      image: drevops/ci-runner:25.1.0
+-      image: drevops/ci-runner:__VERSION__
 -      env:
 -        TZ: Australia/Melbourne
 -        TERM: xterm-256color
@@ -19,7 +19,7 @@
 -        run: echo HOME=/root >> "$GITHUB_ENV" # @see https://github.com/actions/runner/issues/863
 -
 -      - name: Checkout code
--        uses: actions/checkout@v4
+-        uses: actions/checkout@__VERSION__
 -        with:
 -          # Fetch all history for git repository.
 -          fetch-depth: 0
@@ -29,14 +29,14 @@
 -          ref: ${{ github.head_ref || github.ref_name }}
 -
 -      - name: Download exported codebase as an artifact
--        uses: actions/download-artifact@v4
+-        uses: actions/download-artifact@__VERSION__
 -        with:
 -          name: code-artifact
 -          path: "/tmp/workspace/code"
 -
 -      - name: Add SSH private key to the runner
 -        if: ${{ env.VORTEX_DEPLOY_SSH_PRIVATE_KEY != '' }}
--        uses: shimataro/ssh-key-action@v2
+-        uses: shimataro/ssh-key-action@__VERSION__
 -        with:
 -          key: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
 -          known_hosts: ${{ secrets.VORTEX_DEPLOY_SSH_KNOWN_HOSTS }}

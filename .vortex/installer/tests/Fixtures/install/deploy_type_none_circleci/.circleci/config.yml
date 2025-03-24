@@ -40,7 +40,7 @@ aliases:
       # This container has all the necessary tools to run a dockerized environment.
       # @see https://github.com/drevops/ci-runner
       # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags
-      - image: drevops/ci-runner:25.1.0
+      - image: drevops/ci-runner:__VERSION__
         auth:
           username: ${VORTEX_CONTAINER_REGISTRY_USER}
           password: ${VORTEX_CONTAINER_REGISTRY_PASS}
@@ -180,7 +180,7 @@ jobs:
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'
       # Always use fresh base image for the database (if database-in-image storage is used).
-      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:24.4.0
+      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:__VERSION__
       # Deploy container image (if database-in-image storage is used).
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
 
@@ -334,7 +334,7 @@ jobs:
   # Add RENOVATE_TOKEN as an environment variable with GitHub access token in UI.
   deps-updates:
     docker:
-      - image: renovate/renovate:38.55.2
+      - image: renovate/renovate:__VERSION__
         environment:
           RENOVATE_PLATFORM: 'github'
           RENOVATE_AUTODISCOVER: false

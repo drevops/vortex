@@ -1,6 +1,6 @@
 {
-    "name": "star_wars_org/star_wars",
-    "description": "Drupal 11 implementation of star wars for star wars Org",
+    "name": "your_org/your_site",
+    "description": "Drupal 11 implementation of YOURSITE for YOURORG",
     "license": "proprietary",
     "type": "project",
     "require": {

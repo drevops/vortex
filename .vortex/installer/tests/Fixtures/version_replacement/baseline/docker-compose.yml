@@ -7,6 +7,11 @@
 # - Use inline comments containing '###' to have the line removed in CI.
 # - Use inline comments starting with '##' to have the line being automatically
 #   uncommented in CI.
+#; - Comments starting with '#;', '#;<' or '#;>' (like the ones used for the
+#;   current paragraph) are explaining Vortex inner workings and can be
+#;   safely removed for your project. They are automatically removed when
+#;   installing or updating Vortex.
+#;
 # See more about Docker at https://vortex.drevops.com/docker/
 # For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
 
@@ -32,6 +37,9 @@ x-user: &default-user
   user: '1000'
 
 # Environment variables set in all containers during build and runtime.
+#;< HOSTING_LAGOON
+# Note that these variables are not read from here in Lagoon environment.
+#;> HOSTING_LAGOON
 x-environment: &default-environment
   TZ: ${TZ:-Australia/Melbourne}
   # Local development URL.
@@ -61,8 +69,10 @@ x-environment: &default-environment
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
+  #;< SERVICE_REDIS
   # Redis integration flag.
   DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
+  #;> SERVICE_REDIS
 
 # ------------------------------------------------------------------------------
 # Services.
@@ -86,6 +96,12 @@ services:
     # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
     volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
       - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: cli-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+      lagoon.persistent.name: &lagoon-nginx-name nginx-php # Mount the persistent storage of nginx-php pod into this container.
+      lagoon.persistent: &lagoon-persistent-files /app/web/sites/default/files/  # Location where the persistent storage should be mounted.
+    #;> HOSTING_LAGOON
 
   nginx:
     build:
@@ -106,6 +122,13 @@ services:
     networks:
       - default # This is a standard network and is used for all other environments, where requests routing is not required and/or not supported.
       - amazeeio-network ### This network is supported by Pygmy and used to route all requests to host machine locally. Removed in CI.
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: nginx-php-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+      lagoon.name: *lagoon-nginx-name
+      lagoon.persistent: *lagoon-persistent-files
+      lagoon.persistent.class: slow
+    #;> HOSTING_LAGOON
 
   # PHP FPM container. All web requests are going through this container.
   php:
@@ -119,22 +142,40 @@ services:
       <<: *default-environment
     depends_on:
       - cli
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: nginx-php-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+      lagoon.name: *lagoon-nginx-name
+      lagoon.persistent: *lagoon-persistent-files
+      lagoon.persistent.class: slow
+    #;> HOSTING_LAGOON
 
   database:
     build:
       context: .
       dockerfile: .docker/database.dockerfile
       args:
-        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mysql-8.4:__VERSION__}" # Use custom database image (if defined) or fallback to standard database image.
+        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mysql-8.4:25.2.0}" # Use custom database image (if defined) or fallback to standard database image.
     <<: *default-user
     environment:
       <<: *default-environment
     ports:
       - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: mariadb # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+    #;> HOSTING_LAGOON
 
+  #;< SERVICE_REDIS
   redis:
-    image: uselagoon/redis-6:__VERSION__
+    image: uselagoon/redis-6:25.2.0
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+    #;> HOSTING_LAGOON
+  #;> SERVICE_REDIS
 
+  #;< SERVICE_SOLR
   solr:
     build:
       context: .
@@ -149,7 +190,13 @@ services:
       - "8983" # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
     volumes:
       - solr:/var/solr
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: solr # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+    #;> HOSTING_LAGOON
+  #;> SERVICE_SOLR
 
+  #;< SERVICE_CLAMAV
   clamav:
     build:
       context: .
@@ -161,10 +208,17 @@ services:
       << : *default-environment
     networks:
       - default
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: basic
+      lagoon.service.port: 3310 # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+      lagoon.autogeneratedroute: false
+    #;> HOSTING_LAGOON
+  #;> SERVICE_CLAMAV
 
   # Chrome container, used for browser testing.
   chrome:
-    image: selenium/standalone-chromium:__VERSION__
+    image: selenium/standalone-chromium:133.0
     ports:
       - "7900" # Find port on host with `docker compose port chrome 7900`.
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
@@ -173,15 +227,25 @@ services:
       <<: *default-environment
     depends_on:
       - cli
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: none # Do not deploy in Lagoon.
+    #;> HOSTING_LAGOON
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:__VERSION__
+    image: drevops/docker-wait-for-dependencies:25.1.1
     depends_on:
       - cli
       - database
+      #;< SERVICE_CLAMAV
       - clamav
+      #;> SERVICE_CLAMAV
     command: database:3306 clamav:3310
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: none # Do not deploy in Lagoon.
+    #;> HOSTING_LAGOON
 
 networks:           ### Use external networks locally. Automatically removed in CI.
   amazeeio-network: ### Automatically removed in CI.
@@ -190,4 +254,6 @@ networks:           ### Use external networks locally. Automatically removed in 
 volumes:
   app: {}
   files: {}
+  #;< SERVICE_SOLR
   solr: {}
+  #;> SERVICE_SOLR
