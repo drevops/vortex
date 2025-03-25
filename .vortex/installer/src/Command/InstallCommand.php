@@ -131,7 +131,7 @@ EOF
       );
 
       Tui::action(
-        label: '🥣️Preparing destination directory',
+        label: '🥣 Preparing destination directory',
         success: 'Destination directory is ready',
         action: fn(): array => $this->prepareDestination(),
       );
@@ -246,7 +246,7 @@ EOF
 
     $dst = $this->config->getDst();
     if (!is_dir($dst)) {
-      File::dir($dst, TRUE);
+      $dst = File::dir($dst, TRUE);
       $messages[] = sprintf('Created directory "%s".', $dst);
     }
 
@@ -329,15 +329,16 @@ EOF
 
     $messages = [];
     if (!file_exists($data_dir)) {
-      File::dir($data_dir, TRUE);
-      $messages[] = sprintf('Created directory "%s".', $data_dir);
+      $data_dir = File::dir($data_dir, TRUE);
+      $messages[] = sprintf('Created data directory "%s".', $data_dir);
     }
     $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file);
 
     if (passthru($command) === FALSE) {
       throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
     }
-    $messages[] = sprintf('No database dump file was found in "%s" directory. Downloaded DEMO database from %s.', $data_dir, $url);
+    $messages[] = sprintf('No database dump file was found in "%s" directory.', $data_dir);
+    $messages[] = sprintf('Downloaded demo database from %s.', $url);
 
     return $messages;
   }
@@ -346,12 +347,12 @@ EOF
     $logo = <<<EOT
 -------------------------------------------------------------------------------
 
-              ██╗   ██╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗
-              ██║   ██║██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝
-              ██║   ██║██║   ██║██████╔╝   ██║   █████╗   ╚███╔╝
-              ╚██╗ ██╔╝██║   ██║██╔══██╗   ██║   ██╔══╝   ██╔██╗
-               ╚████╔╝ ╚██████╔╝██║  ██║   ██║   ███████╗██╔╝ ██╗
-                ╚═══╝   ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+            ██╗   ██╗  ██████╗  ██████╗  ████████╗ ███████╗ ██╗  ██╗
+            ██║   ██║ ██╔═══██╗ ██╔══██╗ ╚══██╔══╝ ██╔════╝ ╚██╗██╔╝
+            ██║   ██║ ██║   ██║ ██████╔╝    ██║    █████╗    ╚███╔╝
+            ╚██╗ ██╔╝ ██║   ██║ ██╔══██╗    ██║    ██╔══╝    ██╔██╗
+             ╚████╔╝  ╚██████╔╝ ██║  ██║    ██║    ███████╗ ██╔╝ ██╗
+              ╚═══╝    ╚═════╝  ╚═╝  ╚═╝    ╚═╝    ╚══════╝ ╚═╝  ╚═╝
 
                            Drupal project template
 
@@ -408,7 +409,7 @@ EOT;
     $output = '';
     if ($this->config->isVortexProject()) {
       $title = 'Finished updating Vortex 🚀🚀🚀';
-      $output .= 'Please review changes and commit required files.';
+      $output .= 'Please review the changes and commit the required files.';
     }
     else {
       $title = 'Finished installing Vortex 🚀🚀🚀';

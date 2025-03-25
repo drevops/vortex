@@ -34,7 +34,7 @@ class TuiTest extends UnitTestBase {
 
     $expected_output = is_array($expected_output) ? $expected_output : [$expected_output];
     foreach ($expected_output as $expected) {
-      $this->assertStringContainsString($expected, $actual);
+      $this->assertStringContainsString(Tui::normalizeText($expected), $actual);
     }
   }
 
@@ -50,7 +50,7 @@ class TuiTest extends UnitTestBase {
         'hint' => NULL,
         'success' => NULL,
         'failure' => NULL,
-        'expected_output' => '✅  OK',
+        'expected_output' => '✅ OK',
       ],
 
       'successful action with string messages' => [
@@ -60,7 +60,7 @@ class TuiTest extends UnitTestBase {
         'success' => 'Completed successfully',
         'failure' => 'Failed',
         'expected_output' => [
-          '✅  Completed successfully',
+          '✅ Completed successfully',
           'This is a hint',
         ],
       ],
@@ -71,7 +71,7 @@ class TuiTest extends UnitTestBase {
         'hint' => 'This is a hint',
         'success' => 'Completed successfully',
         'failure' => 'Failed',
-        'expected_output' => '✅  Completed successfully',
+        'expected_output' => '✅ Completed successfully',
       ],
 
       'successful action with closures' => [
@@ -81,7 +81,7 @@ class TuiTest extends UnitTestBase {
         'success' => fn($result): string => 'Success: ' . $result,
         'failure' => 'Failed',
         'expected_output' => [
-          '✅  Success: Done',
+          '✅ Success: Done',
           'Processing dynamically',
         ],
       ],
@@ -93,9 +93,9 @@ class TuiTest extends UnitTestBase {
         'success' => 'Processed items',
         'failure' => 'Processing failed',
         'expected_output' => [
-          '✅  Processed items',
-          '- item1',
-          '- item2',
+          '✅ Processed items',
+          'item1',
+          'item2',
         ],
       ],
 
