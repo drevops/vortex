@@ -221,15 +221,15 @@ jobs:
             v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
       #;> !PROVISION_TYPE_PROFILE
 
+      - name: Login to container registry
+        run: ./scripts/vortex/login-container-registry.sh
+
       - name: Lint Dockerfiles with Hadolint
         run: |
           find .docker -name 'Dockerfile' -o -name '*.dockerfile' | while read -r file; do
             echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint
           done
         continue-on-error: ${{ vars.VORTEX_CI_HADOLINT_IGNORE_FAILURE == '1' }}
-
-      - name: Login to container registry
-        run: ./scripts/vortex/login-container-registry.sh
 
       - name: Build stack
         run: docker compose up -d

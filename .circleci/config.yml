@@ -237,18 +237,18 @@ jobs:
             - v25.3.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !PROVISION_TYPE_PROFILE
 
+      - *step_setup_remote_docker
+
+      - run:
+          name: Login to container registry
+          command: ./scripts/vortex/login-container-registry.sh
+
       - run:
           name: Lint Dockerfiles with Hadolint
           command: |
             for file in $(find .docker -name 'Dockerfile' -o -name '*.dockerfile'); do
               echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${VORTEX_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
             done
-
-      - *step_setup_remote_docker
-
-      - run:
-          name: Login to container registry
-          command: ./scripts/vortex/login-container-registry.sh
 
       - run:
           name: Build stack
