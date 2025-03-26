@@ -38,11 +38,17 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Adjust git config to allow running git-related tests
+        run: git config --global safe.directory '*'
+
       - name: Process codebase to run in CI
         run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
 
-      - name: Adjust git config to allow running git-related tests
-        run: git config --global safe.directory '*'
+      - name: Login to container registry
+        run: ./scripts/vortex/login-container-registry.sh
+        env:
+          VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+          VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
 
       - name: Generate test SSH key pair used for deployment tests
         run: |
@@ -209,6 +215,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Login to container registry
+        run: ./scripts/vortex/login-container-registry.sh
+        env:
+          VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+          VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
 
       - name: Check coding standards with yamllint
         run: yamllint --config-file .vortex/tests/.yamllint-for-gha.yml .github/workflows
