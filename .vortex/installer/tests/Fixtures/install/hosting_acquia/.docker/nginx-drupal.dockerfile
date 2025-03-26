@@ -1,7 +1,7 @@
-@@ -12,7 +12,7 @@
+@@ -14,7 +14,7 @@
  FROM uselagoon/nginx-drupal:__VERSION__
  
- # Webroot is used for Nginx docroot configuration.
+ # Webroot is used for Nginx web root configuration.
 -ARG WEBROOT=web
 +ARG WEBROOT=docroot
  ENV WEBROOT=${WEBROOT}

@@ -11,7 +11,7 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -55,8 +55,8 @@
+@@ -56,8 +56,8 @@
    # Path to configuration files.
    DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
    # Drupal file paths.

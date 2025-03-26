@@ -6,9 +6,12 @@ commands:
   install:
     name: Install test dependencies.
     cmd: |
-      [ ! -d ./tests/node_modules ] && npm --prefix tests ci
-      [ ! -d ./docs/node_modules ] && npm --prefix docs ci
-      [ ! -d ./installer/vendor ] && composer --working-dir installer install
+      [ -d ./tests/node_modules ] && rm -rf ./tests/node_modules
+      npm --prefix tests ci
+      [ -d ./docs/node_modules ] && rm -rf ./docs/node_modules
+      npm --prefix docs ci
+      [ -d ./installer/vendor ] && rm -rf ./installer/vendor
+      composer --working-dir installer install
 
   docs:
     name: Start documentation server.
@@ -79,8 +82,14 @@ commands:
   # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
   update-fixtures:
     cmd: |
+      ahoy install
+      ahoy update-fixtures-no-install
+
+  update-fixtures-no-install:
+    cmd: |
       UPDATE_FIXTURES=1 tests/node_modules/.bin/bats tests/bats/docker-compose.bats \
       || UPDATE_FIXTURES=1 tests/node_modules/.bin/bats tests/bats/docker-compose.bats
+      cd installer && XDEBUG_MODE=off UPDATE_FIXTURES=1 composer test || XDEBUG_MODE=off composer test && cd -
 
   update-docs:
     usage: Update the documentation.
