@@ -1,3 +1,3 @@
-This directory contains additional configuration for every container service.
+This directory contains additional configuration for each container service.
 
-Place your custom configuration into the directory with the service name.
+Place your custom configuration in the directory named after the service.

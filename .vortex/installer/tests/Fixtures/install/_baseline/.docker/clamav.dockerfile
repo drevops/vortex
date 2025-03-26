@@ -9,6 +9,7 @@
 #
 # @see https://hub.docker.com/r/uselagoon/commons/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/commons
+
 FROM uselagoon/commons:__VERSION__ AS commons
 
 FROM clamav/clamav:__VERSION__
