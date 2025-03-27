@@ -27,7 +27,7 @@ docroot/themes/custom/star_wars/js
 docroot/themes/custom/star_wars/scss
 docroot/themes/custom/star_wars/Gruntfile.js
 docroot/themes/custom/star_wars/package.json
-docroot/themes/custom/star_wars/package-lock.json
+docroot/themes/custom/star_wars/yarn.lock
 docroot/themes/custom/star_wars/.eslintrc.json
 docroot/themes/custom/star_wars/node_modules
 

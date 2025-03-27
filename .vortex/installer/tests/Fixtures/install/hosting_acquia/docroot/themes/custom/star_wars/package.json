@@ -2,7 +2,7 @@
   "name": "star_wars",
   "version": "__VERSION__",
   "private": true,
-  "description": "NPM dependencies for star wars project",
+  "description": "NodeJS dependencies for star wars project",
   "devDependencies": {
     "@lodder/grunt-postcss": "__VERSION__",
     "autoprefixer": "__VERSION__",

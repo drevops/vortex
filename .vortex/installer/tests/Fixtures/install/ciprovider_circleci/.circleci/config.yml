@@ -273,8 +273,8 @@ jobs:
           command: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
-          name: Lint code with NPM linters
-          command: docker compose exec -T cli bash -c "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${VORTEX_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+          name: Lint code with NodeJS linters
+          command: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Provision site

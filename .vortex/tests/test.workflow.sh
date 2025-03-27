@@ -24,7 +24,7 @@ docker network create amazeeio-network 2>/dev/null || true
 
 index="${TEST_NODE_INDEX:-*}"
 echo "==> Run workflow functional tests (${index})."
-[ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
+[ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && yarn --cwd="${TEST_DIR}" install --frozen-lockfile
 
 bats() {
   pushd "${ROOT_DIR}" >/dev/null || exit 1

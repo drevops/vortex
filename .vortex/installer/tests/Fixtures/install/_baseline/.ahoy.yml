@@ -151,7 +151,7 @@ commands:
 
   fei:
     usage: Install front-end assets.
-    cmd: ahoy cli "npm --prefix ${WEBROOT}/themes/custom/${DRUPAL_THEME} install"
+    cmd: ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install"
 
   fe:
     usage: Build front-end assets.

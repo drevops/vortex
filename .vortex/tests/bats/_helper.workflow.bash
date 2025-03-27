@@ -99,7 +99,7 @@ assert_ahoy_build() {
 
   # Assert that lock files were created.
   assert_file_exists "composer.lock"
-  assert_file_exists "${webroot}/themes/custom/star_wars/package-lock.json"
+  assert_file_exists "${webroot}/themes/custom/star_wars/yarn.lock"
 
   # Assert that database file preserved after build if existed before.
   if [ "${db_file_exists:-}" = "1" ]; then
@@ -150,7 +150,7 @@ assert_gitignore() {
   assert_git_file_is_tracked "${webroot}/update.php"
   # Assert that lock files were added to the git repository.
   assert_git_file_is_tracked "composer.lock"
-  assert_git_file_is_tracked "${webroot}/themes/custom/star_wars/package-lock.json"
+  assert_git_file_is_tracked "${webroot}/themes/custom/star_wars/yarn.lock"
   assert_git_file_is_not_tracked ".data/db.sql"
   # Assert that local settings were not added to the git repository.
   assert_git_file_is_not_tracked "${webroot}/sites/default/settings.local.php"
