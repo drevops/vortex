@@ -70,6 +70,7 @@ abstract class UnitTestBase extends UpstreamUnitTestBase {
       '/":\s*"(?:\^|~|>=?|<=?)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?"/' => '": "__VERSION__"',
       // docker-compose.yml.
       '/([\w.-]+\/[\w.-]+:)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}__VERSION__',
+      '/([\w.-]+\/[\w.-]+:)canary$/m' => '${1}__VERSION__',
       // GHAs.
       '/([\w.-]+\/[\w.-]+)@(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}@__VERSION__',
     ];
