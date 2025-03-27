@@ -2346,10 +2346,10 @@
     cssesc "^3.0.0"
     immediate "^3.2.3"
 
-"@easyops-cn/docusaurus-search-local@^0.40.1":
-  version "0.40.1"
-  resolved "https://registry.yarnpkg.com/@easyops-cn/docusaurus-search-local/-/docusaurus-search-local-0.40.1.tgz#e3dc30f6ceb7a6b41f09e7e198d70274d3951b40"
-  integrity sha512-4HMFZMpKKdd5qq1nFB8cvrAkgzZ1kNxphVciI64YHtmDYGIthVGZVG6+Ci7AAhzCR+ixLJkYwtVekvuMLjr2ZQ==
+"@easyops-cn/docusaurus-search-local@^0.49.1":
+  version "0.49.1"
+  resolved "https://registry.yarnpkg.com/@easyops-cn/docusaurus-search-local/-/docusaurus-search-local-0.49.1.tgz#c558cf21f42e7ae180b402ecf3807c07e1954f3e"
+  integrity sha512-UXt4G/5lLwxmd2NmX5CL5BRtPAIG09UHIowu4Q8cvrzcBE3O0sWAAq/NmF0SMyP8EmxHWWOyPJi8F2cx/rjSVg==
   dependencies:
     "@docusaurus/plugin-content-docs" "^2 || ^3"
     "@docusaurus/theme-translations" "^2 || ^3"
@@ -2358,8 +2358,9 @@
     "@docusaurus/utils-validation" "^2 || ^3"
     "@easyops-cn/autocomplete.js" "^0.38.1"
     "@node-rs/jieba" "^1.6.0"
-    cheerio "^1.0.0-rc.3"
-    clsx "^1.1.1"
+    cheerio "^1.0.0"
+    clsx "^2.1.1"
+    comlink "^4.4.2"
     debug "^4.2.0"
     fs-extra "^10.0.0"
     klaw-sync "^6.0.0"
@@ -4058,7 +4059,7 @@ cheerio@1.0.0-rc.12:
     parse5 "^7.0.0"
     parse5-htmlparser2-tree-adapter "^7.0.0"
 
-cheerio@^1.0.0-rc.3:
+cheerio@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-1.0.0.tgz#1ede4895a82f26e8af71009f961a9b8cb60d6a81"
   integrity sha512-quS9HgjQpdaXOvsZz82Oz7uxtXiy6UIsIQcpBj7HRw2M63Skasm9qlDocAM7jNuaxdhpPU7c4kJN+gA5MCu4ww==
@@ -4162,12 +4163,7 @@ clone-deep@^4.0.1:
     kind-of "^6.0.2"
     shallow-clone "^3.0.0"
 
-clsx@^1.1.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.2.1.tgz#0ddc4a20a549b59c93a4116bb26f5294ca17dc12"
-  integrity sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==
-
-clsx@^2.0.0:
+clsx@^2.0.0, clsx@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-2.1.1.tgz#eed397c9fd8bd882bfb18deab7102049a2f32999"
   integrity sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==
@@ -4203,6 +4199,11 @@ combine-promises@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/combine-promises/-/combine-promises-1.2.0.tgz#5f2e68451862acf85761ded4d9e2af7769c2ca6a"
   integrity sha512-VcQB1ziGD0NXrhKxiwyNbCDmRzs/OShMs2GqW2DlU2A/Sd0nQxE1oWDAE5O0ygSx5mgQOn9eIFh7yKPgFRVkPQ==
+
+comlink@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/comlink/-/comlink-4.4.2.tgz#cbbcd82742fbebc06489c28a183eedc5c60a2bca"
+  integrity sha512-OxGdvBmJuNKSCMO4NTl1L47VRp6xn2wG4F/2hYzB6tiCb709otOxtEYCSvK80PtjODfXXZu8ds+Nw5kVCjqd2g==
 
 comma-separated-tokens@^2.0.0:
   version "2.0.3"
