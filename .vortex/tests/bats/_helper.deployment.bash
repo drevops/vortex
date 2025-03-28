@@ -54,7 +54,7 @@ assert_deployment_files_present() {
   assert_file_exists "${webroot}/themes/custom/star_wars/star_wars.theme"
   assert_file_not_exists "${webroot}/themes/custom/star_wars/Gruntfile.js"
   assert_file_not_exists "${webroot}/themes/custom/star_wars/package.json"
-  assert_file_not_exists "${webroot}/themes/custom/star_wars/package-lock.json"
+  assert_file_not_exists "${webroot}/themes/custom/star_wars/yarn.lock"
   assert_file_not_exists "${webroot}/themes/custom/star_wars/.eslintrc.json"
   assert_dir_not_exists "${webroot}/themes/custom/star_wars/node_modules"
 

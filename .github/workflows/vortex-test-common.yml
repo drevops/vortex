@@ -59,8 +59,11 @@ jobs:
           export SSH_AUTH_SOCK=$(grep SSH_AUTH_SOCK ssh-agent-output | cut -d';' -f1 | cut -d= -f2)
           echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
         working-directory: .vortex/tests
 
       - name: Lint code
@@ -120,8 +123,11 @@ jobs:
       - name: Adjust git config to allow running git-related tests
         run: git config --global safe.directory '*'
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
         working-directory: .vortex/tests
 
       - name: Run tests
@@ -172,6 +178,9 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
       - name: Adjust git config to allow running git-related tests
         run: git config --global safe.directory '*'
 
@@ -185,7 +194,7 @@ jobs:
           echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
         working-directory: .vortex/tests
 
       - name: Run tests

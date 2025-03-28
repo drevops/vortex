@@ -30,7 +30,7 @@ setup() {
   # with the variable explicitly set.
   # LCOV_EXCL_START
   if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
-    export DOCKER_DEFAULT_PLATFORM=linux/amd64
+    export DOCKER_DEFAULT_PLATFORM="${DOCKER_DEFAULT_PLATFORM:-linux/amd64}"
   fi
 
   if [ -n "${DOCKER_DEFAULT_PLATFORM:-}" ]; then
@@ -1337,7 +1337,7 @@ sync_to_host() {
   local dst="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"${t}" && set -a && . "./.env" && set +a && . "${t}" && rm "${t}" && unset t
-  [ "${VORTEX_DEV_VOLUMES_MOUNTED}" = "1" ] && return
+  [ "${VORTEX_DEV_VOLUMES_MOUNTED-}" = "1" ] && return
   docker compose cp -L cli:/app/. "${dst}"
 }
 
@@ -1346,7 +1346,7 @@ sync_to_container() {
   local src="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"${t}" && set -a && . "./.env" && set +a && . "${t}" && rm "${t}" && unset t
-  [ "${VORTEX_DEV_VOLUMES_MOUNTED}" = "1" ] && return
+  [ "${VORTEX_DEV_VOLUMES_MOUNTED-}" = "1" ] && return
   docker compose cp -L "${src}" cli:/app/
 }
 

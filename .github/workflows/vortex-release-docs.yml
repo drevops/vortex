@@ -108,11 +108,11 @@ jobs:
         working-directory: .vortex/docs
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install --frozen-lockfile
         working-directory: .vortex/docs
 
       - name: Build documentation site
-        run: npm run build
+        run: yarn run build
         working-directory: .vortex/docs
 
       - name: Upload documentation site

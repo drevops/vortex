@@ -43,9 +43,3 @@ DRUPAL_SITE_NAME="${VORTEX_PROJECT}"
 # Drupal site email.
 # Used only when installing from profile.
 DRUPAL_SITE_EMAIL="webmaster@your-site-domain.example"
-
-# Print output from Composer install.
-VORTEX_COMPOSER_VERBOSE=1
-
-# Print output from NPM install.
-VORTEX_NPM_VERBOSE=0

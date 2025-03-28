@@ -2,7 +2,7 @@
   "name": "the_new_hope",
   "version": "__VERSION__",
   "private": true,
-  "description": "NPM dependencies for New hope project",
+  "description": "NodeJS dependencies for New hope project",
   "devDependencies": {
     "@lodder/grunt-postcss": "__VERSION__",
     "autoprefixer": "__VERSION__",
