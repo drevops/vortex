@@ -71,7 +71,7 @@ load _helper.workflow.bash
 
   # Copy DB into container for the cases when the volumes are not mounted.
   # This will not be a case locally.
-  if [ "${VORTEX_DEV_VOLUMES_MOUNTED}" != "1" ]; then
+  if [ "${VORTEX_DEV_VOLUMES_MOUNTED-}" != "1" ]; then
     if [ -f .data/db.sql ]; then
       docker compose exec cli mkdir -p .data
       docker compose cp -L .data/db.sql cli:/app/.data/db.sql

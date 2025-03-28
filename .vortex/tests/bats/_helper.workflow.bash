@@ -10,7 +10,7 @@ prepare_sut() {
 
   VORTEX_DEV_VOLUMES_MOUNTED=${VORTEX_DEV_VOLUMES_MOUNTED:-1}
 
-  assert_not_empty "${VORTEX_DEV_VOLUMES_MOUNTED}"
+  assert_not_empty "${VORTEX_DEV_VOLUMES_MOUNTED-}"
 
   assert_files_not_present_common "" "" "" "${webroot}"
 
