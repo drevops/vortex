@@ -236,7 +236,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:25.1.1
+    image: drevops/docker-wait-for-dependencies:25.3.0
     depends_on:
       - cli
       - database
