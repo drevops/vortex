@@ -1,0 +1,8 @@
+@@ -52,7 +52,6 @@
+   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
+   # Pass-through 'CI' variable used to identify the CI environment.
+   CI: ${CI:-}
+-  DRUPAL_THEME: ${DRUPAL_THEME:-}
+   # Path to configuration files.
+   DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
+   # Drupal file paths.

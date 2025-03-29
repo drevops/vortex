@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:25.1.0
+      image: drevops/ci-runner:25.3.0
 
       env:
         TZ: Australia/Melbourne
@@ -163,7 +163,7 @@ jobs:
       fail-fast: false
 
     container:
-      image: drevops/ci-runner:25.1.0
+      image: drevops/ci-runner:25.3.0
 
       env:
         TZ: Australia/Melbourne
@@ -221,15 +221,15 @@ jobs:
             v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
       #;> !PROVISION_TYPE_PROFILE
 
+      - name: Login to container registry
+        run: ./scripts/vortex/login-container-registry.sh
+
       - name: Lint Dockerfiles with Hadolint
         run: |
           find .docker -name 'Dockerfile' -o -name '*.dockerfile' | while read -r file; do
             echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint
           done
         continue-on-error: ${{ vars.VORTEX_CI_HADOLINT_IGNORE_FAILURE == '1' }}
-
-      - name: Login to container registry
-        run: ./scripts/vortex/login-container-registry.sh
 
       - name: Build stack
         run: docker compose up -d
@@ -275,9 +275,11 @@ jobs:
         run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
         continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
 
-      - name: Lint code with NPM linters
-        run: docker compose exec -T cli bash -c "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
-        continue-on-error: ${{ vars.VORTEX_CI_NPM_LINT_IGNORE_FAILURE == '1' }}
+      #;< DRUPAL_THEME
+      - name: Lint code with NodeJS linters
+        run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
+        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
+      #;> DRUPAL_THEME
 
       - name: Provision site
         run: |
@@ -352,11 +354,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     #;< !PROVISION_TYPE_PROFILE
-    if: ${{ github.event_name != 'schedule' && !startsWith(github.ref, 'refs/heads/deps/') }}
+    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
     #;> !PROVISION_TYPE_PROFILE
 
     container:
-      image: drevops/ci-runner:25.1.0
+      image: drevops/ci-runner:25.3.0
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color

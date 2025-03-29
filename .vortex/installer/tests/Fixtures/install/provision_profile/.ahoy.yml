@@ -1,0 +1,12 @@
+@@ -115,11 +115,6 @@
+     # Unblock user 1 and generate a one time login link.
+     cmd: ahoy cli ./scripts/vortex/login.sh
+ 
+-  download-db:
+-    usage: Download database.
+-    aliases: ['fetch-db']
+-    cmd: ./scripts/vortex/download-db.sh
+-
+   reload-db:
+     usage: Reload the database container using local database image.
+     cmd: |

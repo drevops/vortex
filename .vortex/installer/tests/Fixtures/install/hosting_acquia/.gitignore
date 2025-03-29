@@ -1,0 +1,77 @@
+@@ -5,45 +5,45 @@
+ # To add an override file, explicitly un-ignore it below and add to the
+ # repository (useful for robots.txt and .htaccess file overrides).
+ 
+-web/*
+-!web/sites/
+-web/sites/*
+-!web/modules/
+-web/modules/*
+-!web/modules/custom/
+-!web/themes/
+-web/themes/*
+-!web/themes/custom/
+-!web/profiles/
+-web/profiles/*
+-!web/profiles/custom/
+-!web/sites/default/
+-web/sites/default/*
+-!web/sites/default/settings.php
+-!web/sites/default/services.yml
+-!web/sites/default/default.settings.local.php
+-!web/sites/default/default.services.local.yml
+-!web/sites/default/includes
++docroot/*
++!docroot/sites/
++docroot/sites/*
++!docroot/modules/
++docroot/modules/*
++!docroot/modules/custom/
++!docroot/themes/
++docroot/themes/*
++!docroot/themes/custom/
++!docroot/profiles/
++docroot/profiles/*
++!docroot/profiles/custom/
++!docroot/sites/default/
++docroot/sites/default/*
++!docroot/sites/default/settings.php
++!docroot/sites/default/services.yml
++!docroot/sites/default/default.settings.local.php
++!docroot/sites/default/default.services.local.yml
++!docroot/sites/default/includes
+ # Preserve default settings files to use them in Functional test.
+-!web/sites/default/default.settings.php
+-!web/sites/default/default.services.yml
++!docroot/sites/default/default.settings.php
++!docroot/sites/default/default.services.yml
+ # Whitelist Drupal Scaffold files. @see https://github.com/drupal-composer/drupal-scaffold#limitation
+-!web/.editorconfig
+-!web/.eslintignore
+-!web/.gitattributes
+-!web/.htaccess
+-!web/autoload.php
+-!web/index.php
+-!web/robots.txt
+-!web/update.php
++!docroot/.editorconfig
++!docroot/.eslintignore
++!docroot/.gitattributes
++!docroot/.htaccess
++!docroot/autoload.php
++!docroot/index.php
++!docroot/robots.txt
++!docroot/update.php
+ 
+ # Ignore dependencies cache files.
+ /vendor
+ /node_modules
+-web/themes/**/node_modules
++docroot/themes/**/node_modules
+ 
+ # Assets.
+-web/themes/**/build
++docroot/themes/**/build
+ .data
+ .logs
+ .phpunit.cache

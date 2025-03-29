@@ -1,0 +1,59 @@
+@@ -334,58 +334,3 @@
+         with:
+           detached: true
+ 
+-  deploy:
+-    runs-on: ubuntu-latest
+-    needs: build
+-    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
+-
+-    container:
+-      image: drevops/ci-runner:__VERSION__
+-      env:
+-        TZ: Australia/Melbourne
+-        TERM: xterm-256color
+-        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+-
+-    steps:
+-      - name: Preserve $HOME set in the container
+-        run: echo HOME=/root >> "$GITHUB_ENV" # @see https://github.com/actions/runner/issues/863
+-
+-      - name: Checkout code
+-        uses: actions/checkout@__VERSION__
+-        with:
+-          # Fetch all history for git repository.
+-          fetch-depth: 0
+-          # Do not persist credentials after checkout
+-          # to allow using the custom credentials to push to a remote repo.
+-          persist-credentials: false
+-          ref: ${{ github.head_ref || github.ref_name }}
+-
+-      - name: Download exported codebase as an artifact
+-        uses: actions/download-artifact@__VERSION__
+-        with:
+-          name: code-artifact
+-          path: "/tmp/workspace/code"
+-
+-      - name: Add SSH private key to the runner
+-        if: ${{ env.VORTEX_DEPLOY_SSH_PRIVATE_KEY != '' }}
+-        uses: shimataro/ssh-key-action@__VERSION__
+-        with:
+-          key: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
+-          known_hosts: ${{ secrets.VORTEX_DEPLOY_SSH_KNOWN_HOSTS }}
+-        env:
+-          VORTEX_DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
+-
+-      - name: Deploy
+-        run: ./scripts/vortex/deploy.sh
+-        env:
+-          # Get branch for PR from 'head_ref' or for branch from 'ref_name'.
+-          VORTEX_DEPLOY_BRANCH: ${{ github.head_ref || github.ref_name }}
+-          VORTEX_DEPLOY_PR: ${{ github.event.number }}
+-          VORTEX_DEPLOY_PR_HEAD: ${{ github.event.pull_request.head.sha }}
+-          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
+-          VORTEX_DEPLOY_ARTIFACT_ROOT: ${{ github.workspace }}
+-          VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE }}
+-          VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL }}
+-          VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME }}
+-          VORTEX_DEPLOY_WEBHOOK_URL: ${{ vars.VORTEX_DEPLOY_WEBHOOK_URL }}
+-        timeout-minutes: 30

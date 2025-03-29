@@ -390,9 +390,9 @@ Default value: `UNDEFINED`
 
 Defined in: `CI config`
 
-### `VORTEX_CI_NPM_LINT_IGNORE_FAILURE`
+### `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`
 
-Ignore NPM linters failures.
+Ignore NodeJS linters failures.
 
 Default value: `UNDEFINED`
 
@@ -453,14 +453,6 @@ Ignore Twig CS Fixer failures.
 Default value: `UNDEFINED`
 
 Defined in: `CI config`
-
-### `VORTEX_COMPOSER_VERBOSE`
-
-Print output from Composer install.
-
-Default value: `1`
-
-Defined in: `.env`
 
 ### `VORTEX_CONTAINER_REGISTRY`
 
@@ -1107,7 +1099,7 @@ Defined in: `scripts/vortex/update-vortex.sh`
 
 Vortex remote or local repo URI, optionally including reference.
 
-Examples:<br/>https://github.com/drevops/vortex.git         # Will auto-discover the latest stable tag.<br/>https://github.com/drevops/vortex.git@stable  # Will auto-discover the latest stable tag.<br/>https://github.com/drevops/vortex.git@`1234567` # Will use the commit hash.<br/>/local/path/to/vortex<br/>/local/path/to/vortex@stable<br/>/local/path/to/vortex@ref
+Examples:<br/>https://github.com/drevops/vortex.git         # Will auto-discover the latest stable tag.<br/>https://github.com/drevops/vortex.git@stable  # Will auto-discover the latest stable tag.<br/>/local/path/to/vortex<br/>/local/path/to/vortex@stable<br/>/local/path/to/vortex@ref
 
 Default value: `UNDEFINED`
 
@@ -1534,14 +1526,6 @@ Webhook URL.
 Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/notify-webhook.sh`
-
-### `VORTEX_NPM_VERBOSE`
-
-Print output from NPM install.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
 
 ### `VORTEX_PROJECT`
 

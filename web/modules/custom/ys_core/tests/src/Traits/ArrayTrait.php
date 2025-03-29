@@ -8,6 +8,8 @@ namespace Drupal\Tests\ys_core\Traits;
  * Trait ArrayTrait.
  *
  * Provides methods for working with arrays.
+ *
+ * @codeCoverageIgnore
  */
 trait ArrayTrait {
 

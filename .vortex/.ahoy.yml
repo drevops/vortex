@@ -6,27 +6,30 @@ commands:
   install:
     name: Install test dependencies.
     cmd: |
-      [ ! -d ./tests/node_modules ] && npm --prefix tests ci
-      [ ! -d ./docs/node_modules ] && npm --prefix docs ci
-      [ ! -d ./installer/vendor ] && composer --working-dir installer install
+      [ -d ./tests/node_modules ] && rm -rf ./tests/node_modules
+      yarn --cwd=tests install --frozen-lockfile
+      [ -d ./docs/node_modules ] && rm -rf ./docs/node_modules
+      yarn --cwd=docs install --frozen-lockfile
+      [ -d ./installer/vendor ] && rm -rf ./installer/vendor
+      composer --working-dir installer install
 
   docs:
     name: Start documentation server.
     cmd: |
-      [ ! -d ./docs/node_modules ] && npm --prefix docs ci
-      npm --prefix docs run start
+      [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
+      yarn --cwd=docs run start
 
   docs-serve:
     name: Serve built documentation.
     cmd: |
-      [ ! -d ./docs/node_modules ] && npm --prefix docs ci
-      npm --prefix docs run serve
+      [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
+      yarn --cwd=docs run serve
 
   build-docs:
     name: Build documentation.
     cmd: |
-      [ ! -d ./docs/node_modules ] && npm --prefix docs ci
-      npm --prefix docs run build
+      [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
+      yarn --cwd=docs run build
 
   build-installer:
     name: Build documentation.
@@ -59,7 +62,7 @@ commands:
 
   test-bats:
     cmd: |
-      [ ! -d tests/node_modules ] && npm --prefix tests ci
+      [ ! -d tests/node_modules ] && yarn --cwd=tests install --frozen-lockfile
       tests/node_modules/.bin/bats --no-tempdir-cleanup --tap "$@"
 
   test-common:
@@ -73,20 +76,26 @@ commands:
 
   test-docs:
     cmd: |
-      [ ! -d ./docs/node_modules ] && npm --prefix=./docs ci
-      npm --prefix=./docs run test
+      [ ! -d ./docs/node_modules ] && yarn --cwd=./docs install --frozen-lockfile
+      yarn --cwd=./docs run test
 
   # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
   update-fixtures:
     cmd: |
+      ahoy install
+      ahoy update-fixtures-no-install
+
+  update-fixtures-no-install:
+    cmd: |
       UPDATE_FIXTURES=1 tests/node_modules/.bin/bats tests/bats/docker-compose.bats \
       || UPDATE_FIXTURES=1 tests/node_modules/.bin/bats tests/bats/docker-compose.bats
+      cd installer && XDEBUG_MODE=off UPDATE_FIXTURES=1 composer test || XDEBUG_MODE=off composer test && cd -
 
   update-docs:
     usage: Update the documentation.
     cmd: |
       composer --working-dir=./docs/.utils install
-      npm --prefix=./docs run update-variables
+      yarn --cwd=docs run update-variables
 
 entrypoint:
   - bash

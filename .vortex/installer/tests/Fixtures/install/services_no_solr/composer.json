@@ -1,0 +1,8 @@
+@@ -19,7 +19,6 @@
+         "drupal/redirect": "__VERSION__",
+         "drupal/redis": "__VERSION__",
+         "drupal/search_api": "__VERSION__",
+-        "drupal/search_api_solr": "__VERSION__",
+         "drupal/seckit": "__VERSION__",
+         "drupal/shield": "__VERSION__",
+         "drupal/stage_file_proxy": "__VERSION__",

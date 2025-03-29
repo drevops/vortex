@@ -1,0 +1,9 @@
+@@ -22,7 +22,7 @@
+ ARG GITHUB_TOKEN=""
+ ENV GITHUB_TOKEN=${GITHUB_TOKEN}
+ 
+-ARG DRUPAL_THEME="star_wars"
++ARG DRUPAL_THEME="light_saber"
+ ENV DRUPAL_THEME=${DRUPAL_THEME}
+ 
+ ARG DRUPAL_PUBLIC_FILES="/app/${WEBROOT}/sites/default/files"

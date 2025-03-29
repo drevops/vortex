@@ -1,0 +1,8 @@
+@@ -17,7 +17,6 @@
+         "drupal/environment_indicator": "__VERSION__",
+         "drupal/pathauto": "__VERSION__",
+         "drupal/redirect": "__VERSION__",
+-        "drupal/redis": "__VERSION__",
+         "drupal/search_api": "__VERSION__",
+         "drupal/search_api_solr": "__VERSION__",
+         "drupal/seckit": "__VERSION__",

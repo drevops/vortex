@@ -131,7 +131,7 @@ EOF
       );
 
       Tui::action(
-        label: '🥣️Preparing destination directory',
+        label: '🥣 Preparing destination directory',
         success: 'Destination directory is ready',
         action: fn(): array => $this->prepareDestination(),
       );
@@ -246,7 +246,7 @@ EOF
 
     $dst = $this->config->getDst();
     if (!is_dir($dst)) {
-      File::dir($dst, TRUE);
+      $dst = File::dir($dst, TRUE);
       $messages[] = sprintf('Created directory "%s".', $dst);
     }
 
@@ -298,7 +298,7 @@ EOF
 
     // Src directory is now "clean" - copy it to dst directory.
     if (is_dir($src) && !File::dirIsEmpty($src)) {
-      File::sync($src, $dst);
+      File::copy($src, $dst);
     }
 
     // Special case for .env.local as it may exist.
@@ -329,15 +329,16 @@ EOF
 
     $messages = [];
     if (!file_exists($data_dir)) {
-      File::dir($data_dir, TRUE);
-      $messages[] = sprintf('Created directory "%s".', $data_dir);
+      $data_dir = File::dir($data_dir, TRUE);
+      $messages[] = sprintf('Created data directory "%s".', $data_dir);
     }
     $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file);
 
     if (passthru($command) === FALSE) {
       throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
     }
-    $messages[] = sprintf('No database dump file was found in "%s" directory. Downloaded DEMO database from %s.', $data_dir, $url);
+    $messages[] = sprintf('No database dump file was found in "%s" directory.', $data_dir);
+    $messages[] = sprintf('Downloaded demo database from %s.', $url);
 
     return $messages;
   }
@@ -346,12 +347,12 @@ EOF
     $logo = <<<EOT
 -------------------------------------------------------------------------------
 
-              ██╗   ██╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗
-              ██║   ██║██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝
-              ██║   ██║██║   ██║██████╔╝   ██║   █████╗   ╚███╔╝
-              ╚██╗ ██╔╝██║   ██║██╔══██╗   ██║   ██╔══╝   ██╔██╗
-               ╚████╔╝ ╚██████╔╝██║  ██║   ██║   ███████╗██╔╝ ██╗
-                ╚═══╝   ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+            ██╗   ██╗  ██████╗  ██████╗  ████████╗ ███████╗ ██╗  ██╗
+            ██║   ██║ ██╔═══██╗ ██╔══██╗ ╚══██╔══╝ ██╔════╝ ╚██╗██╔╝
+            ██║   ██║ ██║   ██║ ██████╔╝    ██║    █████╗    ╚███╔╝
+            ╚██╗ ██╔╝ ██║   ██║ ██╔══██╗    ██║    ██╔══╝    ██╔██╗
+             ╚████╔╝  ╚██████╔╝ ██║  ██║    ██║    ███████╗ ██╔╝ ██╗
+              ╚═══╝    ╚═════╝  ╚═╝  ╚═╝    ╚═╝    ╚══════╝ ╚═╝  ╚═╝
 
                            Drupal project template
 
@@ -361,7 +362,7 @@ EOT;
 
     // Print the logo only if the terminal is wide enough.
     if (Tui::terminalWidth() >= 80) {
-      Tui::note(Tui::green($logo));
+      Tui::note($logo);
     }
 
     $title = 'Welcome to Vortex interactive installer';
@@ -388,7 +389,7 @@ EOT;
     if ($this->config->getNoInteraction()) {
       $content .= 'Vortex installer will try to discover the settings from the environment and will install configuration relevant to your site.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
+      $content .= 'Existing committed files may be modified. You will need to resolve any changes manually.' . PHP_EOL;
 
       $title = 'Welcome to Vortex non-interactive installer';
     }
@@ -396,7 +397,7 @@ EOT;
       $content .= 'Please answer the questions below to install configuration relevant to your site.' . PHP_EOL;
       $content .= 'No changes will be applied until the last confirmation step.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Existing committed files will be modified. You will need to resolve changes manually.' . PHP_EOL;
+      $content .= 'Existing committed files may be modified. You will need to resolve any changes manually.' . PHP_EOL;
       $content .= PHP_EOL;
       $content .= 'Press Ctrl+C at any time to exit this installer.' . PHP_EOL;
     }
@@ -408,7 +409,7 @@ EOT;
     $output = '';
     if ($this->config->isVortexProject()) {
       $title = 'Finished updating Vortex 🚀🚀🚀';
-      $output .= 'Please review changes and commit required files.';
+      $output .= 'Please review the changes and commit the required files.';
     }
     else {
       $title = 'Finished installing Vortex 🚀🚀🚀';

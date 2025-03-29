@@ -60,6 +60,9 @@ x-environment: &default-environment
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   # Pass-through 'CI' variable used to identify the CI environment.
   CI: ${CI:-}
+  #;< DRUPAL_THEME
+  DRUPAL_THEME: ${DRUPAL_THEME:-}
+  #;> DRUPAL_THEME
   # Path to configuration files.
   DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
   # Drupal file paths.
@@ -87,7 +90,6 @@ services:
       args:
         WEBROOT: "${WEBROOT:-web}"
         GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
-
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
     user: root
     <<: *default-volumes
@@ -155,7 +157,7 @@ services:
       context: .
       dockerfile: .docker/database.dockerfile
       args:
-        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mysql-8.4:25.2.0}" # Use custom database image (if defined) or fallback to standard database image.
+        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mysql-8.4:25.3.0}" # Use custom database image (if defined) or fallback to standard database image.
     <<: *default-user
     environment:
       <<: *default-environment
@@ -168,7 +170,7 @@ services:
 
   #;< SERVICE_REDIS
   redis:
-    image: uselagoon/redis-6:25.2.0
+    image: uselagoon/redis-6:25.3.0
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -218,7 +220,7 @@ services:
 
   # Chrome container, used for browser testing.
   chrome:
-    image: selenium/standalone-chromium:133.0
+    image: selenium/standalone-chromium:134.0
     ports:
       - "7900" # Find port on host with `docker compose port chrome 7900`.
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.

@@ -1,0 +1,64 @@
+@@ -149,27 +149,9 @@
+       ahoy confirm "All containers and build files will be removed. Proceed?" &&
+       AHOY_CONFIRM_RESPONSE=y ahoy down && ./scripts/vortex/reset.sh "$@"
+ 
+-  fei:
+-    usage: Install front-end assets.
+-    cmd: ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install"
+-
+-  fe:
+-    usage: Build front-end assets.
+-    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build"
+-
+-  fed:
+-    usage: Build front-end assets for development.
+-    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build-dev"
+-
+-  few:
+-    usage: Watch front-end assets during development.
+-    cmd: |
+-      ahoy cli "pkill -9 -f grunt" || true
+-      ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
+-
+   lint:
+     usage: Lint back-end and front-end code.
+-    cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests
++    cmd: ahoy lint-be && ahoy lint-tests
+ 
+   lint-be:
+     usage: Lint back-end code.
+@@ -179,12 +161,6 @@
+       ahoy cli vendor/bin/rector --clear-cache --dry-run
+       ahoy cli vendor/bin/phpmd . text phpmd.xml
+ 
+-  lint-fe:
+-    usage: Lint front-end code.
+-    cmd: |
+-      ahoy cli vendor/bin/twig-cs-fixer lint
+-      ahoy cli "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+-
+   lint-tests:
+     usage: Lint tests code.
+     cmd: |
+@@ -192,7 +168,7 @@
+ 
+   lint-fix:
+     usage: Fix lint issues of back-end and front-end code.
+-    cmd: ahoy lint-be-fix && ahoy lint-fe-fix
++    cmd: ahoy lint-be-fix
+ 
+   lint-be-fix:
+     usage: Fix lint issues of back-end code.
+@@ -199,12 +175,6 @@
+     cmd: |
+       ahoy cli vendor/bin/rector --clear-cache
+       ahoy cli vendor/bin/phpcbf
+-
+-  lint-fe-fix:
+-    usage: Fix lint issues of front-end code.
+-    cmd: |
+-      ahoy cli vendor/bin/twig-cs-fixer lint --fix
+-      ahoy cli "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+ 
+   test:
+     usage: Run all tests.

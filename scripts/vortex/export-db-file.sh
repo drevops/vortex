@@ -38,7 +38,7 @@ dump_file_drush="${dump_file/#.\//../}"
 mkdir -p "${VORTEX_DB_EXPORT_FILE_DIR}"
 
 # Dump database into a file.
-drush sql:dump --skip-tables-key=common --extra-dump=--no-tablespaces --result-file="${dump_file_drush}" -q
+drush sql:dump --skip-tables-key=common --result-file="${dump_file_drush}" -q
 
 # Check that file was saved and output saved dump file name.
 if [ -f "${dump_file}" ] && [ -s "${dump_file}" ]; then

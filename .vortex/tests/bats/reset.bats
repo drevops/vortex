@@ -128,7 +128,7 @@ load _helper.bash
   mktouch "uncommitted_file.txt"
 
   mktouch "composer.lock"
-  mktouch "web/themes/custom/zzzsomecustomtheme/package-lock.json"
+  mktouch "web/themes/custom/zzzsomecustomtheme/yarn.lock"
 
   ahoy reset hard
 
@@ -166,7 +166,7 @@ load _helper.bash
   assert_file_not_exists "uncommitted_file.txt"
 
   assert_file_not_exists "composer.lock"
-  assert_file_not_exists "web/themes/custom/star_wars/package-lock.json"
+  assert_file_not_exists "web/themes/custom/star_wars/yarn.lock"
 }
 
 @test "Reset; hard; committed files" {
@@ -208,7 +208,7 @@ load _helper.bash
   mktouch "nbproject/some_ide_file"
 
   mktouch "composer.lock"
-  mktouch "web/themes/custom/star_wars/package-lock.json"
+  mktouch "web/themes/custom/star_wars/yarn.lock"
 
   git_add_all_commit "Added Vortex files"
 
@@ -259,5 +259,5 @@ load _helper.bash
 
   # The files would be committed to the consumer repo.
   assert_file_exists "composer.lock"
-  assert_file_exists "web/themes/custom/star_wars/package-lock.json"
+  assert_file_exists "web/themes/custom/star_wars/yarn.lock"
 }

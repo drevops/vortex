@@ -1,7 +1,0 @@
-*.jpg
-*.png
-^.docker/config/solr/config-set/
-^web/themes/custom/star_wars/package-lock.json
-node_modules
-scripts/vortex/
-vendor

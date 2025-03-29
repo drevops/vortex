@@ -1,0 +1,29 @@
+@@ -150,18 +150,6 @@
+     volumes:
+       - solr:/var/solr
+ 
+-  clamav:
+-    build:
+-      context: .
+-      dockerfile: .docker/clamav.dockerfile
+-    platform: linux/amd64
+-    ports:
+-      - "3310" # Find port on host with `docker compose port clamav 3310`.
+-    environment:
+-      << : *default-environment
+-    networks:
+-      - default
+-
+   # Chrome container, used for browser testing.
+   chrome:
+     image: selenium/standalone-chromium:__VERSION__
+@@ -180,8 +168,7 @@
+     depends_on:
+       - cli
+       - database
+-      - clamav
+-    command: database:3306 clamav:3310
++    command: database:3306
+ 
+ networks:           ### Use external networks locally. Automatically removed in CI.
+   amazeeio-network: ### Automatically removed in CI.

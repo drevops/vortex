@@ -83,8 +83,8 @@ case ${VORTEX_PROVISION_TYPE} in database | profile) ;; *) VORTEX_PROVISION_TYPE
 [ "${VORTEX_DB_DIR#./}" != "${VORTEX_DB_DIR}" ] && VORTEX_DB_DIR="$(pwd)${VORTEX_DB_DIR#.}"
 
 drush_version="$(drush --version | cut -d' ' -f4)"
-drupal_version="$(drush status --field=drupal-version)"
-site_is_installed="$(drush status --fields=bootstrap | grep -q "Successful" && echo "1" || echo "0")"
+drupal_version="$(drush status --field=drupal-version 2>/dev/null || echo "Unknown")"
+site_is_installed="$(drush status --fields=bootstrap 2>/dev/null | grep -q "Successful" && echo "1" || echo "0")"
 
 # Discover the configuration directory path if not set.
 if [ -z "${DRUPAL_CONFIG_PATH}" ]; then

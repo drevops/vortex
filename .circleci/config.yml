@@ -57,7 +57,7 @@ aliases:
       # This container has all the necessary tools to run a dockerized environment.
       # @see https://github.com/drevops/ci-runner
       # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags
-      - image: drevops/ci-runner:25.1.0
+      - image: drevops/ci-runner:25.3.0
         auth:
           username: ${VORTEX_CONTAINER_REGISTRY_USER}
           password: ${VORTEX_CONTAINER_REGISTRY_PASS}
@@ -200,7 +200,7 @@ jobs:
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'
       # Always use fresh base image for the database (if database-in-image storage is used).
-      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:24.4.0
+      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:25.3.0
       # Deploy container image (if database-in-image storage is used).
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
   #;> !PROVISION_TYPE_PROFILE
@@ -237,18 +237,18 @@ jobs:
             - v25.3.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !PROVISION_TYPE_PROFILE
 
+      - *step_setup_remote_docker
+
+      - run:
+          name: Login to container registry
+          command: ./scripts/vortex/login-container-registry.sh
+
       - run:
           name: Lint Dockerfiles with Hadolint
           command: |
             for file in $(find .docker -name 'Dockerfile' -o -name '*.dockerfile'); do
               echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${VORTEX_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
             done
-
-      - *step_setup_remote_docker
-
-      - run:
-          name: Login to container registry
-          command: ./scripts/vortex/login-container-registry.sh
 
       - run:
           name: Build stack
@@ -296,8 +296,8 @@ jobs:
           command: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
-          name: Lint code with NPM linters
-          command: docker compose exec -T cli bash -c "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint" || [ "${VORTEX_CI_NPM_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+          name: Lint code with NodeJS linters
+          command: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Provision site

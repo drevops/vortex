@@ -1,0 +1,35 @@
+@@ -21,10 +21,10 @@
+     # All application files mounted into container.
+     - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+     # Override mount for files to allow different type of syncing for optimised performance.
+-    - ./web/sites/default/files:/app/web/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
++    - ./docroot/sites/default/files:/app/docroot/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+     # Use the same volumes in environments without host mounts support.
+     ##- app:/app # Override for environment without host mounts. Automatically uncommented in CI.
+-    ##- files:/app/web/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
++    ##- files:/app/docroot/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
+ 
+ # The default user under which the containers should run.
+ x-user: &default-user
+@@ -56,8 +56,8 @@
+   # Path to configuration files.
+   DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
+   # Drupal file paths.
+-  DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
+-  DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
++  DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/docroot/sites/default/files}
++  DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/docroot/sites/default/files/private}
+   DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
+   # Drupal Shield credentials.
+   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
+@@ -95,8 +95,8 @@
+         CLI_IMAGE: *cli-image
+         WEBROOT: "${WEBROOT:-web}"
+         DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
+-        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
+-        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
++        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/docroot/sites/default/files}
++        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/docroot/sites/default/files/private}
+         DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
+     <<: [*default-volumes, *default-user]
+     environment:

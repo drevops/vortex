@@ -1,0 +1,42 @@
+{
+  "name": "star_wars",
+  "version": "__VERSION__",
+  "private": true,
+  "description": "NodeJS dependencies for star wars project",
+  "devDependencies": {
+    "@lodder/grunt-postcss": "__VERSION__",
+    "autoprefixer": "__VERSION__",
+    "eslint": "__VERSION__",
+    "grunt": "__VERSION__",
+    "grunt-contrib-clean": "__VERSION__",
+    "grunt-contrib-concat": "__VERSION__",
+    "grunt-contrib-copy": "__VERSION__",
+    "grunt-contrib-uglify": "__VERSION__",
+    "grunt-contrib-watch": "__VERSION__",
+    "grunt-exec": "__VERSION__",
+    "grunt-sass": "__VERSION__",
+    "grunt-sass-globbing": "__VERSION__",
+    "grunt-stylelint": "__VERSION__",
+    "gruntify-eslint": "__VERSION__",
+    "patch-package": "__VERSION__",
+    "postcss": "__VERSION__",
+    "sass": "__VERSION__",
+    "stylelint": "__VERSION__",
+    "stylelint-config-standard": "__VERSION__",
+    "stylelint-config-standard-scss": "__VERSION__",
+    "stylelint-scss": "__VERSION__"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "not ie <= 8",
+    "iOS >= 7"
+  ],
+  "scripts": {
+    "build": "grunt",
+    "build-dev": "grunt dev",
+    "lint": "grunt lint",
+    "lint-fix": "grunt lint-fix",
+    "watch": "grunt watch-dev",
+    "postinstall": "patch-package"
+  }
+}

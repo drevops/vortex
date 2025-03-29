@@ -15,7 +15,7 @@ TEST_DIR="${ROOT_DIR}/.vortex/tests"
 
 # ------------------------------------------------------------------------------
 
-[ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && npm --prefix="${TEST_DIR}" ci
+[ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && yarn --cwd="${TEST_DIR}" install --frozen-lockfile
 
 bats() {
   pushd "${ROOT_DIR}" >/dev/null || exit 1
