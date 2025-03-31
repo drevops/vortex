@@ -236,10 +236,6 @@ commands:
       ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as ahoy deploy [type1,[type2..]], where [type] is 'code', 'container_registry', 'webhook')" &&
       ./scripts/vortex/deploy.sh "$@"
 
-  github-labels:
-    usage: Update project's GitHub labels.
-    cmd: ./scripts/vortex/github-labels.sh "$@"
-
   doctor:
     usage: Find problems with current project setup.
     cmd: ./scripts/vortex/doctor.sh "$@"

@@ -232,7 +232,7 @@ GitHub token used to overcome API rate limits or access private repositories.<br
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/vortex/github-labels.sh`
+Defined in: `.env.local.example`
 
 ### `LAGOON_PROJECT`
 
@@ -1071,22 +1071,6 @@ Default value: `UNDEFINED`
 
 Defined in: `CI config`
 
-### `VORTEX_GITHUB_DELETE_EXISTING_LABELS`
-
-Delete existing labels to mirror the list below.
-
-Default value: `1`
-
-Defined in: `scripts/vortex/github-labels.sh`
-
-### `VORTEX_GITHUB_REPO`
-
-GitHub repository as "org/name" to perform operations on.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/vortex/github-labels.sh`
-
 ### `VORTEX_INSTALLER_URL`
 
 The URL of the installer script.
@@ -1144,70 +1128,6 @@ Local development URL.<br/>Override only if you need to use a different URL than
 Default value: `<current_dir>.docker.amazee.io`
 
 Defined in: `.env.local.example`, `scripts/vortex/info.sh`
-
-### `VORTEX_MIRROR_CODE_BRANCH_DST`
-
-Destination branch name to mirror code.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/vortex/mirror-code.sh`
-
-### `VORTEX_MIRROR_CODE_BRANCH_SRC`
-
-Source branch name to mirror code.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/vortex/mirror-code.sh`
-
-### `VORTEX_MIRROR_CODE_GIT_USER_EMAIL`
-
-Name of the user who will be committing to a remote repository.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/vortex/mirror-code.sh`
-
-### `VORTEX_MIRROR_CODE_GIT_USER_NAME`
-
-Email address of the user who will be committing to a remote repository.
-
-Default value: `Deployment Robot`
-
-Defined in: `scripts/vortex/mirror-code.sh`
-
-### `VORTEX_MIRROR_CODE_PUSH`
-
-Flag to push the branch.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/vortex/mirror-code.sh`
-
-### `VORTEX_MIRROR_CODE_REMOTE_DST`
-
-Destination remote name.
-
-Default value: `origin`
-
-Defined in: `scripts/vortex/mirror-code.sh`
-
-### `VORTEX_MIRROR_CODE_SSH_FILE`
-
-Default SSH file used if custom fingerprint is not provided.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/vortex/mirror-code.sh`
-
-### `VORTEX_MIRROR_CODE_SSH_FINGERPRINT`
-
-SSH key fingerprint used to connect to a remote.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/vortex/mirror-code.sh`
 
 ### `VORTEX_NOTIFY_BRANCH`
 

@@ -369,7 +369,6 @@ assert_files_present_vortex() {
   assert_file_exists "scripts/vortex/login.sh"
   assert_file_exists "scripts/vortex/login-container-registry.sh"
   assert_file_exists "scripts/vortex/provision-sanitize-db.sh"
-  assert_file_exists "scripts/vortex/github-labels.sh"
   assert_file_exists "scripts/vortex/info.sh"
   assert_file_exists "scripts/vortex/notify.sh"
   assert_file_exists "scripts/vortex/notify-email.sh"
