@@ -1569,6 +1569,14 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/info.sh`
 
+### `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING`
+
+Disable strict host key checking in SSH.
+
+Default value: `0`
+
+Defined in: `scripts/vortex/setup-ssh.sh`
+
 ### `VORTEX_SSH_FILE`
 
 Default SSH key file.
@@ -1585,6 +1593,14 @@ Prefix used to load SSH key from prefixes environment variables:
 key file path.
 
 Default value: `UNDEFINED`
+
+Defined in: `scripts/vortex/setup-ssh.sh`
+
+### `VORTEX_SSH_REMOVE_ALL_KEYS`
+
+Remove all SSH keys from the SSH agent before loading the new one.
+
+Default value: `0`
 
 Defined in: `scripts/vortex/setup-ssh.sh`
 

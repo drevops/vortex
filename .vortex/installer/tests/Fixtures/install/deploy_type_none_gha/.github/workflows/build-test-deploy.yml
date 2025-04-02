@@ -1,4 +1,4 @@
-@@ -334,58 +334,3 @@
+@@ -339,59 +339,3 @@
          with:
            detached: true
  
@@ -12,6 +12,7 @@
 -      env:
 -        TZ: Australia/Melbourne
 -        TERM: xterm-256color
+-        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
 -        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 -
 -    steps:

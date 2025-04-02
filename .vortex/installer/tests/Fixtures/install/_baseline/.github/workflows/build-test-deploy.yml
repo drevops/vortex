@@ -55,6 +55,8 @@ jobs:
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color
+        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+        VORTEX_SSH_REMOVE_ALL_KEYS: "1"
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
         VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -159,6 +161,9 @@ jobs:
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color
+        # Disable strict host key checking for SSH connections.
+        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+        VORTEX_SSH_REMOVE_ALL_KEYS: "1"
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
         VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -344,6 +349,7 @@ jobs:
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color
+        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 
     steps:

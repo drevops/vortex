@@ -24,6 +24,12 @@ set -eu
 #   key file path.
 VORTEX_SSH_PREFIX="${VORTEX_SSH_PREFIX?Missing the required VORTEX_SSH_PREFIX environment variable.}"
 
+# Remove all SSH keys from the SSH agent before loading the new one.
+VORTEX_SSH_REMOVE_ALL_KEYS="${VORTEX_SSH_REMOVE_ALL_KEYS:-0}"
+
+# Disable strict host key checking in SSH.
+VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING:-0}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -93,16 +99,19 @@ if [ "$(ps ax | grep -c "[s]sh-agent")" -eq 0 ]; then
 fi
 
 if ssh-add -l | grep -q "${file}"; then
-  note "SSH agent has ${file} key loaded."
+  note "SSH agent already has ${file} key loaded."
 else
   note "SSH agent does not have a required key loaded. Trying to load."
-  ssh-add -D >/dev/null
+  if [ "${VORTEX_SSH_REMOVE_ALL_KEYS-}" = "1" ]; then
+    note "Removing all keys from the SSH agent."
+    ssh-add -D
+  fi
   ssh-add "${file}"
   ssh-add -l
 fi
 
-if [ -n "${CI-}" ]; then
-  note "Disabling strict host key checking in CI."
+if [ "${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING-}" = "1" ]; then
+  note "Disabling strict host key checking."
   mkdir -p "${HOME}/.ssh/"
   echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
   chmod 600 "${HOME}/.ssh/config"
