@@ -1437,11 +1437,11 @@ setup_ssh_key_fixture() {
 }
 
 provision_default_ssh_key() {
-  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa" >/dev/null
-  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_TEST" >/dev/null
+  ssh-keygen -t rsa -b 4096 -C "" -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa" >/dev/null
+  ssh-keygen -t rsa -b 4096 -C "" -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_TEST" >/dev/null
 }
 
 provision_ssh_key_with_suffix() {
   local suffix="${1:-TEST}"
-  ssh-keygen -t rsa -b 4096 -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" >/dev/null
+  ssh-keygen -t rsa -b 4096 -C "" -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" >/dev/null
 }

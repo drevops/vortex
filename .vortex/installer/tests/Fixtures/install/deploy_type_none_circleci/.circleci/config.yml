@@ -50,6 +50,10 @@ aliases:
           TZ: "Australia/Melbourne"
           # Set runner terminal capabilities.
           TERM: xterm-256color
+          # Disable strict host key checking for SSH connections.
+          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+          # Remove all SSH keys from the runner container.
+          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
           # How often to refresh the cache of the DB dump. Refer to `date` command.
           VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
           # Use previous database caches on this branch as a fallback if the above cache
