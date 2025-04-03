@@ -38,15 +38,15 @@ aliases:
     docker:
       # Using the 'runner' container where each job will be executed.
       # This container has all the necessary tools to run a dockerized environment.
-      # @see https://github.com/drevops/ci-runner
-      # @see https://hub.docker.com/repository/docker/drevops/ci-runner/tags
+      # https://github.com/drevops/ci-runner
+      # https://hub.docker.com/repository/docker/drevops/ci-runner/tags
       - image: drevops/ci-runner:__VERSION__
         auth:
           username: ${VORTEX_CONTAINER_REGISTRY_USER}
           password: ${VORTEX_CONTAINER_REGISTRY_PASS}
         environment:
           # Set runner timezone to ensure that executed operations use correct timestamps.
-          # @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+          # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
           TZ: "Australia/Melbourne"
           # Set runner terminal capabilities.
           TERM: xterm-256color
@@ -77,7 +77,7 @@ aliases:
           # Check only minimal stack requirements.
           VORTEX_DOCTOR_CHECK_MINIMAL: 1
     # CI runner resource class.
-    # @see https://circleci.com/docs/2.0/configuration-reference/#resource_class
+    # https://circleci.com/docs/2.0/configuration-reference/#resource_class
     # Change to 'large' for faster builds.
     resource_class: medium
 
@@ -86,7 +86,7 @@ aliases:
     setup_remote_docker:
       # Docker Layer Caching allows to significantly speed up builds by caching
       # images built during previous runs.
-      # @see https://circleci.com/docs/2.0/docker-layer-caching/
+      # https://circleci.com/docs/2.0/docker-layer-caching/
       docker_layer_caching: false
       version: default
 
@@ -134,7 +134,7 @@ jobs:
       - restore_cache:
           keys:
             # Restore DB cache based on the cache strategy set by the cache keys below.
-            # @see https://circleci.com/docs/2.0/caching/#restoring-cache
+            # https://circleci.com/docs/2.0/caching/#restoring-cache
             # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
             # Lookup cache based on the default branch and a timestamp. Allows
             # to use cache from the very first build on the day (sanitized database dump, for example).
@@ -214,7 +214,7 @@ jobs:
       - restore_cache:
           keys:
             # Use cached artifacts from previous builds of this branch.
-            # @see https://circleci.com/docs/2.0/caching/#restoring-cache
+            # https://circleci.com/docs/2.0/caching/#restoring-cache
             - v25.3.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             - v25.3.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
 
