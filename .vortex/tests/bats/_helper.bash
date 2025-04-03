@@ -1430,17 +1430,59 @@ process_ahoyyml() {
   sed "${sed_opts[@]}" 's|cmd: ahoy cli ./scripts/vortex/provision.sh|cmd: if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli \.\/scripts\/vortex\/provision\.sh|g' .ahoy.yml
 }
 
+# Sets up the SSH key fixture environment for testing.
+#
+# Globals:
+#   BUILD_DIR - The base directory used for building test fixtures.
+#   HOME - Set to BUILD_DIR for the duration of the SSH key fixture setup.
+#   SSH_KEY_FIXTURE_DIR - Directory for SSH key fixtures, located at BUILD_DIR/.ssh.
+#
+# Description:
+#   This function configures the environment by setting HOME to BUILD_DIR and
+#   defining the SSH_KEY_FIXTURE_DIR variable. It then prepares the SSH key
+#   fixture directory using fixture_prepare_dir.
+#
+# Example:
+#   setup_ssh_key_fixture
 setup_ssh_key_fixture() {
   export HOME="${BUILD_DIR}"
   export SSH_KEY_FIXTURE_DIR="${BUILD_DIR}/.ssh"
   fixture_prepare_dir "${SSH_KEY_FIXTURE_DIR}"
 }
 
+# Generates two default SSH RSA keys for testing purposes.
+#
+# This function creates a primary key and a secondary test key with 4096-bit encryption,
+# an empty passphrase, and an empty comment. The resulting key files are stored under the
+# directory specified by the SSH_KEY_FIXTURE_DIR global.
+#
+# Globals:
+#   SSH_KEY_FIXTURE_DIR: Directory where SSH key fixtures are saved.
+#
+# Example:
+#   provision_default_ssh_key
 provision_default_ssh_key() {
   ssh-keygen -t rsa -b 4096 -C "" -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa" >/dev/null
   ssh-keygen -t rsa -b 4096 -C "" -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_TEST" >/dev/null
 }
 
+# Generates a 4096-bit RSA SSH key pair with an optional filename suffix.
+#
+# This function uses ssh-keygen to create an RSA key pair with no passphrase and an empty comment.
+# The keys are saved in the directory specified by the global SSH_KEY_FIXTURE_DIR, with the private key
+# named "id_rsa_<suffix>" and the public key stored alongside it.
+#
+# Globals:
+#   SSH_KEY_FIXTURE_DIR - Directory where SSH key pairs are created.
+#
+# Arguments:
+#   $1 (optional) - A suffix to append to the SSH key filename (default: "TEST").
+#
+# Outputs:
+#   The generated key files are written to SSH_KEY_FIXTURE_DIR; no output is printed.
+#
+# Example:
+#   provision_ssh_key_with_suffix "MYKEY"
 provision_ssh_key_with_suffix() {
   local suffix="${1:-TEST}"
   ssh-keygen -t rsa -b 4096 -C "" -N "" -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" >/dev/null
