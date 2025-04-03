@@ -78,7 +78,7 @@ jobs:
 
     steps:
       - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV" # @see https://github.com/actions/runner/issues/863
+        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Check out code
         uses: actions/checkout@v4
@@ -189,7 +189,7 @@ jobs:
 
     steps:
       - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV" # @see https://github.com/actions/runner/issues/863
+        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Check out code
         uses: actions/checkout@v4
@@ -372,7 +372,7 @@ jobs:
 
     steps:
       - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV" # @see https://github.com/actions/runner/issues/863
+        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Checkout code
         uses: actions/checkout@v4
