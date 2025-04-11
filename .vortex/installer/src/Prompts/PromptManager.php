@@ -599,12 +599,12 @@ class PromptManager {
 
     $values['Automations'] = Tui::LIST_SECTION_TITLE;
     $values['⬆️ Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
-    $values['👤 Auto-assign PR author'] = Converter::yesNo($responses[AssignAuthorPr::id()]);
-    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = Converter::yesNo($responses[LabelMergeConflictsPr::id()]);
+    $values['👤 Auto-assign PR author'] = Converter::bool($responses[AssignAuthorPr::id()]);
+    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = Converter::bool($responses[LabelMergeConflictsPr::id()]);
 
     $values['Documentation'] = Tui::LIST_SECTION_TITLE;
-    $values['📚 Preserve project documentation'] = Converter::yesNo($responses[PreserveDocsProject::id()]);
-    $values['📋 Preserve onboarding checklist'] = Converter::yesNo($responses[PreserveDocsOnboarding::id()]);
+    $values['📚 Preserve project documentation'] = Converter::bool($responses[PreserveDocsProject::id()]);
+    $values['📋 Preserve onboarding checklist'] = Converter::bool($responses[PreserveDocsOnboarding::id()]);
 
     $values['Locations'] = Tui::LIST_SECTION_TITLE;
     $values['Current directory'] = $this->config->getRoot();
