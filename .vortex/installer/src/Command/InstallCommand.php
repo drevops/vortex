@@ -246,7 +246,7 @@ EOF
 
     $dst = $this->config->getDst();
     if (!is_dir($dst)) {
-      $dst = File::dir($dst, TRUE);
+      $dst = File::mkdir($dst);
       $messages[] = sprintf('Created directory "%s".', $dst);
     }
 
@@ -329,7 +329,7 @@ EOF
 
     $messages = [];
     if (!file_exists($data_dir)) {
-      $data_dir = File::dir($data_dir, TRUE);
+      $data_dir = File::dir($data_dir);
       $messages[] = sprintf('Created data directory "%s".', $data_dir);
     }
     $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file);

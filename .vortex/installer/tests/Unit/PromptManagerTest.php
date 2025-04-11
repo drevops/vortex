@@ -88,7 +88,7 @@ class PromptManagerTest extends UnitTestBase {
       $this->expectExceptionMessage($exception);
     }
 
-    static::$sut = File::dir(static::$sut . DIRECTORY_SEPARATOR . 'myproject', TRUE);
+    static::$sut = File::mkdir(static::$sut . DIRECTORY_SEPARATOR . 'myproject');
 
     $config = new Config(static::$sut);
     putenv('GITHUB_TOKEN=' . self::FIXTURE_GITHUB_TOKEN);
