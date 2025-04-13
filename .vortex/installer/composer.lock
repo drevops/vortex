@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5cf58060dedebe68c925b280939b939a",
+    "content-hash": "3d22bfdf18d99650a235deb29233cc45",
     "packages": [
         {
             "name": "alexskrypnyk/file",
-            "version": "0.1.2",
+            "version": "0.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "339e755aa99dde125373e3d4630a61fe4a3fa83f"
+                "reference": "bcfdedc858cb20cec86e9ef017df4745d3c5ea20"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/339e755aa99dde125373e3d4630a61fe4a3fa83f",
-                "reference": "339e755aa99dde125373e3d4630a61fe4a3fa83f",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/bcfdedc858cb20cec86e9ef017df4745d3c5ea20",
+                "reference": "bcfdedc858cb20cec86e9ef017df4745d3c5ea20",
                 "shasum": ""
             },
             "require": {
@@ -25,10 +25,10 @@
                 "symfony/filesystem": "^7.2"
             },
             "require-dev": {
+                "alexskrypnyk/phpunit-helpers": "^0.1.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
                 "drupal/coder": "^8.3",
                 "ergebnis/composer-normalize": "^2.42",
-                "opis/closure": "^4.0",
                 "phpstan/phpstan": "^2",
                 "phpunit/phpunit": "^11",
                 "rector/rector": "^2"
@@ -70,20 +70,20 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-03-20T23:25:13+00:00"
+            "time": "2025-04-13T11:12:41+00:00"
         },
         {
             "name": "alexskrypnyk/str2name",
-            "version": "1.3.0",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/Str2Name.git",
-                "reference": "bb1c0477e463f58295acf18fb08a36ce49ee5146"
+                "reference": "09f2651ba6ceb5c7a2a1f93e1f735c182c9a1bd3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/Str2Name/zipball/bb1c0477e463f58295acf18fb08a36ce49ee5146",
-                "reference": "bb1c0477e463f58295acf18fb08a36ce49ee5146",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/Str2Name/zipball/09f2651ba6ceb5c7a2a1f93e1f735c182c9a1bd3",
+                "reference": "09f2651ba6ceb5c7a2a1f93e1f735c182c9a1bd3",
                 "shasum": ""
             },
             "require": {
@@ -131,7 +131,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-01-20T05:43:07+00:00"
+            "time": "2025-04-11T02:15:41+00:00"
         },
         {
             "name": "cweagans/composer-patches",

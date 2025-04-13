@@ -18,7 +18,7 @@
     },
     "require": {
         "php": ">=8.2",
-        "alexskrypnyk/file": "^0.1.2",
+        "alexskrypnyk/file": "^0.3.0",
         "alexskrypnyk/str2name": "^1.3",
         "cweagans/composer-patches": "^1.7",
         "czproject/git-php": "^4.3",
