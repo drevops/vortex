@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Tests\Functional;
 
+use AlexSkrypnyk\File\Internal\Index;
 use AlexSkrypnyk\PhpunitHelpers\Traits\ApplicationTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait as UpstreamTuiTrait;
 use DrevOps\Installer\Command\InstallCommand;
@@ -12,6 +13,8 @@ use DrevOps\Installer\Tests\Unit\UnitTestCase;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
+use PHPUnit\Framework\TestStatus\Error;
+use PHPUnit\Framework\TestStatus\Failure;
 
 /**
  * Base class for functional tests.
@@ -45,6 +48,39 @@ abstract class FunctionalTestCase extends UnitTestCase {
    */
   protected function tearDown(): void {
     static::tuiTearDown();
+
+    if (empty(static::$fixtures)) {
+      throw new \RuntimeException('Fixtures directory is not set.');
+    }
+
+    $is_failure = $this->status() instanceof Failure || $this->status() instanceof Error;
+    $has_message = str_contains($this->status()->message(), 'Differences between directories') || str_contains($this->status()->message(), 'Failed to apply patch');
+    $fixture_exists = str_contains(static::$fixtures, DIRECTORY_SEPARATOR . 'install' . DIRECTORY_SEPARATOR);
+    $update_requested = getenv('UPDATE_FIXTURES');
+
+    if ($is_failure && $has_message && $fixture_exists && $update_requested) {
+      $baseline = File::dir(static::$fixtures . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . static::BASELINE_DIR);
+
+      $ic_baseline = $baseline . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
+      $ic_sut = static::$sut . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
+      $ic_tmp = static::$tmp . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
+      $ic_fixtures = static::$fixtures . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
+
+      if (str_contains(static::$fixtures, DIRECTORY_SEPARATOR . static::BASELINE_DIR . DIRECTORY_SEPARATOR)) {
+        File::copyIfExists($ic_baseline, $ic_sut);
+        File::copyIfExists($ic_baseline, $ic_tmp);
+        File::rmdir($baseline);
+        File::sync(static::$sut, $baseline);
+        static::replaceVersions($baseline);
+        File::copyIfExists($ic_tmp, $ic_baseline);
+      }
+      else {
+        File::copyIfExists($ic_fixtures, $ic_tmp);
+        File::rmdir(static::$fixtures);
+        File::diff($baseline, static::$sut, static::$fixtures);
+        File::copyIfExists($ic_tmp, $ic_fixtures);
+      }
+    }
 
     parent::tearDown();
   }
