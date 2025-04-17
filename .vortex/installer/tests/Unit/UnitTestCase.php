@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Tests\Unit;
 
 use AlexSkrypnyk\File\Internal\Index;
-use DrevOps\Installer\Tests\Traits\ClosureWrapperTrait;
+use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
+use AlexSkrypnyk\PhpunitHelpers\Traits\SerializableClosureTrait;
 use DrevOps\Installer\Utils\File;
-
-use AlexSkrypnyk\File\Tests\Unit\UnitTestBase as UpstreamUnitTestBase;
+use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
+use PHPUnit\Framework\TestStatus\Error;
+use PHPUnit\Framework\TestStatus\Failure;
 
 /**
  * Class UnitTestCase.
@@ -18,9 +20,10 @@ use AlexSkrypnyk\File\Tests\Unit\UnitTestBase as UpstreamUnitTestBase;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-abstract class UnitTestBase extends UpstreamUnitTestBase {
+abstract class UnitTestCase extends UpstreamUnitTestCase {
 
-  use ClosureWrapperTrait;
+  use SerializableClosureTrait;
+  use DirectoryAssertionsTrait;
 
   /**
    * {@inheritdoc}
@@ -36,11 +39,18 @@ abstract class UnitTestBase extends UpstreamUnitTestBase {
   }
 
   protected function tearDown(): void {
-    // Only update the fixtures for the 'install' tests.
-    if (isset(self::$fixtures) && str_contains(self::$fixtures, DIRECTORY_SEPARATOR . 'install' . DIRECTORY_SEPARATOR) && getenv('UPDATE_FIXTURES')) {
-      $baseline = File::dir(static::$fixtures . '/../_baseline');
-      // Use 'non-interactive' test run as a baseline.
-      if (str_contains(self::$fixtures, 'non_interactive')) {
+    if (empty(self::$fixtures)) {
+      throw new \RuntimeException('Fixtures directory is not set.');
+    }
+
+    $is_failure = $this->status() instanceof Failure || $this->status() instanceof Error;
+    $has_message = str_contains($this->status()->message(), 'Differences between directories') || str_contains($this->status()->message(), 'Failed to apply patch');
+    $fixture_exists = str_contains(self::$fixtures, DIRECTORY_SEPARATOR . 'init' . DIRECTORY_SEPARATOR);
+    $update_requested = getenv('UPDATE_FIXTURES');
+
+    if ($is_failure && $has_message && $fixture_exists && $update_requested) {
+      $baseline = File::dir(static::$fixtures . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . self::BASELINE_DIR);
+      if (str_contains(self::$fixtures, 'baseline')) {
         File::copyIfExists($baseline . DIRECTORY_SEPARATOR . Index::IGNORECONTENT, self::$sut . DIRECTORY_SEPARATOR . Index::IGNORECONTENT);
         File::copyIfExists($baseline . DIRECTORY_SEPARATOR . Index::IGNORECONTENT, self::$tmp . DIRECTORY_SEPARATOR . Index::IGNORECONTENT);
         File::rmdir($baseline);
@@ -60,7 +70,7 @@ abstract class UnitTestBase extends UpstreamUnitTestBase {
   /**
    * {@inheritdoc}
    */
-  protected static function locationsFixtures(): string {
+  protected static function locationsFixturesDir(): string {
     return '.vortex/installer/tests/Fixtures';
   }
 

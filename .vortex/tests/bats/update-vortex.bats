@@ -47,8 +47,8 @@ load _helper.bash
   export TEST_VORTEX_VERSION="${latest_commit}"
 
   # Build installer.
-  [ ! -d "${ROOT_DIR}/.vortex/installer/vendor" ] && composer --working-dir="${ROOT_DIR}/.vortex/installer" install
-  [ ! -d "${ROOT_DIR}/.vortex/installer/build" ] && composer --working-dir="${ROOT_DIR}/.vortex/installer" build
+  composer --working-dir="${ROOT_DIR}/.vortex/installer" install
+  composer --working-dir="${ROOT_DIR}/.vortex/installer" build
   assert_file_exists "${ROOT_DIR}/.vortex/installer/build/installer"
 
   # Override install script with currently tested one to be called from ./scripts/vortex/update-vortex.sh

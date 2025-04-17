@@ -183,20 +183,19 @@ class PromptManager {
           }, GithubToken::id())
 
       ->addIf(
-              fn($r): bool => !empty($r['github_token']),
-              fn($r, $pr, $n): string => text(
-                label: 'What is your GitHub project name?',
-                hint: 'We will use this name to create new or find an existing repository.',
-                placeholder: 'E.g. myorg/myproject',
-                default: $this->default($n, $r['org_machine_name'] . '/' . $r['machine_name']),
-                transform: fn(string $v): string => trim($v),
-                validate: fn(string $v): ?string => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : NULL,
-              ), GithubRepo::id())
+          fn($r): bool => !empty($r['github_token']),
+          fn($r, $pr, $n): string => text(
+            label: 'What is your GitHub project name?',
+            hint: 'We will use this name to create new or find an existing repository.',
+            placeholder: 'E.g. myorg/myproject',
+            default: $this->default($n, $r['org_machine_name'] . '/' . $r['machine_name']),
+            transform: fn(string $v): string => trim($v),
+            validate: fn(string $v): ?string => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : NULL,
+          ), GithubRepo::id())
 
       ->intro('Drupal')
 
-      ->add(
-        function ($r, $pr, $n): int|string {
+      ->add(function ($r, $pr, $n): int|string {
           $profile = select(
             label: 'Profile',
             hint: 'Select which profile to use',
@@ -210,19 +209,19 @@ class PromptManager {
             default: empty($this->default($n)) ? Profile::STANDARD : Profile::CUSTOM,
           );
 
-          if ($profile === Profile::CUSTOM) {
-            $profile = text(
-              label: 'Custom profile machine name',
-              placeholder: 'E.g. my_profile',
-              required: TRUE,
-              default: $this->default($n),
-              transform: fn(string $v): string => trim($v),
-              validate: fn(string $v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-            );
-          }
+        if ($profile === Profile::CUSTOM) {
+          $profile = text(
+            label: 'Custom profile machine name',
+            placeholder: 'E.g. my_profile',
+            required: TRUE,
+            default: $this->default($n),
+            transform: fn(string $v): string => trim($v),
+            validate: fn(string $v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+          );
+        }
 
           return $profile;
-        }, Profile::id())
+      }, Profile::id())
 
       ->add(fn($r, $pr, $n): string => text(
         label: '🧩 Module prefix',
@@ -286,62 +285,61 @@ class PromptManager {
         default: $this->default($n, 'none'),
       ), HostingProvider::id())
 
-      ->add(
-          function (array $r, $pr, $n): string|bool|array {
-            if ($r[HostingProvider::id()] !== HostingProvider::OTHER) {
-              $webroot = match ($r[HostingProvider::id()]) {
-                HostingProvider::ACQUIA => Webroot::DOCROOT,
-                HostingProvider::LAGOON => Webroot::WEB,
-                default => $this->default($n, Webroot::WEB)
-              };
+      ->add(function (array $r, $pr, $n): string|bool|array {
+        if ($r[HostingProvider::id()] !== HostingProvider::OTHER) {
+          $webroot = match ($r[HostingProvider::id()]) {
+            HostingProvider::ACQUIA => Webroot::DOCROOT,
+            HostingProvider::LAGOON => Webroot::WEB,
+            default => $this->default($n, Webroot::WEB)
+          };
 
-              info(sprintf('Web root will be set to "%s".', $webroot));
-            }
-            else {
-              $webroot = text(
-                label: '📁 Custom web root directory',
-                hint: 'Custom directory where the web server serves the site.',
-                placeholder: 'E.g. ' . implode(', ', [Webroot::WEB, Webroot::DOCROOT]),
-                required: TRUE,
-                default: $this->default($n, Webroot::WEB),
-                transform: fn(string $v): string => rtrim($v, DIRECTORY_SEPARATOR),
-                validate: fn($v): ?string => Validator::dirname($v) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
-              );
-            }
-            return $webroot;
-          }, Webroot::id())
+            info(sprintf('Web root will be set to "%s".', $webroot));
+        }
+        else {
+          $webroot = text(
+            label: '📁 Custom web root directory',
+            hint: 'Custom directory where the web server serves the site.',
+            placeholder: 'E.g. ' . implode(', ', [Webroot::WEB, Webroot::DOCROOT]),
+            required: TRUE,
+            default: $this->default($n, Webroot::WEB),
+            transform: fn(string $v): string => rtrim($v, DIRECTORY_SEPARATOR),
+            validate: fn($v): ?string => Validator::dirname($v) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
+          );
+        }
+          return $webroot;
+      }, Webroot::id())
 
       ->intro('Deployment')
 
       ->add(function (array $r, $pr, $n): array {
-              $defaults = [];
+          $defaults = [];
 
-              $options = [
-                DeployType::ARTIFACT => '📦 Code artifact',
-                DeployType::LAGOON => '🌊 Lagoon webhook',
-                DeployType::CONTAINER_IMAGE => '🐳 Container image',
-                DeployType::WEBHOOK => '🌐 Custom webhook',
-              ];
+          $options = [
+            DeployType::ARTIFACT => '📦 Code artifact',
+            DeployType::LAGOON => '🌊 Lagoon webhook',
+            DeployType::CONTAINER_IMAGE => '🐳 Container image',
+            DeployType::WEBHOOK => '🌐 Custom webhook',
+          ];
 
-              if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
-                $defaults[] = DeployType::LAGOON;
-              }
+          if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
+            $defaults[] = DeployType::LAGOON;
+          }
 
-              if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
-                $defaults[] = DeployType::ARTIFACT;
-                unset($options[DeployType::LAGOON]);
-              }
+          if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
+            $defaults[] = DeployType::ARTIFACT;
+            unset($options[DeployType::LAGOON]);
+          }
 
-              if (empty($defaults)) {
-                $defaults[] = DeployType::WEBHOOK;
-              }
+          if (empty($defaults)) {
+            $defaults[] = DeployType::WEBHOOK;
+          }
 
-              return multiselect(
-              label: '🚚 Deployment types',
-              hint: 'You can deploy code using one or more methods.',
-              options: $options,
-              default: $this->default($n, $defaults),
-              );
+          return multiselect(
+            label: '🚚 Deployment types',
+            hint: 'You can deploy code using one or more methods.',
+            options: $options,
+            default: $this->default($n, $defaults),
+          );
       }, DeployType::id())
 
       ->intro('Workflow')
@@ -363,65 +361,65 @@ class PromptManager {
           return DatabaseDownloadSource::NONE;
         }
 
-              $options = [
-                DatabaseDownloadSource::URL => '🌍 URL download',
-                DatabaseDownloadSource::FTP => '📂 FTP download',
-                DatabaseDownloadSource::ACQUIA => '💧 Acquia backup',
-                DatabaseDownloadSource::LAGOON => '🌊 Lagoon environment',
-                DatabaseDownloadSource::CONTAINER_REGISTRY => '🐳 Container registry',
-                DatabaseDownloadSource::NONE => '⭕  None',
-              ];
+          $options = [
+            DatabaseDownloadSource::URL => '🌍 URL download',
+            DatabaseDownloadSource::FTP => '📂 FTP download',
+            DatabaseDownloadSource::ACQUIA => '💧 Acquia backup',
+            DatabaseDownloadSource::LAGOON => '🌊 Lagoon environment',
+            DatabaseDownloadSource::CONTAINER_REGISTRY => '🐳 Container registry',
+            DatabaseDownloadSource::NONE => '⭕  None',
+          ];
 
-              if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
-                unset($options[DatabaseDownloadSource::LAGOON]);
-              }
+          if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
+            unset($options[DatabaseDownloadSource::LAGOON]);
+          }
 
-              if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
-                unset($options[DatabaseDownloadSource::ACQUIA]);
-              }
+          if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
+            unset($options[DatabaseDownloadSource::ACQUIA]);
+          }
 
-              return select(
-              label: 'Database dump source',
-              hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
-              options: $options,
-              default: $this->default($n, match ($r[HostingProvider::id()]) {
-                HostingProvider::ACQUIA => DatabaseDownloadSource::ACQUIA,
-                HostingProvider::LAGOON => DatabaseDownloadSource::LAGOON,
-                default => DatabaseDownloadSource::URL,
-              }),
-              );
+          return select(
+            label: 'Database dump source',
+            hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
+            options: $options,
+            default: $this->default($n, match ($r[HostingProvider::id()]) {
+              HostingProvider::ACQUIA => DatabaseDownloadSource::ACQUIA,
+              HostingProvider::LAGOON => DatabaseDownloadSource::LAGOON,
+              default => DatabaseDownloadSource::URL,
+            }),
+          );
       }, DatabaseDownloadSource::id())
 
       ->addIf(
-            fn($r): bool => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
-            fn($r, $pr, $n): string => text(
-              label: 'What is your database container image name and a tag?',
-              hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
-              placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
-              default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
-              transform: fn($v): string => trim($v),
-              validate: fn($v): ?string => Validator::containerImage($v) ? NULL : 'Please enter a valid container image name with an optional tag.',
-          ), DatabaseImage::id())
+          fn($r): bool => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
+          fn($r, $pr, $n): string => text(
+            label: 'What is your database container image name and a tag?',
+            hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
+            placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
+            default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
+            transform: fn($v): string => trim($v),
+            validate: fn($v): ?string => Validator::containerImage($v) ? NULL : 'Please enter a valid container image name with an optional tag.',
+        ), DatabaseImage::id())
 
       ->intro('Continuous Integration')
 
       ->add(function (array $r, $pr, $n): int|string {
-              $options = [
-                CiProvider::NONE => 'None',
-                CiProvider::GITHUB_ACTIONS => 'GitHub Actions',
-                CiProvider::CIRCLECI => 'CircleCI',
-              ];
+          $options = [
+            CiProvider::NONE => 'None',
+            CiProvider::GITHUB_ACTIONS => 'GitHub Actions',
+            CiProvider::CIRCLECI => 'CircleCI',
+          ];
 
-              if ($r[CodeProvider::id()] !== CodeProvider::GITHUB) {
-                unset($options[CiProvider::GITHUB_ACTIONS]);
-              }
+          if ($r[CodeProvider::id()] !== CodeProvider::GITHUB) {
+            unset($options[CiProvider::GITHUB_ACTIONS]);
+          }
 
-              return select(
-              label: '♻️ Continuous Integration provider',
-              hint: 'Both providers support equivalent workflow.',
-              options: $options,
-              default: $this->default($n, CiProvider::GITHUB_ACTIONS),
-              );
+          return select(
+            label: '♻️ Continuous Integration provider',
+            hint: 'Both providers support equivalent workflow.',
+            options: $options,
+            default: $this->default($n, CiProvider::GITHUB_ACTIONS),
+          );
       }, CiProvider::id())
 
       ->intro('Automations')
@@ -599,12 +597,12 @@ class PromptManager {
 
     $values['Automations'] = Tui::LIST_SECTION_TITLE;
     $values['⬆️ Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
-    $values['👤 Auto-assign PR author'] = Converter::yesNo($responses[AssignAuthorPr::id()]);
-    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = Converter::yesNo($responses[LabelMergeConflictsPr::id()]);
+    $values['👤 Auto-assign PR author'] = Converter::bool($responses[AssignAuthorPr::id()]);
+    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = Converter::bool($responses[LabelMergeConflictsPr::id()]);
 
     $values['Documentation'] = Tui::LIST_SECTION_TITLE;
-    $values['📚 Preserve project documentation'] = Converter::yesNo($responses[PreserveDocsProject::id()]);
-    $values['📋 Preserve onboarding checklist'] = Converter::yesNo($responses[PreserveDocsOnboarding::id()]);
+    $values['📚 Preserve project documentation'] = Converter::bool($responses[PreserveDocsProject::id()]);
+    $values['📋 Preserve onboarding checklist'] = Converter::bool($responses[PreserveDocsOnboarding::id()]);
 
     $values['Locations'] = Tui::LIST_SECTION_TITLE;
     $values['Current directory'] = $this->config->getRoot();

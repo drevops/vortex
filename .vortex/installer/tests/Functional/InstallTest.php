@@ -39,6 +39,7 @@ use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
 use DrevOps\Installer\Utils\Git;
 use DrevOps\Installer\Utils\Tui;
+use Laravel\SerializableClosure\SerializableClosure;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -82,62 +83,71 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 #[CoversClass(Config::class)]
 #[CoversClass(Git::class)]
 #[CoversClass(Tui::class)]
-class InstallTest extends FunctionalTestBase {
+class InstallTest extends FunctionalTestCase {
+
+  protected function setUp(): void {
+    parent::setUp();
+
+    // Use a two-words name for the sut directory.
+    static::$sut = File::mkdir(static::$workspace . DIRECTORY_SEPARATOR . 'star_wars');
+
+    // Change the current working directory to the 'system under test'.
+    chdir(static::$sut);
+  }
 
   public function testHelp(): void {
     static::runNonInteractiveInstall(options: ['help' => NULL]);
-    $this->assertApplicationSuccessOutputContains('php install destination');
+    $this->assertApplicationSuccessful();
+    $this->assertApplicationOutputContains('php install destination');
   }
 
   #[DataProvider('dataProviderInstall')]
   #[RunInSeparateProcess]
-  public function testInstall(?callable $before_callback, ?callable $after_callback = NULL, ?array $answers = NULL, ?array $expected_output = NULL): void {
+  public function testInstall(
+    ?SerializableClosure $before = NULL,
+    ?SerializableClosure $after = NULL,
+    array $expected = [],
+  ): void {
     static::$fixtures = static::locationsFixtureDir();
 
-    if ($before_callback !== NULL) {
-      $before_callback = static::fnu($before_callback);
-      $before_callback($this);
+    if ($before instanceof SerializableClosure) {
+      $before = static::cu($before);
+      $before($this);
     }
 
-    if (!is_null($answers)) {
-      self::runInteractiveInstall($answers);
-    }
-    else {
-      self::runNonInteractiveInstall();
-    }
+    $this->runNonInteractiveInstall();
 
-    $expected_output = $expected_output ?? ['Welcome to Vortex non-interactive installer'];
-    $this->assertApplicationSuccessOutputContains($expected_output);
+    $expected = empty($expected) ? ['Welcome to Vortex non-interactive installer'] : $expected;
+    $this->assertApplicationOutputContains($expected);
 
-    $baseline = File::dir(static::$fixtures . '/../_baseline');
+    $baseline = File::dir(static::$fixtures . '/../' . self::BASELINE_DIR);
     static::replaceVersions(static::$sut);
-    $this->assertBaselineDiffs($baseline, static::$fixtures, static::$sut);
+    $this->assertDirectoryEqualsPatchedBaseline(static::$sut, $baseline, static::$fixtures);
 
     $this->assertCommon();
 
-    if ($after_callback !== NULL) {
-      $after_callback = static::fnu($after_callback);
-      $after_callback($this);
+    if ($after instanceof SerializableClosure) {
+      $after = static::cu($after);
+      $after($this);
     }
   }
 
   public static function dataProviderInstall(): array {
     return [
+      static::BASELINE_DATASET => [
+        NULL,
+        NULL,
+        ['Welcome to Vortex non-interactive installer'],
+      ],
+
       'non-interactive' => [
         NULL,
         NULL,
-        NULL,
-        NULL,
-      ],
-      'interactive' => [
-        NULL,
-        NULL,
-        static::tuiFill(),
-        ['Welcome to Vortex interactive installer'],
+        ['Welcome to Vortex non-interactive installer'],
       ],
 
       'names' => [
-        static::fnw(function (): void {
+        static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(Name::id()), 'New hope');
           Env::put(PromptManager::makeEnvName(MachineName::id()), 'the_new_hope');
           Env::put(PromptManager::makeEnvName(Org::id()), 'Jedi Order');
@@ -149,22 +159,22 @@ class InstallTest extends FunctionalTestBase {
       ],
 
       'code provider, github' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::GITHUB)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::GITHUB)),
       ],
       'code provider, other' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::OTHER)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::OTHER)),
       ],
 
       'profile, minimal' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(Profile::id()), Profile::MINIMAL)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(Profile::id()), Profile::MINIMAL)),
       ],
       'profile, the_empire' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(Profile::id()), 'the_empire')),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(Profile::id()), 'the_empire')),
       ],
 
       'theme, absent' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), '')),
-        static::fnw(fn(FunctionalTestBase $test) => $test->assertDirectoryNotContainsString('themes/custom', static::$sut, [
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), '')),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString('themes/custom', static::$sut, [
           '.gitignore',
           'scripts/vortex',
           'composer.json',
@@ -172,25 +182,25 @@ class InstallTest extends FunctionalTestBase {
       ],
 
       'theme, custom' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), 'light_saber')),
-        static::fnw(fn(FunctionalTestBase $test) => $test->assertDirectoryNotContainsString('your_site_theme', static::$sut)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), 'light_saber')),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString('your_site_theme', static::$sut)),
       ],
 
       'services, no clamav' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::REDIS]))),
-        static::fnw(fn(FunctionalTestBase $test) => $test->assertSutNotContains('clamav')),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::REDIS]))),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('clamav')),
       ],
       'services, no redis' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::SOLR]))),
-        static::fnw(fn(FunctionalTestBase $test) => $test->assertSutNotContains('redis')),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::SOLR]))),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('redis')),
       ],
       'services, no solr' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::REDIS]))),
-        static::fnw(fn(FunctionalTestBase $test) => $test->assertSutNotContains('solr')),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::REDIS]))),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('solr')),
       ],
       'services, none' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), ',')),
-        static::fnw(function (FunctionalTestBase $test): void {
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), ',')),
+        static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('clamav');
           $test->assertSutNotContains('solr');
           $test->assertSutNotContains('redis');
@@ -198,126 +208,148 @@ class InstallTest extends FunctionalTestBase {
       ],
 
       'hosting, acquia' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::ACQUIA)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::ACQUIA)),
       ],
       'hosting, lagoon' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON)),
-        static::fnw(fn(FunctionalTestBase $test) => $test->assertSutNotContains('acquia')),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON)),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('acquia')),
       ],
 
       'db download source, url' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::URL)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::URL)),
       ],
       'db download source, ftp' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::FTP)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::FTP)),
       ],
       'db download source, acquia' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::ACQUIA)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::ACQUIA)),
       ],
       'db download source, lagoon' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::LAGOON)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::LAGOON)),
       ],
       'db download source, container_registry' => [
-        static::fnw(function (): void {
+        static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::CONTAINER_REGISTRY);
           Env::put(PromptManager::makeEnvName(DatabaseImage::id()), 'the_empire/star_wars:latest');
         }),
       ],
 
       'deploy type, artifact' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::ARTIFACT], ',', TRUE))),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::ARTIFACT], ',', TRUE))),
       ],
       'deploy type, lagoon' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::LAGOON], ',', TRUE))),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::LAGOON], ',', TRUE))),
       ],
       'deploy type, container_image' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::CONTAINER_IMAGE], ',', TRUE))),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::CONTAINER_IMAGE], ',', TRUE))),
       ],
       'deploy type, webhook' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::WEBHOOK], ',', TRUE))),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::WEBHOOK], ',', TRUE))),
       ],
       'deploy type, all, gha' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::WEBHOOK, DeployType::CONTAINER_IMAGE, DeployType::LAGOON, DeployType::ARTIFACT]))),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::WEBHOOK, DeployType::CONTAINER_IMAGE, DeployType::LAGOON, DeployType::ARTIFACT]))),
       ],
       'deploy type, all, circleci' => [
-        static::fnw(function (): void {
+        static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(DeployType::id()), Converter::toList([DeployType::WEBHOOK, DeployType::CONTAINER_IMAGE, DeployType::LAGOON, DeployType::ARTIFACT]));
           Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
         }),
       ],
       'deploy type, none, gha' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), ',')),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DeployType::id()), ',')),
       ],
       'deploy type, none, circleci' => [
-        static::fnw(function (): void {
+        static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(DeployType::id()), ',');
           Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
         }),
       ],
 
       'provision, database' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::DATABASE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::DATABASE)),
       ],
       'provision, profile' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::PROFILE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::PROFILE)),
       ],
 
       'ciprovider, gha' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS)),
       ],
       'ciprovider, circleci' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI)),
       ],
 
       'deps updates provider, ci, gha' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DependencyUpdatesProvider::id()), DependencyUpdatesProvider::RENOVATEBOT_CI)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DependencyUpdatesProvider::id()), DependencyUpdatesProvider::RENOVATEBOT_CI)),
       ],
       'deps updates provider, ci, circleci' => [
-        static::fnw(function (): void {
+        static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(DependencyUpdatesProvider::id()), DependencyUpdatesProvider::RENOVATEBOT_CI);
           Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
         }),
       ],
       'deps updates provider, app' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DependencyUpdatesProvider::id()), DependencyUpdatesProvider::RENOVATEBOT_APP)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DependencyUpdatesProvider::id()), DependencyUpdatesProvider::RENOVATEBOT_APP)),
       ],
       'deps updates provider, none' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(DependencyUpdatesProvider::id()), DependencyUpdatesProvider::NONE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DependencyUpdatesProvider::id()), DependencyUpdatesProvider::NONE)),
       ],
 
       'assign author PR, enabled' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(AssignAuthorPr::id()), Env::TRUE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(AssignAuthorPr::id()), Env::TRUE)),
       ],
       'assign author PR, disabled' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(AssignAuthorPr::id()), Env::FALSE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(AssignAuthorPr::id()), Env::FALSE)),
       ],
 
       'label merge conflicts PR, enabled' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(LabelMergeConflictsPr::id()), Env::TRUE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(LabelMergeConflictsPr::id()), Env::TRUE)),
       ],
       'label merge conflicts PR, disabled' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(LabelMergeConflictsPr::id()), Env::FALSE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(LabelMergeConflictsPr::id()), Env::FALSE)),
       ],
 
       'preserve docs project, enabled' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(PreserveDocsProject::id()), Env::TRUE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(PreserveDocsProject::id()), Env::TRUE)),
       ],
       'preserve docs project, disabled' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(PreserveDocsProject::id()), Env::FALSE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(PreserveDocsProject::id()), Env::FALSE)),
       ],
 
       'preserve docs onboarding, enabled' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(PreserveDocsOnboarding::id()), Env::TRUE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(PreserveDocsOnboarding::id()), Env::TRUE)),
       ],
       'preserve docs onboarding, disabled' => [
-        static::fnw(fn() => Env::put(PromptManager::makeEnvName(PreserveDocsOnboarding::id()), Env::FALSE)),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(PreserveDocsOnboarding::id()), Env::FALSE)),
       ],
     ];
   }
 
   protected function assertCommon(): void {
-    $this->assertDirectoriesEqual(static::$root . '/scripts/vortex', static::$sut . '/scripts/vortex', 'Vortex scripts were not modified.');
+    $this->assertDirectoryEqualsDirectory(static::$root . '/scripts/vortex', static::$sut . '/scripts/vortex', 'Vortex scripts were not modified.');
     $this->assertFileEquals(static::$root . '/tests/behat/fixtures/image.jpg', static::$sut . '/tests/behat/fixtures/image.jpg', 'Binary files were not modified.');
+  }
+
+  protected static function defaultAnswers(): array {
+    return [
+      'namespace' => 'YodasHut',
+      'project' => 'force-crystal',
+      'author' => 'Luke Skywalker',
+      'use_php' => static::TUI_DEFAULT,
+      'use_php_command' => static::TUI_DEFAULT,
+      'php_command_name' => static::TUI_DEFAULT,
+      'use_php_command_build' => static::TUI_DEFAULT,
+      'use_php_script' => static::TUI_DEFAULT,
+      'use_nodejs' => static::TUI_DEFAULT,
+      'use_shell' => static::TUI_DEFAULT,
+      'use_release_drafter' => static::TUI_DEFAULT,
+      'use_pr_autoassign' => static::TUI_DEFAULT,
+      'use_funding' => static::TUI_DEFAULT,
+      'use_pr_template' => static::TUI_DEFAULT,
+      'use_renovate' => static::TUI_DEFAULT,
+      'use_docs' => static::TUI_DEFAULT,
+      'remove_self' => static::TUI_DEFAULT,
+    ];
   }
 
 }

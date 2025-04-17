@@ -14,7 +14,7 @@ use DrevOps\Installer\Utils\Git;
  * GitTest fixture class.
  */
 #[CoversClass(Git::class)]
-class GitTest extends UnitTestBase {
+class GitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderExtractOwnerRepo')]
   public function testExtractOwnerRepo(string $uri, ?string $expected): void {

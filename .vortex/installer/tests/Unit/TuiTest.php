@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
  * Tests for the Tui class.
  */
 #[CoversClass(Tui::class)]
-class TuiTest extends UnitTestBase {
+class TuiTest extends UnitTestCase {
 
   #[DataProvider('dataProviderAction')]
   public function testAction(
