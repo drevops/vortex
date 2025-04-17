@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 #[CoversClass(File::class)]
-class FileTest extends UnitTestBase {
+class FileTest extends UnitTestCase {
 
   #[DataProvider('dataProviderIsInternal')]
   public function testIsInternal(string $path, bool $expected): void {

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Tests\Unit;
 
+use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait as UpstreamTuiTrait;
+use DrevOps\Installer\Tests\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Composer;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\Tui;
+use Laravel\Prompts\Prompt;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use DrevOps\Installer\Prompts\Handlers\AssignAuthorPr;
@@ -35,7 +38,6 @@ use DrevOps\Installer\Prompts\Handlers\Theme;
 use DrevOps\Installer\Prompts\Handlers\ThemeRunner;
 use DrevOps\Installer\Prompts\Handlers\Webroot;
 use DrevOps\Installer\Prompts\PromptManager;
-use DrevOps\Installer\Tests\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Converter;
 use DrevOps\Installer\Utils\File;
@@ -48,8 +50,9 @@ use Symfony\Component\Yaml\Yaml;
 #[CoversClass(Env::class)]
 #[CoversClass(Converter::class)]
 #[CoversClass(Composer::class)]
-class PromptManagerTest extends UnitTestBase {
+class PromptManagerTest extends UnitTestCase {
 
+  use UpstreamTuiTrait;
   use TuiTrait;
 
   const FIXTURE_GITHUB_TOKEN = 'ghp_1234567890';
@@ -58,16 +61,20 @@ class PromptManagerTest extends UnitTestBase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
+    parent::setUp();
+
     static::tuiSetUp();
 
-    parent::setUp();
+    putenv('GITHUB_TOKEN=' . self::FIXTURE_GITHUB_TOKEN);
+
+    static::$sut = File::mkdir(static::$sut . DIRECTORY_SEPARATOR . 'myproject');
   }
 
   /**
    * {@inheritdoc}
    */
   protected function tearDown(): void {
-    static::tuiTearDown();
+    static::tuiTeardown();
 
     parent::tearDown();
   }
@@ -80,7 +87,12 @@ class PromptManagerTest extends UnitTestBase {
    * @endcode
    */
   #[DataProvider('dataProviderPrompt')]
-  public function testPrompt(array $responses, array|string $expected, ?callable $before_callback = NULL): void {
+  public function testPrompt(
+    array $answers,
+    array|string $expected,
+    ?callable $before = NULL,
+    ?callable $after = NULL,
+  ): void {
     // Re-use the expected value as an exception message if it is a string.
     $exception = is_string($expected) ? $expected : NULL;
     if ($exception) {
@@ -88,20 +100,17 @@ class PromptManagerTest extends UnitTestBase {
       $this->expectExceptionMessage($exception);
     }
 
-    static::$sut = File::dir(static::$sut . DIRECTORY_SEPARATOR . 'myproject', TRUE);
-
     $config = new Config(static::$sut);
-    putenv('GITHUB_TOKEN=' . self::FIXTURE_GITHUB_TOKEN);
 
-    if ($before_callback !== NULL) {
-      $before_callback($this, $config);
+    if ($before !== NULL) {
+      $before($this, $config);
     }
 
+    $answers = array_replace(static::defaultAnswers(), $answers);
+    $keystrokes = static::tuiKeystrokes($answers, 40);
+    Prompt::fake($keystrokes);
+
     $pm = new PromptManager($config);
-    // Enter responses and fill in the missing ones if an exception is expected
-    // so that in case of exception not being thrown, the test does not hang
-    // waiting for more input.
-    self::tuiInput($responses);
     $pm->prompt();
 
     if (!$exception) {
@@ -110,8 +119,38 @@ class PromptManagerTest extends UnitTestBase {
     }
   }
 
+  public static function defaultAnswers(): array {
+    return [
+      Name::id() => static::TUI_DEFAULT,
+      MachineName::id() => static::TUI_DEFAULT,
+      Org::id() => static::TUI_DEFAULT,
+      OrgMachineName::id() => static::TUI_DEFAULT,
+      Domain::id() => static::TUI_DEFAULT,
+      CodeProvider::id() => static::TUI_DEFAULT,
+      GithubToken::id() => static::TUI_SKIP,
+      GithubRepo::id() => static::TUI_DEFAULT,
+      Profile::id() => static::TUI_DEFAULT,
+      ModulePrefix::id() => static::TUI_DEFAULT,
+      Theme::id() => static::TUI_DEFAULT,
+      ThemeRunner::id() => static::TUI_DEFAULT,
+      Services::id() => static::TUI_DEFAULT,
+      HostingProvider::id() => static::TUI_DEFAULT,
+      Webroot::id() => static::TUI_DEFAULT,
+      DeployType::id() => static::TUI_DEFAULT,
+      ProvisionType::id() => static::TUI_DEFAULT,
+      DatabaseDownloadSource::id() => static::TUI_DEFAULT,
+      DatabaseImage::id() => static::TUI_SKIP,
+      CiProvider::id() => static::TUI_DEFAULT,
+      DependencyUpdatesProvider::id() => static::TUI_DEFAULT,
+      AssignAuthorPr::id() => static::TUI_DEFAULT,
+      LabelMergeConflictsPr::id() => static::TUI_DEFAULT,
+      PreserveDocsProject::id() => static::TUI_DEFAULT,
+      PreserveDocsOnboarding::id() => static::TUI_DEFAULT,
+    ];
+  }
+
   public static function dataProviderPrompt(): array {
-    $defaults = [
+    $expected_defaults = [
       Name::id() => 'myproject',
       MachineName::id() => 'myproject',
       Org::id() => 'myproject Org',
@@ -139,16 +178,16 @@ class PromptManagerTest extends UnitTestBase {
       PreserveDocsOnboarding::id() => TRUE,
     ];
 
-    $defaults_installed = [
+    $expected_installed = [
       CiProvider::id() => CiProvider::NONE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
       AssignAuthorPr::id() => FALSE,
       LabelMergeConflictsPr::id() => FALSE,
       PreserveDocsProject::id() => FALSE,
       PreserveDocsOnboarding::id() => FALSE,
-    ] + $defaults;
+    ] + $expected_defaults;
 
-    $discovered = [
+    $expected_discovered = [
       Name::id() => 'Discovered project',
       MachineName::id() => 'discovered_project',
       Org::id() => 'Discovered project Org',
@@ -157,113 +196,113 @@ class PromptManagerTest extends UnitTestBase {
       GithubRepo::id() => 'discovered_project_org/discovered_project',
       ModulePrefix::id() => 'dp',
       Theme::id() => 'discovered_project',
-    ] + $defaults;
+    ] + $expected_defaults;
 
     return [
       'defaults' => [
-        self::tuiFill(),
-        $defaults,
+        [],
+        $expected_defaults,
       ],
 
       'project name - discovery' => [
-        self::tuiFill(),
-        $discovered,
+        [],
+        $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->setComposerJsonValue('description', 'Drupal 10 Standard installation of Discovered project for Discovered project Org');
         },
       ],
       'invalid project name' => [
-        self::tuiFill(0, 'a_word'),
+        [Name::id() => 'a_word'],
         'Please enter a valid project name.',
       ],
 
       'project machine name - discovery' => [
-        self::tuiFill(),
+        [],
         [
           Name::id() => 'myproject',
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
-        ] + $discovered,
+        ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->setComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
       ],
       'project machine name - invalid' => [
-        self::tuiFill(1, 'a word'),
+        [MachineName::id() => 'a word'],
         'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
       'org name - discovery' => [
-        self::tuiFill(),
-        $discovered,
+        [],
+        $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->setComposerJsonValue('description', 'Drupal 10 Standard installation of Discovered project for Discovered project Org');
         },
       ],
       'org name - invalid' => [
-        self::tuiFill(2, 'a_word'),
+        [Org::id() => 'a_word'],
         'Please enter a valid organization name.',
       ],
 
       'org machine name - discovery' => [
-        self::tuiFill(),
+        [],
         [
           Name::id() => 'myproject',
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
-        ] + $discovered,
+        ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->setComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
       ],
       'org machine name - invalid ' => [
-        self::tuiFill(3, 'a word'),
+        [OrgMachineName::id() => 'a word'],
         'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
       'domain - discovery' => [
-        self::tuiFill(),
-        [Domain::id() => 'discovered-project-dotenv.com'] + $defaults,
+        [],
+        [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
         function (PromptManagerTest $test): void {
           $test->setDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'discovered-project-dotenv.com');
         },
       ],
       'domain - no protocol' => [
-        self::tuiFill(4, 'myproject.com'),
-        [Domain::id() => 'myproject.com'] + $defaults,
+        [Domain::id() => 'myproject.com'],
+        [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
       'domain - www prefix' => [
-        self::tuiFill(4, 'www.myproject.com'),
-        [Domain::id() => 'myproject.com'] + $defaults,
+        [Domain::id() => 'www.myproject.com'],
+        [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
       'domain - secure protocol' => [
-        self::tuiFill(4, 'https://www.myproject.com'),
-        [Domain::id() => 'myproject.com'] + $defaults,
+        [Domain::id() => 'https://www.myproject.com'],
+        [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
       'domain - unsecure protocol' => [
-        self::tuiFill(4, 'http://www.myproject.com'),
-        [Domain::id() => 'myproject.com'] + $defaults,
+        [Domain::id() => 'http://www.myproject.com'],
+        [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
       'domain - invalid - missing TLD' => [
-        self::tuiFill(4, 'myproject'),
+        [Domain::id() => 'myproject'],
         'Please enter a valid domain name.',
       ],
       'domain - invalid - incorrect protocol' => [
-        self::tuiFill(4, 'htt://myproject.com'),
+        [Domain::id() => 'htt://myproject.com'],
         'Please enter a valid domain name.',
       ],
 
       'code repo - discovery' => [
-        self::tuiFill(),
-        [CodeProvider::id() => CodeProvider::GITHUB] + $defaults,
+        [],
+        [CodeProvider::id() => CodeProvider::GITHUB] + $expected_defaults,
         function (PromptManagerTest $test): void {
           File::dump(static::$sut . '/.github/workflows/ci.yml');
         },
       ],
 
       'code repo - discovery - other' => [
-        self::tuiFill(),
-        [CodeProvider::id() => CodeProvider::GITHUB] + $defaults_installed,
+        [],
+        [CodeProvider::id() => CodeProvider::GITHUB] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           Git::init(static::$sut);
@@ -271,306 +310,337 @@ class PromptManagerTest extends UnitTestBase {
       ],
 
       'github repo - discovery' => [
-        self::tuiFill(),
-        [GithubRepo::id() => 'discovered-project-org/discovered-project'] + $defaults,
+        [],
+        [GithubRepo::id() => 'discovered-project-org/discovered-project'] + $expected_defaults,
         function (PromptManagerTest $test): void {
           Git::init(static::$sut)->addRemote('origin', 'git@github.com:discovered-project-org/discovered-project.git');
         },
       ],
       'github repo - discovery - missing remote' => [
-        self::tuiFill(),
-        $defaults,
+        [],
+        $expected_defaults,
         function (PromptManagerTest $test): void {
           Git::init(static::$sut);
         },
       ],
       'github repo - valid name' => [
-        self::tuiFill(6, 'custom_org/custom_project'),
-        [GithubRepo::id() => 'custom_org/custom_project'] + $defaults,
+        [GithubRepo::id() => 'custom_org/custom_project'],
+        // self::tuiFill(6, 'custom_org/custom_project'),.
+        [GithubRepo::id() => 'custom_org/custom_project'] + $expected_defaults,
       ],
       'github repo - valid name - hyphenated' => [
-        self::tuiFill(6, 'custom-org/custom-project'),
-        [GithubRepo::id() => 'custom-org/custom-project'] + $defaults,
+        [GithubRepo::id() => 'custom-org/custom-project'],
+        [GithubRepo::id() => 'custom-org/custom-project'] + $expected_defaults,
       ],
       'github repo - empty' => [
-        self::tuiFill(6, ''),
-        [GithubRepo::id() => ''] + $defaults,
+        [GithubRepo::id() => ''],
+        [GithubRepo::id() => ''] + $expected_defaults,
       ],
       'github repo - invalid name' => [
-        self::tuiFill(6, 'custom_org-custom_project'),
+        [GithubRepo::id() => 'custom_org-custom_project'],
         'Please enter a valid project name in the format "myorg/myproject"',
       ],
 
       'profile - discovery' => [
-        self::tuiFill(),
-        [Profile::id() => Profile::MINIMAL] + $defaults_installed,
+        [],
+        [Profile::id() => Profile::MINIMAL] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           $test->setDotenvValue('DRUPAL_PROFILE', Profile::MINIMAL);
         },
       ],
       'profile - discovery - non-Vortex project' => [
-        self::tuiFill(),
-        [Profile::id() => 'discovered_profile'] + $defaults,
+        [],
+        [Profile::id() => 'discovered_profile'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/web/profiles/discovered_profile/discovered_profile.info');
         },
       ],
+      'profile - minimal' => [
+        [Profile::id() => Key::DOWN . Key::ENTER],
+        [Profile::id() => 'minimal'] + $expected_defaults,
+      ],
+
       'profile - custom' => [
-        self::tuiFill(7, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myprofile'),
-        [Profile::id() => 'myprofile'] + $defaults,
+        [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'myprofile'],
+        [Profile::id() => 'myprofile'] + $expected_defaults,
       ],
       'profile - custom - invalid' => [
-        self::tuiFill(7, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my profile'),
+        [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'my profile'],
         'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
       'module prefix - discovery' => [
-        self::tuiFill(),
-        [ModulePrefix::id() => 'dp'] + $defaults,
+        [],
+        [ModulePrefix::id() => 'dp'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/web/modules/custom/dp_core/dp_core.info');
         },
       ],
       'module prefix - discovery - within profile' => [
-        self::tuiFill(),
-        [ModulePrefix::id() => 'dp'] + $defaults,
+        [],
+        [ModulePrefix::id() => 'dp'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_core/dp_core.info');
         },
       ],
       'module prefix' => [
-        self::tuiFill(8, 'myprefix'),
-        [ModulePrefix::id() => 'myprefix'] + $defaults,
+        [ModulePrefix::id() => 'myprefix'],
+        [ModulePrefix::id() => 'myprefix'] + $expected_defaults,
       ],
       'module prefix - invalid' => [
-        self::tuiFill(8, 'my prefix'),
+        [ModulePrefix::id() => 'my prefix'],
         'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
       ],
       'module prefix - invalid - capitalization' => [
-        self::tuiFill(8, 'MyPrefix'),
+        [ModulePrefix::id() => 'MyPrefix'],
         'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
       'theme - discovery' => [
-        self::tuiFill(),
-        [Theme::id() => 'discovered_project'] + $defaults_installed,
+        [],
+        [Theme::id() => 'discovered_project'] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           $test->setDotenvValue('DRUPAL_THEME', 'discovered_project');
         },
       ],
       'theme - discovery - non-Vortex project' => [
-        self::tuiFill(),
-        [Theme::id() => 'discovered_project'] + $defaults,
+        [],
+        [Theme::id() => 'discovered_project'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/web/themes/custom/discovered_project/discovered_project.info');
         },
       ],
       'theme' => [
-        self::tuiFill(9, 'mytheme'),
-        [Theme::id() => 'mytheme'] + $defaults,
+        [Theme::id() => 'mytheme'],
+        [Theme::id() => 'mytheme'] + $expected_defaults,
       ],
       'theme - invalid' => [
-        self::tuiFill(9, 'my theme'),
+        [Theme::id() => 'my theme'],
         'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
       'theme - invalid - capitalization' => [
-        self::tuiFill(9, 'MyTheme'),
+        [Theme::id() => 'MyTheme'],
         'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
       'services - discovery - solr' => [
-        self::tuiFill(),
-        [
-          Services::id() => [Services::SOLR],
-        ] + $defaults_installed,
+        [],
+        [Services::id() => [Services::SOLR]] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::SOLR => []]));
         },
       ],
       'services - discovery - redis' => [
-        self::tuiFill(),
-        [
-          Services::id() => [Services::REDIS],
-        ] + $defaults_installed,
+        [],
+        [Services::id() => [Services::REDIS]] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::REDIS => []]));
         },
       ],
       'services - discovery - clamav' => [
-        self::tuiFill(),
-        [
-          Services::id() => [Services::CLAMAV],
-        ] + $defaults_installed,
+        [],
+        [Services::id() => [Services::CLAMAV]] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => []]));
         },
       ],
       'services - discovery - all' => [
-        self::tuiFill(),
+        [],
         [
           Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
-        ] + $defaults_installed,
+        ] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]));
         },
       ],
       'services - discovery - none' => [
-        self::tuiFill(),
-        [
-          Services::id() => [],
-        ] + $defaults_installed,
+        [],
+        [Services::id() => []] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['other_service' => []]));
         },
       ],
       'services - discovery - non-Vortex project' => [
-        self::tuiFill(),
-        $defaults,
+        [],
+        $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::REDIS => [], Services::CLAMAV => [], Services::SOLR => []]));
         },
       ],
 
       'hosting provider - discovery - Acquia' => [
-        self::tuiFill(),
+        [],
         [
           HostingProvider::id() => HostingProvider::ACQUIA,
           Webroot::id() => Webroot::DOCROOT,
           DeployType::id() => [DeployType::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
-        ] + $defaults,
+        ] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/hooks/somehook');
         },
       ],
       'hosting provider - discovery - Acquia from env' => [
-        self::tuiFill(),
+        [],
         [
           HostingProvider::id() => HostingProvider::ACQUIA,
           Webroot::id() => Webroot::DOCROOT,
           DeployType::id() => [DeployType::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
-        ] + $defaults,
+        ] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->setDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', DatabaseDownloadSource::ACQUIA);
         },
       ],
       'hosting provider - discovery - Lagoon' => [
-        self::tuiFill(),
+        [],
         [
           HostingProvider::id() => HostingProvider::LAGOON,
           DeployType::id() => [DeployType::LAGOON],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
-        ] + $defaults,
+        ] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/.lagoon.yml');
         },
       ],
 
       'webroot - custom - discovery' => [
-        self::tuiFill(),
-        [Webroot::id() => 'discovered_webroot'] + $defaults,
+        [],
+        [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->setDotenvValue('WEBROOT', 'discovered_webroot');
         },
       ],
       'webroot - custom - discovery no dotenv' => [
-        self::tuiFill(),
-        [Webroot::id() => 'discovered_webroot'] + $defaults,
+        [],
+        [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->setComposerJsonValue('extra', ['drupal-scaffold' => ['drupal-scaffold' => ['locations' => ['web-root' => 'discovered_webroot']]]]);
         },
       ],
       'webroot - custom' => [
-        self::tuiFill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my_webroot'),
-        [HostingProvider::id() => HostingProvider::OTHER, Webroot::id() => 'my_webroot'] + $defaults,
+        [
+          HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+          Webroot::id() => 'my_webroot',
+        ],
+        [
+          HostingProvider::id() => HostingProvider::OTHER,
+          Webroot::id() => 'my_webroot',
+        ] + $expected_defaults,
       ],
       'webroot - custom - capitalization' => [
-        self::tuiFill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyWebroot'),
-        [HostingProvider::id() => HostingProvider::OTHER, Webroot::id() => 'MyWebroot'] + $defaults,
+        [
+          HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+          Webroot::id() => 'MyWebroot',
+        ],
+        [
+          HostingProvider::id() => HostingProvider::OTHER,
+          Webroot::id() => 'MyWebroot',
+        ] + $expected_defaults,
       ],
       'webroot - custom - invalid' => [
-        self::tuiFill(12, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'my webroot'),
+        [
+          HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+          Webroot::id() => 'my webroot',
+        ],
         'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
       'deploy type - discovery' => [
-        self::tuiFill(),
-        [DeployType::id() => [DeployType::ARTIFACT, DeployType::WEBHOOK]] + $defaults,
+        [],
+        [DeployType::id() => [DeployType::ARTIFACT, DeployType::WEBHOOK]] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->setDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployType::ARTIFACT, DeployType::WEBHOOK]));
         },
       ],
 
       'provision type - discovery - database' => [
-        self::tuiFill(),
-        [ProvisionType::id() => ProvisionType::DATABASE] + $defaults,
+        [],
+        [ProvisionType::id() => ProvisionType::DATABASE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->setDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::DATABASE);
         },
       ],
       'provision type - discovery - profile' => [
-        self::tuiFill(),
-        [ProvisionType::id() => ProvisionType::PROFILE, DatabaseDownloadSource::id() => DatabaseDownloadSource::NONE] + $defaults,
+        [],
+        [ProvisionType::id() => ProvisionType::PROFILE, DatabaseDownloadSource::id() => DatabaseDownloadSource::NONE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->setDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::PROFILE);
         },
       ],
 
       'database image - discovery' => [
-        self::tuiFill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER),
-        [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'discovered_owner/discovered_image:tag'] + $defaults,
+        [
+          GithubRepo::id() => static::TUI_SKIP,
+          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        ],
+        [
+          DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY,
+          DatabaseImage::id() => 'discovered_owner/discovered_image:tag',
+        ] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->setDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
         },
       ],
-      'database image' => [
-        self::tuiFill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry/myimage:mytag'),
-        [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'myregistry/myimage:mytag'] + $defaults,
+      'database image - valid' => [
+        [
+          GithubRepo::id() => static::TUI_SKIP,
+          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+          DatabaseImage::id() => 'myregistry/myimage:mytag',
+        ],
+        [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'myregistry/myimage:mytag'] + $expected_defaults,
       ],
       'database image - invalid' => [
-        self::tuiFill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'myregistry:myimage:mytag'),
+        [
+          GithubRepo::id() => static::TUI_SKIP,
+          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+          DatabaseImage::id() => 'myregistry:myimage:mytag',
+        ],
         'Please enter a valid container image name with an optional tag.',
       ],
       'database image - invalid - capitalization' => [
-        self::tuiFill(15, Key::DOWN, Key::DOWN, Key::DOWN, Key::DOWN, Key::ENTER, 'MyRegistry/MyImage:mytag'),
+        [
+          GithubRepo::id() => static::TUI_SKIP,
+          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+          DatabaseImage::id() => 'MyRegistry/MyImage:mytag',
+        ],
         'Please enter a valid container image name with an optional tag.',
       ],
 
       'ci provider - discovery - gha' => [
-        self::tuiFill(),
-        [CiProvider::id() => CiProvider::GITHUB_ACTIONS] + $defaults_installed,
+        [],
+        [CiProvider::id() => CiProvider::GITHUB_ACTIONS] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/.github/workflows/build-test-deploy.yml');
         },
       ],
       'ci provider - discovery - circleci' => [
-        self::tuiFill(),
-        [CiProvider::id() => CiProvider::CIRCLECI] + $defaults_installed,
+        [],
+        [CiProvider::id() => CiProvider::CIRCLECI] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/.circleci/config.yml');
         },
       ],
       'ci provider - discovery - none' => [
-        self::tuiFill(),
-        [CiProvider::id() => CiProvider::NONE] + $defaults_installed,
+        [],
+        [CiProvider::id() => CiProvider::NONE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
         },
       ],
 
       'dependency updates provider - discovery - renovate self-hosted - gha' => [
-        self::tuiFill(),
-        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI] + $defaults_installed,
+        [],
+        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
@@ -578,11 +648,11 @@ class PromptManagerTest extends UnitTestBase {
         },
       ],
       'dependency updates provider - discovery - renovate self-hosted - circleci' => [
-        self::tuiFill(),
+        [],
         [
           CiProvider::id() => CiProvider::CIRCLECI,
           DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI,
-        ] + $defaults_installed,
+        ] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
@@ -590,108 +660,108 @@ class PromptManagerTest extends UnitTestBase {
         },
       ],
       'dependency updates provider - discovery - renovate app' => [
-        self::tuiFill(),
-        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP] + $defaults_installed,
+        [],
+        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
         },
       ],
       'dependency updates provider - discovery - none' => [
-        self::tuiFill(),
-        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE] + $defaults_installed,
+        [],
+        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
         },
       ],
 
       'auto assign pr - discovery' => [
-        self::tuiFill(),
-        [AssignAuthorPr::id() => TRUE] + $defaults_installed,
+        [],
+        [AssignAuthorPr::id() => TRUE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/.github/workflows/assign-author.yml');
         },
       ],
       'auto assign pr - discovery - removed' => [
-        self::tuiFill(),
-        [AssignAuthorPr::id() => FALSE] + $defaults_installed,
+        [],
+        [AssignAuthorPr::id() => FALSE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
         },
       ],
       'auto assign pr - discovery - non-Vortex' => [
-        self::tuiFill(),
-        [AssignAuthorPr::id() => TRUE] + $defaults,
+        [],
+        [AssignAuthorPr::id() => TRUE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/.github/workflows/assign-author.yml');
         },
       ],
 
       'label merge conflicts - discovery' => [
-        self::tuiFill(),
-        [LabelMergeConflictsPr::id() => TRUE] + $defaults_installed,
+        [],
+        [LabelMergeConflictsPr::id() => TRUE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/.github/workflows/label-merge-conflict.yml');
         },
       ],
       'label merge conflicts - discovery - removed' => [
-        self::tuiFill(),
-        [LabelMergeConflictsPr::id() => FALSE] + $defaults_installed,
+        [],
+        [LabelMergeConflictsPr::id() => FALSE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
         },
       ],
       'label merge conflicts - discovery - non-Vortex' => [
-        self::tuiFill(),
-        [LabelMergeConflictsPr::id() => TRUE] + $defaults,
+        [],
+        [LabelMergeConflictsPr::id() => TRUE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/.github/workflows/label-merge-conflict.yml');
         },
       ],
 
       'preserve project documentation - discovery' => [
-        self::tuiFill(),
-        [PreserveDocsProject::id() => TRUE] + $defaults_installed,
+        [],
+        [PreserveDocsProject::id() => TRUE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/docs/README.md');
         },
       ],
       'preserve project documentation - discovery - removed' => [
-        self::tuiFill(),
-        [PreserveDocsProject::id() => FALSE] + $defaults_installed,
+        [],
+        [PreserveDocsProject::id() => FALSE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
         },
       ],
       'preserve project documentation - discovery - non-Vortex' => [
-        self::tuiFill(),
-        [PreserveDocsProject::id() => TRUE] + $defaults,
+        [],
+        [PreserveDocsProject::id() => TRUE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/docs/README.md');
         },
       ],
 
       'preserve onboarding checklist - discovery' => [
-        self::tuiFill(),
-        [PreserveDocsOnboarding::id() => TRUE] + $defaults_installed,
+        [],
+        [PreserveDocsOnboarding::id() => TRUE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/docs/onboarding.md');
         },
       ],
       'preserve onboarding checklist - discovery - removed' => [
-        self::tuiFill(),
-        [PreserveDocsOnboarding::id() => FALSE] + $defaults_installed,
+        [],
+        [PreserveDocsOnboarding::id() => FALSE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
         },
       ],
       'preserve onboarding checklist - discovery - non-Vortex' => [
-        self::tuiFill(),
-        [PreserveDocsOnboarding::id() => TRUE] + $defaults,
+        [],
+        [PreserveDocsOnboarding::id() => TRUE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/docs/onboarding.md');
         },
