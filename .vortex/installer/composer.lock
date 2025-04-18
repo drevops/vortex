@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "162adbd4eb78b01305402a4ba076e589",
+    "content-hash": "af6c99c28056fa4fc9dea1ff345628bd",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -1206,21 +1206,21 @@
     "packages-dev": [
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "0.4.1",
+            "version": "0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "702d74493ed4f5e194fdf198b5caf9ee28bd3d97"
+                "reference": "6e2777e898f2b6d402c9fb2e7f7207d6659ad8f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/702d74493ed4f5e194fdf198b5caf9ee28bd3d97",
-                "reference": "702d74493ed4f5e194fdf198b5caf9ee28bd3d97",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/6e2777e898f2b6d402c9fb2e7f7207d6659ad8f0",
+                "reference": "6e2777e898f2b6d402c9fb2e7f7207d6659ad8f0",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.2",
-                "phpunit/phpunit": "^11",
+                "phpunit/phpunit": "^11 || ^12",
                 "symfony/filesystem": "^7.2",
                 "symfony/finder": "^7.2",
                 "symfony/process": "^7.2"
@@ -1268,7 +1268,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-04-17T01:04:49+00:00"
+            "time": "2025-04-18T04:27:04+00:00"
         },
         {
             "name": "bamarni/composer-bin-plugin",
