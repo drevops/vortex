@@ -16,7 +16,7 @@ use DrevOps\Installer\Utils\Env;
  */
 #[CoversClass(Env::class)]
 #[RunTestsInSeparateProcesses]
-class EnvTest extends UnitTestBase {
+class EnvTest extends UnitTestCase {
 
   /**
    * Backup value of the $GLOBALS['_SERVER'] variable.

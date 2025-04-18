@@ -2,6 +2,8 @@
 ##
 # Update Vortex.
 #
+# IMPORTANT! This script runs outside the container on the host system.
+#
 # shellcheck disable=SC1090,SC1091
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t

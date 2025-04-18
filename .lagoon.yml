@@ -71,7 +71,7 @@ tasks:
           #;< PROVISION_TYPE_PROFILE
           if [ "VORTEX_PROVISION_TYPE" = "profile" ]; then
             # Explicitly set DB overwrite flag to the value from .env file for deployments from the profile.
-            # @see https://github.com/uselagoon/lagoon/issues/1922
+            # https://github.com/uselagoon/lagoon/issues/1922
             export VORTEX_PROVISION_OVERRIDE_DB="$(cat .env | grep ^VORTEX_PROVISION_OVERRIDE_DB | cut -c31-)"
           fi
           #;> PROVISION_TYPE_PROFILE

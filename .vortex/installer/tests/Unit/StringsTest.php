@@ -12,7 +12,7 @@ use DrevOps\Installer\Utils\Strings;
  * Tests for the Strings class.
  */
 #[CoversClass(Strings::class)]
-class StringsTest extends UnitTestBase {
+class StringsTest extends UnitTestCase {
 
   #[DataProvider('dataProviderUtfPos')]
   public function testUtfPos(string $input, ?int $expected): void {

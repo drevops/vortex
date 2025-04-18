@@ -1,4 +1,4 @@
-@@ -262,10 +262,6 @@
+@@ -267,10 +267,6 @@
          run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
          continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
  

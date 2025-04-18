@@ -7,8 +7,8 @@ namespace DrevOps\Installer\Tests\Unit;
 use AlexSkrypnyk\File\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-#[CoversClass(UnitTestBase::class)]
-class SelfTest extends UnitTestBase {
+#[CoversClass(UnitTestCase::class)]
+class SelfTest extends UnitTestCase {
 
   public function testVersionReplacement(): void {
     $baseline = File::dir($this->locationsFixtureDir() . DIRECTORY_SEPARATOR . 'baseline');
@@ -17,7 +17,7 @@ class SelfTest extends UnitTestBase {
 
     static::replaceVersions(static::$sut);
 
-    $this->assertDirectoriesEqual($expected, static::$sut);
+    $this->assertDirectoryEqualsDirectory($expected, static::$sut);
   }
 
 }

@@ -5,6 +5,8 @@
 # Supported registries:
 # - docker.io
 #
+# IMPORTANT! This script runs outside the container on the host system.
+#
 # @todo Add support for more registries.
 #
 # shellcheck disable=SC1090,SC1091

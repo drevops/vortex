@@ -12,7 +12,7 @@ use DrevOps\Installer\Utils\Validator;
  * Class InstallerHelpersTest.
  */
 #[CoversClass(Validator::class)]
-class ValidatorTest extends UnitTestBase {
+class ValidatorTest extends UnitTestCase {
 
   #[DataProvider('dataProviderContainerImage')]
   public function testContainerImage(string $input, bool $expected): void {
