@@ -29,7 +29,7 @@ class InstallCommand extends Command {
 
   const OPTION_ROOT = 'root';
 
-  const OPTION_NO_ITERACTION = 'no-interaction';
+  const OPTION_NO_INTERACTION = 'no-interaction';
 
   const OPTION_CONFIG = 'config';
 
@@ -75,7 +75,7 @@ EOF
     $this->addArgument(static::ARG_DESTINATION, InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
 
     $this->addOption(static::OPTION_ROOT, NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
-    $this->addOption(static::OPTION_NO_ITERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
+    $this->addOption(static::OPTION_NO_INTERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
     $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
     $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
   }
@@ -201,7 +201,7 @@ EOF
     $this->config = Config::fromString($config);
 
     $this->config->setQuiet($options[static::OPTION_QUIET]);
-    $this->config->setNoInteraction($options[static::OPTION_NO_ITERACTION]);
+    $this->config->setNoInteraction($options[static::OPTION_NO_INTERACTION]);
 
     // Set root directory to resolve relative paths.
     $root = !empty($options[static::OPTION_ROOT]) && is_scalar($options[static::OPTION_ROOT]) ? strval($options[static::OPTION_ROOT]) : NULL;

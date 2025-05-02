@@ -65,7 +65,7 @@ class Downloader {
     return [$repo, $ref];
   }
 
-  protected function downloadFromRemote(string $repo, string $ref, string $destination): string {
+  protected function downloadFromRemote(string $repo, string $ref, ?string $destination): string {
     $repo_url = str_ends_with($repo, '.git') ? substr($repo, 0, -4) : $repo;
 
     $version = $ref;
@@ -92,7 +92,7 @@ class Downloader {
     return $version;
   }
 
-  protected function downloadFromLocal(string $repo, string $ref, string $destination): string {
+  protected function downloadFromLocal(string $repo, string $ref, ?string $destination): string {
     // Local download does not support version discovery.
     $ref = $ref === Downloader::REF_STABLE ? Downloader::REF_HEAD : $ref;
     $version = $ref;

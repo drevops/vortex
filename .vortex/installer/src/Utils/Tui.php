@@ -58,7 +58,7 @@ class Tui {
     // @phpstan-ignore-next-line
     $return = spin($action, static::yellow($label));
 
-    static::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::utfPos($label) === 0 ? 3 : 2);
+    static::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::isAsciiStart($label) === 0 ? 3 : 2);
 
     if ($return === FALSE) {
       $failure = $failure && is_callable($failure) ? $failure() : $failure;
@@ -202,7 +202,7 @@ class Tui {
   }
 
   public static function normalizeText(string $text): string {
-    if (is_null(Strings::utfPos($text))) {
+    if (is_null(Strings::isAsciiStart($text))) {
       return $text;
     }
 
@@ -211,7 +211,7 @@ class Tui {
     preg_match_all('/\X/u', $text, $matches);
 
     $utf8_chars = $matches[0];
-    $utf8_chars = array_map(fn($char): string => Strings::utfPos($char) === 0 ? $char . static::utfPadding($char) : $char, $utf8_chars);
+    $utf8_chars = array_map(fn($char): string => Strings::isAsciiStart($char) === 0 ? $char . static::utfPadding($char) : $char, $utf8_chars);
 
     return implode('', $utf8_chars);
   }

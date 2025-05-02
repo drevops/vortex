@@ -93,7 +93,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
     }
 
     $defaults = [
-      InstallCommand::OPTION_NO_ITERACTION => TRUE,
+      InstallCommand::OPTION_NO_INTERACTION => TRUE,
       InstallCommand::OPTION_URI => File::dir(static::$root),
     ];
     $options += $defaults;
@@ -108,7 +108,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
   }
 
   protected function runInteractiveInstall(array $answers = [], ?string $dst = NULL, array $options = [], bool $expect_fail = FALSE): void {
-    $this->runNonInteractiveInstall($dst, $options + [InstallCommand::OPTION_NO_ITERACTION => FALSE], $expect_fail);
+    $this->runNonInteractiveInstall($dst, $options + [InstallCommand::OPTION_NO_INTERACTION => FALSE], $expect_fail);
   }
 
   protected function assertSutContains(string $needle): void {

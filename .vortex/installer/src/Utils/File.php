@@ -37,7 +37,6 @@ class File extends UpstreamFile {
       '/LICENSE',
       '/CODE_OF_CONDUCT.md',
       '/CONTRIBUTING.md',
-      '/LICENSE',
       '/SECURITY.md',
       '/.vortex/docs',
       '/.vortex/tests',
