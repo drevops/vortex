@@ -1206,24 +1206,24 @@
     "packages-dev": [
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "0.5.0",
+            "version": "0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "6e2777e898f2b6d402c9fb2e7f7207d6659ad8f0"
+                "reference": "5c540aed1a6521b9062e94c3d63f358a74d25eda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/6e2777e898f2b6d402c9fb2e7f7207d6659ad8f0",
-                "reference": "6e2777e898f2b6d402c9fb2e7f7207d6659ad8f0",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/5c540aed1a6521b9062e94c3d63f358a74d25eda",
+                "reference": "5c540aed1a6521b9062e94c3d63f358a74d25eda",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.2",
                 "phpunit/phpunit": "^11 || ^12",
-                "symfony/filesystem": "^7.2",
-                "symfony/finder": "^7.2",
-                "symfony/process": "^7.2"
+                "symfony/filesystem": "^6.4 || ^7.2",
+                "symfony/finder": "^6.4 || ^7.2",
+                "symfony/process": "^6.4 || ^7.2"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
@@ -1232,7 +1232,8 @@
                 "laravel/serializable-closure": "^2.0",
                 "phpstan/phpstan": "^2",
                 "rector/rector": "^2",
-                "symfony/console": "^7.2"
+                "squizlabs/php_codesniffer": "^3.7",
+                "symfony/console": "^6.4 || ^7.2"
             },
             "type": "library",
             "autoload": {
@@ -1268,7 +1269,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-04-18T04:27:04+00:00"
+            "time": "2025-05-03T12:31:19+00:00"
         },
         {
             "name": "bamarni/composer-bin-plugin",
@@ -1407,16 +1408,16 @@
         },
         {
             "name": "drupal/coder",
-            "version": "8.3.28",
+            "version": "8.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pfrenssen/coder.git",
-                "reference": "d18eeb133f7da766f0341734aa983d05f2b317fd"
+                "reference": "92557b90d1e349d160be344b1000f8d7f13faca3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pfrenssen/coder/zipball/d18eeb133f7da766f0341734aa983d05f2b317fd",
-                "reference": "d18eeb133f7da766f0341734aa983d05f2b317fd",
+                "url": "https://api.github.com/repos/pfrenssen/coder/zipball/92557b90d1e349d160be344b1000f8d7f13faca3",
+                "reference": "92557b90d1e349d160be344b1000f8d7f13faca3",
                 "shasum": ""
             },
             "require": {
@@ -1425,7 +1426,7 @@
                 "php": ">=7.2",
                 "sirbrillig/phpcs-variable-analysis": "^2.11.7",
                 "slevomat/coding-standard": "^8.11",
-                "squizlabs/php_codesniffer": "^3.11.2",
+                "squizlabs/php_codesniffer": "^3.12.2",
                 "symfony/yaml": ">=3.4.0"
             },
             "require-dev": {
@@ -1454,7 +1455,7 @@
                 "issues": "https://www.drupal.org/project/issues/coder",
                 "source": "https://www.drupal.org/project/coder"
             },
-            "time": "2025-01-18T17:05:53+00:00"
+            "time": "2025-05-03T11:56:22+00:00"
         },
         {
             "name": "ergebnis/composer-normalize",
@@ -2587,16 +2588,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.13",
+            "version": "2.1.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "e55e03e6d4ac49cd1240907e5b08e5cd378572a9"
+                "reference": "8f2e03099cac24ff3b379864d171c5acbfc6b9a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e55e03e6d4ac49cd1240907e5b08e5cd378572a9",
-                "reference": "e55e03e6d4ac49cd1240907e5b08e5cd378572a9",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/8f2e03099cac24ff3b379864d171c5acbfc6b9a2",
+                "reference": "8f2e03099cac24ff3b379864d171c5acbfc6b9a2",
                 "shasum": ""
             },
             "require": {
@@ -2641,7 +2642,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-04-27T12:28:25+00:00"
+            "time": "2025-05-02T15:32:28+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
