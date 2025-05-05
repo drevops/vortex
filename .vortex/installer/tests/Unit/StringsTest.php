@@ -14,12 +14,12 @@ use DrevOps\Installer\Utils\Strings;
 #[CoversClass(Strings::class)]
 class StringsTest extends UnitTestCase {
 
-  #[DataProvider('dataProviderUtfPos')]
-  public function testUtfPos(string $input, ?int $expected): void {
-    $this->assertEquals($expected, Strings::utfPos($input));
+  #[DataProvider('dataProviderIsAsciiStart')]
+  public function testIsAsciiStart(string $input, ?int $expected): void {
+    $this->assertEquals($expected, Strings::isAsciiStart($input));
   }
 
-  public static function dataProviderUtfPos(): array {
+  public static function dataProviderIsAsciiStart(): array {
     return [
       ['Hello', 1],
       ['Ångström', 0],
