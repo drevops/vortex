@@ -66,7 +66,7 @@ class Downloader {
   }
 
   protected function downloadFromRemote(string $repo, string $ref, ?string $destination): string {
-    if ($destination === null) {
+    if ($destination === NULL) {
       throw new \InvalidArgumentException('Destination cannot be null for remote downloads.');
     }
     $repo_url = str_ends_with($repo, '.git') ? substr($repo, 0, -4) : $repo;
@@ -96,7 +96,7 @@ class Downloader {
   }
 
   protected function downloadFromLocal(string $repo, string $ref, ?string $destination): string {
-    if ($destination === null) {
+    if ($destination === NULL) {
       throw new \InvalidArgumentException('Destination cannot be null for local downloads.');
     }
     // Local download does not support version discovery.
