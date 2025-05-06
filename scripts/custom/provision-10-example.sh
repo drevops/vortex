@@ -33,9 +33,9 @@ if drush php:eval "print \Drupal\core\Site\Settings::get('environment');" | grep
   # Enable contrib modules.
   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy
 
-  #;< SERVICE_REDIS
+  #;< SERVICE_VALKEY
   drush pm:install redis || true
-  #;> SERVICE_REDIS
+  #;> SERVICE_VALKEY
 
   #;< SERVICE_CLAMAV
   drush pm:install clamav
