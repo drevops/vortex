@@ -36,7 +36,7 @@ Track our current progress and view planned updates on [the GitHub project board
 
 ## Installation
 
-Our [installer](https://github.com/drevops/vortex-installer) simplifies setup, letting you choose only the features you need. It will integrate the latest Vortex release into your codebase and you will choose which changes to commit.
+Our installer simplifies setup, letting you choose only the features you need. It will integrate the latest Vortex release into your codebase and you will choose which changes to commit.
 
 ```bash
 curl -SsL https://vortex.drevops.com/install > install.php && php install.php
