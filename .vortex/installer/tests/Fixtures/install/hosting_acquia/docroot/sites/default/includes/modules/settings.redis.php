@@ -43,7 +43,7 @@ if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_VALKEY_ENABLE
       }
     }
 
-    $class_loader->addPsr4('Drupal\\redis\\', $contrib_path . '/redis/src'); // Using the redis module namespace
+    $class_loader->addPsr4('Drupal\\redis\\', $contrib_path . '/redis/src');
 
     $settings['bootstrap_container_definition'] = [
       'parameters' => [],
