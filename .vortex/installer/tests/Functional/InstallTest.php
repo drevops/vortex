@@ -187,7 +187,7 @@ class InstallTest extends FunctionalTestCase {
       ],
 
       'services, no clamav' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::REDIS]))),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::VALKEY]))),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('clamav')),
       ],
       'services, no redis' => [
@@ -195,7 +195,7 @@ class InstallTest extends FunctionalTestCase {
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('redis')),
       ],
       'services, no solr' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::REDIS]))),
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::VALKEY]))),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('solr')),
       ],
       'services, none' => [
