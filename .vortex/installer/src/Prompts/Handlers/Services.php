@@ -36,12 +36,12 @@ class Services extends AbstractHandler {
       $services[] = self::CLAMAV;
     }
 
-    if (isset($dc['valkey'])) {
-      $services[] = self::VALKEY;
-    }
-
     if (isset($dc['solr'])) {
       $services[] = self::SOLR;
+    }
+
+    if (isset($dc['valkey'])) {
+      $services[] = self::VALKEY;
     }
 
     sort($services);
