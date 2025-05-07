@@ -15,7 +15,7 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 [//]: # (#;> CI_PROVIDER_GHA)
 
-![Drupal 11](https://img.shields.io/badge/Drupal-10-blue.svg)
+![Drupal 11](https://img.shields.io/badge/Drupal-11-blue.svg)
 [![codecov](https://codecov.io/gh/your_org/your_site/graph/badge.svg)](https://codecov.io/gh/your_org/your_site)
 
 [//]: # (#;< DEPS_UPDATE_PROVIDER)
