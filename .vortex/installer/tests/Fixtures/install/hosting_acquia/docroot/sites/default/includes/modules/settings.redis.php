@@ -26,9 +26,9 @@ use Drupal\redis\ClientFactory;
 // project-wide env variable (and since it has the same value '1' as removed
 // per-env variable - there will be no change in how code works).
 if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_VALKEY_ENABLED'))) {
-  $settings['valkey.connection']['interface'] = 'PhpRedis';
-  $settings['valkey.connection']['host'] = getenv('VALKEY_HOST') ?: 'valkey';
-  $settings['valkey.connection']['port'] = getenv('VALKEY_SERVICE_PORT') ?: '6379';
+  $settings['redis.connection']['interface'] = 'PhpRedis';
+  $settings['redis.connection']['host'] = getenv('VALKEY_HOST') ?: 'valkey';
+  $settings['redis.connection']['port'] = getenv('VALKEY_SERVICE_PORT') ?: '6379';
 
   // Do not set the cache during installations of Drupal, but allow
   // to override this by setting VORTEX_VALKEY_EXTENSION_LOADED to non-zero.
