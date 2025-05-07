@@ -341,7 +341,7 @@
         "valkey": {
             "command": null,
             "entrypoint": null,
-            "image": "uselagoon/valkey-8:25.4.0",
+            "image": "uselagoon/valkey-8:VERSION",
             "labels": {
                 "lagoon.type": "valkey"
             },
