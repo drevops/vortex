@@ -30,7 +30,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
-                "DRUPAL_VALKEY_ENABLED": "",
+                "DRUPAL_VALKEY_ENABLED": "0",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "Australia/Melbourne",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -87,7 +87,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
-                "DRUPAL_VALKEY_ENABLED": "",
+                "DRUPAL_VALKEY_ENABLED": "0",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "Australia/Melbourne",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -135,7 +135,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
-                "DRUPAL_VALKEY_ENABLED": "",
+                "DRUPAL_VALKEY_ENABLED": "0",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "Australia/Melbourne",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -190,7 +190,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
-                "DRUPAL_VALKEY_ENABLED": "",
+                "DRUPAL_VALKEY_ENABLED": "0",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "Australia/Melbourne",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -246,7 +246,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
-                "DRUPAL_VALKEY_ENABLED": "",
+                "DRUPAL_VALKEY_ENABLED": "0",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "Australia/Melbourne",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -307,7 +307,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
-                "DRUPAL_VALKEY_ENABLED": "",
+                "DRUPAL_VALKEY_ENABLED": "0",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "Australia/Melbourne",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -337,17 +337,6 @@
                     "volume": []
                 }
             ]
-        },
-        "valkey": {
-            "command": null,
-            "entrypoint": null,
-            "image": "uselagoon/valkey-8:VERSION",
-            "labels": {
-                "lagoon.type": "valkey"
-            },
-            "networks": {
-                "default": null
-            }
         },
         "solr": {
             "build": {
@@ -379,7 +368,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
-                "DRUPAL_VALKEY_ENABLED": "",
+                "DRUPAL_VALKEY_ENABLED": "0",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "Australia/Melbourne",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -406,6 +395,17 @@
                     "volume": []
                 }
             ]
+        },
+        "valkey": {
+            "command": null,
+            "entrypoint": null,
+            "image": "uselagoon/valkey-8:VERSION",
+            "labels": {
+                "lagoon.type": "valkey"
+            },
+            "networks": {
+                "default": null
+            }
         },
         "wait_dependencies": {
             "command": [
