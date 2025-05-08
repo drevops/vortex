@@ -11,7 +11,7 @@ class Services extends AbstractHandler {
 
   const CLAMAV = 'clamav';
 
-  const REDIS = 'redis';
+  const VALKEY = 'valkey';
 
   const SOLR = 'solr';
 
@@ -36,12 +36,12 @@ class Services extends AbstractHandler {
       $services[] = self::CLAMAV;
     }
 
-    if (isset($dc['redis'])) {
-      $services[] = self::REDIS;
-    }
-
     if (isset($dc['solr'])) {
       $services[] = self::SOLR;
+    }
+
+    if (isset($dc['valkey'])) {
+      $services[] = self::VALKEY;
     }
 
     sort($services);
@@ -74,17 +74,6 @@ class Services extends AbstractHandler {
       File::replaceContent($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/clamav":\s*"[^\"]+",?\n/', "\n");
     }
 
-    if (in_array(self::REDIS, $v)) {
-      File::removeTokenInDir($t, '!SERVICE_REDIS');
-    }
-    else {
-      File::removeTokenInDir($t, 'SERVICE_REDIS');
-      File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/redis');
-      @unlink($t . DIRECTORY_SEPARATOR . '.docker/redis.dockerfile');
-      @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.redis.php');
-      File::replaceContent($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
-    }
-
     if (in_array(self::SOLR, $v)) {
       File::removeTokenInDir($t, '!SERVICE_SOLR');
     }
@@ -111,6 +100,17 @@ class Services extends AbstractHandler {
       if ($path) {
         File::rmdir($path);
       }
+    }
+
+    if (in_array(self::VALKEY, $v)) {
+      File::removeTokenInDir($t, '!SERVICE_VALKEY');
+    }
+    else {
+      File::removeTokenInDir($t, 'SERVICE_VALKEY');
+      File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/valkey');
+      @unlink($t . DIRECTORY_SEPARATOR . '.docker/valkey.dockerfile');
+      @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.redis.php');
+      File::replaceContent($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
     }
   }
 

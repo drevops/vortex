@@ -59,6 +59,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
     $update_requested = getenv('UPDATE_FIXTURES');
 
     if ($is_failure && $has_message && $fixture_exists && $update_requested) {
+      fwrite(STDERR, PHP_EOL . '[INFO] Feature update requested' . PHP_EOL);
       $baseline = File::dir(static::$fixtures . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . static::BASELINE_DIR);
 
       $ic_baseline = $baseline . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
@@ -66,19 +67,23 @@ abstract class FunctionalTestCase extends UnitTestCase {
       $ic_tmp = static::$tmp . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
       $ic_fixtures = static::$fixtures . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
 
-      if (str_contains(static::$fixtures, DIRECTORY_SEPARATOR . static::BASELINE_DIR . DIRECTORY_SEPARATOR)) {
+      if (str_contains(static::$fixtures, DIRECTORY_SEPARATOR . static::BASELINE_DIR)) {
+        fwrite(STDERR, '[INFO] Updating baseline fixtures' . PHP_EOL);
         File::copyIfExists($ic_baseline, $ic_sut);
         File::copyIfExists($ic_baseline, $ic_tmp);
         File::rmdir($baseline);
         File::sync(static::$sut, $baseline);
         static::replaceVersions($baseline);
         File::copyIfExists($ic_tmp, $ic_baseline);
+        fwrite(STDERR, '[INFO] Baseline fixtures updated' . PHP_EOL);
       }
       else {
+        fwrite(STDERR, '[INFO] Updating other fixtures' . PHP_EOL);
         File::copyIfExists($ic_fixtures, $ic_tmp);
         File::rmdir(static::$fixtures);
         File::diff($baseline, static::$sut, static::$fixtures);
         File::copyIfExists($ic_tmp, $ic_fixtures);
+        fwrite(STDERR, '[INFO] Other fixtures updated' . PHP_EOL);
       }
     }
 
@@ -111,16 +116,24 @@ abstract class FunctionalTestCase extends UnitTestCase {
     $this->runNonInteractiveInstall($dst, $options + [InstallCommand::OPTION_NO_INTERACTION => FALSE], $expect_fail);
   }
 
-  protected function assertSutContains(string $needle): void {
-    $this->assertDirectoryContainsWord($needle, static::$sut, [
-      'scripts/vortex',
-    ]);
+  protected function assertSutContains(string|array $needles): void {
+    $needles = is_array($needles) ? $needles : [$needles];
+
+    foreach ($needles as $needle) {
+      $this->assertDirectoryContainsWord($needle, static::$sut, [
+        'scripts/vortex',
+      ]);
+    }
   }
 
-  protected function assertSutNotContains(string $needle): void {
-    $this->assertDirectoryNotContainsWord($needle, static::$sut, [
-      'scripts/vortex',
-    ]);
+  protected function assertSutNotContains(string|array $needles): void {
+    $needles = is_array($needles) ? $needles : [$needles];
+
+    foreach ($needles as $needle) {
+      $this->assertDirectoryNotContainsWord($needle, static::$sut, [
+        'scripts/vortex',
+      ]);
+    }
   }
 
 }

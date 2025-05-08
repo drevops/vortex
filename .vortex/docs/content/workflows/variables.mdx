@@ -160,14 +160,6 @@ Default value: `./${WEBROOT}/sites/default/files`
 
 Defined in: `docker-compose.yml`
 
-### `DRUPAL_REDIS_ENABLED`
-
-Enable Redis integration.<br/>See settings.redis.php for details.
-
-Default value: `UNDEFINED`
-
-Defined in: `.env`
-
 ### `DRUPAL_SHIELD_PRINT`
 
 Shield message.
@@ -225,6 +217,14 @@ Unblock admin account when logging in.
 Default value: `1`
 
 Defined in: `.env`, `scripts/vortex/login.sh`, `scripts/vortex/logout.sh`
+
+### `DRUPAL_VALKEY_ENABLED`
+
+Enable Valkey integration.<br/>See settings.redis.php for details.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`
 
 ### `GITHUB_TOKEN`
 

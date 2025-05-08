@@ -140,7 +140,7 @@ abstract class SettingsTestCase extends TestCase {
     $vars_real = self::getRealEnvVarsFilteredNoValues([
       // Service variables.
       'DATABASE_',
-      'REDIS_',
+      'VALKEY_',
       'COMPOSE_',
       'GITHUB_',
       'DOCKER_',

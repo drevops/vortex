@@ -62,8 +62,8 @@ x-environment: &default-environment
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
-  # Redis integration flag.
-  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
+  # Valkey integration flag.
+  DRUPAL_VALKEY_ENABLED: ${DRUPAL_VALKEY_ENABLED:-}
 
 # ------------------------------------------------------------------------------
 # Services.
@@ -132,8 +132,8 @@ services:
     ports:
       - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
 
-  redis:
-    image: uselagoon/redis-6:__VERSION__
+  valkey:
+    image: uselagoon/valkey-8:__VERSION__
 
   solr:
     build:

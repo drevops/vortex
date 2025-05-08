@@ -47,8 +47,8 @@ load _helper.workflow.bash
   assert_ahoy_debug
 
   # Run this test as a last one to make sure that there is no concurrency issues
-  # with enabled Redis.
-  assert_redis
+  # with enabled Valkey.
+  assert_valkey
 
   assert_ahoy_reset
 
