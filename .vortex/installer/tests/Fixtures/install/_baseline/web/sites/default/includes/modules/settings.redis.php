@@ -12,10 +12,9 @@ use Drupal\redis\Cache\CacheBackendFactory;
 use Drupal\redis\Cache\PhpRedis;
 use Drupal\redis\Cache\RedisCacheTagsChecksum;
 use Drupal\redis\ClientFactory;
-// Note: The module namespace is still Drupal\redis but it uses Valkey internally
 
 // Using 'DRUPAL_VALKEY_ENABLED' variable to resolve deployment concurrency:
-// Valkey module needs to be enabled without the configuration below applied
+// Redis module needs to be enabled without the configuration below applied
 // while the Valkey service gets provisioned (deployment #1), then the cache
 // needs to be switched to Valkey with setting 'DRUPAL_VALKEY_ENABLED=1' for
 // environments and triggering another deployment (deployment #2) to get that

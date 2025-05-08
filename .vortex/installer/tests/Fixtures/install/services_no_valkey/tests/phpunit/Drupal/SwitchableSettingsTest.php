@@ -2,20 +2,20 @@
    }
  
    /**
--   * Test Redis settings.
+-   * Test Valkey settings.
 -   */
--  public function testRedis(): void {
+-  public function testValkey(): void {
 -    $this->setEnvVars([
--      'DRUPAL_REDIS_ENABLED' => 1,
--      'REDIS_HOST' => 'redis_host',
--      'REDIS_SERVICE_PORT' => 1234,
--      'VORTEX_REDIS_EXTENSION_LOADED' => 1,
+-      'DRUPAL_VALKEY_ENABLED' => 1,
+-      'VALKEY_HOST' => 'valkey_host',
+-      'VALKEY_SERVICE_PORT' => 1234,
+-      'VORTEX_VALKEY_EXTENSION_LOADED' => 1,
 -    ]);
 -
 -    $this->requireSettingsFile();
 -
 -    $settings['redis.connection']['interface'] = 'PhpRedis';
--    $settings['redis.connection']['host'] = 'redis_host';
+-    $settings['redis.connection']['host'] = 'valkey_host';
 -    $settings['redis.connection']['port'] = 1234;
 -    $settings['cache']['default'] = 'cache.backend.redis';
 -
@@ -26,20 +26,20 @@
 -  }
 -
 -  /**
--   * Test Redis partial settings.
+-   * Test Valkey partial settings.
 -   */
--  public function testRedisPartial(): void {
+-  public function testValkeyPartial(): void {
 -    $this->setEnvVars([
--      'DRUPAL_REDIS_ENABLED' => 1,
--      'REDIS_HOST' => 'redis_host',
--      'REDIS_SERVICE_PORT' => 1234,
--      'VORTEX_REDIS_EXTENSION_LOADED' => 0,
+-      'DRUPAL_VALKEY_ENABLED' => 1,
+-      'VALKEY_HOST' => 'valkey_host',
+-      'VALKEY_SERVICE_PORT' => 1234,
+-      'VORTEX_VALKEY_EXTENSION_LOADED' => 0,
 -    ]);
 -
 -    $this->requireSettingsFile();
 -
 -    $settings['redis.connection']['interface'] = 'PhpRedis';
--    $settings['redis.connection']['host'] = 'redis_host';
+-    $settings['redis.connection']['host'] = 'valkey_host';
 -    $settings['redis.connection']['port'] = 1234;
 -    $no_settings['cache']['default'] = 'cache.backend.redis';
 -

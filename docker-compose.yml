@@ -173,7 +173,7 @@ services:
     image: uselagoon/valkey-8:25.4.0
     #;< HOSTING_LAGOON
     labels:
-      lagoon.type: valkey # Change to 'none' if dedicated Valkey service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+      lagoon.type: redis # Change to 'none' if dedicated Valkey service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     #;> HOSTING_LAGOON
   #;> SERVICE_VALKEY
 

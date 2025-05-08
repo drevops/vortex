@@ -163,7 +163,7 @@ class PromptManagerTest extends UnitTestCase {
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
       ThemeRunner::id() => ThemeRunner::GRUNT,
-      Services::id() => [Services::CLAMAV, Services::VALKEY, Services::SOLR],
+      Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
       HostingProvider::id() => HostingProvider::NONE,
       Webroot::id() => Webroot::WEB,
       DeployType::id() => [DeployType::WEBHOOK],
@@ -452,7 +452,7 @@ class PromptManagerTest extends UnitTestCase {
       'services - discovery - all' => [
         [],
         [
-          Services::id() => [Services::CLAMAV, Services::VALKEY, Services::SOLR],
+          Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
         ] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);

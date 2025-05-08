@@ -116,16 +116,24 @@ abstract class FunctionalTestCase extends UnitTestCase {
     $this->runNonInteractiveInstall($dst, $options + [InstallCommand::OPTION_NO_INTERACTION => FALSE], $expect_fail);
   }
 
-  protected function assertSutContains(string $needle): void {
-    $this->assertDirectoryContainsWord($needle, static::$sut, [
-      'scripts/vortex',
-    ]);
+  protected function assertSutContains(string|array $needles): void {
+    $needles = is_array($needles) ? $needles : [$needles];
+
+    foreach ($needles as $needle) {
+      $this->assertDirectoryContainsWord($needle, static::$sut, [
+        'scripts/vortex',
+      ]);
+    }
   }
 
-  protected function assertSutNotContains(string $needle): void {
-    $this->assertDirectoryNotContainsWord($needle, static::$sut, [
-      'scripts/vortex',
-    ]);
+  protected function assertSutNotContains(string|array $needles): void {
+    $needles = is_array($needles) ? $needles : [$needles];
+
+    foreach ($needles as $needle) {
+      $this->assertDirectoryNotContainsWord($needle, static::$sut, [
+        'scripts/vortex',
+      ]);
+    }
   }
 
 }

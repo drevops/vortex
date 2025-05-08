@@ -74,17 +74,6 @@ class Services extends AbstractHandler {
       File::replaceContent($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/clamav":\s*"[^\"]+",?\n/', "\n");
     }
 
-    if (in_array(self::VALKEY, $v)) {
-      File::removeTokenInDir($t, '!SERVICE_VALKEY');
-    }
-    else {
-      File::removeTokenInDir($t, 'SERVICE_VALKEY');
-      File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/valkey');
-      @unlink($t . DIRECTORY_SEPARATOR . '.docker/valkey.dockerfile');
-      @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.valkey.php');
-      File::replaceContent($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/valkey":\s*"[^\"]+",?\n/', "\n");
-    }
-
     if (in_array(self::SOLR, $v)) {
       File::removeTokenInDir($t, '!SERVICE_SOLR');
     }
@@ -111,6 +100,17 @@ class Services extends AbstractHandler {
       if ($path) {
         File::rmdir($path);
       }
+    }
+
+    if (in_array(self::VALKEY, $v)) {
+      File::removeTokenInDir($t, '!SERVICE_VALKEY');
+    }
+    else {
+      File::removeTokenInDir($t, 'SERVICE_VALKEY');
+      File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/valkey');
+      @unlink($t . DIRECTORY_SEPARATOR . '.docker/valkey.dockerfile');
+      @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.redis.php');
+      File::replaceContent($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
     }
   }
 
