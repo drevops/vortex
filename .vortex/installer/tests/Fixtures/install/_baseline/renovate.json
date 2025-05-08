@@ -101,8 +101,8 @@
     "customManagers": [
         {
             "customType": "regex",
-            "fileMatch": [
-                "^docker-compose\\.yml$"
+            "managerFilePatterns": [
+                "/^docker-compose\\.yml$/"
             ],
             "matchStrings": [
                 "IMAGE:\\s*\"?\\${(?:.*):-(?<depName>.*?):(?<currentValue>.*?)(?:\\@sha256:.*)?}\"?"
