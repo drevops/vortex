@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:25.3.0
+      image: drevops/ci-runner:25.5.0
 
       env:
         TZ: Australia/Melbourne
@@ -165,7 +165,7 @@ jobs:
       fail-fast: false
 
     container:
-      image: drevops/ci-runner:25.3.0
+      image: drevops/ci-runner:25.5.0
 
       env:
         TZ: Australia/Melbourne
@@ -363,7 +363,7 @@ jobs:
     #;> !PROVISION_TYPE_PROFILE
 
     container:
-      image: drevops/ci-runner:25.3.0
+      image: drevops/ci-runner:25.5.0
       env:
         TZ: Australia/Melbourne
         TERM: xterm-256color
