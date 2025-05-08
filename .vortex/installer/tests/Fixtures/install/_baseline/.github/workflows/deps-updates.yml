@@ -12,6 +12,8 @@ jobs:
         uses: actions/checkout@__VERSION__
 
       - uses: suzuki-shunsuke/github-action-renovate-config-validator@__VERSION__
+        with:
+          node-version: 22.13.1
 
       - name: Self-hosted Renovate
         uses: renovatebot/github-action@__VERSION__
