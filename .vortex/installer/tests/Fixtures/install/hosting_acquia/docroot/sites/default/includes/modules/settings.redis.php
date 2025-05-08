@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Redis configuration.
+ * Valkey configuration.
  */
 
 declare(strict_types=1);
@@ -13,25 +13,25 @@ use Drupal\redis\Cache\PhpRedis;
 use Drupal\redis\Cache\RedisCacheTagsChecksum;
 use Drupal\redis\ClientFactory;
 
-// Using 'DRUPAL_REDIS_ENABLED' variable to resolve deployment concurrency:
+// Using 'DRUPAL_VALKEY_ENABLED' variable to resolve deployment concurrency:
 // Redis module needs to be enabled without the configuration below applied
-// while the Redis service gets provisioned (deployment #1), then the cache
-// needs to be switched to Redis with setting 'DRUPAL_REDIS_ENABLED=1' for
+// while the Valkey service gets provisioned (deployment #1), then the cache
+// needs to be switched to Valkey with setting 'DRUPAL_VALKEY_ENABLED=1' for
 // environments and triggering another deployment (deployment #2) to get that
 // env variable applied.
-// Once all environments were redeployed twice, the 'DRUPAL_REDIS_ENABLED=1'
+// Once all environments were redeployed twice, the 'DRUPAL_VALKEY_ENABLED=1'
 // can be set for all environments as a per-project variable and per-env
 // variables would need to be removed. The next deployment (#3) would use
 // project-wide env variable (and since it has the same value '1' as removed
 // per-env variable - there will be no change in how code works).
-if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_REDIS_ENABLED'))) {
+if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_VALKEY_ENABLED'))) {
   $settings['redis.connection']['interface'] = 'PhpRedis';
-  $settings['redis.connection']['host'] = getenv('REDIS_HOST') ?: 'redis';
-  $settings['redis.connection']['port'] = getenv('REDIS_SERVICE_PORT') ?: '6379';
+  $settings['redis.connection']['host'] = getenv('VALKEY_HOST') ?: 'valkey';
+  $settings['redis.connection']['port'] = getenv('VALKEY_SERVICE_PORT') ?: '6379';
 
   // Do not set the cache during installations of Drupal, but allow
-  // to override this by setting VORTEX_REDIS_EXTENSION_LOADED to non-zero.
-  if ((extension_loaded('redis') && getenv('VORTEX_REDIS_EXTENSION_LOADED') === FALSE) || !empty(getenv('VORTEX_REDIS_EXTENSION_LOADED'))) {
+  // to override this by setting VORTEX_VALKEY_EXTENSION_LOADED to non-zero.
+  if ((extension_loaded('redis') && getenv('VORTEX_VALKEY_EXTENSION_LOADED') === FALSE) || !empty(getenv('VORTEX_VALKEY_EXTENSION_LOADED'))) {
     $settings['cache']['default'] = 'cache.backend.redis';
 
     if (!isset($class_loader)) {

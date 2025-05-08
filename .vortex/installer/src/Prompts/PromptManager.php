@@ -265,9 +265,9 @@ class PromptManager {
         options: [
           Services::CLAMAV => '🦠 ClamAV',
           Services::SOLR => '🔍 Solr',
-          Services::REDIS => '🔴 Redis',
+          Services::VALKEY => '🔴 Valkey',
         ],
-        default: $this->default($n, [Services::CLAMAV, Services::REDIS, Services::SOLR]),
+        default: $this->default($n, [Services::CLAMAV, Services::SOLR, Services::VALKEY]),
       ), Services::id())
 
       ->intro('Hosting')

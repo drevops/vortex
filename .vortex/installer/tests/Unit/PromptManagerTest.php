@@ -163,7 +163,7 @@ class PromptManagerTest extends UnitTestCase {
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
       ThemeRunner::id() => ThemeRunner::GRUNT,
-      Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
+      Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
       HostingProvider::id() => HostingProvider::NONE,
       Webroot::id() => Webroot::WEB,
       DeployType::id() => [DeployType::WEBHOOK],
@@ -433,12 +433,12 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::SOLR => []]));
         },
       ],
-      'services - discovery - redis' => [
+      'services - discovery - valkey' => [
         [],
-        [Services::id() => [Services::REDIS]] + $expected_installed,
+        [Services::id() => [Services::VALKEY]] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::REDIS => []]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::VALKEY => []]));
         },
       ],
       'services - discovery - clamav' => [
@@ -452,11 +452,11 @@ class PromptManagerTest extends UnitTestCase {
       'services - discovery - all' => [
         [],
         [
-          Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
+          Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
         ] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::VALKEY => [], Services::SOLR => []]));
         },
       ],
       'services - discovery - none' => [
@@ -471,7 +471,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::REDIS => [], Services::CLAMAV => [], Services::SOLR => []]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::VALKEY => [], Services::CLAMAV => [], Services::SOLR => []]));
         },
       ],
 

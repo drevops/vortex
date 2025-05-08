@@ -710,32 +710,32 @@ assert_solr() {
   assert_output_contains "response"
 }
 
-assert_redis() {
-  step "Redis"
+assert_valkey() {
+  step "Valkey"
 
-  substep "Redis service is running"
-  run docker compose exec redis redis-cli FLUSHALL
+  substep "Valkey service is running"
+  run docker compose exec valkey valkey-cli FLUSHALL
   assert_output_contains "OK"
 
-  substep "Redis integration is disabled"
+  substep "Valkey integration is disabled"
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
-  run docker compose exec redis redis-cli --scan
+  run docker compose exec valkey valkey-cli --scan
   assert_output_not_contains "config"
-  # Redis is reported in Drupal as not connected.
+  # Valkey is reported in Drupal as not connected.
   run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
   assert_output_contains "Warning"
 
   substep "Restart with environment variable"
-  add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
+  add_var_to_file .env "DRUPAL_VALKEY_ENABLED" "1"
   sync_to_container
-  DRUPAL_REDIS_ENABLED=1 ahoy up cli
+  DRUPAL_VALKEY_ENABLED=1 ahoy up cli
   sleep 10
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
-  run docker compose exec redis redis-cli --scan
+  run docker compose exec valkey valkey-cli --scan
   assert_output_contains "config"
-  # Redis is reported in Drupal as connected.
+  # Valkey is reported in Drupal as connected.
   run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
   assert_output_contains "OK"
 

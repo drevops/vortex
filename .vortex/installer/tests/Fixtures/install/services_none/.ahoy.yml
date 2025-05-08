@@ -11,9 +11,9 @@
      usage: Run Drush commands in the CLI service container.
      cmd: ahoy cli "vendor/bin/drush -l \${VORTEX_LOCALDEV_URL} $*"
 -
--  flush-redis:
--    usage: Flush Redis cache.
--    cmd: docker compose exec redis redis-cli flushall
+-  flush-valkey:
+-    usage: Flush Valkey cache.
+-    cmd: docker compose exec valkey valkey-cli flushall
  
    # ----------------------------------------------------------------------------
    # Application commands.
