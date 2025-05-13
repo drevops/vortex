@@ -787,7 +787,7 @@ class PromptManagerTest extends UnitTestCase {
   protected function setVortexProject(Config $config): void {
     // Add a README.md file with a Vortex badge.
     $readme = static::$sut . DIRECTORY_SEPARATOR . 'README.md';
-    file_put_contents($readme, '[![Vortex](https://img.shields.io/badge/Vortex-1.2.3-5909A1.svg)](https://github.com/drevops/vortex/tree/1.2.3)' . PHP_EOL, FILE_APPEND);
+    file_put_contents($readme, '[![Vortex](https://img.shields.io/badge/Vortex-1.2.3-65ACBC.svg)](https://github.com/drevops/vortex/tree/1.2.3)' . PHP_EOL, FILE_APPEND);
 
     $config->set(Config::IS_VORTEX_PROJECT, TRUE);
   }

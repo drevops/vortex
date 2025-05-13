@@ -6,4 +6,4 @@
 -
  [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY VORTEX TO TRACK INTEGRATION)
  
- [![Vortex](https://img.shields.io/badge/Vortex-develop-5909A1.svg)](https://github.com/drevops/vortex/tree/develop)
+ [![Vortex](https://img.shields.io/badge/Vortex-develop-65ACBC.svg)](https://github.com/drevops/vortex/tree/develop)
