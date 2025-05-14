@@ -100,7 +100,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
           'config_split.config_split.local' => ['status' => TRUE],
         ],
         [
-          'config_split.config_split.test' => NULL,
+          'config_split.config_split.stage' => NULL,
           'config_split.config_split.dev' => NULL,
           'config_split.config_split.ci' => NULL,
         ],
@@ -111,7 +111,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
           'config_split.config_split.ci' => ['status' => TRUE],
         ],
         [
-          'config_split.config_split.test' => NULL,
+          'config_split.config_split.stage' => NULL,
           'config_split.config_split.dev' => NULL,
           'config_split.config_split.local' => NULL,
         ],
@@ -122,7 +122,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
           'config_split.config_split.dev' => ['status' => TRUE],
         ],
         [
-          'config_split.config_split.test' => NULL,
+          'config_split.config_split.stage' => NULL,
           'config_split.config_split.ci' => NULL,
           'config_split.config_split.local' => NULL,
         ],
@@ -130,7 +130,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       [
         static::ENVIRONMENT_STAGE,
         [
-          'config_split.config_split.test' => ['status' => TRUE],
+          'config_split.config_split.stage' => ['status' => TRUE],
         ],
         [
           'config_split.config_split.dev' => NULL,
@@ -142,7 +142,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         static::ENVIRONMENT_PROD,
         [],
         [
-          'config_split.config_split.test' => NULL,
+          'config_split.config_split.stage' => NULL,
           'config_split.config_split.dev' => NULL,
           'config_split.config_split.ci' => NULL,
           'config_split.config_split.local' => NULL,
@@ -152,7 +152,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         static::ENVIRONMENT_SUT,
         [],
         [
-          'config_split.config_split.test' => NULL,
+          'config_split.config_split.stage' => NULL,
           'config_split.config_split.dev' => NULL,
           'config_split.config_split.ci' => NULL,
           'config_split.config_split.local' => NULL,
