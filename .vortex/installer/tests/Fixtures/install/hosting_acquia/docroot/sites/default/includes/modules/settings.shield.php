@@ -40,3 +40,8 @@ if (!empty(getenv('DRUPAL_SHIELD_USER')) && !empty(getenv('DRUPAL_SHIELD_PASS'))
 if (getenv('DRUPAL_SHIELD_PRINT')) {
   $config['shield.settings']['print'] = getenv('DRUPAL_SHIELD_PRINT');
 }
+
+// Allow to disable Shield completely in the environment.
+if (!empty(getenv('DRUPAL_SHIELD_DISABLED'))) {
+  $config['shield.settings']['shield_enable'] = FALSE;
+}

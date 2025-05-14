@@ -61,7 +61,7 @@
     * Test Config Split config.
     *
     * @dataProvider dataProviderConfigSplit
-@@ -225,54 +169,6 @@
+@@ -261,54 +205,6 @@
          ],
        ],
      ];
