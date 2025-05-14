@@ -342,7 +342,7 @@ assert_files_present_vortex() {
   assert_dir_exists "config/default"
   assert_dir_exists "config/dev"
   assert_dir_exists "config/local"
-  assert_dir_exists "config/test"
+  assert_dir_exists "config/stage"
 
   assert_file_exists "patches/.gitkeep"
 
