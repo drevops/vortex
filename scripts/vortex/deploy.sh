@@ -19,6 +19,11 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+if [ "${VORTEX_DEPLOY_SKIP:-}" = "1" ]; then
+  note "Found flag to skip all deployments."
+  pass "Skipping deployment ${VORTEX_DEPLOY_TYPES}." && exit 0
+fi
+
 # The types of deployment.
 #
 # Can be a combination of comma-separated values (to support multiple

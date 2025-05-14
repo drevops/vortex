@@ -153,6 +153,10 @@ setup_robo_fixture() {
   fixture_prepare_dir "${HOME}/.composer/vendor/bin"
   touch "${HOME}/.composer/vendor/bin/robo"
   chmod +x "${HOME}/.composer/vendor/bin/robo"
+
+  # Also create a mock for git-artifact
+  touch "${HOME}/.composer/vendor/bin/git-artifact"
+  chmod +x "${HOME}/.composer/vendor/bin/git-artifact"
 }
 
 provision_docker_config_file() {

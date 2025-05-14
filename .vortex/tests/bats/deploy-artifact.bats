@@ -81,12 +81,13 @@ load _helper.deployment.bash
     "@git config --global user.email #"
     "Configuring global git user email."
     "@git config --global user.email ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL} # 0 #"
-    "Using default SSH file ${file}."
+    "Did not find fingerprint variable VORTEX_DEPLOY_SSH_FINGERPRINT."
+    "Found variable VORTEX_DEPLOY_SSH_FILE with value ${file}."
     "Using SSH key file ${file}."
     "@ssh-add -l # ${file}"
-    "SSH agent has ${file} key loaded."
+    "SSH agent already has ${file} key loaded."
     "Installing artifact builder."
-    "@composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^0.7"
+    "@composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^1"
     "Running artifact builder."
     "Finished ARTIFACT deployment."
   )
@@ -100,3 +101,29 @@ load _helper.deployment.bash
 
   popd >/dev/null
 }
+
+# ---------------------------------------------------------------------------
+# The universal skip flag (VORTEX_DEPLOY_SKIP=1) must short-circuit the whole
+# deployment router so none of the individual deployment scripts are run.
+# ---------------------------------------------------------------------------
+@test "Deployment is skipped when VORTEX_DEPLOY_SKIP=1" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  note()  { printf "NOTE:  %s\n"  "$*"; }
+  pass()  { printf "[ OK ] %s\n" "$*"; }
+  fail()  { printf "[FAIL] %s\n" "$*"; }
+  export -f note pass fail
+
+  export VORTEX_DEPLOY_SKIP="1"
+  export VORTEX_DEPLOY_TYPES="artifact"
+
+  run scripts/vortex/deploy.sh
+
+  assert_success
+
+  assert_output_contains "Found flag to skip all deployments."
+  assert_output_contains "Skipping deployment"
+
+  popd >/dev/null
+}
+
