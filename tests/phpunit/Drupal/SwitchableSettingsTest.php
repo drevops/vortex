@@ -398,6 +398,121 @@ class SwitchableSettingsTest extends SettingsTestCase {
           'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
         ],
       ],
+
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => '',
+        ],
+        [
+          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => 0,
+        ],
+        [
+          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => 1,
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => '0',
+        ],
+        [
+          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => '1',
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => 'false',
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => 'true',
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_DISABLED' => TRUE,
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_STAGE,
+        [
+          'DRUPAL_SHIELD_DISABLED' => TRUE,
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_PROD,
+        [
+          'DRUPAL_SHIELD_DISABLED' => TRUE,
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE],
+        ],
+      ],
     ];
   }
 
