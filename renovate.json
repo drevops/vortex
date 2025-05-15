@@ -47,6 +47,9 @@
                 "packagist"
             ],
             "separateMinorPatch": false,
+            "schedule": [
+                "before 2am on Sunday"
+            ],
             "matchPackageNames": [
                 "/.*/",
                 "!drupal/core-composer-scaffold",
