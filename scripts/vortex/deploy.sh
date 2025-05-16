@@ -2,11 +2,13 @@
 ##
 # Deploy code to a remote location.
 #
-# Deployment may include pushing code, pushing created container image, notifying
-# remote hosting service via webhook call etc.
+# Deployment may include pushing code, pushing created container image,
+# notifying remote hosting service via webhook call etc.
 #
 # Multiple deployments can be configured by providing a comma-separated list of
 # deployment types in $VORTEX_DEPLOY_TYPES variable.
+#
+# Deployments can be skipped by setting the $VORTEX_DEPLOY_SKIP variable to "1".
 #
 # This is a router script to call relevant scripts based on type.
 #
@@ -18,6 +20,12 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+if [ "${VORTEX_DEPLOY_SKIP:-}" = "1" ]; then
+  echo "Found flag to skip all deployments."
+  echo "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
+  exit 0
+fi
 
 # The types of deployment.
 #

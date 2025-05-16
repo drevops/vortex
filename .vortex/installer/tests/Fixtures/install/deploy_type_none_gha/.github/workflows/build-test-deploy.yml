@@ -1,4 +1,4 @@
-@@ -339,59 +339,3 @@
+@@ -339,60 +339,3 @@
          with:
            detached: true
  
@@ -57,4 +57,5 @@
 -          VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL }}
 -          VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME }}
 -          VORTEX_DEPLOY_WEBHOOK_URL: ${{ vars.VORTEX_DEPLOY_WEBHOOK_URL }}
+-          VORTEX_DEPLOY_SKIP: ${{ vars.VORTEX_DEPLOY_SKIP }}
 -        timeout-minutes: 30

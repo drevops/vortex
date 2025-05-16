@@ -28,7 +28,15 @@ By default, an existing database will be retained during a deployment. To change
 this behavior and overwrite the database, set the `$VORTEX_DEPLOY_ACTION`
 variable to `deploy_override_db`.
 
-### Skipping deployments for specific Pull Requests or branches
+## Skipping all deployments
+
+You can skip all deployments by setting the `VORTEX_DEPLOY_SKIP` environment
+variable to `1`.
+
+This is especially useful in CI pipelines where you may want to build and test
+without triggering a deployment.
+
+### Skipping deployments for a specific Pull Requests or branches
 
 To skip a specific Pull Request or branch using the `$VORTEX_DEPLOY_SKIP`
 variable, you would define additional environment variables with a specific
