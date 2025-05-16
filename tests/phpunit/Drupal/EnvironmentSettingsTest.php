@@ -504,7 +504,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->requireSettingsFile();
 
     $config['acquia_hosting_settings_autoconnect'] = FALSE;
-    $config['config_split.config_split.test']['status'] = TRUE;
+    $config['config_split.config_split.stage']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#fff176';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
@@ -687,7 +687,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $this->requireSettingsFile();
 
-    $config['config_split.config_split.test']['status'] = TRUE;
+    $config['config_split.config_split.stage']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#fff176';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
