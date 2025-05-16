@@ -20,7 +20,6 @@ jobs:
         run: |
           if [ -z "${{ secrets.RENOVATE_TOKEN }}" ]; then
             echo "Renovate token is not set. Skipping Renovate step."
-            exit 0
           else
             echo "token_exists=true" >> "$GITHUB_OUTPUT"
           fi
