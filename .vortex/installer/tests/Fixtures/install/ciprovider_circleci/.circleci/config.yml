@@ -395,6 +395,13 @@ jobs:
           RENOVATE_GIT_AUTHOR: *renovatebot_git_author
     steps:
       - checkout
+      - run:
+          name: Check if RENOVATE_TOKEN is set
+          command: |
+            if [ -z "${RENOVATE_TOKEN}" ]; then
+              echo "RENOVATE_TOKEN is not set. Skipping Renovate job."
+              circleci-agent step halt
+            fi
       - run: renovate-config-validator
       - run: renovate
 

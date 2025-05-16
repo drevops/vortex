@@ -31,6 +31,9 @@ in CircleCI or GitHub Actions.
 A self-hosted service can be beneficial when your project is restricted in terms
 of third-party access.
 
+**Note**: If the `RENOVATE_TOKEN` is not provided and the job is configured, the job will still run but the Renovate
+update steps will be skipped gracefully without causing a build failure.
+
 ### Setting up Renovate self-hosted in CircleCI
 
 Create a GitHub token with a permission to write to a repository and add it to

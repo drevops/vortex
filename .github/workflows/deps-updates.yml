@@ -15,7 +15,17 @@ jobs:
         with:
           node-version: 22.13.1
 
+      - name: Check Renovate Token
+        id: check-token
+        run: |
+          if [ -z "${{ secrets.RENOVATE_TOKEN }}" ]; then
+            echo "Renovate token is not set. Skipping Renovate step."
+          else
+            echo "token_exists=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Self-hosted Renovate
+        if: steps.check-token.outputs.token_exists == 'true'
         uses: renovatebot/github-action@v42.0.2
         with:
           configurationFile: renovate.json
