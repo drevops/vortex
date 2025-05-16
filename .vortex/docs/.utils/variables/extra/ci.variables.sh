@@ -3,6 +3,9 @@
 # Additional environment variables used in this project in CI.
 # shellcheck disable=SC2034
 
+# Skip all deployments.
+VORTEX_DEPLOY_SKIP=
+
 # Proceed with container image deployment after it was exported.
 VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=
 

@@ -7,6 +7,22 @@
 load _helper.bash
 load _helper.deployment.bash
 
+@test "Deployment is skipped when VORTEX_DEPLOY_SKIP=1" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_SKIP="1"
+  export VORTEX_DEPLOY_TYPES="artifact"
+
+  run scripts/vortex/deploy.sh
+
+  assert_success
+
+  assert_output_contains "Found flag to skip all deployments."
+  assert_output_contains "Skipping deployment"
+
+  popd >/dev/null
+}
+
 @test "Missing or Invalid VORTEX_DEPLOY_TYPES" {
   substep "Swap to ${LOCAL_REPO_DIR}"
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
@@ -101,29 +117,3 @@ load _helper.deployment.bash
 
   popd >/dev/null
 }
-
-# ---------------------------------------------------------------------------
-# The universal skip flag (VORTEX_DEPLOY_SKIP=1) must short-circuit the whole
-# deployment router so none of the individual deployment scripts are run.
-# ---------------------------------------------------------------------------
-@test "Deployment is skipped when VORTEX_DEPLOY_SKIP=1" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  note()  { printf "NOTE:  %s\n"  "$*"; }
-  pass()  { printf "[ OK ] %s\n" "$*"; }
-  fail()  { printf "[FAIL] %s\n" "$*"; }
-  export -f note pass fail
-
-  export VORTEX_DEPLOY_SKIP="1"
-  export VORTEX_DEPLOY_TYPES="artifact"
-
-  run scripts/vortex/deploy.sh
-
-  assert_success
-
-  assert_output_contains "Found flag to skip all deployments."
-  assert_output_contains "Skipping deployment"
-
-  popd >/dev/null
-}
-
