@@ -1,4 +1,4 @@
-@@ -149,27 +149,9 @@
+@@ -153,27 +153,9 @@
        ahoy confirm "All containers and build files will be removed. Proceed?" &&
        AHOY_CONFIRM_RESPONSE=y ahoy down && ./scripts/vortex/reset.sh "$@"
  
@@ -27,7 +27,7 @@
  
    lint-be:
      usage: Lint back-end code.
-@@ -179,12 +161,6 @@
+@@ -183,12 +165,6 @@
        ahoy cli vendor/bin/rector --clear-cache --dry-run
        ahoy cli vendor/bin/phpmd . text phpmd.xml
  
@@ -40,7 +40,7 @@
    lint-tests:
      usage: Lint tests code.
      cmd: |
-@@ -192,7 +168,7 @@
+@@ -196,7 +172,7 @@
  
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
@@ -49,7 +49,7 @@
  
    lint-be-fix:
      usage: Fix lint issues of back-end code.
-@@ -199,12 +175,6 @@
+@@ -203,12 +179,6 @@
      cmd: |
        ahoy cli vendor/bin/rector --clear-cache
        ahoy cli vendor/bin/phpcbf

@@ -36,6 +36,8 @@ load _helper.workflow.bash
 
   assert_ahoy_export_db
 
+  assert_ahoy_import_db
+
   assert_ahoy_lint
 
   assert_ahoy_test
