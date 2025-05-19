@@ -333,6 +333,15 @@ assert_ahoy_export_db() {
   assert_file_exists ".data/${file}"
 }
 
+assert_ahoy_import_db() {
+  step "Import DB"
+  run ahoy import-db
+  assert_success
+  assert_output_contains "Provisioning site from the database dump file."
+  assert_output_not_contains "Running deployment operations via 'drush deploy:hook'."
+  assert_output_not_contains "Running database updates."
+}
+
 assert_ahoy_lint() {
   local webroot="${1:-web}"
 
