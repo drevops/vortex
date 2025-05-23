@@ -1336,7 +1336,7 @@ sync_to_host() {
   local dst="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"${t}" && set -a && . "./.env" && set +a && . "${t}" && rm "${t}" && unset t
-  [ "${VORTEX_DEV_VOLUMES_MOUNTED-}" = "1" ] && return
+  [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" != "1" ] && return
   docker compose cp -L cli:/app/. "${dst}"
 }
 
@@ -1345,7 +1345,7 @@ sync_to_container() {
   local src="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"${t}" && set -a && . "./.env" && set +a && . "${t}" && rm "${t}" && unset t
-  [ "${VORTEX_DEV_VOLUMES_MOUNTED-}" = "1" ] && return
+  [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" != "1" ] && return
   docker compose cp -L "${src}" cli:/app/
 }
 
@@ -1361,7 +1361,7 @@ fix_host_dependencies() {
 
   pushd "${VORTEX_INSTALL_DST_DIR}" >/dev/null || exit 1
 
-  if [ -f docker-compose.yml ] && [ "${VORTEX_DEV_VOLUMES_MOUNTED:-1}" != "1" ]; then
+  if [ -f docker-compose.yml ] && [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" = "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml
@@ -1419,7 +1419,7 @@ download_installer() {
 }
 
 process_ahoyyml() {
-  [ "${VORTEX_DEV_VOLUMES_MOUNTED:-0}" = "1" ] && return
+  [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" != "1" ] && return
 
   # Override the provision command in .ahoy.yml to copy the database file to
   # the container for when the volumes are not mounted.

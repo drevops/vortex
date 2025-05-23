@@ -8,9 +8,9 @@ prepare_sut() {
   step "Run SUT preparation: ${1}"
   local webroot="${2:-web}"
 
-  VORTEX_DEV_VOLUMES_MOUNTED=${VORTEX_DEV_VOLUMES_MOUNTED:-1}
+  VORTEX_DEV_VOLUMES_SKIP_MOUNT=${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}
 
-  assert_not_empty "${VORTEX_DEV_VOLUMES_MOUNTED-}"
+  assert_not_empty "${VORTEX_DEV_VOLUMES_SKIP_MOUNT-}"
 
   assert_files_not_present_common "" "" "" "${webroot}"
 
@@ -523,12 +523,16 @@ assert_ahoy_test_bdd_fast() {
   substep "Run all BDD tests"
   run ahoy test-bdd
   assert_success
+
   sync_to_host
+
   assert_dir_not_empty .logs/screenshots
   rm -rf .logs/screenshots/*
   ahoy cli rm -rf /app/.logs/screenshots/*
+
   assert_dir_not_empty .logs/test_results
   assert_file_exists .logs/test_results/behat/default.xml
+
   rm -rf .logs/test_results/*
   ahoy cli rm -rf /app/.logs/test_results/*
 }

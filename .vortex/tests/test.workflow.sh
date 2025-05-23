@@ -25,6 +25,7 @@ docker network create amazeeio-network 2>/dev/null || true
 index="${TEST_NODE_INDEX:-*}"
 echo "==> Run workflow functional tests (${index})."
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && yarn --cwd="${TEST_DIR}" install --frozen-lockfile
+[ ! -d "${TEST_DIR}/phpunit/vendor" ] && echo "  > Install test PHP dependencies." && composer --working-dir="${TEST_DIR}/phpunit" install --no-interaction --no-progress --no-suggest --optimize-autoloader
 
 bats() {
   pushd "${ROOT_DIR}" >/dev/null || exit 1
@@ -37,10 +38,17 @@ bats() {
   popd >/dev/null || exit 1
 }
 
+phpunit() {
+  pushd "${TEST_DIR}/phpunit" >/dev/null || exit 1
+  "./vendor/bin/phpunit" "$@"
+  popd >/dev/null || exit 1
+}
+
 # Run workflow based on index using switch-case.
 case ${index} in
 
   0)
+    phpunit "${TEST_DIR}"/phpunit/tests/Functional/WorkflowTest.php
     bats "${TEST_DIR}"/bats/workflow.smoke.bats
     ;;
 

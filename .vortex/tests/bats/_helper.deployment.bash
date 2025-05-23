@@ -122,7 +122,7 @@ install_and_build_site() {
   assert_git_repo
 
   # Special treatment for cases where volumes are not mounted from the host.
-  if [ "${VORTEX_DEV_VOLUMES_MOUNTED:-}" != "1" ]; then
+  if [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" = "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml
