@@ -8,11 +8,11 @@ use AlexSkrypnyk\File\File;
 use AlexSkrypnyk\PhpunitHelpers\Traits\AssertArrayTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\EnvTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\LocationsTrait;
+use AlexSkrypnyk\PhpunitHelpers\Traits\ProcessTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase;
 use DrevOps\Vortex\Tests\Traits\AssertFilesTrait;
 use DrevOps\Vortex\Tests\Traits\GitTrait;
 use DrevOps\Vortex\Tests\Traits\LoggerTrait;
-use DrevOps\Vortex\Tests\Traits\ProcessTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepBuildTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepDownloadDbTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepPrepareSutTrait;
@@ -46,10 +46,14 @@ class FunctionalTestCase extends UnitTestCase {
     static::$sut = static::locationsMkdir(static::$workspace . DIRECTORY_SEPARATOR . 'star_wars');
 
     $this->fixtureExportCodebase(static::$root, static::$repo);
+
+    $is_verbose = !empty(getenv('TEST_VORTEX_VERBOSE')) || static::isDebug();
+    $this->loggerSetVerbose($is_verbose);
+    $this->processStreamOutput = $is_verbose;
   }
 
   protected function tearDown(): void {
-    $cmd = 'docker compose -p star_wars down --remove-orphans --volumes --timeout 1';
+    $cmd = 'docker compose -p star_wars down --remove-orphans --volumes --timeout 1 > /dev/null 2>&1';
     shell_exec($cmd);
 
     parent::tearDown();
@@ -57,19 +61,8 @@ class FunctionalTestCase extends UnitTestCase {
     $this->processTearDown();
   }
 
-  public function processOutputShow(): void {
-    $this->processShowOutput = TRUE;
-  }
-
-  public function processOutputHide(): void {
-    $this->processShowOutput = FALSE;
-  }
-
   public function fixtureExportCodebase(string $src, string $dst): void {
-    $current_dir = getcwd();
-    if ($current_dir === FALSE) {
-      throw new \RuntimeException('Unable to get current working directory');
-    }
+    $current_dir = File::cwd();
     chdir($src);
     shell_exec(sprintf('git archive --format=tar HEAD | (cd %s && tar -xf -)', $dst));
     chdir($current_dir);

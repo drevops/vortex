@@ -46,8 +46,6 @@ trait StepPrepareSutTrait {
       $this->processRun('composer', ['--working-dir=.vortex/installer', 'install']);
     }
 
-    $this->processOutputShow();
-
     array_unshift($arguments, static::locationsSut());
     array_unshift($arguments, '--no-interaction');
     array_unshift($arguments, '.vortex/installer/install');
@@ -73,7 +71,6 @@ trait StepPrepareSutTrait {
       'VORTEX_INSTALL_TMP_DIR' => static::locationsTmp(),
     ]);
     $this->assertProcessSuccessful();
-    $this->processOutputHide();
 
     // Switch to the SUT directory after the installer has run.
     chdir(static::locationsSut());

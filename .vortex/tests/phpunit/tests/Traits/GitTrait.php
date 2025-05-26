@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Vortex\Tests\Traits;
 
+use AlexSkrypnyk\File\File;
 use AlexSkrypnyk\PhpunitHelpers\Traits\AssertArrayTrait;
 use CzProject\GitPhp\Git;
 use CzProject\GitPhp\GitException;
@@ -175,10 +176,7 @@ trait GitTrait {
    * Assert if path is a Git repository.
    */
   protected function gitAssertIsRepository(?string $path = NULL): void {
-    $path = $path ?: getcwd();
-    if ($path === FALSE) {
-      throw new \RuntimeException('Unable to get current working directory');
-    }
+    $path = $path ?: File::cwd();
 
     $this->assertDirectoryExists($path, sprintf('Directory %s does not exist', $path));
 
@@ -225,10 +223,7 @@ trait GitTrait {
    *   directory is used.
    */
   protected function gitCreateFixtureCommits(int $count, int $offset = 0, ?string $path = NULL): void {
-    $path = $path ?: getcwd();
-    if ($path === FALSE) {
-      throw new \RuntimeException('Unable to get current working directory');
-    }
+    $path = $path ?: File::cwd();
 
     for ($i = $offset; $i < $count + $offset; $i++) {
       $this->gitCreateFixtureCommit($i + 1, $path);
@@ -248,10 +243,7 @@ trait GitTrait {
    *   Hash of created commit.
    */
   protected function gitCreateFixtureCommit(int $index, ?string $path = NULL): string {
-    $path = $path ?: getcwd();
-    if ($path === FALSE) {
-      throw new \RuntimeException('Unable to get current working directory');
-    }
+    $path = $path ?: File::cwd();
 
     $filename = 'f' . $index;
 
@@ -340,10 +332,7 @@ trait GitTrait {
    *   Optional branch name.
    */
   protected function gitAssertFilesTracked(array|string $files, ?string $path = NULL, ?string $branch = NULL): void {
-    $path = $path ?: getcwd();
-    if ($path === FALSE) {
-      throw new \RuntimeException('Unable to get current working directory');
-    }
+    $path = $path ?: File::cwd();
 
     if ($branch) {
       $this->gitCheckout($path, $branch);
@@ -354,7 +343,7 @@ trait GitTrait {
     $tracked_files = (new Git())->open($path)->run(['ls-tree', '--name-only', '-r', 'HEAD'])->getOutput();
     $tracked_files = array_filter($tracked_files);
 
-    $this->assertArrayContainsArray($files, $tracked_files);
+    $this->assertArrayContainsArray($tracked_files, $files);
   }
 
   /**
@@ -368,10 +357,7 @@ trait GitTrait {
    *   Optional branch name.
    */
   protected function gitAssertFilesNotTracked(array|string $files, ?string $path = NULL, ?string $branch = NULL): void {
-    $path = $path ?: getcwd();
-    if ($path === FALSE) {
-      throw new \RuntimeException('Unable to get current working directory');
-    }
+    $path = $path ?: File::cwd();
 
     if ($branch) {
       $this->gitCheckout($path, $branch);
@@ -382,7 +368,7 @@ trait GitTrait {
     $tracked_files = (new Git())->open($path)->run(['ls-tree', '--name-only', '-r', 'HEAD'])->getOutput();
     $tracked_files = array_filter($tracked_files);
 
-    $this->assertArrayNotContainsArray($files, $tracked_files);
+    $this->assertArrayNotContainsArray($tracked_files, $files);
   }
 
   /**

@@ -20,7 +20,6 @@ trait StepBuildTrait {
     $this->logSubstep('Database file exists before build: ' . ($db_file_present ? 'Yes' : 'No'));
 
     $this->logSubstep('Starting ahoy build');
-    $this->processOutputShow();
 
     $this->processRun('ahoy', ['build'], ['y'], [
       // Tests are using demo database and 'ahoy download-db' command, so we
@@ -41,7 +40,6 @@ trait StepBuildTrait {
     ], 10 * 60);
     $this->logSubstep('Finished ahoy build');
     $this->assertProcessSuccessful();
-    $this->processOutputHide();
     $this->syncToHost();
 
     $this->logSubstep('Assert that lock files were created');

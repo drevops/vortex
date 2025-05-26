@@ -12,6 +12,8 @@ use AlexSkrypnyk\File\File;
 class WorkflowTest extends FunctionalTestCase {
 
   protected function setUp(): void {
+    static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
+
     parent::setUp();
 
     chdir(static::$sut);
@@ -20,12 +22,18 @@ class WorkflowTest extends FunctionalTestCase {
     $this->stepDownloadDb();
   }
 
+  protected function tearDown(): void {
+    parent::tearDown();
+
+    static::logSection('TEST DONE | ' . $this->name(), double_border: TRUE);
+  }
+
   /**
    * Smoke test to ensure that the system under test (SUT) is set up correctly.
    */
   public function testSmoke(): void {
     $this->assertDirectoryExists(static::$sut, 'SUT directory exists');
-    $this->assertEquals(static::$sut, getcwd(), 'SUT is the current working directory');
+    $this->assertEquals(static::$sut, File::cwd(), 'SUT is the current working directory');
   }
 
   public function testIdempotence(): void {
