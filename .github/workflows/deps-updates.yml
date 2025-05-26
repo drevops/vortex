@@ -26,7 +26,7 @@ jobs:
 
       - name: Self-hosted Renovate
         if: steps.check-token.outputs.token_exists == 'true'
-        uses: renovatebot/github-action@v42.0.3
+        uses: renovatebot/github-action@v42.0.4
         with:
           configurationFile: renovate.json
           token: ${{ secrets.RENOVATE_TOKEN }}
