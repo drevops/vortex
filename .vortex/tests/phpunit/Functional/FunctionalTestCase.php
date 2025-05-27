@@ -39,7 +39,7 @@ class FunctionalTestCase extends UnitTestCase {
   use StepTestBddTrait;
 
   protected function setUp(): void {
-    self::locationsInit(File::cwd() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..');
+    self::locationsInit(File::cwd() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..');
 
     // We use 'Star Wars' theme for the tests, do setting up SUT directory
     // so that the installer can gather the answers from the directory name.

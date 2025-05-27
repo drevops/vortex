@@ -1,6 +1,6 @@
 {
     "name": "drevops/vortex-tests",
-    "description": "Tests for Vortex",
+    "description": "Test for the Vortex project",
     "type": "project",
     "authors": [
         {
@@ -8,9 +8,49 @@
             "email": "alex@drevops.com"
         }
     ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "alexskrypnyk/file": "^0.7.0",
+        "alexskrypnyk/phpunit-helpers": "^0.8.0",
+        "alexskrypnyk/shellvar": "^1.2",
+        "czproject/git-php": "^4.4",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "drupal/coder": "^8.3",
+        "ergebnis/composer-normalize": "^2.47",
+        "phpstan/phpstan": "^2",
+        "phpunit/phpunit": "^12.1",
+        "rector/rector": "^2",
+        "squizlabs/php_codesniffer": "^3.12"
+    },
     "minimum-stability": "alpha",
     "prefer-stable": true,
-    "require-dev": {
-        "alexskrypnyk/shellvar": "^1"
+    "autoload-dev": {
+        "psr-4": {
+            "DrevOps\\Vortex\\Tests\\": "phpunit/",
+            "AlexSkrypnyk\\File\\Tests\\": "vendor/alexskrypnyk/file/tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true
+        },
+        "discard-changes": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "lint": [
+            "phpcs",
+            "phpstan",
+            "rector --clear-cache --dry-run"
+        ],
+        "lint-fix": [
+            "rector --clear-cache",
+            "phpcbf"
+        ],
+        "reset": "rm -Rf vendor",
+        "test": "phpunit"
     }
 }

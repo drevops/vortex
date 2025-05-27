@@ -13,7 +13,7 @@
     <arg value="p"/>
     <arg name="colors"/>
 
-    <file>tests</file>
+    <file>phpunit</file>
 
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">

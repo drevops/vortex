@@ -15,14 +15,14 @@
          displayDetailsOnPhpunitDeprecations="true">
     <testsuites>
         <testsuite name="default">
-            <directory>tests</directory>
+            <directory>phpunit</directory>
         </testsuite>
     </testsuites>
     <source restrictNotices="true"
             restrictWarnings="true"
             ignoreIndirectDeprecations="true">
         <exclude>
-            <directory>tests</directory>
+            <directory>phpunit</directory>
         </exclude>
     </source>
    <logging>
