@@ -450,7 +450,7 @@ jobs:
 
       - run:
           name: Run CircleCI tests (long)
-          command: VORTEX_DEV_VOLUMES_MOUNTED=0 VORTEX_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage .vortex/tests/test.postbuild.sh
+          command: VORTEX_DEV_VOLUMES_SKIP_MOUNT=1 VORTEX_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage .vortex/tests/test.postbuild.sh
 
       - store_test_results:
           path: *test_results

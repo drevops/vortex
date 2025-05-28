@@ -3,6 +3,9 @@
 This directory contains development files for Vortex itself.
 This directory is removed by the installer or can be deleted manually.
 
-FAQ:
-Q: Pipeline fails with "PHPUnit\Framework\Exception: Error: Differences between directories"
-A: Run `ahoy update-fixtures` from .vortex folder
+- [`docs`](docs) - documentation for Vortex published to https://vortex.drevops.com
+- [`installer`](installer) - self-contained Symfony console application used to install Vortex
+- [`tests`](tests) - unit and functional tests for Vortex
+
+For convenience, the commands are available via `ahoy` wrapper.
+Run `ahoy --help` to see the list of available commands.
