@@ -21,23 +21,28 @@ trait StepBuildTrait {
 
     $this->logSubstep('Starting ahoy build');
 
-    $this->processRun('ahoy', ['build'], ['y'], [
-      // Tests are using demo database and 'ahoy download-db' command, so we
-      // need
-      // to set the CURL DB to test DB.
-      //
-      // Override demo database with test demo database. This is required to use
-      // test assertions ("star wars") with demo database.
-      //
-      // Ahoy will load environment variable, and it will take precedence over
-      // the value in .env file.
-      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALL_DEMO_DB_TEST,
-      // Credentials for the test container registry to allow fetching public
-      // images to overcome the throttle limit of Docker Hub, and also used for
-      // pushing images during the build.
-      'VORTEX_CONTAINER_REGISTRY_USER' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_USER') ?: '',
-      'VORTEX_CONTAINER_REGISTRY_PASS' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_PASS') ?: '',
-    ], 10 * 60);
+    $this->processRun(
+      'ahoy build',
+      inputs: ['y'],
+      env: [
+        // Tests are using demo database and 'ahoy download-db' command, so we
+        // need
+        // to set the CURL DB to test DB.
+        //
+        // Override demo database with test demo database. This is required to
+        // test assertions ("star wars") with demo database.
+        //
+        // Ahoy will load environment variable, and it will take precedence over
+        // the value in .env file.
+        'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALL_DEMO_DB_TEST,
+        // Credentials for the test container registry to allow fetching public
+        // images to overcome the throttle limit of Docker Hub, and also used
+        // for pushing images during the build.
+        'VORTEX_CONTAINER_REGISTRY_USER' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_USER') ?: '',
+        'VORTEX_CONTAINER_REGISTRY_PASS' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_PASS') ?: '',
+      ],
+      timeout: 10 * 60
+    );
     $this->logSubstep('Finished ahoy build');
     $this->assertProcessSuccessful();
     $this->syncToHost();

@@ -20,11 +20,11 @@ trait StepTestBddTrait {
     $this->logStepStart();
 
     $this->logSubstep('Running all BDD tests');
-    $process = $this->processRun('ahoy', ['test-bdd']);
+    $process = $this->processRun('ahoy test-bdd');
 
     if (!$process->isSuccessful()) {
       $this->logSubstep('Re-running all BDD tests after random failure');
-      $this->processRun('ahoy', ['test-bdd']);
+      $this->processRun('ahoy test-bdd');
       $this->assertProcessSuccessful();
     }
 
