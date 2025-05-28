@@ -64,7 +64,7 @@ class FunctionalTestCase extends UnitTestCase {
   public function fixtureExportCodebase(string $src, string $dst): void {
     $current_dir = File::cwd();
     chdir($src);
-    shell_exec(sprintf('git archive --format=tar HEAD | (cd %s && tar -xf -)', $dst));
+    shell_exec(sprintf('git archive --format=tar HEAD | (cd %s && tar -xf -)', escapeshellarg($dst)));
     chdir($current_dir);
   }
 

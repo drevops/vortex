@@ -110,7 +110,7 @@ trait StepPrepareSutTrait {
 
       File::replaceContent('.ahoy.yml',
         'cmd: ahoy cli ./scripts/vortex/provision.sh',
-        'cmd: if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli \.\/scripts\/vortex\/provision\.sh',
+        'cmd: if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli ./scripts/vortex/provision.sh',
       );
 
       $this->logFile('.ahoy.yml', '.ahoy.yml file after fixing host dependencies');

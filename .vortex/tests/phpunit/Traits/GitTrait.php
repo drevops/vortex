@@ -140,6 +140,9 @@ trait GitTrait {
     });
 
     foreach ($range as $key) {
+      if (!array_key_exists($key, $commits)) {
+        throw new \OutOfBoundsException(sprintf('Requested commit index %d, but only %d commit(s) exist', $key, count($commits)));
+      }
       $ret[] = $commits[$key];
     }
 
