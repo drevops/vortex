@@ -9,7 +9,6 @@ use AlexSkrypnyk\PhpunitHelpers\Traits\AssertArrayTrait;
 use CzProject\GitPhp\Git;
 use CzProject\GitPhp\GitException;
 use CzProject\GitPhp\GitRepository;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Trait GitTrait.
@@ -27,7 +26,7 @@ trait GitTrait {
    *   Path to the repository directory.
    */
   protected function gitInitRepo(string $path): GitRepository {
-    (new Filesystem())->mkdir($path);
+    File::mkdir($path);
 
     return (new Git())->init($path);
   }
@@ -247,10 +246,7 @@ trait GitTrait {
 
     $filename = 'f' . $index;
 
-    $fs = new Filesystem();
-    $filepath = $path . DIRECTORY_SEPARATOR . $filename;
-    $fs->mkdir(dirname($path));
-    $fs->touch($filepath);
+    File::dump($path . DIRECTORY_SEPARATOR . $filename);
 
     return (new Git())->open($path)
       ->addFile($filename)

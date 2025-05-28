@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Vortex\Tests\Traits;
 
+use AlexSkrypnyk\File\File;
 use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
 use AlexSkrypnyk\File\Tests\Traits\FileAssertionsTrait;
 use PHPUnit\Framework\Assert;
@@ -329,20 +330,18 @@ trait AssertFilesTrait {
     Assert::assertFileExists($webroot . '/sites/default/default.settings.local.php');
     Assert::assertFileExists($webroot . '/sites/default/default.services.local.yml');
 
-    copy($webroot . '/sites/default/default.settings.local.php', $webroot . '/sites/default/settings.local.php');
-    copy($webroot . '/sites/default/default.services.local.yml', $webroot . '/sites/default/services.local.yml');
+    File::copy($webroot . '/sites/default/default.settings.local.php', $webroot . '/sites/default/settings.local.php');
+    File::copy($webroot . '/sites/default/default.services.local.yml', $webroot . '/sites/default/services.local.yml');
 
     Assert::assertFileExists($webroot . '/sites/default/settings.local.php');
     Assert::assertFileExists($webroot . '/sites/default/services.local.yml');
   }
 
   protected function removeDevelopmentDrupalSettings(string $webroot = 'web'): void {
-    if (file_exists($webroot . '/sites/default/settings.local.php')) {
-      unlink($webroot . '/sites/default/settings.local.php');
-    }
-    if (file_exists($webroot . '/sites/default/services.local.yml')) {
-      unlink($webroot . '/sites/default/services.local.yml');
-    }
+    File::remove([
+      $webroot . '/sites/default/default.settings.local.php',
+      $webroot . '/sites/default/default.services.local.yml',
+    ]);
   }
 
 }
