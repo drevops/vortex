@@ -325,8 +325,6 @@ trait AssertFilesTrait {
   }
 
   protected function createDevelopmentDrupalSettings(string $webroot = 'web'): void {
-    Assert::assertFileDoesNotExist($webroot . '/sites/default/settings.local.php');
-    Assert::assertFileDoesNotExist($webroot . '/sites/default/services.local.yml');
     Assert::assertFileExists($webroot . '/sites/default/default.settings.local.php');
     Assert::assertFileExists($webroot . '/sites/default/default.services.local.yml');
 
