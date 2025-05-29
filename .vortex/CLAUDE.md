@@ -57,6 +57,36 @@ vortex/
   - `_helper.bash` - Test helper functions
   - `fixtures/` - Test fixture files
 
+#### BATS Helpers System
+The BATS tests use a sophisticated helper system located in `node_modules/bats-helpers/src/steps.bash` that provides:
+
+**Step Types**:
+1. **Command Mocking**: `@<command> [<args>] # <mock_status> [ # <mock_output> ]`
+   - Mocks shell commands with specific exit codes and output
+   - Example: `"@drush -y status --field=drupal-version # mocked_core_version"`
+
+2. **Positive Assertions**: `"<substring>"`
+   - Asserts that output CONTAINS the specified substring
+   - Example: `"Fresh database detected. Performing additional example operations."`
+
+3. **Negative Assertions**: `"- <substring>"`
+   - Asserts that output does NOT contain the specified substring
+   - Starts with '- ' (minus followed by space)
+   - Example: `"-      Existing database detected. Performing additional example operations."`
+
+**Usage Pattern**:
+```bash
+declare -a STEPS=(
+  "@drush -y status # 0 # success"          # Mock command
+  "Expected output string"                   # Should be present
+  "-      Unwanted output string"            # Should NOT be present
+)
+
+mocks="$(run_steps "setup")"    # Setup phase
+# ... run code under test ...
+run_steps "assert" "${mocks}"   # Assert phase
+```
+
 ### Running Tests
 
 ```bash
@@ -164,6 +194,40 @@ info "Finished executing example operations in non-production environment."
 1. **Update Main Script**: Modify the script in the template (outside .vortex/)
 2. **Update BATS Tests**: Update test assertions in `.vortex/tests/bats/`
 3. **Update Installer Fixtures**: Use `UPDATE_FIXTURES=1` process
+
+### Provision Script BATS Test Logic
+
+The provision example script (`scripts/custom/provision-10-example.sh`) uses conditional logic:
+```bash
+if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
+  note "Fresh database detected. Performing additional example operations."
+else
+  note "Existing database detected. Performing additional example operations."
+fi
+```
+
+**BATS Test Expectations**:
+- **Fresh database scenarios**: Should have "Fresh database detected" and NOT have "Existing database detected"
+  - `"Provision: DB; no site"` 
+  - `"Provision: DB; existing site; overwrite"`
+  - `"Provision: DB; no site, configs"`
+  - `"Provision: profile; no site"`
+  - `"Provision: profile; existing site; overwrite"`
+
+- **Existing database scenarios**: Should have "Existing database detected" and NOT have "Fresh database detected"
+  - `"Provision: DB; existing site"`
+  - `"Provision: profile; existing site"`
+
+**Test Pattern**:
+```bash
+# Fresh database tests
+"      Fresh database detected. Performing additional example operations."
+"-      Existing database detected. Performing additional example operations."
+
+# Existing database tests  
+"-       Fresh database detected. Performing additional example operations."
+"Existing database detected. Performing additional example operations."
+```
 
 ### BATS Test Updates
 When script output changes, update corresponding test files:
