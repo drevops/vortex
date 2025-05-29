@@ -13,7 +13,7 @@
      <file>tests</file>
  
      <rule ref="Drupal"/>
-@@ -23,10 +23,10 @@
+@@ -22,10 +22,10 @@
      <config name="testVersion" value="8.3"/>
  
      <!-- Exclude theme assets. -->
