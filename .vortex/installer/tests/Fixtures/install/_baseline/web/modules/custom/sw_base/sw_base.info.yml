@@ -1,0 +1,5 @@
+name: star wars Base
+type: module
+description: Base feature for star wars site.
+core_version_requirement: ^11
+package: star_wars

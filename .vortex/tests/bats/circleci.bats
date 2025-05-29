@@ -60,9 +60,9 @@ load _helper.circleci.bash
     assert_contains "tests/phpunit/Drupal/DatabaseSettingsTest.php" "${tests_data}"
     assert_contains "tests/phpunit/Drupal/EnvironmentSettingsTest.php" "${tests_data}"
     assert_contains "tests/phpunit/Drupal/SwitchableSettingsTest.php" "${tests_data}"
-    assert_contains "web/modules/custom/ys_core/tests/src/Functional/ExampleTest.php" "${tests_data}"
-    assert_contains "web/modules/custom/ys_core/tests/src/Kernel/ExampleTest.php" "${tests_data}"
-    assert_contains "web/modules/custom/ys_core/tests/src/Unit/ExampleTest.php" "${tests_data}"
+    assert_contains "web/modules/custom/ys_base/tests/src/Functional/ExampleTest.php" "${tests_data}"
+    assert_contains "web/modules/custom/ys_base/tests/src/Kernel/ExampleTest.php" "${tests_data}"
+    assert_contains "web/modules/custom/ys_base/tests/src/Unit/ExampleTest.php" "${tests_data}"
 
     assert_contains "homepage.feature" "${tests_data}"
     assert_contains "login.feature" "${tests_data}"

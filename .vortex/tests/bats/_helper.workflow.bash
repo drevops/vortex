@@ -362,7 +362,7 @@ assert_ahoy_lint_be() {
   step "Run BE linter checks"
 
   substep "Assert that BE lint failure works"
-  echo '$a=1;' >>"${webroot}/modules/custom/sw_core/sw_core.module"
+  echo '$a=1;' >>"${webroot}/modules/custom/sw_base/sw_base.module"
   sync_to_container
   run ahoy lint-be
   assert_failure
@@ -390,9 +390,9 @@ assert_ahoy_lint_fe() {
   sync_to_container
 
   substep "Assert that FE lint failure works for Twig CS Fixer"
-  mkdir -p "${webroot}/modules/custom/sw_core/templates/block"
+  mkdir -p "${webroot}/modules/custom/sw_base/templates/block"
   mkdir -p "${webroot}/themes/custom/star_wars/templates/block"
-  echo "{{ set a='a' }}" >>"${webroot}/modules/custom/sw_core/templates/block/test1.twig"
+  echo "{{ set a='a' }}" >>"${webroot}/modules/custom/sw_base/templates/block/test1.twig"
   echo "{{ set b='b' }}" >>"${webroot}/themes/custom/star_wars/templates/block/test2.twig"
   sync_to_container
   run ahoy lint-fe
@@ -450,7 +450,7 @@ assert_ahoy_test_unit() {
 
   substep "Assert that Drupal Unit test failure works"
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Unit/ExampleTest.php"
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_base/tests/src/Unit/ExampleTest.php"
   rm -rf .logs/test_results/*
   ahoy cli rm -rf /app/.logs/test_results/*
   sync_to_container
@@ -476,7 +476,7 @@ assert_ahoy_test_kernel() {
 
   substep "Assert that Kernel test failure works"
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Kernel/ExampleTest.php"
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_base/tests/src/Kernel/ExampleTest.php"
   rm -rf .logs/test_results/*
   ahoy cli rm -rf /app/.logs/test_results/*
   sync_to_container
@@ -502,7 +502,7 @@ assert_ahoy_test_functional() {
 
   substep "Assert that Functional test failure works"
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Functional/ExampleTest.php"
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_base/tests/src/Functional/ExampleTest.php"
   rm -rf .logs/test_results/*
   ahoy cli rm -rf /app/.logs/test_results/*
   sync_to_container
