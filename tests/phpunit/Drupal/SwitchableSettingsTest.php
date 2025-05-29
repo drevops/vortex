@@ -644,4 +644,64 @@ class SwitchableSettingsTest extends SettingsTestCase {
     ];
   }
 
+  /**
+   * Test maintenance theme configuration.
+   *
+   * @dataProvider dataProviderMaintenanceTheme
+   */
+  public function testMaintenanceTheme(array $vars, array $expected_present, array $expected_absent = []): void {
+    $this->setEnvVars($vars);
+
+    $this->requireSettingsFile();
+
+    $this->assertConfigContains($expected_present);
+    $this->assertConfigNotContains($expected_absent);
+  }
+
+  /**
+   * Data provider for testMaintenanceTheme().
+   */
+  public static function dataProviderMaintenanceTheme(): array {
+    return [
+      // DRUPAL_MAINTENANCE_THEME set - should use it.
+      [
+        [
+          'DRUPAL_MAINTENANCE_THEME' => 'custom_maintenance_theme',
+        ],
+        [
+          'maintenance_theme' => 'custom_maintenance_theme',
+        ],
+      ],
+      // DRUPAL_MAINTENANCE_THEME not set, DRUPAL_THEME set - should fall
+      // back to DRUPAL_THEME.
+      [
+        [
+          'DRUPAL_THEME' => 'default_theme',
+        ],
+        [
+          'maintenance_theme' => 'default_theme',
+        ],
+      ],
+      // Both DRUPAL_MAINTENANCE_THEME and DRUPAL_THEME set - should prefer
+      // DRUPAL_MAINTENANCE_THEME.
+      [
+        [
+          'DRUPAL_MAINTENANCE_THEME' => 'custom_maintenance_theme',
+          'DRUPAL_THEME' => 'default_theme',
+        ],
+        [
+          'maintenance_theme' => 'custom_maintenance_theme',
+        ],
+      ],
+      // Neither set - no maintenance_theme config should be present.
+      [
+        [],
+        [],
+        [
+          'maintenance_theme' => NULL,
+        ],
+      ],
+    ];
+  }
+
 }
