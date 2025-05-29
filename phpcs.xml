@@ -11,7 +11,6 @@
     <rule ref="Drupal"/>
     <rule ref="DrupalPractice"/>
     <rule ref="Generic.PHP.RequireStrictTypes" />
-    <rule ref="Generic.Debug.ESLint"/>
     <rule ref="PHPCompatibility"/>
 
     <arg name="extensions" value="inc,info,install,module,php,profile,test,theme,js,css"/>
