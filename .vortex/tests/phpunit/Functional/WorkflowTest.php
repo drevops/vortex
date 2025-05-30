@@ -76,4 +76,36 @@ class WorkflowTest extends FunctionalTestCase {
     $this->stepBuild(env: ['GITHUB_TOKEN' => $github_token]);
   }
 
+  /**
+   * Test Docker compose workflow without using Ahoy.
+   */
+  public function testDockerComposeNoAhoy(): void {
+    $this->logSubstep('Reset environment');
+    $this->processRun('ahoy reset', inputs: ['y'], timeout: 5 * 60);
+    $this->assertProcessSuccessful();
+
+    $this->logSubstep('Building stack with docker compose');
+    $this->processRun('docker compose up -d --build --force-recreate', timeout: 15 * 60);
+    $this->assertProcessSuccessful();
+
+    $this->logSubstep('Installing dependencies with composer');
+    $this->processRun('docker compose exec -T cli composer install --prefer-dist', timeout: 10 * 60);
+    $this->assertProcessSuccessful();
+
+    $this->logSubstep('Provisioning with direct script execution');
+    if (!$this->volumesMounted() && file_exists('.data/db.sql')) {
+      $this->logSubstep('Copying database file to container');
+      $this->processRun('docker compose exec cli mkdir -p .data');
+      $this->assertProcessSuccessful();
+      $this->processRun('docker compose cp -L .data/db.sql cli:/app/.data/db.sql');
+      $this->assertProcessSuccessful();
+    }
+    $this->processRun('docker compose exec -T cli ./scripts/vortex/provision.sh', timeout: 10 * 60);
+    $this->assertProcessSuccessful();
+
+    $this->syncToHost();
+    $this->assertFilesTrackedInGit();
+    $this->stepTestBdd();
+  }
+
 }
