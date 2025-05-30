@@ -104,4 +104,55 @@ abstract class AbstractHandler implements HandlerInterface {
     return $this->config->isVortexProject();
   }
 
+  /**
+   * Get response as string, validating it's scalar first.
+   *
+   * @return string
+   *   The response cast to string.
+   *
+   * @throws \RuntimeException
+   *   When response is not scalar.
+   */
+  protected function getResponseAsString(): string {
+    if (!is_scalar($this->response)) {
+      throw new \RuntimeException('Invalid response type: expected scalar value.');
+    }
+
+    return (string) $this->response;
+  }
+
+  /**
+   * Get response as array, validating type first.
+   *
+   * @return array
+   *   The response as array.
+   *
+   * @throws \RuntimeException
+   *   When response is not an array.
+   */
+  protected function getResponseAsArray(): array {
+    if (!is_array($this->response)) {
+      throw new \RuntimeException('Invalid response type: expected array.');
+    }
+
+    return $this->response;
+  }
+
+  /**
+   * Get response as boolean, validating type first.
+   *
+   * @return bool
+   *   The response as boolean.
+   *
+   * @throws \RuntimeException
+   *   When response is not boolean.
+   */
+  protected function getResponseAsBool(): bool {
+    if (!is_bool($this->response)) {
+      throw new \RuntimeException('Invalid response type: expected boolean.');
+    }
+
+    return $this->response;
+  }
+
 }

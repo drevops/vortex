@@ -1,7 +1,7 @@
 # Vortex Template Maintenance Guide
 
 > **⚠️ MAINTENANCE MODE**: This file contains guidance for **maintaining the Vortex template itself**.
-> 
+>
 > For working with **Drupal projects created from this template**, see the main project guide: `../CLAUDE.md`
 
 ## Project Overview
@@ -121,7 +121,7 @@ The installer uses a **baseline + diff** system for managing test fixtures:
 .vortex/installer/tests/Fixtures/install/
 ├── _baseline/                  # Complete template files
 ├── services_no_clamav/         # Diff: removes ClamAV-related content
-├── services_no_solr/           # Diff: removes Solr-related content  
+├── services_no_solr/           # Diff: removes Solr-related content
 ├── services_no_valkey/         # Diff: removes Redis/Valkey content
 ├── services_none/              # Diff: removes all services
 ├── hosting_acquia/             # Diff: Acquia-specific modifications
@@ -174,7 +174,7 @@ note() { printf "      %s\n" "${1}"; }
 ### Usage Guidelines
 - **info()**: Main section headers and completion messages
 - **pass()**: Success confirmations
-- **fail()**: Error messages  
+- **fail()**: Error messages
 - **task()**: Step-by-step operations
 - **note()**: Conditional messages, details, hints
 
@@ -208,7 +208,7 @@ fi
 
 **BATS Test Expectations**:
 - **Fresh database scenarios**: Should have "Fresh database detected" and NOT have "Existing database detected"
-  - `"Provision: DB; no site"` 
+  - `"Provision: DB; no site"`
   - `"Provision: DB; existing site; overwrite"`
   - `"Provision: DB; no site, configs"`
   - `"Provision: profile; no site"`
@@ -224,7 +224,7 @@ fi
 "      Fresh database detected. Performing additional example operations."
 "-      Existing database detected. Performing additional example operations."
 
-# Existing database tests  
+# Existing database tests
 "-       Fresh database detected. Performing additional example operations."
 "Existing database detected. Performing additional example operations."
 ```
@@ -251,7 +251,7 @@ composer test       # Run all tests
 
 # Individual test suites
 ./test.common.sh     # Common tests
-./test.deployment.sh # Deployment tests  
+./test.deployment.sh # Deployment tests
 ./test.workflow.sh   # Workflow tests
 ./lint.scripts.sh    # Shell script linting
 ```
@@ -328,7 +328,7 @@ Content that gets removed if user doesn't select this feature
 
 **Handler Classes** (`.vortex/installer/src/Prompts/Handlers/`):
 - `CiProvider.php` - Defines CI_PROVIDER_* tokens
-- `HostingProvider.php` - Defines HOSTING_* tokens  
+- `HostingProvider.php` - Defines HOSTING_* tokens
 - `Services.php` - Defines SERVICE_* tokens
 - `Theme.php` - Defines DRUPAL_THEME token
 - `DependencyUpdatesProvider.php` - Defines DEPS_UPDATE_PROVIDER token
@@ -422,7 +422,7 @@ Conditional tokens are tested through the installer fixture system:
 
 ### Script Changes Require Multi-Level Updates
 1. **Main script** (template level)
-2. **BATS test assertions** (unit test level)  
+2. **BATS test assertions** (unit test level)
 3. **Installer fixtures** (integration test level)
 
 ### Output Formatter Consistency
@@ -453,6 +453,79 @@ UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"scenario_name"'
 - BATS tests are fast (unit level)
 - PHPUnit workflow tests are slower (integration level)
 - Installer tests are slowest (full installation simulation)
+
+## Installer Development Patterns
+
+### Code Refactoring and Performance Optimization
+
+**Batch Processing Pattern**: The installer uses batch processing for file operations to improve performance. All file modifications are queued and executed in a single pass through the directory tree.
+
+**Key Pattern**:
+```php
+// Before: Individual operations (slow)
+File::replaceContentInFile($file, 'old', 'new');
+File::removeTokenInDir($dir, 'TOKEN');
+
+// After: Batched operations (fast)
+File::replaceContentAsync('old', 'new');
+File::replaceTokenAsync('TOKEN');
+// Execute all at once: File::runTaskDirectory($dir);
+```
+
+### Handler Architecture Best Practices
+
+**File Utility Wrapper Methods**: Use static wrapper methods to reduce code duplication across handlers:
+
+```php
+// Unified API for content replacement
+File::replaceContentAsync([
+    'search1' => 'replace1',
+    'search2' => 'replace2',
+]);
+
+// Or single replacement
+File::replaceContentAsync('search', 'replace');
+
+// Or custom transformation
+File::replaceContentAsync(function(string $content, ExtendedSplFileInfo $file): string {
+    // Complex logic here
+    return $content;
+});
+```
+
+**Central Execution**: All handlers should only QUEUE operations, not execute them. Execution happens centrally in `PromptManager.php`:
+
+```php
+// In handlers: Queue operations only
+File::replaceContentAsync('old', 'new');
+File::replaceTokenAsync('TOKEN');
+
+// In PromptManager: Execute all queued operations once
+File::runTaskDirectory($this->config->get(Config::TMP));
+```
+
+### Refactoring Workflow
+
+2. **Create Wrappers**: Add static methods to `File` class for common patterns
+3. **Replace Usage**: Update handlers to use wrapper methods
+4. **Test Systematically**:
+   - Run baseline test first to verify core functionality
+   - Run individual test scenarios to catch edge cases
+   - Use `UPDATE_FIXTURES=1` to regenerate expected outputs when needed
+
+### Performance Insights
+
+**Critical Success Factors**:
+- Maintain execution order (handlers queue, PromptManager executes)
+- Preserve complex logic in callbacks for edge cases (e.g., empty line processing exclusions)
+- Test each handler type (token removal, string replacement, custom transformation)
+
+### Common Pitfalls
+
+1. **Execution in Handlers**: Don't call `File::runTaskDirectory()` in individual handlers
+2. **Import Namespace Issues**: Use `AlexSkrypnyk\File\Internal\ExtendedSplFileInfo` not the root namespace
+3. **Complex Logic Loss**: Don't oversimplify complex transformations - use callback signature when needed
+4. **Test Order Dependencies**: Some tests depend on specific file/directory states from previous handlers
 
 ## Resources
 

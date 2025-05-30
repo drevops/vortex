@@ -515,6 +515,7 @@ class PromptManager {
       LabelMergeConflictsPr::id(),
       PreserveDocsProject::id(),
       PreserveDocsOnboarding::id(),
+      // Always last.
       Internal::id(),
     ];
 
