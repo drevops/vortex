@@ -18,6 +18,7 @@ class GithubRepo extends AbstractHandler {
 
     $repo = new Git($this->dstDir);
     $remotes = $repo->listRemotes();
+
     if (empty($remotes)) {
       return NULL;
     }

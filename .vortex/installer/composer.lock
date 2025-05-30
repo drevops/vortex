@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "af6c99c28056fa4fc9dea1ff345628bd",
+    "content-hash": "eba6c3963517ae17ae03632b8e7138b8",
     "packages": [
         {
             "name": "alexskrypnyk/file",
-            "version": "0.5.4",
+            "version": "0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "3f627676c9124ac4effb30ed75554942d9f03d08"
+                "reference": "8967eca9982f002512fbef676da10e5c6aec64bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/3f627676c9124ac4effb30ed75554942d9f03d08",
-                "reference": "3f627676c9124ac4effb30ed75554942d9f03d08",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/8967eca9982f002512fbef676da10e5c6aec64bd",
+                "reference": "8967eca9982f002512fbef676da10e5c6aec64bd",
                 "shasum": ""
             },
             "require": {
@@ -25,7 +25,7 @@
                 "symfony/filesystem": "^7.2"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^0.4.0",
+                "alexskrypnyk/phpunit-helpers": "^0.8.1",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
                 "drupal/coder": "^8.3",
                 "ergebnis/composer-normalize": "^2.42",
@@ -70,7 +70,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-04-17T20:18:13+00:00"
+            "time": "2025-05-30T22:53:29+00:00"
         },
         {
             "name": "alexskrypnyk/str2name",

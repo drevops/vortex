@@ -19,16 +19,14 @@ class PreserveDocsOnboarding extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
-    if (!empty($this->response)) {
-      File::removeTokenInDir($this->tmpDir, '!DOCS_ONBOARDING');
+    if (!empty($v)) {
+      File::removeTokenAsync('!DOCS_ONBOARDING');
     }
     else {
       @unlink($this->tmpDir . '/docs/onboarding.md');
-      File::removeTokenInDir($this->tmpDir, 'DOCS_ONBOARDING');
+      File::removeTokenAsync('DOCS_ONBOARDING');
     }
   }
 

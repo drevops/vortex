@@ -41,26 +41,22 @@ class DependencyUpdatesProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
-
-    $v = $this->response;
+    $v = $this->getResponseAsString();
     $t = $this->tmpDir;
 
     if ($v === self::RENOVATEBOT_CI) {
-      File::removeTokenInDir($t, '!DEPS_UPDATE_PROVIDER_CI');
-      File::removeTokenInDir($t, 'DEPS_UPDATE_PROVIDER_APP');
+      File::removeTokenAsync('!DEPS_UPDATE_PROVIDER_CI');
+      File::removeTokenAsync('DEPS_UPDATE_PROVIDER_APP');
     }
     elseif ($v === self::RENOVATEBOT_APP) {
-      File::removeTokenInDir($t, '!DEPS_UPDATE_PROVIDER_APP');
-      File::removeTokenInDir($t, 'DEPS_UPDATE_PROVIDER_CI');
+      File::removeTokenAsync('!DEPS_UPDATE_PROVIDER_APP');
+      File::removeTokenAsync('DEPS_UPDATE_PROVIDER_CI');
       @unlink($t . '/.github/workflows/deps-updates.yml');
     }
     else {
-      File::removeTokenInDir($t, 'DEPS_UPDATE_PROVIDER_APP');
-      File::removeTokenInDir($t, 'DEPS_UPDATE_PROVIDER_CI');
-      File::removeTokenInDir($t, 'DEPS_UPDATE_PROVIDER');
+      File::removeTokenAsync('DEPS_UPDATE_PROVIDER_APP');
+      File::removeTokenAsync('DEPS_UPDATE_PROVIDER_CI');
+      File::removeTokenAsync('DEPS_UPDATE_PROVIDER');
       @unlink($t . '/renovate.json');
     }
   }

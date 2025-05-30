@@ -27,16 +27,14 @@ class MachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
-
-    $v = (string) $this->response;
+    $v = $this->getResponseAsString();
     $t = $this->tmpDir;
 
-    File::replaceContentInDir($t, 'your_site', $v);
-    File::replaceContentInDir($t, 'your-site', Converter::kebab($v));
-    File::replaceContentInDir($t, 'YourSite', Converter::pascal($v));
+    File::replaceContentAsync([
+      'your_site' => $v,
+      'your-site' => Converter::kebab($v),
+      'YourSite' => Converter::pascal($v),
+    ]);
 
     File::renameInDir($t, 'your_site', $v);
   }

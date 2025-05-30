@@ -36,29 +36,28 @@ class HostingProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
-    if ($this->response === static::ACQUIA) {
-      File::removeTokenInDir($this->tmpDir, '!HOSTING_ACQUIA');
+    if ($v === static::ACQUIA) {
+      File::removeTokenAsync('!HOSTING_ACQUIA');
       $this->removeLagoon();
     }
-    elseif ($this->response === static::LAGOON) {
-      File::removeTokenInDir($this->tmpDir, '!HOSTING_LAGOON');
+    elseif ($v === static::LAGOON) {
+      File::removeTokenAsync('!HOSTING_LAGOON');
       $this->removeAcquia();
     }
     else {
       $this->removeAcquia();
       $this->removeLagoon();
-      File::removeTokenInDir($this->tmpDir, 'HOSTING');
+      File::removeTokenAsync('HOSTING');
     }
   }
 
   protected function removeAcquia(): void {
     File::rmdir($this->tmpDir . '/hooks');
     @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.acquia.php', $this->tmpDir, $this->webroot));
-    File::removeTokenInDir($this->tmpDir, 'HOSTING_ACQUIA');
+
+    File::removeTokenAsync('HOSTING_ACQUIA');
   }
 
   protected function removeLagoon(): void {
@@ -66,7 +65,8 @@ class HostingProvider extends AbstractHandler {
     @unlink($this->tmpDir . '/.lagoon.yml');
     @unlink($this->tmpDir . '/.github/workflows/close-pull-request.yml');
     @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.lagoon.php', $this->tmpDir, $this->webroot));
-    File::removeTokenInDir($this->tmpDir, 'HOSTING_LAGOON');
+
+    File::removeTokenAsync('HOSTING_LAGOON');
   }
 
 }

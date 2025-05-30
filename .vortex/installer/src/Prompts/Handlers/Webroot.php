@@ -35,25 +35,25 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
-
-    $v = (string) $this->response;
+    $v = $this->getResponseAsString();
     $t = $this->tmpDir;
+    $webroot = self::WEB;
 
-    if ($v === self::WEB) {
+    if ($v === $webroot) {
       return;
     }
 
-    File::replaceContentInDir($t, sprintf('%s/', self::WEB), $v . '/');
-    File::replaceContentInDir($t, sprintf('%s\/', self::WEB), $v . '\/');
-    File::replaceContentInDir($t, sprintf(': %s', self::WEB), ': ' . $v);
-    File::replaceContentInDir($t, sprintf('=%s', self::WEB), '=' . $v);
-    File::replaceContentInDir($t, sprintf('!%s', self::WEB), '!' . $v);
-    File::replaceContentInDir($t, sprintf('/\/%s\//', self::WEB), '/' . $v . '/');
-    File::replaceContentInDir($t, sprintf('/\'\/%s\'/', self::WEB), "'/" . $v . "'");
-    rename($t . DIRECTORY_SEPARATOR . self::WEB, $t . DIRECTORY_SEPARATOR . $v);
+    File::replaceContentAsync([
+      sprintf('%s/', $webroot) => $v . '/',
+      sprintf('%s\/', $webroot) => $v . '\/',
+      sprintf(': %s', $webroot) => ': ' . $v,
+      sprintf('=%s', $webroot) => '=' . $v,
+      sprintf('!%s', $webroot) => '!' . $v,
+      sprintf('/\/%s\//', $webroot) => '/' . $v . '/',
+      sprintf('/\'\/%s\'/', $webroot) => "'/" . $v . "'",
+    ]);
+
+    rename($t . DIRECTORY_SEPARATOR . $webroot, $t . DIRECTORY_SEPARATOR . $v);
   }
 
 }

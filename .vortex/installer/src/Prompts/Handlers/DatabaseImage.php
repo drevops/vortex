@@ -21,11 +21,12 @@ class DatabaseImage extends AbstractHandler {
    */
   public function process(): void {
     if (!empty($this->response)) {
-      if (!is_scalar($this->response)) {
-        throw new \RuntimeException('Invalid response type.');
-      }
+      $v = $this->getResponseAsString();
 
-      File::replaceContent($this->tmpDir . '/.env', '/# VORTEX_DB_IMAGE=.*/', 'VORTEX_DB_IMAGE=' . $this->response);
+      File::replaceContentInFile(
+        $this->tmpDir . '/.env', '/# VORTEX_DB_IMAGE=.*/',
+        'VORTEX_DB_IMAGE=' . $v
+      );
     }
   }
 
