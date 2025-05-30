@@ -27,31 +27,6 @@ load _helper.workflow.bash
   assert_ahoy_test_bdd_fast
 }
 
-# Make sure to run with `TEST_GITHUB_TOKEN=working_test_token bats...` or this test will fail.
-@test "GitHub token" {
-  prepare_sut "Starting GitHub token tests in build directory ${BUILD_DIR}"
-
-  step "Add private package"
-  rm composer.lock || true
-  composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git
-  jq --indent 4 '.require += {"drevops/test-private-package": "^1"}' composer.json >composer.json.tmp && mv -f composer.json.tmp composer.json
-
-  export VORTEX_CONTAINER_REGISTRY_USER="${TEST_VORTEX_CONTAINER_REGISTRY_USER?Test Docker user is not set}"
-  export VORTEX_CONTAINER_REGISTRY_PASS="${TEST_VORTEX_CONTAINER_REGISTRY_PASS?Test Docker pass is not set}"
-
-  step "Build without a GITHUB_TOKEN token"
-  unset GITHUB_TOKEN
-  process_ahoyyml
-  run ahoy build
-  assert_failure
-
-  step "Build with a GITHUB_TOKEN token"
-  export GITHUB_TOKEN="${TEST_GITHUB_TOKEN}"
-  process_ahoyyml
-  run ahoy build
-  assert_success
-}
-
 @test "Docker compose, no Ahoy" {
   prepare_sut "Starting Docker compose without Ahoy tests in build directory ${BUILD_DIR}"
 

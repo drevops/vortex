@@ -13,7 +13,7 @@ trait StepBuildTrait {
 
   use LoggerTrait;
 
-  protected function stepBuild(string $webroot = 'web'): void {
+  protected function stepBuild(string $webroot = 'web', array $env = []): void {
     $this->logStepStart();
 
     $db_file_present = file_exists('.data/db.sql');
@@ -24,23 +24,7 @@ trait StepBuildTrait {
     $this->processRun(
       'ahoy build',
       inputs: ['y'],
-      env: [
-        // Tests are using demo database and 'ahoy download-db' command, so we
-        // need
-        // to set the CURL DB to test DB.
-        //
-        // Override demo database with test demo database. This is required to
-        // test assertions ("star wars") with demo database.
-        //
-        // Ahoy will load environment variable, and it will take precedence over
-        // the value in .env file.
-        'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALL_DEMO_DB_TEST,
-        // Credentials for the test container registry to allow fetching public
-        // images to overcome the throttle limit of Docker Hub, and also used
-        // for pushing images during the build.
-        'VORTEX_CONTAINER_REGISTRY_USER' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_USER') ?: '',
-        'VORTEX_CONTAINER_REGISTRY_PASS' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_PASS') ?: '',
-      ],
+      env: array_merge($this->getDefaultBuildEnv(), $env),
       timeout: 10 * 60
     );
     $this->logSubstep('Finished ahoy build');
@@ -75,6 +59,43 @@ trait StepBuildTrait {
     $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/js/star_wars.js', 'Non-minified JS should not exist');
 
     $this->logStepFinish();
+  }
+
+  protected function stepBuildFailure(string $webroot = 'web', array $env = []): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Starting ahoy build (expecting failure)');
+
+    $this->processRun(
+      'ahoy build',
+      inputs: ['y'],
+      env: array_merge($this->getDefaultBuildEnv(), $env),
+      timeout: 10 * 60
+    );
+    $this->logSubstep('Finished ahoy build (expected to fail)');
+    $this->assertProcessFailed();
+
+    $this->logStepFinish();
+  }
+
+  protected function getDefaultBuildEnv(): array {
+    return [
+      // Tests are using demo database and 'ahoy download-db' command, so we
+      // need
+      // to set the CURL DB to test DB.
+      //
+      // Override demo database with test demo database. This is required to
+      // test assertions ("star wars") with demo database.
+      //
+      // Ahoy will load environment variable, and it will take precedence over
+      // the value in .env file.
+      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALL_DEMO_DB_TEST,
+      // Credentials for the test container registry to allow fetching public
+      // images to overcome the throttle limit of Docker Hub, and also used
+      // for pushing images during the build.
+      'VORTEX_CONTAINER_REGISTRY_USER' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_USER') ?: '',
+      'VORTEX_CONTAINER_REGISTRY_PASS' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_PASS') ?: '',
+    ];
   }
 
 }

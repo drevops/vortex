@@ -50,4 +50,30 @@ class WorkflowTest extends FunctionalTestCase {
     $this->stepTestBdd();
   }
 
+  /**
+   * Test GitHub token handling during build.
+   *
+   * Make sure to run with TEST_GITHUB_TOKEN=working_test_token or this test
+   * will fail.
+   */
+  public function testGitHubToken(): void {
+    $github_token = getenv('TEST_GITHUB_TOKEN');
+    $this->assertNotEmpty($github_token, 'TEST_GITHUB_TOKEN environment variable must be set');
+
+    $this->logSubstep('Adding private package to test GitHub token');
+    if (file_exists('composer.lock')) {
+      unlink('composer.lock');
+    }
+    $this->processRun('composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git');
+    $this->assertProcessSuccessful();
+    $this->processRun('composer require --no-update drevops/test-private-package:^1');
+    $this->assertProcessSuccessful();
+
+    $this->logSubstep('Build without GITHUB_TOKEN - should fail');
+    $this->stepBuildFailure(env: ['GITHUB_TOKEN' => '']);
+
+    $this->logSubstep('Build with GITHUB_TOKEN - should succeed');
+    $this->stepBuild(env: ['GITHUB_TOKEN' => $github_token]);
+  }
+
 }
