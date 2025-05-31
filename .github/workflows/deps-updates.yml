@@ -3,6 +3,7 @@ name: Dependency updates
 on:
   schedule:
     - cron: '45 11,23 * * *'
+  workflow_dispatch:
 
 jobs:
   deps-updates:
