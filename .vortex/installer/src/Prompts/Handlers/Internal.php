@@ -81,38 +81,36 @@ class Internal extends AbstractHandler {
   }
 
   protected function processDemoMode(array $responses, string $dir): void {
-    if (is_null($is_demo_mode = $this->config->get(Config::IS_DEMO_MODE))) {
+    $is_demo = $this->config->get(Config::IS_DEMO_MODE);
+
+    // If demo mode is not set, check if it should be enabled based on
+    // provision type and database download source.
+    if (is_null($is_demo)) {
       if ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
-        $download_source = $responses[DatabaseDownloadSource::id()];
-        $db_file = Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql');
+        $db_file_exists = file_exists(Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql'));
         $has_comment = File::contains($this->dstDir . '/.env', 'Override project-specific values for demonstration purposes');
 
-        // Enable Vortex demo mode if download source is file AND
-        // there is no downloaded file present OR if there is a demo comment in
-        // destination .env file.
-        if ($download_source !== DatabaseDownloadSource::CONTAINER_REGISTRY) {
-          if ($has_comment || !file_exists($db_file)) {
-            $this->config->set(Config::IS_DEMO_MODE, TRUE);
-          }
-          else {
-            $this->config->set(Config::IS_DEMO_MODE, FALSE);
-          }
-        }
-        elseif ($has_comment) {
-          $this->config->set(Config::IS_DEMO_MODE, TRUE);
-        }
-        else {
-          $this->config->set(Config::IS_DEMO_MODE, FALSE);
+        // If there is a comment - it is a demo mode.
+        $is_demo = $has_comment;
+
+        // For a file-based download source, demo mode is enabled if the
+        // database file does not exist.
+        if ($responses[DatabaseDownloadSource::id()] !== DatabaseDownloadSource::CONTAINER_REGISTRY) {
+          $is_demo = $is_demo || !$db_file_exists;
         }
       }
       else {
-        $this->config->set(Config::IS_DEMO_MODE, FALSE);
+        // Not a database-driven provision type (a profile-driven), so demo is
+        // not applicable.
+        $is_demo = FALSE;
       }
     }
 
-    if (!$this->config->get(Config::IS_DEMO_MODE)) {
+    if (!$is_demo) {
       File::removeTokenAsync('DEMO');
     }
+
+    $this->config->set(Config::IS_DEMO_MODE, $is_demo);
   }
 
 }
