@@ -28,7 +28,7 @@ dependencies:
   - taxonomy
   - toolbar
   - views_ui
-  - sw_core
+  - sw_base
 
 themes:
   - seven

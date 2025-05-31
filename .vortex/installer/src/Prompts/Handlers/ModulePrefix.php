@@ -36,17 +36,17 @@ class ModulePrefix extends AbstractHandler {
     $w = $this->webroot;
 
     File::replaceContentAsync([
-      'ys_core' => $v . '_base',
+      'ys_base' => $v . '_base',
       'ys_search' => $v . '_search',
-      'YsCore' => Converter::pascal($v) . 'Base',
+      'YsBase' => Converter::pascal($v) . 'Base',
       'YsSearch' => Converter::pascal($v) . 'Search',
-      'YSCODE' => Converter::cobol($v),
+      'YSBASE' => Converter::cobol($v),
       'YSSEARCH' => Converter::cobol($v),
     ]);
 
-    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_core', $v . '_base');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_base', $v . '_base');
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_search', $v . '_search');
-    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsCore', Converter::pascal($v) . 'Base');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsBase', Converter::pascal($v) . 'Base');
   }
 
 }
