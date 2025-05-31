@@ -374,14 +374,14 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [ModulePrefix::id() => 'dp'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          File::dump(static::$sut . '/web/modules/custom/dp_core/dp_core.info');
+          File::dump(static::$sut . '/web/modules/custom/dp_base/dp_base.info');
         },
       ],
       'module prefix - discovery - within profile' => [
         [],
         [ModulePrefix::id() => 'dp'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_core/dp_core.info');
+          File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_base/dp_base.info');
         },
       ],
       'module prefix' => [

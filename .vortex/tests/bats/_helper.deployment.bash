@@ -41,10 +41,10 @@ assert_deployment_files_present() {
   assert_file_exists .env
 
   # Site core module present.
-  assert_dir_exists "${webroot}/modules/custom/sw_core"
-  assert_file_exists "${webroot}/modules/custom/sw_core/sw_core.info.yml"
-  assert_file_exists "${webroot}/modules/custom/sw_core/sw_core.module"
-  assert_file_exists "${webroot}/modules/custom/sw_core/sw_core.deploy.php"
+  assert_dir_exists "${webroot}/modules/custom/sw_base"
+  assert_file_exists "${webroot}/modules/custom/sw_base/sw_base.info.yml"
+  assert_file_exists "${webroot}/modules/custom/sw_base/sw_base.module"
+  assert_file_exists "${webroot}/modules/custom/sw_base/sw_base.deploy.php"
 
   # Site theme present.
   assert_dir_exists "${webroot}/themes/custom/star_wars"

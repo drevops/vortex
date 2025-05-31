@@ -13,6 +13,7 @@ use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 trait StepPrepareSutTrait {
 
   use LoggerTrait;
+  use StepDownloadDbTrait;
 
   protected function stepPrepareSut(): void {
     $this->logStepStart();
@@ -61,7 +62,7 @@ trait StepPrepareSutTrait {
       // Installer will load environment variable and it will take precedence
       // over
       // the value in .env file.
-      'VORTEX_DB_DOWNLOAD_URL' => 'https://github.com/drevops/vortex/releases/download/24.11.0/db_d11.test.sql',
+      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALL_DEMO_DB_TEST,
       // Use unique installer temporary directory for each run. This is where
       // the installer script downloads the Vortex codebase for processing.
       'VORTEX_INSTALL_TMP_DIR' => static::locationsTmp(),

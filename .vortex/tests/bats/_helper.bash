@@ -143,7 +143,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/24.11.0/db_d11.test.sql
+  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql
 
   ##
   ## Phase 5: SUT files setup.
@@ -267,20 +267,20 @@ assert_files_not_present_common() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_dir_not_exists "${webroot}/modules/custom/ys_core"
+  assert_dir_not_exists "${webroot}/modules/custom/ys_base"
   assert_dir_not_exists "${webroot}/themes/custom/your_site_theme"
   assert_dir_not_exists "${webroot}/profiles/custom/${suffix}_profile"
-  assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_core"
+  assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_base"
   assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_search"
   assert_dir_not_exists "${webroot}/themes/custom/${suffix}"
   assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Unit/YourSiteExampleUnitTest.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Unit/YourSiteExampleUnitTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Unit/YourSiteCoreUnitTestBase.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Kernel/YourSiteExampleKernelTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Functional/YourSiteExampleFunctionalTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
 
   assert_file_not_exists "docs/faqs.md"
   assert_file_not_exists ".ahoy.yml"
@@ -458,21 +458,21 @@ assert_files_present_drupal() {
   # Stub profile removed.
   assert_dir_not_exists "${webroot}/profiles/custom/your_site_profile"
   # Stub code module removed.
-  assert_dir_not_exists "${webroot}/modules/custom/ys_core"
+  assert_dir_not_exists "${webroot}/modules/custom/ys_base"
   # Stub theme removed.
   assert_dir_not_exists "${webroot}/themes/custom/your_site_theme"
 
   # Site core module created.
-  assert_dir_exists "${webroot}/modules/custom/${suffix_abbreviated}_core"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.info.yml"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.module"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.deploy.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreUnitTestBase.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/ExampleTest.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreKernelTestBase.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/ExampleTest.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreFunctionalTestBase.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/ExampleTest.php"
+  assert_dir_exists "${webroot}/modules/custom/${suffix_abbreviated}_base"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/${suffix_abbreviated}_base.info.yml"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/${suffix_abbreviated}_base.module"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/${suffix_abbreviated}_base.deploy.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Unit/${suffix_abbreviated_camel_cased}BaseUnitTestBase.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Unit/ExampleTest.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Kernel/${suffix_abbreviated_camel_cased}BaseKernelTestBase.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Kernel/ExampleTest.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Functional/${suffix_abbreviated_camel_cased}BaseFunctionalTestBase.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Functional/ExampleTest.php"
 
   # Site search module created.
   assert_dir_exists "${webroot}/modules/custom/${suffix_abbreviated}_search"
@@ -533,11 +533,11 @@ assert_files_present_drupal() {
 
   # Special case to fix all occurrences of the stub in core files to exclude
   # false-positives from the assertions below.
-  replace_core_stubs "${dir}" "your_site" "${webroot}"
+  replace_drupal_core_stubs "${dir}" "your_site" "${webroot}"
 
   # Assert all stub strings were replaced.
   assert_dir_not_contains_string "${dir}" "your_site"
-  assert_dir_not_contains_string "${dir}" "ys_core"
+  assert_dir_not_contains_string "${dir}" "ys_base"
   assert_dir_not_contains_string "${dir}" "YOURSITE"
   assert_dir_not_contains_string "${dir}" "YourSite"
   assert_dir_not_contains_string "${dir}" "your_site_theme"
@@ -1158,7 +1158,7 @@ install_dependencies_stub() {
   popd >/dev/null || exit 1
 }
 
-replace_core_stubs() {
+replace_drupal_core_stubs() {
   local dir="${1}"
   local token="${2}"
   local webroot="${3:-web}"

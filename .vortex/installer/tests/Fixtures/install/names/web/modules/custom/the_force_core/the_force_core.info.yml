@@ -1,5 +1,0 @@
-name: New hope Core
-type: module
-description: Core feature for New hope site.
-core_version_requirement: ^11
-package: the_new_hope

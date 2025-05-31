@@ -90,7 +90,7 @@ indicate that it was addressed.
   - [ ] Cleanup PHP code
   - [ ] Cleanup JS code
   - [ ] Cleanup SCSS code
-- [ ] Move custom functionality into `your_module_core` module's relevant
+- [ ] Move custom functionality into `your_module_base` module's relevant
   inclusion files.
 - [ ] Refactor modules functions to follow
   [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself),
