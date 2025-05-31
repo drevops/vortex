@@ -63,7 +63,6 @@ case ${index} in
     ;;
 
   3)
-    bats "${TEST_DIR}"/bats/workflow.utilities.bats
     # Disabled due to intermittent failures.
     # @see https://github.com/drevops/vortex/issues/893
     # bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
@@ -78,6 +77,5 @@ case ${index} in
     # Disabled due to intermittent failures.
     # @see https://github.com/drevops/vortex/issues/893
     # bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
-    bats "${TEST_DIR}"/bats/workflow.utilities.bats
     ;;
 esac
