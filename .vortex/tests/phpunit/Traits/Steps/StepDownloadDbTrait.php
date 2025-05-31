@@ -17,7 +17,7 @@ trait StepDownloadDbTrait {
    * Tests use demo database and 'ahoy download-db' command, so we need
    * to set the CURL DB to test DB.
    */
-  const VORTEX_INSTALL_DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11.test.sql';
+  const VORTEX_INSTALL_DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql';
 
   protected function stepDownloadDb(): void {
     $this->logStepStart();
