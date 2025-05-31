@@ -200,3 +200,13 @@ curl -LO https://github.com/drevops/mariadb-drupal-data/releases/latest/download
 chmod +x seed.sh
 ./seed.sh .data/db.test_image.sql drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest
 ```
+6. Update destination container images:
+```bash
+docker tag drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii
+docker push drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii
+
+docker tag drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
+docker push drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
+```
+
+
