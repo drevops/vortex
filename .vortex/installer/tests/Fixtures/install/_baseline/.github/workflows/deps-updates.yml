@@ -11,9 +11,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@__VERSION__
 
-      - uses: suzuki-shunsuke/github-action-renovate-config-validator@__VERSION__
+      - uses: actions/setup-node@__VERSION__
         with:
           node-version: 22.13.1
+
+      - uses: suzuki-shunsuke/github-action-renovate-config-validator@__VERSION__
 
       - name: Check Renovate Token
         id: check-token

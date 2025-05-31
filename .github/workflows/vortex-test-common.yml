@@ -61,6 +61,8 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.1
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -71,6 +73,12 @@ jobs:
           ./tests/lint.scripts.sh
           ./tests/lint.dockerfiles.sh
         working-directory: .vortex
+
+      # Special case to validate Renovate  configuration with the same action
+      # as used in the Renovate workflow to ensure that they both use the same
+      # version.
+      - name: Validate Renovate configuration
+        uses: suzuki-shunsuke/github-action-renovate-config-validator@v1.1.1
 
       - name: Run tests
         run: ./tests/test.common.sh
