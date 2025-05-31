@@ -26,17 +26,23 @@ class ProvisionType extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
-    if ($this->response === static::PROFILE) {
-      File::replaceContent($this->tmpDir . '/.env', '/VORTEX_PROVISION_TYPE=.*/', "VORTEX_PROVISION_TYPE=" . static::PROFILE);
-      File::removeTokenInDir($this->tmpDir, '!PROVISION_TYPE_PROFILE');
+    if ($v === static::PROFILE) {
+      File::replaceContentInFile(
+        $this->tmpDir . '/.env', '/VORTEX_PROVISION_TYPE=.*/',
+        "VORTEX_PROVISION_TYPE=" . static::PROFILE
+      );
+
+      File::removeTokenAsync('!PROVISION_TYPE_PROFILE');
     }
     else {
-      File::replaceContent($this->tmpDir . '/.env', '/VORTEX_PROVISION_TYPE=.*/', "VORTEX_PROVISION_TYPE=" . static::DATABASE);
-      File::removeTokenInDir($this->tmpDir, 'PROVISION_TYPE_PROFILE');
+      File::replaceContentInFile(
+        $this->tmpDir . '/.env', '/VORTEX_PROVISION_TYPE=.*/',
+        "VORTEX_PROVISION_TYPE=" . static::DATABASE
+      );
+
+      File::removeTokenAsync('PROVISION_TYPE_PROFILE');
     }
   }
 

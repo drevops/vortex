@@ -136,6 +136,14 @@ Default value: `UNDEFINED`
 
 Defined in: `ENVIRONMENT`
 
+### `DRUPAL_MAINTENANCE_THEME`
+
+Drupal maintenance theme name.
+
+Default value: `your_site_theme`
+
+Defined in: `.env`
+
 ### `DRUPAL_PRIVATE_FILES`
 
 Path to private files.
@@ -500,7 +508,7 @@ Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`
 
 Environment to download the database from.
 
-Applies to hosting environments.
+Applies to hosting environments.<br/>Note that depending on the hosting provider, this variable may represent<br/>a branch name or an environment name.
 
 Default value: `prod`
 

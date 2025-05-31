@@ -37,14 +37,12 @@ class CiProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
     $remove_gha = FALSE;
     $remove_circleci = FALSE;
 
-    switch ($this->response) {
+    switch ($v) {
       case self::GITHUB_ACTIONS:
         $remove_circleci = TRUE;
         break;
@@ -60,21 +58,21 @@ class CiProvider extends AbstractHandler {
 
     if ($remove_gha) {
       @unlink($this->tmpDir . '/.github/workflows/build-test-deploy.yml');
-      File::removeTokenInDir($this->tmpDir, 'CI_PROVIDER_GHA');
+      File::removeTokenAsync('CI_PROVIDER_GHA');
     }
 
     if ($remove_circleci) {
       File::rmdir($this->tmpDir . '/.circleci');
       @unlink($this->tmpDir . '/tests/phpunit/CircleCiConfigTest.php');
-      File::removeTokenInDir($this->tmpDir, 'CI_PROVIDER_CIRCLECI');
+      File::removeTokenAsync('CI_PROVIDER_CIRCLECI');
     }
 
     if ($remove_gha && $remove_circleci) {
       @unlink($this->tmpDir . '/docs/ci.md');
-      File::removeTokenInDir($this->tmpDir, 'CI_PROVIDER_ANY');
+      File::removeTokenAsync('CI_PROVIDER_ANY');
     }
     else {
-      File::removeTokenInDir($this->tmpDir, '!CI_PROVIDER_ANY');
+      File::removeTokenAsync('!CI_PROVIDER_ANY');
     }
   }
 

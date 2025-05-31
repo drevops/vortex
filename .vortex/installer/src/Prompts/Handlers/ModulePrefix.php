@@ -31,27 +31,22 @@ class ModulePrefix extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
-
-    $v = (string) $this->response;
+    $v = $this->getResponseAsString();
     $t = $this->tmpDir;
     $w = $this->webroot;
 
-    File::replaceContentInDir($t . sprintf('/%s/modules/custom', $w), 'ys_base', $v . '_base');
-    File::replaceContentInDir($t . sprintf('/%s/modules/custom', $w), 'ys_search', $v . '_search');
-    File::replaceContentInDir($t . sprintf('/%s/themes/custom', $w), 'ys_base', $v . '_base');
-    File::replaceContentInDir($t . '/scripts/custom', 'ys_base', $v . '_base');
-    File::replaceContentInDir($t . '/scripts/custom', 'ys_search', $v . '_search');
-    File::replaceContentInDir($t . sprintf('/%s/modules/custom', $w), 'YsBase', Converter::pascal($v) . 'Base');
-    File::replaceContentInDir($t . sprintf('/%s/modules/custom', $w), 'YsSearch', Converter::pascal($v) . 'Search');
-    File::replaceContentInDir($t, 'YSCODE', Converter::cobol($v));
-    File::replaceContentInDir($t, 'YSSEARCH', Converter::cobol($v));
+    File::replaceContentAsync([
+      'ys_core' => $v . '_base',
+      'ys_search' => $v . '_search',
+      'YsCore' => Converter::pascal($v) . 'Base',
+      'YsSearch' => Converter::pascal($v) . 'Search',
+      'YSCODE' => Converter::cobol($v),
+      'YSSEARCH' => Converter::cobol($v),
+    ]);
 
-    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_base', $v . '_base');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_core', $v . '_base');
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_search', $v . '_search');
-    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsBase', Converter::pascal($v) . 'Base');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsCore', Converter::pascal($v) . 'Base');
   }
 
 }

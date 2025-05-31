@@ -26,12 +26,10 @@ class OrgMachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
-    File::replaceContentInDir($this->tmpDir, 'your_org', (string) $this->response);
-    File::renameInDir($this->tmpDir, 'your_org', (string) $this->response);
+    File::replaceContentAsync('your_org', $v);
+    File::renameInDir($this->tmpDir, 'your_org', $v);
   }
 
 }

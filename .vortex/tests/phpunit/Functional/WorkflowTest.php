@@ -50,4 +50,62 @@ class WorkflowTest extends FunctionalTestCase {
     $this->stepTestBdd();
   }
 
+  /**
+   * Test GitHub token handling during build.
+   *
+   * Make sure to run with TEST_GITHUB_TOKEN=working_test_token or this test
+   * will fail.
+   */
+  public function testGitHubToken(): void {
+    $github_token = getenv('TEST_GITHUB_TOKEN');
+    $this->assertNotEmpty($github_token, 'TEST_GITHUB_TOKEN environment variable must be set');
+
+    $this->logSubstep('Adding private package to test GitHub token');
+    if (file_exists('composer.lock')) {
+      unlink('composer.lock');
+    }
+    $this->processRun('composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git');
+    $this->assertProcessSuccessful();
+    $this->processRun('composer require --no-update drevops/test-private-package:^1');
+    $this->assertProcessSuccessful();
+
+    $this->logSubstep('Build without GITHUB_TOKEN - should fail');
+    $this->stepBuildFailure(env: ['GITHUB_TOKEN' => '']);
+
+    $this->logSubstep('Build with GITHUB_TOKEN - should succeed');
+    $this->stepBuild(env: ['GITHUB_TOKEN' => $github_token]);
+  }
+
+  /**
+   * Test Docker compose workflow without using Ahoy.
+   */
+  public function testDockerComposeNoAhoy(): void {
+    $this->logSubstep('Reset environment');
+    $this->processRun('ahoy reset', inputs: ['y'], timeout: 5 * 60);
+    $this->assertProcessSuccessful();
+
+    $this->logSubstep('Building stack with docker compose');
+    $this->processRun('docker compose up -d --build --force-recreate', timeout: 15 * 60);
+    $this->assertProcessSuccessful();
+
+    $this->logSubstep('Installing dependencies with composer');
+    $this->processRun('docker compose exec -T cli composer install --prefer-dist', timeout: 10 * 60);
+    $this->assertProcessSuccessful();
+
+    $this->logSubstep('Provisioning with direct script execution');
+    if (!$this->volumesMounted() && file_exists('.data/db.sql')) {
+      $this->logSubstep('Copying database file to container');
+      $this->processRun('docker compose exec cli mkdir -p .data');
+      $this->assertProcessSuccessful();
+      $this->processRun('docker compose cp -L .data/db.sql cli:/app/.data/db.sql');
+      $this->assertProcessSuccessful();
+    }
+    $this->processRun('docker compose exec -T cli ./scripts/vortex/provision.sh', timeout: 10 * 60);
+    $this->assertProcessSuccessful();
+
+    $this->syncToHost();
+    $this->assertFilesTrackedInGit();
+    $this->stepTestBdd();
+  }
+
 }

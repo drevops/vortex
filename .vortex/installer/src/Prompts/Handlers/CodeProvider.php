@@ -27,11 +27,9 @@ class CodeProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
-    if ($this->response !== self::GITHUB) {
+    if ($v !== self::GITHUB) {
       File::rmdir($this->tmpDir . '/.github');
     }
   }

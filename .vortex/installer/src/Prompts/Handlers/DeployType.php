@@ -37,28 +37,28 @@ class DeployType extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_array($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
-
-    $types = $this->response;
+    $types = $this->getResponseAsArray();
     $t = $this->tmpDir;
 
     if (!empty($types)) {
-      File::replaceContent($t . '/.env', '/VORTEX_DEPLOY_TYPES=.*/', 'VORTEX_DEPLOY_TYPES=' . Converter::toList($types));
+      File::replaceContentInFile(
+        $t . '/.env', '/VORTEX_DEPLOY_TYPES=.*/',
+        'VORTEX_DEPLOY_TYPES=' . Converter::toList($types)
+      );
 
       if (!in_array(self::ARTIFACT, $types)) {
         @unlink($t . '/.gitignore.deployment');
         @unlink($t . '/.gitignore.artifact');
       }
 
-      File::removeTokenInDir($t, '!DEPLOYMENT');
+      File::removeTokenAsync('!DEPLOYMENT');
     }
     else {
       @unlink($t . '/docs/deployment.md');
       @unlink($t . '/.gitignore.deployment');
       @unlink($t . '/.gitignore.artifact');
-      File::removeTokenInDir($t, 'DEPLOYMENT');
+
+      File::removeTokenAsync('DEPLOYMENT');
     }
   }
 

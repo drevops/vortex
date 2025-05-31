@@ -105,8 +105,11 @@ ini_set('date.timezone', 'Australia/Melbourne');
 date_default_timezone_set('Australia/Melbourne');
 
 // Maintenance theme.
-if (getenv('DRUPAL_THEME')) {
-  $config['maintenance_theme'] = getenv('DRUPAL_RH_THEME');
+if (getenv('DRUPAL_MAINTENANCE_THEME')) {
+  $config['maintenance_theme'] = getenv('DRUPAL_MAINTENANCE_THEME');
+}
+elseif (getenv('DRUPAL_THEME')) {
+  $config['maintenance_theme'] = getenv('DRUPAL_THEME');
 }
 
 // Default database configuration.

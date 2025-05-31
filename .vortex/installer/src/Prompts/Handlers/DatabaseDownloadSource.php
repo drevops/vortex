@@ -32,13 +32,9 @@ class DatabaseDownloadSource extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $type = $this->getResponseAsString();
 
-    $type = $this->response;
-
-    File::replaceContent($this->tmpDir . '/.env', '/VORTEX_DB_DOWNLOAD_SOURCE=.*/', 'VORTEX_DB_DOWNLOAD_SOURCE=' . $type);
+    File::replaceContentInFile($this->tmpDir . '/.env', '/VORTEX_DB_DOWNLOAD_SOURCE=.*/', 'VORTEX_DB_DOWNLOAD_SOURCE=' . $type);
 
     $types = [
       DatabaseDownloadSource::URL,
@@ -51,10 +47,10 @@ class DatabaseDownloadSource extends AbstractHandler {
     foreach ($types as $t) {
       $token = 'DB_DOWNLOAD_SOURCE_' . strtoupper($t);
       if ($t === $type) {
-        File::removeTokenInDir($this->tmpDir, '!' . $token);
+        File::removeTokenAsync('!' . $token);
       }
       else {
-        File::removeTokenInDir($this->tmpDir, $token);
+        File::removeTokenAsync($token);
       }
     }
   }

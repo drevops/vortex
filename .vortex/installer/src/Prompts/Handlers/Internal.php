@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Installer\Prompts\Handlers;
 
+use AlexSkrypnyk\File\ExtendedSplFileInfo;
 use DrevOps\Installer\Utils\Config;
 use DrevOps\Installer\Utils\Env;
 use DrevOps\Installer\Utils\File;
@@ -16,57 +17,71 @@ class Internal extends AbstractHandler {
   }
 
   public function process(): void {
-    $version = (string) $this->config->get(Config::VERSION);
-    File::replaceContentInDir($this->tmpDir, 'VORTEX_VERSION_URLENCODED', str_replace('-', '--', $version));
-    File::replaceContentInDir($this->tmpDir, 'VORTEX_VERSION', $version);
+    $t = $this->tmpDir;
 
-    $this->processDemoMode($this->responses, $this->tmpDir);
+    $version = (string) $this->config->get(Config::VERSION);
+
+    $this->processDemoMode($this->responses, $t);
+
+    // Replace version placeholders.
+    File::replaceContentAsync([
+      'VORTEX_VERSION_URLENCODED' => str_replace('-', '--', $version),
+      'VORTEX_VERSION' => $version,
+    ]);
 
     // Remove code required for Vortex maintenance.
-    File::removeTokenInDir($this->tmpDir, 'VORTEX_DEV');
+    File::removeTokenAsync('VORTEX_DEV');
 
-    // Remove all other comments.
-    File::removeTokenInDir($this->tmpDir);
+    // Enable commented out code and process complex content transformations.
+    File::replaceContentAsync(function (string $content, ExtendedSplFileInfo $file) use ($t): string {
+      // Remove all other comments.
+      $content = File::removeToken($content, '#;', '#;');
 
-    if (file_exists($this->tmpDir . DIRECTORY_SEPARATOR . 'README.dist.md')) {
-      rename($this->tmpDir . DIRECTORY_SEPARATOR . 'README.dist.md', $this->tmpDir . DIRECTORY_SEPARATOR . 'README.md');
+      // Enable commented out code.
+      $content = File::replaceContent($content, '##### ', '');
+
+      // Process empty lines, but exclude specific files that should not have
+      // empty line processing.
+      $ignore_empty_line_processing = [
+        '/web/sites/default/default.settings.php',
+        '/web/sites/default/default.services.yml',
+        '/.docker/config/solr/config-set/',
+      ];
+      $relative_path = str_replace($t, '', $file->getPathname());
+      if (!in_array($relative_path, $ignore_empty_line_processing)) {
+        $content = File::replaceContent($content, '/(\n\s*\n)+/', "\n\n");
+      }
+
+      return $content;
+    });
+
+    if (file_exists($t . DIRECTORY_SEPARATOR . 'README.dist.md')) {
+      rename($t . DIRECTORY_SEPARATOR . 'README.dist.md', $t . DIRECTORY_SEPARATOR . 'README.md');
     }
 
     // Remove Vortex internal files.
-    File::rmdir($this->tmpDir . DIRECTORY_SEPARATOR . '.vortex');
+    File::rmdir($t . DIRECTORY_SEPARATOR . '.vortex');
 
-    @unlink($this->tmpDir . '/.github/FUNDING.yml');
-    @unlink($this->tmpDir . 'CODE_OF_CONDUCT.md');
-    @unlink($this->tmpDir . 'CONTRIBUTING.md');
-    @unlink($this->tmpDir . 'LICENSE');
-    @unlink($this->tmpDir . 'SECURITY.md');
+    @unlink($t . '/.github/FUNDING.yml');
+    @unlink($t . 'CODE_OF_CONDUCT.md');
+    @unlink($t . 'CONTRIBUTING.md');
+    @unlink($t . 'LICENSE');
+    @unlink($t . 'SECURITY.md');
 
     // Remove Vortex internal GHAs.
-    $files = glob($this->tmpDir . '/.github/workflows/vortex-*.yml');
+    $files = glob($t . '/.github/workflows/vortex-*.yml');
     if ($files) {
       foreach ($files as $file) {
         @unlink($file);
       }
     }
 
-    // Enable commented out code.
-    File::replaceContentInDir($this->tmpDir, '##### ', '');
-
-    // Process empty lines.
-    $ignore = array_merge(File::ignoredPaths(), [
-      '/web/sites/default/default.settings.php',
-      '/web/sites/default/default.services.yml',
-      '/.docker/config/solr/config-set/',
-    ]);
-
-    $files = File::scandirRecursive($this->tmpDir, $ignore);
-    foreach ($files as $filename) {
-      File::replaceContent($filename, '/(\n\s*\n)+/', "\n\n");
-    }
+    // Execute all queued batch tasks from all handlers.
+    File::runTaskDirectory($this->config->get(Config::TMP));
   }
 
   protected function processDemoMode(array $responses, string $dir): void {
-    if (is_null($this->config->get(Config::IS_DEMO_MODE))) {
+    if (is_null($is_demo_mode = $this->config->get(Config::IS_DEMO_MODE))) {
       if ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
         $download_source = $responses[DatabaseDownloadSource::id()];
         $db_file = Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql');
@@ -96,7 +111,7 @@ class Internal extends AbstractHandler {
     }
 
     if (!$this->config->get(Config::IS_DEMO_MODE)) {
-      File::removeTokenInDir($dir, 'DEMO');
+      File::removeTokenAsync('DEMO');
     }
   }
 

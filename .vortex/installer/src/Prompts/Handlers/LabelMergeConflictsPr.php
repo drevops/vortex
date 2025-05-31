@@ -17,11 +17,9 @@ class LabelMergeConflictsPr extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
-    if (empty($this->response)) {
+    if (empty($v)) {
       @unlink($this->tmpDir . '/.github/workflows/label-merge-conflict.yml');
     }
   }
