@@ -13,7 +13,7 @@ jobs:
 
       - uses: actions/setup-node@__VERSION__
         with:
-          node-version: 22.13.1
+          node-version: 22.16.0
 
       - uses: suzuki-shunsuke/github-action-renovate-config-validator@__VERSION__
 
