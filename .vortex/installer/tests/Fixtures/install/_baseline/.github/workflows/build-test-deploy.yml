@@ -85,7 +85,7 @@ jobs:
         uses: shimataro/ssh-key-action@__VERSION__
         with:
           key: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
-          known_hosts: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_KNOWN_HOSTS }}
+          known_hosts: unnecessary
         env:
           VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
 
