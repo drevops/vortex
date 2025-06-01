@@ -107,7 +107,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
       $args['--' . $option] = $value;
     }
 
-    Env::put(Config::DEMO_MODE_SKIP, '1');
+    Env::put(Config::IS_DEMO_MODE_DB_DOWNLOAD_SKIP, '1');
 
     $this->applicationRun($args, [], $expect_fail);
   }
