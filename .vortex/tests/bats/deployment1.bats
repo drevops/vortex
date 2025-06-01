@@ -45,7 +45,7 @@ load _helper.deployment.bash
     # from for deployment. They may be the same place, but we are testing them
     # if they are separate, because most likely SRC_DIR will contain code
     # built on previous build stages.
-    install_and_build_site "${CURRENT_PROJECT_DIR}" 1 "docroot"
+    install_and_assemble_site "${CURRENT_PROJECT_DIR}" 1 "docroot"
 
     substep "Copying built codebase into code source directory ${SRC_DIR}"
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -127,8 +127,8 @@ load _helper.deployment.bash
   substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
   fixture_prepare_dir "${SRC_DIR}"
 
-  # Do not build - only structure.
-  install_and_build_site "${CURRENT_PROJECT_DIR}" 0 "${answers[@]}"
+  # Do not assemble - only structure.
+  install_and_assemble_site "${CURRENT_PROJECT_DIR}" 0 "${answers[@]}"
 
   substep "Copying built codebase into code source directory ${SRC_DIR}"
   cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -211,7 +211,7 @@ load _helper.deployment.bash
   export VORTEX_INSTALL_PROMPT_PROVISION_TYPE="profile"
 
   # Do not build - only structure.
-  install_and_build_site "${CURRENT_PROJECT_DIR}" 0
+  install_and_assemble_site "${CURRENT_PROJECT_DIR}" 0
 
   substep "Copying built codebase into code source directory ${SRC_DIR}"
   cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"

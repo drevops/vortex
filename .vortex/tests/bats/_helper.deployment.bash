@@ -96,9 +96,9 @@ assert_deployment_files_present() {
   popd >/dev/null || exit 1
 }
 
-install_and_build_site() {
+install_and_assemble_site() {
   local dir="${1:-$(pwd)}"
-  local should_build="${2:-1}"
+  local should_assemble="${2:-1}"
   local webroot="${3:-web}"
   shift || true
   shift || true
@@ -132,8 +132,8 @@ install_and_build_site() {
   step "Add all files to new git repo"
   git_add_all_commit "Init Vortex config" "${dir}"
 
-  if [ "${should_build:-}" = "1" ]; then
-    step "Build project"
+  if [ "${should_assemble:-}" = "1" ]; then
+    step "Assembling project codebase"
 
     export VORTEX_CONTAINER_REGISTRY_USER="${TEST_VORTEX_CONTAINER_REGISTRY_USER?Test Docker user is not set}"
     export VORTEX_CONTAINER_REGISTRY_PASS="${TEST_VORTEX_CONTAINER_REGISTRY_PASS?Test Docker pass is not set}"
@@ -141,7 +141,9 @@ install_and_build_site() {
     export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
 
     process_ahoyyml
-    ahoy build
+    # We only assemble the codebase without the database.
+    ahoy reset
+    ahoy up --build --force-recreate
     sync_to_host
   fi
 
