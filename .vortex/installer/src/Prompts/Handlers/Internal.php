@@ -49,7 +49,7 @@ class Internal extends AbstractHandler {
       ];
       $relative_path = str_replace($t, '', $file->getPathname());
       if (!in_array($relative_path, $ignore_empty_line_processing)) {
-        $content = File::replaceContent($content, '/(\n\s*\n)+/', "\n\n");
+        $content = File::collapseRepeatedEmptyLines($content);
       }
 
       return $content;
