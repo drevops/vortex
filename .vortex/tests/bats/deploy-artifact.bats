@@ -104,6 +104,8 @@ load _helper.deployment.bash
     "SSH agent already has ${file} key loaded."
     "Installing artifact builder."
     "@composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^1"
+    "Copying git repo files meta file to the deploy code repo."
+    "Copying deployment .gitignore as it may not exist in deploy code source files."
     "Running artifact builder."
     "Finished ARTIFACT deployment."
   )

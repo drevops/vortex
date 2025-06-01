@@ -161,6 +161,8 @@ load _helper.deployment.bash
   assert_success
 
   assert_output_contains "Started Lagoon deployment."
+  assert_output_contains "Installing Lagoon CLI."
+  assert_output_contains "Configuring Lagoon instance."
   assert_output_contains "Finished Lagoon deployment."
 
   # Assert lagoon binary exists and was called.
@@ -260,10 +262,10 @@ load _helper.deployment.bash
 
   assert_output_contains "Started Lagoon deployment."
   assert_output_contains 'Found already deployed environment for branch "testbranch".'
-  assert_output_contains "Add a DB import override flag for the current deployment."
+  assert_output_contains "Adding a DB import override flag for the current deployment."
   assert_output_contains "Redeploying environment: project testproject, branch: testbranch."
   assert_output_contains "Waiting for deployment to be queued."
-  assert_output_contains "Remove a DB import override flag for the current deployment."
+  assert_output_contains "Removing a DB import override flag for the current deployment."
   assert_output_contains "Finished Lagoon deployment."
 
   # Assert lagoon binary exists and was called.

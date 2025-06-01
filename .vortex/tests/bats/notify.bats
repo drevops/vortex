@@ -388,9 +388,11 @@ load _helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started JIRA notification."
+    "Extracting issue"
     "Found issue proj-1234."
     "- Branch feature/proj-1234-some-description does not contain issue number."
     "Checking API access."
+    "Creating API token"
     "@curl -s -X GET -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json https://jira.atlassian.com/rest/api/3/myself # {\"accountId\": \"${account_id}\", \"othervar\": \"54321\"}"
     "Posting a comment."
     "@curl -s -X POST -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/comment --data {\"body\": {\"type\": \"doc\", \"version\": 1, \"content\": [{\"type\": \"paragraph\", \"content\": [{\"type\": \"text\",\"text\": \"Deployed to \"},{\"type\": \"inlineCard\",\"attrs\": {\"url\": \"https://develop.testproject.com\"}}]}]}} # {\"id\": \"${comment_id}\", \"othervar\": \"54321\"}"

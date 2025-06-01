@@ -90,6 +90,12 @@ load _helper.deployment.bash
   #
 
   assert_output_contains "Started ARTIFACT deployment."
+  assert_output_contains "Configuring global git user name."
+  assert_output_contains "Configuring global git user email."
+  assert_output_contains "Installing artifact builder."
+  assert_output_contains "Copying git repo files meta file to the deploy code repo."
+  assert_output_contains "Copying deployment .gitignore as it may not exist in deploy code source files."
+  assert_output_contains "Running artifact builder."
 
   substep "ARTIFACT: Assert remote deployment files."
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
