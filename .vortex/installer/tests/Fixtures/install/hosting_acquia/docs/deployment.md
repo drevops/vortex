@@ -1,7 +1,8 @@
-@@ -17,3 +17,83 @@
+@@ -16,3 +16,83 @@
+    deployment.
  
  Once PR is closed, the environment will be automatically removed.
- 
++
 +GitHub is a primary code repository for this project (aka "source repository").
 +Acquia Cloud is a hosting provider for this project and it also has a git
 +repository (aka "destination repository").
@@ -81,4 +82,3 @@
 +3. There may be `main` or `develop` branch in Acquia Cloud repository.
 +4. Technical Lead is expected to regularly cleanup `feature/*` and `bugfix/*`
 +   branches in Acquia Cloud repository.
-+

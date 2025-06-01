@@ -16,7 +16,7 @@
  
  Refer to https://vortex.drevops.com/latest/usage/ci for more information.
  
-@@ -21,10 +21,7 @@
+@@ -21,9 +21,6 @@
  
  ### SSH
  
@@ -29,4 +29,3 @@
 +Circle CI supports shell access to the build for 120 minutes after the build is
 +finished when the build is started with SSH support. Use "Rerun job with SSH"
 +button in Circle CI UI to start build with SSH support.
- 

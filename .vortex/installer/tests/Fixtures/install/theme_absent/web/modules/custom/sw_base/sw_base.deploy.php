@@ -1,7 +1,8 @@
-@@ -9,13 +9,3 @@
+@@ -8,14 +8,3 @@
+  */
  
  declare(strict_types=1);
- 
+-
 -/**
 - * Installs custom theme.
 - *

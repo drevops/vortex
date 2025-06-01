@@ -27,4 +27,3 @@ support.
 
 Use "Run workflow" button in GitHub Actions UI to start build with SSH support
 that will be available for 120 minutes after the build is finished.
-

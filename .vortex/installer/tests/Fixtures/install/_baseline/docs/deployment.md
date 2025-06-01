@@ -16,4 +16,3 @@ Refer to https://vortex.drevops.com/workflows/deployment for more information.
    deployment.
 
 Once PR is closed, the environment will be automatically removed.
-

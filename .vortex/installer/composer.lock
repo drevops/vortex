@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "alexskrypnyk/file",
-            "version": "0.8.0",
+            "version": "0.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "8967eca9982f002512fbef676da10e5c6aec64bd"
+                "reference": "d80ee9fd21ee0217450cc14966b007b6db5fb814"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/8967eca9982f002512fbef676da10e5c6aec64bd",
-                "reference": "8967eca9982f002512fbef676da10e5c6aec64bd",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/d80ee9fd21ee0217450cc14966b007b6db5fb814",
+                "reference": "d80ee9fd21ee0217450cc14966b007b6db5fb814",
                 "shasum": ""
             },
             "require": {
@@ -70,7 +70,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-05-30T22:53:29+00:00"
+            "time": "2025-06-01T07:45:27+00:00"
         },
         {
             "name": "alexskrypnyk/str2name",
