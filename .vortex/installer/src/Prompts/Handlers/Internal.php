@@ -81,7 +81,7 @@ class Internal extends AbstractHandler {
   }
 
   protected function processDemoMode(array $responses, string $dir): void {
-    $is_demo = $this->config->get(Config::IS_DEMO_MODE);
+    $is_demo = $this->config->get(Config::IS_DEMO);
 
     // If demo mode is not set, check if it should be enabled based on
     // provision type and database download source.
@@ -90,13 +90,25 @@ class Internal extends AbstractHandler {
         $db_file_exists = file_exists(Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql'));
         $has_comment = File::contains($this->dstDir . '/.env', 'Override project-specific values for demonstration purposes');
 
-        // If there is a comment - it is a demo mode.
-        $is_demo = $has_comment;
-
-        // For a file-based download source, demo mode is enabled if the
-        // database file does not exist.
-        if ($responses[DatabaseDownloadSource::id()] !== DatabaseDownloadSource::CONTAINER_REGISTRY) {
-          $is_demo = $is_demo || !$db_file_exists;
+        // Demo mode can only be used if the user selected a URL or a container
+        // registry download source. This is because the demo mode would not
+        // have access to integrations with providers to pull the database
+        // from.
+        if ($responses[DatabaseDownloadSource::id()] === DatabaseDownloadSource::URL) {
+          // For a downloading from URL, demo mode is enabled if the database
+          // file does not exist or if there is an explicit comment in the
+          // destination .env file that indicates that this is a demo mode.
+          $is_demo = !$db_file_exists || $has_comment;
+        }
+        elseif ($responses[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY) {
+          // For a downloading from container registry, demo mode is enabled if
+          // there is an explicit comment in the destination .env file that
+          // indicates that this is a demo mode.
+          $is_demo = $has_comment;
+        }
+        else {
+          // For any other download source, demo mode is not applicable.
+          $is_demo = FALSE;
         }
       }
       else {
@@ -110,7 +122,7 @@ class Internal extends AbstractHandler {
       File::removeTokenAsync('DEMO');
     }
 
-    $this->config->set(Config::IS_DEMO_MODE, $is_demo);
+    $this->config->set(Config::IS_DEMO, $is_demo);
   }
 
 }

@@ -233,12 +233,12 @@ EOF
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
-    if (!is_null(Env::get(Config::IS_DEMO_MODE))) {
-      $this->config->set(Config::IS_DEMO_MODE, (bool) Env::get(Config::IS_DEMO_MODE));
+    if (!is_null(Env::get(Config::IS_DEMO))) {
+      $this->config->set(Config::IS_DEMO, (bool) Env::get(Config::IS_DEMO));
     }
 
     // Internal flag to skip processing of the demo mode.
-    $this->config->set(Config::IS_DEMO_MODE_DB_DOWNLOAD_SKIP, (bool) Env::get(Config::IS_DEMO_MODE_DB_DOWNLOAD_SKIP, FALSE));
+    $this->config->set(Config::IS_DEMO_DB_DOWNLOAD_SKIP, (bool) Env::get(Config::IS_DEMO_DB_DOWNLOAD_SKIP, FALSE));
   }
 
   protected function prepareDestination(): array {
@@ -308,12 +308,12 @@ EOF
   }
 
   protected function handleDemo(): array|string {
-    if (empty($this->config->get(Config::IS_DEMO_MODE))) {
+    if (empty($this->config->get(Config::IS_DEMO))) {
       return 'Not a demo mode.';
     }
 
-    if (!empty($this->config->get(Config::IS_DEMO_MODE_DB_DOWNLOAD_SKIP))) {
-      return sprintf('%s is set. Skipping demo database download.', Config::IS_DEMO_MODE_DB_DOWNLOAD_SKIP);
+    if (!empty($this->config->get(Config::IS_DEMO_DB_DOWNLOAD_SKIP))) {
+      return sprintf('%s is set. Skipping demo database download.', Config::IS_DEMO_DB_DOWNLOAD_SKIP);
     }
 
     // Reload variables from destination's .env.
