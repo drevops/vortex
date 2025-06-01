@@ -233,12 +233,12 @@ EOF
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
-    if (!is_null(Env::get(Config::IS_DEMO_MODE))) {
-      $this->config->set(Config::IS_DEMO_MODE, (bool) Env::get(Config::IS_DEMO_MODE));
+    if (!is_null(Env::get(Config::IS_DEMO))) {
+      $this->config->set(Config::IS_DEMO, (bool) Env::get(Config::IS_DEMO));
     }
 
     // Internal flag to skip processing of the demo mode.
-    $this->config->set(Config::DEMO_MODE_SKIP, (bool) Env::get(Config::DEMO_MODE_SKIP, FALSE));
+    $this->config->set(Config::IS_DEMO_DB_DOWNLOAD_SKIP, (bool) Env::get(Config::IS_DEMO_DB_DOWNLOAD_SKIP, FALSE));
   }
 
   protected function prepareDestination(): array {
@@ -308,8 +308,12 @@ EOF
   }
 
   protected function handleDemo(): array|string {
-    if (empty($this->config->get(Config::IS_DEMO_MODE)) || !empty($this->config->get(Config::DEMO_MODE_SKIP))) {
-      return ['Skipping demo database download.'];
+    if (empty($this->config->get(Config::IS_DEMO))) {
+      return 'Not a demo mode.';
+    }
+
+    if (!empty($this->config->get(Config::IS_DEMO_DB_DOWNLOAD_SKIP))) {
+      return sprintf('%s is set. Skipping demo database download.', Config::IS_DEMO_DB_DOWNLOAD_SKIP);
     }
 
     // Reload variables from destination's .env.
@@ -317,14 +321,14 @@ EOF
 
     $url = Env::get('VORTEX_DB_DOWNLOAD_URL');
     if (empty($url)) {
-      return ['No database download URL provided. Skipping demo database download.'];
+      return 'No database download URL provided. Skipping demo database download.';
     }
 
     $data_dir = $this->config->getDst() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
-    $file = Env::get('VORTEX_DB_FILE', 'db.sql');
+    $db_file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
-    if (file_exists($data_dir . DIRECTORY_SEPARATOR . $file)) {
-      return ['Database dump file already exists. Skipping download.'];
+    if (file_exists($data_dir . DIRECTORY_SEPARATOR . $db_file)) {
+      return 'Database dump file already exists. Skipping demo database download.';
     }
 
     $messages = [];
@@ -332,11 +336,12 @@ EOF
       $data_dir = File::mkdir($data_dir);
       $messages[] = sprintf('Created data directory "%s".', $data_dir);
     }
-    $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file);
 
+    $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $db_file);
     if (passthru($command) === FALSE) {
-      throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
+      throw new \RuntimeException(sprintf('Unable to download demo database from %s.', $url));
     }
+
     $messages[] = sprintf('No database dump file was found in "%s" directory.', $data_dir);
     $messages[] = sprintf('Downloaded demo database from %s.', $url);
 
