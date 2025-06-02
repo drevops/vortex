@@ -347,6 +347,7 @@ jobs:
           RENOVATE_DRY_RUN: false
           RENOVATE_REPOSITORIES: *renovatebot_repository
           RENOVATE_GIT_AUTHOR: *renovatebot_git_author
+          LOG_LEVEL: 'debug'
     steps:
       - checkout
       - run:
