@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Installer\Tests\Unit;
 
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait as UpstreamTuiTrait;
+use DrevOps\Installer\Prompts\Handlers\Internal;
 use DrevOps\Installer\Tests\Traits\TuiTrait;
 use DrevOps\Installer\Utils\Composer;
 use DrevOps\Installer\Utils\Env;
@@ -50,6 +51,32 @@ use Symfony\Component\Yaml\Yaml;
 #[CoversClass(Env::class)]
 #[CoversClass(Converter::class)]
 #[CoversClass(Composer::class)]
+#[CoversClass(AssignAuthorPr::class)]
+#[CoversClass(CiProvider::class)]
+#[CoversClass(CodeProvider::class)]
+#[CoversClass(DatabaseDownloadSource::class)]
+#[CoversClass(DatabaseImage::class)]
+#[CoversClass(DependencyUpdatesProvider::class)]
+#[CoversClass(DeployType::class)]
+#[CoversClass(Domain::class)]
+#[CoversClass(GithubRepo::class)]
+#[CoversClass(GithubToken::class)]
+#[CoversClass(HostingProvider::class)]
+#[CoversClass(Internal::class)]
+#[CoversClass(LabelMergeConflictsPr::class)]
+#[CoversClass(MachineName::class)]
+#[CoversClass(ModulePrefix::class)]
+#[CoversClass(Name::class)]
+#[CoversClass(Org::class)]
+#[CoversClass(OrgMachineName::class)]
+#[CoversClass(PreserveDocsOnboarding::class)]
+#[CoversClass(PreserveDocsProject::class)]
+#[CoversClass(Profile::class)]
+#[CoversClass(ProvisionType::class)]
+#[CoversClass(Services::class)]
+#[CoversClass(Theme::class)]
+#[CoversClass(ThemeRunner::class)]
+#[CoversClass(Webroot::class)]
 class PromptManagerTest extends UnitTestCase {
 
   use UpstreamTuiTrait;
@@ -644,7 +671,7 @@ class PromptManagerTest extends UnitTestCase {
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
-          File::dump(static::$sut . '/.github/workflows/deps-updates.yml');
+          File::dump(static::$sut . '/.github/workflows/update-dependencies.yml');
         },
       ],
       'dependency updates provider - discovery - renovate self-hosted - circleci' => [
@@ -656,7 +683,7 @@ class PromptManagerTest extends UnitTestCase {
         function (PromptManagerTest $test, Config $config): void {
           $test->setVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
-          File::dump(static::$sut . '/.circleci/config.yml', 'deps-updates');
+          File::dump(static::$sut . '/.circleci/config.yml', 'update-dependencies');
         },
       ],
       'dependency updates provider - discovery - renovate app' => [

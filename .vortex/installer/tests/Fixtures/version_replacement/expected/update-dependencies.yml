@@ -1,11 +1,11 @@
-name: Dependency updates
+name: Update dependencies
 
 on:
   schedule:
     - cron: '45 11,23 * * *'
 
 jobs:
-  deps-updates:
+  update-dependencies:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
