@@ -45,12 +45,19 @@ phpunit() {
   popd >/dev/null || exit 1
 }
 
+# Not every test has a coverage report, so we create an empty directory
+# to avoid errors in CI.
+# @see https://github.com/actions/upload-artifact/issues/255
+if [ -n "${CI}" ]; then
+  mkdir -p /tmp/.vortex-coverage-html
+  touch "/tmp/.vortex-coverage-html/.empty-$(date +%Y%m%d%H%M%S)"
+fi
+
 # Run workflow based on index using switch-case.
 case ${index} in
 
   0)
-    phpunit "${TEST_DIR}"/phpunit/Functional/WorkflowTest.php
-    bats "${TEST_DIR}"/bats/workflow.smoke.bats
+    phpunit "${TEST_DIR}"/phpunit
     ;;
 
   1)
@@ -70,7 +77,7 @@ case ${index} in
     ;;
 
   *)
-    bats "${TEST_DIR}"/bats/workflow.smoke.bats
+    phpunit "${TEST_DIR}"/phpunit
     bats "${TEST_DIR}"/bats/workflow.install.db.bats
     bats "${TEST_DIR}"/bats/workflow.install.profile.bats
     bats "${TEST_DIR}"/bats/workflow.storage.image.bats
