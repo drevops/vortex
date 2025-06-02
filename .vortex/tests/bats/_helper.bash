@@ -252,7 +252,7 @@ assert_files_present_common() {
   assert_file_not_exists "README.dist.md"
 
   # Assert that Vortex footnote remains.
-  assert_file_contains "README.md" "This repository was created using the [Vortex](https://github.com/drevops/vortex) project template"
+  assert_file_contains "README.md" "This repository was created using the [Vortex](https://github.com/drevops/vortex) Drupal project template"
 
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}" "${assert_theme}"
 

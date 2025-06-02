@@ -89,4 +89,4 @@ to Vortex progress. Remove this section once onboarding is finished.
 - [Deployment](docs/deployment.md)
 
 ---
-_This repository was created using the [Vortex](https://github.com/drevops/vortex) project template_
+_This repository was created using the [Vortex](https://github.com/drevops/vortex) Drupal project template_
