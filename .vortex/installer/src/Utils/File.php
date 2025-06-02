@@ -99,4 +99,22 @@ class File extends UpstreamFile {
     });
   }
 
+  /**
+   * Collapse repeated empty lines within YAML literal blocks.
+   *
+   * This function specifically targets YAML literal blocks indicated by the
+   * pipe character (|) and collapses multiple consecutive empty lines that
+   * occur immediately after the pipe. Empty lines in other parts of the
+   * content are left unchanged.
+   *
+   * @param string $content
+   *   The YAML content to process, which may contain literal blocks.
+   *
+   * @return string
+   *   The content with collapsed empty lines only within YAML literal blocks.
+   */
+  public static function collapseYamlEmptyLinesInLiteralBlocks(string $content): string {
+    return preg_replace('/(?<=\|)(\n\s*\n)+/', "\n", $content);
+  }
+
 }

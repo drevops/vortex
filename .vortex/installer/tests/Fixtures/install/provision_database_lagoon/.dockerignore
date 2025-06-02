@@ -1,0 +1,6 @@
+@@ -46,3 +46,5 @@
+ !rector.php
+ !scripts
+ !tests
++
++!.lagoon.env.*

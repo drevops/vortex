@@ -268,6 +268,12 @@ class InstallTest extends FunctionalTestCase {
       'provision, database' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::DATABASE)),
       ],
+      'provision, database, lagoon' => [
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::DATABASE);
+          Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON);
+        }),
+      ],
       'provision, profile' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::PROFILE)),
       ],
