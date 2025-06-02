@@ -1,9 +1,7 @@
-@@ -14,13 +14,6 @@
+@@ -16,11 +16,6 @@
  
- [![Vortex](https://img.shields.io/badge/Vortex-develop-65ACBC.svg)](https://github.com/drevops/vortex/tree/develop)
+ </div>
  
--</div>
--
 -## Onboarding to Vortex
 -
 -Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding
