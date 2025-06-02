@@ -22,7 +22,8 @@ project.
 4. Automatically adds a `dependencies` label to a pull request.
 5. Automatically adds assignees to a pull request.
 6. Configuration for running Renovate self-hosted instance using CircleCI.
-7. Manual trigger from GitHub Actions UI.
+7. Manual trigger from GitHub Actions UI and CircleCI pipeline.
+8. Debug logging enabled for detailed troubleshooting.
 
 ## Self-hosted vs GitHub app
 
@@ -37,32 +38,72 @@ update steps will be skipped gracefully without causing a build failure.
 
 ### Setting up Renovate self-hosted in CircleCI
 
-Create a GitHub token with a permission to write to a repository and add it to
-the environment variable in CircleCI UI as a `RENOVATE_TOKEN`.
+#### Required environment variables
 
-To test the run without making any changes, create the `RENOVATE_DRY_RUN`
-environment variable in CircleCI UI and set it to `true`.
+The following environment variables **must** be manually created in the CircleCI project settings:
 
-To override the Git author, create the `RENOVATE_GIT_AUTHOR` environment
-variable in CircleCI UI and set it to `Your name <your-user@your-server>`.
+1. `RENOVATE_TOKEN` (required): GitHub access token with repository write permissions
+2. `RENOVATE_REPOSITORIES` (required): Repository to run Renovate on in format `yourorg/repo`
+3. `RENOVATE_GIT_AUTHOR` (required): Author for Renovate commits in format `Name <email@example.com>` (e.g., `Renovate Bot <renovate@example.com>`)
 
-To enable the Renovate Dependency Dashboard, create the
-`RENOVATE_DEPENDENCY_DASHBOARD` environment variable in CircleCI UI
-and set it to `true`.
+#### Optional environment variables
+
+These can be created to customize behavior (will use defaults if not set):
+
+- `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes (default: `false`)
+- `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency dashboard (default: `false`)
+
 Note that triggering actions from the self-hosted service is not supported.
+
+#### Manual trigger
+
+The Renovate job in CircleCI can be triggered manually from the CircleCI pipeline UI.
+
+#### Debug logging
+
+Debug logging is enabled by default with `LOG_LEVEL: 'debug'` to provide detailed
+information about the Renovate execution process. This helps with troubleshooting
+dependency update issues and understanding why certain updates might be skipped.
 
 ### Setting up Renovate self-hosted in GitHub Actions
 
-Create a GitHub token with a permission to write to a repository and add it to
-the repository secrets as a `RENOVATE_TOKEN`.
+#### Required environment variables
 
-To test the run without making any changes, create the `RENOVATE_DRY_RUN`
-environment variable in repository variables and set it to `true`.
+The following **must** be manually created in the GitHub repository settings:
 
-To override the Git author, create the `RENOVATE_GIT_AUTHOR` environment
-variable in repository variables and set it to `Your name <your-user@your-server>`.
+1. `RENOVATE_TOKEN` (required): GitHub access token with repository write permissions
+   *Location: Settings > Secrets and variables > Actions > Repository secrets*
+2. `RENOVATE_GIT_AUTHOR` (required): Author for Renovate commits in format `Name <email@example.com>` (e.g., `Renovate Bot <renovate@example.com>`)
+   *Location: Settings > Secrets and variables > Actions > Repository variables*
 
-To enable the Renovate Dependency Dashboard, create the
-`RENOVATE_DEPENDENCY_DASHBOARD` environment variable in repository variables
-and set it to `true`.
+#### Optional environment variables
+
+These can be created to customize behavior (will use defaults if not set):
+
+- `RENOVATE_REPOSITORIES`: Repository to run Renovate on in format `yourorg/repo` (default: uses current repository)
+- `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes (default: `false`)
+- `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency dashboard (default: `false`)
+
 Note that triggering actions from the self-hosted service is not supported.
+
+#### Manual trigger
+
+The Renovate job in GitHub Actions can be triggered manually from the Actions tab
+in the GitHub repository UI using the workflow dispatch feature.
+
+#### Debug logging
+
+Debug logging is available and can be enabled by setting the `LOG_LEVEL` environment
+variable to `debug` in the workflow configuration for detailed troubleshooting.
+
+## Dependency Dashboard
+
+The Renovate Dependency Dashboard is a GitHub issue that provides visibility into:
+- Available dependency updates that are scheduled for later execution
+- Updates that have been filtered out due to configuration rules
+- Failed update attempts and their reasons
+
+The dashboard is created with the title "RenovateBot Dependency Dashboard (self-hosted)"
+when running in self-hosted mode. This dashboard is particularly useful for understanding
+why certain updates might not be applied immediately due to scheduling constraints or
+configuration rules.
