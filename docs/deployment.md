@@ -105,7 +105,7 @@ followed by all developers:
 
 ## Database refresh in Lagoon environments
 
-To fresh the database in the existing Lagoon environment with the database from
+To refresh the database in the existing Lagoon environment with the database from
 production environment, run:
 
 ```bash

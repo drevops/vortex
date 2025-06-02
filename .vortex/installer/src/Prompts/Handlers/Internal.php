@@ -50,6 +50,7 @@ class Internal extends AbstractHandler {
       $relative_path = str_replace($t, '', $file->getPathname());
       if (!in_array($relative_path, $ignore_empty_line_processing)) {
         $content = File::collapseRepeatedEmptyLines($content);
+        $content = File::collapseYamlEmptyLinesInLiteralBlocks($content);
       }
 
       return $content;
