@@ -28,22 +28,6 @@ aliases:
   - &nightly_db_schedule "0 18 * * *"
   #;> !PROVISION_TYPE_PROFILE
 
-  #;< DEPS_UPDATE_PROVIDER_CI
-  # Specify the correct repository to prevent the bot from accessing all
-  # repositories available via $RENOVATE_TOKEN.
-  #;< VORTEX_DEV
-  - &renovatebot_repository 'drevops/vortex-destination'
-  #;> VORTEX_DEV
-  ##### - &renovatebot_repository 'your_org/your_site'
-  # The author details to use for commits made by RenovateBot.
-  #;< VORTEX_DEV
-  - &renovatebot_git_author 'Renovate Self Hosted <deployer+renovatebot@drevops.com>'
-  #;> VORTEX_DEV
-  ##### - &renovatebot_git_author 'RenovateBot Self Hosted <renovatebot@your-site-domain.example>'
-  # The schedule to run RenovateBot on. Defaults to running twice a day.
-  - &renovatebot_schedule "5 11,23 * * *"
-  #;> DEPS_UPDATE_PROVIDER_CI
-
   # Shared runner container configuration applied to each job.
   - &runner_config
     working_directory: &working_directory ~/project
@@ -383,6 +367,7 @@ jobs:
       - *step_process_codebase_for_ci
 
       - run:
+          name: Deploy
           command: |
             VORTEX_DEPLOY_BRANCH="${CIRCLE_BRANCH}" \
             VORTEX_DEPLOY_PR="$(echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f 7)" \
@@ -408,6 +393,7 @@ jobs:
       - *step_process_codebase_for_ci
 
       - run:
+          name: Deploy
           command: VORTEX_DEPLOY_MODE="tag" ./scripts/vortex/deploy.sh
           no_output_timeout: 30m
 
@@ -417,30 +403,49 @@ jobs:
 
   #;< DEPS_UPDATE_PROVIDER_CI
   # Self-hosted dependency updates.
-  # Add RENOVATE_TOKEN as an environment variable with GitHub access token in UI.
+  # Add the following environment variables to the CircleCI project:
+  # - RENOVATE_TOKEN: GitHub access token.
+  # - RENOVATE_REPOSITORIES: Repository to run Renovate on as `vendor/repository`.
+  # - RENOVATE_GIT_AUTHOR: Author for Renovate commits as `Name <email@example.com>`.
+  # Variables provided below can be overridden in the CircleCI project settings.
   deps-updates:
     docker:
       - image: renovate/renovate:40.36.8
         environment:
           RENOVATE_PLATFORM: 'github'
           RENOVATE_AUTODISCOVER: false
-          RENOVATE_REPOSITORIES: *renovatebot_repository
           RENOVATE_DEPENDENCY_DASHBOARD_TITLE: 'Renovate Dependency Dashboard (self-hosted) by CircleCI'
           RENOVATE_DEPENDENCY_DASHBOARD: false
           RENOVATE_DRY_RUN: false
-          RENOVATE_GIT_AUTHOR: *renovatebot_git_author
           LOG_LEVEL: 'debug'
+
     steps:
       - checkout
       - run:
           name: Check if RENOVATE_TOKEN is set
           command: |
             if [ -z "${RENOVATE_TOKEN}" ]; then
-              echo "RENOVATE_TOKEN is not set. Skipping Renovate job."
+              echo "RENOVATE_TOKEN is not set. Skipping job."
               circleci-agent step halt
             fi
-      - run: renovate-config-validator
-      - run: renovate
+
+            if [ -z "${RENOVATE_REPOSITORIES}" ]; then
+              echo "Renovate repository is not set. Skipping job."
+              circleci-agent step halt
+            fi
+
+            if [ -z "${RENOVATE_GIT_AUTHOR}" ]; then
+              echo "Renovate git author is not set. Skipping job."
+              circleci-agent step halt
+            fi
+
+      - run:
+          name: Validate Renovate configuration
+          command: renovate-config-validator
+
+      - run:
+          name: Run Renovate
+          command: renovate
   #;> DEPS_UPDATE_PROVIDER_CI
 
   #;============================================================================
@@ -663,11 +668,11 @@ workflows:
   #;> !PROVISION_TYPE_PROFILE
 
   #;< DEPS_UPDATE_PROVIDER_CI
-  # Self-hosted Renovatebot workflow.
+  # Self-hosted Renovate workflow.
   deps-updates:
     triggers:
       - schedule:
-          cron: *renovatebot_schedule
+          cron: "5 11,23 * * *"
           filters:
             branches:
               only:
