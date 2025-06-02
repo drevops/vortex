@@ -117,6 +117,16 @@ aliases:
         find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
         mkdir -p /tmp/workspace/code
 
+
+################################################################################
+# PARAMETERS
+################################################################################
+
+parameters:
+  run_deps_updates:
+    type: boolean
+    default: false
+
 ################################################################################
 # JOBS
 ################################################################################
@@ -662,6 +672,11 @@ workflows:
             branches:
               only:
                 - develop
+    jobs:
+      - deps-updates
+
+  deps-updates-manual:
+    when: << pipeline.parameters.run_deps_updates >>
     jobs:
       - deps-updates
   #;> DEPS_UPDATE_PROVIDER_CI

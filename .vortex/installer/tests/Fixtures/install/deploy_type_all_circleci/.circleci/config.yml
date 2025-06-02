@@ -99,6 +99,15 @@ aliases:
         mkdir -p /tmp/workspace/code
 
 ################################################################################
+# PARAMETERS
+################################################################################
+
+parameters:
+  run_deps_updates:
+    type: boolean
+    default: false
+
+################################################################################
 # JOBS
 ################################################################################
 
@@ -476,5 +485,10 @@ workflows:
             branches:
               only:
                 - develop
+    jobs:
+      - deps-updates
+
+  deps-updates-manual:
+    when: << pipeline.parameters.run_deps_updates >>
     jobs:
       - deps-updates
