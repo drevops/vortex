@@ -61,6 +61,7 @@ VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
+task() { printf "     > %s\n" "${1}"; }
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
@@ -231,7 +232,7 @@ if [ "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}" = "1" ]; then
 fi
 
 if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
-  info "Enabling maintenance mode."
+  task "Enabling maintenance mode."
   drush maint:set 1
   pass "Enabled maintenance mode."
   echo
@@ -250,7 +251,7 @@ if [ "${site_has_config}" = "1" ]; then
     echo
   fi
 
-  info "Running deployment operations via 'drush deploy'."
+  task "Running deployment operations via 'drush deploy'."
   drush deploy
   pass "Completed deployment operations via 'drush deploy'."
   echo
@@ -260,23 +261,23 @@ if [ "${site_has_config}" = "1" ]; then
   # @see https://github.com/drush-ops/drush/issues/2449
   # @see https://www.drupal.org/project/drupal/issues/3241439
   if drush pm:list --status=enabled | grep -q config_split; then
-    info "Importing config_split configuration."
+    task "Importing config_split configuration."
     drush config:import
     pass "Completed config_split configuration import."
     echo
   fi
 else
-  info "Running database updates."
+  task "Running database updates."
   drush updatedb --no-cache-clear
   pass "Completed running database updates."
   echo
 
-  info "Rebuilding cache."
+  task "Rebuilding cache."
   drush cache:rebuild
   pass "Cache was rebuilt."
   echo
 
-  info "Running deployment operations via 'drush deploy:hook'."
+  task "Running deployment operations via 'drush deploy:hook'."
   drush deploy:hook
   pass "Completed deployment operations via 'drush deploy:hook'."
   echo
@@ -296,7 +297,7 @@ fi
 if [ -d "./scripts/custom" ]; then
   for file in ./scripts/custom/provision-*.sh; do
     if [ -f "${file}" ]; then
-      info "Running custom post-install script '${file}'."
+      task "Running custom post-install script '${file}'."
       echo
       . "${file}"
       echo
@@ -308,7 +309,7 @@ if [ -d "./scripts/custom" ]; then
 fi
 
 if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
-  info "Disabling maintenance mode."
+  task "Disabling maintenance mode."
   drush maint:set 0
   pass "Disabled maintenance mode."
   echo
