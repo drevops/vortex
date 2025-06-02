@@ -28,9 +28,9 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 [![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-65ACBC.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
 
-[//]: # (#;< DOCS_ONBOARDING)
-
 </div>
+
+[//]: # (#;< DOCS_ONBOARDING)
 
 ## Onboarding to Vortex
 
