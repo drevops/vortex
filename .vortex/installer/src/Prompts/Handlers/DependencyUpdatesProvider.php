@@ -26,11 +26,11 @@ class DependencyUpdatesProvider extends AbstractHandler {
       return self::NONE;
     }
 
-    if (file_exists($this->dstDir . '/.github/workflows/deps-updates.yml')) {
+    if (file_exists($this->dstDir . '/.github/workflows/update-dependencies.yml')) {
       return self::RENOVATEBOT_CI;
     }
 
-    if (File::contains($this->dstDir . '/.circleci/config.yml', 'deps-updates')) {
+    if (File::contains($this->dstDir . '/.circleci/config.yml', 'update-dependencies')) {
       return self::RENOVATEBOT_CI;
     }
 
@@ -51,7 +51,7 @@ class DependencyUpdatesProvider extends AbstractHandler {
     elseif ($v === self::RENOVATEBOT_APP) {
       File::removeTokenAsync('!DEPS_UPDATE_PROVIDER_APP');
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER_CI');
-      @unlink($t . '/.github/workflows/deps-updates.yml');
+      @unlink($t . '/.github/workflows/update-dependencies.yml');
     }
     else {
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER_APP');

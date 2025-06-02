@@ -1,4 +1,4 @@
-name: Dependency updates
+name: Update dependencies
 # Self-hosted dependency updates.
 # Add the following environment variables to the GitHub actions project:
 # - RENOVATE_TOKEN: GitHub access token.
@@ -11,17 +11,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  deps-updates:
+  update-dependencies:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@__VERSION__
+        uses: actions/checkout@v4.2.2
 
-      - uses: actions/setup-node@__VERSION__
+      - uses: actions/setup-node@v4.4.0
         with:
           node-version: 22.16.0
 
-      - uses: suzuki-shunsuke/github-action-renovate-config-validator@__VERSION__
+      - uses: suzuki-shunsuke/github-action-renovate-config-validator@v1.1.1
 
       - name: Check requirements
         id: check-requirements
@@ -40,7 +40,7 @@ jobs:
 
       - name: Run Renovate
         if: steps.check-requirements.outputs.should_run == 'true'
-        uses: renovatebot/github-action@__VERSION__
+        uses: renovatebot/github-action@v42.0.4
         with:
           configurationFile: renovate.json
           token: ${{ secrets.RENOVATE_TOKEN }}

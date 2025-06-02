@@ -95,7 +95,7 @@ aliases:
 ################################################################################
 
 parameters:
-  run_deps_updates:
+  run_update_dependencies:
     type: boolean
     default: false
 
@@ -341,7 +341,7 @@ jobs:
   # - RENOVATE_REPOSITORIES: Repository to run Renovate on as `vendor/repository`.
   # - RENOVATE_GIT_AUTHOR: Author for Renovate commits as `Name <email@example.com>`.
   # Variables provided below can be overridden in the CircleCI project settings.
-  deps-updates:
+  update-dependencies:
     docker:
       - image: renovate/renovate:__VERSION__
         environment:
@@ -413,7 +413,7 @@ workflows:
       - database-nightly
 
   # Self-hosted Renovate workflow.
-  deps-updates:
+  update-dependencies:
     triggers:
       - schedule:
           cron: "5 11,23 * * *"
@@ -422,9 +422,9 @@ workflows:
               only:
                 - develop
     jobs:
-      - deps-updates
+      - update-dependencies
 
-  deps-updates-manual:
-    when: << pipeline.parameters.run_deps_updates >>
+  update-dependencies-manual:
+    when: << pipeline.parameters.run_update_dependencies >>
     jobs:
-      - deps-updates
+      - update-dependencies
