@@ -90,8 +90,6 @@ load _helper.deployment.bash
   #
 
   assert_output_contains "Started ARTIFACT deployment."
-  assert_output_contains "Configuring global git user name."
-  assert_output_contains "Configuring global git user email."
   assert_output_contains "Installing artifact builder."
   assert_output_contains "Copying git repo files meta file to the deploy code repo."
   assert_output_contains "Copying deployment .gitignore as it may not exist in deploy code source files."
