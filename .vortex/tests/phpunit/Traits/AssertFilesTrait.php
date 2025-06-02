@@ -32,7 +32,7 @@ trait AssertFilesTrait {
     $this->assertFileNotContainsString('The following list includes', 'README.md');
     Assert::assertFileDoesNotExist('README.dist.md');
 
-    $this->assertFileContainsString('This repository was created using the [Vortex](https://github.com/drevops/vortex) project template', 'README.md', 'Assert that Vortex footnote remains.');
+    $this->assertFileContainsString('This repository was created using the [Vortex](https://github.com/drevops/vortex) Drupal project template', 'README.md', 'Assert that Vortex footnote remains.');
 
     // Assert Drupal files are present.
     $this->assertDrupalFilesPresent($webroot);
