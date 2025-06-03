@@ -23,7 +23,7 @@ assert_provision_info() {
   assert_output_contains "Drush version                  : mocked_drush_version"
 
   assert_output_contains "Started site provisioning."
-  assert_output_contains "Webroot path                   : $(pwd)/${webroot}"
+  assert_output_contains "Web root path                  : $(pwd)/${webroot}"
   assert_output_contains "Public files path              : /app/${webroot}/sites/default/files"
   assert_output_contains "Private files path             : /app/${webroot}/sites/default/files/private"
   assert_output_contains "Temporary files path           : /tmp"
