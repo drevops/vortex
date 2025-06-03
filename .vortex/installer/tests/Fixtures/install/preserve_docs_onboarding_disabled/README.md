@@ -9,4 +9,4 @@
 -
  ## Environments
  
- - DEV: https://dev.star-wars-domain.example
+ - DEV: https://dev.star-wars.com

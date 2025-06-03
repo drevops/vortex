@@ -19,12 +19,12 @@
  
  ## Environments
  
--- DEV: https://dev.star-wars-domain.example
--- STAGE: https://stage.star-wars-domain.example
--- PROD: https://www.star-wars-domain.example
-+- DEV: https://dev.the-new-hope-domain.example
-+- STAGE: https://stage.the-new-hope-domain.example
-+- PROD: https://www.the-new-hope-domain.example
+-- DEV: https://dev.star-wars.com
+-- STAGE: https://stage.star-wars.com
+-- PROD: https://www.star-wars.com
++- DEV: https://dev.deathstar.com
++- STAGE: https://stage.deathstar.com
++- PROD: https://www.deathstar.com
  
  ## Local environment setup
  
