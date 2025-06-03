@@ -224,7 +224,7 @@ services:
     ports:
       - "7900" # Find port on host with `docker compose port chrome 7900`.
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
-    <<: *default-volumes # Use default volumes to provide access to test fixtures.
+    <<: *default-volumes
     environment:
       <<: *default-environment
     depends_on:
