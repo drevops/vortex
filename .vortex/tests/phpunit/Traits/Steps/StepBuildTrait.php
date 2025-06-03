@@ -25,7 +25,8 @@ trait StepBuildTrait {
       'ahoy build',
       inputs: ['y'],
       env: array_merge($this->getDefaultBuildEnv(), $env),
-      timeout: 10 * 60
+      timeout: 10 * 60,
+      idle_timeout: 60
     );
     $this->logSubstep('Finished ahoy build');
     $this->assertProcessSuccessful();
@@ -70,7 +71,8 @@ trait StepBuildTrait {
       'ahoy build',
       inputs: ['y'],
       env: array_merge($this->getDefaultBuildEnv(), $env),
-      timeout: 10 * 60
+      timeout: 10 * 60,
+      idle_timeout: 60
     );
     $this->logSubstep('Finished ahoy build (expected to fail)');
     $this->assertProcessFailed();

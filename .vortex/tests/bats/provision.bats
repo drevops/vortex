@@ -23,7 +23,7 @@ assert_provision_info() {
   assert_output_contains "Drush version                  : mocked_drush_version"
 
   assert_output_contains "Started site provisioning."
-  assert_output_contains "Webroot path                   : $(pwd)/${webroot}"
+  assert_output_contains "Web root path                  : $(pwd)/${webroot}"
   assert_output_contains "Public files path              : /app/${webroot}/sites/default/files"
   assert_output_contains "Private files path             : /app/${webroot}/sites/default/files/private"
   assert_output_contains "Temporary files path           : /tmp"
@@ -85,6 +85,10 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
@@ -92,10 +96,6 @@ assert_provision_info() {
     "Enabling maintenance mode."
     "@drush -y maint:set 1"
     "Enabled maintenance mode."
-
-    # Drupal environment information.
-    "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
@@ -128,7 +128,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -220,6 +220,10 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
@@ -227,10 +231,6 @@ assert_provision_info() {
     "Enabling maintenance mode."
     "@drush -y maint:set 1"
     "Enabled maintenance mode."
-
-    # Drupal environment information.
-    "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
@@ -259,7 +259,7 @@ assert_provision_info() {
     "- Applied custom sanitization commands from file"
     "- Reset user 0 username and email."
     "- Updated user 1 email."
-    "Skipped database sanitization."
+    "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -356,6 +356,10 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
@@ -363,10 +367,6 @@ assert_provision_info() {
     "Enabling maintenance mode."
     "@drush -y maint:set 1"
     "Enabled maintenance mode."
-
-    # Drupal environment information.
-    "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
@@ -399,7 +399,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -450,7 +450,7 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
-@test "Provision: DB; no site, configs" {
+@test "Provision: DB; no site; configs" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
@@ -498,6 +498,10 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
@@ -506,15 +510,12 @@ assert_provision_info() {
     "@drush -y maint:set 1"
     "Enabled maintenance mode."
 
-    # Drupal environment information.
-    "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-
     # Deployment and configuration updates.
     "@drush -y config-set system.site uuid ${mocked_uuid}"
     "Updated site UUID from the configuration with ${mocked_uuid}"
     "Running deployment operations via 'drush deploy'."
     "@drush -y deploy"
+    "Completed deployment operations via 'drush deploy'."
     "@drush -y pm:list --status=enabled # config_split"
     "Importing config_split configuration."
     "@drush -y config:import"
@@ -543,7 +544,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -640,6 +641,10 @@ assert_provision_info() {
     "Existing site was not found when provisioning from the profile."
     "Fresh site content will be created from the profile."
 
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
@@ -647,10 +652,6 @@ assert_provision_info() {
     "Enabling maintenance mode."
     "@drush -y maint:set 1"
     "Enabled maintenance mode."
-
-    # Drupal environment information.
-    "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
@@ -683,7 +684,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -778,6 +779,10 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
@@ -785,10 +790,6 @@ assert_provision_info() {
     "Enabling maintenance mode."
     "@drush -y maint:set 1"
     "Enabled maintenance mode."
-
-    # Drupal environment information.
-    "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
@@ -817,7 +818,7 @@ assert_provision_info() {
     "- Applied custom sanitization commands from file"
     "- Reset user 0 username and email."
     "- Updated user 1 email."
-    "Skipped database sanitization."
+    "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -915,6 +916,10 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
@@ -922,10 +927,6 @@ assert_provision_info() {
     "Enabling maintenance mode."
     "@drush -y maint:set 1"
     "Enabled maintenance mode."
-
-    # Drupal environment information.
-    "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
@@ -958,7 +959,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -1052,6 +1053,10 @@ assert_provision_info() {
     "- Existing site was not found when provisioning from the profile."
     "- Fresh site content will be created from the profile."
 
+    # Drupal environment information.
+    "Current Drupal environment: prod"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
+
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
@@ -1059,10 +1064,6 @@ assert_provision_info() {
     "Enabling maintenance mode."
     "@drush -y maint:set 1"
     "Enabled maintenance mode."
-
-    # Drupal environment information.
-    "Current Drupal environment: prod"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
@@ -1095,7 +1096,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."

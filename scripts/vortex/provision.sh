@@ -61,8 +61,8 @@ VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-task() { printf "     > %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -102,7 +102,7 @@ echo
 note "Drupal core version            : ${drupal_version}"
 note "Drush version                  : ${drush_version}"
 echo
-note "Webroot path                   : $(pwd)/${WEBROOT}"
+note "Web root path                  : $(pwd)/${WEBROOT}"
 note "Public files path              : ${DRUPAL_PUBLIC_FILES-<empty>}"
 note "Private files path             : ${DRUPAL_PRIVATE_FILES-<empty>}"
 note "Temporary files path           : ${DRUPAL_TEMPORARY_FILES-<empty>}"
@@ -224,6 +224,10 @@ fi
 
 echo
 
+environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+info "Current Drupal environment: ${environment}"
+echo
+
 if [ "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}" = "1" ]; then
   info "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
   echo
@@ -237,10 +241,6 @@ if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
   pass "Enabled maintenance mode."
   echo
 fi
-
-# Show the current environment.
-info "Current Drupal environment: $(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
-echo
 
 # Use 'drush deploy' if configuration files are present or use standalone commands otherwise.
 if [ "${site_has_config}" = "1" ]; then
@@ -287,7 +287,7 @@ fi
 if [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then
   ./scripts/vortex/provision-sanitize-db.sh
 else
-  info "Skipped database sanitization."
+  pass "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
   echo
 fi
 
@@ -299,7 +299,7 @@ if [ -d "./scripts/custom" ]; then
     if [ -f "${file}" ]; then
       task "Running custom post-install script '${file}'."
       echo
-      . "${file}"
+      "${file}"
       echo
       pass "Completed running of custom post-install script '${file}'."
       echo
