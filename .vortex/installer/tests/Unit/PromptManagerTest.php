@@ -254,6 +254,18 @@ class PromptManagerTest extends UnitTestCase {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
       ],
+      'project machine name - discovery - hyphenated' => [
+        [],
+        [
+          Name::id() => 'myproject',
+          MachineName::id() => 'discovered-project',
+          Org::id() => 'myproject Org',
+          GithubRepo::id() => 'discovered_project_org/discovered-project',
+        ] + $expected_discovered,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('name', 'discovered_project_org/discovered-project');
+        },
+      ],
       'project machine name - invalid' => [
         [MachineName::id() => 'a word'],
         'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
@@ -280,6 +292,19 @@ class PromptManagerTest extends UnitTestCase {
         ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
+        },
+      ],
+      'org machine name - discovery - hyphenated' => [
+        [],
+        [
+          Name::id() => 'myproject',
+          MachineName::id() => 'discovered_project',
+          Org::id() => 'myproject Org',
+          OrgMachineName::id() => 'discovered-project-org',
+          GithubRepo::id() => 'discovered-project-org/discovered_project',
+        ] + $expected_discovered,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('name', 'discovered-project-org/discovered_project');
         },
       ],
       'org machine name - invalid ' => [
