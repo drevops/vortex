@@ -325,8 +325,10 @@ assert_ahoy_login() {
 
 assert_ahoy_export_db() {
   step "Export DB"
-  file="${1:-mydb.sql}"
+
+  file="${1:-}"
   run ahoy export-db "${file}"
+
   assert_success
   assert_output_not_contains "Containers are not running."
   sync_to_host
@@ -335,7 +337,9 @@ assert_ahoy_export_db() {
 
 assert_ahoy_import_db() {
   step "Import DB"
-  run ahoy import-db
+
+  run ahoy import-db "${1-}"
+
   assert_success
   assert_output_contains "Provisioning site from the database dump file."
   assert_output_not_contains "Running deployment operations via 'drush deploy:hook'."
