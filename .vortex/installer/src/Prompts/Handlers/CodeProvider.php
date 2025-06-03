@@ -16,7 +16,7 @@ class CodeProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    if (!file_exists($this->dstDir . '/.github')) {
+    if (file_exists($this->dstDir . '/.github')) {
       return self::GITHUB;
     }
 
