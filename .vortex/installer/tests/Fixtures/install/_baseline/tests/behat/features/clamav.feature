@@ -11,8 +11,8 @@ Feature: ClamAV Anti-virus
   https://en.wikipedia.org/wiki/EICAR_test_file
 
   Background:
-    Given unmanaged file "public://eicar_test.txt" created with content "X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
-    And unmanaged file "public://test.txt" created with content "some text content"
+    Given the unmanaged file at the URI "public://eicar_test.txt" exists with "X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
+    And the unmanaged file at the URI "public://test.txt" exists with "some text content"
 
   @api
   Scenario: Upload EICAR test file to trigger virus detection.
