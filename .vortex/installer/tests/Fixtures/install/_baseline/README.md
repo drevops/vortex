@@ -23,9 +23,9 @@ to Vortex progress. Remove this section once onboarding is finished.
 
 ## Environments
 
-- DEV: https://dev.star-wars-domain.example
-- STAGE: https://stage.star-wars-domain.example
-- PROD: https://www.star-wars-domain.example
+- DEV: https://dev.star-wars.com
+- STAGE: https://stage.star-wars.com
+- PROD: https://www.star-wars.com
 
 ## Local environment setup
 

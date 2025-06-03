@@ -111,10 +111,10 @@ environments:
     # By default, Lagoon installs Let's Encrypt certificates for all environments.
     # routes:
     #   - nginx-php:
-    #       - www.star-wars-domain.example:
+    #       - www.star-wars.com:
     #           tls-acme: 'false'
     monitoring_urls:
-      - www.star-wars-domain.example
+      - www.star-wars.com
   # Branch name that represents development environment.
   develop:
     cronjobs:
@@ -126,10 +126,10 @@ environments:
     # By default, Lagoon installs Let's Encrypt certificates for all environments.
     # routes:
     #   - nginx-php:
-    #       - dev.star-wars-domain.example:
+    #       - dev.star-wars.com:
     #           tls-acme: 'false'
     monitoring_urls:
-      - dev.star-wars-domain.example
+      - dev.star-wars.com
 
 routes:
   insecure: Redirect
