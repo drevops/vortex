@@ -1481,6 +1481,14 @@ Default value: `UNDEFINED`
 
 Defined in: `ACQUIA ENVIRONMENT`
 
+### `VORTEX_PROVISION_DB`
+
+Provision database dump file.<br/>If not set, it will be auto-discovered from the VORTEX_DB_DIR directory using<br/>the VORTEX_DB_FILE name.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/vortex/provision.sh`
+
 ### `VORTEX_PROVISION_OVERRIDE_DB`
 
 Overwrite a database if it exists.
@@ -1544,6 +1552,14 @@ Database sanitization is enabled by default in all non-production<br/>environmen
 Default value: `UNDEFINED`
 
 Defined in: `.env`, `scripts/vortex/provision.sh`
+
+### `VORTEX_PROVISION_SCRIPTS_DIR`
+
+Directory with custom provision scripts.
+
+Default value: `./scripts/custom`
+
+Defined in: `scripts/vortex/provision.sh`
 
 ### `VORTEX_PROVISION_SKIP`
 

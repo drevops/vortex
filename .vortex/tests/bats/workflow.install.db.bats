@@ -34,9 +34,17 @@ load _helper.workflow.bash
 
   assert_ahoy_login
 
+  # Export to default file.
   assert_ahoy_export_db
 
+  # Export to custom file.
+  assert_ahoy_export_db "mydb.sql"
+
+  # Import from default file.
   assert_ahoy_import_db
+
+  # Import from custom file.
+  assert_ahoy_import_db "mydb.sql"
 
   assert_ahoy_lint
 
