@@ -490,6 +490,19 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::VALKEY => [], Services::SOLR => []]));
         },
       ],
+      'services - discovery - invalid yaml - all' => [
+        [],
+        [
+          Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
+        ] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          File::dump(static::$sut . '/docker-compose.yml', <<<'YAML'
+- !text |
+  first line
+YAML);
+        },
+      ],
       'services - discovery - none' => [
         [],
         [Services::id() => []] + $expected_installed,
