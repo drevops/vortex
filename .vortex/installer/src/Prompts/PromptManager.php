@@ -112,9 +112,9 @@ class PromptManager {
         hint: 'We will use this name for the project directory and in the code.',
         placeholder: 'E.g. my_site',
         required: TRUE,
-        default: $this->default($n, Converter::machine($r['name'])),
+        default: $this->default($n, Converter::machineExtended($r[Name::id()])),
         transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::machine($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), MachineName::id())
 
       ->add(fn($r, $pr, $n): string => text(
@@ -122,7 +122,7 @@ class PromptManager {
         hint: 'We will use this name in the project and in the documentation.',
         placeholder: 'E.g. My Org',
         required: TRUE,
-        default: $this->default('org', Converter::label($r['name']) . ' Org'),
+        default: $this->default('org', Converter::label($r[Name::id()]) . ' Org'),
         transform: fn(string $v): string => trim($v),
         validate: fn($v): ?string => Converter::label($v) !== $v ? 'Please enter a valid organization name.' : NULL,
       ), Org::id())
@@ -132,9 +132,9 @@ class PromptManager {
         hint: 'We will use this name for the project directory and in the code.',
         placeholder: 'E.g. my_org',
         required: TRUE,
-        default: $this->default($n, Converter::machine($r['org'])),
+        default: $this->default($n, Converter::machineExtended($r[Org::id()])),
         transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::machine($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        validate: fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), OrgMachineName::id())
 
       ->add(fn($r, $pr, $n): string => text(
@@ -142,7 +142,7 @@ class PromptManager {
         hint: 'Domain name without protocol and trailing slash.',
         placeholder: 'E.g. example.com',
         required: TRUE,
-        default: $this->default($n, Converter::kebab($r['machine_name']) . '.com'),
+        default: $this->default($n, Converter::kebab($r[MachineName::id()]) . '.com'),
         transform: fn(string $v): string => Converter::domain($v),
         validate: fn($v): ?string => Validator::domain($v) ? NULL : 'Please enter a valid domain name.',
       ), Domain::id())
@@ -160,12 +160,12 @@ class PromptManager {
       ), CodeProvider::id())
 
       ->addIf(
-          fn($r): bool => $r['code_provider'] === 'github',
+          fn($r): bool => $r[CodeProvider::id()] === CodeProvider::GITHUB,
           fn($r, $pr, $n) => Tui::note("<info>We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.</info>"),
         )
 
       ->addIf(
-          fn($r): bool => $r['code_provider'] === 'github',
+          fn($r): bool => $r[CodeProvider::id()] === CodeProvider::GITHUB,
           function ($r, $pr, $n): string {
             $value = $this->default($n);
             if (!empty($value)) {
@@ -183,12 +183,12 @@ class PromptManager {
           }, GithubToken::id())
 
       ->addIf(
-          fn($r): bool => !empty($r['github_token']),
+          fn($r): bool => !empty($r[GithubToken::id()]),
           fn($r, $pr, $n): string => text(
             label: 'What is your GitHub project name?',
             hint: 'We will use this name to create new or find an existing repository.',
             placeholder: 'E.g. myorg/myproject',
-            default: $this->default($n, $r['org_machine_name'] . '/' . $r['machine_name']),
+            default: $this->default($n, $r[OrgMachineName::id()] . '/' . $r[MachineName::id()]),
             transform: fn(string $v): string => trim($v),
             validate: fn(string $v): ?string => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : NULL,
           ), GithubRepo::id())
@@ -228,7 +228,7 @@ class PromptManager {
         hint: 'We will use this name for custom modules.',
         placeholder: 'E.g. ms (for My Site)',
         required: TRUE,
-        default: $this->default($n, Converter::abbreviation($r['machine_name'], 4, ['_'])),
+        default: $this->default($n, Converter::abbreviation(Converter::machine($r[MachineName::id()]), 4, ['_'])),
         transform: fn(string $v): string => trim($v),
         validate: fn($v): ?string => Converter::machine($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), ModulePrefix::id())
@@ -237,7 +237,7 @@ class PromptManager {
         label: '🎨 Theme machine name',
         hint: 'We will use this name for the theme directory. Leave empty to skip the theme scaffold.',
         placeholder: 'E.g. mytheme',
-        default: $this->default($n, $r['machine_name']),
+        default: $this->default($n, Converter::machine($r[MachineName::id()])),
         transform: fn(string $v): string => trim($v),
         validate: fn($v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), Theme::id())
