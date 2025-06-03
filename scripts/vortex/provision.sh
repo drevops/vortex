@@ -224,8 +224,8 @@ fi
 
 echo
 
-# Show the current environment.
-info "Current Drupal environment: $(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+info "Current Drupal environment: ${environment}"
 echo
 
 if [ "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}" = "1" ]; then
