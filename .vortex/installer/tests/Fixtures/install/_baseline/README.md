@@ -21,6 +21,12 @@ Drupal 11 implementation of star wars for star wars Org
 Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding
 to Vortex progress. Remove this section once onboarding is finished.
 
+## Environments
+
+- DEV: https://dev.star-wars-domain.example
+- STAGE: https://stage.star-wars-domain.example
+- PROD: https://www.star-wars-domain.example
+
 ## Local environment setup
 
 - Make sure that you have latest versions of all required software installed: [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy)
