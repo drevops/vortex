@@ -573,7 +573,7 @@ assert_ahoy_test_bdd() {
   ahoy cli rm -rf /app/.logs/screenshots/*
 
   substep "Assert that Behat tests failure works"
-  echo 'And I should be in the "some-non-existing-page" path' >>tests/behat/features/homepage.feature
+  echo 'And the path should be "some-non-existing-page"' >>tests/behat/features/homepage.feature
   sync_to_container
   assert_dir_empty .logs/screenshots
   run ahoy test-bdd
@@ -607,7 +607,7 @@ assert_ahoy_test_bdd() {
 
   substep "Assert that a single Behat test failure works"
   assert_dir_empty .logs/screenshots
-  echo 'And I should be in the "some-non-existing-page" path' >>tests/behat/features/homepage.feature
+  echo 'And the path should be "some-non-existing-page"' >>tests/behat/features/homepage.feature
   run ahoy up cli && sync_to_container
   run ahoy test-bdd tests/behat/features/homepage.feature
   assert_failure
