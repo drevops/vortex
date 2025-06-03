@@ -15,3 +15,16 @@
  
  ![Automated updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
  
+@@ -23,9 +23,9 @@
+ 
+ ## Environments
+ 
+-- DEV: https://dev.star-wars-domain.example
+-- STAGE: https://stage.star-wars-domain.example
+-- PROD: https://www.star-wars-domain.example
++- DEV: https://dev.the-new-hope-domain.example
++- STAGE: https://stage.the-new-hope-domain.example
++- PROD: https://www.the-new-hope-domain.example
+ 
+ ## Local environment setup
+ 

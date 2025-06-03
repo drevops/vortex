@@ -39,6 +39,12 @@ to Vortex progress. Remove this section once onboarding is finished.
 
 [//]: # (#;> DOCS_ONBOARDING)
 
+## Environments
+
+- DEV: https://dev.your-site-domain.example
+- STAGE: https://stage.your-site-domain.example
+- PROD: https://www.your-site-domain.example
+
 ## Local environment setup
 
 - Make sure that you have latest versions of all required software installed: [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy)
