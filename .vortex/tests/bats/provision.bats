@@ -128,7 +128,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -259,7 +259,7 @@ assert_provision_info() {
     "- Applied custom sanitization commands from file"
     "- Reset user 0 username and email."
     "- Updated user 1 email."
-    "Skipped database sanitization."
+    "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -399,7 +399,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -450,7 +450,7 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
-@test "Provision: DB; no site, configs" {
+@test "Provision: DB; no site; configs" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Remove .env file to test in isolation.
@@ -544,7 +544,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -684,7 +684,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -818,7 +818,7 @@ assert_provision_info() {
     "- Applied custom sanitization commands from file"
     "- Reset user 0 username and email."
     "- Updated user 1 email."
-    "Skipped database sanitization."
+    "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -959,7 +959,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."
@@ -1096,7 +1096,7 @@ assert_provision_info() {
     "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
     "Reset user 0 username and email."
     "- Updated user 1 email."
-    "- Skipped database sanitization."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
     "Running custom post-install script './scripts/custom/provision-10-example.sh'."

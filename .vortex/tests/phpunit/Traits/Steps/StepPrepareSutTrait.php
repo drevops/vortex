@@ -92,7 +92,6 @@ trait StepPrepareSutTrait {
       $this->logSubstep('Fixing host dependencies in docker-compose.yml');
       File::removeLine('docker-compose.yml', '###');
       File::replaceContent('docker-compose.yml', '##', '');
-      $this->logFile('docker-compose.yml', 'docker-compose.yml file after fixing host dependencies');
     }
 
     if (file_exists('.ahoy.yml')) {
@@ -113,8 +112,6 @@ trait StepPrepareSutTrait {
         'cmd: ahoy cli ./scripts/vortex/provision.sh',
         'cmd: if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli ./scripts/vortex/provision.sh',
       );
-
-      $this->logFile('.ahoy.yml', '.ahoy.yml file after fixing host dependencies');
     }
   }
 

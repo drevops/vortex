@@ -210,7 +210,7 @@ fi
 - **Fresh database scenarios**: Should have "Fresh database detected" and NOT have "Existing database detected"
   - `"Provision: DB; no site"`
   - `"Provision: DB; existing site; overwrite"`
-  - `"Provision: DB; no site, configs"`
+  - `"Provision: DB; no site; configs"`
   - `"Provision: profile; no site"`
   - `"Provision: profile; existing site; overwrite"`
 
