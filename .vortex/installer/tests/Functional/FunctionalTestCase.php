@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Functional;
+namespace DrevOps\VortexInstaller\Tests\Functional;
 
 use AlexSkrypnyk\File\Internal\Index;
 use AlexSkrypnyk\PhpunitHelpers\Traits\ApplicationTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait as UpstreamTuiTrait;
-use DrevOps\Installer\Command\InstallCommand;
-use DrevOps\Installer\Tests\Traits\TuiTrait;
-use DrevOps\Installer\Tests\Unit\UnitTestCase;
-use DrevOps\Installer\Utils\Config;
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Command\InstallCommand;
+use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
+use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
+use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
 use PHPUnit\Framework\TestStatus\Error;
 use PHPUnit\Framework\TestStatus\Failure;
 

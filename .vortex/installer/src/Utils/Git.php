@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Utils;
+namespace DrevOps\VortexInstaller\Utils;
 
 use CzProject\GitPhp\Git as GitWrapper;
 use CzProject\GitPhp\GitRepository;

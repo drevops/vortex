@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Utils;
+namespace DrevOps\VortexInstaller\Utils;
 
 /**
  * Converter.
  *
  * Convert strings to different formats.
  *
- * @package DrevOps\Installer
+ * @package DrevOps\VortexInstaller
  */
 class Validator {
 

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Command;
+namespace DrevOps\VortexInstaller\Command;
 
-use DrevOps\Installer\Prompts\PromptManager;
-use DrevOps\Installer\Utils\Config;
-use DrevOps\Installer\Utils\Downloader;
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\File;
-use DrevOps\Installer\Utils\Tui;
+use DrevOps\VortexInstaller\Prompts\PromptManager;
+use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\Downloader;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Install command.
  *
- * @package DrevOps\Installer\Command
+ * @package DrevOps\VortexInstaller\Command
  */
 class InstallCommand extends Command {
 

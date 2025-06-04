@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Utils;
+namespace DrevOps\VortexInstaller\Utils;
 
 /**
  * Installer configuration.
  *
  * Installer config is a config of this installer script.
  *
- * @package DrevOps\Installer
+ * @package DrevOps\VortexInstaller
  */
 final class Config {
 

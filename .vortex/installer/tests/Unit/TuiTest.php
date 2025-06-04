@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Unit;
+namespace DrevOps\VortexInstaller\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use DrevOps\Installer\Utils\Tui;
+use DrevOps\VortexInstaller\Utils\Tui;
 
 use Symfony\Component\Console\Output\BufferedOutput;
 

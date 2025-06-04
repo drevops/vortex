@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 /**
  * Interface HandlerInterface.
  *
  * The interface for the prompt handlers.
  *
- * @package DrevOps\Installer\Prompts\Handlers
+ * @package DrevOps\VortexInstaller\Prompts\Handlers
  */
 interface HandlerInterface {
 
