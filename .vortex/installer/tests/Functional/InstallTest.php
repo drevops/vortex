@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional;
 
 use DrevOps\VortexInstaller\Command\InstallCommand;
+use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
@@ -173,11 +174,15 @@ class InstallTest extends FunctionalTestCase {
       ],
 
       'theme, absent' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), '')),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Theme::id()), '');
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString('themes/custom', static::$sut, [
           '.gitignore',
           'scripts/vortex',
           'composer.json',
+          'CLAUDE.md',
         ])),
       ],
 
@@ -187,15 +192,24 @@ class InstallTest extends FunctionalTestCase {
       ],
 
       'services, no clamav' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::VALKEY]))),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::VALKEY]));
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('clamav')),
       ],
       'services, no valkey' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::SOLR]))),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::SOLR]));
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains(['valkey', 'redis'])),
       ],
       'services, no solr' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::VALKEY]))),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::VALKEY]));
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('solr')),
       ],
       'services, none' => [
@@ -208,10 +222,16 @@ class InstallTest extends FunctionalTestCase {
       ],
 
       'hosting, acquia' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::ACQUIA)),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::ACQUIA);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
       ],
       'hosting, lagoon' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON)),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('acquia')),
       ],
 
@@ -231,6 +251,7 @@ class InstallTest extends FunctionalTestCase {
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::CONTAINER_REGISTRY);
           Env::put(PromptManager::makeEnvName(DatabaseImage::id()), 'the_empire/star_wars:latest');
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
         }),
       ],
 
@@ -272,17 +293,27 @@ class InstallTest extends FunctionalTestCase {
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::DATABASE);
           Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
         }),
       ],
       'provision, profile' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::PROFILE)),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::PROFILE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
       ],
 
       'ciprovider, gha' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS)),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
       ],
       'ciprovider, circleci' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI)),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
       ],
 
       'deps updates provider, ci, gha' => [
@@ -327,6 +358,13 @@ class InstallTest extends FunctionalTestCase {
       ],
       'preserve docs onboarding, disabled' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(PreserveDocsOnboarding::id()), Env::FALSE)),
+      ],
+
+      'ai instructions, claude' => [
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE)),
+      ],
+      'ai instructions, none' => [
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::NONE)),
       ],
     ];
   }

@@ -178,8 +178,6 @@ The project includes automated deployment via:
 
 - **GitHub Actions** for CI/CD
 
-- **Lagoon** for hosting
-
 - **Container Registry** deployments for containerized environments
 
 ## Common Tasks
