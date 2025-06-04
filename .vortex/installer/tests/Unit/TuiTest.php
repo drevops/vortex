@@ -120,4 +120,173 @@ class TuiTest extends UnitTestCase {
     ];
   }
 
+  #[DataProvider('dataProviderCenter')]
+  public function testCenter(
+    string $text,
+    int $width,
+    ?string $border,
+    string $expected,
+  ): void {
+    $actual = Tui::center($text, $width, $border);
+    $this->assertSame($expected, $actual);
+  }
+
+  /**
+   * Data provider for testCenter.
+   */
+  public static function dataProviderCenter(): array {
+    return [
+
+      'single line text with default width' => [
+        'text' => 'Hello',
+        'width' => 80,
+        'border' => NULL,
+        'expected' => <<<'EXPECTED'
+                                     Hello
+EXPECTED,
+      ],
+
+      'single line text with custom width' => [
+        'text' => 'Test',
+        'width' => 20,
+        'border' => NULL,
+        'expected' => <<<'EXPECTED'
+        Test
+EXPECTED,
+      ],
+
+      'multiline text without border' => [
+        'text' => <<<'TEXT'
+Line 1
+Line 2
+TEXT,
+        'width' => 20,
+        'border' => NULL,
+        'expected' => <<<'EXPECTED'
+       Line 1
+       Line 2
+EXPECTED,
+      ],
+
+      'multiline text with different line lengths' => [
+        'text' => <<<'TEXT'
+Short
+Longer line
+X
+TEXT,
+        'width' => 30,
+        'border' => NULL,
+        'expected' => <<<'EXPECTED'
+         Short
+         Longer line
+         X
+EXPECTED,
+      ],
+
+      'empty line in multiline text' => [
+        'text' => <<<'TEXT'
+Line 1
+
+Line 3
+TEXT,
+        'width' => 20,
+        'border' => NULL,
+        'expected' => <<<'EXPECTED'
+       Line 1
+
+       Line 3
+EXPECTED,
+      ],
+
+      'single line text with border' => [
+        'text' => 'Hello',
+        'width' => 20,
+        'border' => '=',
+        'expected' => <<<'EXPECTED'
+==================
+
+       Hello
+
+==================
+EXPECTED,
+      ],
+
+      'multiline text with border' => [
+        'text' => <<<'TEXT'
+Line 1
+Line 2
+TEXT,
+        'width' => 25,
+        'border' => '-',
+        'expected' => <<<'EXPECTED'
+-----------------------
+
+         Line 1
+         Line 2
+
+-----------------------
+EXPECTED,
+      ],
+
+      'text with exact width match' => [
+        'text' => 'Exact',
+        'width' => 5,
+        'border' => NULL,
+        'expected' => <<<'EXPECTED'
+Exact
+EXPECTED,
+      ],
+
+      'text wider than available width' => [
+        'text' => 'Very long text',
+        'width' => 20,
+        'border' => NULL,
+        'expected' => <<<'EXPECTED'
+   Very long text
+EXPECTED,
+      ],
+
+      'single character text' => [
+        'text' => 'X',
+        'width' => 10,
+        'border' => NULL,
+        'expected' => <<<'EXPECTED'
+    X
+EXPECTED,
+      ],
+
+      'empty text' => [
+        'text' => '',
+        'width' => 10,
+        'border' => NULL,
+        'expected' => <<<'EXPECTED'
+
+EXPECTED,
+      ],
+
+      'whitespace only text' => [
+        'text' => '   ',
+        'width' => 15,
+        'border' => NULL,
+        'expected' => <<<'EXPECTED'
+         
+EXPECTED,
+      ],
+
+      'text with border using different character' => [
+        'text' => 'Bordered',
+        'width' => 16,
+        'border' => '*',
+        'expected' => <<<'EXPECTED'
+**************
+
+    Bordered
+
+**************
+EXPECTED,
+      ],
+
+    ];
+  }
+
 }
