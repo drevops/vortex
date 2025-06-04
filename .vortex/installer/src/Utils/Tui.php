@@ -97,6 +97,35 @@ class Tui {
     table([], $rows);
   }
 
+  public static function center(string $text, int $width = 80, ?string $border = NULL): string {
+    $lines = explode(PHP_EOL, $text);
+    $centered_lines = [];
+
+    // Find the maximum line length.
+    $max_length = 0;
+    foreach ($lines as $line) {
+      $line_length = Strings::strlenPlain($line);
+      if ($line_length > $max_length) {
+        $max_length = $line_length;
+      }
+    }
+
+    foreach ($lines as $line) {
+      $padding = empty($line) ? '' : str_repeat(' ', (int) (($width - $max_length) / 2));
+      $centered_lines[] = $padding . $line;
+    }
+
+    if ($border) {
+      $border = str_repeat($border, $width - 2);
+      array_unshift($centered_lines, '');
+      array_unshift($centered_lines, $border);
+      $centered_lines[] = '';
+      $centered_lines[] = $border;
+    }
+
+    return implode(PHP_EOL, $centered_lines);
+  }
+
   public static function ok(string $text = 'OK'): void {
     $ok = static::green(static::normalizeText("✅ " . $text));
     static::note($ok);
