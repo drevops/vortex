@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Config;
-use DrevOps\Installer\Utils\Converter;
+use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\Converter;
 
 abstract class AbstractHandler implements HandlerInterface {
 

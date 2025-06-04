@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Converter;
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\Converter;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
 
 class Domain extends AbstractHandler {
 

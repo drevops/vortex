@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Traits;
+namespace DrevOps\VortexInstaller\Tests\Traits;
 
-use DrevOps\Installer\Utils\Tui;
+use DrevOps\VortexInstaller\Utils\Tui;
 use Laravel\Prompts\Output\BufferedConsoleOutput;
 use Laravel\Prompts\Prompt;
 

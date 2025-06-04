@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 class LabelMergeConflictsPr extends AbstractHandler {
 

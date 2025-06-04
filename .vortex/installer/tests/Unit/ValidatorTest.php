@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Unit;
+namespace DrevOps\VortexInstaller\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use DrevOps\Installer\Utils\Validator;
+use DrevOps\VortexInstaller\Utils\Validator;
 
 /**
  * Class InstallerHelpersTest.

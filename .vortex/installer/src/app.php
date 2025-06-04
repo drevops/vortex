@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-use DrevOps\Installer\Command\InstallCommand;
+use DrevOps\VortexInstaller\Command\InstallCommand;
 use Symfony\Component\Console\Application;
 
 $application = new Application('Vortex CLI installer', '@git-tag-ci@');

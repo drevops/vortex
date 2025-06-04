@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Unit;
+namespace DrevOps\VortexInstaller\Tests\Unit;
 
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -69,9 +69,9 @@ class FileTest extends UnitTestCase {
       'literal block with multiple empty lines after pipe' => [
         <<<YAML
         |
-        
-        
-        
+
+
+
         content
         YAML,
         <<<YAML
@@ -82,8 +82,8 @@ class FileTest extends UnitTestCase {
       'literal block with whitespace in empty lines' => [
         <<<YAML
         |
-          
-        	
+
+
         content
         YAML,
         <<<YAML
@@ -98,7 +98,7 @@ class FileTest extends UnitTestCase {
 
         content1
         second: |
-        	
+
 
         content2
         YAML,

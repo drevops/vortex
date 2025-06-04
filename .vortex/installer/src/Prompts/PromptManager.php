@@ -2,41 +2,41 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts;
+namespace DrevOps\VortexInstaller\Prompts;
 
-use DrevOps\Installer\Prompts\Handlers\AbstractHandler;
-use DrevOps\Installer\Prompts\Handlers\AssignAuthorPr;
-use DrevOps\Installer\Prompts\Handlers\CiProvider;
-use DrevOps\Installer\Prompts\Handlers\CodeProvider;
-use DrevOps\Installer\Prompts\Handlers\DatabaseDownloadSource;
-use DrevOps\Installer\Prompts\Handlers\DatabaseImage;
-use DrevOps\Installer\Prompts\Handlers\DependencyUpdatesProvider;
-use DrevOps\Installer\Prompts\Handlers\DeployType;
-use DrevOps\Installer\Prompts\Handlers\Domain;
-use DrevOps\Installer\Prompts\Handlers\GithubRepo;
-use DrevOps\Installer\Prompts\Handlers\GithubToken;
-use DrevOps\Installer\Prompts\Handlers\HandlerInterface;
-use DrevOps\Installer\Prompts\Handlers\HostingProvider;
-use DrevOps\Installer\Prompts\Handlers\Internal;
-use DrevOps\Installer\Prompts\Handlers\LabelMergeConflictsPr;
-use DrevOps\Installer\Prompts\Handlers\MachineName;
-use DrevOps\Installer\Prompts\Handlers\ModulePrefix;
-use DrevOps\Installer\Prompts\Handlers\Name;
-use DrevOps\Installer\Prompts\Handlers\Org;
-use DrevOps\Installer\Prompts\Handlers\OrgMachineName;
-use DrevOps\Installer\Prompts\Handlers\PreserveDocsOnboarding;
-use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
-use DrevOps\Installer\Prompts\Handlers\Profile;
-use DrevOps\Installer\Prompts\Handlers\ProvisionType;
-use DrevOps\Installer\Prompts\Handlers\Services;
-use DrevOps\Installer\Prompts\Handlers\Theme;
-use DrevOps\Installer\Prompts\Handlers\ThemeRunner;
-use DrevOps\Installer\Prompts\Handlers\Webroot;
-use DrevOps\Installer\Utils\Config;
-use DrevOps\Installer\Utils\Converter;
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\Tui;
-use DrevOps\Installer\Utils\Validator;
+use DrevOps\VortexInstaller\Prompts\Handlers\AbstractHandler;
+use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
+use DrevOps\VortexInstaller\Prompts\Handlers\GithubRepo;
+use DrevOps\VortexInstaller\Prompts\Handlers\GithubToken;
+use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
+use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
+use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
+use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
+use DrevOps\VortexInstaller\Prompts\Handlers\Name;
+use DrevOps\VortexInstaller\Prompts\Handlers\Org;
+use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
+use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
+use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
+use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
+use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
+use DrevOps\VortexInstaller\Prompts\Handlers\Services;
+use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\ThemeRunner;
+use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
+use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\Converter;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\Tui;
+use DrevOps\VortexInstaller\Utils\Validator;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\form;
@@ -51,7 +51,7 @@ use function Laravel\Prompts\text;
  *
  * Centralised place for providing prompts and their processing.
  *
- * @package DrevOps\Installer
+ * @package DrevOps\VortexInstaller
  */
 class PromptManager {
 
@@ -63,14 +63,14 @@ class PromptManager {
   /**
    * Array of handlers.
    *
-   * @var array<string, \DrevOps\Installer\Prompts\Handlers\HandlerInterface>
+   * @var array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
    */
   protected array $handlers = [];
 
   /**
    * PromptManager constructor.
    *
-   * @param \DrevOps\Installer\Utils\Config $config
+   * @param \DrevOps\VortexInstaller\Utils\Config $config
    *   The installer config.
    */
   public function __construct(
@@ -660,7 +660,7 @@ class PromptManager {
 
     $classes = [];
     foreach ($handler_files as $file) {
-      $class = 'DrevOps\\Installer\\Prompts\\Handlers\\' . basename($file, '.php');
+      $class = 'DrevOps\\VortexInstaller\\Prompts\\Handlers\\' . basename($file, '.php');
 
       if (!class_exists($class) || !is_subclass_of($class, HandlerInterface::class) || $class === AbstractHandler::class) {
         continue;

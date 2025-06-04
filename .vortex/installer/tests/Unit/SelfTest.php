@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Unit;
+namespace DrevOps\VortexInstaller\Tests\Unit;
 
 use AlexSkrypnyk\File\File;
 use PHPUnit\Framework\Attributes\CoversClass;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Utils;
+namespace DrevOps\VortexInstaller\Utils;
 
 use AlexSkrypnyk\File\ExtendedSplFileInfo;
 use AlexSkrypnyk\File\File as UpstreamFile;

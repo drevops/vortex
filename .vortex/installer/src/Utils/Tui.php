@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Utils;
+namespace DrevOps\VortexInstaller\Utils;
 
 use Laravel\Prompts\Prompt;
 use Laravel\Prompts\Terminal;

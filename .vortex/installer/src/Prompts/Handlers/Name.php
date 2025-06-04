@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Composer;
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\Composer;
+use DrevOps\VortexInstaller\Utils\File;
 
 class Name extends AbstractHandler {
 

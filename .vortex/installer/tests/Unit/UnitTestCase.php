@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Unit;
+namespace DrevOps\VortexInstaller\Tests\Unit;
 
 use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\SerializableClosureTrait;
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\File;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
 
 /**
