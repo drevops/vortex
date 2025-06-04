@@ -5,8 +5,8 @@
 +# Note that these variables are not read from here in Lagoon environment.
  x-environment: &default-environment
    TZ: ${TZ:-Australia/Melbourne}
-   # Local development URL.
-@@ -86,6 +87,10 @@
+   # Pass-through 'CI' variable used to identify the CI environment.
+@@ -90,6 +91,10 @@
      # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
      volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
        - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
@@ -17,7 +17,7 @@
  
    nginx:
      build:
-@@ -106,6 +111,11 @@
+@@ -110,6 +115,11 @@
      networks:
        - default # This is a standard network and is used for all other environments, where requests routing is not required and/or not supported.
        - amazeeio-network ### This network is supported by Pygmy and used to route all requests to host machine locally. Removed in CI.
@@ -29,7 +29,7 @@
  
    # PHP FPM container. All web requests are going through this container.
    php:
-@@ -119,6 +129,11 @@
+@@ -123,6 +133,11 @@
        <<: *default-environment
      depends_on:
        - cli
@@ -41,7 +41,7 @@
  
    database:
      build:
-@@ -131,9 +146,13 @@
+@@ -135,9 +150,13 @@
        <<: *default-environment
      ports:
        - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
@@ -55,7 +55,7 @@
  
    solr:
      build:
-@@ -149,6 +168,8 @@
+@@ -153,6 +172,8 @@
        - "8983" # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
      volumes:
        - solr:/var/solr
@@ -64,7 +64,7 @@
  
    clamav:
      build:
-@@ -161,6 +182,10 @@
+@@ -165,6 +186,10 @@
        << : *default-environment
      networks:
        - default
@@ -75,7 +75,7 @@
  
    # Chrome container, used for browser testing.
    chrome:
-@@ -173,6 +198,8 @@
+@@ -177,6 +202,8 @@
        <<: *default-environment
      depends_on:
        - cli
@@ -84,7 +84,7 @@
  
    # Helper container to wait for services to become available.
    wait_dependencies:
-@@ -182,6 +209,8 @@
+@@ -186,6 +213,8 @@
        - database
        - clamav
      command: database:3306 clamav:3310

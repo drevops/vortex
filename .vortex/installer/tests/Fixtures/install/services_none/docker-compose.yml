@@ -1,4 +1,4 @@
-@@ -62,8 +62,6 @@
+@@ -66,8 +66,6 @@
    # Drupal Shield credentials.
    DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
@@ -7,7 +7,7 @@
  
  # ------------------------------------------------------------------------------
  # Services.
-@@ -132,36 +130,6 @@
+@@ -136,36 +134,6 @@
      ports:
        - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -44,7 +44,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -180,8 +148,7 @@
+@@ -184,8 +152,7 @@
      depends_on:
        - cli
        - database
@@ -54,7 +54,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -190,4 +157,3 @@
+@@ -194,4 +161,3 @@
  volumes:
    app: {}
    files: {}
