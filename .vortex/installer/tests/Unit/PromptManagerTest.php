@@ -30,7 +30,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
-use DrevOps\VortexInstaller\Prompts\Handlers\ThemeRunner;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
@@ -76,7 +75,6 @@ use Symfony\Component\Yaml\Yaml;
 #[CoversClass(ProvisionType::class)]
 #[CoversClass(Services::class)]
 #[CoversClass(Theme::class)]
-#[CoversClass(ThemeRunner::class)]
 #[CoversClass(Tui::class)]
 #[CoversClass(Webroot::class)]
 class PromptManagerTest extends UnitTestCase {
@@ -161,7 +159,6 @@ class PromptManagerTest extends UnitTestCase {
       Profile::id() => static::TUI_DEFAULT,
       ModulePrefix::id() => static::TUI_DEFAULT,
       Theme::id() => static::TUI_DEFAULT,
-      ThemeRunner::id() => static::TUI_DEFAULT,
       Services::id() => static::TUI_DEFAULT,
       HostingProvider::id() => static::TUI_DEFAULT,
       Webroot::id() => static::TUI_DEFAULT,
@@ -191,7 +188,6 @@ class PromptManagerTest extends UnitTestCase {
       Profile::id() => Profile::STANDARD,
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
-      ThemeRunner::id() => ThemeRunner::GRUNT,
       Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
       HostingProvider::id() => HostingProvider::NONE,
       Webroot::id() => Webroot::WEB,
