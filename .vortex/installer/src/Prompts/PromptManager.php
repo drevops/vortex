@@ -114,7 +114,7 @@ class PromptManager {
       ->intro('General information')
 
       ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🔖 Site name'),
+        label: $this->label('🏷️ Site name'),
         hint: 'We will use this name in the project and in the documentation.',
         placeholder: 'E.g. My Site',
         required: TRUE,
@@ -124,7 +124,7 @@ class PromptManager {
       ), Name::id())
 
       ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🔖 Site machine name'),
+        label: $this->label('🏷️ Site machine name'),
         hint: 'We will use this name for the project directory and in the code.',
         placeholder: 'E.g. my_site',
         required: TRUE,
@@ -202,7 +202,7 @@ class PromptManager {
         ->addIf(
             fn($r): bool => !empty($r[GithubToken::id()]),
             fn($r, $pr, $n): string => text(
-              label: $this->label('What is your GitHub project name?', 'b'),
+              label: $this->label('🏷️ What is your GitHub project name?', 'b'),
               hint: 'We will use this name to create new or find an existing repository.',
               placeholder: 'E.g. myorg/myproject',
               default: $this->default($n, $r[OrgMachineName::id()] . '/' . $r[MachineName::id()]),
@@ -228,7 +228,7 @@ class PromptManager {
 
         if ($profile === Profile::CUSTOM) {
           $profile = text(
-            label: $this->label('Custom profile machine name', 'a'),
+            label: $this->label('🧾 Custom profile machine name', 'a'),
             placeholder: 'E.g. my_profile',
             required: TRUE,
             default: $this->default($n),
@@ -346,10 +346,10 @@ class PromptManager {
 
       ->intro('Workflow')
 
-      ->add(fn($r, $pr, $n) => Tui::note('<info>Provisioning</info> is the process of setting up the site in the environment with an already built codebase.'))
+      ->add(fn($r, $pr, $n) => Tui::note('<info>Provisioning</info> is the process of setting up the site in the environment with an already assembled codebase.'))
 
       ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('Provision type'),
+        label: $this->label('🦋 Provision type'),
         hint: 'Selecting "Profile" will install site from a profile rather than a database dump.',
         options: [
           ProvisionType::DATABASE => 'Import from database dump',
@@ -381,7 +381,7 @@ class PromptManager {
           }
 
           return select(
-            label: $this->label('Database dump source', 'a'),
+            label: $this->label('📡 Database source', 'a'),
             hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
             options: $options,
             default: $this->default($n, match ($r[HostingProvider::id()]) {
@@ -395,7 +395,7 @@ class PromptManager {
       ->addIf(
           fn($r): bool => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
           fn($r, $pr, $n): string => text(
-            label: $this->label('What is your database container image name and a tag?', 'a'),
+            label: $this->label('🏷️ What is your database container image name and a tag?', 'a'),
             hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
             placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
             default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
@@ -574,23 +574,23 @@ class PromptManager {
     $responses = $this->getResponses();
 
     $values['General information'] = Tui::LIST_SECTION_TITLE;
-    $values['🔖 Site name'] = $responses[Name::id()];
-    $values['🔖 Site machine name'] = $responses[MachineName::id()];
+    $values['🏷️ Site name'] = $responses[Name::id()];
+    $values['🏷️ Site machine name'] = $responses[MachineName::id()];
     $values['🏢 Organization name'] = $responses[Org::id()];
     $values['🏢 Organization machine name'] = $responses[OrgMachineName::id()];
     $values['🌐 Public domain'] = $responses[Domain::id()];
 
     $values['Code repository'] = Tui::LIST_SECTION_TITLE;
-    $values['Code provider'] = $responses[CodeProvider::id()];
+    $values['🗄 Code provider'] = $responses[CodeProvider::id()];
 
     if (!empty($responses[GithubToken::id()])) {
       $values['🔑 GitHub access token'] = 'valid';
     }
-    $values['GitHub repository'] = $responses[GithubRepo::id()] ?? '<empty>';
+    $values['🏷️ GitHub repository'] = $responses[GithubRepo::id()] ?? '<empty>';
 
     $values['Drupal'] = Tui::LIST_SECTION_TITLE;
     $values['📁 Webroot'] = $responses[Webroot::id()];
-    $values['Profile'] = $responses[Profile::id()];
+    $values['🧾 Profile'] = $responses[Profile::id()];
 
     $values['🧩 Module prefix'] = $responses[ModulePrefix::id()];
     $values['🎨 Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
@@ -602,13 +602,13 @@ class PromptManager {
     $values['🚚 Deployment types'] = Converter::toList($responses[DeployType::id()]);
 
     $values['Workflow'] = Tui::LIST_SECTION_TITLE;
-    $values['Provision type'] = $responses[ProvisionType::id()];
+    $values['🦋 Provision type'] = $responses[ProvisionType::id()];
 
     if ($responses[ProvisionType::id()] == ProvisionType::DATABASE) {
-      $values['Database dump source'] = $responses[DatabaseDownloadSource::id()];
+      $values['📡 Database source'] = $responses[DatabaseDownloadSource::id()];
 
       if ($responses[DatabaseDownloadSource::id()] == DatabaseDownloadSource::CONTAINER_REGISTRY) {
-        $values['Database container image'] = $responses[DatabaseImage::id()];
+        $values['🏷️ Database container image'] = $responses[DatabaseImage::id()];
       }
     }
 
@@ -625,7 +625,7 @@ class PromptManager {
     $values['📋 Preserve onboarding checklist'] = Converter::bool($responses[PreserveDocsOnboarding::id()]);
 
     $values['AI'] = Tui::LIST_SECTION_TITLE;
-    $values['AI code assistant instructions'] = $responses[AiCodeInstructions::id()];
+    $values['🤖 AI code assistant instructions'] = $responses[AiCodeInstructions::id()];
 
     $values['Locations'] = Tui::LIST_SECTION_TITLE;
     $values['Current directory'] = $this->config->getRoot();
