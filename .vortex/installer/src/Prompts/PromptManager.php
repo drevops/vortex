@@ -31,7 +31,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
-use DrevOps\VortexInstaller\Prompts\Handlers\ThemeRunner;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
@@ -259,21 +258,6 @@ class PromptManager {
         transform: fn(string $v): string => trim($v),
         validate: fn($v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
       ), Theme::id())
-
-      ->addIf(
-        fn($r): bool => !empty($r[Theme::id()]),
-        fn($r, $pr, $n): int|string => select(
-          label: $this->label('Compile theme assest during build using a task runner?'),
-          hint: 'Useful to avoid committing compiled theme assets to the repository.',
-          options: [
-            ThemeRunner::GRUNT => '🐗 Grunt',
-            ThemeRunner::GULP => '🥤 Gulp',
-            ThemeRunner::WEBPACK => '📦 Webpack',
-            ThemeRunner::NONE => '🚫 None',
-          ],
-          required: TRUE,
-          default: $this->default($n, ThemeRunner::GRUNT),
-        ), ThemeRunner::id())
 
       ->intro('Services')
 
@@ -540,7 +524,6 @@ class PromptManager {
       DeployType::id(),
       HostingProvider::id(),
       Services::id(),
-      ThemeRunner::id(),
       GithubRepo::id(),
       CodeProvider::id(),
       Profile::id(),

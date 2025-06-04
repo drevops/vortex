@@ -30,7 +30,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
-use DrevOps\VortexInstaller\Prompts\Handlers\ThemeRunner;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Utils\Config;
@@ -77,7 +76,6 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 #[CoversClass(ProvisionType::class)]
 #[CoversClass(Services::class)]
 #[CoversClass(Theme::class)]
-#[CoversClass(ThemeRunner::class)]
 #[CoversClass(Webroot::class)]
 #[CoversClass(PromptManager::class)]
 #[CoversClass(Downloader::class)]
