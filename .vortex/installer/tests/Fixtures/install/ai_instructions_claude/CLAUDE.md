@@ -1,9 +1,5 @@
 # Vortex Drupal Project - Development Guide
 
-> **🚀 PROJECT MODE**: This guide helps with **developing Drupal projects** created from the Vortex template.
-> 
-> For **maintaining the Vortex template itself**, see the maintenance guide: `.vortex/CLAUDE.md`
-
 ## Project Overview
 
 This is a Drupal project built with **Vortex** - a comprehensive Drupal project template by DrevOps that provides production-ready development and deployment workflows.
@@ -21,42 +17,52 @@ ahoy up
 ahoy info
 ```
 
-## Development Workflows
+## Local Development Commands (Ahoy)
 
-### Local Development Commands (Ahoy)
+### Environment management
 
 ```bash
-# Environment management
 ahoy up                    # Start Docker containers
 ahoy down                  # Stop Docker containers
 ahoy restart               # Restart containers
 ahoy info                  # Show project information and URLs
+```
 
-# Site building and provisioning
+### Site building and provisioning
+
+```bash
 ahoy build                 # Build site from scratch
 ahoy provision             # Provision site (install/import DB)
 ahoy reset                 # Reset to clean state
+```
 
-# Database operations
+### Database operations
+
+```bash
 ahoy download-db           # Download fresh database
 ahoy export-db             # Export current database
 ahoy import-db             # Import database from file
+```
 
-# Development tools
+### Development tools
+
+```bash
 ahoy drush [command]       # Run Drush commands
 ahoy composer [command]    # Run Composer commands
 ahoy phpcs                 # Run code style checks
 ahoy phpcbf                # Fix code style issues
 ```
 
-### Code Quality and Testing
+### Code Quality
 
 ```bash
-# Linting and code standards
 ahoy lint                  # Run all linting checks
 ahoy lint-fix              # Fix automatically fixable issues
+```
 
-# Testing
+### Testing
+
+```bash
 ahoy test-unit             # Run PHPUnit tests
 ahoy test-bdd              # Run Behat (BDD) tests
 ahoy test                  # Run all tests
@@ -87,6 +93,7 @@ ahoy test                  # Run all tests
 ## Configuration Management
 
 ### Exporting Configuration
+
 ```bash
 # Export all configuration changes
 ahoy drush config:export
@@ -96,6 +103,7 @@ ahoy drush config:export --diff
 ```
 
 ### Importing Configuration
+
 ```bash
 # Import configuration (usually part of deployment)
 ahoy drush config:import
@@ -104,50 +112,26 @@ ahoy drush config:import
 ahoy drush config:import --source=../config/stage
 ```
 
-## Custom Development
-
-### Creating Custom Modules
-```bash
-# Generate module scaffold
-ahoy drush generate:module [module_name]
-
-# Enable custom module
-ahoy drush pm:install [module_name]
-```
-
 ### Theme Development
+
 ```bash
 # Navigate to custom theme
-cd web/themes/custom/[theme_name]
+cd web/themes/custom/star_wars
 
 # Install theme dependencies (if using npm/yarn)
-npm install
+yarn install
 
 # Build theme assets
-npm run build
+yarn run build
 
 # Watch for changes during development
-npm run watch
+yarn run watch
 ```
 
 ## Database and Content
 
-### Database Operations
-```bash
-# Download latest database
-ahoy download-db
-
-# Import database from file
-ahoy import-db path/to/database.sql
-
-# Create database snapshot
-ahoy export-db-file
-
-# Reset to fresh install
-ahoy provision --override-db
-```
-
 ### Content Management
+
 - Use Configuration Management for structure (content types, fields, views)
 - Use database imports for content in non-production environments
 - Use migration modules for structured content imports in production
@@ -155,6 +139,7 @@ ahoy provision --override-db
 ## Services Integration
 
 ### Solr Search
+
 ```bash
 # Check Solr status
 ahoy drush search-api:status
@@ -167,6 +152,7 @@ ahoy drush search-api:clear
 ```
 
 ### Valkey (Redis-compatible caching)
+
 ```bash
 # Check cache status
 ahoy drush cache:rebuild
@@ -176,6 +162,7 @@ ahoy drush php-eval "\Drupal\redis\Client\ClientInterface::flushAll();"
 ```
 
 ### ClamAV Virus Scanning
+
 ```bash
 # Test virus scanning functionality
 ahoy drush clamav:scan
@@ -183,29 +170,6 @@ ahoy drush clamav:scan
 # Check ClamAV status
 ahoy drush clamav:status
 ```
-
-## Environment Configuration
-
-### Environment Variables (.env)
-Key variables for local development:
-```bash
-# Project identification
-VORTEX_PROJECT=your_project_name
-
-# Database configuration
-DRUPAL_DATABASE_NAME=drupal
-DRUPAL_DATABASE_USERNAME=drupal  
-DRUPAL_DATABASE_PASSWORD=drupal
-
-# Development settings
-VORTEX_DEV_MODE=1
-VORTEX_DEBUG=1
-```
-
-### Environment-Specific Settings
-- **Development**: Full error reporting, development modules enabled
-- **Staging**: Production-like but with debug capabilities
-- **Production**: Error logging, caching enabled, development modules disabled
 
 ## Deployment
 
@@ -216,30 +180,26 @@ The project includes automated deployment via:
 
 - **Container Registry** deployments for containerized environments
 
-### Manual Deployment Steps
-```bash
-# Build deployment artifact
-./scripts/vortex/deploy.sh
-
-# Deploy via webhook
-./scripts/vortex/deploy-webhook.sh
-```
-
 ## Common Tasks
 
 ### Adding Dependencies
+
 ```bash
 # Add Drupal modules
 ahoy composer require drupal/module_name
 
-# Add development dependencies  
+# Add development dependencies
 ahoy composer require --dev drupal/devel
+```
 
-# Add theme build tools
-cd web/themes/custom/[theme] && npm install [package]
+### Add theme build tools
+
+```bash
+cd web/themes/custom/star_wars && npm install [package]
 ```
 
 ### Dependency Management
+
 Dependencies are automatically updated via RenovateBot:
 - **Composer dependencies**: Updated automatically with compatibility checks
 - **Node.js dependencies**: Updated in theme directories
@@ -251,6 +211,7 @@ ahoy composer outdated
 ```
 
 ### Debugging
+
 ```bash
 # Enable development modules
 ahoy drush pm:install devel webprofiler
@@ -263,6 +224,7 @@ ahoy drush cache:rebuild
 ```
 
 ### Performance
+
 ```bash
 # Enable caching
 ahoy drush config:set system.performance css.preprocess 1
@@ -287,19 +249,6 @@ ahoy info  # Check URLs and container status
 # Check database container
 docker-compose ps
 ahoy reset  # Rebuild if needed
-```
-
-**Permission issues:**
-```bash
-# Fix file permissions
-ahoy fix-permissions
-```
-
-**Memory issues:**
-```bash
-# Increase PHP memory limit in docker-compose.yml
-# Or use ahoy with more memory
-ahoy drush --memory-limit=512M [command]
 ```
 
 ## Resources

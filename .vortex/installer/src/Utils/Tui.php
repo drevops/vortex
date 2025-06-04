@@ -90,7 +90,7 @@ class Tui {
 
     if ($title) {
       $rows[] = [static::green($title)];
-      $rows[] = [static::green(str_repeat('-', Strings::strlenPlain($title))) . PHP_EOL];
+      $rows[] = [static::green(str_repeat('─', Strings::strlenPlain($title))) . PHP_EOL];
     }
     $rows[] = [$content];
 

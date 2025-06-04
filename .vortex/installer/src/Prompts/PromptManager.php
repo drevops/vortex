@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Prompts;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\AbstractHandler;
+use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
@@ -61,6 +62,20 @@ class PromptManager {
   protected array $responses = [];
 
   /**
+   * Total number of top-level responses.
+   *
+   * Used to display the progress of the prompts.
+   */
+  protected int $totalResponses = 21;
+
+  /**
+   * Current response number.
+   *
+   * Used to display the progress of the prompts.
+   */
+  protected int $currentResponse = 0;
+
+  /**
    * Array of handlers.
    *
    * @var array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
@@ -94,11 +109,13 @@ class PromptManager {
     // @formatter:off
     // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
+    // phpcs:disable Drupal.WhiteSpace.ObjectOperatorIndent.Indent
+    // phpcs:disable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
     $responses = form()
       ->intro('General information')
 
       ->add(fn($r, $pr, $n): string => text(
-        label: '🔖 Site name',
+        label: $this->label('🔖 Site name'),
         hint: 'We will use this name in the project and in the documentation.',
         placeholder: 'E.g. My Site',
         required: TRUE,
@@ -108,7 +125,7 @@ class PromptManager {
       ), Name::id())
 
       ->add(fn($r, $pr, $n): string => text(
-        label: '🔖 Site machine name',
+        label: $this->label('🔖 Site machine name'),
         hint: 'We will use this name for the project directory and in the code.',
         placeholder: 'E.g. my_site',
         required: TRUE,
@@ -118,7 +135,7 @@ class PromptManager {
       ), MachineName::id())
 
       ->add(fn($r, $pr, $n): string => text(
-        label: '🏢 Organization name',
+        label: $this->label('🏢 Organization name'),
         hint: 'We will use this name in the project and in the documentation.',
         placeholder: 'E.g. My Org',
         required: TRUE,
@@ -128,7 +145,7 @@ class PromptManager {
       ), Org::id())
 
       ->add(fn($r, $pr, $n): string => text(
-        label: '🏢 Organization machine name',
+        label: $this->label('🏢 Organization machine name'),
         hint: 'We will use this name for the project directory and in the code.',
         placeholder: 'E.g. my_org',
         required: TRUE,
@@ -138,7 +155,7 @@ class PromptManager {
       ), OrgMachineName::id())
 
       ->add(fn($r, $pr, $n): string => text(
-        label: '🌐 Public domain',
+        label: $this->label('🌐 Public domain'),
         hint: 'Domain name without protocol and trailing slash.',
         placeholder: 'E.g. example.com',
         required: TRUE,
@@ -150,7 +167,7 @@ class PromptManager {
       ->intro('Code repository')
 
       ->add(fn($r, $pr, $n): int|string => select(
-        label: '⚙️ Repository provider',
+        label: $this->label('🗄️ Repository provider'),
         hint: 'Vortex offers full automation with GitHub, while support for other providers is limited.',
         options: [
           CodeProvider::GITHUB => 'GitHub',
@@ -169,12 +186,13 @@ class PromptManager {
           function ($r, $pr, $n): string {
             $value = $this->default($n);
             if (!empty($value)) {
-              Tui::ok('GitHub access token is already set in the environment.');
+              Tui::ok($this->label('GitHub access token is already set in the environment.', 'a'));
+
               return $value;
             }
 
             return password(
-              label: '🔑 GitHub access token (optional)',
+              label: $this->label('🔑 GitHub access token (optional)', 'a'),
               hint: Env::get('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new',
               placeholder: 'E.g. ghp_1234567890',
               transform: fn(string $v): string => trim($v),
@@ -182,22 +200,22 @@ class PromptManager {
             );
           }, GithubToken::id())
 
-      ->addIf(
-          fn($r): bool => !empty($r[GithubToken::id()]),
-          fn($r, $pr, $n): string => text(
-            label: 'What is your GitHub project name?',
-            hint: 'We will use this name to create new or find an existing repository.',
-            placeholder: 'E.g. myorg/myproject',
-            default: $this->default($n, $r[OrgMachineName::id()] . '/' . $r[MachineName::id()]),
-            transform: fn(string $v): string => trim($v),
-            validate: fn(string $v): ?string => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : NULL,
-          ), GithubRepo::id())
+        ->addIf(
+            fn($r): bool => !empty($r[GithubToken::id()]),
+            fn($r, $pr, $n): string => text(
+              label: $this->label('What is your GitHub project name?', 'b'),
+              hint: 'We will use this name to create new or find an existing repository.',
+              placeholder: 'E.g. myorg/myproject',
+              default: $this->default($n, $r[OrgMachineName::id()] . '/' . $r[MachineName::id()]),
+              transform: fn(string $v): string => trim($v),
+              validate: fn(string $v): ?string => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : NULL,
+            ), GithubRepo::id())
 
       ->intro('Drupal')
 
       ->add(function ($r, $pr, $n): int|string {
           $profile = select(
-            label: 'Profile',
+            label: $this->label('🧾 Profile'),
             hint: 'Select which profile to use',
             options: [
               Profile::STANDARD => 'Standard',
@@ -211,7 +229,7 @@ class PromptManager {
 
         if ($profile === Profile::CUSTOM) {
           $profile = text(
-            label: 'Custom profile machine name',
+            label: $this->label('Custom profile machine name', 'a'),
             placeholder: 'E.g. my_profile',
             required: TRUE,
             default: $this->default($n),
@@ -224,7 +242,7 @@ class PromptManager {
       }, Profile::id())
 
       ->add(fn($r, $pr, $n): string => text(
-        label: '🧩 Module prefix',
+        label: $this->label('🧩 Module prefix'),
         hint: 'We will use this name for custom modules.',
         placeholder: 'E.g. ms (for My Site)',
         required: TRUE,
@@ -234,7 +252,7 @@ class PromptManager {
       ), ModulePrefix::id())
 
       ->add(fn($r, $pr, $n): string => text(
-        label: '🎨 Theme machine name',
+        label: $this->label('🎨 Theme machine name'),
         hint: 'We will use this name for the theme directory. Leave empty to skip the theme scaffold.',
         placeholder: 'E.g. mytheme',
         default: $this->default($n, Converter::machine($r[MachineName::id()])),
@@ -245,13 +263,13 @@ class PromptManager {
       ->addIf(
         fn($r): bool => !empty($r[Theme::id()]),
         fn($r, $pr, $n): int|string => select(
-          label: 'Compile theme assest during build using a task runner?',
+          label: $this->label('Compile theme assest during build using a task runner?'),
           hint: 'Useful to avoid committing compiled theme assets to the repository.',
           options: [
             ThemeRunner::GRUNT => '🐗 Grunt',
             ThemeRunner::GULP => '🥤 Gulp',
             ThemeRunner::WEBPACK => '📦 Webpack',
-            ThemeRunner::NONE => '⭕  None',
+            ThemeRunner::NONE => '🚫 None',
           ],
           required: TRUE,
           default: $this->default($n, ThemeRunner::GRUNT),
@@ -260,12 +278,12 @@ class PromptManager {
       ->intro('Services')
 
       ->add(fn($r, $pr, $n): array => multiselect(
-        label: '🔌 Services',
+        label: $this->label('🔌 Services'),
         hint: 'Select the services you want to use in the project.',
         options: [
           Services::CLAMAV => '🦠 ClamAV',
           Services::SOLR => '🔍 Solr',
-          Services::VALKEY => '🔴 Valkey',
+          Services::VALKEY => '🗃️ Valkey',
         ],
         default: $this->default($n, [Services::CLAMAV, Services::SOLR, Services::VALKEY]),
       ), Services::id())
@@ -273,13 +291,13 @@ class PromptManager {
       ->intro('Hosting')
 
       ->add(fn($r, $pr, $n): int|string => select(
-        label: '🏠 Hosting provider',
+        label: $this->label('🏠 Hosting provider'),
         hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
         options: [
-          HostingProvider::NONE => '⭕  None',
           HostingProvider::ACQUIA => '💧 Acquia Cloud',
           HostingProvider::LAGOON => '🌊 Lagoon',
           HostingProvider::OTHER => '🧩 Other',
+          HostingProvider::NONE => '🚫 None',
         ],
         required: TRUE,
         default: $this->default($n, 'none'),
@@ -297,7 +315,7 @@ class PromptManager {
         }
         else {
           $webroot = text(
-            label: '📁 Custom web root directory',
+            label: $this->label('📁 Custom web root directory', 'a'),
             hint: 'Custom directory where the web server serves the site.',
             placeholder: 'E.g. ' . implode(', ', [Webroot::WEB, Webroot::DOCROOT]),
             required: TRUE,
@@ -335,7 +353,7 @@ class PromptManager {
           }
 
           return multiselect(
-            label: '🚚 Deployment types',
+            label: $this->label('🚚 Deployment types'),
             hint: 'You can deploy code using one or more methods.',
             options: $options,
             default: $this->default($n, $defaults),
@@ -347,7 +365,7 @@ class PromptManager {
       ->add(fn($r, $pr, $n) => Tui::note('<info>Provisioning</info> is the process of setting up the site in the environment with an already built codebase.'))
 
       ->add(fn($r, $pr, $n): int|string => select(
-        label: 'Provision type',
+        label: $this->label('Provision type'),
         hint: 'Selecting "Profile" will install site from a profile rather than a database dump.',
         options: [
           ProvisionType::DATABASE => 'Import from database dump',
@@ -357,9 +375,9 @@ class PromptManager {
       ), ProvisionType::id())
 
       ->add(function (array $r, $pr, $n): int|string {
-        if ($r[ProvisionType::id()] === ProvisionType::PROFILE) {
-          return DatabaseDownloadSource::NONE;
-        }
+          if ($r[ProvisionType::id()] === ProvisionType::PROFILE) {
+            return DatabaseDownloadSource::NONE;
+          }
 
           $options = [
             DatabaseDownloadSource::URL => '🌍 URL download',
@@ -367,7 +385,7 @@ class PromptManager {
             DatabaseDownloadSource::ACQUIA => '💧 Acquia backup',
             DatabaseDownloadSource::LAGOON => '🌊 Lagoon environment',
             DatabaseDownloadSource::CONTAINER_REGISTRY => '🐳 Container registry',
-            DatabaseDownloadSource::NONE => '⭕  None',
+            DatabaseDownloadSource::NONE => '🚫 None',
           ];
 
           if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
@@ -379,7 +397,7 @@ class PromptManager {
           }
 
           return select(
-            label: 'Database dump source',
+            label: $this->label('Database dump source', 'a'),
             hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
             options: $options,
             default: $this->default($n, match ($r[HostingProvider::id()]) {
@@ -393,7 +411,7 @@ class PromptManager {
       ->addIf(
           fn($r): bool => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
           fn($r, $pr, $n): string => text(
-            label: 'What is your database container image name and a tag?',
+            label: $this->label('What is your database container image name and a tag?', 'a'),
             hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
             placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
             default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
@@ -415,7 +433,7 @@ class PromptManager {
           }
 
           return select(
-            label: '♻️ Continuous Integration provider',
+            label: $this->label('🔄 Continuous Integration provider'),
             hint: 'Both providers support equivalent workflow.',
             options: $options,
             default: $this->default($n, CiProvider::GITHUB_ACTIONS),
@@ -425,24 +443,24 @@ class PromptManager {
       ->intro('Automations')
 
       ->add(fn($r, $pr, $n): int|string => select(
-        label: '⬆️ Dependency updates provider',
+        label: $this->label('⬆️ Dependency updates provider'),
         hint: 'Use a self-hosted service if you can’t install a GitHub app.',
         options: [
-          DependencyUpdatesProvider::RENOVATEBOT_CI  => '🤖 + ♻️ Renovate self-hosted in CI',
+          DependencyUpdatesProvider::RENOVATEBOT_CI  => '🤖 +  🔄 Renovate self-hosted in CI',
           DependencyUpdatesProvider::RENOVATEBOT_APP => '🤖 Renovate GitHub app',
-          DependencyUpdatesProvider::NONE => '⭕  None',
+          DependencyUpdatesProvider::NONE => '🚫 None',
         ],
         default: $this->default($n, DependencyUpdatesProvider::RENOVATEBOT_CI),
       ), DependencyUpdatesProvider::id())
 
       ->add(fn($r, $pr, $n): bool => confirm(
-        label: '👤 Auto-assign the author to their PR?',
+        label: $this->label('👤 Auto-assign the author to their PR?'),
         hint: 'Helps to keep the PRs organized.',
         default: $this->default($n, TRUE),
       ), AssignAuthorPr::id())
 
       ->add(fn($r, $pr, $n): bool => confirm(
-        label: '🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur?',
+        label: $this->label('🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur?'),
         hint: 'Helps to keep quickly identify PRs that need attention.',
         default: $this->default($n, TRUE),
       ), LabelMergeConflictsPr::id())
@@ -450,22 +468,36 @@ class PromptManager {
       ->intro('Documentation')
 
       ->add(fn($r, $pr, $n): bool => confirm(
-        label: '📚 Preserve project documentation?',
+        label: $this->label('📚 Preserve project documentation?'),
         hint: 'Helps to maintain the project documentation within the repository.',
         default: $this->default($n, TRUE),
       ), PreserveDocsProject::id())
 
       ->add(fn($r, $pr, $n): bool => confirm(
-        label: '📋 Preserve onboarding checklist?',
+        label: $this->label('📋 Preserve onboarding checklist?'),
         hint: 'Helps to track onboarding to Vortex within the repository.',
         default: $this->default($n, TRUE),
       ), PreserveDocsOnboarding::id())
+
+      ->intro('AI')
+
+      ->add(fn($r, $pr, $n): int|string => select(
+        label: $this->label('🤖 AI code assistant instructions'),
+        hint: 'Helps AI coding assistants to understand the project better.',
+        options: [
+          AiCodeInstructions::CLAUDE  => 'Anthropic Claude',
+          AiCodeInstructions::NONE => 'None',
+        ],
+        default: $this->default($n, AiCodeInstructions::NONE),
+      ), AiCodeInstructions::id())
 
       ->submit();
 
     // @formatter:on
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
+    // phpcs:enable Drupal.WhiteSpace.ObjectOperatorIndent.Indent
+    // phpcs:enable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
 
     // Filter out elements with numeric keys returned from intro()'s.
     $responses = array_filter($responses, function ($key): bool {
@@ -495,6 +527,7 @@ class PromptManager {
     // more specific values first, and the more generic ones last.
     $ids = [
       Webroot::id(),
+      AiCodeInstructions::id(),
       PreserveDocsOnboarding::id(),
       PreserveDocsProject::id(),
       LabelMergeConflictsPr::id(),
@@ -608,6 +641,9 @@ class PromptManager {
     $values['📚 Preserve project documentation'] = Converter::bool($responses[PreserveDocsProject::id()]);
     $values['📋 Preserve onboarding checklist'] = Converter::bool($responses[PreserveDocsOnboarding::id()]);
 
+    $values['AI'] = Tui::LIST_SECTION_TITLE;
+    $values['AI code assistant instructions'] = $responses[AiCodeInstructions::id()];
+
     $values['Locations'] = Tui::LIST_SECTION_TITLE;
     $values['Current directory'] = $this->config->getRoot();
     $values['Destination directory'] = $this->config->getDst();
@@ -615,6 +651,27 @@ class PromptManager {
     $values['Vortex reference'] = $this->config->get(Config::REF);
 
     return $values;
+  }
+
+  /**
+   * Generate a label for a prompt.
+   *
+   * @param string $text
+   *   The text to display in the label.
+   * @param string|null $suffix
+   *   An optional suffix to display in the label.
+   *
+   * @return string
+   *   The formatted label text.
+   */
+  protected function label(string $text, ?string $suffix = NULL): string {
+    if (is_null($suffix)) {
+      $this->currentResponse++;
+    }
+
+    $suffix = $suffix !== NULL ? $this->currentResponse . '.' . $suffix : $this->currentResponse;
+
+    return $text . ' ' . Tui::dim('(' . $suffix . '/' . $this->totalResponses . ')');
   }
 
   /**

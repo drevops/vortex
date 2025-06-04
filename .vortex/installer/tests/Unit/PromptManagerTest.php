@@ -5,14 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit;
 
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait as UpstreamTuiTrait;
-use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
-use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
-use DrevOps\VortexInstaller\Utils\Composer;
-use DrevOps\VortexInstaller\Utils\Env;
-use DrevOps\VortexInstaller\Utils\Tui;
-use Laravel\Prompts\Prompt;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
@@ -24,6 +17,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\GithubRepo;
 use DrevOps\VortexInstaller\Prompts\Handlers\GithubToken;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
@@ -39,26 +33,32 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\ThemeRunner;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
+use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
+use DrevOps\VortexInstaller\Utils\Composer;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
+use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Git;
+use DrevOps\VortexInstaller\Utils\Tui;
 use Laravel\Prompts\Key;
+use Laravel\Prompts\Prompt;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Yaml\Yaml;
 
-#[CoversClass(PromptManager::class)]
-#[CoversClass(Tui::class)]
-#[CoversClass(Env::class)]
-#[CoversClass(Converter::class)]
-#[CoversClass(Composer::class)]
+#[CoversClass(AiCodeInstructions::class)]
 #[CoversClass(AssignAuthorPr::class)]
 #[CoversClass(CiProvider::class)]
 #[CoversClass(CodeProvider::class)]
+#[CoversClass(Composer::class)]
+#[CoversClass(Converter::class)]
 #[CoversClass(DatabaseDownloadSource::class)]
 #[CoversClass(DatabaseImage::class)]
 #[CoversClass(DependencyUpdatesProvider::class)]
 #[CoversClass(DeployType::class)]
 #[CoversClass(Domain::class)]
+#[CoversClass(Env::class)]
 #[CoversClass(GithubRepo::class)]
 #[CoversClass(GithubToken::class)]
 #[CoversClass(HostingProvider::class)]
@@ -72,10 +72,12 @@ use Symfony\Component\Yaml\Yaml;
 #[CoversClass(PreserveDocsOnboarding::class)]
 #[CoversClass(PreserveDocsProject::class)]
 #[CoversClass(Profile::class)]
+#[CoversClass(PromptManager::class)]
 #[CoversClass(ProvisionType::class)]
 #[CoversClass(Services::class)]
 #[CoversClass(Theme::class)]
 #[CoversClass(ThemeRunner::class)]
+#[CoversClass(Tui::class)]
 #[CoversClass(Webroot::class)]
 class PromptManagerTest extends UnitTestCase {
 
@@ -203,6 +205,7 @@ class PromptManagerTest extends UnitTestCase {
       LabelMergeConflictsPr::id() => TRUE,
       PreserveDocsProject::id() => TRUE,
       PreserveDocsOnboarding::id() => TRUE,
+      AiCodeInstructions::id() => AiCodeInstructions::NONE,
     ];
 
     $expected_installed = [
@@ -525,7 +528,8 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/docker-compose.yml', <<<'YAML'
 - !text |
   first line
-YAML);
+YAML
+          );
         },
       ],
       'services - discovery - none' => [
@@ -821,20 +825,30 @@ YAML);
           File::dump(static::$sut . '/docs/onboarding.md');
         },
       ],
-      'preserve onboarding checklist - discovery - removed' => [
+
+      'ai instructions - discovery' => [
         [],
-        [PreserveDocsOnboarding::id() => FALSE] + $expected_installed,
+        [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          File::dump(static::$sut . '/CLAUDE.md');
+        },
+      ],
+      'ai instructions - discovery - removed' => [
+        [],
+        [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
         },
       ],
-      'preserve onboarding checklist - discovery - non-Vortex' => [
+      'ai instructions - discovery - non-Vortex' => [
         [],
-        [PreserveDocsOnboarding::id() => TRUE] + $expected_defaults,
+        [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          File::dump(static::$sut . '/docs/onboarding.md');
+          File::dump(static::$sut . '/CLAUDE.md');
         },
       ],
+
     ];
   }
 

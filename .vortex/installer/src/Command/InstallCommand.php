@@ -350,7 +350,7 @@ EOF
 
   protected function header(): void {
     $logo = <<<EOT
--------------------------------------------------------------------------------
+────────────────────────────────────────────────────────────────────────────────
 
             ██╗   ██╗  ██████╗  ██████╗  ████████╗ ███████╗ ██╗  ██╗
             ██║   ██║ ██╔═══██╗ ██╔══██╗ ╚══██╔══╝ ██╔════╝ ╚██╗██╔╝
@@ -362,7 +362,7 @@ EOF
                            Drupal project template
 
                                                                    by DrevOps
--------------------------------------------------------------------------------
+────────────────────────────────────────────────────────────────────────────────
 EOT;
 
     // Print the logo only if the terminal is wide enough.
@@ -375,13 +375,13 @@ EOT;
 
     $ref = $this->config->get(Config::REF);
     if ($ref == Downloader::REF_STABLE) {
-      $content .= 'This will install the latest version of Vortex into your project.' . PHP_EOL;
+      $content .= 'This tool will guide you through installing the latest version of Vortex into your project.' . PHP_EOL;
     }
     elseif ($ref == Downloader::REF_HEAD) {
-      $content .= 'This will install the latest development version of Vortex into your project.' . PHP_EOL;
+      $content .= 'This tool will guide you through installing the latest development version of Vortex into your project.' . PHP_EOL;
     }
     else {
-      $content .= sprintf('This will install Vortex into your project at commit "%s".', $ref) . PHP_EOL;
+      $content .= sprintf('This tool will guide you through installing the version of Vortex into your project at commit "%s".', $ref) . PHP_EOL;
     }
 
     $content .= PHP_EOL;
@@ -399,12 +399,13 @@ EOT;
       $title = 'Welcome to Vortex non-interactive installer';
     }
     else {
-      $content .= 'Please answer the questions below to install configuration relevant to your site.' . PHP_EOL;
-      $content .= 'No changes will be applied until the last confirmation step.' . PHP_EOL;
+      $content .= 'You’ll be asked a few questions to tailor the configuration to your site.' . PHP_EOL;
+      $content .= 'No changes will be made until you confirm everything at the end.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Existing committed files may be modified. You will need to resolve any changes manually.' . PHP_EOL;
+      $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve any changes manually.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Press Ctrl+C at any time to exit this installer.' . PHP_EOL;
+      $content .= 'Press Ctrl+C at any time to exit the installer.' . PHP_EOL;
+      $content .= 'Press Ctrl+U at any time to go back to the previous step.' . PHP_EOL;
     }
 
     Tui::box($content, $title);
