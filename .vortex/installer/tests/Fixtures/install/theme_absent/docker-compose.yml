@@ -1,7 +1,7 @@
-@@ -52,7 +52,6 @@
-   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
-   # Pass-through 'CI' variable used to identify the CI environment.
-   CI: ${CI:-}
+@@ -56,7 +56,6 @@
+   DATABASE_CHARSET: utf8mb4
+   # Local database collation (variable is not used in hosting environment).
+   DATABASE_COLLATION: utf8mb4_general_ci
 -  DRUPAL_THEME: ${DRUPAL_THEME:-}
    # Path to configuration files.
    DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}

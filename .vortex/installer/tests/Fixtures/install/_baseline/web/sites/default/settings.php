@@ -123,6 +123,8 @@ $databases = [
           'password' => getenv('DATABASE_PASSWORD') ?: getenv('MARIADB_PASSWORD') ?: 'drupal',
           'host' => getenv('DATABASE_HOST') ?: getenv('MARIADB_HOST') ?: 'localhost',
           'port' => getenv('DATABASE_PORT') ?: getenv('MARIADB_PORT') ?: '',
+          'charset' => getenv('DATABASE_CHARSET') ?: getenv('MARIADB_CHARSET') ?: getenv('MYSQL_CHARSET') ?: 'utf8mb4',
+          'collation' => getenv('DATABASE_COLLATION') ?: getenv('MARIADB_COLLATION') ?: getenv('MYSQL_COLLATION') ?: 'utf8mb4_general_ci',
           'prefix' => '',
           'driver' => 'mysql',
         ],

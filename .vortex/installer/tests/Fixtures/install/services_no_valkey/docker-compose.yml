@@ -1,4 +1,4 @@
-@@ -62,8 +62,6 @@
+@@ -66,8 +66,6 @@
    # Drupal Shield credentials.
    DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
@@ -7,7 +7,7 @@
  
  # ------------------------------------------------------------------------------
  # Services.
-@@ -131,9 +129,6 @@
+@@ -135,9 +133,6 @@
        <<: *default-environment
      ports:
        - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
