@@ -84,14 +84,9 @@ that case, use `ahoy build`.
 Provided that your stack is already running:
 
 ```bash
-ahoy drush sql-drop -y;
-ahoy drush sql-cli < .data/db.sql
-```
+ahoy import-db
 
-But better:
-
-```bash
-VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ahoy provision
+ahoy import-db .data/db_custom.sql
 ```
 
 ## How to add Drupal modules
