@@ -6,7 +6,7 @@ Feature: Homepage
   @api
   Scenario: Anonymous user visits homepage
     Given I go to the homepage
-    And the path should be "<front>"
+    And the path should be "nonexisting"
     Then I save screenshot
 
   @api @javascript
