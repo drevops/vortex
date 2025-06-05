@@ -306,6 +306,7 @@ jobs:
 
       - name: Upload test artifacts
         uses: actions/upload-artifact@__VERSION__
+        if: always()
         with:
           name: test-artifacts-${{ matrix.instance }}
           path: .logs
