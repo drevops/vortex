@@ -69,7 +69,7 @@ tasks:
             # Never overwrite existing DB when production site already exists.
             export VORTEX_PROVISION_OVERRIDE_DB=0
             # Never unblock admin user in production.
-            export DRUPAL_UNBLOCK_ADMIN=0
+            export VORTEX_UNBLOCK_ADMIN=0
             # Never sanitize DB in production.
             export VORTEX_PROVISION_SANITIZE_DB_SKIP=1
           fi

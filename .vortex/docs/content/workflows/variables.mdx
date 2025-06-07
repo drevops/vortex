@@ -248,14 +248,6 @@ Default value: `your_site_theme`
 
 Defined in: `.env`
 
-### `DRUPAL_UNBLOCK_ADMIN`
-
-Unblock admin account when logging in.
-
-Default value: `1`
-
-Defined in: `.env`, `scripts/vortex/login.sh`, `scripts/vortex/logout.sh`
-
 ### `DRUPAL_VALKEY_ENABLED`
 
 Enable Valkey integration.<br/>See settings.redis.php for details.
@@ -1877,6 +1869,14 @@ SSH key fingerprint used to connect to a remote.
 Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/task-custom-lagoon.sh`
+
+### `VORTEX_UNBLOCK_ADMIN`
+
+Unblock admin account when logging in.
+
+Default value: `1`
+
+Defined in: `.env`, `scripts/vortex/login.sh`, `scripts/vortex/logout.sh`
 
 ### `WEBROOT`
 
