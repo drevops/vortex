@@ -11,7 +11,7 @@
         ":prHourlyLimit2"
     ],
     "rangeStrategy": "update-lockfile",
-    "timezone": "Australia/Melbourne",
+    "timezone": "UTC",
     "configMigration": true,
     "enabledManagers": [
         "composer",

@@ -35,7 +35,7 @@
 -    usage: Lint front-end code.
 -    cmd: |
 -      ahoy cli vendor/bin/twig-cs-fixer lint
--      ahoy cli "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+-      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
 -
    lint-tests:
      usage: Lint tests code.
@@ -58,7 +58,7 @@
 -    usage: Fix lint issues of front-end code.
 -    cmd: |
 -      ahoy cli vendor/bin/twig-cs-fixer lint --fix
--      ahoy cli "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+-      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  
    test:
      usage: Run all tests.

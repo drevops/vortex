@@ -2,15 +2,22 @@
 hide:
   - toc
 ---
+
 # Architecture
 
 **Vortex** offers a pre-configured project template that is reliable, tested and
 ready-to-use. Its main goal is to streamline onboarding, making it as quick and
 efficient as possible.
 
+This page describes the architecture of **Vortex** and how it is structured to
+provide a consistent developer experience across all projects that use it.
+Specifics of every feature are described in the corresponding sections of this
+documentation.
+
 ## Zen of **Vortex**
 
-Similar to [Zen of Python](https://www.python.org/dev/peps/pep-0020/), **Vortex**
+Similar to [Zen of Python](https://www.python.org/dev/peps/pep-0020/), **Vortex
+**
 is built on its own set of principles:
 
 * Simple is better than complex.
@@ -18,6 +25,13 @@ is built on its own set of principles:
 * Errors should never pass silently.
 * Readability counts.
 * Explicit logging helps.
+
+## System components
+
+<picture style={{ display: 'block', textAlign: 'center' }}>
+<img src="/img/diagram-dark.png#gh-dark-mode-only" alt="System components"/>
+<img src="/img/diagram-light.png#gh-light-mode-only" alt="System components"/>
+</picture>
 
 ## Repository structure
 
@@ -45,7 +59,7 @@ with addition of several configuration files and directories.
 │   ├── default              #   Default configuration.
 │   ├── dev                  #   Config split configuration for DEV environment.
 │   ├── local                #   Config split configuration for local environment.
-│   └── test                 #   Config split configuration for test environment.
+│   └── stage                #   Config split configuration for stage environment.
 ├── docs                     # Your project documentation.
 ├── drush                    # Drush configuration files.
 ├── hooks                    # Acquia hooks. Removed if not using Acquia hosting.
@@ -53,6 +67,7 @@ with addition of several configuration files and directories.
 │   ├── library              #   Library of hook implementations.
 │   └── prod                 #   Hook implementations that run in prod environment.
 ├── patches                  # Patches for packages.
+├── recipes                  # Custom recipes directory.
 ├── scripts                  # Composer, Vortex and custom project scripts.
 │   ├── composer             #   Composer scripts.
 │   ├── custom               #   Custom project scripts.
@@ -76,23 +91,27 @@ with addition of several configuration files and directories.
 ├── .env                     # Environment variables to control project workflow using variables.
 ├── .env.local.example       # Environment variables local overrides.
 ├── .gitignore               # Intentionally untracked files to ignore in Git.
-├── .gitignore.artifact    # Intentionally untracked files to ignore in artifact deployment.
+├── .gitignore.artifact      # Intentionally untracked files to ignore in artifact deployment.
 ├── .lagoon.yml              # Lagoon configuration file. Removed if not using Lagoon hosting.
 ├── .twig-cs-fixer.php       # Twig CS Fixer configuration file.
 ├── behat.yml                # Behat configuration file.
+├── CLAUDE.md                # Claude Code development guide.
 ├── composer.json            # Composer configuration file.
 ├── docker-compose.yml       # Docker Compose configuration file.
+├── gherkinlint.json         # Gherkin Lint configuration file.
 ├── phpcs.xml                # PHP CodeSniffer configuration file.
 ├── phpmd.xml                # PHP Mess Detector configuration file.
 ├── phpstan.neon             # PHPStan configuration file.
 ├── phpunit.xml              # PHPUnit configuration file.
 ├── README.md                # Project main readme file.
+├── rector.php               # Rector configuration file.
 └── renovate.json            # Renovate configuration file.
 ```
 
 ## Scripts
 
-**Vortex** provides a set of [POSIX](https://en.wikipedia.org/wiki/POSIX)-compliant
+**Vortex** provides a set of [POSIX](https://en.wikipedia.org/wiki/POSIX)
+-compliant
 shell scripts designed to orchestrate workflows.
 
 During installation, the scripts are added to your project repository into
@@ -104,17 +123,18 @@ compile sources, or waiting for someone upstream to update the code.
 
 :::note
 
-    We are [looking into providing](https://github.com/drevops/vortex/issues/1198) `pre-` and `post-` hooks for scripts so
-    that you can extend the functionality without modifying the original source
-    code.
+    We are [looking into providing](https://github.com/drevops/vortex/issues/1198)
+    `pre-` and `post-` hooks for scripts so that you can extend the
+    functionality without modifying the original source code.
 
-    This will also alow us to extract the scripts into a separate repository
+    This will also allow us to extract the scripts into a separate repository
     that can be included in your project as a Composer package.
+
 :::
 
 ### Centralised workflows
 
-> A workflow is a sequence of steps or tasks to accomplish a specific goal.
+> _A workflow is a sequence of steps or tasks to accomplish a specific goal._
 
 **Vortex** comes with as set of pre-defined workflow scripts used to
 standardise the development process.
@@ -128,7 +148,8 @@ provision a website in a consistent way, allowing to alter the flow using
 scripts.
 
 The scripts aim to centralize workflows instead of adjusting them for every
-environment (local, CI, dev, prod, etc.), reducing multiple points of failure.
+environment (local, CI, dev, prod, etc.), reducing **multiple points of failure
+**.
 This means that a developer updating a workflow for local environment, for
 example, will not accidentally forget to update it for the CI environment, and
 so on.
@@ -147,13 +168,12 @@ In the diagram below, the `download-db.sh` and `provision.sh` scripts are
     subgraph Scripts
         direction TB
         D["download-db.sh"] -.-> E["provision.sh"]
+        E["provision.sh"] -.-> F["deploy.sh"]
+        F["deploy.sh"] -.-> G["notify.sh"]
     end
 
     A --> Scripts
-    A --> Scripts
     B --> Scripts
-    B --> Scripts
-    C --> Scripts
     C --> Scripts
 ```
 
@@ -161,7 +181,7 @@ See [Workflows](../../workflows) section for more details.
 
 ### Router scripts
 
-The script from the example above is a _router_ script that invokes other,
+The scripts from the example above are _router_ script that invokes other,
 more specific scripts (by sourcing them) based on the project configuration.
 This design **keeps the entry point consistent** while allowing implementation
 updates as needed without modifying the entry point in multiple places.
@@ -181,7 +201,8 @@ In this example, changing the database download source from `lagoon` to `s3`
 would not require changes to any local, CI, or hosting scripts.
 
 In addition, a developer would not need to learn how to use `s3` to
-download a database or even know how that download process was setup.
+download a database or even know how that download process was configured
+&mdash; they would continue using the same command wrapper command as before.
 
 If a new database download method is introduced, the router
 script `download-db.sh` can be easily extended to accommodate it,
@@ -209,7 +230,38 @@ The workflow within scripts is controlled via environment variables.
 
 To alter the workflow for a specific environment, the variables would need to be
 set within that environment via the `.env` configuration file or other means
-supported by the environment (e.g. CI  and Hosting providers support injecting
+supported by the environment (e.g. CI and Hosting providers support adding
 variables via UI).
 
 See [Variables](../workflows/variables.mdx) section for more details.
+
+## Template placeholders and tokens
+
+**Vortex** uses a system of placeholders and conditional tokens to generate
+customized projects while keeping the template structure transparent. This
+approach allows you to see exactly what your final project will look like - the
+repository structure shown above is precisely what you get after installation,
+with no files copied from hidden locations or magic transformations.
+
+### Naming placeholders
+
+Throughout the template, placeholder names are used consistently and replaced
+during installation. Examples include `your_site`, `YOURSITE`, and `ys_`, among
+many others. These placeholders ensure consistent naming patterns across all
+generated files and maintain best practices for Drupal naming conventions.
+
+### Conditional tokens
+
+Conditional tokens allow the template to include or exclude entire sections of
+code based on the features selected during installation. This keeps the
+generated project lean and relevant to your specific needs.
+
+The tokens use different syntax depending on the file type:
+
+- **Shell scripts and YAML files:** `#;< TOKEN_NAME` ... `#;> TOKEN_NAME`
+- **Markdown documentation:** `[//]: # (#;< TOKEN_NAME)` ...
+  `[//]: # (#;> TOKEN_NAME)`
+
+During installation, content wrapped in these tokens is either kept or removed
+based on your feature selections, ensuring your project contains only the
+components you actually need.

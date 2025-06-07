@@ -39,7 +39,7 @@ aliases:
         environment:
           # Set runner timezone to ensure that executed operations use correct timestamps.
           # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-          TZ: "Australia/Melbourne"
+          TZ: "UTC"
           # Set runner terminal capabilities.
           TERM: xterm-256color
           # Disable strict host key checking for SSH connections.
@@ -58,10 +58,8 @@ aliases:
           VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
           VORTEX_CI_ARTIFACTS: &artifacts /tmp/artifacts
-          # Directory to store code exported between jobs.
-          VORTEX_EXPORT_CODE_DIR: &vortex_build_export_dir /tmp/workspace/code
           # Directory to use for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_SRC: *vortex_build_export_dir
+          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
           # Source code location for artifact deployments.
           VORTEX_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
@@ -239,8 +237,9 @@ jobs:
       - run:
           name: Export built codebase
           command: |
-            mkdir -p "${VORTEX_EXPORT_CODE_DIR}"
-            docker compose cp -L cli:"/app/." "${VORTEX_EXPORT_CODE_DIR}"
+            mkdir -p "/tmp/workspace/code"
+            docker compose cp -L cli:"/app/." "/tmp/workspace/code"
+            du -sh "/tmp/workspace/code"
 
       - run:
           name: Install development dependencies

@@ -21,11 +21,11 @@ declare(strict_types=1);
 // are not present.
 //
 // Enforce Shield in all non-prod environments.
-if ($settings['environment'] != ENVIRONMENT_PROD) {
+if ($settings['environment'] !== ENVIRONMENT_PROD) {
   $config['shield.settings']['shield_enable'] = TRUE;
 
   // But bypass Shield for CI and local environments.
-  if ($settings['environment'] == ENVIRONMENT_CI || $settings['environment'] == ENVIRONMENT_LOCAL) {
+  if ($settings['environment'] === ENVIRONMENT_CI || $settings['environment'] === ENVIRONMENT_LOCAL) {
     $config['shield.settings']['shield_enable'] = FALSE;
   }
 }

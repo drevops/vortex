@@ -187,7 +187,7 @@ commands:
     usage: Lint front-end code.
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint
-      ahoy cli "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
 
   lint-tests:
     usage: Lint tests code.
@@ -208,7 +208,7 @@ commands:
     usage: Fix lint issues of front-end code.
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint --fix
-      ahoy cli "npm run --prefix \${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
 
   test:
     usage: Run all tests.
@@ -270,7 +270,7 @@ commands:
       fi
     hide: true
 
-# Override entrypoint to alter default behaviour of Ahoy.
+# Override entrypoint to alter default behavior of Ahoy.
 entrypoint:
   - bash
   - -c

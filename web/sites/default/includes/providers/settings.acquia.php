@@ -5,8 +5,8 @@
  * Acquia hosting provider settings.
  *
  * Do not place any custom settings in this file.
- * It is used to explicitly map Acquia environments to $settings['environment']
- * and set platform-specific settings only.
+ * It is used to explicitly map provider environments to
+ * $settings['environment'] and set platform-specific settings only.
  * Instead, use per-module settings files.
  *
  * @see https://docs.acquia.com/acquia-cloud/develop/env-variable

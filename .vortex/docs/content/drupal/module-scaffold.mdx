@@ -7,17 +7,18 @@ sidebar_position: 4
 [Module scaffold](https://github.com/drevops/vortex/tree/develop/web/modules/custom/ys_base)
 is an example of a Drupal module.
 
-We recommend creating a custom `ys_base` module for your project to place
-custom functionality that is not specific to a feature that can be placed in
-a dedicated self-contained module.
+We recommend creating a custom `ys_base` module for your project to hold
+general-purpose functionality that doesn’t belong in a dedicated,
+feature-specific module.
 
 The `ys` prefix is abbreviated from your project name (`your_site` in this case).
-We recommend using this technique to prefix all modules, and use the site full
-name for a theme name (`yoursite` in this case).
+We recommend using this technique to prefix all modules, and use the site
+machine name for a theme name.
 
 ## Deploy file
 
-The `ys_base.deploy` file is an example of a Drush deploy file that can be used
+The [`ys_base.deploy.php`](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_base/ys_base.deploy.php)
+file is an example of a Drush deploy file that can be used
 to run deployment commands during the site [provisioning](provision) process.
 
 ## Tests scaffold
@@ -26,4 +27,9 @@ The `tests` directory contains working examples of tests that can be used as a
 starting point in your project.
 
 It also has a set of helper `Traits` that you may find useful when writing your
-tests. Or simply remove them if you do not find them useful.
+tests. Simply remove them if you do not find them useful.
+
+---
+
+See [Development](/workflows/development) for more details on how to work with
+the custom modules.

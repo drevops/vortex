@@ -184,7 +184,7 @@ Defined in: `docker-compose.yml`
 
 ### `DRUPAL_PROFILE`
 
-Drupal profile name (used only when installing from profile).
+Drupal profile name.
 
 Default value: `standard`
 
@@ -324,6 +324,14 @@ Default value: `'Renovate Self Hosted <renovatebot@your-site-domain.example>'`
 
 Defined in: `CI config`
 
+### `RENOVATE_REPOSITORIES`
+
+Renovate repositories to manage.<br/>Set as "organization/repository".
+
+Default value: `UNDEFINED`
+
+Defined in: `CI config`
+
 ### `RENOVATE_TOKEN`
 
 Self-hosted Renovate bot token.<br/>Create a GitHub token with a permission to write to a repository.
@@ -342,9 +350,9 @@ Defined in: `scripts/vortex/task-purge-cache-acquia.sh`
 
 ### `TZ`
 
-The timezone used in the containers.
+The timezone used within the containers.
 
-Default value: `Australia/Melbourne`
+Default value: `UTC`
 
 Defined in: `.env`
 
@@ -522,6 +530,8 @@ Defined in: `.env.local.example`, `scripts/vortex/login-container-registry.sh`
 
 Database dump directory.
 
+The directory is used to store the database dump files for import and export.
+
 Default value: `./.data`
 
 Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-container-registry.sh`, `scripts/vortex/download-db-ftp.sh`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/download-db-url.sh`, `scripts/vortex/download-db.sh`, `scripts/vortex/provision.sh`
@@ -684,7 +694,7 @@ Defined in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_URL`
 
-Database dump file sourced from CURL.
+Database dump file sourced from a URL.
 
 HTTP Basic Authentication credentials should be embedded into the value.
 
@@ -743,6 +753,8 @@ Defined in: `scripts/vortex/export-db-image.sh`
 ### `VORTEX_DB_FILE`
 
 Database dump file name.
+
+The file is used to import the database into an empty database container.
 
 Default value: `db.sql`
 
@@ -1101,14 +1113,6 @@ Default value: `${VORTEX_CONTAINER_REGISTRY_USER}`
 
 Defined in: `scripts/vortex/download-db-container-registry.sh`
 
-### `VORTEX_EXPORT_CODE_DIR`
-
-Directory to store exported code.
-
-Default value: `UNDEFINED`
-
-Defined in: `CI config`
-
 ### `VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED`
 
 Proceed with container image deployment after it was exported.
@@ -1169,9 +1173,13 @@ Defined in: `.env`
 
 ### `VORTEX_LOCALDEV_URL`
 
-Local development URL.<br/>Override only if you need to use a different URL than the default.
+Local development URL.
 
-Default value: `<current_dir>.docker.amazee.io`
+Based on the [`$COMPOSE_PROJECT_NAME`](#compose_project_name) environment variable, which is set by<br/>Docker Compose to the name of the project directory.
+
+Override only if you need to use a different URL than the default.
+
+Default value: `example-site.docker.amazee.io`
 
 Defined in: `.env.local.example`, `scripts/vortex/info.sh`
 
@@ -1187,7 +1195,7 @@ Defined in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify-jira.sh`
 
 The channels of the notifications.
 
-Can be a combination of comma-separated values: email,newrelic,github,jira
+A combination of comma-separated values: email,newrelic,github,jira
 
 Default value: `email`
 
@@ -1203,7 +1211,9 @@ Defined in: `scripts/vortex/notify-email.sh`
 
 ### `VORTEX_NOTIFY_EMAIL_FROM`
 
-Email to send notifications from.
+An email address to send notifications from.
+
+Applies to email notifications.
 
 Default value: `webmaster@your-site-domain.example`
 
@@ -1228,6 +1238,8 @@ Defined in: `scripts/vortex/notify-email.sh`
 ### `VORTEX_NOTIFY_EMAIL_RECIPIENTS`
 
 Email address(es) to send notifications to.
+
+Applies to email notifications.
 
 Multiple names can be specified as a comma-separated list of email addresses<br/>with optional names in the format "email|name".<br/>Example: "to1@example.com|Jane Doe, to2@example.com|John Doe"
 
@@ -1551,7 +1563,7 @@ Defined in: `scripts/vortex/provision-sanitize-db.sh`
 
 Sanitization email pattern.
 
-Applied if database sanitization is enabled.<br/>@see https://vortex.drevops.com/workflows/build#sanitization
+Applied if database sanitization is enabled.<br/>@see https://vortex.drevops.com/drupal/provision#database-sanitization
 
 Default value: `user_%uid@your-site-domain.example`
 
@@ -1559,7 +1571,7 @@ Defined in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
 
 ### `VORTEX_PROVISION_SANITIZE_DB_PASSWORD`
 
-Password replacement used for sanitised database.
+Password replacement used for sanitized database.
 
 Default value: `<RANDOM STRING>`
 
@@ -1577,7 +1589,7 @@ Defined in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
 
 Skip database sanitization.
 
-Database sanitization is enabled by default in all non-production<br/>environments and is always skipped in the production environment.
+Database sanitization is enabled by default in all non-production<br/>environments and is always skipped in the production environment.<br/>@see https://vortex.drevops.com/drupal/provision#database-sanitization
 
 Default value: `UNDEFINED`
 

@@ -40,10 +40,12 @@ class HostingProvider extends AbstractHandler {
 
     if ($v === static::ACQUIA) {
       File::removeTokenAsync('!HOSTING_ACQUIA');
+      File::removeTokenAsync('!SETTINGS_PROVIDER_ACQUIA');
       $this->removeLagoon();
     }
     elseif ($v === static::LAGOON) {
       File::removeTokenAsync('!HOSTING_LAGOON');
+      File::removeTokenAsync('!SETTINGS_PROVIDER_LAGOON');
       $this->removeAcquia();
     }
     else {
@@ -58,6 +60,7 @@ class HostingProvider extends AbstractHandler {
     @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.acquia.php', $this->tmpDir, $this->webroot));
 
     File::removeTokenAsync('HOSTING_ACQUIA');
+    File::removeTokenAsync('SETTINGS_PROVIDER_ACQUIA');
   }
 
   protected function removeLagoon(): void {
@@ -67,6 +70,7 @@ class HostingProvider extends AbstractHandler {
     @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.lagoon.php', $this->tmpDir, $this->webroot));
 
     File::removeTokenAsync('HOSTING_LAGOON');
+    File::removeTokenAsync('SETTINGS_PROVIDER_LAGOON');
   }
 
 }

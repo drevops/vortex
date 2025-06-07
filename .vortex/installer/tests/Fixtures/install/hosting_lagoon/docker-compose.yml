@@ -4,7 +4,7 @@
  # Environment variables set in all containers during build and runtime.
 +# Note that these variables are not read from here in Lagoon environment.
  x-environment: &default-environment
-   TZ: ${TZ:-Australia/Melbourne}
+   TZ: ${TZ:-UTC}
    # Pass-through 'CI' variable used to identify the CI environment.
 @@ -90,6 +91,10 @@
      # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
