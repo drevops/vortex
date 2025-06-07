@@ -47,6 +47,7 @@ class ModulePrefix extends AbstractHandler {
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_base', $v . '_base');
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_search', $v . '_search');
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsBase', Converter::pascal($v) . 'Base');
+    File::renameInDir($t . sprintf('/%s/sites/default/includes', $w), 'ys_base', $v . '_base');
   }
 
 }

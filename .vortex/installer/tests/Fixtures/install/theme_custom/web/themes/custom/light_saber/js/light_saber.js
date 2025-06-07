@@ -1,6 +1,6 @@
 /**
  * @file
- * Global theme behaviours.
+ * Global theme behaviors.
  */
 
 (function ($, Drupal) {

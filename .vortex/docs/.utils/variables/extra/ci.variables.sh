@@ -9,9 +9,6 @@ VORTEX_DEPLOY_SKIP=
 # Proceed with container image deployment after it was exported.
 VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=
 
-# Directory to store exported code.
-VORTEX_EXPORT_CODE_DIR=
-
 # Ignore Hadolint failures.
 VORTEX_CI_HADOLINT_IGNORE_FAILURE=0
 
@@ -69,3 +66,7 @@ RENOVATE_DRY_RUN=false
 
 # Commit author for self-hosted Renovate bot.
 RENOVATE_GIT_AUTHOR='Renovate Self Hosted <renovatebot@your-site-domain.example>'
+
+# Renovate repositories to manage.
+# Set as "organization/repository".
+RENOVATE_REPOSITORIES=

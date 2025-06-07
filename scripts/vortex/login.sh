@@ -9,7 +9,7 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Flag to block or unblock admin.
+# Flag to unblock admin.
 DRUPAL_UNBLOCK_ADMIN="${DRUPAL_UNBLOCK_ADMIN:-1}"
 
 # ------------------------------------------------------------------------------

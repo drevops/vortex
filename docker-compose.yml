@@ -41,7 +41,7 @@ x-user: &default-user
 # Note that these variables are not read from here in Lagoon environment.
 #;> HOSTING_LAGOON
 x-environment: &default-environment
-  TZ: ${TZ:-Australia/Melbourne}
+  TZ: ${TZ:-UTC}
   # Pass-through 'CI' variable used to identify the CI environment.
   CI: ${CI:-}
   # Pass-through 'XDEBUG_ENABLE' to enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker compose up -d".

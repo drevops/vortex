@@ -1,5 +1,5 @@
-@@ -50,6 +50,49 @@
-         static::ENVIRONMENT_CI,
+@@ -58,6 +58,50 @@
+         static::ENVIRONMENT_LOCAL,
        ],
  
 +      // Acquia.
@@ -45,13 +45,17 @@
 +        ],
 +        static::ENVIRONMENT_DEV,
 +      ],
++
      ];
    }
  
-@@ -182,6 +225,164 @@
-       '^.+\.docker\.amazee\.io$',
-       '^nginx$',
-     ];
+@@ -309,6 +353,170 @@
+     $settings['maintenance_theme'] = 'claro';
+     $settings['skip_permissions_hardening'] = TRUE;
+     $settings['suspend_mail_send'] = TRUE;
++    $settings['trusted_host_patterns'] = [
++      '^localhost$',
++    ];
 +    $this->assertSettings($settings);
 +  }
 +
@@ -74,8 +78,6 @@
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
-+    $config['system.performance']['css']['preprocess'] = 1;
-+    $config['system.performance']['js']['preprocess'] = 1;
 +    $this->assertConfig($config);
 +
 +    $settings['config_exclude_modules'] = [];
@@ -83,15 +85,18 @@
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_DEV;
++    $settings['file_public_path'] = static::PUBLIC_PATH_TESTING;
 +    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
++    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
 +    $settings['file_scan_ignore_directories'] = [
 +      'node_modules',
 +      'bower_components',
 +    ];
-+    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
-+    $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
-+    $settings['trusted_host_patterns'][] = '^nginx$';
++    $settings['maintenance_theme'] = 'claro';
++    $settings['trusted_host_patterns'] = [
++      '^localhost$',
++    ];
 +    $this->assertSettings($settings);
 +  }
 +
@@ -114,8 +119,6 @@
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
-+    $config['system.performance']['css']['preprocess'] = 1;
-+    $config['system.performance']['js']['preprocess'] = 1;
 +    $this->assertConfig($config);
 +
 +    $settings['config_exclude_modules'] = [];
@@ -123,15 +126,18 @@
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_DEV;
++    $settings['file_public_path'] = static::PUBLIC_PATH_TESTING;
 +    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
++    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
 +    $settings['file_scan_ignore_directories'] = [
 +      'node_modules',
 +      'bower_components',
 +    ];
-+    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
-+    $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
-+    $settings['trusted_host_patterns'][] = '^nginx$';
++    $settings['maintenance_theme'] = 'claro';
++    $settings['trusted_host_patterns'] = [
++      '^localhost$',
++    ];
 +    $this->assertSettings($settings);
 +  }
 +
@@ -154,8 +160,6 @@
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
-+    $config['system.performance']['css']['preprocess'] = 1;
-+    $config['system.performance']['js']['preprocess'] = 1;
 +    $this->assertConfig($config);
 +
 +    $settings['config_exclude_modules'] = [];
@@ -163,15 +167,18 @@
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_STAGE;
++    $settings['file_public_path'] = static::PUBLIC_PATH_TESTING;
 +    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
++    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
 +    $settings['file_scan_ignore_directories'] = [
 +      'node_modules',
 +      'bower_components',
 +    ];
-+    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
-+    $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
-+    $settings['trusted_host_patterns'][] = '^nginx$';
++    $settings['maintenance_theme'] = 'claro';
++    $settings['trusted_host_patterns'] = [
++      '^localhost$',
++    ];
 +    $this->assertSettings($settings);
 +  }
 +
@@ -192,8 +199,8 @@
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
-+    $config['system.performance']['css']['preprocess'] = 1;
-+    $config['system.performance']['js']['preprocess'] = 1;
++    $config['system.performance']['css']['preprocess'] = TRUE;
++    $config['system.performance']['js']['preprocess'] = TRUE;
 +    $this->assertConfig($config);
 +
 +    $settings['config_exclude_modules'] = [];
@@ -201,15 +208,15 @@
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_PROD;
++    $settings['file_public_path'] = static::PUBLIC_PATH_TESTING;
 +    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
++    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
 +    $settings['file_scan_ignore_directories'] = [
 +      'node_modules',
 +      'bower_components',
 +    ];
-+    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
-+    $settings['trusted_host_patterns'][] = '^.+\.docker\.amazee\.io$';
-+    $settings['trusted_host_patterns'][] = '^nginx$';
-     $this->assertSettings($settings);
-   }
- 
++    $settings['maintenance_theme'] = 'claro';
+     $settings['trusted_host_patterns'] = [
+       '^localhost$',
+     ];

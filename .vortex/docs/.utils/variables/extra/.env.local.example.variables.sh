@@ -5,8 +5,12 @@
 # shellcheck disable=SC2034
 
 # Local development URL.
+#
+# Based on the `$COMPOSE_PROJECT_NAME` environment variable, which is set by
+# Docker Compose to the name of the project directory.
+#
 # Override only if you need to use a different URL than the default.
-VORTEX_LOCALDEV_URL="<current_dir>.docker.amazee.io"
+VORTEX_LOCALDEV_URL="${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io"
 
 # Set to `1` to override existing downloaded DB dump without asking.
 VORTEX_DB_DOWNLOAD_FORCE=

@@ -1351,7 +1351,7 @@ sync_to_container() {
 
 # Special treatment for cases where volumes are not mounted from the host.
 fix_host_dependencies() {
-  # Replicate behaviour of .vortex/installer/install script to extract destination directory
+  # Replicate behavior of .vortex/installer/install script to extract destination directory
   # passed as an argument.
   # shellcheck disable=SC2235
   ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift

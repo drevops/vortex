@@ -211,7 +211,7 @@ assert_env_changes() {
   assert_output_contains "my_custom_var_value"
   assert_success
 
-  # Restore file, apply changes and assert that original behaviour has been restored.
+  # Restore file, apply changes and assert that original behavior has been restored.
   restore_file ".env"
   ahoy up cli
   sync_to_container
@@ -229,16 +229,15 @@ assert_timezone() {
   step "Check that timezone can be applied"
 
   # Assert that .env contains a default value.
-  # Note that AEDT changes to AEST during winter.
-  assert_file_contains ".env" 'TZ="Australia/Melbourne"'
+  assert_file_contains ".env" 'TZ=UTC'
   run docker compose exec cli date
-  assert_output_contains "AE"
+  assert_output_contains "UTC"
   run docker compose exec php date
-  assert_output_contains "AE"
+  assert_output_contains "UTC"
   run docker compose exec nginx date
-  assert_output_contains "AE"
+  assert_output_contains "UTC"
   run docker compose exec database date
-  assert_output_contains "AE"
+  assert_output_contains "UTC"
 
   # Add variable to the .env file and apply the change to container.
   add_var_to_file .env "TZ" '"Australia/Perth"'
@@ -254,7 +253,7 @@ assert_timezone() {
   run docker compose exec database date
   assert_output_contains "AWST"
 
-  # Restore file, apply changes and assert that original behaviour has been restored.
+  # Restore file, apply changes and assert that original behavior has been restored.
   restore_file ".env"
   sync_to_container
   run ahoy up

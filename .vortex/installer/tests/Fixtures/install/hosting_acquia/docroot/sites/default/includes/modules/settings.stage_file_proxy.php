@@ -8,7 +8,7 @@
 declare(strict_types=1);
 
 $origin = getenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN');
-if (!empty($origin) && $settings['environment'] != ENVIRONMENT_PROD) {
+if (!empty($origin) && $settings['environment'] !== ENVIRONMENT_PROD) {
   $user = getenv('DRUPAL_SHIELD_USER');
   $pass = getenv('DRUPAL_SHIELD_PASS');
   if (!empty($user) && !empty($pass)) {

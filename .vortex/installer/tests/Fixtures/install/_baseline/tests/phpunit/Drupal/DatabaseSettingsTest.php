@@ -40,7 +40,7 @@ class DatabaseSettingsTest extends SettingsTestCase {
               'username' => 'drupal',
               'password' => 'drupal',
               'host' => 'localhost',
-              'port' => '',
+              'port' => '3306',
               'charset' => 'utf8mb4',
               'collation' => 'utf8mb4_general_ci',
               'driver' => 'mysql',

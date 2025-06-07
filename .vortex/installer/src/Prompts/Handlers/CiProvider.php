@@ -58,13 +58,17 @@ class CiProvider extends AbstractHandler {
 
     if ($remove_gha) {
       @unlink($this->tmpDir . '/.github/workflows/build-test-deploy.yml');
+      @unlink($this->tmpDir . '/' . $this->webroot . '/sites/default/includes/providers/settings.gha.php');
       File::removeTokenAsync('CI_PROVIDER_GHA');
+      File::removeTokenAsync('SETTINGS_PROVIDER_GHA');
     }
 
     if ($remove_circleci) {
       File::rmdir($this->tmpDir . '/.circleci');
+      @unlink($this->tmpDir . '/' . $this->webroot . '/sites/default/includes/providers/settings.circleci.php');
       @unlink($this->tmpDir . '/tests/phpunit/CircleCiConfigTest.php');
       File::removeTokenAsync('CI_PROVIDER_CIRCLECI');
+      File::removeTokenAsync('SETTINGS_PROVIDER_CIRCLECI');
     }
 
     if ($remove_gha && $remove_circleci) {
