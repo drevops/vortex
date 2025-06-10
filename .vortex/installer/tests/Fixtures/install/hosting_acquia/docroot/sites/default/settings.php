@@ -52,7 +52,7 @@ $databases = [
 
 $app_root = $app_root ?? DRUPAL_ROOT;
 $site_path = $site_path ?? 'sites/default';
-$contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir($app_root . DIRECTORY_SEPARATOR . 'modules/contrib') ? 'modules/contrib' : 'modules');
+$contrib_path = $app_root . '/' . (is_dir($app_root . '/modules/contrib') ? 'modules/contrib' : 'modules');
 
 // Public files directory relative to the Drupal root.
 $settings['file_public_path'] = getenv('DRUPAL_PUBLIC_FILES') ?: 'sites/default/files';
@@ -71,7 +71,7 @@ if (!empty(getenv('DRUPAL_CONFIG_PATH'))) {
 }
 
 // Load services definition file.
-$settings['container_yamls'][] = $app_root . DIRECTORY_SEPARATOR . $site_path . DIRECTORY_SEPARATOR . 'services.yml';
+$settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 
 // Use DRUPAL_HASH_SALT or the database host name for salt.
 $settings['hash_salt'] = getenv('DRUPAL_HASH_SALT') ?: hash('sha256', $databases['default']['default']['host']);
