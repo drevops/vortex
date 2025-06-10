@@ -159,10 +159,10 @@ abstract class SettingsTestCase extends TestCase {
       $vars['LAGOON'] = FALSE;
     }
 
-    $vars['DRUPAL_CONFIG_PATH'] = static::CONFIG_PATH_TESTING;
-    $vars['DRUPAL_PUBLIC_FILES'] = static::PUBLIC_PATH_TESTING;
-    $vars['DRUPAL_PRIVATE_FILES'] = static::PRIVATE_PATH_TESTING;
-    $vars['DRUPAL_TEMPORARY_FILES'] = static::TMP_PATH_TESTING;
+    $vars['DRUPAL_CONFIG_PATH'] = $vars['DRUPAL_CONFIG_PATH'] ?? static::CONFIG_PATH_TESTING;
+    $vars['DRUPAL_PUBLIC_FILES'] = $vars['DRUPAL_PUBLIC_FILES'] ?? static::PUBLIC_PATH_TESTING;
+    $vars['DRUPAL_PRIVATE_FILES'] = $vars['DRUPAL_PRIVATE_FILES'] ?? static::PRIVATE_PATH_TESTING;
+    $vars['DRUPAL_TEMPORARY_FILES'] = $vars['DRUPAL_TEMPORARY_FILES'] ?? static::TMP_PATH_TESTING;
 
     // Filtered real vars without a value to unset them in the lines below.
     $vars_real = self::getRealEnvVarsFilteredNoValues(static::ALLOWED_ENV_VARS);

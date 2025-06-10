@@ -49,7 +49,7 @@
      ];
    }
  
-@@ -309,6 +353,170 @@
+@@ -303,6 +347,170 @@
      $settings['maintenance_theme'] = 'claro';
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['suspend_mail_send'] = TRUE;
