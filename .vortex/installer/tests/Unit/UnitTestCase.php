@@ -38,7 +38,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected static function locationsFixturesDir(): string {
+  public static function locationsFixturesDir(): string {
     return '.vortex/installer/tests/Fixtures';
   }
 

@@ -38,7 +38,7 @@
         "drupal/drupal-extension": "^5",
         "ergebnis/composer-normalize": "^2.45",
         "mglaman/phpstan-drupal": "^1.3",
-        "palantirnet/drupal-rector": "^0.20",
+        "palantirnet/drupal-rector": "^0.21",
         "phpcompatibility/php-compatibility": "^9.3",
         "phpmd/phpmd": "^2.15",
         "phpspec/prophecy-phpunit": "^2.3",
