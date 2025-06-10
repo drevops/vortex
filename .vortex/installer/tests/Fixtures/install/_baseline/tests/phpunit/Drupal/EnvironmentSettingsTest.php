@@ -81,13 +81,12 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_SUT;
-    $settings['file_public_path'] = static::PUBLIC_PATH_TESTING;
-    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
-    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -197,13 +196,12 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_LOCAL;
-    $settings['file_public_path'] = static::PUBLIC_PATH_TESTING;
-    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
-    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -242,13 +240,12 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_LOCAL;
-    $settings['file_public_path'] = static::PUBLIC_PATH_TESTING;
-    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
-    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',
@@ -288,13 +285,12 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['config_exclude_modules'] = [];
-    $settings['config_sync_directory'] = static::CONFIG_PATH_TESTING;
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = static::ENVIRONMENT_CI;
-    $settings['file_public_path'] = static::PUBLIC_PATH_TESTING;
-    $settings['file_private_path'] = static::PRIVATE_PATH_TESTING;
-    $settings['file_temp_path'] = static::TMP_PATH_TESTING;
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
     $settings['file_scan_ignore_directories'] = [
       'node_modules',
       'bower_components',

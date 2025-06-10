@@ -1,14 +1,14 @@
-@@ -22,9 +22,6 @@
- ARG GITHUB_TOKEN=""
- ENV GITHUB_TOKEN=${GITHUB_TOKEN}
+@@ -31,9 +31,6 @@
+ ARG DRUPAL_TEMPORARY_FILES="${TMP:-/tmp}"
+ ENV DRUPAL_TEMPORARY_FILES=${DRUPAL_TEMPORARY_FILES}
  
 -ARG DRUPAL_THEME="star_wars"
 -ENV DRUPAL_THEME=${DRUPAL_THEME}
 -
- ARG DRUPAL_PUBLIC_FILES="/app/${WEBROOT}/sites/default/files"
- ENV DRUPAL_PUBLIC_FILES=${DRUPAL_PUBLIC_FILES}
- 
-@@ -74,21 +71,6 @@
+ ENV COMPOSER_ALLOW_SUPERUSER=1 \
+     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
+     SIMPLETEST_DB=mysql://drupal:drupal@database/drupal \
+@@ -71,21 +68,6 @@
  RUN if [ -n "${GITHUB_TOKEN}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN}\"}}"; fi && \
      COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
  
@@ -30,10 +30,10 @@
  # Copy all files into the application source directory. Existing files are
  # always overwritten.
  COPY . /app
-@@ -96,9 +78,5 @@
+@@ -93,9 +75,5 @@
  # Create file directories and set correct permissions.
- RUN mkdir -p "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" "${DRUPAL_CONFIG_PATH}" && \
-  chmod 0770 "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" "${DRUPAL_CONFIG_PATH}"
+ RUN mkdir -p "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" && \
+  chmod 0770 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
 -
 -# Compile front-end assets. This runs after copying all files, as source files
 -# are needed for compilation.

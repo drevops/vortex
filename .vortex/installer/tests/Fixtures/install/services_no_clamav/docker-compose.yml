@@ -1,4 +1,4 @@
-@@ -154,18 +154,6 @@
+@@ -153,18 +153,6 @@
      volumes:
        - solr:/var/solr
  
@@ -17,7 +17,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -184,8 +172,7 @@
+@@ -183,8 +171,7 @@
      depends_on:
        - cli
        - database

@@ -7,7 +7,7 @@
  
  # ------------------------------------------------------------------------------
  # Services.
-@@ -135,9 +133,6 @@
+@@ -134,9 +132,6 @@
        <<: *default-environment
      ports:
        - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
