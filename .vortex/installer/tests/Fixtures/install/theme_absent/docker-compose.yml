@@ -3,6 +3,6 @@
    # Local database collation (variable is not used in hosting environment).
    DATABASE_COLLATION: utf8mb4_general_ci
 -  DRUPAL_THEME: ${DRUPAL_THEME:-}
-   # Path to configuration files.
-   DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
    # Drupal file paths.
+   DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-sites/default/files}
+   DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-sites/default/files/private}

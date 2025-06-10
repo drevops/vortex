@@ -6,7 +6,7 @@
  x-environment: &default-environment
    TZ: ${TZ:-UTC}
    # Pass-through 'CI' variable used to identify the CI environment.
-@@ -90,6 +91,10 @@
+@@ -93,6 +94,10 @@
      # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
      volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
        - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
@@ -17,7 +17,7 @@
  
    nginx:
      build:
-@@ -110,6 +115,11 @@
+@@ -109,6 +114,11 @@
      networks:
        - default # This is a standard network and is used for all other environments, where requests routing is not required and/or not supported.
        - amazeeio-network ### This network is supported by Pygmy and used to route all requests to host machine locally. Removed in CI.
@@ -29,7 +29,7 @@
  
    # PHP FPM container. All web requests are going through this container.
    php:
-@@ -123,6 +133,11 @@
+@@ -122,6 +132,11 @@
        <<: *default-environment
      depends_on:
        - cli
@@ -41,7 +41,7 @@
  
    database:
      build:
-@@ -135,9 +150,13 @@
+@@ -134,9 +149,13 @@
        <<: *default-environment
      ports:
        - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
@@ -55,7 +55,7 @@
  
    solr:
      build:
-@@ -153,6 +172,8 @@
+@@ -152,6 +171,8 @@
        - "8983" # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
      volumes:
        - solr:/var/solr
@@ -64,7 +64,7 @@
  
    clamav:
      build:
-@@ -165,6 +186,10 @@
+@@ -164,6 +185,10 @@
        << : *default-environment
      networks:
        - default
@@ -75,7 +75,7 @@
  
    # Chrome container, used for browser testing.
    chrome:
-@@ -177,6 +202,8 @@
+@@ -176,6 +201,8 @@
        <<: *default-environment
      depends_on:
        - cli
@@ -84,7 +84,7 @@
  
    # Helper container to wait for services to become available.
    wait_dependencies:
-@@ -186,6 +213,8 @@
+@@ -185,6 +212,8 @@
        - database
        - clamav
      command: database:3306 clamav:3310

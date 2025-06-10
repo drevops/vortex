@@ -11,25 +11,3 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -60,8 +60,8 @@
-   # Path to configuration files.
-   DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
-   # Drupal file paths.
--  DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
--  DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
-+  DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/docroot/sites/default/files}
-+  DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/docroot/sites/default/files/private}
-   DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
-   # Drupal Shield credentials.
-   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
-@@ -99,8 +99,8 @@
-         CLI_IMAGE: *cli-image
-         WEBROOT: "${WEBROOT:-web}"
-         DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
--        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
--        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
-+        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/docroot/sites/default/files}
-+        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/docroot/sites/default/files/private}
-         DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
-     <<: [*default-volumes, *default-user]
-     environment:
