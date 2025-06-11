@@ -92,6 +92,7 @@
         ],
         "reset": "rm -Rf vendor vendor-bin",
         "test": "phpunit --no-coverage",
-        "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit"
+        "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit",
+        "test-fixtures": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall"
     }
 }
