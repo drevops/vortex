@@ -50,6 +50,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 RUN apk add --no-cache ncurses pv tzdata autoconf g++ make \
   && pecl install pcov \
   && docker-php-ext-enable pcov \
+  && docker-php-ext-install pcntl \
   && apk del g++ make autoconf
 
 # Add patches and scripts.
