@@ -1,78 +1,1239 @@
 ---
 sidebar_position: 2
-search:
-  exclude: true
+hide_table_of_contents: true
 ---
+
+import { VerticalTabs, VerticalTab, VerticalTabPanel } from '@site/src/components/VerticalTabs';
 
 # Features
 
-The following list includes ✅ completed  and 🚧 upcoming features.
+Select a feature category from the sidebar to explore detailed information in the content panel.
 
-* 💧 Drupal
-    * ✅ Based on [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
-    * ✅ [Drupal 11](https://www.drupal.org/project/drupal)
-    * ✅ Configurable webroot
-    * ✅ [Pre-configured settings](https://github.com/drevops/vortex/blob/develop/web/sites/default/settings.php)
-    * ✅ [Custom module scaffold](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_base)
-    * ✅ [Custom theme scaffold](https://github.com/drevops/vortex/blob/develop/web/themes/custom/your_site_theme)
-    * ✅ [Tests scaffold](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_base/tests)
-    * ✅ Configuration for admin modules: [Environment indicator](https://www.drupal.org/project/environment_indicator), [Shield](https://www.drupal.org/project/shield), [Stage file proxy](https://www.drupal.org/project/stage_file_proxy)
-    * ✅ Configuration for [Search API](https://www.drupal.org/project/search_api) ([Solr](https://www.drupal.org/project/search_api_solr))
-    * ✅ Configuration for caching ([Valkey](https://www.drupal.org/project/redis))
-    * ✅ Configuration for antivirus ([ClamAV](https://www.drupal.org/project/clamav))
-* 🐳 Docker services
-    * ✅ Nginx
-    * ✅ PHP
-    * ✅ MariaDB
-    * ✅ Solr
-    * ✅ Valkey
-    * ✅ ClamAV
-    * ✅ Chrome
-* 🏨 Hosting
-    * ✅ [Acquia](https://www.acquia.com/)
-    * ✅ [Lagoon](https://github.com/uselagoon/lagoon)
-    * 🚧 [Platform.sh](https://platform.sh/)
-* 💻 Local development
-    * ✅ [Docker Compose](https://docs.docker.com/compose/) + [Ahoy](https://github.com/ahoy-cli/ahoy)
-    * 🚧 [DDEV](https://ddev.readthedocs.io/)
-    * 🚧 [Lando](https://lando.dev/)
-* 🏗️ CI/CD
-    * ✅ [Circle CI](https://circleci.com/)
-    * ✅ [GitHub Actions](https://github.com/features/actions)
-    * 🚧 [GitLab CI](https://docs.gitlab.com/ee/ci/)
-    * 🚧 [Azure Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/)
-* 🛠️ Tooling
-    * ✅ [Behat](https://docs.behat.org/en/latest/) + [Drupal extension](https://github.com/jhedstrom/drupalextension) + [Behat Screenshot](https://github.com/drevops/behat-screenshot) + [Behat steps](https://github.com/drevops/behat-steps)
-    * ✅ [ESLint](https://eslint.org/)
-    * ✅ [Gherkin Lint](https://github.com/dantleech/gherkin-lint-php)
-    * ✅ [PHP Parallel Lint](https://github.com/php-parallel-lint/PHP-Parallel-Lint)
-    * ✅ [PHPCS](https://github.com/squizlabs/PHP_CodeSniffer)
-    * ✅ [PHPMD](https://phpmd.org/)
-    * ✅ [PHPStan](https://github.com/phpstan/phpstan)
-    * ✅ [PHPUnit](https://phpunit.de/)
-    * ✅ [SASS Lint](https://github.com/sasstools/sass-lint)
-    * ✅ [SASS](https://sass-lang.com/)
-    * ✅ [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer)
-    * 🚧 [Pa11y](https://pa11y.org/)
-* ⚙️ Workflow
-    * ✅ Database sourcing from CURL, FTP, container image, hosting provider
-    * ✅ Deployment notification to email, GitHub, Jira, New Relic
-    * ✅ Automated dependencies updates ([Renovate](https://www.mend.io/renovate/))
-    * ✅ [Pull request template](https://github.com/drevops/vortex/blob/develop/.github/PULL_REQUEST_TEMPLATE.md)
-    * ✅ [Release drafter](https://github.com/release-drafter/release-drafter)
-    * ✅ [PR auto-assign](https://github.com/toshimaru/auto-author-assign)
-    * ✅ [PR auto-label](https://github.com/eps1lon/actions-label-merge-conflict)
-* 📖 Documentation
-    * ✅ Your project [README.md](https://github.com/drevops/vortex/blob/develop/README.dist.md)
-    * ✅ Your [project documentation](https://github.com/drevops/vortex/blob/develop/docs)
-    * ✅ [Vortex documentation](https://vortex.drevops.com/)
-* 🧪 Vortex
-    * ✅ Unit test coverage for scripts
-    * ✅ Functional test coverage for workflows
-    * ✅ Integration test coverage for deployments
-    * ✅ Vortex updates
-    * ✅ [Basic installer](https://vortex.drevops.com/install)
-    * ✅ Advanced installer CLI UI
-    * 🚧 Advances installer Web UI
-    * 🚧 Automated project setup
-    * 🚧 Project dashboard
+<VerticalTabs>
+
+<VerticalTab>💧 Drupal Foundation | Core Drupal platform with modern architecture</VerticalTab>
+<VerticalTabPanel>
+
+Modern Drupal 11 with pre-configured settings, scaffolds, and admin modules for production-ready development.
+
+### ✅ Drupal 11 Foundation
+**Modern composer-based architecture with PHP 8+ compatibility**
+
+<details>
+<summary>View Implementation Details</summary>
+
+Built on the latest Drupal 11 with industry-standard composer dependency management and modern PHP features.
+
+**What's Included:**
+- Based on [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
+- Latest [Drupal 11](https://www.drupal.org/project/drupal) with security updates
+- Configurable webroot structure for flexible deployment
+- Modern PHP 8+ compatibility with type declarations
+
+**Key Benefits:**
+- Future-proof foundation with long-term support
+- Industry-standard dependency management
+- Flexible project structure for different hosting
+- Enhanced performance and security features
+
+**Quick Start:**
+```bash
+# Check Drupal version
+ahoy drush status
+
+# Update core when available
+ahoy composer update drupal/core-*
+```
+
+</details>
+
+### ✅ Pre-configured Settings
+**Production-ready configuration with environment detection**
+
+<details>
+<summary>View Configuration Details</summary>
+
+Optimized Drupal configuration with environment detection, caching strategies, and security optimizations.
+
+**What's Included:**
+- Environment-specific settings (dev/stage/prod)
+- Database configuration with connection pooling
+- Caching strategies for different environments
+- Security headers and performance optimizations
+
+**Key Benefits:**
+- Automated environment detection
+- Optimized performance out of the box
+- Security-first configuration
+- Easy local customization
+
+**Quick Start:**
+```bash
+# Local settings override
+cp web/sites/default/settings.local.php.example \
+   web/sites/default/settings.local.php
+```
+
+</details>
+
+### ✅ Module & Theme Scaffolds
+**Ready-to-use custom code structure with build tools**
+
+<details>
+<summary>View Scaffold Details</summary>
+
+Complete scaffolding for custom modules and themes with testing, build tools, and best practices.
+
+**What's Included:**
+- Custom module scaffold with PHPUnit tests
+- Custom theme scaffold with build tools
+- Service definitions and dependency injection
+- SASS/CSS processing and JavaScript bundling
+
+**Key Benefits:**
+- Consistent code structure across projects
+- Built-in testing framework
+- Modern frontend build pipeline
+- Component-based architecture
+
+**Quick Start:**
+```bash
+# Generate new custom module
+ahoy drush generate module
+
+# Build theme assets
+cd web/themes/custom/your_site_theme && yarn build
+```
+
+</details>
+
+### ✅ Admin Modules Configuration
+**Essential administrative modules for environment management**
+
+<details>
+<summary>View Admin Configuration</summary>
+
+Pre-configured administrative modules for environment identification, security, and development workflow.
+
+**What's Included:**
+- Environment Indicator for visual identification
+- Shield for HTTP authentication
+- Stage File Proxy for development efficiency
+- Security and development workflow optimization
+
+**Key Benefits:**
+- Prevent accidental changes in wrong environment
+- Secure non-production environments
+- Reduce local storage needs
+- Clear visual environment indicators
+
+**Quick Start:**
+```bash
+# Set environment indicator
+ahoy drush config:set environment_indicator.indicator name "Local Dev"
+
+# Enable shield protection
+ahoy drush config:set shield.settings shield_enable 1
+```
+
+</details>
+
+</VerticalTabPanel>
+
+<VerticalTab>🐳 Docker Services | Full Docker infrastructure stack</VerticalTab>
+<VerticalTabPanel>
+
+Complete containerized stack with web server, database, search, caching, and security services.
+
+### ✅ Nginx Web Server
+**High-performance web server with SSL and caching**
+
+<details>
+<summary>View Server Configuration</summary>
+
+Optimized Nginx configuration specifically tuned for Drupal performance and security.
+
+**What's Included:**
+- Optimized Nginx configuration for Drupal
+- SSL/TLS termination ready
+- Static asset caching and compression
+- Security headers and rate limiting
+
+**Key Benefits:**
+- Excellent performance for static assets
+- Built-in security protections
+- HTTP/2 support for modern browsers
+- Production-ready configuration
+
+**Quick Start:**
+```bash
+# View Nginx logs
+ahoy logs nginx
+
+# Restart web server
+ahoy restart nginx
+```
+
+</details>
+
+### ✅ PHP Application Server
+**Modern PHP 8.1+ runtime with development tools**
+
+<details>
+<summary>View PHP Configuration</summary>
+
+PHP 8.1+ application server with performance extensions and development tools for optimal Drupal experience.
+
+**What's Included:**
+- PHP 8.1+ with performance extensions
+- OPcache enabled for production speed
+- Xdebug for local debugging
+- Memory and execution time optimizations
+
+**Key Benefits:**
+- Latest PHP features and performance
+- Development-friendly debugging tools
+- Production-optimized performance
+- Comprehensive extension support
+
+**Quick Start:**
+```bash
+# Enable Xdebug
+ahoy debug on
+
+# Check PHP configuration
+ahoy drush php:eval "phpinfo();"
+```
+
+</details>
+
+### ✅ MariaDB Database
+**Reliable database with automated backups and performance tuning**
+
+<details>
+<summary>View Database Features</summary>
+
+MariaDB database server with performance tuning, backup capabilities, and development data management.
+
+**What's Included:**
+- MariaDB 10.6+ with performance tuning
+- Automated backup and restore capabilities
+- Development data seeding
+- Connection pooling for high traffic
+
+**Key Benefits:**
+- Reliable and performant database engine
+- Automated backup and recovery
+- Optimized for Drupal workloads
+- Easy development data management
+
+**Quick Start:**
+```bash
+# Import fresh database
+ahoy download-db
+
+# Export current database
+ahoy export-db
+
+# Database performance status
+ahoy drush sql:query "SHOW STATUS"
+```
+
+</details>
+
+### ✅ Apache Solr Search
+**Enterprise search engine with faceted search capabilities**
+
+<details>
+<summary>View Search Configuration</summary>
+
+Apache Solr search engine with pre-configured schemas and Drupal Search API integration.
+
+**What's Included:**
+- Apache Solr 8+ with Drupal integration
+- Pre-configured schemas for content types
+- Faceted search and filtering
+- Search analytics and performance monitoring
+
+**Key Benefits:**
+- Enterprise-grade search capabilities
+- Fast and relevant search results
+- Advanced filtering and faceting
+- Scalable search infrastructure
+
+**Quick Start:**
+```bash
+# Index all content
+ahoy drush search-api:index
+
+# Check search status
+ahoy drush search-api:status
+
+# Reset search index
+ahoy drush search-api:reset-tracker
+```
+
+</details>
+
+### ✅ Valkey Caching
+**High-performance Redis-compatible caching layer**
+
+<details>
+<summary>View Caching Configuration</summary>
+
+Valkey (Redis-compatible) caching system for page caching, session storage, and performance optimization.
+
+**What's Included:**
+- Valkey for page and object caching
+- Session storage in cache for scalability
+- Database query result caching
+- Tag-based cache invalidation
+
+**Key Benefits:**
+- 10x faster page loads for anonymous users
+- Reduced database load and query times
+- Scalable session management
+- Intelligent cache invalidation
+
+**Quick Start:**
+```bash
+# Clear all caches
+ahoy drush cache:rebuild
+
+# View cache statistics
+ahoy drush redis:stats
+
+# Warm page cache
+ahoy drush cache:warm
+```
+
+</details>
+
+### ✅ ClamAV Security
+**Virus scanning for file uploads with quarantine system**
+
+<details>
+<summary>View Security Configuration</summary>
+
+ClamAV virus scanning integration for file upload security with automated updates and monitoring.
+
+**What's Included:**
+- ClamAV integration for file scanning
+- Automatic virus definition updates
+- Quarantine system for infected files
+- Admin notifications for security events
+
+**Key Benefits:**
+- Comprehensive file upload protection
+- Automated security monitoring
+- Configurable security policies
+- Real-time threat detection
+
+**Quick Start:**
+```bash
+# Check ClamAV status
+ahoy drush clamav:status
+
+# Update virus definitions
+ahoy drush clamav:update
+
+# Scan existing files
+ahoy drush clamav:scan-files
+```
+
+</details>
+
+### ✅ Chrome Testing
+**Headless Chrome for automated browser testing**
+
+<details>
+<summary>View Testing Configuration</summary>
+
+Headless Chrome browser for automated testing, visual regression testing, and performance auditing.
+
+**What's Included:**
+- Headless Chrome for JavaScript testing
+- Visual regression testing setup
+- Performance and accessibility auditing
+- Cross-browser compatibility testing
+
+**Key Benefits:**
+- Comprehensive browser testing capabilities
+- Visual regression detection
+- Performance monitoring
+- Accessibility compliance testing
+
+**Quick Start:**
+```bash
+# Run browser tests
+ahoy test-bdd
+
+# Generate test screenshots
+ahoy test-bdd --format=screenshot
+
+# Performance testing
+ahoy lighthouse [url]
+```
+
+</details>
+
+</VerticalTabPanel>
+
+<VerticalTab>☁️ Cloud hosting | Enterprise hosting solutions</VerticalTab>
+<VerticalTabPanel>
+
+Enterprise and container-native hosting with automated deployment workflows.
+
+### ✅ Acquia Cloud
+**Enterprise Drupal hosting with advanced monitoring**
+
+<details>
+<summary>View Acquia Integration</summary>
+
+Pre-configured integration with Acquia Cloud for enterprise Drupal hosting with performance monitoring and security scanning.
+
+**What's Included:**
+- Pre-configured Acquia Cloud deployment
+- Database and file syncing
+- Performance monitoring integration
+- Security scanning and compliance tools
+
+**Key Benefits:**
+- Enterprise-grade security and compliance
+- Advanced performance monitoring
+- 24/7 expert Drupal support
+- Seamless development workflow integration
+
+**Quick Start:**
+```bash
+# Download database from Acquia
+ahoy download-db
+
+# Deploy to Acquia environment
+ahoy deploy acquia
+
+# Sync files from Acquia
+ahoy task-copy-files-acquia
+```
+
+</details>
+
+### ✅ Lagoon (amazee.io)
+**Docker-native hosting with Kubernetes infrastructure**
+
+<details>
+<summary>View Lagoon Benefits</summary>
+
+Lagoon container-native hosting platform with Kubernetes infrastructure and Git-based deployment workflows.
+
+**What's Included:**
+- Container-native hosting platform
+- Kubernetes-based infrastructure
+- Git-based deployment workflows
+- Multi-environment support
+
+**Key Benefits:**
+- Consistent environments from local to production
+- Horizontal scaling based on traffic
+- Fast deployment and rollback capabilities
+- Resource optimization and cost efficiency
+
+**Quick Start:**
+```bash
+# Deploy to Lagoon environment
+ahoy deploy lagoon
+
+# Check deployment status
+ahoy lagoon status
+
+# View application logs
+ahoy lagoon logs
+```
+
+</details>
+
+### 🚧 Platform.sh
+**Cloud platform optimized for PHP applications (Coming Soon)**
+
+<details>
+<summary>View Platform.sh Integration</summary>
+
+Planned Platform.sh integration for zero-configuration cloud deployment with branch-based environments.
+
+**What's Included:**
+- Platform.sh native integration
+- Multi-service application architecture
+- Branch-based development environments
+- Advanced caching and performance optimization
+
+**Key Benefits:**
+- Zero-configuration cloud deployment
+- Automatic scaling based on demand
+- Built-in development/staging environments
+- Integrated monitoring and performance tools
+
+**Quick Start:**
+Platform.sh integration is planned for a future Vortex release. Current hosting options (Acquia, Lagoon) provide comprehensive production hosting capabilities.
+
+</details>
+
+</VerticalTabPanel>
+
+<VerticalTab>💻 Local Development | Local development environments</VerticalTab>
+<VerticalTabPanel>
+
+Containerized development environments with simplified command management.
+
+### ✅ Docker Compose + Ahoy
+**Complete containerized development environment**
+
+<details>
+<summary>View Development Setup</summary>
+
+Docker Compose orchestration with Ahoy command management for consistent development environments across team members.
+
+**What's Included:**
+- Docker Compose for service orchestration
+- Ahoy for simplified command management
+- Pre-configured services stack
+- Development tools integration
+
+**Key Benefits:**
+- Identical environments across team members
+- No local software installation requirements
+- Isolated project dependencies
+- Quick setup and teardown
+
+**Quick Start:**
+```bash
+# Complete environment setup
+ahoy build
+
+# Daily development
+ahoy up && ahoy info
+
+# Database refresh
+ahoy download-db && ahoy provision
+```
+
+</details>
+
+### 🚧 DDEV
+**Alternative Docker-based development environment (Coming Soon)**
+
+<details>
+<summary>View DDEV Integration</summary>
+
+Planned DDEV integration as an alternative to Docker Compose with enhanced developer tools and cross-platform support.
+
+**What's Included:**
+- DDEV integration as Docker Compose alternative
+- Simplified project setup and management
+- Advanced developer tools integration
+- Cross-platform compatibility improvements
+
+**Key Benefits:**
+- Even simpler setup process
+- Better performance on macOS and Windows
+- Built-in development tools
+- Enhanced team collaboration features
+
+**Quick Start:**
+DDEV support is under development and will provide an alternative to the current Docker Compose setup.
+
+</details>
+
+### 🚧 Lando
+**Developer-focused local development platform (Coming Soon)**
+
+<details>
+<summary>View Lando Integration</summary>
+
+Planned Lando integration for recipe-based configuration and enhanced tooling integration.
+
+**What's Included:**
+- Lando support for simplified development
+- Recipe-based configuration for common setups
+- Enhanced tooling integration
+- Improved performance and reliability
+
+**Key Benefits:**
+- One-command environment setup
+- Built-in development tools and utilities
+- Seamless CI/CD integration
+- Cross-platform development support
+
+**Quick Start:**
+Lando integration is planned to provide developers with more local environment options.
+
+</details>
+
+</VerticalTabPanel>
+
+<VerticalTab>🏗️ CI/CD Pipeline | Automated CI/CD workflows</VerticalTab>
+<VerticalTabPanel>
+
+Continuous integration and deployment with multiple provider support.
+
+### ✅ CircleCI
+**Docker-native CI/CD workflows with parallel testing**
+
+<details>
+<summary>View CircleCI Configuration</summary>
+
+CircleCI workflows for comprehensive testing and deployment with Docker-based build environments and parallel execution.
+
+**What's Included:**
+- Docker-based build environments
+- Parallel test execution for faster feedback
+- Deployment automation to multiple environments
+- Code quality and security scanning
+
+**Key Benefits:**
+- Fast feedback on code changes
+- Automated quality gates before deployment
+- Rollback capabilities for failed deployments
+- Detailed build and deployment reporting
+
+**Quick Start:**
+```bash
+# Pipeline stages include:
+- Code quality (PHPStan, PHPCS, ESLint)
+- Unit tests (PHPUnit)
+- Integration tests (Behat)
+- Security scans (Composer audit)
+- Deployment (Lagoon/Acquia)
+```
+
+</details>
+
+### ✅ GitHub Actions
+**Native GitHub integration with matrix builds**
+
+<details>
+<summary>View GitHub Actions</summary>
+
+GitHub Actions workflows with matrix builds, automated dependency updates, and integration with GitHub security tools.
+
+**What's Included:**
+- Matrix builds for multiple PHP/Drupal versions
+- Automated dependency updates and security patches
+- GitHub security and code analysis integration
+- Pull request validation and testing
+
+**Key Benefits:**
+- Status checks directly in pull requests
+- Automatic environment provisioning for testing
+- Integration with GitHub project management
+- Seamless deployment approval workflows
+
+**Quick Start:**
+```bash
+# Automated processes include:
+- PR validation and testing
+- Dependency updates (Renovate integration)
+- Security scanning (CodeQL, Dependabot)
+- Deployment notifications and status updates
+```
+
+</details>
+
+### 🚧 GitLab CI
+**Complete DevOps platform integration (Coming Soon)**
+
+<details>
+<summary>View GitLab CI</summary>
+
+Planned GitLab CI pipeline integration with built-in container registry and advanced security features.
+
+**What's Included:**
+- GitLab CI pipeline integration
+- Built-in container registry for custom images
+- Advanced security scanning and compliance
+- GitLab Pages integration for documentation
+
+**Key Benefits:**
+- End-to-end DevOps workflow in single platform
+- Advanced security and compliance features
+- Built-in monitoring and performance tracking
+- Integrated project management and issue tracking
+
+**Quick Start:**
+GitLab CI support is planned for teams using GitLab as their primary development platform.
+
+</details>
+
+### 🚧 Azure Pipelines
+**Microsoft Azure cloud-native CI/CD (Coming Soon)**
+
+<details>
+<summary>View Azure Pipelines</summary>
+
+Planned Azure Pipelines integration for enterprise environments using Microsoft Azure infrastructure.
+
+**What's Included:**
+- Azure Pipelines for enterprise environments
+- Integration with Azure cloud services
+- Advanced security and compliance features
+- Enterprise identity and access management
+
+**Key Benefits:**
+- Azure cloud deployment capabilities
+- Enterprise security and governance
+- Integration with Microsoft development tools
+- Advanced reporting and analytics
+
+**Quick Start:**
+Azure Pipelines support is planned for organizations using Microsoft Azure infrastructure.
+
+</details>
+
+</VerticalTabPanel>
+
+<VerticalTab>🛠️ Development Tools | Quality and testing tools</VerticalTab>
+<VerticalTabPanel>
+
+Comprehensive testing framework and code quality tools for modern development.
+
+### ✅ Behat + PHPUnit Testing
+**Comprehensive BDD and unit testing framework**
+
+<details>
+<summary>View Testing Framework</summary>
+
+Complete testing framework with Behat for behavior-driven development and PHPUnit for unit testing.
+
+**What's Included:**
+- [Behat](https://docs.behat.org/en/latest/) with [Drupal extension](https://github.com/jhedstrom/drupalextension)
+- [Screenshot capability](https://github.com/drevops/behat-screenshot) for test failures
+- [Custom steps library](https://github.com/drevops/behat-steps) for common Drupal scenarios
+- [PHPUnit](https://phpunit.de/) configured for Drupal testing
+
+**Key Benefits:**
+- Living documentation through executable specifications
+- Comprehensive test coverage for reliability
+- Visual debugging with screenshot capability
+- Integration with CI/CD for automated testing
+
+**Quick Start:**
+```bash
+# Run all tests
+ahoy test
+
+# Behavior-driven tests
+ahoy test-bdd
+
+# Unit tests with coverage
+ahoy test-unit --coverage
+```
+
+</details>
+
+### ✅ Code Quality Suite
+**Automated code standards enforcement**
+
+<details>
+<summary>View Quality Tools</summary>
+
+Comprehensive code quality tools for PHP and frontend code with automated standards enforcement.
+
+**PHP Analysis Tools:**
+- **[PHPCS](https://github.com/squizlabs/PHP_CodeSniffer)**: Drupal coding standards enforcement
+- **[PHPStan](https://github.com/phpstan/phpstan)**: Static analysis for type safety
+- **[PHPMD](https://phpmd.org/)**: Mess detection for code complexity
+- **[PHP Parallel Lint](https://github.com/php-parallel-lint/PHP-Parallel-Lint)**: Syntax validation
+
+**Frontend Quality:**
+- **[ESLint](https://eslint.org/)**: JavaScript code quality and standards
+- **[SASS Lint](https://github.com/sasstools/sass-lint)**: SCSS/CSS code quality
+- **[Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer)**: Twig template standards
+
+**Quick Start:**
+```bash
+# Run all quality checks
+ahoy lint
+
+# Auto-fix issues where possible
+ahoy lint-fix
+
+# Individual tools
+ahoy phpcs && ahoy phpstan && ahoy eslint
+```
+
+</details>
+
+### ✅ Frontend Build Tools
+**Modern frontend development workflow**
+
+<details>
+<summary>View Frontend Tools</summary>
+
+Modern frontend build tools with SASS processing, JavaScript optimization, and development workflow.
+
+**What's Included:**
+- SASS compilation with source maps
+- CSS optimization and minification
+- ES6+ transpilation and bundling
+- Development server with hot reloading
+
+**Key Benefits:**
+- Modern frontend development workflow
+- Optimized assets for production
+- Live reloading for faster development
+- Cross-browser compatibility
+
+**Quick Start:**
+```bash
+# Theme development
+cd web/themes/custom/your_site_theme
+
+# Development mode (watch files)
+yarn dev
+
+# Production build
+yarn build
+```
+
+</details>
+
+### ✅ Gherkin Feature Testing
+**Business-readable feature testing with validation**
+
+<details>
+<summary>View Gherkin Testing</summary>
+
+Gherkin-based feature testing with syntax validation and business-readable test documentation.
+
+**What's Included:**
+- Gherkin Lint for feature file validation
+- Standardized feature writing guidelines
+- Integration with Behat for executable specs
+- Business-readable test documentation
+
+**Key Benefits:**
+- Living documentation that stays current
+- Collaboration between technical and business teams
+- Executable specifications for requirements
+- Regression testing for user workflows
+
+**Quick Start:**
+```bash
+# Feature development workflow:
+1. Write features in Gherkin syntax
+2. Validate feature syntax with linting
+3. Implement step definitions in Behat
+4. Execute features as automated tests
+```
+
+</details>
+
+### 🚧 Pa11y Accessibility
+**Automated accessibility compliance testing (Coming Soon)**
+
+<details>
+<summary>View Accessibility Testing</summary>
+
+Planned Pa11y integration for automated accessibility testing and WCAG 2.1 compliance validation.
+
+**What's Included:**
+- Pa11y automated accessibility testing
+- WCAG 2.1 compliance validation
+- CI/CD integration for continuous monitoring
+- Detailed accessibility reporting
+
+**Key Benefits:**
+- Automated accessibility audits in CI pipeline
+- Visual accessibility testing
+- Integration with browser testing workflow
+- Accessibility regression prevention
+
+**Quick Start:**
+Pa11y integration is under development to ensure all Vortex projects meet accessibility standards.
+
+</details>
+
+</VerticalTabPanel>
+
+<VerticalTab>⚙️ Workflow & Automation | Productivity and automation</VerticalTab>
+<VerticalTabPanel>
+
+Streamlined development workflow with automated dependencies and notifications.
+
+### ✅ Database Management
+**Multi-source database sourcing with automation**
+
+<details>
+<summary>View Database Tools</summary>
+
+Flexible database sourcing from multiple providers with automated sanitization and backup procedures.
+
+**What's Included:**
+- CURL, FTP, Container Image, and Hosting Provider sources
+- Automated backup and restore procedures
+- Data sanitization for security compliance
+- Multiple environment synchronization
+
+**Key Benefits:**
+- Consistent data across development environments
+- Automated backup and restore procedures
+- Data sanitization for security compliance
+- Multiple environment synchronization
+
+**Quick Start:**
+```bash
+# Download fresh database
+ahoy download-db
+
+# Export current state
+ahoy export-db backup-$(date +%Y%m%d).sql
+
+# Automated sanitization
+ahoy provision-sanitize-db
+```
+
+</details>
+
+### ✅ Deployment Notifications
+**Multi-channel deployment communication**
+
+<details>
+<summary>View Notification System</summary>
+
+Comprehensive deployment notification system with support for email, GitHub, Jira, and New Relic integration.
+
+**What's Included:**
+- Email notifications to stakeholders
+- GitHub commit status and deployment comments
+- Jira automatic ticket updates
+- New Relic performance deployment markers
+
+**Key Benefits:**
+- Stakeholder awareness of deployment status
+- Automated project management updates
+- Performance impact tracking
+- Clear rollback instructions when needed
+
+**Quick Start:**
+```bash
+# Environment variables for notifications
+VORTEX_NOTIFY_EMAIL="team@example.com"
+VORTEX_NOTIFY_GITHUB_TOKEN="your_token"
+VORTEX_NOTIFY_JIRA_URL="https://company.atlassian.net"
+```
+
+</details>
+
+### ✅ Renovate Dependencies
+**Automated dependency management with security patching**
+
+<details>
+<summary>View Dependency Management</summary>
+
+Renovate automated dependency updates with security vulnerability patching and compatibility testing.
+
+**What's Included:**
+- Automated dependency updates
+- Security vulnerability patching
+- Compatibility testing before merging
+- Configurable update schedules and policies
+
+**Key Benefits:**
+- Automatic security patch application
+- Reduced technical debt accumulation
+- Consistent dependency management
+- Automated testing of dependency updates
+
+**Quick Start:**
+```bash
+# Renovate handles updates for:
+- Composer dependencies (Drupal core, modules)
+- Node.js packages (theme build tools)
+- Docker base images (security patches)
+- GitHub Actions and CI tools
+```
+
+</details>
+
+### ✅ GitHub Integration
+**Streamlined development workflow automation**
+
+<details>
+<summary>View GitHub Automation</summary>
+
+GitHub workflow automation with pull request templates, release drafting, and automatic assignments.
+
+**What's Included:**
+- Pull Request template for consistent reviews
+- Release Drafter for automated changelog
+- Auto-assign for PR review assignments
+- Auto-labeling for merge conflicts
+
+**Key Benefits:**
+- Automatic PR assignment to code owners
+- Conflict detection and labeling
+- Release notes generation from PR titles
+- Integration with project boards and milestones
+
+**Quick Start:**
+```bash
+# GitHub automation includes:
+- Consistent PR review process
+- Automated release documentation
+- Clear conflict resolution workflow
+- Seamless integration with development tools
+```
+
+</details>
+
+</VerticalTabPanel>
+
+<VerticalTab>📖 Documentation | Documentation and guides</VerticalTab>
+<VerticalTabPanel>
+
+Comprehensive project and framework documentation with templates.
+
+### ✅ Project Documentation
+**Ready-to-use documentation templates and structure**
+
+<details>
+<summary>View Documentation Templates</summary>
+
+Comprehensive project documentation templates with setup instructions, workflow documentation, and maintenance procedures.
+
+**What's Included:**
+- Customized README.md template
+- Project-specific setup instructions
+- Development workflow documentation
+- Architecture decision records (ADRs)
+
+**Key Benefits:**
+- Consistent documentation across projects
+- Reduced onboarding time for new team members
+- Clear project setup and maintenance procedures
+- Living documentation that stays current
+
+**Quick Start:**
+```bash
+# Generate API documentation
+ahoy generate-docs
+
+# Update project README
+cp README.dist.md README.md
+
+# Documentation testing
+ahoy test-docs
+```
+
+</details>
+
+### ✅ Vortex Documentation
+**Complete framework documentation and guides**
+
+<details>
+<summary>View Framework Documentation</summary>
+
+Comprehensive Vortex framework documentation with installation guides, best practices, and community resources.
+
+**What's Included:**
+- Complete installation and setup guides
+- Framework architecture and design principles
+- Advanced configuration and customization
+- Best practices and development patterns
+
+**Key Benefits:**
+- Comprehensive learning resources
+- Step-by-step tutorials for common tasks
+- Integration guides for third-party services
+- Active community support and contributions
+
+**Quick Start:**
+```bash
+# Documentation resources:
+- Vortex Documentation: https://vortex.drevops.com/
+- Framework architecture and design principles
+- Performance optimization recommendations
+- Security configuration guidelines
+```
+
+</details>
+
+</VerticalTabPanel>
+
+<VerticalTab>🧪 Vortex System | Framework and system tools</VerticalTab>
+<VerticalTabPanel>
+
+Template system with comprehensive testing, updates, and installation options.
+
+### ✅ Comprehensive Testing
+**Multi-layered testing approach for reliability**
+
+<details>
+<summary>View Testing System</summary>
+
+Multi-layered testing approach ensuring template reliability with unit, functional, integration, and performance testing.
+
+**What's Included:**
+- Unit tests for individual script testing
+- Functional tests for complete workflow validation
+- Integration tests for real deployment scenarios
+- Performance tests for load and stress testing
+
+**Key Benefits:**
+- High confidence in template reliability
+- Rapid detection of breaking changes
+- Consistent behavior across environments
+- Comprehensive regression testing
+
+**Quick Start:**
+```bash
+# Test execution examples:
+./test.common.sh        # Core functionality tests
+./test.deployment.sh    # Deployment workflow tests
+./test.workflow.sh      # Development workflow tests
+```
+
+</details>
+
+### ✅ Vortex Updates
+**Seamless template updates for existing projects**
+
+<details>
+<summary>View Update System</summary>
+
+In-place update system for existing Vortex projects with conflict detection and resolution assistance.
+
+**What's Included:**
+- In-place updates for existing projects
+- Selective component updates
+- Conflict detection and resolution assistance
+- Backup and rollback capabilities
+
+**Key Benefits:**
+- Keep projects current with latest features
+- Minimize disruption during updates
+- Safe update process with rollback options
+- Detailed migration guides for major updates
+
+**Quick Start:**
+```bash
+# Check for available updates
+ahoy vortex:update --check
+
+# Preview changes before applying
+ahoy vortex:update --dry-run
+
+# Apply updates with backup
+ahoy vortex:update --backup
+```
+
+</details>
+
+### ✅ Installation Methods
+**Multiple installation options for different needs**
+
+<details>
+<summary>View Installation Options</summary>
+
+Multiple installation methods including basic web installer and advanced CLI for different user needs and automation.
+
+**What's Included:**
+- Web-based installer for quick setup
+- Interactive configuration with validation
+- Advanced CLI installer for automation
+
+**Key Benefits:**
+- Accessible installation for all skill levels
+- Automation-friendly for CI/CD integration
+- Customizable feature selection
+- Real-time validation and feedback
+
+**Quick Start:**
+```bash
+# Web installer
+https://vortex.drevops.com/install
+
+# CLI installer
+curl -L https://vortex.drevops.com/install.sh | bash
+vortex create my-project --hosting=lagoon
+```
+
+</details>
+
+### 🚧 Advanced Web Installer
+**Enhanced web-based installation experience (Coming Soon)**
+
+<details>
+<summary>View Advanced Installer</summary>
+
+Planned advanced web UI installer with step-by-step wizard and real-time project preview capabilities.
+
+**What's Included:**
+- Step-by-step wizard interface
+- Real-time project preview during configuration
+- Git hosting provider integration
+- Direct deployment to hosting platforms
+
+**Key Benefits:**
+- More intuitive installation experience
+- Visual configuration interface
+- Template customization preview
+- One-click deployment setup
+
+**Quick Start:**
+Advanced web installer is under active development to provide a more intuitive installation experience.
+
+</details>
+
+### 🚧 Automated Setup
+**One-click project initialization and deployment (Coming Soon)**
+
+<details>
+<summary>View Automated Setup</summary>
+
+Vision for complete project setup from template selection to live site with automated hosting and CI/CD configuration.
+
+**What's Included:**
+- Complete project setup automation
+- Automated hosting account creation
+- CI/CD pipeline setup and deployment
+- Team collaboration setup
+
+**Key Benefits:**
+- Minimize project initialization time
+- Reduce setup complexity and errors
+- Automated best practices implementation
+- Seamless team onboarding
+
+**Quick Start:**
+Automated setup is a long-term goal to minimize project initialization time from hours to minutes.
+
+</details>
+
+### 🚧 Project Dashboard
+**Centralized project monitoring and management (Coming Soon)**
+
+<details>
+<summary>View Project Dashboard</summary>
+
+Planned centralized dashboard for managing multiple Vortex projects with health monitoring and team management.
+
+**What's Included:**
+- Multi-project overview and health monitoring
+- Performance metrics and uptime tracking
+- Security status and vulnerability alerts
+- Team member access and permission management
+
+**Key Benefits:**
+- Centralized management for multiple projects
+- Proactive monitoring and alerting
+- Simplified team and access management
+- Resource usage optimization recommendations
+
+**Quick Start:**
+Project dashboard is in early planning stages to provide centralized management for multiple Vortex projects.
+
+</details>
+
+</VerticalTabPanel>
+
+</VerticalTabs>

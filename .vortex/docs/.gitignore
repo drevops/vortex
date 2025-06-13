@@ -8,6 +8,9 @@
 .docusaurus
 .cache-loader
 
+# Test outputs
+.logs
+
 # Misc
 .env.local
 .env.development.local

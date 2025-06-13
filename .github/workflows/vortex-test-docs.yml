@@ -37,12 +37,20 @@ jobs:
         run: yarn install --frozen-lockfile
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
-      - name: Build documentation site
-        run: yarn run build
+      - name: Lint code
+        run: yarn run lint
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
       - name: Run tests
         run: yarn run test
+        working-directory: '${{ github.workspace }}/.vortex/docs'
+
+      - name: Check spelling
+        run: yarn run spellcheck
+        working-directory: '${{ github.workspace }}/.vortex/docs'
+
+      - name: Build documentation site
+        run: yarn run build
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
       - name: Deploy to Netlify
@@ -59,3 +67,18 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.DOCS_NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.DOCS_NETLIFY_AUTH_TOKEN }}
         timeout-minutes: 1
+
+      - name: Upload coverage reports as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{github.job}}-docs-coverage-report
+          path: .vortex/docs/.logs
+          include-hidden-files: true
+          if-no-files-found: error
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: .vortex/docs/.logs/cobertura.xml
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}

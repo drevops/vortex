@@ -43,7 +43,7 @@ commands:
       ahoy lint-installer
       ahoy lint-scripts
       ahoy lint-dockerfiles
-      ahoy test-docs
+      ahoy lint-docs
 
   lint-installer:
     cmd: composer --working-dir installer lint
@@ -53,6 +53,9 @@ commands:
 
   lint-dockerfiles:
     cmd: ./tests/lint.dockerfiles.sh
+
+  lint-docs:
+    cmd: yarn --cwd=docs run lint
 
   test:
     name: Test Vortex project.
@@ -78,6 +81,7 @@ commands:
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=./docs install --frozen-lockfile
       yarn --cwd=./docs run test
+      yarn --cwd=./docs run spellcheck
 
   # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
   update-fixtures:

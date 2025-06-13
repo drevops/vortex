@@ -1,0 +1,24 @@
+import { VerticalTabs, VerticalTab, VerticalTabPanel } from '@site/src/components/VerticalTabs';
+
+# Invalid VerticalTab Structure
+
+<VerticalTabs>
+
+<VerticalTab>Valid Tab | Description | Badge</VerticalTab>
+<!-- Missing VerticalTabPanel for first tab -->
+
+<VerticalTabPanel>
+Orphaned panel without matching tab
+</VerticalTabPanel>
+
+<VerticalTab>Second Tab | Another description | Badge</VerticalTab>
+<VerticalTabPanel>
+Valid content for second tab
+</VerticalTabPanel>
+
+<!-- Extra panel without matching tab -->
+<VerticalTabPanel>
+Extra panel content that should be ignored
+</VerticalTabPanel>
+
+</VerticalTabs>
