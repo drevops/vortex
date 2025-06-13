@@ -1,7 +1,7 @@
 Acquia Cloud Hooks
 ==================
 
-Cloud Hooks is a feature of Acquia Cloud, the Drupal cloud cloud hosting platform.
+Cloud Hooks is a feature of Acquia Cloud, the Drupal cloud hosting platform.
 For more information, see https://www.acquia.com/products-services/acquia-dev-cloud.
 
 Note that hook scripts must have the Unix "executable" bit in order to run.

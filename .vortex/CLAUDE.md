@@ -46,10 +46,9 @@ vortex/
 ### Documentation Testing (.vortex/docs/)
 - **Jest-based testing** with jsdom and React Testing Library
 - **Unit tests**: React component functionality and interactions  
-- **E2E tests**: End-to-end user workflows with Puppeteer
 - **Spellcheck**: cspell validation for American English consistency
 - **Coverage reporting**: Text, lcov, HTML, and Cobertura formats
-- **Location**: `tests/unit/` and `tests/e2e/`
+- **Location**: `tests/unit/`
 
 ### PHPUnit Tests (.vortex/tests/phpunit/)
 - **Purpose**: Functional testing of Vortex user workflows
@@ -107,14 +106,14 @@ cd .vortex/docs
 # Install dependencies
 yarn install
 
-# Run unit tests
-yarn test:unit
+# Run tests
+yarn test
 
 # Run with coverage
-yarn test:unit:coverage
+yarn test:coverage
 
-# Run E2E tests
-yarn test:e2e
+# Run in watch mode
+yarn test:watch
 
 # Spellcheck validation
 yarn spellcheck
@@ -289,7 +288,7 @@ yarn lint-fix       # Auto-fix code quality issues
 
 # Testing workflow  
 yarn test           # Run all tests
-yarn test:unit:watch # Watch mode for development
+yarn test:watch     # Watch mode for development
 ```
 
 **Template Testing** (`.vortex/tests/`):
@@ -454,10 +453,9 @@ Conditional tokens are tested through the installer fixture system:
 ```
 ├── docs/                       # Vortex documentation (Docusaurus)
 │   ├── src/components/         # React components (VerticalTabs, etc.)
-│   ├── tests/unit/             # Jest unit tests
-│   ├── tests/e2e/              # Puppeteer E2E tests
+│   ├── tests/unit/             # Jest tests
 │   ├── content/                # MDX documentation content
-│   ├── jest.config.js          # Multi-project test configuration
+│   ├── jest.config.js          # Test configuration
 │   └── cspell.json             # Spellcheck configuration
 ├── installer/
 │   ├── src/                    # Installer source code

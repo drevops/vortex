@@ -24,6 +24,8 @@ module.exports = {
     'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'prefer-const': 'error',
     'no-var': 'error',
+    'curly': ['error', 'all'],
+    'brace-style': ['error', '1tbs', { allowSingleLine: false }],
   },
   settings: {
     react: {

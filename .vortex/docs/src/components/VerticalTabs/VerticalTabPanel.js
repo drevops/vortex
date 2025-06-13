@@ -1,5 +1,3 @@
-// import React from 'react'; // React not needed for marker component
-
 /**
  * VerticalTabPanel component - defines tab content/panel
  *

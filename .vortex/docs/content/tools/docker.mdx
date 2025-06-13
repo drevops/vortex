@@ -75,7 +75,7 @@ configuration and services.
 ## Using Docker
 
 **Vortex** uses Docker to run the project in a containerized environment locally
-and in CI.
+and in the continuous integration pipeline.
 
 Some of the commands are wrapped in the Ahoy script as a shorthand. But all
 the commands can be run directly using `docker compose` command.
@@ -119,8 +119,8 @@ There are 2 volumes defined:
 
 There are 2 more volumes defined and commented out - these are used in
 environments without volume mounting support, such as CircleCI. These volumes
-definitions are automatically uncommented in CI environment, and they replace
-the host volume mounting, which is removed.
+definitions are automatically uncommented in the continuous integration
+environment, and they replace the host volume mounting, which is removed.
 
 `VOLUME_FLAGS` environment variable allows to define the consistency of the data
 within mounted volumes. The values are:

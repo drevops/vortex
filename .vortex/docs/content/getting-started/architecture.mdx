@@ -28,7 +28,7 @@ The system is made up of several modular pieces that work together:
 - Local development environment
 - Drupal management
 - Code quality and testing tools
-- CI/CD workflows
+- Continuous integration workflows
 - Hosting provider configurations
 - Automated dependency updates
 - Project documentation
@@ -114,7 +114,7 @@ You’ll also find scaffolds for:
 ➡️ See [Tools > PHPStan](../tools/phpstan), [Tools > PHPCS](../tools/phpcs), 
 [Tools > Behat](../tools/behat), and [Tools > PHPUnit](../tools/phpunit)
 
-## CI/CD Workflows
+## Continuous Integration Workflows
 
 **Vortex** supports GitHub Actions and CircleCI. You choose which one to use in your
 project. The workflows include:
@@ -125,10 +125,10 @@ project. The workflows include:
 * Running unit, functional and behavior tests
 * Triggering deploys when tests pass
 
-Each CI configuration mirrors what happens locally and in hosting to ensure
+Each continuous integration configuration mirrors what happens locally and in hosting to ensure
 uniformity.
 
-➡️ See [CI](../ci)
+➡️ See [Continuous Integration](../continuous-integration)
 
 ## Hosting Integrations
 
@@ -148,7 +148,7 @@ integrations.
 
 * Critical updates checked daily
 * Regular updates run weekly
-* PRs include changelogs and pass through your CI pipeline
+* PRs include changelogs and pass through your continuous integration pipeline
 
 You can host RenovateBot yourself or use the cloud version, and you can tweak
 the schedule as needed.

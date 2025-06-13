@@ -76,7 +76,8 @@ Behat is configured to generate test run reports in JUnit format stored in
 Screenshots for failed tests or purposely made screenshots are stored in
 `.logs/screenshots` directory.
 
-Both test results and screenshots are stored as artifacts in CI.
+Both test results and screenshots are stored as artifacts when run in continuous
+integration pipelines.
 
 ### Profiles
 
@@ -85,7 +86,8 @@ all tests not tagged with `@skipped` tag.
 
 There are also `p1` and `p2` profiles defined that run tests not tagged with
 `@skipped` and tagged with `@p1` and `@p2` tags respectively. These profiles are
-used in CI to run tests in parallel if parallel runners number is greater than 1.
+used in continuous integration pipeline to run tests in parallel if parallel
+runners number is greater than `1`.
 Behat will run tests using `@pX` tags on tests, where `X` is the runner index
 starting from `0`.
 
@@ -113,11 +115,12 @@ Feature: Homepage
 ```
 
 The profile can be overridden using `$VORTEX_CI_BEHAT_PROFILE` environment
-variable set in the CI configuration.
+variable set in the continuous integration pipeline configuration.
 
-## Ignoring fail in CI
+## Ignoring fail in continuous integration pipeline
 
-This tool runs in CI by default and fails the build if there are any violations.
+This tool runs in continuous integration pipeline by default and fails the build
+if there are any violations.
 
 Set `VORTEX_CI_BEHAT_IGNORE_FAILURE` environment variable to `1` to ignore
 failures. The tool will still run and report violations, if any.

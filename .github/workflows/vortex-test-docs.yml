@@ -42,7 +42,7 @@ jobs:
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
       - name: Run tests
-        run: yarn run test
+        run: yarn run test:coverage
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
       - name: Check spelling

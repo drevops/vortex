@@ -4,13 +4,14 @@
 
 You can use Drupal Composer template, but that will be your step 1. Your next
 step would be to add all the missing pieces that **Vortex** provides,
-such as CI integrations, tooling configuration, workflows, deployment scripts,
-hosting-specific configurations, documentation.
+such as continuous integrations, tooling configuration, workflows, deployment
+scripts, hosting-specific configurations, documentation.
 
 Then you would have to test all of that and make sure that it works correctly
-together. You would also need to make sure that  there are no _false negatives_
-(for example, passing CI on broken tests can go unnoticed up until the release
-and would block it).
+together. You would also need to make sure that there are no _false negatives_.
+For example, if a faulty test silently passes in continuous integration, it
+might not be caught until release time, potentially causing delays or blocking
+the deployment.
 
 And you would have to maintain all of that and apply the updates to all the
 projects that you have (if you like things to be consistent, of course).
@@ -24,10 +25,10 @@ look for the documentation and the tools that they need to use.
 
 Yes, you can install **Vortex** into your existing project. See [Installation](installation#installing-vortex-into-an-existing-project).
 
-## Can I use **Vortex** with my existing project and keep my existing CI?
+## Can I use **Vortex** with my existing project and keep my existing continuous integration provider?
 
-Yes, but you would have to update your CI configuration to use **Vortex**'s
-workflow scripts.
+Yes, but you would have to update your continuous integration provider
+configuration to use **Vortex**'s workflow scripts.
 
 ## Can I use **Vortex** with my existing project and keep my existing hosting?
 

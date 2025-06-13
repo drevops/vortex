@@ -98,16 +98,16 @@ const config = {
             href: '/drupal',
           },
           {
-            label: 'Tools',
-            href: '/tools',
-          },
-          {
-            label: 'CI',
-            href: '/ci',
-          },
-          {
             label: 'Hosting',
             href: '/hosting',
+          },
+          {
+            label: 'Continuous Integration',
+            href: '/continuous-integration',
+          },
+          {
+            label: 'Tools',
+            href: '/tools',
           },
           {
             label: 'Workflows',
@@ -160,6 +160,10 @@ const config = {
           {
             from: '/quickstart',
             to: '/getting-started/installation',
+          },
+          {
+            from: '/ci',
+            to: '/continuous-integration',
           },
         ],
       },

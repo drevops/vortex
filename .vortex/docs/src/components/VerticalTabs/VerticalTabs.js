@@ -1,36 +1,50 @@
-import React, { useState, Children, isValidElement } from 'react';
+import React, { useState, useEffect, Children, isValidElement } from 'react';
 import './VerticalTabs.css';
 
 // Helper function to check if a child is a VerticalTab component
 const isVerticalTab = child => {
-  if (!isValidElement(child)) return false;
+  if (!isValidElement(child)) {
+    return false;
+  }
 
   // Check by component type name
-  if (child.type && child.type.name === 'VerticalTab') return true;
+  if (child.type && child.type.name === 'VerticalTab') {
+    return true;
+  }
 
   // Check by displayName (for MDX)
-  if (child.type && child.type.displayName === 'VerticalTab') return true;
+  if (child.type && child.type.displayName === 'VerticalTab') {
+    return true;
+  }
 
   // Check by data attribute as fallback
-  if (child.props && child.props['data-component'] === 'VerticalTab')
+  if (child.props && child.props['data-component'] === 'VerticalTab') {
     return true;
+  }
 
   return false;
 };
 
 // Helper function to check if a child is a VerticalTabPanel component
 const isVerticalTabPanel = child => {
-  if (!isValidElement(child)) return false;
+  if (!isValidElement(child)) {
+    return false;
+  }
 
   // Check by component type name
-  if (child.type && child.type.name === 'VerticalTabPanel') return true;
+  if (child.type && child.type.name === 'VerticalTabPanel') {
+    return true;
+  }
 
   // Check by displayName (for MDX)
-  if (child.type && child.type.displayName === 'VerticalTabPanel') return true;
+  if (child.type && child.type.displayName === 'VerticalTabPanel') {
+    return true;
+  }
 
   // Check by data attribute as fallback
-  if (child.props && child.props['data-component'] === 'VerticalTabPanel')
+  if (child.props && child.props['data-component'] === 'VerticalTabPanel') {
     return true;
+  }
 
   return false;
 };
@@ -54,6 +68,16 @@ const extractText = element => {
     return extractText(element.props.children);
   }
   return '';
+};
+
+// Helper function to create a URL-friendly slug from tab title
+const createSlug = title => {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // Remove special characters except spaces and hyphens
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .trim('-'); // Remove leading/trailing hyphens
 };
 
 const VerticalTabs = ({ children }) => {
@@ -85,9 +109,44 @@ const VerticalTabs = ({ children }) => {
       icon,
       title,
       shortDesc,
+      slug: createSlug(title),
       content: panelElement ? panelElement.props.children : null,
     };
   });
+
+  // Effect to handle hash changes and set active tab from URL hash
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1); // Remove the # symbol
+      if (hash) {
+        const tabIndex = tabs.findIndex(tab => tab.slug === hash);
+        if (tabIndex !== -1) {
+          setActiveTab(tabIndex);
+        }
+      }
+    };
+
+    // Set initial active tab from hash on mount
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, [tabs]);
+
+  // Function to handle tab click and update URL hash
+  const handleTabClick = index => {
+    setActiveTab(index);
+    const slug = tabs[index]?.slug;
+    if (slug) {
+      // Update URL hash without triggering page scroll
+      const newUrl = `${window.location.pathname}${window.location.search}#${slug}`;
+      window.history.replaceState(null, '', newUrl);
+    }
+  };
 
   if (tabs.length === 0) {
     return (
@@ -108,12 +167,12 @@ const VerticalTabs = ({ children }) => {
           <div className="sidebar-header">
             <h3>Feature Categories</h3>
           </div>
-          <div className="tab-list">
+          <div className="tab-list" role="tablist">
             {tabs.map((tab, index) => (
               <div
                 key={index}
                 className={`tab-item ${activeTab === index ? 'active' : ''}`}
-                onClick={() => setActiveTab(index)}
+                onClick={() => handleTabClick(index)}
               >
                 <div className="tab-content">
                   <h4>

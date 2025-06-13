@@ -20,9 +20,8 @@ yarn serve            # Serve built site locally
 
 # Testing
 yarn test             # Run all tests
-yarn test:unit        # Unit tests only
-yarn test:unit:watch  # Unit tests in watch mode
-yarn test:e2e         # End-to-end tests
+yarn test:watch       # Tests in watch mode
+yarn test:coverage    # Tests with coverage
 
 # Quality
 yarn lint             # Check code quality
@@ -37,8 +36,7 @@ docs/
 ├── content/                # MDX documentation files
 ├── src/components/         # React components (VerticalTabs, etc.)
 ├── tests/
-│   ├── unit/              # Jest unit tests
-│   └── e2e/               # Puppeteer E2E tests
+│   └── unit/              # Jest tests
 ├── jest.config.js         # Test configuration
 └── cspell.json           # Spellcheck configuration
 ```
@@ -60,7 +58,7 @@ import { VerticalTabs, VerticalTab, VerticalTabPanel } from '@site/src/component
 
 ## Writing Tests
 
-**Component Tests** (`tests/unit/`):
+**Component Tests**:
 ```javascript
 import { render, screen } from '@testing-library/react';
 
@@ -81,8 +79,3 @@ test('component renders correctly', () => {
 ```bash
 yarn lint && yarn spellcheck && yarn test && yarn build
 ```
-
-- [ ] Tests pass
-- [ ] Build succeeds  
-- [ ] No lint errors
-- [ ] Spellcheck passes

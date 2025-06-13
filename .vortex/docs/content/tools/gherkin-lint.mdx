@@ -55,9 +55,10 @@ Gherkin Lint does not support ignoring rules on the **current line**.
 
 Gherkin Lint does not support ignoring rules on the **next line**.
 
-## Ignoring fail in CI
+## Ignoring fail in continuous integration pipeline
 
-This tool runs in CI by default and fails the build if there are any violations.
+This tool runs in continuous integration pipeline by default and fails the build
+if there are any violations.
 
 Set `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` environment variable to `1` to
 ignore failures. The tool will still run and report violations, if any.

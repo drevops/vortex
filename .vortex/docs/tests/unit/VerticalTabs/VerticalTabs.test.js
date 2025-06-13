@@ -1,12 +1,42 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import {
   VerticalTabs,
   VerticalTab,
   VerticalTabPanel,
 } from '../../../src/components/VerticalTabs';
 
+// Mock window.location and history for hash testing
+const mockLocation = {
+  pathname: '/test',
+  search: '',
+  hash: '',
+};
+
+const mockHistory = {
+  replaceState: jest.fn(),
+};
+
+Object.defineProperty(window, 'location', {
+  value: mockLocation,
+  writable: true,
+});
+
+Object.defineProperty(window, 'history', {
+  value: mockHistory,
+  writable: true,
+});
+
 describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
+  beforeEach(() => {
+    // Reset mocks before each test
+    mockLocation.hash = '';
+    mockHistory.replaceState.mockClear();
+    
+    // Clear any existing hashchange listeners
+    window.removeEventListener = jest.fn();
+    window.addEventListener = jest.fn();
+  });
   describe('Basic Rendering', () => {
     test('renders tabs with explicit VerticalTab and VerticalTabPanel components', () => {
       render(
@@ -383,6 +413,230 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       expect(
         screen.getByText('Content from data attribute detection')
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('Hash-based Active Tab Support', () => {
+    test('sets active tab from URL hash on mount', () => {
+      // Set hash to match second tab's slug
+      mockLocation.hash = '#docker-services';
+      
+      render(
+        <VerticalTabs>
+          <VerticalTab>💧 Drupal Foundation | Core platform</VerticalTab>
+          <VerticalTabPanel>
+            <p>Drupal content here</p>
+          </VerticalTabPanel>
+          <VerticalTab>🐳 Docker Services | Container stack</VerticalTab>
+          <VerticalTabPanel>
+            <p>Docker content here</p>
+          </VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      // Should show content for second tab (Docker Services)
+      expect(screen.getByText('Docker content here')).toBeInTheDocument();
+      expect(screen.queryByText('Drupal content here')).not.toBeInTheDocument();
+      
+      // Second tab should be active
+      const dockerTab = screen.getByText('Docker Services').closest('.tab-item');
+      expect(dockerTab).toHaveClass('active');
+    });
+
+    test('updates URL hash when tab is clicked', async () => {
+      render(
+        <VerticalTabs>
+          <VerticalTab>💧 Drupal Foundation | Core platform</VerticalTab>
+          <VerticalTabPanel>
+            <p>Drupal content here</p>
+          </VerticalTabPanel>
+          <VerticalTab>🐳 Docker Services | Container stack</VerticalTab>
+          <VerticalTabPanel>
+            <p>Docker content here</p>
+          </VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      // Click second tab
+      fireEvent.click(screen.getByText('Docker Services'));
+
+      // Should update URL hash
+      await waitFor(() => {
+        expect(mockHistory.replaceState).toHaveBeenCalledWith(
+          null,
+          '',
+          '/test#docker-services'
+        );
+      });
+    });
+
+    test('handles hash changes via browser navigation', () => {
+      let hashChangeHandler;
+      
+      // Capture the hashchange event listener
+      window.addEventListener = jest.fn((event, handler) => {
+        if (event === 'hashchange') {
+          hashChangeHandler = handler;
+        }
+      });
+
+      render(
+        <VerticalTabs>
+          <VerticalTab>💧 Drupal Foundation | Core platform</VerticalTab>
+          <VerticalTabPanel>
+            <p>Drupal content here</p>
+          </VerticalTabPanel>
+          <VerticalTab>🐳 Docker Services | Container stack</VerticalTab>
+          <VerticalTabPanel>
+            <p>Docker content here</p>
+          </VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      // Verify event listener was added
+      expect(window.addEventListener).toHaveBeenCalledWith('hashchange', expect.any(Function));
+
+      // Initially shows first tab
+      expect(screen.getByText('Drupal content here')).toBeInTheDocument();
+
+      // Simulate hash change
+      mockLocation.hash = '#docker-services';
+      if (hashChangeHandler) {
+        act(() => {
+          hashChangeHandler();
+        });
+      }
+
+      // Should switch to second tab
+      expect(screen.getByText('Docker content here')).toBeInTheDocument();
+      expect(screen.queryByText('Drupal content here')).not.toBeInTheDocument();
+    });
+
+    test('ignores invalid hash values', () => {
+      mockLocation.hash = '#nonexistent-tab';
+      
+      render(
+        <VerticalTabs>
+          <VerticalTab>💧 Drupal Foundation | Core platform</VerticalTab>
+          <VerticalTabPanel>
+            <p>Drupal content here</p>
+          </VerticalTabPanel>
+          <VerticalTab>🐳 Docker Services | Container stack</VerticalTab>
+          <VerticalTabPanel>
+            <p>Docker content here</p>
+          </VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      // Should default to first tab when hash doesn't match any tab
+      expect(screen.getByText('Drupal content here')).toBeInTheDocument();
+      expect(screen.queryByText('Docker content here')).not.toBeInTheDocument();
+      
+      const drupalTab = screen.getByText('Drupal Foundation').closest('.tab-item');
+      expect(drupalTab).toHaveClass('active');
+    });
+
+    test('handles empty hash correctly', () => {
+      mockLocation.hash = '';
+      
+      render(
+        <VerticalTabs>
+          <VerticalTab>💧 Drupal Foundation | Core platform</VerticalTab>
+          <VerticalTabPanel>
+            <p>Drupal content here</p>
+          </VerticalTabPanel>
+          <VerticalTab>🐳 Docker Services | Container stack</VerticalTab>
+          <VerticalTabPanel>
+            <p>Docker content here</p>
+          </VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      // Should default to first tab
+      expect(screen.getByText('Drupal content here')).toBeInTheDocument();
+      expect(screen.queryByText('Docker content here')).not.toBeInTheDocument();
+    });
+
+    test('creates proper slugs from tab titles', () => {
+      render(
+        <VerticalTabs>
+          <VerticalTab>🎯 Special Characters & Symbols! | Test</VerticalTab>
+          <VerticalTabPanel>
+            <p>Special content here</p>
+          </VerticalTabPanel>
+          <VerticalTab>🚀 Multi Spaces Tab | Test</VerticalTab>
+          <VerticalTabPanel>
+            <p>Multi spaces content</p>
+          </VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      // Click first tab to check slug generation
+      fireEvent.click(screen.getByText('Special Characters & Symbols!'));
+      
+      expect(mockHistory.replaceState).toHaveBeenCalledWith(
+        null,
+        '',
+        '/test#special-characters-symbols'
+      );
+
+      // Click second tab to check multiple spaces handling
+      fireEvent.click(screen.getByText('Multi Spaces Tab'));
+      
+      expect(mockHistory.replaceState).toHaveBeenCalledWith(
+        null,
+        '',
+        '/test#multi-spaces-tab'
+      );
+    });
+
+    test('preserves search parameters when updating hash', async () => {
+      mockLocation.search = '?param=value';
+      
+      render(
+        <VerticalTabs>
+          <VerticalTab>💧 Drupal Foundation | Core platform</VerticalTab>
+          <VerticalTabPanel>
+            <p>Drupal content here</p>
+          </VerticalTabPanel>
+          <VerticalTab>🐳 Docker Services | Container stack</VerticalTab>
+          <VerticalTabPanel>
+            <p>Docker content here</p>
+          </VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      // Click second tab
+      fireEvent.click(screen.getByText('Docker Services'));
+
+      // Should preserve search parameters
+      await waitFor(() => {
+        expect(mockHistory.replaceState).toHaveBeenCalledWith(
+          null,
+          '',
+          '/test?param=value#docker-services'
+        );
+      });
+    });
+
+    test('cleans up event listeners on unmount', () => {
+      const { unmount } = render(
+        <VerticalTabs>
+          <VerticalTab>💧 Test Tab | Test</VerticalTab>
+          <VerticalTabPanel>
+            <p>Test content</p>
+          </VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      // Verify event listener was added
+      expect(window.addEventListener).toHaveBeenCalledWith('hashchange', expect.any(Function));
+
+      // Unmount component
+      unmount();
+
+      // Verify event listener was removed
+      expect(window.removeEventListener).toHaveBeenCalledWith('hashchange', expect.any(Function));
     });
   });
 });

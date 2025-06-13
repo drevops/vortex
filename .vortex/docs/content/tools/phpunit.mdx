@@ -63,7 +63,7 @@ See [configuration reference](https://docs.phpunit.de/en/10.4/configuration.html
 All global configuration takes place in the [`phpunit.xml`](https://github.com/drevops/vortex/blob/develop/phpunit.xml) file.
 
 By default, PHPUnit will run tests for custom modules and themes, Drupal
-settings and CI configuration.
+settings and continuous integration configuration.
 
 The recommended way to adding test targets is via using test suites:
 
@@ -88,7 +88,8 @@ automated coverage assessment, and in `.logs/coverage/phpunit/.coverage-html` as
 HTML coverage report, useful for visual report assessment during test
 development.
 
-CI runs tests with coverage by default and stores the reports as artifacts.
+Continuous integration pipeline runs tests with coverage by default and stores
+the reports as artifacts.
 
 ### Ignoring lines from coverage
 
@@ -118,9 +119,10 @@ $b = 2;
 // @codeCoverageIgnoreEnd
 ```
 
-## Ignoring fail in CI
+## Ignoring fail in continuous integration pipeline
 
-This tool runs in CI by default and fails the build if there are any violations.
+This tool runs in continuous integration pipeline by default and fails the build
+if there are any violations.
 
 Set `VORTEX_CI_PHPUNIT_IGNORE_FAILURE` environment variable to `1` to ignore
 failures. The tool will still run and report violations, if any.
