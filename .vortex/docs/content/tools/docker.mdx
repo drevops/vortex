@@ -115,7 +115,7 @@ There are 2 volumes defined:
 - Files directory `./web/sites/default/files` maps
   to `/app/web/sites/default/files` directory within a container as an override
   to the default volume definition. This allows to use different type of syncing
-  to optimise performance, because files are not changed as often as the code.
+  to optimize performance, because files are not changed as often as the code.
 
 There are 2 more volumes defined and commented out - these are used in
 environments without volume mounting support, such as CircleCI. These volumes
@@ -206,7 +206,7 @@ Vortex:
 - `php` - a container that runs a PHP engine. This container is used to run the
   application code and execute commands in the context of the application. It is
   different from the `cli` container in that it does not have certain
-  development dependencies installed, has a smaller size and is optimised for
+  development dependencies installed, has a smaller size and is optimized for
   scalability.
 - `database` - a container that runs a database server. This container is used to
   store the application data. It can be accessed from the host via a randomly
