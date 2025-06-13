@@ -8,7 +8,7 @@
  ENV COMPOSER_ALLOW_SUPERUSER=1 \
      COMPOSER_CACHE_DIR=/tmp/.composer/cache \
      SIMPLETEST_DB=mysql://drupal:drupal@database/drupal \
-@@ -71,21 +68,6 @@
+@@ -72,21 +69,6 @@
  RUN if [ -n "${GITHUB_TOKEN}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN}\"}}"; fi && \
      COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
  
@@ -30,7 +30,7 @@
  # Copy all files into the application source directory. Existing files are
  # always overwritten.
  COPY . /app
-@@ -93,9 +75,5 @@
+@@ -94,9 +76,5 @@
  # Create file directories and set correct permissions.
  RUN mkdir -p "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" && \
   chmod 0770 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"

@@ -16,7 +16,9 @@
     <arg name="extensions" value="inc,info,install,module,php,profile,test,theme,js,css"/>
     <arg name="colors"/>
     <arg value="sp"/>
-    <arg name="parallel" value="75"/>
+
+    <!-- Adjust the number of parallel processes to run based on the number of CPU cores available. -->
+    <arg name="parallel" value="10"/>
 
     <!-- Lint code against platform version specified in composer.json key "config.platform.php". -->
     <config name="testVersion" value="8.3"/>

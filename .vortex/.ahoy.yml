@@ -87,9 +87,11 @@ commands:
 
   update-fixtures-no-install:
     cmd: |
-      UPDATE_FIXTURES=1 tests/node_modules/.bin/bats tests/bats/docker-compose.bats \
-      || UPDATE_FIXTURES=1 tests/node_modules/.bin/bats tests/bats/docker-compose.bats
-      cd installer && XDEBUG_MODE=off UPDATE_FIXTURES=1 composer test || XDEBUG_MODE=off composer test && cd -
+      export UPDATE_FIXTURES=1
+      tests/node_modules/.bin/bats tests/bats/docker-compose.bats || tests/node_modules/.bin/bats tests/bats/docker-compose.bats
+      export XDEBUG_MODE=off
+      export COMPOSER_PROCESS_TIMEOUT=600
+      composer --working-dir=installer test -- --filter=testInstall || composer --working-dir=installer test -- --filter=testInstall
 
   update-docs:
     usage: Update the documentation.
