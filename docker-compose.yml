@@ -67,12 +67,12 @@ x-environment: &default-environment
   #;< DRUPAL_THEME
   DRUPAL_THEME: ${DRUPAL_THEME:-}
   #;> DRUPAL_THEME
-  # Path to configuration files.
-  DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
   # Drupal file paths.
-  DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
-  DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
+  DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-sites/default/files}
+  DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-sites/default/files/private}
   DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
+  # Path to configuration files.
+  DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-../config/default}
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
@@ -94,6 +94,9 @@ services:
       args:
         WEBROOT: "${WEBROOT:-web}"
         GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
+        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-sites/default/files}
+        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-sites/default/files/private}
+        DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
     user: root
     <<: *default-volumes
@@ -116,10 +119,6 @@ services:
       args:
         CLI_IMAGE: *cli-image
         WEBROOT: "${WEBROOT:-web}"
-        DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
-        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
-        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
-        DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
@@ -224,7 +223,7 @@ services:
 
   # Chrome container, used for browser testing.
   chrome:
-    image: selenium/standalone-chromium:136.0
+    image: selenium/standalone-chromium:137.0
     ports:
       - "7900" # Find port on host with `docker compose port chrome 7900`.
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.

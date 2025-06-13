@@ -49,25 +49,6 @@ abstract class SettingsTestCase extends TestCase {
    */
   final const ENVIRONMENT_PROD = 'prod';
 
-  /**
-   * Defines a constant for the public path used in testing.
-   */
-  final const PUBLIC_PATH_TESTING = '/public-test';
-
-  /**
-   * Defines a constant for the private path used in testing.
-   */
-  final const PRIVATE_PATH_TESTING = '/private-test';
-
-  /**
-   * Defines a constant for the temp path used in testing.
-   */
-  final const TMP_PATH_TESTING = '/tmp-test';
-
-  /**
-   * Defines a constant for the config directory used in testing.
-   */
-  final const CONFIG_PATH_TESTING = '/config-test';
 
   /**
    * Defines a constant for the allowed environment variables.
@@ -151,18 +132,20 @@ abstract class SettingsTestCase extends TestCase {
    * @SuppressWarnings(PHPMD.ElseExpression)
    */
   protected function setEnvVars(array $vars): void {
+    // Unset the existing environment variable if not set in the test.
+    if (!isset($vars['TMP'])) {
+      $vars['TMP'] = NULL;
+    }
+
+    // Unset the existing environment variable if not set in the test.
+    if (!isset($vars['DRUPAL_CONFIG_PATH'])) {
+      $vars['DRUPAL_CONFIG_PATH'] = NULL;
+    }
+
+    // Do not enforce the CI environment unless it is explicitly set.
     if (!isset($vars['CI'])) {
       $vars['CI'] = FALSE;
     }
-
-    if (!isset($vars['LAGOON'])) {
-      $vars['LAGOON'] = FALSE;
-    }
-
-    $vars['DRUPAL_CONFIG_PATH'] = static::CONFIG_PATH_TESTING;
-    $vars['DRUPAL_PUBLIC_FILES'] = static::PUBLIC_PATH_TESTING;
-    $vars['DRUPAL_PRIVATE_FILES'] = static::PRIVATE_PATH_TESTING;
-    $vars['DRUPAL_TEMPORARY_FILES'] = static::TMP_PATH_TESTING;
 
     // Filtered real vars without a value to unset them in the lines below.
     $vars_real = self::getRealEnvVarsFilteredNoValues(static::ALLOWED_ENV_VARS);

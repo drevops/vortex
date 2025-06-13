@@ -52,24 +52,28 @@ $databases = [
 
 $app_root = $app_root ?? DRUPAL_ROOT;
 $site_path = $site_path ?? 'sites/default';
-$contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir($app_root . DIRECTORY_SEPARATOR . 'modules/contrib') ? 'modules/contrib' : 'modules');
+$contrib_path = $app_root . '/' . (is_dir($app_root . '/modules/contrib') ? 'modules/contrib' : 'modules');
+
+// Public files directory relative to the Drupal root.
+$settings['file_public_path'] = getenv('DRUPAL_PUBLIC_FILES') ?: 'sites/default/files';
+
+// Private files directory relative to the Drupal root.
+$settings['file_private_path'] = getenv('DRUPAL_PRIVATE_FILES') ?: 'sites/default/files/private';
+
+// Temporary file directory.
+$settings['file_temp_path'] = getenv('DRUPAL_TEMPORARY_FILES') ?: getenv('TMP') ?: '/tmp';
+
+// Location of the site configuration files relative to the Drupal root. If not
+// set, the default location is inside a randomly-named directory in the public
+// files path.
+if (!empty(getenv('DRUPAL_CONFIG_PATH'))) {
+  $settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH');
+}
 
 // Load services definition file.
 $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 
-// Location of the site configuration files.
-$settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH') ?: '../config/default';
-
-// Location of the public files directory.
-$settings['file_public_path'] = getenv('DRUPAL_PUBLIC_FILES') ?: 'sites/default/files';
-
-// Private directory.
-$settings['file_private_path'] = getenv('DRUPAL_PRIVATE_FILES') ?: 'sites/default/files/private';
-
-// Temporary directory.
-$settings['file_temp_path'] = getenv('DRUPAL_TEMPORARY_FILES') ?: '/tmp';
-
-// Salt is taken from DRUPAL_HASH_SALT or the database host name.
+// Use DRUPAL_HASH_SALT or the database host name for salt.
 $settings['hash_salt'] = getenv('DRUPAL_HASH_SALT') ?: hash('sha256', $databases['default']['default']['host']);
 
 // Timezone settings.
