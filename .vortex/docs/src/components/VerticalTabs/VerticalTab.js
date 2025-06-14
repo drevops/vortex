@@ -9,4 +9,7 @@ const VerticalTab = ({ children }) => {
   return children;
 };
 
+// Set displayName for production build compatibility
+VerticalTab.displayName = 'VerticalTab';
+
 export default VerticalTab;
