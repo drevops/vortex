@@ -1,78 +1,267 @@
 ---
 sidebar_position: 2
-search:
-  exclude: true
+hide_table_of_contents: true
 ---
+
+import {
+  VerticalTabs,
+  VerticalTab,
+  VerticalTabPanel
+} from '@site/src/components/VerticalTabs';
 
 # Features
 
-The following list includes ✅ completed  and 🚧 upcoming features.
+Select a feature from the tab list to view details in the content panel.
 
-* 💧 Drupal
-    * ✅ Based on [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
-    * ✅ [Drupal 11](https://www.drupal.org/project/drupal)
-    * ✅ Configurable webroot
-    * ✅ [Pre-configured settings](https://github.com/drevops/vortex/blob/develop/web/sites/default/settings.php)
-    * ✅ [Custom module scaffold](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_base)
-    * ✅ [Custom theme scaffold](https://github.com/drevops/vortex/blob/develop/web/themes/custom/your_site_theme)
-    * ✅ [Tests scaffold](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_base/tests)
-    * ✅ Configuration for admin modules: [Environment indicator](https://www.drupal.org/project/environment_indicator), [Shield](https://www.drupal.org/project/shield), [Stage file proxy](https://www.drupal.org/project/stage_file_proxy)
-    * ✅ Configuration for [Search API](https://www.drupal.org/project/search_api) ([Solr](https://www.drupal.org/project/search_api_solr))
-    * ✅ Configuration for caching ([Valkey](https://www.drupal.org/project/redis))
-    * ✅ Configuration for antivirus ([ClamAV](https://www.drupal.org/project/clamav))
-* 🐳 Docker services
-    * ✅ Nginx
-    * ✅ PHP
-    * ✅ MariaDB
-    * ✅ Solr
-    * ✅ Valkey
-    * ✅ ClamAV
-    * ✅ Chrome
-* 🏨 Hosting
-    * ✅ [Acquia](https://www.acquia.com/)
-    * ✅ [Lagoon](https://github.com/uselagoon/lagoon)
-    * 🚧 [Platform.sh](https://platform.sh/)
-* 💻 Local development
-    * ✅ [Docker Compose](https://docs.docker.com/compose/) + [Ahoy](https://github.com/ahoy-cli/ahoy)
-    * 🚧 [DDEV](https://ddev.readthedocs.io/)
-    * 🚧 [Lando](https://lando.dev/)
-* 🏗️ CI/CD
-    * ✅ [Circle CI](https://circleci.com/)
-    * ✅ [GitHub Actions](https://github.com/features/actions)
-    * 🚧 [GitLab CI](https://docs.gitlab.com/ee/ci/)
-    * 🚧 [Azure Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/)
-* 🛠️ Tooling
-    * ✅ [Behat](https://docs.behat.org/en/latest/) + [Drupal extension](https://github.com/jhedstrom/drupalextension) + [Behat Screenshot](https://github.com/drevops/behat-screenshot) + [Behat steps](https://github.com/drevops/behat-steps)
-    * ✅ [ESLint](https://eslint.org/)
-    * ✅ [Gherkin Lint](https://github.com/dantleech/gherkin-lint-php)
-    * ✅ [PHP Parallel Lint](https://github.com/php-parallel-lint/PHP-Parallel-Lint)
-    * ✅ [PHPCS](https://github.com/squizlabs/PHP_CodeSniffer)
-    * ✅ [PHPMD](https://phpmd.org/)
-    * ✅ [PHPStan](https://github.com/phpstan/phpstan)
-    * ✅ [PHPUnit](https://phpunit.de/)
-    * ✅ [SASS Lint](https://github.com/sasstools/sass-lint)
-    * ✅ [SASS](https://sass-lang.com/)
-    * ✅ [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer)
-    * 🚧 [Pa11y](https://pa11y.org/)
-* ⚙️ Workflow
-    * ✅ Database sourcing from CURL, FTP, container image, hosting provider
-    * ✅ Deployment notification to email, GitHub, Jira, New Relic
-    * ✅ Automated dependencies updates ([Renovate](https://www.mend.io/renovate/))
-    * ✅ [Pull request template](https://github.com/drevops/vortex/blob/develop/.github/PULL_REQUEST_TEMPLATE.md)
-    * ✅ [Release drafter](https://github.com/release-drafter/release-drafter)
-    * ✅ [PR auto-assign](https://github.com/toshimaru/auto-author-assign)
-    * ✅ [PR auto-label](https://github.com/eps1lon/actions-label-merge-conflict)
-* 📖 Documentation
-    * ✅ Your project [README.md](https://github.com/drevops/vortex/blob/develop/README.dist.md)
-    * ✅ Your [project documentation](https://github.com/drevops/vortex/blob/develop/docs)
-    * ✅ [Vortex documentation](https://vortex.drevops.com/)
-* 🧪 Vortex
-    * ✅ Unit test coverage for scripts
-    * ✅ Functional test coverage for workflows
-    * ✅ Integration test coverage for deployments
-    * ✅ Vortex updates
-    * ✅ [Basic installer](https://vortex.drevops.com/install)
-    * ✅ Advanced installer CLI UI
-    * 🚧 Advances installer Web UI
-    * 🚧 Automated project setup
-    * 🚧 Project dashboard
+<VerticalTabs>
+
+  <VerticalTab>💧 Drupal | Pre-configured Composer project</VerticalTab>
+  <VerticalTabPanel>
+
+    Modern Drupal 11 with pre-configured settings, module and theme scaffolds, and
+    admin modules for production-ready development.
+
+    ### Modern composer-based architecture
+
+    - Based on [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
+    - Latest [Drupal 11](https://www.drupal.org/project/drupal) with security updates
+    - Configurable webroot directory to fit specific hosting provider requirements
+    - Modern PHP 8+ compatibility with type declarations
+
+    ### Settings and environment detection
+
+    - Pre-configured [general settings](https://github.com/drevops/vortex/blob/develop/web/sites/default/settings.php)
+    - Environment type detection based on the hosting provider
+    - Optimised per-module settings for quick start
+    - Multi-database configuration for MySQL and MariaDB
+
+    ### Module & Theme scaffolds
+
+    - [Custom module scaffold](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_base)
+    - [Custom theme scaffold](https://github.com/drevops/vortex/blob/develop/web/themes/custom/your_site_theme)
+    - [Tests scaffold](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_base/tests)
+
+    ### Admin modules
+
+    - [Environment indicator](https://www.drupal.org/project/environment_indicator) for visual identification
+    - [Shield](https://www.drupal.org/project/shield) for HTTP authentication
+    - [Stage file proxy](https://www.drupal.org/project/stage_file_proxy) for development efficiency
+    - Configuration for [Search API](https://www.drupal.org/project/search_api) ([Solr](https://www.drupal.org/project/search_api_solr))
+    - Configuration for caching ([Valkey](https://www.drupal.org/project/redis))
+    - Configuration for antivirus ([ClamAV](https://www.drupal.org/project/clamav))
+
+  </VerticalTabPanel>
+
+  <VerticalTab>☁️ Hosting | Integrations with cloud hosting providers</VerticalTab>
+  <VerticalTabPanel>
+    ### Acquia Cloud
+
+    > A Drupal-optimized hosting platform built to empower your team.
+
+    - Database and file syncing
+    - Centralized deployment workflow management via cloud hooks
+    - Code artifact deployments
+
+    ### Lagoon
+
+    > Lagoon, the developer-focused application delivery platform
+
+    - Production-ready containerized stack
+    - Database and file syncing
+    - Centralized deployment workflow management
+    - Preview environment support
+
+    :::note
+
+    [Platform.sh](https://platform.sh/), [Tugboat](https://www.tugboatqa.com/) and other hosting providers integrations are coming soon
+
+    :::
+
+  </VerticalTabPanel>
+
+  <VerticalTab>🏗️ Continuous Integration | Continuous integration pipelines</VerticalTab>
+  <VerticalTabPanel>
+
+    Continuous integration and deployment with multiple provider support.
+
+    ### Multiple CI Providers
+
+    - Identical CI configurations for continuous integration providers
+    - [CircleCI](https://circleci.com/) pipeline configuration
+    - [GitHub Actions](https://github.com/features/actions) pipeline configuration
+
+    ### 3-stage pipeline
+
+    - _Download_ the database from hosting and cache it for 24 hours for faster builds
+    - _Build_ and test a fully provisioned site
+    - _Deploy_ the site to the hosting provider
+
+    ### Containerized environments
+
+    - Drupal runs in a containerized stack
+    - The same stack is used for local development ensuring consistency
+    - Identical PHP version, dependency versions, tooling and configurations as used in local development
+
+    ### Pipeline flow control
+
+    - Pipeline triggered by code pushes to pre-configured branches/tags or manually
+    - Skip deployments for specific branches or pull requests
+    - Selectively ignore code checks and test failures without modifying the pipeline configuration
+
+    ### Assets and code coverage
+
+    - Build and test assets are stored as pipeline artifact and accessible after the build
+    - Code coverage reports are stored as pipeline artifact and accessible after the build
+    - Code coverage reports are pushed to [Codecov](https://codecov.io/) for easy access and visualization.
+
+    :::note
+
+    [Azure Pipelines](https://azure.microsoft.com/) and [GitLab CI](https://about.gitlab.com/solutions/continuous-integration/) are coming soon
+
+    :::
+  </VerticalTabPanel>
+
+  <VerticalTab>💻 Local Development | Containerized development environment</VerticalTab>
+  <VerticalTabPanel>
+
+    Containerized development environments with simplified command management.
+
+    ### Docker Compose + Ahoy
+
+    - [Docker Compose](https://docs.docker.com/compose/) for service orchestration
+    - [Ahoy](https://github.com/ahoy-cli/ahoy) for simplified command management and custom command support
+    - Pre-configured services stack: Nginx, PHP, MariaDB, Valkey, Solr, ClamAV, Chrome
+    - Xdebug support for debugging PHP applications
+    - PCOV support for code coverage analysis
+
+    :::note
+
+    DDEV and Lando support is coming soon
+
+    :::
+
+  </VerticalTabPanel>
+
+  <VerticalTab>🛠️ Tools | Code quality and testing tools</VerticalTab>
+  <VerticalTabPanel>
+    ### Code quality suite
+
+    - [PHPCS](https://github.com/squizlabs/PHP_CodeSniffer) for checking coding standards
+    - [PHPStan](https://github.com/phpstan/phpstan) for static code analysis
+    - [PHPMD](https://phpmd.org/) for mess detection and code complexity
+    - [Rector](https://github.com/rectorphp/rector) with [Drupal-specific configurations](https://github.com/palantirnet/drupal-rector) for automated code upgrades
+
+    ### Unit and functional testing
+
+    - [PHPUnit](https://phpunit.de/) for unit and functional testing
+    - Configured for Drupal testing
+
+    ### Behavior-driven testing
+
+    - [Behat](https://docs.behat.org/en/latest/) for auto-testing your business expectations
+    - [Drupal extension](https://github.com/jhedstrom/drupalextension) with direct access to Drupal APIs for faster test runs
+    - [Behat steps library](https://github.com/drevops/behat-steps) to speed up test writing
+    - [Screenshot capability](https://github.com/drevops/behat-screenshot) for test insights
+    - [Gherkin Lint](https://github.com/dantleech/gherkin-lint-php) for test file validation
+
+    :::note
+
+    Integrations with [Pa11y](https://pa11y.org/) (for accessibility testing)
+    and [Diffy](https://diffy.website/) (for visual regression testing) are
+    coming soon
+
+    :::
+
+  </VerticalTabPanel>
+
+  <VerticalTab>⚙️ Workflow | Useful workflows and automation</VerticalTab>
+  <VerticalTabPanel>
+
+    ### Identical workflows across environments
+
+    - Scripted workflows for common tasks configured to run in the same way in all environments
+    - Support for workflow customization via hooks
+    - Database sourcing from hosting provider or intermediate storage (URL, FTP, container image, etc.)
+
+    ### Deployment Notifications
+
+    - Deployment notifications via email, GitHub, Jira, New Relic
+    - Integration with GitHub to provide a deployed environment status
+    - Integration with Jira to post deployed environment information as a comment
+    - Integration with New Relic to mark deployments
+
+    ### Automated dependency management
+
+    - Automated dependency updates via [Renovate](https://www.mend.io/renovate/)
+    - Separate schedules for critical and regular updates
+    - Automated pull requests for dependency updates
+    - Optional continuous integration job for self-hosted runner for projects restricted in terms of third-party access.
+
+    ### Development workflow automation
+
+    - [Pull request template](https://github.com/drevops/vortex/blob/develop/.github/PULL_REQUEST_TEMPLATE.md) for consistent reviews
+    - [Release drafter](https://github.com/release-drafter/release-drafter) for automated changelog
+    - [PR auto-assign](https://github.com/toshimaru/auto-author-assign) for review assignments
+    - [PR auto-label](https://github.com/eps1lon/actions-label-merge-conflict) for merge conflicts
+
+  </VerticalTabPanel>
+
+  <VerticalTab>📖 Documentation | Documentation and guides</VerticalTab>
+  <VerticalTabPanel>
+
+    ### Project Documentation
+
+    - Customized [README.md](https://github.com/drevops/vortex/blob/develop/README.dist.md) for easy onboarding
+    - [Scaffold for project-specific documentation](https://github.com/drevops/vortex/blob/develop/docs) for easy documentation management
+    - [Onboarding checklist](https://github.com/drevops/vortex/blob/develop/docs/onboarding.md) to track Vortex integration for complex projects
+
+    ### Vortex Documentation
+
+    - [Vortex documentation](https://vortex.drevops.com/) for all your Vortex-onboarded projects
+    - Framework architecture and design principles for faster team onboarding
+    - Tooling information and usage guides for efficient day-to-day use
+
+  </VerticalTabPanel>
+
+  <VerticalTab>🌀 Vortex | Consistency across your projects</VerticalTab>
+  <VerticalTabPanel>
+
+    Vortex provides several features to ensure consistency and reliability
+    across your Vortex-onboarded projects so that you can rely on future updates
+    and improvements.
+
+    ### Product maturity
+
+    - **Vortex** is a mature product with over 7 years of development and
+      production use across education, government, commercial, healthcare,
+      not-for-profit, financial services, and technology sectors.
+    - Constantly evolving with the latest Drupal, PHP, containerization, CI/CD
+      practices, and tooling.
+    - Managed as a product with a dedicated team and a [roadmap](/contributing/roadmap).
+    - Released monthly with new features, improvements, and bug fixes.
+
+    ### Multi-layered automated testing for every change
+
+    - Test coverage for containerized stack for guaranteed readiness
+    - Test coverage for tooling configuration for guaranteed compatibility
+    - Unit tests for workflow scripts and coverage reporting for reliable and consistent execution
+    - Functional test coverage for workflows: run all workflow commands as a developer would
+    - Automated documentation site generation and validation for up-to-date and accurate documentation
+
+    ### Vortex installation and updates
+
+    - Standalone `installer` application for installing and updating Vortex projects
+    - Install and/or update from the most recent version or a specific Vortex Git SHA
+    - Comprehensive `installer` test suite to guarantee reliable project updates
+
+
+    :::note
+
+    Advanced web installer with automated end-to-end setup and project dashboard
+    are coming soon
+
+    :::
+
+  </VerticalTabPanel>
+
+</VerticalTabs>

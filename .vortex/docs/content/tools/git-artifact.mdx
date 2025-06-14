@@ -13,11 +13,13 @@ with each push, while preserving the source history.
 **Vortex** comes
 with [pre-configured `.gitignore.artifact`](https://github.com/drevops/vortex/blob/develop/.gitignore.artifact)
 file and [deployment script](https://github.com/drevops/vortex/blob/develop/scripts/vortex/deploy-artifact.sh)
-to build the artifact in CI and push it to the remote repository in Acquia.
+to build the artifact in continuous integration pipeline and push it to the
+remote repository in Acquia.
 
 ## Usage
 
-This tool is used in CI and does not require any manual actions.
+This tool is used in continuous integration pipeline and does not require any
+manual actions.
 
 ## Configuration
 
@@ -26,12 +28,13 @@ replace the standard `.gitignore` file in the artifact repository.
 
 The file already contains all required targets to get the full site build with
 production-only dependencies (dev-dependencies are excluded from the code
-artifact during the CI build).
+artifact during the continuous integration pipeline build).
 
 Modifying targets in the `.gitignore.artifact` file works just like updating
 a regular `.gitignore` file.
 
-It is required to set the following environment variables in CI:
+It is required to set the following environment variables in the continuous
+integration environment:
 
 - `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME`: Email address of the user who will be
   committing to a remote repository.

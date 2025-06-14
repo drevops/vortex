@@ -26,8 +26,11 @@ vortex/
 ## .vortex Directory Structure
 
 ### .vortex/docs/
-- Documentation published to https://vortex.drevops.com
-- Contains comprehensive project documentation
+- **Docusaurus-based documentation** published to https://vortex.drevops.com
+- **MDX content system** with interactive components
+- **Multi-layered testing**: Jest (unit), E2E, and spellcheck validation
+- **Quality tools**: ESLint, Prettier, and American English standardization
+- **Custom React components** for enhanced documentation UX
 
 ### .vortex/installer/
 - Self-contained Symfony console application
@@ -39,6 +42,13 @@ vortex/
 - Uses both **PHPUnit** (functional workflows) and **BATS** (shell script unit tests)
 
 ## Testing Framework
+
+### Documentation Testing (.vortex/docs/)
+- **Jest-based testing** with jsdom and React Testing Library
+- **Unit tests**: React component functionality and interactions  
+- **Spellcheck**: cspell validation for American English consistency
+- **Coverage reporting**: Text, lcov, HTML, and Cobertura formats
+- **Location**: `tests/unit/`
 
 ### PHPUnit Tests (.vortex/tests/phpunit/)
 - **Purpose**: Functional testing of Vortex user workflows
@@ -89,6 +99,31 @@ run_steps "assert" "${mocks}"   # Assert phase
 
 ### Running Tests
 
+**Documentation Tests** (`.vortex/docs/`):
+```bash
+cd .vortex/docs
+
+# Install dependencies
+yarn install
+
+# Run tests
+yarn test
+
+# Run with coverage
+yarn test:coverage
+
+# Run in watch mode
+yarn test:watch
+
+# Spellcheck validation
+yarn spellcheck
+
+# Code quality checks
+yarn lint
+yarn lint-fix
+```
+
+**Template Tests** (`.vortex/tests/`):
 ```bash
 cd .vortex/tests
 
@@ -243,6 +278,20 @@ When script output changes, update corresponding test files:
 
 ### Common Test Commands
 
+**Documentation Workflow** (`.vortex/docs/`):
+```bash
+# Development workflow
+yarn start          # Start dev server
+yarn build          # Build documentation
+yarn spellcheck     # American English validation
+yarn lint-fix       # Auto-fix code quality issues
+
+# Testing workflow  
+yarn test           # Run all tests
+yarn test:watch     # Watch mode for development
+```
+
+**Template Testing** (`.vortex/tests/`):
 ```bash
 # From .vortex/tests/
 composer install
@@ -402,7 +451,12 @@ Conditional tokens are tested through the installer fixture system:
 
 ### Test Harness (.vortex/)
 ```
-├── docs/                       # Vortex documentation
+├── docs/                       # Vortex documentation (Docusaurus)
+│   ├── src/components/         # React components (VerticalTabs, etc.)
+│   ├── tests/unit/             # Jest tests
+│   ├── content/                # MDX documentation content
+│   ├── jest.config.js          # Test configuration
+│   └── cspell.json             # Spellcheck configuration
 ├── installer/
 │   ├── src/                    # Installer source code
 │   ├── tests/Fixtures/         # Installation test fixtures

@@ -3,18 +3,22 @@ sidebar_label: Overview
 sidebar_position: 1
 ---
 
-**Vortex** offers GitHub Actions and CircleCI CI configurations to automate the
-process of building, testing, and deploying your site.
+# Continuous Integration
 
-The workflow configuration is identical for both CI providers. You would need to
-choose one of them and follow the setup instructions.
+**Vortex** offers continuous integration configurations for GitHub Actions and
+CircleCI providers that allows to automate the process of building, testing, and
+deploying your site.
 
-The CI pipeline consists of multiple jobs executed in a containerized
-environment to ensure consistency across runs.
+The workflow configuration is identical for both continuous integration
+providers. You would need to choose one of them and follow the setup
+instructions.
+
+The continuous integration pipeline consists of multiple jobs executed in a
+containerized environment to ensure consistency across runs.
 
 ## Trigger Conditions
 
-The CI pipeline is triggered by:
+The continuous integration pipeline is triggered by:
 
 - **Push events** to the following branches:
   - `production`,
@@ -55,7 +59,7 @@ The CI pipeline is triggered by:
 
 ## Caching Strategy
 
-Database is downloaded overnight and cached so that the next CI run on the same
+Database is downloaded overnight and cached so that the next continuous integration run on the same
 day uses the cached database dump.
 
 By default, the database is cached per-branch for 24 hours. If cache is not

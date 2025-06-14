@@ -187,7 +187,7 @@ determine conditional behavior.
 
 #### Detection mechanism
 
-The detection process uses indicators provided by known hosting platforms. Logic
+The detection process uses indicators provided by known cloud hosting platforms. Logic
 for supported providers is stored in the `includes/providers` directory.
 
 To add support for a custom platform, simply create a `settings.[provider].php`
@@ -200,7 +200,7 @@ file in that directory with the relevant detection logic.
 It is important to note that this detection logic is only responsible for
 identifying the environment type. It does not apply any configuration changes.
 Those are handled separately in per-module override files, making the setup
-modular and independent of hosting platform.
+modular and independent of the cloud hosting platforms.
 
 #### Overriding environment type
 

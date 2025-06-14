@@ -1,0 +1,58 @@
+import { VerticalTabs, VerticalTab, VerticalTabPanel } from '@site/src/components/VerticalTabs';
+
+# Complex VerticalTab Structure
+
+<VerticalTabs>
+
+<VerticalTab>🏗️ Complex Infrastructure | Advanced multi-service architecture</VerticalTab>
+<VerticalTabPanel>
+
+This tab contains complex nested structures to test parser robustness.
+
+### ✅ Subheading
+Regular paragraph content.
+
+<details>
+<summary>Details Summary</summary>
+Details content with nested structures.
+</details>
+
+#### Another Level
+- List item 1
+- List item 2
+
+```bash
+# Code block example
+ahoy build
+```
+
+**Bold text** and *italic text* for formatting tests.
+
+</VerticalTabPanel>
+
+<VerticalTab>🎯 Second Complex Tab | Another complex description</VerticalTab>
+<VerticalTabPanel>
+
+More complex content in the second tab.
+
+### Tables and Advanced Content
+
+| Feature | Status | Priority |
+|---------|---------|----------|
+| Testing | ✅ Active | High |
+| Deploy | 🚧 Coming | Medium |
+
+:::tip
+This is an admonition block for advanced content testing.
+:::
+
+</VerticalTabPanel>
+
+<VerticalTab>🚀 Third Tab | Minimal description</VerticalTab>
+<VerticalTabPanel>
+
+Simple content for the third tab to test multiple tabs.
+
+</VerticalTabPanel>
+
+</VerticalTabs>

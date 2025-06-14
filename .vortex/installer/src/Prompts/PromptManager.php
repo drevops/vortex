@@ -275,7 +275,7 @@ class PromptManager {
       ->intro('Hosting')
 
       ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('🏠 Hosting provider'),
+        label: $this->label('☁️ Hosting provider'),
         hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
         options: [
           HostingProvider::ACQUIA => '💧 Acquia Cloud',
@@ -596,7 +596,7 @@ class PromptManager {
     $values['🎨 Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
 
     $values['Hosting'] = Tui::LIST_SECTION_TITLE;
-    $values['🏠 Hosting provider'] = $responses[HostingProvider::id()];
+    $values['☁️ Hosting provider'] = $responses[HostingProvider::id()];
 
     $values['Deployment'] = Tui::LIST_SECTION_TITLE;
     $values['🚚 Deployment types'] = Converter::toList($responses[DeployType::id()]);

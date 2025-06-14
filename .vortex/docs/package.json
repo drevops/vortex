@@ -13,7 +13,11 @@
     "write-heading-ids": "docusaurus write-heading-ids",
     "spellcheck": "cspell content/*.mdx content/**/*.mdx",
     "update-variables": "./.utils/update-docs.sh",
-    "test": "npm run spellcheck"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/ && prettier --check src/",
+    "lint-fix": "eslint src/ --fix && prettier --write src/"
   },
   "dependencies": {
     "@docusaurus/core": "^3.5",
@@ -32,7 +36,21 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "cspell": "^8.6.1"
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
+    "@testing-library/jest-dom": "^5.16.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.0.0",
+    "babel-jest": "^29.7.0",
+    "cspell": "^8.6.1",
+    "eslint": "^8.0.0",
+    "eslint-plugin-react": "^7.0.0",
+    "eslint-plugin-react-hooks": "^4.0.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.0.0",
+    "prettier": "^3.0.0"
   },
   "browserslist": {
     "production": [

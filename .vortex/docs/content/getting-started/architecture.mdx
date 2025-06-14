@@ -1,267 +1,213 @@
----
-hide:
-  - toc
----
-
 # Architecture
 
-**Vortex** offers a pre-configured project template that is reliable, tested and
-ready-to-use. Its main goal is to streamline onboarding, making it as quick and
-efficient as possible.
+**Vortex** is a production-ready Drupal project template designed to simplify
+onboarding, unify workflows, and ensure long-term maintainability.
 
-This page describes the architecture of **Vortex** and how it is structured to
-provide a consistent developer experience across all projects that use it.
-Specifics of every feature are described in the corresponding sections of this
-documentation.
+This page provides a high-level overview of how the template is structured, how
+its components work together, and how your project benefits from its
+architecture.
 
-## Zen of **Vortex**
+# Design Principles
 
-Similar to [Zen of Python](https://www.python.org/dev/peps/pep-0020/), **Vortex
-**
-is built on its own set of principles:
+**Vortex** is guided by principles that prioritize simplicity, visibility, and
+maintainability:
 
-* Simple is better than complex.
-* Favor upstream and standard practices over custom implementations.
-* Errors should never pass silently.
-* Readability counts.
-* Explicit logging helps.
+* **Simple is better than complex**: The template encourages clarity, even in
+  customizations.
+* **Use standard tools**: Wherever possible, **Vortex** follows upstream conventions
+  and avoids reinvention.
+* **Avoid silent errors**: Misconfigurations should fail loudly.
+* **Readability counts**: Code and configuration are meant to be understood.
+* **Explicit logging helps**: Scripts log every major step, so it’s easy to
+  follow what’s going on.
 
-## System components
+# System Components
+
+The system is made up of several modular pieces that work together:
+
+- Local development environment
+- Drupal management
+- Code quality and testing tools
+- Continuous integration workflows
+- Hosting provider configurations
+- Automated dependency updates
+- Project documentation
+- Workflow scripts to connect components
+
+You can see how these parts connect in the diagram below:
 
 <picture style={{ display: 'block', textAlign: 'center' }}>
 <img src="/img/diagram-dark.png#gh-dark-mode-only" alt="System components"/>
 <img src="/img/diagram-light.png#gh-light-mode-only" alt="System components"/>
 </picture>
 
-## Repository structure
+## Local Development Environment
 
-The repository file structure follows the structure defined in
-[drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
-with addition of several configuration files and directories.
+Your project includes a containerized local environment using Docker Compose and
+production-grade Lagoon images. This ensures consistency between local, CI, and
+hosting environments.
 
-:::note
+To simplify command usage, we use [Ahoy](https://ahoy-cli.dev/) as a wrapper. It
+lets you run complex workflows like provisioning, testing, or database imports
+with short, easy-to-remember commands.
 
-    The directory structure is **exactly what you are going to get** after
-    installation - there are no files being copied or moved from _magic_ places.
+## Drupal management
 
-:::
+### Provisioning
 
-```
-├── .circleci                # CircleCI configuration files.
-├── .data                    # Database dump files directory. Excluded.
-├── .docker                  # Docker configuration files.
-│   ├── config               #   Additional configuration for every Docker service.
-│   └── scripts              #   Scripts to run in the Docker services during image build
-├── .github                  # GitHub configuration files.
-├── .logs                    # Test logs and screenshots. Excluded.
-├── config                   # Drupal configuration.
-│   ├── ci                   #   Config split configuration for CI environment.
-│   ├── default              #   Default configuration.
-│   ├── dev                  #   Config split configuration for DEV environment.
-│   ├── local                #   Config split configuration for local environment.
-│   └── stage                #   Config split configuration for stage environment.
-├── docs                     # Your project documentation.
-├── drush                    # Drush configuration files.
-├── hooks                    # Acquia hooks. Removed if not using Acquia hosting.
-│   ├── common               #   Hook implementations that run on all environments.
-│   ├── library              #   Library of hook implementations.
-│   └── prod                 #   Hook implementations that run in prod environment.
-├── patches                  # Patches for packages.
-├── recipes                  # Custom recipes directory.
-├── scripts                  # Composer, Vortex and custom project scripts.
-│   ├── composer             #   Composer scripts.
-│   ├── custom               #   Custom project scripts.
-│   └── vortex               #   Vortex workflow scripts.
-├── tests                    # Integration and configuration tests.
-│   ├── behat                #   Behat BDD tests.
-│   └── phpunit              #   Configuration unit tests
-├── web                      # Drupal web root directory.
-│   ├── modules/custom/ys_base    #  Custom module scaffold.
-│   │   ├── tests/src        #         Tests scaffold.
-│   │   │   ├── Functional   #           Functional test scaffold and example.
-│   │   │   ├── Kernel       #           Kernel test scaffold and example.
-│   │   │   ├── Traits       #           Helper traits to use in tests.
-│   │   │   └── Unit         #           Unit test scaffold and example.
-│   │   └── ys_base.deploy   #         Drush deploy example.
-│   └── modules/custom/ys_search  #  Custom search module scaffold.
-├── .ahoy.yml                # Ahoy configuration file.
-├── .ahoy.local.example.yml  # Ahoy local configuration file.
-├── .dockerignore            # Docker ignore configuration file.
-├── .editorconfig            # Helps maintain consistent coding styles.
-├── .env                     # Environment variables to control project workflow using variables.
-├── .env.local.example       # Environment variables local overrides.
-├── .gitignore               # Intentionally untracked files to ignore in Git.
-├── .gitignore.artifact      # Intentionally untracked files to ignore in artifact deployment.
-├── .lagoon.yml              # Lagoon configuration file. Removed if not using Lagoon hosting.
-├── .twig-cs-fixer.php       # Twig CS Fixer configuration file.
-├── behat.yml                # Behat configuration file.
-├── CLAUDE.md                # Claude Code development guide.
-├── composer.json            # Composer configuration file.
-├── docker-compose.yml       # Docker Compose configuration file.
-├── gherkinlint.json         # Gherkin Lint configuration file.
-├── phpcs.xml                # PHP CodeSniffer configuration file.
-├── phpmd.xml                # PHP Mess Detector configuration file.
-├── phpstan.neon             # PHPStan configuration file.
-├── phpunit.xml              # PHPUnit configuration file.
-├── README.md                # Project main readme file.
-├── rector.php               # Rector configuration file.
-└── renovate.json            # Renovate configuration file.
-```
+The provisioning process is central to how **Vortex** works. Instead of manually
+running Drush commands, you run a single provision script. This script handles:
 
-## Scripts
+* Importing a database (or initializing from a profile)
+* Running updates, config imports, cache rebuilds, and deploy hooks
+* Executing post-provision custom scripts
 
-**Vortex** provides a set of [POSIX](https://en.wikipedia.org/wiki/POSIX)
--compliant
-shell scripts designed to orchestrate workflows.
+Because provisioning is centralized, it runs exactly in the same way in every
+environment: local, CI, or hosting. This eliminates "works on my machine"
+problems and makes the process predictable for everyone.
 
-During installation, the scripts are added to your project repository into
-`scripts/vortex` directory.
+➡️ See [Drupal > Provision](../drupal/provision)
 
-Using shell scripts instead of compiled binaries allows you to modify files to
-fit your needs without requiring to learn an additional programming language,
-compile sources, or waiting for someone upstream to update the code.
+### Module and Theme Scaffolds
 
-:::note
+We include examples of a custom module and theme, each fully integrated with
+tests. These show you how to:
 
-    We are [looking into providing](https://github.com/drevops/vortex/issues/1198)
-    `pre-` and `post-` hooks for scripts so that you can extend the
-    functionality without modifying the original source code.
+* Structure custom features
+* Write functional, kernel, and unit tests
+* Connect theme assets to a build pipeline
 
-    This will also allow us to extract the scripts into a separate repository
-    that can be included in your project as a Composer package.
+Use these scaffolds as starting points for your own work.
 
-:::
+➡️ See [Drupal > Module Scaffold](../drupal/module-scaffold)
+and [Drupal > Theme Scaffold](../drupal/theme-scaffold)
 
-### Centralised workflows
+### Settings Management
 
-> _A workflow is a sequence of steps or tasks to accomplish a specific goal._
+**Vortex** includes a structured way to manage Drupal settings per environment.
+Here's how it works:
 
-**Vortex** comes with as set of pre-defined workflow scripts used to
-standardise the development process.
+* The environment type (e.g. local, CI, stage) is automatically detected based
+  on your hosting provider.
+* Configuration overrides are stored in `includes/modules/` with logic per
+  environment inside each module-specific file.
 
-For example, the `scripts/vortex/download-db.sh` script is used to download a
-database from any supported hosting provider or a custom location.
+This structure gives you clarity, avoids config sprawl, and lets you remove a
+module’s settings cleanly when no longer needed.
 
-Another example is a `scripts/vortex/provision.sh` script that is used to
-provision a website in a consistent way, allowing to alter the flow using
-[environment variables](../workflows/variables.mdx) and enhance it via custom
-scripts.
+➡️ See [Drupal > Settings](../drupal/settings)
 
-The scripts aim to centralize workflows instead of adjusting them for every
-environment (local, CI, dev, prod, etc.), reducing **multiple points of failure
-**.
-This means that a developer updating a workflow for local environment, for
-example, will not accidentally forget to update it for the CI environment, and
-so on.
+## Code Quality and Testing
 
-In the diagram below, the `download-db.sh` and `provision.sh` scripts are
-**consistently** called from the configuration files within an environment.
+**Vortex** ships with pre-configured tools for maintaining code quality:
 
-```mermaid
-    flowchart LR
-    subgraph Environment
-        A[Local<br/><small><code>.ahoy.yml</code></small>]
-        B[CI<br/><small><code>config.yml</code></small>]
-        C[Hosting<br/><small><code>.lagoon.yml</code></small>]
-    end
+* **PHP CodeSniffer (phpcs)**
+* **PHPStan**
+* **PHP Mess Detector (phpmd)**
+* **Twig CS Fixer**
 
-    subgraph Scripts
-        direction TB
-        D["download-db.sh"] -.-> E["provision.sh"]
-        E["provision.sh"] -.-> F["deploy.sh"]
-        F["deploy.sh"] -.-> G["notify.sh"]
-    end
+You’ll also find scaffolds for:
 
-    A --> Scripts
-    B --> Scripts
-    C --> Scripts
-```
+* **PHPUnit**: Unit and kernel testing
+* **Behat**: Behavior-driven testing with screenshot capture and extra steps
 
-See [Workflows](../../workflows) section for more details.
+➡️ See [Tools > PHPStan](../tools/phpstan), [Tools > PHPCS](../tools/phpcs), 
+[Tools > Behat](../tools/behat), and [Tools > PHPUnit](../tools/phpunit)
+
+## Continuous Integration Workflows
+
+**Vortex** supports GitHub Actions and CircleCI. You choose which one to use in your
+project. The workflows include:
+
+* Database download and caching (for faster builds)
+* Full site provisioning in CI
+* Running code quality checks
+* Running unit, functional and behavior tests
+* Triggering deploys when tests pass
+
+Each continuous integration configuration mirrors what happens locally and in hosting to ensure
+uniformity.
+
+➡️ See [Continuous Integration](../continuous-integration)
+
+## Hosting Integrations
+
+Out of the box, **Vortex** supports Acquia and Lagoon hosting. These integrations:
+
+* Trigger provisioning with the same steps used locally and in CI
+* Provide deployment workflows suited to each platform
+
+You can use **Vortex** with other platforms too, but these are first-class
+integrations.
+
+➡️ See [Hosting](../hosting)
+
+## Automated Dependency Updates
+
+**Vortex** includes configuration for RenovateBot to automate dependency upgrades:
+
+* Critical updates checked daily
+* Regular updates run weekly
+* PRs include changelogs and pass through your continuous integration pipeline
+
+You can host RenovateBot yourself or use the cloud version, and you can tweak
+the schedule as needed.
+
+➡️ See [Tools > Renovate](../tools/renovate)
+
+## Documentation & Onboarding
+
+**Vortex** includes centralized documentation (what you’re reading now), as well as
+a scaffold for adding project-specific docs within your own repository.
+
+An onboarding checklist helps you track your adoption of **Vortex** on existing
+projects, making it easier to migrate large codebases step by step.
+
+## Workflow Scripts
+
+A workflow is a sequence of steps to achieve a goal. In **Vortex**, those are
+defined via POSIX-compliant Bash scripts in `scripts/vortex`.
+
+These scripts:
+
+* Run identically across local, CI, and hosting
+* Support environment variables to adapt behavior
+* Are modular and easy to extend
+
+### Customizing workflows
+
+All scripts support configuration via environment variables, allowing workflows
+to be easily adapted to specific project or environment needs.
+
+During initial project setup, `.env` file is updated with project-specific
+values like project name, email etc. Then, environment variables (secrets,
+tokens, etc.) are set in CI or hosting environments.
+
+Refer to the [Workflows](../workflows) section for more details.
 
 ### Router scripts
 
-The scripts from the example above are _router_ script that invokes other,
-more specific scripts (by sourcing them) based on the project configuration.
-This design **keeps the entry point consistent** while allowing implementation
-updates as needed without modifying the entry point in multiple places.
+Most ****Vortex**** commands are implemented as router scripts entry points like
+`download-db.sh` or `deploy.sh—that` dynamically invoke a more specific logic
+for your setup, based on configuration or environment variables.
 
-:::note
+For example:
 
-    The router script always starts with a **verb** to indicate the action it performs.
-    Specific scripts always start with a name of the router script.
+- `download-db.sh` is a router script that downloads a database from any
+  supported hosting provider or custom location without needing to know the
+  specifics of each provider.
+- `deploy.sh` is a router script that deploys code to any hosting provider in a
+  consistent manner, regardless of whether it's Acquia, Lagoon, or another
+  platform.
 
-:::
+<details>
+<summary>Script architecture diagram</summary>
 
-In the diagram below, for example, the `download-db.sh` script, being a router
-script, invokes another script specific to the database download source
-(controlled with an environment variable).
+<picture>
+  <img src="/img/diagram-scripts-light.svg#gh-dark-mode-only" alt="Diagram of scripts"/>
+  <img src="/img/diagram-scripts-dark.svg#gh-light-mode-only" alt="Diagram of scripts"/>
+</picture>
 
-In this example, changing the database download source from `lagoon` to `s3`
-would not require changes to any local, CI, or hosting scripts.
+</details>
 
-In addition, a developer would not need to learn how to use `s3` to
-download a database or even know how that download process was configured
-&mdash; they would continue using the same command wrapper command as before.
-
-If a new database download method is introduced, the router
-script `download-db.sh` can be easily extended to accommodate it,
-without altering configuration files for services.
-
-```mermaid
----
-title: Example of a router script
----
-flowchart LR
-    subgraph download-db.sh
-        F{DB source type}
-    end
-    F -- FTP --> G[download-db-ftp.sh]
-    F -- CURL --> H[download-db-url.sh]
-    F -- Acquia --> I[download-db-acquia.sh]
-    F -- Lagoon --> J[download-db-lagoon.sh]
-    F -- Docker registry --> K[download-db-container-registry.sh]
-    F -- Your custom source --> L[download-db-your-source.sh]
-```
-
-### Environment variables
-
-The workflow within scripts is controlled via environment variables.
-
-To alter the workflow for a specific environment, the variables would need to be
-set within that environment via the `.env` configuration file or other means
-supported by the environment (e.g. CI and Hosting providers support adding
-variables via UI).
-
-See [Variables](../workflows/variables.mdx) section for more details.
-
-## Template placeholders and tokens
-
-**Vortex** uses a system of placeholders and conditional tokens to generate
-customized projects while keeping the template structure transparent. This
-approach allows you to see exactly what your final project will look like - the
-repository structure shown above is precisely what you get after installation,
-with no files copied from hidden locations or magic transformations.
-
-### Naming placeholders
-
-Throughout the template, placeholder names are used consistently and replaced
-during installation. Examples include `your_site`, `YOURSITE`, and `ys_`, among
-many others. These placeholders ensure consistent naming patterns across all
-generated files and maintain best practices for Drupal naming conventions.
-
-### Conditional tokens
-
-Conditional tokens allow the template to include or exclude entire sections of
-code based on the features selected during installation. This keeps the
-generated project lean and relevant to your specific needs.
-
-The tokens use different syntax depending on the file type:
-
-- **Shell scripts and YAML files:** `#;< TOKEN_NAME` ... `#;> TOKEN_NAME`
-- **Markdown documentation:** `[//]: # (#;< TOKEN_NAME)` ...
-  `[//]: # (#;> TOKEN_NAME)`
-
-During installation, content wrapped in these tokens is either kept or removed
-based on your feature selections, ensuring your project contains only the
-components you actually need.
+➡️ See [Workflows](../workflows)
