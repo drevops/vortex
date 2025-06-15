@@ -116,7 +116,7 @@ composer require drupal/module_name
 composer require drupal/somepackage
 ```
 
-See https://vortex.drevops.com/workflows/development#working-with-composer-packages
+See https://www.vortextemplate.com/docs/workflows/development#working-with-composer-packages
 
 ## How to set a custom maintenance theme?
 

@@ -313,7 +313,7 @@ ahoy reset  # Rebuild if needed
 
 ## Resources
 
-- **Vortex Documentation**: https://vortex.drevops.com
+- **Vortex Documentation**: https://www.vortextemplate.com
 - **Drupal Documentation**: https://www.drupal.org/docs
 - **Drush Documentation**: https://www.drush.org
 - **Ahoy Documentation**: https://github.com/ahoy-cli/ahoy

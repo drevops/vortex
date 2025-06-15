@@ -26,7 +26,7 @@ vortex/
 ## .vortex Directory Structure
 
 ### .vortex/docs/
-- **Docusaurus-based documentation** published to https://vortex.drevops.com
+- **Docusaurus-based documentation** published to https://www.vortextemplate.com
 - **MDX content system** with interactive components
 - **Multi-layered testing**: Jest (unit), E2E, and spellcheck validation
 - **Quality tools**: ESLint, Prettier, and American English standardization
@@ -45,7 +45,7 @@ vortex/
 
 ### Documentation Testing (.vortex/docs/)
 - **Jest-based testing** with jsdom and React Testing Library
-- **Unit tests**: React component functionality and interactions  
+- **Unit tests**: React component functionality and interactions
 - **Spellcheck**: cspell validation for American English consistency
 - **Coverage reporting**: Text, lcov, HTML, and Cobertura formats
 - **Location**: `tests/unit/`
@@ -286,7 +286,7 @@ yarn build          # Build documentation
 yarn spellcheck     # American English validation
 yarn lint-fix       # Auto-fix code quality issues
 
-# Testing workflow  
+# Testing workflow
 yarn test           # Run all tests
 yarn test:watch     # Watch mode for development
 ```
@@ -583,7 +583,7 @@ File::runTaskDirectory($this->config->get(Config::TMP));
 
 ## Resources
 
-- **Documentation**: `.vortex/docs/` and https://vortex.drevops.com
+- **Documentation**: `.vortex/docs/` and https://www.vortextemplate.com
 - **BATS Documentation**: https://github.com/bats-core/bats-core
 - **Issue Tracking**: https://github.com/drevops/vortex/issues
 

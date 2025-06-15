@@ -12,7 +12,7 @@
  * through environment variables and module-specific settings files instead.
  * This allows for better portability and easier management of settings across
  * environments.
- * @see https://vortex.drevops.com/drupal/settings
+ * @see https://www.vortextemplate.com/docs/drupal/settings
  *
  * phpcs:disable Drupal.Commenting.InlineComment.NoSpaceBefore
  * phpcs:disable Drupal.Commenting.InlineComment.SpacingAfter
@@ -25,7 +25,7 @@ declare(strict_types=1);
 ////////////////////////////////////////////////////////////////////////////////
 ///                               DATABASE                                   ///
 ////////////////////////////////////////////////////////////////////////////////
-// @see https://vortex.drevops.com/drupal/settings#database
+// @see https://www.vortextemplate.com/docs/drupal/settings#database
 
 $databases = [
   'default' =>
@@ -48,7 +48,7 @@ $databases = [
 ////////////////////////////////////////////////////////////////////////////////
 ///                               GENERAL                                    ///
 ////////////////////////////////////////////////////////////////////////////////
-// @see https://vortex.drevops.com/drupal/settings#general
+// @see https://www.vortextemplate.com/docs/drupal/settings#general
 
 $app_root = $app_root ?? DRUPAL_ROOT;
 $site_path = $site_path ?? 'sites/default';
@@ -89,7 +89,7 @@ $settings['maintenance_theme'] = getenv('DRUPAL_MAINTENANCE_THEME') ?: getenv('D
 // Settings for specific environments (including a local container-based
 // environment) are populated within provider-specific
 // `includes/providers/settings.<provider>.php` files.
-// @see https://vortex.drevops.com/drupal/settings#per-module-overrides
+// @see https://www.vortextemplate.com/docs/drupal/settings#per-module-overrides
 $settings['trusted_host_patterns'] = [
   '^localhost$',
 ];
@@ -110,7 +110,7 @@ $settings['entity_update_batch_size'] = 50;
 ////////////////////////////////////////////////////////////////////////////////
 ///                       ENVIRONMENT TYPE DETECTION                         ///
 ////////////////////////////////////////////////////////////////////////////////
-// @see https://vortex.drevops.com/drupal/settings#environment-type-detection
+// @see https://www.vortextemplate.com/docs/drupal/settings#environment-type-detection
 
 // Use these constants anywhere in code to alter behavior for a specific
 // environment.
@@ -153,7 +153,7 @@ if (!empty(getenv('DRUPAL_ENVIRONMENT'))) {
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-MODULE OVERRIDES                               ///
 ////////////////////////////////////////////////////////////////////////////////
-// @see https://vortex.drevops.com/drupal/settings#per-module-overrides
+// @see https://www.vortextemplate.com/docs/drupal/settings#per-module-overrides
 
 if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
   $files = glob($app_root . '/' . $site_path . '/includes/modules/settings.*.php');
@@ -167,7 +167,7 @@ if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
 ////////////////////////////////////////////////////////////////////////////////
 ///                          LOCAL OVERRIDE                                  ///
 ////////////////////////////////////////////////////////////////////////////////
-// @see https://vortex.drevops.com/drupal/settings#local-overrides
+// @see https://www.vortextemplate.com/docs/drupal/settings#local-overrides
 
 // Load local override configuration, if available.
 //
