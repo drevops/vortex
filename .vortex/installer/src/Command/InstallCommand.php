@@ -434,7 +434,7 @@ EOT;
       $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
       $output .= '  ahoy build                       # Build site.' . PHP_EOL;
       $output .= PHP_EOL;
-      $output .= '  See https://vortex.drevops.com/quickstart';
+      $output .= '  See https://www.vortextemplate.com/docs/quickstart';
     }
 
     Tui::box($output, $title);

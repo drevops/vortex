@@ -12,7 +12,7 @@ CI server: it imports production backups into fully built codebase and runs
 code linting and tests. When tests pass, a deployment process is triggered for
 nominated branches (usually, `main` and `develop`).
 
-Refer to https://vortex.drevops.com/latest/usage/ci for more information.
+Refer to https://www.vortextemplate.com/docs/continuous-integration for more information.
 
 ### Skipping CI build
 

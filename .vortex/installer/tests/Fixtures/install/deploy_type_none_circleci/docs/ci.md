@@ -14,7 +14,7 @@
 +When tests pass, a deployment process is triggered for nominated branches
 +(usually, `main` and `develop`).
  
- Refer to https://vortex.drevops.com/latest/usage/ci for more information.
+ Refer to https://www.vortextemplate.com/docs/continuous-integration for more information.
  
 @@ -21,9 +21,6 @@
  

@@ -48,14 +48,14 @@ It will integrate the latest Vortex release into your codebase, and you will
 choose which changes to commit.
 
 ```bash
-curl -SsL https://vortex.drevops.com/install > install.php && php install.php
+curl -SsL https://www.vortextemplate.com/install > install.php && php install.php
 ```
 
 Alternatively, clone this repository and adjust the configuration by manually
 editing or deleting the sections that aren't necessary for your setup.
 
 Read
-the [installation guide](https://vortex.drevops.com/getting-started/installation)
+the [installation guide](https://www.vortextemplate.com/docs/getting-started/installation)
 for more details.
 
 ## Features
@@ -67,11 +67,11 @@ for more details.
   </picture>
 </div>
 
-See [Features](https://vortex.drevops.com/getting-started/features) for more details.
+See [Features](https://www.vortextemplate.com/docs/getting-started/features) for more details.
 
 ## Documentation
 
-The documentation is authored within this repository in the [`.vortex/docs`](.vortex/docs) directory and published to [https://vortex.drevops.com](https://vortex.drevops.com) on Vortex release.
+The documentation is authored within this repository in the [`.vortex/docs`](.vortex/docs) directory and published to [https://www.vortextemplate.com](https://www.vortextemplate.com) on Vortex release.
 
 Development version of the documentation is available at [https://vortex-docs.netlify.app/](https://vortex-docs.netlify.app/).
 

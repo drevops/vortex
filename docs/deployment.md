@@ -1,6 +1,6 @@
 # Deployment process
 
-Refer to https://vortex.drevops.com/workflows/deployment for more information.
+Refer to https://www.vortextemplate.com/docs/workflows/deployment for more information.
 
 ## Workflow
 

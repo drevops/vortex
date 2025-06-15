@@ -26,7 +26,7 @@ set -a && . ./.env && set +a
 VORTEX_INSTALL_REPO="${VORTEX_INSTALL_REPO:-${1:-}}"
 
 # The URL of the installer script.
-VORTEX_INSTALLER_URL="${VORTEX_INSTALLER_URL:-https://vortex.drevops.com/install}"
+VORTEX_INSTALLER_URL="${VORTEX_INSTALLER_URL:-https://www.vortextemplate.com/install}"
 
 # ------------------------------------------------------------------------------
 
