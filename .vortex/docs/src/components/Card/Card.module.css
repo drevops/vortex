@@ -1,0 +1,154 @@
+/* ================================
+   UNIFIED CARD SYSTEM
+   ================================ */
+
+/* Base card styles */
+.card {
+  background: linear-gradient(145deg, #ffffff, #f7fafc);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 20px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  text-align: center;
+}
+
+.card[href] {
+  cursor: pointer;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.card[href]:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 20px 25px rgba(0, 0, 0, 0.1),
+    0 10px 10px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.card:hover::after {
+  left: 100%;
+}
+
+/* Card icon */
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+  text-align: center;
+}
+
+/* Card title */
+.card-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #2d3748;
+  text-align: center;
+}
+
+/* Card description */
+.card-description {
+  color: #718096;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* Card link styling */
+.card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.card-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.card-link:visited {
+  color: inherit;
+}
+
+/* Grid layouts */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+/* Dark mode adaptations */
+[data-theme='dark'] .card {
+  background: linear-gradient(145deg, #2d3748, #1a202c);
+  border: 1px solid rgba(74, 85, 104, 0.3);
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .card[href]:hover {
+  box-shadow:
+    0 20px 25px rgba(0, 0, 0, 0.4),
+    0 10px 10px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .card-title {
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .card-description {
+  color: #a0aec0;
+}
+
+[data-theme='dark'] .pillar,
+[data-theme='dark'] .benefit {
+  background: linear-gradient(145deg, #2d3748, #1a202c);
+  border: 1px solid rgba(74, 85, 104, 0.3);
+}
+
+[data-theme='dark'] .pillar .card-title,
+[data-theme='dark'] .benefit .card-title {
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .pillar .card-description,
+[data-theme='dark'] .benefit .card-description {
+  color: #a0aec0;
+}

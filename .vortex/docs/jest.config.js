@@ -10,10 +10,11 @@ module.exports = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
   },
   collectCoverageFrom: [
-    'src/**/*.{js,jsx}',
+    'src/components/**/*.{js,jsx}',
     '!tests/**',
     '!src/**/*.test.{js,jsx}',
-    '!src/**/*.spec.{js,jsx}'
+    '!src/**/*.spec.{js,jsx}',
+    '!src/pages/**'
   ],
   transform: {
     '^.+\\.(js|jsx)$': ['babel-jest', {

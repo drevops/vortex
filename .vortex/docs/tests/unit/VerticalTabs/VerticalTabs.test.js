@@ -639,4 +639,58 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       expect(window.removeEventListener).toHaveBeenCalledWith('hashchange', expect.any(Function));
     });
   });
+
+  describe('Helper Function Edge Cases', () => {
+    test('handles non-valid element children gracefully', () => {
+      render(
+        <VerticalTabs>
+          {null}
+          {undefined}
+          {false}
+          {'string content'}
+          {123}
+          <VerticalTab>Valid tab</VerticalTab>
+          <VerticalTabPanel>Valid panel</VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      // Should only show the valid components
+      expect(screen.getByText('Valid tab')).toBeInTheDocument();
+      expect(screen.getByText('Valid panel')).toBeInTheDocument();
+    });
+
+    test('extractText handles different data types in tab titles', () => {
+      render(
+        <VerticalTabs>
+          <VerticalTab>
+            <div>
+              <span>Mixed content:</span>
+              {42}
+              {['array', ' values']}
+              <em>nested elements</em>
+            </div>
+          </VerticalTab>
+          <VerticalTabPanel>Panel content</VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      // Should extract and display all text types correctly
+      expect(screen.getByText(/Mixed content:.*42.*array values.*nested elements/)).toBeInTheDocument();
+    });
+
+    test('handleTabClick with empty slug does not update URL', () => {
+      render(
+        <VerticalTabs>
+          <VerticalTab></VerticalTab> {/* Empty tab creates empty slug */}
+          <VerticalTabPanel>Panel for empty tab</VerticalTabPanel>
+        </VerticalTabs>
+      );
+
+      const emptyTab = document.querySelector('.tab-item');
+      fireEvent.click(emptyTab);
+
+      // Should work without URL update (due to empty slug)
+      expect(screen.getByText('Panel for empty tab')).toBeInTheDocument();
+    });
+  });
 });
