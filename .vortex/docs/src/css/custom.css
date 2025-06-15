@@ -1,12 +1,8 @@
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
- *
- * @see https://docusaurus.io/docs/styling-layout#styling-your-site-with-infima
+ * Custom styles for Vortex documentation
  */
 
-/* You can override the default Infima variables here. */
+/* Theme colors */
 :root {
   --ifm-color-primary: #1e4bb3;
   --ifm-color-primary-dark: #1b43a1;
@@ -19,7 +15,6 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
   --ifm-color-primary: #92a4ed;
   --ifm-color-primary-dark: #7189e8;
@@ -31,7 +26,361 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+/* Hide theme-specific images */
 [data-theme='light'] img[src$='#gh-dark-mode-only'],
 [data-theme='dark'] img[src$='#gh-light-mode-only'] {
   display: none;
+}
+
+/* Frosted glass navbar */
+.navbar {
+  backdrop-filter: blur(20px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+[data-theme='dark'] .navbar {
+  background-color: rgba(24, 25, 26, 0.5) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ================================
+   HERO SECTION
+   ================================ */
+
+.hero-container {
+  position: relative;
+  min-height: max(calc(100vh - var(--ifm-navbar-height)), 600px);
+  height: calc(100vh - var(--ifm-navbar-height));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  margin-top: calc(var(--ifm-navbar-height) * -1);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.logo-container {
+  margin-bottom: 1.5rem;
+}
+
+.logo-container img {
+  filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+}
+
+.logo-container img:hover {
+  transform: scale(1.05) rotate(5deg);
+}
+
+.hero-title {
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #4a5568, #2d3748);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  color: #718096;
+  margin-bottom: 2rem;
+  font-weight: 300;
+}
+
+.hero-description {
+  max-width: 800px;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #4a5568;
+  margin-bottom: 2rem;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background: linear-gradient(145deg, #4a5568, #2d3748);
+  color: white;
+  text-decoration: none;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  color: white;
+  text-decoration: none;
+}
+
+.secondary-button {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: transparent;
+  color: #4a5568;
+  text-decoration: none;
+  border: 2px solid #4a5568;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  background: #4a5568;
+  color: white;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.features-link {
+  margin-top: 4rem;
+  text-align: center;
+}
+
+/* Animated particles */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(74, 85, 104, 0.2);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.orb1,
+.orb2 {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(60px);
+  z-index: 1;
+}
+
+.orb1 {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(
+    circle,
+    rgba(74, 85, 104, 0.03) 0%,
+    transparent 70%
+  );
+  top: 15%;
+  left: 10%;
+}
+
+.orb2 {
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(
+    circle,
+    rgba(45, 55, 72, 0.03) 0%,
+    transparent 70%
+  );
+  top: 70%;
+  right: 15%;
+}
+
+/* ================================
+   SECTIONS
+   ================================ */
+
+.full-width-section {
+  padding: 4rem 0;
+}
+
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+  margin-top: 0;
+  background: linear-gradient(135deg, #4a5568, #2d3748);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+}
+
+.why-section {
+  padding-top: 4rem;
+}
+
+/* ================================
+   DARK MODE
+   ================================ */
+
+[data-theme='dark'] .hero-title,
+[data-theme='dark'] .section-title {
+  background: linear-gradient(135deg, #cbd5e0, #e2e8f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme='dark'] .hero-subtitle {
+  color: #a0aec0;
+}
+
+[data-theme='dark'] .hero-description {
+  color: #cbd5e0;
+}
+
+[data-theme='dark'] .secondary-button {
+  color: #cbd5e0;
+  border-color: #cbd5e0;
+}
+
+[data-theme='dark'] .secondary-button:hover {
+  background: #cbd5e0;
+  color: #1a202c;
+}
+
+[data-theme='dark'] .particle {
+  background: rgba(203, 213, 224, 0.2);
+}
+
+[data-theme='dark'] .orb1 {
+  background: radial-gradient(
+    circle,
+    rgba(203, 213, 224, 0.05) 0%,
+    transparent 70%
+  );
+}
+
+[data-theme='dark'] .orb2 {
+  background: radial-gradient(
+    circle,
+    rgba(226, 232, 240, 0.05) 0%,
+    transparent 70%
+  );
+}
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+
+@media (max-width: 1024px) {
+  .hero-container {
+    padding: 1.5rem;
+  }
+
+  .content-container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
+
+  .hero-description {
+    font-size: 1.1rem;
+  }
+
+  .hero-container {
+    padding: 1rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .content-container {
+    padding: 0 1rem;
+  }
+
+  .full-width-section,
+  .why-section {
+    padding: 3rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+  }
+
+  .logo-container img {
+    width: 150px;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .full-width-section,
+  .why-section {
+    padding: 2rem 0;
+  }
+
+  .content-container {
+    padding: 0 0.5rem;
+  }
+}
+
+/* Footer accessibility improvements */
+[data-theme='light'] .footer--dark .footer__link-item:hover {
+  --ifm-footer-link-hover-color: #92a4ed;
+}
+
+.footer__bottom {
+  margin-top: 2rem;
 }
