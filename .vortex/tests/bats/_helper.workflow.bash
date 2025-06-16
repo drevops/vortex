@@ -8,9 +8,9 @@ prepare_sut() {
   step "Run SUT preparation: ${1}"
   local webroot="${2:-web}"
 
-  VORTEX_DEV_VOLUMES_MOUNTED=${VORTEX_DEV_VOLUMES_MOUNTED:-1}
+  VORTEX_DEV_VOLUMES_SKIP_MOUNT=${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}
 
-  assert_not_empty "${VORTEX_DEV_VOLUMES_MOUNTED-}"
+  assert_not_empty "${VORTEX_DEV_VOLUMES_SKIP_MOUNT-}"
 
   assert_files_not_present_common "" "" "" "${webroot}"
 
@@ -211,7 +211,7 @@ assert_env_changes() {
   assert_output_contains "my_custom_var_value"
   assert_success
 
-  # Restore file, apply changes and assert that original behaviour has been restored.
+  # Restore file, apply changes and assert that original behavior has been restored.
   restore_file ".env"
   ahoy up cli
   sync_to_container
@@ -229,16 +229,15 @@ assert_timezone() {
   step "Check that timezone can be applied"
 
   # Assert that .env contains a default value.
-  # Note that AEDT changes to AEST during winter.
-  assert_file_contains ".env" 'TZ="Australia/Melbourne"'
+  assert_file_contains ".env" 'TZ=UTC'
   run docker compose exec cli date
-  assert_output_contains "AE"
+  assert_output_contains "UTC"
   run docker compose exec php date
-  assert_output_contains "AE"
+  assert_output_contains "UTC"
   run docker compose exec nginx date
-  assert_output_contains "AE"
+  assert_output_contains "UTC"
   run docker compose exec database date
-  assert_output_contains "AE"
+  assert_output_contains "UTC"
 
   # Add variable to the .env file and apply the change to container.
   add_var_to_file .env "TZ" '"Australia/Perth"'
@@ -254,7 +253,7 @@ assert_timezone() {
   run docker compose exec database date
   assert_output_contains "AWST"
 
-  # Restore file, apply changes and assert that original behaviour has been restored.
+  # Restore file, apply changes and assert that original behavior has been restored.
   restore_file ".env"
   sync_to_container
   run ahoy up
@@ -325,12 +324,25 @@ assert_ahoy_login() {
 
 assert_ahoy_export_db() {
   step "Export DB"
-  file="${1:-mydb.sql}"
+
+  file="${1:-}"
   run ahoy export-db "${file}"
+
   assert_success
   assert_output_not_contains "Containers are not running."
   sync_to_host
   assert_file_exists ".data/${file}"
+}
+
+assert_ahoy_import_db() {
+  step "Import DB"
+
+  run ahoy import-db "${1-}"
+
+  assert_success
+  assert_output_contains "Provisioning site from the database dump file."
+  assert_output_not_contains "Running deployment operations via 'drush deploy:hook'."
+  assert_output_not_contains "Running database updates."
 }
 
 assert_ahoy_lint() {
@@ -353,7 +365,7 @@ assert_ahoy_lint_be() {
   step "Run BE linter checks"
 
   substep "Assert that BE lint failure works"
-  echo '$a=1;' >>"${webroot}/modules/custom/sw_core/sw_core.module"
+  echo '$a=1;' >>"${webroot}/modules/custom/sw_base/sw_base.module"
   sync_to_container
   run ahoy lint-be
   assert_failure
@@ -381,9 +393,9 @@ assert_ahoy_lint_fe() {
   sync_to_container
 
   substep "Assert that FE lint failure works for Twig CS Fixer"
-  mkdir -p "${webroot}/modules/custom/sw_core/templates/block"
+  mkdir -p "${webroot}/modules/custom/sw_base/templates/block"
   mkdir -p "${webroot}/themes/custom/star_wars/templates/block"
-  echo "{{ set a='a' }}" >>"${webroot}/modules/custom/sw_core/templates/block/test1.twig"
+  echo "{{ set a='a' }}" >>"${webroot}/modules/custom/sw_base/templates/block/test1.twig"
   echo "{{ set b='b' }}" >>"${webroot}/themes/custom/star_wars/templates/block/test2.twig"
   sync_to_container
   run ahoy lint-fe
@@ -441,7 +453,7 @@ assert_ahoy_test_unit() {
 
   substep "Assert that Drupal Unit test failure works"
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Unit/ExampleTest.php"
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_base/tests/src/Unit/ExampleTest.php"
   rm -rf .logs/test_results/*
   ahoy cli rm -rf /app/.logs/test_results/*
   sync_to_container
@@ -467,7 +479,7 @@ assert_ahoy_test_kernel() {
 
   substep "Assert that Kernel test failure works"
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Kernel/ExampleTest.php"
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_base/tests/src/Kernel/ExampleTest.php"
   rm -rf .logs/test_results/*
   ahoy cli rm -rf /app/.logs/test_results/*
   sync_to_container
@@ -493,7 +505,7 @@ assert_ahoy_test_functional() {
 
   substep "Assert that Functional test failure works"
   # Prepare failing test.
-  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_core/tests/src/Functional/ExampleTest.php"
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${webroot}/modules/custom/sw_base/tests/src/Functional/ExampleTest.php"
   rm -rf .logs/test_results/*
   ahoy cli rm -rf /app/.logs/test_results/*
   sync_to_container
@@ -514,12 +526,16 @@ assert_ahoy_test_bdd_fast() {
   substep "Run all BDD tests"
   run ahoy test-bdd
   assert_success
+
   sync_to_host
+
   assert_dir_not_empty .logs/screenshots
   rm -rf .logs/screenshots/*
   ahoy cli rm -rf /app/.logs/screenshots/*
+
   assert_dir_not_empty .logs/test_results
   assert_file_exists .logs/test_results/behat/default.xml
+
   rm -rf .logs/test_results/*
   ahoy cli rm -rf /app/.logs/test_results/*
 }
@@ -560,7 +576,7 @@ assert_ahoy_test_bdd() {
   ahoy cli rm -rf /app/.logs/screenshots/*
 
   substep "Assert that Behat tests failure works"
-  echo 'And I should be in the "some-non-existing-page" path' >>tests/behat/features/homepage.feature
+  echo 'And the path should be "some-non-existing-page"' >>tests/behat/features/homepage.feature
   sync_to_container
   assert_dir_empty .logs/screenshots
   run ahoy test-bdd
@@ -594,7 +610,7 @@ assert_ahoy_test_bdd() {
 
   substep "Assert that a single Behat test failure works"
   assert_dir_empty .logs/screenshots
-  echo 'And I should be in the "some-non-existing-page" path' >>tests/behat/features/homepage.feature
+  echo 'And the path should be "some-non-existing-page"' >>tests/behat/features/homepage.feature
   run ahoy up cli && sync_to_container
   run ahoy test-bdd tests/behat/features/homepage.feature
   assert_failure
@@ -710,32 +726,32 @@ assert_solr() {
   assert_output_contains "response"
 }
 
-assert_redis() {
-  step "Redis"
+assert_valkey() {
+  step "Valkey"
 
-  substep "Redis service is running"
-  run docker compose exec redis redis-cli FLUSHALL
+  substep "Valkey service is running"
+  run docker compose exec valkey valkey-cli FLUSHALL
   assert_output_contains "OK"
 
-  substep "Redis integration is disabled"
+  substep "Valkey integration is disabled"
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
-  run docker compose exec redis redis-cli --scan
+  run docker compose exec valkey valkey-cli --scan
   assert_output_not_contains "config"
-  # Redis is reported in Drupal as not connected.
+  # Valkey is reported in Drupal as not connected.
   run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
   assert_output_contains "Warning"
 
   substep "Restart with environment variable"
-  add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
+  add_var_to_file .env "DRUPAL_VALKEY_ENABLED" "1"
   sync_to_container
-  DRUPAL_REDIS_ENABLED=1 ahoy up cli
+  DRUPAL_VALKEY_ENABLED=1 ahoy up cli
   sleep 10
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
-  run docker compose exec redis redis-cli --scan
+  run docker compose exec valkey valkey-cli --scan
   assert_output_contains "config"
-  # Redis is reported in Drupal as connected.
+  # Valkey is reported in Drupal as connected.
   run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
   assert_output_contains "OK"
 

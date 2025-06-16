@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
 
 class DatabaseImage extends AbstractHandler {
 
@@ -21,11 +21,12 @@ class DatabaseImage extends AbstractHandler {
    */
   public function process(): void {
     if (!empty($this->response)) {
-      if (!is_scalar($this->response)) {
-        throw new \RuntimeException('Invalid response type.');
-      }
+      $v = $this->getResponseAsString();
 
-      File::replaceContent($this->tmpDir . '/.env', '/# VORTEX_DB_IMAGE=.*/', 'VORTEX_DB_IMAGE=' . $this->response);
+      File::replaceContentInFile(
+        $this->tmpDir . '/.env', '/# VORTEX_DB_IMAGE=.*/',
+        'VORTEX_DB_IMAGE=' . $v
+      );
     }
   }
 

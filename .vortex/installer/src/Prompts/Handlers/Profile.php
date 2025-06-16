@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
 
 class Profile extends AbstractHandler {
 
@@ -48,24 +48,23 @@ class Profile extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
-
-    $v = (string) $this->response;
+    $v = $this->getResponseAsString();
     $t = $this->tmpDir;
     $w = $this->webroot;
 
-    File::replaceContent($t . '/.env', '/DRUPAL_PROFILE=.*/', 'DRUPAL_PROFILE=' . $v);
+    File::replaceContentInFile($t . '/.env', '/DRUPAL_PROFILE=.*/', 'DRUPAL_PROFILE=' . $v);
 
     if (in_array($v, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI])) {
       File::rmdir(sprintf('%s/%s/profiles/your_site_profile', $t, $w));
       File::rmdir(sprintf('%s/%s/profiles/custom/your_site_profile', $t, $w));
-      File::replaceContentInDir($t, $w . '/profiles/your_site_profile,', '');
-      File::replaceContentInDir($t, $w . '/profiles/custom/your_site_profile,', '');
+
+      File::replaceContentAsync([
+        '/profiles/your_site_profile,' => '',
+        '/profiles/custom/your_site_profile,' => '',
+      ]);
     }
     else {
-      File::replaceContentInDir($t, 'your_site_profile', $v);
+      File::replaceContentAsync('your_site_profile', $v);
       File::renameInDir($t, 'your_site_profile', $v);
     }
   }

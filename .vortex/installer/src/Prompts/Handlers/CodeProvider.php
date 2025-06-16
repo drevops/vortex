@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\File;
 
 class CodeProvider extends AbstractHandler {
 
@@ -16,7 +16,7 @@ class CodeProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    if (!file_exists($this->dstDir . '/.github')) {
+    if (file_exists($this->dstDir . '/.github')) {
       return self::GITHUB;
     }
 
@@ -27,11 +27,9 @@ class CodeProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
-    if ($this->response !== self::GITHUB) {
+    if ($v !== self::GITHUB) {
       File::rmdir($this->tmpDir . '/.github');
     }
   }

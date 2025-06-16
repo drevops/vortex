@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Git;
+use DrevOps\VortexInstaller\Utils\Git;
 
 class GithubRepo extends AbstractHandler {
 
@@ -18,6 +18,7 @@ class GithubRepo extends AbstractHandler {
 
     $repo = new Git($this->dstDir);
     $remotes = $repo->listRemotes();
+
     if (empty($remotes)) {
       return NULL;
     }

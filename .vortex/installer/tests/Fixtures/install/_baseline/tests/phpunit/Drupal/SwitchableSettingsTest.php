@@ -100,7 +100,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
           'config_split.config_split.local' => ['status' => TRUE],
         ],
         [
-          'config_split.config_split.test' => NULL,
+          'config_split.config_split.stage' => NULL,
           'config_split.config_split.dev' => NULL,
           'config_split.config_split.ci' => NULL,
         ],
@@ -111,7 +111,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
           'config_split.config_split.ci' => ['status' => TRUE],
         ],
         [
-          'config_split.config_split.test' => NULL,
+          'config_split.config_split.stage' => NULL,
           'config_split.config_split.dev' => NULL,
           'config_split.config_split.local' => NULL,
         ],
@@ -122,7 +122,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
           'config_split.config_split.dev' => ['status' => TRUE],
         ],
         [
-          'config_split.config_split.test' => NULL,
+          'config_split.config_split.stage' => NULL,
           'config_split.config_split.ci' => NULL,
           'config_split.config_split.local' => NULL,
         ],
@@ -130,7 +130,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       [
         static::ENVIRONMENT_STAGE,
         [
-          'config_split.config_split.test' => ['status' => TRUE],
+          'config_split.config_split.stage' => ['status' => TRUE],
         ],
         [
           'config_split.config_split.dev' => NULL,
@@ -142,7 +142,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         static::ENVIRONMENT_PROD,
         [],
         [
-          'config_split.config_split.test' => NULL,
+          'config_split.config_split.stage' => NULL,
           'config_split.config_split.dev' => NULL,
           'config_split.config_split.ci' => NULL,
           'config_split.config_split.local' => NULL,
@@ -152,7 +152,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         static::ENVIRONMENT_SUT,
         [],
         [
-          'config_split.config_split.test' => NULL,
+          'config_split.config_split.stage' => NULL,
           'config_split.config_split.dev' => NULL,
           'config_split.config_split.ci' => NULL,
           'config_split.config_split.local' => NULL,
@@ -178,7 +178,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   /**
-   * Data provider for testEntityPrint().
+   * Data provider for testEnvironmentIndicator().
    */
   public static function dataProviderEnvironmentIndicator(): array {
     return [
@@ -228,20 +228,20 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   /**
-   * Test Redis settings.
+   * Test Valkey settings.
    */
-  public function testRedis(): void {
+  public function testValkey(): void {
     $this->setEnvVars([
-      'DRUPAL_REDIS_ENABLED' => 1,
-      'REDIS_HOST' => 'redis_host',
-      'REDIS_SERVICE_PORT' => 1234,
-      'VORTEX_REDIS_EXTENSION_LOADED' => 1,
+      'DRUPAL_VALKEY_ENABLED' => 1,
+      'VALKEY_HOST' => 'valkey_host',
+      'VALKEY_SERVICE_PORT' => 1234,
+      'VORTEX_VALKEY_EXTENSION_LOADED' => 1,
     ]);
 
     $this->requireSettingsFile();
 
     $settings['redis.connection']['interface'] = 'PhpRedis';
-    $settings['redis.connection']['host'] = 'redis_host';
+    $settings['redis.connection']['host'] = 'valkey_host';
     $settings['redis.connection']['port'] = 1234;
     $settings['cache']['default'] = 'cache.backend.redis';
 
@@ -252,20 +252,20 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   /**
-   * Test Redis partial settings.
+   * Test Valkey partial settings.
    */
-  public function testRedisPartial(): void {
+  public function testValkeyPartial(): void {
     $this->setEnvVars([
-      'DRUPAL_REDIS_ENABLED' => 1,
-      'REDIS_HOST' => 'redis_host',
-      'REDIS_SERVICE_PORT' => 1234,
-      'VORTEX_REDIS_EXTENSION_LOADED' => 0,
+      'DRUPAL_VALKEY_ENABLED' => 1,
+      'VALKEY_HOST' => 'valkey_host',
+      'VALKEY_SERVICE_PORT' => 1234,
+      'VORTEX_VALKEY_EXTENSION_LOADED' => 0,
     ]);
 
     $this->requireSettingsFile();
 
     $settings['redis.connection']['interface'] = 'PhpRedis';
-    $settings['redis.connection']['host'] = 'redis_host';
+    $settings['redis.connection']['host'] = 'valkey_host';
     $settings['redis.connection']['port'] = 1234;
     $no_settings['cache']['default'] = 'cache.backend.redis';
 
@@ -388,6 +388,121 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
         [
           'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => '',
+        ],
+        [
+          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => 0,
+        ],
+        [
+          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => 1,
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => '0',
+        ],
+        [
+          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => '1',
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => 'false',
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+          'DRUPAL_SHIELD_DISABLED' => 'true',
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        ],
+      ],
+
+      [
+        static::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_DISABLED' => TRUE,
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_STAGE,
+        [
+          'DRUPAL_SHIELD_DISABLED' => TRUE,
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE],
+        ],
+      ],
+      [
+        static::ENVIRONMENT_PROD,
+        [
+          'DRUPAL_SHIELD_DISABLED' => TRUE,
+        ],
+        [
+          'shield.settings' => ['shield_enable' => FALSE],
         ],
       ],
     ];

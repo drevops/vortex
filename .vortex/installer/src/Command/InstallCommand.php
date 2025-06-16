@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Command;
+namespace DrevOps\VortexInstaller\Command;
 
-use DrevOps\Installer\Prompts\PromptManager;
-use DrevOps\Installer\Utils\Config;
-use DrevOps\Installer\Utils\Downloader;
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\File;
-use DrevOps\Installer\Utils\Tui;
+use DrevOps\VortexInstaller\Prompts\PromptManager;
+use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\Downloader;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Install command.
  *
- * @package DrevOps\Installer\Command
+ * @package DrevOps\VortexInstaller\Command
  */
 class InstallCommand extends Command {
 
@@ -29,7 +29,7 @@ class InstallCommand extends Command {
 
   const OPTION_ROOT = 'root';
 
-  const OPTION_NO_ITERACTION = 'no-interaction';
+  const OPTION_NO_INTERACTION = 'no-interaction';
 
   const OPTION_CONFIG = 'config';
 
@@ -75,7 +75,7 @@ EOF
     $this->addArgument(static::ARG_DESTINATION, InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
 
     $this->addOption(static::OPTION_ROOT, NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
-    $this->addOption(static::OPTION_NO_ITERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
+    $this->addOption(static::OPTION_NO_INTERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
     $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
     $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
   }
@@ -201,7 +201,7 @@ EOF
     $this->config = Config::fromString($config);
 
     $this->config->setQuiet($options[static::OPTION_QUIET]);
-    $this->config->setNoInteraction($options[static::OPTION_NO_ITERACTION]);
+    $this->config->setNoInteraction($options[static::OPTION_NO_INTERACTION]);
 
     // Set root directory to resolve relative paths.
     $root = !empty($options[static::OPTION_ROOT]) && is_scalar($options[static::OPTION_ROOT]) ? strval($options[static::OPTION_ROOT]) : NULL;
@@ -233,12 +233,12 @@ EOF
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
-    if (!is_null(Env::get(Config::IS_DEMO_MODE))) {
-      $this->config->set(Config::IS_DEMO_MODE, (bool) Env::get(Config::IS_DEMO_MODE));
+    if (!is_null(Env::get(Config::IS_DEMO))) {
+      $this->config->set(Config::IS_DEMO, (bool) Env::get(Config::IS_DEMO));
     }
 
     // Internal flag to skip processing of the demo mode.
-    $this->config->set(Config::DEMO_MODE_SKIP, (bool) Env::get(Config::DEMO_MODE_SKIP, FALSE));
+    $this->config->set(Config::IS_DEMO_DB_DOWNLOAD_SKIP, (bool) Env::get(Config::IS_DEMO_DB_DOWNLOAD_SKIP, FALSE));
   }
 
   protected function prepareDestination(): array {
@@ -308,8 +308,12 @@ EOF
   }
 
   protected function handleDemo(): array|string {
-    if (empty($this->config->get(Config::IS_DEMO_MODE)) || !empty($this->config->get(Config::DEMO_MODE_SKIP))) {
-      return ['Skipping demo database download.'];
+    if (empty($this->config->get(Config::IS_DEMO))) {
+      return 'Not a demo mode.';
+    }
+
+    if (!empty($this->config->get(Config::IS_DEMO_DB_DOWNLOAD_SKIP))) {
+      return sprintf('%s is set. Skipping demo database download.', Config::IS_DEMO_DB_DOWNLOAD_SKIP);
     }
 
     // Reload variables from destination's .env.
@@ -317,14 +321,14 @@ EOF
 
     $url = Env::get('VORTEX_DB_DOWNLOAD_URL');
     if (empty($url)) {
-      return ['No database download URL provided. Skipping demo database download.'];
+      return 'No database download URL provided. Skipping demo database download.';
     }
 
     $data_dir = $this->config->getDst() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
-    $file = Env::get('VORTEX_DB_FILE', 'db.sql');
+    $db_file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
-    if (file_exists($data_dir . DIRECTORY_SEPARATOR . $file)) {
-      return ['Database dump file already exists. Skipping download.'];
+    if (file_exists($data_dir . DIRECTORY_SEPARATOR . $db_file)) {
+      return 'Database dump file already exists. Skipping demo database download.';
     }
 
     $messages = [];
@@ -332,11 +336,12 @@ EOF
       $data_dir = File::mkdir($data_dir);
       $messages[] = sprintf('Created data directory "%s".', $data_dir);
     }
-    $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $file);
 
+    $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $db_file);
     if (passthru($command) === FALSE) {
-      throw new \RuntimeException(sprintf('Unable to download demo database from "%s".', $url));
+      throw new \RuntimeException(sprintf('Unable to download demo database from %s.', $url));
     }
+
     $messages[] = sprintf('No database dump file was found in "%s" directory.', $data_dir);
     $messages[] = sprintf('Downloaded demo database from %s.', $url);
 
@@ -344,39 +349,48 @@ EOF
   }
 
   protected function header(): void {
-    $logo = <<<EOT
--------------------------------------------------------------------------------
+    $logo_large = <<<EOT
 
-            ██╗   ██╗  ██████╗  ██████╗  ████████╗ ███████╗ ██╗  ██╗
-            ██║   ██║ ██╔═══██╗ ██╔══██╗ ╚══██╔══╝ ██╔════╝ ╚██╗██╔╝
-            ██║   ██║ ██║   ██║ ██████╔╝    ██║    █████╗    ╚███╔╝
-            ╚██╗ ██╔╝ ██║   ██║ ██╔══██╗    ██║    ██╔══╝    ██╔██╗
-             ╚████╔╝  ╚██████╔╝ ██║  ██║    ██║    ███████╗ ██╔╝ ██╗
-              ╚═══╝    ╚═════╝  ╚═╝  ╚═╝    ╚═╝    ╚══════╝ ╚═╝  ╚═╝
+██╗   ██╗  ██████╗  ██████╗  ████████╗ ███████╗ ██╗  ██╗
+██║   ██║ ██╔═══██╗ ██╔══██╗ ╚══██╔══╝ ██╔════╝ ╚██╗██╔╝
+██║   ██║ ██║   ██║ ██████╔╝    ██║    █████╗    ╚███╔╝
+╚██╗ ██╔╝ ██║   ██║ ██╔══██╗    ██║    ██╔══╝    ██╔██╗
+ ╚████╔╝  ╚██████╔╝ ██║  ██║    ██║    ███████╗ ██╔╝ ██╗
+  ╚═══╝    ╚═════╝  ╚═╝  ╚═╝    ╚═╝    ╚══════╝ ╚═╝  ╚═╝
 
-                           Drupal project template
+               Drupal project template
 
-                                                                   by DrevOps
--------------------------------------------------------------------------------
+                                              by DrevOps
+
 EOT;
 
-    // Print the logo only if the terminal is wide enough.
-    if (Tui::terminalWidth() >= 80) {
-      Tui::note($logo);
-    }
+    $logo_small = <<<EOT
+▗▖  ▗▖ ▗▄▖ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖  ▗▖
+▐▌  ▐▌▐▌ ▐▌▐▌ ▐▌ █  ▐▌    ▝▚▞▘
+▐▌  ▐▌▐▌ ▐▌▐▛▀▚▖ █  ▐▛▀▀▘  ▐▌
+ ▝▚▞▘ ▝▚▄▞▘▐▌ ▐▌ █  ▐▙▄▄▖▗▞▘▝▚▖
+
+   Drupal project template
+
+                     by DrevOps
+EOT;
+
+    $logo = Tui::terminalWidth() >= 80 ? $logo_large : $logo_small;
+    $logo = Tui::center($logo, Tui::terminalWidth(), '─');
+    Tui::note($logo);
 
     $title = 'Welcome to Vortex interactive installer';
     $content = '';
 
     $ref = $this->config->get(Config::REF);
     if ($ref == Downloader::REF_STABLE) {
-      $content .= 'This will install the latest version of Vortex into your project.' . PHP_EOL;
+      $content .= 'This tool will guide you through installing the latest version of Vortex into your project.' . PHP_EOL;
     }
     elseif ($ref == Downloader::REF_HEAD) {
-      $content .= 'This will install the latest development version of Vortex into your project.' . PHP_EOL;
+      $content .= 'This tool will guide you through installing the latest development version of Vortex into your project.' . PHP_EOL;
     }
     else {
-      $content .= sprintf('This will install Vortex into your project at commit "%s".', $ref) . PHP_EOL;
+      $content .= sprintf('This tool will guide you through installing the version of Vortex into your project at commit "%s".', $ref) . PHP_EOL;
     }
 
     $content .= PHP_EOL;
@@ -394,12 +408,13 @@ EOT;
       $title = 'Welcome to Vortex non-interactive installer';
     }
     else {
-      $content .= 'Please answer the questions below to install configuration relevant to your site.' . PHP_EOL;
-      $content .= 'No changes will be applied until the last confirmation step.' . PHP_EOL;
+      $content .= 'You’ll be asked a few questions to tailor the configuration to your site.' . PHP_EOL;
+      $content .= 'No changes will be made until you confirm everything at the end.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Existing committed files may be modified. You will need to resolve any changes manually.' . PHP_EOL;
+      $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve any changes manually.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Press Ctrl+C at any time to exit this installer.' . PHP_EOL;
+      $content .= 'Press Ctrl+C at any time to exit the installer.' . PHP_EOL;
+      $content .= 'Press Ctrl+U at any time to go back to the previous step.' . PHP_EOL;
     }
 
     Tui::box($content, $title);
@@ -419,7 +434,7 @@ EOT;
       $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
       $output .= '  ahoy build                       # Build site.' . PHP_EOL;
       $output .= PHP_EOL;
-      $output .= '  See https://vortex.drevops.com/quickstart';
+      $output .= '  See https://www.vortextemplate.com/docs/quickstart';
     }
 
     Tui::box($output, $title);

@@ -54,7 +54,8 @@ VORTEX_LAGOONCLI_VERSION="${VORTEX_LAGOONCLI_VERSION:-latest}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -70,7 +71,7 @@ info "Started Lagoon task ${VORTEX_TASK_LAGOON_NAME}."
 export VORTEX_SSH_PREFIX="TASK" && . ./scripts/vortex/setup-ssh.sh
 
 if ! command -v lagoon >/dev/null || [ -n "${VORTEX_LAGOONCLI_FORCE_INSTALL}" ]; then
-  note "Installing Lagoon CLI."
+  task "Installing Lagoon CLI."
 
   lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/latest"
   if [ "${VORTEX_LAGOONCLI_VERSION}" != "latest" ]; then
@@ -91,13 +92,13 @@ for cmd in curl lagoon; do command -v ${cmd} >/dev/null || {
   exit 1
 }; done
 
-note "Configuring Lagoon instance."
+task "Configuring Lagoon instance."
 #shellcheck disable=SC2218
 lagoon config add --force -l "${VORTEX_TASK_LAGOON_INSTANCE}" -g "${VORTEX_TASK_LAGOON_INSTANCE_GRAPHQL}" -H "${VORTEX_TASK_LAGOON_INSTANCE_HOSTNAME}" -P "${VORTEX_TASK_LAGOON_INSTANCE_PORT}"
 
 lagoon() { command lagoon --force --skip-update-check -i "${VORTEX_TASK_SSH_FILE}" -l "${VORTEX_TASK_LAGOON_INSTANCE}" -p "${VORTEX_TASK_LAGOON_PROJECT}" "$@"; }
 
-note "Creating ${VORTEX_TASK_LAGOON_NAME} task: project ${VORTEX_TASK_LAGOON_PROJECT}, branch: ${VORTEX_TASK_LAGOON_BRANCH}."
+task "Creating ${VORTEX_TASK_LAGOON_NAME} task: project ${VORTEX_TASK_LAGOON_PROJECT}, branch: ${VORTEX_TASK_LAGOON_BRANCH}."
 lagoon run custom -e "${VORTEX_TASK_LAGOON_BRANCH}" -N "${VORTEX_TASK_LAGOON_NAME}" -c "${VORTEX_TASK_LAGOON_COMMAND}"
 
 pass "Finished Lagoon task ${VORTEX_TASK_LAGOON_NAME}."

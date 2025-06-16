@@ -86,6 +86,8 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -103,7 +105,7 @@ jobs:
       - name: Check docs up-to-date
         run: |
           composer --working-dir=.utils install
-          npm run update-variables
+          yarn run update-variables
           git diff --quiet HEAD || { echo "Docs not up-to-date. Run 'cd .vortex && ahoy update-docs' and commit changes."; git diff; exit 1; }
         working-directory: .vortex/docs
 

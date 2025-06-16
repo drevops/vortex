@@ -13,7 +13,8 @@ set -eu
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -41,20 +42,20 @@ rm -rf \
 find . -type d -name node_modules | xargs rm -Rf
 
 if [ "${is_hard_reset}" = "1" ]; then
-  note "Changing permissions and remove all other untracked files."
+  task "Changing permissions and remove all other untracked files."
 
   git ls-files --others -i --exclude-from=.gitignore -z | while IFS= read -r -d '' file; do
     chmod 777 "${file}" >/dev/null || true
     rm -rf "${file}" >/dev/null || true
   done
 
-  note "Resetting repository files."
+  task "Resetting repository files."
   git reset --hard
 
-  note "Removing all untracked, files."
+  task "Removing all untracked, files."
   git clean -f -d
 
-  note "Removing empty directories."
+  task "Removing empty directories."
   find . -type d -not -path "./.git/*" -empty -delete
 fi
 

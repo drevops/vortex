@@ -1,6 +1,0 @@
-@@ -25,4 +25,4 @@
-           RENOVATE_DEPENDENCY_DASHBOARD_TITLE: 'Renovate Dependency Dashboard (self-hosted) by GitHub Actions'
-           RENOVATE_DEPENDENCY_DASHBOARD: ${{ vars.RENOVATE_DEPENDENCY_DASHBOARD || 'false' }}
-           RENOVATE_DRY_RUN: ${{ vars.RENOVATE_DRY_RUN || 'false' }}
--          RENOVATE_GIT_AUTHOR: ${{ vars.RENOVATE_GIT_AUTHOR || 'Renovate Self Hosted <renovatebot@star-wars-domain.example>' }}
-+          RENOVATE_GIT_AUTHOR: ${{ vars.RENOVATE_GIT_AUTHOR || 'Renovate Self Hosted <renovatebot@the-new-hope-domain.example>' }}

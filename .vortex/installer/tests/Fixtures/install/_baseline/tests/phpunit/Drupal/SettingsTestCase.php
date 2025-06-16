@@ -35,11 +35,6 @@ abstract class SettingsTestCase extends TestCase {
   final const ENVIRONMENT_CI = 'ci';
 
   /**
-   * Defines a constant for the name of the 'prod' environment.
-   */
-  final const ENVIRONMENT_PROD = 'prod';
-
-  /**
    * Defines a constant for the name of the 'stage' environment.
    */
   final const ENVIRONMENT_STAGE = 'stage';
@@ -50,19 +45,31 @@ abstract class SettingsTestCase extends TestCase {
   final const ENVIRONMENT_DEV = 'dev';
 
   /**
-   * Defines a constant for the temp path used in testing.
+   * Defines a constant for the name of the 'prod' environment.
    */
-  final const TMP_PATH_TESTING = '/tmp-test';
+  final const ENVIRONMENT_PROD = 'prod';
 
   /**
-   * Defines a constant for the private path used in testing.
+   * Defines a constant for the allowed environment variables.
+   *
+   * These variables are used to filter the environment variables that are set
+   * during the test setup. This is to ensure that only relevant variables are
+   * set and to avoid conflicts with other environment variables.
+   *
+   * Consumer sites should update this list if they need to add additional
+   * environment variables that are not part of the default set.
    */
-  final const PRIVATE_PATH_TESTING = '/private-test';
-
-  /**
-   * Defines a constant for the config directory used in testing.
-   */
-  final const CONFIG_PATH_TESTING = '/config-test';
+  const ALLOWED_ENV_VARS = [
+    // Service variables.
+    'DATABASE_',
+    'VALKEY_',
+    'COMPOSE_',
+    'GITHUB_',
+    'DOCKER_',
+    // Vortex and Drupal variables.
+    'VORTEX_',
+    'DRUPAL_',
+  ];
 
   /**
    * Application root.
@@ -124,30 +131,23 @@ abstract class SettingsTestCase extends TestCase {
    * @SuppressWarnings(PHPMD.ElseExpression)
    */
   protected function setEnvVars(array $vars): void {
+    // Unset the existing environment variable if not set in the test.
+    if (!isset($vars['TMP'])) {
+      $vars['TMP'] = NULL;
+    }
+
+    // Unset the existing environment variable if not set in the test.
+    if (!isset($vars['DRUPAL_CONFIG_PATH'])) {
+      $vars['DRUPAL_CONFIG_PATH'] = NULL;
+    }
+
+    // Do not enforce the CI environment unless it is explicitly set.
     if (!isset($vars['CI'])) {
       $vars['CI'] = FALSE;
     }
 
-    if (!isset($vars['LAGOON'])) {
-      $vars['LAGOON'] = FALSE;
-    }
-
-    $vars['DRUPAL_CONFIG_PATH'] = static::CONFIG_PATH_TESTING;
-    $vars['DRUPAL_TEMPORARY_FILES'] = static::TMP_PATH_TESTING;
-    $vars['DRUPAL_PRIVATE_FILES'] = static::PRIVATE_PATH_TESTING;
-
     // Filtered real vars without a value to unset them in the lines below.
-    $vars_real = self::getRealEnvVarsFilteredNoValues([
-      // Service variables.
-      'DATABASE_',
-      'REDIS_',
-      'COMPOSE_',
-      'GITHUB_',
-      'DOCKER_',
-      // Vortex and Drupal variables.
-      'VORTEX_',
-      'DRUPAL_',
-    ]);
+    $vars_real = self::getRealEnvVarsFilteredNoValues(static::ALLOWED_ENV_VARS);
 
     // Passed vars + existing vars + filtered real vars.
     $this->envVars = $vars + $this->envVars + $vars_real;

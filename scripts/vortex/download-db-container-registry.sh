@@ -29,7 +29,8 @@ VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="${VORTEX_DOWNLOAD_DB_CONTAINER_REGIS
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -53,7 +54,7 @@ docker image inspect "${VORTEX_DB_IMAGE}" >/dev/null 2>&1 &&
 
 image_expanded_successfully=0
 if [ -f "${VORTEX_DB_DIR}/db.tar" ]; then
-  note "Found archived database container image file ${VORTEX_DB_DIR}/db.tar. Expanding..."
+  task "Found archived database container image file ${VORTEX_DB_DIR}/db.tar. Expanding..."
   # Always use archived image, even if such image already exists on the host.
   docker load -q --input "${VORTEX_DB_DIR}/db.tar"
 
@@ -75,7 +76,7 @@ if [ "${image_expanded_successfully}" -eq 0 ]; then
     export VORTEX_DB_IMAGE="${VORTEX_DB_IMAGE_BASE}"
   fi
 
-  note "Downloading ${VORTEX_DB_IMAGE} image from the registry."
+  task "Downloading ${VORTEX_DB_IMAGE} image from the registry."
 
   export VORTEX_CONTAINER_REGISTRY="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY}"
   export VORTEX_CONTAINER_REGISTRY_USER="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER}"

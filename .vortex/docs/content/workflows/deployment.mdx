@@ -8,7 +8,7 @@ The deployment to a remote location is performed by the
 [`scripts/vortex/deploy.sh`](https://github.com/drevops/vortex/blob/develop/scripts/vortex/deploy.sh) _router_
 script.
 
-The script runs in CI only after all tests pass.
+The script runs in continuous integration pipeline only after all tests pass.
 
 The script deploys the  code to a remote location by calling the
 relevant scripts based on the type of deployment defined in `$VORTEX_DEPLOY_TYPES`
@@ -28,11 +28,19 @@ By default, an existing database will be retained during a deployment. To change
 this behavior and overwrite the database, set the `$VORTEX_DEPLOY_ACTION`
 variable to `deploy_override_db`.
 
-### Skipping deployments for specific Pull Requests or branches
+## Skipping all deployments
+
+You can skip all deployments by setting the `VORTEX_DEPLOY_SKIP` environment
+variable to `1`.
+
+This is especially useful in continuous integration pipelines where you may want to build and test
+without triggering a deployment.
+
+### Skipping deployments for a specific Pull Requests or branches
 
 To skip a specific Pull Request or branch using the `$VORTEX_DEPLOY_SKIP`
 variable, you would define additional environment variables with a specific
-naming convention in your CI configuration.
+naming convention in your continuous integration pipeline configuration.
 
 Here's an example of how this can be done:
 

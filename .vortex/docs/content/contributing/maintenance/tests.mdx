@@ -106,6 +106,9 @@ exit
 3. Export DB:
 ```bash
 ahoy export-db db.demo_image.sql
+
+# Update the collation to avoid issues with MariaDB 10.5+:
+sed -i '' 's/utf8mb4_0900_ai_ci/utf8mb4_general_ci/g' .data/db.demo_image.sq
 ```
 4. Seed the database container image:
 ```bash
@@ -187,6 +190,9 @@ exit
 4. Export DB:
 ```bash
 ahoy export-db db.test_image.sql
+
+# Update the collation to avoid issues with MariaDB 10.5+:
+sed -i '' 's/utf8mb4_0900_ai_ci/utf8mb4_general_ci/g' .data/db.test_image.sql
 ```
 5. Seed the database container image:
 ```bash
@@ -194,3 +200,13 @@ curl -LO https://github.com/drevops/mariadb-drupal-data/releases/latest/download
 chmod +x seed.sh
 ./seed.sh .data/db.test_image.sql drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest
 ```
+6. Update destination container images:
+```bash
+docker tag drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii
+docker push drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii
+
+docker tag drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
+docker push drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
+```
+
+

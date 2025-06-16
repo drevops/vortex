@@ -1,6 +1,6 @@
 # Deployment process
 
-Refer to https://vortex.drevops.com/workflows/deployment for more information.
+Refer to https://www.vortextemplate.com/docs/workflows/deployment for more information.
 
 ## Workflow
 
@@ -55,15 +55,15 @@ below).
    to required environment.
 2. Developer pushes code update to the GitHub branch.
 3. CI system picks-up the update and does the following:
-  1. Builds a website using production DB.
-  2. Runs code standard checks and Behat tests on the built website.
-  3. Creates a deployment artifact (project files to be pushed to Acquia Cloud
-     repository).
-  4. Pushes created artifact to the Acquia Cloud repository:
-    - for feature-based branches (i.e. `feature/ABC-123` or `bugfix/ABC-123`)
-      the code is pushed to the branch with exactly the same name.
-    - for release deployments, which are tag-based (i.e. `0.1.4`), the code is
-      pushed to the branch `deployment/[tag]` (i.e. `deployment/0.1.4`).
+1. Builds a website using production DB.
+2. Runs code standard checks and Behat tests on the built website.
+3. Creates a deployment artifact (project files to be pushed to Acquia Cloud
+   repository).
+4. Pushes created artifact to the Acquia Cloud repository:
+   - for feature-based branches (i.e. `feature/ABC-123` or `bugfix/ABC-123`)
+   the code is pushed to the branch with exactly the same name.
+   - for release deployments, which are tag-based (i.e. `0.1.4`), the code is
+   pushed to the branch `deployment/[tag]` (i.e. `deployment/0.1.4`).
 4. Acquia Cloud picks up recent push to the repository and
    runs [post code update hooks](hooks/dev/post-code-update) on the environments
    where code is already deployed.
@@ -105,10 +105,10 @@ followed by all developers:
 
 ## Database refresh in Lagoon environments
 
-To fresh the database in the existing Lagoon environment with the database from
+To refresh the database in the existing Lagoon environment with the database from
 production environment, run:
 
-```
+```bash
 VORTEX_DEPLOY_BRANCH=<YOUR/BRANCH-NAME> VORTEX_DEPLOY_ACTION=deploy_override_db ahoy deploy
 ```
 

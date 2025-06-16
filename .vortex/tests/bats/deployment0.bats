@@ -34,7 +34,7 @@ load _helper.deployment.bash
     # from for deployment. They may be the same place, but we are testing them
     # if they are separate, because most likely SRC_DIR will contain code
     # built on previous build stages of the CI process.
-    install_and_build_site "${CURRENT_PROJECT_DIR}"
+    install_and_assemble_site "${CURRENT_PROJECT_DIR}"
 
     substep "Copying built codebase into code source directory ${SRC_DIR}."
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"
@@ -90,6 +90,10 @@ load _helper.deployment.bash
   #
 
   assert_output_contains "Started ARTIFACT deployment."
+  assert_output_contains "Installing artifact builder."
+  assert_output_contains "Copying git repo files meta file to the deploy code repo."
+  assert_output_contains "Copying deployment .gitignore as it may not exist in deploy code source files."
+  assert_output_contains "Running artifact builder."
 
   substep "ARTIFACT: Assert remote deployment files."
   assert_deployment_files_present "${REMOTE_REPO_DIR}"
@@ -135,8 +139,8 @@ load _helper.deployment.bash
     substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
     fixture_prepare_dir "${SRC_DIR}"
 
-    # Do not build - only structure.
-    install_and_build_site "${CURRENT_PROJECT_DIR}" 0
+    # Do not assemble - only structure.
+    install_and_assemble_site "${CURRENT_PROJECT_DIR}" 0
 
     substep "Copying built codebase into code source directory ${SRC_DIR}."
     cp -R "${CURRENT_PROJECT_DIR}/." "${SRC_DIR}/"

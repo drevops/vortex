@@ -50,7 +50,7 @@ Targets include custom modules and themes, settings and tests.
 Rector provides [config sets](https://getrector.com/documentation/set-lists)
 functionality that allows to enable/disable rules in bulk.
 
-Vortex provides the config sets for Drupal 8 and Drupal 9 deprecated code and
+**Vortex** provides the config sets for Drupal 8 and Drupal 9 deprecated code and
 code style fixes.
 
 The config sets are meant to be adjusted per-project as needed.
@@ -107,9 +107,10 @@ $rectorConfig->skip([
 
 Rector does not support ignoring of the **code blocks**.
 
-## Ignoring fail in CI
+## Ignoring fail in continuous integration pipeline
 
-This tool runs in CI by default and fails the build if there are any violations.
+This tool runs in continuous integration pipeline by default and fails the build
+if there are any violations.
 
 Set `VORTEX_CI_RECTOR_IGNORE_FAILURE` environment variable to `1` to ignore
 failures. The tool will still run and report violations, if any.

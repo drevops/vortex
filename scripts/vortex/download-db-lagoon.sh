@@ -71,7 +71,8 @@ WEBROOT="${WEBROOT:-web}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -120,7 +121,7 @@ ssh \
      echo \"      > Using existing dump ${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
    fi"
 
-note "Downloading a database dump."
+task "Downloading a database dump."
 ssh_opts_string="${ssh_opts[@]}"
 rsync_opts=(-e "ssh ${ssh_opts_string}")
 rsync "${rsync_opts[@]}" "${VORTEX_DB_DOWNLOAD_LAGOON_SSH_USER}@${VORTEX_DB_DOWNLOAD_LAGOON_SSH_HOST}":"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}"/"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"

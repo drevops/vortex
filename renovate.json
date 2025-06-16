@@ -11,7 +11,7 @@
         ":prHourlyLimit2"
     ],
     "rangeStrategy": "update-lockfile",
-    "timezone": "Australia/Melbourne",
+    "timezone": "UTC",
     "configMigration": true,
     "enabledManagers": [
         "composer",
@@ -47,6 +47,9 @@
                 "packagist"
             ],
             "separateMinorPatch": false,
+            "schedule": [
+                "before 2am on Sunday"
+            ],
             "matchPackageNames": [
                 "/.*/",
                 "!drupal/core-composer-scaffold",
@@ -101,8 +104,8 @@
     "customManagers": [
         {
             "customType": "regex",
-            "fileMatch": [
-                "^docker-compose\\.yml$"
+            "managerFilePatterns": [
+                "/^docker-compose\\.yml$/"
             ],
             "matchStrings": [
                 "IMAGE:\\s*\"?\\${(?:.*):-(?<depName>.*?):(?<currentValue>.*?)(?:\\@sha256:.*)?}\"?"

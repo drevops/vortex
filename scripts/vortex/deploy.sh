@@ -2,11 +2,13 @@
 ##
 # Deploy code to a remote location.
 #
-# Deployment may include pushing code, pushing created container image, notifying
-# remote hosting service via webhook call etc.
+# Deployment may include pushing code, pushing created container image,
+# notifying remote hosting service via webhook call etc.
 #
 # Multiple deployments can be configured by providing a comma-separated list of
 # deployment types in $VORTEX_DEPLOY_TYPES variable.
+#
+# Deployments can be skipped by setting the $VORTEX_DEPLOY_SKIP variable to "1".
 #
 # This is a router script to call relevant scripts based on type.
 #
@@ -18,6 +20,12 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+if [ "${VORTEX_DEPLOY_SKIP:-}" = "1" ]; then
+  echo "Found flag to skip all deployments."
+  echo "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
+  exit 0
+fi
 
 # The types of deployment.
 #
@@ -51,7 +59,8 @@ VORTEX_DEPLOY_ALLOW_SKIP="${VORTEX_DEPLOY_ALLOW_SKIP:-}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -74,7 +83,8 @@ if [ "${VORTEX_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
     pr_skip_var="VORTEX_DEPLOY_SKIP_PR_${VORTEX_DEPLOY_PR}"
     if [ -n "${!pr_skip_var}" ]; then
       note "Found skip variable ${pr_skip_var} for PR ${VORTEX_DEPLOY_PR}."
-      pass "Skipping deployment ${VORTEX_DEPLOY_TYPES}." && exit 0
+      note "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
+      exit 0
     fi
   fi
 
@@ -92,7 +102,8 @@ if [ "${VORTEX_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
     branch_skip_var="VORTEX_DEPLOY_SKIP_BRANCH_${safe_branch_name}"
     if [ -n "${!branch_skip_var:-}" ]; then
       note "Found skip variable ${branch_skip_var} for branch ${VORTEX_DEPLOY_BRANCH}."
-      pass "Skipping deployment ${VORTEX_DEPLOY_TYPES}." && exit 0
+      note "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
+      exit 0
     fi
   fi
 fi

@@ -143,7 +143,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/24.11.0/db_d11.test.sql
+  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql
 
   ##
   ## Phase 5: SUT files setup.
@@ -246,13 +246,13 @@ assert_files_present_common() {
   assert_file_contains .env "VORTEX_PROJECT=${suffix}"
 
   # Assert that Vortex version was replaced.
-  assert_file_contains "README.md" "badge/Vortex-${TEST_VORTEX_VERSION:-develop}-5909A1.svg"
+  assert_file_contains "README.md" "badge/Vortex-${TEST_VORTEX_VERSION:-develop}-65ACBC.svg"
   assert_file_contains "README.md" "https://github.com/drevops/vortex/tree/${TEST_VORTEX_VERSION:-develop}"
   assert_file_not_contains "README.md" "The following list includes"
   assert_file_not_exists "README.dist.md"
 
   # Assert that Vortex footnote remains.
-  assert_file_contains "README.md" "This repository was created using the [Vortex](https://github.com/drevops/vortex) project template"
+  assert_file_contains "README.md" "This repository was created using the [Vortex](https://github.com/drevops/vortex) Drupal project template"
 
   assert_files_present_drupal "${dir}" "${suffix}" "${suffix_abbreviated}" "${suffix_abbreviated_camel_cased}" "${suffix_camel_cased}" "${webroot}" "${assert_theme}"
 
@@ -267,20 +267,20 @@ assert_files_not_present_common() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_dir_not_exists "${webroot}/modules/custom/ys_core"
+  assert_dir_not_exists "${webroot}/modules/custom/ys_base"
   assert_dir_not_exists "${webroot}/themes/custom/your_site_theme"
   assert_dir_not_exists "${webroot}/profiles/custom/${suffix}_profile"
-  assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_core"
+  assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_base"
   assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_search"
   assert_dir_not_exists "${webroot}/themes/custom/${suffix}"
   assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Unit/YourSiteExampleUnitTest.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Unit/YourSiteCoreUnitTestBase.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Kernel/YourSiteExampleKernelTest.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteExampleFunctionalTest.php"
-  assert_file_not_exists "${webroot}/modules/custom/ys_core/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Unit/YourSiteExampleUnitTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Unit/YourSiteCoreUnitTestBase.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Kernel/YourSiteExampleKernelTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Kernel/YourSiteCoreKernelTestBase.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Functional/YourSiteExampleFunctionalTest.php"
+  assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Functional/YourSiteCoreFunctionalTestBase.php"
 
   assert_file_not_exists "docs/faqs.md"
   assert_file_not_exists ".ahoy.yml"
@@ -342,7 +342,7 @@ assert_files_present_vortex() {
   assert_dir_exists "config/default"
   assert_dir_exists "config/dev"
   assert_dir_exists "config/local"
-  assert_dir_exists "config/test"
+  assert_dir_exists "config/stage"
 
   assert_file_exists "patches/.gitkeep"
 
@@ -458,21 +458,21 @@ assert_files_present_drupal() {
   # Stub profile removed.
   assert_dir_not_exists "${webroot}/profiles/custom/your_site_profile"
   # Stub code module removed.
-  assert_dir_not_exists "${webroot}/modules/custom/ys_core"
+  assert_dir_not_exists "${webroot}/modules/custom/ys_base"
   # Stub theme removed.
   assert_dir_not_exists "${webroot}/themes/custom/your_site_theme"
 
   # Site core module created.
-  assert_dir_exists "${webroot}/modules/custom/${suffix_abbreviated}_core"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.info.yml"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.module"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/${suffix_abbreviated}_core.deploy.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/${suffix_abbreviated_camel_cased}CoreUnitTestBase.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Unit/ExampleTest.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/${suffix_abbreviated_camel_cased}CoreKernelTestBase.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Kernel/ExampleTest.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/${suffix_abbreviated_camel_cased}CoreFunctionalTestBase.php"
-  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_core/tests/src/Functional/ExampleTest.php"
+  assert_dir_exists "${webroot}/modules/custom/${suffix_abbreviated}_base"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/${suffix_abbreviated}_base.info.yml"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/${suffix_abbreviated}_base.module"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/${suffix_abbreviated}_base.deploy.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Unit/${suffix_abbreviated_camel_cased}BaseUnitTestBase.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Unit/ExampleTest.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Kernel/${suffix_abbreviated_camel_cased}BaseKernelTestBase.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Kernel/ExampleTest.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Functional/${suffix_abbreviated_camel_cased}BaseFunctionalTestBase.php"
+  assert_file_exists "${webroot}/modules/custom/${suffix_abbreviated}_base/tests/src/Functional/ExampleTest.php"
 
   # Site search module created.
   assert_dir_exists "${webroot}/modules/custom/${suffix_abbreviated}_search"
@@ -533,11 +533,11 @@ assert_files_present_drupal() {
 
   # Special case to fix all occurrences of the stub in core files to exclude
   # false-positives from the assertions below.
-  replace_core_stubs "${dir}" "your_site" "${webroot}"
+  replace_drupal_core_stubs "${dir}" "your_site" "${webroot}"
 
   # Assert all stub strings were replaced.
   assert_dir_not_contains_string "${dir}" "your_site"
-  assert_dir_not_contains_string "${dir}" "ys_core"
+  assert_dir_not_contains_string "${dir}" "ys_base"
   assert_dir_not_contains_string "${dir}" "YOURSITE"
   assert_dir_not_contains_string "${dir}" "YourSite"
   assert_dir_not_contains_string "${dir}" "your_site_theme"
@@ -1057,7 +1057,7 @@ Drupal 11 implementation of ${name} for ${org}
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY VORTEX TO TRACK INTEGRATION)
 
-[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-5909A1.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
+[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-65ACBC.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
 
 some other text
 EOT
@@ -1158,7 +1158,7 @@ install_dependencies_stub() {
   popd >/dev/null || exit 1
 }
 
-replace_core_stubs() {
+replace_drupal_core_stubs() {
   local dir="${1}"
   local token="${2}"
   local webroot="${3:-web}"
@@ -1336,7 +1336,7 @@ sync_to_host() {
   local dst="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"${t}" && set -a && . "./.env" && set +a && . "${t}" && rm "${t}" && unset t
-  [ "${VORTEX_DEV_VOLUMES_MOUNTED-}" = "1" ] && return
+  [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" != "1" ] && return
   docker compose cp -L cli:/app/. "${dst}"
 }
 
@@ -1345,13 +1345,13 @@ sync_to_container() {
   local src="${1:-.}"
   # shellcheck disable=SC1090,SC1091
   [ -f "./.env" ] && t=$(mktemp) && export -p >"${t}" && set -a && . "./.env" && set +a && . "${t}" && rm "${t}" && unset t
-  [ "${VORTEX_DEV_VOLUMES_MOUNTED-}" = "1" ] && return
+  [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" != "1" ] && return
   docker compose cp -L "${src}" cli:/app/
 }
 
 # Special treatment for cases where volumes are not mounted from the host.
 fix_host_dependencies() {
-  # Replicate behaviour of .vortex/installer/install script to extract destination directory
+  # Replicate behavior of .vortex/installer/install script to extract destination directory
   # passed as an argument.
   # shellcheck disable=SC2235
   ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift
@@ -1361,7 +1361,7 @@ fix_host_dependencies() {
 
   pushd "${VORTEX_INSTALL_DST_DIR}" >/dev/null || exit 1
 
-  if [ -f docker-compose.yml ] && [ "${VORTEX_DEV_VOLUMES_MOUNTED:-1}" != "1" ]; then
+  if [ -f docker-compose.yml ] && [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" = "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
     assert_file_not_contains docker-compose.yml "###"
     sed -i -e "s/##//" docker-compose.yml
@@ -1419,7 +1419,7 @@ download_installer() {
 }
 
 process_ahoyyml() {
-  [ "${VORTEX_DEV_VOLUMES_MOUNTED:-0}" = "1" ] && return
+  [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" != "1" ] && return
 
   # Override the provision command in .ahoy.yml to copy the database file to
   # the container for when the volumes are not mounted.

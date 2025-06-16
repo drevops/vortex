@@ -7,8 +7,8 @@
         "<!-- -->",
         "CLI installer for <a href=\"https://github.com/drevops/vortex\">Vortex</a> project.<br/>",
         "Run in your terminal:<br/>",
-        "<code>curl -SsL https://vortex.drevops.com/install > install.php && php install.php</code><br/>",
-        "More details: <a href=\"https://vortex.drevops.com\">https://vortex.drevops.com</a>",
+        "<code>curl -SsL https://www.vortextemplate.com/install > install.php && php install.php</code><br/>",
+        "More details: <a href=\"https://www.vortextemplate.com\">https://www.vortextemplate.com</a>",
         "<!--"
     ],
     "finder": [

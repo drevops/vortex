@@ -1,0 +1,11 @@
+@@ -102,10 +102,6 @@
+     usage: Run Drush commands in the CLI service container.
+     cmd: ahoy cli "vendor/bin/drush -l \${VORTEX_LOCALDEV_URL} $*"
+ 
+-  flush-valkey:
+-    usage: Flush Valkey cache.
+-    cmd: docker compose exec valkey valkey-cli flushall
+-
+   # ----------------------------------------------------------------------------
+   # Application commands.
+   # ----------------------------------------------------------------------------

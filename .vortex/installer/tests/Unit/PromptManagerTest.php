@@ -2,54 +2,81 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Unit;
+namespace DrevOps\VortexInstaller\Tests\Unit;
 
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait as UpstreamTuiTrait;
-use DrevOps\Installer\Tests\Traits\TuiTrait;
-use DrevOps\Installer\Utils\Composer;
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\Tui;
+use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
+use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
+use DrevOps\VortexInstaller\Prompts\Handlers\GithubRepo;
+use DrevOps\VortexInstaller\Prompts\Handlers\GithubToken;
+use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
+use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
+use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
+use DrevOps\VortexInstaller\Prompts\Handlers\Name;
+use DrevOps\VortexInstaller\Prompts\Handlers\Org;
+use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
+use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
+use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
+use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
+use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
+use DrevOps\VortexInstaller\Prompts\Handlers\Services;
+use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
+use DrevOps\VortexInstaller\Prompts\PromptManager;
+use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
+use DrevOps\VortexInstaller\Utils\Composer;
+use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\Converter;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Git;
+use DrevOps\VortexInstaller\Utils\Tui;
+use Laravel\Prompts\Key;
 use Laravel\Prompts\Prompt;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use DrevOps\Installer\Prompts\Handlers\AssignAuthorPr;
-use DrevOps\Installer\Prompts\Handlers\CiProvider;
-use DrevOps\Installer\Prompts\Handlers\CodeProvider;
-use DrevOps\Installer\Prompts\Handlers\DatabaseDownloadSource;
-use DrevOps\Installer\Prompts\Handlers\DatabaseImage;
-use DrevOps\Installer\Prompts\Handlers\DependencyUpdatesProvider;
-use DrevOps\Installer\Prompts\Handlers\DeployType;
-use DrevOps\Installer\Prompts\Handlers\Domain;
-use DrevOps\Installer\Prompts\Handlers\GithubRepo;
-use DrevOps\Installer\Prompts\Handlers\GithubToken;
-use DrevOps\Installer\Prompts\Handlers\HostingProvider;
-use DrevOps\Installer\Prompts\Handlers\LabelMergeConflictsPr;
-use DrevOps\Installer\Prompts\Handlers\MachineName;
-use DrevOps\Installer\Prompts\Handlers\ModulePrefix;
-use DrevOps\Installer\Prompts\Handlers\Name;
-use DrevOps\Installer\Prompts\Handlers\Org;
-use DrevOps\Installer\Prompts\Handlers\OrgMachineName;
-use DrevOps\Installer\Prompts\Handlers\PreserveDocsOnboarding;
-use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
-use DrevOps\Installer\Prompts\Handlers\Profile;
-use DrevOps\Installer\Prompts\Handlers\ProvisionType;
-use DrevOps\Installer\Prompts\Handlers\Services;
-use DrevOps\Installer\Prompts\Handlers\Theme;
-use DrevOps\Installer\Prompts\Handlers\ThemeRunner;
-use DrevOps\Installer\Prompts\Handlers\Webroot;
-use DrevOps\Installer\Prompts\PromptManager;
-use DrevOps\Installer\Utils\Config;
-use DrevOps\Installer\Utils\Converter;
-use DrevOps\Installer\Utils\File;
-use DrevOps\Installer\Utils\Git;
-use Laravel\Prompts\Key;
 use Symfony\Component\Yaml\Yaml;
 
-#[CoversClass(PromptManager::class)]
-#[CoversClass(Tui::class)]
-#[CoversClass(Env::class)]
-#[CoversClass(Converter::class)]
+#[CoversClass(AiCodeInstructions::class)]
+#[CoversClass(AssignAuthorPr::class)]
+#[CoversClass(CiProvider::class)]
+#[CoversClass(CodeProvider::class)]
 #[CoversClass(Composer::class)]
+#[CoversClass(Converter::class)]
+#[CoversClass(DatabaseDownloadSource::class)]
+#[CoversClass(DatabaseImage::class)]
+#[CoversClass(DependencyUpdatesProvider::class)]
+#[CoversClass(DeployType::class)]
+#[CoversClass(Domain::class)]
+#[CoversClass(Env::class)]
+#[CoversClass(GithubRepo::class)]
+#[CoversClass(GithubToken::class)]
+#[CoversClass(HostingProvider::class)]
+#[CoversClass(Internal::class)]
+#[CoversClass(LabelMergeConflictsPr::class)]
+#[CoversClass(MachineName::class)]
+#[CoversClass(ModulePrefix::class)]
+#[CoversClass(Name::class)]
+#[CoversClass(Org::class)]
+#[CoversClass(OrgMachineName::class)]
+#[CoversClass(PreserveDocsOnboarding::class)]
+#[CoversClass(PreserveDocsProject::class)]
+#[CoversClass(Profile::class)]
+#[CoversClass(PromptManager::class)]
+#[CoversClass(ProvisionType::class)]
+#[CoversClass(Services::class)]
+#[CoversClass(Theme::class)]
+#[CoversClass(Tui::class)]
+#[CoversClass(Webroot::class)]
 class PromptManagerTest extends UnitTestCase {
 
   use UpstreamTuiTrait;
@@ -132,7 +159,6 @@ class PromptManagerTest extends UnitTestCase {
       Profile::id() => static::TUI_DEFAULT,
       ModulePrefix::id() => static::TUI_DEFAULT,
       Theme::id() => static::TUI_DEFAULT,
-      ThemeRunner::id() => static::TUI_DEFAULT,
       Services::id() => static::TUI_DEFAULT,
       HostingProvider::id() => static::TUI_DEFAULT,
       Webroot::id() => static::TUI_DEFAULT,
@@ -162,8 +188,7 @@ class PromptManagerTest extends UnitTestCase {
       Profile::id() => Profile::STANDARD,
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
-      ThemeRunner::id() => ThemeRunner::GRUNT,
-      Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
+      Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
       HostingProvider::id() => HostingProvider::NONE,
       Webroot::id() => Webroot::WEB,
       DeployType::id() => [DeployType::WEBHOOK],
@@ -176,6 +201,7 @@ class PromptManagerTest extends UnitTestCase {
       LabelMergeConflictsPr::id() => TRUE,
       PreserveDocsProject::id() => TRUE,
       PreserveDocsOnboarding::id() => TRUE,
+      AiCodeInstructions::id() => AiCodeInstructions::NONE,
     ];
 
     $expected_installed = [
@@ -208,7 +234,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         $expected_discovered,
         function (PromptManagerTest $test): void {
-          $test->setComposerJsonValue('description', 'Drupal 10 Standard installation of Discovered project for Discovered project Org');
+          $test->stubComposerJsonValue('description', 'Drupal 10 Standard installation of Discovered project for Discovered project Org');
         },
       ],
       'invalid project name' => [
@@ -224,7 +250,19 @@ class PromptManagerTest extends UnitTestCase {
           Org::id() => 'myproject Org',
         ] + $expected_discovered,
         function (PromptManagerTest $test): void {
-          $test->setComposerJsonValue('name', 'discovered_project_org/discovered_project');
+          $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
+        },
+      ],
+      'project machine name - discovery - hyphenated' => [
+        [],
+        [
+          Name::id() => 'myproject',
+          MachineName::id() => 'discovered-project',
+          Org::id() => 'myproject Org',
+          GithubRepo::id() => 'discovered_project_org/discovered-project',
+        ] + $expected_discovered,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('name', 'discovered_project_org/discovered-project');
         },
       ],
       'project machine name - invalid' => [
@@ -236,7 +274,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         $expected_discovered,
         function (PromptManagerTest $test): void {
-          $test->setComposerJsonValue('description', 'Drupal 10 Standard installation of Discovered project for Discovered project Org');
+          $test->stubComposerJsonValue('description', 'Drupal 10 Standard installation of Discovered project for Discovered project Org');
         },
       ],
       'org name - invalid' => [
@@ -252,7 +290,20 @@ class PromptManagerTest extends UnitTestCase {
           Org::id() => 'myproject Org',
         ] + $expected_discovered,
         function (PromptManagerTest $test): void {
-          $test->setComposerJsonValue('name', 'discovered_project_org/discovered_project');
+          $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
+        },
+      ],
+      'org machine name - discovery - hyphenated' => [
+        [],
+        [
+          Name::id() => 'myproject',
+          MachineName::id() => 'discovered_project',
+          Org::id() => 'myproject Org',
+          OrgMachineName::id() => 'discovered-project-org',
+          GithubRepo::id() => 'discovered-project-org/discovered_project',
+        ] + $expected_discovered,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('name', 'discovered-project-org/discovered_project');
         },
       ],
       'org machine name - invalid ' => [
@@ -264,7 +315,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
         function (PromptManagerTest $test): void {
-          $test->setDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'discovered-project-dotenv.com');
+          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'discovered-project-dotenv.com');
         },
       ],
       'domain - no protocol' => [
@@ -302,9 +353,13 @@ class PromptManagerTest extends UnitTestCase {
 
       'code repo - discovery - other' => [
         [],
-        [CodeProvider::id() => CodeProvider::GITHUB] + $expected_installed,
+        [
+          CodeProvider::id() => CodeProvider::OTHER,
+          GithubRepo::id() => NULL,
+          GithubToken::id() => NULL,
+        ] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           Git::init(static::$sut);
         },
       ],
@@ -345,8 +400,8 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [Profile::id() => Profile::MINIMAL] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
-          $test->setDotenvValue('DRUPAL_PROFILE', Profile::MINIMAL);
+          $test->stubVortexProject($config);
+          $test->stubDotenvValue('DRUPAL_PROFILE', Profile::MINIMAL);
         },
       ],
       'profile - discovery - non-Vortex project' => [
@@ -374,14 +429,14 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [ModulePrefix::id() => 'dp'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          File::dump(static::$sut . '/web/modules/custom/dp_core/dp_core.info');
+          File::dump(static::$sut . '/web/modules/custom/dp_base/dp_base.info');
         },
       ],
       'module prefix - discovery - within profile' => [
         [],
         [ModulePrefix::id() => 'dp'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_core/dp_core.info');
+          File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_base/dp_base.info');
         },
       ],
       'module prefix' => [
@@ -401,8 +456,8 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [Theme::id() => 'discovered_project'] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
-          $test->setDotenvValue('DRUPAL_THEME', 'discovered_project');
+          $test->stubVortexProject($config);
+          $test->stubDotenvValue('DRUPAL_THEME', 'discovered_project');
         },
       ],
       'theme - discovery - non-Vortex project' => [
@@ -429,41 +484,55 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [Services::id() => [Services::SOLR]] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::SOLR => []]));
         },
       ],
-      'services - discovery - redis' => [
+      'services - discovery - valkey' => [
         [],
-        [Services::id() => [Services::REDIS]] + $expected_installed,
+        [Services::id() => [Services::VALKEY]] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::REDIS => []]));
+          $test->stubVortexProject($config);
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::VALKEY => []]));
         },
       ],
       'services - discovery - clamav' => [
         [],
         [Services::id() => [Services::CLAMAV]] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => []]));
         },
       ],
       'services - discovery - all' => [
         [],
         [
-          Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
+          Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
         ] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]));
+          $test->stubVortexProject($config);
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::VALKEY => [], Services::SOLR => []]));
+        },
+      ],
+      'services - discovery - invalid yaml - all' => [
+        [],
+        [
+          Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
+        ] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          File::dump(static::$sut . '/docker-compose.yml', <<<'YAML'
+- !text |
+  first line
+YAML
+          );
         },
       ],
       'services - discovery - none' => [
         [],
         [Services::id() => []] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['other_service' => []]));
         },
       ],
@@ -471,7 +540,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::REDIS => [], Services::CLAMAV => [], Services::SOLR => []]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::VALKEY => [], Services::CLAMAV => [], Services::SOLR => []]));
         },
       ],
 
@@ -496,7 +565,7 @@ class PromptManagerTest extends UnitTestCase {
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
         ] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', DatabaseDownloadSource::ACQUIA);
+          $test->stubDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', DatabaseDownloadSource::ACQUIA);
         },
       ],
       'hosting provider - discovery - Lagoon' => [
@@ -515,14 +584,14 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setDotenvValue('WEBROOT', 'discovered_webroot');
+          $test->stubDotenvValue('WEBROOT', 'discovered_webroot');
         },
       ],
       'webroot - custom - discovery no dotenv' => [
         [],
         [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setComposerJsonValue('extra', ['drupal-scaffold' => ['drupal-scaffold' => ['locations' => ['web-root' => 'discovered_webroot']]]]);
+          $test->stubComposerJsonValue('extra', ['drupal-scaffold' => ['drupal-scaffold' => ['locations' => ['web-root' => 'discovered_webroot']]]]);
         },
       ],
       'webroot - custom' => [
@@ -557,7 +626,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [DeployType::id() => [DeployType::ARTIFACT, DeployType::WEBHOOK]] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployType::ARTIFACT, DeployType::WEBHOOK]));
+          $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployType::ARTIFACT, DeployType::WEBHOOK]));
         },
       ],
 
@@ -565,14 +634,14 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [ProvisionType::id() => ProvisionType::DATABASE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::DATABASE);
+          $test->stubDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::DATABASE);
         },
       ],
       'provision type - discovery - profile' => [
         [],
         [ProvisionType::id() => ProvisionType::PROFILE, DatabaseDownloadSource::id() => DatabaseDownloadSource::NONE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::PROFILE);
+          $test->stubDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::PROFILE);
         },
       ],
 
@@ -586,7 +655,7 @@ class PromptManagerTest extends UnitTestCase {
           DatabaseImage::id() => 'discovered_owner/discovered_image:tag',
         ] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
+          $test->stubDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
         },
       ],
       'database image - valid' => [
@@ -618,7 +687,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [CiProvider::id() => CiProvider::GITHUB_ACTIONS] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/.github/workflows/build-test-deploy.yml');
         },
       ],
@@ -626,7 +695,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [CiProvider::id() => CiProvider::CIRCLECI] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/.circleci/config.yml');
         },
       ],
@@ -634,7 +703,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [CiProvider::id() => CiProvider::NONE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
         },
       ],
 
@@ -642,9 +711,9 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
-          File::dump(static::$sut . '/.github/workflows/deps-updates.yml');
+          File::dump(static::$sut . '/.github/workflows/update-dependencies.yml');
         },
       ],
       'dependency updates provider - discovery - renovate self-hosted - circleci' => [
@@ -654,16 +723,16 @@ class PromptManagerTest extends UnitTestCase {
           DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI,
         ] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
-          File::dump(static::$sut . '/.circleci/config.yml', 'deps-updates');
+          File::dump(static::$sut . '/.circleci/config.yml', 'update-dependencies');
         },
       ],
       'dependency updates provider - discovery - renovate app' => [
         [],
         [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
         },
       ],
@@ -671,7 +740,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
         },
       ],
 
@@ -679,7 +748,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [AssignAuthorPr::id() => TRUE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/.github/workflows/assign-author.yml');
         },
       ],
@@ -687,7 +756,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [AssignAuthorPr::id() => FALSE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
         },
       ],
       'auto assign pr - discovery - non-Vortex' => [
@@ -702,7 +771,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [LabelMergeConflictsPr::id() => TRUE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/.github/workflows/label-merge-conflict.yml');
         },
       ],
@@ -710,7 +779,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [LabelMergeConflictsPr::id() => FALSE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
         },
       ],
       'label merge conflicts - discovery - non-Vortex' => [
@@ -725,7 +794,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [PreserveDocsProject::id() => TRUE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/docs/README.md');
         },
       ],
@@ -733,7 +802,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [PreserveDocsProject::id() => FALSE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
         },
       ],
       'preserve project documentation - discovery - non-Vortex' => [
@@ -748,35 +817,45 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [PreserveDocsOnboarding::id() => TRUE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
           File::dump(static::$sut . '/docs/onboarding.md');
         },
       ],
-      'preserve onboarding checklist - discovery - removed' => [
+
+      'ai instructions - discovery' => [
         [],
-        [PreserveDocsOnboarding::id() => FALSE] + $expected_installed,
+        [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          $test->setVortexProject($config);
+          $test->stubVortexProject($config);
+          File::dump(static::$sut . '/CLAUDE.md');
         },
       ],
-      'preserve onboarding checklist - discovery - non-Vortex' => [
+      'ai instructions - discovery - removed' => [
         [],
-        [PreserveDocsOnboarding::id() => TRUE] + $expected_defaults,
+        [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
-          File::dump(static::$sut . '/docs/onboarding.md');
+          $test->stubVortexProject($config);
         },
       ],
+      'ai instructions - discovery - non-Vortex' => [
+        [],
+        [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          File::dump(static::$sut . '/CLAUDE.md');
+        },
+      ],
+
     ];
   }
 
-  protected function setComposerJsonValue(string $name, mixed $value): string {
+  protected function stubComposerJsonValue(string $name, mixed $value): string {
     $composer_json = static::$sut . DIRECTORY_SEPARATOR . 'composer.json';
     file_put_contents($composer_json, json_encode([$name => $value], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     return $composer_json;
   }
 
-  protected function setDotenvValue(string $name, mixed $value, string $filename = '.env'): string {
+  protected function stubDotenvValue(string $name, mixed $value, string $filename = '.env'): string {
     $dotenv = static::$sut . DIRECTORY_SEPARATOR . $filename;
 
     file_put_contents($dotenv, sprintf('%s=%s', $name, $value) . PHP_EOL, FILE_APPEND);
@@ -784,15 +863,15 @@ class PromptManagerTest extends UnitTestCase {
     return $dotenv;
   }
 
-  protected function setVortexProject(Config $config): void {
+  protected function stubVortexProject(Config $config): void {
     // Add a README.md file with a Vortex badge.
     $readme = static::$sut . DIRECTORY_SEPARATOR . 'README.md';
-    file_put_contents($readme, '[![Vortex](https://img.shields.io/badge/Vortex-1.2.3-5909A1.svg)](https://github.com/drevops/vortex/tree/1.2.3)' . PHP_EOL, FILE_APPEND);
+    file_put_contents($readme, '[![Vortex](https://img.shields.io/badge/Vortex-1.2.3-65ACBC.svg)](https://github.com/drevops/vortex/tree/1.2.3)' . PHP_EOL, FILE_APPEND);
 
     $config->set(Config::IS_VORTEX_PROJECT, TRUE);
   }
 
-  protected function setTheme(string $dir): void {
+  protected function stubTheme(string $dir): void {
     File::dump($dir . '/scss/_variables.scss');
     File::dump($dir . '/Gruntfile.js');
     File::dump($dir . '/package.json', (string) json_encode(['build-dev' => ''], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));

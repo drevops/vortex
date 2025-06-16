@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\File;
 
 class CiProvider extends AbstractHandler {
 
@@ -37,14 +37,12 @@ class CiProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
     $remove_gha = FALSE;
     $remove_circleci = FALSE;
 
-    switch ($this->response) {
+    switch ($v) {
       case self::GITHUB_ACTIONS:
         $remove_circleci = TRUE;
         break;
@@ -60,21 +58,25 @@ class CiProvider extends AbstractHandler {
 
     if ($remove_gha) {
       @unlink($this->tmpDir . '/.github/workflows/build-test-deploy.yml');
-      File::removeTokenInDir($this->tmpDir, 'CI_PROVIDER_GHA');
+      @unlink($this->tmpDir . '/' . $this->webroot . '/sites/default/includes/providers/settings.gha.php');
+      File::removeTokenAsync('CI_PROVIDER_GHA');
+      File::removeTokenAsync('SETTINGS_PROVIDER_GHA');
     }
 
     if ($remove_circleci) {
       File::rmdir($this->tmpDir . '/.circleci');
+      @unlink($this->tmpDir . '/' . $this->webroot . '/sites/default/includes/providers/settings.circleci.php');
       @unlink($this->tmpDir . '/tests/phpunit/CircleCiConfigTest.php');
-      File::removeTokenInDir($this->tmpDir, 'CI_PROVIDER_CIRCLECI');
+      File::removeTokenAsync('CI_PROVIDER_CIRCLECI');
+      File::removeTokenAsync('SETTINGS_PROVIDER_CIRCLECI');
     }
 
     if ($remove_gha && $remove_circleci) {
       @unlink($this->tmpDir . '/docs/ci.md');
-      File::removeTokenInDir($this->tmpDir, 'CI_PROVIDER_ANY');
+      File::removeTokenAsync('CI_PROVIDER_ANY');
     }
     else {
-      File::removeTokenInDir($this->tmpDir, '!CI_PROVIDER_ANY');
+      File::removeTokenAsync('!CI_PROVIDER_ANY');
     }
   }
 

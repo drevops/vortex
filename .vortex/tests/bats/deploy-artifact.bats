@@ -7,6 +7,22 @@
 load _helper.bash
 load _helper.deployment.bash
 
+@test "Deployment is skipped when VORTEX_DEPLOY_SKIP=1" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_SKIP="1"
+  export VORTEX_DEPLOY_TYPES="artifact"
+
+  run scripts/vortex/deploy.sh
+
+  assert_success
+
+  assert_output_contains "Found flag to skip all deployments."
+  assert_output_contains "Skipping deployment"
+
+  popd >/dev/null
+}
+
 @test "Missing or Invalid VORTEX_DEPLOY_TYPES" {
   substep "Swap to ${LOCAL_REPO_DIR}"
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
@@ -81,12 +97,15 @@ load _helper.deployment.bash
     "@git config --global user.email #"
     "Configuring global git user email."
     "@git config --global user.email ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL} # 0 #"
-    "Using default SSH file ${file}."
+    "Did not find fingerprint variable VORTEX_DEPLOY_SSH_FINGERPRINT."
+    "Found variable VORTEX_DEPLOY_SSH_FILE with value ${file}."
     "Using SSH key file ${file}."
     "@ssh-add -l # ${file}"
-    "SSH agent has ${file} key loaded."
+    "SSH agent already has ${file} key loaded."
     "Installing artifact builder."
-    "@composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^0.7"
+    "@composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^1"
+    "Copying git repo files meta file to the deploy code repo."
+    "Copying deployment .gitignore as it may not exist in deploy code source files."
     "Running artifact builder."
     "Finished ARTIFACT deployment."
   )

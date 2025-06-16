@@ -124,6 +124,9 @@ load _helper.bash
   assert_output_contains "Started dispatching notifications."
 
   assert_output_contains "Started New Relic notification."
+  assert_output_contains "Discovering APP id by name if it was not provided."
+  assert_output_contains "Checking if the application ID is valid."
+  assert_output_contains "Creating a deployment notification for application testproject-develop with ID 9876543210."
 
   assert_equal "-s -X GET https://api.newrelic.com/v2/applications.json -H Api-Key:key1234 -s -G -d filter[name]=testproject-develop&exclude_links=true" "$(mock_get_call_args "${mock_curl}" 1)"
   assert_equal '-X POST https://api.newrelic.com/v2/applications/9876543210/deployments.json -L -s -o /dev/null -w %{http_code} -H Api-Key:key1234 -H Content-Type: application/json -d {
@@ -388,9 +391,11 @@ load _helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started JIRA notification."
+    "Extracting issue"
     "Found issue proj-1234."
     "- Branch feature/proj-1234-some-description does not contain issue number."
     "Checking API access."
+    "Creating API token"
     "@curl -s -X GET -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json https://jira.atlassian.com/rest/api/3/myself # {\"accountId\": \"${account_id}\", \"othervar\": \"54321\"}"
     "Posting a comment."
     "@curl -s -X POST -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/comment --data {\"body\": {\"type\": \"doc\", \"version\": 1, \"content\": [{\"type\": \"paragraph\", \"content\": [{\"type\": \"text\",\"text\": \"Deployed to \"},{\"type\": \"inlineCard\",\"attrs\": {\"url\": \"https://develop.testproject.com\"}}]}]}} # {\"id\": \"${comment_id}\", \"othervar\": \"54321\"}"

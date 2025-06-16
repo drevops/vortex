@@ -80,9 +80,10 @@ To ignore only the **next line**:
 {# twig-cs-fixer-disable-line A.B:C:D #}
 ```
 
-## Ignoring fail in CI
+## Ignoring fail in continuous integration pipeline
 
-This tool runs in CI by default and fails the build if there are any violations.
+This tool runs in continuous integration pipeline by default and fails the build
+if there are any violations.
 
 Set `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE` environment variable to `1` to
 ignore failures. The tool will still run and report violations, if any.

@@ -48,7 +48,8 @@ VORTEX_NOTIFY_JIRA_ENDPOINT="${VORTEX_NOTIFY_JIRA_ENDPOINT:-https://jira.atlassi
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -98,12 +99,12 @@ extract_issue() {
   echo "${1}" | sed -nE "s/([^\/]+\/)?([A-Za-z0-9]+\-[0-9]+).*/\2/p"
 }
 
-note "Extracting issue"
+task "Extracting issue"
 issue="$(extract_issue "${VORTEX_NOTIFY_BRANCH}")"
 [ "${issue}" = "" ] && pass "Branch ${VORTEX_NOTIFY_BRANCH} does not contain issue number." && exit 0
 note "Found issue ${issue}."
 
-note "Creating API token"
+task "Creating API token"
 base64_opts=() && [ "$(uname)" != "Darwin" ] && base64_opts=(-w 0)
 token="$(echo -n "${VORTEX_NOTIFY_JIRA_USER}:${VORTEX_NOTIFY_JIRA_TOKEN}" | base64 "${base64_opts[@]}")"
 
@@ -121,7 +122,7 @@ account_id="$(echo "${payload}" | extract_json_value "accountId" || echo "error"
 echo "success"
 
 if [ -n "${VORTEX_NOTIFY_JIRA_COMMENT_PREFIX}" ]; then
-  note "Posting a comment."
+  task "Posting a comment."
 
   [ -z "${VORTEX_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_ENVIRONMENT_URL." && exit 1
 
@@ -141,7 +142,7 @@ if [ -n "${VORTEX_NOTIFY_JIRA_COMMENT_PREFIX}" ]; then
 fi
 
 if [ -n "${VORTEX_NOTIFY_JIRA_TRANSITION}" ]; then
-  note "Transitioning issue to ${VORTEX_NOTIFY_JIRA_TRANSITION}"
+  task "Transitioning issue to ${VORTEX_NOTIFY_JIRA_TRANSITION}"
 
   echo -n "       Discovering transition ID for ${VORTEX_NOTIFY_JIRA_TRANSITION}..."
   payload="$(curl \
@@ -167,7 +168,7 @@ if [ -n "${VORTEX_NOTIFY_JIRA_TRANSITION}" ]; then
 fi
 
 if [ -n "${VORTEX_NOTIFY_JIRA_ASSIGNEE:-}" ]; then
-  note "Assigning issue to ${VORTEX_NOTIFY_JIRA_ASSIGNEE}"
+  task "Assigning issue to ${VORTEX_NOTIFY_JIRA_ASSIGNEE}"
 
   echo -n "       Discovering user ID for ${VORTEX_NOTIFY_JIRA_ASSIGNEE}..."
   payload="$(curl \

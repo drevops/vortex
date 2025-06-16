@@ -7,6 +7,8 @@
         "softwareTerms"
     ],
     "words": [
+        "Diffy",
+        "VALKEY",
         "acquia",
         "amazee",
         "amazeeio",
@@ -36,6 +38,7 @@
         "localdev",
         "mglaman",
         "minimised",
+        "multisite",
         "novnc",
         "oomphinc",
         "optimise",
@@ -50,13 +53,16 @@
         "pyrech",
         "renovatebot",
         "ruleset",
-        "sanitised",
         "shellvar",
         "standardise",
         "utilising",
+        "valkey",
+        "vincentlanglet",
         "vlucas",
+        "vortextemplate",
         "webflo",
         "webroot",
+        "yourorg",
         "yoursite"
     ],
     "overrides": [

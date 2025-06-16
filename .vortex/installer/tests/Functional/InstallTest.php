@@ -2,43 +2,43 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Functional;
+namespace DrevOps\VortexInstaller\Tests\Functional;
 
-use DrevOps\Installer\Command\InstallCommand;
-use DrevOps\Installer\Prompts\Handlers\AssignAuthorPr;
-use DrevOps\Installer\Prompts\Handlers\CiProvider;
-use DrevOps\Installer\Prompts\Handlers\CodeProvider;
-use DrevOps\Installer\Prompts\Handlers\DatabaseDownloadSource;
-use DrevOps\Installer\Prompts\Handlers\DatabaseImage;
-use DrevOps\Installer\Prompts\Handlers\DependencyUpdatesProvider;
-use DrevOps\Installer\Prompts\Handlers\DeployType;
-use DrevOps\Installer\Prompts\Handlers\Domain;
-use DrevOps\Installer\Prompts\Handlers\GithubRepo;
-use DrevOps\Installer\Prompts\Handlers\GithubToken;
-use DrevOps\Installer\Prompts\Handlers\HostingProvider;
-use DrevOps\Installer\Prompts\Handlers\Internal;
-use DrevOps\Installer\Prompts\Handlers\LabelMergeConflictsPr;
-use DrevOps\Installer\Prompts\Handlers\MachineName;
-use DrevOps\Installer\Prompts\Handlers\ModulePrefix;
-use DrevOps\Installer\Prompts\Handlers\Name;
-use DrevOps\Installer\Prompts\Handlers\Org;
-use DrevOps\Installer\Prompts\Handlers\OrgMachineName;
-use DrevOps\Installer\Prompts\Handlers\PreserveDocsOnboarding;
-use DrevOps\Installer\Prompts\Handlers\PreserveDocsProject;
-use DrevOps\Installer\Prompts\Handlers\Profile;
-use DrevOps\Installer\Prompts\Handlers\ProvisionType;
-use DrevOps\Installer\Prompts\Handlers\Services;
-use DrevOps\Installer\Prompts\Handlers\Theme;
-use DrevOps\Installer\Prompts\Handlers\ThemeRunner;
-use DrevOps\Installer\Prompts\Handlers\Webroot;
-use DrevOps\Installer\Prompts\PromptManager;
-use DrevOps\Installer\Utils\Config;
-use DrevOps\Installer\Utils\Converter;
-use DrevOps\Installer\Utils\Downloader;
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\File;
-use DrevOps\Installer\Utils\Git;
-use DrevOps\Installer\Utils\Tui;
+use DrevOps\VortexInstaller\Command\InstallCommand;
+use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
+use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
+use DrevOps\VortexInstaller\Prompts\Handlers\GithubRepo;
+use DrevOps\VortexInstaller\Prompts\Handlers\GithubToken;
+use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
+use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
+use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
+use DrevOps\VortexInstaller\Prompts\Handlers\Name;
+use DrevOps\VortexInstaller\Prompts\Handlers\Org;
+use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
+use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
+use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
+use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
+use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
+use DrevOps\VortexInstaller\Prompts\Handlers\Services;
+use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
+use DrevOps\VortexInstaller\Prompts\PromptManager;
+use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\Converter;
+use DrevOps\VortexInstaller\Utils\Downloader;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Git;
+use DrevOps\VortexInstaller\Utils\Tui;
 use Laravel\SerializableClosure\SerializableClosure;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -76,7 +76,6 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 #[CoversClass(ProvisionType::class)]
 #[CoversClass(Services::class)]
 #[CoversClass(Theme::class)]
-#[CoversClass(ThemeRunner::class)]
 #[CoversClass(Webroot::class)]
 #[CoversClass(PromptManager::class)]
 #[CoversClass(Downloader::class)]
@@ -173,11 +172,15 @@ class InstallTest extends FunctionalTestCase {
       ],
 
       'theme, absent' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), '')),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Theme::id()), '');
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString('themes/custom', static::$sut, [
           '.gitignore',
           'scripts/vortex',
           'composer.json',
+          'CLAUDE.md',
         ])),
       ],
 
@@ -187,15 +190,24 @@ class InstallTest extends FunctionalTestCase {
       ],
 
       'services, no clamav' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::REDIS]))),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::VALKEY]));
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('clamav')),
       ],
-      'services, no redis' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::SOLR]))),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('redis')),
+      'services, no valkey' => [
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::SOLR]));
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains(['valkey', 'redis'])),
       ],
       'services, no solr' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::REDIS]))),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::VALKEY]));
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('solr')),
       ],
       'services, none' => [
@@ -203,15 +215,21 @@ class InstallTest extends FunctionalTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('clamav');
           $test->assertSutNotContains('solr');
-          $test->assertSutNotContains('redis');
+          $test->assertSutNotContains(['valkey', 'redis']);
         }),
       ],
 
       'hosting, acquia' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::ACQUIA)),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::ACQUIA);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
       ],
       'hosting, lagoon' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON)),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('acquia')),
       ],
 
@@ -231,6 +249,7 @@ class InstallTest extends FunctionalTestCase {
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::CONTAINER_REGISTRY);
           Env::put(PromptManager::makeEnvName(DatabaseImage::id()), 'the_empire/star_wars:latest');
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
         }),
       ],
 
@@ -268,15 +287,31 @@ class InstallTest extends FunctionalTestCase {
       'provision, database' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::DATABASE)),
       ],
+      'provision, database, lagoon' => [
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::DATABASE);
+          Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
+      ],
       'provision, profile' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::PROFILE)),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::PROFILE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
       ],
 
       'ciprovider, gha' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS)),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
       ],
       'ciprovider, circleci' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI)),
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
       ],
 
       'deps updates provider, ci, gha' => [
@@ -321,6 +356,13 @@ class InstallTest extends FunctionalTestCase {
       ],
       'preserve docs onboarding, disabled' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(PreserveDocsOnboarding::id()), Env::FALSE)),
+      ],
+
+      'ai instructions, claude' => [
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE)),
+      ],
+      'ai instructions, none' => [
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::NONE)),
       ],
     ];
   }

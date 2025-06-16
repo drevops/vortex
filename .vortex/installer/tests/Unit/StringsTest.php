@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Unit;
+namespace DrevOps\VortexInstaller\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use DrevOps\Installer\Utils\Strings;
+use DrevOps\VortexInstaller\Utils\Strings;
 
 /**
  * Tests for the Strings class.
@@ -14,12 +14,12 @@ use DrevOps\Installer\Utils\Strings;
 #[CoversClass(Strings::class)]
 class StringsTest extends UnitTestCase {
 
-  #[DataProvider('dataProviderUtfPos')]
-  public function testUtfPos(string $input, ?int $expected): void {
-    $this->assertEquals($expected, Strings::utfPos($input));
+  #[DataProvider('dataProviderIsAsciiStart')]
+  public function testIsAsciiStart(string $input, ?int $expected): void {
+    $this->assertEquals($expected, Strings::isAsciiStart($input));
   }
 
-  public static function dataProviderUtfPos(): array {
+  public static function dataProviderIsAsciiStart(): array {
     return [
       ['Hello', 1],
       ['Ångström', 0],

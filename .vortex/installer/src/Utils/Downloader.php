@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Utils;
+namespace DrevOps\VortexInstaller\Utils;
 
 /**
  * Download files from a local or remote Git repository using archive.
@@ -65,7 +65,10 @@ class Downloader {
     return [$repo, $ref];
   }
 
-  protected function downloadFromRemote(string $repo, string $ref, string $destination): string {
+  protected function downloadFromRemote(string $repo, string $ref, ?string $destination): string {
+    if ($destination === NULL) {
+      throw new \InvalidArgumentException('Destination cannot be null for remote downloads.');
+    }
     $repo_url = str_ends_with($repo, '.git') ? substr($repo, 0, -4) : $repo;
 
     $version = $ref;
@@ -92,7 +95,10 @@ class Downloader {
     return $version;
   }
 
-  protected function downloadFromLocal(string $repo, string $ref, string $destination): string {
+  protected function downloadFromLocal(string $repo, string $ref, ?string $destination): string {
+    if ($destination === NULL) {
+      throw new \InvalidArgumentException('Destination cannot be null for local downloads.');
+    }
     // Local download does not support version discovery.
     $ref = $ref === Downloader::REF_STABLE ? Downloader::REF_HEAD : $ref;
     $version = $ref;

@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:25.3.0
+      image: drevops/ci-runner:25.5.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -28,7 +28,7 @@ jobs:
         TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
         TEST_VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_USER }}
         TEST_VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_PASS }}
-        VORTEX_DEV_VOLUMES_MOUNTED: 0
+        VORTEX_DEV_VOLUMES_SKIP_MOUNT: 1
         VORTEX_DEV_TEST_COVERAGE_DIR: /tmp/.vortex-coverage-html
 
     steps:
@@ -61,6 +61,8 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -71,6 +73,12 @@ jobs:
           ./tests/lint.scripts.sh
           ./tests/lint.dockerfiles.sh
         working-directory: .vortex
+
+      # Special case to validate Renovate  configuration with the same action
+      # as used in the Renovate workflow to ensure that they both use the same
+      # version.
+      - name: Validate Renovate configuration
+        uses: suzuki-shunsuke/github-action-renovate-config-validator@v1.1.1
 
       - name: Run tests
         run: ./tests/test.common.sh
@@ -101,7 +109,7 @@ jobs:
         batch: [0, 1, 2, 3]
 
     container:
-      image: drevops/ci-runner:25.3.0
+      image: drevops/ci-runner:25.5.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -109,7 +117,7 @@ jobs:
         TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
         TEST_VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_USER }}
         TEST_VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_PASS }}
-        VORTEX_DEV_VOLUMES_MOUNTED: 0
+        VORTEX_DEV_VOLUMES_SKIP_MOUNT: 1
         VORTEX_DEV_TEST_COVERAGE_DIR: /tmp/.vortex-coverage-html
         TEST_NODE_INDEX: ${{ matrix.batch }}
 
@@ -125,6 +133,8 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -159,7 +169,7 @@ jobs:
         batch: [0, 1]
 
     container:
-      image: drevops/ci-runner:25.3.0
+      image: drevops/ci-runner:25.5.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -167,7 +177,7 @@ jobs:
         TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
         TEST_VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_USER }}
         TEST_VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_PASS }}
-        VORTEX_DEV_VOLUMES_MOUNTED: 0
+        VORTEX_DEV_VOLUMES_SKIP_MOUNT: 1
         VORTEX_DEV_TEST_COVERAGE_DIR: /tmp/.vortex-coverage-html
         TEST_NODE_INDEX: ${{ matrix.batch }}
 

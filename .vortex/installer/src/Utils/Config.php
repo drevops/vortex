@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Utils;
+namespace DrevOps\VortexInstaller\Utils;
 
 /**
  * Installer configuration.
  *
  * Installer config is a config of this installer script.
  *
- * @package DrevOps\Installer
+ * @package DrevOps\VortexInstaller
  */
 final class Config {
 
@@ -25,9 +25,9 @@ final class Config {
 
   const PROCEED = 'VORTEX_INSTALL_PROCEED';
 
-  const IS_DEMO_MODE = 'VORTEX_INSTALL_IS_DEMO_MODE';
+  const IS_DEMO = 'VORTEX_INSTALL_IS_DEMO';
 
-  const DEMO_MODE_SKIP = 'VORTEX_INSTALL_DEMO_SKIP';
+  const IS_DEMO_DB_DOWNLOAD_SKIP = 'VORTEX_INSTALL_IS_DEMO_DB_DOWNLOAD_SKIP';
 
   const IS_VORTEX_PROJECT = 'VORTEX_INSTALL_IS_VORTEX_PROJECT';
 

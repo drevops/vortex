@@ -41,7 +41,8 @@ import TabItem from '@theme/TabItem';
   </TabItem>
 </Tabs>
 
-In CI, tests are run by calling the test binaries directly.
+In continuous integration pipelines, tests are run by calling the test binaries
+directly.
 
 ## Unit testing
 
@@ -54,16 +55,16 @@ configuration file to allow customizing the test suite per project.
 
 Test reports are stored in `.logs/phpunit` directory
 separated into multiple files and named after the suite name.
-These reports are usually used in CI to track tests performance and stability.
+These reports are usually used in continuous integration to track tests performance and stability.
 
 ### Boilerplate
 
-**Vortex** provides Unit, Kernel and Functional tests boilerplate for custom [modules](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_core/tests/src),
+**Vortex** provides Unit, Kernel and Functional tests boilerplate for custom [modules](https://github.com/drevops/vortex/blob/develop/web/modules/custom/ys_base/tests/src),
 [themes](https://github.com/drevops/vortex/blob/develop/web/themes/custom/your_site_theme/tests/src) and
 [scripts](https://github.com/drevops/vortex/blob/develop/tests/phpunit).
 
-These boilerplate tests run in CI when you install **Vortex** and can be used as
-a starting point for writing your own.
+These boilerplate tests run in continuous integration pipeline when you install
+**Vortex** and can be used as a starting point for writing your own.
 
 #### Drupal settings tests
 
@@ -76,11 +77,12 @@ unexpected issues when deploying a project to a different environment.
 It is intended to be used in your site and kept up-to-date with the
 changes made to the `settings.php` file.
 
-#### CI configuration tests
+#### Continuous integration pipeline configuration tests
 
-**Vortex** provides a [CI configuration tests](https://github.com/drevops/vortex/blob/develop/tests/phpunit/CircleCiConfigTest.php)
-to check that the CI configuration is correct. It is intended to be used in your
-site and kept up-to-date with the CI configurations.
+**Vortex** provides a [continuous integration pipeline configuration tests](https://github.com/drevops/vortex/blob/develop/tests/phpunit/CircleCiConfigTest.php)
+to check that the continuous integration configuration is correct. It is
+intended to be used in your site and kept up-to-date with the continuous
+integration configurations.
 
 For example, there are tests for regular expressions used to filter the branches
 and tags before they are deployed to the hosting environment.
@@ -116,14 +118,14 @@ You can add your custom steps into this file.
 Behat's `default` profile configured with sensible defaults to allow running it
 with provided extensions.
 
-In CI, the profile can be overridden using `$VORTEX_CI_BEHAT_PROFILE`
-environment variable.
+In continuous integration environment, the profile can be overridden using \
+`$VORTEX_CI_BEHAT_PROFILE` environment variable.
 
 ### Parallel runs
 
-In CI, Behat tests can run within multiple runners to increase the speed of the
-test suite. To achieve this, Behat tags are used to mark features and scenarios
-with `@p*` tags.
+In continuous integration pipeline, Behat tests can run within multiple runners
+to increase the speed of the test suite. To achieve this, Behat tags are used to
+mark features and scenarios with `@p*` tags.
 
 Out of the box, **Vortex** provides support for unlimited parallel
 runners, but only 2 parallel profiles `p0` and `p1`: a feature can be tagged by
@@ -133,10 +135,10 @@ both runners.
 Note that you can easily add more `p*` profiles in your `behat.yml` by copying
 existing `p1` profile and changing several lines of configuration.
 
-Features without `@p*` tags will always run in the first CI runner, so even
-if you forget to tag the feature, it will still be allocated to a runner.
+Features without `@p*` tags will always run in the first CI pipeline runner, so
+even if you forget to tag the feature, it will still be allocated to a runner.
 
-If CI has only one runner - a `default` profile will be used and all tests
+If CI pipeline has only one runner - a `default` profile will be used and all tests
 (except for those that tagged with `@skipped`) will be run.
 
 ### Skipping tests
@@ -149,9 +151,9 @@ Test screenshots are stored into `.logs/screenshots` location by default,
 which can be overwritten using `$BEHAT_SCREENSHOT_DIR` variable (courtesy of
 [Behat Screenshot](https://github.com/drevops/behat-screenshot) package).
 
-In CI, screenshots are stored as build artifacts. In GitHub Actions, they can be
-downloaded from the `Summary` tab. In CircleCI they are accessible in
-the `Artifacts` tab.
+In continuous integration pipeline, screenshots are stored as build artifacts.
+In GitHub Actions, they can be downloaded from the `Summary` tab.
+In CircleCI they are accessible in the `Artifacts` tab.
 
 ### Format
 
@@ -163,7 +165,8 @@ continue test runs after a failure while maintaining a minimal output.
 
 Test reports are stored in `.logs/behat` directory.
 
-CI usually uses them to to track test performance and stability.
+Continuous integration pipeline usually uses them to track test performance and
+stability.
 
 ### Boilerplate
 
@@ -171,5 +174,5 @@ CI usually uses them to to track test performance and stability.
 and [login](https://github.com/drevops/vortex/blob/develop/tests/behat/features/login.feature)
 user journeys.
 
-These boilerplate tests run in CI when you install **Vortex** and can be used as
-a starting point for writing your own.
+These boilerplate tests run in continuous integration pipeline when you install
+**Vortex** and can be used as a starting point for writing your own.

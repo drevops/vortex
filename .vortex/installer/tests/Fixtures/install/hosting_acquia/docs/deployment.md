@@ -1,7 +1,8 @@
-@@ -17,3 +17,83 @@
+@@ -16,3 +16,83 @@
+    deployment.
  
  Once PR is closed, the environment will be automatically removed.
- 
++
 +GitHub is a primary code repository for this project (aka "source repository").
 +Acquia Cloud is a hosting provider for this project and it also has a git
 +repository (aka "destination repository").
@@ -38,15 +39,15 @@
 +   to required environment.
 +2. Developer pushes code update to the GitHub branch.
 +3. CI system picks-up the update and does the following:
-+  1. Builds a website using production DB.
-+  2. Runs code standard checks and Behat tests on the built website.
-+  3. Creates a deployment artifact (project files to be pushed to Acquia Cloud
-+     repository).
-+  4. Pushes created artifact to the Acquia Cloud repository:
-+    - for feature-based branches (i.e. `feature/ABC-123` or `bugfix/ABC-123`)
-+      the code is pushed to the branch with exactly the same name.
-+    - for release deployments, which are tag-based (i.e. `0.1.4`), the code is
-+      pushed to the branch `deployment/[tag]` (i.e. `deployment/0.1.4`).
++1. Builds a website using production DB.
++2. Runs code standard checks and Behat tests on the built website.
++3. Creates a deployment artifact (project files to be pushed to Acquia Cloud
++   repository).
++4. Pushes created artifact to the Acquia Cloud repository:
++   - for feature-based branches (i.e. `feature/ABC-123` or `bugfix/ABC-123`)
++   the code is pushed to the branch with exactly the same name.
++   - for release deployments, which are tag-based (i.e. `0.1.4`), the code is
++   pushed to the branch `deployment/[tag]` (i.e. `deployment/0.1.4`).
 +4. Acquia Cloud picks up recent push to the repository and
 +   runs [post code update hooks](hooks/dev/post-code-update) on the environments
 +   where code is already deployed.
@@ -81,4 +82,3 @@
 +3. There may be `main` or `develop` branch in Acquia Cloud repository.
 +4. Technical Lead is expected to regularly cleanup `feature/*` and `bugfix/*`
 +   branches in Acquia Cloud repository.
-+

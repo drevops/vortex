@@ -31,7 +31,8 @@ VORTEX_CONTAINER_REGISTRY_PASS="${VORTEX_CONTAINER_REGISTRY_PASS?Missing require
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -47,7 +48,7 @@ for cmd in docker; do command -v ${cmd} >/dev/null || {
 if [ -f "${HOME}/.docker/config.json" ] && grep -q "${VORTEX_CONTAINER_REGISTRY}" "${HOME}/.docker/config.json"; then
   note "Already logged in to the registry \"${VORTEX_CONTAINER_REGISTRY}\"."
 elif [ -n "${VORTEX_CONTAINER_REGISTRY_USER}" ] && [ -n "${VORTEX_CONTAINER_REGISTRY_PASS}" ]; then
-  note "Logging in to registry \"${VORTEX_CONTAINER_REGISTRY}\"."
+  task "Logging in to registry \"${VORTEX_CONTAINER_REGISTRY}\"."
   echo "${VORTEX_CONTAINER_REGISTRY_PASS}" | docker login --username "${VORTEX_CONTAINER_REGISTRY_USER}" --password-stdin "${VORTEX_CONTAINER_REGISTRY}"
 else
   note "Skipping login into the container registry as eithe VORTEX_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_PASS was not provided."

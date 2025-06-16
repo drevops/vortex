@@ -20,33 +20,42 @@
 
 </div>
 
-Welcome to <strong>Vortex</strong> &mdash; a project template for Drupal designed to simplify onboarding and website maintenance.
+**Vortex** is a Drupal project template designed to streamline onboarding,
+accelerate development, and support long-term maintainability.
 
-At [DrevOps&reg;](https://www.drevops.com/), we carefully maintain this
-template, keeping it aligned with the latest tools and validating it through
-automated tests to ensure everything works together seamlessly.
+It provides a complete foundation for building and deploying Drupal sites —
+including containerized local environments, automated testing and code quality
+tools, CI/CD pipeline configurations, and integrations with popular hosting
+platforms. Everything is pre-configured and ready to use, so teams can focus on
+building features instead of setting up infrastructure.
 
-Our goal is to provide a consistent developer experience across projects, making
-it easier to switch between them and get up to speed quickly.
+By standardizing project structure and tooling, Vortex ensures a consistent
+developer experience across every project that uses it. Whether you’re starting
+fresh or joining an existing Vortex-based site, you can get up to speed quickly
+and start contributing right away.
+
+The template is actively maintained and kept in sync with the latest tools.
+Every change is verified through automated tests to ensure updates remain stable
+and reliable — reducing the risk of regressions and making it easier to maintain
+projects over time.
 
 Track our current progress and view planned updates on [the GitHub project board](https://github.com/orgs/drevops/projects/2/views/1).
 
-> [!IMPORTANT]
-> Vortex 2.0 is coming soon! Planned changes are captured in [this issue](https://github.com/drevops/vortex/issues/698).
-
 ## Installation
 
-Our [installer](https://github.com/drevops/vortex-installer) simplifies setup, letting you choose only the features you need. It will integrate the latest Vortex release into your codebase and you will choose which changes to commit.
+Our installer simplifies setup, letting you choose only the features you need.
+It will integrate the latest Vortex release into your codebase, and you will
+choose which changes to commit.
 
 ```bash
-curl -SsL https://vortex.drevops.com/install > install.php && php install.php
+curl -SsL https://www.vortextemplate.com/install > install.php && php install.php
 ```
 
 Alternatively, clone this repository and adjust the configuration by manually
 editing or deleting the sections that aren't necessary for your setup.
 
 Read
-the [installation guide](https://vortex.drevops.com/getting-started/installation)
+the [installation guide](https://www.vortextemplate.com/docs/getting-started/installation)
 for more details.
 
 ## Features
@@ -58,11 +67,11 @@ for more details.
   </picture>
 </div>
 
-See [Features](https://vortex.drevops.com/getting-started/features) for more details.
+See [Features](https://www.vortextemplate.com/docs/getting-started/features) for more details.
 
 ## Documentation
 
-The documentation is authored within this repository in the [`.vortex/docs`](.vortex/docs) directory and published to [https://vortex.drevops.com](https://vortex.drevops.com) on Vortex release.
+The documentation is authored within this repository in the [`.vortex/docs`](.vortex/docs) directory and published to [https://www.vortextemplate.com](https://www.vortextemplate.com) on Vortex release.
 
 Development version of the documentation is available at [https://vortex-docs.netlify.app/](https://vortex-docs.netlify.app/).
 

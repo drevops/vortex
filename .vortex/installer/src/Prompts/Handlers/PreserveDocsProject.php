@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\File;
 
 class PreserveDocsProject extends AbstractHandler {
 
@@ -19,16 +19,14 @@ class PreserveDocsProject extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
-    if (!empty($this->response)) {
-      File::removeTokenInDir($this->tmpDir, '!DOCS_PROJECT');
+    if (!empty($v)) {
+      File::removeTokenAsync('!DOCS_PROJECT');
     }
     else {
       File::rmdir($this->tmpDir . '/docs');
-      File::removeTokenInDir($this->tmpDir, 'DOCS_PROJECT');
+      File::removeTokenAsync('DOCS_PROJECT');
     }
   }
 

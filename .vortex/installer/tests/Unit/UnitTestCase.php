@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Tests\Unit;
+namespace DrevOps\VortexInstaller\Tests\Unit;
 
 use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\SerializableClosureTrait;
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\File;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
 
 /**
@@ -38,7 +38,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected static function locationsFixturesDir(): string {
+  public static function locationsFixturesDir(): string {
     return '.vortex/installer/tests/Fixtures';
   }
 

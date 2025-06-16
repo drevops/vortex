@@ -7,7 +7,7 @@
 # - Use inline comments containing '###' to have the line removed in CI.
 # - Use inline comments starting with '##' to have the line being automatically
 #   uncommented in CI.
-# See more about Docker at https://vortex.drevops.com/docker/
+# See more about Docker at https://www.vortextemplate.com/docs/docker/
 # For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
 
 # ------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 # Volumes available in each container to share application data.
-# See more about Docker host volume mounting at https://vortex.drevops.com/docker#host-volume-mounting-in-docker-based-projects
+# See more about Docker host volume mounting at https://www.vortextemplate.com/docs/docker#host-volume-mounting-in-docker-based-projects
 x-volumes: &default-volumes
   volumes:
     # All application files mounted into container.
@@ -33,37 +33,41 @@ x-user: &default-user
 
 # Environment variables set in all containers during build and runtime.
 x-environment: &default-environment
-  TZ: ${TZ:-Australia/Melbourne}
+  TZ: ${TZ:-UTC}
+  # Pass-through 'CI' variable used to identify the CI environment.
+  CI: ${CI:-}
+  # Pass-through 'XDEBUG_ENABLE' to enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker compose up -d".
+  XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   # Local development URL.
   VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
   # Local development route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
-  # Local database host (not used in production).
+  # Local database host (variable is not used in hosting environment).
   DATABASE_HOST: database
-  # Local database name (not used in production).
+  # Local database name (variable is not used in hosting environment).
   DATABASE_NAME: drupal
-  # Local database user (not used in production).
+  # Local database user (variable is not used in hosting environment).
   DATABASE_USERNAME: drupal
-  # Local database password (not used in production).
+  # Local database password (variable is not used in hosting environment).
   DATABASE_PASSWORD: drupal
-  # Local database port (not used in production).
+  # Local database port (variable is not used in hosting environment).
   DATABASE_PORT: 3306
-  # Pass-through 'XDEBUG_ENABLE' to enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker compose up -d".
-  XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
-  # Pass-through 'CI' variable used to identify the CI environment.
-  CI: ${CI:-}
+  # Local database charset (variable is not used in hosting environment).
+  DATABASE_CHARSET: utf8mb4
+  # Local database collation (variable is not used in hosting environment).
+  DATABASE_COLLATION: utf8mb4_general_ci
   DRUPAL_THEME: ${DRUPAL_THEME:-}
-  # Path to configuration files.
-  DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
   # Drupal file paths.
-  DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
-  DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
+  DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-sites/default/files}
+  DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-sites/default/files/private}
   DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
+  # Path to configuration files.
+  DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-../config/default}
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
-  # Redis integration flag.
-  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
+  # Valkey integration flag.
+  DRUPAL_VALKEY_ENABLED: ${DRUPAL_VALKEY_ENABLED:-}
 
 # ------------------------------------------------------------------------------
 # Services.
@@ -78,6 +82,9 @@ services:
       args:
         WEBROOT: "${WEBROOT:-web}"
         GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
+        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-sites/default/files}
+        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-sites/default/files/private}
+        DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
     user: root
     <<: *default-volumes
@@ -94,10 +101,6 @@ services:
       args:
         CLI_IMAGE: *cli-image
         WEBROOT: "${WEBROOT:-web}"
-        DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-/app/config/default}
-        DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-/app/web/sites/default/files}
-        DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-/app/web/sites/default/files/private}
-        DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
@@ -132,8 +135,8 @@ services:
     ports:
       - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
 
-  redis:
-    image: uselagoon/redis-6:__VERSION__
+  valkey:
+    image: uselagoon/valkey-8:__VERSION__
 
   solr:
     build:
@@ -168,7 +171,7 @@ services:
     ports:
       - "7900" # Find port on host with `docker compose port chrome 7900`.
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
-    <<: *default-volumes # Use default volumes to provide access to test fixtures.
+    <<: *default-volumes
     environment:
       <<: *default-environment
     depends_on:

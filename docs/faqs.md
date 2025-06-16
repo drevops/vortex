@@ -84,14 +84,9 @@ that case, use `ahoy build`.
 Provided that your stack is already running:
 
 ```bash
-ahoy drush sql-drop -y;
-ahoy drush sql-cli < .data/db.sql
-```
+ahoy import-db
 
-But better:
-
-```bash
-VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ahoy provision
+ahoy import-db .data/db_custom.sql
 ```
 
 ## How to add Drupal modules
@@ -121,7 +116,20 @@ composer require drupal/module_name
 composer require drupal/somepackage
 ```
 
-See https://vortex.drevops.com/workflows/development#working-with-composer-packages
+See https://www.vortextemplate.com/docs/workflows/development#working-with-composer-packages
+
+## How to set a custom maintenance theme?
+
+To set a custom theme for Drupal's maintenance mode (when the site is offline for updates), set the `DRUPAL_MAINTENANCE_THEME` environment variable:
+
+```bash
+# In .env file
+DRUPAL_MAINTENANCE_THEME=my_custom_theme
+```
+
+This theme will be used when Drupal is in maintenance mode. If `DRUPAL_MAINTENANCE_THEME` is not set, the system will fall back to using the value of `DRUPAL_THEME`.
+
+The maintenance theme should be a valid Drupal theme that is already installed and enabled on your site.
 
 ## Behat tests with `@javascript` tag sometimes get stuck
 

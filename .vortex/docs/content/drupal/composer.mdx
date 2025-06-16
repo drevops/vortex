@@ -40,12 +40,12 @@ explaining its role and how it contributes to your project's setup and
 management.
 
 import CodeBlock from '@theme/CodeBlock';
-import MyComponentSource from '!!raw-loader!./../../../../composer.json';
+import ComposerJsonSource from '!!raw-loader!./../../../../composer.json';
 
 <details>
   <summary>Click here to see the contents of the `composer.json` file</summary>
 
-  <CodeBlock language="json">{MyComponentSource}</CodeBlock>
+  <CodeBlock language="json">{ComposerJsonSource}</CodeBlock>
 
 </details>
 
@@ -68,7 +68,7 @@ package. The type key can influence how the package is installed and used.
 ### `license`
 
 [license](https://getcomposer.org/doc/04-schema.md#license) indicates the
-licence of the project. Since **Vortex** is a template for your consumer sites
+license of the project. Since **Vortex** is a template for your consumer sites
 that are usually proprietary, we use `proprietary` as the default value. More
 license identifiers are listed at
 the [SPDX Open Source License Registry](https://spdx.org/licenses/).
@@ -194,7 +194,7 @@ effective development environment.
   Provides a summary of package changes (like updates, removals, and additions)
   after running `composer update`, improving the visibility of package changes
   and updates in your project.
-- [`vincentLanglet/Twig-CS-Fixer`](https://github.com/VincentLanglet/Twig-CS-Fixer): This tool
+- [`vincentlanglet/twig-cs-fixer`](https://github.com/VincentLanglet/Twig-CS-Fixer): This tool
   ensures that Twig templates adhere to a set coding standard, helping maintain
   consistency and readability in template files.
 

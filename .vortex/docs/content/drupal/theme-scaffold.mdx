@@ -4,8 +4,135 @@ sidebar_position: 5
 
 # Theme scaffold
 
-:::note "Work in progress"
+[Theme scaffold](https://github.com/drevops/vortex/tree/develop/web/themes/custom/your_site_theme)
+is an example of a Drupal theme.
 
-    The documentation section is still a work in progress.
+We recommend creating a custom `your_site_theme` theme for your project to place
+custom styling and front-end functionality specific to your site.
+
+The theme uses the site machine name convention (`your_site_theme` in this case),
+while modules use the abbreviated prefix (`ys_` for `your_site`).
+
+:::note
+
+    We understand that front-end theming is often highly project-specific and
+    subject to team preferences. The provided `your_site_theme` scaffold is not
+    intended to dictate how your theme should be built — it simply demonstrates how
+    custom themes can integrate with the **Vortex** tooling and workflows.
+
+    Feel free to adapt or replace it with your preferred theme.
 
 :::
+
+## Build system
+
+The theme includes a complete Node.js-based build system using Grunt:
+
+- **SCSS compilation** with Sass globbing support
+- **JavaScript concatenation and minification**
+- **CSS auto-prefixing** for browser compatibility
+- **Linting** for both CSS (Stylelint) and JavaScript (ESLint)
+- **Watch mode** for development workflow
+
+### Build commands
+
+```bash
+cd web/themes/custom/your_site_theme
+
+# Install dependencies
+yarn install
+
+# Build production assets
+yarn run build
+
+# Build development assets (unminified)
+yarn run build-dev
+
+# Run linting
+yarn run lint
+
+# Auto-fix linting issues
+yarn run lint-fix
+
+# Watch for changes during development
+yarn run watch
+```
+
+Ahoy commands are configured to call the appropriate Yarn scripts from the
+theme directory:
+
+```bash
+# Install front-end dependencies
+ahoy fei
+
+# Build production assets
+ahoy fe
+
+# Build development assets (unminified)
+ahoy fed
+
+# Watch for changes during development
+ahoy few
+
+# Lint front-end code
+ahoy lint-fe
+```
+
+These commands run within the container to use the Node.js environment
+and tools installed there, ensuring consistency across development environments.
+
+:::note
+
+    When adding your own theme with a custom build system, it’s a good idea to
+    follow the same command structure and naming conventions. This keeps things
+    consistent across projects and makes it easier for other developers to work with
+    the build system without learning a new workflow.
+
+:::
+
+
+## File structure
+
+```
+your_site_theme/
+├── scss/                          # Sass source files
+│   ├── _variables.scss            # Theme variables
+│   ├── _mixins.scss               # Sass mixins
+│   ├── _fonts.scss                # Font definitions
+│   ├── _rem.scss                  # REM unit utilities
+│   ├── styles.scss                # Main stylesheet
+│   └── components/                # Component-specific styles
+│       └── _header.scss           # Header component styles
+├── js/                            # JavaScript source files
+│   └── your_site_theme.js         # Main theme JavaScript
+├── tests/                         # Theme tests
+│   └── src/
+│       ├── Unit/                  # Unit tests
+│       ├── Kernel/                # Kernel tests
+│       └── Functional/            # Functional tests
+├── your_site_theme.info.yml       # Theme definition
+├── your_site_theme.libraries.yml  # Asset libraries
+├── your_site_theme.theme          # Theme functions
+├── package.json                   # Node.js dependencies
+├── Gruntfile.js                   # Build configuration
+└── logo.svg                       # Theme logo
+```
+
+## Libraries
+
+The theme defines asset libraries in `your_site_theme.libraries.yml` for
+organized CSS and JavaScript loading with proper dependencies and browser
+compatibility.
+
+## Tests scaffold
+
+The `tests` directory contains working examples of tests that can be used as a
+starting point in your project.
+
+It also has a set of helper `Traits` that you may find useful when writing your
+tests. Simply remove them if you do not find them useful.
+
+---
+
+See [Development](/docs/workflows/development) for more details on how to work with
+the theme.

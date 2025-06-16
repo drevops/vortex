@@ -15,7 +15,7 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 [//]: # (#;> CI_PROVIDER_GHA)
 
-![Drupal 11](https://img.shields.io/badge/Drupal-10-blue.svg)
+![Drupal 11](https://img.shields.io/badge/Drupal-11-blue.svg)
 [![codecov](https://codecov.io/gh/your_org/your_site/graph/badge.svg)](https://codecov.io/gh/your_org/your_site)
 
 [//]: # (#;< DEPS_UPDATE_PROVIDER)
@@ -26,11 +26,11 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY VORTEX TO TRACK INTEGRATION)
 
-[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-5909A1.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
-
-[//]: # (#;< DOCS_ONBOARDING)
+[![Vortex](https://img.shields.io/badge/Vortex-VORTEX_VERSION_URLENCODED-65ACBC.svg)](https://github.com/drevops/vortex/tree/VORTEX_VERSION)
 
 </div>
+
+[//]: # (#;< DOCS_ONBOARDING)
 
 ## Onboarding to Vortex
 
@@ -38,6 +38,12 @@ Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding
 to Vortex progress. Remove this section once onboarding is finished.
 
 [//]: # (#;> DOCS_ONBOARDING)
+
+## Environments
+
+- DEV: https://dev.your-site-domain.example
+- STAGE: https://stage.your-site-domain.example
+- PROD: https://www.your-site-domain.example
 
 ## Local environment setup
 
@@ -89,4 +95,4 @@ to Vortex progress. Remove this section once onboarding is finished.
 - [Deployment](docs/deployment.md)
 
 ---
-_This repository was created using the [Vortex](https://github.com/drevops/vortex) project template_
+_This repository was created using the [Vortex](https://github.com/drevops/vortex) Drupal project template_

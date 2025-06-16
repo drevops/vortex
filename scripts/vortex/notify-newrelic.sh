@@ -47,7 +47,8 @@ VORTEX_NOTIFY_NEWRELIC_ENDPOINT="${VORTEX_NOTIFY_NEWRELIC_ENDPOINT:-https://api.
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -69,7 +70,7 @@ for cmd in curl; do command -v ${cmd} >/dev/null || {
 
 info "Started New Relic notification."
 
-# Discover APP id by name if it was not provided.
+task "Discovering APP id by name if it was not provided."
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_APPID}" ] && [ -n "${VORTEX_NOTIFY_NEWRELIC_APP_NAME}" ]; then
   VORTEX_NOTIFY_NEWRELIC_APPID="$(curl -s -X GET "${VORTEX_NOTIFY_NEWRELIC_ENDPOINT}/applications.json" \
     -H "Api-Key:${VORTEX_NOTIFY_NEWRELIC_APIKEY}" \
@@ -80,8 +81,13 @@ fi
 
 # Check if the length of the VORTEX_NOTIFY_NEWRELIC_APPID variable is not 10 OR
 # if the variable doesn't contain only numeric values and exit.
-{ [ "${#VORTEX_NOTIFY_NEWRELIC_APPID}" != "10" ] || [ "$(expr "x${VORTEX_NOTIFY_NEWRELIC_APPID}" : "x[0-9]*$")" -eq 0 ]; } && note "Notification skipped: No New Relic application ID found for ${VORTEX_NOTIFY_NEWRELIC_APP_NAME}. This is expected for non-configured environments." && exit 0
+task "Checking if the application ID is valid."
+if [ "${#VORTEX_NOTIFY_NEWRELIC_APPID}" != "10" ] || [ "$(expr "x${VORTEX_NOTIFY_NEWRELIC_APPID}" : "x[0-9]*$")" -eq 0 ]; then
+  note "Notification skipped: No New Relic application ID found for ${VORTEX_NOTIFY_NEWRELIC_APP_NAME}. This is expected for non-configured environments."
+  exit 0
+fi
 
+task "Creating a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}."
 if ! curl -X POST "${VORTEX_NOTIFY_NEWRELIC_ENDPOINT}/applications/${VORTEX_NOTIFY_NEWRELIC_APPID}/deployments.json" \
   -L -s -o /dev/null -w "%{http_code}" \
   -H "Api-Key:${VORTEX_NOTIFY_NEWRELIC_APIKEY}" \
@@ -95,7 +101,7 @@ if ! curl -X POST "${VORTEX_NOTIFY_NEWRELIC_ENDPOINT}/applications/${VORTEX_NOTI
     \"user\": \"${VORTEX_NOTIFY_NEWRELIC_USER}\"
   }
 }" | grep -q '201'; then
-  fail "[ERROR] Failed to crate a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}"
+  fail "Failed to crate a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}"
   exit 1
 fi
 

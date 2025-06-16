@@ -1,15 +1,16 @@
 ---
-sidebar_position: 1
+sidebar_position: 3
 ---
 
 # Installation
 
-The installation process consists of installing the **Vortex** template
-followed by setting up the integrations with the required services.
+The installation process consists of installing the **Vortex** template into
+your project's codebase, and then setting up the integrations with the required
+services.
 
 We automated the first part by providing an in interactive installer. The second
 part is a manual process that requires you to follow the instructions provided
-for each service.
+for each service (see relevant sections in the documentation).
 
 ## Installing Vortex into a new project
 
@@ -17,7 +18,7 @@ for each service.
 
 2. Run the following command to install the **Vortex** template.
     ```shell title="Install using interactive prompts"
-    curl -SsL https://vortex.drevops.com/install > install.php && php install.php
+    curl -SsL https://www.vortextemplate.com/install > install.php && php install.php
     ```
     ![installer.png](/img/installer.png)
 
@@ -32,7 +33,7 @@ for each service.
 ## Installing Vortex into an existing project
 
 The installer cannot predict the state of your project, so it is recommended to
-initialise **Vortex** into a new directory and then merge the changes from
+initialize **Vortex** into a new directory and then merge the changes from
 your existing project into the new one.
 
 :::warning
@@ -50,7 +51,7 @@ your existing project into the new one.
 
 4. Run the following command to install the **Vortex** template.
     ```shell title="Install using interactive prompts"
-    curl -SsL https://vortex.drevops.com/install > install.php && php install.php
+    curl -SsL https://www.vortextemplate.com/install > install.php && php install.php
     ```
 
 5. Commit the changes to the new branch.
@@ -75,9 +76,10 @@ the changes between the **Vortex** files and your files.
 ## Setting up integrations
 
 Depending on the services you are using, you will need to set up the
-integrations with CI, Docker Hub, your hosting and other services.
+integrations with your hosting provider, continuous integration provider,  and
+other services.
 
 Please refer to the following guides for more information:
 
-- [CI](../ci)
+- [Continuous Integration](../continuous-integration)
 - [Hosting](../hosting)

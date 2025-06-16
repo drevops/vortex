@@ -24,7 +24,9 @@ docker network create amazeeio-network 2>/dev/null || true
 
 index="${TEST_NODE_INDEX:-*}"
 echo "==> Run workflow functional tests (${index})."
+
 [ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && yarn --cwd="${TEST_DIR}" install --frozen-lockfile
+[ ! -d "${TEST_DIR}/vendor" ] && echo "  > Install test PHP dependencies." && composer --working-dir="${TEST_DIR}" install --no-interaction --no-progress --no-suggest --optimize-autoloader
 
 bats() {
   pushd "${ROOT_DIR}" >/dev/null || exit 1
@@ -37,11 +39,25 @@ bats() {
   popd >/dev/null || exit 1
 }
 
+phpunit() {
+  pushd "${TEST_DIR}" >/dev/null || exit 1
+  "./vendor/bin/phpunit" "$@"
+  popd >/dev/null || exit 1
+}
+
+# Not every test has a coverage report, so we create an empty directory
+# to avoid errors in CI.
+# @see https://github.com/actions/upload-artifact/issues/255
+if [ -n "${CI}" ]; then
+  mkdir -p /tmp/.vortex-coverage-html
+  touch "/tmp/.vortex-coverage-html/.empty-$(date +%Y%m%d%H%M%S)"
+fi
+
 # Run workflow based on index using switch-case.
 case ${index} in
 
   0)
-    bats "${TEST_DIR}"/bats/workflow.smoke.bats
+    phpunit "${TEST_DIR}"/phpunit
     ;;
 
   1)
@@ -54,7 +70,6 @@ case ${index} in
     ;;
 
   3)
-    bats "${TEST_DIR}"/bats/workflow.utilities.bats
     # Disabled due to intermittent failures.
     # @see https://github.com/drevops/vortex/issues/893
     # bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
@@ -62,13 +77,12 @@ case ${index} in
     ;;
 
   *)
-    bats "${TEST_DIR}"/bats/workflow.smoke.bats
+    phpunit "${TEST_DIR}"/phpunit
     bats "${TEST_DIR}"/bats/workflow.install.db.bats
     bats "${TEST_DIR}"/bats/workflow.install.profile.bats
     bats "${TEST_DIR}"/bats/workflow.storage.image.bats
     # Disabled due to intermittent failures.
     # @see https://github.com/drevops/vortex/issues/893
     # bats "${TEST_DIR}"/bats/workflow.storage.image_cached.bats
-    bats "${TEST_DIR}"/bats/workflow.utilities.bats
     ;;
 esac

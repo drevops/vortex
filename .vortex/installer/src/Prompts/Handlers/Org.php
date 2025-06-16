@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Composer;
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\Composer;
+use DrevOps\VortexInstaller\Utils\File;
 
 class Org extends AbstractHandler {
 
@@ -26,11 +26,9 @@ class Org extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
-    File::replaceContentInDir($this->tmpDir, 'YOURORG', (string) $this->response);
+    File::replaceContentAsync('YOURORG', $v);
   }
 
 }

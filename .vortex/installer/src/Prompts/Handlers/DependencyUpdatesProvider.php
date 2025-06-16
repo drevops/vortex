@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\File;
 
 class DependencyUpdatesProvider extends AbstractHandler {
 
@@ -26,11 +26,11 @@ class DependencyUpdatesProvider extends AbstractHandler {
       return self::NONE;
     }
 
-    if (file_exists($this->dstDir . '/.github/workflows/deps-updates.yml')) {
+    if (file_exists($this->dstDir . '/.github/workflows/update-dependencies.yml')) {
       return self::RENOVATEBOT_CI;
     }
 
-    if (File::contains($this->dstDir . '/.circleci/config.yml', 'deps-updates')) {
+    if (File::contains($this->dstDir . '/.circleci/config.yml', 'update-dependencies')) {
       return self::RENOVATEBOT_CI;
     }
 
@@ -41,26 +41,22 @@ class DependencyUpdatesProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
-
-    $v = $this->response;
+    $v = $this->getResponseAsString();
     $t = $this->tmpDir;
 
     if ($v === self::RENOVATEBOT_CI) {
-      File::removeTokenInDir($t, '!DEPS_UPDATE_PROVIDER_CI');
-      File::removeTokenInDir($t, 'DEPS_UPDATE_PROVIDER_APP');
+      File::removeTokenAsync('!DEPS_UPDATE_PROVIDER_CI');
+      File::removeTokenAsync('DEPS_UPDATE_PROVIDER_APP');
     }
     elseif ($v === self::RENOVATEBOT_APP) {
-      File::removeTokenInDir($t, '!DEPS_UPDATE_PROVIDER_APP');
-      File::removeTokenInDir($t, 'DEPS_UPDATE_PROVIDER_CI');
-      @unlink($t . '/.github/workflows/deps-updates.yml');
+      File::removeTokenAsync('!DEPS_UPDATE_PROVIDER_APP');
+      File::removeTokenAsync('DEPS_UPDATE_PROVIDER_CI');
+      @unlink($t . '/.github/workflows/update-dependencies.yml');
     }
     else {
-      File::removeTokenInDir($t, 'DEPS_UPDATE_PROVIDER_APP');
-      File::removeTokenInDir($t, 'DEPS_UPDATE_PROVIDER_CI');
-      File::removeTokenInDir($t, 'DEPS_UPDATE_PROVIDER');
+      File::removeTokenAsync('DEPS_UPDATE_PROVIDER_APP');
+      File::removeTokenAsync('DEPS_UPDATE_PROVIDER_CI');
+      File::removeTokenAsync('DEPS_UPDATE_PROVIDER');
       @unlink($t . '/renovate.json');
     }
   }

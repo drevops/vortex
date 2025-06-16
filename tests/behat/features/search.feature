@@ -9,10 +9,11 @@ Feature: Search API
       | title              | body                           | status |
       | [TEST] Test page 1 | test content uniquestring      | 1      |
       | [TEST] Test page 2 | test content otheruniquestring | 1      |
-    And I index "page" "[TEST] Test page 1" for search
-    And I index "page" "[TEST] Test page 2" for search
+    And I add the "page" content with the title "[TEST] Test page 1" to the search index
+    And I add the "page" content with the title "[TEST] Test page 2" to the search index
+    And I run search indexing for 2 items
     And I visit "/search"
-    And I wait 5 seconds
+    And I wait for 5 seconds
     And save screenshot
 
     When I fill in "search_api_fulltext" with "[TEST]"

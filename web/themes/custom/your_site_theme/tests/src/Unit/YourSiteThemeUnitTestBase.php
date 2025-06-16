@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Drupal\Tests\your_site_theme\Unit;
 
 use Drupal\Tests\UnitTestCase;
-use Drupal\Tests\ys_core\Traits\ArrayTrait;
-use Drupal\Tests\ys_core\Traits\AssertTrait;
-use Drupal\Tests\ys_core\Traits\MockTrait;
-use Drupal\Tests\ys_core\Traits\ReflectionTrait;
+use Drupal\Tests\ys_base\Traits\ArrayTrait;
+use Drupal\Tests\ys_base\Traits\AssertTrait;
+use Drupal\Tests\ys_base\Traits\MockTrait;
+use Drupal\Tests\ys_base\Traits\ReflectionTrait;
 
 /**
  * Class YourSiteThemeUnitTestBase.

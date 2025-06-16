@@ -30,7 +30,8 @@ VORTEX_DB_EXPORT_IMAGE_DIR="${VORTEX_DB_EXPORT_IMAGE_DIR:-${VORTEX_DB_DIR}}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -50,18 +51,18 @@ note "Found ${VORTEX_DB_EXPORT_SERVICE_NAME} service container with id ${cid}."
 
 new_image="${VORTEX_DB_EXPORT_CONTAINER_REGISTRY}/${VORTEX_DB_EXPORT_IMAGE}"
 
-note "Locking and unlocking tables before upgrade."
+task "Locking and unlocking tables before upgrade."
 docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
 sleep 5
 docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" mysql -e "UNLOCK TABLES;"
 
-note "Running forced service upgrade."
+task "Running forced service upgrade."
 docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" sh -c "mariadb-upgrade --force || mariadb-upgrade --force"
 
-note "Locking tables after upgrade."
+task "Locking tables after upgrade."
 docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
 
-note "Committing exported container image with name ${new_image}."
+task "Committing exported container image with name ${new_image}."
 iid=$(docker commit "${cid}" "${new_image}")
 iid="${iid#sha256:}"
 note "Committed exported container image with id ${iid}."
@@ -73,7 +74,7 @@ mkdir -p "${VORTEX_DB_EXPORT_IMAGE_DIR}"
 # as a first argument. Also, make sure that the extension is correct.
 archive_file=$([ "${VORTEX_DB_EXPORT_IMAGE_ARCHIVE_FILE}" ] && echo "${VORTEX_DB_EXPORT_IMAGE_DIR}/${VORTEX_DB_EXPORT_IMAGE_ARCHIVE_FILE//.sql/.tar}" || echo "${VORTEX_DB_EXPORT_IMAGE_DIR}/export_db_$(date +%Y%m%d_%H%M%S).tar")
 
-note "Exporting database image archive to file ${archive_file}."
+task "Exporting database image archive to file ${archive_file}."
 
 [ -f "${archive_file}" ] && rm -f "${archive_file}"
 mkdir -p "$(dirname "${archive_file}")"

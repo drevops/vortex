@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Converter;
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\Converter;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
 
 class Domain extends AbstractHandler {
 
@@ -27,11 +27,9 @@ class Domain extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
+    $v = $this->getResponseAsString();
 
-    File::replaceContentInDir($this->tmpDir, 'your-site-domain.example', (string) $this->response);
+    File::replaceContentAsync('your-site-domain.example', $v);
   }
 
 }

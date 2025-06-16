@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Utils;
+namespace DrevOps\VortexInstaller\Utils;
 
 use Laravel\Prompts\Prompt;
 use Laravel\Prompts\Terminal;
@@ -58,7 +58,7 @@ class Tui {
     // @phpstan-ignore-next-line
     $return = spin($action, static::yellow($label));
 
-    static::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::utfPos($label) === 0 ? 3 : 2);
+    static::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::isAsciiStart($label) === 0 ? 3 : 2);
 
     if ($return === FALSE) {
       $failure = $failure && is_callable($failure) ? $failure() : $failure;
@@ -90,11 +90,40 @@ class Tui {
 
     if ($title) {
       $rows[] = [static::green($title)];
-      $rows[] = [static::green(str_repeat('-', Strings::strlenPlain($title))) . PHP_EOL];
+      $rows[] = [static::green(str_repeat('─', Strings::strlenPlain($title))) . PHP_EOL];
     }
     $rows[] = [$content];
 
     table([], $rows);
+  }
+
+  public static function center(string $text, int $width = 80, ?string $border = NULL): string {
+    $lines = explode(PHP_EOL, $text);
+    $centered_lines = [];
+
+    // Find the maximum line length.
+    $max_length = 0;
+    foreach ($lines as $line) {
+      $line_length = Strings::strlenPlain($line);
+      if ($line_length > $max_length) {
+        $max_length = $line_length;
+      }
+    }
+
+    foreach ($lines as $line) {
+      $padding = empty($line) ? '' : str_repeat(' ', (int) (($width - $max_length) / 2));
+      $centered_lines[] = $padding . $line;
+    }
+
+    if ($border) {
+      $border = str_repeat($border, $width - 2);
+      array_unshift($centered_lines, '');
+      array_unshift($centered_lines, $border);
+      $centered_lines[] = '';
+      $centered_lines[] = $border;
+    }
+
+    return implode(PHP_EOL, $centered_lines);
   }
 
   public static function ok(string $text = 'OK'): void {
@@ -202,7 +231,7 @@ class Tui {
   }
 
   public static function normalizeText(string $text): string {
-    if (is_null(Strings::utfPos($text))) {
+    if (is_null(Strings::isAsciiStart($text))) {
       return $text;
     }
 
@@ -211,7 +240,7 @@ class Tui {
     preg_match_all('/\X/u', $text, $matches);
 
     $utf8_chars = $matches[0];
-    $utf8_chars = array_map(fn($char): string => Strings::utfPos($char) === 0 ? $char . static::utfPadding($char) : $char, $utf8_chars);
+    $utf8_chars = array_map(fn($char): string => Strings::isAsciiStart($char) === 0 ? $char . static::utfPadding($char) : $char, $utf8_chars);
 
     return implode('', $utf8_chars);
   }

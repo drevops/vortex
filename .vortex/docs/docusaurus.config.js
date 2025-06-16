@@ -13,7 +13,7 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://vortex.drevops.com/',
+  url: 'https://www.vortextemplate.com/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
@@ -40,7 +40,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          routeBasePath: '/',
+          routeBasePath: '/docs',
           sidebarPath: './sidebars.js',
           path: 'content',
           // Please change this to your repo.
@@ -71,7 +71,7 @@ const config = {
         // @see https://github.com/easyops-cn/docusaurus-search-local#theme-options
         searchBarPosition: 'left',
         docsDir: 'content',
-        docsRouteBasePath: '/',
+        docsRouteBasePath: '/docs',
         indexBlog: false,
         hashed: true,
         highlightSearchTermsOnTargetPage: true,
@@ -94,30 +94,32 @@ const config = {
         },
         items: [
           {
-            label: 'Drupal',
-            href: '/drupal',
+            label: 'Features',
+            href: '/features',
           },
           {
-            label: 'Tools',
-            href: '/tools',
+            label: 'Get Started',
+            href: '/docs/getting-started/installation',
           },
           {
-            label: 'CI',
-            href: '/ci',
+            label: 'Documentation',
+            href: '/docs',
           },
           {
-            label: 'Hosting',
-            href: '/hosting',
-          },
-          {
-            label: 'Workflows',
-            href: '/workflows',
+            label: 'Support',
+            href: '/support',
           },
           {
             href: 'https://github.com/drevops/vortex',
             label: 'GitHub',
             position: 'right',
             title: 'View source on GitHub',
+          },
+          {
+            href: 'https://drupal.slack.com/archives/CRE86HQTW',
+            label: 'Slack',
+            position: 'right',
+            title: 'Join us on Slack',
           },
           {
             type: 'search',
@@ -129,8 +131,43 @@ const config = {
         style: 'dark',
         links: [
           {
-            label: 'GitHub',
-            href: 'https://github.com/drevops/vortex',
+            title: 'Product',
+            items: [
+              {
+                label: 'Features',
+                href: '/features',
+              },
+              {
+                label: 'Get Started',
+                href: '/docs/getting-started/installation',
+              },
+            ],
+          },
+          {
+            title: 'Resources',
+            items: [
+              {
+                label: 'Documentation',
+                href: '/docs',
+              },
+              {
+                label: 'Support',
+                href: '/support',
+              },
+            ],
+          },
+          {
+            title: 'Community',
+            items: [
+              {
+                label: 'GitHub',
+                href: 'https://github.com/drevops/vortex',
+              },
+              {
+                label: 'Slack',
+                href: 'https://drupal.slack.com/archives/CRE86HQTW',
+              },
+            ],
           },
         ],
         copyright: `Copyright ©${new Date().getFullYear()} DrevOps&reg;. Built with Docusaurus.`,
@@ -159,7 +196,35 @@ const config = {
         redirects: [
           {
             from: '/quickstart',
-            to: '/getting-started/installation',
+            to: '/docs/getting-started/installation',
+          },
+          {
+            from: '/ci',
+            to: '/docs/continuous-integration',
+          },
+          {
+            from: '/drupal',
+            to: '/docs/drupal',
+          },
+          {
+            from: '/hosting',
+            to: '/docs/hosting',
+          },
+          {
+            from: '/tools',
+            to: '/docs/tools',
+          },
+          {
+            from: '/workflows',
+            to: '/docs/workflows',
+          },
+          {
+            from: '/getting-started',
+            to: '/docs/getting-started',
+          },
+          {
+            from: '/contributing',
+            to: '/docs/contributing',
           },
         ],
       },

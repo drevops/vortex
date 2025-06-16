@@ -43,7 +43,7 @@ commands:
       ahoy lint-installer
       ahoy lint-scripts
       ahoy lint-dockerfiles
-      ahoy test-docs
+      ahoy lint-docs
 
   lint-installer:
     cmd: composer --working-dir installer lint
@@ -53,6 +53,9 @@ commands:
 
   lint-dockerfiles:
     cmd: ./tests/lint.dockerfiles.sh
+
+  lint-docs:
+    cmd: yarn --cwd=docs run lint
 
   test:
     name: Test Vortex project.
@@ -78,6 +81,7 @@ commands:
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=./docs install --frozen-lockfile
       yarn --cwd=./docs run test
+      yarn --cwd=./docs run spellcheck
 
   # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
   update-fixtures:
@@ -87,9 +91,11 @@ commands:
 
   update-fixtures-no-install:
     cmd: |
-      UPDATE_FIXTURES=1 tests/node_modules/.bin/bats tests/bats/docker-compose.bats \
-      || UPDATE_FIXTURES=1 tests/node_modules/.bin/bats tests/bats/docker-compose.bats
-      cd installer && XDEBUG_MODE=off UPDATE_FIXTURES=1 composer test || XDEBUG_MODE=off composer test && cd -
+      export UPDATE_FIXTURES=1
+      tests/node_modules/.bin/bats tests/bats/docker-compose.bats || tests/node_modules/.bin/bats tests/bats/docker-compose.bats
+      export XDEBUG_MODE=off
+      export COMPOSER_PROCESS_TIMEOUT=600
+      composer --working-dir=installer test -- --filter=testInstall || composer --working-dir=installer test -- --filter=testInstall
 
   update-docs:
     usage: Update the documentation.

@@ -19,40 +19,57 @@ set -eu
 
 # ------------------------------------------------------------------------------
 
+info() { printf "   ==> %s\n" "${1}"; }
+task() { printf "     > %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+
 drush() { ./vendor/bin/drush -y "$@"; }
 
-# Perform operations based on the current environment.
-if drush php:eval "print \Drupal\core\Site\Settings::get('environment');" | grep -q -e dev -e test -e ci -e local; then
-  echo "==> Executing example operations in non-production environment."
+info "Started example operations."
 
-  # Below are examples of running operations.
+environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+note "Environment: ${environment}"
+
+# Perform operations based on the current environment.
+if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
+  note "Running example operations in non-production environment."
 
   # Set site name.
+  task "Setting site name."
   drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"
 
   # Enable contrib modules.
+  task "Installing contrib modules."
   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy
 
+  task "Installing Redis module."
   drush pm:install redis || true
 
+  task "Installing and configuring ClamAV."
   drush pm:install clamav
   drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
 
+  task "Installing Solr search modules."
   drush pm:install search_api search_api_solr
 
   # Enable custom site module and run its deployment hooks.
   #
   # Note that deployment hooks for already enabled modules have run in the
   # parent "provision.sh" script.
-  drush pm:install sw_core sw_search
+  task "Installing custom site modules."
+  drush pm:install sw_base sw_search
+
+  task "Running deployment hooks."
   drush deploy:hook
 
   # Conditionally perform an action if this is a "fresh" database.
   if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
-    echo "  > Fresh database detected. Performing additional example operations."
+    note "Fresh database detected. Performing additional example operations."
   else
-    echo "  > Existing database detected. Performing additional example operations."
+    note "Existing database detected. Performing additional example operations."
   fi
-
-  echo "==> Finished executing example operations in non-production environment."
+else
+  note "Skipping example operations in production environment."
 fi
+
+info "Finished example operations."

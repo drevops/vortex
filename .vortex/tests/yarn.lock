@@ -10,6 +10,6 @@
     bats "^1"
 
 bats@^1:
-  version "1.11.1"
-  resolved "https://registry.yarnpkg.com/bats/-/bats-1.11.1.tgz#e87fa1161d5110ec3a685e2e233f2f2bfb26ebfd"
-  integrity sha512-Dh26FsiLog+wwQeTkboYo2xYj9rUaPEbibUobnYb3G3M9hva/Kby00wrAN9VB9qqGVhl/pYjjt/LVBWwjXlD2A==
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/bats/-/bats-1.12.0.tgz#3ed99170325141e5d6dd53a84c3e5a702d5ab5be"
+  integrity sha512-1HTv2n+fjn3bmY9SNDgmzS6bjoKtVlSK2pIHON5aSA2xaqGkZFoCCWP46/G6jm9zZ7MCi84mD+3Byw4t3KGwBg==

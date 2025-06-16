@@ -4,14 +4,15 @@
  * @file
  * Drupal site-specific configuration file.
  *
- * The structure of this file:
- * - Environment type constants definitions.
- * - Site-specific settings.
- * - Inclusion of hosting providers settings.
- * - Per-environment overrides.
- * - Inclusion of local settings.
+ * Copy `default.settings.local.php` and `default.services.local.yml` to
+ * `settings.local.php` and `services.local.yml` respectively to
+ * enable local overrides.
  *
- * Create settings.local.php file to include local settings overrides.
+ * It’s recommended to leave this file unchanged and manage configuration
+ * through environment variables and module-specific settings files instead.
+ * This allows for better portability and easier management of settings across
+ * environments.
+ * @see https://www.vortextemplate.com/docs/drupal/settings
  *
  * phpcs:disable Drupal.Commenting.InlineComment.NoSpaceBefore
  * phpcs:disable Drupal.Commenting.InlineComment.SpacingAfter
@@ -22,60 +23,80 @@
 declare(strict_types=1);
 
 ////////////////////////////////////////////////////////////////////////////////
-///                       ENVIRONMENT TYPE CONSTANTS                         ///
+///                               DATABASE                                   ///
 ////////////////////////////////////////////////////////////////////////////////
+// @see https://www.vortextemplate.com/docs/drupal/settings#database
 
-// Use these constants anywhere in code to alter behaviour for a specific
-// environment.
-// @codeCoverageIgnoreStart
-if (!defined('ENVIRONMENT_LOCAL')) {
-  define('ENVIRONMENT_LOCAL', 'local');
-}
-if (!defined('ENVIRONMENT_CI')) {
-  define('ENVIRONMENT_CI', 'ci');
-}
-if (!defined('ENVIRONMENT_PROD')) {
-  define('ENVIRONMENT_PROD', 'prod');
-}
-if (!defined('ENVIRONMENT_STAGE')) {
-  define('ENVIRONMENT_STAGE', 'stage');
-}
-if (!defined('ENVIRONMENT_DEV')) {
-  define('ENVIRONMENT_DEV', 'dev');
-}
-// @codeCoverageIgnoreEnd
-
-$settings['environment'] = empty(getenv('CI')) ? ENVIRONMENT_LOCAL : ENVIRONMENT_CI;
+$databases = [
+  'default' =>
+    [
+      'default' =>
+        [
+          'database' => getenv('DATABASE_NAME') ?: getenv('DATABASE_DATABASE') ?: getenv('MARIADB_DATABASE') ?: 'drupal',
+          'username' => getenv('DATABASE_USERNAME') ?: getenv('MARIADB_USERNAME') ?: 'drupal',
+          'password' => getenv('DATABASE_PASSWORD') ?: getenv('MARIADB_PASSWORD') ?: 'drupal',
+          'host' => getenv('DATABASE_HOST') ?: getenv('MARIADB_HOST') ?: 'localhost',
+          'port' => getenv('DATABASE_PORT') ?: getenv('MARIADB_PORT') ?: '3306',
+          'charset' => getenv('DATABASE_CHARSET') ?: getenv('MARIADB_CHARSET') ?: getenv('MYSQL_CHARSET') ?: 'utf8mb4',
+          'collation' => getenv('DATABASE_COLLATION') ?: getenv('MARIADB_COLLATION') ?: getenv('MYSQL_COLLATION') ?: 'utf8mb4_general_ci',
+          'prefix' => '',
+          'driver' => 'mysql',
+        ],
+    ],
+];
 
 ////////////////////////////////////////////////////////////////////////////////
-///                       SITE-SPECIFIC SETTINGS                             ///
+///                               GENERAL                                    ///
 ////////////////////////////////////////////////////////////////////////////////
+// @see https://www.vortextemplate.com/docs/drupal/settings#general
 
 $app_root = $app_root ?? DRUPAL_ROOT;
 $site_path = $site_path ?? 'sites/default';
-$contrib_path = $app_root . DIRECTORY_SEPARATOR . (is_dir($app_root . DIRECTORY_SEPARATOR . 'modules/contrib') ? 'modules/contrib' : 'modules');
+$contrib_path = $app_root . '/' . (is_dir($app_root . '/modules/contrib') ? 'modules/contrib' : 'modules');
+
+// Public files directory relative to the Drupal root.
+$settings['file_public_path'] = getenv('DRUPAL_PUBLIC_FILES') ?: 'sites/default/files';
+
+// Private files directory relative to the Drupal root.
+$settings['file_private_path'] = getenv('DRUPAL_PRIVATE_FILES') ?: 'sites/default/files/private';
+
+// Temporary file directory.
+$settings['file_temp_path'] = getenv('DRUPAL_TEMPORARY_FILES') ?: getenv('TMP') ?: '/tmp';
+
+// Location of the site configuration files relative to the Drupal root. If not
+// set, the default location is inside a randomly-named directory in the public
+// files path.
+if (!empty(getenv('DRUPAL_CONFIG_PATH'))) {
+  $settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH');
+}
 
 // Load services definition file.
 $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 
-// Location of the site configuration files.
-$settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH') ?: '../config/default';
+// Use DRUPAL_HASH_SALT or the database host name for salt.
+$settings['hash_salt'] = getenv('DRUPAL_HASH_SALT') ?: hash('sha256', $databases['default']['default']['host']);
 
-// Private directory.
-$settings['file_private_path'] = getenv('DRUPAL_PRIVATE_FILES') ?: 'sites/default/files/private';
+// Timezone settings.
+ini_set('date.timezone', getenv('DRUPAL_TIMEZONE') ?: getenv('TZ') ?: 'UTC');
+date_default_timezone_set(getenv('DRUPAL_TIMEZONE') ?: getenv('TZ') ?: 'UTC');
 
-// Temporary directory.
-$settings['file_temp_path'] = getenv('DRUPAL_TEMPORARY_FILES') ?: '/tmp';
+// Maintenance theme.
+$settings['maintenance_theme'] = getenv('DRUPAL_MAINTENANCE_THEME') ?: getenv('DRUPAL_THEME') ?: 'claro';
 
-// Base salt on the DB host name.
-$settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+// Trusted Host Patterns.
+// See https://www.drupal.org/node/2410395 for more information on how to
+// populate this array.
+// Settings for specific environments (including a local container-based
+// environment) are populated within provider-specific
+// `includes/providers/settings.<provider>.php` files.
+// @see https://www.vortextemplate.com/docs/drupal/settings#per-module-overrides
+$settings['trusted_host_patterns'] = [
+  '^localhost$',
+];
 
-// Expiration of cached pages.
-$config['system.performance']['cache']['page']['max_age'] = 900;
-
-// Aggregate CSS and JS files.
-$config['system.performance']['css']['preprocess'] = TRUE;
-$config['system.performance']['js']['preprocess'] = TRUE;
+// Modules excluded from config export.
+// Populate this array in the `includes/modules/settings.<module>.php` file.
+$settings['config_exclude_modules'] = [];
 
 // The default list of directories that will be ignored by Drupal's file API.
 $settings['file_scan_ignore_directories'] = [
@@ -86,51 +107,35 @@ $settings['file_scan_ignore_directories'] = [
 // The default number of entities to update in a batch process.
 $settings['entity_update_batch_size'] = 50;
 
-// Trusted Host Patterns.
-// Settings for other environments are included below.
-// If your site runs on multiple domains, you need to add these domains here.
-// escape dots, remove schema, use commas as regex separator.
-// See https://www.drupal.org/node/2410395 for more information.
-$settings['trusted_host_patterns'] = [
-  // Local URL.
-  '^.+\.docker\.amazee\.io$',
-  // URL when accessed from Behat tests.
-  '^nginx$',
-];
-
-// Modules excluded from config export.
-$settings['config_exclude_modules'] = [];
-
-ini_set('date.timezone', 'Australia/Melbourne');
-date_default_timezone_set('Australia/Melbourne');
-
-// Maintenance theme.
-if (getenv('DRUPAL_THEME')) {
-  $config['maintenance_theme'] = getenv('DRUPAL_RH_THEME');
-}
-
-// Default database configuration.
-$databases = [
-  'default' =>
-    [
-      'default' =>
-        [
-          'database' => getenv('DATABASE_NAME') ?: getenv('DATABASE_DATABASE') ?: getenv('MARIADB_DATABASE') ?: 'drupal',
-          'username' => getenv('DATABASE_USERNAME') ?: getenv('MARIADB_USERNAME') ?: 'drupal',
-          'password' => getenv('DATABASE_PASSWORD') ?: getenv('MARIADB_PASSWORD') ?: 'drupal',
-          'host' => getenv('DATABASE_HOST') ?: getenv('MARIADB_HOST') ?: 'localhost',
-          'port' => getenv('DATABASE_PORT') ?: getenv('MARIADB_PORT') ?: '',
-          'prefix' => '',
-          'driver' => 'mysql',
-        ],
-    ],
-];
-
 ////////////////////////////////////////////////////////////////////////////////
 ///                       ENVIRONMENT TYPE DETECTION                         ///
 ////////////////////////////////////////////////////////////////////////////////
+// @see https://www.vortextemplate.com/docs/drupal/settings#environment-type-detection
 
-// Load provider-specific settings.
+// Use these constants anywhere in code to alter behavior for a specific
+// environment.
+// @codeCoverageIgnoreStart
+if (!defined('ENVIRONMENT_LOCAL')) {
+  define('ENVIRONMENT_LOCAL', 'local');
+}
+if (!defined('ENVIRONMENT_CI')) {
+  define('ENVIRONMENT_CI', 'ci');
+}
+if (!defined('ENVIRONMENT_DEV')) {
+  define('ENVIRONMENT_DEV', 'dev');
+}
+if (!defined('ENVIRONMENT_STAGE')) {
+  define('ENVIRONMENT_STAGE', 'stage');
+}
+if (!defined('ENVIRONMENT_PROD')) {
+  define('ENVIRONMENT_PROD', 'prod');
+}
+// @codeCoverageIgnoreEnd
+
+// Default environment type is 'local'.
+$settings['environment'] = ENVIRONMENT_LOCAL;
+
+// Load provider-specific environment detection settings.
 if (file_exists($app_root . '/' . $site_path . '/includes/providers')) {
   $files = glob($app_root . '/' . $site_path . '/includes/providers/settings.*.php');
   if ($files) {
@@ -140,40 +145,15 @@ if (file_exists($app_root . '/' . $site_path . '/includes/providers')) {
   }
 }
 
-// Allow overriding of an environment type.
+// Allow to override an environment type using the DRUPAL_ENVIRONMENT variable.
 if (!empty(getenv('DRUPAL_ENVIRONMENT'))) {
   $settings['environment'] = getenv('DRUPAL_ENVIRONMENT');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-///                   ENVIRONMENT-SPECIFIC SETTINGS                          ///
+///                       PER-MODULE OVERRIDES                               ///
 ////////////////////////////////////////////////////////////////////////////////
-
-if ($settings['environment'] == ENVIRONMENT_CI) {
-  // Never harden permissions on sites/default/files.
-  $settings['skip_permissions_hardening'] = TRUE;
-
-  // Disable built-in cron trigger.
-  $config['automated_cron.settings']['interval'] = 0;
-
-  // Disable mail send out.
-  $settings['suspend_mail_send'] = TRUE;
-}
-
-if ($settings['environment'] == ENVIRONMENT_LOCAL) {
-  // Never harden permissions on sites/default/files during local development.
-  $settings['skip_permissions_hardening'] = TRUE;
-
-  // Disable built-in cron trigger.
-  $config['automated_cron.settings']['interval'] = 0;
-
-  // Show all error messages on the site.
-  $config['system.logging']['error_level'] = 'all';
-}
-
-////////////////////////////////////////////////////////////////////////////////
-///                       PER-MODULE SETTINGS                                ///
-////////////////////////////////////////////////////////////////////////////////
+// @see https://www.vortextemplate.com/docs/drupal/settings#per-module-overrides
 
 if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
   $files = glob($app_root . '/' . $site_path . '/includes/modules/settings.*.php');
@@ -185,14 +165,17 @@ if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-///                          LOCAL SETTINGS                                  ///
+///                          LOCAL OVERRIDE                                  ///
 ////////////////////////////////////////////////////////////////////////////////
+// @see https://www.vortextemplate.com/docs/drupal/settings#local-overrides
 
-// Load local development override configuration, if available.
+// Load local override configuration, if available.
 //
-// Copy default.settings.local.php and default.services.local.yml to
-// settings.local.php and services.local.yml respectively.
-// services.local.yml is loaded in in settings.local.php.
+// Copy `default.settings.local.php` and `default.services.local.yml` to
+// `settings.local.php` and `services.local.yml` respectively to enable local
+// overrides.
+//
+// `services.local.yml` is loaded from within `settings.local.php`.
 //
 // Keep this code block at the end of this file to take full effect.
 // @codeCoverageIgnoreStart

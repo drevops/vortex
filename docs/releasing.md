@@ -6,7 +6,7 @@ manage releases.
 Note: after completing the release, commits must be manually pushed
 from `master` to `production` branch.
 
-Refer to https://vortex.drevops.com/latest/usage/release for more information.
+Refer to https://www.vortextemplate.com/docs/workflows/releasing for more information.
 
 ## Release outcome
 

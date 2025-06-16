@@ -56,10 +56,10 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:25.3.0
+      image: drevops/ci-runner:25.5.0
 
       env:
-        TZ: Australia/Melbourne
+        TZ: UTC
         TERM: xterm-256color
         VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
         VORTEX_SSH_REMOVE_ALL_KEYS: "1"
@@ -91,7 +91,7 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
-          known_hosts: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_KNOWN_HOSTS }}
+          known_hosts: unnecessary
         env:
           VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
 
@@ -118,11 +118,11 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .data
-          key: v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
           # Fallback to caching by default branch name only. Allows to use
           # cache from the branch build on the previous day.
           restore-keys: |
-            v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
+            v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
 
       - name: Download DB
         run: |
@@ -149,7 +149,7 @@ jobs:
         if: env.db_hash != hashFiles('.data')
         with:
           path: .data
-          key: v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
   #;> !PROVISION_TYPE_PROFILE
 
   build:
@@ -165,10 +165,10 @@ jobs:
       fail-fast: false
 
     container:
-      image: drevops/ci-runner:25.3.0
+      image: drevops/ci-runner:25.5.0
 
       env:
-        TZ: Australia/Melbourne
+        TZ: UTC
         TERM: xterm-256color
         # Disable strict host key checking for SSH connections.
         VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
@@ -209,7 +209,7 @@ jobs:
           date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee db_cache_timestamp
 
       - name: Show cache key for database caching
-        run: echo 'v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
+        run: echo 'v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
 
       # Restore DB cache based on the cache strategy set by the cache keys below.
       # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
@@ -221,9 +221,9 @@ jobs:
           path: .data
           fail-on-cache-miss: true
           # Use cached database from previous builds of this branch.
-          key: v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
           restore-keys: |
-            v25.3.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+            v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
       #;> !PROVISION_TYPE_PROFILE
 
       - name: Login to container registry
@@ -321,6 +321,7 @@ jobs:
 
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: test-artifacts-${{ matrix.instance }}
           path: .logs
@@ -363,9 +364,9 @@ jobs:
     #;> !PROVISION_TYPE_PROFILE
 
     container:
-      image: drevops/ci-runner:25.3.0
+      image: drevops/ci-runner:25.5.0
       env:
-        TZ: Australia/Melbourne
+        TZ: UTC
         TERM: xterm-256color
         VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -395,7 +396,7 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
-          known_hosts: ${{ secrets.VORTEX_DEPLOY_SSH_KNOWN_HOSTS }}
+          known_hosts: unnecessary
         env:
           VORTEX_DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
 
@@ -412,5 +413,6 @@ jobs:
           VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL }}
           VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME }}
           VORTEX_DEPLOY_WEBHOOK_URL: ${{ vars.VORTEX_DEPLOY_WEBHOOK_URL }}
+          VORTEX_DEPLOY_SKIP: ${{ vars.VORTEX_DEPLOY_SKIP }}
         timeout-minutes: 30
   #;> DEPLOYMENT

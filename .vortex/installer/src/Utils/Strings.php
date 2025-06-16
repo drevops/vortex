@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Utils;
+namespace DrevOps\VortexInstaller\Utils;
 
 class Strings {
 
-  public static function utfPos(string $string): ?int {
+  public static function isAsciiStart(string $string): ?int {
     $pos = preg_match('/^[\x00-\x7F]/', $string);
     return $pos !== FALSE ? $pos : NULL;
   }

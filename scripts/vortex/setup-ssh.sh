@@ -34,7 +34,8 @@ VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="${VORTEX_SSH_DISABLE_STRICT_HOST_KE
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -68,7 +69,7 @@ if [ -n "${fingerprint-}" ]; then
   note "Using fingerprint-based deploy key because fingerprint was provided."
 
   if [ "${fingerprint#SHA256:}" != "${fingerprint}" ]; then
-    note "Searching for MD5 hash as fingerprint starts with SHA256."
+    task "Searching for MD5 hash as fingerprint starts with SHA256."
     for existing_file in "${HOME}"/.ssh/id_rsa*; do
       fingerprint_sha256=$(ssh-keygen -l -E sha256 -f "${existing_file}" | awk '{print $2}')
       if [ "${fingerprint_sha256}" = "${fingerprint}" ]; then
@@ -94,16 +95,16 @@ note "Using SSH key file ${file}."
 export "${file_var}=${file}"
 
 if [ "$(ps ax | grep -c "[s]sh-agent")" -eq 0 ]; then
-  note "Starting SSH agent."
+  task "Starting SSH agent."
   eval "$(ssh-agent)"
 fi
 
 if ssh-add -l | grep -q "${file}"; then
   note "SSH agent already has ${file} key loaded."
 else
-  note "SSH agent does not have a required key loaded. Trying to load."
+  task "SSH agent does not have a required key loaded. Trying to load."
   if [ "${VORTEX_SSH_REMOVE_ALL_KEYS-}" = "1" ]; then
-    note "Removing all keys from the SSH agent."
+    task "Removing all keys from the SSH agent."
     ssh-add -D
   fi
   ssh-add "${file}"
@@ -111,7 +112,7 @@ else
 fi
 
 if [ "${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING-}" = "1" ]; then
-  note "Disabling strict host key checking."
+  task "Disabling strict host key checking."
   mkdir -p "${HOME}/.ssh/"
   echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
   chmod 600 "${HOME}/.ssh/config"

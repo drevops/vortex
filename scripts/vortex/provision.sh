@@ -35,6 +35,14 @@ VORTEX_PROVISION_USE_MAINTENANCE_MODE="${VORTEX_PROVISION_USE_MAINTENANCE_MODE:-
 # state before any updates ran (for example, DB caching in CI).
 VORTEX_PROVISION_POST_OPERATIONS_SKIP="${VORTEX_PROVISION_POST_OPERATIONS_SKIP:-0}"
 
+# Provision database dump file.
+# If not set, it will be auto-discovered from the VORTEX_DB_DIR directory using
+# the VORTEX_DB_FILE name.
+VORTEX_PROVISION_DB="${VORTEX_PROVISION_DB:-}"
+
+# Directory with custom provision scripts.
+VORTEX_PROVISION_SCRIPTS_DIR="${VORTEX_PROVISION_SCRIPTS_DIR:-./scripts/custom}"
+
 # Name of the webroot directory with Drupal codebase.
 WEBROOT="${WEBROOT:-web}"
 
@@ -61,7 +69,8 @@ VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -73,14 +82,18 @@ yesno() { [ "${1}" = "1" ] && echo "Yes" || echo "No"; }
 
 info "Started site provisioning."
 
-[ "${VORTEX_PROVISION_SKIP}" = "1" ] && pass "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1." && exit 0
+if [ "${VORTEX_PROVISION_SKIP}" = "1" ]; then
+  pass "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1."
+  info "Finished site provisioning."
+  exit 0
+fi
 
-# Normalize the provision type.
-VORTEX_PROVISION_TYPE=${VORTEX_PROVISION_TYPE:-'database'}
-case ${VORTEX_PROVISION_TYPE} in database | profile) ;; *) VORTEX_PROVISION_TYPE='database' ;; esac
-
-## Convert DB dir starting with './' to a full path.
+# Convert DB dir starting with './' to a full path.
 [ "${VORTEX_DB_DIR#./}" != "${VORTEX_DB_DIR}" ] && VORTEX_DB_DIR="$(pwd)${VORTEX_DB_DIR#.}"
+
+if [ -z "${VORTEX_PROVISION_DB}" ]; then
+  VORTEX_PROVISION_DB="${VORTEX_PROVISION_DB:-"${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"}"
+fi
 
 drush_version="$(drush --version | cut -d' ' -f4)"
 drupal_version="$(drush status --field=drupal-version 2>/dev/null || echo "Unknown")"
@@ -91,8 +104,10 @@ if [ -z "${DRUPAL_CONFIG_PATH}" ]; then
   DRUPAL_CONFIG_PATH="$(drush php:eval 'print realpath(\Drupal\Core\Site\Settings::get("config_sync_directory"));')"
   [ ! -d "${DRUPAL_CONFIG_PATH}" ] && fail "Config directory \"${DRUPAL_CONFIG_PATH:-<empty>}\" does not exist." && exit 1
 fi
-
 site_has_config="$(test "$(ls -1 ${DRUPAL_CONFIG_PATH}/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
+
+# Normalize the provision type.
+[ "${VORTEX_PROVISION_TYPE}" = "profile" ] || VORTEX_PROVISION_TYPE=database
 
 ################################################################################
 # Print provisioning information.
@@ -101,12 +116,12 @@ echo
 note "Drupal core version            : ${drupal_version}"
 note "Drush version                  : ${drush_version}"
 echo
-note "Webroot path                   : $(pwd)/${WEBROOT}"
+note "Web root path                  : $(pwd)/${WEBROOT}"
 note "Public files path              : ${DRUPAL_PUBLIC_FILES-<empty>}"
 note "Private files path             : ${DRUPAL_PRIVATE_FILES-<empty>}"
 note "Temporary files path           : ${DRUPAL_TEMPORARY_FILES-<empty>}"
 note "Config files path              : ${DRUPAL_CONFIG_PATH}"
-note "DB dump file path              : ${VORTEX_DB_DIR}/${VORTEX_DB_FILE} ($([ -f "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}" ] && echo "present" || echo "absent"))"
+note "DB dump file path              : ${VORTEX_PROVISION_DB} ($([ -f "${VORTEX_PROVISION_DB}" ] && echo "present" || echo "absent"))"
 if [ -n "${VORTEX_DB_IMAGE:-}" ]; then
   note "DB dump container image        : ${VORTEX_DB_IMAGE}"
 fi
@@ -127,17 +142,17 @@ echo
 # Provision site by importing the database from the dump file.
 #
 provision_from_db() {
-  if [ ! -f "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}" ]; then
+  if [ ! -f "${VORTEX_PROVISION_DB}" ]; then
     echo
     fail "Unable to import database from file."
-    note "Dump file ${VORTEX_DB_DIR}/${VORTEX_DB_FILE} does not exist."
+    note "Dump file ${VORTEX_PROVISION_DB} does not exist."
     note "Site content was not changed."
     exit 1
   fi
 
   drush sql:drop
 
-  drush sql:cli <"${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+  drush sql:cli <"${VORTEX_PROVISION_DB}"
 
   pass "Imported database from the dump file."
 }
@@ -176,7 +191,7 @@ provision_from_profile() {
 # sufficient output for debugging.
 if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
   info "Provisioning site from the database dump file."
-  note "Dump file path: ${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+  note "Dump file path: ${VORTEX_PROVISION_DB}"
 
   if [ "${site_is_installed}" = "1" ]; then
     note "Existing site was found when provisioning from the database dump file."
@@ -223,6 +238,10 @@ fi
 
 echo
 
+environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+info "Current Drupal environment: ${environment}"
+echo
+
 if [ "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}" = "1" ]; then
   info "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
   echo
@@ -231,15 +250,11 @@ if [ "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}" = "1" ]; then
 fi
 
 if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
-  info "Enabling maintenance mode."
+  task "Enabling maintenance mode."
   drush maint:set 1
   pass "Enabled maintenance mode."
   echo
 fi
-
-# Show the current environment.
-info "Current Drupal environment: $(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
-echo
 
 # Use 'drush deploy' if configuration files are present or use standalone commands otherwise.
 if [ "${site_has_config}" = "1" ]; then
@@ -250,7 +265,7 @@ if [ "${site_has_config}" = "1" ]; then
     echo
   fi
 
-  info "Running deployment operations via 'drush deploy'."
+  task "Running deployment operations via 'drush deploy'."
   drush deploy
   pass "Completed deployment operations via 'drush deploy'."
   echo
@@ -260,23 +275,23 @@ if [ "${site_has_config}" = "1" ]; then
   # @see https://github.com/drush-ops/drush/issues/2449
   # @see https://www.drupal.org/project/drupal/issues/3241439
   if drush pm:list --status=enabled | grep -q config_split; then
-    info "Importing config_split configuration."
+    task "Importing config_split configuration."
     drush config:import
     pass "Completed config_split configuration import."
     echo
   fi
 else
-  info "Running database updates."
+  task "Running database updates."
   drush updatedb --no-cache-clear
   pass "Completed running database updates."
   echo
 
-  info "Rebuilding cache."
+  task "Rebuilding cache."
   drush cache:rebuild
   pass "Cache was rebuilt."
   echo
 
-  info "Running deployment operations via 'drush deploy:hook'."
+  task "Running deployment operations via 'drush deploy:hook'."
   drush deploy:hook
   pass "Completed deployment operations via 'drush deploy:hook'."
   echo
@@ -286,19 +301,19 @@ fi
 if [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then
   ./scripts/vortex/provision-sanitize-db.sh
 else
-  info "Skipped database sanitization."
+  pass "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
   echo
 fi
 
 # Run custom provision scripts.
-# The files should be located in "./scripts/custom/" directory
-# and must have "provision-" prefix and ".sh" extension.
-if [ -d "./scripts/custom" ]; then
-  for file in ./scripts/custom/provision-*.sh; do
+# The files should be located in VORTEX_PROVISION_SCRIPTS_DIR directory,
+# must have "provision-" prefix and ".sh" extension.
+if [ -d "${VORTEX_PROVISION_SCRIPTS_DIR}" ]; then
+  for file in "${VORTEX_PROVISION_SCRIPTS_DIR}"/provision-*.sh; do
     if [ -f "${file}" ]; then
-      info "Running custom post-install script '${file}'."
+      task "Running custom post-install script '${file}'."
       echo
-      . "${file}"
+      "${file}"
       echo
       pass "Completed running of custom post-install script '${file}'."
       echo
@@ -308,7 +323,7 @@ if [ -d "./scripts/custom" ]; then
 fi
 
 if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
-  info "Disabling maintenance mode."
+  task "Disabling maintenance mode."
   drush maint:set 0
   pass "Disabled maintenance mode."
   echo

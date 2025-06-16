@@ -5,14 +5,14 @@ Drupal 11 implementation of star wars for star wars Org
 
 [![Database, Build, Test and Deploy](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml)
 
-![Drupal 11](https://img.shields.io/badge/Drupal-10-blue.svg)
+![Drupal 11](https://img.shields.io/badge/Drupal-11-blue.svg)
 [![codecov](https://codecov.io/gh/star_wars_org/star_wars/graph/badge.svg)](https://codecov.io/gh/star_wars_org/star_wars)
 
 ![Automated updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY VORTEX TO TRACK INTEGRATION)
 
-[![Vortex](https://img.shields.io/badge/Vortex-develop-5909A1.svg)](https://github.com/drevops/vortex/tree/develop)
+[![Vortex](https://img.shields.io/badge/Vortex-develop-65ACBC.svg)](https://github.com/drevops/vortex/tree/develop)
 
 </div>
 
@@ -20,6 +20,12 @@ Drupal 11 implementation of star wars for star wars Org
 
 Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding
 to Vortex progress. Remove this section once onboarding is finished.
+
+## Environments
+
+- DEV: https://dev.star-wars.com
+- STAGE: https://stage.star-wars.com
+- PROD: https://www.star-wars.com
 
 ## Local environment setup
 
@@ -42,4 +48,4 @@ to Vortex progress. Remove this section once onboarding is finished.
 - [Deployment](docs/deployment.md)
 
 ---
-_This repository was created using the [Vortex](https://github.com/drevops/vortex) project template_
+_This repository was created using the [Vortex](https://github.com/drevops/vortex) Drupal project template_

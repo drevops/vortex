@@ -36,7 +36,8 @@ VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS="${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS:-
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -56,7 +57,10 @@ info "Started container registry deployment."
 # Only deploy if the map was provided, but do not fail if it has not as this
 # may be called as a part of another task.
 # @todo: Handle this better - empty $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP should use defaults.
-[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}" ] && echo "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry deployment will not continue." && exit 0
+if [ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}" ]; then
+  echo "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry deployment will not continue."
+  exit 0
+fi
 
 services=()
 images=()
@@ -78,7 +82,7 @@ for key in "${!services[@]}"; do
   service="${services[${key}]}"
   image="${images[${key}]}"
 
-  note "Processing service ${service}."
+  task "Processing service ${service}."
   # Check if the service is running.
   cid=$(docker compose ps -q "${service}")
 
@@ -88,12 +92,12 @@ for key in "${!services[@]}"; do
   [ -n "${image##*:*}" ] && image="${image}:${VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG}"
   new_image="${VORTEX_DEPLOY_CONTAINER_REGISTRY}/${image}"
 
-  note "Committing container image with name \"${new_image}\"."
+  task "Committing container image with name \"${new_image}\"."
   iid=$(docker commit "${cid}" "${new_image}")
   iid="${iid#sha256:}"
   note "Committed container image with id \"${iid}\"."
 
-  note "Pushing container image to the registry."
+  task "Pushing container image to the registry."
   docker push "${new_image}"
 done
 

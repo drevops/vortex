@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Installer\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\Installer\Utils\Converter;
-use DrevOps\Installer\Utils\Env;
-use DrevOps\Installer\Utils\File;
+use DrevOps\VortexInstaller\Utils\Converter;
+use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
 
 class Theme extends AbstractHandler {
 
@@ -34,11 +34,7 @@ class Theme extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!is_scalar($this->response)) {
-      throw new \RuntimeException('Invalid response type.');
-    }
-
-    $v = (string) $this->response;
+    $v = $this->getResponseAsString();
     $t = $this->tmpDir;
     $w = $this->webroot;
 
@@ -69,16 +65,16 @@ class Theme extends AbstractHandler {
 
         File::removeLine($t . '/.twig-cs-fixer.php', "\$finder->in(__DIR__ . '/web/themes/custom');");
 
-        File::replaceContent($t . '/.ahoy.yml', 'cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests', 'cmd: ahoy lint-be && ahoy lint-tests');
-        File::replaceContent($t . '/.ahoy.yml', 'cmd: ahoy lint-be-fix && ahoy lint-fe-fix', 'cmd: ahoy lint-be-fix');
+        File::replaceContentInFile($t . '/.ahoy.yml', 'cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests', 'cmd: ahoy lint-be && ahoy lint-tests');
+        File::replaceContentInFile($t . '/.ahoy.yml', 'cmd: ahoy lint-be-fix && ahoy lint-fe-fix', 'cmd: ahoy lint-be-fix');
       }
 
-      File::removeTokenInDir($this->tmpDir, 'DRUPAL_THEME');
+      File::removeTokenAsync('DRUPAL_THEME');
 
       return;
     }
 
-    File::replaceContent($this->dstDir . '/.env', '/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $v);
+    File::replaceContentInFile($this->tmpDir . '/.env', '/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $v);
 
     // Find the theme file in the destination directory.
     $file_dst = static::findThemeFile($this->dstDir, $w, $v);
@@ -105,8 +101,10 @@ class Theme extends AbstractHandler {
       }
     }
 
-    File::replaceContentInDir($t, 'your_site_theme', $v);
-    File::replaceContentInDir($t, 'YourSiteTheme', Converter::pascal($v));
+    File::replaceContentAsync([
+      'your_site_theme' => $v,
+      'YourSiteTheme' => Converter::pascal($v),
+    ]);
 
     File::renameInDir($t, 'your_site_theme', $v);
     File::renameInDir($t, 'YourSiteTheme', Converter::pascal($v));

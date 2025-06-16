@@ -1,25 +1,81 @@
-# Vortex documentation
+# Vortex Documentation Development
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+Documentation built with [Docusaurus](https://docusaurus.io/) and React components.
 
-### Installation
+## Quick Start
 
-```
-$ npm install
-```
-
-### Local Development
-
-```
-$ npm start
+```bash
+yarn install           # Install dependencies
+yarn start            # Start dev server
+yarn build            # Build for production
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+## Development Commands
 
-### Build
+```bash
+# Development
+yarn start            # Hot reloading dev server
+yarn build            # Production build
+yarn serve            # Serve built site locally
+
+# Testing
+yarn test             # Run all tests
+yarn test:watch       # Tests in watch mode
+yarn test:coverage    # Tests with coverage
+
+# Quality
+yarn lint             # Check code quality
+yarn lint-fix         # Auto-fix issues
+yarn spellcheck       # American English validation
+```
+
+## Project Structure
 
 ```
-$ npm run build
+docs/
+├── content/                # MDX documentation files
+├── src/components/         # React components (VerticalTabs, etc.)
+├── tests/
+│   └── unit/              # Jest tests
+├── jest.config.js         # Test configuration
+└── cspell.json           # Spellcheck configuration
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+## Component Usage
+
+### VerticalTabs
+
+```jsx
+import { VerticalTabs, VerticalTab, VerticalTabPanel } from '@site/src/components/VerticalTabs';
+
+<VerticalTabs>
+  <VerticalTab>💧 Title | Subtitle description</VerticalTab>
+  <VerticalTabPanel>
+    Content for this tab...
+  </VerticalTabPanel>
+</VerticalTabs>
+```
+
+## Writing Tests
+
+**Component Tests**:
+```javascript
+import { render, screen } from '@testing-library/react';
+
+test('component renders correctly', () => {
+  render(<Component />);
+  expect(screen.getByText('Expected text')).toBeInTheDocument();
+});
+```
+
+## Content Guidelines
+
+- **American English**: Use American spelling (organize, color, behavior)
+- **MDX Support**: Combine Markdown with React components
+- **Code Examples**: Include practical bash/JavaScript examples
+
+## Pre-commit Checklist
+
+```bash
+yarn lint && yarn spellcheck && yarn test && yarn build
+```

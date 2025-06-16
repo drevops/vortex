@@ -55,7 +55,8 @@ VORTEX_DEPLOY_SSH_FILE="${VORTEX_DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -72,12 +73,12 @@ info "Started ARTIFACT deployment."
 [ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}" ] && echo "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL." && exit 1
 
 # Configure global git settings, if they do not exist.
-[ "$(git config --global user.name)" = "" ] && note "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}"
-[ "$(git config --global user.email)" = "" ] && note "Configuring global git user email." && git config --global user.email "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
+[ "$(git config --global user.name)" = "" ] && task "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}"
+[ "$(git config --global user.email)" = "" ] && task "Configuring global git user email." && git config --global user.email "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
 
 export VORTEX_SSH_PREFIX="DEPLOY" && . ./scripts/vortex/setup-ssh.sh
 
-note "Installing artifact builder."
+task "Installing artifact builder."
 composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^1
 
 # Try resolving absolute paths.
@@ -91,13 +92,12 @@ if command -v realpath >/dev/null 2>&1; then
   VORTEX_DEPLOY_ARTIFACT_SRC="$(realpath "${VORTEX_DEPLOY_ARTIFACT_SRC/#\~/${HOME}}")"
 fi
 
-# Copying git repo files meta file to the deploy code repo as it may not exist
-# in deploy code source files.
+task "Copying git repo files meta file to the deploy code repo."
 cp -a "${VORTEX_DEPLOY_ARTIFACT_ROOT}"/.git "${VORTEX_DEPLOY_ARTIFACT_SRC}" || true
-# Copying deployment .gitignore as it may not exist in deploy code source files.
+task "Copying deployment .gitignore as it may not exist in deploy code source files."
 cp -a "${VORTEX_DEPLOY_ARTIFACT_ROOT}"/.gitignore.artifact "${VORTEX_DEPLOY_ARTIFACT_SRC}" || true
 
-note "Running artifact builder."
+task "Running artifact builder."
 # Add --debug to debug any deployment issues.
 "${HOME}/.composer/vendor/bin/git-artifact" "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" \
   --root="${VORTEX_DEPLOY_ARTIFACT_ROOT}" \

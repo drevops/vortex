@@ -22,20 +22,17 @@ ENV WEBROOT=${WEBROOT}
 ARG GITHUB_TOKEN=""
 ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 
-ARG DRUPAL_THEME="star_wars"
-ENV DRUPAL_THEME=${DRUPAL_THEME}
-
-ARG DRUPAL_PUBLIC_FILES="/app/${WEBROOT}/sites/default/files"
+ARG DRUPAL_PUBLIC_FILES="sites/default/files"
 ENV DRUPAL_PUBLIC_FILES=${DRUPAL_PUBLIC_FILES}
 
-ARG DRUPAL_PRIVATE_FILES="/app/${WEBROOT}/sites/default/files/private"
+ARG DRUPAL_PRIVATE_FILES="sites/default/files/private"
 ENV DRUPAL_PRIVATE_FILES=${DRUPAL_PRIVATE_FILES}
 
 ARG DRUPAL_TEMPORARY_FILES="${TMP:-/tmp}"
 ENV DRUPAL_TEMPORARY_FILES=${DRUPAL_TEMPORARY_FILES}
 
-ARG DRUPAL_CONFIG_PATH="/app/config/default"
-ENV DRUPAL_CONFIG_PATH=${DRUPAL_CONFIG_PATH}
+ARG DRUPAL_THEME="star_wars"
+ENV DRUPAL_THEME=${DRUPAL_THEME}
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
@@ -53,6 +50,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 RUN apk add --no-cache ncurses pv tzdata autoconf g++ make \
   && pecl install pcov \
   && docker-php-ext-enable pcov \
+  && docker-php-ext-install pcntl \
   && apk del g++ make autoconf
 
 # Add patches and scripts.
@@ -94,8 +92,8 @@ RUN yarn --cwd=/app/${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lo
 COPY . /app
 
 # Create file directories and set correct permissions.
-RUN mkdir -p "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" "${DRUPAL_CONFIG_PATH}" && \
- chmod 0770 "${DRUPAL_PUBLIC_FILES}" "${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" "${DRUPAL_CONFIG_PATH}"
+RUN mkdir -p "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" && \
+ chmod 0770 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
 
 # Compile front-end assets. This runs after copying all files, as source files
 # are needed for compilation.
