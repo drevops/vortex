@@ -198,6 +198,14 @@ Default value: `./${WEBROOT}/sites/default/files`
 
 Defined in: `docker-compose.yml`
 
+### `DRUPAL_REDIS_ENABLED`
+
+Enable Redis/Valkey integration.<br/>See settings.redis.php for details.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`
+
 ### `DRUPAL_SHIELD_PRINT`
 
 Shield message.
@@ -245,14 +253,6 @@ Defined in: `docker-compose.yml`
 Drupal theme name.
 
 Default value: `your_site_theme`
-
-Defined in: `.env`
-
-### `DRUPAL_VALKEY_ENABLED`
-
-Enable Valkey integration.<br/>See settings.redis.php for details.
-
-Default value: `UNDEFINED`
 
 Defined in: `.env`
 

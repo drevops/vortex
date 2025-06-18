@@ -743,9 +743,9 @@ assert_valkey() {
   assert_output_contains "Warning"
 
   substep "Restart with environment variable"
-  add_var_to_file .env "DRUPAL_VALKEY_ENABLED" "1"
+  add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
   sync_to_container
-  DRUPAL_VALKEY_ENABLED=1 ahoy up cli
+  DRUPAL_REDIS_ENABLED=1 ahoy up cli
   sleep 10
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
