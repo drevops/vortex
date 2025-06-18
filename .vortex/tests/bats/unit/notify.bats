@@ -4,7 +4,7 @@
 #
 #shellcheck disable=SC2030,SC2031
 
-load _helper.bash
+load ../_helper.bash
 
 @test "Notify: skip" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1

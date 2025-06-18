@@ -4,8 +4,8 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129
 
-load _helper.bash
-load _helper.deployment.bash
+load ../_helper.bash
+load ../_helper.deployment.bash
 
 @test "Deployment; no integration" {
   pushd "${BUILD_DIR}" >/dev/null || exit 1

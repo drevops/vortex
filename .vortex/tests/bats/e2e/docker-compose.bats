@@ -6,7 +6,7 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2016
 
-load _helper.bash
+load ../_helper.bash
 
 @test "Docker Compose: default without .env" {
   prepare_docker_compose
