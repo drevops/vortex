@@ -58,7 +58,7 @@ info "Started container registry deployment."
 # may be called as a part of another task.
 # @todo: Handle this better - empty $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP should use defaults.
 if [ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}" ]; then
-  echo "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry deployment will not continue."
+  note "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry deployment will not continue."
   exit 0
 fi
 

@@ -52,7 +52,7 @@ if [ "${is_hard_reset}" = "1" ]; then
   task "Resetting repository files."
   git reset --hard
 
-  task "Removing all untracked, files."
+  task "Removing all untracked files."
   git clean -f -d
 
   task "Removing empty directories."

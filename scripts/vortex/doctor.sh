@@ -126,8 +126,8 @@ main() {
     for container_service in "${container_services[@]}"; do
       if ! docker compose ps --status=running --services | grep -q "${container_service}"; then
         fail "${container_service} container is not running."
-        echo "      Run 'ahoy up'."
-        echo "      Run 'ahoy logs ${container_service}' to see error logs."
+        note "Run 'ahoy up'."
+        note "Run 'ahoy logs ${container_service}' to see error logs."
         exit 1
       fi
     done

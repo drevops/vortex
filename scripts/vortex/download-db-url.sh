@@ -40,7 +40,7 @@ for cmd in curl; do command -v ${cmd} >/dev/null || {
 info "Started database dump download from URL."
 
 # Check all required values.
-[ -z "${VORTEX_DB_DOWNLOAD_URL}" ] && echo "Missing required value for VORTEX_DB_DOWNLOAD_URL." && exit 1
+[ -z "${VORTEX_DB_DOWNLOAD_URL}" ] && fail "Missing required value for VORTEX_DB_DOWNLOAD_URL." && exit 1
 
 mkdir -p "${VORTEX_DB_DIR}"
 

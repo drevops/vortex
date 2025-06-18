@@ -64,13 +64,13 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 info "Started ARTIFACT deployment."
 
 # Check all required values.
-[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" ] && echo "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH}" ] && echo "Missing required value for VORTEX_DEPLOY_ARTIFACT_DST_BRANCH." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_SRC}" ] && echo "Missing required value for VORTEX_DEPLOY_ARTIFACT_SRC." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_ROOT}" ] && echo "Missing required value for VORTEX_DEPLOY_ARTIFACT_ROOT." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_LOG}" ] && echo "Missing required value for VORTEX_DEPLOY_ARTIFACT_LOG." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}" ] && echo "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}" ] && echo "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL." && exit 1
+[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE." && exit 1
+[ -z "${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_DST_BRANCH." && exit 1
+[ -z "${VORTEX_DEPLOY_ARTIFACT_SRC}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_SRC." && exit 1
+[ -z "${VORTEX_DEPLOY_ARTIFACT_ROOT}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_ROOT." && exit 1
+[ -z "${VORTEX_DEPLOY_ARTIFACT_LOG}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_LOG." && exit 1
+[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME." && exit 1
+[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL." && exit 1
 
 # Configure global git settings, if they do not exist.
 [ "$(git config --global user.name)" = "" ] && task "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}"
