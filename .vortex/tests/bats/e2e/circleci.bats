@@ -4,11 +4,11 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129
 
-load _helper.bash
-load _helper.circleci.bash
+load ../_helper.bash
+load ../_helper.circleci.bash
 
 @test "CircleCI artifacts are saved" {
-  if [ -z "${CIRCLECI}" ]; then
+  if [ -z "${CIRCLECI-}" ]; then
     skip "This test is only run on CircleCI"
   fi
 
@@ -43,7 +43,7 @@ load _helper.circleci.bash
 }
 
 @test "CircleCI test results are saved" {
-  if [ -z "${CIRCLECI}" ]; then
+  if [ -z "${CIRCLECI-}" ]; then
     skip "This test is only run on CircleCI"
   fi
 

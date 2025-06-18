@@ -14,7 +14,7 @@
 
 setup() {
   # The root directory of the project.
-  export ROOT_DIR="$(dirname "$(cd "$(dirname "${BATS_TEST_DIRNAME}")/.." && pwd)")"
+  export ROOT_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BATS_TEST_DIRNAME}")/.." && pwd)")")"
 
   [ ! -d "${ROOT_DIR}/.vortex" ] && echo 'ERROR: The test should be run from the ".vortex" directory.' && exit 1
 
@@ -41,7 +41,7 @@ setup() {
   # LCOV_EXCL_STOP
 
   # Register a path to libraries.
-  export BATS_LIB_PATH="${BATS_TEST_DIRNAME}/../node_modules"
+  export BATS_LIB_PATH="${BATS_TEST_DIRNAME}/../../node_modules"
 
   # Load 'bats-helpers' library.
   ASSERT_DIR_EXCLUDE=("vortex" ".data")

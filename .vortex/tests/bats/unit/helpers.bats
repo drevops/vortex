@@ -4,7 +4,7 @@
 #
 # shellcheck disable=SC2129
 
-load _helper.bash
+load ../_helper.bash
 
 @test "helper_vortex" {
   echo "     > Bats version: ${BATS_VERSION}" >&3

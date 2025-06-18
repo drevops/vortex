@@ -162,8 +162,7 @@ setup_robo_fixture() {
 }
 
 provision_docker_config_file() {
-  export HOME="${BUILD_DIR}"
-  fixture_prepare_dir "${HOME}/.docker"
-  touch "${HOME}/.docker/config.json"
-  echo "{$1:-docker.io}" > "${HOME}/.docker/config.json"
+  fixture_prepare_dir "${BUILD_DIR}/.docker"
+  touch "${BUILD_DIR}/.docker/config.json"
+  echo "{$1:-docker.io}" > "${BUILD_DIR}/.docker/config.json"
 }

@@ -36,10 +36,10 @@ bats() {
   popd >/dev/null || exit 1
 }
 
-bats "${TEST_DIR}/bats/helpers.bats"
-bats "${TEST_DIR}/bats/env.bats"
-bats "${TEST_DIR}/bats/docker-compose.bats"
-bats "${TEST_DIR}/bats/provision.bats"
-bats "${TEST_DIR}/bats/notify.bats"
-bats "${TEST_DIR}/bats/reset.bats"
-bats "${TEST_DIR}/bats/update-vortex.bats"
+bats "${TEST_DIR}/bats/unit/helpers.bats"
+bats "${TEST_DIR}/bats/e2e/env.bats"
+bats "${TEST_DIR}/bats/e2e/docker-compose.bats"
+bats "${TEST_DIR}/bats/unit/provision.bats"
+bats "${TEST_DIR}/bats/unit/notify.bats"
+bats "${TEST_DIR}/bats/e2e/reset.bats"
+bats "${TEST_DIR}/bats/e2e/update-vortex.bats"

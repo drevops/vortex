@@ -5,8 +5,8 @@
 
 # shellcheck disable=SC2030,SC2031,SC2129
 
-load _helper.bash
-load _helper.workflow.bash
+load ../_helper.bash
+load ../_helper.workflow.bash
 
 @test "Workflow: DB-driven" {
   prepare_sut "Starting DB-driven WORKFLOW tests in build directory ${BUILD_DIR}"
