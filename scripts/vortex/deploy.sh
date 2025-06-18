@@ -21,12 +21,6 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-if [ "${VORTEX_DEPLOY_SKIP:-}" = "1" ]; then
-  echo "Found flag to skip all deployments."
-  echo "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
-  exit 0
-fi
-
 # The types of deployment.
 #
 # Can be a combination of comma-separated values (to support multiple
@@ -66,6 +60,12 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 info "Started deployment."
+
+if [ "${VORTEX_DEPLOY_SKIP:-}" = "1" ]; then
+  note "Found flag to skip all deployments."
+  pass "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
+  exit 0
+fi
 
 [ -z "${VORTEX_DEPLOY_TYPES}" ] && fail "Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, container_registry, webhook, lagoon." && exit 1
 

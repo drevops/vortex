@@ -63,10 +63,10 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 info "Started Lagoon task ${VORTEX_TASK_LAGOON_NAME}."
 
 ## Check all required values.
-[ -z "${VORTEX_TASK_LAGOON_NAME}" ] && echo "Missing required value for VORTEX_TASK_LAGOON_NAME." && exit 1
-[ -z "${VORTEX_TASK_LAGOON_BRANCH}" ] && echo "Missing required value for VORTEX_TASK_LAGOON_BRANCH." && exit 1
-[ -z "${VORTEX_TASK_LAGOON_COMMAND}" ] && echo "Missing required value for VORTEX_TASK_LAGOON_COMMAND." && exit 1
-[ -z "${VORTEX_TASK_LAGOON_PROJECT}" ] && echo "Missing required value for VORTEX_TASK_LAGOON_PROJECT." && exit 1
+[ -z "${VORTEX_TASK_LAGOON_NAME}" ] && fail "Missing required value for VORTEX_TASK_LAGOON_NAME." && exit 1
+[ -z "${VORTEX_TASK_LAGOON_BRANCH}" ] && fail "Missing required value for VORTEX_TASK_LAGOON_BRANCH." && exit 1
+[ -z "${VORTEX_TASK_LAGOON_COMMAND}" ] && fail "Missing required value for VORTEX_TASK_LAGOON_COMMAND." && exit 1
+[ -z "${VORTEX_TASK_LAGOON_PROJECT}" ] && fail "Missing required value for VORTEX_TASK_LAGOON_PROJECT." && exit 1
 
 export VORTEX_SSH_PREFIX="TASK" && . ./scripts/vortex/setup-ssh.sh
 
