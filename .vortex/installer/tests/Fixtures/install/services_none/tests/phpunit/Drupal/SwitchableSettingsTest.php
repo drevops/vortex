@@ -61,7 +61,7 @@
     * Test Config Split config.
     *
     * @dataProvider dataProviderConfigSplit
-@@ -225,54 +169,6 @@
+@@ -225,105 +169,6 @@
          ],
        ],
      ];
@@ -72,10 +72,10 @@
 -   */
 -  public function testValkey(): void {
 -    $this->setEnvVars([
--      'DRUPAL_VALKEY_ENABLED' => 1,
+-      'DRUPAL_REDIS_ENABLED' => 1,
 -      'VALKEY_HOST' => 'valkey_host',
 -      'VALKEY_SERVICE_PORT' => 1234,
--      'VORTEX_VALKEY_EXTENSION_LOADED' => 1,
+-      'VORTEX_REDIS_EXTENSION_LOADED' => 1,
 -    ]);
 -
 -    $this->requireSettingsFile();
@@ -96,10 +96,10 @@
 -   */
 -  public function testValkeyPartial(): void {
 -    $this->setEnvVars([
--      'DRUPAL_VALKEY_ENABLED' => 1,
+-      'DRUPAL_REDIS_ENABLED' => 1,
 -      'VALKEY_HOST' => 'valkey_host',
 -      'VALKEY_SERVICE_PORT' => 1234,
--      'VORTEX_VALKEY_EXTENSION_LOADED' => 0,
+-      'VORTEX_REDIS_EXTENSION_LOADED' => 0,
 -    ]);
 -
 -    $this->requireSettingsFile();
@@ -113,6 +113,57 @@
 -
 -    $this->assertSettingsContains($settings);
 -    $this->assertSettingsNotContains($no_settings);
+-  }
+-
+-  /**
+-   * Test Redis settings with REDIS_* environment variables.
+-   */
+-  public function testRedisVariables(): void {
+-    $this->setEnvVars([
+-      'DRUPAL_REDIS_ENABLED' => 1,
+-      'REDIS_HOST' => 'redis_host',
+-      'REDIS_SERVICE_PORT' => 6380,
+-      'VORTEX_REDIS_EXTENSION_LOADED' => 1,
+-    ]);
+-
+-    $this->requireSettingsFile();
+-
+-    $settings['redis.connection']['interface'] = 'PhpRedis';
+-    $settings['redis.connection']['host'] = 'redis_host';
+-    $settings['redis.connection']['port'] = 6380;
+-    $settings['cache']['default'] = 'cache.backend.redis';
+-
+-    $this->assertArrayHasKey('bootstrap_container_definition', $this->settings);
+-    unset($this->settings['bootstrap_container_definition']);
+-
+-    $this->assertSettingsContains($settings);
+-  }
+-
+-  /**
+-   * Test Redis fallback when both VALKEY_* and REDIS_* variables are set.
+-   */
+-  public function testRedisValkeyPrecedence(): void {
+-    $this->setEnvVars([
+-      'DRUPAL_REDIS_ENABLED' => 1,
+-      'VALKEY_HOST' => 'valkey_host',
+-      'VALKEY_SERVICE_PORT' => 1234,
+-      'REDIS_HOST' => 'redis_host',
+-      'REDIS_SERVICE_PORT' => 6380,
+-      'VORTEX_REDIS_EXTENSION_LOADED' => 1,
+-    ]);
+-
+-    $this->requireSettingsFile();
+-
+-    // VALKEY_* variables should take precedence over REDIS_* variables.
+-    $settings['redis.connection']['interface'] = 'PhpRedis';
+-    $settings['redis.connection']['host'] = 'valkey_host';
+-    $settings['redis.connection']['port'] = 1234;
+-    $settings['cache']['default'] = 'cache.backend.redis';
+-
+-    $this->assertArrayHasKey('bootstrap_container_definition', $this->settings);
+-    unset($this->settings['bootstrap_container_definition']);
+-
+-    $this->assertSettingsContains($settings);
    }
  
    /**

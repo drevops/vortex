@@ -71,7 +71,7 @@ x-environment: &default-environment
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
   #;< SERVICE_VALKEY
   # Redis integration flag.
-  DRUPAL_VALKEY_ENABLED: ${DRUPAL_VALKEY_ENABLED:-}
+  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
   #;> SERVICE_VALKEY
 
 # ------------------------------------------------------------------------------

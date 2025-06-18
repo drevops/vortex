@@ -3,7 +3,7 @@
    DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
 -  # Valkey integration flag.
--  DRUPAL_VALKEY_ENABLED: ${DRUPAL_VALKEY_ENABLED:-}
+-  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
  
  # ------------------------------------------------------------------------------
  # Services.

@@ -2,7 +2,11 @@
 
 /**
  * @file
- * Valkey configuration.
+ * Redis configuration.
+ *
+ * Redis module can work with Redis or Valkey services as they are
+ * interchangeable. We use `DRUPAL_REDIS_` environment variables as the Drupal
+ * module name is `redis`.
  */
 
 declare(strict_types=1);
@@ -13,25 +17,27 @@ use Drupal\redis\Cache\PhpRedis;
 use Drupal\redis\Cache\RedisCacheTagsChecksum;
 use Drupal\redis\ClientFactory;
 
-// Using 'DRUPAL_VALKEY_ENABLED' variable to resolve deployment concurrency:
+// Using 'DRUPAL_REDIS_ENABLED' variable to resolve deployment concurrency:
 // Redis module needs to be enabled without the configuration below applied
-// while the Valkey service gets provisioned (deployment #1), then the cache
-// needs to be switched to Valkey with setting 'DRUPAL_VALKEY_ENABLED=1' for
-// environments and triggering another deployment (deployment #2) to get that
-// env variable applied.
-// Once all environments were redeployed twice, the 'DRUPAL_VALKEY_ENABLED=1'
+// while the Redis/Valkey service gets provisioned (deployment #1), then the
+// cache needs to be switched to Redis/Valkey with setting
+// 'DRUPAL_REDIS_ENABLED=1' for environments and triggering another deployment
+// (deployment #2) to get that env variable applied.
+// Once all environments were redeployed twice, the 'DRUPAL_REDIS_ENABLED=1'
 // can be set for all environments as a per-project variable and per-env
 // variables would need to be removed. The next deployment (#3) would use
 // project-wide env variable (and since it has the same value '1' as removed
 // per-env variable - there will be no change in how code works).
-if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_VALKEY_ENABLED'))) {
+if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_REDIS_ENABLED'))) {
   $settings['redis.connection']['interface'] = 'PhpRedis';
-  $settings['redis.connection']['host'] = getenv('VALKEY_HOST') ?: 'valkey';
-  $settings['redis.connection']['port'] = getenv('VALKEY_SERVICE_PORT') ?: '6379';
+  // Some providers use `REDIS_`-prefixed environment variables.
+  $settings['redis.connection']['host'] = getenv('VALKEY_HOST') ?: getenv('REDIS_HOST') ?: 'valkey';
+  $settings['redis.connection']['port'] = getenv('VALKEY_SERVICE_PORT') ?: getenv('REDIS_SERVICE_PORT') ?: '6379';
 
-  // Do not set the cache during installations of Drupal, but allow
-  // to override this by setting VORTEX_VALKEY_EXTENSION_LOADED to non-zero.
-  if ((extension_loaded('redis') && getenv('VORTEX_VALKEY_EXTENSION_LOADED') === FALSE) || !empty(getenv('VORTEX_VALKEY_EXTENSION_LOADED'))) {
+  // Do not set the cache backend during installations of Drupal, but allow
+  // to override this by setting VORTEX_REDIS_EXTENSION_LOADED to non-zero.
+  // Note that Valkey uses `redis` PHP extension.
+  if ((extension_loaded('redis') && getenv('VORTEX_REDIS_EXTENSION_LOADED') === FALSE) || !empty(getenv('VORTEX_REDIS_EXTENSION_LOADED'))) {
     $settings['cache']['default'] = 'cache.backend.redis';
 
     if (!isset($class_loader)) {
