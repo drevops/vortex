@@ -595,6 +595,11 @@ class PromptManager {
     $values['🧩 Module prefix'] = $responses[ModulePrefix::id()];
     $values['🎨 Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
 
+    $values['Services'] = Tui::LIST_SECTION_TITLE;
+    $values['🦠 ClamAV'] = Converter::bool(in_array(Services::CLAMAV, $responses[Services::id()]));
+    $values['🔍 Solr'] = Converter::bool(in_array(Services::SOLR, $responses[Services::id()]));
+    $values['🗃️ Valkey'] = Converter::bool(in_array(Services::VALKEY, $responses[Services::id()]));
+
     $values['Hosting'] = Tui::LIST_SECTION_TITLE;
     $values['☁️ Hosting provider'] = $responses[HostingProvider::id()];
 
