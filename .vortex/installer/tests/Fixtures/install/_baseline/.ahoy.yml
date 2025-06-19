@@ -228,6 +228,7 @@ commands:
 
   test-bdd:
     usage: Run BDD tests.
+    aliases: ['test-behat']
     cmd: ahoy cli php -d memory_limit=-1 vendor/bin/behat --colors "$@"
 
   debug:
