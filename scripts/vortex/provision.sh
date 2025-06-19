@@ -55,10 +55,6 @@ DRUPAL_SITE_EMAIL="${DRUPAL_SITE_EMAIL:-webmaster@example.com}"
 # Profile machine name.
 DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
-# Path to configuration directory relative to the project root.
-# Auto-discovered from site's `settings.php` file if not set.
-DRUPAL_CONFIG_PATH="${DRUPAL_CONFIG_PATH:-}"
-
 # Directory with database dump file.
 VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
 
@@ -99,12 +95,11 @@ drush_version="$(drush --version | cut -d' ' -f4)"
 drupal_version="$(drush status --field=drupal-version 2>/dev/null || echo "Unknown")"
 site_is_installed="$(drush status --fields=bootstrap 2>/dev/null | grep -q "Successful" && echo "1" || echo "0")"
 
-# Discover the configuration directory path if not set.
-if [ -z "${DRUPAL_CONFIG_PATH}" ]; then
-  DRUPAL_CONFIG_PATH="$(drush php:eval 'print realpath(\Drupal\Core\Site\Settings::get("config_sync_directory"));')"
-  [ ! -d "${DRUPAL_CONFIG_PATH}" ] && fail "Config directory \"${DRUPAL_CONFIG_PATH:-<empty>}\" does not exist." && exit 1
-fi
-site_has_config="$(test "$(ls -1 ${DRUPAL_CONFIG_PATH}/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
+# Discover the configuration directory path from the Drupal settings.
+config_path="$(drush php:eval 'print realpath(\Drupal\Core\Site\Settings::get("config_sync_directory"));')"
+[ -z "${config_path}" ] && fail "Config directory was not found in the Drupal settings." && exit 1
+[ ! -d "${config_path}" ] && fail "Config directory \"${config_path:-<empty>}\" does not exist." && exit 1
+site_has_config_files="$(test "$(ls -1 ${config_path}/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
 
 # Normalize the provision type.
 [ "${VORTEX_PROVISION_TYPE}" = "profile" ] || VORTEX_PROVISION_TYPE=database
@@ -120,14 +115,14 @@ note "Web root path                  : $(pwd)/${WEBROOT}"
 note "Public files path              : ${DRUPAL_PUBLIC_FILES-<empty>}"
 note "Private files path             : ${DRUPAL_PRIVATE_FILES-<empty>}"
 note "Temporary files path           : ${DRUPAL_TEMPORARY_FILES-<empty>}"
-note "Config files path              : ${DRUPAL_CONFIG_PATH}"
+note "Config files path              : ${config_path}"
 note "DB dump file path              : ${VORTEX_PROVISION_DB} ($([ -f "${VORTEX_PROVISION_DB}" ] && echo "present" || echo "absent"))"
 if [ -n "${VORTEX_DB_IMAGE:-}" ]; then
   note "DB dump container image        : ${VORTEX_DB_IMAGE}"
 fi
 echo
 note "Profile                        : ${DRUPAL_PROFILE}"
-note "Configuration files present    : $(yesno "${site_has_config}")"
+note "Configuration files present    : $(yesno "${site_has_config_files}")"
 note "Existing site found            : $(yesno "${site_is_installed}")"
 echo
 note "Provision type                 : ${VORTEX_PROVISION_TYPE}"
@@ -174,7 +169,7 @@ provision_from_profile() {
 
   [ -n "${DRUPAL_ADMIN_EMAIL:-}" ] && opts+=(--account-mail="${DRUPAL_ADMIN_EMAIL:-}")
 
-  [ "${site_has_config}" = "1" ] && opts+=(--existing-config)
+  [ "${site_has_config_files}" = "1" ] && opts+=(--existing-config)
 
   # Database may exist in non-bootstrappable state - truncate it.
   drush sql:drop || true
@@ -257,9 +252,9 @@ if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
 fi
 
 # Use 'drush deploy' if configuration files are present or use standalone commands otherwise.
-if [ "${site_has_config}" = "1" ]; then
-  if [ -f "${DRUPAL_CONFIG_PATH}/system.site.yml" ]; then
-    config_uuid="$(cat "${DRUPAL_CONFIG_PATH}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
+if [ "${site_has_config_files}" = "1" ]; then
+  if [ -f "${config_path}/system.site.yml" ]; then
+    config_uuid="$(cat "${config_path}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
     drush config-set system.site uuid "${config_uuid}"
     pass "Updated site UUID from the configuration with ${config_uuid}."
     echo
