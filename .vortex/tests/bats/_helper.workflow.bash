@@ -603,6 +603,10 @@ assert_ahoy_test_bdd_fast() {
   assert_dir_not_empty .logs/test_results
   assert_file_exists .logs/test_results/behat/default.xml
 
+  substep "Run all BDD tests via an alias"
+  run ahoy test-behat
+  assert_success
+
   rm -rf .logs/test_results/*
   ahoy cli rm -rf /app/.logs/test_results/*
 }
