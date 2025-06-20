@@ -50,7 +50,10 @@ jobs:
 
       - name: Process manual trigger
         if: github.event_name == 'workflow_dispatch' && inputs.preserve_schedules == false
-        run: jq 'walk(if type == "object" then del(.schedule) else . end)' renovate.json > renovate.tmp.json && mv renovate.tmp.json renovate.json
+        run: jq 'walk(if type == "object" then del(.schedule) else . end)' renovate.json > renovate.tmp.json && mv -f renovate.tmp.json renovate.json
+
+      - name: Show Renovate configuration
+        run: cat renovate.json
 
       - name: Validate Renovate configuration
         uses: suzuki-shunsuke/github-action-renovate-config-validator@v1.1.1
