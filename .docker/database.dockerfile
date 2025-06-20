@@ -5,7 +5,7 @@
 #
 # The ARG value will be updated with a value passed from docker-compose.yml
 
-ARG IMAGE=uselagoon/mysql-8.4:25.5.0
+ARG IMAGE=uselagoon/mysql-8.4:25.6.0
 # hadolint ignore=DL3006
 FROM ${IMAGE}
 

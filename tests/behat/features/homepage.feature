@@ -1,7 +1,9 @@
 @homepage @smoke
 Feature: Homepage
 
-  Ensure that homepage is displayed as expected.
+  As a site visitor
+  I want to access the homepage
+  So that I can view the main landing page and navigate the site
 
   @api
   Scenario: Anonymous user visits homepage

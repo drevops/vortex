@@ -6,7 +6,7 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2016
 
-load _helper.bash
+load ../_helper.bash
 
 @test "Docker Compose: default without .env" {
   prepare_docker_compose
@@ -55,7 +55,7 @@ load _helper.bash
   echo "XDEBUG_ENABLE=1" >>.env
   echo "DRUPAL_SHIELD_USER=jane" >>.env
   echo "DRUPAL_SHIELD_PASS=passw" >>.env
-  echo "DRUPAL_VALKEY_ENABLED=1" >>.env
+  echo "DRUPAL_REDIS_ENABLED=1" >>.env
   echo "LAGOON_ENVIRONMENT_TYPE=development" >>.env
 
   substep "Validate configuration"

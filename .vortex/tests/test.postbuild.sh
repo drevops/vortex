@@ -28,4 +28,4 @@ bats() {
   popd >/dev/null || exit 1
 }
 
-bats "${TEST_DIR}/bats/circleci.bats"
+bats "${TEST_DIR}/bats/e2e/circleci.bats"

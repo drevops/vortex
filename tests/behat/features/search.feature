@@ -1,7 +1,9 @@
 @search @p1
 Feature: Search API
 
-  As a site user, I want to search for content.
+  As a site visitor
+  I want to search for content
+  So that I can find relevant information quickly
 
   @api
   Scenario: User searches for Page content

@@ -4,7 +4,7 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129
 
-load _helper.bash
+load ../_helper.bash
 
 @test "Update" {
   # Add custom files

@@ -122,6 +122,14 @@ Default value: `drupal`
 
 Defined in: `docker-compose.yml`, `scripts/vortex/info.sh`
 
+### `DOCKER_CONFIG`
+
+Path to Docker configuration directory.
+
+Default value: `${HOME}/.docker`
+
+Defined in: `scripts/vortex/login-container-registry.sh`
+
 ### `DRUPAL_ADMIN_EMAIL`
 
 Drupal admin email. May need to be reset if database was sanitized.
@@ -152,9 +160,11 @@ Defined in: `.env`
 
 Drupal configuration directory.
 
+Path from the web root directory to the configuration directory.<br/>If not set, the default location is inside a randomly-named directory in the<br/>public files path.
+
 Default value: `../config/default`
 
-Defined in: `.env`, `scripts/vortex/provision.sh`
+Defined in: `.env`
 
 ### `DRUPAL_ENVIRONMENT`
 
@@ -197,6 +207,14 @@ Path to public files.
 Default value: `./${WEBROOT}/sites/default/files`
 
 Defined in: `docker-compose.yml`
+
+### `DRUPAL_REDIS_ENABLED`
+
+Enable Redis/Valkey integration.<br/>See settings.redis.php for details.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`
 
 ### `DRUPAL_SHIELD_PRINT`
 
@@ -245,14 +263,6 @@ Defined in: `docker-compose.yml`
 Drupal theme name.
 
 Default value: `your_site_theme`
-
-Defined in: `.env`
-
-### `DRUPAL_VALKEY_ENABLED`
-
-Enable Valkey integration.<br/>See settings.redis.php for details.
-
-Default value: `UNDEFINED`
 
 Defined in: `.env`
 

@@ -345,6 +345,73 @@ assert_ahoy_import_db() {
   assert_output_not_contains "Running database updates."
 }
 
+assert_ahoy_provision() {
+  step "Provision"
+
+  substep "Run initial provision"
+  run ahoy provision
+  assert_success
+
+  assert_output_contains "Provisioning site from the database dump file."
+  # Assert that config files do not exist.
+  assert_output_contains "Running deployment operations via 'drush deploy:hook'."
+  assert_output_contains "Running database updates."
+
+  substep "Export config"
+  run ahoy drush cex -y
+  assert_success
+  sync_to_host
+
+  substep "Run follow-up provision with exported config files matching DB"
+  run ahoy provision
+  assert_success
+
+  assert_output_contains "Provisioning site from the database dump file."
+  # Assert that config files exist.
+  assert_output_contains "Running deployment operations via 'drush deploy'."
+  # Assert that there are no configuration changes to import.
+  assert_output_contains "There are no changes to import"
+  assert_output_not_contains "Import the listed configuration changes"
+
+  substep "Check that config files are not different to DB"
+  run ahoy drush config:status
+  assert_success
+  assert_output_not_contains "Different"
+
+  substep "Make a change to the configuration."
+  replace_string_content "admin_compact_mode: false" "admin_compact_mode: true" "config/default/system.site.yml"
+  sync_to_container
+
+  substep "Check that config files are different to DB"
+  run ahoy drush config:status
+  assert_success
+  assert_output_contains "Different"
+
+  substep "Run provision with exported config files different to DB"
+  run ahoy provision
+  assert_success
+
+  assert_output_contains "Provisioning site from the database dump file."
+  # Assert that config files exist.
+  assert_output_contains "Running deployment operations via 'drush deploy'."
+  # Assert that there are configuration changes to import.
+  assert_output_contains "Import the listed configuration changes"
+
+  substep "Drop database to test that provision works without DB"
+  run ahoy drush sql:drop -y
+  assert_success
+
+  substep "Run provision without DB"
+  run ahoy provision
+  assert_success
+
+  assert_output_contains "Provisioning site from the database dump file."
+  # Assert that config files exist.
+  assert_output_contains "Running deployment operations via 'drush deploy'."
+  # Assert that there are configuration changes to import.
+  assert_output_contains "Import the listed configuration changes"
+}
+
 assert_ahoy_lint() {
   local webroot="${1:-web}"
 
@@ -535,6 +602,10 @@ assert_ahoy_test_bdd_fast() {
 
   assert_dir_not_empty .logs/test_results
   assert_file_exists .logs/test_results/behat/default.xml
+
+  substep "Run all BDD tests via an alias"
+  run ahoy test-behat
+  assert_success
 
   rm -rf .logs/test_results/*
   ahoy cli rm -rf /app/.logs/test_results/*
@@ -743,9 +814,9 @@ assert_valkey() {
   assert_output_contains "Warning"
 
   substep "Restart with environment variable"
-  add_var_to_file .env "DRUPAL_VALKEY_ENABLED" "1"
+  add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
   sync_to_container
-  DRUPAL_VALKEY_ENABLED=1 ahoy up cli
+  DRUPAL_REDIS_ENABLED=1 ahoy up cli
   sleep 10
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null

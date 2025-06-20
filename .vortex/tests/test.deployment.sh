@@ -38,4 +38,4 @@ bats() {
 }
 
 # shellcheck disable=SC2086
-bats "${TEST_DIR}"/bats/deployment${index}.bats
+bats "${TEST_DIR}"/bats/e2e/deployment${index}.bats

@@ -4,11 +4,16 @@
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155
 
-load _helper.bash
-load _helper.deployment.bash
+load ../_helper.bash
+load ../_helper.deployment.bash
 
 @test "Missing VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP - deployment should not proceed" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Override any existing values in the current environment.
+  export VORTEX_CONTAINER_REGISTRY_USER="test_user"
+  export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
+  export DOCKER_CONFIG=/dev/null
 
   unset VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP
 
@@ -22,14 +27,20 @@ load _helper.deployment.bash
 @test "Container registry deployment with valid VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # Override any existing values in the current environment.
+  export VORTEX_CONTAINER_REGISTRY_USER="test_user"
+  export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
+  export DOCKER_CONFIG=/dev/null
+
   export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
   provision_docker_config_file VORTEX_DEPLOY_CONTAINER_REGISTRY
+  export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
 
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1,service2=image2,service3=image3"
 
   declare -a STEPS=(
     "Started container registry deployment."
+    "@docker login --username test_user --password-stdin registry.example.com"
     "Processing service service1"
     "@docker compose ps -q service1 # service1_service_id"
     "Found \"service1\" service container with id \"service1_service_id\"."
@@ -69,6 +80,11 @@ load _helper.deployment.bash
 @test "Container registry deployment with services not running" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # Override any existing values in the current environment.
+  export VORTEX_CONTAINER_REGISTRY_USER="test_user"
+  export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
+  export DOCKER_CONFIG=/dev/null
+
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
   export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
   provision_docker_config_file VORTEX_DEPLOY_CONTAINER_REGISTRY
@@ -77,6 +93,7 @@ load _helper.deployment.bash
 
   declare -a STEPS=(
     "Started container registry deployment."
+    "@docker login --username test_user --password-stdin registry.example.com"
     "Processing service service1"
     "@docker compose ps -q service1"
     "Service \"service1\" is not running."
@@ -93,6 +110,11 @@ load _helper.deployment.bash
 
 @test "Invalid VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP provided" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Override any existing values in the current environment.
+  export VORTEX_CONTAINER_REGISTRY_USER="test_user"
+  export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
+  export DOCKER_CONFIG=/dev/null
 
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
   export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"

@@ -1,28 +1,31 @@
-name: Update dependencies
 # Self-hosted dependency updates.
+#
 # Add the following environment variables to the GitHub actions project:
 # - RENOVATE_TOKEN: GitHub access token.
 # - RENOVATE_GIT_AUTHOR: Author for Renovate commits as `Name <email@example.com>`.
 # Variables provided below can be overridden in the GitHub project settings.
+#
+# This workflow can be run manually to initiate immediate updates.
+# An additional flag can be set to preserve the configured schedules and skip
+# updates if they are not due. This allows to replicate automated scheduled runs.
+name: Update dependencies
 
 on:
   schedule:
     - cron: '45 11,23 * * *'
   workflow_dispatch:
+    inputs:
+      preserve_schedules:
+        description: 'Use defined schedules and skip updates if they are not due.'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   update-dependencies:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@__VERSION__
-
-      - uses: actions/setup-node@__VERSION__
-        with:
-          node-version: 22.16.0
-
-      - uses: suzuki-shunsuke/github-action-renovate-config-validator@__VERSION__
-
       - name: Check requirements
         id: check-requirements
         run: |
@@ -37,6 +40,23 @@ jobs:
           fi
 
           echo "should_run=true" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@__VERSION__
+
+      - uses: actions/setup-node@__VERSION__
+        with:
+          node-version: 22.16.0
+
+      - name: Process manual trigger
+        if: github.event_name == 'workflow_dispatch' && inputs.preserve_schedules == false
+        run: jq 'walk(if type == "object" then del(.schedule) else . end)' renovate.json > renovate.tmp.json && mv -f renovate.tmp.json renovate.json
+
+      - name: Show Renovate configuration
+        run: cat renovate.json
+
+      - name: Validate Renovate configuration
+        uses: suzuki-shunsuke/github-action-renovate-config-validator@__VERSION__
 
       - name: Run Renovate
         if: steps.check-requirements.outputs.should_run == 'true'

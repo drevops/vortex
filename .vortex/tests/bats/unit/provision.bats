@@ -4,7 +4,7 @@
 #
 #shellcheck disable=SC2030,SC2031,SC2034
 
-load _helper.bash
+load ../_helper.bash
 
 export DRUPAL_PUBLIC_FILES="/app/web/sites/default/files"
 export DRUPAL_PRIVATE_FILES="/app/web/sites/default/files/private"
@@ -16,6 +16,7 @@ assert_provision_info() {
   format_yes_no() {
     [ "${1}" == "1" ] && echo "Yes" || echo "No"
   }
+
   provision_type="database"
   [ "${1}" == "1" ] && provision_type="profile"
 
