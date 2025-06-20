@@ -1,7 +1,9 @@
 @login @smoke
 Feature: Login
 
-  Ensure that user can login.
+  As a site administrator
+  I want to log into the system
+  So that I can access administrative functions and manage the site
 
   @api
   Scenario: Administrator user logs in
