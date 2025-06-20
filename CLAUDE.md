@@ -80,6 +80,33 @@ ahoy test-bdd              # Run Behat (BDD) tests
 ahoy test                  # Run all tests
 ```
 
+#### Behat Feature Writing Standards
+
+When creating or updating Behat feature files, follow these conventions:
+
+- **User Story Format**: All features must use the standard user story format:
+  ```gherkin
+  As a [user type]
+  I want to [action]
+  So that [benefit]
+  ```
+
+- **User Types**: Use consistent user types across features:
+  - `site visitor` - for anonymous users and general site access
+  - `site administrator` - for users with administrative privileges
+  - `content editor` - for users managing content
+
+- **No Punctuation**: Do not use commas or periods in user story statements
+
+- **Example**:
+  ```gherkin
+  Feature: Homepage
+  
+    As a site visitor
+    I want to access the homepage
+    So that I can view the main landing page and navigate the site
+  ```
+
 ## Project Structure
 
 ```
