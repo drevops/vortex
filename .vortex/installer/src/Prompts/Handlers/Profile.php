@@ -73,7 +73,7 @@ class Profile extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: Profile';
+    return '🧾 Profile';
   }
 
 }

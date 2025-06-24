@@ -59,7 +59,80 @@ class DatabaseDownloadSource extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: DatabaseDownloadSource';
+    return '📡 Database source';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'The database can be downloaded as an exported dump file or pre-packaged in a container image.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOptions(): ?array {
+    return [
+      self::URL => '🌍 URL download',
+      self::FTP => '📂 FTP download',
+      self::ACQUIA => '💧 Acquia backup',
+      self::LAGOON => '🌊 Lagoon environment',
+      self::CONTAINER_REGISTRY => '🐳 Container registry',
+      self::NONE => '🚫 None',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOptionsForContext(array $responses): ?array {
+    // Encapsulate the business logic for filtering options based on hosting provider
+    $options = $this->getOptions();
+
+    if (isset($responses[HostingProvider::id()])) {
+      if ($responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
+        unset($options[self::LAGOON]);
+      }
+
+      if ($responses[HostingProvider::id()] === HostingProvider::LAGOON) {
+        unset($options[self::ACQUIA]);
+      }
+    }
+
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultForContext(array $responses): mixed {
+    // Encapsulate the business logic for determining default based on hosting provider
+    if (isset($responses[HostingProvider::id()])) {
+      return match ($responses[HostingProvider::id()]) {
+        HostingProvider::ACQUIA => self::ACQUIA,
+        HostingProvider::LAGOON => self::LAGOON,
+        default => self::URL,
+      };
+    }
+
+    return $this->discover() ?? self::URL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isConditional(): bool {
+    return true;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCondition(): ?callable {
+    return fn(array $responses): bool => 
+      isset($responses[ProvisionType::id()]) && 
+      $responses[ProvisionType::id()] !== ProvisionType::PROFILE;
   }
 
 }

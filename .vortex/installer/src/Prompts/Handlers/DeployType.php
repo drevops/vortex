@@ -66,7 +66,7 @@ class DeployType extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: DeployType';
+    return '🚚 Deployment types';
   }
 
 }

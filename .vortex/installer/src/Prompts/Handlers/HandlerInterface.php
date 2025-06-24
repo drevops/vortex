@@ -141,4 +141,26 @@ interface HandlerInterface {
    */
   public function getCondition(): ?callable;
 
+  /**
+   * Context-aware options that can be filtered based on current responses.
+   * 
+   * This allows handlers to encapsulate business logic for filtering options
+   * based on other responses, rather than PromptManager making these decisions.
+   *
+   * @param array $responses Current form responses
+   * @return array|null Filtered options based on current context
+   */
+  public function getOptionsForContext(array $responses): ?array;
+
+  /**
+   * Context-aware default that can be calculated based on current responses.
+   * 
+   * This allows handlers to encapsulate business logic for determining defaults
+   * based on other responses, rather than PromptManager making these decisions.
+   *
+   * @param array $responses Current form responses  
+   * @return mixed Default value based on current context
+   */
+  public function getDefaultForContext(array $responses): mixed;
+
 }

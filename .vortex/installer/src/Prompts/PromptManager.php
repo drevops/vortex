@@ -265,33 +265,9 @@ class PromptManager {
             return DatabaseDownloadSource::NONE;
           }
 
-          $options = [
-            DatabaseDownloadSource::URL => '🌍 URL download',
-            DatabaseDownloadSource::FTP => '📂 FTP download',
-            DatabaseDownloadSource::ACQUIA => '💧 Acquia backup',
-            DatabaseDownloadSource::LAGOON => '🌊 Lagoon environment',
-            DatabaseDownloadSource::CONTAINER_REGISTRY => '🐳 Container registry',
-            DatabaseDownloadSource::NONE => '🚫 None',
-          ];
-
-          if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
-            unset($options[DatabaseDownloadSource::LAGOON]);
-          }
-
-          if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
-            unset($options[DatabaseDownloadSource::ACQUIA]);
-          }
-
-          return select(
-            label: $this->label('📡 Database source', 'a'),
-            hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
-            options: $options,
-            default: $this->default($n, match ($r[HostingProvider::id()]) {
-              HostingProvider::ACQUIA => DatabaseDownloadSource::ACQUIA,
-              HostingProvider::LAGOON => DatabaseDownloadSource::LAGOON,
-              default => DatabaseDownloadSource::URL,
-            }),
-          );
+          $args = $this->args(DatabaseDownloadSource::class, $n, null, $r);
+          $args['label'] = $this->label($this->handlers[DatabaseDownloadSource::id()]->getLabel(), 'a');
+          return select(...$args);
       }, DatabaseDownloadSource::id())
 
       ->addIf(
@@ -306,24 +282,7 @@ class PromptManager {
 
       ->intro('Continuous Integration')
 
-      ->add(function (array $r, $pr, $n): int|string {
-          $options = [
-            CiProvider::NONE => 'None',
-            CiProvider::GITHUB_ACTIONS => 'GitHub Actions',
-            CiProvider::CIRCLECI => 'CircleCI',
-          ];
-
-          if ($r[CodeProvider::id()] !== CodeProvider::GITHUB) {
-            unset($options[CiProvider::GITHUB_ACTIONS]);
-          }
-
-          return select(
-            label: $this->label('🔄 Continuous Integration provider'),
-            hint: 'Both providers support equivalent workflow.',
-            options: $options,
-            default: $this->default($n, CiProvider::GITHUB_ACTIONS),
-          );
-      }, CiProvider::id())
+      ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(CiProvider::class, $n, null, $r)), CiProvider::id())
 
       ->intro('Automations')
 
@@ -605,15 +564,20 @@ class PromptManager {
    *   The prompt name/key for default handling.
    * @param mixed $defaultOverride
    *   Optional override for the default value (for response dependencies).
+   * @param array $currentResponses
+   *   Current form responses for context-aware methods.
    *
    * @return array
    *   Array of prompt arguments suitable for Laravel prompts.
    */
-  private function args(string $handlerClass, string $n, mixed $defaultOverride = null): array {
+  private function args(string $handlerClass, string $n, mixed $defaultOverride = null, array $currentResponses = []): array {
     $handler = $this->handlers[$handlerClass::id()];
     
-    // Use override if provided, otherwise use handler's default
-    $defaultValue = $defaultOverride !== null ? $defaultOverride : $handler->getDefault();
+    // Use context-aware methods when responses are available, otherwise fall back to static methods
+    $defaultValue = $defaultOverride !== null ? $defaultOverride : 
+      (!empty($currentResponses) ? $handler->getDefaultForContext($currentResponses) : $handler->getDefault());
+    
+    $options = !empty($currentResponses) ? $handler->getOptionsForContext($currentResponses) : $handler->getOptions();
 
     $args = [
       'label' => $this->label($handler->getLabel()),
@@ -622,7 +586,7 @@ class PromptManager {
       'default' => $this->default($n, $defaultValue ?? ''),
       'transform' => $handler->getTransform(),
       'validate' => $handler->getValidate(),
-      'options' => $handler->getOptions(), // For select/multiselect (ignored by text/password)
+      'options' => $options, // Context-aware options for select/multiselect
     ];
 
     // Only include 'required' if it's true (Laravel prompts expects true or omit it)

@@ -234,4 +234,20 @@ abstract class AbstractHandler implements HandlerInterface {
     return null;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getOptionsForContext(array $responses): ?array {
+    // Default implementation: just return static options
+    return $this->getOptions();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultForContext(array $responses): mixed {
+    // Default implementation: just return static default
+    return $this->getDefault();
+  }
+
 }

@@ -97,6 +97,31 @@ class CiProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function getOptions(): ?array {
+    return [
+      self::NONE => 'None',
+      self::GITHUB_ACTIONS => 'GitHub Actions', 
+      self::CIRCLECI => 'CircleCI',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOptionsForContext(array $responses): ?array {
+    // Encapsulate the business logic for filtering options based on code provider
+    $options = $this->getOptions();
+
+    if (isset($responses[CodeProvider::id()]) && $responses[CodeProvider::id()] !== CodeProvider::GITHUB) {
+      unset($options[self::GITHUB_ACTIONS]);
+    }
+
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getDefault(): mixed {
     return $this->discover() ?? self::GITHUB_ACTIONS;
   }
