@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 
@@ -49,6 +50,12 @@ class Profile extends AbstractHandler {
    */
   public function process(): void {
     $v = $this->getResponseAsString();
+    
+    // If user selected 'custom', use the ProfileCustom response instead
+    if ($v === self::CUSTOM && isset($this->responses['profile_custom'])) {
+      $v = $this->responses['profile_custom'];
+    }
+    
     $t = $this->tmpDir;
     $w = $this->webroot;
 
@@ -75,5 +82,48 @@ class Profile extends AbstractHandler {
   public function getLabel(): string {
     return '🧾 Profile';
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'Select which profile to use';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOptions(): ?array {
+    return [
+      self::STANDARD => 'Standard',
+      self::MINIMAL => 'Minimal',
+      self::DEMO_UMAMI => 'Demo Umami',
+      self::CUSTOM => 'Custom',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRequired(): bool {
+    return true;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefault(): mixed {
+    $discovered = $this->discover();
+    if (!empty($discovered)) {
+      // If we discovered a standard profile, return it
+      if (in_array($discovered, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI])) {
+        return $discovered;
+      }
+      // If we discovered a custom profile, select "Custom" option
+      return self::CUSTOM;
+    }
+    return self::STANDARD;
+  }
+
 
 }

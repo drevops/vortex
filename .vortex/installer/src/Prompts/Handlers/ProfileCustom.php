@@ -1,0 +1,94 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
+
+use DrevOps\VortexInstaller\Utils\Converter;
+
+class ProfileCustom extends AbstractHandler {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    // Get the discovered profile from the Profile handler
+    $profile_handler = new Profile($this->config);
+    $profile_handler->setWebroot($this->webroot);
+    $discovered = $profile_handler->discover();
+    
+    // Only return discovered value if it's a custom profile
+    if (!empty($discovered) && !in_array($discovered, [Profile::STANDARD, Profile::MINIMAL, Profile::DEMO_UMAMI])) {
+      return $discovered;
+    }
+    
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    // This handler doesn't need processing - the Profile handler will handle the final result
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return '🧾 Custom profile machine name';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPlaceholder(): ?string {
+    return 'E.g. my_profile';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRequired(): bool {
+    return true;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTransform(): ?callable {
+    return fn(string $v): string => trim($v);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getValidate(): ?callable {
+    return fn(string $v): ?string => !empty($v) && Converter::machine($v) !== $v ? 
+      'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.' : null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isConditional(): bool {
+    return true;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCondition(): ?callable {
+    return fn(array $responses): bool => 
+      isset($responses[Profile::id()]) && 
+      $responses[Profile::id()] === Profile::CUSTOM;
+  }
+
+}

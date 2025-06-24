@@ -28,6 +28,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
+use DrevOps\VortexInstaller\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
@@ -157,33 +158,13 @@ class PromptManager {
 
       ->intro('Drupal')
 
-      ->add(function ($r, $pr, $n): int|string {
-          $profile = select(
-            label: $this->label('🧾 Profile'),
-            hint: 'Select which profile to use',
-            options: [
-              Profile::STANDARD => 'Standard',
-              Profile::MINIMAL => 'Minimal',
-              Profile::DEMO_UMAMI => 'Demo Umami',
-              Profile::CUSTOM => 'Custom',
-            ],
-            required: TRUE,
-            default: empty($this->default($n)) ? Profile::STANDARD : Profile::CUSTOM,
-          );
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(Profile::class, $n)), Profile::id())
 
-        if ($profile === Profile::CUSTOM) {
-          $profile = text(
-            label: $this->label('🧾 Custom profile machine name', 'a'),
-            placeholder: 'E.g. my_profile',
-            required: TRUE,
-            default: $this->default($n),
-            transform: fn(string $v): string => trim($v),
-            validate: fn(string $v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-          );
-        }
-
-          return $profile;
-      }, Profile::id())
+      ->addIf(
+        fn($r): bool => $this->handlers[ProfileCustom::id()]->getCondition()($r),
+        fn($r, $pr, $n): string => text(...$this->args(ProfileCustom::class, $n)),
+        ProfileCustom::id()
+      )
 
       ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, $n, Converter::abbreviation(Converter::machine($r[MachineName::id()]), 4, ['_']))), ModulePrefix::id())
 
@@ -314,6 +295,17 @@ class PromptManager {
     $responses = array_filter($responses, function ($key): bool {
       return !is_numeric($key);
     }, ARRAY_FILTER_USE_KEY);
+
+    // Handle Profile custom name merging
+    if (isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM && isset($responses[ProfileCustom::id()])) {
+      $responses[Profile::id()] = $responses[ProfileCustom::id()];
+      unset($responses[ProfileCustom::id()]);
+    } 
+    
+    // Always remove ProfileCustom key if it exists (it's only used for merging)
+    if (isset($responses[ProfileCustom::id()])) {
+      unset($responses[ProfileCustom::id()]);
+    }
 
     if ($this->config->getNoInteraction()) {
       Tui::output()->setVerbosity($original_verbosity);
@@ -579,11 +571,14 @@ class PromptManager {
     
     $options = !empty($currentResponses) ? $handler->getOptionsForContext($currentResponses) : $handler->getOptions();
 
+    // For Profile handler, use its getDefault() directly to handle custom profile logic
+    $useHandlerDefault = $handlerClass === Profile::class && $defaultOverride === null;
+    
     $args = [
       'label' => $this->label($handler->getLabel()),
       'hint' => $handler->getHint(),
       'placeholder' => $handler->getPlaceholder(),
-      'default' => $this->default($n, $defaultValue ?? ''),
+      'default' => $useHandlerDefault ? $defaultValue : $this->default($n, $defaultValue ?? ''),
       'transform' => $handler->getTransform(),
       'validate' => $handler->getValidate(),
       'options' => $options, // Context-aware options for select/multiselect
