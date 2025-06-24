@@ -203,212 +203,183 @@ class GithubToken extends AbstractHandler {
 }
 ```
 
-### Phase 3: Prompt Provider Abstraction
-**Goal**: Create abstraction layer for different terminal UI providers
+### Phase 3: Refactor PromptManager
+**Goal**: Use handler properties directly in existing Laravel form() structure
 
-#### 3.1 Create PromptProviderInterface
-```php
-interface PromptProviderInterface {
-    public function form(): FormBuilder;
-}
-
-interface FormBuilder {
-    public function intro(string $message): self;
-    public function add(callable $callback, string $name): self;
-    public function addIf(callable $condition, callable $callback, ?string $name = null): self;
-    public function submit(): array;
-}
-```
-
-#### 3.2 Implement Laravel Prompts Provider
-```php
-class LaravelPromptsProvider implements PromptProviderInterface {
-    public function form(): FormBuilder {
-        return new LaravelFormBuilder();
-    }
-}
-
-class LaravelFormBuilder implements FormBuilder {
-    private $form;
-    
-    public function __construct() {
-        $this->form = \Laravel\Prompts\form();
-    }
-    
-    public function intro(string $message): self {
-        $this->form->intro($message);
-        return $this;
-    }
-    
-    public function add(callable $callback, string $name): self {
-        $this->form->add($callback, $name);
-        return $this;
-    }
-    
-    public function addIf(callable $condition, callable $callback, ?string $name = null): self {
-        $this->form->addIf($condition, $callback, $name);
-        return $this;
-    }
-    
-    public function submit(): array {
-        return $this->form->submit();
-    }
-}
-```
-
-### Phase 4: Refactor PromptManager
-**Goal**: Use handler properties to configure prompts, while PromptManager determines prompt type
-
-#### 4.1 Prompt Type Mapping
+#### 3.1 Simplified PromptManager - Just Use Handler Properties
 ```php
 class PromptManager {
-    // Map handlers to their prompt types - PromptManager decides the UI widget
-    private array $promptTypes = [
-        Name::id() => 'text',
-        MachineName::id() => 'text',
-        Org::id() => 'text',
-        OrgMachineName::id() => 'text',
-        Domain::id() => 'text',
-        CodeProvider::id() => 'select',
-        GithubToken::id() => 'password',
-        GithubRepo::id() => 'text',
-        Services::id() => 'multiselect',
-        HostingProvider::id() => 'select',
-        // ... etc
-    ];
-    
-    // Section groupings - PromptManager controls UI flow
-    private array $sections = [
-        'General information' => [Name::id(), MachineName::id(), Org::id(), OrgMachineName::id(), Domain::id()],
-        'Code repository' => [CodeProvider::id(), GithubToken::id(), GithubRepo::id()],
-        'Services' => [Services::id()],
-        'Hosting' => [HostingProvider::id()],
-        // ... etc
-    ];
-}
-```
-
-#### 4.2 Simplified PromptManager
-```php
-class PromptManager {
-    private array $handlers = [];
-    private PromptProviderInterface $promptProvider;
-    
-    public function __construct(
-        private Config $config,
-        ?PromptProviderInterface $promptProvider = null
-    ) {
-        $this->promptProvider = $promptProvider ?? new LaravelPromptsProvider();
-        $this->initHandlers();
-    }
+    // ... existing properties and constructor ...
     
     public function prompt(): void {
-        $form = $this->promptProvider->form();
-        $this->addPromptsToForm($form);
-        $this->responses = $form->submit();
+        // Same Laravel form() as before, just get properties from handlers
+        $responses = form()
+            ->intro('General information')
+            
+            ->add(fn($r, $pr, $n): string => text(
+                label: $this->label($this->handlers[Name::id()]->getLabel()),
+                hint: $this->handlers[Name::id()]->getHint(),
+                placeholder: $this->handlers[Name::id()]->getPlaceholder(),
+                required: $this->handlers[Name::id()]->getRequired(),
+                default: $this->default($n, $this->handlers[Name::id()]->getDefault()),
+                transform: $this->handlers[Name::id()]->getTransform(),
+                validate: $this->handlers[Name::id()]->getValidate(),
+            ), Name::id())
+            
+            ->add(fn($r, $pr, $n): string => text(
+                label: $this->label($this->handlers[MachineName::id()]->getLabel()),
+                hint: $this->handlers[MachineName::id()]->getHint(),
+                placeholder: $this->handlers[MachineName::id()]->getPlaceholder(),
+                required: $this->handlers[MachineName::id()]->getRequired(),
+                default: $this->default($n, $this->handlers[MachineName::id()]->getDefault()),
+                transform: $this->handlers[MachineName::id()]->getTransform(),
+                validate: $this->handlers[MachineName::id()]->getValidate(),
+            ), MachineName::id())
+            
+            // ... more prompts using handler properties
+            
+            ->add(fn($r, $pr, $n): array => multiselect(
+                label: $this->label($this->handlers[Services::id()]->getLabel()),
+                hint: $this->handlers[Services::id()]->getHint(),
+                options: $this->handlers[Services::id()]->getOptions(),
+                default: $this->default($n, $this->handlers[Services::id()]->getDefault()),
+            ), Services::id())
+            
+            ->addIf(
+                fn($r): bool => $this->handlers[GithubToken::id()]->isConditional() && 
+                               $this->handlers[GithubToken::id()]->getCondition()($r),
+                fn($r, $pr, $n): string => password(
+                    label: $this->label($this->handlers[GithubToken::id()]->getLabel()),
+                    hint: $this->handlers[GithubToken::id()]->getHint(),
+                    placeholder: $this->handlers[GithubToken::id()]->getPlaceholder(),
+                    transform: $this->handlers[GithubToken::id()]->getTransform(),
+                    validate: $this->handlers[GithubToken::id()]->getValidate(),
+                ), GithubToken::id()
+            )
+            
+            ->submit();
+            
+        $this->responses = $responses;
+        $this->processResponses();
+    }
+}
+```
+
+#### 3.2 Even Cleaner - Helper Method
+```php
+class PromptManager {
+    public function prompt(): void {
+        $responses = form()
+            ->intro('General information')
+            
+            ->add(fn($r, $pr, $n) => $this->textPrompt(Name::id(), $n), Name::id())
+            ->add(fn($r, $pr, $n) => $this->textPrompt(MachineName::id(), $n), MachineName::id())
+            ->add(fn($r, $pr, $n) => $this->textPrompt(Org::id(), $n), Org::id())
+            ->add(fn($r, $pr, $n) => $this->textPrompt(Domain::id(), $n), Domain::id())
+            
+            ->intro('Code repository')
+            
+            ->add(fn($r, $pr, $n) => $this->selectPrompt(CodeProvider::id(), $n), CodeProvider::id())
+            
+            ->addIf(
+                fn($r): bool => $this->handlers[GithubToken::id()]->getCondition()($r),
+                fn($r, $pr, $n) => $this->passwordPrompt(GithubToken::id(), $n),
+                GithubToken::id()
+            )
+            
+            ->intro('Services')
+            
+            ->add(fn($r, $pr, $n) => $this->multiselectPrompt(Services::id(), $n), Services::id())
+            
+            ->submit();
+            
+        $this->responses = $responses;
         $this->processResponses();
     }
     
-    private function addPromptsToForm(FormBuilder $form): void {
-        $promptNumber = 0;
-        $totalPrompts = $this->calculateTotalPrompts();
-        
-        foreach ($this->sections as $sectionTitle => $handlerIds) {
-            $form->intro($sectionTitle);
-            
-            foreach ($handlerIds as $handlerId) {
-                $handler = $this->handlers[$handlerId];
-                
-                if ($handler->isConditional()) {
-                    $form->addIf(
-                        $handler->getCondition(),
-                        fn($responses) => $this->createPrompt($handler, ++$promptNumber, $totalPrompts),
-                        $handlerId
-                    );
-                } else {
-                    $form->add(
-                        fn($responses) => $this->createPrompt($handler, ++$promptNumber, $totalPrompts),
-                        $handlerId
-                    );
-                }
-            }
-        }
+    private function textPrompt(string $handlerId, string $n): string {
+        $handler = $this->handlers[$handlerId];
+        return text(
+            label: $this->label($handler->getLabel()),
+            hint: $handler->getHint(),
+            placeholder: $handler->getPlaceholder(),
+            required: $handler->getRequired(),
+            default: $this->default($n, $handler->getDefault()),
+            transform: $handler->getTransform(),
+            validate: $handler->getValidate(),
+        );
     }
     
-    private function createPrompt(HandlerInterface $handler, int $current, int $total): mixed {
-        $promptType = $this->promptTypes[$handler::id()];
-        $label = $this->addProgressToLabel($handler->getLabel(), $current, $total);
-        
-        return match ($promptType) {
-            'text' => \Laravel\Prompts\text(
-                label: $label,
-                hint: $handler->getHint(),
-                placeholder: $handler->getPlaceholder(),
-                required: $handler->getRequired(),
-                default: $handler->getDefault(),
-                transform: $handler->getTransform(),
-                validate: $handler->getValidate(),
-            ),
-            'password' => \Laravel\Prompts\password(
-                label: $label,
-                hint: $handler->getHint(),
-                placeholder: $handler->getPlaceholder(),
-                required: $handler->getRequired(),
-                transform: $handler->getTransform(),
-                validate: $handler->getValidate(),
-            ),
-            'select' => \Laravel\Prompts\select(
-                label: $label,
-                hint: $handler->getHint(),
-                options: $handler->getOptions(),
-                required: $handler->getRequired(),
-                default: $handler->getDefault(),
-            ),
-            'multiselect' => \Laravel\Prompts\multiselect(
-                label: $label,
-                hint: $handler->getHint(),
-                options: $handler->getOptions(),
-                default: $handler->getDefault(),
-            ),
-            'confirm' => \Laravel\Prompts\confirm(
-                label: $label,
-                hint: $handler->getHint(),
-                default: $handler->getDefault(),
-            ),
-        };
+    private function selectPrompt(string $handlerId, string $n): mixed {
+        $handler = $this->handlers[$handlerId];
+        return select(
+            label: $this->label($handler->getLabel()),
+            hint: $handler->getHint(),
+            options: $handler->getOptions(),
+            required: $handler->getRequired(),
+            default: $this->default($n, $handler->getDefault()),
+        );
     }
     
-    private function addProgressToLabel(string $label, int $current, int $total): string {
-        return sprintf('%s (%d/%d)', $label, $current, $total);
+    private function passwordPrompt(string $handlerId, string $n): string {
+        $handler = $this->handlers[$handlerId];
+        return password(
+            label: $this->label($handler->getLabel()),
+            hint: $handler->getHint(),
+            placeholder: $handler->getPlaceholder(),
+            transform: $handler->getTransform(),
+            validate: $handler->getValidate(),
+        );
+    }
+    
+    private function multiselectPrompt(string $handlerId, string $n): array {
+        $handler = $this->handlers[$handlerId];
+        return multiselect(
+            label: $this->label($handler->getLabel()),
+            hint: $handler->getHint(),
+            options: $handler->getOptions(),
+            default: $this->default($n, $handler->getDefault()),
+        );
     }
 }
 ```
 
-### Phase 5: Enhanced Features
-**Goal**: Add advanced features leveraging the new architecture
+### Phase 4: Future Extensibility (Optional)
+**Goal**: Make it easy to add different UI providers later
 
-#### 5.1 Dynamic Progress Calculation
-- Calculate total prompts based on enabled handlers and conditions
-- Handle conditional prompts in progress counting
-- Support for nested/grouped prompts
+If you want to support different UI providers in the future, you can simply:
 
-#### 5.2 Alternative UI Provider Example
+#### 4.1 Create Alternative PromptManager
 ```php
-class SymfonyConsoleProvider implements PromptProviderInterface {
-    public function form(): FormBuilder {
-        return new SymfonyFormBuilder($this->input, $this->output);
+class SymfonyConsolePromptManager extends PromptManager {
+    public function prompt(): void {
+        // Use Symfony Console instead of Laravel Prompts
+        // But still get properties from handlers the same way
+        $responses = [];
+        
+        $responses[Name::id()] = $this->symfonyTextPrompt(Name::id());
+        $responses[Services::id()] = $this->symfonyMultiSelectPrompt(Services::id());
+        // etc.
+        
+        $this->responses = $responses;
+        $this->processResponses();
+    }
+    
+    private function symfonyTextPrompt(string $handlerId): string {
+        $handler = $this->handlers[$handlerId];
+        $question = new Question($handler->getLabel(), $handler->getDefault());
+        $question->setValidator($handler->getValidate());
+        // etc.
+        return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 }
-
-// Easy to swap providers
-$promptManager = new PromptManager($config, new SymfonyConsoleProvider());
 ```
 
-#### 5.3 Special Handler Considerations
-Some handlers may need special handling patterns:
+#### 4.2 Special Handler Cases
+Some handlers may need special handling:
 
 ```php
-// Handler with dynamic properties based on state
+// Handler that shows note instead of input based on state
 class GithubToken extends AbstractHandler {
     public function getLabel(): string {
         if (!empty($this->discover())) {
@@ -417,21 +388,24 @@ class GithubToken extends AbstractHandler {
         return '🔑 GitHub access token (optional)';
     }
     
-    public function isNote(): bool {
-        return !empty($this->discover()); // Show as note instead of input
+    public function shouldShowAsNote(): bool {
+        return !empty($this->discover());
     }
 }
 
-// PromptManager handles this:
-private function createPrompt(HandlerInterface $handler, int $current, int $total): mixed {
-    // Check if handler wants to show as note
-    if (method_exists($handler, 'isNote') && $handler->isNote()) {
-        Tui::ok($handler->getLabel());
-        return $handler->getDefault();
-    }
-    
-    // Regular prompt handling...
-}
+// In PromptManager:
+->addIf(
+    fn($r): bool => $this->handlers[GithubToken::id()]->getCondition()($r),
+    function ($r, $pr, $n) {
+        $handler = $this->handlers[GithubToken::id()];
+        if ($handler->shouldShowAsNote()) {
+            Tui::ok($handler->getLabel());
+            return $handler->getDefault();
+        }
+        return $this->passwordPrompt(GithubToken::id(), $n);
+    },
+    GithubToken::id()
+)
 ```
 
 ## Migration Strategy
@@ -450,10 +424,10 @@ private function createPrompt(HandlerInterface $handler, int $current, int $tota
 5. **Update Handler Tests**: Verify each handler's property methods work correctly
 
 ### Phase 3: PromptManager Refactoring (Week 3-4)
-1. **Create Provider Abstraction**: PromptProviderInterface and LaravelPromptsProvider
-2. **Add Prompt Type Mapping**: Define which handlers use which prompt types
-3. **Create Section Configuration**: Group handlers into logical sections
-4. **Refactor prompt() Method**: Use handler properties instead of inline configuration
+1. **Refactor prompt() Method**: Replace inline configuration with handler property calls
+2. **Add Helper Methods**: Create textPrompt(), selectPrompt(), multiselectPrompt() etc.
+3. **Maintain Existing Structure**: Keep same Laravel form() flow, just get values from handlers
+4. **Handle Conditionals**: Use handler isConditional() and getCondition() methods
 5. **Maintain Progress Logic**: Ensure (1/21) style progress indicators still work
 
 ### Phase 4: Testing & Validation (Week 4-5)
@@ -505,30 +479,30 @@ class PromptMigrationHelper {
 
 ## Benefits of This Approach
 
-### 1. **Clean Separation of Concerns**
-- **Handlers**: Provide prompt properties (label, hint, validation, etc.) as values/callbacks
-- **PromptManager**: Determines UI widget type (text, select, multiselect) and orchestrates flow
-- **UI Providers**: Handle terminal interaction (Laravel Prompts, Symfony Console, etc.)
+### 1. **Simple & Clean**
+- **Handlers**: Just provide values/callbacks for prompt properties
+- **PromptManager**: Explicitly builds UI using Laravel form() with handler values
+- **No Abstractions**: No form builders, interfaces, or mappings to maintain
 
 ### 2. **Handler Simplicity**
 - Handlers don't know about UI widgets - they just provide data
 - Each handler method returns simple values or callbacks
-- Clear, focused responsibility: provide properties, not define UI
+- Clear responsibility: provide properties like getLabel(), getHint(), getValidate()
 
-### 3. **PromptManager Control**
-- PromptManager decides which widget to use for each handler
-- Centralized prompt type mapping makes UI changes easy
-- Section grouping and progress logic stay in one place
+### 3. **PromptManager Explicitness**
+- PromptManager explicitly decides text vs select vs multiselect for each handler
+- All UI flow is visible in the prompt() method
+- Easy to see what prompts are used and in what order
 
-### 4. **UI Provider Flexibility**
-- Easy to implement different terminal libraries
-- Swap providers without changing handler logic
-- Future-proof for new UI frameworks
+### 4. **Future Flexibility**
+- Easy to create alternative PromptManager classes for different UI libraries
+- Handler property methods work with any UI implementation
+- No complex abstractions to maintain
 
-### 5. **Readability**
+### 5. **Readability & Maintainability**
 - Handler property methods are self-documenting
-- Clear what each handler provides (label, validation, etc.)
-- No complex UI configuration mixed with business logic
+- PromptManager shows explicit UI structure
+- Simple to understand and modify
 
 ## Risk Mitigation
 
