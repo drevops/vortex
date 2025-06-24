@@ -283,50 +283,72 @@ class PromptManager {
 2. **Enhance AbstractHandler**: Add default implementations for all new methods
 3. **Maintain Backward Compatibility**: Existing handlers work without changes initially
 4. **Update Base Tests**: Ensure interface changes don't break existing tests
+5. **Run Tests**: `composer test` to verify 298+ tests still pass
 
 ### Phase 2: Handler Migration (Week 2-3)
 1. **Simple Text Handlers**: Name, Domain, MachineName, Org, OrgMachineName, ModulePrefix
 2. **Select Handlers**: CodeProvider, HostingProvider, ProvisionType, DeployType
 3. **Multi-Select Handlers**: Services, CiProvider
 4. **Special Cases**: GithubToken (conditional/note), Profile (dynamic), Theme (conditional)
-5. **Update Handler Tests**: Verify each handler's property methods work correctly
+5. **Update Handler Tests**: Add tests for property methods as they're implemented
+6. **Run Tests Frequently**: `composer test` after each handler to catch issues early
 
 ### Phase 3: PromptManager Refactoring (Week 3-4)
 1. **Create args() Helper Method**: Single function to convert handler properties to Laravel prompt arguments
 2. **Refactor prompt() Method**: Replace inline configuration with `text(...$this->args(Handler::class, $n))`
-3. **Maintain Existing Structure**: Keep same Laravel form() flow, just use args() helper
-4. **Handle Conditionals**: Use handler isConditional() and getCondition() methods
-5. **Maintain Progress Logic**: Ensure (1/21) style progress indicators still work
+3. **Update PromptManagerTest**: Add tests for args() helper and new prompt flow
+4. **Maintain Existing Structure**: Keep same Laravel form() flow, just use args() helper
+5. **Handle Conditionals**: Use handler isConditional() and getCondition() methods
+6. **Maintain Progress Logic**: Ensure (1/21) style progress indicators still work
+7. **Run Tests**: `composer test` to verify refactoring maintains functionality
 
 ### Phase 4: Testing & Validation (Week 4-5)
-1. **Unit Tests**: Test individual handler property methods
+1. **Unit Tests**: Complete test coverage for all new property methods
 2. **Integration Tests**: Test full prompt flow with new architecture
-3. **Fixture Updates**: Use `UPDATE_FIXTURES=1` to regenerate any changed outputs
-4. **Manual Testing**: Run installer with various configurations to ensure behavior is identical
+3. **Mock Updates**: Update test mocks to support new handler property methods
+4. **Fixture Updates**: Use `composer test-fixtures` / `UPDATE_FIXTURES=1` to regenerate any changed outputs
+5. **Manual Testing**: Run installer with various configurations to ensure behavior is identical
+6. **Test Count Verification**: Ensure 298+ tests still pass
 
 ### Phase 5: Cleanup (Week 5)
 1. **Remove Dead Code**: Clean up old inline prompt definitions
-2. **Documentation**: Update code comments and any architectural docs
-3. **Performance Check**: Ensure no performance regressions
+2. **Test Cleanup**: Remove obsolete test cases and update test documentation
+3. **Documentation**: Update code comments and any architectural docs
+4. **Final Test Run**: `composer test` and `composer test-fixtures` to ensure everything works
+5. **Performance Check**: Ensure no performance regressions
 
 ## Testing Strategy
 
-### Unit Tests
-- Test each handler's `getPromptConfig()` method
-- Test conditional logic in handlers
-- Test PromptProvider implementations
-- Test progress calculation logic
+### Test Commands
+- **Unit Tests**: `composer test` (runs PHPUnit - 298 tests currently)
+- **Fixture Tests**: `composer test-fixtures` (uses `UPDATE_FIXTURES=1` for installer integration tests)
+- **Coverage**: `composer test-coverage`
+- **Run tests frequently** after each significant change to catch regressions early
+
+### Unit Test Updates Required
+- **Extend PromptManagerTest.php**: Add tests for new handler property methods
+- **Test Handler Property Methods**: Verify each handler's getLabel(), getHint(), getValidate(), etc.
+- **Test args() Helper Function**: Ensure proper argument conversion from handler properties
+- **Mock Handler Responses**: Update existing mocks to support new property methods
+- **Conditional Logic Tests**: Test isConditional() and getCondition() methods
 
 ### Integration Tests
-- Test full prompt flow with various configurations
-- Test conditional prompt chains
-- Test section grouping
-- Test validation flows
+- **Full Prompt Flow**: Test complete installer workflow with new property-based system
+- **Conditional Prompt Chains**: Verify conditional prompts still work correctly
+- **Validation Flows**: Ensure validation callbacks work properly
+- **Progress Tracking**: Verify (1/21) style progress indicators still function
 
 ### Fixture Updates
-- Update installer fixtures to reflect new prompt behavior
-- Use `UPDATE_FIXTURES=1` process for baseline updates
-- Verify all scenarios still work correctly
+- **Installer Fixtures**: Use `UPDATE_FIXTURES=1` to regenerate any changed outputs
+- **Baseline Updates**: Update baseline fixtures if prompt behavior changes
+- **Scenario Testing**: Verify all installation scenarios still work correctly
+
+### Testing Approach During Implementation
+1. **Run `composer test` after each phase** to ensure no regressions
+2. **Update test mocks** as handler interfaces are extended
+3. **Add new test cases** for property methods as they're implemented
+4. **Validate fixture tests** after PromptManager refactoring
+5. **Ensure 298+ tests still pass** throughout the refactoring process
 
 ## Backward Compatibility
 
