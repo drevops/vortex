@@ -169,4 +169,16 @@ class Theme extends AbstractHandler {
     return fn($v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : null;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultForContext(array $responses): mixed {
+    // Generate default from MachineName if available
+    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return Converter::machine($responses[MachineName::id()]);
+    }
+    
+    return $this->getDefault();
+  }
+
 }

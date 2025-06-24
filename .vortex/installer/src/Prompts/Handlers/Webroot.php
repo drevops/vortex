@@ -106,4 +106,37 @@ class Webroot extends AbstractHandler {
     return $this->discover() ?? self::WEB;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultForContext(array $responses): mixed {
+    // Auto-select webroot based on hosting provider
+    if (isset($responses[HostingProvider::id()])) {
+      $webroot = match ($responses[HostingProvider::id()]) {
+        HostingProvider::ACQUIA => self::DOCROOT,
+        HostingProvider::LAGOON => self::WEB,
+        default => $this->getDefault()
+      };
+      return $webroot;
+    }
+    
+    return $this->getDefault();
+  }
+
+  /**
+   * Check if webroot should show as auto-selected info instead of input.
+   */
+  public function shouldShowAsInfo(array $responses): bool {
+    return isset($responses[HostingProvider::id()]) && 
+           $responses[HostingProvider::id()] !== HostingProvider::OTHER;
+  }
+
+  /**
+   * Get the info message for auto-selected webroot.
+   */
+  public function getInfoMessage(array $responses): string {
+    $webroot = $this->getDefaultForContext($responses);
+    return sprintf('Web root will be set to "%s".', $webroot);
+  }
+
 }

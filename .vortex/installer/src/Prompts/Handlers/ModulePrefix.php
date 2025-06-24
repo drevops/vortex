@@ -92,4 +92,16 @@ class ModulePrefix extends AbstractHandler {
     return fn($v): ?string => Converter::machine($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : null;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultForContext(array $responses): mixed {
+    // Generate default from MachineName if available
+    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return Converter::abbreviation(Converter::machine($responses[MachineName::id()]), 4, ['_']);
+    }
+    
+    return $this->getDefault();
+  }
+
 }

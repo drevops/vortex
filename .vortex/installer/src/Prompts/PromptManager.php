@@ -170,9 +170,9 @@ class PromptManager {
         ProfileCustom::id()
       )
 
-      ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, $n, Converter::abbreviation(Converter::machine($r[MachineName::id()]), 4, ['_']))), ModulePrefix::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, $n, null, $r)), ModulePrefix::id())
 
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, $n, Converter::machine($r[MachineName::id()]))), Theme::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, $n, null, $r)), Theme::id())
 
       ->intro('Services')
 
@@ -183,61 +183,20 @@ class PromptManager {
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class, $n)), HostingProvider::id())
 
       ->add(function (array $r, $pr, $n): string|bool|array {
-        if ($r[HostingProvider::id()] !== HostingProvider::OTHER) {
-          $webroot = match ($r[HostingProvider::id()]) {
-            HostingProvider::ACQUIA => Webroot::DOCROOT,
-            HostingProvider::LAGOON => Webroot::WEB,
-            default => $this->default($n, Webroot::WEB)
-          };
-
-            info(sprintf('Web root will be set to "%s".', $webroot));
+        $handler = $this->handlers[Webroot::id()];
+        if ($handler->shouldShowAsInfo($r)) {
+          $webroot = $handler->getDefaultForContext($r);
+          info($handler->getInfoMessage($r));
+          return $webroot;
         }
         else {
-          $webroot = text(
-            label: $this->label('📁 Custom web root directory', 'a'),
-            hint: 'Custom directory where the web server serves the site.',
-            placeholder: 'E.g. ' . implode(', ', [Webroot::WEB, Webroot::DOCROOT]),
-            required: TRUE,
-            default: $this->default($n, Webroot::WEB),
-            transform: fn(string $v): string => rtrim($v, DIRECTORY_SEPARATOR),
-            validate: fn($v): ?string => Validator::dirname($v) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
-          );
+          return text(...$this->args(Webroot::class, $n, null, $r));
         }
-          return $webroot;
       }, Webroot::id())
 
       ->intro('Deployment')
 
-      ->add(function (array $r, $pr, $n): array {
-          $defaults = [];
-
-          $options = [
-            DeployType::ARTIFACT => '📦 Code artifact',
-            DeployType::LAGOON => '🌊 Lagoon webhook',
-            DeployType::CONTAINER_IMAGE => '🐳 Container image',
-            DeployType::WEBHOOK => '🌐 Custom webhook',
-          ];
-
-          if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
-            $defaults[] = DeployType::LAGOON;
-          }
-
-          if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
-            $defaults[] = DeployType::ARTIFACT;
-            unset($options[DeployType::LAGOON]);
-          }
-
-          if (empty($defaults)) {
-            $defaults[] = DeployType::WEBHOOK;
-          }
-
-          return multiselect(
-            label: $this->label('🚚 Deployment types'),
-            hint: 'You can deploy code using one or more methods.',
-            options: $options,
-            default: $this->default($n, $defaults),
-          );
-      }, DeployType::id())
+      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(DeployType::class, $n, null, $r)), DeployType::id())
 
       ->intro('Workflow')
 
@@ -245,22 +204,21 @@ class PromptManager {
 
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class, $n)), ProvisionType::id())
 
-      ->add(function (array $r, $pr, $n): int|string {
-          if ($r[ProvisionType::id()] === ProvisionType::PROFILE) {
-            return DatabaseDownloadSource::NONE;
-          }
-
-          $args = $this->args(DatabaseDownloadSource::class, $n, null, $r);
-          $args['label'] = $this->label($this->handlers[DatabaseDownloadSource::id()]->getLabel(), 'a');
-          return select(...$args);
-      }, DatabaseDownloadSource::id())
+      ->addIf(
+          fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->getCondition()($r),
+          function ($r, $pr, $n): int|string {
+            $args = $this->args(DatabaseDownloadSource::class, $n, null, $r);
+            $args['label'] = $this->label($this->handlers[DatabaseDownloadSource::id()]->getLabel(), 'a');
+            return select(...$args);
+          }, DatabaseDownloadSource::id())
 
       ->addIf(
-          fn($r): bool => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
+          fn($r): bool => $this->handlers[DatabaseImage::id()]->getCondition()($r),
           function ($r, $pr, $n): string {
-            $args = $this->args(DatabaseImage::class, $n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])));
-            $args['label'] = $this->label($this->handlers[DatabaseImage::id()]->getLabel(), 'a');
-            $args['placeholder'] = sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]));
+            $handler = $this->handlers[DatabaseImage::id()];
+            $args = $this->args(DatabaseImage::class, $n, null, $r);
+            $args['label'] = $this->label($handler->getLabel(), 'a');
+            $args['placeholder'] = $handler->getPlaceholderForContext($r);
             return text(...$args);
           },
           DatabaseImage::id())
@@ -307,6 +265,11 @@ class PromptManager {
     
     // Always remove ProfileCustom key (it's only used for internal merging)
     unset($responses[ProfileCustom::id()]);
+
+    // Handle DatabaseDownloadSource when ProvisionType is PROFILE
+    if (isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] === ProvisionType::PROFILE) {
+      $responses[DatabaseDownloadSource::id()] = DatabaseDownloadSource::NONE;
+    }
 
     if ($this->config->getNoInteraction()) {
       Tui::output()->setVerbosity($original_verbosity);

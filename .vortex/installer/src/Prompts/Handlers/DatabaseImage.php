@@ -77,8 +77,40 @@ class DatabaseImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getPlaceholder(): ?string {
-    // This will be dynamically set based on responses in PromptManager
+    // This will be dynamically set based on responses via getPlaceholderForContext
     return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultForContext(array $responses): mixed {
+    // Generate default from OrgMachineName and MachineName if available
+    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()]) 
+        && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return sprintf('%s/%s-data:latest', 
+        \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[OrgMachineName::id()]), 
+        \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[MachineName::id()])
+      );
+    }
+    
+    return $this->getDefault();
+  }
+
+  /**
+   * Get placeholder text based on response context.
+   */
+  public function getPlaceholderForContext(array $responses): ?string {
+    // Generate placeholder from OrgMachineName and MachineName if available
+    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()]) 
+        && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return sprintf('E.g. %s/%s-data:latest', 
+        \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[OrgMachineName::id()]), 
+        \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[MachineName::id()])
+      );
+    }
+    
+    return $this->getPlaceholder();
   }
 
 }
