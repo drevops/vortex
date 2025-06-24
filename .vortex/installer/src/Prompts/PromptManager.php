@@ -301,15 +301,12 @@ class PromptManager {
     }, ARRAY_FILTER_USE_KEY);
 
     // Handle Profile custom name merging
-    if (isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM && isset($responses[ProfileCustom::id()])) {
+    if (isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM && isset($responses[ProfileCustom::id()]) && $responses[ProfileCustom::id()] !== null) {
       $responses[Profile::id()] = $responses[ProfileCustom::id()];
-      unset($responses[ProfileCustom::id()]);
     } 
     
-    // Always remove ProfileCustom key if it exists (it's only used for merging)
-    if (isset($responses[ProfileCustom::id()])) {
-      unset($responses[ProfileCustom::id()]);
-    }
+    // Always remove ProfileCustom key (it's only used for internal merging)
+    unset($responses[ProfileCustom::id()]);
 
     if ($this->config->getNoInteraction()) {
       Tui::output()->setVerbosity($original_verbosity);
@@ -349,6 +346,7 @@ class PromptManager {
       Services::id(),
       GithubRepo::id(),
       CodeProvider::id(),
+      ProfileCustom::id(),
       Profile::id(),
       Domain::id(),
       ModulePrefix::id(),
