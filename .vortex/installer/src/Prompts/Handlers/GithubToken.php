@@ -81,4 +81,11 @@ class GithubToken extends AbstractHandler {
     return !empty($this->discover());
   }
 
+  /**
+   * Get the informational note for GitHub token requirement.
+   */
+  public static function getInfoNote(): string {
+    return "<info>We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.</info>";
+  }
+
 }

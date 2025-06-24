@@ -129,12 +129,12 @@ class PromptManager {
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class, $n)), CodeProvider::id())
 
       ->addIf(
-          fn($r): bool => $r[CodeProvider::id()] === CodeProvider::GITHUB,
-          fn($r, $pr, $n) => Tui::note("<info>We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.</info>"),
+          fn($r): bool => $this->handlers[GithubToken::id()]->getCondition()($r),
+          fn($r, $pr, $n) => Tui::note(GithubToken::getInfoNote()),
         )
 
       ->addIf(
-          fn($r): bool => $r[CodeProvider::id()] === CodeProvider::GITHUB,
+          fn($r): bool => $this->handlers[GithubToken::id()]->getCondition()($r),
           function ($r, $pr, $n): string {
             $handler = $this->handlers[GithubToken::id()];
             $value = $this->default($n);
@@ -148,9 +148,9 @@ class PromptManager {
           }, GithubToken::id())
 
         ->addIf(
-            fn($r): bool => !empty($r[GithubToken::id()]),
+            fn($r): bool => $this->handlers[GithubRepo::id()]->getCondition()($r),
             function ($r, $pr, $n): string {
-              $args = $this->args(GithubRepo::class, $n, $r[OrgMachineName::id()] . '/' . $r[MachineName::id()]);
+              $args = $this->args(GithubRepo::class, $n, null, $r);
               $args['label'] = $this->label($this->handlers[GithubRepo::id()]->getLabel(), 'b');
               return text(...$args);
             },
@@ -345,6 +345,7 @@ class PromptManager {
       HostingProvider::id(),
       Services::id(),
       GithubRepo::id(),
+      GithubToken::id(),
       CodeProvider::id(),
       ProfileCustom::id(),
       Profile::id(),
