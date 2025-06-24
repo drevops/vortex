@@ -75,4 +75,16 @@ class OrgMachineName extends AbstractHandler {
     return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : null;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultForContext(array $responses): mixed {
+    // Generate default from Org if available
+    if (isset($responses[Org::id()]) && !empty($responses[Org::id()])) {
+      return Converter::machineExtended($responses[Org::id()]);
+    }
+    
+    return $this->getDefault();
+  }
+
 }

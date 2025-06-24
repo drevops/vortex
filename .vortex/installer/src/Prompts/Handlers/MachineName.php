@@ -81,4 +81,16 @@ class MachineName extends AbstractHandler {
     return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : null;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultForContext(array $responses): mixed {
+    // Generate default from Name if available
+    if (isset($responses[Name::id()]) && !empty($responses[Name::id()])) {
+      return Converter::machineExtended($responses[Name::id()]);
+    }
+    
+    return $this->getDefault();
+  }
+
 }

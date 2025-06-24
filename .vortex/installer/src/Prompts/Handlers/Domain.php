@@ -75,4 +75,16 @@ class Domain extends AbstractHandler {
     return fn($v): ?string => Validator::domain($v) ? null : 'Please enter a valid domain name.';
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultForContext(array $responses): mixed {
+    // Generate default from MachineName if available
+    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return Converter::kebab($responses[MachineName::id()]) . '.com';
+    }
+    
+    return $this->getDefault();
+  }
+
 }

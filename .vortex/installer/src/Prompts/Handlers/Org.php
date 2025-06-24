@@ -73,4 +73,16 @@ class Org extends AbstractHandler {
     return fn($v): ?string => \DrevOps\VortexInstaller\Utils\Converter::label($v) !== $v ? 'Please enter a valid organization name.' : null;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultForContext(array $responses): mixed {
+    // Generate default from Name if available
+    if (isset($responses[Name::id()]) && !empty($responses[Name::id()])) {
+      return \DrevOps\VortexInstaller\Utils\Converter::label($responses[Name::id()]) . ' Org';
+    }
+    
+    return $this->getDefault();
+  }
+
 }

@@ -116,13 +116,13 @@ class PromptManager {
 
       ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class, $n)), Name::id())
 
-      ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, $n, Converter::machineExtended($r[Name::id()]))), MachineName::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, $n, null, $r)), MachineName::id())
 
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, 'org', Converter::label($r[Name::id()]) . ' Org')), Org::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, $n, null, $r)), Org::id())
 
-      ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, $n, Converter::machineExtended($r[Org::id()]))), OrgMachineName::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, $n, null, $r)), OrgMachineName::id())
 
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, $n, Converter::kebab($r[MachineName::id()]) . '.com')), Domain::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, $n, null, $r)), Domain::id())
 
       ->intro('Code repository')
 
