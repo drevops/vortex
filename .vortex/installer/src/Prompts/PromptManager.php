@@ -158,7 +158,11 @@ class PromptManager {
 
       ->intro('Drupal')
 
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(Profile::class, $n)), Profile::id())
+      ->add(function ($r, $pr, $n): int|string {
+        $args = $this->args(Profile::class, $n);
+        $args['default'] = $this->handlers[Profile::id()]->getDefault();
+        return select(...$args);
+      }, Profile::id())
 
       ->addIf(
         fn($r): bool => $this->handlers[ProfileCustom::id()]->getCondition()($r),
@@ -571,14 +575,11 @@ class PromptManager {
     
     $options = !empty($currentResponses) ? $handler->getOptionsForContext($currentResponses) : $handler->getOptions();
 
-    // For Profile handler, use its getDefault() directly to handle custom profile logic
-    $useHandlerDefault = $handlerClass === Profile::class && $defaultOverride === null;
-    
     $args = [
       'label' => $this->label($handler->getLabel()),
       'hint' => $handler->getHint(),
       'placeholder' => $handler->getPlaceholder(),
-      'default' => $useHandlerDefault ? $defaultValue : $this->default($n, $defaultValue ?? ''),
+      'default' => $this->default($n, $defaultValue ?? ''),
       'transform' => $handler->getTransform(),
       'validate' => $handler->getValidate(),
       'options' => $options, // Context-aware options for select/multiselect
