@@ -34,4 +34,35 @@ class CodeProvider extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return '🗄️ Repository provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'Vortex offers full automation with GitHub, while support for other providers is limited.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOptions(): ?array {
+    return [
+      self::GITHUB => 'GitHub',
+      self::OTHER => 'Other',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefault(): mixed {
+    return $this->discover() ?? 'github';
+  }
+
 }

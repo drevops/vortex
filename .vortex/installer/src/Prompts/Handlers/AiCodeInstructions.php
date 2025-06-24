@@ -37,4 +37,11 @@ class AiCodeInstructions extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: AiCodeInstructions';
+  }
+
 }

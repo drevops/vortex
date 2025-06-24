@@ -114,23 +114,23 @@ class PromptManager {
       ->intro('General information')
 
       ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🏷️ Site name'),
-        hint: 'We will use this name in the project and in the documentation.',
-        placeholder: 'E.g. My Site',
-        required: TRUE,
-        default: $this->default($n, Converter::label(Env::get('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::label($v) !== $v ? 'Please enter a valid project name.' : NULL,
+        label: $this->label($this->handlers[Name::id()]->getLabel()),
+        hint: $this->handlers[Name::id()]->getHint(),
+        placeholder: $this->handlers[Name::id()]->getPlaceholder(),
+        required: $this->handlers[Name::id()]->getRequired(),
+        default: $this->default($n, $this->handlers[Name::id()]->getDefault() ?? ''),
+        transform: $this->handlers[Name::id()]->getTransform(),
+        validate: $this->handlers[Name::id()]->getValidate(),
       ), Name::id())
 
       ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🏷️ Site machine name'),
-        hint: 'We will use this name for the project directory and in the code.',
-        placeholder: 'E.g. my_site',
-        required: TRUE,
+        label: $this->label($this->handlers[MachineName::id()]->getLabel()),
+        hint: $this->handlers[MachineName::id()]->getHint(),
+        placeholder: $this->handlers[MachineName::id()]->getPlaceholder(),
+        required: $this->handlers[MachineName::id()]->getRequired(),
         default: $this->default($n, Converter::machineExtended($r[Name::id()])),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
+        transform: $this->handlers[MachineName::id()]->getTransform(),
+        validate: $this->handlers[MachineName::id()]->getValidate(),
       ), MachineName::id())
 
       ->add(fn($r, $pr, $n): string => text(
@@ -726,6 +726,33 @@ class PromptManager {
       $handler->setWebroot($webroot);
       $this->handlers[$handler::id()] = $handler;
     }
+  }
+
+  /**
+   * Helper function that converts handler properties to Laravel prompt arguments.
+   *
+   * @param string $handlerClass
+   *   The handler class name.
+   * @param string $n
+   *   The prompt name/key for default handling.
+   *
+   * @return array
+   *   Array of prompt arguments suitable for Laravel prompts.
+   */
+  private function args(string $handlerClass, string $n): array {
+    $handler = $this->handlers[$handlerClass::id()];
+    $handlerDefault = $handler->getDefault();
+
+    return array_filter([
+      'label' => $this->label($handler->getLabel()),
+      'hint' => $handler->getHint(),
+      'placeholder' => $handler->getPlaceholder(),
+      'required' => $handler->getRequired(),
+      'default' => $this->default($n, $handlerDefault ?? ''),
+      'transform' => $handler->getTransform(),
+      'validate' => $handler->getValidate(),
+      'options' => $handler->getOptions(), // For select/multiselect (ignored by text/password)
+    ], fn($value) => $value !== null);
   }
 
 }

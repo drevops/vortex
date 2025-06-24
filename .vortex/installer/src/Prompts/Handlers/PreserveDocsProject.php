@@ -30,4 +30,11 @@ class PreserveDocsProject extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: PreserveDocsProject';
+  }
+
 }

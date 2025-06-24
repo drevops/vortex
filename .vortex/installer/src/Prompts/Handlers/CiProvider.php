@@ -80,4 +80,11 @@ class CiProvider extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: CiProvider';
+  }
+
 }

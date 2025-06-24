@@ -51,4 +51,94 @@ interface HandlerInterface {
    */
   public function setWebroot(string $webroot): static;
 
+  // New prompt property methods - handlers provide values/callbacks
+
+  /**
+   * Get the prompt label.
+   *
+   * @return string
+   *   The label for the prompt.
+   */
+  public function getLabel(): string;
+
+  /**
+   * Get the prompt hint.
+   *
+   * @return string|null
+   *   The hint text for the prompt, or null if none.
+   */
+  public function getHint(): ?string;
+
+  /**
+   * Get the prompt placeholder.
+   *
+   * @return string|null
+   *   The placeholder text for the prompt, or null if none.
+   */
+  public function getPlaceholder(): ?string;
+
+  /**
+   * Get the default value for the prompt.
+   *
+   * @return mixed
+   *   The default value for the prompt.
+   */
+  public function getDefault(): mixed;
+
+  /**
+   * Get the transform callback for the prompt.
+   *
+   * @return callable|null
+   *   The transform callback, or null if none.
+   */
+  public function getTransform(): ?callable;
+
+  /**
+   * Get the validate callback for the prompt.
+   *
+   * @return callable|null
+   *   The validate callback, or null if none.
+   */
+  public function getValidate(): ?callable;
+
+  /**
+   * Get whether the prompt is required.
+   *
+   * @return bool
+   *   TRUE if the prompt is required, FALSE otherwise.
+   */
+  public function getRequired(): bool;
+
+  /**
+   * Get the options for select/multiselect prompts.
+   *
+   * @return array|null
+   *   The options array, or null if not applicable.
+   */
+  public function getOptions(): ?array;
+
+  /**
+   * Get the intro text for section grouping.
+   *
+   * @return string|null
+   *   The intro text, or null if none.
+   */
+  public function getIntro(): ?string;
+
+  /**
+   * Check if this handler is conditional.
+   *
+   * @return bool
+   *   TRUE if this handler should only be shown conditionally.
+   */
+  public function isConditional(): bool;
+
+  /**
+   * Get the condition callback for conditional prompts.
+   *
+   * @return callable|null
+   *   The condition callback, or null if not conditional.
+   */
+  public function getCondition(): ?callable;
+
 }

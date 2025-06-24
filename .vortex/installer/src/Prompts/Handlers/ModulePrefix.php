@@ -50,4 +50,11 @@ class ModulePrefix extends AbstractHandler {
     File::renameInDir($t . sprintf('/%s/sites/default/includes', $w), 'ys_base', $v . '_base');
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: ModulePrefix';
+  }
+
 }

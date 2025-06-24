@@ -30,4 +30,11 @@ class DatabaseImage extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: DatabaseImage';
+  }
+
 }

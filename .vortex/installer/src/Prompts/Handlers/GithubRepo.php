@@ -35,4 +35,11 @@ class GithubRepo extends AbstractHandler {
     // @todo Implement this.
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: GithubRepo';
+  }
+
 }

@@ -39,4 +39,46 @@ class MachineName extends AbstractHandler {
     File::renameInDir($t, 'your_site', $v);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return '🏷️ Site machine name';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'We will use this name for the project directory and in the code.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPlaceholder(): ?string {
+    return 'E.g. my_site';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRequired(): bool {
+    return true;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTransform(): ?callable {
+    return fn(string $v): string => trim($v);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getValidate(): ?callable {
+    return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : null;
+  }
+
 }

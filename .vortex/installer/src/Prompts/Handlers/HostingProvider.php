@@ -73,4 +73,11 @@ class HostingProvider extends AbstractHandler {
     File::removeTokenAsync('SETTINGS_PROVIDER_LAGOON');
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: HostingProvider';
+  }
+
 }

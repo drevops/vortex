@@ -46,4 +46,11 @@ class ProvisionType extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: ProvisionType';
+  }
+
 }

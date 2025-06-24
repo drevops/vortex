@@ -155,4 +155,83 @@ abstract class AbstractHandler implements HandlerInterface {
     return $this->response;
   }
 
+  // Default implementations for prompt property methods
+
+  /**
+   * {@inheritdoc}
+   *
+   * Abstract method that must be implemented by each handler.
+   */
+  abstract public function getLabel(): string;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPlaceholder(): ?string {
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefault(): mixed {
+    return $this->discover();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTransform(): ?callable {
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getValidate(): ?callable {
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRequired(): bool {
+    return false;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOptions(): ?array {
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getIntro(): ?string {
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isConditional(): bool {
+    return false;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCondition(): ?callable {
+    return null;
+  }
+
 }

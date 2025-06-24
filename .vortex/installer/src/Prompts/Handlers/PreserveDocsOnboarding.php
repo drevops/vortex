@@ -30,4 +30,11 @@ class PreserveDocsOnboarding extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: PreserveDocsOnboarding';
+  }
+
 }

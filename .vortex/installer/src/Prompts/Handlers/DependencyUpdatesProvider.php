@@ -61,4 +61,11 @@ class DependencyUpdatesProvider extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: DependencyUpdatesProvider';
+  }
+
 }

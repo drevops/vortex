@@ -134,4 +134,11 @@ class Theme extends AbstractHandler {
     return $c1 && $c2 && $c3 && $c4;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: Theme';
+  }
+
 }

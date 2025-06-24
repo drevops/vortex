@@ -22,4 +22,11 @@ class AssignAuthorPr extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: AssignAuthorPr';
+  }
+
 }

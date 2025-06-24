@@ -24,4 +24,11 @@ class LabelMergeConflictsPr extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: LabelMergeConflictsPr';
+  }
+
 }

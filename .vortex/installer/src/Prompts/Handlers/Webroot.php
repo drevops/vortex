@@ -56,4 +56,11 @@ class Webroot extends AbstractHandler {
     rename($t . DIRECTORY_SEPARATOR . $webroot, $t . DIRECTORY_SEPARATOR . $v);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLabel(): string {
+    return 'TODO: Webroot';
+  }
+
 }
