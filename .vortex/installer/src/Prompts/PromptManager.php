@@ -137,11 +137,9 @@ class PromptManager {
           fn($r): bool => $this->handlers[GithubToken::id()]->getCondition()($r),
           function ($r, $pr, $n): string {
             $handler = $this->handlers[GithubToken::id()];
-            $value = $this->default($n);
-            if (!empty($value)) {
+            if ($handler->shouldReturnDiscovered()) {
               Tui::ok($this->label($handler->getLabel(), 'a'));
-
-              return $value;
+              return $handler->getDiscoveredValue();
             }
 
             return password(...$this->args(GithubToken::class, $n));
@@ -149,11 +147,7 @@ class PromptManager {
 
         ->addIf(
             fn($r): bool => $this->handlers[GithubRepo::id()]->getCondition()($r),
-            function ($r, $pr, $n): string {
-              $args = $this->args(GithubRepo::class, $n, null, $r);
-              $args['label'] = $this->label($this->handlers[GithubRepo::id()]->getLabel(), 'b');
-              return text(...$args);
-            },
+            fn($r, $pr, $n): string => text(...$this->args(GithubRepo::class, $n, null, $r)),
             GithubRepo::id())
 
       ->intro('Drupal')
@@ -206,18 +200,14 @@ class PromptManager {
 
       ->addIf(
           fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->getCondition()($r),
-          function ($r, $pr, $n): int|string {
-            $args = $this->args(DatabaseDownloadSource::class, $n, null, $r);
-            $args['label'] = $this->label($this->handlers[DatabaseDownloadSource::id()]->getLabel(), 'a');
-            return select(...$args);
-          }, DatabaseDownloadSource::id())
+          fn($r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, $n, null, $r)),
+          DatabaseDownloadSource::id())
 
       ->addIf(
           fn($r): bool => $this->handlers[DatabaseImage::id()]->getCondition()($r),
           function ($r, $pr, $n): string {
             $handler = $this->handlers[DatabaseImage::id()];
             $args = $this->args(DatabaseImage::class, $n, null, $r);
-            $args['label'] = $this->label($handler->getLabel(), 'a');
             $args['placeholder'] = $handler->getPlaceholderForContext($r);
             return text(...$args);
           },

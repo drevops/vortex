@@ -88,4 +88,18 @@ class GithubToken extends AbstractHandler {
     return "<info>We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.</info>";
   }
 
+  /**
+   * Check if this handler should return discovered value instead of prompting.
+   */
+  public function shouldReturnDiscovered(): bool {
+    return !empty($this->discover());
+  }
+
+  /**
+   * Get the discovered value for display.
+   */
+  public function getDiscoveredValue(): string {
+    return $this->discover() ?? '';
+  }
+
 }
