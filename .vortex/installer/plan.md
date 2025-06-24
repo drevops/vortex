@@ -204,92 +204,42 @@ class GithubToken extends AbstractHandler {
 ```
 
 ### Phase 3: Refactor PromptManager
-**Goal**: Use handler properties directly in existing Laravel form() structure
+**Goal**: Use handler properties with args() helper function in existing Laravel form() structure
 
-#### 3.1 Simplified PromptManager - Just Use Handler Properties
-```php
-class PromptManager {
-    // ... existing properties and constructor ...
-    
-    public function prompt(): void {
-        // Same Laravel form() as before, just get properties from handlers
-        $responses = form()
-            ->intro('General information')
-            
-            ->add(fn($r, $pr, $n): string => text(
-                label: $this->label($this->handlers[Name::id()]->getLabel()),
-                hint: $this->handlers[Name::id()]->getHint(),
-                placeholder: $this->handlers[Name::id()]->getPlaceholder(),
-                required: $this->handlers[Name::id()]->getRequired(),
-                default: $this->default($n, $this->handlers[Name::id()]->getDefault()),
-                transform: $this->handlers[Name::id()]->getTransform(),
-                validate: $this->handlers[Name::id()]->getValidate(),
-            ), Name::id())
-            
-            ->add(fn($r, $pr, $n): string => text(
-                label: $this->label($this->handlers[MachineName::id()]->getLabel()),
-                hint: $this->handlers[MachineName::id()]->getHint(),
-                placeholder: $this->handlers[MachineName::id()]->getPlaceholder(),
-                required: $this->handlers[MachineName::id()]->getRequired(),
-                default: $this->default($n, $this->handlers[MachineName::id()]->getDefault()),
-                transform: $this->handlers[MachineName::id()]->getTransform(),
-                validate: $this->handlers[MachineName::id()]->getValidate(),
-            ), MachineName::id())
-            
-            // ... more prompts using handler properties
-            
-            ->add(fn($r, $pr, $n): array => multiselect(
-                label: $this->label($this->handlers[Services::id()]->getLabel()),
-                hint: $this->handlers[Services::id()]->getHint(),
-                options: $this->handlers[Services::id()]->getOptions(),
-                default: $this->default($n, $this->handlers[Services::id()]->getDefault()),
-            ), Services::id())
-            
-            ->addIf(
-                fn($r): bool => $this->handlers[GithubToken::id()]->isConditional() && 
-                               $this->handlers[GithubToken::id()]->getCondition()($r),
-                fn($r, $pr, $n): string => password(
-                    label: $this->label($this->handlers[GithubToken::id()]->getLabel()),
-                    hint: $this->handlers[GithubToken::id()]->getHint(),
-                    placeholder: $this->handlers[GithubToken::id()]->getPlaceholder(),
-                    transform: $this->handlers[GithubToken::id()]->getTransform(),
-                    validate: $this->handlers[GithubToken::id()]->getValidate(),
-                ), GithubToken::id()
-            )
-            
-            ->submit();
-            
-        $this->responses = $responses;
-        $this->processResponses();
-    }
-}
-```
-
-#### 3.2 Even Cleaner - Helper Method
+#### 3.1 Final PromptManager Implementation
 ```php
 class PromptManager {
     public function prompt(): void {
         $responses = form()
             ->intro('General information')
             
-            ->add(fn($r, $pr, $n) => $this->textPrompt(Name::id(), $n), Name::id())
-            ->add(fn($r, $pr, $n) => $this->textPrompt(MachineName::id(), $n), MachineName::id())
-            ->add(fn($r, $pr, $n) => $this->textPrompt(Org::id(), $n), Org::id())
-            ->add(fn($r, $pr, $n) => $this->textPrompt(Domain::id(), $n), Domain::id())
+            ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class, $n)), Name::id())
+            ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, $n)), MachineName::id())
+            ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, $n)), Org::id())
+            ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, $n)), OrgMachineName::id())
+            ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, $n)), Domain::id())
             
             ->intro('Code repository')
             
-            ->add(fn($r, $pr, $n) => $this->selectPrompt(CodeProvider::id(), $n), CodeProvider::id())
+            ->add(fn($r, $pr, $n): mixed => select(...$this->args(CodeProvider::class, $n)), CodeProvider::id())
             
             ->addIf(
                 fn($r): bool => $this->handlers[GithubToken::id()]->getCondition()($r),
-                fn($r, $pr, $n) => $this->passwordPrompt(GithubToken::id(), $n),
+                fn($r, $pr, $n): string => password(...$this->args(GithubToken::class, $n)),
                 GithubToken::id()
             )
             
+            ->add(fn($r, $pr, $n): string => text(...$this->args(GithubRepo::class, $n)), GithubRepo::id())
+            
             ->intro('Services')
             
-            ->add(fn($r, $pr, $n) => $this->multiselectPrompt(Services::id(), $n), Services::id())
+            ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Services::class, $n)), Services::id())
+            
+            ->intro('Hosting')
+            
+            ->add(fn($r, $pr, $n): mixed => select(...$this->args(HostingProvider::class, $n)), HostingProvider::id())
+            
+            // Continue with all other prompts...
             
             ->submit();
             
@@ -297,52 +247,33 @@ class PromptManager {
         $this->processResponses();
     }
     
-    private function textPrompt(string $handlerId, string $n): string {
-        $handler = $this->handlers[$handlerId];
-        return text(
-            label: $this->label($handler->getLabel()),
-            hint: $handler->getHint(),
-            placeholder: $handler->getPlaceholder(),
-            required: $handler->getRequired(),
-            default: $this->default($n, $handler->getDefault()),
-            transform: $handler->getTransform(),
-            validate: $handler->getValidate(),
-        );
-    }
-    
-    private function selectPrompt(string $handlerId, string $n): mixed {
-        $handler = $this->handlers[$handlerId];
-        return select(
-            label: $this->label($handler->getLabel()),
-            hint: $handler->getHint(),
-            options: $handler->getOptions(),
-            required: $handler->getRequired(),
-            default: $this->default($n, $handler->getDefault()),
-        );
-    }
-    
-    private function passwordPrompt(string $handlerId, string $n): string {
-        $handler = $this->handlers[$handlerId];
-        return password(
-            label: $this->label($handler->getLabel()),
-            hint: $handler->getHint(),
-            placeholder: $handler->getPlaceholder(),
-            transform: $handler->getTransform(),
-            validate: $handler->getValidate(),
-        );
-    }
-    
-    private function multiselectPrompt(string $handlerId, string $n): array {
-        $handler = $this->handlers[$handlerId];
-        return multiselect(
-            label: $this->label($handler->getLabel()),
-            hint: $handler->getHint(),
-            options: $handler->getOptions(),
-            default: $this->default($n, $handler->getDefault()),
-        );
+    /**
+     * Helper function that converts handler properties to Laravel prompt arguments
+     */
+    private function args(string $handlerClass, string $n): array {
+        $handler = $this->handlers[$handlerClass::id()];
+        
+        return array_filter([
+            'label' => $this->label($handler->getLabel()),
+            'hint' => $handler->getHint(),
+            'placeholder' => $handler->getPlaceholder(),
+            'required' => $handler->getRequired(),
+            'default' => $this->default($n, $handler->getDefault()),
+            'transform' => $handler->getTransform(),
+            'validate' => $handler->getValidate(),
+            'options' => $handler->getOptions(), // For select/multiselect (ignored by text/password)
+        ], fn($value) => $value !== null);
     }
 }
 ```
+
+#### 3.2 Key Benefits of This Approach
+- **Clean Syntax**: `text(...$this->args(Name::class, $n))` is readable and concise
+- **Explicit UI Choice**: PromptManager explicitly chooses `text` vs `select` vs `multiselect`
+- **No Boilerplate**: The `args()` helper eliminates repetitive property mapping
+- **Handler Agnostic**: Handlers just provide properties, no UI knowledge
+- **Laravel Native**: Uses pure Laravel prompt functions with magical argument population
+- **Minimal Magic**: Only one helper function, everything else is explicit
 
 ### Phase 4: Future Extensibility (Optional)
 **Goal**: Make it easy to add different UI providers later
@@ -424,9 +355,9 @@ class GithubToken extends AbstractHandler {
 5. **Update Handler Tests**: Verify each handler's property methods work correctly
 
 ### Phase 3: PromptManager Refactoring (Week 3-4)
-1. **Refactor prompt() Method**: Replace inline configuration with handler property calls
-2. **Add Helper Methods**: Create textPrompt(), selectPrompt(), multiselectPrompt() etc.
-3. **Maintain Existing Structure**: Keep same Laravel form() flow, just get values from handlers
+1. **Create args() Helper Method**: Single function to convert handler properties to Laravel prompt arguments
+2. **Refactor prompt() Method**: Replace inline configuration with `text(...$this->args(Handler::class, $n))`
+3. **Maintain Existing Structure**: Keep same Laravel form() flow, just use args() helper
 4. **Handle Conditionals**: Use handler isConditional() and getCondition() methods
 5. **Maintain Progress Logic**: Ensure (1/21) style progress indicators still work
 
