@@ -33,7 +33,7 @@ interface HandlerInterface {
     public function process(): void;
     public function setResponses(array $responses): static;
     public function setWebroot(string $webroot): static;
-    
+
     // New prompt property methods - handlers provide values/callbacks
     public function getLabel(): string;
     public function getHint(): ?string;
@@ -42,11 +42,11 @@ interface HandlerInterface {
     public function getTransform(): ?callable;
     public function getValidate(): ?callable;
     public function getRequired(): bool;
-    
+
     // Optional methods for specific prompt types (return null if not applicable)
     public function getOptions(): ?array;        // For select/multiselect
     public function getIntro(): ?string;         // For section grouping
-    
+
     // Conditional logic
     public function isConditional(): bool;
     public function getCondition(): ?callable;
@@ -57,48 +57,48 @@ interface HandlerInterface {
 ```php
 abstract class AbstractHandler implements HandlerInterface {
     // Existing properties and methods...
-    
+
     // Default implementations - handlers override as needed
     public function getHint(): ?string {
         return null;
     }
-    
+
     public function getPlaceholder(): ?string {
         return null;
     }
-    
+
     public function getDefault(): mixed {
         return $this->discover(); // Use discovery as default
     }
-    
+
     public function getTransform(): ?callable {
         return null;
     }
-    
+
     public function getValidate(): ?callable {
         return null;
     }
-    
+
     public function getRequired(): bool {
         return false;
     }
-    
+
     public function getOptions(): ?array {
         return null; // Only relevant for select/multiselect
     }
-    
+
     public function getIntro(): ?string {
         return null;
     }
-    
+
     public function isConditional(): bool {
         return false;
     }
-    
+
     public function getCondition(): ?callable {
         return null;
     }
-    
+
     // Abstract method that must be implemented
     abstract public function getLabel(): string;
 }
@@ -113,28 +113,28 @@ class Name extends AbstractHandler {
     public function getLabel(): string {
         return '🏷️ Site name';
     }
-    
+
     public function getHint(): ?string {
         return 'We will use this name in the project and in the documentation.';
     }
-    
+
     public function getPlaceholder(): ?string {
         return 'E.g. My Site';
     }
-    
+
     public function getRequired(): bool {
         return true;
     }
-    
+
     public function getTransform(): ?callable {
         return fn(string $v): string => trim($v);
     }
-    
+
     public function getValidate(): ?callable {
-        return fn($v): ?string => Converter::label($v) !== $v ? 
+        return fn($v): ?string => Converter::label($v) !== $v ?
             'Please enter a valid project name.' : null;
     }
-    
+
     // discover() and process() remain unchanged
 }
 ```
@@ -145,11 +145,11 @@ class Services extends AbstractHandler {
     public function getLabel(): string {
         return '🔌 Services';
     }
-    
+
     public function getHint(): ?string {
         return 'Select the services you want to use in the project.';
     }
-    
+
     public function getOptions(): ?array {
         return [
             self::CLAMAV => '🦠 ClamAV',
@@ -157,11 +157,11 @@ class Services extends AbstractHandler {
             self::VALKEY => '🗃️ Valkey',
         ];
     }
-    
+
     public function getDefault(): mixed {
         return $this->discover() ?? [self::CLAMAV, self::SOLR, self::VALKEY];
     }
-    
+
     // discover() and process() remain unchanged
 }
 ```
@@ -172,33 +172,33 @@ class GithubToken extends AbstractHandler {
     public function isConditional(): bool {
         return true;
     }
-    
+
     public function getCondition(): callable {
-        return fn(array $responses): bool => 
+        return fn(array $responses): bool =>
             $responses[CodeProvider::id()] === CodeProvider::GITHUB;
     }
-    
+
     public function getLabel(): string {
         return '🔑 GitHub access token (optional)';
     }
-    
+
     public function getHint(): ?string {
         return 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new';
     }
-    
+
     public function getPlaceholder(): ?string {
         return 'E.g. ghp_1234567890';
     }
-    
+
     public function getTransform(): ?callable {
         return fn(string $v): string => trim($v);
     }
-    
+
     public function getValidate(): ?callable {
-        return fn($v): ?string => !empty($v) && !str_starts_with($v, 'ghp_') ? 
+        return fn($v): ?string => !empty($v) && !str_starts_with($v, 'ghp_') ?
             'Please enter a valid token starting with "ghp_"' : null;
     }
-    
+
     // discover() and process() remain unchanged
 }
 ```
@@ -212,47 +212,47 @@ class PromptManager {
     public function prompt(): void {
         $responses = form()
             ->intro('General information')
-            
+
             ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class, $n)), Name::id())
             ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, $n)), MachineName::id())
             ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, $n)), Org::id())
             ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, $n)), OrgMachineName::id())
             ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, $n)), Domain::id())
-            
+
             ->intro('Code repository')
-            
+
             ->add(fn($r, $pr, $n): mixed => select(...$this->args(CodeProvider::class, $n)), CodeProvider::id())
-            
+
             ->addIf(
                 fn($r): bool => $this->handlers[GithubToken::id()]->getCondition()($r),
                 fn($r, $pr, $n): string => password(...$this->args(GithubToken::class, $n)),
                 GithubToken::id()
             )
-            
+
             ->add(fn($r, $pr, $n): string => text(...$this->args(GithubRepo::class, $n)), GithubRepo::id())
-            
+
             ->intro('Services')
-            
+
             ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Services::class, $n)), Services::id())
-            
+
             ->intro('Hosting')
-            
+
             ->add(fn($r, $pr, $n): mixed => select(...$this->args(HostingProvider::class, $n)), HostingProvider::id())
-            
+
             // Continue with all other prompts...
-            
+
             ->submit();
-            
+
         $this->responses = $responses;
         $this->processResponses();
     }
-    
+
     /**
      * Helper function that converts handler properties to Laravel prompt arguments
      */
     private function args(string $handlerClass, string $n): array {
         $handler = $this->handlers[$handlerClass::id()];
-        
+
         return array_filter([
             'label' => $this->label($handler->getLabel()),
             'hint' => $handler->getHint(),
@@ -306,9 +306,8 @@ class PromptManager {
 1. **Unit Tests**: Complete test coverage for all new property methods
 2. **Integration Tests**: Test full prompt flow with new architecture
 3. **Mock Updates**: Update test mocks to support new handler property methods
-4. **Fixture Updates**: Use `composer test-fixtures` / `UPDATE_FIXTURES=1` to regenerate any changed outputs
-5. **Manual Testing**: Run installer with various configurations to ensure behavior is identical
-6. **Test Count Verification**: Ensure 298+ tests still pass
+4. **Manual Testing**: Run installer with various configurations to ensure behavior is identical
+5. **Test Count Verification**: Ensure 298+ tests still pass
 
 ### Phase 5: Cleanup (Week 5)
 1. **Remove Dead Code**: Clean up old inline prompt definitions
