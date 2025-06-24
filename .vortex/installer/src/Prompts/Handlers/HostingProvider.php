@@ -77,7 +77,40 @@ class HostingProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: HostingProvider';
+    return '☁️ Hosting provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOptions(): ?array {
+    return [
+      self::ACQUIA => '💧 Acquia Cloud',
+      self::LAGOON => '🌊 Lagoon',
+      self::OTHER => '🧩 Other',
+      self::NONE => '🚫 None',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRequired(): bool {
+    return true;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefault(): mixed {
+    return $this->discover() ?? 'none';
   }
 
 }

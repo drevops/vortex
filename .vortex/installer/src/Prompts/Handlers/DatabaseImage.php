@@ -6,6 +6,7 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Validator;
 
 class DatabaseImage extends AbstractHandler {
 
@@ -34,7 +35,50 @@ class DatabaseImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: DatabaseImage';
+    return '🏷️ What is your database container image name and a tag?';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'Use "latest" tag for the latest version. CI will be building this image overnight.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTransform(): ?callable {
+    return fn($v): string => trim($v);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getValidate(): ?callable {
+    return fn($v): ?string => Validator::containerImage($v) ? null : 'Please enter a valid container image name with an optional tag.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isConditional(): bool {
+    return true;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCondition(): ?callable {
+    return fn(array $responses): bool => $responses[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPlaceholder(): ?string {
+    // This will be dynamically set based on responses in PromptManager
+    return null;
   }
 
 }

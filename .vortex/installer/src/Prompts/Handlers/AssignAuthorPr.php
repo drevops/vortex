@@ -26,7 +26,21 @@ class AssignAuthorPr extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: AssignAuthorPr';
+    return '👤 Auto-assign the author to their PR?';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'Helps to keep the PRs organized.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefault(): mixed {
+    return $this->discover() ?? true;
   }
 
 }

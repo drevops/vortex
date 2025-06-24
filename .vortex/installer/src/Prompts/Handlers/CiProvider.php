@@ -84,7 +84,21 @@ class CiProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: CiProvider';
+    return '🔄 Continuous Integration provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'Both providers support equivalent workflow.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefault(): mixed {
+    return $this->discover() ?? self::GITHUB_ACTIONS;
   }
 
 }

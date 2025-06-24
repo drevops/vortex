@@ -54,7 +54,42 @@ class ModulePrefix extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: ModulePrefix';
+    return '🧩 Module prefix';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'We will use this name for custom modules.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPlaceholder(): ?string {
+    return 'E.g. ms (for My Site)';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRequired(): bool {
+    return true;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTransform(): ?callable {
+    return fn(string $v): string => trim($v);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getValidate(): ?callable {
+    return fn($v): ?string => Converter::machine($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : null;
   }
 
 }

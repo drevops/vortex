@@ -28,7 +28,21 @@ class LabelMergeConflictsPr extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: LabelMergeConflictsPr';
+    return '🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur?';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'Helps to keep quickly identify PRs that need attention.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefault(): mixed {
+    return $this->discover() ?? true;
   }
 
 }

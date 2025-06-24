@@ -41,7 +41,31 @@ class AiCodeInstructions extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: AiCodeInstructions';
+    return '🤖 AI code assistant instructions';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'Helps AI coding assistants to understand the project better.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOptions(): ?array {
+    return [
+      self::CLAUDE => 'Anthropic Claude',
+      self::NONE => 'None',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefault(): mixed {
+    return $this->discover() ?? self::NONE;
   }
 
 }

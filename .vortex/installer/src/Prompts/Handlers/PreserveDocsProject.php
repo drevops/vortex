@@ -34,7 +34,21 @@ class PreserveDocsProject extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: PreserveDocsProject';
+    return '📚 Preserve project documentation?';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'Helps to maintain the project documentation within the repository.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefault(): mixed {
+    return $this->discover() ?? true;
   }
 
 }

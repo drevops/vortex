@@ -113,67 +113,19 @@ class PromptManager {
     $responses = form()
       ->intro('General information')
 
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label($this->handlers[Name::id()]->getLabel()),
-        hint: $this->handlers[Name::id()]->getHint(),
-        placeholder: $this->handlers[Name::id()]->getPlaceholder(),
-        required: $this->handlers[Name::id()]->getRequired(),
-        default: $this->default($n, $this->handlers[Name::id()]->getDefault() ?? ''),
-        transform: $this->handlers[Name::id()]->getTransform(),
-        validate: $this->handlers[Name::id()]->getValidate(),
-      ), Name::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class, $n)), Name::id())
 
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label($this->handlers[MachineName::id()]->getLabel()),
-        hint: $this->handlers[MachineName::id()]->getHint(),
-        placeholder: $this->handlers[MachineName::id()]->getPlaceholder(),
-        required: $this->handlers[MachineName::id()]->getRequired(),
-        default: $this->default($n, Converter::machineExtended($r[Name::id()])),
-        transform: $this->handlers[MachineName::id()]->getTransform(),
-        validate: $this->handlers[MachineName::id()]->getValidate(),
-      ), MachineName::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, $n, Converter::machineExtended($r[Name::id()]))), MachineName::id())
 
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🏢 Organization name'),
-        hint: 'We will use this name in the project and in the documentation.',
-        placeholder: 'E.g. My Org',
-        required: TRUE,
-        default: $this->default('org', Converter::label($r[Name::id()]) . ' Org'),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::label($v) !== $v ? 'Please enter a valid organization name.' : NULL,
-      ), Org::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, 'org', Converter::label($r[Name::id()]) . ' Org')), Org::id())
 
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🏢 Organization machine name'),
-        hint: 'We will use this name for the project directory and in the code.',
-        placeholder: 'E.g. my_org',
-        required: TRUE,
-        default: $this->default($n, Converter::machineExtended($r[Org::id()])),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), OrgMachineName::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, $n, Converter::machineExtended($r[Org::id()]))), OrgMachineName::id())
 
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🌐 Public domain'),
-        hint: 'Domain name without protocol and trailing slash.',
-        placeholder: 'E.g. example.com',
-        required: TRUE,
-        default: $this->default($n, Converter::kebab($r[MachineName::id()]) . '.com'),
-        transform: fn(string $v): string => Converter::domain($v),
-        validate: fn($v): ?string => Validator::domain($v) ? NULL : 'Please enter a valid domain name.',
-      ), Domain::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, $n, Converter::kebab($r[MachineName::id()]) . '.com')), Domain::id())
 
       ->intro('Code repository')
 
-      ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('🗄️ Repository provider'),
-        hint: 'Vortex offers full automation with GitHub, while support for other providers is limited.',
-        options: [
-          CodeProvider::GITHUB => 'GitHub',
-          CodeProvider::OTHER => 'Other',
-        ],
-        default: $this->default($n, 'github'),
-      ), CodeProvider::id())
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class, $n)), CodeProvider::id())
 
       ->addIf(
           fn($r): bool => $r[CodeProvider::id()] === CodeProvider::GITHUB,
@@ -183,32 +135,25 @@ class PromptManager {
       ->addIf(
           fn($r): bool => $r[CodeProvider::id()] === CodeProvider::GITHUB,
           function ($r, $pr, $n): string {
+            $handler = $this->handlers[GithubToken::id()];
             $value = $this->default($n);
             if (!empty($value)) {
-              Tui::ok($this->label('GitHub access token is already set in the environment.', 'a'));
+              Tui::ok($this->label($handler->getLabel(), 'a'));
 
               return $value;
             }
 
-            return password(
-              label: $this->label('🔑 GitHub access token (optional)', 'a'),
-              hint: Env::get('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new',
-              placeholder: 'E.g. ghp_1234567890',
-              transform: fn(string $v): string => trim($v),
-              validate: fn($v): ?string => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL,
-            );
+            return password(...$this->args(GithubToken::class, $n));
           }, GithubToken::id())
 
         ->addIf(
             fn($r): bool => !empty($r[GithubToken::id()]),
-            fn($r, $pr, $n): string => text(
-              label: $this->label('🏷️ What is your GitHub project name?', 'b'),
-              hint: 'We will use this name to create new or find an existing repository.',
-              placeholder: 'E.g. myorg/myproject',
-              default: $this->default($n, $r[OrgMachineName::id()] . '/' . $r[MachineName::id()]),
-              transform: fn(string $v): string => trim($v),
-              validate: fn(string $v): ?string => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : NULL,
-            ), GithubRepo::id())
+            function ($r, $pr, $n): string {
+              $args = $this->args(GithubRepo::class, $n, $r[OrgMachineName::id()] . '/' . $r[MachineName::id()]);
+              $args['label'] = $this->label($this->handlers[GithubRepo::id()]->getLabel(), 'b');
+              return text(...$args);
+            },
+            GithubRepo::id())
 
       ->intro('Drupal')
 
@@ -240,52 +185,17 @@ class PromptManager {
           return $profile;
       }, Profile::id())
 
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🧩 Module prefix'),
-        hint: 'We will use this name for custom modules.',
-        placeholder: 'E.g. ms (for My Site)',
-        required: TRUE,
-        default: $this->default($n, Converter::abbreviation(Converter::machine($r[MachineName::id()]), 4, ['_'])),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::machine($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), ModulePrefix::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, $n, Converter::abbreviation(Converter::machine($r[MachineName::id()]), 4, ['_']))), ModulePrefix::id())
 
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🎨 Theme machine name'),
-        hint: 'We will use this name for the theme directory. Leave empty to skip the theme scaffold.',
-        placeholder: 'E.g. mytheme',
-        default: $this->default($n, Converter::machine($r[MachineName::id()])),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), Theme::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, $n, Converter::machine($r[MachineName::id()]))), Theme::id())
 
       ->intro('Services')
 
-      ->add(fn($r, $pr, $n): array => multiselect(
-        label: $this->label('🔌 Services'),
-        hint: 'Select the services you want to use in the project.',
-        options: [
-          Services::CLAMAV => '🦠 ClamAV',
-          Services::SOLR => '🔍 Solr',
-          Services::VALKEY => '🗃️ Valkey',
-        ],
-        default: $this->default($n, [Services::CLAMAV, Services::SOLR, Services::VALKEY]),
-      ), Services::id())
+      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Services::class, $n)), Services::id())
 
       ->intro('Hosting')
 
-      ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('☁️ Hosting provider'),
-        hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
-        options: [
-          HostingProvider::ACQUIA => '💧 Acquia Cloud',
-          HostingProvider::LAGOON => '🌊 Lagoon',
-          HostingProvider::OTHER => '🧩 Other',
-          HostingProvider::NONE => '🚫 None',
-        ],
-        required: TRUE,
-        default: $this->default($n, 'none'),
-      ), HostingProvider::id())
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class, $n)), HostingProvider::id())
 
       ->add(function (array $r, $pr, $n): string|bool|array {
         if ($r[HostingProvider::id()] !== HostingProvider::OTHER) {
@@ -348,15 +258,7 @@ class PromptManager {
 
       ->add(fn($r, $pr, $n) => Tui::note('<info>Provisioning</info> is the process of setting up the site in the environment with an already assembled codebase.'))
 
-      ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('🦋 Provision type'),
-        hint: 'Selecting "Profile" will install site from a profile rather than a database dump.',
-        options: [
-          ProvisionType::DATABASE => 'Import from database dump',
-          ProvisionType::PROFILE => 'Install from profile',
-        ],
-        default: $this->default($n, ProvisionType::DATABASE),
-      ), ProvisionType::id())
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class, $n)), ProvisionType::id())
 
       ->add(function (array $r, $pr, $n): int|string {
           if ($r[ProvisionType::id()] === ProvisionType::PROFILE) {
@@ -394,14 +296,13 @@ class PromptManager {
 
       ->addIf(
           fn($r): bool => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
-          fn($r, $pr, $n): string => text(
-            label: $this->label('🏷️ What is your database container image name and a tag?', 'a'),
-            hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
-            placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
-            default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
-            transform: fn($v): string => trim($v),
-            validate: fn($v): ?string => Validator::containerImage($v) ? NULL : 'Please enter a valid container image name with an optional tag.',
-        ), DatabaseImage::id())
+          function ($r, $pr, $n): string {
+            $args = $this->args(DatabaseImage::class, $n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])));
+            $args['label'] = $this->label($this->handlers[DatabaseImage::id()]->getLabel(), 'a');
+            $args['placeholder'] = sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]));
+            return text(...$args);
+          },
+          DatabaseImage::id())
 
       ->intro('Continuous Integration')
 
@@ -426,54 +327,21 @@ class PromptManager {
 
       ->intro('Automations')
 
-      ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('⬆️ Dependency updates provider'),
-        hint: 'Use a self-hosted service if you can’t install a GitHub app.',
-        options: [
-          DependencyUpdatesProvider::RENOVATEBOT_CI  => '🤖 +  🔄 Renovate self-hosted in CI',
-          DependencyUpdatesProvider::RENOVATEBOT_APP => '🤖 Renovate GitHub app',
-          DependencyUpdatesProvider::NONE => '🚫 None',
-        ],
-        default: $this->default($n, DependencyUpdatesProvider::RENOVATEBOT_CI),
-      ), DependencyUpdatesProvider::id())
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(DependencyUpdatesProvider::class, $n)), DependencyUpdatesProvider::id())
 
-      ->add(fn($r, $pr, $n): bool => confirm(
-        label: $this->label('👤 Auto-assign the author to their PR?'),
-        hint: 'Helps to keep the PRs organized.',
-        default: $this->default($n, TRUE),
-      ), AssignAuthorPr::id())
+      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(AssignAuthorPr::class, $n)), AssignAuthorPr::id())
 
-      ->add(fn($r, $pr, $n): bool => confirm(
-        label: $this->label('🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur?'),
-        hint: 'Helps to keep quickly identify PRs that need attention.',
-        default: $this->default($n, TRUE),
-      ), LabelMergeConflictsPr::id())
+      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(LabelMergeConflictsPr::class, $n)), LabelMergeConflictsPr::id())
 
       ->intro('Documentation')
 
-      ->add(fn($r, $pr, $n): bool => confirm(
-        label: $this->label('📚 Preserve project documentation?'),
-        hint: 'Helps to maintain the project documentation within the repository.',
-        default: $this->default($n, TRUE),
-      ), PreserveDocsProject::id())
+      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsProject::class, $n)), PreserveDocsProject::id())
 
-      ->add(fn($r, $pr, $n): bool => confirm(
-        label: $this->label('📋 Preserve onboarding checklist?'),
-        hint: 'Helps to track onboarding to Vortex within the repository.',
-        default: $this->default($n, TRUE),
-      ), PreserveDocsOnboarding::id())
+      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsOnboarding::class, $n)), PreserveDocsOnboarding::id())
 
       ->intro('AI')
 
-      ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('🤖 AI code assistant instructions'),
-        hint: 'Helps AI coding assistants to understand the project better.',
-        options: [
-          AiCodeInstructions::CLAUDE  => 'Anthropic Claude',
-          AiCodeInstructions::NONE => 'None',
-        ],
-        default: $this->default($n, AiCodeInstructions::NONE),
-      ), AiCodeInstructions::id())
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(AiCodeInstructions::class, $n)), AiCodeInstructions::id())
 
       ->submit();
 
@@ -735,24 +603,35 @@ class PromptManager {
    *   The handler class name.
    * @param string $n
    *   The prompt name/key for default handling.
+   * @param mixed $defaultOverride
+   *   Optional override for the default value (for response dependencies).
    *
    * @return array
    *   Array of prompt arguments suitable for Laravel prompts.
    */
-  private function args(string $handlerClass, string $n): array {
+  private function args(string $handlerClass, string $n, mixed $defaultOverride = null): array {
     $handler = $this->handlers[$handlerClass::id()];
-    $handlerDefault = $handler->getDefault();
+    
+    // Use override if provided, otherwise use handler's default
+    $defaultValue = $defaultOverride !== null ? $defaultOverride : $handler->getDefault();
 
-    return array_filter([
+    $args = [
       'label' => $this->label($handler->getLabel()),
       'hint' => $handler->getHint(),
       'placeholder' => $handler->getPlaceholder(),
-      'required' => $handler->getRequired(),
-      'default' => $this->default($n, $handlerDefault ?? ''),
+      'default' => $this->default($n, $defaultValue ?? ''),
       'transform' => $handler->getTransform(),
       'validate' => $handler->getValidate(),
       'options' => $handler->getOptions(), // For select/multiselect (ignored by text/password)
-    ], fn($value) => $value !== null);
+    ];
+
+    // Only include 'required' if it's true (Laravel prompts expects true or omit it)
+    if ($handler->getRequired()) {
+      $args['required'] = true;
+    }
+
+    // Filter out null values
+    return array_filter($args, fn($value) => $value !== null);
   }
 
 }

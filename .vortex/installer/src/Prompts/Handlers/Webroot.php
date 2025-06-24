@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 use DrevOps\VortexInstaller\Utils\Composer;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Validator;
 
 class Webroot extends AbstractHandler {
 
@@ -60,7 +61,49 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function getLabel(): string {
-    return 'TODO: Webroot';
+    return '📁 Custom web root directory';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHint(): ?string {
+    return 'Custom directory where the web server serves the site.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPlaceholder(): ?string {
+    return 'E.g. ' . implode(', ', [self::WEB, self::DOCROOT]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRequired(): bool {
+    return true;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTransform(): ?callable {
+    return fn(string $v): string => rtrim($v, DIRECTORY_SEPARATOR);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getValidate(): ?callable {
+    return fn($v): ?string => Validator::dirname($v) ? null : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefault(): mixed {
+    return $this->discover() ?? self::WEB;
   }
 
 }
