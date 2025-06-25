@@ -15,11 +15,11 @@ export class FormInteractions {
   // Handle auto-generation based on data-auto-generate attributes
   setupAutoGeneration() {
     const autoFields = document.querySelectorAll('[data-auto-generate]');
-    
+
     autoFields.forEach(field => {
       // Mark field as auto-generated
       field.classList.add('auto-generated');
-      
+
       // Add readonly if specified
       if (field.hasAttribute('data-readonly')) {
         field.readOnly = true;
@@ -28,7 +28,7 @@ export class FormInteractions {
     });
 
     // Setup listeners for fields that trigger auto-generation
-    document.addEventListener('input', (event) => {
+    document.addEventListener('input', event => {
       const field = event.target;
       if (field.hasAttribute('data-triggers')) {
         this.handleAutoGeneration(field);
@@ -69,12 +69,12 @@ export class FormInteractions {
     if (machineNameField) {
       const machineName = this.toMachineName(siteName);
       machineNameField.value = machineName;
-      
+
       // Trigger validation
       if (window.validateField) {
         window.validateField('site-machine-name', machineName);
       }
-      
+
       // Trigger other dependent generations
       this.generateModulePrefix();
       this.generateDomain();
@@ -84,16 +84,16 @@ export class FormInteractions {
   generateOrgMachineName() {
     const orgNameField = document.getElementById('org-name');
     const orgMachineNameField = document.getElementById('org-machine-name');
-    
+
     if (orgNameField && orgMachineNameField) {
       const orgMachineName = this.toMachineName(orgNameField.value);
       orgMachineNameField.value = orgMachineName;
-      
+
       // Trigger validation
       if (window.validateField) {
         window.validateField('org-machine-name', orgMachineName);
       }
-      
+
       // Trigger dependent generations
       this.generateGitHubRepo();
       this.generateContainerImage();
@@ -103,11 +103,11 @@ export class FormInteractions {
   generateModulePrefix() {
     const siteMachineNameField = document.getElementById('site-machine-name');
     const modulePrefixField = document.getElementById('module-prefix');
-    
+
     if (siteMachineNameField && modulePrefixField) {
       const prefix = this.toAbbreviation(siteMachineNameField.value, 4);
       modulePrefixField.value = prefix;
-      
+
       // Trigger validation
       if (window.validateField) {
         window.validateField('module-prefix', prefix);
@@ -118,11 +118,11 @@ export class FormInteractions {
   generateDomain() {
     const siteMachineNameField = document.getElementById('site-machine-name');
     const domainField = document.getElementById('public-domain');
-    
+
     if (siteMachineNameField && domainField && siteMachineNameField.value) {
       const domain = this.toKebabCase(siteMachineNameField.value) + '.com';
       domainField.value = domain;
-      
+
       // Trigger validation
       if (window.validateField) {
         window.validateField('public-domain', domain);
@@ -134,15 +134,15 @@ export class FormInteractions {
     const orgMachineNameField = document.getElementById('org-machine-name');
     const siteMachineNameField = document.getElementById('site-machine-name');
     const repoField = document.getElementById('github-repository');
-    
+
     if (orgMachineNameField && siteMachineNameField && repoField) {
       const orgName = orgMachineNameField.value;
       const siteName = siteMachineNameField.value;
-      
+
       if (orgName && siteName) {
         const repo = `${orgName}/${siteName}`;
         repoField.value = repo;
-        
+
         // Trigger validation
         if (window.validateField) {
           window.validateField('github-repository', repo);
@@ -155,15 +155,15 @@ export class FormInteractions {
     const orgMachineNameField = document.getElementById('org-machine-name');
     const siteMachineNameField = document.getElementById('site-machine-name');
     const imageField = document.getElementById('database-container-image');
-    
+
     if (orgMachineNameField && siteMachineNameField && imageField) {
       const orgName = orgMachineNameField.value;
       const siteName = siteMachineNameField.value;
-      
+
       if (orgName && siteName) {
         const image = `${orgName}/${siteName}-data:latest`;
         imageField.value = image;
-        
+
         // Trigger validation
         if (window.validateField) {
           window.validateField('database-container-image', image);
@@ -175,17 +175,17 @@ export class FormInteractions {
   // Setup conditional field visibility based on data-conditional attributes
   setupConditionalFields() {
     const conditionalFields = document.querySelectorAll('[data-conditional]');
-    
+
     conditionalFields.forEach(field => {
       const condition = field.getAttribute('data-conditional');
       this.updateConditionalField(field, condition);
     });
 
     // Listen for changes that might affect conditional fields
-    document.addEventListener('change', (event) => {
+    document.addEventListener('change', event => {
       const changedField = event.target;
       const fieldId = changedField.id;
-      
+
       // Check all conditional fields to see if they depend on this field
       conditionalFields.forEach(field => {
         const condition = field.getAttribute('data-conditional');
@@ -200,11 +200,13 @@ export class FormInteractions {
     // Parse condition like "hostingProvider=acquia" or "field-id=value"
     const [sourceFieldId, expectedValue] = condition.split('=');
     const sourceField = document.getElementById(sourceFieldId);
-    
+
     if (sourceField) {
-      const currentValue = sourceField.value || (sourceField.type === 'checkbox' ? sourceField.checked : '');
+      const currentValue =
+        sourceField.value ||
+        (sourceField.type === 'checkbox' ? sourceField.checked : '');
       const shouldShow = currentValue.toString() === expectedValue;
-      
+
       if (shouldShow) {
         field.style.display = '';
         field.classList.add('active');
@@ -218,21 +220,29 @@ export class FormInteractions {
   // Setup field relationships based on data-updates attributes
   setupFieldRelationships() {
     // Handle hosting provider changes affecting web root
-    const hostingFields = document.querySelectorAll('[data-updates*="web-root"]');
+    const hostingFields = document.querySelectorAll(
+      '[data-updates*="web-root"]'
+    );
     hostingFields.forEach(field => {
       field.addEventListener('change', () => this.updateWebRoot(field.value));
     });
 
     // Handle provision type changes affecting database source
-    const provisionFields = document.querySelectorAll('[data-updates*="database-source"]');
+    const provisionFields = document.querySelectorAll(
+      '[data-updates*="database-source"]'
+    );
     provisionFields.forEach(field => {
-      field.addEventListener('change', () => this.updateDatabaseSource(field.value));
+      field.addEventListener('change', () =>
+        this.updateDatabaseSource(field.value)
+      );
     });
   }
 
   updateWebRoot(hostingProvider) {
     const webRootField = document.getElementById('web-root-directory');
-    if (!webRootField) return;
+    if (!webRootField) {
+      return;
+    }
 
     let webRoot;
     switch (hostingProvider) {
@@ -258,7 +268,7 @@ export class FormInteractions {
     }
 
     webRootField.value = webRoot;
-    
+
     // Trigger validation
     if (window.validateField) {
       window.validateField('web-root-directory', webRoot);
@@ -267,11 +277,13 @@ export class FormInteractions {
 
   updateDatabaseSource(provisionType) {
     const dbSourceField = document.getElementById('database-source');
-    if (!dbSourceField) return;
+    if (!dbSourceField) {
+      return;
+    }
 
     if (provisionType === 'profile_install') {
       dbSourceField.value = 'none';
-      
+
       // Trigger validation
       if (window.validateField) {
         window.validateField('database-source', 'none');

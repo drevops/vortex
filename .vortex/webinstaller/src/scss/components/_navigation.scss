@@ -9,7 +9,8 @@
 }
 
 .nav-button {
-  padding: calc(0.75rem * var(--scale-factor)) calc(1.5rem * var(--scale-factor));
+  padding: calc(0.75rem * var(--scale-factor))
+    calc(1.5rem * var(--scale-factor));
   border: 2px solid variables.$primary;
   border-radius: 8px;
   background: variables.$primary;
@@ -27,7 +28,8 @@
     box-shadow: 0 4px 12px rgb(variables.$primary, 0.3);
   }
 
-  &:disabled, &.disabled {
+  &:disabled,
+  &.disabled {
     background: variables.$gray-300;
     border-color: variables.$gray-300;
     color: variables.$gray-500;
@@ -44,7 +46,8 @@
       background: variables.$gray-50;
     }
 
-    &:disabled, &.disabled {
+    &:disabled,
+    &.disabled {
       background: variables.$gray-100;
       border-color: variables.$gray-300;
       color: variables.$gray-400;

@@ -15,7 +15,7 @@ export function validateSiteName(value, Joi) {
       'string.empty': 'Site name is required',
       'any.required': 'Site name is required',
       'string.min': 'Site name must be at least 2 characters',
-      'string.max': 'Site name must not exceed 100 characters'
+      'string.max': 'Site name must not exceed 100 characters',
     })
     .validate(value);
 }
@@ -33,9 +33,10 @@ export function validateSiteMachineName(value, Joi) {
     .messages({
       'string.empty': 'Site machine name is required',
       'any.required': 'Site machine name is required',
-      'string.pattern.base': 'No spaces allowed. Use only lowercase letters, numbers, and underscores',
+      'string.pattern.base':
+        'No spaces allowed. Use only lowercase letters, numbers, and underscores',
       'string.min': 'Site machine name must be at least 2 characters',
-      'string.max': 'Site machine name must not exceed 50 characters'
+      'string.max': 'Site machine name must not exceed 50 characters',
     })
     .validate(value);
 }
@@ -54,7 +55,7 @@ export function validateOrgName(value, Joi) {
       'string.empty': 'Organization name is required',
       'any.required': 'Organization name is required',
       'string.min': 'Organization name must be at least 2 characters',
-      'string.max': 'Organization name must not exceed 100 characters'
+      'string.max': 'Organization name must not exceed 100 characters',
     })
     .validate(value);
 }
@@ -72,9 +73,10 @@ export function validateOrgMachineName(value, Joi) {
     .messages({
       'string.empty': 'Organization machine name is required',
       'any.required': 'Organization machine name is required',
-      'string.pattern.base': 'No spaces allowed. Use only lowercase letters, numbers, and underscores',
+      'string.pattern.base':
+        'No spaces allowed. Use only lowercase letters, numbers, and underscores',
       'string.min': 'Organization machine name must be at least 2 characters',
-      'string.max': 'Organization machine name must not exceed 50 characters'
+      'string.max': 'Organization machine name must not exceed 50 characters',
     })
     .validate(value);
 }
@@ -86,9 +88,11 @@ export function validateOrgMachineName(value, Joi) {
 export function validatePublicDomain(value, Joi) {
   return Joi.string()
     .allow('')
-    .pattern(/^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])*$/)
+    .pattern(
+      /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])*$/
+    )
     .messages({
-      'string.pattern.base': 'Must be a valid domain name (e.g., example.com)'
+      'string.pattern.base': 'Must be a valid domain name (e.g., example.com)',
     })
     .validate(value);
 }
@@ -102,7 +106,8 @@ export function validateGitHubToken(value, Joi) {
     .allow('')
     .pattern(/^gh[ps]_[A-Za-z0-9_]{36,251}$/)
     .messages({
-      'string.pattern.base': 'Must be a valid GitHub token (starts with ghp_ or ghs_)'
+      'string.pattern.base':
+        'Must be a valid GitHub token (starts with ghp_ or ghs_)',
     })
     .validate(value);
 }
@@ -116,7 +121,7 @@ export function validateGitHubRepository(value, Joi) {
     .allow('')
     .pattern(/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/)
     .messages({
-      'string.pattern.base': 'Must be in format: username/repository'
+      'string.pattern.base': 'Must be in format: username/repository',
     })
     .validate(value);
 }
@@ -132,9 +137,10 @@ export function validateCustomProfileName(value, Joi) {
     .min(2)
     .max(50)
     .messages({
-      'string.pattern.base': 'Profile name must use only lowercase letters, numbers, and underscores',
+      'string.pattern.base':
+        'Profile name must use only lowercase letters, numbers, and underscores',
       'string.min': 'Profile name must be at least 2 characters',
-      'string.max': 'Profile name must not exceed 50 characters'
+      'string.max': 'Profile name must not exceed 50 characters',
     })
     .validate(value);
 }
@@ -150,9 +156,10 @@ export function validateModulePrefix(value, Joi) {
     .min(2)
     .max(10)
     .messages({
-      'string.pattern.base': 'Module prefix must use only lowercase letters, numbers, and underscores',
+      'string.pattern.base':
+        'Module prefix must use only lowercase letters, numbers, and underscores',
       'string.min': 'Module prefix must be at least 2 characters',
-      'string.max': 'Module prefix must not exceed 10 characters'
+      'string.max': 'Module prefix must not exceed 10 characters',
     })
     .validate(value);
 }
@@ -168,9 +175,10 @@ export function validateThemeMachineName(value, Joi) {
     .min(2)
     .max(50)
     .messages({
-      'string.pattern.base': 'Theme name must use only lowercase letters, numbers, and underscores',
+      'string.pattern.base':
+        'Theme name must use only lowercase letters, numbers, and underscores',
       'string.min': 'Theme name must be at least 2 characters',
-      'string.max': 'Theme name must not exceed 50 characters'
+      'string.max': 'Theme name must not exceed 50 characters',
     })
     .validate(value);
 }
@@ -188,9 +196,10 @@ export function validateWebRootDirectory(value, Joi) {
     .messages({
       'string.empty': 'Web root directory is required',
       'any.required': 'Web root directory is required',
-      'string.pattern.base': 'Directory name must use only letters, numbers, underscores, and hyphens',
+      'string.pattern.base':
+        'Directory name must use only letters, numbers, underscores, and hyphens',
       'string.min': 'Directory name must be at least 1 character',
-      'string.max': 'Directory name must not exceed 50 characters'
+      'string.max': 'Directory name must not exceed 50 characters',
     })
     .validate(value);
 }
@@ -204,7 +213,8 @@ export function validateDatabaseContainerImage(value, Joi) {
     .allow('')
     .pattern(/^[a-z0-9._/-]+:[a-z0-9._-]+$/i)
     .messages({
-      'string.pattern.base': 'Must be a valid Docker image format (e.g., org/image:tag)'
+      'string.pattern.base':
+        'Must be a valid Docker image format (e.g., org/image:tag)',
     })
     .validate(value);
 }
@@ -222,9 +232,10 @@ export function validateDatabaseName(value, Joi) {
     .messages({
       'string.empty': 'Database name is required',
       'any.required': 'Database name is required',
-      'string.pattern.base': 'Database name must use only letters, numbers, and underscores',
+      'string.pattern.base':
+        'Database name must use only letters, numbers, and underscores',
       'string.min': 'Database name must be at least 1 character',
-      'string.max': 'Database name must not exceed 64 characters'
+      'string.max': 'Database name must not exceed 64 characters',
     })
     .validate(value);
 }
@@ -244,7 +255,7 @@ export function validateDatabaseHost(value, Joi) {
       'any.required': 'Database host is required',
       'string.pattern.base': 'Host must be a valid hostname or service name',
       'string.min': 'Host must be at least 1 character',
-      'string.max': 'Host must not exceed 255 characters'
+      'string.max': 'Host must not exceed 255 characters',
     })
     .validate(value);
 }
@@ -264,7 +275,7 @@ export const VALIDATION_RULES = {
   'web-root-directory': validateWebRootDirectory,
   'database-container-image': validateDatabaseContainerImage,
   'database-name': validateDatabaseName,
-  'database-host': validateDatabaseHost
+  'database-host': validateDatabaseHost,
 };
 
 /**

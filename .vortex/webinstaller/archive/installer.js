@@ -191,7 +191,7 @@ window.switchTab = function (tabName) {
   document.getElementById(tabName + '-panel').style.display = 'block';
 
   currentTab = tabName;
-  
+
   // Update navigation buttons after tab switch
   setTimeout(() => {
     if (window.updateNavigationButtons) {
@@ -208,9 +208,13 @@ window.getCurrentTab = function () {
 // Check if tab is valid/complete
 window.isTabValid = function (tabName) {
   const panel = document.getElementById(tabName + '-panel');
-  if (!panel) {return false;}
+  if (!panel) {
+    return false;
+  }
 
-  const requiredFields = panel.querySelectorAll('[required], [data-validation*="required"]');
+  const requiredFields = panel.querySelectorAll(
+    '[required], [data-validation*="required"]'
+  );
   for (const field of requiredFields) {
     if (!field.value || field.classList.contains('invalid')) {
       return false;
@@ -221,8 +225,12 @@ window.isTabValid = function (tabName) {
 
 // Update tab status indicators
 window.updateTabStatus = function (tabName) {
-  const tabButton = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
-  if (!tabButton) {return;}
+  const tabButton = document.querySelector(
+    `[onclick="switchTab('${tabName}')"]`
+  );
+  if (!tabButton) {
+    return;
+  }
 
   let statusIndicator = tabButton.querySelector('.tab-status');
   if (!statusIndicator) {
@@ -233,7 +241,7 @@ window.updateTabStatus = function (tabName) {
   }
 
   const isValid = window.isTabValid(tabName);
-  
+
   if (isValid) {
     statusIndicator.classList.remove('invalid');
     statusIndicator.classList.add('valid');
@@ -247,7 +255,18 @@ window.updateTabStatus = function (tabName) {
 
 // Update all tab statuses
 window.updateAllTabStatuses = function () {
-  const tabs = ['general', 'repository', 'drupal', 'services', 'hosting', 'workflow', 'cicd', 'deployment', 'dependencies', 'database'];
+  const tabs = [
+    'general',
+    'repository',
+    'drupal',
+    'services',
+    'hosting',
+    'workflow',
+    'cicd',
+    'deployment',
+    'dependencies',
+    'database',
+  ];
   tabs.forEach(tab => {
     if (document.getElementById(tab + '-panel')) {
       window.updateTabStatus(tab);
@@ -261,21 +280,23 @@ window.updateAllTabStatuses = function () {
 
 window.validateField = function (fieldId, value) {
   const field = document.getElementById(fieldId);
-  if (!field) {return true;}
-  
+  if (!field) {
+    return true;
+  }
+
   let errorElement = document.getElementById(fieldId + '-error');
-  
+
   // Create error element if it doesn't exist
   if (!errorElement) {
     errorElement = document.createElement('div');
     errorElement.id = fieldId + '-error';
     errorElement.className = 'validation-error';
     errorElement.style.display = 'none';
-    
+
     // Insert error element after the field
     field.parentNode.insertBefore(errorElement, field.nextSibling);
   }
-  
+
   const validationRules = field.getAttribute('data-validation');
 
   if (!validationRules || !(window.Joi || window.joi)) {
@@ -294,28 +315,28 @@ window.validateField = function (fieldId, value) {
     field.classList.add('invalid');
     errorElement.textContent = result.error.details[0].message;
     errorElement.style.display = 'block';
-    
+
     // Update tab status
     const panel = field.closest('.tab-panel');
     if (panel && window.updateTabStatus) {
       const tabName = panel.id.replace('-panel', '');
       window.updateTabStatus(tabName);
     }
-    
+
     return false;
   } else {
     // Show success
     field.classList.remove('invalid');
     field.classList.add('valid');
     errorElement.style.display = 'none';
-    
+
     // Update tab status
     const panel = field.closest('.tab-panel');
     if (panel && window.updateTabStatus) {
       const tabName = panel.id.replace('-panel', '');
       window.updateTabStatus(tabName);
     }
-    
+
     return true;
   }
 };
@@ -395,8 +416,12 @@ window.validateAllFields = function () {
 
 // Validate current tab fields
 window.validateCurrentTabFields = function () {
-  const currentTabPanel = document.getElementById(window.getCurrentTab() + '-panel');
-  if (!currentTabPanel) {return true;}
+  const currentTabPanel = document.getElementById(
+    window.getCurrentTab() + '-panel'
+  );
+  if (!currentTabPanel) {
+    return true;
+  }
 
   const fields = currentTabPanel.querySelectorAll('[data-validation]');
   let allValid = true;
@@ -421,22 +446,26 @@ window.validateCurrentTabFields = function () {
 window.updateNavigationButtons = function () {
   const nextButton = document.querySelector('.next-button');
   const prevButton = document.querySelector('.prev-button');
-  
+
   if (nextButton) {
-    const isCurrentTabValid = window.validateCurrentTabFields ? window.validateCurrentTabFields() : true;
+    const isCurrentTabValid = window.validateCurrentTabFields
+      ? window.validateCurrentTabFields()
+      : true;
     nextButton.disabled = !isCurrentTabValid;
-    
+
     if (isCurrentTabValid) {
       nextButton.classList.remove('disabled');
     } else {
       nextButton.classList.add('disabled');
     }
   }
-  
+
   if (prevButton) {
-    const currentTab = window.getCurrentTab ? window.getCurrentTab() : 'general';
+    const currentTab = window.getCurrentTab
+      ? window.getCurrentTab()
+      : 'general';
     prevButton.disabled = currentTab === 'general';
-    
+
     if (currentTab === 'general') {
       prevButton.classList.add('disabled');
     } else {
@@ -447,10 +476,21 @@ window.updateNavigationButtons = function () {
 
 // Next/Previous navigation
 window.goToNextTab = function () {
-  const tabs = ['general', 'repository', 'drupal', 'services', 'hosting', 'workflow', 'cicd', 'deployment', 'dependencies', 'database'];
+  const tabs = [
+    'general',
+    'repository',
+    'drupal',
+    'services',
+    'hosting',
+    'workflow',
+    'cicd',
+    'deployment',
+    'dependencies',
+    'database',
+  ];
   const currentTab = window.getCurrentTab ? window.getCurrentTab() : 'general';
   const currentIndex = tabs.indexOf(currentTab);
-  
+
   if (currentIndex < tabs.length - 1) {
     const nextTab = tabs[currentIndex + 1];
     if (document.getElementById(nextTab + '-panel')) {
@@ -460,10 +500,21 @@ window.goToNextTab = function () {
 };
 
 window.goToPreviousTab = function () {
-  const tabs = ['general', 'repository', 'drupal', 'services', 'hosting', 'workflow', 'cicd', 'deployment', 'dependencies', 'database'];
+  const tabs = [
+    'general',
+    'repository',
+    'drupal',
+    'services',
+    'hosting',
+    'workflow',
+    'cicd',
+    'deployment',
+    'dependencies',
+    'database',
+  ];
   const currentTab = window.getCurrentTab ? window.getCurrentTab() : 'general';
   const currentIndex = tabs.indexOf(currentTab);
-  
+
   if (currentIndex > 0) {
     const prevTab = tabs[currentIndex - 1];
     if (document.getElementById(prevTab + '-panel')) {
@@ -563,11 +614,11 @@ function updateHelpContentDefault() {
 // Main installer initialization
 document.addEventListener('DOMContentLoaded', function () {
   console.log('Vortex Web Installer initialized');
-  
+
   // Initialize scaling
   updateScaling();
   window.addEventListener('resize', updateScaling);
-  
+
   // Initialize all tab statuses
   setTimeout(() => {
     if (window.updateAllTabStatuses) {
@@ -577,7 +628,7 @@ document.addEventListener('DOMContentLoaded', function () {
       window.updateNavigationButtons();
     }
   }, 100);
-  
+
   // Set up global form change listeners
   setupGlobalFormListeners();
   setupValidationListeners();
@@ -602,12 +653,14 @@ function setupGlobalFormListeners() {
       }, 150);
     }
   });
-  
+
   // Listen for form changes to update derived fields
   document.addEventListener('change', function (event) {
     if (event.target.matches('input, select')) {
       // Trigger Alpine.js data updates if needed
-      const alpineData = window.Alpine ? window.Alpine.store('installer') : null;
+      const alpineData = window.Alpine
+        ? window.Alpine.store('installer')
+        : null;
       if (alpineData && typeof alpineData.updateMachineNames === 'function') {
         alpineData.updateMachineNames();
       }
@@ -619,13 +672,13 @@ function setupGlobalFormListeners() {
 function setupValidationListeners() {
   // Add event listeners for real-time validation
   const validatableFields = document.querySelectorAll('[data-validation]');
-  
+
   validatableFields.forEach(field => {
     // Validate on blur
     field.addEventListener('blur', function () {
       window.validateField(this.id, this.value);
     });
-    
+
     // Validate on input for immediate feedback
     field.addEventListener('input', function () {
       // Debounce validation to avoid excessive calls

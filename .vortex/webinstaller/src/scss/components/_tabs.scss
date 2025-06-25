@@ -55,11 +55,11 @@
 .tab-status {
   margin-left: 8px;
   font-size: 12px;
-  
+
   &.valid {
     color: variables.$success;
   }
-  
+
   &.invalid {
     color: variables.$error;
   }

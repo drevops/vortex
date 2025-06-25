@@ -2,28 +2,28 @@
 // Main coordination file that imports and initializes all modules
 
 import { FormInteractions } from './modules/form-interactions.js';
-import { 
-  switchTab, 
-  getCurrentTab, 
-  isTabValid, 
-  updateTabStatus, 
-  updateAllTabStatuses 
+import {
+  switchTab,
+  getCurrentTab,
+  isTabValid,
+  updateTabStatus,
+  updateAllTabStatuses,
 } from './modules/tab-manager.js';
-import { 
-  validateField, 
-  validateCurrentTabFields, 
-  setupValidationListeners 
+import {
+  validateField,
+  validateCurrentTabFields,
+  setupValidationListeners,
 } from './modules/validation.js';
-import { 
-  updateNavigationButtons, 
-  goToNextTab, 
-  goToPreviousTab, 
-  updateScaling 
+import {
+  updateNavigationButtons,
+  goToNextTab,
+  goToPreviousTab,
+  updateScaling,
 } from './modules/ui-utilities.js';
-import { 
-  showHelp, 
-  closeHelpSidebar, 
-  setupHelpSystemListeners 
+import {
+  showHelp,
+  closeHelpSidebar,
+  setupHelpSystemListeners,
 } from './modules/help-system.js';
 
 // ============================================================================
@@ -60,20 +60,20 @@ window.closeHelpSidebar = closeHelpSidebar;
 // Main installer initialization
 document.addEventListener('DOMContentLoaded', function () {
   console.log('Vortex Web Installer initialized (data attribute-driven)');
-  
+
   // Initialize form interactions
   formInteractions = new FormInteractions();
-  
+
   // Initialize scaling
   updateScaling();
   window.addEventListener('resize', updateScaling);
-  
+
   // Initialize all tab statuses
   setTimeout(() => {
     updateAllTabStatuses();
     updateNavigationButtons();
   }, 100);
-  
+
   // Set up global form change listeners
   setupGlobalFormListeners();
   setupValidationListeners();
@@ -98,8 +98,8 @@ function setupGlobalFormListeners() {
       }, 150);
     }
   });
-  
-  // Listen for form changes 
+
+  // Listen for form changes
   document.addEventListener('change', function (event) {
     if (event.target.matches('input, select, textarea')) {
       // Update tab statuses and navigation when form data changes

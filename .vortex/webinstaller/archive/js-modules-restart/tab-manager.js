@@ -18,7 +18,7 @@ export function switchTab(tabName) {
   document.getElementById(tabName + '-panel').style.display = 'block';
 
   currentTab = tabName;
-  
+
   // Update navigation buttons after tab switch
   setTimeout(() => {
     if (window.updateNavigationButtons) {
@@ -35,7 +35,9 @@ export function getCurrentTab() {
 // Check if tab is valid/complete
 export function isTabValid(tabName) {
   const panel = document.getElementById(tabName + '-panel');
-  if (!panel) {return false;}
+  if (!panel) {
+    return false;
+  }
 
   // Get all input/select/textarea fields in the tab
   const fields = panel.querySelectorAll('input, select, textarea');
@@ -55,8 +57,12 @@ export function isTabValid(tabName) {
 
 // Update tab status indicators
 export function updateTabStatus(tabName) {
-  const tabButton = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
-  if (!tabButton) {return;}
+  const tabButton = document.querySelector(
+    `[onclick="switchTab('${tabName}')"]`
+  );
+  if (!tabButton) {
+    return;
+  }
 
   let statusIndicator = tabButton.querySelector('.tab-status');
   if (!statusIndicator) {
@@ -67,7 +73,7 @@ export function updateTabStatus(tabName) {
   }
 
   const isValid = isTabValid(tabName);
-  
+
   if (isValid) {
     statusIndicator.classList.remove('invalid');
     statusIndicator.classList.add('valid');
@@ -81,7 +87,18 @@ export function updateTabStatus(tabName) {
 
 // Update all tab statuses
 export function updateAllTabStatuses() {
-  const tabs = ['general', 'repository', 'drupal', 'services', 'hosting', 'workflow', 'cicd', 'deployment', 'dependencies', 'database'];
+  const tabs = [
+    'general',
+    'repository',
+    'drupal',
+    'services',
+    'hosting',
+    'workflow',
+    'cicd',
+    'deployment',
+    'dependencies',
+    'database',
+  ];
   tabs.forEach(tab => {
     if (document.getElementById(tab + '-panel')) {
       updateTabStatus(tab);

@@ -9,6 +9,7 @@ module.exports = {
   bracketSameLine: false,
   arrowParens: 'avoid',
   endOfLine: 'lf',
+  insertFinalNewline: true,
   overrides: [
     {
       files: '*.html',

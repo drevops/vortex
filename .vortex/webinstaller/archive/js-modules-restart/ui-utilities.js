@@ -4,22 +4,26 @@
 export function updateNavigationButtons() {
   const nextButton = document.querySelector('.next-button');
   const prevButton = document.querySelector('.prev-button');
-  
+
   if (nextButton) {
-    const isCurrentTabValid = window.validateCurrentTabFields ? window.validateCurrentTabFields() : true;
+    const isCurrentTabValid = window.validateCurrentTabFields
+      ? window.validateCurrentTabFields()
+      : true;
     nextButton.disabled = !isCurrentTabValid;
-    
+
     if (isCurrentTabValid) {
       nextButton.classList.remove('disabled');
     } else {
       nextButton.classList.add('disabled');
     }
   }
-  
+
   if (prevButton) {
-    const currentTab = window.getCurrentTab ? window.getCurrentTab() : 'general';
+    const currentTab = window.getCurrentTab
+      ? window.getCurrentTab()
+      : 'general';
     prevButton.disabled = currentTab === 'general';
-    
+
     if (currentTab === 'general') {
       prevButton.classList.add('disabled');
     } else {
@@ -30,10 +34,21 @@ export function updateNavigationButtons() {
 
 // Next/Previous navigation
 export function goToNextTab() {
-  const tabs = ['general', 'repository', 'drupal', 'services', 'hosting', 'workflow', 'cicd', 'deployment', 'dependencies', 'database'];
+  const tabs = [
+    'general',
+    'repository',
+    'drupal',
+    'services',
+    'hosting',
+    'workflow',
+    'cicd',
+    'deployment',
+    'dependencies',
+    'database',
+  ];
   const currentTab = window.getCurrentTab ? window.getCurrentTab() : 'general';
   const currentIndex = tabs.indexOf(currentTab);
-  
+
   if (currentIndex < tabs.length - 1) {
     const nextTab = tabs[currentIndex + 1];
     if (document.getElementById(nextTab + '-panel')) {
@@ -43,10 +58,21 @@ export function goToNextTab() {
 }
 
 export function goToPreviousTab() {
-  const tabs = ['general', 'repository', 'drupal', 'services', 'hosting', 'workflow', 'cicd', 'deployment', 'dependencies', 'database'];
+  const tabs = [
+    'general',
+    'repository',
+    'drupal',
+    'services',
+    'hosting',
+    'workflow',
+    'cicd',
+    'deployment',
+    'dependencies',
+    'database',
+  ];
   const currentTab = window.getCurrentTab ? window.getCurrentTab() : 'general';
   const currentIndex = tabs.indexOf(currentTab);
-  
+
   if (currentIndex > 0) {
     const prevTab = tabs[currentIndex - 1];
     if (document.getElementById(prevTab + '-panel')) {
