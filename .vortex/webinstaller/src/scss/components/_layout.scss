@@ -1,0 +1,52 @@
+@use '../variables';
+@use '../mixins';
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.installer-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 15px;
+  flex-shrink: 0;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+.installer-layout {
+  display: flex;
+  background: white;
+  border-radius: 16px;
+  box-shadow:
+    0 20px 25px -5px rgb(0, 0, 0, 0.1),
+    0 10px 10px -5px rgb(0, 0, 0, 0.04);
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+
+  @include mixins.mobile {
+    flex-direction: column;
+  }
+}
+
+.main-layout {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  position: relative;
+
+  @include mixins.mobile {
+    flex-direction: column;
+  }
+}

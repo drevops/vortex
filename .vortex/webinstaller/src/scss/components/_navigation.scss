@@ -1,0 +1,53 @@
+@use '../variables';
+
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: calc(2rem * var(--scale-factor));
+  padding-top: calc(1.5rem * var(--scale-factor));
+  border-top: 2px solid variables.$gray-100;
+}
+
+.nav-button {
+  padding: calc(0.75rem * var(--scale-factor)) calc(1.5rem * var(--scale-factor));
+  border: 2px solid variables.$primary;
+  border-radius: 8px;
+  background: variables.$primary;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: calc(0.95rem * var(--scale-factor));
+  min-width: 120px;
+
+  &:hover:not(:disabled) {
+    background: variables.$primary-hover;
+    border-color: variables.$primary-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  &:disabled, &.disabled {
+    background: variables.$gray-300;
+    border-color: variables.$gray-300;
+    color: variables.$gray-500;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  &.prev-button {
+    background: white;
+    color: variables.$primary;
+
+    &:hover:not(:disabled) {
+      background: variables.$gray-50;
+    }
+
+    &:disabled, &.disabled {
+      background: variables.$gray-100;
+      border-color: variables.$gray-300;
+      color: variables.$gray-400;
+    }
+  }
+}

@@ -1,0 +1,171 @@
+@use '../variables';
+@use '../mixins';
+
+.help-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: variables.$primary;
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 16px;
+  font-size: 10px;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+
+  &:hover {
+    background: variables.$primary-hover;
+    transform: scale(1.1);
+  }
+}
+
+.form-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgb(0, 0, 0, 0.6);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.help-sidebar {
+  width: 400px;
+  background: variables.$gray-50;
+  border-left: 2px solid variables.$gray-200;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 200;
+
+  &.active {
+    transform: translateX(0);
+  }
+}
+
+.help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid variables.$gray-200;
+}
+
+.help-title {
+  font-weight: 600;
+  color: variables.$gray-800;
+  font-size: 1.1rem;
+}
+
+.help-close {
+  background: none;
+  border: none;
+  color: variables.$gray-500;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: variables.$gray-100;
+    color: variables.$gray-700;
+  }
+}
+
+.help-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.help-section {
+  p {
+    margin-bottom: 12px;
+    color: variables.$gray-700;
+  }
+
+  ul {
+    margin: 10px 0;
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 5px;
+    color: variables.$gray-600;
+  }
+
+  a {
+    color: variables.$primary;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.help-placeholder {
+  text-align: center;
+  color: variables.$gray-400;
+  font-style: italic;
+  padding: 60px 20px;
+}
+
+.field-help-extended {
+  h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: variables.$gray-800;
+    margin-bottom: 12px;
+  }
+
+  p {
+    margin-bottom: 12px;
+    color: variables.$gray-700;
+    line-height: 1.5;
+  }
+
+  ul {
+    margin: 10px 0;
+    padding-left: 20px;
+
+    li {
+      margin-bottom: 5px;
+      color: variables.$gray-600;
+    }
+  }
+}
+
+.help-sidebar {
+  @include mixins.tablet {
+    width: 350px;
+  }
+
+  @include mixins.mobile {
+    width: 100%;
+    border-left: none;
+    border-top: 2px solid variables.$gray-200;
+    max-height: 60vh;
+    transform: translateY(100%);
+
+    &.active {
+      transform: translateY(0);
+    }
+  }
+}
