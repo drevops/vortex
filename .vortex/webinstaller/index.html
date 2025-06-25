@@ -1,390 +1,217 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Vortex Installer</title>
-  <link rel="stylesheet" href="dist/styles.css"/>
-</head>
-<body>
-<div class="container">
-  <div class="installer-header">
-    <h1>🌀 Vortex Installer</h1>
-  </div>
-
-  <div class="installer-layout">
-    <!-- Vertical Tabs Navigation -->
-    <nav class="vertical-tabs">
-      <ul class="tab-list">
-        <li>
-          <button class="tab-button active" onclick="switchTab('general')">
-            <span class="tab-icon">📋</span>
-            <span>General Information</span>
-          </button>
-        </li>
-        <li>
-          <button class="tab-button" onclick="switchTab('repository')">
-            <span class="tab-icon">📦</span>
-            <span>Repository</span>
-          </button>
-        </li>
-        <li>
-          <button class="tab-button" onclick="switchTab('drupal')">
-            <span class="tab-icon">🏗️</span>
-            <span>Drupal</span>
-          </button>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- Main Content Area -->
-    <div class="main-layout">
-      <div class="form-content">
-        <!-- General Information Panel -->
-        <div id="general-panel" class="tab-panel">
-          <div class="panel-header">
-            <h2 class="panel-title">General Information</h2>
-          </div>
-
-          <div class="form-group">
-            <label for="site-name">
-              Site Name
-            </label>
-            <input
-              type="text"
-              id="site-name"
-              data-triggers="machine-name"
-              placeholder="My Awesome Site"
-            />
-            <div class="field-help-extended" style="display: none">
-              <h4>Site Name</h4>
-              <p>
-                The human-readable name for your Drupal site that will
-                appear in the site header, admin interface, and other
-                locations.
-              </p>
-              <p>
-                Examples: "My Company Website", "Blog Platform", "E-commerce
-                Store"
-              </p>
-              <p>
-                This can be changed later in the Drupal admin interface
-                under Configuration > System > Site information.
-              </p>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="site-machine-name">
-              Site Machine Name
-
-            </label>
-            <input
-              type="text"
-              id="site-machine-name"
-              data-auto-generate="true"
-              data-readonly="true"
-              placeholder="my_awesome_site"
-            />
-            <div class="help-text auto-generated">
-              Auto-generated from site name
-            </div>
-            <div class="field-help-extended" style="display: none">
-              <h4>Site Machine Name</h4>
-              <p>
-                A machine-readable identifier for your site used in file
-                paths, database names, and configuration.
-              </p>
-              <p>
-                Must contain only lowercase letters, numbers, and
-                underscores. No spaces or special characters.
-              </p>
-              <p>
-                Examples: "my_company_site", "blog_platform",
-                "ecommerce_store"
-              </p>
-              <p>
-                This value is automatically generated from your site name
-                but can be customized.
-              </p>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="org-name">
-              Organization Name
-
-            </label>
-            <input
-              type="text"
-              id="org-name"
-              data-triggers="org-machine-name"
-              placeholder="My Organization"
-            />
-            <div class="field-help-extended" style="display: none">
-              <h4>Organization Name</h4>
-              <p>
-                The name of your organization or company. Used for
-                repository naming, container images, and project
-                organization.
-              </p>
-              <p>
-                Examples: "My Company", "Development Agency", "Personal
-                Projects"
-              </p>
-              <p>
-                This helps organize multiple projects under a common
-                namespace in version control and deployment systems.
-              </p>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="org-machine-name">
-              Organization Machine Name
-
-            </label>
-            <input
-              type="text"
-              id="org-machine-name"
-              data-auto-generate="true"
-              data-readonly="true"
-              placeholder="my_organization"
-            />
-            <div class="help-text auto-generated">
-              Auto-generated from organization name
-            </div>
-            <div class="field-help-extended" style="display: none">
-              <h4>Organization Machine Name</h4>
-              <p>
-                Machine-readable version of your organization name using only
-                lowercase letters, numbers, and underscores.
-              </p>
-              <p>
-                Used for GitHub usernames, Docker registries, and other
-                technical identifiers.
-              </p>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="public-domain">
-              Public Domain
-
-            </label>
-            <input
-              type="text"
-              id="public-domain"
-              data-auto-generate="true"
-              data-readonly="true"
-              placeholder="mysite.com"
-            />
-            <div class="help-text auto-generated">
-              Auto-generated from site name
-            </div>
-            <div class="field-help-extended" style="display: none">
-              <h4>Public Domain</h4>
-              <p>The domain where your site will be publicly accessible.</p>
-              <p>
-                Examples: "mysite.com", "blog.company.com",
-                "dev.example.org"
-              </p>
-              <p>Used for:</p>
-              <ul>
-                <li>SSL certificate configuration</li>
-                <li>Environment-specific settings</li>
-                <li>Email and notification URLs</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Navigation buttons -->
-          <div class="navigation-buttons">
-            <button class="nav-button prev-button" onclick="goToPreviousTab()" disabled>
-              ← Previous
-            </button>
-            <button class="nav-button next-button" onclick="goToNextTab()">
-              Next →
-            </button>
-          </div>
-        </div>
-
-        <!-- Repository Panel -->
-        <div id="repository-panel" class="tab-panel" hidden>
-          <div class="panel-header">
-            <h2 class="panel-title">Repository Configuration</h2>
-          </div>
-
-          <div class="form-group">
-            <label>
-              Repository Provider
-            </label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input
-                  type="radio"
-                  name="repo-provider"
-                  value="github"
-                  x-model="repoProvider"
-                  @change="updateGitHubRepo()"
-                />
-                <span>GitHub</span>
-              </label>
-              <label class="radio-item">
-                <input
-                  type="radio"
-                  name="repo-provider"
-                  value="gitlab"
-                  x-model="repoProvider"
-                />
-                <span>GitLab</span>
-              </label>
-              <label class="radio-item">
-                <input
-                  type="radio"
-                  name="repo-provider"
-                  value="bitbucket"
-                  x-model="repoProvider"
-                />
-                <span>Bitbucket</span>
-              </label>
-              <label class="radio-item">
-                <input
-                  type="radio"
-                  name="repo-provider"
-                  value="none"
-                  x-model="repoProvider"
-                />
-                <span>None</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Drupal Panel -->
-        <div id="drupal-panel" class="tab-panel" hidden>
-          <div class="panel-header">
-            <h2 class="panel-title">Drupal Configuration</h2>
-          </div>
-
-          <div class="form-group">
-            <label>
-              Installation Profile
-            </label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input
-                  type="radio"
-                  name="drupal-profile"
-                  value="standard"
-                  x-model="drupalProfile"
-                />
-                <span>Standard</span>
-              </label>
-              <label class="radio-item">
-                <input
-                  type="radio"
-                  name="drupal-profile"
-                  value="minimal"
-                  x-model="drupalProfile"
-                />
-                <span>Minimal</span>
-              </label>
-              <label class="radio-item">
-                <input
-                  type="radio"
-                  name="drupal-profile"
-                  value="demo_umami"
-                  x-model="drupalProfile"
-                />
-                <span>Demo Umami</span>
-              </label>
-              <label class="radio-item">
-                <input
-                  type="radio"
-                  name="drupal-profile"
-                  value="custom"
-                  x-model="drupalProfile"
-                />
-                <span>Custom</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Custom profile conditional field -->
-          <div
-            class="conditional-field"
-          >
-            <div class="form-group">
-              <label for="custom-profile-name">
-                Custom Profile Name
-              </label>
-              <input
-                type="text"
-                id="custom-profile-name"
-                placeholder="my_custom_profile"
-              />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="module-prefix">
-              Module Prefix
-            </label>
-            <input
-              type="text"
-              id="module-prefix"
-              placeholder="mysite"
-              maxlength="4"
-            />
-            <div class="help-text auto-generated">
-              Auto-generated from site name
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="theme-machine-name">
-              Theme Machine Name
-            </label>
-            <input
-              type="text"
-              id="theme-machine-name"
-              placeholder="my_theme"
-            />
-          </div>
-        </div>
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vortex Installer</title>
+    <link rel="stylesheet" href="dist/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="installer-header">
+        <h1>🌀 Vortex Installer</h1>
       </div>
 
-      <!-- Help Sidebar -->
-      <div id="helpSidebar" class="help-sidebar">
-        <div class="help-header">
-          <h3 class="help-title">Field Help</h3>
-          <button
-            class="help-close"
-            onclick="closeHelpSidebar()"
-            type="button"
-          >
-            ×
-          </button>
-        </div>
-        <div class="help-content" id="helpContent">
-          <div class="help-placeholder">
-            Select a field to view help information.
+      <div class="installer-layout">
+        <!-- Vertical Tabs Navigation -->
+        <nav class="vertical-tabs">
+          <ul class="tab-list">
+            <li>
+              <button class="tab-button active" onclick="switchTab('general')">
+                <span class="tab-icon">📋</span>
+                <span>General Information</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('repository')">
+                <span class="tab-icon">📦</span>
+                <span>Repository</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('drupal')">
+                <span class="tab-icon">🏗️</span>
+                <span>Drupal</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="main-layout">
+          <div class="form-content">
+            <!-- General Information Panel -->
+            <div id="general-panel" class="tab-panel">
+              <div class="panel-header">
+                <h2 class="panel-title">General Information</h2>
+              </div>
+
+              <div class="form-group">
+                <label for="site-name">Site Name</label>
+                <input type="text" id="site-name" data-triggers="machine-name" placeholder="My Awesome Site" />
+                <div class="field-help-extended" style="display: none">
+                  <h4>Site Name</h4>
+                  <p>The human-readable name for your Drupal site that will appear in the site header, admin interface, and other locations.</p>
+                  <p>Examples: "My Company Website", "Blog Platform", "E-commerce Store"</p>
+                  <p>This can be changed later in the Drupal admin interface under Configuration > System > Site information.</p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="site-machine-name">Site Machine Name</label>
+                <input type="text" id="site-machine-name" data-auto-generate="true" data-readonly="true" placeholder="my_awesome_site" />
+                <div class="help-text auto-generated">Auto-generated from site name</div>
+                <div class="field-help-extended" style="display: none">
+                  <h4>Site Machine Name</h4>
+                  <p>A machine-readable identifier for your site used in file paths, database names, and configuration.</p>
+                  <p>Must contain only lowercase letters, numbers, and underscores. No spaces or special characters.</p>
+                  <p>Examples: "my_company_site", "blog_platform", "ecommerce_store"</p>
+                  <p>This value is automatically generated from your site name but can be customized.</p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="org-name">Organization Name</label>
+                <input type="text" id="org-name" data-triggers="org-machine-name" placeholder="My Organization" />
+                <div class="field-help-extended" style="display: none">
+                  <h4>Organization Name</h4>
+                  <p>The name of your organization or company. Used for repository naming, container images, and project organization.</p>
+                  <p>Examples: "My Company", "Development Agency", "Personal Projects"</p>
+                  <p>This helps organize multiple projects under a common namespace in version control and deployment systems.</p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="org-machine-name">Organization Machine Name</label>
+                <input type="text" id="org-machine-name" data-auto-generate="true" data-readonly="true" placeholder="my_organization" />
+                <div class="help-text auto-generated">Auto-generated from organization name</div>
+                <div class="field-help-extended" style="display: none">
+                  <h4>Organization Machine Name</h4>
+                  <p>Machine-readable version of your organization name using only lowercase letters, numbers, and underscores.</p>
+                  <p>Used for GitHub usernames, Docker registries, and other technical identifiers.</p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="public-domain">Public Domain</label>
+                <input type="text" id="public-domain" data-auto-generate="true" data-readonly="true" placeholder="mysite.com" />
+                <div class="help-text auto-generated">Auto-generated from site name</div>
+                <div class="field-help-extended" style="display: none">
+                  <h4>Public Domain</h4>
+                  <p>The domain where your site will be publicly accessible.</p>
+                  <p>Examples: "mysite.com", "blog.company.com", "dev.example.org"</p>
+                  <p>Used for:</p>
+                  <ul>
+                    <li>SSL certificate configuration</li>
+                    <li>Environment-specific settings</li>
+                    <li>Email and notification URLs</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Navigation buttons -->
+              <div class="navigation-buttons">
+                <button class="nav-button prev-button" onclick="goToPreviousTab()" disabled>← Previous</button>
+                <button class="nav-button next-button" onclick="goToNextTab()">Next →</button>
+              </div>
+            </div>
+
+            <!-- Repository Panel -->
+            <div id="repository-panel" class="tab-panel" hidden>
+              <div class="panel-header">
+                <h2 class="panel-title">Repository Configuration</h2>
+              </div>
+
+              <div class="form-group">
+                <label>Repository Provider</label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input type="radio" name="repo-provider" value="github" x-model="repoProvider" @change="updateGitHubRepo()" />
+                    <span>GitHub</span>
+                  </label>
+                  <label class="radio-item">
+                    <input type="radio" name="repo-provider" value="gitlab" x-model="repoProvider" />
+                    <span>GitLab</span>
+                  </label>
+                  <label class="radio-item">
+                    <input type="radio" name="repo-provider" value="bitbucket" x-model="repoProvider" />
+                    <span>Bitbucket</span>
+                  </label>
+                  <label class="radio-item">
+                    <input type="radio" name="repo-provider" value="none" x-model="repoProvider" />
+                    <span>None</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Drupal Panel -->
+            <div id="drupal-panel" class="tab-panel" hidden>
+              <div class="panel-header">
+                <h2 class="panel-title">Drupal Configuration</h2>
+              </div>
+
+              <div class="form-group">
+                <label>Installation Profile</label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input type="radio" name="drupal-profile" value="standard" x-model="drupalProfile" />
+                    <span>Standard</span>
+                  </label>
+                  <label class="radio-item">
+                    <input type="radio" name="drupal-profile" value="minimal" x-model="drupalProfile" />
+                    <span>Minimal</span>
+                  </label>
+                  <label class="radio-item">
+                    <input type="radio" name="drupal-profile" value="demo_umami" x-model="drupalProfile" />
+                    <span>Demo Umami</span>
+                  </label>
+                  <label class="radio-item">
+                    <input type="radio" name="drupal-profile" value="custom" x-model="drupalProfile" />
+                    <span>Custom</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Custom profile conditional field -->
+              <div class="conditional-field">
+                <div class="form-group">
+                  <label for="custom-profile-name">Custom Profile Name</label>
+                  <input type="text" id="custom-profile-name" placeholder="my_custom_profile" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="module-prefix">Module Prefix</label>
+                <input type="text" id="module-prefix" placeholder="mysite" maxlength="4" />
+                <div class="help-text auto-generated">Auto-generated from site name</div>
+              </div>
+
+              <div class="form-group">
+                <label for="theme-machine-name">Theme Machine Name</label>
+                <input type="text" id="theme-machine-name" placeholder="my_theme" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Help Sidebar -->
+          <div id="helpSidebar" class="help-sidebar">
+            <div class="help-header">
+              <h3 class="help-title">Field Help</h3>
+              <button class="help-close" onclick="closeHelpSidebar()" type="button">×</button>
+            </div>
+            <div class="help-content" id="helpContent">
+              <div class="help-placeholder">Select a field to view help information.</div>
+            </div>
           </div>
         </div>
+
+        <!-- Form Overlay -->
+        <div id="formOverlay" class="form-overlay"></div>
       </div>
     </div>
 
-    <!-- Form Overlay -->
-    <div id="formOverlay" class="form-overlay"></div>
-  </div>
-</div>
-
-<script
-  src="https://cdn.jsdelivr.net/npm/joi@17.13.3/dist/joi-browser.min.js"
-  defer
-></script>
-<script src="dist/scripts.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/joi@17.13.3/dist/joi-browser.min.js" defer></script>
+    <script src="dist/scripts.js"></script>
+  </body>
 </html>

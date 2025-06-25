@@ -9,4 +9,17 @@ module.exports = {
   bracketSameLine: false,
   arrowParens: 'avoid',
   endOfLine: 'lf',
+  overrides: [
+    {
+      files: '*.html',
+      options: {
+        printWidth: 999,
+        tabWidth: 2,
+        useTabs: false,
+        bracketSameLine: true,
+        htmlWhitespaceSensitivity: 'ignore',
+        singleAttributePerLine: false,
+      },
+    },
+  ],
 };
