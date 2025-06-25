@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently \"npm:watch:js\" \"npm:watch:scss\" \"npm:serve\"",
     "build": "npm run build:js && npm run build:scss",
-    "build:js": "npx esbuild src/js/installer-new.js --bundle --outfile=dist/scripts.js --minify",
+    "build:js": "npx esbuild src/js/installer.js --bundle --outfile=dist/scripts.js --minify",
     "build:scss": "npx sass src/scss/styles.scss dist/styles.css --style=compressed",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:format",
     "lint-fix": "npm run lint-fix:js && npm run lint-fix:css && npm run lint-fix:format",
@@ -18,7 +18,7 @@
     "serve": "live-server --port=3000 --watch=dist --open=index.html",
     "test": "cypress run",
     "test:open": "cypress open",
-    "watch:js": "npx esbuild src/js/installer-new.js --bundle --outfile=dist/scripts.js --watch",
+    "watch:js": "npx esbuild src/js/installer.js --bundle --outfile=dist/scripts.js --watch",
     "watch:scss": "npx sass --watch src/scss/styles.scss dist/styles.css"
   },
   "devDependencies": {
