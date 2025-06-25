@@ -113,126 +113,109 @@ class PromptManager {
     // phpcs:disable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
     $responses = form()
       ->intro('General information')
-
       ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class, $n)), Name::id())
-
       ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, $n, null, $r)), MachineName::id())
-
       ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, $n, null, $r)), Org::id())
-
       ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, $n, null, $r)), OrgMachineName::id())
-
       ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, $n, null, $r)), Domain::id())
 
       ->intro('Code repository')
-
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class, $n)), CodeProvider::id())
-
       ->addIf(
-          fn($r): bool => $this->handlers[GithubToken::id()]->getCondition()($r),
-          fn($r, $pr, $n) => Tui::note(GithubToken::getInfoNote()),
+          fn($r): bool => $this->handlers[GithubToken::id()]->condition()($r),
+          fn($r, $pr, $n) => Tui::note(GithubToken::explanation()),
         )
-
       ->addIf(
-          fn($r): bool => $this->handlers[GithubToken::id()]->getCondition()($r),
+          fn($r): bool => $this->handlers[GithubToken::id()]->condition()($r),
           function ($r, $pr, $n): string {
             $handler = $this->handlers[GithubToken::id()];
-            if ($handler->shouldReturnDiscovered()) {
-              Tui::ok($this->label($handler->getLabel(), 'a'));
-              return $handler->getDiscoveredValue();
+            $resolved_value = $handler->resolved($r);
+            if (!empty($resolved_value)) {
+              Tui::ok($this->label((string) $handler->resolvedMessage($r), 'a'));
+              return $resolved_value;
+            } else {
+              return password(...$this->args(GithubToken::class, $n));
             }
-
-            return password(...$this->args(GithubToken::class, $n));
-          }, GithubToken::id())
-
+          },
+          GithubToken::id()
+        )
         ->addIf(
-            fn($r): bool => $this->handlers[GithubRepo::id()]->getCondition()($r),
+            fn($r): bool => $this->handlers[GithubRepo::id()]->condition()($r),
             fn($r, $pr, $n): string => text(...$this->args(GithubRepo::class, $n, null, $r)),
-            GithubRepo::id())
+            GithubRepo::id()
+          )
 
       ->intro('Drupal')
-
-      ->add(function ($r, $pr, $n): int|string {
-        $args = $this->args(Profile::class, $n);
-        $args['default'] = $this->handlers[Profile::id()]->getDefault();
-        return select(...$args);
-      }, Profile::id())
-
+      ->add(
+          function ($r, $pr, $n): int|string {
+            $args = $this->args(Profile::class, $n);
+            $args['default'] = $this->handlers[Profile::id()]->getDefault();
+            return select(...$args);
+          },
+          Profile::id()
+        )
       ->addIf(
-        fn($r): bool => $this->handlers[ProfileCustom::id()]->getCondition()($r),
-        fn($r, $pr, $n): string => text(...$this->args(ProfileCustom::class, $n)),
-        ProfileCustom::id()
-      )
-
+          fn($r): bool => $this->handlers[ProfileCustom::id()]->condition()($r),
+          fn($r, $pr, $n): string => text(...$this->args(ProfileCustom::class, $n)),
+          ProfileCustom::id()
+        )
       ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, $n, null, $r)), ModulePrefix::id())
-
       ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, $n, null, $r)), Theme::id())
 
       ->intro('Services')
-
       ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Services::class, $n)), Services::id())
 
       ->intro('Hosting')
-
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class, $n)), HostingProvider::id())
-
-      ->add(function (array $r, $pr, $n): string|bool|array {
-        $handler = $this->handlers[Webroot::id()];
-        if ($handler->shouldShowAsInfo($r)) {
-          $webroot = $handler->getDefaultForContext($r);
-          info($handler->getInfoMessage($r));
-          return $webroot;
-        }
-        else {
-          return text(...$this->args(Webroot::class, $n, null, $r));
-        }
-      }, Webroot::id())
+      ->add(
+          function (array $r, $pr, $n): string {
+            $handler = $this->handlers[Webroot::id()];
+            $resolved = $handler->resolved($r);
+            if (!empty($resolved)) {
+              info($handler->resolvedMessage($r));
+              return $resolved;
+            } else {
+              return text(...$this->args(Webroot::class, $n, null, $r));
+            }
+          },
+          Webroot::id()
+        )
 
       ->intro('Deployment')
-
       ->add(fn($r, $pr, $n): array => multiselect(...$this->args(DeployType::class, $n, null, $r)), DeployType::id())
 
       ->intro('Workflow')
-
       ->add(fn($r, $pr, $n) => Tui::note('<info>Provisioning</info> is the process of setting up the site in the environment with an already assembled codebase.'))
-
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class, $n)), ProvisionType::id())
-
       ->addIf(
-          fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->getCondition()($r),
+          fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->condition()($r),
           fn($r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, $n, null, $r)),
-          DatabaseDownloadSource::id())
-
+          DatabaseDownloadSource::id()
+        )
       ->addIf(
-          fn($r): bool => $this->handlers[DatabaseImage::id()]->getCondition()($r),
+          fn($r): bool => $this->handlers[DatabaseImage::id()]->condition()($r),
           function ($r, $pr, $n): string {
             $handler = $this->handlers[DatabaseImage::id()];
             $args = $this->args(DatabaseImage::class, $n, null, $r);
             $args['placeholder'] = $handler->getPlaceholderForContext($r);
             return text(...$args);
           },
-          DatabaseImage::id())
+          DatabaseImage::id()
+        )
 
       ->intro('Continuous Integration')
-
       ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(CiProvider::class, $n, null, $r)), CiProvider::id())
 
       ->intro('Automations')
-
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(DependencyUpdatesProvider::class, $n)), DependencyUpdatesProvider::id())
-
       ->add(fn($r, $pr, $n): bool => confirm(...$this->args(AssignAuthorPr::class, $n)), AssignAuthorPr::id())
-
       ->add(fn($r, $pr, $n): bool => confirm(...$this->args(LabelMergeConflictsPr::class, $n)), LabelMergeConflictsPr::id())
 
       ->intro('Documentation')
-
       ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsProject::class, $n)), PreserveDocsProject::id())
-
       ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsOnboarding::class, $n)), PreserveDocsOnboarding::id())
 
       ->intro('AI')
-
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(AiCodeInstructions::class, $n)), AiCodeInstructions::id())
 
       ->submit();
@@ -249,10 +232,10 @@ class PromptManager {
     }, ARRAY_FILTER_USE_KEY);
 
     // Handle Profile custom name merging
-    if (isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM && isset($responses[ProfileCustom::id()]) && $responses[ProfileCustom::id()] !== null) {
+    if (isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM && isset($responses[ProfileCustom::id()]) && $responses[ProfileCustom::id()] !== NULL) {
       $responses[Profile::id()] = $responses[ProfileCustom::id()];
-    } 
-    
+    }
+
     // Always remove ProfileCustom key (it's only used for internal merging)
     unset($responses[ProfileCustom::id()]);
 
@@ -518,13 +501,13 @@ class PromptManager {
    * @return array
    *   Array of prompt arguments suitable for Laravel prompts.
    */
-  private function args(string $handlerClass, string $n, mixed $defaultOverride = null, array $currentResponses = []): array {
+  private function args(string $handlerClass, string $n, mixed $defaultOverride = NULL, array $currentResponses = []): array {
     $handler = $this->handlers[$handlerClass::id()];
-    
+
     // Use context-aware methods when responses are available, otherwise fall back to static methods
-    $defaultValue = $defaultOverride !== null ? $defaultOverride : 
+    $defaultValue = $defaultOverride !== NULL ? $defaultOverride :
       (!empty($currentResponses) ? $handler->getDefaultForContext($currentResponses) : $handler->getDefault());
-    
+
     $options = !empty($currentResponses) ? $handler->getOptionsForContext($currentResponses) : $handler->getOptions();
 
     $args = [
@@ -539,11 +522,11 @@ class PromptManager {
 
     // Only include 'required' if it's true (Laravel prompts expects true or omit it)
     if ($handler->getRequired()) {
-      $args['required'] = true;
+      $args['required'] = TRUE;
     }
 
     // Filter out null values
-    return array_filter($args, fn($value) => $value !== null);
+    return array_filter($args, fn($value) => $value !== NULL);
   }
 
 }

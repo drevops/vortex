@@ -119,7 +119,7 @@ class Webroot extends AbstractHandler {
       };
       return $webroot;
     }
-    
+
     return $this->getDefault();
   }
 
@@ -127,7 +127,7 @@ class Webroot extends AbstractHandler {
    * Check if webroot should show as auto-selected info instead of input.
    */
   public function shouldShowAsInfo(array $responses): bool {
-    return isset($responses[HostingProvider::id()]) && 
+    return isset($responses[HostingProvider::id()]) &&
            $responses[HostingProvider::id()] !== HostingProvider::OTHER;
   }
 
@@ -137,6 +137,51 @@ class Webroot extends AbstractHandler {
   public function getInfoMessage(array $responses): string {
     $webroot = $this->getDefaultForContext($responses);
     return sprintf('Web root will be set to "%s".', $webroot);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isConditional(): bool {
+    // Webroot has two modes: auto-select (info display) or text input
+    return false; // Always shown, but behavior changes based on hosting provider
+  }
+
+  /**
+   * Check if this prompt should use text input instead of auto-selection.
+   */
+  public function shouldUseTextInput(array $responses): bool {
+    return isset($responses[HostingProvider::id()]) &&
+           $responses[HostingProvider::id()] === HostingProvider::OTHER;
+  }
+
+  /**
+   * Display info message and return the auto-selected webroot value.
+   */
+  public function showInfoAndReturnValue(array $responses): string {
+    $webroot = $this->getDefaultForContext($responses);
+    \Laravel\Prompts\info($this->getInfoMessage($responses));
+    return $webroot;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolved(array $responses): mixed {
+    if ($this->shouldShowAsInfo($responses)) {
+      return $this->getDefaultForContext($responses);
+    }
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses): ?string {
+    if ($this->shouldShowAsInfo($responses)) {
+      return $this->getInfoMessage($responses);
+    }
+    return null;
   }
 
 }

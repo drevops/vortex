@@ -69,7 +69,7 @@ class DatabaseImage extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getCondition(): ?callable {
+  public function condition(): ?callable {
     return fn(array $responses): bool => $responses[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY;
   }
 
@@ -86,14 +86,14 @@ class DatabaseImage extends AbstractHandler {
    */
   public function getDefaultForContext(array $responses): mixed {
     // Generate default from OrgMachineName and MachineName if available
-    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()]) 
+    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()])
         && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
-      return sprintf('%s/%s-data:latest', 
-        \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[OrgMachineName::id()]), 
+      return sprintf('%s/%s-data:latest',
+        \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[OrgMachineName::id()]),
         \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[MachineName::id()])
       );
     }
-    
+
     return $this->getDefault();
   }
 
@@ -102,14 +102,14 @@ class DatabaseImage extends AbstractHandler {
    */
   public function getPlaceholderForContext(array $responses): ?string {
     // Generate placeholder from OrgMachineName and MachineName if available
-    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()]) 
+    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()])
         && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
-      return sprintf('E.g. %s/%s-data:latest', 
-        \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[OrgMachineName::id()]), 
+      return sprintf('E.g. %s/%s-data:latest',
+        \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[OrgMachineName::id()]),
         \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[MachineName::id()])
       );
     }
-    
+
     return $this->getPlaceholder();
   }
 

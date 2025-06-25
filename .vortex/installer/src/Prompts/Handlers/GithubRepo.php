@@ -81,7 +81,7 @@ class GithubRepo extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getCondition(): ?callable {
+  public function condition(): ?callable {
     return fn(array $responses): bool => !empty($responses[GithubToken::id()]);
   }
 
@@ -90,11 +90,11 @@ class GithubRepo extends AbstractHandler {
    */
   public function getDefaultForContext(array $responses): mixed {
     // Generate default from OrgMachineName and MachineName if available
-    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()]) 
+    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()])
         && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
       return $responses[OrgMachineName::id()] . '/' . $responses[MachineName::id()];
     }
-    
+
     return $this->getDefault();
   }
 

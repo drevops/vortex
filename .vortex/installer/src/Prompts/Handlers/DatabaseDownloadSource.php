@@ -129,9 +129,9 @@ class DatabaseDownloadSource extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getCondition(): ?callable {
-    return fn(array $responses): bool => 
-      isset($responses[ProvisionType::id()]) && 
+  public function condition(): ?callable {
+    return fn(array $responses): bool =>
+      isset($responses[ProvisionType::id()]) &&
       $responses[ProvisionType::id()] !== ProvisionType::PROFILE;
   }
 

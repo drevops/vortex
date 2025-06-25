@@ -230,7 +230,7 @@ abstract class AbstractHandler implements HandlerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCondition(): ?callable {
+  public function condition(): ?callable {
     return null;
   }
 
@@ -240,6 +240,20 @@ abstract class AbstractHandler implements HandlerInterface {
   public function getOptionsForContext(array $responses): ?array {
     // Default implementation: just return static options
     return $this->getOptions();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolved(array $responses): mixed {
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses): ?string {
+    return null;
   }
 
   /**

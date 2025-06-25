@@ -139,11 +139,41 @@ interface HandlerInterface {
    * @return callable|null
    *   The condition callback, or null if not conditional.
    */
-  public function getCondition(): ?callable;
+  public function condition(): ?callable;
+
+  /**
+   * Get a resolved value if this handler's value is already determined.
+   *
+   * If this returns a non-empty value, the PromptManager should use this value
+   * instead of prompting the user for input. This allows handlers to
+   * encapsulate logic for when values are discovered from environment,
+   * auto-selected based on other responses, or otherwise pre-determined.
+   *
+   * @param array $responses
+   *   Current form responses for context-aware resolution.
+   *
+   * @return null|string|bool|array
+   *   The resolved value if determined, null/empty if user input is needed.
+   */
+  public function resolved(array $responses): null|string|bool|array;
+
+  /**
+   * Get a message to display when showing the resolved value.
+   *
+   * This is used by PromptManager to show an appropriate message (via info(), ok(), etc.)
+   * when using a resolved value instead of prompting for input.
+   *
+   * @param array $responses
+   *   Current form responses for context-aware message generation.
+   *
+   * @return string|null
+   *   The message to display, or null if no message needed.
+   */
+  public function resolvedMessage(array $responses): ?string;
 
   /**
    * Context-aware options that can be filtered based on current responses.
-   * 
+   *
    * This allows handlers to encapsulate business logic for filtering options
    * based on other responses, rather than PromptManager making these decisions.
    *
@@ -154,11 +184,11 @@ interface HandlerInterface {
 
   /**
    * Context-aware default that can be calculated based on current responses.
-   * 
+   *
    * This allows handlers to encapsulate business logic for determining defaults
    * based on other responses, rather than PromptManager making these decisions.
    *
-   * @param array $responses Current form responses  
+   * @param array $responses Current form responses
    * @return mixed Default value based on current context
    */
   public function getDefaultForContext(array $responses): mixed;

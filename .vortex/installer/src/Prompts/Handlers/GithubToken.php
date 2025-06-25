@@ -70,7 +70,7 @@ class GithubToken extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getCondition(): ?callable {
+  public function condition(): ?callable {
     return fn(array $responses): bool => $responses[CodeProvider::id()] === CodeProvider::GITHUB;
   }
 
@@ -84,15 +84,8 @@ class GithubToken extends AbstractHandler {
   /**
    * Get the informational note for GitHub token requirement.
    */
-  public static function getInfoNote(): string {
+  public static function explanation(): string {
     return "<info>We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.</info>";
-  }
-
-  /**
-   * Check if this handler should return discovered value instead of prompting.
-   */
-  public function shouldReturnDiscovered(): bool {
-    return !empty($this->discover());
   }
 
   /**
@@ -100,6 +93,27 @@ class GithubToken extends AbstractHandler {
    */
   public function getDiscoveredValue(): string {
     return $this->discover() ?? '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolved(array $responses): mixed {
+    $discovered = $this->discover();
+    if (!empty($discovered)) {
+      return $discovered;
+    }
+    return null;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses): ?string {
+    if (!empty($this->discover())) {
+      return 'GitHub access token is already set in the environment.';
+    }
+    return null;
   }
 
 }
