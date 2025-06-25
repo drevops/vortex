@@ -298,13 +298,6 @@
                   x-model="drupalProfile"
                 />
                 <span>Demo Umami</span>
-                <button
-                  class="help-icon"
-                  onclick="showHelp('drupal-profile')"
-                  type="button"
-                >
-                  ?
-                </button>
               </label>
               <label class="radio-item">
                 <input
@@ -314,44 +307,21 @@
                   x-model="drupalProfile"
                 />
                 <span>Custom</span>
-                <button
-                  class="help-icon"
-                  onclick="showHelp('drupal-profile')"
-                  type="button"
-                >
-                  ?
-                </button>
               </label>
             </div>
           </div>
 
           <!-- Custom profile conditional field -->
           <div
-            x-show="drupalProfile === 'custom'"
-            x-transition:enter="height-enter"
-            x-transition:enter-start="height-enter-start"
-            x-transition:enter-end="height-enter-end"
-            x-transition:leave="height-leave"
-            x-transition:leave-start="height-leave-start"
-            x-transition:leave-end="height-leave-end"
             class="conditional-field"
-            :class="{ 'active': drupalProfile === 'custom' }"
           >
             <div class="form-group">
               <label for="custom-profile-name">
                 Custom Profile Name
-                <button
-                  class="help-icon"
-                  onclick="showHelp('custom-profile-name')"
-                  type="button"
-                >
-                  ?
-                </button>
               </label>
               <input
                 type="text"
                 id="custom-profile-name"
-                x-model="customProfileName"
                 placeholder="my_custom_profile"
               />
             </div>
@@ -360,18 +330,10 @@
           <div class="form-group">
             <label for="module-prefix">
               Module Prefix
-              <button
-                class="help-icon"
-                onclick="showHelp('module-prefix')"
-                type="button"
-              >
-                ?
-              </button>
             </label>
             <input
               type="text"
               id="module-prefix"
-              x-model="modulePrefix"
               placeholder="mysite"
               maxlength="4"
             />
@@ -383,18 +345,10 @@
           <div class="form-group">
             <label for="theme-machine-name">
               Theme Machine Name
-              <button
-                class="help-icon"
-                onclick="showHelp('theme-machine-name')"
-                type="button"
-              >
-                ?
-              </button>
             </label>
             <input
               type="text"
               id="theme-machine-name"
-              x-model="themeMachineName"
               placeholder="my_theme"
             />
           </div>
