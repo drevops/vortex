@@ -109,8 +109,13 @@
                   type="text"
                   id="site-name"
                   x-model="siteName"
-                  @input="updateMachineNames()"
+                  @input="updateMachineNames(); validateField('site-name', siteName)"
+                  @blur="validateField('site-name', siteName)"
                   placeholder="My Awesome Site"
+                  required
+                  minlength="2"
+                  maxlength="100"
+                  data-validation="required|min:2|max:100"
                 />
                 <div class="field-help-extended" style="display: none">
                   <h4>Site Name</h4>
@@ -145,7 +150,13 @@
                   type="text"
                   id="site-machine-name"
                   x-model="siteMachineName"
+                  @input="validateField('site-machine-name', $event.target.value)"
+                  @blur="validateField('site-machine-name', $event.target.value)"
                   placeholder="my_awesome_site"
+                  required
+                  pattern="^[a-z0-9_]+$"
+                  title="No spaces allowed. Use only lowercase letters, numbers, and underscores."
+                  data-validation="required|machine_name"
                 />
                 <div class="help-text auto-generated">
                   Auto-generated from site name

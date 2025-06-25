@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation Test</title>
+    <link rel="stylesheet" href="dist/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Validation Rules Test</h1>
+        
+        <div class="form-group">
+            <label for="site-name">Site Name (required, 2-100 chars):</label>
+            <input type="text" id="site-name" placeholder="Test Site">
+            <button onclick="testField('site-name')">Test</button>
+        </div>
+        
+        <div class="form-group">
+            <label for="site-machine-name">Site Machine Name (required, machine_name format):</label>
+            <input type="text" id="site-machine-name" placeholder="test_site">
+            <button onclick="testField('site-machine-name')">Test</button>
+        </div>
+        
+        <div class="form-group">
+            <label for="public-domain">Public Domain (optional, domain format):</label>
+            <input type="text" id="public-domain" placeholder="example.com">
+            <button onclick="testField('public-domain')">Test</button>
+        </div>
+        
+        <div class="form-group">
+            <label for="github-token">GitHub Token (optional, token format):</label>
+            <input type="text" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            <button onclick="testField('github-token')">Test</button>
+        </div>
+        
+        <button onclick="testAllFields()">Test All Fields</button>
+        
+        <div id="results" style="margin-top: 20px; padding: 10px; background: #f5f5f5; border-radius: 8px;">
+            <h3>Test Results:</h3>
+            <div id="results-content">Click "Test" buttons to see validation results</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/joi@17.13.3/dist/joi-browser.min.js"></script>
+    <script src="dist/scripts.js"></script>
+    
+    <script>
+        function testField(fieldId) {
+            const field = document.getElementById(fieldId);
+            const value = field.value;
+            const isValid = window.validateField(fieldId, value);
+            
+            const results = document.getElementById('results-content');
+            results.innerHTML += `<div><strong>${fieldId}:</strong> "${value}" → ${isValid ? '✅ Valid' : '❌ Invalid'}</div>`;
+        }
+        
+        function testAllFields() {
+            const results = document.getElementById('results-content');
+            results.innerHTML = '<h4>Testing all fields:</h4>';
+            
+            const fieldIds = ['site-name', 'site-machine-name', 'public-domain', 'github-token'];
+            fieldIds.forEach(testField);
+            
+            const allValid = window.validateAllFields();
+            results.innerHTML += `<div><strong>Overall Result:</strong> ${allValid ? '✅ All Valid' : '❌ Some Invalid'}</div>`;
+        }
+        
+        // Auto-setup validation listeners when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Test page loaded');
+        });
+    </script>
+</body>
+</html>
