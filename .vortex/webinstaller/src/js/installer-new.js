@@ -11,7 +11,6 @@ import {
 } from './modules/tab-manager.js';
 import { 
   validateField, 
-  validateAllFields, 
   validateCurrentTabFields, 
   setupValidationListeners 
 } from './modules/validation.js';
@@ -43,7 +42,6 @@ window.updateAllTabStatuses = updateAllTabStatuses;
 
 // Export validation functions
 window.validateField = validateField;
-window.validateAllFields = validateAllFields;
 window.validateCurrentTabFields = validateCurrentTabFields;
 
 // Export UI utilities

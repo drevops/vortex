@@ -19,9 +19,7 @@
     "test": "cypress run",
     "test:open": "cypress open",
     "watch:js": "npx esbuild src/js/installer-new.js --bundle --outfile=dist/scripts.js --watch",
-    "watch:scss": "npx sass --watch src/scss/styles.scss dist/styles.css",
-    "build:js:old": "npx esbuild src/js/installer.js --bundle --outfile=dist/scripts.js --minify",
-    "build:js:new": "npx esbuild src/js/installer-new.js --bundle --outfile=dist/scripts.js --minify"
+    "watch:scss": "npx sass --watch src/scss/styles.scss dist/styles.css"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

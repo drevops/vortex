@@ -71,24 +71,6 @@ export function validateField(fieldId, value) {
   }
 }
 
-// Validate all fields function
-export function validateAllFields() {
-  const fieldIds = getValidationRuleNames();
-  let allValid = true;
-
-  fieldIds.forEach(fieldId => {
-    const field = document.getElementById(fieldId);
-    if (field) {
-      const value = field.value;
-      const isValid = validateField(fieldId, value);
-      if (!isValid) {
-        allValid = false;
-      }
-    }
-  });
-
-  return allValid;
-}
 
 // Validate current tab fields
 export function validateCurrentTabFields() {
