@@ -167,7 +167,7 @@ class Webroot extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function resolved(array $responses): mixed {
+  public function resolved(array $responses): null|string|bool|array {
     if ($this->shouldShowAsInfo($responses)) {
       return $this->getDefaultForContext($responses);
     }

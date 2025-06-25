@@ -152,7 +152,7 @@ interface HandlerInterface {
    * @param array $responses
    *   Current form responses for context-aware resolution.
    *
-   * @return null|string|bool|array
+   * @return string|bool|array|null
    *   The resolved value if determined, null/empty if user input is needed.
    */
   public function resolved(array $responses): null|string|bool|array;

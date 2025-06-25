@@ -98,7 +98,7 @@ class GithubToken extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function resolved(array $responses): mixed {
+  public function resolved(array $responses): null|string|bool|array {
     $discovered = $this->discover();
     if (!empty($discovered)) {
       return $discovered;

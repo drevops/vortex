@@ -245,7 +245,7 @@ abstract class AbstractHandler implements HandlerInterface {
   /**
    * {@inheritdoc}
    */
-  public function resolved(array $responses): mixed {
+  public function resolved(array $responses): null|string|bool|array {
     return null;
   }
 
