@@ -1,7 +1,7 @@
-// Vortex Web Installer - Modular Implementation
+// Vortex Web Installer - Data Attribute-Driven Implementation
 // Main coordination file that imports and initializes all modules
 
-import { installerData } from './modules/data-manager.js';
+import { FormInteractions } from './modules/form-interactions.js';
 import { 
   switchTab, 
   getCurrentTab, 
@@ -31,8 +31,8 @@ import {
 // GLOBAL EXPORTS - Make functions available to the global window object
 // ============================================================================
 
-// Export data manager
-window.installerData = installerData;
+// Initialize form interactions
+let formInteractions;
 
 // Export tab manager functions
 window.switchTab = switchTab;
@@ -61,7 +61,10 @@ window.closeHelpSidebar = closeHelpSidebar;
 
 // Main installer initialization
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('Vortex Web Installer initialized (modular version)');
+  console.log('Vortex Web Installer initialized (data attribute-driven)');
+  
+  // Initialize form interactions
+  formInteractions = new FormInteractions();
   
   // Initialize scaling
   updateScaling();
@@ -98,14 +101,14 @@ function setupGlobalFormListeners() {
     }
   });
   
-  // Listen for form changes to update derived fields
+  // Listen for form changes 
   document.addEventListener('change', function (event) {
-    if (event.target.matches('input, select')) {
-      // Trigger Alpine.js data updates if needed
-      const alpineData = window.Alpine ? window.Alpine.store('installer') : null;
-      if (alpineData && typeof alpineData.updateMachineNames === 'function') {
-        alpineData.updateMachineNames();
-      }
+    if (event.target.matches('input, select, textarea')) {
+      // Update tab statuses and navigation when form data changes
+      setTimeout(() => {
+        updateAllTabStatuses();
+        updateNavigationButtons();
+      }, 50);
     }
   });
 }

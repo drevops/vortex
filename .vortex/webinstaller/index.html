@@ -6,7 +6,7 @@
     <title>Vortex Installer</title>
     <link rel="stylesheet" href="dist/styles.css" />
   </head>
-  <body x-data="installerData()">
+  <body>
     <div class="container">
       <div class="installer-header">
         <h1>🌀 Vortex Installer</h1>
@@ -108,8 +108,7 @@
                 <input
                   type="text"
                   id="site-name"
-                  x-model="siteName"
-                  @input="updateMachineNames()"
+                  data-triggers="machine-name"
                   placeholder="My Awesome Site"
                 />
                 <div class="field-help-extended" style="display: none">
@@ -144,7 +143,8 @@
                 <input
                   type="text"
                   id="site-machine-name"
-                  x-model="siteMachineName"
+                  data-auto-generate="true"
+                  data-readonly="true"
                   placeholder="my_awesome_site"
                 />
                 <div class="help-text auto-generated">
@@ -185,14 +185,8 @@
                 <input
                   type="text"
                   id="org-name"
-                  x-model="orgName"
-                  @input="updateMachineNames(); validateField('org-name', orgName)"
-                  @blur="validateField('org-name', orgName)"
+                  data-triggers="org-machine-name"
                   placeholder="My Organization"
-                  required
-                  minlength="2"
-                  maxlength="100"
-                  data-validation="required|min:2|max:100"
                 />
                 <div class="field-help-extended" style="display: none">
                   <h4>Organization Name</h4>
@@ -213,6 +207,40 @@
               </div>
 
               <div class="form-group">
+                <label for="org-machine-name">
+                  Organization Machine Name
+                  <button
+                    class="help-icon"
+                    onclick="showHelp(this)"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  id="org-machine-name"
+                  data-auto-generate="true"
+                  data-readonly="true"
+                  placeholder="my_organization"
+                />
+                <div class="help-text auto-generated">
+                  Auto-generated from organization name
+                </div>
+                <div class="field-help-extended" style="display: none">
+                  <h4>Organization Machine Name</h4>
+                  <p>
+                    Machine-readable version of your organization name using only
+                    lowercase letters, numbers, and underscores.
+                  </p>
+                  <p>
+                    Used for GitHub usernames, Docker registries, and other
+                    technical identifiers.
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label for="public-domain">
                   Public Domain
                   <button
@@ -226,13 +254,9 @@
                 <input
                   type="text"
                   id="public-domain"
-                  x-model="publicDomain"
-                  @input="validateField('public-domain', publicDomain)"
-                  @blur="validateField('public-domain', publicDomain)"
+                  data-auto-generate="true"
+                  data-readonly="true"
                   placeholder="mysite.com"
-                  pattern="^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])*$"
-                  title="Must be a valid domain name (e.g., example.com)"
-                  data-validation="domain"
                 />
                 <div class="help-text auto-generated">
                   Auto-generated from site name
@@ -1243,10 +1267,6 @@
       </div>
     </div>
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"
-      defer
-    ></script>
     <script
       src="https://cdn.jsdelivr.net/npm/joi@17.13.3/dist/joi-browser.min.js"
       defer
