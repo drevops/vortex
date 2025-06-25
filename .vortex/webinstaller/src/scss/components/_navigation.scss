@@ -13,7 +13,7 @@
   border: 2px solid variables.$primary;
   border-radius: 8px;
   background: variables.$primary;
-  color: white;
+  color: variables.$white;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -24,7 +24,7 @@
     background: variables.$primary-hover;
     border-color: variables.$primary-hover;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px rgb(variables.$primary, 0.3);
   }
 
   &:disabled, &.disabled {
@@ -37,7 +37,7 @@
   }
 
   &.prev-button {
-    background: white;
+    background: variables.$white;
     color: variables.$primary;
 
     &:hover:not(:disabled) {

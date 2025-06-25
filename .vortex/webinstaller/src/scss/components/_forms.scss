@@ -45,17 +45,17 @@
     &:focus {
       outline: none;
       border-color: variables.$primary;
-      box-shadow: 0 0 0 3px rgb(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 3px rgb(variables.$primary, 0.1);
     }
 
     &.valid {
-      border-color: var(--success-color);
-      box-shadow: 0 0 0 3px rgb(16, 185, 129, 0.1);
+      border-color: variables.$success;
+      box-shadow: 0 0 0 3px rgb(variables.$success, 0.1);
     }
 
     &.invalid {
-      border-color: var(--error-color);
-      box-shadow: 0 0 0 3px rgb(239, 68, 68, 0.1);
+      border-color: variables.$error;
+      box-shadow: 0 0 0 3px rgb(variables.$error, 0.1);
     }
   }
 }
@@ -138,14 +138,14 @@
 }
 
 .validation-error {
-  color: var(--error-color);
+  color: variables.$error;
   font-size: calc(0.875rem * var(--scale-factor));
   margin-top: calc(0.25rem * var(--scale-factor));
   padding: calc(0.25rem * var(--scale-factor))
     calc(0.5rem * var(--scale-factor));
-  background: rgb(239, 68, 68, 0.1);
+  background: rgb(variables.$error, 0.1);
   border-radius: 4px;
-  border-left: 3px solid var(--error-color);
+  border-left: 3px solid variables.$error;
   animation: slide-down 0.3s ease;
 }
 
@@ -175,4 +175,116 @@
   @include mixins.mobile {
     margin-bottom: calc(var(--base-margin) * var(--scale-factor) * 1.2);
   }
+}
+
+.conditional-field {
+  margin-left: 24px;
+  margin-top: calc(var(--base-margin) * var(--scale-factor) * 0.75);
+  padding-left: 20px;
+  border-left: 3px solid variables.$gray-200;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.active {
+    border-left-color: variables.$primary;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(
+      135deg,
+      variables.$primary,
+      variables.$primary-hover
+    );
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.4s 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &.active::before {
+    transform: scaleY(1);
+  }
+
+  .form-group {
+    margin-bottom: calc(var(--base-margin) * var(--scale-factor) * 1.2);
+  }
+
+  @include mixins.mobile {
+    margin-left: 16px;
+    padding-left: 16px;
+  }
+}
+
+.height-enter {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transform: translateY(-10px);
+}
+
+.height-enter-start {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transform: translateY(-10px);
+}
+
+.height-enter-end {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: calc(var(--base-margin) * var(--scale-factor) * 0.75);
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transform: translateY(0);
+  transition:
+    max-height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    margin 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    padding 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.height-leave {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: calc(var(--base-margin) * var(--scale-factor) * 0.75);
+  margin-bottom: 0;
+  transform: translateY(0);
+}
+
+.height-leave-start {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: calc(var(--base-margin) * var(--scale-factor) * 0.75);
+  margin-bottom: 0;
+  transform: translateY(0);
+}
+
+.height-leave-end {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transform: translateY(-10px);
+  transition:
+    max-height 0.4s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+    opacity 0.3s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+    margin 0.4s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+    padding 0.2s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+    transform 0.3s cubic-bezier(0.55, 0.06, 0.68, 0.19);
 }

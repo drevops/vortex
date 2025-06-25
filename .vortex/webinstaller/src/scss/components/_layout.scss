@@ -1,6 +1,22 @@
 @use '../variables';
 @use '../mixins';
 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, variables.$gradient-start 0%, variables.$gradient-end 100%);
+  height: 100vh;
+  overflow: hidden;
+  color: variables.$gray-800;
+  line-height: 1.4;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;

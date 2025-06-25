@@ -38,11 +38,11 @@
   }
 
   &.active {
-    background: white;
+    background: variables.$white;
     color: variables.$primary;
     border-left-color: variables.$primary;
     font-weight: 600;
-    box-shadow: 2px 0 8px rgb(0, 0, 0, 0.1);
+    box-shadow: 2px 0 8px rgb(variables.$black, 0.1);
   }
 }
 

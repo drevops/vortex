@@ -16,6 +16,11 @@
   --gray-700: #374151;
   --gray-800: #1f2937;
   --gray-900: #111827;
+  --white: #ffffff;
+  --black: #000000;
+  --transparent: transparent;
+  --gradient-start: #667eea;
+  --gradient-end: #764ba2;
 
   // Responsive sizing variables
   --scale-factor: 1;
@@ -38,6 +43,11 @@ $gray-500: var(--gray-500);
 $gray-600: var(--gray-600);
 $gray-700: var(--gray-700);
 $gray-800: var(--gray-800);
+$white: var(--white);
+$black: var(--black);
+$transparent: var(--transparent);
+$gradient-start: var(--gradient-start);
+$gradient-end: var(--gradient-end);
 
 // Transitions
 $transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
